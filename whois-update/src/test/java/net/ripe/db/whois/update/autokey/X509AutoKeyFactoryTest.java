@@ -5,7 +5,6 @@ import net.ripe.db.whois.common.rpsl.AttributeType;
 import net.ripe.db.whois.common.rpsl.RpslObject;
 import net.ripe.db.whois.update.autokey.dao.X509Repository;
 import net.ripe.db.whois.update.domain.X509KeycertId;
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -15,6 +14,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.core.Is.is;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
@@ -49,14 +49,14 @@ public class X509AutoKeyFactoryTest {
 
     @Test
     public void claim_not_supported() {
-        Assertions.assertThrows(ClaimException.class, () -> {
+        assertThrows(ClaimException.class, () -> {
             subject.claim("irrelevant here");
         });
     }
 
     @Test
     public void generate_invalid_placeHolder() {
-        Assertions.assertThrows(IllegalArgumentException.class, () -> {
+        assertThrows(IllegalArgumentException.class, () -> {
             subject.generate("AUTO", RpslObject.parse("key-cert: AUTO"));
         });
     }

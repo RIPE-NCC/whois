@@ -5,7 +5,6 @@ import net.ripe.db.whois.common.domain.Identifiable;
 import net.ripe.db.whois.common.domain.ResponseObject;
 import net.ripe.db.whois.common.rpsl.ObjectType;
 import net.ripe.db.whois.common.rpsl.RpslObject;
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import org.mockito.invocation.InvocationOnMock;
@@ -18,7 +17,8 @@ import java.util.List;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
-import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.hamcrest.Matchers.nullValue;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyList;
 import static org.mockito.Mockito.doAnswer;
@@ -29,7 +29,7 @@ public class CollectionHelperTest {
     @Test
     public void uniqueResult_no_results() {
         final Object result = CollectionHelper.uniqueResult(Arrays.asList());
-        assertNull(result);
+        assertThat(result, is(nullValue()));
     }
 
     @Test
@@ -40,7 +40,7 @@ public class CollectionHelperTest {
 
     @Test
     public void uniqueResult_multiple_results() {
-        Assertions.assertThrows(IllegalStateException.class, () -> {
+        assertThrows(IllegalStateException.class, () -> {
             CollectionHelper.uniqueResult(Arrays.asList(1, 2));
         });
     }

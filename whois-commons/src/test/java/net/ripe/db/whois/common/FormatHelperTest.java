@@ -5,14 +5,14 @@ import org.junit.jupiter.api.Test;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 
-import static org.hamcrest.Matchers.is;
-import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.nullValue;
 
 public class FormatHelperTest {
     @Test
     public void testDateToString_null() {
-        assertNull(FormatHelper.dateToString(null));
+        assertThat(FormatHelper.dateToString(null), is(nullValue()));
     }
 
     @Test
@@ -27,7 +27,7 @@ public class FormatHelperTest {
 
     @Test
     public void testDateTimeToString_null() {
-        assertNull(FormatHelper.dateTimeToString(null));
+        assertThat(FormatHelper.dateTimeToString(null), is(nullValue()));
     }
 
     @Test

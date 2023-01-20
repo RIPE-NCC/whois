@@ -13,9 +13,7 @@ import org.eclipse.jetty.server.RequestLog;
 import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.server.ServerConnector;
 import org.eclipse.jetty.server.handler.HandlerList;
-import org.eclipse.jetty.server.handler.ResourceHandler;
 import org.eclipse.jetty.servlet.FilterHolder;
-import org.eclipse.jetty.util.resource.Resource;
 import org.eclipse.jetty.webapp.WebAppContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -54,15 +52,11 @@ public class JettyBootstrap implements ApplicationService {
     private final boolean rewriteEngineEnabled;
 
     private final boolean dosFilterEnabled;
-
-    private final DelayShutdownHook delayShutdownHook;
-
     @Autowired
     public JettyBootstrap(final RemoteAddressFilter remoteAddressFilter,
                           final ExtensionOverridesAcceptHeaderFilter extensionOverridesAcceptHeaderFilter,
                           final List<ServletDeployer> servletDeployers,
                           final RewriteEngine rewriteEngine,
-                          final DelayShutdownHook delayShutdownHook,
                           @Value("${ipranges.trusted}") final String trustedIpRanges,
                           @Value("${http.idle.timeout.sec:60}") final int idleTimeout,
                           @Value("${dos.filter.enabled:false}") final boolean dosFilterEnabled,
@@ -71,7 +65,6 @@ public class JettyBootstrap implements ApplicationService {
         this.extensionOverridesAcceptHeaderFilter = extensionOverridesAcceptHeaderFilter;
         this.servletDeployers = servletDeployers;
         this.rewriteEngine = rewriteEngine;
-        this.delayShutdownHook = delayShutdownHook;
         this.trustedIpRanges = trustedIpRanges;
         this.rewriteEngineEnabled = rewriteEngineEnabled;
         LOGGER.info("Rewrite engine is {}abled", rewriteEngineEnabled? "en" : "dis");
@@ -100,12 +93,6 @@ public class JettyBootstrap implements ApplicationService {
         return server;
     }
 
-    // handler to serve static resources directly from jetty
-    private ResourceHandler getStaticResourceHandler(String resourceBase) {
-        ResourceHandler resourceHandler = new ResourceHandler();
-        resourceHandler.setBaseResource(Resource.newClassPathResource(resourceBase));
-        return resourceHandler;
-    }
 
     private Server createAndStartServer(final int port) {
         final WebAppContext context = new WebAppContext();
@@ -173,10 +160,9 @@ public class JettyBootstrap implements ApplicationService {
 
     @RetryFor(attempts = 5, value = Exception.class)
     private Server createAndStartServer(int port, HandlerList handlers) throws Exception {
-        delayShutdownHook.register();
         final Server server = new Server(port);
         server.setHandler(handlers);
-        server.setStopAtShutdown(true);
+        server.setStopAtShutdown(false);
         server.setRequestLog(createRequestLog());
 
         final HttpConfiguration httpConfig = new HttpConfiguration();

@@ -55,8 +55,8 @@ abstract class BaseQueryUpdateSpec extends BaseEndToEndSpec {
 
     private void allFixtures() {
         def rpslObjects = Sets.newHashSet();
-        rpslObjects.addAll(basicFixtures.values().collect { RpslObject.parse(it.stripIndent()) })
-        rpslObjects.addAll(fixtures.values().collect { RpslObject.parse(it.stripIndent()) })
+        rpslObjects.addAll(basicFixtures.values().collect { RpslObject.parse(it.stripIndent(true)) })
+        rpslObjects.addAll(fixtures.values().collect { RpslObject.parse(it.stripIndent(true)) })
 
         getDatabaseHelper().addObjects(rpslObjects)
     }
@@ -82,7 +82,7 @@ abstract class BaseQueryUpdateSpec extends BaseEndToEndSpec {
             throw new IllegalArgumentException('No fixture for ${key}')
         }
 
-        return s.stripIndent()
+        return s.stripIndent(true)
     }
 
     Map<String, String> getTransients() {
@@ -95,7 +95,7 @@ abstract class BaseQueryUpdateSpec extends BaseEndToEndSpec {
             throw new IllegalArgumentException('No transient for ${key}')
         }
 
-        return s.stripIndent()
+        return s.stripIndent(true)
     }
 
     def dbfixture(String string) {

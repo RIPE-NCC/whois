@@ -27,6 +27,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import javax.ws.rs.BadRequestException;
 import javax.ws.rs.ClientErrorException;
 import javax.ws.rs.NotFoundException;
+import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.client.WebTarget;
 import javax.ws.rs.core.MediaType;
 import java.io.IOException;
@@ -38,6 +39,7 @@ import java.util.List;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
+import static net.ripe.db.whois.common.support.DateMatcher.isBefore;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.Matchers.containsInAnyOrder;
@@ -45,7 +47,6 @@ import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
 
 @Tag("ElasticSearchTest")
@@ -270,9 +271,9 @@ public class WhoisRdapElasticServiceTestIntegration extends AbstractElasticSearc
 
         final List<Event> events = domain.getEvents();
         assertThat(events, hasSize(2));
-        assertTrue(events.get(0).getEventDate().isBefore(LocalDateTime.now()));
+        assertThat(events.get(0).getEventDate(), isBefore(LocalDateTime.now()));
         assertThat(events.get(0).getEventAction(), is(Action.REGISTRATION));
-        assertTrue(events.get(1).getEventDate().isBefore(LocalDateTime.now()));
+        assertThat(events.get(1).getEventDate(), isBefore(LocalDateTime.now()));
         assertThat(events.get(1).getEventAction(), is(Action.LAST_CHANGED));
 
         final List<Entity> entities = domain.getEntitySearchResults();
@@ -287,7 +288,11 @@ public class WhoisRdapElasticServiceTestIntegration extends AbstractElasticSearc
         assertThat(notices.get(1).getTitle(), is("Source"));
         assertTnCNotice(notices.get(2), "https://rdap.db.ripe.net/domain/31.12.202.in-addr.arpa");
 
-        assertCopyrightLink(domain.getLinks(), "https://rdap.db.ripe.net/domain/31.12.202.in-addr.arpa");
+         final List<Link> links= domain.getLinks();
+        assertThat(links, hasSize(1));
+
+        assertThat(links.get(0).getRel(), is("copyright"));
+        assertThat(links.get(0).getHref(), is("http://www.ripe.net/data-tools/support/documentation/terms"));
     }
 
     @Test
@@ -321,8 +326,10 @@ public class WhoisRdapElasticServiceTestIntegration extends AbstractElasticSearc
                     .request(MediaType.APPLICATION_JSON_TYPE)
                     .get(Domain.class);
             fail();
-        } catch (NotFoundException e) {
-            assertErrorTitle(e, "RIPE NCC does not support forward domain queries.");
+        } catch (BadRequestException e) {
+            assertErrorStatus(e, 400);
+            assertErrorTitle(e, "400 Not Found");
+            assertErrorDescription(e, "RIPE NCC does not support forward domain queries.");
         }
     }
 
@@ -567,7 +574,9 @@ public class WhoisRdapElasticServiceTestIntegration extends AbstractElasticSearc
                     .get(Entity.class);
             fail();
         } catch (BadRequestException e) {
-            assertErrorTitle(e, "bad request");
+            assertErrorStatus(e, 400);
+            assertErrorTitle(e, "400 Bad Request");
+            assertErrorDescription(e, "The server is not able to process the request");
         }
     }
 
@@ -579,7 +588,9 @@ public class WhoisRdapElasticServiceTestIntegration extends AbstractElasticSearc
                     .get(Entity.class);
             fail();
         } catch (BadRequestException e) {
-            assertErrorTitle(e, "bad request");
+            assertErrorStatus(e, 400);
+            assertErrorTitle(e, "400 Bad Request");
+            assertErrorDescription(e, "The server is not able to process the request");
         }
     }
 
@@ -591,7 +602,9 @@ public class WhoisRdapElasticServiceTestIntegration extends AbstractElasticSearc
                     .get(Entity.class);
             fail();
         } catch (BadRequestException e) {
-            assertErrorTitle(e, "empty search term");
+            assertErrorStatus(e, 400);
+            assertErrorTitle(e, "400 Bad Request");
+            assertErrorDescription(e, "Empty search term");
         }
     }
 
@@ -603,7 +616,9 @@ public class WhoisRdapElasticServiceTestIntegration extends AbstractElasticSearc
                     .get(Entity.class);
             fail();
         } catch (BadRequestException e) {
-            assertErrorTitle(e, "empty search term");
+            assertErrorStatus(e, 400);
+            assertErrorTitle(e, "400 Bad Request");
+            assertErrorDescription(e, "Empty search term");
         }
     }
 
@@ -646,7 +661,11 @@ public class WhoisRdapElasticServiceTestIntegration extends AbstractElasticSearc
                 fail();
             } catch (ClientErrorException e) {
                 assertErrorStatus(e, 429);
-                assertErrorTitleContains(e, "%ERROR:201: access denied for 127.0.0.1");
+                assertErrorTitleContains(e, "429 Too Many Requests");
+                assertErrorDescription(e,"%ERROR:201: access denied for 127.0.0.1\n%\n% Sorry, access from your host " +
+                        "has been permanently\n% denied because of a repeated excessive querying.\n% For more " +
+                        "information, see\n% http://www.ripe" +
+                        ".net/data-tools/db/faq/faq-db/why-did-you-receive-the-error-201-access-denied\n");
             }
         } finally {
             databaseHelper.unban(LOCALHOST_WITH_PREFIX);
@@ -680,19 +699,6 @@ public class WhoisRdapElasticServiceTestIntegration extends AbstractElasticSearc
         assertThat(object.getRdapConformance(), containsInAnyOrder("rdap_level_0", "cidr0", "nro_rdap_profile_0"));
     }
 
-    private void assertCopyrightLink(final List<Link> links, final String value) {
-        assertThat(links, hasSize(2));
-        Collections.sort(links);
-
-        assertThat(links.get(0).getRel(), is("copyright"));
-        assertThat(links.get(0).getHref(), is("http://www.ripe.net/data-tools/support/documentation/terms"));
-        assertThat(links.get(0).getHref(), is("http://www.ripe.net/data-tools/support/documentation/terms"));
-
-        assertThat(links.get(1).getRel(), is("self"));
-        assertThat(links.get(1).getValue(), is(value));
-        assertThat(links.get(1).getHref(), is(value));
-    }
-
     private void assertTnCNotice(final Notice notice, final String value) {
         assertThat(notice.getTitle(), is("Terms and Conditions"));
         assertThat(notice.getDescription(), contains("This is the RIPE Database query service. The objects are in RDAP format."));
@@ -719,6 +725,10 @@ public class WhoisRdapElasticServiceTestIntegration extends AbstractElasticSearc
 
     }
 
+    protected void assertErrorDescription(final WebApplicationException exception, final String description) {
+        final Entity entity = exception.getResponse().readEntity(Entity.class);
+        assertThat(entity.getDescription().get(0), is(description));
+    }
     protected void assertErrorTitle(final ClientErrorException exception, final String title) {
         final Entity entity = exception.getResponse().readEntity(Entity.class);
         assertThat(entity.getErrorTitle(), is(title));

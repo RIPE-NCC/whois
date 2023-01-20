@@ -6,11 +6,9 @@ import net.ripe.db.whois.common.rpsl.attrs.AttributeParseException;
 import net.ripe.db.whois.common.rpsl.attrs.AutNum;
 import net.ripe.db.whois.common.rpsl.attrs.Domain;
 import net.ripe.db.whois.update.domain.ReservedResources;
+import org.eclipse.jetty.http.HttpStatus;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-
-import javax.ws.rs.BadRequestException;
-import javax.ws.rs.NotFoundException;
 
 import static net.ripe.db.whois.common.rpsl.ObjectType.MNTNER;
 import static net.ripe.db.whois.common.rpsl.ObjectType.ORGANISATION;
@@ -28,13 +26,14 @@ public class RdapRequestValidator {
 
     public void validateDomain(final String key) {
         if (isEmpty(key)) {
-            throw new BadRequestException("empty lookup term");
+            throw new RdapException("400 Bad Request", "empty lookup term", HttpStatus.BAD_REQUEST_400);
         }
 
         try {
             Domain.parse(key);
         } catch (AttributeParseException e) {
-            throw new NotFoundException("RIPE NCC does not support forward domain queries.");
+            throw new RdapException("400 Not Found", "RIPE NCC does not support forward domain queries.",
+                    HttpStatus.BAD_REQUEST_400);
         }
     }
 
@@ -42,11 +41,11 @@ public class RdapRequestValidator {
         try {
             IpInterval.parse(key);
         } catch (IllegalArgumentException e) {
-            throw new BadRequestException("Invalid syntax.");
+            throw new RdapException("Invalid syntax.", e.getMessage(), HttpStatus.BAD_REQUEST_400);
         }
 
         if (rawUri.contains("//")) {
-            throw new BadRequestException("Invalid syntax.");
+            throw new RdapException("Invalid syntax.", "Uri contains //", HttpStatus.BAD_REQUEST_400);
         }
     }
 
@@ -54,18 +53,18 @@ public class RdapRequestValidator {
         try {
             AutNum.parse(key);
         } catch (AttributeParseException e) {
-            throw new BadRequestException("Invalid syntax.");
+            throw new RdapException("Invalid syntax.", e.getMessage(), HttpStatus.BAD_REQUEST_400);
         }
     }
 
     public void validateEntity(final String key) {
         if (key.toUpperCase().startsWith("ORG-")) {
             if (!AttributeType.ORGANISATION.isValidValue(ORGANISATION, key)) {
-                throw new NotFoundException("Invalid syntax.");
+                throw new RdapException("400 Bad Request", "Bad organisation or mntner syntax: " + key, HttpStatus.BAD_REQUEST_400);
             }
         } else {
             if (!AttributeType.MNTNER.isValidValue(MNTNER, key)) {
-                throw new NotFoundException("Invalid syntax.");
+                throw new RdapException("400 Bad Request", "Bad organisation or mntner syntax: " + key, HttpStatus.BAD_REQUEST_400);
             }
         }
     }

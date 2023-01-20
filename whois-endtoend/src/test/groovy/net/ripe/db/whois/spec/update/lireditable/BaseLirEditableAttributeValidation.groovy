@@ -28,7 +28,7 @@ class BaseLirEditableAttributeValidation extends BaseLirEditableAttributes {
                 source:       TEST
                 password: lir
                 password: owner3
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:
@@ -64,7 +64,7 @@ class BaseLirEditableAttributeValidation extends BaseLirEditableAttributes {
                 mnt-by:       LIR-MNT
                 source:       TEST
                 password: lir
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:
@@ -99,7 +99,7 @@ class BaseLirEditableAttributeValidation extends BaseLirEditableAttributes {
                 mnt-by:       LIR-MNT
                 source:       TEST
                 password: ${resourceRipeMntnerPassword}
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:
@@ -138,7 +138,7 @@ class BaseLirEditableAttributeValidation extends BaseLirEditableAttributes {
                 mnt-by:       LIR-MNT
                 source:       TEST
                 password: ${resourceRipeMntnerPassword}
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:
@@ -177,7 +177,7 @@ class BaseLirEditableAttributeValidation extends BaseLirEditableAttributes {
                 mnt-by:       LIR2-MNT              # changed
                 source:       TEST
                 override:     denis,override1
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:

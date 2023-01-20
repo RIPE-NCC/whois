@@ -110,7 +110,7 @@ class OrganisationIntegrationSpec extends BaseWhoisSourceSpec {
             mnt-ref:      TST-MNT
             source:       TEST
             password: update
-              """.stripIndent())
+              """.stripIndent(true))
 
       when:
         def response = syncUpdate org
@@ -144,7 +144,7 @@ class OrganisationIntegrationSpec extends BaseWhoisSourceSpec {
 
     def "update organisation"() {
       given:
-        def update = new SyncUpdate(data: fixtures["ORG1"].stripIndent() + "password:update")
+        def update = new SyncUpdate(data: fixtures["ORG1"].stripIndent(true) + "password:update")
 
       when:
         def result = syncUpdate update
@@ -155,7 +155,7 @@ class OrganisationIntegrationSpec extends BaseWhoisSourceSpec {
 
     def "delete organisation"() {
       given:
-        def delete = new SyncUpdate(data: fixtures["ORG1"].stripIndent() + "delete: true\npassword:update")
+        def delete = new SyncUpdate(data: fixtures["ORG1"].stripIndent(true) + "delete: true\npassword:update")
 
       when:
         def result = syncUpdate delete
@@ -166,7 +166,7 @@ class OrganisationIntegrationSpec extends BaseWhoisSourceSpec {
 
     def "incorrect organisation attribute fail"() {
       given:
-        def data = fixtures["ORG1"].stripIndent() + "password:update"
+        def data = fixtures["ORG1"].stripIndent(true) + "password:update"
         data = (data =~ /organisation: ORG-TOL1-TEST/).replaceFirst("organisation: ORG-something")
 
         def incorrect = new SyncUpdate(data: data)
@@ -180,7 +180,7 @@ class OrganisationIntegrationSpec extends BaseWhoisSourceSpec {
 
     def "incorrect orgtype fail"() {
       given:
-        def data = fixtures["ORG1"].stripIndent() + "password:update"
+        def data = fixtures["ORG1"].stripIndent(true) + "password:update"
         data = (data =~ /org-type:     OTHER/).replaceFirst("org-type: WRONG")
         def incorrect = new SyncUpdate(data: data)
 
@@ -205,7 +205,7 @@ class OrganisationIntegrationSpec extends BaseWhoisSourceSpec {
             mnt-by:       RIPE-NCC-HM-MNT
             source:       TEST
             password:     update
-            """.stripIndent()
+            """.stripIndent(true)
 
         def update = new SyncUpdate(data: data)
 
@@ -224,7 +224,7 @@ class OrganisationIntegrationSpec extends BaseWhoisSourceSpec {
             address:      Singel 258
             e-mail:        bitbucket@ripe.net
             source:       TEST
-              """.stripIndent())
+              """.stripIndent(true))
 
       when:
         def response = syncUpdate org
@@ -246,7 +246,7 @@ class OrganisationIntegrationSpec extends BaseWhoisSourceSpec {
             mnt-ref:      TST-MNT
             source:       TEST
             password: invalid
-              """.stripIndent())
+              """.stripIndent(true))
 
       when:
         def response = syncUpdate org
@@ -256,7 +256,7 @@ class OrganisationIntegrationSpec extends BaseWhoisSourceSpec {
             \\*\\*\\*Error:   Authorisation for \\[organisation\\] ORG-RNO1-TEST failed
                         using "mnt-by:"
                         not authenticated by: TST-MNT
-            """.stripIndent()
+            """.stripIndent(true)
     }
 
     def "create organisation with non-existent org attribute"() {
@@ -271,7 +271,7 @@ class OrganisationIntegrationSpec extends BaseWhoisSourceSpec {
             mnt-ref:      TST-MNT
             source:       TEST
             password: update
-              """.stripIndent())
+              """.stripIndent(true))
 
       when:
         def response = syncUpdate org
@@ -292,7 +292,7 @@ class OrganisationIntegrationSpec extends BaseWhoisSourceSpec {
             mnt-ref:      TST-MNT
             source:       TEST
             password: update
-              """.stripIndent())
+              """.stripIndent(true))
 
       when:
         deleteObject("TST-MNT2")
@@ -315,7 +315,7 @@ class OrganisationIntegrationSpec extends BaseWhoisSourceSpec {
             mnt-ref:      TST-MNT
             source:       TEST
             password: invalid
-              """.stripIndent())
+              """.stripIndent(true))
 
       when:
         def response = syncUpdate org
@@ -325,7 +325,7 @@ class OrganisationIntegrationSpec extends BaseWhoisSourceSpec {
             \\*\\*\\*Error:   Authorisation for \\[organisation\\] ORG-TOL1-TEST failed
                         using "mnt-ref:"
                         not authenticated by: TST-MNT
-            """.stripIndent()
+            """.stripIndent(true)
     }
 
     def "create selfreferencing organisation"() {
@@ -341,7 +341,7 @@ class OrganisationIntegrationSpec extends BaseWhoisSourceSpec {
             source:       TEST
             org:    AUTO-1
             password: update
-              """.stripIndent())
+              """.stripIndent(true))
 
       when:
         def response = syncUpdate data
@@ -353,7 +353,7 @@ class OrganisationIntegrationSpec extends BaseWhoisSourceSpec {
 
     def "update selfreferencing organisation"() {
       given:
-        def data = fixtures["ORG1"].stripIndent() + "org:ORG-TOL1-TEST\npassword:update"
+        def data = fixtures["ORG1"].stripIndent(true) + "org:ORG-TOL1-TEST\npassword:update"
         def update = new SyncUpdate(data: data)
 
       when:
@@ -366,10 +366,10 @@ class OrganisationIntegrationSpec extends BaseWhoisSourceSpec {
 
     def "delete selfreferencing organisation"() {
       given:
-        def update = new SyncUpdate(data: fixtures["ORG1"].stripIndent() + "org:ORG-TOL1-TEST\npassword:update")
+        def update = new SyncUpdate(data: fixtures["ORG1"].stripIndent(true) + "org:ORG-TOL1-TEST\npassword:update")
         syncUpdate update
 
-        def delete = new SyncUpdate(data: fixtures["ORG1"].stripIndent() + "org:ORG-TOL1-TEST\ndelete:true\npassword:update")
+        def delete = new SyncUpdate(data: fixtures["ORG1"].stripIndent(true) + "org:ORG-TOL1-TEST\ndelete:true\npassword:update")
 
       when:
         def response = syncUpdate delete
@@ -391,7 +391,7 @@ class OrganisationIntegrationSpec extends BaseWhoisSourceSpec {
                 mnt-ref:      TST-MNT
                 source:       TEST
                 password: update
-                """.stripIndent())
+                """.stripIndent(true))
       when:
         def response = syncUpdate update
 
@@ -416,7 +416,7 @@ class OrganisationIntegrationSpec extends BaseWhoisSourceSpec {
                 mnt-ref:      TST-MNT
                 source:       TEST
                 password: update
-                """.stripIndent())
+                """.stripIndent(true))
       when:
         def response = syncUpdate update
 
@@ -438,7 +438,7 @@ class OrganisationIntegrationSpec extends BaseWhoisSourceSpec {
                 mnt-ref:      TST-MNT
                 source:       TEST
                 password: update
-                """.stripIndent())
+                """.stripIndent(true))
       when:
         def response = syncUpdate update
 
@@ -459,7 +459,7 @@ class OrganisationIntegrationSpec extends BaseWhoisSourceSpec {
                 mnt-ref:      TST-MNT
                 source:       TEST
                 password: update
-                """.stripIndent())
+                """.stripIndent(true))
       when:
         def response = syncUpdate update
 
@@ -491,7 +491,7 @@ class OrganisationIntegrationSpec extends BaseWhoisSourceSpec {
                   mnt-ref:      TST-MNT
                   source:       TEST
                   password: update
-                  """.stripIndent())
+                  """.stripIndent(true))
       when:
         def response = syncUpdate update
 
@@ -522,7 +522,7 @@ class OrganisationIntegrationSpec extends BaseWhoisSourceSpec {
                   mnt-ref:      TST-MNT
                   source:       TEST
                   password: update
-                  """.stripIndent())
+                  """.stripIndent(true))
       when:
         def response = syncUpdate update
 
@@ -552,7 +552,7 @@ class OrganisationIntegrationSpec extends BaseWhoisSourceSpec {
                   mnt-ref:      TST-MNT
                   source:       TEST
                   password: update
-                  """.stripIndent())
+                  """.stripIndent(true))
       when:
         def response = syncUpdate update
 
@@ -592,7 +592,7 @@ class OrganisationIntegrationSpec extends BaseWhoisSourceSpec {
                       mnt-ref:      TST-MNT
                       source:       TEST
                       password: update
-                      """.stripIndent())
+                      """.stripIndent(true))
       when:
         def response = syncUpdate update
 
@@ -632,7 +632,7 @@ class OrganisationIntegrationSpec extends BaseWhoisSourceSpec {
                         mnt-ref:      TST-MNT
                         source:       TEST
                         password: update
-                        """.stripIndent())
+                        """.stripIndent(true))
       when:
         def response = syncUpdate update
 
@@ -780,7 +780,7 @@ class OrganisationIntegrationSpec extends BaseWhoisSourceSpec {
                 mnt-ref:      TST-MNT
                 source:       TEST
                 password: update
-                """.stripIndent())
+                """.stripIndent(true))
 
       then:
         response =~ /Modify SUCCEEDED: \[organisation\] ORG-TO1-TEST/
@@ -815,7 +815,7 @@ class OrganisationIntegrationSpec extends BaseWhoisSourceSpec {
                 mnt-ref:      TST-MNT
                 source:       TEST
                 password: update
-                """.stripIndent())
+                """.stripIndent(true))
 
       then:
         response =~ /Modify SUCCEEDED: \[organisation\] ORG-TO1-TEST/
@@ -850,7 +850,7 @@ class OrganisationIntegrationSpec extends BaseWhoisSourceSpec {
                 mnt-ref:      TST-MNT
                 source:       TEST
                 password: update
-                """.stripIndent())
+                """.stripIndent(true))
 
       then:
         response =~ /Modify SUCCEEDED: \[organisation\] ORG-TO1-TEST/
@@ -891,7 +891,7 @@ class OrganisationIntegrationSpec extends BaseWhoisSourceSpec {
                 mnt-ref:      TST-MNT
                 source:       TEST
                 password:     end
-                """.stripIndent())
+                """.stripIndent(true))
 
       then:
         response =~ /Modify SUCCEEDED: \[organisation\] ORG-TO1-TEST/
@@ -925,7 +925,7 @@ class OrganisationIntegrationSpec extends BaseWhoisSourceSpec {
                 mnt-ref:      TST-MNT
                 source:       TEST
                 override:   denis,override1
-                """.stripIndent())
+                """.stripIndent(true))
 
       then:
         response =~ /Modify SUCCEEDED: \[organisation\] ORG-TO1-TEST/
@@ -953,7 +953,7 @@ class OrganisationIntegrationSpec extends BaseWhoisSourceSpec {
                 mnt-ref:      TST-MNT
                 source:       TEST
                 password: update
-                """.stripIndent())
+                """.stripIndent(true))
 
         then:
         response =~ /\\*\\*\\*Error:   Attribute \"address:\" can only be changed via the LIR portal./
@@ -983,7 +983,7 @@ class OrganisationIntegrationSpec extends BaseWhoisSourceSpec {
                 remarks:      Not a NOOP
                 source:       TEST
                 password: update
-                """.stripIndent())
+                """.stripIndent(true))
         then:
         response =~ /\\*\\*\\*Error:   Attribute \"org-name:\" can only be changed via the LIR portal./
     }
@@ -1011,7 +1011,7 @@ class OrganisationIntegrationSpec extends BaseWhoisSourceSpec {
                 remarks:      Not a NOOP
                 source:       TEST
                 password: update
-                """.stripIndent())
+                """.stripIndent(true))
         then:
         response =~ /Modify SUCCEEDED: \[organisation\] ORG-TO1-TEST/
     }
@@ -1045,7 +1045,7 @@ class OrganisationIntegrationSpec extends BaseWhoisSourceSpec {
                 mnt-ref:      TST-MNT
                 source:       TEST
                 password: update
-                """.stripIndent())
+                """.stripIndent(true))
 
         then:
         response =~ /\\*\\*\\*Error:   Attribute \"address:\" can only be changed via the LIR portal./
@@ -1082,7 +1082,7 @@ class OrganisationIntegrationSpec extends BaseWhoisSourceSpec {
                 remarks:      Not a NOOP
                 source:       TEST
                 password: update
-                """.stripIndent())
+                """.stripIndent(true))
 
         then:
         response =~ /\\*\\*\\*Error:   Attribute \"org-name:\" can only be changed via the LIR portal./
@@ -1117,7 +1117,7 @@ class OrganisationIntegrationSpec extends BaseWhoisSourceSpec {
                 mnt-ref:      TST-MNT
                 source:       TEST
                 password: update
-                """.stripIndent())
+                """.stripIndent(true))
 
         then:
         response =~ /\\*\\*\\*Error:   Attribute \"address:\" can only be changed via the LIR portal./
@@ -1159,7 +1159,7 @@ class OrganisationIntegrationSpec extends BaseWhoisSourceSpec {
                 mnt-ref:      TST-MNT
                 source:       TEST
                 password:     end
-                """.stripIndent())
+                """.stripIndent(true))
 
         then:
         response =~ /\\*\\*\\*Error:   Attribute \"address:\" can only be changed via the LIR portal./
@@ -1206,7 +1206,7 @@ class OrganisationIntegrationSpec extends BaseWhoisSourceSpec {
                 remarks:      Not a NOOP
                 source:       TEST
                 password:     update
-                """.stripIndent())
+                """.stripIndent(true))
 
         then:
         response =~ /\\*\\*\\*Error:   Attribute "org-name:" can only be changed by the RIPE NCC for this
@@ -1242,7 +1242,7 @@ class OrganisationIntegrationSpec extends BaseWhoisSourceSpec {
                 mnt-ref:      TST-MNT
                 source:       TEST
                 override:   denis,override1
-                """.stripIndent())
+                """.stripIndent(true))
 
         then:
         response =~ /Modify SUCCEEDED: \[organisation\] ORG-TO1-TEST/
@@ -1260,14 +1260,14 @@ class OrganisationIntegrationSpec extends BaseWhoisSourceSpec {
                 mnt-ref:      TST-MNT
                 source:       TEST
                 password: update
-                """.stripIndent())
+                """.stripIndent(true))
 
         then:
         response =~ /Create FAILED: \[organisation\] AUTO-1/
         response =~ """
             \\*\\*\\*Error:   Tab characters, multiple lines, or multiple whitespaces are not
                         allowed in the "org-name:" value.
-            """.stripIndent()
+            """.stripIndent(true)
     }
 
     def "inconsistent org-name not allowed on create LIR organisation"() {
@@ -1282,14 +1282,14 @@ class OrganisationIntegrationSpec extends BaseWhoisSourceSpec {
                 mnt-ref:      TST-MNT
                 source:       TEST
                 override:   denis,override1
-                """.stripIndent())
+                """.stripIndent(true))
 
         then:
         response =~ /Create FAILED: \[organisation\] AUTO-1/
         response =~ """
             \\*\\*\\*Error:   Tab characters, multiple lines, or multiple whitespaces are not
                         allowed in the "org-name:" value.
-            """.stripIndent()
+            """.stripIndent(true)
     }
 
     def "inconsistent org-name not allowed on modify OTHER organisation"() {
@@ -1315,14 +1315,14 @@ class OrganisationIntegrationSpec extends BaseWhoisSourceSpec {
                 mnt-ref:      TST-MNT
                 source:       TEST
                 password: update
-                """.stripIndent())
+                """.stripIndent(true))
 
         then:
         response =~ /Modify FAILED: \[organisation\] ORG-ION1-TEST/
         response =~ """
             \\*\\*\\*Error:   Tab characters, multiple lines, or multiple whitespaces are not
                         allowed in the "org-name:" value.
-            """.stripIndent()
+            """.stripIndent(true)
     }
 
 }

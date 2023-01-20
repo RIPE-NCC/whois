@@ -120,7 +120,7 @@ class PgpSignedMessageSpec extends BaseQueryUpdateSpec {
                 source:      TEST
 
                 password: test
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:
@@ -153,7 +153,7 @@ class PgpSignedMessageSpec extends BaseQueryUpdateSpec {
                 source:      TEST
 
                 password: test
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:
@@ -197,7 +197,7 @@ class PgpSignedMessageSpec extends BaseQueryUpdateSpec {
                 -----END PGP SIGNATURE-----
 
                 password: test
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:
@@ -241,7 +241,7 @@ class PgpSignedMessageSpec extends BaseQueryUpdateSpec {
                 certif:       -----END PGP PUBLIC KEY BLOCK-----
                 mnt-by:       TST-MNT
                 source:       TEST
-                password:     test""".stripIndent())
+                password:     test""".stripIndent(true))
 
         then:
         def ack = new AckResponse("", create)
@@ -276,7 +276,7 @@ class PgpSignedMessageSpec extends BaseQueryUpdateSpec {
                 source:      TEST
 
                 password: test
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:
@@ -314,7 +314,7 @@ class PgpSignedMessageSpec extends BaseQueryUpdateSpec {
                 source:      TEST
 
                 password: test
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:
@@ -360,7 +360,7 @@ class PgpSignedMessageSpec extends BaseQueryUpdateSpec {
                 =kHbd
                 -----END PGP SIGNATURE-----
 
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:
@@ -407,7 +407,7 @@ class PgpSignedMessageSpec extends BaseQueryUpdateSpec {
                 =XSlL
                 -----END PGP SIGNATURE-----
 
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:
@@ -447,7 +447,7 @@ class PgpSignedMessageSpec extends BaseQueryUpdateSpec {
                 notify:              dbtest@ripe.net
                 source:              TEST
                 override:            denis,override1
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:
@@ -488,7 +488,7 @@ class PgpSignedMessageSpec extends BaseQueryUpdateSpec {
                 mnt-by:       TST-MNT2
                 source:       TEST
                 override:     denis,override1
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:
@@ -515,7 +515,7 @@ class PgpSignedMessageSpec extends BaseQueryUpdateSpec {
                 certif:       -----END PGP PUBLIC KEY BLOCK-----
                 mnt-by:       TEST-MNT
                 source:       TEST
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:
@@ -575,7 +575,7 @@ class PgpSignedMessageSpec extends BaseQueryUpdateSpec {
                 source:      TEST
 
                 password: test
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:
@@ -642,7 +642,7 @@ class PgpSignedMessageSpec extends BaseQueryUpdateSpec {
                 delete: test delete
 
                 password: test
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:
@@ -710,7 +710,7 @@ class PgpSignedMessageSpec extends BaseQueryUpdateSpec {
                 source:         TEST
                 delete: test delete
 
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:
@@ -907,7 +907,7 @@ class PgpSignedMessageSpec extends BaseQueryUpdateSpec {
                 source:       TEST
 
                 password: test
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:

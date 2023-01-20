@@ -30,9 +30,9 @@ import java.time.LocalDateTime;
 import java.util.Arrays;
 
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.is;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.hamcrest.Matchers.not;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.verify;
@@ -313,11 +313,11 @@ public class PgpCredentialValidatorTest {
         final PgpCredential first = PgpCredential.createKnownCredential("PGPKEY-AAAAAAAA");
         final PgpCredential second = PgpCredential.createKnownCredential("PGPKEY-BBBBBBBB");
 
-        assertTrue(first.equals(first));
-        assertFalse(first.equals(second));
+        assertThat(first, equalTo(first));
+        assertThat(first, not(equalTo(second)));
 
-        assertFalse(first.hashCode() == second.hashCode());
-        assertTrue(first.hashCode() == first.hashCode());
+        assertThat((first.hashCode() == second.hashCode()), is(false));
+        assertThat((first.hashCode() == first.hashCode()), is(true));
     }
 
     @Test
@@ -325,11 +325,11 @@ public class PgpCredentialValidatorTest {
         final PgpCredential first = PgpCredential.createOfferedCredential("signedData1", "signature1", StandardCharsets.ISO_8859_1);
         final PgpCredential second = PgpCredential.createOfferedCredential("signedData2", "signature2", StandardCharsets.ISO_8859_1);
 
-        assertTrue(first.equals(first));
-        assertFalse(first.equals(second));
+        assertThat(first, equalTo(first));
+        assertThat(first, not(equalTo(second)));
 
-        assertFalse(first.hashCode() == second.hashCode());
-        assertTrue(first.hashCode() == first.hashCode());
+        assertThat((first.hashCode() == second.hashCode()), is(false));
+        assertThat((first.hashCode() == first.hashCode()), is(true));
     }
 
     @Test
@@ -337,8 +337,8 @@ public class PgpCredentialValidatorTest {
         final PgpCredential known = PgpCredential.createKnownCredential("X509-1");
         final PgpCredential offered = PgpCredential.createOfferedCredential("signedData", "signature", StandardCharsets.ISO_8859_1);
 
-        assertFalse(known.equals(offered));
-        assertFalse(known.hashCode() == offered.hashCode());
+        assertThat(known, not(equalTo(offered)));
+        assertThat((known.hashCode() == offered.hashCode()), is(false));
     }
 
     @Test

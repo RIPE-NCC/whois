@@ -354,10 +354,6 @@ public class ResponseFactoryTest {
                 "\n" +
                 "http://www.ripe.net/data-tools/support/documentation\n" +
                 "\n" +
-                "RIPE Database FAQ is available at\n" +
-                "\n" +
-                "http://www.ripe.net/data-tools/db/faq\n" +
-                "\n" +
                 "RPSL RFCs are available at\n" +
                 "\n" +
                 "ftp://ftp.ripe.net/rfc/rfc2622.txt\n" +

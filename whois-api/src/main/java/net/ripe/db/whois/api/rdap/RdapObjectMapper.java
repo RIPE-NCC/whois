@@ -155,6 +155,16 @@ class RdapObjectMapper {
         return mapCommons(searchResult, requestUrl);
     }
 
+    public Object mapDomainEntity(final String requestUrl, final RpslObject domainResult,
+                                  final RpslObject inetnumResult){
+        final RdapObject domain = getRdapObject(requestUrl, domainResult, Optional.empty());
+        if (inetnumResult != null) {
+            domain.setNetwork((Ip) getRdapObject(requestUrl, inetnumResult, Optional.empty()));
+        }
+        final RdapObject rdapObject = mapCommonNoticesAndPort(domain, requestUrl);
+        rdapObject.getLinks().add(COPYRIGHT_LINK);
+        return mapCommonConformances(rdapObject);
+    }
     public Object mapOrganisationEntity(final String requestUrl, final RpslObject organisationObject,
                                         final Stream<RpslObject> autnumResult,
                                         final Stream<RpslObject> inetnumResult,
@@ -192,7 +202,8 @@ class RdapObjectMapper {
     }
 
     public RdapObject mapHelp(final String requestUrl) {
-        final RdapObject rdapObject =  mapCommonNoticesLinksAndPort(new RdapObject(), requestUrl);
+        final RdapObject rdapObject = mapCommonNoticesAndPort(new RdapObject(), requestUrl);
+        mapCommonLinks(rdapObject, requestUrl);
         rdapObject.getRdapConformance().addAll(Stream.of(RdapConformance.values()).map(RdapConformance::getValue).collect(Collectors.toList()));
         return rdapObject;
     }
@@ -254,19 +265,19 @@ class RdapObjectMapper {
         return rdapResponse;
     }
     private RdapObject mapCommons(final RdapObject rdapResponse, final String requestUrl) {
-        final RdapObject rdapObject = mapCommonNoticesLinksAndPort(rdapResponse, requestUrl);
+        final RdapObject rdapObject = mapCommonNoticesAndPort(rdapResponse, requestUrl);
+        mapCommonLinks(rdapObject, requestUrl);
         return mapCommonConformances(rdapObject);
     }
 
-    private RdapObject mapCommonNoticesLinksAndPort(final RdapObject rdapResponse, final String requestUrl){
-        rdapResponse.getNotices().add(noticeFactory.generateTnC(requestUrl));
-
+    private void mapCommonLinks(final RdapObject rdapResponse, final String requestUrl){
         if (requestUrl != null) {
             rdapResponse.getLinks().add(new Link(requestUrl, "self", requestUrl, null, null));
         }
-
         rdapResponse.getLinks().add(COPYRIGHT_LINK);
-
+    }
+    private RdapObject mapCommonNoticesAndPort(final RdapObject rdapResponse, final String requestUrl){
+        rdapResponse.getNotices().add(noticeFactory.generateTnC(requestUrl));
         rdapResponse.setPort43(port43);
         return rdapResponse;
     }

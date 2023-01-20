@@ -15,6 +15,7 @@ import java.util.List;
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(name = "rdapObject", propOrder = {
     "networks",
+    "network",
     "autnums",
     "status",
     "entities",
@@ -38,6 +39,8 @@ import java.util.List;
 public class RdapObject implements Serializable {
 
     protected List<Ip> networks;
+
+    protected Ip network;
     protected List<Autnum> autnums;
     protected List<Object> status;
     protected List<Entity> entities;
@@ -101,6 +104,10 @@ public class RdapObject implements Serializable {
             networks = Lists.newArrayList();
         }
         return networks;
+    }
+
+    public Ip getNetwork() {
+        return network;
     }
 
     public List<Autnum> getAutnums() {
@@ -180,5 +187,9 @@ public class RdapObject implements Serializable {
 
     public void setNetworks(final List<Ip> networks) {
         this.networks = networks;
+    }
+
+    public void setNetwork(final Ip network) {
+        this.network = network;
     }
 }

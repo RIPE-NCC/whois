@@ -6,7 +6,6 @@ import net.ripe.db.whois.common.sso.AuthServiceClient;
 import net.ripe.db.whois.common.sso.AuthServiceClientException;
 import net.ripe.db.whois.common.sso.SsoTokenTranslator;
 import net.ripe.db.whois.common.sso.UserSession;
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -17,6 +16,7 @@ import java.util.Collections;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 
@@ -180,7 +180,7 @@ public class FilterAuthFunctionTest {
 
     @Test
     public void crowd_client_exception() {
-        Assertions.assertThrows(AuthServiceClientException.class, () -> {
+        assertThrows(AuthServiceClientException.class, () -> {
             final UserSession userSession = new UserSession("d06e5500-ac91-4336-94f3-76cab38b73eb","user@host.org", "Test User", true, "2033-01-30T16:38:27.369+11:00");
 
             when(ssoTokenTranslator.translateSsoToken("token")).thenReturn(userSession);

@@ -37,7 +37,7 @@ class PingSpec extends BaseQueryUpdateSpec {
                 password:   mb-child
                 password:   hm
                 password:   mb-origin
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -69,7 +69,7 @@ class PingSpec extends BaseQueryUpdateSpec {
                 password:   mb-child
                 password:   hm
                 password:   mb-origin
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -106,7 +106,7 @@ class PingSpec extends BaseQueryUpdateSpec {
                 password:   mb-child
                 password:   mb-parent
                 password:   mb-origin
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -145,7 +145,7 @@ class PingSpec extends BaseQueryUpdateSpec {
                 password:   mb-child
                 password:   mb-parent
                 password:   mb-origin
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -184,7 +184,7 @@ class PingSpec extends BaseQueryUpdateSpec {
                 password:   mb-child
                 password:   mb-parent
                 password:   mb-origin
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -220,7 +220,7 @@ class PingSpec extends BaseQueryUpdateSpec {
                 password:   mb-child
                 password:   hm
                 password:   mb-origin
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -256,7 +256,7 @@ class PingSpec extends BaseQueryUpdateSpec {
                 password:   mb-child
                 password:   mb-parent
                 password:   mb-origin
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -294,7 +294,7 @@ class PingSpec extends BaseQueryUpdateSpec {
                 password:   mb-child
                 password:   mb-parent
                 password:   mb-origin
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -336,7 +336,7 @@ class PingSpec extends BaseQueryUpdateSpec {
                 password:   mb-child
                 password:   mb-parent
                 password:   mb-origin
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:

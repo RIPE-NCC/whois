@@ -223,7 +223,7 @@ class ReclaimSpec extends BaseQueryUpdateSpec {
                 source:       TEST
 
                 password: lir
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -264,7 +264,7 @@ class ReclaimSpec extends BaseQueryUpdateSpec {
                 delete:  lir override
 
                 password: lir
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -303,7 +303,7 @@ class ReclaimSpec extends BaseQueryUpdateSpec {
                 delete:  lir reclaim
 
                 password: lir
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:
@@ -342,7 +342,7 @@ class ReclaimSpec extends BaseQueryUpdateSpec {
                 delete:  lir reclaim
 
                 password: lir2
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:
@@ -385,7 +385,7 @@ class ReclaimSpec extends BaseQueryUpdateSpec {
                 delete:  lir override
 
                 password: lir2
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -424,7 +424,7 @@ class ReclaimSpec extends BaseQueryUpdateSpec {
                 delete:  lir override
 
                 password: lir
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -463,7 +463,7 @@ class ReclaimSpec extends BaseQueryUpdateSpec {
                 delete:  lir override
 
                 password: hm
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -505,7 +505,7 @@ class ReclaimSpec extends BaseQueryUpdateSpec {
                 delete:  lir
 
                 password: lir
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -549,7 +549,7 @@ class ReclaimSpec extends BaseQueryUpdateSpec {
                 delete:  RS
 
                 password: hm
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -587,7 +587,7 @@ class ReclaimSpec extends BaseQueryUpdateSpec {
                 source:       TEST
                 delete:  lir override
                 password: lir2
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -630,7 +630,7 @@ class ReclaimSpec extends BaseQueryUpdateSpec {
                 delete:  lir override
 
                 password: lir2
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -673,7 +673,7 @@ class ReclaimSpec extends BaseQueryUpdateSpec {
                 delete:  lir override
 
                 password: lir
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -714,7 +714,7 @@ class ReclaimSpec extends BaseQueryUpdateSpec {
                 delete:  lir
 
                 password: lir
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -755,7 +755,7 @@ class ReclaimSpec extends BaseQueryUpdateSpec {
                 delete:  lir
                 override: denis,override1
 
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -795,7 +795,7 @@ class ReclaimSpec extends BaseQueryUpdateSpec {
                 delete:  lir override
 
                 password: lir
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:
@@ -836,7 +836,7 @@ class ReclaimSpec extends BaseQueryUpdateSpec {
                 delete:  asdf
 
                 password: lir
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:
@@ -865,7 +865,7 @@ class ReclaimSpec extends BaseQueryUpdateSpec {
                 delete:  lir reclaim
 
                 password: lir
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:

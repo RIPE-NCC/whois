@@ -11,14 +11,13 @@ import net.ripe.db.whois.query.domain.QueryCompletionInfo;
 import net.ripe.db.whois.query.domain.QueryException;
 import net.ripe.db.whois.query.handler.QueryHandler;
 import net.ripe.db.whois.query.query.Query;
+import org.eclipse.jetty.http.HttpStatus;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import javax.servlet.http.HttpServletRequest;
-import javax.ws.rs.WebApplicationException;
-import javax.ws.rs.core.Response;
 import java.net.InetAddress;
 import java.util.List;
 import java.util.stream.Stream;
@@ -112,11 +111,11 @@ public class RdapQueryHandler {
             throw tooManyRequests(e.getMessage());
         } else {
             LOGGER.error(e.getMessage(), e);
-            throw new IllegalStateException(e.getMessage());
+            throw new RdapException("500 Internal Server Error", e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR_500);
         }
     }
 
-    private WebApplicationException tooManyRequests(final String message) {
-        return new WebApplicationException(message, Response.Status.TOO_MANY_REQUESTS);
+    private RdapException tooManyRequests(final String message) {
+        return new RdapException("429 Too Many Requests", message, HttpStatus.TOO_MANY_REQUESTS_429);
     }
 }
