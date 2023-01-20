@@ -13,11 +13,11 @@ import java.io.OutputStream;
 
 
 @Service
-public class SnapshotFileStreamer {
+public class SnapshotFileSerializer {
 
     private final SnapshotObjectIteratorRepository snapshotObjectIteratorRepository;
 
-    SnapshotFileStreamer(
+    SnapshotFileSerializer(
         final SnapshotObjectIteratorRepository snapshotObjectIteratorRepository
     ) {
         this.snapshotObjectIteratorRepository = snapshotObjectIteratorRepository;

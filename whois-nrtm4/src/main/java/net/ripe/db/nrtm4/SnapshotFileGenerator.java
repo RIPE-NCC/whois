@@ -7,7 +7,7 @@ import net.ripe.db.nrtm4.dao.NrtmVersionInfoRepository;
 import net.ripe.db.nrtm4.dao.SnapshotFile;
 import net.ripe.db.nrtm4.dao.SnapshotFileRepository;
 import net.ripe.db.nrtm4.domain.PublishableSnapshotFile;
-import net.ripe.db.nrtm4.domain.SnapshotFileStreamer;
+import net.ripe.db.nrtm4.domain.SnapshotFileSerializer;
 import net.ripe.db.nrtm4.util.NrtmFileUtil;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.slf4j.Logger;
@@ -26,20 +26,20 @@ public class SnapshotFileGenerator {
     private static final Logger LOGGER = LoggerFactory.getLogger(SnapshotFileGenerator.class);
 
     private final NrtmVersionInfoRepository nrtmVersionInfoRepository;
-    private final SnapshotFileStreamer snapshotFileStreamer;
+    private final SnapshotFileSerializer snapshotFileSerializer;
     private final SnapshotFileRepository snapshotFileRepository;
     private final SnapshotObjectSynchronizer snapshotObjectSynchronizer;
     private final NrtmFileStore nrtmFileStore;
 
     public SnapshotFileGenerator(
         final NrtmVersionInfoRepository nrtmVersionInfoRepository,
-        final SnapshotFileStreamer snapshotFileStreamer,
+        final SnapshotFileSerializer snapshotFileSerializer,
         final SnapshotFileRepository snapshotFileRepository,
         final SnapshotObjectSynchronizer snapshotObjectSynchronizer,
         final NrtmFileStore nrtmFileStore
     ) {
         this.nrtmVersionInfoRepository = nrtmVersionInfoRepository;
-        this.snapshotFileStreamer = snapshotFileStreamer;
+        this.snapshotFileSerializer = snapshotFileSerializer;
         this.snapshotFileRepository = snapshotFileRepository;
         this.snapshotObjectSynchronizer = snapshotObjectSynchronizer;
         this.nrtmFileStore = nrtmFileStore;
@@ -78,7 +78,7 @@ public class SnapshotFileGenerator {
         try {
             final long start = System.currentTimeMillis();
             final OutputStream out = nrtmFileStore.getFileOutputStream(snapshotFile.getSessionID(), fileName);
-            snapshotFileStreamer.writeSnapshotAsJson(snapshotFile, out);
+            snapshotFileSerializer.writeSnapshotAsJson(snapshotFile, out);
             out.close();
             final String sha256hex = DigestUtils.sha256Hex(nrtmFileStore.getFileInputStream(snapshotFile.getSessionID(), fileName));
             snapshotFileRepository.save(

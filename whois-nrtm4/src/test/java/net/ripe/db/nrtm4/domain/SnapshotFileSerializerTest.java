@@ -19,7 +19,7 @@ import static org.hamcrest.Matchers.is;
 import static org.mockito.Mockito.doNothing;
 
 
-public class SnapshotFileStreamerTest {
+public class SnapshotFileSerializerTest {
 
     @Mock
     SnapshotObjectRepository snapshotObjectRepository;
@@ -34,7 +34,7 @@ public class SnapshotFileStreamerTest {
     @Test
     void serialize_empty_snapshot_file_to_json() throws IOException {
         final var source = new NrtmSource("TEST");
-        final var serializer = new SnapshotFileStreamer(snapshotObjectIteratorRepository);
+        final var serializer = new SnapshotFileSerializer(snapshotObjectIteratorRepository);
         final var version = new NrtmVersionInfo(
             23L,
             source,
