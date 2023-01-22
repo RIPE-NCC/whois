@@ -70,11 +70,11 @@ public class FullTextSearchService {
     }
 
     private Response badRequest(final String message) {
-        return javax.ws.rs.core.Response.status(Response.Status.BAD_REQUEST).entity(message).build();
+        return jakarta.ws.rs.core.Response.status(Response.Status.BAD_REQUEST).entity(message).build();
     }
 
     private Response internalServerError(final String message) {
-        return javax.ws.rs.core.Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(message).build();
+        return jakarta.ws.rs.core.Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(message).build();
     }
 
     //
