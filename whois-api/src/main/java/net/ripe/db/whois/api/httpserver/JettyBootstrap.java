@@ -1,5 +1,6 @@
 package net.ripe.db.whois.api.httpserver;
 
+import jakarta.servlet.DispatcherType;
 import net.ripe.db.whois.common.ApplicationService;
 import net.ripe.db.whois.common.aspects.RetryFor;
 import org.eclipse.jetty.jmx.ObjectMBean;
@@ -22,10 +23,9 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.jmx.JmxException;
 import org.springframework.stereotype.Component;
 
-import jakarta.management.JMException;
-import jakarta.management.MalformedObjectNameException;
-import jakarta.management.ObjectName;
-import jakarta.servlet.DispatcherType;
+import javax.management.JMException;
+import javax.management.MalformedObjectNameException;
+import javax.management.ObjectName;
 import java.lang.management.ManagementFactory;
 import java.time.ZoneOffset;
 import java.util.EnumSet;
