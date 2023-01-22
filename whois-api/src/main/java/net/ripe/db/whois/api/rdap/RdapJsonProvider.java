@@ -14,7 +14,7 @@ import jakarta.ws.rs.ext.Provider;
 @Produces({MediaType.APPLICATION_JSON, "application/rdap+json"})
 public class RdapJsonProvider extends JacksonJsonProvider {
 
-    private static final Annotations[] DEFAULT_ANNOTATIONS = new Annotations[] {Annotations.JACKSON, Annotations.JAXB};
+    private static final Annotations[] DEFAULT_ANNOTATIONS = new Annotations[] {Annotations.JACKSON, Annotations.JAKARTA_XML_BIND};
 
     public RdapJsonProvider() {
         super(null, DEFAULT_ANNOTATIONS);

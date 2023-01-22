@@ -140,7 +140,7 @@ public class RewriteEngineTestIntegration extends AbstractIntegrationTest {
                 .request()
                 .header(HttpHeaders.HOST, getHost(restApiBaseUrl))
                 .header(HttpHeader.X_FORWARDED_PROTO.toString(), HttpScheme.HTTPS)
-                .put(javax.ws.rs.client.Entity.entity(whoisObjectMapper.mapRpslObjects(FormattedClientAttributeMapper.class, updated), MediaType.APPLICATION_XML), WhoisResources.class);
+                .put(jakarta.ws.rs.client.Entity.entity(whoisObjectMapper.mapRpslObjects(FormattedClientAttributeMapper.class, updated), MediaType.APPLICATION_XML), WhoisResources.class);
 
         assertThat(databaseHelper.lookupObject(PERSON, updated.getKey().toString()).containsAttribute(AttributeType.REMARKS), is(true));
     }
@@ -158,7 +158,7 @@ public class RewriteEngineTestIntegration extends AbstractIntegrationTest {
                 .request()
                 .header(HttpHeaders.HOST, getHost(restApiBaseUrl))
                 .header(HttpHeader.X_FORWARDED_PROTO.toString(), HttpScheme.HTTPS)
-                .post(javax.ws.rs.client.Entity.entity(whoisObjectMapper.mapRpslObjects(FormattedClientAttributeMapper.class, updated), MediaType.APPLICATION_XML), WhoisResources.class);
+                .post(jakarta.ws.rs.client.Entity.entity(whoisObjectMapper.mapRpslObjects(FormattedClientAttributeMapper.class, updated), MediaType.APPLICATION_XML), WhoisResources.class);
 
         assertThat(databaseHelper.lookupObject(PERSON, updated.getKey().toString()).containsAttribute(AttributeType.REMARKS), is(true));
     }

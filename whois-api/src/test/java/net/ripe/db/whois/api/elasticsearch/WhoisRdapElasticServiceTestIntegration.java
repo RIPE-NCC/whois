@@ -719,7 +719,7 @@ public class WhoisRdapElasticServiceTestIntegration extends AbstractElasticSearc
     protected String syncupdate(String data) {
         WebTarget resource = RestTest.target(getPort(), String.format("whois/syncupdates/test"));
         return resource.request()
-                .post(javax.ws.rs.client.Entity.entity("DATA=" + RestClientUtils.encode(data),
+                .post(jakarta.ws.rs.client.Entity.entity("DATA=" + RestClientUtils.encode(data),
                                 MediaType.APPLICATION_FORM_URLENCODED),
                         String.class);
 

@@ -1,7 +1,10 @@
 package net.ripe.db.whois.api.rest.marshal;
 
 import com.google.common.collect.ImmutableList;
-import com.sun.xml.bind.marshaller.CharacterEscapeHandler;
+import jakarta.xml.bind.JAXBContext;
+import jakarta.xml.bind.JAXBElement;
+import jakarta.xml.bind.JAXBException;
+import jakarta.xml.bind.Marshaller;
 import javanet.staxutils.events.NamespaceEvent;
 import javanet.staxutils.io.XMLWriterUtils;
 import net.ripe.db.whois.api.rest.client.StreamingException;
@@ -9,11 +12,8 @@ import net.ripe.db.whois.api.rest.domain.AbuseResources;
 import net.ripe.db.whois.api.rest.domain.Link;
 import net.ripe.db.whois.api.rest.domain.TemplateResources;
 import net.ripe.db.whois.api.rest.domain.WhoisResources;
+import org.glassfish.jaxb.core.marshaller.CharacterEscapeHandler;
 
-import jakarta.xml.bind.JAXBContext;
-import jakarta.xml.bind.JAXBElement;
-import jakarta.xml.bind.JAXBException;
-import jakarta.xml.bind.Marshaller;
 import javax.xml.namespace.QName;
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.events.Namespace;

@@ -9,7 +9,7 @@ import com.fasterxml.jackson.databind.introspect.AnnotationIntrospectorPair;
 import com.fasterxml.jackson.databind.introspect.JacksonAnnotationIntrospector;
 import com.fasterxml.jackson.databind.json.JsonMapper;
 import com.fasterxml.jackson.databind.type.TypeFactory;
-import com.fasterxml.jackson.module.jaxb.JaxbAnnotationIntrospector;
+import com.fasterxml.jackson.module.jakarta.xmlbind.JakartaXmlBindAnnotationIntrospector;
 import com.google.common.collect.Lists;
 import net.ripe.db.whois.api.rdap.domain.Action;
 import net.ripe.db.whois.api.rdap.domain.Domain;
@@ -493,7 +493,7 @@ public class RdapResponseJsonTest {
         objectMapper.setAnnotationIntrospector(
                 new AnnotationIntrospectorPair(
                         new JacksonAnnotationIntrospector(),
-                        new JaxbAnnotationIntrospector(TypeFactory.defaultInstance())));
+                        new JakartaXmlBindAnnotationIntrospector(TypeFactory.defaultInstance())));
 
         objectMapper.setSerializationInclusion(JsonInclude.Include.NON_NULL);
 
