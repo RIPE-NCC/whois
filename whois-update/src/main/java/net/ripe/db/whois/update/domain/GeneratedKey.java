@@ -3,7 +3,7 @@ package net.ripe.db.whois.update.domain;
 import net.ripe.db.whois.common.rpsl.RpslObject;
 import org.apache.commons.lang.Validate;
 
-import javax.annotation.concurrent.Immutable;
+import jakarta.annotation.concurrent.Immutable;
 
 @Immutable
 public class GeneratedKey {

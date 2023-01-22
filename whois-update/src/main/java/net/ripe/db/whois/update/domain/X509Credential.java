@@ -3,7 +3,7 @@ package net.ripe.db.whois.update.domain;
 import net.ripe.db.whois.common.DateTimeProvider;
 import net.ripe.db.whois.update.keycert.X509SignedMessage;
 
-import javax.annotation.Nullable;
+import jakarta.annotation.Nullable;
 import java.security.cert.X509Certificate;
 import java.util.Objects;
 

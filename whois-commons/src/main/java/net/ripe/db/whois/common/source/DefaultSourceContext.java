@@ -14,9 +14,9 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
-import javax.annotation.CheckForNull;
-import javax.annotation.PreDestroy;
-import javax.sql.DataSource;
+import jakarta.annotation.CheckForNull;
+import jakarta.annotation.PreDestroy;
+import jakarta.sql.DataSource;
 import java.sql.SQLException;
 import java.util.Collection;
 import java.util.Collections;

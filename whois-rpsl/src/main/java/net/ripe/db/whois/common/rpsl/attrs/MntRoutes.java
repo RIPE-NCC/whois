@@ -4,7 +4,7 @@ import com.google.common.base.Splitter;
 import com.google.common.collect.Lists;
 import net.ripe.db.whois.common.domain.CIString;
 
-import javax.annotation.concurrent.Immutable;
+import jakarta.annotation.concurrent.Immutable;
 import java.util.Collections;
 import java.util.List;
 import java.util.regex.Matcher;

@@ -2,8 +2,8 @@ package net.ripe.db.whois.changedphase3.util;
 
 import net.ripe.db.whois.common.rpsl.RpslObject;
 
-import javax.mail.MessagingException;
-import javax.mail.internet.MimeMessage;
+import jakarta.mail.MessagingException;
+import jakarta.mail.internet.MimeMessage;
 import java.io.IOException;
 
 import static org.hamcrest.Matchers.containsString;

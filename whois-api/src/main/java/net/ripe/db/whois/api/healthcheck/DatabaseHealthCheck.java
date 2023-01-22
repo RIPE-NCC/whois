@@ -10,7 +10,7 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
-import javax.sql.DataSource;
+import jakarta.sql.DataSource;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 @Component

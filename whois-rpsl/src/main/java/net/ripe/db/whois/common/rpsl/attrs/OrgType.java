@@ -3,7 +3,7 @@ package net.ripe.db.whois.common.rpsl.attrs;
 import com.google.common.collect.Maps;
 import net.ripe.db.whois.common.domain.CIString;
 
-import javax.annotation.Nullable;
+import jakarta.annotation.Nullable;
 import java.util.Map;
 
 import static net.ripe.db.whois.common.domain.CIString.ciString;

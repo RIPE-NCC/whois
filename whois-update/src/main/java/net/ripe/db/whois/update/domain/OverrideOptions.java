@@ -2,7 +2,7 @@ package net.ripe.db.whois.update.domain;
 
 import com.google.common.base.Splitter;
 
-import javax.annotation.concurrent.Immutable;
+import jakarta.annotation.concurrent.Immutable;
 import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;

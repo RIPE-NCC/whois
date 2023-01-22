@@ -5,8 +5,8 @@ import net.ripe.db.whois.common.ip.IpInterval;
 import net.ripe.db.whois.common.ip.Ipv4Resource;
 import net.ripe.db.whois.common.ip.Ipv6Resource;
 
-import javax.annotation.CheckForNull;
-import javax.annotation.concurrent.Immutable;
+import jakarta.annotation.CheckForNull;
+import jakarta.annotation.concurrent.Immutable;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.regex.Matcher;

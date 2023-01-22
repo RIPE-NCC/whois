@@ -13,7 +13,7 @@ import net.ripe.db.whois.update.domain.UpdateContext;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import javax.annotation.Nullable;
+import jakarta.annotation.Nullable;
 
 @Component
 public class TimestampAttributeGenerator extends AttributeGenerator {

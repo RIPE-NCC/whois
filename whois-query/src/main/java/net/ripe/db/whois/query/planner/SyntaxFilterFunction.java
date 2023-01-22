@@ -7,7 +7,7 @@ import net.ripe.db.whois.common.rpsl.RpslObject;
 import net.ripe.db.whois.query.QueryMessages;
 import net.ripe.db.whois.query.domain.MessageObject;
 
-import javax.annotation.concurrent.ThreadSafe;
+import jakarta.annotation.concurrent.ThreadSafe;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.function.Function;

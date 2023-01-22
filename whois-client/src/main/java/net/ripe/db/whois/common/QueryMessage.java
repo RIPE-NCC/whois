@@ -2,7 +2,7 @@ package net.ripe.db.whois.common;
 
 import com.google.common.base.Splitter;
 
-import javax.annotation.concurrent.Immutable;
+import jakarta.annotation.concurrent.Immutable;
 
 /** Specialization of Messages to:
  * - add port43 comment signs

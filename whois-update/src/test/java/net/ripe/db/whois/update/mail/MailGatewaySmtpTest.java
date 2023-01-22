@@ -13,8 +13,8 @@ import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessagePreparator;
 import org.springframework.test.util.ReflectionTestUtils;
 
-import javax.mail.SendFailedException;
-import javax.mail.internet.MimeMessage;
+import jakarta.mail.SendFailedException;
+import jakarta.mail.internet.MimeMessage;
 import java.lang.reflect.Field;
 
 import static org.hamcrest.MatcherAssert.assertThat;

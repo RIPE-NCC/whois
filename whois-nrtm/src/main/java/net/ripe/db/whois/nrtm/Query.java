@@ -6,7 +6,7 @@ import joptsimple.OptionParser;
 import joptsimple.OptionSet;
 import org.apache.commons.lang.StringUtils;
 
-import javax.annotation.concurrent.Immutable;
+import jakarta.annotation.concurrent.Immutable;
 import java.util.Iterator;
 import java.util.NoSuchElementException;
 

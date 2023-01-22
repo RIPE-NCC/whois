@@ -9,10 +9,10 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
 
-import javax.annotation.CheckForNull;
-import javax.mail.MessagingException;
-import javax.mail.internet.MimeMessage;
-import javax.sql.DataSource;
+import jakarta.annotation.CheckForNull;
+import jakarta.mail.MessagingException;
+import jakarta.mail.internet.MimeMessage;
+import jakarta.sql.DataSource;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;

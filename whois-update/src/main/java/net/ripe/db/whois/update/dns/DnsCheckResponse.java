@@ -2,7 +2,7 @@ package net.ripe.db.whois.update.dns;
 
 import net.ripe.db.whois.common.Message;
 
-import javax.annotation.concurrent.Immutable;
+import jakarta.annotation.concurrent.Immutable;
 import java.util.Collections;
 import java.util.List;
 

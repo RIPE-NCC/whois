@@ -42,9 +42,9 @@ import org.springframework.context.support.ClassPathXmlApplicationContext;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.test.util.ReflectionTestUtils;
 
-import javax.mail.MessagingException;
-import javax.mail.internet.MimeMessage;
-import javax.sql.DataSource;
+import jakarta.mail.MessagingException;
+import jakarta.mail.internet.MimeMessage;
+import jakarta.sql.DataSource;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Collection;

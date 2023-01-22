@@ -9,7 +9,7 @@ import net.ripe.db.whois.common.rpsl.attrs.InetStatus;
 import net.ripe.db.whois.common.rpsl.attrs.InetnumStatus;
 import net.ripe.db.whois.update.domain.PreparedUpdate;
 
-import javax.annotation.CheckForNull;
+import jakarta.annotation.CheckForNull;
 
 public final class InetStatusHelper {
     private InetStatusHelper() {

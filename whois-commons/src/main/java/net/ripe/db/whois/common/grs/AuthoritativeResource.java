@@ -20,7 +20,7 @@ import net.ripe.db.whois.common.rpsl.ObjectType;
 import net.ripe.db.whois.common.rpsl.RpslObject;
 import org.slf4j.Logger;
 
-import javax.annotation.concurrent.Immutable;
+import jakarta.annotation.concurrent.Immutable;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.util.List;
@@ -221,4 +221,3 @@ public class AuthoritativeResource {
     }
 
 }
-

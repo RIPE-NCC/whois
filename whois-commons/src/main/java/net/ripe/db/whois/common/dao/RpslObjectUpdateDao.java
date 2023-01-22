@@ -6,7 +6,7 @@ import net.ripe.db.whois.common.rpsl.ObjectType;
 import net.ripe.db.whois.common.rpsl.RpslAttribute;
 import net.ripe.db.whois.common.rpsl.RpslObject;
 
-import javax.annotation.CheckForNull;
+import jakarta.annotation.CheckForNull;
 import java.util.Map;
 import java.util.Set;
 

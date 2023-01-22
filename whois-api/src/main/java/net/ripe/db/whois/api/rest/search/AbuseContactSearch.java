@@ -6,7 +6,7 @@ import net.ripe.db.whois.query.planner.AbuseCFinder;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import javax.annotation.Nullable;
+import jakarta.annotation.Nullable;
 
 @Component
 public class AbuseContactSearch {

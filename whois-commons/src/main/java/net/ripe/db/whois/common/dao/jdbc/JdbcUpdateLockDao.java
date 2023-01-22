@@ -8,7 +8,7 @@ import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
-import javax.sql.DataSource;
+import jakarta.sql.DataSource;
 
 @Repository
 class JdbcUpdateLockDao implements UpdateLockDao {

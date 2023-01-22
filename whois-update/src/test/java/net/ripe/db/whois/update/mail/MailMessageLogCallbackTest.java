@@ -6,7 +6,7 @@ import org.mockito.Mock;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import javax.mail.Message;
+import jakarta.mail.Message;
 import java.io.IOException;
 import java.io.OutputStream;
 

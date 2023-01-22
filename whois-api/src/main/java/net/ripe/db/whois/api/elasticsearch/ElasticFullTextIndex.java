@@ -17,8 +17,8 @@ import org.springframework.jdbc.core.ResultSetExtractor;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
-import javax.annotation.PostConstruct;
-import javax.sql.DataSource;
+import jakarta.annotation.PostConstruct;
+import jakarta.sql.DataSource;
 import java.io.IOException;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -228,5 +228,3 @@ public class ElasticFullTextIndex {
         }
     }
 }
-
-

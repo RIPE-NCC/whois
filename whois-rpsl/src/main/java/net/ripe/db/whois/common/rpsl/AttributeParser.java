@@ -16,8 +16,8 @@ import net.ripe.db.whois.common.rpsl.attrs.NServer;
 import net.ripe.db.whois.common.rpsl.attrs.SetObject;
 import org.apache.commons.lang.StringUtils;
 
-import javax.mail.internet.AddressException;
-import javax.mail.internet.InternetAddress;
+import jakarta.mail.internet.AddressException;
+import jakarta.mail.internet.InternetAddress;
 import java.nio.charset.StandardCharsets;
 import java.util.Set;
 import java.util.regex.Pattern;

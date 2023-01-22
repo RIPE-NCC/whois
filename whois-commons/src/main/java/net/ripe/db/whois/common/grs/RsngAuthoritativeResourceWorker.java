@@ -11,8 +11,8 @@ import net.ripe.commons.ip.Ipv6Range;
 import net.ripe.commons.ip.SortedRangeSet;
 import org.slf4j.Logger;
 
-import javax.ws.rs.client.Client;
-import javax.ws.rs.core.HttpHeaders;
+import jakarta.ws.rs.client.Client;
+import jakarta.ws.rs.core.HttpHeaders;
 import java.io.IOException;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionException;

@@ -21,8 +21,8 @@ import org.glassfish.jersey.servlet.ServletContainer;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import javax.servlet.DispatcherType;
-import javax.ws.rs.ext.MessageBodyWriter;
+import jakarta.servlet.DispatcherType;
+import jakarta.ws.rs.ext.MessageBodyWriter;
 import java.util.EnumSet;
 
 @Component

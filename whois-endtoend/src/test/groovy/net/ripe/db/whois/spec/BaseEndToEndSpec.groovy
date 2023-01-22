@@ -15,7 +15,7 @@ import net.ripe.db.whois.spec.domain.SyncUpdateResponse
 import net.ripe.db.whois.update.dns.DnsGatewayStub
 import spock.lang.Specification
 
-import javax.mail.Address
+import jakarta.mail.Address
 
 class BaseEndToEndSpec extends Specification {
     static WhoisFixture whoisFixture
@@ -341,5 +341,3 @@ ${response}
         return whoisFixture.getTestDateTimeProvider();
     }
 }
-
-

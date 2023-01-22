@@ -18,8 +18,8 @@ import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.stereotype.Repository;
 
-import javax.annotation.Nullable;
-import javax.sql.DataSource;
+import jakarta.annotation.Nullable;
+import jakarta.sql.DataSource;
 import java.util.EnumSet;
 import java.util.List;
 import java.util.Set;

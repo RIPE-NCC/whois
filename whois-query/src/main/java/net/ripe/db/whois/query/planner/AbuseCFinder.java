@@ -24,8 +24,8 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.stereotype.Component;
 
-import javax.annotation.CheckForNull;
-import javax.annotation.Nullable;
+import jakarta.annotation.CheckForNull;
+import jakarta.annotation.Nullable;
 import java.util.Arrays;
 import java.util.Optional;
 import java.util.Set;

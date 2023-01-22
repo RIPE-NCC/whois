@@ -8,7 +8,7 @@ import org.mockito.Mock;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import javax.sql.DataSource;
+import jakarta.sql.DataSource;
 
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;

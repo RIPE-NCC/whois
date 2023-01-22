@@ -16,7 +16,7 @@ import net.ripe.db.whois.query.query.Query;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import javax.annotation.Nullable;
+import jakarta.annotation.Nullable;
 import java.net.InetAddress;
 import java.util.List;
 import java.util.concurrent.TimeUnit;

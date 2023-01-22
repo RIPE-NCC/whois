@@ -24,7 +24,7 @@ import org.springframework.dao.DataAccessException;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.stereotype.Component;
 
-import javax.annotation.Nullable;
+import jakarta.annotation.Nullable;
 
 @Component
 public class AbuseCDuplicateValidator implements BusinessRuleValidator {

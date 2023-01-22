@@ -15,7 +15,7 @@ import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskScheduler;
 
 
-import javax.sql.DataSource;
+import jakarta.sql.DataSource;
 
 @Configuration
 @EnableAspectJAutoProxy(proxyTargetClass = true)

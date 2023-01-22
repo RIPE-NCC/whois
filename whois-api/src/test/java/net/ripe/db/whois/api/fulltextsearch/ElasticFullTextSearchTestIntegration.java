@@ -20,9 +20,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.jdbc.core.JdbcTemplate;
 
-import javax.sql.DataSource;
-import javax.ws.rs.BadRequestException;
-import javax.ws.rs.ClientErrorException;
+import jakarta.sql.DataSource;
+import jakarta.ws.rs.BadRequestException;
+import jakarta.ws.rs.ClientErrorException;
 import java.io.IOException;
 import java.net.Inet4Address;
 import java.time.LocalDate;
@@ -1196,4 +1196,3 @@ public class ElasticFullTextSearchTestIntegration  extends AbstractElasticSearch
     }
 
 }
-

@@ -3,7 +3,7 @@ package net.ripe.db.whois.api;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.Resource;
 
-import javax.mail.internet.MimeMessage;
+import jakarta.mail.internet.MimeMessage;
 import java.io.InputStream;
 
 /**

@@ -17,7 +17,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import javax.annotation.CheckForNull;
+import jakarta.annotation.CheckForNull;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;

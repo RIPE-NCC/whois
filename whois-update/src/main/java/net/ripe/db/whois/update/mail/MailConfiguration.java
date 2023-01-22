@@ -5,8 +5,8 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.beans.factory.config.PropertiesFactoryBean;
 import org.springframework.stereotype.Component;
 
-import javax.annotation.PostConstruct;
-import javax.mail.Session;
+import jakarta.annotation.PostConstruct;
+import jakarta.mail.Session;
 import java.io.IOException;
 import java.util.Properties;
 

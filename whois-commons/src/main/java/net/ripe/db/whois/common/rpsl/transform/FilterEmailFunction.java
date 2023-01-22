@@ -6,8 +6,8 @@ import net.ripe.db.whois.common.rpsl.RpslObject;
 import net.ripe.db.whois.common.rpsl.RpslObjectBuilder;
 import net.ripe.db.whois.common.rpsl.RpslObjectFilter;
 
-import javax.annotation.Nonnull;
-import javax.annotation.concurrent.ThreadSafe;
+import jakarta.annotation.Nonnull;
+import jakarta.annotation.concurrent.ThreadSafe;
 import java.util.Set;
 
 @ThreadSafe

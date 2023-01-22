@@ -4,7 +4,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.datasource.AbstractDataSource;
 import org.springframework.stereotype.Component;
 
-import javax.sql.DataSource;
+import jakarta.sql.DataSource;
 import java.sql.Connection;
 import java.sql.SQLException;
 

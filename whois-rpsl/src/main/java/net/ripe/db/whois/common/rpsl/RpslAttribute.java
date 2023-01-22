@@ -7,8 +7,8 @@ import net.ripe.db.whois.common.rpsl.attrs.MntRoutes;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.Validate;
 
-import javax.annotation.CheckForNull;
-import javax.annotation.concurrent.Immutable;
+import jakarta.annotation.CheckForNull;
+import jakarta.annotation.concurrent.Immutable;
 import java.io.IOException;
 import java.io.StringWriter;
 import java.io.Writer;

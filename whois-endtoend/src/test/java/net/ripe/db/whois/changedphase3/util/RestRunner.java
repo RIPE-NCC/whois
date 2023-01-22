@@ -5,10 +5,10 @@ import net.ripe.db.whois.api.rest.domain.WhoisResources;
 import net.ripe.db.whois.api.rest.mapper.FormattedClientAttributeMapper;
 import net.ripe.db.whois.common.rpsl.RpslObject;
 
-import javax.mail.MessagingException;
-import javax.ws.rs.ClientErrorException;
-import javax.ws.rs.client.Entity;
-import javax.ws.rs.core.MediaType;
+import jakarta.mail.MessagingException;
+import jakarta.ws.rs.ClientErrorException;
+import jakarta.ws.rs.client.Entity;
+import jakarta.ws.rs.core.MediaType;
 import java.io.IOException;
 import java.util.List;
 

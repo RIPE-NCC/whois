@@ -36,7 +36,7 @@ import org.springframework.jdbc.datasource.init.DatabasePopulatorUtils;
 import org.springframework.jdbc.datasource.init.ResourceDatabasePopulator;
 import org.springframework.stereotype.Component;
 
-import javax.annotation.CheckForNull;
+import jakarta.annotation.CheckForNull;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.HashMap;

@@ -9,7 +9,7 @@ import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Isolation;
 import org.springframework.transaction.annotation.Transactional;
 
-import javax.sql.DataSource;
+import jakarta.sql.DataSource;
 
 @Repository
 @RetryFor(RecoverableDataAccessException.class)

@@ -3,7 +3,7 @@ package net.ripe.db.whois.common.dao;
 import net.ripe.db.whois.common.domain.serials.Operation;
 import net.ripe.db.whois.common.rpsl.ObjectType;
 
-import javax.annotation.concurrent.Immutable;
+import jakarta.annotation.concurrent.Immutable;
 import java.util.Collections;
 import java.util.List;
 

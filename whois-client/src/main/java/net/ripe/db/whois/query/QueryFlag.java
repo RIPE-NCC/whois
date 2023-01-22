@@ -2,7 +2,7 @@ package net.ripe.db.whois.query;
 
 import com.google.common.collect.ImmutableMap;
 
-import javax.annotation.CheckForNull;
+import jakarta.annotation.CheckForNull;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;

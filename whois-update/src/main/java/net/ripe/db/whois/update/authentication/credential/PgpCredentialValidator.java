@@ -18,7 +18,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.stereotype.Component;
 
-import javax.annotation.CheckForNull;
+import jakarta.annotation.CheckForNull;
 import java.util.Collection;
 import java.util.List;
 

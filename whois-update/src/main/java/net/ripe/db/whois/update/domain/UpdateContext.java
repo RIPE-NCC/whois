@@ -17,7 +17,7 @@ import net.ripe.db.whois.update.dns.DnsCheckResponse;
 import net.ripe.db.whois.update.keycert.X509CertificateWrapper;
 import net.ripe.db.whois.update.log.LoggerContext;
 
-import javax.annotation.CheckForNull;
+import jakarta.annotation.CheckForNull;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;

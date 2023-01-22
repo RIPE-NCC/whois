@@ -44,9 +44,9 @@ import org.springframework.stereotype.Component;
 import org.springframework.util.DigestUtils;
 import org.springframework.util.StringValueResolver;
 
-import javax.annotation.CheckForNull;
-import javax.annotation.Nullable;
-import javax.sql.DataSource;
+import jakarta.annotation.CheckForNull;
+import jakarta.annotation.Nullable;
+import jakarta.sql.DataSource;
 import java.sql.DatabaseMetaData;
 import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;

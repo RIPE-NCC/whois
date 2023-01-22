@@ -7,7 +7,7 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.dao.RecoverableDataAccessException;
 import org.springframework.stereotype.Repository;
 
-import javax.sql.DataSource;
+import jakarta.sql.DataSource;
 
 @Repository
 @RetryFor(RecoverableDataAccessException.class)

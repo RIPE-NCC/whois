@@ -13,7 +13,7 @@ import org.springframework.dao.RecoverableDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
 
-import javax.sql.DataSource;
+import jakarta.sql.DataSource;
 
 import static net.ripe.db.whois.common.dao.jdbc.JdbcStreamingHelper.executeStreaming;
 

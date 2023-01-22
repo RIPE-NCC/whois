@@ -1,6 +1,6 @@
 package net.ripe.db.whois.common.pipeline;
 
-import javax.annotation.Nullable;
+import jakarta.annotation.Nullable;
 import java.net.InetAddress;
 import java.util.concurrent.ConcurrentHashMap;
 

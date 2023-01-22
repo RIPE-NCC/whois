@@ -22,10 +22,10 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.jmx.JmxException;
 import org.springframework.stereotype.Component;
 
-import javax.management.JMException;
-import javax.management.MalformedObjectNameException;
-import javax.management.ObjectName;
-import javax.servlet.DispatcherType;
+import jakarta.management.JMException;
+import jakarta.management.MalformedObjectNameException;
+import jakarta.management.ObjectName;
+import jakarta.servlet.DispatcherType;
 import java.lang.management.ManagementFactory;
 import java.time.ZoneOffset;
 import java.util.EnumSet;

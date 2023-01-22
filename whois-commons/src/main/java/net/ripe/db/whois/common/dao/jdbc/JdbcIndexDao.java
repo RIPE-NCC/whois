@@ -27,7 +27,7 @@ import org.springframework.transaction.annotation.Isolation;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
-import javax.sql.DataSource;
+import jakarta.sql.DataSource;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
