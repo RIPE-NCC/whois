@@ -2,7 +2,7 @@ package net.ripe.db.whois.common.source;
 
 import org.springframework.jdbc.core.JdbcTemplate;
 
-import jakarta.sql.DataSource;
+import javax.sql.DataSource;
 
 public class SourceConfiguration {
     private final Source source;

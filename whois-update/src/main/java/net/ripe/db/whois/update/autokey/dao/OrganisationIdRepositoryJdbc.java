@@ -11,7 +11,7 @@ import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
-import jakarta.sql.DataSource;
+import javax.sql.DataSource;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 

@@ -46,7 +46,7 @@ import org.springframework.util.StringValueResolver;
 
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
-import jakarta.sql.DataSource;
+import javax.sql.DataSource;
 import java.sql.DatabaseMetaData;
 import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;

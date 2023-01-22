@@ -1,6 +1,6 @@
 package net.ripe.db.whois.common.jdbc;
 
-import jakarta.sql.DataSource;
+import javax.sql.DataSource;
 
 public interface DataSourceFactory {
     DataSource createDataSource(String url, String username, String password);

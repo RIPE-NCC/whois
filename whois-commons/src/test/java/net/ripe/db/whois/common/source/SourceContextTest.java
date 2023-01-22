@@ -9,7 +9,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import jakarta.sql.DataSource;
+import javax.sql.DataSource;
 import java.util.Set;
 
 import static net.ripe.db.whois.common.domain.CIString.ciString;

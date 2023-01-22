@@ -11,7 +11,7 @@ import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Isolation;
 import org.springframework.transaction.annotation.Transactional;
 
-import jakarta.sql.DataSource;
+import javax.sql.DataSource;
 import java.util.Optional;
 
 @Repository

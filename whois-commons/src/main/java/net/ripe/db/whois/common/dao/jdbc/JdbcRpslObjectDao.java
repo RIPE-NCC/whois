@@ -37,7 +37,7 @@ import org.springframework.stereotype.Repository;
 
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
-import jakarta.sql.DataSource;
+import javax.sql.DataSource;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.text.MessageFormat;

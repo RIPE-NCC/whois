@@ -6,7 +6,7 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Component;
 
-import jakarta.sql.DataSource;
+import javax.sql.DataSource;
 import java.io.File;
 import java.util.Arrays;
 import java.util.List;

@@ -2,13 +2,13 @@ package net.ripe.db.whois.common.jdbc;
 
 import com.google.common.collect.Lists;
 import com.mchange.v2.c3p0.DataSources;
+import jakarta.annotation.PreDestroy;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import jakarta.annotation.PreDestroy;
-import jakarta.sql.DataSource;
+import javax.sql.DataSource;
 import java.sql.SQLException;
 import java.util.List;
 

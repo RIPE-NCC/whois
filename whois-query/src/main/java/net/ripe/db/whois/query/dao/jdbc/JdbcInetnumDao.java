@@ -8,7 +8,7 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
 
-import jakarta.sql.DataSource;
+import javax.sql.DataSource;
 import java.util.List;
 
 // TODO: [AH] replace this early implementation with IndexStrategy
