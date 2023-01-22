@@ -432,6 +432,12 @@
                 <groupId>org.apache.commons</groupId>
                 <artifactId>commons-email</artifactId>
                 <version>${commons-email.version}</version>
+                <exclusions>
+                    <exclusion>
+                        <artifactId>javax.mail</artifactId>
+                        <groupId>com.sun.mail</groupId>
+                    </exclusion>
+                </exclusions>
             </dependency>
             <dependency>
                 <groupId>org.apache.velocity</groupId>
