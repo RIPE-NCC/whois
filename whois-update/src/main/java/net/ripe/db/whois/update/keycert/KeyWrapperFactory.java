@@ -9,7 +9,7 @@ import net.ripe.db.whois.update.domain.UpdateContainer;
 import net.ripe.db.whois.update.domain.UpdateContext;
 import org.springframework.stereotype.Component;
 
-import jakarta.annotation.CheckForNull;
+import javax.annotation.CheckForNull;
 import java.util.List;
 
 @Component

@@ -1,12 +1,12 @@
 package net.ripe.db.whois.common.rpsl.transform;
 
+import jakarta.inject.Named;
 import net.ripe.db.whois.common.rpsl.AttributeType;
 import net.ripe.db.whois.common.rpsl.RpslObject;
 import net.ripe.db.whois.common.rpsl.RpslObjectBuilder;
 
-import jakarta.annotation.Nullable;
-import jakarta.annotation.concurrent.ThreadSafe;
-import jakarta.inject.Named;
+import javax.annotation.Nullable;
+import javax.annotation.concurrent.ThreadSafe;
 import java.util.function.Function;
 
 @ThreadSafe

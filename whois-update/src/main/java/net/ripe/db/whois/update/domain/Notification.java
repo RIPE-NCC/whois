@@ -9,7 +9,7 @@ import net.ripe.db.whois.common.rpsl.transform.FilterAuthFunction;
 import net.ripe.db.whois.common.rpsl.transform.FilterChangedFunction;
 import org.apache.commons.lang.StringUtils;
 
-import jakarta.annotation.concurrent.Immutable;
+import javax.annotation.concurrent.Immutable;
 import java.util.Collection;
 import java.util.Map;
 import java.util.Objects;

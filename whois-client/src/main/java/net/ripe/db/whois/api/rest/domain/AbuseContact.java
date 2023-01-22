@@ -1,12 +1,12 @@
 package net.ripe.db.whois.api.rest.domain;
 
-import net.ripe.db.whois.common.domain.CIString;
-
-import jakarta.annotation.concurrent.Immutable;
 import jakarta.xml.bind.annotation.XmlAccessType;
 import jakarta.xml.bind.annotation.XmlAccessorType;
 import jakarta.xml.bind.annotation.XmlAttribute;
 import jakarta.xml.bind.annotation.XmlRootElement;
+import net.ripe.db.whois.common.domain.CIString;
+
+import javax.annotation.concurrent.Immutable;
 
 @Immutable
 @XmlAccessorType(XmlAccessType.FIELD)

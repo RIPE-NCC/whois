@@ -4,7 +4,7 @@ import net.ripe.db.whois.common.domain.CIString;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import jakarta.annotation.concurrent.Immutable;
+import javax.annotation.concurrent.Immutable;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 

@@ -2,8 +2,8 @@ package net.ripe.db.whois.api.rest.domain;
 
 import com.google.common.collect.Lists;
 
-import jakarta.annotation.Nullable;
-import jakarta.annotation.concurrent.Immutable;
+import javax.annotation.Nullable;
+import javax.annotation.concurrent.Immutable;
 import jakarta.xml.bind.annotation.XmlAccessType;
 import jakarta.xml.bind.annotation.XmlAccessorType;
 import jakarta.xml.bind.annotation.XmlElement;

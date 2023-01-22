@@ -20,7 +20,7 @@ import org.slf4j.LoggerFactory;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
-import jakarta.annotation.Nullable;
+import javax.annotation.Nullable;
 import jakarta.xml.parsers.DocumentBuilder;
 import jakarta.xml.parsers.DocumentBuilderFactory;
 import jakarta.xml.parsers.ParserConfigurationException;

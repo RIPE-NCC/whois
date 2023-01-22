@@ -10,10 +10,9 @@ import org.springframework.context.annotation.Primary;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
 
-import jakarta.annotation.CheckForNull;
+import javax.annotation.CheckForNull;
 import jakarta.sql.DataSource;
 import java.util.List;
-
 
 @Repository
 @Primary

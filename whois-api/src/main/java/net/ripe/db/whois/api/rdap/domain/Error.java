@@ -1,12 +1,12 @@
 package net.ripe.db.whois.api.rdap.domain;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
-
-import jakarta.annotation.concurrent.Immutable;
 import jakarta.xml.bind.annotation.XmlAccessType;
 import jakarta.xml.bind.annotation.XmlAccessorType;
 import jakarta.xml.bind.annotation.XmlRootElement;
 import jakarta.xml.bind.annotation.XmlType;
+
+import javax.annotation.concurrent.Immutable;
 import java.util.Collections;
 import java.util.List;
 

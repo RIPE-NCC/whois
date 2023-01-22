@@ -2,7 +2,7 @@ package net.ripe.db.whois.update.authentication;
 
 import com.google.common.collect.Sets;
 
-import jakarta.annotation.concurrent.Immutable;
+import javax.annotation.concurrent.Immutable;
 import java.util.Collections;
 import java.util.Set;
 

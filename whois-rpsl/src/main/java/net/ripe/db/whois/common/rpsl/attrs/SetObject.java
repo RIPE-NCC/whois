@@ -4,7 +4,7 @@ import com.google.common.base.Splitter;
 import net.ripe.db.whois.common.domain.CIString;
 import net.ripe.db.whois.common.rpsl.ObjectType;
 
-import jakarta.annotation.concurrent.Immutable;
+import javax.annotation.concurrent.Immutable;
 import java.text.MessageFormat;
 import java.util.regex.Pattern;
 

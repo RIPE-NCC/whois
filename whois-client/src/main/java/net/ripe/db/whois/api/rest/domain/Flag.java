@@ -2,7 +2,7 @@ package net.ripe.db.whois.api.rest.domain;
 
 import net.ripe.db.whois.query.QueryFlag;
 
-import jakarta.annotation.concurrent.Immutable;
+import javax.annotation.concurrent.Immutable;
 import jakarta.xml.bind.annotation.XmlAccessType;
 import jakarta.xml.bind.annotation.XmlAccessorType;
 import jakarta.xml.bind.annotation.XmlAttribute;

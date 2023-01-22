@@ -1,10 +1,6 @@
 package net.ripe.db.whois.api.rest.domain;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
-import net.ripe.db.whois.api.rest.mapper.ValidXmlAdapter;
-import org.apache.commons.lang.StringUtils;
-
-import jakarta.annotation.Nullable;
 import jakarta.xml.bind.annotation.XmlAccessType;
 import jakarta.xml.bind.annotation.XmlAccessorType;
 import jakarta.xml.bind.annotation.XmlAttribute;
@@ -12,6 +8,10 @@ import jakarta.xml.bind.annotation.XmlElement;
 import jakarta.xml.bind.annotation.XmlRootElement;
 import jakarta.xml.bind.annotation.XmlType;
 import jakarta.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
+import net.ripe.db.whois.api.rest.mapper.ValidXmlAdapter;
+import org.apache.commons.lang.StringUtils;
+
+import javax.annotation.Nullable;
 import java.util.Objects;
 
 import static com.fasterxml.jackson.annotation.JsonInclude.Include.NON_NULL;

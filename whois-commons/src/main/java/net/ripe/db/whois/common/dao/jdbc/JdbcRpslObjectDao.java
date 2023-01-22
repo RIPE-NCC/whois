@@ -35,8 +35,8 @@ import org.springframework.jdbc.core.PreparedStatementSetter;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.stereotype.Repository;
 
-import jakarta.annotation.CheckForNull;
-import jakarta.annotation.Nullable;
+import javax.annotation.CheckForNull;
+import javax.annotation.Nullable;
 import jakarta.sql.DataSource;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;

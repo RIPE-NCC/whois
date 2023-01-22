@@ -1,7 +1,7 @@
 package net.ripe.db.whois.common;
 
-import jakarta.annotation.Nullable;
-import jakarta.annotation.concurrent.Immutable;
+import javax.annotation.Nullable;
+import javax.annotation.concurrent.Immutable;
 import java.util.Objects;
 
 @Immutable

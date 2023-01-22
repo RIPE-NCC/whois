@@ -20,8 +20,8 @@ import net.ripe.db.whois.common.sso.UserSession;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.util.CollectionUtils;
 
-import jakarta.annotation.Nonnull;
-import jakarta.annotation.concurrent.ThreadSafe;
+import javax.annotation.Nonnull;
+import javax.annotation.concurrent.ThreadSafe;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;

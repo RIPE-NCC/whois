@@ -7,7 +7,7 @@ import net.ripe.db.whois.query.handler.WhoisLog;
 import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Component;
 
-import jakarta.annotation.Nullable;
+import javax.annotation.Nullable;
 import java.net.InetAddress;
 import java.util.ArrayList;
 import java.util.List;

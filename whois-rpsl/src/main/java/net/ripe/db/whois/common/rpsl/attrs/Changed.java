@@ -2,7 +2,7 @@ package net.ripe.db.whois.common.rpsl.attrs;
 
 import net.ripe.db.whois.common.domain.CIString;
 
-import jakarta.annotation.CheckForNull;
+import javax.annotation.CheckForNull;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;

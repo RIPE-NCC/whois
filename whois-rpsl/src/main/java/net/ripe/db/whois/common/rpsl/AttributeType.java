@@ -5,7 +5,7 @@ import com.google.common.collect.Sets;
 import net.ripe.db.whois.common.domain.CIString;
 import org.apache.commons.lang.StringUtils;
 
-import jakarta.annotation.CheckForNull;
+import javax.annotation.CheckForNull;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;

@@ -5,7 +5,7 @@ import net.ripe.db.whois.common.domain.CIString;
 import net.ripe.db.whois.common.ip.IpInterval;
 import net.ripe.db.whois.common.ip.Ipv4Resource;
 
-import jakarta.annotation.CheckForNull;
+import javax.annotation.CheckForNull;
 import java.util.Iterator;
 import java.util.regex.Pattern;
 

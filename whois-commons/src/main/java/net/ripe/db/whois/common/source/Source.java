@@ -2,7 +2,7 @@ package net.ripe.db.whois.common.source;
 
 import net.ripe.db.whois.common.domain.CIString;
 
-import jakarta.annotation.concurrent.Immutable;
+import javax.annotation.concurrent.Immutable;
 
 import java.util.Objects;
 

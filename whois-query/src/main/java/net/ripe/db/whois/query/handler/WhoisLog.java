@@ -8,7 +8,7 @@ import org.slf4j.helpers.MessageFormatter;
 import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Component;
 
-import jakarta.annotation.Nullable;
+import javax.annotation.Nullable;
 import java.net.InetAddress;
 
 @Component

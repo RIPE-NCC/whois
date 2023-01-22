@@ -2,7 +2,7 @@ package net.ripe.db.whois.update.dns;
 
 import net.ripe.db.whois.update.domain.Update;
 
-import jakarta.annotation.concurrent.Immutable;
+import javax.annotation.concurrent.Immutable;
 import java.util.Objects;
 
 @Immutable

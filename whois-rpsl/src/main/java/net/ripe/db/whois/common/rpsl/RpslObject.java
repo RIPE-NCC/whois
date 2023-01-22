@@ -10,8 +10,8 @@ import net.ripe.db.whois.common.domain.ResponseObject;
 import net.ripe.db.whois.common.io.ByteArrayOutput;
 import org.apache.commons.lang.Validate;
 
-import jakarta.annotation.Nullable;
-import jakarta.annotation.concurrent.Immutable;
+import javax.annotation.Nullable;
+import javax.annotation.concurrent.Immutable;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;

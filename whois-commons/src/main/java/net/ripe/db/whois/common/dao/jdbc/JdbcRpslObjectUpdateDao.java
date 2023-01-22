@@ -25,7 +25,7 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
-import jakarta.annotation.CheckForNull;
+import javax.annotation.CheckForNull;
 import jakarta.sql.DataSource;
 import java.util.Collections;
 import java.util.List;

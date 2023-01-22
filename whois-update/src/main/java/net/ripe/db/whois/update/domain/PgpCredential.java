@@ -4,7 +4,7 @@ import net.ripe.db.whois.common.DateTimeProvider;
 import net.ripe.db.whois.update.keycert.PgpSignedMessage;
 import org.bouncycastle.openpgp.PGPPublicKey;
 
-import jakarta.annotation.Nullable;
+import javax.annotation.Nullable;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.util.Objects;
