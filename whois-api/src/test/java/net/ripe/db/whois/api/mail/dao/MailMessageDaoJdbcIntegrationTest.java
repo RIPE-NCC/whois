@@ -1,5 +1,7 @@
 package net.ripe.db.whois.api.mail.dao;
 
+import jakarta.mail.Session;
+import jakarta.mail.internet.MimeMessage;
 import net.ripe.db.whois.api.AbstractIntegrationTest;
 import net.ripe.db.whois.api.MimeMessageProvider;
 import net.ripe.db.whois.api.mail.dequeue.MessageDequeue;
@@ -10,8 +12,6 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.util.FileCopyUtils;
 
-import jakarta.mail.Session;
-import jakarta.mail.internet.MimeMessage;
 import java.io.InputStreamReader;
 import java.util.List;
 import java.util.Map;
@@ -37,7 +37,7 @@ public class MailMessageDaoJdbcIntegrationTest extends AbstractIntegrationTest {
     @Test
     public void addMessage_invalid() {
         assertThrows(IllegalArgumentException.class, () -> {
-            subject.addMessage(new MimeMessage((Session) null));
+            subject.addMessage(new MimeMessage(Session.getInstance(System.getProperties())));
 
             assertThat(getAllMessages(), hasSize(0));
         });

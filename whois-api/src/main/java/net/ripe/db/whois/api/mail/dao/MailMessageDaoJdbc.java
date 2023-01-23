@@ -1,6 +1,7 @@
 package net.ripe.db.whois.api.mail.dao;
 
 import jakarta.mail.MessagingException;
+import jakarta.mail.Session;
 import jakarta.mail.internet.MimeMessage;
 import net.ripe.db.whois.common.DateTimeProvider;
 import net.ripe.db.whois.common.domain.Hosts;
@@ -77,7 +78,7 @@ class MailMessageDaoJdbc implements MailMessageDao {
         final byte[] bytes = jdbcTemplate.queryForObject("select message from mailupdates where claim_uuid = ?", byte[].class, messageUuid);
 
         try {
-            return new MimeMessage(null, new ByteArrayInputStream(bytes));
+            return new MimeMessage(Session.getInstance(System.getProperties()), new ByteArrayInputStream(bytes));
         } catch (MessagingException e) {
             throw new IllegalStateException("Unable to parse message with id: " + messageUuid);
         }

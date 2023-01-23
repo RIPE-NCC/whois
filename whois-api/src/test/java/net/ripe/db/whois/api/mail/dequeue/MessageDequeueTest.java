@@ -1,6 +1,9 @@
 package net.ripe.db.whois.api.mail.dequeue;
 
 import com.google.common.collect.Lists;
+import jakarta.mail.Message;
+import jakarta.mail.Session;
+import jakarta.mail.internet.MimeMessage;
 import net.ripe.db.whois.api.MimeMessageProvider;
 import net.ripe.db.whois.api.UpdatesParser;
 import net.ripe.db.whois.api.mail.MailMessage;
@@ -29,8 +32,6 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.mockito.stubbing.Answer;
 import org.springframework.test.util.ReflectionTestUtils;
 
-import jakarta.mail.Message;
-import jakarta.mail.internet.MimeMessage;
 import java.io.ByteArrayInputStream;
 import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
@@ -166,7 +167,7 @@ public class MessageDequeueTest {
 
     @Test
     public void handleMessage_invalidReplyTo() throws Exception {
-        final MimeMessage message = new MimeMessage(null, new ByteArrayInputStream("Reply-To: <respondera: ventas@amusing.cl>".getBytes()));
+        final MimeMessage message = new MimeMessage(Session.getInstance(System.getProperties()), new ByteArrayInputStream("Reply-To: <respondera: ventas@amusing.cl>".getBytes()));
 
         when(messageFilter.shouldProcess(any(MailMessage.class))).thenReturn(false);
         when(messageParser.parse(eq(message), any(UpdateContext.class))).thenReturn(
@@ -217,7 +218,7 @@ public class MessageDequeueTest {
 
     @Test
     public void malformed_from_header_is_detected() throws Exception {
-        final MimeMessage message = new MimeMessage(null, new ByteArrayInputStream(("From: <\"abrahamgv@gmail.com\">\n" +
+        final MimeMessage message = new MimeMessage(Session.getInstance(System.getProperties()), new ByteArrayInputStream(("From: <\"abrahamgv@gmail.com\">\n" +
                 "Subject: blabla\n" +
                 "To: bitbucket@ripe.net\n" +
                 "\n" +

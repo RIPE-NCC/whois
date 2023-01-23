@@ -1,5 +1,9 @@
 package net.ripe.db.whois.api.mail.dequeue;
 
+import jakarta.mail.MessagingException;
+import jakarta.mail.Session;
+import jakarta.mail.internet.ContentType;
+import jakarta.mail.internet.MimeMessage;
 import net.ripe.db.whois.api.MimeMessageProvider;
 import net.ripe.db.whois.api.mail.MailMessage;
 import net.ripe.db.whois.common.DateTimeProvider;
@@ -18,9 +22,6 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import jakarta.mail.MessagingException;
-import jakarta.mail.internet.ContentType;
-import jakarta.mail.internet.MimeMessage;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
@@ -174,7 +175,7 @@ public class MessageParserTest {
 
     @Test
     public void parse_invalid_reply_to() throws Exception {
-        MimeMessage messageWithInvalidReplyTo = new MimeMessage(null, new ByteArrayInputStream("Reply-To: <respondera: ventas@amusing.cl>".getBytes()));
+        MimeMessage messageWithInvalidReplyTo = new MimeMessage(Session.getInstance(System.getProperties()), new ByteArrayInputStream("Reply-To: <respondera: ventas@amusing.cl>".getBytes()));
 
         MailMessage result = subject.parse(messageWithInvalidReplyTo, updateContext);
 
@@ -183,7 +184,7 @@ public class MessageParserTest {
 
     @Test
     public void parse_missing_reply_to() throws Exception {
-        MimeMessage messageWithoutReplyTo = new MimeMessage(null, new ByteArrayInputStream("From: minimal@mailclient.org".getBytes()));
+        MimeMessage messageWithoutReplyTo = new MimeMessage(Session.getInstance(System.getProperties()), new ByteArrayInputStream("From: minimal@mailclient.org".getBytes()));
 
         MailMessage result = subject.parse(messageWithoutReplyTo, updateContext);
 
@@ -815,6 +816,6 @@ public class MessageParserTest {
     }
 
     private MimeMessage getMessage(final String message) throws MessagingException, IOException {
-        return new MimeMessage(null, new ByteArrayInputStream(message.getBytes()));
+        return new MimeMessage(Session.getInstance(System.getProperties()), new ByteArrayInputStream(message.getBytes()));
     }
 }

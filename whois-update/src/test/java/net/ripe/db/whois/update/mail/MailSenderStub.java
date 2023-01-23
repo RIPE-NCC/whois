@@ -2,6 +2,11 @@ package net.ripe.db.whois.update.mail;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
+import jakarta.mail.Address;
+import jakarta.mail.Message;
+import jakarta.mail.MessagingException;
+import jakarta.mail.Session;
+import jakarta.mail.internet.MimeMessage;
 import net.ripe.db.whois.common.Stub;
 import net.ripe.db.whois.common.profiles.WhoisProfile;
 import org.awaitility.Awaitility;
@@ -11,11 +16,6 @@ import org.springframework.context.annotation.Profile;
 import org.springframework.mail.javamail.MimeMessagePreparator;
 import org.springframework.stereotype.Component;
 
-import jakarta.mail.Address;
-import jakarta.mail.Message;
-import jakarta.mail.MessagingException;
-import jakarta.mail.Session;
-import jakarta.mail.internet.MimeMessage;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
@@ -38,7 +38,7 @@ public class MailSenderStub extends MailSenderBase implements Stub {
     @Override
     public void send(MimeMessagePreparator mimeMessagePreparator) {
         try {
-            final MimeMessage mimeMessage = new MimeMessage((Session) null);
+            final MimeMessage mimeMessage = new MimeMessage(Session.getInstance(System.getProperties()));
             mimeMessagePreparator.prepare(mimeMessage);
 //            LOGGER.info("Send message: {}\n\n{}\n\n", EnumerationUtils.toList(mimeMessage.getAllHeaderLines()), mimeMessage.getContent());
             messages.add(mimeMessage);

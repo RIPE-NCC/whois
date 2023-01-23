@@ -1,9 +1,10 @@
 package net.ripe.db.whois.api;
 
+import jakarta.mail.Session;
+import jakarta.mail.internet.MimeMessage;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.Resource;
 
-import jakarta.mail.internet.MimeMessage;
 import java.io.InputStream;
 
 /**
@@ -32,7 +33,7 @@ public final class MimeMessageProvider {
         try {
             final InputStream inputStream = resource.getInputStream();
             try {
-                return new MimeMessage(null, inputStream);
+                return new MimeMessage(Session.getInstance(System.getProperties()), inputStream);
             } finally {
                 inputStream.close();
             }
