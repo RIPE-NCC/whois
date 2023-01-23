@@ -30,10 +30,6 @@
             <artifactId>whois-commons</artifactId>
             <type>test-jar</type>
         </dependency>
-        <dependency>
-            <groupId>org.eclipse.jetty</groupId>
-            <artifactId>jetty-rewrite</artifactId>
-        </dependency>
     </dependencies>
 
 </project>

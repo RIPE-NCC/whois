@@ -326,11 +326,6 @@ public class DatabaseHelper implements EmbeddedValueResolverAware {
         return internalsTemplate;
     }
 
-//    @Nullable
-//    public JdbcTemplate getNrtmTemplate() {
-//        return nrtmTemplate;
-//    }
-
     public JdbcTemplate getWhoisTemplate() {
         return new JdbcTemplate(sourceAwareDataSource);
     }
