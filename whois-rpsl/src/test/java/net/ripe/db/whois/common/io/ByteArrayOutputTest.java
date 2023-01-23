@@ -1,11 +1,11 @@
 package net.ripe.db.whois.common.io;
 
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 public class ByteArrayOutputTest {
     private ByteArrayOutput subject;
@@ -73,7 +73,7 @@ public class ByteArrayOutputTest {
 
     @Test
     public void write_bytes_offset_out_of_bounds() {
-        Assertions.assertThrows(IndexOutOfBoundsException.class, () -> {
+        assertThrows(IndexOutOfBoundsException.class, () -> {
             subject.write(buffer, 2, buffer.length);
         });
     }

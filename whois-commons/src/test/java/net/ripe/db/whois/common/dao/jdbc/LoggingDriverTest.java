@@ -5,7 +5,6 @@ import net.ripe.db.whois.common.jdbc.driver.LoggingHandler;
 import net.ripe.db.whois.common.jdbc.driver.ResultInfo;
 import net.ripe.db.whois.common.jdbc.driver.StatementInfo;
 import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -20,9 +19,9 @@ import java.util.Properties;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.greaterThanOrEqualTo;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertNull;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.nullValue;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 @ExtendWith(MockitoExtension.class)
 public class LoggingDriverTest {
@@ -50,34 +49,35 @@ public class LoggingDriverTest {
 
     @Test
     public void acceptsUrl() {
-        assertTrue(subject.acceptsURL("jdbc:log:mariadb"));
-        assertFalse(subject.acceptsURL("jdbc:mariadb"));
-        assertFalse(subject.acceptsURL(null));
+        assertThat(subject.acceptsURL("jdbc:log:mariadb"), is(true));
+        assertThat(subject.acceptsURL("jdbc:mariadb"), is(false));
+        assertThat(subject.acceptsURL(null), is(false));
     }
 
     @Test
     public void connect_no_driver() {
-        Assertions.assertThrows(IllegalArgumentException.class, () -> {
+        assertThrows(IllegalArgumentException.class, () -> {
             subject.connect("jdbc:log:mariadb://localhost;logger=" + TestLoggingHandler.class.getName(), new Properties());
         });
     }
 
     @Test
     public void connect_unknown_driver() {
-        Assertions.assertThrows(IllegalArgumentException.class, () -> {
+        assertThrows(IllegalArgumentException.class, () -> {
             connection = subject.connect("jdbc:log:mariadb://localhost;driver=SomeUnknownDriver;logger=" + TestLoggingHandler.class.getName(), new Properties());
         });
     }
 
     @Test
     public void connect_invalid_driver(){
-        Assertions.assertThrows(IllegalArgumentException.class, () -> {
+        assertThrows(IllegalArgumentException.class, () -> {
             connection = subject.connect("jdbc:log:mariadb://localhost;driver=java.lang.String;logger=" + TestLoggingHandler.class.getName(), new Properties());
         });
     }
 
+    @Test
     public void connect_unsupported_url() throws SQLException {
-        assertNull(subject.connect(null, new Properties()));
+        assertThat(subject.connect(null, new Properties()), is(nullValue()));
     }
 
     @Test
@@ -92,14 +92,13 @@ public class LoggingDriverTest {
 
     @Test
     public void jdbcCompliant() {
-        assertFalse(subject.jdbcCompliant());
+        assertThat(subject.jdbcCompliant(), is(false));
     }
 
     @Test
     public void getPropertyInfo() {
-        Assertions.assertThrows(UnsupportedOperationException.class, () -> {
+        assertThrows(UnsupportedOperationException.class, () -> {
             subject.getPropertyInfo("jdbc:log:mariadb://localhost;driver=org.mariadb.jdbc.Driver;logger=" + TestLoggingHandler.class.getName(), properties);
-
         });
     }
 

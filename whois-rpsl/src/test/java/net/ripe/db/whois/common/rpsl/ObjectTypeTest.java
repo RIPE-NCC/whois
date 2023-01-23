@@ -1,11 +1,11 @@
 package net.ripe.db.whois.common.rpsl;
 
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
-import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.hamcrest.Matchers.nullValue;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 public class ObjectTypeTest {
     @Test
@@ -17,7 +17,7 @@ public class ObjectTypeTest {
 
     @Test
     public void getByName_unknown() {
-        Assertions.assertThrows(IllegalArgumentException.class, () -> {
+        assertThrows(IllegalArgumentException.class, () -> {
             ObjectType.getByName("UNKNOWN");
         });
     }
@@ -31,6 +31,6 @@ public class ObjectTypeTest {
 
     @Test
     public void getByNameOrNull_unknown() {
-        assertNull(ObjectType.getByNameOrNull("UNKNOWN"));
+        assertThat(ObjectType.getByNameOrNull("UNKNOWN"), is(nullValue()));
     }
 }

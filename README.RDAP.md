@@ -16,13 +16,9 @@ Multiple organisation e-mail and phone attributes are returned, but not with pre
 ----------------------------------------------------------------------------------------
 Preferences are not assigned to multiple e-mail or phone elements.
 
-AS block returned if AS number not found
+Flat AS Model
 ----------------------------------------
-If an AS number is allocated to the RIPE region, that is returned.
-
-If an AS number is allocated to a different region, a redirect is returned.
-
-If an AS number is not allocated to any region, the parent AS block is returned. This includes reserved AS numbers.
+Not Found (404) is thrown if AS number is not found.
 
 Custom "ZONE" role for domain objects
 -------------------------------------
@@ -57,18 +53,6 @@ Domain search is restricted to only search for reverse delegations, and results 
 Netname may not match Whois
 ----------------------------
 The netname value returned by RDAP may not match what is returned by Whois.
-
-Entity does not include networks
----------------------------------
-An entity (i.e. for an organisation) should include any related networks. 
-
-This list of networks should have a maximum size to prevent the response from growing too large and taking too long.
-
-Ref. RFC 7483, Section 5.1 The Entity Object Class. (https://tools.ietf.org/html/rfc7483#section-5.1).
-
-Example:
-* Request: http://rdap.db.ripe.net/entity/ORG-RIEN1-RIPE
- * Response: Should include "networks" element with referenced networks, including 193.0.0.0 - 193.0.23.255
 
 Nameserver queries always return Not Implemented
 -------------------------------------------------

@@ -25,8 +25,8 @@ import static net.ripe.db.whois.update.handler.validator.organisation.LirAttribu
 import static net.ripe.db.whois.update.handler.validator.organisation.LirAttributeValidatorFixtures.LIR_ORG_PHONE;
 import static net.ripe.db.whois.update.handler.validator.organisation.LirAttributeValidatorFixtures.NON_LIR_ORG;
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.core.Is.is;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.hamcrest.Matchers.contains;
+import static org.hamcrest.Matchers.hasSize;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.verify;
@@ -49,14 +49,14 @@ public class LirUserMaintainedAttributesValidatorTest {
 
     @Test
     public void getActions() {
-        assertThat(subject.getActions().size(), is(1));
-        assertTrue(subject.getActions().contains(Action.MODIFY));
+        assertThat(subject.getActions(), hasSize(1));
+        assertThat(subject.getActions(), contains(Action.MODIFY));
     }
 
     @Test
     public void getTypes() {
-        assertThat(subject.getTypes().size(), is(1));
-        assertTrue(subject.getTypes().contains(ObjectType.ORGANISATION));
+        assertThat(subject.getTypes(), hasSize(1));
+        assertThat(subject.getTypes(), contains(ObjectType.ORGANISATION));
     }
 
     @Test

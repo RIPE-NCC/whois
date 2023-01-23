@@ -2,19 +2,19 @@ package net.ripe.db.whois.common.rpsl.attrs;
 
 import net.ripe.db.whois.common.ip.Ipv4Resource;
 import net.ripe.db.whois.common.ip.Ipv6Resource;
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 import static net.ripe.db.whois.common.domain.CIString.ciString;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
-import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.hamcrest.Matchers.nullValue;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 public class DomainTest {
 
     @Test
     public void empty() {
-        Assertions.assertThrows(AttributeParseException.class, () -> {
+        assertThrows(AttributeParseException.class, () -> {
             Domain.parse("");
         });
 
@@ -22,7 +22,7 @@ public class DomainTest {
 
     @Test
     public void hostname() {
-        Assertions.assertThrows(AttributeParseException.class, () -> {
+        assertThrows(AttributeParseException.class, () -> {
             Domain.parse("hostname");
         });
     }
@@ -45,7 +45,7 @@ public class DomainTest {
 
     @Test
     public void ipv4_dash_invalid_position() {
-        Assertions.assertThrows(AttributeParseException.class, () -> {
+        assertThrows(AttributeParseException.class, () -> {
             Domain.parse("0-127.10.10.in-addr.arpa");
         });
 
@@ -53,7 +53,7 @@ public class DomainTest {
 
     @Test
     public void ipv4_dash_range_0_255() {
-        Assertions.assertThrows(AttributeParseException.class, () -> {
+        assertThrows(AttributeParseException.class, () -> {
             Domain.parse("0-255.10.10.in-addr.arpa");
         });
 
@@ -61,7 +61,7 @@ public class DomainTest {
 
     @Test
     public void ipv4_dash_range_start_is_range_end() {
-        Assertions.assertThrows(AttributeParseException.class, () -> {
+        assertThrows(AttributeParseException.class, () -> {
             Domain.parse("1-1.10.10.in-addr.arpa");
         });
 
@@ -113,7 +113,7 @@ public class DomainTest {
 
     @Test
     public void suffix() {
-        Assertions.assertThrows(AttributeParseException.class, () -> {
+        assertThrows(AttributeParseException.class, () -> {
             Domain.parse("200.193.193.193.some-suffix.");
         });
 
@@ -121,7 +121,7 @@ public class DomainTest {
 
     @Test
     public void suffix_almost_correct() {
-        Assertions.assertThrows(AttributeParseException.class, () -> {
+        assertThrows(AttributeParseException.class, () -> {
             Domain.parse("200.193.193.in-addraarpa");
         });
 
@@ -191,7 +191,7 @@ public class DomainTest {
     public void enum_domain() {
         final Domain domain = Domain.parse("2.1.2.1.5.5.5.2.0.2.1.e164.arpa");
         assertThat(domain.getValue(), is(ciString("2.1.2.1.5.5.5.2.0.2.1.e164.arpa")));
-        assertNull(domain.getReverseIp());
+        assertThat(domain.getReverseIp(), is(nullValue()));
         assertThat(domain.getType(), is(Domain.Type.E164));
     }
 }

@@ -33,7 +33,6 @@ import org.glassfish.jersey.client.ClientProperties;
 import org.glassfish.jersey.client.filter.EncodingFilter;
 import org.glassfish.jersey.message.GZipEncoder;
 import org.glassfish.jersey.uri.UriComponent;
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Tag;
@@ -91,7 +90,7 @@ import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.not;
 import static org.hamcrest.Matchers.nullValue;
 import static org.hamcrest.Matchers.startsWith;
-import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.fail;
 
 // FIXME: make this into a suite that runs twice: once with XML, once with JSON
@@ -312,7 +311,7 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
         );
         ipTreeUpdater.rebuild();
 
-        Assertions.assertThrows(NotFoundException.class, () -> {
+        assertThrows(NotFoundException.class, () -> {
             RestTest.target(getPort(), "whois/test/inet6num/2001:2002:2003::").request().get(WhoisResources.class);
         });
     }
@@ -877,14 +876,14 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
 
     @Test
     public void lookup_object_not_found() {
-        Assertions.assertThrows(NotFoundException.class, () -> {
+        assertThrows(NotFoundException.class, () -> {
             RestTest.target(getPort(), "whois/test/person/PP1-TEST").request().get(WhoisResources.class);
         });
     }
 
     @Test
     public void lookup_object_wrong_source() {
-        Assertions.assertThrows(NotFoundException.class, () -> {
+        assertThrows(NotFoundException.class, () -> {
             RestTest.target(getPort(), "whois/test-grs/person/TP1-TEST").request().get(String.class);
         });
     }
@@ -2455,7 +2454,7 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
 
     @Test
     public void create_bad_input_empty_objects_element() {
-        Assertions.assertThrows(BadRequestException.class, () -> {
+        assertThrows(BadRequestException.class, () -> {
             RestTest.target(getPort(), "whois/test/person?password=test")
                     .request()
                     .post(Entity.entity("<whois-resources>\n<objects/>\n</whois-resources>", MediaType.APPLICATION_XML), String.class);
@@ -2465,7 +2464,7 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
 
     @Test
     public void create_bad_input_no_objects_element() {
-        Assertions.assertThrows(BadRequestException.class, () -> {
+        assertThrows(BadRequestException.class, () -> {
             RestTest.target(getPort(), "whois/test/person?password=test")
                     .request()
                     .post(Entity.entity("<whois-resources/>", MediaType.APPLICATION_XML), String.class);
@@ -2475,7 +2474,7 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
 
     @Test
     public void create_bad_input_empty_body() {
-        Assertions.assertThrows(BadRequestException.class, () -> {
+        assertThrows(BadRequestException.class, () -> {
             RestTest.target(getPort(), "whois/test/person?password=test")
                     .request()
                     .post(Entity.entity("", MediaType.APPLICATION_XML), String.class);
@@ -2484,7 +2483,7 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
 
     @Test
     public void create_bad_input_null_body() {
-        Assertions.assertThrows(BadRequestException.class, () -> {
+        assertThrows(BadRequestException.class, () -> {
             RestTest.target(getPort(), "whois/test/mntner")
                     .request()
                     .post( null, WhoisResources.class);
@@ -2661,7 +2660,7 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
 
     @Test
     public void get_method_without_primary_key_not_allowed() {
-        Assertions.assertThrows(NotAllowedException.class, () -> {
+        assertThrows(NotAllowedException.class, () -> {
             RestTest.target(getPort(), "whois/ripe/route6")
                     .request()
                     .get(String.class);
@@ -2670,7 +2669,7 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
 
     @Test
     public void delete_method_without_primary_key_not_allowed() {
-        Assertions.assertThrows(NotAllowedException.class, () -> {
+        assertThrows(NotAllowedException.class, () -> {
             RestTest.target(getPort(), "whois/test/person")
                     .request()
                     .delete(String.class);
@@ -3195,7 +3194,7 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
 
         final String message = mailSenderStub.getMessage("mnt-nfy@ripe.net").getContent().toString();
         assertThat(message, containsString("Pauleth Palthen"));
-        assertFalse(mailSenderStub.anyMoreMessages());
+        assertThat(mailSenderStub.anyMoreMessages(), is(false));
     }
 
     @Test
@@ -3229,7 +3228,7 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
         } catch (NotAuthorizedException e) {
             final String message = mailSenderStub.getMessage("upd-to@ripe.net").getContent().toString();
             assertThat(message, containsString("Pauleth Palthen"));
-            assertFalse(mailSenderStub.anyMoreMessages());
+            assertThat(mailSenderStub.anyMoreMessages(), is(false));
         }
     }
 
@@ -3264,7 +3263,7 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
 
         final String message = mailSenderStub.getMessage("mnt-nfy@ripe.net").getContent().toString();
         assertThat(message, containsString("Pauleth Palthen"));
-        assertFalse(mailSenderStub.anyMoreMessages());
+        assertThat(mailSenderStub.anyMoreMessages(), is(false));
     }
 
     @Test
@@ -3296,7 +3295,7 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
                 .request()
                 .post(Entity.entity(map(person), MediaType.APPLICATION_XML), WhoisResources.class);
 
-        assertFalse(mailSenderStub.anyMoreMessages());
+        assertThat(mailSenderStub.anyMoreMessages(), is(false));
     }
 
     @Test
@@ -3495,7 +3494,7 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
 
     @Test
     public void delete_nonexistant() {
-        Assertions.assertThrows(NotFoundException.class, () -> {
+        assertThrows(NotFoundException.class, () -> {
             RestTest.target(getPort(), "whois/test/person/NON-EXISTANT")
                     .request()
                     .delete(String.class);
@@ -3585,7 +3584,7 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
 
         final String message = mailSenderStub.getMessage("mnt-nfy@ripe.net").getContent().toString();
         assertThat(message, containsString("Pauleth Palthen"));
-        assertFalse(mailSenderStub.anyMoreMessages());
+        assertThat(mailSenderStub.anyMoreMessages(), is(false));
     }
 
     @Test
@@ -3620,7 +3619,7 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
         } catch (NotAuthorizedException e) {
             final String message = mailSenderStub.getMessage("upd-to@ripe.net").getContent().toString();
             assertThat(message, containsString("Pauleth Palthen"));
-            assertFalse(mailSenderStub.anyMoreMessages());
+            assertThat(mailSenderStub.anyMoreMessages(), is(false));
         }
     }
 
@@ -3655,7 +3654,7 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
 
         final String message = mailSenderStub.getMessage("mnt-nfy@ripe.net").getContent().toString();
         assertThat(message, containsString("Pauleth Palthen"));
-        assertFalse(mailSenderStub.anyMoreMessages());
+        assertThat(mailSenderStub.anyMoreMessages(), is(false));
     }
 
     @Test
@@ -3687,15 +3686,17 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
                 .request()
                 .delete(String.class);
 
-        assertFalse(mailSenderStub.anyMoreMessages());
+        assertThat(mailSenderStub.anyMoreMessages(), is(false));
     }
 
     @Test
     public void delete_dryrun() {
         databaseHelper.addObject(PAULETH_PALTHEN);
+
         final WhoisResources whoisResources = RestTest.target(getPort(), "whois/test/person/PP1-TEST?password=test&dry-run")
                 .request()
                 .delete(WhoisResources.class);
+
         final List<ErrorMessage> messages = whoisResources.getErrorMessages();
         assertThat(messages, hasSize(1));
         assertThat(messages.get(0).getText(), is("Dry-run performed, no changes to the database have been made"));
@@ -4038,7 +4039,7 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
 
     @Test
     public void update_post_not_allowed() {
-        Assertions.assertThrows(NotAllowedException.class, () -> {
+        assertThrows(NotAllowedException.class, () -> {
             RestTest.target(getPort(), "whois/test/person/PP1-TEST?password=test")
                     .request(MediaType.APPLICATION_XML)
                     .post(Entity.entity(map(PAULETH_PALTHEN), MediaType.APPLICATION_XML), String.class);
@@ -4133,7 +4134,7 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
 
     @Test
     public void update_bad_input_empty_body() {
-        Assertions.assertThrows(BadRequestException.class, () -> {
+        assertThrows(BadRequestException.class, () -> {
             RestTest.target(getPort(), "whois/test/person/TP1-TEST?password=test")
                     .request(MediaType.APPLICATION_XML)
                     .put(Entity.entity("", MediaType.APPLICATION_XML), WhoisResources.class);
@@ -4256,7 +4257,7 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
 
         final String message = mailSenderStub.getMessage("mnt-nfy@ripe.net").getContent().toString();
         assertThat(message, containsString("Pauleth Palthen"));
-        assertFalse(mailSenderStub.anyMoreMessages());
+        assertThat(mailSenderStub.anyMoreMessages(), is(false));
     }
 
     @Test
@@ -4293,7 +4294,7 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
         } catch (NotAuthorizedException e) {
             final String message = mailSenderStub.getMessage("upd-to@ripe.net").getContent().toString();
             assertThat(message, containsString("Pauleth Palthen"));
-            assertFalse(mailSenderStub.anyMoreMessages());
+            assertThat(mailSenderStub.anyMoreMessages(), is(false));
         }
     }
 
@@ -4355,7 +4356,7 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
             fail();
         } catch (BadRequestException e) {
             assertThat(e.getResponse().readEntity(String.class), containsString("Syntax error"));
-            assertFalse(mailSenderStub.anyMoreMessages());
+            assertThat(mailSenderStub.anyMoreMessages(), is(false));
         }
     }
 
@@ -4392,7 +4393,7 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
 
         final String message = mailSenderStub.getMessage("mnt-nfy@ripe.net").getContent().toString();
         assertThat(message, containsString("Pauleth Palthen"));
-        assertFalse(mailSenderStub.anyMoreMessages());
+        assertThat(mailSenderStub.anyMoreMessages(), is(false));
     }
 
     @Test
@@ -4427,7 +4428,7 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
                 .request()
                 .put(Entity.entity(map(updatedPerson), MediaType.APPLICATION_XML), WhoisResources.class);
 
-        assertFalse(mailSenderStub.anyMoreMessages());
+        assertThat(mailSenderStub.anyMoreMessages(), is(false));
     }
 
     @Test
@@ -4621,7 +4622,7 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
 
     @Test
     public void maintenance_mode_readonly_update() {
-        Assertions.assertThrows(ServiceUnavailableException.class, () -> {
+        assertThrows(ServiceUnavailableException.class, () -> {
             maintenanceMode.set("READONLY,READONLY");
             RestTest.target(getPort(), "whois/test/person/PP1-TEST")
                     .request(MediaType.APPLICATION_XML)
@@ -4638,7 +4639,7 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
 
     @Test
     public void maintenance_mode_none_update() {
-        Assertions.assertThrows(ServiceUnavailableException.class, () -> {
+        assertThrows(ServiceUnavailableException.class, () -> {
             maintenanceMode.set("NONE,NONE");
             RestTest.target(getPort(), "whois/test/person/PP1-TEST")
                     .request(MediaType.APPLICATION_XML)
@@ -4648,7 +4649,7 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
 
     @Test
     public void maintenance_mode_none_query() {
-        Assertions.assertThrows(ServiceUnavailableException.class, () -> {
+        assertThrows(ServiceUnavailableException.class, () -> {
             maintenanceMode.set("NONE,NONE");
             RestTest.target(getPort(), "whois/test/person/TP1-TEST").request().get(WhoisResources.class);
         });

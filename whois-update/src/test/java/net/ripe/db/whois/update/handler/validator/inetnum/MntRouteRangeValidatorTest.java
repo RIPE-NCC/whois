@@ -17,6 +17,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import java.util.List;
 
 import static org.hamcrest.Matchers.containsInAnyOrder;
+import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.core.Is.is;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.mockito.Mockito.any;
@@ -202,7 +203,7 @@ public class MntRouteRangeValidatorTest {
     public void supports_actions_create_modify() {
         final List<Action> actions = subject.getActions();
 
-        assertThat(actions.size(), is(2));
+        assertThat(actions, hasSize(2));
         assertThat(actions.contains(Action.CREATE), is(true));
         assertThat(actions.contains(Action.MODIFY), is(true));
     }

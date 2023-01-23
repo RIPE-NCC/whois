@@ -10,9 +10,9 @@ import org.junit.jupiter.api.Test;
 import java.io.IOException;
 import java.util.concurrent.TimeUnit;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNull;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.nullValue;
 
 
 @Tag("ElasticSearchTest")
@@ -27,39 +27,39 @@ public class ElasticIndexServiceIntegrationTest extends AbstractElasticSearchInt
     public void addThenCountAndThenDeleteByEntry() throws IOException {
         long whoisDocCount = elasticIndexService.getWhoisDocCount();
         // No document in index
-        assertEquals(whoisDocCount, 0);
+        assertThat(whoisDocCount, is(0L));
         elasticIndexService.addEntry(RPSL_MNT_PERSON);
         Uninterruptibles.sleepUninterruptibly(2, TimeUnit.SECONDS);
         whoisDocCount = elasticIndexService.getWhoisDocCount();
         // one document after adding
-        assertEquals(whoisDocCount, 1);
+        assertThat(whoisDocCount, is(1L));
         elasticIndexService.deleteEntry(RPSL_MNT_PERSON.getObjectId());
         Uninterruptibles.sleepUninterruptibly(2, TimeUnit.SECONDS);
         whoisDocCount = elasticIndexService.getWhoisDocCount();
         // no document in index after deleting
-        assertEquals(whoisDocCount, 0);
+        assertThat(whoisDocCount, is(0L));
     }
 
     @Test
     public void addThenCountAndThenDeleteAll() throws IOException {
         long whoisDocCount = elasticIndexService.getWhoisDocCount();
         // No document in index
-        assertEquals(whoisDocCount, 0);
+        assertThat(whoisDocCount, is(0L));
         elasticIndexService.addEntry(RPSL_MNT_PERSON);
         Uninterruptibles.sleepUninterruptibly(2, TimeUnit.SECONDS);
         whoisDocCount = elasticIndexService.getWhoisDocCount();
         // one document after adding
-        assertEquals(whoisDocCount, 1);
+        assertThat(whoisDocCount, is(1L));
         elasticIndexService.deleteAll();
         Uninterruptibles.sleepUninterruptibly(2, TimeUnit.SECONDS);
         whoisDocCount = elasticIndexService.getWhoisDocCount();
         // no document in index after deleting
-        assertEquals(whoisDocCount, 0);
+        assertThat(whoisDocCount, is(0L));
     }
 
     @Test
     public void isEnabledWhenIndicesExist() {
-        assertTrue(elasticIndexService.isEnabled());
+        assertThat(elasticIndexService.isEnabled(), is(true));
     }
 
     @Test
@@ -68,11 +68,12 @@ public class ElasticIndexServiceIntegrationTest extends AbstractElasticSearchInt
         Uninterruptibles.sleepUninterruptibly(1, TimeUnit.SECONDS);
 
         ElasticIndexMetadata elasticIndexMetadata = new ElasticIndexMetadata(1, "TEST");
-        assertNull(elasticIndexService.getMetadata());
+
+        assertThat(elasticIndexService.getMetadata(), is(nullValue()));
         elasticIndexService.updateMetadata(elasticIndexMetadata);
         ElasticIndexMetadata retrievedMetaData = elasticIndexService.getMetadata();
-        assertEquals(1L, retrievedMetaData.getSerial().longValue());
-        assertEquals("TEST", retrievedMetaData.getSource());
+        assertThat(retrievedMetaData.getSerial().longValue(), is(1L));
+        assertThat(retrievedMetaData.getSource(), is("TEST"));
     }
 
     @Test
@@ -83,7 +84,7 @@ public class ElasticIndexServiceIntegrationTest extends AbstractElasticSearchInt
 
         Uninterruptibles.sleepUninterruptibly(2, TimeUnit.SECONDS);
         // one document after adding
-        assertEquals(elasticIndexService.getWhoisDocCount(), 1);
+        assertThat(elasticIndexService.getWhoisDocCount(), is(1L));
 
          whoisTemplate.update("INSERT INTO serials "
                         + " (serial_id, object_id, sequence_id, atlast, operation) "
@@ -103,7 +104,7 @@ public class ElasticIndexServiceIntegrationTest extends AbstractElasticSearchInt
                                     "source:       TEST', 'LIM-WEBUPDATES')");
 
         rebuildIndex();
-        assertEquals(elasticIndexService.getWhoisDocCount(), 1);
+        assertThat(elasticIndexService.getWhoisDocCount(), is(1L));
     }
 
     @Override

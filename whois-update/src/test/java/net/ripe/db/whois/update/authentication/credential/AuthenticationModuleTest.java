@@ -60,7 +60,7 @@ public class AuthenticationModuleTest {
 
         final List<RpslObject> result = subject.authenticate(update, updateContext, Lists.newArrayList(mntner1, mntner2, mntner3), MntByAuthentication.class);
 
-        assertThat(result.size(), is(2));
+        assertThat(result, hasSize(2));
         assertThat(result.contains(mntner1), is(true));
         assertThat(result.contains(mntner2), is(true));
         assertThat(result.contains(mntner3), is(false));

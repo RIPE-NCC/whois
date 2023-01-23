@@ -35,9 +35,9 @@ import java.util.Optional;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.Matchers.containsInAnyOrder;
+import static org.hamcrest.Matchers.nullValue;
 import static org.hamcrest.core.Is.is;
 import static org.hamcrest.core.StringContains.containsString;
-import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
@@ -90,7 +90,7 @@ public class InternalUpdatePerformerTest {
         final Update update = subject.createUpdate(updateContextMock, object, Collections.singletonList("password"), null, "override");
 
         assertThat(update.getCredentials().all(), containsInAnyOrder((Credential) OverrideCredential.parse("override"), (Credential) new PasswordCredential("password")));
-        assertNull(update.getDeleteReasons());
+        assertThat(update.getDeleteReasons(), is(nullValue()));
         assertThat(update.getOperation(), is(Operation.UNSPECIFIED));
         assertThat(update.getParagraph().getContent(), is(
                 "mntner:         TEST-MNT\n" +
@@ -132,7 +132,7 @@ public class InternalUpdatePerformerTest {
         final Update update = subject.createUpdate(updateContextMock, object, Lists.newArrayList("password1", "password2"), null, null);
 
         assertThat(update.getCredentials().all(), containsInAnyOrder((Credential) new PasswordCredential("password1"), (Credential) new PasswordCredential("password2")));
-        assertNull(update.getDeleteReasons());
+        assertThat(update.getDeleteReasons(), is(nullValue()));
         assertThat(update.getParagraph().getContent(), is(
                 "person:         Test Person\n" +
                 "nic-hdl:        TP1-TEST\n" +
