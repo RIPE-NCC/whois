@@ -378,6 +378,12 @@
                 <groupId>org.bouncycastle</groupId>
                 <artifactId>bcjmail-jdk18on</artifactId>
                 <version>${bouncycastle.version}</version>
+                <exclusions>
+                    <exclusion>
+                        <artifactId>jakarta.mail</artifactId>
+                        <groupId>com.sun.mail</groupId>
+                    </exclusion>
+                </exclusions>
             </dependency>
             <dependency>
                 <groupId>org.bouncycastle</groupId>
