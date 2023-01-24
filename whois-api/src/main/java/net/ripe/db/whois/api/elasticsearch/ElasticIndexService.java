@@ -56,12 +56,12 @@ public class ElasticIndexService {
     private final String metadataIndex;
 
     @Autowired
-    public ElasticIndexService(@Value("#{'${elastic.host:}'.split(',')}") final List<String> elasticHosts,
+    public ElasticIndexService(final ElasticRestHighlevelClient elasticRestHighlevelClient,
                                @Value("${elastic.whois.index:whois}") final String whoisAliasName,
                                @Value("${elastic.commit.index:metadata}") final String whoisMetadataIndexName) {
         this.whoisAliasIndex = whoisAliasName;
         this.metadataIndex = whoisMetadataIndexName;
-        this.client = getEsClient(elasticHosts);
+        this.client = elasticRestHighlevelClient.getClient();
     }
 
     @Nullable
