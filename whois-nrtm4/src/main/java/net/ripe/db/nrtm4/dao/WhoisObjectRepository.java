@@ -22,22 +22,22 @@ public class WhoisObjectRepository {
         this.jdbcTemplate = new JdbcTemplate(dataSource);
     }
 
-    public Integer findLastSerialId() {
+    public Integer getLastSerialId() {
         return jdbcTemplate.queryForObject(
             "SELECT MAX(serial_id) FROM serials",
             (rs, rowNum) -> rs.getInt(1));
     }
 
-    public List<ObjectData> findLastObjects() {
+    public List<RpslObjectData> getAllObjectsFromLast() {
         return jdbcTemplate.query(
             "SELECT object_id, sequence_id FROM last WHERE sequence_id > 0",
-            (rs, rowNum) -> new ObjectData(
+            (rs, rowNum) -> new RpslObjectData(
                 rs.getInt(1),                           // objectId
                 rs.getInt(2))                           // sequenceId
         );
     }
 
-    public Map<Integer, String> findRpslMapForLastObjects(final List<ObjectData> objects) {
+    public Map<Integer, String> findRpslMapForLastObjects(final List<RpslObjectData> objects) {
         final String sql = "" +
             "SELECT object_id, object " +
             "FROM last " +
@@ -45,7 +45,7 @@ public class WhoisObjectRepository {
             "  AND sequence_id = ?";
         final Map<Integer, String> resultMap = new HashMap<>();
         jdbcTemplate.execute(sql, (PreparedStatementCallback<Object>) ps -> {
-            for (final ObjectData object : objects) {
+            for (final RpslObjectData object : objects) {
                 ps.setInt(1, object.objectId());
                 ps.setInt(2, object.sequenceId());
                 final ResultSet rs = ps.executeQuery();

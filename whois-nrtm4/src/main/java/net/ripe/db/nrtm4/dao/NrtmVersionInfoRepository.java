@@ -31,7 +31,6 @@ public class NrtmVersionInfoRepository {
             NrtmDocumentType.valueOf(rs.getString(5)),
             rs.getInt(6)
         );
-    private final String versionColumns = "v.id, src.name, v.version, v.session_id, v.type, v.last_serial_id ";
 
     public NrtmVersionInfoRepository(
         @Qualifier("nrtmDataSource") final DataSource dataSource
@@ -48,7 +47,7 @@ public class NrtmVersionInfoRepository {
     public Optional<NrtmVersionInfo> findLastVersion(final NrtmSource source) {
         try {
             return Optional.ofNullable(jdbcTemplate.queryForObject("" +
-                    "SELECT " + versionColumns +
+                    "SELECT v.id, src.name, v.version, v.session_id, v.type, v.last_serial_id " +
                     "FROM version_info v JOIN source src ON src.id = v.source_id " +
                     "WHERE src.name = ? " +
                     "ORDER BY v.version DESC LIMIT 1",
@@ -103,7 +102,7 @@ public class NrtmVersionInfoRepository {
 
     public NrtmVersionInfo findLastSnapshotVersion(final NrtmSource source) {
         final String sql = "" +
-            "SELECT " + versionColumns +
+            "SELECT v.id, src.name, v.version, v.session_id, v.type, v.last_serial_id " +
             "FROM version_info v " +
             "JOIN source src ON src.id = v.source_id " +
             "JOIN snapshot_file sf ON sf.version_id = v.id " +
@@ -114,7 +113,7 @@ public class NrtmVersionInfoRepository {
 
     public Optional<NrtmVersionInfo> findById(final long versionId) {
         final String sql = "" +
-            "SELECT " + versionColumns +
+            "SELECT v.id, src.name, v.version, v.session_id, v.type, v.last_serial_id " +
             "FROM version_info v " +
             "JOIN source src ON src.id = v.source_id " +
             "WHERE v.id = ?";

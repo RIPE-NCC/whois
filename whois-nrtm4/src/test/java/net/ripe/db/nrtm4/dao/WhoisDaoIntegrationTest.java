@@ -25,9 +25,9 @@ public class WhoisDaoIntegrationTest extends AbstractDatabaseHelperIntegrationTe
         loadScripts(whoisTemplate, "nrtm_sample_sm.sql");
 
         final var objects = List.of(
-            new ObjectData(11044887, 1),
-            new ObjectData(11044888, 1),
-            new ObjectData(5158, 2)
+            new RpslObjectData(11044887, 1),
+            new RpslObjectData(11044888, 1),
+            new RpslObjectData(5158, 2)
         );
         final var map = whoisDao.findRpslMapForObjects(objects);
         assertThat(map.size(), is(3));

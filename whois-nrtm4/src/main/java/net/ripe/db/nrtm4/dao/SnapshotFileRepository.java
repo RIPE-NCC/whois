@@ -21,7 +21,7 @@ public class SnapshotFileRepository {
 
     private final JdbcTemplate jdbcTemplate;
     private final DateTimeProvider dateTimeProvider;
-    private final RowMapper<SnapshotFile> rowMapper = (rs, rowNum) ->
+    private static final RowMapper<SnapshotFile> rowMapper = (rs, rowNum) ->
         new SnapshotFile(
             rs.getLong(1),
             rs.getLong(2),
@@ -29,8 +29,6 @@ public class SnapshotFileRepository {
             rs.getString(4),
             rs.getLong(5)
         );
-
-    private final String snapshotFileFields = "sf.id, sf.version_id, sf.name, sf.hash, sf.created ";
 
     public SnapshotFileRepository(
         @Qualifier("nrtmDataSource") final DataSource dataSource,
@@ -63,7 +61,7 @@ public class SnapshotFileRepository {
 
     public Optional<SnapshotFile> getByName(final String sessionId, final String name) {
         final String sql = "" +
-            "SELECT " + snapshotFileFields +
+            "SELECT sf.id, sf.version_id, sf.name, sf.hash, sf.created " +
             "FROM snapshot_file sf " +
             "JOIN version_info v ON v.id = sf.version_id " +
             "WHERE v.session_id = ? " +
@@ -77,7 +75,7 @@ public class SnapshotFileRepository {
 
     public Optional<SnapshotFile> getLastSnapshot(final NrtmSource source) {
         final String sql = "" +
-            "SELECT " + snapshotFileFields +
+            "SELECT sf.id, sf.version_id, sf.name, sf.hash, sf.created " +
             "FROM snapshot_file sf " +
             "JOIN version_info v ON v.id = sf.version_id " +
             "JOIN source src ON src.id = v.source_id " +

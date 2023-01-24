@@ -1,11 +1,12 @@
 package net.ripe.db.nrtm4;
 
+import com.google.common.base.Stopwatch;
 import com.google.common.collect.Lists;
 import net.ripe.db.nrtm4.dao.InitialSnapshotState;
 import net.ripe.db.nrtm4.dao.NrtmSource;
 import net.ripe.db.nrtm4.dao.NrtmVersionInfo;
 import net.ripe.db.nrtm4.dao.NrtmVersionInfoRepository;
-import net.ripe.db.nrtm4.dao.ObjectData;
+import net.ripe.db.nrtm4.dao.RpslObjectData;
 import net.ripe.db.nrtm4.dao.SnapshotObject;
 import net.ripe.db.nrtm4.dao.SnapshotObjectRepository;
 import net.ripe.db.nrtm4.dao.WhoisDao;
@@ -48,19 +49,19 @@ public class SnapshotObjectSynchronizer {
 
     NrtmVersionInfo initializeSnapshotObjects(final NrtmSource source) {
         final String method = "initializeSnapshotObjects";
-        long mark = System.currentTimeMillis();
+        Stopwatch stopwatch = Stopwatch.createStarted();
         LOGGER.info("{} entered", method);
         final InitialSnapshotState initialState = whoisDao.getInitialSnapshotState();
-        LOGGER.info("{} Found {} objects", method, initialState.objectData().size());
-        LOGGER.info("{} At serial {}, {}ms", method, initialState.serialId(), (System.currentTimeMillis() - mark));
-        mark = System.currentTimeMillis();
+        LOGGER.info("{} Found {} objects", method, initialState.rpslObjectData().size());
+        LOGGER.info("{} At serial {}, {}ms", method, initialState.serialId(), stopwatch.elapsed().toMillis());
+        stopwatch = Stopwatch.createStarted();
         final NrtmVersionInfo version = nrtmVersionInfoRepository.createInitialVersion(source, initialState.serialId());
-        Lists.partition(initialState.objectData(), BATCH_SIZE)
+        Lists.partition(initialState.rpslObjectData(), BATCH_SIZE)
             .parallelStream()
             .forEach((objectBatch) -> {
                     final List<SnapshotObject> batch = new ArrayList<>(BATCH_SIZE);
                     final Map<Integer, String> rpslMap = whoisDao.findRpslMapForObjects(objectBatch);
-                    for (final ObjectData object : objectBatch) {
+                    for (final RpslObjectData object : objectBatch) {
                         final String rpsl = rpslMap.get(object.objectId());
                         final RpslObject rpslObject = RpslObject.parse(rpsl);
                         if (!dummifierNrtm.isAllowed(NRTM_VERSION, rpslObject)) {
@@ -73,7 +74,7 @@ public class SnapshotObjectSynchronizer {
                 }
             );
         final DecimalFormat df = new DecimalFormat("#,###.000");
-        LOGGER.info("{} Complete. Initial snapshot objects took {} min", method, df.format((System.currentTimeMillis() - mark) / 60000));
+        LOGGER.info("{} Complete. Initial snapshot objects took {} min", method, df.format(stopwatch.elapsed().toMillis() / 60000));
         return version;
     }
 

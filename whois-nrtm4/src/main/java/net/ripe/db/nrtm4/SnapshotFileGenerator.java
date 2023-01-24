@@ -83,7 +83,6 @@ public class SnapshotFileGenerator {
             );
             snapshotFile.setFileName(fileName);
             snapshotFile.setHash(sha256hex);
-            final long mark = System.currentTimeMillis();
             final DecimalFormat df = new DecimalFormat("#,###.000");
             LOGGER.info("{} Generated snapshot file in {} min", method, df.format(stopwatch.elapsed().toMillis() / 60000.0));
             return Optional.of(snapshotFile);

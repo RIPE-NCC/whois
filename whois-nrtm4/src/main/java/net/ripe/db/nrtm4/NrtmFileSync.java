@@ -10,15 +10,14 @@ import net.ripe.db.nrtm4.domain.SnapshotFileSerializer;
 import org.springframework.stereotype.Service;
 
 import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.OutputStream;
 import java.util.Optional;
 
 
 @Service
 public class NrtmFileSync {
 
-    private final Monitor deltaMutex = new Monitor();
     private final Monitor snapshotMutex = new Monitor();
     private final NrtmFileStore nrtmFileStore;
     private final NrtmVersionInfoRepository nrtmVersionInfoRepository;
@@ -51,9 +50,9 @@ public class NrtmFileSync {
             }
             final NrtmVersionInfo version = nrtmVersionInfoRepository.findById(snapshotFile.get().getVersionId()).orElseThrow();
             final PublishableSnapshotFile publishableSnapshotFile = new PublishableSnapshotFile(version);
-            final FileOutputStream fos = nrtmFileStore.getFileOutputStream(sessionId, name);
-            snapshotFileSerializer.writeSnapshotAsJson(publishableSnapshotFile, fos);
-            fos.close();
+            try (final OutputStream out = nrtmFileStore.getFileOutputStream(sessionId, name)) {
+                snapshotFileSerializer.writeSnapshotAsJson(publishableSnapshotFile, out);
+            }
         } finally {
             snapshotMutex.leave();
         }

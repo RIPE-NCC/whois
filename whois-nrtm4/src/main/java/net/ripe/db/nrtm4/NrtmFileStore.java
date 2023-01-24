@@ -1,10 +1,12 @@
 package net.ripe.db.nrtm4;
 
+import net.ripe.db.nrtm4.util.NrtmFileUtil;
 import org.mariadb.jdbc.internal.logging.Logger;
 import org.mariadb.jdbc.internal.logging.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
+import java.io.BufferedOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -17,6 +19,7 @@ import java.io.OutputStream;
 public class NrtmFileStore {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(NrtmFileService.class);
+    private static final int OUTPUT_BUFFER_SIZE = 1024;
 
     private final String path;
 
@@ -27,8 +30,7 @@ public class NrtmFileStore {
     }
 
     boolean checkIfFileExists(final String sessionId, final String name) {
-        final File dir = new File(path, sessionId);
-        return dir.exists() && new File(dir, name).exists();
+        return NrtmFileUtil.checkIfFileExists(path, sessionId, name);
     }
 
     void streamFromFile(final String sessionId, final String name, final OutputStream out) throws IOException {
@@ -37,7 +39,7 @@ public class NrtmFileStore {
         }
     }
 
-    public FileOutputStream getFileOutputStream(final String sessionId, final String name) throws FileNotFoundException {
+    public OutputStream getFileOutputStream(final String sessionId, final String name) throws FileNotFoundException {
         final File dir = new File(path, sessionId);
         if (!dir.exists()) {
             if (!dir.mkdir()) {
@@ -45,12 +47,11 @@ public class NrtmFileStore {
                 throw new RuntimeException("Failed to create NRTM directory " + path + " " + sessionId);
             }
         }
-        return new FileOutputStream(new File(dir, name));
+        return new BufferedOutputStream(new FileOutputStream(new File(dir, name)), OUTPUT_BUFFER_SIZE);
     }
 
     public FileInputStream getFileInputStream(final String sessionId, final String name) throws FileNotFoundException {
-        final File dir = new File(path, sessionId);
-        return new FileInputStream(new File(dir, name));
+        return NrtmFileUtil.getFileInputStream(path, sessionId, name);
     }
 
 }
