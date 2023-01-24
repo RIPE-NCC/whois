@@ -1,5 +1,6 @@
 package net.ripe.db.nrtm4;
 
+import com.google.common.base.Stopwatch;
 import net.ripe.db.nrtm4.dao.NrtmDocumentType;
 import net.ripe.db.nrtm4.dao.NrtmSource;
 import net.ripe.db.nrtm4.dao.NrtmVersionInfo;
@@ -71,11 +72,9 @@ public class SnapshotFileGenerator {
         }
         final PublishableSnapshotFile snapshotFile = new PublishableSnapshotFile(version);
         final String fileName = NrtmFileUtil.newFileName(snapshotFile);
-        try {
-            final long start = System.currentTimeMillis();
-            final OutputStream out = nrtmFileStore.getFileOutputStream(snapshotFile.getSessionID(), fileName);
+        try (final OutputStream out = nrtmFileStore.getFileOutputStream(snapshotFile.getSessionID(), fileName)) {
+            final Stopwatch stopwatch = Stopwatch.createStarted();
             snapshotFileSerializer.writeSnapshotAsJson(snapshotFile, out);
-            out.close();
             final String sha256hex = DigestUtils.sha256Hex(nrtmFileStore.getFileInputStream(snapshotFile.getSessionID(), fileName));
             snapshotFileRepository.save(
                 snapshotFile.getVersionId(),
@@ -86,7 +85,7 @@ public class SnapshotFileGenerator {
             snapshotFile.setHash(sha256hex);
             final long mark = System.currentTimeMillis();
             final DecimalFormat df = new DecimalFormat("#,###.000");
-            LOGGER.info("{} Generated snapshot file in {} min", method, df.format((mark - start) / 60000.0));
+            LOGGER.info("{} Generated snapshot file in {} min", method, df.format(stopwatch.elapsed().toMillis() / 60000.0));
             return Optional.of(snapshotFile);
         } catch (final IOException e) {
             LOGGER.error("Exception thrown when generating snapshot file", e);
