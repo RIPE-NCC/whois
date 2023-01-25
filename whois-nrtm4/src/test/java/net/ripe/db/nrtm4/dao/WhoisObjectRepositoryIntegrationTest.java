@@ -1,10 +1,9 @@
 package net.ripe.db.nrtm4.dao;
 
-import net.ripe.db.whois.common.dao.jdbc.AbstractDatabaseHelperIntegrationTest;
+import net.ripe.db.nrtm4.AbstractNrtm4IntegrationBase;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.test.context.ContextConfiguration;
 
 import java.util.List;
 
@@ -14,11 +13,10 @@ import static org.hamcrest.Matchers.is;
 
 
 @Tag("IntegrationTest")
-@ContextConfiguration(locations = {"classpath:applicationContext-nrtm4-test.xml"})
-public class WhoisDaoIntegrationTest extends AbstractDatabaseHelperIntegrationTest {
+public class WhoisObjectRepositoryIntegrationTest extends AbstractNrtm4IntegrationBase {
 
     @Autowired
-    WhoisDao whoisDao;
+    WhoisObjectRepository whoisObjectRepository;
 
     @Test
     public void prepared_query_gets_all_rows() {
@@ -29,7 +27,7 @@ public class WhoisDaoIntegrationTest extends AbstractDatabaseHelperIntegrationTe
             new RpslObjectData(11044888, 1),
             new RpslObjectData(5158, 2)
         );
-        final var map = whoisDao.findRpslMapForObjects(objects);
+        final var map = whoisObjectRepository.findRpslMapForObjects(objects);
         assertThat(map.size(), is(3));
     }
 

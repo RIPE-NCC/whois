@@ -10,11 +10,11 @@ import java.util.function.Consumer;
 
 
 @Repository
-public class SnapshotObjectIteratorRepository {
+public class SnapshotObjectReadOnlyDao {
 
     private final JdbcTemplate jdbcTemplate;
 
-    public SnapshotObjectIteratorRepository(@Qualifier("nrtmSlaveDataSource") final DataSource dataSource) {
+    public SnapshotObjectReadOnlyDao(@Qualifier("nrtmSlaveDataSource") final DataSource dataSource) {
         this.jdbcTemplate = new JdbcTemplate(dataSource);
     }
 

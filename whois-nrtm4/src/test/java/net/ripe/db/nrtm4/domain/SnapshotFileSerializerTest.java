@@ -3,8 +3,7 @@ package net.ripe.db.nrtm4.domain;
 import net.ripe.db.nrtm4.dao.NrtmDocumentType;
 import net.ripe.db.nrtm4.dao.NrtmSource;
 import net.ripe.db.nrtm4.dao.NrtmVersionInfo;
-import net.ripe.db.nrtm4.dao.SnapshotObjectIteratorRepository;
-import net.ripe.db.nrtm4.dao.SnapshotObjectRepository;
+import net.ripe.db.nrtm4.dao.SnapshotObjectReadOnlyDao;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
@@ -22,9 +21,7 @@ import static org.mockito.Mockito.doNothing;
 public class SnapshotFileSerializerTest {
 
     @Mock
-    SnapshotObjectRepository snapshotObjectRepository;
-    @Mock
-    SnapshotObjectIteratorRepository snapshotObjectIteratorRepository;
+    SnapshotObjectReadOnlyDao snapshotObjectReadOnlyDao;
 
     @BeforeEach
     void setup() {
@@ -34,7 +31,7 @@ public class SnapshotFileSerializerTest {
     @Test
     void serialize_empty_snapshot_file_to_json() throws IOException {
         final var source = new NrtmSource("TEST");
-        final var serializer = new SnapshotFileSerializer(snapshotObjectIteratorRepository);
+        final var serializer = new SnapshotFileSerializer(snapshotObjectReadOnlyDao);
         final var version = new NrtmVersionInfo(
             23L,
             source,
@@ -45,7 +42,7 @@ public class SnapshotFileSerializerTest {
         );
         final var file = new PublishableSnapshotFile(version);
         final var out = new ByteArrayOutputStream();
-        doNothing().when(snapshotObjectIteratorRepository).snapshotCallbackConsumer(source, s -> {
+        doNothing().when(snapshotObjectReadOnlyDao).snapshotCallbackConsumer(source, s -> {
         });
         serializer.writeSnapshotAsJson(file, out);
         out.close();

@@ -5,28 +5,17 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.PreparedStatementCallback;
-import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.stereotype.Repository;
 
 import javax.sql.DataSource;
 import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.List;
 import java.util.Optional;
 
 
-/**
- * `id`          int unsigned NOT NULL AUTO_INCREMENT,
- * `version_id`  int unsigned NOT NULL,
- * `serial_id`   int          NOT NULL,
- * `object_type` int          NOT NULL,
- * `pkey`        varchar(256) NOT NULL,
- * `payload`     longtext     NOT NULL,
- */
 @Repository
 public class SnapshotObjectRepository {
 
@@ -89,21 +78,16 @@ public class SnapshotObjectRepository {
             "WHERE object_id = ?";
         try {
             return Optional.ofNullable(
-                jdbcTemplate.queryForObject(sql, new RowMapper<SnapshotObject>() {
-                        @Override
-                        public SnapshotObject mapRow(ResultSet rs, int rowNum) throws SQLException {
-                            return new SnapshotObject(
-                                rs.getLong(1),
-                                rs.getLong(2),
-                                rs.getInt(3),
-                                rs.getInt(4),
-                                RpslObject.parse(rs.getString(5))
-                            );
-                        }
-                    },
+                jdbcTemplate.queryForObject(sql, (rs, rowNum) -> new SnapshotObject(
+                        rs.getLong(1),
+                        rs.getLong(2),
+                        rs.getInt(3),
+                        rs.getInt(4),
+                        RpslObject.parse(rs.getString(5))
+                    ),
                     objectId)
             );
-        } catch (final EmptyResultDataAccessException e){
+        } catch (final EmptyResultDataAccessException e) {
             return Optional.empty();
         }
     }

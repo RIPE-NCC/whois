@@ -1,11 +1,10 @@
 package net.ripe.db.nrtm4.dao;
 
-import net.ripe.db.whois.common.dao.jdbc.AbstractDatabaseHelperIntegrationTest;
+import net.ripe.db.nrtm4.AbstractNrtm4IntegrationBase;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DuplicateKeyException;
-import org.springframework.test.context.ContextConfiguration;
 
 import java.util.Optional;
 
@@ -16,8 +15,7 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 
 
 @Tag("IntegrationTest")
-@ContextConfiguration(locations = {"classpath:applicationContext-nrtm4-test.xml"})
-public class NrtmVersionInfoRepositoryIntegrationTest extends AbstractDatabaseHelperIntegrationTest {
+public class NrtmVersionInfoRepositoryIntegrationTest extends AbstractNrtm4IntegrationBase {
 
     @Autowired
     private NrtmVersionInfoRepository nrtmVersionInfoRepository;

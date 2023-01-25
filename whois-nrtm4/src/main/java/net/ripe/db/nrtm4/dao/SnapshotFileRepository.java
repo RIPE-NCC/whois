@@ -60,12 +60,13 @@ public class SnapshotFileRepository {
     }
 
     public Optional<SnapshotFile> getByName(final String sessionId, final String name) {
-        final String sql = "" +
-            "SELECT sf.id, sf.version_id, sf.name, sf.hash, sf.created " +
-            "FROM snapshot_file sf " +
-            "JOIN version_info v ON v.id = sf.version_id " +
-            "WHERE v.session_id = ? " +
-            "  AND sf.name = ?";
+        final String sql = """
+            SELECT sf.id, sf.version_id, sf.name, sf.hash, sf.created
+            FROM snapshot_file sf
+            JOIN version_info v ON v.id = sf.version_id
+            WHERE v.session_id = ?
+              AND sf.name = ?
+            """;
         try {
             return Optional.ofNullable(jdbcTemplate.queryForObject(sql, rowMapper, sessionId, name));
         } catch (final EmptyResultDataAccessException ex) {
@@ -74,13 +75,14 @@ public class SnapshotFileRepository {
     }
 
     public Optional<SnapshotFile> getLastSnapshot(final NrtmSource source) {
-        final String sql = "" +
-            "SELECT sf.id, sf.version_id, sf.name, sf.hash, sf.created " +
-            "FROM snapshot_file sf " +
-            "JOIN version_info v ON v.id = sf.version_id " +
-            "JOIN source src ON src.id = v.source_id " +
-            "WHERE src.name = ? " +
-            "ORDER BY v.version DESC LIMIT 1";
+        final String sql = """
+            SELECT sf.id, sf.version_id, sf.name, sf.hash, sf.created
+            FROM snapshot_file sf
+            JOIN version_info v ON v.id = sf.version_id
+            JOIN source src ON src.id = v.source_id
+            WHERE src.name = ?
+            ORDER BY v.version DESC LIMIT 1
+            """;
         try {
             return Optional.ofNullable(jdbcTemplate.queryForObject(sql, rowMapper, source.name()));
         } catch (final EmptyResultDataAccessException ex) {

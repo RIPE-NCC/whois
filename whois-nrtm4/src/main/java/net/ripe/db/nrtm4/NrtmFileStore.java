@@ -19,7 +19,7 @@ import java.io.OutputStream;
 public class NrtmFileStore {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(NrtmFileService.class);
-    private static final int OUTPUT_BUFFER_SIZE = 1024;
+    private static final int OUTPUT_BUFFER_SIZE = 1024 * 1024;
 
     private final String path;
 

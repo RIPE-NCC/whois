@@ -2,11 +2,9 @@ package net.ripe.db.nrtm4;
 
 import net.ripe.db.nrtm4.dao.NrtmSourceHolder;
 import net.ripe.db.nrtm4.domain.PublishableSnapshotFile;
-import net.ripe.db.whois.common.dao.jdbc.AbstractDatabaseHelperIntegrationTest;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.test.context.ContextConfiguration;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -22,8 +20,7 @@ import static org.hamcrest.Matchers.startsWith;
 
 
 @Tag("IntegrationTest")
-@ContextConfiguration(locations = {"classpath:applicationContext-nrtm4-test.xml"})
-public class SnapshotFileGeneratorIntegrationTest extends AbstractDatabaseHelperIntegrationTest {
+public class SnapshotFileGeneratorIntegrationTest extends AbstractNrtm4IntegrationBase {
 
     @Autowired
     private SnapshotFileGenerator snapshotFileGenerator;
@@ -52,7 +49,7 @@ public class SnapshotFileGeneratorIntegrationTest extends AbstractDatabaseHelper
             assertThat(snapshotFile.getNrtmVersion(), is(4));
             assertThat(snapshotFile.getType(), is(SNAPSHOT));
             final var bos = new ByteArrayOutputStream();
-            nrtmFileService.writeFileToStream(snapshotFile.getSessionID(), snapshotFile.getFileName(), bos);
+            nrtmFileStore.streamFromFile(snapshotFile.getSessionID(), snapshotFile.getFileName(), bos);
             final var expected = """
                 {
                   "nrtm_version" : 4,

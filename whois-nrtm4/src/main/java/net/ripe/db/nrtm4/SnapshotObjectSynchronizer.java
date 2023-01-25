@@ -9,7 +9,7 @@ import net.ripe.db.nrtm4.dao.NrtmVersionInfoRepository;
 import net.ripe.db.nrtm4.dao.RpslObjectData;
 import net.ripe.db.nrtm4.dao.SnapshotObject;
 import net.ripe.db.nrtm4.dao.SnapshotObjectRepository;
-import net.ripe.db.nrtm4.dao.WhoisDao;
+import net.ripe.db.nrtm4.dao.WhoisObjectRepository;
 import net.ripe.db.whois.common.rpsl.Dummifier;
 import net.ripe.db.whois.common.rpsl.RpslObject;
 import org.slf4j.Logger;
@@ -33,25 +33,25 @@ public class SnapshotObjectSynchronizer {
     private final Dummifier dummifierNrtm;
     private final NrtmVersionInfoRepository nrtmVersionInfoRepository;
     private final SnapshotObjectRepository snapshotObjectRepository;
-    private final WhoisDao whoisDao;
+    private final WhoisObjectRepository whoisObjectRepository;
 
     SnapshotObjectSynchronizer(
         final Dummifier dummifierNrtm,
         final NrtmVersionInfoRepository nrtmVersionInfoRepository,
         final SnapshotObjectRepository snapshotObjectRepository,
-        final WhoisDao whoisDao
+        final WhoisObjectRepository whoisObjectRepository
     ) {
         this.dummifierNrtm = dummifierNrtm;
         this.nrtmVersionInfoRepository = nrtmVersionInfoRepository;
         this.snapshotObjectRepository = snapshotObjectRepository;
-        this.whoisDao = whoisDao;
+        this.whoisObjectRepository = whoisObjectRepository;
     }
 
     NrtmVersionInfo initializeSnapshotObjects(final NrtmSource source) {
         final String method = "initializeSnapshotObjects";
         Stopwatch stopwatch = Stopwatch.createStarted();
         LOGGER.info("{} entered", method);
-        final InitialSnapshotState initialState = whoisDao.getInitialSnapshotState();
+        final InitialSnapshotState initialState = whoisObjectRepository.getInitialSnapshotState();
         LOGGER.info("{} Found {} objects", method, initialState.rpslObjectData().size());
         LOGGER.info("{} At serial {}, {}ms", method, initialState.serialId(), stopwatch.elapsed().toMillis());
         stopwatch = Stopwatch.createStarted();
@@ -60,7 +60,7 @@ public class SnapshotObjectSynchronizer {
             .parallelStream()
             .forEach((objectBatch) -> {
                     final List<SnapshotObject> batch = new ArrayList<>(BATCH_SIZE);
-                    final Map<Integer, String> rpslMap = whoisDao.findRpslMapForObjects(objectBatch);
+                    final Map<Integer, String> rpslMap = whoisObjectRepository.findRpslMapForObjects(objectBatch);
                     for (final RpslObjectData object : objectBatch) {
                         final String rpsl = rpslMap.get(object.objectId());
                         final RpslObject rpslObject = RpslObject.parse(rpsl);
