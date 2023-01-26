@@ -27,8 +27,8 @@ public class ElasticSearchInstance implements ElasticRestHighlevelClient {
 
     @Autowired
     public ElasticSearchInstance(@Value("#{'${elastic.host:}'.split(',')}") final List<String> elasticHosts,
-                                 @Value("${elastic.user}") final String elasticUser,
-                                 @Value("${elastic.password}")  final String elasticPassword ) {
+                                 @Value("${elastic.user:}") final String elasticUser,
+                                 @Value("${elastic.password:}")  final String elasticPassword ) {
         this.client = getEsClient(elasticHosts, elasticUser, elasticPassword);
     }
 
