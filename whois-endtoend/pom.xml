@@ -11,55 +11,35 @@
     <packaging>jar</packaging>
 
     <dependencies>
-        <dependency>
-            <groupId>net.ripe.db</groupId>
-            <artifactId>whois-commons</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>net.ripe.db</groupId>
-            <artifactId>whois-db</artifactId>
-        </dependency>
-
         <!-- testing -->
         <dependency>
             <groupId>net.ripe.db</groupId>
-            <artifactId>whois-commons</artifactId>
-            <type>test-jar</type>
+            <artifactId>whois-db</artifactId>
+            <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>net.ripe.db</groupId>
-            <artifactId>whois-rpsl</artifactId>
+            <artifactId>whois-commons</artifactId>
             <type>test-jar</type>
+            <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>net.ripe.db</groupId>
             <artifactId>whois-query</artifactId>
             <type>test-jar</type>
+            <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>net.ripe.db</groupId>
             <artifactId>whois-update</artifactId>
             <type>test-jar</type>
+            <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>net.ripe.db</groupId>
             <artifactId>whois-api</artifactId>
             <type>test-jar</type>
-        </dependency>
-        <dependency>
-            <groupId>net.ripe.db</groupId>
-            <artifactId>whois-scheduler</artifactId>
-            <type>test-jar</type>
-        </dependency>
-        <dependency>
-            <groupId>net.ripe.db</groupId>
-            <artifactId>whois-db</artifactId>
-            <type>test-jar</type>
-        </dependency>
-        <dependency>
-            <groupId>net.ripe.db</groupId>
-            <artifactId>whois-nrtm</artifactId>
-            <type>test-jar</type>
+            <scope>test</scope>
         </dependency>
     </dependencies>
 

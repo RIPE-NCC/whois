@@ -11,48 +11,6 @@
     <packaging>jar</packaging>
 
     <dependencies>
-        <dependency>
-            <groupId>net.ripe.db</groupId>
-            <artifactId>whois-query</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>net.ripe.db</groupId>
-            <artifactId>whois-update</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>net.ripe.db</groupId>
-            <artifactId>whois-nrtm</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>net.ripe.db</groupId>
-            <artifactId>whois-nrtm4</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>net.ripe.db</groupId>
-            <artifactId>whois-api</artifactId>
-            <!-- The reason we add this exclusion is that the common-beanutils (or commons-beanutils-core) jar
-            contain some classes which are identical and come from the commons-collections jars. The whois-api
-            module depends on commons-validator, which depends on commons-beanutils. Because we do not want
-            duplicate class problems during mvn builds we exclude the jar in the whois-api dependency. -->
-            <exclusions>
-                <exclusion>
-                    <groupId>commons-beanutils</groupId>
-                    <artifactId>commons-beanutils</artifactId>
-                </exclusion>
-            </exclusions>
-        </dependency>
-        <dependency>
-            <groupId>net.ripe.db</groupId>
-            <artifactId>whois-scheduler</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.logging.log4j</groupId>
-            <artifactId>log4j-slf4j2-impl</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.logging.log4j</groupId>
-            <artifactId>log4j-core</artifactId>
-        </dependency>
 
         <!-- testing -->
         <dependency>
@@ -60,21 +18,8 @@
             <artifactId>whois-commons</artifactId>
             <type>test-jar</type>
         </dependency>
-        <dependency>
-            <groupId>net.ripe.db</groupId>
-            <artifactId>whois-rpsl</artifactId>
-            <type>test-jar</type>
-        </dependency>
-        <dependency>
-            <groupId>net.ripe.db</groupId>
-            <artifactId>whois-query</artifactId>
-            <type>test-jar</type>
-        </dependency>
-        <dependency>
-            <groupId>net.ripe.db</groupId>
-            <artifactId>whois-update</artifactId>
-            <type>test-jar</type>
-        </dependency>
+
+
         <dependency>
             <groupId>net.ripe.db</groupId>
             <artifactId>whois-api</artifactId>
@@ -132,10 +77,6 @@
                         <aspectLibrary>
                             <groupId>org.springframework</groupId>
                             <artifactId>spring-aspects</artifactId>
-                        </aspectLibrary>
-                        <aspectLibrary>
-                            <groupId>net.ripe.db</groupId>
-                            <artifactId>whois-commons</artifactId>
                         </aspectLibrary>
                     </aspectLibraries>
                 </configuration>
