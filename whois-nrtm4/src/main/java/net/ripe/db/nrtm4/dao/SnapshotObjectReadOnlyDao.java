@@ -23,8 +23,7 @@ public class SnapshotObjectReadOnlyDao {
             SELECT so.rpsl
             FROM snapshot_object so
             JOIN version_info v ON v.id = so.version_id
-            JOIN source src ON src.id = v.source_id
-            WHERE src.name = ?
+            WHERE v.source = ?
             ORDER BY so.object_id
             """;
         JdbcStreamingHelper.executeStreaming(

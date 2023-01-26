@@ -24,29 +24,18 @@ DROP TABLE IF EXISTS `delta_file`;
 DROP TABLE IF EXISTS `snapshot_file`;
 DROP TABLE IF EXISTS `snapshot_object`;
 DROP TABLE IF EXISTS `version_info`;
-DROP TABLE IF EXISTS `source`;
-
-CREATE TABLE `source`
-(
-    `id`   int unsigned NOT NULL AUTO_INCREMENT,
-    `name` varchar(40)  NOT NULL DEFAULT '',
-    PRIMARY KEY (`id`),
-    UNIQUE KEY `source__name_uk` (`name`)
-) ENGINE = InnoDB
-  DEFAULT CHARSET = utf8;
 
 CREATE TABLE `version_info`
 (
     `id`             int unsigned NOT NULL AUTO_INCREMENT,
-    `source_id`      int unsigned NOT NULL,
+    `source`         varchar(128) NOT NULL,
     `version`        int unsigned NOT NULL,
     `session_id`     varchar(128) NOT NULL,
     `type`           varchar(128) NOT NULL,
     `last_serial_id` int          NOT NULL,
     PRIMARY KEY (`id`),
-    CONSTRAINT `version_info__source__fk` FOREIGN KEY (`source_id`) REFERENCES `source` (`id`),
-    UNIQUE KEY `version_info__session__source__version__type__uk` (`session_id`, `source_id`, `version`, `type`),
-    UNIQUE KEY `version_info__type__source__last_serial_id__uk` (`type`, `source_id`, `last_serial_id`)
+    UNIQUE KEY `version_info__session__source__version__type__uk` (`session_id`, `source`, `version`, `type`),
+    UNIQUE KEY `version_info__type__source__last_serial_id__uk` (`type`, `source`, `last_serial_id`)
 ) ENGINE = InnoDB
   DEFAULT CHARSET = utf8;
 

@@ -46,11 +46,12 @@ public class NrtmVersionInfoRepository {
      */
     public Optional<NrtmVersionInfo> findLastVersion(final NrtmSource source) {
         try {
-            return Optional.ofNullable(jdbcTemplate.queryForObject("" +
-                    "SELECT v.id, src.name, v.version, v.session_id, v.type, v.last_serial_id " +
-                    "FROM version_info v JOIN source src ON src.id = v.source_id " +
-                    "WHERE src.name = ? " +
-                    "ORDER BY v.version DESC LIMIT 1",
+            return Optional.ofNullable(jdbcTemplate.queryForObject("""
+                    SELECT v.id, v.source, v.version, v.session_id, v.type, v.last_serial_id
+                    FROM version_info v
+                    WHERE v.source = ?
+                    ORDER BY v.version DESC LIMIT 1
+                    """,
                 rowMapper,
                 source.name())
             );
@@ -68,7 +69,6 @@ public class NrtmVersionInfoRepository {
      * @return An initialized version object filled from the new row in the database
      */
     public NrtmVersionInfo createInitialVersion(final NrtmSource source, final int lastSerialId) {
-        jdbcTemplate.update("INSERT INTO source (name) VALUES (?)", source.name());
         final long version = 1L;
         final String sessionID = NrtmFileUtil.sessionId();
         final NrtmDocumentType type = NrtmDocumentType.SNAPSHOT;
@@ -81,15 +81,13 @@ public class NrtmVersionInfoRepository {
         final String sessionID,
         final NrtmDocumentType type,
         final int lastSerialId) {
-        final Long sourceID = jdbcTemplate.queryForObject("SELECT id FROM source WHERE name = ?",
-            (rs, rowNum) -> rs.getLong(1), source.name());
         final KeyHolder keyHolder = new GeneratedKeyHolder();
         jdbcTemplate.update(connection -> {
                 final String sql = "" +
-                    "INSERT INTO version_info (source_id, version, session_id, type, last_serial_id) " +
+                    "INSERT INTO version_info (source, version, session_id, type, last_serial_id) " +
                     "VALUES (?, ?, ?, ?, ?)";
                 final PreparedStatement pst = connection.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS);
-                pst.setLong(1, sourceID);
+                pst.setString(1, source.name());
                 pst.setLong(2, version);
                 pst.setString(3, sessionID);
                 pst.setString(4, type.name());
@@ -101,22 +99,22 @@ public class NrtmVersionInfoRepository {
     }
 
     public NrtmVersionInfo findLastSnapshotVersion(final NrtmSource source) {
-        final String sql = "" +
-            "SELECT v.id, src.name, v.version, v.session_id, v.type, v.last_serial_id " +
-            "FROM version_info v " +
-            "JOIN source src ON src.id = v.source_id " +
-            "JOIN snapshot_file sf ON sf.version_id = v.id " +
-            "WHERE src.name = ? " +
-            "ORDER BY v.version DESC LIMIT 1";
+        final String sql = """
+            SELECT v.id, v.source, v.version, v.session_id, v.type, v.last_serial_id
+            FROM version_info v
+            JOIN snapshot_file sf ON sf.version_id = v.id
+            WHERE src.name = ?
+            ORDER BY v.version DESC LIMIT 1
+            """;
         return jdbcTemplate.queryForObject(sql, rowMapper, source);
     }
 
     public Optional<NrtmVersionInfo> findById(final long versionId) {
-        final String sql = "" +
-            "SELECT v.id, src.name, v.version, v.session_id, v.type, v.last_serial_id " +
-            "FROM version_info v " +
-            "JOIN source src ON src.id = v.source_id " +
-            "WHERE v.id = ?";
+        final String sql = """
+            SELECT v.id, v.source, v.version, v.session_id, v.type, v.last_serial_id
+            FROM version_info v
+            WHERE v.id = ?
+            """;
         return Optional.ofNullable(jdbcTemplate.queryForObject(sql, rowMapper, versionId));
     }
 
