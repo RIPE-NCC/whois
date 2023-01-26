@@ -44,10 +44,9 @@ CREATE TABLE `version_info`
     `type`           varchar(128) NOT NULL,
     `last_serial_id` int          NOT NULL,
     PRIMARY KEY (`id`),
-    CONSTRAINT `version__source__fk` FOREIGN KEY (`source_id`) REFERENCES `source` (`id`),
-    UNIQUE KEY `version__source__version__uk` (`source_id`, `version`),
-    UNIQUE KEY `version__session__version__uk` (`session_id`, `version`),
-    UNIQUE KEY `version__type__last_serial_id__uk` (`type`, `last_serial_id`)
+    CONSTRAINT `version_info__source__fk` FOREIGN KEY (`source_id`) REFERENCES `source` (`id`),
+    UNIQUE KEY `version_info__session__source__version__type__uk` (`session_id`, `source_id`, `version`, `type`),
+    UNIQUE KEY `version_info__type__source__last_serial_id__uk` (`type`, `source_id`, `last_serial_id`)
 ) ENGINE = InnoDB
   DEFAULT CHARSET = utf8;
 

@@ -6,7 +6,6 @@ import org.mariadb.jdbc.internal.logging.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
-import java.io.BufferedOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -19,7 +18,6 @@ import java.io.OutputStream;
 public class NrtmFileStore {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(NrtmFileService.class);
-    private static final int OUTPUT_BUFFER_SIZE = 1024 * 1024;
 
     private final String path;
 
@@ -39,15 +37,20 @@ public class NrtmFileStore {
         }
     }
 
+    public void createNrtmSessionDirectory(final String sessionId) {
+        final File dir = new File(path, sessionId);
+        if (dir.exists()) {
+            throw new RuntimeException("Failed to create NRTM directory because it already exists" + path + " " + sessionId);
+        }
+        if (!dir.mkdir()) {
+            LOGGER.error("Could not create directory for sessionID: " + sessionId);
+            throw new RuntimeException("Failed to create NRTM directory " + path + " " + sessionId);
+        }
+    }
+
     public OutputStream getFileOutputStream(final String sessionId, final String name) throws FileNotFoundException {
         final File dir = new File(path, sessionId);
-        if (!dir.exists()) {
-            if (!dir.mkdir()) {
-                LOGGER.error("Could not create directory for sessionID: " + sessionId);
-                throw new RuntimeException("Failed to create NRTM directory " + path + " " + sessionId);
-            }
-        }
-        return new BufferedOutputStream(new FileOutputStream(new File(dir, name)), OUTPUT_BUFFER_SIZE);
+        return new FileOutputStream(new File(dir, name));
     }
 
     public FileInputStream getFileInputStream(final String sessionId, final String name) throws FileNotFoundException {
