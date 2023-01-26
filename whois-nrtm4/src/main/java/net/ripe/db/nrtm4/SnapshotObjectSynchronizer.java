@@ -28,7 +28,7 @@ import static net.ripe.db.nrtm4.NrtmConstants.NRTM_VERSION;
 public class SnapshotObjectSynchronizer {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(SnapshotObjectSynchronizer.class);
-    private static final int BATCH_SIZE = 10;
+    private static final int BATCH_SIZE = 50;
 
     private final Dummifier dummifierNrtm;
     private final NrtmVersionInfoRepository nrtmVersionInfoRepository;
