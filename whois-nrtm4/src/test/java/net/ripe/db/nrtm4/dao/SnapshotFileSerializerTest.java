@@ -1,9 +1,9 @@
-package net.ripe.db.nrtm4.domain;
+package net.ripe.db.nrtm4.dao;
 
-import net.ripe.db.nrtm4.dao.NrtmDocumentType;
-import net.ripe.db.nrtm4.dao.NrtmSource;
-import net.ripe.db.nrtm4.dao.NrtmVersionInfo;
-import net.ripe.db.nrtm4.dao.SnapshotObjectReadOnlyDao;
+import net.ripe.db.nrtm4.domain.NrtmDocumentType;
+import net.ripe.db.nrtm4.domain.NrtmSource;
+import net.ripe.db.nrtm4.domain.NrtmVersionInfo;
+import net.ripe.db.nrtm4.domain.PublishableSnapshotFile;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
@@ -38,11 +38,12 @@ public class SnapshotFileSerializerTest {
             26L,
             "abcdef123",
             NrtmDocumentType.SNAPSHOT,
-            123455
+            123455,
+            0
         );
         final var file = new PublishableSnapshotFile(version);
         final var out = new ByteArrayOutputStream();
-        doNothing().when(snapshotObjectReadOnlyDao).snapshotCallbackConsumer(source, s -> {
+        doNothing().when(snapshotObjectReadOnlyDao).consumeAllObjects(source, s -> {
         });
         serializer.writeSnapshotAsJson(file, out);
         out.close();

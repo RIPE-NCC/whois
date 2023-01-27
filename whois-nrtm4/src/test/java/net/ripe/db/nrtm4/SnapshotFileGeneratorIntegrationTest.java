@@ -1,6 +1,6 @@
 package net.ripe.db.nrtm4;
 
-import net.ripe.db.nrtm4.dao.NrtmSourceHolder;
+import net.ripe.db.nrtm4.domain.NrtmSourceHolder;
 import net.ripe.db.nrtm4.domain.PublishableSnapshotFile;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
@@ -11,7 +11,7 @@ import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.util.Optional;
 
-import static net.ripe.db.nrtm4.dao.NrtmDocumentType.SNAPSHOT;
+import static net.ripe.db.nrtm4.domain.NrtmDocumentType.SNAPSHOT;
 import static net.ripe.db.whois.common.dao.jdbc.JdbcRpslObjectOperations.loadScripts;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;

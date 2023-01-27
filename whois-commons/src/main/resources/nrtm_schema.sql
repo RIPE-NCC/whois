@@ -24,12 +24,13 @@ DROP TABLE IF EXISTS `version_info`;
 
 CREATE TABLE `version_info`
 (
-    `id`             int unsigned NOT NULL AUTO_INCREMENT,
-    `source`         varchar(128) NOT NULL,
-    `version`        int unsigned NOT NULL,
-    `session_id`     varchar(128) NOT NULL,
-    `type`           varchar(128) NOT NULL,
-    `last_serial_id` int          NOT NULL,
+    `id`             int unsigned    NOT NULL AUTO_INCREMENT,
+    `source`         varchar(128)    NOT NULL,
+    `version`        int unsigned    NOT NULL,
+    `session_id`     varchar(128)    NOT NULL,
+    `type`           varchar(128)    NOT NULL,
+    `last_serial_id` int             NOT NULL,
+    `created`        bigint unsigned NOT NULL,
     PRIMARY KEY (`id`),
     UNIQUE KEY `version_info__session__source__version__type__uk` (`session_id`, `source`, `version`, `type`),
     UNIQUE KEY `version_info__type__source__last_serial_id__uk` (`type`, `source`, `last_serial_id`)
@@ -51,11 +52,10 @@ CREATE TABLE `snapshot_object`
 
 CREATE TABLE `snapshot_file`
 (
-    `id`         int unsigned    NOT NULL AUTO_INCREMENT,
-    `version_id` int unsigned    NOT NULL,
-    `name`       varchar(256)    NOT NULL,
-    `hash`       varchar(256)    NOT NULL,
-    `created`    bigint unsigned NOT NULL,
+    `id`         int unsigned NOT NULL AUTO_INCREMENT,
+    `version_id` int unsigned NOT NULL,
+    `name`       varchar(256) NOT NULL,
+    `hash`       varchar(256) NOT NULL,
     PRIMARY KEY (`id`),
     UNIQUE KEY `snapshot_file__version_id__uk` (`version_id`),
     UNIQUE KEY `snapshot_file__name__uk` (`name`),
@@ -65,12 +65,11 @@ CREATE TABLE `snapshot_file`
 
 CREATE TABLE `delta_file`
 (
-    `id`         int unsigned    NOT NULL AUTO_INCREMENT,
-    `version_id` int unsigned    NOT NULL,
-    `name`       varchar(256)    NOT NULL,
-    `hash`       varchar(256)    NOT NULL,
-    `payload`    longtext        NOT NULL,
-    `created`    bigint unsigned NOT NULL,
+    `id`         int unsigned NOT NULL AUTO_INCREMENT,
+    `version_id` int unsigned NOT NULL,
+    `name`       varchar(256) NOT NULL,
+    `hash`       varchar(256) NOT NULL,
+    `payload`    longtext     NOT NULL,
     PRIMARY KEY (`id`),
     UNIQUE KEY `delta_file__version_id__uk` (`version_id`),
     UNIQUE KEY `delta_file__name__uk` (`name`),
@@ -80,10 +79,9 @@ CREATE TABLE `delta_file`
 
 CREATE TABLE `notification_file`
 (
-    `id`         int unsigned    NOT NULL AUTO_INCREMENT,
-    `version_id` int unsigned    NOT NULL,
-    `payload`    longtext        NOT NULL,
-    `created`    bigint unsigned NOT NULL,
+    `id`         int unsigned NOT NULL AUTO_INCREMENT,
+    `version_id` int unsigned NOT NULL,
+    `payload`    longtext     NOT NULL,
     PRIMARY KEY (`id`),
     CONSTRAINT `notification_file__version_id__fk` FOREIGN KEY (`version_id`) REFERENCES `version_info` (`id`)
 ) ENGINE = InnoDB

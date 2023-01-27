@@ -1,4 +1,4 @@
-package net.ripe.db.nrtm4.dao;
+package net.ripe.db.nrtm4.domain;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;

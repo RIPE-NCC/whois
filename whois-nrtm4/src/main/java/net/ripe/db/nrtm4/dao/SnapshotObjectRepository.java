@@ -1,5 +1,6 @@
 package net.ripe.db.nrtm4.dao;
 
+import net.ripe.db.nrtm4.domain.SnapshotObject;
 import net.ripe.db.whois.common.rpsl.RpslObject;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.dao.EmptyResultDataAccessException;

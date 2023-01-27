@@ -1,8 +1,8 @@
 package net.ripe.db.nrtm4;
 
-import net.ripe.db.nrtm4.dao.NrtmSource;
-import net.ripe.db.nrtm4.dao.NrtmSourceHolder;
-import net.ripe.db.nrtm4.dao.SnapshotFile;
+import net.ripe.db.nrtm4.domain.NrtmSource;
+import net.ripe.db.nrtm4.domain.NrtmSourceHolder;
+import net.ripe.db.nrtm4.domain.SnapshotFile;
 import net.ripe.db.nrtm4.domain.PublishableSnapshotFile;
 import net.ripe.db.nrtm4.jmx.NrtmProcessControl;
 import org.mariadb.jdbc.internal.logging.Logger;
@@ -36,7 +36,7 @@ public class NrtmFileProcessor {
         this.snapshotFileGenerator = snapshotFileGenerator;
     }
 
-    public void updateNrtmFilesAndPublishNotification() {
+    public void updateNrtmFilesAndPublishNotification() throws IOException {
         LOGGER.info("runWrite() called");
         final NrtmSource source = nrtmSourceHolder.getSource();
         final Optional<SnapshotFile> lastSnapshot = snapshotFileGenerator.getLastSnapshot(source);

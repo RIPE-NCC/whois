@@ -1,12 +1,12 @@
-package net.ripe.db.nrtm4.domain;
+package net.ripe.db.nrtm4.dao;
 
 import com.fasterxml.jackson.core.JsonEncoding;
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.core.util.DefaultIndenter;
 import com.fasterxml.jackson.core.util.DefaultPrettyPrinter;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import net.ripe.db.nrtm4.dao.NrtmDocumentType;
-import net.ripe.db.nrtm4.dao.SnapshotObjectReadOnlyDao;
+import net.ripe.db.nrtm4.domain.NrtmDocumentType;
+import net.ripe.db.nrtm4.domain.PublishableSnapshotFile;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
@@ -39,7 +39,7 @@ public class SnapshotFileSerializer {
         jGenerator.writeStringField("session_id", snapshotFile.getSessionID());
         jGenerator.writeNumberField("version", snapshotFile.getVersion());
         jGenerator.writeArrayFieldStart("objects");
-        snapshotObjectReadOnlyDao.snapshotCallbackConsumer(snapshotFile.getSource(), str -> {
+        snapshotObjectReadOnlyDao.consumeAllObjects(snapshotFile.getSource(), str -> {
             try {
                 jGenerator.writeString(str);
             } catch (final IOException e) {

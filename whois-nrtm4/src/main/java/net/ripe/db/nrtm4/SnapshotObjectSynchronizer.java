@@ -2,12 +2,12 @@ package net.ripe.db.nrtm4;
 
 import com.google.common.base.Stopwatch;
 import com.google.common.collect.Lists;
-import net.ripe.db.nrtm4.dao.InitialSnapshotState;
-import net.ripe.db.nrtm4.dao.NrtmSource;
-import net.ripe.db.nrtm4.dao.NrtmVersionInfo;
+import net.ripe.db.nrtm4.domain.InitialSnapshotState;
+import net.ripe.db.nrtm4.domain.NrtmSource;
+import net.ripe.db.nrtm4.domain.NrtmVersionInfo;
 import net.ripe.db.nrtm4.dao.NrtmVersionInfoRepository;
-import net.ripe.db.nrtm4.dao.RpslObjectData;
-import net.ripe.db.nrtm4.dao.SnapshotObject;
+import net.ripe.db.nrtm4.domain.RpslObjectData;
+import net.ripe.db.nrtm4.domain.SnapshotObject;
 import net.ripe.db.nrtm4.dao.SnapshotObjectRepository;
 import net.ripe.db.nrtm4.dao.WhoisObjectRepository;
 import net.ripe.db.whois.common.rpsl.Dummifier;

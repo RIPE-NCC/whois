@@ -1,6 +1,6 @@
 package net.ripe.db.nrtm4;
 
-import net.ripe.db.nrtm4.dao.NrtmDocumentType;
+import net.ripe.db.nrtm4.domain.NrtmDocumentType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;

@@ -1,14 +1,14 @@
 package net.ripe.db.nrtm4;
 
 import com.google.common.base.Stopwatch;
-import net.ripe.db.nrtm4.dao.NrtmDocumentType;
-import net.ripe.db.nrtm4.dao.NrtmSource;
-import net.ripe.db.nrtm4.dao.NrtmVersionInfo;
+import net.ripe.db.nrtm4.domain.NrtmDocumentType;
+import net.ripe.db.nrtm4.domain.NrtmSource;
+import net.ripe.db.nrtm4.domain.NrtmVersionInfo;
 import net.ripe.db.nrtm4.dao.NrtmVersionInfoRepository;
-import net.ripe.db.nrtm4.dao.SnapshotFile;
+import net.ripe.db.nrtm4.domain.SnapshotFile;
 import net.ripe.db.nrtm4.dao.SnapshotFileRepository;
 import net.ripe.db.nrtm4.domain.PublishableSnapshotFile;
-import net.ripe.db.nrtm4.domain.SnapshotFileSerializer;
+import net.ripe.db.nrtm4.dao.SnapshotFileSerializer;
 import net.ripe.db.nrtm4.util.NrtmFileUtil;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.slf4j.Logger;
@@ -45,7 +45,7 @@ public class SnapshotFileGenerator {
         this.nrtmFileStore = nrtmFileStore;
     }
 
-    public Optional<PublishableSnapshotFile> createSnapshot(final NrtmSource source) {
+    public Optional<PublishableSnapshotFile> createSnapshot(final NrtmSource source) throws IOException {
         // Get last version from database.
         final Optional<NrtmVersionInfo> lastVersion = nrtmVersionInfoRepository.findLastVersion(source);
         NrtmVersionInfo version;
@@ -74,9 +74,6 @@ public class SnapshotFileGenerator {
         final Stopwatch stopwatch = Stopwatch.createStarted();
         try (final OutputStream out = nrtmFileStore.getFileOutputStream(snapshotFile.getSessionID(), fileName)) {
             snapshotFileSerializer.writeSnapshotAsJson(snapshotFile, out);
-        } catch (final IOException e) {
-            LOGGER.error("Exception thrown when generating snapshot file", e);
-            throw new RuntimeException(e);
         }
         try {
             final String sha256hex = DigestUtils.sha256Hex(nrtmFileStore.getFileInputStream(snapshotFile.getSessionID(), fileName));
@@ -91,7 +88,7 @@ public class SnapshotFileGenerator {
             return Optional.of(snapshotFile);
         } catch (final IOException e) {
             LOGGER.error("Exception thrown when calculating hash of snapshot file", e);
-            throw new RuntimeException(e);
+            throw e;
         }
     }
 

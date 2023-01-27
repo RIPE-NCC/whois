@@ -1,5 +1,6 @@
 package net.ripe.db.nrtm4.dao;
 
+import net.ripe.db.nrtm4.domain.RpslObjectData;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.PreparedStatementCallback;

@@ -1,7 +1,6 @@
 package net.ripe.db.nrtm4.domain;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import net.ripe.db.nrtm4.dao.NrtmVersionInfo;
 
 
 public class PublishableSnapshotFile extends PublishableNrtmDocument {

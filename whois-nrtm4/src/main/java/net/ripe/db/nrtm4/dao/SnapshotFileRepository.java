@@ -1,7 +1,7 @@
 package net.ripe.db.nrtm4.dao;
 
-import net.ripe.db.whois.common.DateTimeProvider;
-import net.ripe.db.whois.common.dao.jdbc.JdbcRpslObjectOperations;
+import net.ripe.db.nrtm4.domain.NrtmSource;
+import net.ripe.db.nrtm4.domain.SnapshotFile;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -20,22 +20,18 @@ import java.util.Optional;
 public class SnapshotFileRepository {
 
     private final JdbcTemplate jdbcTemplate;
-    private final DateTimeProvider dateTimeProvider;
     private static final RowMapper<SnapshotFile> rowMapper = (rs, rowNum) ->
         new SnapshotFile(
             rs.getLong(1),
             rs.getLong(2),
             rs.getString(3),
-            rs.getString(4),
-            rs.getLong(5)
+            rs.getString(4)
         );
 
     public SnapshotFileRepository(
-        @Qualifier("nrtmDataSource") final DataSource dataSource,
-        final DateTimeProvider dateTimeProvider
+        @Qualifier("nrtmDataSource") final DataSource dataSource
     ) {
         this.jdbcTemplate = new JdbcTemplate(dataSource);
-        this.dateTimeProvider = dateTimeProvider;
     }
 
     public void save(
@@ -44,16 +40,14 @@ public class SnapshotFileRepository {
         final String hash
     ) {
         final KeyHolder keyHolder = new GeneratedKeyHolder();
-        final long now = JdbcRpslObjectOperations.now(dateTimeProvider);
         jdbcTemplate.update(connection -> {
                 final String sql = "" +
-                    "INSERT INTO snapshot_file (version_id, name, hash, created) " +
-                    "VALUES (?, ?, ?, ?)";
+                    "INSERT INTO snapshot_file (version_id, name, hash) " +
+                    "VALUES (?, ?, ?)";
                 final PreparedStatement pst = connection.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS);
                 pst.setLong(1, versionId);
                 pst.setString(2, name);
                 pst.setString(3, hash);
-                pst.setLong(4, now);
                 return pst;
             }, keyHolder
         );
@@ -61,7 +55,7 @@ public class SnapshotFileRepository {
 
     public Optional<SnapshotFile> getByName(final String sessionId, final String name) {
         final String sql = """
-            SELECT sf.id, sf.version_id, sf.name, sf.hash, sf.created
+            SELECT sf.id, sf.version_id, sf.name, sf.hash
             FROM snapshot_file sf
             JOIN version_info v ON v.id = sf.version_id
             WHERE v.session_id = ?
@@ -76,7 +70,7 @@ public class SnapshotFileRepository {
 
     public Optional<SnapshotFile> getLastSnapshot(final NrtmSource source) {
         final String sql = """
-            SELECT sf.id, sf.version_id, sf.name, sf.hash, sf.created
+            SELECT sf.id, sf.version_id, sf.name, sf.hash
             FROM snapshot_file sf
             JOIN version_info v ON v.id = sf.version_id
             WHERE v.source = ?

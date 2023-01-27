@@ -1,5 +1,7 @@
 package net.ripe.db.nrtm4.dao;
 
+import net.ripe.db.nrtm4.domain.InitialSnapshotState;
+import net.ripe.db.nrtm4.domain.RpslObjectData;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Isolation;
 import org.springframework.transaction.annotation.Propagation;

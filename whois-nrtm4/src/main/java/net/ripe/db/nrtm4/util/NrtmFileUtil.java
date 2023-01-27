@@ -10,6 +10,8 @@ import java.util.Random;
 
 public class NrtmFileUtil {
 
+    private static final Random random = new Random();
+
     public static String newFileName(final PublishableNrtmDocument file) {
         final String prefix = file.getType().getFileNamePrefix();
         return String.format("%s.%d.%s.json", prefix, file.getVersion(), randomHexString());
@@ -26,7 +28,6 @@ public class NrtmFileUtil {
     }
 
     private static String randomHexString() {
-        final Random random = new Random();
         return Long.toHexString(random.nextLong()) + Long.toHexString(random.nextLong());
     }
 

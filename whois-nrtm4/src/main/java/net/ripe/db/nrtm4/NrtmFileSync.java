@@ -1,12 +1,12 @@
 package net.ripe.db.nrtm4;
 
 import com.google.common.util.concurrent.Monitor;
-import net.ripe.db.nrtm4.dao.NrtmVersionInfo;
+import net.ripe.db.nrtm4.domain.NrtmVersionInfo;
 import net.ripe.db.nrtm4.dao.NrtmVersionInfoRepository;
-import net.ripe.db.nrtm4.dao.SnapshotFile;
+import net.ripe.db.nrtm4.domain.SnapshotFile;
 import net.ripe.db.nrtm4.dao.SnapshotFileRepository;
 import net.ripe.db.nrtm4.domain.PublishableSnapshotFile;
-import net.ripe.db.nrtm4.domain.SnapshotFileSerializer;
+import net.ripe.db.nrtm4.dao.SnapshotFileSerializer;
 import org.springframework.stereotype.Service;
 
 import java.io.FileNotFoundException;

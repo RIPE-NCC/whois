@@ -1,4 +1,4 @@
-package net.ripe.db.nrtm4.dao;
+package net.ripe.db.nrtm4.domain;
 
 import com.fasterxml.jackson.annotation.JsonValue;
 

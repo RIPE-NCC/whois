@@ -1,4 +1,4 @@
-package net.ripe.db.nrtm4.dao;
+package net.ripe.db.nrtm4.domain;
 
 public class SnapshotFile {
 
@@ -6,20 +6,17 @@ public class SnapshotFile {
     private final long versionId;
     private final String name;
     private final String hash;
-    private final long created;
 
     public SnapshotFile(
         final long id,
         final long versionId,
         final String name,
-        final String hash,
-        final long created
+        final String hash
     ) {
         this.id = id;
         this.versionId = versionId;
         this.name = name;
         this.hash = hash;
-        this.created = created;
     }
 
     public long getId() {
@@ -36,10 +33,6 @@ public class SnapshotFile {
 
     public String getHash() {
         return hash;
-    }
-
-    public long getCreated() {
-        return created;
     }
 
 }
