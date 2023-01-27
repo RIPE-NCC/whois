@@ -1835,6 +1835,67 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
         assertThat(whoisResources.getTermsAndConditions().getHref(), is(WhoisResources.TERMS_AND_CONDITIONS));
     }
 
+
+
+    @Test
+    public void create_asSet_non_auth_aut_num_succeeds() {
+        final RpslObject TEST_AS_SET = RpslObject.parse("""
+                as-set:     AS3333:AS-TEST
+                tech-c:     TP1-TEST
+                admin-c:    TP1-TEST
+                mnt-by:     OWNER-MNT
+                source:     TEST
+                """);
+
+        databaseHelper.addObject("""
+                    aut-num:    AS3333
+                    as-name:    End-User-1
+                    tech-c:     TP1-TEST
+                    admin-c:    TP1-TEST
+                    mnt-by:     OWNER-MNT
+                    source:     TEST-NONAUTH
+                    """);
+
+
+        final WhoisResources whoisResources = RestTest.target(getPort(), "whois/test/as-set?password=test")
+                .request()
+                .post(Entity.entity(map(TEST_AS_SET), MediaType.APPLICATION_XML), WhoisResources.class);
+
+        assertThat(whoisResources.getLink().getHref(), is(String.format("http://localhost:%s/test/as-set", getPort())));
+        assertThat(whoisResources.getErrorMessages(), is(empty()));
+        final WhoisObject object = whoisResources.getWhoisObjects().get(0);
+
+        assertThat(object.getAttributes(), containsInAnyOrder(
+                new Attribute("as-set", "AS3333:AS-TEST"),
+                new Attribute("tech-c", "TP1-TEST", null, "person", Link.create("http://rest-test.db.ripe.net/test/person/TP1-TEST"), null),
+                new Attribute("admin-c", "TP1-TEST", null, "person", Link.create("http://rest-test.db.ripe.net/test/person/TP1-TEST"), null),
+                new Attribute("mnt-by", "OWNER-MNT", null, "mntner", Link.create("http://rest-test.db.ripe.net/test/mntner/OWNER-MNT"), null),
+                new Attribute("created", "2001-02-04T17:00:00Z"),
+                new Attribute("last-modified", "2001-02-04T17:00:00Z"),
+                new Attribute("source", "TEST-NONAUTH")));
+
+        assertThat(whoisResources.getTermsAndConditions().getHref(), is(WhoisResources.TERMS_AND_CONDITIONS));
+    }
+
+
+    @Test
+    public void create_asSet_non_existing_aut_num_bad_request() {
+        try{
+            final RpslObject TEST_AS_SET = RpslObject.parse("""
+                    as-set:    AS3333:AS-TEST
+                    tech-c:   TP1-TEST
+                    admin-c:  TP1-TEST
+                    mnt-by:    OWNER-MNT
+                    source:    TEST
+                    """);
+            final WhoisResources whoisResources = RestTest.target(getPort(), "whois/test/as-set?password=test")
+                    .request()
+                    .post(Entity.entity(map(TEST_AS_SET), MediaType.APPLICATION_XML), WhoisResources.class);
+            fail();
+        } catch (BadRequestException e) {
+            assertThat(e.getResponse().readEntity(String.class), not(containsString("Parent object AS3333 not found")));
+        }
+    }
     @Test
     public void create_succeeds_plus_character_and_space_in_password() {
         final RpslObject ownerMnt = new RpslObjectBuilder(OWNER_MNT)
