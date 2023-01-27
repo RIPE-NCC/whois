@@ -1,6 +1,5 @@
 package net.ripe.db.nrtm4.dao;
 
-import net.ripe.db.nrtm4.util.NrtmFileUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -15,6 +14,7 @@ import javax.sql.DataSource;
 import java.sql.PreparedStatement;
 import java.sql.Statement;
 import java.util.Optional;
+import java.util.UUID;
 
 
 @Repository
@@ -70,7 +70,7 @@ public class NrtmVersionInfoRepository {
      */
     public NrtmVersionInfo createInitialVersion(final NrtmSource source, final int lastSerialId) {
         final long version = 1L;
-        final String sessionID = NrtmFileUtil.sessionId();
+        final String sessionID = UUID.randomUUID().toString();
         final NrtmDocumentType type = NrtmDocumentType.SNAPSHOT;
         return save(source, version, sessionID, type, lastSerialId);
     }
@@ -83,9 +83,10 @@ public class NrtmVersionInfoRepository {
         final int lastSerialId) {
         final KeyHolder keyHolder = new GeneratedKeyHolder();
         jdbcTemplate.update(connection -> {
-                final String sql = "" +
-                    "INSERT INTO version_info (source, version, session_id, type, last_serial_id) " +
-                    "VALUES (?, ?, ?, ?, ?)";
+                final String sql = """
+                    INSERT INTO version_info (source, version, session_id, type, last_serial_id)
+                    VALUES (?, ?, ?, ?, ?)
+                    """;
                 final PreparedStatement pst = connection.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS);
                 pst.setString(1, source.name());
                 pst.setLong(2, version);

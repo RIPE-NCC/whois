@@ -17,7 +17,6 @@ import org.springframework.stereotype.Service;
 
 import java.io.IOException;
 import java.io.OutputStream;
-import java.text.DecimalFormat;
 import java.util.Optional;
 
 
@@ -47,11 +46,10 @@ public class SnapshotFileGenerator {
     }
 
     public Optional<PublishableSnapshotFile> createSnapshot(final NrtmSource source) {
-        final String method = "createSnapshot";
         // Get last version from database.
         final Optional<NrtmVersionInfo> lastVersion = nrtmVersionInfoRepository.findLastVersion(source);
         NrtmVersionInfo version;
-        LOGGER.info("{} lastVersion.isEmpty() {}", method, lastVersion.isEmpty());
+        LOGGER.info("lastVersion.isEmpty() {}", lastVersion.isEmpty());
         if (lastVersion.isEmpty()) {
             version = snapshotObjectSynchronizer.initializeSnapshotObjects(source);
             nrtmFileStore.createNrtmSessionDirectory(version.getSessionID());
@@ -61,21 +59,26 @@ public class SnapshotFileGenerator {
                 LOGGER.info("Not generating snapshot file yet");
                 return Optional.empty();
             } else {
-                LOGGER.info("{} Not generating snapshot file since no deltas have been published since v{} with serialID {}",
-                    method, version.getVersion(), version.getLastSerialId());
+                LOGGER.info("Not generating snapshot file since no deltas have been published since v{} with serialID {}",
+                    version.getVersion(), version.getLastSerialId());
                 return Optional.empty();
             }
         }
-        LOGGER.info("{} now at version: {}", method, version);
+        LOGGER.info("now at version: {}", version);
         if (version.getVersion() > 1) {
             LOGGER.debug("not syncing deltas to snapshot");
             return Optional.empty();
         }
         final PublishableSnapshotFile snapshotFile = new PublishableSnapshotFile(version);
         final String fileName = NrtmFileUtil.newFileName(snapshotFile);
+        final Stopwatch stopwatch = Stopwatch.createStarted();
         try (final OutputStream out = nrtmFileStore.getFileOutputStream(snapshotFile.getSessionID(), fileName)) {
-            final Stopwatch stopwatch = Stopwatch.createStarted();
             snapshotFileSerializer.writeSnapshotAsJson(snapshotFile, out);
+        } catch (final IOException e) {
+            LOGGER.error("Exception thrown when generating snapshot file", e);
+            throw new RuntimeException(e);
+        }
+        try {
             final String sha256hex = DigestUtils.sha256Hex(nrtmFileStore.getFileInputStream(snapshotFile.getSessionID(), fileName));
             snapshotFileRepository.save(
                 snapshotFile.getVersionId(),
@@ -84,11 +87,10 @@ public class SnapshotFileGenerator {
             );
             snapshotFile.setFileName(fileName);
             snapshotFile.setHash(sha256hex);
-            final DecimalFormat df = new DecimalFormat("#,###.000");
-            LOGGER.info("{} Generated snapshot file in {} min", method, df.format(stopwatch.elapsed().toMillis() / 60000.0));
+            LOGGER.info("Generated snapshot file in {}", stopwatch);
             return Optional.of(snapshotFile);
         } catch (final IOException e) {
-            LOGGER.error("Exception thrown when generating snapshot file", e);
+            LOGGER.error("Exception thrown when calculating hash of snapshot file", e);
             throw new RuntimeException(e);
         }
     }

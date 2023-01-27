@@ -16,9 +16,6 @@ CREATE TABLE `version`
 ) ENGINE = InnoDB
   DEFAULT CHARSET = utf8;
 
-INSERT INTO version
-VALUES ('whois-1.104');
-
 DROP TABLE IF EXISTS `notification_file`;
 DROP TABLE IF EXISTS `delta_file`;
 DROP TABLE IF EXISTS `snapshot_file`;

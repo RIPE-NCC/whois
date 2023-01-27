@@ -6,6 +6,7 @@ import org.mariadb.jdbc.internal.logging.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
+import java.io.BufferedOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -17,12 +18,13 @@ import java.io.OutputStream;
 @Service
 public class NrtmFileStore {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(NrtmFileService.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(NrtmFileStore.class);
+    private static final int BUFFER_SIZE = 1024 * 1024;
 
     private final String path;
 
     NrtmFileStore(
-        @Value("${nrtm.file.path:/tmp}") final String path
+        @Value("${nrtm.file.path}") final String path
     ) {
         this.path = path;
     }
@@ -50,7 +52,7 @@ public class NrtmFileStore {
 
     public OutputStream getFileOutputStream(final String sessionId, final String name) throws FileNotFoundException {
         final File dir = new File(path, sessionId);
-        return new FileOutputStream(new File(dir, name));
+        return new BufferedOutputStream(new FileOutputStream(new File(dir, name)), BUFFER_SIZE);
     }
 
     public FileInputStream getFileInputStream(final String sessionId, final String name) throws FileNotFoundException {

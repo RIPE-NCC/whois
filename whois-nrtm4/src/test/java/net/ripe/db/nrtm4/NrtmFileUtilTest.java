@@ -8,9 +8,6 @@ import net.ripe.db.nrtm4.util.NrtmFileUtil;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.junit.jupiter.api.Test;
 
-import java.util.ArrayList;
-import java.util.Set;
-
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.startsWith;
@@ -41,16 +38,6 @@ public class NrtmFileUtilTest {
         final var file = new PublishableSnapshotFile(testSnapshotVersion);
         final var name = NrtmFileUtil.newFileName(file);
         assertThat(name, startsWith("nrtm-snapshot.22."));
-    }
-
-    @Test
-    void session_ids_are_unique() {
-        final var listOfSessionIds = new ArrayList<>();
-        for (int i = 0; i < 50_000; i++) {
-            listOfSessionIds.add(NrtmFileUtil.sessionId());
-        }
-        final var setOfSessionIds = Set.copyOf(listOfSessionIds);
-        assertThat(setOfSessionIds.size(), is(listOfSessionIds.size()));
     }
 
     @Test

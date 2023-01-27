@@ -1,14 +1,12 @@
 package net.ripe.db.nrtm4;
 
+import net.ripe.db.nrtm4.dao.NrtmDocumentType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
 import java.io.OutputStream;
-
-import static net.ripe.db.nrtm4.NrtmConstants.DELTA_PREFIX;
-import static net.ripe.db.nrtm4.NrtmConstants.SNAPSHOT_PREFIX;
 
 
 @Service
@@ -38,16 +36,17 @@ public class NrtmFileService {
     }
 
     void syncNrtmFileToFileSystem(final String sessionId, final String name) throws IOException {
-        if (!name.startsWith(DELTA_PREFIX) && !name.startsWith(SNAPSHOT_PREFIX)) {
+        if (!name.startsWith(NrtmDocumentType.DELTA.getFileNamePrefix()) &&
+                !name.startsWith(NrtmDocumentType.SNAPSHOT.getFileNamePrefix())) {
             throw new IllegalArgumentException("Not an NRTM file name: " + name);
         }
         if (nrtmFileStore.checkIfFileExists(sessionId, name)) {
             return;
         }
-        if (name.startsWith(DELTA_PREFIX)) {
+        if (name.startsWith(NrtmDocumentType.DELTA.getFileNamePrefix())) {
             //nrtmFileSync.syncDeltaFromDbToDisk(sessionId, name);
             LOGGER.debug("skipping deltas");
-        } else if (name.startsWith(SNAPSHOT_PREFIX)) {
+        } else if (name.startsWith(NrtmDocumentType.SNAPSHOT.getFileNamePrefix())) {
             nrtmFileSync.syncSnapshotFromDbToDisk(sessionId, name);
         }
     }
