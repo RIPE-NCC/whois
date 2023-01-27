@@ -31,7 +31,7 @@ public class SnapshotFileSerializerTest {
     @Test
     void serialize_empty_snapshot_file_to_json() throws IOException {
         final var source = new NrtmSource("TEST");
-        final var serializer = new SnapshotFileSerializer(snapshotObjectReadOnlyDao);
+        final var serializer = new SnapshotFileSerializer(true, snapshotObjectReadOnlyDao);
         final var version = new NrtmVersionInfo(
             23L,
             source,

@@ -7,6 +7,7 @@ import com.fasterxml.jackson.core.util.DefaultPrettyPrinter;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import net.ripe.db.nrtm4.domain.NrtmDocumentType;
 import net.ripe.db.nrtm4.domain.PublishableSnapshotFile;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
@@ -16,11 +17,15 @@ import java.io.OutputStream;
 @Service
 public class SnapshotFileSerializer {
 
+    private final boolean isPrettyPrintSnapshots;
     private final SnapshotObjectReadOnlyDao snapshotObjectReadOnlyDao;
 
     SnapshotFileSerializer(
+        @Value("${nrtm.prettyprint.snapshots:true}")
+        final boolean isPrettyPrintSnapshots,
         final SnapshotObjectReadOnlyDao snapshotObjectReadOnlyDao
     ) {
+        this.isPrettyPrintSnapshots = isPrettyPrintSnapshots;
         this.snapshotObjectReadOnlyDao = snapshotObjectReadOnlyDao;
     }
 
@@ -29,9 +34,11 @@ public class SnapshotFileSerializer {
         final OutputStream outputStream
     ) throws IOException {
         final JsonGenerator jGenerator = new ObjectMapper().getFactory().createGenerator(outputStream, JsonEncoding.UTF8);
-        final DefaultPrettyPrinter pp = new DefaultPrettyPrinter();
-        pp.indentArraysWith(DefaultIndenter.SYSTEM_LINEFEED_INSTANCE);
-        jGenerator.setPrettyPrinter(pp);
+        if (isPrettyPrintSnapshots) {
+            final DefaultPrettyPrinter pp = new DefaultPrettyPrinter();
+            pp.indentArraysWith(DefaultIndenter.SYSTEM_LINEFEED_INSTANCE);
+            jGenerator.setPrettyPrinter(pp);
+        }
         jGenerator.writeStartObject();
         jGenerator.writeNumberField("nrtm_version", snapshotFile.getNrtmVersion());
         jGenerator.writeStringField("type", NrtmDocumentType.SNAPSHOT.lowerCaseName());
