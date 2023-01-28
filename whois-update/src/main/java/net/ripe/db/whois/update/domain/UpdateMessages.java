@@ -656,6 +656,18 @@ public final class UpdateMessages {
         return new Message(Type.ERROR, "Multiple user-'mnt-by:' are not allowed, found are: '%s'", Joiner.on(", ").join(userMntners));
     }
 
+    public static Message notValidSource() {
+        return new Message(Type.ERROR, "Can not set NONAUTH source when aut-num is not NONAUTH");
+    }
+
+    public static Message flatModelNotAllowSourceModifications(final String source){
+        return new Message(Type.ERROR, "Can not set '%s' source when as-set in not hierarchical", source);
+    }
+
+    public static Message sourceChanged(final CIString originalSource, final CIString finalSource, final String autnum) {
+        return new Message(Messages.Type.WARNING, "The \"source:\" attribute value has been updated from \"%s\" to " +
+                "\"%s\" to match the referenced AUT-NUM \"%s\"", originalSource, finalSource, autnum);
+    }
     public static Message changedAttributeRemoved() {
         return new Message(Messages.Type.WARNING, "Deprecated attribute \"changed\". This attribute has been removed.");
     }

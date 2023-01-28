@@ -15,7 +15,8 @@ import java.util.ListIterator;
 public class ShortFormatTransformer implements Transformer {
 
     @Override
-    public RpslObject transform(final RpslObject rpslObject, final Update update, final UpdateContext updateContext, final Action action) {
+    public RpslObject transform(final RpslObject rpslObject, final Update update,
+                                final UpdateContext updateContext, final Action action) {
         final RpslObjectBuilder builder = new RpslObjectBuilder(rpslObject);
         boolean updated = false;
 

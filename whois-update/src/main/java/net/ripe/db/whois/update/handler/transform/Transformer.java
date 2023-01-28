@@ -7,7 +7,7 @@ import net.ripe.db.whois.update.domain.UpdateContext;
 
 public interface Transformer {
 
-    RpslObject transform(final RpslObject rpslObject,
+    RpslObject transform(final RpslObject updatedObject,
                          final Update update,
                          final UpdateContext updateContext,
                          final Action action);
