@@ -39,7 +39,9 @@ public class AsSetSourceAttributeTransformer implements Transformer{
         final CIString asSetSource = rpslObject.getValueForAttribute(AttributeType.SOURCE);
 
         if (flatAsSet){
-            updateContext.addMessage(update, UpdateMessages.flatModelNotAllowSourceModifications(asSetSource.toString()));
+            if (asSetSource != null) {
+                updateContext.addMessage(update, UpdateMessages.flatModelNotAllowSourceModifications(asSetSource.toString()));
+            }
             return rpslObject;
         }
 
