@@ -45,11 +45,17 @@ public class SourceGenerator extends AttributeGenerator {
 
     @Override
     public RpslObject generateAttributes(RpslObject originalObject, RpslObject updatedObject, Update update, UpdateContext updateContext) {
-        return switch (updatedObject.getType()) {
-            case AS_SET -> generateAsSetSource(updatedObject, update, updateContext);
-            case AUT_NUM, ROUTE, ROUTE6 -> generateSource(updatedObject, update, updateContext);
-            default -> updatedObject;
-        };
+        switch (updatedObject.getType()){
+            case AS_SET:
+                return generateAsSetSource(updatedObject, update, updateContext);
+            case AUT_NUM:
+            case ROUTE:
+            case ROUTE6:
+                return generateSource(updatedObject, update, updateContext);
+            default:
+                return updatedObject;
+
+        }
     }
 
     private RpslObject generateAsSetSource(final RpslObject updatedObject, final Update update, final UpdateContext updateContext) {
@@ -62,17 +68,17 @@ public class SourceGenerator extends AttributeGenerator {
         final CIString asSetSource = updatedObject.getValueForAttribute(AttributeType.SOURCE);
 
         if (flatAsSet){
-            final RpslObject asSetObject = rpslObjectDao.getByKeyOrNull(ObjectType.AS_SET, asSetKey);
+            final RpslObject asSetObject = updateContext.getPreparedUpdate(update).getReferenceObject();
             if (asSetObject == null){
                 return updatedObject;
             }
             final CIString databaseAsSetSource = asSetObject.getValueForAttribute(AttributeType.SOURCE);
-            if (!asSetSource.equals(databaseAsSetSource)) {
-                updateContext.addMessage(update, ValidationMessages.suppliedAttributeReplacedWithGeneratedValue(AttributeType.SOURCE));
-                return new RpslObjectBuilder(updatedObject).replaceAttribute(updatedObject.findAttribute(AttributeType.SOURCE),
-                        new RpslAttribute(AttributeType.SOURCE, databaseAsSetSource)).get();
+            if (asSetSource.equals(databaseAsSetSource)) {
+                return updatedObject;
             }
-            return updatedObject;
+            updateContext.addMessage(update, ValidationMessages.suppliedAttributeReplacedWithGeneratedValue(AttributeType.SOURCE));
+            return new RpslObjectBuilder(updatedObject).replaceAttribute(updatedObject.findAttribute(AttributeType.SOURCE),
+                    new RpslAttribute(AttributeType.SOURCE, databaseAsSetSource)).get();
         }
 
         final String autnumKey = asSetKey.substring(0, asSetKey.indexOf(":"));
