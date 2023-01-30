@@ -54,7 +54,7 @@ public class ElasticSearchInstance implements ElasticRestHighlevelClient {
     private HttpHost[] asHttpHosts(final List<String> hosts) {
         return hosts.stream()
                 .map( host -> new HttpHost(StringUtils.substringBefore(host, ":"), Integer.parseInt(StringUtils.substringAfter(host, ":")), "https"))
-                .toArray(size -> new HttpHost[size]);
+                .toArray(HttpHost[]::new);
     }
 
     @Override
