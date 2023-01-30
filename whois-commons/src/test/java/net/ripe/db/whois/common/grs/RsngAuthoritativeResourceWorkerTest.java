@@ -5,9 +5,8 @@ import net.ripe.db.whois.common.rpsl.ObjectType;
 import org.apache.commons.io.IOUtils;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-
-import org.mockito.Mock;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -20,8 +19,6 @@ import java.util.concurrent.Executors;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
@@ -80,13 +77,13 @@ public class RsngAuthoritativeResourceWorkerTest {
     public void load()  {
         final AuthoritativeResource authoritativeResource = new RsngAuthoritativeResourceWorker(logger, "rsngBaseUrl", client, Executors.newCachedThreadPool(), "apikey").load();
 
-        assertFalse(authoritativeResource.isEmpty());
+        assertThat(authoritativeResource.isEmpty(), is(false));
         assertThat(authoritativeResource.getNrAutNums(), is(1));
         assertThat(authoritativeResource.getNrInet6nums(), is(1));
         assertThat(authoritativeResource.getNrInetnums(), is(1));
 
-        assertTrue(authoritativeResource.isMaintainedInRirSpace(ObjectType.AUT_NUM, CIString.ciString("AS7")));
-        assertTrue(authoritativeResource.isMaintainedInRirSpace(ObjectType.INET6NUM, CIString.ciString("2001:700::/25")));
-        assertTrue(authoritativeResource.isMaintainedInRirSpace(ObjectType.INETNUM, CIString.ciString("1.178.224.0-1.178.255.255")));
+        assertThat(authoritativeResource.isMaintainedInRirSpace(ObjectType.AUT_NUM, CIString.ciString("AS7")), is(true));
+        assertThat(authoritativeResource.isMaintainedInRirSpace(ObjectType.INET6NUM, CIString.ciString("2001:700::/25")), is(true));
+        assertThat(authoritativeResource.isMaintainedInRirSpace(ObjectType.INETNUM, CIString.ciString("1.178.224.0-1.178.255.255")), is(true));
     }
 }

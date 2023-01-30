@@ -1,11 +1,11 @@
 package net.ripe.db.whois.common.rpsl;
 
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 public class RpslObjectFilterTest {
     RpslObject mntner;
@@ -28,7 +28,7 @@ public class RpslObjectFilterTest {
 
     @Test
     public void getCertificateFromKeyCert() {
-        Assertions.assertThrows(AuthenticationException.class, () -> {
+        assertThrows(AuthenticationException.class, () -> {
             RpslObjectFilter.getCertificateFromKeyCert(mntner);
         });
 

@@ -2,7 +2,6 @@ package net.ripe.db.whois.common.rpsl;
 
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -16,8 +15,7 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.not;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.fail;
 
 @ExtendWith(MockitoExtension.class)
@@ -28,7 +26,7 @@ public class DummifierNrtmTest {
 
     @Test
     public void null_type() {
-        Assertions.assertThrows(IllegalArgumentException.class, () -> {
+        assertThrows(IllegalArgumentException.class, () -> {
             subject.dummify(3, RpslObject.parse("FOOO:BAR\n"));
         });
     }
@@ -38,15 +36,15 @@ public class DummifierNrtmTest {
         for (ObjectType objectType : DummifierNrtm.SKIPPED_OBJECT_TYPES) {
             RpslObject object = createObject(objectType, "YAY", new RpslAttribute(AttributeType.REMARKS, "Remark!"), new RpslAttribute(AttributeType.SOURCE, "TEST"));
 
-            assertTrue(subject.isAllowed(1, object));
-            assertTrue(subject.isAllowed(2, object));
+            assertThat(subject.isAllowed(1, object), is(true));
+            assertThat(subject.isAllowed(2, object), is(true));
 
             if (objectType.equals(ObjectType.ROLE)) {
-                assertEquals(subject.dummify(1, object), DummifierNrtm.getPlaceholderRoleObject());
-                assertEquals(subject.dummify(2, object), DummifierNrtm.getPlaceholderRoleObject());
+                assertThat(subject.dummify(1, object), is(DummifierNrtm.getPlaceholderRoleObject()));
+                assertThat(subject.dummify(2, object), is(DummifierNrtm.getPlaceholderRoleObject()));
             } else {
-                assertEquals(subject.dummify(1, object), DummifierNrtm.getPlaceholderPersonObject());
-                assertEquals(subject.dummify(2, object), DummifierNrtm.getPlaceholderPersonObject());
+                assertThat(subject.dummify(1, object), is(DummifierNrtm.getPlaceholderPersonObject()));
+                assertThat(subject.dummify(2, object), is(DummifierNrtm.getPlaceholderPersonObject()));
             }
         }
     }
@@ -329,7 +327,7 @@ public class DummifierNrtmTest {
 
         final RpslObject dummified = subject.dummify(3, mntner);
 
-        assertThat(dummified.findAttribute(AttributeType.AUTH), is(new RpslAttribute("auth", "MD5-PW $1$SaltSalt$DummifiedMD5HashValue.")));
+        assertThat(dummified.findAttribute(AttributeType.AUTH), is(new RpslAttribute("auth", "MD5-PW $1$SaltSalt$DummifiedMD5HashValue.   # Real value hidden for security")));
         assertThat(dummified.getValueForAttribute(AttributeType.CREATED).toString(), is("2001-02-04T17:00:00Z"));
         assertThat(dummified.getValueForAttribute(AttributeType.LAST_MODIFIED).toString(), is("2001-02-04T17:00:00Z"));
     }

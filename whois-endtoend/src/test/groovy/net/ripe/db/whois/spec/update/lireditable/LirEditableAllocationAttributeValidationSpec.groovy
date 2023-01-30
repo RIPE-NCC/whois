@@ -82,7 +82,7 @@ class LirEditableAllocationAttributeValidationSpec extends BaseLirEditableAttrib
                 source:       TEST
                 password: lir
                 password: irt
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:
@@ -130,7 +130,7 @@ class LirEditableAllocationAttributeValidationSpec extends BaseLirEditableAttrib
                 source:       TEST
                 password: lir
                 password: irt
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:
@@ -168,7 +168,7 @@ class LirEditableAllocationAttributeValidationSpec extends BaseLirEditableAttrib
                 source:       TEST
                 password: lir
                 password: irt
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:
@@ -210,7 +210,7 @@ class LirEditableAllocationAttributeValidationSpec extends BaseLirEditableAttrib
                 source:       TEST
                 password: lir
                 password: irt
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:
@@ -254,7 +254,7 @@ class LirEditableAllocationAttributeValidationSpec extends BaseLirEditableAttrib
                 source:       TEST
                 password: lir
                 password: irt
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:
@@ -295,7 +295,7 @@ class LirEditableAllocationAttributeValidationSpec extends BaseLirEditableAttrib
                 source:       TEST
                 password: lir
                 password: irt
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:
@@ -337,7 +337,7 @@ class LirEditableAllocationAttributeValidationSpec extends BaseLirEditableAttrib
                 source:       TEST
                 password: lir
                 password: irt
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:
@@ -381,7 +381,7 @@ class LirEditableAllocationAttributeValidationSpec extends BaseLirEditableAttrib
                 source:       TEST
                 password: lir
                 password: irt
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:
@@ -419,7 +419,7 @@ class LirEditableAllocationAttributeValidationSpec extends BaseLirEditableAttrib
                 source:       TEST
                 password: ${resourceRipeMntnerPassword}
                 password: owner3
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:
@@ -455,7 +455,7 @@ class LirEditableAllocationAttributeValidationSpec extends BaseLirEditableAttrib
                 source:       TEST
                 password: lir
                 password: irt
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:
@@ -499,7 +499,7 @@ class LirEditableAllocationAttributeValidationSpec extends BaseLirEditableAttrib
                 source:       TEST
                 password: lir
                 password: irt
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:
@@ -521,18 +521,18 @@ class LirEditableAllocationAttributeValidationSpec extends BaseLirEditableAttrib
         when:
         def ack = syncUpdateWithResponse("""
                 ${resourceType}: ${resourceValue}
-                netname:      TEST-NET-NAME-CHANGED # changed
+                netname:      TEST-NET-NAME-CHANGED
                 country:      NL
                 org:          ORG-LIR1-TEST
                 admin-c:      TP1-TEST
                 tech-c:       TP1-TEST
                 status:       ${resourceStatus}
                 mnt-by:       ${resourceRipeMntner}
-                mnt-by:       LIR2-MNT              # changed
+                mnt-by:       LIR2-MNT 
                 source:       TEST
                 password: lir
                 password: owner3
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:
@@ -570,7 +570,7 @@ class LirEditableAllocationAttributeValidationSpec extends BaseLirEditableAttrib
                 source:       TEST
                 password: lir
                 password: owner3
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:
@@ -611,7 +611,7 @@ class LirEditableAllocationAttributeValidationSpec extends BaseLirEditableAttrib
                 source:       TEST
                 password: lir
                 password: irt
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:
@@ -653,7 +653,7 @@ class LirEditableAllocationAttributeValidationSpec extends BaseLirEditableAttrib
                 source:       TEST
                 password: lir
                 password: irt
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:
@@ -697,7 +697,7 @@ class LirEditableAllocationAttributeValidationSpec extends BaseLirEditableAttrib
                 source:       TEST
                 password: lir
                 password: irt
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:
@@ -745,7 +745,7 @@ class LirEditableAllocationAttributeValidationSpec extends BaseLirEditableAttrib
                 mnt-by:       LIR-MNT
                 source:       TEST
                 password: lir
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:
@@ -777,7 +777,7 @@ class LirEditableAllocationAttributeValidationSpec extends BaseLirEditableAttrib
                 mnt-by:       LIR-MNT
                 source:       TEST
                 password: lir
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:
@@ -815,7 +815,7 @@ class LirEditableAllocationAttributeValidationSpec extends BaseLirEditableAttrib
                 mnt-by:       LIR-MNT
                 source:       TEST
                 password: ${resourceRipeMntnerPassword}
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:
@@ -853,7 +853,7 @@ class LirEditableAllocationAttributeValidationSpec extends BaseLirEditableAttrib
                 source:       TEST
                 delete: some reason
                 password: lir
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:

@@ -20,12 +20,14 @@ import net.ripe.db.whois.query.support.TestPersonalObjectAccounting;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import javax.ws.rs.BadRequestException;
 import javax.ws.rs.ClientErrorException;
 import javax.ws.rs.NotFoundException;
+import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.client.WebTarget;
 import javax.ws.rs.core.MediaType;
 import java.io.IOException;
@@ -37,6 +39,7 @@ import java.util.List;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
+import static net.ripe.db.whois.common.support.DateMatcher.isBefore;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.Matchers.containsInAnyOrder;
@@ -44,10 +47,9 @@ import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
 
-@org.junit.jupiter.api.Tag("ElasticSearchTest")
+@Tag("ElasticSearchTest")
 public class WhoisRdapElasticServiceTestIntegration extends AbstractElasticSearchIntegrationTest {
 
     private static final String WHOIS_INDEX = "whois_rdap";
@@ -89,7 +91,9 @@ public class WhoisRdapElasticServiceTestIntegration extends AbstractElasticSearc
     public void setup() throws IOException {
         databaseHelper.addObject("" +
                 "person:        Test Person\n" +
-                "nic-hdl:       TP1-TEST");
+                "nic-hdl:       TP1-TEST\n" +
+                "created:         2022-08-14T11:48:28Z\n" +
+                "last-modified:   2022-10-25T12:22:39Z");
         databaseHelper.addObject("" +
                 "mntner:        OWNER-MNT\n" +
                 "descr:         Owner Maintainer\n" +
@@ -98,6 +102,8 @@ public class WhoisRdapElasticServiceTestIntegration extends AbstractElasticSearc
                 "auth:          MD5-PW $1$d9fKeTr2$Si7YudNf4rUGmR71n/cqk/ #test\n" +
                 "mnt-by:        OWNER-MNT\n" +
                 "referral-by:   OWNER-MNT\n" +
+                "created:         2022-08-14T11:48:28Z\n" +
+                "last-modified:   2022-10-25T12:22:39Z\n" +
                 "source:        TEST");
         databaseHelper.updateObject("" +
                 "person:        Test Person\n" +
@@ -105,6 +111,8 @@ public class WhoisRdapElasticServiceTestIntegration extends AbstractElasticSearc
                 "phone:         +31 6 12345678\n" +
                 "nic-hdl:       TP1-TEST\n" +
                 "mnt-by:        OWNER-MNT\n" +
+                "created:         2022-08-14T11:48:28Z\n" +
+                "last-modified:   2022-10-25T12:22:39Z\n" +
                 "source:        TEST");
         databaseHelper.addObject("" +
                 "person:        Test Person2\n" +
@@ -113,6 +121,8 @@ public class WhoisRdapElasticServiceTestIntegration extends AbstractElasticSearc
                 "e-mail:        noreply@ripe.net\n" +
                 "mnt-by:        OWNER-MNT\n" +
                 "nic-hdl:       TP2-TEST\n" +
+                "created:         2022-08-14T11:48:28Z\n" +
+                "last-modified:   2022-10-25T12:22:39Z\n" +
                 "source:        TEST");
         databaseHelper.addObject("" +
                 "person:        Pauleth Palthen\n" +
@@ -122,6 +132,8 @@ public class WhoisRdapElasticServiceTestIntegration extends AbstractElasticSearc
                 "mnt-by:        OWNER-MNT\n" +
                 "nic-hdl:       PP1-TEST\n" +
                 "remarks:       remark\n" +
+                "created:         2022-08-14T11:48:28Z\n" +
+                "last-modified:   2022-10-25T12:22:39Z\n" +
                 "source:        TEST");
         databaseHelper.addObject("" +
                 "role:          First Role\n" +
@@ -131,6 +143,8 @@ public class WhoisRdapElasticServiceTestIntegration extends AbstractElasticSearc
                 "tech-c:        PP1-TEST\n" +
                 "nic-hdl:       FR1-TEST\n" +
                 "mnt-by:        OWNER-MNT\n" +
+                "created:         2022-08-14T11:48:28Z\n" +
+                "last-modified:   2022-10-25T12:22:39Z\n" +
                 "source:        TEST");
         databaseHelper.addObject("" +
                 "domain:        31.12.202.in-addr.arpa\n" +
@@ -145,6 +159,8 @@ public class WhoisRdapElasticServiceTestIntegration extends AbstractElasticSearc
                 "ds-rdata:      17881 5 1 2e58131e5fe28ec965a7b8e4efb52d0a028d7a78\n" +
                 "ds-rdata:      17881 5 2 8c6265733a73e5588bfac516a4fcfbe1103a544b95f254cb67a21e474079547e\n" +
                 "mnt-by:        OWNER-MNT\n" +
+                "created:         2022-08-14T11:48:28Z\n" +
+                "last-modified:   2022-10-25T12:22:39Z\n" +
                 "source:        TEST");
         databaseHelper.addObject("" +
                 "aut-num:       AS102\n" +
@@ -153,6 +169,8 @@ public class WhoisRdapElasticServiceTestIntegration extends AbstractElasticSearc
                 "admin-c:       TP1-TEST\n" +
                 "tech-c:        TP1-TEST\n" +
                 "mnt-by:        OWNER-MNT\n" +
+                "created:         2022-08-14T11:48:28Z\n" +
+                "last-modified:   2022-10-25T12:22:39Z\n" +
                 "source:        TEST");
         databaseHelper.addObject("" +
                 "organisation:  ORG-TEST1-TEST\n" +
@@ -166,12 +184,16 @@ public class WhoisRdapElasticServiceTestIntegration extends AbstractElasticSearc
                 "admin-c:       PP1-TEST\n" +
                 "e-mail:        org@test.com\n" +
                 "mnt-by:        OWNER-MNT\n" +
+                "created:         2022-08-14T11:48:28Z\n" +
+                "last-modified:   2022-10-25T12:22:39Z\n" +
                 "source:        TEST");
         databaseHelper.addObject("" +
                 "as-block:       AS100 - AS200\n" +
                 "descr:          ARIN ASN block\n" +
                 "org:            ORG-TEST1-TEST\n" +
                 "mnt-by:         OWNER-MNT\n" +
+                "created:         2022-08-14T11:48:28Z\n" +
+                "last-modified:   2022-10-25T12:22:39Z\n" +
                 "source:         TEST");
         databaseHelper.addObject("" +
                 "inetnum:        0.0.0.0 - 255.255.255.255\n" +
@@ -182,6 +204,8 @@ public class WhoisRdapElasticServiceTestIntegration extends AbstractElasticSearc
                 "admin-c:        TP1-TEST\n" +
                 "status:         OTHER\n" +
                 "mnt-by:         OWNER-MNT\n" +
+                "created:         2022-08-14T11:48:28Z\n" +
+                "last-modified:   2022-10-25T12:22:39Z\n" +
                 "source:         TEST");
         databaseHelper.addObject("" +
                 "inet6num:       ::/0\n" +
@@ -192,6 +216,8 @@ public class WhoisRdapElasticServiceTestIntegration extends AbstractElasticSearc
                 "admin-c:        TP1-TEST\n" +
                 "status:         OTHER\n" +
                 "mnt-by:         OWNER-MNT\n" +
+                "created:         2022-08-14T11:48:28Z\n" +
+                "last-modified:   2022-10-25T12:22:39Z\n" +
                 "source:         TEST");
         ipTreeUpdater.rebuild();
 
@@ -219,7 +245,7 @@ public class WhoisRdapElasticServiceTestIntegration extends AbstractElasticSearc
 
         assertCommon(domain);
         assertThat(domain.getHandle(), equalTo("31.12.202.in-addr.arpa"));
-        assertThat(domain.getLdhName(), equalTo("31.12.202.in-addr.arpa"));
+        assertThat(domain.getLdhName(), equalTo("31.12.202.in-addr.arpa."));
         assertThat(domain.getObjectClassName(), is("domain"));
 
         assertThat(domain.getNameservers(), hasSize(2));
@@ -244,9 +270,11 @@ public class WhoisRdapElasticServiceTestIntegration extends AbstractElasticSearc
         assertThat(domain.getRemarks().get(0).getDescription(), contains("Test domain"));
 
         final List<Event> events = domain.getEvents();
-        assertThat(events, hasSize(1));
-        assertTrue(events.get(0).getEventDate().isBefore(LocalDateTime.now()));
-        assertThat(events.get(0).getEventAction(), is(Action.LAST_CHANGED));
+        assertThat(events, hasSize(2));
+        assertThat(events.get(0).getEventDate(), isBefore(LocalDateTime.now()));
+        assertThat(events.get(0).getEventAction(), is(Action.REGISTRATION));
+        assertThat(events.get(1).getEventDate(), isBefore(LocalDateTime.now()));
+        assertThat(events.get(1).getEventAction(), is(Action.LAST_CHANGED));
 
         final List<Entity> entities = domain.getEntitySearchResults();
         assertThat(entities, hasSize(2));
@@ -254,13 +282,17 @@ public class WhoisRdapElasticServiceTestIntegration extends AbstractElasticSearc
         assertThat(entities.get(1).getHandle(), is("TP1-TEST"));
 
         final List<Notice> notices = domain.getNotices();
-        assertThat(notices, hasSize(3));
+        assertThat(notices, hasSize(4));
         Collections.sort(notices);
         assertThat(notices.get(0).getTitle(), is("Filtered"));
         assertThat(notices.get(1).getTitle(), is("Source"));
         assertTnCNotice(notices.get(2), "https://rdap.db.ripe.net/domain/31.12.202.in-addr.arpa");
 
-        assertCopyrightLink(domain.getLinks(), "https://rdap.db.ripe.net/domain/31.12.202.in-addr.arpa");
+         final List<Link> links= domain.getLinks();
+        assertThat(links, hasSize(1));
+
+        assertThat(links.get(0).getRel(), is("copyright"));
+        assertThat(links.get(0).getHref(), is("http://www.ripe.net/data-tools/support/documentation/terms"));
     }
 
     @Test
@@ -271,7 +303,7 @@ public class WhoisRdapElasticServiceTestIntegration extends AbstractElasticSearc
 
         assertCommon(domain);
         assertThat(domain.getHandle(), equalTo("31.12.202.in-addr.arpa"));
-        assertThat(domain.getLdhName(), equalTo("31.12.202.in-addr.arpa"));
+        assertThat(domain.getLdhName(), equalTo("31.12.202.in-addr.arpa."));
         assertThat(domain.getObjectClassName(), is("domain"));
     }
 
@@ -294,8 +326,10 @@ public class WhoisRdapElasticServiceTestIntegration extends AbstractElasticSearc
                     .request(MediaType.APPLICATION_JSON_TYPE)
                     .get(Domain.class);
             fail();
-        } catch (NotFoundException e) {
-            assertErrorTitle(e, "RIPE NCC does not support forward domain queries.");
+        } catch (BadRequestException e) {
+            assertErrorStatus(e, 400);
+            assertErrorTitle(e, "400 Not Found");
+            assertErrorDescription(e, "RIPE NCC does not support forward domain queries.");
         }
     }
 
@@ -310,7 +344,7 @@ public class WhoisRdapElasticServiceTestIntegration extends AbstractElasticSearc
                     .get(Entity.class);
             fail();
         } catch (NotFoundException e) {
-            assertErrorTitle(e, "not found");
+            assertErrorTitle(e, "404 Not Found");
         }
     }
 
@@ -369,7 +403,7 @@ public class WhoisRdapElasticServiceTestIntegration extends AbstractElasticSearc
                     .get(SearchResult.class);
             fail();
         } catch (NotFoundException e) {
-            assertErrorTitle(e, "not found");
+            assertErrorTitle(e, "404 Not Found");
         }
     }
 
@@ -384,18 +418,17 @@ public class WhoisRdapElasticServiceTestIntegration extends AbstractElasticSearc
 
     @Test
     public void search_entity_person_umlaut() {
-        databaseHelper.addObject("person: Tëst Person3\nnic-hdl: TP3-TEST\nsource: TEST");
+        databaseHelper.addObject("person: Tëst Person3\nnic-hdl: TP3-TEST\ncreated: 2022-08-14T11:48:28Z\nlast-modified:   2022-10-25T12:22:39Z\nsource: TEST");
         rebuildIndex();
         final SearchResult response = createResource("entities?fn=Tëst%20Person3")
                 .request(MediaType.APPLICATION_JSON_TYPE)
                 .get(SearchResult.class);
-
         assertThat(response.getEntitySearchResults().get(0).getHandle(), equalTo("TP3-TEST"));
     }
 
     @Test
     public void search_entity_person_umlaut_latin1_encoded() {
-        databaseHelper.addObject("person: Tëst Person3\nnic-hdl: TP3-TEST");
+        databaseHelper.addObject("person: Tëst Person3\nnic-hdl: TP3-TEST\ncreated: 2022-08-14T11:48:28Z\nlast-modified:   2022-10-25T12:22:39Z\nsource: TEST");
         rebuildIndex();
 
         try {
@@ -410,7 +443,7 @@ public class WhoisRdapElasticServiceTestIntegration extends AbstractElasticSearc
 
     @Test
     public void search_entity_person_umlaut_utf8_encoded() {
-        databaseHelper.addObject("person: Tëst Person3\nnic-hdl: TP3-TEST\nsource: TEST");
+        databaseHelper.addObject("person: Tëst Person3\nnic-hdl: TP3-TEST\ncreated: 2022-08-14T11:48:28Z\nlast-modified:   2022-10-25T12:22:39Z\nsource: TEST");
         rebuildIndex();
 
         final SearchResult response = createResource("entities?fn=T%C3%ABst%20Person3")
@@ -422,7 +455,7 @@ public class WhoisRdapElasticServiceTestIntegration extends AbstractElasticSearc
 
     @Test
     public void search_entity_person_umlaut_substitution() {
-        databaseHelper.addObject("person: Tëst Person3\nnic-hdl: TP3-TEST\nsource: TEST");
+        databaseHelper.addObject("person: Tëst Person3\nnic-hdl: TP3-TEST\ncreated: 2022-08-14T11:48:28Z\nlast-modified:   2022-10-25T12:22:39Z\nsource: TEST");
         rebuildIndex();
 
         try {
@@ -443,7 +476,7 @@ public class WhoisRdapElasticServiceTestIntegration extends AbstractElasticSearc
                     .get(Entity.class);
             fail();
         } catch (NotFoundException e) {
-            assertErrorTitle(e, "not found");
+            assertErrorTitle(e, "404 Not Found");
         }
     }
 
@@ -475,7 +508,7 @@ public class WhoisRdapElasticServiceTestIntegration extends AbstractElasticSearc
                     .get(Entity.class);
             fail();
         } catch (NotFoundException e) {
-            assertErrorTitle(e, "not found");
+            assertErrorTitle(e, "404 Not Found");
         }
     }
 
@@ -541,7 +574,9 @@ public class WhoisRdapElasticServiceTestIntegration extends AbstractElasticSearc
                     .get(Entity.class);
             fail();
         } catch (BadRequestException e) {
-            assertErrorTitle(e, "bad request");
+            assertErrorStatus(e, 400);
+            assertErrorTitle(e, "400 Bad Request");
+            assertErrorDescription(e, "The server is not able to process the request");
         }
     }
 
@@ -553,7 +588,9 @@ public class WhoisRdapElasticServiceTestIntegration extends AbstractElasticSearc
                     .get(Entity.class);
             fail();
         } catch (BadRequestException e) {
-            assertErrorTitle(e, "bad request");
+            assertErrorStatus(e, 400);
+            assertErrorTitle(e, "400 Bad Request");
+            assertErrorDescription(e, "The server is not able to process the request");
         }
     }
 
@@ -565,7 +602,9 @@ public class WhoisRdapElasticServiceTestIntegration extends AbstractElasticSearc
                     .get(Entity.class);
             fail();
         } catch (BadRequestException e) {
-            assertErrorTitle(e, "empty search term");
+            assertErrorStatus(e, 400);
+            assertErrorTitle(e, "400 Bad Request");
+            assertErrorDescription(e, "Empty search term");
         }
     }
 
@@ -577,7 +616,9 @@ public class WhoisRdapElasticServiceTestIntegration extends AbstractElasticSearc
                     .get(Entity.class);
             fail();
         } catch (BadRequestException e) {
-            assertErrorTitle(e, "empty search term");
+            assertErrorStatus(e, 400);
+            assertErrorTitle(e, "400 Bad Request");
+            assertErrorDescription(e, "Empty search term");
         }
     }
 
@@ -602,7 +643,7 @@ public class WhoisRdapElasticServiceTestIntegration extends AbstractElasticSearc
                 .flatMap(Collection::stream)
                 .map(Notice::getTitle)
                 .collect(Collectors.toList()),
-            containsInAnyOrder("Source", "Filtered"));
+            containsInAnyOrder("Source", "Filtered", "Whois Inaccuracy Reporting"));
         assertThat(result.getNotices(), hasSize(1));
         assertThat(result.getNotices().get(0).getTitle(), is("Terms and Conditions"));
     }
@@ -620,7 +661,11 @@ public class WhoisRdapElasticServiceTestIntegration extends AbstractElasticSearc
                 fail();
             } catch (ClientErrorException e) {
                 assertErrorStatus(e, 429);
-                assertErrorTitleContains(e, "%ERROR:201: access denied for 127.0.0.1");
+                assertErrorTitleContains(e, "429 Too Many Requests");
+                assertErrorDescription(e,"%ERROR:201: access denied for 127.0.0.1\n%\n% Sorry, access from your host " +
+                        "has been permanently\n% denied because of a repeated excessive querying.\n% For more " +
+                        "information, see\n% http://www.ripe" +
+                        ".net/data-tools/db/faq/faq-db/why-did-you-receive-the-error-201-access-denied\n");
             }
         } finally {
             databaseHelper.unban(LOCALHOST_WITH_PREFIX);
@@ -650,21 +695,8 @@ public class WhoisRdapElasticServiceTestIntegration extends AbstractElasticSearc
 
     private void assertCommon(RdapObject object) {
         assertThat(object.getPort43(), is("whois.ripe.net"));
-        assertThat(object.getRdapConformance(), hasSize(1));
-        assertThat(object.getRdapConformance().get(0), equalTo("rdap_level_0"));
-    }
-
-    private void assertCopyrightLink(final List<Link> links, final String value) {
-        assertThat(links, hasSize(2));
-        Collections.sort(links);
-
-        assertThat(links.get(0).getRel(), is("copyright"));
-        assertThat(links.get(0).getHref(), is("http://www.ripe.net/data-tools/support/documentation/terms"));
-        assertThat(links.get(0).getHref(), is("http://www.ripe.net/data-tools/support/documentation/terms"));
-
-        assertThat(links.get(1).getRel(), is("self"));
-        assertThat(links.get(1).getValue(), is(value));
-        assertThat(links.get(1).getHref(), is(value));
+        assertThat(object.getRdapConformance(), hasSize(3));
+        assertThat(object.getRdapConformance(), containsInAnyOrder("rdap_level_0", "cidr0", "nro_rdap_profile_0"));
     }
 
     private void assertTnCNotice(final Notice notice, final String value) {
@@ -693,6 +725,10 @@ public class WhoisRdapElasticServiceTestIntegration extends AbstractElasticSearc
 
     }
 
+    protected void assertErrorDescription(final WebApplicationException exception, final String description) {
+        final Entity entity = exception.getResponse().readEntity(Entity.class);
+        assertThat(entity.getDescription().get(0), is(description));
+    }
     protected void assertErrorTitle(final ClientErrorException exception, final String title) {
         final Entity entity = exception.getResponse().readEntity(Entity.class);
         assertThat(entity.getErrorTitle(), is(title));

@@ -241,7 +241,7 @@ class InetnumStatusBetweenSpec extends BaseQueryUpdateSpec {
 
                 password: hm
                 password: owner3
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -282,7 +282,7 @@ class InetnumStatusBetweenSpec extends BaseQueryUpdateSpec {
                 password: hm
                 password: owner3
                 password: lir
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -326,7 +326,7 @@ class InetnumStatusBetweenSpec extends BaseQueryUpdateSpec {
                 password: hm
                 password: owner3
                 password: lir
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -370,7 +370,7 @@ class InetnumStatusBetweenSpec extends BaseQueryUpdateSpec {
                 password: hm
                 password: owner3
                 password: sub
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -414,7 +414,7 @@ class InetnumStatusBetweenSpec extends BaseQueryUpdateSpec {
                 password: hm
                 password: owner3
                 password: end
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -457,7 +457,7 @@ class InetnumStatusBetweenSpec extends BaseQueryUpdateSpec {
 
                 password: hm
                 password: owner3
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -500,7 +500,7 @@ class InetnumStatusBetweenSpec extends BaseQueryUpdateSpec {
 
                 password: hm
                 password: owner3
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -544,7 +544,7 @@ class InetnumStatusBetweenSpec extends BaseQueryUpdateSpec {
                 password: hm
                 password: owner3
                 password: lir
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -590,7 +590,7 @@ class InetnumStatusBetweenSpec extends BaseQueryUpdateSpec {
 
                 password: hm
                 password: owner3
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -632,7 +632,7 @@ class InetnumStatusBetweenSpec extends BaseQueryUpdateSpec {
                 password: hm
                 password: owner3
                 password: lir
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -676,7 +676,7 @@ class InetnumStatusBetweenSpec extends BaseQueryUpdateSpec {
                 password: hm
                 password: owner3
                 password: lir
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -720,7 +720,7 @@ class InetnumStatusBetweenSpec extends BaseQueryUpdateSpec {
                 password: hm
                 password: owner3
                 password: sub
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -764,7 +764,7 @@ class InetnumStatusBetweenSpec extends BaseQueryUpdateSpec {
                 password: hm
                 password: owner3
                 password: end
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -807,7 +807,7 @@ class InetnumStatusBetweenSpec extends BaseQueryUpdateSpec {
 
                 password: hm
                 password: owner3
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -850,7 +850,7 @@ class InetnumStatusBetweenSpec extends BaseQueryUpdateSpec {
 
                 password: hm
                 password: owner3
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -894,7 +894,7 @@ class InetnumStatusBetweenSpec extends BaseQueryUpdateSpec {
                 password: hm
                 password: owner3
                 password: lir
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -941,7 +941,7 @@ class InetnumStatusBetweenSpec extends BaseQueryUpdateSpec {
                 password: hm
                 password: owner3
                 password: lir
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -982,7 +982,7 @@ class InetnumStatusBetweenSpec extends BaseQueryUpdateSpec {
 
                 password: owner3
                 password: lir
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -1023,7 +1023,7 @@ class InetnumStatusBetweenSpec extends BaseQueryUpdateSpec {
 
                 password: owner3
                 password: lir
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -1068,7 +1068,7 @@ class InetnumStatusBetweenSpec extends BaseQueryUpdateSpec {
 
                 password: owner3
                 password: lir
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -1113,7 +1113,7 @@ class InetnumStatusBetweenSpec extends BaseQueryUpdateSpec {
 
                 password: owner3
                 password: lir
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -1154,7 +1154,7 @@ class InetnumStatusBetweenSpec extends BaseQueryUpdateSpec {
 
                 password: owner3
                 password: lir
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -1199,7 +1199,7 @@ class InetnumStatusBetweenSpec extends BaseQueryUpdateSpec {
 
                 password: owner3
                 password: lir
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -1243,7 +1243,7 @@ class InetnumStatusBetweenSpec extends BaseQueryUpdateSpec {
 
                 password: owner3
                 password: lir
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -1289,7 +1289,7 @@ class InetnumStatusBetweenSpec extends BaseQueryUpdateSpec {
 
                 password: hm
                 password: owner3
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -1331,7 +1331,7 @@ class InetnumStatusBetweenSpec extends BaseQueryUpdateSpec {
                 password: hm
                 password: owner3
                 password: lir
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -1375,7 +1375,7 @@ class InetnumStatusBetweenSpec extends BaseQueryUpdateSpec {
                 password: hm
                 password: owner3
                 password: lir
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -1419,7 +1419,7 @@ class InetnumStatusBetweenSpec extends BaseQueryUpdateSpec {
                 password: hm
                 password: owner3
                 password: sub
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -1463,7 +1463,7 @@ class InetnumStatusBetweenSpec extends BaseQueryUpdateSpec {
                 password: hm
                 password: owner3
                 password: end
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -1506,7 +1506,7 @@ class InetnumStatusBetweenSpec extends BaseQueryUpdateSpec {
 
                 password: hm
                 password: owner3
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -1549,7 +1549,7 @@ class InetnumStatusBetweenSpec extends BaseQueryUpdateSpec {
 
                 password: hm
                 password: owner3
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -1593,7 +1593,7 @@ class InetnumStatusBetweenSpec extends BaseQueryUpdateSpec {
                 password: hm
                 password: owner3
                 password: lir
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -1638,7 +1638,7 @@ class InetnumStatusBetweenSpec extends BaseQueryUpdateSpec {
 
                 password: hm
                 password: owner3
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -1681,7 +1681,7 @@ class InetnumStatusBetweenSpec extends BaseQueryUpdateSpec {
                 password: hm
                 password: owner3
                 password: lir
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -1726,7 +1726,7 @@ class InetnumStatusBetweenSpec extends BaseQueryUpdateSpec {
                 password: hm
                 password: owner3
                 password: lir
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -1771,7 +1771,7 @@ class InetnumStatusBetweenSpec extends BaseQueryUpdateSpec {
                 password: hm
                 password: owner3
                 password: lir
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -1816,7 +1816,7 @@ class InetnumStatusBetweenSpec extends BaseQueryUpdateSpec {
 
                 password: hm
                 password: owner3
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -1860,7 +1860,7 @@ class InetnumStatusBetweenSpec extends BaseQueryUpdateSpec {
 
                 password: hm
                 password: owner3
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -1905,7 +1905,7 @@ class InetnumStatusBetweenSpec extends BaseQueryUpdateSpec {
                 password: hm
                 password: owner3
                 password: lir
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -1949,7 +1949,7 @@ class InetnumStatusBetweenSpec extends BaseQueryUpdateSpec {
 
                 password: owner3
                 password: lir
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -1998,7 +1998,7 @@ class InetnumStatusBetweenSpec extends BaseQueryUpdateSpec {
                 password: hm
                 password: owner3
                 password: lir
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:

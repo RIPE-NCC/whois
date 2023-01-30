@@ -68,7 +68,7 @@ class DryRunSpec extends BaseQueryUpdateSpec {
 
                 dry-run:
                 password:   owner
-                """.stripIndent(), redirect: false)
+                """.stripIndent(true), redirect: false)
         )
 
         then:
@@ -116,7 +116,7 @@ class DryRunSpec extends BaseQueryUpdateSpec {
 
                 dry-run:
                 password:   owner
-                """.stripIndent(), redirect: false)
+                """.stripIndent(true), redirect: false)
         )
 
         then:
@@ -158,7 +158,7 @@ class DryRunSpec extends BaseQueryUpdateSpec {
                 source:  TEST
 
                 password:   owner
-                """.stripIndent(), redirect: false)
+                """.stripIndent(true), redirect: false)
         )
 
         then:
@@ -196,7 +196,7 @@ class DryRunSpec extends BaseQueryUpdateSpec {
                 source:  TEST
 
                 password:   owner
-                """.stripIndent(), redirect: false)
+                """.stripIndent(true), redirect: false)
         )
 
         then:
@@ -234,7 +234,7 @@ class DryRunSpec extends BaseQueryUpdateSpec {
                 dry-run:
 
                 password:   owner
-                """.stripIndent(), redirect: false)
+                """.stripIndent(true), redirect: false)
         )
 
         then:
@@ -272,7 +272,7 @@ class DryRunSpec extends BaseQueryUpdateSpec {
                 source:  TEST
 
                 password:   owner
-                """.stripIndent(), redirect: false)
+                """.stripIndent(true), redirect: false)
         )
 
         then:
@@ -310,7 +310,7 @@ class DryRunSpec extends BaseQueryUpdateSpec {
 
                 dry-run:  qwerty
                 password:   owner
-                """.stripIndent(), redirect: false)
+                """.stripIndent(true), redirect: false)
         )
 
         then:
@@ -348,7 +348,7 @@ class DryRunSpec extends BaseQueryUpdateSpec {
 
                 dry-run:
                 password:   fred
-                """.stripIndent(), redirect: false)
+                """.stripIndent(true), redirect: false)
         )
 
         then:
@@ -388,7 +388,7 @@ class DryRunSpec extends BaseQueryUpdateSpec {
 
                 dry-run:
                 password:   owner
-                """.stripIndent(), redirect: false)
+                """.stripIndent(true), redirect: false)
         )
 
         then:
@@ -429,7 +429,7 @@ class DryRunSpec extends BaseQueryUpdateSpec {
 
                 dry-run:
                 password:   owner
-                """.stripIndent(), redirect: false)
+                """.stripIndent(true), redirect: false)
         )
 
         then:
@@ -467,7 +467,7 @@ class DryRunSpec extends BaseQueryUpdateSpec {
 
                 dry-run:
                 password:   owner
-                """.stripIndent(), redirect: false)
+                """.stripIndent(true), redirect: false)
         )
 
         then:
@@ -506,7 +506,7 @@ class DryRunSpec extends BaseQueryUpdateSpec {
 
                 dry-run:
                 password:   owner
-                """.stripIndent(), redirect: false)
+                """.stripIndent(true), redirect: false)
         )
 
         then:
@@ -549,7 +549,7 @@ class DryRunSpec extends BaseQueryUpdateSpec {
 
                 dry-run:
                 password:   owner
-                """.stripIndent(), redirect: false)
+                """.stripIndent(true), redirect: false)
         )
 
         then:
@@ -601,7 +601,7 @@ class DryRunSpec extends BaseQueryUpdateSpec {
 
                 dry-run:
                 password:   owner
-                """.stripIndent(), redirect: false)
+                """.stripIndent(true), redirect: false)
         )
 
         then:
@@ -656,7 +656,7 @@ class DryRunSpec extends BaseQueryUpdateSpec {
 
                 dry-run:
                 password:   owner
-                """.stripIndent(), redirect: false)
+                """.stripIndent(true), redirect: false)
         )
 
         then:
@@ -696,7 +696,7 @@ class DryRunSpec extends BaseQueryUpdateSpec {
                 dry-run:
                 password:   lir2
                 password:   owner
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:

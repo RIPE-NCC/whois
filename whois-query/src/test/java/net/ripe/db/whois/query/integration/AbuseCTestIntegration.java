@@ -1,7 +1,6 @@
 package net.ripe.db.whois.query.integration;
 
 
-
 import net.ripe.db.whois.common.iptree.IpTreeUpdater;
 import net.ripe.db.whois.common.rpsl.RpslObject;
 import net.ripe.db.whois.common.support.TelnetWhoisClient;
@@ -9,16 +8,15 @@ import net.ripe.db.whois.query.QueryServer;
 import net.ripe.db.whois.query.support.AbstractQueryIntegrationTest;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
-
 import org.springframework.beans.factory.annotation.Autowired;
 
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.not;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.hamcrest.MatcherAssert.assertThat;
 
-@org.junit.jupiter.api.Tag("IntegrationTest")
+@Tag("IntegrationTest")
 public class AbuseCTestIntegration extends AbstractQueryIntegrationTest {
 
     private static final String[] BASE_OBJECTS = {
@@ -250,7 +248,7 @@ public class AbuseCTestIntegration extends AbstractQueryIntegrationTest {
                 "source:        NON-TEST"));
 
         final String responseNoAbuseC = TelnetWhoisClient.queryLocalhost(QueryServer.port, "173.0.0.0");
-        assertFalse(responseNoAbuseC.contains("Abuse contact for '173.0.0.0 - 173.255.255.255' is 'abuse@ripe.net'"));
+        assertThat(responseNoAbuseC, not(containsString("Abuse contact for '173.0.0.0 - 173.255.255.255' is 'abuse@ripe.net'")));
 
         databaseHelper.updateObject(RpslObject.parse( "inetnum:       173.0.0.0 - 173.255.255.255\n" +
                 "org:           ORG-TEST-1\n" +

@@ -14,6 +14,7 @@ import org.apache.solr.common.SolrDocument;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -40,13 +41,13 @@ import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.not;
 import static org.junit.jupiter.api.Assertions.fail;
 
-@org.junit.jupiter.api.Tag("ElasticSearchTest")
+@Tag("ElasticSearchTest")
 public class ElasticFullTextSearchTestIntegration  extends AbstractElasticSearchIntegrationTest {
 
     private static final String WHOIS_INDEX = "whois_fulltext";
     private static final String METADATA_INDEX = "metadata_fulltext";
 
-  
+
     @Autowired TestPersonalObjectAccounting testPersonalObjectAccounting;
     @Autowired JdbcAccessControlListDao jdbcAccessControlListDao;
     @Autowired IpResourceConfiguration ipResourceConfiguration;
@@ -214,7 +215,7 @@ public class ElasticFullTextSearchTestIntegration  extends AbstractElasticSearch
         assertThat(queryResponse.getStatus(), is(0));
         assertThat(queryResponse.getResults().getNumFound(), is(3L));
         final List<FacetField> facets = queryResponse.getFacetFields();
-        assertThat(facets.size(), is(1));
+        assertThat(facets, hasSize(1));
         final FacetField facet = facets.get(0);
         assertThat(facet.getName(), is("object-type"));
         assertThat(facet.getValueCount(), is(2));
@@ -257,7 +258,7 @@ public class ElasticFullTextSearchTestIntegration  extends AbstractElasticSearch
 
 
         final List<FacetField> facets = queryResponse.getFacetFields();
-        assertThat(facets.size(), is(1));
+        assertThat(facets, hasSize(1));
 
         //will show true count
         final FacetField facet = facets.get(0);
@@ -326,7 +327,7 @@ public class ElasticFullTextSearchTestIntegration  extends AbstractElasticSearch
         assertThat(queryResponse.getResults().getNumFound(), is(1L));
         assertThat(queryResponse.getResults(), hasSize(1));
         final List<FacetField> facets = queryResponse.getFacetFields();
-        assertThat(facets.size(), is(1));
+        assertThat(facets, hasSize(1));
         final FacetField facet = facets.get(0);
         assertThat(facet.getName(), is("object-type"));
         assertThat(facet.getValueCount(), is(1));

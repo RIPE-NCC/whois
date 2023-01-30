@@ -24,9 +24,9 @@ import net.ripe.db.whois.common.source.IllegalSourceException;
 import net.ripe.db.whois.common.source.Source;
 import net.ripe.db.whois.common.source.SourceAwareDataSource;
 import net.ripe.db.whois.common.source.SourceContext;
+import net.ripe.db.whois.common.sso.AuthServiceClient;
+import net.ripe.db.whois.common.sso.AuthServiceClientException;
 import net.ripe.db.whois.common.sso.AuthTranslator;
-import net.ripe.db.whois.common.sso.CrowdClient;
-import net.ripe.db.whois.common.sso.CrowdClientException;
 import net.ripe.db.whois.common.sso.SsoHelper;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.Validate;
@@ -36,7 +36,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.EmbeddedValueResolverAware;
-import org.springframework.dao.DataAccessException;
 import org.springframework.jdbc.core.ConnectionCallback;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.StatementCallback;
@@ -46,13 +45,11 @@ import org.springframework.util.DigestUtils;
 import org.springframework.util.StringValueResolver;
 
 import javax.annotation.CheckForNull;
+import javax.annotation.Nullable;
 import javax.sql.DataSource;
-import java.sql.Connection;
 import java.sql.DatabaseMetaData;
 import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
-import java.sql.SQLException;
-import java.sql.Statement;
 import java.time.LocalDateTime;
 import java.util.Arrays;
 import java.util.Collection;
@@ -82,6 +79,7 @@ public class DatabaseHelper implements EmbeddedValueResolverAware {
     private JdbcTemplate aclTemplate;
     private JdbcTemplate mailupdatesTemplate;
     private JdbcTemplate internalsTemplate;
+    private JdbcTemplate nrtmTemplate;
     private SourceAwareDataSource sourceAwareDataSource;
 
     @Autowired ApplicationContext applicationContext;
@@ -92,7 +90,7 @@ public class DatabaseHelper implements EmbeddedValueResolverAware {
 
     RpslObjectDao rpslObjectDao;
     RpslObjectUpdateDao rpslObjectUpdateDao;
-    CrowdClient crowdClient;
+    AuthServiceClient authServiceClient;
     private StringValueResolver valueResolver;
 
     @Autowired(required = false)
@@ -118,10 +116,16 @@ public class DatabaseHelper implements EmbeddedValueResolverAware {
         internalsTemplate = new JdbcTemplate(internalsDataSource);
     }
 
+    @Autowired(required = false)
+    @Qualifier("nrtmDataSource")
+    public void setNrtmDataSource(DataSource dataSource) {
+        nrtmTemplate = new JdbcTemplate(dataSource);
+    }
+
     // TODO: [AH] autowire these fields once whois-internals has proper wiring set up
     @Autowired
-    public void setCrowdClient(CrowdClient crowdClient) {
-        this.crowdClient = crowdClient;
+    public void setCrowdClient(AuthServiceClient authServiceClient) {
+        this.authServiceClient = authServiceClient;
     }
 
     @Autowired
@@ -149,7 +153,7 @@ public class DatabaseHelper implements EmbeddedValueResolverAware {
 
 
     private static String dbBaseName;
-    private static Map<String, String> grsDatabaseNames = Maps.newHashMap();
+    private static final Map<String, String> grsDatabaseNames = Maps.newHashMap();
 
     public static synchronized void setupDatabase() {
         if (dbBaseName != null) {
@@ -169,6 +173,7 @@ public class DatabaseHelper implements EmbeddedValueResolverAware {
         setupDatabase(jdbcTemplate, "mailupdates.database", "MAILUPDATES", "mailupdates_schema.sql");
         setupDatabase(jdbcTemplate, "whois.db", "WHOIS", "whois_schema.sql", "whois_data.sql");
         setupDatabase(jdbcTemplate, "internals.database", "INTERNALS", "internals_schema.sql", "internals_data.sql");
+        setupDatabase(jdbcTemplate, "nrtm.database", "NRTM", "nrtm_schema.sql");
 
         final String masterUrl = String.format("jdbc:log:mariadb://%s/%s_WHOIS;driver=%s", DB_HOST, dbBaseName, JDBC_DRIVER);
         System.setProperty("whois.db.master.url", masterUrl);
@@ -249,20 +254,19 @@ public class DatabaseHelper implements EmbeddedValueResolverAware {
     }
 
     static void ensureLocalhost(final JdbcTemplate jdbcTemplate) {
-        final boolean isLocalhostOrRdonly = jdbcTemplate.execute(new ConnectionCallback<Boolean>() {
-            @Override
-            public Boolean doInConnection(Connection con) throws SQLException, DataAccessException {
-                final DatabaseMetaData metaData = con.getMetaData();
-                final String url = metaData.getURL();
-                final String username = metaData.getUserName();
+        final Boolean isLocalhostOrRdonly = jdbcTemplate.execute((ConnectionCallback<Boolean>) con -> {
+            final DatabaseMetaData metaData = con.getMetaData();
+            final String url = metaData.getURL();
+            final String username = metaData.getUserName();
 
-                return url.contains("localhost")
-                        || url.contains("mariadb")
-                        || url.contains("127.0.0.1")
-                        || username.startsWith("rdonly");
-            }
+            return url.contains("localhost")
+                    || url.contains("mariadb")
+                    || url.contains("127.0.0.1")
+                    || username.startsWith("rdonly");
         });
-
+        if (isLocalhostOrRdonly == null) {
+            throw new IllegalStateException("Result of query was null in 'ensureLocalhost(...)'");
+        }
         Validate.isTrue(isLocalhostOrRdonly, "Must be local connection or user rdonly");
     }
 
@@ -315,6 +319,11 @@ public class DatabaseHelper implements EmbeddedValueResolverAware {
         return internalsTemplate;
     }
 
+    @Nullable
+    public JdbcTemplate getNrtmTemplate() {
+        return nrtmTemplate;
+    }
+
     public JdbcTemplate getWhoisTemplate() {
         return new JdbcTemplate(sourceAwareDataSource);
     }
@@ -338,9 +347,9 @@ public class DatabaseHelper implements EmbeddedValueResolverAware {
             public RpslAttribute translate(String authType, String authToken, RpslAttribute originalAttribute) {
                 if (authType.equals("SSO")) {
                     try {
-                        final String uuid = crowdClient.getUuid(authToken);
+                        final String uuid = authServiceClient.getUuid(authToken);
                         return new RpslAttribute(originalAttribute.getKey(), "SSO " + uuid);
-                    } catch (CrowdClientException e) {
+                    } catch (AuthServiceClientException e) {
                         LOGGER.info(e.getMessage());
                     }
                 }
@@ -485,40 +494,37 @@ public class DatabaseHelper implements EmbeddedValueResolverAware {
     }
 
     public static void dumpSchema(final DataSource datasource) {
-        new JdbcTemplate(datasource).execute(new StatementCallback<Object>() {
-            @Override
-            public Object doInStatement(Statement statement) throws SQLException, DataAccessException {
-                final ResultSet resultSet = statement.executeQuery("SHOW TABLES");
-                final List<String> tables = Lists.newArrayList();
+        new JdbcTemplate(datasource).execute((StatementCallback<Object>) statement -> {
+            final ResultSet resultSet = statement.executeQuery("SHOW TABLES");
+            final List<String> tables = Lists.newArrayList();
 
-                while (resultSet.next()) {
-                    tables.add(resultSet.getString(1));
-                }
+            while (resultSet.next()) {
+                tables.add(resultSet.getString(1));
+            }
 
-                resultSet.close();
+            resultSet.close();
 
-                for (final String table : tables) {
-                    final ResultSet tableResultSet = statement.executeQuery("SELECT * FROM " + table);
-                    while (tableResultSet.next()) {
-                        ResultSetMetaData metadata = tableResultSet.getMetaData();
-                        if (tableResultSet.isFirst()) {
-                            System.out.println("\nTABLE: " + table.toUpperCase());
-                            for (int column = 1; column <= metadata.getColumnCount(); column++) {
-                                System.out.print(metadata.getColumnName(column) + " | ");
-                            }
-                            System.out.println();
-                        }
-
+            for (final String table : tables) {
+                final ResultSet tableResultSet = statement.executeQuery("SELECT * FROM " + table);
+                while (tableResultSet.next()) {
+                    ResultSetMetaData metadata = tableResultSet.getMetaData();
+                    if (tableResultSet.isFirst()) {
+                        System.out.println("\nTABLE: " + table.toUpperCase());
                         for (int column = 1; column <= metadata.getColumnCount(); column++) {
-                            System.out.print(tableResultSet.getString(column) + " | ");
+                            System.out.print(metadata.getColumnName(column) + " | ");
                         }
-
                         System.out.println();
                     }
-                }
 
-                return null;
+                    for (int column = 1; column <= metadata.getColumnCount(); column++) {
+                        System.out.print(tableResultSet.getString(column) + " | ");
+                    }
+
+                    System.out.println();
+                }
             }
+
+            return null;
         });
     }
 
@@ -540,10 +546,10 @@ public class DatabaseHelper implements EmbeddedValueResolverAware {
             }
             return rs.getBoolean(1);
         });
-
-        if (filePerTable) {
+        if (filePerTable == null) {
+            throw new IllegalStateException("Mariadb innodb_file_per_table is null");
+        } else if (filePerTable) {
             throw new IllegalStateException("Mariadb innodb_file_per_table must be OFF");
         }
     }
-
 }

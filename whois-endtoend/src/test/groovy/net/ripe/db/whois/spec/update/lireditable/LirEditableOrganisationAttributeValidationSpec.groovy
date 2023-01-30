@@ -76,10 +76,10 @@ class LirEditableOrganisationAttributeValidationSpec extends BaseQueryUpdateSpec
         def ack = syncUpdateWithResponse("""
             organisation:   ORG-RIEN1-TEST
             org-name:       Reseaux IP Europeens Network Coordination Centre (RIPE NCC) modified
-            org-type:       OTHER # modified
+            org-type:       OTHER
             address:        P.O. Box 10096 modified
-            phone:          +31111111111 # modified
-            fax-no:         +31111111111 # modified
+            phone:          +31111111111
+            fax-no:         +31111111111
             e-mail:         nccmodified@ripe.net
             abuse-c:        AH1-TEST
             mnt-ref:        LIR-MNT
@@ -87,7 +87,7 @@ class LirEditableOrganisationAttributeValidationSpec extends BaseQueryUpdateSpec
             mnt-by:         LIR2-MNT
             source:         TEST
             password:       lir
-        """.stripIndent()
+        """.stripIndent(true)
         )
 
         then:
@@ -135,7 +135,7 @@ class LirEditableOrganisationAttributeValidationSpec extends BaseQueryUpdateSpec
             mnt-by:         LIR-MNT
             source:         TEST
             password:       lir
-        """.stripIndent()
+        """.stripIndent(true)
         )
 
         then:
@@ -185,7 +185,7 @@ class LirEditableOrganisationAttributeValidationSpec extends BaseQueryUpdateSpec
             notify:         notify@ripe.net          # added
             source:         TEST
             password:       lir
-        """.stripIndent()
+        """.stripIndent(true)
         )
 
         then:
@@ -228,7 +228,7 @@ class LirEditableOrganisationAttributeValidationSpec extends BaseQueryUpdateSpec
             notify:         notify@ripe.net          # modified
             source:         TEST
             password:       lir
-        """.stripIndent()
+        """.stripIndent(true)
         )
 
         then:
@@ -271,7 +271,7 @@ class LirEditableOrganisationAttributeValidationSpec extends BaseQueryUpdateSpec
             mnt-by:         LIR-MNT
             source:         TEST
             password:       lir
-        """.stripIndent()
+        """.stripIndent(true)
         )
 
         then:
@@ -294,14 +294,14 @@ class LirEditableOrganisationAttributeValidationSpec extends BaseQueryUpdateSpec
         when:
         def ack = syncUpdateWithResponse("""
             organisation:   ORG-RIEN1-TEST
-            org-name:       RIPE NCC                             # modified
-            org-type:       OTHER                                # modified
-            org:            ORG-HR1-TEST                         # modified
+            org-name:       RIPE NCC 
+            org-type:       OTHER 
+            org:            ORG-HR1-TEST
             descr:          RIPE NCC Operations
-            address:        New Address, New City, New Country   # modified
-            phone:          +31205354444-1                       # modified
-            fax-no:         +31205354445-1                       # modified
-            e-mail:         different-email@ripe.net             # modified
+            address:        New Address, New City, New Country
+            phone:          +31205354444-1 
+            fax-no:         +31205354445-1 
+            e-mail:         different-email@ripe.net
             admin-c:        TP1-TEST
             abuse-c:        AH1-TEST
             mnt-ref:        LIR-MNT
@@ -310,7 +310,7 @@ class LirEditableOrganisationAttributeValidationSpec extends BaseQueryUpdateSpec
             source:         TEST
             password:       lir
             password:       owner3
-        """.stripIndent()
+        """.stripIndent(true)
         )
 
         then:
@@ -349,23 +349,23 @@ class LirEditableOrganisationAttributeValidationSpec extends BaseQueryUpdateSpec
             org-name:       Reseaux IP Europeens Network Coordination Centre (RIPE NCC)
             org-type:       LIR
             address:        P.O. Box 10096
-            address:        Amsterdam, Netherlands   # added
+            address:        Amsterdam, Netherlands
             phone:          +31000000000
-            phone:          +31000000001             # added
+            phone:          +31000000001
             fax-no:         +31000000000
-            fax-no:         +31000000002             # added
+            fax-no:         +31000000002 
             e-mail:         ncc@ripe.net
-            e-mail:         second@ripe.net          # added
-            org:            ORG-RIEN1-TEST           # added
+            e-mail:         second@ripe.net 
+            org:            ORG-RIEN1-TEST
             abuse-c:        AH1-TEST
             mnt-ref:        LIR-MNT
             mnt-by:         RIPE-NCC-HM-MNT
             mnt-by:         LIR-MNT
-            mnt-by:         LIR2-MNT                 # added
+            mnt-by:         LIR2-MNT 
             source:         TEST
             password:       lir
             password:       owner3
-        """.stripIndent()
+        """.stripIndent(true)
         )
 
         then:
@@ -414,7 +414,7 @@ class LirEditableOrganisationAttributeValidationSpec extends BaseQueryUpdateSpec
             mnt-by:         LIR-MNT
             source:         TEST
             password:       lir
-        """.stripIndent()
+        """.stripIndent(true)
         )
 
         then:
@@ -462,7 +462,7 @@ class LirEditableOrganisationAttributeValidationSpec extends BaseQueryUpdateSpec
             mnt-by:         LIR-MNT
             source:         TEST
             override:       denis,override1
-        """.stripIndent()
+        """.stripIndent(true)
         )
 
         then:
@@ -504,7 +504,7 @@ class LirEditableOrganisationAttributeValidationSpec extends BaseQueryUpdateSpec
             mnt-by:         LIR2-MNT
             source:         TEST
             password:       hm
-        """.stripIndent()
+        """.stripIndent(true)
         )
 
         then:
@@ -548,7 +548,7 @@ class LirEditableOrganisationAttributeValidationSpec extends BaseQueryUpdateSpec
             mnt-by:         LIR-MNT
             source:         TEST
             password:       hm
-        """.stripIndent()
+        """.stripIndent(true)
         )
 
         then:
@@ -584,7 +584,7 @@ class LirEditableOrganisationAttributeValidationSpec extends BaseQueryUpdateSpec
             mnt-by:         LIR2-MNT                 # added
             source:         TEST
             password:       hm
-        """.stripIndent()
+        """.stripIndent(true)
         )
 
         then:
@@ -622,7 +622,7 @@ class LirEditableOrganisationAttributeValidationSpec extends BaseQueryUpdateSpec
             mnt-by:         RIPE-NCC-HM-MNT
             source:         TEST
             password:       hm
-        """.stripIndent()
+        """.stripIndent(true)
         )
 
         then:
@@ -655,7 +655,7 @@ class LirEditableOrganisationAttributeValidationSpec extends BaseQueryUpdateSpec
             mnt-by:         RIPE-NCC-HM-MNT
             source:         TEST
             password:       hm
-        """.stripIndent()
+        """.stripIndent(true)
         )
 
         then:
@@ -710,7 +710,7 @@ class LirEditableOrganisationAttributeValidationSpec extends BaseQueryUpdateSpec
                 mnt-by:         LIR-MNT
                 source:         TEST
                 password:       lir
-        """.stripIndent()
+        """.stripIndent(true)
         )
 
         then:
@@ -763,7 +763,7 @@ class LirEditableOrganisationAttributeValidationSpec extends BaseQueryUpdateSpec
                 mnt-by:         LIR-MNT
                 source:         TEST
                 password:       hm
-        """.stripIndent()
+        """.stripIndent(true)
         )
 
         then:

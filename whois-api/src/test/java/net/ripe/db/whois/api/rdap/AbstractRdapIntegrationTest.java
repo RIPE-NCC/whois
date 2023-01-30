@@ -9,12 +9,13 @@ import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 
 import javax.ws.rs.ClientErrorException;
+import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.client.WebTarget;
 import javax.ws.rs.core.MediaType;
 
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.is;
-import static org.hamcrest.MatcherAssert.assertThat;
 
 public abstract class AbstractRdapIntegrationTest extends AbstractIntegrationTest {
 
@@ -46,12 +47,21 @@ public abstract class AbstractRdapIntegrationTest extends AbstractIntegrationTes
         WebTarget resource = RestTest.target(getPort(), String.format("whois/syncupdates/test"));
         return resource.request()
                 .post(javax.ws.rs.client.Entity.entity("DATA=" + RestClientUtils.encode(data),
-                        MediaType.APPLICATION_FORM_URLENCODED),
+                                MediaType.APPLICATION_FORM_URLENCODED),
                         String.class);
 
     }
+    
+    protected void assertErrorDescription(final WebApplicationException exception, final String description) {
+        final Entity entity = exception.getResponse().readEntity(Entity.class);
+        assertThat(entity.getDescription().get(0), is(description));
+    }
 
-    protected void assertErrorTitle(final ClientErrorException exception, final String title) {
+    protected void assertErrorDescriptionContains(final WebApplicationException exception, final String description) {
+        final Entity entity = exception.getResponse().readEntity(Entity.class);
+        assertThat(entity.getDescription().get(0), containsString(description));
+    }
+    protected void assertErrorTitle(final WebApplicationException exception, final String title) {
         final Entity entity = exception.getResponse().readEntity(Entity.class);
         assertThat(entity.getErrorTitle(), is(title));
     }
@@ -61,7 +71,7 @@ public abstract class AbstractRdapIntegrationTest extends AbstractIntegrationTes
         assertThat(entity.getErrorTitle(), containsString(title));
     }
 
-    protected void assertErrorStatus(final ClientErrorException exception, final int status) {
+    protected void assertErrorStatus(final WebApplicationException exception, final int status) {
         final Entity entity = exception.getResponse().readEntity(Entity.class);
         assertThat(entity.getErrorCode(), is(status));
     }

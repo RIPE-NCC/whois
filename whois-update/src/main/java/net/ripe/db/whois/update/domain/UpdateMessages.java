@@ -190,9 +190,9 @@ public final class UpdateMessages {
                 "Please contact \"ncc@ripe.net\" to remove this reference.");
     }
 
-    public static Message cantChangeOrgName() {
-        return new Message(Type.ERROR, "Organisation name can only be changed by the RIPE NCC for this organisation.\n" +
-                "Please contact \"ncc@ripe.net\" to change the name.");
+    public static Message cantCreateShortFormatAsName() {
+        return new Message(Type.ERROR, "Cannot create AS-SET object with a short format name. Only hierarchical " +
+                "AS-SET creation is allowed, i.e. at least one ASN must be referenced");
     }
 
     public static Message countryNotRecognised(final CharSequence country) {
@@ -248,10 +248,12 @@ public final class UpdateMessages {
     public static Message authorisationRequiredForAttrChange(final AttributeType attributeType) {
         return new Message(Type.ERROR, "Changing \"%s:\" value requires administrative authorisation", attributeType.getName());
     }
-
     public static Message canOnlyBeChangedByRipeNCC(final AttributeType attributeType) {
         return new Message(Type.ERROR, "Attribute \"%s:\" can only be changed by the RIPE NCC for this object.\n" +
                 "Please contact \"ncc@ripe.net\" to change it.", attributeType.getName());
+    }
+    public static Message canNotAddCommentsInManagedAttr(final AttributeType attributeType) {
+        return new Message(Type.ERROR, "Comments are not allowed on RIPE NCC managed Attribute \"%s:\"" , attributeType.getName());
     }
 
     public static Message canOnlyBeChangedinLirPortal(final AttributeType attributeType) {
@@ -692,5 +694,10 @@ public final class UpdateMessages {
 
     public static Message eitherGeofeedOrRemarksIsAllowed() {
         return new Message(Type.ERROR, "Only one between the \"geofeed:\" and \"remark: geofeed:\" attributes is allowed.");
+    }
+
+    public static Message incorrectPrefixForRipeNsServer() {
+        return new Message(Type.ERROR, "Prefix length must be /16 for IPv4 or /32 for IPv6 if ns.ripe.net is used as " +
+                "a nameserver.");
     }
 }

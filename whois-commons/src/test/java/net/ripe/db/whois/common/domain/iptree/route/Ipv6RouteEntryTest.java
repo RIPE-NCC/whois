@@ -2,23 +2,23 @@ package net.ripe.db.whois.common.domain.iptree.route;
 
 import net.ripe.db.whois.common.iptree.Ipv6RouteEntry;
 import net.ripe.db.whois.common.rpsl.AttributeType;
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
-import static org.hamcrest.Matchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.is;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 public class Ipv6RouteEntryTest {
     @Test
     public void testParse_null() {
-        Assertions.assertThrows(NullPointerException.class, () -> {
+        assertThrows(NullPointerException.class, () -> {
             Ipv6RouteEntry.parse(null, 0);
         });
     }
 
     @Test
     public void testParse_empty() {
-        Assertions.assertThrows(IllegalArgumentException.class, () -> {
+        assertThrows(IllegalArgumentException.class, () -> {
             Ipv6RouteEntry.parse("", 0);
         });
     }
@@ -55,21 +55,21 @@ public class Ipv6RouteEntryTest {
 
     @Test
     public void testParse_no_origin() {
-        Assertions.assertThrows(IllegalArgumentException.class, () -> {
+        assertThrows(IllegalArgumentException.class, () -> {
             Ipv6RouteEntry.parse("::0/128", 11);
         });
     }
 
     @Test
     public void testParse_no_origin_number() {
-        Assertions.assertThrows(IllegalArgumentException.class, () -> {
+        assertThrows(IllegalArgumentException.class, () -> {
             Ipv6RouteEntry.parse("::0/128AS", 11);
         });
     }
 
     @Test
     public void testParse_no_prefix() {
-        Assertions.assertThrows(IllegalArgumentException.class, () -> {
+        assertThrows(IllegalArgumentException.class, () -> {
             Ipv6RouteEntry.parse("AS1234", 11);
         });
 
@@ -87,7 +87,7 @@ public class Ipv6RouteEntryTest {
 
     @Test
     public void testParse_v4() {
-        Assertions.assertThrows(IllegalArgumentException.class, () -> {
+        assertThrows(IllegalArgumentException.class, () -> {
             Ipv6RouteEntry.parse("10.0.0.0/32AS1234", 11);
         });
     }

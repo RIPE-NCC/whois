@@ -12,13 +12,16 @@ import net.ripe.db.whois.api.rdap.domain.Notice;
 import net.ripe.db.whois.api.rdap.domain.RdapObject;
 import net.ripe.db.whois.api.rdap.domain.Role;
 import net.ripe.db.whois.api.rdap.domain.SearchResult;
+import net.ripe.db.whois.common.DateUtil;
 import net.ripe.db.whois.common.dao.RpslObjectDao;
+import net.ripe.db.whois.common.domain.CIString;
 import net.ripe.db.whois.common.ip.Ipv4Resource;
 import net.ripe.db.whois.common.iptree.Ipv4Entry;
 import net.ripe.db.whois.common.iptree.Ipv4Tree;
 import net.ripe.db.whois.common.iptree.Ipv6Tree;
 import net.ripe.db.whois.common.rpsl.RpslObject;
 import net.ripe.db.whois.query.planner.AbuseContact;
+import net.ripe.db.whois.update.domain.ReservedResources;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -45,13 +48,17 @@ import static org.mockito.Mockito.when;
 @ExtendWith(MockitoExtension.class)
 public class RdapObjectMapperTest {
 
-    private static final LocalDateTime VERSION_TIMESTAMP = LocalDateTime.parse("2044-04-26T00:02:03.000");
+    private static final LocalDateTime VERSION_TIMESTAMP = DateUtil.fromString(CIString.ciString("2022-10-25T12:22:39Z"));
+
+    private static final LocalDateTime REGISTRATION_TIMESTAMP = DateUtil.fromString(CIString.ciString("2022-08-14T11:48:28Z"));
     public static final String REQUEST_URL = "http://localhost/";
 
     @Mock
     private NoticeFactory noticeFactory;
     @Mock
     private RpslObjectDao rpslObjectDao;
+    @Mock
+    private ReservedResources reservedResources;
     @Mock
     private Ipv4Tree ipv4Tree;
     @Mock
@@ -63,7 +70,7 @@ public class RdapObjectMapperTest {
     public void setup() {
         lenient().when(noticeFactory.generateTnC(REQUEST_URL)).thenReturn(getTnCNotice());
 
-        this.mapper = new RdapObjectMapper(noticeFactory, rpslObjectDao, ipv4Tree, ipv6Tree, "whois.ripe.net");
+        this.mapper = new RdapObjectMapper(noticeFactory, rpslObjectDao, reservedResources, ipv4Tree, ipv6Tree, "whois.ripe.net");
     }
 
     @Test
@@ -79,6 +86,8 @@ public class RdapObjectMapperTest {
                     "admin-c:        TP1-TEST\n" +
                     "tech-c:         TP2-TEST\n" +
                     "phone:          +31 12345678\n" +
+                    "created:         2022-08-14T11:48:28Z\n" +
+                    "last-modified:   2022-10-25T12:22:39Z\n" +
                     "source:         TEST"
                 ),
                 false,
@@ -103,6 +112,8 @@ public class RdapObjectMapperTest {
                                 "mnt-irt:        irt-IRT1\n" +
                                 "notify:         notify@test.net\n" +
                                 "org:            ORG-TOL1-TEST\n" +
+                                "created:         2022-08-14T11:48:28Z\n" +
+                                "last-modified:   2022-10-25T12:22:39Z\n" +
                                 "source:         TEST"),
                 Optional.of(abuseContact));
 
@@ -158,9 +169,12 @@ public class RdapObjectMapperTest {
         assertThat(result.getLinks().get(0).getRel(), is("self"));
         assertThat(result.getLinks().get(1).getRel(), is("copyright"));
 
-        assertThat(result.getEvents(), hasSize(1));
-        assertThat(result.getEvents().get(0).getEventAction(), is(Action.LAST_CHANGED));
-        assertThat(result.getEvents().get(0).getEventDate(), is(VERSION_TIMESTAMP));
+        assertThat(result.getEvents(), hasSize(2));
+        assertThat(result.getEvents().get(0).getEventAction(), is(Action.REGISTRATION));
+        assertThat(result.getEvents().get(0).getEventDate(), is(REGISTRATION_TIMESTAMP));
+
+        assertThat(result.getEvents().get(1).getEventAction(), is(Action.LAST_CHANGED));
+        assertThat(result.getEvents().get(1).getEventDate(), is(VERSION_TIMESTAMP));
     }
 
     @Test
@@ -184,14 +198,15 @@ public class RdapObjectMapperTest {
                 "mnt-lower:      UPD-MNT\n" +
                 "mnt-routes:     UPD-MNT\n" +
                 "mnt-by:         UPD-MNT\n" +
+                "created:         2022-08-14T11:48:28Z\n" +
+                "last-modified:   2022-10-25T12:22:39Z\n" +
                 "source:         TEST\n")));
 
         assertThat(result.getHandle(), is("AS102"));
-        assertThat(result.getStartAutnum(), is(nullValue()));
-        assertThat(result.getEndAutnum(), is(nullValue()));
+        assertThat(result.getStartAutnum(), is(102L));
+        assertThat(result.getEndAutnum(), is(102L));
         assertThat(result.getName(), is("End-User-2"));
-        assertThat(result.getType(), is("DIRECT ALLOCATION"));
-        assertThat(result.getStatus(), is(emptyIterable()));
+        assertThat(result.getStatus().get(0), is("active"));
         assertThat(result.getCountry(), is(nullValue()));
 
         final List<Entity> entities = result.getEntitySearchResults();
@@ -211,9 +226,12 @@ public class RdapObjectMapperTest {
         assertThat(result.getLinks(), hasSize(2));
         assertThat(result.getLinks().get(0).getRel(), is("self"));
         assertThat(result.getLinks().get(1).getRel(), is("copyright"));
-        assertThat(result.getEvents(), hasSize(1));
-        assertThat(result.getEvents().get(0).getEventAction(), is(Action.LAST_CHANGED));
-        assertThat(result.getEvents().get(0).getEventDate(), is(VERSION_TIMESTAMP));
+        assertThat(result.getEvents(), hasSize(2));
+        assertThat(result.getEvents().get(0).getEventAction(), is(Action.REGISTRATION));
+        assertThat(result.getEvents().get(0).getEventDate(), is(REGISTRATION_TIMESTAMP));
+
+        assertThat(result.getEvents().get(1).getEventAction(), is(Action.LAST_CHANGED));
+        assertThat(result.getEvents().get(1).getEventDate(), is(VERSION_TIMESTAMP));
 
         assertThat(result.getPort43(), is("whois.ripe.net"));
     }
@@ -238,14 +256,15 @@ public class RdapObjectMapperTest {
                 "mnt-lower:      UPD-MNT\n" +
                 "mnt-routes:     UPD-MNT\n" +
                 "mnt-by:         UPD-MNT\n" +
+                "created:         2022-08-14T11:48:28Z\n" +
+                "last-modified:   2022-10-25T12:22:39Z\n" +
                 "source:         TEST\n")));
 
         assertThat(result.getHandle(), is("AS100"));
         assertThat(result.getStartAutnum(), is(100L));
         assertThat(result.getEndAutnum(), is(200L));
         assertThat(result.getName(), is("AS100-AS200"));
-        assertThat(result.getType(), is("DIRECT ALLOCATION"));
-        assertThat(result.getStatus(), is(emptyIterable()));
+        assertThat(result.getStatus().get(0), is("active"));
         assertThat(result.getCountry(), is(nullValue()));
 
         final List<Entity> entities = result.getEntitySearchResults();
@@ -265,9 +284,12 @@ public class RdapObjectMapperTest {
         assertThat(result.getLinks(), hasSize(2));
         assertThat(result.getLinks().get(0).getRel(), is("self"));
         assertThat(result.getLinks().get(1).getRel(), is("copyright"));
-        assertThat(result.getEvents(), hasSize(1));
-        assertThat(result.getEvents().get(0).getEventAction(), is(Action.LAST_CHANGED));
-        assertThat(result.getEvents().get(0).getEventDate(), is(VERSION_TIMESTAMP));
+        assertThat(result.getEvents(), hasSize(2));
+        assertThat(result.getEvents().get(0).getEventAction(), is(Action.REGISTRATION));
+        assertThat(result.getEvents().get(0).getEventDate(), is(REGISTRATION_TIMESTAMP));
+
+        assertThat(result.getEvents().get(1).getEventAction(), is(Action.LAST_CHANGED));
+        assertThat(result.getEvents().get(1).getEventDate(), is(VERSION_TIMESTAMP));
 
         assertThat(result.getPort43(), is("whois.ripe.net"));
     }
@@ -284,10 +306,12 @@ public class RdapObjectMapperTest {
                 "nserver:         ns.foo.net.0.0.193.in-addr.arpa. 10.0.0.0/32\n" +
                 "mnt-by:          RIPE-NCC-MNT\n" +
                 "ds-rdata:        52314 5 1 93B5837D4E5C063A3728FAA72BA64068F89B39DF\n" +
+                "created:         2022-08-14T11:48:28Z\n" +
+                "last-modified:   2022-10-25T12:22:39Z\n" +
                 "source:          TEST")));
 
         assertThat(result.getHandle(), is("2.1.2.1.5.5.5.2.0.2.1.e164.arpa"));
-        assertThat(result.getLdhName(), is("2.1.2.1.5.5.5.2.0.2.1.e164.arpa"));
+        assertThat(result.getLdhName(), is("2.1.2.1.5.5.5.2.0.2.1.e164.arpa."));
         assertThat(result.getUnicodeName(), is(nullValue()));
 
         assertThat(result.getNameservers(), hasSize(2));
@@ -320,10 +344,15 @@ public class RdapObjectMapperTest {
         assertThat(result.getLinks().get(1).getRel(), is("copyright"));
         assertThat(result.getPort43(), is("whois.ripe.net"));
 
-        assertThat(result.getEvents(), hasSize(1));
+        assertThat(result.getEvents(), hasSize(2));
         assertThat(result.getEvents().get(0).getEventActor(), is(nullValue()));
-        assertThat(result.getEvents().get(0).getEventAction(), is(Action.LAST_CHANGED));
-        assertThat(result.getEvents().get(0).getEventDate(), is(VERSION_TIMESTAMP));
+
+        assertThat(result.getEvents().get(0).getEventAction(), is(Action.REGISTRATION));
+        assertThat(result.getEvents().get(0).getEventDate(), is(REGISTRATION_TIMESTAMP));
+
+        assertThat(result.getEvents().get(1).getEventAction(), is(Action.LAST_CHANGED));
+        assertThat(result.getEvents().get(1).getEventDate(), is(VERSION_TIMESTAMP));
+
         assertThat(result.getEvents().get(0).getEventActor(), is(nullValue()));
 
         assertThat(result.getPort43(), is("whois.ripe.net"));
@@ -347,10 +376,12 @@ public class RdapObjectMapperTest {
                 "ds-rdata: 17881 5 1 2e58131e5fe28ec965a7b8e4efb52d0a028d7a78\n" +
                 "ds-rdata: 17881 5 2 8c6265733a73e5588bfac516a4fcfbe1103a544b95f254cb67a21e474079547e\n" +
                 "mnt-by:   OWNER-MNT\n" +
+                "created:         2022-08-14T11:48:28Z\n" +
+                "last-modified:   2022-10-25T12:22:39Z\n" +
                 "source:   TEST\n")));
 
         assertThat(result.getHandle(), is("31.12.202.in-addr.arpa"));
-        assertThat(result.getLdhName(), is("31.12.202.in-addr.arpa"));
+        assertThat(result.getLdhName(), is("31.12.202.in-addr.arpa."));
         assertThat(result.getUnicodeName(), is(nullValue()));
 
         assertThat(result.getNameservers(), hasSize(3));
@@ -393,6 +424,8 @@ public class RdapObjectMapperTest {
                 "notify:        first@last.org\n" +
                 "abuse-mailbox: abuse@last.org\n" +
                 "mnt-by:        TST-MNT\n" +
+                "created:         2022-08-14T11:48:28Z\n" +
+                "last-modified:   2022-10-25T12:22:39Z\n" +
                 "source:        TEST"));
 
         assertThat(result.getHandle(), is("FL1-TEST"));
@@ -426,8 +459,13 @@ public class RdapObjectMapperTest {
         assertThat(result.getLinks().get(0).getRel(), is("self"));
         assertThat(result.getLinks().get(1).getRel(), is("copyright"));
 
-        assertThat(result.getEvents(), hasSize(1));
-        assertThat(result.getEvents().get(0).getEventAction(), is(Action.LAST_CHANGED));
+        assertThat(result.getEvents(), hasSize(2));
+
+        assertThat(result.getEvents().get(0).getEventAction(), is(Action.REGISTRATION));
+        assertThat(result.getEvents().get(0).getEventDate(), is(REGISTRATION_TIMESTAMP));
+
+        assertThat(result.getEvents().get(1).getEventAction(), is(Action.LAST_CHANGED));
+        assertThat(result.getEvents().get(1).getEventDate(), is(VERSION_TIMESTAMP));
 
         assertThat(result.getStatus(), is(emptyIterable()));
         assertThat(result.getPort43(), is("whois.ripe.net"));
@@ -444,6 +482,8 @@ public class RdapObjectMapperTest {
                 "mnt-by:        OWNER-MNT\n" +
                 "referral-by:   OWNER-MNT\n" +
                 "remarks:       remark\n" +
+                "created:         2022-08-14T11:48:28Z\n" +
+                "last-modified:   2022-10-25T12:22:39Z\n" +
                 "source:        TEST"));
 
         assertThat(result.getHandle(), is("OWNER-MNT"));
@@ -468,8 +508,13 @@ public class RdapObjectMapperTest {
         assertThat(result.getLinks().get(0).getRel(), is("self"));
         assertThat(result.getLinks().get(1).getRel(), is("copyright"));
 
-        assertThat(result.getEvents(), hasSize(1));
-        assertThat(result.getEvents().get(0).getEventAction(), is(Action.LAST_CHANGED));
+        assertThat(result.getEvents(), hasSize(2));
+
+        assertThat(result.getEvents().get(0).getEventAction(), is(Action.REGISTRATION));
+        assertThat(result.getEvents().get(0).getEventDate(), is(REGISTRATION_TIMESTAMP));
+
+        assertThat(result.getEvents().get(1).getEventAction(), is(Action.LAST_CHANGED));
+        assertThat(result.getEvents().get(1).getEventDate(), is(VERSION_TIMESTAMP));
 
         assertThat(result.getStatus(), is(emptyIterable()));
         assertThat(result.getPort43(), is("whois.ripe.net"));
@@ -493,6 +538,8 @@ public class RdapObjectMapperTest {
                 "admin-c:        TP1-TEST\n" +
                 "abuse-c:        ABU-TEST\n" +
                 "mnt-by:         FRED-MNT\n" +
+                "created:         2022-08-14T11:48:28Z\n" +
+                "last-modified:   2022-10-25T12:22:39Z\n" +
                 "source:         TEST"));
 
         assertThat(result.getHandle(), is("ORG-AC1-TEST"));
@@ -521,8 +568,12 @@ public class RdapObjectMapperTest {
         assertThat(result.getLinks().get(0).getRel(), is("self"));
         assertThat(result.getLinks().get(1).getRel(), is("copyright"));
 
-        assertThat(result.getEvents(), hasSize(1));
-        assertThat(result.getEvents().get(0).getEventAction(), is(Action.LAST_CHANGED));
+        assertThat(result.getEvents(), hasSize(2));
+        assertThat(result.getEvents().get(0).getEventAction(), is(Action.REGISTRATION));
+        assertThat(result.getEvents().get(0).getEventDate(), is(REGISTRATION_TIMESTAMP));
+
+        assertThat(result.getEvents().get(1).getEventAction(), is(Action.LAST_CHANGED));
+        assertThat(result.getEvents().get(1).getEventDate(), is(VERSION_TIMESTAMP));
 
         assertThat(result.getStatus(), is(emptyIterable()));
         assertThat(result.getPort43(), is("whois.ripe.net"));
@@ -552,6 +603,8 @@ public class RdapObjectMapperTest {
                 "admin-c:        TP1-TEST\n" +
                 "abuse-c:        ABU-TEST\n" +
                 "mnt-by:         FRED-MNT\n" +
+                "created:         2022-08-14T11:48:28Z\n" +
+                "last-modified:   2022-10-25T12:22:39Z\n" +
                 "source:         TEST"));
 
         assertThat(result.getLang(), is("DK"));
@@ -565,25 +618,25 @@ public class RdapObjectMapperTest {
     @Test
     public void mapSearch_twoObjects() {
         final List<RpslObject> objects = Lists.newArrayList(
-                RpslObject.parse("organisation: ORG-TOL-TEST\norg-name: Test Organisation\nstatus: OTHER\ndescr: comment 1\nsource: TEST"),
-                RpslObject.parse("organisation: ORG-TST-TEST\norg-name: Test Company\nstatus: OTHER\ndescr: comment 2\nsource: TEST")
+                RpslObject.parse("organisation: ORG-TOL-TEST\norg-name: Test Organisation\nstatus: OTHER\ndescr: comment 1\nsource: TEST\ncreated: 2022-08-14T11:48:28Z\nlast-modified: 2022-10-25T12:22:39Z"),
+                RpslObject.parse("organisation: ORG-TST-TEST\norg-name: Test Company\nstatus: OTHER\ndescr: comment 2\nsource: TEST\ncreated: 2022-08-14T11:48:28Z\nlast-modified: 2022-10-25T12:22:39Z")
         );
 
-        final SearchResult response = (SearchResult)mapSearch(objects, Lists.newArrayList(LocalDateTime.parse("1970-04-14T09:22:14.857"), LocalDateTime.parse("1996-02-05T03:52:05.938")));
+        final SearchResult response = (SearchResult)mapSearch(objects);
 
         assertThat(response.getEntitySearchResults(), hasSize(2));
 
         final Entity first = response.getEntitySearchResults().get(0);
         assertThat(first.getHandle(), is("ORG-TOL-TEST"));
-        assertThat(first.getEvents(), hasSize(1));
-        assertThat(first.getEvents().get(0).getEventAction(), is(Action.LAST_CHANGED));
+        assertThat(first.getEvents(), hasSize(2));
+        assertThat(first.getEvents().get(0).getEventAction(), is(Action.REGISTRATION));
         assertThat(first.getRemarks(), hasSize(1));
         assertThat(first.getRemarks().get(0).getDescription().get(0), is("comment 1"));
 
         final Entity last = response.getEntitySearchResults().get(1);
         assertThat(last.getHandle(), is("ORG-TST-TEST"));
-        assertThat(last.getEvents(), hasSize(1));
-        assertThat(last.getEvents().get(0).getEventAction(), is(Action.LAST_CHANGED));
+        assertThat(last.getEvents(), hasSize(2));
+        assertThat(last.getEvents().get(1).getEventAction(), is(Action.LAST_CHANGED));
         assertThat(last.getRemarks(), hasSize(1));
         assertThat(last.getRemarks().get(0).getDescription().get(0), is("comment 2"));
     }
@@ -613,6 +666,8 @@ public class RdapObjectMapperTest {
                 "admin-c:        TP1-TEST\n" +
                 "tech-c:         TP2-TEST\n" +
                 "phone:          +31 12345678\n" +
+                "created:         2022-08-14T11:48:28Z\n" +
+                "last-modified:   2022-10-25T12:22:39Z\n" +
                 "source:         TEST"
             ),
             true,
@@ -629,6 +684,8 @@ public class RdapObjectMapperTest {
                     "abuse-c:        AB-TEST\n" +
                     "notify:         noreply@ripe.net\n" +
                     "mnt-by:         UPD-MNT\n" +
+                    "created:         2022-08-14T11:48:28Z\n" +
+                    "last-modified:   2022-10-25T12:22:39Z\n" +
                     "source:         TEST\n"
                 ),
                 Optional.of(abuseContact)
@@ -651,6 +708,8 @@ public class RdapObjectMapperTest {
                 "admin-c:        TP1-TEST\n" +
                 "tech-c:         TP2-TEST\n" +
                 "phone:          +31 12345678\n" +
+                "created:         2022-08-14T11:48:28Z\n" +
+                "last-modified:   2022-10-25T12:22:39Z\n" +
                 "source:         TEST"
             ),
             false,
@@ -667,6 +726,8 @@ public class RdapObjectMapperTest {
                 "abuse-c:        AB-TEST\n" +
                 "notify:         noreply@ripe.net\n" +
                 "mnt-by:         UPD-MNT\n" +
+                "created:         2022-08-14T11:48:28Z\n" +
+                "last-modified:   2022-10-25T12:22:39Z\n" +
                 "source:         TEST\n"
             ),
             Optional.of(abuseContact)
@@ -686,6 +747,8 @@ public class RdapObjectMapperTest {
                                 "admin-c:        TP1-TEST\n" +
                                 "tech-c:         TP2-TEST\n" +
                                 "phone:          +31 12345678\n" +
+                                "created:         2022-08-14T11:48:28Z\n" +
+                                "last-modified:   2022-10-25T12:22:39Z\n" +
                                 "source:         TEST"
                 ),
                 true,
@@ -702,6 +765,8 @@ public class RdapObjectMapperTest {
                         "abuse-c:        AB-TEST\n" +
                         "notify:         noreply@ripe.net\n" +
                         "mnt-by:         UPD-MNT\n" +
+                        "created:         2022-08-14T11:48:28Z\n" +
+                        "last-modified:   2022-10-25T12:22:39Z\n" +
                         "source:         TEST\n"
                 ),
                 Optional.of(abuseContact)
@@ -717,11 +782,11 @@ public class RdapObjectMapperTest {
     }
 
     private Object map(final RpslObject rpslObject, final Optional<AbuseContact> optionalAbuseContact) {
-        return mapper.map(REQUEST_URL, rpslObject, VERSION_TIMESTAMP, optionalAbuseContact);
+        return mapper.map(REQUEST_URL, rpslObject, optionalAbuseContact);
     }
 
-    private Object mapSearch(final List<RpslObject> objects, final Iterable<LocalDateTime> lastUpdateds) {
-        return mapper.mapSearch(REQUEST_URL, objects, lastUpdateds, 10);
+    private Object mapSearch(final List<RpslObject> objects) {
+        return mapper.mapSearch(REQUEST_URL, objects, 10);
     }
 
     private Notice getTnCNotice() {

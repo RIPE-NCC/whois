@@ -6,13 +6,14 @@ import net.ripe.db.whois.api.RestTest;
 
 import net.ripe.db.whois.common.domain.IpRanges;
 
+import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.MatcherAssert.assertThat;
 
-@org.junit.jupiter.api.Tag("IntegrationTest")
+@Tag("IntegrationTest")
 public class RemoteAddressCustomizerTestIntegration extends AbstractIntegrationTest {
     @Autowired IpRanges ipRanges;
 

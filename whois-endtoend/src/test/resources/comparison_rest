@@ -55,20 +55,20 @@ whois/search?query-string=AS102&source=RIPE
 whois/search?query-string=olga&source=RIPE
 whois/search?query-string=dw-ripe&source=RIPE
 whois/search?query-string=dw-ripe&source=RIPE&flags=no-filtering&flags=rB
-whois/search?query-string=AS3333&source=RIPE&flags=show-tag-info
+whois/search?query-string=AS3333&source=RIPE
 whois/search?query-string=RIPE-DBM-STARTUP-MNT&source=RIPE&inverse-attribute=mnt-by&inverse-attribute=mnt-ref
 whois/search?query-string=olga&source=ripe&type-filter=person
-whois/search?query-string=193.0.0.0%20-%20193.0.7.255&source=RIPE&include-tag=RIPE-USER-RESOURCE
-whois/search?query-string=193.0.0.0%20-%20193.0.7.255&source=RIPE&exclude-tag=RIPE-USER-RESOURCE
+whois/search?query-string=193.0.0.0%20-%20193.0.7.255&source=RIPE
+whois/search?query-string=193.0.0.0%20-%20193.0.7.255&source=RIPE
 
 whois/search.json?query-string=AS102&source=RIPE
 whois/search.json?query-string=olga&source=RIPE
 whois/search.json?query-string=dw-ripe&source=RIPE
 whois/search.json?query-string=dw-ripe&source=RIPE&flags=no-filtering&flags=rB
-whois/search.json?query-string=AS3333&source=RIPE&flags=show-tag-info
+whois/search.json?query-string=AS3333&source=RIPE
 whois/search.json?query-string=RIPE-DBM-STARTUP-MNT&source=RIPE&inverse-attribute=mnt-by&inverse-attribute=mnt-ref
 whois/search.json?query-string=olga&source=ripe&type-filter=person
-whois/search.json?query-string=193.0.0.0%20-%20193.0.7.255&source=RIPE&exclude-tag=RIPE-USER-RESOURCE
+whois/search.json?query-string=193.0.0.0%20-%20193.0.7.255&source=RIPE
 
 whois/search.json?query-string=sso+bitbucket@ripe.net&source=ripe&inverse-attribute=auth
 whois/search.json?query-string=md5-PW+%241%24SaltSalt%24blahblah&source=ripe&inverse-attribute=auth

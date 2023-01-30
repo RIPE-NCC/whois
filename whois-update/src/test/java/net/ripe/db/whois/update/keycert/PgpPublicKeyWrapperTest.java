@@ -20,7 +20,8 @@ import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.Matchers.containsInAnyOrder;
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.hamcrest.Matchers.not;
+import static org.hamcrest.Matchers.nullValue;
 import static org.junit.jupiter.api.Assertions.fail;
 import static org.mockito.Mockito.when;
 
@@ -90,7 +91,7 @@ public class PgpPublicKeyWrapperTest {
     public void onePublicKeyWithMultipleSubkeys() throws Exception {
         final PgpPublicKeyWrapper subject = PgpPublicKeyWrapper.parse(RpslObject.parse(getResource("keycerts/PGPKEY-MULTIPLE-SUBKEYS.TXT")));
 
-        assertNotNull(subject.getPublicKey());
+        assertThat(subject.getPublicKey(), not(nullValue()));
         assertThat(subject.getSubKeys(), hasSize(1));
     }
 

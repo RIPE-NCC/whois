@@ -64,7 +64,7 @@ class NonAllocationAttributeValidationSpec extends BaseQueryUpdateSpec {
                 netname:      ASSIGNED-192-168-1
                 country:      NL
                 org:          ORG-LIR1-TEST
-                sponsoring-org: ORG-LIR1-TEST  # changed
+                sponsoring-org: ORG-LIR1-TEST
                 admin-c:      TP1-TEST
                 tech-c:       TP1-TEST
                 status:       ASSIGNED PI
@@ -73,7 +73,7 @@ class NonAllocationAttributeValidationSpec extends BaseQueryUpdateSpec {
                 mnt-lower:    LIR-MNT
                 source:       TEST
                 password: lir
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:
@@ -111,7 +111,7 @@ class NonAllocationAttributeValidationSpec extends BaseQueryUpdateSpec {
                 mnt-lower:    LIR-MNT
                 source:       TEST
                 password: lir
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:
@@ -144,7 +144,7 @@ class NonAllocationAttributeValidationSpec extends BaseQueryUpdateSpec {
                 mnt-by:       LIR-MNT
                 source:       TEST
                 password: lir
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:
@@ -182,7 +182,7 @@ class NonAllocationAttributeValidationSpec extends BaseQueryUpdateSpec {
                 mnt-lower:    LIR2-MNT                     # added
                 source:       TEST
                 password: lir
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:
@@ -216,7 +216,7 @@ class NonAllocationAttributeValidationSpec extends BaseQueryUpdateSpec {
                 mnt-lower:    LIR-MNT        # added
                 source:       TEST
                 password: lir
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:
@@ -255,7 +255,7 @@ class NonAllocationAttributeValidationSpec extends BaseQueryUpdateSpec {
                 mnt-lower:    LIR-MNT
                 source:       TEST
                 override: denis,override1
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:

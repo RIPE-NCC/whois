@@ -5,13 +5,14 @@ import net.ripe.db.whois.api.RestTest;
 
 import org.junit.jupiter.api.BeforeAll;
 
+import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 
 import javax.ws.rs.NotFoundException;
 
 import static org.junit.jupiter.api.Assertions.fail;
 
-@org.junit.jupiter.api.Tag("IntegrationTest")
+@Tag("IntegrationTest")
 public class FullTextSearchNoIndexTestIntegration extends AbstractIntegrationTest {
 
     @BeforeAll

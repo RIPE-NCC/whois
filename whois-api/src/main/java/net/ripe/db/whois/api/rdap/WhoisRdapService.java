@@ -3,49 +3,50 @@ package net.ripe.db.whois.api.rdap;
 import com.google.common.base.Joiner;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Iterables;
+import com.google.common.collect.Iterators;
 import net.ripe.db.whois.api.rdap.domain.RdapRequestType;
 import net.ripe.db.whois.api.rest.RestServiceHelper;
-import net.ripe.db.whois.common.dao.RpslObjectDao;
 import net.ripe.db.whois.common.domain.CIString;
+import net.ripe.db.whois.common.rpsl.AttributeType;
 import net.ripe.db.whois.common.rpsl.ObjectType;
 import net.ripe.db.whois.common.rpsl.RpslObject;
+import net.ripe.db.whois.common.rpsl.attrs.Domain;
 import net.ripe.db.whois.common.source.Source;
 import net.ripe.db.whois.common.source.SourceContext;
 import net.ripe.db.whois.query.QueryFlag;
 import net.ripe.db.whois.query.planner.AbuseCFinder;
 import net.ripe.db.whois.query.query.Query;
 import org.apache.commons.lang.StringUtils;
+import org.eclipse.jetty.http.HttpStatus;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import javax.servlet.http.HttpServletRequest;
-import javax.ws.rs.BadRequestException;
 import javax.ws.rs.GET;
-import javax.ws.rs.NotFoundException;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
-import javax.ws.rs.ServerErrorException;
 import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.io.IOException;
 import java.net.URI;
-import java.time.LocalDateTime;
 import java.util.Collection;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import static javax.ws.rs.core.HttpHeaders.CONTENT_TYPE;
-import static net.ripe.db.whois.common.rpsl.ObjectType.AS_BLOCK;
 import static net.ripe.db.whois.common.rpsl.ObjectType.AUT_NUM;
+import static net.ripe.db.whois.common.rpsl.ObjectType.INET6NUM;
+import static net.ripe.db.whois.common.rpsl.ObjectType.INETNUM;
 
 @Component
 @Path("/")
@@ -55,9 +56,8 @@ public class WhoisRdapService {
     private static final Joiner COMMA_JOINER = Joiner.on(",");
 
     private final int maxResultSize;
-
+    private final int maxEntityResultSize;
     private final RdapQueryHandler rdapQueryHandler;
-    private final RpslObjectDao objectDao;
     private final AbuseCFinder abuseCFinder;
     private final RdapObjectMapper rdapObjectMapper;
     private final DelegatedStatsService delegatedStatsService;
@@ -66,9 +66,23 @@ public class WhoisRdapService {
     private final String baseUrl;
     private final RdapRequestValidator rdapRequestValidator;
 
+    /**
+     *
+     * @param rdapQueryHandler
+     * @param abuseCFinder
+     * @param rdapObjectMapper
+     * @param delegatedStatsService
+     * @param rdapFullTextSearch
+     * @param sourceContext
+     * @param baseUrl
+     * @param rdapRequestValidator
+     * @param maxResultSize: If the domain response is bigger than maxResultSize we truncate the response and we add
+     *                     a notification
+     * @param maxEntityResultSize: used for networks maximum retrieved objects, if we retrieve more objects than
+     *                           the maximum value we truncate the response and we add a notification in the response.
+     */
     @Autowired
     public WhoisRdapService(final RdapQueryHandler rdapQueryHandler,
-                            @Qualifier("jdbcRpslObjectSlaveDao") final RpslObjectDao objectDao,
                             final AbuseCFinder abuseCFinder,
                             final RdapObjectMapper rdapObjectMapper,
                             final DelegatedStatsService delegatedStatsService,
@@ -76,9 +90,9 @@ public class WhoisRdapService {
                             final SourceContext sourceContext,
                             @Value("${rdap.public.baseUrl:}") final String baseUrl,
                             final RdapRequestValidator rdapRequestValidator,
-                            @Value("${rdap.search.max.results:100}") final int maxResultSize) {
+                            @Value("${rdap.search.max.results:100}") final int maxResultSize,
+                            @Value("${rdap.entity.max.results:100}") final int maxEntityResultSize) {
         this.rdapQueryHandler = rdapQueryHandler;
-        this.objectDao = objectDao;
         this.abuseCFinder = abuseCFinder;
         this.rdapObjectMapper = rdapObjectMapper;
         this.delegatedStatsService = delegatedStatsService;
@@ -87,6 +101,7 @@ public class WhoisRdapService {
         this.baseUrl = baseUrl;
         this.rdapRequestValidator = rdapRequestValidator;
         this.maxResultSize = maxResultSize;
+        this.maxEntityResultSize = maxEntityResultSize;
     }
 
     @GET
@@ -98,7 +113,7 @@ public class WhoisRdapService {
 
         LOGGER.debug("Request: {}", RestServiceHelper.getRequestURI(request));
         if (requestType == null) {
-            throw new BadRequestException("unknown objectType");
+            throw new RdapException("400 Bad Request", "requestType parameter is required", HttpStatus.BAD_REQUEST_400);
         }
 
         final Set<ObjectType> whoisObjectTypes = requestType.getWhoisObjectTypes(key);  // null
@@ -111,7 +126,7 @@ public class WhoisRdapService {
             }
             case DOMAIN: {
                 rdapRequestValidator.validateDomain(key);
-                return lookupObject(request, whoisObjectTypes, key);
+                return lookupForDomain(request, key);
             }
             case IP: {
                 rdapRequestValidator.validateIp(request.getRequestURI(), key);
@@ -119,13 +134,14 @@ public class WhoisRdapService {
             }
             case ENTITY: {
                 rdapRequestValidator.validateEntity(key);
-                return lookupObject(request, whoisObjectTypes, key);
+                return key.toUpperCase().startsWith("ORG-") ? lookupForOrganisation(request, key) :
+                        lookupObject(request, whoisObjectTypes, key);
             }
             case NAMESERVER: {
-                throw new ServerErrorException("Nameserver not supported", Response.Status.NOT_IMPLEMENTED);
+                throw new RdapException("501 Not Implemented", "Nameserver not supported", HttpStatus.NOT_IMPLEMENTED_501);
             }
             default: {
-                throw new BadRequestException("unknown type");
+                throw new RdapException("400 Not Request", "unknown type" + requestType, HttpStatus.BAD_REQUEST_400);
             }
         }
     }
@@ -148,7 +164,7 @@ public class WhoisRdapService {
             return handleSearch(new String[]{"organisation", "nic-hdl"}, handle, request);
         }
 
-        throw new BadRequestException("bad request");
+        throw new RdapException("400 Bad Request", "The server is not able to process the request", HttpStatus.BAD_REQUEST_400);
     }
 
     @GET
@@ -157,7 +173,7 @@ public class WhoisRdapService {
     public Response searchNameservers(
             @Context final HttpServletRequest request,
             @QueryParam("name") final String name) {
-        throw new ServerErrorException("Nameserver not supported", Response.Status.NOT_IMPLEMENTED);
+        throw new RdapException("501 Not Implemented", "Nameserver not supported", HttpStatus.NOT_IMPLEMENTED_501);
     }
 
     @GET
@@ -194,7 +210,7 @@ public class WhoisRdapService {
         }
 
         //if no autnum is found, as-block should be returned
-        final Query query = getQueryObject(ImmutableSet.of(AUT_NUM, AS_BLOCK), key);
+        final Query query = getQueryObject(ImmutableSet.of(AUT_NUM), key);
         List<RpslObject> result = rdapQueryHandler.handleAutNumQuery(query, request);
 
         return getResponse(request, result);
@@ -204,15 +220,67 @@ public class WhoisRdapService {
         return !delegatedStatsService.isMaintainedInRirSpace(source.getName(), objectType, CIString.ciString(key));
     }
 
+    protected Response lookupForDomain(final HttpServletRequest request, final String key) {
+        final Domain domain = Domain.parse(key);
+        final Stream<RpslObject> domainResult =
+                rdapQueryHandler.handleQueryStream(getQueryObject(ImmutableSet.of(ObjectType.DOMAIN),
+                        key), request);
+        final Stream<RpslObject> inetnumResult =
+                rdapQueryHandler.handleQueryStream(getQueryObject(ImmutableSet.of(INETNUM, INET6NUM),
+                        domain.getReverseIp().toString()), request);
+        return getDomainResponse(request, domainResult, inetnumResult);
+    }
     protected Response lookupObject(final HttpServletRequest request, final Set<ObjectType> objectTypes, final String key) {
-        List<RpslObject> result =  rdapQueryHandler.handleQuery(getQueryObject(objectTypes, key), request);
+        final Iterable<RpslObject> result =  rdapQueryHandler.handleQueryStream(getQueryObject(objectTypes, key),
+                request).collect(Collectors.toList());
         return getResponse(request, result);
+    }
+
+    protected Response lookupForOrganisation(final HttpServletRequest request, final String key) {
+        final List<RpslObject> organisationResult = rdapQueryHandler.handleQueryStream(getQueryObject(Set.of(ObjectType.ORGANISATION),
+                        key),
+                request).collect(Collectors.toList());
+
+        if (organisationResult.isEmpty()){
+            throw new RdapException("404 Not Found", "Requested organisation not found: " + key, HttpStatus.NOT_FOUND_404);
+        }
+        if (organisationResult.size() > 1){
+            throw new RdapException("500 Internal Error", "Unexpected result size: " + organisationResult.size(),
+                    HttpStatus.INTERNAL_SERVER_ERROR_500);
+        }
+
+        // Doing separately, instead of in one Stream for readability and to avoid big streams
+        final Query autnumQuery = getInverseQueryObject(Set.of(AUT_NUM), key);
+        final Query inetnumQuery = getInverseQueryObject(Set.of(INETNUM), key);
+        final Query inet6numQuery = getInverseQueryObject(Set.of(INET6NUM), key);
+
+        final Stream<RpslObject> autnumResult = rdapQueryHandler.handleQueryStream(autnumQuery,
+                request);
+        final Stream<RpslObject> inetnumResult = rdapQueryHandler.handleQueryStream(inetnumQuery,
+                request);
+        final Stream<RpslObject> inet6numResult = rdapQueryHandler.handleQueryStream(inet6numQuery,
+                request);
+
+        return getOrganisationResponse(request, organisationResult.get(0), autnumResult, inetnumResult, inet6numResult);
+    }
+
+    private Query getInverseQueryObject(final Set<ObjectType> objectTypes, final String key){
+        return Query.parse(
+                String.format("%s %s %s %s %s %s %s %s",
+                        QueryFlag.NO_GROUPING.getLongFlag(),
+                        QueryFlag.NO_REFERENCED.getLongFlag(),
+                        QueryFlag.SELECT_TYPES.getLongFlag(),
+                        objectTypesToString(objectTypes),
+                        QueryFlag.NO_FILTERING.getLongFlag(),
+                        QueryFlag.INVERSE.getLongFlag(),
+                        AttributeType.ORG.getName(),
+                        key));
     }
 
     private Query getQueryObject(final Set<ObjectType> objectTypes, final String key) {
         return Query.parse(
                 String.format("%s %s %s %s %s %s",
-                        QueryFlag.NO_GROUPING.getLongFlag(),
+                            QueryFlag.NO_GROUPING.getLongFlag(),
                         QueryFlag.NO_REFERENCED.getLongFlag(),
                         QueryFlag.SELECT_TYPES.getLongFlag(),
                         objectTypesToString(objectTypes),
@@ -220,29 +288,59 @@ public class WhoisRdapService {
                         key));
     }
 
-    private Response getResponse(HttpServletRequest request, List<RpslObject> result) {
-        if (result.isEmpty()) {
-            throw new NotFoundException("not found");
+    private Response getOrganisationResponse(final HttpServletRequest request,
+                                             final RpslObject organisationResult,
+                                             final Stream<RpslObject> autnumResult,
+                                             final Stream<RpslObject> inetnumResult,
+                                             final Stream<RpslObject> inet6numResult) {
+        return Response.ok(rdapObjectMapper.mapOrganisationEntity(
+                        getRequestUrl(request), organisationResult,
+                        autnumResult, inetnumResult,
+                        inet6numResult,
+                        maxEntityResultSize))
+                .header(CONTENT_TYPE, CONTENT_TYPE_RDAP_JSON)
+                .build();
+    }
+
+    private Response getDomainResponse(final HttpServletRequest request, final Stream<RpslObject> domainResult,
+                                       final Stream<RpslObject> inetnumResult) {
+        final Iterator<RpslObject> domainIterator = domainResult.iterator();
+        final Iterator<RpslObject> inetnumIterator = inetnumResult.iterator();
+        if (!domainIterator.hasNext()) {
+            throw new RdapException("404 Not Found", "Requested object not found", HttpStatus.NOT_FOUND_404);
+        }
+        final RpslObject domainObject = domainIterator.next();
+        final RpslObject inetnumObject = inetnumIterator.hasNext() ? inetnumIterator.next() : null;
+
+        if (domainIterator.hasNext() || inetnumIterator.hasNext()) {
+            throw new RdapException("500 Internal Error", "Unexpected result size: " + Iterators.size(domainIterator),
+                    HttpStatus.INTERNAL_SERVER_ERROR_500);
+        }
+        return Response.ok(
+                        rdapObjectMapper.mapDomainEntity(
+                                getRequestUrl(request),
+                                domainObject, inetnumObject))
+                .header(CONTENT_TYPE, CONTENT_TYPE_RDAP_JSON)
+                .build();
+    }
+    private Response getResponse(HttpServletRequest request, Iterable<RpslObject> result) {
+        Iterator<RpslObject> rpslIterator = result.iterator();
+
+        if (!rpslIterator.hasNext()) {
+            throw new RdapException("404 Not Found", "Requested object not found", HttpStatus.NOT_FOUND_404);
         }
 
-        if (result.size() > 1) {
-            throw new IllegalStateException("Unexpected result size: " + result.size());
-        }
+        final RpslObject resultObject = rpslIterator.next();
 
-
-        final RpslObject resultObject = result.get(0);
-
-        if (resultObject.getKey().equals(CIString.ciString("0.0.0.0 - 255.255.255.255")) ||
-                resultObject.getKey().equals(CIString.ciString("::/0"))) {
-            // TODO: handle root object in RIPE space
-            throw new NotFoundException("not found");
+        if (rpslIterator.hasNext()) {
+            throw new RdapException("500 Internal Error", "Unexpected result size: " + Iterators.size(rpslIterator),
+                    HttpStatus.INTERNAL_SERVER_ERROR_500);
         }
 
         return Response.ok(
                 rdapObjectMapper.map(
                         getRequestUrl(request),
                         resultObject,
-                        objectDao.getLastUpdated(resultObject.getObjectId()),
                         abuseCFinder.getAbuseContact(resultObject)))
                 .header(CONTENT_TYPE, CONTENT_TYPE_RDAP_JSON)
                 .build();
@@ -254,7 +352,7 @@ public class WhoisRdapService {
         try {
             uri = delegatedStatsService.getUriForRedirect(requestPath, query);
         } catch (WebApplicationException e) {
-            throw new NotFoundException("not found");
+            throw new RdapException("404 Redirect URI not found", e.getMessage(), HttpStatus.NOT_FOUND_404);
         }
 
         return Response.status(Response.Status.MOVED_PERMANENTLY).location(uri).build();
@@ -291,29 +389,26 @@ public class WhoisRdapService {
         LOGGER.debug("Search {} for {}", fields, term);
 
         if (StringUtils.isEmpty(term)) {
-            throw new BadRequestException("empty search term");
+            throw new RdapException("400 Bad Request", "Empty search term", HttpStatus.BAD_REQUEST_400);
         }
 
         try {
             final List<RpslObject> objects = rdapFullTextSearch.performSearch(fields, term, request.getRemoteAddr(), source);
 
             if (objects.isEmpty()) {
-                throw new NotFoundException("not found");
+                throw new RdapException("404 Not Found", "Requested object not found: " + term, HttpStatus.NOT_FOUND_404);
             }
-
-            final Iterable<LocalDateTime> lastUpdateds = objects.stream().map(input -> objectDao.getLastUpdated(input.getObjectId())).collect(Collectors.toList());
 
             return Response.ok(rdapObjectMapper.mapSearch(
                     getRequestUrl(request),
                     objects,
-                    lastUpdateds,
                     maxResultSize))
                     .header(CONTENT_TYPE, CONTENT_TYPE_RDAP_JSON)
                     .build();
         }
         catch (IOException e) {
             LOGGER.error(e.getMessage(), e);
-            throw new IllegalStateException("search failed");
+            throw new RdapException("500 Internal Error", "search failed", HttpStatus.INTERNAL_SERVER_ERROR_500);
         }
     }
 }

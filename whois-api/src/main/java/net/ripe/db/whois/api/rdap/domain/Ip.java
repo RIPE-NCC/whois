@@ -8,6 +8,7 @@ import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlType;
 import java.io.Serializable;
+import java.util.List;
 
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(name = "", propOrder = {
@@ -18,7 +19,8 @@ import java.io.Serializable;
     "name",
     "type",
     "country",
-    "parentHandle"
+    "parentHandle",
+    "cidr0_cidrs"
 })
 @XmlRootElement(name = "ip")
 @JsonInclude(JsonInclude.Include.NON_EMPTY)
@@ -39,6 +41,9 @@ public class Ip extends RdapObject implements Serializable {
     protected String country;
     @XmlElement(required = true)
     protected String parentHandle;
+    @XmlElement(required = true)
+    protected List<IpCidr0> cidr0_cidrs;
+
 
     public Ip() {
         super();
@@ -51,6 +56,14 @@ public class Ip extends RdapObject implements Serializable {
 
     public void setHandle(String value) {
         this.handle = value;
+    }
+
+    public void setCidr0_cidrs(List<IpCidr0> cidr0_cidrs) {
+        this.cidr0_cidrs = cidr0_cidrs;
+    }
+
+    public List<IpCidr0> getCidr0_cidrs() {
+        return cidr0_cidrs;
     }
 
     public String getStartAddress() {

@@ -69,10 +69,14 @@ public interface AttributeSyntax extends Documented {
             "\n" +
             "An as-set name can also be hierarchical.  A hierarchical set\n" +
             "name is a sequence of set names and AS numbers separated by\n" +
-            "colons \":\".  At least one component of such a name must be\n" +
+            "colons \":\". The first element of the name must be an AS number\n" +
+            "followed by a colon and ending with a name (example: AS3333:AS-TEST)." +
+            "  At least one component of such a name must be\n" +
             "an actual set name (i.e. start with \"as-\").  All the set\n" +
             "name components of a hierarchical as-name have to be as-set\n" +
-            "names. The total length should not exceed 80 characters (octets).\n");
+            "names. The total length should not exceed 80 characters (octets).\n" +
+            "\n" +
+            "Only as-sets with a hierarchical name can be created.\n");
 
     AttributeSyntax AGGR_BNDRY_SYNTAX = new AttributeSyntaxParser(new AggrBndryParser(), "" +
             "[<as-expression>]\n");
@@ -490,9 +494,9 @@ public interface AttributeSyntax extends Documented {
             "An address prefix is represented as an IPv4 address followed\n" +
             "by the character slash \"/\" followed by an integer in the\n" +
             "range from 0 to 32.  The following are valid address\n" +
-            "prefixes: 128.9.128.5/32, 128.9.0.0/16, 0.0.0.0/0; and the\n" +
-            "following address prefixes are invalid: 0/0, 128.9/16 since\n" +
-            "0 or 128.9 are not strings containing four integers.\n");
+            "prefixes: 192.0.2.5/32, 192.0.2.0/24, 0.0.0.0/0; and the\n" +
+            "following address prefixes are invalid: 0/0, 192.0.2/24 since\n" +
+            "0 or 192.0.2 are not strings containing four integers.\n");
 
     AttributeSyntax ROUTE6_SYNTAX = new AttributeSyntaxParser(new AttributeParser.Route6ResourceParser(), "" +
             "<ipv6-address>/<prefix>\n");
@@ -571,9 +575,9 @@ public interface AttributeSyntax extends Documented {
                             "An address prefix is represented as an IPv4 address followed\n" +
                             "by the character slash \"/\" followed by an integer in the\n" +
                             "range from 0 to 32.  The following are valid address\n" +
-                            "prefixes: 128.9.128.5/32, 128.9.0.0/16, 0.0.0.0/0; and the\n" +
-                            "following address prefixes are invalid: 0/0, 128.9/16 since\n" +
-                            "0 or 128.9 are not strings containing four integers.";
+                            "prefixes: 192.0.2.5/32, 192.0.2.0/24, 0.0.0.0/0; and the\n" +
+                            "following address prefixes are invalid: 0/0, 192.0.2/24 since\n" +
+                            "0 or 192.0.2 are not strings containing four integers.";
                 case ROUTE6:
                     return "" +
                             "<ipv6-address>/<prefix>";

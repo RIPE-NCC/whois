@@ -12,6 +12,8 @@ import org.springframework.stereotype.Repository;
 
 import javax.annotation.CheckForNull;
 import javax.sql.DataSource;
+import java.util.List;
+
 
 @Repository
 @Primary
@@ -40,6 +42,12 @@ public class JdbcSerialDao implements SerialDao {
     @CheckForNull
     public SerialEntry getByIdForNrtm(final int serialId) {
         return JdbcRpslObjectOperations.getSerialEntryForNrtm(jdbcTemplate, serialId);
+    }
+
+    @Override
+    @CheckForNull
+    public List<SerialEntry> getSerialEntriesSince(final int serialId) {
+        return JdbcRpslObjectOperations.getSerialEntriesSince(jdbcTemplate, serialId);
     }
 
     @Override

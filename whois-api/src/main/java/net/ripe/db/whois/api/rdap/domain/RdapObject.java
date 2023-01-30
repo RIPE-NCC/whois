@@ -14,6 +14,9 @@ import java.util.List;
 
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(name = "rdapObject", propOrder = {
+    "networks",
+    "network",
+    "autnums",
     "status",
     "entities",
     "remarks",
@@ -34,6 +37,11 @@ import java.util.List;
 @XmlRootElement
 @JsonInclude(JsonInclude.Include.NON_EMPTY)
 public class RdapObject implements Serializable {
+
+    protected List<Ip> networks;
+
+    protected Ip network;
+    protected List<Autnum> autnums;
     protected List<Object> status;
     protected List<Entity> entities;
     protected List<Remark> remarks;
@@ -91,10 +99,31 @@ public class RdapObject implements Serializable {
         return lang;
     }
 
+    public List<Ip> getNetworks() {
+        if (networks == null) {
+            networks = Lists.newArrayList();
+        }
+        return networks;
+    }
+
+    public Ip getNetwork() {
+        return network;
+    }
+
+    public List<Autnum> getAutnums() {
+        if (autnums == null) {
+            autnums = Lists.newArrayList();
+        }
+        return autnums;
+    }
+
     public void setLang(final String value) {
         this.lang = value;
     }
 
+    public void setStatus(List<Object> status) {
+        this.status = status;
+    }
     public List<String> getRdapConformance() {
         if (rdapConformance == null) {
             rdapConformance = Lists.newArrayList();
@@ -150,5 +179,17 @@ public class RdapObject implements Serializable {
 
     public void setObjectClassName(final String value) {
         this.objectClassName = value;
+    }
+
+    public void setAutnums(final List<Autnum> autnums){
+        this.autnums = autnums;
+    }
+
+    public void setNetworks(final List<Ip> networks) {
+        this.networks = networks;
+    }
+
+    public void setNetwork(final Ip network) {
+        this.network = network;
     }
 }

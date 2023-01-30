@@ -42,7 +42,6 @@ public class GrsSourceImporterTest {
     public File folder;
 
     @Mock AttributeSanitizer sanitizer;
-    @Mock ResourceTagger resourceTagger;
     @Mock GrsSource grsSource;
     @Mock GrsDao grsDao;
     @Mock GrsDao.UpdateResult updateResultCreate;
@@ -70,7 +69,7 @@ public class GrsSourceImporterTest {
         lenient().when(grsDao.createObject(any(RpslObject.class))).thenReturn(updateResultCreate);
         lenient().when(grsDao.updateObject(any(GrsObjectInfo.class), any(RpslObject.class))).thenReturn(updateResultUpdate);
 
-        subject = new GrsSourceImporter(folder.getAbsolutePath(), sanitizer, resourceTagger, sourceContext);
+        subject = new GrsSourceImporter(folder.getAbsolutePath(), sanitizer, sourceContext);
     }
 
     @Test

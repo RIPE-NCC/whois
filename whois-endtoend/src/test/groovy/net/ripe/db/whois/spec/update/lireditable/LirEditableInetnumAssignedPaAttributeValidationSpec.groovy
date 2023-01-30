@@ -80,7 +80,7 @@ class LirEditableInetnumAssignedPaAttributeValidationSpec extends BaseLirEditabl
                 source:       TEST
                 password: lir
                 password: irt
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:
@@ -130,7 +130,7 @@ class LirEditableInetnumAssignedPaAttributeValidationSpec extends BaseLirEditabl
                 source:       TEST
                 password: lir
                 password: irt
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:
@@ -170,7 +170,7 @@ class LirEditableInetnumAssignedPaAttributeValidationSpec extends BaseLirEditabl
                 source:       TEST
                 password: lir
                 password: irt
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:
@@ -214,7 +214,7 @@ class LirEditableInetnumAssignedPaAttributeValidationSpec extends BaseLirEditabl
                 source:       TEST
                 password: lir
                 password: irt
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:
@@ -260,7 +260,7 @@ class LirEditableInetnumAssignedPaAttributeValidationSpec extends BaseLirEditabl
                 source:       TEST
                 password: lir
                 password: irt
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:
@@ -303,7 +303,7 @@ class LirEditableInetnumAssignedPaAttributeValidationSpec extends BaseLirEditabl
                 source:       TEST
                 password: lir
                 password: irt
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:
@@ -347,7 +347,7 @@ class LirEditableInetnumAssignedPaAttributeValidationSpec extends BaseLirEditabl
                 source:       TEST
                 password: lir
                 password: irt
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:
@@ -393,7 +393,7 @@ class LirEditableInetnumAssignedPaAttributeValidationSpec extends BaseLirEditabl
                 source:       TEST
                 password: lir
                 password: irt
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:
@@ -433,7 +433,7 @@ class LirEditableInetnumAssignedPaAttributeValidationSpec extends BaseLirEditabl
                 source:       TEST
                 password: ${resourceRipeMntnerPassword}
                 password: owner3
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:
@@ -471,7 +471,7 @@ class LirEditableInetnumAssignedPaAttributeValidationSpec extends BaseLirEditabl
                 source:       TEST
                 password: lir
                 password: irt
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:
@@ -517,7 +517,7 @@ class LirEditableInetnumAssignedPaAttributeValidationSpec extends BaseLirEditabl
                 source:       TEST
                 password: lir
                 password: irt
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:
@@ -552,7 +552,7 @@ class LirEditableInetnumAssignedPaAttributeValidationSpec extends BaseLirEditabl
                 source:       TEST
                 password: lir
                 password: owner3
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:
@@ -588,7 +588,7 @@ class LirEditableInetnumAssignedPaAttributeValidationSpec extends BaseLirEditabl
                 source:       TEST
                 password: lir
                 password: owner3
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:
@@ -631,7 +631,7 @@ class LirEditableInetnumAssignedPaAttributeValidationSpec extends BaseLirEditabl
                 source:       TEST
                 password: lir
                 password: irt
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:
@@ -675,7 +675,7 @@ class LirEditableInetnumAssignedPaAttributeValidationSpec extends BaseLirEditabl
                 source:       TEST
                 password: lir
                 password: irt
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:
@@ -721,7 +721,7 @@ class LirEditableInetnumAssignedPaAttributeValidationSpec extends BaseLirEditabl
                 source:       TEST
                 password: lir
                 password: irt
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:
@@ -770,7 +770,7 @@ class LirEditableInetnumAssignedPaAttributeValidationSpec extends BaseLirEditabl
                 mnt-by:       LIR-MNT
                 source:       TEST
                 password: lir
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:
@@ -804,7 +804,7 @@ class LirEditableInetnumAssignedPaAttributeValidationSpec extends BaseLirEditabl
                 mnt-by:       LIR-MNT
                 source:       TEST
                 password: lir
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:
@@ -844,7 +844,7 @@ class LirEditableInetnumAssignedPaAttributeValidationSpec extends BaseLirEditabl
                 mnt-by:       LIR-MNT
                 source:       TEST
                 password: ${resourceRipeMntnerPassword}
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:
@@ -884,7 +884,7 @@ class LirEditableInetnumAssignedPaAttributeValidationSpec extends BaseLirEditabl
                 source:       TEST
                 delete: some reason
                 password: lir
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:

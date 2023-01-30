@@ -214,7 +214,7 @@ class OutOfRegionSpec extends BaseQueryUpdateSpec {
 
                 password:   lir
                 password:   owner3
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -256,7 +256,7 @@ class OutOfRegionSpec extends BaseQueryUpdateSpec {
 
                 password:   lir
                 password:   owner3
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:
@@ -291,7 +291,7 @@ class OutOfRegionSpec extends BaseQueryUpdateSpec {
 
                 password:   lir
                 password:   owner3
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:
@@ -331,7 +331,7 @@ class OutOfRegionSpec extends BaseQueryUpdateSpec {
                 source:         TEST-NONAUTH
 
                 password:   hm
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:
@@ -365,7 +365,7 @@ class OutOfRegionSpec extends BaseQueryUpdateSpec {
                 source:         TEST
 
                 password:   hm
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:
@@ -403,7 +403,7 @@ class OutOfRegionSpec extends BaseQueryUpdateSpec {
                 mnt-by:         LIR-MNT
                 source:         TEST
                 override:       denis,override1
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:
@@ -443,7 +443,7 @@ class OutOfRegionSpec extends BaseQueryUpdateSpec {
                 source:         TEST-NONAUTH
 
                 password:   hm
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:
@@ -476,7 +476,7 @@ class OutOfRegionSpec extends BaseQueryUpdateSpec {
                 mnt-by:         LIR-MNT
                 source:         TEST-NONAUTH
                 override:       denis,override1
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:
@@ -512,7 +512,7 @@ class OutOfRegionSpec extends BaseQueryUpdateSpec {
 
                 password:   lir
                 password:   owner3
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:
@@ -547,7 +547,7 @@ class OutOfRegionSpec extends BaseQueryUpdateSpec {
 
                 password:   lir
                 password:   owner3
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:
@@ -587,7 +587,7 @@ class OutOfRegionSpec extends BaseQueryUpdateSpec {
 
                 password:   lir
                 password:   owner3
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:
@@ -627,7 +627,7 @@ class OutOfRegionSpec extends BaseQueryUpdateSpec {
 
                 password:   lir
                 password:   owner3
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:
@@ -666,7 +666,7 @@ class OutOfRegionSpec extends BaseQueryUpdateSpec {
                 password:   lir
                 password:   owner3
                 
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:
@@ -708,7 +708,7 @@ class OutOfRegionSpec extends BaseQueryUpdateSpec {
                 password:   lir
                 password:   owner3
                 
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:
@@ -750,7 +750,7 @@ class OutOfRegionSpec extends BaseQueryUpdateSpec {
                 password:   lir
                 password:   owner3
                 
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:
@@ -790,7 +790,7 @@ class OutOfRegionSpec extends BaseQueryUpdateSpec {
                 password:   lir
                 password:   owner3
                 
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:
@@ -824,7 +824,7 @@ class OutOfRegionSpec extends BaseQueryUpdateSpec {
                 password:   owner
                 password:   owner2
                 
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:
@@ -854,7 +854,7 @@ class OutOfRegionSpec extends BaseQueryUpdateSpec {
                 source:         TEST-NONAUTH
                 
                 password: lir                
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:
@@ -884,7 +884,7 @@ class OutOfRegionSpec extends BaseQueryUpdateSpec {
                 source:         TEST-NONAUTH
                 
                 password: hm                
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:
@@ -906,7 +906,7 @@ class OutOfRegionSpec extends BaseQueryUpdateSpec {
                 mnt-by:         LIR-MNT
                 source:         TEST-NONAUTH
                 override:       denis,override1
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:
@@ -930,7 +930,7 @@ class OutOfRegionSpec extends BaseQueryUpdateSpec {
                 
                 password: lir                
                 password: owner3                
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:
@@ -958,7 +958,7 @@ class OutOfRegionSpec extends BaseQueryUpdateSpec {
                 source:         TEST-NONAUTH
                 
                 password: hm                
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:
@@ -982,7 +982,7 @@ class OutOfRegionSpec extends BaseQueryUpdateSpec {
                 mnt-by:         LIR-MNT
                 source:         TEST-NONAUTH
                 override:       denis,override1
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:
@@ -1009,7 +1009,7 @@ class OutOfRegionSpec extends BaseQueryUpdateSpec {
                 source:         TEST
                 
                 password: lir                
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:
@@ -1041,7 +1041,7 @@ class OutOfRegionSpec extends BaseQueryUpdateSpec {
                 source:         TEST
                 
                 password: hm                
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:
@@ -1065,7 +1065,7 @@ class OutOfRegionSpec extends BaseQueryUpdateSpec {
                 mnt-by:         LIR-MNT
                 source:         TEST
                 override:       denis,override1
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:
@@ -1094,7 +1094,7 @@ class OutOfRegionSpec extends BaseQueryUpdateSpec {
                 source:         TEST-NONAUTH
                 
                 password: lir                
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:
@@ -1121,7 +1121,7 @@ class OutOfRegionSpec extends BaseQueryUpdateSpec {
                 source:         TEST-NONAUTH
                 
                 password: hm                
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:
@@ -1146,7 +1146,7 @@ class OutOfRegionSpec extends BaseQueryUpdateSpec {
                 mnt-by:         LIR-MNT
                 source:         TEST-NONAUTH
                 override:       denis,override1
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:
@@ -1173,7 +1173,7 @@ class OutOfRegionSpec extends BaseQueryUpdateSpec {
                 source:         TEST-NONAUTH
                 
                 password: lir                
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:
@@ -1202,7 +1202,7 @@ class OutOfRegionSpec extends BaseQueryUpdateSpec {
                 source:         TEST-NONAUTH
                 
                 password: hm                
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:
@@ -1229,7 +1229,7 @@ class OutOfRegionSpec extends BaseQueryUpdateSpec {
                 mnt-by:         LIR-MNT
                 source:         TEST-NONAUTH
                 override:       denis,override1
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:
@@ -1258,7 +1258,7 @@ class OutOfRegionSpec extends BaseQueryUpdateSpec {
                 source:         TEST
                 
                 password: lir                
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:
@@ -1287,7 +1287,7 @@ class OutOfRegionSpec extends BaseQueryUpdateSpec {
                 source:         TEST
                 
                 password: hm                
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:
@@ -1314,7 +1314,7 @@ class OutOfRegionSpec extends BaseQueryUpdateSpec {
                 mnt-by:         LIR-MNT
                 source:         TEST
                 override:       denis,override1
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:
@@ -1339,7 +1339,7 @@ class OutOfRegionSpec extends BaseQueryUpdateSpec {
                 source:         TEST-NONAUTH
                 
                 password: lir                
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:
@@ -1369,7 +1369,7 @@ class OutOfRegionSpec extends BaseQueryUpdateSpec {
                 source:         TEST-NONAUTH
                 
                 password: hm                
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:
@@ -1391,7 +1391,7 @@ class OutOfRegionSpec extends BaseQueryUpdateSpec {
                 mnt-by:         LIR-MNT
                 source:         TEST-NONAUTH
                 override:       denis,override1
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:
@@ -1414,7 +1414,7 @@ class OutOfRegionSpec extends BaseQueryUpdateSpec {
                 source:         TEST-NONAUTH
                 
                 password: lir                
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:
@@ -1442,7 +1442,7 @@ class OutOfRegionSpec extends BaseQueryUpdateSpec {
                 source:         TEST-NONAUTH
                 
                 password: hm                
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:
@@ -1468,7 +1468,7 @@ class OutOfRegionSpec extends BaseQueryUpdateSpec {
                 mnt-by:         LIR-MNT
                 source:         TEST-NONAUTH
                 override:       denis,override1
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:
@@ -1495,7 +1495,7 @@ class OutOfRegionSpec extends BaseQueryUpdateSpec {
                 source:         TEST
                 
                 password: lir                
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:
@@ -1528,7 +1528,7 @@ class OutOfRegionSpec extends BaseQueryUpdateSpec {
                 source:         TEST
                 
                 password: hm                
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:
@@ -1555,7 +1555,7 @@ class OutOfRegionSpec extends BaseQueryUpdateSpec {
                 mnt-by:         RIPE-NCC-HM-MNT
                 source:         TEST
                 override:       denis,override1
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:
@@ -1586,7 +1586,7 @@ class OutOfRegionSpec extends BaseQueryUpdateSpec {
                 source:         TEST-NONAUTH
                 
                 password: lir                
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:
@@ -1613,7 +1613,7 @@ class OutOfRegionSpec extends BaseQueryUpdateSpec {
                 source:         TEST-NONAUTH
                 
                 password: hm                
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:
@@ -1639,7 +1639,7 @@ class OutOfRegionSpec extends BaseQueryUpdateSpec {
                 mnt-by:         RIPE-NCC-HM-MNT
                 source:         TEST-NONAUTH
                 override:       denis,override1
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:
@@ -1666,7 +1666,7 @@ class OutOfRegionSpec extends BaseQueryUpdateSpec {
                 source:         TEST-NONAUTH
                 
                 password: lir                
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:
@@ -1696,7 +1696,7 @@ class OutOfRegionSpec extends BaseQueryUpdateSpec {
                 source:         TEST-NONAUTH
                 
                 password: hm                
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:
@@ -1725,7 +1725,7 @@ class OutOfRegionSpec extends BaseQueryUpdateSpec {
                 mnt-by:         RIPE-NCC-HM-MNT
                 source:         TEST-NONAUTH
                 override:       denis,override1
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:
@@ -1755,7 +1755,7 @@ class OutOfRegionSpec extends BaseQueryUpdateSpec {
                 source:         TEST
                 
                 password: lir                
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:
@@ -1786,7 +1786,7 @@ class OutOfRegionSpec extends BaseQueryUpdateSpec {
                 source:         TEST
                 
                 password: hm                
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:
@@ -1815,7 +1815,7 @@ class OutOfRegionSpec extends BaseQueryUpdateSpec {
                 mnt-by:         RIPE-NCC-HM-MNT
                 source:         TEST
                 override:       denis,override1
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:

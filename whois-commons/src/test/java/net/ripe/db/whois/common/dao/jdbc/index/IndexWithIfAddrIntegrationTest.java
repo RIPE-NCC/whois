@@ -6,17 +6,18 @@ import net.ripe.db.whois.common.ip.Ipv4Resource;
 import net.ripe.db.whois.common.rpsl.AttributeType;
 import net.ripe.db.whois.common.rpsl.ObjectType;
 import net.ripe.db.whois.common.rpsl.RpslObject;
-
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 
 import java.util.List;
 
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.core.Is.is;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
-@org.junit.jupiter.api.Tag("IntegrationTest")
+@Tag("IntegrationTest")
 public class IndexWithIfAddrIntegrationTest extends IndexIntegrationTestBase {
     private IndexWithIfAddr subject;
 
@@ -39,7 +40,7 @@ public class IndexWithIfAddrIntegrationTest extends IndexIntegrationTestBase {
 
     @Test
     public void add_to_index_invalid_ifaddr_string() {
-        Assertions.assertThrows(IllegalArgumentException.class, () -> {
+        assertThrows(IllegalArgumentException.class, () -> {
             RpslObject rpslObject = RpslObject.parse("inet-rtr: test\nifaddr: invalid");
             RpslObjectInfo rpslObjectInfo = new RpslObjectInfo(1, ObjectType.INET_RTR, rpslObject.getKey());
 
@@ -49,7 +50,7 @@ public class IndexWithIfAddrIntegrationTest extends IndexIntegrationTestBase {
 
     @Test
     public void add_to_index_invalid_ifaddr_ipv6_address() {
-        Assertions.assertThrows(IllegalArgumentException.class, () -> {
+        assertThrows(IllegalArgumentException.class, () -> {
             RpslObject rpslObject = RpslObject.parse("inet-rtr: test\nifaddr: ::1");
             RpslObjectInfo rpslObjectInfo = new RpslObjectInfo(1, ObjectType.INET_RTR, rpslObject.getKey());
 
@@ -59,7 +60,7 @@ public class IndexWithIfAddrIntegrationTest extends IndexIntegrationTestBase {
 
     @Test
     public void add_to_index_invalid_ifaddr_is_range() {
-        Assertions.assertThrows(IllegalArgumentException.class, () -> {
+        assertThrows(IllegalArgumentException.class, () -> {
             RpslObject rpslObject = RpslObject.parse("inet-rtr: test\nifaddr: 10.1.2.0/24");
             RpslObjectInfo rpslObjectInfo = new RpslObjectInfo(1, ObjectType.INET_RTR, rpslObject.getKey());
 
@@ -69,7 +70,7 @@ public class IndexWithIfAddrIntegrationTest extends IndexIntegrationTestBase {
 
     @Test
     public void add_to_index_empty_ifaddr() {
-        Assertions.assertThrows(IllegalArgumentException.class, () -> {
+        assertThrows(IllegalArgumentException.class, () -> {
             RpslObject rpslObject = RpslObject.parse("inet-rtr: test\nifaddr:\n");
             RpslObjectInfo rpslObjectInfo = new RpslObjectInfo(1, ObjectType.INET_RTR, rpslObject.getKey());
 
@@ -84,7 +85,7 @@ public class IndexWithIfAddrIntegrationTest extends IndexIntegrationTestBase {
 
         final List<RpslObjectInfo> found = subject.findInIndex(whoisTemplate, "10.2.3.4");
 
-        assertThat(found.size(), is(1));
+        assertThat(found, hasSize(1));
         final RpslObjectInfo objectInfo = found.get(0);
         assertThat(objectInfo.getObjectId(), is(1));
         assertThat(objectInfo.getObjectType(), is(ObjectType.INET_RTR));
@@ -95,7 +96,7 @@ public class IndexWithIfAddrIntegrationTest extends IndexIntegrationTestBase {
     public void find_in_index_not_found() {
         final List<RpslObjectInfo> found = subject.findInIndex(whoisTemplate, "10.2.3.4");
 
-        assertThat(found.size(), is(0));
+        assertThat(found, hasSize(0));
     }
 
     @Test

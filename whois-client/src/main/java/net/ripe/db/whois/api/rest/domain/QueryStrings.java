@@ -30,4 +30,5 @@ public class QueryStrings {
     public List<QueryString> getQueryStrings() {
         return queryStrings;
     }
+
 }

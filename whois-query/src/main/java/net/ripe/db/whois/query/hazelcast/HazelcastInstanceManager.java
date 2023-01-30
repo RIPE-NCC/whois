@@ -1,6 +1,7 @@
 package net.ripe.db.whois.query.hazelcast;
 
 import com.hazelcast.config.Config;
+import com.hazelcast.config.cp.CPSubsystemConfig;
 import com.hazelcast.core.Hazelcast;
 import com.hazelcast.core.HazelcastInstance;
 import net.ripe.db.whois.common.profiles.DeployedProfile;
@@ -48,6 +49,7 @@ public class HazelcastInstanceManager {
     private HazelcastInstance getHazelcastInstance(Config config) {
         final HazelcastInstance instance = Hazelcast.newHazelcastInstance(config);
         instance.getCluster().addMembershipListener(new HazelcastMemberShipListener());
+
         return instance;
     }
 
@@ -60,7 +62,11 @@ public class HazelcastInstanceManager {
                 .setProperty("hazelcast.phone.home.enabled", "false")
                 .setProperty("hazelcast.memcache.enabled","false")
                 .setProperty("hazelcast.redo.giveup.threshold","10")
-                .setProperty("hazelcast.logging.type","slf4j");
+                .setProperty("hazelcast.logging.type","slf4j")
+                .setProperty("hazelcast.shutdownhook.enabled","false")
+                .setProperty("hazelcast.graceful.shutdown.max.wait","60");
+
+        config.getCPSubsystemConfig().setPersistenceEnabled(false);
 
         return config;
     }

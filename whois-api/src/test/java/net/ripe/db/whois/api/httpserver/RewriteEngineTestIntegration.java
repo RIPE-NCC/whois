@@ -19,6 +19,7 @@ import org.eclipse.jetty.http.HttpStatus;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -35,10 +36,9 @@ import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.empty;
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
 
-@org.junit.jupiter.api.Tag("IntegrationTest")
+@Tag("IntegrationTest")
 public class RewriteEngineTestIntegration extends AbstractIntegrationTest {
 
     @BeforeAll
@@ -68,6 +68,8 @@ public class RewriteEngineTestIntegration extends AbstractIntegrationTest {
                     "mnt-by:        TEST-MNT\n" +
                     "nic-hdl:       PP1-TEST\n" +
                     "remarks:       remark\n" +
+                    "created:         2022-08-14T11:48:28Z\n" +
+                    "last-modified:   2022-10-25T12:22:39Z\n" +
                     "source:        TEST\n");
 
     @BeforeAll
@@ -84,7 +86,7 @@ public class RewriteEngineTestIntegration extends AbstractIntegrationTest {
 
     @BeforeEach
     public void setup() {
-        databaseHelper.addObject("person: Test Person\nnic-hdl: TP1-TEST\nsource: TEST\n");
+        databaseHelper.addObject("person: Test Person\nnic-hdl: TP1-TEST\ncreated:         2022-08-14T11:48:28Z\nlast-modified:   2022-10-25T12:22:39Z\nsource: TEST\n");
         final RpslObject mntner = RpslObject.parse(
                 "mntner:        TEST-MNT\n" +
                         "descr:         Test maintainer\n" +
@@ -93,6 +95,8 @@ public class RewriteEngineTestIntegration extends AbstractIntegrationTest {
                         "mnt-nfy:       mnt-nfy@ripe.net\n" +
                         "auth:          MD5-PW $1$EmukTVYX$Z6fWZT8EAzHoOJTQI6jFJ1  # 123\n" +
                         "mnt-by:        TEST-MNT\n" +
+                        "created:         2022-08-14T11:48:28Z\n" +
+                        "last-modified:   2022-10-25T12:22:39Z\n" +
                         "source:        TEST"
         );
         databaseHelper.addObject(mntner);
@@ -138,7 +142,7 @@ public class RewriteEngineTestIntegration extends AbstractIntegrationTest {
                 .header(HttpHeader.X_FORWARDED_PROTO.toString(), HttpScheme.HTTPS)
                 .put(javax.ws.rs.client.Entity.entity(whoisObjectMapper.mapRpslObjects(FormattedClientAttributeMapper.class, updated), MediaType.APPLICATION_XML), WhoisResources.class);
 
-        assertTrue(databaseHelper.lookupObject(PERSON, updated.getKey().toString()).containsAttribute(AttributeType.REMARKS));
+        assertThat(databaseHelper.lookupObject(PERSON, updated.getKey().toString()).containsAttribute(AttributeType.REMARKS), is(true));
     }
 
     @Test
@@ -156,7 +160,7 @@ public class RewriteEngineTestIntegration extends AbstractIntegrationTest {
                 .header(HttpHeader.X_FORWARDED_PROTO.toString(), HttpScheme.HTTPS)
                 .post(javax.ws.rs.client.Entity.entity(whoisObjectMapper.mapRpslObjects(FormattedClientAttributeMapper.class, updated), MediaType.APPLICATION_XML), WhoisResources.class);
 
-        assertTrue(databaseHelper.lookupObject(PERSON, updated.getKey().toString()).containsAttribute(AttributeType.REMARKS));
+        assertThat(databaseHelper.lookupObject(PERSON, updated.getKey().toString()).containsAttribute(AttributeType.REMARKS), is(true));
     }
 
     @Test
@@ -229,7 +233,7 @@ public class RewriteEngineTestIntegration extends AbstractIntegrationTest {
                 .header(HttpHeaders.HOST, getHost(restApiBaseUrl))
                 .get(String.class);
 
-        assertTrue(result.contains("abuse@test.net"));
+        assertThat(result, containsString("abuse@test.net"));
     }
 
     @Test

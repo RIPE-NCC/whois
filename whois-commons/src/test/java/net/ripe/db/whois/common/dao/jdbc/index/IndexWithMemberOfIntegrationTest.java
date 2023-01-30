@@ -4,18 +4,18 @@ package net.ripe.db.whois.common.dao.jdbc.index;
 import net.ripe.db.whois.common.dao.RpslObjectInfo;
 import net.ripe.db.whois.common.rpsl.AttributeType;
 import net.ripe.db.whois.common.rpsl.RpslObject;
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
-
 
 import java.util.List;
 
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.core.Is.is;
-import static org.hamcrest.MatcherAssert.assertThat;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
-@org.junit.jupiter.api.Tag("IntegrationTest")
+@Tag("IntegrationTest")
 public class IndexWithMemberOfIntegrationTest extends IndexIntegrationTestBase {
     IndexStrategy subject;
 
@@ -46,7 +46,7 @@ public class IndexWithMemberOfIntegrationTest extends IndexIntegrationTestBase {
 
     @Test
     public void add_route() {
-        Assertions.assertThrows(IllegalArgumentException.class, () -> {
+        assertThrows(IllegalArgumentException.class, () -> {
             final RpslObject rpslObject = RpslObject.parse("" +
                     "route:     193.0.0.0/8\n" +
                     "origin:    AS100\n" +
@@ -60,7 +60,7 @@ public class IndexWithMemberOfIntegrationTest extends IndexIntegrationTestBase {
 
     @Test
     public void add_autnum_invalid_reference() {
-        Assertions.assertThrows(IllegalArgumentException.class, () -> {
+        assertThrows(IllegalArgumentException.class, () -> {
             final RpslObject rpslObject = RpslObject.parse("" +
                     "aut-num:         AS5404\n" +
                     "member-of:       AS-UNKNOWN");
@@ -151,7 +151,7 @@ public class IndexWithMemberOfIntegrationTest extends IndexIntegrationTestBase {
         databaseHelper.addObject("route: 195.10.40.0/29\nmember-of: rs-ripe\nmnt-by: test-mnt\norigin:AS3255");
 
         final List<RpslObjectInfo> result = subject.findInIndex(whoisTemplate, "rs-ripe");
-        assertThat(result.size(), is(1));
+        assertThat(result, hasSize(1));
         assertThat(result.get(0).getKey(), is("195.10.40.0/29AS3255"));
     }
 

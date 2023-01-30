@@ -1,12 +1,11 @@
 package net.ripe.db.whois.scheduler.task.export.dao;
 
 import com.google.common.collect.Sets;
-
 import net.ripe.db.whois.common.rpsl.RpslObject;
 import net.ripe.db.whois.scheduler.AbstractSchedulerIntegrationTest;
 import org.awaitility.Awaitility;
+import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
-
 import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.Set;
@@ -18,7 +17,7 @@ import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
 import static org.junit.jupiter.api.Assertions.fail;
 
-@org.junit.jupiter.api.Tag("IntegrationTest")
+@Tag("IntegrationTest")
 public class JdbcExportDaoIntegrationTest extends AbstractSchedulerIntegrationTest {
     @Autowired ExportDao subject;
 

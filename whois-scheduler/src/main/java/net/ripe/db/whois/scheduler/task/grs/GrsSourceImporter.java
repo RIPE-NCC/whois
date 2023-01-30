@@ -38,7 +38,6 @@ class GrsSourceImporter {
     private static final int LOG_EVERY_NR_HANDLED = 100000;
 
     private final AttributeSanitizer sanitizer;
-    private final ResourceTagger resourceTagger;
     private final SourceContext sourceContext;
 
     private Path downloadDir;
@@ -49,12 +48,10 @@ class GrsSourceImporter {
     public GrsSourceImporter(
             @Value("${dir.grs.import.download}") final String downloadDir,
             final AttributeSanitizer sanitizer,
-            final ResourceTagger resourceTagger,
             final SourceContext sourceContext) {
         this.sourceContext = sourceContext;
         this.downloadDir = Paths.get(downloadDir);
         this.sanitizer = sanitizer;
-        this.resourceTagger = resourceTagger;
 
         try {
             Files.createDirectories(this.downloadDir);
@@ -71,8 +68,6 @@ class GrsSourceImporter {
         } else {
             acquireAndUpdateGrsData(grsSource, rebuild, authoritativeResource);
         }
-
-        resourceTagger.tagObjects(grsSource);
     }
 
     private void acquireAndUpdateGrsData(final GrsSource grsSource, final boolean rebuild, final AuthoritativeResource authoritativeData) {

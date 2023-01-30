@@ -1,5 +1,22 @@
 # next
 
+1.105
+
+[update] NWI-19: Change to AS-SET object naming rules
+
+# 1.104
+
+[api] Allow Grouping (-G) flag in Whois Search API (#1077)
+[rdap] cidr0 notation for rdap response (#1068)
+[query] Remove whois tags (#1059)
+[api] Added text/plain to Search and REST APIs (#1054)
+[update] Add comment not NOOP (#1052)
+[update] Do not allow comments in managed attributes (#1045)
+[all] Use documentation prefix 192.0.2.0/24 (#1044)
+[update] Organisation country: is modifiable for end-user orgs without RIPE NCC resources (#1041)
+[api] Do not return deleted versions (#1015)
+[api] Redirect empty requests to syncupdates help (#1011)
+
 # 1.103
 
 [update] Fixed "goefeed:" validation when reading object containing multiple remarks: attributes (#975)

@@ -2,22 +2,21 @@ package net.ripe.db.whois.api.rdap;
 
 import net.ripe.db.whois.api.fulltextsearch.FullTextIndex;
 import net.ripe.db.whois.api.rdap.domain.SearchResult;
-
 import net.ripe.db.whois.query.support.TestWhoisLog;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.annotation.DirtiesContext;
 
 import javax.ws.rs.core.MediaType;
 
-import static org.hamcrest.Matchers.hasSize;
-import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.equalTo;
+import static org.hamcrest.Matchers.hasSize;
 
-@org.junit.jupiter.api.Tag("IntegrationTest")
+@Tag("IntegrationTest")
 @DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_EACH_TEST_METHOD)
 public class WhoisRdapQueryLimitTestIntegration extends AbstractRdapIntegrationTest {
 
@@ -35,6 +34,8 @@ public class WhoisRdapQueryLimitTestIntegration extends AbstractRdapIntegrationT
     public void setup() {
         databaseHelper.addObject("" +
                 "person:        Test Person\n" +
+                "created:         2022-08-14T11:48:28Z\n" +
+                "last-modified:   2022-10-25T12:22:39Z\n" +
                 "nic-hdl:       TP1-TEST");
         databaseHelper.addObject("" +
                 "mntner:        OWNER-MNT\n" +
@@ -44,6 +45,8 @@ public class WhoisRdapQueryLimitTestIntegration extends AbstractRdapIntegrationT
                 "auth:          MD5-PW $1$d9fKeTr2$Si7YudNf4rUGmR71n/cqk/ #test\n" +
                 "mnt-by:        OWNER-MNT\n" +
                 "referral-by:   OWNER-MNT\n" +
+                "created:         2022-08-14T11:48:28Z\n" +
+                "last-modified:   2022-10-25T12:22:39Z\n" +
                 "source:        TEST");
         databaseHelper.updateObject("" +
                 "person:        Test Person\n" +
@@ -51,6 +54,8 @@ public class WhoisRdapQueryLimitTestIntegration extends AbstractRdapIntegrationT
                 "phone:         +31 6 12345678\n" +
                 "nic-hdl:       TP1-TEST\n" +
                 "mnt-by:        OWNER-MNT\n" +
+                "created:         2022-08-14T11:48:28Z\n" +
+                "last-modified:   2022-10-25T12:22:39Z\n" +
                 "source:        TEST");
         databaseHelper.addObject("" +
                 "person:        Pauleth Palthen\n" +
@@ -60,6 +65,8 @@ public class WhoisRdapQueryLimitTestIntegration extends AbstractRdapIntegrationT
                 "mnt-by:        OWNER-MNT\n" +
                 "nic-hdl:       PP1-TEST\n" +
                 "remarks:       remark\n" +
+                "created:         2022-08-14T11:48:28Z\n" +
+                "last-modified:   2022-10-25T12:22:39Z\n" +
                 "source:        TEST");
 
         databaseHelper.addObject("" +
@@ -75,6 +82,8 @@ public class WhoisRdapQueryLimitTestIntegration extends AbstractRdapIntegrationT
                 "ds-rdata:      17881 5 1 2e58131e5fe28ec965a7b8e4efb52d0a028d7a78\n" +
                 "ds-rdata:      17881 5 2 8c6265733a73e5588bfac516a4fcfbe1103a544b95f254cb67a21e474079547e\n" +
                 "mnt-by:        OWNER-MNT\n" +
+                "created:         2022-08-14T11:48:28Z\n" +
+                "last-modified:   2022-10-25T12:22:39Z\n" +
                 "source:        TEST");
         databaseHelper.addObject("" +
                 "domain:        17.45.212.in-addr.arpa\n" +
@@ -89,6 +98,8 @@ public class WhoisRdapQueryLimitTestIntegration extends AbstractRdapIntegrationT
                 "ds-rdata:      17881 5 1 2e58131e5fe28ec965a7b8e4efb52d0a028d7a78\n" +
                 "ds-rdata:      17881 5 2 8c6265733a73e5588bfac516a4fcfbe1103a544b95f254cb67a21e474079547e\n" +
                 "mnt-by:        OWNER-MNT\n" +
+                "created:         2022-08-14T11:48:28Z\n" +
+                "last-modified:   2022-10-25T12:22:39Z\n" +
                 "source:        TEST");
         databaseHelper.addObject("" +
                 "domain:        64.67.217.in-addr.arpa\n" +
@@ -103,6 +114,8 @@ public class WhoisRdapQueryLimitTestIntegration extends AbstractRdapIntegrationT
                 "ds-rdata:      17881 5 1 2e58131e5fe28ec965a7b8e4efb52d0a028d7a78\n" +
                 "ds-rdata:      17881 5 2 8c6265733a73e5588bfac516a4fcfbe1103a544b95f254cb67a21e474079547e\n" +
                 "mnt-by:        OWNER-MNT\n" +
+                "created:         2022-08-14T11:48:28Z\n" +
+                "last-modified:   2022-10-25T12:22:39Z\n" +
                 "source:        TEST");
 
         databaseHelper.addObject("" +
@@ -117,6 +130,8 @@ public class WhoisRdapQueryLimitTestIntegration extends AbstractRdapIntegrationT
                 "admin-c:       PP1-TEST\n" +
                 "e-mail:        org@test.com\n" +
                 "mnt-by:        OWNER-MNT\n" +
+                "created:         2022-08-14T11:48:28Z\n" +
+                "last-modified:   2022-10-25T12:22:39Z\n" +
                 "source:        TEST");
         databaseHelper.addObject("" +
                 "organisation:  ORG-TEST2-TEST\n" +
@@ -130,6 +145,8 @@ public class WhoisRdapQueryLimitTestIntegration extends AbstractRdapIntegrationT
                 "admin-c:       PP1-TEST\n" +
                 "e-mail:        org@test.com\n" +
                 "mnt-by:        OWNER-MNT\n" +
+                "created:         2022-08-14T11:48:28Z\n" +
+                "last-modified:   2022-10-25T12:22:39Z\n" +
                 "source:        TEST");
         databaseHelper.addObject("" +
                 "organisation:  ORG-TEST3-TEST\n" +
@@ -143,6 +160,8 @@ public class WhoisRdapQueryLimitTestIntegration extends AbstractRdapIntegrationT
                 "admin-c:       PP1-TEST\n" +
                 "e-mail:        org@test.com\n" +
                 "mnt-by:        OWNER-MNT\n" +
+                "created:         2022-08-14T11:48:28Z\n" +
+                "last-modified:   2022-10-25T12:22:39Z\n" +
                 "source:        TEST");
         ipTreeUpdater.rebuild();
     }
@@ -156,7 +175,7 @@ public class WhoisRdapQueryLimitTestIntegration extends AbstractRdapIntegrationT
                 .request(MediaType.APPLICATION_JSON_TYPE)
                 .get(SearchResult.class);
 
-        assertThat(response.getDomainSearchResults().size(), equalTo(2));
+        assertThat(response.getDomainSearchResults(), hasSize(2));
         assertThat(response.getDomainSearchResults().get(0).getHandle(), equalTo("17.45.212.in-addr.arpa"));
         assertThat(response.getDomainSearchResults().get(1).getHandle(), equalTo("31.12.202.in-addr.arpa"));
         assertThat(response.getNotices(), hasSize(2));

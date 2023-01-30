@@ -4,6 +4,7 @@ package net.ripe.db.whois.db;
 import net.ripe.db.whois.common.aspects.RetryFor;
 import net.ripe.db.whois.common.support.AbstractDaoIntegrationTest;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,7 +24,7 @@ import static org.junit.jupiter.api.Assertions.fail;
  * This test also fails running in your IDE if AspectJ is not configured correctly.
  */
 
-@org.junit.jupiter.api.Tag("IntegrationTest")
+@Tag("IntegrationTest")
 @ContextConfiguration(locations = {"classpath:applicationContext-whois-test.xml"})
 public class RetryForAspectIntegrationTest extends AbstractDaoIntegrationTest {
     static final int ATTEMPTS = 5;

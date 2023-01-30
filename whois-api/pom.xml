@@ -136,6 +136,8 @@
         </dependency>
 
         <!-- testing -->
+
+        <!-- TODO: [ES] testcontainers dependency depends on JUnit 4 -->
         <dependency>
             <groupId>org.testcontainers</groupId>
             <artifactId>elasticsearch</artifactId>
