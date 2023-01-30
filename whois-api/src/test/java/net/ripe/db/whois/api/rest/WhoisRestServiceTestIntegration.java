@@ -4051,7 +4051,7 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
 
 
     @Test
-    public void update_flat_as_set_change_source_succed() {
+    public void update_flat_as_set_change_source_bad_request() {
         final RpslObject TEST_AS_SET = RpslObject.parse("""
                 as-set:     AS-TEST
                 tech-c:     TP1-TEST
@@ -4074,18 +4074,17 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
         final RpslObject updatedObject = new RpslObjectBuilder(TEST_AS_SET).replaceAttribute(TEST_AS_SET.findAttribute(AttributeType.SOURCE),
                 new RpslAttribute(AttributeType.SOURCE, "TEST-NONAUTH")).sort().get();
 
-        final WhoisResources whoisResources = RestTest.target(getPort(), "whois/test/as-set/AS-TEST?password" +
+        try {
+
+            RestTest.target(getPort(), "whois/test/as-set/AS-TEST?password" +
                                 "=test")
                         .request(MediaType.APPLICATION_XML)
                         .put(Entity.entity(map(updatedObject), MediaType.APPLICATION_XML), WhoisResources.class);
 
-        assertThat(whoisResources.getErrorMessages(), hasSize(2));
-        assertThat(whoisResources.getErrorMessages().get(0).toString(), is("Can not set 'TEST-NONAUTH' source when as-set in not hierarchical, request updated to match the current source 'TEST'"));
-        assertThat(whoisResources.getErrorMessages().get(1).toString(), is("Submitted object identical to database object"));
-
-        assertThat(whoisResources.getWhoisObjects(), hasSize(1));
-        final WhoisObject object = whoisResources.getWhoisObjects().get(0);
-        assertThat(object.getSource().getId(), is("test"));
+        } catch (BadRequestException e) {
+            assertThat(e.getResponse().readEntity(WhoisResources.class).getErrorMessages().get(0).toString(),
+                    containsString("Source TEST-NONAUTH is not allowed for as-set objects"));
+        }
     }
     @Test
     public void update_missing_attribute_value() {
