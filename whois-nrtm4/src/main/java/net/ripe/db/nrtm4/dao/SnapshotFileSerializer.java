@@ -58,7 +58,4 @@ public class SnapshotFileSerializer {
         jGenerator.close();
     }
 
-    static class PrettyPrinterWithObjectOnNewLine extends DefaultPrettyPrinter {
-
-    }
 }
