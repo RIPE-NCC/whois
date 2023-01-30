@@ -21,7 +21,7 @@ import static org.slf4j.LoggerFactory.getLogger;
 @Component
 public class ElasticSearchTestInstance implements ElasticRestHighlevelClient {
 
-    private static final Logger LOGGER = getLogger(ElasticIndexService.class);
+    private static final Logger LOGGER = getLogger(ElasticSearchTestInstance.class);
     private final RestHighLevelClient client;
 
     @Autowired

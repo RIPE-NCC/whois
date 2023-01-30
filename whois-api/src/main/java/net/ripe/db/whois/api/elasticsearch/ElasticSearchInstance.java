@@ -10,6 +10,7 @@ import org.apache.http.client.CredentialsProvider;
 import org.apache.http.impl.client.BasicCredentialsProvider;
 import org.elasticsearch.client.RestClient;
 import org.elasticsearch.client.RestHighLevelClient;
+import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Primary;
@@ -19,10 +20,14 @@ import org.springframework.stereotype.Component;
 import javax.annotation.Nullable;
 import java.util.List;
 
+import static org.slf4j.LoggerFactory.getLogger;
+
 @Profile({WhoisProfile.DEPLOYED})
 @Primary
 @Component
 public class ElasticSearchInstance implements ElasticRestHighlevelClient {
+
+    private static final Logger LOGGER = getLogger(ElasticSearchInstance.class);
     private final RestHighLevelClient client;
 
     @Autowired
@@ -34,11 +39,16 @@ public class ElasticSearchInstance implements ElasticRestHighlevelClient {
 
     @Nullable
     private RestHighLevelClient getEsClient(final List<String> elasticHosts, final String elasticUser, final String elasticPassword) {
-        final CredentialsProvider credentialsProvider = new BasicCredentialsProvider();
-        credentialsProvider.setCredentials(AuthScope.ANY, new UsernamePasswordCredentials(elasticUser, elasticPassword));
+       try {
+           final CredentialsProvider credentialsProvider = new BasicCredentialsProvider();
+           credentialsProvider.setCredentials(AuthScope.ANY, new UsernamePasswordCredentials(elasticUser, elasticPassword));
 
-        return new RestHighLevelClient(RestClient.builder(asHttpHosts(elasticHosts))
-                .setHttpClientConfigCallback(httpClientBuilder -> httpClientBuilder.setDefaultCredentialsProvider(credentialsProvider)));
+           return new RestHighLevelClient(RestClient.builder(asHttpHosts(elasticHosts))
+                   .setHttpClientConfigCallback(httpClientBuilder -> httpClientBuilder.setDefaultCredentialsProvider(credentialsProvider)));
+       }  catch (Exception e) {
+           LOGGER.warn("Failed to start the ES client {}", e.getMessage());
+           return null;
+       }
     }
 
     private HttpHost[] asHttpHosts(final List<String> hosts) {
