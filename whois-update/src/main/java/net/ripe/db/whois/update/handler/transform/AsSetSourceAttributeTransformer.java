@@ -35,12 +35,23 @@ public class AsSetSourceAttributeTransformer implements Transformer{
         }
         final String asSetKey = rpslObject.getKey().toString();
 
-        boolean flatAsSet = !asSetKey.contains(":");
+        final boolean flatAsSet = !asSetKey.contains(":");
         final CIString asSetSource = rpslObject.getValueForAttribute(AttributeType.SOURCE);
 
         if (flatAsSet){
-            if (asSetSource != null) {
-                updateContext.addMessage(update, UpdateMessages.flatModelNotAllowSourceModifications(asSetSource.toString()));
+            if (Action.MODIFY.equals(action)) {
+                final RpslObject asSetObject = rpslObjectDao.getByKeyOrNull(ObjectType.AS_SET, asSetKey);
+                if (asSetObject == null){
+                    return rpslObject;
+                }
+                final CIString databaseAsSetSource = asSetObject.getValueForAttribute(AttributeType.SOURCE);
+                if(!asSetSource.equals(databaseAsSetSource)) {
+                    updateContext.addMessage(update,
+                            UpdateMessages.flatModelNotAllowSourceModifications(asSetSource.toString(),
+                                    databaseAsSetSource.toString()));
+                    return new RpslObjectBuilder(rpslObject).replaceAttribute(rpslObject.findAttribute(AttributeType.SOURCE),
+                            new RpslAttribute(AttributeType.SOURCE, databaseAsSetSource)).get();
+                }
             }
             return rpslObject;
         }
@@ -57,12 +68,12 @@ public class AsSetSourceAttributeTransformer implements Transformer{
             return rpslObject;
         }
 
-        if (nonAuthSource.contentEquals(autnumSource)){
+        if (autnumSource.equals(nonAuthSource)){
             updateContext.addMessage(update, UpdateMessages.sourceChanged(asSetSource, autnumSource, autnumKey));
 
             return new RpslObjectBuilder(rpslObject).replaceAttribute(rpslObject.findAttribute(AttributeType.SOURCE),
                     new RpslAttribute(AttributeType.SOURCE, nonAuthSource)).get();
-        } else if (nonAuthSource.contentEquals(asSetSource)) {
+        } else if (asSetSource.equals(nonAuthSource)) {
             updateContext.addMessage(update, UpdateMessages.notValidSource());
             return rpslObject;
         }

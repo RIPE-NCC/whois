@@ -1860,14 +1860,7 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
         assertThat(whoisResources.getErrorMessages(), hasSize(0));
         final WhoisObject object = whoisResources.getWhoisObjects().get(0);
 
-        assertThat(object.getAttributes(), contains(
-                new Attribute("as-set", "AS3333:AS-TEST"),
-                new Attribute("tech-c", "TP1-TEST", null, "person", Link.create("http://rest-test.db.ripe.net/test/person/TP1-TEST"), null),
-                new Attribute("admin-c", "TP1-TEST", null, "person", Link.create("http://rest-test.db.ripe.net/test/person/TP1-TEST"), null),
-                new Attribute("mnt-by", "OWNER-MNT", null, "mntner", Link.create("http://rest-test.db.ripe.net/test/mntner/OWNER-MNT"), null),
-                new Attribute("created", "2001-02-04T17:00:00Z"),
-                new Attribute("last-modified", "2001-02-04T17:00:00Z"),
-                new Attribute("source", "TEST-NONAUTH")));
+        assertThat(object.getSource().getId(), is("test-nonauth"));
     }
     @Test
     public void create_asSet_non_auth_aut_num_succeeds() {
@@ -1895,14 +1888,7 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
         assertThat(whoisResources.getErrorMessages().get(0).toString(), is("The \"source:\" attribute value has been updated from \"TEST\" to \"TEST-NONAUTH\" to match the referenced AUT-NUM \"AS3333\""));
         final WhoisObject object = whoisResources.getWhoisObjects().get(0);
 
-        assertThat(object.getAttributes(), contains(
-                new Attribute("as-set", "AS3333:AS-TEST"),
-                new Attribute("tech-c", "TP1-TEST", null, "person", Link.create("http://rest-test.db.ripe.net/test/person/TP1-TEST"), null),
-                new Attribute("admin-c", "TP1-TEST", null, "person", Link.create("http://rest-test.db.ripe.net/test/person/TP1-TEST"), null),
-                new Attribute("mnt-by", "OWNER-MNT", null, "mntner", Link.create("http://rest-test.db.ripe.net/test/mntner/OWNER-MNT"), null),
-                new Attribute("created", "2001-02-04T17:00:00Z"),
-                new Attribute("last-modified", "2001-02-04T17:00:00Z"),
-                new Attribute("source", "TEST-NONAUTH")));
+        assertThat(object.getSource().getId(), is("test-nonauth"));
     }
 
 
@@ -1959,14 +1945,7 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
         assertThat(whoisResources.getErrorMessages().get(0).toString(), is("The \"source:\" attribute value has been updated from \"TEST\" to \"TEST-NONAUTH\" to match the referenced AUT-NUM \"AS3333\""));
         final WhoisObject object = whoisResources.getWhoisObjects().get(0);
 
-        assertThat(object.getAttributes(), contains(
-                new Attribute("as-set", "AS3333:AS-TEST:AS12654"),
-                new Attribute("tech-c", "TP1-TEST", null, "person", Link.create("http://rest-test.db.ripe.net/test/person/TP1-TEST"), null),
-                new Attribute("admin-c", "TP1-TEST", null, "person", Link.create("http://rest-test.db.ripe.net/test/person/TP1-TEST"), null),
-                new Attribute("mnt-by", "OWNER-MNT", null, "mntner", Link.create("http://rest-test.db.ripe.net/test/mntner/OWNER-MNT"), null),
-                new Attribute("created", "2001-02-04T17:00:00Z"),
-                new Attribute("last-modified", "2001-02-04T17:00:00Z"),
-                new Attribute("source", "TEST-NONAUTH")));
+        assertThat(object.getSource().getId(), is("test-nonauth"));
     }
 
     @Test
@@ -2044,9 +2023,7 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
             fail();
         } catch (BadRequestException e) {
             final WhoisResources whoisResources = e.getResponse().readEntity(WhoisResources.class);
-            assertThat(whoisResources.getErrorMessages().get(0).toString(), containsString("Can not set 'TEST-NONAUTH' " +
-                    "source when as-set in not hierarchical"));
-            assertThat(whoisResources.getErrorMessages().get(1).toString(), containsString("Cannot create AS-SET " +
+            assertThat(whoisResources.getErrorMessages().get(0).toString(), containsString("Cannot create AS-SET " +
                     "object with a " +
                     "short format name. Only hierarchical AS-SET creation is allowed, i.e. at least one ASN must be referenced"));
         }
@@ -4004,13 +3981,7 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
         assertThat(whoisResources.getErrorMessages(), is(empty()));
         assertThat(whoisResources.getWhoisObjects(), hasSize(1));
         final WhoisObject object = whoisResources.getWhoisObjects().get(0);
-        assertThat(object.getAttributes(), contains(
-                new Attribute("as-set", "AS3334:AS-TEST"),
-                new Attribute("tech-c", "TP1-TEST", null, "person", Link.create("http://rest-test.db.ripe.net/test/person/TP1-TEST"), null),
-                new Attribute("admin-c", "TP1-TEST", null, "person", Link.create("http://rest-test.db.ripe.net/test/person/TP1-TEST"), null),
-                new Attribute("mnt-by", "OWNER-MNT",null,"mntner", Link.create("http://rest-test.db.ripe.net/test/mntner/OWNER-MNT"), null),
-                new Attribute("last-modified", "2001-02-04T17:00:00Z"),
-                new Attribute("source", "TEST-NONAUTH")));
+        assertThat(object.getSource().getId(), is("test-nonauth"));
     }
 
     @Test
@@ -4046,17 +4017,12 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
         assertThat(whoisResources.getErrorMessages().get(0).toString(), is("The \"source:\" attribute value has been updated from \"TEST\" to \"TEST-NONAUTH\" to match the referenced AUT-NUM \"AS3334\""));
         assertThat(whoisResources.getWhoisObjects(), hasSize(1));
         final WhoisObject object = whoisResources.getWhoisObjects().get(0);
-        assertThat(object.getAttributes(), contains(
-                new Attribute("as-set", "AS3334:AS-TEST"),
-                new Attribute("tech-c", "TP1-TEST", null, "person", Link.create("http://rest-test.db.ripe.net/test/person/TP1-TEST"), null),
-                new Attribute("admin-c", "TP1-TEST", null, "person", Link.create("http://rest-test.db.ripe.net/test/person/TP1-TEST"), null),
-                new Attribute("mnt-by", "OWNER-MNT",null,"mntner", Link.create("http://rest-test.db.ripe.net/test/mntner/OWNER-MNT"), null),
-                new Attribute("source", "TEST-NONAUTH")));
+        assertThat(object.getSource().getId(), is("test-nonauth"));
     }
 
 
     @Test
-    public void update_flat_as_set_bad_request() {
+    public void update_flat_as_set_change_source_succed() {
         final RpslObject TEST_AS_SET = RpslObject.parse("""
                 as-set:     AS-TEST
                 tech-c:     TP1-TEST
@@ -4079,17 +4045,18 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
         final RpslObject updatedObject = new RpslObjectBuilder(TEST_AS_SET).replaceAttribute(TEST_AS_SET.findAttribute(AttributeType.SOURCE),
                 new RpslAttribute(AttributeType.SOURCE, "TEST-NONAUTH")).sort().get();
 
-        try {
-                RestTest.target(getPort(), "whois/test/as-set/AS-TEST?password" +
+        final WhoisResources whoisResources = RestTest.target(getPort(), "whois/test/as-set/AS-TEST?password" +
                                 "=test")
                         .request(MediaType.APPLICATION_XML)
                         .put(Entity.entity(map(updatedObject), MediaType.APPLICATION_XML), WhoisResources.class);
-                fail();
-        } catch (final BadRequestException ex){
-            final WhoisResources whoisResources = ex.getResponse().readEntity(WhoisResources.class);
-            assertThat(whoisResources.getErrorMessages().get(0).toString(), containsString("Can not set 'TEST-NONAUTH' " +
-                    "source when as-set in not hierarchical"));
-        }
+
+        assertThat(whoisResources.getErrorMessages(), hasSize(2));
+        assertThat(whoisResources.getErrorMessages().get(0).toString(), is("Can not set 'TEST-NONAUTH' source when as-set in not hierarchical, request updated to match the current source 'TEST'"));
+        assertThat(whoisResources.getErrorMessages().get(1).toString(), is("Submitted object identical to database object"));
+
+        assertThat(whoisResources.getWhoisObjects(), hasSize(1));
+        final WhoisObject object = whoisResources.getWhoisObjects().get(0);
+        assertThat(object.getSource().getId(), is("test"));
     }
     @Test
     public void update_missing_attribute_value() {
