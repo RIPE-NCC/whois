@@ -655,7 +655,10 @@ public final class UpdateMessages {
     public static Message multipleUserMntBy(final Collection<CIString> userMntners) {
         return new Message(Type.ERROR, "Multiple user-'mnt-by:' are not allowed, found are: '%s'", Joiner.on(", ").join(userMntners));
     }
-
+    public static Message sourceChanged(final CIString originalSource, final CIString finalSource, final String autnum) {
+        return new Message(Messages.Type.WARNING, "The \"source:\" attribute value has been updated from \"%s\" to " +
+                "\"%s\" to match the referenced AUT-NUM \"%s\"", originalSource, finalSource, autnum);
+    }
     public static Message changedAttributeRemoved() {
         return new Message(Messages.Type.WARNING, "Deprecated attribute \"changed\". This attribute has been removed.");
     }
