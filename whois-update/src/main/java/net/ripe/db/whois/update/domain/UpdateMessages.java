@@ -655,11 +655,6 @@ public final class UpdateMessages {
     public static Message multipleUserMntBy(final Collection<CIString> userMntners) {
         return new Message(Type.ERROR, "Multiple user-'mnt-by:' are not allowed, found are: '%s'", Joiner.on(", ").join(userMntners));
     }
-
-    public static Message notValidSource() {
-        return new Message(Type.ERROR, "Can not set NONAUTH source when aut-num is not NONAUTH");
-    }
-
     public static Message flatModelNotAllowSourceModifications(final String source, final String currentSource){
         return new Message(Type.WARNING, "Can not set '%s' source when as-set in not hierarchical, request updated to" +
                 " match the current source '%s'", source, currentSource);
