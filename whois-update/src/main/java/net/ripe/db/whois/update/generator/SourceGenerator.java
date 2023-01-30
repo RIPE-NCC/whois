@@ -69,9 +69,6 @@ public class SourceGenerator extends AttributeGenerator {
 
         if (flatAsSet){
             final RpslObject asSetObject = updateContext.getPreparedUpdate(update).getReferenceObject();
-            if (asSetObject == null){
-                return updatedObject;
-            }
             final CIString databaseAsSetSource = asSetObject.getValueForAttribute(AttributeType.SOURCE);
             if (asSetSource.equals(databaseAsSetSource)) {
                 return updatedObject;
