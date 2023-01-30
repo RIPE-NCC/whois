@@ -67,11 +67,12 @@ public class SourceGenerator extends AttributeGenerator {
                 return updatedObject;
             }
             final CIString databaseAsSetSource = asSetObject.getValueForAttribute(AttributeType.SOURCE);
-            if(!asSetSource.equals(databaseAsSetSource)) {
+            if (!asSetSource.equals(databaseAsSetSource)) {
                 updateContext.addMessage(update, ValidationMessages.suppliedAttributeReplacedWithGeneratedValue(AttributeType.SOURCE));
                 return new RpslObjectBuilder(updatedObject).replaceAttribute(updatedObject.findAttribute(AttributeType.SOURCE),
                         new RpslAttribute(AttributeType.SOURCE, databaseAsSetSource)).get();
             }
+            return updatedObject;
         }
 
         final String autnumKey = asSetKey.substring(0, asSetKey.indexOf(":"));
