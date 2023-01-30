@@ -44,15 +44,18 @@ public class SourceGenerator extends AttributeGenerator {
     }
 
     @Override
-    public RpslObject generateAttributes(RpslObject originalObject, RpslObject updatedObject, Update update, UpdateContext updateContext) {
+    public RpslObject generateAttributes(final RpslObject originalObject, final RpslObject updatedObject,
+                                         final Update update,
+                                         final UpdateContext updateContext) {
         return switch (updatedObject.getType()) {
-            case AS_SET -> generateAsSetSource(updatedObject, update, updateContext);
+            case AS_SET -> generateAsSetSource(originalObject, updatedObject, update, updateContext);
             case AUT_NUM, ROUTE, ROUTE6 -> generateSource(updatedObject, update, updateContext);
             default -> updatedObject;
         };
     }
 
-    private RpslObject generateAsSetSource(final RpslObject updatedObject, final Update update, final UpdateContext updateContext) {
+    private RpslObject generateAsSetSource(final RpslObject originalObject, final RpslObject updatedObject,
+                                           final Update update, final UpdateContext updateContext) {
         if (update.getOperation() == Operation.DELETE) {
             return updatedObject;
         }
@@ -62,8 +65,10 @@ public class SourceGenerator extends AttributeGenerator {
         final CIString asSetSource = updatedObject.getValueForAttribute(AttributeType.SOURCE);
 
         if (flatAsSet){
-            final RpslObject asSetObject = updateContext.getPreparedUpdate(update).getReferenceObject();
-            final CIString originalAsSetSource = asSetObject.getValueForAttribute(AttributeType.SOURCE);
+            if (originalObject == null){
+                return updatedObject;
+            }
+            final CIString originalAsSetSource = originalObject.getValueForAttribute(AttributeType.SOURCE);
             if (asSetSource.equals(originalAsSetSource)) {
                 return updatedObject;
             }
