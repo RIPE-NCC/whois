@@ -1949,7 +1949,7 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
     }
 
     @Test
-    public void create_nonauth_asSet_test_aut_num_bad_request() {
+    public void create_nonauth_asSet_test_aut_num_succed() {
 
             final RpslObject TEST_AS_SET = RpslObject.parse("""
                     as-set:     AS3333:AS-TEST
