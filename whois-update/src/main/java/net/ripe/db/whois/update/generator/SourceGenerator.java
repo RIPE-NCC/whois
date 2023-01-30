@@ -45,17 +45,11 @@ public class SourceGenerator extends AttributeGenerator {
 
     @Override
     public RpslObject generateAttributes(RpslObject originalObject, RpslObject updatedObject, Update update, UpdateContext updateContext) {
-        switch (updatedObject.getType()){
-            case AS_SET:
-                return generateAsSetSource(updatedObject, update, updateContext);
-            case AUT_NUM:
-            case ROUTE:
-            case ROUTE6:
-                return generateSource(updatedObject, update, updateContext);
-            default:
-                return updatedObject;
-
-        }
+        return switch (updatedObject.getType()) {
+            case AS_SET -> generateAsSetSource(updatedObject, update, updateContext);
+            case AUT_NUM, ROUTE, ROUTE6 -> generateSource(updatedObject, update, updateContext);
+            default -> updatedObject;
+        };
     }
 
     private RpslObject generateAsSetSource(final RpslObject updatedObject, final Update update, final UpdateContext updateContext) {
