@@ -4074,17 +4074,17 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
         final RpslObject updatedObject = new RpslObjectBuilder(TEST_AS_SET).replaceAttribute(TEST_AS_SET.findAttribute(AttributeType.SOURCE),
                 new RpslAttribute(AttributeType.SOURCE, "TEST-NONAUTH")).sort().get();
 
-        try {
 
-            RestTest.target(getPort(), "whois/test/as-set/AS-TEST?password" +
-                                "=test")
-                        .request(MediaType.APPLICATION_XML)
-                        .put(Entity.entity(map(updatedObject), MediaType.APPLICATION_XML), WhoisResources.class);
+        final WhoisResources whoisResources =RestTest.target(getPort(), "whois/test/as-set/AS-TEST?password" +
+                            "=test")
+                    .request(MediaType.APPLICATION_XML)
+                    .put(Entity.entity(map(updatedObject), MediaType.APPLICATION_XML), WhoisResources.class);
 
-        } catch (BadRequestException e) {
-            assertThat(e.getResponse().readEntity(WhoisResources.class).getErrorMessages().get(0).toString(),
-                    containsString("Source TEST-NONAUTH is not allowed for as-set objects"));
-        }
+        assertThat(whoisResources.getErrorMessages(), hasSize(2));
+        assertThat(whoisResources.getErrorMessages().get(0).toString(), is("Supplied attribute 'source' has been replaced with a generated value"));
+        assertThat(whoisResources.getWhoisObjects(), hasSize(1));
+        final WhoisObject object = whoisResources.getWhoisObjects().get(0);
+        assertThat(object.getSource().getId(), is("test"));
     }
     @Test
     public void update_missing_attribute_value() {

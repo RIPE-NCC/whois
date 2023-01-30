@@ -9,6 +9,7 @@ import net.ripe.db.whois.common.rpsl.ObjectType;
 import net.ripe.db.whois.common.rpsl.RpslAttribute;
 import net.ripe.db.whois.common.rpsl.RpslObject;
 import net.ripe.db.whois.common.rpsl.RpslObjectBuilder;
+import net.ripe.db.whois.common.rpsl.ValidationMessages;
 import net.ripe.db.whois.update.domain.Operation;
 import net.ripe.db.whois.update.domain.Update;
 import net.ripe.db.whois.update.domain.UpdateContext;
@@ -60,8 +61,17 @@ public class SourceGenerator extends AttributeGenerator {
         final boolean flatAsSet = !asSetKey.contains(":");
         final CIString asSetSource = updatedObject.getValueForAttribute(AttributeType.SOURCE);
 
-        if (flatAsSet) {
-            return updatedObject;
+        if (flatAsSet){
+            final RpslObject asSetObject = rpslObjectDao.getByKeyOrNull(ObjectType.AS_SET, asSetKey);
+            if (asSetObject == null){
+                return updatedObject;
+            }
+            final CIString databaseAsSetSource = asSetObject.getValueForAttribute(AttributeType.SOURCE);
+            if(!asSetSource.equals(databaseAsSetSource)) {
+                updateContext.addMessage(update, ValidationMessages.suppliedAttributeReplacedWithGeneratedValue(AttributeType.SOURCE));
+                return new RpslObjectBuilder(updatedObject).replaceAttribute(updatedObject.findAttribute(AttributeType.SOURCE),
+                        new RpslAttribute(AttributeType.SOURCE, databaseAsSetSource)).get();
+            }
         }
 
         final String autnumKey = asSetKey.substring(0, asSetKey.indexOf(":"));
