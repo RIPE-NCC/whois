@@ -19,13 +19,13 @@ import static org.slf4j.LoggerFactory.getLogger;
 
 @Profile({WhoisProfile.TEST})
 @Component
-public class ElasticSearchTestInstance implements ElasticRestHighlevelClient {
+public class ElasticSearchNonAuthInstance implements ElasticRestHighlevelClient {
 
-    private static final Logger LOGGER = getLogger(ElasticSearchTestInstance.class);
+    private static final Logger LOGGER = getLogger(ElasticSearchNonAuthInstance.class);
     private final RestHighLevelClient client;
 
     @Autowired
-    public ElasticSearchTestInstance(@Value("#{'${elastic.host:}'.split(',')}") final List<String> elasticHosts) {
+    public ElasticSearchNonAuthInstance(@Value("#{'${elastic.host:}'.split(',')}") final List<String> elasticHosts) {
         this.client = getEsClient(elasticHosts);
     }
 
