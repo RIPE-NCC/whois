@@ -38,21 +38,7 @@ public class AsSetSourceAttributeTransformer implements Transformer{
         final boolean flatAsSet = !asSetKey.contains(":");
         final CIString asSetSource = rpslObject.getValueForAttribute(AttributeType.SOURCE);
 
-        if (flatAsSet){
-            if (Action.MODIFY.equals(action)) {
-                final RpslObject asSetObject = rpslObjectDao.getByKeyOrNull(ObjectType.AS_SET, asSetKey);
-                if (asSetObject == null){
-                    return rpslObject;
-                }
-                final CIString databaseAsSetSource = asSetObject.getValueForAttribute(AttributeType.SOURCE);
-                if(!asSetSource.equals(databaseAsSetSource)) {
-                    updateContext.addMessage(update,
-                            UpdateMessages.flatModelNotAllowSourceModifications(asSetSource.toString(),
-                                    databaseAsSetSource.toString()));
-                    return new RpslObjectBuilder(rpslObject).replaceAttribute(rpslObject.findAttribute(AttributeType.SOURCE),
-                            new RpslAttribute(AttributeType.SOURCE, databaseAsSetSource)).get();
-                }
-            }
+        if (flatAsSet) {
             return rpslObject;
         }
 
@@ -68,15 +54,9 @@ public class AsSetSourceAttributeTransformer implements Transformer{
             return rpslObject;
         }
 
-        if (autnumSource.equals(nonAuthSource)){
-            updateContext.addMessage(update, UpdateMessages.sourceChanged(asSetSource, autnumSource, autnumKey));
+        updateContext.addMessage(update, UpdateMessages.sourceChanged(asSetSource, autnumSource, autnumKey));
 
-            return new RpslObjectBuilder(rpslObject).replaceAttribute(rpslObject.findAttribute(AttributeType.SOURCE),
-                    new RpslAttribute(AttributeType.SOURCE, nonAuthSource)).get();
-        } else if (asSetSource.equals(nonAuthSource)) {
-            updateContext.addMessage(update, UpdateMessages.notValidSource());
-            return rpslObject;
-        }
-        return rpslObject;
+        return new RpslObjectBuilder(rpslObject).replaceAttribute(rpslObject.findAttribute(AttributeType.SOURCE),
+                new RpslAttribute(AttributeType.SOURCE, autnumSource)).get();
     }
 }

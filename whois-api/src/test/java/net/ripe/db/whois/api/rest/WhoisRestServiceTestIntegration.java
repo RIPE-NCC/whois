@@ -1950,7 +1950,7 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
 
     @Test
     public void create_nonauth_asSet_test_aut_num_bad_request() {
-        try {
+
             final RpslObject TEST_AS_SET = RpslObject.parse("""
                     as-set:     AS3333:AS-TEST
                     tech-c:     TP1-TEST
@@ -1968,13 +1968,15 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
                     source:     TEST
                     """);
 
-            RestTest.target(getPort(), "whois/test/as-set?password=test")
+        final WhoisResources whoisResources = RestTest.target(getPort(), "whois/test/as-set?password=test")
                     .request()
                     .post(Entity.entity(map(TEST_AS_SET), MediaType.APPLICATION_XML), WhoisResources.class);
-            fail();
-        } catch (BadRequestException e) {
-            assertThat(e.getResponse().readEntity(String.class), containsString("Can not set NONAUTH source when aut-num is not NONAUTH"));
-        }
+
+        assertThat(whoisResources.getErrorMessages(), hasSize(1));
+        assertThat(whoisResources.getErrorMessages().get(0).toString(), is("The \"source:\" attribute value has been updated from \"TEST-NONAUTH\" to \"TEST\" to match the referenced AUT-NUM \"AS3333\""));
+        final WhoisObject object = whoisResources.getWhoisObjects().get(0);
+
+        assertThat(object.getSource().getId(), is("test"));
     }
 
     @Test
@@ -3984,6 +3986,33 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
         assertThat(object.getSource().getId(), is("test-nonauth"));
     }
 
+
+    @Test
+    public void update_as_set_when_aut_num_deleted_succeeds() {
+        final RpslObject TEST_AS_SET = RpslObject.parse("""
+                as-set:     AS3334:AS-TEST
+                tech-c:     TP1-TEST
+                admin-c:    TP1-TEST
+                mnt-by:     OWNER-MNT
+                source:     TEST
+                """);
+
+        databaseHelper.addObject(TEST_AS_SET);
+
+
+        final RpslObject updatedObject = new RpslObjectBuilder(TEST_AS_SET).replaceAttribute(TEST_AS_SET.findAttribute(AttributeType.SOURCE),
+                new RpslAttribute(AttributeType.SOURCE, "TEST-NONAUTH")).sort().get();
+
+        final WhoisResources whoisResources = RestTest.target(getPort(), "whois/test/as-set/AS3334:AS-TEST?password" +
+                        "=test")
+                .request(MediaType.APPLICATION_XML)
+                .put(Entity.entity(map(updatedObject), MediaType.APPLICATION_XML), WhoisResources.class);
+
+        assertThat(whoisResources.getErrorMessages(), is(empty()));
+        assertThat(whoisResources.getWhoisObjects(), hasSize(1));
+        final WhoisObject object = whoisResources.getWhoisObjects().get(0);
+        assertThat(object.getSource().getId(), is("test-nonauth"));
+    }
     @Test
     public void update_as_set_with_wrong_source_succeeds() {
         final RpslObject TEST_AS_SET = RpslObject.parse("""
