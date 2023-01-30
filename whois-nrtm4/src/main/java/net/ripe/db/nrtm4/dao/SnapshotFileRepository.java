@@ -73,7 +73,8 @@ public class SnapshotFileRepository {
             SELECT sf.id, sf.version_id, sf.name, sf.hash
             FROM snapshot_file sf
             JOIN version_info v ON v.id = sf.version_id
-            WHERE v.source = ?
+            JOIN source src ON src.id = v.source_id
+            WHERE src.name = ?
             ORDER BY v.version DESC LIMIT 1
             """;
         try {

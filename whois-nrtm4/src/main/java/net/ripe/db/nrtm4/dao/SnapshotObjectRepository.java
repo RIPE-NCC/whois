@@ -27,10 +27,10 @@ public class SnapshotObjectRepository {
     }
 
     public void batchInsert(final List<SnapshotObject> snapshotObjects) {
-        jdbcTemplate.execute("INSERT INTO snapshot_object (version_id, object_id, sequence_id, rpsl) VALUES (?, ?, ?, ?)",
+        jdbcTemplate.execute("INSERT INTO snapshot_object (source_id, object_id, sequence_id, rpsl) VALUES (?, ?, ?, ?)",
             (PreparedStatementCallback<Object>) preparedStatement -> {
                 for (final SnapshotObject snapshotObject : snapshotObjects) {
-                    preparedStatement.setLong(1, snapshotObject.versionId());
+                    preparedStatement.setLong(1, snapshotObject.sourceId());
                     preparedStatement.setInt(2, snapshotObject.objectId());
                     preparedStatement.setInt(3, snapshotObject.sequenceId());
                     preparedStatement.setString(4, snapshotObject.rpsl().toString());
@@ -41,24 +41,24 @@ public class SnapshotObjectRepository {
     }
 
     public SnapshotObject insert(
-        final long versionId,
+        final long sourceId,
         final int objectId,
         final int sequenceId,
         final RpslObject rpslObject
     ) {
         final String sql = "" +
-            "INSERT INTO snapshot_object (version_id, object_id, sequence_id, rpsl) " +
+            "INSERT INTO snapshot_object (source_id, object_id, sequence_id, rpsl) " +
             "VALUES (?, ?, ?, ?)";
         final KeyHolder keyHolder = new GeneratedKeyHolder();
         jdbcTemplate.update(connection -> {
             final PreparedStatement pst = connection.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS);
-            pst.setLong(1, versionId);
+            pst.setLong(1, sourceId);
             pst.setInt(2, objectId);
             pst.setInt(3, sequenceId);
             pst.setString(4, rpslObject.toString());
             return pst;
         }, keyHolder);
-        return new SnapshotObject(keyHolder.getKeyAs(Long.class), versionId, objectId, sequenceId, rpslObject);
+        return new SnapshotObject(keyHolder.getKeyAs(Long.class), sourceId, objectId, sequenceId, rpslObject);
     }
 
     public void delete(final int objectId) {
@@ -74,7 +74,7 @@ public class SnapshotObjectRepository {
 
     public Optional<SnapshotObject> fetchByObjectId(final int objectId) {
         final String sql = "" +
-            "SELECT id, version_id, object_id, sequence_id, rpsl " +
+            "SELECT id, source_id, object_id, sequence_id, rpsl " +
             "FROM snapshot_object " +
             "WHERE object_id = ?";
         try {

@@ -2,6 +2,7 @@ package net.ripe.db.nrtm4;
 
 import net.ripe.db.nrtm4.domain.NrtmSourceHolder;
 import net.ripe.db.nrtm4.domain.PublishableSnapshotFile;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,6 +22,11 @@ import static org.hamcrest.Matchers.startsWith;
 
 @Tag("IntegrationTest")
 public class SnapshotFileGeneratorIntegrationTest extends AbstractNrtm4IntegrationBase {
+
+    @BeforeAll
+    static void enablePrettyPrint() {
+        System.setProperty("nrtm.prettyprint.snapshots", "true");
+    }
 
     @Autowired
     private SnapshotFileGenerator snapshotFileGenerator;
