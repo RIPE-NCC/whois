@@ -21,7 +21,7 @@ public class SnapshotObjectRepositoryIntegrationTest extends AbstractNrtm4Integr
     private SnapshotObjectRepository snapshotObjectRepository;
 
     @Autowired
-    private SnapshotObjectReadOnlyDao snapshotObjectReadOnlyDao;
+    private SnapshotObjectDao snapshotObjectDao;
 
     @Autowired
     private NrtmVersionInfoRepository nrtmVersionInfoRepository;
@@ -35,7 +35,7 @@ public class SnapshotObjectRepositoryIntegrationTest extends AbstractNrtm4Integr
         snapshotObjectRepository.insert(version.getId(), 1, 1, inetnumObject);
         snapshotObjectRepository.insert(version.getId(), 2, 1, orgObject);
         final var list = new ArrayList<String>();
-        snapshotObjectReadOnlyDao.consumeAllObjects(source.getSource(), list::add);
+        snapshotObjectDao.consumeAllObjects(source.getSource(), list::add);
         assertThat(list.get(0), is("inetnum:        193.0.0.0 - 193.255.255.255\nsource:         TEST\n"));
         assertThat(list.get(1), is("organisation:   ORG-XYZ99-RIPE\norg-name:       XYZ B.V.\norg-type:       OTHER\naddress:        Zürich\naddress:        NETHERLANDS\nmnt-by:         XYZ-MNT\nmnt-ref:        PQR-MNT\nabuse-c:        XYZ-RIPE\ncreated:        2018-01-01T00:00:00Z\nlast-modified:  2019-12-24T00:00:00Z\nsource:         TEST\n"));
     }
@@ -47,7 +47,7 @@ public class SnapshotObjectRepositoryIntegrationTest extends AbstractNrtm4Integr
         snapshotObjectRepository.insert(version.getId(), 2, 1, orgObject);
         snapshotObjectRepository.delete(2);
         final var list = new ArrayList<String>();
-        snapshotObjectReadOnlyDao.consumeAllObjects(source.getSource(), list::add);
+        snapshotObjectDao.consumeAllObjects(source.getSource(), list::add);
         assertThat(list.get(0), is("inetnum:        193.0.0.0 - 193.255.255.255\nsource:         TEST\n"));
         assertThat(list.get(0), is("inetnum:        193.0.0.0 - 193.255.255.255\nsource:         TEST\n"));
     }

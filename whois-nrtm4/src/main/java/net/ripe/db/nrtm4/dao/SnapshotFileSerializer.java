@@ -18,15 +18,15 @@ import java.io.OutputStream;
 public class SnapshotFileSerializer {
 
     private final boolean isPrettyPrintSnapshots;
-    private final SnapshotObjectReadOnlyDao snapshotObjectReadOnlyDao;
+    private final SnapshotObjectDao snapshotObjectDao;
 
     SnapshotFileSerializer(
-        @Value("${nrtm.prettyprint.snapshots:true}")
+        @Value("${nrtm.prettyprint.snapshots:false}")
         final boolean isPrettyPrintSnapshots,
-        final SnapshotObjectReadOnlyDao snapshotObjectReadOnlyDao
+        final SnapshotObjectDao snapshotObjectDao
     ) {
         this.isPrettyPrintSnapshots = isPrettyPrintSnapshots;
-        this.snapshotObjectReadOnlyDao = snapshotObjectReadOnlyDao;
+        this.snapshotObjectDao = snapshotObjectDao;
     }
 
     public void writeSnapshotAsJson(
@@ -46,7 +46,7 @@ public class SnapshotFileSerializer {
         jGenerator.writeStringField("session_id", snapshotFile.getSessionID());
         jGenerator.writeNumberField("version", snapshotFile.getVersion());
         jGenerator.writeArrayFieldStart("objects");
-        snapshotObjectReadOnlyDao.consumeAllObjects(snapshotFile.getSource(), str -> {
+        snapshotObjectDao.consumeAllObjects(snapshotFile.getSource(), str -> {
             try {
                 jGenerator.writeString(str);
             } catch (final IOException e) {

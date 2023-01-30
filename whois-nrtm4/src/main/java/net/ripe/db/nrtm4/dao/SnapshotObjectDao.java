@@ -11,11 +11,11 @@ import java.util.function.Consumer;
 
 
 @Repository
-public class SnapshotObjectReadOnlyDao {
+public class SnapshotObjectDao {
 
     private final JdbcTemplate jdbcTemplate;
 
-    public SnapshotObjectReadOnlyDao(@Qualifier("nrtmSlaveDataSource") final DataSource dataSource) {
+    public SnapshotObjectDao(@Qualifier("nrtmDataSource") final DataSource dataSource) {
         this.jdbcTemplate = new JdbcTemplate(dataSource);
     }
 

@@ -21,7 +21,7 @@ import static org.mockito.Mockito.doNothing;
 public class SnapshotFileSerializerTest {
 
     @Mock
-    SnapshotObjectReadOnlyDao snapshotObjectReadOnlyDao;
+    SnapshotObjectDao snapshotObjectDao;
 
     @BeforeEach
     void setup() {
@@ -31,7 +31,7 @@ public class SnapshotFileSerializerTest {
     @Test
     void serialize_empty_snapshot_file_to_json() throws IOException {
         final var source = new NrtmSource("TEST");
-        final var serializer = new SnapshotFileSerializer(true, snapshotObjectReadOnlyDao);
+        final var serializer = new SnapshotFileSerializer(true, snapshotObjectDao);
         final var version = new NrtmVersionInfo(
             23L,
             source,
@@ -43,7 +43,7 @@ public class SnapshotFileSerializerTest {
         );
         final var file = new PublishableSnapshotFile(version);
         final var out = new ByteArrayOutputStream();
-        doNothing().when(snapshotObjectReadOnlyDao).consumeAllObjects(source, s -> {
+        doNothing().when(snapshotObjectDao).consumeAllObjects(source, s -> {
         });
         serializer.writeSnapshotAsJson(file, out);
         out.close();
