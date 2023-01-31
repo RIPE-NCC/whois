@@ -24,10 +24,6 @@
             <groupId>net.sf.jopt-simple</groupId>
             <artifactId>jopt-simple</artifactId>
         </dependency>
-        <dependency>
-            <groupId>org.slf4j</groupId>
-            <artifactId>slf4j-api</artifactId>
-        </dependency>
 
         <!-- Jersey JAX-RS 2.0 implementation -->
         <dependency>
@@ -38,7 +34,6 @@
             <groupId>org.glassfish.jersey.core</groupId>
             <artifactId>jersey-client</artifactId>
         </dependency>
-
         <!-- Jackson Jax-RS provider for JSON content type -->
         <dependency>
             <groupId>com.fasterxml.jackson.jaxrs</groupId>
@@ -54,7 +49,11 @@
             <groupId>jakarta.xml.bind</groupId>
             <artifactId>jakarta.xml.bind-api</artifactId>
         </dependency>
-
+        <dependency>
+            <groupId>org.glassfish.jaxb</groupId>
+            <artifactId>jaxb-runtime</artifactId>
+            <scope>runtime</scope>
+        </dependency>
         <!-- AspectJ -->
         <dependency>
             <groupId>org.aspectj</groupId>
@@ -62,8 +61,41 @@
             <scope>compile</scope>
         </dependency>
 
+
     </dependencies>
     <build>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-dependency-plugin</artifactId>
+                <configuration>
+                    <!-- Dependencies marked as not used, but actually they are necessary to run the project-->
+                    <usedDependencies>
+                        <dependency>org.glassfish.jersey.core:jersey-client</dependency>
+                        <dependency>org.glassfish.jaxb:jaxb-runtime</dependency>
+                    </usedDependencies>
+
+                    <!-- Ignore dependencies coming from another dependencies that we are already using, and for
+                    which we don't want to take control -->
+                    <ignoredUsedUndeclaredDependencies>
+                        <ignoredUsedUndeclaredDependency>commons-logging:commons-logging</ignoredUsedUndeclaredDependency>
+                        <ignoredUsedUndeclaredDependency>commons-lang:commons-lang</ignoredUsedUndeclaredDependency>
+                        <ignoredUsedUndeclaredDependency>org.springframework:spring-beans</ignoredUsedUndeclaredDependency>
+                        <ignoredUsedUndeclaredDependency>com.fasterxml.jackson.core:jackson-databind</ignoredUsedUndeclaredDependency>
+                        <ignoredUsedUndeclaredDependency>jakarta.ws.rs:jakarta.ws.rs-api</ignoredUsedUndeclaredDependency>
+                        <ignoredUsedUndeclaredDependency>org.springframework:spring-core</ignoredUsedUndeclaredDependency>
+                        <ignoredUsedUndeclaredDependency>com.google.guava:guava</ignoredUsedUndeclaredDependency>
+                        <ignoredUsedUndeclaredDependency>org.slf4j:slf4j-api</ignoredUsedUndeclaredDependency>
+                    </ignoredUsedUndeclaredDependencies>
+
+                    <!-- Ignore dependencies coming from another module and which we are just using in
+                    test scope in this module -->
+                    <ignoredNonTestScopedDependencies>
+                        <ignoredNonTestScopedDependency>commons-logging:commons-logging</ignoredNonTestScopedDependency>
+                    </ignoredNonTestScopedDependencies>
+                </configuration>
+            </plugin>
+        </plugins>
         <resources>
             <resource>
                 <directory>src/main/resources</directory>
