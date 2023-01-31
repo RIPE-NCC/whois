@@ -11,6 +11,7 @@ import org.springframework.stereotype.Service;
 
 import java.io.IOException;
 import java.io.OutputStream;
+import java.util.List;
 import java.util.Optional;
 
 
@@ -40,19 +41,18 @@ public class NrtmFileProcessor {
         LOGGER.info("runWrite() called");
         final NrtmSource source = nrtmSourceHolder.getSource();
         final Optional<SnapshotFile> lastSnapshot = snapshotFileGenerator.getLastSnapshot(source);
-        Optional<PublishableSnapshotFile> publishableSnapshotFile = Optional.empty();
+        List<PublishableSnapshotFile> publishableSnapshotFileList;
         if (lastSnapshot.isEmpty()) {
             LOGGER.info("No previous snapshot found");
             if (nrtmProcessControl.isInitialSnapshotGenerationEnabled()) {
                 LOGGER.info("Initializing...");
-                publishableSnapshotFile = snapshotFileGenerator.createSnapshot(source);
+                publishableSnapshotFileList = snapshotFileGenerator.createSnapshots();
                 LOGGER.info("Initialization complete");
             } else {
                 LOGGER.info("Initialization skipped because NrtmProcessControl has disabled initial snapshot generation");
                 return;
             }
         }
-        LOGGER.info("publishableSnapshotFile: " + publishableSnapshotFile);
 
         // TODO: optionally create notification file in db
         // - Get the last notification to see if anything changed now that we might have generated more files

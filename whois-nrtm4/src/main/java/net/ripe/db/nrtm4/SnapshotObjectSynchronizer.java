@@ -2,7 +2,6 @@ package net.ripe.db.nrtm4;
 
 import com.google.common.base.Stopwatch;
 import com.google.common.collect.Lists;
-import net.ripe.db.nrtm4.dao.NrtmVersionInfoRepository;
 import net.ripe.db.nrtm4.dao.SnapshotObjectRepository;
 import net.ripe.db.nrtm4.dao.SourceRepository;
 import net.ripe.db.nrtm4.dao.WhoisObjectRepository;
@@ -35,20 +34,17 @@ public class SnapshotObjectSynchronizer {
     private static final int BATCH_SIZE = 10;
 
     private final Dummifier dummifierNrtm;
-    private final NrtmVersionInfoRepository nrtmVersionInfoRepository;
     private final SnapshotObjectRepository snapshotObjectRepository;
     private final SourceRepository sourceRepository;
     private final WhoisObjectRepository whoisObjectRepository;
 
     SnapshotObjectSynchronizer(
         final Dummifier dummifierNrtm,
-        final NrtmVersionInfoRepository nrtmVersionInfoRepository,
         final SnapshotObjectRepository snapshotObjectRepository,
         final SourceRepository sourceRepository,
         final WhoisObjectRepository whoisObjectRepository
     ) {
         this.dummifierNrtm = dummifierNrtm;
-        this.nrtmVersionInfoRepository = nrtmVersionInfoRepository;
         this.snapshotObjectRepository = snapshotObjectRepository;
         this.sourceRepository = sourceRepository;
         this.whoisObjectRepository = whoisObjectRepository;
@@ -56,17 +52,16 @@ public class SnapshotObjectSynchronizer {
 
     InitialSnapshotState initializeSnapshotObjects() {
         final String method = "initializeSnapshotObjects";
-        Stopwatch stopwatch = Stopwatch.createStarted();
         LOGGER.info("{} entered", method);
-        final InitialSnapshotState initialState = whoisObjectRepository.getInitialSnapshotState();
-        LOGGER.info("{} Found {} objects", method, initialState.rpslObjectData().size());
-        LOGGER.info("{} At serial {}, {}ms", method, initialState.serialId(), stopwatch.elapsed().toMillis());
-        stopwatch = Stopwatch.createStarted();
         final Map<CIString, NrtmSourceModel> sourceMap = new HashMap<>();
         for (final NrtmSource source: NrtmSourceHolder.getAllSources()) {
             final NrtmSourceModel sourceModel = sourceRepository.createSource(source);
             sourceMap.put(CIString.ciString(source.name()), sourceModel);
         }
+        Stopwatch stopwatch = Stopwatch.createStarted();
+        final InitialSnapshotState initialState = whoisObjectRepository.getInitialSnapshotState();
+        LOGGER.info("{} At serial {}, {}ms", method, initialState.serialId(), stopwatch.elapsed().toMillis());
+        stopwatch = Stopwatch.createStarted();
         Lists.partition(initialState.rpslObjectData(), BATCH_SIZE)
             .parallelStream()
             .forEach((objectBatch) -> {
@@ -80,6 +75,11 @@ public class SnapshotObjectSynchronizer {
                         }
                         final RpslObject dummyRpsl = dummifierNrtm.dummify(NRTM_VERSION, rpslObject);
                         final NrtmSourceModel source = sourceMap.get(dummyRpsl.getValueForAttribute(AttributeType.SOURCE));
+                        if (source == null) {
+                            final String msg = "RPSL object declares an unknown source attribute";
+                            LOGGER.error(msg + " " + dummyRpsl.getValueForAttribute(AttributeType.SOURCE));
+                            throw new RuntimeException(msg);
+                        }
                         batch.add(new SnapshotObject(0, source.id(), object.objectId(), object.sequenceId(), dummyRpsl));
                     }
                     snapshotObjectRepository.batchInsert(batch);

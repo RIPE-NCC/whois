@@ -1,14 +1,15 @@
 package net.ripe.db.nrtm4;
 
 import com.google.common.base.Stopwatch;
-import net.ripe.db.nrtm4.domain.NrtmDocumentType;
-import net.ripe.db.nrtm4.domain.NrtmSource;
-import net.ripe.db.nrtm4.domain.NrtmVersionInfo;
 import net.ripe.db.nrtm4.dao.NrtmVersionInfoRepository;
-import net.ripe.db.nrtm4.domain.SnapshotFile;
 import net.ripe.db.nrtm4.dao.SnapshotFileRepository;
-import net.ripe.db.nrtm4.domain.PublishableSnapshotFile;
 import net.ripe.db.nrtm4.dao.SnapshotFileSerializer;
+import net.ripe.db.nrtm4.domain.InitialSnapshotState;
+import net.ripe.db.nrtm4.domain.NrtmSource;
+import net.ripe.db.nrtm4.domain.NrtmSourceHolder;
+import net.ripe.db.nrtm4.domain.NrtmVersionInfo;
+import net.ripe.db.nrtm4.domain.PublishableSnapshotFile;
+import net.ripe.db.nrtm4.domain.SnapshotFile;
 import net.ripe.db.nrtm4.util.NrtmFileUtil;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.slf4j.Logger;
@@ -17,6 +18,8 @@ import org.springframework.stereotype.Service;
 
 import java.io.IOException;
 import java.io.OutputStream;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 
 
@@ -45,51 +48,58 @@ public class SnapshotFileGenerator {
         this.nrtmFileStore = nrtmFileStore;
     }
 
-    public Optional<PublishableSnapshotFile> createSnapshot(final NrtmSource source) throws IOException {
+    public List<PublishableSnapshotFile> createSnapshots() throws IOException {
         // Get last version from database.
-        final Optional<NrtmVersionInfo> lastVersion = nrtmVersionInfoRepository.findLastVersion(source);
-        NrtmVersionInfo version;
+        final Optional<NrtmVersionInfo> lastVersion = nrtmVersionInfoRepository.findLastVersion();
+        final List<NrtmVersionInfo> versions = new ArrayList<>();
         LOGGER.info("lastVersion.isEmpty() {}", lastVersion.isEmpty());
         if (lastVersion.isEmpty()) {
-//            version = snapshotObjectSynchronizer.initializeSnapshotObjects();
-//            nrtmFileStore.createNrtmSessionDirectory(version.getSessionID());
-        } else {
-            version = lastVersion.get();
-            if (version.getType() == NrtmDocumentType.DELTA) {
-                LOGGER.info("Not generating snapshot file yet");
-                return Optional.empty();
-            } else {
-                LOGGER.info("Not generating snapshot file since no deltas have been published since v{} with serialID {}",
-                    version.getVersion(), version.getLastSerialId());
-                return Optional.empty();
+            final InitialSnapshotState state = snapshotObjectSynchronizer.initializeSnapshotObjects();
+            for (final NrtmSource source: NrtmSourceHolder.getAllSources()) {
+                final NrtmVersionInfo version = nrtmVersionInfoRepository.createInitialVersion(source, state.serialId());
+                nrtmFileStore.createNrtmSessionDirectory(version.getSessionID());
+                versions.add(version);
+            }
+//        } else {
+//            version = lastVersion.get();
+//            if (version.getType() == NrtmDocumentType.DELTA) {
+//                LOGGER.info("Not generating snapshot file yet");
+//                return Optional.empty();
+//            } else {
+//                LOGGER.info("Not generating snapshot file since no deltas have been published since v{} with serialID {}",
+//                    version.getVersion(), version.getLastSerialId());
+//                return Optional.empty();
+//            }
+        }
+        final List<PublishableSnapshotFile> snapshotFiles = new ArrayList<>();
+        for (final NrtmVersionInfo version: versions) {
+            LOGGER.info("{} at version: {}", version.getSource().source(), version);
+            if (version.getVersion() > 1) {
+                LOGGER.debug("Sync Whois changes to snapshot here (not implemented)");
+            }
+            final PublishableSnapshotFile snapshotFile = new PublishableSnapshotFile(version);
+            final String fileName = NrtmFileUtil.newFileName(snapshotFile);
+            final Stopwatch stopwatch = Stopwatch.createStarted();
+            try (final OutputStream out = nrtmFileStore.getFileOutputStream(snapshotFile.getSessionID(), fileName)) {
+                snapshotFileSerializer.writeSnapshotAsJson(snapshotFile, out);
+            }
+            try {
+                final String sha256hex = DigestUtils.sha256Hex(nrtmFileStore.getFileInputStream(snapshotFile.getSessionID(), fileName));
+                snapshotFileRepository.save(
+                    snapshotFile.getVersionId(),
+                    fileName,
+                    sha256hex
+                );
+                snapshotFile.setFileName(fileName);
+                snapshotFile.setHash(sha256hex);
+                LOGGER.info("Generated snapshot file in {}", stopwatch);
+                snapshotFiles.add(snapshotFile);
+            } catch (final IOException e) {
+                LOGGER.error("Exception thrown when calculating hash of snapshot file", e);
+                throw e;
             }
         }
-        LOGGER.info("now at version: {}", version);
-        if (version.getVersion() > 1) {
-            LOGGER.debug("not syncing deltas to snapshot");
-            return Optional.empty();
-        }
-        final PublishableSnapshotFile snapshotFile = new PublishableSnapshotFile(version);
-        final String fileName = NrtmFileUtil.newFileName(snapshotFile);
-        final Stopwatch stopwatch = Stopwatch.createStarted();
-        try (final OutputStream out = nrtmFileStore.getFileOutputStream(snapshotFile.getSessionID(), fileName)) {
-            snapshotFileSerializer.writeSnapshotAsJson(snapshotFile, out);
-        }
-        try {
-            final String sha256hex = DigestUtils.sha256Hex(nrtmFileStore.getFileInputStream(snapshotFile.getSessionID(), fileName));
-            snapshotFileRepository.save(
-                snapshotFile.getVersionId(),
-                fileName,
-                sha256hex
-            );
-            snapshotFile.setFileName(fileName);
-            snapshotFile.setHash(sha256hex);
-            LOGGER.info("Generated snapshot file in {}", stopwatch);
-            return Optional.of(snapshotFile);
-        } catch (final IOException e) {
-            LOGGER.error("Exception thrown when calculating hash of snapshot file", e);
-            throw e;
-        }
+        return snapshotFiles;
     }
 
     public Optional<SnapshotFile> getLastSnapshot(final NrtmSource source) {

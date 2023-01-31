@@ -27,10 +27,14 @@ public class SnapshotObjectRepositoryIntegrationTest extends AbstractNrtm4Integr
     private NrtmVersionInfoRepository nrtmVersionInfoRepository;
 
     @Autowired
+    private SourceRepository sourceRepository;
+
+    @Autowired
     private NrtmSourceHolder source;
 
     @Test
     void inserts_payloads_and_callback_results() throws IOException {
+        sourceRepository.createSource(source.getSource());
         final var version = nrtmVersionInfoRepository.createInitialVersion(source.getSource(), 0);
         snapshotObjectRepository.insert(version.getId(), 1, 1, inetnumObject);
         snapshotObjectRepository.insert(version.getId(), 2, 1, orgObject);
@@ -42,6 +46,7 @@ public class SnapshotObjectRepositoryIntegrationTest extends AbstractNrtm4Integr
 
     @Test
     void inserts_and_deletes_payloads_and_executes_callbacks() {
+        sourceRepository.createSource(source.getSource());
         final var version = nrtmVersionInfoRepository.createInitialVersion(source.getSource(), 0);
         snapshotObjectRepository.insert(version.getId(), 1, 1, inetnumObject);
         snapshotObjectRepository.insert(version.getId(), 2, 1, orgObject);
