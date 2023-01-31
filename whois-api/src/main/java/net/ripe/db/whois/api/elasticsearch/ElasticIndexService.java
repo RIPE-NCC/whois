@@ -8,22 +8,18 @@ import net.ripe.db.whois.common.rpsl.AttributeType;
 import net.ripe.db.whois.common.rpsl.ObjectTemplate;
 import net.ripe.db.whois.common.rpsl.RpslAttribute;
 import net.ripe.db.whois.common.rpsl.RpslObject;
-import org.apache.http.HttpHost;
 import org.elasticsearch.action.delete.DeleteRequest;
 import org.elasticsearch.action.get.GetRequest;
 import org.elasticsearch.action.get.GetResponse;
 import org.elasticsearch.action.index.IndexRequest;
 import org.elasticsearch.action.update.UpdateRequest;
 import org.elasticsearch.client.RequestOptions;
-import org.elasticsearch.client.RestClient;
-import org.elasticsearch.client.RestClientBuilder;
 import org.elasticsearch.client.RestHighLevelClient;
 import org.elasticsearch.client.core.CountRequest;
 import org.elasticsearch.client.core.CountResponse;
 import org.elasticsearch.client.indices.GetIndexRequest;
 import org.elasticsearch.common.xcontent.XContentBuilder;
 import org.elasticsearch.common.xcontent.XContentFactory;
-
 import org.elasticsearch.index.query.QueryBuilders;
 import org.elasticsearch.index.reindex.DeleteByQueryRequest;
 import org.elasticsearch.search.builder.SearchSourceBuilder;
@@ -32,7 +28,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
-import javax.annotation.Nullable;
 import javax.annotation.PreDestroy;
 import java.io.IOException;
 import java.util.List;
@@ -56,23 +51,12 @@ public class ElasticIndexService {
     private final String metadataIndex;
 
     @Autowired
-    public ElasticIndexService(@Value("#{'${elastic.host:}'.split(',')}") final List<String> elasticHosts,
+    public ElasticIndexService(final ElasticRestHighlevelClient elasticRestHighlevelClient,
                                @Value("${elastic.whois.index:whois}") final String whoisAliasName,
                                @Value("${elastic.commit.index:metadata}") final String whoisMetadataIndexName) {
         this.whoisAliasIndex = whoisAliasName;
         this.metadataIndex = whoisMetadataIndexName;
-        this.client = getEsClient(elasticHosts);
-    }
-
-    @Nullable
-    private RestHighLevelClient getEsClient(final List<String> elasticHosts) {
-        try {
-            final RestClientBuilder clientBuilder = RestClient.builder(elasticHosts.stream().map((host) -> HttpHost.create(host)).toArray(HttpHost[]::new));
-            return new RestHighLevelClient(clientBuilder);
-        } catch (Exception e) {
-            LOGGER.warn("Failed to start the ES client {}", e.getMessage());
-            return null;
-        }
+        this.client = elasticRestHighlevelClient.getClient();
     }
 
     @PreDestroy
@@ -106,10 +90,14 @@ public class ElasticIndexService {
             return;
         }
 
-        final IndexRequest request = new IndexRequest(whoisAliasIndex);
-        request.id(String.valueOf(rpslObject.getObjectId()));
-        request.source(json(rpslObject));
-        client.index(request, RequestOptions.DEFAULT);
+        try {
+            final IndexRequest request = new IndexRequest(whoisAliasIndex);
+            request.id(String.valueOf(rpslObject.getObjectId()));
+            request.source(json(rpslObject));
+            client.index(request, RequestOptions.DEFAULT);
+        } catch (Exception ioe) {
+            LOGGER.error("Failed to ES index {}: {}", rpslObject.getKey(), ioe);
+        }
     }
 
     protected void deleteEntry(final int objectId) throws IOException {
