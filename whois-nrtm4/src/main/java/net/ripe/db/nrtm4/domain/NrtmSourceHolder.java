@@ -3,6 +3,7 @@ package net.ripe.db.nrtm4.domain;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -31,6 +32,10 @@ public class NrtmSourceHolder {
 
     public NrtmSource getNonauthSource() {
         return nonauthSource;
+    }
+
+    public static Collection<NrtmSource> getAllSources() {
+        return map.values();
     }
 
     public static NrtmSource valueOf(final String str) {

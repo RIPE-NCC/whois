@@ -15,6 +15,7 @@ public class NrtmFileUtilTest {
 
     private final NrtmVersionInfo testSnapshotVersion = new NrtmVersionInfo(
         21L,
+        1L,
         new NrtmSource("TEST"),
         22L,
         "1234567890abcdef",

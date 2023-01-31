@@ -23,7 +23,7 @@ public abstract class PublishableNrtmDocument {
     ) {
         this.versionId = version.getId();
         this.type = version.getType();
-        this.source = version.getSource();
+        this.source = version.getSource().source();
         this.sessionID = version.getSessionID();
         this.version = version.getVersion();
     }

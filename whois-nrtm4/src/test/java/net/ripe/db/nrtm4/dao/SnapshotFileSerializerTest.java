@@ -34,6 +34,7 @@ public class SnapshotFileSerializerTest {
         final var serializer = new SnapshotFileSerializer(true, snapshotObjectDao);
         final var version = new NrtmVersionInfo(
             23L,
+            1L,
             source,
             26L,
             "abcdef123",

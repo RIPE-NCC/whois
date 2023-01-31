@@ -32,12 +32,13 @@ public class NrtmVersionInfoRepository {
     private final RowMapper<NrtmVersionInfo> rowMapper = (rs, rowNum) ->
         new NrtmVersionInfo(
             rs.getLong(1),
-            NrtmSourceHolder.valueOf(rs.getString(2)),
-            rs.getLong(3),
-            rs.getString(4),
-            NrtmDocumentType.valueOf(rs.getString(5)),
-            rs.getInt(6),
-            rs.getInt(7)
+            rs.getLong(2),
+            NrtmSourceHolder.valueOf(rs.getString(3)),
+            rs.getLong(4),
+            rs.getString(5),
+            NrtmDocumentType.valueOf(rs.getString(6)),
+            rs.getInt(7),
+            rs.getInt(8)
         );
 
     public NrtmVersionInfoRepository(
@@ -57,7 +58,7 @@ public class NrtmVersionInfoRepository {
     public Optional<NrtmVersionInfo> findLastVersion(final NrtmSource source) {
         try {
             return Optional.ofNullable(jdbcTemplate.queryForObject("""
-                    SELECT v.id, src.name, v.version, v.session_id, v.type, v.last_serial_id, v.created
+                    SELECT v.id, src.id, src.name, v.version, v.session_id, v.type, v.last_serial_id, v.created
                     FROM version_info v
                     JOIN source src ON src.id = v.source_id
                     WHERE src.name = ?
@@ -65,6 +66,22 @@ public class NrtmVersionInfoRepository {
                     """,
                 rowMapper,
                 source.name())
+            );
+        } catch (final EmptyResultDataAccessException ex) {
+            LOGGER.debug("findLastVersion found no entries, and so threw exception: {}", ex.getMessage());
+            return Optional.empty();
+        }
+    }
+
+    public Optional<NrtmVersionInfo> findLastVersion() {
+        try {
+            return Optional.ofNullable(jdbcTemplate.queryForObject("""
+                    SELECT v.id, src.id, src.name, v.version, v.session_id, v.type, v.last_serial_id, v.created
+                    FROM version_info v
+                    JOIN source src ON src.id = v.source_id
+                    ORDER BY v.version DESC LIMIT 1
+                    """,
+                rowMapper)
             );
         } catch (final EmptyResultDataAccessException ex) {
             LOGGER.debug("findLastVersion found no entries, and so threw exception: {}", ex.getMessage());
@@ -113,12 +130,12 @@ public class NrtmVersionInfoRepository {
                 return pst;
             }, keyHolder
         );
-        return new NrtmVersionInfo(keyHolder.getKeyAs(Long.class), source, version, sessionID, type, lastSerialId, now);
+        return new NrtmVersionInfo(keyHolder.getKeyAs(Long.class), sourceID, source, version, sessionID, type, lastSerialId, now);
     }
 
     public NrtmVersionInfo findLastSnapshotVersion(final NrtmSource source) {
         final String sql = """
-            SELECT v.id, src.name, v.version, v.session_id, v.type, v.last_serial_id, v.created
+            SELECT v.id, src.id, src.name, v.version, v.session_id, v.type, v.last_serial_id, v.created
             FROM version_info v
             JOIN source src ON src.id = v.source_id
             JOIN snapshot_file sf ON sf.version_id = v.id
@@ -130,7 +147,7 @@ public class NrtmVersionInfoRepository {
 
     public Optional<NrtmVersionInfo> findById(final long versionId) {
         final String sql = """
-            SELECT v.id, src.name, v.version, v.session_id, v.type, v.last_serial_id, v.created
+            SELECT v.id, src.id, src.name, v.version, v.session_id, v.type, v.last_serial_id, v.created
             FROM version_info v
             JOIN source src ON src.id = v.source_id
             WHERE v.id = ?

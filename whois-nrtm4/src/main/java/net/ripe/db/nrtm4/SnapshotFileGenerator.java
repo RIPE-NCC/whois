@@ -51,8 +51,8 @@ public class SnapshotFileGenerator {
         NrtmVersionInfo version;
         LOGGER.info("lastVersion.isEmpty() {}", lastVersion.isEmpty());
         if (lastVersion.isEmpty()) {
-            version = snapshotObjectSynchronizer.initializeSnapshotObjects(source);
-            nrtmFileStore.createNrtmSessionDirectory(version.getSessionID());
+//            version = snapshotObjectSynchronizer.initializeSnapshotObjects();
+//            nrtmFileStore.createNrtmSessionDirectory(version.getSessionID());
         } else {
             version = lastVersion.get();
             if (version.getType() == NrtmDocumentType.DELTA) {
