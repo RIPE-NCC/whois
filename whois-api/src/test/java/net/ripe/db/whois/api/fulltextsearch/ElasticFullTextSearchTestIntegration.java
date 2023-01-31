@@ -47,7 +47,6 @@ public class ElasticFullTextSearchTestIntegration  extends AbstractElasticSearch
     private static final String WHOIS_INDEX = "whois_fulltext";
     private static final String METADATA_INDEX = "metadata_fulltext";
 
-
     @Autowired TestPersonalObjectAccounting testPersonalObjectAccounting;
     @Autowired JdbcAccessControlListDao jdbcAccessControlListDao;
     @Autowired IpResourceConfiguration ipResourceConfiguration;
