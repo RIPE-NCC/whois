@@ -51,8 +51,7 @@ public class SnapshotObjectSynchronizer {
     }
 
     InitialSnapshotState initializeSnapshotObjects() {
-        final String method = "initializeSnapshotObjects";
-        LOGGER.info("{} entered", method);
+        LOGGER.info("initializeSnapshotObjects entered");
         final Map<CIString, NrtmSourceModel> sourceMap = new HashMap<>();
         for (final NrtmSource source: NrtmSourceHolder.getAllSources()) {
             final NrtmSourceModel sourceModel = sourceRepository.createSource(source);
@@ -60,7 +59,7 @@ public class SnapshotObjectSynchronizer {
         }
         Stopwatch stopwatch = Stopwatch.createStarted();
         final InitialSnapshotState initialState = whoisObjectRepository.getInitialSnapshotState();
-        LOGGER.info("{} At serial {}, {}ms", method, initialState.serialId(), stopwatch.elapsed().toMillis());
+        LOGGER.info("{} objects at serial {} found in {}", initialState.rpslObjectData().size(), initialState.serialId(), stopwatch.elapsed());
         stopwatch = Stopwatch.createStarted();
         Lists.partition(initialState.rpslObjectData(), BATCH_SIZE)
             .parallelStream()
@@ -85,7 +84,7 @@ public class SnapshotObjectSynchronizer {
                     snapshotObjectRepository.batchInsert(batch);
                 }
             );
-        LOGGER.info("{} Complete. Initial snapshot objects took {} min", method, stopwatch.elapsed());
+        LOGGER.info("Snapshot objects complete in {}", stopwatch.elapsed());
         return initialState;
     }
 

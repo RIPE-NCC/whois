@@ -55,7 +55,7 @@ public class SnapshotFileGenerator {
         LOGGER.info("lastVersion.isEmpty() {}", lastVersion.isEmpty());
         if (lastVersion.isEmpty()) {
             final InitialSnapshotState state = snapshotObjectSynchronizer.initializeSnapshotObjects();
-            for (final NrtmSource source: NrtmSourceHolder.getAllSources()) {
+            for (final NrtmSource source : NrtmSourceHolder.getAllSources()) {
                 final NrtmVersionInfo version = nrtmVersionInfoRepository.createInitialVersion(source, state.serialId());
                 nrtmFileStore.createNrtmSessionDirectory(version.getSessionID());
                 versions.add(version);
@@ -72,7 +72,7 @@ public class SnapshotFileGenerator {
 //            }
         }
         final List<PublishableSnapshotFile> snapshotFiles = new ArrayList<>();
-        for (final NrtmVersionInfo version: versions) {
+        for (final NrtmVersionInfo version : versions) {
             LOGGER.info("{} at version: {}", version.getSource().source(), version);
             if (version.getVersion() > 1) {
                 LOGGER.debug("Sync Whois changes to snapshot here (not implemented)");
@@ -92,7 +92,7 @@ public class SnapshotFileGenerator {
                 );
                 snapshotFile.setFileName(fileName);
                 snapshotFile.setHash(sha256hex);
-                LOGGER.info("Generated snapshot file in {}", stopwatch);
+                LOGGER.info("Generated snapshot file for {} in {}", snapshotFile.getSource().name(), stopwatch);
                 snapshotFiles.add(snapshotFile);
             } catch (final IOException e) {
                 LOGGER.error("Exception thrown when calculating hash of snapshot file", e);
