@@ -18,6 +18,7 @@ import java.util.Set;
 
 import static net.ripe.db.whois.common.domain.CIString.ciString;
 import static net.ripe.db.whois.common.rpsl.AttributeType.SOURCE;
+import static net.ripe.db.whois.common.rpsl.ObjectType.AS_SET;
 import static net.ripe.db.whois.common.rpsl.ObjectType.AUT_NUM;
 import static net.ripe.db.whois.common.rpsl.ObjectType.ROUTE;
 import static net.ripe.db.whois.common.rpsl.ObjectType.ROUTE6;
@@ -28,7 +29,7 @@ public class SourceValidator implements BusinessRuleValidator {
     private static final ImmutableList<Action> ACTIONS = ImmutableList.of(Action.CREATE, Action.MODIFY);
     private static final ImmutableList<ObjectType> TYPES = ImmutableList.copyOf(ObjectType.values());
 
-    private static final Set<ObjectType> NON_AUTH_OBJECT_TYPES = ImmutableSet.of(AUT_NUM, ROUTE, ROUTE6);
+    private static final Set<ObjectType> NON_AUTH_OBJECT_TYPES = ImmutableSet.of(AS_SET, AUT_NUM, ROUTE, ROUTE6);
 
     private final CIString source;
     private final CIString nonAuthSource;
