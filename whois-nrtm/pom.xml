@@ -92,11 +92,6 @@
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-dependency-plugin</artifactId>
                 <configuration>
-                    <!-- Dependencies marked as not used, but actually they are necessary to run the project-->
-                    <usedDependencies>
-
-                    </usedDependencies>
-
                     <!-- Ignore dependencies coming from another dependencies that we are already using, and for
                     which we don't want to take control -->
                     <ignoredUsedUndeclaredDependencies>
