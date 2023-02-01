@@ -79,10 +79,12 @@ public class SnapshotFileGenerator {
             }
             final PublishableSnapshotFile snapshotFile = new PublishableSnapshotFile(version);
             final String fileName = NrtmFileUtil.newFileName(snapshotFile);
-            final Stopwatch stopwatch = Stopwatch.createStarted();
+            Stopwatch stopwatch = Stopwatch.createStarted();
             try (final OutputStream out = nrtmFileStore.getFileOutputStream(snapshotFile.getSessionID(), fileName)) {
                 snapshotFileSerializer.writeSnapshotAsJson(snapshotFile, out);
             }
+            LOGGER.info("Wrote JSON for {} in {}", snapshotFile.getSource().name(), stopwatch);
+            stopwatch = Stopwatch.createStarted();
             try {
                 final String sha256hex = DigestUtils.sha256Hex(nrtmFileStore.getFileInputStream(snapshotFile.getSessionID(), fileName));
                 snapshotFileRepository.save(
@@ -92,7 +94,7 @@ public class SnapshotFileGenerator {
                 );
                 snapshotFile.setFileName(fileName);
                 snapshotFile.setHash(sha256hex);
-                LOGGER.info("Generated snapshot file for {} in {}", snapshotFile.getSource().name(), stopwatch);
+                LOGGER.info("Calculated hash for {} in {}", snapshotFile.getSource().name(), stopwatch);
                 snapshotFiles.add(snapshotFile);
             } catch (final IOException e) {
                 LOGGER.error("Exception thrown when calculating hash of snapshot file", e);
