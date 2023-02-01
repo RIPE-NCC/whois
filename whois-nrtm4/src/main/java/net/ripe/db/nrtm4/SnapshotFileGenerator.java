@@ -84,16 +84,12 @@ public class SnapshotFileGenerator {
                 snapshotFileSerializer.writeSnapshotAsJson(snapshotFile, out);
             }
             LOGGER.info("Wrote JSON for {} in {}", snapshotFile.getSource().name(), stopwatch);
-            stopwatch = Stopwatch.createStarted();
             try {
+                stopwatch = Stopwatch.createStarted();
                 final String sha256hex = DigestUtils.sha256Hex(nrtmFileStore.getFileInputStream(snapshotFile.getSessionID(), fileName));
-                snapshotFileRepository.save(
-                    snapshotFile.getVersionId(),
-                    fileName,
-                    sha256hex
-                );
                 snapshotFile.setFileName(fileName);
                 snapshotFile.setHash(sha256hex);
+                snapshotFileRepository.insert(snapshotFile);
                 LOGGER.info("Calculated hash for {} in {}", snapshotFile.getSource().name(), stopwatch);
                 snapshotFiles.add(snapshotFile);
             } catch (final IOException e) {

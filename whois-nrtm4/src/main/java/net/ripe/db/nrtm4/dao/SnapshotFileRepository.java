@@ -1,6 +1,7 @@
 package net.ripe.db.nrtm4.dao;
 
 import net.ripe.db.nrtm4.domain.NrtmSource;
+import net.ripe.db.nrtm4.domain.PublishableSnapshotFile;
 import net.ripe.db.nrtm4.domain.SnapshotFile;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.dao.EmptyResultDataAccessException;
@@ -34,24 +35,39 @@ public class SnapshotFileRepository {
         this.jdbcTemplate = new JdbcTemplate(dataSource);
     }
 
-    public void save(
-        final long versionId,
-        final String name,
-        final String hash
-    ) {
+    public void insert(final PublishableSnapshotFile snapshotFile) {
         final KeyHolder keyHolder = new GeneratedKeyHolder();
         jdbcTemplate.update(connection -> {
                 final String sql = "" +
                     "INSERT INTO snapshot_file (version_id, name, hash) " +
                     "VALUES (?, ?, ?)";
                 final PreparedStatement pst = connection.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS);
-                pst.setLong(1, versionId);
-                pst.setString(2, name);
-                pst.setString(3, hash);
+                pst.setLong(1, snapshotFile.getVersionId());
+                pst.setString(2, snapshotFile.getFileName());
+                pst.setString(3, snapshotFile.getHash());
                 return pst;
             }, keyHolder
         );
     }
+
+//    public void save(
+//        final long versionId,
+//        final String name,
+//        final String hash
+//    ) {
+//        final KeyHolder keyHolder = new GeneratedKeyHolder();
+//        jdbcTemplate.update(connection -> {
+//                final String sql = "" +
+//                    "INSERT INTO snapshot_file (version_id, name, hash) " +
+//                    "VALUES (?, ?, ?)";
+//                final PreparedStatement pst = connection.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS);
+//                pst.setLong(1, versionId);
+//                pst.setString(2, name);
+//                pst.setString(3, hash);
+//                return pst;
+//            }, keyHolder
+//        );
+//    }
 
     public Optional<SnapshotFile> getByName(final String sessionId, final String name) {
         final String sql = """

@@ -28,7 +28,7 @@ public class PublishableSnapshotFile extends PublishableNrtmDocument {
         return fileName;
     }
 
-    public String getSha256hex() {
+    public String getHash() {
         return sha256hex;
     }
 

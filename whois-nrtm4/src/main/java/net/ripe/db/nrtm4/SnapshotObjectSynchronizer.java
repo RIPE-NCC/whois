@@ -59,7 +59,7 @@ public class SnapshotObjectSynchronizer {
         }
         Stopwatch stopwatch = Stopwatch.createStarted();
         final InitialSnapshotState initialState = whoisObjectRepository.getInitialSnapshotState();
-        LOGGER.info("{} objects at serial {} found in {}", initialState.rpslObjectData().size(), initialState.serialId(), stopwatch.elapsed());
+        LOGGER.info("{} objects at serial {} found in {}", initialState.rpslObjectData().size(), initialState.serialId(), stopwatch);
         stopwatch = Stopwatch.createStarted();
         Lists.partition(initialState.rpslObjectData(), BATCH_SIZE)
             .parallelStream()
@@ -84,7 +84,7 @@ public class SnapshotObjectSynchronizer {
                     snapshotObjectRepository.batchInsert(batch);
                 }
             );
-        LOGGER.info("Snapshot objects complete in {}", stopwatch.elapsed());
+        LOGGER.info("Snapshot objects complete in {}", stopwatch);
         return initialState;
     }
 
