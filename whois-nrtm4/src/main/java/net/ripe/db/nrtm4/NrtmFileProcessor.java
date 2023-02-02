@@ -2,8 +2,8 @@ package net.ripe.db.nrtm4;
 
 import net.ripe.db.nrtm4.domain.NrtmSource;
 import net.ripe.db.nrtm4.domain.NrtmSourceHolder;
-import net.ripe.db.nrtm4.domain.SnapshotFile;
 import net.ripe.db.nrtm4.domain.PublishableSnapshotFile;
+import net.ripe.db.nrtm4.domain.SnapshotFile;
 import net.ripe.db.nrtm4.jmx.NrtmProcessControl;
 import org.mariadb.jdbc.internal.logging.Logger;
 import org.mariadb.jdbc.internal.logging.LoggerFactory;

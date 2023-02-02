@@ -53,7 +53,7 @@ public class SnapshotObjectSynchronizer {
     InitialSnapshotState initializeSnapshotObjects() {
         LOGGER.info("initializeSnapshotObjects entered");
         final Map<CIString, NrtmSourceModel> sourceMap = new HashMap<>();
-        for (final NrtmSource source: NrtmSourceHolder.getAllSources()) {
+        for (final NrtmSource source : NrtmSourceHolder.getAllSources()) {
             final NrtmSourceModel sourceModel = sourceRepository.createSource(source);
             sourceMap.put(CIString.ciString(source.name()), sourceModel);
         }

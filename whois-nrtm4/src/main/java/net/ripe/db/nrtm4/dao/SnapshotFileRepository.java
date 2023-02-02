@@ -50,25 +50,6 @@ public class SnapshotFileRepository {
         );
     }
 
-//    public void save(
-//        final long versionId,
-//        final String name,
-//        final String hash
-//    ) {
-//        final KeyHolder keyHolder = new GeneratedKeyHolder();
-//        jdbcTemplate.update(connection -> {
-//                final String sql = "" +
-//                    "INSERT INTO snapshot_file (version_id, name, hash) " +
-//                    "VALUES (?, ?, ?)";
-//                final PreparedStatement pst = connection.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS);
-//                pst.setLong(1, versionId);
-//                pst.setString(2, name);
-//                pst.setString(3, hash);
-//                return pst;
-//            }, keyHolder
-//        );
-//    }
-
     public Optional<SnapshotFile> getByName(final String sessionId, final String name) {
         final String sql = """
             SELECT sf.id, sf.version_id, sf.name, sf.hash
