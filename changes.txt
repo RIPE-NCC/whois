@@ -2,21 +2,14 @@
 
 1.106
 
-[update] Implement AS_SET NONAUTH (#1169)
-[all] Move SSO Token in Auth Service Validate Request from Path to Header - Authenticate to see issue details (#1101, #576)
+[update] NWI-19 Implement AS_SET NONAUTH (#1169)
 [rdap] Implement "networks" and "autnums" elements in RDAP entity response (#1103)
 [rdap] Flat model, don't return as-block (#1125)
 [rdap] Refactor rdap errors (#1124)
 [rdap] Events and notices (#1112)
 [nrtm] NRTMv4 changes (#1166, #1156)
 [nrtm] initialise the nrtmv4 database (#1099)
-[all] Elasticsearch implementation (#1170)
-[all] JUnit 5 (#1167)
-[review] Code owners (#1154)
-[all] Java 17 support (#1149)
-[all] AS-SET more explanatory (#1147)
-[update] Gracefull shutdown fix (#1142)
-[all] Add trailing dot in domains ldh name(#1118)
+[all] Improve AS-SET documentation (#1147)
 
 # 1.105
 
