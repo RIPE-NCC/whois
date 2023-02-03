@@ -1,6 +1,7 @@
 package net.ripe.db.whois.update.handler.validator;
 
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.Lists;
 import net.ripe.db.whois.common.Message;
 import net.ripe.db.whois.common.Messages;
 import net.ripe.db.whois.common.rpsl.ObjectType;
@@ -11,7 +12,6 @@ import net.ripe.db.whois.update.domain.PreparedUpdate;
 import net.ripe.db.whois.update.domain.UpdateContext;
 import org.apache.commons.collections.CollectionUtils;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -39,7 +39,7 @@ public interface BusinessRuleValidator {
                                                                   .filter( (customMessage) -> customMessage.getMessage().getType() == Messages.Type.ERROR && customMessage.canBeWarning())
                                                                  .collect(Collectors.toList());
 
-        final List<CustomValidationMessage> remainingMsgs = new ArrayList<>((CollectionUtils.removeAll(customValidationMessages, errorToWarningMsgs)));
+        final List<CustomValidationMessage> remainingMsgs = Lists.newArrayList(CollectionUtils.removeAll(customValidationMessages, errorToWarningMsgs));
 
         errorToWarningMsgs.forEach( (validationMessage)  -> addWarningToContext(update, updateContext, validationMessage.getMessage(), validationMessage.getAttribute()));
         remainingMsgs.forEach( (validationMessage) -> addMessageToContext(update, updateContext, validationMessage.getMessage(), validationMessage.getAttribute()));
