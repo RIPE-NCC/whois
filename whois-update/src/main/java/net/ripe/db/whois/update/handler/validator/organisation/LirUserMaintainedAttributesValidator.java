@@ -60,7 +60,7 @@ public class LirUserMaintainedAttributesValidator implements BusinessRuleValidat
 
     @Override
     public boolean isSkipForOverride() {
-        return false;
+        return true;
     }
 
     private boolean isLir(final RpslObject organisation) {
