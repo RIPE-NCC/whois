@@ -1,6 +1,7 @@
 package net.ripe.db.whois.update.handler.validator.keycert;
 
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.Lists;
 import net.ripe.db.whois.common.rpsl.ObjectType;
 import net.ripe.db.whois.common.rpsl.RpslObject;
 import net.ripe.db.whois.update.autokey.X509AutoKeyFactory;
@@ -9,11 +10,14 @@ import net.ripe.db.whois.update.domain.PreparedUpdate;
 import net.ripe.db.whois.update.domain.UpdateContext;
 import net.ripe.db.whois.update.domain.UpdateMessages;
 import net.ripe.db.whois.update.handler.validator.BusinessRuleValidator;
+import net.ripe.db.whois.update.handler.validator.CustomValidationMessage;
 import net.ripe.db.whois.update.keycert.KeyWrapper;
 import net.ripe.db.whois.update.keycert.KeyWrapperFactory;
 import net.ripe.db.whois.update.keycert.PgpPublicKeyWrapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+
+import java.util.List;
 
 @Component
 public class KeycertValidator implements BusinessRuleValidator {
@@ -31,17 +35,24 @@ public class KeycertValidator implements BusinessRuleValidator {
     }
 
     @Override
-    public void validate(final PreparedUpdate update, final UpdateContext updateContext) {
+    public List<CustomValidationMessage> performValidation(final PreparedUpdate update, final UpdateContext updateContext) {
         final RpslObject updatedObject = update.getUpdatedObject();
+        final List<CustomValidationMessage> customValidationMessages = Lists.newArrayList();
 
-        validateAutoKey(update, updateContext, updatedObject);
+        validateAutoKey(update, updateContext, updatedObject, customValidationMessages);
+        return customValidationMessages;
     }
 
-    private void validateAutoKey(final PreparedUpdate update, final UpdateContext updateContext, final RpslObject updatedObject) {
+    @Override
+    public boolean isSkipForOverride() {
+        return false;
+    }
+
+    private void validateAutoKey(final PreparedUpdate update, final UpdateContext updateContext, final RpslObject updatedObject, final List<CustomValidationMessage> customValidationMessages) {
         if (x509AutoKeyFactory.isKeyPlaceHolder(updatedObject.getKey().toString())) {
             final KeyWrapper keyWrapper = keyWrapperFactory.createKeyWrapper(updatedObject, update, updateContext);
             if (keyWrapper instanceof PgpPublicKeyWrapper) {
-                updateContext.addMessage(update, update.getUpdatedObject().getTypeAttribute(), UpdateMessages.autokeyForX509KeyCertsOnly());
+                customValidationMessages.add(new CustomValidationMessage(UpdateMessages.autokeyForX509KeyCertsOnly(), update.getUpdatedObject().getTypeAttribute()));
             }
         }
     }

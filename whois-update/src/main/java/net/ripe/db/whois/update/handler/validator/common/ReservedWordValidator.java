@@ -10,8 +10,12 @@ import net.ripe.db.whois.update.domain.PreparedUpdate;
 import net.ripe.db.whois.update.domain.UpdateContext;
 import net.ripe.db.whois.update.domain.UpdateMessages;
 import net.ripe.db.whois.update.handler.validator.BusinessRuleValidator;
+import net.ripe.db.whois.update.handler.validator.CustomValidationMessage;
 import org.springframework.stereotype.Component;
 
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -75,25 +79,25 @@ public class ReservedWordValidator implements BusinessRuleValidator {
     }
 
     @Override
-    public void validate(final PreparedUpdate update, final UpdateContext updateContext) {
+    public List<CustomValidationMessage> performValidation(final PreparedUpdate update, final UpdateContext updateContext) {
         final RpslObject updatedObject = update.getUpdatedObject();
         if (updatedObject == null) {
-            return;
+            return Collections.emptyList();
         }
 
         final CIString primaryKey = updatedObject.getKey();
 
         if (RESERVED_WORDS.contains(primaryKey)) {
-            updateContext.addMessage(update, UpdateMessages.reservedNameUsed(primaryKey.toLowerCase()));
-            return;
+            return Arrays.asList(new CustomValidationMessage(UpdateMessages.reservedNameUsed(primaryKey.toLowerCase())));
         }
 
         for (Map.Entry<CIString, ObjectType> entry : RESERVED_PREFIXES.entrySet()) {
             if (primaryKey.startsWith(entry.getKey()) && (!updatedObject.getType().equals(entry.getValue()))) {
-                updateContext.addMessage(update, UpdateMessages.reservedPrefixUsed(entry.getKey(), entry.getValue()));
-                return;
+                return Arrays.asList(new CustomValidationMessage(UpdateMessages.reservedPrefixUsed(entry.getKey(), entry.getValue())));
             }
         }
+
+        return Collections.emptyList();
     }
 
     @Override

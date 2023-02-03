@@ -12,9 +12,13 @@ import net.ripe.db.whois.update.domain.PreparedUpdate;
 import net.ripe.db.whois.update.domain.UpdateContext;
 import net.ripe.db.whois.update.domain.UpdateMessages;
 import net.ripe.db.whois.update.handler.validator.BusinessRuleValidator;
+import net.ripe.db.whois.update.handler.validator.CustomValidationMessage;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
 import java.util.Set;
 
 @Component
@@ -31,18 +35,24 @@ public class DeleteRsMaintainedObjectValidator implements BusinessRuleValidator 
     }
 
     @Override
-    public void validate(final PreparedUpdate update, final UpdateContext updateContext) {
+    public List<CustomValidationMessage> performValidation(final PreparedUpdate update, final UpdateContext updateContext) {
         final Subject subject = updateContext.getSubject(update);
-        if (subject.hasPrincipal(Principal.OVERRIDE_MAINTAINER) || subject.hasPrincipal(Principal.RS_MAINTAINER)) {
-            return;
+        if (subject.hasPrincipal(Principal.RS_MAINTAINER)) {
+            return Collections.emptyList();
         }
 
         final Set<CIString> mntBys = update.getUpdatedObject().getValuesForAttribute(AttributeType.MNT_BY);
         if (maintainers.isRsMaintainer(mntBys)) {
-            updateContext.addMessage(update, UpdateMessages.authorisationRequiredForDeleteRsMaintainedObject());
+            return Arrays.asList(new CustomValidationMessage(UpdateMessages.authorisationRequiredForDeleteRsMaintainedObject()));
         }
+
+        return Collections.emptyList();
     }
 
+    @Override
+    public boolean isSkipForOverride() {
+        return true;
+    }
     @Override
     public ImmutableList<Action> getActions() {
         return ACTIONS;

@@ -1,6 +1,7 @@
 package net.ripe.db.whois.update.handler.validator.organisation;
 
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.Lists;
 import net.ripe.db.whois.common.dao.RpslObjectDao;
 import net.ripe.db.whois.common.dao.RpslObjectUpdateDao;
 import net.ripe.db.whois.common.domain.CIString;
@@ -14,12 +15,15 @@ import net.ripe.db.whois.update.domain.PreparedUpdate;
 import net.ripe.db.whois.update.domain.UpdateContext;
 import net.ripe.db.whois.update.domain.UpdateMessages;
 import net.ripe.db.whois.update.handler.validator.BusinessRuleValidator;
+import net.ripe.db.whois.update.handler.validator.CustomValidationMessage;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.stereotype.Component;
 
+import java.util.Collections;
+import java.util.List;
 import java.util.Objects;
 
 import static net.ripe.db.whois.common.rpsl.ObjectType.AUT_NUM;
@@ -57,17 +61,26 @@ public class AbuseValidator implements BusinessRuleValidator {
     }
 
     @Override
-    public void validate(final PreparedUpdate update, final UpdateContext updateContext) {
+    public List<CustomValidationMessage> performValidation(final PreparedUpdate update, final UpdateContext updateContext) {
         final RpslObject updatedObject = update.getUpdatedObject();
         if (updatedObject == null) {
-            return;
+            return Collections.emptyList();
         }
 
-        validateAbuseC(updatedObject, update, updateContext);
-        validateAbuseCRemoved(updatedObject, update, updateContext);
+        final List<CustomValidationMessage> customValidationMessages = Lists.newArrayList();
+
+        validateAbuseC(updatedObject, customValidationMessages);
+        validateAbuseCRemoved(updatedObject, update, customValidationMessages);
+
+        return customValidationMessages;
     }
 
-    private void validateAbuseC(final RpslObject updatedObject, final PreparedUpdate update, final UpdateContext updateContext) {
+    @Override
+    public boolean isSkipForOverride() {
+        return false;
+    }
+
+    private void validateAbuseC(final RpslObject updatedObject, final List<CustomValidationMessage> customValidationMessages) {
         final CIString abuseC = updatedObject.getValueOrNullForAttribute(AttributeType.ABUSE_C);
         if (abuseC == null) {
             return;
@@ -76,12 +89,12 @@ public class AbuseValidator implements BusinessRuleValidator {
         try {
             final RpslObject abuseCRole = objectDao.getByKey(ObjectType.ROLE, abuseC);
             if (!abuseCRole.containsAttribute(AttributeType.ABUSE_MAILBOX)) {
-                updateContext.addMessage(update, UpdateMessages.abuseMailboxRequired(abuseC, updatedObject.getType()));
+                customValidationMessages.add(new CustomValidationMessage(UpdateMessages.abuseMailboxRequired(abuseC, updatedObject.getType())));
             }
         } catch (EmptyResultDataAccessException e) {
             try {
                 objectDao.getByKey(ObjectType.PERSON, abuseC);
-                updateContext.addMessage(update, UpdateMessages.abuseCPersonReference());
+                customValidationMessages.add(new CustomValidationMessage(UpdateMessages.abuseCPersonReference(), null));
             } catch (EmptyResultDataAccessException e1) {
                 // ignore, invalid reference type is checked elsewhere
                 LOGGER.debug("{}: {}", e1.getClass().getName(), e1.getMessage());
@@ -89,12 +102,12 @@ public class AbuseValidator implements BusinessRuleValidator {
         }
     }
 
-    private void validateAbuseCRemoved(final RpslObject updatedObject, final PreparedUpdate update, final UpdateContext updateContext) {
+    private void validateAbuseCRemoved(final RpslObject updatedObject, final PreparedUpdate update, final List<CustomValidationMessage> customValidationMessages) {
         if (updatedObject.getType() == ORGANISATION &&
             isAbuseCRemoved(updatedObject, update) &&
             (isLir(update.getReferenceObject()) ||
                     isOrgReferencedByRsMaintainedResources(updatedObject))) {
-            updateContext.addMessage(update, UpdateMessages.abuseContactNotRemovable());
+            customValidationMessages.add(new CustomValidationMessage(UpdateMessages.abuseContactNotRemovable(), null));
         }
     }
 

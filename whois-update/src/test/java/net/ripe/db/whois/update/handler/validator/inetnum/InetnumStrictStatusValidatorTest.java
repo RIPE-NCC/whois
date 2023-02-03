@@ -68,7 +68,7 @@ public class InetnumStrictStatusValidatorTest {
         statusMap.put(1, CIString.ciString("ASSIGNED PI"));
         when(statusDao.getStatus(Lists.newArrayList(1))).thenReturn(statusMap);
 
-        subject.validate(update, updateContext);
+       subject.validate(update, updateContext);
 
         verify(updateContext).addMessage(update, UpdateMessages.incorrectChildStatus(ERROR, "ALLOCATED PA", "ASSIGNED PI", "192.0.0.0 - 192.0.0.0"));
         verify(maintainers).isRsMaintainer(ciSet());
@@ -82,7 +82,7 @@ public class InetnumStrictStatusValidatorTest {
         when(update.getUpdatedObject()).thenReturn(RpslObject.parse("inetnum: 192.0/24\nstatus: ASSIGNED ANYCAST"));
         when(ipv4Tree.findFirstMoreSpecific(any(Ipv4Resource.class))).thenReturn(Lists.newArrayList());
 
-        subject.validate(update, updateContext);
+       subject.validate(update, updateContext);
 
         verify(updateContext).addMessage(update, UpdateMessages.statusRequiresAuthorization("ASSIGNED ANYCAST"));
         verify(maintainers, times(2)).isRsMaintainer(ciSet());
@@ -97,7 +97,7 @@ public class InetnumStrictStatusValidatorTest {
         when(update.getUpdatedObject()).thenReturn(RpslObject.parse("inetnum: 192.0/24\nstatus: ASSIGNED ANYCAST"));
         when(ipv4Tree.findFirstMoreSpecific(any(Ipv4Resource.class))).thenReturn(Lists.newArrayList());
 
-        subject.validate(update, updateContext);
+       subject.validate(update, updateContext);
 
         verify(updateContext, never()).addMessage(eq(update), any(Message.class));
     }
@@ -112,7 +112,7 @@ public class InetnumStrictStatusValidatorTest {
         when(ipv4Tree.findAllLessSpecific(any(Ipv4Resource.class))).thenReturn(Lists.newArrayList(parentEntry, grandParentEntry));
         when(ipv4Tree.findFirstLessSpecific(any(Ipv4Resource.class))).thenReturn(Lists.newArrayList(parentEntry));
 
-        subject.validate(update, updateContext);
+       subject.validate(update, updateContext);
 
         verify(updateContext).addMessage(update, UpdateMessages.incorrectParentStatus(ERROR, INETNUM, "ASSIGNED PA"));
         verify(maintainers).isRsMaintainer(ciSet("RIPE-NCC-HM-MNT"));
@@ -131,7 +131,7 @@ public class InetnumStrictStatusValidatorTest {
         when(ipv4Tree.findAllLessSpecific(any(Ipv4Resource.class))).thenReturn(Lists.newArrayList(parentEntry, grandParentEntry));
         when(ipv4Tree.findFirstLessSpecific(any(Ipv4Resource.class))).thenReturn(Lists.newArrayList(parentEntry));
 
-        subject.validate(update, updateContext);
+       subject.validate(update, updateContext);
 
         verify(updateContext, never()).addMessage(update, UpdateMessages.incorrectParentStatus(ERROR, INETNUM, "ASSIGNED PA"));
         verify(maintainers, times(3)).isRsMaintainer(ciSet());
@@ -147,7 +147,7 @@ public class InetnumStrictStatusValidatorTest {
         final RpslObject parent = RpslObject.parse("inetnum: 192.0/16\nstatus: SUB-ALLOCATED PA");
         lenient().when(statusDao.getStatus(1)).thenReturn(CIString.ciString("SUB-ALLOCATED PA"));
 
-        subject.validate(update, updateContext);
+       subject.validate(update, updateContext);
 
         verify(updateContext).addMessage(update, UpdateMessages.incorrectParentStatus(ERROR, INETNUM, "SUB-ALLOCATED PA"));
         verify(maintainers).isRsMaintainer(ciSet());
@@ -163,7 +163,7 @@ public class InetnumStrictStatusValidatorTest {
         when(ipv4Tree.findFirstLessSpecific(any(Ipv4Resource.class))).thenReturn(Lists.newArrayList(parentEntry));
         lenient().when(statusDao.getStatus(1)).thenReturn(CIString.ciString("SUB-ALLOCATED PA"));
 
-        subject.validate(update, updateContext);
+       subject.validate(update, updateContext);
 
         verify(updateContext).addMessage(update, UpdateMessages.incorrectParentStatus(ERROR, INETNUM, "SUB-ALLOCATED PA"));
     }
@@ -176,7 +176,7 @@ public class InetnumStrictStatusValidatorTest {
         when(ipv4Tree.findFirstLessSpecific(any(Ipv4Resource.class))).thenReturn(Lists.newArrayList(parentEntry));
         lenient().when(statusDao.getStatus(1)).thenReturn(CIString.ciString("ALLOCATED UNSPECIFIED"));
 
-        subject.validate(update, updateContext);
+       subject.validate(update, updateContext);
 
         verify(updateContext, never()).addMessage(eq(update), any(Message.class));
         verify(maintainers).isRsMaintainer(ciSet("RIPE-NCC-HM-MNT"));
@@ -192,7 +192,7 @@ public class InetnumStrictStatusValidatorTest {
                 "status: LEGACY\n" +
                 "mnt-by: TEST-MNT\n"));
 
-        subject.validate(update, updateContext);
+       subject.validate(update, updateContext);
 
         verify(updateContext, never()).addMessage(update, UpdateMessages.inetnumStatusLegacy());
     }
@@ -206,7 +206,7 @@ public class InetnumStrictStatusValidatorTest {
                 "status: LEGACY\n" +
                 "mnt-by: TEST-MNT\n"));
 
-        subject.validate(update, updateContext);
+       subject.validate(update, updateContext);
 
         verify(updateContext, times(1)).addMessage(update, UpdateMessages.inetnumStatusLegacy());
     }
@@ -221,7 +221,7 @@ public class InetnumStrictStatusValidatorTest {
                 "status: LEGACY\n" +
                 "mnt-by: RIPE-NCC-HM-MNT\n"));
 
-        subject.validate(update, updateContext);
+       subject.validate(update, updateContext);
 
         verify(updateContext, never()).addMessage(update, UpdateMessages.inetnumStatusLegacy());
     }
@@ -236,7 +236,7 @@ public class InetnumStrictStatusValidatorTest {
                 "status: LEGACY\n" +
                 "mnt-by: RIPE-NCC-HM-MNT\n"));
 
-        subject.validate(update, updateContext);
+       subject.validate(update, updateContext);
 
         verify(updateContext, never()).addMessage(update, UpdateMessages.inetnumStatusLegacy());
         verify(updateContext, times(1)).addMessage(update, UpdateMessages.incorrectParentStatus(ERROR, INETNUM, "LIR-PARTITIONED PA"));
@@ -249,10 +249,9 @@ public class InetnumStrictStatusValidatorTest {
                 "status: ASSIGNED PA"));
         when(ipv4Tree.findFirstLessSpecific(any(Ipv4Resource.class))).thenReturn(Collections.emptyList());
 
-        subject.validate(update, updateContext);
+       subject.validate(update, updateContext);
 
         verify(updateContext).addMessage(update, UpdateMessages.invalidParentEntryForInterval(Ipv4Resource.parse("192.0/24")));
-        verifyNoMoreInteractions(updateContext);
     }
 
 }

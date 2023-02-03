@@ -13,8 +13,13 @@ import net.ripe.db.whois.update.domain.PreparedUpdate;
 import net.ripe.db.whois.update.domain.UpdateContext;
 import net.ripe.db.whois.update.domain.UpdateMessages;
 import net.ripe.db.whois.update.handler.validator.BusinessRuleValidator;
+import net.ripe.db.whois.update.handler.validator.CustomValidationMessage;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
 
 import static net.ripe.db.whois.common.domain.CIString.ciString;
 import static net.ripe.db.whois.common.rpsl.AttributeType.STATUS;
@@ -41,34 +46,36 @@ public class EndUserAbuseCValidator implements BusinessRuleValidator {
     }
 
     @Override
-    public void validate(final PreparedUpdate update, final UpdateContext updateContext) {
+    public List<CustomValidationMessage> performValidation(final PreparedUpdate update, final UpdateContext updateContext) {
         final CIString org = update.getUpdatedObject().getValueOrNullForAttribute(AttributeType.ORG);
         if (org == null) {
-            return;
+            return Collections.emptyList();
         }
 
         final RpslObject organisation = rpslObjectDao.getByKey(ObjectType.ORGANISATION, org);
         if (OrgType.OTHER != OrgType.getFor(organisation.getValueForAttribute(AttributeType.ORG_TYPE))) {
-            return;
+            return Collections.emptyList();
         }
 
         if (!shouldCheckBasedOnStatus(update.getSubmittedObject())) {
-            return;
+            return Collections.emptyList();
         }
 
         if (organisation.getValueOrNullForAttribute(AttributeType.ABUSE_C) == null) {
-            updateContext.addMessage(update, UpdateMessages.noAbuseContact(org));
+            return Arrays.asList(new CustomValidationMessage(UpdateMessages.noAbuseContact(org)));
         } else {
             final RpslObject abuseContact = rpslObjectDao.getByKeyOrNull(ROLE, organisation.getValueForAttribute(AttributeType.ABUSE_C));
 
             if (abuseContact == null) {
-                updateContext.addMessage(update, UpdateMessages.abuseCPersonReference());
+                return Arrays.asList(new CustomValidationMessage(UpdateMessages.abuseCPersonReference()));
             } else {
                 if (!abuseContact.containsAttribute(AttributeType.ABUSE_MAILBOX)) {
-                    updateContext.addMessage(update, UpdateMessages.abuseMailboxRequired(abuseContact.getKey(), update.getUpdatedObject().getType()));
+                    return Arrays.asList(new CustomValidationMessage(UpdateMessages.abuseMailboxRequired(abuseContact.getKey(), update.getUpdatedObject().getType())));
                 }
             }
         }
+
+        return Collections.emptyList();
     }
 
     private boolean shouldCheckBasedOnStatus(final RpslObject rpslObject) {

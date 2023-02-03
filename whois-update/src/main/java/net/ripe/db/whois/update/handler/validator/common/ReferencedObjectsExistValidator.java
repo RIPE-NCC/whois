@@ -1,6 +1,7 @@
 package net.ripe.db.whois.update.handler.validator.common;
 
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.Lists;
 import net.ripe.db.whois.common.dao.RpslObjectUpdateDao;
 import net.ripe.db.whois.common.domain.CIString;
 import net.ripe.db.whois.common.rpsl.ObjectMessages;
@@ -12,10 +13,12 @@ import net.ripe.db.whois.update.domain.PreparedUpdate;
 import net.ripe.db.whois.update.domain.UpdateContext;
 import net.ripe.db.whois.update.domain.UpdateMessages;
 import net.ripe.db.whois.update.handler.validator.BusinessRuleValidator;
+import net.ripe.db.whois.update.handler.validator.CustomValidationMessage;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -33,17 +36,20 @@ public class ReferencedObjectsExistValidator implements BusinessRuleValidator {
     }
 
     @Override
-    public void validate(final PreparedUpdate update, final UpdateContext updateContext) {
+    public List<CustomValidationMessage> performValidation(final PreparedUpdate update, final UpdateContext updateContext) {
         final RpslObject updatedObject = update.getUpdatedObject();
+        final List<CustomValidationMessage> customValidationMessages = Lists.newArrayList();
 
         final Map<RpslAttribute, Set<CIString>> invalidReferences = rpslObjectUpdateDao.getInvalidReferences(updatedObject);
         final ObjectMessages objectMessages = updateContext.getMessages(update);
         for (final Map.Entry<RpslAttribute, Set<CIString>> invalidReferenceEntry : invalidReferences.entrySet()) {
             final RpslAttribute attribute = invalidReferenceEntry.getKey();
             if (objectMessages.getMessages(attribute).getErrors().isEmpty()) {
-                updateContext.addMessage(update, attribute, UpdateMessages.unknownObjectReferenced(StringUtils.join(invalidReferenceEntry.getValue(), ',')));
+                customValidationMessages.add(new CustomValidationMessage(UpdateMessages.unknownObjectReferenced(StringUtils.join(invalidReferenceEntry.getValue(), ',')), attribute));
             }
         }
+
+        return customValidationMessages;
     }
 
     @Override

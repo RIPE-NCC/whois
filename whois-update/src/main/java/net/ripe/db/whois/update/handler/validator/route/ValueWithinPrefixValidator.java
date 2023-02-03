@@ -1,6 +1,7 @@
 package net.ripe.db.whois.update.handler.validator.route;
 
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.Lists;
 import net.ripe.db.whois.common.domain.CIString;
 import net.ripe.db.whois.common.ip.IpInterval;
 import net.ripe.db.whois.common.ip.Ipv4Resource;
@@ -15,7 +16,10 @@ import net.ripe.db.whois.update.domain.PreparedUpdate;
 import net.ripe.db.whois.update.domain.UpdateContext;
 import net.ripe.db.whois.update.domain.UpdateMessages;
 import net.ripe.db.whois.update.handler.validator.BusinessRuleValidator;
+import net.ripe.db.whois.update.handler.validator.CustomValidationMessage;
 import org.springframework.stereotype.Component;
+
+import java.util.List;
 
 @Component
 public class ValueWithinPrefixValidator implements BusinessRuleValidator {
@@ -24,28 +28,37 @@ public class ValueWithinPrefixValidator implements BusinessRuleValidator {
     private static final ImmutableList<ObjectType> TYPES = ImmutableList.of(ObjectType.ROUTE, ObjectType.ROUTE6);
 
     @Override
-    public void validate(final PreparedUpdate update, final UpdateContext updateContext) {
+    public List<CustomValidationMessage> performValidation(final PreparedUpdate update, final UpdateContext updateContext) {
         final RpslObject updatedRouteObject = update.getUpdatedObject();
         final AttributeType attributeType = findAttributeType(updatedRouteObject);
+
+        final List<CustomValidationMessage> customValidationMessages = Lists.newArrayList();
 
         final CIString prefix = updatedRouteObject.findAttribute(attributeType).getCleanValue();
         for (final RpslAttribute holeAttribute : updatedRouteObject.findAttributes(AttributeType.HOLES)) {
             for (final CIString hole : holeAttribute.getCleanValues()) {
-                validatePrefixForHolesAttribute(update, updateContext, AddressPrefixRange.parse(hole), prefix, holeAttribute);
+                validatePrefixForHolesAttribute(AddressPrefixRange.parse(hole), prefix, holeAttribute, customValidationMessages);
             }
         }
 
         for (final RpslAttribute pingableAttribute : updatedRouteObject.findAttributes(AttributeType.PINGABLE)) {
             for (final CIString pingable : pingableAttribute.getCleanValues()) {
-                validatePrefixForPingableAttribute(update, updateContext, pingable, prefix, pingableAttribute);
+                validatePrefixForPingableAttribute(pingable, prefix, pingableAttribute, customValidationMessages);
             }
         }
 
         final IpInterval ipInterval = IpInterval.parse(prefix);
         if ((ipInterval.getPrefixLength() < 8 && attributeType == AttributeType.ROUTE) ||
              (ipInterval.getPrefixLength() < 12 && attributeType == AttributeType.ROUTE6)) {
-            updateContext.addMessage(update, UpdateMessages.invalidRoutePrefix(attributeType.getName()));
+            customValidationMessages.add(new CustomValidationMessage(UpdateMessages.invalidRoutePrefix(attributeType.getName())));
         }
+
+        return customValidationMessages;
+    }
+
+    @Override
+    public boolean isSkipForOverride() {
+        return false;
     }
 
     private AttributeType findAttributeType(final RpslObject updatedRouteObject) {
@@ -63,39 +76,39 @@ public class ValueWithinPrefixValidator implements BusinessRuleValidator {
         return attributeType;
     }
 
-    private void validatePrefixForHolesAttribute(final PreparedUpdate update, final UpdateContext updateContext, final AddressPrefixRange addressPrefixRange, final CIString ip, final RpslAttribute rpslAttribute) {
+    private void validatePrefixForHolesAttribute(final AddressPrefixRange addressPrefixRange, final CIString ip, final RpslAttribute rpslAttribute, final List<CustomValidationMessage> customValidationMessages) {
         final AddressPrefixRange.BoundaryCheckResult boundaryCheckResult = addressPrefixRange.checkWithinBounds(IpInterval.parse(ip));
         switch (boundaryCheckResult) {
             case IPV6_EXPECTED:
-                updateContext.addMessage(update, UpdateMessages.invalidIpv4Address(addressPrefixRange.getIpInterval().toString()));
+                customValidationMessages.add(new CustomValidationMessage(UpdateMessages.invalidIpv4Address(addressPrefixRange.getIpInterval().toString())));
                 break;
             case IPV4_EXPECTED:
-                updateContext.addMessage(update, UpdateMessages.invalidIpv6Address(addressPrefixRange.getIpInterval().toString()));
+                customValidationMessages.add(new CustomValidationMessage(UpdateMessages.invalidIpv6Address(addressPrefixRange.getIpInterval().toString())));
                 break;
             case NOT_IN_BOUNDS:
-                updateContext.addMessage(update, rpslAttribute, UpdateMessages.invalidRouteRange(addressPrefixRange.toString()));
+                customValidationMessages.add(new CustomValidationMessage(UpdateMessages.invalidRouteRange(addressPrefixRange.toString()), rpslAttribute));
                 break;
             default:
                 break;
         }
     }
 
-    private void validatePrefixForPingableAttribute(final PreparedUpdate update, final UpdateContext updateContext, final CIString pingableIp, final CIString ip, final RpslAttribute rpslAttribute) {
+    private void validatePrefixForPingableAttribute(final CIString pingableIp, final CIString ip, final RpslAttribute rpslAttribute, final List<CustomValidationMessage> customValidationMessages) {
         final IpInterval ipInterval = IpInterval.parse(ip);
         final IpInterval pingableInterval = IpInterval.parse(pingableIp);
 
         if ((ipInterval instanceof Ipv4Resource) && !(pingableInterval instanceof Ipv4Resource)) {
-            updateContext.addMessage(update, rpslAttribute, UpdateMessages.invalidIpv4Address(pingableIp));
+            customValidationMessages.add(new CustomValidationMessage(UpdateMessages.invalidIpv4Address(pingableIp), rpslAttribute));
             return;
         }
 
         if ((ipInterval instanceof Ipv6Resource) && !(pingableInterval instanceof Ipv6Resource)) {
-            updateContext.addMessage(update, rpslAttribute, UpdateMessages.invalidIpv6Address(pingableIp));
+            customValidationMessages.add(new CustomValidationMessage(UpdateMessages.invalidIpv6Address(pingableIp), rpslAttribute));
             return;
         }
 
         if (!ipInterval.contains(pingableInterval)) {
-            updateContext.addMessage(update, rpslAttribute, UpdateMessages.invalidRouteRange(pingableIp));
+            customValidationMessages.add(new CustomValidationMessage(UpdateMessages.invalidRouteRange(pingableIp),rpslAttribute));
         }
     }
 

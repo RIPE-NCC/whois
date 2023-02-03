@@ -13,9 +13,13 @@ import net.ripe.db.whois.update.domain.PreparedUpdate;
 import net.ripe.db.whois.update.domain.UpdateContext;
 import net.ripe.db.whois.update.domain.UpdateMessages;
 import net.ripe.db.whois.update.handler.validator.BusinessRuleValidator;
+import net.ripe.db.whois.update.handler.validator.CustomValidationMessage;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
 import java.util.Objects;
 
 import static net.ripe.db.whois.common.rpsl.AttributeType.NETNAME;
@@ -36,12 +40,12 @@ public class NetnameValidator implements BusinessRuleValidator {
     }
 
     @Override
-    public void validate(final PreparedUpdate update, final UpdateContext updateContext) {
+    public List<CustomValidationMessage> performValidation(final PreparedUpdate update, final UpdateContext updateContext) {
 
         final Subject subject = updateContext.getSubject(update);
 
-        if (subject.hasPrincipal(Principal.OVERRIDE_MAINTAINER) || subject.hasPrincipal(Principal.RS_MAINTAINER)) {
-            return;
+        if (subject.hasPrincipal(Principal.RS_MAINTAINER)) {
+            return Collections.emptyList();
         }
 
         final RpslObject referenceObject = update.getReferenceObject();
@@ -55,8 +59,15 @@ public class NetnameValidator implements BusinessRuleValidator {
         final Action action = update.getAction();
 
         if (isAllocMaintainer && hasChanged(refNetname, updNetname, action)) {
-            updateContext.addMessage(update, UpdateMessages.netnameCannotBeChanged());
+           return Arrays.asList(new CustomValidationMessage(UpdateMessages.netnameCannotBeChanged()));
         }
+
+        return Collections.emptyList();
+    }
+
+    @Override
+    public boolean isSkipForOverride() {
+        return true;
     }
 
     private boolean hasChanged(final CIString referenceNetname, final CIString updatedNetname, final Action action) {

@@ -12,10 +12,14 @@ import net.ripe.db.whois.update.domain.PreparedUpdate;
 import net.ripe.db.whois.update.domain.UpdateContext;
 import net.ripe.db.whois.update.domain.UpdateMessages;
 import net.ripe.db.whois.update.handler.validator.BusinessRuleValidator;
+import net.ripe.db.whois.update.handler.validator.CustomValidationMessage;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
+import java.util.List;
 import java.util.TreeSet;
 import java.util.stream.Collectors;
 
@@ -34,17 +38,24 @@ public class LirMntByAttributeCountValidator implements BusinessRuleValidator {
     }
 
     @Override
-    public void validate(final PreparedUpdate update, final UpdateContext updateContext) {
+    public List<CustomValidationMessage> performValidation(final PreparedUpdate update, final UpdateContext updateContext) {
         final RpslObject originalObject = update.getReferenceObject();
         if (!isLir(originalObject)) {
-            return;
+            return Collections.emptyList();
         }
 
         final RpslObject updatedObject = update.getUpdatedObject();
         final Collection<CIString> userMntner = filterUserMntner(updatedObject);
         if (userMntner.size() > 1) {
-            updateContext.addMessage(update, UpdateMessages.multipleUserMntBy(userMntner));
+            return Arrays.asList(new CustomValidationMessage(UpdateMessages.multipleUserMntBy(userMntner)));
         }
+
+        return Collections.emptyList();
+    }
+
+    @Override
+    public boolean isSkipForOverride() {
+        return false;
     }
 
     private Collection<CIString> filterUserMntner(final RpslObject rpslObject) {

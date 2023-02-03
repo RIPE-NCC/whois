@@ -1,10 +1,11 @@
 package net.ripe.db.whois.update.handler.validator.common;
 
 import com.google.common.collect.ImmutableList;
-import net.ripe.db.whois.common.search.ManagedAttributeSearch;
+import com.google.common.collect.Lists;
 import net.ripe.db.whois.common.rpsl.ObjectType;
 import net.ripe.db.whois.common.rpsl.RpslAttribute;
 import net.ripe.db.whois.common.rpsl.RpslObject;
+import net.ripe.db.whois.common.search.ManagedAttributeSearch;
 import net.ripe.db.whois.update.authentication.Principal;
 import net.ripe.db.whois.update.authentication.Subject;
 import net.ripe.db.whois.update.domain.Action;
@@ -12,8 +13,12 @@ import net.ripe.db.whois.update.domain.PreparedUpdate;
 import net.ripe.db.whois.update.domain.UpdateContext;
 import net.ripe.db.whois.update.domain.UpdateMessages;
 import net.ripe.db.whois.update.handler.validator.BusinessRuleValidator;
+import net.ripe.db.whois.update.handler.validator.CustomValidationMessage;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+
+import java.util.Collections;
+import java.util.List;
 
 @Component
 public class ManagedAttrValidator implements BusinessRuleValidator {
@@ -27,19 +32,27 @@ public class ManagedAttrValidator implements BusinessRuleValidator {
     }
 
     @Override
-    public void validate(final PreparedUpdate update, final UpdateContext updateContext) {
+    public List<CustomValidationMessage> performValidation(final PreparedUpdate update, final UpdateContext updateContext) {
         final Subject subject = updateContext.getSubject(update);
-        if (subject.hasPrincipal(Principal.OVERRIDE_MAINTAINER) || subject.hasPrincipal(Principal.RS_MAINTAINER)) {
-            return;
+        if (subject.hasPrincipal(Principal.RS_MAINTAINER)) {
+            return Collections.emptyList();
         }
 
+        final List<CustomValidationMessage> customValidationMessages = Lists.newArrayList();
         final RpslObject updatedObject = update.getUpdatedObject();
         for(RpslAttribute attribute :updatedObject.getAttributes()) {
 
             if(managedAttributeSearch.isRipeNccMaintained(updatedObject,attribute) && attribute.getCleanComment() != null) {
-                updateContext.addMessage(update, attribute, UpdateMessages.canNotAddCommentsInManagedAttr(attribute.getType()));
+                customValidationMessages.add(new CustomValidationMessage(UpdateMessages.canNotAddCommentsInManagedAttr(attribute.getType()), attribute));
             }
         }
+
+        return customValidationMessages;
+    }
+
+    @Override
+    public boolean isSkipForOverride() {
+        return true;
     }
 
     @Override

@@ -17,6 +17,7 @@ import net.ripe.db.whois.update.domain.PreparedUpdate;
 import net.ripe.db.whois.update.domain.UpdateContext;
 import net.ripe.db.whois.update.domain.UpdateMessages;
 import net.ripe.db.whois.update.handler.validator.BusinessRuleValidator;
+import net.ripe.db.whois.update.handler.validator.CustomValidationMessage;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -25,6 +26,9 @@ import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.Nullable;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
 
 @Component
 public class AbuseCDuplicateValidator implements BusinessRuleValidator {
@@ -46,20 +50,22 @@ public class AbuseCDuplicateValidator implements BusinessRuleValidator {
     }
 
     @Override
-    public void validate(final PreparedUpdate update, final UpdateContext updateContext) {
+    public List<CustomValidationMessage> performValidation(final PreparedUpdate update, final UpdateContext updateContext) {
         final CIString abuseC = update.getUpdatedObject().getValueOrNullForAttribute(AttributeType.ABUSE_C);
         if (abuseC == null) {
-            return;
+            return Collections.emptyList();
         }
 
         final RpslObject orgAbuseCObject = findOrgAbuseC(update.getUpdatedObject());
         if (orgAbuseCObject == null) {
-            return;
+            return Collections.emptyList();
         }
 
         if (orgAbuseCObject.getValueForAttribute(AttributeType.ABUSE_C).equals(abuseC)) {
-            updateContext.addMessage(update, UpdateMessages.duplicateAbuseC(abuseC, orgAbuseCObject.getKey()));
+            return Arrays.asList(new CustomValidationMessage(UpdateMessages.duplicateAbuseC(abuseC, orgAbuseCObject.getKey())));
         }
+
+        return Collections.emptyList();
     }
 
     @Override

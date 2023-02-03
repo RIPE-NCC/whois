@@ -1,6 +1,7 @@
 package net.ripe.db.whois.update.handler.validator.maintainer;
 
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.Lists;
 import net.ripe.db.whois.common.domain.CIString;
 import net.ripe.db.whois.common.rpsl.ObjectType;
 import net.ripe.db.whois.common.rpsl.RpslObject;
@@ -9,8 +10,10 @@ import net.ripe.db.whois.update.domain.PreparedUpdate;
 import net.ripe.db.whois.update.domain.UpdateContext;
 import net.ripe.db.whois.update.domain.UpdateMessages;
 import net.ripe.db.whois.update.handler.validator.BusinessRuleValidator;
+import net.ripe.db.whois.update.handler.validator.CustomValidationMessage;
 import org.springframework.stereotype.Component;
 
+import java.util.List;
 import java.util.Set;
 
 import static net.ripe.db.whois.common.domain.CIString.ciSet;
@@ -31,14 +34,23 @@ public class MaintainerNameValidator implements BusinessRuleValidator {
     );
 
     @Override
-    public void validate(final PreparedUpdate update, final UpdateContext updateContext) {
+    public List<CustomValidationMessage> performValidation(final PreparedUpdate update, final UpdateContext updateContext) {
         final RpslObject updatedObject = update.getUpdatedObject();
+        List<CustomValidationMessage> customValidationMessages = Lists.newArrayList();
+
         if (Action.CREATE.equals(update.getAction()) && !updatedObject.getKey().endsWith(MNT_NAME_SUFFIX)) {
-            updateContext.addMessage(update, updatedObject.getAttributes().get(0), UpdateMessages.invalidMaintainerName());
+            customValidationMessages.add(new CustomValidationMessage(UpdateMessages.invalidMaintainerName(), updatedObject.getAttributes().get(0)));
         }
         if (INVALID_NAMES.contains(updatedObject.getKey())) {
-            updateContext.addMessage(update, updatedObject.getAttributes().get(0), UpdateMessages.reservedNameUsed());
+           customValidationMessages.add(new CustomValidationMessage(UpdateMessages.reservedNameUsed(), updatedObject.getAttributes().get(0)));
         }
+
+        return customValidationMessages;
+    }
+
+    @Override
+    public boolean isSkipForOverride() {
+        return false;
     }
 
     @Override

@@ -1,6 +1,7 @@
 package net.ripe.db.whois.update.handler.validator.domain;
 
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.Lists;
 import net.ripe.db.whois.common.rpsl.AttributeType;
 import net.ripe.db.whois.common.rpsl.ObjectType;
 import net.ripe.db.whois.common.rpsl.RpslAttribute;
@@ -12,7 +13,10 @@ import net.ripe.db.whois.update.domain.PreparedUpdate;
 import net.ripe.db.whois.update.domain.UpdateContext;
 import net.ripe.db.whois.update.domain.UpdateMessages;
 import net.ripe.db.whois.update.handler.validator.BusinessRuleValidator;
+import net.ripe.db.whois.update.handler.validator.CustomValidationMessage;
 import org.springframework.stereotype.Component;
+
+import java.util.List;
 
 import static net.ripe.db.whois.common.rpsl.attrs.Domain.Type.INADDR;
 import static net.ripe.db.whois.common.rpsl.attrs.Domain.Type.IP6;
@@ -24,10 +28,11 @@ public class NServerValidator implements BusinessRuleValidator {
     private static final ImmutableList<ObjectType> TYPES = ImmutableList.of(ObjectType.DOMAIN);
 
     @Override
-    public void validate(final PreparedUpdate update, final UpdateContext updateContext) {
+    public List<CustomValidationMessage> performValidation(final PreparedUpdate update, final UpdateContext updateContext) {
         final RpslObject updatedObject = update.getUpdatedObject();
 
         final Domain domain = Domain.parse(updatedObject.getKey());
+        final List<CustomValidationMessage> customValidationMessages = Lists.newArrayList();
 
         for (final RpslAttribute nServerAttribute : updatedObject.findAttributes(AttributeType.NSERVER)) {
             final NServer nServer = NServer.parse(nServerAttribute.getCleanValue());
@@ -38,9 +43,9 @@ public class NServerValidator implements BusinessRuleValidator {
                     final boolean endsWithDomain = domain.endsWithDomain(nServer.getHostname());
 
                     if (endsWithDomain && nServer.getIpInterval() == null) {
-                        updateContext.addMessage(update, nServerAttribute, UpdateMessages.glueRecordMandatory(domain.getValue()));
+                        customValidationMessages.add(new CustomValidationMessage(UpdateMessages.glueRecordMandatory(domain.getValue()) , nServerAttribute));
                     } else if (!endsWithDomain && nServer.getIpInterval() != null) {
-                        updateContext.addMessage(update, nServerAttribute, UpdateMessages.invalidGlueForEnumDomain(nServer.getIpInterval().toString()));
+                        customValidationMessages.add(new CustomValidationMessage(UpdateMessages.invalidGlueForEnumDomain(nServer.getIpInterval().toString()), nServerAttribute));
                     }
                     break;
                 }
@@ -52,14 +57,21 @@ public class NServerValidator implements BusinessRuleValidator {
                         validateRipeNsServerPrefixLength(domain, update, nServerAttribute, updateContext);
                     }
                     if (endsWithDomain && nServer.getIpInterval() == null) {
-                        updateContext.addMessage(update, nServerAttribute, UpdateMessages.glueRecordMandatory(domain.getValue()));
+                        customValidationMessages.add(new CustomValidationMessage(UpdateMessages.glueRecordMandatory(domain.getValue()), nServerAttribute));
                     } else if (!endsWithDomain && nServer.getIpInterval() != null) {
-                        updateContext.addMessage(update, nServerAttribute, UpdateMessages.hostNameMustEndWith(domain.getValue()));
+                        customValidationMessages.add(new CustomValidationMessage(UpdateMessages.hostNameMustEndWith(domain.getValue()), nServerAttribute));
                     }
                     break;
                 }
             }
         }
+
+        return customValidationMessages;
+    }
+
+    @Override
+    public boolean isSkipForOverride() {
+        return false;
     }
 
     @Override

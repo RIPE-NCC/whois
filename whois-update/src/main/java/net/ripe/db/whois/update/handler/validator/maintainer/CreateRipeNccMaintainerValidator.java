@@ -12,9 +12,13 @@ import net.ripe.db.whois.update.domain.PreparedUpdate;
 import net.ripe.db.whois.update.domain.UpdateContext;
 import net.ripe.db.whois.update.domain.UpdateMessages;
 import net.ripe.db.whois.update.handler.validator.BusinessRuleValidator;
+import net.ripe.db.whois.update.handler.validator.CustomValidationMessage;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
 import java.util.Set;
 
 @Component
@@ -35,16 +39,23 @@ public class CreateRipeNccMaintainerValidator implements BusinessRuleValidator {
     }
 
     @Override
-    public void validate(final PreparedUpdate update, final UpdateContext updateContext) {
+    public List<CustomValidationMessage> performValidation(final PreparedUpdate update, final UpdateContext updateContext) {
         if (updateContext.getSubject(update).hasPrincipal(Principal.OVERRIDE_MAINTAINER)) {
-            return;
+            return Collections.emptyList();
         }
 
         final RpslObject updatedObject = update.getUpdatedObject();
 
         if (ripeMaintainers.contains(updatedObject.getKey())) {
-            updateContext.addMessage(update, UpdateMessages.creatingRipeMaintainerForbidden());
+            return Arrays.asList(new CustomValidationMessage(UpdateMessages.creatingRipeMaintainerForbidden()));
         }
+
+        return Collections.emptyList();
+    }
+
+    @Override
+    public boolean isSkipForOverride() {
+        return false;
     }
 
     @Override

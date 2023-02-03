@@ -1,6 +1,7 @@
 package net.ripe.db.whois.update.handler.validator.organisation;
 
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.Lists;
 import net.ripe.db.whois.common.domain.CIString;
 import net.ripe.db.whois.common.rpsl.AttributeType;
 import net.ripe.db.whois.common.rpsl.ObjectType;
@@ -13,8 +14,10 @@ import net.ripe.db.whois.update.domain.PreparedUpdate;
 import net.ripe.db.whois.update.domain.UpdateContext;
 import net.ripe.db.whois.update.domain.UpdateMessages;
 import net.ripe.db.whois.update.handler.validator.BusinessRuleValidator;
+import net.ripe.db.whois.update.handler.validator.CustomValidationMessage;
 import org.springframework.stereotype.Component;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -33,23 +36,31 @@ public class LirRipeMaintainedAttributesValidator implements BusinessRuleValidat
             AttributeType.ORG_TYPE);
 
     @Override
-    public void validate(final PreparedUpdate update, final UpdateContext updateContext) {
+    public List<CustomValidationMessage> performValidation(final PreparedUpdate update, final UpdateContext updateContext) {
         final Subject subject = updateContext.getSubject(update);
-        if (subject.hasPrincipal(Principal.OVERRIDE_MAINTAINER) || subject.hasPrincipal(Principal.ALLOC_MAINTAINER)) {
-            return;
+        if (subject.hasPrincipal(Principal.ALLOC_MAINTAINER)) {
+            return Collections.emptyList();
         }
 
         final RpslObject originalObject = update.getReferenceObject();
         if (!isLir(originalObject)) {
-            return;
+            return Collections.emptyList();
         }
 
+        List<CustomValidationMessage> customValidationMessages = Lists.newArrayList();
         final RpslObject updatedObject = update.getUpdatedObject();
         RIPE_NCC_MANAGED_ATTRIBUTES.forEach(attributeType -> {
             if (haveAttributesChanged(originalObject, updatedObject, attributeType)) {
-                updateContext.addMessage(update, UpdateMessages.canOnlyBeChangedByRipeNCC(attributeType));
+                customValidationMessages.add(new CustomValidationMessage(UpdateMessages.canOnlyBeChangedByRipeNCC(attributeType)));
             }
         });
+
+        return customValidationMessages;
+    }
+
+    @Override
+    public boolean isSkipForOverride() {
+        return true;
     }
 
     private boolean isLir(final RpslObject organisation) {

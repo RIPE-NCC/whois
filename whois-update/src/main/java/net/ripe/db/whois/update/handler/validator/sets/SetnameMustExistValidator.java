@@ -7,7 +7,6 @@ import net.ripe.db.whois.common.domain.CIString;
 import net.ripe.db.whois.common.rpsl.AttributeType;
 import net.ripe.db.whois.common.rpsl.ObjectType;
 import net.ripe.db.whois.common.rpsl.RpslObject;
-import net.ripe.db.whois.update.authentication.Principal;
 import net.ripe.db.whois.update.authentication.credential.AuthenticationModule;
 import net.ripe.db.whois.update.authentication.strategy.MntByAuthentication;
 import net.ripe.db.whois.update.domain.Action;
@@ -15,9 +14,11 @@ import net.ripe.db.whois.update.domain.PreparedUpdate;
 import net.ripe.db.whois.update.domain.UpdateContext;
 import net.ripe.db.whois.update.domain.UpdateMessages;
 import net.ripe.db.whois.update.handler.validator.BusinessRuleValidator;
+import net.ripe.db.whois.update.handler.validator.CustomValidationMessage;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Set;
@@ -41,15 +42,12 @@ public class SetnameMustExistValidator implements BusinessRuleValidator {
     }
 
     @Override
-    public void validate(final PreparedUpdate update, final UpdateContext updateContext) {
-        if (updateContext.getSubject(update).hasPrincipal(Principal.OVERRIDE_MAINTAINER)) {
-            return;
-        }
+    public List<CustomValidationMessage> performValidation(final PreparedUpdate update, final UpdateContext updateContext) {
 
         final String key = update.getUpdatedObject().getTypeAttribute().getCleanValue().toString();
         final int lastColon = key.lastIndexOf(':');
         if (lastColon < 0) {
-            return;
+            return Collections.emptyList();
         }
         final CIString parentKey = ciString(key.substring(0, lastColon));
 
@@ -57,16 +55,22 @@ public class SetnameMustExistValidator implements BusinessRuleValidator {
                 objectDao.getByKeys(findObjectType(update.getType(), parentKey), Collections.singleton(parentKey)));
 
         if (parent == null) {
-            updateContext.addMessage(update, UpdateMessages.parentObjectNotFound(parentKey));
-            return;
+            return Arrays.asList(new CustomValidationMessage(UpdateMessages.parentObjectNotFound(parentKey)));
         }
 
         final List<RpslObject> referencedMaintainers = findMaintainers(parent);
         final List<RpslObject> authenticatedMaintainers = authenticationModule.authenticate(update, updateContext, referencedMaintainers, MntByAuthentication.class);
 
         if (authenticatedMaintainers.isEmpty()) {
-            updateContext.addMessage(update, UpdateMessages.parentAuthenticationFailed(parent, findAttributeType(parent), referencedMaintainers));
+            return Arrays.asList(new CustomValidationMessage(UpdateMessages.parentAuthenticationFailed(parent, findAttributeType(parent), referencedMaintainers)));
         }
+
+        return Collections.emptyList();
+    }
+
+    @Override
+    public boolean isSkipForOverride() {
+        return true;
     }
 
     ObjectType findObjectType(final ObjectType objectType, final CIString value) {

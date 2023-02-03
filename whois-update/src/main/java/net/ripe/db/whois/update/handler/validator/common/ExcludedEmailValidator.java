@@ -1,6 +1,7 @@
 package net.ripe.db.whois.update.handler.validator.common;
 
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.Lists;
 import net.ripe.db.whois.common.domain.CIString;
 import net.ripe.db.whois.common.rpsl.AttributeParser;
 import net.ripe.db.whois.common.rpsl.AttributeSyntax;
@@ -16,12 +17,14 @@ import net.ripe.db.whois.update.domain.PreparedUpdate;
 import net.ripe.db.whois.update.domain.UpdateContext;
 import net.ripe.db.whois.update.domain.UpdateMessages;
 import net.ripe.db.whois.update.handler.validator.BusinessRuleValidator;
+import net.ripe.db.whois.update.handler.validator.CustomValidationMessage;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -52,19 +55,20 @@ public class ExcludedEmailValidator implements BusinessRuleValidator {
      }
 
     @Override
-    public void validate(final PreparedUpdate update, final UpdateContext updateContext) {
+    public List<CustomValidationMessage> performValidation(final PreparedUpdate update, final UpdateContext updateContext) {
         final Subject subject = updateContext.getSubject(update);
-        if (subject.hasPrincipal(Principal.OVERRIDE_MAINTAINER) || subject.hasPrincipal(Principal.RS_MAINTAINER)) {
-            return;
+        if (subject.hasPrincipal(Principal.RS_MAINTAINER)) {
+            return Collections.emptyList();
         }
 
+        final List<CustomValidationMessage> customValidationMessages = Lists.newArrayList();
         final RpslObject updatedObject = update.getUpdatedObject();
         for (final RpslAttribute attribute : updatedObject.getAttributes()) {
             if (EMAIL_ATTRIBUTES.contains(attribute.getType())) {
                 try {
                     final CIString address = CIString.ciString(getAddress(attribute.getValue()));
                     if (excludedEmailAddresses.contains(address)) {
-                        updateContext.addMessage(update, attribute, UpdateMessages.emailAddressCannotBeUsed(address));
+                        customValidationMessages.add( new CustomValidationMessage(UpdateMessages.emailAddressCannotBeUsed(address), attribute));
                     }
                 } catch (IllegalArgumentException e) {
                     // skip validation if the attribute value cannot be parsed
@@ -72,8 +76,14 @@ public class ExcludedEmailValidator implements BusinessRuleValidator {
                 }
             }
         }
+
+        return customValidationMessages;
     }
 
+    @Override
+    public boolean isSkipForOverride() {
+        return true;
+    }
     @Override
     public ImmutableList<Action> getActions() {
         return ACTIONS;

@@ -1,21 +1,24 @@
 package net.ripe.db.whois.update.handler.validator.inet6num;
 
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.Lists;
 import net.ripe.db.whois.common.domain.CIString;
 import net.ripe.db.whois.common.domain.Maintainers;
 import net.ripe.db.whois.common.rpsl.AttributeType;
 import net.ripe.db.whois.common.rpsl.ObjectType;
 import net.ripe.db.whois.common.rpsl.attrs.Inet6numStatus;
-import net.ripe.db.whois.update.authentication.Principal;
-import net.ripe.db.whois.update.authentication.Subject;
 import net.ripe.db.whois.update.domain.Action;
 import net.ripe.db.whois.update.domain.PreparedUpdate;
 import net.ripe.db.whois.update.domain.UpdateContext;
 import net.ripe.db.whois.update.domain.UpdateMessages;
 import net.ripe.db.whois.update.handler.validator.BusinessRuleValidator;
+import net.ripe.db.whois.update.handler.validator.CustomValidationMessage;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
 import java.util.Objects;
 import java.util.Set;
 
@@ -35,35 +38,39 @@ public class Inet6numStatusValidator implements BusinessRuleValidator {
     }
 
     @Override
-    public void validate(final PreparedUpdate update, final UpdateContext updateContext) {
+    public List<CustomValidationMessage> performValidation(final PreparedUpdate update, final UpdateContext updateContext) {
         switch (update.getAction()) {
             case MODIFY:
-                validateModify(update, updateContext);
-                break;
+                return validateModify(update, updateContext);
             case DELETE:
-                validateDelete(update, updateContext);
-                break;
+                return validateDelete(update, updateContext);
             default:
                 throw new IllegalStateException(update.getAction().toString());
         }
     }
 
-    private void validateModify(final PreparedUpdate update, final UpdateContext updateContext) {
+    @Override
+    public boolean isSkipForOverride() {
+        return true;
+    }
+
+    private List<CustomValidationMessage> validateModify(final PreparedUpdate update, final UpdateContext updateContext) {
         if (update.getReferenceObject() == null || update.getUpdatedObject() == null) {
-            return;
+            return Collections.emptyList();
         }
 
         final CIString originalStatus = update.getReferenceObject().getValueForAttribute(STATUS);
         final CIString updateStatus = update.getUpdatedObject().getValueForAttribute(STATUS);
 
-        if (!Objects.equals(originalStatus, updateStatus) && (!hasAuthOverride(updateContext.getSubject(update)))) {
-            updateContext.addMessage(update, UpdateMessages.statusChange());
+        if (!Objects.equals(originalStatus, updateStatus)) {
+           return Arrays.asList(new CustomValidationMessage(UpdateMessages.statusChange()));
         }
+        return Collections.emptyList();
     }
 
-    private void validateDelete(final PreparedUpdate update, final UpdateContext updateContext) {
+    private List<CustomValidationMessage> validateDelete(final PreparedUpdate update, final UpdateContext updateContext) {
         if (update.getReferenceObject() == null) {
-            return;
+            return Collections.emptyList();
         }
 
         final Inet6numStatus status;
@@ -71,21 +78,18 @@ public class Inet6numStatusValidator implements BusinessRuleValidator {
             status = Inet6numStatus.getStatusFor(update.getReferenceObject().getValueForAttribute(STATUS));
         } catch (IllegalArgumentException e) {
             // ignore invalid status
-            return;
+            return Collections.emptyList();
         }
 
+        final List<CustomValidationMessage> customValidationMessages = Lists.newArrayList();
         if (status.requiresRsMaintainer()) {
             final Set<CIString> mntBy = update.getReferenceObject().getValuesForAttribute(AttributeType.MNT_BY);
             if (!maintainers.isRsMaintainer(mntBy)) {
-                if (!hasAuthOverride(updateContext.getSubject(update))) {
-                    updateContext.addMessage(update, UpdateMessages.deleteWithStatusRequiresAuthorization(status.toString()));
-                }
+                    customValidationMessages.add(new CustomValidationMessage(UpdateMessages.deleteWithStatusRequiresAuthorization(status.toString())));
             }
         }
-    }
 
-    private boolean hasAuthOverride(final Subject subject) {
-        return subject.hasPrincipal(Principal.OVERRIDE_MAINTAINER);
+        return customValidationMessages;
     }
 
     @Override

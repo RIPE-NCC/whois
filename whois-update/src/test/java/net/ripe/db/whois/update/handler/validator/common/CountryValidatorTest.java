@@ -33,7 +33,7 @@ public class CountryValidatorTest {
         final RpslObject rpslObject = RpslObject.parse("inetnum: 193.0/32\ncountry:DK");
         when(update.getUpdatedObject()).thenReturn(rpslObject);
 
-        subject.validate(update, updateContext);
+       subject.validate(update, updateContext);
 
         verifyNoMoreInteractions(updateContext);
     }
@@ -44,7 +44,7 @@ public class CountryValidatorTest {
         final RpslObject rpslObject = RpslObject.parse("inetnum: 193.0/32\ncountry:AB");
         when(update.getUpdatedObject()).thenReturn(rpslObject);
 
-        subject.validate(update, updateContext);
+       subject.validate(update, updateContext);
 
         verify(updateContext).addMessage(update, rpslObject.findAttribute(AttributeType.COUNTRY), UpdateMessages.countryNotRecognised(ciString("AB")));
     }

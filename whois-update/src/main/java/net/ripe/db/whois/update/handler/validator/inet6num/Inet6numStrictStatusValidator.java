@@ -14,15 +14,17 @@ import net.ripe.db.whois.common.rpsl.ObjectType;
 import net.ripe.db.whois.common.rpsl.RpslObject;
 import net.ripe.db.whois.common.rpsl.attrs.Inet6numStatus;
 import net.ripe.db.whois.update.authentication.Principal;
-import net.ripe.db.whois.update.authentication.Subject;
 import net.ripe.db.whois.update.domain.Action;
 import net.ripe.db.whois.update.domain.PreparedUpdate;
 import net.ripe.db.whois.update.domain.UpdateContext;
 import net.ripe.db.whois.update.domain.UpdateMessages;
 import net.ripe.db.whois.update.handler.validator.BusinessRuleValidator;
+import net.ripe.db.whois.update.handler.validator.CustomValidationMessage;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -55,14 +57,14 @@ public class Inet6numStrictStatusValidator implements BusinessRuleValidator {
     }
 
     @Override
-    public void validate(final PreparedUpdate update, final UpdateContext updateContext) {
-        validateStatusAgainstResourcesInTree(update, updateContext);
+    public  List<CustomValidationMessage> performValidation(final PreparedUpdate update, final UpdateContext updateContext) {
+        return validateStatusAgainstResourcesInTree(update, updateContext);
     }
 
     @SuppressWarnings("unchecked")
-    private void validateStatusAgainstResourcesInTree(final PreparedUpdate update, final UpdateContext updateContext) {
+    private List<CustomValidationMessage> validateStatusAgainstResourcesInTree(final PreparedUpdate update, final UpdateContext updateContext) {
         if (!allChildrenHaveCorrectStatus(update, updateContext)) {
-            return;
+            return Collections.emptyList();
         }
 
         final RpslObject updatedObject = update.getUpdatedObject();
@@ -70,13 +72,11 @@ public class Inet6numStrictStatusValidator implements BusinessRuleValidator {
 
         final List<Ipv6Entry> parents = ipv6Tree.findFirstLessSpecific(ipInterval);
         if (parents.size() != 1) {
-            updateContext.addMessage(update, UpdateMessages.invalidParentEntryForInterval(ipInterval));
-            return;
+            return Arrays.asList(new CustomValidationMessage(UpdateMessages.invalidParentEntryForInterval(ipInterval), false));
         }
 
-        if (!hasAuthOverride(updateContext.getSubject(update))) {
-            checkAuthorisationForStatus(update, updateContext);
-        }
+        final List<CustomValidationMessage> validationMessages = Lists.newArrayList();
+        checkAuthorisationForStatus(update, updateContext, validationMessages);
 
         final Set<CIString> updateMntBy = updatedObject.getValuesForAttribute(AttributeType.MNT_BY);
         final boolean hasRsMaintainer = maintainers.isRsMaintainer(updateMntBy);
@@ -85,22 +85,20 @@ public class Inet6numStrictStatusValidator implements BusinessRuleValidator {
         final Inet6numStatus parentStatus = Inet6numStatus.getStatusFor(statusDao.getStatus(parents.get(0).getObjectId()));
 
         if (!currentStatus.worksWithParentStatus(parentStatus, hasRsMaintainer)) {
-            updateContext.addMessage(update, UpdateMessages.incorrectParentStatus(ERROR, updatedObject.getType(), parentStatus.toString()));
+            validationMessages.add(new CustomValidationMessage(UpdateMessages.incorrectParentStatus(ERROR, updatedObject.getType(), parentStatus.toString()), false));
         }
+
+        return validationMessages;
     }
 
-    private boolean hasAuthOverride(final Subject subject) {
-        return subject.hasPrincipal(Principal.OVERRIDE_MAINTAINER);
-    }
-
-    private void checkAuthorisationForStatus(final PreparedUpdate update, final UpdateContext updateContext) {
+    private void checkAuthorisationForStatus(final PreparedUpdate update, final UpdateContext updateContext, final List<CustomValidationMessage> validationMessages) {
         final RpslObject updatedObject = update.getUpdatedObject();
         final Set<CIString> mntBy = updatedObject.getValuesForAttribute(AttributeType.MNT_BY);
 
         final Inet6numStatus currentStatus = Inet6numStatus.getStatusFor(updatedObject.getValueForAttribute(STATUS));
         if (currentStatus.requiresAllocMaintainer()) {
             if (!updateContext.getSubject(update).hasPrincipal(Principal.ALLOC_MAINTAINER)) {
-                updateContext.addMessage(update, UpdateMessages.statusRequiresAuthorization(currentStatus.toString()));
+                validationMessages.add(new CustomValidationMessage(UpdateMessages.statusRequiresAuthorization(currentStatus.toString())));
                 return;
             }
         }
@@ -108,11 +106,11 @@ public class Inet6numStrictStatusValidator implements BusinessRuleValidator {
         if (currentStatus.requiresRsMaintainer()) {
             final boolean missingRsMaintainer = !maintainers.isRsMaintainer(mntBy);
             if (missingRsMaintainer) {
-                updateContext.addMessage(update, UpdateMessages.statusRequiresAuthorization(updatedObject.getValueForAttribute(STATUS).toString()));
+                validationMessages.add(new CustomValidationMessage(UpdateMessages.statusRequiresAuthorization(updatedObject.getValueForAttribute(STATUS).toString())));
                 return;
             }
             if (!updateContext.getSubject(update).hasPrincipal(Principal.RS_MAINTAINER)) {
-                updateContext.addMessage(update, UpdateMessages.authorisationRequiredForSetStatus(currentStatus.toString()));
+                validationMessages.add(new CustomValidationMessage(UpdateMessages.authorisationRequiredForSetStatus(currentStatus.toString())));
             }
         }
     }
@@ -138,6 +136,10 @@ public class Inet6numStrictStatusValidator implements BusinessRuleValidator {
         return true;
     }
 
+    @Override
+    public boolean isSkipForOverride() {
+        return true;
+    }
     @Override
     public ImmutableList<Action> getActions() {
         return ACTIONS;

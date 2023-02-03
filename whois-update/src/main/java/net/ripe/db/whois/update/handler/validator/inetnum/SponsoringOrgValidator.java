@@ -2,6 +2,7 @@ package net.ripe.db.whois.update.handler.validator.inetnum;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
+import com.google.common.collect.Lists;
 import net.ripe.db.whois.common.dao.RpslObjectDao;
 import net.ripe.db.whois.common.domain.CIString;
 import net.ripe.db.whois.common.domain.Maintainers;
@@ -19,11 +20,15 @@ import net.ripe.db.whois.update.domain.PreparedUpdate;
 import net.ripe.db.whois.update.domain.UpdateContext;
 import net.ripe.db.whois.update.domain.UpdateMessages;
 import net.ripe.db.whois.update.handler.validator.BusinessRuleValidator;
+import net.ripe.db.whois.update.handler.validator.CustomValidationMessage;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
 import java.util.Objects;
 import java.util.Set;
 
@@ -63,7 +68,7 @@ public class SponsoringOrgValidator implements BusinessRuleValidator {
     }
 
     @Override
-    public void validate(final PreparedUpdate update, final UpdateContext updateContext) {
+    public List<CustomValidationMessage> performValidation(final PreparedUpdate update, final UpdateContext updateContext) {
 
         final CIString refSponsoringOrg = update.getReferenceObject().getValueOrNullForAttribute(SPONSORING_ORG);
         final CIString updSponsoringOrg = update.getUpdatedObject().getValueOrNullForAttribute(SPONSORING_ORG);
@@ -73,47 +78,45 @@ public class SponsoringOrgValidator implements BusinessRuleValidator {
 
         // Sponsoring-org has to be there on creating an end-user resource
         if (sponsoringOrgMustBePresent(action, updatedObject)) {
-            updateContext.addMessage(update, UpdateMessages.sponsoringOrgMustBePresent());
-            return;
+            return Arrays.asList(new CustomValidationMessage(UpdateMessages.sponsoringOrgMustBePresent(), false));
         }
 
         // otherwise, if no change, bail out
         if (!sponsoringOrgHasChangedAtAll(refSponsoringOrg, updSponsoringOrg, action)) {
-            return;
+            return Collections.emptyList();
         }
 
         if (updatedObject.findAttributes(AttributeType.SPONSORING_ORG).size() > 1) {
-            updateContext.addMessage(update, ValidationMessages.tooManyAttributesOfType(AttributeType.SPONSORING_ORG));
-            return;
+            return Arrays.asList(new CustomValidationMessage(ValidationMessages.tooManyAttributesOfType(AttributeType.SPONSORING_ORG), false));
         }
 
         if (sponsoringOrgStatusCheck(updatedObject)) {
-            updateContext.addMessage(update, UpdateMessages.sponsoringOrgNotAllowedWithStatus(updatedObject.getValueForAttribute(AttributeType.STATUS)));
-            return;
+            return Arrays.asList(new CustomValidationMessage(UpdateMessages.sponsoringOrgNotAllowedWithStatus(updatedObject.getValueForAttribute(AttributeType.STATUS)), false));
         }
 
+        final List<CustomValidationMessage> validationMessages = Lists.newArrayList();
         if (updSponsoringOrg != null) {
             final RpslObject sponsoringOrganisation = objectDao.getByKeyOrNull(ORGANISATION, updSponsoringOrg);
-
             if (sponsoringOrganisation != null && !isLir(sponsoringOrganisation)) {
-                updateContext.addMessage(update, updatedObject.findAttribute(AttributeType.SPONSORING_ORG), sponsoringOrgNotLIR());
+                validationMessages.add(new CustomValidationMessage(sponsoringOrgNotLIR(), updatedObject.findAttribute(AttributeType.SPONSORING_ORG), false));
             }
         }
 
         final boolean authByRS = updateContext.getSubject(update).hasPrincipal(Principal.RS_MAINTAINER);
-        final boolean isOverride = updateContext.getSubject(update).hasPrincipal(Principal.OVERRIDE_MAINTAINER);
 
-        if (!authByRS && !isOverride) {
+        if (!authByRS) {
             if (sponsoringOrgAdded(refSponsoringOrg, updSponsoringOrg, action)) {
-                updateContext.addMessage(update, UpdateMessages.sponsoringOrgAdded());
+                validationMessages.add(new CustomValidationMessage(UpdateMessages.sponsoringOrgAdded()));
             } else if (sponsoringOrgRemoved(refSponsoringOrg, updSponsoringOrg, action)) {
-                updateContext.addMessage(update, UpdateMessages.sponsoringOrgRemoved());
+                validationMessages.add(new CustomValidationMessage(UpdateMessages.sponsoringOrgRemoved()));
             } else if (sponsoringOrgChanged(refSponsoringOrg, updSponsoringOrg, action)) {
-                updateContext.addMessage(update, UpdateMessages.sponsoringOrgChanged());
+                validationMessages.add(new CustomValidationMessage(UpdateMessages.sponsoringOrgChanged()));
             } else {
                 LOGGER.warn("Unexpected action {}, ref {} upd {}", action.getDescription(), refSponsoringOrg, updSponsoringOrg);
             }
         }
+
+        return validationMessages;
     }
 
     private boolean sponsoringOrgStatusCheck(final RpslObject updatedObject) {
@@ -187,6 +190,10 @@ public class SponsoringOrgValidator implements BusinessRuleValidator {
         return OrgType.getFor(organisation.getValueForAttribute(AttributeType.ORG_TYPE)) == OrgType.OTHER;
     }
 
+    @Override
+    public boolean isSkipForOverride() {
+        return true;
+    }
     @Override
     public ImmutableList<Action> getActions() {
         return ACTIONS;

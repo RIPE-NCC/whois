@@ -1,6 +1,7 @@
 package net.ripe.db.whois.update.handler.validator.inetnum;
 
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.Lists;
 import net.ripe.db.whois.common.domain.CIString;
 import net.ripe.db.whois.common.domain.Maintainers;
 import net.ripe.db.whois.common.rpsl.AttributeType;
@@ -14,9 +15,11 @@ import net.ripe.db.whois.update.domain.PreparedUpdate;
 import net.ripe.db.whois.update.domain.UpdateContext;
 import net.ripe.db.whois.update.domain.UpdateMessages;
 import net.ripe.db.whois.update.handler.validator.BusinessRuleValidator;
+import net.ripe.db.whois.update.handler.validator.CustomValidationMessage;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 
@@ -34,26 +37,38 @@ public class OrgAttributeNotChangedValidator implements BusinessRuleValidator {
     }
 
     @Override
-    public void validate(final PreparedUpdate update, final UpdateContext updateContext) {
+    public List<CustomValidationMessage> performValidation(final PreparedUpdate update, final UpdateContext updateContext) {
+
+        final Subject subject = updateContext.getSubject(update);
+        if (subject.hasPrincipal(Principal.RS_MAINTAINER)) {
+            return Collections.emptyList();
+        }
         final RpslObject originalObject = update.getReferenceObject();
         final CIString originalOrg = originalObject.getValueOrNullForAttribute(AttributeType.ORG);
         final CIString updatedOrg = update.getUpdatedObject().getValueOrNullForAttribute(AttributeType.ORG);
 
         if (Objects.equals(originalOrg, updatedOrg)) {
-            return;
+            return Collections.emptyList();
         }
 
         boolean rsMaintained = maintainers.isRsMaintainer(originalObject.getValuesForAttribute(AttributeType.MNT_BY));
 
-        final Subject subject = updateContext.getSubject(update);
-        if (rsMaintained && !(subject.hasPrincipal(Principal.RS_MAINTAINER) || subject.hasPrincipal(Principal.OVERRIDE_MAINTAINER))) {
+        final List<CustomValidationMessage> customValidationMessages = Lists.newArrayList();
+        if (rsMaintained) {
             final List<RpslAttribute> org = update.getUpdatedObject().findAttributes(AttributeType.ORG);
             if (org.isEmpty()) {
-                updateContext.addMessage(update, UpdateMessages.cantRemoveOrgAttribute());
+                customValidationMessages.add(new CustomValidationMessage(UpdateMessages.cantRemoveOrgAttribute()));
             } else {
-                updateContext.addMessage(update, org.get(0), UpdateMessages.cantChangeOrgAttribute());
+                customValidationMessages.add(new CustomValidationMessage(UpdateMessages.cantChangeOrgAttribute(), org.get(0)));
             }
         }
+
+        return customValidationMessages;
+    }
+
+    @Override
+    public boolean isSkipForOverride() {
+        return true;
     }
 
     @Override

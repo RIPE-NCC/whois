@@ -19,6 +19,7 @@ import net.ripe.db.whois.update.domain.PreparedUpdate;
 import net.ripe.db.whois.update.domain.UpdateContext;
 import net.ripe.db.whois.update.domain.UpdateMessages;
 import net.ripe.db.whois.update.handler.validator.BusinessRuleValidator;
+import net.ripe.db.whois.update.handler.validator.CustomValidationMessage;
 import org.apache.commons.lang.Validate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -47,50 +48,57 @@ public class AggregatedByLirStatusValidator implements BusinessRuleValidator {
     }
 
     @Override
-    public void validate(final PreparedUpdate update, final UpdateContext updateContext) {
+    public List<CustomValidationMessage> performValidation(final PreparedUpdate update, final UpdateContext updateContext) {
         if (update.getAction()== CREATE) {
-            validateCreate(update, updateContext);
-        } else {
-            validateModify(update, updateContext);
+            return validateCreate(update);
         }
+        return validateModify(update);
     }
 
-    private void validateCreate(final PreparedUpdate update, final UpdateContext updateContext) {
+    @Override
+    public boolean isSkipForOverride() {
+        return false;
+    }
+
+    private List<CustomValidationMessage> validateCreate(final PreparedUpdate update) {
         final RpslObject object = update.getUpdatedObject();
         final Ipv6Resource ipv6Resource = Ipv6Resource.parse(object.getKey());
+        final List<CustomValidationMessage> customValidationMessages = Lists.newArrayList();
 
         final Inet6numStatus status = Inet6numStatus.getStatusFor(object.getValueForAttribute(AttributeType.STATUS));
         if (AGGREGATED_BY_LIR == status) {
-            validateRequiredAssignmentSize(update, updateContext, object, ipv6Resource);
-            validTotalNrAggregatedByLirInHierarchy(update, updateContext, ipv6Resource);
+            validateRequiredAssignmentSize(object, ipv6Resource, customValidationMessages);
+            validTotalNrAggregatedByLirInHierarchy(ipv6Resource, customValidationMessages);
         } else {
-            addMessagesForAttributeAssignmentSizeNotAllowed(object, update, updateContext);
+            addMessagesForAttributeAssignmentSizeNotAllowed(object, customValidationMessages);
         }
 
-        validatePrefixLengthForParent(update, updateContext, ipv6Resource);
+        validatePrefixLengthForParent(ipv6Resource, customValidationMessages);
+
+        return customValidationMessages;
     }
 
-    private void validateRequiredAssignmentSize(final PreparedUpdate update, final UpdateContext updateContext, final RpslObject object, final Ipv6Resource ipv6Resource) {
+    private void validateRequiredAssignmentSize(final RpslObject object, final Ipv6Resource ipv6Resource, final List<CustomValidationMessage> customValidationMessages) {
         if (object.containsAttribute(AttributeType.ASSIGNMENT_SIZE)) {
             final int assignmentSize = object.getValueForAttribute(AttributeType.ASSIGNMENT_SIZE).toInt();
             if (assignmentSize > MAX_ASSIGNMENT_SIZE) {
-                updateContext.addMessage(update, UpdateMessages.assignmentSizeTooLarge(MAX_ASSIGNMENT_SIZE));
+                customValidationMessages.add(new CustomValidationMessage(UpdateMessages.assignmentSizeTooLarge(MAX_ASSIGNMENT_SIZE)));
             } else if (assignmentSize <= ipv6Resource.getPrefixLength()) {
-                updateContext.addMessage(update, UpdateMessages.assignmentSizeTooSmall(ipv6Resource.getPrefixLength()));
+                customValidationMessages.add(new CustomValidationMessage(UpdateMessages.assignmentSizeTooSmall(ipv6Resource.getPrefixLength())));
             } else {
                 for (final Ipv6Entry child : ipv6Tree.findFirstMoreSpecific(ipv6Resource)) {
                     final Ipv6Resource childIpv6Resource = child.getKey();
                     if (childIpv6Resource.getPrefixLength() != assignmentSize) {
-                        updateContext.addMessage(update, UpdateMessages.invalidChildPrefixLength());
+                        customValidationMessages.add(new CustomValidationMessage(UpdateMessages.invalidChildPrefixLength()));
                     }
                 }
             }
         } else {
-            updateContext.addMessage(update, ValidationMessages.missingConditionalRequiredAttribute(AttributeType.ASSIGNMENT_SIZE));
+            customValidationMessages.add(new CustomValidationMessage(ValidationMessages.missingConditionalRequiredAttribute(AttributeType.ASSIGNMENT_SIZE)));
         }
     }
 
-    private void validatePrefixLengthForParent(final PreparedUpdate update, final UpdateContext updateContext, final Ipv6Resource ipv6Resource) {
+    private void validatePrefixLengthForParent(final Ipv6Resource ipv6Resource, final List<CustomValidationMessage> customValidationMessages) {
         final List<Ipv6Entry> parents = ipv6Tree.findFirstLessSpecific(ipv6Resource);
         Validate.notEmpty(parents, "Parent must always exist");
         final RpslObject parent = rpslObjectDao.getById(parents.get(0).getObjectId());
@@ -101,23 +109,23 @@ public class AggregatedByLirStatusValidator implements BusinessRuleValidator {
             final int parentAssignmentSize = parent.getValueForAttribute(AttributeType.ASSIGNMENT_SIZE).toInt();
             final int prefixLength = ipv6Resource.getPrefixLength();
             if (prefixLength != parentAssignmentSize) {
-                updateContext.addMessage(update, UpdateMessages.invalidPrefixLength(ipv6Resource, parentAssignmentSize));
+                customValidationMessages.add(new CustomValidationMessage(UpdateMessages.invalidPrefixLength(ipv6Resource, parentAssignmentSize)));
             }
         }
     }
 
-    private void validTotalNrAggregatedByLirInHierarchy(final PreparedUpdate update, final UpdateContext updateContext, final Ipv6Resource ipv6Resource) {
+    private void validTotalNrAggregatedByLirInHierarchy(final Ipv6Resource ipv6Resource, final List<CustomValidationMessage> customValidationMessages) {
         int remaining = MAX_ALLOWED_AGGREGATED_BY_LIR - 1;
 
         for (final Ipv6Entry parentEntry : Lists.reverse(ipv6Tree.findAllLessSpecific(ipv6Resource))) {
             if (isAggregatedByLir(parentEntry) && remaining-- == 0) {
-                updateContext.addMessage(update, UpdateMessages.tooManyAggregatedByLirInHierarchy());
+                customValidationMessages.add(new CustomValidationMessage(UpdateMessages.tooManyAggregatedByLirInHierarchy()));
                 return;
             }
         }
 
         if (!validChildNrAggregatedByLir(ipv6Resource, remaining)) {
-            updateContext.addMessage(update, UpdateMessages.tooManyAggregatedByLirInHierarchy());
+            customValidationMessages.add(new CustomValidationMessage(UpdateMessages.tooManyAggregatedByLirInHierarchy()));
         }
     }
 
@@ -137,22 +145,25 @@ public class AggregatedByLirStatusValidator implements BusinessRuleValidator {
         return AGGREGATED_BY_LIR == status;
     }
 
-    private void validateModify(final PreparedUpdate update, final UpdateContext updateContext) {
+    private  List<CustomValidationMessage> validateModify(final PreparedUpdate update) {
         final RpslAttribute updatedStatus = update.getUpdatedObject().findAttribute(AttributeType.STATUS);
+        final List<CustomValidationMessage> customValidationMessages = Lists.newArrayList();
 
         final Inet6numStatus inet6numStatus = Inet6numStatus.getStatusFor(updatedStatus.getCleanValue());
         if (assignmentSizeHasChanged(update)) {
             if(AGGREGATED_BY_LIR == inet6numStatus) {
-                updateContext.addMessage(update, UpdateMessages.cantChangeAssignmentSize());
+                customValidationMessages.add(new CustomValidationMessage(UpdateMessages.cantChangeAssignmentSize()));
             } else {
-                addMessagesForAttributeAssignmentSizeNotAllowed(update.getUpdatedObject(), update, updateContext);
+                addMessagesForAttributeAssignmentSizeNotAllowed(update.getUpdatedObject(), customValidationMessages);
             }
         }
+
+        return customValidationMessages;
     }
 
-    private void addMessagesForAttributeAssignmentSizeNotAllowed(final RpslObject object, final PreparedUpdate update, final UpdateContext updateContext) {
+    private void addMessagesForAttributeAssignmentSizeNotAllowed(final RpslObject object, final List<CustomValidationMessage> customValidationMessages) {
         for (final RpslAttribute attribute : object.findAttributes(AttributeType.ASSIGNMENT_SIZE)) {
-            updateContext.addMessage(update, attribute, UpdateMessages.attributeAssignmentSizeNotAllowed());
+            customValidationMessages.add(new CustomValidationMessage(UpdateMessages.attributeAssignmentSizeNotAllowed(), attribute));
         }
     }
 

@@ -46,7 +46,7 @@ public class SelfReferencePreventionValidatorTest {
         when(preparedUpdate.getUpdate()).thenReturn(update);
         when(update.getSubmittedObject()).thenReturn(RpslObject.parse("role: Some Role\nnic-hdl: NIC-TEST\nadmin-c: OTHER-TEST\ntech-c: TECH-TEST"));
 
-        subject.validate(preparedUpdate, updateContext);
+       subject.validate(preparedUpdate, updateContext);
 
         verify(updateContext, never()).addMessage(preparedUpdate, UpdateMessages.selfReferenceError(AttributeType.ADMIN_C));
         verify(updateContext, never()).addMessage(preparedUpdate, UpdateMessages.selfReferenceError(AttributeType.TECH_C));
@@ -58,7 +58,7 @@ public class SelfReferencePreventionValidatorTest {
         when(preparedUpdate.getUpdate()).thenReturn(update);
         when(update.getSubmittedObject()).thenReturn(role);
 
-        subject.validate(preparedUpdate, updateContext);
+       subject.validate(preparedUpdate, updateContext);
 
         verify(updateContext, times(1)).addMessage(preparedUpdate, role.findAttribute(AttributeType.ADMIN_C), UpdateMessages.selfReferenceError(AttributeType.ADMIN_C));
         verify(updateContext, never()).addMessage(preparedUpdate, role.findAttribute(AttributeType.TECH_C), UpdateMessages.selfReferenceError(AttributeType.TECH_C));
@@ -70,7 +70,7 @@ public class SelfReferencePreventionValidatorTest {
         when(preparedUpdate.getUpdate()).thenReturn(update);
         when(update.getSubmittedObject()).thenReturn(role);
 
-        subject.validate(preparedUpdate, updateContext);
+       subject.validate(preparedUpdate, updateContext);
 
         verify(updateContext, never()).addMessage(preparedUpdate, role.findAttribute(AttributeType.ADMIN_C), UpdateMessages.selfReferenceError(AttributeType.ADMIN_C));
         verify(updateContext, times(1)).addMessage(preparedUpdate, role.findAttribute(AttributeType.TECH_C), UpdateMessages.selfReferenceError(AttributeType.TECH_C));
@@ -83,7 +83,7 @@ public class SelfReferencePreventionValidatorTest {
         when(preparedUpdate.getUpdate()).thenReturn(update);
         when(update.getSubmittedObject()).thenReturn(role);
 
-        subject.validate(preparedUpdate, updateContext);
+       subject.validate(preparedUpdate, updateContext);
 
         verify(updateContext, times(1)).addMessage(preparedUpdate, role.findAttribute(AttributeType.ADMIN_C), UpdateMessages.selfReferenceError(AttributeType.ADMIN_C));
         verify(updateContext, times(1)).addMessage(preparedUpdate, role.findAttribute(AttributeType.TECH_C), UpdateMessages.selfReferenceError(AttributeType.TECH_C));

@@ -15,6 +15,7 @@ import net.ripe.db.whois.update.domain.Action;
 import net.ripe.db.whois.update.domain.PreparedUpdate;
 import net.ripe.db.whois.update.domain.UpdateContext;
 import net.ripe.db.whois.update.handler.validator.BusinessRuleValidator;
+import net.ripe.db.whois.update.handler.validator.CustomValidationMessage;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
@@ -36,9 +37,10 @@ public class MntRoutesValidator implements BusinessRuleValidator {
     }
 
     @Override
-    public void validate(final PreparedUpdate update, final UpdateContext updateContext) {
+    public List<CustomValidationMessage> performValidation(final PreparedUpdate update, final UpdateContext updateContext) {
         final Map<MntRoutes, RpslAttribute> mntRoutesMap = Maps.newHashMap();
 
+        final List<CustomValidationMessage> customValidationMessages = Lists.newArrayList();
         for (final RpslAttribute attribute : update.getUpdatedObject().findAttributes(AttributeType.MNT_ROUTES)) {
             for (final CIString mntRoutesValue : attribute.getCleanValues()) {
                 try {
@@ -47,21 +49,23 @@ public class MntRoutesValidator implements BusinessRuleValidator {
                         final MntRoutes otherMntRoutes = mntRoutesEntry.getKey();
                         if (mntRoutes.getMaintainer().equals(otherMntRoutes.getMaintainer()) && mntRoutes.isAnyRange() != otherMntRoutes.isAnyRange()) {
                             final RpslAttribute otherAttribute = mntRoutesEntry.getValue();
-                            syntaxError(update, updateContext, otherAttribute);
-                            syntaxError(update, updateContext, attribute);
+                            customValidationMessages.add(syntaxError(otherAttribute));
+                            customValidationMessages.add(syntaxError(attribute));
                         }
                     }
 
                     mntRoutesMap.put(mntRoutes, attribute);
                 } catch (AttributeParseException e) {
-                    syntaxError(update, updateContext, attribute);
+                    customValidationMessages.add(syntaxError(attribute));
                 }
             }
         }
+
+        return customValidationMessages;
     }
 
-    private void syntaxError(final PreparedUpdate update, final UpdateContext updateContext, final RpslAttribute attribute) {
-        updateContext.addMessage(update, attribute, ValidationMessages.syntaxError(attribute.getCleanValue(), "ANY can only occur as a single value"));
+    private CustomValidationMessage syntaxError(final RpslAttribute attribute) {
+        return new CustomValidationMessage(ValidationMessages.syntaxError(attribute.getCleanValue(), "ANY can only occur as a single value"), attribute);
     }
 
     @Override

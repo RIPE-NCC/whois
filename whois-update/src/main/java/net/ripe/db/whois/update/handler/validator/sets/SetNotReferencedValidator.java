@@ -11,9 +11,12 @@ import net.ripe.db.whois.update.domain.PreparedUpdate;
 import net.ripe.db.whois.update.domain.UpdateContext;
 import net.ripe.db.whois.update.domain.UpdateMessages;
 import net.ripe.db.whois.update.handler.validator.BusinessRuleValidator;
+import net.ripe.db.whois.update.handler.validator.CustomValidationMessage;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 @Component
@@ -30,13 +33,20 @@ public class SetNotReferencedValidator implements BusinessRuleValidator {
     }
 
     @Override
-    public void validate(final PreparedUpdate update, final UpdateContext updateContext) {
+    public List<CustomValidationMessage> performValidation(final PreparedUpdate update, final UpdateContext updateContext) {
         final RpslObject updatedObject = update.getUpdatedObject();
 
         final List<RpslObjectInfo> incomingReferences = objectDao.findMemberOfByObjectTypeWithoutMbrsByRef(updatedObject.getType(), updatedObject.getKey().toString());
         if (!incomingReferences.isEmpty()) {
-            updateContext.addMessage(update, UpdateMessages.objectInUse(updatedObject));
+            return Arrays.asList(new CustomValidationMessage(UpdateMessages.objectInUse(updatedObject)));
         }
+
+        return Collections.emptyList();
+    }
+
+    @Override
+    public boolean isSkipForOverride() {
+        return false;
     }
 
     @Override

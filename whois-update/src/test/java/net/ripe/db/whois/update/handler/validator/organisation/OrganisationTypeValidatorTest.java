@@ -22,6 +22,7 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.core.Is.is;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
@@ -58,10 +59,12 @@ public class OrganisationTypeValidatorTest {
     @Test
     public void update_is_override() {
         when(authenticationSubject.hasPrincipal(Principal.OVERRIDE_MAINTAINER)).thenReturn(true);
+        when(update.getUpdatedObject()).thenReturn(RpslObject.parse("organisation: ORG-TST-RIPE\norg-type: other"));
+        when(updateContext.getSubject(update)).thenReturn(authenticationSubject);
 
-        subject.validate(update, updateContext);
+       subject.validate(update, updateContext);
 
-        verify(updateContext).getSubject(any(UpdateContainer.class));
+        verify(updateContext, never()).addMessage(eq(update), eq(UpdateMessages.invalidMaintainerForOrganisationType("other")));
         verifyNoMoreInteractions(update);
         verifyNoMoreInteractions(updateContext);
     }
@@ -70,7 +73,7 @@ public class OrganisationTypeValidatorTest {
     public void status_other() {
         when(update.getUpdatedObject()).thenReturn(RpslObject.parse("organisation: ORG-TST-RIPE\norg-type: other"));
         when(updateContext.getSubject(update)).thenReturn(authenticationSubject);
-        subject.validate(update, updateContext);
+       subject.validate(update, updateContext);
 
         verify(updateContext, never()).addMessage(ArgumentMatchers.any(), ArgumentMatchers.any());
         verify(updateContext, never()).addMessage(ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any());
@@ -82,7 +85,7 @@ public class OrganisationTypeValidatorTest {
         when(updateContext.getSubject(update)).thenReturn(authenticationSubject);
         when(update.getReferenceObject()).thenReturn(RpslObject.parse("organisation: ORG-TST-RIPE\norg-type: RIR"));
 
-        subject.validate(update, updateContext);
+       subject.validate(update, updateContext);
 
         verify(updateContext, never()).addMessage(ArgumentMatchers.any(), ArgumentMatchers.any());
         verify(updateContext, never()).addMessage(ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any());
@@ -97,7 +100,7 @@ public class OrganisationTypeValidatorTest {
         when(update.getAction()).thenReturn(Action.MODIFY);
         lenient().when(authenticationSubject.hasPrincipal(Principal.ALLOC_MAINTAINER)).thenReturn(false);
 
-        subject.validate(update, updateContext);
+       subject.validate(update, updateContext);
 
         verify(updateContext, never()).addMessage(ArgumentMatchers.any(), ArgumentMatchers.any());
         verify(updateContext).addMessage(update, rpslObject.findAttribute(AttributeType.ORG_TYPE), UpdateMessages.invalidMaintainerForOrganisationType("RIR"));
@@ -111,7 +114,7 @@ public class OrganisationTypeValidatorTest {
         when(update.getAction()).thenReturn(Action.MODIFY);
         lenient().when(authenticationSubject.hasPrincipal(Principal.ALLOC_MAINTAINER)).thenReturn(true);
 
-        subject.validate(update, updateContext);
+       subject.validate(update, updateContext);
 
         verify(updateContext, never()).addMessage(ArgumentMatchers.any(), ArgumentMatchers.any());
         verify(updateContext, never()).addMessage(ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any());

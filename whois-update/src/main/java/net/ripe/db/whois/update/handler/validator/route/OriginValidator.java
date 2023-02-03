@@ -1,6 +1,7 @@
 package net.ripe.db.whois.update.handler.validator.route;
 
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.Lists;
 import net.ripe.db.whois.common.dao.RpslObjectDao;
 import net.ripe.db.whois.common.domain.CIString;
 import net.ripe.db.whois.common.grs.AuthoritativeResourceData;
@@ -14,8 +15,12 @@ import net.ripe.db.whois.update.domain.ReservedResources;
 import net.ripe.db.whois.update.domain.UpdateContext;
 import net.ripe.db.whois.update.domain.UpdateMessages;
 import net.ripe.db.whois.update.handler.validator.BusinessRuleValidator;
+import net.ripe.db.whois.update.handler.validator.CustomValidationMessage;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+
+import java.util.Collections;
+import java.util.List;
 
 @Component
 public class OriginValidator implements BusinessRuleValidator {
@@ -45,20 +50,28 @@ public class OriginValidator implements BusinessRuleValidator {
     }
 
     @Override
-    public void validate(PreparedUpdate update, UpdateContext updateContext) {
+    public List<CustomValidationMessage> performValidation(PreparedUpdate update, UpdateContext updateContext) {
         final RpslObject updatedObject = update.getUpdatedObject();
         if (updatedObject == null) {
-            return;
+            Collections.emptyList();
         }
 
         final CIString autnumKey = updatedObject.getValueForAttribute(AttributeType.ORIGIN);
         AutNum autnum = AutNum.parse(autnumKey);
 
+        final List<CustomValidationMessage> customValidationMessage = Lists.newArrayList();
         if (reservedResources.isReservedAsNumber(autnum.getValue())) {
-            updateContext.addMessage(update, UpdateMessages.cannotUseReservedAsNumber(autnum.getValue()));
+            customValidationMessage.add(new CustomValidationMessage(UpdateMessages.cannotUseReservedAsNumber(autnum.getValue())));
         } else if (authoritativeResourceData.getAuthoritativeResource().isMaintainedInRirSpace(ObjectType.AUT_NUM, autnumKey) &&
                    rpslObjectDao.findByKeyOrNull(ObjectType.AUT_NUM, autnumKey) == null) {
-            updateContext.addMessage(update, UpdateMessages.autnumNotFoundInDatabase(autnum.getValue()));
+            customValidationMessage.add(new CustomValidationMessage(UpdateMessages.autnumNotFoundInDatabase(autnum.getValue())));
         }
+
+        return customValidationMessage;
+    }
+
+    @Override
+    public boolean isSkipForOverride() {
+        return false;
     }
 }

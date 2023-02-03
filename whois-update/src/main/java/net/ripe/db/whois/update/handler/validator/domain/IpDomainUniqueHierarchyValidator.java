@@ -15,9 +15,12 @@ import net.ripe.db.whois.update.domain.PreparedUpdate;
 import net.ripe.db.whois.update.domain.UpdateContext;
 import net.ripe.db.whois.update.domain.UpdateMessages;
 import net.ripe.db.whois.update.handler.validator.BusinessRuleValidator;
+import net.ripe.db.whois.update.handler.validator.CustomValidationMessage;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 @Component
@@ -37,10 +40,10 @@ public class IpDomainUniqueHierarchyValidator implements BusinessRuleValidator {
 
     @SuppressWarnings("unchecked")
     @Override
-    public void validate(final PreparedUpdate update, final UpdateContext updateContext) {
+    public List<CustomValidationMessage> performValidation(final PreparedUpdate update, final UpdateContext updateContext) {
         final Domain domain = Domain.parse(update.getUpdatedObject().getKey());
         if (domain.getType() == Domain.Type.E164) {
-            return;
+            return Collections.emptyList();
         }
 
         final IpInterval reverseIp = domain.getReverseIp();
@@ -48,14 +51,20 @@ public class IpDomainUniqueHierarchyValidator implements BusinessRuleValidator {
 
         final List<IpEntry> lessSpecific = ipTree.findFirstLessSpecific(reverseIp);
         if (!lessSpecific.isEmpty()) {
-            updateContext.addMessage(update, UpdateMessages.lessSpecificDomainFound(lessSpecific.get(0).getKey().toString()));
-            return;
+            return Arrays.asList(new CustomValidationMessage(UpdateMessages.lessSpecificDomainFound(lessSpecific.get(0).getKey().toString())));
         }
 
         final List<IpEntry> moreSpecific = ipTree.findFirstMoreSpecific(reverseIp);
         if (!moreSpecific.isEmpty()) {
-            updateContext.addMessage(update, UpdateMessages.moreSpecificDomainFound(moreSpecific.get(0).getKey().toString()));
+            return Arrays.asList(new CustomValidationMessage(UpdateMessages.moreSpecificDomainFound(moreSpecific.get(0).getKey().toString())));
         }
+
+        return Collections.emptyList();
+    }
+
+    @Override
+    public boolean isSkipForOverride() {
+        return false;
     }
 
     private IpTree getIpTree(final IpInterval reverseIp) {

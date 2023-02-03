@@ -16,8 +16,13 @@ import net.ripe.db.whois.update.domain.PreparedUpdate;
 import net.ripe.db.whois.update.domain.UpdateContext;
 import net.ripe.db.whois.update.domain.UpdateMessages;
 import net.ripe.db.whois.update.handler.validator.BusinessRuleValidator;
+import net.ripe.db.whois.update.handler.validator.CustomValidationMessage;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
 
 @Component
 public class LirMntByValidator implements BusinessRuleValidator {
@@ -33,20 +38,27 @@ public class LirMntByValidator implements BusinessRuleValidator {
     }
 
     @Override
-    public void validate(final PreparedUpdate update, final UpdateContext updateContext) {
+    public List<CustomValidationMessage> performValidation(final PreparedUpdate update, final UpdateContext updateContext) {
         final Subject subject = updateContext.getSubject(update);
+        if (subject.hasPrincipal(Principal.RS_MAINTAINER)) {
+            return Collections.emptyList();
+        }
+
         final RpslObject originalObject = update.getReferenceObject();
         final RpslObject updatedObject = update.getUpdatedObject();
 
         final boolean rsMaintained = maintainers.isRsMaintainer(originalObject.getValuesForAttribute(AttributeType.MNT_BY));
 
         if (mntByChanged(originalObject, updatedObject) && rsMaintained && isAllocation(originalObject)) {
-            if (subject.hasPrincipal(Principal.OVERRIDE_MAINTAINER) || subject.hasPrincipal(Principal.RS_MAINTAINER)) {
-                return;
-            } else {
-                updateContext.addMessage(update, UpdateMessages.canOnlyBeChangedinLirPortal(AttributeType.MNT_BY));
-            }
+                return Arrays.asList(new CustomValidationMessage(UpdateMessages.canOnlyBeChangedinLirPortal(AttributeType.MNT_BY)));
         }
+
+        return Collections.emptyList();
+    }
+
+    @Override
+    public boolean isSkipForOverride() {
+        return true;
     }
 
     private boolean mntByChanged(final RpslObject originalObject, final RpslObject updatedObject) {

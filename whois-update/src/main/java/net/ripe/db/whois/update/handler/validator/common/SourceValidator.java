@@ -10,10 +10,14 @@ import net.ripe.db.whois.update.domain.PreparedUpdate;
 import net.ripe.db.whois.update.domain.UpdateContext;
 import net.ripe.db.whois.update.domain.UpdateMessages;
 import net.ripe.db.whois.update.handler.validator.BusinessRuleValidator;
+import net.ripe.db.whois.update.handler.validator.CustomValidationMessage;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
 import java.util.Set;
 
 import static net.ripe.db.whois.common.domain.CIString.ciString;
@@ -42,7 +46,7 @@ public class SourceValidator implements BusinessRuleValidator {
     }
 
     @Override
-    public void validate(final PreparedUpdate update, final UpdateContext updateContext) {
+    public List<CustomValidationMessage> performValidation(final PreparedUpdate update, final UpdateContext updateContext) {
         final RpslObject updatedObject = update.getUpdatedObject();
 
         final CIString source = updatedObject.getValueForAttribute(SOURCE);
@@ -53,9 +57,11 @@ public class SourceValidator implements BusinessRuleValidator {
 
         if (!NON_AUTH_OBJECT_TYPES.contains(updatedObject.getType())) {
             if (source.equals(this.nonAuthSource)) {
-                updateContext.addMessage(update, UpdateMessages.sourceNotAllowed(updatedObject.getType(), source));
+                return Arrays.asList(new CustomValidationMessage(UpdateMessages.sourceNotAllowed(updatedObject.getType(), source)));
             }
         }
+
+        return Collections.emptyList();
     }
 
     @Override

@@ -48,7 +48,7 @@ public class MntRoutesValidatorTest {
                 "mnt-routes:  EXACT-MR-MNT any\n" +
                 "source:      TEST\n"));
 
-        subject.validate(update, updateContext);
+       subject.validate(update, updateContext);
 
         verifyNoMoreInteractions(updateContext);
     }
@@ -61,7 +61,7 @@ public class MntRoutesValidatorTest {
                 "mnt-routes:  EXACT-MR-MNT {20.13.0.0/16^+}\n" +
                 "source:      TEST\n"));
 
-        subject.validate(update, updateContext);
+       subject.validate(update, updateContext);
 
         verifyNoMoreInteractions(updateContext);
     }
@@ -75,7 +75,7 @@ public class MntRoutesValidatorTest {
                 "source:      TEST\n");
         when(update.getUpdatedObject()).thenReturn(rpslObject);
 
-        subject.validate(update, updateContext);
+       subject.validate(update, updateContext);
 
         verify(updateContext).addMessage(update, rpslObject.findAttribute(AttributeType.MNT_ROUTES), new Message(Messages.Type.ERROR, "Syntax error in EXACT-MR-MNT {any, 20.13.0.0/16^+} (ANY can only occur as a single value)"));
     }
@@ -89,7 +89,7 @@ public class MntRoutesValidatorTest {
                 "mnt-routes:  EXACT-MR-MNT any\n" +
                 "source:      TEST\n"));
 
-        subject.validate(update, updateContext);
+       subject.validate(update, updateContext);
 
         verifyNoMoreInteractions(updateContext);
     }
@@ -105,7 +105,7 @@ public class MntRoutesValidatorTest {
                 "mnt-routes:  EXACT-MR-MNT any\n" +
                 "source:      TEST\n"));
 
-        subject.validate(update, updateContext);
+       subject.validate(update, updateContext);
 
         verifyNoMoreInteractions(updateContext);
     }
@@ -119,7 +119,7 @@ public class MntRoutesValidatorTest {
                 "mnt-routes:  EXACT-MR-MNT {20.13.0.0/16}\n" +
                 "source:      TEST\n"));
 
-        subject.validate(update, updateContext);
+       subject.validate(update, updateContext);
 
         verifyNoMoreInteractions(updateContext);
     }
@@ -134,7 +134,7 @@ public class MntRoutesValidatorTest {
                 "source:      TEST\n");
         when(update.getUpdatedObject()).thenReturn(rpslObject);
 
-        subject.validate(update, updateContext);
+       subject.validate(update, updateContext);
 
         final List<RpslAttribute> attributes = rpslObject.findAttributes(AttributeType.MNT_ROUTES);
         verify(updateContext).addMessage(update, attributes.get(0), new Message(Messages.Type.ERROR, "Syntax error in EXACT-MR-MNT {20.13.0.0/16^+} (ANY can only occur as a single value)"));
@@ -151,7 +151,7 @@ public class MntRoutesValidatorTest {
                 "source:      TEST\n");
         when(update.getUpdatedObject()).thenReturn(rpslObject);
 
-        subject.validate(update, updateContext);
+       subject.validate(update, updateContext);
 
         verifyNoMoreInteractions(updateContext);
     }

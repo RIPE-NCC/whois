@@ -13,11 +13,15 @@ import net.ripe.db.whois.update.domain.PreparedUpdate;
 import net.ripe.db.whois.update.domain.UpdateContext;
 import net.ripe.db.whois.update.domain.UpdateMessages;
 import net.ripe.db.whois.update.handler.validator.BusinessRuleValidator;
+import net.ripe.db.whois.update.handler.validator.CustomValidationMessage;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.stereotype.Component;
 
+import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -45,18 +49,20 @@ public class MemberOfValidator implements BusinessRuleValidator {
     }
 
     @Override
-    public void validate(final PreparedUpdate update, final UpdateContext updateContext) {
+    public List<CustomValidationMessage> performValidation(final PreparedUpdate update, final UpdateContext updateContext) {
         final Collection<CIString> memberOfs = update.getUpdatedObject().getValuesForAttribute((AttributeType.MEMBER_OF));
         if (memberOfs.isEmpty()) {
-            return;
+            return Collections.emptyList();
         }
 
         final Set<CIString> updatedObjectMaintainers = update.getUpdatedObject().getValuesForAttribute(AttributeType.MNT_BY);
         final ObjectType referencedObjectType = objectTypeMap.get(update.getType());
         final Set<CIString> unsupportedSets = findUnsupportedMembers(memberOfs, updatedObjectMaintainers, referencedObjectType);
         if (!unsupportedSets.isEmpty()) {
-            updateContext.addMessage(update, UpdateMessages.membersNotSupportedInReferencedSet(unsupportedSets.toString()));
+            return Arrays.asList(new CustomValidationMessage(UpdateMessages.membersNotSupportedInReferencedSet(unsupportedSets.toString())));
         }
+
+        return Collections.emptyList();
     }
 
     private Set<CIString> findUnsupportedMembers(final Collection<CIString> memberOfs, final Set<CIString> originalObjectMaintainers, final ObjectType objectType) {

@@ -62,10 +62,8 @@ public class LirUserMaintainedAttributesValidatorTest {
     @Test
     public void update_of_non_lir() {
         when(update.getReferenceObject()).thenReturn(NON_LIR_ORG);
-        when(authenticationSubject.hasPrincipal(Principal.OVERRIDE_MAINTAINER)).thenReturn(false);
-        when(authenticationSubject.hasPrincipal(Principal.ALLOC_MAINTAINER)).thenReturn(false);
 
-        subject.validate(update, updateContext);
+       subject.validate(update, updateContext);
 
         verify(updateContext).getSubject(update);
         verifyNoMoreInteractions(updateContext);
@@ -74,11 +72,9 @@ public class LirUserMaintainedAttributesValidatorTest {
     @Test
     public void update_of_address() {
         when(update.getReferenceObject()).thenReturn(LIR_ORG);
-        when(authenticationSubject.hasPrincipal(Principal.OVERRIDE_MAINTAINER)).thenReturn(false);
-        when(authenticationSubject.hasPrincipal(Principal.ALLOC_MAINTAINER)).thenReturn(false);
         when(update.getUpdatedObject()).thenReturn(LIR_ORG_ADDRESS);
 
-        subject.validate(update, updateContext);
+       subject.validate(update, updateContext);
 
         verify(updateContext).getSubject(update);
         verify(update).getReferenceObject();
@@ -90,11 +86,10 @@ public class LirUserMaintainedAttributesValidatorTest {
     @Test
     public void update_of_phone() {
         when(update.getReferenceObject()).thenReturn(LIR_ORG);
-        when(authenticationSubject.hasPrincipal(Principal.OVERRIDE_MAINTAINER)).thenReturn(false);
         when(authenticationSubject.hasPrincipal(Principal.ALLOC_MAINTAINER)).thenReturn(false);
         when(update.getUpdatedObject()).thenReturn(LIR_ORG_PHONE);
 
-        subject.validate(update, updateContext);
+       subject.validate(update, updateContext);
 
         verify(updateContext).getSubject(update);
         verify(update).getReferenceObject();
@@ -106,11 +101,9 @@ public class LirUserMaintainedAttributesValidatorTest {
     @Test
     public void update_of_fax() {
         when(update.getReferenceObject()).thenReturn(LIR_ORG);
-        when(authenticationSubject.hasPrincipal(Principal.OVERRIDE_MAINTAINER)).thenReturn(false);
-        when(authenticationSubject.hasPrincipal(Principal.ALLOC_MAINTAINER)).thenReturn(false);
         when(update.getUpdatedObject()).thenReturn(LIR_ORG_FAX);
 
-        subject.validate(update, updateContext);
+       subject.validate(update, updateContext);
 
         verify(updateContext).getSubject(update);
         verify(update).getReferenceObject();
@@ -122,11 +115,9 @@ public class LirUserMaintainedAttributesValidatorTest {
     @Test
     public void update_of_email() {
         when(update.getReferenceObject()).thenReturn(LIR_ORG);
-        when(authenticationSubject.hasPrincipal(Principal.OVERRIDE_MAINTAINER)).thenReturn(false);
-        when(authenticationSubject.hasPrincipal(Principal.ALLOC_MAINTAINER)).thenReturn(false);
         when(update.getUpdatedObject()).thenReturn(LIR_ORG_EMAIL);
 
-        subject.validate(update, updateContext);
+       subject.validate(update, updateContext);
 
         verify(updateContext).getSubject(update);
         verify(update).getReferenceObject();
@@ -138,11 +129,9 @@ public class LirUserMaintainedAttributesValidatorTest {
     @Test
     public void update_of_org_name() {
         when(update.getReferenceObject()).thenReturn(LIR_ORG);
-        when(authenticationSubject.hasPrincipal(Principal.OVERRIDE_MAINTAINER)).thenReturn(false);
-        when(authenticationSubject.hasPrincipal(Principal.ALLOC_MAINTAINER)).thenReturn(false);
         when(update.getUpdatedObject()).thenReturn(LIR_ORG_ORG_NAME);
 
-        subject.validate(update, updateContext);
+       subject.validate(update, updateContext);
 
         verify(updateContext).getSubject(update);
         verify(update).getReferenceObject();
@@ -154,11 +143,9 @@ public class LirUserMaintainedAttributesValidatorTest {
     @Test
     public void update_of_org_name_case_sensitive() {
         when(update.getReferenceObject()).thenReturn(LIR_ORG);
-        when(authenticationSubject.hasPrincipal(Principal.OVERRIDE_MAINTAINER)).thenReturn(false);
-        when(authenticationSubject.hasPrincipal(Principal.ALLOC_MAINTAINER)).thenReturn(false);
         when(update.getUpdatedObject()).thenReturn(LIR_ORG_ORG_NAME_CASE_SENSITIVE);
 
-        subject.validate(update, updateContext);
+       subject.validate(update, updateContext);
 
         verify(updateContext).getSubject(update);
         verify(update).getReferenceObject();

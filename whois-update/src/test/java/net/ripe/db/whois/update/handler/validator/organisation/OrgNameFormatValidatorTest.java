@@ -81,7 +81,7 @@ public class OrgNameFormatValidatorTest {
     private void error(final String orgName) {
         when(update.getUpdatedObject()).thenReturn(createOrgObject(orgName));
 
-        subject.validate(update, updateContext);
+       subject.validate(update, updateContext);
 
         verifyError();
         reset();
@@ -90,7 +90,7 @@ public class OrgNameFormatValidatorTest {
     private void ok(final String orgName) {
         when(update.getUpdatedObject()).thenReturn(createOrgObject(orgName));
 
-        subject.validate(update, updateContext);
+       subject.validate(update, updateContext);
 
         verifyOk();
         reset();

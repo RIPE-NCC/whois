@@ -66,7 +66,7 @@ public class Inet6numStrictStatusValidatorTest {
         when(ipv6Tree.findFirstMoreSpecific(any(Ipv6Resource.class))).thenReturn(Lists.newArrayList());
         when(statusDao.getStatus(1)).thenReturn(CIString.ciString("ALLOCATED-BY-RIR"));
 
-        subject.validate(update, updateContext);
+       subject.validate(update, updateContext);
 
         verify(updateContext).addMessage(update, UpdateMessages.statusRequiresAuthorization("ASSIGNED ANYCAST"));
         verify(maintainers, times(2)).isRsMaintainer(ciSet());
@@ -81,7 +81,7 @@ public class Inet6numStrictStatusValidatorTest {
         when(ipv6Tree.findFirstLessSpecific(any(Ipv6Resource.class))).thenReturn(Lists.newArrayList(parentEntry));
         when(statusDao.getStatus(1)).thenReturn(CIString.ciString("ALLOCATED-BY-LIR"));
 
-        subject.validate(update, updateContext);
+       subject.validate(update, updateContext);
 
         verify(updateContext).addMessage(update, UpdateMessages.incorrectParentStatus(ERROR, ObjectType.INET6NUM, "ALLOCATED-BY-LIR"));
         verify(maintainers, times(2)).isRsMaintainer(ciSet("RIPE-NCC-HM-MNT"));
@@ -97,7 +97,7 @@ public class Inet6numStrictStatusValidatorTest {
         when(ipv6Tree.findFirstLessSpecific(any(Ipv6Resource.class))).thenReturn(Lists.newArrayList(parentEntry));
         when(statusDao.getStatus(1)).thenReturn(CIString.ciString("ALLOCATED-BY-RIR"));
 
-        subject.validate(update, updateContext);
+       subject.validate(update, updateContext);
 
         verify(updateContext, never()).addMessage(eq(update), any(Message.class));
         verify(maintainers, times(2)).isRsMaintainer(ciSet("RIPE-NCC-HM-MNT"));

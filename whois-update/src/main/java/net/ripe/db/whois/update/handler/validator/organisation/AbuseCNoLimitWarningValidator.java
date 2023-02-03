@@ -8,7 +8,12 @@ import net.ripe.db.whois.update.domain.PreparedUpdate;
 import net.ripe.db.whois.update.domain.UpdateContext;
 import net.ripe.db.whois.update.domain.UpdateMessages;
 import net.ripe.db.whois.update.handler.validator.BusinessRuleValidator;
+import net.ripe.db.whois.update.handler.validator.CustomValidationMessage;
 import org.springframework.stereotype.Component;
+
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
 
 @Component
 public class AbuseCNoLimitWarningValidator implements BusinessRuleValidator {
@@ -17,11 +22,18 @@ public class AbuseCNoLimitWarningValidator implements BusinessRuleValidator {
     private static final ImmutableList<ObjectType> TYPES = ImmutableList.of(ObjectType.ROLE);
 
     @Override
-    public void validate(final PreparedUpdate update, final UpdateContext updateContext) {
+    public List<CustomValidationMessage> performValidation(final PreparedUpdate update, final UpdateContext updateContext) {
         if (update.getUpdatedObject().containsAttribute(AttributeType.ABUSE_MAILBOX)
                 && (!update.hasOriginalObject() || !update.getReferenceObject().containsAttribute(AttributeType.ABUSE_MAILBOX))) {
-            updateContext.addMessage(update, UpdateMessages.abuseCNoLimitWarning());
+            return Arrays.asList(new CustomValidationMessage(UpdateMessages.abuseCNoLimitWarning()));
         }
+
+        return Collections.emptyList();
+    }
+
+    @Override
+    public boolean isSkipForOverride() {
+        return false;
     }
 
     @Override

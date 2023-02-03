@@ -10,8 +10,11 @@ import net.ripe.db.whois.update.domain.PreparedUpdate;
 import net.ripe.db.whois.update.domain.UpdateContext;
 import net.ripe.db.whois.update.domain.UpdateMessages;
 import net.ripe.db.whois.update.handler.validator.BusinessRuleValidator;
+import net.ripe.db.whois.update.handler.validator.CustomValidationMessage;
 import org.springframework.stereotype.Component;
 
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 import static net.ripe.db.whois.common.domain.CIString.ciString;
@@ -25,11 +28,18 @@ public class PoeticFormHasOnlyDbmMaintainerValidator implements BusinessRuleVali
     private static final CIString POETIC_FORM_MAINTAINER = ciString("RIPE-DBM-MNT");
 
     @Override
-    public void validate(final PreparedUpdate update, final UpdateContext updateContext) {
+    public List<CustomValidationMessage> performValidation(final PreparedUpdate update, final UpdateContext updateContext) {
         final List<RpslAttribute> mntByAttribute = update.getUpdatedObject().findAttributes(AttributeType.MNT_BY);
         if (mntByAttribute.size() !=1 || !mntByAttribute.get(0).getCleanValue().equals(POETIC_FORM_MAINTAINER)) {
-            updateContext.addMessage(update, mntByAttribute.get(0), UpdateMessages.poeticFormRequiresDbmMaintainer());
+            return Arrays.asList(new CustomValidationMessage(UpdateMessages.poeticFormRequiresDbmMaintainer(), mntByAttribute.get(0)));
         }
+
+        return Collections.emptyList();
+    }
+
+    @Override
+    public boolean isSkipForOverride() {
+        return false;
     }
 
     @Override

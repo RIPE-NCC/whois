@@ -14,9 +14,12 @@ import net.ripe.db.whois.update.domain.PreparedUpdate;
 import net.ripe.db.whois.update.domain.UpdateContext;
 import net.ripe.db.whois.update.domain.UpdateMessages;
 import net.ripe.db.whois.update.handler.validator.BusinessRuleValidator;
+import net.ripe.db.whois.update.handler.validator.CustomValidationMessage;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 import static net.ripe.db.whois.common.rpsl.attrs.Domain.Type.INADDR;
@@ -38,15 +41,20 @@ public class DomainIntersectionValidator implements BusinessRuleValidator {
     }
 
     @Override
-    public void validate(final PreparedUpdate update, final UpdateContext updateContext) {
+    public List<CustomValidationMessage> performValidation(final PreparedUpdate update, final UpdateContext updateContext) {
         final Domain domain = Domain.parse(update.getUpdatedObject().getKey());
         if (domain.getType() != INADDR) {
-            return;
+            return Collections.emptyList();
         }
-        validateIntersections(update, updateContext, (Ipv4Resource)domain.getReverseIp());
+        return validateIntersections((Ipv4Resource)domain.getReverseIp());
     }
 
-    private void validateIntersections(final PreparedUpdate update, final UpdateContext updateContext, final Ipv4Resource ipv4Resource) {
+    @Override
+    public boolean isSkipForOverride() {
+        return false;
+    }
+
+    private List<CustomValidationMessage> validateIntersections(final Ipv4Resource ipv4Resource) {
         final Ipv4Resource parentInterval = ipv4DomainTree.findFirstLessSpecific(ipv4Resource).stream()
                 .map(Key::getKey)
                 .findFirst()
@@ -58,10 +66,11 @@ public class DomainIntersectionValidator implements BusinessRuleValidator {
 
             if (child.intersects(ipv4Resource) && !(child.contains(ipv4Resource) || ipv4Resource.contains(child))) {
                 final RpslObject domain = rpslObjectDao.getById(childEntry.getObjectId());
-                updateContext.addMessage(update, UpdateMessages.intersectingDomain(domain.getKey()));
-                break;
+                return Arrays.asList(new CustomValidationMessage(UpdateMessages.intersectingDomain(domain.getKey())));
             }
         }
+
+        return Collections.emptyList();
     }
 
     @Override
