@@ -28,6 +28,7 @@ import java.util.Collections;
 import java.util.Map;
 
 import static net.ripe.db.whois.common.Messages.Type.ERROR;
+import static net.ripe.db.whois.common.Messages.Type.WARNING;
 import static net.ripe.db.whois.common.domain.CIString.ciSet;
 import static net.ripe.db.whois.common.rpsl.ObjectType.INETNUM;
 import static org.mockito.ArgumentMatchers.any;
@@ -99,7 +100,7 @@ public class InetnumStrictStatusValidatorTest {
 
        subject.validate(update, updateContext);
 
-        verify(updateContext, never()).addMessage(eq(update), any(Message.class));
+        verify(updateContext).addMessage(update, new Message(WARNING, UpdateMessages.statusRequiresAuthorization("ASSIGNED ANYCAST").getText(), UpdateMessages.statusRequiresAuthorization("ASSIGNED ANYCAST").getArgs()));
     }
 
     @Test

@@ -138,7 +138,7 @@ public class InetnumStrictStatusValidator implements BusinessRuleValidator {
         if (parentInHierarchyMaintainedByRs != null) {
             final List<RpslAttribute> parentStatuses = parentInHierarchyMaintainedByRs.findAttributes(STATUS);
             if (parentStatuses.isEmpty()) {
-                return true;
+                return false;
             }
 
             final CIString parentStatusValue = parentStatuses.get(0).getCleanValue();
@@ -149,11 +149,11 @@ public class InetnumStrictStatusValidator implements BusinessRuleValidator {
 
             final InetnumStatus currentStatus = InetnumStatus.getStatusFor(update.getUpdatedObject().getValueForAttribute(STATUS));
             if (!currentStatus.worksWithParentInHierarchy(parentStatus, parentHasRsMntLower)) {
-               return false;
+               return true;
             }
         }
 
-        return true;
+        return false;
     }
 
     @CheckForNull
