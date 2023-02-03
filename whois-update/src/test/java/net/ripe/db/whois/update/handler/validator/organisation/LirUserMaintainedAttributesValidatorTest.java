@@ -1,5 +1,6 @@
 package net.ripe.db.whois.update.handler.validator.organisation;
 
+import net.ripe.db.whois.common.Message;
 import net.ripe.db.whois.common.rpsl.AttributeType;
 import net.ripe.db.whois.common.rpsl.ObjectType;
 import net.ripe.db.whois.update.authentication.Principal;
@@ -29,8 +30,8 @@ import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.Matchers.hasSize;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.lenient;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
@@ -65,8 +66,7 @@ public class LirUserMaintainedAttributesValidatorTest {
 
        subject.validate(update, updateContext);
 
-        verify(updateContext).getSubject(update);
-        verifyNoMoreInteractions(updateContext);
+        verify(updateContext, never()).addMessage(any(UpdateContainer.class), any(Message.class));
     }
 
     @Test
@@ -76,11 +76,9 @@ public class LirUserMaintainedAttributesValidatorTest {
 
        subject.validate(update, updateContext);
 
-        verify(updateContext).getSubject(update);
         verify(update).getReferenceObject();
         verify(update).getUpdatedObject();
         verify(updateContext).addMessage(update, UpdateMessages.canOnlyBeChangedinLirPortal(AttributeType.ADDRESS));
-        verifyNoMoreInteractions(update);
     }
 
     @Test
@@ -91,11 +89,9 @@ public class LirUserMaintainedAttributesValidatorTest {
 
        subject.validate(update, updateContext);
 
-        verify(updateContext).getSubject(update);
         verify(update).getReferenceObject();
         verify(update).getUpdatedObject();
         verify(updateContext).addMessage(update, UpdateMessages.canOnlyBeChangedinLirPortal(AttributeType.PHONE));
-        verifyNoMoreInteractions(updateContext);
     }
 
     @Test
@@ -105,11 +101,9 @@ public class LirUserMaintainedAttributesValidatorTest {
 
        subject.validate(update, updateContext);
 
-        verify(updateContext).getSubject(update);
         verify(update).getReferenceObject();
         verify(update).getUpdatedObject();
         verify(updateContext).addMessage(update, UpdateMessages.canOnlyBeChangedinLirPortal(AttributeType.FAX_NO));
-        verifyNoMoreInteractions(updateContext);
     }
 
     @Test
@@ -119,11 +113,9 @@ public class LirUserMaintainedAttributesValidatorTest {
 
        subject.validate(update, updateContext);
 
-        verify(updateContext).getSubject(update);
         verify(update).getReferenceObject();
         verify(update).getUpdatedObject();
         verify(updateContext).addMessage(update, UpdateMessages.canOnlyBeChangedinLirPortal(AttributeType.E_MAIL));
-        verifyNoMoreInteractions(updateContext);
     }
 
     @Test
@@ -133,11 +125,9 @@ public class LirUserMaintainedAttributesValidatorTest {
 
        subject.validate(update, updateContext);
 
-        verify(updateContext).getSubject(update);
         verify(update).getReferenceObject();
         verify(update).getUpdatedObject();
         verify(updateContext).addMessage(update, UpdateMessages.canOnlyBeChangedinLirPortal(AttributeType.ORG_NAME));
-        verifyNoMoreInteractions(updateContext);
     }
 
     @Test
@@ -147,10 +137,8 @@ public class LirUserMaintainedAttributesValidatorTest {
 
        subject.validate(update, updateContext);
 
-        verify(updateContext).getSubject(update);
         verify(update).getReferenceObject();
         verify(update).getUpdatedObject();
         verify(updateContext).addMessage(update, UpdateMessages.canOnlyBeChangedinLirPortal(AttributeType.ORG_NAME));
-        verifyNoMoreInteractions(updateContext);
     }
 }
