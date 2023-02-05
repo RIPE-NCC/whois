@@ -74,7 +74,7 @@ public class InetnumStatusValidator implements BusinessRuleValidator {
         final CIString updateStatus = update.getUpdatedObject().getValueForAttribute(AttributeType.STATUS);
 
         if (!Objects.equals(originalStatus, updateStatus)) {
-            updateContext.addMessage(update, UpdateMessages.statusChange());
+            validationMessages.add(new CustomValidationMessage(UpdateMessages.statusChange()));
         }
 
         validateHierarchy(update.getUpdatedObject(), update, validationMessages);
