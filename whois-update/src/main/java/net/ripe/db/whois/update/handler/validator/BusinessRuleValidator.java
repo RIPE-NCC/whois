@@ -20,7 +20,7 @@ public interface BusinessRuleValidator {
 
     ImmutableList<ObjectType> getTypes();
 
-    List<CustomValidationMessage> performValidation(PreparedUpdate update, UpdateContext updateContext);
+    List<CustomValidationMessage> performValidation(final PreparedUpdate update, final UpdateContext updateContext);
 
     default boolean isSkipForOverride() {
         return false;
