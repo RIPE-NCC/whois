@@ -30,6 +30,31 @@
             <artifactId>whois-commons</artifactId>
             <type>test-jar</type>
         </dependency>
+        <dependency>
+            <groupId>org.eclipse.jetty</groupId>
+            <artifactId>jetty-rewrite</artifactId>
+        </dependency>
     </dependencies>
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>io.starter</groupId>
+                <artifactId>aspectj-maven-plugin</artifactId>
+                <configuration>
+                    <aspectLibraries>
+                        <aspectLibrary>
+                            <groupId>org.springframework</groupId>
+                            <artifactId>spring-aspects</artifactId>
+                        </aspectLibrary>
+                        <aspectLibrary>
+                            <groupId>net.ripe.db</groupId>
+                            <artifactId>whois-commons</artifactId>
+                        </aspectLibrary>
+                    </aspectLibraries>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
 
 </project>

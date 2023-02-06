@@ -1,6 +1,17 @@
 # next
 
-1.105
+1.106
+
+[update] NWI-19 Implement AS_SET NONAUTH (#1169)
+[rdap] Implement "networks" and "autnums" elements in RDAP entity response (#1103)
+[rdap] Flat model, don't return as-block (#1125)
+[rdap] Refactor rdap errors (#1124)
+[rdap] Events and notices (#1112)
+[nrtm] NRTMv4 changes (#1166, #1156)
+[nrtm] initialise the nrtmv4 database (#1099)
+[all] Improve AS-SET documentation (#1147)
+
+# 1.105
 
 [update] NWI-19: Change to AS-SET object naming rules
 

@@ -45,7 +45,6 @@ import org.springframework.util.DigestUtils;
 import org.springframework.util.StringValueResolver;
 
 import javax.annotation.CheckForNull;
-import javax.annotation.Nullable;
 import javax.sql.DataSource;
 import java.sql.DatabaseMetaData;
 import java.sql.ResultSet;
@@ -173,7 +172,7 @@ public class DatabaseHelper implements EmbeddedValueResolverAware {
         setupDatabase(jdbcTemplate, "mailupdates.database", "MAILUPDATES", "mailupdates_schema.sql");
         setupDatabase(jdbcTemplate, "whois.db", "WHOIS", "whois_schema.sql", "whois_data.sql");
         setupDatabase(jdbcTemplate, "internals.database", "INTERNALS", "internals_schema.sql", "internals_data.sql");
-        setupDatabase(jdbcTemplate, "nrtm.database", "NRTM", "nrtm_schema.sql");
+        setupDatabase(jdbcTemplate, "nrtm.database", "NRTM", "nrtm_schema.sql", "nrtm_data.sql");
 
         final String masterUrl = String.format("jdbc:log:mariadb://%s/%s_WHOIS;driver=%s", DB_HOST, dbBaseName, JDBC_DRIVER);
         System.setProperty("whois.db.master.url", masterUrl);
@@ -185,6 +184,9 @@ public class DatabaseHelper implements EmbeddedValueResolverAware {
 
         final String internalsSlaveUrl = String.format("jdbc:mariadb://%s/%s_INTERNALS", DB_HOST, dbBaseName);
         System.setProperty("internals.slave.database.url", internalsSlaveUrl);
+
+        final String nrtmSlaveUrl = String.format("jdbc:mariadb://%s/%s_NRTM", DB_HOST, dbBaseName);
+        System.setProperty("nrtm.slave.database.url", nrtmSlaveUrl);
 
         final String grsSlaveUrl = String.format("jdbc:mariadb://%s/%s", DB_HOST, dbBaseName);
         System.setProperty("whois.db.grs.slave.baseurl", grsSlaveUrl);
@@ -287,11 +289,16 @@ public class DatabaseHelper implements EmbeddedValueResolverAware {
         setupInternalsDatabase();
         setupMailupdatesDatabase();
         setupAclDatabase();
+        setupNrtmDatabase();
     }
 
     public void setupWhoisDatabase(JdbcTemplate jdbcTemplate) {
         truncateTables(jdbcTemplate);
         loadScripts(jdbcTemplate, "whois_data.sql");
+    }
+
+    public void setupNrtmDatabase() {
+        truncateTables(nrtmTemplate);
     }
 
     public void setupAclDatabase() {
@@ -317,11 +324,6 @@ public class DatabaseHelper implements EmbeddedValueResolverAware {
 
     public JdbcTemplate getInternalsTemplate() {
         return internalsTemplate;
-    }
-
-    @Nullable
-    public JdbcTemplate getNrtmTemplate() {
-        return nrtmTemplate;
     }
 
     public JdbcTemplate getWhoisTemplate() {
