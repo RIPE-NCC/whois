@@ -11,10 +11,6 @@
     <packaging>jar</packaging>
 
     <dependencies>
-        <dependency>
-            <groupId>org.springframework</groupId>
-            <artifactId>spring-oxm</artifactId>
-        </dependency>
 
         <dependency>
             <groupId>net.ripe.db</groupId>
@@ -64,10 +60,6 @@
 
         <!-- Jersey JAX-RS 2.0 implementation -->
         <dependency>
-            <groupId>org.glassfish.jersey.containers</groupId>
-            <artifactId>jersey-container-servlet</artifactId>
-        </dependency>
-        <dependency>
             <groupId>org.glassfish.jersey.media</groupId>
             <artifactId>jersey-media-multipart</artifactId>
         </dependency>
@@ -78,10 +70,6 @@
         <dependency>
             <groupId>org.glassfish.jersey.core</groupId>
             <artifactId>jersey-client</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.glassfish.jersey.inject</groupId>
-            <artifactId>jersey-hk2</artifactId>
         </dependency>
 
         <!-- Jackson -->
@@ -117,10 +105,6 @@
         </dependency>
         <dependency>
             <groupId>org.apache.lucene</groupId>
-            <artifactId>lucene-queries</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.lucene</groupId>
             <artifactId>lucene-queryparser</artifactId>
         </dependency>
         <dependency>
@@ -134,10 +118,6 @@
         <dependency>
             <groupId>org.apache.lucene</groupId>
             <artifactId>lucene-facet</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>com.googlecode.ez-vcard</groupId>
-            <artifactId>ez-vcard</artifactId>
         </dependency>
 
         <!-- Solr -->
@@ -172,33 +152,6 @@
             <artifactId>whois-update</artifactId>
             <type>test-jar</type>
         </dependency>
-        <dependency>
-            <groupId>net.ripe.db</groupId>
-            <artifactId>whois-rpsl</artifactId>
-            <type>test-jar</type>
-        </dependency>
-
-        <!-- JSON testing -->
-
-        <dependency>
-            <groupId>org.skyscreamer</groupId>
-            <artifactId>jsonassert</artifactId>
-            <version>1.5.0</version>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>uk.co.datumedge</groupId>
-            <artifactId>hamcrest-json</artifactId>
-            <version>0.2</version>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.ostermiller</groupId>
-            <artifactId>utils</artifactId>
-            <version>1.07.00</version>
-            <scope>test</scope>
-        </dependency>
-
     </dependencies>
 
     <build>
@@ -282,6 +235,66 @@
                     <regexFlags>
                         <regexFlag>MULTILINE</regexFlag>
                     </regexFlags>
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-dependency-plugin</artifactId>
+                <configuration>
+                    <!-- Ignore dependencies coming from another dependencies that we are already using, and for
+                    which we don't want to take control -->
+                    <ignoredUsedUndeclaredDependencies>
+                        <ignoredUsedUndeclaredDependency>org.glassfish.jersey.containers:jersey-container-servlet-core</ignoredUsedUndeclaredDependency>
+                        <ignoredUsedUndeclaredDependency>org.springframework:spring-tx</ignoredUsedUndeclaredDependency>
+                        <ignoredUsedUndeclaredDependency>org.aspectj:aspectjweaver</ignoredUsedUndeclaredDependency>
+                        <ignoredUsedUndeclaredDependency>javax.mail:javax.mail-api</ignoredUsedUndeclaredDependency>
+                        <ignoredUsedUndeclaredDependency>org.apache.commons:commons-compress</ignoredUsedUndeclaredDependency>
+                        <ignoredUsedUndeclaredDependency>org.springframework:spring-beans</ignoredUsedUndeclaredDependency>
+                        <ignoredUsedUndeclaredDependency>org.jetbrains:annotations</ignoredUsedUndeclaredDependency>
+                        <ignoredUsedUndeclaredDependency>org.apache.commons:commons-lang3</ignoredUsedUndeclaredDependency>
+                        <ignoredUsedUndeclaredDependency>org.eclipse.jetty:jetty-server</ignoredUsedUndeclaredDependency>
+                        <ignoredUsedUndeclaredDependency>commons-net:commons-net</ignoredUsedUndeclaredDependency>
+                        <ignoredUsedUndeclaredDependency>commons-lang:commons-lang</ignoredUsedUndeclaredDependency>
+                        <ignoredUsedUndeclaredDependency>com.fasterxml.jackson.core:jackson-annotations</ignoredUsedUndeclaredDependency>
+                        <ignoredUsedUndeclaredDependency>net.ripe.db:whois-commons</ignoredUsedUndeclaredDependency>
+                        <ignoredUsedUndeclaredDependency>commons-io:commons-io</ignoredUsedUndeclaredDependency>
+                        <ignoredUsedUndeclaredDependency>com.fasterxml.jackson.core:jackson-core</ignoredUsedUndeclaredDependency>
+                        <ignoredUsedUndeclaredDependency>org.springframework:spring-jdbc</ignoredUsedUndeclaredDependency>
+                        <ignoredUsedUndeclaredDependency>org.elasticsearch:elasticsearch-x-content</ignoredUsedUndeclaredDependency>
+                        <ignoredUsedUndeclaredDependency>net.ripe.db:whois-rpsl</ignoredUsedUndeclaredDependency>
+                        <ignoredUsedUndeclaredDependency>org.apache.httpcomponents:httpasyncclient</ignoredUsedUndeclaredDependency>
+                        <ignoredUsedUndeclaredDependency>org.apache.httpcomponents:httpclient</ignoredUsedUndeclaredDependency>
+                        <ignoredUsedUndeclaredDependency>jakarta.annotation:jakarta.annotation-api</ignoredUsedUndeclaredDependency>
+                        <ignoredUsedUndeclaredDependency>jakarta.ws.rs:jakarta.ws.rs-api</ignoredUsedUndeclaredDependency>
+                        <ignoredUsedUndeclaredDependency>net.javacrumbs.shedlock:shedlock-spring</ignoredUsedUndeclaredDependency>
+                        <ignoredUsedUndeclaredDependency>org.apache.httpcomponents:httpcore</ignoredUsedUndeclaredDependency>
+                        <ignoredUsedUndeclaredDependency>org.springframework:spring-context</ignoredUsedUndeclaredDependency>
+                        <ignoredUsedUndeclaredDependency>org.eclipse.jetty:jetty-servlet</ignoredUsedUndeclaredDependency>
+                        <ignoredUsedUndeclaredDependency>commons-codec:commons-codec</ignoredUsedUndeclaredDependency>
+                        <ignoredUsedUndeclaredDependency>org.eclipse.jetty.toolchain:jetty-servlet-api</ignoredUsedUndeclaredDependency>
+                        <ignoredUsedUndeclaredDependency>org.elasticsearch.client:elasticsearch-rest-client</ignoredUsedUndeclaredDependency>
+                        <ignoredUsedUndeclaredDependency>org.hamcrest:hamcrest-core</ignoredUsedUndeclaredDependency>
+                        <ignoredUsedUndeclaredDependency>com.fasterxml.jackson.module:jackson-module-jaxb-annotations</ignoredUsedUndeclaredDependency>
+                        <ignoredUsedUndeclaredDependency>commons-collections:commons-collections</ignoredUsedUndeclaredDependency>
+                        <ignoredUsedUndeclaredDependency>org.eclipse.jetty:jetty-util</ignoredUsedUndeclaredDependency>
+                        <ignoredUsedUndeclaredDependency>com.fasterxml.jackson.core:jackson-databind</ignoredUsedUndeclaredDependency>
+                        <ignoredUsedUndeclaredDependency>org.slf4j:slf4j-api</ignoredUsedUndeclaredDependency>
+                        <ignoredUsedUndeclaredDependency>com.mchange:mchange-commons-java</ignoredUsedUndeclaredDependency>
+                        <ignoredUsedUndeclaredDependency>org.glassfish.jersey.core:jersey-common</ignoredUsedUndeclaredDependency>
+                        <ignoredUsedUndeclaredDependency>org.glassfish.jersey.core:jersey-server</ignoredUsedUndeclaredDependency>
+                        <ignoredUsedUndeclaredDependency>net.ripe.commons:commons-ip-math</ignoredUsedUndeclaredDependency>
+                        <ignoredUsedUndeclaredDependency>org.eclipse.jetty:jetty-http</ignoredUsedUndeclaredDependency>
+                        <ignoredUsedUndeclaredDependency>com.google.guava:guava</ignoredUsedUndeclaredDependency>
+                        <ignoredUsedUndeclaredDependency>org.springframework:spring-core</ignoredUsedUndeclaredDependency>
+                        <ignoredUsedUndeclaredDependency>stax:stax-api</ignoredUsedUndeclaredDependency>
+                    </ignoredUsedUndeclaredDependencies>
+
+                    <!-- Ignore dependencies coming from another dependency and which we are just using in
+                    test scope in this module -->
+                    <ignoredNonTestScopedDependencies>
+                        <ignoredNonTestScopedDependency>org.apache.commons:commons-compress</ignoredNonTestScopedDependency>
+                        <ignoredNonTestScopedDependency>org.glassfish.jersey.core:jersey-client</ignoredNonTestScopedDependency>
+                    </ignoredNonTestScopedDependencies>
                 </configuration>
             </plugin>
         </plugins>
