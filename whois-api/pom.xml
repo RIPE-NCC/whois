@@ -11,6 +11,20 @@
     <packaging>jar</packaging>
 
     <dependencies>
+        <dependency>
+            <groupId>org.apache.logging.log4j</groupId>
+            <artifactId>log4j-core</artifactId>
+            <scope>test</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>commons-io</groupId>
+            <artifactId>commons-io</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>commons-net</groupId>
+            <artifactId>commons-net</artifactId>
+        </dependency>
 
         <dependency>
             <groupId>net.ripe.db</groupId>
@@ -60,6 +74,10 @@
 
         <!-- Jersey JAX-RS 2.0 implementation -->
         <dependency>
+            <groupId>org.glassfish.jersey.containers</groupId>
+            <artifactId>jersey-container-servlet</artifactId>
+        </dependency>
+        <dependency>
             <groupId>org.glassfish.jersey.media</groupId>
             <artifactId>jersey-media-multipart</artifactId>
         </dependency>
@@ -70,6 +88,10 @@
         <dependency>
             <groupId>org.glassfish.jersey.core</groupId>
             <artifactId>jersey-client</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.glassfish.jersey.inject</groupId>
+            <artifactId>jersey-hk2</artifactId>
         </dependency>
 
         <!-- Jackson -->
@@ -120,15 +142,16 @@
             <artifactId>lucene-facet</artifactId>
         </dependency>
 
+
+
+        <!-- testing -->
+
         <!-- Solr -->
         <dependency>
             <groupId>org.apache.solr</groupId>
             <artifactId>solr-solrj</artifactId>
             <scope>test</scope>
         </dependency>
-
-        <!-- testing -->
-
         <!-- TODO: [ES] testcontainers dependency depends on JUnit 4 -->
         <dependency>
             <groupId>org.testcontainers</groupId>
@@ -152,6 +175,7 @@
             <artifactId>whois-update</artifactId>
             <type>test-jar</type>
         </dependency>
+
     </dependencies>
 
     <build>
