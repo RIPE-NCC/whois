@@ -25,6 +25,7 @@ public interface BusinessRuleValidator {
     default boolean isSkipForOverride() {
         return false;
     }
+    
     default void validate(final PreparedUpdate update, final UpdateContext updateContext) {
 
         final List<CustomValidationMessage> customValidationMessages = performValidation(update, updateContext);
