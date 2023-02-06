@@ -29,7 +29,7 @@ public interface BusinessRuleValidator {
 
         final List<CustomValidationMessage> customValidationMessages = performValidation(update, updateContext);
 
-        boolean isConvertErrorToWarning = isSkipForOverride() && updateContext.getSubject(update).hasPrincipal(Principal.OVERRIDE_MAINTAINER);
+        final boolean isConvertErrorToWarning = isSkipForOverride() && hasOverride(update, updateContext);
         if(!isConvertErrorToWarning) {
             customValidationMessages.forEach( (validationMessage) -> addMessageToContext(update, updateContext, validationMessage.getMessage(), validationMessage.getAttribute()));
             return;
@@ -43,6 +43,10 @@ public interface BusinessRuleValidator {
 
         errorToWarningMsgs.forEach( (validationMessage)  -> addWarningToContext(update, updateContext, validationMessage.getMessage(), validationMessage.getAttribute()));
         remainingMsgs.forEach( (validationMessage) -> addMessageToContext(update, updateContext, validationMessage.getMessage(), validationMessage.getAttribute()));
+    }
+
+    private boolean hasOverride(final PreparedUpdate update, final UpdateContext updateContext) {
+        return updateContext.getSubject(update).hasPrincipal(Principal.OVERRIDE_MAINTAINER);
     }
 
     private void addMessageToContext(final PreparedUpdate update, final UpdateContext updateContext, final Message message, final RpslAttribute attribute) {
