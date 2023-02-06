@@ -19,27 +19,33 @@
         </dependency>
         <dependency>
             <groupId>net.ripe.db</groupId>
+            <artifactId>whois-nrtm</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>net.ripe.db</groupId>
+            <artifactId>whois-scheduler</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>net.ripe.db</groupId>
             <artifactId>whois-commons</artifactId>
             <type>test-jar</type>
-            <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>net.ripe.db</groupId>
             <artifactId>whois-query</artifactId>
             <type>test-jar</type>
-            <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>net.ripe.db</groupId>
             <artifactId>whois-update</artifactId>
             <type>test-jar</type>
-            <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>net.ripe.db</groupId>
             <artifactId>whois-api</artifactId>
             <type>test-jar</type>
-            <scope>test</scope>
         </dependency>
     </dependencies>
 
@@ -75,6 +81,37 @@
                 </executions>
                 <configuration>
                     <parallelParsing>true</parallelParsing>
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-dependency-plugin</artifactId>
+                <configuration>
+
+                    <!-- Ignore dependencies coming from another dependencies that we are already using, and for
+                    which we don't want to take control -->
+                    <ignoredUsedUndeclaredDependencies>
+                        <ignoredUsedUndeclaredDependency>net.ripe.db:whois-client</ignoredUsedUndeclaredDependency>
+                        <ignoredUsedUndeclaredDependency>net.ripe.db:whois-query</ignoredUsedUndeclaredDependency>
+                        <ignoredUsedUndeclaredDependency>javax.mail:javax.mail-api</ignoredUsedUndeclaredDependency>
+                        <ignoredUsedUndeclaredDependency>com.fasterxml.jackson.jaxrs:jackson-jaxrs-json-provider</ignoredUsedUndeclaredDependency>
+                        <ignoredUsedUndeclaredDependency>net.ripe.db:whois-update</ignoredUsedUndeclaredDependency>
+                        <ignoredUsedUndeclaredDependency>net.ripe.db:whois-api</ignoredUsedUndeclaredDependency>
+                        <ignoredUsedUndeclaredDependency>org.springframework:spring-beans</ignoredUsedUndeclaredDependency>
+                        <ignoredUsedUndeclaredDependency>com.fasterxml.jackson.core:jackson-databind</ignoredUsedUndeclaredDependency>
+                        <ignoredUsedUndeclaredDependency>com.googlecode.java-diff-utils:diffutils</ignoredUsedUndeclaredDependency>
+                        <ignoredUsedUndeclaredDependency>org.slf4j:slf4j-api</ignoredUsedUndeclaredDependency>
+                        <ignoredUsedUndeclaredDependency>commons-lang:commons-lang</ignoredUsedUndeclaredDependency>
+                        <ignoredUsedUndeclaredDependency>commons-io:commons-io</ignoredUsedUndeclaredDependency>
+                        <ignoredUsedUndeclaredDependency>org.springframework:spring-jdbc</ignoredUsedUndeclaredDependency>
+                        <ignoredUsedUndeclaredDependency>net.ripe.db:whois-rpsl</ignoredUsedUndeclaredDependency>
+                        <ignoredUsedUndeclaredDependency>org.glassfish.jersey.media:jersey-media-multipart</ignoredUsedUndeclaredDependency>
+                        <ignoredUsedUndeclaredDependency>jakarta.ws.rs:jakarta.ws.rs-api</ignoredUsedUndeclaredDependency>
+                        <ignoredUsedUndeclaredDependency>org.springframework:spring-core</ignoredUsedUndeclaredDependency>
+                        <ignoredUsedUndeclaredDependency>com.google.guava:guava</ignoredUsedUndeclaredDependency>
+                        <ignoredUsedUndeclaredDependency>org.springframework:spring-context</ignoredUsedUndeclaredDependency>
+                        <ignoredUsedUndeclaredDependency>net.ripe.db:whois-commons</ignoredUsedUndeclaredDependency>
+                    </ignoredUsedUndeclaredDependencies>
                 </configuration>
             </plugin>
         </plugins>
