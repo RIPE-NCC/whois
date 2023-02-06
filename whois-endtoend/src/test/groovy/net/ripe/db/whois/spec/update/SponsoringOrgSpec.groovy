@@ -1223,7 +1223,7 @@ class SponsoringOrgSpec extends BaseQueryUpdateSpec {
 
         ack.errors.any { it.operation == "Create" && it.key == "[inet6num] 2001:600::/64" }
         ack.errorMessagesFor("Create", "[inet6num] 2001:600::/64") ==
-                ["The \"sponsoring-org:\" attribute is not allowed with status value \"" + status + "\""]
+                ["The \"sponsoring-org:\" attribute is not allowed with status value \"ALLOCATED-BY-RIR\""]
         ack.infoMessagesFor("Create", "[inet6num] 2001:600::/64") ==
                 ["Authorisation override used"]
 
