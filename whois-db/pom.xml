@@ -11,6 +11,20 @@
     <packaging>jar</packaging>
 
     <dependencies>
+        <dependency>
+            <groupId>net.ripe.db</groupId>
+            <artifactId>whois-api</artifactId>
+            <!-- The reason we add this exclusion is that the common-beanutils (or commons-beanutils-core) jar
+            contain some classes which are identical and come from the commons-collections jars. The whois-api
+            module depends on commons-validator, which depends on commons-beanutils. Because we do not want
+            duplicate class problems during mvn builds we exclude the jar in the whois-api dependency. -->
+            <exclusions>
+                <exclusion>
+                    <groupId>commons-beanutils</groupId>
+                    <artifactId>commons-beanutils</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
 
         <!-- testing -->
         <dependency>
@@ -18,8 +32,6 @@
             <artifactId>whois-commons</artifactId>
             <type>test-jar</type>
         </dependency>
-
-
         <dependency>
             <groupId>net.ripe.db</groupId>
             <artifactId>whois-api</artifactId>
@@ -98,6 +110,39 @@
                             <resource>META-INF/spring.schemas</resource>
                         </transformer>
                     </transformers>
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-dependency-plugin</artifactId>
+                <configuration>
+                    <!-- Dependencies marked as not used, but actually they are necessary to run the project-->
+                    <usedDependencies>
+                        <dependency>net.ripe.db:whois-api</dependency>
+                    </usedDependencies>
+
+                    <!-- Ignore dependencies coming from another dependencies that we are already using, and for
+                    which we don't want to take control -->
+                    <ignoredUsedUndeclaredDependencies>
+                        <ignoredUsedUndeclaredDependency>org.springframework:spring-tx</ignoredUsedUndeclaredDependency>
+                        <ignoredUsedUndeclaredDependency>net.ripe.db:whois-commons</ignoredUsedUndeclaredDependency>
+                        <ignoredUsedUndeclaredDependency>commons-io:commons-io</ignoredUsedUndeclaredDependency>
+                        <ignoredUsedUndeclaredDependency>org.springframework:spring-jdbc</ignoredUsedUndeclaredDependency>
+                        <ignoredUsedUndeclaredDependency>net.ripe.db:whois-rpsl</ignoredUsedUndeclaredDependency>
+                        <ignoredUsedUndeclaredDependency>org.springframework:spring-beans</ignoredUsedUndeclaredDependency>
+                        <ignoredUsedUndeclaredDependency>org.springframework:spring-core</ignoredUsedUndeclaredDependency>
+                        <ignoredUsedUndeclaredDependency>com.google.guava:guava</ignoredUsedUndeclaredDependency>
+                        <ignoredUsedUndeclaredDependency>org.slf4j:slf4j-api</ignoredUsedUndeclaredDependency>
+                        <ignoredUsedUndeclaredDependency>org.springframework:spring-context</ignoredUsedUndeclaredDependency>
+                    </ignoredUsedUndeclaredDependencies>
+
+                    <!-- Ignore dependencies coming from another dependency and which we are just using in
+                    test scope in this module -->
+                    <ignoredNonTestScopedDependencies>
+                        <ignoredNonTestScopedDependency>org.springframework:spring-tx</ignoredNonTestScopedDependency>
+                        <ignoredNonTestScopedDependency>org.springframework:spring-jdbc</ignoredNonTestScopedDependency>
+                        <ignoredNonTestScopedDependency>net.ripe.db:whois-rpsl</ignoredNonTestScopedDependency>
+                    </ignoredNonTestScopedDependencies>
                 </configuration>
             </plugin>
         </plugins>
