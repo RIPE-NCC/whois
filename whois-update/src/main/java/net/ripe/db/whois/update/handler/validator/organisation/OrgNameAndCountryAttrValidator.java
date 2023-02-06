@@ -85,11 +85,6 @@ public class OrgNameAndCountryAttrValidator implements BusinessRuleValidator {
         return customValidationMessages;
     }
 
-    @Override
-    public boolean isSkipForOverride() {
-        return false;
-    }
-
     private boolean isLir(final RpslObject organisation) {
         return OrgType.getFor(organisation.getValueForAttribute(AttributeType.ORG_TYPE)) == OrgType.LIR;
     }

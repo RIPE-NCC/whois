@@ -765,7 +765,7 @@ class ReclaimSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(1, 0, 0, 1, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
 
-        ack.countErrorWarnInfo(0, 0, 1)
+        ack.countErrorWarnInfo(0, 1, 1)
         ack.successes.any { it.operation == "Delete" && it.key == "[inetnum] 192.0.0.0 - 192.255.255.255" }
         ack.infoSuccessMessagesFor("Delete", "[inetnum] 192.0.0.0 - 192.255.255.255") == [
                 "Authorisation override used"]

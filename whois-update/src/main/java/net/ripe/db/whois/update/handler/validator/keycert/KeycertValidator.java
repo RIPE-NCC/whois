@@ -43,11 +43,6 @@ public class KeycertValidator implements BusinessRuleValidator {
         return customValidationMessages;
     }
 
-    @Override
-    public boolean isSkipForOverride() {
-        return false;
-    }
-
     private void validateAutoKey(final PreparedUpdate update, final UpdateContext updateContext, final RpslObject updatedObject, final List<CustomValidationMessage> customValidationMessages) {
         if (x509AutoKeyFactory.isKeyPlaceHolder(updatedObject.getKey().toString())) {
             final KeyWrapper keyWrapper = keyWrapperFactory.createKeyWrapper(updatedObject, update, updateContext);

@@ -46,11 +46,6 @@ public class IntersectionValidator implements BusinessRuleValidator {
         }
     }
 
-    @Override
-    public boolean isSkipForOverride() {
-        return false;
-    }
-
     private List<CustomValidationMessage> validateIntersections(final IpInterval ipInterval, final IpTree ipTree, final List<CustomValidationMessage> messages) {
         final List<IpEntry> parent = ipTree.findFirstLessSpecific(ipInterval);
 

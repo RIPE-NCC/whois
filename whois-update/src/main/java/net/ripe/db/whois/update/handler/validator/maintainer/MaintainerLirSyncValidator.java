@@ -71,11 +71,6 @@ public class MaintainerLirSyncValidator implements BusinessRuleValidator {
         return customValidationMessages;
     }
 
-    @Override
-    public boolean isSkipForOverride() {
-        return false;
-    }
-
     private boolean isChangingSsoAuthAttribute(final PreparedUpdate update) {
         return update.getDifferences(AttributeType.AUTH).stream().anyMatch(this::isSsoAuthAttribute);
     }

@@ -56,12 +56,7 @@ public class OrgNameFormatValidator implements BusinessRuleValidator {
         return Collections.emptyList();
     }
 
-    @Override
-    public boolean isSkipForOverride() {
-        return false;
-    }
-
-    // does the attribute value run over multiple lines
+     // does the attribute value run over multiple lines
     private boolean isMultiline(final String value) {
         return value.contains("\n");
     }

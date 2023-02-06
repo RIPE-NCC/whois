@@ -75,11 +75,6 @@ public class AbuseValidator implements BusinessRuleValidator {
         return customValidationMessages;
     }
 
-    @Override
-    public boolean isSkipForOverride() {
-        return false;
-    }
-
     private void validateAbuseC(final RpslObject updatedObject, final List<CustomValidationMessage> customValidationMessages) {
         final CIString abuseC = updatedObject.getValueOrNullForAttribute(AttributeType.ABUSE_C);
         if (abuseC == null) {

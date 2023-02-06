@@ -54,11 +54,6 @@ public class CreateRipeNccMaintainerValidator implements BusinessRuleValidator {
     }
 
     @Override
-    public boolean isSkipForOverride() {
-        return false;
-    }
-
-    @Override
     public ImmutableList<Action> getActions() {
         return ACTIONS;
     }

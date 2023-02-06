@@ -152,7 +152,7 @@ class AsBlockSpec extends BaseQueryUpdateSpec {
         ack.summary.nrFound == 1
         ack.summary.assertSuccess(1, 1, 0, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
-        ack.countErrorWarnInfo(0, 0, 1)
+        ack.countErrorWarnInfo(0, 2, 1)
 
         ack.successes.any { it.operation == "Create" && it.key == "[as-block] AS222 - AS333" }
         ack.infoSuccessMessagesFor("Create", "[as-block] AS222 - AS333") == [

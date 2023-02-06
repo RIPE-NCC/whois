@@ -32,11 +32,6 @@ public class SelfReferencePreventionValidator implements BusinessRuleValidator {
         return customValidationMessages;
     }
 
-    @Override
-    public boolean isSkipForOverride() {
-        return false;
-    }
-
     private void errorOnSelfReference(final PreparedUpdate update, final AttributeType attributeType, final List<CustomValidationMessage> customValidationMessages) {
         final List<RpslAttribute> submittedAttributes = update.getUpdate().getSubmittedObject().findAttributes(attributeType);
         final CIString submittedNicHdl = update.getUpdate().getSubmittedObject().getValueForAttribute(AttributeType.NIC_HDL);

@@ -38,11 +38,6 @@ public class PoeticFormHasOnlyDbmMaintainerValidator implements BusinessRuleVali
     }
 
     @Override
-    public boolean isSkipForOverride() {
-        return false;
-    }
-
-    @Override
     public ImmutableList<Action> getActions() {
         return ACTIONS;
     }

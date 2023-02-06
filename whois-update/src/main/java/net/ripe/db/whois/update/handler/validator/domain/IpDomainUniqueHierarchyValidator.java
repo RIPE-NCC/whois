@@ -62,11 +62,6 @@ public class IpDomainUniqueHierarchyValidator implements BusinessRuleValidator {
         return Collections.emptyList();
     }
 
-    @Override
-    public boolean isSkipForOverride() {
-        return false;
-    }
-
     private IpTree getIpTree(final IpInterval reverseIp) {
         if (reverseIp instanceof Ipv4Resource) {
             return ipv4DomainTree;

@@ -69,9 +69,4 @@ public class OriginValidator implements BusinessRuleValidator {
 
         return customValidationMessage;
     }
-
-    @Override
-    public boolean isSkipForOverride() {
-        return false;
-    }
 }

@@ -53,11 +53,6 @@ public class LirMntByAttributeCountValidator implements BusinessRuleValidator {
         return Collections.emptyList();
     }
 
-    @Override
-    public boolean isSkipForOverride() {
-        return false;
-    }
-
     private Collection<CIString> filterUserMntner(final RpslObject rpslObject) {
         return rpslObject.getValuesForAttribute(AttributeType.MNT_BY)
                 .stream()

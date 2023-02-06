@@ -49,11 +49,6 @@ public class DomainIntersectionValidator implements BusinessRuleValidator {
         return validateIntersections((Ipv4Resource)domain.getReverseIp());
     }
 
-    @Override
-    public boolean isSkipForOverride() {
-        return false;
-    }
-
     private List<CustomValidationMessage> validateIntersections(final Ipv4Resource ipv4Resource) {
         final Ipv4Resource parentInterval = ipv4DomainTree.findFirstLessSpecific(ipv4Resource).stream()
                 .map(Key::getKey)

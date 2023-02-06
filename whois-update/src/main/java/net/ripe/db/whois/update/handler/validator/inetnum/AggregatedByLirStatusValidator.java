@@ -55,11 +55,6 @@ public class AggregatedByLirStatusValidator implements BusinessRuleValidator {
         return validateModify(update);
     }
 
-    @Override
-    public boolean isSkipForOverride() {
-        return false;
-    }
-
     private List<CustomValidationMessage> validateCreate(final PreparedUpdate update) {
         final RpslObject object = update.getUpdatedObject();
         final Ipv6Resource ipv6Resource = Ipv6Resource.parse(object.getKey());

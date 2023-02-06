@@ -56,11 +56,6 @@ public class ValueWithinPrefixValidator implements BusinessRuleValidator {
         return customValidationMessages;
     }
 
-    @Override
-    public boolean isSkipForOverride() {
-        return false;
-    }
-
     private AttributeType findAttributeType(final RpslObject updatedRouteObject) {
         AttributeType attributeType;
         switch (updatedRouteObject.getType()) {

@@ -411,9 +411,10 @@ class OutOfRegionSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(1, 0, 1, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
 
-        ack.countErrorWarnInfo(0, 1, 1)
+        ack.countErrorWarnInfo(0, 2, 1)
         ack.warningSuccessMessagesFor("Modify", "[aut-num] AS252") ==
-                ["Supplied attribute 'source' has been replaced with a generated value"]
+                ["Supplied attribute 'source' has been replaced with a generated value",
+                 "You cannot add or remove a RIPE NCC maintainer"]
 
         when:
         def autnum = restLookup(ObjectType.AUT_NUM, "AS252", "update");
@@ -484,10 +485,11 @@ class OutOfRegionSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(1, 0, 1, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
 
-        ack.countErrorWarnInfo(0, 2, 1)
+        ack.countErrorWarnInfo(0, 3, 1)
         ack.warningSuccessMessagesFor("Modify", "[aut-num] AS251") ==
                 ["Supplied attribute 'status' has been replaced with a generated value",
-                 "Supplied attribute 'source' has been replaced with a generated value"]
+                 "Supplied attribute 'source' has been replaced with a generated value",
+                 "You cannot add or remove a RIPE NCC maintainer"]
     }
 
     def "modify out of region aut-num, using override"() {
@@ -520,7 +522,7 @@ class OutOfRegionSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(1, 0, 1, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
 
-        ack.countErrorWarnInfo(0, 0, 1)
+        ack.countErrorWarnInfo(0, 1, 1)
 
         queryObject("-rBG -T aut-num AS252", "aut-num", "AS252")
     }
@@ -1154,7 +1156,7 @@ class OutOfRegionSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(1, 0, 1, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
 
-        ack.countErrorWarnInfo(0, 0, 1)
+        ack.countErrorWarnInfo(0, 1, 1)
 
         queryObject("-rGBT route 213.152.64.0/24", "route", "213.152.64.0/24")
     }
@@ -1237,9 +1239,10 @@ class OutOfRegionSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(1, 0, 1, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
 
-        ack.countErrorWarnInfo(0, 1, 1)
+        ack.countErrorWarnInfo(0, 2, 1)
         ack.warningSuccessMessagesFor("Modify", "[route] 10.1.0.0/16AS252") ==
-                ["Supplied attribute 'source' has been replaced with a generated value"]
+                ["Supplied attribute 'source' has been replaced with a generated value",
+                 "You cannot add or remove a RIPE NCC maintainer"]
 
         queryObject("-rGBT route 10.1.0.0/16", "route", "10.1.0.0/16")
     }
@@ -1322,9 +1325,10 @@ class OutOfRegionSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(1, 0, 1, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
 
-        ack.countErrorWarnInfo(0, 1, 1)
+        ack.countErrorWarnInfo(0, 2, 1)
         ack.warningSuccessMessagesFor("Modify", "[route] 213.152.64.0/24AS252") ==
-                ["Supplied attribute 'source' has been replaced with a generated value"]
+                ["Supplied attribute 'source' has been replaced with a generated value",
+                 "You cannot add or remove a RIPE NCC maintainer"]
 
         queryObject("-rGBT route 213.152.64.0/24", "route", "213.152.64.0/24")
     }
@@ -1563,10 +1567,11 @@ class OutOfRegionSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(1, 1, 0, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
 
-        ack.countErrorWarnInfo(0, 1, 1)
+        ack.countErrorWarnInfo(0, 2, 1)
 
         ack.warningSuccessMessagesFor("Create", "[route6] 2001:400::/24AS252") == [
-                "Supplied attribute 'source' has been replaced with a generated value"
+                "Supplied attribute 'source' has been replaced with a generated value",
+                 "You cannot add or remove a RIPE NCC maintainer"
         ]
 
         queryObject("-rGBT route6 2001:400::/24", "route6", "2001:400::/24")

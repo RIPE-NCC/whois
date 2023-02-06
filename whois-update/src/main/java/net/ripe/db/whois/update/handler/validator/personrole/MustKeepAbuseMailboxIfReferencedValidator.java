@@ -65,11 +65,6 @@ public class MustKeepAbuseMailboxIfReferencedValidator implements BusinessRuleVa
     }
 
     @Override
-    public boolean isSkipForOverride() {
-        return false;
-    }
-
-    @Override
     public ImmutableList<Action> getActions() {
         return ACTIONS;
     }

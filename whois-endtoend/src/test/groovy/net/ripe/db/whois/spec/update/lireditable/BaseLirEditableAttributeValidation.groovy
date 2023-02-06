@@ -185,7 +185,7 @@ class BaseLirEditableAttributeValidation extends BaseLirEditableAttributes {
         ack.summary.nrFound == 1
         ack.summary.assertSuccess(1, 0, 1, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
-        ack.countErrorWarnInfo(0, 5, 1)
+        ack.countErrorWarnInfo(0, 4, 1)
         ack.successes.any { it.operation == "Modify" && it.key == "[${resourceType}] ${resourceValue}" }
     }
 
