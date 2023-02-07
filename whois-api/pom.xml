@@ -18,15 +18,6 @@
         </dependency>
 
         <dependency>
-            <groupId>commons-io</groupId>
-            <artifactId>commons-io</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>commons-net</groupId>
-            <artifactId>commons-net</artifactId>
-        </dependency>
-
-        <dependency>
             <groupId>net.ripe.db</groupId>
             <artifactId>whois-query</artifactId>
         </dependency>
@@ -138,8 +129,18 @@
             <groupId>org.apache.lucene</groupId>
             <artifactId>lucene-facet</artifactId>
         </dependency>
-
-
+        <dependency>
+            <groupId>commons-io</groupId>
+            <artifactId>commons-io</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>commons-net</groupId>
+            <artifactId>commons-net</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.commons</groupId>
+            <artifactId>commons-compress</artifactId>
+        </dependency>
 
         <!-- testing -->
 
@@ -172,6 +173,7 @@
             <artifactId>whois-update</artifactId>
             <type>test-jar</type>
         </dependency>
+
 
     </dependencies>
 

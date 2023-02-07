@@ -31,7 +31,6 @@
             <groupId>net.javacrumbs.shedlock</groupId>
             <artifactId>shedlock-provider-jdbc-template</artifactId>
         </dependency>
-
         <!-- testing -->
         <dependency>
             <groupId>net.ripe.db</groupId>
