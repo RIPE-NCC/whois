@@ -51,14 +51,14 @@ public class SnapshotFileGenerator {
     public List<PublishableSnapshotFile> createSnapshots() throws IOException {
         // Get last version from database.
         final Optional<NrtmVersionInfo> lastVersion = nrtmVersionInfoRepository.findLastVersion();
-        final List<NrtmVersionInfo> versions = new ArrayList<>();
+        final List<NrtmVersionInfo> sourceVersions = new ArrayList<>();
         LOGGER.info("lastVersion.isEmpty() {}", lastVersion.isEmpty());
         if (lastVersion.isEmpty()) {
             final InitialSnapshotState state = snapshotObjectSynchronizer.initializeSnapshotObjects();
             for (final NrtmSource source : NrtmSourceHolder.getAllSources()) {
                 final NrtmVersionInfo version = nrtmVersionInfoRepository.createInitialVersion(source, state.serialId());
                 nrtmFileStore.createNrtmSessionDirectory(version.getSessionID());
-                versions.add(version);
+                sourceVersions.add(version);
             }
 //        } else {
 //            version = lastVersion.get();
@@ -72,12 +72,12 @@ public class SnapshotFileGenerator {
 //            }
         }
         final List<PublishableSnapshotFile> snapshotFiles = new ArrayList<>();
-        for (final NrtmVersionInfo version : versions) {
-            LOGGER.info("{} at version: {}", version.getSource().source(), version);
-            if (version.getVersion() > 1) {
+        for (final NrtmVersionInfo sourceVersion : sourceVersions) {
+            LOGGER.info("{} at version: {}", sourceVersion.getSource().source(), sourceVersion);
+            if (sourceVersion.getVersion() > 1) {
                 LOGGER.debug("Sync Whois changes to snapshot here (not implemented)");
             }
-            final PublishableSnapshotFile snapshotFile = new PublishableSnapshotFile(version);
+            final PublishableSnapshotFile snapshotFile = new PublishableSnapshotFile(sourceVersion);
             final String fileName = NrtmFileUtil.newFileName(snapshotFile);
             Stopwatch stopwatch = Stopwatch.createStarted();
             try (final OutputStream out = nrtmFileStore.getFileOutputStream(snapshotFile.getSessionID(), fileName)) {
