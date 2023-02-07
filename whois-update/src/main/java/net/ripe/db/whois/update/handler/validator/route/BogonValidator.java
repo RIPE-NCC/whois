@@ -41,7 +41,7 @@ public class BogonValidator implements BusinessRuleValidator {
     public List<CustomValidationMessage> performValidation(final PreparedUpdate update, final UpdateContext updateContext) {
         final RpslObject updatedObject = update.getUpdatedObject();
         if (updatedObject == null) {
-            Collections.emptyList();
+            return Collections.emptyList();
         }
 
         final List<CustomValidationMessage> customValidationMessages = Lists.newArrayList();

@@ -53,7 +53,7 @@ public class OriginValidator implements BusinessRuleValidator {
     public List<CustomValidationMessage> performValidation(PreparedUpdate update, UpdateContext updateContext) {
         final RpslObject updatedObject = update.getUpdatedObject();
         if (updatedObject == null) {
-            Collections.emptyList();
+           return Collections.emptyList();
         }
 
         final CIString autnumKey = updatedObject.getValueForAttribute(AttributeType.ORIGIN);
