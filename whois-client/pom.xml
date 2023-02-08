@@ -16,10 +16,12 @@
             <groupId>net.ripe.db</groupId>
             <artifactId>whois-rpsl</artifactId>
         </dependency>
+
         <dependency>
             <groupId>org.springframework</groupId>
-            <artifactId>spring-context</artifactId>
+            <artifactId>spring-context-support</artifactId>
         </dependency>
+
         <dependency>
             <groupId>net.sf.jopt-simple</groupId>
             <artifactId>jopt-simple</artifactId>
@@ -56,6 +58,11 @@
         </dependency>
         <!-- AspectJ -->
         <dependency>
+           <groupId>org.springframework</groupId>
+           <artifactId>spring-tx</artifactId>
+           <scope>compile</scope>
+       </dependency>
+        <dependency>
             <groupId>org.aspectj</groupId>
             <artifactId>aspectjweaver</artifactId>
             <scope>compile</scope>
@@ -73,11 +80,13 @@
                     <usedDependencies>
                         <dependency>org.glassfish.jersey.core:jersey-client</dependency>
                         <dependency>org.glassfish.jaxb:jaxb-runtime</dependency>
+                        <dependency>org.springframework:spring-tx</dependency>
                     </usedDependencies>
 
                     <!-- Ignore dependencies coming from another dependencies that we are already using, and for
                     which we don't want to take control -->
                     <ignoredUsedUndeclaredDependencies>
+                        <ignoredUsedUndeclaredDependency>org.springframework:spring-context</ignoredUsedUndeclaredDependency>
                         <ignoredUsedUndeclaredDependency>commons-logging:commons-logging</ignoredUsedUndeclaredDependency>
                         <ignoredUsedUndeclaredDependency>commons-lang:commons-lang</ignoredUsedUndeclaredDependency>
                         <ignoredUsedUndeclaredDependency>org.springframework:spring-beans</ignoredUsedUndeclaredDependency>
