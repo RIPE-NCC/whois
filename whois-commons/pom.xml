@@ -32,6 +32,10 @@
             <artifactId>whois-client</artifactId>
         </dependency>
         <dependency>
+            <groupId>org.glassfish.jersey.inject</groupId>
+            <artifactId>jersey-hk2</artifactId>
+        </dependency>
+        <dependency>
             <groupId>net.ripe.commons</groupId>
             <artifactId>commons-ip-math</artifactId>
         </dependency>
@@ -84,7 +88,10 @@
             <groupId>net.javacrumbs.shedlock</groupId>
             <artifactId>shedlock-spring</artifactId>
         </dependency>
-
+        <dependency>
+            <groupId>org.mariadb.jdbc</groupId>
+            <artifactId>mariadb-java-client</artifactId>
+        </dependency>
         <!-- test -->
         <dependency>
             <groupId>org.apache.commons</groupId>
@@ -108,6 +115,13 @@
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-dependency-plugin</artifactId>
                 <configuration>
+                    <!-- Dependencies marked as not used, but actually they are necessary to run the project-->
+                    <usedDependencies>
+                        <dependency>io.netty:netty-all</dependency>
+                        <dependency>org.glassfish.jersey.inject:jersey-hk2</dependency>
+                        <dependency>org.mariadb.jdbc:mariadb-java-client</dependency>
+                    </usedDependencies>
+
                     <!-- Ignore dependencies coming from another dependencies that we are already using, and for
                     which we don't want to take control -->
                     <ignoredUsedUndeclaredDependencies>
