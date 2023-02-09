@@ -22,6 +22,7 @@ public class SourceRepository {
         @Qualifier("nrtmDataSource") final DataSource dataSource
     ) {
         this.jdbcTemplate = new JdbcTemplate(dataSource);
+
     }
 
     public NrtmSourceModel createSource(final NrtmSource source) {

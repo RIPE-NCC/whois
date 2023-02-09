@@ -35,7 +35,7 @@ public class NrtmFileProcessorIntegrationTest extends AbstractNrtm4IntegrationBa
     @Test
     void nrtm_write_job_is_disabled_by_jmx() throws IOException {
         nrtmFileProcessor.updateNrtmFilesAndPublishNotification();
-        final var source = nrtmVersionInfoRepository.findLastVersion(nrtmSourceHolder.getSource());
+        final var source = nrtmVersionInfoRepository.findLastVersion();
         assertThat(source.isPresent(), is(false));
     }
 
@@ -43,7 +43,7 @@ public class NrtmFileProcessorIntegrationTest extends AbstractNrtm4IntegrationBa
     void nrtm_write_job_is_enabled_by_jmx() throws IOException {
         nrtmProcessControlJmx.enableInitialSnapshotGeneration();
         nrtmFileProcessor.updateNrtmFilesAndPublishNotification();
-        final var source = nrtmVersionInfoRepository.findLastVersion(nrtmSourceHolder.getSource());
+        final var source = nrtmVersionInfoRepository.findLastVersion();
         assertThat(source.isPresent(), is(true));
     }
 

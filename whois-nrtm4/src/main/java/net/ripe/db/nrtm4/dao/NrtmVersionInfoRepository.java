@@ -55,23 +55,23 @@ public class NrtmVersionInfoRepository {
      * @param source Find version only for this source
      * @return Optional version object, if one was found
      */
-    public Optional<NrtmVersionInfo> findLastVersion(final NrtmSource source) {
-        try {
-            return Optional.ofNullable(jdbcTemplate.queryForObject("""
-                    SELECT v.id, src.id, src.name, v.version, v.session_id, v.type, v.last_serial_id, v.created
-                    FROM version_info v
-                    JOIN source src ON src.id = v.source_id
-                    WHERE src.name = ?
-                    ORDER BY v.version DESC LIMIT 1
-                    """,
-                rowMapper,
-                source.name())
-            );
-        } catch (final EmptyResultDataAccessException ex) {
-            LOGGER.debug("findLastVersion found no entries, and so threw exception: {}", ex.getMessage());
-            return Optional.empty();
-        }
-    }
+//    public Optional<NrtmVersionInfo> findLastVersion(final NrtmSource source) {
+//        try {
+//            return Optional.ofNullable(jdbcTemplate.queryForObject("""
+//                    SELECT v.id, src.id, src.name, v.version, v.session_id, v.type, v.last_serial_id, v.created
+//                    FROM version_info v
+//                    JOIN source src ON src.id = v.source_id
+//                    WHERE src.name = ?
+//                    ORDER BY v.version DESC LIMIT 1
+//                    """,
+//                rowMapper,
+//                source.name())
+//            );
+//        } catch (final EmptyResultDataAccessException ex) {
+//            LOGGER.debug("findLastVersion found no entries, and so threw exception: {}", ex.getMessage());
+//            return Optional.empty();
+//        }
+//    }
 
     public Optional<NrtmVersionInfo> findLastVersion() {
         try {
@@ -132,26 +132,18 @@ public class NrtmVersionInfoRepository {
         return new NrtmVersionInfo(keyHolder.getKeyAs(Long.class), sourceID, source, version, sessionID, type, lastSerialId, now);
     }
 
-    public NrtmVersionInfo findLastSnapshotVersion(final NrtmSource source) {
-        final String sql = """
-            SELECT v.id, src.id, src.name, v.version, v.session_id, v.type, v.last_serial_id, v.created
-            FROM version_info v
-            JOIN source src ON src.id = v.source_id
-            JOIN snapshot_file sf ON sf.version_id = v.id
-            WHERE src.name = ?
-            ORDER BY v.version DESC LIMIT 1
-            """;
-        return jdbcTemplate.queryForObject(sql, rowMapper, source);
-    }
-
     public Optional<NrtmVersionInfo> findById(final long versionId) {
-        final String sql = """
-            SELECT v.id, src.id, src.name, v.version, v.session_id, v.type, v.last_serial_id, v.created
-            FROM version_info v
-            JOIN source src ON src.id = v.source_id
-            WHERE v.id = ?
-            """;
-        return Optional.ofNullable(jdbcTemplate.queryForObject(sql, rowMapper, versionId));
+        try {
+            final String sql = """
+                SELECT v.id, src.id, src.name, v.version, v.session_id, v.type, v.last_serial_id, v.created
+                FROM version_info v
+                JOIN source src ON src.id = v.source_id
+                WHERE v.id = ?
+                """;
+            return Optional.ofNullable(jdbcTemplate.queryForObject(sql, rowMapper, versionId));
+        } catch (final EmptyResultDataAccessException e) {
+            return Optional.empty();
+        }
     }
 
 }
