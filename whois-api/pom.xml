@@ -270,6 +270,7 @@
                     <!-- Dependencies marked as not used, but actually they are necessary to run the project-->
                     <usedDependencies>
                         <dependency>org.glassfish.jersey.containers:jersey-container-servlet</dependency>
+                        <dependency>org.springframework:spring-oxm</dependency>
                     </usedDependencies>
 
                     <!-- Ignore dependencies coming from another dependencies that we are already using, and for

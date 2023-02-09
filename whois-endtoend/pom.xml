@@ -11,6 +11,10 @@
     <packaging>jar</packaging>
 
     <dependencies>
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-oxm</artifactId>
+        </dependency>
         <!-- testing -->
         <dependency>
             <groupId>net.ripe.db</groupId>

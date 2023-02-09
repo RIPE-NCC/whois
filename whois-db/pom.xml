@@ -12,6 +12,23 @@
 
     <dependencies>
         <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-oxm</artifactId>
+        </dependency>
+        
+        <dependency>
+            <groupId>net.ripe.db</groupId>
+            <artifactId>whois-query</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>net.ripe.db</groupId>
+            <artifactId>whois-nrtm</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>net.ripe.db</groupId>
+            <artifactId>whois-nrtm4</artifactId>
+        </dependency>
+        <dependency>
             <groupId>net.ripe.db</groupId>
             <artifactId>whois-api</artifactId>
             <!-- The reason we add this exclusion is that the common-beanutils (or commons-beanutils-core) jar
@@ -25,7 +42,10 @@
                 </exclusion>
             </exclusions>
         </dependency>
-
+        <dependency>
+            <groupId>net.ripe.db</groupId>
+            <artifactId>whois-scheduler</artifactId>
+        </dependency>
         <!-- testing -->
         <dependency>
             <groupId>net.ripe.db</groupId>
@@ -35,6 +55,11 @@
         <dependency>
             <groupId>net.ripe.db</groupId>
             <artifactId>whois-api</artifactId>
+            <type>test-jar</type>
+        </dependency>
+        <dependency>
+            <groupId>net.ripe.db</groupId>
+            <artifactId>whois-query</artifactId>
             <type>test-jar</type>
         </dependency>
     </dependencies>
@@ -90,6 +115,10 @@
                             <groupId>org.springframework</groupId>
                             <artifactId>spring-aspects</artifactId>
                         </aspectLibrary>
+                        <aspectLibrary>
+                            <groupId>net.ripe.db</groupId>
+                            <artifactId>whois-commons</artifactId>
+                        </aspectLibrary>
                     </aspectLibraries>
                 </configuration>
             </plugin>
@@ -119,6 +148,7 @@
                     <!-- Dependencies marked as not used, but actually they are necessary to run the project-->
                     <usedDependencies>
                         <dependency>net.ripe.db:whois-api</dependency>
+                        <dependency>org.springframework:spring-oxm</dependency>
                     </usedDependencies>
 
                     <!-- Ignore dependencies coming from another dependencies that we are already using, and for
