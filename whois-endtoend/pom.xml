@@ -15,6 +15,10 @@
             <groupId>org.springframework</groupId>
             <artifactId>spring-oxm</artifactId>
         </dependency>
+        <dependency>
+            <groupId>net.ripe.db</groupId>
+            <artifactId>whois-db</artifactId>
+        </dependency>
         <!-- testing -->
         <dependency>
             <groupId>net.ripe.db</groupId>

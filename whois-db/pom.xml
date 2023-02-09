@@ -151,14 +151,20 @@
                 <artifactId>maven-dependency-plugin</artifactId>
                 <configuration>
                     <!-- Dependencies marked as not used, but actually they are necessary to run the project-->
+                    <!-- whois-query used in both, test and compilation scopes -->
                     <usedDependencies>
                         <dependency>net.ripe.db:whois-api</dependency>
                         <dependency>org.springframework:spring-oxm</dependency>
+                        <dependency>net.ripe.db:whois-query</dependency>
+                        <dependency>net.ripe.db:whois-nrtm</dependency>
+                        <dependency>net.ripe.db:whois-scheduler</dependency>
+                        <dependency>net.ripe.db:whois-nrtm4</dependency>
                     </usedDependencies>
 
                     <!-- Ignore dependencies coming from another dependencies that we are already using, and for
                     which we don't want to take control -->
                     <ignoredUsedUndeclaredDependencies>
+                        <ignoredUsedUndeclaredDependency>org.aspectj:aspectjweaver</ignoredUsedUndeclaredDependency>
                         <ignoredUsedUndeclaredDependency>org.springframework:spring-tx</ignoredUsedUndeclaredDependency>
                         <ignoredUsedUndeclaredDependency>net.ripe.db:whois-commons</ignoredUsedUndeclaredDependency>
                         <ignoredUsedUndeclaredDependency>commons-io:commons-io</ignoredUsedUndeclaredDependency>
@@ -177,6 +183,7 @@
                         <ignoredNonTestScopedDependency>org.springframework:spring-tx</ignoredNonTestScopedDependency>
                         <ignoredNonTestScopedDependency>org.springframework:spring-jdbc</ignoredNonTestScopedDependency>
                         <ignoredNonTestScopedDependency>net.ripe.db:whois-rpsl</ignoredNonTestScopedDependency>
+                        <ignoredNonTestScopedDependency>org.aspectj:aspectjweaver</ignoredNonTestScopedDependency>
                     </ignoredNonTestScopedDependencies>
                 </configuration>
             </plugin>
