@@ -1,6 +1,5 @@
 package net.ripe.db.nrtm4;
 
-import net.ripe.db.nrtm4.domain.NrtmSourceHolder;
 import net.ripe.db.nrtm4.domain.PublishableSnapshotFile;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Tag;

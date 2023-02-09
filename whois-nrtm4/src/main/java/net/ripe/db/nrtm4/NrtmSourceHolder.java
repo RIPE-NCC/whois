@@ -1,5 +1,6 @@
-package net.ripe.db.nrtm4.domain;
+package net.ripe.db.nrtm4;
 
+import net.ripe.db.nrtm4.domain.NrtmSource;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 

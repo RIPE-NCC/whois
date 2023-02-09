@@ -1,6 +1,5 @@
 package net.ripe.db.nrtm4;
 
-import net.ripe.db.nrtm4.domain.NrtmSourceHolder;
 import net.ripe.db.nrtm4.dao.NrtmVersionInfoRepository;
 import net.ripe.db.nrtm4.jmx.NrtmProcessControlJmx;
 import org.junit.jupiter.api.BeforeEach;

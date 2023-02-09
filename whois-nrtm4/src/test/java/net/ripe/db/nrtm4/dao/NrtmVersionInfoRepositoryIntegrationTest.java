@@ -1,7 +1,7 @@
 package net.ripe.db.nrtm4.dao;
 
 import net.ripe.db.nrtm4.AbstractNrtm4IntegrationBase;
-import net.ripe.db.nrtm4.domain.NrtmSourceHolder;
+import net.ripe.db.nrtm4.NrtmSourceHolder;
 import net.ripe.db.nrtm4.domain.NrtmVersionInfo;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;

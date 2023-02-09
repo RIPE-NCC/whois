@@ -2,7 +2,7 @@ package net.ripe.db.nrtm4.dao;
 
 import net.ripe.db.nrtm4.domain.NrtmDocumentType;
 import net.ripe.db.nrtm4.domain.NrtmSource;
-import net.ripe.db.nrtm4.domain.NrtmSourceHolder;
+import net.ripe.db.nrtm4.NrtmSourceHolder;
 import net.ripe.db.nrtm4.domain.NrtmVersionInfo;
 import net.ripe.db.whois.common.DateTimeProvider;
 import net.ripe.db.whois.common.dao.jdbc.JdbcRpslObjectOperations;
