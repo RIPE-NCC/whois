@@ -46,6 +46,7 @@ import java.util.Set;
 @Component
 public class JdbcRpslObjectOperations {
     private static final Logger LOGGER = LoggerFactory.getLogger(JdbcRpslObjectOperations.class);
+    private static final int MAX_NUMBER_OF_SERIALS = 100_000_000;
 
     public static void insertIntoTables(final JdbcTemplate jdbcTemplate, final RpslObjectInfo rpslObjectInfo, final RpslObject rpslObject) {
         final Set<CIString> missing = insertIntoTablesIgnoreMissing(jdbcTemplate, rpslObjectInfo, rpslObject);
@@ -364,8 +365,8 @@ public class JdbcRpslObjectOperations {
             }
 
             if (jdbcTemplate.queryForList("SHOW TABLES", String.class).contains("serials")) {
-                if (jdbcTemplate.queryForObject("SELECT count(*) FROM serials", Integer.class) > 50_000_000) {
-                    throw new IllegalStateException(String.format("%s has more than 50M serials, exiting", dbName));
+                if (jdbcTemplate.queryForObject("SELECT count(*) FROM serials", Integer.class) > MAX_NUMBER_OF_SERIALS) {
+                    LOGGER.info("{} has more than {} serials", dbName, MAX_NUMBER_OF_SERIALS);
                 }
             }
         } catch (DataAccessException e) {
