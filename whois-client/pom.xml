@@ -16,6 +16,12 @@
             <groupId>net.ripe.db</groupId>
             <artifactId>whois-rpsl</artifactId>
         </dependency>
+
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-context-support</artifactId>
+        </dependency>
+
         <dependency>
             <groupId>net.sf.jopt-simple</groupId>
             <artifactId>jopt-simple</artifactId>
@@ -79,8 +85,8 @@
                         <dependency>org.glassfish.jersey.core:jersey-client</dependency>
                         <dependency>org.glassfish.jaxb:jaxb-runtime</dependency>
                         <dependency>org.springframework:spring-tx</dependency>
-                        <dependency>com.fasterxml.jackson.jaxrs:jackson-jaxrs-json-provider</dependency>
                         <dependency>com.fasterxml.jackson.jaxrs:jackson-jaxrs-base</dependency>
+                        <dependency>org.springframework:spring-context-support</dependency>
                     </usedDependencies>
 
                     <!-- Ignore dependencies coming from another dependencies that we are already using, and for
