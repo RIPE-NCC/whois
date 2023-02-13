@@ -19,7 +19,6 @@
         <dependency>
             <groupId>org.apache.logging.log4j</groupId>
             <artifactId>log4j-core</artifactId>
-            <scope>test</scope>
         </dependency>
 
         <dependency>
@@ -283,6 +282,7 @@
                         <dependency>org.glassfish.jersey.containers:jersey-container-servlet</dependency>
                         <dependency>org.springframework:spring-oxm</dependency>
                         <dependency>org.apache.lucene:lucene-queries</dependency>
+                        <dependency>com.googlecode.ez-vcard:ez-vcard</dependency>
                     </usedDependencies>
 
                     <!-- Ignore dependencies coming from another dependencies that we are already using, and for
@@ -340,6 +340,7 @@
                         <ignoredNonTestScopedDependency>org.apache.commons:commons-compress</ignoredNonTestScopedDependency>
                         <ignoredNonTestScopedDependency>org.glassfish.jersey.core:jersey-client</ignoredNonTestScopedDependency>
                         <ignoredNonTestScopedDependency>org.apache.logging.log4j:log4j-api</ignoredNonTestScopedDependency>
+                        <ignoredNonTestScopedDependency>org.apache.logging.log4j:log4j-core</ignoredNonTestScopedDependency>
                     </ignoredNonTestScopedDependencies>
                 </configuration>
             </plugin>
