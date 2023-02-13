@@ -28,6 +28,12 @@
         <dependency>
             <groupId>net.ripe.db</groupId>
             <artifactId>whois-db</artifactId>
+            <exclusions>
+                <exclusion>
+                    <groupId>net.ripe.db</groupId>
+                    <artifactId>whois-query</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
         <dependency>
             <groupId>net.ripe.db</groupId>

@@ -17,11 +17,6 @@
         </dependency>
 
         <dependency>
-            <groupId>org.apache.logging.log4j</groupId>
-            <artifactId>log4j-core</artifactId>
-        </dependency>
-
-        <dependency>
             <groupId>net.ripe.db</groupId>
             <artifactId>whois-query</artifactId>
         </dependency>
@@ -129,8 +124,6 @@
             <groupId>com.googlecode.ez-vcard</groupId>
             <artifactId>ez-vcard</artifactId>
         </dependency>
-
-
 
         <dependency>
             <groupId>commons-io</groupId>
@@ -322,6 +315,8 @@
                         <ignoredUsedUndeclaredDependency>com.google.guava:guava</ignoredUsedUndeclaredDependency>
                         <ignoredUsedUndeclaredDependency>org.springframework:spring-core</ignoredUsedUndeclaredDependency>
                         <ignoredUsedUndeclaredDependency>stax:stax-api</ignoredUsedUndeclaredDependency>
+                        <ignoredUsedUndeclaredDependency>org.elasticsearch:elasticsearch</ignoredUsedUndeclaredDependency>
+                        <ignoredUsedUndeclaredDependency>org.elasticsearch.client:elasticsearch-rest-high-level-client</ignoredUsedUndeclaredDependency>
                     </ignoredUsedUndeclaredDependencies>
 
                     <!-- Ignore dependencies coming from another dependency and which we are just using in
@@ -330,7 +325,6 @@
                         <ignoredNonTestScopedDependency>org.apache.commons:commons-compress</ignoredNonTestScopedDependency>
                         <ignoredNonTestScopedDependency>org.glassfish.jersey.core:jersey-client</ignoredNonTestScopedDependency>
                         <ignoredNonTestScopedDependency>org.apache.logging.log4j:log4j-api</ignoredNonTestScopedDependency>
-                        <ignoredNonTestScopedDependency>org.apache.logging.log4j:log4j-core</ignoredNonTestScopedDependency>
                     </ignoredNonTestScopedDependencies>
                 </configuration>
             </plugin>

@@ -91,7 +91,6 @@
             <groupId>org.mariadb.jdbc</groupId>
             <artifactId>mariadb-java-client</artifactId>
         </dependency>
-
         <dependency>
             <groupId>commons-io</groupId>
             <artifactId>commons-io</artifactId>
@@ -104,9 +103,6 @@
             <groupId>org.apache.commons</groupId>
             <artifactId>commons-compress</artifactId>
         </dependency>
-
-
-
         <dependency>
             <groupId>org.elasticsearch</groupId>
             <artifactId>elasticsearch</artifactId>
@@ -114,17 +110,6 @@
         <dependency>
             <groupId>org.elasticsearch.client</groupId>
             <artifactId>elasticsearch-rest-high-level-client</artifactId>
-        </dependency>
-        <!-- test -->
-        <dependency>
-            <groupId>org.apache.commons</groupId>
-            <artifactId>commons-compress</artifactId>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>commons-io</groupId>
-            <artifactId>commons-io</artifactId>
-            <scope>test</scope>
         </dependency>
     </dependencies>
     <build>
@@ -148,6 +133,9 @@
                         <dependency>io.netty:netty-all</dependency>
                         <dependency>org.glassfish.jersey.inject:jersey-hk2</dependency>
                         <dependency>org.mariadb.jdbc:mariadb-java-client</dependency>
+                        <dependency>commons-net:commons-net</dependency>
+                        <dependency>org.elasticsearch:elasticsearch</dependency>
+                        <dependency>org.elasticsearch.client:elasticsearch-rest-high-level-client</dependency>
                     </usedDependencies>
 
                     <!-- Ignore dependencies coming from another dependencies that we are already using, and for
@@ -169,6 +157,7 @@
                         <ignoredUsedUndeclaredDependency>jakarta.ws.rs:jakarta.ws.rs-api</ignoredUsedUndeclaredDependency>
                         <ignoredUsedUndeclaredDependency>org.springframework:spring-core</ignoredUsedUndeclaredDependency>
                         <ignoredUsedUndeclaredDependency>io.netty:netty-buffer</ignoredUsedUndeclaredDependency>
+                        <ignoredUsedUndeclaredDependency>org.springframework:spring-jcl</ignoredUsedUndeclaredDependency>
                     </ignoredUsedUndeclaredDependencies>
 
                     <!-- Ignore dependencies coming from another dependency and which we are just using in
@@ -177,6 +166,9 @@
                         <ignoredNonTestScopedDependency>io.netty:netty-codec</ignoredNonTestScopedDependency>
                         <ignoredNonTestScopedDependency>io.netty:netty-buffer</ignoredNonTestScopedDependency>
                         <ignoredNonTestScopedDependency>commons-logging:commons-logging</ignoredNonTestScopedDependency>
+                        <ignoredNonTestScopedDependency>org.springframework:spring-jcl</ignoredNonTestScopedDependency>
+                        <ignoredNonTestScopedDependency>org.apache.commons:commons-compress</ignoredNonTestScopedDependency>
+                        <ignoredNonTestScopedDependency>commons-io:commons-io</ignoredNonTestScopedDependency>
                     </ignoredNonTestScopedDependencies>
                 </configuration>
             </plugin>
