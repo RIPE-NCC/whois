@@ -7,13 +7,9 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
-import org.springframework.jdbc.support.GeneratedKeyHolder;
-import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.stereotype.Repository;
 
 import javax.sql.DataSource;
-import java.sql.PreparedStatement;
-import java.sql.Statement;
 import java.util.Optional;
 
 
@@ -36,18 +32,14 @@ public class SnapshotFileRepository {
     }
 
     public void insert(final PublishableSnapshotFile snapshotFile) {
-        final KeyHolder keyHolder = new GeneratedKeyHolder();
-        jdbcTemplate.update(connection -> {
-                final String sql = "" +
-                    "INSERT INTO snapshot_file (version_id, name, hash) " +
-                    "VALUES (?, ?, ?)";
-                final PreparedStatement pst = connection.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS);
-                pst.setLong(1, snapshotFile.getVersionId());
-                pst.setString(2, snapshotFile.getFileName());
-                pst.setString(3, snapshotFile.getHash());
-                return pst;
-            }, keyHolder
-        );
+        final String sql = """
+            INSERT INTO snapshot_file (version_id, name, hash)
+            VALUES (?, ?, ?)
+            """;
+        jdbcTemplate.update(sql,
+            snapshotFile.getVersionId(),
+            snapshotFile.getFileName(),
+            snapshotFile.getHash());
     }
 
     public Optional<SnapshotFile> getByName(final String sessionId, final String name) {
