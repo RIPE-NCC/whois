@@ -137,6 +137,13 @@
             <artifactId>lucene-facet</artifactId>
         </dependency>
         <dependency>
+            <groupId>com.googlecode.ez-vcard</groupId>
+            <artifactId>ez-vcard</artifactId>
+        </dependency>
+
+
+
+        <dependency>
             <groupId>commons-io</groupId>
             <artifactId>commons-io</artifactId>
         </dependency>
