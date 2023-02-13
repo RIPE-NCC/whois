@@ -118,6 +118,10 @@
         </dependency>
         <dependency>
             <groupId>org.apache.lucene</groupId>
+            <artifactId>lucene-queries</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.lucene</groupId>
             <artifactId>lucene-queryparser</artifactId>
         </dependency>
         <dependency>
@@ -271,6 +275,7 @@
                     <usedDependencies>
                         <dependency>org.glassfish.jersey.containers:jersey-container-servlet</dependency>
                         <dependency>org.springframework:spring-oxm</dependency>
+                        <dependency>org.apache.lucene:lucene-queries</dependency>
                     </usedDependencies>
 
                     <!-- Ignore dependencies coming from another dependencies that we are already using, and for
