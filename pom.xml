@@ -84,7 +84,7 @@
         <!-- Added JPA as a compile time dependency to prevent linting errors in IntelliJ -->
         <persistence.version>1.0.2</persistence.version>
 
-        <sentry.version>5.1.2</sentry.version>
+        <sentry.version>6.13.1</sentry.version>
         <shedlock.version>4.37.0</shedlock.version>
         <slf4j.version>2.0.3</slf4j.version>
         <solrj.version>1.4.1</solrj.version>
