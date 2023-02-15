@@ -16,8 +16,7 @@ public class NrtmVersionInfo {
     // can use.
     public NrtmVersionInfo(
         final Long id,
-        final Long sourceId,
-        final NrtmSource source,
+        final NrtmSourceModel source,
         final Long version,
         final String sessionID,
         final NrtmDocumentType type,
@@ -25,7 +24,7 @@ public class NrtmVersionInfo {
         final long created
     ) {
         this.id = id;
-        this.source = new NrtmSourceModel(sourceId, source);
+        this.source = source;
         this.version = version;
         this.sessionID = sessionID;
         this.type = type;

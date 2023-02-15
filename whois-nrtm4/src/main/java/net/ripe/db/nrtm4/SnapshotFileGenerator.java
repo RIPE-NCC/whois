@@ -4,8 +4,9 @@ import com.google.common.base.Stopwatch;
 import net.ripe.db.nrtm4.dao.NrtmVersionInfoRepository;
 import net.ripe.db.nrtm4.dao.SnapshotFileRepository;
 import net.ripe.db.nrtm4.dao.SnapshotFileSerializer;
+import net.ripe.db.nrtm4.dao.SourceRepository;
 import net.ripe.db.nrtm4.domain.InitialSnapshotState;
-import net.ripe.db.nrtm4.domain.NrtmSource;
+import net.ripe.db.nrtm4.domain.NrtmSourceModel;
 import net.ripe.db.nrtm4.domain.NrtmVersionInfo;
 import net.ripe.db.nrtm4.domain.PublishableSnapshotFile;
 import net.ripe.db.nrtm4.domain.SnapshotFile;
@@ -31,6 +32,7 @@ public class SnapshotFileGenerator {
     private final SnapshotFileSerializer snapshotFileSerializer;
     private final SnapshotFileRepository snapshotFileRepository;
     private final SnapshotObjectSynchronizer snapshotObjectSynchronizer;
+    private final SourceRepository sourceRepository;
     private final NrtmFileStore nrtmFileStore;
 
     public SnapshotFileGenerator(
@@ -38,12 +40,14 @@ public class SnapshotFileGenerator {
         final SnapshotFileSerializer snapshotFileSerializer,
         final SnapshotFileRepository snapshotFileRepository,
         final SnapshotObjectSynchronizer snapshotObjectSynchronizer,
+        final SourceRepository sourceRepository,
         final NrtmFileStore nrtmFileStore
     ) {
         this.nrtmVersionInfoRepository = nrtmVersionInfoRepository;
         this.snapshotFileSerializer = snapshotFileSerializer;
         this.snapshotFileRepository = snapshotFileRepository;
         this.snapshotObjectSynchronizer = snapshotObjectSynchronizer;
+        this.sourceRepository = sourceRepository;
         this.nrtmFileStore = nrtmFileStore;
     }
 
@@ -54,7 +58,7 @@ public class SnapshotFileGenerator {
         LOGGER.info("lastVersion.isEmpty() {}", lastVersion.isEmpty());
         if (lastVersion.isEmpty()) {
             final InitialSnapshotState state = snapshotObjectSynchronizer.initializeSnapshotObjects();
-            for (final NrtmSource source : NrtmSourceHolder.getAllSources()) {
+            for (final NrtmSourceModel source : sourceRepository.getAllSources()) {
                 final NrtmVersionInfo version = nrtmVersionInfoRepository.createInitialVersion(source, state.serialId());
                 nrtmFileStore.createNrtmSessionDirectory(version.getSessionID());
                 sourceVersions.add(version);
@@ -72,7 +76,7 @@ public class SnapshotFileGenerator {
         }
         final List<PublishableSnapshotFile> snapshotFiles = new ArrayList<>();
         for (final NrtmVersionInfo sourceVersion : sourceVersions) {
-            LOGGER.info("{} at version: {}", sourceVersion.getSource().source(), sourceVersion);
+            LOGGER.info("{} at version: {}", sourceVersion.getSource(), sourceVersion);
             if (sourceVersion.getVersion() > 1) {
                 LOGGER.debug("Sync Whois changes to snapshot here (not implemented)");
             }
@@ -82,14 +86,14 @@ public class SnapshotFileGenerator {
             try (final OutputStream out = nrtmFileStore.getFileOutputStream(snapshotFile.getSessionID(), fileName)) {
                 snapshotFileSerializer.writeSnapshotAsJson(snapshotFile, out);
             }
-            LOGGER.info("Wrote JSON for {} in {}", snapshotFile.getSource().name(), stopwatch);
+            LOGGER.info("Wrote JSON for {} in {}", snapshotFile.getSourceModel(), stopwatch);
             try {
                 stopwatch = Stopwatch.createStarted();
                 final String sha256hex = DigestUtils.sha256Hex(nrtmFileStore.getFileInputStream(snapshotFile.getSessionID(), fileName));
                 snapshotFile.setFileName(fileName);
                 snapshotFile.setHash(sha256hex);
                 snapshotFileRepository.insert(snapshotFile);
-                LOGGER.info("Calculated hash for {} in {}", snapshotFile.getSource().name(), stopwatch);
+                LOGGER.info("Calculated hash for {} in {}", snapshotFile.getSourceModel(), stopwatch);
                 snapshotFiles.add(snapshotFile);
             } catch (final IOException e) {
                 LOGGER.error("Exception thrown when calculating hash of snapshot file", e);
@@ -99,7 +103,7 @@ public class SnapshotFileGenerator {
         return snapshotFiles;
     }
 
-    public Optional<SnapshotFile> getLastSnapshot(final NrtmSource source) {
+    public Optional<SnapshotFile> getLastSnapshot(final NrtmSourceModel source) {
         return snapshotFileRepository.getLastSnapshot(source);
     }
 

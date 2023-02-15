@@ -6,7 +6,6 @@ import net.ripe.db.nrtm4.dao.SnapshotObjectRepository;
 import net.ripe.db.nrtm4.dao.SourceRepository;
 import net.ripe.db.nrtm4.dao.WhoisObjectRepository;
 import net.ripe.db.nrtm4.domain.InitialSnapshotState;
-import net.ripe.db.nrtm4.domain.NrtmSource;
 import net.ripe.db.nrtm4.domain.NrtmSourceModel;
 import net.ripe.db.nrtm4.domain.RpslObjectData;
 import net.ripe.db.nrtm4.domain.SnapshotObject;
@@ -52,9 +51,8 @@ public class SnapshotObjectSynchronizer {
     InitialSnapshotState initializeSnapshotObjects() {
         LOGGER.info("initializeSnapshotObjects entered");
         final Map<CIString, NrtmSourceModel> sourceMap = new HashMap<>();
-        for (final NrtmSource source : NrtmSourceHolder.getAllSources()) {
-            final NrtmSourceModel sourceModel = sourceRepository.createSource(source);
-            sourceMap.put(CIString.ciString(source.name()), sourceModel);
+        for (final NrtmSourceModel source : sourceRepository.getAllSources()) {
+            sourceMap.put(source.getSource(), source);
         }
         Stopwatch stopwatch = Stopwatch.createStarted();
         final InitialSnapshotState initialState = whoisObjectRepository.getInitialSnapshotState();
@@ -78,7 +76,7 @@ public class SnapshotObjectSynchronizer {
                             LOGGER.error(msg + " " + dummyRpsl.getValueForAttribute(AttributeType.SOURCE));
                             throw new RuntimeException(msg);
                         }
-                        batch.add(new SnapshotObject(0, source.id(), object.objectId(), object.sequenceId(), dummyRpsl));
+                        batch.add(new SnapshotObject(0, source.getId(), object.objectId(), object.sequenceId(), dummyRpsl));
                     }
                     snapshotObjectRepository.batchInsert(batch);
                 }

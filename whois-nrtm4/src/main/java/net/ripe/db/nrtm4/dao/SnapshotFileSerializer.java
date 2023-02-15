@@ -42,11 +42,11 @@ public class SnapshotFileSerializer {
         jGenerator.writeStartObject();
         jGenerator.writeNumberField("nrtm_version", snapshotFile.getNrtmVersion());
         jGenerator.writeStringField("type", NrtmDocumentType.SNAPSHOT.lowerCaseName());
-        jGenerator.writeStringField("source", snapshotFile.getSource().name());
+        jGenerator.writeStringField("source", snapshotFile.getSourceModel().getSource().toString());
         jGenerator.writeStringField("session_id", snapshotFile.getSessionID());
         jGenerator.writeNumberField("version", snapshotFile.getVersion());
         jGenerator.writeArrayFieldStart("objects");
-        snapshotObjectDao.consumeAllObjects(snapshotFile.getSource(), str -> {
+        snapshotObjectDao.consumeAllObjects(snapshotFile.getSourceModel(), str -> {
             try {
                 jGenerator.writeString(str);
             } catch (final IOException e) {

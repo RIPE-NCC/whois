@@ -1,5 +1,6 @@
 package net.ripe.db.nrtm4;
 
+import net.ripe.db.nrtm4.dao.SourceRepository;
 import net.ripe.db.nrtm4.domain.PublishableSnapshotFile;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Tag;
@@ -31,7 +32,7 @@ public class SnapshotFileGeneratorIntegrationTest extends AbstractNrtm4Integrati
     private SnapshotFileGenerator snapshotFileGenerator;
 
     @Autowired
-    private NrtmSourceHolder nrtmSourceHolder;
+    private SourceRepository sourceRepository;
 
     @Autowired
     private NrtmFileService nrtmFileService;
@@ -42,15 +43,17 @@ public class SnapshotFileGeneratorIntegrationTest extends AbstractNrtm4Integrati
     @Test
     public void initial_snapshot_file_is_generated_and_written_to_disk() throws IOException {
         loadScripts(whoisTemplate, "nrtm_sample_sm.sql");
+        sourceRepository.createSources();
         final String sessionID;
         {
             final List<PublishableSnapshotFile> psfList = snapshotFileGenerator.createSnapshots();
             assertThat(psfList.size(), is(2));
-            final PublishableSnapshotFile snapshotFile = psfList.stream().filter(psf -> psf.getSource().name().equals("TEST")).findFirst().orElseThrow();
+            final PublishableSnapshotFile snapshotFile = psfList.stream().filter(psf -> psf.getSourceModel().getSource().toString().equals("TEST")).findFirst().orElseThrow();
             assertThat(snapshotFile.getVersion(), is(1L));
             sessionID = snapshotFile.getSessionID();
             assertThat(sessionID, is(notNullValue()));
-            assertThat(snapshotFile.getSource(), is(nrtmSourceHolder.getSource()));
+            assertThat(snapshotFile.getSourceModel().getId(), is(sourceRepository.getSource().orElseThrow().getId()));
+            assertThat(snapshotFile.getSourceModel().getSource(), is(sourceRepository.getSource().orElseThrow().getSource()));
             assertThat(snapshotFile.getNrtmVersion(), is(4));
             assertThat(snapshotFile.getType(), is(SNAPSHOT));
             final var bos = new ByteArrayOutputStream();

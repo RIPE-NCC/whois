@@ -1,6 +1,7 @@
 package net.ripe.db.nrtm4;
 
-import net.ripe.db.nrtm4.domain.NrtmSource;
+import net.ripe.db.nrtm4.dao.SourceRepository;
+import net.ripe.db.nrtm4.domain.NrtmSourceModel;
 import net.ripe.db.nrtm4.domain.PublishableSnapshotFile;
 import net.ripe.db.nrtm4.domain.SnapshotFile;
 import net.ripe.db.nrtm4.jmx.NrtmProcessControl;
@@ -21,25 +22,28 @@ public class NrtmFileProcessor {
 
     private final NrtmFileService nrtmFileService;
     private final NrtmProcessControl nrtmProcessControl;
-    private final NrtmSourceHolder nrtmSourceHolder;
     private final SnapshotFileGenerator snapshotFileGenerator;
+    private final SourceRepository sourceRepository;
 
     public NrtmFileProcessor(
         final NrtmFileService nrtmFileService,
         final NrtmProcessControl nrtmProcessControl,
-        final NrtmSourceHolder nrtmSourceHolder,
-        final SnapshotFileGenerator snapshotFileGenerator
+        final SnapshotFileGenerator snapshotFileGenerator,
+        final SourceRepository sourceRepository
     ) {
         this.nrtmFileService = nrtmFileService;
         this.nrtmProcessControl = nrtmProcessControl;
-        this.nrtmSourceHolder = nrtmSourceHolder;
         this.snapshotFileGenerator = snapshotFileGenerator;
+        this.sourceRepository = sourceRepository;
     }
 
     public void updateNrtmFilesAndPublishNotification() throws IOException {
-        LOGGER.info("runWrite() called");
-        final NrtmSource source = nrtmSourceHolder.getSource();
-        final Optional<SnapshotFile> lastSnapshot = snapshotFileGenerator.getLastSnapshot(source);
+        LOGGER.info("updateNrtmFilesAndPublishNotification() called");
+        final List<NrtmSourceModel> sourceList = sourceRepository.getAllSources();
+        if (sourceList.isEmpty()) {
+            sourceRepository.createSources();
+        }
+        final Optional<SnapshotFile> lastSnapshot = snapshotFileGenerator.getLastSnapshot(sourceRepository.getSource().orElseThrow());
         List<PublishableSnapshotFile> publishableSnapshotFileList;
         if (lastSnapshot.isEmpty()) {
             LOGGER.info("No previous snapshot found");

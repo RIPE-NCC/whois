@@ -19,10 +19,10 @@ public class NrtmFileProcessorIntegrationTest extends AbstractNrtm4IntegrationBa
 
     @Autowired
     private NrtmFileProcessor nrtmFileProcessor;
+
     @Autowired
     private NrtmVersionInfoRepository nrtmVersionInfoRepository;
-    @Autowired
-    private NrtmSourceHolder nrtmSourceHolder;
+
     @Autowired
     private NrtmProcessControlJmx nrtmProcessControlJmx;
 

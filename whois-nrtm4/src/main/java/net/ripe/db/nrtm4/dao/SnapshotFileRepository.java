@@ -1,6 +1,6 @@
 package net.ripe.db.nrtm4.dao;
 
-import net.ripe.db.nrtm4.domain.NrtmSource;
+import net.ripe.db.nrtm4.domain.NrtmSourceModel;
 import net.ripe.db.nrtm4.domain.PublishableSnapshotFile;
 import net.ripe.db.nrtm4.domain.SnapshotFile;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -57,17 +57,16 @@ public class SnapshotFileRepository {
         }
     }
 
-    public Optional<SnapshotFile> getLastSnapshot(final NrtmSource source) {
+    public Optional<SnapshotFile> getLastSnapshot(final NrtmSourceModel source) {
         final String sql = """
             SELECT sf.id, sf.version_id, sf.name, sf.hash
             FROM snapshot_file sf
             JOIN version_info v ON v.id = sf.version_id
-            JOIN source src ON src.id = v.source_id
-            WHERE src.name = ?
+            WHERE v.source_id = ?
             ORDER BY v.version DESC LIMIT 1
             """;
         try {
-            return Optional.ofNullable(jdbcTemplate.queryForObject(sql, rowMapper, source.name()));
+            return Optional.ofNullable(jdbcTemplate.queryForObject(sql, rowMapper, source.getId()));
         } catch (final EmptyResultDataAccessException ex) {
             return Optional.empty();
         }

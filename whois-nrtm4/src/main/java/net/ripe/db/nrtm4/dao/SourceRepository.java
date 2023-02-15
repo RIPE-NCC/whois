@@ -1,42 +1,75 @@
 package net.ripe.db.nrtm4.dao;
 
-import net.ripe.db.nrtm4.domain.NrtmSource;
 import net.ripe.db.nrtm4.domain.NrtmSourceModel;
+import net.ripe.db.whois.common.domain.CIString;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
-import org.springframework.jdbc.support.GeneratedKeyHolder;
-import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.stereotype.Repository;
 
 import javax.sql.DataSource;
-import java.sql.PreparedStatement;
-import java.sql.Statement;
+import java.util.List;
+import java.util.Optional;
 
 
 @Repository
 public class SourceRepository {
 
     private final JdbcTemplate jdbcTemplate;
+    private final List<String> sources;
+    private final String source;
 
     SourceRepository(
-        @Qualifier("nrtmDataSource") final DataSource dataSource
+        @Qualifier("nrtmDataSource") final DataSource dataSource,
+        @Value("${whois.source}") final String source,
+        @Value("${whois.nonauth.source}") final String nonauthSource
     ) {
         this.jdbcTemplate = new JdbcTemplate(dataSource);
-
+        this.source = source.toUpperCase();
+        sources = List.of(
+            source.toUpperCase(),
+            nonauthSource.toUpperCase()
+        );
     }
 
-    public NrtmSourceModel createSource(final NrtmSource source) {
-        final KeyHolder keyHolder = new GeneratedKeyHolder();
-        jdbcTemplate.update(connection -> {
-            final String sql = """
-                INSERT INTO source (name)
-                VALUES (?)
-                """;
-            final PreparedStatement pst = connection.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS);
-            pst.setString(1, source.name());
-            return pst;
-        }, keyHolder);
-        return new NrtmSourceModel(keyHolder.getKeyAs(Long.class), source);
+    public List<NrtmSourceModel> createSources() {
+        final String sql = """
+            INSERT INTO source (name)
+            VALUES (?)
+            """;
+        for (final String source : sources) {
+            jdbcTemplate.update(sql, source);
+        }
+        return getAllSources();
+    }
+
+    public Optional<NrtmSourceModel> getSource() {
+        final String sql = """
+            SELECT id, name
+            FROM source
+            WHERE name = ?
+            """;
+        try {
+            return Optional.ofNullable(jdbcTemplate.queryForObject(
+                sql,
+                (rs, rn) -> new NrtmSourceModel(rs.getLong(1), CIString.ciString(rs.getString(2))),
+                this.source));
+        } catch (final EmptyResultDataAccessException e) {
+            return Optional.empty();
+        }
+    }
+
+    public List<NrtmSourceModel> getAllSources() {
+        final String sql = """
+            SELECT id, name
+            FROM source
+            """;
+        try {
+            return jdbcTemplate.query(sql, (rs, rn) -> new NrtmSourceModel(rs.getLong(1), CIString.ciString(rs.getString(2))));
+        } catch (final EmptyResultDataAccessException e) {
+            return List.of();
+        }
     }
 
 }
