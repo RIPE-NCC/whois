@@ -2,7 +2,6 @@ package net.ripe.db.nrtm4;
 
 import net.ripe.db.nrtm4.dao.SourceRepository;
 import net.ripe.db.nrtm4.domain.NrtmSourceModel;
-import net.ripe.db.nrtm4.domain.PublishableSnapshotFile;
 import net.ripe.db.nrtm4.domain.SnapshotFile;
 import net.ripe.db.nrtm4.jmx.NrtmProcessControl;
 import org.mariadb.jdbc.internal.logging.Logger;
@@ -44,16 +43,14 @@ public class NrtmFileProcessor {
             sourceRepository.createSources();
         }
         final Optional<SnapshotFile> lastSnapshot = snapshotFileGenerator.getLastSnapshot(sourceRepository.getSource().orElseThrow());
-        List<PublishableSnapshotFile> publishableSnapshotFileList;
         if (lastSnapshot.isEmpty()) {
             LOGGER.info("No previous snapshot found");
             if (nrtmProcessControl.isInitialSnapshotGenerationEnabled()) {
                 LOGGER.info("Initializing...");
-                publishableSnapshotFileList = snapshotFileGenerator.createSnapshots();
+                snapshotFileGenerator.createSnapshots();
                 LOGGER.info("Initialization complete");
             } else {
                 LOGGER.info("Initialization skipped because NrtmProcessControl has disabled initial snapshot generation");
-                return;
             }
         }
 

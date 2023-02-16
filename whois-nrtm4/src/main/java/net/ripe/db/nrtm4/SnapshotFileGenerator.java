@@ -53,26 +53,14 @@ public class SnapshotFileGenerator {
 
     public List<PublishableSnapshotFile> createSnapshots() throws IOException {
         // Get last version from database.
-        final Optional<NrtmVersionInfo> lastVersion = nrtmVersionInfoRepository.findLastVersion();
-        final List<NrtmVersionInfo> sourceVersions = new ArrayList<>();
-        LOGGER.info("lastVersion.isEmpty() {}", lastVersion.isEmpty());
-        if (lastVersion.isEmpty()) {
+        final List<NrtmVersionInfo> sourceVersions = nrtmVersionInfoRepository.findLastVersionPerSource();
+        if (sourceVersions.isEmpty()) {
             final InitialSnapshotState state = snapshotObjectSynchronizer.initializeSnapshotObjects();
             for (final NrtmSourceModel source : sourceRepository.getAllSources()) {
                 final NrtmVersionInfo version = nrtmVersionInfoRepository.createInitialVersion(source, state.serialId());
                 nrtmFileStore.createNrtmSessionDirectory(version.getSessionID());
                 sourceVersions.add(version);
             }
-//        } else {
-//            version = lastVersion.get();
-//            if (version.getType() == NrtmDocumentType.DELTA) {
-//                LOGGER.info("Not generating snapshot file yet");
-//                return Optional.empty();
-//            } else {
-//                LOGGER.info("Not generating snapshot file since no deltas have been published since v{} with serialID {}",
-//                    version.getVersion(), version.getLastSerialId());
-//                return Optional.empty();
-//            }
         }
         final List<PublishableSnapshotFile> snapshotFiles = new ArrayList<>();
         for (final NrtmVersionInfo sourceVersion : sourceVersions) {
