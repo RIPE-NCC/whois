@@ -124,18 +124,14 @@ public class NrtmVersionInfoRepository {
         return new NrtmVersionInfo(keyHolder.getKeyAs(Long.class), source, version, sessionID, type, lastSerialId, now);
     }
 
-    public Optional<NrtmVersionInfo> findById(final long versionId) {
-        try {
-            final String sql = """
-                SELECT v.id, src.id, src.name, v.version, v.session_id, v.type, v.last_serial_id, v.created
-                FROM version_info v
-                JOIN source src ON src.id = v.source_id
-                WHERE v.id = ?
-                """;
-            return Optional.ofNullable(jdbcTemplate.queryForObject(sql, rowMapper, versionId));
-        } catch (final EmptyResultDataAccessException e) {
-            return Optional.empty();
-        }
+    public NrtmVersionInfo findById(final long versionId) {
+        final String sql = """
+            SELECT v.id, src.id, src.name, v.version, v.session_id, v.type, v.last_serial_id, v.created
+            FROM version_info v
+            JOIN source src ON src.id = v.source_id
+            WHERE v.id = ?
+            """;
+        return jdbcTemplate.queryForObject(sql, rowMapper, versionId);
     }
 
 }
