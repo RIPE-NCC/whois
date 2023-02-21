@@ -2,18 +2,15 @@ package net.ripe.db.whois.update.handler.validator.inetnum;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
-import net.ripe.db.whois.common.Message;
 import net.ripe.db.whois.common.dao.RpslObjectDao;
 import net.ripe.db.whois.common.dao.StatusDao;
 import net.ripe.db.whois.common.domain.CIString;
 import net.ripe.db.whois.common.domain.Maintainers;
 import net.ripe.db.whois.common.ip.Ipv4Resource;
-import net.ripe.db.whois.common.iptree.IpEntry;
 import net.ripe.db.whois.common.iptree.Ipv4Entry;
 import net.ripe.db.whois.common.iptree.Ipv4Tree;
 import net.ripe.db.whois.common.rpsl.AttributeType;
 import net.ripe.db.whois.common.rpsl.ObjectType;
-import net.ripe.db.whois.common.rpsl.RpslAttribute;
 import net.ripe.db.whois.common.rpsl.RpslObject;
 import net.ripe.db.whois.common.rpsl.attrs.InetnumStatus;
 import net.ripe.db.whois.update.authentication.Principal;
@@ -29,12 +26,9 @@ import org.springframework.stereotype.Component;
 
 import javax.annotation.CheckForNull;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 
-import static net.ripe.db.whois.common.Messages.Type.ERROR;
 import static net.ripe.db.whois.common.rpsl.AttributeType.STATUS;
-import static net.ripe.db.whois.common.rpsl.attrs.InetnumStatus.ASSIGNED_PI;
 import static net.ripe.db.whois.common.rpsl.attrs.InetnumStatus.LEGACY;
 import static net.ripe.db.whois.update.domain.Action.CREATE;
 
@@ -78,16 +72,8 @@ public class InetnumStrictStatusValidator implements BusinessRuleValidator {
         final RpslObject updatedObject = update.getUpdatedObject();
         final Ipv4Resource ipInterval = Ipv4Resource.parse(updatedObject.getKey());
         final List<CustomValidationMessage> validationMessages = Lists.newArrayList();
-        
-        if (!allChildrenHaveCorrectStatus(update, ipInterval, validationMessages)) {
-            return validationMessages;
-        }
 
         final List<Ipv4Entry> parents = ipv4Tree.findFirstLessSpecific(ipInterval);
-        if (parents.size() != 1) {
-            validationMessages.add(new CustomValidationMessage(UpdateMessages.invalidParentEntryForInterval(ipInterval), false));
-            return validationMessages;
-        }
 
         final InetnumStatus currentStatus = InetnumStatus.getStatusFor(updatedObject.getValueForAttribute(STATUS));
         checkAuthorisationForStatus(update,updateContext, currentStatus, validationMessages);
@@ -95,65 +81,11 @@ public class InetnumStrictStatusValidator implements BusinessRuleValidator {
         final InetnumStatus parentStatus = InetnumStatus.getStatusFor(statusDao.getStatus(parents.get(0).getObjectId()));
         validateLegacyStatus(currentStatus, parentStatus, update, updateContext, validationMessages);
 
-        final Set<CIString> updateMntBy = updatedObject.getValuesForAttribute(AttributeType.MNT_BY);
-        final boolean hasRsMaintainer = maintainers.isRsMaintainer(updateMntBy);
-
-        if (currentStatus.equals(InetnumStatus.ASSIGNED_PA) && parentStatus.equals(InetnumStatus.ASSIGNED_PA)) {
-            if (checkAuthorizationForStatusInHierarchy(update,ipInterval)) {
-               validationMessages.add(new CustomValidationMessage(UpdateMessages.incorrectParentStatus(ERROR, updatedObject.getType(), parentStatus.toString()), false));
-            }
-        } else {
-            if (!currentStatus.worksWithParentStatus(parentStatus, hasRsMaintainer)) {
-                validationMessages.add(new CustomValidationMessage(UpdateMessages.incorrectParentStatus(ERROR, updatedObject.getType(), parentStatus.toString()), false));
-            }
-        }
-
-        if (currentStatus.equals(InetnumStatus.ASSIGNED_PI) && parentStatus.equals(InetnumStatus.ASSIGNED_PI)) {
-            final RpslObject parentObject = objectDao.getById(parents.get(0).getObjectId());
-
-            final Set<CIString> parentMntBy = parentObject.getValuesForAttribute(AttributeType.MNT_BY);
-            final boolean parentHasRsMaintainer = maintainers.isRsMaintainer(parentMntBy);
-
-            if (parentHasRsMaintainer) {
-                validationMessages.add(new CustomValidationMessage(UpdateMessages.incorrectParentStatus(ERROR, updatedObject.getType(), parentStatus.toString()), false));
-            }
-        }
-
-        if (currentStatus.equals(InetnumStatus.ASSIGNED_PI)) {
-            if(checkAuthorizationForStatusInHierarchy(update,ipInterval)) {
-                validationMessages.add(new CustomValidationMessage(UpdateMessages.incorrectParentStatus(ERROR, updatedObject.getType(), parentStatus.toString()), false));
-            }
-        }
-
         return validationMessages;
     }
 
     private boolean authByRs(final Subject subject) {
         return subject.hasPrincipal(Principal.RS_MAINTAINER);
-    }
-
-    private boolean checkAuthorizationForStatusInHierarchy(final PreparedUpdate update, final Ipv4Resource ipInterval) {
-        final RpslObject parentInHierarchyMaintainedByRs = findParentWithRsMaintainer(ipInterval);
-
-        if (parentInHierarchyMaintainedByRs != null) {
-            final List<RpslAttribute> parentStatuses = parentInHierarchyMaintainedByRs.findAttributes(STATUS);
-            if (parentStatuses.isEmpty()) {
-                return false;
-            }
-
-            final CIString parentStatusValue = parentStatuses.get(0).getCleanValue();
-            final InetnumStatus parentStatus = InetnumStatus.getStatusFor(parentStatusValue);
-
-            final Set<CIString> mntLower = parentInHierarchyMaintainedByRs.getValuesForAttribute(AttributeType.MNT_LOWER);
-            final boolean parentHasRsMntLower = maintainers.isRsMaintainer(mntLower);
-
-            final InetnumStatus currentStatus = InetnumStatus.getStatusFor(update.getUpdatedObject().getValueForAttribute(STATUS));
-            if (!currentStatus.worksWithParentInHierarchy(parentStatus, parentHasRsMntLower)) {
-               return true;
-            }
-        }
-
-        return false;
     }
 
     @CheckForNull
@@ -193,43 +125,6 @@ public class InetnumStrictStatusValidator implements BusinessRuleValidator {
                 validationMessages.add(new CustomValidationMessage(UpdateMessages.authorisationRequiredForSetStatus(currentStatus.toString())));
             }
         }
-    }
-
-    @SuppressWarnings("unchecked")
-    private boolean allChildrenHaveCorrectStatus(final PreparedUpdate update, final Ipv4Resource ipInterval, final List<CustomValidationMessage> validationMessages) {
-        final InetnumStatus updatedStatus = InetnumStatus.getStatusFor(update.getUpdatedObject().getValueForAttribute(STATUS));
-
-        final List<Ipv4Entry> children = ipv4Tree.findFirstMoreSpecific(ipInterval);
-        final List<Integer> childrenObjectIds = Lists.transform(children, IpEntry::getObjectId);
-        final Map<Integer, CIString> childStatusMap = statusDao.getStatus(childrenObjectIds);
-
-        for (final Ipv4Entry child : children) {
-            final InetnumStatus childStatus = InetnumStatus.getStatusFor(childStatusMap.get(child.getObjectId()));
-
-            if (!childStatus.worksWithParentStatus(updatedStatus, childHasRsMaintainer(child, childStatus))) {
-                validationMessages.add(new CustomValidationMessage(UpdateMessages.incorrectChildStatus(ERROR, updatedStatus.toString(), childStatus.toString(), child.getKey().toRangeString()), false));
-                return false;
-            } else if (updatedStatus.equals(InetnumStatus.ASSIGNED_PA) && childStatus.equals(InetnumStatus.ASSIGNED_PA)) {
-                if(checkAuthorizationForStatusInHierarchy(update, ipInterval )) {
-                   final Message message = UpdateMessages.incorrectChildStatus(ERROR, updatedStatus.toString(), childStatus.toString(), child.getKey().toRangeString());
-                   validationMessages.add(new CustomValidationMessage(message, false));
-                }
-            }
-        }
-
-        return true;
-    }
-
-    private boolean childHasRsMaintainer(final Ipv4Entry child, final InetnumStatus childStatus) {
-        if (!ASSIGNED_PI.equals(childStatus)) {
-            // check only needed for ASSIGNED PI status
-            return false;
-        }
-
-        final RpslObject childObject = objectDao.getById(child.getObjectId());
-
-        final Set<CIString> childMntBy = childObject.getValuesForAttribute(AttributeType.MNT_BY);
-        return maintainers.isRsMaintainer(childMntBy);
     }
 
     private void validateLegacyStatus(final InetnumStatus currentStatus, final InetnumStatus parentStatus, final PreparedUpdate update, final UpdateContext updateContext, final List<CustomValidationMessage> validationMessages) {

@@ -23,6 +23,7 @@ import net.ripe.db.whois.update.handler.validator.CustomValidationMessage;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -35,7 +36,7 @@ import static net.ripe.db.whois.update.domain.Action.CREATE;
  * Apply stricter status validation when creating an inet6num object.
  */
 @Component
-public class Inet6numStrictStatusValidator implements BusinessRuleValidator {
+public class Inet6numStrictStatusMandatoryValidator implements BusinessRuleValidator {
 
     private static final ImmutableList<Action> ACTIONS = ImmutableList.of(CREATE);
     private static final ImmutableList<ObjectType> TYPES = ImmutableList.of(ObjectType.INET6NUM);
@@ -45,7 +46,7 @@ public class Inet6numStrictStatusValidator implements BusinessRuleValidator {
     private final Maintainers maintainers;
 
     @Autowired
-    public Inet6numStrictStatusValidator(
+    public Inet6numStrictStatusMandatoryValidator(
             final StatusDao statusDao,
             final Ipv6Tree ipv6Tree,
             final Maintainers maintainers) {
@@ -62,7 +63,28 @@ public class Inet6numStrictStatusValidator implements BusinessRuleValidator {
     @SuppressWarnings("unchecked")
     private List<CustomValidationMessage> validateStatusAgainstResourcesInTree(final PreparedUpdate update, final UpdateContext updateContext) {
         final List<CustomValidationMessage> validationMessages = Lists.newArrayList();
-        checkAuthorisationForStatus(update, updateContext, validationMessages);
+
+        if (!allChildrenHaveCorrectStatus(update, validationMessages)) {
+            return validationMessages;
+        }
+
+        final RpslObject updatedObject = update.getUpdatedObject();
+        final Ipv6Resource ipInterval = Ipv6Resource.parse(updatedObject.getKey());
+
+        final List<Ipv6Entry> parents = ipv6Tree.findFirstLessSpecific(ipInterval);
+        if (parents.size() != 1) {
+            return Arrays.asList(new CustomValidationMessage(UpdateMessages.invalidParentEntryForInterval(ipInterval)));
+        }
+
+        final Set<CIString> updateMntBy = updatedObject.getValuesForAttribute(AttributeType.MNT_BY);
+        final boolean hasRsMaintainer = maintainers.isRsMaintainer(updateMntBy);
+
+        final Inet6numStatus currentStatus = Inet6numStatus.getStatusFor(updatedObject.getValueForAttribute(STATUS));
+        final Inet6numStatus parentStatus = Inet6numStatus.getStatusFor(statusDao.getStatus(parents.get(0).getObjectId()));
+
+        if (!currentStatus.worksWithParentStatus(parentStatus, hasRsMaintainer)) {
+            validationMessages.add(new CustomValidationMessage(UpdateMessages.incorrectParentStatus(ERROR, updatedObject.getType(), parentStatus.toString())));
+        }
 
         return validationMessages;
     }
@@ -92,7 +114,7 @@ public class Inet6numStrictStatusValidator implements BusinessRuleValidator {
     }
 
     @SuppressWarnings("unchecked")
-    private boolean allChildrenHaveCorrectStatus(final PreparedUpdate update, final UpdateContext updateContext) {
+    private boolean allChildrenHaveCorrectStatus(final PreparedUpdate update, List<CustomValidationMessage> validationMessages) {
         final RpslObject updatedObject = update.getUpdatedObject();
         final Inet6numStatus updatedStatus = Inet6numStatus.getStatusFor(updatedObject.getValueForAttribute(STATUS));
         final Ipv6Resource ipInterval = Ipv6Resource.parse(updatedObject.getKey());
@@ -105,7 +127,7 @@ public class Inet6numStrictStatusValidator implements BusinessRuleValidator {
             final Inet6numStatus childStatus = Inet6numStatus.getStatusFor(childStatusMap.get(child.getObjectId()));
 
             if (!childStatus.worksWithParentStatus(updatedStatus, false)) {
-                updateContext.addMessage(update, UpdateMessages.incorrectChildStatus(ERROR, updatedStatus.toString(), childStatus.toString(), child.getKey().toString()));
+                validationMessages.add(new CustomValidationMessage(UpdateMessages.incorrectChildStatus(ERROR, updatedStatus.toString(), childStatus.toString(), child.getKey().toString())));
                 return false;
             }
         }

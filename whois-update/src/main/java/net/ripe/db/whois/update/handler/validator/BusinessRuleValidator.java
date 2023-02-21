@@ -37,7 +37,7 @@ public interface BusinessRuleValidator {
         }
 
         final List<CustomValidationMessage> errorToWarningMsgs =  customValidationMessages.stream()
-                                                                  .filter( (customMessage) -> customMessage.getMessage().getType() == Messages.Type.ERROR && customMessage.canBeWarning())
+                                                                  .filter( (customMessage) -> customMessage.getMessage().getType() == Messages.Type.ERROR)
                                                                  .collect(Collectors.toList());
 
         final List<CustomValidationMessage> remainingMsgs = Lists.newArrayList(CollectionUtils.removeAll(customValidationMessages, errorToWarningMsgs));
