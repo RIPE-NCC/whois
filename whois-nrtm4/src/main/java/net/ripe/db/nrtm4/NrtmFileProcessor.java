@@ -2,7 +2,6 @@ package net.ripe.db.nrtm4;
 
 import net.ripe.db.nrtm4.dao.SourceRepository;
 import net.ripe.db.nrtm4.domain.NrtmSourceModel;
-import net.ripe.db.nrtm4.domain.SnapshotFile;
 import net.ripe.db.nrtm4.jmx.NrtmProcessControl;
 import org.mariadb.jdbc.internal.logging.Logger;
 import org.mariadb.jdbc.internal.logging.LoggerFactory;
@@ -11,7 +10,6 @@ import org.springframework.stereotype.Service;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.util.List;
-import java.util.Optional;
 
 
 @Service
@@ -41,10 +39,6 @@ public class NrtmFileProcessor {
         final List<NrtmSourceModel> sourceList = sourceRepository.getAllSources();
         if (sourceList.isEmpty()) {
             sourceRepository.createSources();
-        }
-        final Optional<SnapshotFile> lastSnapshot = snapshotFileGenerator.getLastSnapshot(sourceRepository.getSource().orElseThrow());
-        if (lastSnapshot.isEmpty()) {
-            LOGGER.info("No previous snapshot found");
             if (nrtmProcessControl.isInitialSnapshotGenerationEnabled()) {
                 LOGGER.info("Initializing...");
                 snapshotFileGenerator.createSnapshots();
@@ -53,7 +47,6 @@ public class NrtmFileProcessor {
                 LOGGER.info("Initialization skipped because NrtmProcessControl has disabled initial snapshot generation");
             }
         }
-
         // TODO: optionally create notification file in db
         // - Get the last notification to see if anything changed now that we might have generated more files
         // - if publishableSnapshotFile is empty, keep the one from the last notification

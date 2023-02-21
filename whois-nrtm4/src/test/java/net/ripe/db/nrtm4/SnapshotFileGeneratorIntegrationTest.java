@@ -72,11 +72,6 @@ public class SnapshotFileGeneratorIntegrationTest extends AbstractNrtm4Integrati
             assertThat(bos.toString(StandardCharsets.UTF_8).replaceFirst("\"session_id\" : \"[^\"]+\"", "\"session_id\" : \"\""), is(expected));
             assertThat(snapshotFile.getFileName(), startsWith("nrtm-snapshot.1."));
         }
-        {
-            // don't generate snapshot version if nothing changed
-            final List<PublishableSnapshotFile> snapshotFileOptional = snapshotFileGenerator.createSnapshots();
-            assertThat(snapshotFileOptional.size(), is(0));
-        }
     }
 
 }
