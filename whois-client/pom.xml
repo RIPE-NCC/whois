@@ -26,6 +26,10 @@
             <groupId>net.sf.jopt-simple</groupId>
             <artifactId>jopt-simple</artifactId>
         </dependency>
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>jul-to-slf4j</artifactId>
+        </dependency>
 
         <!-- Jersey JAX-RS 2.0 implementation -->
         <dependency>
@@ -87,6 +91,7 @@
                         <dependency>org.springframework:spring-tx</dependency>
                         <dependency>com.fasterxml.jackson.jaxrs:jackson-jaxrs-base</dependency>
                         <dependency>org.springframework:spring-context-support</dependency>
+                        <dependency>org.slf4j:jul-to-slf4j</dependency>
                     </usedDependencies>
 
                     <!-- Ignore dependencies coming from another dependencies that we are already using, and for
