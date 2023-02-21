@@ -33,7 +33,7 @@ public class SourceRepository {
         );
     }
 
-    public List<NrtmSourceModel> createSources() {
+    public void createSources() {
         final String sql = """
             INSERT INTO source (name)
             VALUES (?)
@@ -41,7 +41,6 @@ public class SourceRepository {
         for (final String source : sources) {
             jdbcTemplate.update(sql, source);
         }
-        return getAllSources();
     }
 
     public Optional<NrtmSourceModel> getSource() {
