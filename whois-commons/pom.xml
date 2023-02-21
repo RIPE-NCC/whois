@@ -68,6 +68,10 @@
             <artifactId>slf4j-api</artifactId>
         </dependency>
         <dependency>
+            <groupId>org.apache.logging.log4j</groupId>
+            <artifactId>log4j-slf4j2-impl</artifactId>
+        </dependency>
+        <dependency>
             <groupId>org.slf4j</groupId>
             <artifactId>jul-to-slf4j</artifactId>
         </dependency>
@@ -136,6 +140,7 @@
                         <dependency>commons-net:commons-net</dependency>
                         <dependency>org.elasticsearch:elasticsearch</dependency>
                         <dependency>org.elasticsearch.client:elasticsearch-rest-high-level-client</dependency>
+                        <dependency>org.apache.logging.log4j:log4j-slf4j2-impl</dependency>
                     </usedDependencies>
 
                     <!-- Ignore dependencies coming from another dependencies that we are already using, and for
