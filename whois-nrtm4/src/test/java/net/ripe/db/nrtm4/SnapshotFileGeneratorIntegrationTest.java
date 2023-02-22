@@ -48,12 +48,12 @@ public class SnapshotFileGeneratorIntegrationTest extends AbstractNrtm4Integrati
         {
             final List<PublishableSnapshotFile> psfList = snapshotFileGenerator.createSnapshots();
             assertThat(psfList.size(), is(2));
-            final PublishableSnapshotFile snapshotFile = psfList.stream().filter(psf -> psf.getSourceModel().getSource().toString().equals("TEST")).findFirst().orElseThrow();
+            final PublishableSnapshotFile snapshotFile = psfList.stream().filter(psf -> psf.getSourceModel().getName().toString().equals("TEST")).findFirst().orElseThrow();
             assertThat(snapshotFile.getVersion(), is(1L));
             sessionID = snapshotFile.getSessionID();
             assertThat(sessionID, is(notNullValue()));
-            assertThat(snapshotFile.getSourceModel().getId(), is(sourceRepository.getSource().orElseThrow().getId()));
-            assertThat(snapshotFile.getSourceModel().getSource(), is(sourceRepository.getSource().orElseThrow().getSource()));
+            assertThat(snapshotFile.getSourceModel().getId(), is(sourceRepository.getWhoisSource().orElseThrow().getId()));
+            assertThat(snapshotFile.getSourceModel().getName(), is(sourceRepository.getWhoisSource().orElseThrow().getName()));
             assertThat(snapshotFile.getNrtmVersion(), is(4));
             assertThat(snapshotFile.getType(), is(SNAPSHOT));
             final var bos = new ByteArrayOutputStream();

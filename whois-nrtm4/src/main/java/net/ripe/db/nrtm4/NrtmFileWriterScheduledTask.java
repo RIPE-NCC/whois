@@ -16,21 +16,21 @@ public class NrtmFileWriterScheduledTask implements DailyScheduledTask {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(NrtmFileWriterScheduledTask.class);
     private final NrtmFileProcessor nrtmFileProcessor;
-    private final Boolean disableNrtm4Feature;
+    private final Boolean enableNrtm4;
 
     NrtmFileWriterScheduledTask(
         final NrtmFileProcessor nrtmFileProcessor,
-        @Value("${nrtm.disable.nrtm4.feature:false}") final Boolean disableNrtm4Feature
+        @Value("${nrtm4.enabled:true}") final Boolean enableNrtm4
     ) {
         this.nrtmFileProcessor = nrtmFileProcessor;
-        this.disableNrtm4Feature = disableNrtm4Feature;
+        this.enableNrtm4 = enableNrtm4;
     }
 
     @Override
     @Scheduled(cron = "0 * * * * ?")
     @SchedulerLock(name = "NrtmFileWriterScheduledTask")
     public void run() {
-        if (disableNrtm4Feature) {
+        if (!enableNrtm4) {
             return;
         }
         try {

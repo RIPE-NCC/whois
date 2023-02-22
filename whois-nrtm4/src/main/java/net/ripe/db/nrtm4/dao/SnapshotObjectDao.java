@@ -30,7 +30,7 @@ public class SnapshotObjectDao {
         JdbcStreamingHelper.executeStreaming(
             jdbcTemplate,
             sql,
-            pss -> pss.setString(1, source.getSource().toString()),
+            pss -> pss.setString(1, source.getName().toString()),
             rs -> {
                 fn.accept(rs.getString(1));
             });

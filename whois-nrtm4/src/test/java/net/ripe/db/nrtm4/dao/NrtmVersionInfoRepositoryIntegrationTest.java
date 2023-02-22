@@ -33,11 +33,11 @@ public class NrtmVersionInfoRepositoryIntegrationTest extends AbstractNrtm4Integ
     @Test
     public void first_version_is_one() {
         sourceRepository.createSources();
-        nrtmVersionInfoRepository.createInitialVersion(sourceRepository.getSource().orElseThrow(), 1);
+        nrtmVersionInfoRepository.createInitialVersion(sourceRepository.getWhoisSource().orElseThrow(), 1);
         final Optional<NrtmVersionInfo> version = nrtmVersionInfoRepository.findLastVersion();
         assertThat(version.isPresent(), is(true));
-        assertThat(version.get().getSource().getId(), is(sourceRepository.getSource().orElseThrow().getId()));
-        assertThat(version.get().getSource().getSource(), is(sourceRepository.getSource().orElseThrow().getSource()));
+        assertThat(version.get().getSource().getId(), is(sourceRepository.getWhoisSource().orElseThrow().getId()));
+        assertThat(version.get().getSource().getName(), is(sourceRepository.getWhoisSource().orElseThrow().getName()));
         assertThat(version.get().getVersion(), is(1L));
     }
 

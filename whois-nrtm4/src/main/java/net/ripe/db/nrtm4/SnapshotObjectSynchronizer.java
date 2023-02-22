@@ -52,7 +52,7 @@ public class SnapshotObjectSynchronizer {
         LOGGER.info("initializeSnapshotObjects entered");
         final Map<CIString, NrtmSourceModel> sourceMap = new HashMap<>();
         for (final NrtmSourceModel source : sourceRepository.getAllSources()) {
-            sourceMap.put(source.getSource(), source);
+            sourceMap.put(source.getName(), source);
         }
         Stopwatch stopwatch = Stopwatch.createStarted();
         final InitialSnapshotState initialState = whoisObjectRepository.getInitialSnapshotState();

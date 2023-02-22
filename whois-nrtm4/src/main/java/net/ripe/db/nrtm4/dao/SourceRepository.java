@@ -43,7 +43,7 @@ public class SourceRepository {
         }
     }
 
-    public Optional<NrtmSourceModel> getSource() {
+    public Optional<NrtmSourceModel> getWhoisSource() {
         final String sql = """
             SELECT id, name
             FROM source

@@ -6,7 +6,6 @@ import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
-import java.io.IOException;
 import java.util.ArrayList;
 
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -29,9 +28,9 @@ public class SnapshotObjectRepositoryIntegrationTest extends AbstractNrtm4Integr
     private SourceRepository sourceRepository;
 
     @Test
-    void inserts_payloads_and_callback_results() throws IOException {
+    void inserts_payloads_and_callback_results() {
         sourceRepository.createSources();
-        final var source = sourceRepository.getSource().orElseThrow();
+        final var source = sourceRepository.getWhoisSource().orElseThrow();
         final var version = nrtmVersionInfoRepository.createInitialVersion(source, 0);
         snapshotObjectRepository.insert(version.getId(), 1, 1, inetnumObject);
         snapshotObjectRepository.insert(version.getId(), 2, 1, orgObject);
@@ -44,7 +43,7 @@ public class SnapshotObjectRepositoryIntegrationTest extends AbstractNrtm4Integr
     @Test
     void inserts_and_deletes_payloads_and_executes_callbacks() {
         sourceRepository.createSources();
-        final var source = sourceRepository.getSource().orElseThrow();
+        final var source = sourceRepository.getWhoisSource().orElseThrow();
         final var version = nrtmVersionInfoRepository.createInitialVersion(source, 0);
         snapshotObjectRepository.insert(version.getId(), 1, 1, inetnumObject);
         snapshotObjectRepository.insert(version.getId(), 2, 1, orgObject);
