@@ -1,4 +1,4 @@
-package net.ripe.db.nrtm4.dao;
+package net.ripe.db.nrtm4;
 
 import com.fasterxml.jackson.core.JsonEncoding;
 import com.fasterxml.jackson.core.JsonGenerator;

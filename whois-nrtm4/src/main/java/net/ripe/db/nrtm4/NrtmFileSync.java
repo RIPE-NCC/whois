@@ -3,7 +3,6 @@ package net.ripe.db.nrtm4;
 import com.google.common.util.concurrent.Monitor;
 import net.ripe.db.nrtm4.dao.NrtmVersionInfoRepository;
 import net.ripe.db.nrtm4.dao.SnapshotFileRepository;
-import net.ripe.db.nrtm4.dao.SnapshotFileSerializer;
 import net.ripe.db.nrtm4.domain.SnapshotFile;
 import org.springframework.stereotype.Service;
 
