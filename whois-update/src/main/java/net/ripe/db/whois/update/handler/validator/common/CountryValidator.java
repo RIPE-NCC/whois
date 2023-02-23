@@ -2,6 +2,7 @@ package net.ripe.db.whois.update.handler.validator.common;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
+import net.ripe.db.whois.common.Message;
 import net.ripe.db.whois.common.domain.CIString;
 import net.ripe.db.whois.common.rpsl.AttributeType;
 import net.ripe.db.whois.common.rpsl.ObjectType;
@@ -13,7 +14,6 @@ import net.ripe.db.whois.update.domain.PreparedUpdate;
 import net.ripe.db.whois.update.domain.UpdateContext;
 import net.ripe.db.whois.update.domain.UpdateMessages;
 import net.ripe.db.whois.update.handler.validator.BusinessRuleValidator;
-import net.ripe.db.whois.update.handler.validator.CustomValidationMessage;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -35,22 +35,22 @@ public class CountryValidator implements BusinessRuleValidator {
     }
 
     @Override
-    public List<CustomValidationMessage> performValidation(PreparedUpdate update, UpdateContext updateContext) {
+    public List<Message> performValidation(PreparedUpdate update, UpdateContext updateContext) {
         final RpslObject updatedObject = update.getUpdatedObject();
         if (!updatedObject.containsAttribute(AttributeType.COUNTRY)) {
             return Collections.emptyList();
         }
 
-        final List<CustomValidationMessage> customValidationMessages = Lists.newArrayList();
+        final List<Message> messages = Lists.newArrayList();
 
         final Set<CIString> countryCodes = countryCodeRepository.getCountryCodes();
         for (final RpslAttribute attribute : updatedObject.findAttributes(AttributeType.COUNTRY)) {
             if (!countryCodes.contains(attribute.getCleanValue())) {
-                customValidationMessages.add(new CustomValidationMessage(UpdateMessages.countryNotRecognised(attribute.getCleanValue()), attribute));
+                messages.add(new Message(UpdateMessages.countryNotRecognised(attribute.getCleanValue()), attribute));
             }
         }
 
-        return customValidationMessages;
+        return messages;
     }
 
     @Override

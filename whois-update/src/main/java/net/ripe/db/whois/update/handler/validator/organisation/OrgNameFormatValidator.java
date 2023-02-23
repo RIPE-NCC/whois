@@ -1,6 +1,7 @@
 package net.ripe.db.whois.update.handler.validator.organisation;
 
 import com.google.common.collect.ImmutableList;
+import net.ripe.db.whois.common.Message;
 import net.ripe.db.whois.common.rpsl.AttributeType;
 import net.ripe.db.whois.common.rpsl.ObjectType;
 import net.ripe.db.whois.common.rpsl.RpslAttribute;
@@ -10,7 +11,6 @@ import net.ripe.db.whois.update.domain.PreparedUpdate;
 import net.ripe.db.whois.update.domain.UpdateContext;
 import net.ripe.db.whois.update.domain.UpdateMessages;
 import net.ripe.db.whois.update.handler.validator.BusinessRuleValidator;
-import net.ripe.db.whois.update.handler.validator.CustomValidationMessage;
 import org.springframework.stereotype.Component;
 
 import java.util.Arrays;
@@ -36,7 +36,7 @@ public class OrgNameFormatValidator implements BusinessRuleValidator {
     private static final Pattern INCONSISTENT_FORMATTING_PATTERN = Pattern.compile("(?m)\\s{2,}|\t|\n");
 
     @Override
-    public List<CustomValidationMessage> performValidation(final PreparedUpdate update, final UpdateContext updateContext) {
+    public List<Message> performValidation(final PreparedUpdate update, final UpdateContext updateContext) {
         final RpslObject updatedObject = update.getUpdatedObject();
 
         final RpslAttribute orgNameAttribute;
@@ -50,7 +50,7 @@ public class OrgNameFormatValidator implements BusinessRuleValidator {
         final String orgNameValue = stripComments(orgNameAttribute.getValue()).trim();
 
         if (isMultiline(orgNameValue) || containsInconsistentFormatting(orgNameValue)) {
-           return Arrays.asList( new CustomValidationMessage(UpdateMessages.inconsistentOrgNameFormatting(), orgNameAttribute));
+           return Arrays.asList( new Message(UpdateMessages.inconsistentOrgNameFormatting(), orgNameAttribute));
         }
 
         return Collections.emptyList();

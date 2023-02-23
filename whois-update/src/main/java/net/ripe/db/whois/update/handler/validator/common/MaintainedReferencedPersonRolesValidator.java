@@ -2,6 +2,7 @@ package net.ripe.db.whois.update.handler.validator.common;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
+import net.ripe.db.whois.common.Message;
 import net.ripe.db.whois.common.dao.RpslObjectDao;
 import net.ripe.db.whois.common.rpsl.AttributeType;
 import net.ripe.db.whois.common.rpsl.ObjectType;
@@ -10,7 +11,6 @@ import net.ripe.db.whois.update.domain.Action;
 import net.ripe.db.whois.update.domain.PreparedUpdate;
 import net.ripe.db.whois.update.domain.UpdateContext;
 import net.ripe.db.whois.update.domain.UpdateMessages;
-import net.ripe.db.whois.update.handler.validator.CustomValidationMessage;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -28,13 +28,13 @@ public class MaintainedReferencedPersonRolesValidator extends AbstractObjectIsMa
     }
 
     @Override
-    public List<CustomValidationMessage> performValidation(final PreparedUpdate update, final UpdateContext updateContext) {
-        final List<CustomValidationMessage> customValidationMessages = Lists.newArrayList();
+    public List<Message> performValidation(final PreparedUpdate update, final UpdateContext updateContext) {
+        final List<Message> messages = Lists.newArrayList();
         for (final RpslObject rpslObject : validateReferencedPersonsAndRoles(update.getUpdatedObject())) {
-            customValidationMessages.add(new CustomValidationMessage(UpdateMessages.referencedObjectMissingAttribute(rpslObject.getType(), rpslObject.getKey(), AttributeType.MNT_BY)));
+            messages.add(UpdateMessages.referencedObjectMissingAttribute(rpslObject.getType(), rpslObject.getKey(), AttributeType.MNT_BY));
         }
 
-        return customValidationMessages;
+        return messages;
     }
 
     @Override

@@ -1,6 +1,7 @@
 package net.ripe.db.whois.update.handler.validator.common;
 
 import com.google.common.collect.ImmutableList;
+import net.ripe.db.whois.common.Message;
 import net.ripe.db.whois.common.collect.CollectionHelper;
 import net.ripe.db.whois.common.dao.RpslObjectDao;
 import net.ripe.db.whois.common.domain.CIString;
@@ -17,7 +18,6 @@ import net.ripe.db.whois.update.domain.PreparedUpdate;
 import net.ripe.db.whois.update.domain.UpdateContext;
 import net.ripe.db.whois.update.domain.UpdateMessages;
 import net.ripe.db.whois.update.handler.validator.BusinessRuleValidator;
-import net.ripe.db.whois.update.handler.validator.CustomValidationMessage;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -50,7 +50,7 @@ public class AbuseCDuplicateValidator implements BusinessRuleValidator {
     }
 
     @Override
-    public List<CustomValidationMessage> performValidation(final PreparedUpdate update, final UpdateContext updateContext) {
+    public List<Message> performValidation(final PreparedUpdate update, final UpdateContext updateContext) {
         final CIString abuseC = update.getUpdatedObject().getValueOrNullForAttribute(AttributeType.ABUSE_C);
         if (abuseC == null) {
             return Collections.emptyList();
@@ -62,7 +62,7 @@ public class AbuseCDuplicateValidator implements BusinessRuleValidator {
         }
 
         if (orgAbuseCObject.getValueForAttribute(AttributeType.ABUSE_C).equals(abuseC)) {
-            return Arrays.asList(new CustomValidationMessage(UpdateMessages.duplicateAbuseC(abuseC, orgAbuseCObject.getKey())));
+            return Arrays.asList(UpdateMessages.duplicateAbuseC(abuseC, orgAbuseCObject.getKey()));
         }
 
         return Collections.emptyList();

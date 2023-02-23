@@ -3,6 +3,7 @@ package net.ripe.db.whois.update.handler.validator.personrole;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Lists;
+import net.ripe.db.whois.common.Message;
 import net.ripe.db.whois.common.dao.RpslObjectDao;
 import net.ripe.db.whois.common.dao.RpslObjectInfo;
 import net.ripe.db.whois.common.dao.RpslObjectUpdateDao;
@@ -14,7 +15,6 @@ import net.ripe.db.whois.update.domain.PreparedUpdate;
 import net.ripe.db.whois.update.domain.UpdateContext;
 import net.ripe.db.whois.update.domain.UpdateMessages;
 import net.ripe.db.whois.update.handler.validator.BusinessRuleValidator;
-import net.ripe.db.whois.update.handler.validator.CustomValidationMessage;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -42,7 +42,7 @@ public class MustKeepAbuseMailboxIfReferencedValidator implements BusinessRuleVa
     }
 
     @Override
-    public List<CustomValidationMessage> performValidation(final PreparedUpdate update, final UpdateContext updateContext) {
+    public List<Message> performValidation(final PreparedUpdate update, final UpdateContext updateContext) {
         final Set<CIString> originalAbuseMailbox = update.getReferenceObject().getValuesForAttribute(AttributeType.ABUSE_MAILBOX);
         final Set<CIString> updatedAbuseMailbox = update.getUpdatedObject().getValuesForAttribute(AttributeType.ABUSE_MAILBOX);
 
@@ -50,18 +50,18 @@ public class MustKeepAbuseMailboxIfReferencedValidator implements BusinessRuleVa
             return Collections.emptyList();
         }
 
-        final List<CustomValidationMessage> customValidationMessages = Lists.newArrayList();
+        final List<Message> messages = Lists.newArrayList();
         for (final RpslObjectInfo referenceInfo : updateObjectDao.getReferences(update.getUpdatedObject())) {
             if (REFERENCED_OBJECT_TYPES.contains(referenceInfo.getObjectType())) {
                 final Set<CIString> abuseCAttributes = objectDao.getById(referenceInfo.getObjectId()).getValuesForAttribute(AttributeType.ABUSE_C);
                 if (!abuseCAttributes.isEmpty() && abuseCAttributes.contains(update.getUpdatedObject().getValueForAttribute(AttributeType.NIC_HDL))) {
-                    customValidationMessages.add(new CustomValidationMessage(UpdateMessages.abuseMailboxReferenced(update.getUpdatedObject().getValueForAttribute(AttributeType.ROLE), referenceInfo.getObjectType())));
+                    messages.add(UpdateMessages.abuseMailboxReferenced(update.getUpdatedObject().getValueForAttribute(AttributeType.ROLE), referenceInfo.getObjectType()));
                     break;
                 }
             }
         }
 
-        return customValidationMessages;
+        return messages;
     }
 
     @Override

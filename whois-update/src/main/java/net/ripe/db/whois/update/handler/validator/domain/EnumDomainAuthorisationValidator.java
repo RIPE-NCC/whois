@@ -1,6 +1,7 @@
 package net.ripe.db.whois.update.handler.validator.domain;
 
 import com.google.common.collect.ImmutableList;
+import net.ripe.db.whois.common.Message;
 import net.ripe.db.whois.common.domain.CIString;
 import net.ripe.db.whois.common.rpsl.ObjectType;
 import net.ripe.db.whois.common.rpsl.RpslObject;
@@ -12,7 +13,6 @@ import net.ripe.db.whois.update.domain.PreparedUpdate;
 import net.ripe.db.whois.update.domain.UpdateContext;
 import net.ripe.db.whois.update.domain.UpdateMessages;
 import net.ripe.db.whois.update.handler.validator.BusinessRuleValidator;
-import net.ripe.db.whois.update.handler.validator.CustomValidationMessage;
 import org.springframework.stereotype.Component;
 
 import java.util.Arrays;
@@ -26,7 +26,7 @@ public class EnumDomainAuthorisationValidator implements BusinessRuleValidator {
     private static final ImmutableList<ObjectType> TYPES = ImmutableList.of(ObjectType.DOMAIN);
 
     @Override
-    public List<CustomValidationMessage> performValidation(final PreparedUpdate update, final UpdateContext updateContext) {
+    public List<Message> performValidation(final PreparedUpdate update, final UpdateContext updateContext) {
         final Subject subject = updateContext.getSubject(update);
 
         final RpslObject rpslObject = update.getUpdatedObject();
@@ -34,7 +34,7 @@ public class EnumDomainAuthorisationValidator implements BusinessRuleValidator {
         final Domain domain = Domain.parse(domainString);
         if (domain.getType() == Domain.Type.E164) {
             if (!subject.hasPrincipal(Principal.ENUM_MAINTAINER)) {
-                return Arrays.asList(new CustomValidationMessage(UpdateMessages.authorisationRequiredForEnumDomain()));
+                return Arrays.asList(UpdateMessages.authorisationRequiredForEnumDomain());
             }
         }
 

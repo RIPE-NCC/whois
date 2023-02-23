@@ -2,6 +2,7 @@ package net.ripe.db.whois.update.handler.validator.common;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
+import net.ripe.db.whois.common.Message;
 import net.ripe.db.whois.common.rpsl.ObjectType;
 import net.ripe.db.whois.common.rpsl.RpslAttribute;
 import net.ripe.db.whois.common.rpsl.RpslObject;
@@ -13,7 +14,6 @@ import net.ripe.db.whois.update.domain.PreparedUpdate;
 import net.ripe.db.whois.update.domain.UpdateContext;
 import net.ripe.db.whois.update.domain.UpdateMessages;
 import net.ripe.db.whois.update.handler.validator.BusinessRuleValidator;
-import net.ripe.db.whois.update.handler.validator.CustomValidationMessage;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -32,22 +32,22 @@ public class ManagedAttrValidator implements BusinessRuleValidator {
     }
 
     @Override
-    public List<CustomValidationMessage> performValidation(final PreparedUpdate update, final UpdateContext updateContext) {
+    public List<Message> performValidation(final PreparedUpdate update, final UpdateContext updateContext) {
         final Subject subject = updateContext.getSubject(update);
         if (subject.hasPrincipal(Principal.RS_MAINTAINER)) {
             return Collections.emptyList();
         }
 
-        final List<CustomValidationMessage> customValidationMessages = Lists.newArrayList();
+        final List<Message> messages = Lists.newArrayList();
         final RpslObject updatedObject = update.getUpdatedObject();
         for(RpslAttribute attribute :updatedObject.getAttributes()) {
 
             if(managedAttributeSearch.isRipeNccMaintained(updatedObject,attribute) && attribute.getCleanComment() != null) {
-                customValidationMessages.add(new CustomValidationMessage(UpdateMessages.canNotAddCommentsInManagedAttr(attribute.getType()), attribute));
+                messages.add(new Message(UpdateMessages.canNotAddCommentsInManagedAttr(attribute.getType()), attribute));
             }
         }
 
-        return customValidationMessages;
+        return messages;
     }
 
     @Override

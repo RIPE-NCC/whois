@@ -1,6 +1,7 @@
 package net.ripe.db.whois.update.handler.validator.inetnum;
 
 import com.google.common.collect.ImmutableList;
+import net.ripe.db.whois.common.Message;
 import net.ripe.db.whois.common.domain.CIString;
 import net.ripe.db.whois.common.domain.Maintainers;
 import net.ripe.db.whois.common.rpsl.AttributeType;
@@ -13,7 +14,6 @@ import net.ripe.db.whois.update.domain.PreparedUpdate;
 import net.ripe.db.whois.update.domain.UpdateContext;
 import net.ripe.db.whois.update.domain.UpdateMessages;
 import net.ripe.db.whois.update.handler.validator.BusinessRuleValidator;
-import net.ripe.db.whois.update.handler.validator.CustomValidationMessage;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -40,7 +40,7 @@ public class NetnameValidator implements BusinessRuleValidator {
     }
 
     @Override
-    public List<CustomValidationMessage> performValidation(final PreparedUpdate update, final UpdateContext updateContext) {
+    public List<Message> performValidation(final PreparedUpdate update, final UpdateContext updateContext) {
 
         final Subject subject = updateContext.getSubject(update);
 
@@ -59,7 +59,7 @@ public class NetnameValidator implements BusinessRuleValidator {
         final Action action = update.getAction();
 
         if (isAllocMaintainer && hasChanged(refNetname, updNetname, action)) {
-           return Arrays.asList(new CustomValidationMessage(UpdateMessages.netnameCannotBeChanged()));
+           return Arrays.asList(UpdateMessages.netnameCannotBeChanged());
         }
 
         return Collections.emptyList();

@@ -2,6 +2,7 @@ package net.ripe.db.whois.update.handler.validator.maintainer;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
+import net.ripe.db.whois.common.Message;
 import net.ripe.db.whois.common.dao.MaintainerSyncStatusDao;
 import net.ripe.db.whois.common.domain.CIString;
 import net.ripe.db.whois.common.domain.IpRanges;
@@ -15,7 +16,6 @@ import net.ripe.db.whois.update.domain.PreparedUpdate;
 import net.ripe.db.whois.update.domain.UpdateContext;
 import net.ripe.db.whois.update.domain.UpdateMessages;
 import net.ripe.db.whois.update.handler.validator.BusinessRuleValidator;
-import net.ripe.db.whois.update.handler.validator.CustomValidationMessage;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -43,32 +43,32 @@ public class MaintainerLirSyncValidator implements BusinessRuleValidator {
     }
 
     @Override
-    public List<CustomValidationMessage> performValidation(final PreparedUpdate update, final UpdateContext updateContext) {
+    public List<Message> performValidation(final PreparedUpdate update, final UpdateContext updateContext) {
         final Origin origin = updateContext.getOrigin(update);
-        final List<CustomValidationMessage> customValidationMessages = Lists.newArrayList();
+        final List<Message> messages = Lists.newArrayList();
 
         if(origin == null || StringUtils.isEmpty(origin.getFrom())) {
-            customValidationMessages.add(new CustomValidationMessage(UpdateMessages.originIsMissing()));
+            messages.add(UpdateMessages.originIsMissing());
         }
 
         if(!isChangingSsoAuthAttribute(update)) {
-            return customValidationMessages;
+            return messages;
         }
 
         final RpslObject updatedObject = update.getUpdatedObject();
         if(!maintainerSyncStatusDao.isSyncEnabled(updatedObject.getKey())) {
-            return customValidationMessages;
+            return messages;
         }
 
         //origin check to allow only rest api (validation fail for sync updates and mail updates)
         //trusted Ip check to allow change of sso attribute through ripe portal/controlroom via Whois-internal
         if(REST_API_ORIGIN.equals(origin.getName()) && ipranges.isTrusted(IpInterval.parse(origin.getFrom()))) {
-            return customValidationMessages;
+            return messages;
         }
 
-        customValidationMessages.add(new CustomValidationMessage(UpdateMessages.updatingRipeMaintainerSSOForbidden()));
+        messages.add(UpdateMessages.updatingRipeMaintainerSSOForbidden());
 
-        return customValidationMessages;
+        return messages;
     }
 
     private boolean isChangingSsoAuthAttribute(final PreparedUpdate update) {

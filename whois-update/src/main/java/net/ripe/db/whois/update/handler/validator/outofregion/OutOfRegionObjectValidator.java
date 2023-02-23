@@ -1,6 +1,7 @@
 package net.ripe.db.whois.update.handler.validator.outofregion;
 
 import com.google.common.collect.ImmutableList;
+import net.ripe.db.whois.common.Message;
 import net.ripe.db.whois.common.grs.AuthoritativeResourceData;
 import net.ripe.db.whois.common.rpsl.ObjectType;
 import net.ripe.db.whois.common.rpsl.RpslObject;
@@ -10,7 +11,6 @@ import net.ripe.db.whois.update.domain.PreparedUpdate;
 import net.ripe.db.whois.update.domain.UpdateContext;
 import net.ripe.db.whois.update.domain.UpdateMessages;
 import net.ripe.db.whois.update.handler.validator.BusinessRuleValidator;
-import net.ripe.db.whois.update.handler.validator.CustomValidationMessage;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -46,7 +46,7 @@ public class OutOfRegionObjectValidator implements BusinessRuleValidator {
     }
 
     @Override
-    public List<CustomValidationMessage> performValidation(final PreparedUpdate update, final UpdateContext updateContext) {
+    public List<Message> performValidation(final PreparedUpdate update, final UpdateContext updateContext) {
         if (updateContext.getSubject(update).hasPrincipal(Principal.OVERRIDE_MAINTAINER) || updateContext.getSubject(update).hasPrincipal(Principal.RS_MAINTAINER)) {
             return Collections.emptyList();
         }
@@ -61,7 +61,7 @@ public class OutOfRegionObjectValidator implements BusinessRuleValidator {
                 !authoritativeResourceData.getAuthoritativeResource().isMaintainedInRirSpace(updatedObject);
 
         return outOfRegion ?
-                  Arrays.asList(new CustomValidationMessage(UpdateMessages.cannotCreateOutOfRegionObject(updatedObject.getType())))
+                  Arrays.asList(UpdateMessages.cannotCreateOutOfRegionObject(updatedObject.getType()))
                 : Collections.emptyList();
     }
 }

@@ -2,6 +2,7 @@ package net.ripe.db.whois.update.handler.validator.inet6num;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
+import net.ripe.db.whois.common.Message;
 import net.ripe.db.whois.common.domain.CIString;
 import net.ripe.db.whois.common.domain.Maintainers;
 import net.ripe.db.whois.common.rpsl.AttributeType;
@@ -12,7 +13,6 @@ import net.ripe.db.whois.update.domain.PreparedUpdate;
 import net.ripe.db.whois.update.domain.UpdateContext;
 import net.ripe.db.whois.update.domain.UpdateMessages;
 import net.ripe.db.whois.update.handler.validator.BusinessRuleValidator;
-import net.ripe.db.whois.update.handler.validator.CustomValidationMessage;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -38,12 +38,12 @@ public class Inet6numStatusValidator implements BusinessRuleValidator {
     }
 
     @Override
-    public List<CustomValidationMessage> performValidation(final PreparedUpdate update, final UpdateContext updateContext) {
+    public List<Message> performValidation(final PreparedUpdate update, final UpdateContext updateContext) {
         switch (update.getAction()) {
             case MODIFY:
                 return validateModify(update, updateContext);
             case DELETE:
-                return validateDelete(update, updateContext);
+                return validateDelete(update);
             default:
                 throw new IllegalStateException(update.getAction().toString());
         }
@@ -54,7 +54,7 @@ public class Inet6numStatusValidator implements BusinessRuleValidator {
         return true;
     }
 
-    private List<CustomValidationMessage> validateModify(final PreparedUpdate update, final UpdateContext updateContext) {
+    private List<Message> validateModify(final PreparedUpdate update, final UpdateContext updateContext) {
         if (update.getReferenceObject() == null || update.getUpdatedObject() == null) {
             return Collections.emptyList();
         }
@@ -63,12 +63,12 @@ public class Inet6numStatusValidator implements BusinessRuleValidator {
         final CIString updateStatus = update.getUpdatedObject().getValueForAttribute(STATUS);
 
         if (!Objects.equals(originalStatus, updateStatus)) {
-           return Arrays.asList(new CustomValidationMessage(UpdateMessages.statusChange()));
+           return Arrays.asList(UpdateMessages.statusChange());
         }
         return Collections.emptyList();
     }
 
-    private List<CustomValidationMessage> validateDelete(final PreparedUpdate update, final UpdateContext updateContext) {
+    private List<Message> validateDelete(final PreparedUpdate update) {
         if (update.getReferenceObject() == null) {
             return Collections.emptyList();
         }
@@ -81,15 +81,15 @@ public class Inet6numStatusValidator implements BusinessRuleValidator {
             return Collections.emptyList();
         }
 
-        final List<CustomValidationMessage> customValidationMessages = Lists.newArrayList();
+        final List<Message> messages = Lists.newArrayList();
         if (status.requiresRsMaintainer()) {
             final Set<CIString> mntBy = update.getReferenceObject().getValuesForAttribute(AttributeType.MNT_BY);
             if (!maintainers.isRsMaintainer(mntBy)) {
-                    customValidationMessages.add(new CustomValidationMessage(UpdateMessages.deleteWithStatusRequiresAuthorization(status.toString())));
+                    messages.add(UpdateMessages.deleteWithStatusRequiresAuthorization(status.toString()));
             }
         }
 
-        return customValidationMessages;
+        return messages;
     }
 
     @Override

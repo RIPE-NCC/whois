@@ -1,13 +1,13 @@
 package net.ripe.db.whois.update.handler.validator.sets;
 
 import com.google.common.collect.ImmutableList;
+import net.ripe.db.whois.common.Message;
 import net.ripe.db.whois.common.rpsl.ObjectType;
 import net.ripe.db.whois.update.domain.Action;
 import net.ripe.db.whois.update.domain.PreparedUpdate;
 import net.ripe.db.whois.update.domain.UpdateContext;
 import net.ripe.db.whois.update.domain.UpdateMessages;
 import net.ripe.db.whois.update.handler.validator.BusinessRuleValidator;
-import net.ripe.db.whois.update.handler.validator.CustomValidationMessage;
 import org.springframework.stereotype.Component;
 
 import java.util.Arrays;
@@ -21,9 +21,9 @@ public class ASNameHierarchicalValidator implements BusinessRuleValidator {
     private static final ImmutableList<ObjectType> TYPES = ImmutableList.of(ObjectType.AS_SET);
 
     @Override
-    public List<CustomValidationMessage> performValidation(final PreparedUpdate update, final UpdateContext updateContext) {
+    public List<Message> performValidation(final PreparedUpdate update, final UpdateContext updateContext) {
         if(!update.getUpdatedObject().getKey().contains(":")) {
-            return Arrays.asList(new CustomValidationMessage(UpdateMessages.cantCreateShortFormatAsName()));
+            return Arrays.asList(UpdateMessages.cantCreateShortFormatAsName());
         }
 
         return Collections.emptyList();

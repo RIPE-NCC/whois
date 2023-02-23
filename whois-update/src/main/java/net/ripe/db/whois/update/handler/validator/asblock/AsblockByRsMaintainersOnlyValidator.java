@@ -1,6 +1,7 @@
 package net.ripe.db.whois.update.handler.validator.asblock;
 
 import com.google.common.collect.ImmutableList;
+import net.ripe.db.whois.common.Message;
 import net.ripe.db.whois.common.rpsl.ObjectType;
 import net.ripe.db.whois.update.authentication.Principal;
 import net.ripe.db.whois.update.domain.Action;
@@ -8,7 +9,6 @@ import net.ripe.db.whois.update.domain.PreparedUpdate;
 import net.ripe.db.whois.update.domain.UpdateContext;
 import net.ripe.db.whois.update.domain.UpdateMessages;
 import net.ripe.db.whois.update.handler.validator.BusinessRuleValidator;
-import net.ripe.db.whois.update.handler.validator.CustomValidationMessage;
 import org.springframework.stereotype.Component;
 
 import java.util.Arrays;
@@ -22,10 +22,10 @@ public class AsblockByRsMaintainersOnlyValidator implements BusinessRuleValidato
     private static final ImmutableList<ObjectType> TYPES = ImmutableList.of(ObjectType.AS_BLOCK);
 
     @Override
-    public List<CustomValidationMessage> performValidation(final PreparedUpdate update, final UpdateContext updateContext) {
+    public List<Message> performValidation(final PreparedUpdate update, final UpdateContext updateContext) {
         final boolean authenticatedByDbmMaintainer = updateContext.getSubject(update).hasPrincipal(Principal.DBM_MAINTAINER);
         if (!authenticatedByDbmMaintainer) {
-            return Arrays.asList(new CustomValidationMessage(UpdateMessages.asblockIsMaintainedByRipe()));
+            return Arrays.asList(UpdateMessages.asblockIsMaintainedByRipe());
         }
 
         return Collections.emptyList();

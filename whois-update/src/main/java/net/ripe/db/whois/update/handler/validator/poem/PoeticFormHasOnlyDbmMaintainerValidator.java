@@ -1,6 +1,7 @@
 package net.ripe.db.whois.update.handler.validator.poem;
 
 import com.google.common.collect.ImmutableList;
+import net.ripe.db.whois.common.Message;
 import net.ripe.db.whois.common.domain.CIString;
 import net.ripe.db.whois.common.rpsl.AttributeType;
 import net.ripe.db.whois.common.rpsl.ObjectType;
@@ -10,7 +11,6 @@ import net.ripe.db.whois.update.domain.PreparedUpdate;
 import net.ripe.db.whois.update.domain.UpdateContext;
 import net.ripe.db.whois.update.domain.UpdateMessages;
 import net.ripe.db.whois.update.handler.validator.BusinessRuleValidator;
-import net.ripe.db.whois.update.handler.validator.CustomValidationMessage;
 import org.springframework.stereotype.Component;
 
 import java.util.Arrays;
@@ -28,10 +28,10 @@ public class PoeticFormHasOnlyDbmMaintainerValidator implements BusinessRuleVali
     private static final CIString POETIC_FORM_MAINTAINER = ciString("RIPE-DBM-MNT");
 
     @Override
-    public List<CustomValidationMessage> performValidation(final PreparedUpdate update, final UpdateContext updateContext) {
+    public List<Message> performValidation(final PreparedUpdate update, final UpdateContext updateContext) {
         final List<RpslAttribute> mntByAttribute = update.getUpdatedObject().findAttributes(AttributeType.MNT_BY);
         if (mntByAttribute.size() !=1 || !mntByAttribute.get(0).getCleanValue().equals(POETIC_FORM_MAINTAINER)) {
-            return Arrays.asList(new CustomValidationMessage(UpdateMessages.poeticFormRequiresDbmMaintainer(), mntByAttribute.get(0)));
+            return Arrays.asList(new Message(UpdateMessages.poeticFormRequiresDbmMaintainer(), mntByAttribute.get(0)));
         }
 
         return Collections.emptyList();

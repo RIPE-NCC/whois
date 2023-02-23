@@ -16,7 +16,6 @@ import net.ripe.db.whois.update.domain.PreparedUpdate;
 import net.ripe.db.whois.update.domain.UpdateContext;
 import net.ripe.db.whois.update.domain.UpdateMessages;
 import net.ripe.db.whois.update.handler.validator.BusinessRuleValidator;
-import net.ripe.db.whois.update.handler.validator.CustomValidationMessage;
 import net.ripe.db.whois.update.keycert.PgpPublicKeyWrapper;
 import org.bouncycastle.bcpg.PublicKeyAlgorithmTags;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -44,7 +43,7 @@ public class PgpKeycertValidator implements BusinessRuleValidator {
     }
 
     @Override
-    public List<CustomValidationMessage> performValidation(final PreparedUpdate update, final UpdateContext updateContext) {
+    public List<Message> performValidation(final PreparedUpdate update, final UpdateContext updateContext) {
         final Subject subject = updateContext.getSubject(update);
         if (subject.hasPrincipal(Principal.ALLOC_MAINTAINER)) {
             return Collections.emptyList();
@@ -65,24 +64,24 @@ public class PgpKeycertValidator implements BusinessRuleValidator {
             return Collections.emptyList();
         }
 
-        final List<CustomValidationMessage> customValidationMessages = Lists.newArrayList();
+        final List<Message> messages = Lists.newArrayList();
         if (wrapper.isExpired(dateTimeProvider)) {
-            customValidationMessages.add(new CustomValidationMessage(UpdateMessages.publicKeyHasExpired(wrapper.getKeyId())));
+            messages.add(UpdateMessages.publicKeyHasExpired(wrapper.getKeyId()));
         }
 
         if (wrapper.isRevoked()) {
-            customValidationMessages.add(new CustomValidationMessage(UpdateMessages.publicKeyIsRevoked(wrapper.getKeyId())));
+            messages.add(UpdateMessages.publicKeyIsRevoked(wrapper.getKeyId()));
         }
 
         switch (wrapper.getPublicKey().getAlgorithm()) {
             case PublicKeyAlgorithmTags.DSA:
                 if (wrapper.getPublicKey().getBitStrength() < MINIMUM_KEY_LENGTH_DSA) {
-                    customValidationMessages.add(new CustomValidationMessage(UpdateMessages.publicKeyLengthIsWeak("DSA", MINIMUM_KEY_LENGTH_DSA, wrapper.getPublicKey().getBitStrength())));
+                    messages.add(UpdateMessages.publicKeyLengthIsWeak("DSA", MINIMUM_KEY_LENGTH_DSA, wrapper.getPublicKey().getBitStrength()));
                 }
                 break;
             case PublicKeyAlgorithmTags.RSA_GENERAL:
                 if (wrapper.getPublicKey().getBitStrength() < MINIMUM_KEY_LENGTH_RSA) {
-                    customValidationMessages.add(new CustomValidationMessage(UpdateMessages.publicKeyLengthIsWeak("RSA", MINIMUM_KEY_LENGTH_RSA, wrapper.getPublicKey().getBitStrength())));
+                    messages.add(UpdateMessages.publicKeyLengthIsWeak("RSA", MINIMUM_KEY_LENGTH_RSA, wrapper.getPublicKey().getBitStrength()));
                 }
                 break;
             default:
@@ -91,7 +90,7 @@ public class PgpKeycertValidator implements BusinessRuleValidator {
                 break;
         }
 
-        return customValidationMessages;
+        return messages;
     }
 
     @Override

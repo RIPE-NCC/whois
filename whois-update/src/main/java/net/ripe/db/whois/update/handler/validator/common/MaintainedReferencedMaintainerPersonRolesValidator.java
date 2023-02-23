@@ -3,6 +3,7 @@ package net.ripe.db.whois.update.handler.validator.common;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
+import net.ripe.db.whois.common.Message;
 import net.ripe.db.whois.common.dao.RpslObjectDao;
 import net.ripe.db.whois.common.domain.CIString;
 import net.ripe.db.whois.common.rpsl.AttributeType;
@@ -13,7 +14,6 @@ import net.ripe.db.whois.update.domain.Action;
 import net.ripe.db.whois.update.domain.PreparedUpdate;
 import net.ripe.db.whois.update.domain.UpdateContext;
 import net.ripe.db.whois.update.domain.UpdateMessages;
-import net.ripe.db.whois.update.handler.validator.CustomValidationMessage;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.stereotype.Component;
@@ -33,11 +33,11 @@ public class MaintainedReferencedMaintainerPersonRolesValidator extends Abstract
     }
 
     @Override
-    public List<CustomValidationMessage> performValidation(final PreparedUpdate update, final UpdateContext updateContext) {
+    public List<Message> performValidation(final PreparedUpdate update, final UpdateContext updateContext) {
         final RpslObject updatedObject = update.getUpdatedObject();
         boolean nonexistantMntner = false;
 
-        final List<CustomValidationMessage> customValidationMessages = Lists.newArrayList();
+        final List<Message> messages = Lists.newArrayList();
         for (final CIString value : updatedObject.getValuesForAttribute(AttributeType.MNT_BY)) {
             if (isSelfReference(updatedObject, value)) {
                 continue;
@@ -46,19 +46,19 @@ public class MaintainedReferencedMaintainerPersonRolesValidator extends Abstract
             try {
                 final RpslObject object = rpslObjectDao.getByKey(ObjectType.MNTNER, value.toString());
                 for (RpslObject rpslObject : validateReferencedPersonsAndRoles(object)) {
-                    customValidationMessages.add(new CustomValidationMessage(UpdateMessages.referencedObjectMissingAttribute(rpslObject.getType(), rpslObject.getKey(), ObjectType.MNTNER, value, AttributeType.MNT_BY)));
+                    messages.add(UpdateMessages.referencedObjectMissingAttribute(rpslObject.getType(), rpslObject.getKey(), ObjectType.MNTNER, value, AttributeType.MNT_BY));
                 }
             } catch (EmptyResultDataAccessException e) {
-                customValidationMessages.add(new CustomValidationMessage(UpdateMessages.maintainerNotFound(value)));
+                messages.add(UpdateMessages.maintainerNotFound(value));
                 nonexistantMntner = true;
             }
         }
 
         if (nonexistantMntner && !hasReferenceToPersonRole(updatedObject)) {
-            customValidationMessages.add(new CustomValidationMessage(UpdateMessages.createFirstPersonMntnerForOrganisation()));
+            messages.add(UpdateMessages.createFirstPersonMntnerForOrganisation());
         }
 
-        return customValidationMessages;
+        return messages;
     }
 
     private boolean isSelfReference(final RpslObject updatedObject, final CIString value) {

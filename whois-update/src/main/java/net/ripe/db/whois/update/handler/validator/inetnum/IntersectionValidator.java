@@ -2,6 +2,7 @@ package net.ripe.db.whois.update.handler.validator.inetnum;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
+import net.ripe.db.whois.common.Message;
 import net.ripe.db.whois.common.ip.Interval;
 import net.ripe.db.whois.common.ip.IpInterval;
 import net.ripe.db.whois.common.ip.Ipv4Resource;
@@ -15,7 +16,6 @@ import net.ripe.db.whois.update.domain.PreparedUpdate;
 import net.ripe.db.whois.update.domain.UpdateContext;
 import net.ripe.db.whois.update.domain.UpdateMessages;
 import net.ripe.db.whois.update.handler.validator.BusinessRuleValidator;
-import net.ripe.db.whois.update.handler.validator.CustomValidationMessage;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -37,7 +37,7 @@ public class IntersectionValidator implements BusinessRuleValidator {
     }
 
     @Override
-    public List<CustomValidationMessage> performValidation(final PreparedUpdate update, final UpdateContext updateContext) {
+    public List<Message> performValidation(final PreparedUpdate update, final UpdateContext updateContext) {
         final IpInterval ipInterval = IpInterval.parse(update.getReferenceObject().getKey());
         if (ipInterval instanceof Ipv4Resource) {
             return validateIntersections(ipInterval, ipv4Tree, Lists.newArrayList());
@@ -46,11 +46,11 @@ public class IntersectionValidator implements BusinessRuleValidator {
         }
     }
 
-    private List<CustomValidationMessage> validateIntersections(final IpInterval ipInterval, final IpTree ipTree, final List<CustomValidationMessage> messages) {
+    private List<Message> validateIntersections(final IpInterval ipInterval, final IpTree ipTree, final List<Message> messages) {
         final List<IpEntry> parent = ipTree.findFirstLessSpecific(ipInterval);
 
         if (parent.size() != 1) {
-            messages.add(new CustomValidationMessage(UpdateMessages.invalidParentEntryForInterval(ipInterval)));
+            messages.add(UpdateMessages.invalidParentEntryForInterval(ipInterval));
             return messages;
         }
 
@@ -67,7 +67,7 @@ public class IntersectionValidator implements BusinessRuleValidator {
         }
 
         if (firstIntersecting != null) {
-            messages.add(new CustomValidationMessage(UpdateMessages.intersectingRange(firstIntersecting), null));
+            messages.add(UpdateMessages.intersectingRange(firstIntersecting));
         }
 
         return messages;

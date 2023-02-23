@@ -2,6 +2,7 @@ package net.ripe.db.whois.update.handler.validator.organisation;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
+import net.ripe.db.whois.common.Message;
 import net.ripe.db.whois.common.dao.RpslObjectDao;
 import net.ripe.db.whois.common.dao.RpslObjectUpdateDao;
 import net.ripe.db.whois.common.domain.CIString;
@@ -15,7 +16,6 @@ import net.ripe.db.whois.update.domain.PreparedUpdate;
 import net.ripe.db.whois.update.domain.UpdateContext;
 import net.ripe.db.whois.update.domain.UpdateMessages;
 import net.ripe.db.whois.update.handler.validator.BusinessRuleValidator;
-import net.ripe.db.whois.update.handler.validator.CustomValidationMessage;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -61,21 +61,21 @@ public class AbuseValidator implements BusinessRuleValidator {
     }
 
     @Override
-    public List<CustomValidationMessage> performValidation(final PreparedUpdate update, final UpdateContext updateContext) {
+    public List<Message> performValidation(final PreparedUpdate update, final UpdateContext updateContext) {
         final RpslObject updatedObject = update.getUpdatedObject();
         if (updatedObject == null) {
             return Collections.emptyList();
         }
 
-        final List<CustomValidationMessage> customValidationMessages = Lists.newArrayList();
+        final List<Message> messages = Lists.newArrayList();
 
-        validateAbuseC(updatedObject, customValidationMessages);
-        validateAbuseCRemoved(updatedObject, update, customValidationMessages);
+        validateAbuseC(updatedObject, messages);
+        validateAbuseCRemoved(updatedObject, update, messages);
 
-        return customValidationMessages;
+        return messages;
     }
 
-    private void validateAbuseC(final RpslObject updatedObject, final List<CustomValidationMessage> customValidationMessages) {
+    private void validateAbuseC(final RpslObject updatedObject, final List<Message> messages) {
         final CIString abuseC = updatedObject.getValueOrNullForAttribute(AttributeType.ABUSE_C);
         if (abuseC == null) {
             return;
@@ -84,12 +84,12 @@ public class AbuseValidator implements BusinessRuleValidator {
         try {
             final RpslObject abuseCRole = objectDao.getByKey(ObjectType.ROLE, abuseC);
             if (!abuseCRole.containsAttribute(AttributeType.ABUSE_MAILBOX)) {
-                customValidationMessages.add(new CustomValidationMessage(UpdateMessages.abuseMailboxRequired(abuseC, updatedObject.getType())));
+                messages.add(UpdateMessages.abuseMailboxRequired(abuseC, updatedObject.getType()));
             }
         } catch (EmptyResultDataAccessException e) {
             try {
                 objectDao.getByKey(ObjectType.PERSON, abuseC);
-                customValidationMessages.add(new CustomValidationMessage(UpdateMessages.abuseCPersonReference(), null));
+                messages.add(UpdateMessages.abuseCPersonReference());
             } catch (EmptyResultDataAccessException e1) {
                 // ignore, invalid reference type is checked elsewhere
                 LOGGER.debug("{}: {}", e1.getClass().getName(), e1.getMessage());
@@ -97,12 +97,12 @@ public class AbuseValidator implements BusinessRuleValidator {
         }
     }
 
-    private void validateAbuseCRemoved(final RpslObject updatedObject, final PreparedUpdate update, final List<CustomValidationMessage> customValidationMessages) {
+    private void validateAbuseCRemoved(final RpslObject updatedObject, final PreparedUpdate update, final List<Message> messages) {
         if (updatedObject.getType() == ORGANISATION &&
             isAbuseCRemoved(updatedObject, update) &&
             (isLir(update.getReferenceObject()) ||
                     isOrgReferencedByRsMaintainedResources(updatedObject))) {
-            customValidationMessages.add(new CustomValidationMessage(UpdateMessages.abuseContactNotRemovable(), null));
+            messages.add(UpdateMessages.abuseContactNotRemovable());
         }
     }
 

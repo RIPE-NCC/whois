@@ -2,6 +2,7 @@ package net.ripe.db.whois.update.handler.validator.organisation;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
+import net.ripe.db.whois.common.Message;
 import net.ripe.db.whois.common.domain.CIString;
 import net.ripe.db.whois.common.rpsl.AttributeType;
 import net.ripe.db.whois.common.rpsl.ObjectType;
@@ -14,7 +15,6 @@ import net.ripe.db.whois.update.domain.PreparedUpdate;
 import net.ripe.db.whois.update.domain.UpdateContext;
 import net.ripe.db.whois.update.domain.UpdateMessages;
 import net.ripe.db.whois.update.handler.validator.BusinessRuleValidator;
-import net.ripe.db.whois.update.handler.validator.CustomValidationMessage;
 import org.springframework.stereotype.Component;
 
 import java.util.Collections;
@@ -36,7 +36,7 @@ public class LirUserMaintainedAttributesValidator implements BusinessRuleValidat
             AttributeType.ORG_NAME);
 
     @Override
-    public List<CustomValidationMessage> performValidation(final PreparedUpdate update, final UpdateContext updateContext) {
+    public List<Message> performValidation(final PreparedUpdate update, final UpdateContext updateContext) {
         final Subject subject = updateContext.getSubject(update);
         if (subject.hasPrincipal(Principal.ALLOC_MAINTAINER)) {
             return Collections.emptyList();
@@ -47,15 +47,15 @@ public class LirUserMaintainedAttributesValidator implements BusinessRuleValidat
             return Collections.emptyList();
         }
 
-        List<CustomValidationMessage> customValidationMessages = Lists.newArrayList();
+        List<Message> messages = Lists.newArrayList();
         final RpslObject updatedObject = update.getUpdatedObject();
         USER_MANAGED_IN_PORTAL_ATTRIBUTES.forEach(attributeType -> {
             if (haveAttributesChanged(originalObject, updatedObject, attributeType)) {
-                customValidationMessages.add(new CustomValidationMessage(UpdateMessages.canOnlyBeChangedinLirPortal(attributeType)));
+                messages.add(UpdateMessages.canOnlyBeChangedinLirPortal(attributeType));
             }
         });
 
-        return customValidationMessages;
+        return messages;
     }
 
     @Override

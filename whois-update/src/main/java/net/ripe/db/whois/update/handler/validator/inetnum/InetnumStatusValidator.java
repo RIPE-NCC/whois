@@ -2,6 +2,7 @@ package net.ripe.db.whois.update.handler.validator.inetnum;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
+import net.ripe.db.whois.common.Message;
 import net.ripe.db.whois.common.Messages;
 import net.ripe.db.whois.common.dao.StatusDao;
 import net.ripe.db.whois.common.domain.CIString;
@@ -21,7 +22,6 @@ import net.ripe.db.whois.update.domain.PreparedUpdate;
 import net.ripe.db.whois.update.domain.UpdateContext;
 import net.ripe.db.whois.update.domain.UpdateMessages;
 import net.ripe.db.whois.update.handler.validator.BusinessRuleValidator;
-import net.ripe.db.whois.update.handler.validator.CustomValidationMessage;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -52,7 +52,7 @@ public class InetnumStatusValidator implements BusinessRuleValidator {
     }
 
     @Override
-    public List<CustomValidationMessage> performValidation(final PreparedUpdate update, final UpdateContext updateContext) {
+    public List<Message> performValidation(final PreparedUpdate update, final UpdateContext updateContext) {
         switch (update.getAction()) {
             case MODIFY:
                 return validateModify(update, updateContext);
@@ -63,18 +63,18 @@ public class InetnumStatusValidator implements BusinessRuleValidator {
         }
     }
 
-    private List<CustomValidationMessage> validateModify(final PreparedUpdate update, final UpdateContext updateContext) {
+    private List<Message> validateModify(final PreparedUpdate update, final UpdateContext updateContext) {
         if (update.getReferenceObject() == null || update.getUpdatedObject() == null) {
             return Collections.emptyList();
         }
 
-        final List<CustomValidationMessage> validationMessages = Lists.newArrayList();
+        final List<Message> validationMessages = Lists.newArrayList();
 
         final CIString originalStatus = update.getReferenceObject().getValueForAttribute(AttributeType.STATUS);
         final CIString updateStatus = update.getUpdatedObject().getValueForAttribute(AttributeType.STATUS);
 
         if (!Objects.equals(originalStatus, updateStatus)) {
-            validationMessages.add(new CustomValidationMessage(UpdateMessages.statusChange()));
+            validationMessages.add(UpdateMessages.statusChange());
         }
 
         validateHierarchy(update.getUpdatedObject(), update, validationMessages);
@@ -82,12 +82,12 @@ public class InetnumStatusValidator implements BusinessRuleValidator {
         return validationMessages;
     }
 
-    private List<CustomValidationMessage> validateDelete(final PreparedUpdate update, final UpdateContext updateContext) {
+    private List<Message> validateDelete(final PreparedUpdate update, final UpdateContext updateContext) {
         if (update.getReferenceObject() == null || update.getUpdatedObject() == null) {
             return Collections.emptyList();
         }
 
-        final List<CustomValidationMessage> validationMessages = Lists.newArrayList();
+        final List<Message> validationMessages = Lists.newArrayList();
 
         final InetnumStatus updateStatus;
         try {
@@ -100,7 +100,7 @@ public class InetnumStatusValidator implements BusinessRuleValidator {
         if (updateStatus.requiresRsMaintainer()) {
             final Set<CIString> mntBy = update.getReferenceObject().getValuesForAttribute(AttributeType.MNT_BY);
             if (!maintainers.isRsMaintainer(mntBy)) {
-               validationMessages.add(new CustomValidationMessage(UpdateMessages.deleteWithStatusRequiresAuthorization(updateStatus.toString())));
+               validationMessages.add(UpdateMessages.deleteWithStatusRequiresAuthorization(updateStatus.toString()));
             }
         }
 
@@ -108,7 +108,7 @@ public class InetnumStatusValidator implements BusinessRuleValidator {
 
         final List<Ipv4Entry> parents = ipv4Tree.findFirstLessSpecific(ipv4Resource);
         if (parents.size() != 1) {
-            validationMessages.add(new CustomValidationMessage(UpdateMessages.invalidParentEntryForInterval(ipv4Resource)));
+            validationMessages.add(UpdateMessages.invalidParentEntryForInterval(ipv4Resource));
             return validationMessages;
         }
 
@@ -135,18 +135,18 @@ public class InetnumStatusValidator implements BusinessRuleValidator {
             final InetnumStatus parentStatus,
             final PreparedUpdate update,
             final UpdateContext updateContext,
-            final List<CustomValidationMessage> validationMessages) {
+            final List<Message> validationMessages) {
         if ((updateStatus == InetnumStatus.LEGACY) &&
                 (parentStatus != InetnumStatus.LEGACY) &&
                (!authByRs(updateContext.getSubject(update)))) {
-            validationMessages.add(new CustomValidationMessage(UpdateMessages.inetnumStatusLegacy()));
+            validationMessages.add(UpdateMessages.inetnumStatusLegacy());
         }
     }
 
     private void validateHierarchy(
             final RpslObject rpslObject,
             final PreparedUpdate update,
-            final List<CustomValidationMessage> validationMessages) {
+            final List<Message> validationMessages) {
         final CIString objectStatus = rpslObject.getValueForAttribute(AttributeType.STATUS);
 
         final Ipv4Entry parent = ipv4Tree.findFirstLessSpecific(Ipv4Resource.parse(rpslObject.getKey())).get(0);
@@ -196,9 +196,9 @@ public class InetnumStatusValidator implements BusinessRuleValidator {
     private void validateParentStatus(
             final CIString parentStatus,
             final CIString childStatus,
-            final List<CustomValidationMessage> validationMessages) {
+            final List<Message> validationMessages) {
         if (!InetnumStatus.getStatusFor(childStatus).worksWithParentStatus(InetnumStatus.getStatusFor(parentStatus), false)) {
-           validationMessages.add(new CustomValidationMessage(UpdateMessages.incorrectParentStatus(Messages.Type.WARNING, ObjectType.INETNUM, parentStatus.toString())));
+           validationMessages.add(UpdateMessages.incorrectParentStatus(Messages.Type.WARNING, ObjectType.INETNUM, parentStatus.toString()));
         }
     }
 
@@ -206,9 +206,9 @@ public class InetnumStatusValidator implements BusinessRuleValidator {
             final CIString parentStatus,
             final CIString childStatus,
             final CIString childKey,
-            final List<CustomValidationMessage> validationMessages) {
+            final List<Message> validationMessages) {
         if (!InetnumStatus.getStatusFor(childStatus).worksWithParentStatus(InetnumStatus.getStatusFor(parentStatus), false)) {
-            validationMessages.add(new CustomValidationMessage(UpdateMessages.incorrectChildStatus(Messages.Type.WARNING, parentStatus.toString(), childStatus.toString(), childKey)));
+            validationMessages.add(UpdateMessages.incorrectChildStatus(Messages.Type.WARNING, parentStatus.toString(), childStatus.toString(), childKey));
         }
     }
 

@@ -3,6 +3,7 @@ package net.ripe.db.whois.update.handler.validator.inetnum;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Lists;
+import net.ripe.db.whois.common.Message;
 import net.ripe.db.whois.common.dao.RpslObjectDao;
 import net.ripe.db.whois.common.domain.CIString;
 import net.ripe.db.whois.common.domain.Maintainers;
@@ -19,7 +20,6 @@ import net.ripe.db.whois.update.domain.PreparedUpdate;
 import net.ripe.db.whois.update.domain.UpdateContext;
 import net.ripe.db.whois.update.domain.UpdateMessages;
 import net.ripe.db.whois.update.handler.validator.BusinessRuleValidator;
-import net.ripe.db.whois.update.handler.validator.CustomValidationMessage;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -64,7 +64,7 @@ public class SponsoringOrgValidator implements BusinessRuleValidator {
     }
 
     @Override
-    public List<CustomValidationMessage> performValidation(final PreparedUpdate update, final UpdateContext updateContext) {
+    public List<Message> performValidation(final PreparedUpdate update, final UpdateContext updateContext) {
 
         final CIString refSponsoringOrg = update.getReferenceObject().getValueOrNullForAttribute(SPONSORING_ORG);
         final CIString updSponsoringOrg = update.getUpdatedObject().getValueOrNullForAttribute(SPONSORING_ORG);
@@ -82,16 +82,16 @@ public class SponsoringOrgValidator implements BusinessRuleValidator {
             return Collections.emptyList();
         }
 
-        final List<CustomValidationMessage> validationMessages = Lists.newArrayList();
+        final List<Message> validationMessages = Lists.newArrayList();
         final boolean authByRS = updateContext.getSubject(update).hasPrincipal(Principal.RS_MAINTAINER);
 
         if (!authByRS) {
             if (sponsoringOrgAdded(refSponsoringOrg, updSponsoringOrg, action)) {
-                validationMessages.add(new CustomValidationMessage(UpdateMessages.sponsoringOrgAdded()));
+                validationMessages.add(UpdateMessages.sponsoringOrgAdded());
             } else if (sponsoringOrgRemoved(refSponsoringOrg, updSponsoringOrg, action)) {
-                validationMessages.add(new CustomValidationMessage(UpdateMessages.sponsoringOrgRemoved()));
+                validationMessages.add(UpdateMessages.sponsoringOrgRemoved());
             } else if (sponsoringOrgChanged(refSponsoringOrg, updSponsoringOrg, action)) {
-                validationMessages.add(new CustomValidationMessage(UpdateMessages.sponsoringOrgChanged()));
+                validationMessages.add(UpdateMessages.sponsoringOrgChanged());
             } else {
                 LOGGER.warn("Unexpected action {}, ref {} upd {}", action.getDescription(), refSponsoringOrg, updSponsoringOrg);
             }

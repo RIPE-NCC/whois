@@ -1,6 +1,7 @@
 package net.ripe.db.whois.update.handler.validator.inetnum;
 
 import com.google.common.collect.ImmutableList;
+import net.ripe.db.whois.common.Message;
 import net.ripe.db.whois.common.dao.RpslObjectDao;
 import net.ripe.db.whois.common.dao.RpslObjectInfo;
 import net.ripe.db.whois.common.dao.RpslObjectUpdateDao;
@@ -16,7 +17,6 @@ import net.ripe.db.whois.update.domain.PreparedUpdate;
 import net.ripe.db.whois.update.domain.UpdateContext;
 import net.ripe.db.whois.update.domain.UpdateMessages;
 import net.ripe.db.whois.update.handler.validator.BusinessRuleValidator;
-import net.ripe.db.whois.update.handler.validator.CustomValidationMessage;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -42,12 +42,12 @@ public class ReferenceCheck implements BusinessRuleValidator {
     }
 
     @Override
-    public List<CustomValidationMessage> performValidation(final PreparedUpdate update, final UpdateContext updateContext) {
+    public List<Message> performValidation(final PreparedUpdate update, final UpdateContext updateContext) {
         final InetStatus inetStatus = getStatus(update);
         final List<RpslAttribute> updatedOrgAttributes = update.getUpdatedObject().findAttributes(AttributeType.ORG);
 
         if (inetStatus.needsOrgReference() && updatedOrgAttributes.isEmpty()) {
-            return Arrays.asList(new CustomValidationMessage(UpdateMessages.orgAttributeMissing()));
+            return Arrays.asList(UpdateMessages.orgAttributeMissing());
         }
 
         if (updatedOrgAttributes.isEmpty()) {
@@ -57,13 +57,13 @@ public class ReferenceCheck implements BusinessRuleValidator {
         final RpslAttribute org = updatedOrgAttributes.get(0);
         final RpslObject referencedOrganisation = findOrgReference(org);
         if (referencedOrganisation == null) {
-            return Arrays.asList(new CustomValidationMessage(UpdateMessages.referenceNotFound(org.getCleanValue())));
+            return Arrays.asList(UpdateMessages.referenceNotFound(org.getCleanValue()));
         }
 
         final CIString cleanOrgTypeValue = referencedOrganisation.findAttribute(AttributeType.ORG_TYPE).getCleanValue();
         final OrgType orgType = OrgType.getFor(cleanOrgTypeValue);
         if (orgType == null || !inetStatus.isValidOrgType(orgType)) {
-            return Arrays.asList(new CustomValidationMessage(UpdateMessages.wrongOrgType(inetStatus.getAllowedOrgTypes())));
+            return Arrays.asList(UpdateMessages.wrongOrgType(inetStatus.getAllowedOrgTypes()));
         }
 
         return Collections.emptyList();

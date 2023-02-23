@@ -3,6 +3,7 @@ package net.ripe.db.whois.update.handler.validator.common;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
+import net.ripe.db.whois.common.Message;
 import net.ripe.db.whois.common.dao.RpslObjectDao;
 import net.ripe.db.whois.common.domain.CIString;
 import net.ripe.db.whois.common.rpsl.AttributeType;
@@ -13,7 +14,6 @@ import net.ripe.db.whois.update.domain.PreparedUpdate;
 import net.ripe.db.whois.update.domain.UpdateContext;
 import net.ripe.db.whois.update.domain.UpdateMessages;
 import net.ripe.db.whois.update.handler.validator.BusinessRuleValidator;
-import net.ripe.db.whois.update.handler.validator.CustomValidationMessage;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.stereotype.Component;
@@ -49,7 +49,7 @@ public class MemberOfValidator implements BusinessRuleValidator {
     }
 
     @Override
-    public List<CustomValidationMessage> performValidation(final PreparedUpdate update, final UpdateContext updateContext) {
+    public List<Message> performValidation(final PreparedUpdate update, final UpdateContext updateContext) {
         final Collection<CIString> memberOfs = update.getUpdatedObject().getValuesForAttribute((AttributeType.MEMBER_OF));
         if (memberOfs.isEmpty()) {
             return Collections.emptyList();
@@ -59,7 +59,7 @@ public class MemberOfValidator implements BusinessRuleValidator {
         final ObjectType referencedObjectType = objectTypeMap.get(update.getType());
         final Set<CIString> unsupportedSets = findUnsupportedMembers(memberOfs, updatedObjectMaintainers, referencedObjectType);
         if (!unsupportedSets.isEmpty()) {
-            return Arrays.asList(new CustomValidationMessage(UpdateMessages.membersNotSupportedInReferencedSet(unsupportedSets.toString())));
+            return Arrays.asList(UpdateMessages.membersNotSupportedInReferencedSet(unsupportedSets.toString()));
         }
 
         return Collections.emptyList();

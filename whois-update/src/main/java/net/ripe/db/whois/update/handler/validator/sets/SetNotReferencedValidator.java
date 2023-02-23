@@ -2,6 +2,7 @@ package net.ripe.db.whois.update.handler.validator.sets;
 
 
 import com.google.common.collect.ImmutableList;
+import net.ripe.db.whois.common.Message;
 import net.ripe.db.whois.common.dao.RpslObjectDao;
 import net.ripe.db.whois.common.dao.RpslObjectInfo;
 import net.ripe.db.whois.common.rpsl.ObjectType;
@@ -11,7 +12,6 @@ import net.ripe.db.whois.update.domain.PreparedUpdate;
 import net.ripe.db.whois.update.domain.UpdateContext;
 import net.ripe.db.whois.update.domain.UpdateMessages;
 import net.ripe.db.whois.update.handler.validator.BusinessRuleValidator;
-import net.ripe.db.whois.update.handler.validator.CustomValidationMessage;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -33,12 +33,12 @@ public class SetNotReferencedValidator implements BusinessRuleValidator {
     }
 
     @Override
-    public List<CustomValidationMessage> performValidation(final PreparedUpdate update, final UpdateContext updateContext) {
+    public List<Message> performValidation(final PreparedUpdate update, final UpdateContext updateContext) {
         final RpslObject updatedObject = update.getUpdatedObject();
 
         final List<RpslObjectInfo> incomingReferences = objectDao.findMemberOfByObjectTypeWithoutMbrsByRef(updatedObject.getType(), updatedObject.getKey().toString());
         if (!incomingReferences.isEmpty()) {
-            return Arrays.asList(new CustomValidationMessage(UpdateMessages.objectInUse(updatedObject)));
+            return Arrays.asList(UpdateMessages.objectInUse(updatedObject));
         }
 
         return Collections.emptyList();

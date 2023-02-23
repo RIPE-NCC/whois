@@ -3,6 +3,7 @@ package net.ripe.db.whois.update.handler.validator.common;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
+import net.ripe.db.whois.common.Message;
 import net.ripe.db.whois.common.domain.CIString;
 import net.ripe.db.whois.common.rpsl.AttributeType;
 import net.ripe.db.whois.common.rpsl.ObjectTemplate;
@@ -15,7 +16,6 @@ import net.ripe.db.whois.update.domain.Action;
 import net.ripe.db.whois.update.domain.PreparedUpdate;
 import net.ripe.db.whois.update.domain.UpdateContext;
 import net.ripe.db.whois.update.handler.validator.BusinessRuleValidator;
-import net.ripe.db.whois.update.handler.validator.CustomValidationMessage;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
@@ -37,10 +37,10 @@ public class MntRoutesValidator implements BusinessRuleValidator {
     }
 
     @Override
-    public List<CustomValidationMessage> performValidation(final PreparedUpdate update, final UpdateContext updateContext) {
+    public List<Message> performValidation(final PreparedUpdate update, final UpdateContext updateContext) {
         final Map<MntRoutes, RpslAttribute> mntRoutesMap = Maps.newHashMap();
 
-        final List<CustomValidationMessage> customValidationMessages = Lists.newArrayList();
+        final List<Message> messages = Lists.newArrayList();
         for (final RpslAttribute attribute : update.getUpdatedObject().findAttributes(AttributeType.MNT_ROUTES)) {
             for (final CIString mntRoutesValue : attribute.getCleanValues()) {
                 try {
@@ -49,23 +49,23 @@ public class MntRoutesValidator implements BusinessRuleValidator {
                         final MntRoutes otherMntRoutes = mntRoutesEntry.getKey();
                         if (mntRoutes.getMaintainer().equals(otherMntRoutes.getMaintainer()) && mntRoutes.isAnyRange() != otherMntRoutes.isAnyRange()) {
                             final RpslAttribute otherAttribute = mntRoutesEntry.getValue();
-                            customValidationMessages.add(syntaxError(otherAttribute));
-                            customValidationMessages.add(syntaxError(attribute));
+                            messages.add(syntaxError(otherAttribute));
+                            messages.add(syntaxError(attribute));
                         }
                     }
 
                     mntRoutesMap.put(mntRoutes, attribute);
                 } catch (AttributeParseException e) {
-                    customValidationMessages.add(syntaxError(attribute));
+                    messages.add(syntaxError(attribute));
                 }
             }
         }
 
-        return customValidationMessages;
+        return messages;
     }
 
-    private CustomValidationMessage syntaxError(final RpslAttribute attribute) {
-        return new CustomValidationMessage(ValidationMessages.syntaxError(attribute.getCleanValue(), "ANY can only occur as a single value"), attribute);
+    private Message syntaxError(final RpslAttribute attribute) {
+        return new Message(ValidationMessages.syntaxError(attribute.getCleanValue(), "ANY can only occur as a single value"), attribute);
     }
 
     @Override

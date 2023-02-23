@@ -18,7 +18,6 @@ import net.ripe.db.whois.update.domain.PreparedUpdate;
 import net.ripe.db.whois.update.domain.UpdateContext;
 import net.ripe.db.whois.update.domain.UpdateMessages;
 import net.ripe.db.whois.update.handler.validator.BusinessRuleValidator;
-import net.ripe.db.whois.update.handler.validator.CustomValidationMessage;
 import net.ripe.db.whois.update.keycert.X509CertificateWrapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -54,7 +53,7 @@ public class X509KeycertValidator implements BusinessRuleValidator {
     }
 
     @Override
-    public List<CustomValidationMessage> performValidation(final PreparedUpdate update, final UpdateContext updateContext) {
+    public List<Message> performValidation(final PreparedUpdate update, final UpdateContext updateContext) {
         final Subject subject = updateContext.getSubject(update);
         if (subject.hasPrincipal(Principal.ALLOC_MAINTAINER)) {
             return Collections.emptyList();
@@ -75,14 +74,14 @@ public class X509KeycertValidator implements BusinessRuleValidator {
             return Collections.emptyList();
         }
 
-        final List<CustomValidationMessage> customValidationMessages = Lists.newArrayList();
+        final List<Message> messages = Lists.newArrayList();
         if (wrapper.isExpired(dateTimeProvider)) {
-            customValidationMessages.add(new CustomValidationMessage(UpdateMessages.publicKeyHasExpired(updatedObject.getKey())));
+            messages.add(UpdateMessages.publicKeyHasExpired(updatedObject.getKey()));
         }
 
         final String signatureAlgorithm = wrapper.getCertificate().getSigAlgName();
         if (weakHashAlgorithms.contains(signatureAlgorithm)) {
-            customValidationMessages.add(new CustomValidationMessage(UpdateMessages.certificateHasWeakHash(updatedObject.getKey(), signatureAlgorithm)));
+            messages.add(UpdateMessages.certificateHasWeakHash(updatedObject.getKey(), signatureAlgorithm));
         } else {
             updateContext.log(new Message(Messages.Type.INFO, "keycert %s uses signature algorithm %s", updatedObject.getKey(), signatureAlgorithm));
         }
@@ -91,13 +90,13 @@ public class X509KeycertValidator implements BusinessRuleValidator {
         if  (publicKey instanceof RSAPublicKey) {
             final int bitLength = ((RSAPublicKey)publicKey).getModulus().bitLength();
             if (bitLength < MINIMUM_KEY_LENGTH_DSA) {
-                customValidationMessages.add(new CustomValidationMessage(UpdateMessages.publicKeyLengthIsWeak("RSA", MINIMUM_KEY_LENGTH_RSA, bitLength)));
+                messages.add(UpdateMessages.publicKeyLengthIsWeak("RSA", MINIMUM_KEY_LENGTH_RSA, bitLength));
             }
         } else {
             if  (publicKey instanceof DSAPublicKey) {
                 final int bitLength = ((DSAPublicKey)publicKey).getParams().getP().bitLength();
                 if (bitLength < MINIMUM_KEY_LENGTH_DSA) {
-                    customValidationMessages.add(new CustomValidationMessage(UpdateMessages.publicKeyLengthIsWeak("DSA", MINIMUM_KEY_LENGTH_DSA, bitLength)));
+                    messages.add(UpdateMessages.publicKeyLengthIsWeak("DSA", MINIMUM_KEY_LENGTH_DSA, bitLength));
                 }
             } else {
                 // skip key length check until we are sure about an appropriate minimum length for that algorithm
@@ -105,7 +104,7 @@ public class X509KeycertValidator implements BusinessRuleValidator {
             }
         }
 
-        return customValidationMessages;
+        return messages;
     }
 
     @Override

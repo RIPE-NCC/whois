@@ -2,6 +2,7 @@ package net.ripe.db.whois.update.handler.validator.maintainer;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Sets;
+import net.ripe.db.whois.common.Message;
 import net.ripe.db.whois.common.domain.CIString;
 import net.ripe.db.whois.common.domain.Maintainers;
 import net.ripe.db.whois.common.rpsl.ObjectType;
@@ -12,7 +13,6 @@ import net.ripe.db.whois.update.domain.PreparedUpdate;
 import net.ripe.db.whois.update.domain.UpdateContext;
 import net.ripe.db.whois.update.domain.UpdateMessages;
 import net.ripe.db.whois.update.handler.validator.BusinessRuleValidator;
-import net.ripe.db.whois.update.handler.validator.CustomValidationMessage;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -39,7 +39,7 @@ public class CreateRipeNccMaintainerValidator implements BusinessRuleValidator {
     }
 
     @Override
-    public List<CustomValidationMessage> performValidation(final PreparedUpdate update, final UpdateContext updateContext) {
+    public List<Message> performValidation(final PreparedUpdate update, final UpdateContext updateContext) {
         if (updateContext.getSubject(update).hasPrincipal(Principal.OVERRIDE_MAINTAINER)) {
             return Collections.emptyList();
         }
@@ -47,7 +47,7 @@ public class CreateRipeNccMaintainerValidator implements BusinessRuleValidator {
         final RpslObject updatedObject = update.getUpdatedObject();
 
         if (ripeMaintainers.contains(updatedObject.getKey())) {
-            return Arrays.asList(new CustomValidationMessage(UpdateMessages.creatingRipeMaintainerForbidden()));
+            return Arrays.asList(UpdateMessages.creatingRipeMaintainerForbidden());
         }
 
         return Collections.emptyList();

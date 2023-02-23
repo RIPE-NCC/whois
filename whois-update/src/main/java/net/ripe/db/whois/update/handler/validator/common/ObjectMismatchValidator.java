@@ -1,6 +1,7 @@
 package net.ripe.db.whois.update.handler.validator.common;
 
 import com.google.common.collect.ImmutableList;
+import net.ripe.db.whois.common.Message;
 import net.ripe.db.whois.common.rpsl.ObjectType;
 import net.ripe.db.whois.common.rpsl.RpslObjectFilter;
 import net.ripe.db.whois.update.domain.Action;
@@ -8,7 +9,6 @@ import net.ripe.db.whois.update.domain.PreparedUpdate;
 import net.ripe.db.whois.update.domain.UpdateContext;
 import net.ripe.db.whois.update.domain.UpdateMessages;
 import net.ripe.db.whois.update.handler.validator.BusinessRuleValidator;
-import net.ripe.db.whois.update.handler.validator.CustomValidationMessage;
 import org.springframework.stereotype.Component;
 
 import java.util.Arrays;
@@ -22,9 +22,9 @@ public class ObjectMismatchValidator implements BusinessRuleValidator {
     private static final ImmutableList<ObjectType> TYPES = ImmutableList.copyOf(ObjectType.values());
 
     @Override
-    public List<CustomValidationMessage> performValidation(final PreparedUpdate update, final UpdateContext updateContext) {
+    public List<Message> performValidation(final PreparedUpdate update, final UpdateContext updateContext) {
         return (update.hasOriginalObject() && !RpslObjectFilter.ignoreGeneratedAttributesEqual(update.getReferenceObject(), update.getUpdatedObject()))
-                ? Arrays.asList(new CustomValidationMessage(UpdateMessages.objectMismatch(update.getUpdatedObject().getFormattedKey())))
+                ? Arrays.asList(UpdateMessages.objectMismatch(update.getUpdatedObject().getFormattedKey()))
                 : Collections.emptyList();
     }
 

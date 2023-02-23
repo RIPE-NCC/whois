@@ -1,6 +1,7 @@
 package net.ripe.db.whois.update.handler.validator.inetnum;
 
 import com.google.common.collect.ImmutableList;
+import net.ripe.db.whois.common.Message;
 import net.ripe.db.whois.common.domain.CIString;
 import net.ripe.db.whois.common.rpsl.AttributeType;
 import net.ripe.db.whois.common.rpsl.ObjectType;
@@ -13,7 +14,6 @@ import net.ripe.db.whois.update.domain.PreparedUpdate;
 import net.ripe.db.whois.update.domain.UpdateContext;
 import net.ripe.db.whois.update.domain.UpdateMessages;
 import net.ripe.db.whois.update.handler.validator.BusinessRuleValidator;
-import net.ripe.db.whois.update.handler.validator.CustomValidationMessage;
 import org.springframework.stereotype.Component;
 
 import java.util.Arrays;
@@ -34,7 +34,7 @@ public class MntLowerAddedRemoved implements BusinessRuleValidator {
     private static final List<Inet6numStatus> VALIDATED_INET6NUM_STATUSES = ImmutableList.of(Inet6numStatus.ASSIGNED_PI, Inet6numStatus.ASSIGNED_ANYCAST);
 
     @Override
-    public List<CustomValidationMessage> performValidation(final PreparedUpdate update, final UpdateContext updateContext) {
+    public List<Message> performValidation(final PreparedUpdate update, final UpdateContext updateContext) {
         final Subject subject = updateContext.getSubject(update);
         if (subject.hasPrincipal(Principal.RS_MAINTAINER)) {
             return Collections.emptyList();
@@ -50,7 +50,7 @@ public class MntLowerAddedRemoved implements BusinessRuleValidator {
 
         final Set<CIString> differences = update.getDifferences(AttributeType.MNT_LOWER);
         if (!differences.isEmpty()) {
-            return Arrays.asList(new CustomValidationMessage(UpdateMessages.authorisationRequiredForAttrChange(AttributeType.MNT_LOWER)));
+            return Arrays.asList(UpdateMessages.authorisationRequiredForAttrChange(AttributeType.MNT_LOWER));
         }
 
         return Collections.emptyList();

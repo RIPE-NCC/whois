@@ -2,6 +2,7 @@ package net.ripe.db.whois.update.handler.validator.inetnum;
 
 
 import com.google.common.collect.ImmutableList;
+import net.ripe.db.whois.common.Message;
 import net.ripe.db.whois.common.domain.Maintainers;
 import net.ripe.db.whois.common.rpsl.AttributeType;
 import net.ripe.db.whois.common.rpsl.ObjectType;
@@ -16,7 +17,6 @@ import net.ripe.db.whois.update.domain.PreparedUpdate;
 import net.ripe.db.whois.update.domain.UpdateContext;
 import net.ripe.db.whois.update.domain.UpdateMessages;
 import net.ripe.db.whois.update.handler.validator.BusinessRuleValidator;
-import net.ripe.db.whois.update.handler.validator.CustomValidationMessage;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -38,7 +38,7 @@ public class LirMntByValidator implements BusinessRuleValidator {
     }
 
     @Override
-    public List<CustomValidationMessage> performValidation(final PreparedUpdate update, final UpdateContext updateContext) {
+    public List<Message> performValidation(final PreparedUpdate update, final UpdateContext updateContext) {
         final Subject subject = updateContext.getSubject(update);
         if (subject.hasPrincipal(Principal.RS_MAINTAINER)) {
             return Collections.emptyList();
@@ -50,7 +50,7 @@ public class LirMntByValidator implements BusinessRuleValidator {
         final boolean rsMaintained = maintainers.isRsMaintainer(originalObject.getValuesForAttribute(AttributeType.MNT_BY));
 
         if (mntByChanged(originalObject, updatedObject) && rsMaintained && isAllocation(originalObject)) {
-                return Arrays.asList(new CustomValidationMessage(UpdateMessages.canOnlyBeChangedinLirPortal(AttributeType.MNT_BY)));
+                return Arrays.asList(UpdateMessages.canOnlyBeChangedinLirPortal(AttributeType.MNT_BY));
         }
 
         return Collections.emptyList();

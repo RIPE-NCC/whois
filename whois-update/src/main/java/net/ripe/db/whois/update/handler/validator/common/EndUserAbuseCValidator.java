@@ -1,6 +1,7 @@
 package net.ripe.db.whois.update.handler.validator.common;
 
 import com.google.common.collect.ImmutableList;
+import net.ripe.db.whois.common.Message;
 import net.ripe.db.whois.common.dao.RpslObjectDao;
 import net.ripe.db.whois.common.domain.CIString;
 import net.ripe.db.whois.common.domain.Maintainers;
@@ -13,7 +14,6 @@ import net.ripe.db.whois.update.domain.PreparedUpdate;
 import net.ripe.db.whois.update.domain.UpdateContext;
 import net.ripe.db.whois.update.domain.UpdateMessages;
 import net.ripe.db.whois.update.handler.validator.BusinessRuleValidator;
-import net.ripe.db.whois.update.handler.validator.CustomValidationMessage;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -46,7 +46,7 @@ public class EndUserAbuseCValidator implements BusinessRuleValidator {
     }
 
     @Override
-    public List<CustomValidationMessage> performValidation(final PreparedUpdate update, final UpdateContext updateContext) {
+    public List<Message> performValidation(final PreparedUpdate update, final UpdateContext updateContext) {
         final CIString org = update.getUpdatedObject().getValueOrNullForAttribute(AttributeType.ORG);
         if (org == null) {
             return Collections.emptyList();
@@ -62,15 +62,15 @@ public class EndUserAbuseCValidator implements BusinessRuleValidator {
         }
 
         if (organisation.getValueOrNullForAttribute(AttributeType.ABUSE_C) == null) {
-            return Arrays.asList(new CustomValidationMessage(UpdateMessages.noAbuseContact(org)));
+            return Arrays.asList(UpdateMessages.noAbuseContact(org));
         } else {
             final RpslObject abuseContact = rpslObjectDao.getByKeyOrNull(ROLE, organisation.getValueForAttribute(AttributeType.ABUSE_C));
 
             if (abuseContact == null) {
-                return Arrays.asList(new CustomValidationMessage(UpdateMessages.abuseCPersonReference()));
+                return Arrays.asList(UpdateMessages.abuseCPersonReference());
             } else {
                 if (!abuseContact.containsAttribute(AttributeType.ABUSE_MAILBOX)) {
-                    return Arrays.asList(new CustomValidationMessage(UpdateMessages.abuseMailboxRequired(abuseContact.getKey(), update.getUpdatedObject().getType())));
+                    return Arrays.asList(UpdateMessages.abuseMailboxRequired(abuseContact.getKey(), update.getUpdatedObject().getType()));
                 }
             }
         }

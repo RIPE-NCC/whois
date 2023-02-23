@@ -1,6 +1,7 @@
 package net.ripe.db.whois.update.handler.validator.domain;
 
 import com.google.common.collect.ImmutableList;
+import net.ripe.db.whois.common.Message;
 import net.ripe.db.whois.common.ip.IpInterval;
 import net.ripe.db.whois.common.ip.Ipv4Resource;
 import net.ripe.db.whois.common.ip.Ipv6Resource;
@@ -15,7 +16,6 @@ import net.ripe.db.whois.update.domain.PreparedUpdate;
 import net.ripe.db.whois.update.domain.UpdateContext;
 import net.ripe.db.whois.update.domain.UpdateMessages;
 import net.ripe.db.whois.update.handler.validator.BusinessRuleValidator;
-import net.ripe.db.whois.update.handler.validator.CustomValidationMessage;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -40,7 +40,7 @@ public class IpDomainUniqueHierarchyValidator implements BusinessRuleValidator {
 
     @SuppressWarnings("unchecked")
     @Override
-    public List<CustomValidationMessage> performValidation(final PreparedUpdate update, final UpdateContext updateContext) {
+    public List<Message> performValidation(final PreparedUpdate update, final UpdateContext updateContext) {
         final Domain domain = Domain.parse(update.getUpdatedObject().getKey());
         if (domain.getType() == Domain.Type.E164) {
             return Collections.emptyList();
@@ -51,12 +51,12 @@ public class IpDomainUniqueHierarchyValidator implements BusinessRuleValidator {
 
         final List<IpEntry> lessSpecific = ipTree.findFirstLessSpecific(reverseIp);
         if (!lessSpecific.isEmpty()) {
-            return Arrays.asList(new CustomValidationMessage(UpdateMessages.lessSpecificDomainFound(lessSpecific.get(0).getKey().toString())));
+            return Arrays.asList(UpdateMessages.lessSpecificDomainFound(lessSpecific.get(0).getKey().toString()));
         }
 
         final List<IpEntry> moreSpecific = ipTree.findFirstMoreSpecific(reverseIp);
         if (!moreSpecific.isEmpty()) {
-            return Arrays.asList(new CustomValidationMessage(UpdateMessages.moreSpecificDomainFound(moreSpecific.get(0).getKey().toString())));
+            return Arrays.asList(UpdateMessages.moreSpecificDomainFound(moreSpecific.get(0).getKey().toString()));
         }
 
         return Collections.emptyList();

@@ -23,7 +23,6 @@ import net.ripe.db.whois.update.domain.PreparedUpdate;
 import net.ripe.db.whois.update.domain.UpdateContext;
 import net.ripe.db.whois.update.domain.UpdateMessages;
 import net.ripe.db.whois.update.handler.validator.BusinessRuleValidator;
-import net.ripe.db.whois.update.handler.validator.CustomValidationMessage;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -64,19 +63,19 @@ public class InetnumStrictStatusMandatoryValidator implements BusinessRuleValida
     }
 
     @Override
-    public List<CustomValidationMessage> performValidation(final PreparedUpdate update, final UpdateContext updateContext) {
+    public List<Message> performValidation(final PreparedUpdate update, final UpdateContext updateContext) {
         return validateCreate(update, updateContext);
     }
 
-    private List<CustomValidationMessage> validateCreate(final PreparedUpdate update, final UpdateContext updateContext) {
+    private List<Message> validateCreate(final PreparedUpdate update, final UpdateContext updateContext) {
         return validateStatusAgainstResourcesInTree(update, updateContext);
     }
 
     @SuppressWarnings("unchecked")
-    private List<CustomValidationMessage> validateStatusAgainstResourcesInTree(final PreparedUpdate update, final UpdateContext updateContext) {
+    private List<Message> validateStatusAgainstResourcesInTree(final PreparedUpdate update, final UpdateContext updateContext) {
         final RpslObject updatedObject = update.getUpdatedObject();
         final Ipv4Resource ipInterval = Ipv4Resource.parse(updatedObject.getKey());
-        final List<CustomValidationMessage> validationMessages = Lists.newArrayList();
+        final List<Message> validationMessages = Lists.newArrayList();
         
         if (!allChildrenHaveCorrectStatus(update, ipInterval, validationMessages)) {
             return validationMessages;
@@ -84,7 +83,7 @@ public class InetnumStrictStatusMandatoryValidator implements BusinessRuleValida
 
         final List<Ipv4Entry> parents = ipv4Tree.findFirstLessSpecific(ipInterval);
         if (parents.size() != 1) {
-            validationMessages.add(new CustomValidationMessage(UpdateMessages.invalidParentEntryForInterval(ipInterval)));
+            validationMessages.add(UpdateMessages.invalidParentEntryForInterval(ipInterval));
             return validationMessages;
         }
 
@@ -96,11 +95,11 @@ public class InetnumStrictStatusMandatoryValidator implements BusinessRuleValida
 
         if (currentStatus.equals(InetnumStatus.ASSIGNED_PA) && parentStatus.equals(InetnumStatus.ASSIGNED_PA)) {
             if (checkAuthorizationForStatusInHierarchy(update,ipInterval)) {
-               validationMessages.add(new CustomValidationMessage(UpdateMessages.incorrectParentStatus(ERROR, updatedObject.getType(), parentStatus.toString())));
+               validationMessages.add(UpdateMessages.incorrectParentStatus(ERROR, updatedObject.getType(), parentStatus.toString()));
             }
         } else {
             if (!currentStatus.worksWithParentStatus(parentStatus, hasRsMaintainer)) {
-                validationMessages.add(new CustomValidationMessage(UpdateMessages.incorrectParentStatus(ERROR, updatedObject.getType(), parentStatus.toString())));
+                validationMessages.add(UpdateMessages.incorrectParentStatus(ERROR, updatedObject.getType(), parentStatus.toString()));
             }
         }
 
@@ -111,13 +110,13 @@ public class InetnumStrictStatusMandatoryValidator implements BusinessRuleValida
             final boolean parentHasRsMaintainer = maintainers.isRsMaintainer(parentMntBy);
 
             if (parentHasRsMaintainer) {
-                validationMessages.add(new CustomValidationMessage(UpdateMessages.incorrectParentStatus(ERROR, updatedObject.getType(), parentStatus.toString())));
+                validationMessages.add(UpdateMessages.incorrectParentStatus(ERROR, updatedObject.getType(), parentStatus.toString()));
             }
         }
 
         if (currentStatus.equals(InetnumStatus.ASSIGNED_PI)) {
             if(checkAuthorizationForStatusInHierarchy(update,ipInterval)) {
-                validationMessages.add(new CustomValidationMessage(UpdateMessages.incorrectParentStatus(ERROR, updatedObject.getType(), parentStatus.toString())));
+                validationMessages.add(UpdateMessages.incorrectParentStatus(ERROR, updatedObject.getType(), parentStatus.toString()));
             }
         }
 
@@ -170,7 +169,7 @@ public class InetnumStrictStatusMandatoryValidator implements BusinessRuleValida
     }
 
     @SuppressWarnings("unchecked")
-    private boolean allChildrenHaveCorrectStatus(final PreparedUpdate update, final Ipv4Resource ipInterval, final List<CustomValidationMessage> validationMessages) {
+    private boolean allChildrenHaveCorrectStatus(final PreparedUpdate update, final Ipv4Resource ipInterval, final List<Message> validationMessages) {
         final InetnumStatus updatedStatus = InetnumStatus.getStatusFor(update.getUpdatedObject().getValueForAttribute(STATUS));
 
         final List<Ipv4Entry> children = ipv4Tree.findFirstMoreSpecific(ipInterval);
@@ -181,12 +180,11 @@ public class InetnumStrictStatusMandatoryValidator implements BusinessRuleValida
             final InetnumStatus childStatus = InetnumStatus.getStatusFor(childStatusMap.get(child.getObjectId()));
 
             if (!childStatus.worksWithParentStatus(updatedStatus, childHasRsMaintainer(child, childStatus))) {
-                validationMessages.add(new CustomValidationMessage(UpdateMessages.incorrectChildStatus(ERROR, updatedStatus.toString(), childStatus.toString(), child.getKey().toRangeString())));
+                validationMessages.add(UpdateMessages.incorrectChildStatus(ERROR, updatedStatus.toString(), childStatus.toString(), child.getKey().toRangeString()));
                 return false;
             } else if (updatedStatus.equals(InetnumStatus.ASSIGNED_PA) && childStatus.equals(InetnumStatus.ASSIGNED_PA)) {
                 if(checkAuthorizationForStatusInHierarchy(update, ipInterval )) {
-                   final Message message = UpdateMessages.incorrectChildStatus(ERROR, updatedStatus.toString(), childStatus.toString(), child.getKey().toRangeString());
-                   validationMessages.add(new CustomValidationMessage(message));
+                   validationMessages.add(UpdateMessages.incorrectChildStatus(ERROR, updatedStatus.toString(), childStatus.toString(), child.getKey().toRangeString()));
                 }
             }
         }

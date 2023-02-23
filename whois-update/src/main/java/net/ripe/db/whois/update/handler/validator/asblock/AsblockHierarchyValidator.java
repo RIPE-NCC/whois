@@ -2,6 +2,7 @@ package net.ripe.db.whois.update.handler.validator.asblock;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
+import net.ripe.db.whois.common.Message;
 import net.ripe.db.whois.common.dao.RpslObjectDao;
 import net.ripe.db.whois.common.rpsl.ObjectType;
 import net.ripe.db.whois.common.rpsl.RpslObject;
@@ -11,7 +12,6 @@ import net.ripe.db.whois.update.domain.PreparedUpdate;
 import net.ripe.db.whois.update.domain.UpdateContext;
 import net.ripe.db.whois.update.domain.UpdateMessages;
 import net.ripe.db.whois.update.handler.validator.BusinessRuleValidator;
-import net.ripe.db.whois.update.handler.validator.CustomValidationMessage;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -40,24 +40,24 @@ public class AsblockHierarchyValidator implements BusinessRuleValidator {
     }
 
     @Override
-    public List<CustomValidationMessage> performValidation(final PreparedUpdate update, final UpdateContext updateContext) {
+    public List<Message> performValidation(final PreparedUpdate update, final UpdateContext updateContext) {
         final AsBlockRange asBlockNew = AsBlockRange.parse(update.getUpdatedObject().getKey().toString());
         final List<RpslObject> intersections = rpslObjectDao.findAsBlockIntersections(asBlockNew.getBegin(), asBlockNew.getEnd());
-        final List<CustomValidationMessage> customValidationMessages = Lists.newArrayList();
+        final List<Message> messages = Lists.newArrayList();
 
         for (final RpslObject intersection : intersections) {
             final AsBlockRange asBlockExisting = AsBlockRange.parse(intersection.getKey().toString());
             if (asBlockExisting.equals(asBlockNew)) {
-                customValidationMessages.add( new CustomValidationMessage(UpdateMessages.asblockAlreadyExists()));
+                messages.add(UpdateMessages.asblockAlreadyExists());
             } else if (asBlockExisting.contains(asBlockNew)) {
-                customValidationMessages.add( new CustomValidationMessage(UpdateMessages.asblockParentAlreadyExists()));
+                messages.add(UpdateMessages.asblockParentAlreadyExists());
             } else if (asBlockNew.contains(asBlockExisting)) {
-                customValidationMessages.add( new CustomValidationMessage(UpdateMessages.asblockChildAlreadyExists()));
+                messages.add(UpdateMessages.asblockChildAlreadyExists());
             } else {
-                customValidationMessages.add( new CustomValidationMessage(UpdateMessages.intersectingAsblockAlreadyExists()));
+                messages.add(UpdateMessages.intersectingAsblockAlreadyExists());
             }
         }
 
-        return customValidationMessages;
+        return messages;
     }
 }

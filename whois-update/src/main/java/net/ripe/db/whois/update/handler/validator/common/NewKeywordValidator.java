@@ -1,13 +1,13 @@
 package net.ripe.db.whois.update.handler.validator.common;
 
 import com.google.common.collect.ImmutableList;
+import net.ripe.db.whois.common.Message;
 import net.ripe.db.whois.common.rpsl.ObjectType;
 import net.ripe.db.whois.update.domain.Action;
 import net.ripe.db.whois.update.domain.PreparedUpdate;
 import net.ripe.db.whois.update.domain.UpdateContext;
 import net.ripe.db.whois.update.domain.UpdateMessages;
 import net.ripe.db.whois.update.handler.validator.BusinessRuleValidator;
-import net.ripe.db.whois.update.handler.validator.CustomValidationMessage;
 import org.springframework.stereotype.Component;
 
 import java.util.Arrays;
@@ -21,8 +21,8 @@ public class NewKeywordValidator implements BusinessRuleValidator {
     private static final ImmutableList<ObjectType> TYPES = ImmutableList.copyOf(ObjectType.values());
 
     @Override
-    public List<CustomValidationMessage> performValidation(final PreparedUpdate update, final UpdateContext updateContext) {
-        return update.hasOriginalObject() ? Arrays.asList(new CustomValidationMessage(UpdateMessages.newKeywordAndObjectExists()))
+    public List<Message> performValidation(final PreparedUpdate update, final UpdateContext updateContext) {
+        return update.hasOriginalObject() ? Arrays.asList(UpdateMessages.newKeywordAndObjectExists())
                 : Collections.emptyList();
     }
 

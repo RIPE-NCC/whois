@@ -21,6 +21,10 @@ public class Message {
        this(type,null,text, args);
     }
 
+    public Message(final Message message, final RpslAttribute rpslAttribute) {
+        this(message.type,rpslAttribute,message.text, message.args);
+    }
+
     public Message(final Messages.Type type, final RpslAttribute rpslAttribute, final String text, final Object... args) {
         this.type = type;
         this.text = text;

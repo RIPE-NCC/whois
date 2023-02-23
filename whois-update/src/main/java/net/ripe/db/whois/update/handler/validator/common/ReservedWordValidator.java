@@ -2,6 +2,7 @@ package net.ripe.db.whois.update.handler.validator.common;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Maps;
+import net.ripe.db.whois.common.Message;
 import net.ripe.db.whois.common.domain.CIString;
 import net.ripe.db.whois.common.rpsl.ObjectType;
 import net.ripe.db.whois.common.rpsl.RpslObject;
@@ -10,7 +11,6 @@ import net.ripe.db.whois.update.domain.PreparedUpdate;
 import net.ripe.db.whois.update.domain.UpdateContext;
 import net.ripe.db.whois.update.domain.UpdateMessages;
 import net.ripe.db.whois.update.handler.validator.BusinessRuleValidator;
-import net.ripe.db.whois.update.handler.validator.CustomValidationMessage;
 import org.springframework.stereotype.Component;
 
 import java.util.Arrays;
@@ -79,7 +79,7 @@ public class ReservedWordValidator implements BusinessRuleValidator {
     }
 
     @Override
-    public List<CustomValidationMessage> performValidation(final PreparedUpdate update, final UpdateContext updateContext) {
+    public List<Message> performValidation(final PreparedUpdate update, final UpdateContext updateContext) {
         final RpslObject updatedObject = update.getUpdatedObject();
         if (updatedObject == null) {
             return Collections.emptyList();
@@ -88,12 +88,12 @@ public class ReservedWordValidator implements BusinessRuleValidator {
         final CIString primaryKey = updatedObject.getKey();
 
         if (RESERVED_WORDS.contains(primaryKey)) {
-            return Arrays.asList(new CustomValidationMessage(UpdateMessages.reservedNameUsed(primaryKey.toLowerCase())));
+            return Arrays.asList(UpdateMessages.reservedNameUsed(primaryKey.toLowerCase()));
         }
 
         for (Map.Entry<CIString, ObjectType> entry : RESERVED_PREFIXES.entrySet()) {
             if (primaryKey.startsWith(entry.getKey()) && (!updatedObject.getType().equals(entry.getValue()))) {
-                return Arrays.asList(new CustomValidationMessage(UpdateMessages.reservedPrefixUsed(entry.getKey(), entry.getValue())));
+                return Arrays.asList(UpdateMessages.reservedPrefixUsed(entry.getKey(), entry.getValue()));
             }
         }
 

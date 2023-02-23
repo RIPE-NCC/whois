@@ -1,6 +1,7 @@
 package net.ripe.db.whois.update.handler.validator.organisation;
 
 import com.google.common.collect.ImmutableList;
+import net.ripe.db.whois.common.Message;
 import net.ripe.db.whois.common.domain.CIString;
 import net.ripe.db.whois.common.domain.Maintainers;
 import net.ripe.db.whois.common.rpsl.AttributeType;
@@ -12,7 +13,6 @@ import net.ripe.db.whois.update.domain.PreparedUpdate;
 import net.ripe.db.whois.update.domain.UpdateContext;
 import net.ripe.db.whois.update.domain.UpdateMessages;
 import net.ripe.db.whois.update.handler.validator.BusinessRuleValidator;
-import net.ripe.db.whois.update.handler.validator.CustomValidationMessage;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -38,7 +38,7 @@ public class LirMntByAttributeCountValidator implements BusinessRuleValidator {
     }
 
     @Override
-    public List<CustomValidationMessage> performValidation(final PreparedUpdate update, final UpdateContext updateContext) {
+    public List<Message> performValidation(final PreparedUpdate update, final UpdateContext updateContext) {
         final RpslObject originalObject = update.getReferenceObject();
         if (!isLir(originalObject)) {
             return Collections.emptyList();
@@ -47,7 +47,7 @@ public class LirMntByAttributeCountValidator implements BusinessRuleValidator {
         final RpslObject updatedObject = update.getUpdatedObject();
         final Collection<CIString> userMntner = filterUserMntner(updatedObject);
         if (userMntner.size() > 1) {
-            return Arrays.asList(new CustomValidationMessage(UpdateMessages.multipleUserMntBy(userMntner)));
+            return Arrays.asList(UpdateMessages.multipleUserMntBy(userMntner));
         }
 
         return Collections.emptyList();

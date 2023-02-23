@@ -1,6 +1,7 @@
 package net.ripe.db.whois.update.handler.validator.sets;
 
 import com.google.common.collect.ImmutableList;
+import net.ripe.db.whois.common.Message;
 import net.ripe.db.whois.common.collect.CollectionHelper;
 import net.ripe.db.whois.common.dao.RpslObjectDao;
 import net.ripe.db.whois.common.domain.CIString;
@@ -14,7 +15,6 @@ import net.ripe.db.whois.update.domain.PreparedUpdate;
 import net.ripe.db.whois.update.domain.UpdateContext;
 import net.ripe.db.whois.update.domain.UpdateMessages;
 import net.ripe.db.whois.update.handler.validator.BusinessRuleValidator;
-import net.ripe.db.whois.update.handler.validator.CustomValidationMessage;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -42,7 +42,7 @@ public class SetnameMustExistValidator implements BusinessRuleValidator {
     }
 
     @Override
-    public List<CustomValidationMessage> performValidation(final PreparedUpdate update, final UpdateContext updateContext) {
+    public List<Message> performValidation(final PreparedUpdate update, final UpdateContext updateContext) {
 
         final String key = update.getUpdatedObject().getTypeAttribute().getCleanValue().toString();
         final int lastColon = key.lastIndexOf(':');
@@ -55,14 +55,14 @@ public class SetnameMustExistValidator implements BusinessRuleValidator {
                 objectDao.getByKeys(findObjectType(update.getType(), parentKey), Collections.singleton(parentKey)));
 
         if (parent == null) {
-            return Arrays.asList(new CustomValidationMessage(UpdateMessages.parentObjectNotFound(parentKey)));
+            return Arrays.asList(UpdateMessages.parentObjectNotFound(parentKey));
         }
 
         final List<RpslObject> referencedMaintainers = findMaintainers(parent);
         final List<RpslObject> authenticatedMaintainers = authenticationModule.authenticate(update, updateContext, referencedMaintainers, MntByAuthentication.class);
 
         if (authenticatedMaintainers.isEmpty()) {
-            return Arrays.asList(new CustomValidationMessage(UpdateMessages.parentAuthenticationFailed(parent, findAttributeType(parent), referencedMaintainers)));
+            return Arrays.asList(UpdateMessages.parentAuthenticationFailed(parent, findAttributeType(parent), referencedMaintainers));
         }
 
         return Collections.emptyList();
