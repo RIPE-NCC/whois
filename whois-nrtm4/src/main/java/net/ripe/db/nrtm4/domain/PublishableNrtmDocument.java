@@ -13,7 +13,7 @@ public abstract class PublishableNrtmDocument {
     @JsonProperty("nrtm_version")
     private final int nrtmVersion = NRTM_VERSION;
     private final NrtmDocumentType type;
-    private final NrtmSource source;
+    private final NrtmSourceModel source;
     @JsonProperty("session_id")
     private final String sessionID;
     private final long version;
@@ -40,7 +40,7 @@ public abstract class PublishableNrtmDocument {
         return type;
     }
 
-    public NrtmSource getSource() {
+    public NrtmSourceModel getSourceModel() {
         return source;
     }
 

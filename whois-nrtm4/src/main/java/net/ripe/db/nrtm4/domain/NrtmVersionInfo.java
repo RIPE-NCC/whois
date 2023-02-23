@@ -3,7 +3,7 @@ package net.ripe.db.nrtm4.domain;
 public class NrtmVersionInfo {
 
     private final Long id;
-    private final NrtmSource source;
+    private final NrtmSourceModel source;
     private final Long version;
     private final String sessionID;
     private final NrtmDocumentType type;
@@ -16,7 +16,7 @@ public class NrtmVersionInfo {
     // can use.
     public NrtmVersionInfo(
         final Long id,
-        final NrtmSource source,
+        final NrtmSourceModel source,
         final Long version,
         final String sessionID,
         final NrtmDocumentType type,
@@ -36,7 +36,7 @@ public class NrtmVersionInfo {
         return id;
     }
 
-    public NrtmSource getSource() {
+    public NrtmSourceModel getSource() {
         return source;
     }
 

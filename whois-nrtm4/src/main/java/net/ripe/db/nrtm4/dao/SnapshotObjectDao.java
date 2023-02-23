@@ -1,6 +1,6 @@
 package net.ripe.db.nrtm4.dao;
 
-import net.ripe.db.nrtm4.domain.NrtmSource;
+import net.ripe.db.nrtm4.domain.NrtmSourceModel;
 import net.ripe.db.whois.common.dao.jdbc.JdbcStreamingHelper;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -19,7 +19,7 @@ public class SnapshotObjectDao {
         this.jdbcTemplate = new JdbcTemplate(dataSource);
     }
 
-    public void consumeAllObjects(final NrtmSource source, final Consumer<String> fn) {
+    public void consumeAllObjects(final NrtmSourceModel source, final Consumer<String> fn) {
         final String sql = """
             SELECT so.rpsl
             FROM snapshot_object so
@@ -30,7 +30,7 @@ public class SnapshotObjectDao {
         JdbcStreamingHelper.executeStreaming(
             jdbcTemplate,
             sql,
-            pss -> pss.setString(1, source.name()),
+            pss -> pss.setString(1, source.getName().toString()),
             rs -> {
                 fn.accept(rs.getString(1));
             });

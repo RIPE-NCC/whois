@@ -1,6 +1,5 @@
 package net.ripe.db.nrtm4;
 
-import net.ripe.db.nrtm4.domain.NrtmSourceHolder;
 import net.ripe.db.nrtm4.dao.NrtmVersionInfoRepository;
 import net.ripe.db.nrtm4.jmx.NrtmProcessControlJmx;
 import org.junit.jupiter.api.BeforeEach;
@@ -20,10 +19,10 @@ public class NrtmFileProcessorIntegrationTest extends AbstractNrtm4IntegrationBa
 
     @Autowired
     private NrtmFileProcessor nrtmFileProcessor;
+
     @Autowired
     private NrtmVersionInfoRepository nrtmVersionInfoRepository;
-    @Autowired
-    private NrtmSourceHolder nrtmSourceHolder;
+
     @Autowired
     private NrtmProcessControlJmx nrtmProcessControlJmx;
 
@@ -35,7 +34,7 @@ public class NrtmFileProcessorIntegrationTest extends AbstractNrtm4IntegrationBa
     @Test
     void nrtm_write_job_is_disabled_by_jmx() throws IOException {
         nrtmFileProcessor.updateNrtmFilesAndPublishNotification();
-        final var source = nrtmVersionInfoRepository.findLastVersion(nrtmSourceHolder.getSource());
+        final var source = nrtmVersionInfoRepository.findLastVersion();
         assertThat(source.isPresent(), is(false));
     }
 
@@ -43,7 +42,7 @@ public class NrtmFileProcessorIntegrationTest extends AbstractNrtm4IntegrationBa
     void nrtm_write_job_is_enabled_by_jmx() throws IOException {
         nrtmProcessControlJmx.enableInitialSnapshotGeneration();
         nrtmFileProcessor.updateNrtmFilesAndPublishNotification();
-        final var source = nrtmVersionInfoRepository.findLastVersion(nrtmSourceHolder.getSource());
+        final var source = nrtmVersionInfoRepository.findLastVersion();
         assertThat(source.isPresent(), is(true));
     }
 

@@ -1,9 +1,7 @@
 package net.ripe.db.nrtm4;
 
-import net.ripe.db.nrtm4.domain.NrtmSource;
-import net.ripe.db.nrtm4.domain.NrtmSourceHolder;
-import net.ripe.db.nrtm4.domain.SnapshotFile;
-import net.ripe.db.nrtm4.domain.PublishableSnapshotFile;
+import net.ripe.db.nrtm4.dao.SourceRepository;
+import net.ripe.db.nrtm4.domain.NrtmSourceModel;
 import net.ripe.db.nrtm4.jmx.NrtmProcessControl;
 import org.mariadb.jdbc.internal.logging.Logger;
 import org.mariadb.jdbc.internal.logging.LoggerFactory;
@@ -11,7 +9,7 @@ import org.springframework.stereotype.Service;
 
 import java.io.IOException;
 import java.io.OutputStream;
-import java.util.Optional;
+import java.util.List;
 
 
 @Service
@@ -21,39 +19,34 @@ public class NrtmFileProcessor {
 
     private final NrtmFileService nrtmFileService;
     private final NrtmProcessControl nrtmProcessControl;
-    private final NrtmSourceHolder nrtmSourceHolder;
     private final SnapshotFileGenerator snapshotFileGenerator;
+    private final SourceRepository sourceRepository;
 
     public NrtmFileProcessor(
         final NrtmFileService nrtmFileService,
         final NrtmProcessControl nrtmProcessControl,
-        final NrtmSourceHolder nrtmSourceHolder,
-        final SnapshotFileGenerator snapshotFileGenerator
+        final SnapshotFileGenerator snapshotFileGenerator,
+        final SourceRepository sourceRepository
     ) {
         this.nrtmFileService = nrtmFileService;
         this.nrtmProcessControl = nrtmProcessControl;
-        this.nrtmSourceHolder = nrtmSourceHolder;
         this.snapshotFileGenerator = snapshotFileGenerator;
+        this.sourceRepository = sourceRepository;
     }
 
     public void updateNrtmFilesAndPublishNotification() throws IOException {
-        LOGGER.info("runWrite() called");
-        final NrtmSource source = nrtmSourceHolder.getSource();
-        final Optional<SnapshotFile> lastSnapshot = snapshotFileGenerator.getLastSnapshot(source);
-        Optional<PublishableSnapshotFile> publishableSnapshotFile = Optional.empty();
-        if (lastSnapshot.isEmpty()) {
-            LOGGER.info("No previous snapshot found");
+        LOGGER.info("updateNrtmFilesAndPublishNotification() called");
+        final List<NrtmSourceModel> sourceList = sourceRepository.getAllSources();
+        if (sourceList.isEmpty()) {
+            sourceRepository.createSources();
             if (nrtmProcessControl.isInitialSnapshotGenerationEnabled()) {
                 LOGGER.info("Initializing...");
-                publishableSnapshotFile = snapshotFileGenerator.createSnapshot(source);
+                snapshotFileGenerator.createSnapshots();
                 LOGGER.info("Initialization complete");
             } else {
                 LOGGER.info("Initialization skipped because NrtmProcessControl has disabled initial snapshot generation");
-                return;
             }
         }
-        LOGGER.info("publishableSnapshotFile: " + publishableSnapshotFile);
-
         // TODO: optionally create notification file in db
         // - Get the last notification to see if anything changed now that we might have generated more files
         // - if publishableSnapshotFile is empty, keep the one from the last notification
