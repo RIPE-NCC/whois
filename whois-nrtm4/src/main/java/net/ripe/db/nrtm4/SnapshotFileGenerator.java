@@ -5,90 +5,134 @@ import net.ripe.db.nrtm4.dao.NrtmVersionInfoRepository;
 import net.ripe.db.nrtm4.dao.SnapshotFileRepository;
 import net.ripe.db.nrtm4.dao.SnapshotFileSerializer;
 import net.ripe.db.nrtm4.dao.SourceRepository;
-import net.ripe.db.nrtm4.domain.InitialSnapshotState;
+import net.ripe.db.nrtm4.dao.WhoisObjectRepository;
 import net.ripe.db.nrtm4.domain.NrtmSourceModel;
 import net.ripe.db.nrtm4.domain.NrtmVersionInfo;
 import net.ripe.db.nrtm4.domain.PublishableSnapshotFile;
+import net.ripe.db.nrtm4.domain.RpslObjectData;
 import net.ripe.db.nrtm4.domain.SnapshotFile;
+import net.ripe.db.nrtm4.domain.SnapshotState;
 import net.ripe.db.nrtm4.util.NrtmFileUtil;
+import net.ripe.db.whois.common.domain.CIString;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
+import java.util.concurrent.LinkedBlockingQueue;
+import java.util.zip.GZIPOutputStream;
 
 
 @Service
 public class SnapshotFileGenerator {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(SnapshotFileGenerator.class);
+    private static final int QUEUE_CAPACITY = 1000;
 
-    private final NrtmVersionInfoRepository nrtmVersionInfoRepository;
-    private final SnapshotFileSerializer snapshotFileSerializer;
-    private final SnapshotFileRepository snapshotFileRepository;
-    private final SnapshotObjectSynchronizer snapshotObjectSynchronizer;
-    private final SourceRepository sourceRepository;
     private final NrtmFileStore nrtmFileStore;
+    private final NrtmVersionInfoRepository nrtmVersionInfoRepository;
+    private final RpslObjectBatchEnqueuer rpslObjectBatchEnqueuer;
+    private final SnapshotFileRepository snapshotFileRepository;
+    private final SnapshotFileSerializer snapshotFileSerializer;
+    private final SourceRepository sourceRepository;
+    private final WhoisObjectRepository whoisObjectRepository;
 
     public SnapshotFileGenerator(
+        final NrtmFileStore nrtmFileStore,
         final NrtmVersionInfoRepository nrtmVersionInfoRepository,
-        final SnapshotFileSerializer snapshotFileSerializer,
+        final RpslObjectBatchEnqueuer rpslObjectBatchEnqueuer,
         final SnapshotFileRepository snapshotFileRepository,
-        final SnapshotObjectSynchronizer snapshotObjectSynchronizer,
+        final SnapshotFileSerializer snapshotFileSerializer,
         final SourceRepository sourceRepository,
-        final NrtmFileStore nrtmFileStore
+        final WhoisObjectRepository whoisObjectRepository
     ) {
-        this.nrtmVersionInfoRepository = nrtmVersionInfoRepository;
-        this.snapshotFileSerializer = snapshotFileSerializer;
-        this.snapshotFileRepository = snapshotFileRepository;
-        this.snapshotObjectSynchronizer = snapshotObjectSynchronizer;
-        this.sourceRepository = sourceRepository;
         this.nrtmFileStore = nrtmFileStore;
+        this.nrtmVersionInfoRepository = nrtmVersionInfoRepository;
+        this.rpslObjectBatchEnqueuer = rpslObjectBatchEnqueuer;
+        this.snapshotFileRepository = snapshotFileRepository;
+        this.snapshotFileSerializer = snapshotFileSerializer;
+        this.sourceRepository = sourceRepository;
+        this.whoisObjectRepository = whoisObjectRepository;
     }
 
-    public List<PublishableSnapshotFile> createSnapshots() throws IOException {
+    public Set<PublishableSnapshotFile> createSnapshots() throws IOException {
         // Get last version from database.
         final List<NrtmVersionInfo> sourceVersions = nrtmVersionInfoRepository.findLastVersionPerSource();
+        final SnapshotState state = whoisObjectRepository.getSnapshotState();
         if (sourceVersions.isEmpty()) {
-            final InitialSnapshotState state = snapshotObjectSynchronizer.initializeSnapshotObjects();
             for (final NrtmSourceModel source : sourceRepository.getAllSources()) {
                 final NrtmVersionInfo version = nrtmVersionInfoRepository.createInitialVersion(source, state.serialId());
                 nrtmFileStore.createNrtmSessionDirectory(version.getSessionID());
                 sourceVersions.add(version);
             }
         }
-        final List<PublishableSnapshotFile> snapshotFiles = new ArrayList<>();
+        // TODO: else see if there are any deltas for each source. if so then add a sourceVersion to this list,
+        //   otherwise skip the snapshot
+        final List<Thread> writerThreads = new ArrayList<>();
+        final Map<CIString, LinkedBlockingQueue<RpslObjectData>> queueMap = new HashMap<>();
+        final Map<PublishableSnapshotFile, ByteArrayOutputStream> outputStreamMap = new HashMap<>();
         for (final NrtmVersionInfo sourceVersion : sourceVersions) {
-            LOGGER.info("{} at version: {}", sourceVersion.getSource(), sourceVersion);
-            if (sourceVersion.getVersion() > 1) {
-                LOGGER.debug("Sync Whois changes to snapshot here (not implemented)");
-            }
+            final LinkedBlockingQueue<RpslObjectData> queue = new LinkedBlockingQueue<>(QUEUE_CAPACITY);
             final PublishableSnapshotFile snapshotFile = new PublishableSnapshotFile(sourceVersion);
+            final ByteArrayOutputStream bos = new ByteArrayOutputStream();
+            queueMap.put(sourceVersion.getSource().getName(), queue);
+            outputStreamMap.put(snapshotFile, bos);
+            final Runnable runnable = () -> {
+                try (final GZIPOutputStream out = new GZIPOutputStream(bos)) {
+                    snapshotFileSerializer.writeObjectQueueAsSnapshot(snapshotFile, queue, out);
+                } catch (final IOException | InterruptedException e) {
+                    throw new RuntimeException(e);
+                }
+            };
+            final Thread writerThread = new Thread(runnable);
+            writerThreads.add(writerThread);
+        }
+        new Thread(() -> {
+            try {
+                rpslObjectBatchEnqueuer.enrichAndEnqueueRpslObjects(state, queueMap);
+            } catch (final InterruptedException e) {
+                throw new RuntimeException(e);
+            }
+        }).start();
+        for (final Thread writerThread : writerThreads) {
+            try {
+                writerThread.start();
+                writerThread.join();
+            } catch (final InterruptedException e) {
+                throw new RuntimeException(e);
+            }
+        }
+
+        for (final PublishableSnapshotFile snapshotFile : outputStreamMap.keySet()) {
+        //outputStreamMap.keySet().forEach(snapshotFile -> {
+            LOGGER.info("{} at version: {}", snapshotFile.getSourceModel().getName(), snapshotFile.getVersion());
             final String fileName = NrtmFileUtil.newFileName(snapshotFile);
             Stopwatch stopwatch = Stopwatch.createStarted();
-            try (final OutputStream out = nrtmFileStore.getFileOutputStream(snapshotFile.getSessionID(), fileName)) {
-                snapshotFileSerializer.writeSnapshotAsJson(snapshotFile, out);
-            }
-            LOGGER.info("Wrote JSON for {} in {}", snapshotFile.getSourceModel(), stopwatch);
-            try {
+            try (final ByteArrayOutputStream out = outputStreamMap.get(snapshotFile)) {
+                final OutputStream fileOut = nrtmFileStore.getFileOutputStream(snapshotFile.getSessionID(), fileName);
+                fileOut.write(out.toByteArray());
+                fileOut.flush();
+                LOGGER.info("Wrote JSON for {} in {}", snapshotFile.getSourceModel().getName(), stopwatch);
                 stopwatch = Stopwatch.createStarted();
                 final String sha256hex = DigestUtils.sha256Hex(nrtmFileStore.getFileInputStream(snapshotFile.getSessionID(), fileName));
+                LOGGER.info("Calculated hash for {} in {}", snapshotFile.getSourceModel().getName(), stopwatch);
                 snapshotFile.setFileName(fileName);
                 snapshotFile.setHash(sha256hex);
                 snapshotFileRepository.insert(snapshotFile);
-                LOGGER.info("Calculated hash for {} in {}", snapshotFile.getSourceModel(), stopwatch);
-                snapshotFiles.add(snapshotFile);
             } catch (final IOException e) {
-                LOGGER.error("Exception thrown when calculating hash of snapshot file", e);
-                throw e;
+                LOGGER.error("Exception thrown when calculating hash of snapshot file " + snapshotFile.getSourceModel().getName(), e);
             }
         }
-        return snapshotFiles;
+        return outputStreamMap.keySet();
     }
 
     public Optional<SnapshotFile> getLastSnapshot(final NrtmSourceModel source) {

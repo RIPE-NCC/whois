@@ -1,17 +1,14 @@
 package net.ripe.db.nrtm4;
 
 import com.google.common.util.concurrent.Monitor;
-import net.ripe.db.nrtm4.domain.NrtmVersionInfo;
 import net.ripe.db.nrtm4.dao.NrtmVersionInfoRepository;
-import net.ripe.db.nrtm4.domain.SnapshotFile;
 import net.ripe.db.nrtm4.dao.SnapshotFileRepository;
-import net.ripe.db.nrtm4.domain.PublishableSnapshotFile;
 import net.ripe.db.nrtm4.dao.SnapshotFileSerializer;
+import net.ripe.db.nrtm4.domain.SnapshotFile;
 import org.springframework.stereotype.Service;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.io.OutputStream;
 import java.util.Optional;
 
 
@@ -48,11 +45,11 @@ public class NrtmFileSync {
             if (snapshotFile.isEmpty()) {
                 throw new FileNotFoundException("NRTM has no snapshot files with name: " + name);
             }
-            final NrtmVersionInfo version = nrtmVersionInfoRepository.findById(snapshotFile.get().getVersionId());
-            final PublishableSnapshotFile publishableSnapshotFile = new PublishableSnapshotFile(version);
-            try (final OutputStream out = nrtmFileStore.getFileOutputStream(sessionId, name)) {
-                snapshotFileSerializer.writeSnapshotAsJson(publishableSnapshotFile, out);
-            }
+//            final NrtmVersionInfo version = nrtmVersionInfoRepository.findById(snapshotFile.get().getVersionId());
+//            final PublishableSnapshotFile publishableSnapshotFile = new PublishableSnapshotFile(version);
+//            try (final OutputStream out = nrtmFileStore.getFileOutputStream(sessionId, name)) {
+//                snapshotFileSerializer.writeSnapshotAsJson(publishableSnapshotFile, out);
+//            }
         } finally {
             snapshotMutex.leave();
         }

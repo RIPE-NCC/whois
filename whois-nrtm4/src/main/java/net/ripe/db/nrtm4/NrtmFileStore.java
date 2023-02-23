@@ -13,6 +13,7 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
+import java.util.zip.GZIPInputStream;
 
 
 @Service
@@ -36,6 +37,13 @@ public class NrtmFileStore {
     void streamFromFile(final String sessionId, final String name, final OutputStream out) throws IOException {
         try (final FileInputStream fis = getFileInputStream(sessionId, name)) {
             fis.transferTo(out);
+        }
+    }
+
+    void streamFromGZFile(final String sessionId, final String name, final OutputStream out) throws IOException {
+        try (final FileInputStream fis = getFileInputStream(sessionId, name)) {
+            final GZIPInputStream gzipInputStream = new GZIPInputStream(fis);
+            gzipInputStream.transferTo(out);
         }
     }
 
