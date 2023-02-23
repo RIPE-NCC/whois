@@ -20,7 +20,9 @@ import org.springframework.stereotype.Service;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.io.OutputStream;
+import java.io.InputStream;
+import java.io.PipedInputStream;
+import java.io.PipedOutputStream;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -117,16 +119,21 @@ public class SnapshotFileGenerator {
             final String fileName = NrtmFileUtil.newFileName(snapshotFile);
             Stopwatch stopwatch = Stopwatch.createStarted();
             try (final ByteArrayOutputStream out = outputStreamMap.get(snapshotFile)) {
-                final OutputStream fileOut = nrtmFileStore.getFileOutputStream(snapshotFile.getSessionID(), fileName);
-                fileOut.write(out.toByteArray());
-                fileOut.flush();
-                LOGGER.info("Wrote JSON for {} in {}", snapshotFile.getSourceModel().getName(), stopwatch);
+//                final OutputStream fileOut = nrtmFileStore.getFileOutputStream(snapshotFile.getSessionID(), fileName);
+//                fileOut.write(out.toByteArray());
+//                fileOut.flush();
+//                LOGGER.info("Wrote JSON for {} in {}", snapshotFile.getSourceModel().getName(), stopwatch);
                 stopwatch = Stopwatch.createStarted();
-                final String sha256hex = DigestUtils.sha256Hex(nrtmFileStore.getFileInputStream(snapshotFile.getSessionID(), fileName));
-                LOGGER.info("Calculated hash for {} in {}", snapshotFile.getSourceModel().getName(), stopwatch);
+                final PipedOutputStream pos = new PipedOutputStream();
+                final InputStream input = new PipedInputStream(pos);
+                out.writeTo(pos);
+                final String sha256hex = DigestUtils.sha256Hex(input);
                 snapshotFile.setFileName(fileName);
                 snapshotFile.setHash(sha256hex);
-                snapshotFileRepository.insert(snapshotFile);
+                LOGGER.info("Calculated hash for {} in {}", snapshotFile.getSourceModel().getName(), stopwatch);
+                stopwatch = Stopwatch.createStarted();
+                snapshotFileRepository.insert(snapshotFile, out.toByteArray());
+                LOGGER.info("Inserted payload for {} in {}", snapshotFile.getSourceModel().getName(), stopwatch);
             } catch (final IOException e) {
                 LOGGER.error("Exception thrown when calculating hash of snapshot file " + snapshotFile.getSourceModel().getName(), e);
             }

@@ -31,15 +31,16 @@ public class SnapshotFileRepository {
         this.jdbcTemplate = new JdbcTemplate(dataSource);
     }
 
-    public void insert(final PublishableSnapshotFile snapshotFile) {
+    public void insert(final PublishableSnapshotFile snapshotFile, byte[] payload) {
         final String sql = """
-            INSERT INTO snapshot_file (version_id, name, hash)
-            VALUES (?, ?, ?)
+            INSERT INTO snapshot_file (version_id, name, hash, payload)
+            VALUES (?, ?, ?, ?)
             """;
         jdbcTemplate.update(sql,
             snapshotFile.getVersionId(),
             snapshotFile.getFileName(),
-            snapshotFile.getHash());
+            snapshotFile.getHash(),
+            payload);
     }
 
     public Optional<SnapshotFile> getByName(final String sessionId, final String name) {
