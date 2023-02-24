@@ -69,6 +69,7 @@ public class SnapshotFileGenerator {
         final List<NrtmVersionInfo> sourceVersions = nrtmVersionInfoRepository.findLastVersionPerSource();
         final SnapshotState state = whoisObjectRepository.getSnapshotState();
         if (sourceVersions.isEmpty()) {
+            LOGGER.info("Initializing NRTM");
             for (final NrtmSourceModel source : sourceRepository.getAllSources()) {
                 final NrtmVersionInfo version = nrtmVersionInfoRepository.createInitialVersion(source, state.serialId());
                 nrtmFileStore.createNrtmSessionDirectory(version.getSessionID());
@@ -81,19 +82,21 @@ public class SnapshotFileGenerator {
         final Map<CIString, LinkedBlockingQueue<RpslObjectData>> queueMap = new HashMap<>();
         final Map<PublishableSnapshotFile, ByteArrayOutputStream> outputStreamMap = new HashMap<>();
         for (final NrtmVersionInfo sourceVersion : sourceVersions) {
+            final Stopwatch stopwatch = Stopwatch.createStarted();
+            LOGGER.info("NRTM creating snapshot for {}", sourceVersion.getSource().getName());
             final LinkedBlockingQueue<RpslObjectData> queue = new LinkedBlockingQueue<>(QUEUE_CAPACITY);
             final PublishableSnapshotFile snapshotFile = new PublishableSnapshotFile(sourceVersion);
             final ByteArrayOutputStream bos = new ByteArrayOutputStream();
             queueMap.put(sourceVersion.getSource().getName(), queue);
             outputStreamMap.put(snapshotFile, bos);
-            final Runnable runnable = () -> {
+            final Thread writerThread = new Thread(() -> {
                 try (final GZIPOutputStream out = new GZIPOutputStream(bos)) {
                     snapshotFileSerializer.writeObjectQueueAsSnapshot(snapshotFile, queue, out);
+                    LOGGER.info("NRTM {} snapshot object queue written in {}", sourceVersion.getSource().getName(), stopwatch);
                 } catch (final IOException | InterruptedException e) {
                     throw new RuntimeException(e);
                 }
-            };
-            final Thread writerThread = new Thread(runnable);
+            });
             writerThreads.add(writerThread);
         }
         new Thread(() -> {
@@ -152,4 +155,5 @@ public class SnapshotFileGenerator {
         }
         return hexString.toString();
     }
+
 }

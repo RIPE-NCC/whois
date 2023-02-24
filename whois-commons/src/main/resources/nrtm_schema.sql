@@ -53,7 +53,7 @@ CREATE TABLE `snapshot_file`
     `version_id` int unsigned NOT NULL,
     `name`       varchar(256) NOT NULL,
     `hash`       varchar(256) NOT NULL,
-    `payload`    longblob,
+    `payload`    longblob NOT NULL,
     PRIMARY KEY (`id`),
     UNIQUE KEY `snapshot_file__version_id__uk` (`version_id`),
     UNIQUE KEY `snapshot_file__name__uk` (`name`),

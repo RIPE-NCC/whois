@@ -55,10 +55,12 @@ public class SnapshotFileSerializer {
         jGenerator.writeArrayFieldStart("objects");
         for (RpslObjectData rpslObjectData = queue.poll(); ; rpslObjectData = queue.poll()) {
             if (rpslObjectData == null) {
+                // Queue is empty. Wait for some data.
                 TimeUnit.MILLISECONDS.sleep(10);
                 continue;
             }
             if (rpslObjectData.objectId() == 0) {
+                // Marker object meaning: 'no more objects'
                 break;
             }
             final RpslObject rpsl = rpslObjectData.rpslObject();
