@@ -37,7 +37,7 @@ public class OrganisationTypeValidator implements BusinessRuleValidator {
         if ((OrgType.OTHER != OrgType.getFor(orgType)) &&
                 orgTypeHasChanged(update) &&
                 !subject.hasPrincipal(Principal.ALLOC_MAINTAINER)) {
-            return Arrays.asList(new Message(UpdateMessages.invalidMaintainerForOrganisationType(orgType), orgTypeAttribute));
+            return Arrays.asList(UpdateMessages.invalidMaintainerForOrganisationType(orgTypeAttribute));
         }
 
         return Collections.emptyList();

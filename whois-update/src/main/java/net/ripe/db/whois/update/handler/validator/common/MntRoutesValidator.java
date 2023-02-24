@@ -65,7 +65,7 @@ public class MntRoutesValidator implements BusinessRuleValidator {
     }
 
     private Message syntaxError(final RpslAttribute attribute) {
-        return new Message(ValidationMessages.syntaxError(attribute.getCleanValue(), "ANY can only occur as a single value"), attribute);
+        return ValidationMessages.syntaxError(attribute, "ANY can only occur as a single value");
     }
 
     @Override

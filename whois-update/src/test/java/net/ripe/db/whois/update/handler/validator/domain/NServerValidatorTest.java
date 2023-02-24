@@ -56,7 +56,7 @@ public class NServerValidatorTest {
 
        subject.validate(update, updateContext);
 
-        verify(updateContext).addMessage(update, rpslObject.findAttribute(AttributeType.NSERVER), UpdateMessages.glueRecordMandatory("8.8.8.e164.arpa"));
+        verify(updateContext).addMessage(update, rpslObject.findAttribute(AttributeType.NSERVER), UpdateMessages.glueRecordMandatory( rpslObject.findAttribute(AttributeType.NSERVER),"8.8.8.e164.arpa"));
     }
 
     @Test
@@ -79,7 +79,7 @@ public class NServerValidatorTest {
 
        subject.validate(update, updateContext);
 
-        verify(updateContext).addMessage(update, rpslObject.findAttribute(AttributeType.NSERVER), UpdateMessages.invalidGlueForEnumDomain("192.0.2.1/32"));
+        verify(updateContext).addMessage(update, rpslObject.findAttribute(AttributeType.NSERVER), UpdateMessages.invalidGlueForEnumDomain( rpslObject.findAttribute(AttributeType.NSERVER),"192.0.2.1/32"));
     }
 
     @Test
@@ -91,7 +91,7 @@ public class NServerValidatorTest {
 
        subject.validate(update, updateContext);
 
-        verify(updateContext).addMessage(update, rpslObject.findAttribute(AttributeType.NSERVER), UpdateMessages.glueRecordMandatory("2.1.2.1.5.5.5.2.0.2.1.e164.arpa"));
+        verify(updateContext).addMessage(update, rpslObject.findAttribute(AttributeType.NSERVER), UpdateMessages.glueRecordMandatory( rpslObject.findAttribute(AttributeType.NSERVER), "2.1.2.1.5.5.5.2.0.2.1.e164.arpa"));
     }
 
     @Test
@@ -150,7 +150,7 @@ public class NServerValidatorTest {
 
        subject.validate(update, updateContext);
 
-        verify(updateContext).addMessage(update, rpslObject.findAttribute(AttributeType.NSERVER), UpdateMessages.hostNameMustEndWith("144.102.5.in-addr.arpa"));
+        verify(updateContext).addMessage(update, rpslObject.findAttribute(AttributeType.NSERVER), UpdateMessages.hostNameMustEndWith(rpslObject.findAttribute(AttributeType.NSERVER),"144.102.5.in-addr.arpa"));
     }
 
     @Test
@@ -162,7 +162,7 @@ public class NServerValidatorTest {
 
        subject.validate(update, updateContext);
 
-        verify(updateContext).addMessage(update, rpslObject.findAttribute(AttributeType.NSERVER), UpdateMessages.glueRecordMandatory("144.102.5.in-addr.arpa"));
+        verify(updateContext).addMessage(update, rpslObject.findAttribute(AttributeType.NSERVER), UpdateMessages.glueRecordMandatory( rpslObject.findAttribute(AttributeType.NSERVER),"144.102.5.in-addr.arpa"));
     }
 
     @Test

@@ -38,7 +38,7 @@ public class SelfReferencePreventionValidator implements BusinessRuleValidator {
 
         for (final RpslAttribute attribute : submittedAttributes) {
             if (attribute.getCleanValues().contains(submittedNicHdl)) {
-                messages.add(new Message(UpdateMessages.selfReferenceError(attributeType), attribute));
+                messages.add(UpdateMessages.selfReferenceError(attribute));
             }
         }
     }

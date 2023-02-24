@@ -43,9 +43,9 @@ public class NServerValidator implements BusinessRuleValidator {
                     final boolean endsWithDomain = domain.endsWithDomain(nServer.getHostname());
 
                     if (endsWithDomain && nServer.getIpInterval() == null) {
-                        messages.add(new Message(UpdateMessages.glueRecordMandatory(domain.getValue()) , nServerAttribute));
+                        messages.add(UpdateMessages.glueRecordMandatory(nServerAttribute, domain.getValue()));
                     } else if (!endsWithDomain && nServer.getIpInterval() != null) {
-                        messages.add(new Message(UpdateMessages.invalidGlueForEnumDomain(nServer.getIpInterval().toString()), nServerAttribute));
+                        messages.add(UpdateMessages.invalidGlueForEnumDomain(nServerAttribute,nServer.getIpInterval().toString()));
                     }
                     break;
                 }
@@ -57,9 +57,9 @@ public class NServerValidator implements BusinessRuleValidator {
                         validateRipeNsServerPrefixLength(domain, update, nServerAttribute, updateContext);
                     }
                     if (endsWithDomain && nServer.getIpInterval() == null) {
-                        messages.add(new Message(UpdateMessages.glueRecordMandatory(domain.getValue()), nServerAttribute));
+                        messages.add(UpdateMessages.glueRecordMandatory(nServerAttribute, domain.getValue()));
                     } else if (!endsWithDomain && nServer.getIpInterval() != null) {
-                        messages.add(new Message(UpdateMessages.hostNameMustEndWith(domain.getValue()), nServerAttribute));
+                        messages.add(UpdateMessages.hostNameMustEndWith(nServerAttribute, domain.getValue()));
                     }
                     break;
                 }

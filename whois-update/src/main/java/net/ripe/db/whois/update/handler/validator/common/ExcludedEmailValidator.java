@@ -68,7 +68,7 @@ public class ExcludedEmailValidator implements BusinessRuleValidator {
                 try {
                     final CIString address = CIString.ciString(getAddress(attribute.getValue()));
                     if (excludedEmailAddresses.contains(address)) {
-                        messages.add( new Message(UpdateMessages.emailAddressCannotBeUsed(address), attribute));
+                        messages.add(UpdateMessages.emailAddressCannotBeUsed(attribute, address));
                     }
                 } catch (IllegalArgumentException e) {
                     // skip validation if the attribute value cannot be parsed

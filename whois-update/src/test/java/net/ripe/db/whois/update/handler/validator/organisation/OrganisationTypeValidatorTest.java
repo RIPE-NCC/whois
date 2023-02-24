@@ -2,6 +2,7 @@ package net.ripe.db.whois.update.handler.validator.organisation;
 
 import net.ripe.db.whois.common.rpsl.AttributeType;
 import net.ripe.db.whois.common.rpsl.ObjectType;
+import net.ripe.db.whois.common.rpsl.RpslAttribute;
 import net.ripe.db.whois.common.rpsl.RpslObject;
 import net.ripe.db.whois.update.authentication.Principal;
 import net.ripe.db.whois.update.authentication.Subject;
@@ -64,7 +65,7 @@ public class OrganisationTypeValidatorTest {
 
        subject.validate(update, updateContext);
 
-        verify(updateContext, never()).addMessage(eq(update), eq(UpdateMessages.invalidMaintainerForOrganisationType("other")));
+        verify(updateContext, never()).addMessage(eq(update), eq(UpdateMessages.invalidMaintainerForOrganisationType(new RpslAttribute(AttributeType.ORG,"other"))));
         verifyNoMoreInteractions(update);
         verifyNoMoreInteractions(updateContext);
     }
@@ -103,7 +104,7 @@ public class OrganisationTypeValidatorTest {
        subject.validate(update, updateContext);
 
         verify(updateContext, never()).addMessage(ArgumentMatchers.any(), ArgumentMatchers.any());
-        verify(updateContext).addMessage(update, rpslObject.findAttribute(AttributeType.ORG_TYPE), UpdateMessages.invalidMaintainerForOrganisationType("RIR"));
+        verify(updateContext).addMessage(update, rpslObject.findAttribute(AttributeType.ORG_TYPE), UpdateMessages.invalidMaintainerForOrganisationType(rpslObject.findAttribute(AttributeType.ORG_TYPE)));
     }
 
     @Test

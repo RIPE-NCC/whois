@@ -120,7 +120,7 @@ public class KeycertValidatorTest {
 
        subject.validate(update, updateContext);
 
-        verify(updateContext).addMessage(update, object.getAttributes().get(0), UpdateMessages.autokeyForX509KeyCertsOnly());
+        verify(updateContext).addMessage(update, object.getAttributes().get(0), UpdateMessages.autokeyForX509KeyCertsOnly(object.getAttributes().get(0)));
     }
 
     @Test

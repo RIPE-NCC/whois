@@ -46,7 +46,7 @@ public class CountryValidator implements BusinessRuleValidator {
         final Set<CIString> countryCodes = countryCodeRepository.getCountryCodes();
         for (final RpslAttribute attribute : updatedObject.findAttributes(AttributeType.COUNTRY)) {
             if (!countryCodes.contains(attribute.getCleanValue())) {
-                messages.add(new Message(UpdateMessages.countryNotRecognised(attribute.getCleanValue()), attribute));
+                messages.add(UpdateMessages.countryNotRecognised(attribute));
             }
         }
 

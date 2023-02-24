@@ -2,6 +2,7 @@ package net.ripe.db.whois.update.handler.validator.personrole;
 
 import net.ripe.db.whois.common.rpsl.AttributeType;
 import net.ripe.db.whois.common.rpsl.ObjectType;
+import net.ripe.db.whois.common.rpsl.RpslAttribute;
 import net.ripe.db.whois.common.rpsl.RpslObject;
 import net.ripe.db.whois.update.domain.Action;
 import net.ripe.db.whois.update.domain.PreparedUpdate;
@@ -48,8 +49,8 @@ public class SelfReferencePreventionValidatorTest {
 
        subject.validate(preparedUpdate, updateContext);
 
-        verify(updateContext, never()).addMessage(preparedUpdate, UpdateMessages.selfReferenceError(AttributeType.ADMIN_C));
-        verify(updateContext, never()).addMessage(preparedUpdate, UpdateMessages.selfReferenceError(AttributeType.TECH_C));
+        verify(updateContext, never()).addMessage(preparedUpdate, UpdateMessages.selfReferenceError(new RpslAttribute(AttributeType.ADMIN_C, "OTHER-TEST")));
+        verify(updateContext, never()).addMessage(preparedUpdate, UpdateMessages.selfReferenceError(new RpslAttribute(AttributeType.TECH_C, "TECH-TEST")));
     }
 
     @Test
@@ -60,8 +61,8 @@ public class SelfReferencePreventionValidatorTest {
 
        subject.validate(preparedUpdate, updateContext);
 
-        verify(updateContext, times(1)).addMessage(preparedUpdate, role.findAttribute(AttributeType.ADMIN_C), UpdateMessages.selfReferenceError(AttributeType.ADMIN_C));
-        verify(updateContext, never()).addMessage(preparedUpdate, role.findAttribute(AttributeType.TECH_C), UpdateMessages.selfReferenceError(AttributeType.TECH_C));
+        verify(updateContext, times(1)).addMessage(preparedUpdate, role.findAttribute(AttributeType.ADMIN_C), UpdateMessages.selfReferenceError(role.findAttribute(AttributeType.ADMIN_C)));
+        verify(updateContext, never()).addMessage(preparedUpdate, UpdateMessages.selfReferenceError(role.findAttribute(AttributeType.TECH_C)));
     }
 
     @Test
@@ -72,8 +73,8 @@ public class SelfReferencePreventionValidatorTest {
 
        subject.validate(preparedUpdate, updateContext);
 
-        verify(updateContext, never()).addMessage(preparedUpdate, role.findAttribute(AttributeType.ADMIN_C), UpdateMessages.selfReferenceError(AttributeType.ADMIN_C));
-        verify(updateContext, times(1)).addMessage(preparedUpdate, role.findAttribute(AttributeType.TECH_C), UpdateMessages.selfReferenceError(AttributeType.TECH_C));
+        verify(updateContext, never()).addMessage(preparedUpdate, UpdateMessages.selfReferenceError(role.findAttribute(AttributeType.ADMIN_C)));
+        verify(updateContext, times(1)).addMessage(preparedUpdate,role.findAttribute(AttributeType.TECH_C), UpdateMessages.selfReferenceError(role.findAttribute(AttributeType.TECH_C)));
     }
 
 
@@ -85,7 +86,7 @@ public class SelfReferencePreventionValidatorTest {
 
        subject.validate(preparedUpdate, updateContext);
 
-        verify(updateContext, times(1)).addMessage(preparedUpdate, role.findAttribute(AttributeType.ADMIN_C), UpdateMessages.selfReferenceError(AttributeType.ADMIN_C));
-        verify(updateContext, times(1)).addMessage(preparedUpdate, role.findAttribute(AttributeType.TECH_C), UpdateMessages.selfReferenceError(AttributeType.TECH_C));
+        verify(updateContext, times(1)).addMessage(preparedUpdate, role.findAttribute(AttributeType.ADMIN_C), UpdateMessages.selfReferenceError(role.findAttribute(AttributeType.ADMIN_C)));
+        verify(updateContext, times(1)).addMessage(preparedUpdate, role.findAttribute(AttributeType.TECH_C), UpdateMessages.selfReferenceError(role.findAttribute(AttributeType.TECH_C)));
     }
 }

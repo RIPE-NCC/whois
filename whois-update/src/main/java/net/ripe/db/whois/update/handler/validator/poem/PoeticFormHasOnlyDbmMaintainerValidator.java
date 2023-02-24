@@ -31,7 +31,7 @@ public class PoeticFormHasOnlyDbmMaintainerValidator implements BusinessRuleVali
     public List<Message> performValidation(final PreparedUpdate update, final UpdateContext updateContext) {
         final List<RpslAttribute> mntByAttribute = update.getUpdatedObject().findAttributes(AttributeType.MNT_BY);
         if (mntByAttribute.size() !=1 || !mntByAttribute.get(0).getCleanValue().equals(POETIC_FORM_MAINTAINER)) {
-            return Arrays.asList(new Message(UpdateMessages.poeticFormRequiresDbmMaintainer(), mntByAttribute.get(0)));
+            return Arrays.asList(UpdateMessages.poeticFormRequiresDbmMaintainer(mntByAttribute.get(0)));
         }
 
         return Collections.emptyList();

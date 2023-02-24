@@ -50,7 +50,7 @@ public class OrgNameFormatValidator implements BusinessRuleValidator {
         final String orgNameValue = stripComments(orgNameAttribute.getValue()).trim();
 
         if (isMultiline(orgNameValue) || containsInconsistentFormatting(orgNameValue)) {
-           return Arrays.asList( new Message(UpdateMessages.inconsistentOrgNameFormatting(), orgNameAttribute));
+           return Arrays.asList(UpdateMessages.inconsistentOrgNameFormatting(orgNameAttribute));
         }
 
         return Collections.emptyList();

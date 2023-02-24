@@ -59,7 +59,7 @@ public class OrgAttributeNotChangedValidator implements BusinessRuleValidator {
             if (org.isEmpty()) {
                 customValidationMessages.add(UpdateMessages.cantRemoveOrgAttribute());
             } else {
-                customValidationMessages.add(new Message(UpdateMessages.cantChangeOrgAttribute(), org.get(0)));
+                customValidationMessages.add(UpdateMessages.cantChangeOrgAttribute(org.get(0)));
             }
         }
 

@@ -43,7 +43,7 @@ public class ManagedAttrValidator implements BusinessRuleValidator {
         for(RpslAttribute attribute :updatedObject.getAttributes()) {
 
             if(managedAttributeSearch.isRipeNccMaintained(updatedObject,attribute) && attribute.getCleanComment() != null) {
-                messages.add(new Message(UpdateMessages.canNotAddCommentsInManagedAttr(attribute.getType()), attribute));
+                messages.add(UpdateMessages.canNotAddCommentsInManagedAttr(attribute));
             }
         }
 

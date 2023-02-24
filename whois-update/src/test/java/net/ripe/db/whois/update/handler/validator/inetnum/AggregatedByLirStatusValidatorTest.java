@@ -85,7 +85,7 @@ public class AggregatedByLirStatusValidatorTest {
         when(update.getAction()).thenReturn(Action.CREATE);
        subject.validate(update, updateContext);
 
-        verify(updateContext).addMessage(update, object.findAttribute(AttributeType.ASSIGNMENT_SIZE), UpdateMessages.attributeAssignmentSizeNotAllowed());
+        verify(updateContext).addMessage(update, object.findAttribute(AttributeType.ASSIGNMENT_SIZE), UpdateMessages.attributeAssignmentSizeNotAllowed(object.findAttribute(AttributeType.ASSIGNMENT_SIZE)));
     }
 
     @Test
@@ -108,8 +108,8 @@ public class AggregatedByLirStatusValidatorTest {
        subject.validate(update, updateContext);
 
         final List<RpslAttribute> assignmentSizeAttributes = updatedObject.findAttributes(AttributeType.ASSIGNMENT_SIZE);
-        verify(updateContext).addMessage(update, assignmentSizeAttributes.get(0), UpdateMessages.attributeAssignmentSizeNotAllowed());
-        verify(updateContext).addMessage(update, assignmentSizeAttributes.get(1), UpdateMessages.attributeAssignmentSizeNotAllowed());
+        verify(updateContext).addMessage(update, assignmentSizeAttributes.get(0), UpdateMessages.attributeAssignmentSizeNotAllowed(assignmentSizeAttributes.get(0)));
+        verify(updateContext).addMessage(update, assignmentSizeAttributes.get(1), UpdateMessages.attributeAssignmentSizeNotAllowed(assignmentSizeAttributes.get(1)));
     }
 
     @Test
@@ -370,7 +370,7 @@ public class AggregatedByLirStatusValidatorTest {
 
        subject.validate(update, updateContext);
 
-        verify(updateContext).addMessage(update, rpslObject.findAttribute(AttributeType.ASSIGNMENT_SIZE), UpdateMessages.attributeAssignmentSizeNotAllowed());
+        verify(updateContext).addMessage(update, rpslObject.findAttribute(AttributeType.ASSIGNMENT_SIZE), UpdateMessages.attributeAssignmentSizeNotAllowed(rpslObject.findAttribute(AttributeType.ASSIGNMENT_SIZE)));
     }
 
     @Test

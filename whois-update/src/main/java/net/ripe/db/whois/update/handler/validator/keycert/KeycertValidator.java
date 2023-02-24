@@ -47,7 +47,7 @@ public class KeycertValidator implements BusinessRuleValidator {
         if (x509AutoKeyFactory.isKeyPlaceHolder(updatedObject.getKey().toString())) {
             final KeyWrapper keyWrapper = keyWrapperFactory.createKeyWrapper(updatedObject, update, updateContext);
             if (keyWrapper instanceof PgpPublicKeyWrapper) {
-                messages.add(new Message(UpdateMessages.autokeyForX509KeyCertsOnly(), update.getUpdatedObject().getTypeAttribute()));
+                messages.add(UpdateMessages.autokeyForX509KeyCertsOnly(update.getUpdatedObject().getTypeAttribute()));
             }
         }
     }

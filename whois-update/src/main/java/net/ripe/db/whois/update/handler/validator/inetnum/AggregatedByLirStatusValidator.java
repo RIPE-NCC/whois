@@ -156,9 +156,9 @@ public class AggregatedByLirStatusValidator implements BusinessRuleValidator {
         return customValidationMessages;
     }
 
-    private void addMessagesForAttributeAssignmentSizeNotAllowed(final RpslObject object, final List<Message> customValidationMessages) {
+    private void addMessagesForAttributeAssignmentSizeNotAllowed(final RpslObject object, final List<Message> messages) {
         for (final RpslAttribute attribute : object.findAttributes(AttributeType.ASSIGNMENT_SIZE)) {
-            customValidationMessages.add(new Message(UpdateMessages.attributeAssignmentSizeNotAllowed(), attribute));
+            messages.add(UpdateMessages.attributeAssignmentSizeNotAllowed(attribute));
         }
     }
 

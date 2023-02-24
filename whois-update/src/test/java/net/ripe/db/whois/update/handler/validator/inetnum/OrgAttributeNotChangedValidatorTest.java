@@ -40,10 +40,6 @@ public class OrgAttributeNotChangedValidatorTest {
 
     @BeforeEach
     public void setup() {
-        /*when(maintainers.isRsMaintainer(ciSet("OTHER-MNT"))).thenReturn(false);
-        when(maintainers.isRsMaintainer(ciSet("TEST-MNT"))).thenReturn(false);
-        when(maintainers.isRsMaintainer(ciSet("RIPE-NCC-END-MNT"))).thenReturn(true);
-        when(maintainers.isRsMaintainer(ciSet("RIPE-NCC-HM-MNT"))).thenReturn(true);*/
         lenient().when(updateContext.getSubject(update)).thenReturn(subjectObject);
         lenient().when(maintainers.isRsMaintainer(ciSet("RIPE-NCC-HM-MNT", "TEST-MNT"))).thenReturn(true);
     }
@@ -305,7 +301,7 @@ public class OrgAttributeNotChangedValidatorTest {
        subject.validate(update, updateContext);
 
         verify(updateContext, never()).addMessage(ArgumentMatchers.any(), ArgumentMatchers.any());
-        verify(updateContext).addMessage(update, updated.findAttribute(AttributeType.ORG), UpdateMessages.cantChangeOrgAttribute());
+        verify(updateContext).addMessage(update, updated.findAttribute(AttributeType.ORG), UpdateMessages.cantChangeOrgAttribute(updated.findAttribute(AttributeType.ORG)));
         verify(maintainers).isRsMaintainer(ciSet("RIPE-NCC-HM-MNT"));
         verifyNoMoreInteractions(maintainers);
     }
@@ -347,7 +343,7 @@ public class OrgAttributeNotChangedValidatorTest {
        subject.validate(update, updateContext);
 
         verify(updateContext, never()).addMessage(ArgumentMatchers.any(), ArgumentMatchers.any());
-        verify(updateContext).addMessage(update, updated.findAttribute(AttributeType.ORG), UpdateMessages.cantChangeOrgAttribute());
+        verify(updateContext).addMessage(update, updated.findAttribute(AttributeType.ORG),UpdateMessages.cantChangeOrgAttribute(updated.findAttribute(AttributeType.ORG)));
         verify(maintainers).isRsMaintainer(ciSet("RIPE-NCC-HM-MNT", "TEST-MNT"));
         verifyNoMoreInteractions(maintainers);
     }
@@ -389,7 +385,7 @@ public class OrgAttributeNotChangedValidatorTest {
        subject.validate(update, updateContext);
 
         verify(updateContext, never()).addMessage(ArgumentMatchers.any(), ArgumentMatchers.any());
-        verify(updateContext).addMessage(update, updated.findAttribute(AttributeType.ORG), UpdateMessages.cantChangeOrgAttribute());
+        verify(updateContext).addMessage(update, updated.findAttribute(AttributeType.ORG), UpdateMessages.cantChangeOrgAttribute(updated.findAttribute(AttributeType.ORG)));
         verify(maintainers).isRsMaintainer(ciSet("RIPE-NCC-HM-MNT", "TEST-MNT"));
         verifyNoMoreInteractions(maintainers);
     }

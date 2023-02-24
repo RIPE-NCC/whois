@@ -95,7 +95,7 @@ public class SponsoringOrgMandatoryValidator implements BusinessRuleValidator {
         if (updSponsoringOrg != null) {
             final RpslObject sponsoringOrganisation = objectDao.getByKeyOrNull(ORGANISATION, updSponsoringOrg);
             if (sponsoringOrganisation != null && !isLir(sponsoringOrganisation)) {
-                return Arrays.asList(new Message(sponsoringOrgNotLIR(), updatedObject.findAttribute(AttributeType.SPONSORING_ORG)));
+                return Arrays.asList(sponsoringOrgNotLIR(updatedObject.findAttribute(AttributeType.SPONSORING_ORG)));
             }
         }
 

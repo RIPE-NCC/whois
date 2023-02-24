@@ -74,7 +74,7 @@ public class OrgNameAndCountryAttrValidator implements BusinessRuleValidator {
         final List<Message> messages = Lists.newArrayList();
         if (isReferencedByRsMaintainedResource(originalObject)) {
             if(isOrgNameModified) {
-                messages.add(new Message(UpdateMessages.canOnlyBeChangedByRipeNCC(ORG_NAME), updatedObject.findAttribute(ORG_NAME)));
+                messages.add(UpdateMessages.canOnlyBeChangedByRipeNCC(updatedObject.findAttribute(ORG_NAME)));
             }
 
             if(isCountryCodeModified) {

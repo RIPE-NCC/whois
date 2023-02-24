@@ -57,6 +57,6 @@ public class PoemHasOnlyPublicMaintainerValidatorTest {
 
        subject.validate(update, updateContext);
 
-        verify(updateContext).addMessage(update, poem.findAttribute(AttributeType.MNT_BY), UpdateMessages.poemRequiresPublicMaintainer());
+        verify(updateContext).addMessage(update, poem.findAttribute(AttributeType.MNT_BY), UpdateMessages.poemRequiresPublicMaintainer(poem.findAttribute(AttributeType.MNT_BY)));
     }
 }

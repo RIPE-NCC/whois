@@ -81,7 +81,7 @@ public class ValueWithinPrefixValidator implements BusinessRuleValidator {
                 messages.add(UpdateMessages.invalidIpv6Address(addressPrefixRange.getIpInterval().toString()));
                 break;
             case NOT_IN_BOUNDS:
-                messages.add(new Message(UpdateMessages.invalidRouteRange(addressPrefixRange.toString()), rpslAttribute));
+                messages.add(UpdateMessages.invalidRouteRange(rpslAttribute, addressPrefixRange.toString()));
                 break;
             default:
                 break;
@@ -93,17 +93,17 @@ public class ValueWithinPrefixValidator implements BusinessRuleValidator {
         final IpInterval pingableInterval = IpInterval.parse(pingableIp);
 
         if ((ipInterval instanceof Ipv4Resource) && !(pingableInterval instanceof Ipv4Resource)) {
-            messages.add(new Message(UpdateMessages.invalidIpv4Address(pingableIp), rpslAttribute));
+            messages.add(UpdateMessages.invalidIpv4Address(rpslAttribute,pingableIp));
             return;
         }
 
         if ((ipInterval instanceof Ipv6Resource) && !(pingableInterval instanceof Ipv6Resource)) {
-            messages.add(new Message(UpdateMessages.invalidIpv6Address(pingableIp), rpslAttribute));
+            messages.add(UpdateMessages.invalidIpv6Address(rpslAttribute, pingableIp));
             return;
         }
 
         if (!ipInterval.contains(pingableInterval)) {
-            messages.add(new Message(UpdateMessages.invalidRouteRange(pingableIp),rpslAttribute));
+            messages.add(UpdateMessages.invalidRouteRange(rpslAttribute, pingableIp));
         }
     }
 

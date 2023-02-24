@@ -39,10 +39,10 @@ public class MaintainerNameValidator implements BusinessRuleValidator {
         List<Message> messages = Lists.newArrayList();
 
         if (Action.CREATE.equals(update.getAction()) && !updatedObject.getKey().endsWith(MNT_NAME_SUFFIX)) {
-            messages.add(new Message(UpdateMessages.invalidMaintainerName(), updatedObject.getAttributes().get(0)));
+            messages.add(UpdateMessages.invalidMaintainerName(updatedObject.getAttributes().get(0)));
         }
         if (INVALID_NAMES.contains(updatedObject.getKey())) {
-           messages.add(new Message(UpdateMessages.reservedNameUsed(), updatedObject.getAttributes().get(0)));
+           messages.add(UpdateMessages.reservedNameUsed(updatedObject.getAttributes().get(0)));
         }
 
         return messages;

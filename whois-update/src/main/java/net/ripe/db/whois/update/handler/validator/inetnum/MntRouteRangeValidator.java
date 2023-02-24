@@ -42,13 +42,13 @@ public class MntRouteRangeValidator implements BusinessRuleValidator {
                 final AddressPrefixRange.BoundaryCheckResult boundaryCheckResult = addressPrefixRange.checkWithinBounds(ipInterval);
                 switch (boundaryCheckResult) {
                     case IPV4_EXPECTED:
-                        messages.add(new Message(UpdateMessages.invalidIpv6Address(addressPrefixRange.getIpInterval().toString()), attribute));
+                        messages.add(UpdateMessages.invalidIpv6Address(attribute,addressPrefixRange.getIpInterval().toString()));
                         break;
                     case IPV6_EXPECTED:
-                        messages.add(new Message(UpdateMessages.invalidIpv4Address(addressPrefixRange.getIpInterval().toString()), attribute));
+                        messages.add(UpdateMessages.invalidIpv4Address(attribute, addressPrefixRange.getIpInterval().toString()));
                         break;
                     case NOT_IN_BOUNDS:
-                        messages.add(new Message(UpdateMessages.invalidRouteRange(addressPrefixRange.toString()), attribute));
+                        messages.add(UpdateMessages.invalidRouteRange(attribute, addressPrefixRange.toString()));
                         break;
                     default:
                         break;

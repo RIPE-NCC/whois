@@ -190,7 +190,7 @@ public class OrgNameAndCountryAttrValidatorTest {
        subject.validate(update, updateContext);
 
         verify(updateContext, never()).addMessage(ArgumentMatchers.any(), ArgumentMatchers.any());
-        verify(updateContext).addMessage(update, UPDATED_ORG_NEW_NAME.findAttribute(AttributeType.ORG_NAME), UpdateMessages.canOnlyBeChangedByRipeNCC(AttributeType.ORG_NAME));
+        verify(updateContext).addMessage(update, UPDATED_ORG_NEW_NAME.findAttribute(AttributeType.ORG_NAME), UpdateMessages.canOnlyBeChangedByRipeNCC(UPDATED_ORG_NEW_NAME.findAttribute(AttributeType.ORG_NAME)));
         verify(maintainers).isRsMaintainer(ciSet("RIPE-NCC-HM-MNT"));
         verifyNoMoreInteractions(maintainers);
     }
@@ -205,7 +205,7 @@ public class OrgNameAndCountryAttrValidatorTest {
        subject.validate(update, updateContext);
 
         verify(updateContext, never()).addMessage(ArgumentMatchers.any(), ArgumentMatchers.any());
-        verify(updateContext).addMessage(update, UPDATED_ORG_NEW_NAME.findAttribute(AttributeType.ORG_NAME), UpdateMessages.canOnlyBeChangedByRipeNCC(AttributeType.ORG_NAME));
+        verify(updateContext).addMessage(update, UPDATED_ORG_NEW_NAME.findAttribute(AttributeType.ORG_NAME), UpdateMessages.canOnlyBeChangedByRipeNCC(UPDATED_ORG_NEW_NAME.findAttribute(AttributeType.ORG_NAME)));
         verify(maintainers).isRsMaintainer(ciSet("RIPE-NCC-LEGACY-MNT"));
         verifyNoMoreInteractions(maintainers);
     }
@@ -307,7 +307,7 @@ public class OrgNameAndCountryAttrValidatorTest {
        subject.validate(update, updateContext);
 
         verify(updateContext, never()).addMessage(ArgumentMatchers.any(), ArgumentMatchers.any());
-        verify(updateContext).addMessage(update, ORIGINAL_ORG.findAttribute(AttributeType.ORG_NAME), UpdateMessages.canOnlyBeChangedByRipeNCC(AttributeType.ORG_NAME));
+        verify(updateContext).addMessage(update, ORIGINAL_ORG.findAttribute(AttributeType.ORG_NAME), UpdateMessages.canOnlyBeChangedByRipeNCC(ORIGINAL_ORG.findAttribute(AttributeType.ORG_NAME)));
         verify(maintainers).isRsMaintainer(ciSet("RIPE-NCC-HM-MNT"));
         verifyNoMoreInteractions(maintainers);
     }

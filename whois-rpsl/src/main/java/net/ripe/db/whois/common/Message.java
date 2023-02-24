@@ -1,7 +1,5 @@
 package net.ripe.db.whois.common;
 
-import net.ripe.db.whois.common.rpsl.RpslAttribute;
-
 import javax.annotation.Nullable;
 import javax.annotation.concurrent.Immutable;
 import java.util.Objects;
@@ -10,7 +8,6 @@ import java.util.Objects;
 public class Message {
 
     protected Messages.Type type;
-    protected RpslAttribute rpslAttribute;
     protected String text;
     protected Object[] args;
     protected String formattedText;
@@ -18,19 +15,10 @@ public class Message {
     protected Message() {}
 
     public Message(final Messages.Type type, final String text, final Object... args) {
-       this(type,null,text, args);
-    }
-
-    public Message(final Message message, final RpslAttribute rpslAttribute) {
-        this(message.type,rpslAttribute,message.text, message.args);
-    }
-
-    public Message(final Messages.Type type, final RpslAttribute rpslAttribute, final String text, final Object... args) {
         this.type = type;
         this.text = text;
         this.args = args;
         this.formattedText = formatMessage(text, args);
-        this.rpslAttribute = rpslAttribute;
     }
 
     protected String formatMessage(final String text, final Object[] args) {
@@ -61,11 +49,6 @@ public class Message {
     @Nullable
     public Messages.Type getType() {
         return type;
-    }
-
-    @Nullable
-    public RpslAttribute getRpslAttribute() {
-        return rpslAttribute;
     }
 
     @Nullable

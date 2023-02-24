@@ -31,7 +31,7 @@ public class PoemHasOnlyPublicMaintainerValidator implements BusinessRuleValidat
     public List<Message> performValidation(final PreparedUpdate update, final UpdateContext updateContext) {
         final RpslAttribute mntByAttribute = update.getUpdatedObject().findAttribute(AttributeType.MNT_BY);
         if (!mntByAttribute.getCleanValue().equals(POEM_MAINTAINER)) {
-           return Arrays.asList(new Message(UpdateMessages.poemRequiresPublicMaintainer(), mntByAttribute));
+           return Arrays.asList(UpdateMessages.poemRequiresPublicMaintainer(mntByAttribute));
         }
 
         return Collections.emptyList();
