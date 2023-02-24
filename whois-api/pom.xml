@@ -169,8 +169,6 @@
             <artifactId>whois-update</artifactId>
             <type>test-jar</type>
         </dependency>
-
-
     </dependencies>
 
     <build>

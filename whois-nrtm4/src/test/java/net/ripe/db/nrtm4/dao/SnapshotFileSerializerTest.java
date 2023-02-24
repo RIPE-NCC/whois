@@ -1,9 +1,10 @@
 package net.ripe.db.nrtm4.dao;
 
 import net.ripe.db.nrtm4.domain.NrtmDocumentType;
-import net.ripe.db.nrtm4.domain.NrtmSource;
+import net.ripe.db.nrtm4.domain.NrtmSourceModel;
 import net.ripe.db.nrtm4.domain.NrtmVersionInfo;
 import net.ripe.db.nrtm4.domain.PublishableSnapshotFile;
+import net.ripe.db.whois.common.domain.CIString;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
@@ -30,7 +31,7 @@ public class SnapshotFileSerializerTest {
 
     @Test
     void serialize_empty_snapshot_file_to_json() throws IOException {
-        final var source = new NrtmSource("TEST");
+        final var source = new NrtmSourceModel(0, CIString.ciString("TEST"));
         final var serializer = new SnapshotFileSerializer(true, snapshotObjectDao);
         final var version = new NrtmVersionInfo(
             23L,

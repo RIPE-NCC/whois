@@ -48,7 +48,7 @@ public class NrtmFileSync {
             if (snapshotFile.isEmpty()) {
                 throw new FileNotFoundException("NRTM has no snapshot files with name: " + name);
             }
-            final NrtmVersionInfo version = nrtmVersionInfoRepository.findById(snapshotFile.get().getVersionId()).orElseThrow();
+            final NrtmVersionInfo version = nrtmVersionInfoRepository.findById(snapshotFile.get().getVersionId());
             final PublishableSnapshotFile publishableSnapshotFile = new PublishableSnapshotFile(version);
             try (final OutputStream out = nrtmFileStore.getFileOutputStream(sessionId, name)) {
                 snapshotFileSerializer.writeSnapshotAsJson(publishableSnapshotFile, out);
