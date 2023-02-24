@@ -100,30 +100,6 @@ public class SponsoringOrgValidator implements BusinessRuleValidator {
         return validationMessages;
     }
 
-    private boolean sponsoringOrgStatusCheck(final RpslObject updatedObject) {
-        final CIString statusString = updatedObject.getValueForAttribute(AttributeType.STATUS);
-        InetStatus status;
-
-        try {
-            switch (updatedObject.getType()) {
-                case INETNUM:
-                    status = InetnumStatus.getStatusFor(statusString);
-                    break;
-
-                case INET6NUM:
-                    status = Inet6numStatus.getStatusFor(statusString);
-                    break;
-
-                default:
-                    return false;
-            }
-        } catch (IllegalArgumentException e) {
-            return false;
-        }
-
-        return !ALLOWED_STATUSES.contains(status);
-    }
-
     private boolean sponsoringOrgMustBePresent(final Action action, final RpslObject updatedObject) {
         if (action == CREATE &&
                 !updatedObject.containsAttribute(SPONSORING_ORG) &&

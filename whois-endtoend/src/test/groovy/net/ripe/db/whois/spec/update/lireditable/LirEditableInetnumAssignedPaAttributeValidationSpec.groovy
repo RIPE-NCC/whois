@@ -596,10 +596,11 @@ class LirEditableInetnumAssignedPaAttributeValidationSpec extends BaseLirEditabl
         ack.summary.nrFound == 1
         ack.summary.assertSuccess(0, 0, 0, 0, 0)
         ack.summary.assertErrors(1, 0, 1, 0)
-        ack.countErrorWarnInfo(1, 1, 0)
+        ack.countErrorWarnInfo(2, 1, 0)
         ack.errors.any { it.operation == "Modify" && it.key == "[${resourceType}] ${resourceValue}" }
         ack.errorMessagesFor("Modify", "[${resourceType}] ${resourceValue}") == [
-                "The \"sponsoring-org:\" attribute is not allowed with status value \"${resourceStatus}\""
+                "The \"sponsoring-org:\" attribute is not allowed with status value \"${resourceStatus}\"",
+                "The \"sponsoring-org\" attribute can only be added by the RIPE NCC"
         ]
         ack.warningMessagesFor("Modify", "[${resourceType}] ${resourceValue}") ==
                 ["${resourceType} parent has incorrect status: ALLOCATED UNSPECIFIED"]

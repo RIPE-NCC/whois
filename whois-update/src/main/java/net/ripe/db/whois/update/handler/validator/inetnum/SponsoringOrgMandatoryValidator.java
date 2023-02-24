@@ -145,21 +145,6 @@ public class SponsoringOrgMandatoryValidator implements BusinessRuleValidator {
                 || (action == MODIFY && !Objects.equals(referenceSponsoringOrg, updatedSponsoringOrg));
     }
 
-    private boolean sponsoringOrgAdded(final CIString referencedSponsoringOrg, final CIString updatedSponsoringOrg, final Action action) {
-        final boolean existingSponsoringOrg = CIString.isBlank(referencedSponsoringOrg);
-        return (action == CREATE && !existingSponsoringOrg)
-                || (action == MODIFY && existingSponsoringOrg && !CIString.isBlank(updatedSponsoringOrg));
-    }
-
-    private boolean sponsoringOrgRemoved(final CIString referencedSponsoringOrg, final CIString updatedSponsoringOrg, final Action action) {
-        return action == MODIFY && !CIString.isBlank(referencedSponsoringOrg) && CIString.isBlank(updatedSponsoringOrg);
-    }
-
-    private boolean sponsoringOrgChanged(final CIString referencedSponsoringOrg, final CIString updatedSponsoringOrg, final Action action) {
-        return action == MODIFY && !CIString.isBlank(referencedSponsoringOrg) && !CIString.isBlank(updatedSponsoringOrg)
-                && !Objects.equals(referencedSponsoringOrg, updatedSponsoringOrg);
-    }
-
     private boolean hasEndUserMntner(final RpslObject object) {
         final Set<CIString> mntBy = object.getValuesForAttribute(AttributeType.MNT_BY);
         return maintainers.isEnduserMaintainer(mntBy);
