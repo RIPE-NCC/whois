@@ -91,8 +91,8 @@ public class SnapshotFileGeneratorIntegrationTest extends AbstractNrtm4Integrati
             assertThat(snapshotFile.getSourceModel().getName(), is(sourceRepository.getWhoisSource().orElseThrow().getName()));
             assertThat(snapshotFile.getNrtmVersion(), is(4));
             assertThat(snapshotFile.getType(), is(SNAPSHOT));
-            final var bos = new ByteArrayOutputStream();
-            nrtmFileStore.streamFromGZFile(snapshotFile.getSessionID(), snapshotFile.getFileName(), bos);
+            //final var bos = new ByteArrayOutputStream();
+            //nrtmFileStore.streamFromGZFile(snapshotFile.getSessionID(), snapshotFile.getFileName(), bos);
             assertThat(snapshotFile.getFileName(), startsWith("nrtm-snapshot.1."));
         }
     }

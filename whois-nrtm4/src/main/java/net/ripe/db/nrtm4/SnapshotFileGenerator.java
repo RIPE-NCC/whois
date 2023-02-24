@@ -13,16 +13,15 @@ import net.ripe.db.nrtm4.domain.SnapshotFile;
 import net.ripe.db.nrtm4.domain.SnapshotState;
 import net.ripe.db.nrtm4.util.NrtmFileUtil;
 import net.ripe.db.whois.common.domain.CIString;
-import org.apache.commons.codec.digest.DigestUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.PipedInputStream;
-import java.io.PipedOutputStream;
+import java.io.OutputStream;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -114,27 +113,24 @@ public class SnapshotFileGenerator {
         }
 
         for (final PublishableSnapshotFile snapshotFile : outputStreamMap.keySet()) {
-        //outputStreamMap.keySet().forEach(snapshotFile -> {
-            LOGGER.info("{} at version: {}", snapshotFile.getSourceModel().getName(), snapshotFile.getVersion());
             final String fileName = NrtmFileUtil.newFileName(snapshotFile);
-            Stopwatch stopwatch = Stopwatch.createStarted();
+            LOGGER.info("{} at version: {}", snapshotFile.getSourceModel().getName(), snapshotFile.getVersion());
+            snapshotFile.setFileName(fileName);
             try (final ByteArrayOutputStream out = outputStreamMap.get(snapshotFile)) {
-//                final OutputStream fileOut = nrtmFileStore.getFileOutputStream(snapshotFile.getSessionID(), fileName);
-//                fileOut.write(out.toByteArray());
-//                fileOut.flush();
-//                LOGGER.info("Wrote JSON for {} in {}", snapshotFile.getSourceModel().getName(), stopwatch);
+                Stopwatch stopwatch = Stopwatch.createStarted();
+                final OutputStream fileOut = nrtmFileStore.getFileOutputStream(snapshotFile.getSessionID(), fileName);
+                fileOut.write(out.toByteArray());
+                fileOut.flush();
+                LOGGER.info("Wrote JSON for {} in {}", snapshotFile.getSourceModel().getName(), stopwatch);
                 stopwatch = Stopwatch.createStarted();
-                final PipedOutputStream pos = new PipedOutputStream();
-                final InputStream input = new PipedInputStream(pos);
-                out.writeTo(pos);
-                final String sha256hex = DigestUtils.sha256Hex(input);
-                snapshotFile.setFileName(fileName);
-                snapshotFile.setHash(sha256hex);
+                final MessageDigest digest = MessageDigest.getInstance("SHA-256");
+                final byte[] encodedSha256hex = digest.digest(out.toByteArray());
+                snapshotFile.setHash(bytesToHex(encodedSha256hex));
                 LOGGER.info("Calculated hash for {} in {}", snapshotFile.getSourceModel().getName(), stopwatch);
                 stopwatch = Stopwatch.createStarted();
                 snapshotFileRepository.insert(snapshotFile, out.toByteArray());
                 LOGGER.info("Inserted payload for {} in {}", snapshotFile.getSourceModel().getName(), stopwatch);
-            } catch (final IOException e) {
+            } catch (final IOException | NoSuchAlgorithmException e) {
                 LOGGER.error("Exception thrown when calculating hash of snapshot file " + snapshotFile.getSourceModel().getName(), e);
             }
         }
@@ -145,4 +141,15 @@ public class SnapshotFileGenerator {
         return snapshotFileRepository.getLastSnapshot(source);
     }
 
+    private static String bytesToHex(final byte[] hash) {
+        final StringBuilder hexString = new StringBuilder(2 * hash.length);
+        for (final byte b : hash) {
+            final String hex = Integer.toHexString(0xff & b);
+            if (hex.length() == 1) {
+                hexString.append('0');
+            }
+            hexString.append(hex);
+        }
+        return hexString.toString();
+    }
 }
