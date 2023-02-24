@@ -24,6 +24,7 @@ public class RpslObjectBatchEnqueuer {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(RpslObjectBatchEnqueuer.class);
     private static final int BATCH_SIZE = 10;
+    public static final RpslObjectData POISON_PILL = new RpslObjectData(0, 0, null);
 
     private final WhoisObjectRepository whoisObjectRepository;
 
@@ -52,7 +53,7 @@ public class RpslObjectBatchEnqueuer {
             }
         }
         for (final LinkedBlockingQueue<RpslObjectData> queue : queueMap.values()) {
-            queue.put(new RpslObjectData(0, 0, null));
+            queue.put(POISON_PILL);
         }
         LOGGER.info("Snapshot objects iterated in {}", stopwatch);
     }

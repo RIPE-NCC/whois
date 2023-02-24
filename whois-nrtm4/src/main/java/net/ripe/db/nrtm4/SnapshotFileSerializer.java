@@ -16,9 +16,9 @@ import org.springframework.stereotype.Service;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.util.concurrent.LinkedBlockingQueue;
-import java.util.concurrent.TimeUnit;
 
 import static net.ripe.db.nrtm4.NrtmConstants.NRTM_VERSION;
+import static net.ripe.db.nrtm4.RpslObjectBatchEnqueuer.POISON_PILL;
 
 
 @Service
@@ -53,16 +53,7 @@ public class SnapshotFileSerializer {
         jGenerator.writeStringField("session_id", snapshotFile.getSessionID());
         jGenerator.writeNumberField("version", snapshotFile.getVersion());
         jGenerator.writeArrayFieldStart("objects");
-        for (RpslObjectData rpslObjectData = queue.poll(); ; rpslObjectData = queue.poll()) {
-            if (rpslObjectData == null) {
-                // Queue is empty. Wait for some data.
-                TimeUnit.MILLISECONDS.sleep(10);
-                continue;
-            }
-            if (rpslObjectData.objectId() == 0) {
-                // Marker object meaning: 'no more objects'
-                break;
-            }
+        for (RpslObjectData rpslObjectData = queue.take(); rpslObjectData.equals(POISON_PILL) ; rpslObjectData = queue.take()) {
             final RpslObject rpsl = rpslObjectData.rpslObject();
             if (!dummifierNrtm.isAllowed(NRTM_VERSION, rpsl)) {
                 continue;

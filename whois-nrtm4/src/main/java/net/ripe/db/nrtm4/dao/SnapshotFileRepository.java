@@ -31,7 +31,7 @@ public class SnapshotFileRepository {
         this.jdbcTemplate = new JdbcTemplate(dataSource);
     }
 
-    public void insert(final PublishableSnapshotFile snapshotFile, byte[] payload) {
+    public void insert(final PublishableSnapshotFile snapshotFile, final byte[] payload) {
         final String sql = """
             INSERT INTO snapshot_file (version_id, name, hash, payload)
             VALUES (?, ?, ?, ?)
