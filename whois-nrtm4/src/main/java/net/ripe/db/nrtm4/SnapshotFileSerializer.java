@@ -53,7 +53,10 @@ public class SnapshotFileSerializer {
         jGenerator.writeStringField("session_id", snapshotFile.getSessionID());
         jGenerator.writeNumberField("version", snapshotFile.getVersion());
         jGenerator.writeArrayFieldStart("objects");
-        for (RpslObjectData rpslObjectData = queue.take(); rpslObjectData.equals(POISON_PILL) ; rpslObjectData = queue.take()) {
+        for (RpslObjectData rpslObjectData = queue.take(); ; rpslObjectData = queue.take()) {
+            if (rpslObjectData.equals(POISON_PILL)) {
+                break;
+            }
             final RpslObject rpsl = rpslObjectData.rpslObject();
             if (!dummifierNrtm.isAllowed(NRTM_VERSION, rpsl)) {
                 continue;
