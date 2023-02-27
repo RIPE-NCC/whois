@@ -111,18 +111,27 @@ public class SnapshotFileGenerator {
         }
         new Thread(() -> {
             LOGGER.info("NRTM START enqueuing {} objects", state.objectData().size());
-            rpslObjectBatchEnqueuer.enrichAndEnqueueRpslObjects(state, queueMap);
+            try {
+                rpslObjectBatchEnqueuer.enrichAndEnqueueRpslObjects(state, queueMap);
+            } catch (final Exception e) {
+                LOGGER.info("NRTM Exception enqueuing state", e);
+                Thread.currentThread().interrupt();
+            }
             LOGGER.info("NRTM END enqueuing {} objects", state.objectData().size());
         }).start();
         for (final Thread writerThread : writerThreads) {
             try {
                 writerThread.start();
+            } catch (final Exception e) {
+                LOGGER.info("NRTM Exception start/join thread", e);
+                Thread.currentThread().interrupt();
+            }
+        }
+        for (final Thread writerThread : writerThreads) {
+            try {
                 writerThread.join();
             } catch (final InterruptedException e) {
                 LOGGER.info("NRTM writer thread interrupted", e);
-                Thread.currentThread().interrupt();
-            } catch (final Exception e) {
-                LOGGER.info("NRTM Exception start/join thread", e);
                 Thread.currentThread().interrupt();
             }
         }

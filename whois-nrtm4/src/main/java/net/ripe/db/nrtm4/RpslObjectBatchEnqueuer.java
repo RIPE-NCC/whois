@@ -41,7 +41,7 @@ public class RpslObjectBatchEnqueuer {
         this.whoisSource = CIString.ciString(whoisSource);
     }
 
-    void enrichAndEnqueueRpslObjects(final SnapshotState snapshotState, final Map<CIString, LinkedBlockingQueue<RpslObjectData>> queueMap) {
+    void enrichAndEnqueueRpslObjects(final SnapshotState snapshotState, final Map<CIString, LinkedBlockingQueue<RpslObjectData>> queueMap) throws InterruptedException {
         LOGGER.info("enrichAndEnqueueRpslObjects entered");
         final Stopwatch stopwatch = Stopwatch.createStarted();
         final List<List<ObjectData>> batches = Lists.partition(snapshotState.objectData(), BATCH_SIZE);
@@ -85,6 +85,7 @@ public class RpslObjectBatchEnqueuer {
                     Thread.currentThread().interrupt();
                 }
             }
+            throw e;
         }
         LOGGER.info("Snapshot objects iterated in {}", stopwatch);
     }
