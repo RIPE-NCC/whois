@@ -84,7 +84,6 @@ public class SnapshotFileGenerator {
         final Map<CIString, LinkedBlockingQueue<RpslObjectData>> queueMap = new HashMap<>();
         final Map<PublishableSnapshotFile, ByteArrayOutputStream> outputStreamMap = new HashMap<>();
         for (final NrtmVersionInfo sourceVersion : sourceVersions) {
-            final Stopwatch stopwatch = Stopwatch.createStarted();
             LOGGER.info("NRTM creating snapshot for {}", sourceVersion.getSource().getName());
             final LinkedBlockingQueue<RpslObjectData> queue = new LinkedBlockingQueue<>(QUEUE_CAPACITY);
             final PublishableSnapshotFile snapshotFile = new PublishableSnapshotFile(sourceVersion);
@@ -92,9 +91,10 @@ public class SnapshotFileGenerator {
             queueMap.put(sourceVersion.getSource().getName(), queue);
             outputStreamMap.put(snapshotFile, bos);
             final Thread writerThread = new Thread(() -> {
+                final Stopwatch stopwatch = Stopwatch.createStarted();
+                LOGGER.info("NRTM {} writing queue to snapshot", sourceVersion.getSource().getName());
                 try (final GZIPOutputStream out = new GZIPOutputStream(bos)) {
                     snapshotFileSerializer.writeObjectQueueAsSnapshot(snapshotFile, queue, out);
-                    LOGGER.info("NRTM {} snapshot object queue written in {}", sourceVersion.getSource().getName(), stopwatch);
                 } catch (final IOException e) {
                     LOGGER.info("NRTM {} exception writing snapshot {}", sourceVersion.getSource().getName(), e);
                     throw new RuntimeException(e);
@@ -102,12 +102,15 @@ public class SnapshotFileGenerator {
                     LOGGER.info("NRTM {} interrupted writing snapshot", sourceVersion.getSource().getName(), e);
                     Thread.currentThread().interrupt();
                 }
+                LOGGER.info("NRTM {} snapshot queue written in {}", sourceVersion.getSource().getName(), stopwatch);
             });
             writerThreads.add(writerThread);
         }
         new Thread(() -> {
             try {
+                LOGGER.info("NRTM START enqueuing {} objects", state.objectData().size());
                 rpslObjectBatchEnqueuer.enrichAndEnqueueRpslObjects(state, queueMap);
+                LOGGER.info("NRTM END enqueuing {} objects", state.objectData().size());
             } catch (final InterruptedException e) {
                 LOGGER.info("NRTM interrupted writing to queue", e);
                 Thread.currentThread().interrupt();
