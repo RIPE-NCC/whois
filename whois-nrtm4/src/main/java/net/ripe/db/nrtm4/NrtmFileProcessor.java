@@ -38,8 +38,8 @@ public class NrtmFileProcessor {
         LOGGER.info("updateNrtmFilesAndPublishNotification() called");
         final List<NrtmSourceModel> sourceList = sourceRepository.getAllSources();
         if (sourceList.isEmpty()) {
-            sourceRepository.createSources();
             if (nrtmProcessControl.isInitialSnapshotGenerationEnabled()) {
+                sourceRepository.createSources();
                 LOGGER.info("Initializing...");
                 snapshotFileGenerator.createSnapshots();
                 LOGGER.info("Initialization complete");
