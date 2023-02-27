@@ -79,13 +79,14 @@ public class RpslObjectBatchEnqueuer {
         } catch (final Exception e) {
             for (final LinkedBlockingQueue<RpslObjectData> queue : queueMap.values()) {
                 try {
-                    timer.cancel();
                     queue.put(POISON_PILL);
                 } catch (final InterruptedException ex) {
                     Thread.currentThread().interrupt();
                 }
             }
             throw e;
+        } finally {
+            timer.cancel();
         }
         LOGGER.info("Snapshot objects iterated in {}", stopwatch);
     }

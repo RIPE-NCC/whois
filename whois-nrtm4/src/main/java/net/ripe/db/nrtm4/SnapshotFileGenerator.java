@@ -109,7 +109,7 @@ public class SnapshotFileGenerator {
             });
             writerThreads.add(writerThread);
         }
-        new Thread(() -> {
+        final Thread readerThread = new Thread(() -> {
             LOGGER.info("NRTM START enqueuing {} objects", state.objectData().size());
             try {
                 rpslObjectBatchEnqueuer.enrichAndEnqueueRpslObjects(state, queueMap);
@@ -118,7 +118,8 @@ public class SnapshotFileGenerator {
                 Thread.currentThread().interrupt();
             }
             LOGGER.info("NRTM END enqueuing {} objects", state.objectData().size());
-        }).start();
+        });
+        readerThread.start();
         for (final Thread writerThread : writerThreads) {
             try {
                 writerThread.start();
@@ -135,7 +136,6 @@ public class SnapshotFileGenerator {
                 Thread.currentThread().interrupt();
             }
         }
-
         for (final PublishableSnapshotFile snapshotFile : outputStreamMap.keySet()) {
             final String fileName = NrtmFileUtil.newGzFileName(snapshotFile);
             LOGGER.info("{} at version: {}", snapshotFile.getSourceModel().getName(), snapshotFile.getVersion());
