@@ -101,6 +101,9 @@ public class SnapshotFileGenerator {
                 } catch (final InterruptedException e) {
                     LOGGER.info("NRTM {} interrupted writing snapshot", sourceVersion.getSource().getName(), e);
                     Thread.currentThread().interrupt();
+                } catch (final Exception e) {
+                    LOGGER.info("NRTM {} Exception writing snapshot", sourceVersion.getSource().getName(), e);
+                    Thread.currentThread().interrupt();
                 }
                 LOGGER.info("NRTM {} snapshot queue written in {}", sourceVersion.getSource().getName(), stopwatch);
             });
@@ -117,6 +120,9 @@ public class SnapshotFileGenerator {
                 writerThread.join();
             } catch (final InterruptedException e) {
                 LOGGER.info("NRTM writer thread interrupted", e);
+                Thread.currentThread().interrupt();
+            } catch (final Exception e) {
+                LOGGER.info("NRTM Exception start/join thread", e);
                 Thread.currentThread().interrupt();
             }
         }

@@ -35,8 +35,7 @@ public class RpslObjectBatchEnqueuer {
 
     RpslObjectBatchEnqueuer(
         final WhoisObjectRepository whoisObjectRepository,
-        @Value("${whois.source}")
-        final String whoisSource
+        @Value("${whois.source}") final String whoisSource
     ) {
         this.whoisObjectRepository = whoisObjectRepository;
         this.whoisSource = CIString.ciString(whoisSource);
@@ -78,8 +77,9 @@ public class RpslObjectBatchEnqueuer {
                 queue.put(POISON_PILL);
             }
         } catch (final Exception e) {
-            for (final LinkedBlockingQueue<RpslObjectData> queue: queueMap.values()) {
+            for (final LinkedBlockingQueue<RpslObjectData> queue : queueMap.values()) {
                 try {
+                    timer.cancel();
                     queue.put(POISON_PILL);
                 } catch (final InterruptedException ex) {
                     Thread.currentThread().interrupt();
