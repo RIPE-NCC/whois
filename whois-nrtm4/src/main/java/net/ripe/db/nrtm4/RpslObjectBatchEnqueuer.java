@@ -43,13 +43,13 @@ public class RpslObjectBatchEnqueuer {
             for (final ObjectData object : objectBatch) {
                 final String rpsl = rpslMap.get(object.objectId());
                 final RpslObject rpslObject = RpslObject.parse(rpsl);
-                final LinkedBlockingQueue<RpslObjectData> source = queueMap.get(rpslObject.getValueForAttribute(AttributeType.SOURCE));
-                if (source == null) {
+                final LinkedBlockingQueue<RpslObjectData> queue = queueMap.get(rpslObject.getValueForAttribute(AttributeType.SOURCE));
+                if (queue == null) {
                     final String msg = "RPSL object declares an unknown source attribute";
                     LOGGER.error(msg + " " + rpslObject.getValueForAttribute(AttributeType.SOURCE) + " known: " + Arrays.toString(queueMap.keySet().toArray()));
                     throw new NrtmDataInconsistencyException(msg);
                 }
-                source.put(new RpslObjectData(object.objectId(), object.sequenceId(), rpslObject));
+                queue.put(new RpslObjectData(object.objectId(), object.sequenceId(), rpslObject));
             }
         }
         for (final LinkedBlockingQueue<RpslObjectData> queue : queueMap.values()) {

@@ -66,7 +66,7 @@ public class SnapshotFileGenerator {
         this.whoisObjectRepository = whoisObjectRepository;
     }
 
-    public Set<PublishableSnapshotFile> createSnapshots() throws IOException {
+    public Set<PublishableSnapshotFile> createSnapshots() {
         // Get last version from database.
         final List<NrtmVersionInfo> sourceVersions = nrtmVersionInfoRepository.findLastVersionPerSource();
         final SnapshotState state = whoisObjectRepository.getSnapshotState();
@@ -95,8 +95,12 @@ public class SnapshotFileGenerator {
                 try (final GZIPOutputStream out = new GZIPOutputStream(bos)) {
                     snapshotFileSerializer.writeObjectQueueAsSnapshot(snapshotFile, queue, out);
                     LOGGER.info("NRTM {} snapshot object queue written in {}", sourceVersion.getSource().getName(), stopwatch);
-                } catch (final IOException | InterruptedException e) {
+                } catch (final IOException e) {
+                    LOGGER.info("NRTM {} exception writing snapshot {}", sourceVersion.getSource().getName(), e);
                     throw new RuntimeException(e);
+                } catch (final InterruptedException e) {
+                    LOGGER.info("NRTM {} interrupted writing snapshot", sourceVersion.getSource().getName(), e);
+                    Thread.currentThread().interrupt();
                 }
             });
             writerThreads.add(writerThread);
@@ -105,7 +109,8 @@ public class SnapshotFileGenerator {
             try {
                 rpslObjectBatchEnqueuer.enrichAndEnqueueRpslObjects(state, queueMap);
             } catch (final InterruptedException e) {
-                throw new RuntimeException(e);
+                LOGGER.info("NRTM interrupted writing to queue", e);
+                Thread.currentThread().interrupt();
             }
         }).start();
         for (final Thread writerThread : writerThreads) {
@@ -113,7 +118,8 @@ public class SnapshotFileGenerator {
                 writerThread.start();
                 writerThread.join();
             } catch (final InterruptedException e) {
-                throw new RuntimeException(e);
+                LOGGER.info("NRTM writer thread interrupted", e);
+                Thread.currentThread().interrupt();
             }
         }
 
