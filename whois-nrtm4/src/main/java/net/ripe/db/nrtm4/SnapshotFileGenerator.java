@@ -137,7 +137,7 @@ public class SnapshotFileGenerator {
         }
 
         for (final PublishableSnapshotFile snapshotFile : outputStreamMap.keySet()) {
-            final String fileName = NrtmFileUtil.newFileName(snapshotFile);
+            final String fileName = NrtmFileUtil.newGzFileName(snapshotFile);
             LOGGER.info("{} at version: {}", snapshotFile.getSourceModel().getName(), snapshotFile.getVersion());
             snapshotFile.setFileName(fileName);
             try (final ByteArrayOutputStream out = outputStreamMap.get(snapshotFile)) {

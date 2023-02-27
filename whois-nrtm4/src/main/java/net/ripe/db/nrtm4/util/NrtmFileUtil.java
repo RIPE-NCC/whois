@@ -17,6 +17,11 @@ public class NrtmFileUtil {
         return String.format("%s.%d.%s.json", prefix, file.getVersion(), randomHexString());
     }
 
+    public static String newGzFileName(final PublishableNrtmDocument file) {
+        final String fileName = newFileName(file);
+        return String.format("%s.gz", fileName);
+    }
+
     public static boolean checkIfFileExists(final String path, final String sessionId, final String name) {
         final File dir = new File(path, sessionId);
         return dir.exists() && new File(dir, name).exists();
