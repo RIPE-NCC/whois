@@ -105,6 +105,7 @@ public class SnapshotFileGenerator {
                     LOGGER.info("NRTM {} Exception writing snapshot", sourceVersion.getSource().getName(), e);
                     Thread.currentThread().interrupt();
                 }
+
                 LOGGER.info("NRTM {} snapshot queue written in {}", sourceVersion.getSource().getName(), stopwatch);
             });
             writerThreads.add(writerThread);

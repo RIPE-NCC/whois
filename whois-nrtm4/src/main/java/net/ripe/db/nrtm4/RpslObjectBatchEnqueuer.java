@@ -27,7 +27,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 public class RpslObjectBatchEnqueuer {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(RpslObjectBatchEnqueuer.class);
-    private static final int BATCH_SIZE = 10;
+    private static final int BATCH_SIZE = 100;
     public static final RpslObjectData POISON_PILL = new RpslObjectData(0, 0, null);
 
     private final WhoisObjectRepository whoisObjectRepository;
@@ -57,7 +57,8 @@ public class RpslObjectBatchEnqueuer {
             }
         }, 0, 2000);
         try {
-            for (final List<ObjectData> objectBatch : batches) {
+            //for (final List<ObjectData> objectBatch : batches) {
+            batches.parallelStream().forEach(objectBatch -> {
                 final Map<Integer, String> rpslMap = whoisObjectRepository.findRpslMapForObjects(objectBatch);
                 for (final ObjectData object : objectBatch) {
                     complete.incrementAndGet();
@@ -69,10 +70,15 @@ public class RpslObjectBatchEnqueuer {
                         LOGGER.error(msg + " " + rpslObject.getValueForAttribute(AttributeType.SOURCE) + " known: " + Arrays.toString(queueMap.keySet().toArray()));
                         throw new NrtmDataInconsistencyException(msg);
                     }
-                    queue.put(new RpslObjectData(object.objectId(), object.sequenceId(), rpslObject));
+                    try {
+                        queue.put(new RpslObjectData(object.objectId(), object.sequenceId(), rpslObject));
+                    } catch (InterruptedException e) {
+                        LOGGER.error("Interrupted " + rpslObject.getValueForAttribute(AttributeType.SOURCE));
+                        throw new RuntimeException(e);
+                    }
                     queueSize.set(queueMap.get(whoisSource).size());
                 }
-            }
+            });
             for (final LinkedBlockingQueue<RpslObjectData> queue : queueMap.values()) {
                 queue.put(POISON_PILL);
             }
