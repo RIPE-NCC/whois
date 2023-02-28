@@ -18,7 +18,7 @@ import java.io.OutputStream;
 import java.util.concurrent.LinkedBlockingQueue;
 
 import static net.ripe.db.nrtm4.NrtmConstants.NRTM_VERSION;
-import static net.ripe.db.nrtm4.RpslObjectBatchEnqueuer.POISON_PILL;
+import static net.ripe.db.nrtm4.RpslObjectEnqueuer.POISON_PILL;
 
 
 @Service

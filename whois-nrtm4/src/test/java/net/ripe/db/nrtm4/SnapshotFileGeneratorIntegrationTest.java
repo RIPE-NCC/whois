@@ -58,7 +58,7 @@ public class SnapshotFileGeneratorIntegrationTest extends AbstractNrtm4Integrati
             assertThat(snapshotFile.getNrtmVersion(), is(4));
             assertThat(snapshotFile.getType(), is(SNAPSHOT));
             final var bos = new ByteArrayOutputStream();
-            streamFromGZFile("/tmp", snapshotFile.getSessionID(), snapshotFile.getFileName(), bos);
+            streamFromGZFile(snapshotFile.getSessionID(), snapshotFile.getFileName(), bos);
             final var expected = """
                 {
                   "nrtm_version" : 4,
@@ -76,7 +76,7 @@ public class SnapshotFileGeneratorIntegrationTest extends AbstractNrtm4Integrati
     }
 
     @Test
-    public void big_snapshot_file_is_generated_and_written_to_disk() throws IOException {
+    public void big_snapshot_file_is_generated_and_written_to_disk() {
         loadScripts(whoisTemplate, "serials.no-schema.md.sql");
         loadScripts(whoisTemplate, "last.no-schema.md.sql");
         sourceRepository.createSources();
@@ -98,10 +98,12 @@ public class SnapshotFileGeneratorIntegrationTest extends AbstractNrtm4Integrati
         }
     }
 
-    void streamFromGZFile(final String path, final String sessionId, final String name, final OutputStream out) throws IOException {
-        try (final FileInputStream fis =  NrtmFileUtil.getFileInputStream(path, sessionId, name)) {
+    void streamFromGZFile(final String sessionId, final String name, final OutputStream out) throws IOException {
+        final var path = System.getProperty("nrtm.file.path");
+        try (final FileInputStream fis = NrtmFileUtil.getFileInputStream(path, sessionId, name)) {
             final GZIPInputStream gzipInputStream = new GZIPInputStream(fis);
             gzipInputStream.transferTo(out);
         }
     }
+
 }

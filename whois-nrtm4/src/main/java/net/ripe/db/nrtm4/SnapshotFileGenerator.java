@@ -1,5 +1,6 @@
 package net.ripe.db.nrtm4;
 
+import com.google.common.base.Stopwatch;
 import net.ripe.db.nrtm4.dao.NrtmVersionInfoRepository;
 import net.ripe.db.nrtm4.dao.SnapshotFileRepository;
 import net.ripe.db.nrtm4.dao.SourceRepository;
@@ -14,6 +15,7 @@ import net.ripe.db.nrtm4.util.NrtmFileUtil;
 import net.ripe.db.whois.common.domain.CIString;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import java.io.ByteArrayOutputStream;
@@ -24,6 +26,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
+import java.util.Timer;
+import java.util.TimerTask;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.zip.GZIPOutputStream;
 
@@ -34,26 +38,30 @@ public class SnapshotFileGenerator {
     private static final Logger LOGGER = LoggerFactory.getLogger(SnapshotFileGenerator.class);
     private static final int QUEUE_CAPACITY = 1000;
 
+    private final String whoisSource;
     private final NrtmFileService nrtmFileService;
     private final NrtmVersionInfoRepository nrtmVersionInfoRepository;
-    private final RpslObjectBatchEnqueuer rpslObjectBatchEnqueuer;
+    private final RpslObjectEnqueuer rpslObjectEnqueuer;
     private final SnapshotFileRepository snapshotFileRepository;
     private final SnapshotFileSerializer snapshotFileSerializer;
     private final SourceRepository sourceRepository;
     private final WhoisObjectRepository whoisObjectRepository;
 
     public SnapshotFileGenerator(
+        @Value("${whois.source}")
+        final String whoisSource,
         final NrtmFileService nrtmFileService,
         final NrtmVersionInfoRepository nrtmVersionInfoRepository,
-        final RpslObjectBatchEnqueuer rpslObjectBatchEnqueuer,
+        final RpslObjectEnqueuer rpslObjectEnqueuer,
         final SnapshotFileRepository snapshotFileRepository,
         final SnapshotFileSerializer snapshotFileSerializer,
         final SourceRepository sourceRepository,
         final WhoisObjectRepository whoisObjectRepository
     ) {
+        this.whoisSource = whoisSource;
         this.nrtmFileService = nrtmFileService;
         this.nrtmVersionInfoRepository = nrtmVersionInfoRepository;
-        this.rpslObjectBatchEnqueuer = rpslObjectBatchEnqueuer;
+        this.rpslObjectEnqueuer = rpslObjectEnqueuer;
         this.snapshotFileRepository = snapshotFileRepository;
         this.snapshotFileSerializer = snapshotFileSerializer;
         this.sourceRepository = sourceRepository;
@@ -61,9 +69,11 @@ public class SnapshotFileGenerator {
     }
 
     public Set<PublishableNrtmFile> createSnapshots() {
+        final Stopwatch stopwatchRoot = Stopwatch.createStarted();
         // Get last version from database.
         final List<NrtmVersionInfo> sourceVersions = nrtmVersionInfoRepository.findLastVersionPerSource();
         final SnapshotState state = whoisObjectRepository.getSnapshotState();
+        LOGGER.info("NRTM found {} objects in {}", state.objectData().size(), stopwatchRoot);
         if (sourceVersions.isEmpty()) {
             LOGGER.info("Initializing NRTM");
             for (final NrtmSourceModel source : sourceRepository.getAllSources()) {
@@ -92,7 +102,11 @@ public class SnapshotFileGenerator {
                     final String fileName = NrtmFileUtil.newGzFileName(snapshotFile);
                     snapshotFile.setFileName(fileName);
                     snapshotFile.setHash(nrtmFileService.calculateSha256(bos));
+                    final Stopwatch stopwatch = Stopwatch.createStarted();
                     nrtmFileService.writeToDisk(snapshotFile, bos);
+                    LOGGER.info("Wrote {} {}/{} to disk in {}", snapshotFile.getSourceModel().getName(), snapshotFile.getSessionID(), snapshotFile.getFileName(), stopwatch);
+                    snapshotFileRepository.insert(snapshotFile, bos.toByteArray());
+                    LOGGER.info("Wrote {} to DB {}", snapshotFile.getFileName(), stopwatch);
                 } catch (final Exception e) {
                     LOGGER.info("NRTM {} Exception writing snapshot", sourceVersion.getSource().getName(), e);
                     Thread.currentThread().interrupt();
@@ -105,7 +119,7 @@ public class SnapshotFileGenerator {
         final Thread queueWriter = new Thread(() -> {
             LOGGER.info("NRTM START enqueuing {} objects", state.objectData().size());
             try {
-                rpslObjectBatchEnqueuer.enrichAndEnqueueRpslObjects(state, queueMap);
+                rpslObjectEnqueuer.enrichAndEnqueueRpslObjects(state, queueMap);
             } catch (final Exception e) {
                 LOGGER.info("NRTM Exception enqueuing state", e);
                 Thread.currentThread().interrupt();
@@ -113,6 +127,16 @@ public class SnapshotFileGenerator {
             LOGGER.info("NRTM END enqueuing {} objects", state.objectData().size());
         });
         queueWriter.start();
+        final int total = state.objectData().size();
+        final Timer timer = new Timer(true);
+        final LinkedBlockingQueue<RpslObjectData> whoisQueue = queueMap.get(CIString.ciString(whoisSource));
+        timer.schedule(new TimerTask() {
+            @Override
+            public void run() {
+                final int done = rpslObjectEnqueuer.getDoneCount();
+                LOGGER.info("NRTM RpslQueue {} of {} ({}%). Queue size {}", done, total, Math.floor((float) (done * 100) / (float) total), whoisQueue.size());
+            }
+        }, 0, 2000);
         for (final Thread queueReader : queueReaders) {
             try {
                 queueReader.join();
@@ -121,6 +145,8 @@ public class SnapshotFileGenerator {
                 Thread.currentThread().interrupt();
             }
         }
+        timer.cancel();
+        LOGGER.info("NRTM generation complete {}", stopwatchRoot);
         return publishedFiles;
     }
 

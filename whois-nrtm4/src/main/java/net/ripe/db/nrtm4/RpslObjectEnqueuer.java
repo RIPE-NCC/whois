@@ -1,6 +1,5 @@
 package net.ripe.db.nrtm4;
 
-import com.google.common.base.Stopwatch;
 import com.google.common.collect.Lists;
 import net.ripe.db.nrtm4.dao.WhoisObjectRepository;
 import net.ripe.db.nrtm4.domain.ObjectData;
@@ -17,45 +16,31 @@ import org.springframework.stereotype.Service;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
-import java.util.Timer;
-import java.util.TimerTask;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.atomic.AtomicInteger;
 
 
 @Service
-public class RpslObjectBatchEnqueuer {
+public class RpslObjectEnqueuer {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(RpslObjectBatchEnqueuer.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(RpslObjectEnqueuer.class);
     private static final int BATCH_SIZE = 100;
     public static final RpslObjectData POISON_PILL = new RpslObjectData(0, 0, null);
 
     private final WhoisObjectRepository whoisObjectRepository;
-    private final CIString whoisSource;
+    final AtomicInteger complete;
 
-    RpslObjectBatchEnqueuer(
+    RpslObjectEnqueuer(
         final WhoisObjectRepository whoisObjectRepository,
         @Value("${whois.source}") final String whoisSource
     ) {
         this.whoisObjectRepository = whoisObjectRepository;
-        this.whoisSource = CIString.ciString(whoisSource);
+        complete = new AtomicInteger(0);
     }
 
     void enrichAndEnqueueRpslObjects(final SnapshotState snapshotState, final Map<CIString, LinkedBlockingQueue<RpslObjectData>> queueMap) throws InterruptedException {
-        LOGGER.info("enrichAndEnqueueRpslObjects entered");
-        final Stopwatch stopwatch = Stopwatch.createStarted();
         final List<List<ObjectData>> batches = Lists.partition(snapshotState.objectData(), BATCH_SIZE);
-        final int total = snapshotState.objectData().size();
-        final AtomicInteger complete = new AtomicInteger(0);
-        final AtomicInteger queueSize = new AtomicInteger(0);
-        final Timer timer = new Timer(true);
-        timer.schedule(new TimerTask() {
-            @Override
-            public void run() {
-                final int done = complete.get();
-                LOGGER.info("NRTM RpslQueue {} of {} ({}%). Queue size {}", done, total, Math.floor((float) (done * 100) / (float) total), queueSize.get());
-            }
-        }, 0, 2000);
+        complete.set(0);
         try {
             //for (final List<ObjectData> objectBatch : batches) {
             batches.parallelStream().forEach(objectBatch -> {
@@ -72,11 +57,10 @@ public class RpslObjectBatchEnqueuer {
                     }
                     try {
                         queue.put(new RpslObjectData(object.objectId(), object.sequenceId(), rpslObject));
-                    } catch (InterruptedException e) {
+                    } catch (final InterruptedException e) {
                         LOGGER.error("Interrupted " + rpslObject.getValueForAttribute(AttributeType.SOURCE));
                         throw new RuntimeException(e);
                     }
-                    queueSize.set(queueMap.get(whoisSource).size());
                 }
             });
             for (final LinkedBlockingQueue<RpslObjectData> queue : queueMap.values()) {
@@ -91,10 +75,10 @@ public class RpslObjectBatchEnqueuer {
                 }
             }
             throw e;
-        } finally {
-            timer.cancel();
         }
-        LOGGER.info("Snapshot objects iterated in {}", stopwatch);
     }
 
+    int getDoneCount() {
+        return complete.get();
+    }
 }
