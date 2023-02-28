@@ -48,8 +48,7 @@ public class SnapshotFileGenerator {
     private final WhoisObjectRepository whoisObjectRepository;
 
     public SnapshotFileGenerator(
-        @Value("${whois.source}")
-        final String whoisSource,
+        @Value("${whois.source}") final String whoisSource,
         final NrtmFileService nrtmFileService,
         final NrtmVersionInfoRepository nrtmVersionInfoRepository,
         final RpslObjectEnqueuer rpslObjectEnqueuer,
@@ -119,7 +118,18 @@ public class SnapshotFileGenerator {
         final Thread queueWriter = new Thread(() -> {
             LOGGER.info("NRTM START enqueuing {} objects", state.objectData().size());
             try {
+                final int total = state.objectData().size();
+                final Timer timer = new Timer(true);
+                final LinkedBlockingQueue<RpslObjectData> whoisQueue = queueMap.get(CIString.ciString(whoisSource));
+                timer.schedule(new TimerTask() {
+                    @Override
+                    public void run() {
+                        final int done = rpslObjectEnqueuer.getDoneCount();
+                        LOGGER.info("NRTM RpslQueue {} of {} ({}%). Queue size {}", done, total, Math.round(done * 1000. / total) / 10., whoisQueue.size());
+                    }
+                }, 0, 2000);
                 rpslObjectEnqueuer.enrichAndEnqueueRpslObjects(state, queueMap);
+                timer.cancel();
             } catch (final Exception e) {
                 LOGGER.info("NRTM Exception enqueuing state", e);
                 Thread.currentThread().interrupt();
@@ -127,16 +137,6 @@ public class SnapshotFileGenerator {
             LOGGER.info("NRTM END enqueuing {} objects", state.objectData().size());
         });
         queueWriter.start();
-        final int total = state.objectData().size();
-        final Timer timer = new Timer(true);
-        final LinkedBlockingQueue<RpslObjectData> whoisQueue = queueMap.get(CIString.ciString(whoisSource));
-        timer.schedule(new TimerTask() {
-            @Override
-            public void run() {
-                final int done = rpslObjectEnqueuer.getDoneCount();
-                LOGGER.info("NRTM RpslQueue {} of {} ({}%). Queue size {}", done, total, Math.floor((float) (done * 100) / (float) total), whoisQueue.size());
-            }
-        }, 0, 2000);
         for (final Thread queueReader : queueReaders) {
             try {
                 queueReader.join();
@@ -145,7 +145,6 @@ public class SnapshotFileGenerator {
                 Thread.currentThread().interrupt();
             }
         }
-        timer.cancel();
         LOGGER.info("NRTM generation complete {}", stopwatchRoot);
         return publishedFiles;
     }

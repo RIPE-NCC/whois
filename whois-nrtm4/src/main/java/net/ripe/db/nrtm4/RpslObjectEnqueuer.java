@@ -10,7 +10,6 @@ import net.ripe.db.whois.common.rpsl.AttributeType;
 import net.ripe.db.whois.common.rpsl.RpslObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import java.util.Arrays;
@@ -31,8 +30,7 @@ public class RpslObjectEnqueuer {
     final AtomicInteger complete;
 
     RpslObjectEnqueuer(
-        final WhoisObjectRepository whoisObjectRepository,
-        @Value("${whois.source}") final String whoisSource
+        final WhoisObjectRepository whoisObjectRepository
     ) {
         this.whoisObjectRepository = whoisObjectRepository;
         complete = new AtomicInteger(0);
