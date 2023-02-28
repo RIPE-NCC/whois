@@ -3,14 +3,14 @@ package net.ripe.db.nrtm4.domain;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
 
-public class PublishableSnapshotFile extends PublishableNrtmDocument {
+public class PublishableNrtmFile extends PublishableNrtmDocument {
 
     @JsonIgnore
     private String fileName;
     @JsonIgnore
     private String sha256hex;
 
-    public PublishableSnapshotFile(
+    public PublishableNrtmFile(
         final NrtmVersionInfo version
     ) {
         super(version);

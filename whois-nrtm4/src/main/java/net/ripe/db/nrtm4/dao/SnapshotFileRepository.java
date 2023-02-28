@@ -1,7 +1,7 @@
 package net.ripe.db.nrtm4.dao;
 
 import net.ripe.db.nrtm4.domain.NrtmSourceModel;
-import net.ripe.db.nrtm4.domain.PublishableSnapshotFile;
+import net.ripe.db.nrtm4.domain.PublishableNrtmFile;
 import net.ripe.db.nrtm4.domain.SnapshotFile;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.dao.EmptyResultDataAccessException;
@@ -31,7 +31,7 @@ public class SnapshotFileRepository {
         this.jdbcTemplate = new JdbcTemplate(dataSource);
     }
 
-    public void insert(final PublishableSnapshotFile snapshotFile, final byte[] payload) {
+    public void insert(final PublishableNrtmFile snapshotFile, final byte[] payload) {
         final String sql = """
             INSERT INTO snapshot_file (version_id, name, hash, payload)
             VALUES (?, ?, ?, ?)

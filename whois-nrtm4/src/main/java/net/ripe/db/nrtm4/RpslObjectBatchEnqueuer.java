@@ -53,7 +53,7 @@ public class RpslObjectBatchEnqueuer {
             @Override
             public void run() {
                 final int done = complete.get();
-                LOGGER.info("NRTM RpslQueue {} of {} ({}%). Queue size {}", done, total, Math.round((float) (done * 100) / (float) total), queueSize.get());
+                LOGGER.info("NRTM RpslQueue {} of {} ({}%). Queue size {}", done, total, Math.floor((float) (done * 100) / (float) total), queueSize.get());
             }
         }, 0, 2000);
         try {

@@ -1,16 +1,20 @@
 package net.ripe.db.nrtm4;
 
 import net.ripe.db.nrtm4.dao.SourceRepository;
-import net.ripe.db.nrtm4.domain.PublishableSnapshotFile;
+import net.ripe.db.nrtm4.domain.PublishableNrtmFile;
+import net.ripe.db.nrtm4.util.NrtmFileUtil;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import java.io.ByteArrayOutputStream;
+import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.OutputStream;
 import java.nio.charset.StandardCharsets;
 import java.util.Collection;
+import java.util.zip.GZIPInputStream;
 
 import static net.ripe.db.nrtm4.domain.NrtmDocumentType.SNAPSHOT;
 import static net.ripe.db.whois.common.dao.jdbc.JdbcRpslObjectOperations.loadScripts;
@@ -37,18 +41,15 @@ public class SnapshotFileGeneratorIntegrationTest extends AbstractNrtm4Integrati
     @Autowired
     private NrtmFileService nrtmFileService;
 
-    @Autowired
-    private NrtmFileStore nrtmFileStore;
-
     @Test
     public void snapshot_file_is_generated_and_written_to_disk() throws IOException {
         loadScripts(whoisTemplate, "nrtm_sample_sm.sql");
         sourceRepository.createSources();
         final String sessionID;
         {
-            final Collection<PublishableSnapshotFile> psfList = snapshotFileGenerator.createSnapshots();
+            final Collection<PublishableNrtmFile> psfList = snapshotFileGenerator.createSnapshots();
             assertThat(psfList.size(), is(2));
-            final PublishableSnapshotFile snapshotFile = psfList.stream().filter(psf -> psf.getSourceModel().getName().toString().equals("TEST")).findFirst().orElseThrow();
+            final PublishableNrtmFile snapshotFile = psfList.stream().filter(psf -> psf.getSourceModel().getName().toString().equals("TEST")).findFirst().orElseThrow();
             assertThat(snapshotFile.getVersion(), is(1L));
             sessionID = snapshotFile.getSessionID();
             assertThat(sessionID, is(notNullValue()));
@@ -57,7 +58,7 @@ public class SnapshotFileGeneratorIntegrationTest extends AbstractNrtm4Integrati
             assertThat(snapshotFile.getNrtmVersion(), is(4));
             assertThat(snapshotFile.getType(), is(SNAPSHOT));
             final var bos = new ByteArrayOutputStream();
-            nrtmFileStore.streamFromGZFile(snapshotFile.getSessionID(), snapshotFile.getFileName(), bos);
+            streamFromGZFile("/tmp", snapshotFile.getSessionID(), snapshotFile.getFileName(), bos);
             final var expected = """
                 {
                   "nrtm_version" : 4,
@@ -81,9 +82,9 @@ public class SnapshotFileGeneratorIntegrationTest extends AbstractNrtm4Integrati
         sourceRepository.createSources();
         final String sessionID;
         {
-            final Collection<PublishableSnapshotFile> psfList = snapshotFileGenerator.createSnapshots();
+            final Collection<PublishableNrtmFile> psfList = snapshotFileGenerator.createSnapshots();
             assertThat(psfList.size(), is(2));
-            final PublishableSnapshotFile snapshotFile = psfList.stream().filter(psf -> psf.getSourceModel().getName().toString().equals("TEST")).findFirst().orElseThrow();
+            final PublishableNrtmFile snapshotFile = psfList.stream().filter(psf -> psf.getSourceModel().getName().toString().equals("TEST")).findFirst().orElseThrow();
             assertThat(snapshotFile.getVersion(), is(1L));
             sessionID = snapshotFile.getSessionID();
             assertThat(sessionID, is(notNullValue()));
@@ -97,4 +98,10 @@ public class SnapshotFileGeneratorIntegrationTest extends AbstractNrtm4Integrati
         }
     }
 
+    void streamFromGZFile(final String path, final String sessionId, final String name, final OutputStream out) throws IOException {
+        try (final FileInputStream fis =  NrtmFileUtil.getFileInputStream(path, sessionId, name)) {
+            final GZIPInputStream gzipInputStream = new GZIPInputStream(fis);
+            gzipInputStream.transferTo(out);
+        }
+    }
 }

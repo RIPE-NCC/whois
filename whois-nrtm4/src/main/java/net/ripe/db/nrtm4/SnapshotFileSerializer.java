@@ -6,7 +6,7 @@ import com.fasterxml.jackson.core.util.DefaultIndenter;
 import com.fasterxml.jackson.core.util.DefaultPrettyPrinter;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import net.ripe.db.nrtm4.domain.NrtmDocumentType;
-import net.ripe.db.nrtm4.domain.PublishableSnapshotFile;
+import net.ripe.db.nrtm4.domain.PublishableNrtmFile;
 import net.ripe.db.nrtm4.domain.RpslObjectData;
 import net.ripe.db.whois.common.rpsl.Dummifier;
 import net.ripe.db.whois.common.rpsl.RpslObject;
@@ -36,7 +36,7 @@ public class SnapshotFileSerializer {
     }
 
     public void writeObjectQueueAsSnapshot(
-        final PublishableSnapshotFile snapshotFile,
+        final PublishableNrtmFile snapshotFile,
         final LinkedBlockingQueue<RpslObjectData> queue,
         final OutputStream outputStream
     ) throws IOException, InterruptedException {
