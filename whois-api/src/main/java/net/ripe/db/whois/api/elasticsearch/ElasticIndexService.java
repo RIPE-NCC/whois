@@ -100,13 +100,17 @@ public class ElasticIndexService {
         }
     }
 
-    protected void deleteEntry(final int objectId) throws IOException {
+    protected void deleteEntry(final int objectId) {
         if (!isElasticRunning()) {
            return;
         }
 
-        final DeleteRequest request = new DeleteRequest(whoisAliasIndex, String.valueOf(objectId));
-        client.delete(request, RequestOptions.DEFAULT);
+        try {
+            final DeleteRequest request = new DeleteRequest(whoisAliasIndex, String.valueOf(objectId));
+            client.delete(request, RequestOptions.DEFAULT);
+        }  catch (Exception ioe) {
+            LOGGER.error("Failed to delete ES index object id {}: {}", objectId, ioe);
+        }
     }
 
     protected void deleteAll() throws IOException {
