@@ -62,7 +62,7 @@ public class ElasticFullTextIndex {
     @SchedulerLock(name = TASK_NAME)
     public void scheduledUpdate() {
         if (!elasticIndexService.isEnabled()) {
-            LOGGER.debug("Elasticsearch is not enabled");
+            LOGGER.warn("Elasticsearch is not enabled");
             return;
         }
 
