@@ -68,17 +68,17 @@ public class ElasticIndexService {
 
     public boolean isEnabled() {
         if (!isElasticRunning()) {
-            LOGGER.debug("Elasticsearch cluster is not running");
+            LOGGER.error("Elasticsearch cluster is not running");
             return false;
         }
 
         if (!isWhoisIndexExist()) {
-            LOGGER.debug("Elasticsearch index does not exist");
+            LOGGER.error("Elasticsearch index does not exist");
             return false;
         }
 
         if (!isMetaIndexExist()) {
-            LOGGER.debug("Elasticsearch meta index does not exists");
+            LOGGER.error("Elasticsearch meta index does not exists");
             return false;
         }
 
@@ -100,13 +100,17 @@ public class ElasticIndexService {
         }
     }
 
-    protected void deleteEntry(final int objectId) throws IOException {
+    protected void deleteEntry(final int objectId) {
         if (!isElasticRunning()) {
            return;
         }
 
-        final DeleteRequest request = new DeleteRequest(whoisAliasIndex, String.valueOf(objectId));
-        client.delete(request, RequestOptions.DEFAULT);
+        try {
+            final DeleteRequest request = new DeleteRequest(whoisAliasIndex, String.valueOf(objectId));
+            client.delete(request, RequestOptions.DEFAULT);
+        }  catch (Exception ioe) {
+            LOGGER.error("Failed to delete ES index object id {}: {}", objectId, ioe);
+        }
     }
 
     protected void deleteAll() throws IOException {
@@ -169,7 +173,7 @@ public class ElasticIndexService {
         try {
             return client !=null && client.ping(RequestOptions.DEFAULT);
         } catch (Exception e) {
-            LOGGER.info("ElasticSearch is not running, caught {}: {}", e.getClass().getName(), e.getMessage());
+            LOGGER.error("ElasticSearch is not running, caught {}: {}", e.getClass().getName(), e.getMessage());
             return false;
         }
     }
