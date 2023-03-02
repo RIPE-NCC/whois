@@ -1088,6 +1088,20 @@ public class WhoisRdapServiceTestIntegration extends AbstractRdapIntegrationTest
     }
 
     @Test
+    public void not_found() {
+        try {
+            createResource("test")
+                    .request(MediaType.APPLICATION_JSON_TYPE)
+                    .get(RdapObject.class);
+            fail();
+        } catch (NotFoundException e) {
+            assertErrorStatus(e, 404);
+            assertErrorTitle(e, "HTTP 404 Not Found");
+        }
+    }
+
+
+    @Test
     public void domain_not_found() {
         try {
             createResource("domain/10.in-addr.arpa")
