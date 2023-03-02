@@ -10,6 +10,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import javax.servlet.http.HttpServletResponse;
+import javax.ws.rs.NotAcceptableException;
+import javax.ws.rs.NotAllowedException;
 import javax.ws.rs.NotFoundException;
 import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.Response;
@@ -49,6 +51,12 @@ public class RdapExceptionMapper implements ExceptionMapper<Exception> {
         if (exception instanceof NotFoundException) {
             // invalid path requested
             return createErrorResponse(HttpServletResponse.SC_NOT_FOUND, exception.getMessage());
+        }
+        if (exception instanceof NotAcceptableException) {
+            return createErrorResponse(HttpServletResponse.SC_NOT_ACCEPTABLE, exception.getMessage());
+        }
+        if (exception instanceof NotAllowedException) {
+            return createErrorResponse(HttpServletResponse.SC_METHOD_NOT_ALLOWED, exception.getMessage());
         }
 
 
