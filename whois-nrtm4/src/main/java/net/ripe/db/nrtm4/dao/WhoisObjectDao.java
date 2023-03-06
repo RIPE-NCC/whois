@@ -1,11 +1,14 @@
 package net.ripe.db.nrtm4.dao;
 
 import net.ripe.db.nrtm4.domain.ObjectData;
+import net.ripe.db.whois.common.dao.jdbc.JdbcRpslObjectOperations;
+import net.ripe.db.whois.common.domain.serials.SerialEntry;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.PreparedStatementCallback;
 import org.springframework.stereotype.Repository;
 
+import javax.annotation.CheckForNull;
 import javax.sql.DataSource;
 import java.sql.ResultSet;
 import java.util.HashMap;
@@ -21,6 +24,11 @@ public class WhoisObjectDao {
 
     WhoisObjectDao(@Qualifier("whoisSlaveDataSource") final DataSource dataSource) {
         this.jdbcTemplate = new JdbcTemplate(dataSource);
+    }
+
+    @CheckForNull
+    public List<SerialEntry> getSerialEntriesSince(final int serialId) {
+        return JdbcRpslObjectOperations.getSerialEntriesSince(jdbcTemplate, serialId);
     }
 
     public Integer getLastSerialId() {

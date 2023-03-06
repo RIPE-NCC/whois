@@ -2,6 +2,7 @@ package net.ripe.db.nrtm4.dao;
 
 import net.ripe.db.nrtm4.domain.SnapshotState;
 import net.ripe.db.nrtm4.domain.ObjectData;
+import net.ripe.db.whois.common.domain.serials.SerialEntry;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Isolation;
 import org.springframework.transaction.annotation.Propagation;
@@ -20,6 +21,10 @@ public class WhoisObjectRepository {
         final WhoisObjectDao whoisObjectDao
     ) {
         this.whoisObjectDao = whoisObjectDao;
+    }
+
+    public List<SerialEntry> getSerialEntriesSince(final int serialId) {
+        return whoisObjectDao.getSerialEntriesSince(serialId);
     }
 
     @Transactional(isolation = Isolation.REPEATABLE_READ, propagation = Propagation.REQUIRES_NEW)
