@@ -116,7 +116,6 @@ public class SnapshotFileGenerator {
             queueReaders.add(queueReader);
         }
         final Thread queueWriter = new Thread(() -> {
-            LOGGER.info("NRTM START enqueuing {} objects", state.objectData().size());
             try {
                 final int total = state.objectData().size();
                 final Timer timer = new Timer(true);
@@ -134,7 +133,6 @@ public class SnapshotFileGenerator {
                 LOGGER.info("NRTM Exception enqueuing state", e);
                 Thread.currentThread().interrupt();
             }
-            LOGGER.info("NRTM END enqueuing {} objects", state.objectData().size());
         });
         queueWriter.start();
         for (final Thread queueReader : queueReaders) {
