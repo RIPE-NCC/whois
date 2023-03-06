@@ -27,24 +27,24 @@ public class RpslObjectEnqueuer {
     public static final RpslObjectData POISON_PILL = new RpslObjectData(0, 0, null);
 
     private final WhoisObjectRepository whoisObjectRepository;
-    final AtomicInteger complete;
+    private final AtomicInteger numberOfEnqueuedObjects;
 
     RpslObjectEnqueuer(
         final WhoisObjectRepository whoisObjectRepository
     ) {
         this.whoisObjectRepository = whoisObjectRepository;
-        complete = new AtomicInteger(0);
+        numberOfEnqueuedObjects = new AtomicInteger(0);
     }
 
     void enrichAndEnqueueRpslObjects(final SnapshotState snapshotState, final Map<CIString, LinkedBlockingQueue<RpslObjectData>> queueMap) throws InterruptedException {
         final List<List<ObjectData>> batches = Lists.partition(snapshotState.objectData(), BATCH_SIZE);
-        complete.set(0);
+        numberOfEnqueuedObjects.set(0);
         try {
             //for (final List<ObjectData> objectBatch : batches) {
             batches.parallelStream().forEach(objectBatch -> {
                 final Map<Integer, String> rpslMap = whoisObjectRepository.findRpslMapForObjects(objectBatch);
                 for (final ObjectData object : objectBatch) {
-                    complete.incrementAndGet();
+                    numberOfEnqueuedObjects.incrementAndGet();
                     final String rpsl = rpslMap.get(object.objectId());
                     final RpslObject rpslObject = RpslObject.parse(rpsl);
                     final LinkedBlockingQueue<RpslObjectData> queue = queueMap.get(rpslObject.getValueForAttribute(AttributeType.SOURCE));
@@ -77,6 +77,6 @@ public class RpslObjectEnqueuer {
     }
 
     int getDoneCount() {
-        return complete.get();
+        return numberOfEnqueuedObjects.get();
     }
 }
