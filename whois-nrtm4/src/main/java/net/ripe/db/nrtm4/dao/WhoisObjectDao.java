@@ -27,8 +27,8 @@ public class WhoisObjectDao {
     }
 
     @CheckForNull
-    public List<SerialEntry> getSerialEntriesSince(final int serialId) {
-        return JdbcRpslObjectOperations.getSerialEntriesSince(jdbcTemplate, serialId);
+    public List<SerialEntry> getSerialEntriesBetween(final int serialId, final int serialIdTo) {
+        return JdbcRpslObjectOperations.getSerialEntriesBetween(jdbcTemplate, serialId, serialIdTo);
     }
 
     public Integer getLastSerialId() {

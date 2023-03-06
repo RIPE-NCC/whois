@@ -21,11 +21,11 @@ public abstract class PublishableNrtmDocument {
     PublishableNrtmDocument(
         final NrtmVersionInfo version
     ) {
-        this.versionId = version.getId();
-        this.type = version.getType();
-        this.source = version.getSource();
-        this.sessionID = version.getSessionID();
-        this.version = version.getVersion();
+        this.versionId = version.id();
+        this.type = version.type();
+        this.source = version.source();
+        this.sessionID = version.sessionID();
+        this.version = version.version();
     }
 
     public Long getVersionId() {

@@ -66,7 +66,7 @@ public class SnapshotFileGenerator {
             LOGGER.info("Initializing NRTM");
             for (final NrtmSourceModel source : sourceRepository.getAllSources()) {
                 final NrtmVersionInfo version = nrtmVersionInfoRepository.createInitialVersion(source, state.serialId());
-                nrtmFileService.createNrtmSessionDirectory(version.getSessionID());
+                nrtmFileService.createNrtmSessionDirectory(version.sessionID());
                 sourceVersions.add(version);
             }
         }
@@ -76,7 +76,7 @@ public class SnapshotFileGenerator {
         final Map<CIString, LinkedBlockingQueue<RpslObjectData>> queueMap = new HashMap<>();
         final Set<PublishableNrtmFile> publishedFiles = new HashSet<>();
         for (final NrtmVersionInfo sourceVersion : sourceVersions) {
-            LOGGER.info("Creating snapshot for {}", sourceVersion.getSource().getName());
+            LOGGER.info("Creating snapshot for {}", sourceVersion.source().getName());
             final PublishableNrtmFile snapshotFile = new PublishableNrtmFile(sourceVersion);
             final String fileName = NrtmFileUtil.newGzFileName(snapshotFile);
             snapshotFile.setFileName(fileName);

@@ -1,7 +1,7 @@
 package net.ripe.db.nrtm4.dao;
 
-import net.ripe.db.nrtm4.domain.SnapshotState;
 import net.ripe.db.nrtm4.domain.ObjectData;
+import net.ripe.db.nrtm4.domain.SnapshotState;
 import net.ripe.db.whois.common.domain.serials.SerialEntry;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Isolation;
@@ -23,8 +23,8 @@ public class WhoisObjectRepository {
         this.whoisObjectDao = whoisObjectDao;
     }
 
-    public List<SerialEntry> getSerialEntriesSince(final int serialId) {
-        return whoisObjectDao.getSerialEntriesSince(serialId);
+    public List<SerialEntry> getSerialEntriesBetween(final int serialId, final int serialIdTo) {
+        return whoisObjectDao.getSerialEntriesBetween(serialId, serialIdTo);
     }
 
     @Transactional(isolation = Isolation.REPEATABLE_READ, propagation = Propagation.REQUIRES_NEW)
