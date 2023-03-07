@@ -82,14 +82,14 @@ public class SnapshotFileGenerator {
         final Map<CIString, LinkedBlockingQueue<RpslObjectData>> queueMap = new HashMap<>();
         final Set<PublishableNrtmFile> publishedFiles = new HashSet<>();
         for (final NrtmVersionInfo sourceVersion : sourceVersions) {
-            LOGGER.info("NRTM creating snapshot for {}", sourceVersion.getSource().getName());
+            LOGGER.info("Creating snapshot for {}", sourceVersion.getSource().getName());
             final LinkedBlockingQueue<RpslObjectData> queue = new LinkedBlockingQueue<>(QUEUE_CAPACITY);
             final PublishableNrtmFile snapshotFile = new PublishableNrtmFile(sourceVersion);
             final ByteArrayOutputStream bos = new ByteArrayOutputStream();
             queueMap.put(sourceVersion.getSource().getName(), queue);
             publishedFiles.add(snapshotFile);
             final Thread queueReader = new Thread(() -> {
-                LOGGER.info("NRTM {} writing queue to snapshot", sourceVersion.getSource().getName());
+                LOGGER.info("Writing {} queue to snapshot", sourceVersion.getSource().getName());
                 try (final GZIPOutputStream gzOut = new GZIPOutputStream(bos)) {
                     snapshotFileSerializer.writeObjectQueueAsSnapshot(snapshotFile, queue, gzOut);
                     gzOut.close();
@@ -102,7 +102,7 @@ public class SnapshotFileGenerator {
                     snapshotFileRepository.insert(snapshotFile, bos.toByteArray());
                     LOGGER.info("Wrote {} to DB {}", snapshotFile.getFileName(), stopwatch);
                 } catch (final Exception e) {
-                    LOGGER.info("NRTM {} Exception writing snapshot", sourceVersion.getSource().getName(), e);
+                    LOGGER.info("Exception writing snapshot {}", sourceVersion.getSource().getName(), e);
                     Thread.currentThread().interrupt();
                     throw new RuntimeException(e);
                 }
@@ -119,13 +119,13 @@ public class SnapshotFileGenerator {
                     @Override
                     public void run() {
                         final int done = rpslObjectEnqueuer.getDoneCount();
-                        LOGGER.info("NRTM RpslQueue {} of {} ({}%). Queue size {}", done, total, Math.round(done * 1000. / total) / 10., whoisQueue.size());
+                        LOGGER.info("Enqueued {} RPSL objects out of {} ({}%). Queue size {}", done, total, Math.round(done * 1000. / total) / 10., whoisQueue.size());
                     }
                 }, 0, 2000);
                 rpslObjectEnqueuer.enrichAndEnqueueRpslObjects(state, queueMap);
                 timer.cancel();
             } catch (final Exception e) {
-                LOGGER.info("NRTM Exception enqueuing state", e);
+                LOGGER.info("Exception enqueuing state", e);
                 Thread.currentThread().interrupt();
             }
         });
@@ -134,11 +134,11 @@ public class SnapshotFileGenerator {
             try {
                 queueReader.join();
             } catch (final InterruptedException e) {
-                LOGGER.info("NRTM writer thread interrupted", e);
+                LOGGER.info("Writer thread interrupted", e);
                 Thread.currentThread().interrupt();
             }
         }
-        LOGGER.info("NRTM generation complete {}", stopwatchRoot);
+        LOGGER.info("Generation complete {}", stopwatchRoot);
         return publishedFiles;
     }
 
