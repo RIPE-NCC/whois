@@ -59,7 +59,6 @@ public class RpslObjectEnqueuer {
         private final SnapshotState snapshotState;
         private final Map<CIString, LinkedBlockingQueue<RpslObjectData>> queueMap;
         private final CIString whoisSource;
-        private final AtomicInteger numberOfEnqueuedObjects;
 
         RpslObjectQueueRunner(
             final WhoisObjectRepository whoisObjectRepository,
@@ -71,10 +70,10 @@ public class RpslObjectEnqueuer {
             this.snapshotState = snapshotState;
             this.queueMap = queueMap;
             this.whoisSource = whoisSource;
-            numberOfEnqueuedObjects = new AtomicInteger(0);
         }
 
         public void run() {
+            final AtomicInteger numberOfEnqueuedObjects = new AtomicInteger(0);
             final List<List<ObjectData>> batches = Lists.partition(snapshotState.objectData(), BATCH_SIZE);
             final int total = snapshotState.objectData().size();
             final Timer timer = new Timer(true);
@@ -97,19 +96,20 @@ public class RpslObjectEnqueuer {
                         final LinkedBlockingQueue<RpslObjectData> queue = queueMap.get(rpslObject.getValueForAttribute(AttributeType.SOURCE));
                         if (queue == null) {
                             final String msg = "RPSL object declares an unknown source attribute";
-                            LOGGER.error(msg + " " + rpslObject.getValueForAttribute(AttributeType.SOURCE) + " known: " + Arrays.toString(queueMap.keySet().toArray()));
+                            LOGGER.error("{}: {} known sources: {}", msg, rpslObject.getValueForAttribute(AttributeType.SOURCE), Arrays.toString(queueMap.keySet().toArray()));
                             throw new NrtmDataInconsistencyException(msg);
                         }
                         try {
                             queue.put(new RpslObjectData(object.objectId(), object.sequenceId(), rpslObject));
                         } catch (final InterruptedException e) {
                             LOGGER.error("Interrupted " + rpslObject.getValueForAttribute(AttributeType.SOURCE));
-                            throw new RuntimeException(e);
+                            Thread.currentThread().interrupt();
                         }
                     }
                 });
             } catch (final Exception e) {
-                throw new RuntimeException(e);
+                LOGGER.warn("Exception thrown", e);
+                Thread.currentThread().interrupt();
             } finally {
                 timer.cancel();
                 for (final LinkedBlockingQueue<RpslObjectData> queue : queueMap.values()) {
