@@ -40,7 +40,7 @@ public abstract class PublishableNrtmDocument {
         return type;
     }
 
-    public NrtmSourceModel getSourceModel() {
+    public NrtmSourceModel getSource() {
         return source;
     }
 

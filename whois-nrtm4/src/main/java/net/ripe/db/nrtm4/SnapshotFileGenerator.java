@@ -17,7 +17,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
-import java.io.ByteArrayOutputStream;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -28,7 +27,6 @@ import java.util.Set;
 import java.util.Timer;
 import java.util.TimerTask;
 import java.util.concurrent.LinkedBlockingQueue;
-import java.util.zip.GZIPOutputStream;
 
 
 @Service
@@ -41,8 +39,8 @@ public class SnapshotFileGenerator {
     private final NrtmFileService nrtmFileService;
     private final NrtmVersionInfoRepository nrtmVersionInfoRepository;
     private final RpslObjectEnqueuer rpslObjectEnqueuer;
+    private final SnapshotFileRunner snapshotFileRunner;
     private final SnapshotFileRepository snapshotFileRepository;
-    private final SnapshotFileSerializer snapshotFileSerializer;
     private final SourceRepository sourceRepository;
 
     public SnapshotFileGenerator(
@@ -50,16 +48,16 @@ public class SnapshotFileGenerator {
         final NrtmFileService nrtmFileService,
         final NrtmVersionInfoRepository nrtmVersionInfoRepository,
         final RpslObjectEnqueuer rpslObjectEnqueuer,
+        final SnapshotFileRunner snapshotFileRunner,
         final SnapshotFileRepository snapshotFileRepository,
-        final SnapshotFileSerializer snapshotFileSerializer,
         final SourceRepository sourceRepository
     ) {
         this.whoisSource = whoisSource;
         this.nrtmFileService = nrtmFileService;
         this.nrtmVersionInfoRepository = nrtmVersionInfoRepository;
         this.rpslObjectEnqueuer = rpslObjectEnqueuer;
+        this.snapshotFileRunner = snapshotFileRunner;
         this.snapshotFileRepository = snapshotFileRepository;
-        this.snapshotFileSerializer = snapshotFileSerializer;
         this.sourceRepository = sourceRepository;
     }
 
@@ -83,30 +81,13 @@ public class SnapshotFileGenerator {
         final Set<PublishableNrtmFile> publishedFiles = new HashSet<>();
         for (final NrtmVersionInfo sourceVersion : sourceVersions) {
             LOGGER.info("Creating snapshot for {}", sourceVersion.getSource().getName());
-            final LinkedBlockingQueue<RpslObjectData> queue = new LinkedBlockingQueue<>(QUEUE_CAPACITY);
             final PublishableNrtmFile snapshotFile = new PublishableNrtmFile(sourceVersion);
-            final ByteArrayOutputStream bos = new ByteArrayOutputStream();
-            queueMap.put(sourceVersion.getSource().getName(), queue);
+            final String fileName = NrtmFileUtil.newGzFileName(snapshotFile);
+            snapshotFile.setFileName(fileName);
             publishedFiles.add(snapshotFile);
-            final Thread queueReader = new Thread(() -> {
-                LOGGER.info("Writing {} queue to snapshot", sourceVersion.getSource().getName());
-                try (final GZIPOutputStream gzOut = new GZIPOutputStream(bos)) {
-                    snapshotFileSerializer.writeObjectQueueAsSnapshot(snapshotFile, queue, gzOut);
-                    gzOut.close();
-                    final String fileName = NrtmFileUtil.newGzFileName(snapshotFile);
-                    snapshotFile.setFileName(fileName);
-                    snapshotFile.setHash(nrtmFileService.calculateSha256(bos));
-                    final Stopwatch stopwatch = Stopwatch.createStarted();
-                    nrtmFileService.writeToDisk(snapshotFile, bos);
-                    LOGGER.info("Wrote {} {}/{} to disk in {}", snapshotFile.getSourceModel().getName(), snapshotFile.getSessionID(), snapshotFile.getFileName(), stopwatch);
-                    snapshotFileRepository.insert(snapshotFile, bos.toByteArray());
-                    LOGGER.info("Wrote {} to DB {}", snapshotFile.getFileName(), stopwatch);
-                } catch (final Exception e) {
-                    LOGGER.info("Exception writing snapshot {}", sourceVersion.getSource().getName(), e);
-                    Thread.currentThread().interrupt();
-                    throw new RuntimeException(e);
-                }
-            });
+            final LinkedBlockingQueue<RpslObjectData> queue = new LinkedBlockingQueue<>(QUEUE_CAPACITY);
+            queueMap.put(snapshotFile.getSource().getName(), queue);
+            final Thread queueReader = new Thread(snapshotFileRunner.getRunner(snapshotFile, queue));
             queueReader.start();
             queueReaders.add(queueReader);
         }

@@ -48,18 +48,19 @@ public class SnapshotFileGeneratorIntegrationTest extends AbstractNrtm4Integrati
     @Test
     public void snapshot_file_is_generated_and_written_to_disk() throws IOException {
         loadScripts(whoisTemplate, "nrtm_sample_sm.sql");
+        System.setProperty("nrtm.file.path", "/tmp");
         sourceRepository.createSources();
         final String sessionID;
         {
             final var state = whoisObjectRepository.getSnapshotState();
             final Collection<PublishableNrtmFile> psfList = snapshotFileGenerator.createSnapshots(state);
             assertThat(psfList.size(), is(2));
-            final PublishableNrtmFile snapshotFile = psfList.stream().filter(psf -> psf.getSourceModel().getName().toString().equals("TEST")).findFirst().orElseThrow();
+            final PublishableNrtmFile snapshotFile = psfList.stream().filter(psf -> psf.getSource().getName().toString().equals("TEST")).findFirst().orElseThrow();
             assertThat(snapshotFile.getVersion(), is(1L));
             sessionID = snapshotFile.getSessionID();
             assertThat(sessionID, is(notNullValue()));
-            assertThat(snapshotFile.getSourceModel().getId(), is(sourceRepository.getWhoisSource().orElseThrow().getId()));
-            assertThat(snapshotFile.getSourceModel().getName(), is(sourceRepository.getWhoisSource().orElseThrow().getName()));
+            assertThat(snapshotFile.getSource().getId(), is(sourceRepository.getWhoisSource().orElseThrow().getId()));
+            assertThat(snapshotFile.getSource().getName(), is(sourceRepository.getWhoisSource().orElseThrow().getName()));
             assertThat(snapshotFile.getNrtmVersion(), is(4));
             assertThat(snapshotFile.getType(), is(SNAPSHOT));
             final var bos = new ByteArrayOutputStream();
@@ -90,12 +91,12 @@ public class SnapshotFileGeneratorIntegrationTest extends AbstractNrtm4Integrati
             final var state = whoisObjectRepository.getSnapshotState();
             final Collection<PublishableNrtmFile> psfList = snapshotFileGenerator.createSnapshots(state);
             assertThat(psfList.size(), is(2));
-            final PublishableNrtmFile snapshotFile = psfList.stream().filter(psf -> psf.getSourceModel().getName().toString().equals("TEST")).findFirst().orElseThrow();
+            final PublishableNrtmFile snapshotFile = psfList.stream().filter(psf -> psf.getSource().getName().toString().equals("TEST")).findFirst().orElseThrow();
             assertThat(snapshotFile.getVersion(), is(1L));
             sessionID = snapshotFile.getSessionID();
             assertThat(sessionID, is(notNullValue()));
-            assertThat(snapshotFile.getSourceModel().getId(), is(sourceRepository.getWhoisSource().orElseThrow().getId()));
-            assertThat(snapshotFile.getSourceModel().getName(), is(sourceRepository.getWhoisSource().orElseThrow().getName()));
+            assertThat(snapshotFile.getSource().getId(), is(sourceRepository.getWhoisSource().orElseThrow().getId()));
+            assertThat(snapshotFile.getSource().getName(), is(sourceRepository.getWhoisSource().orElseThrow().getName()));
             assertThat(snapshotFile.getNrtmVersion(), is(4));
             assertThat(snapshotFile.getType(), is(SNAPSHOT));
             //final var bos = new ByteArrayOutputStream();
