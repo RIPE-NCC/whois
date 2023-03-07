@@ -1,4 +1,4 @@
-package net.ripe.db.nrtm4;
+package net.ripe.db.nrtm4.domain;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;

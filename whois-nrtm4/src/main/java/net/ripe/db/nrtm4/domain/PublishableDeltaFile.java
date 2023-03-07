@@ -1,7 +1,6 @@
 package net.ripe.db.nrtm4.domain;
 
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
-import net.ripe.db.nrtm4.DeltaChange;
 
 import java.util.List;
 

@@ -117,7 +117,7 @@ public class SnapshotFileGenerator {
                 gzOut.close();
                 LOGGER.info("Source {} snapshot file {}/{}", snapshotFile.getSource().getName(), snapshotFile.getSessionID(), snapshotFile.getFileName());
                 Stopwatch stopwatch = Stopwatch.createStarted();
-                snapshotFile.setHash(nrtmFileService.calculateSha256(bos));
+                snapshotFile.setHash(NrtmFileUtil.calculateSha256(bos));
                 LOGGER.info("Calculated hash for {} in {}", snapshotFile.getSource().getName(), stopwatch);
                 stopwatch = Stopwatch.createStarted();
                 nrtmFileService.writeToDisk(snapshotFile, bos);

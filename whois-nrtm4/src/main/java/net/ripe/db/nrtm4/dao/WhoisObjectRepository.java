@@ -23,8 +23,21 @@ public class WhoisObjectRepository {
         this.whoisObjectDao = whoisObjectDao;
     }
 
-    public List<SerialEntry> getSerialEntriesBetween(final int serialId, final int serialIdTo) {
-        return whoisObjectDao.getSerialEntriesBetween(serialId, serialIdTo);
+    /**
+     * Get a list of changes from the Whois database which happened after <tt>serialIdFrom</tt> up to and including
+     * <tt>serialIdTo</tt>
+     *
+     * @param serialIdFrom Ignore changes before and including this serial
+     * @param serialIdTo Find changes up to and including this serial
+     * @return A list of {@link SerialEntry SerialEntry} objects.
+     */
+    public List<SerialEntry> getSerialEntriesBetween(final int serialIdFrom, final int serialIdTo) {
+        if (serialIdTo == serialIdFrom) {
+            return List.of();
+        } else if (serialIdTo < serialIdFrom) {
+            throw new IllegalArgumentException("serialIdTo must be higher than serialIdFrom");
+        }
+        return whoisObjectDao.getSerialEntriesBetween(serialIdFrom, serialIdTo);
     }
 
     @Transactional(isolation = Isolation.REPEATABLE_READ, propagation = Propagation.REQUIRES_NEW)

@@ -1,17 +1,19 @@
 package net.ripe.db.nrtm4.dao;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import net.ripe.db.nrtm4.NrtmFileService;
 import net.ripe.db.nrtm4.domain.DeltaFile;
-import org.springframework.beans.factory.annotation.Autowired;
+import net.ripe.db.nrtm4.domain.PublishableDeltaFile;
+import net.ripe.db.nrtm4.util.NrtmFileUtil;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
-import org.springframework.jdbc.support.GeneratedKeyHolder;
-import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.stereotype.Repository;
 
 import javax.sql.DataSource;
-import java.sql.PreparedStatement;
-import java.sql.Statement;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.util.Optional;
 
 
@@ -19,6 +21,7 @@ import java.util.Optional;
 public class DeltaFileRepository {
 
     private final JdbcTemplate jdbcTemplate;
+    private final NrtmFileService nrtmFileService;
     private final RowMapper<DeltaFile> rowMapper = (rs, rowNum) ->
         new DeltaFile(
             rs.getLong(1),
@@ -29,33 +32,40 @@ public class DeltaFileRepository {
             rs.getLong(6)
         );
 
-    @Autowired
-    public DeltaFileRepository(@Qualifier("nrtmDataSource") final DataSource dataSource) {
+    public DeltaFileRepository(
+        @Qualifier("nrtmDataSource") final DataSource dataSource,
+        final NrtmFileService nrtmFileService
+    ) {
         this.jdbcTemplate = new JdbcTemplate(dataSource);
+        this.nrtmFileService = nrtmFileService;
     }
 
-    public DeltaFile save(
+    public void save(final PublishableDeltaFile deltaFile, final String payload) {
+        final ObjectMapper objectMapper = new ObjectMapper();
+        try {
+
+            final ByteArrayOutputStream bos = new ByteArrayOutputStream(json.length());
+            bos.write(json.getBytes(StandardCharsets.UTF_8));
+            bos.close();
+            deltaFile.setHash(NrtmFileUtil.calculateSha256(bos));
+            save(deltaFile.getVersionId(), deltaFile.getFileName(), deltaFile.getHash(), payload);
+        } catch (final IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    private void save(
         final long versionId,
         final String name,
         final String hash,
         final String payload
     ) {
-        final KeyHolder keyHolder = new GeneratedKeyHolder();
         final long now = System.currentTimeMillis();
-        jdbcTemplate.update(connection -> {
-                final String sql = "" +
-                    "INSERT INTO delta_file (version_id, name, hash, payload, created) " +
-                    "VALUES (?, ?, ?, ?, ?)";
-                final PreparedStatement pst = connection.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS);
-                pst.setLong(1, versionId);
-                pst.setString(2, name);
-                pst.setString(3, hash);
-                pst.setString(4, payload);
-                pst.setLong(5, now);
-                return pst;
-            }, keyHolder
-        );
-        return new DeltaFile(keyHolder.getKeyAs(Long.class), versionId, name, hash, payload, now);
+        final String sql = """
+            INSERT INTO delta_file (version_id, name, hash, payload, created)
+            VALUES (?, ?, ?, ?, ?)
+            """;
+        jdbcTemplate.update(sql, versionId, name, hash, payload, now);
     }
 
     public Optional<DeltaFile> getByName(final String sessionId, final String name) {

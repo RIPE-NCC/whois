@@ -19,11 +19,7 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
-import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
 import java.util.Optional;
-
-import static net.ripe.db.nrtm4.util.ByteArrayUtil.byteArrayToHexString;
 
 
 @Service
@@ -56,17 +52,6 @@ public class NrtmFileService {
             LOGGER.error("Could not create directory for sessionID: " + sessionId);
             throw new RuntimeException("Failed to create NRTM directory " + path + " " + sessionId);
         }
-    }
-
-    String calculateSha256(final ByteArrayOutputStream out) {
-        final MessageDigest digest;
-        try {
-            digest = MessageDigest.getInstance("SHA-256");
-        } catch (final NoSuchAlgorithmException e) {
-            throw new RuntimeException(e);
-        }
-        final byte[] encodedSha256hex = digest.digest(out.toByteArray());
-        return byteArrayToHexString(encodedSha256hex);
     }
 
     public void writeToDisk(final PublishableNrtmFile file, final ByteArrayOutputStream bos) throws IOException {
