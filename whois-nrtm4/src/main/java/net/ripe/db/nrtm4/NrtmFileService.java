@@ -1,6 +1,5 @@
 package net.ripe.db.nrtm4;
 
-import com.google.common.base.Stopwatch;
 import com.google.common.util.concurrent.Monitor;
 import net.ripe.db.nrtm4.dao.SnapshotFileRepository;
 import net.ripe.db.nrtm4.domain.NrtmDocumentType;
@@ -60,7 +59,6 @@ public class NrtmFileService {
     }
 
     String calculateSha256(final ByteArrayOutputStream out) {
-        final Stopwatch stopwatch = Stopwatch.createStarted();
         final MessageDigest digest;
         try {
             digest = MessageDigest.getInstance("SHA-256");
@@ -68,17 +66,14 @@ public class NrtmFileService {
             throw new RuntimeException(e);
         }
         final byte[] encodedSha256hex = digest.digest(out.toByteArray());
-        LOGGER.info("NRTM Calculated hash in {}", stopwatch);
         return byteArrayToHexString(encodedSha256hex);
     }
 
     public void writeToDisk(final PublishableNrtmFile file, final ByteArrayOutputStream bos) throws IOException {
-        final Stopwatch stopwatch = Stopwatch.createStarted();
         final File dir = new File(path, file.getSessionID());
         final OutputStream fileOut = new BufferedOutputStream(new FileOutputStream(new File(dir, file.getFileName())), BUFFER_SIZE);
         fileOut.write(bos.toByteArray());
         fileOut.flush();
-        LOGGER.info("NRTM wrote file {} in {}", file.getFileName(), stopwatch);
     }
 
     void writeFileToStream(final String sessionId, final String name, final OutputStream out) throws IOException {

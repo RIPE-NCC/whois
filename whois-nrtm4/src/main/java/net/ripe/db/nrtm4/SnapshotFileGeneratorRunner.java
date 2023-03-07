@@ -4,7 +4,6 @@ import com.google.common.base.Stopwatch;
 import net.ripe.db.nrtm4.dao.SnapshotFileRepository;
 import net.ripe.db.nrtm4.domain.PublishableNrtmFile;
 import net.ripe.db.nrtm4.domain.RpslObjectData;
-import net.ripe.db.nrtm4.util.NrtmFileUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
@@ -15,15 +14,15 @@ import java.util.zip.GZIPOutputStream;
 
 
 @Service
-public class SnapshotFileRunner {
+public class SnapshotFileGeneratorRunner {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(SnapshotFileRunner.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(SnapshotFileGeneratorRunner.class);
 
     private final NrtmFileService nrtmFileService;
     private final SnapshotFileRepository snapshotFileRepository;
     private final SnapshotFileSerializer snapshotFileSerializer;
 
-    SnapshotFileRunner(
+    SnapshotFileGeneratorRunner(
         final NrtmFileService nrtmFileService,
         final SnapshotFileRepository snapshotFileRepository,
         final SnapshotFileSerializer snapshotFileSerializer
@@ -50,12 +49,15 @@ public class SnapshotFileRunner {
             try (final GZIPOutputStream gzOut = new GZIPOutputStream(bos)) {
                 snapshotFileSerializer.writeObjectQueueAsSnapshot(snapshotFile, queue, gzOut);
                 gzOut.close();
+                LOGGER.info("Source {} snapshot file {}/{}", snapshotFile.getSource().getName(), snapshotFile.getSessionID(), snapshotFile.getFileName());
+                Stopwatch stopwatch = Stopwatch.createStarted();
                 snapshotFile.setHash(nrtmFileService.calculateSha256(bos));
-                final Stopwatch stopwatch = Stopwatch.createStarted();
+                LOGGER.info("Calculated hash for {} in {}", snapshotFile.getSource().getName(), stopwatch);
+                stopwatch = Stopwatch.createStarted();
                 nrtmFileService.writeToDisk(snapshotFile, bos);
-                LOGGER.info("Wrote {} {}/{} to disk in {}", snapshotFile.getSource().getName(), snapshotFile.getSessionID(), snapshotFile.getFileName(), stopwatch);
+                LOGGER.info("Wrote {} to disk in {}", snapshotFile.getSource().getName(), stopwatch);
                 snapshotFileRepository.insert(snapshotFile, bos.toByteArray());
-                LOGGER.info("Wrote {} to DB {}", snapshotFile.getFileName(), stopwatch);
+                LOGGER.info("Wrote {} to DB {}", snapshotFile.getSource().getName(), stopwatch);
             } catch (final Exception e) {
                 LOGGER.warn("Exception writing snapshot {}", snapshotFile.getSource().getName(), e);
                 Thread.currentThread().interrupt();

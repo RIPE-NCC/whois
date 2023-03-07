@@ -14,7 +14,6 @@ import net.ripe.db.nrtm4.util.NrtmFileUtil;
 import net.ripe.db.whois.common.domain.CIString;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -24,8 +23,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
-import java.util.Timer;
-import java.util.TimerTask;
 import java.util.concurrent.LinkedBlockingQueue;
 
 
@@ -35,28 +32,25 @@ public class SnapshotFileGenerator {
     private static final Logger LOGGER = LoggerFactory.getLogger(SnapshotFileGenerator.class);
     private static final int QUEUE_CAPACITY = 1000;
 
-    private final String whoisSource;
     private final NrtmFileService nrtmFileService;
     private final NrtmVersionInfoRepository nrtmVersionInfoRepository;
     private final RpslObjectEnqueuer rpslObjectEnqueuer;
-    private final SnapshotFileRunner snapshotFileRunner;
+    private final SnapshotFileGeneratorRunner snapshotFileGeneratorRunner;
     private final SnapshotFileRepository snapshotFileRepository;
     private final SourceRepository sourceRepository;
 
     public SnapshotFileGenerator(
-        @Value("${whois.source}") final String whoisSource,
         final NrtmFileService nrtmFileService,
         final NrtmVersionInfoRepository nrtmVersionInfoRepository,
         final RpslObjectEnqueuer rpslObjectEnqueuer,
-        final SnapshotFileRunner snapshotFileRunner,
+        final SnapshotFileGeneratorRunner snapshotFileGeneratorRunner,
         final SnapshotFileRepository snapshotFileRepository,
         final SourceRepository sourceRepository
     ) {
-        this.whoisSource = whoisSource;
         this.nrtmFileService = nrtmFileService;
         this.nrtmVersionInfoRepository = nrtmVersionInfoRepository;
         this.rpslObjectEnqueuer = rpslObjectEnqueuer;
-        this.snapshotFileRunner = snapshotFileRunner;
+        this.snapshotFileGeneratorRunner = snapshotFileGeneratorRunner;
         this.snapshotFileRepository = snapshotFileRepository;
         this.sourceRepository = sourceRepository;
     }
@@ -87,30 +81,11 @@ public class SnapshotFileGenerator {
             publishedFiles.add(snapshotFile);
             final LinkedBlockingQueue<RpslObjectData> queue = new LinkedBlockingQueue<>(QUEUE_CAPACITY);
             queueMap.put(snapshotFile.getSource().getName(), queue);
-            final Thread queueReader = new Thread(snapshotFileRunner.getRunner(snapshotFile, queue));
+            final Thread queueReader = new Thread(snapshotFileGeneratorRunner.getRunner(snapshotFile, queue));
             queueReader.start();
             queueReaders.add(queueReader);
         }
-        final Thread queueWriter = new Thread(() -> {
-            try {
-                final int total = state.objectData().size();
-                final Timer timer = new Timer(true);
-                final LinkedBlockingQueue<RpslObjectData> whoisQueue = queueMap.get(CIString.ciString(whoisSource));
-                timer.schedule(new TimerTask() {
-                    @Override
-                    public void run() {
-                        final int done = rpslObjectEnqueuer.getDoneCount();
-                        LOGGER.info("Enqueued {} RPSL objects out of {} ({}%). Queue size {}", done, total, Math.round(done * 1000. / total) / 10., whoisQueue.size());
-                    }
-                }, 0, 2000);
-                rpslObjectEnqueuer.enrichAndEnqueueRpslObjects(state, queueMap);
-                timer.cancel();
-            } catch (final Exception e) {
-                LOGGER.info("Exception enqueuing state", e);
-                Thread.currentThread().interrupt();
-            }
-        });
-        queueWriter.start();
+        new Thread(rpslObjectEnqueuer.getRunner(state, queueMap)).start();
         for (final Thread queueReader : queueReaders) {
             try {
                 queueReader.join();
