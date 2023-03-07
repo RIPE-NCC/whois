@@ -1,6 +1,7 @@
 package net.ripe.db.nrtm4;
 
 import net.ripe.db.nrtm4.dao.SourceRepository;
+import net.ripe.db.nrtm4.dao.WhoisObjectRepository;
 import net.ripe.db.nrtm4.domain.PublishableNrtmFile;
 import net.ripe.db.nrtm4.util.NrtmFileUtil;
 import org.junit.jupiter.api.BeforeAll;
@@ -39,6 +40,9 @@ public class SnapshotFileGeneratorIntegrationTest extends AbstractNrtm4Integrati
     private SourceRepository sourceRepository;
 
     @Autowired
+    private WhoisObjectRepository whoisObjectRepository;
+
+    @Autowired
     private NrtmFileService nrtmFileService;
 
     @Test
@@ -47,7 +51,8 @@ public class SnapshotFileGeneratorIntegrationTest extends AbstractNrtm4Integrati
         sourceRepository.createSources();
         final String sessionID;
         {
-            final Collection<PublishableNrtmFile> psfList = snapshotFileGenerator.createSnapshots();
+            final var state = whoisObjectRepository.getSnapshotState();
+            final Collection<PublishableNrtmFile> psfList = snapshotFileGenerator.createSnapshots(state);
             assertThat(psfList.size(), is(2));
             final PublishableNrtmFile snapshotFile = psfList.stream().filter(psf -> psf.getSourceModel().getName().toString().equals("TEST")).findFirst().orElseThrow();
             assertThat(snapshotFile.getVersion(), is(1L));
@@ -82,7 +87,8 @@ public class SnapshotFileGeneratorIntegrationTest extends AbstractNrtm4Integrati
         sourceRepository.createSources();
         final String sessionID;
         {
-            final Collection<PublishableNrtmFile> psfList = snapshotFileGenerator.createSnapshots();
+            final var state = whoisObjectRepository.getSnapshotState();
+            final Collection<PublishableNrtmFile> psfList = snapshotFileGenerator.createSnapshots(state);
             assertThat(psfList.size(), is(2));
             final PublishableNrtmFile snapshotFile = psfList.stream().filter(psf -> psf.getSourceModel().getName().toString().equals("TEST")).findFirst().orElseThrow();
             assertThat(snapshotFile.getVersion(), is(1L));

@@ -1,7 +1,9 @@
 package net.ripe.db.nrtm4;
 
 import net.ripe.db.nrtm4.dao.SourceRepository;
+import net.ripe.db.nrtm4.dao.WhoisObjectRepository;
 import net.ripe.db.nrtm4.domain.NrtmSourceModel;
+import net.ripe.db.nrtm4.domain.SnapshotState;
 import net.ripe.db.nrtm4.jmx.NrtmProcessControl;
 import org.mariadb.jdbc.internal.logging.Logger;
 import org.mariadb.jdbc.internal.logging.LoggerFactory;
@@ -21,27 +23,31 @@ public class NrtmFileProcessor {
     private final NrtmProcessControl nrtmProcessControl;
     private final SnapshotFileGenerator snapshotFileGenerator;
     private final SourceRepository sourceRepository;
+    private final WhoisObjectRepository whoisObjectRepository;
 
     public NrtmFileProcessor(
         final NrtmFileService nrtmFileService,
         final NrtmProcessControl nrtmProcessControl,
         final SnapshotFileGenerator snapshotFileGenerator,
-        final SourceRepository sourceRepository
+        final SourceRepository sourceRepository,
+        final WhoisObjectRepository whoisObjectRepository
     ) {
         this.nrtmFileService = nrtmFileService;
         this.nrtmProcessControl = nrtmProcessControl;
         this.snapshotFileGenerator = snapshotFileGenerator;
         this.sourceRepository = sourceRepository;
+        this.whoisObjectRepository = whoisObjectRepository;
     }
 
     public void updateNrtmFilesAndPublishNotification() throws IOException {
         LOGGER.info("updateNrtmFilesAndPublishNotification() called");
+        final SnapshotState state = whoisObjectRepository.getSnapshotState();
         final List<NrtmSourceModel> sourceList = sourceRepository.getAllSources();
         if (sourceList.isEmpty()) {
             if (nrtmProcessControl.isInitialSnapshotGenerationEnabled()) {
                 sourceRepository.createSources();
                 LOGGER.info("Initializing...");
-                snapshotFileGenerator.createSnapshots();
+                snapshotFileGenerator.createSnapshots(state);
                 LOGGER.info("Initialization complete");
             } else {
                 LOGGER.info("Initialization skipped because NrtmProcessControl has disabled initial snapshot generation");

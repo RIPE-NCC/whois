@@ -4,7 +4,6 @@ import com.google.common.base.Stopwatch;
 import net.ripe.db.nrtm4.dao.NrtmVersionInfoRepository;
 import net.ripe.db.nrtm4.dao.SnapshotFileRepository;
 import net.ripe.db.nrtm4.dao.SourceRepository;
-import net.ripe.db.nrtm4.dao.WhoisObjectRepository;
 import net.ripe.db.nrtm4.domain.NrtmSourceModel;
 import net.ripe.db.nrtm4.domain.NrtmVersionInfo;
 import net.ripe.db.nrtm4.domain.PublishableNrtmFile;
@@ -45,7 +44,6 @@ public class SnapshotFileGenerator {
     private final SnapshotFileRepository snapshotFileRepository;
     private final SnapshotFileSerializer snapshotFileSerializer;
     private final SourceRepository sourceRepository;
-    private final WhoisObjectRepository whoisObjectRepository;
 
     public SnapshotFileGenerator(
         @Value("${whois.source}") final String whoisSource,
@@ -54,8 +52,7 @@ public class SnapshotFileGenerator {
         final RpslObjectEnqueuer rpslObjectEnqueuer,
         final SnapshotFileRepository snapshotFileRepository,
         final SnapshotFileSerializer snapshotFileSerializer,
-        final SourceRepository sourceRepository,
-        final WhoisObjectRepository whoisObjectRepository
+        final SourceRepository sourceRepository
     ) {
         this.whoisSource = whoisSource;
         this.nrtmFileService = nrtmFileService;
@@ -64,15 +61,13 @@ public class SnapshotFileGenerator {
         this.snapshotFileRepository = snapshotFileRepository;
         this.snapshotFileSerializer = snapshotFileSerializer;
         this.sourceRepository = sourceRepository;
-        this.whoisObjectRepository = whoisObjectRepository;
     }
 
-    public Set<PublishableNrtmFile> createSnapshots() {
+    public Set<PublishableNrtmFile> createSnapshots(final SnapshotState state) {
         final Stopwatch stopwatchRoot = Stopwatch.createStarted();
         // Get last version from database.
         final List<NrtmVersionInfo> sourceVersions = nrtmVersionInfoRepository.findLastVersionPerSource();
-        final SnapshotState state = whoisObjectRepository.getSnapshotState();
-        LOGGER.info("NRTM found {} objects in {}", state.objectData().size(), stopwatchRoot);
+        LOGGER.info("Found {} objects in {}", state.objectData().size(), stopwatchRoot);
         if (sourceVersions.isEmpty()) {
             LOGGER.info("Initializing NRTM");
             for (final NrtmSourceModel source : sourceRepository.getAllSources()) {
