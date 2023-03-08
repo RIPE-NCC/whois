@@ -98,6 +98,20 @@ public class NrtmVersionInfoRepository {
         return save(source, version, sessionID, type, lastSerialId);
     }
 
+    public NrtmVersionInfo findById(final long versionId) {
+        final String sql = """
+            SELECT v.id, src.id, src.name, v.version, v.session_id, v.type, v.last_serial_id, v.created
+            FROM version_info v
+            JOIN source src ON src.id = v.source_id
+            WHERE v.id = ?
+            """;
+        return jdbcTemplate.queryForObject(sql, rowMapper, versionId);
+    }
+
+    public NrtmVersionInfo saveNewDeltaVersion(final NrtmVersionInfo version, final int lastSerialID) {
+        return save(version.source(), version.version() + 1, version.sessionID(), NrtmDocumentType.DELTA, lastSerialID);
+    }
+
     private NrtmVersionInfo save(
         final NrtmSourceModel source,
         final long version,
@@ -122,16 +136,6 @@ public class NrtmVersionInfoRepository {
             }, keyHolder
         );
         return new NrtmVersionInfo(keyHolder.getKeyAs(Long.class), source, version, sessionID, type, lastSerialId, now);
-    }
-
-    public NrtmVersionInfo findById(final long versionId) {
-        final String sql = """
-            SELECT v.id, src.id, src.name, v.version, v.session_id, v.type, v.last_serial_id, v.created
-            FROM version_info v
-            JOIN source src ON src.id = v.source_id
-            WHERE v.id = ?
-            """;
-        return jdbcTemplate.queryForObject(sql, rowMapper, versionId);
     }
 
 }

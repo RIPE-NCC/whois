@@ -10,6 +10,8 @@ public class PublishableDeltaFile extends PublishableNrtmFile {
 
     private List<DeltaChange> changes;
 
+    private PublishableDeltaFile() {}
+
     public PublishableDeltaFile(final NrtmVersionInfo nextVersion, final List<DeltaChange> deltas) {
         super(nextVersion);
         this.changes = deltas;

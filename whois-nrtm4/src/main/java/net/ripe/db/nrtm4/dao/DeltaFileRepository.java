@@ -1,7 +1,7 @@
 package net.ripe.db.nrtm4.dao;
 
-import net.ripe.db.nrtm4.NrtmFileService;
 import net.ripe.db.nrtm4.domain.DeltaFile;
+import net.ripe.db.nrtm4.domain.NrtmVersionInfo;
 import net.ripe.db.nrtm4.domain.PublishableDeltaFile;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -9,6 +9,7 @@ import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Repository;
 
 import javax.sql.DataSource;
+import java.util.List;
 import java.util.Optional;
 
 
@@ -16,23 +17,19 @@ import java.util.Optional;
 public class DeltaFileRepository {
 
     private final JdbcTemplate jdbcTemplate;
-    private final NrtmFileService nrtmFileService;
     private final RowMapper<DeltaFile> rowMapper = (rs, rowNum) ->
         new DeltaFile(
-            rs.getLong(1),
-            rs.getLong(2),
-            rs.getString(3),
-            rs.getString(4),
-            rs.getString(5),
-            rs.getLong(6)
+            rs.getLong(1),   // id
+            rs.getLong(2),   // version_id
+            rs.getString(3), // name
+            rs.getString(4), // hash
+            rs.getString(5)  // payload
         );
 
     public DeltaFileRepository(
-        @Qualifier("nrtmDataSource") final DataSource dataSource,
-        final NrtmFileService nrtmFileService
+        @Qualifier("nrtmDataSource") final DataSource dataSource
     ) {
         this.jdbcTemplate = new JdbcTemplate(dataSource);
-        this.nrtmFileService = nrtmFileService;
     }
 
     public void save(final PublishableDeltaFile deltaFile, final String payload) {
@@ -45,22 +42,33 @@ public class DeltaFileRepository {
         final String hash,
         final String payload
     ) {
-        final long now = System.currentTimeMillis();
         final String sql = """
-            INSERT INTO delta_file (version_id, name, hash, payload, created)
-            VALUES (?, ?, ?, ?, ?)
+            INSERT INTO delta_file (version_id, name, hash, payload)
+            VALUES (?, ?, ?, ?)
             """;
-        jdbcTemplate.update(sql, versionId, name, hash, payload, now);
+        jdbcTemplate.update(sql, versionId, name, hash, payload);
     }
 
     public Optional<DeltaFile> getByName(final String sessionId, final String name) {
-        final String sql = "" +
-            "SELECT df.id, df.version_id, df.type, df.name, df.hash, df.payload, df.created " +
-            "FROM delta_file df " +
-            "JOIN version_info v ON v.id = df.version_id " +
-            "WHERE v.session_id = ? " +
-            "  AND df.name = ?";
+        final String sql = """
+            SELECT df.id, df.version_id, df.name, df.hash, df.payload
+            FROM delta_file df
+            JOIN version_info v ON v.id = df.version_id
+            WHERE v.session_id = ?
+              AND df.name = ?
+            """;
         return Optional.ofNullable(jdbcTemplate.queryForObject(sql, rowMapper, sessionId, name));
+    }
+
+    public List<DeltaFile> getDeltasForNotification(final NrtmVersionInfo sinceVersion, final int sinceTimestamp) {
+        final String sql = """
+            SELECT df.id, df.version_id, df.name, df.hash, df.payload
+            FROM delta_file df
+            JOIN version_info v ON v.id = df.version_id
+            WHERE v.source_id = ?
+              AND (v.version > ? OR v.created > ?)
+            """;
+        return jdbcTemplate.query(sql, rowMapper, sinceVersion.source().getId(), sinceVersion.version(), sinceTimestamp);
     }
 
 }

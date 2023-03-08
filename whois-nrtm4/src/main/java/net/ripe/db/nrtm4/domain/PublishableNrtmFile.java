@@ -8,7 +8,9 @@ public class PublishableNrtmFile extends PublishableNrtmDocument {
     @JsonIgnore
     private String fileName;
     @JsonIgnore
-    private String sha256hex;
+    private String hash;
+
+    protected PublishableNrtmFile() {}
 
     public PublishableNrtmFile(
         final NrtmVersionInfo version
@@ -21,7 +23,7 @@ public class PublishableNrtmFile extends PublishableNrtmDocument {
     }
 
     public void setHash(final String sha256hex) {
-        this.sha256hex = sha256hex;
+        this.hash = sha256hex;
     }
 
     public String getFileName() {
@@ -29,7 +31,7 @@ public class PublishableNrtmFile extends PublishableNrtmDocument {
     }
 
     public String getHash() {
-        return sha256hex;
+        return hash;
     }
 
 }

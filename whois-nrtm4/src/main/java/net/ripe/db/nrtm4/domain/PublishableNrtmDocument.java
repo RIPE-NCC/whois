@@ -18,6 +18,14 @@ public abstract class PublishableNrtmDocument {
     private final String sessionID;
     private final long version;
 
+    protected PublishableNrtmDocument() {
+        versionId = 0L;
+        type = null;
+        source = null;
+        sessionID = null;
+        version = 0L;
+    }
+
     PublishableNrtmDocument(
         final NrtmVersionInfo version
     ) {

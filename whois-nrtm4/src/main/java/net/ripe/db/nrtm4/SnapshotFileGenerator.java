@@ -76,13 +76,13 @@ public class SnapshotFileGenerator {
         final Map<CIString, LinkedBlockingQueue<RpslObjectData>> queueMap = new HashMap<>();
         final Set<PublishableNrtmFile> publishedFiles = new HashSet<>();
         for (final NrtmVersionInfo sourceVersion : sourceVersions) {
-            LOGGER.info("Creating snapshot for {}", sourceVersion.source().getName());
+            LOGGER.info("Creating snapshot for {}", sourceVersion.source().getSource());
             final PublishableNrtmFile snapshotFile = new PublishableNrtmFile(sourceVersion);
             final String fileName = NrtmFileUtil.newGzFileName(snapshotFile);
             snapshotFile.setFileName(fileName);
             publishedFiles.add(snapshotFile);
             final LinkedBlockingQueue<RpslObjectData> queue = new LinkedBlockingQueue<>(QUEUE_CAPACITY);
-            queueMap.put(snapshotFile.getSource().getName(), queue);
+            queueMap.put(snapshotFile.getSource().getSource(), queue);
             final RunnableFileGenerator runner = new RunnableFileGenerator(nrtmFileService, snapshotFileRepository, snapshotFileSerializer, snapshotFile, queue);
             final Thread queueReader = new Thread(runner);
             queueReader.start();
@@ -115,17 +115,17 @@ public class SnapshotFileGenerator {
             try (final GZIPOutputStream gzOut = new GZIPOutputStream(bos)) {
                 snapshotFileSerializer.writeObjectQueueAsSnapshot(snapshotFile, queue, gzOut);
                 gzOut.close();
-                LOGGER.info("Source {} snapshot file {}/{}", snapshotFile.getSource().getName(), snapshotFile.getSessionID(), snapshotFile.getFileName());
+                LOGGER.info("Source {} snapshot file {}/{}", snapshotFile.getSource().getSource(), snapshotFile.getSessionID(), snapshotFile.getFileName());
                 Stopwatch stopwatch = Stopwatch.createStarted();
                 snapshotFile.setHash(NrtmFileUtil.calculateSha256(bos.toByteArray()));
-                LOGGER.info("Calculated hash for {} in {}", snapshotFile.getSource().getName(), stopwatch);
+                LOGGER.info("Calculated hash for {} in {}", snapshotFile.getSource().getSource(), stopwatch);
                 stopwatch = Stopwatch.createStarted();
                 nrtmFileService.writeToDisk(snapshotFile, bos);
-                LOGGER.info("Wrote {} to disk in {}", snapshotFile.getSource().getName(), stopwatch);
+                LOGGER.info("Wrote {} to disk in {}", snapshotFile.getSource().getSource(), stopwatch);
                 snapshotFileRepository.insert(snapshotFile, bos.toByteArray());
-                LOGGER.info("Wrote {} to DB {}", snapshotFile.getSource().getName(), stopwatch);
+                LOGGER.info("Wrote {} to DB {}", snapshotFile.getSource().getSource(), stopwatch);
             } catch (final Exception e) {
-                LOGGER.warn("Exception writing snapshot {}", snapshotFile.getSource().getName(), e);
+                LOGGER.warn("Exception writing snapshot {}", snapshotFile.getSource().getSource(), e);
                 Thread.currentThread().interrupt();
                 throw new RuntimeException(e);
             }

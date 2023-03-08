@@ -16,17 +16,20 @@ import net.ripe.db.whois.common.rpsl.AttributeType;
 import net.ripe.db.whois.common.rpsl.DummifierNrtm;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Service;
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
 import static net.ripe.db.nrtm4.NrtmConstants.NRTM_VERSION;
 
-
+@Service
 public class DeltaFileGenerator {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(DeltaFileGenerator.class);
@@ -56,7 +59,7 @@ public class DeltaFileGenerator {
         }
         sourceVersions.sort((v1, v2) -> v2.lastSerialId() - v1.lastSerialId());
         final Map<CIString, List<DeltaChange>> deltaMap = new HashMap<>();
-        sourceVersions.forEach(sv -> deltaMap.put(sv.source().getName(), List.of()));
+        sourceVersions.forEach(sv -> deltaMap.put(sv.source().getSource(), new ArrayList<>()));
         final List<SerialEntry> whoisChanges = whoisObjectRepository.getSerialEntriesBetween(sourceVersions.get(0).lastSerialId(), serialIDTo);
         // iterate changes and divide objects per source
         for (final SerialEntry whoisChange : whoisChanges) {
@@ -72,23 +75,26 @@ public class DeltaFileGenerator {
             }
             deltaMap.get(source).add(deltaChange);
         }
+        final Set<PublishableDeltaFile> deltaFiles = new HashSet<>();
         for (final NrtmVersionInfo version: sourceVersions) {
-            final List<DeltaChange> deltas = deltaMap.get(version.source().getName());
+            final List<DeltaChange> deltas = deltaMap.get(version.source().getSource());
             if (!deltas.isEmpty()) {
-                final PublishableDeltaFile deltaFile = new PublishableDeltaFile(version, deltas);
+                final NrtmVersionInfo newVersion = nrtmVersionInfoRepository.saveNewDeltaVersion(version, serialIDTo);
+                final PublishableDeltaFile deltaFile = new PublishableDeltaFile(newVersion, deltas);
                 deltaFile.setFileName(NrtmFileUtil.newFileName(deltaFile));
                 final ObjectMapper objectMapper = new ObjectMapper();
                 try {
                     final String json = objectMapper.writeValueAsString(deltaFile);
                     deltaFile.setHash(NrtmFileUtil.calculateSha256(json.getBytes(StandardCharsets.UTF_8)));
                     deltaFileRepository.save(deltaFile, json);
+                    deltaFiles.add(deltaFile);
                 } catch (final IOException e) {
                     LOGGER.warn("Exception processing delta file", e);
                 }
             }
         }
-        LOGGER.info("Created delta list {}", stopwatch);
-        return Set.of();
+        LOGGER.info("Created delta list in {}", stopwatch);
+        return deltaFiles;
     }
 
 }
