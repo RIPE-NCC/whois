@@ -12,7 +12,6 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import java.io.BufferedOutputStream;
-import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -54,10 +53,10 @@ public class NrtmFileService {
         }
     }
 
-    public void writeToDisk(final PublishableNrtmFile file, final ByteArrayOutputStream bos) throws IOException {
+    public void writeToDisk(final PublishableNrtmFile file, final byte[] bytes) throws IOException {
         final File dir = new File(path, file.getSessionID());
         final OutputStream fileOut = new BufferedOutputStream(new FileOutputStream(new File(dir, file.getFileName())), BUFFER_SIZE);
-        fileOut.write(bos.toByteArray());
+        fileOut.write(bytes);
         fileOut.flush();
     }
 

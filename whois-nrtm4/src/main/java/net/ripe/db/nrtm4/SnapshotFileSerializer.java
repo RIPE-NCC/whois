@@ -49,7 +49,7 @@ public class SnapshotFileSerializer {
         jGenerator.writeStartObject();
         jGenerator.writeNumberField("nrtm_version", snapshotFile.getNrtmVersion());
         jGenerator.writeStringField("type", NrtmDocumentType.SNAPSHOT.lowerCaseName());
-        jGenerator.writeStringField("source", snapshotFile.getSource().getSource().toString());
+        jGenerator.writeStringField("source", snapshotFile.getSource().getName().toString());
         jGenerator.writeStringField("session_id", snapshotFile.getSessionID());
         jGenerator.writeNumberField("version", snapshotFile.getVersion());
         jGenerator.writeArrayFieldStart("objects");

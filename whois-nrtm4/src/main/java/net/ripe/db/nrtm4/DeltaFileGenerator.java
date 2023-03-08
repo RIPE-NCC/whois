@@ -36,17 +36,20 @@ public class DeltaFileGenerator {
 
     private final DeltaFileRepository deltaFileRepository;
     private final DummifierNrtm dummifier;
+    private final NrtmFileService nrtmFileService;
     private final NrtmVersionInfoRepository nrtmVersionInfoRepository;
     private final WhoisObjectRepository whoisObjectRepository;
 
     DeltaFileGenerator(
         final DeltaFileRepository deltaFileRepository,
         final DummifierNrtm dummifier,
+        final NrtmFileService nrtmFileService,
         final NrtmVersionInfoRepository nrtmVersionInfoRepository,
         final WhoisObjectRepository whoisObjectRepository
     ) {
         this.deltaFileRepository = deltaFileRepository;
         this.dummifier = dummifier;
+        this.nrtmFileService = nrtmFileService;
         this.nrtmVersionInfoRepository = nrtmVersionInfoRepository;
         this.whoisObjectRepository = whoisObjectRepository;
     }
@@ -59,7 +62,7 @@ public class DeltaFileGenerator {
         }
         sourceVersions.sort((v1, v2) -> v2.lastSerialId() - v1.lastSerialId());
         final Map<CIString, List<DeltaChange>> deltaMap = new HashMap<>();
-        sourceVersions.forEach(sv -> deltaMap.put(sv.source().getSource(), new ArrayList<>()));
+        sourceVersions.forEach(sv -> deltaMap.put(sv.source().getName(), new ArrayList<>()));
         final List<SerialEntry> whoisChanges = whoisObjectRepository.getSerialEntriesBetween(sourceVersions.get(0).lastSerialId(), serialIDTo);
         // iterate changes and divide objects per source
         for (final SerialEntry whoisChange : whoisChanges) {
@@ -77,7 +80,7 @@ public class DeltaFileGenerator {
         }
         final Set<PublishableDeltaFile> deltaFiles = new HashSet<>();
         for (final NrtmVersionInfo version: sourceVersions) {
-            final List<DeltaChange> deltas = deltaMap.get(version.source().getSource());
+            final List<DeltaChange> deltas = deltaMap.get(version.source().getName());
             if (!deltas.isEmpty()) {
                 final NrtmVersionInfo newVersion = nrtmVersionInfoRepository.saveNewDeltaVersion(version, serialIDTo);
                 final PublishableDeltaFile deltaFile = new PublishableDeltaFile(newVersion, deltas);
@@ -87,9 +90,10 @@ public class DeltaFileGenerator {
                     final String json = objectMapper.writeValueAsString(deltaFile);
                     deltaFile.setHash(NrtmFileUtil.calculateSha256(json.getBytes(StandardCharsets.UTF_8)));
                     deltaFileRepository.save(deltaFile, json);
+                    nrtmFileService.writeToDisk(deltaFile, json.getBytes(StandardCharsets.UTF_8));
                     deltaFiles.add(deltaFile);
                 } catch (final IOException e) {
-                    LOGGER.warn("Exception processing delta file", e);
+                    LOGGER.warn("Exception processing delta file {}", deltaFile.getSource().getName(), e);
                 }
             }
         }

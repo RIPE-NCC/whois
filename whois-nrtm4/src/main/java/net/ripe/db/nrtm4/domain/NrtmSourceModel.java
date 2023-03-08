@@ -24,7 +24,7 @@ public class NrtmSourceModel {
         return id;
     }
 
-    public CIString getSource() {
+    public CIString getName() {
         return source;
     }
 

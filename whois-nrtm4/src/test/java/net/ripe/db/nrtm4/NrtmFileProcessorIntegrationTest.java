@@ -122,6 +122,7 @@ public class NrtmFileProcessorIntegrationTest extends AbstractNrtm4IntegrationBa
             assertThat(deltaVersion.version(), is(2L));
             assertThat(deltaFile.name(), startsWith("nrtm-delta.2.TEST."));
             final var publishableFile = new ObjectMapper().readValue(deltaFile.payload(), PublishableDeltaFile.class);
+            assertThat(publishableFile.getSource().getName(), is("TEST"));
             assertThat(publishableFile.getChanges().size(), is(1));
             final var change = publishableFile.getChanges().get(0);
             assertThat(change.getObject().toString(), startsWith(mntObject.toString()));
