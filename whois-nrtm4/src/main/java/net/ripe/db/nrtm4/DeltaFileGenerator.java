@@ -18,13 +18,13 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
 import static net.ripe.db.nrtm4.NrtmConstants.NRTM_VERSION;
-import static net.ripe.db.nrtm4.util.ByteArrayUtil.asByteArrayOutputStream;
 
 
 public class DeltaFileGenerator {
@@ -80,7 +80,7 @@ public class DeltaFileGenerator {
                 final ObjectMapper objectMapper = new ObjectMapper();
                 try {
                     final String json = objectMapper.writeValueAsString(deltaFile);
-                    deltaFile.setHash(NrtmFileUtil.calculateSha256(asByteArrayOutputStream(json)));
+                    deltaFile.setHash(NrtmFileUtil.calculateSha256(json.getBytes(StandardCharsets.UTF_8)));
                     deltaFileRepository.save(deltaFile, json);
                 } catch (final IOException e) {
                     LOGGER.warn("Exception processing delta file", e);

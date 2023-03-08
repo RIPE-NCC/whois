@@ -1,19 +1,14 @@
 package net.ripe.db.nrtm4.dao;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import net.ripe.db.nrtm4.NrtmFileService;
 import net.ripe.db.nrtm4.domain.DeltaFile;
 import net.ripe.db.nrtm4.domain.PublishableDeltaFile;
-import net.ripe.db.nrtm4.util.NrtmFileUtil;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Repository;
 
 import javax.sql.DataSource;
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.nio.charset.StandardCharsets;
 import java.util.Optional;
 
 
@@ -41,17 +36,7 @@ public class DeltaFileRepository {
     }
 
     public void save(final PublishableDeltaFile deltaFile, final String payload) {
-        final ObjectMapper objectMapper = new ObjectMapper();
-        try {
-
-            final ByteArrayOutputStream bos = new ByteArrayOutputStream(json.length());
-            bos.write(json.getBytes(StandardCharsets.UTF_8));
-            bos.close();
-            deltaFile.setHash(NrtmFileUtil.calculateSha256(bos));
-            save(deltaFile.getVersionId(), deltaFile.getFileName(), deltaFile.getHash(), payload);
-        } catch (final IOException e) {
-            throw new RuntimeException(e);
-        }
+        save(deltaFile.getVersionId(), deltaFile.getFileName(), deltaFile.getHash(), payload);
     }
 
     private void save(

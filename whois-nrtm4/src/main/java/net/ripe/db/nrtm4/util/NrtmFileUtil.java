@@ -2,7 +2,6 @@ package net.ripe.db.nrtm4.util;
 
 import net.ripe.db.nrtm4.domain.PublishableNrtmDocument;
 
-import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -37,14 +36,14 @@ public class NrtmFileUtil {
         return new FileInputStream(new File(dir, name));
     }
 
-    public static String calculateSha256(final ByteArrayOutputStream out) {
+    public static String calculateSha256(final byte[] out) {
         final MessageDigest digest;
         try {
             digest = MessageDigest.getInstance("SHA-256");
         } catch (final NoSuchAlgorithmException e) {
             throw new RuntimeException(e);
         }
-        final byte[] encodedSha256hex = digest.digest(out.toByteArray());
+        final byte[] encodedSha256hex = digest.digest(out);
         return byteArrayToHexString(encodedSha256hex);
     }
 

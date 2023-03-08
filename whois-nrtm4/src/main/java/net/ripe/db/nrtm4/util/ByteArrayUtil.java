@@ -1,10 +1,5 @@
 package net.ripe.db.nrtm4.util;
 
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.nio.charset.StandardCharsets;
-
-
 public class ByteArrayUtil {
 
     public static String byteArrayToHexString(final byte[] bytes) {
@@ -19,10 +14,4 @@ public class ByteArrayUtil {
         return hexString.toString();
     }
 
-    public static ByteArrayOutputStream asByteArrayOutputStream(final String str) throws IOException {
-        final ByteArrayOutputStream bos = new ByteArrayOutputStream(str.length());
-        bos.write(str.getBytes(StandardCharsets.UTF_8));
-        bos.close();
-        return bos;
-    }
 }
