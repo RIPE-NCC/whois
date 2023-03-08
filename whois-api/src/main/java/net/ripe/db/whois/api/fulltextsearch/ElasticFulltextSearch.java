@@ -168,17 +168,16 @@ public class ElasticFulltextSearch extends FulltextSearch {
         final List<SearchResponse.Arr> documentArrs = Lists.newArrayList();
 
 
-        hit.getHighlightFields().entrySet().forEach( (highlightField) -> {
-
-            if(highlightField.getKey().contains(".custom")) {
-                final SearchResponse.Arr arr = new SearchResponse.Arr(StringUtils.substringBefore(highlightField.getValue().name(), ".custom"));
-                arr.setStr(new SearchResponse.Str(null, StringUtils.join(highlightField.getValue().getFragments(), ",")));
+        hit.getHighlightFields().forEach((attribute, highlightField) -> {
+            if(attribute.contains(".custom")) {
+                final SearchResponse.Arr arr = new SearchResponse.Arr(StringUtils.substringBefore(highlightField.name(), ".custom"));
+                arr.setStr(new SearchResponse.Str(null, StringUtils.join(highlightField.getFragments(), ",")));
                 documentArrs.add(arr);
 
                 //Somehow if searched term contains "." highlight field custom has no vlue for it.
-            } else if(!hit.getHighlightFields().containsKey(highlightField.getKey() + ".custom"))  {
-                final SearchResponse.Arr arr = new SearchResponse.Arr(highlightField.getValue().name());
-                arr.setStr(new SearchResponse.Str(null, StringUtils.join(highlightField.getValue().getFragments(), ",")));
+            } else if(!hit.getHighlightFields().containsKey(attribute + ".custom"))  {
+                final SearchResponse.Arr arr = new SearchResponse.Arr(highlightField.name());
+                arr.setStr(new SearchResponse.Str(null, StringUtils.join(highlightField.getFragments(), ",")));
                 documentArrs.add(arr);
             }
         });
