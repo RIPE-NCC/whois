@@ -1,7 +1,7 @@
 package net.ripe.db.nrtm4.dao;
 
 import net.ripe.db.nrtm4.AbstractNrtm4IntegrationBase;
-import net.ripe.db.nrtm4.domain.ObjectData;
+import net.ripe.db.nrtm4.domain.WhoisObjectData;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -24,9 +24,9 @@ public class WhoisObjectRepositoryIntegrationTest extends AbstractNrtm4Integrati
         loadScripts(whoisTemplate, "nrtm_sample_sm.sql");
 
         final var objects = List.of(
-            new ObjectData(11044887, 1),
-            new ObjectData(11044888, 1),
-            new ObjectData(5158, 2)
+            new WhoisObjectData(11044887, 1),
+            new WhoisObjectData(11044888, 1),
+            new WhoisObjectData(5158, 2)
         );
         final var map = whoisObjectRepository.findRpslMapForObjects(objects);
         assertThat(map.size(), is(3));

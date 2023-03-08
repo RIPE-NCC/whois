@@ -2,7 +2,7 @@ package net.ripe.db.nrtm4;
 
 import com.google.common.collect.Lists;
 import net.ripe.db.nrtm4.dao.WhoisObjectRepository;
-import net.ripe.db.nrtm4.domain.ObjectData;
+import net.ripe.db.nrtm4.domain.WhoisObjectData;
 import net.ripe.db.nrtm4.domain.RpslObjectData;
 import net.ripe.db.nrtm4.domain.SnapshotState;
 import net.ripe.db.whois.common.domain.CIString;
@@ -74,8 +74,8 @@ public class RpslObjectEnqueuer {
 
         public void run() {
             final AtomicInteger numberOfEnqueuedObjects = new AtomicInteger(0);
-            final List<List<ObjectData>> batches = Lists.partition(snapshotState.objectData(), BATCH_SIZE);
-            final int total = snapshotState.objectData().size();
+            final List<List<WhoisObjectData>> batches = Lists.partition(snapshotState.whoisObjectData(), BATCH_SIZE);
+            final int total = snapshotState.whoisObjectData().size();
             final Timer timer = new Timer(true);
             final LinkedBlockingQueue<RpslObjectData> whoisQueue = queueMap.get(whoisSource);
             timer.schedule(new TimerTask() {
@@ -89,7 +89,7 @@ public class RpslObjectEnqueuer {
             try {
                 batches.parallelStream().forEach(objectBatch -> {
                     final Map<Integer, String> rpslMap = whoisObjectRepository.findRpslMapForObjects(objectBatch);
-                    for (final ObjectData object : objectBatch) {
+                    for (final WhoisObjectData object : objectBatch) {
                         numberOfEnqueuedObjects.incrementAndGet();
                         final String rpsl = rpslMap.get(object.objectId());
                         final RpslObject rpslObject = RpslObject.parse(rpsl);

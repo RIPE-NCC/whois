@@ -61,7 +61,7 @@ public class SnapshotFileGenerator {
         final Stopwatch stopwatchRoot = Stopwatch.createStarted();
         // Get last version from database.
         final List<NrtmVersionInfo> sourceVersions = nrtmVersionInfoRepository.findLastVersionPerSource();
-        LOGGER.info("Found {} objects in {}", state.objectData().size(), stopwatchRoot);
+        LOGGER.info("Found {} objects in {}", state.whoisObjectData().size(), stopwatchRoot);
         if (sourceVersions.isEmpty()) {
             LOGGER.info("Initializing NRTM");
             for (final NrtmSourceModel source : sourceRepository.getAllSources()) {

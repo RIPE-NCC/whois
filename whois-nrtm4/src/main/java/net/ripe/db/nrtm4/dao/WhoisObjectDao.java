@@ -1,6 +1,6 @@
 package net.ripe.db.nrtm4.dao;
 
-import net.ripe.db.nrtm4.domain.ObjectData;
+import net.ripe.db.nrtm4.domain.WhoisObjectData;
 import net.ripe.db.whois.common.dao.jdbc.JdbcRpslObjectOperations;
 import net.ripe.db.whois.common.domain.serials.SerialEntry;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -37,16 +37,16 @@ public class WhoisObjectDao {
             (rs, rowNum) -> rs.getInt(1));
     }
 
-    public List<ObjectData> getAllObjectsFromLast() {
+    public List<WhoisObjectData> getAllObjectsFromLast() {
         return jdbcTemplate.query(
             "SELECT object_id, sequence_id FROM last WHERE sequence_id > 0",
-            (rs, rowNum) -> new ObjectData(
+            (rs, rowNum) -> new WhoisObjectData(
                 rs.getInt(1),                           // objectId
                 rs.getInt(2))                           // sequenceId
         );
     }
 
-    public Map<Integer, String> findRpslMapForLastObjects(final List<ObjectData> objects) {
+    public Map<Integer, String> findRpslMapForLastObjects(final List<WhoisObjectData> objects) {
         final String sql = """
             SELECT object_id, object
             FROM last
@@ -55,7 +55,7 @@ public class WhoisObjectDao {
             """;
         final Map<Integer, String> resultMap = new HashMap<>();
         jdbcTemplate.execute(sql, (PreparedStatementCallback<Object>) ps -> {
-            for (final ObjectData object : objects) {
+            for (final WhoisObjectData object : objects) {
                 ps.setInt(1, object.objectId());
                 ps.setInt(2, object.sequenceId());
                 final ResultSet rs = ps.executeQuery();
