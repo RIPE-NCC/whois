@@ -36,15 +36,14 @@ public class NrtmFileUtil {
         return new FileInputStream(new File(dir, name));
     }
 
-    public static String calculateSha256(final byte[] out) {
-        final MessageDigest digest;
+    public static String calculateSha256(final byte[] bytes) {
         try {
-            digest = MessageDigest.getInstance("SHA-256");
+            final MessageDigest digest = MessageDigest.getInstance("SHA-256");
+            final byte[] encodedSha256hex = digest.digest(bytes);
+            return byteArrayToHexString(encodedSha256hex);
         } catch (final NoSuchAlgorithmException e) {
             throw new RuntimeException(e);
         }
-        final byte[] encodedSha256hex = digest.digest(out);
-        return byteArrayToHexString(encodedSha256hex);
     }
 
     private static String randomHexString() {

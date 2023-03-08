@@ -4,6 +4,7 @@ import com.google.common.base.Stopwatch;
 import net.ripe.db.nrtm4.dao.NrtmVersionInfoRepository;
 import net.ripe.db.nrtm4.dao.SnapshotFileRepository;
 import net.ripe.db.nrtm4.dao.SourceRepository;
+import net.ripe.db.nrtm4.domain.NrtmDocumentType;
 import net.ripe.db.nrtm4.domain.NrtmSourceModel;
 import net.ripe.db.nrtm4.domain.NrtmVersionInfo;
 import net.ripe.db.nrtm4.domain.PublishableNrtmFile;
@@ -69,9 +70,13 @@ public class SnapshotFileGenerator {
                 nrtmFileService.createNrtmSessionDirectory(version.sessionID());
                 sourceVersions.add(version);
             }
+        } else {
+            sourceVersions.removeIf(versionToRemove -> versionToRemove.type() == NrtmDocumentType.SNAPSHOT);
+            if (sourceVersions.isEmpty()) {
+                LOGGER.info("No deltas created since last snapshot. Skipping snapshot creation");
+                return Set.of();
+            }
         }
-        // TODO: else see if there are any deltas for each source. if so then add a sourceVersion to this list,
-        //   otherwise skip the snapshot
         final List<Thread> queueReaders = new ArrayList<>();
         final Map<CIString, LinkedBlockingQueue<RpslObjectData>> queueMap = new HashMap<>();
         final Set<PublishableNrtmFile> publishedFiles = new HashSet<>();

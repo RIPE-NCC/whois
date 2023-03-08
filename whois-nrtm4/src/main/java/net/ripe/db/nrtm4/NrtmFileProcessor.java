@@ -62,15 +62,17 @@ public class NrtmFileProcessor {
                 LOGGER.info("Initialization skipped because NrtmProcessControl has disabled initial snapshot generation");
             }
         } else {
-            // TODO: is it time to do a snapshot?
+            // Must do deltas first since snapshot creation is skipped if there aren't any
             deltaFiles.addAll(deltaFileGenerator.createDeltas(state.serialId()));
+            // TODO: is it time to do a snapshot?
+            //   snapshotFiles.addAll(snapshotFileGenerator.createSnapshots(state))
         }
         LOGGER.info("NRTM created {} snapshots and {} delta files", snapshotFiles.size(), deltaFiles.size());
-        // TODO: optionally create notification file in db
-        // - Get the last notification to see if anything changed now that we might have generated more files
-        // - if no snapshot was created for a source, keep the one from the last notification
-        // - get deltas which are < 24 hours old
-        // - don't publish a new one if the files are the same and the last notification is less than a day old
+        // TODO: optionally create notification file in db...
+        //   Get the last notification to see if anything changed now that we might have generated more files
+        //   If no snapshot was created for a source, keep the one from the last notification
+        //   Get deltas which are < 24 hours old
+        //   Don't publish a new one if the files are the same and the last notification is less than a day old
     }
 
     // Call this from the controller
