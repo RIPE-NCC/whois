@@ -167,14 +167,21 @@ public class ElasticFulltextSearch extends FulltextSearch {
         final SearchResponse.Lst documentLst = new SearchResponse.Lst(hit.getId());
         final List<SearchResponse.Arr> documentArrs = Lists.newArrayList();
 
-        for (final HighlightField highlightField : hit.getHighlightFields().values()) {
 
-            if(highlightField.name().contains(".custom")) {
-                final SearchResponse.Arr arr = new SearchResponse.Arr(StringUtils.substringBefore(highlightField.name(), ".custom"));
-                arr.setStr(new SearchResponse.Str(null, StringUtils.join(highlightField.getFragments(), ",")));
+        hit.getHighlightFields().entrySet().forEach( (highlightField) -> {
+
+            if(highlightField.getKey().contains(".custom")) {
+                final SearchResponse.Arr arr = new SearchResponse.Arr(StringUtils.substringBefore(highlightField.getValue().name(), ".custom"));
+                arr.setStr(new SearchResponse.Str(null, StringUtils.join(highlightField.getValue().getFragments(), ",")));
+                documentArrs.add(arr);
+
+                //Somehow if searched term contains "." highlight field custom has no vlue for it.
+            } else if(!hit.getHighlightFields().containsKey(highlightField.getKey() + ".custom"))  {
+                final SearchResponse.Arr arr = new SearchResponse.Arr(highlightField.getValue().name());
+                arr.setStr(new SearchResponse.Str(null, StringUtils.join(highlightField.getValue().getFragments(), ",")));
                 documentArrs.add(arr);
             }
-        }
+        });
 
         documentLst.setArrs(documentArrs);
         return documentLst;

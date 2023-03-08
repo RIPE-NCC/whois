@@ -397,6 +397,33 @@ public class ElasticFullTextSearchTestIntegration  extends AbstractElasticSearch
     }
 
     @Test
+    public void search_dot_results_with_highlighting() {
+        databaseHelper.addObject(RpslObject.parse(
+                "mntner: DEV1-MNT\n" +
+                        "remarks: Some.remark1\n" +
+                        "source: RIPE"));
+        databaseHelper.addObject(RpslObject.parse(
+                "mntner: DEV2-MNT\n" +
+                        "remarks: Some.remark2\n" +
+                        "source: RIPE"));
+        databaseHelper.addObject(RpslObject.parse(
+                "mntner: DEV3-MNT\n" +
+                        "remarks: Some.remark3\n" +
+                        "source: RIPE"));
+        databaseHelper.addObject(RpslObject.parse(
+                "mntner: DEV4-MNT\n" +
+                        "source: RIPE"));
+        rebuildIndex();
+
+        final QueryResponse queryResponse = query("q=Some.remark&hl=true");
+
+        assertThat(queryResponse.getStatus(), is(0));
+        assertThat(queryResponse.getResults().getNumFound(), is(3L));
+        assertThat(getHighlightKeys(queryResponse), containsInAnyOrder("1", "2", "3"));
+        assertThat(getHighlightValues(queryResponse), containsInAnyOrder("<b>Some.remark1<\\/b>", "<b>Some.remark2<\\/b>", "<b>Some.remark3<\\/b>"));
+    }
+
+    @Test
     public void search_no_match() {
         databaseHelper.addObject(RpslObject.parse(
                 "mntner: DEV-MNT\n" +
