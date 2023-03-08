@@ -10,15 +10,16 @@ import net.ripe.db.nrtm4.domain.DeltaFile;
 import net.ripe.db.nrtm4.domain.PublishableDeltaFile;
 import net.ripe.db.nrtm4.jmx.NrtmProcessControlJmx;
 import net.ripe.db.whois.common.rpsl.RpslObject;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
+import java.io.IOException;
 import java.util.List;
 
 import static net.ripe.db.whois.common.dao.jdbc.JdbcRpslObjectOperations.loadScripts;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.startsWith;
 
@@ -44,23 +45,18 @@ public class NrtmFileProcessorIntegrationTest extends AbstractNrtm4IntegrationBa
     @Autowired
     private SourceRepository sourceRepository;
 
-//    @Autowired
-//    private WhoisObjectRepository whoisObjectRepository;
-
-    @BeforeEach
-    void beforeEach() {
-        loadScripts(whoisTemplate, "nrtm_sample_sm.sql");
-    }
-
     @Test
-    void nrtm_write_job_is_disabled_by_jmx() {
+    void file_write_job_is_disabled_by_jmx() throws IOException {
+        loadScripts(whoisTemplate, "nrtm_sample_sm.sql");
+        nrtmProcessControlJmx.disableInitialSnapshotGeneration();
         nrtmFileProcessor.updateNrtmFilesAndPublishNotification();
         final var source = nrtmVersionInfoRepository.findLastVersion();
         assertThat(source.isPresent(), is(false));
     }
 
     @Test
-    void nrtm_write_job_is_enabled_by_jmx() {
+    void file_write_job_is_enabled_by_jmx() throws IOException {
+        loadScripts(whoisTemplate, "nrtm_sample_sm.sql");
         nrtmProcessControlJmx.enableInitialSnapshotGeneration();
         nrtmFileProcessor.updateNrtmFilesAndPublishNotification();
         final var source = nrtmVersionInfoRepository.findLastVersion();
@@ -68,7 +64,15 @@ public class NrtmFileProcessorIntegrationTest extends AbstractNrtm4IntegrationBa
     }
 
     @Test
-    public void snapshot_file_is_generated() throws JsonProcessingException {
+    void file_write_job_works_on_empty_whois() throws IOException {
+        nrtmProcessControlJmx.enableInitialSnapshotGeneration();
+        nrtmFileProcessor.updateNrtmFilesAndPublishNotification();
+        final var source = nrtmVersionInfoRepository.findLastVersion();
+        assertThat(source.isPresent(), is(true));
+    }
+
+    @Test
+    public void snapshot_file_and_delta_is_generated() throws JsonProcessingException {
         nrtmProcessControlJmx.enableInitialSnapshotGeneration();
         {
             final var whoisSource = sourceRepository.getWhoisSource();
@@ -98,10 +102,11 @@ public class NrtmFileProcessorIntegrationTest extends AbstractNrtm4IntegrationBa
             assertThat(deltaFile.size(), is(0));
         }
         // Make a change in whois and expect a delta
-        databaseHelper.addObject(RpslObject.parse("""
+        final var mntObject = RpslObject.parse("""
             mntner: DEV-MNT
             source: TEST
-            """));
+            """);
+        databaseHelper.addObject(mntObject);
         nrtmFileProcessor.updateNrtmFilesAndPublishNotification();
         {
             final var whoisSource = sourceRepository.getWhoisSource();
@@ -118,6 +123,9 @@ public class NrtmFileProcessorIntegrationTest extends AbstractNrtm4IntegrationBa
             assertThat(deltaFile.name(), startsWith("nrtm-delta.2.TEST."));
             final var publishableFile = new ObjectMapper().readValue(deltaFile.payload(), PublishableDeltaFile.class);
             assertThat(publishableFile.getChanges().size(), is(1));
+            final var change = publishableFile.getChanges().get(0);
+            assertThat(change.getObject().toString(), startsWith(mntObject.toString()));
+            assertThat(change.getObject().toString(), containsString("* THIS OBJECT IS MODIFIED"));
         }
     }
 
