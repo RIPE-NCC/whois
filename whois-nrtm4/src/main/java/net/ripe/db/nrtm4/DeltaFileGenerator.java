@@ -83,8 +83,7 @@ public class DeltaFileGenerator {
             final List<DeltaChange> deltas = deltaMap.get(version.source().getName());
             if (!deltas.isEmpty()) {
                 final NrtmVersionInfo newVersion = nrtmVersionInfoRepository.saveNewDeltaVersion(version, serialIDTo);
-                final PublishableDeltaFile deltaFile = new PublishableDeltaFile(newVersion, deltas);
-                deltaFile.setFileName(NrtmFileUtil.newFileName(deltaFile));
+                final PublishableDeltaFile deltaFile = new PublishableDeltaFile(newVersion, deltas, NrtmFileUtil.newFileName(newVersion));
                 final ObjectMapper objectMapper = new ObjectMapper();
                 try {
                     final String json = objectMapper.writeValueAsString(deltaFile);

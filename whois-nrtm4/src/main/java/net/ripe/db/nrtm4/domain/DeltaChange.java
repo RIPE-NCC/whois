@@ -29,8 +29,8 @@ public class DeltaChange {
     private final ObjectType objectType;
     @JsonProperty("primary_key")
     private final String primaryKey;
-    @JsonSerialize(using = RpslObjectSerializer.class)
-    @JsonDeserialize(using = RpslObjectDeserializer.class)
+    @JsonSerialize(using = RpslObjectJsonSupport.Serializer.class)
+    @JsonDeserialize(using = RpslObjectJsonSupport.Deserializer.class)
     private final RpslObject object;
 
     private DeltaChange() {

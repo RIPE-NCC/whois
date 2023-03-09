@@ -6,28 +6,28 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 public class PublishableNrtmFile extends PublishableNrtmDocument {
 
     @JsonIgnore
-    private String fileName;
+    private final String fileName;
     @JsonIgnore
     private String hash;
 
-    protected PublishableNrtmFile() {}
+    protected PublishableNrtmFile() {
+        this.fileName = null;
+    }
 
     public PublishableNrtmFile(
-        final NrtmVersionInfo version
+        final NrtmVersionInfo version,
+        final String fileName
     ) {
         super(version);
-    }
-
-    public void setFileName(final String fileName) {
         this.fileName = fileName;
-    }
-
-    public void setHash(final String sha256hex) {
-        this.hash = sha256hex;
     }
 
     public String getFileName() {
         return fileName;
+    }
+
+    public void setHash(final String hash) {
+        this.hash = hash;
     }
 
     public String getHash() {

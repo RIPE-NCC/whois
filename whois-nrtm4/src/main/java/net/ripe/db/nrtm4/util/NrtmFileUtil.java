@@ -1,6 +1,6 @@
 package net.ripe.db.nrtm4.util;
 
-import net.ripe.db.nrtm4.domain.PublishableNrtmDocument;
+import net.ripe.db.nrtm4.domain.NrtmVersionInfo;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -16,12 +16,12 @@ public class NrtmFileUtil {
 
     private static final Random random = new Random();
 
-    public static String newFileName(final PublishableNrtmDocument file) {
-        final String prefix = file.getType().getFileNamePrefix();
-        return String.format("%s.%d.%s.%s.json", prefix, file.getVersion(), file.getSource().getName(), randomHexString());
+    public static String newFileName(final NrtmVersionInfo file) {
+        final String prefix = file.type().getFileNamePrefix();
+        return String.format("%s.%d.%s.%s.json", prefix, file.version(), file.source().getName(), randomHexString());
     }
 
-    public static String newGzFileName(final PublishableNrtmDocument file) {
+    public static String newGzFileName(final NrtmVersionInfo file) {
         final String fileName = newFileName(file);
         return String.format("%s.gz", fileName);
     }

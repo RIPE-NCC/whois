@@ -82,9 +82,8 @@ public class SnapshotFileGenerator {
         final Set<PublishableNrtmFile> publishedFiles = new HashSet<>();
         for (final NrtmVersionInfo sourceVersion : sourceVersions) {
             LOGGER.info("Creating snapshot for {}", sourceVersion.source().getName());
-            final PublishableNrtmFile snapshotFile = new PublishableNrtmFile(sourceVersion);
-            final String fileName = NrtmFileUtil.newGzFileName(snapshotFile);
-            snapshotFile.setFileName(fileName);
+            final String fileName = NrtmFileUtil.newGzFileName(sourceVersion);
+            final PublishableNrtmFile snapshotFile = new PublishableNrtmFile(sourceVersion, fileName);
             publishedFiles.add(snapshotFile);
             final LinkedBlockingQueue<RpslObjectData> queue = new LinkedBlockingQueue<>(QUEUE_CAPACITY);
             queueMap.put(snapshotFile.getSource().getName(), queue);

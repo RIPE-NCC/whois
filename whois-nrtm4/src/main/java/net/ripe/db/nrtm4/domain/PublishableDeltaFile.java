@@ -12,8 +12,8 @@ public class PublishableDeltaFile extends PublishableNrtmFile {
 
     private PublishableDeltaFile() {}
 
-    public PublishableDeltaFile(final NrtmVersionInfo nextVersion, final List<DeltaChange> deltas) {
-        super(nextVersion);
+    public PublishableDeltaFile(final NrtmVersionInfo nextVersion, final List<DeltaChange> deltas, final String fileName) {
+        super(nextVersion, fileName);
         this.changes = deltas;
     }
 
