@@ -9,21 +9,21 @@ import net.ripe.db.nrtm4.domain.NrtmSourceModel;
 import net.ripe.db.nrtm4.domain.NrtmVersionInfo;
 import net.ripe.db.nrtm4.domain.PublishableNrtmFile;
 import net.ripe.db.nrtm4.domain.RpslObjectData;
-import net.ripe.db.nrtm4.domain.SnapshotFile;
 import net.ripe.db.nrtm4.domain.SnapshotState;
 import net.ripe.db.nrtm4.util.NrtmFileUtil;
 import net.ripe.db.whois.common.domain.CIString;
+import net.ripe.db.whois.common.rpsl.Dummifier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
 import java.io.ByteArrayOutputStream;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.zip.GZIPOutputStream;
@@ -35,6 +35,7 @@ public class SnapshotFileGenerator {
     private static final Logger LOGGER = LoggerFactory.getLogger(SnapshotFileGenerator.class);
     private static final int QUEUE_CAPACITY = 1000;
 
+    private final Dummifier dummifierNrtm;
     private final NrtmFileService nrtmFileService;
     private final NrtmVersionInfoRepository nrtmVersionInfoRepository;
     private final RpslObjectEnqueuer rpslObjectEnqueuer;
@@ -43,6 +44,7 @@ public class SnapshotFileGenerator {
     private final SourceRepository sourceRepository;
 
     public SnapshotFileGenerator(
+        final Dummifier dummifierNrtm,
         final NrtmFileService nrtmFileService,
         final NrtmVersionInfoRepository nrtmVersionInfoRepository,
         final RpslObjectEnqueuer rpslObjectEnqueuer,
@@ -50,6 +52,7 @@ public class SnapshotFileGenerator {
         final SnapshotFileSerializer snapshotFileSerializer,
         final SourceRepository sourceRepository
     ) {
+        this.dummifierNrtm = dummifierNrtm;
         this.nrtmFileService = nrtmFileService;
         this.nrtmVersionInfoRepository = nrtmVersionInfoRepository;
         this.rpslObjectEnqueuer = rpslObjectEnqueuer;
@@ -87,7 +90,7 @@ public class SnapshotFileGenerator {
             publishedFiles.add(snapshotFile);
             final LinkedBlockingQueue<RpslObjectData> queue = new LinkedBlockingQueue<>(QUEUE_CAPACITY);
             queueMap.put(snapshotFile.getSource().getName(), queue);
-            final RunnableFileGenerator runner = new RunnableFileGenerator(nrtmFileService, snapshotFileRepository, snapshotFileSerializer, snapshotFile, queue);
+            final RunnableFileGenerator runner = new RunnableFileGenerator(dummifierNrtm, nrtmFileService, snapshotFileRepository, snapshotFileSerializer, snapshotFile, queue);
             final Thread queueReader = new Thread(runner);
             queueReader.start();
             queueReaders.add(queueReader);
@@ -105,35 +108,41 @@ public class SnapshotFileGenerator {
         return publishedFiles;
     }
 
-    public Optional<SnapshotFile> getLastSnapshot(final NrtmSourceModel source) {
-        return snapshotFileRepository.getLastSnapshot(source);
-    }
-
-    private record RunnableFileGenerator(NrtmFileService nrtmFileService, SnapshotFileRepository snapshotFileRepository,
-                                         SnapshotFileSerializer snapshotFileSerializer, PublishableNrtmFile snapshotFile,
-                                         LinkedBlockingQueue<RpslObjectData> queue) implements Runnable {
+    private record RunnableFileGenerator(
+        Dummifier dummifierNrtm,
+        NrtmFileService nrtmFileService,
+        SnapshotFileRepository snapshotFileRepository,
+        SnapshotFileSerializer snapshotFileSerializer,
+        PublishableNrtmFile snapshotFile,
+        LinkedBlockingQueue<RpslObjectData> queue
+    ) implements Runnable {
 
         @Override
         public void run() {
             final ByteArrayOutputStream bos = new ByteArrayOutputStream();
             try (final GZIPOutputStream gzOut = new GZIPOutputStream(bos)) {
-                snapshotFileSerializer.writeObjectQueueAsSnapshot(snapshotFile, queue, gzOut);
-                gzOut.close();
-                LOGGER.info("Source {} snapshot file {}/{}", snapshotFile.getSource().getName(), snapshotFile.getSessionID(), snapshotFile.getFileName());
-                Stopwatch stopwatch = Stopwatch.createStarted();
-                snapshotFile.setHash(NrtmFileUtil.calculateSha256(bos.toByteArray()));
-                LOGGER.info("Calculated hash for {} in {}", snapshotFile.getSource().getName(), stopwatch);
-                stopwatch = Stopwatch.createStarted();
-                final byte[] bytes = bos.toByteArray();
-                nrtmFileService.writeToDisk(snapshotFile, bytes);
-                LOGGER.info("Wrote {} to disk in {}", snapshotFile.getSource().getName(), stopwatch);
-                snapshotFileRepository.insert(snapshotFile, bytes);
-                LOGGER.info("Wrote {} to DB {}", snapshotFile.getSource().getName(), stopwatch);
+                final RpslObjectIterator rpslObjectIterator = new RpslObjectIterator(dummifierNrtm, queue);
+                snapshotFileSerializer.writeObjectQueueAsSnapshot(snapshotFile, rpslObjectIterator, gzOut);
             } catch (final Exception e) {
-                LOGGER.warn("Exception writing snapshot {}", snapshotFile.getSource().getName(), e);
+                LOGGER.error("Exception writing snapshot {}", snapshotFile.getSource().getName(), e);
                 Thread.currentThread().interrupt();
-                throw new RuntimeException(e);
+                return;
             }
+            LOGGER.info("Source {} snapshot file {}/{}", snapshotFile.getSource().getName(), snapshotFile.getSessionID(), snapshotFile.getFileName());
+            Stopwatch stopwatch = Stopwatch.createStarted();
+            snapshotFile.setHash(NrtmFileUtil.calculateSha256(bos.toByteArray()));
+            LOGGER.info("Calculated hash for {} in {}", snapshotFile.getSource().getName(), stopwatch);
+            stopwatch = Stopwatch.createStarted();
+            final byte[] bytes = bos.toByteArray();
+            try {
+                nrtmFileService.writeToDisk(snapshotFile, bytes);
+            } catch (final IOException e) {
+                LOGGER.error("Error writing file to disk", e);
+                return;
+            }
+            LOGGER.info("Wrote {} to disk in {}", snapshotFile.getSource().getName(), stopwatch);
+            snapshotFileRepository.insert(snapshotFile, bytes);
+            LOGGER.info("Wrote {} to DB {}", snapshotFile.getSource().getName(), stopwatch);
         }
 
     }

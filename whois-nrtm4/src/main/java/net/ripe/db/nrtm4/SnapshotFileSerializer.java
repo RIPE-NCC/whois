@@ -7,39 +7,31 @@ import com.fasterxml.jackson.core.util.DefaultPrettyPrinter;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import net.ripe.db.nrtm4.domain.NrtmDocumentType;
 import net.ripe.db.nrtm4.domain.PublishableNrtmFile;
-import net.ripe.db.nrtm4.domain.RpslObjectData;
-import net.ripe.db.whois.common.rpsl.Dummifier;
 import net.ripe.db.whois.common.rpsl.RpslObject;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
 import java.io.OutputStream;
-import java.util.concurrent.LinkedBlockingQueue;
-
-import static net.ripe.db.nrtm4.NrtmConstants.NRTM_VERSION;
-import static net.ripe.db.nrtm4.RpslObjectEnqueuer.POISON_PILL;
+import java.util.Iterator;
 
 
 @Service
 public class SnapshotFileSerializer {
 
     private final boolean isPrettyPrintSnapshots;
-    private final Dummifier dummifierNrtm;
 
     SnapshotFileSerializer(
-        @Value("${nrtm.prettyprint.snapshots:false}") final boolean isPrettyPrintSnapshots,
-        final Dummifier dummifierNrtm
+        @Value("${nrtm.prettyprint.snapshots:false}") final boolean isPrettyPrintSnapshots
     ) {
         this.isPrettyPrintSnapshots = isPrettyPrintSnapshots;
-        this.dummifierNrtm = dummifierNrtm;
     }
 
     public void writeObjectQueueAsSnapshot(
         final PublishableNrtmFile snapshotFile,
-        final LinkedBlockingQueue<RpslObjectData> queue,
+        final Iterator<RpslObject> rpslObjectSupplier,
         final OutputStream outputStream
-    ) throws IOException, InterruptedException {
+    ) throws IOException {
         final JsonGenerator jGenerator = new ObjectMapper().getFactory().createGenerator(outputStream, JsonEncoding.UTF8);
         if (isPrettyPrintSnapshots) {
             final DefaultPrettyPrinter pp = new DefaultPrettyPrinter();
@@ -53,16 +45,8 @@ public class SnapshotFileSerializer {
         jGenerator.writeStringField("session_id", snapshotFile.getSessionID());
         jGenerator.writeNumberField("version", snapshotFile.getVersion());
         jGenerator.writeArrayFieldStart("objects");
-        for (RpslObjectData rpslObjectData = queue.take(); ; rpslObjectData = queue.take()) {
-            if (rpslObjectData.equals(POISON_PILL)) {
-                break;
-            }
-            final RpslObject rpsl = rpslObjectData.rpslObject();
-            if (!dummifierNrtm.isAllowed(NRTM_VERSION, rpsl)) {
-                continue;
-            }
-            final String rpslStr = dummifierNrtm.dummify(NRTM_VERSION, rpslObjectData.rpslObject()).toString();
-            jGenerator.writeString(rpslStr);
+        while (rpslObjectSupplier.hasNext()) {
+            jGenerator.writeString(rpslObjectSupplier.next().toString());
         }
         jGenerator.writeEndArray();
         jGenerator.writeEndObject();

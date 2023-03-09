@@ -60,21 +60,20 @@ public class DeltaFileGenerator {
         if (sourceVersions.isEmpty()) {
             throw new RuntimeException("Cannot create deltas on an empty database");
         }
-        sourceVersions.sort((v1, v2) -> v2.lastSerialId() - v1.lastSerialId());
         final Map<CIString, List<DeltaChange>> deltaMap = new HashMap<>();
         sourceVersions.forEach(sv -> deltaMap.put(sv.source().getName(), new ArrayList<>()));
         final List<SerialEntry> whoisChanges = whoisObjectRepository.getSerialEntriesBetween(sourceVersions.get(0).lastSerialId(), serialIDTo);
         // iterate changes and divide objects per source
-        for (final SerialEntry whoisChange : whoisChanges) {
-            if (!dummifier.isAllowed(NRTM_VERSION, whoisChange.getRpslObject())) {
+        for (final SerialEntry serialEntry : whoisChanges) {
+            if (!dummifier.isAllowed(NRTM_VERSION, serialEntry.getRpslObject())) {
                 continue;
             }
-            final CIString source = whoisChange.getRpslObject().getValueForAttribute(AttributeType.SOURCE);
+            final CIString source = serialEntry.getRpslObject().getValueForAttribute(AttributeType.SOURCE);
             final DeltaChange deltaChange;
-            if (whoisChange.getOperation() == Operation.DELETE) {
-                deltaChange = DeltaChange.delete(whoisChange.getRpslObject().getType(), whoisChange.getPrimaryKey());
+            if (serialEntry.getOperation() == Operation.DELETE) {
+                deltaChange = DeltaChange.delete(serialEntry.getRpslObject().getType(), serialEntry.getPrimaryKey());
             } else {
-                deltaChange = DeltaChange.addModify(dummifier.dummify(NRTM_VERSION, whoisChange.getRpslObject()));
+                deltaChange = DeltaChange.addModify(dummifier.dummify(NRTM_VERSION, serialEntry.getRpslObject()));
             }
             deltaMap.get(source).add(deltaChange);
         }

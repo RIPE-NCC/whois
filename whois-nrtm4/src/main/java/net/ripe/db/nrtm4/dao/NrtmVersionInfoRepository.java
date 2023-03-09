@@ -59,7 +59,7 @@ public class NrtmVersionInfoRepository {
                         JOIN source src ON src.id = vi.source_id,
                         (SELECT source_id, MAX(version) version FROM version_info GROUP BY source_id) maxv
                     WHERE vi.source_id = maxv.source_id AND vi.version = maxv.version
-                    ORDER BY src.name
+                    ORDER BY vi.last_serial_id DESC
                     """,
                 rowMapper);
         } catch (final EmptyResultDataAccessException ex) {
