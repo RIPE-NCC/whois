@@ -97,13 +97,13 @@ public class RpslObjectEnqueuer {
                         if (queue == null) {
                             final String msg = "RPSL object declares an unknown source attribute";
                             LOGGER.error("{}: {} known sources: {}", msg, rpslObject.getValueForAttribute(AttributeType.SOURCE), Arrays.toString(queueMap.keySet().toArray()));
-                            throw new NrtmDataInconsistencyException(msg);
-                        }
-                        try {
-                            queue.put(new RpslObjectData(object.objectId(), object.sequenceId(), rpslObject));
-                        } catch (final InterruptedException e) {
-                            LOGGER.error("Interrupted " + rpslObject.getValueForAttribute(AttributeType.SOURCE));
-                            Thread.currentThread().interrupt();
+                        } else {
+                            try {
+                                queue.put(new RpslObjectData(object.objectId(), object.sequenceId(), rpslObject));
+                            } catch (final InterruptedException e) {
+                                LOGGER.error("Interrupted " + rpslObject.getValueForAttribute(AttributeType.SOURCE));
+                                Thread.currentThread().interrupt();
+                            }
                         }
                     }
                 });

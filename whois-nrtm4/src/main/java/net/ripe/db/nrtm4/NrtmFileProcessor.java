@@ -58,8 +58,6 @@ public class NrtmFileProcessor {
                 LOGGER.info("Initializing...");
                 snapshotFiles.addAll(snapshotFileGenerator.createSnapshots(state));
                 LOGGER.info("Initialization complete");
-            } else {
-                LOGGER.info("Initialization skipped because NrtmProcessControl has disabled initial snapshot generation");
             }
         } else {
             // Must do deltas first since snapshot creation is skipped if there aren't any
