@@ -10,6 +10,7 @@ import java.util.Iterator;
 import java.util.concurrent.LinkedBlockingQueue;
 
 import static net.ripe.db.nrtm4.NrtmConstants.NRTM_VERSION;
+import static net.ripe.db.nrtm4.RpslObjectEnqueuer.POISON_PILL;
 
 
 public class RpslObjectIterator implements Iterator<RpslObject> {
@@ -33,7 +34,7 @@ public class RpslObjectIterator implements Iterator<RpslObject> {
         try {
             while(true) {
                 final RpslObjectData rpslObjectData = queue.take();
-                if (rpslObjectData.objectId() == 0) {
+                if (rpslObjectData.objectId() == POISON_PILL.objectId()) {
                     next = null;
                     return false;
                 }

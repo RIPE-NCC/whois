@@ -8,7 +8,6 @@ import net.ripe.db.nrtm4.dao.SnapshotFileRepository;
 import net.ripe.db.nrtm4.dao.SourceRepository;
 import net.ripe.db.nrtm4.domain.DeltaFile;
 import net.ripe.db.nrtm4.domain.PublishableDeltaFile;
-import net.ripe.db.nrtm4.jmx.NrtmProcessControlJmx;
 import net.ripe.db.whois.common.rpsl.RpslObject;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
@@ -37,27 +36,14 @@ public class NrtmFileProcessorIntegrationTest extends AbstractNrtm4IntegrationBa
     private NrtmVersionInfoRepository nrtmVersionInfoRepository;
 
     @Autowired
-    private NrtmProcessControlJmx nrtmProcessControlJmx;
-
-    @Autowired
     private SnapshotFileRepository snapshotFileRepository;
 
     @Autowired
     private SourceRepository sourceRepository;
 
     @Test
-    void file_write_job_is_disabled_by_jmx() throws IOException {
-        loadScripts(whoisTemplate, "nrtm_sample_sm.sql");
-        nrtmProcessControlJmx.disableInitialSnapshotGeneration();
-        nrtmFileProcessor.updateNrtmFilesAndPublishNotification();
-        final var source = nrtmVersionInfoRepository.findLastVersion();
-        assertThat(source.isPresent(), is(false));
-    }
-
-    @Test
     void file_write_job_is_enabled_by_jmx() throws IOException {
         loadScripts(whoisTemplate, "nrtm_sample_sm.sql");
-        nrtmProcessControlJmx.enableInitialSnapshotGeneration();
         nrtmFileProcessor.updateNrtmFilesAndPublishNotification();
         final var source = nrtmVersionInfoRepository.findLastVersion();
         assertThat(source.isPresent(), is(true));
@@ -65,7 +51,6 @@ public class NrtmFileProcessorIntegrationTest extends AbstractNrtm4IntegrationBa
 
     @Test
     void file_write_job_works_on_empty_whois() throws IOException {
-        nrtmProcessControlJmx.enableInitialSnapshotGeneration();
         nrtmFileProcessor.updateNrtmFilesAndPublishNotification();
         final var source = nrtmVersionInfoRepository.findLastVersion();
         assertThat(source.isPresent(), is(true));
@@ -73,7 +58,6 @@ public class NrtmFileProcessorIntegrationTest extends AbstractNrtm4IntegrationBa
 
     @Test
     public void snapshot_file_and_delta_is_generated() throws JsonProcessingException {
-        nrtmProcessControlJmx.enableInitialSnapshotGeneration();
         {
             final var whoisSource = sourceRepository.getWhoisSource();
             assertThat(whoisSource.isPresent(), is(false));
