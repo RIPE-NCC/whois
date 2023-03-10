@@ -37,7 +37,7 @@ public class ElasticAutocompleteSearch implements AutocompleteSearch {
 
     private static final int MAX_SEARCH_RESULTS = 10;
     private static final Pattern COMMENT_PATTERN = Pattern.compile("#.*");
-    public static final List<SortBuilder<?>> SORT_BUILDERS = Arrays.asList(SortBuilders.scoreSort(), SortBuilders.fieldSort("lookup-key.raw").unmappedType("string"));
+    public static final List<SortBuilder<?>> SORT_BUILDERS = Arrays.asList(SortBuilders.scoreSort(), SortBuilders.fieldSort("lookup-key.raw").unmappedType("keyword"));
 
     private final ElasticIndexService elasticIndexService;
 
