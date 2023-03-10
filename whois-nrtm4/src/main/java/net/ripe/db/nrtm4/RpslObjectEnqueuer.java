@@ -92,7 +92,13 @@ public class RpslObjectEnqueuer {
                     for (final WhoisObjectData object : objectBatch) {
                         numberOfEnqueuedObjects.incrementAndGet();
                         final String rpsl = rpslMap.get(object.objectId());
-                        final RpslObject rpslObject = RpslObject.parse(rpsl);
+                        final RpslObject rpslObject;
+                        try {
+                            rpslObject = RpslObject.parse(rpsl);
+                        } catch (final Exception e) {
+                            LOGGER.warn("Parsing RPSL threw exception", e);
+                            continue;
+                        }
                         final LinkedBlockingQueue<RpslObjectData> queue = queueMap.get(rpslObject.getValueForAttribute(AttributeType.SOURCE));
                         if (queue == null) {
                             final String msg = "RPSL object declares an unknown source attribute";
