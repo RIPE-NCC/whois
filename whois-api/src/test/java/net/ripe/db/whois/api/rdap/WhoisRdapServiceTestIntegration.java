@@ -20,6 +20,7 @@ import net.ripe.db.whois.common.rpsl.RpslObject;
 import net.ripe.db.whois.query.support.TestWhoisLog;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -453,7 +454,6 @@ public class WhoisRdapServiceTestIntegration extends AbstractRdapIntegrationTest
 
     @Test
     public void lookup_inetnum() {
-
         databaseHelper.addObject("" +
                 "inetnum:      192.132.74.0 - 192.132.77.255\n" +
                 "netname:      TEST-NET-NAME\n" +
@@ -535,6 +535,39 @@ public class WhoisRdapServiceTestIntegration extends AbstractRdapIntegrationTest
             assertErrorDescription(e, "'invalid' is not an IP string literal.");
         }
     }
+
+    @Disabled("TODO: handle multiple mnt-by values")
+    @Test
+    public void lookup_inetnum_multiple_mntby() {
+        databaseHelper.addObject("" +
+                "mntner:         SECOND-MNT\n" +
+                "descr:          Second Maintainer\n" +
+                "admin-c:        TP1-TEST\n" +
+                "upd-to:         noreply@ripe.net\n" +
+                "auth:           MD5-PW $1$d9fKeTr2$Si7YudNf4rUGmR71n/cqk/ #test\n" +
+                "mnt-by:         SECOND-MNT\n" +
+                "created:        2011-07-28T00:35:42Z\n" +
+                "last-modified:  2019-02-28T10:14:46Z\n" +
+                "source:         TEST");
+        databaseHelper.addObject("" +
+                "inetnum:      192.132.74.0 - 192.132.77.255\n" +
+                "netname:      TEST-NET-NAME\n" +
+                "descr:        TEST network\n" +
+                "country:      NL\n" +
+                "tech-c:       TP1-TEST\n" +
+                "status:       OTHER\n" +
+                "mnt-by:       OWNER-MNT,SECOND-MNT\n" +
+                "created:         2022-08-14T11:48:28Z\n" +
+                "last-modified:   2022-10-25T12:22:39Z\n" +
+                "source:       TEST");
+        ipTreeUpdater.rebuild();
+
+        Ip ip = createResource("ip/192.132.75.165")
+                .request(MediaType.APPLICATION_JSON_TYPE)
+                .get(Ip.class);
+    }
+
+
     // inet6num
 
     @Test
@@ -1088,6 +1121,20 @@ public class WhoisRdapServiceTestIntegration extends AbstractRdapIntegrationTest
     }
 
     @Test
+    public void not_found() {
+        try {
+            createResource("test")
+                    .request(MediaType.APPLICATION_JSON_TYPE)
+                    .get(RdapObject.class);
+            fail();
+        } catch (NotFoundException e) {
+            assertErrorStatus(e, 404);
+            assertErrorTitle(e, "HTTP 404 Not Found");
+        }
+    }
+
+
+    @Test
     public void domain_not_found() {
         try {
             createResource("domain/10.in-addr.arpa")
@@ -1497,6 +1544,7 @@ public class WhoisRdapServiceTestIntegration extends AbstractRdapIntegrationTest
             assertErrorTitle(e, "404 Not Found");
         }
     }
+
     @Test
     public void lookup_inetnum_abuse_contact_as_vcard() {
         databaseHelper.addObject("" +
