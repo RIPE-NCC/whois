@@ -18,14 +18,22 @@ public abstract class PublishableNrtmDocument {
     private final String sessionID;
     private final long version;
 
+    protected PublishableNrtmDocument() {
+        versionId = 0L;
+        type = null;
+        source = null;
+        sessionID = null;
+        version = 0L;
+    }
+
     PublishableNrtmDocument(
         final NrtmVersionInfo version
     ) {
-        this.versionId = version.getId();
-        this.type = version.getType();
-        this.source = version.getSource();
-        this.sessionID = version.getSessionID();
-        this.version = version.getVersion();
+        this.versionId = version.id();
+        this.type = version.type();
+        this.source = version.source();
+        this.sessionID = version.sessionID();
+        this.version = version.version();
     }
 
     public Long getVersionId() {
@@ -40,7 +48,7 @@ public abstract class PublishableNrtmDocument {
         return type;
     }
 
-    public NrtmSourceModel getSourceModel() {
+    public NrtmSourceModel getSource() {
         return source;
     }
 

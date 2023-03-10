@@ -1,16 +1,22 @@
 package net.ripe.db.nrtm4;
 
+import net.ripe.db.nrtm4.dao.SnapshotFileRepository;
 import net.ripe.db.nrtm4.dao.SourceRepository;
-import net.ripe.db.nrtm4.domain.PublishableSnapshotFile;
+import net.ripe.db.nrtm4.dao.WhoisObjectRepository;
+import net.ripe.db.nrtm4.domain.PublishableNrtmFile;
+import net.ripe.db.nrtm4.util.NrtmFileUtil;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import java.io.ByteArrayOutputStream;
+import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.OutputStream;
 import java.nio.charset.StandardCharsets;
-import java.util.List;
+import java.util.Collection;
+import java.util.zip.GZIPInputStream;
 
 import static net.ripe.db.nrtm4.domain.NrtmDocumentType.SNAPSHOT;
 import static net.ripe.db.whois.common.dao.jdbc.JdbcRpslObjectOperations.loadScripts;
@@ -32,32 +38,38 @@ public class SnapshotFileGeneratorIntegrationTest extends AbstractNrtm4Integrati
     private SnapshotFileGenerator snapshotFileGenerator;
 
     @Autowired
+    private SnapshotFileRepository snapshotFileRepository;
+
+    @Autowired
     private SourceRepository sourceRepository;
+
+    @Autowired
+    private WhoisObjectRepository whoisObjectRepository;
 
     @Autowired
     private NrtmFileService nrtmFileService;
 
-    @Autowired
-    private NrtmFileStore nrtmFileStore;
-
     @Test
-    public void initial_snapshot_file_is_generated_and_written_to_disk() throws IOException {
+    public void snapshot_file_is_generated_and_written_to_disk() throws IOException {
         loadScripts(whoisTemplate, "nrtm_sample_sm.sql");
+        System.setProperty("nrtm.file.path", "/tmp");
         sourceRepository.createSources();
         final String sessionID;
         {
-            final List<PublishableSnapshotFile> psfList = snapshotFileGenerator.createSnapshots();
+            final var state = whoisObjectRepository.getSnapshotState();
+            final Collection<PublishableNrtmFile> psfList = snapshotFileGenerator.createSnapshots(state);
             assertThat(psfList.size(), is(2));
-            final PublishableSnapshotFile snapshotFile = psfList.stream().filter(psf -> psf.getSourceModel().getName().toString().equals("TEST")).findFirst().orElseThrow();
-            assertThat(snapshotFile.getVersion(), is(1L));
-            sessionID = snapshotFile.getSessionID();
+            final PublishableNrtmFile snapshotJsonFile = psfList.stream().filter(psf -> psf.getSource().getName().toString().equals("TEST")).findFirst().orElseThrow();
+            assertThat(snapshotJsonFile.getVersion(), is(1L));
+            sessionID = snapshotJsonFile.getSessionID();
             assertThat(sessionID, is(notNullValue()));
-            assertThat(snapshotFile.getSourceModel().getId(), is(sourceRepository.getWhoisSource().orElseThrow().getId()));
-            assertThat(snapshotFile.getSourceModel().getName(), is(sourceRepository.getWhoisSource().orElseThrow().getName()));
-            assertThat(snapshotFile.getNrtmVersion(), is(4));
-            assertThat(snapshotFile.getType(), is(SNAPSHOT));
+            assertThat(snapshotJsonFile.getSource().getId(), is(sourceRepository.getWhoisSource().orElseThrow().getId()));
+            assertThat(snapshotJsonFile.getSource().getName(), is(sourceRepository.getWhoisSource().orElseThrow().getName()));
+            assertThat(snapshotJsonFile.getNrtmVersion(), is(4));
+            assertThat(snapshotJsonFile.getType(), is(SNAPSHOT));
+            final var lastSnapshotFile = snapshotFileRepository.getLastSnapshot(snapshotJsonFile.getSource()).orElseThrow();
             final var bos = new ByteArrayOutputStream();
-            nrtmFileStore.streamFromFile(snapshotFile.getSessionID(), snapshotFile.getFileName(), bos);
+            streamFromGZFile(snapshotJsonFile.getSessionID(), lastSnapshotFile.name(), bos);
             final var expected = """
                 {
                   "nrtm_version" : 4,
@@ -70,7 +82,40 @@ public class SnapshotFileGeneratorIntegrationTest extends AbstractNrtm4Integrati
                   ]
                 }""";
             assertThat(bos.toString(StandardCharsets.UTF_8).replaceFirst("\"session_id\" : \"[^\"]+\"", "\"session_id\" : \"\""), is(expected));
-            assertThat(snapshotFile.getFileName(), startsWith("nrtm-snapshot.1."));
+            assertThat(lastSnapshotFile.name(), startsWith("nrtm-snapshot.1."));
+        }
+    }
+
+    @Test
+    public void big_snapshot_file_is_generated_and_written_to_disk() {
+        loadScripts(whoisTemplate, "serials.no-schema.md.sql");
+        loadScripts(whoisTemplate, "last.no-schema.md.sql");
+        sourceRepository.createSources();
+        final String sessionID;
+        {
+            final var state = whoisObjectRepository.getSnapshotState();
+            final Collection<PublishableNrtmFile> psfList = snapshotFileGenerator.createSnapshots(state);
+            assertThat(psfList.size(), is(2));
+            final PublishableNrtmFile snapshotJsonFile = psfList.stream().filter(psf -> psf.getSource().getName().toString().equals("TEST")).findFirst().orElseThrow();
+            assertThat(snapshotJsonFile.getVersion(), is(1L));
+            sessionID = snapshotJsonFile.getSessionID();
+            assertThat(sessionID, is(notNullValue()));
+            assertThat(snapshotJsonFile.getSource().getId(), is(sourceRepository.getWhoisSource().orElseThrow().getId()));
+            assertThat(snapshotJsonFile.getSource().getName(), is(sourceRepository.getWhoisSource().orElseThrow().getName()));
+            assertThat(snapshotJsonFile.getNrtmVersion(), is(4));
+            assertThat(snapshotJsonFile.getType(), is(SNAPSHOT));
+            //final var bos = new ByteArrayOutputStream();
+            //nrtmFileStore.streamFromGZFile(snapshotFile.getSessionID(), snapshotFile.getFileName(), bos);
+            final var lastSnapshotFile = snapshotFileRepository.getLastSnapshot(snapshotJsonFile.getSource()).orElseThrow();
+            assertThat(lastSnapshotFile.name(), startsWith("nrtm-snapshot.1."));
+        }
+    }
+
+    void streamFromGZFile(final String sessionId, final String name, final OutputStream out) throws IOException {
+        final var path = System.getProperty("nrtm.file.path");
+        try (final FileInputStream fis = NrtmFileUtil.getFileInputStream(path, sessionId, name)) {
+            final GZIPInputStream gzipInputStream = new GZIPInputStream(fis);
+            gzipInputStream.transferTo(out);
         }
     }
 
