@@ -27,13 +27,13 @@ public class PublishableNrtmNotificationFile extends PublishableNrtmFile {
         this.deltas = deltas;
     }
 
-    private static class NrtmFileLink {
+    public static class NrtmFileLink {
 
-        private final String version;
+        private final long version;
         private final String url;
         private final String hash;
 
-        public NrtmFileLink(final String version, final String url, final String hash) {
+        public NrtmFileLink(final long version, final String url, final String hash) {
             this.version = version;
             this.url = url;
             this.hash = hash;

@@ -3,6 +3,7 @@ package net.ripe.db.nrtm4;
 import net.ripe.db.nrtm4.dao.SourceRepository;
 import net.ripe.db.nrtm4.dao.WhoisObjectRepository;
 import net.ripe.db.nrtm4.domain.NrtmSourceModel;
+import net.ripe.db.nrtm4.domain.NrtmVersionInfo;
 import net.ripe.db.nrtm4.domain.SnapshotState;
 import org.mariadb.jdbc.internal.logging.Logger;
 import org.mariadb.jdbc.internal.logging.LoggerFactory;
@@ -20,6 +21,7 @@ public class NrtmFileProcessor {
 
     private final DeltaFileGenerator deltaFileGenerator;
     private final NrtmFileService nrtmFileService;
+    private final NotificationFileGenerator notificationFileGenerator;
     private final SnapshotFileGenerator snapshotFileGenerator;
     private final SourceRepository sourceRepository;
     private final WhoisObjectRepository whoisObjectRepository;
@@ -27,12 +29,14 @@ public class NrtmFileProcessor {
     public NrtmFileProcessor(
         final DeltaFileGenerator deltaFileGenerator,
         final NrtmFileService nrtmFileService,
+        final NotificationFileGenerator notificationFileGenerator,
         final SnapshotFileGenerator snapshotFileGenerator,
         final SourceRepository sourceRepository,
         final WhoisObjectRepository whoisObjectRepository
     ) {
         this.deltaFileGenerator = deltaFileGenerator;
         this.nrtmFileService = nrtmFileService;
+        this.notificationFileGenerator = notificationFileGenerator;
         this.snapshotFileGenerator = snapshotFileGenerator;
         this.sourceRepository = sourceRepository;
         this.whoisObjectRepository = whoisObjectRepository;
@@ -45,8 +49,9 @@ public class NrtmFileProcessor {
         if (sourceList.isEmpty()) {
             sourceRepository.createSources();
             LOGGER.info("Initializing...");
-            snapshotFileGenerator.createSnapshots(state);
+            final List<NrtmVersionInfo> versions = snapshotFileGenerator.createSnapshots(state);
             LOGGER.info("Initialization complete");
+            versions.forEach(notificationFileGenerator::createInitialNotification);
         } else {
             // Must do deltas first since snapshot creation is skipped if there aren't any
             deltaFileGenerator.createDeltas(state.serialId());
