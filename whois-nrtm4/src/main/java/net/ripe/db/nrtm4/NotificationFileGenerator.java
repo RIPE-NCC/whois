@@ -24,7 +24,7 @@ public class NotificationFileGenerator {
     private final SnapshotFileRepository snapshotFileRepository;
 
     public NotificationFileGenerator(
-        @Value("nrtm.baseUrl") final String baseUrl,
+        @Value("${nrtm.baseUrl}") final String baseUrl,
         final NotificationFileDao notificationFileDao,
         final SnapshotFileRepository snapshotFileRepository
     ) {

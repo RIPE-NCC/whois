@@ -50,8 +50,8 @@ public class NrtmFileProcessor {
             sourceRepository.createSources();
             LOGGER.info("Initializing...");
             final List<NrtmVersionInfo> versions = snapshotFileGenerator.createSnapshots(state);
-            LOGGER.info("Initialization complete");
             versions.forEach(notificationFileGenerator::createInitialNotification);
+            LOGGER.info("Initialization complete");
         } else {
             // Must do deltas first since snapshot creation is skipped if there aren't any
             deltaFileGenerator.createDeltas(state.serialId());
