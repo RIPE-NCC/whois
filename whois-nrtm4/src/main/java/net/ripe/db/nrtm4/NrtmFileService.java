@@ -3,7 +3,6 @@ package net.ripe.db.nrtm4;
 import com.google.common.util.concurrent.Monitor;
 import net.ripe.db.nrtm4.dao.SnapshotFileRepository;
 import net.ripe.db.nrtm4.domain.NrtmDocumentType;
-import net.ripe.db.nrtm4.domain.PublishableNrtmFile;
 import net.ripe.db.nrtm4.domain.SnapshotFile;
 import net.ripe.db.nrtm4.util.NrtmFileUtil;
 import org.slf4j.Logger;
@@ -53,9 +52,9 @@ public class NrtmFileService {
         }
     }
 
-    public void writeToDisk(final PublishableNrtmFile file, final byte[] bytes) throws IOException {
-        final File dir = new File(path, file.getSessionID());
-        final OutputStream fileOut = new BufferedOutputStream(new FileOutputStream(new File(dir, file.getFileName())), BUFFER_SIZE);
+    public void writeToDisk(final String sessionID, final String name, final byte[] bytes) throws IOException {
+        final File dir = new File(path, sessionID);
+        final OutputStream fileOut = new BufferedOutputStream(new FileOutputStream(new File(dir, name)), BUFFER_SIZE);
         fileOut.write(bytes);
         fileOut.flush();
     }

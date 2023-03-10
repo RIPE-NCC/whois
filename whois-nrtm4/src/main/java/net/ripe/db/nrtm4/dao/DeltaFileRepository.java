@@ -2,7 +2,6 @@ package net.ripe.db.nrtm4.dao;
 
 import net.ripe.db.nrtm4.domain.DeltaFile;
 import net.ripe.db.nrtm4.domain.NrtmVersionInfo;
-import net.ripe.db.nrtm4.domain.PublishableDeltaFile;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
@@ -32,8 +31,8 @@ public class DeltaFileRepository {
         this.jdbcTemplate = new JdbcTemplate(dataSource);
     }
 
-    public void save(final PublishableDeltaFile deltaFile, final String payload) {
-        save(deltaFile.getVersionId(), deltaFile.getFileName(), deltaFile.getHash(), payload);
+    public void save(final DeltaFile deltaFile) {
+        save(deltaFile.versionId(), deltaFile.name(), deltaFile.hash(), deltaFile.payload());
     }
 
     private void save(

@@ -6,7 +6,7 @@ import com.fasterxml.jackson.core.util.DefaultIndenter;
 import com.fasterxml.jackson.core.util.DefaultPrettyPrinter;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import net.ripe.db.nrtm4.domain.NrtmDocumentType;
-import net.ripe.db.nrtm4.domain.PublishableNrtmFile;
+import net.ripe.db.nrtm4.domain.NrtmVersionInfo;
 import net.ripe.db.whois.common.rpsl.RpslObject;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -14,6 +14,8 @@ import org.springframework.stereotype.Service;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.util.Iterator;
+
+import static net.ripe.db.nrtm4.NrtmConstants.NRTM_VERSION;
 
 
 @Service
@@ -28,7 +30,7 @@ public class SnapshotFileSerializer {
     }
 
     public void writeObjectQueueAsSnapshot(
-        final PublishableNrtmFile snapshotFile,
+        final NrtmVersionInfo version,
         final Iterator<RpslObject> rpslObjectSupplier,
         final OutputStream outputStream
     ) throws IOException {
@@ -39,11 +41,11 @@ public class SnapshotFileSerializer {
             jGenerator.setPrettyPrinter(pp);
         }
         jGenerator.writeStartObject();
-        jGenerator.writeNumberField("nrtm_version", snapshotFile.getNrtmVersion());
+        jGenerator.writeNumberField("nrtm_version", NRTM_VERSION);
         jGenerator.writeStringField("type", NrtmDocumentType.SNAPSHOT.lowerCaseName());
-        jGenerator.writeStringField("source", snapshotFile.getSource().getName().toString());
-        jGenerator.writeStringField("session_id", snapshotFile.getSessionID());
-        jGenerator.writeNumberField("version", snapshotFile.getVersion());
+        jGenerator.writeStringField("source", version.source().getName().toString());
+        jGenerator.writeStringField("session_id", version.sessionID());
+        jGenerator.writeNumberField("version", version.version());
         jGenerator.writeArrayFieldStart("objects");
         while (rpslObjectSupplier.hasNext()) {
             jGenerator.writeString(rpslObjectSupplier.next().toString());

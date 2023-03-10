@@ -6,6 +6,7 @@ import net.ripe.db.nrtm4.dao.DeltaFileRepository;
 import net.ripe.db.nrtm4.dao.NrtmVersionInfoRepository;
 import net.ripe.db.nrtm4.dao.WhoisObjectRepository;
 import net.ripe.db.nrtm4.domain.DeltaChange;
+import net.ripe.db.nrtm4.domain.DeltaFile;
 import net.ripe.db.nrtm4.domain.NrtmVersionInfo;
 import net.ripe.db.nrtm4.domain.PublishableDeltaFile;
 import net.ripe.db.nrtm4.util.NrtmFileUtil;
@@ -82,16 +83,17 @@ public class DeltaFileGenerator {
             final List<DeltaChange> deltas = deltaMap.get(version.source().getName());
             if (!deltas.isEmpty()) {
                 final NrtmVersionInfo newVersion = nrtmVersionInfoRepository.saveNewDeltaVersion(version, serialIDTo);
-                final PublishableDeltaFile deltaFile = new PublishableDeltaFile(newVersion, deltas, NrtmFileUtil.newFileName(newVersion));
+                final PublishableDeltaFile publishableDeltaFile = new PublishableDeltaFile(newVersion, deltas);
                 final ObjectMapper objectMapper = new ObjectMapper();
                 try {
-                    final String json = objectMapper.writeValueAsString(deltaFile);
-                    deltaFile.setHash(NrtmFileUtil.calculateSha256(json.getBytes(StandardCharsets.UTF_8)));
-                    deltaFileRepository.save(deltaFile, json);
-                    nrtmFileService.writeToDisk(deltaFile, json.getBytes(StandardCharsets.UTF_8));
-                    deltaFiles.add(deltaFile);
+                    final String json = objectMapper.writeValueAsString(publishableDeltaFile);
+                    final String hash = NrtmFileUtil.calculateSha256(json.getBytes(StandardCharsets.UTF_8));
+                    final DeltaFile deltaFile = DeltaFile.of(newVersion.id(), NrtmFileUtil.newFileName(newVersion), hash, json);
+                    deltaFileRepository.save(deltaFile);
+                    nrtmFileService.writeToDisk(newVersion.sessionID(), deltaFile.name(), json.getBytes(StandardCharsets.UTF_8));
+                    deltaFiles.add(publishableDeltaFile);
                 } catch (final IOException e) {
-                    LOGGER.warn("Exception processing delta file {}", deltaFile.getSource().getName(), e);
+                    LOGGER.warn("Exception processing delta file {}", publishableDeltaFile.getSource().getName(), e);
                 }
             }
         }
