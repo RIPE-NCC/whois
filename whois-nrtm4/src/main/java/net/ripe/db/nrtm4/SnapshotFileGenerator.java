@@ -22,10 +22,8 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.zip.GZIPOutputStream;
 
@@ -64,7 +62,7 @@ public class SnapshotFileGenerator {
         this.sourceRepository = sourceRepository;
     }
 
-    public Set<PublishableNrtmFile> createSnapshots(final SnapshotState state) {
+    public List<NrtmVersionInfo> createSnapshots(final SnapshotState state) {
         final Stopwatch stopwatchRoot = Stopwatch.createStarted();
         // Get last version from database.
         final List<NrtmVersionInfo> sourceVersions = nrtmVersionInfoRepository.findLastVersionPerSource();
@@ -80,17 +78,14 @@ public class SnapshotFileGenerator {
             sourceVersions.removeIf(versionToRemove -> versionToRemove.type() == NrtmDocumentType.SNAPSHOT);
             if (sourceVersions.isEmpty()) {
                 LOGGER.info("No deltas created since last snapshot. Skipping snapshot creation");
-                return Set.of();
+                return List.of();
             }
         }
         final List<Thread> queueReaders = new ArrayList<>();
         final Map<CIString, LinkedBlockingQueue<RpslObjectData>> queueMap = new HashMap<>();
-        final Set<PublishableNrtmFile> publishedFiles = new HashSet<>();
         for (final NrtmVersionInfo sourceVersion : sourceVersions) {
             LOGGER.info("Creating snapshot for {}", sourceVersion.source().getName());
-            final String fileName = NrtmFileUtil.newGzFileName(sourceVersion);
             final PublishableNrtmFile snapshotFile = new PublishableNrtmFile(sourceVersion);
-            publishedFiles.add(snapshotFile);
             final LinkedBlockingQueue<RpslObjectData> queue = new LinkedBlockingQueue<>(QUEUE_CAPACITY);
             queueMap.put(snapshotFile.getSource().getName(), queue);
             final RunnableFileGenerator runner = new RunnableFileGenerator(dummifierNrtm, nrtmFileService, snapshotFileRepository, snapshotFileSerializer, sourceVersion, queue);
@@ -108,7 +103,7 @@ public class SnapshotFileGenerator {
             }
         }
         LOGGER.info("Generation complete {}", stopwatchRoot);
-        return publishedFiles;
+        return sourceVersions;
     }
 
     private record RunnableFileGenerator(
@@ -131,7 +126,7 @@ public class SnapshotFileGenerator {
                 Thread.currentThread().interrupt();
                 return;
             }
-            final String fileName = NrtmFileUtil.newFileName(version);
+            final String fileName = NrtmFileUtil.newGzFileName(version);
             LOGGER.info("Source {} snapshot file {}/{}", version.source().getName(), version.sessionID(), fileName);
             Stopwatch stopwatch = Stopwatch.createStarted();
             LOGGER.info("Calculated hash for {} in {}", version.source().getName(), stopwatch);

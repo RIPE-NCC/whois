@@ -23,10 +23,8 @@ import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 import static net.ripe.db.nrtm4.NrtmConstants.NRTM_VERSION;
 
@@ -55,7 +53,7 @@ public class DeltaFileGenerator {
         this.whoisObjectRepository = whoisObjectRepository;
     }
 
-    public Set<PublishableDeltaFile> createDeltas(final int serialIDTo) {
+    public List<NrtmVersionInfo> createDeltas(final int serialIDTo) {
         final Stopwatch stopwatch = Stopwatch.createStarted();
         final List<NrtmVersionInfo> sourceVersions = nrtmVersionInfoRepository.findLastVersionPerSource();
         if (sourceVersions.isEmpty()) {
@@ -78,7 +76,6 @@ public class DeltaFileGenerator {
             }
             deltaMap.get(source).add(deltaChange);
         }
-        final Set<PublishableDeltaFile> deltaFiles = new HashSet<>();
         for (final NrtmVersionInfo version: sourceVersions) {
             final List<DeltaChange> deltas = deltaMap.get(version.source().getName());
             if (!deltas.isEmpty()) {
@@ -91,14 +88,13 @@ public class DeltaFileGenerator {
                     final DeltaFile deltaFile = DeltaFile.of(newVersion.id(), NrtmFileUtil.newFileName(newVersion), hash, json);
                     deltaFileRepository.save(deltaFile);
                     nrtmFileService.writeToDisk(newVersion.sessionID(), deltaFile.name(), json.getBytes(StandardCharsets.UTF_8));
-                    deltaFiles.add(publishableDeltaFile);
                 } catch (final IOException e) {
                     LOGGER.warn("Exception processing delta file {}", publishableDeltaFile.getSource().getName(), e);
                 }
             }
         }
         LOGGER.info("Created delta list in {}", stopwatch);
-        return deltaFiles;
+        return sourceVersions;
     }
 
 }

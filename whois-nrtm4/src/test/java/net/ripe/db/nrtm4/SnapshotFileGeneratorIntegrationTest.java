@@ -3,7 +3,7 @@ package net.ripe.db.nrtm4;
 import net.ripe.db.nrtm4.dao.SnapshotFileRepository;
 import net.ripe.db.nrtm4.dao.SourceRepository;
 import net.ripe.db.nrtm4.dao.WhoisObjectRepository;
-import net.ripe.db.nrtm4.domain.PublishableNrtmFile;
+import net.ripe.db.nrtm4.domain.NrtmVersionInfo;
 import net.ripe.db.nrtm4.util.NrtmFileUtil;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Tag;
@@ -57,19 +57,18 @@ public class SnapshotFileGeneratorIntegrationTest extends AbstractNrtm4Integrati
         final String sessionID;
         {
             final var state = whoisObjectRepository.getSnapshotState();
-            final Collection<PublishableNrtmFile> psfList = snapshotFileGenerator.createSnapshots(state);
+            final Collection<NrtmVersionInfo> psfList = snapshotFileGenerator.createSnapshots(state);
             assertThat(psfList.size(), is(2));
-            final PublishableNrtmFile snapshotJsonFile = psfList.stream().filter(psf -> psf.getSource().getName().toString().equals("TEST")).findFirst().orElseThrow();
-            assertThat(snapshotJsonFile.getVersion(), is(1L));
-            sessionID = snapshotJsonFile.getSessionID();
+            final NrtmVersionInfo snapshotJsonFile = psfList.stream().filter(psf -> psf.source().getName().toString().equals("TEST")).findFirst().orElseThrow();
+            assertThat(snapshotJsonFile.version(), is(1L));
+            sessionID = snapshotJsonFile.sessionID();
             assertThat(sessionID, is(notNullValue()));
-            assertThat(snapshotJsonFile.getSource().getId(), is(sourceRepository.getWhoisSource().orElseThrow().getId()));
-            assertThat(snapshotJsonFile.getSource().getName(), is(sourceRepository.getWhoisSource().orElseThrow().getName()));
-            assertThat(snapshotJsonFile.getNrtmVersion(), is(4));
-            assertThat(snapshotJsonFile.getType(), is(SNAPSHOT));
-            final var lastSnapshotFile = snapshotFileRepository.getLastSnapshot(snapshotJsonFile.getSource()).orElseThrow();
+            assertThat(snapshotJsonFile.source().getId(), is(sourceRepository.getWhoisSource().orElseThrow().getId()));
+            assertThat(snapshotJsonFile.source().getName(), is(sourceRepository.getWhoisSource().orElseThrow().getName()));
+            assertThat(snapshotJsonFile.type(), is(SNAPSHOT));
+            final var lastSnapshotFile = snapshotFileRepository.getLastSnapshot(snapshotJsonFile.source()).orElseThrow();
             final var bos = new ByteArrayOutputStream();
-            streamFromGZFile(snapshotJsonFile.getSessionID(), lastSnapshotFile.name(), bos);
+            streamFromGZFile(snapshotJsonFile.sessionID(), lastSnapshotFile.name(), bos);
             final var expected = """
                 {
                   "nrtm_version" : 4,
@@ -94,19 +93,18 @@ public class SnapshotFileGeneratorIntegrationTest extends AbstractNrtm4Integrati
         final String sessionID;
         {
             final var state = whoisObjectRepository.getSnapshotState();
-            final Collection<PublishableNrtmFile> psfList = snapshotFileGenerator.createSnapshots(state);
+            final Collection<NrtmVersionInfo> psfList = snapshotFileGenerator.createSnapshots(state);
             assertThat(psfList.size(), is(2));
-            final PublishableNrtmFile snapshotJsonFile = psfList.stream().filter(psf -> psf.getSource().getName().toString().equals("TEST")).findFirst().orElseThrow();
-            assertThat(snapshotJsonFile.getVersion(), is(1L));
-            sessionID = snapshotJsonFile.getSessionID();
+            final NrtmVersionInfo snapshotJsonFile = psfList.stream().filter(psf -> psf.source().getName().toString().equals("TEST")).findFirst().orElseThrow();
+            assertThat(snapshotJsonFile.version(), is(1L));
+            sessionID = snapshotJsonFile.sessionID();
             assertThat(sessionID, is(notNullValue()));
-            assertThat(snapshotJsonFile.getSource().getId(), is(sourceRepository.getWhoisSource().orElseThrow().getId()));
-            assertThat(snapshotJsonFile.getSource().getName(), is(sourceRepository.getWhoisSource().orElseThrow().getName()));
-            assertThat(snapshotJsonFile.getNrtmVersion(), is(4));
-            assertThat(snapshotJsonFile.getType(), is(SNAPSHOT));
+            assertThat(snapshotJsonFile.source().getId(), is(sourceRepository.getWhoisSource().orElseThrow().getId()));
+            assertThat(snapshotJsonFile.source().getName(), is(sourceRepository.getWhoisSource().orElseThrow().getName()));
+            assertThat(snapshotJsonFile.type(), is(SNAPSHOT));
             //final var bos = new ByteArrayOutputStream();
             //nrtmFileStore.streamFromGZFile(snapshotFile.getSessionID(), snapshotFile.getFileName(), bos);
-            final var lastSnapshotFile = snapshotFileRepository.getLastSnapshot(snapshotJsonFile.getSource()).orElseThrow();
+            final var lastSnapshotFile = snapshotFileRepository.getLastSnapshot(snapshotJsonFile.source()).orElseThrow();
             assertThat(lastSnapshotFile.name(), startsWith("nrtm-snapshot.1."));
         }
     }
