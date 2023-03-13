@@ -13,10 +13,8 @@ import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
-import java.io.IOException;
 import java.util.List;
 
-import static net.ripe.db.whois.common.dao.jdbc.JdbcRpslObjectOperations.loadScripts;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.is;
@@ -42,15 +40,7 @@ public class NrtmFileProcessorIntegrationTest extends AbstractNrtm4IntegrationBa
     private SourceRepository sourceRepository;
 
     @Test
-    void file_write_job_is_enabled_by_jmx() throws IOException {
-        loadScripts(whoisTemplate, "nrtm_sample_sm.sql");
-        nrtmFileProcessor.updateNrtmFilesAndPublishNotification();
-        final var source = nrtmVersionInfoRepository.findLastVersion();
-        assertThat(source.isPresent(), is(true));
-    }
-
-    @Test
-    void file_write_job_works_on_empty_whois() throws IOException {
+    void file_write_job_works_on_empty_whois() {
         nrtmFileProcessor.updateNrtmFilesAndPublishNotification();
         final var source = nrtmVersionInfoRepository.findLastVersion();
         assertThat(source.isPresent(), is(true));
