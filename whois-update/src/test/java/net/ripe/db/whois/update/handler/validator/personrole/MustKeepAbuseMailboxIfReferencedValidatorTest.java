@@ -48,7 +48,7 @@ public class MustKeepAbuseMailboxIfReferencedValidatorTest {
         when(update.getReferenceObject()).thenReturn(RpslObject.parse("role: Abuse Role\nnic-hdl: TEST-NIC"));
         when(update.getUpdatedObject()).thenReturn(RpslObject.parse("role: Abuse Role\nnic-hdl: TEST-NIC\nabuse-mailbox: abuse@test.net"));
 
-        subject.validate(update, updateContext);
+       subject.validate(update, updateContext);
 
         verifyNoMoreInteractions(updateContext);
     }
@@ -61,7 +61,7 @@ public class MustKeepAbuseMailboxIfReferencedValidatorTest {
         when(update.getReferenceObject()).thenReturn(originalObject);
         when(update.getUpdatedObject()).thenReturn(updatedObject);
         when(updateDao.getReferences(updatedObject)).thenReturn(Sets.<RpslObjectInfo>newHashSet());
-        subject.validate(update, updateContext);
+       subject.validate(update, updateContext);
 
         verifyNoMoreInteractions(updateContext);
     }
@@ -74,7 +74,7 @@ public class MustKeepAbuseMailboxIfReferencedValidatorTest {
         when(update.getReferenceObject()).thenReturn(originalObject);
         when(update.getUpdatedObject()).thenReturn(updatedObject);
 
-        subject.validate(update, updateContext);
+       subject.validate(update, updateContext);
 
         verifyNoMoreInteractions(updateContext);
     }
@@ -89,7 +89,7 @@ public class MustKeepAbuseMailboxIfReferencedValidatorTest {
         when(updateDao.getReferences(updatedObject)).thenReturn(Sets.newHashSet(new RpslObjectInfo(1, ObjectType.ORGANISATION, "ORG-TEST1")));
         when(objectDao.getById(1)).thenReturn(RpslObject.parse("organisation: ORG-TEST1\nabuse-c: TEST-NIC"));
 
-        subject.validate(update, updateContext);
+       subject.validate(update, updateContext);
 
         verify(updateContext).addMessage(update, UpdateMessages.abuseMailboxReferenced("Abuse Role", ObjectType.ORGANISATION));
     }

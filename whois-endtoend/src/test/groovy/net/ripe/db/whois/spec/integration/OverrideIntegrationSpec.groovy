@@ -114,7 +114,8 @@ class OverrideIntegrationSpec extends BaseWhoisSourceSpec {
         result.contains("" +
                 "Modify SUCCEEDED: [organisation] ORG-TOL1-TEST\n" +
                 "\n" +
-                "\n" +
+                "***Warning: Value 'IANA' can only be set by the RIPE NCC for this organisation.\n" +
+              "\n" +
                 "***Info:    Authorisation override used")
     }
 
@@ -193,6 +194,7 @@ class OverrideIntegrationSpec extends BaseWhoisSourceSpec {
         result.contains("" +
                 "Modify SUCCEEDED: [organisation] ORG-TOL1-TEST\n" +
                 "\n" +
+                "***Warning: Value 'IANA' can only be set by the RIPE NCC for this organisation.\n" +
                 "\n" +
                 "***Info:    Authorisation override used")
     }
@@ -369,6 +371,7 @@ class OverrideIntegrationSpec extends BaseWhoisSourceSpec {
         then:
         result.contains("Modify SUCCEEDED: [organisation] ORG-TOL1-TEST\n" +
                 "\n" +
+                "***Warning: Comments are not allowed on RIPE NCC managed Attribute \"org-name:\"\n" +
                 "\n" +
                 "***Info:    Authorisation override used")
     }

@@ -59,7 +59,7 @@ public class InetnumStatusValidatorTest {
         when(update.getReferenceObject()).thenReturn(legacyInetnum);
         when(update.getUpdatedObject()).thenReturn(legacyInetnum);
 
-        subject.validate(update, updateContext);
+       subject.validate(update, updateContext);
 
         verify(updateContext, times(1)).addMessage(update, UpdateMessages.inetnumStatusLegacy());
     }
@@ -77,7 +77,7 @@ public class InetnumStatusValidatorTest {
                 "inetnum: 192.0/24\n" +
                 "status: ASSIGNED PA"));
 
-        subject.validate(update, updateContext);
+       subject.validate(update, updateContext);
 
         verify(updateContext).addMessage(update, UpdateMessages.statusChange());
     }

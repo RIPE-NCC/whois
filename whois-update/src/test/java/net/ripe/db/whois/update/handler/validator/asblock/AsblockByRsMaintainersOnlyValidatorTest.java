@@ -47,8 +47,9 @@ public class AsblockByRsMaintainersOnlyValidatorTest {
     public void validate_override_succeeds() {
         when(updateContext.getSubject(update)).thenReturn(subjectObject);
         when(subjectObject.hasPrincipal(Principal.OVERRIDE_MAINTAINER)).thenReturn(true);
+        when(subjectObject.hasPrincipal(Principal.DBM_MAINTAINER)).thenReturn(false);
 
-        subject.validate(update, updateContext);
+       subject.validate(update, updateContext);
 
         verify(updateContext, never()).addMessage(update, UpdateMessages.asblockIsMaintainedByRipe());
     }
@@ -58,7 +59,7 @@ public class AsblockByRsMaintainersOnlyValidatorTest {
         when(updateContext.getSubject(update)).thenReturn(subjectObject);
        lenient().when(subjectObject.hasPrincipal(Principal.DBM_MAINTAINER)).thenReturn(true);
 
-        subject.validate(update, updateContext);
+       subject.validate(update, updateContext);
 
         verify(updateContext, never()).addMessage(update, UpdateMessages.asblockIsMaintainedByRipe());
     }
@@ -68,7 +69,7 @@ public class AsblockByRsMaintainersOnlyValidatorTest {
         lenient().when(updateContext.getSubject(update)).thenReturn(subjectObject);
         lenient().when(subjectObject.hasPrincipal(Principal.DBM_MAINTAINER)).thenReturn(false);
 
-        subject.validate(update, updateContext);
+       subject.validate(update, updateContext);
 
         verify(updateContext).addMessage(update, UpdateMessages.asblockIsMaintainedByRipe());
     }

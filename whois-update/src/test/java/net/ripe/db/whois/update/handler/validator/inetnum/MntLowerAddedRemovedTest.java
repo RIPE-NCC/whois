@@ -44,9 +44,8 @@ public class MntLowerAddedRemovedTest {
         when(update.getType()).thenReturn(ObjectType.INETNUM);
         when(update.getUpdatedObject()).thenReturn(RpslObject.parse("inetnum: 192.0/24\nstatus: ALLOCATED PA"));
 
-        subject.validate(update, updateContext);
+       subject.validate(update, updateContext);
 
-        verify(updateContext).getSubject(any(UpdateContainer.class));
         verifyNoMoreInteractions(updateContext);
     }
 
@@ -55,9 +54,8 @@ public class MntLowerAddedRemovedTest {
         when(update.getType()).thenReturn(ObjectType.INET6NUM);
         when(update.getUpdatedObject()).thenReturn(RpslObject.parse("inet6num: ffff::/24\nstatus: ALLOCATED-BY-LIR"));
 
-        subject.validate(update, updateContext);
+       subject.validate(update, updateContext);
 
-        verify(updateContext).getSubject(any(UpdateContainer.class));
         verifyNoMoreInteractions(updateContext);
     }
 
@@ -68,7 +66,7 @@ public class MntLowerAddedRemovedTest {
         when(update.getUpdatedObject()).thenReturn(RpslObject.parse("inetnum: 192.0/24\nstatus: ASSIGNED ANYCAST\nmnt-lower: TEST-MNT"));
         when(updateContext.getSubject(update)).thenReturn(authenticationSubject);
 
-        subject.validate(update, updateContext);
+       subject.validate(update, updateContext);
 
         verify(updateContext).addMessage(update, UpdateMessages.authorisationRequiredForAttrChange(AttributeType.MNT_LOWER));
     }
@@ -76,11 +74,11 @@ public class MntLowerAddedRemovedTest {
     @Test
     public void modify_mntLower_added_inetnum_override() {
         when(authenticationSubject.hasPrincipal(Principal.OVERRIDE_MAINTAINER)).thenReturn(true);
+        when(authenticationSubject.hasPrincipal(Principal.RS_MAINTAINER)).thenReturn(false);
         when(updateContext.getSubject(update)).thenReturn(authenticationSubject);
 
-        subject.validate(update, updateContext);
+       subject.validate(update, updateContext);
 
-        verify(updateContext).getSubject(any(UpdateContainer.class));
         verifyNoMoreInteractions(updateContext);
     }
 
@@ -91,7 +89,7 @@ public class MntLowerAddedRemovedTest {
         when(update.getDifferences(AttributeType.MNT_LOWER)).thenReturn(ciSet("TEST-MNT"));
         when(updateContext.getSubject(update)).thenReturn(authenticationSubject);
 
-        subject.validate(update, updateContext);
+       subject.validate(update, updateContext);
 
         verify(updateContext).addMessage(update, UpdateMessages.authorisationRequiredForAttrChange(AttributeType.MNT_LOWER));
     }
@@ -99,11 +97,11 @@ public class MntLowerAddedRemovedTest {
     @Test
     public void modify_mntLower_added_inet6num_override() {
         when(authenticationSubject.hasPrincipal(Principal.OVERRIDE_MAINTAINER)).thenReturn(true);
+        when(authenticationSubject.hasPrincipal(Principal.RS_MAINTAINER)).thenReturn(false);
         when(updateContext.getSubject(update)).thenReturn(authenticationSubject);
 
-        subject.validate(update, updateContext);
+       subject.validate(update, updateContext);
 
-        verify(updateContext).getSubject(any(UpdateContainer.class));
         verifyNoMoreInteractions(updateContext);
     }
 
@@ -114,7 +112,7 @@ public class MntLowerAddedRemovedTest {
         when(update.getDifferences(AttributeType.MNT_LOWER)).thenReturn(ciSet("TEST-MNT"));
         when(updateContext.getSubject(update)).thenReturn(authenticationSubject);
 
-        subject.validate(update, updateContext);
+       subject.validate(update, updateContext);
 
         verify(updateContext).addMessage(update, UpdateMessages.authorisationRequiredForAttrChange(AttributeType.MNT_LOWER));
     }
@@ -122,11 +120,11 @@ public class MntLowerAddedRemovedTest {
     @Test
     public void modify_mntLower_removed_inetnum_override() {
         when(authenticationSubject.hasPrincipal(Principal.OVERRIDE_MAINTAINER)).thenReturn(true);
+        when(authenticationSubject.hasPrincipal(Principal.RS_MAINTAINER)).thenReturn(false);
         when(updateContext.getSubject(update)).thenReturn(authenticationSubject);
 
-        subject.validate(update, updateContext);
+       subject.validate(update, updateContext);
 
-        verify(updateContext).getSubject(any(UpdateContainer.class));
         verifyNoMoreInteractions(updateContext);
     }
 
@@ -137,7 +135,7 @@ public class MntLowerAddedRemovedTest {
         when(update.getDifferences(AttributeType.MNT_LOWER)).thenReturn(ciSet("TEST-MNT"));
         when(updateContext.getSubject(update)).thenReturn(authenticationSubject);
 
-        subject.validate(update, updateContext);
+       subject.validate(update, updateContext);
 
         verify(updateContext).addMessage(update, UpdateMessages.authorisationRequiredForAttrChange(AttributeType.MNT_LOWER));
     }
@@ -145,11 +143,11 @@ public class MntLowerAddedRemovedTest {
     @Test
     public void modify_mntLower_removed_override() {
         when(authenticationSubject.hasPrincipal(Principal.OVERRIDE_MAINTAINER)).thenReturn(true);
+        when(authenticationSubject.hasPrincipal(Principal.RS_MAINTAINER)).thenReturn(false);
         when(updateContext.getSubject(update)).thenReturn(authenticationSubject);
 
-        subject.validate(update, updateContext);
+       subject.validate(update, updateContext);
 
-        verify(updateContext).getSubject(any(UpdateContainer.class));
         verifyNoMoreInteractions(updateContext);
     }
 
@@ -159,7 +157,7 @@ public class MntLowerAddedRemovedTest {
         when(update.getUpdatedObject()).thenReturn(RpslObject.parse("inetnum: 192.0/24\nstatus: ASSIGNED ANYCAST\nmnt-lower: TEST-MNT"));
         when(updateContext.getSubject(update)).thenReturn(authenticationSubject);
 
-        subject.validate(update, updateContext);
+       subject.validate(update, updateContext);
 
         verify(updateContext, never()).addMessage(update, UpdateMessages.authorisationRequiredForAttrChange(AttributeType.MNT_LOWER));
     }
@@ -167,11 +165,11 @@ public class MntLowerAddedRemovedTest {
     @Test
     public void modify_mntLowers_same_inetnum_override() {
         when(authenticationSubject.hasPrincipal(Principal.OVERRIDE_MAINTAINER)).thenReturn(true);
+        when(authenticationSubject.hasPrincipal(Principal.RS_MAINTAINER)).thenReturn(false);
         when(updateContext.getSubject(update)).thenReturn(authenticationSubject);
 
-        subject.validate(update, updateContext);
+       subject.validate(update, updateContext);
 
-        verify(updateContext).getSubject(any(UpdateContainer.class));
         verifyNoMoreInteractions(updateContext);
     }
 
@@ -181,7 +179,7 @@ public class MntLowerAddedRemovedTest {
         when(update.getUpdatedObject()).thenReturn(RpslObject.parse("inet6num: ffff::/24\nstatus: ASSIGNED ANYCAST\nmnt-lower: TEST-MNT"));
         when(updateContext.getSubject(update)).thenReturn(authenticationSubject);
 
-        subject.validate(update, updateContext);
+       subject.validate(update, updateContext);
 
         verify(updateContext, never()).addMessage(update, UpdateMessages.authorisationRequiredForAttrChange(AttributeType.MNT_LOWER));
     }
@@ -189,23 +187,20 @@ public class MntLowerAddedRemovedTest {
     @Test
     public void modify_mntLowers_same_inet6num_override() {
         when(authenticationSubject.hasPrincipal(Principal.OVERRIDE_MAINTAINER)).thenReturn(true);
+        when(authenticationSubject.hasPrincipal(Principal.RS_MAINTAINER)).thenReturn(false);
         when(updateContext.getSubject(update)).thenReturn(authenticationSubject);
 
-        subject.validate(update, updateContext);
+       subject.validate(update, updateContext);
 
-        verify(updateContext).getSubject(any(UpdateContainer.class));
         verifyNoMoreInteractions(updateContext);
     }
 
     @Test
     public void modify_authorisation_succeeds_inetnum() {
        lenient().when(authenticationSubject.hasPrincipal(Principal.RS_MAINTAINER)).thenReturn(true);
-        when(update.getType()).thenReturn(ObjectType.INETNUM);
-        when(update.getUpdatedObject()).thenReturn(RpslObject.parse("inetnum: 192.0/24\nstatus: ASSIGNED ANYCAST\nmnt-lower: OTHER-MNT"));
-        when(update.getDifferences(AttributeType.MNT_LOWER)).thenReturn(ciSet("OTHER-MNT"));
-        when(updateContext.getSubject(update)).thenReturn(authenticationSubject);
+       lenient().when(authenticationSubject.hasPrincipal(Principal.OVERRIDE_MAINTAINER)).thenReturn(false);
 
-        subject.validate(update, updateContext);
+       subject.validate(update, updateContext);
 
         verify(updateContext, never()).addMessage(update, UpdateMessages.authorisationRequiredForAttrChange(AttributeType.MNT_LOWER));
     }
@@ -213,12 +208,9 @@ public class MntLowerAddedRemovedTest {
     @Test
     public void modify_authorisation_succeeds_inet6num() {
         lenient().when(authenticationSubject.hasPrincipal(Principal.RS_MAINTAINER)).thenReturn(true);
-        when(update.getType()).thenReturn(ObjectType.INET6NUM);
-        when(update.getUpdatedObject()).thenReturn(RpslObject.parse("inet6num: ffff::/32\nstatus: ASSIGNED ANYCAST\nmnt-lower: OTHER-MNT"));
-        when(update.getDifferences(AttributeType.MNT_LOWER)).thenReturn(ciSet("OTHER-MNT"));
-        when(updateContext.getSubject(update)).thenReturn(authenticationSubject);
+        lenient().when(authenticationSubject.hasPrincipal(Principal.OVERRIDE_MAINTAINER)).thenReturn(false);
 
-        subject.validate(update, updateContext);
+       subject.validate(update, updateContext);
 
         verify(updateContext, never()).addMessage(update, UpdateMessages.authorisationRequiredForAttrChange(AttributeType.MNT_LOWER));
     }
@@ -230,7 +222,7 @@ public class MntLowerAddedRemovedTest {
         when(update.getUpdatedObject()).thenReturn(RpslObject.parse("inetnum: 192.0/24\nstatus: ASSIGNED ANYCAST\nmnt-lower: OTHER-MNT"));
         when(updateContext.getSubject(update)).thenReturn(authenticationSubject);
 
-        subject.validate(update, updateContext);
+       subject.validate(update, updateContext);
 
         verify(updateContext, times(1)).addMessage(update, UpdateMessages.authorisationRequiredForAttrChange(AttributeType.MNT_LOWER));
     }

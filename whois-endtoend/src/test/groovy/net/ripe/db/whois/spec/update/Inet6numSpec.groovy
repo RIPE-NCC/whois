@@ -275,7 +275,7 @@ class Inet6numSpec extends BaseQueryUpdateSpec {
             ack.summary.assertSuccess(1, 0, 1, 0, 0)
             ack.summary.assertErrors(0, 0, 0, 0)
 
-            ack.countErrorWarnInfo(0, 0, 2)
+            ack.countErrorWarnInfo(0, 3, 2)
             ack.successes.any { it.operation == "Modify" && it.key == "[inet6num] ::/0" }
             ack.infoSuccessMessagesFor("Modify", "[inet6num] ::/0") == ["Value 0::/0 converted to ::/0", "Authorisation override used"]
     }
@@ -975,7 +975,7 @@ class Inet6numSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(1, 1, 0, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
 
-        ack.countErrorWarnInfo(0, 0, 1)
+        ack.countErrorWarnInfo(0, 2, 1)
         ack.successes.any { it.operation == "Create" && it.key == "[inet6num] 2001:600::/25" }
         ack.infoSuccessMessagesFor("Create", "[inet6num] 2001:600::/25") == [
                 "Authorisation override used"]
@@ -1249,7 +1249,7 @@ class Inet6numSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(1, 0, 0, 1, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
 
-        ack.countErrorWarnInfo(0, 0, 1)
+        ack.countErrorWarnInfo(0, 1, 1)
         ack.successes.any { it.operation == "Delete" && it.key == "[inet6num] 2001:600::/25" }
         ack.infoSuccessMessagesFor("Delete", "[inet6num] 2001:600::/25") == [
                 "Authorisation override used"]
@@ -1507,7 +1507,7 @@ class Inet6numSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(2, 1, 1, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
 
-        ack.countErrorWarnInfo(0, 0, 1)
+        ack.countErrorWarnInfo(0, 2, 1)
         ack.successes.any { it.operation == "Create" && it.key == "[inet6num] 2001:600::/30" }
         ack.infoSuccessMessagesFor("Create", "[inet6num] 2001:600::/30") == [
                 "Authorisation override used"]
@@ -1623,7 +1623,7 @@ class Inet6numSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(2, 0, 2, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
 
-        ack.countErrorWarnInfo(0, 0, 2)
+        ack.countErrorWarnInfo(0, 2, 2)
         ack.successes.any { it.operation == "Modify" && it.key == "[inet6num] 2001:600::/32" }
         ack.infoSuccessMessagesFor("Modify", "[inet6num] 2001:600::/32") == [
                 "Authorisation override used"]
