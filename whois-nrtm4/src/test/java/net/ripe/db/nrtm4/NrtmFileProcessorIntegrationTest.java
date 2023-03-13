@@ -3,17 +3,16 @@ package net.ripe.db.nrtm4;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import net.ripe.db.nrtm4.dao.DeltaFileDao;
+import net.ripe.db.nrtm4.dao.NotificationFileDao;
 import net.ripe.db.nrtm4.dao.NrtmVersionInfoRepository;
 import net.ripe.db.nrtm4.dao.SnapshotFileRepository;
 import net.ripe.db.nrtm4.dao.SourceRepository;
-import net.ripe.db.nrtm4.domain.DeltaFile;
 import net.ripe.db.nrtm4.domain.PublishableDeltaFile;
+import net.ripe.db.nrtm4.domain.PublishableNotificationFile;
 import net.ripe.db.whois.common.rpsl.RpslObject;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-
-import java.util.List;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.containsString;
@@ -29,6 +28,9 @@ public class NrtmFileProcessorIntegrationTest extends AbstractNrtm4IntegrationBa
 
     @Autowired
     private NrtmFileProcessor nrtmFileProcessor;
+
+    @Autowired
+    private NotificationFileDao notificationFileDao;
 
     @Autowired
     private NrtmVersionInfoRepository nrtmVersionInfoRepository;
@@ -60,8 +62,10 @@ public class NrtmFileProcessorIntegrationTest extends AbstractNrtm4IntegrationBa
             assertThat(snapshotFile.isPresent(), is(true));
             final var snapshotVersion = nrtmVersionInfoRepository.findById(snapshotFile.get().versionId());
             assertThat(snapshotVersion.version(), is(1L));
-            final List<DeltaFile> deltaFile = deltaFileDao.getDeltasForNotification(snapshotVersion, 0);
+            final var deltaFile = deltaFileDao.getDeltasForNotification(snapshotVersion, 0);
             assertThat(deltaFile.size(), is(0));
+            final var lastNotification = notificationFileDao.findLastNotification(whoisSource.get());
+            assertThat(lastNotification.versionId(), is(snapshotVersion.id()));
         }
         // Run again to ensure no new snapshot or delta is created
         nrtmFileProcessor.updateNrtmFilesAndPublishNotification();
@@ -72,7 +76,7 @@ public class NrtmFileProcessorIntegrationTest extends AbstractNrtm4IntegrationBa
             assertThat(snapshotFile.isPresent(), is(true));
             final var snapshotVersion = nrtmVersionInfoRepository.findById(snapshotFile.get().versionId());
             assertThat(snapshotVersion.version(), is(1L));
-            final List<DeltaFile> deltaFile = deltaFileDao.getDeltasForNotification(snapshotVersion, 0);
+            final var deltaFile = deltaFileDao.getDeltasForNotification(snapshotVersion, 0);
             assertThat(deltaFile.size(), is(0));
         }
         // Make a change in whois and expect a delta
@@ -101,6 +105,10 @@ public class NrtmFileProcessorIntegrationTest extends AbstractNrtm4IntegrationBa
             final var change = publishableFile.getChanges().get(0);
             assertThat(change.getObject().toString(), startsWith(mntObject.toString()));
             assertThat(change.getObject().toString(), containsString("* THIS OBJECT IS MODIFIED"));
+            final var lastNotification = notificationFileDao.findLastNotification(whoisSource.get());
+            assertThat(lastNotification.versionId(), is(deltaVersion.id()));
+            final var notificationFile = new ObjectMapper().readValue(lastNotification.payload(), PublishableNotificationFile.class);
+            assertThat(notificationFile.getDeltas().size(), is(1));
         }
     }
 
