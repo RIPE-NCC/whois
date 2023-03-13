@@ -13,19 +13,27 @@ public abstract class PublishableNrtmDocument {
     @JsonProperty("nrtm_version")
     private final int nrtmVersion = NRTM_VERSION;
     private final NrtmDocumentType type;
-    private final NrtmSource source;
+    private final NrtmSourceModel source;
     @JsonProperty("session_id")
     private final String sessionID;
     private final long version;
 
+    protected PublishableNrtmDocument() {
+        versionId = 0L;
+        type = null;
+        source = null;
+        sessionID = null;
+        version = 0L;
+    }
+
     PublishableNrtmDocument(
         final NrtmVersionInfo version
     ) {
-        this.versionId = version.getId();
-        this.type = version.getType();
-        this.source = version.getSource();
-        this.sessionID = version.getSessionID();
-        this.version = version.getVersion();
+        this.versionId = version.id();
+        this.type = version.type();
+        this.source = version.source();
+        this.sessionID = version.sessionID();
+        this.version = version.version();
     }
 
     public Long getVersionId() {
@@ -40,7 +48,7 @@ public abstract class PublishableNrtmDocument {
         return type;
     }
 
-    public NrtmSource getSource() {
+    public NrtmSourceModel getSource() {
         return source;
     }
 

@@ -1,7 +1,6 @@
 package net.ripe.db.nrtm4.dao;
 
 import net.ripe.db.nrtm4.AbstractNrtm4IntegrationBase;
-import net.ripe.db.nrtm4.domain.NrtmSourceHolder;
 import net.ripe.db.nrtm4.domain.NrtmVersionInfo;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
@@ -23,29 +22,31 @@ public class NrtmVersionInfoRepositoryIntegrationTest extends AbstractNrtm4Integ
     private NrtmVersionInfoRepository nrtmVersionInfoRepository;
 
     @Autowired
-    private NrtmSourceHolder nrtmSourceHolder;
+    private SourceRepository sourceRepository;
 
     @Test
     public void result_is_not_present_when_source_is_not_populated() {
-        final Optional<NrtmVersionInfo> version = nrtmVersionInfoRepository.findLastVersion(nrtmSourceHolder.getSource());
+        final Optional<NrtmVersionInfo> version = nrtmVersionInfoRepository.findLastVersion();
         assertThat(version.isPresent(), is(false));
     }
 
     @Test
     public void first_version_is_one() {
-        nrtmVersionInfoRepository.createInitialVersion(nrtmSourceHolder.getSource(), 1);
-        final Optional<NrtmVersionInfo> version = nrtmVersionInfoRepository.findLastVersion(nrtmSourceHolder.getSource());
+        sourceRepository.createSources();
+        nrtmVersionInfoRepository.createInitialVersion(sourceRepository.getWhoisSource().orElseThrow(), 1);
+        final Optional<NrtmVersionInfo> version = nrtmVersionInfoRepository.findLastVersion();
         assertThat(version.isPresent(), is(true));
-        assertThat(version.get().getSource(), is(nrtmSourceHolder.getSource()));
-        assertThat(version.get().getVersion(), is(1L));
+        assertThat(version.get().source().getId(), is(sourceRepository.getWhoisSource().orElseThrow().getId()));
+        assertThat(version.get().source().getName(), is(sourceRepository.getWhoisSource().orElseThrow().getName()));
+        assertThat(version.get().version(), is(1L));
     }
 
     @Test
     public void source_is_unique() {
-        nrtmVersionInfoRepository.createInitialVersion(nrtmSourceHolder.getSource(), 1);
+        sourceRepository.createSources();
         final Exception thrown = assertThrows(
             DuplicateKeyException.class,
-            () -> nrtmVersionInfoRepository.createInitialVersion(nrtmSourceHolder.getSource(), 2),
+            () -> sourceRepository.createSources(),
             "Expected nrtmVersionDao.createNew(...) to throw DuplicateKeyException"
         );
         assertThat(thrown.getMessage(), containsString("Duplicate entry 'TEST'"));

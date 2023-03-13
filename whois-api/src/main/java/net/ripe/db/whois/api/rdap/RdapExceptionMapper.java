@@ -10,6 +10,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import javax.servlet.http.HttpServletResponse;
+import javax.ws.rs.NotAcceptableException;
+import javax.ws.rs.NotAllowedException;
+import javax.ws.rs.NotFoundException;
 import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.ext.ExceptionMapper;
@@ -45,6 +48,17 @@ public class RdapExceptionMapper implements ExceptionMapper<Exception> {
                     rdapException.getErrorDescription() == null? "Unknown error cause" :
                             rdapException.getErrorDescription());
         }
+        if (exception instanceof NotFoundException) {
+            // invalid path requested
+            return createErrorResponse(HttpServletResponse.SC_NOT_FOUND, exception.getMessage());
+        }
+        if (exception instanceof NotAcceptableException) {
+            return createErrorResponse(HttpServletResponse.SC_NOT_ACCEPTABLE, exception.getMessage());
+        }
+        if (exception instanceof NotAllowedException) {
+            return createErrorResponse(HttpServletResponse.SC_METHOD_NOT_ALLOWED, exception.getMessage());
+        }
+
 
         LOGGER.error("Unexpected", exception);
         return createErrorResponse(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, exception.getMessage());

@@ -1,4 +1,4 @@
-package net.ripe.db.nrtm4.dao;
+package net.ripe.db.nrtm4;
 
 import com.fasterxml.jackson.core.JsonEncoding;
 import com.fasterxml.jackson.core.JsonGenerator;
@@ -6,31 +6,32 @@ import com.fasterxml.jackson.core.util.DefaultIndenter;
 import com.fasterxml.jackson.core.util.DefaultPrettyPrinter;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import net.ripe.db.nrtm4.domain.NrtmDocumentType;
-import net.ripe.db.nrtm4.domain.PublishableSnapshotFile;
+import net.ripe.db.nrtm4.domain.NrtmVersionInfo;
+import net.ripe.db.whois.common.rpsl.RpslObject;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
 import java.io.OutputStream;
+import java.util.Iterator;
+
+import static net.ripe.db.nrtm4.NrtmConstants.NRTM_VERSION;
 
 
 @Service
 public class SnapshotFileSerializer {
 
     private final boolean isPrettyPrintSnapshots;
-    private final SnapshotObjectDao snapshotObjectDao;
 
     SnapshotFileSerializer(
-        @Value("${nrtm.prettyprint.snapshots:false}")
-        final boolean isPrettyPrintSnapshots,
-        final SnapshotObjectDao snapshotObjectDao
+        @Value("${nrtm.prettyprint.snapshots:false}") final boolean isPrettyPrintSnapshots
     ) {
         this.isPrettyPrintSnapshots = isPrettyPrintSnapshots;
-        this.snapshotObjectDao = snapshotObjectDao;
     }
 
-    public void writeSnapshotAsJson(
-        final PublishableSnapshotFile snapshotFile,
+    public void writeObjectQueueAsSnapshot(
+        final NrtmVersionInfo version,
+        final Iterator<RpslObject> rpslObjectSupplier,
         final OutputStream outputStream
     ) throws IOException {
         final JsonGenerator jGenerator = new ObjectMapper().getFactory().createGenerator(outputStream, JsonEncoding.UTF8);
@@ -40,19 +41,15 @@ public class SnapshotFileSerializer {
             jGenerator.setPrettyPrinter(pp);
         }
         jGenerator.writeStartObject();
-        jGenerator.writeNumberField("nrtm_version", snapshotFile.getNrtmVersion());
+        jGenerator.writeNumberField("nrtm_version", NRTM_VERSION);
         jGenerator.writeStringField("type", NrtmDocumentType.SNAPSHOT.lowerCaseName());
-        jGenerator.writeStringField("source", snapshotFile.getSource().name());
-        jGenerator.writeStringField("session_id", snapshotFile.getSessionID());
-        jGenerator.writeNumberField("version", snapshotFile.getVersion());
+        jGenerator.writeStringField("source", version.source().getName().toString());
+        jGenerator.writeStringField("session_id", version.sessionID());
+        jGenerator.writeNumberField("version", version.version());
         jGenerator.writeArrayFieldStart("objects");
-        snapshotObjectDao.consumeAllObjects(snapshotFile.getSource(), str -> {
-            try {
-                jGenerator.writeString(str);
-            } catch (final IOException e) {
-                throw new RuntimeException(e);
-            }
-        });
+        while (rpslObjectSupplier.hasNext()) {
+            jGenerator.writeString(rpslObjectSupplier.next().toString());
+        }
         jGenerator.writeEndArray();
         jGenerator.writeEndObject();
         jGenerator.close();

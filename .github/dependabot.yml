@@ -49,3 +49,10 @@ updates:
       # Don't update to Jetty 11.x yet as it uses Jakarta EE 9 (see #744)
       - dependency-name: "org.eclipse.jetty:jetty-webapp"
         versions: ["11.x"]
+      # Jackson 3.x is a major update in development and not API compatible with 2.x
+      - dependency-name: "com.fasterxml.jackson.jaxrs:jackson-jaxrs-base"
+        versions: ["3.x"]
+      - dependency-name: "com.fasterxml.jackson.jaxrs:jackson-jaxrs-json-provider"
+        versions: ["3.x"]
+      - dependency-name: "com.fasterxml.jackson.jaxrs:jackson-annotations"
+        versions: ["3.x"]

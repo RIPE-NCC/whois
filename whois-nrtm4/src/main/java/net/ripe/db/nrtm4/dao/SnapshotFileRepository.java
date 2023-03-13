@@ -1,18 +1,14 @@
 package net.ripe.db.nrtm4.dao;
 
-import net.ripe.db.nrtm4.domain.NrtmSource;
+import net.ripe.db.nrtm4.domain.NrtmSourceModel;
 import net.ripe.db.nrtm4.domain.SnapshotFile;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
-import org.springframework.jdbc.support.GeneratedKeyHolder;
-import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.stereotype.Repository;
 
 import javax.sql.DataSource;
-import java.sql.PreparedStatement;
-import java.sql.Statement;
 import java.util.Optional;
 
 
@@ -34,23 +30,16 @@ public class SnapshotFileRepository {
         this.jdbcTemplate = new JdbcTemplate(dataSource);
     }
 
-    public void save(
-        final long versionId,
-        final String name,
-        final String hash
-    ) {
-        final KeyHolder keyHolder = new GeneratedKeyHolder();
-        jdbcTemplate.update(connection -> {
-                final String sql = "" +
-                    "INSERT INTO snapshot_file (version_id, name, hash) " +
-                    "VALUES (?, ?, ?)";
-                final PreparedStatement pst = connection.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS);
-                pst.setLong(1, versionId);
-                pst.setString(2, name);
-                pst.setString(3, hash);
-                return pst;
-            }, keyHolder
-        );
+    public void insert(final SnapshotFile snapshotFile, final byte[] payload) {
+        final String sql = """
+            INSERT INTO snapshot_file (version_id, name, hash, payload)
+            VALUES (?, ?, ?, ?)
+            """;
+        jdbcTemplate.update(sql,
+            snapshotFile.versionId(),
+            snapshotFile.name(),
+            snapshotFile.hash(),
+            payload);
     }
 
     public Optional<SnapshotFile> getByName(final String sessionId, final String name) {
@@ -68,17 +57,16 @@ public class SnapshotFileRepository {
         }
     }
 
-    public Optional<SnapshotFile> getLastSnapshot(final NrtmSource source) {
+    public Optional<SnapshotFile> getLastSnapshot(final NrtmSourceModel source) {
         final String sql = """
             SELECT sf.id, sf.version_id, sf.name, sf.hash
             FROM snapshot_file sf
             JOIN version_info v ON v.id = sf.version_id
-            JOIN source src ON src.id = v.source_id
-            WHERE src.name = ?
+            WHERE v.source_id = ?
             ORDER BY v.version DESC LIMIT 1
             """;
         try {
-            return Optional.ofNullable(jdbcTemplate.queryForObject(sql, rowMapper, source.name()));
+            return Optional.ofNullable(jdbcTemplate.queryForObject(sql, rowMapper, source.getId()));
         } catch (final EmptyResultDataAccessException ex) {
             return Optional.empty();
         }
