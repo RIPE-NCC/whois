@@ -1,6 +1,7 @@
 package net.ripe.db.whois.update.handler.validator.organisation;
 
 import com.google.common.collect.ImmutableList;
+import net.ripe.db.whois.common.Message;
 import net.ripe.db.whois.common.rpsl.AttributeType;
 import net.ripe.db.whois.common.rpsl.ObjectType;
 import net.ripe.db.whois.common.rpsl.RpslAttribute;
@@ -12,6 +13,9 @@ import net.ripe.db.whois.update.domain.UpdateMessages;
 import net.ripe.db.whois.update.handler.validator.BusinessRuleValidator;
 import org.springframework.stereotype.Component;
 
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
 import java.util.regex.Pattern;
 
 /**
@@ -32,7 +36,7 @@ public class OrgNameFormatValidator implements BusinessRuleValidator {
     private static final Pattern INCONSISTENT_FORMATTING_PATTERN = Pattern.compile("(?m)\\s{2,}|\t|\n");
 
     @Override
-    public void validate(final PreparedUpdate update, final UpdateContext updateContext) {
+    public List<Message> performValidation(final PreparedUpdate update, final UpdateContext updateContext) {
         final RpslObject updatedObject = update.getUpdatedObject();
 
         final RpslAttribute orgNameAttribute;
@@ -40,17 +44,19 @@ public class OrgNameFormatValidator implements BusinessRuleValidator {
             orgNameAttribute = updatedObject.findAttribute(AttributeType.ORG_NAME);
         } catch (IllegalArgumentException e) {
             // ignore no org-name (or multiple) found
-            return;
+            return Collections.emptyList();
         }
 
         final String orgNameValue = stripComments(orgNameAttribute.getValue()).trim();
 
         if (isMultiline(orgNameValue) || containsInconsistentFormatting(orgNameValue)) {
-            updateContext.addMessage(update, orgNameAttribute, UpdateMessages.inconsistentOrgNameFormatting());
+           return Arrays.asList(UpdateMessages.inconsistentOrgNameFormatting(orgNameAttribute));
         }
+
+        return Collections.emptyList();
     }
 
-    // does the attribute value run over multiple lines
+     // does the attribute value run over multiple lines
     private boolean isMultiline(final String value) {
         return value.contains("\n");
     }

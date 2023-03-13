@@ -31,14 +31,14 @@ public class NewKeywordValidatorTest {
     public void validate_create_with_existing() {
         when(preparedUpdate.hasOriginalObject()).thenReturn(true);
 
-        subject.validate(preparedUpdate, updateContext);
+       subject.validate(preparedUpdate, updateContext);
 
         verify(updateContext).addMessage(preparedUpdate, UpdateMessages.newKeywordAndObjectExists());
     }
 
     @Test
     public void validate_create_without() {
-        subject.validate(preparedUpdate, updateContext);
+       subject.validate(preparedUpdate, updateContext);
 
         verifyNoMoreInteractions(updateContext);
     }

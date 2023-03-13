@@ -1,5 +1,7 @@
 package net.ripe.db.whois.update.handler.validator.organisation;
 
+import net.ripe.db.whois.common.Message;
+import net.ripe.db.whois.common.Messages;
 import net.ripe.db.whois.common.rpsl.AttributeType;
 import net.ripe.db.whois.common.rpsl.ObjectType;
 import net.ripe.db.whois.update.authentication.Principal;
@@ -65,9 +67,8 @@ public class LirRipeMaintainedAttributesValidatorTest {
         when(updateContext.getSubject(any(UpdateContainer.class))).thenReturn(authenticationSubject);
         when(update.getReferenceObject()).thenReturn(NON_LIR_ORG);
 
-        subject.validate(update, updateContext);
+       subject.validate(update, updateContext);
 
-        verify(updateContext).getSubject(update);
         verifyNoMoreInteractions(updateContext);
     }
 
@@ -77,11 +78,8 @@ public class LirRipeMaintainedAttributesValidatorTest {
         when(update.getReferenceObject()).thenReturn(LIR_ORG);
         when(update.getUpdatedObject()).thenReturn(LIR_ORG_MNT_BY);
 
-        subject.validate(update, updateContext);
+       subject.validate(update, updateContext);
 
-        verify(updateContext).getSubject(update);
-        verify(update).getReferenceObject();
-        verify(update).getUpdatedObject();
         verify(updateContext).addMessage(update, UpdateMessages.canOnlyBeChangedByRipeNCC(AttributeType.MNT_BY));
         verifyNoMoreInteractions(updateContext);
     }
@@ -92,9 +90,8 @@ public class LirRipeMaintainedAttributesValidatorTest {
         when(update.getReferenceObject()).thenReturn(LIR_ORG);
         when(update.getUpdatedObject()).thenReturn(LIR_ORG_ORG);
 
-        subject.validate(update, updateContext);
+       subject.validate(update, updateContext);
 
-        verify(updateContext).getSubject(update);
         verify(update).getReferenceObject();
         verify(update).getUpdatedObject();
         verify(updateContext).addMessage(update, UpdateMessages.canOnlyBeChangedByRipeNCC(AttributeType.ORG));
@@ -107,11 +104,8 @@ public class LirRipeMaintainedAttributesValidatorTest {
         when(update.getReferenceObject()).thenReturn(LIR_ORG);
         when(update.getUpdatedObject()).thenReturn(LIR_ORG_ORG_TYPE);
 
-        subject.validate(update, updateContext);
+       subject.validate(update, updateContext);
 
-        verify(updateContext).getSubject(update);
-        verify(update).getReferenceObject();
-        verify(update).getUpdatedObject();
         verify(updateContext).addMessage(update, UpdateMessages.canOnlyBeChangedByRipeNCC(AttributeType.ORG_TYPE));
         verifyNoMoreInteractions(updateContext);
     }
@@ -120,10 +114,13 @@ public class LirRipeMaintainedAttributesValidatorTest {
     public void update_with_override() {
         when(updateContext.getSubject(any(UpdateContainer.class))).thenReturn(authenticationSubject);
         when(authenticationSubject.hasPrincipal(Principal.OVERRIDE_MAINTAINER)).thenReturn(true);
+        when(authenticationSubject.hasPrincipal(Principal.ALLOC_MAINTAINER)).thenReturn(false);
+        when(update.getReferenceObject()).thenReturn(LIR_ORG);
+        when(update.getUpdatedObject()).thenReturn(LIR_ORG_ORG_TYPE);
 
-        subject.validate(update, updateContext);
+       subject.validate(update, updateContext);
 
-        verify(updateContext).getSubject(update);
+        verify(updateContext).addMessage(update, new Message(Messages.Type.WARNING, UpdateMessages.canOnlyBeChangedByRipeNCC(AttributeType.ORG_TYPE).getText(), UpdateMessages.canOnlyBeChangedByRipeNCC(AttributeType.ORG_TYPE).getArgs() ));
         verifyNoMoreInteractions(updateContext);
     }
 
@@ -132,9 +129,7 @@ public class LirRipeMaintainedAttributesValidatorTest {
         when(updateContext.getSubject(any(UpdateContainer.class))).thenReturn(authenticationSubject);
         lenient().when(authenticationSubject.hasPrincipal(Principal.ALLOC_MAINTAINER)).thenReturn(true);
 
-        subject.validate(update, updateContext);
-
-        verify(updateContext).getSubject(update);
+       subject.validate(update, updateContext);
         verifyNoMoreInteractions(updateContext);
     }
 }

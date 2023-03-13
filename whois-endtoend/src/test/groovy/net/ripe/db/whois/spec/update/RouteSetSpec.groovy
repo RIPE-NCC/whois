@@ -1522,7 +1522,7 @@ class RouteSetSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(1, 1, 0, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
 
-        ack.countErrorWarnInfo(0, 0, 1)
+        ack.countErrorWarnInfo(0, 1, 1)
 
         queryObject("-r -T route-set AS123:RS-CUSTOMERS:RS-CUSTOMERS2", "route-set", "AS123:RS-CUSTOMERS:RS-CUSTOMERS2")
     }

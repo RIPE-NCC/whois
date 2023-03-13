@@ -3,6 +3,7 @@ package net.ripe.db.whois.update.handler.validator.inetnum;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
+import net.ripe.db.whois.common.Message;
 import net.ripe.db.whois.common.dao.RpslObjectDao;
 import net.ripe.db.whois.common.ip.Ipv6Resource;
 import net.ripe.db.whois.common.iptree.Ipv6Entry;
@@ -47,50 +48,52 @@ public class AggregatedByLirStatusValidator implements BusinessRuleValidator {
     }
 
     @Override
-    public void validate(final PreparedUpdate update, final UpdateContext updateContext) {
+    public List<Message> performValidation(final PreparedUpdate update, final UpdateContext updateContext) {
         if (update.getAction()== CREATE) {
-            validateCreate(update, updateContext);
-        } else {
-            validateModify(update, updateContext);
+            return validateCreate(update);
         }
+        return validateModify(update);
     }
 
-    private void validateCreate(final PreparedUpdate update, final UpdateContext updateContext) {
+    private List<Message> validateCreate(final PreparedUpdate update) {
         final RpslObject object = update.getUpdatedObject();
         final Ipv6Resource ipv6Resource = Ipv6Resource.parse(object.getKey());
+        final List<Message> messages = Lists.newArrayList();
 
         final Inet6numStatus status = Inet6numStatus.getStatusFor(object.getValueForAttribute(AttributeType.STATUS));
         if (AGGREGATED_BY_LIR == status) {
-            validateRequiredAssignmentSize(update, updateContext, object, ipv6Resource);
-            validTotalNrAggregatedByLirInHierarchy(update, updateContext, ipv6Resource);
+            validateRequiredAssignmentSize(object, ipv6Resource, messages);
+            validTotalNrAggregatedByLirInHierarchy(ipv6Resource, messages);
         } else {
-            addMessagesForAttributeAssignmentSizeNotAllowed(object, update, updateContext);
+            addMessagesForAttributeAssignmentSizeNotAllowed(object, messages);
         }
 
-        validatePrefixLengthForParent(update, updateContext, ipv6Resource);
+        validatePrefixLengthForParent(ipv6Resource, messages);
+
+        return messages;
     }
 
-    private void validateRequiredAssignmentSize(final PreparedUpdate update, final UpdateContext updateContext, final RpslObject object, final Ipv6Resource ipv6Resource) {
+    private void validateRequiredAssignmentSize(final RpslObject object, final Ipv6Resource ipv6Resource, final List<Message> messages) {
         if (object.containsAttribute(AttributeType.ASSIGNMENT_SIZE)) {
             final int assignmentSize = object.getValueForAttribute(AttributeType.ASSIGNMENT_SIZE).toInt();
             if (assignmentSize > MAX_ASSIGNMENT_SIZE) {
-                updateContext.addMessage(update, UpdateMessages.assignmentSizeTooLarge(MAX_ASSIGNMENT_SIZE));
+                messages.add(UpdateMessages.assignmentSizeTooLarge(MAX_ASSIGNMENT_SIZE));
             } else if (assignmentSize <= ipv6Resource.getPrefixLength()) {
-                updateContext.addMessage(update, UpdateMessages.assignmentSizeTooSmall(ipv6Resource.getPrefixLength()));
+                messages.add(UpdateMessages.assignmentSizeTooSmall(ipv6Resource.getPrefixLength()));
             } else {
                 for (final Ipv6Entry child : ipv6Tree.findFirstMoreSpecific(ipv6Resource)) {
                     final Ipv6Resource childIpv6Resource = child.getKey();
                     if (childIpv6Resource.getPrefixLength() != assignmentSize) {
-                        updateContext.addMessage(update, UpdateMessages.invalidChildPrefixLength());
+                        messages.add(UpdateMessages.invalidChildPrefixLength());
                     }
                 }
             }
         } else {
-            updateContext.addMessage(update, ValidationMessages.missingConditionalRequiredAttribute(AttributeType.ASSIGNMENT_SIZE));
+            messages.add(ValidationMessages.missingConditionalRequiredAttribute(AttributeType.ASSIGNMENT_SIZE));
         }
     }
 
-    private void validatePrefixLengthForParent(final PreparedUpdate update, final UpdateContext updateContext, final Ipv6Resource ipv6Resource) {
+    private void validatePrefixLengthForParent(final Ipv6Resource ipv6Resource, final List<Message> messages) {
         final List<Ipv6Entry> parents = ipv6Tree.findFirstLessSpecific(ipv6Resource);
         Validate.notEmpty(parents, "Parent must always exist");
         final RpslObject parent = rpslObjectDao.getById(parents.get(0).getObjectId());
@@ -101,23 +104,23 @@ public class AggregatedByLirStatusValidator implements BusinessRuleValidator {
             final int parentAssignmentSize = parent.getValueForAttribute(AttributeType.ASSIGNMENT_SIZE).toInt();
             final int prefixLength = ipv6Resource.getPrefixLength();
             if (prefixLength != parentAssignmentSize) {
-                updateContext.addMessage(update, UpdateMessages.invalidPrefixLength(ipv6Resource, parentAssignmentSize));
+                messages.add(UpdateMessages.invalidPrefixLength(ipv6Resource, parentAssignmentSize));
             }
         }
     }
 
-    private void validTotalNrAggregatedByLirInHierarchy(final PreparedUpdate update, final UpdateContext updateContext, final Ipv6Resource ipv6Resource) {
+    private void validTotalNrAggregatedByLirInHierarchy(final Ipv6Resource ipv6Resource, final List<Message> messages) {
         int remaining = MAX_ALLOWED_AGGREGATED_BY_LIR - 1;
 
         for (final Ipv6Entry parentEntry : Lists.reverse(ipv6Tree.findAllLessSpecific(ipv6Resource))) {
             if (isAggregatedByLir(parentEntry) && remaining-- == 0) {
-                updateContext.addMessage(update, UpdateMessages.tooManyAggregatedByLirInHierarchy());
+                messages.add(UpdateMessages.tooManyAggregatedByLirInHierarchy());
                 return;
             }
         }
 
         if (!validChildNrAggregatedByLir(ipv6Resource, remaining)) {
-            updateContext.addMessage(update, UpdateMessages.tooManyAggregatedByLirInHierarchy());
+            messages.add(UpdateMessages.tooManyAggregatedByLirInHierarchy());
         }
     }
 
@@ -137,22 +140,25 @@ public class AggregatedByLirStatusValidator implements BusinessRuleValidator {
         return AGGREGATED_BY_LIR == status;
     }
 
-    private void validateModify(final PreparedUpdate update, final UpdateContext updateContext) {
+    private  List<Message> validateModify(final PreparedUpdate update) {
         final RpslAttribute updatedStatus = update.getUpdatedObject().findAttribute(AttributeType.STATUS);
+        final List<Message> customValidationMessages = Lists.newArrayList();
 
         final Inet6numStatus inet6numStatus = Inet6numStatus.getStatusFor(updatedStatus.getCleanValue());
         if (assignmentSizeHasChanged(update)) {
             if(AGGREGATED_BY_LIR == inet6numStatus) {
-                updateContext.addMessage(update, UpdateMessages.cantChangeAssignmentSize());
+                customValidationMessages.add(UpdateMessages.cantChangeAssignmentSize());
             } else {
-                addMessagesForAttributeAssignmentSizeNotAllowed(update.getUpdatedObject(), update, updateContext);
+                addMessagesForAttributeAssignmentSizeNotAllowed(update.getUpdatedObject(), customValidationMessages);
             }
         }
+
+        return customValidationMessages;
     }
 
-    private void addMessagesForAttributeAssignmentSizeNotAllowed(final RpslObject object, final PreparedUpdate update, final UpdateContext updateContext) {
+    private void addMessagesForAttributeAssignmentSizeNotAllowed(final RpslObject object, final List<Message> messages) {
         for (final RpslAttribute attribute : object.findAttributes(AttributeType.ASSIGNMENT_SIZE)) {
-            updateContext.addMessage(update, attribute, UpdateMessages.attributeAssignmentSizeNotAllowed());
+            messages.add(UpdateMessages.attributeAssignmentSizeNotAllowed(attribute));
         }
     }
 

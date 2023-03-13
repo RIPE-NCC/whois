@@ -1,6 +1,7 @@
 package net.ripe.db.whois.common.rpsl;
 
 import net.ripe.db.whois.common.Message;
+import net.ripe.db.whois.common.MessageWithAttribute;
 import net.ripe.db.whois.common.Messages;
 
 public final class ValidationMessages {
@@ -33,6 +34,10 @@ public final class ValidationMessages {
 
     public static Message syntaxError(final CharSequence value, final CharSequence reason) {
         return new Message(Messages.Type.ERROR, "Syntax error in %s (%s)", value, reason);
+    }
+
+    public static Message syntaxError(final RpslAttribute attribute, final CharSequence reason) {
+        return new MessageWithAttribute(Messages.Type.ERROR, attribute, "Syntax error in %s (%s)", attribute.getCleanValue(), reason);
     }
 
     public static Message suppliedAttributeReplacedWithGeneratedValue(final AttributeType type) {
