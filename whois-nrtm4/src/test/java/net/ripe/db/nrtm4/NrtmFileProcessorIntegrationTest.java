@@ -2,7 +2,7 @@ package net.ripe.db.nrtm4;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import net.ripe.db.nrtm4.dao.DeltaFileRepository;
+import net.ripe.db.nrtm4.dao.DeltaFileDao;
 import net.ripe.db.nrtm4.dao.NrtmVersionInfoRepository;
 import net.ripe.db.nrtm4.dao.SnapshotFileRepository;
 import net.ripe.db.nrtm4.dao.SourceRepository;
@@ -25,7 +25,7 @@ import static org.hamcrest.Matchers.startsWith;
 public class NrtmFileProcessorIntegrationTest extends AbstractNrtm4IntegrationBase {
 
     @Autowired
-    private DeltaFileRepository deltaFileRepository;
+    private DeltaFileDao deltaFileDao;
 
     @Autowired
     private NrtmFileProcessor nrtmFileProcessor;
@@ -60,7 +60,7 @@ public class NrtmFileProcessorIntegrationTest extends AbstractNrtm4IntegrationBa
             assertThat(snapshotFile.isPresent(), is(true));
             final var snapshotVersion = nrtmVersionInfoRepository.findById(snapshotFile.get().versionId());
             assertThat(snapshotVersion.version(), is(1L));
-            final List<DeltaFile> deltaFile = deltaFileRepository.getDeltasForNotification(snapshotVersion, 0);
+            final List<DeltaFile> deltaFile = deltaFileDao.getDeltasForNotification(snapshotVersion, 0);
             assertThat(deltaFile.size(), is(0));
         }
         // Run again to ensure no new snapshot or delta is created
@@ -72,7 +72,7 @@ public class NrtmFileProcessorIntegrationTest extends AbstractNrtm4IntegrationBa
             assertThat(snapshotFile.isPresent(), is(true));
             final var snapshotVersion = nrtmVersionInfoRepository.findById(snapshotFile.get().versionId());
             assertThat(snapshotVersion.version(), is(1L));
-            final List<DeltaFile> deltaFile = deltaFileRepository.getDeltasForNotification(snapshotVersion, 0);
+            final List<DeltaFile> deltaFile = deltaFileDao.getDeltasForNotification(snapshotVersion, 0);
             assertThat(deltaFile.size(), is(0));
         }
         // Make a change in whois and expect a delta
@@ -89,7 +89,7 @@ public class NrtmFileProcessorIntegrationTest extends AbstractNrtm4IntegrationBa
             assertThat(snapshotFile.isPresent(), is(true));
             final var snapshotVersion = nrtmVersionInfoRepository.findById(snapshotFile.get().versionId());
             assertThat(snapshotVersion.version(), is(1L));
-            final var deltaFiles = deltaFileRepository.getDeltasForNotification(snapshotVersion, 0);
+            final var deltaFiles = deltaFileDao.getDeltasForNotification(snapshotVersion, 0);
             assertThat(deltaFiles.size(), is(1));
             final var deltaFile = deltaFiles.get(0);
             final var deltaVersion = nrtmVersionInfoRepository.findById(deltaFile.versionId());

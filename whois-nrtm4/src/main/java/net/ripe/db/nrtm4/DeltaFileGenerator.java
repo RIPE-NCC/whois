@@ -1,15 +1,12 @@
 package net.ripe.db.nrtm4;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.google.common.base.Stopwatch;
 import net.ripe.db.nrtm4.dao.DeltaFileRepository;
 import net.ripe.db.nrtm4.dao.NrtmVersionInfoRepository;
 import net.ripe.db.nrtm4.dao.WhoisObjectRepository;
 import net.ripe.db.nrtm4.domain.DeltaChange;
-import net.ripe.db.nrtm4.domain.DeltaFile;
 import net.ripe.db.nrtm4.domain.NrtmVersionInfo;
-import net.ripe.db.nrtm4.domain.PublishableDeltaFile;
-import net.ripe.db.nrtm4.util.NrtmFileUtil;
 import net.ripe.db.whois.common.domain.CIString;
 import net.ripe.db.whois.common.domain.serials.Operation;
 import net.ripe.db.whois.common.domain.serials.SerialEntry;
@@ -19,14 +16,13 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
-import java.io.IOException;
-import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 import static net.ripe.db.nrtm4.NrtmConstants.NRTM_VERSION;
+
 
 @Service
 public class DeltaFileGenerator {
@@ -35,20 +31,17 @@ public class DeltaFileGenerator {
 
     private final DeltaFileRepository deltaFileRepository;
     private final DummifierNrtm dummifier;
-    private final NrtmFileService nrtmFileService;
     private final NrtmVersionInfoRepository nrtmVersionInfoRepository;
     private final WhoisObjectRepository whoisObjectRepository;
 
     DeltaFileGenerator(
         final DeltaFileRepository deltaFileRepository,
         final DummifierNrtm dummifier,
-        final NrtmFileService nrtmFileService,
         final NrtmVersionInfoRepository nrtmVersionInfoRepository,
         final WhoisObjectRepository whoisObjectRepository
     ) {
         this.deltaFileRepository = deltaFileRepository;
         this.dummifier = dummifier;
-        this.nrtmFileService = nrtmFileService;
         this.nrtmVersionInfoRepository = nrtmVersionInfoRepository;
         this.whoisObjectRepository = whoisObjectRepository;
     }
@@ -76,24 +69,17 @@ public class DeltaFileGenerator {
             }
             deltaMap.get(source).add(deltaChange);
         }
-        for (final NrtmVersionInfo version: sourceVersions) {
+        for (final NrtmVersionInfo version : sourceVersions) {
             final List<DeltaChange> deltas = deltaMap.get(version.source().getName());
             if (!deltas.isEmpty()) {
-                final NrtmVersionInfo newVersion = nrtmVersionInfoRepository.saveNewDeltaVersion(version, serialIDTo);
-                final PublishableDeltaFile publishableDeltaFile = new PublishableDeltaFile(newVersion, deltas);
-                final ObjectMapper objectMapper = new ObjectMapper();
                 try {
-                    final String json = objectMapper.writeValueAsString(publishableDeltaFile);
-                    final String hash = NrtmFileUtil.calculateSha256(json.getBytes(StandardCharsets.UTF_8));
-                    final DeltaFile deltaFile = DeltaFile.of(newVersion.id(), NrtmFileUtil.newFileName(newVersion), hash, json);
-                    deltaFileRepository.save(deltaFile);
-                    nrtmFileService.writeToDisk(newVersion.sessionID(), deltaFile.name(), json.getBytes(StandardCharsets.UTF_8));
-                } catch (final IOException e) {
-                    LOGGER.warn("Exception processing delta file {}", publishableDeltaFile.getSource().getName(), e);
+                    deltaFileRepository.storeDeltasAsPublishableFile(serialIDTo, version, deltas);
+                    LOGGER.info("Created {} delta list in {}", version.source().getName(), stopwatch);
+                } catch (final JsonProcessingException e) {
+                    LOGGER.info("Exception when saving delta for {}", version.source().getName(), e);
                 }
             }
         }
-        LOGGER.info("Created delta list in {}", stopwatch);
         return sourceVersions;
     }
 
