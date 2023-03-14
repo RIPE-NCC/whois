@@ -8,6 +8,7 @@ import net.ripe.db.nrtm4.domain.NrtmDocumentType;
 import net.ripe.db.nrtm4.domain.NrtmSourceModel;
 import net.ripe.db.nrtm4.domain.NrtmVersionInfo;
 import net.ripe.db.nrtm4.domain.PublishableNrtmFile;
+import net.ripe.db.nrtm4.domain.PublishableSnapshotFile;
 import net.ripe.db.nrtm4.domain.RpslObjectData;
 import net.ripe.db.nrtm4.domain.SnapshotFile;
 import net.ripe.db.nrtm4.domain.SnapshotState;
@@ -85,7 +86,7 @@ public class SnapshotFileGenerator {
         final Map<CIString, LinkedBlockingQueue<RpslObjectData>> queueMap = new HashMap<>();
         for (final NrtmVersionInfo sourceVersion : sourceVersions) {
             LOGGER.info("Creating snapshot for {}", sourceVersion.source().getName());
-            final PublishableNrtmFile snapshotFile = new PublishableNrtmFile(sourceVersion);
+            final PublishableNrtmFile snapshotFile = new PublishableSnapshotFile(sourceVersion);
             final LinkedBlockingQueue<RpslObjectData> queue = new LinkedBlockingQueue<>(QUEUE_CAPACITY);
             queueMap.put(snapshotFile.getSource().getName(), queue);
             final RunnableFileGenerator runner = new RunnableFileGenerator(dummifierNrtm, nrtmFileService, snapshotFileRepository, snapshotFileSerializer, sourceVersion, queue);

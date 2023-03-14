@@ -5,7 +5,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import static net.ripe.db.nrtm4.NrtmConstants.NRTM_VERSION;
 
 
-public class PublishableNrtmFile {
+public abstract class PublishableNrtmFile {
 
     @JsonProperty("nrtm_version")
     private final int nrtmVersion = NRTM_VERSION;

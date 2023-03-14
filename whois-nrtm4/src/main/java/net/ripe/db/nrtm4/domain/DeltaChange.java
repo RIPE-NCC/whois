@@ -14,7 +14,7 @@ import net.ripe.db.whois.common.rpsl.RpslObject;
 @JsonPropertyOrder({ "action", "object_class", "primary_key", "object"})
 public class DeltaChange {
 
-    enum Action {
+    public enum Action {
         DELETE,
         ADD_MODIFY;
 
