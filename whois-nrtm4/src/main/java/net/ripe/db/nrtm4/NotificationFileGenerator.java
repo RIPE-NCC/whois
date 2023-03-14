@@ -7,12 +7,11 @@ import net.ripe.db.nrtm4.dao.NotificationFileDao;
 import net.ripe.db.nrtm4.dao.NrtmVersionInfoRepository;
 import net.ripe.db.nrtm4.dao.SnapshotFileRepository;
 import net.ripe.db.nrtm4.dao.SourceRepository;
-import net.ripe.db.nrtm4.domain.DeltaFile;
 import net.ripe.db.nrtm4.domain.NotificationFile;
-import net.ripe.db.nrtm4.domain.NrtmNotifiable;
 import net.ripe.db.nrtm4.domain.NrtmVersionInfo;
 import net.ripe.db.nrtm4.domain.PublishableNotificationFile;
 import net.ripe.db.nrtm4.domain.SnapshotFile;
+import net.ripe.db.nrtm4.domain.VersionedDeltaFile;
 import net.ripe.db.whois.common.dao.VersionDateTime;
 import net.ripe.db.whois.common.domain.Timestamp;
 import org.mariadb.jdbc.internal.logging.Logger;
@@ -72,11 +71,11 @@ public class NotificationFileGenerator {
             final SnapshotFile snapshotFile = snapshotFileRepository.getLastSnapshot(version.source()).orElseThrow();
             final NrtmVersionInfo lastSnapshotVersion = nrtmVersionInfoRepository.findById(snapshotFile.versionId());
             final Timestamp oneDayAgo = Timestamp.from(LocalDateTime.now().minusDays(1));
-            final List<DeltaFile> deltaFiles = deltaFileDao.getDeltasForNotification(lastSnapshotVersion, oneDayAgo.getValue());
+            final List<VersionedDeltaFile> deltaFiles = deltaFileDao.getDeltasForNotification(lastSnapshotVersion, oneDayAgo.getValue());
             try {
                 final PublishableNotificationFile lastNotificationUpdate = new ObjectMapper().readValue(lastNotificationFile.payload().getBytes(StandardCharsets.UTF_8), PublishableNotificationFile.class);
                 // if notification file is < 1 day old and nothing changed, do nothing.
-                final List<PublishableNotificationFile.NrtmFileLink> newDeltas = convert(version, deltaFiles);
+                final List<PublishableNotificationFile.NrtmFileLink> newDeltas = convert(deltaFiles);
                 if (lastNotificationUpdate.getDeltas() != null && lastNotificationUpdate.getDeltas().equals(newDeltas) && lastNotificationFileVersion.created() > oneDayAgo.getValue()) {
                     return;
                 }
@@ -87,18 +86,23 @@ public class NotificationFileGenerator {
                 notificationFileDao.save(notificationFile);
             } catch (final IOException e) {
                 LOGGER.error("Failed to update notification file for {}", version.source().getName(), e);
-                throw new RuntimeException(e);
             }
         }
     }
 
-    private List<PublishableNotificationFile.NrtmFileLink> convert(final NrtmVersionInfo version, final List<? extends NrtmNotifiable> files) {
-        return files.stream().map(file -> convert(version, file)).toList();
+    private List<PublishableNotificationFile.NrtmFileLink> convert(final List<? extends VersionedDeltaFile> files) {
+        return files.stream()
+            .map(file -> new PublishableNotificationFile.NrtmFileLink(
+                file.version(), urlString(file.sessionID(), file.name()), file.hash()))
+            .toList();
     }
 
-    private PublishableNotificationFile.NrtmFileLink convert(final NrtmVersionInfo version, final NrtmNotifiable file) {
-        final String url = String.format("%s/%s/%s", baseUrl, version.sessionID(), file.name());
-        return new PublishableNotificationFile.NrtmFileLink(version.version(), url, file.hash());
+    private PublishableNotificationFile.NrtmFileLink convert(final NrtmVersionInfo version, final SnapshotFile file) {
+        return new PublishableNotificationFile.NrtmFileLink(version.version(), urlString(version.sessionID(), file.name()), file.hash());
+    }
+
+    private String urlString(final String sessionID, final String fileName) {
+        return String.format("%s/%s/%s", baseUrl, sessionID, fileName);
     }
 
 }

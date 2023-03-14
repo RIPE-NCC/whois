@@ -79,26 +79,26 @@ public class NrtmFileProcessorIntegrationTest extends AbstractNrtm4IntegrationBa
             final var deltaFile = deltaFileDao.getDeltasForNotification(snapshotVersion, 0);
             assertThat(deltaFile.size(), is(0));
         }
-        // Make a change in whois and expect a delta
-        final var mntObject = RpslObject.parse("""
-            mntner: DEV-MNT
-            source: TEST
-            """);
-        databaseHelper.addObject(mntObject);
-        nrtmFileProcessor.updateNrtmFilesAndPublishNotification();
         {
+            // Make a change in whois and expect a delta
+            final var mntObject = RpslObject.parse("""
+                mntner: DEV-MNT
+                source: TEST
+                """);
+            databaseHelper.addObject(mntObject);
+            nrtmFileProcessor.updateNrtmFilesAndPublishNotification();
             final var whoisSource = sourceRepository.getWhoisSource();
             assertThat(whoisSource.isPresent(), is(true));
             final var snapshotFile = snapshotFileRepository.getLastSnapshot(whoisSource.get());
             assertThat(snapshotFile.isPresent(), is(true));
             final var snapshotVersion = nrtmVersionInfoRepository.findById(snapshotFile.get().versionId());
             assertThat(snapshotVersion.version(), is(1L));
-            final var deltaFiles = deltaFileDao.getDeltasForNotification(snapshotVersion, 0);
-            assertThat(deltaFiles.size(), is(1));
-            final var deltaFile = deltaFiles.get(0);
-            final var deltaVersion = nrtmVersionInfoRepository.findById(deltaFile.versionId());
-            assertThat(deltaVersion.version(), is(2L));
-            assertThat(deltaFile.name(), startsWith("nrtm-delta.2.TEST."));
+            final var versionedDeltaFiles = deltaFileDao.getDeltasForNotification(snapshotVersion, 0);
+            assertThat(versionedDeltaFiles.size(), is(1));
+            final var versionedDeltaFile = versionedDeltaFiles.get(0);
+            assertThat(versionedDeltaFile.version(), is(2L));
+            assertThat(versionedDeltaFile.name(), startsWith("nrtm-delta.2.TEST."));
+            final var deltaFile = deltaFileDao.getByName(versionedDeltaFile.sessionID(), versionedDeltaFile.name()).orElseThrow();
             final var publishableFile = new ObjectMapper().readValue(deltaFile.payload(), PublishableDeltaFile.class);
             assertThat(publishableFile.getSource().getName(), is("TEST"));
             assertThat(publishableFile.getChanges().size(), is(1));
@@ -106,9 +106,55 @@ public class NrtmFileProcessorIntegrationTest extends AbstractNrtm4IntegrationBa
             assertThat(change.getObject().toString(), startsWith(mntObject.toString()));
             assertThat(change.getObject().toString(), containsString("* THIS OBJECT IS MODIFIED"));
             final var lastNotification = notificationFileDao.findLastNotification(whoisSource.get());
-            assertThat(lastNotification.versionId(), is(deltaVersion.id()));
             final var notificationFile = new ObjectMapper().readValue(lastNotification.payload(), PublishableNotificationFile.class);
+            assertThat(notificationFile.getVersion(), is(versionedDeltaFile.version()));
             assertThat(notificationFile.getDeltas().size(), is(1));
+        }
+        {
+            // Make a change in whois and expect a delta
+            final var mntObject2 = RpslObject.parse("""
+                mntner: DEV2-MNT
+                source: TEST
+                """);
+            final var mntObject3 = RpslObject.parse("""
+                mntner: DEV3-MNT
+                source: TEST
+                """);
+            databaseHelper.addObject(mntObject2);
+            databaseHelper.addObject(mntObject3);
+            nrtmFileProcessor.updateNrtmFilesAndPublishNotification();
+            final var whoisSource = sourceRepository.getWhoisSource();
+            assertThat(whoisSource.isPresent(), is(true));
+            final var snapshotFile = snapshotFileRepository.getLastSnapshot(whoisSource.get());
+            assertThat(snapshotFile.isPresent(), is(true));
+            final var snapshotVersion = nrtmVersionInfoRepository.findById(snapshotFile.get().versionId());
+            assertThat(snapshotVersion.version(), is(1L));
+            final var versionedDeltaFiles = deltaFileDao.getDeltasForNotification(snapshotVersion, 0);
+            assertThat(versionedDeltaFiles.size(), is(2));
+            final var versionedDeltaFile1 = versionedDeltaFiles.get(0);
+            assertThat(versionedDeltaFile1.version(), is(2L));
+            assertThat(versionedDeltaFile1.name(), startsWith("nrtm-delta.2.TEST."));
+            final var versionedDeltaFile = versionedDeltaFiles.get(1);
+            assertThat(versionedDeltaFile.version(), is(3L));
+            assertThat(versionedDeltaFile.name(), startsWith("nrtm-delta.3.TEST."));
+            final var deltaFile = deltaFileDao.getByName(versionedDeltaFile.sessionID(), versionedDeltaFile.name()).orElseThrow();
+            final var publishableFile = new ObjectMapper().readValue(deltaFile.payload(), PublishableDeltaFile.class);
+            assertThat(publishableFile.getSource().getName(), is("TEST"));
+            assertThat(publishableFile.getChanges().size(), is(2));
+            {
+                final var change = publishableFile.getChanges().get(0);
+                assertThat(change.getObject().toString(), startsWith(mntObject2.toString()));
+                assertThat(change.getObject().toString(), containsString("* THIS OBJECT IS MODIFIED"));
+            }
+            {
+                final var change = publishableFile.getChanges().get(1);
+                assertThat(change.getObject().toString(), startsWith(mntObject3.toString()));
+                assertThat(change.getObject().toString(), containsString("* THIS OBJECT IS MODIFIED"));
+            }
+            final var lastNotification = notificationFileDao.findLastNotification(whoisSource.get());
+            final var notificationFile = new ObjectMapper().readValue(lastNotification.payload(), PublishableNotificationFile.class);
+            assertThat(notificationFile.getVersion(), is(versionedDeltaFile.version()));
+            assertThat(notificationFile.getDeltas().size(), is(2));
         }
     }
 
