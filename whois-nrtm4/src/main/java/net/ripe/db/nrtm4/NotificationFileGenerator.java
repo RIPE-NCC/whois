@@ -91,10 +91,14 @@ public class NotificationFileGenerator {
     }
 
     private List<PublishableNotificationFile.NrtmFileLink> convert(final List<? extends VersionedDeltaFile> files) {
-        return files.stream()
+        final List<PublishableNotificationFile.NrtmFileLink> links = files.stream()
             .map(file -> new PublishableNotificationFile.NrtmFileLink(
                 file.version(), urlString(file.sessionID(), file.name()), file.hash()))
             .toList();
+        if (links.isEmpty()) {
+            return null;
+        }
+        return links;
     }
 
     private PublishableNotificationFile.NrtmFileLink convert(final NrtmVersionInfo version, final SnapshotFile file) {

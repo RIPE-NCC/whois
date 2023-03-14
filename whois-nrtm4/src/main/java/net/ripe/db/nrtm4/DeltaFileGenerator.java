@@ -46,7 +46,7 @@ public class DeltaFileGenerator {
         this.whoisObjectRepository = whoisObjectRepository;
     }
 
-    public List<NrtmVersionInfo> createDeltas(final int serialIDTo) {
+    public void createDeltas(final int serialIDTo) {
         final Stopwatch stopwatch = Stopwatch.createStarted();
         final List<NrtmVersionInfo> sourceVersions = nrtmVersionInfoRepository.findLastVersionPerSource();
         if (sourceVersions.isEmpty()) {
@@ -80,7 +80,6 @@ public class DeltaFileGenerator {
                 }
             }
         }
-        return sourceVersions;
     }
 
 }

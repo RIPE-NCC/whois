@@ -53,11 +53,6 @@ public class NrtmFileProcessor {
             snapshotFileGenerator.createSnapshots(state);
             notificationFileGenerator.updateNotification();
         }
-        // TODO: optionally create notification file in db...
-        //   Get the last notification to see if anything changed now that we might have generated more files
-        //   If no snapshot was created for a source, keep the one from the last notification
-        //   Get deltas which are < 24 hours old
-        //   Don't publish a new one if the files are the same and the last notification is less than a day old
     }
 
 }
