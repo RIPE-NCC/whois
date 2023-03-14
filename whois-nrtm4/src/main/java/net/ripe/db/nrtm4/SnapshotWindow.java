@@ -1,10 +1,14 @@
 package net.ripe.db.nrtm4;
 
+import net.ripe.db.nrtm4.domain.NrtmVersionInfo;
 import net.ripe.db.whois.common.DateTimeProvider;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.LocalTime;
+import java.time.ZoneOffset;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -28,6 +32,13 @@ public class SnapshotWindow {
         }
         from = LocalTime.of(Integer.parseInt(matcher.group(1)), Integer.parseInt(matcher.group(2)));
         to = LocalTime.of(Integer.parseInt(matcher.group(3)), Integer.parseInt(matcher.group(4)));
+    }
+
+    public boolean isFileReadyForRefresh(final NrtmVersionInfo versionToRemove) {
+        final long fromMs = from.toEpochSecond(LocalDate.now(), ZoneOffset.UTC);
+        final long toMs = to.toEpochSecond(LocalDate.now(), ZoneOffset.UTC);
+        final long expireTime = versionToRemove.created() + Math.abs(toMs - fromMs);
+        return expireTime < LocalDateTime.now().toEpochSecond(ZoneOffset.UTC);
     }
 
     public boolean isInWindow() {

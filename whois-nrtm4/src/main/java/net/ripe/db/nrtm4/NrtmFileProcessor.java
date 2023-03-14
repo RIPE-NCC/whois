@@ -50,8 +50,7 @@ public class NrtmFileProcessor {
         } else {
             // Must do deltas first since snapshot creation is skipped if there aren't any
             deltaFileGenerator.createDeltas(state.serialId());
-            // TODO: is it time to do a snapshot?
-            //   snapshotFileGenerator.createSnapshots(state)
+            snapshotFileGenerator.createSnapshots(state);
             notificationFileGenerator.updateNotification();
         }
         // TODO: optionally create notification file in db...

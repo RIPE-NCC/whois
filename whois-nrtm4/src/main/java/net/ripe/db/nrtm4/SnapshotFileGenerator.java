@@ -43,6 +43,7 @@ public class SnapshotFileGenerator {
     private final RpslObjectEnqueuer rpslObjectEnqueuer;
     private final SnapshotFileSerializer snapshotFileSerializer;
     private final SnapshotFileRepository snapshotFileRepository;
+    private final SnapshotWindow snapshotWindow;
     private final SourceRepository sourceRepository;
 
     public SnapshotFileGenerator(
@@ -52,6 +53,7 @@ public class SnapshotFileGenerator {
         final RpslObjectEnqueuer rpslObjectEnqueuer,
         final SnapshotFileRepository snapshotFileRepository,
         final SnapshotFileSerializer snapshotFileSerializer,
+        final SnapshotWindow snapshotWindow,
         final SourceRepository sourceRepository
     ) {
         this.dummifierNrtm = dummifierNrtm;
@@ -60,10 +62,14 @@ public class SnapshotFileGenerator {
         this.rpslObjectEnqueuer = rpslObjectEnqueuer;
         this.snapshotFileSerializer = snapshotFileSerializer;
         this.snapshotFileRepository = snapshotFileRepository;
+        this.snapshotWindow = snapshotWindow;
         this.sourceRepository = sourceRepository;
     }
 
     public List<NrtmVersionInfo> createSnapshots(final SnapshotState state) {
+        if (!snapshotWindow.isInWindow()) {
+            return List.of();
+        }
         final Stopwatch stopwatchRoot = Stopwatch.createStarted();
         // Get last version from database.
         final List<NrtmVersionInfo> sourceVersions = nrtmVersionInfoRepository.findLastVersionPerSource();
@@ -76,7 +82,8 @@ public class SnapshotFileGenerator {
                 sourceVersions.add(version);
             }
         } else {
-            sourceVersions.removeIf(versionToRemove -> versionToRemove.type() == NrtmDocumentType.SNAPSHOT);
+            sourceVersions.removeIf(versionToRemove ->
+                versionToRemove.type() == NrtmDocumentType.SNAPSHOT || !snapshotWindow.isFileReadyForRefresh(versionToRemove));
             if (sourceVersions.isEmpty()) {
                 LOGGER.info("No deltas created since last snapshot. Skipping snapshot creation");
                 return List.of();
