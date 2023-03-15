@@ -18,7 +18,7 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 
 
-public class SnapshotWindowTest {
+public class SnapshotGenerationWindowTest {
 
     @Test
     void snapshot_is_generated_at_the_right_time_when_window_spans_midnight() {
@@ -26,22 +26,22 @@ public class SnapshotWindowTest {
         final var date = LocalDate.of(2023, 3, 14);
         {
             final var time = LocalTime.of(15, 13);
-            final var window = new SnapshotWindow(windowDef, getMockDateTimeProvider(date, time));
+            final var window = new SnapshotGenerationWindow(windowDef, getMockDateTimeProvider(date, time));
             assertThat(window.isInWindow(), is(false));
         }
         {
             final var time = LocalTime.of(23, 30);
-            final var window = new SnapshotWindow(windowDef, getMockDateTimeProvider(date, time));
+            final var window = new SnapshotGenerationWindow(windowDef, getMockDateTimeProvider(date, time));
             assertThat(window.isInWindow(), is(true));
         }
         {
             final var time = LocalTime.of(1, 50);
-            final var window = new SnapshotWindow(windowDef, getMockDateTimeProvider(date, time));
+            final var window = new SnapshotGenerationWindow(windowDef, getMockDateTimeProvider(date, time));
             assertThat(window.isInWindow(), is(true));
         }
         {
             final var time = LocalTime.of(5, 30);
-            final var window = new SnapshotWindow(windowDef, getMockDateTimeProvider(date, time));
+            final var window = new SnapshotGenerationWindow(windowDef, getMockDateTimeProvider(date, time));
             assertThat(window.isInWindow(), is(false));
         }
     }
@@ -52,41 +52,42 @@ public class SnapshotWindowTest {
         final var date = LocalDate.of(2023, 3, 14);
         {
             final var time = LocalTime.of(15, 13);
-            final var window = new SnapshotWindow(windowDef, getMockDateTimeProvider(date, time));
+            final var window = new SnapshotGenerationWindow(windowDef, getMockDateTimeProvider(date, time));
             assertThat(window.isInWindow(), is(false));
         }
         {
             final var time = LocalTime.of(23, 30);
-            final var window = new SnapshotWindow(windowDef, getMockDateTimeProvider(date, time));
+            final var window = new SnapshotGenerationWindow(windowDef, getMockDateTimeProvider(date, time));
             assertThat(window.isInWindow(), is(false));
         }
         {
             final var time = LocalTime.of(1, 50);
-            final var window = new SnapshotWindow(windowDef, getMockDateTimeProvider(date, time));
+            final var window = new SnapshotGenerationWindow(windowDef, getMockDateTimeProvider(date, time));
             assertThat(window.isInWindow(), is(true));
         }
         {
             final var time = LocalTime.of(5, 30);
-            final var window = new SnapshotWindow(windowDef, getMockDateTimeProvider(date, time));
+            final var window = new SnapshotGenerationWindow(windowDef, getMockDateTimeProvider(date, time));
             assertThat(window.isInWindow(), is(false));
         }
     }
 
     @Test
     void is_it_time_to_refresh_the_snapshot() {
+        // Window is 4 hours wide. Files older than 4 hours have expired
         final var windowDef = "01:00 - 05:00";
-        final var window = new SnapshotWindow(windowDef, getMockDateTimeProvider(LocalDate.now(), LocalTime.now()));
+        final var window = new SnapshotGenerationWindow(windowDef, getMockDateTimeProvider(LocalDate.now(), LocalTime.now()));
         {
-            final var agesAgo = LocalDateTime.now().minusDays(50);
+            final var onlyJustExpired = LocalDateTime.now().minusHours(4).minusMinutes(1);
             final var src = new NrtmSourceModel(666, CIString.ciString("fish"));
-            final var file = new NrtmVersionInfo(667L, src, 100L, "xxx-yyy-zzz", NrtmDocumentType.SNAPSHOT, 9999, agesAgo.toEpochSecond(ZoneOffset.UTC));
-            assertThat(window.isFileReadyForRefresh(file), is(true));
+            final var file = new NrtmVersionInfo(667L, src, 100L, "xxx-yyy-zzz", NrtmDocumentType.SNAPSHOT, 9999, onlyJustExpired.toEpochSecond(ZoneOffset.UTC));
+            assertThat(window.hasVersionExpired(file), is(true));
         }
         {
-            final var now = LocalDateTime.now();
+            final var notQuiteExpired = LocalDateTime.now().minusHours(4);
             final var src = new NrtmSourceModel(666, CIString.ciString("fish"));
-            final var file = new NrtmVersionInfo(667L, src, 100L, "xxx-yyy-zzz", NrtmDocumentType.SNAPSHOT, 9999, now.toEpochSecond(ZoneOffset.UTC));
-            assertThat(window.isFileReadyForRefresh(file), is(false));
+            final var file = new NrtmVersionInfo(667L, src, 100L, "xxx-yyy-zzz", NrtmDocumentType.SNAPSHOT, 9999, notQuiteExpired.toEpochSecond(ZoneOffset.UTC));
+            assertThat(window.hasVersionExpired(file), is(false));
         }
     }
 

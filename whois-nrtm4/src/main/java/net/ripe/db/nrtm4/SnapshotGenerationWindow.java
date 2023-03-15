@@ -14,13 +14,13 @@ import java.util.regex.Pattern;
 
 
 @Service
-public class SnapshotWindow {
+public class SnapshotGenerationWindow {
 
     private final LocalTime from;
     private final LocalTime to;
     private final DateTimeProvider dateTimeProvider;
 
-    SnapshotWindow(
+    SnapshotGenerationWindow(
         @Value("${nrtm.snapshot.window}") final String windowDefinition,
         final DateTimeProvider dateTimeProvider
     ) {
@@ -34,7 +34,7 @@ public class SnapshotWindow {
         to = LocalTime.of(Integer.parseInt(matcher.group(3)), Integer.parseInt(matcher.group(4)));
     }
 
-    public boolean isFileReadyForRefresh(final NrtmVersionInfo versionToRemove) {
+    public boolean hasVersionExpired(final NrtmVersionInfo versionToRemove) {
         final long fromMs = from.toEpochSecond(LocalDate.now(), ZoneOffset.UTC);
         final long toMs = to.toEpochSecond(LocalDate.now(), ZoneOffset.UTC);
         final long expireTime = versionToRemove.created() + Math.abs(toMs - fromMs);

@@ -59,7 +59,7 @@ public class SourceRepository {
         }
     }
 
-    public List<NrtmSourceModel> getAllSources() {
+    public List<NrtmSourceModel> getSources() {
         final String sql = """
             SELECT id, name
             FROM source

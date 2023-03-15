@@ -98,7 +98,7 @@ public class NrtmFileProcessorIntegrationTest extends AbstractNrtm4IntegrationBa
 
             final var whoisSource = sourceRepository.getWhoisSource();
             assertThat(whoisSource.isPresent(), is(true));
-            final var lastNotification = notificationFileDao.findLastNotification(whoisSource.get());
+            final var lastNotification = notificationFileDao.findLastNotification(whoisSource.get()).orElseThrow();
             final var notificationFile = new ObjectMapper().readValue(lastNotification.payload(), PublishableNotificationFile.class);
             sessionID = notificationFile.getSessionID();
             final var sessionUUID = UUID.fromString(sessionID); // throws exception if not UUID format
@@ -133,7 +133,7 @@ public class NrtmFileProcessorIntegrationTest extends AbstractNrtm4IntegrationBa
 
             final var whoisSource = sourceRepository.getWhoisSource();
             assertThat(whoisSource.isPresent(), is(true));
-            final var lastNotification = notificationFileDao.findLastNotification(whoisSource.get());
+            final var lastNotification = notificationFileDao.findLastNotification(whoisSource.get()).orElseThrow();
             final var notificationFile = new ObjectMapper().readValue(lastNotification.payload(), PublishableNotificationFile.class);
             assertThat(sessionID, is(notificationFile.getSessionID()));
             assertThat(notificationFile.getVersion(), is(2L));
@@ -166,7 +166,7 @@ public class NrtmFileProcessorIntegrationTest extends AbstractNrtm4IntegrationBa
             final var whoisSource = sourceRepository.getWhoisSource();
             assertThat(whoisSource.isPresent(), is(true));
             final var lastNotification = notificationFileDao.findLastNotification(whoisSource.get());
-            final var notificationFile = new ObjectMapper().readValue(lastNotification.payload(), PublishableNotificationFile.class);
+            final var notificationFile = new ObjectMapper().readValue(lastNotification.get().payload(), PublishableNotificationFile.class);
             assertThat(sessionID, is(notificationFile.getSessionID()));
             assertThat(notificationFile.getVersion(), is(3L));
             assertThat(notificationFile.getDeltas().size(), is(2));
@@ -181,7 +181,7 @@ public class NrtmFileProcessorIntegrationTest extends AbstractNrtm4IntegrationBa
 
                 final var whoisSource = sourceRepository.getWhoisSource();
                 assertThat(whoisSource.isPresent(), is(true));
-                final var lastNotification = notificationFileDao.findLastNotification(whoisSource.get());
+                final var lastNotification = notificationFileDao.findLastNotification(whoisSource.get()).orElseThrow();
                 final var notificationFile = new ObjectMapper().readValue(lastNotification.payload(), PublishableNotificationFile.class);
                 assertThat(sessionID, is(notificationFile.getSessionID()));
                 assertThat(notificationFile.getVersion(), is(4L));

@@ -26,6 +26,7 @@ import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
 
 
 @Service
@@ -59,6 +60,7 @@ public class NotificationFileGenerator {
             final NotificationFile notificationFile = NotificationFile.of(version.id(), json);
             notificationFileDao.save(notificationFile);
         } catch (final JsonProcessingException e) {
+            LOGGER.error("Saving notification file failed for {}", version.source().getName());
             throw new RuntimeException(e);
         }
     }
@@ -66,14 +68,18 @@ public class NotificationFileGenerator {
     @Transactional(isolation = Isolation.REPEATABLE_READ, propagation = Propagation.REQUIRES_NEW)
     void updateNotification() {
         for (final NrtmVersionInfo version : nrtmVersionInfoRepository.findLastVersionPerSource()) {
-            final NotificationFile lastNotificationFile = notificationFileDao.findLastNotification(version.source());
-            final NrtmVersionInfo lastNotificationFileVersion = nrtmVersionInfoRepository.findById(lastNotificationFile.versionId());
+            final Optional<NotificationFile> lastNotificationFile = notificationFileDao.findLastNotification(version.source());
+            if (lastNotificationFile.isEmpty()) {
+                LOGGER.error("Expected a previous notification file for {}, but there wasn't one", version.source().getName());
+                continue;
+            }
+            final NrtmVersionInfo lastNotificationFileVersion = nrtmVersionInfoRepository.findById(lastNotificationFile.get().versionId());
             final SnapshotFile snapshotFile = snapshotFileRepository.getLastSnapshot(version.source()).orElseThrow();
             final NrtmVersionInfo lastSnapshotVersion = nrtmVersionInfoRepository.findById(snapshotFile.versionId());
             final Timestamp oneDayAgo = Timestamp.from(LocalDateTime.now().minusDays(1));
             final List<VersionedDeltaFile> deltaFiles = deltaFileDao.getDeltasForNotification(lastSnapshotVersion, oneDayAgo.getValue());
             try {
-                final PublishableNotificationFile lastNotificationUpdate = new ObjectMapper().readValue(lastNotificationFile.payload().getBytes(StandardCharsets.UTF_8), PublishableNotificationFile.class);
+                final PublishableNotificationFile lastNotificationUpdate = new ObjectMapper().readValue(lastNotificationFile.get().payload().getBytes(StandardCharsets.UTF_8), PublishableNotificationFile.class);
                 // if notification file is < 1 day old and nothing changed, do nothing.
                 final List<PublishableNotificationFile.NrtmFileLink> newDeltas = convert(deltaFiles);
                 if (lastNotificationUpdate.getDeltas() != null && lastNotificationUpdate.getDeltas().equals(newDeltas) && lastNotificationFileVersion.created() > oneDayAgo.getValue()) {

@@ -3,11 +3,14 @@ package net.ripe.db.nrtm4.dao;
 import net.ripe.db.nrtm4.domain.NotificationFile;
 import net.ripe.db.nrtm4.domain.NrtmSourceModel;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Repository;
 
 import javax.sql.DataSource;
+import java.util.Optional;
+
 
 @Repository
 public class NotificationFileDao {
@@ -34,15 +37,19 @@ public class NotificationFileDao {
         jdbcTemplate.update(sql, file.versionId(), file.payload());
     }
 
-    public NotificationFile findLastNotification(final NrtmSourceModel source) {
-        final String sql = """
-            SELECT nf.id, nf.version_id, nf.payload
-            FROM notification_file nf
-            JOIN version_info vi ON vi.id = nf.version_id
-            WHERE vi.source_id = ?
-            ORDER BY vi.version DESC LIMIT 1
-            """;
-        return jdbcTemplate.queryForObject(sql, rowMapper, source.getId());
+    public Optional<NotificationFile> findLastNotification(final NrtmSourceModel source) {
+        try {
+            final String sql = """
+                SELECT nf.id, nf.version_id, nf.payload
+                FROM notification_file nf
+                JOIN version_info vi ON vi.id = nf.version_id
+                WHERE vi.source_id = ?
+                ORDER BY vi.version DESC LIMIT 1
+                """;
+            return Optional.ofNullable(jdbcTemplate.queryForObject(sql, rowMapper, source.getId()));
+        } catch (final EmptyResultDataAccessException e) {
+            return Optional.empty();
+        }
     }
 
 }

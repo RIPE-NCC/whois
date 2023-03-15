@@ -76,7 +76,7 @@ public class DeltaFileGenerator {
                     deltaFileRepository.storeDeltasAsPublishableFile(serialIDTo, version, deltas);
                     LOGGER.info("Created {} delta list in {}", version.source().getName(), stopwatch);
                 } catch (final JsonProcessingException e) {
-                    LOGGER.info("Exception when saving delta for {}", version.source().getName(), e);
+                    LOGGER.error("Exception saving delta for {}", version.source().getName(), e);
                 }
             }
         }

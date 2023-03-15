@@ -12,6 +12,7 @@ public class AbstractNrtm4IntegrationBase extends AbstractDatabaseHelperIntegrat
     static void setProperties() {
         System.setProperty("whois.source", "TEST");
         System.setProperty("whois.nonauth.source", "TEST-NONAUTH");
+        System.setProperty("nrtm.snapshot.window", "23:00 - 05:00");
     }
 
 }

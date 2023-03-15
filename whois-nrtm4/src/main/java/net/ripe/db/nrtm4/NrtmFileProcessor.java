@@ -40,11 +40,10 @@ public class NrtmFileProcessor {
     public void updateNrtmFilesAndPublishNotification() {
         LOGGER.info("updateNrtmFilesAndPublishNotification() called");
         final SnapshotState state = whoisObjectRepository.getSnapshotState();
-        final List<NrtmSourceModel> sourceList = sourceRepository.getAllSources();
+        final List<NrtmSourceModel> sourceList = sourceRepository.getSources();
         if (sourceList.isEmpty()) {
-            sourceRepository.createSources();
             LOGGER.info("Initializing...");
-            final List<NrtmVersionInfo> versions = snapshotFileGenerator.createSnapshots(state);
+            final List<NrtmVersionInfo> versions = snapshotFileGenerator.createInitialSnapshots(state);
             versions.forEach(notificationFileGenerator::createInitialNotification);
             LOGGER.info("Initialization complete");
         } else {
