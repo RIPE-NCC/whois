@@ -145,9 +145,9 @@ public class NrtmFileProcessorIntegrationTest extends AbstractNrtm4IntegrationBa
             final var versionedDeltaFiles = deltaFileDao.getDeltasForNotification(snapshotVersion, 0);
             assertThat(versionedDeltaFiles.size(), is(1));
             final var versionedDeltaFile = versionedDeltaFiles.get(0);
-            assertThat(versionedDeltaFile.version(), is(2L));
-            assertThat(versionedDeltaFile.name(), startsWith("nrtm-delta.2.TEST."));
-            final var deltaFile = deltaFileDao.getByName(versionedDeltaFile.sessionID(), versionedDeltaFile.name()).orElseThrow();
+            assertThat(versionedDeltaFile.versionInfo().version(), is(2L));
+            assertThat(versionedDeltaFile.deltaFile().name(), startsWith("nrtm-delta.2.TEST."));
+            final var deltaFile = deltaFileDao.getByName(versionedDeltaFile.versionInfo().sessionID(), versionedDeltaFile.deltaFile().name()).orElseThrow();
             final var publishableFile = new ObjectMapper().readValue(deltaFile.payload(), PublishableDeltaFile.class);
             assertThat(publishableFile.getSource().getName(), is("TEST"));
             assertThat(publishableFile.getChanges().size(), is(1));
@@ -155,7 +155,7 @@ public class NrtmFileProcessorIntegrationTest extends AbstractNrtm4IntegrationBa
             assertThat(change.getObject().toString(), startsWith(mntObject.toString()));
             assertThat(change.getObject().toString(), containsString("* THIS OBJECT IS MODIFIED"));
 
-            assertThat(notificationFile.getVersion(), is(versionedDeltaFile.version()));
+            assertThat(notificationFile.getVersion(), is(versionedDeltaFile.versionInfo().version()));
             assertThat(notificationFile.getDeltas().size(), is(1));
         }
         {
@@ -166,6 +166,7 @@ public class NrtmFileProcessorIntegrationTest extends AbstractNrtm4IntegrationBa
             final var whoisSource = sourceRepository.getWhoisSource();
             assertThat(whoisSource.isPresent(), is(true));
             final var lastNotification = notificationFileDao.findLastNotification(whoisSource.get());
+            assertThat(lastNotification.isPresent(), is(true));
             final var notificationFile = new ObjectMapper().readValue(lastNotification.get().payload(), PublishableNotificationFile.class);
             assertThat(sessionID, is(notificationFile.getSessionID()));
             assertThat(notificationFile.getVersion(), is(3L));

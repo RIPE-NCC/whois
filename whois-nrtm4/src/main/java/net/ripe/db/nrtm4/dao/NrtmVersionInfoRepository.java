@@ -22,26 +22,28 @@ import java.sql.Statement;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
+import java.util.function.Function;
 
 
 @Repository
 public class NrtmVersionInfoRepository {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(NrtmVersionInfoRepository.class);
-    private final JdbcTemplate jdbcTemplate;
-    private final DateTimeProvider dateTimeProvider;
-    private final RowMapper<NrtmVersionInfo> rowMapper = (rs, rowNum) -> {
-        final NrtmSourceModel source = new NrtmSourceModel(rs.getLong(2), CIString.ciString(rs.getString(3)));
+    static final Function<Integer, RowMapper<NrtmVersionInfo>> rowMapperWithOffset = (offset) -> (rs, rowNum) -> {
+        final NrtmSourceModel source = new NrtmSourceModel(rs.getLong(offset + 2), CIString.ciString(rs.getString(offset + 3)));
         return new NrtmVersionInfo(
-            rs.getLong(1),
+            rs.getLong(offset + 1),
             source,
-            rs.getLong(4),
-            rs.getString(5),
-            NrtmDocumentType.valueOf(rs.getString(6)),
-            rs.getInt(7),
-            rs.getInt(8)
+            rs.getLong(offset + 4),
+            rs.getString(offset + 5),
+            NrtmDocumentType.valueOf(rs.getString(offset + 6)),
+            rs.getInt(offset + 7),
+            rs.getInt(offset + 8)
         );
     };
+    private final RowMapper<NrtmVersionInfo> rowMapper = rowMapperWithOffset.apply(0);
+    private final JdbcTemplate jdbcTemplate;
+    private final DateTimeProvider dateTimeProvider;
 
     public NrtmVersionInfoRepository(
         @Qualifier("nrtmDataSource") final DataSource dataSource,

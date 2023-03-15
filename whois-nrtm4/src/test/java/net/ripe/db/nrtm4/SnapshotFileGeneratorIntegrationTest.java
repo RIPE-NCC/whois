@@ -51,11 +51,10 @@ public class SnapshotFileGeneratorIntegrationTest extends AbstractNrtm4Integrati
     public void snapshot_file_is_generated_and_written_to_disk() throws IOException {
         loadScripts(whoisTemplate, "nrtm_sample_sm.sql");
         System.setProperty("nrtm.file.path", "/tmp");
-        sourceRepository.createSources();
         final String sessionID;
         {
             final var state = whoisObjectRepository.getSnapshotState();
-            final Collection<NrtmVersionInfo> psfList = snapshotFileGenerator.createSnapshots(state);
+            final Collection<NrtmVersionInfo> psfList = snapshotFileGenerator.createInitialSnapshots(state);
             assertThat(psfList.size(), is(2));
             final NrtmVersionInfo snapshotJsonFile = psfList.stream().filter(psf -> psf.source().getName().toString().equals("TEST")).findFirst().orElseThrow();
             assertThat(snapshotJsonFile.version(), is(1L));

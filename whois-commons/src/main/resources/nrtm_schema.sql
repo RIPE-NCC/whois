@@ -81,6 +81,7 @@ CREATE TABLE `notification_file`
     `version_id` int unsigned NOT NULL,
     `payload`    longtext     NOT NULL,
     PRIMARY KEY (`id`),
+    UNIQUE KEY `notification_file__version_id` (`version_id`),
     CONSTRAINT `notification_file__version_id__fk` FOREIGN KEY (`version_id`) REFERENCES `version_info` (`id`)
 ) ENGINE = InnoDB
   DEFAULT CHARSET = utf8;

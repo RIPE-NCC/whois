@@ -6,12 +6,11 @@ import net.ripe.db.nrtm4.dao.DeltaFileDao;
 import net.ripe.db.nrtm4.dao.NotificationFileDao;
 import net.ripe.db.nrtm4.dao.NrtmVersionInfoRepository;
 import net.ripe.db.nrtm4.dao.SnapshotFileRepository;
-import net.ripe.db.nrtm4.dao.SourceRepository;
 import net.ripe.db.nrtm4.domain.NotificationFile;
 import net.ripe.db.nrtm4.domain.NrtmVersionInfo;
 import net.ripe.db.nrtm4.domain.PublishableNotificationFile;
 import net.ripe.db.nrtm4.domain.SnapshotFile;
-import net.ripe.db.nrtm4.domain.VersionedDeltaFile;
+import net.ripe.db.nrtm4.domain.DeltaFileVersionInfo;
 import net.ripe.db.whois.common.dao.VersionDateTime;
 import net.ripe.db.whois.common.domain.Timestamp;
 import org.mariadb.jdbc.internal.logging.Logger;
@@ -39,15 +38,19 @@ public class NotificationFileGenerator {
     private final NotificationFileDao notificationFileDao;
     private final NrtmVersionInfoRepository nrtmVersionInfoRepository;
     private final SnapshotFileRepository snapshotFileRepository;
-    private final SourceRepository sourceRepository;
 
-    public NotificationFileGenerator(@Value("${nrtm.baseUrl}") final String baseUrl, final DeltaFileDao deltaFileDao, final NotificationFileDao notificationFileDao, final NrtmVersionInfoRepository nrtmVersionInfoRepository, final SnapshotFileRepository snapshotFileRepository, final SourceRepository sourceRepository) {
+    public NotificationFileGenerator(
+        @Value("${nrtm.baseUrl}") final String baseUrl,
+        final DeltaFileDao deltaFileDao,
+        final NotificationFileDao notificationFileDao,
+        final NrtmVersionInfoRepository nrtmVersionInfoRepository,
+        final SnapshotFileRepository snapshotFileRepository
+    ) {
         this.baseUrl = baseUrl;
         this.deltaFileDao = deltaFileDao;
         this.notificationFileDao = notificationFileDao;
         this.nrtmVersionInfoRepository = nrtmVersionInfoRepository;
         this.snapshotFileRepository = snapshotFileRepository;
-        this.sourceRepository = sourceRepository;
     }
 
     void createInitialNotification(final NrtmVersionInfo version) {
@@ -77,7 +80,11 @@ public class NotificationFileGenerator {
             final SnapshotFile snapshotFile = snapshotFileRepository.getLastSnapshot(version.source()).orElseThrow();
             final NrtmVersionInfo lastSnapshotVersion = nrtmVersionInfoRepository.findById(snapshotFile.versionId());
             final Timestamp oneDayAgo = Timestamp.from(LocalDateTime.now().minusDays(1));
-            final List<VersionedDeltaFile> deltaFiles = deltaFileDao.getDeltasForNotification(lastSnapshotVersion, oneDayAgo.getValue());
+            final List<DeltaFileVersionInfo> deltaFiles = deltaFileDao.getDeltasForNotification(lastSnapshotVersion, oneDayAgo.getValue());
+            if (deltaFiles.isEmpty()) {
+                return;
+            }
+            final DeltaFileVersionInfo lastDelta = deltaFiles.get(deltaFiles.size() - 1);
             try {
                 final PublishableNotificationFile lastNotificationUpdate = new ObjectMapper().readValue(lastNotificationFile.get().payload().getBytes(StandardCharsets.UTF_8), PublishableNotificationFile.class);
                 // if notification file is < 1 day old and nothing changed, do nothing.
@@ -85,8 +92,8 @@ public class NotificationFileGenerator {
                 if (lastNotificationUpdate.getDeltas() != null && lastNotificationUpdate.getDeltas().equals(newDeltas) && lastNotificationFileVersion.created() > oneDayAgo.getValue()) {
                     return;
                 }
-                final String timestamp = new VersionDateTime(version.created()).toString();
-                final PublishableNotificationFile publishableNotificationFile = new PublishableNotificationFile(version, timestamp, null, convert(lastSnapshotVersion, snapshotFile), newDeltas);
+                final String timestamp = new VersionDateTime(lastDelta.versionInfo().created()).toString();
+                final PublishableNotificationFile publishableNotificationFile = new PublishableNotificationFile(lastDelta.versionInfo(), timestamp, null, convert(lastSnapshotVersion, snapshotFile), newDeltas);
                 final String json = new ObjectMapper().writeValueAsString(publishableNotificationFile);
                 final NotificationFile notificationFile = NotificationFile.of(version.id(), json);
                 notificationFileDao.save(notificationFile);
@@ -96,10 +103,10 @@ public class NotificationFileGenerator {
         }
     }
 
-    private List<PublishableNotificationFile.NrtmFileLink> convert(final List<? extends VersionedDeltaFile> files) {
+    private List<PublishableNotificationFile.NrtmFileLink> convert(final List<? extends DeltaFileVersionInfo> files) {
         final List<PublishableNotificationFile.NrtmFileLink> links = files.stream()
             .map(file -> new PublishableNotificationFile.NrtmFileLink(
-                file.version(), urlString(file.sessionID(), file.name()), file.hash()))
+                file.versionInfo().version(), urlString(file.versionInfo().sessionID(), file.deltaFile().name()), file.deltaFile().hash()))
             .toList();
         if (links.isEmpty()) {
             return null;
