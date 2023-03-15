@@ -52,7 +52,7 @@ public class NrtmClientService {
 
     @GET
     @Path("/delta/{filename}")
-    @Produces(MediaType.APPLICATION_OCTET_STREAM)
+    @Produces(MediaType.APPLICATION_JSON)
     public Response deltaFile(
             @Context final HttpServletRequest httpServletRequest,
             @PathParam("filename") final String fileName) {
@@ -62,7 +62,7 @@ public class NrtmClientService {
         }
 
         return deltaReadOnlyFileRepository.getByFileName(fileName)
-                .map( payload -> getResponse(payload, fileName))
+                .map( payload -> Response.ok(new ByteArrayInputStream(payload)).build())
                 .orElseThrow(() -> new NotFoundException("Requested Delta file does not exists"));
     }
 

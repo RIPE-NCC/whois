@@ -18,7 +18,7 @@ public class NrtmFileUtil {
 
     public static String newFileName(final NrtmVersionInfo file) {
         final String prefix = file.type().getFileNamePrefix();
-        return String.format("%s.%d.%s.%s.json", prefix, file.version(), file.source().getName(), randomHexString());
+        return String.format("%s.%d.%s.%s.json.gz", prefix, file.version(), file.source().getName(), randomHexString());
     }
 
     public static String newGzFileName(final NrtmVersionInfo file) {

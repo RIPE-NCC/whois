@@ -299,7 +299,7 @@ public class NrtmClientServiceTestIntegration extends AbstractIntegrationTest {
         final List<DeltaFile> deltaFile = deltaFileRepository.getDeltasForNotification(snapshotVersion, 0);
 
         final Response response = createResource("delta/" + deltaFile.get(0).name())
-                .request(MediaType.APPLICATION_OCTET_STREAM)
+                .request(MediaType.APPLICATION_JSON)
                 .get(Response.class);
         assertThat(response.getStatus(), is(200));
 
@@ -327,7 +327,7 @@ public class NrtmClientServiceTestIntegration extends AbstractIntegrationTest {
 
     @Test
     public void should_throw_exception_snapshot_file_not_found()  {
-        final Response response = createResource("snapshot/nrtm-snapshot.1.TEST-NONAUTH.4ef060b9e8c4e4891411be.json")
+        final Response response = createResource("snapshot/nrtm-snapshot.1.TEST-NONAUTH.4ef060b9e8c4e4891411be.json.gz")
                     .request(MediaType.APPLICATION_OCTET_STREAM)
                     .get(Response.class);
         assertThat(response.getStatus(), is(404));
@@ -336,7 +336,7 @@ public class NrtmClientServiceTestIntegration extends AbstractIntegrationTest {
     @Test
     public void should_throw_exception_invalid_delta_filename()  {
         final Response response = createResource("delta/invalidfilename")
-                .request(MediaType.APPLICATION_OCTET_STREAM)
+                .request(MediaType.APPLICATION_JSON)
                 .get(Response.class);
         assertThat(response.getStatus(), is(400));
     }
@@ -344,7 +344,7 @@ public class NrtmClientServiceTestIntegration extends AbstractIntegrationTest {
     @Test
     public void should_throw_exception_delta_file_not_found()  {
         final Response response = createResource("delta/nrtm-delta.1.TEST-NONAUTH.4ef060b9e8c4e4891411be.json")
-                .request(MediaType.APPLICATION_OCTET_STREAM)
+                .request(MediaType.APPLICATION_JSON)
                 .get(Response.class);
         assertThat(response.getStatus(), is(404));
     }
