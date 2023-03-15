@@ -137,7 +137,7 @@ public class SnapshotFileGenerator {
             final ByteArrayOutputStream bos = new ByteArrayOutputStream();
             try (final GZIPOutputStream gzOut = new GZIPOutputStream(bos)) {
                 final RpslObjectIterator rpslObjectIterator = new RpslObjectIterator(dummifierNrtm, queue);
-                snapshotFileSerializer.writeObjectQueueAsSnapshot(version, rpslObjectIterator, gzOut);
+                snapshotFileSerializer.writeObjectsAsJsonToOutputStream(version, rpslObjectIterator, gzOut);
             } catch (final Exception e) {
                 LOGGER.error("Exception writing snapshot {}", version.source().getName(), e);
                 Thread.currentThread().interrupt();
