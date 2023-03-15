@@ -86,7 +86,7 @@ public class NotificationFileGenerator {
                     return;
                 }
                 final String timestamp = new VersionDateTime(version.created()).toString();
-                final PublishableNotificationFile publishableNotificationFile = new PublishableNotificationFile(version, timestamp, null, convert(version, snapshotFile), newDeltas);
+                final PublishableNotificationFile publishableNotificationFile = new PublishableNotificationFile(version, timestamp, null, convert(lastSnapshotVersion, snapshotFile), newDeltas);
                 final String json = new ObjectMapper().writeValueAsString(publishableNotificationFile);
                 final NotificationFile notificationFile = NotificationFile.of(version.id(), json);
                 notificationFileDao.save(notificationFile);

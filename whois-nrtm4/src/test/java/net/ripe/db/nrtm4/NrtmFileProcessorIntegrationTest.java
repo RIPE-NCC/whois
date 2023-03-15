@@ -185,7 +185,7 @@ public class NrtmFileProcessorIntegrationTest extends AbstractNrtm4IntegrationBa
                 final var notificationFile = new ObjectMapper().readValue(lastNotification.payload(), PublishableNotificationFile.class);
                 assertThat(sessionID, is(notificationFile.getSessionID()));
                 assertThat(notificationFile.getVersion(), is(4L));
-                assertThat(notificationFile.getSnapshot().getVersion(), is(4L));
+                assertThat(notificationFile.getSnapshot().getVersion(), is(1L));
 
                 final var snapshotFile = getSnapshotFromUrl(notificationFile.getSnapshot());
                 assertThat(snapshotFile.versionId(), is(1L));
