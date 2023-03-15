@@ -84,7 +84,6 @@ import static org.junit.jupiter.api.Assertions.fail;
 
 @Tag("IntegrationTest")
 @DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_EACH_TEST_METHOD)
-@ContextConfiguration(locations = {"classpath:applicationContext-nrtm4-test.xml"})
 public class NrtmClientServiceTestIntegration extends AbstractIntegrationTest {
 
     @Autowired
