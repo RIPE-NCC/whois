@@ -248,11 +248,8 @@ public class NrtmClientServiceTestIntegration extends AbstractIntegrationTest {
 
         assertThat(response.getStatus(), is(200));
 
-        JSONObject jsonObject = new JSONObject(decompress(response.readEntity(byte[].class)));
-        assertThat(jsonObject.getInt("nrtm_version"), is(4));
-        assertThat(jsonObject.getString("type"), is("snapshot"));
-        assertThat(jsonObject.getString("source"), is("TEST"));
-        assertThat(jsonObject.getInt("version"), is(1));
+        final JSONObject jsonObject = new JSONObject(decompress(response.readEntity(byte[].class)));
+        assertNrtmFileInfo(jsonObject, "snapshot", 1);
 
         final JSONArray objects = jsonObject.getJSONArray("objects");
         final List<String> rpslKeys = Lists.newArrayList();
@@ -302,16 +299,13 @@ public class NrtmClientServiceTestIntegration extends AbstractIntegrationTest {
                 .get(Response.class);
         assertThat(response.getStatus(), is(200));
 
-        JSONObject jsonObject = new JSONObject(response.readEntity(String.class));
-        assertThat(jsonObject.getInt("nrtm_version"), is(4));
-        assertThat(jsonObject.getString("type"), is("delta"));
-        assertThat(jsonObject.getString("source"), is("TEST"));
-        assertThat(jsonObject.getInt("version"), is(2));
+        final JSONObject jsonObject = new JSONObject(response.readEntity(String.class));
+        assertNrtmFileInfo(jsonObject, "delta", 2);
 
-        final JSONArray objects = jsonObject.getJSONArray("changes");
-        assertThat(objects.length(), is(1));
+        final JSONArray changes = jsonObject.getJSONArray("changes");
+        assertThat(changes.length(), is(1));
 
-        JSONObject deltaChanges = new JSONObject(objects.get(0).toString());
+        final JSONObject deltaChanges = new JSONObject(changes.get(0).toString());
         assertThat(deltaChanges.getString("action"), is("add_modify"));
         assertThat(RpslObject.parse(deltaChanges.getString("object")).toString(), is(dummifierNrtm.dummify(4, updatedObject).toString()));
     }
@@ -362,8 +356,14 @@ public class NrtmClientServiceTestIntegration extends AbstractIntegrationTest {
         is.close();
         return string.toString();
     }
-
     protected WebTarget createResource(final String path) {
         return RestTest.target(getPort(), String.format("nrtmv4/%s", path));
+    }
+
+    private static void assertNrtmFileInfo(final JSONObject jsonObject, final String type, final int version) throws JSONException {
+        assertThat(jsonObject.getInt("nrtm_version"), is(4));
+        assertThat(jsonObject.getString("type"), is(type));
+        assertThat(jsonObject.getString("source"), is("TEST"));
+        assertThat(jsonObject.getInt("version"), is(version));
     }
 }

@@ -60,13 +60,20 @@ public class NrtmClientService {
         }
 
         return deltaReadOnlyFileRepository.getByFileName(fileName)
-                .map( payload -> Response.ok(payload).build())
+                .map( payload -> getResponse(payload, fileName))
                 .orElseThrow(() -> new NotFoundException("Requested Delta file does not exists"));
     }
 
     private static Response getResponse(final byte[] payload, final String filename) {
         return Response.ok(new ByteArrayInputStream(payload))
                 .header(HttpHeaders.CONTENT_LENGTH, payload.length)
+                .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=" + filename)
+                .build();
+    }
+
+    private static Response getResponse(final String payload, final String filename) {
+        return Response.ok(payload)
+                .header(HttpHeaders.CONTENT_LENGTH, payload.length())
                 .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=" + filename)
                 .build();
     }
