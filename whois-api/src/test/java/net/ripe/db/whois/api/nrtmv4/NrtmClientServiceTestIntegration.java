@@ -302,7 +302,7 @@ public class NrtmClientServiceTestIntegration extends AbstractIntegrationTest {
                 .get(Response.class);
         assertThat(response.getStatus(), is(200));
 
-        JSONObject jsonObject = new JSONObject(new String(response.readEntity(byte[].class)));
+        JSONObject jsonObject = new JSONObject(response.readEntity(String.class));
         assertThat(jsonObject.getInt("nrtm_version"), is(4));
         assertThat(jsonObject.getString("type"), is("delta"));
         assertThat(jsonObject.getString("source"), is("TEST"));

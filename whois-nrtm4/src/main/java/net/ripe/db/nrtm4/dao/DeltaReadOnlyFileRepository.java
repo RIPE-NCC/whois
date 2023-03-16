@@ -36,8 +36,8 @@ public class DeltaReadOnlyFileRepository {
         this.sourceContext = sourceContext;
     }
 
-    public Optional<byte[]> getByFileName(final String name) {
-        final Optional<byte[]> payload = getPayload(name);
+    public Optional<String> getByFileName(final String name) {
+        final Optional<String> payload = getPayload(name);
 
         if(payload.isPresent()) {
             return payload;
@@ -59,10 +59,10 @@ public class DeltaReadOnlyFileRepository {
         return payload;
     }
 
-    private Optional<byte[]> getPayload(final String name) {
+    private Optional<String> getPayload(final String name) {
         try {
             return Optional.ofNullable(jdbcTemplate.queryForObject(" SELECT payload  FROM delta_file WHERE name = ?",
-                    (rs, rowNum) -> rs.getBytes(1),
+                    (rs, rowNum) -> rs.getString(1),
                     name)
             );
         } catch (final EmptyResultDataAccessException ex) {

@@ -4,8 +4,6 @@ import com.google.common.net.HttpHeaders;
 import net.ripe.db.nrtm4.dao.DeltaReadOnlyFileRepository;
 import net.ripe.db.nrtm4.dao.SnapshotReadOnlyFileRepository;
 import net.ripe.db.nrtm4.domain.NrtmDocumentType;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -62,7 +60,7 @@ public class NrtmClientService {
         }
 
         return deltaReadOnlyFileRepository.getByFileName(fileName)
-                .map( payload -> Response.ok(new ByteArrayInputStream(payload)).build())
+                .map( payload -> Response.ok(payload).build())
                 .orElseThrow(() -> new NotFoundException("Requested Delta file does not exists"));
     }
 
