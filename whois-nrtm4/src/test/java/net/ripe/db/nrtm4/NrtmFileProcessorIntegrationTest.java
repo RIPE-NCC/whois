@@ -27,7 +27,9 @@ import java.util.zip.GZIPInputStream;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.endsWith;
+import static org.hamcrest.Matchers.greaterThanOrEqualTo;
 import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.not;
 import static org.hamcrest.Matchers.notNullValue;
 import static org.hamcrest.Matchers.nullValue;
 import static org.hamcrest.Matchers.startsWith;
@@ -60,7 +62,7 @@ public class NrtmFileProcessorIntegrationTest extends AbstractNrtm4IntegrationBa
         final var source = nrtmVersionInfoRepository.findLastVersion();
         assertThat(source.isPresent(), is(true));
     }
-
+    
     @Test
     public void snapshot_file_and_delta_is_generated() throws JsonProcessingException {
         final var mntObject = RpslObject.parse("""
@@ -85,8 +87,13 @@ public class NrtmFileProcessorIntegrationTest extends AbstractNrtm4IntegrationBa
             mntner: DEV2-MNT
             source: TEST
             """);
+        final var mntObject3 = RpslObject.parse("""
+            mntner: DEV3-MNT
+            source: TEST
+            """);
 
         {
+            System.setProperty("nrtm.snapshot.window", "01:00 - 04:00");
             final var whoisSource = sourceRepository.getWhoisSource();
             assertThat(whoisSource.isPresent(), is(false));
         }
@@ -148,10 +155,13 @@ public class NrtmFileProcessorIntegrationTest extends AbstractNrtm4IntegrationBa
             assertThat(versionedDeltaFile.versionInfo().version(), is(2L));
             assertThat(versionedDeltaFile.deltaFile().name(), startsWith("nrtm-delta.2.TEST."));
             final var deltaFile = deltaFileDao.getByName(versionedDeltaFile.versionInfo().sessionID(), versionedDeltaFile.deltaFile().name()).orElseThrow();
-            final var publishableFile = new ObjectMapper().readValue(deltaFile.payload(), PublishableDeltaFile.class);
-            assertThat(publishableFile.getSource().getName(), is("TEST"));
-            assertThat(publishableFile.getChanges().size(), is(1));
-            final var change = publishableFile.getChanges().get(0);
+            final var publishableDeltaFile = new ObjectMapper().readValue(deltaFile.payload(), PublishableDeltaFile.class);
+            assertThat(publishableDeltaFile.getSource().getName(), is("TEST"));
+            assertThat(publishableDeltaFile.getChanges().size(), is(1));
+            assertThat(publishableDeltaFile.getNrtmVersion(), is(4));
+            assertThat(publishableDeltaFile.getType().lowerCaseName(), is("delta"));
+
+            final var change = publishableDeltaFile.getChanges().get(0);
             assertThat(change.getObject().toString(), startsWith(mntObject.toString()));
             assertThat(change.getObject().toString(), containsString("* THIS OBJECT IS MODIFIED"));
 
@@ -173,93 +183,123 @@ public class NrtmFileProcessorIntegrationTest extends AbstractNrtm4IntegrationBa
             assertThat(notificationFile.getDeltas().size(), is(2));
         }
         {
+            // Make changes in whois and expect a delta
+            databaseHelper.deleteObject(mntObject2);
+            databaseHelper.updateObject(mntObject1mod);
+            databaseHelper.addObject(mntObject3);
+            databaseHelper.deleteObject(mntObject3);
+
+            nrtmFileProcessor.updateNrtmFilesAndPublishNotification();
+
+            final var sources = sourceRepository.getSources();
+            assertThat(sources.size(), greaterThanOrEqualTo(2));
+            final var notificationFiles = sources.stream()
+                .map(src -> notificationFileDao.findLastNotification(src))
+                .map(nf -> {
+                    try {
+                        return new ObjectMapper().readValue(nf.orElseThrow().payload(), PublishableNotificationFile.class);
+                    } catch (final JsonProcessingException e) {
+                        throw new RuntimeException(e);
+                    }
+                }).toList();
+            assertThat(notificationFiles.get(0).getSessionID(), not(is(notificationFiles.get(1).getSessionID())));
+            final var whoisSource = sourceRepository.getWhoisSource();
+            assertThat(whoisSource.isPresent(), is(true));
+            final var lastNotification = notificationFileDao.findLastNotification(whoisSource.get()).orElseThrow();
+            final var notificationFile = new ObjectMapper().readValue(lastNotification.payload(), PublishableNotificationFile.class);
+            assertThat(sessionID, is(notificationFile.getSessionID()));
+            assertThat(notificationFile.getVersion(), is(4L));
+            assertThat(notificationFile.getSnapshot().getVersion(), is(1L));
+
+            final var snapshotFile = getSnapshotFromUrl(notificationFile.getSnapshot());
+            assertThat(snapshotFile.versionId(), is(1L));
+            assertThat(snapshotFile.name(), startsWith("nrtm-snapshot.1.TEST."));
+            assertThat(snapshotFile.name(), endsWith(".json.gz"));
+            final var publishableSnapshot = convertGzPayloadToFile(snapshotFileRepository.getPayload(snapshotFile.id()).orElseThrow());
+            assertThat(publishableSnapshot, notNullValue());
+            assertThat(publishableSnapshot.getType().lowerCaseName(), is("snapshot"));
+            assertThat(publishableSnapshot.getNrtmVersion(), is(4));
+            assertThat(publishableSnapshot.getSessionID(), is(sessionID));
+            assertThat(publishableSnapshot.getSource().getName(), is("TEST"));
+            assertThat(publishableSnapshot.getObjects().size(), is(1));
+            assertThat(publishableSnapshot.getObjects().get(0), is("""
+                mntner:         DEV-MNT
+                source:         TEST
+                remarks:        ****************************
+                remarks:        * THIS OBJECT IS MODIFIED
+                remarks:        * Please note that all data that is generally regarded as personal
+                remarks:        * data has been removed from this object.
+                remarks:        * To view the original object, please query the RIPE Database at:
+                remarks:        * http://www.ripe.net/whois
+                remarks:        ****************************
+                """));
+
+            assertThat(notificationFile.getDeltas().size(), is(3));
             {
-                // Make a change in whois and expect a delta
-                databaseHelper.deleteObject(mntObject2);
-                databaseHelper.updateObject(mntObject1mod);
-
-                nrtmFileProcessor.updateNrtmFilesAndPublishNotification();
-
-                final var whoisSource = sourceRepository.getWhoisSource();
-                assertThat(whoisSource.isPresent(), is(true));
-                final var lastNotification = notificationFileDao.findLastNotification(whoisSource.get()).orElseThrow();
-                final var notificationFile = new ObjectMapper().readValue(lastNotification.payload(), PublishableNotificationFile.class);
-                assertThat(sessionID, is(notificationFile.getSessionID()));
-                assertThat(notificationFile.getVersion(), is(4L));
-                assertThat(notificationFile.getSnapshot().getVersion(), is(1L));
-
-                final var snapshotFile = getSnapshotFromUrl(notificationFile.getSnapshot());
-                assertThat(snapshotFile.versionId(), is(1L));
-                assertThat(snapshotFile.name(), startsWith("nrtm-snapshot.1.TEST."));
-                assertThat(snapshotFile.name(), endsWith(".json.gz"));
-                final var publishableSnapshot = convertGzPayloadToFile(snapshotFileRepository.getPayload(snapshotFile.id()).orElseThrow());
-                assertThat(publishableSnapshot, notNullValue());
-                assertThat(publishableSnapshot.getSessionID(), is(sessionID));
-                assertThat(publishableSnapshot.getSource().getName(), is("TEST"));
-                assertThat(publishableSnapshot.getObjects().size(), is(1));
-                assertThat(publishableSnapshot.getObjects().get(0), is("""
-                    mntner:         DEV-MNT
-                    source:         TEST
-                    remarks:        ****************************
-                    remarks:        * THIS OBJECT IS MODIFIED
-                    remarks:        * Please note that all data that is generally regarded as personal
-                    remarks:        * data has been removed from this object.
-                    remarks:        * To view the original object, please query the RIPE Database at:
-                    remarks:        * http://www.ripe.net/whois
-                    remarks:        ****************************
-                    """));
-
-                assertThat(notificationFile.getDeltas().size(), is(3));
+                final var deltaFile = getDeltaFromUrl(notificationFile.getDeltas().get(0));
+                assertThat(deltaFile.name(), startsWith("nrtm-delta.2.TEST"));
+                assertThat(deltaFile.name(), endsWith(".json"));
+                final var publishableDeltaFile = new ObjectMapper().readValue(deltaFile.payload(), PublishableDeltaFile.class);
+                assertThat(publishableDeltaFile.getNrtmVersion(), is(4));
+                assertThat(publishableDeltaFile.getType().lowerCaseName(), is("delta"));
+                assertThat(publishableDeltaFile.getChanges().size(), is(1));
                 {
-                    final var deltaFile = getDeltaFromUrl(notificationFile.getDeltas().get(0));
-                    assertThat(deltaFile.name(), startsWith("nrtm-delta.2.TEST"));
-                    assertThat(deltaFile.name(), endsWith(".json"));
-                    final var delta = new ObjectMapper().readValue(deltaFile.payload(), PublishableDeltaFile.class);
-                    assertThat(delta.getChanges().size(), is(1));
-                    {
-                        final var change = delta.getChanges().get(0);
-                        assertThat(change.getAction(), is(DeltaChange.Action.ADD_MODIFY));
-                        assertThat(change.getObject().toString(), containsString(mntObject.getKey().toString()));
-                        assertThat(change.getObject().toString(), containsString("* THIS OBJECT IS MODIFIED"));
-                    }
+                    final var change = publishableDeltaFile.getChanges().get(0);
+                    assertThat(change.getAction(), is(DeltaChange.Action.ADD_MODIFY));
+                    assertThat(change.getObject().toString(), containsString(mntObject.getKey().toString()));
+                    assertThat(change.getObject().toString(), containsString("* THIS OBJECT IS MODIFIED"));
+                }
+            }
+            {
+                final var deltaFile = getDeltaFromUrl(notificationFile.getDeltas().get(1));
+                assertThat(deltaFile.name(), startsWith("nrtm-delta.3.TEST"));
+                final var publishableDeltaFile = new ObjectMapper().readValue(deltaFile.payload(), PublishableDeltaFile.class);
+                assertThat(publishableDeltaFile.getChanges().size(), is(2));
+                {
+                    final var change = publishableDeltaFile.getChanges().get(0);
+                    assertThat(change.getAction(), is(DeltaChange.Action.ADD_MODIFY));
+                    assertThat(change.getObject().toString(), containsString(mntObject1.getKey().toString()));
+                    assertThat(change.getObject().toString(), containsString("* THIS OBJECT IS MODIFIED"));
                 }
                 {
-                    final var deltaFile = getDeltaFromUrl(notificationFile.getDeltas().get(1));
-                    assertThat(deltaFile.name(), startsWith("nrtm-delta.3.TEST"));
-                    final var delta = new ObjectMapper().readValue(deltaFile.payload(), PublishableDeltaFile.class);
-                    assertThat(delta.getChanges().size(), is(2));
-                    {
-                        final var change = delta.getChanges().get(0);
-                        assertThat(change.getAction(), is(DeltaChange.Action.ADD_MODIFY));
-                        assertThat(change.getObject().toString(), containsString(mntObject1.getKey().toString()));
-                        assertThat(change.getObject().toString(), containsString("* THIS OBJECT IS MODIFIED"));
-                    }
-                    {
-                        final var change = delta.getChanges().get(1);
-                        assertThat(change.getAction(), is(DeltaChange.Action.ADD_MODIFY));
-                        assertThat(change.getObject().toString(), containsString(mntObject2.getKey().toString()));
-                        assertThat(change.getObject().toString(), containsString("* THIS OBJECT IS MODIFIED"));
-                    }
+                    final var change = publishableDeltaFile.getChanges().get(1);
+                    assertThat(change.getAction(), is(DeltaChange.Action.ADD_MODIFY));
+                    assertThat(change.getObject().toString(), containsString(mntObject2.getKey().toString()));
+                    assertThat(change.getObject().toString(), containsString("* THIS OBJECT IS MODIFIED"));
+                }
+            }
+            {
+                final var deltaFile = getDeltaFromUrl(notificationFile.getDeltas().get(2));
+                assertThat(deltaFile.name(), startsWith("nrtm-delta.4.TEST"));
+                final var publishableDeltaFile = new ObjectMapper().readValue(deltaFile.payload(), PublishableDeltaFile.class);
+                assertThat(publishableDeltaFile.getChanges().size(), is(4));
+                {
+                    final var change = publishableDeltaFile.getChanges().get(0);
+                    assertThat(change.getAction(), is(DeltaChange.Action.DELETE));
+                    assertThat(change.getObjectType(), is(ObjectType.MNTNER));
+                    assertThat(change.getPrimaryKey(), is(mntObject2.getKey().toString()));
                 }
                 {
-                    final var deltaFile = getDeltaFromUrl(notificationFile.getDeltas().get(2));
-                    assertThat(deltaFile.name(), startsWith("nrtm-delta.4.TEST"));
-                    final var delta = new ObjectMapper().readValue(deltaFile.payload(), PublishableDeltaFile.class);
-                    assertThat(delta.getChanges().size(), is(2));
-                    {
-                        final var change = delta.getChanges().get(0);
-                        assertThat(change.getAction(), is(DeltaChange.Action.DELETE));
-                        assertThat(change.getObjectType(), is(ObjectType.MNTNER));
-                        assertThat(change.getPrimaryKey(), is(mntObject2.getKey().toString()));
-                    }
-                    {
-                        final var change = delta.getChanges().get(1);
-                        assertThat(change.getAction(), is(DeltaChange.Action.ADD_MODIFY));
-                        assertThat(change.getObjectType(), is(nullValue()));
-                        assertThat(change.getPrimaryKey(), is(nullValue()));
-                        assertThat(change.getObject().toString(), containsString(mntObject1mod.getKey().toString()));
-                        assertThat(change.getObject().toString(), containsString("* THIS OBJECT IS MODIFIED"));
-                    }
+                    final var change = publishableDeltaFile.getChanges().get(1);
+                    assertThat(change.getAction(), is(DeltaChange.Action.ADD_MODIFY));
+                    assertThat(change.getObjectType(), is(nullValue()));
+                    assertThat(change.getPrimaryKey(), is(nullValue()));
+                    assertThat(change.getObject().toString(), containsString(mntObject1mod.getKey().toString()));
+                    assertThat(change.getObject().toString(), containsString("* THIS OBJECT IS MODIFIED"));
+                }
+                {
+                    final var change = publishableDeltaFile.getChanges().get(2);
+                    assertThat(change.getAction(), is(DeltaChange.Action.ADD_MODIFY));
+                    assertThat(change.getObjectType(), is(nullValue()));
+                    assertThat(change.getPrimaryKey(), is(nullValue()));
+                    assertThat(change.getObject().toString(), containsString(mntObject3.getKey().toString()));
+                    assertThat(change.getObject().toString(), containsString("* THIS OBJECT IS MODIFIED"));
+                }
+                {
+                    final var change = publishableDeltaFile.getChanges().get(3);
+                    assertThat(change.getAction(), is(DeltaChange.Action.DELETE));
+                    assertThat(change.getObjectType(), is(ObjectType.MNTNER));
+                    assertThat(change.getPrimaryKey(), is(mntObject3.getKey().toString()));
                 }
             }
         }
@@ -283,4 +323,5 @@ public class NrtmFileProcessorIntegrationTest extends AbstractNrtm4IntegrationBa
             return null;
         }
     }
+
 }
