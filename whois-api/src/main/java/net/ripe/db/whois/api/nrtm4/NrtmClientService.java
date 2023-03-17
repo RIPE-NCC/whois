@@ -76,7 +76,7 @@ public class NrtmClientService {
 
         if(fileName.startsWith(NrtmDocumentType.NOTIFICATION.getFileNamePrefix())) {
             return notificationFileSourceAwareDao.findLastNotification(getSource(source))
-                    .map( payload -> getResponse(payload,  NrtmFileUtil.NOTIFICATION_FILENAME))
+                    .map( payload -> getResponse(payload))
                     .orElseThrow(() -> new NotFoundException("update-notification-file.json does not exists for source " + source));
         }
 
@@ -90,7 +90,7 @@ public class NrtmClientService {
         final String filenameExt  = filenameWithExtension(fileName);
         if(fileName.startsWith(NrtmDocumentType.DELTA.getFileNamePrefix())) {
             return deltaSourceAwareFileRepository.getByFileName(filenameExt)
-                    .map( delta -> getResponse(delta.payload(), delta.hash(), filenameExt))
+                    .map( delta -> getResponse(delta.payload()))
                     .orElseThrow(() -> new NotFoundException("Requested Delta file does not exists"));
         }
 
@@ -112,25 +112,17 @@ public class NrtmClientService {
         return filename.endsWith(".json") ? filename : String.join("", filename, ".json");
     }
     private Response getResponse(final byte[] payload,  final String hash, final String filename) {
-        return addCommonHeader(Response.ok(new ByteArrayInputStream(payload)), payload.length, filename, MediaType.APPLICATION_OCTET_STREAM)
-                .header(HttpHeaders.ETAG, hash)
-                .build();
-    }
-
-    private Response getResponse(final String payload, final String hash, final String filename) {
-        return addCommonHeader(Response.ok(payload), payload.length(), filename, MediaType.APPLICATION_JSON)
-                .header(HttpHeaders.ETAG, hash)
-                .build();
-    }
-
-    private Response getResponse(final String payload, final String filename) {
-        return addCommonHeader(Response.ok(payload), payload.length(), filename, MediaType.APPLICATION_JSON)
-                .build();
-    }
-
-    private Response.ResponseBuilder addCommonHeader(final Response.ResponseBuilder builder, final int length, final String filename, final String type) {
-        return builder.header(HttpHeaders.CONTENT_LENGTH, length)
+        return Response.ok(new ByteArrayInputStream(payload))
+                .header(HttpHeaders.CONTENT_LENGTH, payload.length)
                 .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=" + filename)
-                .header(HttpHeaders.CONTENT_TYPE, type);
+                .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_OCTET_STREAM)
+                .header(HttpHeaders.ETAG, hash)
+                .build();
+    }
+
+    private Response getResponse(final String payload) {
+        return Response.ok(payload)
+                .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON)
+                .build();
     }
 }

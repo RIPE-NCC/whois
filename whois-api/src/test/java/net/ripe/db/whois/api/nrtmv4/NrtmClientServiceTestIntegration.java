@@ -336,7 +336,6 @@ public class NrtmClientServiceTestIntegration extends AbstractIntegrationTest {
                 .get(Response.class);
         assertThat(response.getStatus(), is(200));
         assertThat(response.getHeaderString(HttpHeaders.CACHE_CONTROL), is("public, max-age=604800"));
-        assertThat(response.getHeaderString(HttpHeaders.ETAG), is(deltaFile.get(0).hash()));
 
         final JSONObject jsonObject = new JSONObject(response.readEntity(String.class));
         assertNrtmFileInfo(jsonObject, "delta", 2);
