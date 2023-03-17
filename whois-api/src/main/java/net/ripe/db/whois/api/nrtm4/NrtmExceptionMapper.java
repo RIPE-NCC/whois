@@ -35,7 +35,6 @@ public class NrtmExceptionMapper implements ExceptionMapper<Exception> {
 
     private Response createErrorResponse(final int status, final String errorMessage) {
         return Response.status(status)
-                .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_OCTET_STREAM)
                 .entity(errorMessage)
                 .build();
     }

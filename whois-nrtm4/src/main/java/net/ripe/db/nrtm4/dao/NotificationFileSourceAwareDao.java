@@ -1,6 +1,6 @@
 package net.ripe.db.nrtm4.dao;
 
-import net.ripe.db.nrtm4.domain.DeltaFile;
+import net.ripe.db.nrtm4.domain.NrtmSourceModel;
 import net.ripe.db.whois.common.source.IllegalSourceException;
 import net.ripe.db.whois.common.source.Source;
 import net.ripe.db.whois.common.source.SourceContext;
@@ -9,35 +9,27 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
-import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Repository;
 
 import javax.sql.DataSource;
 import java.util.Optional;
 
 @Repository
-public class DeltaReadOnlyFileRepository {
+public class NotificationFileSourceAwareDao {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(DeltaReadOnlyFileRepository.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(NotificationFileSourceAwareDao.class);
 
     private final JdbcTemplate jdbcTemplate;
     private final SourceContext sourceContext;
-    private final RowMapper<DeltaFile> rowMapper = (rs, rowNum) ->
-        new DeltaFile(
-            rs.getLong(1),   // id
-            rs.getLong(2),   // version_id
-            rs.getString(3), // name
-            rs.getString(4), // hash
-            rs.getString(5)  // payload
-        );
 
-    public DeltaReadOnlyFileRepository(@Qualifier("nrtmSourceAwareDataSource") final DataSource dataSource, final SourceContext sourceContext) {
+    public NotificationFileSourceAwareDao(@Qualifier("nrtmSourceAwareDataSource") final DataSource dataSource, final SourceContext sourceContext) {
         this.jdbcTemplate = new JdbcTemplate(dataSource);
         this.sourceContext = sourceContext;
     }
 
-    public Optional<String> getByFileName(final String name) {
-        final Optional<String> payload = getPayload(name);
+    public Optional<String> findLastNotification(final NrtmSourceModel source) {
+        LOGGER.info("checking the default source " + sourceContext.getCurrentSource().getType());
+        final Optional<String> payload = getPayload(source);
 
         if(payload.isPresent()) {
             return payload;
@@ -45,10 +37,12 @@ public class DeltaReadOnlyFileRepository {
 
         final Source originalSource = sourceContext.getCurrentSource();
         if (originalSource.getType().equals(Source.Type.SLAVE)) {
+            LOGGER.info("Cannot find the entry in slave source , fetching it from master");
+
             final Source masterSource = Source.master(originalSource.getName());
             try {
                 sourceContext.setCurrent(masterSource);
-                return getPayload(name);
+                return getPayload(source);
             } catch (IllegalSourceException e) {
                 LOGGER.debug("Source not configured: {}", masterSource, e);
             } finally {
@@ -59,11 +53,17 @@ public class DeltaReadOnlyFileRepository {
         return payload;
     }
 
-    private Optional<String> getPayload(final String name) {
+    private Optional<String> getPayload(final NrtmSourceModel source) {
         try {
-            return Optional.ofNullable(jdbcTemplate.queryForObject(" SELECT payload  FROM delta_file WHERE name = ?",
+            return Optional.ofNullable(jdbcTemplate.queryForObject("""
+                                                SELECT nf.payload
+                                                FROM notification_file nf
+                                                JOIN version_info vi ON vi.id = nf.version_id
+                                                WHERE vi.source_id = ?
+                                                ORDER BY vi.version DESC LIMIT 1
+                                                """,
                     (rs, rowNum) -> rs.getString(1),
-                    name)
+                    source.getId())
             );
         } catch (final EmptyResultDataAccessException ex) {
             return Optional.empty();
