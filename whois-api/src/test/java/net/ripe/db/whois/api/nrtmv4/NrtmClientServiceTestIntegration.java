@@ -278,7 +278,7 @@ public class NrtmClientServiceTestIntegration extends AbstractIntegrationTest {
         databaseHelper.getNrtmTemplate().update("INSERT INTO source (id, name) VALUES (?,?)", 1, "TEST");
         databaseHelper.getNrtmTemplate().update("INSERT INTO source (id, name) VALUES (?,?)", 2, "TEST-NONAUTH");
 
-        final String response = createResource("welcome")
+        final String response = RestTest.target(getPort(), "nrtmv4/")
                 .request(MediaType.TEXT_HTML)
                 .get(String.class);
 

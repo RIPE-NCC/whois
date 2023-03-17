@@ -49,7 +49,6 @@ public class NrtmClientService {
     }
 
     @GET
-    @Path("welcome")
     @Produces(MediaType.TEXT_HTML)
     public String sourcesLinkAsHtml() {
 
@@ -75,8 +74,14 @@ public class NrtmClientService {
             @PathParam("source") final String source,
             @PathParam("filename") final String fileName) {
 
+        if(fileName.startsWith(NrtmDocumentType.NOTIFICATION.getFileNamePrefix())) {
+            return notificationFileSourceAwareDao.findLastNotification(getSource(source))
+                    .map( payload -> getResponse(payload,  NrtmFileUtil.NOTIFICATION_FILENAME))
+                    .orElseThrow(() -> new NotFoundException("update-notification-file.json does not exists for source " + source));
+        }
+
+        validateSource(source, fileName);
         if(fileName.startsWith(NrtmDocumentType.SNAPSHOT.getFileNamePrefix())) {
-            validateSource(source, fileName);
             return snapshotSourceAwareFileRepository.getByFileName(fileName)
                     .map( snapshot -> getResponse(snapshot.getPayload(), snapshot.getSnapshotFile().hash(), fileName))
                     .orElseThrow(() -> new NotFoundException("Requested Snapshot file does not exists"));
@@ -84,16 +89,9 @@ public class NrtmClientService {
 
         final String filenameExt  = filenameWithExtension(fileName);
         if(fileName.startsWith(NrtmDocumentType.DELTA.getFileNamePrefix())) {
-            validateSource(source, filenameExt);
             return deltaSourceAwareFileRepository.getByFileName(filenameExt)
                     .map( delta -> getResponse(delta.payload(), delta.hash(), filenameExt))
                     .orElseThrow(() -> new NotFoundException("Requested Delta file does not exists"));
-        }
-
-        if(fileName.startsWith(NrtmDocumentType.NOTIFICATION.getFileNamePrefix())) {
-            return notificationFileSourceAwareDao.findLastNotification(getSource(source))
-                    .map( payload -> getResponse(payload,  NrtmFileUtil.NOTIFICATION_FILENAME))
-                    .orElseThrow(() -> new NotFoundException("update-notification-file.json does not exists for source " + source));
         }
 
         throw new BadRequestException("Invalid Nrtm filename");
