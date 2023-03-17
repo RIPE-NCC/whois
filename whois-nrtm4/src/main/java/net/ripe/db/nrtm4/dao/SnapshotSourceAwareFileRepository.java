@@ -1,7 +1,7 @@
 package net.ripe.db.nrtm4.dao;
 
-import com.google.common.collect.Maps;
 import net.ripe.db.nrtm4.domain.SnapshotFile;
+import net.ripe.db.nrtm4.domain.SnapshotWithPayload;
 import net.ripe.db.whois.common.source.IllegalSourceException;
 import net.ripe.db.whois.common.source.Source;
 import net.ripe.db.whois.common.source.SourceContext;
@@ -14,8 +14,6 @@ import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Repository;
 
 import javax.sql.DataSource;
-import java.util.Collections;
-import java.util.Map;
 import java.util.Optional;
 
 
@@ -24,6 +22,14 @@ public class SnapshotSourceAwareFileRepository {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(SnapshotSourceAwareFileRepository.class);
 
+    private static final RowMapper<SnapshotWithPayload> rowMapper = (rs, rowNum) ->
+            new SnapshotWithPayload(
+                    new SnapshotFile(rs.getLong(1),
+                    rs.getLong(2),
+                    rs.getString(3),
+                    rs.getString(4)),
+                    rs.getBytes(5)
+            );
     private final JdbcTemplate jdbcTemplate;
     private final SourceContext sourceContext;
 
@@ -32,11 +38,11 @@ public class SnapshotSourceAwareFileRepository {
         this.sourceContext = sourceContext;
     }
 
-    public Map<String, Object> getByFileName(final String name) {
-        final Map<String, Object> payloadWithHash = getPayload(name);
+    public Optional<SnapshotWithPayload> getByFileName(final String name) {
+        final Optional<SnapshotWithPayload> snapshotFile = getSnapshotPayload(name);
 
-        if(!payloadWithHash.isEmpty()) {
-            return payloadWithHash;
+        if(!snapshotFile.isEmpty()) {
+            return snapshotFile;
         }
 
         final Source originalSource = sourceContext.getCurrentSource();
@@ -44,7 +50,7 @@ public class SnapshotSourceAwareFileRepository {
             final Source masterSource = Source.master(originalSource.getName());
             try {
                 sourceContext.setCurrent(masterSource);
-                return getPayload(name);
+                return getSnapshotPayload(name);
             } catch (IllegalSourceException e) {
                 LOGGER.debug("Source not configured: {}", masterSource, e);
             } finally {
@@ -52,15 +58,16 @@ public class SnapshotSourceAwareFileRepository {
             }
         }
 
-        return payloadWithHash;
+        return snapshotFile;
     }
 
-    private Map<String, Object> getPayload(final String name) {
+    private Optional<SnapshotWithPayload> getSnapshotPayload(final String name) {
         try {
-            return jdbcTemplate.queryForMap(" SELECT payload, hash  FROM snapshot_file WHERE name = ?",
-                    name);
+            return Optional.ofNullable(jdbcTemplate.queryForObject(" SELECT id, version_id, name, hash, payload  FROM snapshot_file WHERE name = ?",
+                    rowMapper,
+                    name));
         } catch (final EmptyResultDataAccessException ex) {
-            return Collections.emptyMap();
+            return Optional.empty();
         }
     }
 }

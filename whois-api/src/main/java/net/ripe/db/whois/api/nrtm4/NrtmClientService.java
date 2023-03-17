@@ -29,14 +29,14 @@ import java.util.Map;
 public class NrtmClientService {
 
     private final SnapshotSourceAwareFileRepository snapshotSourceAwareFileRepository;
-    private final DeltaSourceAwareFileRepository deltaReadOnlyFileRepository;
+    private final DeltaSourceAwareFileRepository deltaSourceAwareFileRepository;
     private final NotificationFileSourceAwareDao notificationFileSourceAwareDao;
     private final SourceRepository sourceRepository;
 
     @Autowired
-    public NrtmClientService(final SourceRepository sourceRepository, final NotificationFileSourceAwareDao notificationFileSourceAwareDao, final SnapshotSourceAwareFileRepository snapshotSourceAwareFileRepository, final DeltaSourceAwareFileRepository deltaReadOnlyFileRepository) {
+    public NrtmClientService(final SourceRepository sourceRepository, final NotificationFileSourceAwareDao notificationFileSourceAwareDao, final SnapshotSourceAwareFileRepository snapshotSourceAwareFileRepository, final DeltaSourceAwareFileRepository deltaSourceAwareFileRepository) {
         this.snapshotSourceAwareFileRepository = snapshotSourceAwareFileRepository;
-        this.deltaReadOnlyFileRepository = deltaReadOnlyFileRepository;
+        this.deltaSourceAwareFileRepository = deltaSourceAwareFileRepository;
         this.notificationFileSourceAwareDao = notificationFileSourceAwareDao;
         this.sourceRepository = sourceRepository;
     }
@@ -51,19 +51,15 @@ public class NrtmClientService {
 
         if(fileName.startsWith(NrtmDocumentType.SNAPSHOT.getFileNamePrefix())) {
             validateSource(source, fileName);
-            final Map<String, Object> payloadWithHash = snapshotSourceAwareFileRepository.getByFileName(fileName);
-
-            if(payloadWithHash.isEmpty()) {
-                throw new NotFoundException("Requested Snapshot file does not exists");
-            }
-
-            return getResponse( (byte[]) payloadWithHash.get("payload"), (String) payloadWithHash.get("hash"), fileName);
+            return snapshotSourceAwareFileRepository.getByFileName(fileName)
+                    .map( snapshot -> getResponse(snapshot.getPayload(), snapshot.getSnapshotFile().hash(), fileName))
+                    .orElseThrow(() -> new NotFoundException("Requested Snapshot file does not exists"));
         }
 
         final String filenameExt  = filenameWithExtension(fileName);
         if(fileName.startsWith(NrtmDocumentType.DELTA.getFileNamePrefix())) {
             validateSource(source, filenameExt);
-            return deltaReadOnlyFileRepository.getByFileName(filenameExt)
+            return deltaSourceAwareFileRepository.getByFileName(filenameExt)
                     .map( delta -> getResponse(delta.payload(), delta.hash(), filenameExt))
                     .orElseThrow(() -> new NotFoundException("Requested Delta file does not exists"));
         }
@@ -74,7 +70,7 @@ public class NrtmClientService {
                     .orElseThrow(() -> new NotFoundException("update-notification-file.json does not exists for source " + source));
         }
 
-        throw new BadRequestException("Invalid nrtm filename");
+        throw new BadRequestException("Invalid Nrtm filename");
     }
 
     private void validateSource(final String source, final String fileName) {

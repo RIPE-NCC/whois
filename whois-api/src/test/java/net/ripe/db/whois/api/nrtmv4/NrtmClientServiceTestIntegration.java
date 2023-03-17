@@ -343,7 +343,7 @@ public class NrtmClientServiceTestIntegration extends AbstractIntegrationTest {
                     .request(MediaType.APPLICATION_OCTET_STREAM)
                     .get(Response.class);
         assertThat(response.getStatus(), is(400));
-        assertThat(response.readEntity(String.class), is("Invalid nrtm filename"));
+        assertThat(response.readEntity(String.class), is("Invalid Nrtm filename"));
 
     }
 
