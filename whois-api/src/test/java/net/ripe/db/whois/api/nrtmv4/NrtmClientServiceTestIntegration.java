@@ -274,6 +274,18 @@ public class NrtmClientServiceTestIntegration extends AbstractIntegrationTest {
     }
 
     @Test
+    public void should_get_all_source_links() {
+        databaseHelper.getNrtmTemplate().update("INSERT INTO source (id, name) VALUES (?,?)", 1, "TEST");
+        databaseHelper.getNrtmTemplate().update("INSERT INTO source (id, name) VALUES (?,?)", 2, "TEST-NONAUTH");
+
+        final String response = createResource("welcome")
+                .request(MediaType.TEXT_HTML)
+                .get(String.class);
+
+        assertThat(response, is("<html><header><title>NRTM Version 4</title></header><body><a href='https://nrtm.db.ripe.net/TEST/update-notification-file.json'>TEST</a><br/><a href='https://nrtm.db.ripe.net/TEST-NONAUTH/update-notification-file.json'>TEST-NONAUTH</a><br/><body></html>"));
+    }
+
+    @Test
     public void should_get_update_notification_file() {
         insertUpdateNotificationFile();
         final Response response = createResource("TEST/update-notification-file.json")

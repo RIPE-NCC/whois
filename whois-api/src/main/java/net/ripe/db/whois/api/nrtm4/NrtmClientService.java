@@ -9,6 +9,7 @@ import net.ripe.db.nrtm4.domain.NrtmDocumentType;
 import net.ripe.db.nrtm4.domain.NrtmSourceModel;
 import net.ripe.db.nrtm4.util.NrtmFileUtil;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import javax.servlet.http.HttpServletRequest;
@@ -22,23 +23,48 @@ import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.io.ByteArrayInputStream;
-import java.util.Map;
 
 @Component
 @Path("/")
 public class NrtmClientService {
 
+    public static final String SOURCE_LINK_PAGE = "<html><header><title>NRTM Version 4</title></header><body>%s<body></html>";
     private final SnapshotSourceAwareFileRepository snapshotSourceAwareFileRepository;
     private final DeltaSourceAwareFileRepository deltaSourceAwareFileRepository;
     private final NotificationFileSourceAwareDao notificationFileSourceAwareDao;
     private final SourceRepository sourceRepository;
+    final String nrtmUrl;
 
     @Autowired
-    public NrtmClientService(final SourceRepository sourceRepository, final NotificationFileSourceAwareDao notificationFileSourceAwareDao, final SnapshotSourceAwareFileRepository snapshotSourceAwareFileRepository, final DeltaSourceAwareFileRepository deltaSourceAwareFileRepository) {
+    public NrtmClientService(@Value("${nrtm.baseUrl}") final String nrtmUrl,
+                             final SourceRepository sourceRepository,
+                             final NotificationFileSourceAwareDao notificationFileSourceAwareDao,
+                             final SnapshotSourceAwareFileRepository snapshotSourceAwareFileRepository,
+                             final DeltaSourceAwareFileRepository deltaSourceAwareFileRepository) {
         this.snapshotSourceAwareFileRepository = snapshotSourceAwareFileRepository;
         this.deltaSourceAwareFileRepository = deltaSourceAwareFileRepository;
         this.notificationFileSourceAwareDao = notificationFileSourceAwareDao;
         this.sourceRepository = sourceRepository;
+        this.nrtmUrl = nrtmUrl;
+    }
+
+    @GET
+    @Path("welcome")
+    @Produces(MediaType.TEXT_HTML)
+    public String sourcesLinkAsHtml() {
+
+        final StringBuilder sourceLink = new StringBuilder();
+
+        sourceRepository.getAllSources().forEach(sourceModel ->
+                sourceLink.append(
+                        String.format("<a href='%s'>%s</a><br/>",
+                                        String.join("/", nrtmUrl, sourceModel.getName().toString(), "update-notification-file.json"),
+                                        sourceModel.getName().toString()
+                                    )
+                )
+        );
+
+        return String.format(SOURCE_LINK_PAGE, sourceLink);
     }
 
     @GET
