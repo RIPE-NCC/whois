@@ -36,7 +36,7 @@ public class NrtmClientService {
     final String nrtmUrl;
 
     @Autowired
-    public NrtmClientService(@Value("${nrtm.baseUrl}") final String nrtmUrl,
+    public NrtmClientService(@Value("${nrtm.baseUrl:}") final String nrtmUrl,
                              final SourceRepository sourceRepository,
                              final NotificationFileSourceAwareDao notificationFileSourceAwareDao,
                              final SnapshotSourceAwareFileRepository snapshotSourceAwareFileRepository,

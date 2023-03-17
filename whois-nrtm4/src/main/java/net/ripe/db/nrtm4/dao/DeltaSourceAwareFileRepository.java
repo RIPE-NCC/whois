@@ -22,7 +22,7 @@ public class DeltaSourceAwareFileRepository {
 
     private final JdbcTemplate jdbcTemplate;
     private final SourceContext sourceContext;
-    private final RowMapper<DeltaFile> rowMapper = (rs, rowNum) ->
+    private final static RowMapper<DeltaFile> rowMapper = (rs, rowNum) ->
             new DeltaFile(
                     rs.getLong(1),   // id
                     rs.getLong(2),   // version_id
