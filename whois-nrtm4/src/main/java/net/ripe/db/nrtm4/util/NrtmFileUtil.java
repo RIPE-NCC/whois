@@ -17,8 +17,6 @@ public class NrtmFileUtil {
 
     private static final Random random = new Random();
 
-    public static final String NOTIFICATION_FILENAME= "updateNotification.json";
-
     public static String newFileName(final NrtmVersionInfo file) {
         final String prefix = file.type().getFileNamePrefix();
         return String.format("%s.%d.%s.%s.json", prefix, file.version(), file.source().getName(), randomHexString());

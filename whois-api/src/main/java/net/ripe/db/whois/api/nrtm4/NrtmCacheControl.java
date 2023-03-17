@@ -2,18 +2,21 @@ package net.ripe.db.whois.api.nrtm4;
 
 import com.google.common.net.HttpHeaders;
 import net.ripe.db.nrtm4.domain.NrtmDocumentType;
+import org.apache.commons.lang.StringUtils;
 
 import javax.ws.rs.container.ContainerRequestContext;
 import javax.ws.rs.container.ContainerResponseContext;
 import javax.ws.rs.container.ContainerResponseFilter;
 import javax.ws.rs.core.MultivaluedMap;
 import java.io.IOException;
+import java.util.Map;
 
 public class NrtmCacheControl  implements ContainerResponseFilter {
 
+    private static final Map<String, String> cacheValues = Map.of(NrtmDocumentType.SNAPSHOT.getFileNamePrefix(),  "public, max-age=604800",
+                                                                   NrtmDocumentType.DELTA.getFileNamePrefix(),  "public, max-age=604800",
+                                                                   NrtmDocumentType.NOTIFICATION.getFileNamePrefix(),  "public, max-age=60");
     public static final String NO_CACHE = "no-cache, no-store, must-revalidate";
-    public static final String CACHE_ONE_MIN = "public, max-age=60";
-    public static final String CACHE_ONE_WEEK = "public, max-age=604800";
 
     @Override
     public void filter(final ContainerRequestContext requestContext, final ContainerResponseContext responseContext) throws IOException {
@@ -25,15 +28,8 @@ public class NrtmCacheControl  implements ContainerResponseFilter {
             return NO_CACHE;
         }
 
-        final String filename = pathParameters.get("filename").get(0);
-        if(filename.startsWith(NrtmDocumentType.SNAPSHOT.getFileNamePrefix()) || filename.startsWith(NrtmDocumentType.DELTA.getFileNamePrefix())) {
-            return CACHE_ONE_WEEK;
-        }
+        final String filenamePrefix = StringUtils.split(pathParameters.get("filename").get(0), ".")[0];
 
-        if(filename.startsWith(NrtmDocumentType.NOTIFICATION.getFileNamePrefix())) {
-            return CACHE_ONE_MIN;
-        }
-
-        return NO_CACHE;
+        return cacheValues.containsKey(filenamePrefix) ? cacheValues.get(filenamePrefix) : NO_CACHE;
     }
 }
