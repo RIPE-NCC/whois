@@ -95,7 +95,7 @@ public class NotificationFileGenerator {
                 final String timestamp = new VersionDateTime(lastDelta.versionInfo().created()).toString();
                 final PublishableNotificationFile publishableNotificationFile = new PublishableNotificationFile(lastDelta.versionInfo(), timestamp, null, convert(lastSnapshotVersion, snapshotFile), newDeltas);
                 final String json = new ObjectMapper().writeValueAsString(publishableNotificationFile);
-                final NotificationFile notificationFile = NotificationFile.of(version.id(), json);
+                final NotificationFile notificationFile = NotificationFile.of(lastDelta.versionInfo().id(), json);
                 notificationFileDao.save(notificationFile);
             } catch (final IOException e) {
                 LOGGER.error("Failed to update notification file for {}", version.source().getName(), e);

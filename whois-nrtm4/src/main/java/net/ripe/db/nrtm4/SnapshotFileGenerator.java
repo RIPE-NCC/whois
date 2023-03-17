@@ -4,7 +4,6 @@ import com.google.common.base.Stopwatch;
 import net.ripe.db.nrtm4.dao.NrtmVersionInfoRepository;
 import net.ripe.db.nrtm4.dao.SnapshotFileRepository;
 import net.ripe.db.nrtm4.dao.SourceRepository;
-import net.ripe.db.nrtm4.domain.NrtmDocumentType;
 import net.ripe.db.nrtm4.domain.NrtmSourceModel;
 import net.ripe.db.nrtm4.domain.NrtmVersionInfo;
 import net.ripe.db.nrtm4.domain.PublishableNrtmFile;
@@ -63,12 +62,9 @@ public class SnapshotFileGenerator {
     }
 
     public List<NrtmVersionInfo> createSnapshots(final SnapshotState state) {
-        if (!snapshotGenerationWindow.isInWindow()) {
-            return List.of();
-        }
         final Stopwatch stopwatchRoot = Stopwatch.createStarted();
         // Get last version from database.
-        final List<NrtmVersionInfo> sourceVersions = nrtmVersionInfoRepository.findLastVersionPerSource();
+        final List<NrtmVersionInfo> sourceVersions = nrtmVersionInfoRepository.findLastSnapshotVersionPerSource();
         LOGGER.info("Found {} objects in {}", state.whoisObjectData().size(), stopwatchRoot);
         if (sourceVersions.isEmpty()) {
             LOGGER.info("Initializing NRTM");
@@ -77,8 +73,10 @@ public class SnapshotFileGenerator {
                 sourceVersions.add(version);
             }
         } else {
-            sourceVersions.removeIf(versionToRemove ->
-                versionToRemove.type() == NrtmDocumentType.SNAPSHOT || !snapshotGenerationWindow.hasVersionExpired(versionToRemove));
+            if (!snapshotGenerationWindow.isInWindow()) {
+                return List.of();
+            }
+            sourceVersions.removeIf(versionToRemove -> !snapshotGenerationWindow.hasVersionExpired(versionToRemove));
             if (sourceVersions.isEmpty()) {
                 LOGGER.info("No deltas created since last snapshot. Skipping snapshot creation");
                 return List.of();

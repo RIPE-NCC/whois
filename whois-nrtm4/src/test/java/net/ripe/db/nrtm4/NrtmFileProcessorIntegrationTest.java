@@ -13,14 +13,17 @@ import net.ripe.db.nrtm4.domain.PublishableDeltaFile;
 import net.ripe.db.nrtm4.domain.PublishableNotificationFile;
 import net.ripe.db.nrtm4.domain.PublishableSnapshotFile;
 import net.ripe.db.nrtm4.domain.SnapshotFile;
+import net.ripe.db.whois.common.TestDateTimeProvider;
 import net.ripe.db.whois.common.rpsl.ObjectType;
 import net.ripe.db.whois.common.rpsl.RpslObject;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
+import org.mockito.MockitoAnnotations;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
+import java.time.LocalDateTime;
 import java.util.UUID;
 import java.util.zip.GZIPInputStream;
 
@@ -55,6 +58,9 @@ public class NrtmFileProcessorIntegrationTest extends AbstractNrtm4IntegrationBa
 
     @Autowired
     private SourceRepository sourceRepository;
+
+    @Autowired
+    TestDateTimeProvider dateTimeProvider;
 
     @Test
     void file_write_job_works_on_empty_whois() {
@@ -92,13 +98,25 @@ public class NrtmFileProcessorIntegrationTest extends AbstractNrtm4IntegrationBa
             source: TEST
             """);
 
+        final var twoPmInMay = LocalDateTime.of(2023, 5, 22, 14, 0);
+        final var oneMinutePastTwoPmInMay = LocalDateTime.of(2023, 5, 22, 14, 1);
+        final var twoMinutesPastTwoPmInMay = LocalDateTime.of(2023, 5, 22, 14, 2);
+        final var threeMinutesPastTwoPmInMay = LocalDateTime.of(2023, 5, 22, 14, 3);
+        final var fourMinutesPastTwoPmInMay = LocalDateTime.of(2023, 5, 22, 14, 4);
+        final var fivePastTwoPmInMay = LocalDateTime.of(2023, 5, 22, 14, 5);
+        final var twoAmTheNextDayInMay = LocalDateTime.of(2023, 5, 23, 2, 0);
+
+
+        MockitoAnnotations.openMocks(this);
         {
-            System.setProperty("nrtm.snapshot.window", "01:00 - 04:00");
+            System.setProperty("nrtm.snapshot.window", "02:00 - 04:00");
+            dateTimeProvider.setTime(twoPmInMay);
             final var whoisSource = sourceRepository.getWhoisSource();
             assertThat(whoisSource.isPresent(), is(false));
         }
         var sessionID = "";
         {
+            dateTimeProvider.setTime(oneMinutePastTwoPmInMay);
             databaseHelper.addObject(mntObject);
 
             nrtmFileProcessor.updateNrtmFilesAndPublishNotification();
@@ -122,6 +140,7 @@ public class NrtmFileProcessorIntegrationTest extends AbstractNrtm4IntegrationBa
         }
         // Run again to ensure no new snapshot or delta is created
         {
+            dateTimeProvider.setTime(twoMinutesPastTwoPmInMay);
             nrtmFileProcessor.updateNrtmFilesAndPublishNotification();
 
             final var whoisSource = sourceRepository.getWhoisSource();
@@ -134,45 +153,26 @@ public class NrtmFileProcessorIntegrationTest extends AbstractNrtm4IntegrationBa
             assertThat(deltaFile.size(), is(0));
         }
         {
+            dateTimeProvider.setTime(threeMinutesPastTwoPmInMay);
             databaseHelper.updateObject(mntObjectMod);
-
             nrtmFileProcessor.updateNrtmFilesAndPublishNotification();
 
             final var whoisSource = sourceRepository.getWhoisSource();
             assertThat(whoisSource.isPresent(), is(true));
-            final var lastNotification = notificationFileDao.findLastNotification(whoisSource.get()).orElseThrow();
-            final var notificationFile = new ObjectMapper().readValue(lastNotification.payload(), PublishableNotificationFile.class);
+            final var lastNotification = notificationFileDao.findLastNotification(whoisSource.get());
+            assertThat(lastNotification.isPresent(), is(true));
+            final var notificationFile = new ObjectMapper().readValue(lastNotification.get().payload(), PublishableNotificationFile.class);
             assertThat(sessionID, is(notificationFile.getSessionID()));
             assertThat(notificationFile.getVersion(), is(2L));
-
-            final var snapshotFile = snapshotFileRepository.getLastSnapshot(whoisSource.get());
-            assertThat(snapshotFile.isPresent(), is(true));
-            final var snapshotVersion = nrtmVersionInfoRepository.findById(snapshotFile.get().versionId());
-            assertThat(snapshotVersion.version(), is(1L));
-            final var versionedDeltaFiles = deltaFileDao.getDeltasForNotification(snapshotVersion, 0);
-            assertThat(versionedDeltaFiles.size(), is(1));
-            final var versionedDeltaFile = versionedDeltaFiles.get(0);
-            assertThat(versionedDeltaFile.versionInfo().version(), is(2L));
-            assertThat(versionedDeltaFile.deltaFile().name(), startsWith("nrtm-delta.2.TEST."));
-            final var deltaFile = deltaFileDao.getByName(versionedDeltaFile.versionInfo().sessionID(), versionedDeltaFile.deltaFile().name()).orElseThrow();
-            final var publishableDeltaFile = new ObjectMapper().readValue(deltaFile.payload(), PublishableDeltaFile.class);
-            assertThat(publishableDeltaFile.getSource().getName(), is("TEST"));
-            assertThat(publishableDeltaFile.getChanges().size(), is(1));
-            assertThat(publishableDeltaFile.getNrtmVersion(), is(4));
-            assertThat(publishableDeltaFile.getType().lowerCaseName(), is("delta"));
-
-            final var change = publishableDeltaFile.getChanges().get(0);
-            assertThat(change.getObject().toString(), startsWith(mntObject.toString()));
-            assertThat(change.getObject().toString(), containsString("* THIS OBJECT IS MODIFIED"));
-
-            assertThat(notificationFile.getVersion(), is(versionedDeltaFile.versionInfo().version()));
             assertThat(notificationFile.getDeltas().size(), is(1));
         }
         {
+            dateTimeProvider.setTime(fourMinutesPastTwoPmInMay);
             // Make a change in whois and expect a delta
             databaseHelper.addObject(mntObject1);
             databaseHelper.addObject(mntObject2);
             nrtmFileProcessor.updateNrtmFilesAndPublishNotification();
+
             final var whoisSource = sourceRepository.getWhoisSource();
             assertThat(whoisSource.isPresent(), is(true));
             final var lastNotification = notificationFileDao.findLastNotification(whoisSource.get());
@@ -183,6 +183,8 @@ public class NrtmFileProcessorIntegrationTest extends AbstractNrtm4IntegrationBa
             assertThat(notificationFile.getDeltas().size(), is(2));
         }
         {
+            dateTimeProvider.setTime(fivePastTwoPmInMay);
+
             // Make changes in whois and expect a delta
             databaseHelper.deleteObject(mntObject2);
             databaseHelper.updateObject(mntObject1mod);
@@ -219,6 +221,7 @@ public class NrtmFileProcessorIntegrationTest extends AbstractNrtm4IntegrationBa
             assertThat(publishableSnapshot, notNullValue());
             assertThat(publishableSnapshot.getType().lowerCaseName(), is("snapshot"));
             assertThat(publishableSnapshot.getNrtmVersion(), is(4));
+            assertThat(publishableSnapshot.getVersion(), is(1L));
             assertThat(publishableSnapshot.getSessionID(), is(sessionID));
             assertThat(publishableSnapshot.getSource().getName(), is("TEST"));
             assertThat(publishableSnapshot.getObjects().size(), is(1));
@@ -302,6 +305,27 @@ public class NrtmFileProcessorIntegrationTest extends AbstractNrtm4IntegrationBa
                     assertThat(change.getPrimaryKey(), is(mntObject3.getKey().toString()));
                 }
             }
+        }
+        {
+            dateTimeProvider.setTime(twoAmTheNextDayInMay);
+            nrtmFileProcessor.updateNrtmFilesAndPublishNotification();
+
+            final var whoisSource = sourceRepository.getWhoisSource();
+            assertThat(whoisSource.isPresent(), is(true));
+            final var lastNotification = notificationFileDao.findLastNotification(whoisSource.get()).orElseThrow();
+            final var notificationFile = new ObjectMapper().readValue(lastNotification.payload(), PublishableNotificationFile.class);
+            sessionID = notificationFile.getSessionID();
+            final var sessionUUID = UUID.fromString(sessionID); // throws exception if not UUID format
+            assertThat(sessionUUID, is(notNullValue()));
+            assertThat(notificationFile.getVersion(), is(4L));
+
+            final var snapshotFile = snapshotFileRepository.getLastSnapshot(whoisSource.get());
+            assertThat(snapshotFile.isPresent(), is(true));
+            final var snapshotVersion = nrtmVersionInfoRepository.findById(snapshotFile.get().versionId());
+            assertThat(snapshotVersion.version(), is(4L));
+            final var deltaFile = deltaFileDao.getDeltasForNotification(snapshotVersion, 0);
+            assertThat(deltaFile.size(), is(0));
+            assertThat(lastNotification.versionId(), is(snapshotVersion.id()));
         }
     }
 
