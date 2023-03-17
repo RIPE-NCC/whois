@@ -13,7 +13,7 @@ import java.util.Map;
 
 public class NrtmCacheControl  implements ContainerResponseFilter {
 
-    private static final Map<String, String> cacheValues = Map.of(NrtmDocumentType.SNAPSHOT.getFileNamePrefix(),  "public, max-age=604800",
+    private static final Map<String, String> filenameToCacheControl = Map.of(NrtmDocumentType.SNAPSHOT.getFileNamePrefix(),  "public, max-age=604800",
                                                                    NrtmDocumentType.DELTA.getFileNamePrefix(),  "public, max-age=604800",
                                                                    NrtmDocumentType.NOTIFICATION.getFileNamePrefix(),  "public, max-age=60");
     public static final String NO_CACHE = "no-cache, no-store, must-revalidate";
@@ -30,6 +30,6 @@ public class NrtmCacheControl  implements ContainerResponseFilter {
 
         final String filenamePrefix = StringUtils.split(pathParameters.get("filename").get(0), ".")[0];
 
-        return cacheValues.containsKey(filenamePrefix) ? cacheValues.get(filenamePrefix) : NO_CACHE;
+        return filenameToCacheControl.containsKey(filenamePrefix) ? filenameToCacheControl.get(filenamePrefix) : NO_CACHE;
     }
 }
