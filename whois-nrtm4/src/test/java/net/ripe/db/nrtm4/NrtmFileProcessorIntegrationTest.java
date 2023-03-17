@@ -318,14 +318,14 @@ public class NrtmFileProcessorIntegrationTest extends AbstractNrtm4IntegrationBa
             final var sessionUUID = UUID.fromString(sessionID); // throws exception if not UUID format
             assertThat(sessionUUID, is(notNullValue()));
             assertThat(notificationFile.getVersion(), is(4L));
+            assertThat(notificationFile.getSnapshot().getVersion(), is(4L));
 
             final var snapshotFile = snapshotFileRepository.getLastSnapshot(whoisSource.get());
             assertThat(snapshotFile.isPresent(), is(true));
             final var snapshotVersion = nrtmVersionInfoRepository.findById(snapshotFile.get().versionId());
             assertThat(snapshotVersion.version(), is(4L));
             final var deltaFile = deltaFileDao.getDeltasForNotification(snapshotVersion, 0);
-            assertThat(deltaFile.size(), is(0));
-            assertThat(lastNotification.versionId(), is(snapshotVersion.id()));
+            assertThat(deltaFile.size(), is(3));
         }
     }
 

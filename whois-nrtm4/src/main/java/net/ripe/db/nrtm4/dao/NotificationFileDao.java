@@ -20,7 +20,8 @@ public class NotificationFileDao {
         new NotificationFile(
             rs.getLong(1),
             rs.getLong(2),
-            rs.getString(3)
+            rs.getLong(3),
+            rs.getString(4)
         );
 
     public NotificationFileDao(
@@ -31,20 +32,20 @@ public class NotificationFileDao {
 
     public void save(final NotificationFile file) {
         final String sql = """
-            INSERT INTO notification_file (version_id, payload)
-            VALUES (?, ?)
+            INSERT INTO notification_file (version_id, created, payload)
+            VALUES (?, ?, ?)
             """;
-        jdbcTemplate.update(sql, file.versionId(), file.payload());
+        jdbcTemplate.update(sql, file.versionId(), file.created(), file.payload());
     }
 
     public Optional<NotificationFile> findLastNotification(final NrtmSourceModel source) {
         try {
             final String sql = """
-                SELECT nf.id, nf.version_id, nf.payload
+                SELECT nf.id, nf.version_id, nf.created, nf.payload
                 FROM notification_file nf
                 JOIN version_info vi ON vi.id = nf.version_id
                 WHERE vi.source_id = ?
-                ORDER BY vi.version DESC LIMIT 1
+                ORDER BY nf.created DESC LIMIT 1
                 """;
             return Optional.ofNullable(jdbcTemplate.queryForObject(sql, rowMapper, source.getId()));
         } catch (final EmptyResultDataAccessException e) {

@@ -4,6 +4,7 @@ import com.google.common.base.Stopwatch;
 import net.ripe.db.nrtm4.dao.NrtmVersionInfoRepository;
 import net.ripe.db.nrtm4.dao.SnapshotFileRepository;
 import net.ripe.db.nrtm4.dao.SourceRepository;
+import net.ripe.db.nrtm4.domain.NrtmDocumentType;
 import net.ripe.db.nrtm4.domain.NrtmSourceModel;
 import net.ripe.db.nrtm4.domain.NrtmVersionInfo;
 import net.ripe.db.nrtm4.domain.PublishableNrtmFile;
@@ -64,7 +65,7 @@ public class SnapshotFileGenerator {
     public List<NrtmVersionInfo> createSnapshots(final SnapshotState state) {
         final Stopwatch stopwatchRoot = Stopwatch.createStarted();
         // Get last version from database.
-        final List<NrtmVersionInfo> sourceVersions = nrtmVersionInfoRepository.findLastSnapshotVersionPerSource();
+        final List<NrtmVersionInfo> sourceVersions = nrtmVersionInfoRepository.findLastVersionPerSource();
         LOGGER.info("Found {} objects in {}", state.whoisObjectData().size(), stopwatchRoot);
         if (sourceVersions.isEmpty()) {
             LOGGER.info("Initializing NRTM");
@@ -76,13 +77,21 @@ public class SnapshotFileGenerator {
             if (!snapshotGenerationWindow.isInWindow()) {
                 return List.of();
             }
-            sourceVersions.removeIf(versionToRemove -> !snapshotGenerationWindow.hasVersionExpired(versionToRemove));
+            sourceVersions.removeIf(versionToRemove ->
+                versionToRemove.type() == NrtmDocumentType.SNAPSHOT);
             if (sourceVersions.isEmpty()) {
-                LOGGER.info("No deltas created since last snapshot. Skipping snapshot creation");
+                return List.of();
+            }
+            sourceVersions.removeIf(versionToRemove -> !snapshotGenerationWindow.hasVersionExpired(
+                nrtmVersionInfoRepository.findLastSnapshotVersionForSource(
+                    versionToRemove.source()
+                ))
+            );
+            if (sourceVersions.isEmpty()) {
                 return List.of();
             }
         }
-        return createSnapshotsForVersions(state, sourceVersions);
+        return createSnapshotsForVersions(state, sourceVersions.stream().map(nrtmVersionInfoRepository::saveNewSnapshotVersion).toList());
     }
 
     public List<NrtmVersionInfo> createInitialSnapshots(final SnapshotState state) {
@@ -95,16 +104,16 @@ public class SnapshotFileGenerator {
         return createSnapshotsForVersions(state, sourceVersions);
     }
 
-    List<NrtmVersionInfo> createSnapshotsForVersions(final SnapshotState state, final List<NrtmVersionInfo> sourceVersions) {
-        final Stopwatch stopwatchRoot = Stopwatch.createStarted();
+    List<NrtmVersionInfo> createSnapshotsForVersions(final SnapshotState state, final List<NrtmVersionInfo> snapshotVersions) {
+        final Stopwatch stopwatch = Stopwatch.createStarted();
         final List<Thread> queueReaders = new ArrayList<>();
         final Map<CIString, LinkedBlockingQueue<RpslObjectData>> queueMap = new HashMap<>();
-        for (final NrtmVersionInfo sourceVersion : sourceVersions) {
-            LOGGER.info("Creating snapshot for {}", sourceVersion.source().getName());
-            final PublishableNrtmFile snapshotFile = new PublishableSnapshotFile(sourceVersion);
+        for (final NrtmVersionInfo snapshotVersion : snapshotVersions) {
+            LOGGER.info("Creating snapshot for {}", snapshotVersion.source().getName());
+            final PublishableNrtmFile snapshotFile = new PublishableSnapshotFile(snapshotVersion);
             final LinkedBlockingQueue<RpslObjectData> queue = new LinkedBlockingQueue<>(QUEUE_CAPACITY);
             queueMap.put(snapshotFile.getSource().getName(), queue);
-            final RunnableFileGenerator runner = new RunnableFileGenerator(dummifierNrtm, snapshotFileRepository, snapshotFileSerializer, sourceVersion, queue);
+            final RunnableFileGenerator runner = new RunnableFileGenerator(dummifierNrtm, snapshotFileRepository, snapshotFileSerializer, snapshotVersion, queue);
             final Thread queueReader = new Thread(runner);
             queueReader.start();
             queueReaders.add(queueReader);
@@ -118,8 +127,8 @@ public class SnapshotFileGenerator {
                 Thread.currentThread().interrupt();
             }
         }
-        LOGGER.info("Snapshot generation complete {}", stopwatchRoot);
-        return sourceVersions;
+        LOGGER.info("Snapshot generation complete {}", stopwatch);
+        return snapshotVersions;
     }
 
     private record RunnableFileGenerator(

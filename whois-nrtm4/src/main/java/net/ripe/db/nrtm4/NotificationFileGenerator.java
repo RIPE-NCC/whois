@@ -6,24 +6,23 @@ import net.ripe.db.nrtm4.dao.DeltaFileDao;
 import net.ripe.db.nrtm4.dao.NotificationFileDao;
 import net.ripe.db.nrtm4.dao.NrtmVersionInfoRepository;
 import net.ripe.db.nrtm4.dao.SnapshotFileRepository;
+import net.ripe.db.nrtm4.domain.DeltaFileVersionInfo;
 import net.ripe.db.nrtm4.domain.NotificationFile;
 import net.ripe.db.nrtm4.domain.NrtmVersionInfo;
 import net.ripe.db.nrtm4.domain.PublishableNotificationFile;
 import net.ripe.db.nrtm4.domain.SnapshotFile;
-import net.ripe.db.nrtm4.domain.DeltaFileVersionInfo;
+import net.ripe.db.whois.common.DateTimeProvider;
 import net.ripe.db.whois.common.dao.VersionDateTime;
 import net.ripe.db.whois.common.domain.Timestamp;
 import org.mariadb.jdbc.internal.logging.Logger;
 import org.mariadb.jdbc.internal.logging.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Isolation;
-import org.springframework.transaction.annotation.Propagation;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.time.LocalDateTime;
+import java.time.ZoneOffset;
 import java.util.List;
 import java.util.Optional;
 
@@ -34,6 +33,7 @@ public class NotificationFileGenerator {
     private static final Logger LOGGER = LoggerFactory.getLogger(NotificationFileGenerator.class);
 
     private final String baseUrl;
+    private final DateTimeProvider dateTimeProvider;
     private final DeltaFileDao deltaFileDao;
     private final NotificationFileDao notificationFileDao;
     private final NrtmVersionInfoRepository nrtmVersionInfoRepository;
@@ -41,12 +41,14 @@ public class NotificationFileGenerator {
 
     public NotificationFileGenerator(
         @Value("${nrtm.baseUrl}") final String baseUrl,
+        final DateTimeProvider dateTimeProvider,
         final DeltaFileDao deltaFileDao,
         final NotificationFileDao notificationFileDao,
         final NrtmVersionInfoRepository nrtmVersionInfoRepository,
         final SnapshotFileRepository snapshotFileRepository
     ) {
         this.baseUrl = baseUrl;
+        this.dateTimeProvider = dateTimeProvider;
         this.deltaFileDao = deltaFileDao;
         this.notificationFileDao = notificationFileDao;
         this.nrtmVersionInfoRepository = nrtmVersionInfoRepository;
@@ -60,7 +62,8 @@ public class NotificationFileGenerator {
         final ObjectMapper objectMapper = new ObjectMapper();
         try {
             final String json = objectMapper.writeValueAsString(publishableNotificationFile);
-            final NotificationFile notificationFile = NotificationFile.of(version.id(), json);
+            final long createdTimestamp = dateTimeProvider.getCurrentDateTime().toEpochSecond(ZoneOffset.UTC);
+            final NotificationFile notificationFile = NotificationFile.of(version.id(), createdTimestamp, json);
             notificationFileDao.save(notificationFile);
         } catch (final JsonProcessingException e) {
             LOGGER.error("Saving notification file failed for {}", version.source().getName());
@@ -68,7 +71,6 @@ public class NotificationFileGenerator {
         }
     }
 
-    @Transactional(isolation = Isolation.REPEATABLE_READ, propagation = Propagation.REQUIRES_NEW)
     void updateNotification() {
         for (final NrtmVersionInfo version : nrtmVersionInfoRepository.findLastVersionPerSource()) {
             final Optional<NotificationFile> lastNotificationFile = notificationFileDao.findLastNotification(version.source());
@@ -95,7 +97,8 @@ public class NotificationFileGenerator {
                 final String timestamp = new VersionDateTime(lastDelta.versionInfo().created()).toString();
                 final PublishableNotificationFile publishableNotificationFile = new PublishableNotificationFile(lastDelta.versionInfo(), timestamp, null, convert(lastSnapshotVersion, snapshotFile), newDeltas);
                 final String json = new ObjectMapper().writeValueAsString(publishableNotificationFile);
-                final NotificationFile notificationFile = NotificationFile.of(lastDelta.versionInfo().id(), json);
+                final long createdTimestamp = dateTimeProvider.getCurrentDateTime().toEpochSecond(ZoneOffset.UTC);
+                final NotificationFile notificationFile = NotificationFile.of(lastDelta.versionInfo().id(), createdTimestamp, json);
                 notificationFileDao.save(notificationFile);
             } catch (final IOException e) {
                 LOGGER.error("Failed to update notification file for {}", version.source().getName(), e);

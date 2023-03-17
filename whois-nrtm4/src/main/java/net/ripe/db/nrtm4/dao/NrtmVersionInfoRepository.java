@@ -70,21 +70,20 @@ public class NrtmVersionInfoRepository {
         }
     }
 
-    public List<NrtmVersionInfo> findLastSnapshotVersionPerSource() {
-        try {
-            return jdbcTemplate.query("""
-                    SELECT vi.id, src.id, src.name, vi.version, vi.session_id, vi.type, vi.last_serial_id, vi.created
-                    FROM version_info vi
-                        JOIN source src ON src.id = vi.source_id,
-                        (SELECT source_id, MAX(version) version FROM version_info WHERE type=? GROUP BY source_id) maxv
-                    WHERE vi.source_id = maxv.source_id AND vi.version = maxv.version
-                    ORDER BY vi.last_serial_id DESC
-                    """,
-                rowMapper, NrtmDocumentType.SNAPSHOT.toString());
-        } catch (final EmptyResultDataAccessException ex) {
-            LOGGER.debug("findLastVersions found no entries");
-            return List.of();
-        }
+    public NrtmVersionInfo findLastSnapshotVersionForSource(final NrtmSourceModel source) {
+        return jdbcTemplate.queryForObject("""
+                SELECT vi.id, src.id, src.name, vi.version, vi.session_id, vi.type, vi.last_serial_id, vi.created
+                FROM version_info vi
+                    JOIN source src ON src.id = vi.source_id,
+                    (
+                    SELECT source_id, MAX(version) version
+                    FROM version_info
+                    WHERE type = ? AND source_id = ?
+                    ) maxv
+                WHERE vi.source_id = maxv.source_id AND vi.version = maxv.version
+                ORDER BY vi.last_serial_id DESC
+                """,
+            rowMapper, NrtmDocumentType.SNAPSHOT.toString(), source.getId());
     }
 
     // TODO: Only used by tests, so should be removed from here.
@@ -130,6 +129,10 @@ public class NrtmVersionInfoRepository {
 
     public NrtmVersionInfo saveNewDeltaVersion(final NrtmVersionInfo version, final int lastSerialID) {
         return save(version.source(), version.version() + 1, version.sessionID(), NrtmDocumentType.DELTA, lastSerialID);
+    }
+
+    public NrtmVersionInfo saveNewSnapshotVersion(final NrtmVersionInfo version) {
+        return save(version.source(), version.version(), version.sessionID(), NrtmDocumentType.SNAPSHOT, version.lastSerialId());
     }
 
     private NrtmVersionInfo save(

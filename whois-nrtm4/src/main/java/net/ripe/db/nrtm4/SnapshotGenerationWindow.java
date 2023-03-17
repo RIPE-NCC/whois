@@ -5,8 +5,6 @@ import net.ripe.db.whois.common.DateTimeProvider;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
-import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.ZoneOffset;
 import java.util.regex.Matcher;
@@ -34,11 +32,13 @@ public class SnapshotGenerationWindow {
         to = LocalTime.of(Integer.parseInt(matcher.group(3)), Integer.parseInt(matcher.group(4)));
     }
 
-    public boolean hasVersionExpired(final NrtmVersionInfo versionToRemove) {
-        final long fromMs = from.toEpochSecond(LocalDate.now(), ZoneOffset.UTC);
-        final long toMs = to.toEpochSecond(LocalDate.now(), ZoneOffset.UTC);
-        final long expireTime = versionToRemove.created() + Math.abs(toMs - fromMs);
-        return expireTime < LocalDateTime.now().toEpochSecond(ZoneOffset.UTC);
+    public boolean hasVersionExpired(final NrtmVersionInfo snapshotVersion) {
+        final long fromMs = from.toEpochSecond(dateTimeProvider.getCurrentDate(), ZoneOffset.UTC);
+        final long toMs = to.isBefore(from) ?
+            to.toEpochSecond(dateTimeProvider.getCurrentDate().plusDays(1), ZoneOffset.UTC) :
+            to.toEpochSecond(dateTimeProvider.getCurrentDate(), ZoneOffset.UTC);
+        final long expireTime = snapshotVersion.created() + toMs - fromMs;
+        return expireTime < dateTimeProvider.getCurrentDateTime().toEpochSecond(ZoneOffset.UTC);
     }
 
     public boolean isInWindow() {
