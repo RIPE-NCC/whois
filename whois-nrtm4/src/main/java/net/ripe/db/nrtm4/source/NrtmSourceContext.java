@@ -73,7 +73,7 @@ public class NrtmSourceContext implements SourceContext {
     public SourceConfiguration getCurrentSourceConfiguration() {
         final SourceConfiguration sourceConfiguration = current.get();
         if (sourceConfiguration == null) {
-            return sourceConfigurations.get(mainMasterSource);
+            return sourceConfigurations.get(mainSlaveSource);
         }
 
         return sourceConfiguration;
