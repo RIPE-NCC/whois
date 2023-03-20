@@ -22,7 +22,7 @@ public class NotificationFileSourceAwareDao {
     private final JdbcTemplate jdbcTemplate;
     private final SourceContext sourceContext;
 
-    public NotificationFileSourceAwareDao(@Qualifier("nrtmSourceAwareDataSource") final DataSource dataSource, @Qualifier("nrtmSourceContext") final SourceContext sourceContext) {
+    public NotificationFileSourceAwareDao(@Qualifier("nrtmSourceAwareDataSource") final DataSource dataSource,  @Qualifier("nrtmSourceContext") final SourceContext sourceContext) {
         this.jdbcTemplate = new JdbcTemplate(dataSource);
         this.sourceContext = sourceContext;
     }
