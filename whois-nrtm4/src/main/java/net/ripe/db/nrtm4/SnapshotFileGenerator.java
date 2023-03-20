@@ -131,7 +131,7 @@ public class SnapshotFileGenerator {
                 Thread.currentThread().interrupt();
                 return;
             }
-            final String fileName = NrtmFileUtil.newFileName(version);
+            final String fileName = NrtmFileUtil.newGzFileName(version);
             LOGGER.info("Source {} snapshot file {}/{}", version.source().getName(), version.sessionID(), fileName);
             Stopwatch stopwatch = Stopwatch.createStarted();
             LOGGER.info("Calculated hash for {} in {}", version.source().getName(), stopwatch);

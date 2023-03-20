@@ -114,7 +114,7 @@ public class WhoisRestService {
             }
 
             if(requiresRipeRedirect(source, objectType, key)) {
-                return redirectNonAuthOrRequiresRipeRedirect(sourceContext.getWhoisMasterSource().getName().toString(), objectType, key, request.getQueryString());
+                return redirectNonAuthOrRequiresRipeRedirect(sourceContext.getMasterSource().getName().toString(), objectType, key, request.getQueryString());
             }
 
             auditLogRequest(request);
@@ -173,7 +173,7 @@ public class WhoisRestService {
             }
 
             if(requiresRipeRedirect(source, objectType, key)) {
-                return redirectNonAuthOrRequiresRipeRedirect(sourceContext.getWhoisMasterSource().getName().toString(), objectType, key, request.getQueryString());
+                return redirectNonAuthOrRequiresRipeRedirect(sourceContext.getMasterSource().getName().toString(), objectType, key, request.getQueryString());
             }
 
             auditLogRequest(request);
@@ -313,7 +313,7 @@ public class WhoisRestService {
         }
 
         if (requiresRipeRedirect(source, objectType, key)) {
-            return redirectNonAuthOrRequiresRipeRedirect(sourceContext.getWhoisMasterSource().getName().toString(), objectType, key, request.getQueryString());
+            return redirectNonAuthOrRequiresRipeRedirect(sourceContext.getMasterSource().getName().toString(), objectType, key, request.getQueryString());
         }
 
         final Parameters parameters = new Parameters.Builder()
@@ -326,7 +326,7 @@ public class WhoisRestService {
     }
 
     private boolean requiresNonAuthRedirect(final String source, final String objectType, final String key) {
-        if (sourceContext.getWhoisMasterSource().getName().equals(source)) {
+        if (sourceContext.getMasterSource().getName().equals(source)) {
             switch (ObjectType.getByName(objectType)) {
                 case AUT_NUM:
                     return !authoritativeResourceData.getAuthoritativeResource().isMaintainedInRirSpace(AUT_NUM, ciString(key));

@@ -6,7 +6,7 @@ import com.fasterxml.jackson.annotation.JsonValue;
 public enum NrtmDocumentType {
     DELTA("nrtm-delta"),
     SNAPSHOT("nrtm-snapshot"),
-    NOTIFICATION("nrtm-notification");
+    NOTIFICATION("update-notification-file");
 
     private final String fileNamePrefix;
 
