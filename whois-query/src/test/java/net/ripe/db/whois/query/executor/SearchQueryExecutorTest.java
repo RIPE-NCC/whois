@@ -191,7 +191,7 @@ public class SearchQueryExecutorTest {
 
     @Test
     public void query_no_source_specified() {
-        when(sourceContext.getWhoisSlaveSource()).thenReturn(Source.slave("RIPE"));
+        when(sourceContext.getSlaveSource()).thenReturn(Source.slave("RIPE"));
 
         final Query query = Query.parse("10.0.0.0");
         final CaptureResponseHandler responseHandler = new CaptureResponseHandler();
@@ -217,7 +217,7 @@ public class SearchQueryExecutorTest {
     @Test
     public void query_additional_sources() {
         when(sourceContext.getAdditionalSourceNames()).thenReturn(ciSet("APNIC-GRS", "ARIN-GRS"));
-        when(sourceContext.getWhoisSlaveSource()).thenReturn(Source.slave("RIPE"));
+        when(sourceContext.getSlaveSource()).thenReturn(Source.slave("RIPE"));
 
         final Query query = Query.parse("10.0.0.0");
         final CaptureResponseHandler responseHandler = new CaptureResponseHandler();

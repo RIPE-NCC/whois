@@ -56,3 +56,22 @@ updates:
         versions: ["3.x"]
       - dependency-name: "com.fasterxml.jackson.jaxrs:jackson-annotations"
         versions: ["3.x"]
+      # Don't update to Spring 6 until we also update everything else to EE9.
+      - dependency-name: "org.springframework:spring-core"
+        versions: ["6.x"]
+      - dependency-name: "org.springframework:spring-context"
+        versions: ["6.x"]
+      - dependency-name: "org.springframework:spring-context-support"
+        versions: ["6.x"]
+      - dependency-name: "org.springframework:spring-aop"
+        versions: ["6.x"]
+      - dependency-name: "org.springframework:spring-jdbc"
+        versions: ["6.x"]
+      - dependency-name: "org.springframework:spring-oxm"
+        versions: ["6.x"]
+      - dependency-name: "org.springframework:spring-tx"
+        versions: ["6.x"]
+      - dependency-name: "org.springframework:spring-aspects"
+        versions: ["6.x"]
+      - dependency-name: "org.springframework:spring-test"
+        versions: ["6.x"]

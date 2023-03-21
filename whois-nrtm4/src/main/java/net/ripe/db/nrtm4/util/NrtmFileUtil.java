@@ -1,6 +1,7 @@
 package net.ripe.db.nrtm4.util;
 
 import net.ripe.db.nrtm4.domain.NrtmVersionInfo;
+import org.apache.commons.lang.StringUtils;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -24,6 +25,11 @@ public class NrtmFileUtil {
     public static String newGzFileName(final NrtmVersionInfo file) {
         final String fileName = newFileName(file);
         return String.format("%s.gz", fileName);
+    }
+
+    public static String getSource(final String filename) {
+        final String[] splitFilename = StringUtils.split(filename, ".");
+        return splitFilename.length < 3 ? "" :  splitFilename[2];
     }
 
     public static boolean checkIfFileExists(final String path, final String sessionId, final String name) {

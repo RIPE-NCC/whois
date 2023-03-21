@@ -108,13 +108,13 @@ public class SearchQueryExecutor implements QueryExecutor {
             }
         } else {
             if (!sourceContext.getAdditionalSourceNames().isEmpty()) {
-                sources.add(sourceContext.getWhoisSlaveSource());
+                sources.add(sourceContext.getSlaveSource());
                 sources.addAll(Sets.newLinkedHashSet(Iterables.transform(sourceContext.getAdditionalSourceNames(), input -> Source.slave(input))));
             }
         }
 
         if (sources.isEmpty()) {
-            sources.add(sourceContext.getWhoisSlaveSource());
+            sources.add(sourceContext.getSlaveSource());
         }
 
         return sources;
