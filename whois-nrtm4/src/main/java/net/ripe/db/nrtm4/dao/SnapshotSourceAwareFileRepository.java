@@ -33,7 +33,7 @@ public class SnapshotSourceAwareFileRepository {
     private final JdbcTemplate jdbcTemplate;
     private final SourceContext sourceContext;
 
-    public SnapshotSourceAwareFileRepository(@Qualifier("nrtmSourceAwareDataSource") final DataSource dataSource, final SourceContext sourceContext) {
+    public SnapshotSourceAwareFileRepository(@Qualifier("nrtmSourceAwareDataSource") final DataSource dataSource,  @Qualifier("nrtmSourceContext") final SourceContext sourceContext) {
         this.jdbcTemplate = new JdbcTemplate(dataSource);
         this.sourceContext = sourceContext;
     }

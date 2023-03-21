@@ -31,7 +31,7 @@ public class DeltaSourceAwareFileRepository {
                     rs.getString(5)  // payload
             );
 
-    public DeltaSourceAwareFileRepository(@Qualifier("nrtmSourceAwareDataSource") final DataSource dataSource, final SourceContext sourceContext) {
+    public DeltaSourceAwareFileRepository(@Qualifier("nrtmSourceAwareDataSource") final DataSource dataSource, @Qualifier("nrtmSourceContext") final SourceContext sourceContext) {
         this.jdbcTemplate = new JdbcTemplate(dataSource);
         this.sourceContext = sourceContext;
     }

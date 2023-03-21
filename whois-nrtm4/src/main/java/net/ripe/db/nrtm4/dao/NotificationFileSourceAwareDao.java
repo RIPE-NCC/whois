@@ -22,13 +22,12 @@ public class NotificationFileSourceAwareDao {
     private final JdbcTemplate jdbcTemplate;
     private final SourceContext sourceContext;
 
-    public NotificationFileSourceAwareDao(@Qualifier("nrtmSourceAwareDataSource") final DataSource dataSource, final SourceContext sourceContext) {
+    public NotificationFileSourceAwareDao(@Qualifier("nrtmSourceAwareDataSource") final DataSource dataSource,  @Qualifier("nrtmSourceContext") final SourceContext sourceContext) {
         this.jdbcTemplate = new JdbcTemplate(dataSource);
         this.sourceContext = sourceContext;
     }
 
     public Optional<String> findLastNotification(final NrtmSourceModel source) {
-        LOGGER.info("checking the default source " + sourceContext.getCurrentSource().getType());
         final Optional<String> payload = getPayload(source);
 
         if(payload.isPresent()) {
