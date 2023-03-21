@@ -54,7 +54,7 @@ public class NrtmClientService {
 
         final StringBuilder sourceLink = new StringBuilder();
 
-        sourceRepository.getAllSources().forEach(sourceModel ->
+        sourceRepository.getSources().forEach(sourceModel ->
                 sourceLink.append(
                         String.format("<a href='%s'>%s</a><br/>",
                                         String.join("/", nrtmUrl, sourceModel.getName().toString(), "update-notification-file.json"),
@@ -104,7 +104,7 @@ public class NrtmClientService {
     }
 
     private NrtmSourceModel getSource(final String source) {
-        return sourceRepository.getAllSources().stream().filter( sourceModel -> sourceModel.getName().equals(source)).findFirst().orElseThrow(() -> new BadRequestException("Invalid source"));
+        return sourceRepository.getSources().stream().filter( sourceModel -> sourceModel.getName().equals(source)).findFirst().orElseThrow(() -> new BadRequestException("Invalid source"));
     }
 
     private String filenameWithExtension(final String filename) {

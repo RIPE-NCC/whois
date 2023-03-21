@@ -39,9 +39,6 @@ public class SnapshotFileGeneratorManualTest extends AbstractNrtm4IntegrationBas
     @Autowired
     private WhoisObjectRepository whoisObjectRepository;
 
-    @Autowired
-    private NrtmFileService nrtmFileService;
-
     @Test
     public void big_snapshot_file_is_generated_and_written_to_disk() {
         loadScripts(whoisTemplate, "serials.no-schema.md.sql");
