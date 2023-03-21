@@ -158,10 +158,14 @@ public class SnapshotFileGenerator {
             Stopwatch stopwatch = Stopwatch.createStarted();
             LOGGER.info("Calculated hash for {} in {}", version.source().getName(), stopwatch);
             stopwatch = Stopwatch.createStarted();
-            final byte[] bytes = bos.toByteArray();
-            final SnapshotFile snapshotFile = SnapshotFile.of(version().id(), fileName, calculateSha256(bytes));
-            snapshotFileRepository.insert(snapshotFile, bytes);
-            LOGGER.info("Wrote {} to DB {}", version.source().getName(), stopwatch);
+            try {
+                final byte[] bytes = bos.toByteArray();
+                final SnapshotFile snapshotFile = SnapshotFile.of(version().id(), fileName, calculateSha256(bytes));
+                snapshotFileRepository.insert(snapshotFile, bytes);
+                LOGGER.info("Wrote {} to DB {}", version.source().getName(), stopwatch);
+            } catch (final Throwable t) {
+                LOGGER.error("Unexpected throwable caught when inserting snapshot file", t);
+            }
         }
 
     }
