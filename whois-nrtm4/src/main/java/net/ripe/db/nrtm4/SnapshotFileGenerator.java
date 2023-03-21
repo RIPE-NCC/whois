@@ -125,8 +125,6 @@ public class SnapshotFileGenerator {
             } catch (final InterruptedException e) {
                 LOGGER.warn("Queue reader (JSON file writer) interrupted", e);
                 Thread.currentThread().interrupt();
-            } catch (final Throwable t) {
-                LOGGER.info("Queue reader (JSON file writer) threw unexpected exception", t);
             }
         }
         LOGGER.info("Snapshot generation complete {}", stopwatch);

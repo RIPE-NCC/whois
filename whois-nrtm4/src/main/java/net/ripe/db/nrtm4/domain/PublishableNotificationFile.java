@@ -5,6 +5,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 
 import java.util.List;
+import java.util.Objects;
 
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
@@ -83,6 +84,19 @@ public class PublishableNotificationFile extends PublishableNrtmFile {
 
         public String getHash() {
             return hash;
+        }
+
+        @Override
+        public boolean equals(final Object o) {
+            if (this == o) return true;
+            if (o == null || getClass() != o.getClass()) return false;
+            final NrtmFileLink that = (NrtmFileLink) o;
+            return version == that.version && url.equals(that.url) && hash.equals(that.hash);
+        }
+
+        @Override
+        public int hashCode() {
+            return Objects.hash(version, url, hash);
         }
 
     }
