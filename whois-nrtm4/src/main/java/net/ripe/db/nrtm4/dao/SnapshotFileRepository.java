@@ -56,16 +56,15 @@ public class SnapshotFileRepository {
 
     }
 
-    public Optional<SnapshotFile> getByName(final String sessionId, final String name) {
+    public Optional<SnapshotFile> getByName(final String name) {
         final String sql = """
             SELECT sf.id, sf.version_id, sf.name, sf.hash
             FROM snapshot_file sf
             JOIN version_info v ON v.id = sf.version_id
-            WHERE v.session_id = ?
-              AND sf.name = ?
+            WHERE sf.name = ?
             """;
         try {
-            return Optional.ofNullable(jdbcTemplate.queryForObject(sql, rowMapper, sessionId, name));
+            return Optional.ofNullable(jdbcTemplate.queryForObject(sql, rowMapper, name));
         } catch (final EmptyResultDataAccessException ex) {
             return Optional.empty();
         }

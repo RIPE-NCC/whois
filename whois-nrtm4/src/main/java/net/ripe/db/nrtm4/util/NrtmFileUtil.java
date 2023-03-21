@@ -3,9 +3,6 @@ package net.ripe.db.nrtm4.util;
 import net.ripe.db.nrtm4.domain.NrtmVersionInfo;
 import org.apache.commons.lang.StringUtils;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.Random;
@@ -19,7 +16,7 @@ public class NrtmFileUtil {
 
     public static String newFileName(final NrtmVersionInfo file) {
         final String prefix = file.type().getFileNamePrefix();
-        return String.format("%s.%d.%s.%s.json", prefix, file.version(), file.source().getName(), randomHexString());
+        return String.format("%s.%d.%s.%s.%s.json", prefix, file.version(), file.source().getName(), file.sessionID(), randomHexString());
     }
 
     public static String newGzFileName(final NrtmVersionInfo file) {
@@ -30,16 +27,6 @@ public class NrtmFileUtil {
     public static String getSource(final String filename) {
         final String[] splitFilename = StringUtils.split(filename, ".");
         return splitFilename.length < 3 ? "" :  splitFilename[2];
-    }
-
-    public static boolean checkIfFileExists(final String path, final String sessionId, final String name) {
-        final File dir = new File(path, sessionId);
-        return dir.exists() && new File(dir, name).exists();
-    }
-
-    public static FileInputStream getFileInputStream(final String path, final String sessionId, final String name) throws FileNotFoundException {
-        final File dir = new File(path, sessionId);
-        return new FileInputStream(new File(dir, name));
     }
 
     public static String calculateSha256(final byte[] bytes) {

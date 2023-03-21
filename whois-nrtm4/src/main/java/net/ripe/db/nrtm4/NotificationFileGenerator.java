@@ -109,7 +109,9 @@ public class NotificationFileGenerator {
     private List<PublishableNotificationFile.NrtmFileLink> convert(final List<? extends DeltaFileVersionInfo> files) {
         final List<PublishableNotificationFile.NrtmFileLink> links = files.stream()
             .map(file -> new PublishableNotificationFile.NrtmFileLink(
-                file.versionInfo().version(), urlString(file.versionInfo().sessionID(), file.deltaFile().name()), file.deltaFile().hash()))
+                file.versionInfo().version(),
+                urlString(file.versionInfo().source().getName().toString(), file.deltaFile().name()),
+                file.deltaFile().hash()))
             .toList();
         if (links.isEmpty()) {
             return null;
@@ -118,11 +120,14 @@ public class NotificationFileGenerator {
     }
 
     private PublishableNotificationFile.NrtmFileLink convert(final NrtmVersionInfo version, final SnapshotFile file) {
-        return new PublishableNotificationFile.NrtmFileLink(version.version(), urlString(version.sessionID(), file.name()), file.hash());
+        return new PublishableNotificationFile.NrtmFileLink(
+            version.version(),
+            urlString(version.source().getName().toString(), file.name()),
+            file.hash());
     }
 
-    private String urlString(final String sessionID, final String fileName) {
-        return String.format("%s/%s/%s", baseUrl, sessionID, fileName);
+    private String urlString(final String source, final String fileName) {
+        return String.format("%s/%s/%s", baseUrl, source, fileName);
     }
 
 }

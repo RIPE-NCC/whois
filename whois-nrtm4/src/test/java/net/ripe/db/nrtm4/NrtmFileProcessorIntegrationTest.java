@@ -331,12 +331,12 @@ public class NrtmFileProcessorIntegrationTest extends AbstractNrtm4IntegrationBa
 
     private DeltaFile getDeltaFromUrl(final PublishableNotificationFile.NrtmFileLink fileLink) {
         final var splits = fileLink.getUrl().split("/");
-        return deltaFileDao.getByName(splits[4], splits[5]).orElseThrow();
+        return deltaFileDao.getByName(splits[4]).orElseThrow();
     }
 
     private SnapshotFile getSnapshotFromUrl(final PublishableNotificationFile.NrtmFileLink fileLink) {
         final var splits = fileLink.getUrl().split("/");
-        return snapshotFileRepository.getByName(splits[4], splits[5]).orElseThrow();
+        return snapshotFileRepository.getByName(splits[4]).orElseThrow();
     }
 
     private PublishableSnapshotFile convertGzPayloadToFile(final byte[] bytes) {

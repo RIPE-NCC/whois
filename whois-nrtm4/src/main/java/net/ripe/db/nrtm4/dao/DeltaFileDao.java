@@ -42,15 +42,14 @@ public class DeltaFileDao {
         save(deltaFile.versionId(), deltaFile.name(), deltaFile.hash(), deltaFile.payload());
     }
 
-    public Optional<DeltaFile> getByName(final String sessionId, final String name) {
+    public Optional<DeltaFile> getByName(final String name) {
         final String sql = """
             SELECT df.id, df.version_id, df.name, df.hash, df.payload
             FROM delta_file df
             JOIN version_info vi ON vi.id = df.version_id
-            WHERE vi.session_id = ?
-              AND df.name = ?
+            WHERE df.name = ?
             """;
-        return Optional.ofNullable(jdbcTemplate.queryForObject(sql, rowMapper, sessionId, name));
+        return Optional.ofNullable(jdbcTemplate.queryForObject(sql, rowMapper, name));
     }
 
     public List<DeltaFileVersionInfo> getDeltasForNotification(final NrtmVersionInfo sinceVersion, final long sinceTimestamp) {
