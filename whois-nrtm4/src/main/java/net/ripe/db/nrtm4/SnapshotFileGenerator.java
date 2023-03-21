@@ -115,16 +115,19 @@ public class SnapshotFileGenerator {
             queueMap.put(snapshotFile.getSource().getName(), queue);
             final RunnableFileGenerator runner = new RunnableFileGenerator(dummifierNrtm, snapshotFileRepository, snapshotFileSerializer, snapshotVersion, queue);
             final Thread queueReader = new Thread(runner);
-            queueReader.start();
+            queueReader.setName(snapshotFile.getSource().getName().toString());
             queueReaders.add(queueReader);
+            queueReader.start();
         }
         new Thread(rpslObjectEnqueuer.getRunner(state, queueMap)).start();
         for (final Thread queueReader : queueReaders) {
             try {
                 queueReader.join();
             } catch (final InterruptedException e) {
-                LOGGER.info("Queue reader (JSON file writer) interrupted", e);
+                LOGGER.warn("Queue reader (JSON file writer) interrupted", e);
                 Thread.currentThread().interrupt();
+            } catch (final Throwable t) {
+                LOGGER.info("Queue reader (JSON file writer) threw unexpected exception", t);
             }
         }
         LOGGER.info("Snapshot generation complete {}", stopwatch);
@@ -151,7 +154,7 @@ public class SnapshotFileGenerator {
                 return;
             }
             final String fileName = NrtmFileUtil.newGzFileName(version);
-            LOGGER.info("Source {} snapshot file {}/{}", version.source().getName(), version.sessionID(), fileName);
+            LOGGER.info("Source {} snapshot file {}", version.source().getName(), fileName);
             Stopwatch stopwatch = Stopwatch.createStarted();
             LOGGER.info("Calculated hash for {} in {}", version.source().getName(), stopwatch);
             stopwatch = Stopwatch.createStarted();

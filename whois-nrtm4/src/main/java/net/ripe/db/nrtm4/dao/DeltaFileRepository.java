@@ -8,7 +8,6 @@ import net.ripe.db.nrtm4.domain.NrtmVersionInfo;
 import net.ripe.db.nrtm4.domain.PublishableDeltaFile;
 import net.ripe.db.nrtm4.util.NrtmFileUtil;
 import org.springframework.stereotype.Repository;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.nio.charset.StandardCharsets;
 import java.util.List;
@@ -28,7 +27,6 @@ public class DeltaFileRepository {
         this.nrtmVersionInfoRepository = nrtmVersionInfoRepository;
     }
 
-    @Transactional
     public void storeDeltasAsPublishableFile(final int serialIDTo, final NrtmVersionInfo version, final List<DeltaChange> deltas) throws JsonProcessingException {
         final NrtmVersionInfo newVersion = nrtmVersionInfoRepository.saveNewDeltaVersion(version, serialIDTo);
         final PublishableDeltaFile publishableDeltaFile = new PublishableDeltaFile(newVersion, deltas);
