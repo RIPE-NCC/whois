@@ -55,6 +55,13 @@ public class PublishableNotificationFile extends PublishableNrtmFile {
         return deltas;
     }
 
+    public boolean deltaEquals(final List<NrtmFileLink> deltaLinks) {
+        if ((deltas == null || deltas.isEmpty()) && (deltaLinks == null || deltaLinks.isEmpty())) {
+            return true;
+        }
+        return deltas != null && deltas.equals(deltaLinks);
+    }
+
     @JsonPropertyOrder({"version", "url", "hash"})
     public static class NrtmFileLink {
 

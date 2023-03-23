@@ -5,6 +5,9 @@ import net.ripe.db.whois.common.DateTimeProvider;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
+import java.time.Duration;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.ZoneOffset;
 import java.util.regex.Matcher;
@@ -33,12 +36,24 @@ public class SnapshotGenerationWindow {
     }
 
     public boolean hasVersionExpired(final NrtmVersionInfo snapshotVersion) {
-        final long fromMs = from.toEpochSecond(dateTimeProvider.getCurrentDate(), ZoneOffset.UTC);
-        final long toMs = to.isBefore(from) ?
-            to.toEpochSecond(dateTimeProvider.getCurrentDate().plusDays(1), ZoneOffset.UTC) :
-            to.toEpochSecond(dateTimeProvider.getCurrentDate(), ZoneOffset.UTC);
-        final long expireTime = snapshotVersion.created() + toMs - fromMs;
-        return expireTime < dateTimeProvider.getCurrentDateTime().toEpochSecond(ZoneOffset.UTC);
+        final LocalDateTime nextFrom = LocalDateTime.of(dateTimeProvider.getCurrentDate(), from);
+        final LocalDateTime nextTo = to.isBefore(from) ?
+            LocalDateTime.of(dateTimeProvider.getCurrentDate().plusDays(1), to) :
+            LocalDateTime.of(dateTimeProvider.getCurrentDate(), to);
+        final LocalDateTime expiryDateTime = LocalDateTime.ofEpochSecond(snapshotVersion.created(), 0, ZoneOffset.UTC).plus(Duration.between(nextFrom, nextTo));
+        return expiryDateTime.isBefore(dateTimeProvider.getCurrentDateTime());
+    }
+
+    public boolean hasVersionExpired1(final NrtmVersionInfo snapshotVersion) {
+        final LocalDate currentLocalDate = dateTimeProvider.getCurrentDate();
+        final LocalDateTime currentLocalDateTime = dateTimeProvider.getCurrentDateTime();
+        final long fromEpochSeconds = from.toEpochSecond(currentLocalDate, ZoneOffset.UTC);
+        final long toEpochSeconds = to.isBefore(from) ?
+            to.toEpochSecond(currentLocalDate.plusDays(1), ZoneOffset.UTC) :
+            to.toEpochSecond(currentLocalDate, ZoneOffset.UTC);
+        final long windowLength = toEpochSeconds - fromEpochSeconds;
+        final LocalDateTime expireTime = LocalDateTime.ofEpochSecond(snapshotVersion.created() + windowLength, 0, ZoneOffset.UTC);
+        return expireTime.isBefore(currentLocalDateTime);
     }
 
     public boolean isInWindow() {

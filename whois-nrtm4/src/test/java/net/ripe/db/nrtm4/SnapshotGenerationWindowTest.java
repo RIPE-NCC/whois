@@ -84,7 +84,26 @@ public class SnapshotGenerationWindowTest {
             assertThat(window.hasVersionExpired(file), is(true));
         }
         {
-            final var notQuiteExpired = LocalDateTime.now().minusHours(4);
+            final var notQuiteExpired = LocalDateTime.now().minusHours(4).plusSeconds(1);
+            final var src = new NrtmSourceModel(666, CIString.ciString("fish"));
+            final var file = new NrtmVersionInfo(667L, src, 100L, "xxx-yyy-zzz", NrtmDocumentType.SNAPSHOT, 9999, notQuiteExpired.toEpochSecond(ZoneOffset.UTC));
+            assertThat(window.hasVersionExpired(file), is(false));
+        }
+    }
+
+    @Test
+    void is_it_time_to_refresh_the_snapshot_reverse_to_from() {
+        // Window is 4 hours wide. Files older than 4 hours have expired
+        final var windowDef = "22:00 - 02:00";
+        final var window = new SnapshotGenerationWindow(windowDef, getMockDateTimeProvider(LocalDate.now(), LocalTime.now()));
+        {
+            final var onlyJustExpired = LocalDateTime.now().minusHours(4).minusMinutes(1);
+            final var src = new NrtmSourceModel(666, CIString.ciString("fish"));
+            final var file = new NrtmVersionInfo(667L, src, 100L, "xxx-yyy-zzz", NrtmDocumentType.SNAPSHOT, 9999, onlyJustExpired.toEpochSecond(ZoneOffset.UTC));
+            assertThat(window.hasVersionExpired(file), is(true));
+        }
+        {
+            final var notQuiteExpired = LocalDateTime.now().minusHours(4).plusSeconds(1);
             final var src = new NrtmSourceModel(666, CIString.ciString("fish"));
             final var file = new NrtmVersionInfo(667L, src, 100L, "xxx-yyy-zzz", NrtmDocumentType.SNAPSHOT, 9999, notQuiteExpired.toEpochSecond(ZoneOffset.UTC));
             assertThat(window.hasVersionExpired(file), is(false));

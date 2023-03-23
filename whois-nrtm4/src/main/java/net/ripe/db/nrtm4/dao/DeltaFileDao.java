@@ -1,20 +1,27 @@
 package net.ripe.db.nrtm4.dao;
 
 import net.ripe.db.nrtm4.domain.DeltaFile;
-import net.ripe.db.nrtm4.domain.NrtmVersionInfo;
 import net.ripe.db.nrtm4.domain.DeltaFileVersionInfo;
+import net.ripe.db.nrtm4.domain.NrtmVersionInfo;
+import org.mariadb.jdbc.internal.logging.Logger;
+import org.mariadb.jdbc.internal.logging.LoggerFactory;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.dao.DataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Repository;
 
 import javax.sql.DataSource;
+import java.time.LocalDateTime;
+import java.time.ZoneOffset;
 import java.util.List;
 import java.util.Optional;
 
 
 @Repository
 public class DeltaFileDao {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(DeltaFileDao.class);
 
     private final JdbcTemplate jdbcTemplate;
     private final RowMapper<DeltaFile> rowMapper = (rs, rowNum) ->
@@ -52,7 +59,8 @@ public class DeltaFileDao {
         return Optional.ofNullable(jdbcTemplate.queryForObject(sql, rowMapper, name));
     }
 
-    public List<DeltaFileVersionInfo> getDeltasForNotification(final NrtmVersionInfo sinceVersion, final long sinceTimestamp) {
+    public List<DeltaFileVersionInfo> getDeltasForNotification(final NrtmVersionInfo sinceVersion, final LocalDateTime since) {
+        final long sinceTimestamp = since.toEpochSecond(ZoneOffset.UTC);
         final String sql = """
             SELECT
                 df.id, df.version_id, df.name, df.hash, df.payload,
@@ -64,7 +72,12 @@ public class DeltaFileDao {
               AND (vi.version > ? OR vi.created > ?)
             ORDER BY vi.version ASC
             """;
-        return jdbcTemplate.query(sql, rowMapperWithVersion, sinceVersion.source().getId(), sinceVersion.version(), sinceTimestamp);
+        try {
+            return jdbcTemplate.query(sql, rowMapperWithVersion, sinceVersion.source().getId(), sinceVersion.version(), sinceTimestamp);
+        } catch (final DataAccessException e) {
+            LOGGER.warn("Exception in getDeltasForNotification", e);
+            return List.of();
+        }
     }
 
     private void save(

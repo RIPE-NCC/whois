@@ -6,4 +6,8 @@ public record NotificationFile(long id, long versionId, long created, String pay
         return new NotificationFile(0, versionId, created, payload);
     }
 
+    public static NotificationFile of(final NotificationFile notificationFile, final long created) {
+        return NotificationFile.of(notificationFile.versionId(), created, notificationFile.payload());
+    }
+
 }
