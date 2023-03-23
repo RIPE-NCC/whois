@@ -30,6 +30,7 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 import java.util.zip.GZIPInputStream;
@@ -284,7 +285,7 @@ public class NrtmClientServiceTestIntegration extends AbstractIntegrationTest {
 
         nrtmFileProcessor.updateNrtmFilesAndPublishNotification();
 
-        final List<DeltaFileVersionInfo> deltaFileVersion = deltaFileDao.getDeltasForNotification(snapshotVersion, 0);
+        final List<DeltaFileVersionInfo> deltaFileVersion = deltaFileDao.getDeltasForNotification(snapshotVersion, LocalDateTime.MIN);
         final Response response = createResource("TEST/" + deltaFileVersion.get(0).deltaFile().name())
                 .request(MediaType.APPLICATION_JSON)
                 .get(Response.class);
