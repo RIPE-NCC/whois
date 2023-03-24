@@ -244,6 +244,7 @@ public class NrtmFileProcessorIntegrationTest extends AbstractNrtm4IntegrationBa
                 assertThat(deltaFile.name(), endsWith(".json"));
                 final var publishableDeltaFile = new ObjectMapper().readValue(deltaFile.payload(), PublishableDeltaFile.class);
                 assertThat(publishableDeltaFile.getNrtmVersion(), is(4));
+                assertThat(publishableDeltaFile.getVersion(), is(2L));
                 assertThat(publishableDeltaFile.getType().lowerCaseName(), is("delta"));
                 assertThat(publishableDeltaFile.getChanges().size(), is(1));
                 {
@@ -257,6 +258,7 @@ public class NrtmFileProcessorIntegrationTest extends AbstractNrtm4IntegrationBa
                 final var deltaFile = getDeltaFromUrl(notificationFile.getDeltas().get(1));
                 assertThat(deltaFile.name(), startsWith("nrtm-delta.3.TEST"));
                 final var publishableDeltaFile = new ObjectMapper().readValue(deltaFile.payload(), PublishableDeltaFile.class);
+                assertThat(publishableDeltaFile.getVersion(), is(3L));
                 assertThat(publishableDeltaFile.getChanges().size(), is(2));
                 {
                     final var change = publishableDeltaFile.getChanges().get(0);
@@ -275,6 +277,7 @@ public class NrtmFileProcessorIntegrationTest extends AbstractNrtm4IntegrationBa
                 final var deltaFile = getDeltaFromUrl(notificationFile.getDeltas().get(2));
                 assertThat(deltaFile.name(), startsWith("nrtm-delta.4.TEST"));
                 final var publishableDeltaFile = new ObjectMapper().readValue(deltaFile.payload(), PublishableDeltaFile.class);
+                assertThat(publishableDeltaFile.getVersion(), is(4L));
                 assertThat(publishableDeltaFile.getChanges().size(), is(4));
                 {
                     final var change = publishableDeltaFile.getChanges().get(0);
