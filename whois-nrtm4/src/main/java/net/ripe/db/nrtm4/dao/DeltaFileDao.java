@@ -1,8 +1,13 @@
 package net.ripe.db.nrtm4.dao;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import net.ripe.db.nrtm4.domain.DeltaChange;
 import net.ripe.db.nrtm4.domain.DeltaFile;
 import net.ripe.db.nrtm4.domain.DeltaFileVersionInfo;
 import net.ripe.db.nrtm4.domain.NrtmVersionInfo;
+import net.ripe.db.nrtm4.domain.PublishableDeltaFile;
+import net.ripe.db.nrtm4.util.NrtmFileUtil;
 import org.mariadb.jdbc.internal.logging.Logger;
 import org.mariadb.jdbc.internal.logging.LoggerFactory;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -12,6 +17,7 @@ import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Repository;
 
 import javax.sql.DataSource;
+import java.nio.charset.StandardCharsets;
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
 import java.util.List;
@@ -45,7 +51,11 @@ public class DeltaFileDao {
         this.jdbcTemplate = new JdbcTemplate(dataSource);
     }
 
-    public void save(final DeltaFile deltaFile) {
+    public void storeDeltasAsPublishableFile(final NrtmVersionInfo newVersion, final List<DeltaChange> deltas) throws JsonProcessingException {
+        final PublishableDeltaFile publishableDeltaFile = new PublishableDeltaFile(newVersion, deltas);
+        final String json = new ObjectMapper().writeValueAsString(publishableDeltaFile);
+        final String hash = NrtmFileUtil.calculateSha256(json.getBytes(StandardCharsets.UTF_8));
+        final DeltaFile deltaFile = DeltaFile.of(newVersion.id(), NrtmFileUtil.newFileName(newVersion), hash, json);
         save(deltaFile.versionId(), deltaFile.name(), deltaFile.hash(), deltaFile.payload());
     }
 

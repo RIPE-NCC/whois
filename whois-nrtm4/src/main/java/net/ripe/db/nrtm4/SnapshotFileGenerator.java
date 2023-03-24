@@ -65,7 +65,6 @@ public class SnapshotFileGenerator {
     public List<NrtmVersionInfo> createSnapshots(final SnapshotState state) {
         // Get last version from database.
         final List<NrtmVersionInfo> sourceVersions = nrtmVersionInfoRepository.findLastVersionPerSource();
-        LOGGER.info("Found {} objects", state.whoisObjectData().size());
         if (sourceVersions.isEmpty()) {
             LOGGER.info("Initializing NRTM");
             for (final NrtmSourceModel source : sourceRepository.getSources()) {
@@ -150,14 +149,14 @@ public class SnapshotFileGenerator {
                 Thread.currentThread().interrupt();
                 return;
             }
-            final String fileName = NrtmFileUtil.newGzFileName(version);
-            LOGGER.info("Source {} snapshot file {}", version.source().getName(), fileName);
-            Stopwatch stopwatch = Stopwatch.createStarted();
-            LOGGER.info("Calculated hash for {} in {}", version.source().getName(), stopwatch);
-            stopwatch = Stopwatch.createStarted();
             try {
+                final String fileName = NrtmFileUtil.newGzFileName(version);
+                LOGGER.info("Source {} snapshot file {}", version.source().getName(), fileName);
+                Stopwatch stopwatch = Stopwatch.createStarted();
                 final byte[] bytes = bos.toByteArray();
                 final SnapshotFile snapshotFile = SnapshotFile.of(version().id(), fileName, calculateSha256(bytes));
+                LOGGER.info("Calculated hash for {} in {}", version.source().getName(), stopwatch);
+                stopwatch = Stopwatch.createStarted();
                 snapshotFileRepository.insert(snapshotFile, bytes);
                 LOGGER.info("Wrote {} to DB {}", version.source().getName(), stopwatch);
             } catch (final Throwable t) {

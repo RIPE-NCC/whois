@@ -2,7 +2,7 @@ package net.ripe.db.nrtm4;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.google.common.base.Stopwatch;
-import net.ripe.db.nrtm4.dao.DeltaFileRepository;
+import net.ripe.db.nrtm4.dao.DeltaFileDao;
 import net.ripe.db.nrtm4.dao.NrtmVersionInfoRepository;
 import net.ripe.db.nrtm4.dao.WhoisObjectRepository;
 import net.ripe.db.nrtm4.domain.DeltaChange;
@@ -29,18 +29,18 @@ public class DeltaFileGenerator {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(DeltaFileGenerator.class);
 
-    private final DeltaFileRepository deltaFileRepository;
+    private final DeltaFileDao deltaFileDao;
     private final DummifierNrtm dummifier;
     private final NrtmVersionInfoRepository nrtmVersionInfoRepository;
     private final WhoisObjectRepository whoisObjectRepository;
 
     DeltaFileGenerator(
-        final DeltaFileRepository deltaFileRepository,
+        final DeltaFileDao deltaFileDao,
         final DummifierNrtm dummifier,
         final NrtmVersionInfoRepository nrtmVersionInfoRepository,
         final WhoisObjectRepository whoisObjectRepository
     ) {
-        this.deltaFileRepository = deltaFileRepository;
+        this.deltaFileDao = deltaFileDao;
         this.dummifier = dummifier;
         this.nrtmVersionInfoRepository = nrtmVersionInfoRepository;
         this.whoisObjectRepository = whoisObjectRepository;
@@ -74,7 +74,7 @@ public class DeltaFileGenerator {
             if (!deltas.isEmpty()) {
                 try {
                     final NrtmVersionInfo newVersion = nrtmVersionInfoRepository.saveNewDeltaVersion(version, serialIDTo);
-                    deltaFileRepository.storeDeltasAsPublishableFile(newVersion, deltas);
+                    deltaFileDao.storeDeltasAsPublishableFile(newVersion, deltas);
                     LOGGER.info("Created {} delta version {} in {}", newVersion.source().getName(), newVersion.version(), stopwatch);
                 } catch (final JsonProcessingException e) {
                     LOGGER.error("Exception saving delta for {}", version.source().getName(), e);
