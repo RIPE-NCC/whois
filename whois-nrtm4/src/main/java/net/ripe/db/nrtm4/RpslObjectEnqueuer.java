@@ -13,7 +13,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
-import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.Timer;
@@ -86,10 +85,7 @@ public class RpslObjectEnqueuer {
                             continue;
                         }
                         final LinkedBlockingQueue<RpslObjectData> queue = queueMap.get(rpslObject.getValueForAttribute(AttributeType.SOURCE));
-                        if (queue == null) {
-                            final String msg = "RPSL object declares an unknown source attribute";
-                            LOGGER.error("{}: {} known sources: {}", msg, rpslObject.getValueForAttribute(AttributeType.SOURCE), Arrays.toString(queueMap.keySet().toArray()));
-                        } else {
+                        if (queue != null) {
                             try {
                                 queue.put(new RpslObjectData(object.objectId(), object.sequenceId(), rpslObject));
                             } catch (final InterruptedException e) {
