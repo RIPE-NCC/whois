@@ -80,10 +80,12 @@ public class NrtmVersionInfoRepository {
                     FROM version_info
                     WHERE type = ? AND source_id = ?
                     ) maxv
-                WHERE vi.source_id = maxv.source_id AND vi.version = maxv.version
+                WHERE vi.source_id = maxv.source_id
+                  AND vi.version = maxv.version
+                  AND vi.type = ?
                 ORDER BY vi.last_serial_id DESC
                 """,
-            rowMapper, NrtmDocumentType.SNAPSHOT.toString(), source.getId());
+            rowMapper, NrtmDocumentType.SNAPSHOT.toString(), source.getId(), NrtmDocumentType.SNAPSHOT.toString());
     }
 
     // TODO: Only used by tests, so should be removed from here.

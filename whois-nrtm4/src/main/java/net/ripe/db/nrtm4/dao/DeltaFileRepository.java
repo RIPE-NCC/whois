@@ -17,18 +17,14 @@ import java.util.List;
 public class DeltaFileRepository {
 
     private final DeltaFileDao deltaFileDao;
-    private final NrtmVersionInfoRepository nrtmVersionInfoRepository;
 
     DeltaFileRepository(
-        final DeltaFileDao deltaFileDao,
-        final NrtmVersionInfoRepository nrtmVersionInfoRepository
+        final DeltaFileDao deltaFileDao
     ) {
         this.deltaFileDao = deltaFileDao;
-        this.nrtmVersionInfoRepository = nrtmVersionInfoRepository;
     }
 
-    public void storeDeltasAsPublishableFile(final int serialIDTo, final NrtmVersionInfo version, final List<DeltaChange> deltas) throws JsonProcessingException {
-        final NrtmVersionInfo newVersion = nrtmVersionInfoRepository.saveNewDeltaVersion(version, serialIDTo);
+    public void storeDeltasAsPublishableFile(final NrtmVersionInfo newVersion, final List<DeltaChange> deltas) throws JsonProcessingException {
         final PublishableDeltaFile publishableDeltaFile = new PublishableDeltaFile(newVersion, deltas);
         final String json = new ObjectMapper().writeValueAsString(publishableDeltaFile);
         final String hash = NrtmFileUtil.calculateSha256(json.getBytes(StandardCharsets.UTF_8));

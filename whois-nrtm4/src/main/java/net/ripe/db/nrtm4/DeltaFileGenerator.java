@@ -73,8 +73,9 @@ public class DeltaFileGenerator {
             final List<DeltaChange> deltas = deltaMap.get(version.source().getName());
             if (!deltas.isEmpty()) {
                 try {
-                    deltaFileRepository.storeDeltasAsPublishableFile(serialIDTo, version, deltas);
-                    LOGGER.info("Created {} delta list in {}", version.source().getName(), stopwatch);
+                    final NrtmVersionInfo newVersion = nrtmVersionInfoRepository.saveNewDeltaVersion(version, serialIDTo);
+                    deltaFileRepository.storeDeltasAsPublishableFile(newVersion, deltas);
+                    LOGGER.info("Created {} delta version {} in {}", newVersion.source().getName(), newVersion.version(), stopwatch);
                 } catch (final JsonProcessingException e) {
                     LOGGER.error("Exception saving delta for {}", version.source().getName(), e);
                 }
