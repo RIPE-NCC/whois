@@ -62,7 +62,7 @@ public class SnapshotFileGenerator {
         this.sourceRepository = sourceRepository;
     }
 
-    public List<NrtmVersionInfo> createSnapshots(final SnapshotState state) {
+    public void createSnapshots(final SnapshotState state) {
         // Get last version from database.
         final List<NrtmVersionInfo> sourceVersions = nrtmVersionInfoRepository.findLastVersionPerSource();
         if (sourceVersions.isEmpty()) {
@@ -73,12 +73,12 @@ public class SnapshotFileGenerator {
             }
         } else {
             if (!snapshotGenerationWindow.isInWindow()) {
-                return List.of();
+                return;
             }
             sourceVersions.removeIf(versionToRemove ->
                 versionToRemove.type() == NrtmDocumentType.SNAPSHOT);
             if (sourceVersions.isEmpty()) {
-                return List.of();
+                return;
             }
             sourceVersions.removeIf(versionToRemove -> !snapshotGenerationWindow.hasVersionExpired(
                 nrtmVersionInfoRepository.findLastSnapshotVersionForSource(
@@ -86,10 +86,10 @@ public class SnapshotFileGenerator {
                 ))
             );
             if (sourceVersions.isEmpty()) {
-                return List.of();
+                return;
             }
         }
-        return createSnapshotsForVersions(state, sourceVersions.stream().map(nrtmVersionInfoRepository::saveNewSnapshotVersion).toList());
+        createSnapshotsForVersions(state, sourceVersions.stream().map(nrtmVersionInfoRepository::saveNewSnapshotVersion).toList());
     }
 
     public List<NrtmVersionInfo> createInitialSnapshots(final SnapshotState state) {
@@ -102,7 +102,7 @@ public class SnapshotFileGenerator {
         return createSnapshotsForVersions(state, sourceVersions);
     }
 
-    List<NrtmVersionInfo> createSnapshotsForVersions(final SnapshotState state, final List<NrtmVersionInfo> snapshotVersions) {
+    private List<NrtmVersionInfo> createSnapshotsForVersions(final SnapshotState state, final List<NrtmVersionInfo> snapshotVersions) {
         final Stopwatch stopwatch = Stopwatch.createStarted();
         final List<Thread> queueReaders = new ArrayList<>();
         final Map<CIString, LinkedBlockingQueue<RpslObjectData>> queueMap = new HashMap<>();
