@@ -50,4 +50,5 @@ public abstract class AbstractIntegrationTest extends AbstractDaoIntegrationTest
             Uninterruptibles.sleepUninterruptibly(1, TimeUnit.MINUTES);
         }
     }
+
 }
