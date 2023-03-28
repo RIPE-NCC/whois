@@ -89,8 +89,11 @@ public class NotificationFileGenerator {
                 if (deltaFiles.isEmpty() || lastNotificationUpdate.deltaEquals(deltaLinks) && lastNotificationUpdate.getSnapshot().getVersion() == lastSnapshotVersion.version()) {
                     if (LocalDateTime.ofEpochSecond(lastNotificationFile.created(), 0, ZoneOffset.UTC).isBefore(oneDayAgo)) {
                         // Just republish the last notification without other changes
-                        notificationFileDao.save(NotificationFile.of(
-                            lastNotificationFile, dateTimeProvider.getCurrentDateTime().toEpochSecond(ZoneOffset.UTC)));
+                        final NrtmVersionInfo lastNotificationVersion = nrtmVersionInfoRepository.findById(lastNotificationFile.versionId());
+                        final NrtmVersionInfo newVersion = nrtmVersionInfoRepository.saveNewNotificationVersion(lastNotificationVersion);
+                        final PublishableNotificationFile newNotification = new PublishableNotificationFile(newVersion, new VersionDateTime(newVersion.created()).toString(), null, lastNotificationUpdate.getSnapshot(), lastNotificationUpdate.getDeltas());
+                        final String json = new ObjectMapper().writeValueAsString(newNotification);
+                        notificationFileDao.save(NotificationFile.of(newVersion.id(), version.created(), json);
                     }
                     // There's no need for a new notification file
                     continue;
