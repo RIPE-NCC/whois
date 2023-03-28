@@ -69,7 +69,7 @@ public class DeltaFileDao {
         return Optional.ofNullable(jdbcTemplate.queryForObject(sql, rowMapper, name));
     }
 
-    public List<DeltaFileVersionInfo> getDeltasForNotification(final NrtmVersionInfo sinceVersion, final LocalDateTime since) {
+    public List<DeltaFileVersionInfo> getDeltasForNotificationSince(final NrtmVersionInfo sinceVersion, final LocalDateTime since) {
         final long sinceTimestamp = since.toEpochSecond(ZoneOffset.UTC);
         final String sql = """
             SELECT

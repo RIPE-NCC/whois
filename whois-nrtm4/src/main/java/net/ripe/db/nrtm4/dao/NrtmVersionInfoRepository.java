@@ -137,6 +137,10 @@ public class NrtmVersionInfoRepository {
         return save(version.source(), version.version(), version.sessionID(), NrtmDocumentType.SNAPSHOT, version.lastSerialId());
     }
 
+    public NrtmVersionInfo saveNewNotificationVersion(final NrtmVersionInfo version) {
+        return save(version.source(), version.version(), version.sessionID(), NrtmDocumentType.NOTIFICATION, version.lastSerialId());
+    }
+
     private NrtmVersionInfo save(
         final NrtmSourceModel source,
         final long version,

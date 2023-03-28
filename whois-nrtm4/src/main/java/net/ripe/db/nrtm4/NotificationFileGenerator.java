@@ -80,15 +80,14 @@ public class NotificationFileGenerator {
             }
             final NotificationFile lastNotificationFile = lastNotificationFileOpt.get();
             final LocalDateTime oneDayAgo = dateTimeProvider.getCurrentDateTime().minusDays(1);
-            final NrtmVersionInfo lastNotificationFileVersion = nrtmVersionInfoRepository.findById(lastNotificationFile.versionId());
             final SnapshotFile snapshotFile = snapshotFileRepository.getLastSnapshot(version.source()).orElseThrow();
             final NrtmVersionInfo lastSnapshotVersion = nrtmVersionInfoRepository.findById(snapshotFile.versionId());
-            final List<DeltaFileVersionInfo> deltaFiles = deltaFileDao.getDeltasForNotification(lastSnapshotVersion, oneDayAgo);
+            final List<DeltaFileVersionInfo> deltaFiles = deltaFileDao.getDeltasForNotificationSince(lastSnapshotVersion, oneDayAgo);
             final List<PublishableNotificationFile.NrtmFileLink> deltaLinks = convert(deltaFiles);
             try {
                 final PublishableNotificationFile lastNotificationUpdate = new ObjectMapper().readValue(lastNotificationFile.payload().getBytes(StandardCharsets.UTF_8), PublishableNotificationFile.class);
                 if (deltaFiles.isEmpty() || lastNotificationUpdate.deltaEquals(deltaLinks) && lastNotificationUpdate.getSnapshot().getVersion() == lastSnapshotVersion.version()) {
-                    if (LocalDateTime.ofEpochSecond(lastNotificationFileVersion.created(), 0, ZoneOffset.UTC).isBefore(oneDayAgo)) {
+                    if (LocalDateTime.ofEpochSecond(lastNotificationFile.created(), 0, ZoneOffset.UTC).isBefore(oneDayAgo)) {
                         // Just republish the last notification without other changes
                         notificationFileDao.save(NotificationFile.of(
                             lastNotificationFile, dateTimeProvider.getCurrentDateTime().toEpochSecond(ZoneOffset.UTC)));
@@ -98,12 +97,11 @@ public class NotificationFileGenerator {
                 }
                 // Here we have deltas and possibly a new snapshot.
                 final DeltaFileVersionInfo lastDelta = deltaFiles.get(deltaFiles.size() - 1);
-                // if notification file is < 1 day old and nothing changed, do nothing.
-                final String timestamp = new VersionDateTime(lastDelta.versionInfo().created()).toString();
-                final PublishableNotificationFile publishableNotificationFile = new PublishableNotificationFile(lastDelta.versionInfo(), timestamp, null, convert(lastSnapshotVersion, snapshotFile), deltaLinks);
+                final NrtmVersionInfo newNotificationVersion = nrtmVersionInfoRepository.saveNewNotificationVersion(lastDelta.versionInfo());
+                final String timestamp = new VersionDateTime(newNotificationVersion.created()).toString();
+                final PublishableNotificationFile publishableNotificationFile = new PublishableNotificationFile(newNotificationVersion, timestamp, null, convert(lastSnapshotVersion, snapshotFile), deltaLinks);
                 final String json = new ObjectMapper().writeValueAsString(publishableNotificationFile);
-                final long createdTimestamp = dateTimeProvider.getCurrentDateTime().toEpochSecond(ZoneOffset.UTC);
-                final NotificationFile notificationFile = NotificationFile.of(lastDelta.versionInfo().id(), createdTimestamp, json);
+                final NotificationFile notificationFile = NotificationFile.of(newNotificationVersion.id(), newNotificationVersion.created(), json);
                 notificationFileDao.save(notificationFile);
             } catch (final IOException e) {
                 LOGGER.error("Failed to update notification file for {}", version.source().getName(), e);

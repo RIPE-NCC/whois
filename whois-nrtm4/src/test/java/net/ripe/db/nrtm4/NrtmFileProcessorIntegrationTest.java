@@ -134,7 +134,7 @@ public class NrtmFileProcessorIntegrationTest extends AbstractNrtm4IntegrationBa
             assertThat(snapshotFile.isPresent(), is(true));
             final var snapshotVersion = nrtmVersionInfoRepository.findById(snapshotFile.get().versionId());
             assertThat(snapshotVersion.version(), is(1L));
-            final var deltaFile = deltaFileDao.getDeltasForNotification(snapshotVersion, LocalDateTime.MIN);
+            final var deltaFile = deltaFileDao.getDeltasForNotificationSince(snapshotVersion, LocalDateTime.MIN);
             assertThat(deltaFile.size(), is(0));
             assertThat(lastNotification.versionId(), is(snapshotVersion.id()));
         }
@@ -149,7 +149,7 @@ public class NrtmFileProcessorIntegrationTest extends AbstractNrtm4IntegrationBa
             assertThat(snapshotFile.isPresent(), is(true));
             final var snapshotVersion = nrtmVersionInfoRepository.findById(snapshotFile.get().versionId());
             assertThat(snapshotVersion.version(), is(1L));
-            final var deltaFile = deltaFileDao.getDeltasForNotification(snapshotVersion, LocalDateTime.MIN);
+            final var deltaFile = deltaFileDao.getDeltasForNotificationSince(snapshotVersion, LocalDateTime.MIN);
             assertThat(deltaFile.size(), is(0));
         }
         {
@@ -327,7 +327,7 @@ public class NrtmFileProcessorIntegrationTest extends AbstractNrtm4IntegrationBa
             assertThat(snapshotFile.isPresent(), is(true));
             final var snapshotVersion = nrtmVersionInfoRepository.findById(snapshotFile.get().versionId());
             assertThat(snapshotVersion.version(), is(4L));
-            final var deltaFile = deltaFileDao.getDeltasForNotification(snapshotVersion, LocalDateTime.MIN);
+            final var deltaFile = deltaFileDao.getDeltasForNotificationSince(snapshotVersion, LocalDateTime.MIN);
             assertThat(deltaFile.size(), is(3));
         }
     }
