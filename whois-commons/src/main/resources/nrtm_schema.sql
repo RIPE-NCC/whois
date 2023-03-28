@@ -52,8 +52,8 @@ CREATE TABLE `snapshot_file`
     `id`         int unsigned NOT NULL AUTO_INCREMENT,
     `version_id` int unsigned NOT NULL,
     `name`       varchar(128) NOT NULL,
-    `hash`       varchar(64) NOT NULL,
-    `payload`    longblob NOT NULL,
+    `hash`       varchar(64)  NOT NULL,
+    `payload`    longblob     NOT NULL,
     PRIMARY KEY (`id`),
     UNIQUE KEY `snapshot_file__version_id__uk` (`version_id`),
     UNIQUE KEY `snapshot_file__name__uk` (`name`),
@@ -66,7 +66,7 @@ CREATE TABLE `delta_file`
     `id`         int unsigned NOT NULL AUTO_INCREMENT,
     `version_id` int unsigned NOT NULL,
     `name`       varchar(128) NOT NULL,
-    `hash`       varchar(64) NOT NULL,
+    `hash`       varchar(64)  NOT NULL,
     `payload`    longtext     NOT NULL,
     PRIMARY KEY (`id`),
     UNIQUE KEY `delta_file__version_id__uk` (`version_id`),
@@ -77,9 +77,10 @@ CREATE TABLE `delta_file`
 
 CREATE TABLE `notification_file`
 (
-    `id`         int unsigned NOT NULL AUTO_INCREMENT,
-    `version_id` int unsigned NOT NULL,
-    `payload`    longtext     NOT NULL,
+    `id`         int unsigned    NOT NULL AUTO_INCREMENT,
+    `version_id` int unsigned    NOT NULL,
+    `created`    bigint unsigned NOT NULL,
+    `payload`    longtext        NOT NULL,
     PRIMARY KEY (`id`),
     CONSTRAINT `notification_file__version_id__fk` FOREIGN KEY (`version_id`) REFERENCES `version_info` (`id`)
 ) ENGINE = InnoDB

@@ -29,9 +29,9 @@ public class SnapshotFileSerializer {
         this.isPrettyPrintSnapshots = isPrettyPrintSnapshots;
     }
 
-    public void writeObjectQueueAsSnapshot(
+    public void writeObjectsAsJsonToOutputStream(
         final NrtmVersionInfo version,
-        final Iterator<RpslObject> rpslObjectSupplier,
+        final Iterator<RpslObject> rpslObjectIterator,
         final OutputStream outputStream
     ) throws IOException {
         final JsonGenerator jGenerator = new ObjectMapper().getFactory().createGenerator(outputStream, JsonEncoding.UTF8);
@@ -47,8 +47,8 @@ public class SnapshotFileSerializer {
         jGenerator.writeStringField("session_id", version.sessionID());
         jGenerator.writeNumberField("version", version.version());
         jGenerator.writeArrayFieldStart("objects");
-        while (rpslObjectSupplier.hasNext()) {
-            jGenerator.writeString(rpslObjectSupplier.next().toString());
+        while (rpslObjectIterator.hasNext()) {
+            jGenerator.writeString(rpslObjectIterator.next().toString());
         }
         jGenerator.writeEndArray();
         jGenerator.writeEndObject();

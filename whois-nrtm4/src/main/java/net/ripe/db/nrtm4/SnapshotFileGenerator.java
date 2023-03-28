@@ -8,6 +8,7 @@ import net.ripe.db.nrtm4.domain.NrtmDocumentType;
 import net.ripe.db.nrtm4.domain.NrtmSourceModel;
 import net.ripe.db.nrtm4.domain.NrtmVersionInfo;
 import net.ripe.db.nrtm4.domain.PublishableNrtmFile;
+import net.ripe.db.nrtm4.domain.PublishableSnapshotFile;
 import net.ripe.db.nrtm4.domain.RpslObjectData;
 import net.ripe.db.nrtm4.domain.SnapshotFile;
 import net.ripe.db.nrtm4.domain.SnapshotState;
@@ -19,13 +20,10 @@ import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
 import java.io.ByteArrayOutputStream;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.zip.GZIPOutputStream;
 
@@ -39,81 +37,101 @@ public class SnapshotFileGenerator {
     private static final int QUEUE_CAPACITY = 1000;
 
     private final Dummifier dummifierNrtm;
-    private final NrtmFileService nrtmFileService;
     private final NrtmVersionInfoRepository nrtmVersionInfoRepository;
     private final RpslObjectEnqueuer rpslObjectEnqueuer;
     private final SnapshotFileSerializer snapshotFileSerializer;
     private final SnapshotFileRepository snapshotFileRepository;
+    private final SnapshotGenerationWindow snapshotGenerationWindow;
     private final SourceRepository sourceRepository;
 
     public SnapshotFileGenerator(
         final Dummifier dummifierNrtm,
-        final NrtmFileService nrtmFileService,
         final NrtmVersionInfoRepository nrtmVersionInfoRepository,
         final RpslObjectEnqueuer rpslObjectEnqueuer,
         final SnapshotFileRepository snapshotFileRepository,
         final SnapshotFileSerializer snapshotFileSerializer,
+        final SnapshotGenerationWindow snapshotGenerationWindow,
         final SourceRepository sourceRepository
     ) {
         this.dummifierNrtm = dummifierNrtm;
-        this.nrtmFileService = nrtmFileService;
         this.nrtmVersionInfoRepository = nrtmVersionInfoRepository;
         this.rpslObjectEnqueuer = rpslObjectEnqueuer;
         this.snapshotFileSerializer = snapshotFileSerializer;
         this.snapshotFileRepository = snapshotFileRepository;
+        this.snapshotGenerationWindow = snapshotGenerationWindow;
         this.sourceRepository = sourceRepository;
     }
 
-    public Set<PublishableNrtmFile> createSnapshots(final SnapshotState state) {
-        final Stopwatch stopwatchRoot = Stopwatch.createStarted();
+    public void createSnapshots(final SnapshotState state) {
         // Get last version from database.
         final List<NrtmVersionInfo> sourceVersions = nrtmVersionInfoRepository.findLastVersionPerSource();
-        LOGGER.info("Found {} objects in {}", state.whoisObjectData().size(), stopwatchRoot);
         if (sourceVersions.isEmpty()) {
             LOGGER.info("Initializing NRTM");
-            for (final NrtmSourceModel source : sourceRepository.getAllSources()) {
+            for (final NrtmSourceModel source : sourceRepository.getSources()) {
                 final NrtmVersionInfo version = nrtmVersionInfoRepository.createInitialVersion(source, state.serialId());
-                nrtmFileService.createNrtmSessionDirectory(version.sessionID());
                 sourceVersions.add(version);
             }
         } else {
-            sourceVersions.removeIf(versionToRemove -> versionToRemove.type() == NrtmDocumentType.SNAPSHOT);
+            if (!snapshotGenerationWindow.isInWindow()) {
+                return;
+            }
+            sourceVersions.removeIf(versionToRemove ->
+                versionToRemove.type() == NrtmDocumentType.SNAPSHOT);
             if (sourceVersions.isEmpty()) {
-                LOGGER.info("No deltas created since last snapshot. Skipping snapshot creation");
-                return Set.of();
+                return;
+            }
+            sourceVersions.removeIf(versionToRemove -> !snapshotGenerationWindow.hasVersionExpired(
+                nrtmVersionInfoRepository.findLastSnapshotVersionForSource(
+                    versionToRemove.source()
+                ))
+            );
+            if (sourceVersions.isEmpty()) {
+                return;
             }
         }
+        createSnapshotsForVersions(state, sourceVersions.stream().map(nrtmVersionInfoRepository::saveNewSnapshotVersion).toList());
+    }
+
+    public List<NrtmVersionInfo> createInitialSnapshots(final SnapshotState state) {
+        sourceRepository.createSources();
+        final List<NrtmVersionInfo> sourceVersions = new ArrayList<>();
+        for (final NrtmSourceModel source : sourceRepository.getSources()) {
+            final NrtmVersionInfo version = nrtmVersionInfoRepository.createInitialVersion(source, state.serialId());
+            sourceVersions.add(version);
+        }
+        return createSnapshotsForVersions(state, sourceVersions);
+    }
+
+    private List<NrtmVersionInfo> createSnapshotsForVersions(final SnapshotState state, final List<NrtmVersionInfo> snapshotVersions) {
+        final Stopwatch stopwatch = Stopwatch.createStarted();
         final List<Thread> queueReaders = new ArrayList<>();
         final Map<CIString, LinkedBlockingQueue<RpslObjectData>> queueMap = new HashMap<>();
-        final Set<PublishableNrtmFile> publishedFiles = new HashSet<>();
-        for (final NrtmVersionInfo sourceVersion : sourceVersions) {
-            LOGGER.info("Creating snapshot for {}", sourceVersion.source().getName());
-            final String fileName = NrtmFileUtil.newGzFileName(sourceVersion);
-            final PublishableNrtmFile snapshotFile = new PublishableNrtmFile(sourceVersion);
-            publishedFiles.add(snapshotFile);
+        for (final NrtmVersionInfo snapshotVersion : snapshotVersions) {
+            LOGGER.info("Creating snapshot for {}", snapshotVersion.source().getName());
+            final PublishableNrtmFile snapshotFile = new PublishableSnapshotFile(snapshotVersion);
             final LinkedBlockingQueue<RpslObjectData> queue = new LinkedBlockingQueue<>(QUEUE_CAPACITY);
             queueMap.put(snapshotFile.getSource().getName(), queue);
-            final RunnableFileGenerator runner = new RunnableFileGenerator(dummifierNrtm, nrtmFileService, snapshotFileRepository, snapshotFileSerializer, sourceVersion, queue);
+            final RunnableFileGenerator runner = new RunnableFileGenerator(dummifierNrtm, snapshotFileRepository, snapshotFileSerializer, snapshotVersion, queue);
             final Thread queueReader = new Thread(runner);
-            queueReader.start();
+            queueReader.setName(snapshotFile.getSource().getName().toString());
             queueReaders.add(queueReader);
+            queueReader.start();
         }
         new Thread(rpslObjectEnqueuer.getRunner(state, queueMap)).start();
         for (final Thread queueReader : queueReaders) {
             try {
                 queueReader.join();
             } catch (final InterruptedException e) {
-                LOGGER.info("Queue reader (JSON file writer) interrupted", e);
+                LOGGER.warn("Queue reader (JSON file writer) interrupted", e);
                 Thread.currentThread().interrupt();
             }
         }
-        LOGGER.info("Generation complete {}", stopwatchRoot);
-        return publishedFiles;
+        LOGGER.info("Snapshot generation complete {}", stopwatch);
+        return snapshotVersions;
     }
 
     private record RunnableFileGenerator(
         Dummifier dummifierNrtm,
-        NrtmFileService nrtmFileService,
         SnapshotFileRepository snapshotFileRepository,
         SnapshotFileSerializer snapshotFileSerializer,
         NrtmVersionInfo version,
@@ -125,28 +143,25 @@ public class SnapshotFileGenerator {
             final ByteArrayOutputStream bos = new ByteArrayOutputStream();
             try (final GZIPOutputStream gzOut = new GZIPOutputStream(bos)) {
                 final RpslObjectIterator rpslObjectIterator = new RpslObjectIterator(dummifierNrtm, queue);
-                snapshotFileSerializer.writeObjectQueueAsSnapshot(version, rpslObjectIterator, gzOut);
+                snapshotFileSerializer.writeObjectsAsJsonToOutputStream(version, rpslObjectIterator, gzOut);
             } catch (final Exception e) {
                 LOGGER.error("Exception writing snapshot {}", version.source().getName(), e);
                 Thread.currentThread().interrupt();
                 return;
             }
-            final String fileName = NrtmFileUtil.newGzFileName(version);
-            LOGGER.info("Source {} snapshot file {}/{}", version.source().getName(), version.sessionID(), fileName);
-            Stopwatch stopwatch = Stopwatch.createStarted();
-            LOGGER.info("Calculated hash for {} in {}", version.source().getName(), stopwatch);
-            stopwatch = Stopwatch.createStarted();
-            final byte[] bytes = bos.toByteArray();
-            final SnapshotFile snapshotFile = SnapshotFile.of(version().id(), fileName, calculateSha256(bytes));
             try {
-                nrtmFileService.writeToDisk(version.sessionID(), fileName, bytes);
-            } catch (final IOException e) {
-                LOGGER.error("Error writing file to disk", e);
-                return;
+                final String fileName = NrtmFileUtil.newGzFileName(version);
+                LOGGER.info("Source {} snapshot file {}", version.source().getName(), fileName);
+                Stopwatch stopwatch = Stopwatch.createStarted();
+                final byte[] bytes = bos.toByteArray();
+                final SnapshotFile snapshotFile = SnapshotFile.of(version().id(), fileName, calculateSha256(bytes));
+                LOGGER.info("Calculated hash for {} in {}", version.source().getName(), stopwatch);
+                stopwatch = Stopwatch.createStarted();
+                snapshotFileRepository.insert(snapshotFile, bytes);
+                LOGGER.info("Wrote {} to DB {}", version.source().getName(), stopwatch);
+            } catch (final Throwable t) {
+                LOGGER.error("Unexpected throwable caught when inserting snapshot file", t);
             }
-            LOGGER.info("Wrote {} to disk in {}", version.source().getName(), stopwatch);
-            snapshotFileRepository.insert(snapshotFile, bytes);
-            LOGGER.info("Wrote {} to DB {}", version.source().getName(), stopwatch);
         }
 
     }

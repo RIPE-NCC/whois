@@ -22,26 +22,28 @@ import java.sql.Statement;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
+import java.util.function.Function;
 
 
 @Repository
 public class NrtmVersionInfoRepository {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(NrtmVersionInfoRepository.class);
-    private final JdbcTemplate jdbcTemplate;
-    private final DateTimeProvider dateTimeProvider;
-    private final RowMapper<NrtmVersionInfo> rowMapper = (rs, rowNum) -> {
-        final NrtmSourceModel source = new NrtmSourceModel(rs.getLong(2), CIString.ciString(rs.getString(3)));
+    static final Function<Integer, RowMapper<NrtmVersionInfo>> rowMapperWithOffset = (offset) -> (rs, rowNum) -> {
+        final NrtmSourceModel source = new NrtmSourceModel(rs.getLong(offset + 2), CIString.ciString(rs.getString(offset + 3)));
         return new NrtmVersionInfo(
-            rs.getLong(1),
+            rs.getLong(offset + 1),
             source,
-            rs.getLong(4),
-            rs.getString(5),
-            NrtmDocumentType.valueOf(rs.getString(6)),
-            rs.getInt(7),
-            rs.getInt(8)
+            rs.getLong(offset + 4),
+            rs.getString(offset + 5),
+            NrtmDocumentType.valueOf(rs.getString(offset + 6)),
+            rs.getInt(offset + 7),
+            rs.getInt(offset + 8)
         );
     };
+    private final RowMapper<NrtmVersionInfo> rowMapper = rowMapperWithOffset.apply(0);
+    private final JdbcTemplate jdbcTemplate;
+    private final DateTimeProvider dateTimeProvider;
 
     public NrtmVersionInfoRepository(
         @Qualifier("nrtmDataSource") final DataSource dataSource,
@@ -68,6 +70,25 @@ public class NrtmVersionInfoRepository {
         }
     }
 
+    public NrtmVersionInfo findLastSnapshotVersionForSource(final NrtmSourceModel source) {
+        return jdbcTemplate.queryForObject("""
+                SELECT vi.id, src.id, src.name, vi.version, vi.session_id, vi.type, vi.last_serial_id, vi.created
+                FROM version_info vi
+                    JOIN source src ON src.id = vi.source_id,
+                    (
+                    SELECT source_id, MAX(version) version
+                    FROM version_info
+                    WHERE type = ? AND source_id = ?
+                    ) maxv
+                WHERE vi.source_id = maxv.source_id
+                  AND vi.version = maxv.version
+                  AND vi.type = ?
+                ORDER BY vi.last_serial_id DESC
+                """,
+            rowMapper, NrtmDocumentType.SNAPSHOT.toString(), source.getId(), NrtmDocumentType.SNAPSHOT.toString());
+    }
+
+    // TODO: Only used by tests, so should be removed from here.
     public Optional<NrtmVersionInfo> findLastVersion() {
         try {
             return Optional.ofNullable(jdbcTemplate.queryForObject("""
@@ -110,6 +131,10 @@ public class NrtmVersionInfoRepository {
 
     public NrtmVersionInfo saveNewDeltaVersion(final NrtmVersionInfo version, final int lastSerialID) {
         return save(version.source(), version.version() + 1, version.sessionID(), NrtmDocumentType.DELTA, lastSerialID);
+    }
+
+    public NrtmVersionInfo saveNewSnapshotVersion(final NrtmVersionInfo version) {
+        return save(version.source(), version.version(), version.sessionID(), NrtmDocumentType.SNAPSHOT, version.lastSerialId());
     }
 
     private NrtmVersionInfo save(

@@ -2,87 +2,43 @@ package net.ripe.db.whois.api.nrtmv4;
 
 import com.google.common.collect.Lists;
 import com.google.common.net.HttpHeaders;
-import net.ripe.db.nrtm4.AbstractNrtm4IntegrationBase;
 import net.ripe.db.nrtm4.NrtmFileProcessor;
-import net.ripe.db.nrtm4.SnapshotFileGenerator;
-import net.ripe.db.nrtm4.dao.DeltaFileRepository;
+import net.ripe.db.nrtm4.dao.DeltaFileDao;
 import net.ripe.db.nrtm4.dao.NrtmVersionInfoRepository;
 import net.ripe.db.nrtm4.dao.SnapshotFileRepository;
 import net.ripe.db.nrtm4.dao.SourceRepository;
-import net.ripe.db.nrtm4.domain.DeltaFile;
-import net.ripe.db.nrtm4.domain.NrtmSourceModel;
+import net.ripe.db.nrtm4.domain.DeltaFileVersionInfo;
 import net.ripe.db.nrtm4.domain.NrtmVersionInfo;
-import net.ripe.db.nrtm4.domain.PublishableDeltaFile;
 import net.ripe.db.nrtm4.domain.SnapshotFile;
 import net.ripe.db.whois.api.AbstractIntegrationTest;
 import net.ripe.db.whois.api.RestTest;
-import net.ripe.db.whois.api.fulltextsearch.FullTextIndex;
-import net.ripe.db.whois.api.rdap.AbstractRdapIntegrationTest;
-import net.ripe.db.whois.api.rdap.domain.Action;
-import net.ripe.db.whois.api.rdap.domain.Autnum;
-import net.ripe.db.whois.api.rdap.domain.Domain;
-import net.ripe.db.whois.api.rdap.domain.Entity;
-import net.ripe.db.whois.api.rdap.domain.Event;
-import net.ripe.db.whois.api.rdap.domain.Ip;
-import net.ripe.db.whois.api.rdap.domain.Link;
-import net.ripe.db.whois.api.rdap.domain.Nameserver;
-import net.ripe.db.whois.api.rdap.domain.Notice;
-import net.ripe.db.whois.api.rdap.domain.RdapObject;
-import net.ripe.db.whois.api.rdap.domain.Remark;
-import net.ripe.db.whois.api.rdap.domain.Role;
-import net.ripe.db.whois.api.rdap.domain.SearchResult;
 import net.ripe.db.whois.common.TestDateTimeProvider;
 import net.ripe.db.whois.common.dao.jdbc.JdbcRpslObjectOperations;
 import net.ripe.db.whois.common.rpsl.DummifierNrtm;
 import net.ripe.db.whois.common.rpsl.RpslObject;
-import net.ripe.db.whois.query.support.TestWhoisLog;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
-import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.annotation.DirtiesContext;
-import org.springframework.test.context.ContextConfiguration;
-import org.testcontainers.shaded.com.fasterxml.jackson.databind.ObjectMapper;
 
-import javax.ws.rs.BadRequestException;
-import javax.ws.rs.ClientErrorException;
-import javax.ws.rs.HttpMethod;
-import javax.ws.rs.NotFoundException;
-import javax.ws.rs.ServerErrorException;
 import javax.ws.rs.client.WebTarget;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
-import java.nio.charset.StandardCharsets;
 import java.time.LocalDateTime;
-import java.util.Base64;
-import java.util.Collection;
-import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 import java.util.zip.GZIPInputStream;
 
-import static net.ripe.db.whois.common.support.DateMatcher.isBefore;
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.arrayContainingInAnyOrder;
-import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.Matchers.containsInAnyOrder;
 import static org.hamcrest.Matchers.containsString;
-import static org.hamcrest.Matchers.empty;
-import static org.hamcrest.Matchers.equalTo;
-import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
-import static org.hamcrest.Matchers.not;
-import static org.hamcrest.Matchers.notNullValue;
-import static org.hamcrest.Matchers.nullValue;
-import static org.junit.jupiter.api.Assertions.fail;
 
 @Tag("IntegrationTest")
 @DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_EACH_TEST_METHOD)
@@ -98,7 +54,7 @@ public class NrtmClientServiceTestIntegration extends AbstractIntegrationTest {
     @Autowired
     SnapshotFileRepository snapshotFileRepository;
     @Autowired
-    DeltaFileRepository deltaFileRepository;
+    DeltaFileDao deltaFileDao;
     @Autowired
     TestDateTimeProvider dateTimeProvider;
 
@@ -329,9 +285,8 @@ public class NrtmClientServiceTestIntegration extends AbstractIntegrationTest {
 
         nrtmFileProcessor.updateNrtmFilesAndPublishNotification();
 
-        final List<DeltaFile> deltaFile = deltaFileRepository.getDeltasForNotification(snapshotVersion, 0);
-
-        final Response response = createResource("TEST/" + deltaFile.get(0).name())
+        final List<DeltaFileVersionInfo> deltaFileVersion = deltaFileDao.getDeltasForNotification(snapshotVersion, LocalDateTime.MIN);
+        final Response response = createResource("TEST/" + deltaFileVersion.get(0).deltaFile().name())
                 .request(MediaType.APPLICATION_JSON)
                 .get(Response.class);
         assertThat(response.getStatus(), is(200));
