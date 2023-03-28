@@ -388,9 +388,9 @@ public class NrtmClientServiceTestIntegration extends AbstractIntegrationTest {
         databaseHelper.getNrtmTemplate().update(versionSql, 2,2,1,1,"nrtm-notification",1, JdbcRpslObjectOperations.now(dateTimeProvider));
 
         final String payload = "{\"nrtm_version\":4,\"timestamp\":\"2023-03-13T12:31:08Z\",\"type\":\"snapshot\",\"source\":\"TEST\",\"session_id\":\"4e0c9366-0eb2-42be-bc20-f66d11791d49\",\"version\":1,\"snapshot\":{\"version\":1,\"url\":\"https://nrtm.ripe.net//4e0c9366-0eb2-42be-bc20-f66d11791d49/nrtm-snapshot.1.RIPE.abb5672a6f3f533ce8caf76b0a3fe995.json.gz\",\"hash\":\"95ff848531a610f94fc585bf3ae654925f2faae320e2502343eb5cc43aa5c820\"}}";
-        databaseHelper.getNrtmTemplate().update("INSERT INTO notification_file (version_id, payload, created) VALUES (?, ?, ?)", 1, payload, timestamp);
+        databaseHelper.getNrtmTemplate().update("INSERT INTO notification_file (version_id, created, payload) VALUES (?, ?, ?)", 1, dateTimeProvider.getCurrentDateTime().toEpochSecond(ZoneOffset.UTC), payload);
 
         final String payloadNonAuth = "{\"nrtm_version\":4,\"timestamp\":\"2023-03-13T12:31:08Z\",\"type\":\"snapshot\",\"source\":\"TEST-NONAUTH\",\"session_id\":\"7f42be43-a1fd-48e7-947f-91c852cf13f6\",\"version\":1,\"snapshot\":{\"version\":1,\"url\":\"https://nrtm.ripe.net//7f42be43-a1fd-48e7-947f-91c852cf13f6/nrtm-snapshot.1.RIPE-NONAUTH.9a6ca0a3e1b68eb65d4a2d277c3e5a96.json.gz\",\"hash\":\"8140b2d3a3ec4cb6a14c1ca19f7cbca468adcc172ad3e313aed74bd0d1036838\"}}";
-        databaseHelper.getNrtmTemplate().update("INSERT INTO notification_file (version_id, payload, created) VALUES (?, ?, ?)", 2, payloadNonAuth, timestamp);
+        databaseHelper.getNrtmTemplate().update("INSERT INTO notification_file (version_id, created, payload) VALUES (?, ?, ?)",2, dateTimeProvider.getCurrentDateTime().toEpochSecond(ZoneOffset.UTC), payloadNonAuth);
     }
 }
