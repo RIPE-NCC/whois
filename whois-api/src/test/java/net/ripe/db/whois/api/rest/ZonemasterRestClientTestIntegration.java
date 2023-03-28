@@ -144,6 +144,24 @@ public class ZonemasterRestClientTestIntegration extends AbstractIntegrationTest
         assertThat(response.getResult().getResults().get(1).getNs(), is("ns1.serverion.nl/37.97.242.126"));
     }
 
+    @Test
+    public void start_domain_test_internal_error() {
+        zonemasterDummy.whenThen("6", "{" +
+                "\"jsonrpc\": \"2.0\"," +
+                "\"id\": 6," +
+                "\"error\": {" +
+                    "\"code\": -32603," +
+                    "\"data\": null," +
+                    "\"message\": \"Internal server error\"" +
+                "}" +
+            "}");
+
+        final GetTestResultsResponse response = zonemasterRestClient.sendRequest(new GetTestResultsRequest("6")).readEntity(GetTestResultsResponse.class);
+
+        assertThat(response.getError().getMessage(), is("Internal server error"));
+        assertThat(response.getError().getCode(), is(-32603));
+    }
+
     // helper methods
 
     private static Update createUpdate(final RpslObject rpslObject) {
