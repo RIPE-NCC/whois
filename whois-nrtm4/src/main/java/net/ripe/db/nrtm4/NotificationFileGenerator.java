@@ -54,18 +54,18 @@ public class NotificationFileGenerator {
         this.snapshotFileRepository = snapshotFileRepository;
     }
 
-    void createInitialNotification(final NrtmVersionInfo version) {
-        final SnapshotFile snapshotFile = snapshotFileRepository.getByVersionID(version.id()).orElseThrow();
-        final String timestamp = new VersionDateTime(version.created()).toString();
-        final PublishableNotificationFile publishableNotificationFile = new PublishableNotificationFile(version, timestamp, null, convert(version, snapshotFile), null);
+    void createInitialNotification(final NrtmVersionInfo snapshotVersion) {
+        final SnapshotFile snapshotFile = snapshotFileRepository.getByVersionID(snapshotVersion.id()).orElseThrow();
+        final NrtmVersionInfo newVersion = nrtmVersionInfoRepository.saveNewNotificationVersion(snapshotVersion);
+        final String timestamp = new VersionDateTime(newVersion.created()).toString();
+        final PublishableNotificationFile publishableNotificationFile = new PublishableNotificationFile(newVersion, timestamp, null, convert(snapshotVersion, snapshotFile), null);
         final ObjectMapper objectMapper = new ObjectMapper();
         try {
             final String json = objectMapper.writeValueAsString(publishableNotificationFile);
-            final long createdTimestamp = dateTimeProvider.getCurrentDateTime().toEpochSecond(ZoneOffset.UTC);
-            final NotificationFile notificationFile = NotificationFile.of(version.id(), createdTimestamp, json);
+            final NotificationFile notificationFile = NotificationFile.of(newVersion.id(), newVersion.created(), json);
             notificationFileDao.save(notificationFile);
         } catch (final JsonProcessingException e) {
-            LOGGER.error("Saving notification file failed for {}", version.source().getName());
+            LOGGER.error("Saving notification file failed for {}", newVersion.source().getName());
             throw new RuntimeException(e);
         }
     }
@@ -93,7 +93,7 @@ public class NotificationFileGenerator {
                         final NrtmVersionInfo newVersion = nrtmVersionInfoRepository.saveNewNotificationVersion(lastNotificationVersion);
                         final PublishableNotificationFile newNotification = new PublishableNotificationFile(newVersion, new VersionDateTime(newVersion.created()).toString(), null, lastNotificationUpdate.getSnapshot(), lastNotificationUpdate.getDeltas());
                         final String json = new ObjectMapper().writeValueAsString(newNotification);
-                        notificationFileDao.save(NotificationFile.of(newVersion.id(), version.created(), json);
+                        notificationFileDao.save(NotificationFile.of(newVersion.id(), version.created(), json));
                     }
                     // There's no need for a new notification file
                     continue;

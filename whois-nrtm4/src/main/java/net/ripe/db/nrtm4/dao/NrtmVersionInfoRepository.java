@@ -60,10 +60,10 @@ public class NrtmVersionInfoRepository {
                     FROM version_info vi
                         JOIN source src ON src.id = vi.source_id,
                         (SELECT source_id, MAX(version) version FROM version_info GROUP BY source_id) maxv
-                    WHERE vi.source_id = maxv.source_id AND vi.version = maxv.version
+                    WHERE vi.source_id = maxv.source_id AND vi.version = maxv.version AND vi.type != ?
                     ORDER BY vi.last_serial_id DESC
                     """,
-                rowMapper);
+                rowMapper, NrtmDocumentType.NOTIFICATION.toString());
         } catch (final EmptyResultDataAccessException ex) {
             LOGGER.debug("findLastVersions found no entries");
             return List.of();

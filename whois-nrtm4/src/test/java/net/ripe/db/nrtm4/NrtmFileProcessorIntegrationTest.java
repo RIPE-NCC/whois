@@ -136,7 +136,6 @@ public class NrtmFileProcessorIntegrationTest extends AbstractNrtm4IntegrationBa
             assertThat(snapshotVersion.version(), is(1L));
             final var deltaFile = deltaFileDao.getDeltasForNotificationSince(snapshotVersion, LocalDateTime.MIN);
             assertThat(deltaFile.size(), is(0));
-            assertThat(lastNotification.versionId(), is(snapshotVersion.id()));
         }
         // Run again to ensure no new snapshot or delta is created
         {
