@@ -72,6 +72,11 @@ public class ZonemasterDummy implements Stub {
                     putResponseBody(response, removeFirst(entry.getValue()));
                     return;
                 }
+                if (ZonemasterRequest.Method.GET_TEST_RESULTS.getMethod().equals(map.get("method")) &&
+                        entry.getKey().equals(String.valueOf(map.get("id")))){
+                    putResponseBody(response, removeFirst(entry.getValue()));
+                    return;
+                }
             }
             throw new IllegalStateException("request not handled: " + requestBody);
         }
