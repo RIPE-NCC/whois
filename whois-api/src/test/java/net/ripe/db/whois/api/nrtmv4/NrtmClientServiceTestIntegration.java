@@ -1,20 +1,22 @@
 package net.ripe.db.whois.api.nrtmv4;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.Lists;
 import com.google.common.net.HttpHeaders;
 import net.ripe.db.nrtm4.NrtmFileProcessor;
 import net.ripe.db.nrtm4.dao.DeltaFileDao;
+import net.ripe.db.nrtm4.dao.NotificationFileDao;
 import net.ripe.db.nrtm4.dao.NrtmVersionInfoRepository;
 import net.ripe.db.nrtm4.dao.SnapshotFileRepository;
 import net.ripe.db.nrtm4.dao.SourceRepository;
 import net.ripe.db.nrtm4.domain.DeltaFileVersionInfo;
 import net.ripe.db.nrtm4.domain.NrtmSourceModel;
 import net.ripe.db.nrtm4.domain.NrtmVersionInfo;
+import net.ripe.db.nrtm4.domain.PublishableNotificationFile;
 import net.ripe.db.nrtm4.domain.SnapshotFile;
 import net.ripe.db.whois.api.AbstractIntegrationTest;
 import net.ripe.db.whois.api.RestTest;
 import net.ripe.db.whois.common.TestDateTimeProvider;
-import net.ripe.db.whois.common.dao.jdbc.JdbcRpslObjectOperations;
 import net.ripe.db.whois.common.rpsl.DummifierNrtm;
 import net.ripe.db.whois.common.rpsl.RpslObject;
 import org.json.JSONArray;
@@ -32,7 +34,6 @@ import javax.ws.rs.core.Response;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.time.LocalDateTime;
-import java.time.ZoneOffset;
 import java.util.List;
 import java.util.Optional;
 import java.util.zip.GZIPInputStream;
@@ -63,6 +64,9 @@ public class NrtmClientServiceTestIntegration extends AbstractIntegrationTest {
 
     @Autowired
     SourceRepository sourceRepository;
+
+    @Autowired
+    NotificationFileDao notificationFileDao;
 
     @BeforeEach
     public void setup() {
@@ -320,7 +324,8 @@ public class NrtmClientServiceTestIntegration extends AbstractIntegrationTest {
     // UPDATE NOTIFICATION FILE
     @Test
     public void should_get_update_notification_file() {
-        insertUpdateNotificationFile();
+        nrtmFileProcessor.updateNrtmFilesAndPublishNotification();
+
         final Response response = createResource("TEST/update-notification-file.json")
                 .request(MediaType.APPLICATION_JSON)
                 .get(Response.class);
@@ -339,22 +344,45 @@ public class NrtmClientServiceTestIntegration extends AbstractIntegrationTest {
     }
 
     @Test
-    public void should_get_different_update_notification_file_snapshot_per_source() throws JSONException {
-        insertUpdateNotificationFile();
-        final Response response = createResource("TEST/update-notification-file.json")
+    public void should_get_different_update_notification_file_snapshot_per_source() throws JSONException, IOException {
+        nrtmFileProcessor.updateNrtmFilesAndPublishNotification();
+
+        final Response updateNotificationResponse = createResource("TEST/update-notification-file.json")
                 .request(MediaType.APPLICATION_JSON)
                 .get(Response.class);
 
-        final Response responseNonAuth = createResource("TEST-NONAUTH/update-notification-file.json")
+        final Response updateNotificationResponseNonAuth = createResource("TEST-NONAUTH/update-notification-file.json")
                 .request(MediaType.APPLICATION_JSON)
                 .get(Response.class);
 
-        final JSONObject testObject = new JSONObject(response.readEntity(String.class)).getJSONObject("snapshot");
-        final JSONObject nonAuthObject = new JSONObject(responseNonAuth.readEntity(String.class)).getJSONObject("snapshot");
+        final PublishableNotificationFile notificationFile = new ObjectMapper().readValue(updateNotificationResponse.readEntity(String.class),
+                PublishableNotificationFile.class);
 
-        assertThat(response.getStatus(), is(200));
-        assertThat(responseNonAuth.getStatus(), is(200));
-        assertThat(testObject.getString("url"), is(not(nonAuthObject.getString("url"))));
+        final PublishableNotificationFile nonAuthNotificationFile = new ObjectMapper().readValue(updateNotificationResponseNonAuth.readEntity(String.class),
+                PublishableNotificationFile.class);
+
+        final Response snapResponse = createResource("TEST/" + getSnapshotNameFromUpdateNotification(notificationFile))
+                .request(MediaType.APPLICATION_JSON)
+                .get(Response.class);
+
+        final Response snapNonAuthResponse = createResource("TEST-NONAUTH/" + getSnapshotNameFromUpdateNotification(nonAuthNotificationFile))
+                .request(MediaType.APPLICATION_JSON)
+                .get(Response.class);
+
+        final JSONObject snapTestJsonObject = new JSONObject(decompress(snapResponse.readEntity(byte[].class)));
+        final JSONObject snapNonAuthJsonObject = new JSONObject(decompress(snapNonAuthResponse.readEntity(byte[].class)));
+
+        assertThat(snapTestJsonObject.getString("version"), is(snapNonAuthJsonObject.getString("version")));
+        assertThat(String.valueOf(notificationFile.getVersion()), is(snapTestJsonObject.getString("version")));
+        assertThat(String.valueOf(nonAuthNotificationFile.getVersion()), is(snapNonAuthJsonObject.getString("version")));
+
+        assertThat(notificationFile.getSource().getName(), is(snapTestJsonObject.getString("source")));
+        assertThat(nonAuthNotificationFile.getSource().getName(), is(snapNonAuthJsonObject.getString("source")));
+        assertThat(snapTestJsonObject.getString("source"), is(not(snapNonAuthJsonObject.getString("source"))));
+
+        assertThat(notificationFile.getSessionID(), is(snapTestJsonObject.getString("session_id")));
+        assertThat(nonAuthNotificationFile.getSessionID(), is(snapNonAuthJsonObject.getString("session_id")));
+        assertThat(snapTestJsonObject.getString("session_id"), is(not(snapNonAuthJsonObject.getString("session_id"))));
     }
 
     // DELTAS
@@ -401,7 +429,7 @@ public class NrtmClientServiceTestIntegration extends AbstractIntegrationTest {
     }
 
     @Test
-    public void should_get_delta_file_per_source() throws JSONException {
+    public void should_get_delta_file_per_source() throws JSONException, IOException {
 
         nrtmFileProcessor.updateNrtmFilesAndPublishNotification();
 
@@ -432,33 +460,45 @@ public class NrtmClientServiceTestIntegration extends AbstractIntegrationTest {
         databaseHelper.updateObject(updatedNonAuthObject);
 
 
-        final Optional<SnapshotFile> snapshotTestFile = snapshotFileRepository.getLastSnapshot(sourceRepository.getWhoisSource().get());
-        final Optional<SnapshotFile> snapshotNonAuthFile =
-                snapshotFileRepository.getLastSnapshot(sourceRepository.getSources().get(1));
-        final NrtmVersionInfo snapshotTestVersion = nrtmVersionInfoRepository.findById(snapshotTestFile.get().versionId());
-        final NrtmVersionInfo snapshotNonAuthVersion = nrtmVersionInfoRepository.findById(snapshotNonAuthFile.get().versionId());
-
         nrtmFileProcessor.updateNrtmFilesAndPublishNotification();
 
-        final List<DeltaFileVersionInfo> deltaTestFile = deltaFileDao.getDeltasForNotification(snapshotTestVersion, LocalDateTime.MIN);
-        final List<DeltaFileVersionInfo> deltaNonAuthFile = deltaFileDao.getDeltasForNotification(snapshotNonAuthVersion, LocalDateTime.MIN);
-
-        final Response testResponse = createResource("TEST/" + deltaTestFile.get(0).deltaFile().name())
+        final Response updateNotificationResponse = createResource("TEST/update-notification-file.json")
                 .request(MediaType.APPLICATION_JSON)
                 .get(Response.class);
 
-        final Response nonAuthResponse = createResource("TEST-NONAUTH/" + deltaNonAuthFile.get(0).deltaFile().name())
+        final Response updateNotificationResponseNonAuth = createResource("TEST-NONAUTH/update-notification-file.json")
                 .request(MediaType.APPLICATION_JSON)
                 .get(Response.class);
 
-        final JSONObject testJsonObject = new JSONObject(testResponse.readEntity(String.class));
-        final JSONObject nonAuthJsonObject = new JSONObject(nonAuthResponse.readEntity(String.class));
+        final PublishableNotificationFile notificationFile = new ObjectMapper().readValue(updateNotificationResponse.readEntity(String.class),
+                PublishableNotificationFile.class);
+
+        final PublishableNotificationFile nonAuthNotificationFile = new ObjectMapper().readValue(updateNotificationResponseNonAuth.readEntity(String.class),
+                PublishableNotificationFile.class);
+
+        final Response deltaResponse = createResource("TEST/" + getDeltaNameFromUpdateNotification(notificationFile))
+                .request(MediaType.APPLICATION_JSON)
+                .get(Response.class);
+
+        final Response deltaNonAuthResponse = createResource("TEST-NONAUTH/" + getDeltaNameFromUpdateNotification(nonAuthNotificationFile))
+                .request(MediaType.APPLICATION_JSON)
+                .get(Response.class);
 
 
-        assertThat(testJsonObject.getString("version"), is(nonAuthJsonObject.getString("version")));
-        assertThat(testJsonObject.getString("type"), is(nonAuthJsonObject.getString("type")));
-        assertThat(testJsonObject.getString("source"), is(not(nonAuthJsonObject.getString("source"))));
-        assertThat(testJsonObject.getString("session_id"), is(not(nonAuthJsonObject.getString("session_id"))));
+        final JSONObject deltaTestJsonObject = new JSONObject(decompress(deltaResponse.readEntity(byte[].class)));
+        final JSONObject deltaNonAuthJsonObject = new JSONObject(decompress(deltaNonAuthResponse.readEntity(byte[].class)));
+
+        assertThat(deltaTestJsonObject.getString("version"), is(deltaNonAuthJsonObject.getString("version")));
+        assertThat(String.valueOf(notificationFile.getVersion()), is(deltaTestJsonObject.getString("version")));
+        assertThat(String.valueOf(nonAuthNotificationFile.getVersion()), is(deltaNonAuthJsonObject.getString("version")));
+
+        assertThat(notificationFile.getSource().getName(), is(deltaTestJsonObject.getString("source")));
+        assertThat(nonAuthNotificationFile.getSource().getName(), is(deltaNonAuthJsonObject.getString("source")));
+        assertThat(deltaTestJsonObject.getString("source"), is(not(deltaNonAuthJsonObject.getString("source"))));
+
+        assertThat(notificationFile.getSessionID(), is(deltaTestJsonObject.getString("session_id")));
+        assertThat(nonAuthNotificationFile.getSessionID(), is(deltaNonAuthJsonObject.getString("session_id")));
+        assertThat(deltaTestJsonObject.getString("session_id"), is(not(deltaNonAuthJsonObject.getString("session_id"))));
     }
 
     @Test
@@ -590,22 +630,14 @@ public class NrtmClientServiceTestIntegration extends AbstractIntegrationTest {
         assertThat(jsonObject.getString("source"), is("TEST"));
         assertThat(jsonObject.getInt("version"), is(version));
     }
-    private void insertUpdateNotificationFile() {
-         databaseHelper.getNrtmTemplate().update("INSERT INTO source (id, name) VALUES (?,?)", 1, "TEST");
-         databaseHelper.getNrtmTemplate().update("INSERT INTO source (id, name) VALUES (?,?)", 2, "TEST-NONAUTH");
 
-        final String versionSql = """
-                    INSERT INTO version_info (id, source_id, version, session_id, type, last_serial_id, created)
-                    VALUES (?, ?, ?, ?, ?, ?, ?)
-                    """;
-        databaseHelper.getNrtmTemplate().update(versionSql, 1,1,1,1,"nrtm-notification",1, JdbcRpslObjectOperations.now(dateTimeProvider));
-        databaseHelper.getNrtmTemplate().update(versionSql, 2,2,1,1,"nrtm-notification",1, JdbcRpslObjectOperations.now(dateTimeProvider));
+    private String getSnapshotNameFromUpdateNotification(final PublishableNotificationFile notificationFile) {
+        final String[] splits = notificationFile.getSnapshot().getUrl().split("/");
+        return snapshotFileRepository.getByName(splits[4]).get().name();
+    }
 
-
-        final String payload = "{\"nrtm_version\":4,\"timestamp\":\"2023-03-13T12:31:08Z\",\"type\":\"snapshot\",\"source\":\"TEST\",\"session_id\":\"4e0c9366-0eb2-42be-bc20-f66d11791d49\",\"version\":1,\"snapshot\":{\"version\":1,\"url\":\"https://nrtm.ripe.net//4e0c9366-0eb2-42be-bc20-f66d11791d49/nrtm-snapshot.1.RIPE.abb5672a6f3f533ce8caf76b0a3fe995.json.gz\",\"hash\":\"95ff848531a610f94fc585bf3ae654925f2faae320e2502343eb5cc43aa5c820\"}}";
-        databaseHelper.getNrtmTemplate().update("INSERT INTO notification_file (version_id, created, payload) VALUES (?, ?, ?)", 1, dateTimeProvider.getCurrentDateTime().toEpochSecond(ZoneOffset.UTC), payload);
-
-        final String payloadNonAuth = "{\"nrtm_version\":4,\"timestamp\":\"2023-03-13T12:31:08Z\",\"type\":\"snapshot\",\"source\":\"TEST-NONAUTH\",\"session_id\":\"7f42be43-a1fd-48e7-947f-91c852cf13f6\",\"version\":1,\"snapshot\":{\"version\":1,\"url\":\"https://nrtm.ripe.net//7f42be43-a1fd-48e7-947f-91c852cf13f6/nrtm-snapshot.1.RIPE-NONAUTH.9a6ca0a3e1b68eb65d4a2d277c3e5a96.json.gz\",\"hash\":\"8140b2d3a3ec4cb6a14c1ca19f7cbca468adcc172ad3e313aed74bd0d1036838\"}}";
-        databaseHelper.getNrtmTemplate().update("INSERT INTO notification_file (version_id, created, payload) VALUES (?, ?, ?)",2, dateTimeProvider.getCurrentDateTime().toEpochSecond(ZoneOffset.UTC), payloadNonAuth);
+    private String getDeltaNameFromUpdateNotification(final PublishableNotificationFile notificationFile, final int deltaPosition) {
+        final String[] splits = notificationFile.getDeltas().get(deltaPosition).getUrl().split("/");
+        return deltaFileDao.getByName(splits[4]).get().name();
     }
 }
