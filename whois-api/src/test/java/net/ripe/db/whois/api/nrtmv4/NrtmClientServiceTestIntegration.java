@@ -12,6 +12,7 @@ import net.ripe.db.nrtm4.dao.SourceRepository;
 import net.ripe.db.nrtm4.domain.DeltaFileVersionInfo;
 import net.ripe.db.nrtm4.domain.NrtmSourceModel;
 import net.ripe.db.nrtm4.domain.NrtmVersionInfo;
+import net.ripe.db.nrtm4.domain.PublishableDeltaFile;
 import net.ripe.db.nrtm4.domain.PublishableNotificationFile;
 import net.ripe.db.nrtm4.domain.SnapshotFile;
 import net.ripe.db.whois.api.AbstractIntegrationTest;
@@ -429,7 +430,7 @@ public class NrtmClientServiceTestIntegration extends AbstractIntegrationTest {
     }
 
     @Test
-    public void should_get_delta_file_per_source() throws JSONException, IOException {
+    public void should_get_delta_file_per_source() throws IOException {
 
         nrtmFileProcessor.updateNrtmFilesAndPublishNotification();
 
@@ -476,29 +477,29 @@ public class NrtmClientServiceTestIntegration extends AbstractIntegrationTest {
         final PublishableNotificationFile nonAuthNotificationFile = new ObjectMapper().readValue(updateNotificationResponseNonAuth.readEntity(String.class),
                 PublishableNotificationFile.class);
 
-        final Response deltaResponse = createResource("TEST/" + getDeltaNameFromUpdateNotification(notificationFile))
+        final Response deltaResponse = createResource("TEST/" + getDeltaNameFromUpdateNotification(notificationFile, 0))
                 .request(MediaType.APPLICATION_JSON)
                 .get(Response.class);
 
-        final Response deltaNonAuthResponse = createResource("TEST-NONAUTH/" + getDeltaNameFromUpdateNotification(nonAuthNotificationFile))
+        final Response deltaNonAuthResponse = createResource("TEST-NONAUTH/" + getDeltaNameFromUpdateNotification(nonAuthNotificationFile, 0))
                 .request(MediaType.APPLICATION_JSON)
                 .get(Response.class);
 
 
-        final JSONObject deltaTestJsonObject = new JSONObject(decompress(deltaResponse.readEntity(byte[].class)));
-        final JSONObject deltaNonAuthJsonObject = new JSONObject(decompress(deltaNonAuthResponse.readEntity(byte[].class)));
+        final PublishableDeltaFile deltaTestObject = new ObjectMapper().readValue(deltaResponse.readEntity(String.class), PublishableDeltaFile.class);
+        final PublishableDeltaFile deltaNonAuthObject = new ObjectMapper().readValue(deltaNonAuthResponse.readEntity(String.class), PublishableDeltaFile.class);
 
-        assertThat(deltaTestJsonObject.getString("version"), is(deltaNonAuthJsonObject.getString("version")));
-        assertThat(String.valueOf(notificationFile.getVersion()), is(deltaTestJsonObject.getString("version")));
-        assertThat(String.valueOf(nonAuthNotificationFile.getVersion()), is(deltaNonAuthJsonObject.getString("version")));
+        assertThat(deltaTestObject.getVersion(), is(deltaNonAuthObject.getVersion()));
+        assertThat(notificationFile.getVersion(), is(deltaTestObject.getVersion()));
+        assertThat(nonAuthNotificationFile.getVersion(), is(deltaNonAuthObject.getVersion()));
 
-        assertThat(notificationFile.getSource().getName(), is(deltaTestJsonObject.getString("source")));
-        assertThat(nonAuthNotificationFile.getSource().getName(), is(deltaNonAuthJsonObject.getString("source")));
-        assertThat(deltaTestJsonObject.getString("source"), is(not(deltaNonAuthJsonObject.getString("source"))));
+        assertThat(notificationFile.getSource().getName(), is(deltaTestObject.getSource().getName()));
+        assertThat(nonAuthNotificationFile.getSource().getName(), is(deltaNonAuthObject.getSource().getName()));
+        assertThat(deltaTestObject.getSource().getName(), is(not(deltaNonAuthObject.getSource().getName())));
 
-        assertThat(notificationFile.getSessionID(), is(deltaTestJsonObject.getString("session_id")));
-        assertThat(nonAuthNotificationFile.getSessionID(), is(deltaNonAuthJsonObject.getString("session_id")));
-        assertThat(deltaTestJsonObject.getString("session_id"), is(not(deltaNonAuthJsonObject.getString("session_id"))));
+        assertThat(notificationFile.getSessionID(), is(deltaTestObject.getSessionID()));
+        assertThat(nonAuthNotificationFile.getSessionID(), is(deltaNonAuthObject.getSessionID()));
+        assertThat(deltaTestObject.getSessionID(), is(not(deltaNonAuthObject.getSessionID())));
     }
 
     @Test
