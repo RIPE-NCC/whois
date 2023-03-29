@@ -291,8 +291,10 @@ public class NrtmClientServiceTestIntegration extends AbstractIntegrationTest {
     }
 
     @Test
-    public void should_generate_snapshot_after_one_day() throws IOException, JSONException {
+    public void should_generate_snapshot_after_one_day_with_same_session() throws IOException, JSONException {
         nrtmFileProcessor.updateNrtmFilesAndPublishNotification();
+
+        final Response firstSnapResponse = getSnapshotFromUpdateNotificationBySource("TEST");
         setTime(LocalDateTime.now().plusDays(1).withHour(23));
 
         final RpslObject updatedObject = RpslObject.parse("" +
@@ -309,10 +311,15 @@ public class NrtmClientServiceTestIntegration extends AbstractIntegrationTest {
 
         nrtmFileProcessor.updateNrtmFilesAndPublishNotification();
 
-        final Response response = getSnapshotFromUpdateNotificationBySource("TEST");
+        final Response secondSnapResponse = getSnapshotFromUpdateNotificationBySource("TEST");
 
-        final JSONObject testSnapshot = new JSONObject(decompress(response.readEntity(byte[].class)));
-        assertThat(testSnapshot.getInt("version"), is(2));
+        final JSONObject firstSnapshot = new JSONObject(decompress(firstSnapResponse.readEntity(byte[].class)));
+        final JSONObject secondSnapshot = new JSONObject(decompress(secondSnapResponse.readEntity(byte[].class)));
+        assertThat(firstSnapshot.getInt("version"), is(1));
+        assertThat(secondSnapshot.getInt("version"), is(2));
+
+        assertThat(firstSnapshot.getString("session_id"), is(secondSnapshot.getString("session_id")));
+
     }
 
     @Test
