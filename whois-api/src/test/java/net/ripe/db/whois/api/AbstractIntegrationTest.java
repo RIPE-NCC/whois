@@ -11,6 +11,7 @@ import org.springframework.test.context.ContextConfiguration;
 
 import java.time.Duration;
 import java.time.Instant;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
@@ -35,6 +36,10 @@ public abstract class AbstractIntegrationTest extends AbstractDaoIntegrationTest
 
     public int getPort() {
         return jettyBootstrap.getPort();
+    }
+
+    protected void setTime(final LocalDateTime localDateTime){
+        testDateTimeProvider.setTime(localDateTime);
     }
 
     /**

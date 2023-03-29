@@ -30,6 +30,7 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.zip.GZIPInputStream;
 
@@ -288,6 +289,32 @@ public class NrtmClientServiceTestIntegration extends AbstractIntegrationTest {
         assertThat(testSnapshot.getString("session_id"), is(not(nonAuthSnapshot.getString("session_id"))));
     }
 
+    @Test
+    public void should_generate_snapshot_after_one_day() throws IOException, JSONException {
+        nrtmFileProcessor.updateNrtmFilesAndPublishNotification();
+        setTime(LocalDateTime.now().plusDays(1).withHour(23));
+
+        final RpslObject updatedObject = RpslObject.parse("" +
+                "inet6num:       ::/0\n" +
+                "netname:        IANA-BLK\n" +
+                "descr:          Test Object\n" +
+                "country:        NL\n" +
+                "tech-c:         TP1-TEST\n" +
+                "admin-c:        TP1-TEST\n" +
+                "status:         OTHER\n" +
+                "mnt-by:         OWNER-MNT\n" +
+                "source:         TEST");
+        databaseHelper.updateObject(updatedObject);
+
+        nrtmFileProcessor.updateNrtmFilesAndPublishNotification();
+
+        final Response response = getSnapshotFromUpdateNotificationBySource("TEST");
+
+        final JSONObject testSnapshot = new JSONObject(decompress(response.readEntity(byte[].class)));
+        assertThat(testSnapshot.getInt("version"), is(2));
+
+    }
+
     // UPDATE NOTIFICATION FILE
     @Test
     public void should_get_update_notification_file_per_source() throws JsonProcessingException {
@@ -323,6 +350,7 @@ public class NrtmClientServiceTestIntegration extends AbstractIntegrationTest {
         assertThat(testDelta.getSource().getName(), is(testUpdateNotification.getSource().getName()));
         assertThat(testDelta.getSessionID(), is(testUpdateNotification.getSessionID()));
     }
+
 
     // DELTAS
     @Test
@@ -373,8 +401,10 @@ public class NrtmClientServiceTestIntegration extends AbstractIntegrationTest {
         final PublishableDeltaFile nonAuthDelta = getDeltasFromUpdateNotificationBySource("TEST-NONAUTH", 0);
 
         assertThat(testDelta.getVersion(), is(nonAuthDelta.getVersion()));
-        assertThat(testDelta.getSource().getName(), is(not(nonAuthDelta.getSource().getName())));
+        assertThat(testDelta.getSource().getName(), is("TEST"));
+        assertThat(nonAuthDelta.getSource().getName(), is("TEST-NONAUTH"));
         assertThat(testDelta.getSessionID(), is(not(nonAuthDelta.getSessionID())));
+
     }
 
     @Test
