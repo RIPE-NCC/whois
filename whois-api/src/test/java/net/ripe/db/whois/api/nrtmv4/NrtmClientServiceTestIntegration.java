@@ -312,9 +312,20 @@ public class NrtmClientServiceTestIntegration extends AbstractIntegrationTest {
 
         final JSONObject testSnapshot = new JSONObject(decompress(response.readEntity(byte[].class)));
         assertThat(testSnapshot.getInt("version"), is(2));
-
     }
 
+    @Test
+    public void should_not_generate_other_snapshot_after_one_day_without_changes() throws IOException, JSONException {
+        nrtmFileProcessor.updateNrtmFilesAndPublishNotification();
+        setTime(LocalDateTime.now().plusDays(1).withHour(23));
+        nrtmFileProcessor.updateNrtmFilesAndPublishNotification();
+
+        final Response response = getSnapshotFromUpdateNotificationBySource("TEST");
+
+        final JSONObject testSnapshot = new JSONObject(decompress(response.readEntity(byte[].class)));
+        assertThat(testSnapshot.getInt("version"), is(1));
+    }
+    
     // UPDATE NOTIFICATION FILE
     @Test
     public void should_get_update_notification_file_per_source() throws JsonProcessingException {
