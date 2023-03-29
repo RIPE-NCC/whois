@@ -5,9 +5,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.Lists;
 import com.google.common.net.HttpHeaders;
 import net.ripe.db.nrtm4.NrtmFileProcessor;
-import net.ripe.db.nrtm4.dao.DeltaFileDao;
-import net.ripe.db.nrtm4.dao.SnapshotFileRepository;
-import net.ripe.db.nrtm4.dao.SourceRepository;
 import net.ripe.db.nrtm4.domain.DeltaChange;
 import net.ripe.db.nrtm4.domain.PublishableDeltaFile;
 import net.ripe.db.nrtm4.domain.PublishableNotificationFile;
@@ -51,15 +48,6 @@ public class NrtmClientServiceTestIntegration extends AbstractIntegrationTest {
 
     @Autowired
     TestDateTimeProvider dateTimeProvider;
-
-    @Autowired
-    SourceRepository sourceRepository;
-
-    @Autowired
-    SnapshotFileRepository snapshotFileRepository;
-
-    @Autowired
-    DeltaFileDao deltaFileDao;
 
     @BeforeEach
     public void setup() {
@@ -598,13 +586,11 @@ public class NrtmClientServiceTestIntegration extends AbstractIntegrationTest {
     }
 
     private String getSnapshotNameFromUpdateNotification(final PublishableNotificationFile notificationFile) {
-        final String[] splits = notificationFile.getSnapshot().getUrl().split("/");
-        return snapshotFileRepository.getByName(splits[4]).get().name();
+        return notificationFile.getSnapshot().getUrl().split("/")[4];
     }
 
     private String getDeltaNameFromUpdateNotification(final PublishableNotificationFile notificationFile, final int deltaPosition) {
-        final String[] splits = notificationFile.getDeltas().get(deltaPosition).getUrl().split("/");
-        return deltaFileDao.getByName(splits[4]).get().name();
+        return notificationFile.getDeltas().get(deltaPosition).getUrl().split("/")[4];
     }
 
     private void generateDeltas(final List<RpslObject> updatedObject){
