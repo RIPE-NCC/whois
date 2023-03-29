@@ -31,6 +31,7 @@ import javax.ws.rs.core.Response;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.time.LocalDateTime;
+import java.util.Collections;
 import java.util.List;
 import java.util.zip.GZIPInputStream;
 
@@ -325,7 +326,7 @@ public class NrtmClientServiceTestIntegration extends AbstractIntegrationTest {
         final JSONObject testSnapshot = new JSONObject(decompress(response.readEntity(byte[].class)));
         assertThat(testSnapshot.getInt("version"), is(1));
     }
-    
+
     // UPDATE NOTIFICATION FILE
     @Test
     public void should_get_update_notification_file_per_source() throws JsonProcessingException {
@@ -353,7 +354,19 @@ public class NrtmClientServiceTestIntegration extends AbstractIntegrationTest {
 
     @Test
     public void delta_should_have_same_session_source_than_update_notification() throws JsonProcessingException {
-        generateDelta();
+        nrtmFileProcessor.updateNrtmFilesAndPublishNotification();
+        generateDeltas(Collections.singletonList(RpslObject.parse("" +
+                "inet6num:       ::/0\n" +
+                "netname:        IANA-BLK\n" +
+                "descr:          The whole IPv6 address space:Updated for test\n" +
+                "country:        NL\n" +
+                "tech-c:         TP1-TEST\n" +
+                "admin-c:        TP1-TEST\n" +
+                "status:         OTHER\n" +
+                "mnt-by:         OWNER-MNT\n" +
+                "created:         2022-08-14T11:48:28Z\n" +
+                "last-modified:   2022-10-25T12:22:39Z\n" +
+                "source:         TEST")));
         final PublishableNotificationFile testUpdateNotification = getNotificationFileBySource("TEST");
         final PublishableDeltaFile testDelta = getDeltasFromUpdateNotificationBySource("TEST", 0);
 
@@ -366,19 +379,7 @@ public class NrtmClientServiceTestIntegration extends AbstractIntegrationTest {
     // DELTAS
     @Test
     public void should_get_delta_file() throws JsonProcessingException  {
-        final RpslObject updatedObject = generateDelta();
-        final PublishableDeltaFile testDelta = getDeltasFromUpdateNotificationBySource("TEST", 0);
-        assertThat(testDelta.getVersion(), is(2L));
-        assertThat(testDelta.getChanges().size(), is(1));
-
-        assertThat(testDelta.getChanges().get(0).getAction().toLowerCaseName(), is("add_modify"));
-        assertThat(testDelta.getChanges().get(0).getObject().toString(), is(dummifierNrtm.dummify(4, updatedObject).toString()));
-    }
-
-    @Test
-    public void delta_should_have_same_version_different_session_per_source() throws JsonProcessingException {
         nrtmFileProcessor.updateNrtmFilesAndPublishNotification();
-
         final RpslObject updatedObject = RpslObject.parse("" +
                 "inet6num:       ::/0\n" +
                 "netname:        IANA-BLK\n" +
@@ -391,9 +392,31 @@ public class NrtmClientServiceTestIntegration extends AbstractIntegrationTest {
                 "created:         2022-08-14T11:48:28Z\n" +
                 "last-modified:   2022-10-25T12:22:39Z\n" +
                 "source:         TEST");
-        databaseHelper.updateObject(updatedObject);
+        generateDeltas(Collections.singletonList(updatedObject));
+        final PublishableDeltaFile testDelta = getDeltasFromUpdateNotificationBySource("TEST", 0);
+        assertThat(testDelta.getVersion(), is(2L));
+        assertThat(testDelta.getChanges().size(), is(1));
 
-        final RpslObject updatedNonAuthObject = RpslObject.parse("" +
+        assertThat(testDelta.getChanges().get(0).getAction().toLowerCaseName(), is("add_modify"));
+        assertThat(testDelta.getChanges().get(0).getObject().toString(), is(dummifierNrtm.dummify(4, updatedObject).toString()));
+    }
+
+    @Test
+    public void delta_should_have_same_version_different_session_per_source() throws JsonProcessingException {
+        nrtmFileProcessor.updateNrtmFilesAndPublishNotification();
+
+        generateDeltas(Lists.newArrayList(RpslObject.parse("" +
+                "inet6num:       ::/0\n" +
+                "netname:        IANA-BLK\n" +
+                "descr:          The whole IPv6 address space:Updated for test\n" +
+                "country:        NL\n" +
+                "tech-c:         TP1-TEST\n" +
+                "admin-c:        TP1-TEST\n" +
+                "status:         OTHER\n" +
+                "mnt-by:         OWNER-MNT\n" +
+                "created:         2022-08-14T11:48:28Z\n" +
+                "last-modified:   2022-10-25T12:22:39Z\n" +
+                "source:         TEST"), RpslObject.parse("" +
                 "mntner:        NONAUTH-OWNER-MNT\n" +
                 "descr:         Non auth Owner Maintainer updated\n" +
                 "admin-c:       TP1-TEST\n" +
@@ -403,10 +426,7 @@ public class NrtmClientServiceTestIntegration extends AbstractIntegrationTest {
                 "referral-by:   NONAUTH-OWNER-MNT\n" +
                 "created:         2011-07-28T00:35:42Z\n" +
                 "last-modified:   2019-02-28T10:14:46Z\n" +
-                "source:        TEST-NONAUTH");
-        databaseHelper.updateObject(updatedNonAuthObject);
-
-        nrtmFileProcessor.updateNrtmFilesAndPublishNotification();
+                "source:        TEST-NONAUTH")));
 
         final PublishableDeltaFile testDelta = getDeltasFromUpdateNotificationBySource("TEST", 0);
         final PublishableDeltaFile nonAuthDelta = getDeltasFromUpdateNotificationBySource("TEST-NONAUTH", 0);
@@ -454,6 +474,40 @@ public class NrtmClientServiceTestIntegration extends AbstractIntegrationTest {
         assertThat(deleteChange.getPrimaryKey(), is("::/0"));
     }
 
+    @Test
+    public void multiple_delta_should_has_same_session_different_version() throws JsonProcessingException {
+        nrtmFileProcessor.updateNrtmFilesAndPublishNotification();
+        generateDeltas(Collections.singletonList(RpslObject.parse("" +
+                "inet6num:       ::/0\n" +
+                "netname:        IANA-BLK\n" +
+                "descr:          The whole IPv6 address space:Updated for test\n" +
+                "country:        NL\n" +
+                "tech-c:         TP1-TEST\n" +
+                "admin-c:        TP1-TEST\n" +
+                "status:         OTHER\n" +
+                "mnt-by:         OWNER-MNT\n" +
+                "created:         2022-08-14T11:48:28Z\n" +
+                "last-modified:   2022-10-25T12:22:39Z\n" +
+                "source:         TEST")));
+        final PublishableDeltaFile firstDelta = getDeltasFromUpdateNotificationBySource("TEST", 0);
+        generateDeltas(Collections.singletonList(RpslObject.parse("" +
+                "inet6num:       ::/0\n" +
+                "netname:        IANA-BLK\n" +
+                "descr:          The whole IPv6 address space:Updated for test:Second update\n" +
+                "country:        NL\n" +
+                "tech-c:         TP1-TEST\n" +
+                "admin-c:        TP1-TEST\n" +
+                "status:         OTHER\n" +
+                "mnt-by:         OWNER-MNT\n" +
+                "created:         2022-08-14T11:48:28Z\n" +
+                "last-modified:   2022-10-25T12:22:39Z\n" +
+                "source:         TEST")));
+        final PublishableDeltaFile secondDelta = getDeltasFromUpdateNotificationBySource("TEST", 1);
+        assertThat(firstDelta.getVersion(), is(not(secondDelta.getVersion())));
+        assertThat(firstDelta.getSessionID(), is(secondDelta.getSessionID()));
+    }
+
+    //Exceptions
     @Test
     public void should_throw_exception_invalid_filename()  {
         final Response response = createResource("TEST/nrtm-pshot.1.TEST.f7c94b039f9743fa4d6368b54e64bb0f")
@@ -546,26 +600,11 @@ public class NrtmClientServiceTestIntegration extends AbstractIntegrationTest {
         return deltaFileDao.getByName(splits[4]).get().name();
     }
 
-    private RpslObject generateDelta(){
+    private void generateDeltas(final List<RpslObject> updatedObject){
+        for (final RpslObject rpslObject : updatedObject) {
+            databaseHelper.updateObject(rpslObject);
+        }
         nrtmFileProcessor.updateNrtmFilesAndPublishNotification();
-
-        final RpslObject updatedObject = RpslObject.parse("" +
-                "inet6num:       ::/0\n" +
-                "netname:        IANA-BLK\n" +
-                "descr:          The whole IPv6 address space:Updated for test\n" +
-                "country:        NL\n" +
-                "tech-c:         TP1-TEST\n" +
-                "admin-c:        TP1-TEST\n" +
-                "status:         OTHER\n" +
-                "mnt-by:         OWNER-MNT\n" +
-                "created:         2022-08-14T11:48:28Z\n" +
-                "last-modified:   2022-10-25T12:22:39Z\n" +
-                "source:         TEST");
-        databaseHelper.updateObject(updatedObject);
-
-        nrtmFileProcessor.updateNrtmFilesAndPublishNotification();
-
-        return updatedObject;
     }
 
     private PublishableNotificationFile getNotificationFileBySource(final String sourceName) throws JsonProcessingException {
