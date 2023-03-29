@@ -97,6 +97,10 @@ public class NrtmFileProcessorIntegrationTest extends AbstractNrtm4IntegrationBa
             mntner: DEV3-MNT
             source: TEST
             """);
+        final var mntObject4 = RpslObject.parse("""
+            mntner: DEV4-MNT
+            source: TEST
+            """);
 
         final var twoPmInMay = LocalDateTime.of(2023, 5, 22, 14, 0);
         final var oneMinutePastTwoPmInMay = LocalDateTime.of(2023, 5, 22, 14, 1);
@@ -105,6 +109,7 @@ public class NrtmFileProcessorIntegrationTest extends AbstractNrtm4IntegrationBa
         final var fourMinutesPastTwoPmInMay = LocalDateTime.of(2023, 5, 22, 14, 4);
         final var fivePastTwoPmInMay = LocalDateTime.of(2023, 5, 22, 14, 5);
         final var twoAmTheNextDayInMay = LocalDateTime.of(2023, 5, 23, 2, 0);
+        final var twoOhOneAmTheNextDayInMay = LocalDateTime.of(2023, 5, 23, 2, 1);
 
 
         MockitoAnnotations.openMocks(this);
@@ -328,6 +333,21 @@ public class NrtmFileProcessorIntegrationTest extends AbstractNrtm4IntegrationBa
             assertThat(snapshotVersion.version(), is(4L));
             final var deltaFile = deltaFileDao.getDeltasForNotificationSince(snapshotVersion, LocalDateTime.MIN);
             assertThat(deltaFile.size(), is(3));
+        }
+        {
+            dateTimeProvider.setTime(twoOhOneAmTheNextDayInMay);
+            databaseHelper.addObject(mntObject4);
+            nrtmFileProcessor.updateNrtmFilesAndPublishNotification();
+
+            final var whoisSource = sourceRepository.getWhoisSource();
+            assertThat(whoisSource.isPresent(), is(true));
+            final var lastNotification = notificationFileDao.findLastNotification(whoisSource.get()).orElseThrow();
+            final var notificationFile = new ObjectMapper().readValue(lastNotification.payload(), PublishableNotificationFile.class);
+            sessionID = notificationFile.getSessionID();
+            final var sessionUUID = UUID.fromString(sessionID); // throws exception if not UUID format
+            assertThat(sessionUUID, is(notNullValue()));
+            assertThat(notificationFile.getVersion(), is(5L));
+            assertThat(notificationFile.getSnapshot().getVersion(), is(4L));
         }
     }
 
