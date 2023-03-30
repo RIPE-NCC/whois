@@ -382,7 +382,7 @@ public class UpdateNotificationFileGenerationTestIntegration extends AbstractInt
                 .request(MediaType.APPLICATION_JSON)
                 .get(PublishableNotificationFile.class);
 
-        assertThat(isValidDataFormat(firstIteration.getTimestamp()), is(true));
+        assertThat(isValidDateFormat(firstIteration.getTimestamp()), is(true));
     }
 
     @Test
@@ -400,7 +400,7 @@ public class UpdateNotificationFileGenerationTestIntegration extends AbstractInt
         return RestTest.target(getPort(), String.format("nrtmv4/%s", path));
     }
 
-    private boolean isValidDataFormat(final String date){
+    private boolean isValidDateFormat(final String date){
         final DateFormat sdf = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:dd'Z'");
         sdf.setLenient(false);
         try {
