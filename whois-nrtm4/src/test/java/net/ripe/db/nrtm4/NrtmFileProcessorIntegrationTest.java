@@ -16,11 +16,11 @@ import net.ripe.db.nrtm4.domain.SnapshotFile;
 import net.ripe.db.whois.common.TestDateTimeProvider;
 import net.ripe.db.whois.common.rpsl.ObjectType;
 import net.ripe.db.whois.common.rpsl.RpslObject;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.mockito.MockitoAnnotations;
 import org.springframework.beans.factory.annotation.Autowired;
-import spock.lang.Ignore;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
@@ -40,7 +40,7 @@ import static org.hamcrest.Matchers.startsWith;
 
 
 @Tag("IntegrationTest")
-@Ignore
+@Disabled
 public class NrtmFileProcessorIntegrationTest extends AbstractNrtm4IntegrationBase {
 
     @Autowired
