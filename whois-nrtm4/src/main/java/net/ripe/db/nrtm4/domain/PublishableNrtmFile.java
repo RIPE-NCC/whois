@@ -22,10 +22,8 @@ public abstract class PublishableNrtmFile {
         version = 0L;
     }
 
-    public PublishableNrtmFile(
-        final NrtmVersionInfo version
-    ) {
-        this.type = version.type();
+    public PublishableNrtmFile(final NrtmVersionInfo version, final NrtmDocumentType type) {
+        this.type = type;
         this.source = version.source();
         this.sessionID = version.sessionID();
         this.version = version.version();

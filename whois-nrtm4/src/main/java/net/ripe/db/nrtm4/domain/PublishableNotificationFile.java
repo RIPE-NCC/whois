@@ -32,7 +32,7 @@ public class PublishableNotificationFile extends PublishableNrtmFile {
         final NrtmFileLink snapshot,
         final List<NrtmFileLink> deltas
     ) {
-        super(version);
+        super(version, NrtmDocumentType.NOTIFICATION);
         this.timestamp = timestamp;
         this.nextSigningKey = nextSigningKey;
         this.snapshot = snapshot;

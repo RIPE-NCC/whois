@@ -13,7 +13,7 @@ public class PublishableDeltaFile extends PublishableNrtmFile {
     private PublishableDeltaFile() {}
 
     public PublishableDeltaFile(final NrtmVersionInfo nextVersion, final List<DeltaChange> deltas) {
-        super(nextVersion);
+        super(nextVersion, NrtmDocumentType.DELTA);
         this.changes = deltas;
     }
 

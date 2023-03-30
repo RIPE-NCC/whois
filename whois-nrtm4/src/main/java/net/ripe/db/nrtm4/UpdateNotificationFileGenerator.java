@@ -91,6 +91,7 @@ public class UpdateNotificationFileGenerator {
           return;
         }
 
+        //TODO: replace with source
         notificationFileDao.update(NotificationFile.of(notificationFile.get().id(), fileVersion.id(), createdTimestamp, json));
     }
 
@@ -105,6 +106,7 @@ public class UpdateNotificationFileGenerator {
 
         final NrtmVersionInfo lastVersion = nrtmVersionInfoRepository.findLastVersion(sourceModel)
                                                         .orElseThrow( () -> new IllegalStateException("No version exists with id " + notificationFile.get().versionId()));
+        //TODO: use version --> version same ???
         return notificationFile.get().versionId() < lastVersion.id();
     }
 
@@ -115,14 +117,12 @@ public class UpdateNotificationFileGenerator {
 
         return snapshotFileWithVersion.versionInfo().version() >= deltaFiles.get(deltaFiles.size() - 1).versionInfo().version() ?
                      snapshotFileWithVersion.versionInfo() : deltaFiles.get(deltaFiles.size() - 1).versionInfo();
-
     }
 
     private List<PublishableNotificationFile.NrtmFileLink> getPublishableFile(final List<DeltaFileVersionInfo> files) {
-        return files.isEmpty() ? null :
-                   files.stream()
-                            .map(file -> getPublishableFile(file.versionInfo(), file.deltaFile().name(),file.deltaFile().hash()))
-                            .toList();
+        return files.stream()
+                .map(file -> getPublishableFile(file.versionInfo(), file.deltaFile().name(),file.deltaFile().hash()))
+                .toList();
     }
 
     private PublishableNotificationFile.NrtmFileLink getPublishableFile(final NrtmVersionInfo versionInfo, final String file, final String hash) {
