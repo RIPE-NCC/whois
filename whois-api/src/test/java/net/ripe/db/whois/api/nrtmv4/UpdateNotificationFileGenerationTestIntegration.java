@@ -23,6 +23,7 @@ import java.time.LocalDateTime;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.not;
+import static org.hamcrest.Matchers.notNullValue;
 
 @Tag("IntegrationTest")
 @DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_EACH_TEST_METHOD)
@@ -325,6 +326,36 @@ public class UpdateNotificationFileGenerationTestIntegration extends AbstractInt
 
     }
 
+    @Test
+    public void should_contain_snapshot_delta_hashes(){
+        final RpslObject rpslObject = RpslObject.parse("" +
+                "inet6num:       ::/0\n" +
+                "netname:        IANA-BLK\n" +
+                "descr:          The whole IPv6 address space: Modified\n" +
+                "country:        NL\n" +
+                "tech-c:         TP1-TEST\n" +
+                "admin-c:        TP1-TEST\n" +
+                "status:         OTHER\n" +
+                "mnt-by:         OWNER-MNT\n" +
+                "source:         TEST");
+
+        testDateTimeProvider.setTime(LocalDateTime.now().minusDays(1));
+        nrtmFileProcessor.updateNrtmFilesAndPublishNotification();
+
+        databaseHelper.updateObject(rpslObject);
+
+        nrtmFileProcessor.updateNrtmFilesAndPublishNotification();
+        updateNotificationFileGenerator.generateFile();
+
+        final PublishableNotificationFile firstIteration = createResource("TEST/update-notification-file.json")
+                .request(MediaType.APPLICATION_JSON)
+                .get(PublishableNotificationFile.class);
+
+        assertThat(firstIteration.getDeltas().size(), is(1));
+        assertThat(firstIteration.getDeltas().get(0).getHash(), notNullValue());
+        assertThat(firstIteration.getSnapshot().getHash(), notNullValue());
+
+    }
     protected WebTarget createResource(final String path) {
         return RestTest.target(getPort(), String.format("nrtmv4/%s", path));
     }
