@@ -61,7 +61,7 @@ public class NrtmVersionInfoRepository {
                    JOIN source src ON src.id = vio.source_id
                    WHERE vio.id IN (
                        SELECT max(vi.id)
-                       ROM version_info vi
+                       FROM version_info vi
                        JOIN (SELECT source_id, MAX(version) version FROM version_info GROUP BY source_id) maxv
                        ON vi.version = maxv.version AND vi.source_id = maxv.source_id
                        WHERE vi.source_id = maxv.source_id AND vi.version = maxv.version
