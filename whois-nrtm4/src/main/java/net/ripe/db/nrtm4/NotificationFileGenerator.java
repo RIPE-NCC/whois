@@ -86,7 +86,7 @@ public class NotificationFileGenerator {
             final List<PublishableNotificationFile.NrtmFileLink> deltaLinks = convert(deltaFiles);
             try {
                 final PublishableNotificationFile lastNotificationUpdate = new ObjectMapper().readValue(lastNotificationFile.payload().getBytes(StandardCharsets.UTF_8), PublishableNotificationFile.class);
-                if (deltaFiles.isEmpty() || lastNotificationUpdate.deltaEquals(deltaLinks) && lastNotificationUpdate.getSnapshot().getVersion() == lastSnapshotVersion.version()) {
+                if (lastNotificationUpdate.deltaEquals(deltaLinks) && lastNotificationUpdate.getSnapshot().getVersion() == lastSnapshotVersion.version()) {
                     if (LocalDateTime.ofEpochSecond(lastNotificationFile.created(), 0, ZoneOffset.UTC).isBefore(oneDayAgo)) {
                         // Just republish the last notification without other changes
                         final NrtmVersionInfo lastNotificationVersion = nrtmVersionInfoRepository.findById(lastNotificationFile.versionId());
@@ -99,8 +99,8 @@ public class NotificationFileGenerator {
                     continue;
                 }
                 // Here we have deltas and possibly a new snapshot.
-                final DeltaFileVersionInfo lastDelta = deltaFiles.get(deltaFiles.size() - 1);
-                final NrtmVersionInfo newNotificationVersion = nrtmVersionInfoRepository.saveNewNotificationVersion(lastDelta.versionInfo());
+                final NrtmVersionInfo lastVersion = deltaFiles.isEmpty() ? lastSnapshotVersion : deltaFiles.get(deltaFiles.size() - 1).versionInfo();
+                final NrtmVersionInfo newNotificationVersion = nrtmVersionInfoRepository.saveNewNotificationVersion(lastVersion);
                 final String timestamp = new VersionDateTime(newNotificationVersion.created()).toString();
                 final PublishableNotificationFile publishableNotificationFile = new PublishableNotificationFile(newNotificationVersion, timestamp, null, convert(lastSnapshotVersion, snapshotFile), deltaLinks);
                 final String json = new ObjectMapper().writeValueAsString(publishableNotificationFile);
