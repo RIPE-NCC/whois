@@ -95,11 +95,8 @@ public class UpdateNotificationFileGenerator {
     }
 
     private boolean canProceed(final Optional<NotificationFile> notificationFile, final NrtmSource sourceModel, final LocalDateTime oneDayAgo) {
-        if(notificationFile.isEmpty()) {
-            return true;
-        }
-
-        if (LocalDateTime.ofEpochSecond(notificationFile.get().created(), 0, ZoneOffset.UTC).isBefore(oneDayAgo)) {
+        if(notificationFile.isEmpty() ||
+                LocalDateTime.ofEpochSecond(notificationFile.get().created(), 0, ZoneOffset.UTC).isBefore(oneDayAgo)) {
             return true;
         }
 
@@ -107,16 +104,12 @@ public class UpdateNotificationFileGenerator {
                                                         .orElseThrow( () -> new IllegalStateException("No version exists with id " + notificationFile.get().versionId()));
 
         final NrtmVersionInfo notificationVersion = nrtmVersionInfoRepository.findById(notificationFile.get().versionId());
-
-        if(notificationVersion.version() < lastVersion.version()) {
-            return true;
+        if(notificationVersion.version() > lastVersion.version()) {
+            throw new IllegalStateException("Something went wrong, found notification version higher then latest version");
         }
 
-        if(notificationVersion.version() == lastVersion.version() && notificationVersion.type() != lastVersion.type()) {
-            return true;
-        }
-
-        return false;
+        return notificationVersion.version() < lastVersion.version() ||
+                notificationVersion.type() != lastVersion.type();
     }
 
     private NrtmVersionInfo getVersion(final List<DeltaFileVersionInfo> deltaFiles, final SnapshotFileVersionInfo snapshotFileWithVersion) {
