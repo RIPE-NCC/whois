@@ -22,7 +22,7 @@ public class UpdateNotificationFileScheduledTask implements DailyScheduledTask {
 
     @Override
     @Scheduled(cron = "0 * * * * ?")
-    @SchedulerLock(name = "NrtmFileWriterScheduledTask")
+    @SchedulerLock(name = "NrtmNotificationFileGenerationTask")
     public void run() {
         try {
             updateNotificationFileGenerator.generateFile();
