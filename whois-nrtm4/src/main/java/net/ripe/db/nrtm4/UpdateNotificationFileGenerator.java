@@ -91,7 +91,6 @@ public class UpdateNotificationFileGenerator {
           return;
         }
 
-        //TODO: replace with source
         notificationFileDao.update(NotificationFile.of(notificationFile.get().id(), fileVersion.id(), createdTimestamp, json));
     }
 
@@ -106,8 +105,18 @@ public class UpdateNotificationFileGenerator {
 
         final NrtmVersionInfo lastVersion = nrtmVersionInfoRepository.findLastVersion(sourceModel)
                                                         .orElseThrow( () -> new IllegalStateException("No version exists with id " + notificationFile.get().versionId()));
-        //TODO: use version --> version same ???
-        return notificationFile.get().versionId() < lastVersion.id();
+
+        final NrtmVersionInfo notificationVersion = nrtmVersionInfoRepository.findById(notificationFile.get().versionId());
+
+        if(notificationVersion.version() < lastVersion.version()) {
+            return true;
+        }
+
+        if(notificationVersion.version() == lastVersion.version() && notificationVersion.type() != lastVersion.type()) {
+            return true;
+        }
+
+        return false;
     }
 
     private NrtmVersionInfo getVersion(final List<DeltaFileVersionInfo> deltaFiles, final SnapshotFileVersionInfo snapshotFileWithVersion) {
