@@ -1,7 +1,7 @@
 package net.ripe.db.nrtm4.dao;
 
 import net.ripe.db.nrtm4.domain.NrtmDocumentType;
-import net.ripe.db.nrtm4.domain.NrtmSourceModel;
+import net.ripe.db.nrtm4.domain.NrtmSource;
 import net.ripe.db.nrtm4.domain.NrtmVersionInfo;
 import net.ripe.db.whois.common.DateTimeProvider;
 import net.ripe.db.whois.common.dao.jdbc.JdbcRpslObjectOperations;
@@ -30,7 +30,7 @@ public class NrtmVersionInfoRepository {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(NrtmVersionInfoRepository.class);
     static final Function<Integer, RowMapper<NrtmVersionInfo>> rowMapperWithOffset = (offset) -> (rs, rowNum) -> {
-        final NrtmSourceModel source = new NrtmSourceModel(rs.getLong(offset + 2), CIString.ciString(rs.getString(offset + 3)));
+        final NrtmSource source = new NrtmSource(rs.getLong(offset + 2), CIString.ciString(rs.getString(offset + 3)));
         return new NrtmVersionInfo(
             rs.getLong(offset + 1),
             source,
@@ -70,7 +70,12 @@ public class NrtmVersionInfoRepository {
         }
     }
 
-    public NrtmVersionInfo findLastSnapshotVersionForSource(final NrtmSourceModel source) {
+    public Optional<NrtmVersionInfo> findLastVersion(final NrtmSource source) {
+       return findLastVersionPerSource().stream().filter( (versionInfo) ->  versionInfo.source().getName().equals(source.getName())).findFirst();
+    }
+
+
+    public NrtmVersionInfo findLastSnapshotVersionForSource(final NrtmSource source) {
         return jdbcTemplate.queryForObject("""
                 SELECT vi.id, src.id, src.name, vi.version, vi.session_id, vi.type, vi.last_serial_id, vi.created
                 FROM version_info vi
@@ -112,7 +117,7 @@ public class NrtmVersionInfoRepository {
      * @param lastSerialId The last serialID from the Whois serials table which is in the snapshot
      * @return An initialized version object filled from the new row in the database
      */
-    public NrtmVersionInfo createInitialVersion(final NrtmSourceModel source, final int lastSerialId) {
+    public NrtmVersionInfo createInitialVersion(final NrtmSource source, final int lastSerialId) {
         final long version = 1L;
         final String sessionID = UUID.randomUUID().toString();
         final NrtmDocumentType type = NrtmDocumentType.SNAPSHOT;
@@ -138,7 +143,7 @@ public class NrtmVersionInfoRepository {
     }
 
     private NrtmVersionInfo save(
-        final NrtmSourceModel source,
+        final NrtmSource source,
         final long version,
         final String sessionID,
         final NrtmDocumentType type,

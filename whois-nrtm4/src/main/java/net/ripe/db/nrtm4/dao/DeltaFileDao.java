@@ -5,6 +5,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import net.ripe.db.nrtm4.domain.DeltaChange;
 import net.ripe.db.nrtm4.domain.DeltaFile;
 import net.ripe.db.nrtm4.domain.DeltaFileVersionInfo;
+import net.ripe.db.nrtm4.domain.NrtmSource;
 import net.ripe.db.nrtm4.domain.NrtmVersionInfo;
 import net.ripe.db.nrtm4.domain.PublishableDeltaFile;
 import net.ripe.db.nrtm4.util.NrtmFileUtil;
@@ -89,6 +90,50 @@ public class DeltaFileDao {
             return List.of();
         }
     }
+
+    public List<DeltaFileVersionInfo> getAllDeltasForSourceSince(final NrtmSource source, final LocalDateTime since) {
+        final long sinceTimestamp = since.toEpochSecond(ZoneOffset.UTC);
+        final String sql = """
+            SELECT
+                df.id, df.version_id, df.name, df.hash, df.payload,
+                vi.id, src.id, src.name, vi.version, vi.session_id, vi.type, vi.last_serial_id, vi.created
+            FROM delta_file df
+            JOIN version_info vi ON vi.id = df.version_id
+            JOIN source src ON src.id = vi.source_id
+            WHERE vi.source_id = ?
+              AND vi.created >= ?
+            ORDER BY vi.version ASC
+            """;
+        try {
+            return jdbcTemplate.query(sql, rowMapperWithVersion, source.getId(), sinceTimestamp);
+        } catch (final DataAccessException e) {
+            LOGGER.warn("Exception in getDeltasForNotification", e);
+            return List.of();
+        }
+    }
+
+
+    public List<DeltaFileVersionInfo> getAllDeltas(final NrtmVersionInfo sinceVersion, final LocalDateTime since) {
+        final long sinceTimestamp = since.toEpochSecond(ZoneOffset.UTC);
+        final String sql = """
+            SELECT
+                df.id, df.version_id, df.name, df.hash, df.payload,
+                vi.id, src.id, src.name, vi.version, vi.session_id, vi.type, vi.last_serial_id, vi.created
+            FROM delta_file df
+            JOIN version_info vi ON vi.id = df.version_id
+            JOIN source src ON src.id = vi.source_id
+            WHERE vi.source_id = ?
+              AND (vi.version > ? OR vi.created > ?)
+            ORDER BY vi.version ASC
+            """;
+        try {
+            return jdbcTemplate.query(sql, rowMapperWithVersion, sinceVersion.source().getId(), sinceVersion.version(), sinceTimestamp);
+        } catch (final DataAccessException e) {
+            LOGGER.warn("Exception in getDeltasForNotification", e);
+            return List.of();
+        }
+    }
+
 
     private void save(
         final long versionId,

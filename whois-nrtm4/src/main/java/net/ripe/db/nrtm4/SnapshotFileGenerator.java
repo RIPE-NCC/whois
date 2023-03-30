@@ -5,7 +5,7 @@ import net.ripe.db.nrtm4.dao.NrtmVersionInfoRepository;
 import net.ripe.db.nrtm4.dao.SnapshotFileRepository;
 import net.ripe.db.nrtm4.dao.SourceRepository;
 import net.ripe.db.nrtm4.domain.NrtmDocumentType;
-import net.ripe.db.nrtm4.domain.NrtmSourceModel;
+import net.ripe.db.nrtm4.domain.NrtmSource;
 import net.ripe.db.nrtm4.domain.NrtmVersionInfo;
 import net.ripe.db.nrtm4.domain.PublishableNrtmFile;
 import net.ripe.db.nrtm4.domain.PublishableSnapshotFile;
@@ -67,7 +67,7 @@ public class SnapshotFileGenerator {
         final List<NrtmVersionInfo> sourceVersions = nrtmVersionInfoRepository.findLastVersionPerSource();
         if (sourceVersions.isEmpty()) {
             LOGGER.info("Initializing NRTM");
-            for (final NrtmSourceModel source : sourceRepository.getSources()) {
+            for (final NrtmSource source : sourceRepository.getSources()) {
                 final NrtmVersionInfo version = nrtmVersionInfoRepository.createInitialVersion(source, state.serialId());
                 sourceVersions.add(version);
             }
@@ -95,7 +95,7 @@ public class SnapshotFileGenerator {
     public List<NrtmVersionInfo> createInitialSnapshots(final SnapshotState state) {
         sourceRepository.createSources();
         final List<NrtmVersionInfo> sourceVersions = new ArrayList<>();
-        for (final NrtmSourceModel source : sourceRepository.getSources()) {
+        for (final NrtmSource source : sourceRepository.getSources()) {
             final NrtmVersionInfo version = nrtmVersionInfoRepository.createInitialVersion(source, state.serialId());
             sourceVersions.add(version);
         }

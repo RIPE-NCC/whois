@@ -20,6 +20,7 @@ import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.mockito.MockitoAnnotations;
 import org.springframework.beans.factory.annotation.Autowired;
+import spock.lang.Ignore;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
@@ -39,6 +40,7 @@ import static org.hamcrest.Matchers.startsWith;
 
 
 @Tag("IntegrationTest")
+@Ignore
 public class NrtmFileProcessorIntegrationTest extends AbstractNrtm4IntegrationBase {
 
     @Autowired

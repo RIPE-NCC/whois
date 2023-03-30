@@ -1,7 +1,7 @@
 package net.ripe.db.nrtm4;
 
 import net.ripe.db.nrtm4.domain.NrtmDocumentType;
-import net.ripe.db.nrtm4.domain.NrtmSourceModel;
+import net.ripe.db.nrtm4.domain.NrtmSource;
 import net.ripe.db.nrtm4.domain.NrtmVersionInfo;
 import net.ripe.db.whois.common.DateTimeProvider;
 import net.ripe.db.whois.common.domain.CIString;
@@ -79,13 +79,13 @@ public class SnapshotGenerationWindowTest {
         final var window = new SnapshotGenerationWindow(windowDef, getMockDateTimeProvider(LocalDate.now(), LocalTime.now()));
         {
             final var onlyJustExpired = LocalDateTime.now().minusHours(4).minusMinutes(1);
-            final var src = new NrtmSourceModel(666, CIString.ciString("fish"));
+            final var src = new NrtmSource(666, CIString.ciString("fish"));
             final var file = new NrtmVersionInfo(667L, src, 100L, "xxx-yyy-zzz", NrtmDocumentType.SNAPSHOT, 9999, onlyJustExpired.toEpochSecond(ZoneOffset.UTC));
             assertThat(window.hasVersionExpired(file), is(true));
         }
         {
             final var notQuiteExpired = LocalDateTime.now().minusHours(4).plusSeconds(1);
-            final var src = new NrtmSourceModel(666, CIString.ciString("fish"));
+            final var src = new NrtmSource(666, CIString.ciString("fish"));
             final var file = new NrtmVersionInfo(667L, src, 100L, "xxx-yyy-zzz", NrtmDocumentType.SNAPSHOT, 9999, notQuiteExpired.toEpochSecond(ZoneOffset.UTC));
             assertThat(window.hasVersionExpired(file), is(false));
         }
@@ -98,13 +98,13 @@ public class SnapshotGenerationWindowTest {
         final var window = new SnapshotGenerationWindow(windowDef, getMockDateTimeProvider(LocalDate.now(), LocalTime.now()));
         {
             final var onlyJustExpired = LocalDateTime.now().minusHours(4).minusMinutes(1);
-            final var src = new NrtmSourceModel(666, CIString.ciString("fish"));
+            final var src = new NrtmSource(666, CIString.ciString("fish"));
             final var file = new NrtmVersionInfo(667L, src, 100L, "xxx-yyy-zzz", NrtmDocumentType.SNAPSHOT, 9999, onlyJustExpired.toEpochSecond(ZoneOffset.UTC));
             assertThat(window.hasVersionExpired(file), is(true));
         }
         {
             final var notQuiteExpired = LocalDateTime.now().minusHours(4).plusSeconds(1);
-            final var src = new NrtmSourceModel(666, CIString.ciString("fish"));
+            final var src = new NrtmSource(666, CIString.ciString("fish"));
             final var file = new NrtmVersionInfo(667L, src, 100L, "xxx-yyy-zzz", NrtmDocumentType.SNAPSHOT, 9999, notQuiteExpired.toEpochSecond(ZoneOffset.UTC));
             assertThat(window.hasVersionExpired(file), is(false));
         }

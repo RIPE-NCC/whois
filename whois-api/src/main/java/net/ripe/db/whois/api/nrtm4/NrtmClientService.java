@@ -6,7 +6,7 @@ import net.ripe.db.nrtm4.dao.NotificationFileSourceAwareDao;
 import net.ripe.db.nrtm4.dao.SnapshotSourceAwareFileRepository;
 import net.ripe.db.nrtm4.dao.SourceRepository;
 import net.ripe.db.nrtm4.domain.NrtmDocumentType;
-import net.ripe.db.nrtm4.domain.NrtmSourceModel;
+import net.ripe.db.nrtm4.domain.NrtmSource;
 import net.ripe.db.nrtm4.util.NrtmFileUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -103,7 +103,7 @@ public class NrtmClientService {
         }
     }
 
-    private NrtmSourceModel getSource(final String source) {
+    private NrtmSource getSource(final String source) {
         return sourceRepository.getSources().stream().filter( sourceModel -> sourceModel.getName().equals(source)).findFirst().orElseThrow(() -> new BadRequestException("Invalid source"));
     }
 
