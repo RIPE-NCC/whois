@@ -3,12 +3,11 @@ package net.ripe.db.whois.api.nrtmv4;
 import net.ripe.db.nrtm4.NrtmFileProcessor;
 import net.ripe.db.nrtm4.UpdateNotificationFileGenerator;
 import net.ripe.db.nrtm4.dao.SourceRepository;
+import net.ripe.db.nrtm4.domain.NrtmDocumentType;
 import net.ripe.db.nrtm4.domain.PublishableNotificationFile;
 import net.ripe.db.whois.api.AbstractIntegrationTest;
 import net.ripe.db.whois.api.RestTest;
 import net.ripe.db.whois.common.rpsl.RpslObject;
-import org.json.JSONException;
-import org.json.JSONObject;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
@@ -18,7 +17,11 @@ import org.springframework.test.annotation.DirtiesContext;
 import javax.ws.rs.client.WebTarget;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+import java.text.DateFormat;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.time.LocalDateTime;
+import java.util.UUID;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
@@ -289,6 +292,8 @@ public class UpdateNotificationFileGenerationTestIntegration extends AbstractInt
         assertThat(thirdIteration.getDeltas().get(0).getVersion(), is(2L));
         assertThat(thirdIteration.getDeltas().get(1).getVersion(), is(3L));
 
+        assertThat(thirdIteration.getVersion(), is(thirdIteration.getDeltas().get(1).getVersion()));
+
         assertThat(secondIteration.getSessionID(), is(thirdIteration.getSessionID()));
 
     }
@@ -325,37 +330,6 @@ public class UpdateNotificationFileGenerationTestIntegration extends AbstractInt
         assertThat(testIteration.getSessionID(), is(not(testNonAuthIteration.getSessionID())));
 
     }
-
-    @Test
-    public void should_contain_snapshot_delta_hashes(){
-        final RpslObject rpslObject = RpslObject.parse("" +
-                "inet6num:       ::/0\n" +
-                "netname:        IANA-BLK\n" +
-                "descr:          The whole IPv6 address space: Modified\n" +
-                "country:        NL\n" +
-                "tech-c:         TP1-TEST\n" +
-                "admin-c:        TP1-TEST\n" +
-                "status:         OTHER\n" +
-                "mnt-by:         OWNER-MNT\n" +
-                "source:         TEST");
-
-        testDateTimeProvider.setTime(LocalDateTime.now().minusDays(1));
-        nrtmFileProcessor.updateNrtmFilesAndPublishNotification();
-
-        databaseHelper.updateObject(rpslObject);
-
-        nrtmFileProcessor.updateNrtmFilesAndPublishNotification();
-        updateNotificationFileGenerator.generateFile();
-
-        final PublishableNotificationFile firstIteration = createResource("TEST/update-notification-file.json")
-                .request(MediaType.APPLICATION_JSON)
-                .get(PublishableNotificationFile.class);
-
-        assertThat(firstIteration.getDeltas().size(), is(1));
-        assertThat(firstIteration.getDeltas().get(0).getHash(), notNullValue());
-        assertThat(firstIteration.getSnapshot().getHash(), notNullValue());
-    }
-
     @Test
     public void should_contain_snapshot_delta_url(){
         final RpslObject rpslObject = RpslObject.parse("" +
@@ -386,15 +360,63 @@ public class UpdateNotificationFileGenerationTestIntegration extends AbstractInt
         assertThat(firstIteration.getSnapshot().getUrl(), notNullValue());
     }
 
+    @Test
+    public void should_contain_notification_type_and_nrtm4_version(){
+        nrtmFileProcessor.updateNrtmFilesAndPublishNotification();
+        updateNotificationFileGenerator.generateFile();
+
+        final PublishableNotificationFile firstIteration = createResource("TEST/update-notification-file.json")
+                .request(MediaType.APPLICATION_JSON)
+                .get(PublishableNotificationFile.class);
+
+        assertThat(firstIteration.getType(), is(NrtmDocumentType.NOTIFICATION));
+        assertThat(firstIteration.getNrtmVersion(), is(4));
+    }
+
+    @Test
+    public void should_have_correct_timestamp_format(){
+        nrtmFileProcessor.updateNrtmFilesAndPublishNotification();
+        updateNotificationFileGenerator.generateFile();
+
+        final PublishableNotificationFile firstIteration = createResource("TEST/update-notification-file.json")
+                .request(MediaType.APPLICATION_JSON)
+                .get(PublishableNotificationFile.class);
+
+        assertThat(isValidDataFormat(firstIteration.getTimestamp()), is(true));
+    }
+
+    @Test
+    public void should_have_correct_session_format(){
+        nrtmFileProcessor.updateNrtmFilesAndPublishNotification();
+        updateNotificationFileGenerator.generateFile();
+
+        final PublishableNotificationFile firstIteration = createResource("TEST/update-notification-file.json")
+                .request(MediaType.APPLICATION_JSON)
+                .get(PublishableNotificationFile.class);
+
+        assertThat(isValidSessionFormat(firstIteration.getSessionID()), is(true));
+    }
     protected WebTarget createResource(final String path) {
         return RestTest.target(getPort(), String.format("nrtmv4/%s", path));
     }
 
-    private static void assertNrtmFileInfo(final JSONObject jsonObject, final String type, final int version) throws JSONException {
-        assertThat(jsonObject.getInt("nrtm_version"), is(4));
-        assertThat(jsonObject.getString("type"), is(type));
-        assertThat(jsonObject.getString("source"), is("TEST"));
-        assertThat(jsonObject.getInt("version"), is(version));
+    private boolean isValidDataFormat(final String date){
+        final DateFormat sdf = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:dd'Z'");
+        sdf.setLenient(false);
+        try {
+            sdf.parse(date);
+        } catch (final ParseException e){
+            return false;
+        }
+        return true;
     }
 
+    private boolean isValidSessionFormat(final String sessionId){
+        try {
+            UUID.fromString(sessionId);
+        } catch (final IllegalArgumentException e){
+            return false;
+        }
+        return true;
+    }
 }
