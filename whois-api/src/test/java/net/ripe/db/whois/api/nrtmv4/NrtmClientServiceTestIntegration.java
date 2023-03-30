@@ -6,6 +6,7 @@ import com.google.common.collect.Lists;
 import com.google.common.net.HttpHeaders;
 import net.ripe.db.nrtm4.NrtmFileProcessor;
 import net.ripe.db.nrtm4.domain.DeltaChange;
+import net.ripe.db.nrtm4.domain.NrtmDocumentType;
 import net.ripe.db.nrtm4.domain.PublishableDeltaFile;
 import net.ripe.db.nrtm4.domain.PublishableNotificationFile;
 import net.ripe.db.whois.api.AbstractIntegrationTest;
@@ -303,7 +304,10 @@ public class NrtmClientServiceTestIntegration extends AbstractIntegrationTest {
 
         final JSONObject firstSnapshot = new JSONObject(decompress(firstSnapResponse.readEntity(byte[].class)));
         final JSONObject secondSnapshot = new JSONObject(decompress(secondSnapResponse.readEntity(byte[].class)));
+        assertThat(firstSnapshot.getString("type"), is("snapshot"));
         assertThat(firstSnapshot.getInt("version"), is(1));
+
+        assertThat(secondSnapshot.getString("type"), is("snapshot"));
         assertThat(secondSnapshot.getInt("version"), is(2));
 
         assertThat(firstSnapshot.getString("session_id"), is(secondSnapshot.getString("session_id")));
@@ -319,21 +323,9 @@ public class NrtmClientServiceTestIntegration extends AbstractIntegrationTest {
         final Response response = getSnapshotFromUpdateNotificationBySource("TEST");
 
         final JSONObject testSnapshot = new JSONObject(decompress(response.readEntity(byte[].class)));
+        assertThat(testSnapshot.getString("type"), is("snapshot"));
         assertThat(testSnapshot.getInt("version"), is(1));
     }
-
-    // UPDATE NOTIFICATION FILE
-    @Test
-    public void should_get_update_notification_file_per_source() throws JsonProcessingException {
-        nrtmFileProcessor.updateNrtmFilesAndPublishNotification();
-
-        final PublishableNotificationFile testPublishableNotificationFile = getNotificationFileBySource("TEST");
-        final PublishableNotificationFile nonAuthPublishableNotificationFile = getNotificationFileBySource("TEST-NONAUTH");
-
-        assertThat(testPublishableNotificationFile.getSource().getName(), is("TEST"));
-        assertThat(nonAuthPublishableNotificationFile.getSource().getName(), is("TEST-NONAUTH"));
-    }
-
     @Test
     public void snapshot_should_have_same_session_source_than_update_notification() throws IOException, JSONException {
         nrtmFileProcessor.updateNrtmFilesAndPublishNotification();
@@ -342,69 +334,14 @@ public class NrtmClientServiceTestIntegration extends AbstractIntegrationTest {
 
         final JSONObject testSnapshot = new JSONObject(decompress(snapResponse.readEntity(byte[].class)));
 
+        assertThat(testSnapshot.getString("type"), is("snapshot"));
         assertThat(testSnapshot.getString("version"), is(String.valueOf(testUpdateNotification.getVersion())));
         assertThat(testSnapshot.getString("source"), is(testUpdateNotification.getSource().getName().toString()));
         assertThat(testSnapshot.getString("session_id"), is(String.valueOf(testUpdateNotification.getSessionID())));
     }
 
-    @Test
-    public void delta_should_have_same_session_source_than_update_notification() throws JsonProcessingException {
-        nrtmFileProcessor.updateNrtmFilesAndPublishNotification();
-        generateDeltas(Collections.singletonList(RpslObject.parse("" +
-                "inet6num:       ::/0\n" +
-                "netname:        IANA-BLK\n" +
-                "descr:          The whole IPv6 address space:Updated for test\n" +
-                "country:        NL\n" +
-                "tech-c:         TP1-TEST\n" +
-                "admin-c:        TP1-TEST\n" +
-                "status:         OTHER\n" +
-                "mnt-by:         OWNER-MNT\n" +
-                "created:         2022-08-14T11:48:28Z\n" +
-                "last-modified:   2022-10-25T12:22:39Z\n" +
-                "source:         TEST")));
-        final PublishableNotificationFile testUpdateNotification = getNotificationFileBySource("TEST");
-        final PublishableDeltaFile testDelta = getDeltasFromUpdateNotificationBySource("TEST", 0);
-
-        assertThat(testDelta.getVersion(), is(testUpdateNotification.getVersion()));
-        assertThat(testDelta.getSource().getName(), is(testUpdateNotification.getSource().getName()));
-        assertThat(testDelta.getSessionID(), is(testUpdateNotification.getSessionID()));
-    }
-
-    /*Test ignored because we are tackle this situation right now
-    @Test
-    public void should_generate_notification_file_after_one_day_without_changes() throws JsonProcessingException {
-        nrtmFileProcessor.updateNrtmFilesAndPublishNotification();
-        final PublishableNotificationFile firstSnapFile = getNotificationFileBySource("TEST");
-        setTime(LocalDateTime.now().plusDays(1).withHour(23));
-        nrtmFileProcessor.updateNrtmFilesAndPublishNotification();
-        final PublishableNotificationFile newNotificationFile = getNotificationFileBySource("TEST");
-        assertThat(firstSnapFile.getVersion(), is(not(newNotificationFile.getVersion())));
-    }*/
-
-    @Test
-    public void should_generate_notification_file_after_one_day_with_changes() throws JsonProcessingException {
-        nrtmFileProcessor.updateNrtmFilesAndPublishNotification();
-        final PublishableNotificationFile firstSnapFile = getNotificationFileBySource("TEST");
-        generateDeltas(Collections.singletonList(RpslObject.parse("" +
-                "inet6num:       ::/0\n" +
-                "netname:        IANA-BLK\n" +
-                "descr:          The whole IPv6 address space:Updated for test\n" +
-                "country:        NL\n" +
-                "tech-c:         TP1-TEST\n" +
-                "admin-c:        TP1-TEST\n" +
-                "status:         OTHER\n" +
-                "mnt-by:         OWNER-MNT\n" +
-                "created:         2022-08-14T11:48:28Z\n" +
-                "last-modified:   2022-10-25T12:22:39Z\n" +
-                "source:         TEST")));
-        setTime(LocalDateTime.now().plusDays(1).withHour(23));
-        nrtmFileProcessor.updateNrtmFilesAndPublishNotification();
-        final PublishableNotificationFile newNotificationFile = getNotificationFileBySource("TEST");
-        assertThat(firstSnapFile.getVersion(), is(1L));
-        assertThat(newNotificationFile.getVersion(), is(2L));
-    }
-
     // DELTAS
+
     @Test
     public void should_get_delta_file() throws JsonProcessingException  {
         nrtmFileProcessor.updateNrtmFilesAndPublishNotification();
@@ -459,6 +396,8 @@ public class NrtmClientServiceTestIntegration extends AbstractIntegrationTest {
         final PublishableDeltaFile testDelta = getDeltasFromUpdateNotificationBySource("TEST", 0);
         final PublishableDeltaFile nonAuthDelta = getDeltasFromUpdateNotificationBySource("TEST-NONAUTH", 0);
 
+        assertThat(testDelta.getType(), is(NrtmDocumentType.DELTA));
+        assertThat(nonAuthDelta.getType(), is(NrtmDocumentType.DELTA));
         assertThat(testDelta.getVersion(), is(nonAuthDelta.getVersion()));
         assertThat(testDelta.getSource().getName(), is("TEST"));
         assertThat(nonAuthDelta.getSource().getName(), is("TEST-NONAUTH"));
@@ -533,6 +472,30 @@ public class NrtmClientServiceTestIntegration extends AbstractIntegrationTest {
         final PublishableDeltaFile secondDelta = getDeltasFromUpdateNotificationBySource("TEST", 1);
         assertThat(firstDelta.getVersion(), is(not(secondDelta.getVersion())));
         assertThat(firstDelta.getSessionID(), is(secondDelta.getSessionID()));
+    }
+
+    @Test
+    public void delta_should_have_same_session_source_than_update_notification() throws JsonProcessingException {
+        nrtmFileProcessor.updateNrtmFilesAndPublishNotification();
+        generateDeltas(Collections.singletonList(RpslObject.parse("" +
+                "inet6num:       ::/0\n" +
+                "netname:        IANA-BLK\n" +
+                "descr:          The whole IPv6 address space:Updated for test\n" +
+                "country:        NL\n" +
+                "tech-c:         TP1-TEST\n" +
+                "admin-c:        TP1-TEST\n" +
+                "status:         OTHER\n" +
+                "mnt-by:         OWNER-MNT\n" +
+                "created:         2022-08-14T11:48:28Z\n" +
+                "last-modified:   2022-10-25T12:22:39Z\n" +
+                "source:         TEST")));
+        final PublishableNotificationFile testUpdateNotification = getNotificationFileBySource("TEST");
+        final PublishableDeltaFile testDelta = getDeltasFromUpdateNotificationBySource("TEST", 0);
+
+        assertThat(testDelta.getType(), is(NrtmDocumentType.DELTA));
+        assertThat(testDelta.getVersion(), is(testUpdateNotification.getVersion()));
+        assertThat(testDelta.getSource().getName(), is(testUpdateNotification.getSource().getName()));
+        assertThat(testDelta.getSessionID(), is(testUpdateNotification.getSessionID()));
     }
 
     //Exceptions
