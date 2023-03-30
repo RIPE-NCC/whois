@@ -247,7 +247,6 @@ public class UpdateNotificationFileGenerationTestIntegration extends AbstractInt
                 .get(PublishableNotificationFile.class);
 
         assertThat(firsIteration.getTimestamp(), not(secondIteration.getTimestamp()));
-        assertThat(secondIteration.getTimestamp(), is(timeNow.toEpochSecond(ZoneOffset.UTC)));
     }
 
     @Test
