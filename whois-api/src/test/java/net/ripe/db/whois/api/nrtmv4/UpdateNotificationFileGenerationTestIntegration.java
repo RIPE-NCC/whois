@@ -1,25 +1,12 @@
 package net.ripe.db.whois.api.nrtmv4;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.google.common.collect.Lists;
-import com.google.common.net.HttpHeaders;
 import net.ripe.db.nrtm4.NrtmFileProcessor;
 import net.ripe.db.nrtm4.UpdateNotificationFileGenerator;
-import net.ripe.db.nrtm4.dao.DeltaFileDao;
-import net.ripe.db.nrtm4.dao.NrtmVersionInfoRepository;
-import net.ripe.db.nrtm4.dao.SnapshotFileRepository;
 import net.ripe.db.nrtm4.dao.SourceRepository;
-import net.ripe.db.nrtm4.domain.DeltaFileVersionInfo;
-import net.ripe.db.nrtm4.domain.NrtmVersionInfo;
 import net.ripe.db.nrtm4.domain.PublishableNotificationFile;
-import net.ripe.db.nrtm4.domain.SnapshotFile;
 import net.ripe.db.whois.api.AbstractIntegrationTest;
 import net.ripe.db.whois.api.RestTest;
-import net.ripe.db.whois.common.TestDateTimeProvider;
-import net.ripe.db.whois.common.dao.jdbc.JdbcRpslObjectOperations;
-import net.ripe.db.whois.common.rpsl.DummifierNrtm;
 import net.ripe.db.whois.common.rpsl.RpslObject;
-import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.junit.jupiter.api.BeforeEach;
@@ -31,17 +18,9 @@ import org.springframework.test.annotation.DirtiesContext;
 import javax.ws.rs.client.WebTarget;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
-import java.io.ByteArrayInputStream;
-import java.io.IOException;
 import java.time.LocalDateTime;
-import java.time.ZoneOffset;
-import java.util.List;
-import java.util.Optional;
-import java.util.zip.GZIPInputStream;
 
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.containsInAnyOrder;
-import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.not;
 
@@ -250,17 +229,99 @@ public class UpdateNotificationFileGenerationTestIntegration extends AbstractInt
     }
 
     @Test
-    public void should_create_file_with_latest_snapshot_version_no_new_delta()  {
-
-    }
-
-    @Test
     public void should_create_file_with_latest_delta_older_snapshot_version()  {
+        final RpslObject rpslObject = RpslObject.parse("" +
+                "inet6num:       ::/0\n" +
+                "netname:        IANA-BLK\n" +
+                "descr:          The whole IPv6 address space: Modified\n" +
+                "country:        NL\n" +
+                "tech-c:         TP1-TEST\n" +
+                "admin-c:        TP1-TEST\n" +
+                "status:         OTHER\n" +
+                "mnt-by:         OWNER-MNT\n" +
+                "source:         TEST");
+
+
+        testDateTimeProvider.setTime(LocalDateTime.now().minusDays(1));
+
+        nrtmFileProcessor.updateNrtmFilesAndPublishNotification();
+        updateNotificationFileGenerator.generateFile();
+
+
+        final PublishableNotificationFile firstIteration = createResource("TEST/update-notification-file.json")
+                .request(MediaType.APPLICATION_JSON)
+                .get(PublishableNotificationFile.class);
+
+
+        assertThat(firstIteration.getSnapshot().getVersion(), is(1L));
+        assertThat(firstIteration.getDeltas().size(), is(0));
+
+        testDateTimeProvider.setTime(LocalDateTime.now().withHour(23));
+
+        databaseHelper.updateObject(rpslObject);
+
+        nrtmFileProcessor.updateNrtmFilesAndPublishNotification();
+        updateNotificationFileGenerator.generateFile();
+
+        final PublishableNotificationFile secondIteration = createResource("TEST/update-notification-file.json")
+                .request(MediaType.APPLICATION_JSON)
+                .get(PublishableNotificationFile.class);
+
+
+        assertThat(secondIteration.getSnapshot().getVersion(), is(2L));
+        assertThat(secondIteration.getDeltas().size(), is(1));
+        assertThat(secondIteration.getDeltas().get(0).getVersion(), is(2L));
+
+        assertThat(firstIteration.getSessionID(), is(secondIteration.getSessionID()));
+
+        databaseHelper.deleteObject(rpslObject);
+
+        nrtmFileProcessor.updateNrtmFilesAndPublishNotification();
+        updateNotificationFileGenerator.generateFile();
+
+        final PublishableNotificationFile thirdIteration = createResource("TEST/update-notification-file.json")
+                .request(MediaType.APPLICATION_JSON)
+                .get(PublishableNotificationFile.class);
+
+        assertThat(thirdIteration.getSnapshot().getVersion(), is(2L));
+        assertThat(thirdIteration.getDeltas().size(), is(2));
+        assertThat(thirdIteration.getDeltas().get(0).getVersion(), is(2L));
+        assertThat(thirdIteration.getDeltas().get(1).getVersion(), is(3L));
+
+        assertThat(secondIteration.getSessionID(), is(thirdIteration.getSessionID()));
 
     }
 
     @Test
-    public void should_create_file_with_changes_only_one_source()  {
+    public void should_create_file_with_changes_both_sources()  {
+        databaseHelper.addObject("" +
+                "mntner:        NONAUTH-OWNER-MNT\n" +
+                "descr:         Non auth Owner Maintainer\n" +
+                "admin-c:       TP1-TEST\n" +
+                "upd-to:        noreply@ripe.net\n" +
+                "auth:          MD5-PW $1$d9fKeTr2$Si7YudNf4rUGmR71n/cqk/ #test\n" +
+                "mnt-by:        NONAUTH-OWNER-MNT\n" +
+                "referral-by:   NONAUTH-OWNER-MNT\n" +
+                "created:         2011-07-28T00:35:42Z\n" +
+                "last-modified:   2019-02-28T10:14:46Z\n" +
+                "source:        TEST-NONAUTH");
+        testDateTimeProvider.setTime(LocalDateTime.now().minusDays(1));
+
+        nrtmFileProcessor.updateNrtmFilesAndPublishNotification();
+        updateNotificationFileGenerator.generateFile();
+
+        final PublishableNotificationFile testIteration = createResource("TEST/update-notification-file.json")
+                .request(MediaType.APPLICATION_JSON)
+                .get(PublishableNotificationFile.class);
+
+        final PublishableNotificationFile testNonAuthIteration = createResource("TEST-NONAUTH/update-notification-file.json")
+                .request(MediaType.APPLICATION_JSON)
+                .get(PublishableNotificationFile.class);
+
+        assertThat(testIteration.getSource().getName(), is("TEST"));
+        assertThat(testNonAuthIteration.getSource().getName(), is("TEST-NONAUTH"));
+
+        assertThat(testIteration.getSessionID(), is(not(testNonAuthIteration.getSessionID())));
 
     }
 
