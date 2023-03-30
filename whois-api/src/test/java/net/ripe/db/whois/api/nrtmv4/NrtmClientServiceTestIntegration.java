@@ -370,6 +370,39 @@ public class NrtmClientServiceTestIntegration extends AbstractIntegrationTest {
         assertThat(testDelta.getSessionID(), is(testUpdateNotification.getSessionID()));
     }
 
+    /*Test ignored because we are tackle this situation right now
+    @Test
+    public void should_generate_notification_file_after_one_day_without_changes() throws JsonProcessingException {
+        nrtmFileProcessor.updateNrtmFilesAndPublishNotification();
+        final PublishableNotificationFile firstSnapFile = getNotificationFileBySource("TEST");
+        setTime(LocalDateTime.now().plusDays(1).withHour(23));
+        nrtmFileProcessor.updateNrtmFilesAndPublishNotification();
+        final PublishableNotificationFile newNotificationFile = getNotificationFileBySource("TEST");
+        assertThat(firstSnapFile.getVersion(), is(not(newNotificationFile.getVersion())));
+    }*/
+
+    @Test
+    public void should_generate_notification_file_after_one_day_with_changes() throws JsonProcessingException {
+        nrtmFileProcessor.updateNrtmFilesAndPublishNotification();
+        final PublishableNotificationFile firstSnapFile = getNotificationFileBySource("TEST");
+        generateDeltas(Collections.singletonList(RpslObject.parse("" +
+                "inet6num:       ::/0\n" +
+                "netname:        IANA-BLK\n" +
+                "descr:          The whole IPv6 address space:Updated for test\n" +
+                "country:        NL\n" +
+                "tech-c:         TP1-TEST\n" +
+                "admin-c:        TP1-TEST\n" +
+                "status:         OTHER\n" +
+                "mnt-by:         OWNER-MNT\n" +
+                "created:         2022-08-14T11:48:28Z\n" +
+                "last-modified:   2022-10-25T12:22:39Z\n" +
+                "source:         TEST")));
+        setTime(LocalDateTime.now().plusDays(1).withHour(23));
+        nrtmFileProcessor.updateNrtmFilesAndPublishNotification();
+        final PublishableNotificationFile newNotificationFile = getNotificationFileBySource("TEST");
+        assertThat(firstSnapFile.getVersion(), is(1L));
+        assertThat(newNotificationFile.getVersion(), is(2L));
+    }
 
     // DELTAS
     @Test
