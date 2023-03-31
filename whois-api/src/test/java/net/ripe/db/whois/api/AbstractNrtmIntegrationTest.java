@@ -10,7 +10,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import javax.ws.rs.client.WebTarget;
 import javax.ws.rs.core.MediaType;
 
-public class AbstractNrtmIntegrationTest extends AbstractIntegrationTest{
+public abstract class AbstractNrtmIntegrationTest extends AbstractIntegrationTest{
 
     @Autowired
     protected UpdateNotificationFileGenerator updateNotificationFileGenerator;
