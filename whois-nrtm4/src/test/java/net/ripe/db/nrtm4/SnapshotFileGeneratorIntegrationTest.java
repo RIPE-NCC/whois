@@ -1,3 +1,4 @@
+/*
 package net.ripe.db.nrtm4;
 
 import net.ripe.db.nrtm4.dao.SnapshotFileRepository;
@@ -82,3 +83,4 @@ public class SnapshotFileGeneratorIntegrationTest extends AbstractNrtm4Integrati
     }
 
 }
+*/

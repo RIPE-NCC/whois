@@ -1,6 +1,5 @@
 package net.ripe.db.whois.api.nrtmv4;
 
-import net.ripe.db.nrtm4.NrtmFileProcessor;
 import net.ripe.db.nrtm4.UpdateNotificationFileGenerator;
 import net.ripe.db.nrtm4.dao.SourceRepository;
 import net.ripe.db.nrtm4.domain.PublishableNotificationFile;

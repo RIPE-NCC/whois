@@ -60,7 +60,7 @@ public class NotificationFileDao {
             return Optional.empty();
         } catch (final IncorrectResultSizeDataAccessException exception) {
             LOGGER.error("More than one entry found for a source {} in update notification file", source.getName());
-            throw new IllegalStateException("More than one entry found for a source {} in update notification file");
+            throw new IllegalStateException("More than one entry found for a source in update notification file");
         }
     }
 }

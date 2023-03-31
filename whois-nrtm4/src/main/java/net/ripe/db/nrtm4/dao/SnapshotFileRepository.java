@@ -50,6 +50,7 @@ public class SnapshotFileRepository {
             payload);
     }
 
+
     public Optional<SnapshotFile> getByVersionID(final long versionID) {
         final String sql = """
             SELECT sf.id, sf.version_id, sf.name, sf.hash
