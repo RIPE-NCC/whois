@@ -56,14 +56,20 @@ public class NrtmVersionInfoRepository {
     public List<NrtmVersionInfo> findLastVersionPerSource() {
         try {
             return jdbcTemplate.query("""
-                    SELECT vi.id, src.id, src.name, vi.version, vi.session_id, vi.type, vi.last_serial_id, vi.created
-                    FROM version_info vi
-                        JOIN source src ON src.id = vi.source_id,
-                        (SELECT source_id, MAX(version) version FROM version_info GROUP BY source_id) maxv
-                    WHERE vi.source_id = maxv.source_id AND vi.version = maxv.version
-                    ORDER BY vi.last_serial_id DESC
+                    SELECT vio.id, src.id, src.name, vio.version, vio.session_id, vio.type, vio.last_serial_id, vio.created
+                    FROM version_info vio
+                        JOIN source src ON src.id = vio.source_id
+                    WHERE vio.id IN (
+                        SELECT max(vi.id)
+                        FROM version_info vi
+                            JOIN (SELECT source_id, MAX(version) version FROM version_info GROUP BY source_id) maxv
+                                ON vi.version = maxv.version AND vi.source_id = maxv.source_id
+                        WHERE vi.source_id = maxv.source_id AND vi.version = maxv.version AND vi.type != ?
+                        GROUP BY vi.source_id
+                    )
+                    ORDER BY vio.last_serial_id DESC
                     """,
-                rowMapper);
+                rowMapper, NrtmDocumentType.NOTIFICATION.toString());
         } catch (final EmptyResultDataAccessException ex) {
             LOGGER.debug("findLastVersions found no entries");
             return List.of();
@@ -135,6 +141,10 @@ public class NrtmVersionInfoRepository {
 
     public NrtmVersionInfo saveNewSnapshotVersion(final NrtmVersionInfo version) {
         return save(version.source(), version.version(), version.sessionID(), NrtmDocumentType.SNAPSHOT, version.lastSerialId());
+    }
+
+    public NrtmVersionInfo saveNewNotificationVersion(final NrtmVersionInfo version) {
+        return save(version.source(), version.version(), version.sessionID(), NrtmDocumentType.NOTIFICATION, version.lastSerialId());
     }
 
     private NrtmVersionInfo save(
