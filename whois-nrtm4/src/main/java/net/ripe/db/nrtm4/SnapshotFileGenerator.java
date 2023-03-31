@@ -154,7 +154,6 @@ public class SnapshotFileGenerator {
                 LOGGER.info("Source {} snapshot file {}", version.source().getName(), fileName);
                 Stopwatch stopwatch = Stopwatch.createStarted();
                 final byte[] bytes = bos.toByteArray();
-                final SnapshotFile snapshotFile = SnapshotFile.of(version().id(), fileName, calculateSha256(bytes));
                 LOGGER.info("Calculated hash for {} in {}", version.source().getName(), stopwatch);
                 stopwatch = Stopwatch.createStarted();
                 nrtmFileRepository.saveSnapshotVersion(version, fileName, calculateSha256(bytes), bytes);

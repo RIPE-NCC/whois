@@ -264,6 +264,7 @@ public class UpdateNotificationFileGenerationTestIntegration extends AbstractInt
         databaseHelper.updateObject(rpslObject);
 
         deltaFileGenerator.createDeltas();
+        snapshotFileGenerator.createSnapshots();
         updateNotificationFileGenerator.generateFile();
 
         final PublishableNotificationFile secondIteration = createResource("TEST/update-notification-file.json")
