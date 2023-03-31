@@ -78,14 +78,15 @@ public class SnapshotFileGenerator {
         final List<NrtmSource> sources = getSources();
         final List<NrtmVersionInfo> sourceVersions = nrtmVersionInfoRepository.findLastVersionPerSource();
 
-        final SnapshotState currentState = whoisObjectRepository.getSnapshotState(sourceVersions.isEmpty() ? null : sourceVersions.get(0).lastSerialId());
-        LOGGER.info("Found {} objects in {}", currentState.whoisObjectData().size(), stopwatch);
+        final SnapshotState snapshotState = whoisObjectRepository.getSnapshotState(sourceVersions.isEmpty() ? null : sourceVersions.get(0).lastSerialId());
+        LOGGER.info("Found {} objects in {}", snapshotState.whoisObjectData().size(), stopwatch);
 
         final List<Thread> queueReaders = new ArrayList<>();
         final Map<CIString, LinkedBlockingQueue<RpslObjectData>> queueMap = new HashMap<>();
         for (final NrtmSource source : sources) {
 
-            final NrtmVersionInfo newSnapshotVersion = getNewVersion(source, sourceVersions, currentState.serialId());
+            //TODO: If no changes no snapsho
+            final NrtmVersionInfo newSnapshotVersion = getNewVersion(source, sourceVersions, snapshotState.serialId());
             LOGGER.info("Creating snapshot for {} with version {}", source.getName(), newSnapshotVersion);
             final LinkedBlockingQueue<RpslObjectData> queue = new LinkedBlockingQueue<>(QUEUE_CAPACITY);
             queueMap.put(source.getName(), queue);
@@ -95,7 +96,7 @@ public class SnapshotFileGenerator {
             queueReaders.add(queueReader);
             queueReader.start();
         }
-        new Thread(rpslObjectEnqueuer.getRunner(currentState, queueMap)).start();
+        new Thread(rpslObjectEnqueuer.getRunner(snapshotState, queueMap)).start();
         for (final Thread queueReader : queueReaders) {
             try {
                 queueReader.join();

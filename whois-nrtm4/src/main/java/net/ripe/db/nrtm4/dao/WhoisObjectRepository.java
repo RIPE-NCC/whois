@@ -55,7 +55,7 @@ public class WhoisObjectRepository {
             });
         }
 
-        return new SnapshotState(lastSerialId, objects.entrySet().stream().map( (entry) -> new WhoisObjectData(entry.getKey(), entry.getValue())).toList());
+        return new SnapshotState(serialFrom == null ? lastSerialId : serialFrom, objects.entrySet().stream().map( (entry) -> new WhoisObjectData(entry.getKey(), entry.getValue())).toList());
     }
 
     public Map<Integer, String> findRpslMapForObjects(final List<WhoisObjectData> objects) {
