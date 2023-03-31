@@ -286,7 +286,7 @@ public class NrtmClientServiceTestIntegration extends AbstractIntegrationTest {
 
         nrtmFileProcessor.updateNrtmFilesAndPublishNotification();
 
-        final List<DeltaFileVersionInfo> deltaFileVersion = deltaFileDao.getDeltasForNotification(snapshotVersion, LocalDateTime.MIN);
+        final List<DeltaFileVersionInfo> deltaFileVersion = deltaFileDao.getDeltasForNotificationSince(snapshotVersion, LocalDateTime.MIN);
         final Response response = createResource("TEST/" + deltaFileVersion.get(0).deltaFile().name())
                 .request(MediaType.APPLICATION_JSON)
                 .get(Response.class);
@@ -376,8 +376,9 @@ public class NrtmClientServiceTestIntegration extends AbstractIntegrationTest {
     }
 
     private void insertUpdateNotificationFile() {
-         databaseHelper.getNrtmTemplate().update("INSERT INTO source (id, name) VALUES (?,?)", 1, "TEST");
-         databaseHelper.getNrtmTemplate().update("INSERT INTO source (id, name) VALUES (?,?)", 2, "TEST-NONAUTH");
+        final var timestamp = dateTimeProvider.getCurrentDateTime().toEpochSecond(ZoneOffset.UTC);
+        databaseHelper.getNrtmTemplate().update("INSERT INTO source (id, name) VALUES (?,?)", 1, "TEST");
+        databaseHelper.getNrtmTemplate().update("INSERT INTO source (id, name) VALUES (?,?)", 2, "TEST-NONAUTH");
 
         final String versionSql = """
                     INSERT INTO version_info (id, source_id, version, session_id, type, last_serial_id, created)
