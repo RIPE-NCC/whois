@@ -85,7 +85,10 @@ public class SnapshotFileGenerator {
         final Map<CIString, LinkedBlockingQueue<RpslObjectData>> queueMap = new HashMap<>();
         for (final NrtmSource source : sources) {
 
-            //TODO: If no changes no snapsho
+            if(!canProceed(sourceVersions, source)) {
+               continue;
+            }
+
             final NrtmVersionInfo newSnapshotVersion = getNewVersion(source, sourceVersions, snapshotState.serialId());
             LOGGER.info("Creating snapshot for {} with version {}", source.getName(), newSnapshotVersion);
             final LinkedBlockingQueue<RpslObjectData> queue = new LinkedBlockingQueue<>(QUEUE_CAPACITY);
@@ -106,6 +109,17 @@ public class SnapshotFileGenerator {
             }
         }
         LOGGER.info("Snapshot generation complete {}", stopwatch);
+    }
+
+    private boolean canProceed(final List<NrtmVersionInfo> sourceVersions, final NrtmSource source) {
+        if(!sourceVersions.isEmpty()) {
+            final Optional<NrtmVersionInfo> versionInfo = sourceVersions.stream().filter((sourceVersion) -> source.getName().equals(sourceVersion.source().getName())).findFirst();
+            if(versionInfo.isPresent() && versionInfo.get().type() == NrtmDocumentType.SNAPSHOT) {
+                return false;
+            }
+        }
+
+        return true;
     }
 
     private List<NrtmSource> getSources() {
