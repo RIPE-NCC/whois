@@ -47,7 +47,6 @@ public class SnapshotFileGenerator {
     private final NrtmVersionInfoRepository nrtmVersionInfoRepository;
     private final RpslObjectEnqueuer rpslObjectEnqueuer;
     private final SnapshotFileSerializer snapshotFileSerializer;
-    private final SnapshotFileRepository snapshotFileRepository;
     private final SourceRepository sourceRepository;
     private final NrtmFileRepository nrtmFileRepository;
     private final DateTimeProvider dateTimeProvider;
@@ -68,7 +67,6 @@ public class SnapshotFileGenerator {
         this.nrtmVersionInfoRepository = nrtmVersionInfoRepository;
         this.rpslObjectEnqueuer = rpslObjectEnqueuer;
         this.snapshotFileSerializer = snapshotFileSerializer;
-        this.snapshotFileRepository = snapshotFileRepository;
         this.sourceRepository = sourceRepository;
         this.whoisObjectRepository = whoisObjectRepository;
         this.nrtmFileRepository = nrtmFileRepository;
@@ -159,7 +157,7 @@ public class SnapshotFileGenerator {
                 final SnapshotFile snapshotFile = SnapshotFile.of(version().id(), fileName, calculateSha256(bytes));
                 LOGGER.info("Calculated hash for {} in {}", version.source().getName(), stopwatch);
                 stopwatch = Stopwatch.createStarted();
-                nrtmFileRepository.saveSnapshotVersion(version, snapshotFile, bytes);
+                nrtmFileRepository.saveSnapshotVersion(version, fileName, calculateSha256(bytes), bytes);
                 LOGGER.info("Wrote {} to DB {}", version.source().getName(), stopwatch);
             } catch (final Throwable t) {
                 LOGGER.error("Unexpected throwable caught when inserting snapshot file", t);

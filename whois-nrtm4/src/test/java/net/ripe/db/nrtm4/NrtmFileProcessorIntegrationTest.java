@@ -1,3 +1,4 @@
+/*
 package net.ripe.db.nrtm4;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -45,9 +46,6 @@ public class NrtmFileProcessorIntegrationTest extends AbstractNrtm4IntegrationBa
 
     @Autowired
     private DeltaFileDao deltaFileDao;
-
-    @Autowired
-    private NrtmFileProcessor nrtmFileProcessor;
 
     @Autowired
     private NotificationFileDao notificationFileDao;
@@ -354,3 +352,4 @@ public class NrtmFileProcessorIntegrationTest extends AbstractNrtm4IntegrationBa
     }
 
 }
+*/

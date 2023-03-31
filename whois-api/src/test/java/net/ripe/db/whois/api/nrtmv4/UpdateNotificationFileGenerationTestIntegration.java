@@ -1,5 +1,7 @@
 package net.ripe.db.whois.api.nrtmv4;
 
+import net.ripe.db.nrtm4.DeltaFileGenerator;
+import net.ripe.db.nrtm4.SnapshotFileGenerator;
 import net.ripe.db.nrtm4.UpdateNotificationFileGenerator;
 import net.ripe.db.nrtm4.dao.SourceRepository;
 import net.ripe.db.nrtm4.domain.PublishableNotificationFile;
@@ -31,7 +33,10 @@ public class UpdateNotificationFileGenerationTestIntegration extends AbstractInt
     UpdateNotificationFileGenerator updateNotificationFileGenerator;
 
     @Autowired
-    NrtmFileProcessor nrtmFileProcessor;
+    SnapshotFileGenerator snapshotFileGenerator;
+
+    @Autowired
+    DeltaFileGenerator deltaFileGenerator;
 
     @Autowired
     SourceRepository sourceRepository;
@@ -185,7 +190,7 @@ public class UpdateNotificationFileGenerationTestIntegration extends AbstractInt
     @Test
     public void should_not_create_new_file_if_no_changes()  {
         testDateTimeProvider.setTime(LocalDateTime.now().minusHours(1));
-        nrtmFileProcessor.updateNrtmFilesAndPublishNotification();
+        snapshotFileGenerator.createSnapshots();
 
         updateNotificationFileGenerator.generateFile();
 
@@ -207,7 +212,7 @@ public class UpdateNotificationFileGenerationTestIntegration extends AbstractInt
     @Test
     public void should_create_file_if_no_changes_last_file_24_hours_old()  {
         testDateTimeProvider.setTime(LocalDateTime.now().minusDays(1));
-        nrtmFileProcessor.updateNrtmFilesAndPublishNotification();
+        snapshotFileGenerator.createSnapshots();
 
         updateNotificationFileGenerator.generateFile();
 
@@ -243,9 +248,8 @@ public class UpdateNotificationFileGenerationTestIntegration extends AbstractInt
 
         testDateTimeProvider.setTime(LocalDateTime.now().minusDays(1));
 
-        nrtmFileProcessor.updateNrtmFilesAndPublishNotification();
+        snapshotFileGenerator.createSnapshots();
         updateNotificationFileGenerator.generateFile();
-
 
         final PublishableNotificationFile firstIteration = createResource("TEST/update-notification-file.json")
                 .request(MediaType.APPLICATION_JSON)
@@ -259,7 +263,7 @@ public class UpdateNotificationFileGenerationTestIntegration extends AbstractInt
 
         databaseHelper.updateObject(rpslObject);
 
-        nrtmFileProcessor.updateNrtmFilesAndPublishNotification();
+        deltaFileGenerator.createDeltas();
         updateNotificationFileGenerator.generateFile();
 
         final PublishableNotificationFile secondIteration = createResource("TEST/update-notification-file.json")
@@ -275,7 +279,7 @@ public class UpdateNotificationFileGenerationTestIntegration extends AbstractInt
 
         databaseHelper.deleteObject(rpslObject);
 
-        nrtmFileProcessor.updateNrtmFilesAndPublishNotification();
+        deltaFileGenerator.createDeltas();
         updateNotificationFileGenerator.generateFile();
 
         final PublishableNotificationFile thirdIteration = createResource("TEST/update-notification-file.json")
@@ -306,7 +310,7 @@ public class UpdateNotificationFileGenerationTestIntegration extends AbstractInt
                 "source:        TEST-NONAUTH");
         testDateTimeProvider.setTime(LocalDateTime.now().minusDays(1));
 
-        nrtmFileProcessor.updateNrtmFilesAndPublishNotification();
+        snapshotFileGenerator.createSnapshots();
         updateNotificationFileGenerator.generateFile();
 
         final PublishableNotificationFile testIteration = createResource("TEST/update-notification-file.json")

@@ -10,12 +10,16 @@ import net.ripe.db.nrtm4.domain.SnapshotFile;
 import net.ripe.db.nrtm4.util.NrtmFileUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.nio.charset.StandardCharsets;
 import java.util.List;
 
+import static net.ripe.db.nrtm4.util.NrtmFileUtil.calculateSha256;
+
+@Repository
 public class NrtmFileRepository {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(NrtmFileRepository.class);
@@ -43,9 +47,11 @@ public class NrtmFileRepository {
     }
 
     @Transactional(propagation = Propagation.REQUIRES_NEW)
-    public void saveSnapshotVersion(final NrtmVersionInfo version, final SnapshotFile snapshotFile, final byte[] payload) throws JsonProcessingException {
+    public void saveSnapshotVersion(final NrtmVersionInfo version, final String fileName, final String hash, final byte[] payload)  {
 
-        nrtmVersionInfoRepository.saveNewSnapshotVersion(version);
+        final NrtmVersionInfo newVersion = nrtmVersionInfoRepository.saveNewSnapshotVersion(version);
+        final SnapshotFile snapshotFile = SnapshotFile.of(newVersion.id(), fileName, hash);
+
         snapshotFileRepository.insert(snapshotFile, payload);
         LOGGER.info("Created {} snapshot version {}", version.source().getName(), version.version());
     }

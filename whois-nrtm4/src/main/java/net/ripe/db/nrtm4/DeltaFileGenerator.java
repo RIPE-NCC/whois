@@ -52,7 +52,6 @@ public class DeltaFileGenerator {
 
     public void createDeltas() {
 
-        //TODO: if no snapshot file exists return;
         final int serialIDTo = whoisObjectDao.getLastSerialId();
         final List<NrtmVersionInfo> sourceVersions = nrtmVersionInfoRepository.findLastVersionPerSource();
         if (sourceVersions.isEmpty()) {
