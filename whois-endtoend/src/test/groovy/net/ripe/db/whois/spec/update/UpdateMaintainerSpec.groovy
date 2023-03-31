@@ -813,7 +813,7 @@ class UpdateMaintainerSpec extends BaseQueryUpdateSpec {
         ack.summary.assertErrors(0, 0, 0, 0)
 
         ack.successes.any { it.operation == "Create" && it.key == "[mntner] RIPE-NCC-RPSL-MNT"}
-        ack.countErrorWarnInfo(0, 0, 1)
+        ack.countErrorWarnInfo(0, 1, 1)
 
         queryObject("-rGBT mntner RIPE-NCC-RPSL-MNT", "mntner", "RIPE-NCC-RPSL-MNT")
     }

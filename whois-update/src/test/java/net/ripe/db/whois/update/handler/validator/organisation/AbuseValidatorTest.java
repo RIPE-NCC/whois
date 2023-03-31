@@ -62,7 +62,7 @@ public class AbuseValidatorTest {
     public void has_no_abusec() {
         when(update.getUpdatedObject()).thenReturn(OTHER_ORG_WITHOUT_ABUSE_C);
 
-        subject.validate(update, updateContext);
+       subject.validate(update, updateContext);
 
         verifyNoMoreInteractions(updateContext);
     }
@@ -72,7 +72,7 @@ public class AbuseValidatorTest {
         when(update.getUpdatedObject()).thenReturn(OTHER_ORG_WITH_ABUSE_C);
         when(objectDao.getByKey(eq(ObjectType.ROLE), eq(CIString.ciString("AB-NIC")))).thenReturn(ROLE_WITHOUT_ABUSE_MAILBOX);
 
-        subject.validate(update, updateContext);
+       subject.validate(update, updateContext);
 
         verify(updateContext).addMessage(update, UpdateMessages.abuseMailboxRequired("AB-NIC", update.getUpdatedObject().getType()));
         verifyNoMoreInteractions(maintainers);
@@ -83,7 +83,7 @@ public class AbuseValidatorTest {
         when(update.getUpdatedObject()).thenReturn(OTHER_ORG_WITH_ABUSE_C);
         when(objectDao.getByKey(eq(ObjectType.ROLE), eq(CIString.ciString("AB-NIC")))).thenReturn(ROLE_WITH_ABUSE_MAILBOX);
 
-        subject.validate(update, updateContext);
+       subject.validate(update, updateContext);
 
         verifyNoMoreInteractions(updateContext);
         verifyNoMoreInteractions(maintainers);
@@ -95,7 +95,7 @@ public class AbuseValidatorTest {
         when(objectDao.getByKey(eq(ObjectType.ROLE), eq(CIString.ciString("AB-NIC")))).thenThrow(new EmptyResultDataAccessException(1));
         when(objectDao.getByKey(eq(ObjectType.PERSON), eq(CIString.ciString("AB-NIC")))).thenReturn(PERSON_WITHOUT_ABUSE_MAILBOX);
 
-        subject.validate(update, updateContext);
+       subject.validate(update, updateContext);
 
         verify(updateContext).addMessage(update, UpdateMessages.abuseCPersonReference());
         verify(updateContext, never()).addMessage(update, UpdateMessages.abuseMailboxRequired("nic-hdl: AB-NIC", update.getUpdatedObject().getType()));
@@ -108,7 +108,7 @@ public class AbuseValidatorTest {
         when(objectDao.getByKey(eq(ObjectType.ROLE), eq(CIString.ciString("AB-NIC")))).thenThrow(new EmptyResultDataAccessException(1));
         when(objectDao.getByKey(eq(ObjectType.PERSON), eq(CIString.ciString("AB-NIC")))).thenThrow(new EmptyResultDataAccessException(1));
 
-        subject.validate(update, updateContext);
+       subject.validate(update, updateContext);
 
         verifyNoMoreInteractions(updateContext);
         verifyNoMoreInteractions(maintainers);
@@ -119,7 +119,7 @@ public class AbuseValidatorTest {
         when(update.getReferenceObject()).thenReturn(LIR_ORG_WITH_ABUSE_C);
         when(update.getUpdatedObject()).thenReturn(LIR_ORG_WITHOUT_ABUSE_C);
 
-        subject.validate(update, updateContext);
+       subject.validate(update, updateContext);
 
         verify(updateContext).addMessage(update, UpdateMessages.abuseContactNotRemovable());
         verifyNoMoreInteractions(maintainers);
@@ -131,7 +131,7 @@ public class AbuseValidatorTest {
         when(update.getUpdatedObject()).thenReturn(OTHER_ORG_WITHOUT_ABUSE_C);
         when(updateDao.getReferences(update.getUpdatedObject())).thenReturn(Collections.EMPTY_SET);
 
-        subject.validate(update, updateContext);
+       subject.validate(update, updateContext);
 
         verifyNoMoreInteractions(updateContext);
         verifyNoMoreInteractions(maintainers);
@@ -145,7 +145,7 @@ public class AbuseValidatorTest {
         when(update.getUpdatedObject()).thenReturn(OTHER_ORG_WITHOUT_ABUSE_C);
         when(updateDao.getReferences(update.getUpdatedObject())).thenReturn(Sets.newHashSet(info));
 
-        subject.validate(update, updateContext);
+       subject.validate(update, updateContext);
 
         verifyNoMoreInteractions(updateContext);
         verifyNoMoreInteractions(maintainers);
@@ -159,7 +159,7 @@ public class AbuseValidatorTest {
         when(updateDao.getReferences(update.getUpdatedObject())).thenReturn(Sets.newHashSet(info));
         when(objectDao.getById(info.getObjectId())).thenReturn(RESOURCE_NOT_RS_MAINTAINED);
 
-        subject.validate(update, updateContext);
+       subject.validate(update, updateContext);
 
         verifyNoMoreInteractions(updateContext);
         verify(maintainers).isRsMaintainer(ciSet("A_NON_RS_MAINTAINER"));
@@ -176,7 +176,7 @@ public class AbuseValidatorTest {
         when(updateDao.getReferences(update.getUpdatedObject())).thenReturn(Sets.newHashSet(info));
         when(objectDao.getById(info.getObjectId())).thenReturn(RESOURCE_RS_MAINTAINED);
 
-        subject.validate(update, updateContext);
+       subject.validate(update, updateContext);
 
         verify(updateContext).addMessage(update, UpdateMessages.abuseContactNotRemovable());
         verify(maintainers).isRsMaintainer(ciSet("AN_RS_MAINTAINER"));

@@ -1,6 +1,8 @@
 package net.ripe.db.whois.update.handler.validator.inetnum;
 
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.Lists;
+import net.ripe.db.whois.common.Message;
 import net.ripe.db.whois.common.ip.Interval;
 import net.ripe.db.whois.common.ip.IpInterval;
 import net.ripe.db.whois.common.ip.Ipv4Resource;
@@ -35,21 +37,21 @@ public class IntersectionValidator implements BusinessRuleValidator {
     }
 
     @Override
-    public void validate(final PreparedUpdate update, final UpdateContext updateContext) {
+    public List<Message> performValidation(final PreparedUpdate update, final UpdateContext updateContext) {
         final IpInterval ipInterval = IpInterval.parse(update.getReferenceObject().getKey());
         if (ipInterval instanceof Ipv4Resource) {
-            validateIntersections(update, updateContext, ipInterval, ipv4Tree);
+            return validateIntersections(ipInterval, ipv4Tree, Lists.newArrayList());
         } else {
-            validateIntersections(update, updateContext, ipInterval, ipv6Tree);
+            return validateIntersections(ipInterval, ipv6Tree, Lists.newArrayList());
         }
     }
 
-    private void validateIntersections(final PreparedUpdate update, final UpdateContext updateContext, final IpInterval ipInterval, final IpTree ipTree) {
+    private List<Message> validateIntersections(final IpInterval ipInterval, final IpTree ipTree, final List<Message> messages) {
         final List<IpEntry> parent = ipTree.findFirstLessSpecific(ipInterval);
 
         if (parent.size() != 1) {
-            updateContext.addMessage(update, UpdateMessages.invalidParentEntryForInterval(ipInterval));
-            return;
+            messages.add(UpdateMessages.invalidParentEntryForInterval(ipInterval));
+            return messages;
         }
 
         Interval firstIntersecting = null;
@@ -65,8 +67,10 @@ public class IntersectionValidator implements BusinessRuleValidator {
         }
 
         if (firstIntersecting != null) {
-            updateContext.addMessage(update, UpdateMessages.intersectingRange(firstIntersecting));
+            messages.add(UpdateMessages.intersectingRange(firstIntersecting));
         }
+
+        return messages;
     }
 
     @Override

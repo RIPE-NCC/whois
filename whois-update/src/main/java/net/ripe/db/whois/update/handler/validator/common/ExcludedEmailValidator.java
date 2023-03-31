@@ -1,6 +1,8 @@
 package net.ripe.db.whois.update.handler.validator.common;
 
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.Lists;
+import net.ripe.db.whois.common.Message;
 import net.ripe.db.whois.common.domain.CIString;
 import net.ripe.db.whois.common.rpsl.AttributeParser;
 import net.ripe.db.whois.common.rpsl.AttributeSyntax;
@@ -22,6 +24,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -52,19 +55,20 @@ public class ExcludedEmailValidator implements BusinessRuleValidator {
      }
 
     @Override
-    public void validate(final PreparedUpdate update, final UpdateContext updateContext) {
+    public List<Message> performValidation(final PreparedUpdate update, final UpdateContext updateContext) {
         final Subject subject = updateContext.getSubject(update);
-        if (subject.hasPrincipal(Principal.OVERRIDE_MAINTAINER) || subject.hasPrincipal(Principal.RS_MAINTAINER)) {
-            return;
+        if (subject.hasPrincipal(Principal.RS_MAINTAINER)) {
+            return Collections.emptyList();
         }
 
+        final List<Message> messages = Lists.newArrayList();
         final RpslObject updatedObject = update.getUpdatedObject();
         for (final RpslAttribute attribute : updatedObject.getAttributes()) {
             if (EMAIL_ATTRIBUTES.contains(attribute.getType())) {
                 try {
                     final CIString address = CIString.ciString(getAddress(attribute.getValue()));
                     if (excludedEmailAddresses.contains(address)) {
-                        updateContext.addMessage(update, attribute, UpdateMessages.emailAddressCannotBeUsed(address));
+                        messages.add(UpdateMessages.emailAddressCannotBeUsed(attribute, address));
                     }
                 } catch (IllegalArgumentException e) {
                     // skip validation if the attribute value cannot be parsed
@@ -72,8 +76,14 @@ public class ExcludedEmailValidator implements BusinessRuleValidator {
                 }
             }
         }
+
+        return messages;
     }
 
+    @Override
+    public boolean isSkipForOverride() {
+        return true;
+    }
     @Override
     public ImmutableList<Action> getActions() {
         return ACTIONS;

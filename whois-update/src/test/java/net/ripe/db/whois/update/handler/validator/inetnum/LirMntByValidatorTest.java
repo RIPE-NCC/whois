@@ -1,5 +1,7 @@
 package net.ripe.db.whois.update.handler.validator.inetnum;
 
+import net.ripe.db.whois.common.Message;
+import net.ripe.db.whois.common.Messages;
 import net.ripe.db.whois.common.domain.Maintainers;
 import net.ripe.db.whois.common.rpsl.AttributeType;
 import net.ripe.db.whois.common.rpsl.ObjectType;
@@ -77,7 +79,7 @@ public class LirMntByValidatorTest {
         when(update.getReferenceObject()).thenReturn(rpslOriginalObject);
         when(update.getUpdatedObject()).thenReturn(rpslUpdatedlObject);
 
-        subject.validate(update, updateContext);
+       subject.validate(update, updateContext);
 
         verify(updateContext).addMessage(update, UpdateMessages.canOnlyBeChangedinLirPortal(AttributeType.MNT_BY));
         verify(maintainers).isRsMaintainer(ciSet("RIPE-NCC-HM-MNT", "TEST-MNT"));
@@ -98,13 +100,10 @@ public class LirMntByValidatorTest {
                 "mnt-by:       TEST2-MNT");
         when(authenticationSubject.hasPrincipal(Principal.RS_MAINTAINER)).thenReturn(true);
         when(authenticationSubject.hasPrincipal(Principal.OVERRIDE_MAINTAINER)).thenReturn(false);
-        when(update.getReferenceObject()).thenReturn(rpslOriginalObject);
-        when(update.getUpdatedObject()).thenReturn(rpslUpdatedlObject);
 
-        subject.validate(update, updateContext);
+       subject.validate(update, updateContext);
 
         verify(updateContext, never()).addMessage(ArgumentMatchers.any(), ArgumentMatchers.any());
-        verify(maintainers).isRsMaintainer(ciSet("RIPE-NCC-HM-MNT", "TEST-MNT"));
         verifyNoMoreInteractions(maintainers);
     }
 
@@ -121,12 +120,13 @@ public class LirMntByValidatorTest {
                 "mnt-by:       RIPE-NCC-HM-MNT\n" +
                 "mnt-by:       TEST2-MNT");
         when(authenticationSubject.hasPrincipal(Principal.OVERRIDE_MAINTAINER)).thenReturn(true);
+        when(authenticationSubject.hasPrincipal(Principal.RS_MAINTAINER)).thenReturn(false);
         when(update.getReferenceObject()).thenReturn(rpslOriginalObject);
         when(update.getUpdatedObject()).thenReturn(rpslUpdatedlObject);
 
-        subject.validate(update, updateContext);
+       subject.validate(update, updateContext);
 
-        verify(updateContext, never()).addMessage(ArgumentMatchers.any(), ArgumentMatchers.any());
+        verify(updateContext).addMessage(update, new Message(Messages.Type.WARNING, UpdateMessages.canOnlyBeChangedinLirPortal(AttributeType.MNT_BY).getText(), AttributeType.MNT_BY.getName()));
         verify(maintainers).isRsMaintainer(ciSet("RIPE-NCC-HM-MNT", "TEST-MNT"));
         verifyNoMoreInteractions(maintainers);
     }
@@ -146,7 +146,7 @@ public class LirMntByValidatorTest {
         when(update.getReferenceObject()).thenReturn(rpslOriginalObject);
         when(update.getUpdatedObject()).thenReturn(rpslUpdatedlObject);
 
-        subject.validate(update, updateContext);
+       subject.validate(update, updateContext);
 
         verify(updateContext, never()).addMessage(ArgumentMatchers.any(), ArgumentMatchers.any());
         verify(maintainers).isRsMaintainer(ciSet("RIPE-NCC-HM-MNT", "TEST-MNT"));
@@ -169,7 +169,7 @@ public class LirMntByValidatorTest {
         when(update.getReferenceObject()).thenReturn(rpslOriginalObject);
         when(update.getUpdatedObject()).thenReturn(rpslUpdatedlObject);
 
-        subject.validate(update, updateContext);
+       subject.validate(update, updateContext);
 
         verify(updateContext).addMessage(update, UpdateMessages.canOnlyBeChangedinLirPortal(AttributeType.MNT_BY));
         verify(maintainers).isRsMaintainer(ciSet("RIPE-NCC-HM-MNT", "TEST-MNT"));
@@ -191,7 +191,7 @@ public class LirMntByValidatorTest {
         when(update.getReferenceObject()).thenReturn(rpslOriginalObject);
         when(update.getUpdatedObject()).thenReturn(rpslUpdatedlObject);
 
-        subject.validate(update, updateContext);
+       subject.validate(update, updateContext);
 
         verify(updateContext).addMessage(update, UpdateMessages.canOnlyBeChangedinLirPortal(AttributeType.MNT_BY));
         verify(maintainers).isRsMaintainer(ciSet("RIPE-NCC-HM-MNT", "TEST-MNT"));
@@ -218,7 +218,7 @@ public class LirMntByValidatorTest {
         when(update.getReferenceObject()).thenReturn(rpslOriginalObject);
         when(update.getUpdatedObject()).thenReturn(rpslUpdatedlObject);
 
-        subject.validate(update, updateContext);
+       subject.validate(update, updateContext);
 
         verify(updateContext).addMessage(update, UpdateMessages.canOnlyBeChangedinLirPortal(AttributeType.MNT_BY));
         verify(maintainers).isRsMaintainer(ciSet("RIPE-NCC-HM-MNT", "TEST-MNT", "TEST2-MNT"));
@@ -239,7 +239,7 @@ public class LirMntByValidatorTest {
         when(update.getReferenceObject()).thenReturn(rpslOriginalObject);
         when(update.getUpdatedObject()).thenReturn(rpslUpdatedlObject);
 
-        subject.validate(update, updateContext);
+       subject.validate(update, updateContext);
 
         verify(updateContext, never()).addMessage(ArgumentMatchers.any(), ArgumentMatchers.any());
         verify(maintainers).isRsMaintainer(ciSet("RIPE-NCC-HM-MNT"));
@@ -260,7 +260,7 @@ public class LirMntByValidatorTest {
         when(update.getReferenceObject()).thenReturn(rpslOriginalObject);
         when(update.getUpdatedObject()).thenReturn(rpslUpdatedlObject);
 
-        subject.validate(update, updateContext);
+       subject.validate(update, updateContext);
 
         verify(updateContext, never()).addMessage(ArgumentMatchers.any(), ArgumentMatchers.any());
         verify(maintainers).isRsMaintainer(ciSet("RIPE-NCC-HM-MNT"));
@@ -280,13 +280,10 @@ public class LirMntByValidatorTest {
                 "mnt-by:       RIPE-NCC-HM-MNT\n");
         when(authenticationSubject.hasPrincipal(Principal.RS_MAINTAINER)).thenReturn(true);
         when(authenticationSubject.hasPrincipal(Principal.OVERRIDE_MAINTAINER)).thenReturn(false);
-        when(update.getReferenceObject()).thenReturn(rpslOriginalObject);
-        when(update.getUpdatedObject()).thenReturn(rpslUpdatedlObject);
 
-        subject.validate(update, updateContext);
+       subject.validate(update, updateContext);
 
         verify(updateContext, never()).addMessage(ArgumentMatchers.any(), ArgumentMatchers.any());
-        verify(maintainers).isRsMaintainer(ciSet("RIPE-NCC-HM-MNT", "TEST-MNT"));
         verifyNoMoreInteractions(maintainers);
     }
 
@@ -302,13 +299,11 @@ public class LirMntByValidatorTest {
                 "status:       ALLOCATED PA\n" +
                 "mnt-by:       RIPE-NCC-HM-MNT\n");
         when(authenticationSubject.hasPrincipal(Principal.OVERRIDE_MAINTAINER)).thenReturn(true);
+        when(authenticationSubject.hasPrincipal(Principal.RS_MAINTAINER)).thenReturn(false);
         when(update.getReferenceObject()).thenReturn(rpslOriginalObject);
         when(update.getUpdatedObject()).thenReturn(rpslUpdatedlObject);
 
-        subject.validate(update, updateContext);
-
-        verify(updateContext, never()).addMessage(ArgumentMatchers.any(), ArgumentMatchers.any());
-        verify(maintainers).isRsMaintainer(ciSet("RIPE-NCC-HM-MNT", "TEST-MNT"));
-        verifyNoMoreInteractions(maintainers);
+       subject.validate(update, updateContext);
+        verify(updateContext).addMessage(update, new Message(Messages.Type.WARNING, UpdateMessages.canOnlyBeChangedinLirPortal(AttributeType.MNT_BY).getText(), AttributeType.MNT_BY.getName()));
     }
 }

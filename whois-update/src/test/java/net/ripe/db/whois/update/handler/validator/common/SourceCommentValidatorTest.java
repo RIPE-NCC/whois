@@ -40,7 +40,7 @@ public class SourceCommentValidatorTest {
     public void source_attribute_has_comment() {
         when(update.getUpdatedObject()).thenReturn(RpslObject.parse("mntner: TEST-MNT\nsource: TEST # comment"));
 
-        subject.validate(update, updateContext);
+       subject.validate(update, updateContext);
 
         verify(updateContext).addMessage(update, UpdateMessages.commentInSourceNotAllowed());
     }
@@ -49,7 +49,7 @@ public class SourceCommentValidatorTest {
     public void source_attribute_has_no_comment() {
         when(update.getUpdatedObject()).thenReturn(RpslObject.parse("mntner: TEST-MNT\nsource: TEST"));
 
-        subject.validate(update, updateContext);
+       subject.validate(update, updateContext);
 
         verifyNoMoreInteractions(updateContext);
     }

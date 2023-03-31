@@ -8,8 +8,6 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
-import java.io.IOException;
-
 
 @Component
 public class NrtmFileWriterScheduledTask implements DailyScheduledTask {
@@ -35,7 +33,7 @@ public class NrtmFileWriterScheduledTask implements DailyScheduledTask {
         }
         try {
             nrtmFileProcessor.updateNrtmFilesAndPublishNotification();
-        } catch (final IOException e) {
+        } catch (final Exception e) {
             LOGGER.error("NRTM file generation failed", e);
             throw new RuntimeException(e);
         }

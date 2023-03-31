@@ -1,35 +1,21 @@
 package net.ripe.db.nrtm4.domain;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
+import java.util.List;
 
 
-public class PublishableSnapshotFile extends PublishableNrtmDocument {
+public class PublishableSnapshotFile extends PublishableNrtmFile {
 
-    @JsonIgnore
-    private String fileName;
-    @JsonIgnore
-    private String sha256hex;
+    private List<String> objects;
 
-    public PublishableSnapshotFile(
-        final NrtmVersionInfo version
-    ) {
-        super(version);
+    private PublishableSnapshotFile() {}
+
+    public PublishableSnapshotFile(final NrtmVersionInfo nextVersion) {
+        super(nextVersion);
+        this.objects = null; // explicitly serialized by SnapshotSerializer
     }
 
-    public void setFileName(final String fileName) {
-        this.fileName = fileName;
-    }
-
-    public void setHash(final String sha256hex) {
-        this.sha256hex = sha256hex;
-    }
-
-    public String getFileName() {
-        return fileName;
-    }
-
-    public String getHash() {
-        return sha256hex;
+    public List<String> getObjects() {
+        return objects;
     }
 
 }

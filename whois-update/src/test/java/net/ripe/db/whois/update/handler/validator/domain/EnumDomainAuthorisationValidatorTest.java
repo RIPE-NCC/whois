@@ -1,5 +1,6 @@
 package net.ripe.db.whois.update.handler.validator.domain;
 
+import net.ripe.db.whois.common.Message;
 import net.ripe.db.whois.common.rpsl.ObjectType;
 import net.ripe.db.whois.common.rpsl.RpslObject;
 import net.ripe.db.whois.update.authentication.Principal;
@@ -18,11 +19,10 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.containsInAnyOrder;
-import static org.mockito.Mockito.any;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
@@ -52,20 +52,20 @@ public class EnumDomainAuthorisationValidatorTest {
         when(update.getUpdatedObject()).thenReturn(RpslObject.parse("" +
                 "domain: 200.193.193.in-addr.arpa"));
 
-        subject.validate(update, updateContext);
+       subject.validate(update, updateContext);
 
-        verify(updateContext).getSubject(any(UpdateContainer.class));
-        verifyNoMoreInteractions(updateContext);
+        verify(updateContext, never()).addMessage(any(UpdateContainer.class), any(Message.class));
     }
 
     @Test
     public void validate_override() {
         when(authSubject.hasPrincipal(Principal.OVERRIDE_MAINTAINER)).thenReturn(true);
+        when(update.getUpdatedObject()).thenReturn(RpslObject.parse("" +
+                "domain: 200.193.193.in-addr.arpa"));
 
-        subject.validate(update, updateContext);
+       subject.validate(update, updateContext);
 
-        verify(updateContext).getSubject(any(UpdateContainer.class));
-        verifyNoMoreInteractions(updateContext);
+        verify(updateContext, never()).addMessage(any(UpdateContainer.class), any(Message.class));
     }
 
     @Test
@@ -75,7 +75,7 @@ public class EnumDomainAuthorisationValidatorTest {
 
         lenient().when(authSubject.hasPrincipal(Principal.ENUM_MAINTAINER)).thenReturn(false);
 
-        subject.validate(update, updateContext);
+       subject.validate(update, updateContext);
 
         verify(authSubject).hasPrincipal(Principal.ENUM_MAINTAINER);
         verify(updateContext).addMessage(update, UpdateMessages.authorisationRequiredForEnumDomain());
@@ -88,7 +88,7 @@ public class EnumDomainAuthorisationValidatorTest {
 
         lenient().when(authSubject.hasPrincipal(Principal.ENUM_MAINTAINER)).thenReturn(true);
 
-        subject.validate(update, updateContext);
+       subject.validate(update, updateContext);
 
         verify(authSubject).hasPrincipal(Principal.ENUM_MAINTAINER);
         verify(updateContext, never()).addMessage(update, UpdateMessages.authorisationRequiredForEnumDomain());

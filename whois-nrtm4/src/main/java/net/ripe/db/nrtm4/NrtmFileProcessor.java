@@ -1,14 +1,15 @@
 package net.ripe.db.nrtm4;
 
+import com.google.common.base.Stopwatch;
 import net.ripe.db.nrtm4.dao.SourceRepository;
+import net.ripe.db.nrtm4.dao.WhoisObjectRepository;
 import net.ripe.db.nrtm4.domain.NrtmSourceModel;
-import net.ripe.db.nrtm4.jmx.NrtmProcessControl;
+import net.ripe.db.nrtm4.domain.NrtmVersionInfo;
+import net.ripe.db.nrtm4.domain.SnapshotState;
 import org.mariadb.jdbc.internal.logging.Logger;
 import org.mariadb.jdbc.internal.logging.LoggerFactory;
 import org.springframework.stereotype.Service;
 
-import java.io.IOException;
-import java.io.OutputStream;
 import java.util.List;
 
 
@@ -17,46 +18,43 @@ public class NrtmFileProcessor {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(NrtmFileProcessor.class);
 
-    private final NrtmFileService nrtmFileService;
-    private final NrtmProcessControl nrtmProcessControl;
+    private final DeltaFileGenerator deltaFileGenerator;
+    private final NotificationFileGenerator notificationFileGenerator;
     private final SnapshotFileGenerator snapshotFileGenerator;
     private final SourceRepository sourceRepository;
+    private final WhoisObjectRepository whoisObjectRepository;
 
     public NrtmFileProcessor(
-        final NrtmFileService nrtmFileService,
-        final NrtmProcessControl nrtmProcessControl,
+        final DeltaFileGenerator deltaFileGenerator,
+        final NotificationFileGenerator notificationFileGenerator,
         final SnapshotFileGenerator snapshotFileGenerator,
-        final SourceRepository sourceRepository
+        final SourceRepository sourceRepository,
+        final WhoisObjectRepository whoisObjectRepository
     ) {
-        this.nrtmFileService = nrtmFileService;
-        this.nrtmProcessControl = nrtmProcessControl;
+        this.deltaFileGenerator = deltaFileGenerator;
+        this.notificationFileGenerator = notificationFileGenerator;
         this.snapshotFileGenerator = snapshotFileGenerator;
         this.sourceRepository = sourceRepository;
+        this.whoisObjectRepository = whoisObjectRepository;
     }
 
-    public void updateNrtmFilesAndPublishNotification() throws IOException {
+    public void updateNrtmFilesAndPublishNotification() {
         LOGGER.info("updateNrtmFilesAndPublishNotification() called");
-        final List<NrtmSourceModel> sourceList = sourceRepository.getAllSources();
+        final Stopwatch stopwatch = Stopwatch.createStarted();
+        final SnapshotState state = whoisObjectRepository.getSnapshotState();
+        LOGGER.info("Found {} objects in {}", state.whoisObjectData().size(), stopwatch);
+        final List<NrtmSourceModel> sourceList = sourceRepository.getSources();
         if (sourceList.isEmpty()) {
-            sourceRepository.createSources();
-            if (nrtmProcessControl.isInitialSnapshotGenerationEnabled()) {
-                LOGGER.info("Initializing...");
-                snapshotFileGenerator.createSnapshots();
-                LOGGER.info("Initialization complete");
-            } else {
-                LOGGER.info("Initialization skipped because NrtmProcessControl has disabled initial snapshot generation");
-            }
+            LOGGER.info("Initializing...");
+            final List<NrtmVersionInfo> versions = snapshotFileGenerator.createInitialSnapshots(state);
+            versions.forEach(notificationFileGenerator::createInitialNotification);
+            LOGGER.info("Initialization complete. Total time: {}", stopwatch);
+        } else {
+            // Must do deltas first since snapshot creation is skipped if there aren't any
+            deltaFileGenerator.createDeltas(state.serialId());
+            snapshotFileGenerator.createSnapshots(state);
+            notificationFileGenerator.updateNotification();
         }
-        // TODO: optionally create notification file in db
-        // - Get the last notification to see if anything changed now that we might have generated more files
-        // - if publishableSnapshotFile is empty, keep the one from the last notification
-        // - get deltas which are < 24 hours old
-        // - don't publish a new one if the files are the same and the last notification is less than a day old
-    }
-
-    // Call this from the controller
-    public void writeFileToOutput(final String sessionId, final String fileName, final OutputStream out) throws IOException {
-        nrtmFileService.writeFileToStream(sessionId, fileName, out);
     }
 
 }

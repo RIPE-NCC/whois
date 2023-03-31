@@ -1,15 +1,12 @@
 package net.ripe.db.nrtm4.domain;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 import static net.ripe.db.nrtm4.NrtmConstants.NRTM_VERSION;
 
 
-public abstract class PublishableNrtmDocument {
+public abstract class PublishableNrtmFile {
 
-    @JsonIgnore
-    private final Long versionId;
     @JsonProperty("nrtm_version")
     private final int nrtmVersion = NRTM_VERSION;
     private final NrtmDocumentType type;
@@ -18,18 +15,20 @@ public abstract class PublishableNrtmDocument {
     private final String sessionID;
     private final long version;
 
-    PublishableNrtmDocument(
-        final NrtmVersionInfo version
-    ) {
-        this.versionId = version.getId();
-        this.type = version.getType();
-        this.source = version.getSource();
-        this.sessionID = version.getSessionID();
-        this.version = version.getVersion();
+    protected PublishableNrtmFile() {
+        type = null;
+        source = null;
+        sessionID = null;
+        version = 0L;
     }
 
-    public Long getVersionId() {
-        return versionId;
+    public PublishableNrtmFile(
+        final NrtmVersionInfo version
+    ) {
+        this.type = version.type();
+        this.source = version.source();
+        this.sessionID = version.sessionID();
+        this.version = version.version();
     }
 
     public int getNrtmVersion() {
@@ -40,7 +39,7 @@ public abstract class PublishableNrtmDocument {
         return type;
     }
 
-    public NrtmSourceModel getSourceModel() {
+    public NrtmSourceModel getSource() {
         return source;
     }
 

@@ -409,11 +409,11 @@ public class JdbcRpslObjectOperations {
         }
     }
 
-    public static List<SerialEntry> getSerialEntriesSince(final JdbcTemplate jdbcTemplate, final int serialId) {
+    public static List<SerialEntry> getSerialEntriesBetween(final JdbcTemplate jdbcTemplate, final int serialIdFrom, final int serialIdTo) {
         try {
-            return getSerialEntryWithBlobsSinceSerialForNrtm4(jdbcTemplate, serialId);
+            return getSerialEntryWithBlobsSinceSerialForNrtm4(jdbcTemplate, serialIdFrom, serialIdTo);
         } catch (final EmptyResultDataAccessException e) {
-            LOGGER.debug("SerialDao.getSerialEntriesSince({}) returned no rows", serialId, e);
+            LOGGER.debug("SerialDao.getSerialEntriesSince({}, {}) returned no rows", serialIdFrom, serialIdTo, e);
             return List.of();
         }
     }
@@ -494,32 +494,39 @@ public class JdbcRpslObjectOperations {
         }, serialId);
     }
 
-    private static List<SerialEntry> getSerialEntryWithBlobsSinceSerialForNrtm4(final JdbcTemplate jdbcTemplate, final int serialId) {
-        return jdbcTemplate.query("" +
-                "SELECT serials.serial_id, "+
-                "       serials.operation, " +
-                "       serials.atlast," +
-                "       serials.object_id," +
-                "       IF(last.sequence_id, last.object, COALESCE(history.object, rdp_history.object))," +
-                "       COALESCE(last.pkey, history.pkey) " +
-                "FROM   serials " +
-                "       LEFT JOIN last " +
-                "              ON last.object_id = serials.object_id " +
-                "       LEFT JOIN history history" +
-                "              ON history.object_id = serials.object_id " +
-                "                 AND history.sequence_id = serials.sequence_id " +
-                "       LEFT JOIN history rdp_history" +
-                "              ON rdp_history.object_id = serials.object_id" +
-                "                 AND rdp_history.sequence_id = serials.sequence_id - 1 " +
-                "WHERE  serials.serial_id > ? " +
-                "ORDER BY serials.serial_id ASC", (rs, rowNum) -> new SerialEntry(
+    private static List<SerialEntry> getSerialEntryWithBlobsSinceSerialForNrtm4(
+        final JdbcTemplate jdbcTemplate,
+        final int serialIDFrom,
+        final int serialIDTo
+    ) {
+        return jdbcTemplate.query("""
+            SELECT
+                serials.serial_id,
+                serials.operation,
+                serials.atlast,
+                serials.object_id,
+                IF(last.sequence_id, last.object, COALESCE(history.object, rdp_history.object)),
+                COALESCE(last.pkey, history.pkey)
+            FROM serials
+            LEFT JOIN last
+                ON last.object_id = serials.object_id
+            LEFT JOIN history history
+                ON history.object_id = serials.object_id
+                AND history.sequence_id = serials.sequence_id
+            LEFT JOIN history rdp_history
+                ON rdp_history.object_id = serials.object_id
+                AND rdp_history.sequence_id = serials.sequence_id - 1
+            WHERE  serials.serial_id > ?
+              AND  serials.serial_id <= ?
+            ORDER BY serials.serial_id
+        """, (rs, rowNum) -> new SerialEntry(
                     rs.getInt(1),
                     Operation.getByCode(rs.getInt(2)),
                     rs.getBoolean(3),
                     rs.getInt(4),
                     rs.getBytes(5),
                     rs.getString(6)
-        ), serialId);
+        ), serialIDFrom, serialIDTo);
     }
 
     // exact same, but omit blob lookup for performance reasons

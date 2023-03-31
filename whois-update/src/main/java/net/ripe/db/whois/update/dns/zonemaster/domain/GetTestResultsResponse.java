@@ -56,6 +56,7 @@ public class GetTestResultsResponse extends ZonemasterResponse {
             private String level;
             private String module;
             private String ns;
+            private String testcase;
 
             public String getMessage() {
                 return message;
@@ -73,6 +74,10 @@ public class GetTestResultsResponse extends ZonemasterResponse {
                 return ns;
             }
 
+            public String getTestcase() {
+                return testcase;
+            }
+
             @Override
             public String toString() {
                 return MoreObjects.toStringHelper(this)
@@ -80,6 +85,7 @@ public class GetTestResultsResponse extends ZonemasterResponse {
                         .add("level", level)
                         .add("module", module)
                         .add("ns", ns)
+                        .add("testcase", testcase)
                         .toString();
             }
         }

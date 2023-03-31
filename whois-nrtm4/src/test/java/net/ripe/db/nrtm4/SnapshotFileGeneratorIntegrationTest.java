@@ -1,16 +1,20 @@
 package net.ripe.db.nrtm4;
 
+import net.ripe.db.nrtm4.dao.SnapshotFileRepository;
 import net.ripe.db.nrtm4.dao.SourceRepository;
-import net.ripe.db.nrtm4.domain.PublishableSnapshotFile;
+import net.ripe.db.nrtm4.dao.WhoisObjectRepository;
+import net.ripe.db.nrtm4.domain.NrtmVersionInfo;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
+import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
-import java.util.List;
+import java.util.Collection;
+import java.util.zip.GZIPInputStream;
 
 import static net.ripe.db.nrtm4.domain.NrtmDocumentType.SNAPSHOT;
 import static net.ripe.db.whois.common.dao.jdbc.JdbcRpslObjectOperations.loadScripts;
@@ -32,32 +36,35 @@ public class SnapshotFileGeneratorIntegrationTest extends AbstractNrtm4Integrati
     private SnapshotFileGenerator snapshotFileGenerator;
 
     @Autowired
+    private SnapshotFileRepository snapshotFileRepository;
+
+    @Autowired
     private SourceRepository sourceRepository;
 
     @Autowired
-    private NrtmFileService nrtmFileService;
-
-    @Autowired
-    private NrtmFileStore nrtmFileStore;
+    private WhoisObjectRepository whoisObjectRepository;
 
     @Test
-    public void initial_snapshot_file_is_generated_and_written_to_disk() throws IOException {
+    public void snapshot_file_is_generated_and_written_to_disk() throws IOException {
         loadScripts(whoisTemplate, "nrtm_sample_sm.sql");
-        sourceRepository.createSources();
+        System.setProperty("nrtm.file.path", "/tmp");
         final String sessionID;
         {
-            final List<PublishableSnapshotFile> psfList = snapshotFileGenerator.createSnapshots();
+            final var state = whoisObjectRepository.getSnapshotState();
+            final Collection<NrtmVersionInfo> psfList = snapshotFileGenerator.createInitialSnapshots(state);
             assertThat(psfList.size(), is(2));
-            final PublishableSnapshotFile snapshotFile = psfList.stream().filter(psf -> psf.getSourceModel().getName().toString().equals("TEST")).findFirst().orElseThrow();
-            assertThat(snapshotFile.getVersion(), is(1L));
-            sessionID = snapshotFile.getSessionID();
+            final NrtmVersionInfo snapshotJsonFile = psfList.stream().filter(psf -> psf.source().getName().toString().equals("TEST")).findFirst().orElseThrow();
+            assertThat(snapshotJsonFile.version(), is(1L));
+            sessionID = snapshotJsonFile.sessionID();
             assertThat(sessionID, is(notNullValue()));
-            assertThat(snapshotFile.getSourceModel().getId(), is(sourceRepository.getWhoisSource().orElseThrow().getId()));
-            assertThat(snapshotFile.getSourceModel().getName(), is(sourceRepository.getWhoisSource().orElseThrow().getName()));
-            assertThat(snapshotFile.getNrtmVersion(), is(4));
-            assertThat(snapshotFile.getType(), is(SNAPSHOT));
+            assertThat(snapshotJsonFile.source().getId(), is(sourceRepository.getWhoisSource().orElseThrow().getId()));
+            assertThat(snapshotJsonFile.source().getName(), is(sourceRepository.getWhoisSource().orElseThrow().getName()));
+            assertThat(snapshotJsonFile.type(), is(SNAPSHOT));
+            final var lastSnapshotFile = snapshotFileRepository.getLastSnapshot(snapshotJsonFile.source()).orElseThrow();
+            final var payload = snapshotFileRepository.getPayload(lastSnapshotFile.id());
+            final var gzipInputStream = new GZIPInputStream(new ByteArrayInputStream(payload.orElseThrow()));
             final var bos = new ByteArrayOutputStream();
-            nrtmFileStore.streamFromFile(snapshotFile.getSessionID(), snapshotFile.getFileName(), bos);
+            gzipInputStream.transferTo(bos);
             final var expected = """
                 {
                   "nrtm_version" : 4,
@@ -70,7 +77,7 @@ public class SnapshotFileGeneratorIntegrationTest extends AbstractNrtm4Integrati
                   ]
                 }""";
             assertThat(bos.toString(StandardCharsets.UTF_8).replaceFirst("\"session_id\" : \"[^\"]+\"", "\"session_id\" : \"\""), is(expected));
-            assertThat(snapshotFile.getFileName(), startsWith("nrtm-snapshot.1."));
+            assertThat(lastSnapshotFile.name(), startsWith("nrtm-snapshot.1."));
         }
     }
 
