@@ -23,6 +23,7 @@ import java.text.SimpleDateFormat;
 import java.time.LocalDateTime;
 import java.util.UUID;
 
+import static net.ripe.db.whois.query.support.PatternMatcher.matchesPattern;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.not;
@@ -396,6 +397,36 @@ public class UpdateNotificationFileGenerationTestIntegration extends AbstractInt
 
         assertThat(isValidSessionFormat(firstIteration.getSessionID()), is(true));
     }
+
+    @Test
+    public void should_have_sha_length_hexadecimal_hash_format(){
+        final RpslObject rpslObject = RpslObject.parse("" +
+                "inet6num:       ::/0\n" +
+                "netname:        IANA-BLK\n" +
+                "descr:          The whole IPv6 address space: Modified\n" +
+                "country:        NL\n" +
+                "tech-c:         TP1-TEST\n" +
+                "admin-c:        TP1-TEST\n" +
+                "status:         OTHER\n" +
+                "mnt-by:         OWNER-MNT\n" +
+                "source:         TEST");
+
+        testDateTimeProvider.setTime(LocalDateTime.now().minusDays(1));
+        nrtmFileProcessor.updateNrtmFilesAndPublishNotification();
+
+        databaseHelper.updateObject(rpslObject);
+
+        nrtmFileProcessor.updateNrtmFilesAndPublishNotification();
+        updateNotificationFileGenerator.generateFile();
+
+        final PublishableNotificationFile firstIteration = createResource("TEST/update-notification-file.json")
+                .request(MediaType.APPLICATION_JSON)
+                .get(PublishableNotificationFile.class);
+
+        assertThat(firstIteration.getSnapshot().getHash(), matchesPattern("^[0-9a-fA-F]{64}$"));
+        assertThat(firstIteration.getDeltas().get(0).getHash(), matchesPattern("^[0-9a-fA-F]{64}$"));
+    }
+
     protected WebTarget createResource(final String path) {
         return RestTest.target(getPort(), String.format("nrtmv4/%s", path));
     }
