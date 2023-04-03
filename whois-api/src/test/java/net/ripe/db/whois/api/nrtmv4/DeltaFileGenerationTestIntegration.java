@@ -1,6 +1,7 @@
 package net.ripe.db.whois.api.nrtmv4;
 
 import com.google.common.collect.Lists;
+import net.ripe.db.nrtm4.DeltaFileGenerator;
 import net.ripe.db.nrtm4.domain.DeltaChange;
 import net.ripe.db.nrtm4.domain.NrtmDocumentType;
 import net.ripe.db.nrtm4.domain.PublishableDeltaFile;
@@ -15,6 +16,8 @@ import org.springframework.test.annotation.DirtiesContext;
 
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+import java.time.Instant;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
@@ -200,6 +203,54 @@ public class DeltaFileGenerationTestIntegration extends AbstractNrtmIntegrationT
     }
 
     @Test
+    public void snapshot_should_match_last_delta_version(){
+        snapshotFileGenerator.createSnapshots();
+        updateNotificationFileGenerator.generateFile();
+
+        List<Thread> threads = new ArrayList<>();
+
+        for(int deltaThreadsCount = 0; deltaThreadsCount < 3; deltaThreadsCount++) {
+            final RpslObject updatedObject = RpslObject.parse("" +
+                    "inet6num:       ::/0\n" +
+                    "netname:        IANA-BLK\n" +
+                    "descr:          The whole IPv6 address space:Updated for thread " + deltaThreadsCount + "\n" +
+                    "country:        NL\n" +
+                    "tech-c:         TP1-TEST\n" +
+                    "admin-c:        TP1-TEST\n" +
+                    "status:         OTHER\n" +
+                    "mnt-by:         OWNER-MNT\n" +
+                    "created:         2022-08-14T11:48:28Z\n" +
+                    "last-modified:   2022-10-25T12:22:39Z\n" +
+                    "source:         TEST");
+            databaseHelper.updateObject(updatedObject);
+
+            final Runnable task = new DeltaGeneratorRunnable(deltaFileGenerator);
+            final Thread worker = new Thread(task);
+            worker.setName(String.valueOf(deltaThreadsCount));
+            threads.add(worker);
+            worker.start();
+        }
+
+        snapshotFileGenerator.createSnapshots();
+
+        final Instant end = Instant.now().plusSeconds(3L);
+        int running = 0;
+        do {
+            for (final Thread thread:threads) {
+                if(thread.isAlive()){
+                    running ++;
+                }
+            }
+        } while (running > 0 && Instant.now().isBefore(end));
+
+        updateNotificationFileGenerator.generateFile();
+        final PublishableNotificationFile testUpdateNotification = getNotificationFileBySource("TEST");
+        final PublishableDeltaFile testDelta = getDeltasFromUpdateNotificationBySource("TEST", 2);
+
+        assertThat(testUpdateNotification.getSnapshot().getVersion(), is(testDelta.getVersion()));
+    }
+
+    @Test
     public void should_throw_exception_delta_file_not_found()  {
         final Response response = createResource("TEST-NONAUTH/nrtm-delta.1.TEST-NONAUTH.60b9e8c4e4891411be.json")
                 .request(MediaType.APPLICATION_JSON)
@@ -228,5 +279,20 @@ public class DeltaFileGenerationTestIntegration extends AbstractNrtmIntegrationT
         deltaFileGenerator.createDeltas();
     }
 
+    private static class DeltaGeneratorRunnable implements Runnable {
 
+        private DeltaFileGenerator deltaFileGenerator;
+
+        DeltaGeneratorRunnable(final DeltaFileGenerator deltaFileGenerator){
+            try {
+                this.deltaFileGenerator = deltaFileGenerator;
+            }catch(final Exception ex){
+                Thread.currentThread().interrupt();
+            }
+        }
+        @Override
+        public void run() {
+            deltaFileGenerator.createDeltas();
+        }
+    }
 }
