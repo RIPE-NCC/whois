@@ -45,6 +45,24 @@ public class SnapshotFileGenerationTestIntegration extends AbstractNrtmIntegrati
     }
 
     @Test
+    public void should_generate_snapshot_empty_database() throws IOException, JSONException {
+        databaseHelper.setup();
+
+        snapshotFileGenerator.createSnapshots();
+        updateNotificationFileGenerator.generateFile();
+
+        final Response response = getSnapshotFromUpdateNotificationBySource("TEST");
+        final JSONObject jsonObject = new JSONObject(decompress(response.readEntity(byte[].class)));
+        final JSONArray objects = jsonObject.getJSONArray("objects");
+
+        final List<String> rpslKeys = Lists.newArrayList();
+
+        for (int i = 0; i < objects.length(); i++) {
+            rpslKeys.add(RpslObject.parse(objects.getString(i)).getKey().toString());
+        }
+        assertThat(rpslKeys.size(), is(0));
+    }
+    @Test
     public void should_get_snapshot_file_test_source() throws IOException, JSONException {
 
         snapshotFileGenerator.createSnapshots();
