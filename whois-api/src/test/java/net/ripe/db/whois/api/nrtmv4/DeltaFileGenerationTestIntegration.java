@@ -284,15 +284,15 @@ public class DeltaFileGenerationTestIntegration extends AbstractNrtmIntegrationT
         private DeltaFileGenerator deltaFileGenerator;
 
         DeltaGeneratorRunnable(final DeltaFileGenerator deltaFileGenerator){
-            try {
-                this.deltaFileGenerator = deltaFileGenerator;
-            }catch(final Exception ex){
-                Thread.currentThread().interrupt();
-            }
+            this.deltaFileGenerator = deltaFileGenerator;
         }
         @Override
         public void run() {
-            deltaFileGenerator.createDeltas();
+            try {
+                deltaFileGenerator.createDeltas();
+            }catch(final Exception ex){
+                Thread.currentThread().interrupt();
+            }
         }
     }
 }
