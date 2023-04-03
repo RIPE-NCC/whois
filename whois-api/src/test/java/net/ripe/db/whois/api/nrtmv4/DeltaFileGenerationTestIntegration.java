@@ -204,24 +204,24 @@ public class DeltaFileGenerationTestIntegration extends AbstractNrtmIntegrationT
 
     @Test
     public void snapshot_should_match_last_delta_version(){
+        final RpslObject updatedObject = RpslObject.parse("" +
+                "inet6num:       ::/0\n" +
+                "netname:        IANA-BLK\n" +
+                "descr:          The whole IPv6 address space:Updated for thread\n" +
+                "country:        NL\n" +
+                "tech-c:         TP1-TEST\n" +
+                "admin-c:        TP1-TEST\n" +
+                "status:         OTHER\n" +
+                "mnt-by:         OWNER-MNT\n" +
+                "created:         2022-08-14T11:48:28Z\n" +
+                "last-modified:   2022-10-25T12:22:39Z\n" +
+                "source:         TEST");
         snapshotFileGenerator.createSnapshots();
         updateNotificationFileGenerator.generateFile();
 
         List<Thread> threads = new ArrayList<>();
 
         for(int deltaThreadsCount = 0; deltaThreadsCount < 3; deltaThreadsCount++) {
-            final RpslObject updatedObject = RpslObject.parse("" +
-                    "inet6num:       ::/0\n" +
-                    "netname:        IANA-BLK\n" +
-                    "descr:          The whole IPv6 address space:Updated for thread " + deltaThreadsCount + "\n" +
-                    "country:        NL\n" +
-                    "tech-c:         TP1-TEST\n" +
-                    "admin-c:        TP1-TEST\n" +
-                    "status:         OTHER\n" +
-                    "mnt-by:         OWNER-MNT\n" +
-                    "created:         2022-08-14T11:48:28Z\n" +
-                    "last-modified:   2022-10-25T12:22:39Z\n" +
-                    "source:         TEST");
             databaseHelper.updateObject(updatedObject);
 
             final Runnable task = new DeltaGeneratorRunnable(deltaFileGenerator);
