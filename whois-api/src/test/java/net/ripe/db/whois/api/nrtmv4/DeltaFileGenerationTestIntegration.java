@@ -62,6 +62,39 @@ public class DeltaFileGenerationTestIntegration extends AbstractNrtmIntegrationT
     }
 
     @Test
+    public void should_get_delta_file_sequence_versions() {
+        snapshotFileGenerator.createSnapshots();
+        updateNotificationFileGenerator.generateFile();
+
+        final RpslObject updatedObject = RpslObject.parse("" +
+                "inet6num:       ::/0\n" +
+                "netname:        IANA-BLK\n" +
+                "descr:          The whole IPv6 address space:Updated for test\n" +
+                "country:        NL\n" +
+                "tech-c:         TP1-TEST\n" +
+                "admin-c:        TP1-TEST\n" +
+                "status:         OTHER\n" +
+                "mnt-by:         OWNER-MNT\n" +
+                "created:         2022-08-14T11:48:28Z\n" +
+                "last-modified:   2022-10-25T12:22:39Z\n" +
+                "source:         TEST");
+
+        generateDeltas(Collections.singletonList(updatedObject));
+        updateNotificationFileGenerator.generateFile();
+
+        final PublishableDeltaFile firstIterationDelta = getDeltasFromUpdateNotificationBySource("TEST", 0);
+
+        generateDeltas(Collections.singletonList(updatedObject));
+        updateNotificationFileGenerator.generateFile();
+
+        final PublishableDeltaFile secondIterationDelta = getDeltasFromUpdateNotificationBySource("TEST", 1);
+
+        assertThat(firstIterationDelta.getVersion(), is(2L));
+        assertThat(secondIterationDelta.getVersion(), is(3L));
+
+    }
+
+    @Test
     public void delta_should_have_same_version_different_session_per_source() {
         snapshotFileGenerator.createSnapshots();
         updateNotificationFileGenerator.generateFile();
