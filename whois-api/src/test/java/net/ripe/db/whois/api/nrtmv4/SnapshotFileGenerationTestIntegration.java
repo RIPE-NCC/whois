@@ -27,6 +27,7 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.containsInAnyOrder;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.not;
+import static org.hamcrest.Matchers.notNullValue;
 
 @Tag("IntegrationTest")
 @DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_EACH_TEST_METHOD)
@@ -61,6 +62,19 @@ public class SnapshotFileGenerationTestIntegration extends AbstractNrtmIntegrati
             rpslKeys.add(RpslObject.parse(objects.getString(i)).getKey().toString());
         }
         assertThat(rpslKeys.size(), is(0));
+    }
+
+    @Test
+    public void should_have_session_version_hash_value(){
+        snapshotFileGenerator.createSnapshots();
+        updateNotificationFileGenerator.generateFile();
+
+        final PublishableNotificationFile publishableNotificationFile = getNotificationFileBySource("TEST");
+
+        assertThat(publishableNotificationFile.getSnapshot().getUrl(), is(notNullValue()));
+        assertThat(publishableNotificationFile.getSnapshot().getVersion(), is(notNullValue()));
+        assertThat(publishableNotificationFile.getSessionID(), is(notNullValue()));
+        assertThat(publishableNotificationFile.getSnapshot().getHash(), is(notNullValue()));
     }
     @Test
     public void should_get_snapshot_file_test_source() throws IOException, JSONException {

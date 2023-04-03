@@ -24,6 +24,7 @@ import java.util.List;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.not;
+import static org.hamcrest.Matchers.notNullValue;
 
 
 @Tag("IntegrationTest")
@@ -54,6 +55,7 @@ public class DeltaFileGenerationTestIntegration extends AbstractNrtmIntegrationT
         updateNotificationFileGenerator.generateFile();
 
         final PublishableDeltaFile testDelta = getDeltasFromUpdateNotificationBySource("TEST", 0);
+        assertThat(testDelta.getNrtmVersion(), is(4));
         assertThat(testDelta.getVersion(), is(2L));
         assertThat(testDelta.getChanges().size(), is(1));
 
@@ -66,6 +68,7 @@ public class DeltaFileGenerationTestIntegration extends AbstractNrtmIntegrationT
         snapshotFileGenerator.createSnapshots();
         updateNotificationFileGenerator.generateFile();
 
+        final PublishableNotificationFile publishableNotificationFile = getNotificationFileBySource("TEST");
         final RpslObject updatedObject = RpslObject.parse("" +
                 "inet6num:       ::/0\n" +
                 "netname:        IANA-BLK\n" +
@@ -89,11 +92,37 @@ public class DeltaFileGenerationTestIntegration extends AbstractNrtmIntegrationT
 
         final PublishableDeltaFile secondIterationDelta = getDeltasFromUpdateNotificationBySource("TEST", 1);
 
+        assertThat(publishableNotificationFile.getSnapshot().getVersion(), is(1L));
         assertThat(firstIterationDelta.getVersion(), is(2L));
         assertThat(secondIterationDelta.getVersion(), is(3L));
 
     }
 
+    @Test
+    public void should_have_session_version_hash_value(){
+        snapshotFileGenerator.createSnapshots();
+
+        updateNotificationFileGenerator.generateFile();
+        generateDeltas(Collections.singletonList(RpslObject.parse("" +
+                "inet6num:       ::/0\n" +
+                "netname:        IANA-BLK\n" +
+                "descr:          The whole IPv6 address space:Updated for test\n" +
+                "country:        NL\n" +
+                "tech-c:         TP1-TEST\n" +
+                "admin-c:        TP1-TEST\n" +
+                "status:         OTHER\n" +
+                "mnt-by:         OWNER-MNT\n" +
+                "created:         2022-08-14T11:48:28Z\n" +
+                "last-modified:   2022-10-25T12:22:39Z\n" +
+                "source:         TEST")));
+
+        updateNotificationFileGenerator.generateFile();
+        final PublishableNotificationFile firsIteration = getNotificationFileBySource("TEST");
+        assertThat(firsIteration.getDeltas().get(0).getUrl(), is(notNullValue()));
+        assertThat(firsIteration.getSessionID(), is(notNullValue()));
+        assertThat(firsIteration.getDeltas().get(0).getVersion(), is(notNullValue()));
+        assertThat(firsIteration.getDeltas().get(0).getHash(), is(notNullValue()));
+    }
     @Test
     public void delta_should_have_same_version_different_session_per_source() {
         snapshotFileGenerator.createSnapshots();
@@ -237,6 +266,36 @@ public class DeltaFileGenerationTestIntegration extends AbstractNrtmIntegrationT
 
     @Test
     public void snapshot_should_match_last_delta_version(){
+        final RpslObject updatedObject = RpslObject.parse("" +
+                "inet6num:       ::/0\n" +
+                "netname:        IANA-BLK\n" +
+                "descr:          The whole IPv6 address space:Updated for thread\n" +
+                "country:        NL\n" +
+                "tech-c:         TP1-TEST\n" +
+                "admin-c:        TP1-TEST\n" +
+                "status:         OTHER\n" +
+                "mnt-by:         OWNER-MNT\n" +
+                "created:         2022-08-14T11:48:28Z\n" +
+                "last-modified:   2022-10-25T12:22:39Z\n" +
+                "source:         TEST");
+        snapshotFileGenerator.createSnapshots();
+        updateNotificationFileGenerator.generateFile();
+
+        generateDeltas(Collections.singletonList(updatedObject));
+        generateDeltas(Collections.singletonList(updatedObject));
+        generateDeltas(Collections.singletonList(updatedObject));
+
+        snapshotFileGenerator.createSnapshots();
+
+
+        updateNotificationFileGenerator.generateFile();
+        final PublishableNotificationFile testUpdateNotification = getNotificationFileBySource("TEST");
+        final PublishableDeltaFile testDelta = getDeltasFromUpdateNotificationBySource("TEST", 2);
+
+        assertThat(testUpdateNotification.getSnapshot().getVersion(), is(testDelta.getVersion()));
+    }
+    @Test
+    public void snapshot_should_match_last_delta_version_while_creating_at_same_time(){
         final RpslObject updatedObject = RpslObject.parse("" +
                 "inet6num:       ::/0\n" +
                 "netname:        IANA-BLK\n" +

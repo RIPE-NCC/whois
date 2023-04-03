@@ -18,9 +18,9 @@ import java.util.UUID;
 
 import static net.ripe.db.whois.query.support.PatternMatcher.matchesPattern;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.not;
-import static org.hamcrest.Matchers.notNullValue;
 
 @Tag("IntegrationTest")
 @DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_EACH_TEST_METHOD)
@@ -177,8 +177,8 @@ public class UpdateNotificationFileGenerationTestIntegration extends AbstractNrt
         final PublishableNotificationFile firstIteration = getNotificationFileBySource("TEST");
 
         assertThat(firstIteration.getDeltas().size(), is(1));
-        assertThat(firstIteration.getDeltas().get(0).getUrl(), notNullValue());
-        assertThat(firstIteration.getSnapshot().getUrl(), notNullValue());
+        assertThat(firstIteration.getDeltas().get(0).getUrl(), containsString("https"));
+        assertThat(firstIteration.getSnapshot().getUrl(), containsString("https"));
     }
 
     @Test
