@@ -1,6 +1,17 @@
 # next
 
-1.106
+
+# 1.106.1
+
+[nrtm] NWI-12 NRTMv4 changes 
+[update] Updated Zonemaster client to match API Changes (#1206, #1207)
+[update] Add all warnings to update with override response (#1189)
+[rdap] Handle expected servlet exceptions in RDAP exception mapper (#1193)
+[api] Fix hightlight issue with dot in Elasticsearch (#1194)
+[api] UnmappedType warning for Elasticsearch (#1191)
+[all] Updated dependencies
+
+# 1.106
 
 [update] NWI-19 Implement AS_SET NONAUTH (#1169)
 [rdap] Implement "networks" and "autnums" elements in RDAP entity response (#1103)
