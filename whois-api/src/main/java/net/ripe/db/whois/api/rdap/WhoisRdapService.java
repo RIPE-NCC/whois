@@ -7,6 +7,9 @@ import com.google.common.collect.Iterators;
 import net.ripe.db.whois.api.rdap.domain.RdapRequestType;
 import net.ripe.db.whois.api.rest.RestServiceHelper;
 import net.ripe.db.whois.common.domain.CIString;
+import net.ripe.db.whois.common.ip.IpInterval;
+import net.ripe.db.whois.common.ip.Ipv4Resource;
+import net.ripe.db.whois.common.ip.Ipv6Resource;
 import net.ripe.db.whois.common.rpsl.AttributeType;
 import net.ripe.db.whois.common.rpsl.ObjectType;
 import net.ripe.db.whois.common.rpsl.RpslObject;
@@ -45,8 +48,10 @@ import java.util.stream.Stream;
 
 import static javax.ws.rs.core.HttpHeaders.CONTENT_TYPE;
 import static net.ripe.db.whois.common.rpsl.ObjectType.AUT_NUM;
+import static net.ripe.db.whois.common.rpsl.ObjectType.DOMAIN;
 import static net.ripe.db.whois.common.rpsl.ObjectType.INET6NUM;
 import static net.ripe.db.whois.common.rpsl.ObjectType.INETNUM;
+import static net.ripe.db.whois.common.rpsl.ObjectType.ORGANISATION;
 
 @Component
 @Path("/")
@@ -220,10 +225,27 @@ public class WhoisRdapService {
         return !delegatedStatsService.isMaintainedInRirSpace(source.getName(), objectType, CIString.ciString(key));
     }
 
+    private Boolean isRedirectDomain(final Domain domain) {
+        final IpInterval<?> reverseIp = domain.getReverseIp();
+        if (reverseIp instanceof Ipv4Resource) {
+            return isRedirect(INETNUM, reverseIp.toString());
+        }
+        if (reverseIp instanceof Ipv6Resource) {
+            return isRedirect(INET6NUM, reverseIp.toString());
+        }
+
+        return false;
+    }
+
     protected Response lookupForDomain(final HttpServletRequest request, final String key) {
         final Domain domain = Domain.parse(key);
+
+        if (isRedirectDomain(domain)) {
+            return redirect(getRequestPath(request), getQueryObject(ImmutableSet.of(DOMAIN), key));
+        }
+
         final Stream<RpslObject> domainResult =
-                rdapQueryHandler.handleQueryStream(getQueryObject(ImmutableSet.of(ObjectType.DOMAIN),
+                rdapQueryHandler.handleQueryStream(getQueryObject(ImmutableSet.of(DOMAIN),
                         key), request);
         final Stream<RpslObject> inetnumResult =
                 rdapQueryHandler.handleQueryStream(getQueryObject(ImmutableSet.of(INETNUM, INET6NUM),
@@ -237,7 +259,7 @@ public class WhoisRdapService {
     }
 
     protected Response lookupForOrganisation(final HttpServletRequest request, final String key) {
-        final List<RpslObject> organisationResult = rdapQueryHandler.handleQueryStream(getQueryObject(Set.of(ObjectType.ORGANISATION),
+        final List<RpslObject> organisationResult = rdapQueryHandler.handleQueryStream(getQueryObject(Set.of(ORGANISATION),
                         key),
                 request).collect(Collectors.toList());
 
