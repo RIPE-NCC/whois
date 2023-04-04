@@ -7,6 +7,7 @@
 [update] Updated Zonemaster client to match API Changes (#1206, #1207)
 [update] Add all warnings to update with override response (#1189)
 [rdap] Handle expected servlet exceptions in RDAP exception mapper (#1193)
+[rdap] Redirect Inverse Domain queries to the Authoritative Source (#1213)
 [api] Fix hightlight issue with dot in Elasticsearch (#1194)
 [api] UnmappedType warning for Elasticsearch (#1191)
 [all] Updated dependencies
