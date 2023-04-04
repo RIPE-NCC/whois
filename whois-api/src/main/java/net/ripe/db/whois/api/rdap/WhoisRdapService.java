@@ -40,6 +40,7 @@ import javax.ws.rs.core.Response;
 import java.io.IOException;
 import java.net.URI;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
@@ -226,22 +227,27 @@ public class WhoisRdapService {
     }
 
     private Boolean isRedirectDomain(final Domain domain) {
+        return isRedirect(getReverseObjectType(domain), domain.getReverseIp().toString());
+    }
+
+    private ObjectType getReverseObjectType(final Domain domain) {
         final IpInterval<?> reverseIp = domain.getReverseIp();
         if (reverseIp instanceof Ipv4Resource) {
-            return isRedirect(INETNUM, reverseIp.toString());
+            return INETNUM;
+        } else {
+            if (reverseIp instanceof Ipv6Resource) {
+                return INET6NUM;
+            } else {
+                throw new IllegalStateException("Unexpected type " + reverseIp.getClass().getName());
+            }
         }
-        if (reverseIp instanceof Ipv6Resource) {
-            return isRedirect(INET6NUM, reverseIp.toString());
-        }
-
-        return false;
     }
 
     protected Response lookupForDomain(final HttpServletRequest request, final String key) {
         final Domain domain = Domain.parse(key);
 
         if (isRedirectDomain(domain)) {
-            return redirect(getRequestPath(request), getQueryObject(ImmutableSet.of(DOMAIN), key));
+            return redirectDomain(getRequestPath(request), domain);
         }
 
         final Stream<RpslObject> domainResult =
@@ -370,9 +376,20 @@ public class WhoisRdapService {
 
     private Response redirect(final String requestPath, final Query query) {
         final URI uri;
-
         try {
             uri = delegatedStatsService.getUriForRedirect(requestPath, query);
+        } catch (WebApplicationException e) {
+            throw new RdapException("404 Redirect URI not found", e.getMessage(), HttpStatus.NOT_FOUND_404);
+        }
+
+        return Response.status(Response.Status.MOVED_PERMANENTLY).location(uri).build();
+    }
+
+    private Response redirectDomain(final String requestPath, final Domain domain) {
+        final URI uri;
+        try {
+            uri = delegatedStatsService.getUriForRedirect(requestPath,
+                        getQueryObject(Collections.singleton(getReverseObjectType(domain)), domain.getReverseIp().toString()));
         } catch (WebApplicationException e) {
             throw new RdapException("404 Redirect URI not found", e.getMessage(), HttpStatus.NOT_FOUND_404);
         }

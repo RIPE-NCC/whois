@@ -116,13 +116,8 @@ public class RdapRedirectTestIntegration extends AbstractIntegrationTest {
 
     // domain
 
-    // 22 | one | 193.0.0.0 - 193.0.7.255 |
-    //23 | one | 2001:67c:370::/48 |
-
     @Test
     public void redirect_domain_query() {
-        DatabaseHelper.dumpSchema(internalsTemplate.getDataSource());
-
         try {
             RestTest.target(getPort(), String.format("rdap/%s", "domain/7.0.193.in-addr.arpa"))
                 .request(MediaType.APPLICATION_JSON_TYPE)
@@ -135,15 +130,13 @@ public class RdapRedirectTestIntegration extends AbstractIntegrationTest {
 
     @Test
     public void redirect_ipv6_domain_query() {
-        DatabaseHelper.dumpSchema(internalsTemplate.getDataSource());
-
         try {
-            RestTest.target(getPort(), String.format("rdap/%s", "domain/7.0.193.in-addr.arpa"))
+            RestTest.target(getPort(), String.format("rdap/%s", "domain/0.7.3.0.c.7.6.0.1.0.0.2.ip6.arpa"))
                 .request(MediaType.APPLICATION_JSON_TYPE)
                 .get(String.class);
             fail();
         } catch (final RedirectionException e) {
-            assertThat(e.getResponse().getHeaders().getFirst("Location").toString(), is("https://rdap.one.net/domain/7.0.193.in-addr.arpa"));
+            assertThat(e.getResponse().getHeaders().getFirst("Location").toString(), is("https://rdap.one.net/domain/0.7.3.0.c.7.6.0.1.0.0.2.ip6.arpa"));
         }
     }
 
