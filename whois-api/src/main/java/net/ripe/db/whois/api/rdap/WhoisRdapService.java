@@ -7,6 +7,9 @@ import com.google.common.collect.Iterators;
 import net.ripe.db.whois.api.rdap.domain.RdapRequestType;
 import net.ripe.db.whois.api.rest.RestServiceHelper;
 import net.ripe.db.whois.common.domain.CIString;
+import net.ripe.db.whois.common.ip.IpInterval;
+import net.ripe.db.whois.common.ip.Ipv4Resource;
+import net.ripe.db.whois.common.ip.Ipv6Resource;
 import net.ripe.db.whois.common.rpsl.AttributeType;
 import net.ripe.db.whois.common.rpsl.ObjectType;
 import net.ripe.db.whois.common.rpsl.RpslObject;
@@ -37,6 +40,7 @@ import javax.ws.rs.core.Response;
 import java.io.IOException;
 import java.net.URI;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
@@ -45,8 +49,10 @@ import java.util.stream.Stream;
 
 import static javax.ws.rs.core.HttpHeaders.CONTENT_TYPE;
 import static net.ripe.db.whois.common.rpsl.ObjectType.AUT_NUM;
+import static net.ripe.db.whois.common.rpsl.ObjectType.DOMAIN;
 import static net.ripe.db.whois.common.rpsl.ObjectType.INET6NUM;
 import static net.ripe.db.whois.common.rpsl.ObjectType.INETNUM;
+import static net.ripe.db.whois.common.rpsl.ObjectType.ORGANISATION;
 
 @Component
 @Path("/")
@@ -220,10 +226,32 @@ public class WhoisRdapService {
         return !delegatedStatsService.isMaintainedInRirSpace(source.getName(), objectType, CIString.ciString(key));
     }
 
+    private Boolean isRedirectDomain(final Domain domain) {
+        return isRedirect(getReverseObjectType(domain), domain.getReverseIp().toString());
+    }
+
+    private ObjectType getReverseObjectType(final Domain domain) {
+        final IpInterval<?> reverseIp = domain.getReverseIp();
+        if (reverseIp instanceof Ipv4Resource) {
+            return INETNUM;
+        } else {
+            if (reverseIp instanceof Ipv6Resource) {
+                return INET6NUM;
+            } else {
+                throw new IllegalStateException("Unexpected type " + reverseIp.getClass().getName());
+            }
+        }
+    }
+
     protected Response lookupForDomain(final HttpServletRequest request, final String key) {
         final Domain domain = Domain.parse(key);
+
+        if (isRedirectDomain(domain)) {
+            return redirectDomain(getRequestPath(request), domain);
+        }
+
         final Stream<RpslObject> domainResult =
-                rdapQueryHandler.handleQueryStream(getQueryObject(ImmutableSet.of(ObjectType.DOMAIN),
+                rdapQueryHandler.handleQueryStream(getQueryObject(ImmutableSet.of(DOMAIN),
                         key), request);
         final Stream<RpslObject> inetnumResult =
                 rdapQueryHandler.handleQueryStream(getQueryObject(ImmutableSet.of(INETNUM, INET6NUM),
@@ -237,7 +265,7 @@ public class WhoisRdapService {
     }
 
     protected Response lookupForOrganisation(final HttpServletRequest request, final String key) {
-        final List<RpslObject> organisationResult = rdapQueryHandler.handleQueryStream(getQueryObject(Set.of(ObjectType.ORGANISATION),
+        final List<RpslObject> organisationResult = rdapQueryHandler.handleQueryStream(getQueryObject(Set.of(ORGANISATION),
                         key),
                 request).collect(Collectors.toList());
 
@@ -348,9 +376,20 @@ public class WhoisRdapService {
 
     private Response redirect(final String requestPath, final Query query) {
         final URI uri;
-
         try {
             uri = delegatedStatsService.getUriForRedirect(requestPath, query);
+        } catch (WebApplicationException e) {
+            throw new RdapException("404 Redirect URI not found", e.getMessage(), HttpStatus.NOT_FOUND_404);
+        }
+
+        return Response.status(Response.Status.MOVED_PERMANENTLY).location(uri).build();
+    }
+
+    private Response redirectDomain(final String requestPath, final Domain domain) {
+        final URI uri;
+        try {
+            uri = delegatedStatsService.getUriForRedirect(requestPath,
+                        getQueryObject(Collections.singleton(getReverseObjectType(domain)), domain.getReverseIp().toString()));
         } catch (WebApplicationException e) {
             throw new RdapException("404 Redirect URI not found", e.getMessage(), HttpStatus.NOT_FOUND_404);
         }
