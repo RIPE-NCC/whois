@@ -1,14 +1,18 @@
 package net.ripe.db.whois.api;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import net.ripe.db.nrtm4.DeltaFileGenerator;
 import net.ripe.db.nrtm4.SnapshotFileGenerator;
 import net.ripe.db.nrtm4.UpdateNotificationFileGenerator;
+import net.ripe.db.nrtm4.domain.PublishableDeltaFile;
 import net.ripe.db.nrtm4.domain.PublishableNotificationFile;
 import org.junit.jupiter.api.BeforeEach;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import javax.ws.rs.client.WebTarget;
 import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.Response;
 
 public abstract class AbstractNrtmIntegrationTest extends AbstractIntegrationTest{
 
@@ -175,5 +179,33 @@ public abstract class AbstractNrtmIntegrationTest extends AbstractIntegrationTes
         return createResource(sourceName + "/update-notification-file.json")
                 .request(MediaType.APPLICATION_JSON)
                 .get(PublishableNotificationFile.class);
+    }
+
+    protected String getSnapshotNameFromUpdateNotification(final PublishableNotificationFile notificationFile) {
+        return notificationFile.getSnapshot().getUrl().split("/")[4];
+    }
+
+    protected Response getSnapshotFromUpdateNotificationBySource(final String sourceName) throws JsonProcessingException {
+        final Response updateNotificationResponse = createResource(sourceName + "/update-notification-file.json")
+                .request(MediaType.APPLICATION_JSON)
+                .get(Response.class);
+        final PublishableNotificationFile notificationFile = new ObjectMapper().readValue(updateNotificationResponse.readEntity(String.class),
+                PublishableNotificationFile.class);
+        return createResource(sourceName + "/" + getSnapshotNameFromUpdateNotification(notificationFile))
+                .request(MediaType.APPLICATION_JSON)
+                .get(Response.class);
+    }
+
+    protected PublishableDeltaFile getDeltasFromUpdateNotificationBySource(final String sourceName, final int deltaPosition) {
+        final PublishableNotificationFile updateNotificationResponse = createResource(sourceName + "/update-notification-file.json")
+                .request(MediaType.APPLICATION_JSON)
+                .get(PublishableNotificationFile.class);
+        return createResource(sourceName + "/" + getDeltaNameFromUpdateNotification(updateNotificationResponse, deltaPosition))
+                .request(MediaType.APPLICATION_JSON)
+                .get(PublishableDeltaFile.class);
+    }
+
+    protected String getDeltaNameFromUpdateNotification(final PublishableNotificationFile notificationFile, final int deltaPosition) {
+        return notificationFile.getDeltas().get(deltaPosition).getUrl().split("/")[4];
     }
 }

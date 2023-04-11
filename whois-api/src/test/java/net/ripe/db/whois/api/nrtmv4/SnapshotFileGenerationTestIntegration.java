@@ -4,6 +4,9 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.Lists;
 import com.google.common.net.HttpHeaders;
+import net.ripe.db.nrtm4.DeltaFileGenerator;
+import net.ripe.db.nrtm4.domain.NrtmDocumentType;
+import net.ripe.db.nrtm4.domain.PublishableDeltaFile;
 import net.ripe.db.nrtm4.domain.PublishableNotificationFile;
 import net.ripe.db.whois.api.AbstractNrtmIntegrationTest;
 import net.ripe.db.whois.api.RestTest;
@@ -19,12 +22,16 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
+import java.time.Instant;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.zip.GZIPInputStream;
 
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.Matchers.containsInAnyOrder;
+import static org.hamcrest.Matchers.hasItem;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.not;
 import static org.hamcrest.Matchers.notNullValue;
@@ -247,6 +254,108 @@ public class SnapshotFileGenerationTestIntegration extends AbstractNrtmIntegrati
         assertThat(response.readEntity(String.class), is("Invalid source and filename combination"));
     }
 
+    @Test
+    public void snapshot_should_match_last_delta_version_while_creating_at_same_time() throws IOException, JSONException {
+        final RpslObject updatedObject = RpslObject.parse("" +
+                "inet6num:       ::/0\n" +
+                "netname:        IANA-BLK\n" +
+                "descr:          The whole IPv6 address space:Updated for thread\n" +
+                "country:        NL\n" +
+                "tech-c:         TP1-TEST\n" +
+                "admin-c:        TP1-TEST\n" +
+                "status:         OTHER\n" +
+                "mnt-by:         OWNER-MNT\n" +
+                "created:         2022-08-14T11:48:28Z\n" +
+                "last-modified:   2022-10-25T12:22:39Z\n" +
+                "source:         TEST");
+
+        final RpslObject ORG_TEST2 = RpslObject.parse("" +
+                "organisation:  ORG-TEST2-TEST\n" +
+                "org-name:      Test2 organisation\n" +
+                "org-type:      OTHER\n" +
+                "descr:         Drugs and gambling\n" +
+                "remarks:       Nice to deal with generally\n" +
+                "address:       1 Fake St. Fauxville\n" +
+                "phone:         +01-000-000-000\n" +
+                "fax-no:        +01-000-000-000\n" +
+                "admin-c:       PP1-TEST\n" +
+                "e-mail:        org@test.com\n" +
+                "mnt-by:        OWNER-MNT\n" +
+                "created:         2022-08-14T11:48:28Z\n" +
+                "last-modified:   2022-10-25T12:22:39Z\n" +
+                "source:        TEST");
+
+        snapshotFileGenerator.createSnapshots();
+
+        databaseHelper.updateObject( "inet6num:       ::/0\n" +
+                "netname:        IANA-BLK\n" +
+                "descr:          The whole IPv6 address space:Updated for first time\n" +
+                "country:        NL\n" +
+                "tech-c:         TP1-TEST\n" +
+                "admin-c:        TP1-TEST\n" +
+                "status:         OTHER\n" +
+                "mnt-by:         OWNER-MNT\n" +
+                "created:         2022-08-14T11:48:28Z\n" +
+                "last-modified:   2022-10-25T12:22:39Z\n" +
+                "source:         TEST");
+
+        deltaFileGenerator.createDeltas();
+
+        Thread thread = new Thread(() -> {
+
+                databaseHelper.updateObject(updatedObject);
+                deltaFileGenerator.createDeltas();
+
+                databaseHelper.addObject(ORG_TEST2);
+                deltaFileGenerator.createDeltas();
+
+                databaseHelper.deleteObject(RpslObject.parse("as-block:       AS100 - AS200\n" +
+                        "descr:          ARIN ASN block\n" +
+                        "org:            ORG-TEST1-TEST\n" +
+                        "mnt-by:         OWNER-MNT\n" +
+                        "created:         2022-08-14T11:48:28Z\n" +
+                        "last-modified:   2022-10-25T12:22:39Z\n" +
+                        "source:         TEST"));
+                deltaFileGenerator.createDeltas();
+        });
+
+        thread.start();
+
+        snapshotFileGenerator.createSnapshots();
+
+        try {
+            thread.join();
+        } catch (InterruptedException e) {
+            throw new RuntimeException(e);
+        }
+
+        updateNotificationFileGenerator.generateFile();
+
+        final PublishableNotificationFile notificationFile = getNotificationFileBySource("TEST");
+        assertThat(notificationFile.getType(), is(NrtmDocumentType.NOTIFICATION));
+        assertThat(notificationFile.getVersion(), is(5L));
+
+        final JSONObject testSnapshot = new JSONObject(decompress(getSnapshotFromUpdateNotificationBySource("TEST").readEntity(byte[].class)));
+        assertThat(testSnapshot.getString("type"), is("snapshot"));
+
+        final JSONArray objects = testSnapshot.getJSONArray("objects");
+        final List<RpslObject> rpslObjects = Lists.newArrayList();
+
+        for (int i = 0; i < objects.length(); i++) {
+            rpslObjects.add(RpslObject.parse(objects.getString(i)));
+        }
+
+        assertThat(rpslObjects.stream().map(rpslObject -> rpslObject.getKey().toString()).toList(), not(contains("ORG-TEST2-TEST")));
+        assertThat(rpslObjects.stream().map(rpslObject -> rpslObject.getKey().toString()).toList(), hasItem("AS100 - AS200"));
+
+
+        final PublishableDeltaFile testDelta = getDeltasFromUpdateNotificationBySource("TEST", 0);
+        assertThat(testDelta.getNrtmVersion(), is(4));
+
+        assertThat(testDelta.getChanges().get(0).getObject().toString(), is(rpslObjects.stream().filter( rpslObject -> testDelta.getChanges().get(0).getObject().getKey().equals(rpslObject.getKey())).findAny().get().toString()));
+        assertThat(testDelta.getVersion(), is(testSnapshot.getLong("version")));
+    }
+
     public static String decompress(byte[] compressed) throws IOException {
         final int BUFFER_SIZE = 32;
         ByteArrayInputStream is = new ByteArrayInputStream(compressed);
@@ -267,20 +376,5 @@ public class SnapshotFileGenerationTestIntegration extends AbstractNrtmIntegrati
         assertThat(jsonObject.getString("type"), is(type));
         assertThat(jsonObject.getString("source"), is("TEST"));
         assertThat(jsonObject.getInt("version"), is(version));
-    }
-
-    private String getSnapshotNameFromUpdateNotification(final PublishableNotificationFile notificationFile) {
-        return notificationFile.getSnapshot().getUrl().split("/")[4];
-    }
-
-    private Response getSnapshotFromUpdateNotificationBySource(final String sourceName) throws JsonProcessingException {
-        final Response updateNotificationResponse = createResource(sourceName + "/update-notification-file.json")
-                .request(MediaType.APPLICATION_JSON)
-                .get(Response.class);
-        final PublishableNotificationFile notificationFile = new ObjectMapper().readValue(updateNotificationResponse.readEntity(String.class),
-                PublishableNotificationFile.class);
-        return createResource(sourceName + "/" + getSnapshotNameFromUpdateNotification(notificationFile))
-                .request(MediaType.APPLICATION_JSON)
-                .get(Response.class);
     }
 }

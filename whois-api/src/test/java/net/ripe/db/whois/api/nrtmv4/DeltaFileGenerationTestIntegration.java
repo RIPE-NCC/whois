@@ -294,53 +294,6 @@ public class DeltaFileGenerationTestIntegration extends AbstractNrtmIntegrationT
 
         assertThat(testUpdateNotification.getSnapshot().getVersion(), is(testDelta.getVersion()));
     }
-    @Test
-    public void snapshot_should_match_last_delta_version_while_creating_at_same_time(){
-        final RpslObject updatedObject = RpslObject.parse("" +
-                "inet6num:       ::/0\n" +
-                "netname:        IANA-BLK\n" +
-                "descr:          The whole IPv6 address space:Updated for thread\n" +
-                "country:        NL\n" +
-                "tech-c:         TP1-TEST\n" +
-                "admin-c:        TP1-TEST\n" +
-                "status:         OTHER\n" +
-                "mnt-by:         OWNER-MNT\n" +
-                "created:         2022-08-14T11:48:28Z\n" +
-                "last-modified:   2022-10-25T12:22:39Z\n" +
-                "source:         TEST");
-        snapshotFileGenerator.createSnapshots();
-        updateNotificationFileGenerator.generateFile();
-
-        List<Thread> threads = new ArrayList<>();
-
-        for(int deltaThreadsCount = 0; deltaThreadsCount < 3; deltaThreadsCount++) {
-            databaseHelper.updateObject(updatedObject);
-
-            final Runnable task = new DeltaGeneratorRunnable(deltaFileGenerator);
-            final Thread worker = new Thread(task);
-            worker.setName(String.valueOf(deltaThreadsCount));
-            threads.add(worker);
-            worker.start();
-        }
-
-        snapshotFileGenerator.createSnapshots();
-
-        final Instant end = Instant.now().plusSeconds(3L);
-        int running = 0;
-        do {
-            for (final Thread thread:threads) {
-                if(thread.isAlive()){
-                    running ++;
-                }
-            }
-        } while (running > 0 && Instant.now().isBefore(end));
-
-        updateNotificationFileGenerator.generateFile();
-        final PublishableNotificationFile testUpdateNotification = getNotificationFileBySource("TEST");
-        final PublishableDeltaFile testDelta = getDeltasFromUpdateNotificationBySource("TEST", 2);
-
-        assertThat(testUpdateNotification.getSnapshot().getVersion(), is(testDelta.getVersion()));
-    }
 
     @Test
     public void should_throw_exception_delta_file_not_found()  {
@@ -351,40 +304,10 @@ public class DeltaFileGenerationTestIntegration extends AbstractNrtmIntegrationT
         assertThat(response.readEntity(String.class), is("Requested Delta file does not exists"));
     }
 
-    private PublishableDeltaFile getDeltasFromUpdateNotificationBySource(final String sourceName, final int deltaPosition) {
-        final PublishableNotificationFile updateNotificationResponse = createResource(sourceName + "/update-notification-file.json")
-                .request(MediaType.APPLICATION_JSON)
-                .get(PublishableNotificationFile.class);
-        return createResource(sourceName + "/" + getDeltaNameFromUpdateNotification(updateNotificationResponse, deltaPosition))
-                .request(MediaType.APPLICATION_JSON)
-                .get(PublishableDeltaFile.class);
-    }
-
-    private String getDeltaNameFromUpdateNotification(final PublishableNotificationFile notificationFile, final int deltaPosition) {
-        return notificationFile.getDeltas().get(deltaPosition).getUrl().split("/")[4];
-    }
-
     private void generateDeltas(final List<RpslObject> updatedObject){
         for (final RpslObject rpslObject : updatedObject) {
             databaseHelper.updateObject(rpslObject);
         }
         deltaFileGenerator.createDeltas();
-    }
-
-    private static class DeltaGeneratorRunnable implements Runnable {
-
-        private DeltaFileGenerator deltaFileGenerator;
-
-        DeltaGeneratorRunnable(final DeltaFileGenerator deltaFileGenerator){
-            this.deltaFileGenerator = deltaFileGenerator;
-        }
-        @Override
-        public void run() {
-            try {
-                deltaFileGenerator.createDeltas();
-            }catch(final Exception ex){
-                Thread.currentThread().interrupt();
-            }
-        }
     }
 }

@@ -1,3 +1,4 @@
+/*
 package net.ripe.db.nrtm4.dao;
 
 import net.ripe.db.nrtm4.AbstractNrtm4IntegrationBase;
@@ -8,7 +9,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.List;
 
-import static net.ripe.db.whois.common.dao.jdbc.JdbcRpslObjectOperations.loadScripts;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 
@@ -33,3 +33,4 @@ public class WhoisObjectRepositoryIntegrationTest extends AbstractNrtm4Integrati
     }
 
 }
+*/

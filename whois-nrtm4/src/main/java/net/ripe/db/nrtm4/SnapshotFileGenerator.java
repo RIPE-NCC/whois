@@ -5,13 +5,11 @@ import net.ripe.db.nrtm4.dao.NrtmFileRepository;
 import net.ripe.db.nrtm4.dao.NrtmVersionInfoRepository;
 import net.ripe.db.nrtm4.dao.SnapshotFileRepository;
 import net.ripe.db.nrtm4.dao.SourceRepository;
-import net.ripe.db.nrtm4.dao.WhoisObjectDao;
 import net.ripe.db.nrtm4.dao.WhoisObjectRepository;
 import net.ripe.db.nrtm4.domain.NrtmDocumentType;
 import net.ripe.db.nrtm4.domain.NrtmSource;
 import net.ripe.db.nrtm4.domain.NrtmVersionInfo;
 import net.ripe.db.nrtm4.domain.RpslObjectData;
-import net.ripe.db.nrtm4.domain.SnapshotFile;
 import net.ripe.db.nrtm4.domain.SnapshotState;
 import net.ripe.db.nrtm4.util.NrtmFileUtil;
 import net.ripe.db.whois.common.DateTimeProvider;
@@ -177,7 +175,5 @@ public class SnapshotFileGenerator {
                 LOGGER.error("Unexpected throwable caught when inserting snapshot file", t);
             }
         }
-
     }
-
 }
