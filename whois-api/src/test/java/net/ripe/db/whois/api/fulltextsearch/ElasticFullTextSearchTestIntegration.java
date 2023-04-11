@@ -1206,7 +1206,9 @@ public class ElasticFullTextSearchTestIntegration  extends AbstractElasticSearch
                         "source:       RIPE\n"));
         rebuildIndex();
 
-        assertThat(numFound(query("q=test@domain1.domain2.nl")), is(1L));
+        final QueryResponse queryResponse = query("q=test@domain1.domain2.nl&hl=true");
+        assertThat(queryResponse.getResults().getNumFound(), is(1L));
+        assertThat(queryResponse.getHighlighting().get("2").containsKey("e-mail"), is(true));
     }
 
     @Test
@@ -1226,7 +1228,9 @@ public class ElasticFullTextSearchTestIntegration  extends AbstractElasticSearch
                         "source:       RIPE\n"));
         rebuildIndex();
 
-        assertThat(numFound(query("q=domain1.domain2.nl")), is(1L));
+        final QueryResponse queryResponse = query("q=domain1.domain2.nl&hl=true");
+        assertThat(queryResponse.getResults().getNumFound(), is(1L));
+        assertThat(queryResponse.getHighlighting().get("2").containsKey("e-mail"), is(true));
     }
 
     @Test
@@ -1246,7 +1250,9 @@ public class ElasticFullTextSearchTestIntegration  extends AbstractElasticSearch
                         "source:       RIPE\n"));
         rebuildIndex();
 
-        assertThat(numFound(query("q=testemail")), is(1L));
+        final QueryResponse queryResponse = query("q=testemail&hl=true");
+        assertThat(queryResponse.getResults().getNumFound(), is(1L));
+        assertThat(queryResponse.getHighlighting().get("2").containsKey("e-mail"), is(true));
     }
 
     @Test
@@ -1266,7 +1272,9 @@ public class ElasticFullTextSearchTestIntegration  extends AbstractElasticSearch
                         "source:       RIPE\n"));
         rebuildIndex();
 
-        assertThat(numFound(query("q=domain1")), is(1L));
+        final QueryResponse queryResponse = query("q=domain1&hl=true");
+        assertThat(queryResponse.getResults().getNumFound(), is(1L));
+        assertThat(queryResponse.getHighlighting().get("2").containsKey("e-mail"), is(true));
     }
 
     @Test
@@ -1286,7 +1294,9 @@ public class ElasticFullTextSearchTestIntegration  extends AbstractElasticSearch
                         "source:       RIPE\n"));
         rebuildIndex();
 
-        assertThat(numFound(query("q=domain2")), is(1L));
+        final QueryResponse queryResponse = query("q=domain2&hl=true");
+        assertThat(queryResponse.getResults().getNumFound(), is(1L));
+        assertThat(queryResponse.getHighlighting().get("2").containsKey("e-mail"), is(true));
     }
     @Test
     public void search_email_tld() {
@@ -1305,7 +1315,9 @@ public class ElasticFullTextSearchTestIntegration  extends AbstractElasticSearch
                         "source:       RIPE\n"));
         rebuildIndex();
 
-        assertThat(numFound(query("q=nl")), is(1L));
+        final QueryResponse queryResponse = query("q=nl&hl=true");
+        assertThat(queryResponse.getResults().getNumFound(), is(1L));
+        assertThat(queryResponse.getHighlighting().get("2").containsKey("e-mail"), is(true));
     }
 
     @Test
@@ -1325,7 +1337,9 @@ public class ElasticFullTextSearchTestIntegration  extends AbstractElasticSearch
                         "source:       RIPE\n"));
         rebuildIndex();
 
-        assertThat(numFound(query("q=domain2.nl")), is(1L));
+        final QueryResponse queryResponse = query("q=domain2.nl&hl=true");
+        assertThat(queryResponse.getResults().getNumFound(), is(1L));
+        assertThat(queryResponse.getHighlighting().get("2").containsKey("e-mail"), is(true));
     }
 
     @Test
@@ -1339,13 +1353,37 @@ public class ElasticFullTextSearchTestIntegration  extends AbstractElasticSearch
                         "org-type:     OTHER\n" +
                         "descr:        test org\n" +
                         "address:      street 1\n" +
-                        "e-mail:       test@domain1.domain2.nl\n" +
+                        "e-mail:       testemail@domain1.domain2.nl\n" +
                         "mnt-ref:      OWNER-MNT\n" +
                         "mnt-by:       OWNER-MNT\n" +
                         "source:       RIPE\n"));
         rebuildIndex();
 
-        assertThat(numFound(query("q=domain1.domain2")), is(1L));
+        final QueryResponse queryResponse = query("q=domain1.domain2&hl=true");
+        assertThat(queryResponse.getResults().getNumFound(), is(1L));
+        assertThat(queryResponse.getHighlighting().get("2").containsKey("e-mail"), is(true));
+    }
+
+    @Test
+    public void search_email_email_first_second_domain() {
+        databaseHelper.addObject(RpslObject.parse(
+                "mntner: OWNER-MNT\n" +
+                        "source: RIPE"));
+        databaseHelper.addObject(RpslObject.parse(
+                "organisation: ORG-TOS1-TEST\n" +
+                        "org-name:     org\n" +
+                        "org-type:     OTHER\n" +
+                        "descr:        test org\n" +
+                        "address:      street 1\n" +
+                        "e-mail:       testemail@domain1.domain2.nl\n" +
+                        "mnt-ref:      OWNER-MNT\n" +
+                        "mnt-by:       OWNER-MNT\n" +
+                        "source:       RIPE\n"));
+        rebuildIndex();
+
+        final QueryResponse queryResponse = query("q=testemail@domain1.domain2&hl=true");
+        assertThat(queryResponse.getResults().getNumFound(), is(1L));
+        assertThat(queryResponse.getHighlighting().get("2").containsKey("e-mail"), is(true));
     }
 
     @Test
@@ -1365,7 +1403,9 @@ public class ElasticFullTextSearchTestIntegration  extends AbstractElasticSearch
                         "source:       RIPE\n"));
         rebuildIndex();
 
-        assertThat(numFound(query("q=testemail@domain1")), is(1L));
+        final QueryResponse queryResponse = query("q=testemail@domain1&hl=true");
+        assertThat(queryResponse.getResults().getNumFound(), is(1L));
+        assertThat(queryResponse.getHighlighting().get("2").containsKey("e-mail"), is(true));
     }
 
     // helper methods
