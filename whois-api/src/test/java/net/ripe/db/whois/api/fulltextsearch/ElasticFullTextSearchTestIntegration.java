@@ -1189,6 +1189,185 @@ public class ElasticFullTextSearchTestIntegration  extends AbstractElasticSearch
         assertThat(response, not(containsString("null")));
     }
 
+    @Test
+    public void search_email_full_email() {
+        databaseHelper.addObject(RpslObject.parse(
+                "mntner: OWNER-MNT\n" +
+                        "source: RIPE"));
+        databaseHelper.addObject(RpslObject.parse(
+                "organisation: ORG-TOS1-TEST\n" +
+                        "org-name:     test@domain1.domain2.nl\n" +
+                        "org-type:     OTHER\n" +
+                        "descr:        test org\n" +
+                        "address:      street 1\n" +
+                        "e-mail:       test@domain1.domain2.nl\n" +
+                        "mnt-ref:      OWNER-MNT\n" +
+                        "mnt-by:       OWNER-MNT\n" +
+                        "source:       RIPE\n"));
+        rebuildIndex();
+
+        assertThat(numFound(query("q=test@domain1.domain2.nl")), is(1L));
+    }
+
+    @Test
+    public void search_email_full_domain() {
+        databaseHelper.addObject(RpslObject.parse(
+                "mntner: OWNER-MNT\n" +
+                        "source: RIPE"));
+        databaseHelper.addObject(RpslObject.parse(
+                "organisation: ORG-TOS1-TEST\n" +
+                        "org-name:     test@domain1.domain2.nl\n" +
+                        "org-type:     OTHER\n" +
+                        "descr:        test org\n" +
+                        "address:      street 1\n" +
+                        "e-mail:       test@domain1.domain2.nl\n" +
+                        "mnt-ref:      OWNER-MNT\n" +
+                        "mnt-by:       OWNER-MNT\n" +
+                        "source:       RIPE\n"));
+        rebuildIndex();
+
+        assertThat(numFound(query("q=domain1.domain2.nl")), is(1L));
+    }
+
+    @Test
+    public void search_email_before_at() {
+        databaseHelper.addObject(RpslObject.parse(
+                "mntner: OWNER-MNT\n" +
+                        "source: RIPE"));
+        databaseHelper.addObject(RpslObject.parse(
+                "organisation: ORG-TOS1-TEST\n" +
+                        "org-name:     test@domain1.domain2.nl\n" +
+                        "org-type:     OTHER\n" +
+                        "descr:        test org\n" +
+                        "address:      street 1\n" +
+                        "e-mail:       test@domain1.domain2.nl\n" +
+                        "mnt-ref:      OWNER-MNT\n" +
+                        "mnt-by:       OWNER-MNT\n" +
+                        "source:       RIPE\n"));
+        rebuildIndex();
+
+        assertThat(numFound(query("q=test")), is(1L));
+    }
+
+    @Test
+    public void search_email_first_domain() {
+        databaseHelper.addObject(RpslObject.parse(
+                "mntner: OWNER-MNT\n" +
+                        "source: RIPE"));
+        databaseHelper.addObject(RpslObject.parse(
+                "organisation: ORG-TOS1-TEST\n" +
+                        "org-name:     test@domain1.domain2.nl\n" +
+                        "org-type:     OTHER\n" +
+                        "descr:        test org\n" +
+                        "address:      street 1\n" +
+                        "e-mail:       test@domain1.domain2.nl\n" +
+                        "mnt-ref:      OWNER-MNT\n" +
+                        "mnt-by:       OWNER-MNT\n" +
+                        "source:       RIPE\n"));
+        rebuildIndex();
+
+        assertThat(numFound(query("q=domain1")), is(1L));
+    }
+
+    @Test
+    public void search_email_second_domain() {
+        databaseHelper.addObject(RpslObject.parse(
+                "mntner: OWNER-MNT\n" +
+                        "source: RIPE"));
+        databaseHelper.addObject(RpslObject.parse(
+                "organisation: ORG-TOS1-TEST\n" +
+                        "org-name:     test@domain1.domain2.nl\n" +
+                        "org-type:     OTHER\n" +
+                        "descr:        test org\n" +
+                        "address:      street 1\n" +
+                        "e-mail:       test@domain1.domain2.nl\n" +
+                        "mnt-ref:      OWNER-MNT\n" +
+                        "mnt-by:       OWNER-MNT\n" +
+                        "source:       RIPE\n"));
+        rebuildIndex();
+
+        assertThat(numFound(query("q=domain2")), is(1L));
+    }
+    @Test
+    public void search_email_tld() {
+        databaseHelper.addObject(RpslObject.parse(
+                "mntner: OWNER-MNT\n" +
+                        "source: RIPE"));
+        databaseHelper.addObject(RpslObject.parse(
+                "organisation: ORG-TOS1-TEST\n" +
+                        "org-name:     test@domain1.domain2.nl\n" +
+                        "org-type:     OTHER\n" +
+                        "descr:        test org\n" +
+                        "address:      street 1\n" +
+                        "e-mail:       test@domain1.domain2.nl\n" +
+                        "mnt-ref:      OWNER-MNT\n" +
+                        "mnt-by:       OWNER-MNT\n" +
+                        "source:       RIPE\n"));
+        rebuildIndex();
+
+        assertThat(numFound(query("q=nl")), is(1L));
+    }
+
+    @Test
+    public void search_email_second_domain_tld() {
+        databaseHelper.addObject(RpslObject.parse(
+                "mntner: OWNER-MNT\n" +
+                        "source: RIPE"));
+        databaseHelper.addObject(RpslObject.parse(
+                "organisation: ORG-TOS1-TEST\n" +
+                        "org-name:     test@domain1.domain2.nl\n" +
+                        "org-type:     OTHER\n" +
+                        "descr:        test org\n" +
+                        "address:      street 1\n" +
+                        "e-mail:       test@domain1.domain2.nl\n" +
+                        "mnt-ref:      OWNER-MNT\n" +
+                        "mnt-by:       OWNER-MNT\n" +
+                        "source:       RIPE\n"));
+        rebuildIndex();
+
+        assertThat(numFound(query("q=domain2.nl")), is(1L));
+    }
+
+    @Test
+    public void search_email_first_second_domain() {
+        databaseHelper.addObject(RpslObject.parse(
+                "mntner: OWNER-MNT\n" +
+                        "source: RIPE"));
+        databaseHelper.addObject(RpslObject.parse(
+                "organisation: ORG-TOS1-TEST\n" +
+                        "org-name:     test@domain1.domain2.nl\n" +
+                        "org-type:     OTHER\n" +
+                        "descr:        test org\n" +
+                        "address:      street 1\n" +
+                        "e-mail:       test@domain1.domain2.nl\n" +
+                        "mnt-ref:      OWNER-MNT\n" +
+                        "mnt-by:       OWNER-MNT\n" +
+                        "source:       RIPE\n"));
+        rebuildIndex();
+
+        assertThat(numFound(query("q=domain1.domain2")), is(1L));
+    }
+
+    @Test
+    public void search_email_before_at_first_domain() {
+        databaseHelper.addObject(RpslObject.parse(
+                "mntner: OWNER-MNT\n" +
+                        "source: RIPE"));
+        databaseHelper.addObject(RpslObject.parse(
+                "organisation: ORG-TOS1-TEST\n" +
+                        "org-name:     test@domain1.domain2.nl\n" +
+                        "org-type:     OTHER\n" +
+                        "descr:        test org\n" +
+                        "address:      street 1\n" +
+                        "e-mail:       test@domain1.domain2.nl\n" +
+                        "mnt-ref:      OWNER-MNT\n" +
+                        "mnt-by:       OWNER-MNT\n" +
+                        "source:       RIPE\n"));
+        rebuildIndex();
+
+        assertThat(numFound(query("q=test@domain1")), is(1L));
+    }
+
     // helper methods
 
     private QueryResponse query(final String queryString) {
