@@ -21,7 +21,7 @@ public class SnapshotFileScheduledTask implements DailyScheduledTask {
 
     //TODO: do we need to add timezone? or all servers are in UTC now??
     @Override
-    @Scheduled(cron = "0 0 0 * * *")
+    @Scheduled(cron = "0 0 */2 * * ?")
     @SchedulerLock(name = "NrtmSnapshotFileGenerationTask")
     public void run() {
         try {
