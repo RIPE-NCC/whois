@@ -38,19 +38,6 @@ public class SnapshotFileRepository {
         this.jdbcTemplate = new JdbcTemplate(dataSource);
     }
 
-    public void insert(final SnapshotFile snapshotFile, final byte[] payload) {
-        final String sql = """
-            INSERT INTO snapshot_file (version_id, name, hash, payload)
-            VALUES (?, ?, ?, ?)
-            """;
-        jdbcTemplate.update(sql,
-            snapshotFile.versionId(),
-            snapshotFile.name(),
-            snapshotFile.hash(),
-            payload);
-    }
-
-
     public Optional<SnapshotFile> getByVersionID(final long versionID) {
         final String sql = """
             SELECT sf.id, sf.version_id, sf.name, sf.hash

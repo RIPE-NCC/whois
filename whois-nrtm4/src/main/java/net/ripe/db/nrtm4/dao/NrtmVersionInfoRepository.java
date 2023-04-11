@@ -116,20 +116,6 @@ public class NrtmVersionInfoRepository {
         }
     }
 
-    /**
-     * Creates a row in the version table for an initial snapshot.
-     *
-     * @param source       The source which is being initialized
-     * @param lastSerialId The last serialID from the Whois serials table which is in the snapshot
-     * @return An initialized version object filled from the new row in the database
-     */
-    public NrtmVersionInfo createInitialVersion(final NrtmSource source, final int lastSerialId) {
-        final long version = 1L;
-        final String sessionID = UUID.randomUUID().toString();
-        final NrtmDocumentType type = NrtmDocumentType.SNAPSHOT;
-        return save(source, version, sessionID, type, lastSerialId);
-    }
-
     public NrtmVersionInfo findById(final long versionId) {
         final String sql = """
             SELECT v.id, src.id, src.name, v.version, v.session_id, v.type, v.last_serial_id, v.created
@@ -138,40 +124,6 @@ public class NrtmVersionInfoRepository {
             WHERE v.id = ?
             """;
         return jdbcTemplate.queryForObject(sql, rowMapper, versionId);
-    }
-
-    public NrtmVersionInfo saveNewDeltaVersion(final NrtmVersionInfo version, final int lastSerialID) {
-        return save(version.source(), version.version() + 1, version.sessionID(), NrtmDocumentType.DELTA, lastSerialID);
-    }
-
-    public NrtmVersionInfo saveNewSnapshotVersion(final NrtmVersionInfo version) {
-        return save(version.source(), version.version(), version.sessionID(), NrtmDocumentType.SNAPSHOT, version.lastSerialId());
-    }
-
-    private NrtmVersionInfo save(
-        final NrtmSource source,
-        final long version,
-        final String sessionID,
-        final NrtmDocumentType type,
-        final int lastSerialId) {
-        final KeyHolder keyHolder = new GeneratedKeyHolder();
-        final long now = JdbcRpslObjectOperations.now(dateTimeProvider);
-        jdbcTemplate.update(connection -> {
-                final String sql = """
-                    INSERT INTO version_info (source_id, version, session_id, type, last_serial_id, created)
-                    VALUES (?, ?, ?, ?, ?, ?)
-                    """;
-                final PreparedStatement pst = connection.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS);
-                pst.setLong(1, source.getId());
-                pst.setLong(2, version);
-                pst.setString(3, sessionID);
-                pst.setString(4, type.name());
-                pst.setInt(5, lastSerialId);
-                pst.setLong(6, now);
-                return pst;
-            }, keyHolder
-        );
-        return new NrtmVersionInfo(keyHolder.getKeyAs(Long.class), source, version, sessionID, type, lastSerialId, now);
     }
 
 }

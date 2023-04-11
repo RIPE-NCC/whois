@@ -101,19 +101,4 @@ public class DeltaFileDao {
             return List.of();
         }
     }
-
-
-    public void save(
-        final long versionId,
-        final String name,
-        final String hash,
-        final String payload
-    ) {
-        final String sql = """
-            INSERT INTO delta_file (version_id, name, hash, payload)
-            VALUES (?, ?, ?, ?)
-            """;
-        jdbcTemplate.update(sql, versionId, name, hash, payload);
-    }
-
 }
