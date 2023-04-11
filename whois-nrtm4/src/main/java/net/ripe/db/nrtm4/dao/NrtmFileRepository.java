@@ -50,7 +50,8 @@ public class NrtmFileRepository {
 
        final NrtmVersionInfo newVersion = saveNewDeltaVersion(version, serialIDTo);
        final DeltaFile deltaFile = getDeltaFile(newVersion, deltas);
-       saveDelta(deltaFile.versionId(), deltaFile.name(), deltaFile.hash(), deltaFile.payload());
+       
+       saveDeltaFile(deltaFile.versionId(), deltaFile.name(), deltaFile.hash(), deltaFile.payload());
        LOGGER.info("Created {} delta version {}", newVersion.source().getName(), newVersion.version());
     }
 
@@ -72,14 +73,14 @@ public class NrtmFileRepository {
     }
 
     public NrtmVersionInfo saveNewDeltaVersion(final NrtmVersionInfo version, final int lastSerialID) {
-        return saveDelta(version.source(), version.version() + 1, version.sessionID(), NrtmDocumentType.DELTA, lastSerialID);
+        return saveVersionInfo(version.source(), version.version() + 1, version.sessionID(), NrtmDocumentType.DELTA, lastSerialID);
     }
 
     public NrtmVersionInfo saveNewSnapshotVersion(final NrtmVersionInfo version) {
-        return saveDelta(version.source(), version.version(), version.sessionID(), NrtmDocumentType.SNAPSHOT, version.lastSerialId());
+        return saveVersionInfo(version.source(), version.version(), version.sessionID(), NrtmDocumentType.SNAPSHOT, version.lastSerialId());
     }
 
-    private NrtmVersionInfo saveDelta(
+    private NrtmVersionInfo saveVersionInfo(
             final NrtmSource source,
             final long version,
             final String sessionID,
@@ -105,7 +106,7 @@ public class NrtmFileRepository {
         return new NrtmVersionInfo(keyHolder.getKeyAs(Long.class), source, version, sessionID, type, lastSerialId, now);
     }
 
-    public void saveDelta(
+    public void saveDeltaFile(
             final long versionId,
             final String name,
             final String hash,
