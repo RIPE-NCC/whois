@@ -1216,7 +1216,7 @@ public class ElasticFullTextSearchTestIntegration  extends AbstractElasticSearch
                         "source: RIPE"));
         databaseHelper.addObject(RpslObject.parse(
                 "organisation: ORG-TOS1-TEST\n" +
-                        "org-name:     test@domain1.domain2.nl\n" +
+                        "org-name:     org\n" +
                         "org-type:     OTHER\n" +
                         "descr:        test org\n" +
                         "address:      street 1\n" +
@@ -1236,17 +1236,17 @@ public class ElasticFullTextSearchTestIntegration  extends AbstractElasticSearch
                         "source: RIPE"));
         databaseHelper.addObject(RpslObject.parse(
                 "organisation: ORG-TOS1-TEST\n" +
-                        "org-name:     test@domain1.domain2.nl\n" +
+                        "org-name:     org\n" +
                         "org-type:     OTHER\n" +
                         "descr:        test org\n" +
                         "address:      street 1\n" +
-                        "e-mail:       test@domain1.domain2.nl\n" +
+                        "e-mail:       testemail@domain1.domain2.nl\n" +
                         "mnt-ref:      OWNER-MNT\n" +
                         "mnt-by:       OWNER-MNT\n" +
                         "source:       RIPE\n"));
         rebuildIndex();
 
-        assertThat(numFound(query("q=test")), is(1L));
+        assertThat(numFound(query("q=testemail")), is(1L));
     }
 
     @Test
@@ -1256,7 +1256,7 @@ public class ElasticFullTextSearchTestIntegration  extends AbstractElasticSearch
                         "source: RIPE"));
         databaseHelper.addObject(RpslObject.parse(
                 "organisation: ORG-TOS1-TEST\n" +
-                        "org-name:     test@domain1.domain2.nl\n" +
+                        "org-name:     org\n" +
                         "org-type:     OTHER\n" +
                         "descr:        test org\n" +
                         "address:      street 1\n" +
@@ -1276,7 +1276,7 @@ public class ElasticFullTextSearchTestIntegration  extends AbstractElasticSearch
                         "source: RIPE"));
         databaseHelper.addObject(RpslObject.parse(
                 "organisation: ORG-TOS1-TEST\n" +
-                        "org-name:     test@domain1.domain2.nl\n" +
+                        "org-name:     org\n" +
                         "org-type:     OTHER\n" +
                         "descr:        test org\n" +
                         "address:      street 1\n" +
@@ -1295,7 +1295,7 @@ public class ElasticFullTextSearchTestIntegration  extends AbstractElasticSearch
                         "source: RIPE"));
         databaseHelper.addObject(RpslObject.parse(
                 "organisation: ORG-TOS1-TEST\n" +
-                        "org-name:     test@domain1.domain2.nl\n" +
+                        "org-name:     org\n" +
                         "org-type:     OTHER\n" +
                         "descr:        test org\n" +
                         "address:      street 1\n" +
@@ -1315,7 +1315,7 @@ public class ElasticFullTextSearchTestIntegration  extends AbstractElasticSearch
                         "source: RIPE"));
         databaseHelper.addObject(RpslObject.parse(
                 "organisation: ORG-TOS1-TEST\n" +
-                        "org-name:     test@domain1.domain2.nl\n" +
+                        "org-name:     org\n" +
                         "org-type:     OTHER\n" +
                         "descr:        test org\n" +
                         "address:      street 1\n" +
@@ -1335,7 +1335,7 @@ public class ElasticFullTextSearchTestIntegration  extends AbstractElasticSearch
                         "source: RIPE"));
         databaseHelper.addObject(RpslObject.parse(
                 "organisation: ORG-TOS1-TEST\n" +
-                        "org-name:     test@domain1.domain2.nl\n" +
+                        "org-name:     org\n" +
                         "org-type:     OTHER\n" +
                         "descr:        test org\n" +
                         "address:      street 1\n" +
@@ -1355,17 +1355,17 @@ public class ElasticFullTextSearchTestIntegration  extends AbstractElasticSearch
                         "source: RIPE"));
         databaseHelper.addObject(RpslObject.parse(
                 "organisation: ORG-TOS1-TEST\n" +
-                        "org-name:     test@domain1.domain2.nl\n" +
+                        "org-name:     org\n" +
                         "org-type:     OTHER\n" +
                         "descr:        test org\n" +
                         "address:      street 1\n" +
-                        "e-mail:       test@domain1.domain2.nl\n" +
+                        "e-mail:       testemail@domain1.domain2.nl\n" +
                         "mnt-ref:      OWNER-MNT\n" +
                         "mnt-by:       OWNER-MNT\n" +
                         "source:       RIPE\n"));
         rebuildIndex();
 
-        assertThat(numFound(query("q=test@domain1")), is(1L));
+        assertThat(numFound(query("q=testemail@domain1")), is(1L));
     }
 
     // helper methods
