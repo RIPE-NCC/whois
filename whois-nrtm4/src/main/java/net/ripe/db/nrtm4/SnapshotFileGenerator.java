@@ -84,7 +84,8 @@ public class SnapshotFileGenerator {
         for (final NrtmSource source : sources) {
 
             if(!canProceed(sourceVersions, source)) {
-               continue;
+                LOGGER.info("skipping generation of snapshot file for source {}", source.getName());
+                continue;
             }
 
             final NrtmVersionInfo newSnapshotVersion = getNewVersion(source, sourceVersions, snapshotState.serialId());
