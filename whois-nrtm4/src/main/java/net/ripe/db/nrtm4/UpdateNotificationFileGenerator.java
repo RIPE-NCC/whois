@@ -58,6 +58,7 @@ public class UpdateNotificationFileGenerator {
     }
 
     public void generateFile() {
+        LOGGER.info("Generating the update notification file");
 
        final List<NrtmSource> nrtmSources = sourceRepository.getSources();
        final long createdTimestamp = dateTimeProvider.getCurrentDateTime().toEpochSecond(ZoneOffset.UTC);

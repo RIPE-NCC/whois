@@ -25,8 +25,6 @@ public class UpdateNotificationFileScheduledTask implements DailyScheduledTask {
     @SchedulerLock(name = "NrtmNotificationFileGenerationTask")
     public void run() {
         try {
-            LOGGER.info("Generating the update notification file");
-
             updateNotificationFileGenerator.generateFile();
         } catch (final Exception e) {
             LOGGER.error("NRTM file generation failed", e);
