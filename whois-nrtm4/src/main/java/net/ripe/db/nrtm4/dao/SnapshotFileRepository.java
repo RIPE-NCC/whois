@@ -98,18 +98,4 @@ public class SnapshotFileRepository {
             return Optional.empty();
         }
     }
-
-    public Optional<byte[]> getPayload(final long id) {
-        final String sql = """
-            SELECT payload
-            FROM snapshot_file
-            WHERE id = ?
-            """;
-        try {
-            return Optional.ofNullable(jdbcTemplate.queryForObject(sql, byte[].class, id));
-        } catch (final EmptyResultDataAccessException ex) {
-            return Optional.empty();
-        }
-    }
-
 }

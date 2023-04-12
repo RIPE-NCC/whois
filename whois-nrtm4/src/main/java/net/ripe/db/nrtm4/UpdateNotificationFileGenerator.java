@@ -118,7 +118,7 @@ public class UpdateNotificationFileGenerator {
             throw new IllegalStateException("Something went wrong, found notification version higher then latest version");
         }
 
-        //means there is new snapshot file created 
+        //means there is new snapshot file created
         if(notificationVersion.version() > snapshotFile.get().versionInfo().version() ) {
             return true;
         }
