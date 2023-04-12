@@ -73,6 +73,8 @@ public class UpdateNotificationFileGenerator {
               continue;
           }
 
+           LOGGER.info("Last generated snapshot file version is : {}" , snapshotFile.get().versionInfo().version());
+
           final List<DeltaFileVersionInfo> deltaFiles = deltaFileDao.getAllDeltasForSourceSince(nrtmSource, oneDayAgo);
           final NrtmVersionInfo fileVersion = getVersion(deltaFiles, snapshotFile.get());
           final String json = getPayload(snapshotFile.get(), deltaFiles, fileVersion, createdTimestamp);
@@ -105,6 +107,8 @@ public class UpdateNotificationFileGenerator {
                                                         .orElseThrow( () -> new IllegalStateException("No version exists with id " + notificationFile.get().versionId()));
 
         final NrtmVersionInfo notificationVersion = nrtmVersionInfoRepository.findById(notificationFile.get().versionId());
+        LOGGER.info("Last notification file version  is : {}" , notificationVersion.version());
+
         if(notificationVersion.version() > lastVersion.version()) {
             throw new IllegalStateException("Something went wrong, found notification version higher then latest version");
         }
