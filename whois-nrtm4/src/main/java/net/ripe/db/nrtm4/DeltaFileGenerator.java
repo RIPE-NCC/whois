@@ -63,6 +63,7 @@ public class DeltaFileGenerator {
         sourceVersions.forEach(sv -> deltaMap.put(sv.source().getName(), new ArrayList<>()));
 
         final List<SerialEntry> whoisChanges = whoisObjectRepository.getSerialEntriesBetween(sourceVersions.get(0).lastSerialId(), serialIDTo);
+        LOGGER.info("Number of objects found between serial id {} - {} is {} ", sourceVersions.get(0).lastSerialId(), serialIDTo, whoisChanges.size());
         // iterate changes and divide objects per source
         for (final SerialEntry serialEntry : whoisChanges) {
             if (!dummifier.isAllowed(NRTM_VERSION, serialEntry.getRpslObject())) {
