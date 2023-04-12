@@ -83,6 +83,7 @@ public class UpdateNotificationFileGenerator {
 
     private void saveNotificationFile(long createdTimestamp, Optional<NotificationFile> notificationFile, NrtmVersionInfo fileVersion, String json) {
         if(json == null) {
+            LOGGER.error("Payload is empty for notification file");
             return;
         }
 
