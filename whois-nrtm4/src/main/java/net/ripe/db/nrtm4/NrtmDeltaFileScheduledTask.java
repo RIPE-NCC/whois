@@ -25,6 +25,7 @@ public class NrtmDeltaFileScheduledTask implements DailyScheduledTask {
     @Scheduled(cron = "0 * * * * ?")
     @SchedulerLock(name = "NrtmDeltaFileWriterScheduledTask")
     public void run() {
+        LOGGER.info("Started delta file generation");
         try {
             deltaFileGenerator.createDeltas();
         } catch (final Exception e) {
