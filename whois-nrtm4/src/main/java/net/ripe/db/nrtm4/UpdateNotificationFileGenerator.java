@@ -69,7 +69,7 @@ public class UpdateNotificationFileGenerator {
           final Optional<NotificationFile> notificationFile = notificationFileDao.findLastNotification(nrtmSource);
           final Optional<SnapshotFileVersionInfo> snapshotFile = snapshotFileRepository.getLastSnapshotWithVersion(nrtmSource);
 
-          if( !canProceed(notificationFile, nrtmSource, oneDayAgo) || snapshotFile.isEmpty()) {
+          if( !canProceed(notificationFile, nrtmSource, oneDayAgo, snapshotFile)) {
               LOGGER.info("Skipping generation of update notification file");
               continue;
           }
@@ -98,7 +98,11 @@ public class UpdateNotificationFileGenerator {
         notificationFileDao.update(NotificationFile.of(notificationFile.get().id(), fileVersion.id(), createdTimestamp, json));
     }
 
-    private boolean canProceed(final Optional<NotificationFile> notificationFile, final NrtmSource sourceModel, final LocalDateTime oneDayAgo) {
+    private boolean canProceed(final Optional<NotificationFile> notificationFile, final NrtmSource sourceModel, final LocalDateTime oneDayAgo, final Optional<SnapshotFileVersionInfo> snapshotFile) {
+       if(snapshotFile.isEmpty()) {
+           return false;
+       }
+
         if(notificationFile.isEmpty() ||
                 LocalDateTime.ofEpochSecond(notificationFile.get().created(), 0, ZoneOffset.UTC).isBefore(oneDayAgo)) {
             return true;
@@ -112,6 +116,11 @@ public class UpdateNotificationFileGenerator {
 
         if(notificationVersion.version() > lastVersion.version()) {
             throw new IllegalStateException("Something went wrong, found notification version higher then latest version");
+        }
+
+        //means there is new snapshot file created 
+        if(notificationVersion.version() > snapshotFile.get().versionInfo().version() ) {
+            return true;
         }
 
         return notificationVersion.version() < lastVersion.version() ||

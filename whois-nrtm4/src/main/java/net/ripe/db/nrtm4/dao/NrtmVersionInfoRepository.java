@@ -43,14 +43,9 @@ public class NrtmVersionInfoRepository {
     };
     private final RowMapper<NrtmVersionInfo> rowMapper = rowMapperWithOffset.apply(0);
     private final JdbcTemplate jdbcTemplate;
-    private final DateTimeProvider dateTimeProvider;
 
-    public NrtmVersionInfoRepository(
-        @Qualifier("nrtmDataSource") final DataSource dataSource,
-        final DateTimeProvider dateTimeProvider
-    ) {
+    public NrtmVersionInfoRepository(@Qualifier("nrtmDataSource") final DataSource dataSource) {
         this.jdbcTemplate = new JdbcTemplate(dataSource);
-        this.dateTimeProvider = dateTimeProvider;
     }
 
     public List<NrtmVersionInfo> findLastVersionPerSource() {
