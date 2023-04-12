@@ -92,6 +92,7 @@ import static net.ripe.db.whois.common.rpsl.ObjectType.INET6NUM;
 
 @Component
 class RdapObjectMapper {
+
     private static final String TERMS_AND_CONDITIONS = "http://www.ripe.net/data-tools/support/documentation/terms";
     private static final Link COPYRIGHT_LINK = new Link(TERMS_AND_CONDITIONS, "copyright", TERMS_AND_CONDITIONS, null, null);
 
@@ -130,18 +131,17 @@ class RdapObjectMapper {
 
     public Object map(final String requestUrl,
                       final RpslObject rpslObject,
-                      final Optional<AbuseContact> abuseContact) {
+                      final AbuseContact abuseContact) {
         return mapCommons(getRdapObject(requestUrl, rpslObject, abuseContact), requestUrl);
     }
 
     public Object mapSearch(final String requestUrl, final List<RpslObject> objects, final int maxResultSize) {
         final SearchResult searchResult = new SearchResult();
-
         for (final RpslObject object : objects) {
             if (object.getType() == DOMAIN) {
-                searchResult.addDomainSearchResult((Domain) getRdapObject(requestUrl, object, Optional.empty()));
+                searchResult.addDomainSearchResult((Domain) getRdapObject(requestUrl, object, null));
             } else {
-                searchResult.addEntitySearchResult((Entity) getRdapObject(requestUrl, object, Optional.empty()));
+                searchResult.addEntitySearchResult((Entity) getRdapObject(requestUrl, object, null));
             }
         }
 
@@ -157,7 +157,7 @@ class RdapObjectMapper {
                                   final RpslObject inetnumResult){
         final RdapObject domain = getRdapObject(requestUrl, domainResult, Optional.empty());
         if (inetnumResult != null) {
-            domain.setNetwork((Ip) getRdapObject(requestUrl, inetnumResult, Optional.empty()));
+            domain.setNetwork((Ip) getRdapObject(requestUrl, inetnumResult, null));
         }
         final RdapObject rdapObject = mapCommonNoticesAndPort(domain, requestUrl);
         rdapObject.getLinks().add(COPYRIGHT_LINK);
@@ -215,7 +215,7 @@ class RdapObjectMapper {
     }
     private RdapObject getRdapObject(final String requestUrl,
                                      final RpslObject rpslObject,
-                                     final Optional<AbuseContact> optionalAbuseContact) {
+                                     @Nullable final AbuseContact abuseContact) {
         RdapObject rdapResponse;
         final ObjectType rpslObjectType = rpslObject.getType();
 
@@ -243,13 +243,13 @@ class RdapObjectMapper {
                 throw new IllegalArgumentException("Unhandled object type: " + rpslObject.getType());
         }
 
-        optionalAbuseContact.ifPresent(abuseContact -> {
+        if (abuseContact != null) {
             if (abuseContact.isSuspect() && abuseContact.getOrgId() != null) {
                 rdapResponse.getRemarks().add(createRemark(rpslObject.getKey(), abuseContact));
             }
 
             rdapResponse.getEntitySearchResults().add(createEntity(abuseContact.getAbuseRole(), Role.ABUSE));
-        });
+        }
 
         if (hasDescriptions(rpslObject)) {
             rdapResponse.getRemarks().add(createRemark(rpslObject));

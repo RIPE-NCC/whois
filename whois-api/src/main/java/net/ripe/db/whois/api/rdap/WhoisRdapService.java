@@ -368,7 +368,7 @@ public class WhoisRdapService {
                 rdapObjectMapper.map(
                         getRequestUrl(request),
                         resultObject,
-                        abuseCFinder.getAbuseContact(resultObject)))
+                        abuseCFinder.getAbuseContact(resultObject).orElse(null)))
                 .header(CONTENT_TYPE, CONTENT_TYPE_RDAP_JSON)
                 .build();
     }
