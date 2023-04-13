@@ -39,7 +39,6 @@ import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.dao.EmptyResultDataAccessException;
 
@@ -197,9 +196,6 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
     @Autowired private MailSenderStub mailSenderStub;
     @Autowired private TestDateTimeProvider testDateTimeProvider;
     @Autowired private ApplicationVersion applicationVersion;
-
-    @Value("${api.rest.baseurl}")
-    private String restApiBaseUrl;
     @BeforeEach
     public void setup() {
         databaseHelper.addObject("person: Test Person\nnic-hdl: TP1-TEST");
