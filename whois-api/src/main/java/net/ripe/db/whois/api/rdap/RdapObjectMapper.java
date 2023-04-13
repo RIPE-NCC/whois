@@ -180,7 +180,7 @@ class RdapObjectMapper {
 
         final List<Ip> networks = mapNetworks(requestUrl, topLevelInetnums, topLevelInet6nums, maxResultSize);
 
-        final RdapObject organisation = getRdapObject(requestUrl, organisationObject, null);
+        final RdapObject organisation = getRdapObject(requestUrl, organisationObject, Optional.empty());
 
         if ((topLevelInetnums.size() + topLevelInet6nums.size()) > maxResultSize) {
             final Notice outOfLimitNotice = new Notice();
@@ -219,7 +219,7 @@ class RdapObjectMapper {
         return autnumResult.stream()
                 .map(rpslObjectInfo -> getRpslObject(rpslObjectInfo))
                 .filter(Objects::nonNull)
-                .map(rpslObject -> (Autnum)getRdapObject(requestUrl, rpslObject, null))
+                .map(rpslObject -> (Autnum)getRdapObject(requestUrl, rpslObject, Optional.empty()))
                 .collect(Collectors.toList());
     }
 
@@ -232,7 +232,7 @@ class RdapObjectMapper {
                 .limit(maxResultSize)
                 .map(this::getRpslObject)
                 .filter(Objects::nonNull)
-                .map(rpslObject -> (Ip)getRdapObject(requestUrl, rpslObject, null))
+                .map(rpslObject -> (Ip)getRdapObject(requestUrl, rpslObject, Optional.empty()))
                 .toList();
     }
 
