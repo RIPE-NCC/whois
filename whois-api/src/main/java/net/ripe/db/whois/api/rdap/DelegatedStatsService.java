@@ -18,6 +18,7 @@ import org.springframework.context.EmbeddedValueResolverAware;
 import org.springframework.stereotype.Component;
 import org.springframework.util.StringValueResolver;
 
+import javax.annotation.Nullable;
 import javax.annotation.PostConstruct;
 import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.Response;
@@ -30,6 +31,7 @@ import static net.ripe.db.whois.common.domain.CIString.ciSet;
 
 @Component
 public class DelegatedStatsService implements EmbeddedValueResolverAware {
+
     private static final Logger LOGGER = LoggerFactory.getLogger(DelegatedStatsService.class);
 
     private static final Splitter COMMA_SPLITTER = Splitter.on(',');
@@ -41,14 +43,14 @@ public class DelegatedStatsService implements EmbeddedValueResolverAware {
     private StringValueResolver valueResolver;
 
     @Autowired
-    public DelegatedStatsService(@Value("${rdap.sources:}") String rdapSourceNames,
+    public DelegatedStatsService(@Value("${rdap.sources:}") final String rdapSourceNames,
                                  final AuthoritativeResourceData resourceData) {
         this.sources = ciSet(COMMA_SPLITTER.split(rdapSourceNames));
         this.resourceData = resourceData;
     }
 
     @Override
-    public void setEmbeddedValueResolver(StringValueResolver valueResolver) {
+    public void setEmbeddedValueResolver(final StringValueResolver valueResolver) {
         this.valueResolver = valueResolver;
     }
 
@@ -64,16 +66,21 @@ public class DelegatedStatsService implements EmbeddedValueResolverAware {
         }
     }
 
+    // TODO: remove
     public URI getUriForRedirect(final String requestPath, final Query query) {
         final Optional<ObjectType> objectType = query.getObjectTypes().stream()
             .filter(ALLOWED_OBJECTTYPES::contains)
             .findFirst();
 
-        if (objectType.isPresent()) {
+        return getUriForRedirect(requestPath, objectType.orElse(null), query.getSearchValue());
+    }
+
+    public URI getUriForRedirect(final String requestPath, @Nullable final ObjectType objectType, final String searchValue) {
+        if (objectType != null) {
             for (Map.Entry<CIString, String> entry : sourceToPathMap.entrySet()) {
                 final CIString sourceName = entry.getKey();
                 final AuthoritativeResource authoritativeResource = resourceData.getAuthoritativeResource(sourceName);
-                if (authoritativeResource.isMaintainedInRirSpace(objectType.get(), CIString.ciString(query.getSearchValue()))) {
+                if (authoritativeResource.isMaintainedInRirSpace(objectType, CIString.ciString(searchValue))) {
                     final String basePath = entry.getValue();
                     LOGGER.debug("Redirecting {} to {}", requestPath, sourceName);
                     // TODO: don't include local path prefix (lookup from base context and replace)
@@ -82,11 +89,11 @@ public class DelegatedStatsService implements EmbeddedValueResolverAware {
             }
         }
 
-        LOGGER.debug("Resource {} not found", query.getSearchValue());
+        LOGGER.debug("Resource {} not found", searchValue);
         throw new WebApplicationException(Response.Status.NOT_FOUND);
     }
 
-    public boolean isMaintainedInRirSpace(final CIString source, final ObjectType objectType, final CIString pkey){
+    public boolean isMaintainedInRirSpace(final CIString source, final ObjectType objectType, final CIString pkey) {
         final AuthoritativeResource authoritativeResource = resourceData.getAuthoritativeResource(source);
         return authoritativeResource.isMaintainedInRirSpace(objectType, pkey);
     }

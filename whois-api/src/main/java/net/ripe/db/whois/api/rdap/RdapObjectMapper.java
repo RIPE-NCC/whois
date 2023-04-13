@@ -24,9 +24,11 @@ import net.ripe.db.whois.api.rdap.domain.RdapObject;
 import net.ripe.db.whois.api.rdap.domain.Remark;
 import net.ripe.db.whois.api.rdap.domain.Role;
 import net.ripe.db.whois.api.rdap.domain.SearchResult;
+import net.ripe.db.whois.api.rdap.domain.Status;
 import net.ripe.db.whois.api.rdap.domain.vcard.VCard;
 import net.ripe.db.whois.common.DateUtil;
 import net.ripe.db.whois.common.dao.RpslObjectDao;
+import net.ripe.db.whois.common.dao.RpslObjectInfo;
 import net.ripe.db.whois.common.domain.CIString;
 import net.ripe.db.whois.common.ip.IpInterval;
 import net.ripe.db.whois.common.ip.Ipv4Resource;
@@ -57,11 +59,10 @@ import org.springframework.stereotype.Component;
 import javax.annotation.Nullable;
 import javax.ws.rs.InternalServerErrorException;
 import java.time.LocalDateTime;
-import java.util.Arrays;
-import java.util.HashMap;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
+import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -92,12 +93,11 @@ import static net.ripe.db.whois.common.rpsl.ObjectType.INET6NUM;
 
 @Component
 class RdapObjectMapper {
+
     private static final String TERMS_AND_CONDITIONS = "http://www.ripe.net/data-tools/support/documentation/terms";
     private static final Link COPYRIGHT_LINK = new Link(TERMS_AND_CONDITIONS, "copyright", TERMS_AND_CONDITIONS, null, null);
 
-
     private static final Map<AttributeType, Role> CONTACT_ATTRIBUTE_TO_ROLE_NAME = Maps.newHashMap();
-
     static {
         CONTACT_ATTRIBUTE_TO_ROLE_NAME.put(ADMIN_C, Role.ADMINISTRATIVE);
         CONTACT_ATTRIBUTE_TO_ROLE_NAME.put(TECH_C, Role.TECHNICAL);
@@ -112,7 +112,6 @@ class RdapObjectMapper {
     private final Ipv4Tree ipv4Tree;
     private final Ipv6Tree ipv6Tree;
     private final String port43;
-
 
     @Autowired
     public RdapObjectMapper(
@@ -132,22 +131,21 @@ class RdapObjectMapper {
 
     public Object map(final String requestUrl,
                       final RpslObject rpslObject,
-                      final Optional<AbuseContact> abuseContact) {
+                      @Nullable final AbuseContact abuseContact) {
         return mapCommons(getRdapObject(requestUrl, rpslObject, abuseContact), requestUrl);
     }
 
     public Object mapSearch(final String requestUrl, final List<RpslObject> objects, final int maxResultSize) {
         final SearchResult searchResult = new SearchResult();
-
         for (final RpslObject object : objects) {
             if (object.getType() == DOMAIN) {
-                searchResult.addDomainSearchResult((Domain) getRdapObject(requestUrl, object, Optional.empty()));
+                searchResult.addDomainSearchResult((Domain) getRdapObject(requestUrl, object, null));
             } else {
-                searchResult.addEntitySearchResult((Entity) getRdapObject(requestUrl, object, Optional.empty()));
+                searchResult.addEntitySearchResult((Entity) getRdapObject(requestUrl, object, null));
             }
         }
 
-        if(objects.size() == maxResultSize) {
+        if (objects.size() == maxResultSize) {
             final Notice notice = new Notice();
             notice.setTitle(String.format("limited search results to %s maximum" , maxResultSize));
             searchResult.getNotices().add(notice);
@@ -155,34 +153,41 @@ class RdapObjectMapper {
         return mapCommons(searchResult, requestUrl);
     }
 
-    public Object mapDomainEntity(final String requestUrl, final RpslObject domainResult,
-                                  final RpslObject inetnumResult){
-        final RdapObject domain = getRdapObject(requestUrl, domainResult, Optional.empty());
+    public Object mapDomainEntity(
+                final String requestUrl,
+                final RpslObject domainResult,
+                final RpslObject inetnumResult) {
+        final RdapObject domain = getRdapObject(requestUrl, domainResult, null);
         if (inetnumResult != null) {
-            domain.setNetwork((Ip) getRdapObject(requestUrl, inetnumResult, Optional.empty()));
+            domain.setNetwork((Ip) getRdapObject(requestUrl, inetnumResult, null));
         }
         final RdapObject rdapObject = mapCommonNoticesAndPort(domain, requestUrl);
         rdapObject.getLinks().add(COPYRIGHT_LINK);
         return mapCommonConformances(rdapObject);
     }
-    public Object mapOrganisationEntity(final String requestUrl, final RpslObject organisationObject,
-                                        final Stream<RpslObject> autnumResult,
-                                        final Stream<RpslObject> inetnumResult,
-                                        final Stream<RpslObject> inet6numResult, final int maxResultSize){
-         final List<Autnum> autnums = autnumResult.map(autnumRpsl -> (Autnum)getRdapObject(requestUrl,
-                autnumRpsl,
-                Optional.empty())).collect(Collectors.toList());
 
-        final List<Ip> networks = filterTopLevelIps(requestUrl, inetnumResult, inet6numResult, maxResultSize);
+    public Object mapOrganisationEntity(final String requestUrl,
+                                        final RpslObject organisationObject,
+                                        final List<RpslObjectInfo> autnumResult,
+                                        final List<RpslObjectInfo> inetnumResult,
+                                        final List<RpslObjectInfo> inet6numResult,
+                                        final int maxResultSize) {
 
-        final RdapObject organisation = getRdapObject(requestUrl, organisationObject,Optional.empty());
+        final List<Autnum> autnums = mapAutnums(requestUrl, autnumResult);
 
-        if (networks.size() > maxResultSize) {
+        final List<RpslObjectInfo> topLevelInetnums = new TopLevelFilter<Ipv4Resource>(inetnumResult).getTopLevelValues();
+        final List<RpslObjectInfo> topLevelInet6nums = new TopLevelFilter<Ipv4Resource>(inet6numResult).getTopLevelValues();
+
+        final List<Ip> networks = mapNetworks(requestUrl, topLevelInetnums, topLevelInet6nums, maxResultSize);
+
+        final RdapObject organisation = getRdapObject(requestUrl, organisationObject, null);
+
+        if ((topLevelInetnums.size() + topLevelInet6nums.size()) > maxResultSize) {
             final Notice outOfLimitNotice = new Notice();
-            outOfLimitNotice.setTitle(String.format("limited networks attribute results to %s maximum" ,
-                    maxResultSize));
+            outOfLimitNotice.setTitle(String.format("limited networks attribute results to %s maximum" , maxResultSize));
             organisation.getNotices().add(outOfLimitNotice);
         }
+
         organisation.setNetworks(networks);
         organisation.setAutnums(autnums);
 
@@ -204,20 +209,50 @@ class RdapObjectMapper {
     public RdapObject mapHelp(final String requestUrl) {
         final RdapObject rdapObject = mapCommonNoticesAndPort(new RdapObject(), requestUrl);
         mapCommonLinks(rdapObject, requestUrl);
-        rdapObject.getRdapConformance().addAll(Stream.of(RdapConformance.values()).map(RdapConformance::getValue).collect(Collectors.toList()));
+        rdapObject.getRdapConformance().addAll(Stream.of(RdapConformance.values()).map(RdapConformance::getValue).toList());
         return rdapObject;
     }
 
-    private List<Ip> filterTopLevelIps(String requestUrl, Stream<RpslObject> inetnumResult,
-                                       Stream<RpslObject> inet6numResult, int maxResultSize) {
-        return Stream.concat((Stream<RpslObject>) new TopLevelFilter(inetnumResult).getTopLevelValues().stream(),
-                        (Stream<RpslObject>) new TopLevelFilter(inet6numResult).getTopLevelValues().stream())
-                .limit(maxResultSize)
-                .map(topLevelRpsl -> (Ip) getRdapObject(requestUrl, topLevelRpsl, Optional.empty())).collect(Collectors.toList());
+    private List<Autnum> mapAutnums(
+                final String requestUrl,
+                final List<RpslObjectInfo> autnumResult) {
+        return autnumResult.stream()
+                .map(rpslObjectInfo -> getRpslObject(rpslObjectInfo))
+                .filter(Objects::nonNull)
+                .map(rpslObject -> (Autnum)getRdapObject(requestUrl, rpslObject, null))
+                .collect(Collectors.toList());
     }
+
+    private List<Ip> mapNetworks(
+                final String requestUrl,
+                final List<RpslObjectInfo> inetnums,
+                final List<RpslObjectInfo> inet6nums,
+                final int maxResultSize) {
+        return Stream.concat(inet6nums.stream(), inetnums.stream())
+                .limit(maxResultSize)
+                .map(this::getRpslObject)
+                .filter(Objects::nonNull)
+                .map(rpslObject -> (Ip)getRdapObject(requestUrl, rpslObject, null))
+                .toList();
+    }
+
+    @Nullable
+    private RpslObject getRpslObject(final RpslObjectInfo rpslObjectInfo) {
+        return getRpslObject(rpslObjectInfo.getObjectId());
+    }
+
+    @Nullable
+    private RpslObject getRpslObject(final int objectId) {
+        try {
+            return rpslObjectDao.getById(objectId);
+        } catch (DataAccessException e) {
+            return null;
+        }
+    }
+
     private RdapObject getRdapObject(final String requestUrl,
                                      final RpslObject rpslObject,
-                                     final Optional<AbuseContact> optionalAbuseContact) {
+                                     @Nullable final AbuseContact abuseContact) {
         RdapObject rdapResponse;
         final ObjectType rpslObjectType = rpslObject.getType();
 
@@ -245,13 +280,13 @@ class RdapObjectMapper {
                 throw new IllegalArgumentException("Unhandled object type: " + rpslObject.getType());
         }
 
-        optionalAbuseContact.ifPresent(abuseContact -> {
+        if (abuseContact != null) {
             if (abuseContact.isSuspect() && abuseContact.getOrgId() != null) {
                 rdapResponse.getRemarks().add(createRemark(rpslObject.getKey(), abuseContact));
             }
 
             rdapResponse.getEntitySearchResults().add(createEntity(abuseContact.getAbuseRole(), Role.ABUSE));
-        });
+        }
 
         if (hasDescriptions(rpslObject)) {
             rdapResponse.getRemarks().add(createRemark(rpslObject));
@@ -264,24 +299,25 @@ class RdapObjectMapper {
 
         return rdapResponse;
     }
+
     private RdapObject mapCommons(final RdapObject rdapResponse, final String requestUrl) {
         final RdapObject rdapObject = mapCommonNoticesAndPort(rdapResponse, requestUrl);
         mapCommonLinks(rdapObject, requestUrl);
         return mapCommonConformances(rdapObject);
     }
 
-    private void mapCommonLinks(final RdapObject rdapResponse, final String requestUrl){
+    private void mapCommonLinks(final RdapObject rdapResponse, final String requestUrl) {
         if (requestUrl != null) {
             rdapResponse.getLinks().add(new Link(requestUrl, "self", requestUrl, null, null));
         }
         rdapResponse.getLinks().add(COPYRIGHT_LINK);
     }
-    private RdapObject mapCommonNoticesAndPort(final RdapObject rdapResponse, final String requestUrl){
+
+    private RdapObject mapCommonNoticesAndPort(final RdapObject rdapResponse, final String requestUrl) {
         rdapResponse.getNotices().add(noticeFactory.generateTnC(requestUrl));
         rdapResponse.setPort43(port43);
         return rdapResponse;
     }
-
 
     private RdapObject mapCommonConformances(final RdapObject rdapResponse) {
         rdapResponse.getRdapConformance().addAll(List.of(RdapConformance.CIDR_0.getValue(),
@@ -293,43 +329,33 @@ class RdapObjectMapper {
         final Ip ip = new Ip();
         final IpInterval ipInterval = IpInterval.parse(rpslObject.getKey());
         ip.setHandle(rpslObject.getKey().toString());
-
         ip.setIpVersion(rpslObject.getType() == INET6NUM? "v6" : "v4");
         ip.setStartAddress(toIpRange(ipInterval).start().toString());
         ip.setEndAddress(toIpRange(ipInterval).end().toString());
         ip.setName(rpslObject.getValueForAttribute(AttributeType.NETNAME).toString());
         ip.setType(rpslObject.getValueForAttribute(AttributeType.STATUS).toString());
-
-        if(!isIANABlock(rpslObject)) {
+        if (!isIANABlock(rpslObject)) {
             ip.setParentHandle(lookupParentHandle(ipInterval));
         }
-
-        ip.setStatus(getResourceStatus(rpslObject));
+        ip.setStatus(Collections.singletonList(getResourceStatus(rpslObject).getValue()));
         handleLanguageAttribute(rpslObject, ip);
         handleCountryAttribute(rpslObject, ip);
-
         ip.setCidr0_cidrs(getIpCidr0Notation(toIpRange(ipInterval)));
         ip.getEntitySearchResults().addAll(createContactEntities(rpslObject));
-
         return ip;
     }
 
-    private List<Object> getResourceStatus(final RpslObject rpslObject) {
-
+    private Status getResourceStatus(final RpslObject rpslObject) {
         switch (rpslObject.getType()) {
             case AUT_NUM:
                 final Long asn = Long.parseLong(StringUtils.substringAfter(rpslObject.getKey().toUpperCase(), "AS"));
-                return reservedResources.isReservedAsNumber(asn) ? Arrays.asList(RESERVED.getValue()) : Arrays.asList(ACTIVE.getValue());
-
+                return reservedResources.isReservedAsNumber(asn) ? RESERVED : ACTIVE;
             case AS_BLOCK:
-                return reservedResources.isReservedAsBlock(rpslObject.getKey().toUpperCase()) ? Arrays.asList(RESERVED.getValue()) : Arrays.asList(ACTIVE.getValue());
-
+                return reservedResources.isReservedAsBlock(rpslObject.getKey().toUpperCase()) ? RESERVED : ACTIVE;
             case INETNUM:
             case INET6NUM:
-                return  isIANABlock(rpslObject) ? Arrays.asList(ADMINISTRATIVE.getValue()) :
-                        reservedResources.isBogon(rpslObject.getKey().toString()) ? Arrays.asList(RESERVED.getValue()) :
-                                Arrays.asList(ACTIVE.getValue());
-
+                return  isIANABlock(rpslObject) ? ADMINISTRATIVE :
+                        reservedResources.isBogon(rpslObject.getKey().toString()) ? RESERVED : ACTIVE;
             default:
                 throw new IllegalArgumentException("Unhandled object type: " + rpslObject.getType());
         }
@@ -343,11 +369,9 @@ class RdapObjectMapper {
        return Lists.newArrayList(
                Iterables.transform(ipRange.splitToPrefixes(), (Function<AbstractIpRange, IpCidr0>) ipv6s -> {
                    final String[] cidrNotation = ipv6s.toStringInCidrNotation().split("/");
-
                    final IpCidr0 ipCidr0 = new IpCidr0();
                    ipCidr0.setLength(Integer.parseInt(cidrNotation[1]));
-
-                   if(ipv6s instanceof Ipv4Range) {
+                   if (ipv6s instanceof Ipv4Range) {
                        ipCidr0.setV4prefix(cidrNotation[0]);
                    } else {
                        ipCidr0.setV6prefix(cidrNotation[0]);
@@ -356,7 +380,7 @@ class RdapObjectMapper {
                }));
     }
 
-    private static AbstractIpRange toIpRange(IpInterval interval) {
+    private static AbstractIpRange toIpRange(final IpInterval interval) {
         return interval instanceof Ipv4Resource? toIpv4Range((Ipv4Resource)interval) : toIpv6Range((Ipv6Resource)interval);
     }
 
@@ -368,18 +392,12 @@ class RdapObjectMapper {
         return Ipv6Range.from(ipv6Resource.begin()).to(ipv6Resource.end());
     }
 
-    @Nullable
     private String lookupParentHandle(final IpInterval ipInterval) {
-        final RpslObject parentRpslObject;
-        try {
-            parentRpslObject = rpslObjectDao.getById(lookupParentIpEntry(ipInterval).getObjectId());
-        } catch (DataAccessException e) {
-            throw new IllegalStateException("Couldn't get parent for " + ipInterval.toString());
+        final RpslObject parentRpslObject = getRpslObject(lookupParentIpEntry(ipInterval).getObjectId());
+        if (parentRpslObject == null) {
+            throw new IllegalStateException("No parentHandle for " + ipInterval);
         }
 
-        if (parentRpslObject == null) {
-            throw new IllegalStateException("No parentHandle for " + ipInterval.toString());
-        }
 
         return parentRpslObject.getKey().toString();
     }
@@ -388,19 +406,20 @@ class RdapObjectMapper {
         if (ipInterval instanceof Ipv4Resource) {
             final List<Ipv4Entry> firstLessSpecific = ipv4Tree.findFirstLessSpecific((Ipv4Resource) ipInterval);
             if (firstLessSpecific.isEmpty()) {
-                throw new IllegalStateException("No parent for " + ipInterval.toString());
+                throw new IllegalStateException("No parent for " + ipInterval);
             }
             return firstLessSpecific.get(0);
-        }
-
-        if (ipInterval instanceof Ipv6Resource) {
-            final List<Ipv6Entry> firstLessSpecific = ipv6Tree.findFirstLessSpecific((Ipv6Resource) ipInterval);
-            if (firstLessSpecific.isEmpty()) {
-                throw new IllegalStateException("No parent for " + ipInterval.toString());
+        } else {
+            if (ipInterval instanceof Ipv6Resource) {
+                final List<Ipv6Entry> firstLessSpecific = ipv6Tree.findFirstLessSpecific((Ipv6Resource) ipInterval);
+                if (firstLessSpecific.isEmpty()) {
+                    throw new IllegalStateException("No parent for " + ipInterval);
+                }
+                return firstLessSpecific.get(0);
+            } else {
+                throw new IllegalStateException("Unknown interval type " + ipInterval.getClass().getName());
             }
-            return firstLessSpecific.get(0);
         }
-        throw new IllegalStateException("Unknown interval type " + ipInterval.getClass().getName());
     }
 
     private static Remark createRemark(final RpslObject rpslObject) {
@@ -415,10 +434,8 @@ class RdapObjectMapper {
 
     private static Remark createRemark(final CIString key, final AbuseContact abuseContact) {
         return new Remark(
-           Lists.newArrayList(
-               QueryMessages.unvalidatedAbuseCShown(key, abuseContact.getAbuseMailbox(), abuseContact.getOrgId()).toString().replaceAll("% ", "")
-           )
-        );
+           Collections.singletonList(
+               QueryMessages.unvalidatedAbuseCShown(key, abuseContact.getAbuseMailbox(), abuseContact.getOrgId()).toString().replaceAll("% ", "")));
     }
 
     private static boolean hasDescriptions(final RpslObject rpslObject) {
@@ -464,7 +481,7 @@ class RdapObjectMapper {
         return createEntity(rpslObject, null);
     }
 
-    private static Entity createEntity(final RpslObject rpslObject, final Role role) {
+    private static Entity createEntity(final RpslObject rpslObject, @Nullable final Role role) {
         final Entity entity = new Entity();
         entity.setHandle(rpslObject.getKey().toString());
         if (role != null) {
@@ -482,12 +499,10 @@ class RdapObjectMapper {
         final Autnum autnum = new Autnum();
         autnum.setHandle(rpslObject.getKey().toString());
         autnum.setName(rpslObject.getValueForAttribute(AttributeType.AS_NAME).toString().replace(" ", ""));
-
         final Long asNumber = Long.parseLong(StringUtils.substringAfter(rpslObject.getKey().toUpperCase(), "AS"));
         autnum.setStartAutnum(asNumber);
         autnum.setEndAutnum(asNumber);
-        autnum.setStatus(getResourceStatus(rpslObject));
-
+        autnum.setStatus(Collections.singletonList(getResourceStatus(rpslObject).getValue()));
         autnum.getEntitySearchResults().addAll(createContactEntities(rpslObject));
         autnum.getRdapConformance().add(RdapConformance.FLAT_MODEL.getValue());
         return autnum;
@@ -495,18 +510,15 @@ class RdapObjectMapper {
 
     private Autnum createAsBlockResponse(final RpslObject rpslObject) {
         final Autnum autnum = new Autnum();
-
         final String key = rpslObject.getValueForAttribute(AttributeType.AS_BLOCK).toString();
         final AsBlockRange blockRange = getAsBlockRange(key);
-
         autnum.setHandle(blockRange.getBeginWithPrefix());
         //TODO :check what should be the name
-        String asName = String.join("-", blockRange.getBeginWithPrefix(), blockRange.getEndWithPrefix());
+        final String asName = String.join("-", blockRange.getBeginWithPrefix(), blockRange.getEndWithPrefix());
         autnum.setName(asName);
         autnum.setStartAutnum(blockRange.getBegin());
         autnum.setEndAutnum(blockRange.getEnd());
-        autnum.setStatus(getResourceStatus(rpslObject));
-
+        autnum.setStatus(Collections.singletonList(getResourceStatus(rpslObject).getValue()));
         autnum.getEntitySearchResults().addAll(createContactEntities(rpslObject));
         return autnum;
     }
@@ -516,13 +528,11 @@ class RdapObjectMapper {
         domain.setHandle(rpslObject.getKey().toString());
         domain.setLdhName(IpInterval.addTrailingDot(rpslObject.getKey().toString()));
 
-        final Map<CIString, Set<IpInterval>> hostnameMap = new HashMap<>();
+        final Map<CIString, Set<IpInterval>> hostnameMap = Maps.newHashMap();
 
         for (final CIString nserverValue : rpslObject.getValuesForAttribute(AttributeType.NSERVER)) {
             final NServer nserver = NServer.parse(nserverValue.toString());
-
             final CIString hostname = nserver.getHostname();
-
             final Set<IpInterval> ipIntervalSet;
             if (hostnameMap.containsKey(hostname)) {
                 ipIntervalSet = hostnameMap.get(hostname);
@@ -530,7 +540,6 @@ class RdapObjectMapper {
                 ipIntervalSet = Sets.newHashSet();
                 hostnameMap.put(hostname, ipIntervalSet);
             }
-
             final IpInterval ipInterval = nserver.getIpInterval();
             if (ipInterval != null) {
                 ipIntervalSet.add(ipInterval);
@@ -543,7 +552,6 @@ class RdapObjectMapper {
 
             final Set<IpInterval> ipIntervals = hostnameMap.get(hostname);
             if (!ipIntervals.isEmpty()) {
-
                 final Nameserver.IpAddresses ipAddresses = new Nameserver.IpAddresses();
                 for (IpInterval ipInterval : ipIntervals) {
                     if (ipInterval instanceof Ipv4Resource) {
@@ -563,15 +571,12 @@ class RdapObjectMapper {
 
         for (final CIString rdata : rpslObject.getValuesForAttribute(DS_RDATA)) {
             final DsRdata dsRdata = DsRdata.parse(rdata);
-
             secureDNS.setDelegationSigned(true);
-
             final Domain.SecureDNS.DsData dsData = new Domain.SecureDNS.DsData();
             dsData.setKeyTag(dsRdata.getKeytag());
             dsData.setAlgorithm(dsRdata.getAlgorithm());
             dsData.setDigestType(dsRdata.getDigestType());
             dsData.setDigest(dsRdata.getDigestHexString());
-
             secureDNS.getDsData().add(dsData);
         }
 
@@ -589,20 +594,16 @@ class RdapObjectMapper {
 
         switch (rpslObject.getType()) {
             case PERSON:
-                builder.addFn(rpslObject.getValueForAttribute(PERSON))
-                        .addKind(INDIVIDUAL);
+                builder.addFn(rpslObject.getValueForAttribute(PERSON)).addKind(INDIVIDUAL);
                 break;
             case MNTNER:
-                builder.addFn(rpslObject.getValueForAttribute(AttributeType.MNTNER))
-                        .addKind(INDIVIDUAL);
+                builder.addFn(rpslObject.getValueForAttribute(AttributeType.MNTNER)).addKind(INDIVIDUAL);
                 break;
             case ORGANISATION:
-                builder.addFn(rpslObject.getValueForAttribute(ORG_NAME))
-                        .addKind(ORGANISATION);
+                builder.addFn(rpslObject.getValueForAttribute(ORG_NAME)).addKind(ORGANISATION);
                 break;
             case ROLE:
-                builder.addFn(rpslObject.getValueForAttribute(ROLE))
-                        .addKind(GROUP);
+                builder.addFn(rpslObject.getValueForAttribute(ROLE)).addKind(GROUP);
                 break;
             default:
                 break;
@@ -619,7 +620,7 @@ class RdapObjectMapper {
         return builder.build();
     }
 
-    private static AsBlockRange getAsBlockRange(String asBlock) {
+    private static AsBlockRange getAsBlockRange(final String asBlock) {
         try {
             return AsBlockRange.parse(asBlock);
         } catch (AttributeParseException ex) {
@@ -628,38 +629,37 @@ class RdapObjectMapper {
     }
 
     private static void handleLanguageAttribute(final RpslObject rpslObject, final RdapObject rdapObject) {
-        if (!rpslObject.containsAttribute(AttributeType.LANGUAGE)) {
+        final List<RpslAttribute> languages = rpslObject.findAttributes(AttributeType.LANGUAGE);
+        if (languages.isEmpty()) {
             return;
         }
-
-        List<RpslAttribute> languages = rpslObject.findAttributes(AttributeType.LANGUAGE);
-        rdapObject.setLang(rpslObject.findAttributes(AttributeType.LANGUAGE).get(0).getCleanValue().toString());
+        // TODO: [ES] add warning notice if additional languages found
+        rdapObject.setLang(languages.get(0).getCleanValue().toString());
         addNoticeForMultipleValues(rdapObject, AttributeType.LANGUAGE, languages, rpslObject.getKey().toString());
     }
 
     private static void handleCountryAttribute(final RpslObject rpslObject, final Ip ip) {
-        if (!rpslObject.containsAttribute(AttributeType.COUNTRY)) {
+        final List<RpslAttribute> countries = rpslObject.findAttributes(AttributeType.COUNTRY);
+        if (countries.isEmpty()) {
             return;
         }
-
-        List<RpslAttribute> countries = rpslObject.findAttributes(AttributeType.COUNTRY);
+        // TODO: [ES] add warning notice if additional languages found
         ip.setCountry(countries.get(0).getCleanValue().toString());
         addNoticeForMultipleValues(ip, AttributeType.COUNTRY, countries, ip.getHandle());
     }
 
     private static void addNoticeForMultipleValues(final RdapObject rdapObject, final AttributeType type, final List<RpslAttribute> values, final String key) {
-        if(values.isEmpty() || values.size() == 1) {
+        if (values.isEmpty() || values.size() == 1) {
             return;
         }
 
-        final String commaSeperatedValues = values.stream().map( value -> value.getCleanValue()).collect(Collectors.joining(", "));
+        final String commaSeperatedValues = values.stream().map(RpslAttribute::getCleanValue).collect(Collectors.joining(", "));
         final String title = String.format("Multiple %s attributes found", type.getName());
         final String desc = String.format("There are multiple %s attributes %s in %s, but only the first %s %s was returned.", type.getName(), commaSeperatedValues, key, type.getName(), values.get(0).getCleanValue());
 
         final Notice notice = new Notice();
         notice.setTitle(title);
         notice.getDescription().add(desc);
-
         rdapObject.getNotices().add(notice);
     }
 }
