@@ -28,10 +28,10 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import javax.annotation.Nullable;
 import java.time.LocalDateTime;
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 
 import static net.ripe.db.whois.common.domain.CIString.ciString;
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -45,7 +45,6 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.when;
 
-// TODO: [ES] refactor into integration tests
 @ExtendWith(MockitoExtension.class)
 public class RdapObjectMapperTest {
 
@@ -114,7 +113,7 @@ public class RdapObjectMapperTest {
                                 "created:         2022-08-14T11:48:28Z\n" +
                                 "last-modified:   2022-10-25T12:22:39Z\n" +
                                 "source:         TEST"),
-                abuseContact);
+                Optional.of(abuseContact));
 
         assertThat(result.getHandle(), is("10.0.0.0 - 10.255.255.255"));
         assertThat(result.getStartAddress(), is("10.0.0.0"));
@@ -677,8 +676,10 @@ public class RdapObjectMapperTest {
                     "mnt-by:         UPD-MNT\n" +
                     "created:         2022-08-14T11:48:28Z\n" +
                     "last-modified:   2022-10-25T12:22:39Z\n" +
-                    "source:         TEST\n"),
-                abuseContact);
+                    "source:         TEST\n"
+                ),
+                Optional.of(abuseContact)
+        );
 
         assertThat(
             result.getRemarks().get(0).getDescription().get(0),
@@ -714,8 +715,10 @@ public class RdapObjectMapperTest {
                 "mnt-by:         UPD-MNT\n" +
                 "created:         2022-08-14T11:48:28Z\n" +
                 "last-modified:   2022-10-25T12:22:39Z\n" +
-                "source:         TEST\n"),
-            abuseContact);
+                "source:         TEST\n"
+            ),
+            Optional.of(abuseContact)
+        );
 
         assertThat(result.getRemarks(), hasSize(0));
     }
@@ -749,8 +752,10 @@ public class RdapObjectMapperTest {
                         "mnt-by:         UPD-MNT\n" +
                         "created:         2022-08-14T11:48:28Z\n" +
                         "last-modified:   2022-10-25T12:22:39Z\n" +
-                        "source:         TEST\n"),
-                abuseContact);
+                        "source:         TEST\n"
+                ),
+                Optional.of(abuseContact)
+        );
 
         assertThat(result.getRemarks(), hasSize(0));
     }
@@ -758,11 +763,11 @@ public class RdapObjectMapperTest {
     // helper methods
 
     private Object map(final RpslObject rpslObject) {
-        return map(rpslObject, null);
+        return map(rpslObject, Optional.empty());
     }
 
-    private Object map(final RpslObject rpslObject, @Nullable final AbuseContact abuseContact) {
-        return mapper.map(REQUEST_URL, rpslObject, abuseContact);
+    private Object map(final RpslObject rpslObject, final Optional<AbuseContact> optionalAbuseContact) {
+        return mapper.map(REQUEST_URL, rpslObject, optionalAbuseContact);
     }
 
     private Object mapSearch(final List<RpslObject> objects) {
