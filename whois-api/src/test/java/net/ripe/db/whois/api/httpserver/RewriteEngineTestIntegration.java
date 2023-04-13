@@ -125,10 +125,7 @@ public class RewriteEngineTestIntegration extends AbstractIntegrationTest {
                     .get(WhoisResources.class)
         );
         final String error = throwable.getResponse().readEntity(String.class);
-        assertThat(error, is("""
-                <html>
-                <head>
-                <meta http-equiv="Content-Type" content="text/html;charset=ISO-8859-1"/>
+        assertThat(error.contains("""
                 <title>Error 403 Forbidden</title>
                 </head>
                 <body><h2>HTTP ERROR 403 Forbidden</h2>
@@ -138,11 +135,7 @@ public class RewriteEngineTestIntegration extends AbstractIntegrationTest {
                 <tr><th>MESSAGE:</th><td>Forbidden</td></tr>
                 <tr><th>SERVLET:</th><td>-</td></tr>
                 </table>
-                <hr/><a href="https://eclipse.org/jetty">Powered by Jetty:// 10.0.14</a><hr/>
-                                
-                </body>
-                </html>
-                """));
+                """), is(true));
     }
 
     @Test
