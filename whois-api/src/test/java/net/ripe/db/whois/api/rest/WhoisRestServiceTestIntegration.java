@@ -39,6 +39,7 @@ import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.dao.EmptyResultDataAccessException;
 
@@ -197,6 +198,8 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
     @Autowired private TestDateTimeProvider testDateTimeProvider;
     @Autowired private ApplicationVersion applicationVersion;
 
+    @Value("${api.rest.baseurl}")
+    private String restApiBaseUrl;
     @BeforeEach
     public void setup() {
         databaseHelper.addObject("person: Test Person\nnic-hdl: TP1-TEST");
@@ -910,7 +913,6 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
         Attribute expected = new Attribute("auth", "SSO test@ripe.net", null, null, null, null);
         assertThat(whoisResources.getWhoisObjects().get(0).getAttributes(), hasItem(expected));
     }
-
     @Test
     public void grs_lookup_object_wrong_source() {
         try {

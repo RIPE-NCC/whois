@@ -36,7 +36,7 @@ import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.empty;
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
-import static org.junit.jupiter.api.Assertions.fail;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 @Tag("IntegrationTest")
 public class RewriteEngineTestIntegration extends AbstractIntegrationTest {
@@ -117,16 +117,32 @@ public class RewriteEngineTestIntegration extends AbstractIntegrationTest {
 
     @Test
     public void dont_allow_password_over_http() {
-        try {
-            final WhoisResources whoisResources = RestTest.target(getPort(), "test/person/TP1-TEST?password=123")
+        final ForbiddenException throwable = assertThrows(ForbiddenException.class, () ->
+            RestTest.target(getPort(), "test/person/TP1-TEST?password=123")
                     .request()
                     .header(HttpHeaders.HOST, getHost(restApiBaseUrl))
                     .header(HttpHeader.X_FORWARDED_PROTO.toString(), HttpScheme.HTTP)
-                    .get(WhoisResources.class);
-            fail("Should have resulted in 403");
-        } catch (ForbiddenException fe) {
-            // expected
-        }
+                    .get(WhoisResources.class)
+        );
+        final String error = throwable.getResponse().readEntity(String.class);
+        assertThat(error, is("""
+                <html>
+                <head>
+                <meta http-equiv="Content-Type" content="text/html;charset=ISO-8859-1"/>
+                <title>Error 403 Forbidden</title>
+                </head>
+                <body><h2>HTTP ERROR 403 Forbidden</h2>
+                <table>
+                <tr><th>URI:</th><td>/test/person/TP1-TEST</td></tr>
+                <tr><th>STATUS:</th><td>403</td></tr>
+                <tr><th>MESSAGE:</th><td>Forbidden</td></tr>
+                <tr><th>SERVLET:</th><td>-</td></tr>
+                </table>
+                <hr/><a href="https://eclipse.org/jetty">Powered by Jetty:// 10.0.14</a><hr/>
+                                
+                </body>
+                </html>
+                """));
     }
 
     @Test
