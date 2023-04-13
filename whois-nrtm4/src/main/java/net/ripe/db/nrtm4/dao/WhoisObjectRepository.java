@@ -8,6 +8,7 @@ import org.springframework.transaction.annotation.Isolation;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
+import javax.annotation.Nullable;
 import java.util.List;
 import java.util.Map;
 
@@ -41,7 +42,7 @@ public class WhoisObjectRepository {
     }
 
     @Transactional(isolation = Isolation.REPEATABLE_READ, propagation = Propagation.REQUIRES_NEW)
-    public SnapshotState getSnapshotState(final Integer serialFrom) {
+    public SnapshotState getSnapshotState(@Nullable final Integer serialFrom) {
         final int lastSerialId = whoisObjectDao.getLastSerialId();
         final Map<Integer, Integer> objects = whoisObjectDao.getAllObjectsFromLast();
 

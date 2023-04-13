@@ -204,7 +204,7 @@ public class NrtmClientServiceTestIntegration extends AbstractIntegrationTest {
     @Test
     public void should_get_snapshot_file() throws IOException, JSONException {
 
-        snapshotFileGenerator.createSnapshots();
+        snapshotFileGenerator.createSnapshot();
 
         Optional<SnapshotFile> fileOptional = snapshotFileRepository.getLastSnapshot(sourceRepository.getWhoisSource().get());
 
@@ -270,7 +270,7 @@ public class NrtmClientServiceTestIntegration extends AbstractIntegrationTest {
     @Test
     public void should_get_delta_file() throws JSONException {
 
-        snapshotFileGenerator.createSnapshots();
+        snapshotFileGenerator.createSnapshot();
 
         final RpslObject updatedObject = RpslObject.parse("" +
                 "inet6num:       ::/0\n" +

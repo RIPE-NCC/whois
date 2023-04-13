@@ -19,13 +19,12 @@ public class SnapshotFileScheduledTask implements DailyScheduledTask {
         this.snapshotFileGenerator = snapshotFileGenerator;
     }
 
-    //TODO: do we need to add timezone? or all servers are in UTC now??
     @Override
     @Scheduled(cron = "0 0 0 * * *")
     @SchedulerLock(name = "NrtmSnapshotFileGenerationTask")
     public void run() {
         try {
-            snapshotFileGenerator.createSnapshots();
+            snapshotFileGenerator.createSnapshot();
         } catch (final Exception e) {
             LOGGER.error("NRTM file generation failed", e);
             throw new RuntimeException(e);

@@ -1,10 +1,7 @@
 package net.ripe.db.whois.api.nrtmv4;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.Lists;
 import com.google.common.net.HttpHeaders;
-import net.ripe.db.nrtm4.DeltaFileGenerator;
 import net.ripe.db.nrtm4.domain.NrtmDocumentType;
 import net.ripe.db.nrtm4.domain.PublishableDeltaFile;
 import net.ripe.db.nrtm4.domain.PublishableNotificationFile;
@@ -22,9 +19,7 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
-import java.time.Instant;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.zip.GZIPInputStream;
 
@@ -56,7 +51,7 @@ public class SnapshotFileGenerationTestIntegration extends AbstractNrtmIntegrati
     public void should_generate_snapshot_empty_database() throws IOException, JSONException {
         databaseHelper.setup();
 
-        snapshotFileGenerator.createSnapshots();
+        snapshotFileGenerator.createSnapshot();
         updateNotificationFileGenerator.generateFile();
 
         final Response response = getSnapshotFromUpdateNotificationBySource("TEST");
@@ -73,7 +68,7 @@ public class SnapshotFileGenerationTestIntegration extends AbstractNrtmIntegrati
 
     @Test
     public void should_have_session_version_hash_value(){
-        snapshotFileGenerator.createSnapshots();
+        snapshotFileGenerator.createSnapshot();
         updateNotificationFileGenerator.generateFile();
 
         final PublishableNotificationFile publishableNotificationFile = getNotificationFileBySource("TEST");
@@ -86,7 +81,7 @@ public class SnapshotFileGenerationTestIntegration extends AbstractNrtmIntegrati
     @Test
     public void should_get_snapshot_file_test_source() throws IOException, JSONException {
 
-        snapshotFileGenerator.createSnapshots();
+        snapshotFileGenerator.createSnapshot();
         updateNotificationFileGenerator.generateFile();
 
         final Response response = getSnapshotFromUpdateNotificationBySource("TEST");
@@ -116,7 +111,7 @@ public class SnapshotFileGenerationTestIntegration extends AbstractNrtmIntegrati
 
     @Test
     public void should_get_snapshot_file_test_non_auth_source() throws IOException, JSONException {
-        snapshotFileGenerator.createSnapshots();
+        snapshotFileGenerator.createSnapshot();
         updateNotificationFileGenerator.generateFile();
 
         final Response response = getSnapshotFromUpdateNotificationBySource("TEST-NONAUTH");
@@ -142,7 +137,7 @@ public class SnapshotFileGenerationTestIntegration extends AbstractNrtmIntegrati
     }
     @Test
     public void snapshot_should_have_same_version_different_session_per_source() throws IOException, JSONException {
-        snapshotFileGenerator.createSnapshots();
+        snapshotFileGenerator.createSnapshot();
         updateNotificationFileGenerator.generateFile();
 
         final Response testResponse = getSnapshotFromUpdateNotificationBySource("TEST");
@@ -157,7 +152,7 @@ public class SnapshotFileGenerationTestIntegration extends AbstractNrtmIntegrati
 
     @Test
     public void should_generate_snapshot_after_one_day_with_same_session() throws IOException, JSONException {
-        snapshotFileGenerator.createSnapshots();
+        snapshotFileGenerator.createSnapshot();
         updateNotificationFileGenerator.generateFile();
 
         final Response firstSnapResponse = getSnapshotFromUpdateNotificationBySource("TEST");
@@ -176,7 +171,7 @@ public class SnapshotFileGenerationTestIntegration extends AbstractNrtmIntegrati
         databaseHelper.updateObject(updatedObject);
 
         deltaFileGenerator.createDeltas();
-        snapshotFileGenerator.createSnapshots();
+        snapshotFileGenerator.createSnapshot();
         updateNotificationFileGenerator.generateFile();
 
         final Response secondSnapResponse = getSnapshotFromUpdateNotificationBySource("TEST");
@@ -195,12 +190,12 @@ public class SnapshotFileGenerationTestIntegration extends AbstractNrtmIntegrati
 
     @Test
     public void should_not_generate_other_snapshot_after_one_day_without_changes() throws IOException, JSONException {
-        snapshotFileGenerator.createSnapshots();
+        snapshotFileGenerator.createSnapshot();
         updateNotificationFileGenerator.generateFile();
 
         setTime(LocalDateTime.now().plusDays(1).withHour(23));
 
-        snapshotFileGenerator.createSnapshots();
+        snapshotFileGenerator.createSnapshot();
         updateNotificationFileGenerator.generateFile();
 
         final Response response = getSnapshotFromUpdateNotificationBySource("TEST");
@@ -212,7 +207,7 @@ public class SnapshotFileGenerationTestIntegration extends AbstractNrtmIntegrati
 
     @Test
     public void snapshot_should_have_same_session_source_than_update_notification() throws IOException, JSONException {
-        snapshotFileGenerator.createSnapshots();
+        snapshotFileGenerator.createSnapshot();
         updateNotificationFileGenerator.generateFile();
 
         final PublishableNotificationFile testUpdateNotification = getNotificationFileBySource("TEST");
@@ -285,7 +280,7 @@ public class SnapshotFileGenerationTestIntegration extends AbstractNrtmIntegrati
                 "last-modified:   2022-10-25T12:22:39Z\n" +
                 "source:        TEST");
 
-        snapshotFileGenerator.createSnapshots();
+        snapshotFileGenerator.createSnapshot();
 
         databaseHelper.updateObject( "inet6num:       ::/0\n" +
                 "netname:        IANA-BLK\n" +
@@ -321,7 +316,7 @@ public class SnapshotFileGenerationTestIntegration extends AbstractNrtmIntegrati
 
         thread.start();
 
-        snapshotFileGenerator.createSnapshots();
+        snapshotFileGenerator.createSnapshot();
 
         try {
             thread.join();

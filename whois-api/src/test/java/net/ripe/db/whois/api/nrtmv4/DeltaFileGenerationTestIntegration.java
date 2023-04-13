@@ -1,7 +1,6 @@
 package net.ripe.db.whois.api.nrtmv4;
 
 import com.google.common.collect.Lists;
-import net.ripe.db.nrtm4.DeltaFileGenerator;
 import net.ripe.db.nrtm4.domain.DeltaChange;
 import net.ripe.db.nrtm4.domain.NrtmDocumentType;
 import net.ripe.db.nrtm4.domain.PublishableDeltaFile;
@@ -16,8 +15,6 @@ import org.springframework.test.annotation.DirtiesContext;
 
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
-import java.time.Instant;
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
@@ -35,7 +32,7 @@ public class DeltaFileGenerationTestIntegration extends AbstractNrtmIntegrationT
 
     @Test
     public void should_get_delta_file() {
-        snapshotFileGenerator.createSnapshots();
+        snapshotFileGenerator.createSnapshot();
         updateNotificationFileGenerator.generateFile();
 
         final RpslObject updatedObject = RpslObject.parse("" +
@@ -65,7 +62,7 @@ public class DeltaFileGenerationTestIntegration extends AbstractNrtmIntegrationT
 
     @Test
     public void should_get_delta_file_sequence_versions() {
-        snapshotFileGenerator.createSnapshots();
+        snapshotFileGenerator.createSnapshot();
         updateNotificationFileGenerator.generateFile();
 
         final PublishableNotificationFile publishableNotificationFile = getNotificationFileBySource("TEST");
@@ -100,7 +97,7 @@ public class DeltaFileGenerationTestIntegration extends AbstractNrtmIntegrationT
 
     @Test
     public void should_have_session_version_hash_value(){
-        snapshotFileGenerator.createSnapshots();
+        snapshotFileGenerator.createSnapshot();
 
         updateNotificationFileGenerator.generateFile();
         generateDeltas(Collections.singletonList(RpslObject.parse("" +
@@ -125,7 +122,7 @@ public class DeltaFileGenerationTestIntegration extends AbstractNrtmIntegrationT
     }
     @Test
     public void delta_should_have_same_version_different_session_per_source() {
-        snapshotFileGenerator.createSnapshots();
+        snapshotFileGenerator.createSnapshot();
         updateNotificationFileGenerator.generateFile();
 
         generateDeltas(Lists.newArrayList(RpslObject.parse("" +
@@ -165,7 +162,7 @@ public class DeltaFileGenerationTestIntegration extends AbstractNrtmIntegrationT
 
     @Test
     public void should_get_delta_file_correct_order() {
-        snapshotFileGenerator.createSnapshots();
+        snapshotFileGenerator.createSnapshot();
         updateNotificationFileGenerator.generateFile();
 
         final RpslObject updatedObject = RpslObject.parse("" +
@@ -184,7 +181,7 @@ public class DeltaFileGenerationTestIntegration extends AbstractNrtmIntegrationT
         databaseHelper.deleteObject(updatedObject);
 
         deltaFileGenerator.createDeltas();
-        snapshotFileGenerator.createSnapshots();
+        snapshotFileGenerator.createSnapshot();
         updateNotificationFileGenerator.generateFile();
 
         final PublishableDeltaFile testDelta = getDeltasFromUpdateNotificationBySource("TEST", 0);
@@ -204,7 +201,7 @@ public class DeltaFileGenerationTestIntegration extends AbstractNrtmIntegrationT
 
     @Test
     public void multiple_delta_should_has_same_session_different_version() {
-        snapshotFileGenerator.createSnapshots();
+        snapshotFileGenerator.createSnapshot();
         updateNotificationFileGenerator.generateFile();
         generateDeltas(Collections.singletonList(RpslObject.parse("" +
                 "inet6num:       ::/0\n" +
@@ -240,7 +237,7 @@ public class DeltaFileGenerationTestIntegration extends AbstractNrtmIntegrationT
 
     @Test
     public void delta_should_have_same_session_source_than_update_notification()  {
-        snapshotFileGenerator.createSnapshots();
+        snapshotFileGenerator.createSnapshot();
         updateNotificationFileGenerator.generateFile();
         generateDeltas(Collections.singletonList(RpslObject.parse("" +
                 "inet6num:       ::/0\n" +
@@ -278,14 +275,14 @@ public class DeltaFileGenerationTestIntegration extends AbstractNrtmIntegrationT
                 "created:         2022-08-14T11:48:28Z\n" +
                 "last-modified:   2022-10-25T12:22:39Z\n" +
                 "source:         TEST");
-        snapshotFileGenerator.createSnapshots();
+        snapshotFileGenerator.createSnapshot();
         updateNotificationFileGenerator.generateFile();
 
         generateDeltas(Collections.singletonList(updatedObject));
         generateDeltas(Collections.singletonList(updatedObject));
         generateDeltas(Collections.singletonList(updatedObject));
 
-        snapshotFileGenerator.createSnapshots();
+        snapshotFileGenerator.createSnapshot();
 
 
         updateNotificationFileGenerator.generateFile();

@@ -40,8 +40,7 @@ public class NrtmFileRepository {
         this.jdbcTemplate = new JdbcTemplate(dataSource);
         this.dateTimeProvider = dateTimeProvider;
     }
-
-
+    
     @Transactional(propagation = Propagation.REQUIRES_NEW)
     public void saveDeltaVersion(final NrtmVersionInfo version, final int serialIDTo, final List<DeltaChange> deltas) throws JsonProcessingException {
        if(deltas.isEmpty()) {

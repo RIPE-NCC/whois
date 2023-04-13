@@ -71,7 +71,7 @@ public class SnapshotFileGenerator {
         this.dateTimeProvider = dateTimeProvider;
     }
 
-    public void createSnapshots() {
+    public void createSnapshot() {
         final Stopwatch stopwatch = Stopwatch.createStarted();
         final List<NrtmSource> sources = getSources();
         final List<NrtmVersionInfo> sourceVersions = nrtmVersionInfoRepository.findLastVersionPerSource();
@@ -114,6 +114,7 @@ public class SnapshotFileGenerator {
         if(!sourceVersions.isEmpty()) {
             final Optional<NrtmVersionInfo> versionInfo = sourceVersions.stream().filter((sourceVersion) -> source.getName().equals(sourceVersion.source().getName())).findFirst();
             if(versionInfo.isPresent() && versionInfo.get().type() == NrtmDocumentType.SNAPSHOT) {
+                LOGGER.info("skipping generation of snapshot file for source {}, as no changes since last snapshot file", source.getName());
                 return false;
             }
         }
