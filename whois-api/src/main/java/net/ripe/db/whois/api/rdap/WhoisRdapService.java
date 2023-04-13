@@ -256,13 +256,13 @@ public class WhoisRdapService {
         }
 
         final Stream<RpslObject> domainResult =
-                rdapQueryHandler.handleQueryStream(getQueryObject(ImmutableSet.of(DOMAIN), key), request);
+                rdapQueryHandler.handleQueryStream(getQueryObject(ImmutableSet.of(DOMAIN),
+                        key), request);
         final Stream<RpslObject> inetnumResult =
-                rdapQueryHandler.handleQueryStream(getQueryObject(ImmutableSet.of(INETNUM, INET6NUM), domain.getReverseIp().toString()), request);
-
+                rdapQueryHandler.handleQueryStream(getQueryObject(ImmutableSet.of(INETNUM, INET6NUM),
+                        domain.getReverseIp().toString()), request);
         return getDomainResponse(request, domainResult, inetnumResult);
     }
-
     protected Response lookupObject(final HttpServletRequest request, final Set<ObjectType> objectTypes, final String key) {
         final Iterable<RpslObject> result =  rdapQueryHandler.handleQueryStream(getQueryObject(objectTypes, key),
                 request).collect(Collectors.toList());
@@ -278,7 +278,8 @@ public class WhoisRdapService {
             throw new RdapException("404 Not Found", "Requested organisation not found: " + key, HttpStatus.NOT_FOUND_404);
         }
         if (organisationResult.size() > 1){
-            throw new RdapException("500 Internal Error", "Unexpected result size: " + organisationResult.size(), HttpStatus.INTERNAL_SERVER_ERROR_500);
+            throw new RdapException("500 Internal Error", "Unexpected result size: " + organisationResult.size(),
+                    HttpStatus.INTERNAL_SERVER_ERROR_500);
         }
 
         final RpslObject organisation = organisationResult.get(0);
@@ -319,16 +320,13 @@ public class WhoisRdapService {
     }
 
     private Response getOrganisationResponse(final HttpServletRequest request,
-                                             final RpslObject organisation,
+                                             final RpslObject organisationResult,
                                              final List<RpslObjectInfo> autnumResult,
                                              final List<RpslObjectInfo> inetnumResult,
                                              final List<RpslObjectInfo> inet6numResult) {
-        return Response.ok(
-                    rdapObjectMapper.mapOrganisationEntity(
-                        getRequestUrl(request),
-                        organisation,
-                        autnumResult,
-                        inetnumResult,
+        return Response.ok(rdapObjectMapper.mapOrganisationEntity(
+                        getRequestUrl(request), organisationResult,
+                        autnumResult, inetnumResult,
                         inet6numResult,
                         maxEntityResultSize))
                 .header(CONTENT_TYPE, CONTENT_TYPE_RDAP_JSON)
@@ -356,7 +354,6 @@ public class WhoisRdapService {
                 .header(CONTENT_TYPE, CONTENT_TYPE_RDAP_JSON)
                 .build();
     }
-
     private Response getResponse(HttpServletRequest request, Iterable<RpslObject> result) {
         Iterator<RpslObject> rpslIterator = result.iterator();
 
@@ -405,10 +402,8 @@ public class WhoisRdapService {
     private Response redirectDomain(final String requestPath, final Domain domain) {
         final URI uri;
         try {
-            uri = delegatedStatsService.getUriForRedirect(
-                        requestPath,
-                        getReverseObjectType(domain),
-                        domain.getReverseIp().toString());
+            uri = delegatedStatsService.getUriForRedirect(requestPath,
+                        getReverseObjectType(domain), domain.getReverseIp().toString());
         } catch (WebApplicationException e) {
             throw new RdapException("404 Redirect URI not found", e.getMessage(), HttpStatus.NOT_FOUND_404);
         }
