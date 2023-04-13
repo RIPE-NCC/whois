@@ -15,8 +15,8 @@ import net.ripe.db.nrtm4.domain.PublishableNotificationFile;
 import net.ripe.db.nrtm4.domain.SnapshotFileVersionInfo;
 import net.ripe.db.whois.common.DateTimeProvider;
 import net.ripe.db.whois.common.dao.VersionDateTime;
-import org.mariadb.jdbc.internal.logging.Logger;
-import org.mariadb.jdbc.internal.logging.LoggerFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
