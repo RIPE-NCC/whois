@@ -26,10 +26,9 @@ import static org.hamcrest.Matchers.not;
 @DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_EACH_TEST_METHOD)
 public class UpdateNotificationFileGenerationTestIntegration extends AbstractNrtmIntegrationTest {
 
-
     @Test
     public void should_do_nothing_if_no_snapshot_exists()  {
-        databaseHelper.getNrtmTemplate().update("INSERT INTO source (id, name) VALUES (?,?)", 1, "TEST");
+        createNrtmSource();
         updateNotificationFileGenerator.generateFile();
 
         final Response response = createResource("TEST/update-notification-file.json")
@@ -251,7 +250,7 @@ public class UpdateNotificationFileGenerationTestIntegration extends AbstractNrt
 
     @Test
     public void should_throw_exception_notification_file_not_found() {
-        databaseHelper.getNrtmTemplate().update("INSERT INTO source (id, name) VALUES (?,?)", 1, "TEST");
+        createNrtmSource();
         final Response response = createResource("TEST/update-notification-file.json")
                 .request(MediaType.APPLICATION_JSON)
                 .get(Response.class);

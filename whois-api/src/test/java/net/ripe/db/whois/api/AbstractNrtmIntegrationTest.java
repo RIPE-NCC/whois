@@ -208,4 +208,8 @@ public abstract class AbstractNrtmIntegrationTest extends AbstractIntegrationTes
     protected String getDeltaNameFromUpdateNotification(final PublishableNotificationFile notificationFile, final int deltaPosition) {
         return notificationFile.getDeltas().get(deltaPosition).getUrl().split("/")[4];
     }
+
+    protected void createNrtmSource() {
+        databaseHelper.getNrtmTemplate().update("INSERT INTO source (id, name) VALUES (?,?)", 1, "TEST");
+    }
 }

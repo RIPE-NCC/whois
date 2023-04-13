@@ -54,7 +54,7 @@ public class DeltaFileGenerationTestIntegration extends AbstractNrtmIntegrationT
         generateDeltas(Collections.singletonList(updatedObject));
         updateNotificationFileGenerator.generateFile();
 
-        final PublishableDeltaFile testDelta = getDeltasFromUpdateNotificationBySource("TEST", 0);
+        final PublishableDeltaFile testDelta= getDeltasFromUpdateNotificationBySource("TEST", 0);
         assertThat(testDelta.getNrtmVersion(), is(4));
         assertThat(testDelta.getVersion(), is(2L));
         assertThat(testDelta.getChanges().size(), is(1));
