@@ -196,7 +196,6 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
     @Autowired private MailSenderStub mailSenderStub;
     @Autowired private TestDateTimeProvider testDateTimeProvider;
     @Autowired private ApplicationVersion applicationVersion;
-
     @BeforeEach
     public void setup() {
         databaseHelper.addObject("person: Test Person\nnic-hdl: TP1-TEST");
@@ -910,7 +909,6 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
         Attribute expected = new Attribute("auth", "SSO test@ripe.net", null, null, null, null);
         assertThat(whoisResources.getWhoisObjects().get(0).getAttributes(), hasItem(expected));
     }
-
     @Test
     public void grs_lookup_object_wrong_source() {
         try {
