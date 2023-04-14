@@ -47,7 +47,7 @@ public class WhoisObjectRepository {
         final Map<Integer, Integer> objects = whoisObjectDao.getAllObjectsFromLast();
 
         if(serialFrom != null) {
-            final Map<Integer, Integer> whoisChanges = whoisObjectDao.getSerialsBetween(serialFrom, lastSerialId);
+            final Map<Integer, Integer> whoisChanges = whoisObjectDao.geMinimumSequenceIdBetweenSerials(serialFrom, lastSerialId);
             whoisChanges.forEach((objectId, sequenceId) -> {
                 //sequence id 1 means object is created so skip it
                 if (sequenceId != 1) {

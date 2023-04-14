@@ -51,7 +51,7 @@ public class WhoisObjectDao {
         return objectAndSequenceId;
     }
 
-    public Map<Integer, Integer> getSerialsBetween( final int serialIDFrom, final int serialIDTo) {
+    public Map<Integer, Integer> geMinimumSequenceIdBetweenSerials(final int serialIDFrom, final int serialIDTo) {
         final Map<Integer, Integer> objectAndSequenceId = Maps.newHashMap();
         jdbcTemplate.query("""
                 SELECT object_id, MIN(sequence_id) 
