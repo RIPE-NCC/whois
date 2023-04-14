@@ -367,11 +367,11 @@ class RdapObjectMapper {
 
     private List<IpCidr0> getIpCidr0Notation(final AbstractIpRange ipRange) {
        return Lists.newArrayList(
-               Iterables.transform(ipRange.splitToPrefixes(), (Function<AbstractIpRange, IpCidr0>) ipv6s -> {
-                   final String[] cidrNotation = ipv6s.toStringInCidrNotation().split("/");
+               Iterables.transform(ipRange.splitToPrefixes(), (Function<AbstractIpRange, IpCidr0>) prefix -> {
+                   final String[] cidrNotation = prefix.toStringInCidrNotation().split("/");
                    final IpCidr0 ipCidr0 = new IpCidr0();
                    ipCidr0.setLength(Integer.parseInt(cidrNotation[1]));
-                   if (ipv6s instanceof Ipv4Range) {
+                   if (prefix instanceof Ipv4Range) {
                        ipCidr0.setV4prefix(cidrNotation[0]);
                    } else {
                        ipCidr0.setV6prefix(cidrNotation[0]);
@@ -397,7 +397,6 @@ class RdapObjectMapper {
         if (parentRpslObject == null) {
             throw new IllegalStateException("No parentHandle for " + ipInterval);
         }
-
 
         return parentRpslObject.getKey().toString();
     }

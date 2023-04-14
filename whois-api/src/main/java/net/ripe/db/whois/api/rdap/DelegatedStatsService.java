@@ -66,7 +66,6 @@ public class DelegatedStatsService implements EmbeddedValueResolverAware {
         }
     }
 
-    // TODO: remove
     public URI getUriForRedirect(final String requestPath, final Query query) {
         final Optional<ObjectType> objectType = query.getObjectTypes().stream()
             .filter(ALLOWED_OBJECTTYPES::contains)
