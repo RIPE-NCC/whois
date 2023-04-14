@@ -24,6 +24,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 
+import javax.ws.rs.BadRequestException;
 import javax.ws.rs.ForbiddenException;
 import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.MediaType;
@@ -195,14 +196,24 @@ public class RewriteEngineTestIntegration extends AbstractIntegrationTest {
 
     @Test
     public void rest_bad_request_fallthrough() {
-        assertThat(
+        final BadRequestException throwable = assertThrows(BadRequestException.class, () ->
                 RestTest.target(getPort(), "does_not_exist")
                         .request()
                         .header(HttpHeaders.HOST, getHost(restApiBaseUrl))
-                        .get(Response.class)
-                        .getStatus(),
-                is(HttpStatus.BAD_REQUEST_400)
+                        .get(WhoisResources.class)
         );
+        final String error = throwable.getResponse().readEntity(String.class);
+        assertThat(error.contains("""
+                <title>Error 400 Bad Request</title>
+                </head>
+                <body><h2>HTTP ERROR 400 Bad Request</h2>
+                <table>
+                <tr><th>URI:</th><td>/does_not_exist</td></tr>
+                <tr><th>STATUS:</th><td>400</td></tr>
+                <tr><th>MESSAGE:</th><td>Bad Request</td></tr>
+                <tr><th>SERVLET:</th><td>-</td></tr>
+                </table>
+                """), is(true));
     }
 
     @Test
