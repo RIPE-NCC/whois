@@ -27,6 +27,7 @@ import net.ripe.db.whois.api.rdap.domain.SearchResult;
 import net.ripe.db.whois.api.rdap.domain.vcard.VCard;
 import net.ripe.db.whois.common.DateUtil;
 import net.ripe.db.whois.common.dao.RpslObjectDao;
+import net.ripe.db.whois.common.dao.RpslObjectInfo;
 import net.ripe.db.whois.common.domain.CIString;
 import net.ripe.db.whois.common.ip.IpInterval;
 import net.ripe.db.whois.common.ip.Ipv4Resource;
@@ -61,6 +62,7 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -165,19 +167,22 @@ class RdapObjectMapper {
         rdapObject.getLinks().add(COPYRIGHT_LINK);
         return mapCommonConformances(rdapObject);
     }
-    public Object mapOrganisationEntity(final String requestUrl, final RpslObject organisationObject,
-                                        final Stream<RpslObject> autnumResult,
-                                        final Stream<RpslObject> inetnumResult,
-                                        final Stream<RpslObject> inet6numResult, final int maxResultSize){
-         final List<Autnum> autnums = autnumResult.map(autnumRpsl -> (Autnum)getRdapObject(requestUrl,
-                autnumRpsl,
-                Optional.empty())).collect(Collectors.toList());
+    public Object mapOrganisationEntity(final String requestUrl,
+                                        final RpslObject organisationObject,
+                                        final List<RpslObjectInfo> autnumResult,
+                                        final List<RpslObjectInfo> inetnumResult,
+                                        final List<RpslObjectInfo> inet6numResult,
+                                        final int maxResultSize) {
+        final List<Autnum> autnums = mapAutnums(requestUrl, autnumResult);
 
-        final List<Ip> networks = filterTopLevelIps(requestUrl, inetnumResult, inet6numResult, maxResultSize);
+        final List<RpslObjectInfo> topLevelInetnums = new TopLevelFilter<Ipv4Resource>(inetnumResult).getTopLevelValues();
+        final List<RpslObjectInfo> topLevelInet6nums = new TopLevelFilter<Ipv4Resource>(inet6numResult).getTopLevelValues();
 
-        final RdapObject organisation = getRdapObject(requestUrl, organisationObject,Optional.empty());
+        final List<Ip> networks = mapNetworks(requestUrl, topLevelInetnums, topLevelInet6nums, maxResultSize);
 
-        if (networks.size() > maxResultSize) {
+        final RdapObject organisation = getRdapObject(requestUrl, organisationObject, Optional.empty());
+
+        if ((topLevelInetnums.size() + topLevelInet6nums.size()) > maxResultSize) {
             final Notice outOfLimitNotice = new Notice();
             outOfLimitNotice.setTitle(String.format("limited networks attribute results to %s maximum" ,
                     maxResultSize));
@@ -208,13 +213,43 @@ class RdapObjectMapper {
         return rdapObject;
     }
 
-    private List<Ip> filterTopLevelIps(String requestUrl, Stream<RpslObject> inetnumResult,
-                                       Stream<RpslObject> inet6numResult, int maxResultSize) {
-        return Stream.concat((Stream<RpslObject>) new TopLevelFilter(inetnumResult).getTopLevelValues().stream(),
-                        (Stream<RpslObject>) new TopLevelFilter(inet6numResult).getTopLevelValues().stream())
-                .limit(maxResultSize)
-                .map(topLevelRpsl -> (Ip) getRdapObject(requestUrl, topLevelRpsl, Optional.empty())).collect(Collectors.toList());
+    private List<Autnum> mapAutnums(
+                final String requestUrl,
+                final List<RpslObjectInfo> autnumResult) {
+        return autnumResult.stream()
+                .map(rpslObjectInfo -> getRpslObject(rpslObjectInfo))
+                .filter(Objects::nonNull)
+                .map(rpslObject -> (Autnum)getRdapObject(requestUrl, rpslObject, Optional.empty()))
+                .collect(Collectors.toList());
     }
+
+    private List<Ip> mapNetworks(
+                final String requestUrl,
+                final List<RpslObjectInfo> inetnums,
+                final List<RpslObjectInfo> inet6nums,
+                final int maxResultSize) {
+        return Stream.concat(inet6nums.stream(), inetnums.stream())
+                .limit(maxResultSize)
+                .map(this::getRpslObject)
+                .filter(Objects::nonNull)
+                .map(rpslObject -> (Ip)getRdapObject(requestUrl, rpslObject, Optional.empty()))
+                .toList();
+    }
+
+    @Nullable
+    private RpslObject getRpslObject(final RpslObjectInfo rpslObjectInfo) {
+        return getRpslObject(rpslObjectInfo.getObjectId());
+    }
+
+    @Nullable
+    private RpslObject getRpslObject(final int objectId) {
+        try {
+            return rpslObjectDao.getById(objectId);
+        } catch (DataAccessException e) {
+            return null;
+        }
+    }
+
     private RdapObject getRdapObject(final String requestUrl,
                                      final RpslObject rpslObject,
                                      final Optional<AbuseContact> optionalAbuseContact) {
@@ -370,15 +405,9 @@ class RdapObjectMapper {
 
     @Nullable
     private String lookupParentHandle(final IpInterval ipInterval) {
-        final RpslObject parentRpslObject;
-        try {
-            parentRpslObject = rpslObjectDao.getById(lookupParentIpEntry(ipInterval).getObjectId());
-        } catch (DataAccessException e) {
-            throw new IllegalStateException("Couldn't get parent for " + ipInterval.toString());
-        }
-
+        final RpslObject parentRpslObject = getRpslObject(lookupParentIpEntry(ipInterval).getObjectId());
         if (parentRpslObject == null) {
-            throw new IllegalStateException("No parentHandle for " + ipInterval.toString());
+            throw new IllegalStateException("No parentHandle for " + ipInterval);
         }
 
         return parentRpslObject.getKey().toString();
