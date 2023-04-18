@@ -12,10 +12,13 @@ import net.ripe.db.nrtm4.domain.SnapshotFile;
 import net.ripe.db.nrtm4.util.NrtmFileUtil;
 import net.ripe.db.whois.common.DateTimeProvider;
 import net.ripe.db.whois.common.dao.jdbc.JdbcRpslObjectOperations;
+import net.ripe.db.whois.common.domain.Timestamp;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
+import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.stereotype.Repository;
@@ -34,13 +37,14 @@ public class NrtmFileRepository {
     private static final Logger LOGGER = LoggerFactory.getLogger(NrtmFileRepository.class);
     private final JdbcTemplate jdbcTemplate;
     private final DateTimeProvider dateTimeProvider;
-
+    private final NamedParameterJdbcTemplate namedParameterJdbcTemplate;
 
     public NrtmFileRepository(@Qualifier("nrtmDataSource") final DataSource dataSource, final DateTimeProvider dateTimeProvider) {
         this.jdbcTemplate = new JdbcTemplate(dataSource);
         this.dateTimeProvider = dateTimeProvider;
+        this.namedParameterJdbcTemplate = new NamedParameterJdbcTemplate(jdbcTemplate);
     }
-    
+
     @Transactional(propagation = Propagation.REQUIRES_NEW)
     public void saveDeltaVersion(final NrtmVersionInfo version, final int serialIDTo, final List<DeltaChange> deltas) throws JsonProcessingException {
        if(deltas.isEmpty()) {
@@ -129,5 +133,36 @@ public class NrtmFileRepository {
                 snapshotFile.name(),
                 snapshotFile.hash(),
                 payload);
+    }
+
+    public void deleteSnapshotFiles(final List<Long> versionIds) {
+        final MapSqlParameterSource parameters = new MapSqlParameterSource()
+                .addValue("versionIds", versionIds);
+
+        int rows = namedParameterJdbcTemplate.update("DELETE FROM snapshot_file WHERE version_id IN (:versionIds)", parameters);
+        if (rows != 1) {
+            throw new IllegalArgumentException("Unable to delete snapshot file with version ids: " + versionIds);
+        }
+
+        deleteVersionInfos(versionIds, parameters);
+    }
+
+    public void deleteDeltaFiles(final List<Long> versionIds) {
+        final MapSqlParameterSource parameters = new MapSqlParameterSource()
+                .addValue("versionIds", versionIds);
+
+        int rows = namedParameterJdbcTemplate.update("DELETE FROM delta_file WHERE version_id IN (:versionIds)", parameters);
+        if (rows != 1) {
+            throw new IllegalArgumentException("Unable to delete delta file with version ids: " + versionIds);
+        }
+
+        deleteVersionInfos(versionIds, parameters);
+    }
+
+    private void deleteVersionInfos(List<Long> versionIds, MapSqlParameterSource parameters) {
+        int rows = namedParameterJdbcTemplate.update("DELETE FROM version_info WHERE id IN (:versionIds)", parameters);
+        if (rows != 1) {
+            throw new IllegalArgumentException("Unable to delete version info with version ids: " + versionIds);
+        }
     }
 }

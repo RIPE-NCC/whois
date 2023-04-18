@@ -42,7 +42,6 @@ CREATE TABLE `version_info`
     `last_serial_id` int             NOT NULL,
     `created`        bigint unsigned NOT NULL,
     PRIMARY KEY (`id`)
-    UNIQUE KEY `version_info__session__source__version__type__uk` (`session_id`, `source_id`, `version`, `type`)
 ) ENGINE = InnoDB
   DEFAULT CHARSET = utf8;
 

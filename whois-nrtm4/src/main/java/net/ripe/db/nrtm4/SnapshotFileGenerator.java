@@ -20,6 +20,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
 import java.io.ByteArrayOutputStream;
+import java.time.LocalDateTime;
 import java.time.ZoneOffset;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -55,7 +56,6 @@ public class SnapshotFileGenerator {
         final NrtmVersionInfoRepository nrtmVersionInfoRepository,
         final RpslObjectEnqueuer rpslObjectEnqueuer,
         final WhoisObjectRepository whoisObjectRepository,
-        final SnapshotFileRepository snapshotFileRepository,
         final NrtmFileRepository nrtmFileRepository,
         final DateTimeProvider dateTimeProvider,
         final SnapshotFileSerializer snapshotFileSerializer,
@@ -177,5 +177,14 @@ public class SnapshotFileGenerator {
                 LOGGER.error("Unexpected throwable caught when inserting snapshot file", t);
             }
         }
+    }
+
+    private void cleanUpOldFiles() {
+        LOGGER.info("Deleting old snapshot files");
+
+        final LocalDateTime twoDayAgo = dateTimeProvider.getCurrentDateTime().minusDays(2);
+
+        final List<Long> versions = nrtmVersionInfoRepository.getAllVersionsByTypeBefore(NrtmDocumentType.DELTA, twoDayAgo);
+        nrtmFileRepository.deleteDeltaFiles(versions);
     }
 }

@@ -19,6 +19,8 @@ import org.springframework.stereotype.Repository;
 import javax.sql.DataSource;
 import java.sql.PreparedStatement;
 import java.sql.Statement;
+import java.time.LocalDateTime;
+import java.time.ZoneOffset;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -75,7 +77,6 @@ public class NrtmVersionInfoRepository {
        return findLastVersionPerSource().stream().filter( (versionInfo) ->  versionInfo.source().getName().equals(source.getName())).findFirst();
     }
 
-
     public NrtmVersionInfo findLastSnapshotVersionForSource(final NrtmSource source) {
         return jdbcTemplate.queryForObject("""
                 SELECT vi.id, src.id, src.name, vi.version, vi.session_id, vi.type, vi.last_serial_id, vi.created
@@ -120,5 +121,26 @@ public class NrtmVersionInfoRepository {
             """;
         return jdbcTemplate.queryForObject(sql, rowMapper, versionId);
     }
+
+    public List<Long> getAllVersionsByTypeBefore(final NrtmDocumentType type, final LocalDateTime before) {
+        final long beforeTimestamp = before.toEpochSecond(ZoneOffset.UTC);
+
+        final String sql = """
+            SELECT v.id
+            FROM version_info v
+            WHERE v.type = ? AND v.created < ? 
+            """;
+        return jdbcTemplate.queryForList(sql, Long.class, type.name(), beforeTimestamp);
+    }
+
+    public List<NrtmVersionInfo> getAllVersionsByType(final NrtmDocumentType type) {
+        final String sql = """
+            SELECT v.id
+            FROM version_info v
+            WHERE v.type = ? 
+            """;
+        return jdbcTemplate.query(sql, rowMapper, type.name());
+    }
+
 
 }
