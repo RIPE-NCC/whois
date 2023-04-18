@@ -4,18 +4,18 @@ import com.fasterxml.jackson.annotation.JsonValue;
 import net.ripe.db.whois.common.domain.CIString;
 
 
-public class NrtmSourceModel {
+public class NrtmSource {
 
     private final long id;
     @JsonValue
     private final CIString source;
 
-    private NrtmSourceModel(final String source) {
+    private NrtmSource(final String source) {
         id = 0L;
         this.source = CIString.ciString(source);
     }
 
-    public NrtmSourceModel(final long id, final CIString source) {
+    public NrtmSource(final long id, final CIString source) {
         this.id = id;
         this.source = source;
     }

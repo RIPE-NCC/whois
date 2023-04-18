@@ -2,7 +2,8 @@ package net.ripe.db.whois.api.nrtmv4;
 
 import com.google.common.collect.Lists;
 import com.google.common.net.HttpHeaders;
-import net.ripe.db.nrtm4.NrtmFileProcessor;
+import net.ripe.db.nrtm4.DeltaFileGenerator;
+import net.ripe.db.nrtm4.SnapshotFileGenerator;
 import net.ripe.db.nrtm4.dao.DeltaFileDao;
 import net.ripe.db.nrtm4.dao.NrtmVersionInfoRepository;
 import net.ripe.db.nrtm4.dao.SnapshotFileRepository;
@@ -46,8 +47,6 @@ import static org.hamcrest.Matchers.is;
 public class NrtmClientServiceTestIntegration extends AbstractIntegrationTest {
 
     @Autowired
-    NrtmFileProcessor nrtmFileProcessor;
-    @Autowired
     DummifierNrtm dummifierNrtm;
     @Autowired
     private NrtmVersionInfoRepository nrtmVersionInfoRepository;
@@ -61,6 +60,12 @@ public class NrtmClientServiceTestIntegration extends AbstractIntegrationTest {
 
     @Autowired
     SourceRepository sourceRepository;
+
+    @Autowired
+    SnapshotFileGenerator snapshotFileGenerator;
+
+    @Autowired
+    DeltaFileGenerator deltaFileGenerator;
 
     @BeforeEach
     public void setup() {
@@ -199,7 +204,7 @@ public class NrtmClientServiceTestIntegration extends AbstractIntegrationTest {
     @Test
     public void should_get_snapshot_file() throws IOException, JSONException {
 
-        nrtmFileProcessor.updateNrtmFilesAndPublishNotification();
+        snapshotFileGenerator.createSnapshot();
 
         Optional<SnapshotFile> fileOptional = snapshotFileRepository.getLastSnapshot(sourceRepository.getWhoisSource().get());
 
@@ -265,7 +270,7 @@ public class NrtmClientServiceTestIntegration extends AbstractIntegrationTest {
     @Test
     public void should_get_delta_file() throws JSONException {
 
-        nrtmFileProcessor.updateNrtmFilesAndPublishNotification();
+        snapshotFileGenerator.createSnapshot();
 
         final RpslObject updatedObject = RpslObject.parse("" +
                 "inet6num:       ::/0\n" +
@@ -284,7 +289,7 @@ public class NrtmClientServiceTestIntegration extends AbstractIntegrationTest {
         Optional<SnapshotFile> snapshotFile = snapshotFileRepository.getLastSnapshot(sourceRepository.getWhoisSource().get());
         final NrtmVersionInfo snapshotVersion = nrtmVersionInfoRepository.findById(snapshotFile.get().versionId());
 
-        nrtmFileProcessor.updateNrtmFilesAndPublishNotification();
+        deltaFileGenerator.createDeltas();
 
         final List<DeltaFileVersionInfo> deltaFileVersion = deltaFileDao.getDeltasForNotificationSince(snapshotVersion, LocalDateTime.MIN);
         final Response response = createResource("TEST/" + deltaFileVersion.get(0).deltaFile().name())

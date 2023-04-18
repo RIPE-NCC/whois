@@ -1,6 +1,9 @@
 package net.ripe.db.whois.api.nrtm4;
 
+import com.fasterxml.jackson.databind.SerializationFeature;
+import com.fasterxml.jackson.jaxrs.json.JacksonJsonProvider;
 import net.ripe.db.whois.api.httpserver.ServletDeployer;
+import net.ripe.db.whois.api.rdap.RdapJsonProvider;
 import org.eclipse.jetty.servlet.ServletHolder;
 import org.eclipse.jetty.webapp.WebAppContext;
 import org.glassfish.jersey.server.ResourceConfig;

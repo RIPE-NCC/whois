@@ -1,5 +1,6 @@
 package net.ripe.db.nrtm4.dao;
 
+import com.google.common.collect.Maps;
 import net.ripe.db.nrtm4.domain.WhoisObjectData;
 import net.ripe.db.whois.common.dao.jdbc.JdbcRpslObjectOperations;
 import net.ripe.db.whois.common.domain.serials.SerialEntry;
@@ -37,14 +38,36 @@ public class WhoisObjectDao {
             (rs, rowNum) -> rs.getInt(1));
     }
 
-    public List<WhoisObjectData> getAllObjectsFromLast() {
-        return jdbcTemplate.query(
+    public Map<Integer, Integer> getAllObjectsFromLast() {
+        final Map<Integer, Integer> objectAndSequenceId = Maps.newHashMap();
+
+        jdbcTemplate.query(
             "SELECT object_id, sequence_id FROM last WHERE sequence_id > 0",
-            (rs, rowNum) -> new WhoisObjectData(
+            (rs, rowNum) -> objectAndSequenceId.put(
                 rs.getInt(1),                           // objectId
                 rs.getInt(2))                           // sequenceId
         );
+
+        return objectAndSequenceId;
     }
+
+    public Map<Integer, Integer> geMinimumSequenceIdBetweenSerials(final int serialIDFrom, final int serialIDTo) {
+        final Map<Integer, Integer> objectAndSequenceId = Maps.newHashMap();
+        jdbcTemplate.query("""
+                SELECT object_id, MIN(sequence_id) 
+                FROM serials 
+                WHERE serials.serial_id > ? AND  serials.serial_id <= ?
+                GROUP BY object_id;
+                """,
+                (rs, rowNum) -> objectAndSequenceId.put(
+                        rs.getInt(1),
+                        rs.getInt(2)),
+                serialIDFrom, serialIDTo
+        );
+
+        return objectAndSequenceId;
+    }
+
 
     public Map<Integer, String> findRpslMapForLastObjects(final List<WhoisObjectData> objects) {
         final String sql = """

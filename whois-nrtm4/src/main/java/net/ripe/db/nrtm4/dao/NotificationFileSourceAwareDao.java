@@ -1,6 +1,6 @@
 package net.ripe.db.nrtm4.dao;
 
-import net.ripe.db.nrtm4.domain.NrtmSourceModel;
+import net.ripe.db.nrtm4.domain.NrtmSource;
 import net.ripe.db.whois.common.source.IllegalSourceException;
 import net.ripe.db.whois.common.source.Source;
 import net.ripe.db.whois.common.source.SourceContext;
@@ -27,7 +27,7 @@ public class NotificationFileSourceAwareDao {
         this.sourceContext = sourceContext;
     }
 
-    public Optional<String> findLastNotification(final NrtmSourceModel source) {
+    public Optional<String> findLastNotification(final NrtmSource source) {
         final Optional<String> payload = getPayload(source);
 
         if(payload.isPresent()) {
@@ -52,7 +52,7 @@ public class NotificationFileSourceAwareDao {
         return payload;
     }
 
-    private Optional<String> getPayload(final NrtmSourceModel source) {
+    private Optional<String> getPayload(final NrtmSource source) {
         try {
             return Optional.ofNullable(jdbcTemplate.queryForObject("""
                                                 SELECT nf.payload

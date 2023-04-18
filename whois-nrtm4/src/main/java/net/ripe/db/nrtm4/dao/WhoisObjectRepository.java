@@ -8,6 +8,7 @@ import org.springframework.transaction.annotation.Isolation;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
+import javax.annotation.Nullable;
 import java.util.List;
 import java.util.Map;
 
@@ -41,10 +42,21 @@ public class WhoisObjectRepository {
     }
 
     @Transactional(isolation = Isolation.REPEATABLE_READ, propagation = Propagation.REQUIRES_NEW)
-    public SnapshotState getSnapshotState() {
+    public SnapshotState getSnapshotState(@Nullable final Integer serialFrom) {
         final int lastSerialId = whoisObjectDao.getLastSerialId();
-        final List<WhoisObjectData> objects = whoisObjectDao.getAllObjectsFromLast();
-        return new SnapshotState(lastSerialId, objects);
+        final Map<Integer, Integer> objects = whoisObjectDao.getAllObjectsFromLast();
+
+        if(serialFrom != null) {
+            final Map<Integer, Integer> whoisChanges = whoisObjectDao.geMinimumSequenceIdBetweenSerials(serialFrom, lastSerialId);
+            whoisChanges.forEach((objectId, sequenceId) -> {
+                //sequence id 1 means object is created so skip it
+                if (sequenceId != 1) {
+                    objects.put(objectId, sequenceId - 1);
+                }
+            });
+        }
+
+        return new SnapshotState(serialFrom == null ? lastSerialId : serialFrom, objects.entrySet().stream().map( (entry) -> new WhoisObjectData(entry.getKey(), entry.getValue())).toList());
     }
 
     public Map<Integer, String> findRpslMapForObjects(final List<WhoisObjectData> objects) {
