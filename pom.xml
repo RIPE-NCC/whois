@@ -65,7 +65,7 @@
 
         <jackson.version>2.14.2</jackson.version>
         <jaxb.version>2.3.3</jaxb.version>
-        <jersey.version>2.39</jersey.version>
+        <jersey.version>3.1.1</jersey.version>
         <jetty.version>10.0.14</jetty.version>
         <jflex.version>1.9.0</jflex.version>
         <jopt-simple.version>5.0.4</jopt-simple.version>
