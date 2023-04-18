@@ -38,20 +38,6 @@ public class SnapshotFileRepository {
         this.jdbcTemplate = new JdbcTemplate(dataSource);
     }
 
-    public Optional<SnapshotFile> getByVersionID(final long versionID) {
-        final String sql = """
-            SELECT sf.id, sf.version_id, sf.name, sf.hash
-            FROM snapshot_file sf
-            WHERE sf.version_id = ?
-            """;
-        try {
-            return Optional.ofNullable(jdbcTemplate.queryForObject(sql, rowMapper, versionID));
-        } catch (final EmptyResultDataAccessException ex) {
-            return Optional.empty();
-        }
-
-    }
-
     public Optional<SnapshotFile> getByName(final String name) {
         final String sql = """
             SELECT sf.id, sf.version_id, sf.name, sf.hash

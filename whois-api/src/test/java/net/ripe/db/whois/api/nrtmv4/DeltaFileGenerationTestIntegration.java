@@ -335,9 +335,11 @@ public class DeltaFileGenerationTestIntegration extends AbstractNrtmIntegrationT
 
         final PublishableNotificationFile publishableFile = getNotificationFileBySource("TEST-NONAUTH");
         assertThat(publishableFile.getDeltas().size(), is(1));
-        assertThat(publishableFile.getDeltas().get(0).getVersion(), is(2));
+        assertThat(publishableFile.getDeltas().get(0).getVersion(), is(2L));
 
         setTime(LocalDateTime.now());
+
+        updateNotificationFileGenerator.generateFile();
 
         generateDeltas(Lists.newArrayList(RpslObject.parse("" +
                 "inet6num:       ::/0\n" +
@@ -366,14 +368,6 @@ public class DeltaFileGenerationTestIntegration extends AbstractNrtmIntegrationT
 
         final PublishableNotificationFile firstIteration = getNotificationFileBySource("TEST-NONAUTH");
         assertThat(firstIteration.getDeltas().size(), is(1));
-        assertThat(firstIteration.getDeltas().get(0).getVersion(), is(3));
-
-    }
-
-    private void generateDeltas(final List<RpslObject> updatedObject){
-        for (final RpslObject rpslObject : updatedObject) {
-            databaseHelper.updateObject(rpslObject);
-        }
-        deltaFileGenerator.createDeltas();
+        assertThat(firstIteration.getDeltas().get(0).getVersion(), is(3L));
     }
 }

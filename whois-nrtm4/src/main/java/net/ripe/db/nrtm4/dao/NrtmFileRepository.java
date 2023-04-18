@@ -2,6 +2,7 @@ package net.ripe.db.nrtm4.dao;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.google.common.collect.Maps;
 import net.ripe.db.nrtm4.domain.DeltaChange;
 import net.ripe.db.nrtm4.domain.DeltaFile;
 import net.ripe.db.nrtm4.domain.NrtmDocumentType;
@@ -19,6 +20,7 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
+import org.springframework.jdbc.core.namedparam.SqlParameterSource;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.stereotype.Repository;
@@ -30,6 +32,8 @@ import java.nio.charset.StandardCharsets;
 import java.sql.PreparedStatement;
 import java.sql.Statement;
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 @Repository
 public class NrtmFileRepository {
@@ -137,32 +141,34 @@ public class NrtmFileRepository {
 
     @Transactional(propagation = Propagation.REQUIRES_NEW)
     public void deleteSnapshotFiles(final List<Long> versionIds) {
-        final MapSqlParameterSource parameters = new MapSqlParameterSource()
-                .addValue("versionIds", versionIds);
+        if(versionIds.isEmpty()) {
+            return;
+        }
 
-        int rows = namedParameterJdbcTemplate.update("DELETE FROM snapshot_file WHERE version_id IN (:versionIds)", parameters);
+        int rows = namedParameterJdbcTemplate.update("DELETE FROM snapshot_file WHERE version_id IN (:versionIds)", Map.of("versionIds", versionIds));
         if (rows != 1) {
             throw new IllegalArgumentException("Unable to delete snapshot file with version id's: " + versionIds);
         }
-        deleteVersionInfos(versionIds, parameters);
+        deleteVersionInfos(versionIds);
     }
 
     @Transactional(propagation = Propagation.REQUIRES_NEW)
     public void deleteDeltaFiles(final List<Long> versionIds) {
-        final MapSqlParameterSource parameters = new MapSqlParameterSource()
-                .addValue("versionIds", versionIds);
-
-        int rows = namedParameterJdbcTemplate.update("DELETE FROM delta_file WHERE version_id IN (:versionIds)", parameters);
-        if (rows != 1) {
-            throw new IllegalArgumentException("Unable to delete delta file with version id's: " + versionIds);
+        if(versionIds.isEmpty()) {
+            return;
         }
-        deleteVersionInfos(versionIds, parameters);
+
+        int rows = namedParameterJdbcTemplate.update("DELETE FROM delta_file WHERE  version_id IN (:versionIds)", Map.of("versionIds", versionIds));
+        if (rows != versionIds.size()) {
+            throw new IllegalArgumentException("Unable to delete few old delta files with version id's " + versionIds);
+        }
+       deleteVersionInfos(versionIds);
     }
 
-    private void deleteVersionInfos(final List<Long> versionIds, final MapSqlParameterSource parameters) {
-        int rows = namedParameterJdbcTemplate.update("DELETE FROM version_info WHERE id IN (:versionIds)", parameters);
-        if (rows != 1) {
-            throw new IllegalArgumentException("Unable to delete version info with version id's: " + versionIds);
+    private void deleteVersionInfos(final List<Long> versionIds) {
+        int rows = namedParameterJdbcTemplate.update("DELETE FROM version_info WHERE id IN (:versionIds)", Map.of("versionIds", versionIds));
+        if (rows != versionIds.size()) {
+            throw new IllegalArgumentException("Unable to delete old version info with version ids");
         }
     }
 }

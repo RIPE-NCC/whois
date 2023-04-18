@@ -2,11 +2,14 @@ package net.ripe.db.whois.api.nrtmv4;
 
 import com.google.common.collect.Lists;
 import com.google.common.net.HttpHeaders;
+import net.ripe.db.nrtm4.dao.NrtmVersionInfoRepository;
 import net.ripe.db.nrtm4.domain.NrtmDocumentType;
+import net.ripe.db.nrtm4.domain.NrtmVersionInfo;
 import net.ripe.db.nrtm4.domain.PublishableDeltaFile;
 import net.ripe.db.nrtm4.domain.PublishableNotificationFile;
 import net.ripe.db.whois.api.AbstractNrtmIntegrationTest;
 import net.ripe.db.whois.api.RestTest;
+import net.ripe.db.whois.common.domain.CIString;
 import net.ripe.db.whois.common.rpsl.RpslObject;
 import org.apache.commons.compress.compressors.gzip.GzipCompressorInputStream;
 import org.json.JSONArray;
@@ -14,6 +17,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.util.FileCopyUtils;
 
@@ -24,9 +28,12 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.Reader;
 import java.time.LocalDateTime;
+import java.time.ZoneOffset;
 import java.util.List;
+import java.util.Map;
 import java.util.zip.GZIPInputStream;
 
+import static java.util.stream.Collectors.groupingBy;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.Matchers.containsInAnyOrder;
@@ -38,6 +45,9 @@ import static org.hamcrest.Matchers.notNullValue;
 @Tag("IntegrationTest")
 @DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_EACH_TEST_METHOD)
 public class SnapshotFileGenerationTestIntegration extends AbstractNrtmIntegrationTest {
+
+    @Autowired
+    NrtmVersionInfoRepository nrtmVersionInfoRepository;
 
     @Test
     public void should_get_all_source_links() {
@@ -355,8 +365,77 @@ public class SnapshotFileGenerationTestIntegration extends AbstractNrtmIntegrati
         assertThat(testDelta.getVersion(), is(testSnapshot.getLong("version")));
     }
 
-    public static String decompress(byte[] compressed) throws IOException {
+    @Test
+    public void should_delete_old_snapshot_files()  {
+        setTime(LocalDateTime.now().minusDays(2));
+        snapshotFileGenerator.createSnapshot();
 
+        final Map<CIString, List<NrtmVersionInfo>> versionsBySource1 = nrtmVersionInfoRepository.getAllVersionsByType(NrtmDocumentType.SNAPSHOT).stream()
+                .collect(groupingBy( versionInfo -> versionInfo.source().getName()));
+
+        assertThat(versionsBySource1.get(CIString.ciString("TEST")).size(), is(1));
+        assertThat(versionsBySource1.get(CIString.ciString("TEST-NONAUTH")).size(), is(1));
+        assertThat(versionsBySource1.get(CIString.ciString("TEST-NONAUTH")).get(0).version(), is(1L));
+        assertThat(versionsBySource1.get(CIString.ciString("TEST")).get(0).version(), is(1L));
+
+        setTime(LocalDateTime.now());
+
+        generateDeltas(Lists.newArrayList(RpslObject.parse("" +
+                "inet6num:       ::/0\n" +
+                "netname:        IANA-BLK\n" +
+                "descr:          The whole IPv6 address space:Updated for test\n" +
+                "country:        NL\n" +
+                "tech-c:         TP1-TEST\n" +
+                "admin-c:        TP1-TEST\n" +
+                "status:         OTHER\n" +
+                "mnt-by:         OWNER-MNT\n" +
+                "created:         2022-08-14T11:48:28Z\n" +
+                "last-modified:   2022-10-25T12:22:39Z\n" +
+                "source:         TEST"), RpslObject.parse("" +
+                "mntner:        NONAUTH-OWNER-MNT\n" +
+                "descr:         Non auth Owner Maintainer updated\n" +
+                "admin-c:       TP1-TEST\n" +
+                "upd-to:        noreply@ripe.net\n" +
+                "auth:          MD5-PW $1$d9fKeTr2$Si7YudNf4rUGmR71n/cqk/ #test\n" +
+                "mnt-by:        NONAUTH-OWNER-MNT\n" +
+                "referral-by:   NONAUTH-OWNER-MNT\n" +
+                "created:         2011-07-28T00:35:42Z\n" +
+                "last-modified:   2019-02-28T10:14:46Z\n" +
+                "source:        TEST-NONAUTH")));
+
+        snapshotFileGenerator.createSnapshot();
+
+        final Map<CIString, List<NrtmVersionInfo>> versionsBySource = nrtmVersionInfoRepository.getAllVersionsByType(NrtmDocumentType.SNAPSHOT).stream()
+                .collect(groupingBy( versionInfo -> versionInfo.source().getName()));
+
+        assertThat(versionsBySource.get(CIString.ciString("TEST")).size(), is(1));
+        assertThat(versionsBySource.get(CIString.ciString("TEST-NONAUTH")).size(), is(1));
+        assertThat(versionsBySource.get(CIString.ciString("TEST-NONAUTH")).get(0).version(), is(2L));
+        assertThat(versionsBySource.get(CIString.ciString("TEST")).get(0).version(), is(2L));
+        assertThat(versionsBySource.get(CIString.ciString("TEST-NONAUTH")).get(0).created(), is(not(versionsBySource1.get(CIString.ciString("TEST-NONAUTH")).get(0).created())));
+        assertThat(versionsBySource.get(CIString.ciString("TEST")).get(0).created(), is(not(versionsBySource1.get(CIString.ciString("TEST")).get(0).created())));
+
+    }
+
+    @Test
+    public void should_not_delete_old_snapshot_files_if_only_one_exists()  {
+        setTime(LocalDateTime.now().minusDays(2));
+        snapshotFileGenerator.createSnapshot();
+
+        final Map<CIString, List<NrtmVersionInfo>> versionsBySource1 = nrtmVersionInfoRepository.getAllVersionsByType(NrtmDocumentType.SNAPSHOT).stream()
+                .collect(groupingBy( versionInfo -> versionInfo.source().getName()));
+
+        setTime(LocalDateTime.now());
+
+        snapshotFileGenerator.createSnapshot();
+
+        final Map<CIString, List<NrtmVersionInfo>> versionsBySource = nrtmVersionInfoRepository.getAllVersionsByType(NrtmDocumentType.SNAPSHOT).stream()
+                .collect(groupingBy( versionInfo -> versionInfo.source().getName()));
+        assertThat(versionsBySource.get(CIString.ciString("TEST-NONAUTH")).get(0).created(), is(versionsBySource1.get(CIString.ciString("TEST-NONAUTH")).get(0).created()));
+        assertThat(versionsBySource.get(CIString.ciString("TEST")).get(0).created(), is(versionsBySource1.get(CIString.ciString("TEST")).get(0).created()));
+    }
+
+    public static String decompress(byte[] compressed) throws IOException {
         try (Reader reader = new InputStreamReader(new GzipCompressorInputStream(new ByteArrayInputStream(compressed)))) {
             return FileCopyUtils.copyToString(reader);
         }
