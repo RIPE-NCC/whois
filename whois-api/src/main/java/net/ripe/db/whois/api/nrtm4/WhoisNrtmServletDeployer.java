@@ -25,15 +25,9 @@ public class WhoisNrtmServletDeployer implements ServletDeployer {
 
     @Override
     public void deploy(final WebAppContext context) {
-        final JacksonJsonProvider jacksonJsonProvider = new JacksonJsonProvider();
-        jacksonJsonProvider.configure(SerializationFeature.WRITE_EMPTY_JSON_ARRAYS, true);
-        jacksonJsonProvider.configure(SerializationFeature.INDENT_OUTPUT, true);
-
-
         final ResourceConfig resourceConfig = new ResourceConfig();
         resourceConfig.register(nrtmClientService);
         resourceConfig.register(nrtmExceptionMapper);
-        resourceConfig.register(jacksonJsonProvider);
         resourceConfig.register(new NrtmCacheControl());
 
         context.addServlet(new ServletHolder("Whois Nrtm version 4 REST API", new ServletContainer(resourceConfig)), "/nrtmv4/*");
