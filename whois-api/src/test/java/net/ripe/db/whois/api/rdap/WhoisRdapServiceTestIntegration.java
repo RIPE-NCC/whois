@@ -390,10 +390,9 @@ public class WhoisRdapServiceTestIntegration extends AbstractRdapIntegrationTest
                 "geoloc:         52.375599 4.899902\n" +
                 "language:       DK\n" +
                 "admin-c:        TP1-TEST\n" +
-                "abuse-c:        ABU-TEST\n" +
-                "mnt-by:         FRED-MNT\n" +
-                "created:         2022-08-14T11:48:28Z\n" +
-                "last-modified:   2022-10-25T12:22:39Z\n" +
+                "mnt-by:         OWNER-MNT\n" +
+                "created:        2022-08-14T11:48:28Z\n" +
+                "last-modified:  2022-10-25T12:22:39Z\n" +
                 "source:         TEST");
 
         final Entity entity = createResource("entity/ORG-AC1-TEST")
@@ -405,8 +404,12 @@ public class WhoisRdapServiceTestIntegration extends AbstractRdapIntegrationTest
 
         // no notice for single language
         final List<Notice> notices = entity.getNotices();
-        assertThat(notices, hasSize(1));
-        assertThat(notices.get(0).getTitle(), is("Terms And Condition"));
+        assertThat(notices, hasSize(4));
+        Collections.sort(notices);
+        assertThat(notices.get(0).getTitle(), is("Filtered"));
+        assertThat(notices.get(1).getTitle(), is("Source"));
+        assertThat(notices.get(2).getTitle(), is("Terms and Conditions"));
+        assertThat(notices.get(3).getTitle(), is("Whois Inaccuracy Reporting"));
     }
 
     @Test
