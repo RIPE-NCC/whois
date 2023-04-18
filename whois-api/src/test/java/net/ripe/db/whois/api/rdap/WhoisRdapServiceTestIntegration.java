@@ -371,7 +371,42 @@ public class WhoisRdapServiceTestIntegration extends AbstractRdapIntegrationTest
         assertThat(notices.get(1).getDescription().get(0), is("There are multiple language attributes EN, DK in 192.0.0.0 - 192.255.255.255, but only the first language EN was returned."));
         assertThat(notices.get(2).getTitle(), is("Source"));
         assertThat(notices.get(3).getTitle(), is("Terms and Conditions"));
+    }
 
+    //
+
+    @Test
+    public void lookup_org_single_language_codes() {
+        databaseHelper.addObject("" +
+                "organisation:   ORG-AC1-TEST\n" +
+                "org-name:       Acme Carpets\n" +
+                "org-type:       OTHER\n" +
+                "address:        Singel 258\n" +
+                "e-mail:         bitbucket@ripe.net\n" +
+                "descr:          Acme Carpet Organisation\n" +
+                "remark:         some remark\n" +
+                "phone:          +31 1234567\n" +
+                "fax-no:         +31 98765432\n" +
+                "geoloc:         52.375599 4.899902\n" +
+                "language:       DK\n" +
+                "admin-c:        TP1-TEST\n" +
+                "abuse-c:        ABU-TEST\n" +
+                "mnt-by:         FRED-MNT\n" +
+                "created:         2022-08-14T11:48:28Z\n" +
+                "last-modified:   2022-10-25T12:22:39Z\n" +
+                "source:         TEST");
+
+        final Entity entity = createResource("entity/ORG-AC1-TEST")
+                .request(MediaType.APPLICATION_JSON_TYPE)
+                .get(Entity.class);
+
+        assertThat(entity.getHandle(), equalTo("ORG-AC1-TEST"));
+        assertThat(entity.getLang(), is("DK"));
+
+        // no notice for single language
+        final List<Notice> notices = entity.getNotices();
+        assertThat(notices, hasSize(1));
+        assertThat(notices.get(0).getTitle(), is("Terms And Condition"));
     }
 
     @Test
@@ -1499,7 +1534,6 @@ public class WhoisRdapServiceTestIntegration extends AbstractRdapIntegrationTest
             assertErrorStatus(e, 400);
             assertErrorTitle(e, "400 Bad Request");
             assertErrorDescription(e, "unknown objectType");
-
         }
     }
 
