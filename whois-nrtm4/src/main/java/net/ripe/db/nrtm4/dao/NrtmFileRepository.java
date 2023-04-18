@@ -142,7 +142,7 @@ public class NrtmFileRepository {
             return;
         }
 
-        int rows = namedParameterJdbcTemplate.update("DELETE FROM snapshot_file WHERE version_id IN (:versionIds)", Map.of("versionIds", versionIds));
+        final int rows = namedParameterJdbcTemplate.update("DELETE FROM snapshot_file WHERE version_id IN (:versionIds)", Map.of("versionIds", versionIds));
         if (rows != 1) {
             throw new IllegalArgumentException("Unable to delete snapshot file with version id's: " + versionIds);
         }
@@ -155,7 +155,7 @@ public class NrtmFileRepository {
             return;
         }
 
-        int rows = namedParameterJdbcTemplate.update("DELETE FROM delta_file WHERE  version_id IN (:versionIds)", Map.of("versionIds", versionIds));
+        final int rows = namedParameterJdbcTemplate.update("DELETE FROM delta_file WHERE  version_id IN (:versionIds)", Map.of("versionIds", versionIds));
         if (rows != versionIds.size()) {
             throw new IllegalArgumentException("Unable to delete few old delta files with version id's " + versionIds);
         }
@@ -163,7 +163,7 @@ public class NrtmFileRepository {
     }
 
     private void deleteVersionInfos(final List<Long> versionIds) {
-        int rows = namedParameterJdbcTemplate.update("DELETE FROM version_info WHERE id IN (:versionIds)", Map.of("versionIds", versionIds));
+        final int rows = namedParameterJdbcTemplate.update("DELETE FROM version_info WHERE id IN (:versionIds)", Map.of("versionIds", versionIds));
         if (rows != versionIds.size()) {
             throw new IllegalArgumentException("Unable to delete old version info with version ids");
         }
