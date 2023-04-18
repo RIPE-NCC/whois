@@ -28,7 +28,6 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.Reader;
 import java.time.LocalDateTime;
-import java.time.ZoneOffset;
 import java.util.List;
 import java.util.Map;
 import java.util.zip.GZIPInputStream;
@@ -48,11 +47,9 @@ public class SnapshotFileGenerationTestIntegration extends AbstractNrtmIntegrati
 
     @Autowired
     NrtmVersionInfoRepository nrtmVersionInfoRepository;
-
     @Test
     public void should_get_all_source_links() {
-        databaseHelper.getNrtmTemplate().update("INSERT INTO source (id, name) VALUES (?,?)", 1, "TEST");
-        databaseHelper.getNrtmTemplate().update("INSERT INTO source (id, name) VALUES (?,?)", 2, "TEST-NONAUTH");
+        createNrtmSource();
 
         final String response = RestTest.target(getPort(), "nrtmv4/")
                 .request(MediaType.TEXT_HTML)

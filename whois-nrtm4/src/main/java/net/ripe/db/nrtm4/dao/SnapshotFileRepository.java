@@ -32,9 +32,7 @@ public class SnapshotFileRepository {
                     NrtmVersionInfoRepository.rowMapperWithOffset.apply(4).mapRow(rs, rowNum)
             );
 
-    public SnapshotFileRepository(
-        @Qualifier("nrtmDataSource") final DataSource dataSource
-    ) {
+    public SnapshotFileRepository(@Qualifier("nrtmDataSource") final DataSource dataSource) {
         this.jdbcTemplate = new JdbcTemplate(dataSource);
     }
 

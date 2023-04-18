@@ -13,14 +13,11 @@ import net.ripe.db.nrtm4.domain.SnapshotFile;
 import net.ripe.db.nrtm4.util.NrtmFileUtil;
 import net.ripe.db.whois.common.DateTimeProvider;
 import net.ripe.db.whois.common.dao.jdbc.JdbcRpslObjectOperations;
-import net.ripe.db.whois.common.domain.Timestamp;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.jdbc.core.JdbcTemplate;
-import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
-import org.springframework.jdbc.core.namedparam.SqlParameterSource;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.stereotype.Repository;
@@ -51,16 +48,16 @@ public class NrtmFileRepository {
 
     @Transactional(propagation = Propagation.REQUIRES_NEW)
     public void saveDeltaVersion(final NrtmVersionInfo version, final int serialIDTo, final List<DeltaChange> deltas) throws JsonProcessingException {
-       if(deltas.isEmpty()) {
-           LOGGER.info("No delta changes found for source {}", version.source().getName());
-           return;
-       }
+        if(deltas.isEmpty()) {
+            LOGGER.info("No delta changes found for source {}", version.source().getName());
+            return;
+        }
 
-       final NrtmVersionInfo newVersion = saveNewDeltaVersion(version, serialIDTo);
-       final DeltaFile deltaFile = getDeltaFile(newVersion, deltas);
+        final NrtmVersionInfo newVersion = saveNewDeltaVersion(version, serialIDTo);
+        final DeltaFile deltaFile = getDeltaFile(newVersion, deltas);
 
-       saveDeltaFile(deltaFile.versionId(), deltaFile.name(), deltaFile.hash(), deltaFile.payload());
-       LOGGER.info("Created {} delta version {}", newVersion.source().getName(), newVersion.version());
+        saveDeltaFile(deltaFile.versionId(), deltaFile.name(), deltaFile.hash(), deltaFile.payload());
+        LOGGER.info("Created {} delta version {}", newVersion.source().getName(), newVersion.version());
     }
 
     @Transactional(propagation = Propagation.REQUIRES_NEW)
@@ -84,7 +81,7 @@ public class NrtmFileRepository {
         return saveVersionInfo(version.source(), version.version() + 1, version.sessionID(), NrtmDocumentType.DELTA, lastSerialID);
     }
 
-    private NrtmVersionInfo saveNewSnapshotVersion(final NrtmVersionInfo version) {
+    public NrtmVersionInfo saveNewSnapshotVersion(final NrtmVersionInfo version) {
         return saveVersionInfo(version.source(), version.version(), version.sessionID(), NrtmDocumentType.SNAPSHOT, version.lastSerialId());
     }
 
@@ -114,7 +111,7 @@ public class NrtmFileRepository {
         return new NrtmVersionInfo(keyHolder.getKeyAs(Long.class), source, version, sessionID, type, lastSerialId, now);
     }
 
-    private void saveDeltaFile(
+    public void saveDeltaFile(
             final long versionId,
             final String name,
             final String hash,
@@ -127,7 +124,7 @@ public class NrtmFileRepository {
         jdbcTemplate.update(sql, versionId, name, hash, payload);
     }
 
-    private void saveSnapshot(final SnapshotFile snapshotFile, final byte[] payload) {
+    public void saveSnapshot(final SnapshotFile snapshotFile, final byte[] payload) {
         final String sql = """
             INSERT INTO snapshot_file (version_id, name, hash, payload)
             VALUES (?, ?, ?, ?)
@@ -162,7 +159,7 @@ public class NrtmFileRepository {
         if (rows != versionIds.size()) {
             throw new IllegalArgumentException("Unable to delete few old delta files with version id's " + versionIds);
         }
-       deleteVersionInfos(versionIds);
+        deleteVersionInfos(versionIds);
     }
 
     private void deleteVersionInfos(final List<Long> versionIds) {

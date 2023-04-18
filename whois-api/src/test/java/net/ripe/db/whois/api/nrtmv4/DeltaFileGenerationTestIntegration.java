@@ -17,9 +17,7 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.time.LocalDateTime;
 import java.util.Collections;
-import java.util.List;
 
-import static net.ripe.db.whois.query.support.PatternMatcher.matchesPattern;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.not;
@@ -304,7 +302,7 @@ public class DeltaFileGenerationTestIntegration extends AbstractNrtmIntegrationT
     }
 
     @Test
-    public void should_delete_old_delta_files()  {
+    public void should_delete_old_delta_files() {
         setTime(LocalDateTime.now().minusDays(2));
 
         snapshotFileGenerator.createSnapshot();

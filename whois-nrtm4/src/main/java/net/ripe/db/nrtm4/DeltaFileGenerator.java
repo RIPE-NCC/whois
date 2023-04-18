@@ -41,12 +41,12 @@ public class DeltaFileGenerator {
 
 
     DeltaFileGenerator(
-        final NrtmFileRepository nrtmFileRepository,
-        final DummifierNrtm dummifier,
-        final NrtmVersionInfoRepository nrtmVersionInfoRepository,
-        final WhoisObjectDao whoisObjectDao,
-        final DateTimeProvider dateTimeProvider,
-        final WhoisObjectRepository whoisObjectRepository
+            final NrtmFileRepository nrtmFileRepository,
+            final DummifierNrtm dummifier,
+            final NrtmVersionInfoRepository nrtmVersionInfoRepository,
+            final WhoisObjectDao whoisObjectDao,
+            final DateTimeProvider dateTimeProvider,
+            final WhoisObjectRepository whoisObjectRepository
     ) {
         this.nrtmFileRepository = nrtmFileRepository;
         this.dummifier = dummifier;
@@ -83,7 +83,7 @@ public class DeltaFileGenerator {
             try {
                 nrtmFileRepository.saveDeltaVersion(version, serialIDTo, deltaMap.get(version.source().getName()));
             } catch (final JsonProcessingException e) {
-               LOGGER.error("Exception saving delta for {}", version.source().getName(), e);
+                LOGGER.error("Exception saving delta for {}", version.source().getName(), e);
             }
         }
 

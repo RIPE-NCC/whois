@@ -40,14 +40,14 @@ public class UpdateNotificationFileGenerationTestIntegration extends AbstractNrt
 
     @Test
     public void should_not_create_new_file_if_no_changes()  {
-        testDateTimeProvider.setTime(LocalDateTime.now().minusHours(1));
+        setTime(LocalDateTime.now().minusHours(1));
         snapshotFileGenerator.createSnapshot();
 
         updateNotificationFileGenerator.generateFile();
 
         final PublishableNotificationFile firsIteration = getNotificationFileBySource("TEST");
 
-        testDateTimeProvider.setTime(LocalDateTime.now());
+        setTime(LocalDateTime.now());
 
         updateNotificationFileGenerator.generateFile();
 
@@ -58,7 +58,7 @@ public class UpdateNotificationFileGenerationTestIntegration extends AbstractNrt
 
     @Test
     public void should_create_file_if_no_changes_last_file_24_hours_old()  {
-        testDateTimeProvider.setTime(LocalDateTime.now().minusDays(1));
+        setTime(LocalDateTime.now().minusDays(1));
         snapshotFileGenerator.createSnapshot();
 
         updateNotificationFileGenerator.generateFile();
@@ -66,7 +66,7 @@ public class UpdateNotificationFileGenerationTestIntegration extends AbstractNrt
         final PublishableNotificationFile firsIteration = getNotificationFileBySource("TEST");
 
         final LocalDateTime timeNow = LocalDateTime.now();
-        testDateTimeProvider.setTime(timeNow);
+        setTime(timeNow);
 
         updateNotificationFileGenerator.generateFile();
 
@@ -89,7 +89,7 @@ public class UpdateNotificationFileGenerationTestIntegration extends AbstractNrt
                 "source:         TEST");
 
 
-        testDateTimeProvider.setTime(LocalDateTime.now().minusDays(1));
+        setTime(LocalDateTime.now().minusDays(1));
 
         snapshotFileGenerator.createSnapshot();
         updateNotificationFileGenerator.generateFile();
@@ -100,7 +100,7 @@ public class UpdateNotificationFileGenerationTestIntegration extends AbstractNrt
         assertThat(firstIteration.getSnapshot().getVersion(), is(1L));
         assertThat(firstIteration.getDeltas().size(), is(0));
 
-        testDateTimeProvider.setTime(LocalDateTime.now().withHour(23));
+        setTime(LocalDateTime.now().withHour(23));
 
         databaseHelper.updateObject(rpslObject);
 
@@ -135,7 +135,7 @@ public class UpdateNotificationFileGenerationTestIntegration extends AbstractNrt
 
     @Test
     public void should_create_file_with_changes_both_sources()  {
-        testDateTimeProvider.setTime(LocalDateTime.now().minusDays(1));
+        setTime(LocalDateTime.now().minusDays(1));
 
         snapshotFileGenerator.createSnapshot();
         updateNotificationFileGenerator.generateFile();
@@ -164,7 +164,7 @@ public class UpdateNotificationFileGenerationTestIntegration extends AbstractNrt
                 "mnt-by:         OWNER-MNT\n" +
                 "source:         TEST");
 
-        testDateTimeProvider.setTime(LocalDateTime.now().minusDays(1));
+        setTime(LocalDateTime.now().minusDays(1));
         snapshotFileGenerator.createSnapshot();
 
         databaseHelper.updateObject(rpslObject);
@@ -224,7 +224,7 @@ public class UpdateNotificationFileGenerationTestIntegration extends AbstractNrt
                 "mnt-by:         OWNER-MNT\n" +
                 "source:         TEST");
 
-        testDateTimeProvider.setTime(LocalDateTime.now().minusDays(1));
+        setTime(LocalDateTime.now().minusDays(1));
         snapshotFileGenerator.createSnapshot();
 
         databaseHelper.updateObject(rpslObject);

@@ -19,10 +19,11 @@ public class FixedResponseRule extends Rule {
     public String matchAndApply(String target, HttpServletRequest request, HttpServletResponse response) throws IOException {
         if (HttpStatus.isClientError(responseCode) || HttpStatus.isServerError(responseCode)) {
             response.sendError(responseCode);
+            this.setHandling(true);
         } else {
             response.setStatus(responseCode);
         }
-        return null;
+        return target;
     }
 
     @Override

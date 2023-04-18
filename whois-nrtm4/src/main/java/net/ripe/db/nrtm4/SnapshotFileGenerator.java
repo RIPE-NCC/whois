@@ -3,6 +3,7 @@ package net.ripe.db.nrtm4;
 import com.google.common.base.Stopwatch;
 import net.ripe.db.nrtm4.dao.NrtmFileRepository;
 import net.ripe.db.nrtm4.dao.NrtmVersionInfoRepository;
+import net.ripe.db.nrtm4.dao.SnapshotFileRepository;
 import net.ripe.db.nrtm4.dao.SourceRepository;
 import net.ripe.db.nrtm4.dao.WhoisObjectRepository;
 import net.ripe.db.nrtm4.domain.NrtmDocumentType;
@@ -32,12 +33,15 @@ import java.util.zip.GZIPOutputStream;
 import static java.util.stream.Collectors.groupingBy;
 import static net.ripe.db.nrtm4.util.NrtmFileUtil.calculateSha256;
 
+
 @Service
 public class SnapshotFileGenerator {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(SnapshotFileGenerator.class);
     private static final int QUEUE_CAPACITY = 1000;
+
     private final WhoisObjectRepository whoisObjectRepository;
+
     private final Dummifier dummifierNrtm;
     private final NrtmVersionInfoRepository nrtmVersionInfoRepository;
     private final RpslObjectEnqueuer rpslObjectEnqueuer;
@@ -46,11 +50,13 @@ public class SnapshotFileGenerator {
     private final NrtmFileRepository nrtmFileRepository;
     private final DateTimeProvider dateTimeProvider;
 
+
     public SnapshotFileGenerator(
         final Dummifier dummifierNrtm,
         final NrtmVersionInfoRepository nrtmVersionInfoRepository,
         final RpslObjectEnqueuer rpslObjectEnqueuer,
         final WhoisObjectRepository whoisObjectRepository,
+        final SnapshotFileRepository snapshotFileRepository,
         final NrtmFileRepository nrtmFileRepository,
         final DateTimeProvider dateTimeProvider,
         final SnapshotFileSerializer snapshotFileSerializer,
@@ -114,6 +120,7 @@ public class SnapshotFileGenerator {
                 return false;
             }
         }
+
         return true;
     }
 
