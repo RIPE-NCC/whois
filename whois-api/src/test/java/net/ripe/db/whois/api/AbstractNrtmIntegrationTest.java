@@ -213,6 +213,7 @@ public abstract class AbstractNrtmIntegrationTest extends AbstractIntegrationTes
 
     protected void createNrtmSource() {
         databaseHelper.getNrtmTemplate().update("INSERT INTO source (id, name) VALUES (?,?)", 1, "TEST");
+        databaseHelper.getNrtmTemplate().update("INSERT INTO source (id, name) VALUES (?,?)", 2, "TEST-NONAUTH");
     }
 
     protected void generateDeltas(final List<RpslObject> updatedObject){

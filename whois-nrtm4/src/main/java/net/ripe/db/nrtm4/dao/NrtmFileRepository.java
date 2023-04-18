@@ -48,16 +48,16 @@ public class NrtmFileRepository {
 
     @Transactional(propagation = Propagation.REQUIRES_NEW)
     public void saveDeltaVersion(final NrtmVersionInfo version, final int serialIDTo, final List<DeltaChange> deltas) throws JsonProcessingException {
-        if(deltas.isEmpty()) {
-            LOGGER.info("No delta changes found for source {}", version.source().getName());
-            return;
-        }
+       if(deltas.isEmpty()) {
+           LOGGER.info("No delta changes found for source {}", version.source().getName());
+           return;
+       }
 
-        final NrtmVersionInfo newVersion = saveNewDeltaVersion(version, serialIDTo);
-        final DeltaFile deltaFile = getDeltaFile(newVersion, deltas);
+       final NrtmVersionInfo newVersion = saveNewDeltaVersion(version, serialIDTo);
+       final DeltaFile deltaFile = getDeltaFile(newVersion, deltas);
 
-        saveDeltaFile(deltaFile.versionId(), deltaFile.name(), deltaFile.hash(), deltaFile.payload());
-        LOGGER.info("Created {} delta version {}", newVersion.source().getName(), newVersion.version());
+       saveDeltaFile(deltaFile.versionId(), deltaFile.name(), deltaFile.hash(), deltaFile.payload());
+       LOGGER.info("Created {} delta version {}", newVersion.source().getName(), newVersion.version());
     }
 
     @Transactional(propagation = Propagation.REQUIRES_NEW)
