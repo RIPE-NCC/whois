@@ -3,7 +3,6 @@ package net.ripe.db.nrtm4;
 import com.google.common.base.Stopwatch;
 import net.ripe.db.nrtm4.dao.NrtmFileRepository;
 import net.ripe.db.nrtm4.dao.NrtmVersionInfoRepository;
-import net.ripe.db.nrtm4.dao.SnapshotFileRepository;
 import net.ripe.db.nrtm4.dao.SourceRepository;
 import net.ripe.db.nrtm4.dao.WhoisObjectRepository;
 import net.ripe.db.nrtm4.domain.NrtmDocumentType;
@@ -20,7 +19,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
 import java.io.ByteArrayOutputStream;
-import java.time.LocalDateTime;
 import java.time.ZoneOffset;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -31,17 +29,15 @@ import java.util.UUID;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.zip.GZIPOutputStream;
 
+import static java.util.stream.Collectors.groupingBy;
 import static net.ripe.db.nrtm4.util.NrtmFileUtil.calculateSha256;
-
 
 @Service
 public class SnapshotFileGenerator {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(SnapshotFileGenerator.class);
     private static final int QUEUE_CAPACITY = 1000;
-
     private final WhoisObjectRepository whoisObjectRepository;
-
     private final Dummifier dummifierNrtm;
     private final NrtmVersionInfoRepository nrtmVersionInfoRepository;
     private final RpslObjectEnqueuer rpslObjectEnqueuer;
@@ -49,7 +45,6 @@ public class SnapshotFileGenerator {
     private final SourceRepository sourceRepository;
     private final NrtmFileRepository nrtmFileRepository;
     private final DateTimeProvider dateTimeProvider;
-
 
     public SnapshotFileGenerator(
         final Dummifier dummifierNrtm,
@@ -108,6 +103,7 @@ public class SnapshotFileGenerator {
             }
         }
         LOGGER.info("Snapshot generation complete {}", stopwatch);
+        cleanUpOldFiles();
     }
 
     private boolean canProceed(final List<NrtmVersionInfo> sourceVersions, final NrtmSource source) {
@@ -118,7 +114,6 @@ public class SnapshotFileGenerator {
                 return false;
             }
         }
-
         return true;
     }
 
@@ -182,9 +177,15 @@ public class SnapshotFileGenerator {
     private void cleanUpOldFiles() {
         LOGGER.info("Deleting old snapshot files");
 
-        final LocalDateTime twoDayAgo = dateTimeProvider.getCurrentDateTime().minusDays(2);
+        final long beforeTimestamp = dateTimeProvider.getCurrentDateTime().minusDays(2).toEpochSecond(ZoneOffset.UTC);
 
-        final List<Long> versions = nrtmVersionInfoRepository.getAllVersionsByTypeBefore(NrtmDocumentType.DELTA, twoDayAgo);
-        nrtmFileRepository.deleteDeltaFiles(versions);
+        final Map<CIString, List<NrtmVersionInfo>> versionsBySource = nrtmVersionInfoRepository.getAllVersionsByType(NrtmDocumentType.SNAPSHOT).stream()
+                .collect(groupingBy( versionInfo -> versionInfo.source().getName()));
+
+        versionsBySource.forEach( (nrtmSource, versions) -> {
+            if(versions.size() > 1) {
+                nrtmFileRepository.deleteSnapshotFiles(versions.stream().filter( version -> version.created() <= beforeTimestamp).map(NrtmVersionInfo::id).toList());
+            }
+        });
     }
 }

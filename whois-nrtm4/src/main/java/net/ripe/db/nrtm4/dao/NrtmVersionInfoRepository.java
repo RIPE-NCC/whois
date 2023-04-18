@@ -77,41 +77,6 @@ public class NrtmVersionInfoRepository {
        return findLastVersionPerSource().stream().filter( (versionInfo) ->  versionInfo.source().getName().equals(source.getName())).findFirst();
     }
 
-    public NrtmVersionInfo findLastSnapshotVersionForSource(final NrtmSource source) {
-        return jdbcTemplate.queryForObject("""
-                SELECT vi.id, src.id, src.name, vi.version, vi.session_id, vi.type, vi.last_serial_id, vi.created
-                FROM version_info vi
-                    JOIN source src ON src.id = vi.source_id,
-                    (
-                    SELECT source_id, MAX(version) version
-                    FROM version_info
-                    WHERE type = ? AND source_id = ?
-                    ) maxv
-                WHERE vi.source_id = maxv.source_id
-                  AND vi.version = maxv.version
-                  AND vi.type = ?
-                ORDER BY vi.last_serial_id DESC
-                """,
-            rowMapper, NrtmDocumentType.SNAPSHOT.toString(), source.getId(), NrtmDocumentType.SNAPSHOT.toString());
-    }
-
-    // TODO: Only used by tests, so should be removed from here.
-    public Optional<NrtmVersionInfo> findLastVersion() {
-        try {
-            return Optional.ofNullable(jdbcTemplate.queryForObject("""
-                    SELECT v.id, src.id, src.name, v.version, v.session_id, v.type, v.last_serial_id, v.created
-                    FROM version_info v
-                    JOIN source src ON src.id = v.source_id
-                    ORDER BY v.version DESC LIMIT 1
-                    """,
-                rowMapper)
-            );
-        } catch (final EmptyResultDataAccessException ex) {
-            LOGGER.debug("findLastVersion found no entries, and so threw exception: {}", ex.getMessage());
-            return Optional.empty();
-        }
-    }
-
     public NrtmVersionInfo findById(final long versionId) {
         final String sql = """
             SELECT v.id, src.id, src.name, v.version, v.session_id, v.type, v.last_serial_id, v.created
@@ -135,12 +100,11 @@ public class NrtmVersionInfoRepository {
 
     public List<NrtmVersionInfo> getAllVersionsByType(final NrtmDocumentType type) {
         final String sql = """
-            SELECT v.id
+            SELECT v.id, src.id, src.name, v.version, v.session_id, v.type, v.last_serial_id, v.created
             FROM version_info v
-            WHERE v.type = ? 
+            JOIN source src ON src.id = v.source_id
+            WHERE v.type = ?
             """;
         return jdbcTemplate.query(sql, rowMapper, type.name());
     }
-
-
 }

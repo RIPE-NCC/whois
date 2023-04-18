@@ -15,9 +15,11 @@ import org.springframework.test.annotation.DirtiesContext;
 
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+import java.time.LocalDateTime;
 import java.util.Collections;
 import java.util.List;
 
+import static net.ripe.db.whois.query.support.PatternMatcher.matchesPattern;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.not;
@@ -299,6 +301,73 @@ public class DeltaFileGenerationTestIntegration extends AbstractNrtmIntegrationT
                 .get(Response.class);
         assertThat(response.getStatus(), is(404));
         assertThat(response.readEntity(String.class), is("Requested Delta file does not exists"));
+    }
+
+    @Test
+    public void should_delete_old_delta_files()  {
+        setTime(LocalDateTime.now().minusDays(2));
+
+        snapshotFileGenerator.createSnapshot();
+        generateDeltas(Lists.newArrayList(RpslObject.parse("" +
+                "inet6num:       ::/0\n" +
+                "netname:        IANA-BLK\n" +
+                "descr:          The whole IPv6 address space:Updated for test\n" +
+                "country:        NL\n" +
+                "tech-c:         TP1-TEST\n" +
+                "admin-c:        TP1-TEST\n" +
+                "status:         OTHER\n" +
+                "mnt-by:         OWNER-MNT\n" +
+                "created:         2022-08-14T11:48:28Z\n" +
+                "last-modified:   2022-10-25T12:22:39Z\n" +
+                "source:         TEST"), RpslObject.parse("" +
+                "mntner:        NONAUTH-OWNER-MNT\n" +
+                "descr:         Non auth Owner Maintainer updated\n" +
+                "admin-c:       TP1-TEST\n" +
+                "upd-to:        noreply@ripe.net\n" +
+                "auth:          MD5-PW $1$d9fKeTr2$Si7YudNf4rUGmR71n/cqk/ #test\n" +
+                "mnt-by:        NONAUTH-OWNER-MNT\n" +
+                "referral-by:   NONAUTH-OWNER-MNT\n" +
+                "created:         2011-07-28T00:35:42Z\n" +
+                "last-modified:   2019-02-28T10:14:46Z\n" +
+                "source:        TEST-NONAUTH")));
+
+        updateNotificationFileGenerator.generateFile();
+
+        final PublishableNotificationFile publishableFile = getNotificationFileBySource("TEST-NONAUTH");
+        assertThat(publishableFile.getDeltas().size(), is(1));
+        assertThat(publishableFile.getDeltas().get(0).getVersion(), is(2));
+
+        setTime(LocalDateTime.now());
+
+        generateDeltas(Lists.newArrayList(RpslObject.parse("" +
+                "inet6num:       ::/0\n" +
+                "netname:        IANA-BLK\n" +
+                "descr:          The whole IPv6 address space:Updated for test\n" +
+                "country:        BR\n" +
+                "tech-c:         TP1-TEST\n" +
+                "admin-c:        TP1-TEST\n" +
+                "status:         OTHER\n" +
+                "mnt-by:         OWNER-MNT\n" +
+                "created:         2022-08-14T11:48:28Z\n" +
+                "last-modified:   2022-10-25T12:22:39Z\n" +
+                "source:         TEST"), RpslObject.parse("" +
+                "mntner:        NONAUTH-OWNER-MNT\n" +
+                "descr:         Non auth Owner Maintainer updated\n" +
+                "admin-c:       TP1-TEST\n" +
+                "upd-to:        noreply@ripe.net\n" +
+                "auth:          MD5-PW $1$d9fKeTr2$Si7YudNf4rUGmR71n/cqk/ #test\n" +
+                "mnt-by:        NONAUTH-OWNER-MNT\n" +
+                "referral-by:   NONAUTH-OWNER-MNT\n" +
+                "created:         2011-07-28T00:35:42Z\n" +
+                "last-modified:   2019-02-28T10:14:46Z\n" +
+                "source:        TEST-NONAUTH")));
+
+        updateNotificationFileGenerator.generateFile();
+
+        final PublishableNotificationFile firstIteration = getNotificationFileBySource("TEST-NONAUTH");
+        assertThat(firstIteration.getDeltas().size(), is(1));
+        assertThat(firstIteration.getDeltas().get(0).getVersion(), is(3));
+
     }
 
     private void generateDeltas(final List<RpslObject> updatedObject){

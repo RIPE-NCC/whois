@@ -69,18 +69,18 @@ public class NrtmFileRepository {
         LOGGER.info("Created {} snapshot version {}", version.source().getName(), version.version());
     }
 
-    public DeltaFile getDeltaFile(final NrtmVersionInfo newVersion, final List<DeltaChange> deltas) throws JsonProcessingException {
+    private DeltaFile getDeltaFile(final NrtmVersionInfo newVersion, final List<DeltaChange> deltas) throws JsonProcessingException {
         final PublishableDeltaFile publishableDeltaFile = new PublishableDeltaFile(newVersion, deltas);
         final String json = new ObjectMapper().writeValueAsString(publishableDeltaFile);
         final String hash = NrtmFileUtil.calculateSha256(json.getBytes(StandardCharsets.UTF_8));
         return DeltaFile.of(newVersion.id(), NrtmFileUtil.newFileName(newVersion), hash, json);
     }
 
-    public NrtmVersionInfo saveNewDeltaVersion(final NrtmVersionInfo version, final int lastSerialID) {
+    private NrtmVersionInfo saveNewDeltaVersion(final NrtmVersionInfo version, final int lastSerialID) {
         return saveVersionInfo(version.source(), version.version() + 1, version.sessionID(), NrtmDocumentType.DELTA, lastSerialID);
     }
 
-    public NrtmVersionInfo saveNewSnapshotVersion(final NrtmVersionInfo version) {
+    private NrtmVersionInfo saveNewSnapshotVersion(final NrtmVersionInfo version) {
         return saveVersionInfo(version.source(), version.version(), version.sessionID(), NrtmDocumentType.SNAPSHOT, version.lastSerialId());
     }
 
@@ -110,7 +110,7 @@ public class NrtmFileRepository {
         return new NrtmVersionInfo(keyHolder.getKeyAs(Long.class), source, version, sessionID, type, lastSerialId, now);
     }
 
-    public void saveDeltaFile(
+    private void saveDeltaFile(
             final long versionId,
             final String name,
             final String hash,
@@ -123,7 +123,7 @@ public class NrtmFileRepository {
         jdbcTemplate.update(sql, versionId, name, hash, payload);
     }
 
-    public void saveSnapshot(final SnapshotFile snapshotFile, final byte[] payload) {
+    private void saveSnapshot(final SnapshotFile snapshotFile, final byte[] payload) {
         final String sql = """
             INSERT INTO snapshot_file (version_id, name, hash, payload)
             VALUES (?, ?, ?, ?)
@@ -135,34 +135,34 @@ public class NrtmFileRepository {
                 payload);
     }
 
+    @Transactional(propagation = Propagation.REQUIRES_NEW)
     public void deleteSnapshotFiles(final List<Long> versionIds) {
         final MapSqlParameterSource parameters = new MapSqlParameterSource()
                 .addValue("versionIds", versionIds);
 
         int rows = namedParameterJdbcTemplate.update("DELETE FROM snapshot_file WHERE version_id IN (:versionIds)", parameters);
         if (rows != 1) {
-            throw new IllegalArgumentException("Unable to delete snapshot file with version ids: " + versionIds);
+            throw new IllegalArgumentException("Unable to delete snapshot file with version id's: " + versionIds);
         }
-
         deleteVersionInfos(versionIds, parameters);
     }
 
+    @Transactional(propagation = Propagation.REQUIRES_NEW)
     public void deleteDeltaFiles(final List<Long> versionIds) {
         final MapSqlParameterSource parameters = new MapSqlParameterSource()
                 .addValue("versionIds", versionIds);
 
         int rows = namedParameterJdbcTemplate.update("DELETE FROM delta_file WHERE version_id IN (:versionIds)", parameters);
         if (rows != 1) {
-            throw new IllegalArgumentException("Unable to delete delta file with version ids: " + versionIds);
+            throw new IllegalArgumentException("Unable to delete delta file with version id's: " + versionIds);
         }
-
         deleteVersionInfos(versionIds, parameters);
     }
 
-    private void deleteVersionInfos(List<Long> versionIds, MapSqlParameterSource parameters) {
+    private void deleteVersionInfos(final List<Long> versionIds, final MapSqlParameterSource parameters) {
         int rows = namedParameterJdbcTemplate.update("DELETE FROM version_info WHERE id IN (:versionIds)", parameters);
         if (rows != 1) {
-            throw new IllegalArgumentException("Unable to delete version info with version ids: " + versionIds);
+            throw new IllegalArgumentException("Unable to delete version info with version id's: " + versionIds);
         }
     }
 }
