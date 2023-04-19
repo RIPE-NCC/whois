@@ -30,7 +30,6 @@ import java.io.Reader;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
-import java.util.zip.GZIPInputStream;
 
 import static java.util.stream.Collectors.groupingBy;
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -367,13 +366,40 @@ public class SnapshotFileGenerationTestIntegration extends AbstractNrtmIntegrati
         setTime(LocalDateTime.now().minusDays(2));
         snapshotFileGenerator.createSnapshot();
 
+        generateDeltas(Lists.newArrayList(RpslObject.parse("" +
+                "inet6num:       ::/0\n" +
+                "netname:        IANA-BLK\n" +
+                "descr:          The whole IPv6 address space:Updated for tesint\n" +
+                "country:        AR\n" +
+                "tech-c:         TP1-TEST\n" +
+                "admin-c:        TP1-TEST\n" +
+                "status:         OTHER\n" +
+                "mnt-by:         OWNER-MNT\n" +
+                "created:         2022-08-14T11:48:28Z\n" +
+                "last-modified:   2022-10-25T12:22:39Z\n" +
+                "source:         TEST"), RpslObject.parse("" +
+                "mntner:        NONAUTH-OWNER-MNT\n" +
+                "descr:         Non auth Owner Maintainer updated\n" +
+                "admin-c:       TP1-TEST\n" +
+                "upd-to:        noreply@ripe.net\n" +
+                "auth:          MD5-PW $1$d9fKeTr2$Si7YudNf4rUGmR71n/cqk/ #test\n" +
+                "mnt-by:        NONAUTH-OWNER-MNT\n" +
+                "referral-by:   NONAUTH-OWNER-MNT\n" +
+                "created:         2011-07-28T00:35:42Z\n" +
+                "last-modified:   2019-02-28T10:14:46Z\n" +
+                "source:        TEST-NONAUTH")));
+
+        snapshotFileGenerator.createSnapshot();
+
         final Map<CIString, List<NrtmVersionInfo>> versionsBySource1 = nrtmVersionInfoRepository.getAllVersionsByType(NrtmDocumentType.SNAPSHOT).stream()
                 .collect(groupingBy( versionInfo -> versionInfo.source().getName()));
 
-        assertThat(versionsBySource1.get(CIString.ciString("TEST")).size(), is(1));
-        assertThat(versionsBySource1.get(CIString.ciString("TEST-NONAUTH")).size(), is(1));
-        assertThat(versionsBySource1.get(CIString.ciString("TEST-NONAUTH")).get(0).version(), is(1L));
-        assertThat(versionsBySource1.get(CIString.ciString("TEST")).get(0).version(), is(1L));
+        assertThat(versionsBySource1.get(CIString.ciString("TEST")).size(), is(2));
+        assertThat(versionsBySource1.get(CIString.ciString("TEST-NONAUTH")).size(), is(2));
+        assertThat(versionsBySource1.get(CIString.ciString("TEST-NONAUTH")).get(0).version(), is(2L));
+        assertThat(versionsBySource1.get(CIString.ciString("TEST-NONAUTH")).get(1).version(), is(1L));
+        assertThat(versionsBySource1.get(CIString.ciString("TEST")).get(0).version(), is(2L));
+        assertThat(versionsBySource1.get(CIString.ciString("TEST")).get(1).version(), is(1L));
 
         setTime(LocalDateTime.now());
 
@@ -405,13 +431,14 @@ public class SnapshotFileGenerationTestIntegration extends AbstractNrtmIntegrati
         final Map<CIString, List<NrtmVersionInfo>> versionsBySource = nrtmVersionInfoRepository.getAllVersionsByType(NrtmDocumentType.SNAPSHOT).stream()
                 .collect(groupingBy( versionInfo -> versionInfo.source().getName()));
 
-        assertThat(versionsBySource.get(CIString.ciString("TEST")).size(), is(1));
-        assertThat(versionsBySource.get(CIString.ciString("TEST-NONAUTH")).size(), is(1));
-        assertThat(versionsBySource.get(CIString.ciString("TEST-NONAUTH")).get(0).version(), is(2L));
-        assertThat(versionsBySource.get(CIString.ciString("TEST")).get(0).version(), is(2L));
+        assertThat(versionsBySource.get(CIString.ciString("TEST")).size(), is(2));
+        assertThat(versionsBySource.get(CIString.ciString("TEST-NONAUTH")).size(), is(2));
+        assertThat(versionsBySource.get(CIString.ciString("TEST-NONAUTH")).get(0).version(), is(3L));
+        assertThat(versionsBySource.get(CIString.ciString("TEST-NONAUTH")).get(1).version(), is(2L));
+        assertThat(versionsBySource.get(CIString.ciString("TEST")).get(0).version(), is(3L));
+        assertThat(versionsBySource.get(CIString.ciString("TEST")).get(1).version(), is(2L));
         assertThat(versionsBySource.get(CIString.ciString("TEST-NONAUTH")).get(0).created(), is(not(versionsBySource1.get(CIString.ciString("TEST-NONAUTH")).get(0).created())));
         assertThat(versionsBySource.get(CIString.ciString("TEST")).get(0).created(), is(not(versionsBySource1.get(CIString.ciString("TEST")).get(0).created())));
-
     }
 
     @Test
@@ -423,7 +450,6 @@ public class SnapshotFileGenerationTestIntegration extends AbstractNrtmIntegrati
                 .collect(groupingBy( versionInfo -> versionInfo.source().getName()));
 
         setTime(LocalDateTime.now());
-
         snapshotFileGenerator.createSnapshot();
 
         final Map<CIString, List<NrtmVersionInfo>> versionsBySource = nrtmVersionInfoRepository.getAllVersionsByType(NrtmDocumentType.SNAPSHOT).stream()
