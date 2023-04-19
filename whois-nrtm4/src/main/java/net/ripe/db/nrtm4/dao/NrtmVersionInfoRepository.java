@@ -103,7 +103,7 @@ public class NrtmVersionInfoRepository {
             SELECT v.id, src.id, src.name, v.version, v.session_id, v.type, v.last_serial_id, v.created
             FROM version_info v
             JOIN source src ON src.id = v.source_id
-            WHERE v.type = ?
+            WHERE v.type = ? ORDER BY v.last_serial_id DESC
             """;
         return jdbcTemplate.query(sql, rowMapper, type.name());
     }

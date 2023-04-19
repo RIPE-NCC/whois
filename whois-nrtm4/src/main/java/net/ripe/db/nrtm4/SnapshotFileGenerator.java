@@ -56,7 +56,6 @@ public class SnapshotFileGenerator {
         final NrtmVersionInfoRepository nrtmVersionInfoRepository,
         final RpslObjectEnqueuer rpslObjectEnqueuer,
         final WhoisObjectRepository whoisObjectRepository,
-        final SnapshotFileRepository snapshotFileRepository,
         final NrtmFileRepository nrtmFileRepository,
         final DateTimeProvider dateTimeProvider,
         final SnapshotFileSerializer snapshotFileSerializer,
@@ -120,7 +119,6 @@ public class SnapshotFileGenerator {
                 return false;
             }
         }
-
         return true;
     }
 
@@ -184,14 +182,12 @@ public class SnapshotFileGenerator {
     private void cleanUpOldFiles() {
         LOGGER.info("Deleting old snapshot files");
 
-        final long beforeTimestamp = dateTimeProvider.getCurrentDateTime().minusDays(2).toEpochSecond(ZoneOffset.UTC);
-
         final Map<CIString, List<NrtmVersionInfo>> versionsBySource = nrtmVersionInfoRepository.getAllVersionsByType(NrtmDocumentType.SNAPSHOT).stream()
                 .collect(groupingBy( versionInfo -> versionInfo.source().getName()));
 
         versionsBySource.forEach( (nrtmSource, versions) -> {
-            if(versions.size() > 1) {
-                nrtmFileRepository.deleteSnapshotFiles(versions.stream().filter( version -> version.created() <= beforeTimestamp).map(NrtmVersionInfo::id).toList());
+            if(versions.size() > 2) {
+                nrtmFileRepository.deleteSnapshotFiles(versions.subList(2, versions.size()).stream().map(NrtmVersionInfo::id).toList());
             }
         });
     }
