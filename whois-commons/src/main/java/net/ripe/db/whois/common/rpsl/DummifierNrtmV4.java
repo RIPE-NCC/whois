@@ -206,7 +206,6 @@ public class DummifierNrtmV4 {
 
             case "radb-grs":
                 return Lists.newArrayList(
-                        new RpslAttribute("remarks", "        ****************************"),
                         new RpslAttribute("remarks", "        * THIS OBJECT IS MODIFIED"),
                         new RpslAttribute("remarks", "        * Please note that all data that is generally regarded as personal"),
                         new RpslAttribute("remarks", "        * data has been removed from this object."),
@@ -230,12 +229,7 @@ public class DummifierNrtmV4 {
                         "phone:          +31 20 535 4444\n" +
                         "nic-hdl:        DUMY-RIPE\n" +
                         "mnt-by:         RIPE-DBM-MNT\n" +
-                        "remarks:        **********************************************************\n" +
                         "remarks:        * This is a placeholder object to protect personal data.\n" +
-                        "remarks:        * To view the original object, please query the RIPE\n" +
-                        "remarks:        * Database at:\n" +
-                        "remarks:        * http://www.ripe.net/whois\n" +
-                        "remarks:        **********************************************************\n" +
                         "created:        2009-07-24T17:00:00Z\n" +
                         "last-modified:  2009-07-24T17:00:00Z\n" +
                         "source:         RIPE"
@@ -255,12 +249,7 @@ public class DummifierNrtmV4 {
                         "tech-c:         DUMY-RIPE\n" +
                         "nic-hdl:        ROLE-RIPE\n" +
                         "mnt-by:         RIPE-DBM-MNT\n" +
-                        "remarks:        **********************************************************\n" +
                         "remarks:        * This is a placeholder object to protect personal data.\n" +
-                        "remarks:        * To view the original object, please query the RIPE\n" +
-                        "remarks:        * Database at:\n" +
-                        "remarks:        * http://www.ripe.net/whois\n" +
-                        "remarks:        **********************************************************\n" +
                         "created:        2009-07-24T17:00:00Z\n" +
                         "last-modified:  2009-07-24T17:00:00Z\n" +
                         "source:         RIPE"
