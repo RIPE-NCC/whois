@@ -15,6 +15,7 @@ import net.ripe.db.nrtm4.util.NrtmFileUtil;
 import net.ripe.db.whois.common.DateTimeProvider;
 import net.ripe.db.whois.common.domain.CIString;
 import net.ripe.db.whois.common.rpsl.Dummifier;
+import net.ripe.db.whois.common.rpsl.DummifierNrtmV4;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -45,7 +46,7 @@ public class SnapshotFileGenerator {
 
     private final WhoisObjectRepository whoisObjectRepository;
 
-    private final Dummifier dummifierNrtm;
+    private final DummifierNrtmV4 dummifierNrtmV4;
     private final NrtmVersionInfoRepository nrtmVersionInfoRepository;
     private final RpslObjectEnqueuer rpslObjectEnqueuer;
     private final SnapshotFileSerializer snapshotFileSerializer;
@@ -55,7 +56,7 @@ public class SnapshotFileGenerator {
 
 
     public SnapshotFileGenerator(
-        @Qualifier("dummifierNrtm") final Dummifier dummifierNrtm,
+        final DummifierNrtmV4 dummifierNrtmV4,
         final NrtmVersionInfoRepository nrtmVersionInfoRepository,
         final RpslObjectEnqueuer rpslObjectEnqueuer,
         final WhoisObjectRepository whoisObjectRepository,
@@ -65,7 +66,7 @@ public class SnapshotFileGenerator {
         final SnapshotFileSerializer snapshotFileSerializer,
         final SourceRepository sourceRepository
     ) {
-        this.dummifierNrtm = dummifierNrtm;
+        this.dummifierNrtmV4 = dummifierNrtmV4;
         this.nrtmVersionInfoRepository = nrtmVersionInfoRepository;
         this.rpslObjectEnqueuer = rpslObjectEnqueuer;
         this.snapshotFileSerializer = snapshotFileSerializer;
@@ -96,7 +97,7 @@ public class SnapshotFileGenerator {
             LOGGER.info("Creating snapshot for {} with version {}", source.getName(), newSnapshotVersion);
             final LinkedBlockingQueue<RpslObjectData> queue = new LinkedBlockingQueue<>(QUEUE_CAPACITY);
             queueMap.put(source.getName(), queue);
-            final RunnableFileGenerator runner = new RunnableFileGenerator(dummifierNrtm, nrtmFileRepository, snapshotFileSerializer, newSnapshotVersion, queue);
+            final RunnableFileGenerator runner = new RunnableFileGenerator(dummifierNrtmV4, nrtmFileRepository, snapshotFileSerializer, newSnapshotVersion, queue);
             final Thread queueReader = new Thread(runner);
             queueReader.setName(source.getName().toString());
             queueReaders.add(queueReader);
@@ -150,7 +151,7 @@ public class SnapshotFileGenerator {
     }
 
     private record RunnableFileGenerator(
-        Dummifier dummifierNrtm,
+        DummifierNrtmV4 dummifierNrtmV4,
         NrtmFileRepository nrtmFileRepository,
         SnapshotFileSerializer snapshotFileSerializer,
         NrtmVersionInfo version,
@@ -161,7 +162,7 @@ public class SnapshotFileGenerator {
         public void run() {
             final ByteArrayOutputStream bos = new ByteArrayOutputStream();
             try (final GZIPOutputStream gzOut = new GZIPOutputStream(bos)) {
-                final RpslObjectIterator rpslObjectIterator = new RpslObjectIterator(dummifierNrtm, queue);
+                final RpslObjectIterator rpslObjectIterator = new RpslObjectIterator(dummifierNrtmV4, queue);
                 snapshotFileSerializer.writeObjectsAsJsonToOutputStream(version, rpslObjectIterator, gzOut);
             } catch (final Exception e) {
                 LOGGER.error("Exception writing snapshot {}", version.source().getName(), e);

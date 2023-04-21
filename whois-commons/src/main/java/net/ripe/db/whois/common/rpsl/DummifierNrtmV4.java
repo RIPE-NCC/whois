@@ -14,9 +14,9 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 
-@Component("dummifierNrtm")
-public class DummifierNrtm implements Dummifier {
-    private static final Logger LOGGER = LoggerFactory.getLogger(DummifierNrtm.class);
+@Component
+public class DummifierNrtmV4 {
+    private static final Logger LOGGER = LoggerFactory.getLogger(DummifierNrtmV4.class);
 
     static final Set<ObjectType> SKIPPED_OBJECT_TYPES = Sets.immutableEnumSet(ObjectType.PERSON, ObjectType.ROLE);
     static final Set<ObjectType> STRIPPED_OBJECT_TYPES = Sets.immutableEnumSet(ObjectType.MNTNER, ObjectType.ORGANISATION);
@@ -57,6 +57,7 @@ public class DummifierNrtm implements Dummifier {
 
         final List<RpslAttribute> attributes = Lists.newArrayList(rpslObject.getAttributes());
 
+        stripRemarksAttributes(attributes);
         stripSomeNonMandatoryAttributes(attributes, objectType);
         dummifyRemainingAttributes(attributes, rpslObject.getKey());
         insertPlaceholder(attributes);
