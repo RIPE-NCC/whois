@@ -57,6 +57,7 @@ public class DummifierNrtm implements Dummifier {
 
         final List<RpslAttribute> attributes = Lists.newArrayList(rpslObject.getAttributes());
 
+        stripRemarksAttributes(attributes);
         stripSomeNonMandatoryAttributes(attributes, objectType);
         dummifyRemainingAttributes(attributes, rpslObject.getKey());
         insertPlaceholder(attributes);
@@ -99,6 +100,10 @@ public class DummifierNrtm implements Dummifier {
         }
 
         attributes.removeIf(Objects::isNull);
+    }
+
+    private void stripRemarksAttributes(List<RpslAttribute> attributes) {
+        attributes.removeIf(attribute -> AttributeType.REMARKS.equals(attribute.getType()) || AttributeType.DESCR.equals(attribute.getType()));
     }
 
     private void insertPlaceholder(List<RpslAttribute> attributes) {

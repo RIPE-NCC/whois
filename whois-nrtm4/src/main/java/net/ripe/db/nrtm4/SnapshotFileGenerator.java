@@ -17,9 +17,13 @@ import net.ripe.db.whois.common.domain.CIString;
 import net.ripe.db.whois.common.rpsl.Dummifier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
 import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
 import java.time.ZoneOffset;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -51,7 +55,7 @@ public class SnapshotFileGenerator {
 
 
     public SnapshotFileGenerator(
-        final Dummifier dummifierNrtm,
+        @Qualifier("dummifierNrtm") final Dummifier dummifierNrtm,
         final NrtmVersionInfoRepository nrtmVersionInfoRepository,
         final RpslObjectEnqueuer rpslObjectEnqueuer,
         final WhoisObjectRepository whoisObjectRepository,
@@ -171,11 +175,31 @@ public class SnapshotFileGenerator {
                 final byte[] bytes = bos.toByteArray();
                 LOGGER.info("Calculated hash for {} in {}", version.source().getName(), stopwatch);
                 stopwatch = Stopwatch.createStarted();
-                nrtmFileRepository.saveSnapshotVersion(version, fileName, calculateSha256(bytes), bytes);
-                LOGGER.info("Wrote {} to DB {}", version.source().getName(), stopwatch);
+                //nrtmFileRepository.saveSnapshotVersion(version, fileName, calculateSha256(bytes), bytes);
+                LOGGER.info("Wrote {} to DB with size {} {}", version.source().getName(), bytes.length, stopwatch);
+                writeToFile(bytes, fileName);
             } catch (final Throwable t) {
                 LOGGER.error("Unexpected throwable caught when inserting snapshot file", t);
             }
         }
+    }
+
+
+    public static void writeToFile(byte[] payload, String fileName) throws IOException {
+        File file = new File(fileName);
+        FileOutputStream fileOutputStream = null;
+
+        try {
+            fileOutputStream = new FileOutputStream(file);
+            fileOutputStream.write(payload);
+        } catch (Exception var8) {
+            throw var8;
+        } finally {
+            if (fileOutputStream != null) {
+                fileOutputStream.close();
+            }
+
+        }
+
     }
 }
