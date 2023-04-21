@@ -871,7 +871,8 @@ public interface AttributeSyntax extends Documented {
     }
 
     class PersonRoleSyntax implements AttributeSyntax {
-        private static final Pattern PATTERN = Pattern.compile("(?i)^[A-Z][A-Z0-9\\\\.`'_-]{0,63}(?: [A-Z0-9\\\\.`'_-]{1,64}){0,9}$");
+        private static final Pattern PATTERN = Pattern.compile("(?i)^\\p{L}[\\p{L}|\\p{N}|\\p{P}|\\p{S}]{0,63}(?: " +
+                "[\\p{L}|\\p{N}|\\p{P}|\\p{S}]{1,64}){0,9}$");
         private static final Splitter SPLITTER = Splitter.on(' ').trimResults().omitEmptyStrings();
 
         @Override

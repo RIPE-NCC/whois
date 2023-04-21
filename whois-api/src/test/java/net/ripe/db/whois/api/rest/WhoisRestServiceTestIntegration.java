@@ -1947,6 +1947,36 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
     }
 
     @Test
+    public void create_strange_characters_objects(){
+        final RpslObject RPSL_MNT_PERSON = RpslObject.parse("" +
+                "person:    Miguelß & ../!^_ Sohn Fensterbau ....,.... GmbH \n" +
+                "address:   Singel 258\n" +
+                "phone:     +31-1234567890\n" +
+                "e-mail:    noreply@ripe.net\n" +
+                "mnt-by:    OWNER-MNT\n" +
+                "nic-hdl:   PP2-TEST\n" +
+                "remarks:   remark\n" +
+                "source:    TEST\n");
+        final WhoisResources whoisResources = RestTest.target(getPort(), "whois/test/person?password=test")
+                .request()
+                .post(Entity.entity(map(RPSL_MNT_PERSON), MediaType.APPLICATION_XML), WhoisResources.class);
+
+        assertThat(whoisResources.getErrorMessages(), is(empty()));
+        final WhoisObject object = whoisResources.getWhoisObjects().get(0);
+
+        assertThat(object.getAttributes(), containsInAnyOrder(
+                new Attribute("person", "Miguelß & ../!^_ Sohn Fensterbau ....,.... GmbH"),
+                new Attribute("address", "Singel 258"),
+                new Attribute("phone", "+31-1234567890"),
+                new Attribute("e-mail", "noreply@ripe.net"),
+                new Attribute("mnt-by", "OWNER-MNT", null, "mntner", Link.create("http://rest-test.db.ripe.net/test/mntner/OWNER-MNT"), null),
+                new Attribute("nic-hdl", "PP2-TEST"),
+                new Attribute("remarks", "remark"),
+                new Attribute("created", "2001-02-04T17:00:00Z"),
+                new Attribute("last-modified", "2001-02-04T17:00:00Z"),
+                new Attribute("source", "TEST")));
+    }
+    @Test
     public void create_nonauth_asSet_test_aut_num_succed() {
 
             final RpslObject TEST_AS_SET = RpslObject.parse("""
