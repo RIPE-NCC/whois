@@ -3,8 +3,6 @@ package net.ripe.db.nrtm4.dao;
 import net.ripe.db.nrtm4.domain.NrtmDocumentType;
 import net.ripe.db.nrtm4.domain.NrtmSource;
 import net.ripe.db.nrtm4.domain.NrtmVersionInfo;
-import net.ripe.db.whois.common.DateTimeProvider;
-import net.ripe.db.whois.common.dao.jdbc.JdbcRpslObjectOperations;
 import net.ripe.db.whois.common.domain.CIString;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -12,18 +10,13 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
-import org.springframework.jdbc.support.GeneratedKeyHolder;
-import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.stereotype.Repository;
 
 import javax.sql.DataSource;
-import java.sql.PreparedStatement;
-import java.sql.Statement;
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
 import java.util.List;
 import java.util.Optional;
-import java.util.UUID;
 import java.util.function.Function;
 
 
