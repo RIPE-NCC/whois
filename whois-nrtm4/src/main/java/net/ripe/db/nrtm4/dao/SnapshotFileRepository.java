@@ -1,6 +1,5 @@
 package net.ripe.db.nrtm4.dao;
 
-import net.ripe.db.nrtm4.domain.DeltaFileVersionInfo;
 import net.ripe.db.nrtm4.domain.NrtmSource;
 import net.ripe.db.nrtm4.domain.SnapshotFile;
 import net.ripe.db.nrtm4.domain.SnapshotFileVersionInfo;
