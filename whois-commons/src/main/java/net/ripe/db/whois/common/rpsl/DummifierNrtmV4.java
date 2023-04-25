@@ -56,6 +56,7 @@ public class DummifierNrtmV4 {
         DUMMIFICATION_REPLACEMENTS.put(AttributeType.REF_NFY, "unread@ripe.net");
         DUMMIFICATION_REPLACEMENTS.put(AttributeType.IRT_NFY, "unread@ripe.net");
         DUMMIFICATION_REPLACEMENTS.put(AttributeType.MNT_NFY, "unread@ripe.net");
+        DUMMIFICATION_REPLACEMENTS.put(AttributeType.OWNER, "dummify");
 
 
     }
