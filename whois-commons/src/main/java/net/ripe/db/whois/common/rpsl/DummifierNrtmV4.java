@@ -37,11 +37,12 @@ public class DummifierNrtmV4 {
 
     static final Map<AttributeType, String> DUMMIFICATION_REPLACEMENTS = Maps.newEnumMap(AttributeType.class);
     static {
-        DUMMIFICATION_REPLACEMENTS.put(AttributeType.ADDRESS, "Dummy address for %s");
+        DUMMIFICATION_REPLACEMENTS.put(AttributeType.ADDRESS, "Dummy address");
         DUMMIFICATION_REPLACEMENTS.put(AttributeType.AUTH, "MD5-PW $1$SaltSalt$DummifiedMD5HashValue.   # Real value hidden for security");
         DUMMIFICATION_REPLACEMENTS.put(AttributeType.CHANGED, "unread@ripe.net 20000101");
         DUMMIFICATION_REPLACEMENTS.put(AttributeType.E_MAIL, "unread@ripe.net");
         DUMMIFICATION_REPLACEMENTS.put(AttributeType.FAX_NO, "+31205354444");
+        DUMMIFICATION_REPLACEMENTS.put(AttributeType.NOTIFY, "unread@ripe.net");
         DUMMIFICATION_REPLACEMENTS.put(AttributeType.PHONE, "+31205354444");
         DUMMIFICATION_REPLACEMENTS.put(AttributeType.UPD_TO, "unread@ripe.net");
     }
