@@ -14,6 +14,13 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 
+import static net.ripe.db.whois.common.rpsl.AttributeType.E_MAIL;
+import static net.ripe.db.whois.common.rpsl.AttributeType.IRT_NFY;
+import static net.ripe.db.whois.common.rpsl.AttributeType.MNT_NFY;
+import static net.ripe.db.whois.common.rpsl.AttributeType.NOTIFY;
+import static net.ripe.db.whois.common.rpsl.AttributeType.REF_NFY;
+import static net.ripe.db.whois.common.rpsl.AttributeType.UPD_TO;
+
 @Component
 public class DummifierNrtmV4 {
     private static final Logger LOGGER = LoggerFactory.getLogger(DummifierNrtmV4.class);
@@ -45,6 +52,12 @@ public class DummifierNrtmV4 {
         DUMMIFICATION_REPLACEMENTS.put(AttributeType.NOTIFY, "unread@ripe.net");
         DUMMIFICATION_REPLACEMENTS.put(AttributeType.PHONE, "+31205354444");
         DUMMIFICATION_REPLACEMENTS.put(AttributeType.UPD_TO, "unread@ripe.net");
+
+        DUMMIFICATION_REPLACEMENTS.put(AttributeType.REF_NFY, "unread@ripe.net");
+        DUMMIFICATION_REPLACEMENTS.put(AttributeType.IRT_NFY, "unread@ripe.net");
+        DUMMIFICATION_REPLACEMENTS.put(AttributeType.MNT_NFY, "unread@ripe.net");
+
+
     }
 
     public RpslObject dummify(final int version, final RpslObject rpslObject) {
