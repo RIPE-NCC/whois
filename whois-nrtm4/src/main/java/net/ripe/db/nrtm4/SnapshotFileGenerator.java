@@ -176,9 +176,9 @@ public class SnapshotFileGenerator {
                 final byte[] bytes = bos.toByteArray();
                 LOGGER.info("Calculated hash for {} in {}", version.source().getName(), stopwatch);
                 stopwatch = Stopwatch.createStarted();
-                nrtmFileRepository.saveSnapshotVersion(version, fileName, calculateSha256(bytes), bytes);
+                //nrtmFileRepository.saveSnapshotVersion(version, fileName, calculateSha256(bytes), bytes);
                 LOGGER.info("Wrote {} to DB with size {} {}", version.source().getName(), bytes.length, stopwatch);
-                //writeToFile(bytes, fileName);
+                writeToFile(bytes, fileName);
             } catch (final Throwable t) {
                 LOGGER.error("Unexpected throwable caught when inserting snapshot file", t);
             }
