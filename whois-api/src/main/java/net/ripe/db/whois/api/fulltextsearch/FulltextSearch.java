@@ -72,13 +72,13 @@ public abstract class FulltextSearch {
     }
     protected String customize(final String value, final String attributeAndValue){
         final int attributeDelimiterPosition = attributeAndValue.indexOf(":");
-        final StringBuilder sb = new StringBuilder(attributeAndValue);
-        sb.insert(attributeDelimiterPosition, ".custom");
+        final StringBuilder customQuery = new StringBuilder(attributeAndValue);
+        customQuery.insert(attributeDelimiterPosition, ".custom");
 
-        final StringBuilder sb1 = new StringBuilder(value);
-        sb1.insert(0, "(");
-        sb1.insert(value.indexOf("AND+(object-type"), "OR (" + sb + "))");
-        return sb1.toString();
+        return new StringBuilder(value)
+                .insert(0, "(")
+                .insert(value.lastIndexOf("AND"), " OR (" + customQuery + "))")
+                .toString();
     }
     protected String escape(final String value) {
         return value.replaceAll("[/]", "\\\\/");

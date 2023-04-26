@@ -1480,9 +1480,6 @@ public class ElasticFullTextSearchTestIntegration  extends AbstractElasticSearch
                         "source:       RIPE\n"));
         rebuildIndex();
 
-        /*final QueryResponse queryResponse = query("facet=true&format=xml&hl=true&q=((e-mail:(second.domain.nl))+OR+" +
-                "(e-mail.custom:(second.domain.nl)))+AND+" +
-                "(object-type:organisation)&start=0&wt=json");*/
         final QueryResponse queryResponse = query("facet=true&format=xml&hl=true&q=(e-mail:(second.domain.nl))+AND+" +
                 "(object-type:organisation)&start=0&wt=json");
         assertThat(queryResponse.getResults().getNumFound(), is(1L));
@@ -1514,6 +1511,386 @@ public class ElasticFullTextSearchTestIntegration  extends AbstractElasticSearch
         assertThat(queryResponse.getHighlighting().get("2").containsKey("object-type"), is(true));
         assertThat(queryResponse.getHighlighting().get("2").containsKey("e-mail"), is(false));
         assertThat(queryResponse.getHighlighting().get("2").containsKey("descr"), is(false));
+    }
+
+    @Test
+    public void search_organisation_with_OR_attribute_filters() {
+        databaseHelper.addObject(RpslObject.parse(
+                "mntner: OWNER-MNT\n" +
+                        "source: RIPE"));
+        databaseHelper.addObject(RpslObject.parse(
+                "organisation: ORG-TOS1-TEST\n" +
+                        "org-name:     testemail domain nl\n" +
+                        "org-type:     OTHER\n" +
+                        "descr:        testemail domain secondDomain nl\n" +
+                        "address:      street 1\n" +
+                        "e-mail:       testemail@domain.secondDomain.nl\n" +
+                        "mnt-ref:      OWNER-MNT\n" +
+                        "mnt-by:       OWNER-MNT\n" +
+                        "source:       RIPE\n"));
+
+        databaseHelper.addObject(RpslObject.parse(
+                "organisation: ORG-TOS2-TEST\n" +
+                        "org-name:     testemail thirdDomain secondDomain nl\n" +
+                        "org-type:     OTHER\n" +
+                        "descr:        testemail domain secondDomain nl\n" +
+                        "address:      street 1\n" +
+                        "e-mail:       testemail@domain.secondDomain.nl\n" +
+                        "mnt-ref:      OWNER-MNT\n" +
+                        "mnt-by:       OWNER-MNT\n" +
+                        "source:       RIPE\n"));
+        rebuildIndex();
+        final QueryResponse queryResponse = query("facet=true&format=xml&hl=true&q=(org-name:(secondDomain+OR+nl))" +
+                "+AND+" +
+                "(object-type:organisation)&start=0&wt=json");
+        assertThat(queryResponse.getResults().getNumFound(), is(2L));
+        assertThat(queryResponse.getHighlighting().get("2").containsKey("org-name"), is(true));
+        assertThat(queryResponse.getHighlighting().get("2").containsKey("object-type"), is(true));
+        assertThat(queryResponse.getHighlighting().get("2").containsKey("e-mail"), is(false));
+        assertThat(queryResponse.getHighlighting().get("2").containsKey("descr"), is(false));
+
+        assertThat(queryResponse.getHighlighting().get("3").containsKey("org-name"), is(true));
+        assertThat(queryResponse.getHighlighting().get("3").containsKey("object-type"), is(true));
+        assertThat(queryResponse.getHighlighting().get("3").containsKey("e-mail"), is(false));
+        assertThat(queryResponse.getHighlighting().get("3").containsKey("descr"), is(false));
+    }
+
+    @Test
+    public void search_organisation_with_exact_match_filter() {
+        databaseHelper.addObject(RpslObject.parse(
+                "mntner: OWNER-MNT\n" +
+                        "source: RIPE"));
+        databaseHelper.addObject(RpslObject.parse(
+                "organisation: ORG-TOS1-TEST\n" +
+                        "org-name:     testemail domain nl\n" +
+                        "org-type:     OTHER\n" +
+                        "descr:        testemail domain secondDomain nl\n" +
+                        "address:      street 1\n" +
+                        "e-mail:       testemail@domain.secondDomain.nl\n" +
+                        "mnt-ref:      OWNER-MNT\n" +
+                        "mnt-by:       OWNER-MNT\n" +
+                        "source:       RIPE\n"));
+
+        databaseHelper.addObject(RpslObject.parse(
+                "organisation: ORG-TOS2-TEST\n" +
+                        "org-name:     testemail thirdDomain secondDomain nl\n" +
+                        "org-type:     OTHER\n" +
+                        "descr:        testemail domain secondDomain nl\n" +
+                        "address:      street 1\n" +
+                        "e-mail:       testemail@domain.secondDomain.nl\n" +
+                        "mnt-ref:      OWNER-MNT\n" +
+                        "mnt-by:       OWNER-MNT\n" +
+                        "source:       RIPE\n"));
+        rebuildIndex();
+        final QueryResponse queryResponse = query("facet=true&format=xml&hl=true&q=(org-name:(secondDomain%20nl))" +
+                "+AND+" +
+                "(object-type:organisation)&start=0&wt=json");
+        assertThat(queryResponse.getResults().getNumFound(), is(1L));
+        assertThat(queryResponse.getHighlighting().get("3").containsKey("org-name"), is(true));
+        assertThat(queryResponse.getHighlighting().get("3").containsKey("object-type"), is(true));
+        assertThat(queryResponse.getHighlighting().get("3").containsKey("e-mail"), is(false));
+        assertThat(queryResponse.getHighlighting().get("3").containsKey("descr"), is(false));
+    }
+
+    @Test
+    public void search_organisation_with_ALL_multiple_object_type() {
+        databaseHelper.addObject(RpslObject.parse(
+                "mntner: OWNER-MNT\n" +
+                        "source: RIPE"));
+        databaseHelper.addObject(RpslObject.parse(
+                "organisation: ORG-TOS1-TEST\n" +
+                        "org-name:     testemail domain nl\n" +
+                        "org-type:     OTHER\n" +
+                        "descr:        testemail domain nl\n" +
+                        "address:      street 1\n" +
+                        "e-mail:       testemail@domain.secondDomain.nl\n" +
+                        "mnt-ref:      OWNER-MNT\n" +
+                        "mnt-by:       OWNER-MNT\n" +
+                        "source:       RIPE\n"));
+
+        databaseHelper.addObject(RpslObject.parse(
+                "organisation: ORG-TOS2-TEST\n" +
+                        "org-name:     testemail thirdDomain secondDomain nl\n" +
+                        "org-type:     OTHER\n" +
+                        "descr:        testemail domain secondDomain nl\n" +
+                        "remarks:      testemail domain secondDomain nl\n" +
+                        "address:      street 1\n" +
+                        "e-mail:       testemail@domain.secondDomain.nl\n" +
+                        "mnt-ref:      OWNER-MNT\n" +
+                        "mnt-by:       OWNER-MNT\n" +
+                        "source:       RIPE\n"));
+
+        databaseHelper.addObject(RpslObject.parse(
+                "person: First Last\n" +
+                        "remarks: testemail domain secondDomain nl\n" +
+                        "nic-hdl: AA1-RIPE\n" +
+                        "source: RIPE"));
+
+        rebuildIndex();
+        final QueryResponse queryResponse = query("facet=true&format=xml&hl=true&q=(remarks:(secondDomain+AND+nl))" +
+                "+AND+" +
+                "(object-type:organisation+OR+object-type:person)&start=0&wt=json");
+        assertThat(queryResponse.getResults().getNumFound(), is(2L));
+        assertThat(queryResponse.getHighlighting().get("3").containsKey("org-name"), is(false));
+        assertThat(queryResponse.getHighlighting().get("3").containsKey("object-type"), is(true));
+        assertThat(queryResponse.getHighlighting().get("3").containsKey("e-mail"), is(false));
+        assertThat(queryResponse.getHighlighting().get("3").containsKey("descr"), is(false));
+        assertThat(queryResponse.getHighlighting().get("3").containsKey("remarks"), is(true));
+
+        assertThat(queryResponse.getHighlighting().get("4").containsKey("object-type"), is(true));
+        assertThat(queryResponse.getHighlighting().get("4").containsKey("remarks"), is(true));
+    }
+
+    @Test
+    public void search_organisation_with_ANY_multiple_object_type() {
+        databaseHelper.addObject(RpslObject.parse(
+                "mntner: OWNER-MNT\n" +
+                        "source: RIPE"));
+        databaseHelper.addObject(RpslObject.parse(
+                "organisation: ORG-TOS1-TEST\n" +
+                        "org-name:     testemail domain nl\n" +
+                        "org-type:     OTHER\n" +
+                        "descr:        testemail domain nl\n" +
+                        "address:      street 1\n" +
+                        "e-mail:       testemail@domain.secondDomain.nl\n" +
+                        "mnt-ref:      OWNER-MNT\n" +
+                        "mnt-by:       OWNER-MNT\n" +
+                        "source:       RIPE\n"));
+
+        databaseHelper.addObject(RpslObject.parse(
+                "organisation: ORG-TOS2-TEST\n" +
+                        "org-name:     testemail thirdDomain secondDomain nl\n" +
+                        "org-type:     OTHER\n" +
+                        "descr:        testemail domain secondDomain nl\n" +
+                        "remarks:      testemail domain secondDomain\n" +
+                        "address:      street 1\n" +
+                        "e-mail:       testemail@domain.secondDomain.nl\n" +
+                        "mnt-ref:      OWNER-MNT\n" +
+                        "mnt-by:       OWNER-MNT\n" +
+                        "source:       RIPE\n"));
+
+        databaseHelper.addObject(RpslObject.parse(
+                "person: First Last\n" +
+                        "remarks: testemail domain nl\n" +
+                        "nic-hdl: AA1-RIPE\n" +
+                        "source: RIPE"));
+
+        rebuildIndex();
+        final QueryResponse queryResponse = query("facet=true&format=xml&hl=true&q=(remarks:(secondDomain+OR+nl))" +
+                "+AND+" +
+                "(object-type:organisation+OR+object-type:person)&start=0&wt=json");
+        assertThat(queryResponse.getResults().getNumFound(), is(2L));
+        assertThat(queryResponse.getHighlighting().get("3").containsKey("org-name"), is(false));
+        assertThat(queryResponse.getHighlighting().get("3").containsKey("object-type"), is(true));
+        assertThat(queryResponse.getHighlighting().get("3").containsKey("e-mail"), is(false));
+        assertThat(queryResponse.getHighlighting().get("3").containsKey("descr"), is(false));
+        assertThat(queryResponse.getHighlighting().get("3").containsKey("remarks"), is(true));
+
+        assertThat(queryResponse.getHighlighting().get("4").containsKey("object-type"), is(true));
+        assertThat(queryResponse.getHighlighting().get("4").containsKey("remarks"), is(true));
+    }
+
+    @Test
+    public void search_organisation_with_exact_match_multiple_object_type() {
+        databaseHelper.addObject(RpslObject.parse(
+                "mntner: OWNER-MNT\n" +
+                        "source: RIPE"));
+        databaseHelper.addObject(RpslObject.parse(
+                "organisation: ORG-TOS1-TEST\n" +
+                        "org-name:     testemail domain nl\n" +
+                        "org-type:     OTHER\n" +
+                        "descr:        testemail domain nl\n" +
+                        "address:      street 1\n" +
+                        "e-mail:       testemail@domain.secondDomain.nl\n" +
+                        "mnt-ref:      OWNER-MNT\n" +
+                        "mnt-by:       OWNER-MNT\n" +
+                        "source:       RIPE\n"));
+
+        databaseHelper.addObject(RpslObject.parse(
+                "organisation: ORG-TOS2-TEST\n" +
+                        "org-name:     testemail thirdDomain secondDomain nl\n" +
+                        "org-type:     OTHER\n" +
+                        "descr:        testemail domain secondDomain nl\n" +
+                        "remarks:      testemail domain secondDomain nl\n" +
+                        "address:      street 1\n" +
+                        "e-mail:       testemail@domain.secondDomain.nl\n" +
+                        "mnt-ref:      OWNER-MNT\n" +
+                        "mnt-by:       OWNER-MNT\n" +
+                        "source:       RIPE\n"));
+
+        databaseHelper.addObject(RpslObject.parse(
+                "person: First Last\n" +
+                        "remarks: testemail secondDomain\n" +
+                        "nic-hdl: AA1-RIPE\n" +
+                        "source: RIPE"));
+
+        rebuildIndex();
+        final QueryResponse queryResponse = query("facet=true&format=xml&hl=true&q=(remarks:(secondDomain%20nl))" +
+                "+AND+" +
+                "(object-type:organisation+OR+object-type:person)&start=0&wt=json");
+        assertThat(queryResponse.getResults().getNumFound(), is(1L));
+        assertThat(queryResponse.getHighlighting().get("3").containsKey("org-name"), is(false));
+        assertThat(queryResponse.getHighlighting().get("3").containsKey("object-type"), is(true));
+        assertThat(queryResponse.getHighlighting().get("3").containsKey("e-mail"), is(false));
+        assertThat(queryResponse.getHighlighting().get("3").containsKey("descr"), is(false));
+        assertThat(queryResponse.getHighlighting().get("3").containsKey("remarks"), is(true));
+    }
+
+    @Test
+    public void search_organisation_with_ALL_multiple_object_type_multiple_attributes() {
+        databaseHelper.addObject(RpslObject.parse(
+                "mntner: OWNER-MNT\n" +
+                        "source: RIPE"));
+        databaseHelper.addObject(RpslObject.parse(
+                "organisation: ORG-TOS1-TEST\n" +
+                        "org-name:     testemail domain nl\n" +
+                        "org-type:     OTHER\n" +
+                        "descr:        testemail domain nl\n" +
+                        "address:      street 1\n" +
+                        "e-mail:       testemail@domain.secondDomain.nl\n" +
+                        "mnt-ref:      OWNER-MNT\n" +
+                        "mnt-by:       OWNER-MNT\n" +
+                        "source:       RIPE\n"));
+
+        databaseHelper.addObject(RpslObject.parse(
+                "organisation: ORG-TOS2-TEST\n" +
+                        "org-name:     testemail thirdDomain secondDomain nl\n" +
+                        "org-type:     OTHER\n" +
+                        "descr:        testemail domain secondDomain nl\n" +
+                        "address:      street 1\n" +
+                        "e-mail:       testemail@domain.secondDomain.nl\n" +
+                        "mnt-ref:      OWNER-MNT\n" +
+                        "mnt-by:       OWNER-MNT\n" +
+                        "source:       RIPE\n"));
+
+        databaseHelper.addObject(RpslObject.parse(
+                "person: First Last\n" +
+                        "remarks: testemail secondDomain nl\n" +
+                        "nic-hdl: AA1-RIPE\n" +
+                        "source: RIPE"));
+
+        rebuildIndex();
+        final QueryResponse queryResponse = query("facet=true&format=xml&hl=true&q=(remarks:(secondDomain+AND+nl)" +
+                "+OR+descr:(secondDomain+AND+nl))+AND+" +
+                "(object-type:organisation+OR+object-type:person)&start=0&wt=json");
+        assertThat(queryResponse.getResults().getNumFound(), is(2L));
+        assertThat(queryResponse.getHighlighting().get("3").containsKey("org-name"), is(false));
+        assertThat(queryResponse.getHighlighting().get("3").containsKey("object-type"), is(true));
+        assertThat(queryResponse.getHighlighting().get("3").containsKey("e-mail"), is(false));
+        assertThat(queryResponse.getHighlighting().get("3").containsKey("remarks"), is(false));
+        assertThat(queryResponse.getHighlighting().get("3").containsKey("descr"), is(true));
+
+        assertThat(queryResponse.getHighlighting().get("4").containsKey("object-type"), is(true));
+        assertThat(queryResponse.getHighlighting().get("4").containsKey("remarks"), is(true));
+        assertThat(queryResponse.getHighlighting().get("4").containsKey("descr"), is(false));
+    }
+
+
+    @Test
+    public void search_organisation_with_ANY_multiple_object_type_multiple_attributes() {
+        databaseHelper.addObject(RpslObject.parse(
+                "mntner: OWNER-MNT\n" +
+                        "source: RIPE"));
+        databaseHelper.addObject(RpslObject.parse(
+                "organisation: ORG-TOS1-TEST\n" +
+                        "org-name:     testemail domain nl\n" +
+                        "org-type:     OTHER\n" +
+                        "descr:        testemail domain nl\n" +
+                        "address:      street 1\n" +
+                        "e-mail:       testemail@domain.secondDomain.nl\n" +
+                        "mnt-ref:      OWNER-MNT\n" +
+                        "mnt-by:       OWNER-MNT\n" +
+                        "source:       RIPE\n"));
+
+        databaseHelper.addObject(RpslObject.parse(
+                "organisation: ORG-TOS2-TEST\n" +
+                        "org-name:     testemail thirdDomain secondDomain nl\n" +
+                        "org-type:     OTHER\n" +
+                        "descr:        testemail domain nl\n" +
+                        "address:      street 1\n" +
+                        "e-mail:       testemail@domain.secondDomain.nl\n" +
+                        "mnt-ref:      OWNER-MNT\n" +
+                        "mnt-by:       OWNER-MNT\n" +
+                        "source:       RIPE\n"));
+
+        databaseHelper.addObject(RpslObject.parse(
+                "person: First Last\n" +
+                        "remarks: testemail secondDomain\n" +
+                        "nic-hdl: AA1-RIPE\n" +
+                        "source: RIPE"));
+
+        rebuildIndex();
+        final QueryResponse queryResponse = query("facet=true&format=xml&hl=true&q=(remarks:(secondDomain+OR+nl)" +
+                "+OR+descr:(secondDomain+OR+nl))+AND+" +
+                "(object-type:organisation+OR+object-type:person)&start=0&wt=json");
+
+        assertThat(queryResponse.getResults().getNumFound(), is(3L));
+        assertThat(queryResponse.getHighlighting().get("2").containsKey("org-name"), is(false));
+        assertThat(queryResponse.getHighlighting().get("2").containsKey("object-type"), is(true));
+        assertThat(queryResponse.getHighlighting().get("2").containsKey("e-mail"), is(false));
+        assertThat(queryResponse.getHighlighting().get("2").containsKey("remarks"), is(false));
+        assertThat(queryResponse.getHighlighting().get("2").containsKey("descr"), is(true));
+
+        assertThat(queryResponse.getHighlighting().get("3").containsKey("org-name"), is(false));
+        assertThat(queryResponse.getHighlighting().get("3").containsKey("object-type"), is(true));
+        assertThat(queryResponse.getHighlighting().get("3").containsKey("e-mail"), is(false));
+        assertThat(queryResponse.getHighlighting().get("3").containsKey("remarks"), is(false));
+        assertThat(queryResponse.getHighlighting().get("3").containsKey("descr"), is(true));
+
+        assertThat(queryResponse.getHighlighting().get("4").containsKey("object-type"), is(true));
+        assertThat(queryResponse.getHighlighting().get("4").containsKey("remarks"), is(true));
+        assertThat(queryResponse.getHighlighting().get("4").containsKey("descr"), is(false));
+    }
+
+    @Test
+    public void search_organisation_with_exact_match_multiple_object_type_multiple_attributes() {
+        databaseHelper.addObject(RpslObject.parse(
+                "mntner: OWNER-MNT\n" +
+                        "source: RIPE"));
+        databaseHelper.addObject(RpslObject.parse(
+                "organisation: ORG-TOS1-TEST\n" +
+                        "org-name:     testemail domain nl\n" +
+                        "org-type:     OTHER\n" +
+                        "descr:        testemail domain nl\n" +
+                        "address:      street 1\n" +
+                        "e-mail:       testemail@domain.secondDomain.nl\n" +
+                        "mnt-ref:      OWNER-MNT\n" +
+                        "mnt-by:       OWNER-MNT\n" +
+                        "source:       RIPE\n"));
+
+        databaseHelper.addObject(RpslObject.parse(
+                "organisation: ORG-TOS2-TEST\n" +
+                        "org-name:     testemail thirdDomain secondDomain nl\n" +
+                        "org-type:     OTHER\n" +
+                        "descr:        testemail secondDomain nl\n" +
+                        "address:      street 1\n" +
+                        "e-mail:       testemail@domain.secondDomain.nl\n" +
+                        "mnt-ref:      OWNER-MNT\n" +
+                        "mnt-by:       OWNER-MNT\n" +
+                        "source:       RIPE\n"));
+
+        databaseHelper.addObject(RpslObject.parse(
+                "person: First Last\n" +
+                        "remarks: testemail secondDomain nl\n" +
+                        "nic-hdl: AA1-RIPE\n" +
+                        "source: RIPE"));
+
+        rebuildIndex();
+        final QueryResponse queryResponse = query("facet=true&format=xml&hl=true&q=(remarks:(secondDomain%20nl)" +
+                "+OR+descr:(secondDomain%20nl))+AND+" +
+                "(object-type:organisation+OR+object-type:person)&start=0&wt=json");
+
+        assertThat(queryResponse.getResults().getNumFound(), is(2L));
+
+        assertThat(queryResponse.getHighlighting().get("3").containsKey("org-name"), is(false));
+        assertThat(queryResponse.getHighlighting().get("3").containsKey("object-type"), is(true));
+        assertThat(queryResponse.getHighlighting().get("3").containsKey("e-mail"), is(false));
+        assertThat(queryResponse.getHighlighting().get("3").containsKey("remarks"), is(false));
+        assertThat(queryResponse.getHighlighting().get("3").containsKey("descr"), is(true));
+
+        assertThat(queryResponse.getHighlighting().get("4").containsKey("object-type"), is(true));
+        assertThat(queryResponse.getHighlighting().get("4").containsKey("remarks"), is(true));
+        assertThat(queryResponse.getHighlighting().get("4").containsKey("descr"), is(false));
     }
     // helper methods
 
