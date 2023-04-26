@@ -61,8 +61,20 @@ public class DummifierNrtmV4 {
 
     }
 
+    private final DummifierNrtm dummifierNrtm;
+    private final DummifierRC  dummifierRC;
+
+
+    public DummifierNrtmV4(DummifierNrtm dummifierNrtm, DummifierRC dummifierRC) {
+        this.dummifierNrtm = dummifierNrtm;
+        this.dummifierRC = dummifierRC;
+    }
+
     public RpslObject dummify(final int version, final RpslObject rpslObject) {
-        final ObjectType objectType = rpslObject.getType();
+
+        return dummifierNrtm.dummify(version, dummifierRC.dummify(version, rpslObject));
+
+       /* final ObjectType objectType = rpslObject.getType();
         Validate.isTrue(isAllowed(version, rpslObject), "The given object type should be skipped", objectType);
 
         // [EB]: Shortcircuit for objects we'd normally skip for old protocols.
@@ -79,7 +91,7 @@ public class DummifierNrtmV4 {
 
         attributes.addAll(getDummificationRemarks(rpslObject));
 
-        return new RpslObject(rpslObject, attributes);
+        return new RpslObject(rpslObject, attributes);*/
     }
 
     private void stripSomeNonMandatoryAttributes(List<RpslAttribute> attributes, ObjectType objectType) {
