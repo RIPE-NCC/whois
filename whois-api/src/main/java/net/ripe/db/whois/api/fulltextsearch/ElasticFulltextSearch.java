@@ -107,6 +107,7 @@ public class ElasticFulltextSearch extends FulltextSearch {
                 final org.elasticsearch.action.search.SearchResponse fulltextResponse = elasticIndexService.getClient().search(fulltextRequest, RequestOptions.DEFAULT);
                 final SearchHit[] hits = fulltextResponse.getHits().getHits();
 
+                LOGGER.info("ElasticSearch {} hits for the query: {}", hits.length, searchRequest.getQuery());
                 final List<RpslObject> results = Lists.newArrayList();
                 int resultSize = Math.min(maxResultSize,Long.valueOf(fulltextResponse.getHits().getTotalHits().value).intValue());
 
@@ -158,7 +159,7 @@ public class ElasticFulltextSearch extends FulltextSearch {
     }
 
     private QueryStringQueryBuilder getQueryBuilder(final String query) {
-        return QueryBuilders.queryStringQuery(escape(query)).type(MultiMatchQueryBuilder.Type.PHRASE_PREFIX);
+        return QueryBuilders.queryStringQuery(customizeIfFiltering(escape(query))).type(MultiMatchQueryBuilder.Type.PHRASE_PREFIX);
     }
 
     private SearchResponse.Lst createHighlights(final SearchHit hit) {

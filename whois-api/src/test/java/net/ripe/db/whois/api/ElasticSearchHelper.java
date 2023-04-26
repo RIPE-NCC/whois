@@ -139,6 +139,7 @@ public class ElasticSearchHelper {
                              .endObject()
                              .startObject("raw")
                                 .field("type", "keyword")
+                                .field("ignore_above", 10922)
                              .endObject()
                          .endObject()
                       .endObject()
