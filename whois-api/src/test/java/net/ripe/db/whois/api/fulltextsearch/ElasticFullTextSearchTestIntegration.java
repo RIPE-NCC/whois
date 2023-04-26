@@ -1486,6 +1486,9 @@ public class ElasticFullTextSearchTestIntegration  extends AbstractElasticSearch
         assertThat(queryResponse.getHighlighting().get("2").containsKey("e-mail"), is(true));
         assertThat(queryResponse.getHighlighting().get("2").containsKey("object-type"), is(true));
         assertThat(queryResponse.getHighlighting().get("2").containsKey("descr"), is(false));
+
+        assertThat(queryResponse.getHighlighting().get("2").get("object-type").size(), is(1));
+        assertThat(queryResponse.getHighlighting().get("2").get("object-type").get(0), is("<b>organisation</b>"));
     }
 
     @Test
@@ -1511,6 +1514,9 @@ public class ElasticFullTextSearchTestIntegration  extends AbstractElasticSearch
         assertThat(queryResponse.getHighlighting().get("2").containsKey("object-type"), is(true));
         assertThat(queryResponse.getHighlighting().get("2").containsKey("e-mail"), is(false));
         assertThat(queryResponse.getHighlighting().get("2").containsKey("descr"), is(false));
+
+        assertThat(queryResponse.getHighlighting().get("2").get("object-type").size(), is(1));
+        assertThat(queryResponse.getHighlighting().get("2").get("object-type").get(0), is("<b>organisation</b>"));
     }
 
     @Test
@@ -1548,11 +1554,15 @@ public class ElasticFullTextSearchTestIntegration  extends AbstractElasticSearch
         assertThat(queryResponse.getHighlighting().get("2").containsKey("object-type"), is(true));
         assertThat(queryResponse.getHighlighting().get("2").containsKey("e-mail"), is(false));
         assertThat(queryResponse.getHighlighting().get("2").containsKey("descr"), is(false));
+        assertThat(queryResponse.getHighlighting().get("2").get("object-type").size(), is(1));
+        assertThat(queryResponse.getHighlighting().get("2").get("object-type").get(0), is("<b>organisation</b>"));
 
         assertThat(queryResponse.getHighlighting().get("3").containsKey("org-name"), is(true));
         assertThat(queryResponse.getHighlighting().get("3").containsKey("object-type"), is(true));
         assertThat(queryResponse.getHighlighting().get("3").containsKey("e-mail"), is(false));
         assertThat(queryResponse.getHighlighting().get("3").containsKey("descr"), is(false));
+        assertThat(queryResponse.getHighlighting().get("3").get("object-type").size(), is(1));
+        assertThat(queryResponse.getHighlighting().get("3").get("object-type").get(0), is("<b>organisation</b>"));
     }
 
     @Test
@@ -1590,6 +1600,8 @@ public class ElasticFullTextSearchTestIntegration  extends AbstractElasticSearch
         assertThat(queryResponse.getHighlighting().get("3").containsKey("object-type"), is(true));
         assertThat(queryResponse.getHighlighting().get("3").containsKey("e-mail"), is(false));
         assertThat(queryResponse.getHighlighting().get("3").containsKey("descr"), is(false));
+        assertThat(queryResponse.getHighlighting().get("3").get("object-type").size(), is(1));
+        assertThat(queryResponse.getHighlighting().get("3").get("object-type").get(0), is("<b>organisation</b>"));
     }
 
     @Test
@@ -1636,9 +1648,13 @@ public class ElasticFullTextSearchTestIntegration  extends AbstractElasticSearch
         assertThat(queryResponse.getHighlighting().get("3").containsKey("e-mail"), is(false));
         assertThat(queryResponse.getHighlighting().get("3").containsKey("descr"), is(false));
         assertThat(queryResponse.getHighlighting().get("3").containsKey("remarks"), is(true));
+        assertThat(queryResponse.getHighlighting().get("3").get("object-type").size(), is(1));
+        assertThat(queryResponse.getHighlighting().get("3").get("object-type").get(0), is("<b>organisation</b>"));
 
         assertThat(queryResponse.getHighlighting().get("4").containsKey("object-type"), is(true));
         assertThat(queryResponse.getHighlighting().get("4").containsKey("remarks"), is(true));
+        assertThat(queryResponse.getHighlighting().get("4").get("object-type").size(), is(1));
+        assertThat(queryResponse.getHighlighting().get("4").get("object-type").get(0), is("<b>person</b>"));
     }
 
     @Test
@@ -1685,9 +1701,13 @@ public class ElasticFullTextSearchTestIntegration  extends AbstractElasticSearch
         assertThat(queryResponse.getHighlighting().get("3").containsKey("e-mail"), is(false));
         assertThat(queryResponse.getHighlighting().get("3").containsKey("descr"), is(false));
         assertThat(queryResponse.getHighlighting().get("3").containsKey("remarks"), is(true));
+        assertThat(queryResponse.getHighlighting().get("3").get("object-type").size(), is(1));
+        assertThat(queryResponse.getHighlighting().get("3").get("object-type").get(0), is("<b>organisation</b>"));
 
         assertThat(queryResponse.getHighlighting().get("4").containsKey("object-type"), is(true));
         assertThat(queryResponse.getHighlighting().get("4").containsKey("remarks"), is(true));
+        assertThat(queryResponse.getHighlighting().get("4").get("object-type").size(), is(1));
+        assertThat(queryResponse.getHighlighting().get("4").get("object-type").get(0), is("<b>person</b>"));
     }
 
     @Test
@@ -1734,6 +1754,8 @@ public class ElasticFullTextSearchTestIntegration  extends AbstractElasticSearch
         assertThat(queryResponse.getHighlighting().get("3").containsKey("e-mail"), is(false));
         assertThat(queryResponse.getHighlighting().get("3").containsKey("descr"), is(false));
         assertThat(queryResponse.getHighlighting().get("3").containsKey("remarks"), is(true));
+        assertThat(queryResponse.getHighlighting().get("3").get("object-type").size(), is(1));
+        assertThat(queryResponse.getHighlighting().get("3").get("object-type").get(0), is("<b>organisation</b>"));
     }
 
     @Test
@@ -1779,10 +1801,14 @@ public class ElasticFullTextSearchTestIntegration  extends AbstractElasticSearch
         assertThat(queryResponse.getHighlighting().get("3").containsKey("e-mail"), is(false));
         assertThat(queryResponse.getHighlighting().get("3").containsKey("remarks"), is(false));
         assertThat(queryResponse.getHighlighting().get("3").containsKey("descr"), is(true));
+        assertThat(queryResponse.getHighlighting().get("3").get("object-type").size(), is(1));
+        assertThat(queryResponse.getHighlighting().get("3").get("object-type").get(0), is("<b>organisation</b>"));
 
         assertThat(queryResponse.getHighlighting().get("4").containsKey("object-type"), is(true));
         assertThat(queryResponse.getHighlighting().get("4").containsKey("remarks"), is(true));
         assertThat(queryResponse.getHighlighting().get("4").containsKey("descr"), is(false));
+        assertThat(queryResponse.getHighlighting().get("4").get("object-type").size(), is(1));
+        assertThat(queryResponse.getHighlighting().get("4").get("object-type").get(0), is("<b>person</b>"));
     }
 
 
@@ -1830,16 +1856,22 @@ public class ElasticFullTextSearchTestIntegration  extends AbstractElasticSearch
         assertThat(queryResponse.getHighlighting().get("2").containsKey("e-mail"), is(false));
         assertThat(queryResponse.getHighlighting().get("2").containsKey("remarks"), is(false));
         assertThat(queryResponse.getHighlighting().get("2").containsKey("descr"), is(true));
+        assertThat(queryResponse.getHighlighting().get("2").get("object-type").size(), is(1));
+        assertThat(queryResponse.getHighlighting().get("2").get("object-type").get(0), is("<b>organisation</b>"));
 
         assertThat(queryResponse.getHighlighting().get("3").containsKey("org-name"), is(false));
         assertThat(queryResponse.getHighlighting().get("3").containsKey("object-type"), is(true));
         assertThat(queryResponse.getHighlighting().get("3").containsKey("e-mail"), is(false));
         assertThat(queryResponse.getHighlighting().get("3").containsKey("remarks"), is(false));
         assertThat(queryResponse.getHighlighting().get("3").containsKey("descr"), is(true));
+        assertThat(queryResponse.getHighlighting().get("3").get("object-type").size(), is(1));
+        assertThat(queryResponse.getHighlighting().get("3").get("object-type").get(0), is("<b>organisation</b>"));
 
         assertThat(queryResponse.getHighlighting().get("4").containsKey("object-type"), is(true));
         assertThat(queryResponse.getHighlighting().get("4").containsKey("remarks"), is(true));
         assertThat(queryResponse.getHighlighting().get("4").containsKey("descr"), is(false));
+        assertThat(queryResponse.getHighlighting().get("4").get("object-type").size(), is(1));
+        assertThat(queryResponse.getHighlighting().get("4").get("object-type").get(0), is("<b>person</b>"));
     }
 
     @Test
@@ -1887,10 +1919,14 @@ public class ElasticFullTextSearchTestIntegration  extends AbstractElasticSearch
         assertThat(queryResponse.getHighlighting().get("3").containsKey("e-mail"), is(false));
         assertThat(queryResponse.getHighlighting().get("3").containsKey("remarks"), is(false));
         assertThat(queryResponse.getHighlighting().get("3").containsKey("descr"), is(true));
+        assertThat(queryResponse.getHighlighting().get("3").get("object-type").size(), is(1));
+        assertThat(queryResponse.getHighlighting().get("3").get("object-type").get(0), is("<b>organisation</b>"));
 
         assertThat(queryResponse.getHighlighting().get("4").containsKey("object-type"), is(true));
         assertThat(queryResponse.getHighlighting().get("4").containsKey("remarks"), is(true));
         assertThat(queryResponse.getHighlighting().get("4").containsKey("descr"), is(false));
+        assertThat(queryResponse.getHighlighting().get("4").get("object-type").size(), is(1));
+        assertThat(queryResponse.getHighlighting().get("4").get("object-type").get(0), is("<b>person</b>"));
     }
     // helper methods
 
