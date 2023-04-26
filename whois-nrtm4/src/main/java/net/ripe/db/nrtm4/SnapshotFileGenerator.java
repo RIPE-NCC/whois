@@ -3,7 +3,6 @@ package net.ripe.db.nrtm4;
 import com.google.common.base.Stopwatch;
 import net.ripe.db.nrtm4.dao.NrtmFileRepository;
 import net.ripe.db.nrtm4.dao.NrtmVersionInfoRepository;
-import net.ripe.db.nrtm4.dao.SnapshotFileRepository;
 import net.ripe.db.nrtm4.dao.SourceRepository;
 import net.ripe.db.nrtm4.dao.WhoisObjectRepository;
 import net.ripe.db.nrtm4.domain.NrtmDocumentType;
@@ -30,6 +29,7 @@ import java.util.UUID;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.zip.GZIPOutputStream;
 
+import static java.util.stream.Collectors.groupingBy;
 import static net.ripe.db.nrtm4.util.NrtmFileUtil.calculateSha256;
 
 
@@ -55,7 +55,6 @@ public class SnapshotFileGenerator {
         final NrtmVersionInfoRepository nrtmVersionInfoRepository,
         final RpslObjectEnqueuer rpslObjectEnqueuer,
         final WhoisObjectRepository whoisObjectRepository,
-        final SnapshotFileRepository snapshotFileRepository,
         final NrtmFileRepository nrtmFileRepository,
         final DateTimeProvider dateTimeProvider,
         final SnapshotFileSerializer snapshotFileSerializer,
@@ -108,6 +107,7 @@ public class SnapshotFileGenerator {
             }
         }
         LOGGER.info("Snapshot generation complete {}", stopwatch);
+        cleanUpOldFiles();
     }
 
     private boolean canProceed(final List<NrtmVersionInfo> sourceVersions, final NrtmSource source) {
@@ -118,7 +118,6 @@ public class SnapshotFileGenerator {
                 return false;
             }
         }
-
         return true;
     }
 
@@ -177,5 +176,18 @@ public class SnapshotFileGenerator {
                 LOGGER.error("Unexpected throwable caught when inserting snapshot file", t);
             }
         }
+    }
+
+    private void cleanUpOldFiles() {
+        LOGGER.info("Deleting old snapshot files");
+
+        final Map<CIString, List<NrtmVersionInfo>> versionsBySource = nrtmVersionInfoRepository.getAllVersionsByType(NrtmDocumentType.SNAPSHOT).stream()
+                .collect(groupingBy( versionInfo -> versionInfo.source().getName()));
+
+        versionsBySource.forEach( (nrtmSource, versions) -> {
+            if(versions.size() > 2) {
+                nrtmFileRepository.deleteSnapshotFiles(versions.subList(2, versions.size()).stream().map(NrtmVersionInfo::id).toList());
+            }
+        });
     }
 }

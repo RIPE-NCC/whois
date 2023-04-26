@@ -3,8 +3,6 @@ package net.ripe.db.nrtm4.dao;
 import net.ripe.db.nrtm4.domain.NrtmDocumentType;
 import net.ripe.db.nrtm4.domain.NrtmSource;
 import net.ripe.db.nrtm4.domain.NrtmVersionInfo;
-import net.ripe.db.whois.common.DateTimeProvider;
-import net.ripe.db.whois.common.dao.jdbc.JdbcRpslObjectOperations;
 import net.ripe.db.whois.common.domain.CIString;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -12,16 +10,13 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
-import org.springframework.jdbc.support.GeneratedKeyHolder;
-import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.stereotype.Repository;
 
 import javax.sql.DataSource;
-import java.sql.PreparedStatement;
-import java.sql.Statement;
+import java.time.LocalDateTime;
+import java.time.ZoneOffset;
 import java.util.List;
 import java.util.Optional;
-import java.util.UUID;
 import java.util.function.Function;
 
 
@@ -75,42 +70,6 @@ public class NrtmVersionInfoRepository {
        return findLastVersionPerSource().stream().filter( (versionInfo) ->  versionInfo.source().getName().equals(source.getName())).findFirst();
     }
 
-
-    public NrtmVersionInfo findLastSnapshotVersionForSource(final NrtmSource source) {
-        return jdbcTemplate.queryForObject("""
-                SELECT vi.id, src.id, src.name, vi.version, vi.session_id, vi.type, vi.last_serial_id, vi.created
-                FROM version_info vi
-                    JOIN source src ON src.id = vi.source_id,
-                    (
-                    SELECT source_id, MAX(version) version
-                    FROM version_info
-                    WHERE type = ? AND source_id = ?
-                    ) maxv
-                WHERE vi.source_id = maxv.source_id
-                  AND vi.version = maxv.version
-                  AND vi.type = ?
-                ORDER BY vi.last_serial_id DESC
-                """,
-            rowMapper, NrtmDocumentType.SNAPSHOT.toString(), source.getId(), NrtmDocumentType.SNAPSHOT.toString());
-    }
-
-    // TODO: Only used by tests, so should be removed from here.
-    public Optional<NrtmVersionInfo> findLastVersion() {
-        try {
-            return Optional.ofNullable(jdbcTemplate.queryForObject("""
-                    SELECT v.id, src.id, src.name, v.version, v.session_id, v.type, v.last_serial_id, v.created
-                    FROM version_info v
-                    JOIN source src ON src.id = v.source_id
-                    ORDER BY v.version DESC LIMIT 1
-                    """,
-                rowMapper)
-            );
-        } catch (final EmptyResultDataAccessException ex) {
-            LOGGER.debug("findLastVersion found no entries, and so threw exception: {}", ex.getMessage());
-            return Optional.empty();
-        }
-    }
-
     public NrtmVersionInfo findById(final long versionId) {
         final String sql = """
             SELECT v.id, src.id, src.name, v.version, v.session_id, v.type, v.last_serial_id, v.created
@@ -121,4 +80,24 @@ public class NrtmVersionInfoRepository {
         return jdbcTemplate.queryForObject(sql, rowMapper, versionId);
     }
 
+    public List<Long> getAllVersionsByTypeBefore(final NrtmDocumentType type, final LocalDateTime before) {
+        final long beforeTimestamp = before.toEpochSecond(ZoneOffset.UTC);
+
+        final String sql = """
+            SELECT v.id
+            FROM version_info v
+            WHERE v.type = ? AND v.created < ? 
+            """;
+        return jdbcTemplate.queryForList(sql, Long.class, type.name(), beforeTimestamp);
+    }
+
+    public List<NrtmVersionInfo> getAllVersionsByType(final NrtmDocumentType type) {
+        final String sql = """
+            SELECT v.id, src.id, src.name, v.version, v.session_id, v.type, v.last_serial_id, v.created
+            FROM version_info v
+            JOIN source src ON src.id = v.source_id
+            WHERE v.type = ? ORDER BY v.last_serial_id DESC
+            """;
+        return jdbcTemplate.query(sql, rowMapper, type.name());
+    }
 }

@@ -6,7 +6,9 @@ import net.ripe.db.nrtm4.dao.NrtmVersionInfoRepository;
 import net.ripe.db.nrtm4.dao.WhoisObjectDao;
 import net.ripe.db.nrtm4.dao.WhoisObjectRepository;
 import net.ripe.db.nrtm4.domain.DeltaChange;
+import net.ripe.db.nrtm4.domain.NrtmDocumentType;
 import net.ripe.db.nrtm4.domain.NrtmVersionInfo;
+import net.ripe.db.whois.common.DateTimeProvider;
 import net.ripe.db.whois.common.domain.CIString;
 import net.ripe.db.whois.common.domain.serials.Operation;
 import net.ripe.db.whois.common.domain.serials.SerialEntry;
@@ -20,6 +22,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.time.LocalDateTime;
 
 import static net.ripe.db.nrtm4.NrtmConstants.NRTM_VERSION;
 
@@ -31,23 +34,26 @@ public class DeltaFileGenerator {
 
     private final NrtmFileRepository nrtmFileRepository;
     private final DummifierNrtm dummifier;
+    private final DateTimeProvider dateTimeProvider;
     private final NrtmVersionInfoRepository nrtmVersionInfoRepository;
     private final WhoisObjectRepository whoisObjectRepository;
     private final WhoisObjectDao whoisObjectDao;
 
 
     DeltaFileGenerator(
-        final NrtmFileRepository nrtmFileRepository,
-        final DummifierNrtm dummifier,
-        final NrtmVersionInfoRepository nrtmVersionInfoRepository,
-        final WhoisObjectDao whoisObjectDao,
-        final WhoisObjectRepository whoisObjectRepository
+            final NrtmFileRepository nrtmFileRepository,
+            final DummifierNrtm dummifier,
+            final NrtmVersionInfoRepository nrtmVersionInfoRepository,
+            final WhoisObjectDao whoisObjectDao,
+            final DateTimeProvider dateTimeProvider,
+            final WhoisObjectRepository whoisObjectRepository
     ) {
         this.nrtmFileRepository = nrtmFileRepository;
         this.dummifier = dummifier;
         this.nrtmVersionInfoRepository = nrtmVersionInfoRepository;
         this.whoisObjectRepository = whoisObjectRepository;
         this.whoisObjectDao = whoisObjectDao;
+        this.dateTimeProvider = dateTimeProvider;
     }
 
     public void createDeltas() {
@@ -77,14 +83,27 @@ public class DeltaFileGenerator {
             try {
                 nrtmFileRepository.saveDeltaVersion(version, serialIDTo, deltaMap.get(version.source().getName()));
             } catch (final JsonProcessingException e) {
-               LOGGER.error("Exception saving delta for {}", version.source().getName(), e);
+                LOGGER.error("Exception saving delta for {}", version.source().getName(), e);
             }
         }
+
+        LOGGER.info("Delta file generation completed");
+
+        cleanUpOldFiles();
     }
 
     private DeltaChange getDeltaChange(final SerialEntry serialEntry) {
         return serialEntry.getOperation() == Operation.DELETE ?
                 DeltaChange.delete(serialEntry.getRpslObject().getType(), serialEntry.getPrimaryKey())
                 : DeltaChange.addModify(dummifier.dummify(NRTM_VERSION, serialEntry.getRpslObject()));
+    }
+
+    private void cleanUpOldFiles() {
+        LOGGER.info("Deleting old delta files");
+
+        final LocalDateTime twoDayAgo = dateTimeProvider.getCurrentDateTime().minusDays(2);
+
+        final List<Long> versions = nrtmVersionInfoRepository.getAllVersionsByTypeBefore(NrtmDocumentType.DELTA, twoDayAgo);
+        nrtmFileRepository.deleteDeltaFiles(versions);
     }
 }

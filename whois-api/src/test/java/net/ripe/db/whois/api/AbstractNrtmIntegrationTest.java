@@ -7,12 +7,14 @@ import net.ripe.db.nrtm4.SnapshotFileGenerator;
 import net.ripe.db.nrtm4.UpdateNotificationFileGenerator;
 import net.ripe.db.nrtm4.domain.PublishableDeltaFile;
 import net.ripe.db.nrtm4.domain.PublishableNotificationFile;
+import net.ripe.db.whois.common.rpsl.RpslObject;
 import org.junit.jupiter.api.BeforeEach;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import javax.ws.rs.client.WebTarget;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+import java.util.List;
 
 public abstract class AbstractNrtmIntegrationTest extends AbstractIntegrationTest{
 
@@ -212,5 +214,12 @@ public abstract class AbstractNrtmIntegrationTest extends AbstractIntegrationTes
     protected void createNrtmSource() {
         databaseHelper.getNrtmTemplate().update("INSERT INTO source (id, name) VALUES (?,?)", 1, "TEST");
         databaseHelper.getNrtmTemplate().update("INSERT INTO source (id, name) VALUES (?,?)", 2, "TEST-NONAUTH");
+    }
+
+    protected void generateDeltas(final List<RpslObject> updatedObject){
+        for (final RpslObject rpslObject : updatedObject) {
+            databaseHelper.updateObject(rpslObject);
+        }
+        deltaFileGenerator.createDeltas();
     }
 }
