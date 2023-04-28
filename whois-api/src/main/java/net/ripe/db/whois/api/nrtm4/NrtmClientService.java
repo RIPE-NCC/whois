@@ -8,14 +8,15 @@ import net.ripe.db.nrtm4.dao.SourceRepository;
 import net.ripe.db.nrtm4.domain.NrtmDocumentType;
 import net.ripe.db.nrtm4.domain.NrtmSource;
 import net.ripe.db.nrtm4.util.NrtmFileUtil;
+import net.ripe.db.whois.api.exceptions.UpgradeException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import javax.servlet.http.HttpServletRequest;
+import javax.ws.rs.BadRequestException;
 import javax.ws.rs.GET;
 import javax.ws.rs.NotFoundException;
-import javax.ws.rs.BadRequestException;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
@@ -23,6 +24,7 @@ import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.io.ByteArrayInputStream;
+import java.util.Objects;
 
 @Component
 @Path("/")
@@ -50,8 +52,8 @@ public class NrtmClientService {
 
     @GET
     @Produces(MediaType.TEXT_HTML)
-    public String sourcesLinkAsHtml() {
-
+    public String sourcesLinkAsHtml(@Context final HttpServletRequest httpServletRequest) {
+        validateHttps(httpServletRequest);
         final StringBuilder sourceLink = new StringBuilder();
 
         sourceRepository.getSources().forEach(sourceModel ->
@@ -74,6 +76,7 @@ public class NrtmClientService {
             @PathParam("source") final String source,
             @PathParam("filename") final String fileName) {
 
+        validateHttps(httpServletRequest);
         if(fileName.startsWith(NrtmDocumentType.NOTIFICATION.getFileNamePrefix())) {
             return notificationFileSourceAwareDao.findLastNotification(getSource(source))
                     .map( payload -> getResponse(payload))
@@ -103,6 +106,12 @@ public class NrtmClientService {
         }
     }
 
+    private void validateHttps(final HttpServletRequest httpServletRequest) {
+        boolean isHttps = Objects.equals(httpServletRequest.getHeader("X-Forwarded-Proto"), "HTTPS");
+        if (!isHttps){
+            throw new UpgradeException("HTTPS required");
+        }
+    }
     private NrtmSource getSource(final String source) {
         return sourceRepository.getSources().stream().filter( sourceModel -> sourceModel.getName().equals(source)).findFirst().orElseThrow(() -> new BadRequestException("Invalid source"));
     }
