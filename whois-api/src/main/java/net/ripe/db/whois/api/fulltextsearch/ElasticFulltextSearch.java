@@ -159,7 +159,7 @@ public class ElasticFulltextSearch extends FulltextSearch {
     }
 
     private QueryStringQueryBuilder getQueryBuilder(final String query) {
-        return QueryBuilders.queryStringQuery(customizeIfFiltering(escape(query))).type(MultiMatchQueryBuilder.Type.PHRASE_PREFIX);
+        return QueryBuilders.queryStringQuery(escape(query)).type(MultiMatchQueryBuilder.Type.PHRASE_PREFIX);
     }
 
     private SearchResponse.Lst createHighlights(final SearchHit hit) {

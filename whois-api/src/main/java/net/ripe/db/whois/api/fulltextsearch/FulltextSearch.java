@@ -3,12 +3,9 @@ package net.ripe.db.whois.api.fulltextsearch;
 import com.google.common.collect.Lists;
 import net.ripe.db.whois.api.rest.domain.Version;
 import net.ripe.db.whois.common.ApplicationVersion;
-import net.ripe.db.whois.common.rpsl.AttributeType;
 
 import java.io.IOException;
 import java.util.List;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 public abstract class FulltextSearch {
 
@@ -55,30 +52,6 @@ public abstract class FulltextSearch {
                 new SearchResponse.Str("commit_id", version.getCommitId())));
 
         return result;
-    }
-
-    protected String customizeIfFiltering(final String value){
-        final Matcher matcher = Pattern.compile("\\((.*?\\))").matcher(value);
-        if (!matcher.find()) {
-            return value;
-        }
-        final String fullAttributeValue = matcher.group(1);
-        final String attributeType = fullAttributeValue.replace("(", "").split(":")[0];
-
-        if (attributeType==null || AttributeType.getByNameOrNull(attributeType) == null){
-            return value;
-        }
-        return customize(value, fullAttributeValue);
-    }
-    protected String customize(final String value, final String attributeAndValue){
-        final int attributeDelimiterPosition = attributeAndValue.indexOf(":");
-        final StringBuilder customQuery = new StringBuilder(attributeAndValue);
-        customQuery.insert(attributeDelimiterPosition, ".custom");
-
-        return new StringBuilder(value)
-                .insert(0, "(")
-                .insert(value.lastIndexOf("AND"), " OR (" + customQuery + "))")
-                .toString();
     }
     protected String escape(final String value) {
         return value.replaceAll("[/]", "\\\\/");
