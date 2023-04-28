@@ -155,7 +155,7 @@ public class ElasticSearchHelper {
                              .field("analyzer", "fulltext_analyzer")
                              .field("search_analyzer", "fulltext_analyzer")
                              .startObject("fields")
-                                .startObject("custom")
+                                 .startObject("custom")
                                     .field("type", "text")
                                     .field("analyzer", "my_email_analyzer")
                                  .endObject()
