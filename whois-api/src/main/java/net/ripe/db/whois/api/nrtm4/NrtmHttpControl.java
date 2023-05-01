@@ -39,7 +39,7 @@ public class NrtmHttpControl implements Filter {
     }
 
     private boolean isHttps(HttpServletRequest request) {
-        return Objects.equals(request.getHeader(HttpHeader.X_FORWARDED_PROTO.asString().toLowerCase()),
+        return Objects.equals(request.getHeader(HttpHeader.X_FORWARDED_PROTO.asString()).toLowerCase(),
                 HttpScheme.HTTPS.asString());
     }
 }
