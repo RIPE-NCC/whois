@@ -14,10 +14,9 @@ import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
-import java.util.Objects;
 
 @Component
-public class NrtmHttpControl implements Filter {
+public class NrtmHttpSchemeFilter implements Filter {
 
     @Override
     public void doFilter(final ServletRequest request, final ServletResponse response, final FilterChain chain) throws IOException, ServletException {
@@ -39,7 +38,6 @@ public class NrtmHttpControl implements Filter {
     }
 
     private boolean isHttps(HttpServletRequest request) {
-        return Objects.equals(request.getHeader(HttpHeader.X_FORWARDED_PROTO.asString()).toLowerCase(),
-                HttpScheme.HTTPS.asString());
+        return HttpScheme.HTTPS.is(request.getHeaders(HttpHeader.X_FORWARDED_PROTO.asString()).nextElement().toLowerCase());
     }
 }

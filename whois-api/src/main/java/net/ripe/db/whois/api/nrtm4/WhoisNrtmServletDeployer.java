@@ -18,14 +18,14 @@ public class WhoisNrtmServletDeployer implements ServletDeployer {
     private final NrtmClientService nrtmClientService;
     private final NrtmExceptionMapper nrtmExceptionMapper;
 
-    private final NrtmHttpControl nrtmHttpControl;
+    private final NrtmHttpSchemeFilter nrtmHttpSchemeFilter;
 
     @Autowired
     public WhoisNrtmServletDeployer(final NrtmClientService nrtmClientService,
-                                    final NrtmExceptionMapper nrtmExceptionMapper, final NrtmHttpControl nrtmHttpControl) {
+                                    final NrtmExceptionMapper nrtmExceptionMapper, final NrtmHttpSchemeFilter nrtmHttpSchemeFilter) {
         this.nrtmClientService = nrtmClientService;
         this.nrtmExceptionMapper = nrtmExceptionMapper;
-        this.nrtmHttpControl = nrtmHttpControl;
+        this.nrtmHttpSchemeFilter = nrtmHttpSchemeFilter;
     }
 
     @Override
@@ -35,7 +35,7 @@ public class WhoisNrtmServletDeployer implements ServletDeployer {
         resourceConfig.register(nrtmExceptionMapper);
         resourceConfig.register(new NrtmCacheControl());
 
-        context.addFilter(new FilterHolder(nrtmHttpControl), "/nrtmv4/*", EnumSet.allOf(DispatcherType.class));
+        context.addFilter(new FilterHolder(nrtmHttpSchemeFilter), "/nrtmv4/*", EnumSet.allOf(DispatcherType.class));
 
         context.addServlet(new ServletHolder("Whois Nrtm version 4 REST API", new ServletContainer(resourceConfig)), "/nrtmv4/*");
     }
