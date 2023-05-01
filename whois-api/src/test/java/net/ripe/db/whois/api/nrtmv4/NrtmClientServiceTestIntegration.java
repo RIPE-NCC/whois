@@ -361,11 +361,11 @@ public class NrtmClientServiceTestIntegration extends AbstractIntegrationTest {
         databaseHelper.getNrtmTemplate().update("INSERT INTO source (id, name) VALUES (?,?)", 2, "TEST-NONAUTH");
 
         final Response response = RestTest.target(getPort(), "nrtmv4/")
-                .request(MediaType.TEXT_HTML).header("X-Forwarded-Proto", "HTTP")
+                .request(MediaType.APPLICATION_JSON).header("X-Forwarded-Proto", "HTTP")
                 .get(Response.class);
 
         assertThat(response.getStatus(), is(426));
-        assertThat(response.readEntity(String.class), is("HTTPS required"));
+        assertThat(response.readEntity(String.class), containsString("\"message\":\"HTTPS required\""));
     }
 
     @Test
@@ -397,7 +397,7 @@ public class NrtmClientServiceTestIntegration extends AbstractIntegrationTest {
                 .get(Response.class);
 
         assertThat(response.getStatus(), is(426));
-        assertThat(response.readEntity(String.class), is("HTTPS required"));
+        assertThat(response.readEntity(String.class), containsString("\"message\":\"HTTPS required\""));
     }
     public static String decompress(byte[] compressed) throws IOException {
         final int BUFFER_SIZE = 32;

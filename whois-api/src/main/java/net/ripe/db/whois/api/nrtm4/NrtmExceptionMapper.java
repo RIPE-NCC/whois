@@ -1,7 +1,5 @@
 package net.ripe.db.whois.api.nrtm4;
 
-import net.ripe.db.whois.api.exceptions.UpgradeException;
-import org.eclipse.jetty.http.HttpStatus;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
@@ -27,10 +25,6 @@ public class NrtmExceptionMapper implements ExceptionMapper<Exception> {
 
         if (exception instanceof NotFoundException) {
             return createErrorResponse(HttpServletResponse.SC_NOT_FOUND, exception.getMessage());
-        }
-
-        if (exception instanceof UpgradeException) {
-            return createErrorResponse(HttpStatus.UPGRADE_REQUIRED_426, exception.getMessage());
         }
 
         LOGGER.error("Unexpected", exception);
