@@ -295,7 +295,7 @@ public class DeltaFileGenerationTestIntegration extends AbstractNrtmIntegrationT
     @Test
     public void should_throw_exception_delta_file_not_found()  {
         final Response response = createResource("TEST-NONAUTH/nrtm-delta.1.TEST-NONAUTH.60b9e8c4e4891411be.json")
-                .request(MediaType.APPLICATION_JSON)
+                .request(MediaType.APPLICATION_JSON).header("X-Forwarded-Proto", "HTTPS")
                 .get(Response.class);
         assertThat(response.getStatus(), is(404));
         assertThat(response.readEntity(String.class), is("Requested Delta file does not exists"));

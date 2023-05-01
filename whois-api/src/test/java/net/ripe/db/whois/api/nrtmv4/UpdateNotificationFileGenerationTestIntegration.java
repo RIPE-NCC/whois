@@ -32,7 +32,7 @@ public class UpdateNotificationFileGenerationTestIntegration extends AbstractNrt
         updateNotificationFileGenerator.generateFile();
 
         final Response response = createResource("TEST/update-notification-file.json")
-                .request(MediaType.APPLICATION_JSON)
+                .request(MediaType.APPLICATION_JSON).header("X-Forwarded-Proto", "HTTPS")
                 .get(Response.class);
 
         assertThat(response.getStatus(), is(404));
@@ -242,7 +242,7 @@ public class UpdateNotificationFileGenerationTestIntegration extends AbstractNrt
     @Test
     public void should_throw_exception_invalid_source_notification_file()  {
         final Response response = createResource("TEST/update-notification-file.json")
-                .request(MediaType.APPLICATION_JSON)
+                .request(MediaType.APPLICATION_JSON).header("X-Forwarded-Proto", "HTTPS")
                 .get(Response.class);
         assertThat(response.getStatus(), is(400));
         assertThat(response.readEntity(String.class), is("Invalid source"));
@@ -252,7 +252,7 @@ public class UpdateNotificationFileGenerationTestIntegration extends AbstractNrt
     public void should_throw_exception_notification_file_not_found() {
         createNrtmSource();
         final Response response = createResource("TEST/update-notification-file.json")
-                .request(MediaType.APPLICATION_JSON)
+                .request(MediaType.APPLICATION_JSON).header("X-Forwarded-Proto", "HTTPS")
                 .get(Response.class);
 
         assertThat(response.getStatus(), is(404));

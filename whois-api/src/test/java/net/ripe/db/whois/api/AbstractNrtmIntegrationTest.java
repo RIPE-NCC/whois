@@ -179,7 +179,7 @@ public abstract class AbstractNrtmIntegrationTest extends AbstractIntegrationTes
 
     protected PublishableNotificationFile getNotificationFileBySource(final String sourceName) {
         return createResource(sourceName + "/update-notification-file.json")
-                .request(MediaType.APPLICATION_JSON)
+                .request(MediaType.APPLICATION_JSON).header("X-Forwarded-Proto", "HTTPS")
                 .get(PublishableNotificationFile.class);
     }
 
@@ -189,21 +189,21 @@ public abstract class AbstractNrtmIntegrationTest extends AbstractIntegrationTes
 
     protected Response getSnapshotFromUpdateNotificationBySource(final String sourceName) throws JsonProcessingException {
         final Response updateNotificationResponse = createResource(sourceName + "/update-notification-file.json")
-                .request(MediaType.APPLICATION_JSON)
+                .request(MediaType.APPLICATION_JSON).header("X-Forwarded-Proto", "HTTPS")
                 .get(Response.class);
         final PublishableNotificationFile notificationFile = new ObjectMapper().readValue(updateNotificationResponse.readEntity(String.class),
                 PublishableNotificationFile.class);
         return createResource(sourceName + "/" + getSnapshotNameFromUpdateNotification(notificationFile))
-                .request(MediaType.APPLICATION_JSON)
+                .request(MediaType.APPLICATION_JSON).header("X-Forwarded-Proto", "HTTPS")
                 .get(Response.class);
     }
 
     protected PublishableDeltaFile getDeltasFromUpdateNotificationBySource(final String sourceName, final int deltaPosition) {
         final PublishableNotificationFile updateNotificationResponse = createResource(sourceName + "/update-notification-file.json")
-                .request(MediaType.APPLICATION_JSON)
+                .request(MediaType.APPLICATION_JSON).header("X-Forwarded-Proto", "HTTPS")
                 .get(PublishableNotificationFile.class);
         return createResource(sourceName + "/" + getDeltaNameFromUpdateNotification(updateNotificationResponse, deltaPosition))
-                .request(MediaType.APPLICATION_JSON)
+                .request(MediaType.APPLICATION_JSON).header("X-Forwarded-Proto", "HTTPS")
                 .get(PublishableDeltaFile.class);
     }
 

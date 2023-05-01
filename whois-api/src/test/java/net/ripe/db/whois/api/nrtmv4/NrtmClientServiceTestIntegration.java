@@ -209,7 +209,7 @@ public class NrtmClientServiceTestIntegration extends AbstractIntegrationTest {
         Optional<SnapshotFile> fileOptional = snapshotFileRepository.getLastSnapshot(sourceRepository.getWhoisSource().get());
 
         final Response response = createResource("TEST/" + fileOptional.get().name())
-                .request(MediaType.APPLICATION_OCTET_STREAM)
+                .request(MediaType.APPLICATION_OCTET_STREAM).header("X-Forwarded-Proto", "HTTPS")
                 .get(Response.class);
 
         assertThat(response.getStatus(), is(200));
@@ -241,7 +241,7 @@ public class NrtmClientServiceTestIntegration extends AbstractIntegrationTest {
         databaseHelper.getNrtmTemplate().update("INSERT INTO source (id, name) VALUES (?,?)", 2, "TEST-NONAUTH");
 
         final String response = RestTest.target(getPort(), "nrtmv4/")
-                .request(MediaType.TEXT_HTML)
+                .request(MediaType.TEXT_HTML).header("X-Forwarded-Proto", "HTTPS")
                 .get(String.class);
 
         assertThat(response, is("<html><header><title>NRTM Version 4</title></header><body><a href='https://nrtm.db.ripe.net/TEST/update-notification-file.json'>TEST</a><br/><a href='https://nrtm.db.ripe.net/TEST-NONAUTH/update-notification-file.json'>TEST-NONAUTH</a><br/><body></html>"));
@@ -251,7 +251,7 @@ public class NrtmClientServiceTestIntegration extends AbstractIntegrationTest {
     public void should_get_update_notification_file() {
         insertUpdateNotificationFile();
         final Response response = createResource("TEST/update-notification-file.json")
-                .request(MediaType.APPLICATION_JSON)
+                .request(MediaType.APPLICATION_JSON).header("X-Forwarded-Proto", "HTTPS")
                 .get(Response.class);
 
         assertThat(response.getStatus(), is(200));
@@ -259,7 +259,7 @@ public class NrtmClientServiceTestIntegration extends AbstractIntegrationTest {
         assertThat(response.readEntity(String.class), containsString("\"source\":\"TEST\""));
 
         final Response responseNonAuth = createResource("TEST-NONAUTH/update-notification-file.json")
-                .request(MediaType.APPLICATION_JSON)
+                .request(MediaType.APPLICATION_JSON).header("X-Forwarded-Proto", "HTTPS")
                 .get(Response.class);
 
         assertThat(responseNonAuth.getStatus(), is(200));
@@ -293,7 +293,7 @@ public class NrtmClientServiceTestIntegration extends AbstractIntegrationTest {
 
         final List<DeltaFileVersionInfo> deltaFileVersion = deltaFileDao.getDeltasForNotificationSince(snapshotVersion, LocalDateTime.MIN);
         final Response response = createResource("TEST/" + deltaFileVersion.get(0).deltaFile().name())
-                .request(MediaType.APPLICATION_JSON)
+                .request(MediaType.APPLICATION_JSON).header("X-Forwarded-Proto", "HTTPS")
                 .get(Response.class);
         assertThat(response.getStatus(), is(200));
         assertThat(response.getHeaderString(HttpHeaders.CACHE_CONTROL), is("public, max-age=604800"));
@@ -312,7 +312,7 @@ public class NrtmClientServiceTestIntegration extends AbstractIntegrationTest {
     @Test
     public void should_throw_exception_invalid_filename()  {
         final Response response = createResource("TEST/nrtm-pshot.1.TEST.f7c94b039f9743fa4d6368b54e64bb0f")
-                    .request(MediaType.APPLICATION_OCTET_STREAM)
+                    .request(MediaType.APPLICATION_OCTET_STREAM).header("X-Forwarded-Proto", "HTTPS")
                     .get(Response.class);
         assertThat(response.getStatus(), is(400));
         assertThat(response.readEntity(String.class), is("Invalid Nrtm filename"));
@@ -322,7 +322,7 @@ public class NrtmClientServiceTestIntegration extends AbstractIntegrationTest {
     @Test
     public void should_throw_exception_snapshot_file_not_found()  {
         final Response response = createResource("TEST-NONAUTH/nrtm-snapshot.1.TEST-NONAUTH.4ef06e8c4e4891411be.json.gz")
-                    .request(MediaType.APPLICATION_OCTET_STREAM)
+                    .request(MediaType.APPLICATION_OCTET_STREAM).header("X-Forwarded-Proto", "HTTPS")
                     .get(Response.class);
         assertThat(response.getStatus(), is(404));
         assertThat(response.readEntity(String.class), is("Requested Snapshot file does not exists"));
@@ -331,7 +331,7 @@ public class NrtmClientServiceTestIntegration extends AbstractIntegrationTest {
     @Test
     public void should_throw_exception_invalid_source_filename_combo()  {
         final Response response = createResource("TEST/nrtm-snapshot.1.TEST-NONAUTH.4e9e8c4e4891411be.json.gz")
-                .request(MediaType.APPLICATION_OCTET_STREAM)
+                .request(MediaType.APPLICATION_OCTET_STREAM).header("X-Forwarded-Proto", "HTTPS")
                 .get(Response.class);
         assertThat(response.getStatus(), is(400));
         assertThat(response.readEntity(String.class), is("Invalid source and filename combination"));
@@ -340,7 +340,7 @@ public class NrtmClientServiceTestIntegration extends AbstractIntegrationTest {
     @Test
     public void should_throw_exception_invalid_source_notification_file()  {
         final Response response = createResource("TEST/update-notification-file.json")
-                .request(MediaType.APPLICATION_JSON)
+                .request(MediaType.APPLICATION_JSON).header("X-Forwarded-Proto", "HTTPS")
                 .get(Response.class);
         assertThat(response.getStatus(), is(400));
         assertThat(response.readEntity(String.class), is("Invalid source"));
@@ -349,12 +349,56 @@ public class NrtmClientServiceTestIntegration extends AbstractIntegrationTest {
     @Test
     public void should_throw_exception_delta_file_not_found()  {
         final Response response = createResource("TEST-NONAUTH/nrtm-delta.1.TEST-NONAUTH.60b9e8c4e4891411be.json")
-                .request(MediaType.APPLICATION_JSON)
+                .request(MediaType.APPLICATION_JSON).header("X-Forwarded-Proto", "HTTPS")
                 .get(Response.class);
         assertThat(response.getStatus(), is(404));
         assertThat(response.readEntity(String.class), is("Requested Delta file does not exists"));
     }
 
+    @Test
+    public void should_throw_426_source_links_https_required() {
+        databaseHelper.getNrtmTemplate().update("INSERT INTO source (id, name) VALUES (?,?)", 1, "TEST");
+        databaseHelper.getNrtmTemplate().update("INSERT INTO source (id, name) VALUES (?,?)", 2, "TEST-NONAUTH");
+
+        final Response response = RestTest.target(getPort(), "nrtmv4/")
+                .request(MediaType.TEXT_HTML).header("X-Forwarded-Proto", "HTTP")
+                .get(Response.class);
+
+        assertThat(response.getStatus(), is(426));
+        assertThat(response.readEntity(String.class), is("HTTPS required"));
+    }
+
+    @Test
+    public void should_throw_426_delta_file_https_required() {
+        snapshotFileGenerator.createSnapshot();
+
+        final RpslObject updatedObject = RpslObject.parse("" +
+                "inet6num:       ::/0\n" +
+                "netname:        IANA-BLK\n" +
+                "descr:          The whole IPv6 address space:Updated for test\n" +
+                "country:        NL\n" +
+                "tech-c:         TP1-TEST\n" +
+                "admin-c:        TP1-TEST\n" +
+                "status:         OTHER\n" +
+                "mnt-by:         OWNER-MNT\n" +
+                "created:         2022-08-14T11:48:28Z\n" +
+                "last-modified:   2022-10-25T12:22:39Z\n" +
+                "source:         TEST");
+        databaseHelper.updateObject(updatedObject);
+        deltaFileGenerator.createDeltas();
+
+        Optional<SnapshotFile> snapshotFile = snapshotFileRepository.getLastSnapshot(sourceRepository.getWhoisSource().get());
+        final NrtmVersionInfo snapshotVersion = nrtmVersionInfoRepository.findById(snapshotFile.get().versionId());
+
+        final List<DeltaFileVersionInfo> deltaFileVersion = deltaFileDao.getDeltasForNotificationSince(snapshotVersion, LocalDateTime.MIN);
+
+        final Response response = createResource("TEST/" + deltaFileVersion.get(0).deltaFile().name())
+                .request(MediaType.APPLICATION_JSON).header("X-Forwarded-Proto", "HTTP")
+                .get(Response.class);
+
+        assertThat(response.getStatus(), is(426));
+        assertThat(response.readEntity(String.class), is("HTTPS required"));
+    }
     public static String decompress(byte[] compressed) throws IOException {
         final int BUFFER_SIZE = 32;
         ByteArrayInputStream is = new ByteArrayInputStream(compressed);
@@ -381,7 +425,7 @@ public class NrtmClientServiceTestIntegration extends AbstractIntegrationTest {
     }
 
     private void insertUpdateNotificationFile() {
-        final var timestamp = dateTimeProvider.getCurrentDateTime().toEpochSecond(ZoneOffset.UTC);
+        dateTimeProvider.getCurrentDateTime().toEpochSecond(ZoneOffset.UTC);
         databaseHelper.getNrtmTemplate().update("INSERT INTO source (id, name) VALUES (?,?)", 1, "TEST");
         databaseHelper.getNrtmTemplate().update("INSERT INTO source (id, name) VALUES (?,?)", 2, "TEST-NONAUTH");
 
