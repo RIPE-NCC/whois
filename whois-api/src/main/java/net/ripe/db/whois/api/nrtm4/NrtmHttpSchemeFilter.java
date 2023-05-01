@@ -1,6 +1,6 @@
 package net.ripe.db.whois.api.nrtm4;
 
-import org.eclipse.jetty.http.HttpHeader;
+import com.google.common.net.HttpHeaders;
 import org.eclipse.jetty.http.HttpScheme;
 import org.eclipse.jetty.http.HttpStatus;
 import org.springframework.stereotype.Component;
@@ -38,6 +38,6 @@ public class NrtmHttpSchemeFilter implements Filter {
     }
 
     private boolean isHttps(HttpServletRequest request) {
-        return HttpScheme.HTTPS.is(request.getHeader(HttpHeader.X_FORWARDED_PROTO.asString()));
+        return HttpScheme.HTTPS.is(request.getHeader(HttpHeaders.X_FORWARDED_PROTO));
     }
 }
