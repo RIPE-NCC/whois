@@ -50,7 +50,7 @@ public class NrtmClientService {
 
     @GET
     @Produces(MediaType.TEXT_HTML)
-    public String sourcesLinkAsHtml(@Context final HttpServletRequest httpServletRequest) {
+    public String sourcesLinkAsHtml() {
         final StringBuilder sourceLink = new StringBuilder();
 
         sourceRepository.getSources().forEach(sourceModel ->

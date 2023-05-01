@@ -8,7 +8,6 @@ import net.ripe.db.nrtm4.domain.NrtmVersionInfo;
 import net.ripe.db.nrtm4.domain.PublishableDeltaFile;
 import net.ripe.db.nrtm4.domain.PublishableNotificationFile;
 import net.ripe.db.whois.api.AbstractNrtmIntegrationTest;
-import net.ripe.db.whois.api.RestTest;
 import net.ripe.db.whois.common.domain.CIString;
 import net.ripe.db.whois.common.rpsl.RpslObject;
 import org.apache.commons.compress.compressors.gzip.GzipCompressorInputStream;
@@ -50,9 +49,7 @@ public class SnapshotFileGenerationTestIntegration extends AbstractNrtmIntegrati
     public void should_get_all_source_links() {
         createNrtmSource();
 
-        final String response = RestTest.target(getPort(), "nrtmv4/")
-                .request(MediaType.TEXT_HTML).header("X-Forwarded-Proto", "HTTPS")
-                .get(String.class);
+        final String response = getResponseFromHttpsRequest(null, MediaType.TEXT_HTML).readEntity(String.class);
 
         assertThat(response, is("<html><header><title>NRTM Version 4</title></header><body><a href='https://nrtm.db.ripe.net/TEST/update-notification-file.json'>TEST</a><br/><a href='https://nrtm.db.ripe.net/TEST-NONAUTH/update-notification-file.json'>TEST-NONAUTH</a><br/><body></html>"));
     }
@@ -233,9 +230,8 @@ public class SnapshotFileGenerationTestIntegration extends AbstractNrtmIntegrati
 
     @Test
     public void should_throw_exception_invalid_filename()  {
-        final Response response = createResource("TEST/nrtm-pshot.1.TEST.f7c94b039f9743fa4d6368b54e64bb0f")
-                .request(MediaType.APPLICATION_OCTET_STREAM).header("X-Forwarded-Proto", "HTTPS")
-                .get(Response.class);
+        final Response response = getResponseFromHttpsRequest("TEST/nrtm-pshot.1.TEST" +
+                ".f7c94b039f9743fa4d6368b54e64bb0f", MediaType.APPLICATION_OCTET_STREAM);
         assertThat(response.getStatus(), is(400));
         assertThat(response.readEntity(String.class), is("Invalid Nrtm filename"));
 
@@ -243,18 +239,16 @@ public class SnapshotFileGenerationTestIntegration extends AbstractNrtmIntegrati
 
     @Test
     public void should_throw_exception_snapshot_file_not_found()  {
-        final Response response = createResource("TEST-NONAUTH/nrtm-snapshot.1.TEST-NONAUTH.4ef06e8c4e4891411be.json.gz")
-                .request(MediaType.APPLICATION_OCTET_STREAM).header("X-Forwarded-Proto", "HTTPS")
-                .get(Response.class);
+        final Response response = getResponseFromHttpsRequest("TEST-NONAUTH/nrtm-snapshot.1.TEST-NONAUTH.4ef06e8c4e4891411be" +
+                ".json.gz", MediaType.APPLICATION_OCTET_STREAM);
         assertThat(response.getStatus(), is(404));
         assertThat(response.readEntity(String.class), is("Requested Snapshot file does not exists"));
     }
 
     @Test
     public void should_throw_exception_invalid_source_filename_combo()  {
-        final Response response = createResource("TEST/nrtm-snapshot.1.TEST-NONAUTH.4e9e8c4e4891411be.json.gz")
-                .request(MediaType.APPLICATION_OCTET_STREAM).header("X-Forwarded-Proto", "HTTPS")
-                .get(Response.class);
+        final Response response = getResponseFromHttpsRequest("TEST/nrtm-snapshot.1.TEST-NONAUTH.4e9e8c4e4891411be" +
+                ".json.gz", MediaType.APPLICATION_OCTET_STREAM);
         assertThat(response.getStatus(), is(400));
         assertThat(response.readEntity(String.class), is("Invalid source and filename combination"));
     }
