@@ -38,6 +38,6 @@ public class NrtmHttpSchemeFilter implements Filter {
     }
 
     private boolean isHttps(HttpServletRequest request) {
-        return HttpScheme.HTTPS.is(request.getHeaders(HttpHeader.X_FORWARDED_PROTO.asString()).nextElement().toLowerCase());
+        return HttpScheme.HTTPS.is(request.getHeaders(HttpHeader.X_FORWARDED_PROTO.asString()).nextElement());
     }
 }
