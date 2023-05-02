@@ -53,7 +53,7 @@ public abstract class FulltextSearch {
 
         return result;
     }
-
+    
     protected String escape(final String value) {
         return value.replaceAll("[/]", "\\\\/");
     }
