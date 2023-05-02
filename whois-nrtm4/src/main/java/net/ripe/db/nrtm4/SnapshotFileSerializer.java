@@ -7,6 +7,7 @@ import com.fasterxml.jackson.core.util.DefaultPrettyPrinter;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import net.ripe.db.nrtm4.domain.NrtmDocumentType;
 import net.ripe.db.nrtm4.domain.NrtmVersionInfo;
+import net.ripe.db.whois.common.rpsl.ObjectType;
 import net.ripe.db.whois.common.rpsl.RpslObject;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -48,7 +49,10 @@ public class SnapshotFileSerializer {
         jGenerator.writeNumberField("version", version.version());
         jGenerator.writeArrayFieldStart("objects");
         while (rpslObjectIterator.hasNext()) {
-            jGenerator.writeString(rpslObjectIterator.next().toString());
+            final RpslObject rpslObject = rpslObjectIterator.next();
+            if(rpslObject.getType() == ObjectType.INETNUM) {
+                jGenerator.writeString(rpslObject.toString());
+            }
         }
         jGenerator.writeEndArray();
         jGenerator.writeEndObject();
