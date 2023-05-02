@@ -72,6 +72,7 @@ public class DummifierNrtmV4 {
 
     public RpslObject dummify(final int version, final RpslObject rpslObject) {
 
+        final ObjectType objectType = rpslObject.getType();
         Validate.isTrue(isAllowed(version, rpslObject), "The given object type should be skipped", objectType);
 
         // [EB]: Shortcircuit for objects we'd normally skip for old protocols.
