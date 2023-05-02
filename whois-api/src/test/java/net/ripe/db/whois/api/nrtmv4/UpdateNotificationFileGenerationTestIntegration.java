@@ -31,9 +31,8 @@ public class UpdateNotificationFileGenerationTestIntegration extends AbstractNrt
         createNrtmSource();
         updateNotificationFileGenerator.generateFile();
 
-        final Response response = createResource("TEST/update-notification-file.json")
-                .request(MediaType.APPLICATION_JSON)
-                .get(Response.class);
+        final Response response = getResponseFromHttpsRequest("TEST/update-notification-file.json",
+                MediaType.APPLICATION_JSON);
 
         assertThat(response.getStatus(), is(404));
     }
@@ -241,9 +240,8 @@ public class UpdateNotificationFileGenerationTestIntegration extends AbstractNrt
 
     @Test
     public void should_throw_exception_invalid_source_notification_file()  {
-        final Response response = createResource("TEST/update-notification-file.json")
-                .request(MediaType.APPLICATION_JSON)
-                .get(Response.class);
+        final Response response = getResponseFromHttpsRequest("TEST/update-notification-file.json",
+                MediaType.APPLICATION_JSON);
         assertThat(response.getStatus(), is(400));
         assertThat(response.readEntity(String.class), is("Invalid source"));
     }
@@ -251,9 +249,8 @@ public class UpdateNotificationFileGenerationTestIntegration extends AbstractNrt
     @Test
     public void should_throw_exception_notification_file_not_found() {
         createNrtmSource();
-        final Response response = createResource("TEST/update-notification-file.json")
-                .request(MediaType.APPLICATION_JSON)
-                .get(Response.class);
+        final Response response = getResponseFromHttpsRequest("TEST/update-notification-file.json",
+                MediaType.APPLICATION_JSON);
 
         assertThat(response.getStatus(), is(404));
         assertThat(response.readEntity(String.class), is("update-notification-file.json does not exists for source TEST"));
