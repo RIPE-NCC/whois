@@ -13,9 +13,9 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import javax.servlet.http.HttpServletRequest;
+import javax.ws.rs.BadRequestException;
 import javax.ws.rs.GET;
 import javax.ws.rs.NotFoundException;
-import javax.ws.rs.BadRequestException;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
@@ -51,7 +51,6 @@ public class NrtmClientService {
     @GET
     @Produces(MediaType.TEXT_HTML)
     public String sourcesLinkAsHtml() {
-
         final StringBuilder sourceLink = new StringBuilder();
 
         sourceRepository.getSources().forEach(sourceModel ->
