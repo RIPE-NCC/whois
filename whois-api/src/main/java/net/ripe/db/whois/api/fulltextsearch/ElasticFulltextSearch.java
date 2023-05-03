@@ -23,6 +23,7 @@ import org.elasticsearch.search.aggregations.bucket.terms.Terms;
 import org.elasticsearch.search.aggregations.bucket.terms.TermsAggregationBuilder;
 import org.elasticsearch.search.builder.SearchSourceBuilder;
 import org.elasticsearch.search.fetch.subphase.highlight.HighlightBuilder;
+import org.elasticsearch.search.fetch.subphase.highlight.HighlightField;
 import org.elasticsearch.search.sort.SortBuilder;
 import org.elasticsearch.search.sort.SortBuilders;
 import org.slf4j.Logger;
@@ -37,6 +38,7 @@ import org.springframework.stereotype.Component;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
 @Component
@@ -167,9 +169,13 @@ public class ElasticFulltextSearch extends FulltextSearch {
         final SearchResponse.Lst documentLst = new SearchResponse.Lst(hit.getId());
         final List<SearchResponse.Arr> documentArrs = Lists.newArrayList();
 
-
-        hit.getHighlightFields().forEach((attribute, highlightField) -> {
-            if(attribute.contains(".custom")) {
+        for (Map.Entry<String, HighlightField> highlightFieldMap : hit.getHighlightFields().entrySet()) {
+            final HighlightField highlightField = highlightFieldMap.getValue();
+            final String attribute = highlightFieldMap.getKey();
+            if ("lookup-key".equals(highlightField.name())){
+                continue;
+            }
+            if(highlightFieldMap.getKey().contains(".custom")) {
                 final SearchResponse.Arr arr = new SearchResponse.Arr(StringUtils.substringBefore(highlightField.name(), ".custom"));
                 arr.setStr(new SearchResponse.Str(null, StringUtils.join(highlightField.getFragments(), ",")));
                 documentArrs.add(arr);
@@ -180,8 +186,7 @@ public class ElasticFulltextSearch extends FulltextSearch {
                 arr.setStr(new SearchResponse.Str(null, StringUtils.join(highlightField.getFragments(), ",")));
                 documentArrs.add(arr);
             }
-        });
-
+        }
         documentLst.setArrs(documentArrs);
         return documentLst;
     }
