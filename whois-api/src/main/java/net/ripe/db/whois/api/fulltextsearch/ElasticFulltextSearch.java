@@ -172,7 +172,7 @@ public class ElasticFulltextSearch extends FulltextSearch {
         for (Map.Entry<String, HighlightField> highlightFieldMap : hit.getHighlightFields().entrySet()) {
             final HighlightField highlightField = highlightFieldMap.getValue();
             final String attribute = highlightFieldMap.getKey();
-            if ("lookup-key".equals(highlightField.name())){
+            if ("lookup-key".equals(attribute)){
                 continue;
             }
             if(highlightFieldMap.getKey().contains(".custom")) {
