@@ -172,10 +172,10 @@ public class ElasticFulltextSearch extends FulltextSearch {
         for (Map.Entry<String, HighlightField> highlightFieldMap : hit.getHighlightFields().entrySet()) {
             final HighlightField highlightField = highlightFieldMap.getValue();
             final String attribute = highlightFieldMap.getKey();
-            if ("lookup-key".equals(attribute)){
+            if ("lookup-key".equals(attribute) || "lookup-key.custom".equals(attribute)){
                 continue;
             }
-            if(highlightFieldMap.getKey().contains(".custom")) {
+            if(attribute.contains(".custom")) {
                 final SearchResponse.Arr arr = new SearchResponse.Arr(StringUtils.substringBefore(highlightField.name(), ".custom"));
                 arr.setStr(new SearchResponse.Str(null, StringUtils.join(highlightField.getFragments(), ",")));
                 documentArrs.add(arr);
