@@ -944,8 +944,7 @@ public class ElasticFullTextSearchTestIntegration  extends AbstractElasticSearch
         assertThat(queryResponse.getResults().getNumFound(), is(1L));
         assertThat(queryResponse.getResults(), hasSize(1));
         assertThat(queryResponse.getHighlighting().keySet(), contains("1"));
-        assertThat(queryResponse.getHighlighting().get("1").keySet(), hasSize(3));
-        assertThat(queryResponse.getHighlighting().get("1").get("lookup-key"), contains("<b>DEV-MNT<\\/b>"));
+        assertThat(queryResponse.getHighlighting().get("1").keySet(), hasSize(2));
         assertThat(queryResponse.getHighlighting().get("1").get("mntner"), contains("<b>DEV-MNT<\\/b>"));
         assertThat(queryResponse.getHighlighting().get("1").get("remarks"), contains("<b>DEV<\\/b> mntner"));
     }
@@ -981,9 +980,9 @@ public class ElasticFullTextSearchTestIntegration  extends AbstractElasticSearch
         assertThat(searchResponse.getLsts().get(1).getName(), is("highlighting"));
         assertThat(searchResponse.getLsts().get(1).getLsts(), hasSize(1));
         assertThat(searchResponse.getLsts().get(1).getLsts().get(0).getName(), is("1"));
-        assertThat(searchResponse.getLsts().get(1).getLsts().get(0).getArrs(), hasSize(3));
-        assertThat(searchResponse.getLsts().get(1).getLsts().get(0).getArrs().get(0).getName(), is("lookup-key"));
-        assertThat(searchResponse.getLsts().get(1).getLsts().get(0).getArrs().get(0).getStr().getValue(), is("<b>DEV-MNT</b>"));
+        assertThat(searchResponse.getLsts().get(1).getLsts().get(0).getArrs(), hasSize(2));
+        assertThat(searchResponse.getLsts().get(1).getLsts().get(0).getArrs().get(0).getName(), is("remarks"));
+        assertThat(searchResponse.getLsts().get(1).getLsts().get(0).getArrs().get(0).getStr().getValue(), is("<b>DEV</b> mntner"));
         assertThat(searchResponse.getLsts().get(2).getName(), is("version"));
     }
 
@@ -1002,8 +1001,7 @@ public class ElasticFullTextSearchTestIntegration  extends AbstractElasticSearch
         assertThat(queryResponse.getResults().getNumFound(), is(1L));
         assertThat(queryResponse.getResults(), hasSize(1));
         assertThat(queryResponse.getHighlighting().keySet(), contains("1"));
-        assertThat(queryResponse.getHighlighting().get("1").keySet(), hasSize(3));
-        assertThat(queryResponse.getHighlighting().get("1").get("lookup-key"), contains("<b>DEV-MNT<\\/b>"));
+        assertThat(queryResponse.getHighlighting().get("1").keySet(), hasSize(2));
         assertThat(queryResponse.getHighlighting().get("1").get("mntner"), contains("<b>DEV-MNT<\\/b>"));
         assertThat(queryResponse.getHighlighting().get("1").get("remarks"), contains("\"<b>DEV<\\/b> mntner\""));
     }
