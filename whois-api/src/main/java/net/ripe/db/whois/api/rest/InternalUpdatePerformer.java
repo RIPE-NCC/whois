@@ -106,7 +106,7 @@ public class InternalUpdatePerformer {
                 responseBuilder = Response.status(Response.Status.OK);
                 break;
             case FAILED_AUTHENTICATION:
-                responseBuilder = Response.status(Response.Status.FORBIDDEN);
+                responseBuilder = Response.status(Response.Status.UNAUTHORIZED);
                     break;
             case FAILED_AUTHORISATION:
                 responseBuilder = Response.status(Response.Status.FORBIDDEN);
