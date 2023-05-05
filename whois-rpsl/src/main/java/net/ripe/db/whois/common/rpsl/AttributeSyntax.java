@@ -401,11 +401,10 @@ public interface AttributeSyntax extends Documented {
     AttributeSyntax ORG_NAME_SYNTAX = new AttributeSyntaxRegexp(
             Pattern.compile("(?i)^[\\]\\[A-Z0-9._\"*()@,&:!'`+\\/-]{1,64}( [\\]\\[A-Z0-9._\"*()@,&:!'`+\\/-]{1,64}){0,29}$"), "" +
             "A list of 1 to 30 words separated by white space\n." +
-            "A word is made up of ASCII characters and additionally:\n" +
+            "A word is made up of ASCII alphanumeric characters and additionally:\n" +
             "][)(._\"*@,&:!'`+/-\n" +
             "A word may have up to 64 characters and is not case sensitive. Each word can have any combination of the" +
-            " above characters with no restriction on the start or end of a word.\n" +
-            "If this don't comply your requirements, we suggest to use remarks or description attribute"
+            " above characters with no restriction on the start or end of a word."
     );
 
     AttributeSyntax ORG_TYPE_SYNTAX = new OrgTypeSyntax();
@@ -901,12 +900,11 @@ public interface AttributeSyntax extends Documented {
         public String getDescription(final ObjectType objectType) {
             return "" +
                     "It should contain 2 to 10 words.\n" +
-                    "A word is made up of ASCII characters and additionally:\n" +
+                    "A word is made up of ASCII alphanumeric characters and additionally:\n" +
                     ".`'_-\n" +
                     "The first word should begin with a letter.\n" +
                     "At least one other word should also begin with a letter.\n" +
-                    "Max 64 characters can be used in each word.\n" +
-                    "If this don't comply your requirements, we suggest to use remarks or description attribute";
+                    "Max 64 characters can be used in each word.";
         }
     }
 
