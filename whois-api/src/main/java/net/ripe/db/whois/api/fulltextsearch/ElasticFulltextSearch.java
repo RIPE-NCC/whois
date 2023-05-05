@@ -92,7 +92,7 @@ public class ElasticFulltextSearch extends FulltextSearch {
                 final HighlightBuilder highlightBuilder = new HighlightBuilder()
                         .postTags(getHighlightTag(searchRequest.getFormat(), searchRequest.getHighlightPost()))
                         .preTags(getHighlightTag(searchRequest.getFormat(), searchRequest.getHighlightPre()))
-                        .field("max_analyzed_offset", 400000)
+                        .maxAnalyzedOffset(100000)
                         .field("*");
 
                 final SearchSourceBuilder sourceBuilder = new SearchSourceBuilder()
