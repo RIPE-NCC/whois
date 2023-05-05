@@ -14,6 +14,7 @@ import net.ripe.db.whois.common.rpsl.ObjectType;
 import net.ripe.db.whois.common.rpsl.RpslObject;
 import net.ripe.db.whois.update.authentication.strategy.AuthenticationFailedException;
 import net.ripe.db.whois.update.authentication.strategy.AuthenticationStrategy;
+import net.ripe.db.whois.update.authentication.strategy.AuthorisationFailedException;
 import net.ripe.db.whois.update.domain.Origin;
 import net.ripe.db.whois.update.domain.OverrideCredential;
 import net.ripe.db.whois.update.domain.PasswordCredential;
@@ -147,6 +148,7 @@ public class Authenticator {
 
     private Subject performAuthentication(final Origin origin, final PreparedUpdate update, final UpdateContext updateContext) {
         final Set<Message> authenticationMessages = Sets.newLinkedHashSet();
+        final Set<Message> authorisationMessages = Sets.newLinkedHashSet();
         final Set<RpslObject> authenticatedObjects = Sets.newLinkedHashSet();
 
         final Set<String> passedAuthentications = new HashSet<>();
@@ -160,6 +162,9 @@ public class Authenticator {
                     try {
                         authenticatedObjects.addAll(authenticationStrategy.authenticate(update, updateContext));
                         passedAuthentications.add(authenticationStrategy.getName());
+                    } catch (AuthorisationFailedException e){
+                        authorisationMessages.addAll(e.getAuthorisationMessages());
+                        failedAuthentications.add(authenticationStrategy.getName());
                     } catch (AuthenticationFailedException e) {
                         authenticationMessages.addAll(e.getAuthenticationMessages());
                         failedAuthentications.add(authenticationStrategy.getName());
@@ -183,7 +188,9 @@ public class Authenticator {
         if (!authenticationMessages.isEmpty()) {
             handleFailure(update, updateContext, authenticationMessages);
         }
-
+        if (!authorisationMessages.isEmpty()) {
+            handleAuthorisationFailure(update, updateContext, authenticationMessages);
+        }
         return subject;
     }
 
@@ -200,6 +207,14 @@ public class Authenticator {
         return principals;
     }
 
+    private void handleAuthorisationFailure(final PreparedUpdate update, final UpdateContext updateContext,
+                                final Set<Message> authenticationMessages) {
+        updateContext.status(update, UpdateStatus.FAILED_AUTHORISATION);
+
+        for (final Message message : authenticationMessages) {
+            updateContext.addMessage(update, message);
+        }
+    }
     private void handleFailure(final PreparedUpdate update, final UpdateContext updateContext, final Set<Message> authenticationMessages) {
         updateContext.status(update, UpdateStatus.FAILED_AUTHENTICATION);
 

@@ -3,6 +3,7 @@ package net.ripe.db.whois.update.domain;
 public enum UpdateStatus {
     EXCEPTION("FAILED"),
     FAILED_AUTHENTICATION("FAILED"),
+    FAILED_AUTHORISATION("FAILED"),
     FAILED("FAILED"),
     SUCCESS("SUCCESS");
 

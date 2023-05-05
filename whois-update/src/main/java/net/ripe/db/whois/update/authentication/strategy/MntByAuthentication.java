@@ -99,9 +99,13 @@ public class MntByAuthentication extends AuthenticationStrategyBase {
             }
         }
 
+        if(update.getCredentials().all().isEmpty()){
+            throw new AuthenticationFailedException(UpdateMessages.authenticationFailed(authenticationObject, AttributeType.MNT_BY, candidates), candidates);
+        }
+
         final List<RpslObject> authenticatedBy = authenticationModule.authenticate(update, updateContext, candidates, getClass());
         if (authenticatedBy.isEmpty()) {
-            throw new AuthenticationFailedException(UpdateMessages.authenticationFailed(authenticationObject, AttributeType.MNT_BY, candidates), candidates);
+            throw new AuthorisationFailedException(UpdateMessages.authenticationFailed(authenticationObject, AttributeType.MNT_BY, candidates), candidates);
         }
 
         return authenticatedBy;

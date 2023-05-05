@@ -58,6 +58,7 @@ public class AuthenticationModule {
                                          final Collection<RpslObject> maintainers,
                                          final Class<? extends AuthenticationStrategy> authenticationStrategyClass) {
         final Credentials offered = update.getCredentials();
+
         boolean passwordRemovedRemark = false;
 
         loggerContext.logAuthenticationStrategy(update.getUpdate(), authenticationStrategyClass.getName(), maintainers);
