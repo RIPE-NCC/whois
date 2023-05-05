@@ -87,11 +87,6 @@ public class ElasticSearchHelper {
 
         final XContentBuilder indexSettings =  XContentFactory.jsonBuilder();
         indexSettings.startObject()
-                .startObject("index")
-                    .startObject("highlight")
-                        .field("max_analyzed_offset", "500000")
-                    .endObject()
-                .endObject()
                 .startObject("analysis")
                      .startObject("analyzer")
                          .startObject("fulltext_analyzer")

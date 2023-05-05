@@ -92,6 +92,7 @@ public class ElasticFulltextSearch extends FulltextSearch {
                 final HighlightBuilder highlightBuilder = new HighlightBuilder()
                         .postTags(getHighlightTag(searchRequest.getFormat(), searchRequest.getHighlightPost()))
                         .preTags(getHighlightTag(searchRequest.getFormat(), searchRequest.getHighlightPre()))
+                        .field("max_analyzed_offset", 400000)
                         .field("*");
 
                 final SearchSourceBuilder sourceBuilder = new SearchSourceBuilder()
@@ -168,9 +169,9 @@ public class ElasticFulltextSearch extends FulltextSearch {
         final List<SearchResponse.Arr> documentArrs = Lists.newArrayList();
 
         hit.getHighlightFields().forEach((attribute, highlightField) -> {
-            if("lookup-key".equals(attribute) || "lookup-key.custom".equals(attribute)){
+            /*if("lookup-key".equals(attribute) || "lookup-key.custom".equals(attribute)){
                 return;
-            }
+            }*/
             if(attribute.contains(".custom")) {
                 final SearchResponse.Arr arr = new SearchResponse.Arr(StringUtils.substringBefore(highlightField.name(), ".custom"));
                 arr.setStr(new SearchResponse.Str(null, StringUtils.join(highlightField.getFragments(), ",")));
