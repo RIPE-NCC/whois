@@ -16,9 +16,11 @@ import net.ripe.db.whois.common.DateTimeProvider;
 import net.ripe.db.whois.common.domain.CIString;
 import net.ripe.db.whois.common.rpsl.Dummifier;
 import net.ripe.db.whois.common.rpsl.DummifierNrtmV4;
+import net.ripe.db.whois.common.rpsl.ObjectType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import java.io.ByteArrayOutputStream;
@@ -54,17 +56,15 @@ public class SnapshotFileGenerator {
     private final NrtmFileRepository nrtmFileRepository;
     private final DateTimeProvider dateTimeProvider;
 
-
     public SnapshotFileGenerator(
-        final DummifierNrtmV4 dummifierNrtmV4,
-        final NrtmVersionInfoRepository nrtmVersionInfoRepository,
-        final RpslObjectEnqueuer rpslObjectEnqueuer,
-        final WhoisObjectRepository whoisObjectRepository,
-        final SnapshotFileRepository snapshotFileRepository,
-        final NrtmFileRepository nrtmFileRepository,
-        final DateTimeProvider dateTimeProvider,
-        final SnapshotFileSerializer snapshotFileSerializer,
-        final SourceRepository sourceRepository
+            final DummifierNrtmV4 dummifierNrtmV4,
+            final NrtmVersionInfoRepository nrtmVersionInfoRepository,
+            final RpslObjectEnqueuer rpslObjectEnqueuer,
+            final WhoisObjectRepository whoisObjectRepository,
+            final NrtmFileRepository nrtmFileRepository,
+            final DateTimeProvider dateTimeProvider,
+            final SnapshotFileSerializer snapshotFileSerializer,
+            final SourceRepository sourceRepository
     ) {
         this.dummifierNrtmV4 = dummifierNrtmV4;
         this.nrtmVersionInfoRepository = nrtmVersionInfoRepository;
@@ -76,7 +76,7 @@ public class SnapshotFileGenerator {
         this.dateTimeProvider = dateTimeProvider;
     }
 
-    public void createSnapshot() {
+        public void createSnapshot() {
         final Stopwatch stopwatch = Stopwatch.createStarted();
         final List<NrtmSource> sources = getSources();
         final List<NrtmVersionInfo> sourceVersions = nrtmVersionInfoRepository.findLastVersionPerSource();
@@ -114,6 +114,7 @@ public class SnapshotFileGenerator {
         }
         LOGGER.info("Snapshot generation complete {}", stopwatch);
     }
+
 
     private boolean canProceed(final List<NrtmVersionInfo> sourceVersions, final NrtmSource source) {
         if(!sourceVersions.isEmpty()) {
