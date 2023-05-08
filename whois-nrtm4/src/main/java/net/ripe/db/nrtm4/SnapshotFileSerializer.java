@@ -14,10 +14,12 @@ import org.springframework.stereotype.Service;
 
 import java.io.IOException;
 import java.io.OutputStream;
+import java.util.Arrays;
 import java.util.EnumSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
+import java.util.stream.Stream;
 
 import static net.ripe.db.nrtm4.NrtmConstants.NRTM_VERSION;
 
@@ -26,14 +28,15 @@ import static net.ripe.db.nrtm4.NrtmConstants.NRTM_VERSION;
 public class SnapshotFileSerializer {
 
     private final boolean isPrettyPrintSnapshots;
-    private final Set<ObjectType> objectTypes;
+    private final List<ObjectType> objectTypes;
 
     SnapshotFileSerializer(
         @Value("${nrtm.prettyprint.snapshots:false}") final boolean isPrettyPrintSnapshots,
-        @Value("#{'${nrtmv4.objectTypes:}'.split(',')}") final Set<ObjectType> objectTypes
+        @Value("${nrtmv4.objectTypes:}") final String objectTypes
         ) {
         this.isPrettyPrintSnapshots = isPrettyPrintSnapshots;
-        this.objectTypes = objectTypes.isEmpty() ? EnumSet.allOf(ObjectType.class) : objectTypes;
+        this.objectTypes = objectTypes.isBlank() ? EnumSet.allOf(ObjectType.class).stream().toList() :
+                Stream.of(objectTypes.split(",", -1)).map(objectType -> ObjectType.getByName(objectType)).toList();
     }
 
     public void writeObjectsAsJsonToOutputStream(
