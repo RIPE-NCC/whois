@@ -123,12 +123,16 @@ public class AttributeSyntaxTest {
         verifySuccess(ObjectType.MNTNER, AttributeType.AUTH, "SSO test2-+._sso@ripe.net");
         verifySuccess(ObjectType.MNTNER, AttributeType.AUTH, "SSO P'O@ripe.net");
         verifySuccess(ObjectType.MNTNER, AttributeType.AUTH, "SSO P-L@ripe.net");
+        verifySuccess(ObjectType.MNTNER, AttributeType.AUTH, "SSO P&L@ripe.net");
+        verifySuccess(ObjectType.MNTNER, AttributeType.AUTH, "SSO a@b");
 
         verifyFailure(ObjectType.MNTNER, AttributeType.AUTH, "x509-ab./");
         verifyFailure(ObjectType.MNTNER, AttributeType.AUTH, "x509-ab./");
         verifyFailure(ObjectType.MNTNER, AttributeType.AUTH, "pgpkey-ghij./12");
         verifyFailure(ObjectType.MNTNER, AttributeType.AUTH, "SSO tes,,,.....");
         verifyFailure(ObjectType.MNTNER, AttributeType.AUTH, "SSO ");
+        verifyFailure(ObjectType.MNTNER, AttributeType.AUTH, "SSO a");
+        verifyFailure(ObjectType.MNTNER, AttributeType.AUTH, "SSO a@");
 
         verifyFailure(ObjectType.MNTNER, AttributeType.AUTH, "md5-pw bcdefghijklmnopqrstuvwx");
         verifyFailure(ObjectType.MNTNER, AttributeType.AUTH, "md5-pw $1$abcdefghi$bcdefghijklmnopqrstuvwx");
