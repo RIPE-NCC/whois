@@ -50,7 +50,9 @@ public class WhoisObjectRepository {
             final Map<Integer, Integer> whoisChanges = whoisObjectDao.geMinimumSequenceIdBetweenSerials(serialFrom, lastSerialId);
             whoisChanges.forEach((objectId, sequenceId) -> {
                 //sequence id 1 means object is created so skip it
-                if (sequenceId != 1) {
+                if (sequenceId == 1) {
+                    objects.remove(objectId);
+                } else {
                     objects.put(objectId, sequenceId - 1);
                 }
             });
