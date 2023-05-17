@@ -7,6 +7,7 @@ import net.ripe.db.nrtm4.domain.PublishableDeltaFile;
 import net.ripe.db.nrtm4.domain.PublishableNotificationFile;
 import net.ripe.db.whois.api.AbstractNrtmIntegrationTest;
 import net.ripe.db.whois.common.rpsl.DummifierNrtm;
+import net.ripe.db.whois.common.rpsl.DummifierNrtmV4;
 import net.ripe.db.whois.common.rpsl.RpslObject;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
@@ -28,7 +29,7 @@ import static org.hamcrest.Matchers.notNullValue;
 @DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_EACH_TEST_METHOD)
 public class DeltaFileGenerationTestIntegration extends AbstractNrtmIntegrationTest {
     @Autowired
-    DummifierNrtm dummifierNrtm;
+    DummifierNrtmV4 dummifierNrtmV4;
 
     @Test
     public void should_get_delta_file() {
@@ -57,7 +58,7 @@ public class DeltaFileGenerationTestIntegration extends AbstractNrtmIntegrationT
         assertThat(testDelta.getChanges().size(), is(1));
 
         assertThat(testDelta.getChanges().get(0).getAction().toLowerCaseName(), is("add_modify"));
-        assertThat(testDelta.getChanges().get(0).getObject().toString(), is(dummifierNrtm.dummify(4, updatedObject).toString()));
+        assertThat(testDelta.getChanges().get(0).getObject().toString(), is(dummifierNrtmV4.dummify(updatedObject).toString()));
     }
 
     @Test
@@ -191,7 +192,7 @@ public class DeltaFileGenerationTestIntegration extends AbstractNrtmIntegrationT
 
         final DeltaChange updateChange = testDelta.getChanges().get(0);
         assertThat(updateChange.getAction().toLowerCaseName(), is("add_modify"));
-        assertThat(updateChange.getObject().toString(), is(dummifierNrtm.dummify(4, updatedObject).toString()));
+        assertThat(updateChange.getObject().toString(), is(dummifierNrtmV4.dummify(updatedObject).toString()));
 
         final DeltaChange deleteChange = testDelta.getChanges().get(1);
         assertThat(deleteChange.getAction().toLowerCaseName(), is("delete"));
