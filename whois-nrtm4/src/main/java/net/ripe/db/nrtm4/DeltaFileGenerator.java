@@ -14,6 +14,7 @@ import net.ripe.db.whois.common.domain.serials.Operation;
 import net.ripe.db.whois.common.domain.serials.SerialEntry;
 import net.ripe.db.whois.common.rpsl.AttributeType;
 import net.ripe.db.whois.common.rpsl.DummifierNrtm;
+import net.ripe.db.whois.common.rpsl.DummifierNrtmV4;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
@@ -33,7 +34,7 @@ public class DeltaFileGenerator {
     private static final Logger LOGGER = LoggerFactory.getLogger(DeltaFileGenerator.class);
 
     private final NrtmFileRepository nrtmFileRepository;
-    private final DummifierNrtm dummifier;
+    private final DummifierNrtmV4 dummifierNrtmV4;
     private final DateTimeProvider dateTimeProvider;
     private final NrtmVersionInfoRepository nrtmVersionInfoRepository;
     private final WhoisObjectRepository whoisObjectRepository;
@@ -42,14 +43,14 @@ public class DeltaFileGenerator {
 
     DeltaFileGenerator(
             final NrtmFileRepository nrtmFileRepository,
-            final DummifierNrtm dummifier,
+            final DummifierNrtmV4 dummifierNrtmV4,
             final NrtmVersionInfoRepository nrtmVersionInfoRepository,
             final WhoisObjectDao whoisObjectDao,
             final DateTimeProvider dateTimeProvider,
             final WhoisObjectRepository whoisObjectRepository
     ) {
         this.nrtmFileRepository = nrtmFileRepository;
-        this.dummifier = dummifier;
+        this.dummifierNrtmV4 = dummifierNrtmV4;
         this.nrtmVersionInfoRepository = nrtmVersionInfoRepository;
         this.whoisObjectRepository = whoisObjectRepository;
         this.whoisObjectDao = whoisObjectDao;
@@ -72,7 +73,7 @@ public class DeltaFileGenerator {
         LOGGER.info("Number of objects found between serial id {} - {} is {} ", sourceVersions.get(0).lastSerialId(), serialIDTo, whoisChanges.size());
         // iterate changes and divide objects per source
         for (final SerialEntry serialEntry : whoisChanges) {
-            if (!dummifier.isAllowed(NRTM_VERSION, serialEntry.getRpslObject())) {
+            if (!dummifierNrtmV4.isAllowed(serialEntry.getRpslObject())) {
                 continue;
             }
             final CIString source = serialEntry.getRpslObject().getValueForAttribute(AttributeType.SOURCE);
@@ -95,7 +96,7 @@ public class DeltaFileGenerator {
     private DeltaChange getDeltaChange(final SerialEntry serialEntry) {
         return serialEntry.getOperation() == Operation.DELETE ?
                 DeltaChange.delete(serialEntry.getRpslObject().getType(), serialEntry.getPrimaryKey())
-                : DeltaChange.addModify(dummifier.dummify(NRTM_VERSION, serialEntry.getRpslObject()));
+                : DeltaChange.addModify(dummifierNrtmV4.dummify(serialEntry.getRpslObject()));
     }
 
     private void cleanUpOldFiles() {
