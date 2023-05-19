@@ -2,10 +2,10 @@ package net.ripe.db.nrtm4;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import net.ripe.db.nrtm4.dao.DeltaFileDao;
-import net.ripe.db.nrtm4.dao.NotificationFileDao;
-import net.ripe.db.nrtm4.dao.NrtmVersionInfoRepository;
-import net.ripe.db.nrtm4.dao.SnapshotFileRepository;
-import net.ripe.db.nrtm4.dao.SourceRepository;
+import net.ripe.db.nrtm4.dao.UpdateNotificationFileDao;
+import net.ripe.db.nrtm4.dao.NrtmVersionInfoDao;
+import net.ripe.db.nrtm4.dao.SnapshotFileDao;
+import net.ripe.db.nrtm4.dao.NrtmSourceDao;
 import net.ripe.db.nrtm4.domain.DeltaFileVersionInfo;
 import net.ripe.db.nrtm4.domain.NotificationFile;
 import net.ripe.db.nrtm4.domain.NrtmSource;
@@ -33,40 +33,40 @@ public class UpdateNotificationFileGenerator {
     private final String baseUrl;
     private final DateTimeProvider dateTimeProvider;
     private final DeltaFileDao deltaFileDao;
-    private final NotificationFileDao notificationFileDao;
-    private final NrtmVersionInfoRepository nrtmVersionInfoRepository;
-    private final SnapshotFileRepository snapshotFileRepository;
-    private final SourceRepository sourceRepository;
+    private final UpdateNotificationFileDao updateNotificationFileDao;
+    private final NrtmVersionInfoDao nrtmVersionInfoDao;
+    private final SnapshotFileDao snapshotFileDao;
+    private final NrtmSourceDao nrtmSourceDao;
 
     public UpdateNotificationFileGenerator(
         @Value("${nrtm.baseUrl}") final String baseUrl,
         final DateTimeProvider dateTimeProvider,
         final DeltaFileDao deltaFileDao,
-        final NotificationFileDao notificationFileDao,
-        final NrtmVersionInfoRepository nrtmVersionInfoRepository,
-        final SourceRepository sourceRepository,
-        final SnapshotFileRepository snapshotFileRepository
+        final UpdateNotificationFileDao updateNotificationFileDao,
+        final NrtmVersionInfoDao nrtmVersionInfoDao,
+        final NrtmSourceDao nrtmSourceDao,
+        final SnapshotFileDao snapshotFileDao
     ) {
         this.baseUrl = baseUrl;
         this.dateTimeProvider = dateTimeProvider;
         this.deltaFileDao = deltaFileDao;
-        this.notificationFileDao = notificationFileDao;
-        this.nrtmVersionInfoRepository = nrtmVersionInfoRepository;
-        this.snapshotFileRepository = snapshotFileRepository;
-        this.sourceRepository = sourceRepository;
+        this.updateNotificationFileDao = updateNotificationFileDao;
+        this.nrtmVersionInfoDao = nrtmVersionInfoDao;
+        this.snapshotFileDao = snapshotFileDao;
+        this.nrtmSourceDao = nrtmSourceDao;
     }
 
     public void generateFile() {
         LOGGER.info("Generating the update notification file");
 
-       final List<NrtmSource> nrtmSources = sourceRepository.getSources();
+       final List<NrtmSource> nrtmSources = nrtmSourceDao.getSources();
        final long createdTimestamp = dateTimeProvider.getCurrentDateTime().toEpochSecond(ZoneOffset.UTC);
        final LocalDateTime oneDayAgo = dateTimeProvider.getCurrentDateTime().minusDays(1);
 
        for(final NrtmSource nrtmSource : nrtmSources) {
 
-          final Optional<NotificationFile> notificationFile = notificationFileDao.findLastNotification(nrtmSource);
-          final Optional<SnapshotFileVersionInfo> snapshotFile = snapshotFileRepository.getLastSnapshotWithVersion(nrtmSource);
+          final Optional<NotificationFile> notificationFile = updateNotificationFileDao.findLastNotification(nrtmSource);
+          final Optional<SnapshotFileVersionInfo> snapshotFile = snapshotFileDao.getLastSnapshotWithVersion(nrtmSource);
 
           if( !canProceed(notificationFile, nrtmSource, oneDayAgo, snapshotFile)) {
               LOGGER.info("Skipping generation of update notification file");
@@ -90,11 +90,11 @@ public class UpdateNotificationFileGenerator {
         }
 
         if (notificationFile.isEmpty()) {
-          notificationFileDao.save(NotificationFile.of(fileVersion.id(), createdTimestamp, json));
+          updateNotificationFileDao.save(NotificationFile.of(fileVersion.id(), createdTimestamp, json));
           return;
         }
 
-        notificationFileDao.update(NotificationFile.of(notificationFile.get().id(), fileVersion.id(), createdTimestamp, json));
+        updateNotificationFileDao.update(NotificationFile.of(notificationFile.get().id(), fileVersion.id(), createdTimestamp, json));
     }
 
     private boolean canProceed(final Optional<NotificationFile> notificationFile, final NrtmSource sourceModel, final LocalDateTime oneDayAgo, final Optional<SnapshotFileVersionInfo> snapshotFile) {
@@ -107,10 +107,10 @@ public class UpdateNotificationFileGenerator {
             return true;
         }
 
-        final NrtmVersionInfo lastVersion = nrtmVersionInfoRepository.findLastVersion(sourceModel)
+        final NrtmVersionInfo lastVersion = nrtmVersionInfoDao.findLastVersion(sourceModel)
                                                         .orElseThrow( () -> new IllegalStateException("No version exists with id " + notificationFile.get().versionId()));
 
-        final NrtmVersionInfo notificationVersion = nrtmVersionInfoRepository.findById(notificationFile.get().versionId());
+        final NrtmVersionInfo notificationVersion = nrtmVersionInfoDao.findById(notificationFile.get().versionId());
         LOGGER.info("Last notification file version  is : {}" , notificationVersion.version());
 
         if(notificationVersion.version() > lastVersion.version()) {

@@ -15,14 +15,14 @@ import javax.sql.DataSource;
 import java.util.Optional;
 
 @Repository
-public class NotificationFileSourceAwareDao {
+public class UpdateNotificationFileSourceAwareDao {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(NotificationFileSourceAwareDao.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(UpdateNotificationFileSourceAwareDao.class);
 
     private final JdbcTemplate jdbcTemplate;
     private final SourceContext sourceContext;
 
-    public NotificationFileSourceAwareDao(@Qualifier("nrtmSourceAwareDataSource") final DataSource dataSource,  @Qualifier("nrtmSourceContext") final SourceContext sourceContext) {
+    public UpdateNotificationFileSourceAwareDao(@Qualifier("nrtmSourceAwareDataSource") final DataSource dataSource, @Qualifier("nrtmSourceContext") final SourceContext sourceContext) {
         this.jdbcTemplate = new JdbcTemplate(dataSource);
         this.sourceContext = sourceContext;
     }

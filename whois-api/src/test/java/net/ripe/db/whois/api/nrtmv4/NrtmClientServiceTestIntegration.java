@@ -5,16 +5,15 @@ import com.google.common.net.HttpHeaders;
 import net.ripe.db.nrtm4.DeltaFileGenerator;
 import net.ripe.db.nrtm4.SnapshotFileGenerator;
 import net.ripe.db.nrtm4.dao.DeltaFileDao;
-import net.ripe.db.nrtm4.dao.NrtmVersionInfoRepository;
-import net.ripe.db.nrtm4.dao.SnapshotFileRepository;
-import net.ripe.db.nrtm4.dao.SourceRepository;
+import net.ripe.db.nrtm4.dao.NrtmVersionInfoDao;
+import net.ripe.db.nrtm4.dao.SnapshotFileDao;
+import net.ripe.db.nrtm4.dao.NrtmSourceDao;
 import net.ripe.db.nrtm4.domain.DeltaFileVersionInfo;
 import net.ripe.db.nrtm4.domain.NrtmVersionInfo;
 import net.ripe.db.nrtm4.domain.SnapshotFile;
 import net.ripe.db.whois.api.AbstractNrtmIntegrationTest;
 import net.ripe.db.whois.common.TestDateTimeProvider;
 import net.ripe.db.whois.common.dao.jdbc.JdbcRpslObjectOperations;
-import net.ripe.db.whois.common.rpsl.DummifierNrtm;
 import net.ripe.db.whois.common.rpsl.DummifierNrtmV4;
 import net.ripe.db.whois.common.rpsl.RpslObject;
 import org.json.JSONArray;
@@ -48,17 +47,17 @@ public class NrtmClientServiceTestIntegration extends AbstractNrtmIntegrationTes
     @Autowired
     DummifierNrtmV4 dummifierNrtm;
     @Autowired
-    private NrtmVersionInfoRepository nrtmVersionInfoRepository;
+    private NrtmVersionInfoDao nrtmVersionInfoDao;
 
     @Autowired
-    SnapshotFileRepository snapshotFileRepository;
+    SnapshotFileDao snapshotFileDao;
     @Autowired
     DeltaFileDao deltaFileDao;
     @Autowired
     TestDateTimeProvider dateTimeProvider;
 
     @Autowired
-    SourceRepository sourceRepository;
+    NrtmSourceDao nrtmSourceDao;
 
     @Autowired
     SnapshotFileGenerator snapshotFileGenerator;
@@ -205,7 +204,7 @@ public class NrtmClientServiceTestIntegration extends AbstractNrtmIntegrationTes
 
         snapshotFileGenerator.createSnapshot();
 
-        Optional<SnapshotFile> fileOptional = snapshotFileRepository.getLastSnapshot(sourceRepository.getWhoisSource().get());
+        Optional<SnapshotFile> fileOptional = snapshotFileDao.getLastSnapshot(nrtmSourceDao.getWhoisSource().get());
 
         final Response response = getResponseFromHttpsRequest("TEST/" + fileOptional.get().name(), MediaType.APPLICATION_OCTET_STREAM);
 
@@ -279,8 +278,8 @@ public class NrtmClientServiceTestIntegration extends AbstractNrtmIntegrationTes
                 "source:         TEST");
         databaseHelper.updateObject(updatedObject);
 
-        Optional<SnapshotFile> snapshotFile = snapshotFileRepository.getLastSnapshot(sourceRepository.getWhoisSource().get());
-        final NrtmVersionInfo snapshotVersion = nrtmVersionInfoRepository.findById(snapshotFile.get().versionId());
+        Optional<SnapshotFile> snapshotFile = snapshotFileDao.getLastSnapshot(nrtmSourceDao.getWhoisSource().get());
+        final NrtmVersionInfo snapshotVersion = nrtmVersionInfoDao.findById(snapshotFile.get().versionId());
 
         deltaFileGenerator.createDeltas();
 
@@ -370,8 +369,8 @@ public class NrtmClientServiceTestIntegration extends AbstractNrtmIntegrationTes
         databaseHelper.updateObject(updatedObject);
         deltaFileGenerator.createDeltas();
 
-        Optional<SnapshotFile> snapshotFile = snapshotFileRepository.getLastSnapshot(sourceRepository.getWhoisSource().get());
-        final NrtmVersionInfo snapshotVersion = nrtmVersionInfoRepository.findById(snapshotFile.get().versionId());
+        Optional<SnapshotFile> snapshotFile = snapshotFileDao.getLastSnapshot(nrtmSourceDao.getWhoisSource().get());
+        final NrtmVersionInfo snapshotVersion = nrtmVersionInfoDao.findById(snapshotFile.get().versionId());
 
         final List<DeltaFileVersionInfo> deltaFileVersion = deltaFileDao.getDeltasForNotificationSince(snapshotVersion, LocalDateTime.MIN);
 

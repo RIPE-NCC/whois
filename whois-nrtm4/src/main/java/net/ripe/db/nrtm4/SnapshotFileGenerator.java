@@ -2,8 +2,8 @@ package net.ripe.db.nrtm4;
 
 import com.google.common.base.Stopwatch;
 import net.ripe.db.nrtm4.dao.NrtmFileRepository;
-import net.ripe.db.nrtm4.dao.NrtmVersionInfoRepository;
-import net.ripe.db.nrtm4.dao.SourceRepository;
+import net.ripe.db.nrtm4.dao.NrtmVersionInfoDao;
+import net.ripe.db.nrtm4.dao.NrtmSourceDao;
 import net.ripe.db.nrtm4.dao.WhoisObjectRepository;
 import net.ripe.db.nrtm4.domain.NrtmDocumentType;
 import net.ripe.db.nrtm4.domain.NrtmSource;
@@ -42,29 +42,28 @@ public class SnapshotFileGenerator {
     private final WhoisObjectRepository whoisObjectRepository;
 
     private final DummifierNrtmV4 dummifierNrtmV4;
-    private final NrtmVersionInfoRepository nrtmVersionInfoRepository;
+    private final NrtmVersionInfoDao nrtmVersionInfoDao;
     private final RpslObjectEnqueuer rpslObjectEnqueuer;
     private final SnapshotFileSerializer snapshotFileSerializer;
-    private final SourceRepository sourceRepository;
+    private final NrtmSourceDao nrtmSourceDao;
     private final NrtmFileRepository nrtmFileRepository;
     private final DateTimeProvider dateTimeProvider;
 
-
     public SnapshotFileGenerator(
         final DummifierNrtmV4 dummifierNrtmV4,
-        final NrtmVersionInfoRepository nrtmVersionInfoRepository,
+        final NrtmVersionInfoDao nrtmVersionInfoDao,
         final RpslObjectEnqueuer rpslObjectEnqueuer,
         final WhoisObjectRepository whoisObjectRepository,
         final NrtmFileRepository nrtmFileRepository,
         final DateTimeProvider dateTimeProvider,
         final SnapshotFileSerializer snapshotFileSerializer,
-        final SourceRepository sourceRepository
+        final NrtmSourceDao nrtmSourceDao
     ) {
         this.dummifierNrtmV4 = dummifierNrtmV4;
-        this.nrtmVersionInfoRepository = nrtmVersionInfoRepository;
+        this.nrtmVersionInfoDao = nrtmVersionInfoDao;
         this.rpslObjectEnqueuer = rpslObjectEnqueuer;
         this.snapshotFileSerializer = snapshotFileSerializer;
-        this.sourceRepository = sourceRepository;
+        this.nrtmSourceDao = nrtmSourceDao;
         this.whoisObjectRepository = whoisObjectRepository;
         this.nrtmFileRepository = nrtmFileRepository;
         this.dateTimeProvider = dateTimeProvider;
@@ -73,7 +72,7 @@ public class SnapshotFileGenerator {
     public void createSnapshot() {
         final Stopwatch stopwatch = Stopwatch.createStarted();
         final List<NrtmSource> sources = getSources();
-        final List<NrtmVersionInfo> sourceVersions = nrtmVersionInfoRepository.findLastVersionPerSource();
+        final List<NrtmVersionInfo> sourceVersions = nrtmVersionInfoDao.findLastVersionPerSource();
 
         final SnapshotState snapshotState = whoisObjectRepository.getSnapshotState(sourceVersions.isEmpty() ? null : sourceVersions.get(0).lastSerialId());
         LOGGER.info("Found {} objects in {}", snapshotState.whoisObjectData().size(), stopwatch);
@@ -122,12 +121,12 @@ public class SnapshotFileGenerator {
     }
 
     private List<NrtmSource> getSources() {
-        final List<NrtmSource> sourceList = sourceRepository.getSources();
+        final List<NrtmSource> sourceList = nrtmSourceDao.getSources();
         if (sourceList.isEmpty()) {
-            sourceRepository.createSources();
+            nrtmSourceDao.createSources();
             LOGGER.info("Creating sources...");
         }
-        return sourceRepository.getSources();
+        return nrtmSourceDao.getSources();
     }
 
     private  NrtmVersionInfo getNewVersion(final NrtmSource source, final List<NrtmVersionInfo> sourceVersions, final int currentSerialId) {
@@ -181,7 +180,7 @@ public class SnapshotFileGenerator {
     private void cleanUpOldFiles() {
         LOGGER.info("Deleting old snapshot files");
 
-        final Map<CIString, List<NrtmVersionInfo>> versionsBySource = nrtmVersionInfoRepository.getAllVersionsByType(NrtmDocumentType.SNAPSHOT).stream()
+        final Map<CIString, List<NrtmVersionInfo>> versionsBySource = nrtmVersionInfoDao.getAllVersionsByType(NrtmDocumentType.SNAPSHOT).stream()
                 .collect(groupingBy( versionInfo -> versionInfo.source().getName()));
 
         versionsBySource.forEach( (nrtmSource, versions) -> {
