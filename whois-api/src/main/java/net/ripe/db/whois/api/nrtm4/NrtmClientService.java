@@ -9,10 +9,7 @@ import net.ripe.db.nrtm4.dao.NrtmSourceDao;
 import net.ripe.db.nrtm4.domain.NrtmDocumentType;
 import net.ripe.db.nrtm4.domain.NrtmSource;
 import net.ripe.db.nrtm4.util.NrtmFileUtil;
-import org.bouncycastle.crypto.CryptoException;
-import org.bouncycastle.crypto.Signer;
-import org.bouncycastle.crypto.params.Ed25519PrivateKeyParameters;
-import org.bouncycastle.crypto.signers.Ed25519Signer;
+import static net.ripe.db.nrtm4.util.Ed25519Util.signWithEd25519;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
@@ -28,8 +25,7 @@ import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.io.ByteArrayInputStream;
-import java.util.Base64;
-import java.util.Optional;
+import java.nio.charset.StandardCharsets;
 
 @Component
 @Path("/")
@@ -61,18 +57,21 @@ public class NrtmClientService {
     @GET
     @Produces(MediaType.TEXT_HTML)
     public String sourcesLinkAsHtml() {
-        final StringBuilder sourceLink = new StringBuilder();
+        final StringBuilder links = new StringBuilder();
 
         nrtmSourceDao.getSources().forEach(sourceModel ->
-                sourceLink.append(
+                links.append(
                         String.format("<a href='%s'>%s</a><br/>",
                                         String.join("/", nrtmUrl, sourceModel.getName().toString(), "update-notification-file.json"),
                                         sourceModel.getName().toString()
                                     )
                 )
         );
-
-        return String.format(SOURCE_LINK_PAGE, sourceLink);
+        links.append(
+                String.format("<a href='%s'>%s</a><br/>", "Notification Key",new String(nrtmKeyConfigRepository.getPublicKey(), StandardCharsets.UTF_8)
+                )
+        );
+      return String.format(SOURCE_LINK_PAGE, links);
     }
 
     @GET
@@ -87,7 +86,8 @@ public class NrtmClientService {
             final String payload = updateNotificationFileSourceAwareDao.findLastNotification(getSource(source))
                     .orElseThrow(() -> new NotFoundException("update-notification-file.json does not exists for source " + source));
 
-            return getResponse(payload);
+            return fileName.endsWith(".sig") ?  getResponse(signWithEd25519(payload.getBytes(), nrtmKeyConfigRepository.getPrivateKey()))
+                                              : getResponse(payload);
         }
 
         validateSource(source, fileName);
@@ -97,9 +97,8 @@ public class NrtmClientService {
                     .orElseThrow(() -> new NotFoundException("Requested Snapshot file does not exists"));
         }
 
-        final String filenameExt  = filenameWithExtension(fileName);
         if(fileName.startsWith(NrtmDocumentType.DELTA.getFileNamePrefix())) {
-            return deltaFileSourceAwareDao.getByFileName(filenameExt)
+            return deltaFileSourceAwareDao.getByFileName(filenameWithExt(fileName))
                     .map( delta -> getResponse(delta.payload()))
                     .orElseThrow(() -> new NotFoundException("Requested Delta file does not exists"));
         }
@@ -117,7 +116,7 @@ public class NrtmClientService {
         return nrtmSourceDao.getSources().stream().filter(sourceModel -> sourceModel.getName().equals(source)).findFirst().orElseThrow(() -> new BadRequestException("Invalid source"));
     }
 
-    private String filenameWithExtension(final String filename) {
+    private String filenameWithExt(final String filename) {
         //ExtensionOverridesAcceptHeaderFilter removes file extension
         return filename.endsWith(".json") ? filename : String.join("", filename, ".json");
     }
@@ -134,13 +133,5 @@ public class NrtmClientService {
         return Response.ok(payload)
                 .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON)
                 .build();
-    }
-
-    public String getSignedUpdateNotificationFile(final byte[] payload) throws CryptoException {
-        final Signer signer = new Ed25519Signer();
-        signer.init(true, new Ed25519PrivateKeyParameters(nrtmKeyConfigRepository.getPrivateKey(), 0));
-        signer.update(payload, 0, payload.length);
-        byte[] signature = signer.generateSignature();
-        return Base64.getUrlEncoder().encodeToString(signature);
     }
 }
