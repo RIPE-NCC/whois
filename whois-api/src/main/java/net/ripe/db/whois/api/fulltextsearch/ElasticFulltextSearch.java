@@ -55,6 +55,9 @@ public class ElasticFulltextSearch extends FulltextSearch {
     private final Source source;
     private final RpslObjectDao objectDao;
 
+    //Truncate after 100k of characters
+    private static final int HIGHLIGHT_OFFSET_SIZE = 100000;
+
     private final int maxResultSize;
 
     @Autowired
@@ -92,6 +95,7 @@ public class ElasticFulltextSearch extends FulltextSearch {
                 final HighlightBuilder highlightBuilder = new HighlightBuilder()
                         .postTags(getHighlightTag(searchRequest.getFormat(), searchRequest.getHighlightPost()))
                         .preTags(getHighlightTag(searchRequest.getFormat(), searchRequest.getHighlightPre()))
+                        .maxAnalyzedOffset(HIGHLIGHT_OFFSET_SIZE)
                         .field("*");
 
                 final SearchSourceBuilder sourceBuilder = new SearchSourceBuilder()
