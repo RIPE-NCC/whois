@@ -167,8 +167,10 @@ public class ElasticFulltextSearch extends FulltextSearch {
         final SearchResponse.Lst documentLst = new SearchResponse.Lst(hit.getId());
         final List<SearchResponse.Arr> documentArrs = Lists.newArrayList();
 
-
         hit.getHighlightFields().forEach((attribute, highlightField) -> {
+            if("lookup-key".equals(attribute) || "lookup-key.custom".equals(attribute)){
+                return;
+            }
             if(attribute.contains(".custom")) {
                 final SearchResponse.Arr arr = new SearchResponse.Arr(StringUtils.substringBefore(highlightField.name(), ".custom"));
                 arr.setStr(new SearchResponse.Str(null, StringUtils.join(highlightField.getFragments(), ",")));
@@ -181,7 +183,6 @@ public class ElasticFulltextSearch extends FulltextSearch {
                 documentArrs.add(arr);
             }
         });
-
         documentLst.setArrs(documentArrs);
         return documentLst;
     }

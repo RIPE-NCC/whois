@@ -15,6 +15,7 @@ import net.ripe.db.whois.api.AbstractNrtmIntegrationTest;
 import net.ripe.db.whois.common.TestDateTimeProvider;
 import net.ripe.db.whois.common.dao.jdbc.JdbcRpslObjectOperations;
 import net.ripe.db.whois.common.rpsl.DummifierNrtm;
+import net.ripe.db.whois.common.rpsl.DummifierNrtmV4;
 import net.ripe.db.whois.common.rpsl.RpslObject;
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -45,7 +46,7 @@ import static org.hamcrest.Matchers.is;
 public class NrtmClientServiceTestIntegration extends AbstractNrtmIntegrationTest {
 
     @Autowired
-    DummifierNrtm dummifierNrtm;
+    DummifierNrtmV4 dummifierNrtm;
     @Autowired
     private NrtmVersionInfoRepository nrtmVersionInfoRepository;
 
@@ -297,7 +298,7 @@ public class NrtmClientServiceTestIntegration extends AbstractNrtmIntegrationTes
 
         final JSONObject deltaChanges = new JSONObject(changes.get(0).toString());
         assertThat(deltaChanges.getString("action"), is("add_modify"));
-        assertThat(RpslObject.parse(deltaChanges.getString("object")).toString(), is(dummifierNrtm.dummify(4, updatedObject).toString()));
+        assertThat(RpslObject.parse(deltaChanges.getString("object")).toString(), is(dummifierNrtm.dummify(updatedObject).toString()));
     }
 
     @Test
