@@ -90,12 +90,12 @@ CREATE TABLE `notification_file`
 CREATE TABLE `key_pair`
 (
     `id`          int unsigned    NOT NULL AUTO_INCREMENT,
-    `private_key` longblob     NOT NULL,
-    `public_key`  longblob     NOT NULL,
+    `private_key` VARBINARY(3000) NOT NULL,
+    `public_key`  VARBINARY(3000) NOT NULL,
     `created`     bigint unsigned NOT NULL,
     UNIQUE KEY `private_key_name_uk` (`private_key`),
     UNIQUE KEY `public_key_name_uk` (`public_key`),
-    PRIMARY KEY (`id`),
+    PRIMARY KEY (`id`)
 ) ENGINE = InnoDB
   DEFAULT CHARSET = utf8;
 

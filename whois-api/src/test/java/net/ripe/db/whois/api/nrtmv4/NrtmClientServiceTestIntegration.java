@@ -2,20 +2,29 @@ package net.ripe.db.whois.api.nrtmv4;
 
 import com.google.common.collect.Lists;
 import com.google.common.net.HttpHeaders;
+import com.hazelcast.org.apache.commons.codec.DecoderException;
+import com.hazelcast.org.apache.commons.codec.binary.Hex;
 import net.ripe.db.nrtm4.DeltaFileGenerator;
 import net.ripe.db.nrtm4.SnapshotFileGenerator;
 import net.ripe.db.nrtm4.dao.DeltaFileDao;
+import net.ripe.db.nrtm4.dao.NrtmKeyConfigDao;
 import net.ripe.db.nrtm4.dao.NrtmVersionInfoDao;
 import net.ripe.db.nrtm4.dao.SnapshotFileDao;
 import net.ripe.db.nrtm4.dao.NrtmSourceDao;
 import net.ripe.db.nrtm4.domain.DeltaFileVersionInfo;
 import net.ripe.db.nrtm4.domain.NrtmVersionInfo;
 import net.ripe.db.nrtm4.domain.SnapshotFile;
+import net.ripe.db.nrtm4.util.Ed25519Util;
 import net.ripe.db.whois.api.AbstractNrtmIntegrationTest;
 import net.ripe.db.whois.common.TestDateTimeProvider;
 import net.ripe.db.whois.common.dao.jdbc.JdbcRpslObjectOperations;
 import net.ripe.db.whois.common.rpsl.DummifierNrtmV4;
 import net.ripe.db.whois.common.rpsl.RpslObject;
+import org.bouncycastle.crypto.AsymmetricCipherKeyPair;
+import org.bouncycastle.crypto.Signer;
+import org.bouncycastle.crypto.params.Ed25519PrivateKeyParameters;
+import org.bouncycastle.crypto.params.Ed25519PublicKeyParameters;
+import org.bouncycastle.crypto.signers.Ed25519Signer;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -39,6 +48,7 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.containsInAnyOrder;
 import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.not;
 
 @Tag("IntegrationTest")
 @DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_EACH_TEST_METHOD)
@@ -48,7 +58,8 @@ public class NrtmClientServiceTestIntegration extends AbstractNrtmIntegrationTes
     DummifierNrtmV4 dummifierNrtm;
     @Autowired
     private NrtmVersionInfoDao nrtmVersionInfoDao;
-
+    @Autowired
+    private NrtmKeyConfigDao nrtmKeyConfigDao;
     @Autowired
     SnapshotFileDao snapshotFileDao;
     @Autowired
@@ -243,6 +254,7 @@ public class NrtmClientServiceTestIntegration extends AbstractNrtmIntegrationTes
                 ".db.ripe.net/TEST/update-notification-file.json'>TEST</a><br/><a href='https://nrtm.db.ripe.net/TEST-NONAUTH/update-notification-file.json'>TEST-NONAUTH</a><br/><body></html>"));
     }
 
+
     @Test
     public void should_get_update_notification_file() {
         insertUpdateNotificationFile();
@@ -260,10 +272,57 @@ public class NrtmClientServiceTestIntegration extends AbstractNrtmIntegrationTes
     }
 
     @Test
+    public void should_get_signature_file() throws DecoderException {
+        insertUpdateNotificationFile();
+        generateKeyPair();
+
+        final String notificationFile = getResponseFromHttpsRequest("TEST/update-notification-file.json", MediaType.APPLICATION_JSON).readEntity(String.class);
+
+        final Response response = getResponseFromHttpsRequest("TEST/update-notification-file.json.sig", MediaType.APPLICATION_JSON);
+        assertThat(response.getStatus(), is(200));
+        final String signature = response.readEntity(String.class);
+
+        // verify the signature
+        Signer verifier = new Ed25519Signer();
+
+        verifier.init(false, new Ed25519PublicKeyParameters(nrtmKeyConfigDao.getPublicKey(), 0));
+        verifier.update(notificationFile.getBytes(), 0, notificationFile.getBytes().length);
+        assertThat(verifier.verifySignature(Hex.decodeHex(signature)), is(Boolean.TRUE));
+    }
+
+    @Test
+    public void should_fail_to_verify_signature_file() throws DecoderException {
+        insertUpdateNotificationFile();
+        generateKeyPair();
+
+        final String notificationFile = getResponseFromHttpsRequest("TEST/update-notification-file.json", MediaType.APPLICATION_JSON).readEntity(String.class);
+
+        final Response response = getResponseFromHttpsRequest("TEST/update-notification-file.json.sig", MediaType.APPLICATION_JSON);
+        assertThat(response.getStatus(), is(200));
+        assertThat(response.getHeaderString(HttpHeaders.CACHE_CONTROL), is("public, max-age=60"));
+
+        final String signature = response.readEntity(String.class);
+
+        // verify the signature
+        Signer verifier = new Ed25519Signer();
+
+        verifier.init(false, generateKeyPair().getPublic());
+        verifier.update(notificationFile.getBytes(), 0, notificationFile.getBytes().length);
+        assertThat(verifier.verifySignature(Hex.decodeHex(signature)), is(Boolean.FALSE));
+    }
+
+    @Test
+    public void should_throw_exeption_no_key_exists() {
+        insertUpdateNotificationFile();
+
+        final Response response = getResponseFromHttpsRequest("TEST/update-notification-file.json.sig", MediaType.APPLICATION_JSON);
+        assertThat(response.getStatus(), is(500));
+    }
+
+
+    @Test
     public void should_get_delta_file() throws JSONException {
-
         snapshotFileGenerator.createSnapshot();
-
         final RpslObject updatedObject = RpslObject.parse("" +
                 "inet6num:       ::/0\n" +
                 "netname:        IANA-BLK\n" +
@@ -418,5 +477,21 @@ public class NrtmClientServiceTestIntegration extends AbstractNrtmIntegrationTes
 
         final String payloadNonAuth = "{\"nrtm_version\":4,\"timestamp\":\"2023-03-13T12:31:08Z\",\"type\":\"snapshot\",\"source\":\"TEST-NONAUTH\",\"session_id\":\"7f42be43-a1fd-48e7-947f-91c852cf13f6\",\"version\":1,\"snapshot\":{\"version\":1,\"url\":\"https://nrtm.ripe.net//7f42be43-a1fd-48e7-947f-91c852cf13f6/nrtm-snapshot.1.RIPE-NONAUTH.9a6ca0a3e1b68eb65d4a2d277c3e5a96.json.gz\",\"hash\":\"8140b2d3a3ec4cb6a14c1ca19f7cbca468adcc172ad3e313aed74bd0d1036838\"}}";
         databaseHelper.getNrtmTemplate().update("INSERT INTO notification_file (version_id, created, payload) VALUES (?, ?, ?)",2, dateTimeProvider.getCurrentDateTime().toEpochSecond(ZoneOffset.UTC), payloadNonAuth);
+    }
+
+    public AsymmetricCipherKeyPair generateKeyPair() {
+        final String sql = """
+        INSERT INTO key_pair (private_key, public_key, created)
+        VALUES (?, ?, ?)
+        """;
+
+        final long createdTimestamp = dateTimeProvider.getCurrentDateTime().toEpochSecond(ZoneOffset.UTC);
+
+        final AsymmetricCipherKeyPair asymmetricCipherKeyPair = Ed25519Util.generateEd25519KeyPair();
+        final byte[] privateKey =((Ed25519PrivateKeyParameters) asymmetricCipherKeyPair.getPrivate()).getEncoded();
+        final byte[] publicKey = ((Ed25519PublicKeyParameters) asymmetricCipherKeyPair.getPublic()).getEncoded();
+
+        databaseHelper.getNrtmTemplate().update(sql,privateKey, publicKey, createdTimestamp);
+        return asymmetricCipherKeyPair;
     }
 }

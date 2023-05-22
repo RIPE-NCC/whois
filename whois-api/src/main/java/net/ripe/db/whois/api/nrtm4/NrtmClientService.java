@@ -2,7 +2,7 @@ package net.ripe.db.whois.api.nrtm4;
 
 import com.google.common.net.HttpHeaders;
 import net.ripe.db.nrtm4.dao.DeltaFileSourceAwareDao;
-import net.ripe.db.nrtm4.dao.NrtmKeyConfigRepository;
+import net.ripe.db.nrtm4.dao.NrtmKeyConfigDao;
 import net.ripe.db.nrtm4.dao.UpdateNotificationFileSourceAwareDao;
 import net.ripe.db.nrtm4.dao.SnapshotFileSourceAwareDao;
 import net.ripe.db.nrtm4.dao.NrtmSourceDao;
@@ -25,7 +25,6 @@ import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.io.ByteArrayInputStream;
-import java.nio.charset.StandardCharsets;
 
 @Component
 @Path("/")
@@ -36,7 +35,7 @@ public class NrtmClientService {
     private final DeltaFileSourceAwareDao deltaFileSourceAwareDao;
     private final UpdateNotificationFileSourceAwareDao updateNotificationFileSourceAwareDao;
     private final NrtmSourceDao nrtmSourceDao;
-    private final NrtmKeyConfigRepository nrtmKeyConfigRepository;
+    private final NrtmKeyConfigDao nrtmKeyConfigDao;
     final String nrtmUrl;
 
     @Autowired
@@ -44,34 +43,31 @@ public class NrtmClientService {
                              final NrtmSourceDao nrtmSourceDao,
                              final UpdateNotificationFileSourceAwareDao updateNotificationFileSourceAwareDao,
                              final SnapshotFileSourceAwareDao snapshotFileSourceAwareDao,
-                             final NrtmKeyConfigRepository nrtmKeyConfigRepository,
+                             final NrtmKeyConfigDao nrtmKeyConfigDao,
                              final DeltaFileSourceAwareDao deltaFileSourceAwareDao) {
         this.snapshotFileSourceAwareDao = snapshotFileSourceAwareDao;
         this.deltaFileSourceAwareDao = deltaFileSourceAwareDao;
         this.updateNotificationFileSourceAwareDao = updateNotificationFileSourceAwareDao;
         this.nrtmSourceDao = nrtmSourceDao;
-        this.nrtmKeyConfigRepository = nrtmKeyConfigRepository;
+        this.nrtmKeyConfigDao = nrtmKeyConfigDao;
         this.nrtmUrl = nrtmUrl;
     }
 
     @GET
     @Produces(MediaType.TEXT_HTML)
     public String sourcesLinkAsHtml() {
-        final StringBuilder links = new StringBuilder();
+        final StringBuilder sourceLink = new StringBuilder();
 
         nrtmSourceDao.getSources().forEach(sourceModel ->
-                links.append(
+                sourceLink.append(
                         String.format("<a href='%s'>%s</a><br/>",
                                         String.join("/", nrtmUrl, sourceModel.getName().toString(), "update-notification-file.json"),
                                         sourceModel.getName().toString()
                                     )
                 )
         );
-        links.append(
-                String.format("<a href='%s'>%s</a><br/>", "Notification Key",new String(nrtmKeyConfigRepository.getPublicKey(), StandardCharsets.UTF_8)
-                )
-        );
-      return String.format(SOURCE_LINK_PAGE, links);
+
+        return String.format(SOURCE_LINK_PAGE, sourceLink);
     }
 
     @GET
@@ -86,7 +82,7 @@ public class NrtmClientService {
             final String payload = updateNotificationFileSourceAwareDao.findLastNotification(getSource(source))
                     .orElseThrow(() -> new NotFoundException("update-notification-file.json does not exists for source " + source));
 
-            return fileName.endsWith(".sig") ?  getResponse(signWithEd25519(payload.getBytes(), nrtmKeyConfigRepository.getPrivateKey()))
+            return fileName.endsWith(".sig") ?  getResponse(signWithEd25519(payload.getBytes(), nrtmKeyConfigDao.getPrivateKey()))
                                               : getResponse(payload);
         }
 

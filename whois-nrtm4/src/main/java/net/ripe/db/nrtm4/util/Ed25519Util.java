@@ -8,6 +8,7 @@ import org.bouncycastle.crypto.generators.Ed25519KeyPairGenerator;
 import org.bouncycastle.crypto.params.Ed25519KeyGenerationParameters;
 import org.bouncycastle.crypto.params.Ed25519PrivateKeyParameters;
 import org.bouncycastle.crypto.signers.Ed25519Signer;
+import org.bouncycastle.util.encoders.Hex;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -23,7 +24,7 @@ public class Ed25519Util {
             signer.init(true, new Ed25519PrivateKeyParameters(privateKey, 0));
             signer.update(payload, 0, payload.length);
             byte[] signature = signer.generateSignature();
-            return Base64.getUrlEncoder().encodeToString(signature);
+            return Hex.toHexString(signature);
         } catch (CryptoException ex) {
             LOGGER.error("failed to sign payload {}", ex.getMessage());
             throw new RuntimeException("failed to sign contents of file");
