@@ -2,6 +2,7 @@ package net.ripe.db.nrtm4;
 
 import net.ripe.db.nrtm4.domain.RpslObjectData;
 import net.ripe.db.whois.common.rpsl.Dummifier;
+import net.ripe.db.whois.common.rpsl.DummifierNrtmV4;
 import net.ripe.db.whois.common.rpsl.RpslObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -17,15 +18,15 @@ public class RpslObjectIterator implements Iterator<RpslObject> {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(RpslObjectIterator.class);
 
-    private final Dummifier dummifier;
+    private final DummifierNrtmV4 dummifierNrtmV4;
     private final LinkedBlockingQueue<RpslObjectData> queue;
     private RpslObject next;
 
     RpslObjectIterator(
-        final Dummifier dummifier,
+        final DummifierNrtmV4 dummifierNrtmV4,
         final LinkedBlockingQueue<RpslObjectData> queue
     ) {
-        this.dummifier = dummifier;
+        this.dummifierNrtmV4 = dummifierNrtmV4;
         this.queue = queue;
     }
 
@@ -38,8 +39,8 @@ public class RpslObjectIterator implements Iterator<RpslObject> {
                     next = null;
                     return false;
                 }
-                if (dummifier.isAllowed(NRTM_VERSION, rpslObjectData.rpslObject())) {
-                    next = dummifier.dummify(NRTM_VERSION, rpslObjectData.rpslObject());
+                if (dummifierNrtmV4.isAllowed(rpslObjectData.rpslObject())) {
+                    next = dummifierNrtmV4.dummify(rpslObjectData.rpslObject());
                     return true;
                 }
             }
