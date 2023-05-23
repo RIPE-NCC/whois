@@ -1,19 +1,19 @@
 package net.ripe.db.nrtm4.util;
 
-import net.ripe.db.nrtm4.UpdateNotificationFileGenerator;
 import org.bouncycastle.crypto.AsymmetricCipherKeyPair;
 import org.bouncycastle.crypto.CryptoException;
 import org.bouncycastle.crypto.Signer;
 import org.bouncycastle.crypto.generators.Ed25519KeyPairGenerator;
+import org.bouncycastle.crypto.params.AsymmetricKeyParameter;
 import org.bouncycastle.crypto.params.Ed25519KeyGenerationParameters;
 import org.bouncycastle.crypto.params.Ed25519PrivateKeyParameters;
+import org.bouncycastle.crypto.params.Ed25519PublicKeyParameters;
 import org.bouncycastle.crypto.signers.Ed25519Signer;
 import org.bouncycastle.util.encoders.Hex;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.security.SecureRandom;
-import java.util.Base64;
 
 public class Ed25519Util {
     private static final Logger LOGGER = LoggerFactory.getLogger(Ed25519Util.class);
@@ -27,7 +27,7 @@ public class Ed25519Util {
             return Hex.toHexString(signature);
         } catch (CryptoException ex) {
             LOGGER.error("failed to sign payload {}", ex.getMessage());
-            throw new RuntimeException("failed to sign contents of file");
+            throw new IllegalStateException("failed to sign contents of file");
         }
     }
 
@@ -35,5 +35,13 @@ public class Ed25519Util {
         Ed25519KeyPairGenerator keyPairGenerator = new Ed25519KeyPairGenerator();
         keyPairGenerator.init(new Ed25519KeyGenerationParameters(new SecureRandom()));
         return keyPairGenerator.generateKeyPair();
+    }
+
+    public static boolean verifySignature(final String signature, final byte[] publicKey, final byte[] contents) {
+        final Signer verifier = new Ed25519Signer();
+
+        verifier.init(false, new Ed25519PublicKeyParameters(publicKey, 0));
+        verifier.update(contents, 0, contents.length);
+        return verifier.verifySignature(Hex.decode(signature));
     }
 }

@@ -231,7 +231,7 @@ public abstract class AbstractNrtmIntegrationTest extends AbstractIntegrationTes
         return getWebTarget(path).request(javax.ws.rs.core.MediaType.APPLICATION_JSON).header(HttpHeader.X_FORWARDED_PROTO.asString(), HttpScheme.HTTP.asString()).get(Response.class);
     }
 
-    private WebTarget getWebTarget(String path) {
+    protected WebTarget getWebTarget(String path) {
         WebTarget webTarget = RestTest.target(getPort(), "nrtmv4/");
         if(path != null){
             webTarget = RestTest.target(getPort(), String.format("nrtmv4/%s", path));

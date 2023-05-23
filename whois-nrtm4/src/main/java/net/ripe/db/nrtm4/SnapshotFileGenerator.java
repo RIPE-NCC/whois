@@ -2,6 +2,7 @@ package net.ripe.db.nrtm4;
 
 import com.google.common.base.Stopwatch;
 import net.ripe.db.nrtm4.dao.NrtmFileRepository;
+import net.ripe.db.nrtm4.dao.NrtmKeyConfigDao;
 import net.ripe.db.nrtm4.dao.NrtmVersionInfoDao;
 import net.ripe.db.nrtm4.dao.NrtmSourceDao;
 import net.ripe.db.nrtm4.dao.WhoisObjectRepository;
@@ -10,10 +11,14 @@ import net.ripe.db.nrtm4.domain.NrtmSource;
 import net.ripe.db.nrtm4.domain.NrtmVersionInfo;
 import net.ripe.db.nrtm4.domain.RpslObjectData;
 import net.ripe.db.nrtm4.domain.SnapshotState;
+import net.ripe.db.nrtm4.util.Ed25519Util;
 import net.ripe.db.nrtm4.util.NrtmFileUtil;
 import net.ripe.db.whois.common.DateTimeProvider;
 import net.ripe.db.whois.common.domain.CIString;
 import net.ripe.db.whois.common.rpsl.DummifierNrtmV4;
+import org.bouncycastle.crypto.AsymmetricCipherKeyPair;
+import org.bouncycastle.crypto.params.Ed25519PrivateKeyParameters;
+import org.bouncycastle.crypto.params.Ed25519PublicKeyParameters;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
@@ -48,6 +53,8 @@ public class SnapshotFileGenerator {
     private final NrtmSourceDao nrtmSourceDao;
     private final NrtmFileRepository nrtmFileRepository;
     private final DateTimeProvider dateTimeProvider;
+    private final NrtmKeyConfigDao nrtmKeyConfigDao;
+
 
     public SnapshotFileGenerator(
         final DummifierNrtmV4 dummifierNrtmV4,
@@ -57,6 +64,7 @@ public class SnapshotFileGenerator {
         final NrtmFileRepository nrtmFileRepository,
         final DateTimeProvider dateTimeProvider,
         final SnapshotFileSerializer snapshotFileSerializer,
+        final NrtmKeyConfigDao nrtmKeyConfigDao,
         final NrtmSourceDao nrtmSourceDao
     ) {
         this.dummifierNrtmV4 = dummifierNrtmV4;
@@ -67,11 +75,14 @@ public class SnapshotFileGenerator {
         this.whoisObjectRepository = whoisObjectRepository;
         this.nrtmFileRepository = nrtmFileRepository;
         this.dateTimeProvider = dateTimeProvider;
+        this.nrtmKeyConfigDao = nrtmKeyConfigDao;
     }
 
     public void createSnapshot() {
         final Stopwatch stopwatch = Stopwatch.createStarted();
-        final List<NrtmSource> sources = getSources();
+        initializeNrtm();
+
+        final List<NrtmSource> sources = nrtmSourceDao.getSources();
         final List<NrtmVersionInfo> sourceVersions = nrtmVersionInfoDao.findLastVersionPerSource();
 
         final SnapshotState snapshotState = whoisObjectRepository.getSnapshotState(sourceVersions.isEmpty() ? null : sourceVersions.get(0).lastSerialId());
@@ -120,13 +131,20 @@ public class SnapshotFileGenerator {
         return true;
     }
 
-    private List<NrtmSource> getSources() {
+    private void initializeNrtm() {
         final List<NrtmSource> sourceList = nrtmSourceDao.getSources();
         if (sourceList.isEmpty()) {
-            nrtmSourceDao.createSources();
             LOGGER.info("Creating sources...");
+            nrtmSourceDao.createSources();
         }
-        return nrtmSourceDao.getSources();
+
+        if(!nrtmKeyConfigDao.isKeyPairExists()) {
+            final AsymmetricCipherKeyPair asymmetricCipherKeyPair = Ed25519Util.generateEd25519KeyPair();
+            final byte[] privateKey =((Ed25519PrivateKeyParameters) asymmetricCipherKeyPair.getPrivate()).getEncoded();
+            final byte[] publicKey = ((Ed25519PublicKeyParameters) asymmetricCipherKeyPair.getPublic()).getEncoded();
+
+            nrtmKeyConfigDao.saveKeyPair(privateKey, publicKey);
+        }
     }
 
     private  NrtmVersionInfo getNewVersion(final NrtmSource source, final List<NrtmVersionInfo> sourceVersions, final int currentSerialId) {
