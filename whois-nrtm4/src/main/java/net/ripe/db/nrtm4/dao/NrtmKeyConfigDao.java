@@ -33,12 +33,13 @@ public class NrtmKeyConfigDao {
 
     public void saveKeyPair( final byte[] privateKey,  final byte[] publicKey) {
         final String sql = """
-        INSERT INTO key_pair (private_key, public_key, created)
-        VALUES (?, ?, ?)
+        INSERT INTO key_pair (private_key, public_key, created, expires)
+        VALUES (?, ?, ?, ?)
         """;
 
         final long createdTimestamp = dateTimeProvider.getCurrentDateTime().toEpochSecond(ZoneOffset.UTC);
-        writeTemplate.update(sql,privateKey, publicKey, createdTimestamp);
+        final long expires = dateTimeProvider.getCurrentDateTime().plusYears(1).toEpochSecond(ZoneOffset.UTC);
+        writeTemplate.update(sql,privateKey, publicKey, createdTimestamp, expires);
     }
 
     public boolean isKeyPairExists() {

@@ -93,6 +93,7 @@ CREATE TABLE `key_pair`
     `private_key` VARBINARY(3000) NOT NULL,
     `public_key`  VARBINARY(3000) NOT NULL,
     `created`     bigint unsigned NOT NULL,
+    `expires`     bigint unsigned NOT NULL,
     UNIQUE KEY `private_key_name_uk` (`private_key`),
     UNIQUE KEY `public_key_name_uk` (`public_key`),
     PRIMARY KEY (`id`)

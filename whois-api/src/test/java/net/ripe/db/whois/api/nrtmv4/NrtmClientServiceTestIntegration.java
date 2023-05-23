@@ -280,7 +280,7 @@ public class NrtmClientServiceTestIntegration extends AbstractNrtmIntegrationTes
         assertThat(response.getStatus(), is(Response.Status.OK.getStatusCode()));
 
         final String signature = response.readEntity(String.class);
-        assertThat(Ed25519Util.verifySignature(signature, nrtmKeyConfigDao.getPublicKey(), notificationFile.getBytes()), is(Boolean.FALSE));
+        assertThat(Ed25519Util.verifySignature(signature, nrtmKeyConfigDao.getPublicKey(), notificationFile.getBytes()), is(Boolean.TRUE));
     }
 
     @Test
