@@ -93,7 +93,7 @@ public class RouteIpAddressAuthentication extends RouteAuthentication {
         }
 
         if (!authenticationMessages.isEmpty()) {
-            throw new AuthenticationFailedException(authenticationMessages, allCandidates);
+            throw new AuthorisationFailedException(authenticationMessages, allCandidates);
         }
 
         for (final RpslObject ipObject : ipObjects) {

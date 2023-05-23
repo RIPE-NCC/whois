@@ -189,7 +189,7 @@ public class Authenticator {
             handleFailure(update, updateContext, authenticationMessages);
         }
         if (!authorisationMessages.isEmpty()) {
-            handleAuthorisationFailure(update, updateContext, authenticationMessages);
+            handleAuthorisationFailure(update, updateContext, authorisationMessages);
         }
         return subject;
     }

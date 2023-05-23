@@ -44,6 +44,7 @@ import org.springframework.dao.EmptyResultDataAccessException;
 
 import javax.ws.rs.BadRequestException;
 import javax.ws.rs.ClientErrorException;
+import javax.ws.rs.ForbiddenException;
 import javax.ws.rs.HttpMethod;
 import javax.ws.rs.InternalServerErrorException;
 import javax.ws.rs.NotAllowedException;
@@ -2787,7 +2788,7 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
                     .request()
                     .post(Entity.entity(map(PAULETH_PALTHEN), MediaType.APPLICATION_XML), String.class);
             fail();
-        } catch (NotAuthorizedException e) {
+        } catch (ForbiddenException e) {
             RestTest.assertOnlyErrorMessage(e, "Error", "Authorisation for [%s] %s failed\nusing \"%s:\"\nnot authenticated by: %s", "person", "PP1-TEST", "mnt-by", "OWNER-MNT");
         }
     }
@@ -3419,7 +3420,7 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
                     .request()
                     .post(Entity.entity(map(person), MediaType.APPLICATION_XML), WhoisResources.class);
             fail();
-        } catch (NotAuthorizedException e) {
+        } catch (ForbiddenException e) {
             final String message = mailSenderStub.getMessage("upd-to@ripe.net").getContent().toString();
             assertThat(message, containsString("Pauleth Palthen"));
             assertThat(mailSenderStub.anyMoreMessages(), is(false));
@@ -3717,7 +3718,7 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
                     .request()
                     .delete(String.class);
             fail();
-        } catch (NotAuthorizedException e) {
+        } catch (ForbiddenException e) {
             RestTest.assertOnlyErrorMessage(e, "Error", "Authorisation for [%s] %s failed\nusing \"%s:\"\nnot authenticated by: %s", "person", "PP1-TEST", "mnt-by", "OWNER-MNT");
         }
     }
@@ -3810,7 +3811,7 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
                     .request()
                     .delete(String.class);
             fail();
-        } catch (NotAuthorizedException e) {
+        } catch (ForbiddenException e) {
             final String message = mailSenderStub.getMessage("upd-to@ripe.net").getContent().toString();
             assertThat(message, containsString("Pauleth Palthen"));
             assertThat(mailSenderStub.anyMoreMessages(), is(false));
@@ -4620,7 +4621,7 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
                     .request()
                     .put(Entity.entity(map(updatedPerson), MediaType.APPLICATION_XML), WhoisResources.class);
             fail();
-        } catch (NotAuthorizedException e) {
+        } catch (ForbiddenException e) {
             final String message = mailSenderStub.getMessage("upd-to@ripe.net").getContent().toString();
             assertThat(message, containsString("Pauleth Palthen"));
             assertThat(mailSenderStub.anyMoreMessages(), is(false));
@@ -5759,10 +5760,24 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
                 "descr:       Owner Maintainer\n" +
                 "admin-c:     TP1-TEST\n" +
                 "upd-to:      noreply@ripe.net\n" +
-                "auth:        MD5-PW $1$d9fKeTr2$Si7YudNf4rUGmR71n/cqk/ #test\n" +
+                "auth:        MD5-PW $1$2l72Rx4n$WtAA1.DTjkMEMNAyEtKMF0 #test1\n" +
                 "auth:        SSO person@net.net\n" +
                 "mnt-by:      NOOWNER-MNT\n" +
                 "source:      TEST");
+
+        databaseHelper.addObject(
+                "inet6num:       2a00::/11\n" +
+                        "netname:        RIPE-NCC\n" +
+                        "descr:          Private Network\n" +
+                        "country:        NL\n" +
+                        "tech-c:         TP1-TEST\n" +
+                        "status:         ASSIGNED PA\n" +
+                        "mnt-by:         OWNER-MNT\n" +
+                        "mnt-lower:      OWNER-MNT\n" +
+                        "source:         TEST"
+        );
+
+        ipTreeUpdater.rebuild();
 
         final RpslObject rpslObject = RpslObject.parse(
                 "route6:           2a01:400::/22\n" +
@@ -5771,35 +5786,66 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
                 "mnt-by:          NOOWNER-MNT\n" +
                 "source:          TEST\n");
 
-        final WhoisResources createResponse = RestTest.target(getPort(), "whois/test/route6?password=test")
-                .request()
-                .post(Entity.entity(map(rpslObject), MediaType.APPLICATION_XML), WhoisResources.class);
+        final ForbiddenException forbiddenException = assertThrows(ForbiddenException.class, () -> {
+            RestTest.target(getPort(), "whois/test/route6?password=test1")
+                    .request()
+                    .post(Entity.entity(map(rpslObject), MediaType.APPLICATION_XML), WhoisResources.class);
+        });
 
-        RestTest.assertInfoCount(createResponse, 1);
-        RestTest.assertErrorMessage(createResponse, 0, "Info", "Please use the \"remarks:\" attribute instead of end of line comment on primary key");
-        assertThat(createResponse.getErrorMessages().get(0).getAttribute(), is(new Attribute("nic-hdl", "PP1-TEST # create comment")));
+        final WhoisResources whoisResources = forbiddenException.getResponse().readEntity(WhoisResources.class);
+        RestTest.assertErrorCount(whoisResources, 1);
+        RestTest.assertErrorMessage(whoisResources, 0, "Error", "Authorisation for [%s] %s failed\n" +
+                "using \"%s:\"\n" +
+                "not authenticated by: %s", "inet6num", "2a00::/11", "mnt-lower", "OWNER-MNT");
 
-        final RpslObject updatePerson = RpslObject.parse("" +
-                "person:    Pauleth Palthen # comment\n" +
-                "address:   Singel 258\n" +
-                "phone:     +31-1234567890\n" +
-                "e-mail:    noreply@ripe.net\n" +
-                "remarks:   updated\n" +
-                "mnt-by:    OWNER-MNT\n" +
-                "nic-hdl:   PP1-TEST   # update comment\n" +
-                "remarks:   remark\n" +
-                "source:    TEST\n");
-
-        final WhoisResources updateResponse = RestTest.target(getPort(), "whois/test/person/PP1-TEST?password=test")
-                .request()
-                .put(Entity.entity(map(updatePerson), MediaType.APPLICATION_XML), WhoisResources.class);
-
-        RestTest.assertInfoCount(updateResponse, 2);
-        RestTest.assertErrorMessage(updateResponse, 0, "Info", "Please use the \"remarks:\" attribute instead of end of line comment on primary key");
-        assertThat(updateResponse.getErrorMessages().get(0).getAttribute(), is(new Attribute("person", "Pauleth Palthen # comment")));
-        RestTest.assertErrorMessage(updateResponse, 1, "Info", "Please use the \"remarks:\" attribute instead of end of line comment on primary key");
-        assertThat(updateResponse.getErrorMessages().get(1).getAttribute(), is(new Attribute("nic-hdl", "PP1-TEST # update comment")));
     }
+
+    @Test
+    public void create_route6_without_no_mnt_privileges() {
+        databaseHelper.addObject("" +
+                "mntner:      NOOWNER-MNT\n" +
+                "descr:       Owner Maintainer\n" +
+                "admin-c:     TP1-TEST\n" +
+                "upd-to:      noreply@ripe.net\n" +
+                "auth:        MD5-PW $1$2l72Rx4n$WtAA1.DTjkMEMNAyEtKMF0 #test1\n" +
+                "auth:        SSO person@net.net\n" +
+                "mnt-by:      NOOWNER-MNT\n" +
+                "source:      TEST");
+
+        databaseHelper.addObject(
+                "inet6num:       2a00::/11\n" +
+                        "netname:        RIPE-NCC\n" +
+                        "descr:          Private Network\n" +
+                        "country:        NL\n" +
+                        "tech-c:         TP1-TEST\n" +
+                        "status:         ASSIGNED PA\n" +
+                        "mnt-by:         OWNER-MNT\n" +
+                        "mnt-lower:      OWNER-MNT\n" +
+                        "source:         TEST"
+        );
+
+        ipTreeUpdater.rebuild();
+
+        final RpslObject rpslObject = RpslObject.parse(
+                "route6:           2a01:400::/22\n" +
+                        "descr:           Test route\n" +
+                        "origin:          AS12726\n" +
+                        "mnt-by:          NOOWNER-MNT\n" +
+                        "source:          TEST\n");
+
+        final ForbiddenException forbiddenException = assertThrows(ForbiddenException.class, () -> {
+            RestTest.target(getPort(), "whois/test/route6?password=test")
+                    .request()
+                    .post(Entity.entity(map(rpslObject), MediaType.APPLICATION_XML), WhoisResources.class);
+        });
+        final WhoisResources whoisResources = forbiddenException.getResponse().readEntity(WhoisResources.class);
+        RestTest.assertErrorCount(whoisResources, 1);
+        RestTest.assertErrorMessage(whoisResources, 0, "Error", "Authorisation for [%s] %s failed\n" +
+                "using \"%s:\"\n" +
+                "not authenticated by: %s", "route6", "2a01:400::/22AS12726", "mnt-by", "NOOWNER-MNT");
+
+    }
+
     // helper methods
 
     private String encode(final String input) {
