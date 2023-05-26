@@ -14,9 +14,9 @@ import java.util.List;
 @Component
 public class MntRefAuthentication extends ReferenceAuthentication{
 
-    private static final List<AttributeType> SUPPORTED_ATTRIBUTES = List.of(AttributeType.MNT_BY,
-            AttributeType.MNT_DOMAINS, AttributeType.MNT_ROUTES, AttributeType.MNT_LOWER, AttributeType.MNT_REF,
-            AttributeType.MNT_NFY);
+    private static final List<AttributeType> SUPPORTED_ATTRIBUTES = List.of(AttributeType.MBRS_BY_REF,
+            AttributeType.MNT_BY, AttributeType.MNT_DOMAINS, AttributeType.MNT_ROUTES, AttributeType.MNT_LOWER,
+            AttributeType.MNT_REF);
 
     public MntRefAuthentication(AuthenticationModule credentialValidators, RpslObjectDao rpslObjectDao) {
         super(credentialValidators, rpslObjectDao);

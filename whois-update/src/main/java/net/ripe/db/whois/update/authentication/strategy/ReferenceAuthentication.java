@@ -84,7 +84,7 @@ abstract class ReferenceAuthentication extends AuthenticationStrategyBase {
 
         return candidates;
     }
-    private boolean isSelfReference(final PreparedUpdate update, final Collection<CIString> newOrgReferences, final ObjectType objectType) {
-        return update.getType().equals(objectType) && newOrgReferences.contains(update.getUpdatedObject().getKey());
+    private boolean isSelfReference(final PreparedUpdate update, final Collection<CIString> newReferences, final ObjectType objectType) {
+        return update.getType().equals(objectType) && newReferences.contains(update.getUpdatedObject().getKey());
     }
 }
