@@ -5027,6 +5027,377 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
     }
 
     @Test
+    public void create_person_mnt_ref() {
+        final RpslObject createPerson = RpslObject.parse("" +
+                "person:    Pauleth Palthen\n" +
+                "address:   Singel 258\n" +
+                "phone:     +31-1234567890\n" +
+                "e-mail:    noreply@ripe.net\n" +
+                "mnt-by:    OWNER-MNT\n" +
+                "mnt-ref:    OWNER-MNT\n" +
+                "nic-hdl:   PP1-TEST # create comment\n" +
+                "remarks:   remark\n" +
+                "source:    TEST\n");
+
+        databaseHelper.addObject(RpslObject.parse("" +
+                "mntner:      ANOTHER-MNT\n" +
+                "descr:       Owner Maintainer\n" +
+                "admin-c:     TP1-TEST\n" +
+                "upd-to:      noreply@ripe.net\n" +
+                "auth:        MD5-PW $1$d9fKeTr2$Si7YudNf4rUGmR71n/cqk/ #test\n" +
+                "auth:        SSO person@net.net\n" +
+                "mnt-by:      ANOTHER-MNT\n" +
+                "source:      TEST"));
+
+        final WhoisResources person = RestTest.target(getPort(), "whois/test/person?password=test")
+                .request()
+                .post(Entity.entity(map(createPerson), MediaType.APPLICATION_XML), WhoisResources.class);
+
+        assertThat(person.getWhoisObjects().get(0).getAttributes().get(5),
+                is(new Attribute("mnt-ref", "OWNER-MNT", null, "mntner", new Link("locator", "http://rest-test.db.ripe" +
+                        ".net/test/mntner/OWNER-MNT"), null)));
+
+        final RpslObject updatePerson = RpslObject.parse("" +
+                "person:    Pauleth Palthen\n" +
+                "address:   Singel 258\n" +
+                "phone:     +31-1234567890\n" +
+                "e-mail:    noreply@ripe.net\n" +
+                "mnt-by:    OWNER-MNT\n" +
+                "mnt-ref:    ANOTHER-MNT\n" +
+                "nic-hdl:   PP1-TEST\n" +
+                "remarks:   remark\n" +
+                "source:    TEST\n");
+
+        final WhoisResources updateResponse = RestTest.target(getPort(), "whois/test/person/PP1-TEST?password=test")
+                .request()
+                .put(Entity.entity(map(updatePerson), MediaType.APPLICATION_XML), WhoisResources.class);
+
+        assertThat(updateResponse.getWhoisObjects().get(0).getAttributes().get(5),
+                is(new Attribute("mnt-ref", "ANOTHER-MNT", null, "mntner", new Link("locator", "http://rest-test.db.ripe" +
+                        ".net/test/mntner/ANOTHER-MNT"), null)));
+    }
+
+    @Test
+    public void create_role_valid_person_mnt_ref() {
+
+        databaseHelper.addObject(RpslObject.parse("" +
+                "mntner:      ANOTHER-MNT\n" +
+                "descr:       Owner Maintainer\n" +
+                "admin-c:     TP1-TEST\n" +
+                "upd-to:      noreply@ripe.net\n" +
+                "auth:        MD5-PW $1$6NVP0chT$XJgJwKM60eoVnMhIc/4hu/ #another\n" +
+                "auth:        SSO person@net.net\n" +
+                "mnt-by:      ANOTHER-MNT\n" +
+                "source:      TEST"));
+
+        databaseHelper.addObject(RpslObject.parse("" +
+                "person:    Pauleth Palthen\n" +
+                "address:   Singel 258\n" +
+                "phone:     +31-1234567890\n" +
+                "e-mail:    noreply@ripe.net\n" +
+                "mnt-by:    OWNER-MNT\n" +
+                "mnt-ref:   ANOTHER-MNT\n" +
+                "nic-hdl:   PP1-TEST # create comment\n" +
+                "remarks:   remark\n" +
+                "source:    TEST\n"));
+
+        final RpslObject roleObject = RpslObject.parse("" +
+                "role:          SWE test\n" +
+                "address:       123\n" +
+                "e-mail:        123@ripe.net\n" +
+                "nic-hdl:       ROLE-TEST\n" +
+                "tech-c:        PP1-TEST\n" +
+                "mnt-by:        ANOTHER-MNT\n" +
+                "source:        TEST");
+
+        final WhoisResources whoisResources = RestTest.target(getPort(), "whois/test/role?password=another")
+                    .request()
+                    .post(Entity.entity(map(roleObject), MediaType.APPLICATION_XML), WhoisResources.class);
+
+
+        assertThat(whoisResources.getWhoisObjects().get(0).getAttributes().get(5),
+                is(new Attribute("mnt-by", "ANOTHER-MNT", null, "mntner", new Link("locator", "http://rest-test.db.ripe" +
+                        ".net/test/mntner/ANOTHER-MNT"), null)));
+    }
+
+    @Test
+    public void create_role_valid_org_mnt_ref() {
+
+        databaseHelper.addObject(RpslObject.parse("" +
+                "mntner:      ANOTHER-MNT\n" +
+                "descr:       Owner Maintainer\n" +
+                "admin-c:     TP1-TEST\n" +
+                "upd-to:      noreply@ripe.net\n" +
+                "auth:        MD5-PW $1$6NVP0chT$XJgJwKM60eoVnMhIc/4hu/ #another\n" +
+                "auth:        SSO person@net.net\n" +
+                "mnt-by:      ANOTHER-MNT\n" +
+                "source:      TEST"));
+
+        databaseHelper.addObject(RpslObject.parse("" +
+                "organisation:   ORG-AA1306-RIPE\n" +
+                "mnt-ref:   ANOTHER-MNT\n" +
+                "source:         TEST"));
+
+        final RpslObject roleObject = RpslObject.parse("" +
+                "role:          SWE test\n" +
+                "address:       123\n" +
+                "e-mail:        123@ripe.net\n" +
+                "nic-hdl:       ROLE-TEST\n" +
+                "org:          ORG-AA1306-RIPE\n" +
+                "mnt-by:        ANOTHER-MNT\n" +
+                "source:        TEST");
+
+        final WhoisResources whoisResources = RestTest.target(getPort(), "whois/test/role?password=another")
+                    .request()
+                    .post(Entity.entity(map(roleObject), MediaType.APPLICATION_XML), WhoisResources.class);
+
+        assertThat(whoisResources.getWhoisObjects().get(0).getAttributes().get(5),
+                is(new Attribute("mnt-by", "ANOTHER-MNT", null, "mntner", new Link("locator", "http://rest-test.db.ripe" +
+                        ".net/test/mntner/ANOTHER-MNT"), null)));
+    }
+    @Test
+    public void create_role_invalid_org_person_reference() {
+
+        databaseHelper.addObject(RpslObject.parse("" +
+                "mntner:      ANOTHER-MNT\n" +
+                "descr:       Owner Maintainer\n" +
+                "admin-c:     TP1-TEST\n" +
+                "upd-to:      noreply@ripe.net\n" +
+                "auth:        MD5-PW $1$6NVP0chT$XJgJwKM60eoVnMhIc/4hu/ #another\n" +
+                "auth:        SSO person@net.net\n" +
+                "mnt-by:      ANOTHER-MNT\n" +
+                "source:      TEST"));
+
+        databaseHelper.addObject(RpslObject.parse("" +
+                "person:    Pauleth Palthen\n" +
+                "address:   Singel 258\n" +
+                "phone:     +31-1234567890\n" +
+                "e-mail:    noreply@ripe.net\n" +
+                "mnt-by:    OWNER-MNT\n" +
+                "mnt-ref:   ANOTHER-MNT\n" +
+                "nic-hdl:   PP1-TEST # create comment\n" +
+                "remarks:   remark\n" +
+                "source:    TEST\n"));
+
+        databaseHelper.addObject(RpslObject.parse("" +
+                "organisation:   ORG-AA1306-RIPE\n" +
+                "source:         TEST"));
+
+
+        final RpslObject roleObject = RpslObject.parse("" +
+                "role:          SWE test\n" +
+                "address:       123\n" +
+                "e-mail:        123@ripe.net\n" +
+                "admin-c:       PP1-TEST\n" +
+                "tech-c:        PP1-TEST\n" +
+                "nic-hdl:       ROLE-TEST\n" +
+                "org:          ORG-AA1306-RIPE\n" +
+                "mnt-by:        OWNER-MNT\n" +
+                "source:        TEST");
+
+        final NotAuthorizedException notAuthorizedException = assertThrows(NotAuthorizedException.class, () -> {
+            RestTest.target(getPort(), "whois/test/role?password=test")
+                    .request()
+                    .post(Entity.entity(map(roleObject), MediaType.APPLICATION_XML), WhoisResources.class);
+        });
+
+        final WhoisResources whoisResources = notAuthorizedException.getResponse().readEntity(WhoisResources.class);
+
+        RestTest.assertErrorCount(whoisResources, 2);
+        RestTest.assertErrorMessage(whoisResources, 0, "Error", "Authorisation for [%s] %s failed\nusing \"%s:\"\nno valid maintainer found\n", "organisation", "ORG-AA1306-RIPE", "mnt-ref", "");
+        RestTest.assertErrorMessage(whoisResources, 1, "Error", "Authorisation for [%s] %s failed\nusing \"%s:\"\nnot authenticated by: %s", "person", "PP1-TEST", "mnt-ref", "ANOTHER-MNT");
+
+    }
+    @Test
+    public void create_person_multiple_mnt_ref() {
+        databaseHelper.addObject(RpslObject.parse("" +
+                "mntner:      ANOTHER-MNT\n" +
+                "descr:       Owner Maintainer\n" +
+                "admin-c:     TP1-TEST\n" +
+                "upd-to:      noreply@ripe.net\n" +
+                "auth:        MD5-PW $1$d9fKeTr2$Si7YudNf4rUGmR71n/cqk/ #test\n" +
+                "auth:        SSO person@net.net\n" +
+                "mnt-by:      ANOTHER-MNT\n" +
+                "source:      TEST"));
+
+        databaseHelper.addObject(RpslObject.parse("" +
+                "mntner:      SECOND-MNT\n" +
+                "descr:       Owner Maintainer\n" +
+                "admin-c:     TP1-TEST\n" +
+                "upd-to:      noreply@ripe.net\n" +
+                "auth:        MD5-PW $1$d9fKeTr2$Si7YudNf4rUGmR71n/cqk/ #test\n" +
+                "auth:        SSO person@net.net\n" +
+                "mnt-by:      SECOND-MNT\n" +
+                "source:      TEST"));
+
+        databaseHelper.addObject(RpslObject.parse("" +
+                "mntner:      THIRD-MNT\n" +
+                "descr:       Owner Maintainer\n" +
+                "admin-c:     TP1-TEST\n" +
+                "upd-to:      noreply@ripe.net\n" +
+                "auth:        MD5-PW $1$d9fKeTr2$Si7YudNf4rUGmR71n/cqk/ #test\n" +
+                "auth:        SSO person@net.net\n" +
+                "mnt-by:      THIRD-MNT\n" +
+                "source:      TEST"));
+
+        final RpslObject createPerson = RpslObject.parse("" +
+                "person:    Pauleth Palthen\n" +
+                "address:   Singel 258\n" +
+                "phone:     +31-1234567890\n" +
+                "e-mail:    noreply@ripe.net\n" +
+                "mnt-by:    OWNER-MNT\n" +
+                "mnt-ref:    OWNER-MNT\n" +
+                "mnt-ref:    ANOTHER-MNT\n" +
+                "nic-hdl:   PP1-TEST # create comment\n" +
+                "remarks:   remark\n" +
+                "source:    TEST\n");
+
+        final WhoisResources person = RestTest.target(getPort(), "whois/test/person?password=test")
+                .request()
+                .post(Entity.entity(map(createPerson), MediaType.APPLICATION_XML), WhoisResources.class);
+
+        assertThat(person.getWhoisObjects().get(0).getAttributes().get(5),
+                is(new Attribute("mnt-ref", "OWNER-MNT", null, "mntner", new Link("locator", "http://rest-test.db.ripe" +
+                        ".net/test/mntner/OWNER-MNT"), null)));
+
+        assertThat(person.getWhoisObjects().get(0).getAttributes().get(6),
+                is(new Attribute("mnt-ref", "ANOTHER-MNT", null, "mntner", new Link("locator", "http://rest-test.db.ripe" +
+                        ".net/test/mntner/ANOTHER-MNT"), null)));
+
+        final RpslObject updatePerson = RpslObject.parse("" +
+                "person:    Pauleth Palthen\n" +
+                "address:   Singel 258\n" +
+                "phone:     +31-1234567890\n" +
+                "e-mail:    noreply@ripe.net\n" +
+                "mnt-by:    OWNER-MNT\n" +
+                "mnt-ref:    SECOND-MNT\n" +
+                "mnt-ref:    THIRD-MNT\n" +
+                "nic-hdl:   PP1-TEST\n" +
+                "remarks:   remark\n" +
+                "source:    TEST\n");
+
+        final WhoisResources updateResponse = RestTest.target(getPort(), "whois/test/person/PP1-TEST?password=test")
+                .request()
+                .put(Entity.entity(map(updatePerson), MediaType.APPLICATION_XML), WhoisResources.class);
+
+        assertThat(updateResponse.getWhoisObjects().get(0).getAttributes().get(5),
+                is(new Attribute("mnt-ref", "SECOND-MNT", null, "mntner", new Link("locator", "http://rest-test.db.ripe" +
+                        ".net/test/mntner/SECOND-MNT"), null)));
+        assertThat(updateResponse.getWhoisObjects().get(0).getAttributes().get(6),
+                is(new Attribute("mnt-ref", "THIRD-MNT", null, "mntner", new Link("locator", "http://rest-test.db.ripe" +
+                        ".net/test/mntner/THIRD-MNT"), null)));
+    }
+
+    @Test
+    public void create_person_not_existing_mnt_ref(){
+        final RpslObject createPerson = RpslObject.parse("" +
+                "person:    Pauleth Palthen\n" +
+                "address:   Singel 258\n" +
+                "phone:     +31-1234567890\n" +
+                "e-mail:    noreply@ripe.net\n" +
+                "mnt-by:    OWNER-MNT\n" +
+                "mnt-ref:   OWNER-MNT\n" +
+                "mnt-ref:   ANOTHER-MNT\n" +
+                "nic-hdl:   PP1-TEST # create comment\n" +
+                "remarks:   remark\n" +
+                "source:    TEST\n");
+
+        final BadRequestException badRequestException = assertThrows(BadRequestException.class, () -> {
+            RestTest.target(getPort(), "whois/test/person?password=test")
+                    .request()
+                    .post(Entity.entity(map(createPerson), MediaType.APPLICATION_JSON_TYPE), WhoisResources.class);
+        });
+
+        final WhoisResources whoisResources = badRequestException.getResponse().readEntity(WhoisResources.class);
+
+        RestTest.assertErrorCount(whoisResources, 1);
+        RestTest.assertErrorMessage(whoisResources, 0, "Error", "Unknown object referenced %s", "ANOTHER-MNT");
+        assertThat(whoisResources.getErrorMessages().get(0).getAttribute(), is(new Attribute("mnt-ref", "        ANOTHER-MNT")));
+    }
+
+    @Test
+    public void create_role_invalid_org_mnt_ref(){
+        databaseHelper.addObject(RpslObject.parse("" +
+                "mntner:      ANOTHER-MNT\n" +
+                "descr:       Owner Maintainer\n" +
+                "admin-c:     TP1-TEST\n" +
+                "upd-to:      noreply@ripe.net\n" +
+                "auth:        MD5-PW $1$6NVP0chT$XJgJwKM60eoVnMhIc/4hu/ #another\n" +
+                "auth:        SSO person@net.net\n" +
+                "mnt-by:      ANOTHER-MNT\n" +
+                "source:      TEST"));
+
+        databaseHelper.addObject(RpslObject.parse("" +
+                "organisation:   ORG-AA1306-RIPE\n" +
+                "mnt-ref:   ANOTHER-MNT\n" +
+                "source:         TEST"));
+
+        final RpslObject roleObject = RpslObject.parse("" +
+                "role:          SWE test\n" +
+                "address:       123\n" +
+                "e-mail:        123@ripe.net\n" +
+                "nic-hdl:       ROLE-TEST\n" +
+                "org:          ORG-AA1306-RIPE\n" +
+                "mnt-by:        OWNER-MNT\n" +
+                "source:        TEST");
+
+        final NotAuthorizedException notAuthorizedException = assertThrows(NotAuthorizedException.class, () -> {
+            RestTest.target(getPort(), "whois/test/role?password=test")
+                    .request()
+                    .post(Entity.entity(map(roleObject), MediaType.APPLICATION_XML), WhoisResources.class);
+        });
+
+        final WhoisResources whoisResources = notAuthorizedException.getResponse().readEntity(WhoisResources.class);
+
+        RestTest.assertErrorCount(whoisResources, 1);
+        RestTest.assertErrorMessage(whoisResources, 0, "Error", "Authorisation for [%s] %s failed\nusing \"%s:\"\nnot" +
+                " authenticated by: %s", "organisation", "ORG-AA1306-RIPE", "mnt-ref", "ANOTHER-MNT");
+    }
+    @Test
+    public void create_role_invalid_person_mnt_ref(){
+        databaseHelper.addObject(RpslObject.parse("" +
+                "mntner:      ANOTHER-MNT\n" +
+                "descr:       Owner Maintainer\n" +
+                "admin-c:     TP1-TEST\n" +
+                "upd-to:      noreply@ripe.net\n" +
+                "auth:        MD5-PW $1$6NVP0chT$XJgJwKM60eoVnMhIc/4hu/ #another\n" +
+                "auth:        SSO person@net.net\n" +
+                "mnt-by:      ANOTHER-MNT\n" +
+                "source:      TEST"));
+
+        databaseHelper.addObject(RpslObject.parse("" +
+                "person:    Pauleth Palthen\n" +
+                "address:   Singel 258\n" +
+                "phone:     +31-1234567890\n" +
+                "e-mail:    noreply@ripe.net\n" +
+                "mnt-by:    ANOTHER-MNT\n" +
+                "mnt-ref:   ANOTHER-MNT\n" +
+                "nic-hdl:   PP1-TEST # create comment\n" +
+                "remarks:   remark\n" +
+                "source:    TEST\n"));
+
+        final RpslObject roleObject = RpslObject.parse("" +
+                "role:          SWE test\n" +
+                "address:       123\n" +
+                "e-mail:        123@ripe.net\n" +
+                "nic-hdl:       ROLE-TEST\n" +
+                "tech-c:        PP1-TEST\n" +
+                "mnt-by:        OWNER-MNT\n" +
+                "source:        TEST");
+
+        final NotAuthorizedException notAuthorizedException = assertThrows(NotAuthorizedException.class, () -> {
+            RestTest.target(getPort(), "whois/test/role?password=test")
+                    .request()
+                    .post(Entity.entity(map(roleObject), MediaType.APPLICATION_XML), WhoisResources.class);
+        });
+
+        final WhoisResources whoisResources = notAuthorizedException.getResponse().readEntity(WhoisResources.class);
+
+        RestTest.assertErrorCount(whoisResources, 1);
+        RestTest.assertErrorMessage(whoisResources, 0, "Error", "Authorisation for [%s] %s failed\nusing \"%s:\"\nnot" +
+                " authenticated by: %s", "person", "PP1-TEST", "mnt-ref", "ANOTHER-MNT");
+    }
+    @Test
     public void comment_separator_not_included_in_response() {
         databaseHelper.addObject(
                 "person:    Pauleth Palthen\n" +

@@ -1,6 +1,8 @@
 package net.ripe.db.whois.update.authentication.strategy;
 
 abstract class AuthenticationStrategyBase implements AuthenticationStrategy {
+
+
     @Override
     public String getName() {
         return getClass().getSimpleName();
@@ -10,4 +12,5 @@ abstract class AuthenticationStrategyBase implements AuthenticationStrategy {
     public int compareTo(AuthenticationStrategy other) {
         return getName().compareTo(other.getName());
     }
+
 }
