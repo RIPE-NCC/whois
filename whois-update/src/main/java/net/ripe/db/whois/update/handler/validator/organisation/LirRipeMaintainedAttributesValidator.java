@@ -15,8 +15,6 @@ import net.ripe.db.whois.update.domain.PreparedUpdate;
 import net.ripe.db.whois.update.domain.UpdateContext;
 import net.ripe.db.whois.update.domain.UpdateMessages;
 import net.ripe.db.whois.update.handler.validator.BusinessRuleValidator;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
 import java.util.Collections;
@@ -29,8 +27,6 @@ import java.util.stream.Collectors;
 // Possible ways to change it are by override or power mntner.
 public class LirRipeMaintainedAttributesValidator implements BusinessRuleValidator {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(LirRipeMaintainedAttributesValidator.class);
-
     private static final ImmutableList<Action> ACTIONS = ImmutableList.of(Action.MODIFY);
     private static final ImmutableList<ObjectType> TYPES = ImmutableList.of(ObjectType.ORGANISATION);
 
@@ -42,7 +38,6 @@ public class LirRipeMaintainedAttributesValidator implements BusinessRuleValidat
 
     @Override
     public List<Message> performValidation(final PreparedUpdate update, final UpdateContext updateContext) {
-        LOGGER.info("Performing validation for managed attribute, testing country modification");
         final Subject subject = updateContext.getSubject(update);
         if (subject.hasPrincipal(Principal.ALLOC_MAINTAINER)) {
             return Collections.emptyList();
@@ -53,18 +48,10 @@ public class LirRipeMaintainedAttributesValidator implements BusinessRuleValidat
             return Collections.emptyList();
         }
 
-        LOGGER.info("It is an LIR so will perfom validation");
-
-
         List<Message> messages = Lists.newArrayList();
         final RpslObject updatedObject = update.getUpdatedObject();
         RIPE_NCC_MANAGED_ATTRIBUTES.forEach(attributeType -> {
-
-            LOGGER.info("checking for attribute {} ", attributeType );
-
             if (haveAttributesChanged(originalObject, updatedObject, attributeType)) {
-                LOGGER.info("attribute {} has changed so adding exception ", attributeType );
-
                 messages.add(UpdateMessages.canOnlyBeChangedByRipeNCC(attributeType));
             }
         });
@@ -82,8 +69,6 @@ public class LirRipeMaintainedAttributesValidator implements BusinessRuleValidat
     }
 
     private boolean haveAttributesChanged(final RpslObject originalObject, final RpslObject updatedObject, final AttributeType attributeType) {
-        LOGGER.info("attribute check for case insensitive {}- {}", originalObject.getValuesForAttribute(attributeType), updatedObject.getValuesForAttribute(attributeType) );
-
         return !originalObject.getValuesForAttribute(attributeType)
                     .equals(updatedObject.getValuesForAttribute(attributeType));
     }
