@@ -37,6 +37,7 @@ public class LirRipeMaintainedAttributesValidator implements BusinessRuleValidat
     private static final List<AttributeType> RIPE_NCC_MANAGED_ATTRIBUTES = ImmutableList.of(
             AttributeType.MNT_BY,
             AttributeType.ORG,
+            AttributeType.COUNTRY,
             AttributeType.ORG_TYPE);
 
     @Override
@@ -81,27 +82,10 @@ public class LirRipeMaintainedAttributesValidator implements BusinessRuleValidat
     }
 
     private boolean haveAttributesChanged(final RpslObject originalObject, final RpslObject updatedObject, final AttributeType attributeType) {
-        if (AttributeType.ORG_NAME == attributeType) {
-            return haveAttributesChanged(originalObject, updatedObject, attributeType, true);
-        }
-
-        return haveAttributesChanged(originalObject, updatedObject, attributeType, false);
-    }
-
-    private boolean haveAttributesChanged(final RpslObject originalObject, final RpslObject updatedObject, final AttributeType attributeType, final boolean caseSensitive) {
-        if (caseSensitive) {
-            return !mapToStrings(originalObject.getValuesForAttribute(attributeType))
-                        .equals(mapToStrings(updatedObject.getValuesForAttribute(attributeType)));
-        }
-
         LOGGER.info("attribute check for case insensitive {}- {}", originalObject.getValuesForAttribute(attributeType), updatedObject.getValuesForAttribute(attributeType) );
 
         return !originalObject.getValuesForAttribute(attributeType)
                     .equals(updatedObject.getValuesForAttribute(attributeType));
-    }
-
-    final Set<String> mapToStrings(final Set<CIString> values) {
-        return values.stream().map(ciString -> ciString.toString()).collect(Collectors.toSet());
     }
 
     @Override
