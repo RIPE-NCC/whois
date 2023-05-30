@@ -21,8 +21,6 @@ import net.ripe.db.whois.update.domain.UpdateContext;
 import net.ripe.db.whois.update.domain.UpdateMessages;
 import net.ripe.db.whois.update.handler.validator.BusinessRuleValidator;
 import org.apache.commons.lang.StringUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -35,8 +33,6 @@ import static net.ripe.db.whois.common.rpsl.AttributeType.ORG_NAME;
 
 @Component
 public class OrgNameAndCountryAttrValidator implements BusinessRuleValidator {
-
-    private static final Logger LOGGER = LoggerFactory.getLogger(OrgNameAndCountryAttrValidator.class);
 
     private static final ImmutableList<Action> ACTIONS = ImmutableList.of(Action.MODIFY);
     private static final ImmutableList<ObjectType> TYPES = ImmutableList.of(ObjectType.ORGANISATION);
@@ -63,7 +59,6 @@ public class OrgNameAndCountryAttrValidator implements BusinessRuleValidator {
             // See: LirRipeMaintainedAttributesValidator
             return Collections.emptyList();
         }
-
 
         final boolean isOrgNameModified = isAttributeModified(ORG_NAME, originalObject, updatedObject);
         final boolean isCountryCodeModified = isAttributeModified(COUNTRY, originalObject, updatedObject);
