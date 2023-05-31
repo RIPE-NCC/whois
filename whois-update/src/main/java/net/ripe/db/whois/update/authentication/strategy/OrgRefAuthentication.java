@@ -39,10 +39,46 @@ public class OrgRefAuthentication extends AuthenticationStrategyBase {
         this.credentialValidators = credentialValidators;
         this.rpslObjectDao = rpslObjectDao;
     }
+    @Override
+    public boolean supports(PreparedUpdate update) {
+        return REFERENCED_OBJECT_TYPES.stream().map(update::getNewValues).anyMatch(values -> !values.isEmpty());
+    }
 
+    @Override
+    public List<RpslObject> authenticate(final PreparedUpdate update, final UpdateContext updateContext) throws AuthenticationFailedException {
+        final List<Message> authenticationMessages = Lists.newArrayList();
+        final Map<RpslObject, List<RpslObject>> candidatesMap = getCandidates(update, updateContext);
+        final Set<RpslObject> authenticatedObjects = Sets.newLinkedHashSet();
+        for (final Map.Entry<RpslObject, List<RpslObject>> candidatesEntry : candidatesMap.entrySet()) {
+            final List<RpslObject> candidates = candidatesEntry.getValue();
+            final List<RpslObject> authenticatedBy = credentialValidators.authenticate(update, updateContext, candidates, getClass());
 
-    private Map<RpslObject, List<RpslObject>> getCandidates(final PreparedUpdate update,
-                                                        final UpdateContext updateContext) {
+            if (authenticatedBy.isEmpty()) {
+                final RpslObject candidate = candidatesEntry.getKey();
+                authenticationMessages.add(UpdateMessages.authenticationFailed(candidate, AttributeType.MNT_REF, candidates));
+            } else {
+                authenticatedObjects.addAll(authenticatedBy);
+            }
+        }
+
+        if (!authenticationMessages.isEmpty()) {
+            throw new AuthenticationFailedException(authenticationMessages, Sets.newLinkedHashSet(Iterables.concat(candidatesMap.values())));
+        }
+
+        return Lists.newArrayList(authenticatedObjects);
+    }
+
+    private List<RpslObject> getAllObjects(final Set<ObjectType> objectsTypes, final Collection<CIString> newOrgReferences) {
+        final List<RpslObject> objects = Lists.newArrayList();
+        objectsTypes.forEach( objectType -> objects.addAll(rpslObjectDao.getByKeys(objectType, newOrgReferences)));
+        return objects;
+    }
+    private boolean isSelfReference(final PreparedUpdate update, final Collection<CIString> newReferences,
+                                    final Set<ObjectType> objectTypes) {
+        return objectTypes.contains(update.getType()) && newReferences.contains(update.getUpdatedObject().getKey());
+    }
+
+    private Map<RpslObject, List<RpslObject>> getCandidates(final PreparedUpdate update, final UpdateContext updateContext) {
         final Map<RpslObject, List<RpslObject>> candidates = new LinkedHashMap<>();
 
         for (final AttributeType attributeType : REFERENCED_OBJECT_TYPES) {
@@ -73,44 +109,5 @@ public class OrgRefAuthentication extends AuthenticationStrategyBase {
             }
         }
         return candidates;
-    }
-
-    private List<RpslObject> getAllObjects(final Set<ObjectType> objectsTypes, final Collection<CIString> newOrgReferences) {
-        final List<RpslObject> objects = Lists.newArrayList();
-        objectsTypes.forEach( objectType -> objects.addAll(rpslObjectDao.getByKeys(objectType, newOrgReferences)));
-        return objects;
-    }
-    private boolean isSelfReference(final PreparedUpdate update, final Collection<CIString> newReferences,
-                                    final Set<ObjectType> objectTypes) {
-        return objectTypes.contains(update.getType()) && newReferences.contains(update.getUpdatedObject().getKey());
-    }
-
-    @Override
-    public boolean supports(PreparedUpdate update) {
-        return REFERENCED_OBJECT_TYPES.stream().map(update::getNewValues).anyMatch(values -> !values.isEmpty());
-    }
-
-    @Override
-    public List<RpslObject> authenticate(final PreparedUpdate update, final UpdateContext updateContext) throws AuthenticationFailedException {
-        final List<Message> authenticationMessages = Lists.newArrayList();
-        final Map<RpslObject, List<RpslObject>> candidatesMap = getCandidates(update, updateContext);
-        final Set<RpslObject> authenticatedObjects = Sets.newLinkedHashSet();
-        for (final Map.Entry<RpslObject, List<RpslObject>> candidatesEntry : candidatesMap.entrySet()) {
-            final List<RpslObject> candidates = candidatesEntry.getValue();
-            final List<RpslObject> authenticatedBy = credentialValidators.authenticate(update, updateContext, candidates, getClass());
-
-            if (authenticatedBy.isEmpty()) {
-                final RpslObject candidate = candidatesEntry.getKey();
-                authenticationMessages.add(UpdateMessages.authenticationFailed(candidate, AttributeType.MNT_REF, candidates));
-            } else {
-                authenticatedObjects.addAll(authenticatedBy);
-            }
-        }
-
-        if (!authenticationMessages.isEmpty()) {
-            throw new AuthenticationFailedException(authenticationMessages, Sets.newLinkedHashSet(Iterables.concat(candidatesMap.values())));
-        }
-
-        return Lists.newArrayList(authenticatedObjects);
     }
 }
