@@ -45,7 +45,7 @@ public class OrgRefAuthentication extends AuthenticationStrategyBase {
     }
 
     @Override
-    public List<RpslObject> authenticate(final PreparedUpdate update, final UpdateContext updateContext) throws AuthenticationFailedException {
+    public List<RpslObject> authenticate(final PreparedUpdate update, final UpdateContext updateContext) {
         final List<Message> authenticationMessages = Lists.newArrayList();
         final Map<RpslObject, List<RpslObject>> candidatesMap = getCandidates(update, updateContext);
         final Set<RpslObject> authenticatedObjects = Sets.newLinkedHashSet();
