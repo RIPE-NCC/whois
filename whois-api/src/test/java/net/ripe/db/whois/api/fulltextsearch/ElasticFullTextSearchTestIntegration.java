@@ -1926,6 +1926,237 @@ public class ElasticFullTextSearchTestIntegration  extends AbstractElasticSearch
         assertThat(queryResponse.getHighlighting().get("4").get("object-type").size(), is(1));
         assertThat(queryResponse.getHighlighting().get("4").get("object-type").get(0), is("<b>person</b>"));
     }
+
+
+
+
+    @Test
+    public void query_returns_maximum_results_and_mixed_objects_sorted() {
+        databaseHelper.addObject("mntner: TEST-SE-MNT");
+
+        databaseHelper.addObject("""
+                person:          Niels Christian Bank-Pedersen
+                address:         TEST
+                e-mail:          t@bank.es
+                nic-hdl:         TP1-TEST
+                mnt-by:          TEST-SE-MNT
+                source:          TEST
+                """);
+
+        databaseHelper.addObject("""
+                inetnum:         81.128.169.144 - 81.128.169.159
+                netname:         TEST-BANK
+                descr:           TEST Bank
+                country:         GB
+                admin-c:         TP1-TEST
+                tech-c:          TP1-TEST
+                status:          ALLOCATED UNSPECIFIED
+                mnt-by:          TEST-SE-MNT
+                mnt-lower:       TEST-SE-MNT
+                mnt-routes:      TEST-SE-MNT
+                remarks:         Please send delisting issues to TEST
+                source:          TEST
+                """);
+
+        databaseHelper.addObject("""
+                inet6num:        2a00:2381:b2f::/48
+                netname:         TEST-BANK
+                descr:           TEST Bank
+                country:         GB
+                admin-c:         TP1-TEST
+                tech-c:          TP1-TEST
+                status:          ALLOCATED UNSPECIFIED
+                assignment-size: 56
+                mnt-by:          TEST-SE-MNT
+                mnt-lower:       TEST-SE-MNT
+                mnt-routes:      TEST-SE-MNT
+                remarks:         This range is statically assigned
+                source:          TEST
+                """);
+
+        databaseHelper.addObject("""
+                inet6num:        2a00:2381:b2f::/56
+                netname:         TEST-BANK
+                descr:           TEST Bank
+                country:         GB
+                admin-c:         TP1-TEST
+                tech-c:          TP1-TEST
+                status:          ALLOCATED UNSPECIFIED
+                mnt-by:          TEST-SE-MNT
+                mnt-lower:       TEST-SE-MNT
+                mnt-routes:      TEST-SE-MNT
+                source:          TEST
+                """);
+
+        databaseHelper.addObject("""
+                inetnum:         31.15.49.116 - 31.15.49.119
+                netname:         BANK-NET
+                country:         SE
+                descr:           Bank
+                admin-c:         TP1-TEST
+                tech-c:          TP1-TEST
+                status:          ALLOCATED UNSPECIFIED
+                mnt-by:          TEST-SE-MNT
+                source:          TEST
+                """);
+
+        databaseHelper.addObject("""
+                inet6num:        2001:6f0:2501::/48
+                netname:         BANK-NET
+                country:         SE
+                descr:           Bank
+                admin-c:         TP1-TEST
+                tech-c:          TP1-TEST
+                status:          ALLOCATED UNSPECIFIED
+                mnt-by:          TEST-SE-MNT
+                source:          TEST
+                """);
+
+        databaseHelper.addObject("""
+                inetnum:         87.54.47.216 - 87.54.47.223
+                netname:         BANK-NET
+                country:         DK
+                admin-c:         TP1-TEST
+                tech-c:          TP1-TEST
+                status:          ALLOCATED UNSPECIFIED
+                mnt-by:          TEST-SE-MNT
+                source:          TEST
+                """);
+
+        databaseHelper.addObject("""
+            inetnum:         95.58.17.72 - 95.58.17.75
+            netname:         Bank
+            country:         KZ
+            admin-c:         TP1-TEST
+            tech-c:          TP1-TEST
+            status:          ALLOCATED UNSPECIFIED
+            mnt-by:          TEST-SE-MNT
+            source:          TEST
+                """);
+
+        databaseHelper.addObject("""
+            inetnum:         83.92.220.64 - 83.92.220.71
+            netname:         BANK-NET
+            country:         DK
+            admin-c:         TP1-TEST
+            tech-c:          TP1-TEST
+            status:          ALLOCATED UNSPECIFIED
+            mnt-by:          TEST-SE-MNT
+            source:          TEST
+                """);
+
+        databaseHelper.addObject("""
+            inetnum:         193.89.255.72 - 193.89.255.79
+            netname:         BANK-NET
+            country:         DK
+            admin-c:         TP1-TEST
+            tech-c:          TP1-TEST
+            status:          ALLOCATED UNSPECIFIED
+            mnt-by:          TEST-SE-MNT
+            source:          TEST
+                """);
+
+        databaseHelper.addObject("""
+            inetnum:         195.249.50.128 - 195.249.50.191
+            netname:         BANK
+            country:         DK
+            admin-c:         TP1-TEST
+            tech-c:          TP1-TEST
+            status:          ALLOCATED UNSPECIFIED
+            mnt-by:          TEST-SE-MNT
+            source:          TEST
+                """);
+
+        databaseHelper.addObject("""
+                inetnum:         31.15.33.192 - 31.15.33.195
+                netname:         NORDEA-BANK-NET
+                country:         SE
+                descr:           Nordea Bank AB
+                admin-c:         TP1-TEST
+                tech-c:          TP1-TEST
+                status:          ALLOCATED UNSPECIFIED
+                mnt-by:          TEST-SE-MNT
+                notify:          b2b-registry@tele2.com
+                notify:          b2b-dns@tele2.com
+                source:          TEST
+                """);
+
+        databaseHelper.addObject("""
+                inetnum:         37.233.74.12 - 37.233.74.12
+                netname:         FOREX-NET
+                country:         SE
+                admin-c:         TP1-TEST
+                tech-c:          TP1-TEST
+                status:          ALLOCATED UNSPECIFIED
+                mnt-by:          TEST-SE-MNT
+                source:          TEST
+                """);
+
+        databaseHelper.addObject("""
+                inetnum:         88.131.111.160 - 88.131.111.191
+                netname:         SVEA-BANK-NET
+                country:         SE
+                descr:           Svea Bank AB
+                geoloc:          59.355596110016315 18.0615234375
+                admin-c:         TP1-TEST
+                tech-c:          TP1-TEST
+                status:          ALLOCATED UNSPECIFIED
+                mnt-by:          TEST-SE-MNT
+                source:          TEST
+                """);
+
+        databaseHelper.addObject("""
+                inetnum:         212.214.152.144 - 212.214.152.151
+                netname:         AVANZA-BANK-NET
+                country:         SE
+                admin-c:         TP1-TEST
+                tech-c:          TP1-TEST
+                status:          ALLOCATED UNSPECIFIED
+                mnt-by:          TEST-SE-MNT
+                source:          TEST
+                """);
+
+        databaseHelper.addObject("""
+                inetnum:         217.119.169.120 - 217.119.169.123
+                netname:         NORDEA-BANK-NET
+                country:         SE
+                admin-c:         TP1-TEST
+                tech-c:          TP1-TEST
+                status:          ALLOCATED UNSPECIFIED
+                mnt-by:          TEST-SE-MNT
+                source:          TEST
+                """);
+
+        databaseHelper.addObject("""
+                person:          Bjorn Kogge
+                address:         Forex Bank AB
+                address:         Swedavia Arlanda Airport
+                address:         SE-19045 Stockholm-Arlanda
+                address:         Sweden
+                phone:           +46702598991
+                e-mail:          bjorn.kogge@forex.se
+                nic-hdl:         TP2-TEST
+                mnt-by:          TEST-SE-MNT
+                source:          TEST
+                """);
+
+        rebuildIndex();
+        final QueryResponse queryResponse = query("facet=true&format=xml&hl=true&q=(TEST%20AND%20BANK)" +
+                "&start=0&wt=json");
+
+        // limit is 10 results, so 212.214.168.0 - 212.214.175.255 will NOT be returned
+        assertThat(queryResponse.getResults(), contains(
+                "195.22.93.192 - 195.22.93.207",
+                "195.84.168.0 - 195.84.168.7",
+                "195.84.173.32 - 195.84.173.63",
+                "212.214.83.160 - 212.214.83.191",
+                "212.214.116.208 - 212.214.116.223",
+                "212.214.117.32 - 212.214.117.47",
+                "212.214.120.112 - 212.214.120.119",
+                "212.214.120.144 - 212.214.120.151",
+                "212.214.120.152 - 212.214.120.159",
+                "212.214.123.216 - 212.214.123.223"));
+    }
     // helper methods
 
     private QueryResponse query(final String queryString) {
