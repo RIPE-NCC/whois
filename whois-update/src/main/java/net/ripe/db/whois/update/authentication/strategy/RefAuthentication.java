@@ -23,27 +23,28 @@ import java.util.Map;
 import java.util.Set;
 
 @Component
-public class ReferenceAuthentication extends AuthenticationStrategyBase {
+public class RefAuthentication extends AuthenticationStrategyBase {
+
     private final AuthenticationModule credentialValidators;
     private final RpslObjectDao rpslObjectDao;
 
-    private static final List<ObjectType> REFERENCED_OBJECT_TYPES = List.of(ObjectType.PERSON, ObjectType.ROLE,
-            ObjectType.ORGANISATION,
-            ObjectType.IRT, ObjectType.MNTNER);
+    private static final List<AttributeType> REFERENCED_OBJECT_TYPES = List.of(AttributeType.ABUSE_C,
+            AttributeType.ADMIN_C,
+            AttributeType.ZONE_C, AttributeType.TECH_C, AttributeType.AUTHOR, AttributeType.PING_HDL,
+            AttributeType.MNT_IRT,
+            AttributeType.MNT_BY, AttributeType.MNT_DOMAINS, AttributeType.MNT_ROUTES, AttributeType.MNT_LOWER,
+            AttributeType.MNT_REF, AttributeType.MNT_NFY, AttributeType.ORG);
 
-
-    private final List<AttributeType> referencedAttributes;
-    public ReferenceAuthentication(final AuthenticationModule credentialValidators, final RpslObjectDao rpslObjectDao) {
+    public RefAuthentication(final AuthenticationModule credentialValidators, final RpslObjectDao rpslObjectDao) {
         this.credentialValidators = credentialValidators;
         this.rpslObjectDao = rpslObjectDao;
-        this.referencedAttributes = getReferencedAttributes();
     }
 
 
     Map<RpslObject, List<RpslObject>> getCandidates(final PreparedUpdate update, final UpdateContext updateContext) {
         final Map<RpslObject, List<RpslObject>> candidates = new LinkedHashMap<>();
 
-        for (final AttributeType attributeType : referencedAttributes) {
+        for (final AttributeType attributeType : REFERENCED_OBJECT_TYPES) {
             final Collection<CIString> attributeValues = update.getNewValues(attributeType);
             if (attributeValues.isEmpty()){
                 continue;
@@ -85,7 +86,7 @@ public class ReferenceAuthentication extends AuthenticationStrategyBase {
 
     @Override
     public boolean supports(PreparedUpdate update) {
-        return referencedAttributes.stream().map(update::getNewValues).anyMatch(values -> !values.isEmpty());
+        return REFERENCED_OBJECT_TYPES.stream().map(update::getNewValues).anyMatch(values -> !values.isEmpty());
     }
 
     @Override
@@ -110,15 +111,5 @@ public class ReferenceAuthentication extends AuthenticationStrategyBase {
         }
 
         return Lists.newArrayList(authenticatedObjects);
-    }
-
-    private List<AttributeType> getReferencedAttributes(){
-        final List<AttributeType> referencedAttributes = Lists.newArrayList();
-        for (final AttributeType attributeType : AttributeType.values()) {
-            if (attributeType.getReferences().stream().anyMatch(REFERENCED_OBJECT_TYPES::contains)){
-                referencedAttributes.add(attributeType);
-            }
-        }
-        return referencedAttributes;
     }
 }
