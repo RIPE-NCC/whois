@@ -5406,8 +5406,8 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
         final WhoisResources whoisResources = notAuthorizedException.getResponse().readEntity(WhoisResources.class);
 
         RestTest.assertErrorCount(whoisResources, 2);
-        RestTest.assertErrorMessage(whoisResources, 0, "Error", "Authorisation for [%s] %s failed\nusing \"%s:\"\nno valid maintainer found\n", "organisation", "ORG-AA1306-RIPE", "mnt-ref", "");
-        RestTest.assertErrorMessage(whoisResources, 1, "Error", "Authorisation for [%s] %s failed\nusing \"%s:\"\nnot authenticated by: %s", "person", "PP1-TEST", "mnt-ref", "ANOTHER-MNT");
+        RestTest.assertErrorMessage(whoisResources, 1, "Error", "Authorisation for [%s] %s failed\nusing \"%s:\"\nno valid maintainer found\n", "organisation", "ORG-AA1306-RIPE", "mnt-ref", "");
+        RestTest.assertErrorMessage(whoisResources, 0, "Error", "Authorisation for [%s] %s failed\nusing \"%s:\"\nnot authenticated by: %s", "person", "PP1-TEST", "mnt-ref", "ANOTHER-MNT");
 
     }
     @Test

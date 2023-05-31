@@ -16,6 +16,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.dao.EmptyResultDataAccessException;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 
 import static java.util.Collections.emptyList;
@@ -24,6 +25,7 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.core.Is.is;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyCollection;
 import static org.mockito.ArgumentMatchers.anyList;
 import static org.mockito.Mockito.eq;
@@ -31,16 +33,17 @@ import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
-public class OrgRefAuthenticationTest {
+public class ReferenceAuthenticationTest {
     @Mock private PreparedUpdate update;
     @Mock private UpdateContext updateContext;
     @Mock private AuthenticationModule credentialValidators;
     @Mock private RpslObjectDao rpslObjectDao;
 
-    @InjectMocks private OrgRefAuthentication subject;
+    @InjectMocks private ReferenceAuthentication subject;
 
     @Test
     public void supports_update_with_new_org_references() {
+        when(update.getNewValues(any())).thenReturn(new HashSet<>());
         when(update.getNewValues(AttributeType.ORG)).thenReturn(ciSet("ORG2"));
 
         assertThat(subject.supports(update), is(true));
@@ -56,13 +59,15 @@ public class OrgRefAuthenticationTest {
         when(update.getType()).thenReturn(ObjectType.INETNUM);
         final RpslObject organisation = RpslObject.parse("organisation: ORG1\nmnt-ref: REF-MNT");
         final List<RpslObject> organisations = Lists.newArrayList(organisation);
+        when(update.getNewValues(any())).thenReturn(new HashSet<>());
+        when(update.getNewValues(AttributeType.ORG)).thenReturn(ciSet("ORG2"));
         when(rpslObjectDao.getByKeys(eq(ObjectType.ORGANISATION), anyCollection())).thenReturn(organisations);
 
         final RpslObject maintainer = RpslObject.parse("mntner: REF-MNT");
         when(rpslObjectDao.getByKey(ObjectType.MNTNER, "REF-MNT")).thenReturn(maintainer);
 
         final ArrayList<RpslObject> candidates = Lists.newArrayList(maintainer);
-        when(credentialValidators.authenticate(eq(update), eq(updateContext), anyList(), eq(OrgRefAuthentication.class))).thenReturn(candidates);
+        when(credentialValidators.authenticate(eq(update), eq(updateContext), anyList(), eq(ReferenceAuthentication.class))).thenReturn(candidates);
 
         final List<RpslObject> result = subject.authenticate(update, updateContext);
 
@@ -74,11 +79,13 @@ public class OrgRefAuthenticationTest {
     @Test
     public void no_mntnerref_found() {
         when(update.getType()).thenReturn(ObjectType.PERSON);
+        when(update.getNewValues(any())).thenReturn(new HashSet<>());
+        when(update.getNewValues(AttributeType.ORG)).thenReturn(ciSet("ORG2"));
 
         final List<RpslObject> organisations = Lists.newArrayList(RpslObject.parse("organisation: ORG2"));
         when(rpslObjectDao.getByKeys(eq(ObjectType.ORGANISATION), anyCollection())).thenReturn((organisations));
 
-        when(credentialValidators.authenticate(eq(update), eq(updateContext), anyList(), eq(OrgRefAuthentication.class))).thenReturn(emptyList());
+        when(credentialValidators.authenticate(eq(update), eq(updateContext), anyList(), eq(ReferenceAuthentication.class))).thenReturn(emptyList());
 
         assertThrows(AuthenticationFailedException.class, () -> {
             subject.authenticate(update, updateContext);
@@ -87,14 +94,18 @@ public class OrgRefAuthenticationTest {
 
     @Test
     public void mntnerref_does_not_exist() {
-        when(update.getType()).thenReturn(ObjectType.INETNUM);
+        when(update.getType()).thenReturn(ObjectType.ORGANISATION);
 
         final List<RpslObject> organisations = Lists.newArrayList(RpslObject.parse("organisation: ORG1\nmnt-ref: REF-MNT"));
+        when(update.getNewValues(any())).thenReturn(new HashSet<>());
+        when(update.getNewValues(AttributeType.ORG)).thenReturn(ciSet("ORG2"));
+        when(update.getUpdatedObject()).thenReturn(RpslObject.parse("organisation: ORG1\nmnt-ref: REF-MNT"));
+
         when(rpslObjectDao.getByKeys(eq(ObjectType.ORGANISATION), anyCollection())).thenReturn(organisations);
 
         when(rpslObjectDao.getByKey(ObjectType.MNTNER, "REF-MNT")).thenThrow(EmptyResultDataAccessException.class);
 
-        when(credentialValidators.authenticate(eq(update), eq(updateContext), anyList(), eq(OrgRefAuthentication.class))).thenReturn(emptyList());
+        when(credentialValidators.authenticate(eq(update), eq(updateContext), anyList(), eq(ReferenceAuthentication.class))).thenReturn(emptyList());
 
         assertThrows(AuthenticationFailedException.class, () -> {
             subject.authenticate(update, updateContext);
