@@ -23,7 +23,7 @@ import java.util.Map;
 import java.util.Set;
 
 @Component
-public class RefAuthentication extends AuthenticationStrategyBase {
+public class OrgRefAuthentication extends AuthenticationStrategyBase {
 
     private final AuthenticationModule credentialValidators;
     private final RpslObjectDao rpslObjectDao;
@@ -35,7 +35,7 @@ public class RefAuthentication extends AuthenticationStrategyBase {
             AttributeType.MNT_BY, AttributeType.MNT_DOMAINS, AttributeType.MNT_ROUTES, AttributeType.MNT_LOWER,
             AttributeType.MNT_REF, AttributeType.MNT_NFY, AttributeType.ORG);
 
-    public RefAuthentication(final AuthenticationModule credentialValidators, final RpslObjectDao rpslObjectDao) {
+    public OrgRefAuthentication(final AuthenticationModule credentialValidators, final RpslObjectDao rpslObjectDao) {
         this.credentialValidators = credentialValidators;
         this.rpslObjectDao = rpslObjectDao;
     }
