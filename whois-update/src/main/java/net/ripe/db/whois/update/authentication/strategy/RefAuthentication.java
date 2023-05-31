@@ -41,7 +41,8 @@ public class RefAuthentication extends AuthenticationStrategyBase {
     }
 
 
-    Map<RpslObject, List<RpslObject>> getCandidates(final PreparedUpdate update, final UpdateContext updateContext) {
+    private Map<RpslObject, List<RpslObject>> getCandidates(final PreparedUpdate update,
+                                                        final UpdateContext updateContext) {
         final Map<RpslObject, List<RpslObject>> candidates = new LinkedHashMap<>();
 
         for (final AttributeType attributeType : REFERENCED_OBJECT_TYPES) {
