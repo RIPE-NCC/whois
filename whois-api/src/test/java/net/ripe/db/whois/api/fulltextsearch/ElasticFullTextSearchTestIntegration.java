@@ -2144,19 +2144,27 @@ public class ElasticFullTextSearchTestIntegration  extends AbstractElasticSearch
         final QueryResponse queryResponse = query("facet=true&format=xml&hl=true&q=(TEST%20AND%20BANK)" +
                 "&start=0&wt=json");
 
-        // limit is 10 results, so 212.214.168.0 - 212.214.175.255 will NOT be returned
-        assertThat(queryResponse.getResults(), contains(
-                "195.22.93.192 - 195.22.93.207",
-                "195.84.168.0 - 195.84.168.7",
-                "195.84.173.32 - 195.84.173.63",
-                "212.214.83.160 - 212.214.83.191",
-                "212.214.116.208 - 212.214.116.223",
-                "212.214.117.32 - 212.214.117.47",
-                "212.214.120.112 - 212.214.120.119",
-                "212.214.120.144 - 212.214.120.151",
-                "212.214.120.152 - 212.214.120.159",
-                "212.214.123.216 - 212.214.123.223"));
+        assertThat(queryResponse.getResults().get(0).get("lookup-key"), is("2a00:2381:b2f::/48")); //score of 5.8042016
+        assertThat(queryResponse.getResults().get(1).get("lookup-key"), is("2a00:2381:b2f::/56")); //Same score 5
+        // .8042016 so lookup-key order is followed
+        assertThat(queryResponse.getResults().get(2).get("lookup-key"), is("81.128.169.144 - 81.128.169.159"));//Same
+        // score 5.8042016 so lookup-key order is followed
+        assertThat(queryResponse.getResults().get(3).get("lookup-key"), is("TP1-TEST"));
+        //Different score 4.483695
+        assertThat(queryResponse.getResults().get(4).get("lookup-key"), is("TP2-TEST"));//Different score 2.986286
+
+        assertThat(queryResponse.getResults().get(5).get("lookup-key"), is("193.89.255.72 - 193.89.255.79")); //Same
+        // score 2.986286 so lookup-key order is followed
+        assertThat(queryResponse.getResults().get(6).get("lookup-key"), is("2001:6f0:2501::/48")); //Different score
+        // 2.8849726
+        assertThat(queryResponse.getResults().get(7).get("lookup-key"), is("31.15.49.116 - 31.15.49.119")); //Same
+        // score 2.8849726 so lookup-key order is followed
+        assertThat(queryResponse.getResults().get(8).get("lookup-key"), is("83.92.220.64 - 83.92.220.71")); //Same
+        // score 2.8849726 so lookup-key order is followed
+        assertThat(queryResponse.getResults().get(9).get("lookup-key"), is("87.54.47.216 - 87.54.47.223")); //Same
+        // score 2.8849726 so lookup-key order is followed
     }
+
     // helper methods
 
     private QueryResponse query(final String queryString) {
