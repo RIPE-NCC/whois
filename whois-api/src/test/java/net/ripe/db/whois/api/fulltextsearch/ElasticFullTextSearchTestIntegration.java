@@ -1931,13 +1931,13 @@ public class ElasticFullTextSearchTestIntegration  extends AbstractElasticSearch
 
 
     @Test
-    public void query_returns_maximum_results_and_mixed_objects_sorted() {
+    public void query_returns_maximum_results_and_mixed_objects_sorted_by_score_lookup() {
         databaseHelper.addObject("mntner: TEST-SE-MNT");
 
         databaseHelper.addObject("""
                 person:          Niels Christian Bank-Pedersen
                 address:         TEST
-                e-mail:          t@bank.es
+                e-mail:          bank.es
                 nic-hdl:         TP1-TEST
                 mnt-by:          TEST-SE-MNT
                 source:          TEST
@@ -1947,14 +1947,12 @@ public class ElasticFullTextSearchTestIntegration  extends AbstractElasticSearch
                 inetnum:         81.128.169.144 - 81.128.169.159
                 netname:         TEST-BANK
                 descr:           TEST Bank
-                country:         GB
                 admin-c:         TP1-TEST
                 tech-c:          TP1-TEST
                 status:          ALLOCATED UNSPECIFIED
                 mnt-by:          TEST-SE-MNT
                 mnt-lower:       TEST-SE-MNT
                 mnt-routes:      TEST-SE-MNT
-                remarks:         Please send delisting issues to TEST
                 source:          TEST
                 """);
 
@@ -1962,15 +1960,12 @@ public class ElasticFullTextSearchTestIntegration  extends AbstractElasticSearch
                 inet6num:        2a00:2381:b2f::/48
                 netname:         TEST-BANK
                 descr:           TEST Bank
-                country:         GB
                 admin-c:         TP1-TEST
                 tech-c:          TP1-TEST
                 status:          ALLOCATED UNSPECIFIED
-                assignment-size: 56
                 mnt-by:          TEST-SE-MNT
                 mnt-lower:       TEST-SE-MNT
                 mnt-routes:      TEST-SE-MNT
-                remarks:         This range is statically assigned
                 source:          TEST
                 """);
 
@@ -1978,7 +1973,6 @@ public class ElasticFullTextSearchTestIntegration  extends AbstractElasticSearch
                 inet6num:        2a00:2381:b2f::/56
                 netname:         TEST-BANK
                 descr:           TEST Bank
-                country:         GB
                 admin-c:         TP1-TEST
                 tech-c:          TP1-TEST
                 status:          ALLOCATED UNSPECIFIED
@@ -1991,7 +1985,6 @@ public class ElasticFullTextSearchTestIntegration  extends AbstractElasticSearch
         databaseHelper.addObject("""
                 inetnum:         31.15.49.116 - 31.15.49.119
                 netname:         BANK-NET
-                country:         SE
                 descr:           Bank
                 admin-c:         TP1-TEST
                 tech-c:          TP1-TEST
@@ -2003,7 +1996,6 @@ public class ElasticFullTextSearchTestIntegration  extends AbstractElasticSearch
         databaseHelper.addObject("""
                 inet6num:        2001:6f0:2501::/48
                 netname:         BANK-NET
-                country:         SE
                 descr:           Bank
                 admin-c:         TP1-TEST
                 tech-c:          TP1-TEST
@@ -2015,7 +2007,6 @@ public class ElasticFullTextSearchTestIntegration  extends AbstractElasticSearch
         databaseHelper.addObject("""
                 inetnum:         87.54.47.216 - 87.54.47.223
                 netname:         BANK-NET
-                country:         DK
                 admin-c:         TP1-TEST
                 tech-c:          TP1-TEST
                 status:          ALLOCATED UNSPECIFIED
@@ -2026,7 +2017,6 @@ public class ElasticFullTextSearchTestIntegration  extends AbstractElasticSearch
         databaseHelper.addObject("""
             inetnum:         95.58.17.72 - 95.58.17.75
             netname:         Bank
-            country:         KZ
             admin-c:         TP1-TEST
             tech-c:          TP1-TEST
             status:          ALLOCATED UNSPECIFIED
@@ -2037,7 +2027,6 @@ public class ElasticFullTextSearchTestIntegration  extends AbstractElasticSearch
         databaseHelper.addObject("""
             inetnum:         83.92.220.64 - 83.92.220.71
             netname:         BANK-NET
-            country:         DK
             admin-c:         TP1-TEST
             tech-c:          TP1-TEST
             status:          ALLOCATED UNSPECIFIED
@@ -2048,7 +2037,6 @@ public class ElasticFullTextSearchTestIntegration  extends AbstractElasticSearch
         databaseHelper.addObject("""
             inetnum:         193.89.255.72 - 193.89.255.79
             netname:         BANK-NET
-            country:         DK
             admin-c:         TP1-TEST
             tech-c:          TP1-TEST
             status:          ALLOCATED UNSPECIFIED
@@ -2059,7 +2047,6 @@ public class ElasticFullTextSearchTestIntegration  extends AbstractElasticSearch
         databaseHelper.addObject("""
             inetnum:         195.249.50.128 - 195.249.50.191
             netname:         BANK
-            country:         DK
             admin-c:         TP1-TEST
             tech-c:          TP1-TEST
             status:          ALLOCATED UNSPECIFIED
@@ -2069,22 +2056,17 @@ public class ElasticFullTextSearchTestIntegration  extends AbstractElasticSearch
 
         databaseHelper.addObject("""
                 inetnum:         31.15.33.192 - 31.15.33.195
-                netname:         NORDEA-BANK-NET
-                country:         SE
-                descr:           Nordea Bank AB
+                netname:         BANK-NET
+                descr:           Bank AB
                 admin-c:         TP1-TEST
                 tech-c:          TP1-TEST
                 status:          ALLOCATED UNSPECIFIED
                 mnt-by:          TEST-SE-MNT
-                notify:          b2b-registry@tele2.com
-                notify:          b2b-dns@tele2.com
                 source:          TEST
                 """);
 
         databaseHelper.addObject("""
                 inetnum:         37.233.74.12 - 37.233.74.12
-                netname:         FOREX-NET
-                country:         SE
                 admin-c:         TP1-TEST
                 tech-c:          TP1-TEST
                 status:          ALLOCATED UNSPECIFIED
@@ -2094,10 +2076,8 @@ public class ElasticFullTextSearchTestIntegration  extends AbstractElasticSearch
 
         databaseHelper.addObject("""
                 inetnum:         88.131.111.160 - 88.131.111.191
-                netname:         SVEA-BANK-NET
-                country:         SE
-                descr:           Svea Bank AB
-                geoloc:          59.355596110016315 18.0615234375
+                netname:         BANK
+                descr:           Bank
                 admin-c:         TP1-TEST
                 tech-c:          TP1-TEST
                 status:          ALLOCATED UNSPECIFIED
@@ -2108,7 +2088,6 @@ public class ElasticFullTextSearchTestIntegration  extends AbstractElasticSearch
         databaseHelper.addObject("""
                 inetnum:         212.214.152.144 - 212.214.152.151
                 netname:         AVANZA-BANK-NET
-                country:         SE
                 admin-c:         TP1-TEST
                 tech-c:          TP1-TEST
                 status:          ALLOCATED UNSPECIFIED
@@ -2130,11 +2109,6 @@ public class ElasticFullTextSearchTestIntegration  extends AbstractElasticSearch
         databaseHelper.addObject("""
                 person:          Bjorn Kogge
                 address:         Forex Bank AB
-                address:         Swedavia Arlanda Airport
-                address:         SE-19045 Stockholm-Arlanda
-                address:         Sweden
-                phone:           +46702598991
-                e-mail:          bjorn.kogge@forex.se
                 nic-hdl:         TP2-TEST
                 mnt-by:          TEST-SE-MNT
                 source:          TEST
@@ -2144,25 +2118,16 @@ public class ElasticFullTextSearchTestIntegration  extends AbstractElasticSearch
         final QueryResponse queryResponse = query("facet=true&format=xml&hl=true&q=(TEST%20AND%20BANK)" +
                 "&start=0&wt=json");
 
-        assertThat(queryResponse.getResults().get(0).get("lookup-key"), is("2a00:2381:b2f::/48")); //score of 5.8042016
-        assertThat(queryResponse.getResults().get(1).get("lookup-key"), is("2a00:2381:b2f::/56")); //Same score 5
-        // .8042016 so lookup-key order is followed
-        assertThat(queryResponse.getResults().get(2).get("lookup-key"), is("81.128.169.144 - 81.128.169.159"));//Same
-        // score 5.8042016 so lookup-key order is followed
+        assertThat(queryResponse.getResults().get(0).get("lookup-key"), is("2a00:2381:b2f::/48"));
+        assertThat(queryResponse.getResults().get(1).get("lookup-key"), is("2a00:2381:b2f::/56"));
+        assertThat(queryResponse.getResults().get(2).get("lookup-key"), is("81.128.169.144 - 81.128.169.159"));
         assertThat(queryResponse.getResults().get(3).get("lookup-key"), is("TP1-TEST"));
-        //Different score 4.483695
-        assertThat(queryResponse.getResults().get(4).get("lookup-key"), is("TP2-TEST"));//Different score 2.986286
-
-        assertThat(queryResponse.getResults().get(5).get("lookup-key"), is("193.89.255.72 - 193.89.255.79")); //Same
-        // score 2.986286 so lookup-key order is followed
-        assertThat(queryResponse.getResults().get(6).get("lookup-key"), is("2001:6f0:2501::/48")); //Different score
-        // 2.8849726
-        assertThat(queryResponse.getResults().get(7).get("lookup-key"), is("31.15.49.116 - 31.15.49.119")); //Same
-        // score 2.8849726 so lookup-key order is followed
-        assertThat(queryResponse.getResults().get(8).get("lookup-key"), is("83.92.220.64 - 83.92.220.71")); //Same
-        // score 2.8849726 so lookup-key order is followed
-        assertThat(queryResponse.getResults().get(9).get("lookup-key"), is("87.54.47.216 - 87.54.47.223")); //Same
-        // score 2.8849726 so lookup-key order is followed
+        assertThat(queryResponse.getResults().get(4).get("lookup-key"), is("TP2-TEST"));
+        assertThat(queryResponse.getResults().get(5).get("lookup-key"), is("193.89.255.72 - 193.89.255.79"));
+        assertThat(queryResponse.getResults().get(6).get("lookup-key"), is("2001:6f0:2501::/48"));
+        assertThat(queryResponse.getResults().get(7).get("lookup-key"), is("31.15.33.192 - 31.15.33.195"));
+        assertThat(queryResponse.getResults().get(8).get("lookup-key"), is("31.15.49.116 - 31.15.49.119"));
+        assertThat(queryResponse.getResults().get(9).get("lookup-key"), is("83.92.220.64 - 83.92.220.71"));
     }
 
     // helper methods
