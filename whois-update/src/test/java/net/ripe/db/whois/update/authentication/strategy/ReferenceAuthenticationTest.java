@@ -33,13 +33,13 @@ import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
-public class RefAuthenticationTest {
+public class ReferenceAuthenticationTest {
     @Mock private PreparedUpdate update;
     @Mock private UpdateContext updateContext;
     @Mock private AuthenticationModule credentialValidators;
     @Mock private RpslObjectDao rpslObjectDao;
 
-    @InjectMocks private RefAuthentication subject;
+    @InjectMocks private ReferenceAuthentication subject;
 
     @Test
     public void supports_update_with_new_org_references() {
@@ -67,7 +67,7 @@ public class RefAuthenticationTest {
         when(rpslObjectDao.getByKey(ObjectType.MNTNER, "REF-MNT")).thenReturn(maintainer);
 
         final ArrayList<RpslObject> candidates = Lists.newArrayList(maintainer);
-        when(credentialValidators.authenticate(eq(update), eq(updateContext), anyList(), eq(RefAuthentication.class))).thenReturn(candidates);
+        when(credentialValidators.authenticate(eq(update), eq(updateContext), anyList(), eq(ReferenceAuthentication.class))).thenReturn(candidates);
 
         final List<RpslObject> result = subject.authenticate(update, updateContext);
 
@@ -85,7 +85,7 @@ public class RefAuthenticationTest {
         final List<RpslObject> organisations = Lists.newArrayList(RpslObject.parse("organisation: ORG2"));
         when(rpslObjectDao.getByKeys(eq(ObjectType.ORGANISATION), anyCollection())).thenReturn((organisations));
 
-        when(credentialValidators.authenticate(eq(update), eq(updateContext), anyList(), eq(RefAuthentication.class))).thenReturn(emptyList());
+        when(credentialValidators.authenticate(eq(update), eq(updateContext), anyList(), eq(ReferenceAuthentication.class))).thenReturn(emptyList());
 
         assertThrows(AuthenticationFailedException.class, () -> {
             subject.authenticate(update, updateContext);
@@ -105,7 +105,7 @@ public class RefAuthenticationTest {
 
         when(rpslObjectDao.getByKey(ObjectType.MNTNER, "REF-MNT")).thenThrow(EmptyResultDataAccessException.class);
 
-        when(credentialValidators.authenticate(eq(update), eq(updateContext), anyList(), eq(RefAuthentication.class))).thenReturn(emptyList());
+        when(credentialValidators.authenticate(eq(update), eq(updateContext), anyList(), eq(ReferenceAuthentication.class))).thenReturn(emptyList());
 
         assertThrows(AuthenticationFailedException.class, () -> {
             subject.authenticate(update, updateContext);
