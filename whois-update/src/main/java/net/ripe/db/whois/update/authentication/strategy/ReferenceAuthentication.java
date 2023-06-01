@@ -8,7 +8,6 @@ import net.ripe.db.whois.common.Message;
 import net.ripe.db.whois.common.dao.RpslObjectDao;
 import net.ripe.db.whois.common.domain.CIString;
 import net.ripe.db.whois.common.rpsl.AttributeType;
-import net.ripe.db.whois.common.rpsl.ObjectTemplate;
 import net.ripe.db.whois.common.rpsl.ObjectType;
 import net.ripe.db.whois.common.rpsl.RpslObject;
 import net.ripe.db.whois.update.authentication.credential.AuthenticationModule;
@@ -19,7 +18,6 @@ import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.stereotype.Component;
 
 import java.util.Collection;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -36,7 +34,7 @@ public class ReferenceAuthentication extends AuthenticationStrategyBase {
             AttributeType.MNT_IRT, AttributeType.MNT_BY,
             AttributeType.MNT_DOMAINS, AttributeType.MNT_ROUTES,
             AttributeType.MNT_LOWER, AttributeType.MNT_REF,
-            AttributeType.MNT_NFY, AttributeType.ORG);
+            AttributeType.ORG);
 
     public ReferenceAuthentication(final AuthenticationModule credentialValidators, final RpslObjectDao rpslObjectDao) {
         this.credentialValidators = credentialValidators;
