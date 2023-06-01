@@ -1918,7 +1918,7 @@ class InetnumIntegrationSpec extends BaseWhoisSourceSpec {
         response =~ /Create SUCCEEDED: \[inetnum\] 192.168.200.0 - 192.168.200.255/
     }
 
-    def "create inetnum succeeds with person with mnt-ref with wrong passwd"() {
+    def "create inetnum fails with person with mnt-ref with wrong passwd"() {
         when:
         def response = syncUpdate(new SyncUpdate(data: """\
                 inetnum:      192.168.200.0 - 192.168.200.255
@@ -1952,8 +1952,7 @@ class InetnumIntegrationSpec extends BaseWhoisSourceSpec {
                 status:       ASSIGNED PI
                 mnt-by:       TEST2-MNT
                 source:       TEST
-                password:     emptypassword
-                password:     hm
+
                 override:     denis,override1
                 """.stripIndent(true)))
         then:
@@ -1981,7 +1980,7 @@ class InetnumIntegrationSpec extends BaseWhoisSourceSpec {
         response =~ /Create SUCCEEDED: \[inetnum\] 192.168.200.0 - 192.168.200.255/
     }
 
-    def "create inetnum succeeds with role with mnt-ref with wrong passwd"() {
+    def "create inetnum fails with role with mnt-ref with wrong passwd"() {
         when:
         def response = syncUpdate(new SyncUpdate(data: """\
                 inetnum:      192.168.200.0 - 192.168.200.255
@@ -2045,7 +2044,7 @@ class InetnumIntegrationSpec extends BaseWhoisSourceSpec {
         response =~ /Create SUCCEEDED: \[inetnum\] 192.168.200.0 - 192.168.200.255/
     }
 
-    def "create inetnum succeeds with irt with mnt-ref with wrong passwd"() {
+    def "create inetnum fails with irt with mnt-ref with wrong passwd"() {
         when:
         def response = syncUpdate(new SyncUpdate(data: """\
                 inetnum:      192.168.200.0 - 192.168.200.255
@@ -2111,7 +2110,7 @@ class InetnumIntegrationSpec extends BaseWhoisSourceSpec {
         response =~ /Create SUCCEEDED: \[inetnum\] 192.168.200.0 - 192.168.200.255/
     }
 
-    def "create inetnum succeeds with mntner with mnt-ref with wrong passwd"() {
+    def "create inetnum fails with mntner with mnt-ref with wrong passwd"() {
         when:
         def response = syncUpdate(new SyncUpdate(data: """\
                 inetnum:      192.168.200.0 - 192.168.200.255
