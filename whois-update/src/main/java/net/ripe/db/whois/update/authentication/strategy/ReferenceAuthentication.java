@@ -8,6 +8,7 @@ import net.ripe.db.whois.common.Message;
 import net.ripe.db.whois.common.dao.RpslObjectDao;
 import net.ripe.db.whois.common.domain.CIString;
 import net.ripe.db.whois.common.rpsl.AttributeType;
+import net.ripe.db.whois.common.rpsl.ObjectTemplate;
 import net.ripe.db.whois.common.rpsl.ObjectType;
 import net.ripe.db.whois.common.rpsl.RpslObject;
 import net.ripe.db.whois.update.authentication.credential.AuthenticationModule;
@@ -85,7 +86,8 @@ public class ReferenceAuthentication extends AuthenticationStrategyBase {
                 }
             }
 
-            if (!maintainers.isEmpty()){
+            // if the mnt-ref is required in the referenced object, ej: Organisation object. We should throw error
+            if (!maintainers.isEmpty() || ObjectTemplate.getTemplate(rpslObject.getType()).getMandatoryAttributes().contains(AttributeType.MNT_REF)){
                 candidates.put(rpslObject, maintainers);
             }
         }
