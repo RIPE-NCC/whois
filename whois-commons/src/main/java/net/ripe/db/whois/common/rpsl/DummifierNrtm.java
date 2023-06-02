@@ -32,6 +32,7 @@ public class DummifierNrtm implements Dummifier {
 
     static final List<AttributeType> ATTRIBUTES_TO_KEEP = Lists.newArrayList(
             AttributeType.ABUSE_C,
+            AttributeType.COUNTRY,
             AttributeType.LAST_MODIFIED,
             AttributeType.CREATED);
 
