@@ -15,8 +15,8 @@ import javax.sql.DataSource;
 import java.util.Optional;
 
 @Repository
-public class NotificationFileDao {
-    private static final Logger LOGGER = LoggerFactory.getLogger(NotificationFileDao.class);
+public class UpdateNotificationFileDao {
+    private static final Logger LOGGER = LoggerFactory.getLogger(UpdateNotificationFileDao.class);
 
     private final JdbcTemplate jdbcTemplate;
     private static final RowMapper<NotificationFile> rowMapper = (rs, rowNum) ->
@@ -27,7 +27,7 @@ public class NotificationFileDao {
             rs.getString(4)
         );
 
-    public NotificationFileDao(@Qualifier("nrtmDataSource") final DataSource dataSource) {
+    public UpdateNotificationFileDao(@Qualifier("nrtmDataSource") final DataSource dataSource) {
         this.jdbcTemplate = new JdbcTemplate(dataSource);
     }
 

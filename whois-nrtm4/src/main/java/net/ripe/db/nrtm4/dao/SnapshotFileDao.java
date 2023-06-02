@@ -14,7 +14,7 @@ import java.util.Optional;
 
 
 @Repository
-public class SnapshotFileRepository {
+public class SnapshotFileDao {
 
     private final JdbcTemplate jdbcTemplate;
     private static final RowMapper<SnapshotFile> rowMapper = (rs, rowNum) ->
@@ -28,10 +28,10 @@ public class SnapshotFileRepository {
     private static final RowMapper<SnapshotFileVersionInfo> rowMapperWithVersion = (rs, rowNum) ->
             new SnapshotFileVersionInfo(
                     rowMapper.mapRow(rs, rowNum),
-                    NrtmVersionInfoRepository.rowMapperWithOffset.apply(4).mapRow(rs, rowNum)
+                    NrtmVersionInfoDao.rowMapperWithOffset.apply(4).mapRow(rs, rowNum)
             );
 
-    public SnapshotFileRepository(@Qualifier("nrtmDataSource") final DataSource dataSource) {
+    public SnapshotFileDao(@Qualifier("nrtmDataSource") final DataSource dataSource) {
         this.jdbcTemplate = new JdbcTemplate(dataSource);
     }
 

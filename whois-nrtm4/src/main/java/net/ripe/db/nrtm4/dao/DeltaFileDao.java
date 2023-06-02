@@ -1,14 +1,9 @@
 package net.ripe.db.nrtm4.dao;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import net.ripe.db.nrtm4.domain.DeltaChange;
 import net.ripe.db.nrtm4.domain.DeltaFile;
 import net.ripe.db.nrtm4.domain.DeltaFileVersionInfo;
 import net.ripe.db.nrtm4.domain.NrtmSource;
 import net.ripe.db.nrtm4.domain.NrtmVersionInfo;
-import net.ripe.db.nrtm4.domain.PublishableDeltaFile;
-import net.ripe.db.nrtm4.util.NrtmFileUtil;
 import org.mariadb.jdbc.internal.logging.Logger;
 import org.mariadb.jdbc.internal.logging.LoggerFactory;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -18,7 +13,6 @@ import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Repository;
 
 import javax.sql.DataSource;
-import java.nio.charset.StandardCharsets;
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
 import java.util.List;
@@ -43,7 +37,7 @@ public class DeltaFileDao {
     private final RowMapper<DeltaFileVersionInfo> rowMapperWithVersion = (rs, rowNum) ->
         new DeltaFileVersionInfo(
             rowMapper.mapRow(rs, rowNum),
-            NrtmVersionInfoRepository.rowMapperWithOffset.apply(5).mapRow(rs, rowNum)
+            NrtmVersionInfoDao.rowMapperWithOffset.apply(5).mapRow(rs, rowNum)
         );
 
     public DeltaFileDao(@Qualifier("nrtmDataSource") final DataSource dataSource) {

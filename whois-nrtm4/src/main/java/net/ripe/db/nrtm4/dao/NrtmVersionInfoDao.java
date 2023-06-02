@@ -21,9 +21,9 @@ import java.util.function.Function;
 
 
 @Repository
-public class NrtmVersionInfoRepository {
+public class NrtmVersionInfoDao {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(NrtmVersionInfoRepository.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(NrtmVersionInfoDao.class);
     static final Function<Integer, RowMapper<NrtmVersionInfo>> rowMapperWithOffset = (offset) -> (rs, rowNum) -> {
         final NrtmSource source = new NrtmSource(rs.getLong(offset + 2), CIString.ciString(rs.getString(offset + 3)));
         return new NrtmVersionInfo(
@@ -39,7 +39,7 @@ public class NrtmVersionInfoRepository {
     private final RowMapper<NrtmVersionInfo> rowMapper = rowMapperWithOffset.apply(0);
     private final JdbcTemplate jdbcTemplate;
 
-    public NrtmVersionInfoRepository(@Qualifier("nrtmDataSource") final DataSource dataSource) {
+    public NrtmVersionInfoDao(@Qualifier("nrtmDataSource") final DataSource dataSource) {
         this.jdbcTemplate = new JdbcTemplate(dataSource);
     }
 

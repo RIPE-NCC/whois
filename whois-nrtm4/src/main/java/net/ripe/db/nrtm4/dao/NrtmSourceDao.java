@@ -14,13 +14,13 @@ import java.util.Optional;
 
 
 @Repository
-public class SourceRepository {
+public class NrtmSourceDao {
 
     private final JdbcTemplate jdbcTemplate;
     private final List<String> sources;
     private final String source;
 
-    SourceRepository(
+    NrtmSourceDao(
         @Qualifier("nrtmDataSource") final DataSource dataSource,
         @Value("${whois.source}") final String source,
         @Value("${whois.nonauth.source}") final String nonauthSource
