@@ -31,7 +31,7 @@ public class DummifierNrtm implements Dummifier {
     );
 
     static final Map<ObjectType, List<AttributeType>> ATTRIBUTES_TO_KEEP_OBJECT_TYPE = Map.of(
-            ObjectType.MNTNER, Lists.newArrayList(AttributeType.ABUSE_C,AttributeType.LAST_MODIFIED,AttributeType.CREATED),
+            ObjectType.MNTNER, Lists.newArrayList(AttributeType.LAST_MODIFIED,AttributeType.CREATED),
             ObjectType.ORGANISATION, Lists.newArrayList(AttributeType.ABUSE_C,AttributeType.COUNTRY,AttributeType.LAST_MODIFIED,AttributeType.CREATED));
 
     static final Map<AttributeType, String> DUMMIFICATION_REPLACEMENTS = Maps.newEnumMap(AttributeType.class);

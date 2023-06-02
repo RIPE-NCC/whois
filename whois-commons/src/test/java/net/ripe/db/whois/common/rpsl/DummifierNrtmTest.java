@@ -183,7 +183,6 @@ public class DummifierNrtmTest {
                 "mntner:         FOO\n" +
                 "created:        2001-02-04T17:00:00Z\n" +
                 "last-modified:  2001-02-04T17:00:00Z\n" +
-                "abuse-c:        FOO\n" +
                 "admin-c:        DUMY-RIPE\n" +
                 "auth:           MD5-PW $1$SaltSalt$DummifiedMD5HashValue.   # Real value hidden for security\n" +
                 "mnt-by:         FOO\n" +
