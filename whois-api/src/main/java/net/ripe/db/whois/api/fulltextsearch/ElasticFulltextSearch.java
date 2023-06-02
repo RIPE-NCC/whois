@@ -46,7 +46,7 @@ public class ElasticFulltextSearch extends FulltextSearch {
     private static final Logger LOGGER = LoggerFactory.getLogger(ElasticFulltextSearch.class);
 
     public static final TermsAggregationBuilder AGGREGATION_BUILDER = AggregationBuilders.terms("types-count").field("object-type.raw");
-    public static final List<SortBuilder<?>> SORT_BUILDERS = Arrays.asList(SortBuilders.scoreSort(), SortBuilders.fieldSort("lookup-key.keyword").unmappedType("keyword"));
+    public static final List<SortBuilder<?>> SORT_BUILDERS = Arrays.asList(SortBuilders.scoreSort(), SortBuilders.fieldSort("lookup-key.raw").unmappedType("keyword"));
 
     private final FullTextIndex fullTextIndex;
     private final AccessControlListManager accessControlListManager;
