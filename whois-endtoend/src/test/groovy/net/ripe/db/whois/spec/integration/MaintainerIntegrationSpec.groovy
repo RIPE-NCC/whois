@@ -367,4 +367,213 @@ class MaintainerIntegrationSpec extends BaseWhoisSourceSpec {
         response =~ /Modify SUCCEEDED: \[mntner] DEV-MNT/
     }
 
+
+    def "create succeeds self-referenced maintainer correct passwd"() {
+        given:
+        def create = new SyncUpdate(data: """\
+            mntner: DEV-MNT
+            descr: description
+            admin-c: TEST-RIPE
+            mnt-by: UPD-MNT
+            upd-to: dbtest@ripe.net
+            auth:    MD5-PW \$1\$/7f2XnzQ\$p5ddbI7SXq4z4yNrObFS/0 # emptypassword
+            source: TEST
+            mnt-ref: DEV-MNT
+            password: update
+            password: emptypassword
+            """.stripIndent(true))
+
+        when:
+        def response = syncUpdate create
+
+        then:
+        response =~ /Create SUCCEEDED: \[mntner\] DEV-MNT/
+    }
+
+    def "create succeeds self-referenced maintainer incorrect passwd"() {
+        given:
+        def create = new SyncUpdate(data: """\
+            mntner: DEV-MNT
+            descr: description
+            admin-c: TEST-RIPE
+            mnt-by: UPD-MNT
+            upd-to: dbtest@ripe.net
+            auth:    MD5-PW \$1\$/7f2XnzQ\$p5ddbI7SXq4z4yNrObFS/0 # emptypassword
+            source: TEST
+            mnt-ref: DEV-MNT
+            password: update
+            """.stripIndent(true))
+
+        when:
+        def response = syncUpdate create
+
+        then:
+        response =~ /Create SUCCEEDED: \[mntner\] DEV-MNT/
+    }
+
+    def "create succeeds referencing another mntner correct passwd"() {
+        given:
+
+        databaseHelper.addObject("mntner: DEV-MNT\n" +
+                "descr: description\n" +
+                "admin-c: TEST-RIPE\n" +
+                "abuse-mailbox: abuse2@ripe.net\n" +
+                "mnt-by: UPD-MNT\n" +
+                "upd-to: dbtest@ripe.net\n" +
+                "auth:   MD5-PW \$1\$fU9ZMQN9\$QQtm3kRqZXWAuLpeOiLN7. # update\n" +
+                "source: TEST\n" +
+                "password: update")
+
+        def create = new SyncUpdate(data: """\
+            mntner: TEST-MNT
+            descr: description
+            admin-c: TEST-RIPE
+            mnt-by: TEST-MNT
+            upd-to: dbtest@ripe.net
+            auth:    MD5-PW \$1\$/7f2XnzQ\$p5ddbI7SXq4z4yNrObFS/0 # emptypassword
+            source: TEST
+            mnt-ref: DEV-MNT
+            password: emptypassword
+            password: update
+            """.stripIndent(true))
+
+        when:
+        def response = syncUpdate create
+
+        then:
+        response =~ /Create SUCCEEDED: \[mntner\] TEST-MNT/
+    }
+
+    def "update succeeds self-referenced maintainer correct passwd"() {
+        given:
+        databaseHelper.addObject("mntner: DEV-MNT\n" +
+                "descr: description\n" +
+                "admin-c: TEST-RIPE\n" +
+                "abuse-mailbox: abuse2@ripe.net\n" +
+                "mnt-by: UPD-MNT\n" +
+                "upd-to: dbtest@ripe.net\n" +
+                "auth:   MD5-PW \$1\$fU9ZMQN9\$QQtm3kRqZXWAuLpeOiLN7. # update\n" +
+                "source: TEST\n" +
+                "password: update")
+
+        def update = new SyncUpdate(data: """\
+            mntner: DEV-MNT
+            descr: description
+            admin-c: TEST-RIPE
+            mnt-by: UPD-MNT
+            mnt-ref: DEV-MNT
+            upd-to: dbtest@ripe.net
+            auth:   MD5-PW \$1\$fU9ZMQN9\$QQtm3kRqZXWAuLpeOiLN7. # update
+            source: TEST
+            password: update
+            """.stripIndent(true))
+
+        when:
+        def response = syncUpdate update
+
+        then:
+        response =~ /Modify SUCCEEDED: \[mntner] DEV-MNT/
+    }
+
+    def "create fails referencing another mntner incorrect passwd"() {
+        given:
+
+        databaseHelper.addObject("mntner: DEV-MNT\n" +
+                "descr: description\n" +
+                "admin-c: TEST-RIPE\n" +
+                "abuse-mailbox: abuse2@ripe.net\n" +
+                "mnt-by: UPD-MNT\n" +
+                "upd-to: dbtest@ripe.net\n" +
+                "auth:   MD5-PW \$1\$fU9ZMQN9\$QQtm3kRqZXWAuLpeOiLN7. # update\n" +
+                "source: TEST\n" +
+                "password: update")
+
+        def create = new SyncUpdate(data: """\
+            mntner: TEST-MNT
+            descr: description
+            admin-c: TEST-RIPE
+            mnt-by: TEST-MNT
+            upd-to: dbtest@ripe.net
+            auth:    MD5-PW \$1\$/7f2XnzQ\$p5ddbI7SXq4z4yNrObFS/0 # emptypassword
+            source: TEST
+            mnt-ref: DEV-MNT
+            password: emptypassword
+            """.stripIndent(true))
+
+        when:
+        def response = syncUpdate create
+
+        then:
+        response =~ """
+            \\*\\*\\*Error:   Authorisation for \\[mntner\\] TEST-MNT failed
+                        using "mnt-ref:"
+                        not authenticated by: DEV-MNT""".stripIndent(true)
+    }
+
+    def "update fails self-referenced maintainer incorrect passwd"() {
+        given:
+        databaseHelper.addObject("mntner: DEV-MNT\n" +
+                "descr: description\n" +
+                "admin-c: TEST-RIPE\n" +
+                "abuse-mailbox: abuse2@ripe.net\n" +
+                "mnt-by: UPD-MNT\n" +
+                "upd-to: dbtest@ripe.net\n" +
+                "auth:    MD5-PW \$1\$/7f2XnzQ\$p5ddbI7SXq4z4yNrObFS/0 # emptypassword\n" +
+                "source: TEST\n" +
+                "password: emptypassword\n" +
+                "password: update")
+
+        def update = new SyncUpdate(data: """\
+            mntner: DEV-MNT
+            descr: description
+            admin-c: TEST-RIPE
+            mnt-by: UPD-MNT
+            mnt-ref: DEV-MNT
+            upd-to: dbtest@ripe.net
+            auth:    MD5-PW \$1\$/7f2XnzQ\$p5ddbI7SXq4z4yNrObFS/0 # emptypassword
+            source: TEST
+            password: update
+            """.stripIndent(true))
+
+        when:
+        def response = syncUpdate update
+
+        then:
+        response =~ """
+            \\*\\*\\*Error:   Authorisation for \\[mntner\\] DEV-MNT failed
+                        using "mnt-ref:"
+                        not authenticated by: DEV-MNT""".stripIndent(true)
+    }
+
+    def "update succeeds self-referenced maintainer incorrect passwd override"() {
+        given:
+        databaseHelper.addObject("mntner: DEV-MNT\n" +
+                "descr: description\n" +
+                "admin-c: TEST-RIPE\n" +
+                "abuse-mailbox: abuse2@ripe.net\n" +
+                "mnt-by: UPD-MNT\n" +
+                "upd-to: dbtest@ripe.net\n" +
+                "auth:    MD5-PW \$1\$/7f2XnzQ\$p5ddbI7SXq4z4yNrObFS/0 # emptypassword\n" +
+                "source: TEST\n" +
+                "password: emptypassword\n" +
+                "password: update")
+
+        def update = new SyncUpdate(data: """\
+            mntner: DEV-MNT
+            descr: description
+            admin-c: TEST-RIPE
+            mnt-by: UPD-MNT
+            mnt-ref: DEV-MNT
+            upd-to: dbtest@ripe.net
+            auth:    MD5-PW \$1\$/7f2XnzQ\$p5ddbI7SXq4z4yNrObFS/0 # emptypassword
+            source: TEST
+            override:     denis,override1
+            """.stripIndent(true))
+
+        when:
+        def response = syncUpdate update
+
+        then:
+        response =~ /Modify SUCCEEDED: \[mntner] DEV-MNT/
+    }
 }

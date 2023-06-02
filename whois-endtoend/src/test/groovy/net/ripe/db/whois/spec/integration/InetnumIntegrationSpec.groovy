@@ -59,6 +59,16 @@ class InetnumIntegrationSpec extends BaseWhoisSourceSpec {
                     auth:    MD5-PW \$1\$gTs46J2Z\$.iohp.IUDhNAMj7evxnFS1   # legacy
                     source:  TEST
                 """,
+            "REF-MNT"  : """\
+                    mntner:  REF-MNT
+                    descr:   description
+                    admin-c: TEST-PN
+                    mnt-by:  REF-MNT
+                    mnt-ref: RIPE-NCC-HM-MNT
+                    upd-to:  dbtest@ripe.net
+                    auth:    MD5-PW \$1\$fU9ZMQN9\$QQtm3kRqZXWAuLpeOiLN7. # update
+                    source:  TEST
+                """,
             "ROLE-A001": """\
                 role:         Abuse Handler
                 address:      St James Street
@@ -69,6 +79,20 @@ class InetnumIntegrationSpec extends BaseWhoisSourceSpec {
                 admin-c:      TEST-PN
                 tech-c:       TEST-PN
                 nic-hdl:      AH001-TEST
+                mnt-by:       TEST-MNT
+                source:       TEST
+                """,
+            "ROLE-RL": """\
+                role:         Abuse Handler
+                address:      St James Street
+                address:      Burnley
+                address:      UK
+                e-mail:       dbtest@ripe.net
+                abuse-mailbox:more_abuse@lir.net
+                admin-c:      TEST-PN
+                tech-c:       TEST-PN
+                mnt-ref:      TEST-MNT 
+                nic-hdl:      RL-TEST
                 mnt-by:       TEST-MNT
                 source:       TEST
                 """,
@@ -195,7 +219,29 @@ class InetnumIntegrationSpec extends BaseWhoisSourceSpec {
                     auth: MD5-PW \$1\$fU9ZMQN9\$QQtm3kRqZXWAuLpeOiLN7. # update
                     mnt-by: TEST-MNT
                     source: TEST
-                """
+                """,
+            "IRT2"      : """\
+                    irt: irt-IRT2
+                    address: Street 1
+                    e-mail: test@ripe.net
+                    admin-c: TEST-PN
+                    tech-c: TEST-PN
+                    auth: MD5-PW \$1\$fU9ZMQN9\$QQtm3kRqZXWAuLpeOiLN7. # update
+                    mnt-by: TEST-MNT
+                    mnt-ref: RIPE-NCC-HM-MNT
+                    source: TEST
+                """,
+            "PERSON"      : """\
+                    person:  Test Person2
+                    address: Hebrew Road
+                    address: Burnley
+                    address: UK
+                    phone:   +44 282 411141
+                    nic-hdl: TP2-TEST
+                    mnt-by:  TEST-MNT
+                    mnt-ref: TEST-MNT
+                    source:  TEST
+                """,
     ]
   }
 
@@ -1851,4 +1897,259 @@ class InetnumIntegrationSpec extends BaseWhoisSourceSpec {
     then:
       response =~ /Create SUCCEEDED: \[inetnum\] 192.168.200.0 - 192.168.200.255/
   }
+
+    def "create inetnum succeeds with person with mnt-ref with correct passwd"() {
+        when:
+        def response = syncUpdate(new SyncUpdate(data: """\
+                inetnum:      192.168.200.0 - 192.168.200.255
+                netname:      RIPE-NET1
+                descr:        /24 assigned
+                country:      NL
+                admin-c:      TEST-PN
+                tech-c:       TP2-TEST
+                status:       ASSIGNED PI
+                mnt-by:       TEST2-MNT
+                source:       TEST
+                password:     emptypassword
+                password:     update
+                password:     hm
+                """.stripIndent(true)))
+        then:
+        response =~ /Create SUCCEEDED: \[inetnum\] 192.168.200.0 - 192.168.200.255/
+    }
+
+    def "create inetnum fails with person with mnt-ref with wrong passwd"() {
+        when:
+        def response = syncUpdate(new SyncUpdate(data: """\
+                inetnum:      192.168.200.0 - 192.168.200.255
+                netname:      RIPE-NET1
+                descr:        /24 assigned
+                country:      NL
+                admin-c:      TEST-PN
+                tech-c:       TP2-TEST
+                status:       ASSIGNED PI
+                mnt-by:       TEST2-MNT
+                source:       TEST
+                password:     emptypassword
+                password:     hm
+                """.stripIndent(true)))
+        then:
+        response =~ """
+            \\*\\*\\*Error:   Authorisation for \\[person\\] TP2-TEST failed
+                        using "mnt-ref:"
+                        not authenticated by: TEST-MNT""".stripIndent(true)
+    }
+
+    def "create inetnum succeeds with person with mnt-ref with override"() {
+        when:
+        def response = syncUpdate(new SyncUpdate(data: """\
+                inetnum:      192.168.200.0 - 192.168.200.255
+                netname:      RIPE-NET1
+                descr:        /24 assigned
+                country:      NL
+                admin-c:      TEST-PN
+                tech-c:       TP2-TEST
+                status:       ASSIGNED PI
+                mnt-by:       TEST2-MNT
+                source:       TEST
+                override:     denis,override1
+                """.stripIndent(true)))
+        then:
+        response =~ /Create SUCCEEDED: \[inetnum\] 192.168.200.0 - 192.168.200.255/
+    }
+
+
+    def "create inetnum succeeds with role with mnt-ref with correct passwd"() {
+        when:
+        def response = syncUpdate(new SyncUpdate(data: """\
+                inetnum:      192.168.200.0 - 192.168.200.255
+                netname:      RIPE-NET1
+                descr:        /24 assigned
+                country:      NL
+                admin-c:      RL-TEST
+                tech-c:       TEST-PN
+                status:       ASSIGNED PI
+                mnt-by:       TEST2-MNT
+                source:       TEST
+                password:     emptypassword
+                password:     update
+                password:     hm
+                """.stripIndent(true)))
+        then:
+        response =~ /Create SUCCEEDED: \[inetnum\] 192.168.200.0 - 192.168.200.255/
+    }
+
+    def "create inetnum fails with role with mnt-ref with wrong passwd"() {
+        when:
+        def response = syncUpdate(new SyncUpdate(data: """\
+                inetnum:      192.168.200.0 - 192.168.200.255
+                netname:      RIPE-NET1
+                descr:        /24 assigned
+                country:      NL
+                admin-c:      RL-TEST
+                tech-c:       TEST-PN
+                status:       ASSIGNED PI
+                mnt-by:       TEST2-MNT
+                source:       TEST
+                password:     emptypassword
+                password:     hm
+                """.stripIndent(true)))
+        then:
+        response =~ """
+            \\*\\*\\*Error:   Authorisation for \\[role\\] RL-TEST failed
+                        using "mnt-ref:"
+                        not authenticated by: TEST-MNT""".stripIndent(true)
+    }
+
+    def "create inetnum succeeds with role with mnt-ref with override"() {
+        when:
+        def response = syncUpdate(new SyncUpdate(data: """\
+                inetnum:      192.168.200.0 - 192.168.200.255
+                netname:      RIPE-NET1
+                descr:        /24 assigned
+                country:      NL
+                admin-c:      TEST-PN
+                tech-c:       TEST-PN
+                status:       ASSIGNED PI
+                mnt-by:       TEST2-MNT
+                source:       TEST
+                tech-c:       TP2-TEST
+                password:     emptypassword
+                password:     update
+                override:     denis,override1
+                """.stripIndent(true)))
+        then:
+        response =~ /Create SUCCEEDED: \[inetnum\] 192.168.200.0 - 192.168.200.255/
+    }
+
+    def "create inetnum succeeds with irt with mnt-ref with correct passwd"() {
+        when:
+        def response = syncUpdate(new SyncUpdate(data: """\
+                inetnum:      192.168.200.0 - 192.168.200.255
+                netname:      RIPE-NET1
+                descr:        /24 assigned
+                country:      NL
+                admin-c:      TEST-PN
+                tech-c:       TEST-PN
+                status:       ASSIGNED PI
+                mnt-by:       TEST2-MNT
+                source:       TEST
+                mnt-irt:      irt-IRT2
+                password:     emptypassword
+                password:     update
+                password:     hm
+                """.stripIndent(true)))
+        then:
+        response =~ /Create SUCCEEDED: \[inetnum\] 192.168.200.0 - 192.168.200.255/
+    }
+
+    def "create inetnum fails with irt with mnt-ref with wrong passwd"() {
+        when:
+        def response = syncUpdate(new SyncUpdate(data: """\
+                inetnum:      192.168.200.0 - 192.168.200.255
+                netname:      RIPE-NET1
+                descr:        /24 assigned
+                country:      NL
+                admin-c:      TEST-PN
+                tech-c:       TEST-PN
+                status:       ASSIGNED PI
+                mnt-by:       TEST2-MNT
+                source:       TEST
+                mnt-irt:      irt-IRT2
+                password:     emptypassword
+                password:     update
+                """.stripIndent(true)))
+        then:
+        response =~ """
+            \\*\\*\\*Error:   Authorisation for \\[irt\\] irt-IRT2 failed
+                        using "mnt-ref:"
+                        not authenticated by: RIPE-NCC-HM-MNT""".stripIndent(true)
+    }
+
+    def "create inetnum succeeds with irt with mnt-ref with override"() {
+        when:
+        def response = syncUpdate(new SyncUpdate(data: """\
+                inetnum:      192.168.200.0 - 192.168.200.255
+                netname:      RIPE-NET1
+                descr:        /24 assigned
+                country:      NL
+                admin-c:      RL-TEST
+                tech-c:       TEST-PN
+                status:       ASSIGNED PI
+                mnt-by:       TEST2-MNT
+                source:       TEST
+                tech-c:       TP2-TEST
+                mnt-irt:      irt-IRT2
+                password:     emptypassword
+                password:     update
+                override:     denis,override1
+                """.stripIndent(true)))
+        then:
+        response =~ /Create SUCCEEDED: \[inetnum\] 192.168.200.0 - 192.168.200.255/
+    }
+
+
+    def "create inetnum succeeds with mntner with mnt-ref with correct passwd"() {
+        when:
+        def response = syncUpdate(new SyncUpdate(data: """\
+                inetnum:      192.168.200.0 - 192.168.200.255
+                netname:      RIPE-NET1
+                descr:        /24 assigned
+                country:      NL
+                admin-c:      TEST-PN
+                tech-c:       TEST-PN
+                status:       ASSIGNED PI
+                mnt-by:       REF-MNT
+                source:       TEST
+                password:     emptypassword
+                password:     update
+                password:     hm
+                """.stripIndent(true)))
+        then:
+        response =~ /Create SUCCEEDED: \[inetnum\] 192.168.200.0 - 192.168.200.255/
+    }
+
+    def "create inetnum fails with mntner with mnt-ref with wrong passwd"() {
+        when:
+        def response = syncUpdate(new SyncUpdate(data: """\
+                inetnum:      192.168.200.0 - 192.168.200.255
+                netname:      RIPE-NET1
+                descr:        /24 assigned
+                country:      NL
+                admin-c:      TEST-PN
+                tech-c:       TEST-PN
+                status:       ASSIGNED PI
+                mnt-by:       REF-MNT
+                source:       TEST
+                password:     emptypassword
+                password:     update
+                """.stripIndent(true)))
+        then:
+        response =~ """
+            \\*\\*\\*Error:   Authorisation for \\[mntner\\] REF-MNT failed
+                        using "mnt-ref:"
+                        not authenticated by: RIPE-NCC-HM-MNT""".stripIndent(true)
+    }
+
+    def "create inetnum succeeds with mntner with mnt-ref with override"() {
+        when:
+        def response = syncUpdate(new SyncUpdate(data: """\
+                inetnum:      192.168.200.0 - 192.168.200.255
+                netname:      RIPE-NET1
+                descr:        /24 assigned
+                country:      NL
+                admin-c:      RL-TEST
+                tech-c:       TEST-PN
+                status:       ASSIGNED PI
+                mnt-by:       REF-MNT
+                source:       TEST
+                tech-c:       TP2-TEST
+                password:     emptypassword
+                password:     update
+                override:     denis,override1
+                """.stripIndent(true)))
+        then:
+        response =~ /Create SUCCEEDED: \[inetnum\] 192.168.200.0 - 192.168.200.255/
+    }
+
 }
