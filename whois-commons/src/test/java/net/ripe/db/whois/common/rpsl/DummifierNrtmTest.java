@@ -152,6 +152,7 @@ public class DummifierNrtmTest {
                         "last-modified:  2001-02-04T17:00:00Z\n" +
                         "abuse-c:        FOO\n" +
                         "address:        Dummy address for FOO\n" +
+                        "country:        FOO\n" +
                         "e-mail:         unread@ripe.net\n" +
                         "mnt-by:         FOO\n" +
                         "mnt-ref:        FOO\n" +
