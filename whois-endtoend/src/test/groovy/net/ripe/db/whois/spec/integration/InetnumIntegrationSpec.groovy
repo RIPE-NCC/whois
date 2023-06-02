@@ -1952,7 +1952,6 @@ class InetnumIntegrationSpec extends BaseWhoisSourceSpec {
                 status:       ASSIGNED PI
                 mnt-by:       TEST2-MNT
                 source:       TEST
-
                 override:     denis,override1
                 """.stripIndent(true)))
         then:
