@@ -2,7 +2,7 @@ package net.ripe.db.whois.api.nrtmv4;
 
 import com.google.common.collect.Lists;
 import com.google.common.net.HttpHeaders;
-import net.ripe.db.nrtm4.dao.NrtmVersionInfoRepository;
+import net.ripe.db.nrtm4.dao.NrtmVersionInfoDao;
 import net.ripe.db.nrtm4.domain.NrtmDocumentType;
 import net.ripe.db.nrtm4.domain.NrtmVersionInfo;
 import net.ripe.db.nrtm4.domain.PublishableDeltaFile;
@@ -44,7 +44,7 @@ import static org.hamcrest.Matchers.notNullValue;
 public class SnapshotFileGenerationTestIntegration extends AbstractNrtmIntegrationTest {
 
     @Autowired
-    NrtmVersionInfoRepository nrtmVersionInfoRepository;
+    NrtmVersionInfoDao nrtmVersionInfoDao;
     @Test
     public void should_get_all_source_links() {
         createNrtmSource();
@@ -385,7 +385,7 @@ public class SnapshotFileGenerationTestIntegration extends AbstractNrtmIntegrati
 
         snapshotFileGenerator.createSnapshot();
 
-        final Map<CIString, List<NrtmVersionInfo>> versionsBySource1 = nrtmVersionInfoRepository.getAllVersionsByType(NrtmDocumentType.SNAPSHOT).stream()
+        final Map<CIString, List<NrtmVersionInfo>> versionsBySource1 = nrtmVersionInfoDao.getAllVersionsByType(NrtmDocumentType.SNAPSHOT).stream()
                 .collect(groupingBy( versionInfo -> versionInfo.source().getName()));
 
         assertThat(versionsBySource1.get(CIString.ciString("TEST")).size(), is(2));
@@ -422,7 +422,7 @@ public class SnapshotFileGenerationTestIntegration extends AbstractNrtmIntegrati
 
         snapshotFileGenerator.createSnapshot();
 
-        final Map<CIString, List<NrtmVersionInfo>> versionsBySource = nrtmVersionInfoRepository.getAllVersionsByType(NrtmDocumentType.SNAPSHOT).stream()
+        final Map<CIString, List<NrtmVersionInfo>> versionsBySource = nrtmVersionInfoDao.getAllVersionsByType(NrtmDocumentType.SNAPSHOT).stream()
                 .collect(groupingBy( versionInfo -> versionInfo.source().getName()));
 
         assertThat(versionsBySource.get(CIString.ciString("TEST")).size(), is(2));
@@ -440,13 +440,13 @@ public class SnapshotFileGenerationTestIntegration extends AbstractNrtmIntegrati
         setTime(LocalDateTime.now().minusDays(2));
         snapshotFileGenerator.createSnapshot();
 
-        final Map<CIString, List<NrtmVersionInfo>> versionsBySource1 = nrtmVersionInfoRepository.getAllVersionsByType(NrtmDocumentType.SNAPSHOT).stream()
+        final Map<CIString, List<NrtmVersionInfo>> versionsBySource1 = nrtmVersionInfoDao.getAllVersionsByType(NrtmDocumentType.SNAPSHOT).stream()
                 .collect(groupingBy( versionInfo -> versionInfo.source().getName()));
 
         setTime(LocalDateTime.now());
         snapshotFileGenerator.createSnapshot();
 
-        final Map<CIString, List<NrtmVersionInfo>> versionsBySource = nrtmVersionInfoRepository.getAllVersionsByType(NrtmDocumentType.SNAPSHOT).stream()
+        final Map<CIString, List<NrtmVersionInfo>> versionsBySource = nrtmVersionInfoDao.getAllVersionsByType(NrtmDocumentType.SNAPSHOT).stream()
                 .collect(groupingBy( versionInfo -> versionInfo.source().getName()));
         assertThat(versionsBySource.get(CIString.ciString("TEST-NONAUTH")).get(0).created(), is(versionsBySource1.get(CIString.ciString("TEST-NONAUTH")).get(0).created()));
         assertThat(versionsBySource.get(CIString.ciString("TEST")).get(0).created(), is(versionsBySource1.get(CIString.ciString("TEST")).get(0).created()));

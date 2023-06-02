@@ -5,6 +5,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import net.ripe.db.nrtm4.DeltaFileGenerator;
 import net.ripe.db.nrtm4.SnapshotFileGenerator;
 import net.ripe.db.nrtm4.UpdateNotificationFileGenerator;
+import net.ripe.db.nrtm4.dao.NrtmKeyConfigDao;
 import net.ripe.db.nrtm4.domain.PublishableDeltaFile;
 import net.ripe.db.nrtm4.domain.PublishableNotificationFile;
 import net.ripe.db.whois.common.rpsl.RpslObject;
@@ -26,6 +27,9 @@ public abstract class AbstractNrtmIntegrationTest extends AbstractIntegrationTes
 
     @Autowired
     protected SnapshotFileGenerator snapshotFileGenerator;
+
+    @Autowired
+    protected NrtmKeyConfigDao nrtmKeyConfigDao;
 
     @Autowired
     protected DeltaFileGenerator deltaFileGenerator;
@@ -227,7 +231,7 @@ public abstract class AbstractNrtmIntegrationTest extends AbstractIntegrationTes
         return getWebTarget(path).request(javax.ws.rs.core.MediaType.APPLICATION_JSON).header(HttpHeader.X_FORWARDED_PROTO.asString(), HttpScheme.HTTP.asString()).get(Response.class);
     }
 
-    private WebTarget getWebTarget(String path) {
+    protected WebTarget getWebTarget(String path) {
         WebTarget webTarget = RestTest.target(getPort(), "nrtmv4/");
         if(path != null){
             webTarget = RestTest.target(getPort(), String.format("nrtmv4/%s", path));

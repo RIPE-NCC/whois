@@ -18,9 +18,9 @@ import java.util.Optional;
 
 
 @Repository
-public class SnapshotSourceAwareFileRepository {
+public class SnapshotFileSourceAwareDao {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(SnapshotSourceAwareFileRepository.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(SnapshotFileSourceAwareDao.class);
 
     private static final RowMapper<SnapshotWithPayload> rowMapper = (rs, rowNum) ->
             new SnapshotWithPayload(
@@ -33,7 +33,7 @@ public class SnapshotSourceAwareFileRepository {
     private final JdbcTemplate jdbcTemplate;
     private final SourceContext sourceContext;
 
-    public SnapshotSourceAwareFileRepository(@Qualifier("nrtmSourceAwareDataSource") final DataSource dataSource,  @Qualifier("nrtmSourceContext") final SourceContext sourceContext) {
+    public SnapshotFileSourceAwareDao(@Qualifier("nrtmSourceAwareDataSource") final DataSource dataSource, @Qualifier("nrtmSourceContext") final SourceContext sourceContext) {
         this.jdbcTemplate = new JdbcTemplate(dataSource);
         this.sourceContext = sourceContext;
     }

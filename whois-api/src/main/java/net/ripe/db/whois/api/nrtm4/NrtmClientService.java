@@ -1,13 +1,15 @@
 package net.ripe.db.whois.api.nrtm4;
 
 import com.google.common.net.HttpHeaders;
-import net.ripe.db.nrtm4.dao.DeltaSourceAwareFileRepository;
-import net.ripe.db.nrtm4.dao.NotificationFileSourceAwareDao;
-import net.ripe.db.nrtm4.dao.SnapshotSourceAwareFileRepository;
-import net.ripe.db.nrtm4.dao.SourceRepository;
+import net.ripe.db.nrtm4.dao.DeltaFileSourceAwareDao;
+import net.ripe.db.nrtm4.dao.NrtmKeyConfigDao;
+import net.ripe.db.nrtm4.dao.UpdateNotificationFileSourceAwareDao;
+import net.ripe.db.nrtm4.dao.SnapshotFileSourceAwareDao;
+import net.ripe.db.nrtm4.dao.NrtmSourceDao;
 import net.ripe.db.nrtm4.domain.NrtmDocumentType;
 import net.ripe.db.nrtm4.domain.NrtmSource;
 import net.ripe.db.nrtm4.util.NrtmFileUtil;
+import static net.ripe.db.nrtm4.util.Ed25519Util.signWithEd25519;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
@@ -29,22 +31,25 @@ import java.io.ByteArrayInputStream;
 public class NrtmClientService {
 
     public static final String SOURCE_LINK_PAGE = "<html><header><title>NRTM Version 4</title></header><body>%s<body></html>";
-    private final SnapshotSourceAwareFileRepository snapshotSourceAwareFileRepository;
-    private final DeltaSourceAwareFileRepository deltaSourceAwareFileRepository;
-    private final NotificationFileSourceAwareDao notificationFileSourceAwareDao;
-    private final SourceRepository sourceRepository;
+    private final SnapshotFileSourceAwareDao snapshotFileSourceAwareDao;
+    private final DeltaFileSourceAwareDao deltaFileSourceAwareDao;
+    private final UpdateNotificationFileSourceAwareDao updateNotificationFileSourceAwareDao;
+    private final NrtmSourceDao nrtmSourceDao;
+    private final NrtmKeyConfigDao nrtmKeyConfigDao;
     final String nrtmUrl;
 
     @Autowired
     public NrtmClientService(@Value("${nrtm.baseUrl:}") final String nrtmUrl,
-                             final SourceRepository sourceRepository,
-                             final NotificationFileSourceAwareDao notificationFileSourceAwareDao,
-                             final SnapshotSourceAwareFileRepository snapshotSourceAwareFileRepository,
-                             final DeltaSourceAwareFileRepository deltaSourceAwareFileRepository) {
-        this.snapshotSourceAwareFileRepository = snapshotSourceAwareFileRepository;
-        this.deltaSourceAwareFileRepository = deltaSourceAwareFileRepository;
-        this.notificationFileSourceAwareDao = notificationFileSourceAwareDao;
-        this.sourceRepository = sourceRepository;
+                             final NrtmSourceDao nrtmSourceDao,
+                             final UpdateNotificationFileSourceAwareDao updateNotificationFileSourceAwareDao,
+                             final SnapshotFileSourceAwareDao snapshotFileSourceAwareDao,
+                             final NrtmKeyConfigDao nrtmKeyConfigDao,
+                             final DeltaFileSourceAwareDao deltaFileSourceAwareDao) {
+        this.snapshotFileSourceAwareDao = snapshotFileSourceAwareDao;
+        this.deltaFileSourceAwareDao = deltaFileSourceAwareDao;
+        this.updateNotificationFileSourceAwareDao = updateNotificationFileSourceAwareDao;
+        this.nrtmSourceDao = nrtmSourceDao;
+        this.nrtmKeyConfigDao = nrtmKeyConfigDao;
         this.nrtmUrl = nrtmUrl;
     }
 
@@ -53,7 +58,7 @@ public class NrtmClientService {
     public String sourcesLinkAsHtml() {
         final StringBuilder sourceLink = new StringBuilder();
 
-        sourceRepository.getSources().forEach(sourceModel ->
+        nrtmSourceDao.getSources().forEach(sourceModel ->
                 sourceLink.append(
                         String.format("<a href='%s'>%s</a><br/>",
                                         String.join("/", nrtmUrl, sourceModel.getName().toString(), "update-notification-file.json"),
@@ -74,21 +79,22 @@ public class NrtmClientService {
             @PathParam("filename") final String fileName) {
 
         if(fileName.startsWith(NrtmDocumentType.NOTIFICATION.getFileNamePrefix())) {
-            return notificationFileSourceAwareDao.findLastNotification(getSource(source))
-                    .map( payload -> getResponse(payload))
+            final String payload = updateNotificationFileSourceAwareDao.findLastNotification(getSource(source))
                     .orElseThrow(() -> new NotFoundException("update-notification-file.json does not exists for source " + source));
+
+            return fileName.endsWith(".sig") ?  getResponse(signWithEd25519(payload.getBytes(), nrtmKeyConfigDao.getPrivateKey()))
+                                              : getResponse(payload);
         }
 
         validateSource(source, fileName);
         if(fileName.startsWith(NrtmDocumentType.SNAPSHOT.getFileNamePrefix())) {
-            return snapshotSourceAwareFileRepository.getByFileName(fileName)
+            return snapshotFileSourceAwareDao.getByFileName(fileName)
                     .map( snapshot -> getResponse(snapshot.getPayload(), snapshot.getSnapshotFile().hash(), fileName))
                     .orElseThrow(() -> new NotFoundException("Requested Snapshot file does not exists"));
         }
 
-        final String filenameExt  = filenameWithExtension(fileName);
         if(fileName.startsWith(NrtmDocumentType.DELTA.getFileNamePrefix())) {
-            return deltaSourceAwareFileRepository.getByFileName(filenameExt)
+            return deltaFileSourceAwareDao.getByFileName(filenameWithExt(fileName))
                     .map( delta -> getResponse(delta.payload()))
                     .orElseThrow(() -> new NotFoundException("Requested Delta file does not exists"));
         }
@@ -103,10 +109,10 @@ public class NrtmClientService {
     }
 
     private NrtmSource getSource(final String source) {
-        return sourceRepository.getSources().stream().filter( sourceModel -> sourceModel.getName().equals(source)).findFirst().orElseThrow(() -> new BadRequestException("Invalid source"));
+        return nrtmSourceDao.getSources().stream().filter(sourceModel -> sourceModel.getName().equals(source)).findFirst().orElseThrow(() -> new BadRequestException("Invalid source"));
     }
 
-    private String filenameWithExtension(final String filename) {
+    private String filenameWithExt(final String filename) {
         //ExtensionOverridesAcceptHeaderFilter removes file extension
         return filename.endsWith(".json") ? filename : String.join("", filename, ".json");
     }

@@ -2,7 +2,7 @@ package net.ripe.db.nrtm4;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import net.ripe.db.nrtm4.dao.NrtmFileRepository;
-import net.ripe.db.nrtm4.dao.NrtmVersionInfoRepository;
+import net.ripe.db.nrtm4.dao.NrtmVersionInfoDao;
 import net.ripe.db.nrtm4.dao.WhoisObjectDao;
 import net.ripe.db.nrtm4.dao.WhoisObjectRepository;
 import net.ripe.db.nrtm4.domain.DeltaChange;
@@ -13,7 +13,6 @@ import net.ripe.db.whois.common.domain.CIString;
 import net.ripe.db.whois.common.domain.serials.Operation;
 import net.ripe.db.whois.common.domain.serials.SerialEntry;
 import net.ripe.db.whois.common.rpsl.AttributeType;
-import net.ripe.db.whois.common.rpsl.DummifierNrtm;
 import net.ripe.db.whois.common.rpsl.DummifierNrtmV4;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -25,8 +24,6 @@ import java.util.List;
 import java.util.Map;
 import java.time.LocalDateTime;
 
-import static net.ripe.db.nrtm4.NrtmConstants.NRTM_VERSION;
-
 
 @Service
 public class DeltaFileGenerator {
@@ -36,7 +33,7 @@ public class DeltaFileGenerator {
     private final NrtmFileRepository nrtmFileRepository;
     private final DummifierNrtmV4 dummifierNrtmV4;
     private final DateTimeProvider dateTimeProvider;
-    private final NrtmVersionInfoRepository nrtmVersionInfoRepository;
+    private final NrtmVersionInfoDao nrtmVersionInfoDao;
     private final WhoisObjectRepository whoisObjectRepository;
     private final WhoisObjectDao whoisObjectDao;
 
@@ -44,14 +41,14 @@ public class DeltaFileGenerator {
     DeltaFileGenerator(
             final NrtmFileRepository nrtmFileRepository,
             final DummifierNrtmV4 dummifierNrtmV4,
-            final NrtmVersionInfoRepository nrtmVersionInfoRepository,
+            final NrtmVersionInfoDao nrtmVersionInfoDao,
             final WhoisObjectDao whoisObjectDao,
             final DateTimeProvider dateTimeProvider,
             final WhoisObjectRepository whoisObjectRepository
     ) {
         this.nrtmFileRepository = nrtmFileRepository;
         this.dummifierNrtmV4 = dummifierNrtmV4;
-        this.nrtmVersionInfoRepository = nrtmVersionInfoRepository;
+        this.nrtmVersionInfoDao = nrtmVersionInfoDao;
         this.whoisObjectRepository = whoisObjectRepository;
         this.whoisObjectDao = whoisObjectDao;
         this.dateTimeProvider = dateTimeProvider;
@@ -60,7 +57,7 @@ public class DeltaFileGenerator {
     public void createDeltas() {
 
         final int serialIDTo = whoisObjectDao.getLastSerialId();
-        final List<NrtmVersionInfo> sourceVersions = nrtmVersionInfoRepository.findLastVersionPerSource();
+        final List<NrtmVersionInfo> sourceVersions = nrtmVersionInfoDao.findLastVersionPerSource();
         if (sourceVersions.isEmpty()) {
             LOGGER.warn("Seems like snapshot initialization is not done, skipping generating delta files");
             return;
@@ -104,7 +101,7 @@ public class DeltaFileGenerator {
 
         final LocalDateTime twoDayAgo = dateTimeProvider.getCurrentDateTime().minusDays(2);
 
-        final List<Long> versions = nrtmVersionInfoRepository.getAllVersionsByTypeBefore(NrtmDocumentType.DELTA, twoDayAgo);
+        final List<Long> versions = nrtmVersionInfoDao.getAllVersionsByTypeBefore(NrtmDocumentType.DELTA, twoDayAgo);
         nrtmFileRepository.deleteDeltaFiles(versions);
     }
 }

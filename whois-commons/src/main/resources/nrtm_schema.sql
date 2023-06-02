@@ -22,6 +22,7 @@ DROP TABLE IF EXISTS `snapshot_file`;
 DROP TABLE IF EXISTS `snapshot_object`;
 DROP TABLE IF EXISTS `version_info`;
 DROP TABLE IF EXISTS `source`;
+DROP TABLE IF EXISTS `key_pair`;
 
 CREATE TABLE `source`
 (
@@ -82,6 +83,20 @@ CREATE TABLE `notification_file`
     `payload`    longtext        NOT NULL,
     PRIMARY KEY (`id`),
     CONSTRAINT `notification_file__version_id__fk` FOREIGN KEY (`version_id`) REFERENCES `version_info` (`id`)
+) ENGINE = InnoDB
+  DEFAULT CHARSET = utf8;
+
+
+CREATE TABLE `key_pair`
+(
+    `id`          int unsigned    NOT NULL AUTO_INCREMENT,
+    `private_key` VARBINARY(3000) NOT NULL,
+    `public_key`  VARBINARY(3000) NOT NULL,
+    `created`     bigint unsigned NOT NULL,
+    `expires`     bigint unsigned NOT NULL,
+    UNIQUE KEY `private_key_name_uk` (`private_key`),
+    UNIQUE KEY `public_key_name_uk` (`public_key`),
+    PRIMARY KEY (`id`)
 ) ENGINE = InnoDB
   DEFAULT CHARSET = utf8;
 
