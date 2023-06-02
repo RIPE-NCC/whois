@@ -40,7 +40,7 @@ class MailMessageDaoJdbc implements MailMessageDao {
     @CheckForNull
     public String claimMessage() {
         final String uuid = UUID.randomUUID().toString();
-        LOGGER.debug("about to claim message with uuid {}", uuid);
+        LOGGER.debug("[{}] about to claim message with uuid {}", Thread.currentThread().getId(), uuid);
         final int rows = jdbcTemplate.update("" +
                 "update mailupdates " +
                 "set status = ?, changed = ?, claim_host = ?, claim_uuid = ? " +
@@ -54,7 +54,7 @@ class MailMessageDaoJdbc implements MailMessageDao {
             case 0:
                 return null;
             case 1:
-                LOGGER.debug("claimed message with uuid {}", uuid);
+                LOGGER.debug("[{}] claimed message with uuid {}", Thread.currentThread().getId(), uuid);
                 return uuid;
             default:
                 throw new IllegalStateException("Should never claim more than 1 row");
@@ -80,7 +80,7 @@ class MailMessageDaoJdbc implements MailMessageDao {
 
     @Override
     public MimeMessage getMessage(final String messageUuid) {
-        LOGGER.debug("get message with uuid {}", messageUuid);
+        LOGGER.debug("[{}] get message with uuid {}", Thread.currentThread().getId(), messageUuid);
 
         final byte[] bytes = jdbcTemplate.queryForObject("select message from mailupdates where claim_uuid = ?", byte[].class, messageUuid);
 
@@ -93,7 +93,7 @@ class MailMessageDaoJdbc implements MailMessageDao {
 
     @Override
     public void deleteMessage(final String messageUuid) {
-        LOGGER.debug("delete message with uuid {}", messageUuid);
+        LOGGER.debug("[{}] delete message with uuid {}", Thread.currentThread().getId(), messageUuid);
 
         int rows = jdbcTemplate.update("delete from mailupdates where claim_uuid = ?", messageUuid);
         if (rows != 1) {
@@ -103,7 +103,7 @@ class MailMessageDaoJdbc implements MailMessageDao {
 
     @Override
     public void setStatus(final String messageUuid, final DequeueStatus status) {
-        LOGGER.debug("set status uuid {} status {}", messageUuid, status);
+        LOGGER.debug("[{}] set status uuid {} status {}", Thread.currentThread().getId(), messageUuid, status);
 
         final int rows = jdbcTemplate.update(
                 "update mailupdates set status = ?, changed = ? where claim_uuid = ?",
