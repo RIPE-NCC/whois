@@ -30,10 +30,9 @@ public class DummifierNrtm implements Dummifier {
             AttributeType.ZONE_C
     );
 
-    static final List<AttributeType> ATTRIBUTES_TO_KEEP = Lists.newArrayList(
-            AttributeType.ABUSE_C,
-            AttributeType.LAST_MODIFIED,
-            AttributeType.CREATED);
+    static final Map<ObjectType, List<AttributeType>> ATTRIBUTES_TO_KEEP_OBJECT_TYPE = Map.of(
+            ObjectType.MNTNER, Lists.newArrayList(AttributeType.LAST_MODIFIED,AttributeType.CREATED),
+            ObjectType.ORGANISATION, Lists.newArrayList(AttributeType.ABUSE_C,AttributeType.COUNTRY,AttributeType.LAST_MODIFIED,AttributeType.CREATED));
 
     static final Map<AttributeType, String> DUMMIFICATION_REPLACEMENTS = Maps.newEnumMap(AttributeType.class);
     static {
@@ -66,14 +65,14 @@ public class DummifierNrtm implements Dummifier {
         return new RpslObject(rpslObject, attributes);
     }
 
-    private void stripSomeNonMandatoryAttributes(List<RpslAttribute> attributes, ObjectType objectType) {
-        if (!STRIPPED_OBJECT_TYPES.contains(objectType)) {
+    private void stripSomeNonMandatoryAttributes(final List<RpslAttribute> attributes, final ObjectType objectType) {
+        if (!ATTRIBUTES_TO_KEEP_OBJECT_TYPE.containsKey(objectType)) {
             return;
         }
         final ObjectTemplate objectTemplate = ObjectTemplate.getTemplate(objectType);
         final Set<AttributeType> mandatoryAttributes = objectTemplate.getMandatoryAttributes();
 
-        attributes.removeIf(attribute -> !mandatoryAttributes.contains(attribute.getType()) && !ATTRIBUTES_TO_KEEP.contains(attribute.getType()));
+        attributes.removeIf(attribute -> !mandatoryAttributes.contains(attribute.getType()) && !ATTRIBUTES_TO_KEEP_OBJECT_TYPE.get(objectType).contains(attribute.getType()));
     }
 
     private void dummifyRemainingAttributes(final List<RpslAttribute> attributes, final CIString key) {

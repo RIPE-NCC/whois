@@ -293,6 +293,7 @@ public class ExportDatabaseTestIntegration extends AbstractSchedulerIntegrationT
                 "               Street\n" +
                 "               1234 City\n" +
                 "               Country\n" +
+                "country:       NL\n" +
                 "phone:         +12 3456 78\n" +
                 "fax-no:        +12 234 567\n" +
                 "e-mail:        test@ripe.net\n" +
@@ -357,6 +358,7 @@ public class ExportDatabaseTestIntegration extends AbstractSchedulerIntegrationT
                 "                Street\n" +
                 "                1234 City\n" +
                 "                Country\n" +
+                "country:        NL\n" +
                 "phone:          +12 3... ..\n" +
                 "fax-no:         +12 2.. ...\n" +
                 "e-mail:         ***@ripe.net\n" +
