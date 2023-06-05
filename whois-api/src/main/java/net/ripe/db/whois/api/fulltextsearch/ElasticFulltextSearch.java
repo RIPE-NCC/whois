@@ -111,9 +111,11 @@ public class ElasticFulltextSearch extends FulltextSearch {
                 final org.elasticsearch.action.search.SearchResponse fulltextResponse = elasticIndexService.getClient().search(fulltextRequest, RequestOptions.DEFAULT);
                 final SearchHit[] hits = fulltextResponse.getHits().getHits();
 
-                LOGGER.debug("ElasticSearch {} hits for the query: {}", hits.length, searchRequest.getQuery());
+                LOGGER.info("ElasticSearch {} hits for the query: {}", hits.length, searchRequest.getQuery());
                 final List<RpslObject> results = Lists.newArrayList();
-                int resultSize = Math.min(maxResultSize,Long.valueOf(fulltextResponse.getHits().getTotalHits().value).intValue());
+                /*int resultSize = Math.min(maxResultSize,
+                        Long.valueOf(fulltextResponse.getHits().getTotalHits().value).intValue());*/
+                int resultSize = Long.valueOf(fulltextResponse.getHits().getTotalHits().value).intValue();
 
                 final SearchResponse.Lst highlight = new SearchResponse.Lst("highlighting");
                 final List<SearchResponse.Lst> highlightDocs = Lists.newArrayList();
