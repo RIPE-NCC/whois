@@ -1,21 +1,29 @@
 package net.ripe.db.whois.api.nrtmv4;
 
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import com.google.common.collect.Lists;
 import com.google.common.net.HttpHeaders;
-import net.ripe.db.nrtm4.NrtmFileProcessor;
+import net.ripe.db.nrtm4.DeltaFileGenerator;
+import net.ripe.db.nrtm4.SnapshotFileGenerator;
 import net.ripe.db.nrtm4.dao.DeltaFileDao;
-import net.ripe.db.nrtm4.dao.NrtmVersionInfoRepository;
-import net.ripe.db.nrtm4.dao.SnapshotFileRepository;
-import net.ripe.db.nrtm4.dao.SourceRepository;
+import net.ripe.db.nrtm4.dao.NrtmKeyConfigDao;
+import net.ripe.db.nrtm4.dao.NrtmVersionInfoDao;
+import net.ripe.db.nrtm4.dao.SnapshotFileDao;
+import net.ripe.db.nrtm4.dao.NrtmSourceDao;
 import net.ripe.db.nrtm4.domain.DeltaFileVersionInfo;
 import net.ripe.db.nrtm4.domain.NrtmVersionInfo;
 import net.ripe.db.nrtm4.domain.SnapshotFile;
-import net.ripe.db.whois.api.AbstractIntegrationTest;
-import net.ripe.db.whois.api.RestTest;
+import net.ripe.db.nrtm4.util.Ed25519Util;
+import net.ripe.db.whois.api.AbstractNrtmIntegrationTest;
 import net.ripe.db.whois.common.TestDateTimeProvider;
 import net.ripe.db.whois.common.dao.jdbc.JdbcRpslObjectOperations;
-import net.ripe.db.whois.common.rpsl.DummifierNrtm;
+import net.ripe.db.whois.common.rpsl.DummifierNrtmV4;
 import net.ripe.db.whois.common.rpsl.RpslObject;
+import org.bouncycastle.crypto.AsymmetricCipherKeyPair;
+import org.bouncycastle.crypto.params.Ed25519PrivateKeyParameters;
+import org.bouncycastle.crypto.params.Ed25519PublicKeyParameters;
+import org.eclipse.jetty.http.HttpHeader;
+import org.eclipse.jetty.http.HttpScheme;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -25,7 +33,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.annotation.DirtiesContext;
 
-import javax.ws.rs.client.WebTarget;
+import javax.ws.rs.InternalServerErrorException;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.io.ByteArrayInputStream;
@@ -43,24 +51,29 @@ import static org.hamcrest.Matchers.is;
 
 @Tag("IntegrationTest")
 @DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_EACH_TEST_METHOD)
-public class NrtmClientServiceTestIntegration extends AbstractIntegrationTest {
+public class NrtmClientServiceTestIntegration extends AbstractNrtmIntegrationTest {
 
     @Autowired
-    NrtmFileProcessor nrtmFileProcessor;
+    DummifierNrtmV4 dummifierNrtm;
     @Autowired
-    DummifierNrtm dummifierNrtm;
+    private NrtmVersionInfoDao nrtmVersionInfoDao;
     @Autowired
-    private NrtmVersionInfoRepository nrtmVersionInfoRepository;
-
+    private NrtmKeyConfigDao nrtmKeyConfigDao;
     @Autowired
-    SnapshotFileRepository snapshotFileRepository;
+    SnapshotFileDao snapshotFileDao;
     @Autowired
     DeltaFileDao deltaFileDao;
     @Autowired
     TestDateTimeProvider dateTimeProvider;
 
     @Autowired
-    SourceRepository sourceRepository;
+    NrtmSourceDao nrtmSourceDao;
+
+    @Autowired
+    SnapshotFileGenerator snapshotFileGenerator;
+
+    @Autowired
+    DeltaFileGenerator deltaFileGenerator;
 
     @BeforeEach
     public void setup() {
@@ -199,13 +212,11 @@ public class NrtmClientServiceTestIntegration extends AbstractIntegrationTest {
     @Test
     public void should_get_snapshot_file() throws IOException, JSONException {
 
-        nrtmFileProcessor.updateNrtmFilesAndPublishNotification();
+        snapshotFileGenerator.createSnapshot();
 
-        Optional<SnapshotFile> fileOptional = snapshotFileRepository.getLastSnapshot(sourceRepository.getWhoisSource().get());
+        Optional<SnapshotFile> fileOptional = snapshotFileDao.getLastSnapshot(nrtmSourceDao.getWhoisSource().get());
 
-        final Response response = createResource("TEST/" + fileOptional.get().name())
-                .request(MediaType.APPLICATION_OCTET_STREAM)
-                .get(Response.class);
+        final Response response = getResponseFromHttpsRequest("TEST/" + fileOptional.get().name(), MediaType.APPLICATION_OCTET_STREAM);
 
         assertThat(response.getStatus(), is(200));
         assertThat(response.getHeaderString(HttpHeaders.CACHE_CONTROL), is("public, max-age=604800"));
@@ -235,38 +246,72 @@ public class NrtmClientServiceTestIntegration extends AbstractIntegrationTest {
         databaseHelper.getNrtmTemplate().update("INSERT INTO source (id, name) VALUES (?,?)", 1, "TEST");
         databaseHelper.getNrtmTemplate().update("INSERT INTO source (id, name) VALUES (?,?)", 2, "TEST-NONAUTH");
 
-        final String response = RestTest.target(getPort(), "nrtmv4/")
-                .request(MediaType.TEXT_HTML)
-                .get(String.class);
+        final Response response = getResponseFromHttpsRequest( null, MediaType.TEXT_HTML);
 
-        assertThat(response, is("<html><header><title>NRTM Version 4</title></header><body><a href='https://nrtm.db.ripe.net/TEST/update-notification-file.json'>TEST</a><br/><a href='https://nrtm.db.ripe.net/TEST-NONAUTH/update-notification-file.json'>TEST-NONAUTH</a><br/><body></html>"));
+        assertThat(response.readEntity(String.class), is("<html><header><title>NRTM Version 4</title></header><body><a " +
+                "href='https://nrtm" +
+                ".db.ripe.net/TEST/update-notification-file.json'>TEST</a><br/><a href='https://nrtm.db.ripe.net/TEST-NONAUTH/update-notification-file.json'>TEST-NONAUTH</a><br/><body></html>"));
     }
 
     @Test
     public void should_get_update_notification_file() {
         insertUpdateNotificationFile();
-        final Response response = createResource("TEST/update-notification-file.json")
-                .request(MediaType.APPLICATION_JSON)
-                .get(Response.class);
+        final Response response = getResponseFromHttpsRequest("TEST/update-notification-file.json", MediaType.APPLICATION_JSON);
 
-        assertThat(response.getStatus(), is(200));
+        assertThat(response.getStatus(), is(Response.Status.OK.getStatusCode()));
         assertThat(response.getHeaderString(HttpHeaders.CACHE_CONTROL), is("public, max-age=60"));
         assertThat(response.readEntity(String.class), containsString("\"source\":\"TEST\""));
 
-        final Response responseNonAuth = createResource("TEST-NONAUTH/update-notification-file.json")
-                .request(MediaType.APPLICATION_JSON)
-                .get(Response.class);
+        final Response responseNonAuth = getResponseFromHttpsRequest("TEST-NONAUTH/update-notification-file.json", MediaType.APPLICATION_JSON);
 
-        assertThat(responseNonAuth.getStatus(), is(200));
+        assertThat(responseNonAuth.getStatus(), is(Response.Status.OK.getStatusCode()));
         assertThat(responseNonAuth.getHeaderString(HttpHeaders.CACHE_CONTROL), is("public, max-age=60"));
         assertThat(responseNonAuth.readEntity(String.class), containsString("\"source\":\"TEST-NONAUTH\""));
     }
 
     @Test
+    public void should_get_signature_file() {
+        insertUpdateNotificationFile();
+        generateAndSaveKeyPair();
+
+        final String notificationFile = getResponseFromHttpsRequest("TEST/update-notification-file.json", MediaType.APPLICATION_JSON).readEntity(String.class);
+
+        final Response response = getResponseFromHttpsRequest("TEST/update-notification-file.json.sig", MediaType.APPLICATION_JSON);
+        assertThat(response.getStatus(), is(Response.Status.OK.getStatusCode()));
+
+        final String signature = response.readEntity(String.class);
+        assertThat(Ed25519Util.verifySignature(signature, nrtmKeyConfigDao.getPublicKey(), notificationFile.getBytes()), is(Boolean.TRUE));
+    }
+
+    @Test
+    public void should_fail_to_verify_signature_file() {
+        insertUpdateNotificationFile();
+        generateAndSaveKeyPair();
+
+        final String notificationFile = getResponseFromHttpsRequest("TEST/update-notification-file.json", MediaType.APPLICATION_JSON).readEntity(String.class);
+
+        final Response response = getResponseFromHttpsRequest("TEST/update-notification-file.json.sig", MediaType.APPLICATION_JSON);
+        assertThat(response.getStatus(), is(Response.Status.OK.getStatusCode()));
+        assertThat(response.getHeaderString(HttpHeaders.CACHE_CONTROL), is("public, max-age=60"));
+
+        final String signature = response.readEntity(String.class);
+        final byte[] publicKey = ((Ed25519PublicKeyParameters) Ed25519Util.generateEd25519KeyPair().getPublic()).getEncoded();
+        assertThat(Ed25519Util.verifySignature(signature, publicKey, notificationFile.getBytes()), is(Boolean.FALSE));
+    }
+
+    @Test
+    public void should_throw_exeption_no_key_exists() {
+        insertUpdateNotificationFile();
+
+        assertThrows(InternalServerErrorException.class, () -> getWebTarget("TEST/update-notification-file.json.sig")
+                                                                .request(MediaType.APPLICATION_JSON)
+                                                                .header(HttpHeader.X_FORWARDED_PROTO.asString(), HttpScheme.HTTPS.asString())
+                                                                .get(String.class));
+    }
+
+    @Test
     public void should_get_delta_file() throws JSONException {
-
-        nrtmFileProcessor.updateNrtmFilesAndPublishNotification();
-
+        snapshotFileGenerator.createSnapshot();
         final RpslObject updatedObject = RpslObject.parse("" +
                 "inet6num:       ::/0\n" +
                 "netname:        IANA-BLK\n" +
@@ -281,16 +326,15 @@ public class NrtmClientServiceTestIntegration extends AbstractIntegrationTest {
                 "source:         TEST");
         databaseHelper.updateObject(updatedObject);
 
-        Optional<SnapshotFile> snapshotFile = snapshotFileRepository.getLastSnapshot(sourceRepository.getWhoisSource().get());
-        final NrtmVersionInfo snapshotVersion = nrtmVersionInfoRepository.findById(snapshotFile.get().versionId());
+        Optional<SnapshotFile> snapshotFile = snapshotFileDao.getLastSnapshot(nrtmSourceDao.getWhoisSource().get());
+        final NrtmVersionInfo snapshotVersion = nrtmVersionInfoDao.findById(snapshotFile.get().versionId());
 
-        nrtmFileProcessor.updateNrtmFilesAndPublishNotification();
+        deltaFileGenerator.createDeltas();
 
         final List<DeltaFileVersionInfo> deltaFileVersion = deltaFileDao.getDeltasForNotificationSince(snapshotVersion, LocalDateTime.MIN);
-        final Response response = createResource("TEST/" + deltaFileVersion.get(0).deltaFile().name())
-                .request(MediaType.APPLICATION_JSON)
-                .get(Response.class);
-        assertThat(response.getStatus(), is(200));
+        final Response response = getResponseFromHttpsRequest("TEST/" + deltaFileVersion.get(0).deltaFile().name(),
+                MediaType.APPLICATION_JSON);
+        assertThat(response.getStatus(), is(Response.Status.OK.getStatusCode()));
         assertThat(response.getHeaderString(HttpHeaders.CACHE_CONTROL), is("public, max-age=604800"));
 
         final JSONObject jsonObject = new JSONObject(response.readEntity(String.class));
@@ -301,55 +345,87 @@ public class NrtmClientServiceTestIntegration extends AbstractIntegrationTest {
 
         final JSONObject deltaChanges = new JSONObject(changes.get(0).toString());
         assertThat(deltaChanges.getString("action"), is("add_modify"));
-        assertThat(RpslObject.parse(deltaChanges.getString("object")).toString(), is(dummifierNrtm.dummify(4, updatedObject).toString()));
+        assertThat(RpslObject.parse(deltaChanges.getString("object")).toString(), is(dummifierNrtm.dummify(updatedObject).toString()));
     }
 
     @Test
     public void should_throw_exception_invalid_filename()  {
-        final Response response = createResource("TEST/nrtm-pshot.1.TEST.f7c94b039f9743fa4d6368b54e64bb0f")
-                    .request(MediaType.APPLICATION_OCTET_STREAM)
-                    .get(Response.class);
+        final Response response = getResponseFromHttpsRequest("TEST/nrtm-pshot.1.TEST.f7c94b039f9743fa4d6368b54e64bb0f", MediaType.APPLICATION_OCTET_STREAM);
         assertThat(response.getStatus(), is(400));
         assertThat(response.readEntity(String.class), is("Invalid Nrtm filename"));
-
     }
 
     @Test
     public void should_throw_exception_snapshot_file_not_found()  {
-        final Response response = createResource("TEST-NONAUTH/nrtm-snapshot.1.TEST-NONAUTH.4ef06e8c4e4891411be.json.gz")
-                    .request(MediaType.APPLICATION_OCTET_STREAM)
-                    .get(Response.class);
+        final Response response = getResponseFromHttpsRequest("TEST-NONAUTH/nrtm-snapshot.1.TEST-NONAUTH" +
+                ".4ef06e8c4e4891411be.json.gz", MediaType.APPLICATION_OCTET_STREAM);
         assertThat(response.getStatus(), is(404));
         assertThat(response.readEntity(String.class), is("Requested Snapshot file does not exists"));
     }
 
     @Test
     public void should_throw_exception_invalid_source_filename_combo()  {
-        final Response response = createResource("TEST/nrtm-snapshot.1.TEST-NONAUTH.4e9e8c4e4891411be.json.gz")
-                .request(MediaType.APPLICATION_OCTET_STREAM)
-                .get(Response.class);
+        final Response response = getResponseFromHttpsRequest("TEST/nrtm-snapshot.1.TEST-NONAUTH.4e9e8c4e4891411be.json" +
+                ".gz", MediaType.APPLICATION_OCTET_STREAM);
         assertThat(response.getStatus(), is(400));
         assertThat(response.readEntity(String.class), is("Invalid source and filename combination"));
     }
 
     @Test
     public void should_throw_exception_invalid_source_notification_file()  {
-        final Response response = createResource("TEST/update-notification-file.json")
-                .request(MediaType.APPLICATION_JSON)
-                .get(Response.class);
+        final Response response = getResponseFromHttpsRequest("TEST/update-notification-file.json", MediaType.APPLICATION_JSON);
         assertThat(response.getStatus(), is(400));
         assertThat(response.readEntity(String.class), is("Invalid source"));
     }
 
     @Test
     public void should_throw_exception_delta_file_not_found()  {
-        final Response response = createResource("TEST-NONAUTH/nrtm-delta.1.TEST-NONAUTH.60b9e8c4e4891411be.json")
-                .request(MediaType.APPLICATION_JSON)
-                .get(Response.class);
+        final Response response = getResponseFromHttpsRequest("TEST-NONAUTH/nrtm-delta.1.TEST-NONAUTH.60b9e8c4e4891411be" +
+                ".json", MediaType.APPLICATION_JSON);
         assertThat(response.getStatus(), is(404));
         assertThat(response.readEntity(String.class), is("Requested Delta file does not exists"));
     }
 
+    @Test
+    public void should_throw_426_source_links_https_required() {
+        databaseHelper.getNrtmTemplate().update("INSERT INTO source (id, name) VALUES (?,?)", 1, "TEST");
+        databaseHelper.getNrtmTemplate().update("INSERT INTO source (id, name) VALUES (?,?)", 2, "TEST-NONAUTH");
+
+        final Response response = getResponseFromHttpRequest( null);
+
+        assertThat(response.getStatus(), is(426));
+        assertThat(response.readEntity(String.class), containsString("\"message\":\"HTTPS required\""));
+    }
+
+    @Test
+    public void should_throw_426_delta_file_https_required() {
+        snapshotFileGenerator.createSnapshot();
+
+        final RpslObject updatedObject = RpslObject.parse("" +
+                "inet6num:       ::/0\n" +
+                "netname:        IANA-BLK\n" +
+                "descr:          The whole IPv6 address space:Updated for test\n" +
+                "country:        NL\n" +
+                "tech-c:         TP1-TEST\n" +
+                "admin-c:        TP1-TEST\n" +
+                "status:         OTHER\n" +
+                "mnt-by:         OWNER-MNT\n" +
+                "created:         2022-08-14T11:48:28Z\n" +
+                "last-modified:   2022-10-25T12:22:39Z\n" +
+                "source:         TEST");
+        databaseHelper.updateObject(updatedObject);
+        deltaFileGenerator.createDeltas();
+
+        Optional<SnapshotFile> snapshotFile = snapshotFileDao.getLastSnapshot(nrtmSourceDao.getWhoisSource().get());
+        final NrtmVersionInfo snapshotVersion = nrtmVersionInfoDao.findById(snapshotFile.get().versionId());
+
+        final List<DeltaFileVersionInfo> deltaFileVersion = deltaFileDao.getDeltasForNotificationSince(snapshotVersion, LocalDateTime.MIN);
+
+        final Response response = getResponseFromHttpRequest("TEST/" + deltaFileVersion.get(0).deltaFile().name());
+
+        assertThat(response.getStatus(), is(426));
+        assertThat(response.readEntity(String.class), containsString("\"message\":\"HTTPS required\""));
+    }
     public static String decompress(byte[] compressed) throws IOException {
         final int BUFFER_SIZE = 32;
         ByteArrayInputStream is = new ByteArrayInputStream(compressed);
@@ -364,9 +440,6 @@ public class NrtmClientServiceTestIntegration extends AbstractIntegrationTest {
         is.close();
         return string.toString();
     }
-    protected WebTarget createResource(final String path) {
-        return RestTest.target(getPort(), String.format("nrtmv4/%s", path));
-    }
 
     private static void assertNrtmFileInfo(final JSONObject jsonObject, final String type, final int version) throws JSONException {
         assertThat(jsonObject.getInt("nrtm_version"), is(4));
@@ -376,7 +449,7 @@ public class NrtmClientServiceTestIntegration extends AbstractIntegrationTest {
     }
 
     private void insertUpdateNotificationFile() {
-        final var timestamp = dateTimeProvider.getCurrentDateTime().toEpochSecond(ZoneOffset.UTC);
+        dateTimeProvider.getCurrentDateTime().toEpochSecond(ZoneOffset.UTC);
         databaseHelper.getNrtmTemplate().update("INSERT INTO source (id, name) VALUES (?,?)", 1, "TEST");
         databaseHelper.getNrtmTemplate().update("INSERT INTO source (id, name) VALUES (?,?)", 2, "TEST-NONAUTH");
 
@@ -392,5 +465,13 @@ public class NrtmClientServiceTestIntegration extends AbstractIntegrationTest {
 
         final String payloadNonAuth = "{\"nrtm_version\":4,\"timestamp\":\"2023-03-13T12:31:08Z\",\"type\":\"snapshot\",\"source\":\"TEST-NONAUTH\",\"session_id\":\"7f42be43-a1fd-48e7-947f-91c852cf13f6\",\"version\":1,\"snapshot\":{\"version\":1,\"url\":\"https://nrtm.ripe.net//7f42be43-a1fd-48e7-947f-91c852cf13f6/nrtm-snapshot.1.RIPE-NONAUTH.9a6ca0a3e1b68eb65d4a2d277c3e5a96.json.gz\",\"hash\":\"8140b2d3a3ec4cb6a14c1ca19f7cbca468adcc172ad3e313aed74bd0d1036838\"}}";
         databaseHelper.getNrtmTemplate().update("INSERT INTO notification_file (version_id, created, payload) VALUES (?, ?, ?)",2, dateTimeProvider.getCurrentDateTime().toEpochSecond(ZoneOffset.UTC), payloadNonAuth);
+    }
+
+    private void generateAndSaveKeyPair() {
+        final AsymmetricCipherKeyPair asymmetricCipherKeyPair = Ed25519Util.generateEd25519KeyPair();
+        final byte[] privateKey =((Ed25519PrivateKeyParameters) asymmetricCipherKeyPair.getPrivate()).getEncoded();
+        final byte[] publicKey = ((Ed25519PublicKeyParameters) asymmetricCipherKeyPair.getPublic()).getEncoded();
+
+        nrtmKeyConfigDao.saveKeyPair(privateKey, publicKey);
     }
 }

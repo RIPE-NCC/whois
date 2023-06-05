@@ -16,9 +16,9 @@ import javax.sql.DataSource;
 import java.util.Optional;
 
 @Repository
-public class DeltaSourceAwareFileRepository {
+public class DeltaFileSourceAwareDao {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(DeltaSourceAwareFileRepository.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(DeltaFileSourceAwareDao.class);
 
     private final JdbcTemplate jdbcTemplate;
     private final SourceContext sourceContext;
@@ -31,7 +31,7 @@ public class DeltaSourceAwareFileRepository {
                     rs.getString(5)  // payload
             );
 
-    public DeltaSourceAwareFileRepository(@Qualifier("nrtmSourceAwareDataSource") final DataSource dataSource, @Qualifier("nrtmSourceContext") final SourceContext sourceContext) {
+    public DeltaFileSourceAwareDao(@Qualifier("nrtmSourceAwareDataSource") final DataSource dataSource, @Qualifier("nrtmSourceContext") final SourceContext sourceContext) {
         this.jdbcTemplate = new JdbcTemplate(dataSource);
         this.sourceContext = sourceContext;
     }

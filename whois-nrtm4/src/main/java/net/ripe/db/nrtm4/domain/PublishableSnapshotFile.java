@@ -10,7 +10,7 @@ public class PublishableSnapshotFile extends PublishableNrtmFile {
     private PublishableSnapshotFile() {}
 
     public PublishableSnapshotFile(final NrtmVersionInfo nextVersion) {
-        super(nextVersion);
+        super(nextVersion, NrtmDocumentType.SNAPSHOT);
         this.objects = null; // explicitly serialized by SnapshotSerializer
     }
 

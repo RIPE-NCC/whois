@@ -35,7 +35,6 @@ public class RdapQueryHandler {
 
     public Stream<RpslObject> handleQueryStream(final Query query, final HttpServletRequest request) {
         final Stream.Builder<RpslObject> out = Stream.builder();
-
         final InetAddress remoteAddress = InetAddresses.forString(request.getRemoteAddr());
         try {
             queryHandler.streamResults(query, remoteAddress, 0, new ApiResponseHandler() {
@@ -70,19 +69,15 @@ public class RdapQueryHandler {
     }
 
     public List<RpslObject> handleAutNumQuery(final Query query, final HttpServletRequest request) {
-
         final InetAddress remoteAddress = InetAddresses.forString(request.getRemoteAddr());
-
         final List<RpslObject> resultAutNum = Lists.newArrayList();
         final List<RpslObject> resultAsBlock = Lists.newArrayList();
-
         try {
             queryHandler.streamResults(query, remoteAddress, 0, new ApiResponseHandler() {
                 @Override
                 public void handle(final ResponseObject responseObject) {
                     if (responseObject instanceof RpslObject) {
-                        ObjectType objectType = ((RpslObject) responseObject).getType();
-
+                        final ObjectType objectType = ((RpslObject) responseObject).getType();
                         switch (objectType) {
                             case AUT_NUM: {
                                 resultAutNum.add((RpslObject) responseObject);

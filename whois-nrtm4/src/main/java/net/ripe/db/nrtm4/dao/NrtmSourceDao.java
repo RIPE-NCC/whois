@@ -1,6 +1,6 @@
 package net.ripe.db.nrtm4.dao;
 
-import net.ripe.db.nrtm4.domain.NrtmSourceModel;
+import net.ripe.db.nrtm4.domain.NrtmSource;
 import net.ripe.db.whois.common.domain.CIString;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
@@ -14,13 +14,13 @@ import java.util.Optional;
 
 
 @Repository
-public class SourceRepository {
+public class NrtmSourceDao {
 
     private final JdbcTemplate jdbcTemplate;
     private final List<String> sources;
     private final String source;
 
-    SourceRepository(
+    NrtmSourceDao(
         @Qualifier("nrtmDataSource") final DataSource dataSource,
         @Value("${whois.source}") final String source,
         @Value("${whois.nonauth.source}") final String nonauthSource
@@ -43,7 +43,7 @@ public class SourceRepository {
         }
     }
 
-    public Optional<NrtmSourceModel> getWhoisSource() {
+    public Optional<NrtmSource> getWhoisSource() {
         final String sql = """
             SELECT id, name
             FROM source
@@ -52,20 +52,20 @@ public class SourceRepository {
         try {
             return Optional.ofNullable(jdbcTemplate.queryForObject(
                 sql,
-                (rs, rn) -> new NrtmSourceModel(rs.getLong(1), CIString.ciString(rs.getString(2))),
+                (rs, rn) -> new NrtmSource(rs.getLong(1), CIString.ciString(rs.getString(2))),
                 this.source));
         } catch (final EmptyResultDataAccessException e) {
             return Optional.empty();
         }
     }
 
-    public List<NrtmSourceModel> getSources() {
+    public List<NrtmSource> getSources() {
         final String sql = """
             SELECT id, name
             FROM source
             """;
         try {
-            return jdbcTemplate.query(sql, (rs, rn) -> new NrtmSourceModel(rs.getLong(1), CIString.ciString(rs.getString(2))));
+            return jdbcTemplate.query(sql, (rs, rn) -> new NrtmSource(rs.getLong(1), CIString.ciString(rs.getString(2))));
         } catch (final EmptyResultDataAccessException e) {
             return List.of();
         }

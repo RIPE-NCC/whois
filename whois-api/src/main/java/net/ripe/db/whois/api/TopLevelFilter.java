@@ -6,24 +6,22 @@ import net.ripe.db.whois.common.etree.NestedIntervalMap;
 import net.ripe.db.whois.common.ip.Interval;
 import net.ripe.db.whois.common.ip.IpInterval;
 
-import java.util.Collections;
 import java.util.List;
 
 public class TopLevelFilter<T extends Interval<T>>  {
-    private NestedIntervalMap<T, RpslObjectInfo> tree;
-    public TopLevelFilter(final List<RpslObjectInfo> rpslObjectInfos){
-        this.buildTree(rpslObjectInfos);
+
+    private final NestedIntervalMap<T, RpslObjectInfo> tree;
+
+    public TopLevelFilter(final List<RpslObjectInfo> rpslObjectInfos) {
+        this.tree = buildTree(rpslObjectInfos);
     }
 
     public List<RpslObjectInfo> getTopLevelValues() {
-        if(tree == null){
-            return Collections.emptyList();
-        }
         return tree.mapToValues();
-
     }
-    private void buildTree(final List<RpslObjectInfo> rpslObjectInfos) {
-        this.tree = new NestedIntervalMap<>();
+
+    private NestedIntervalMap<T, RpslObjectInfo> buildTree(final List<RpslObjectInfo> rpslObjectInfos) {
+        final NestedIntervalMap<T, RpslObjectInfo> tree = new NestedIntervalMap<>();
         rpslObjectInfos.forEach(rpslObjectInfo -> {
             final T key = (T) IpInterval.parse(rpslObjectInfo.getKey());
             final List<RpslObjectInfo> moreSpecific = tree.findFirstMoreSpecific(key);
@@ -37,5 +35,6 @@ public class TopLevelFilter<T extends Interval<T>>  {
                 }
             }
         });
+        return tree;
     }
 }

@@ -46,7 +46,7 @@ public class ElasticFulltextSearch extends FulltextSearch {
     private static final Logger LOGGER = LoggerFactory.getLogger(ElasticFulltextSearch.class);
 
     public static final TermsAggregationBuilder AGGREGATION_BUILDER = AggregationBuilders.terms("types-count").field("object-type.raw");
-    public static final List<SortBuilder<?>> SORT_BUILDERS = Arrays.asList(SortBuilders.scoreSort(), SortBuilders.fieldSort("lookup-key.keyword").unmappedType("keyword"));
+    public static final List<SortBuilder<?>> SORT_BUILDERS = Arrays.asList(SortBuilders.scoreSort(), SortBuilders.fieldSort("lookup-key.raw").unmappedType("keyword"));
 
     private final FullTextIndex fullTextIndex;
     private final AccessControlListManager accessControlListManager;
@@ -54,6 +54,9 @@ public class ElasticFulltextSearch extends FulltextSearch {
 
     private final Source source;
     private final RpslObjectDao objectDao;
+
+    //Truncate after 100k of characters
+    private static final int HIGHLIGHT_OFFSET_SIZE = 100000;
 
     private final int maxResultSize;
 
@@ -92,6 +95,7 @@ public class ElasticFulltextSearch extends FulltextSearch {
                 final HighlightBuilder highlightBuilder = new HighlightBuilder()
                         .postTags(getHighlightTag(searchRequest.getFormat(), searchRequest.getHighlightPost()))
                         .preTags(getHighlightTag(searchRequest.getFormat(), searchRequest.getHighlightPre()))
+                        .maxAnalyzedOffset(HIGHLIGHT_OFFSET_SIZE)
                         .field("*");
 
                 final SearchSourceBuilder sourceBuilder = new SearchSourceBuilder()
@@ -107,6 +111,7 @@ public class ElasticFulltextSearch extends FulltextSearch {
                 final org.elasticsearch.action.search.SearchResponse fulltextResponse = elasticIndexService.getClient().search(fulltextRequest, RequestOptions.DEFAULT);
                 final SearchHit[] hits = fulltextResponse.getHits().getHits();
 
+                LOGGER.debug("ElasticSearch {} hits for the query: {}", hits.length, searchRequest.getQuery());
                 final List<RpslObject> results = Lists.newArrayList();
                 int resultSize = Math.min(maxResultSize,Long.valueOf(fulltextResponse.getHits().getTotalHits().value).intValue());
 
@@ -166,8 +171,10 @@ public class ElasticFulltextSearch extends FulltextSearch {
         final SearchResponse.Lst documentLst = new SearchResponse.Lst(hit.getId());
         final List<SearchResponse.Arr> documentArrs = Lists.newArrayList();
 
-
         hit.getHighlightFields().forEach((attribute, highlightField) -> {
+            if("lookup-key".equals(attribute) || "lookup-key.custom".equals(attribute)){
+                return;
+            }
             if(attribute.contains(".custom")) {
                 final SearchResponse.Arr arr = new SearchResponse.Arr(StringUtils.substringBefore(highlightField.name(), ".custom"));
                 arr.setStr(new SearchResponse.Str(null, StringUtils.join(highlightField.getFragments(), ",")));
@@ -180,7 +187,6 @@ public class ElasticFulltextSearch extends FulltextSearch {
                 documentArrs.add(arr);
             }
         });
-
         documentLst.setArrs(documentArrs);
         return documentLst;
     }

@@ -85,7 +85,7 @@ public interface AttributeSyntax extends Documented {
             "inbound | outbound [<as-expression>]\n");
 
     AttributeSyntax AUTH_SCHEME_SYNTAX = new AttributeSyntaxRegexp(
-            Pattern.compile("(?i)^(MD5-PW \\$1\\$[A-Z0-9./]{1,8}\\$[A-Z0-9./]{22}|PGPKEY-[A-F0-9]{8}|SSO [-@.'+_\\w]{1,90}|X509-[1-9][0-9]{0,19}|AUTO-[1-9][0-9]*)$"), "" +
+            Pattern.compile("(?i)^(MD5-PW \\$1\\$[A-Z0-9./]{1,8}\\$[A-Z0-9./]{22}|PGPKEY-[A-F0-9]{8}|SSO (.+@.+){1,90}|X509-[1-9][0-9]{0,19}|AUTO-[1-9][0-9]*)$"), "" +
             "<auth-scheme> <scheme-info>       Description\n" +
             "\n" +
             "MD5-PW        encrypted           We strongly advise phrases longer\n" +
@@ -400,9 +400,11 @@ public interface AttributeSyntax extends Documented {
 
     AttributeSyntax ORG_NAME_SYNTAX = new AttributeSyntaxRegexp(
             Pattern.compile("(?i)^[\\]\\[A-Z0-9._\"*()@,&:!'`+\\/-]{1,64}( [\\]\\[A-Z0-9._\"*()@,&:!'`+\\/-]{1,64}){0,29}$"), "" +
-            "A list of 1 to 30 words separated by white space. A word is made up of letters, digits and the following characters:\n" +
+            "A list of 1 to 30 words separated by white space\n." +
+            "A word is made up of ASCII alphanumeric characters and additionally:\n" +
             "][)(._\"*@,&:!'`+/-\n" +
-            "A word may have up to 64 characters and is not case sensitive. Each word can have any combination of the above characters with no restriction on the start or end of a word.\n"
+            "A word may have up to 64 characters and is not case sensitive. Each word can have any combination of the" +
+            " above characters with no restriction on the start or end of a word."
     );
 
     AttributeSyntax ORG_TYPE_SYNTAX = new OrgTypeSyntax();
@@ -898,7 +900,7 @@ public interface AttributeSyntax extends Documented {
         public String getDescription(final ObjectType objectType) {
             return "" +
                     "It should contain 2 to 10 words.\n" +
-                    "Each word consists of letters, digits or the following symbols:\n" +
+                    "A word is made up of ASCII alphanumeric characters and additionally:\n" +
                     ".`'_-\n" +
                     "The first word should begin with a letter.\n" +
                     "At least one other word should also begin with a letter.\n" +
