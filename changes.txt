@@ -1,5 +1,16 @@
 # next
 
+# 1.107
+
+[nrtm] NWI-14 add mnt-ref to additional object types (#1243)
+[nrtm] Sign NRTMv4 notifications (#1241)
+[nrtm] Separate job for NRTMv4 snapshot file (#1219)
+[api] Truncate long fields while indexing in Elasticsearch (#1236)
+[api] Elasticsearch filters inconsistence (#1231)
+[rdap] Limit resource lookups in RDAP organisation entity requests (#1220)
+[update] Allow any characters in local part of SSO auth email addresses (#1237)
+[update] LIR country attribute bug
+[all] Include country: in Organisation Split File (#1251)
 
 # 1.106.1
 
