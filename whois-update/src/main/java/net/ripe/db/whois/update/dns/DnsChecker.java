@@ -77,7 +77,10 @@ public class DnsChecker {
             final DnsCheckRequest dnsCheckRequest = entry.getKey();
             final DnsCheckResponse dnsCheckResponse = entry.getValue();
 
-            LOGGER.info("Adding dns check response to updateContext {} ", dnsCheckRequest.getDomain());
+            LOGGER.info("Adding dns check response to updateContext {} with response {} {} ",
+                    dnsCheckRequest.getDomain(),
+                    dnsCheckResponse.getMessages().size(),
+                    dnsCheckResponse.getMessages());
 
             updateContext.addDnsCheckResponse(dnsCheckRequest, dnsCheckResponse);
 
@@ -88,7 +91,6 @@ public class DnsChecker {
             if(updateContext.getMessages(dnsCheckRequest.getUpdate())!=null && updateContext.getMessages(dnsCheckRequest.getUpdate()).getMessages() != null) {
                 LOGGER.info("Added the error message to context {} ", dnsCheckRequest.getDomain(),
                         updateContext.getMessages(dnsCheckRequest.getUpdate()).getMessages().getMessages(Messages.Type.ERROR));
-
 
             }
 
