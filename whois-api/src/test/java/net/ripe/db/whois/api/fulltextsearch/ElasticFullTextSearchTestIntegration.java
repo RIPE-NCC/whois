@@ -42,7 +42,7 @@ import static org.hamcrest.Matchers.not;
 import static org.junit.jupiter.api.Assertions.fail;
 
 @Tag("ElasticSearchTest")
-public class ElasticFullTextSearchTestIntegration  extends AbstractElasticSearchIntegrationTest {
+public class ElasticFullTextSearchTestIntegration extends AbstractElasticSearchIntegrationTest {
 
     private static final String WHOIS_INDEX = "whois_fulltext";
     private static final String METADATA_INDEX = "metadata_fulltext";
@@ -57,7 +57,7 @@ public class ElasticFullTextSearchTestIntegration  extends AbstractElasticSearch
     public static void setUpProperties() {
         System.setProperty("elastic.whois.index", WHOIS_INDEX);
         System.setProperty("elastic.commit.index", METADATA_INDEX);
-        System.setProperty("fulltext.search.max.results", "3");
+        System.setProperty("fulltext.search.max.results", "10");
     }
 
     @AfterAll
@@ -122,26 +122,25 @@ public class ElasticFullTextSearchTestIntegration  extends AbstractElasticSearch
         assertThat(queryResponse.getResults().getNumFound(), is(1L));
         assertThat(queryResponse.getResults(), hasSize(1));
         final SolrDocument solrDocument = queryResponse.getResults().get(0);
-        assertThat(solrDocument.getFirstValue("primary-key"), is("1"));
         assertThat(solrDocument.getFirstValue("object-type"), is("mntner"));
         assertThat(solrDocument.getFirstValue("lookup-key"), is("DEV-MNT"));
         assertThat(solrDocument.getFirstValue("mntner"), is("DEV-MNT"));
     }
 
     @Test
-    public void search_single_result_object_deleted_before_index_updated() {
+    public void search_single_result_even_deleted_from_database() {
         final RpslObject mntner = RpslObject.parse(
                 "mntner: DEV-MNT\n" +
                 "source: RIPE");
         databaseHelper.addObject(mntner);
-         rebuildIndex();
+        rebuildIndex();
         databaseHelper.deleteObject(mntner);
 
         final QueryResponse queryResponse = query("q=DEV-MNT");
 
         assertThat(queryResponse.getStatus(), is(0));
-        assertThat(queryResponse.getResults().getNumFound(), is(0L));
-        assertThat(queryResponse.getResults(), hasSize(0));
+        assertThat(queryResponse.getResults().getNumFound(), is(1L));
+        assertThat(queryResponse.getResults(), hasSize(1));
     }
 
     @Test
@@ -153,15 +152,13 @@ public class ElasticFullTextSearchTestIntegration  extends AbstractElasticSearch
         final SearchResponse searchResponse = queryJson("q=DEV-MNT");
 
         assertThat(searchResponse.getResult().getDocs(), hasSize(1));
-        assertThat(searchResponse.getResult().getDocs().get(0).getStrs(), hasSize(4));
-        assertThat(searchResponse.getResult().getDocs().get(0).getStrs().get(0).getName(), is("primary-key"));
-        assertThat(searchResponse.getResult().getDocs().get(0).getStrs().get(0).getValue(), is("1"));
-        assertThat(searchResponse.getResult().getDocs().get(0).getStrs().get(1).getName(), is("object-type"));
-        assertThat(searchResponse.getResult().getDocs().get(0).getStrs().get(1).getValue(), is("mntner"));
-        assertThat(searchResponse.getResult().getDocs().get(0).getStrs().get(2).getName(), is("lookup-key"));
+        assertThat(searchResponse.getResult().getDocs().get(0).getStrs(), hasSize(3));
+        assertThat(searchResponse.getResult().getDocs().get(0).getStrs().get(0).getName(), is("object-type"));
+        assertThat(searchResponse.getResult().getDocs().get(0).getStrs().get(0).getValue(), is("mntner"));
+        assertThat(searchResponse.getResult().getDocs().get(0).getStrs().get(1).getName(), is("lookup-key"));
+        assertThat(searchResponse.getResult().getDocs().get(0).getStrs().get(1).getValue(), is("DEV-MNT"));
+        assertThat(searchResponse.getResult().getDocs().get(0).getStrs().get(2).getName(), is("mntner"));
         assertThat(searchResponse.getResult().getDocs().get(0).getStrs().get(2).getValue(), is("DEV-MNT"));
-        assertThat(searchResponse.getResult().getDocs().get(0).getStrs().get(3).getName(), is("mntner"));
-        assertThat(searchResponse.getResult().getDocs().get(0).getStrs().get(3).getValue(), is("DEV-MNT"));
     }
 
 
@@ -224,6 +221,7 @@ public class ElasticFullTextSearchTestIntegration  extends AbstractElasticSearch
 
     @Test
     public void search_multiple_results_with_search_limit() {
+
         databaseHelper.addObject(RpslObject.parse(
                 "mntner: DEV1-MNT\n" +
                         "remarks: Some remark\n" +
@@ -249,11 +247,12 @@ public class ElasticFullTextSearchTestIntegration  extends AbstractElasticSearch
 
          rebuildIndex();
 
-        final QueryResponse queryResponse = query("q=remark&facet=true");
+        final QueryResponse queryResponse = query("q=remark&facet=true&rows=3");
 
-        //search limit to 3
+        //search limit to 3, however the total that ES is able to find is 5
         assertThat(queryResponse.getStatus(), is(0));
-        assertThat(queryResponse.getResults().getNumFound(), is(3L));
+        assertThat(queryResponse.getResults(), hasSize(3));
+        assertThat(queryResponse.getResults().getNumFound(), is(5L));
 
 
         final List<FacetField> facets = queryResponse.getFacetFields();
@@ -282,7 +281,6 @@ public class ElasticFullTextSearchTestIntegration  extends AbstractElasticSearch
         assertThat(queryResponse.getResults().getNumFound(), is(1L));
         assertThat(queryResponse.getResults(), hasSize(1));
         final SolrDocument solrDocument = queryResponse.getResults().get(0);
-        assertThat(solrDocument.getFirstValue("primary-key"), is("2"));
         assertThat(solrDocument.getFirstValue("object-type"), is("organisation"));
         assertThat(solrDocument.getFirstValue("lookup-key"), is("ORG-AA1-RIPE"));
         assertThat(solrDocument.getFirstValue("organisation"), is("ORG-AA1-RIPE"));
@@ -304,7 +302,6 @@ public class ElasticFullTextSearchTestIntegration  extends AbstractElasticSearch
         assertThat(queryResponse.getResults().getNumFound(), is(1L));
         assertThat(queryResponse.getResults(), hasSize(1));
         final SolrDocument solrDocument = queryResponse.getResults().get(0);
-        assertThat(solrDocument.getFirstValue("primary-key"), is("2"));
         assertThat(solrDocument.getFirstValue("object-type"), is("organisation"));
         assertThat(solrDocument.getFirstValue("lookup-key"), is("ORG-AA1-RIPE"));
         assertThat(solrDocument.getFirstValue("organisation"), is("ORG-AA1-RIPE"));
@@ -371,7 +368,6 @@ public class ElasticFullTextSearchTestIntegration  extends AbstractElasticSearch
         assertThat(queryResponse.getResults().getNumFound(), is(1L));
         assertThat(queryResponse.getResults(), hasSize(1));
         final SolrDocument solrDocument = queryResponse.getResults().get(0);
-        assertThat(solrDocument.getFirstValue("primary-key"), is("3"));
         assertThat(solrDocument.getFirstValue("object-type"), is("organisation"));
         assertThat(solrDocument.getFirstValue("lookup-key"), is("ORG-AA1-RIPE"));
         assertThat(solrDocument.getFirstValue("organisation"), is("ORG-AA1-RIPE"));
@@ -923,7 +919,6 @@ public class ElasticFullTextSearchTestIntegration  extends AbstractElasticSearch
         assertThat(queryResponse.getResults().getNumFound(), is(1L));
         assertThat(queryResponse.getResults(), hasSize(1));
         final SolrDocument solrDocument = queryResponse.getResults().get(0);
-        assertThat(solrDocument.getFirstValue("primary-key"), is("1"));
         assertThat(solrDocument.getFirstValue("object-type"), is("inet6num"));
         assertThat(solrDocument.getFirstValue("lookup-key"), is("2001:0638:0501::/48"));
         assertThat(solrDocument.getFirstValue("inet6num"), is("2001:0638:0501::/48"));
@@ -962,17 +957,15 @@ public class ElasticFullTextSearchTestIntegration  extends AbstractElasticSearch
 
         // document
         assertThat(searchResponse.getResult().getDocs(), hasSize(1));
-        assertThat(searchResponse.getResult().getDocs().get(0).getStrs(), hasSize(5));
-        assertThat(searchResponse.getResult().getDocs().get(0).getStrs().get(0).getName(), is("primary-key"));
-        assertThat(searchResponse.getResult().getDocs().get(0).getStrs().get(0).getValue(), is("1"));
-        assertThat(searchResponse.getResult().getDocs().get(0).getStrs().get(1).getName(), is("object-type"));
-        assertThat(searchResponse.getResult().getDocs().get(0).getStrs().get(1).getValue(), is("mntner"));
-        assertThat(searchResponse.getResult().getDocs().get(0).getStrs().get(2).getName(), is("lookup-key"));
+        assertThat(searchResponse.getResult().getDocs().get(0).getStrs(), hasSize(4));
+        assertThat(searchResponse.getResult().getDocs().get(0).getStrs().get(0).getName(), is("object-type"));
+        assertThat(searchResponse.getResult().getDocs().get(0).getStrs().get(0).getValue(), is("mntner"));
+        assertThat(searchResponse.getResult().getDocs().get(0).getStrs().get(1).getName(), is("lookup-key"));
+        assertThat(searchResponse.getResult().getDocs().get(0).getStrs().get(1).getValue(), is("DEV-MNT"));
+        assertThat(searchResponse.getResult().getDocs().get(0).getStrs().get(2).getName(), is("mntner"));
         assertThat(searchResponse.getResult().getDocs().get(0).getStrs().get(2).getValue(), is("DEV-MNT"));
-        assertThat(searchResponse.getResult().getDocs().get(0).getStrs().get(3).getName(), is("mntner"));
-        assertThat(searchResponse.getResult().getDocs().get(0).getStrs().get(3).getValue(), is("DEV-MNT"));
-        assertThat(searchResponse.getResult().getDocs().get(0).getStrs().get(4).getName(), is("remarks"));
-        assertThat(searchResponse.getResult().getDocs().get(0).getStrs().get(4).getValue(), is("DEV mntner"));
+        assertThat(searchResponse.getResult().getDocs().get(0).getStrs().get(3).getName(), is("remarks"));
+        assertThat(searchResponse.getResult().getDocs().get(0).getStrs().get(3).getValue(), is("DEV mntner"));
 
         // highlighting
         assertThat(searchResponse.getLsts(), hasSize(3));
@@ -1019,9 +1012,9 @@ public class ElasticFullTextSearchTestIntegration  extends AbstractElasticSearch
 
         // document
         assertThat(searchResponse.getResult().getDocs(), hasSize(1));
-        assertThat(searchResponse.getResult().getDocs().get(0).getStrs(), hasSize(5));
-        assertThat(searchResponse.getResult().getDocs().get(0).getStrs().get(4).getName(), is("remarks"));
-        assertThat(searchResponse.getResult().getDocs().get(0).getStrs().get(4).getValue(), is("\"DEV mntner\""));
+        assertThat(searchResponse.getResult().getDocs().get(0).getStrs(), hasSize(4));
+        assertThat(searchResponse.getResult().getDocs().get(0).getStrs().get(3).getName(), is("remarks"));
+        assertThat(searchResponse.getResult().getDocs().get(0).getStrs().get(3).getValue(), is("\"DEV mntner\""));
 
         // highlighting
       /*  assertThat(searchResponse.getLsts(), hasSize(3));

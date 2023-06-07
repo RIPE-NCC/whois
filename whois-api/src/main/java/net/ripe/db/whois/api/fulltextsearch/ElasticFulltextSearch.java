@@ -116,42 +116,69 @@ public class ElasticFulltextSearch extends FulltextSearch {
                 final SearchHit[] hits = fulltextResponse.getHits().getHits();
 
                 LOGGER.info("ElasticSearch {} hits for the query: {}", hits.length, searchRequest.getQuery());
-
-                final SearchResponse searchResponse = new SearchResponse();
-                searchResponse.setResult(createResult(searchRequest, hits, Long.valueOf(fulltextResponse.getHits().getTotalHits().value).intValue()));
-
-                final List<SearchResponse.Lst> responseLstList = Lists.newArrayList();
-                responseLstList.add(getResponseHeader(searchRequest, stopwatch.elapsed(TimeUnit.MILLISECONDS)));
-                responseLstList.add(createVersion());
-
-
-
-
-
-                if (searchRequest.isHighlight()) {
-                    final SearchResponse.Lst highlight = new SearchResponse.Lst("highlighting");
-                    final List<SearchResponse.Lst> highlightDocs = Lists.newArrayList();
-
-
-
-
-                    highlight.setLsts(highlightDocs);
-                    responseLstList.add(highlight);
-                }
-
-
-
-
-
-                if (searchRequest.isFacet()) {
-                    Terms countByType = fulltextResponse.getAggregations().get("types-count");
-                    responseLstList.add(getCountByType(countByType));
-                }
-
-                searchResponse.setLsts(responseLstList);
-                return searchResponse;
+                return prepareResponse(fulltextResponse, hits, searchRequest, stopwatch);
             }
         }.search();
+    }
+
+    private SearchResponse prepareResponse(final org.elasticsearch.action.search.SearchResponse fulltextResponse,
+                                           final SearchHit[] hits,
+                                           final SearchRequest searchRequest,
+                                           final Stopwatch stopwatch) {
+        final List<SearchResponse.Lst> highlightDocs = Lists.newArrayList();
+        final List<SearchResponse.Result.Doc> resultDocumentList = Lists.newArrayList();
+        fillHighlightsAndResults(hits, highlightDocs, resultDocumentList);
+
+        final SearchResponse.Result result = new SearchResponse.Result("response", Long.valueOf(fulltextResponse.getHits().getTotalHits().value).intValue(), searchRequest.getStart());
+        result.setDocs(resultDocumentList);
+
+        final SearchResponse searchResponse = new SearchResponse();
+        searchResponse.setResult(result);
+
+        final List<SearchResponse.Lst> responseLstList = Lists.newArrayList();
+
+        responseLstList.add(getResponseHeader(searchRequest, stopwatch.elapsed(TimeUnit.MILLISECONDS)));
+
+        if (searchRequest.isHighlight()) {
+            final SearchResponse.Lst highlight = new SearchResponse.Lst("highlighting");
+            highlight.setLsts(highlightDocs);
+            responseLstList.add(highlight);
+        }
+
+        if (searchRequest.isFacet()) {
+            final Terms countByType = fulltextResponse.getAggregations().get("types-count");
+            responseLstList.add(getCountByType(countByType));
+        }
+
+        responseLstList.add(createVersion());
+
+        searchResponse.setLsts(responseLstList);
+        return searchResponse;
+    }
+
+    private void fillHighlightsAndResults(final SearchHit[] hits, final List<SearchResponse.Lst> highlightDocs,
+                                          final List<SearchResponse.Result.Doc> resultDocumentList) {
+        for (final SearchHit hit : hits) {
+            final Map<String, Object> hitAttributes = hit.getSourceAsMap();
+
+            final SearchResponse.Result.Doc resultDocument = new SearchResponse.Result.Doc();
+            final List<SearchResponse.Str> attributes = Lists.newArrayList();
+
+            final ObjectType objectType = ObjectType.getByName(hitAttributes.get(FullTextIndex.OBJECT_TYPE_FIELD_NAME).toString());
+            attributes.add(new SearchResponse.Str(FullTextIndex.OBJECT_TYPE_FIELD_NAME, objectType.getName()));
+            attributes.add(new SearchResponse.Str(FullTextIndex.LOOKUP_KEY_FIELD_NAME, hitAttributes.get(FullTextIndex.LOOKUP_KEY_FIELD_NAME).toString()));
+
+            final Set<AttributeType> templateAttributes = ObjectTemplate.getTemplate(objectType).getAllAttributes();
+
+            for (final RpslAttribute rpslAttribute : fullTextIndex.filterRpslAttributes(templateAttributes, hitAttributes)) {
+                attributes.add(new SearchResponse.Str(rpslAttribute.getKey(), rpslAttribute.getValue()));
+            }
+
+            highlightDocs.add(createHighlights(hit));
+
+            resultDocument.setStrs(attributes);
+            resultDocumentList.add(resultDocument);
+        }
     }
 
     private String getHighlightTag(final String format, final String highlightPost) {
@@ -163,7 +190,6 @@ public class ElasticFulltextSearch extends FulltextSearch {
     }
 
     private SearchResponse.Lst createHighlights(final SearchHit hit) {
-
         final SearchResponse.Lst documentLst = new SearchResponse.Lst(hit.getId());
         final List<SearchResponse.Arr> documentArrs = Lists.newArrayList();
 
@@ -187,7 +213,7 @@ public class ElasticFulltextSearch extends FulltextSearch {
         return documentLst;
     }
 
-    private SearchResponse.Lst getCountByType(final Terms facets) throws IOException {
+    private SearchResponse.Lst getCountByType(final Terms facets) {
         final SearchResponse.Lst facetCounts = new SearchResponse.Lst("facet_counts");
         final List<SearchResponse.Lst> facetCountsList = Lists.newArrayList();
 
@@ -209,35 +235,5 @@ public class ElasticFulltextSearch extends FulltextSearch {
 
         facetCounts.setLsts(facetCountsList);
         return facetCounts;
-    }
-
-    private SearchResponse.Result createResult(final SearchRequest searchRequest, final SearchHit[] hits,
-                                               final int totalHits) {
-        final SearchResponse.Result result = new SearchResponse.Result("response", totalHits, searchRequest.getStart());
-
-        final List<SearchResponse.Result.Doc> resultDocumentList = Lists.newArrayList();
-
-        for (final SearchHit hit : hits) {
-            final Map<String, Object> hitAttributes = hit.getSourceAsMap();
-
-            final SearchResponse.Result.Doc resultDocument = new SearchResponse.Result.Doc();
-            final List<SearchResponse.Str> attributes = Lists.newArrayList();
-
-            final ObjectType objectType = ObjectType.valueOf(hitAttributes.get(FullTextIndex.OBJECT_TYPE_FIELD_NAME).toString().toUpperCase());
-            attributes.add(new SearchResponse.Str(FullTextIndex.OBJECT_TYPE_FIELD_NAME, objectType.getName()));
-            attributes.add(new SearchResponse.Str(FullTextIndex.LOOKUP_KEY_FIELD_NAME, hitAttributes.get(FullTextIndex.LOOKUP_KEY_FIELD_NAME).toString()));
-
-            final Set<AttributeType> templateAttributes = ObjectTemplate.getTemplate(objectType).getAllAttributes();
-
-            for (final RpslAttribute rpslAttribute : fullTextIndex.filterRpslAttributes(templateAttributes, hitAttributes)) {
-                attributes.add(new SearchResponse.Str(rpslAttribute.getKey(), rpslAttribute.getValue()));
-            }
-
-            resultDocument.setStrs(attributes);
-            resultDocumentList.add(resultDocument);
-        }
-
-        result.setDocs(resultDocumentList);
-        return result;
     }
 }
