@@ -99,8 +99,8 @@ public class DnsChecker {
         for (Update update: updateRequest.getUpdates()) {
             if(updateContext.getMessages(update)!=null && updateContext.getMessages(update).getMessages() != null) {
 
-                LOGGER.info("Checking final error messages added after dns check {} ",
-                        updateContext.getMessages(update).getMessages().getMessages(Messages.Type.ERROR));
+                LOGGER.info("Checking final error messages added after dns check {},  {} ",
+                        update.getSubmittedObject().getKey(), updateContext.getMessages(update).getMessages().getMessages(Messages.Type.ERROR));
             }
 
         }
