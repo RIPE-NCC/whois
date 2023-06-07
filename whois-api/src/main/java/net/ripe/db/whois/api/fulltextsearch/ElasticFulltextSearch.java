@@ -7,8 +7,10 @@ import net.ripe.db.whois.api.elasticsearch.ElasticIndexService;
 import net.ripe.db.whois.api.elasticsearch.ElasticSearchAccountingCallback;
 import net.ripe.db.whois.common.ApplicationVersion;
 import net.ripe.db.whois.common.dao.RpslObjectDao;
+import net.ripe.db.whois.common.rpsl.AttributeType;
+import net.ripe.db.whois.common.rpsl.ObjectTemplate;
+import net.ripe.db.whois.common.rpsl.ObjectType;
 import net.ripe.db.whois.common.rpsl.RpslAttribute;
-import net.ripe.db.whois.common.rpsl.RpslObject;
 import net.ripe.db.whois.common.source.Source;
 import net.ripe.db.whois.common.source.SourceContext;
 import net.ripe.db.whois.query.acl.AccessControlListManager;
@@ -31,12 +33,14 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Conditional;
-import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.stereotype.Component;
 
+import javax.ws.rs.BadRequestException;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
 @Component
@@ -67,7 +71,7 @@ public class ElasticFulltextSearch extends FulltextSearch {
                                  final AccessControlListManager accessControlListManager,
                                  final SourceContext sourceContext,
                                  final ApplicationVersion applicationVersion,
-                                 @Value("${fulltext.search.max.results:100}") final int maxResultSize) {
+                                 @Value("${fulltext.search.max.results:10000}") final int maxResultSize) {
         super(applicationVersion);
 
         this.fullTextIndex = fullTextIndex;
@@ -82,8 +86,8 @@ public class ElasticFulltextSearch extends FulltextSearch {
     public SearchResponse performSearch(final SearchRequest searchRequest, final String remoteAddr) throws IOException {
         final Stopwatch stopwatch = Stopwatch.createStarted();
 
-        if (searchRequest.getStart() > maxResultSize) {
-            throw new IllegalArgumentException("Too many rows");
+        if (searchRequest.getRows() > maxResultSize) {
+            throw new BadRequestException("Too many results requested, the maximum allowed is " + maxResultSize);
         }
 
         return new ElasticSearchAccountingCallback<SearchResponse>(accessControlListManager, remoteAddr, source) {
@@ -112,49 +116,39 @@ public class ElasticFulltextSearch extends FulltextSearch {
                 final SearchHit[] hits = fulltextResponse.getHits().getHits();
 
                 LOGGER.info("ElasticSearch {} hits for the query: {}", hits.length, searchRequest.getQuery());
-                final List<RpslObject> results = Lists.newArrayList();
-                /*int resultSize = Math.min(maxResultSize,
-                        Long.valueOf(fulltextResponse.getHits().getTotalHits().value).intValue());*/
-                int resultSize = Long.valueOf(fulltextResponse.getHits().getTotalHits().value).intValue();
 
-                final SearchResponse.Lst highlight = new SearchResponse.Lst("highlighting");
-                final List<SearchResponse.Lst> highlightDocs = Lists.newArrayList();
-
-                for (final SearchHit hit : hits) {
-                    try {
-                        final RpslObject rpslObject = objectDao.getById(Integer.parseInt(hit.getId()));
-                        results.add(rpslObject);
-                        account(rpslObject);
-
-                        highlightDocs.add(createHighlights(hit));
-
-                    } catch (EmptyResultDataAccessException e) {
-                        // object was deleted from the database but index was not updated yet
-                        resultSize--;
-                        continue;
-                    }
-                }
-
-                highlight.setLsts(highlightDocs);
+                final SearchResponse searchResponse = new SearchResponse();
+                searchResponse.setResult(createResult(searchRequest, hits, Long.valueOf(fulltextResponse.getHits().getTotalHits().value).intValue()));
 
                 final List<SearchResponse.Lst> responseLstList = Lists.newArrayList();
                 responseLstList.add(getResponseHeader(searchRequest, stopwatch.elapsed(TimeUnit.MILLISECONDS)));
+                responseLstList.add(createVersion());
+
+
+
+
 
                 if (searchRequest.isHighlight()) {
+                    final SearchResponse.Lst highlight = new SearchResponse.Lst("highlighting");
+                    final List<SearchResponse.Lst> highlightDocs = Lists.newArrayList();
+
+
+
+
+                    highlight.setLsts(highlightDocs);
                     responseLstList.add(highlight);
                 }
+
+
+
+
 
                 if (searchRequest.isFacet()) {
                     Terms countByType = fulltextResponse.getAggregations().get("types-count");
                     responseLstList.add(getCountByType(countByType));
                 }
 
-                responseLstList.add(createVersion());
-
-                final SearchResponse searchResponse = new SearchResponse();
-                searchResponse.setResult(createResult(searchRequest, results, resultSize));
                 searchResponse.setLsts(responseLstList);
-
                 return searchResponse;
             }
         }.search();
@@ -217,21 +211,25 @@ public class ElasticFulltextSearch extends FulltextSearch {
         return facetCounts;
     }
 
-    private SearchResponse.Result createResult(final SearchRequest searchRequest, final List<RpslObject> objects, final int totalHits) {
+    private SearchResponse.Result createResult(final SearchRequest searchRequest, final SearchHit[] hits,
+                                               final int totalHits) {
         final SearchResponse.Result result = new SearchResponse.Result("response", totalHits, searchRequest.getStart());
 
         final List<SearchResponse.Result.Doc> resultDocumentList = Lists.newArrayList();
 
-        for (RpslObject rpslObject : objects) {
+        for (final SearchHit hit : hits) {
+            final Map<String, Object> hitAttributes = hit.getSourceAsMap();
 
             final SearchResponse.Result.Doc resultDocument = new SearchResponse.Result.Doc();
             final List<SearchResponse.Str> attributes = Lists.newArrayList();
 
-            attributes.add(new SearchResponse.Str(FullTextIndex.PRIMARY_KEY_FIELD_NAME, String.valueOf(rpslObject.getObjectId())));
-            attributes.add(new SearchResponse.Str(FullTextIndex.OBJECT_TYPE_FIELD_NAME, rpslObject.getType().getName()));
-            attributes.add(new SearchResponse.Str(FullTextIndex.LOOKUP_KEY_FIELD_NAME, rpslObject.getKey().toString()));
+            final ObjectType objectType = ObjectType.valueOf(hitAttributes.get(FullTextIndex.OBJECT_TYPE_FIELD_NAME).toString().toUpperCase());
+            attributes.add(new SearchResponse.Str(FullTextIndex.OBJECT_TYPE_FIELD_NAME, objectType.getName()));
+            attributes.add(new SearchResponse.Str(FullTextIndex.LOOKUP_KEY_FIELD_NAME, hitAttributes.get(FullTextIndex.LOOKUP_KEY_FIELD_NAME).toString()));
 
-            for (final RpslAttribute rpslAttribute : fullTextIndex.filterRpslObject(rpslObject).getAttributes()) {
+            final Set<AttributeType> templateAttributes = ObjectTemplate.getTemplate(objectType).getAllAttributes();
+
+            for (final RpslAttribute rpslAttribute : fullTextIndex.filterRpslAttributes(templateAttributes, hitAttributes)) {
                 attributes.add(new SearchResponse.Str(rpslAttribute.getKey(), rpslAttribute.getValue()));
             }
 

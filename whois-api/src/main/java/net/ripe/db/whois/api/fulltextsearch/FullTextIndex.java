@@ -307,7 +307,31 @@ public class FullTextIndex extends RebuildableIndex {
 
         return new RpslObject(rpslObject.getObjectId(), attributes);
     }
-    
+
+    public List<RpslAttribute> filterRpslAttributes(final Set<AttributeType> attributeType, final Map<String, Object> hitAttributes) {
+
+        List<RpslAttribute> attributes = Lists.newArrayList();
+
+        for (final AttributeType attribute : attributeType) {
+            if (SKIPPED_ATTRIBUTES.contains(attribute)) {
+                continue;
+            }
+            final Object attributeValues = hitAttributes.get(attribute.getName());
+            if (attributeValues == null){
+                continue;
+            }
+            if (attributeValues instanceof List) {
+                for (final String attributeValue: (List<String>) attributeValues) {
+                    attributes.add(new RpslAttribute(attribute, filterRpslAttribute(attribute, attributeValue)));
+                }
+            } else {
+                attributes.add(new RpslAttribute(attribute, filterRpslAttribute(attribute, (String) attributeValues)));
+            }
+        }
+        return attributes;
+    }
+
+
     public String filterRpslAttribute(final AttributeType attributeType, final String attributeValue) {
 
         if (FILTERED_ATTRIBUTES.contains(attributeType)) {

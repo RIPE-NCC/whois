@@ -1745,7 +1745,7 @@ public class ElasticFullTextSearchTestIntegration  extends AbstractElasticSearch
         rebuildIndex();
         final QueryResponse queryResponse = query("facet=true&format=xml&hl=true&q=(remarks:(secondDomain%20nl))" +
                 "+AND+" +
-                "(object-type:organisation+OR+object-type:person)&start=0&wt=json");
+                "(object-type:organisation+OR+object-type:person)&start=0&wt=json&rows=3");
         assertThat(queryResponse.getResults().getNumFound(), is(1L));
         assertThat(queryResponse.getHighlighting().get("3").containsKey("org-name"), is(false));
         assertThat(queryResponse.getHighlighting().get("3").containsKey("object-type"), is(true));
