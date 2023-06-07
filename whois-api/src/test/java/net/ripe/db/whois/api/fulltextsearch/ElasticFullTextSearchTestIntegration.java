@@ -39,6 +39,7 @@ import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.not;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.fail;
 
 @Tag("ElasticSearchTest")
@@ -2121,6 +2122,15 @@ public class ElasticFullTextSearchTestIntegration extends AbstractElasticSearchI
         assertThat(queryResponse.getResults().get(7).get("lookup-key"), is("31.15.33.192 - 31.15.33.195"));
         assertThat(queryResponse.getResults().get(8).get("lookup-key"), is("31.15.49.116 - 31.15.49.119"));
         assertThat(queryResponse.getResults().get(9).get("lookup-key"), is("83.92.220.64 - 83.92.220.71"));
+    }
+
+    @Test
+    public void request_more_than_allowed_rows_bad_request() {
+        final BadRequestException badRequestException = assertThrows(BadRequestException.class, () -> {
+            query("facet=true&format=xml&hl=true&q=(TEST%20AND%20BANK)&start=0&wt=json&rows=11");
+        });
+        assertThat(badRequestException.getMessage(), is("HTTP 400 Bad Request"));
+        assertThat(badRequestException.getResponse().readEntity(String.class), is("Too many results requested, the maximum allowed is 10"));
     }
 
     // helper methods

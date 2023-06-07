@@ -35,7 +35,6 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Conditional;
 import org.springframework.stereotype.Component;
 
-import javax.ws.rs.BadRequestException;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
@@ -87,7 +86,7 @@ public class ElasticFulltextSearch extends FulltextSearch {
         final Stopwatch stopwatch = Stopwatch.createStarted();
 
         if (searchRequest.getRows() > maxResultSize) {
-            throw new BadRequestException("Too many results requested, the maximum allowed is " + maxResultSize);
+            throw new IllegalArgumentException("Too many results requested, the maximum allowed is " + maxResultSize);
         }
 
         return new ElasticSearchAccountingCallback<SearchResponse>(accessControlListManager, remoteAddr, source) {
