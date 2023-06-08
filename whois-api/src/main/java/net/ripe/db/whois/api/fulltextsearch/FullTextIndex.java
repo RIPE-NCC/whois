@@ -70,7 +70,7 @@ public class FullTextIndex extends RebuildableIndex {
 
     static final String[] FIELD_NAMES;
 
-    private static final Set<AttributeType> SKIPPED_ATTRIBUTES = Sets.newEnumSet(Sets.newHashSet(AttributeType.CERTIF, AttributeType.CHANGED, AttributeType.SOURCE), AttributeType.class);
+    static final Set<AttributeType> SKIPPED_ATTRIBUTES = Sets.newEnumSet(Sets.newHashSet(AttributeType.CERTIF, AttributeType.CHANGED, AttributeType.SOURCE), AttributeType.class);
     private static final Set<AttributeType> FILTERED_ATTRIBUTES = Sets.newEnumSet(Sets.newHashSet(AttributeType.AUTH), AttributeType.class);
 
     private static final FieldType OBJECT_TYPE_FIELD_TYPE;
@@ -307,30 +307,6 @@ public class FullTextIndex extends RebuildableIndex {
 
         return new RpslObject(rpslObject.getObjectId(), attributes);
     }
-
-    public List<RpslAttribute> filterRpslAttributes(final Set<AttributeType> attributeTypes, final Map<String, Object> hitAttributes) {
-
-        List<RpslAttribute> attributes = Lists.newArrayList();
-
-        for (final AttributeType attribute : attributeTypes) {
-            if (SKIPPED_ATTRIBUTES.contains(attribute)) {
-                continue;
-            }
-            final Object attributeValues = hitAttributes.get(attribute.getName());
-            if (attributeValues == null){
-                continue;
-            }
-            if (attributeValues instanceof List) {
-                for (final String attributeValue: (List<String>) attributeValues) {
-                    attributes.add(new RpslAttribute(attribute, filterRpslAttribute(attribute, attributeValue)));
-                }
-            } else {
-                attributes.add(new RpslAttribute(attribute, filterRpslAttribute(attribute, (String) attributeValues)));
-            }
-        }
-        return attributes;
-    }
-
 
     public String filterRpslAttribute(final AttributeType attributeType, final String attributeValue) {
 

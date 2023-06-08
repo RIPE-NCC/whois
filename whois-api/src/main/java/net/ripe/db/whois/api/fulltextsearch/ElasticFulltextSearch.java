@@ -36,6 +36,7 @@ import org.springframework.stereotype.Component;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
@@ -171,7 +172,7 @@ public class ElasticFulltextSearch extends FulltextSearch {
         final Set<AttributeType> templateAttributes = ObjectTemplate.getTemplate(objectType).getAllAttributes();
 
 
-        for (final RpslAttribute rpslAttribute : fullTextIndex.filterRpslAttributes(templateAttributes, hit.getSourceAsMap())) {
+        for (final RpslAttribute rpslAttribute : filterRpslAttributes(templateAttributes, hit.getSourceAsMap())) {
             if(rpslAttribute.getType().equals(AttributeType.ABUSE_MAILBOX)){
                 abuseMailBoxAttributes.add(rpslAttribute);
             }
@@ -180,7 +181,30 @@ public class ElasticFulltextSearch extends FulltextSearch {
         return attributes;
     }
 
+    private List<RpslAttribute> filterRpslAttributes(final Set<AttributeType> attributeTypes, final Map<String, Object> hitAttributes) {
 
+        List<RpslAttribute> attributes = Lists.newArrayList();
+
+        for (final AttributeType attribute : attributeTypes) {
+            if (FullTextIndex.SKIPPED_ATTRIBUTES.contains(attribute)) {
+                continue;
+            }
+            final Object attributeValues = hitAttributes.get(attribute.getName());
+            if (attributeValues == null){
+                continue;
+            }
+            if (attributeValues instanceof List) {
+                for (final String attributeValue: (List<String>) attributeValues) {
+                    attributes.add(new RpslAttribute(attribute, fullTextIndex.filterRpslAttribute(attribute,
+                            attributeValue)));
+                }
+            } else {
+                attributes.add(new RpslAttribute(attribute, fullTextIndex.filterRpslAttribute(attribute,
+                        (String) attributeValues)));
+            }
+        }
+        return attributes;
+    }
     private String getHighlightTag(final String format, final String highlightPost) {
         return SearchRequest.XML_FORMAT.equals(format) ? escape(highlightPost) : highlightPost;
     }
