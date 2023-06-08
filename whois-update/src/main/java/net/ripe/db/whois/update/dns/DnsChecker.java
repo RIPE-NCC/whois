@@ -89,7 +89,7 @@ public class DnsChecker {
             }
 
             if(updateContext.getMessages(dnsCheckRequest.getUpdate())!=null && updateContext.getMessages(dnsCheckRequest.getUpdate()).getMessages() != null) {
-                LOGGER.info("Added the error message to context {} ", dnsCheckRequest.getDomain(),
+                LOGGER.info("Added the error message to context {}, {} ", dnsCheckRequest.getDomain(),
                         updateContext.getMessages(dnsCheckRequest.getUpdate()).getMessages().getMessages(Messages.Type.ERROR));
 
             }
