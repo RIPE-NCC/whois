@@ -8,6 +8,7 @@ import net.ripe.db.whois.common.ip.Ipv4Resource;
 import net.ripe.db.whois.common.ip.Ipv6Resource;
 import net.ripe.db.whois.common.rpsl.AttributeType;
 import net.ripe.db.whois.common.rpsl.ObjectType;
+import net.ripe.db.whois.common.rpsl.RpslAttribute;
 import net.ripe.db.whois.common.rpsl.RpslObject;
 import net.ripe.db.whois.common.source.Source;
 import net.ripe.db.whois.query.dao.AccessControlListDao;
@@ -19,6 +20,7 @@ import org.springframework.stereotype.Component;
 import java.net.Inet6Address;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
+import java.util.List;
 
 @Component
 public class AccessControlListManager {
@@ -53,6 +55,15 @@ public class AccessControlListManager {
         final ObjectType objectType = rpslObject.getType();
         return ObjectType.PERSON.equals(objectType)
                 || (ObjectType.ROLE.equals(objectType) && rpslObject.findAttributes(AttributeType.ABUSE_MAILBOX).isEmpty());
+    }
+
+    public boolean requiresAcl(final ObjectType objectType, final List<RpslAttribute> abuseAttributes,
+                               final Source source) {
+        if (source.isGrs()) {
+            return false;
+        }
+        return ObjectType.PERSON.equals(objectType)
+                || (ObjectType.ROLE.equals(objectType) && abuseAttributes.isEmpty());
     }
 
     public boolean isDenied(final InetAddress remoteAddress) {

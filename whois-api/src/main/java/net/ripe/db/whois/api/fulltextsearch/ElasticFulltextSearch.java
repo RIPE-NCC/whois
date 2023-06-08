@@ -36,7 +36,6 @@ import org.springframework.stereotype.Component;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
@@ -113,26 +112,28 @@ public class ElasticFulltextSearch extends FulltextSearch {
                 final SearchHit[] hits = fulltextResponse.getHits().getHits();
 
                 LOGGER.debug("ElasticSearch {} hits for the query: {}", hits.length, searchRequest.getQuery());
-                return prepareResponse(fulltextResponse, hits, searchRequest, stopwatch);
+
+                final List<SearchResponse.Lst> highlightDocs = Lists.newArrayList();
+                final List<SearchResponse.Result.Doc> resultDocumentList = Lists.newArrayList();
+
+                for (final SearchHit hit : hits) {
+                    final SearchResponse.Result.Doc resultDocument = new SearchResponse.Result.Doc();
+                    highlightDocs.add(createHighlights(hit));
+
+                    // Try to get the abusemailbox attributes for account instead passing a list
+                    final List<RpslAttribute> abuseMailBoxAttributes = Lists.newArrayList();
+                    final ObjectType objectType = ObjectType.getByName(hit.getSourceAsMap().get(FullTextIndex.OBJECT_TYPE_FIELD_NAME).toString());
+                    resultDocument.setStrs(getAttributes(hit, abuseMailBoxAttributes, objectType));
+
+                    account(objectType, abuseMailBoxAttributes);
+                    resultDocumentList.add(resultDocument);
+                }
+                return prepareResponse(fulltextResponse, highlightDocs, resultDocumentList, searchRequest, stopwatch);
             }
         }.search();
     }
 
-    private SearchResponse prepareResponse(final org.elasticsearch.action.search.SearchResponse fulltextResponse,
-                                           final SearchHit[] hits,
-                                           final SearchRequest searchRequest,
-                                           final Stopwatch stopwatch) {
-        final List<SearchResponse.Lst> highlightDocs = Lists.newArrayList();
-        final List<SearchResponse.Result.Doc> resultDocumentList = Lists.newArrayList();
-
-        for (final SearchHit hit : hits) {
-            final SearchResponse.Result.Doc resultDocument = new SearchResponse.Result.Doc();
-            highlightDocs.add(createHighlights(hit));
-
-            resultDocument.setStrs(getAttributes(hit.getSourceAsMap()));
-            resultDocumentList.add(resultDocument);
-        }
-
+    private SearchResponse prepareResponse(org.elasticsearch.action.search.SearchResponse fulltextResponse, List<SearchResponse.Lst> highlightDocs, List<SearchResponse.Result.Doc> resultDocumentList, SearchRequest searchRequest, Stopwatch stopwatch) {
         final SearchResponse.Result result = new SearchResponse.Result("response", Long.valueOf(fulltextResponse.getHits().getTotalHits().value).intValue(), searchRequest.getStart());
         result.setDocs(resultDocumentList);
 
@@ -160,20 +161,25 @@ public class ElasticFulltextSearch extends FulltextSearch {
         return searchResponse;
     }
 
-    private List<SearchResponse.Str> getAttributes(Map<String, Object> hitAttributes) {
+    private List<SearchResponse.Str> getAttributes(final SearchHit hit,
+                                                   final List<RpslAttribute> abuseMailBoxAttributes,
+                                                   final ObjectType objectType) {
         final List<SearchResponse.Str> attributes = Lists.newArrayList();
-
-        final ObjectType objectType = ObjectType.getByName(hitAttributes.get(FullTextIndex.OBJECT_TYPE_FIELD_NAME).toString());
         attributes.add(new SearchResponse.Str(FullTextIndex.OBJECT_TYPE_FIELD_NAME, objectType.getName()));
-        attributes.add(new SearchResponse.Str(FullTextIndex.LOOKUP_KEY_FIELD_NAME, hitAttributes.get(FullTextIndex.LOOKUP_KEY_FIELD_NAME).toString()));
+        attributes.add(new SearchResponse.Str(FullTextIndex.LOOKUP_KEY_FIELD_NAME, hit.getSourceAsMap().get(FullTextIndex.LOOKUP_KEY_FIELD_NAME).toString()));
 
         final Set<AttributeType> templateAttributes = ObjectTemplate.getTemplate(objectType).getAllAttributes();
 
-        for (final RpslAttribute rpslAttribute : fullTextIndex.filterRpslAttributes(templateAttributes, hitAttributes)) {
+
+        for (final RpslAttribute rpslAttribute : fullTextIndex.filterRpslAttributes(templateAttributes, hit.getSourceAsMap())) {
+            if(rpslAttribute.getType().equals(AttributeType.ABUSE_MAILBOX)){
+                abuseMailBoxAttributes.add(rpslAttribute);
+            }
             attributes.add(new SearchResponse.Str(rpslAttribute.getKey(), rpslAttribute.getValue()));
         }
         return attributes;
     }
+
 
     private String getHighlightTag(final String format, final String highlightPost) {
         return SearchRequest.XML_FORMAT.equals(format) ? escape(highlightPost) : highlightPost;
