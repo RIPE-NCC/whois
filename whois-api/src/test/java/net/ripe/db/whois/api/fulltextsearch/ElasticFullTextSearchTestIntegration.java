@@ -221,7 +221,7 @@ public class ElasticFullTextSearchTestIntegration extends AbstractElasticSearchI
     }
 
     @Test
-    public void search_multiple_results_with_search_limit() {
+    public void search_multiple_results_with_first_three_records() {
 
         databaseHelper.addObject(RpslObject.parse(
                 "mntner: DEV1-MNT\n" +
@@ -248,7 +248,7 @@ public class ElasticFullTextSearchTestIntegration extends AbstractElasticSearchI
 
          rebuildIndex();
 
-        final QueryResponse queryResponse = query("q=remark&facet=true&rows=3");
+        final QueryResponse queryResponse = query("q=remark&facet=true&rows=3&start=0");
 
         //search limit to 3, however the total that ES is able to find is 5
         assertThat(queryResponse.getStatus(), is(0));
@@ -1739,7 +1739,7 @@ public class ElasticFullTextSearchTestIntegration extends AbstractElasticSearchI
         rebuildIndex();
         final QueryResponse queryResponse = query("facet=true&format=xml&hl=true&q=(remarks:(secondDomain%20nl))" +
                 "+AND+" +
-                "(object-type:organisation+OR+object-type:person)&start=0&wt=json&rows=3");
+                "(object-type:organisation+OR+object-type:person)&start=0&wt=json");
         assertThat(queryResponse.getResults().getNumFound(), is(1L));
         assertThat(queryResponse.getHighlighting().get("3").containsKey("org-name"), is(false));
         assertThat(queryResponse.getHighlighting().get("3").containsKey("object-type"), is(true));
@@ -2122,6 +2122,87 @@ public class ElasticFullTextSearchTestIntegration extends AbstractElasticSearchI
         assertThat(queryResponse.getResults().get(7).get("lookup-key"), is("31.15.33.192 - 31.15.33.195"));
         assertThat(queryResponse.getResults().get(8).get("lookup-key"), is("31.15.49.116 - 31.15.49.119"));
         assertThat(queryResponse.getResults().get(9).get("lookup-key"), is("83.92.220.64 - 83.92.220.71"));
+    }
+
+    @Test
+    public void search_multiple_results_paginating() {
+
+        databaseHelper.addObject(RpslObject.parse(
+                "mntner: DEV1-MNT\n" +
+                        "remarks: Some remark\n" +
+                        "source: RIPE"));
+        databaseHelper.addObject(RpslObject.parse(
+                "mntner: DEV2-MNT\n" +
+                        "remarks: Another remark\n" +
+                        "source: RIPE"));
+        databaseHelper.addObject(RpslObject.parse(
+                "mntner: DEV3-MNT\n" +
+                        "remarks: Some remark\n" +
+                        "source: RIPE"));
+        databaseHelper.addObject(RpslObject.parse(
+                "person: First Last\n" +
+                        "nic-hdl: AA1-RIPE\n" +
+                        "remarks: Other remark\n" +
+                        "source: RIPE"));
+        databaseHelper.addObject(RpslObject.parse(
+                "person: First Middle Last\n" +
+                        "nic-hdl: AA2-RIPE\n" +
+                        "remarks: Other remark\n" +
+                        "source: RIPE"));
+
+        rebuildIndex();
+
+        final QueryResponse queryResponse = query("q=remark&facet=true&rows=3&start=1");
+
+        //search limit to 3, however the total that ES is able to find is 5
+        assertThat(queryResponse.getStatus(), is(0));
+        assertThat(queryResponse.getResults(), hasSize(3));
+        assertThat(queryResponse.getResults().getNumFound(), is(5L));
+    }
+
+    @Test
+    public void search_multiple_results_paginating_last_records() {
+
+        databaseHelper.addObject(RpslObject.parse(
+                "mntner: DEV1-MNT\n" +
+                        "remarks: Some remark\n" +
+                        "source: RIPE"));
+        databaseHelper.addObject(RpslObject.parse(
+                "mntner: DEV2-MNT\n" +
+                        "remarks: Another remark\n" +
+                        "source: RIPE"));
+        databaseHelper.addObject(RpslObject.parse(
+                "mntner: DEV3-MNT\n" +
+                        "remarks: Some remark\n" +
+                        "source: RIPE"));
+        databaseHelper.addObject(RpslObject.parse(
+                "person: First Last\n" +
+                        "nic-hdl: AA1-RIPE\n" +
+                        "remarks: Other remark\n" +
+                        "source: RIPE"));
+        databaseHelper.addObject(RpslObject.parse(
+                "person: First Middle Last\n" +
+                        "nic-hdl: AA2-RIPE\n" +
+                        "remarks: Other remark\n" +
+                        "source: RIPE"));
+
+        rebuildIndex();
+
+        final QueryResponse queryResponse = query("q=remark&facet=true&rows=3&start=3");
+
+        //search limit to 3, however the total that ES is able to find is 5
+        assertThat(queryResponse.getStatus(), is(0));
+        assertThat(queryResponse.getResults(), hasSize(2));
+        assertThat(queryResponse.getResults().getNumFound(), is(5L));
+    }
+
+    @Test
+    public void search_multiple_results_paginating_bad_input() {
+        final BadRequestException badRequestException = assertThrows(BadRequestException.class, () -> {
+            query("q=remark&facet=true&rows=3&start=4");
+        });
+        assertThat(badRequestException.getMessage(), is("HTTP 400 Bad Request"));
+        assertThat(badRequestException.getResponse().readEntity(String.class), is("Start parameter can not be bigger than rows parameter"));
     }
 
     @Test

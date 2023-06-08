@@ -55,11 +55,11 @@ public class FullTextSearchService {
                             .setFormat(writerType)
                             .setFacet(facet)
                             .build(), request));
-        } catch (final IllegalArgumentException e) {
+        } catch (IllegalArgumentException e) {
             return badRequest(e.getMessage());
-        } catch (final QueryException qe) {
+        } catch (QueryException qe) {
             throw RestServiceHelper.createWebApplicationException(qe, request);
-        } catch (final Exception e) {
+        } catch (Exception e) {
             LOGGER.error(e.getMessage(), e);
             return internalServerError("Unexpected error");
         }

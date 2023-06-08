@@ -6,7 +6,6 @@ import net.ripe.db.whois.api.autocomplete.ElasticSearchCondition;
 import net.ripe.db.whois.api.elasticsearch.ElasticIndexService;
 import net.ripe.db.whois.api.elasticsearch.ElasticSearchAccountingCallback;
 import net.ripe.db.whois.common.ApplicationVersion;
-import net.ripe.db.whois.common.dao.RpslObjectDao;
 import net.ripe.db.whois.common.rpsl.AttributeType;
 import net.ripe.db.whois.common.rpsl.ObjectTemplate;
 import net.ripe.db.whois.common.rpsl.ObjectType;
@@ -30,7 +29,6 @@ import org.elasticsearch.search.sort.SortBuilders;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Conditional;
 import org.springframework.stereotype.Component;
@@ -56,7 +54,6 @@ public class ElasticFulltextSearch extends FulltextSearch {
     private final ElasticIndexService elasticIndexService;
 
     private final Source source;
-    private final RpslObjectDao objectDao;
 
     //Truncate after 100k of characters
     private static final int HIGHLIGHT_OFFSET_SIZE = 100000;
@@ -66,7 +63,6 @@ public class ElasticFulltextSearch extends FulltextSearch {
     @Autowired
     public ElasticFulltextSearch(final FullTextIndex fullTextIndex,
                                  final ElasticIndexService elasticIndexService,
-                                 @Qualifier("jdbcRpslObjectSlaveDao") final RpslObjectDao rpslObjectDao,
                                  final AccessControlListManager accessControlListManager,
                                  final SourceContext sourceContext,
                                  final ApplicationVersion applicationVersion,
@@ -76,7 +72,6 @@ public class ElasticFulltextSearch extends FulltextSearch {
         this.fullTextIndex = fullTextIndex;
         this.accessControlListManager = accessControlListManager;
         this.source = sourceContext.getCurrentSource();
-        this.objectDao = rpslObjectDao;
         this.maxResultSize = maxResultSize;
         this.elasticIndexService = elasticIndexService;
     }
@@ -89,6 +84,9 @@ public class ElasticFulltextSearch extends FulltextSearch {
             throw new IllegalArgumentException("Too many results requested, the maximum allowed is " + maxResultSize);
         }
 
+        if (searchRequest.getRows() < searchRequest.getStart()){
+            throw new IllegalArgumentException("Start parameter can not be bigger than rows parameter");
+        }
         return new ElasticSearchAccountingCallback<SearchResponse>(accessControlListManager, remoteAddr, source) {
 
             @Override

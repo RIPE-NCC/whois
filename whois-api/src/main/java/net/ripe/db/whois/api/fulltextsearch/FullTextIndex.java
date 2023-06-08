@@ -308,11 +308,11 @@ public class FullTextIndex extends RebuildableIndex {
         return new RpslObject(rpslObject.getObjectId(), attributes);
     }
 
-    public List<RpslAttribute> filterRpslAttributes(final Set<AttributeType> attributeType, final Map<String, Object> hitAttributes) {
+    public List<RpslAttribute> filterRpslAttributes(final Set<AttributeType> attributeTypes, final Map<String, Object> hitAttributes) {
 
         List<RpslAttribute> attributes = Lists.newArrayList();
 
-        for (final AttributeType attribute : attributeType) {
+        for (final AttributeType attribute : attributeTypes) {
             if (SKIPPED_ATTRIBUTES.contains(attribute)) {
                 continue;
             }
