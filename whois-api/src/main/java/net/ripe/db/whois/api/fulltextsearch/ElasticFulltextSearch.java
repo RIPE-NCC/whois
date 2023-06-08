@@ -114,7 +114,7 @@ public class ElasticFulltextSearch extends FulltextSearch {
                 final org.elasticsearch.action.search.SearchResponse fulltextResponse = elasticIndexService.getClient().search(fulltextRequest, RequestOptions.DEFAULT);
                 final SearchHit[] hits = fulltextResponse.getHits().getHits();
 
-                LOGGER.info("ElasticSearch {} hits for the query: {}", hits.length, searchRequest.getQuery());
+                LOGGER.debug("ElasticSearch {} hits for the query: {}", hits.length, searchRequest.getQuery());
                 return prepareResponse(fulltextResponse, hits, searchRequest, stopwatch);
             }
         }.search();
