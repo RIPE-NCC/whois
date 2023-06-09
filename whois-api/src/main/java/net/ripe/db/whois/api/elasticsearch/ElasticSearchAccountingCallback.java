@@ -53,17 +53,6 @@ public abstract class ElasticSearchAccountingCallback<T> {
 
     protected abstract T doSearch() throws IOException;
 
-    protected void account(final ObjectType objectType, final List<RpslAttribute> abuseAttributes){
-        if (enabled && accessControlListManager.requiresAcl(objectType, abuseAttributes, source)) {
-            if (accountingLimit == -1) {
-                accountingLimit = accessControlListManager.getPersonalObjects(remoteAddress);
-            }
-
-            if (++accountedObjects > accountingLimit) {
-                throw new QueryException(QueryCompletionInfo.BLOCKED, QueryMessages.accessDeniedTemporarily(remoteAddress));
-            }
-        }
-    }
     protected void account(final RpslObject rpslObject) {
         if (enabled && accessControlListManager.requiresAcl(rpslObject, source)) {
             if (accountingLimit == -1) {

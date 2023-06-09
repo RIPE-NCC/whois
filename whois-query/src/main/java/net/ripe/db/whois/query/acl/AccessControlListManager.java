@@ -57,15 +57,6 @@ public class AccessControlListManager {
                 || (ObjectType.ROLE.equals(objectType) && rpslObject.findAttributes(AttributeType.ABUSE_MAILBOX).isEmpty());
     }
 
-    public boolean requiresAcl(final ObjectType objectType, final List<RpslAttribute> abuseAttributes,
-                               final Source source) {
-        if (source.isGrs()) {
-            return false;
-        }
-        return ObjectType.PERSON.equals(objectType)
-                || (ObjectType.ROLE.equals(objectType) && abuseAttributes.isEmpty());
-    }
-
     public boolean isDenied(final InetAddress remoteAddress) {
         return resourceConfiguration.isDenied(remoteAddress);
     }
