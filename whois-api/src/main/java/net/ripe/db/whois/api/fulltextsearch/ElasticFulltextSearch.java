@@ -7,6 +7,7 @@ import net.ripe.db.whois.api.elasticsearch.ElasticIndexService;
 import net.ripe.db.whois.api.elasticsearch.ElasticSearchAccountingCallback;
 import net.ripe.db.whois.common.ApplicationVersion;
 import net.ripe.db.whois.common.rpsl.AttributeType;
+import net.ripe.db.whois.common.rpsl.ObjectTemplate;
 import net.ripe.db.whois.common.rpsl.ObjectType;
 import net.ripe.db.whois.common.rpsl.RpslAttribute;
 import net.ripe.db.whois.common.rpsl.RpslObject;
@@ -39,6 +40,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
@@ -105,20 +107,20 @@ public class ElasticFulltextSearch extends FulltextSearch {
                     final ObjectType objectType = ObjectType.getByName(hitAttributes.get(FullTextIndex.OBJECT_TYPE_FIELD_NAME).toString());
                     final String pKey = hitAttributes.get(FullTextIndex.LOOKUP_KEY_FIELD_NAME).toString();
 
-                    //TODO: check if ts needed as pslObject expects first attribute to be  objectType
-                    attributes.add(new RpslAttribute(objectType.getName(), pKey));
-
+                    responseStrs.add(new SearchResponse.Str(FullTextIndex.PRIMARY_KEY_FIELD_NAME, hit.getId()));
                     responseStrs.add(new SearchResponse.Str(FullTextIndex.OBJECT_TYPE_FIELD_NAME, objectType.getName()));
                     responseStrs.add(new SearchResponse.Str(FullTextIndex.LOOKUP_KEY_FIELD_NAME, pKey));
-                    hitAttributes.entrySet().forEach( (attribute) ->  {
+                    
+                    final Set<AttributeType> templateAttributes = ObjectTemplate.getTemplate(objectType).getAllAttributes();
 
-                        //Multiple values for single attributeType
-                        filterRpslAttributes(attribute).forEach( (rpslAttribute) -> {
-                            attributes.add(rpslAttribute);
-                            responseStrs.add(new SearchResponse.Str(rpslAttribute.getKey(), rpslAttribute.getValue()));
-                        });
-                    });
-
+                    for (final AttributeType attributeType : templateAttributes) {
+                        if (hitAttributes.containsKey(attributeType.getName())){
+                            filterRpslAttributes(attributeType.getName(), hitAttributes.get(attributeType.getName())).forEach((rpslAttribute) -> {
+                                attributes.add(rpslAttribute);
+                                responseStrs.add(new SearchResponse.Str(rpslAttribute.getKey(), rpslAttribute.getValue()));
+                            });
+                        }
+                    }
                     account(new RpslObject(attributes));
 
                     resultDocument.setStrs(responseStrs);
@@ -191,23 +193,22 @@ public class ElasticFulltextSearch extends FulltextSearch {
         return searchResponse;
     }
 
-    private List<RpslAttribute> filterRpslAttributes(final Map.Entry<String, Object> attribute) {
-
-      final AttributeType type = AttributeType.getByName(attribute.getKey());
-      if (FullTextIndex.SKIPPED_ATTRIBUTES.contains(type)) {
+    private List<RpslAttribute> filterRpslAttributes(final String attributeKey, final Object attributeValue) {
+        if (attributeValue == null){
+            return Collections.emptyList();
+        }
+        final AttributeType type = AttributeType.getByName(attributeKey);
+        if (FullTextIndex.SKIPPED_ATTRIBUTES.contains(type)) {
           return Collections.emptyList();
-      }
+        }
 
-      final Object attributeValues = attribute.getKey();
-      if (attributeValues == null){
-          return Collections.emptyList();
-      }
+        if (attributeValue instanceof List){
+            return filterValues(type, (List<String>) attributeValue);
+        } else {
+            return filterValue(type, (String) attributeValue) == null ? Collections.emptyList() :
+                    List.of(new RpslAttribute(type, filterValue(type, (String) attributeValue)));
+        }
 
-      return attributeValues instanceof List ?
-              filterValues(type, (List<String>) attributeValues) :
-              filterValue(type, (String) attributeValues) == null?
-                      Collections.emptyList() :
-                      Arrays.asList(new RpslAttribute(type, filterValue(type, (String) attributeValues)));
     }
 
     private String getHighlightTag(final String format, final String highlightPost) {
