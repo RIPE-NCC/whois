@@ -1,6 +1,7 @@
 package net.ripe.db.whois.update.handler.validator.keycert;
 
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.Lists;
 import net.ripe.db.whois.common.DateTimeProvider;
 import net.ripe.db.whois.common.Message;
 import net.ripe.db.whois.common.Messages;
@@ -19,6 +20,9 @@ import net.ripe.db.whois.update.keycert.PgpPublicKeyWrapper;
 import org.bouncycastle.bcpg.PublicKeyAlgorithmTags;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+
+import java.util.Collections;
+import java.util.List;
 
 @Component
 public class PgpKeycertValidator implements BusinessRuleValidator {
@@ -39,17 +43,17 @@ public class PgpKeycertValidator implements BusinessRuleValidator {
     }
 
     @Override
-    public void validate(final PreparedUpdate update, final UpdateContext updateContext) {
+    public List<Message> performValidation(final PreparedUpdate update, final UpdateContext updateContext) {
         final Subject subject = updateContext.getSubject(update);
-        if (subject.hasPrincipal(Principal.OVERRIDE_MAINTAINER) || subject.hasPrincipal(Principal.ALLOC_MAINTAINER)) {
-            return;
+        if (subject.hasPrincipal(Principal.ALLOC_MAINTAINER)) {
+            return Collections.emptyList();
         }
 
         final RpslObject updatedObject = update.getUpdatedObject();
 
         final CIString method = updatedObject.getValueOrNullForAttribute(AttributeType.METHOD);
         if (!METHOD_PGP.equals(method)) {
-            return;
+            return Collections.emptyList();
         }
 
         final PgpPublicKeyWrapper wrapper;
@@ -57,26 +61,27 @@ public class PgpKeycertValidator implements BusinessRuleValidator {
             wrapper = PgpPublicKeyWrapper.parse(updatedObject);
         } catch (Exception e) {
             updateContext.log(new Message(Messages.Type.ERROR, "Unable to parse PGP keycert"), e);
-            return;
+            return Collections.emptyList();
         }
 
+        final List<Message> messages = Lists.newArrayList();
         if (wrapper.isExpired(dateTimeProvider)) {
-            updateContext.addMessage(update, UpdateMessages.publicKeyHasExpired(wrapper.getKeyId()));
+            messages.add(UpdateMessages.publicKeyHasExpired(wrapper.getKeyId()));
         }
 
         if (wrapper.isRevoked()) {
-            updateContext.addMessage(update, UpdateMessages.publicKeyIsRevoked(wrapper.getKeyId()));
+            messages.add(UpdateMessages.publicKeyIsRevoked(wrapper.getKeyId()));
         }
 
         switch (wrapper.getPublicKey().getAlgorithm()) {
             case PublicKeyAlgorithmTags.DSA:
                 if (wrapper.getPublicKey().getBitStrength() < MINIMUM_KEY_LENGTH_DSA) {
-                    updateContext.addMessage(update, UpdateMessages.publicKeyLengthIsWeak("DSA", MINIMUM_KEY_LENGTH_DSA, wrapper.getPublicKey().getBitStrength()));
+                    messages.add(UpdateMessages.publicKeyLengthIsWeak("DSA", MINIMUM_KEY_LENGTH_DSA, wrapper.getPublicKey().getBitStrength()));
                 }
                 break;
             case PublicKeyAlgorithmTags.RSA_GENERAL:
                 if (wrapper.getPublicKey().getBitStrength() < MINIMUM_KEY_LENGTH_RSA) {
-                    updateContext.addMessage(update, UpdateMessages.publicKeyLengthIsWeak("RSA", MINIMUM_KEY_LENGTH_RSA, wrapper.getPublicKey().getBitStrength()));
+                    messages.add(UpdateMessages.publicKeyLengthIsWeak("RSA", MINIMUM_KEY_LENGTH_RSA, wrapper.getPublicKey().getBitStrength()));
                 }
                 break;
             default:
@@ -84,6 +89,13 @@ public class PgpKeycertValidator implements BusinessRuleValidator {
                 updateContext.log(new Message(Messages.Type.INFO, "Skipping public key length check for algorithm %d", wrapper.getPublicKey().getAlgorithm()));
                 break;
         }
+
+        return messages;
+    }
+
+    @Override
+    public boolean isSkipForOverride() {
+        return true;
     }
 
     @Override

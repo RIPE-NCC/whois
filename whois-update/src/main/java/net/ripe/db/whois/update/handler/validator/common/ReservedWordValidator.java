@@ -2,6 +2,7 @@ package net.ripe.db.whois.update.handler.validator.common;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Maps;
+import net.ripe.db.whois.common.Message;
 import net.ripe.db.whois.common.domain.CIString;
 import net.ripe.db.whois.common.rpsl.ObjectType;
 import net.ripe.db.whois.common.rpsl.RpslObject;
@@ -12,6 +13,9 @@ import net.ripe.db.whois.update.domain.UpdateMessages;
 import net.ripe.db.whois.update.handler.validator.BusinessRuleValidator;
 import org.springframework.stereotype.Component;
 
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -75,25 +79,25 @@ public class ReservedWordValidator implements BusinessRuleValidator {
     }
 
     @Override
-    public void validate(final PreparedUpdate update, final UpdateContext updateContext) {
+    public List<Message> performValidation(final PreparedUpdate update, final UpdateContext updateContext) {
         final RpslObject updatedObject = update.getUpdatedObject();
         if (updatedObject == null) {
-            return;
+            return Collections.emptyList();
         }
 
         final CIString primaryKey = updatedObject.getKey();
 
         if (RESERVED_WORDS.contains(primaryKey)) {
-            updateContext.addMessage(update, UpdateMessages.reservedNameUsed(primaryKey.toLowerCase()));
-            return;
+            return Arrays.asList(UpdateMessages.reservedNameUsed(primaryKey.toLowerCase()));
         }
 
         for (Map.Entry<CIString, ObjectType> entry : RESERVED_PREFIXES.entrySet()) {
             if (primaryKey.startsWith(entry.getKey()) && (!updatedObject.getType().equals(entry.getValue()))) {
-                updateContext.addMessage(update, UpdateMessages.reservedPrefixUsed(entry.getKey(), entry.getValue()));
-                return;
+                return Arrays.asList(UpdateMessages.reservedPrefixUsed(entry.getKey(), entry.getValue()));
             }
         }
+
+        return Collections.emptyList();
     }
 
     @Override

@@ -39,6 +39,7 @@ public class RequestParamRegexRule extends Rule {
     private String apply(final String target, final HttpServletResponse response) throws IOException {
         if (HttpStatus.isClientError(responseCode) || HttpStatus.isServerError(responseCode)) {
             response.sendError(responseCode);
+            this.setHandling(true);
         } else {
             response.setStatus(responseCode);
         }

@@ -20,6 +20,7 @@ import net.ripe.db.whois.common.rpsl.RpslObject;
 import net.ripe.db.whois.query.support.TestWhoisLog;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -370,7 +371,45 @@ public class WhoisRdapServiceTestIntegration extends AbstractRdapIntegrationTest
         assertThat(notices.get(1).getDescription().get(0), is("There are multiple language attributes EN, DK in 192.0.0.0 - 192.255.255.255, but only the first language EN was returned."));
         assertThat(notices.get(2).getTitle(), is("Source"));
         assertThat(notices.get(3).getTitle(), is("Terms and Conditions"));
+    }
 
+    //
+
+    @Test
+    public void lookup_org_single_language_codes() {
+        databaseHelper.addObject("" +
+                "organisation:   ORG-AC1-TEST\n" +
+                "org-name:       Acme Carpets\n" +
+                "org-type:       OTHER\n" +
+                "address:        Singel 258\n" +
+                "e-mail:         bitbucket@ripe.net\n" +
+                "descr:          Acme Carpet Organisation\n" +
+                "remark:         some remark\n" +
+                "phone:          +31 1234567\n" +
+                "fax-no:         +31 98765432\n" +
+                "geoloc:         52.375599 4.899902\n" +
+                "language:       DK\n" +
+                "admin-c:        TP1-TEST\n" +
+                "mnt-by:         OWNER-MNT\n" +
+                "created:        2022-08-14T11:48:28Z\n" +
+                "last-modified:  2022-10-25T12:22:39Z\n" +
+                "source:         TEST");
+
+        final Entity entity = createResource("entity/ORG-AC1-TEST")
+                .request(MediaType.APPLICATION_JSON_TYPE)
+                .get(Entity.class);
+
+        assertThat(entity.getHandle(), equalTo("ORG-AC1-TEST"));
+        assertThat(entity.getLang(), is("DK"));
+
+        // no notice for single language
+        final List<Notice> notices = entity.getNotices();
+        assertThat(notices, hasSize(4));
+        Collections.sort(notices);
+        assertThat(notices.get(0).getTitle(), is("Filtered"));
+        assertThat(notices.get(1).getTitle(), is("Source"));
+        assertThat(notices.get(2).getTitle(), is("Terms and Conditions"));
+        assertThat(notices.get(3).getTitle(), is("Whois Inaccuracy Reporting"));
     }
 
     @Test
@@ -453,7 +492,6 @@ public class WhoisRdapServiceTestIntegration extends AbstractRdapIntegrationTest
 
     @Test
     public void lookup_inetnum() {
-
         databaseHelper.addObject("" +
                 "inetnum:      192.132.74.0 - 192.132.77.255\n" +
                 "netname:      TEST-NET-NAME\n" +
@@ -535,6 +573,39 @@ public class WhoisRdapServiceTestIntegration extends AbstractRdapIntegrationTest
             assertErrorDescription(e, "'invalid' is not an IP string literal.");
         }
     }
+
+    @Disabled("TODO: handle multiple mnt-by values")
+    @Test
+    public void lookup_inetnum_multiple_mntby() {
+        databaseHelper.addObject("" +
+                "mntner:         SECOND-MNT\n" +
+                "descr:          Second Maintainer\n" +
+                "admin-c:        TP1-TEST\n" +
+                "upd-to:         noreply@ripe.net\n" +
+                "auth:           MD5-PW $1$d9fKeTr2$Si7YudNf4rUGmR71n/cqk/ #test\n" +
+                "mnt-by:         SECOND-MNT\n" +
+                "created:        2011-07-28T00:35:42Z\n" +
+                "last-modified:  2019-02-28T10:14:46Z\n" +
+                "source:         TEST");
+        databaseHelper.addObject("" +
+                "inetnum:      192.132.74.0 - 192.132.77.255\n" +
+                "netname:      TEST-NET-NAME\n" +
+                "descr:        TEST network\n" +
+                "country:      NL\n" +
+                "tech-c:       TP1-TEST\n" +
+                "status:       OTHER\n" +
+                "mnt-by:       OWNER-MNT,SECOND-MNT\n" +
+                "created:         2022-08-14T11:48:28Z\n" +
+                "last-modified:   2022-10-25T12:22:39Z\n" +
+                "source:       TEST");
+        ipTreeUpdater.rebuild();
+
+        Ip ip = createResource("ip/192.132.75.165")
+                .request(MediaType.APPLICATION_JSON_TYPE)
+                .get(Ip.class);
+    }
+
+
     // inet6num
 
     @Test
@@ -1088,6 +1159,20 @@ public class WhoisRdapServiceTestIntegration extends AbstractRdapIntegrationTest
     }
 
     @Test
+    public void not_found() {
+        try {
+            createResource("test")
+                    .request(MediaType.APPLICATION_JSON_TYPE)
+                    .get(RdapObject.class);
+            fail();
+        } catch (NotFoundException e) {
+            assertErrorStatus(e, 404);
+            assertErrorTitle(e, "HTTP 404 Not Found");
+        }
+    }
+
+
+    @Test
     public void domain_not_found() {
         try {
             createResource("domain/10.in-addr.arpa")
@@ -1452,7 +1537,6 @@ public class WhoisRdapServiceTestIntegration extends AbstractRdapIntegrationTest
             assertErrorStatus(e, 400);
             assertErrorTitle(e, "400 Bad Request");
             assertErrorDescription(e, "unknown objectType");
-
         }
     }
 
@@ -1497,6 +1581,7 @@ public class WhoisRdapServiceTestIntegration extends AbstractRdapIntegrationTest
             assertErrorTitle(e, "404 Not Found");
         }
     }
+
     @Test
     public void lookup_inetnum_abuse_contact_as_vcard() {
         databaseHelper.addObject("" +

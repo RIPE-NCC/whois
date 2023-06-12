@@ -11,7 +11,6 @@ import org.elasticsearch.client.RestHighLevelClient;
 import org.elasticsearch.client.indices.CreateIndexRequest;
 import org.elasticsearch.common.xcontent.XContentBuilder;
 import org.elasticsearch.common.xcontent.XContentFactory;
-
 import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -91,13 +90,14 @@ public class ElasticSearchHelper {
                 .startObject("analysis")
                      .startObject("analyzer")
                          .startObject("fulltext_analyzer")
+                            .field("type", "custom")
                             .field("tokenizer", "whitespace")
                             .field("filter", new String[]{"my_word_delimiter_graph", "lowercase", "asciifolding", "english_stop" })
                          .endObject()
                         .startObject("my_email_analyzer")
                             .field("type", "custom")
                             .field("tokenizer", "uax_url_email")
-                            .field("filter", new String[]{"stop", "lowercase"})
+                            .field("filter", new String[]{"my_word_email_delimiter_graph", "lowercase", "english_stop"})
                         .endObject()
                      .endObject()
                     .startObject("filter")
@@ -112,6 +112,11 @@ public class ElasticSearchHelper {
                             .field("catenate_numbers", true)
                             .field("preserve_original", true)
                             .field("split_on_case_change", true)
+                        .endObject()
+                        .startObject("my_word_email_delimiter_graph")
+                            .field("type", "word_delimiter_graph")
+                            .field("preserve_original", true)
+                            .field("split_on_case_change", false)
                         .endObject()
                     .endObject()
                 .endObject().endObject();
@@ -131,10 +136,11 @@ public class ElasticSearchHelper {
                              .startObject("custom")
                                  .field("type", "text")
                                  .field("analyzer", "fulltext_analyzer")
-                                 .field("search_analyzer", "standard")
+                                 .field("search_analyzer", "fulltext_analyzer")
                              .endObject()
                              .startObject("raw")
                                 .field("type", "keyword")
+                                .field("ignore_above", 10922)
                              .endObject()
                          .endObject()
                       .endObject()
@@ -146,10 +152,16 @@ public class ElasticSearchHelper {
              if(type.getSyntax() == AttributeSyntax.EMAIL_SYNTAX) {
                  mappings.startObject(type.getName())
                              .field("type", "text")
+                             .field("analyzer", "fulltext_analyzer")
+                             .field("search_analyzer", "fulltext_analyzer")
                              .startObject("fields")
                                  .startObject("custom")
                                     .field("type", "text")
                                     .field("analyzer", "my_email_analyzer")
+                                 .endObject()
+                                 .startObject("raw")
+                                     .field("type", "keyword")
+                                     .field("ignore_above", 10922)
                                  .endObject()
                              .endObject()
                          .endObject();

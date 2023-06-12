@@ -22,7 +22,7 @@ public final class ValidatorTestHelper {
         final PreparedUpdate preparedUpdate = new PreparedUpdate(update, originalObject, updatedObject, Action.MODIFY);
         final UpdateContext updateContext = new UpdateContext(mock(LoggerContext.class));
 
-        subject.validate(preparedUpdate, updateContext);
+       subject.validate(preparedUpdate, updateContext);
 
         return updateContext.getMessages(preparedUpdate);
     }
@@ -33,7 +33,7 @@ public final class ValidatorTestHelper {
         final PreparedUpdate preparedUpdate = new PreparedUpdate(update, originalObject, updatedObject, Action.DELETE);
         final UpdateContext updateContext = new UpdateContext(mock(LoggerContext.class));
 
-        subject.validate(preparedUpdate, updateContext);
+       subject.validate(preparedUpdate, updateContext);
 
         return updateContext.getMessages(preparedUpdate);
     }

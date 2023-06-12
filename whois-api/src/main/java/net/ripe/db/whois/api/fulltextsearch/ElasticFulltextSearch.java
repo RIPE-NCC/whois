@@ -3,10 +3,10 @@ package net.ripe.db.whois.api.fulltextsearch;
 import com.google.common.base.Stopwatch;
 import com.google.common.collect.Lists;
 import net.ripe.db.whois.api.autocomplete.ElasticSearchCondition;
+import net.ripe.db.whois.api.elasticsearch.ElasticIndexService;
 import net.ripe.db.whois.api.elasticsearch.ElasticSearchAccountingCallback;
 import net.ripe.db.whois.common.ApplicationVersion;
 import net.ripe.db.whois.common.dao.RpslObjectDao;
-import net.ripe.db.whois.api.elasticsearch.ElasticIndexService;
 import net.ripe.db.whois.common.rpsl.RpslAttribute;
 import net.ripe.db.whois.common.rpsl.RpslObject;
 import net.ripe.db.whois.common.source.Source;
@@ -23,7 +23,6 @@ import org.elasticsearch.search.aggregations.bucket.terms.Terms;
 import org.elasticsearch.search.aggregations.bucket.terms.TermsAggregationBuilder;
 import org.elasticsearch.search.builder.SearchSourceBuilder;
 import org.elasticsearch.search.fetch.subphase.highlight.HighlightBuilder;
-import org.elasticsearch.search.fetch.subphase.highlight.HighlightField;
 import org.elasticsearch.search.sort.SortBuilder;
 import org.elasticsearch.search.sort.SortBuilders;
 import org.slf4j.Logger;
@@ -47,7 +46,7 @@ public class ElasticFulltextSearch extends FulltextSearch {
     private static final Logger LOGGER = LoggerFactory.getLogger(ElasticFulltextSearch.class);
 
     public static final TermsAggregationBuilder AGGREGATION_BUILDER = AggregationBuilders.terms("types-count").field("object-type.raw");
-    public static final List<SortBuilder<?>> SORT_BUILDERS = Arrays.asList(SortBuilders.scoreSort(), SortBuilders.fieldSort("lookup-key.keyword").unmappedType("string"));
+    public static final List<SortBuilder<?>> SORT_BUILDERS = Arrays.asList(SortBuilders.scoreSort(), SortBuilders.fieldSort("lookup-key.raw").unmappedType("keyword"));
 
     private final FullTextIndex fullTextIndex;
     private final AccessControlListManager accessControlListManager;
@@ -55,6 +54,9 @@ public class ElasticFulltextSearch extends FulltextSearch {
 
     private final Source source;
     private final RpslObjectDao objectDao;
+
+    //Truncate after 100k of characters
+    private static final int HIGHLIGHT_OFFSET_SIZE = 100000;
 
     private final int maxResultSize;
 
@@ -93,6 +95,7 @@ public class ElasticFulltextSearch extends FulltextSearch {
                 final HighlightBuilder highlightBuilder = new HighlightBuilder()
                         .postTags(getHighlightTag(searchRequest.getFormat(), searchRequest.getHighlightPost()))
                         .preTags(getHighlightTag(searchRequest.getFormat(), searchRequest.getHighlightPre()))
+                        .maxAnalyzedOffset(HIGHLIGHT_OFFSET_SIZE)
                         .field("*");
 
                 final SearchSourceBuilder sourceBuilder = new SearchSourceBuilder()
@@ -108,6 +111,7 @@ public class ElasticFulltextSearch extends FulltextSearch {
                 final org.elasticsearch.action.search.SearchResponse fulltextResponse = elasticIndexService.getClient().search(fulltextRequest, RequestOptions.DEFAULT);
                 final SearchHit[] hits = fulltextResponse.getHits().getHits();
 
+                LOGGER.debug("ElasticSearch {} hits for the query: {}", hits.length, searchRequest.getQuery());
                 final List<RpslObject> results = Lists.newArrayList();
                 int resultSize = Math.min(maxResultSize,Long.valueOf(fulltextResponse.getHits().getTotalHits().value).intValue());
 
@@ -167,15 +171,22 @@ public class ElasticFulltextSearch extends FulltextSearch {
         final SearchResponse.Lst documentLst = new SearchResponse.Lst(hit.getId());
         final List<SearchResponse.Arr> documentArrs = Lists.newArrayList();
 
-        for (final HighlightField highlightField : hit.getHighlightFields().values()) {
-
-            if(highlightField.name().contains(".custom")) {
+        hit.getHighlightFields().forEach((attribute, highlightField) -> {
+            if("lookup-key".equals(attribute) || "lookup-key.custom".equals(attribute)){
+                return;
+            }
+            if(attribute.contains(".custom")) {
                 final SearchResponse.Arr arr = new SearchResponse.Arr(StringUtils.substringBefore(highlightField.name(), ".custom"));
                 arr.setStr(new SearchResponse.Str(null, StringUtils.join(highlightField.getFragments(), ",")));
                 documentArrs.add(arr);
-            }
-        }
 
+                //Somehow if searched term contains "." highlight field custom has no vlue for it.
+            } else if(!hit.getHighlightFields().containsKey(attribute + ".custom"))  {
+                final SearchResponse.Arr arr = new SearchResponse.Arr(highlightField.name());
+                arr.setStr(new SearchResponse.Str(null, StringUtils.join(highlightField.getFragments(), ",")));
+                documentArrs.add(arr);
+            }
+        });
         documentLst.setArrs(documentArrs);
         return documentLst;
     }

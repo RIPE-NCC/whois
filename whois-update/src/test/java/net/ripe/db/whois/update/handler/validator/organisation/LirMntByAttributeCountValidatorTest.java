@@ -54,7 +54,7 @@ public class LirMntByAttributeCountValidatorTest {
     public void update_of_not_lir_with_single_mntner() {
         when(update.getReferenceObject()).thenReturn(NON_LIR_ORG);
 
-        subject.validate(update, updateContext);
+       subject.validate(update, updateContext);
 
         verify(update).getReferenceObject();
         verifyNoMoreInteractions(update);
@@ -65,7 +65,7 @@ public class LirMntByAttributeCountValidatorTest {
     public void update_of_not_lir_with_multiple_mntner() {
         when(update.getReferenceObject()).thenReturn(NON_LIR_ORG);
 
-        subject.validate(update, updateContext);
+       subject.validate(update, updateContext);
 
         verify(update).getReferenceObject();
         verifyNoMoreInteractions(update);
@@ -78,7 +78,7 @@ public class LirMntByAttributeCountValidatorTest {
         when(update.getReferenceObject()).thenReturn(LIR_ORG);
         when(update.getUpdatedObject()).thenReturn(LIR_ORG_SINGLE_USER_MNTNER);
 
-        subject.validate(update, updateContext);
+       subject.validate(update, updateContext);
 
         verify(maintainers).isRsMaintainer(ciString("MNT1-LIR"));
         verifyNoMoreInteractions(maintainers);
@@ -95,7 +95,7 @@ public class LirMntByAttributeCountValidatorTest {
         when(update.getReferenceObject()).thenReturn(LIR_ORG);
         when(update.getUpdatedObject()).thenReturn(LIR_ORG_MULTIPLE_USER_MNTNER);
 
-        subject.validate(update, updateContext);
+       subject.validate(update, updateContext);
 
         verify(maintainers).isRsMaintainer(ciString("MNT1-LIR"));
         verify(maintainers).isRsMaintainer(ciString("MNT2-LIR"));

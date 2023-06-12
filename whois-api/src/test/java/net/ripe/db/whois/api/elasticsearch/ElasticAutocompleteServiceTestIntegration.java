@@ -26,6 +26,7 @@ import java.util.stream.Collectors;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.contains;
+import static org.hamcrest.Matchers.containsInAnyOrder;
 import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.empty;
 import static org.hamcrest.Matchers.hasSize;
@@ -555,8 +556,8 @@ public class ElasticAutocompleteServiceTestIntegration extends AbstractElasticSe
                         Lists.newArrayList(AttributeType.NIC_HDL, AttributeType.ABUSE_MAILBOX),
                         "tr1");
 
-        assertThat(getValues(response, "key"), contains("tr1-test", "tr2-test"));
-        assertThat(getValues(response, "abuse-mailbox"), contains(null, "tr1@host.org"));
+        assertThat(getValues(response, "key"), containsInAnyOrder("tr1-test", "tr2-test"));
+        assertThat(getValues(response, "abuse-mailbox"), containsInAnyOrder(null, "tr1@host.org"));
     }
 
     @Test

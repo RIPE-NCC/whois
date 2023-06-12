@@ -1,5 +1,6 @@
 package net.ripe.db.whois.update.handler.validator.organisation;
 
+import net.ripe.db.whois.common.Message;
 import net.ripe.db.whois.common.rpsl.AttributeType;
 import net.ripe.db.whois.common.rpsl.ObjectType;
 import net.ripe.db.whois.update.authentication.Principal;
@@ -29,8 +30,8 @@ import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.Matchers.hasSize;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.lenient;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
@@ -62,108 +63,82 @@ public class LirUserMaintainedAttributesValidatorTest {
     @Test
     public void update_of_non_lir() {
         when(update.getReferenceObject()).thenReturn(NON_LIR_ORG);
-        when(authenticationSubject.hasPrincipal(Principal.OVERRIDE_MAINTAINER)).thenReturn(false);
-        when(authenticationSubject.hasPrincipal(Principal.ALLOC_MAINTAINER)).thenReturn(false);
 
-        subject.validate(update, updateContext);
+       subject.validate(update, updateContext);
 
-        verify(updateContext).getSubject(update);
-        verifyNoMoreInteractions(updateContext);
+        verify(updateContext, never()).addMessage(any(UpdateContainer.class), any(Message.class));
     }
 
     @Test
     public void update_of_address() {
         when(update.getReferenceObject()).thenReturn(LIR_ORG);
-        when(authenticationSubject.hasPrincipal(Principal.OVERRIDE_MAINTAINER)).thenReturn(false);
-        when(authenticationSubject.hasPrincipal(Principal.ALLOC_MAINTAINER)).thenReturn(false);
         when(update.getUpdatedObject()).thenReturn(LIR_ORG_ADDRESS);
 
-        subject.validate(update, updateContext);
+       subject.validate(update, updateContext);
 
-        verify(updateContext).getSubject(update);
         verify(update).getReferenceObject();
         verify(update).getUpdatedObject();
         verify(updateContext).addMessage(update, UpdateMessages.canOnlyBeChangedinLirPortal(AttributeType.ADDRESS));
-        verifyNoMoreInteractions(update);
     }
 
     @Test
     public void update_of_phone() {
         when(update.getReferenceObject()).thenReturn(LIR_ORG);
-        when(authenticationSubject.hasPrincipal(Principal.OVERRIDE_MAINTAINER)).thenReturn(false);
         when(authenticationSubject.hasPrincipal(Principal.ALLOC_MAINTAINER)).thenReturn(false);
         when(update.getUpdatedObject()).thenReturn(LIR_ORG_PHONE);
 
-        subject.validate(update, updateContext);
+       subject.validate(update, updateContext);
 
-        verify(updateContext).getSubject(update);
         verify(update).getReferenceObject();
         verify(update).getUpdatedObject();
         verify(updateContext).addMessage(update, UpdateMessages.canOnlyBeChangedinLirPortal(AttributeType.PHONE));
-        verifyNoMoreInteractions(updateContext);
     }
 
     @Test
     public void update_of_fax() {
         when(update.getReferenceObject()).thenReturn(LIR_ORG);
-        when(authenticationSubject.hasPrincipal(Principal.OVERRIDE_MAINTAINER)).thenReturn(false);
-        when(authenticationSubject.hasPrincipal(Principal.ALLOC_MAINTAINER)).thenReturn(false);
         when(update.getUpdatedObject()).thenReturn(LIR_ORG_FAX);
 
-        subject.validate(update, updateContext);
+       subject.validate(update, updateContext);
 
-        verify(updateContext).getSubject(update);
         verify(update).getReferenceObject();
         verify(update).getUpdatedObject();
         verify(updateContext).addMessage(update, UpdateMessages.canOnlyBeChangedinLirPortal(AttributeType.FAX_NO));
-        verifyNoMoreInteractions(updateContext);
     }
 
     @Test
     public void update_of_email() {
         when(update.getReferenceObject()).thenReturn(LIR_ORG);
-        when(authenticationSubject.hasPrincipal(Principal.OVERRIDE_MAINTAINER)).thenReturn(false);
-        when(authenticationSubject.hasPrincipal(Principal.ALLOC_MAINTAINER)).thenReturn(false);
         when(update.getUpdatedObject()).thenReturn(LIR_ORG_EMAIL);
 
-        subject.validate(update, updateContext);
+       subject.validate(update, updateContext);
 
-        verify(updateContext).getSubject(update);
         verify(update).getReferenceObject();
         verify(update).getUpdatedObject();
         verify(updateContext).addMessage(update, UpdateMessages.canOnlyBeChangedinLirPortal(AttributeType.E_MAIL));
-        verifyNoMoreInteractions(updateContext);
     }
 
     @Test
     public void update_of_org_name() {
         when(update.getReferenceObject()).thenReturn(LIR_ORG);
-        when(authenticationSubject.hasPrincipal(Principal.OVERRIDE_MAINTAINER)).thenReturn(false);
-        when(authenticationSubject.hasPrincipal(Principal.ALLOC_MAINTAINER)).thenReturn(false);
         when(update.getUpdatedObject()).thenReturn(LIR_ORG_ORG_NAME);
 
-        subject.validate(update, updateContext);
+       subject.validate(update, updateContext);
 
-        verify(updateContext).getSubject(update);
         verify(update).getReferenceObject();
         verify(update).getUpdatedObject();
         verify(updateContext).addMessage(update, UpdateMessages.canOnlyBeChangedinLirPortal(AttributeType.ORG_NAME));
-        verifyNoMoreInteractions(updateContext);
     }
 
     @Test
     public void update_of_org_name_case_sensitive() {
         when(update.getReferenceObject()).thenReturn(LIR_ORG);
-        when(authenticationSubject.hasPrincipal(Principal.OVERRIDE_MAINTAINER)).thenReturn(false);
-        when(authenticationSubject.hasPrincipal(Principal.ALLOC_MAINTAINER)).thenReturn(false);
         when(update.getUpdatedObject()).thenReturn(LIR_ORG_ORG_NAME_CASE_SENSITIVE);
 
-        subject.validate(update, updateContext);
+       subject.validate(update, updateContext);
 
-        verify(updateContext).getSubject(update);
         verify(update).getReferenceObject();
         verify(update).getUpdatedObject();
         verify(updateContext).addMessage(update, UpdateMessages.canOnlyBeChangedinLirPortal(AttributeType.ORG_NAME));
-        verifyNoMoreInteractions(updateContext);
     }
 }

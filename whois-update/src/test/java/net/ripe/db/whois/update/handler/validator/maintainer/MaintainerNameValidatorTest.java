@@ -35,7 +35,7 @@ public class MaintainerNameValidatorTest {
 
             assertThat(messages.getMessages().getAllMessages(), hasSize(0));
             final RpslAttribute firstAttribute = object.getAttributes().get(0);
-            assertThat(messages.getMessages(firstAttribute).getAllMessages(), hasItems(UpdateMessages.reservedNameUsed()));
+            assertThat(messages.getMessages(firstAttribute).getAllMessages(), hasItems(UpdateMessages.reservedNameUsed(firstAttribute)));
         }
     }
 }

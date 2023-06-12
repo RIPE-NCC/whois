@@ -11,6 +11,7 @@ import org.springframework.test.context.ContextConfiguration;
 
 import java.time.Duration;
 import java.time.Instant;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
@@ -24,6 +25,10 @@ public abstract class AbstractIntegrationTest extends AbstractDaoIntegrationTest
         for (final ApplicationService applicationService : applicationServices) {
             applicationService.start();
         }
+    }
+
+    protected void setTime(final LocalDateTime localDateTime){
+        testDateTimeProvider.setTime(localDateTime);
     }
 
     @AfterEach

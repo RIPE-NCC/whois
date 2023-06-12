@@ -3024,7 +3024,7 @@ class DomainAuthSpec extends BaseQueryUpdateSpec {
         ack.summary.nrFound == 1
         ack.summary.assertSuccess(1, 1, 0, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
-        ack.countErrorWarnInfo(0, 0, 1)
+        ack.countErrorWarnInfo(0, 1, 1)
         ack.successes.any { it.operation == "Create" && it.key == "[domain] 4.4.e164.arpa" }
         ack.infoSuccessMessagesFor("Create", "[domain] 4.4.e164.arpa") == [
                 "Authorisation override used"]

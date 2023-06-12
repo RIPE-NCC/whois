@@ -1,6 +1,7 @@
 package net.ripe.db.whois.update.handler.validator.common;
 
 import com.google.common.collect.ImmutableList;
+import net.ripe.db.whois.common.Message;
 import net.ripe.db.whois.common.collect.CollectionHelper;
 import net.ripe.db.whois.common.dao.RpslObjectDao;
 import net.ripe.db.whois.common.domain.CIString;
@@ -25,6 +26,9 @@ import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.Nullable;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
 
 @Component
 public class AbuseCDuplicateValidator implements BusinessRuleValidator {
@@ -46,20 +50,22 @@ public class AbuseCDuplicateValidator implements BusinessRuleValidator {
     }
 
     @Override
-    public void validate(final PreparedUpdate update, final UpdateContext updateContext) {
+    public List<Message> performValidation(final PreparedUpdate update, final UpdateContext updateContext) {
         final CIString abuseC = update.getUpdatedObject().getValueOrNullForAttribute(AttributeType.ABUSE_C);
         if (abuseC == null) {
-            return;
+            return Collections.emptyList();
         }
 
         final RpslObject orgAbuseCObject = findOrgAbuseC(update.getUpdatedObject());
         if (orgAbuseCObject == null) {
-            return;
+            return Collections.emptyList();
         }
 
         if (orgAbuseCObject.getValueForAttribute(AttributeType.ABUSE_C).equals(abuseC)) {
-            updateContext.addMessage(update, UpdateMessages.duplicateAbuseC(abuseC, orgAbuseCObject.getKey()));
+            return Arrays.asList(UpdateMessages.duplicateAbuseC(abuseC, orgAbuseCObject.getKey()));
         }
+
+        return Collections.emptyList();
     }
 
     @Override

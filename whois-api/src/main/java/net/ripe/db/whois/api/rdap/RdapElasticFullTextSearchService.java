@@ -38,7 +38,7 @@ import java.util.List;
 @Conditional(ElasticSearchCondition.class)
 public class RdapElasticFullTextSearchService implements RdapFullTextSearch {
 
-    public static final List<SortBuilder<?>> SORT_BUILDERS = Arrays.asList(SortBuilders.scoreSort(), SortBuilders.fieldSort("lookup-key.raw").unmappedType("string"));
+    public static final List<SortBuilder<?>> SORT_BUILDERS = Arrays.asList(SortBuilders.scoreSort(), SortBuilders.fieldSort("lookup-key.raw").unmappedType("keyword"));
 
     private final int maxResultSize;
     private final RpslObjectDao objectDao;

@@ -69,7 +69,7 @@ public class AggregatedByLirStatusValidatorTest {
 
         when(update.getUpdatedObject()).thenReturn(object);
         when(update.getAction()).thenReturn(Action.CREATE);
-        subject.validate(update, updateContext);
+       subject.validate(update, updateContext);
 
         verifyNoMoreInteractions(updateContext);
     }
@@ -83,9 +83,9 @@ public class AggregatedByLirStatusValidatorTest {
 
         when(update.getUpdatedObject()).thenReturn(object);
         when(update.getAction()).thenReturn(Action.CREATE);
-        subject.validate(update, updateContext);
+       subject.validate(update, updateContext);
 
-        verify(updateContext).addMessage(update, object.findAttribute(AttributeType.ASSIGNMENT_SIZE), UpdateMessages.attributeAssignmentSizeNotAllowed());
+        verify(updateContext).addMessage(update, object.findAttribute(AttributeType.ASSIGNMENT_SIZE), UpdateMessages.attributeAssignmentSizeNotAllowed(object.findAttribute(AttributeType.ASSIGNMENT_SIZE)));
     }
 
     @Test
@@ -105,11 +105,11 @@ public class AggregatedByLirStatusValidatorTest {
         when(update.getReferenceObject()).thenReturn(referenceObject);
         when(update.getUpdatedObject()).thenReturn(updatedObject);
 
-        subject.validate(update, updateContext);
+       subject.validate(update, updateContext);
 
         final List<RpslAttribute> assignmentSizeAttributes = updatedObject.findAttributes(AttributeType.ASSIGNMENT_SIZE);
-        verify(updateContext).addMessage(update, assignmentSizeAttributes.get(0), UpdateMessages.attributeAssignmentSizeNotAllowed());
-        verify(updateContext).addMessage(update, assignmentSizeAttributes.get(1), UpdateMessages.attributeAssignmentSizeNotAllowed());
+        verify(updateContext).addMessage(update, assignmentSizeAttributes.get(0), UpdateMessages.attributeAssignmentSizeNotAllowed(assignmentSizeAttributes.get(0)));
+        verify(updateContext).addMessage(update, assignmentSizeAttributes.get(1), UpdateMessages.attributeAssignmentSizeNotAllowed(assignmentSizeAttributes.get(1)));
     }
 
     @Test
@@ -157,7 +157,7 @@ public class AggregatedByLirStatusValidatorTest {
                 "inet6num: 0::/0\n" +
                 "status:   ALLOCATED-BY-RIR"));
 
-        subject.validate(update, updateContext);
+       subject.validate(update, updateContext);
 
         verify(updateContext).addMessage(update, expectedMessage);
         verifyNoMoreInteractions(updateContext);
@@ -183,7 +183,7 @@ public class AggregatedByLirStatusValidatorTest {
         when(rpslObjectDao.getById(1)).thenReturn(parent);
 
         when(update.getUpdatedObject()).thenReturn(object);
-        subject.validate(update, updateContext);
+       subject.validate(update, updateContext);
 
         verify(updateContext).addMessage(update, UpdateMessages.invalidPrefixLength(Ipv6Resource.parse(object.getKey()), 40));
         verifyNoMoreInteractions(updateContext);
@@ -218,7 +218,7 @@ public class AggregatedByLirStatusValidatorTest {
         when(rpslObjectDao.getById(2)).thenReturn(grandParent);
 
         when(update.getUpdatedObject()).thenReturn(object);
-        subject.validate(update, updateContext);
+       subject.validate(update, updateContext);
 
         verify(updateContext).addMessage(update, UpdateMessages.tooManyAggregatedByLirInHierarchy());
         verifyNoMoreInteractions(updateContext);
@@ -254,7 +254,7 @@ public class AggregatedByLirStatusValidatorTest {
         when(rpslObjectDao.getById(2)).thenReturn(child);
 
         when(update.getUpdatedObject()).thenReturn(object);
-        subject.validate(update, updateContext);
+       subject.validate(update, updateContext);
 
         verify(updateContext).addMessage(update, UpdateMessages.tooManyAggregatedByLirInHierarchy());
         verifyNoMoreInteractions(updateContext);
@@ -297,7 +297,7 @@ public class AggregatedByLirStatusValidatorTest {
 
         when(update.getAction()).thenReturn(Action.CREATE);
         when(update.getUpdatedObject()).thenReturn(object);
-        subject.validate(update, updateContext);
+       subject.validate(update, updateContext);
 
         verify(updateContext).addMessage(update, UpdateMessages.tooManyAggregatedByLirInHierarchy());
         verifyNoMoreInteractions(updateContext);
@@ -332,7 +332,7 @@ public class AggregatedByLirStatusValidatorTest {
 
         when(update.getAction()).thenReturn(Action.CREATE);
         when(update.getUpdatedObject()).thenReturn(object);
-        subject.validate(update, updateContext);
+       subject.validate(update, updateContext);
 
         verify(updateContext).addMessage(update, UpdateMessages.invalidChildPrefixLength());
         verifyNoMoreInteractions(updateContext);
@@ -345,7 +345,7 @@ public class AggregatedByLirStatusValidatorTest {
         when(update.getReferenceObject()).thenReturn(RpslObject.parse("inet6num: ffee::/48\nassignment-size: 48\nstatus:AGGREGATED-BY-LIR"));
         when(update.getUpdatedObject()).thenReturn(RpslObject.parse("inet6num: ffee::/48\nassignment-size: 48\nstatus:AGGREGATED-BY-LIR"));
 
-        subject.validate(update, updateContext);
+       subject.validate(update, updateContext);
 
         verifyNoMoreInteractions(updateContext);
     }
@@ -357,7 +357,7 @@ public class AggregatedByLirStatusValidatorTest {
         when(update.getReferenceObject()).thenReturn(RpslObject.parse("inet6num: ffee::/48\nstatus:AGGREGATED-BY-LIR"));
         when(update.getUpdatedObject()).thenReturn(RpslObject.parse("inet6num: ffee::/48\nassignment-size: 48\nstatus:AGGREGATED-BY-LIR"));
 
-        subject.validate(update, updateContext);
+       subject.validate(update, updateContext);
 
         verify(updateContext).addMessage(update, UpdateMessages.cantChangeAssignmentSize());
     }
@@ -368,9 +368,9 @@ public class AggregatedByLirStatusValidatorTest {
         final RpslObject rpslObject = RpslObject.parse("inet6num: ffee::/48\nassignment-size: 48\nstatus:ALLOCATED-BY-LIR");
         when(update.getUpdatedObject()).thenReturn(rpslObject);
 
-        subject.validate(update, updateContext);
+       subject.validate(update, updateContext);
 
-        verify(updateContext).addMessage(update, rpslObject.findAttribute(AttributeType.ASSIGNMENT_SIZE), UpdateMessages.attributeAssignmentSizeNotAllowed());
+        verify(updateContext).addMessage(update, rpslObject.findAttribute(AttributeType.ASSIGNMENT_SIZE), UpdateMessages.attributeAssignmentSizeNotAllowed(rpslObject.findAttribute(AttributeType.ASSIGNMENT_SIZE)));
     }
 
     @Test
@@ -378,7 +378,7 @@ public class AggregatedByLirStatusValidatorTest {
         when(update.getAction()).thenReturn(Action.CREATE);
         when(update.getUpdatedObject()).thenReturn(RpslObject.parse("inet6num: ffee::/48\nstatus:ALLOCATED-BY-LIR"));
 
-        subject.validate(update, updateContext);
+       subject.validate(update, updateContext);
 
         verifyNoMoreInteractions(updateContext);
     }
@@ -388,7 +388,7 @@ public class AggregatedByLirStatusValidatorTest {
         when(update.getAction()).thenReturn(Action.CREATE);
         when(update.getUpdatedObject()).thenReturn(RpslObject.parse("inet6num: ffee::/48\nstatus:ASSIGNED"));
 
-        subject.validate(update, updateContext);
+       subject.validate(update, updateContext);
 
         verifyNoMoreInteractions(updateContext);
     }

@@ -392,7 +392,8 @@ public class BatchUpdatesServiceTestIntegration extends AbstractIntegrationTest 
                 .post(Entity.entity(whoisResources, MediaType.APPLICATION_JSON_TYPE), WhoisResources.class);
 
         assertThat(response.getWhoisObjects(), hasSize(2));
-        assertThat(response.getErrorMessages(), hasSize(2));
+        assertThat(response.getErrorMessages().stream().filter((message) -> message.getSeverity().equals("Info")).collect(Collectors.toList()), hasSize(2));
+        assertThat(response.getErrorMessages().stream().filter((message) -> message.getSeverity().equals("Warning")).collect(Collectors.toList()), hasSize(3));
 
         RpslObject inetnum = databaseHelper.lookupObject(ObjectType.INETNUM, "192.0.0.0 - 192.255.255.255");
         assertThat(inetnum, not(nullValue()));

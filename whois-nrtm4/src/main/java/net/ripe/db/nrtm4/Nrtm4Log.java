@@ -4,7 +4,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
-import java.net.InetAddress;
+import jakarta.servlet.http.HttpServletRequest;
 
 @Component
 public class Nrtm4Log {
@@ -19,11 +19,11 @@ public class Nrtm4Log {
         this.logger = logger;
     }
 
-    public void log(final InetAddress remoteAddress, final String queryString) {
+    public void log(final HttpServletRequest httpServletRequest) {
         logger.info(
                 "{} -- {}",
-                remoteAddress.getHostAddress(),
-                queryString
+                httpServletRequest.getRemoteAddr(),
+                httpServletRequest.getPathInfo()
         );
     }
 }

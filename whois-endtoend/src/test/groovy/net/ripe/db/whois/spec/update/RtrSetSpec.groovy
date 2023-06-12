@@ -1493,7 +1493,7 @@ class RtrSetSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(1, 1, 0, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
 
-        ack.countErrorWarnInfo(0, 0, 1)
+        ack.countErrorWarnInfo(0, 1, 1)
 
         queryObject("-r -T rtr-set AS123:rtrs-foo:rtrs-foo2", "rtr-set", "AS123:rtrs-foo:rtrs-foo2")
     }

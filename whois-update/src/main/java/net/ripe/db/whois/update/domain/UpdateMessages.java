@@ -3,6 +3,7 @@ package net.ripe.db.whois.update.domain;
 import com.google.common.base.Joiner;
 import com.google.common.collect.Iterables;
 import net.ripe.db.whois.common.Message;
+import net.ripe.db.whois.common.MessageWithAttribute;
 import net.ripe.db.whois.common.Messages;
 import net.ripe.db.whois.common.domain.CIString;
 import net.ripe.db.whois.common.ip.Interval;
@@ -10,6 +11,7 @@ import net.ripe.db.whois.common.ip.IpInterval;
 import net.ripe.db.whois.common.ip.Ipv4Resource;
 import net.ripe.db.whois.common.rpsl.AttributeType;
 import net.ripe.db.whois.common.rpsl.ObjectType;
+import net.ripe.db.whois.common.rpsl.RpslAttribute;
 import net.ripe.db.whois.common.rpsl.RpslObject;
 import net.ripe.db.whois.common.rpsl.attrs.Inet6numStatus;
 import net.ripe.db.whois.common.rpsl.attrs.OrgType;
@@ -89,8 +91,8 @@ public final class UpdateMessages {
         return new Message(Type.WARNING, "Submitted object identical to database object");
     }
 
-    public static Message unknownObjectReferenced(final CharSequence value) {
-        return new Message(Type.ERROR, "Unknown object referenced %s", value);
+    public static Message unknownObjectReferenced(final RpslAttribute attribute, final CharSequence value) {
+        return new MessageWithAttribute(Type.ERROR, attribute,"Unknown object referenced %s", value);
     }
 
     public static Message multipleReasonsSpecified(final Operation operation) {
@@ -105,16 +107,24 @@ public final class UpdateMessages {
         return new Message(Type.WARNING, "Referenced %s object %s from %s: %s is missing mandatory attribute \"%s:\"", objectType.getName(), objectName, viaType.getName(), viaName, attributeType.getName());
     }
 
+    public static Message invalidIpv4Address(final RpslAttribute attribute, final CharSequence value) {
+        return new MessageWithAttribute(Type.ERROR, attribute, "%s is not a valid IPv4 address", value);
+    }
+
+    public static Message invalidIpv6Address(final RpslAttribute attribute, final CharSequence value) {
+        return new MessageWithAttribute(Type.ERROR, attribute,"%s is not a valid IPv6 address", value);
+    }
+
     public static Message invalidIpv4Address(final CharSequence value) {
         return new Message(Type.ERROR, "%s is not a valid IPv4 address", value);
     }
 
     public static Message invalidIpv6Address(final CharSequence value) {
-        return new Message(Type.ERROR, "%s is not a valid IPv6 address", value);
+        return new Message(Type.ERROR,"%s is not a valid IPv6 address", value);
     }
 
-    public static Message invalidRouteRange(final CharSequence value) {
-        return new Message(Type.ERROR, "%s is outside the range of this object", value);
+    public static Message invalidRouteRange(final RpslAttribute attribute, final CharSequence value) {
+        return new MessageWithAttribute(Type.ERROR, attribute, "%s is outside the range of this object", value);
     }
 
     public static Message invalidRoutePrefix(final CharSequence type) {
@@ -155,8 +165,8 @@ public final class UpdateMessages {
                 joined);
     }
 
-    public static Message reservedNameUsed() {
-        return new Message(Type.ERROR, "Reserved name used");
+    public static Message reservedNameUsed(final RpslAttribute attribute) {
+        return new MessageWithAttribute(Type.ERROR, attribute,"Reserved name used");
     }
 
     public static Message reservedNameUsed(final CharSequence name) {
@@ -172,16 +182,16 @@ public final class UpdateMessages {
         return new Message(Type.ERROR, "Enforced new keyword specified, but the object already exists in the database");
     }
 
-    public static Message invalidMaintainerForOrganisationType(final CharSequence orgType) {
-        return new Message(Type.ERROR, "Value '%s' can only be set by the RIPE NCC for this organisation.", orgType);
+    public static Message invalidMaintainerForOrganisationType(final RpslAttribute attribute) {
+        return new MessageWithAttribute(Type.ERROR, attribute, "Value '%s' can only be set by the RIPE NCC for this organisation.", attribute.getCleanValue());
     }
 
-    public static Message invalidMaintainerName() {
-        return new Message(Type.ERROR, "When creating a MNTNER the name must end with an -MNT suffix");
+    public static Message invalidMaintainerName(final RpslAttribute attribute) {
+        return new MessageWithAttribute(Type.ERROR,attribute, "When creating a MNTNER the name must end with an -MNT suffix");
     }
 
-    public static Message cantChangeOrgAttribute() {
-        return new Message(Type.ERROR, "Referenced organisation can only be changed by the RIPE NCC for this resource.\n" +
+    public static Message cantChangeOrgAttribute(final RpslAttribute attribute) {
+        return new MessageWithAttribute(Type.ERROR, attribute, "Referenced organisation can only be changed by the RIPE NCC for this resource.\n" +
                 "Please contact \"ncc@ripe.net\" to change this reference.");
     }
 
@@ -195,8 +205,8 @@ public final class UpdateMessages {
                 "AS-SET creation is allowed, i.e. at least one ASN must be referenced");
     }
 
-    public static Message countryNotRecognised(final CharSequence country) {
-        return new Message(Type.ERROR, "Country not recognised: %s", country);
+    public static Message countryNotRecognised(final RpslAttribute attribute) {
+        return new MessageWithAttribute(Type.ERROR, attribute,"Country not recognised: %s", attribute.getCleanValue());
     }
 
     public static Message asblockIsMaintainedByRipe() {
@@ -248,12 +258,18 @@ public final class UpdateMessages {
     public static Message authorisationRequiredForAttrChange(final AttributeType attributeType) {
         return new Message(Type.ERROR, "Changing \"%s:\" value requires administrative authorisation", attributeType.getName());
     }
+    public static Message canOnlyBeChangedByRipeNCC(final RpslAttribute attribute) {
+        return new MessageWithAttribute(Type.ERROR, attribute,"Attribute \"%s:\" can only be changed by the RIPE NCC for this object.\n" +
+                "Please contact \"ncc@ripe.net\" to change it.", attribute.getType().getName());
+    }
+
     public static Message canOnlyBeChangedByRipeNCC(final AttributeType attributeType) {
-        return new Message(Type.ERROR, "Attribute \"%s:\" can only be changed by the RIPE NCC for this object.\n" +
+        return new Message(Type.ERROR,"Attribute \"%s:\" can only be changed by the RIPE NCC for this object.\n" +
                 "Please contact \"ncc@ripe.net\" to change it.", attributeType.getName());
     }
-    public static Message canNotAddCommentsInManagedAttr(final AttributeType attributeType) {
-        return new Message(Type.ERROR, "Comments are not allowed on RIPE NCC managed Attribute \"%s:\"" , attributeType.getName());
+
+    public static Message canNotAddCommentsInManagedAttr(final RpslAttribute attribute) {
+        return new MessageWithAttribute(Type.ERROR, attribute,"Comments are not allowed on RIPE NCC managed Attribute \"%s:\"" , attribute.getType().getName());
     }
 
     public static Message canOnlyBeChangedinLirPortal(final AttributeType attributeType) {
@@ -313,8 +329,8 @@ public final class UpdateMessages {
         return new Message(Type.ERROR, "\"assignment-size:\" value cannot be changed");
     }
 
-    public static Message attributeAssignmentSizeNotAllowed() {
-        return new Message(Type.ERROR, "\"assignment-size:\" attribute only allowed with status %s", Inet6numStatus.AGGREGATED_BY_LIR.getLiteralStatus());
+    public static Message attributeAssignmentSizeNotAllowed(final RpslAttribute attribute) {
+        return new MessageWithAttribute(Type.ERROR, attribute,"\"assignment-size:\" attribute only allowed with status %s", Inet6numStatus.AGGREGATED_BY_LIR.getLiteralStatus());
     }
 
     public static Message assignmentSizeTooSmall(final int prefixLength) {
@@ -382,16 +398,16 @@ public final class UpdateMessages {
         return new Message(Type.ERROR, "Existing more specific domain object found %s", existing);
     }
 
-    public static Message hostNameMustEndWith(final CharSequence s) {
-        return new Message(Type.ERROR, "Glue records only allowed if hostname ends with %s", s);
+    public static Message hostNameMustEndWith(final RpslAttribute attribute, final CharSequence s) {
+        return new MessageWithAttribute(Type.ERROR, attribute,"Glue records only allowed if hostname ends with %s", s);
     }
 
-    public static Message glueRecordMandatory(final CharSequence s) {
-        return new Message(Type.ERROR, "Glue record is mandatory if hostname ends with %s", s);
+    public static Message glueRecordMandatory(final RpslAttribute attribute, final CharSequence s) {
+        return new MessageWithAttribute(Type.ERROR, attribute,"Glue record is mandatory if hostname ends with %s", s);
     }
 
-    public static Message invalidGlueForEnumDomain(final CharSequence s) {
-        return new Message(Type.ERROR, "Enum domain has invalid glue %s", s);
+    public static Message invalidGlueForEnumDomain(final RpslAttribute attribute, final CharSequence s) {
+        return new MessageWithAttribute(Type.ERROR, attribute, "Enum domain has invalid glue %s", s);
     }
 
     // NOTE: this errormessage is being used by webupdates.
@@ -404,12 +420,12 @@ public final class UpdateMessages {
         return new Message(Type.ERROR, "You cannot add or remove a RIPE NCC maintainer");
     }
 
-    public static Message poemRequiresPublicMaintainer() {
-        return new Message(Type.ERROR, "Poem must be maintained by 'LIM-MNT', which has a public password");
+    public static Message poemRequiresPublicMaintainer(final RpslAttribute attribute) {
+        return new MessageWithAttribute(Type.ERROR, attribute,"Poem must be maintained by 'LIM-MNT', which has a public password");
     }
 
-    public static Message poeticFormRequiresDbmMaintainer() {
-        return new Message(Type.ERROR, "Poetic-form must only be maintained by 'RIPE-DBM-MNT'");
+    public static Message poeticFormRequiresDbmMaintainer(final RpslAttribute attribute) {
+        return new MessageWithAttribute(Type.ERROR, attribute, "Poetic-form must only be maintained by 'RIPE-DBM-MNT'");
     }
 
     public static Message tooManyPasswordsSpecified() {
@@ -468,8 +484,8 @@ public final class UpdateMessages {
         return new Message(Type.ERROR, "Key %s already used (AUTO-nnn must be unique per update message)", value);
     }
 
-    public static Message autokeyForX509KeyCertsOnly() {
-        return new Message(Type.ERROR, "AUTO-nnn can only be used with X509 key-cert");
+    public static Message autokeyForX509KeyCertsOnly(final RpslAttribute attribute) {
+        return new MessageWithAttribute(Type.ERROR, attribute, "AUTO-nnn can only be used with X509 key-cert");
     }
 
     public static Message noParentAsBlockFound(final CharSequence asNumber) {
@@ -568,8 +584,8 @@ public final class UpdateMessages {
         return new Message(Type.ERROR, "\"abuse-c:\" cannot be removed from an ORGANISATION object referenced by a resource object");
     }
 
-    public static Message selfReferenceError(final AttributeType attributeType) {
-        return new Message(Type.ERROR, "Self reference is not allowed for attribute type \"%s\"", attributeType.getName());
+    public static Message selfReferenceError(final RpslAttribute attribute) {
+        return new MessageWithAttribute(Type.ERROR, attribute, "Self reference is not allowed for attribute type \"%s\"", attribute.getType().getName());
     }
 
     public static Message noAbuseContact(final CIString orgId) {
@@ -608,8 +624,8 @@ public final class UpdateMessages {
         return new Message(Type.ERROR, "The \"sponsoring-org\" attribute can only be removed by the RIPE NCC");
     }
 
-    public static Message sponsoringOrgNotLIR() {
-        return new Message(Type.ERROR, "Referenced organisation must have org-type: LIR");
+    public static Message sponsoringOrgNotLIR(final RpslAttribute attribute) {
+        return new MessageWithAttribute(Type.ERROR, attribute, "Referenced organisation must have org-type: LIR");
     }
 
     public static Message sponsoringOrgNotAllowedWithStatus(final CharSequence status) {
@@ -655,7 +671,10 @@ public final class UpdateMessages {
     public static Message multipleUserMntBy(final Collection<CIString> userMntners) {
         return new Message(Type.ERROR, "Multiple user-'mnt-by:' are not allowed, found are: '%s'", Joiner.on(", ").join(userMntners));
     }
-
+    public static Message sourceChanged(final CIString originalSource, final CIString finalSource, final String autnum) {
+        return new Message(Messages.Type.WARNING, "The \"source:\" attribute value has been updated from \"%s\" to " +
+                "\"%s\" to match the referenced AUT-NUM \"%s\"", originalSource, finalSource, autnum);
+    }
     public static Message changedAttributeRemoved() {
         return new Message(Messages.Type.WARNING, "Deprecated attribute \"changed\". This attribute has been removed.");
     }
@@ -668,12 +687,12 @@ public final class UpdateMessages {
         return new Message(Messages.Type.WARNING, "Deprecated attribute \"mnt-lower\". This attribute has been removed.");
     }
 
-    public static Message emailAddressCannotBeUsed(final CIString value) {
-        return new Message(Type.ERROR, "The email address \"%s\" cannot be used.", value);
+    public static Message emailAddressCannotBeUsed(final RpslAttribute attribute, final CIString value) {
+        return new MessageWithAttribute(Type.ERROR, attribute,"The email address \"%s\" cannot be used.", value);
     }
 
-    public static Message inconsistentOrgNameFormatting() {
-        return new Message(Type.ERROR, "Tab characters, multiple lines, or multiple whitespaces are not allowed in the \"org-name:\" value.");
+    public static Message inconsistentOrgNameFormatting(final RpslAttribute attribute) {
+        return new MessageWithAttribute(Type.ERROR, attribute, "Tab characters, multiple lines, or multiple whitespaces are not allowed in the \"org-name:\" value.");
     }
 
     public static Message shortFormatAttributeReplaced() {

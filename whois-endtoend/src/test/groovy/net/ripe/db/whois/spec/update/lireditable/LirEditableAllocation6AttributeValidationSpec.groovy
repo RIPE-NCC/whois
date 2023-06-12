@@ -578,10 +578,11 @@ class LirEditableAllocation6AttributeValidationSpec extends BaseLirEditableAttri
         ack.summary.nrFound == 1
         ack.summary.assertSuccess(0, 0, 0, 0, 0)
         ack.summary.assertErrors(1, 0, 1, 0)
-        ack.countErrorWarnInfo(1, 0, 0)
+        ack.countErrorWarnInfo(2, 0, 0)
         ack.errors.any { it.operation == "Modify" && it.key == "[${resourceType}] ${resourceValue}" }
         ack.errorMessagesFor("Modify", "[${resourceType}] ${resourceValue}") == [
-                "The \"sponsoring-org:\" attribute is not allowed with status value \"${resourceStatus}\""
+                "The \"sponsoring-org:\" attribute is not allowed with status value \"${resourceStatus}\"",
+                "The \"sponsoring-org\" attribute can only be added by the RIPE NCC"
         ]
     }
 
@@ -867,5 +868,39 @@ class LirEditableAllocation6AttributeValidationSpec extends BaseLirEditableAttri
         ack.errorMessagesFor("Delete", "[${resourceType}] ${resourceValue}") == [
                 "Deleting this object requires administrative authorisation"
         ]
+    }
+
+    //  MODIFY resource attributes WITH OVERRIDE
+
+    def "modify resource, change lir-locked attributes with override"() {
+        given:
+        dbfixture(getTransient("RSC-MANDATORY"))
+
+        expect:
+        queryObject("-GBr -T ${resourceType} ${resourceValue}", resourceType, resourceValue)
+
+        when:
+        def ack = syncUpdateWithResponse("""
+                ${resourceType}: ${resourceValue}
+                netname:      TEST-NET-NAME-CHANGED # changed
+                country:      NL
+                org:          ORG-LIRA-TEST         # changed
+                admin-c:      TP1-TEST
+                tech-c:       TP1-TEST
+                status:       ${differentStatus}    # changed
+                mnt-by:       ${resourceRipeMntner}
+                mnt-by:       LIR2-MNT              # changed
+                source:       TEST
+                override:     denis,override1
+                """.stripIndent(true)
+        )
+
+        then:
+        ack.success
+        ack.summary.nrFound == 1
+        ack.summary.assertSuccess(1, 0, 1, 0, 0)
+        ack.summary.assertErrors(0, 0, 0, 0)
+        ack.countErrorWarnInfo(0, 4, 1)
+        ack.successes.any { it.operation == "Modify" && it.key == "[${resourceType}] ${resourceValue}" }
     }
 }

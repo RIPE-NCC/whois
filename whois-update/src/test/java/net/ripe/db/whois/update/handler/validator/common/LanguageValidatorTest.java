@@ -31,7 +31,7 @@ public class LanguageValidatorTest {
         when(repository.getLanguageCodes()).thenReturn(ciSet("DK", "UK"));
         when(update.getUpdatedObject()).thenReturn(RpslObject.parse("inetnum: 193.0/32\nlanguage:DK"));
 
-        subject.validate(update, updateContext);
+       subject.validate(update, updateContext);
 
         verifyNoMoreInteractions(updateContext);
     }
@@ -41,7 +41,7 @@ public class LanguageValidatorTest {
         when(repository.getLanguageCodes()).thenReturn(ciSet("DK", "UK"));
         when(update.getUpdatedObject()).thenReturn(RpslObject.parse("inetnum: 193.0/32\nlanguage:AB"));
 
-        subject.validate(update, updateContext);
+       subject.validate(update, updateContext);
 
         verify(updateContext).addMessage(update, UpdateMessages.languageNotRecognised("AB"));
     }
