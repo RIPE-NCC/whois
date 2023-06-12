@@ -1,8 +1,6 @@
 package net.ripe.db.whois.api.elasticsearch;
 
 import com.google.common.net.InetAddresses;
-import net.ripe.db.whois.common.rpsl.ObjectType;
-import net.ripe.db.whois.common.rpsl.RpslAttribute;
 import net.ripe.db.whois.common.rpsl.RpslObject;
 import net.ripe.db.whois.common.source.Source;
 import net.ripe.db.whois.query.QueryMessages;
@@ -12,7 +10,6 @@ import net.ripe.db.whois.query.domain.QueryException;
 
 import java.io.IOException;
 import java.net.InetAddress;
-import java.util.List;
 
 public abstract class ElasticSearchAccountingCallback<T> {
 
