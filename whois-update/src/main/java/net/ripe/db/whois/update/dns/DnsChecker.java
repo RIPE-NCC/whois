@@ -87,24 +87,7 @@ public class DnsChecker {
             for (final Message message : dnsCheckResponse.getMessages()) {
                 updateContext.addMessage(dnsCheckRequest.getUpdate(), message);
             }
-
-            if(updateContext.getMessages(dnsCheckRequest.getUpdate())!=null && updateContext.getMessages(dnsCheckRequest.getUpdate()).getMessages() != null) {
-                LOGGER.info("Added the error message to context {}, {} ", dnsCheckRequest.getDomain(),
-                        updateContext.getMessages(dnsCheckRequest.getUpdate()).getMessages().getMessages(Messages.Type.ERROR));
-
-            }
-
         }
-
-        for (Update update: updateRequest.getUpdates()) {
-            if(updateContext.getMessages(update)!=null && updateContext.getMessages(update).getMessages() != null) {
-
-                LOGGER.info("Checking final error messages added after dns check {},  {} ",
-                        update.getSubmittedObject().getKey(), updateContext.getMessages(update).getMessages().getMessages(Messages.Type.ERROR));
-            }
-
-        }
-
     }
 
     private boolean isDnsCheckRequired(final Update update) {

@@ -105,6 +105,10 @@ public class SingleUpdateHandler {
             updateContext.addMessage(update, UpdateMessages.objectNotFound(update.getSubmittedObject().getFormattedKey()));
         }
 
+        if(updateContext.hasDNSCheckFailed(update)) {
+            throw new UpdateAbortedException();
+        }
+
         // up to this point, updatedObject could have structural+syntax errors (unknown attributes, etc...), bail out if so
         PreparedUpdate preparedUpdate = new PreparedUpdate(update, originalObject, updatedObject, action, overrideOptions);
         updateContext.setPreparedUpdate(preparedUpdate);
