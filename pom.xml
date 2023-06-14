@@ -68,7 +68,7 @@
         <glassfish.version>4.0.1</glassfish.version>
         <jersey.version>3.1.0</jersey.version>
         <jetty.version>11.0.13</jetty.version>
-        <jflex.version>1.9.0</jflex.version>
+        <jflex.version>1.9.1</jflex.version>
         <jopt-simple.version>5.0.4</jopt-simple.version>
         <jsoup.version>1.15.4</jsoup.version>
         <junit.version>5.9.2</junit.version>
