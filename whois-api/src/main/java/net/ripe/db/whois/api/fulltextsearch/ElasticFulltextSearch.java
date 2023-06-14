@@ -84,9 +84,6 @@ public class ElasticFulltextSearch extends FulltextSearch {
             throw new IllegalArgumentException("Too many results requested, the maximum allowed is " + maxResultSize);
         }
 
-        if (searchRequest.getRows() < searchRequest.getStart()){
-            throw new IllegalArgumentException("Start parameter can not be bigger than rows parameter");
-        }
         return new ElasticSearchAccountingCallback<SearchResponse>(accessControlListManager, remoteAddr, source) {
 
             @Override

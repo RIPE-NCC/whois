@@ -915,6 +915,40 @@ public class ElasticFullTextSearchTestIntegration extends AbstractElasticSearchI
     }
 
     @Test
+    public void too_many_personal_object_temporary_block() {
+        testPersonalObjectAccounting.accountPersonalObject(Inet4Address.getLoopbackAddress(), 5000);
+
+        databaseHelper.addObject(RpslObject.parse(
+                "person: John McDonald\n" +
+                        "nic-hdl: AA1-RIPE\n" +
+                        "source: RIPE"));
+        rebuildIndex();
+
+        try {
+            query("q=john%20mcdonald");
+            fail("request should have been blocked");
+        } catch (ClientErrorException cee) {
+            assertThat(cee.getResponse().getStatus(), is(429));
+        }
+    }
+
+    @Test
+    public void check_personal_Accounting() {
+        testPersonalObjectAccounting.accountPersonalObject(Inet4Address.getLoopbackAddress(), 1);
+
+        databaseHelper.addObject(RpslObject.parse(
+                "person: John McDonald\n" +
+                        "nic-hdl: AA1-RIPE\n" +
+                        "source: RIPE"));
+        rebuildIndex();
+
+        query("q=john%20mcdonald");
+
+        int totalCount = testPersonalObjectAccounting.getQueriedPersonalObjects(Inet4Address.getLoopbackAddress());
+        assertThat(totalCount, is(2));
+    }
+
+    @Test
     public void search_inet6num_escape_forward_slash() {
         databaseHelper.addObject(RpslObject.parse("inet6num: 2001:0638:0501::/48"));
          rebuildIndex();
@@ -2204,14 +2238,6 @@ public class ElasticFullTextSearchTestIntegration extends AbstractElasticSearchI
         assertThat(queryResponse.getResults().getNumFound(), is(5L));
     }
 
-    @Test
-    public void search_multiple_results_paginating_bad_input() {
-        final BadRequestException badRequestException = assertThrows(BadRequestException.class, () -> {
-            query("q=remark&facet=true&rows=3&start=4");
-        });
-        assertThat(badRequestException.getMessage(), is("HTTP 400 Bad Request"));
-        assertThat(badRequestException.getResponse().readEntity(String.class), is("Start parameter can not be bigger than rows parameter"));
-    }
 
     @Test
     public void request_more_than_allowed_rows_bad_request() {
