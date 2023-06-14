@@ -252,7 +252,7 @@ public class ElasticFullTextSearchTestIntegration extends AbstractElasticSearchI
 
         final QueryResponse queryResponse = query("q=remark&facet=true&rows=3&start=0");
 
-        //search limit to 3, however the total that ES is able to find is 5
+        //rows to return 3, however the total that ES is able to find is 5
         assertThat(queryResponse.getStatus(), is(0));
         assertThat(queryResponse.getResults(), hasSize(3));
         assertThat(queryResponse.getResults().getNumFound(), is(5L));
@@ -2196,7 +2196,7 @@ public class ElasticFullTextSearchTestIntegration extends AbstractElasticSearchI
 
         final QueryResponse queryResponse = query("q=remark&facet=true&rows=3&start=1");
 
-        //search limit to 3, however the total that ES is able to find is 5
+        //rows to return 3, however the total that ES is able to find is 5
         assertThat(queryResponse.getStatus(), is(0));
         assertThat(queryResponse.getResults(), hasSize(3));
         assertThat(queryResponse.getResults().getNumFound(), is(5L));
@@ -2232,13 +2232,47 @@ public class ElasticFullTextSearchTestIntegration extends AbstractElasticSearchI
 
         final QueryResponse queryResponse = query("q=remark&facet=true&rows=3&start=3");
 
-        //search limit to 3, however the total that ES is able to find is 5
+        //rows to return 3, however the total that ES is able to find is 5
         assertThat(queryResponse.getStatus(), is(0));
         assertThat(queryResponse.getResults(), hasSize(2));
         assertThat(queryResponse.getResults().getNumFound(), is(5L));
     }
 
+    @Test
+    public void search_starting_lower_value_than_rows() {
 
+        databaseHelper.addObject(RpslObject.parse(
+                "mntner: DEV1-MNT\n" +
+                        "remarks: Some remark\n" +
+                        "source: RIPE"));
+        databaseHelper.addObject(RpslObject.parse(
+                "mntner: DEV2-MNT\n" +
+                        "remarks: Another remark\n" +
+                        "source: RIPE"));
+        databaseHelper.addObject(RpslObject.parse(
+                "mntner: DEV3-MNT\n" +
+                        "remarks: Some remark\n" +
+                        "source: RIPE"));
+        databaseHelper.addObject(RpslObject.parse(
+                "person: First Last\n" +
+                        "nic-hdl: AA1-RIPE\n" +
+                        "remarks: Other remark\n" +
+                        "source: RIPE"));
+        databaseHelper.addObject(RpslObject.parse(
+                "person: First Middle Last\n" +
+                        "nic-hdl: AA2-RIPE\n" +
+                        "remarks: Other remark\n" +
+                        "source: RIPE"));
+
+        rebuildIndex();
+
+        final QueryResponse queryResponse = query("q=remark&facet=true&rows=1&start=3");
+
+        //rows to return 3, however the total that ES is able to find is 5
+        assertThat(queryResponse.getStatus(), is(0));
+        assertThat(queryResponse.getResults(), hasSize(1));
+        assertThat(queryResponse.getResults().getNumFound(), is(5L));
+    }
     @Test
     public void request_more_than_allowed_rows_bad_request() {
         final BadRequestException badRequestException = assertThrows(BadRequestException.class, () -> {
