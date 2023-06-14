@@ -38,7 +38,7 @@
         <commons-codec.version>1.15</commons-codec.version>
         <!-- TODO: update to commons-collections4 -->
         <commons-collections.version>3.2.2</commons-collections.version>
-        <commons-compress.version>1.22</commons-compress.version>
+        <commons-compress.version>1.23.0</commons-compress.version>
         <commons-email.version>1.5</commons-email.version>
         <commons-io.version>2.11.0</commons-io.version>
         <!-- equivalent to https://github.com/jgonian/commons-ip-math/ release 1.23 -->
