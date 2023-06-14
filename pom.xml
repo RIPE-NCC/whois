@@ -78,7 +78,7 @@
         <!-- Needs to be in sync with the version of Lucene used by the ElasticSearch client -->
         <lucene.version>8.9.0</lucene.version>
 
-        <angus-jakarta-mail.version>1.1.0</angus-jakarta-mail.version>
+        <angus-jakarta-mail.version>2.0.2</angus-jakarta-mail.version>
         <!-- TODO: update mariadb to 3.x -->
         <mariadb-java-client.version>2.7.8</mariadb-java-client.version>
         <mockito.version>3.12.4</mockito.version>
@@ -352,12 +352,7 @@
                 <version>${netty.version}</version>
             </dependency>
 
-            <!-- JavaMail API and implementation -->
-            <dependency>
-                <groupId>jakarta.mail</groupId>
-                <artifactId>jakarta.mail-api</artifactId>
-                <version>${jakarta-mail-api.version}</version>
-            </dependency>
+            <!-- JavaMail -->
             <dependency>
                 <groupId>org.eclipse.angus</groupId>
                 <artifactId>jakarta.mail</artifactId>
