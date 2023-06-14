@@ -90,7 +90,7 @@
 
         <sentry.version>6.14.0</sentry.version>
         <shedlock.version>4.44.0</shedlock.version>
-        <slf4j.version>2.0.6</slf4j.version>
+        <slf4j.version>2.0.7</slf4j.version>
         <solrj.version>1.4.1</solrj.version>
         <spring.version>6.0.9</spring.version>
         <springockito.version>1.0.9</springockito.version>
