@@ -933,7 +933,7 @@ public class ElasticFullTextSearchTestIntegration extends AbstractElasticSearchI
     }
 
     @Test
-    public void check_personal_Accounting() {
+    public void should_account_for_personal_objects() {
         testPersonalObjectAccounting.accountPersonalObject(Inet4Address.getLoopbackAddress(), 1);
 
         databaseHelper.addObject(RpslObject.parse(

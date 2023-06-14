@@ -4,7 +4,7 @@ import com.google.common.base.CharMatcher;
 import com.google.common.base.Stopwatch;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
-import com.google.common.collect.Sets;
+import net.ripe.db.whois.api.elasticsearch.ElasticIndexService;
 import net.ripe.db.whois.common.dao.jdbc.JdbcRpslObjectOperations;
 import net.ripe.db.whois.common.dao.jdbc.JdbcStreamingHelper;
 import net.ripe.db.whois.common.domain.serials.SerialEntry;
@@ -48,7 +48,6 @@ import java.sql.SQLException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.ThreadPoolExecutor;
@@ -70,9 +69,6 @@ public class FullTextIndex extends RebuildableIndex {
 
     static final String[] FIELD_NAMES;
 
-    static final Set<AttributeType> SKIPPED_ATTRIBUTES = Sets.newEnumSet(Sets.newHashSet(AttributeType.CERTIF, AttributeType.CHANGED, AttributeType.SOURCE), AttributeType.class);
-    private static final Set<AttributeType> FILTERED_ATTRIBUTES = Sets.newEnumSet(Sets.newHashSet(AttributeType.AUTH), AttributeType.class);
-
     private static final FieldType OBJECT_TYPE_FIELD_TYPE;
     private static final FieldType LOOKUP_KEY_FIELD_TYPE;
     private static final FieldType FILTERED_ATTRIBUTE_FIELD_TYPE;
@@ -81,7 +77,7 @@ public class FullTextIndex extends RebuildableIndex {
     static {
         final List<String> names = newArrayListWithExpectedSize(AttributeType.values().length);
         for (final AttributeType attributeType : AttributeType.values()) {
-            if (!SKIPPED_ATTRIBUTES.contains(attributeType)) {
+            if (!ElasticIndexService.SKIPPED_ATTRIBUTES.contains(attributeType)) {
                 names.add(attributeType.getName());
             }
         }
@@ -286,7 +282,8 @@ public class FullTextIndex extends RebuildableIndex {
         document.add(new StringField(LOOKUP_KEY_FIELD_NAME, rpslObject.getKey().toString(), Field.Store.YES));
 
         for (final RpslAttribute attribute : filterRpslObject(rpslObject).getAttributes()) {
-            document.add(new Field(attribute.getKey(), attribute.getValue().trim(), FILTERED_ATTRIBUTES.contains(attribute.getType()) ? FILTERED_ATTRIBUTE_FIELD_TYPE : ATTRIBUTE_FIELD_TYPE));
+            document.add(new Field(attribute.getKey(), attribute.getValue().trim(),
+                    ElasticIndexService.FILTERED_ATTRIBUTES.contains(attribute.getType()) ? FILTERED_ATTRIBUTE_FIELD_TYPE : ATTRIBUTE_FIELD_TYPE));
         }
 
         document.add(new FacetField(OBJECT_TYPE_FIELD_NAME, rpslObject.getType().getName()));
@@ -299,7 +296,7 @@ public class FullTextIndex extends RebuildableIndex {
         List<RpslAttribute> attributes = Lists.newArrayList();
 
         for (final RpslAttribute attribute : rpslObject.getAttributes()) {
-            if (SKIPPED_ATTRIBUTES.contains(attribute.getType())) {
+            if (ElasticIndexService.SKIPPED_ATTRIBUTES.contains(attribute.getType())) {
                 continue;
             }
             attributes.add(new RpslAttribute(attribute.getKey(), filterRpslAttribute(attribute.getType(), attribute.getValue())));
@@ -310,7 +307,7 @@ public class FullTextIndex extends RebuildableIndex {
 
     public String filterRpslAttribute(final AttributeType attributeType, final String attributeValue) {
 
-        if (FILTERED_ATTRIBUTES.contains(attributeType)) {
+        if (ElasticIndexService.FILTERED_ATTRIBUTES.contains(attributeType)) {
             return sanitise(filterAttribute(attributeValue.trim()));
         }
 

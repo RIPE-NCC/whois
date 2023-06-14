@@ -195,7 +195,7 @@ public class ElasticFulltextSearch extends FulltextSearch {
             return Collections.emptyList();
         }
         final AttributeType type = AttributeType.getByName(attributeKey);
-        if (FullTextIndex.SKIPPED_ATTRIBUTES.contains(type)) {
+        if (ElasticIndexService.SKIPPED_ATTRIBUTES.contains(type)) {
           return Collections.emptyList();
         }
 

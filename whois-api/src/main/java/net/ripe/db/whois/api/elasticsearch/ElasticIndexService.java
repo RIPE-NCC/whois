@@ -39,8 +39,10 @@ import static org.slf4j.LoggerFactory.getLogger;
 public class ElasticIndexService {
     private static final Logger LOGGER = getLogger(ElasticIndexService.class);
 
-    private static final Set<AttributeType> SKIPPED_ATTRIBUTES = Sets.newEnumSet(Sets.newHashSet(AttributeType.CERTIF, AttributeType.CHANGED, AttributeType.SOURCE), AttributeType.class);
-    private static final Set<AttributeType> FILTERED_ATTRIBUTES = Sets.newEnumSet(Sets.newHashSet(AttributeType.AUTH), AttributeType.class);
+    public static final Set<AttributeType> SKIPPED_ATTRIBUTES = Sets.newEnumSet(Sets.newHashSet(AttributeType.CERTIF,
+            AttributeType.CHANGED, AttributeType.SOURCE), AttributeType.class);
+    public static final Set<AttributeType> FILTERED_ATTRIBUTES = Sets.newEnumSet(Sets.newHashSet(AttributeType.AUTH),
+            AttributeType.class);
 
     private static final String SERIAL_DOC_ID = "1";
     public static final String SERIAL = "serial";
