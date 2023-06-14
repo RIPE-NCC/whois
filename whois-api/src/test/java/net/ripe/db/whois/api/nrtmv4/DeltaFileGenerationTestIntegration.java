@@ -6,7 +6,6 @@ import net.ripe.db.nrtm4.domain.NrtmDocumentType;
 import net.ripe.db.nrtm4.domain.PublishableDeltaFile;
 import net.ripe.db.nrtm4.domain.PublishableNotificationFile;
 import net.ripe.db.whois.api.AbstractNrtmIntegrationTest;
-import net.ripe.db.whois.common.rpsl.DummifierNrtm;
 import net.ripe.db.whois.common.rpsl.DummifierNrtmV4;
 import net.ripe.db.whois.common.rpsl.RpslObject;
 import org.junit.jupiter.api.Tag;
@@ -337,6 +336,7 @@ public class DeltaFileGenerationTestIntegration extends AbstractNrtmIntegrationT
 
         setTime(LocalDateTime.now());
 
+        snapshotFileGenerator.createSnapshot();
         updateNotificationFileGenerator.generateFile();
 
         generateDeltas(Lists.newArrayList(RpslObject.parse("" +
@@ -367,5 +367,6 @@ public class DeltaFileGenerationTestIntegration extends AbstractNrtmIntegrationT
         final PublishableNotificationFile firstIteration = getNotificationFileBySource("TEST-NONAUTH");
         assertThat(firstIteration.getDeltas().size(), is(1));
         assertThat(firstIteration.getDeltas().get(0).getVersion(), is(3L));
+        assertThat(publishableFile.getSnapshot().getVersion(), is(not(firstIteration.getSnapshot().getVersion())));
     }
 }
