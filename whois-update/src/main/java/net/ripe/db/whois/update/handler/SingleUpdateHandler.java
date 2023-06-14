@@ -106,7 +106,7 @@ public class SingleUpdateHandler {
         }
 
         if(updateContext.hasDNSCheckFailed(update)) {
-            throw new UpdateAbortedException();
+            throw new DnsCheckFailedException();
         }
 
         // up to this point, updatedObject could have structural+syntax errors (unknown attributes, etc...), bail out if so
