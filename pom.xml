@@ -65,7 +65,7 @@
 
         <jackson.version>2.14.2</jackson.version>
         <jaxb.version>4.0.0</jaxb.version>
-        <glassfish.version>4.0.1</glassfish.version>
+        <glassfish.version>4.0.3</glassfish.version>
         <jersey.version>3.1.0</jersey.version>
         <jetty.version>11.0.13</jetty.version>
         <jflex.version>1.9.1</jflex.version>
