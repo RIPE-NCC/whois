@@ -77,11 +77,6 @@ public class DnsChecker {
             final DnsCheckRequest dnsCheckRequest = entry.getKey();
             final DnsCheckResponse dnsCheckResponse = entry.getValue();
 
-            LOGGER.info("Adding dns check response to updateContext {} with response {} {} ",
-                    dnsCheckRequest.getDomain(),
-                    dnsCheckResponse.getMessages().size(),
-                    dnsCheckResponse.getMessages());
-
             updateContext.addDnsCheckResponse(dnsCheckRequest, dnsCheckResponse);
 
             for (final Message message : dnsCheckResponse.getMessages()) {

@@ -65,12 +65,9 @@ public class ZonemasterDnsGateway implements DnsGateway {
         @Override
         public DnsCheckResponse apply(final DnsCheckRequest dnsCheckRequest) {
             try {
-                LOGGER.info("performing DNS check for {}", dnsCheckRequest.getDomain());
                 final String id = makeRequest(dnsCheckRequest);
                 testProgressUntilComplete(id);
                 final GetTestResultsResponse testResults = getResults(id);
-                LOGGER.info("DNS check Result for {}, {}", dnsCheckRequest.getDomain(), testResults.toString());
-
                 return new DnsCheckResponse(getErrorsFromResults(testResults));
             } catch (ZonemasterTimeoutException e) {
                 LOGGER.error("Timeout performing DNS check using zonemaster");
