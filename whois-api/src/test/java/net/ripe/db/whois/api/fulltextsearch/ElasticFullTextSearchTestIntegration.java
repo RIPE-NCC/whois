@@ -2203,6 +2203,69 @@ public class ElasticFullTextSearchTestIntegration extends AbstractElasticSearchI
     }
 
     @Test
+    public void search_more_matches_than_max_row_just_one_requested() {
+
+        databaseHelper.addObject(RpslObject.parse(
+                "mntner: DEV1-MNT\n" +
+                        "remarks: Some remark\n" +
+                        "source: RIPE"));
+        databaseHelper.addObject(RpslObject.parse(
+                "mntner: DEV2-MNT\n" +
+                        "remarks: Another remark\n" +
+                        "source: RIPE"));
+        databaseHelper.addObject(RpslObject.parse(
+                "mntner: DEV3-MNT\n" +
+                        "remarks: Some remark\n" +
+                        "source: RIPE"));
+        databaseHelper.addObject(RpslObject.parse(
+                "mntner: DEV4-MNT\n" +
+                        "remarks: Some remark\n" +
+                        "source: RIPE"));
+        databaseHelper.addObject(RpslObject.parse(
+                "mntner: DEV5-MNT\n" +
+                        "remarks: Another remark\n" +
+                        "source: RIPE"));
+        databaseHelper.addObject(RpslObject.parse(
+                "mntner: DEV6-MNT\n" +
+                        "remarks: Some remark\n" +
+                        "source: RIPE"));
+        databaseHelper.addObject(RpslObject.parse(
+                "person: First Last\n" +
+                        "nic-hdl: AA1-RIPE\n" +
+                        "remarks: Other remark\n" +
+                        "source: RIPE"));
+        databaseHelper.addObject(RpslObject.parse(
+                "person: First Middle Last\n" +
+                        "nic-hdl: AA2-RIPE\n" +
+                        "remarks: Other remark\n" +
+                        "source: RIPE"));
+        databaseHelper.addObject(RpslObject.parse(
+                "person: First Last\n" +
+                        "nic-hdl: AA3-RIPE\n" +
+                        "remarks: Other remark\n" +
+                        "source: RIPE"));
+        databaseHelper.addObject(RpslObject.parse(
+                "person: First Middle Last\n" +
+                        "nic-hdl: AA4-RIPE\n" +
+                        "remarks: Other remark\n" +
+                        "source: RIPE"));
+        databaseHelper.addObject(RpslObject.parse(
+                "person: First Middle Last\n" +
+                        "nic-hdl: AA5-RIPE\n" +
+                        "remarks: Other remark\n" +
+                        "source: RIPE"));
+
+        rebuildIndex();
+
+        final QueryResponse queryResponse = query("q=remark&facet=true&rows=1&start=10");
+
+        //rows to return 3, however the total that ES is able to find is 5
+        assertThat(queryResponse.getStatus(), is(0));
+        assertThat(queryResponse.getResults(), hasSize(1));
+        assertThat(queryResponse.getResults().getNumFound(), is(11L));
+        assertThat(queryResponse.getResults().get(0).get("lookup-key"), is("DEV6-MNT"));
+    }
+    @Test
     public void search_multiple_results_paginating_last_records() {
 
         databaseHelper.addObject(RpslObject.parse(
