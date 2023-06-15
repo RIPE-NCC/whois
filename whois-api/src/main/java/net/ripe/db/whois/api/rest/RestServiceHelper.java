@@ -13,7 +13,7 @@ import net.ripe.db.whois.api.rest.mapper.FormattedServerAttributeMapper;
 import net.ripe.db.whois.api.rest.mapper.RegularSuppressChangedAttributeMapper;
 import net.ripe.db.whois.common.Message;
 import net.ripe.db.whois.common.conversion.PasswordFilter;
-import net.ripe.db.whois.common.sso.CrowdClientException;
+import net.ripe.db.whois.common.sso.AuthServiceClientException;
 import net.ripe.db.whois.query.QueryMessages;
 import net.ripe.db.whois.query.domain.QueryCompletionInfo;
 import net.ripe.db.whois.query.domain.QueryException;
@@ -40,7 +40,7 @@ public class RestServiceHelper {
     private static final String OVERRIDE_STRING = "override";
 
     private static final Set<Class> SKIP_STACK_TRACE = Sets.newHashSet(
-                                                        CrowdClientException.class,
+                                                        AuthServiceClientException.class,
                                                         CannotGetJdbcConnectionException.class,
                                                         PreparedStatementCallback.class);
 
@@ -124,6 +124,7 @@ public class RestServiceHelper {
         whoisResources.includeTermsAndConditions();
         return whoisResources;
     }
+
 
     public static List<ErrorMessage> createErrorMessages(final List<Message> messages) {
         final List<ErrorMessage> errorMessages = Lists.newArrayList();

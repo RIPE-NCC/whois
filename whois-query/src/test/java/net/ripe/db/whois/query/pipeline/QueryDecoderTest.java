@@ -1,6 +1,5 @@
 package net.ripe.db.whois.query.pipeline;
 
-import com.google.common.collect.Lists;
 import com.google.common.net.InetAddresses;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelFuture;
@@ -10,7 +9,6 @@ import net.ripe.db.whois.query.acl.AccessControlListManager;
 import net.ripe.db.whois.query.domain.QueryCompletionInfo;
 import net.ripe.db.whois.query.domain.QueryException;
 import net.ripe.db.whois.query.query.Query;
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -23,8 +21,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.is;
-import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.fail;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
@@ -39,11 +38,9 @@ public class QueryDecoderTest {
     @Mock private AccessControlListManager accessControlListManager;
     @InjectMocks private QueryDecoder subject;
 
-    private List<Object> writtenBuffer = Lists.newArrayList();
-
     @Test
     public void invalidProxyShouldThrowException() {
-        Assertions.assertThrows(QueryException.class, () -> {
+        assertThrows(QueryException.class, () -> {
             Query.parse("-Vone,two,three -Tperson DW-RIPE");
         });
     }
@@ -53,14 +50,14 @@ public class QueryDecoderTest {
         when(channelHandlerContextMock.channel()).thenReturn(channelMock);
         when(accessControlListManager.isTrusted(any(InetAddress.class))).thenReturn(true);
 
-        String queryString = "-Tperson DW-RIPE";
-        Query expectedQuery = Query.parse(queryString);
-        List<Object> actualQuery = new ArrayList<>();
+        final String queryString = "-Tperson DW-RIPE";
+        final Query expectedQuery = Query.parse(queryString);
+        final List<Object> actualQuery = new ArrayList<>();
         when(channelMock.remoteAddress()).thenReturn(new InetSocketAddress(InetAddresses.forString("10.0.0.1"), 80));
 
         subject.decode(channelHandlerContextMock, queryString, actualQuery);
 
-        assertEquals(expectedQuery, actualQuery.get(0));
+        assertThat(actualQuery.get(0), equalTo(expectedQuery));
     }
 
     @Test
@@ -68,8 +65,8 @@ public class QueryDecoderTest {
         when(channelHandlerContextMock.channel()).thenReturn(channelMock);
         when(accessControlListManager.isTrusted(any(InetAddress.class))).thenReturn(true);
 
-        String queryString = "-Yperson DW-RIPE";
-        List<Object> actualQuery = new ArrayList<>();
+        final String queryString = "-Yperson DW-RIPE";
+        final List<Object> actualQuery = new ArrayList<>();
         when(channelMock.remoteAddress()).thenReturn(new InetSocketAddress(InetAddresses.forString("10.0.0.1"), 80));
 
         try {
@@ -85,8 +82,8 @@ public class QueryDecoderTest {
         when(channelHandlerContextMock.channel()).thenReturn(channelMock);
         when(accessControlListManager.isTrusted(any(InetAddress.class))).thenReturn(true);
 
-        String queryString = "-Vone,two,three DW-RIPE";
-        List<Object> actualQuery = new ArrayList<>();
+        final String queryString = "-Vone,two,three DW-RIPE";
+        final List<Object> actualQuery = new ArrayList<>();
         when(channelMock.remoteAddress()).thenReturn(new InetSocketAddress(InetAddresses.forString("10.0.0.1"), 80));
 
         try {

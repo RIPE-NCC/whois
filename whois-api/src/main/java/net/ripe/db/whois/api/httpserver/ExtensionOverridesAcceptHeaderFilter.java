@@ -1,11 +1,6 @@
 package net.ripe.db.whois.api.httpserver;
 
 import com.google.common.collect.ImmutableMap;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.stereotype.Component;
-
-import javax.annotation.Nullable;
 import jakarta.servlet.Filter;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.FilterConfig;
@@ -16,6 +11,11 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletRequestWrapper;
 import jakarta.ws.rs.core.HttpHeaders;
 import jakarta.ws.rs.core.MediaType;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Component;
+
+import javax.annotation.Nullable;
 import java.io.IOException;
 import java.util.Enumeration;
 import java.util.Map;
@@ -26,7 +26,8 @@ public class ExtensionOverridesAcceptHeaderFilter implements Filter {
 
     private static final Map<String, String> EXTENSION_TO_MEDIA_TYPE = ImmutableMap.of(
             "xml", MediaType.APPLICATION_XML,
-            "json", MediaType.APPLICATION_JSON
+            "json", MediaType.APPLICATION_JSON,
+            "txt", MediaType.TEXT_PLAIN
     );
 
     @Override

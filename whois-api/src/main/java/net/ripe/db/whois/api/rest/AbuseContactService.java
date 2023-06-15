@@ -19,6 +19,7 @@ import net.ripe.db.whois.api.rest.domain.Link;
 import net.ripe.db.whois.api.rest.domain.Parameters;
 import net.ripe.db.whois.api.rest.domain.WhoisResources;
 import net.ripe.db.whois.api.rest.mapper.AbuseContactMapper;
+import net.ripe.db.whois.api.rest.marshal.StreamingHelper;
 import net.ripe.db.whois.common.domain.ResponseObject;
 import net.ripe.db.whois.common.rpsl.AttributeSyntax;
 import net.ripe.db.whois.common.rpsl.ObjectType;
@@ -44,7 +45,9 @@ public class AbuseContactService {
     private final AbuseCFinder abuseCFinder;
 
     @Autowired
-    public AbuseContactService(final QueryHandler queryHandler, final AccessControlListManager accessControlListManager, final AbuseCFinder abuseCFinder) {
+    public AbuseContactService(final QueryHandler queryHandler,
+                               final AccessControlListManager accessControlListManager,
+                               final AbuseCFinder abuseCFinder) {
         this.queryHandler = queryHandler;
         this.accessControlListManager = accessControlListManager;
         this.abuseCFinder = abuseCFinder;

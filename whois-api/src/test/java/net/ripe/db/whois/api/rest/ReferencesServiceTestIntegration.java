@@ -30,6 +30,7 @@ import net.ripe.db.whois.common.rpsl.RpslObject;
 import net.ripe.db.whois.common.rpsl.RpslObjectBuilder;
 import net.ripe.db.whois.update.mail.MailSenderStub;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
@@ -48,10 +49,9 @@ import static org.hamcrest.Matchers.hasItems;
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.core.IsNot.not;
-import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.fail;
 
-@org.junit.jupiter.api.Tag("IntegrationTest")
+@Tag("IntegrationTest")
 public class ReferencesServiceTestIntegration extends AbstractIntegrationTest {
 
     @Autowired
@@ -560,7 +560,7 @@ public class ReferencesServiceTestIntegration extends AbstractIntegrationTest {
         final String mntnfy = mailSenderStub.getMessage("mnt-nfy@ripe.net").getContent().toString();
         assertThat(mntnfy, containsString("mntner:         OWNER-MNT"));
 
-        assertFalse(mailSenderStub.anyMoreMessages());
+        assertThat(mailSenderStub.anyMoreMessages(), is(false));
     }
 
     @Test
@@ -591,7 +591,7 @@ public class ReferencesServiceTestIntegration extends AbstractIntegrationTest {
             fail();
         } catch (BadRequestException e) {
             // don't send ANY mails on failure
-            assertFalse(mailSenderStub.anyMoreMessages());
+            assertThat(mailSenderStub.anyMoreMessages(), is(false));
         }
     }
 

@@ -69,10 +69,14 @@ public interface AttributeSyntax extends Documented {
             "\n" +
             "An as-set name can also be hierarchical.  A hierarchical set\n" +
             "name is a sequence of set names and AS numbers separated by\n" +
-            "colons \":\".  At least one component of such a name must be\n" +
+            "colons \":\". The first element of the name must be an AS number\n" +
+            "followed by a colon and ending with a name (example: AS3333:AS-TEST)." +
+            "  At least one component of such a name must be\n" +
             "an actual set name (i.e. start with \"as-\").  All the set\n" +
             "name components of a hierarchical as-name have to be as-set\n" +
-            "names. The total length should not exceed 80 characters (octets).\n");
+            "names. The total length should not exceed 80 characters (octets).\n" +
+            "\n" +
+            "Only as-sets with a hierarchical name can be created.\n");
 
     AttributeSyntax AGGR_BNDRY_SYNTAX = new AttributeSyntaxParser(new AggrBndryParser(), "" +
             "[<as-expression>]\n");
@@ -81,7 +85,7 @@ public interface AttributeSyntax extends Documented {
             "inbound | outbound [<as-expression>]\n");
 
     AttributeSyntax AUTH_SCHEME_SYNTAX = new AttributeSyntaxRegexp(
-            Pattern.compile("(?i)^(MD5-PW \\$1\\$[A-Z0-9./]{1,8}\\$[A-Z0-9./]{22}|PGPKEY-[A-F0-9]{8}|SSO [-@.'+_\\w]{1,90}|X509-[1-9][0-9]{0,19}|AUTO-[1-9][0-9]*)$"), "" +
+            Pattern.compile("(?i)^(MD5-PW \\$1\\$[A-Z0-9./]{1,8}\\$[A-Z0-9./]{22}|PGPKEY-[A-F0-9]{8}|SSO (.+@.+){1,90}|X509-[1-9][0-9]{0,19}|AUTO-[1-9][0-9]*)$"), "" +
             "<auth-scheme> <scheme-info>       Description\n" +
             "\n" +
             "MD5-PW        encrypted           We strongly advise phrases longer\n" +
@@ -396,9 +400,11 @@ public interface AttributeSyntax extends Documented {
 
     AttributeSyntax ORG_NAME_SYNTAX = new AttributeSyntaxRegexp(
             Pattern.compile("(?i)^[\\]\\[A-Z0-9._\"*()@,&:!'`+\\/-]{1,64}( [\\]\\[A-Z0-9._\"*()@,&:!'`+\\/-]{1,64}){0,29}$"), "" +
-            "A list of 1 to 30 words separated by white space. A word is made up of letters, digits and the following characters:\n" +
+            "A list of 1 to 30 words separated by white space\n." +
+            "A word is made up of ASCII alphanumeric characters and additionally:\n" +
             "][)(._\"*@,&:!'`+/-\n" +
-            "A word may have up to 64 characters and is not case sensitive. Each word can have any combination of the above characters with no restriction on the start or end of a word.\n"
+            "A word may have up to 64 characters and is not case sensitive. Each word can have any combination of the" +
+            " above characters with no restriction on the start or end of a word."
     );
 
     AttributeSyntax ORG_TYPE_SYNTAX = new OrgTypeSyntax();
@@ -490,9 +496,9 @@ public interface AttributeSyntax extends Documented {
             "An address prefix is represented as an IPv4 address followed\n" +
             "by the character slash \"/\" followed by an integer in the\n" +
             "range from 0 to 32.  The following are valid address\n" +
-            "prefixes: 128.9.128.5/32, 128.9.0.0/16, 0.0.0.0/0; and the\n" +
-            "following address prefixes are invalid: 0/0, 128.9/16 since\n" +
-            "0 or 128.9 are not strings containing four integers.\n");
+            "prefixes: 192.0.2.5/32, 192.0.2.0/24, 0.0.0.0/0; and the\n" +
+            "following address prefixes are invalid: 0/0, 192.0.2/24 since\n" +
+            "0 or 192.0.2 are not strings containing four integers.\n");
 
     AttributeSyntax ROUTE6_SYNTAX = new AttributeSyntaxParser(new AttributeParser.Route6ResourceParser(), "" +
             "<ipv6-address>/<prefix>\n");
@@ -571,9 +577,9 @@ public interface AttributeSyntax extends Documented {
                             "An address prefix is represented as an IPv4 address followed\n" +
                             "by the character slash \"/\" followed by an integer in the\n" +
                             "range from 0 to 32.  The following are valid address\n" +
-                            "prefixes: 128.9.128.5/32, 128.9.0.0/16, 0.0.0.0/0; and the\n" +
-                            "following address prefixes are invalid: 0/0, 128.9/16 since\n" +
-                            "0 or 128.9 are not strings containing four integers.";
+                            "prefixes: 192.0.2.5/32, 192.0.2.0/24, 0.0.0.0/0; and the\n" +
+                            "following address prefixes are invalid: 0/0, 192.0.2/24 since\n" +
+                            "0 or 192.0.2 are not strings containing four integers.";
                 case ROUTE6:
                     return "" +
                             "<ipv6-address>/<prefix>";
@@ -894,7 +900,7 @@ public interface AttributeSyntax extends Documented {
         public String getDescription(final ObjectType objectType) {
             return "" +
                     "It should contain 2 to 10 words.\n" +
-                    "Each word consists of letters, digits or the following symbols:\n" +
+                    "A word is made up of ASCII alphanumeric characters and additionally:\n" +
                     ".`'_-\n" +
                     "The first word should begin with a letter.\n" +
                     "At least one other word should also begin with a letter.\n" +

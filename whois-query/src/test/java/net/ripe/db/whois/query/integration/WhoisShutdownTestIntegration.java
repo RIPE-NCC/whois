@@ -5,6 +5,7 @@ import net.ripe.db.whois.query.pipeline.QueryChannelsRegistry;
 import net.ripe.db.whois.query.support.AbstractQueryIntegrationTest;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.kubek2k.springockito.annotations.SpringockitoContextLoader;
 import org.kubek2k.springockito.annotations.WrapWithSpy;
@@ -16,13 +17,14 @@ import java.net.Socket;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.not;
 import static org.junit.jupiter.api.Assertions.fail;
 
 @DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_EACH_TEST_METHOD)
 @ContextConfiguration(loader = SpringockitoContextLoader.class, locations = {"classpath:applicationContext-query-test.xml"}, inheritLocations = false)
-@org.junit.jupiter.api.Tag("IntegrationTest")
+@Tag("IntegrationTest")
 public class WhoisShutdownTestIntegration extends AbstractQueryIntegrationTest {
     @Autowired @WrapWithSpy private QueryChannelsRegistry queryChannelsRegistry;
 
@@ -38,12 +40,11 @@ public class WhoisShutdownTestIntegration extends AbstractQueryIntegrationTest {
 
     @Test
     public void shouldShutdownWithOpenClientConnection() throws Exception {
-        Socket socket = new Socket(HOST, QueryServer.port);
+        final Socket socket = new Socket(HOST, QueryServer.port);
         try {
-            assertTrue(socket.isConnected(), "server connection");
-            assertTrue(socket.getInputStream().read() != -1, "header from server");
-
-            assertEquals(1, queryChannelsRegistry.size(), "single client connection");
+            assertThat(socket.isConnected(), is(true)); // server connection
+            assertThat(socket.getInputStream().read(), is(not(-1))); // header from server
+            assertThat(queryChannelsRegistry.size(), is(1));    // single client connection
 
             final CountDownLatch latch = new CountDownLatch(1);
             new Thread() {
@@ -54,7 +55,7 @@ public class WhoisShutdownTestIntegration extends AbstractQueryIntegrationTest {
                 }
             }.start();
 
-            if (!latch.await(2500, TimeUnit.MILLISECONDS)) {
+            if (!latch.await(2500L, TimeUnit.MILLISECONDS)) {
                 fail("Server did not shutdown with open client connection.");
             }
         } finally {

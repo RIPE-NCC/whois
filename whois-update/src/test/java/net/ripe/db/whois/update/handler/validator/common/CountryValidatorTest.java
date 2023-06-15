@@ -8,13 +8,11 @@ import net.ripe.db.whois.update.domain.PreparedUpdate;
 import net.ripe.db.whois.update.domain.UpdateContext;
 import net.ripe.db.whois.update.domain.UpdateMessages;
 import org.junit.jupiter.api.Test;
-
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import static net.ripe.db.whois.common.domain.CIString.ciString;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
@@ -33,7 +31,7 @@ public class CountryValidatorTest {
         final RpslObject rpslObject = RpslObject.parse("inetnum: 193.0/32\ncountry:DK");
         when(update.getUpdatedObject()).thenReturn(rpslObject);
 
-        subject.validate(update, updateContext);
+       subject.validate(update, updateContext);
 
         verifyNoMoreInteractions(updateContext);
     }
@@ -44,8 +42,8 @@ public class CountryValidatorTest {
         final RpslObject rpslObject = RpslObject.parse("inetnum: 193.0/32\ncountry:AB");
         when(update.getUpdatedObject()).thenReturn(rpslObject);
 
-        subject.validate(update, updateContext);
+       subject.validate(update, updateContext);
 
-        verify(updateContext).addMessage(update, rpslObject.findAttribute(AttributeType.COUNTRY), UpdateMessages.countryNotRecognised(ciString("AB")));
+        verify(updateContext).addMessage(update, rpslObject.findAttribute(AttributeType.COUNTRY), UpdateMessages.countryNotRecognised(rpslObject.findAttribute(AttributeType.COUNTRY)));
     }
 }

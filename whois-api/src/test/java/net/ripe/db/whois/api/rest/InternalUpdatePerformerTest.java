@@ -1,13 +1,15 @@
 package net.ripe.db.whois.api.rest;
 
 import com.google.common.collect.Lists;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.ws.rs.core.Response;
 import net.ripe.db.whois.api.rest.mapper.WhoisObjectServerMapper;
 import net.ripe.db.whois.common.DateTimeProvider;
 import net.ripe.db.whois.common.Message;
 import net.ripe.db.whois.common.Messages;
 import net.ripe.db.whois.common.rpsl.ObjectType;
 import net.ripe.db.whois.common.rpsl.RpslObject;
-import net.ripe.db.whois.common.sso.CrowdClientException;
+import net.ripe.db.whois.common.sso.AuthServiceClientException;
 import net.ripe.db.whois.common.sso.SsoTokenTranslator;
 import net.ripe.db.whois.common.sso.UserSession;
 import net.ripe.db.whois.update.domain.Credential;
@@ -26,7 +28,6 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import jakarta.servlet.http.HttpServletRequest;
 import java.time.ZonedDateTime;
 import java.util.Collections;
 import java.util.Optional;
@@ -34,9 +35,9 @@ import java.util.Optional;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.Matchers.containsInAnyOrder;
+import static org.hamcrest.Matchers.nullValue;
 import static org.hamcrest.core.Is.is;
 import static org.hamcrest.core.StringContains.containsString;
-import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
@@ -89,7 +90,7 @@ public class InternalUpdatePerformerTest {
         final Update update = subject.createUpdate(updateContextMock, object, Collections.singletonList("password"), null, "override");
 
         assertThat(update.getCredentials().all(), containsInAnyOrder((Credential) OverrideCredential.parse("override"), (Credential) new PasswordCredential("password")));
-        assertNull(update.getDeleteReasons());
+        assertThat(update.getDeleteReasons(), is(nullValue()));
         assertThat(update.getOperation(), is(Operation.UNSPECIFIED));
         assertThat(update.getParagraph().getContent(), is(
                 "mntner:         TEST-MNT\n" +
@@ -131,7 +132,7 @@ public class InternalUpdatePerformerTest {
         final Update update = subject.createUpdate(updateContextMock, object, Lists.newArrayList("password1", "password2"), null, null);
 
         assertThat(update.getCredentials().all(), containsInAnyOrder((Credential) new PasswordCredential("password1"), (Credential) new PasswordCredential("password2")));
-        assertNull(update.getDeleteReasons());
+        assertThat(update.getDeleteReasons(), is(nullValue()));
         assertThat(update.getParagraph().getContent(), is(
                 "person:         Test Person\n" +
                 "nic-hdl:        TP1-TEST\n" +
@@ -174,7 +175,7 @@ public class InternalUpdatePerformerTest {
 
     @Test
     public void setSsoSessionToContext_successful_sso_translation() {
-        final UserSession userSession = new UserSession("test@ripe.net", "Test User", true, "2033-01-30T16:38:27.369+11:00");
+        final UserSession userSession = new UserSession("offereduuid","test@ripe.net", "Test User", true, "2033-01-30T16:38:27.369+11:00");
         when(ssoTokenTranslatorMock.translateSsoToken("test-token")).thenReturn(userSession);
 
         subject.setSsoSessionToContext(updateContextMock, "test-token");
@@ -186,11 +187,11 @@ public class InternalUpdatePerformerTest {
 
     @Test
     public void setSsoSessionToContext_exception_is_logged() {
-        when(ssoTokenTranslatorMock.translateSsoToken("test-token")).thenThrow(new CrowdClientException("exception"));
+        when(ssoTokenTranslatorMock.translateSsoToken("test-token")).thenThrow(new AuthServiceClientException(Response.Status.INTERNAL_SERVER_ERROR.getStatusCode(), "exception"));
 
         try {
             subject.setSsoSessionToContext(updateContextMock, "test-token");
-        } catch (CrowdClientException e) {
+        } catch (AuthServiceClientException e) {
             verify(ssoTokenTranslatorMock.translateSsoToken("test-token"));
             verify(loggerContextMock).log(new Message(Messages.Type.ERROR, "exception"));
             verify(updateContextMock).addGlobalMessage(RestMessages.ssoAuthIgnored());

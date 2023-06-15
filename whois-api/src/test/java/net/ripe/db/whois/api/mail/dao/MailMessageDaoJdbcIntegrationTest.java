@@ -6,8 +6,8 @@ import net.ripe.db.whois.api.AbstractIntegrationTest;
 import net.ripe.db.whois.api.MimeMessageProvider;
 import net.ripe.db.whois.api.mail.dequeue.MessageDequeue;
 import net.ripe.db.whois.update.domain.DequeueStatus;
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.util.FileCopyUtils;
@@ -19,10 +19,12 @@ import java.util.Map;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.hamcrest.Matchers.not;
+import static org.hamcrest.Matchers.nullValue;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
-@org.junit.jupiter.api.Tag("IntegrationTest")
+
+@Tag("IntegrationTest")
 public class MailMessageDaoJdbcIntegrationTest extends AbstractIntegrationTest {
     private MailMessageDao subject;
     @Autowired private MessageDequeue messageDequeue;
@@ -35,7 +37,7 @@ public class MailMessageDaoJdbcIntegrationTest extends AbstractIntegrationTest {
 
     @Test
     public void addMessage_invalid() {
-        Assertions.assertThrows(IllegalArgumentException.class, () -> {
+        assertThrows(IllegalArgumentException.class, () -> {
             subject.addMessage(new MimeMessage((Session) null));
 
             assertThat(getAllMessages(), hasSize(0));
@@ -70,7 +72,7 @@ public class MailMessageDaoJdbcIntegrationTest extends AbstractIntegrationTest {
 
     @Test
     public void deleteMessage_not_existing() {
-        Assertions.assertThrows(IllegalArgumentException.class, () -> {
+        assertThrows(IllegalArgumentException.class, () -> {
             subject.deleteMessage("not_exists");
         });
     }
@@ -88,7 +90,7 @@ public class MailMessageDaoJdbcIntegrationTest extends AbstractIntegrationTest {
     public void claimMessage_none() {
         final String messageId = subject.claimMessage();
 
-        assertNull(messageId);
+        assertThat(messageId, is(nullValue()));
         assertThat(getAllMessages(), hasSize(0));
     }
 
@@ -103,20 +105,20 @@ public class MailMessageDaoJdbcIntegrationTest extends AbstractIntegrationTest {
 
         for (int i = 0; i < nrMessages; i++) {
             final String messageId = subject.claimMessage();
-            assertNotNull(messageId);
+            assertThat(messageId, not(nullValue()));
         }
 
         final String messageId = subject.claimMessage();
-        assertNull(messageId);
+        assertThat(messageId, is(nullValue()));
 
         final List<Map<String, Object>> list = getAllMessages();
         assertThat(list, hasSize(nrMessages));
 
         for (final Map<String, Object> objectMap : list) {
             assertThat((String) objectMap.get("status"), is("CLAIMED"));
-            assertNotNull(objectMap.get("message"));
-            assertNotNull(objectMap.get("claim_host"));
-            assertNotNull(objectMap.get("changed"));
+            assertThat(objectMap.get("message"), not(nullValue()));
+            assertThat(objectMap.get("claim_host"), not(nullValue()));
+            assertThat(objectMap.get("changed"), not(nullValue()));
         }
     }
 
@@ -137,7 +139,7 @@ public class MailMessageDaoJdbcIntegrationTest extends AbstractIntegrationTest {
 
     @Test
     public void setStatus_unknown_message() {
-        Assertions.assertThrows(IllegalArgumentException.class, () -> {
+        assertThrows(IllegalArgumentException.class, () -> {
             subject.setStatus("not_exists", DequeueStatus.LOGGED);
         });
     }

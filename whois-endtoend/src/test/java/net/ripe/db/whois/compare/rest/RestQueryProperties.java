@@ -34,7 +34,9 @@ class RestQueryProperties {
             throw new IllegalArgumentException("Cannot determine Source from query");
         }
 
-        this.mediaType = lcQuery.contains(".json") ? MediaType.APPLICATION_JSON_TYPE : MediaType.APPLICATION_XML_TYPE;
+        this.mediaType = lcQuery.contains(".json") ? MediaType.APPLICATION_JSON_TYPE :
+                            lcQuery.contains(".txt") ? MediaType.TEXT_PLAIN_TYPE :
+                            MediaType.APPLICATION_XML_TYPE;
      }
 
     public Source getSource() {

@@ -37,6 +37,10 @@
             <artifactId>jakarta.mail-api</artifactId>
         </dependency>
         <dependency>
+            <groupId>org.eclipse.angus</groupId>
+            <artifactId>jakarta.mail</artifactId>
+        </dependency>
+        <dependency>
             <groupId>com.hazelcast</groupId>
             <artifactId>hazelcast-all</artifactId>
         </dependency>
@@ -101,7 +105,7 @@
                     <dependency>
                         <groupId>commons-net</groupId>
                         <artifactId>commons-net</artifactId>
-                        <version>3.8.0</version>
+                        <version>3.9.0</version>
                     </dependency>
                 </dependencies>
             </plugin>

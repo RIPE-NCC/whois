@@ -1,15 +1,14 @@
 package net.ripe.db.whois.scheduler.task.export;
 
 import com.google.common.collect.Sets;
-
 import net.ripe.db.whois.common.rpsl.ObjectType;
 import net.ripe.db.whois.common.rpsl.RpslObject;
 import net.ripe.db.whois.common.source.SourceContext;
 import net.ripe.db.whois.scheduler.AbstractSchedulerIntegrationTest;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.util.FileCopyUtils;
@@ -24,12 +23,12 @@ import java.nio.charset.StandardCharsets;
 import java.util.Set;
 import java.util.zip.GZIPInputStream;
 
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.startsWith;
-import static org.hamcrest.MatcherAssert.assertThat;
 
-@org.junit.jupiter.api.Tag("IntegrationTest")
+@Tag("IntegrationTest")
 public class ExportDatabaseTestIntegration extends AbstractSchedulerIntegrationTest {
 
     @Autowired RpslObjectsExporter rpslObjectsExporter;
@@ -294,6 +293,7 @@ public class ExportDatabaseTestIntegration extends AbstractSchedulerIntegrationT
                 "               Street\n" +
                 "               1234 City\n" +
                 "               Country\n" +
+                "country:       NL\n" +
                 "phone:         +12 3456 78\n" +
                 "fax-no:        +12 234 567\n" +
                 "e-mail:        test@ripe.net\n" +
@@ -358,6 +358,7 @@ public class ExportDatabaseTestIntegration extends AbstractSchedulerIntegrationT
                 "                Street\n" +
                 "                1234 City\n" +
                 "                Country\n" +
+                "country:        NL\n" +
                 "phone:          +12 3... ..\n" +
                 "fax-no:         +12 2.. ...\n" +
                 "e-mail:         ***@ripe.net\n" +
@@ -397,36 +398,6 @@ public class ExportDatabaseTestIntegration extends AbstractSchedulerIntegrationT
                 "abuse-mailbox:  abuse@test.net\n" +
                 "nic-hdl:        AB-NIC\n" +
                 "source:         TEST");
-    }
-
-    @Test
-    public void export_tags_in_all_dumps() throws IOException {
-        final RpslObject org = databaseHelper.addObject(RpslObject.parse("" +
-                "organisation:  ORG-TO1-TEST\n" +
-                "org-name:      Test Organisation\n" +
-                "org-type:      OTHER\n" +
-                "source:        TEST"));
-
-        whoisTemplate.update("INSERT INTO tags VALUES (?, ?, ?)", org.getObjectId(), "bar", "Bar Data");
-        whoisTemplate.update("INSERT INTO tags VALUES (?, ?, ?)", org.getObjectId(), "foo", "Foo Data");
-        sourceContext.removeCurrentSource();
-
-        rpslObjectsExporter.export();
-
-        checkFile("internal/split/ripe.db.organisation.gz", "" +
-                "Tags relating to 'ORG-TO1-TEST'", "bar # Bar Data", "foo # Foo Data");
-
-        checkFile("dbase_new/split/ripe.db.organisation.gz",
-                "Tags relating to 'ORG-TO1-TEST'", "bar # Bar Data", "foo # Foo Data");
-
-        checkFile("dbase/split/ripe.db.organisation.gz",
-                "Tags relating to 'ORG-TO1-TEST'", "bar # Bar Data", "foo # Foo Data");
-
-        checkFile("dbase_new/ripe.db.gz",
-                "Tags relating to 'ORG-TO1-TEST'", "bar # Bar Data", "foo # Foo Data");
-
-        checkFile("dbase/ripe.db.gz",
-                "Tags relating to 'ORG-TO1-TEST'", "bar # Bar Data", "foo # Foo Data");
     }
 
     private void checkFile(final String name, final String... expectedContents) throws IOException {

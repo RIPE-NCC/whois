@@ -3,10 +3,11 @@ package net.ripe.db.whois.api.rdap;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.core.JsonFactory;
 import com.fasterxml.jackson.core.JsonGenerator;
+import com.fasterxml.jackson.databind.MapperFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.databind.introspect.AnnotationIntrospectorPair;
 import com.fasterxml.jackson.databind.introspect.JacksonAnnotationIntrospector;
+import com.fasterxml.jackson.databind.json.JsonMapper;
 import com.fasterxml.jackson.databind.type.TypeFactory;
 import com.fasterxml.jackson.module.jakarta.xmlbind.JakartaXmlBindAnnotationIntrospector;
 import com.google.common.collect.Lists;
@@ -161,15 +162,6 @@ public class RdapResponseJsonTest {
                 "    \"ipv4\" : [ \"192.0.2.1\", \"192.0.2.2\" ],\n" +
                 "    \"ipv6\" : [ \"2001:db8::123\" ]\n" +
                 "  },\n" +
-                "  \"status\" : [ \"active\" ],\n" +
-                "  \"remarks\" : [ {\n" +
-                "    \"description\" : [ \"She sells sea shells down by the sea shore.\", \"Originally written by Terry Sullivan.\" ]\n" +
-                "  } ],\n" +
-                "  \"links\" : [ {\n" +
-                "    \"value\" : \"http://example.net/nameserver/xxxx\",\n" +
-                "    \"rel\" : \"self\",\n" +
-                "    \"href\" : \"http://example.net/nameserver/xxxx\"\n" +
-                "  } ],\n" +
                 "  \"events\" : [ {\n" +
                 "    \"eventAction\" : \"registration\",\n" +
                 "    \"eventDate\" : \"" + DATE_TIME_UTC + "\"\n" +
@@ -178,8 +170,17 @@ public class RdapResponseJsonTest {
                 "    \"eventDate\" : \"" + DATE_TIME_UTC + "\",\n" +
                 "    \"eventActor\" : \"joe@example.com\"\n" +
                 "  } ],\n" +
+                 "  \"links\" : [ {\n" +
+                "    \"value\" : \"http://example.net/nameserver/xxxx\",\n" +
+                "    \"rel\" : \"self\",\n" +
+                "    \"href\" : \"http://example.net/nameserver/xxxx\"\n" +
+                "  } ],\n" +
+                "  \"objectClassName\" : \"nameserver\",\n" +
                 "  \"port43\" : \"whois.example.net\",\n" +
-                "  \"objectClassName\" : \"nameserver\"\n" +
+                "  \"remarks\" : [ {\n" +
+                "    \"description\" : [ \"She sells sea shells down by the sea shore.\", \"Originally written by Terry Sullivan.\" ]\n" +
+                "  } ],\n" +
+                "  \"status\" : [ \"active\" ]\n" +
                 "}"));
     }
 
@@ -252,8 +253,8 @@ public class RdapResponseJsonTest {
 
         domain.setSecureDNS(secureDNS);
 
-        assertThat(marshal(domain), equalTo("" +
-                "{\n" +
+        assertThat(marshal(domain), equalTo("" + 
+                "{\n" + 
                 "  \"handle\" : \"XXXX\",\n" +
                 "  \"ldhName\" : \"192.in-addr.arpa\",\n" +
                 "  \"nameServers\" : [ {\n" +
@@ -282,14 +283,6 @@ public class RdapResponseJsonTest {
                 "      \"type\" : \"email\"\n" +
                 "    }, \"text\", \"joe.user@example.com\" ] ] ],\n" +
                 "    \"roles\" : [ \"registrant\" ],\n" +
-                "    \"remarks\" : [ {\n" +
-                "      \"description\" : [ \"She sells sea shells down by the sea shore.\", \"Originally written by Terry Sullivan.\" ]\n" +
-                "    } ],\n" +
-                "    \"links\" : [ {\n" +
-                "      \"value\" : \"http://example.net/entity/xxxx\",\n" +
-                "      \"rel\" : \"self\",\n" +
-                "      \"href\" : \"http://example.net/entity/xxxx\"\n" +
-                "    } ],\n" +
                 "    \"events\" : [ {\n" +
                 "      \"eventAction\" : \"registration\",\n" +
                 "      \"eventDate\" : \"2013-06-26T02:48:44Z\"\n" +
@@ -298,15 +291,15 @@ public class RdapResponseJsonTest {
                 "      \"eventDate\" : \"2013-06-26T02:48:44Z\",\n" +
                 "      \"eventActor\" : \"joe@example.com\"\n" +
                 "    } ],\n" +
-                "    \"objectClassName\" : \"entity\"\n" +
-                "  } ],\n" +
-                "  \"remarks\" : [ {\n" +
-                "    \"description\" : [ \"She sells sea shells down by the sea shore.\", \"Originally written by Terry Sullivan.\" ]\n" +
-                "  } ],\n" +
-                "  \"links\" : [ {\n" +
-                "    \"value\" : \"http://example.net/domain/XXXX\",\n" +
-                "    \"rel\" : \"self\",\n" +
-                "    \"href\" : \"http://example.net/domain/XXXXX\"\n" +
+                "    \"links\" : [ {\n" +
+                "      \"value\" : \"http://example.net/entity/xxxx\",\n" +
+                "      \"rel\" : \"self\",\n" +
+                "      \"href\" : \"http://example.net/entity/xxxx\"\n" +
+                "    } ],\n" +
+                "    \"objectClassName\" : \"entity\",\n" +
+                "    \"remarks\" : [ {\n" +
+                "      \"description\" : [ \"She sells sea shells down by the sea shore.\", \"Originally written by Terry Sullivan.\" ]\n" +
+                "    } ]\n" +
                 "  } ],\n" +
                 "  \"events\" : [ {\n" +
                 "    \"eventAction\" : \"registration\",\n" +
@@ -316,7 +309,15 @@ public class RdapResponseJsonTest {
                 "    \"eventDate\" : \"2013-06-26T02:48:44Z\",\n" +
                 "    \"eventActor\" : \"joe@example.com\"\n" +
                 "  } ],\n" +
-                "  \"objectClassName\" : \"domain\"\n" +
+                "  \"links\" : [ {\n" +
+                "    \"value\" : \"http://example.net/domain/XXXX\",\n" +
+                "    \"rel\" : \"self\",\n" +
+                "    \"href\" : \"http://example.net/domain/XXXXX\"\n" +
+                "  } ],\n" +
+                "  \"objectClassName\" : \"domain\",\n" +
+                "  \"remarks\" : [ {\n" +
+                "    \"description\" : [ \"She sells sea shells down by the sea shore.\", \"Originally written by Terry Sullivan.\" ]\n" +
+                "  } ]\n" +
                 "}"));
     }
 
@@ -384,7 +385,6 @@ public class RdapResponseJsonTest {
                 "  \"type\" : \"DIRECT ALLOCATION\",\n" +
                 "  \"country\" : \"AU\",\n" +
                 "  \"parentHandle\" : \"YYYY-RIR\",\n" +
-                "  \"status\" : [ \"allocated\" ],\n" +
                 "  \"entities\" : [ {\n" +
                 "    \"handle\" : \"XXXX\",\n" +
                 "    \"vcardArray\" : [ \"vcard\", [ " +
@@ -401,14 +401,6 @@ public class RdapResponseJsonTest {
                 "      \"type\" : \"email\"\n" +
                 "    }, \"text\", \"joe.user@example.com\" ] ] ],\n" +
                 "    \"roles\" : [ \"registrant\" ],\n" +
-                "    \"remarks\" : [ {\n" +
-                "      \"description\" : [ \"She sells sea shells down by the sea shore.\", \"Originally written by Terry Sullivan.\" ]\n" +
-                "    } ],\n" +
-                "    \"links\" : [ {\n" +
-                "      \"value\" : \"http://example.net/entity/xxxx\",\n" +
-                "      \"rel\" : \"self\",\n" +
-                "      \"href\" : \"http://example.net/entity/xxxx\"\n" +
-                "    } ],\n" +
                 "    \"events\" : [ {\n" +
                 "      \"eventAction\" : \"registration\",\n" +
                 "      \"eventDate\" : \"" + DATE_TIME_UTC + "\"\n" +
@@ -417,10 +409,23 @@ public class RdapResponseJsonTest {
                 "      \"eventDate\" : \"" + DATE_TIME_UTC + "\",\n" +
                 "      \"eventActor\" : \"joe@example.com\"\n" +
                 "    } ],\n" +
-                "    \"objectClassName\" : \"entity\"\n" +
+                "    \"links\" : [ {\n" +
+                "      \"value\" : \"http://example.net/entity/xxxx\",\n" +
+                "      \"rel\" : \"self\",\n" +
+                "      \"href\" : \"http://example.net/entity/xxxx\"\n" +
+                "    } ],\n" +
+                "    \"objectClassName\" : \"entity\",\n" +
+                "    \"remarks\" : [ {\n" +
+                "      \"description\" : [ \"She sells sea shells down by the sea shore.\", \"Originally written by Terry Sullivan.\" ]\n" +
+                "    } ]\n" +
                 "  } ],\n" +
-                "  \"remarks\" : [ {\n" +
-                "    \"description\" : [ \"She sells sea shells down by the sea shore.\", \"Originally written by Terry Sullivan.\" ]\n" +
+                "  \"events\" : [ {\n" +
+                "    \"eventAction\" : \"registration\",\n" +
+                "    \"eventDate\" : \"" + DATE_TIME_UTC + "\"\n" +
+                "  }, {\n" +
+                "    \"eventAction\" : \"last changed\",\n" +
+                "    \"eventDate\" : \"" + DATE_TIME_UTC + "\",\n" +
+                "    \"eventActor\" : \"joe@example.com\"\n" +
                 "  } ],\n" +
                 "  \"links\" : [ {\n" +
                 "    \"value\" : \"http://example.net/ip/2001:db8::/48\",\n" +
@@ -431,15 +436,11 @@ public class RdapResponseJsonTest {
                 "    \"rel\" : \"up\",\n" +
                 "    \"href\" : \"http://example.net/ip/2001:C00::/23\"\n" +
                 "  } ],\n" +
-                "  \"events\" : [ {\n" +
-                "    \"eventAction\" : \"registration\",\n" +
-                "    \"eventDate\" : \"" + DATE_TIME_UTC + "\"\n" +
-                "  }, {\n" +
-                "    \"eventAction\" : \"last changed\",\n" +
-                "    \"eventDate\" : \"" + DATE_TIME_UTC + "\",\n" +
-                "    \"eventActor\" : \"joe@example.com\"\n" +
+                "  \"objectClassName\" : \"ip network\",\n" +
+                "  \"remarks\" : [ {\n" +
+                "    \"description\" : [ \"She sells sea shells down by the sea shore.\", \"Originally written by Terry Sullivan.\" ]\n" +
                 "  } ],\n" +
-                "  \"objectClassName\" : \"ip network\"\n" +
+                "  \"status\" : [ \"allocated\" ]\n" +
                 "}"));
     }
 
@@ -487,7 +488,9 @@ public class RdapResponseJsonTest {
     }
 
     private JsonFactory createJsonFactory() {
-        final ObjectMapper objectMapper = new ObjectMapper();
+        final ObjectMapper objectMapper = JsonMapper.builder()
+                .configure(MapperFeature.SORT_PROPERTIES_ALPHABETICALLY, true)
+                .build();
 
         objectMapper.setAnnotationIntrospector(
                 new AnnotationIntrospectorPair(
@@ -495,7 +498,6 @@ public class RdapResponseJsonTest {
                         new JakartaXmlBindAnnotationIntrospector(TypeFactory.defaultInstance())));
 
         objectMapper.setSerializationInclusion(JsonInclude.Include.NON_NULL);
-        objectMapper.configure(SerializationFeature.WRITE_EMPTY_JSON_ARRAYS, true);
 
         final DateFormat df = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'");
         df.setTimeZone(TimeZone.getTimeZone("GMT"));

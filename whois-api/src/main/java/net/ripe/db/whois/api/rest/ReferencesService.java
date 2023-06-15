@@ -15,6 +15,7 @@ import net.ripe.db.whois.api.rest.domain.WhoisObject;
 import net.ripe.db.whois.api.rest.domain.WhoisResources;
 import net.ripe.db.whois.api.rest.mapper.FormattedServerAttributeMapper;
 import net.ripe.db.whois.api.rest.mapper.WhoisObjectMapper;
+import net.ripe.db.whois.api.rest.marshal.StreamingHelper;
 import net.ripe.db.whois.common.Message;
 import net.ripe.db.whois.common.Messages;
 import net.ripe.db.whois.common.dao.RpslObjectDao;
@@ -28,6 +29,7 @@ import net.ripe.db.whois.common.rpsl.RpslAttribute;
 import net.ripe.db.whois.common.rpsl.RpslObject;
 import net.ripe.db.whois.common.rpsl.RpslObjectBuilder;
 import net.ripe.db.whois.common.source.SourceContext;
+import net.ripe.db.whois.common.sso.AuthServiceClient;
 import net.ripe.db.whois.update.domain.Keyword;
 import net.ripe.db.whois.update.domain.Origin;
 import net.ripe.db.whois.update.domain.Update;
@@ -100,7 +102,6 @@ public class ReferencesService {
     private final WhoisObjectMapper whoisObjectMapper;
     private final Map dummyMap;
     private final String dummyRole;
-
     @Autowired
     public ReferencesService(
             final RpslObjectDao rpslObjectDao,
@@ -131,6 +132,7 @@ public class ReferencesService {
      * @param keyParam
      */
     @GET
+    @Produces({MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON})
     @Path("/{source}/{objectType}/{key:.*}")
     public Reference lookup(
             @PathParam("source") final String sourceParam,
@@ -166,7 +168,7 @@ public class ReferencesService {
                 @PathParam("source") final String sourceParam,
                 @Context final HttpServletRequest request,
                 @QueryParam("password") final List<String> passwords,
-                @CookieParam("crowd.token_key") final String crowdTokenKey) {
+                @CookieParam(AuthServiceClient.TOKEN_KEY) final String crowdTokenKey) {
 
         validateWhoisResources(whoisResources);
         validateSource(sourceParam);
@@ -395,7 +397,7 @@ public class ReferencesService {
             @QueryParam("reason") @DefaultValue("--") final String reason,
             @QueryParam("password") final List<String> passwords,
             @QueryParam("override") final String override,
-            @CookieParam("crowd.token_key") final String crowdTokenKey) {
+            @CookieParam(AuthServiceClient.TOKEN_KEY) final String crowdTokenKey) {
 
         validateSource(sourceParam);
 

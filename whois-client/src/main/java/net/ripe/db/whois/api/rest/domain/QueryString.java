@@ -27,4 +27,5 @@ public class QueryString {
     public String getValue() {
         return value;
     }
+
 }

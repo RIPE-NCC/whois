@@ -182,7 +182,7 @@ class MntLowerAttributeValidationSpec extends BaseQueryUpdateSpec {
                 mnt-lower:    LIR-MNT         # added
                 source:       TEST
                 password: lir
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:
@@ -214,7 +214,7 @@ class MntLowerAttributeValidationSpec extends BaseQueryUpdateSpec {
                 mnt-lower:    LIR-MNT         # added
                 source:       TEST
                 password: lir
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:
@@ -250,7 +250,7 @@ class MntLowerAttributeValidationSpec extends BaseQueryUpdateSpec {
                 mnt-lower:    LIR-MNT         # added
                 source:       TEST
                 password: lir
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:
@@ -284,7 +284,7 @@ class MntLowerAttributeValidationSpec extends BaseQueryUpdateSpec {
                 mnt-lower:    LIR-MNT         # added
                 source:       TEST
                 password: lir
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:
@@ -317,7 +317,7 @@ class MntLowerAttributeValidationSpec extends BaseQueryUpdateSpec {
                 mnt-lower:    LIR-MNT         # added
                 source:       TEST
                 password: lir
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:
@@ -353,7 +353,7 @@ class MntLowerAttributeValidationSpec extends BaseQueryUpdateSpec {
                 mnt-lower:    LIR-MNT         # added
                 source:       TEST
                 password: lir
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:
@@ -386,7 +386,7 @@ class MntLowerAttributeValidationSpec extends BaseQueryUpdateSpec {
                 mnt-lower:    LIR-MNT         # added
                 source:       TEST
                 password: lir
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:
@@ -418,7 +418,7 @@ class MntLowerAttributeValidationSpec extends BaseQueryUpdateSpec {
                 mnt-lower:    LIR-MNT         # added
                 source:       TEST
                 password: lir
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:
@@ -453,7 +453,7 @@ class MntLowerAttributeValidationSpec extends BaseQueryUpdateSpec {
                 mnt-lower:    LIR-MNT         # added
                 source:       TEST
                 password: lir
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:
@@ -486,7 +486,7 @@ class MntLowerAttributeValidationSpec extends BaseQueryUpdateSpec {
                 mnt-lower:    LIR-MNT         # added
                 source:       TEST
                 password: lir
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:
@@ -518,7 +518,7 @@ class MntLowerAttributeValidationSpec extends BaseQueryUpdateSpec {
                 mnt-lower:    LIR-MNT         # added
                 source:       TEST
                 password: lir
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:
@@ -554,7 +554,7 @@ class MntLowerAttributeValidationSpec extends BaseQueryUpdateSpec {
                 mnt-lower:    LIR-MNT         # added
                 source:       TEST
                 password: lir
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:
@@ -589,7 +589,7 @@ class MntLowerAttributeValidationSpec extends BaseQueryUpdateSpec {
                 mnt-lower:    LIR-MNT         # added
                 source:       TEST
                 password: hm
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:
@@ -621,7 +621,7 @@ class MntLowerAttributeValidationSpec extends BaseQueryUpdateSpec {
                 mnt-lower:    LIR-MNT         # added
                 source:       TEST
                 password: hm
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:
@@ -654,7 +654,7 @@ class MntLowerAttributeValidationSpec extends BaseQueryUpdateSpec {
                 mnt-lower:    LIR-MNT         # added
                 source:       TEST
                 password: hm
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:
@@ -692,7 +692,7 @@ class MntLowerAttributeValidationSpec extends BaseQueryUpdateSpec {
                 mnt-lower:    LIR-MNT         # added
                 source:       TEST
                 password: hm
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:
@@ -725,7 +725,7 @@ class MntLowerAttributeValidationSpec extends BaseQueryUpdateSpec {
                 mnt-lower:    LIR-MNT         # added
                 source:       TEST
                 password: hm
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:
@@ -759,7 +759,7 @@ class MntLowerAttributeValidationSpec extends BaseQueryUpdateSpec {
                 mnt-lower:    LIR-MNT         # added
                 source:       TEST
                 password: hm
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:

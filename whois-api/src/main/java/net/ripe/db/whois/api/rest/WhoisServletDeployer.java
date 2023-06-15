@@ -3,10 +3,13 @@ package net.ripe.db.whois.api.rest;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.jakarta.rs.json.JacksonJsonProvider;
 import jakarta.servlet.DispatcherType;
+import jakarta.ws.rs.ext.MessageBodyWriter;
 import net.ripe.db.whois.api.autocomplete.AutocompleteService;
-import net.ripe.db.whois.api.fulltextsearch.FullTextSearch;
+import net.ripe.db.whois.api.fulltextsearch.FullTextSearchService;
+import net.ripe.db.whois.api.healthcheck.HealthCheckService;
 import net.ripe.db.whois.api.httpserver.DefaultExceptionMapper;
 import net.ripe.db.whois.api.httpserver.ServletDeployer;
+import net.ripe.db.whois.api.rest.domain.WhoisResources;
 import org.eclipse.jetty.servlet.FilterHolder;
 import org.eclipse.jetty.servlet.ServletHolder;
 import org.eclipse.jetty.webapp.WebAppContext;
@@ -37,7 +40,7 @@ public class WhoisServletDeployer implements ServletDeployer {
     private final DefaultExceptionMapper defaultExceptionMapper;
     private final MaintenanceModeFilter maintenanceModeFilter;
     private final DomainObjectService domainObjectService;
-    private final FullTextSearch fullTextSearch;
+    private final FullTextSearchService fullTextSearch;
     private final BatchUpdatesService batchUpdatesService;
     private final HealthCheckService healthCheckService;
 
@@ -54,7 +57,7 @@ public class WhoisServletDeployer implements ServletDeployer {
                                 final DefaultExceptionMapper defaultExceptionMapper,
                                 final MaintenanceModeFilter maintenanceModeFilter,
                                 final DomainObjectService domainObjectService,
-                                final FullTextSearch fullTextSearch,
+                                final FullTextSearchService fullTextSearch,
                                 final BatchUpdatesService batchUpdatesService,
                                 final HealthCheckService healthCheckService) {
         this.whoisRestService = whoisRestService;
@@ -102,6 +105,9 @@ public class WhoisServletDeployer implements ServletDeployer {
         jaxbJsonProvider.configure(SerializationFeature.INDENT_OUTPUT, true);
         jaxbJsonProvider.configure(SerializationFeature.WRAP_ROOT_VALUE, false);
         resourceConfig.register(jaxbJsonProvider);
+
+        final MessageBodyWriter<WhoisResources> customMessageBodyWriter = new WhoisResourcesPlainTextWriter();
+        resourceConfig.register(customMessageBodyWriter);
 
         resourceConfig.register(new JaxbMessagingBinder());
 

@@ -78,9 +78,10 @@ public class UpdateObjectHandlerImplTest {
         verify(rpslObjectUpdateDao, never()).createObject(mntner);
     }
 
+    @Test
     public void update_success() {
-        final RpslObject mntner = RpslObject.parse("mntner: MNTY");
-        final RpslObject mntner2 = RpslObject.parse("mntner: MNT2");
+        final RpslObject mntner = RpslObject.parse(1, "mntner: MNTY");
+        final RpslObject mntner2 = RpslObject.parse(2, "mntner: MNT2");
         final PreparedUpdate update = update(mntner, mntner2, Operation.UNSPECIFIED, Action.MODIFY);
         when(updateContext.hasErrors(update)).thenReturn(false);
 

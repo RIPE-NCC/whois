@@ -1,10 +1,10 @@
 package net.ripe.db.whois.common.rpsl;
 
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 public class AttributeTypeTest {
     @Test
@@ -25,7 +25,7 @@ public class AttributeTypeTest {
 
     @Test
     public void getByName_throws_on_unknown() {
-        Assertions.assertThrows(IllegalArgumentException.class, () -> {
+        assertThrows(IllegalArgumentException.class, () -> {
             AttributeType.getByName("BOOOYAKAAAA!!!");
         });
     }

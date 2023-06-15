@@ -7,7 +7,6 @@ import net.ripe.db.whois.common.rpsl.RpslObject;
 import net.ripe.db.whois.update.domain.Operation;
 import net.ripe.db.whois.update.domain.Paragraph;
 import net.ripe.db.whois.update.domain.Update;
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -32,6 +31,7 @@ import java.util.zip.GZIPInputStream;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.is;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.when;
 
@@ -94,7 +94,7 @@ public class LoggerContextTest {
 
     @Test
     public void log_throws_exception() {
-        Assertions.assertThrows(IllegalStateException.class, () -> {
+        assertThrows(IllegalStateException.class, () -> {
             subject.log("filename", new LogCallback() {
                 @Override
                 public void log(final OutputStream outputStream) throws IOException {
@@ -121,24 +121,19 @@ public class LoggerContextTest {
         final InputStream is = new GZIPInputStream(new BufferedInputStream(new FileInputStream(new File(folder.getAbsolutePath(), "000.audit.xml.gz"))));
         final String contents = new String(FileCopyUtils.copyToByteArray(is), StandardCharsets.UTF_8);
 
-        assertThat(trim(contents), containsString("" +
-                "<key>[mntner] DEV-ROOT-MNT</key>" +
-                "<operation>DELETE</operation>" +
-                "<reason/>" +
-                "<paragraph>" +
-                "<![CDATA[mntner: DEV-ROOT-MNT]]>" +
-                "</paragraph>" +
-                "<object>" +
-                "<![CDATA[mntner:         DEV-ROOT-MNT"));
+        assertThat(contents, containsString("" +
+                "            <key>[mntner] DEV-ROOT-MNT</key>\n" +
+                "            <operation>DELETE</operation>\n" +
+                "            <reason/>\n" +
+                "            <paragraph><![CDATA[mntner: DEV-ROOT-MNT]]></paragraph>\n" +
+                "            <object><![CDATA[mntner:         DEV-ROOT-MNT\n"));
 
-        assertThat(trim(contents), containsString("" +
-                "<query>" +
-                "<sql>" +
-                "<![CDATA[sql]]>" +
-                "</sql>" +
-                "<params/>" +
-                "<results/>" +
-                "</query>"));
+        assertThat(contents, containsString("" +
+                "            <query>\n" +
+                "                <sql><![CDATA[sql]]></sql>\n" +
+                "                <params/>\n" +
+                "                <results/>\n" +
+                "            </query>\n"));
     }
 
     @Test
@@ -148,7 +143,7 @@ public class LoggerContextTest {
 
     @Test
     public void logUpdateComplete_no_context_should_fail() {
-        Assertions.assertThrows(IllegalStateException.class, () -> {
+        assertThrows(IllegalStateException.class, () -> {
             subject.logUpdateCompleted(update);
         });
     }
@@ -169,16 +164,13 @@ public class LoggerContextTest {
         final InputStream is = new GZIPInputStream(new BufferedInputStream(new FileInputStream(new File(folder.getAbsolutePath(), "000.audit.xml.gz"))));
         final String contents = new String(FileCopyUtils.copyToByteArray(is), StandardCharsets.UTF_8);
 
-        assertThat(trim(contents), containsString("" +
-                "<exception>" +
-                "<class>java.lang.NullPointerException</class>"));
-        assertThat(trim(contents), containsString("" +
-                "<message>" +
-                "<![CDATA[null]]>" +
-                "</message>"));
-        assertThat(trim(contents), containsString("" +
-                "<stacktrace>" +
-                "<![CDATA[java.lang.NullPointerException"));
+        assertThat(contents, containsString("" +
+                "            <exception>\n" +
+                "                <class>java.lang.NullPointerException</class>\n"));
+        assertThat(contents, containsString("" +
+                "                <message><![CDATA[null]]></message>\n"));
+        assertThat(contents, containsString("" +
+                "                <stacktrace><![CDATA[java.lang.NullPointerException\n"));
     }
 
     @Test
@@ -230,9 +222,5 @@ public class LoggerContextTest {
         context.checkDirs();
 
         assertThat(context.getFile("test").getCanonicalPath(), containsString(".2001:2002::x0B/001.test.gz"));
-    }
-
-    private String trim(final String value) {
-        return value.replaceAll("(?m)^\\s+", "").replaceAll("(?m)\\n", "");
     }
 }

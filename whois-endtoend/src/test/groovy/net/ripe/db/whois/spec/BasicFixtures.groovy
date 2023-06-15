@@ -164,17 +164,6 @@ class BasicFixtures {
                 mnt-by:  TST-MNT
                 source:  TEST
                 """,
-            "RIPE-NCC-HM2-MNT": """\
-                mntner:      RIPE-NCC-HM2-MNT
-                descr:       hostmaster MNTNER
-                admin-c:     TP1-TEST
-                upd-to:      updto_hm@ripe.net
-                mnt-nfy:     mntnfy_hm@ripe.net
-                notify:      notify_hm@ripe.net
-                auth:        MD5-PW \$1\$GAdTrvdG\$SEqxCNjKkR3ogcIq7teRv0  #hm2
-                mnt-by:      RIPE-NCC-HM2-MNT
-                source:      TEST
-                """,
             "LOWER-MNT": """\
                 mntner:      LOWER-MNT
                 descr:       used for mnt-lower
@@ -561,6 +550,7 @@ class BasicFixtures {
                 organisation:    ORG-HR1-TEST
                 org-type:        LIR
                 org-name:        Regional Internet Registry
+                country:         NL
                 address:         RIPE NCC
                 e-mail:          dbtest@ripe.net
                 ref-nfy:         dbtest-org@ripe.net
@@ -657,6 +647,21 @@ class BasicFixtures {
                 organisation: ORG-OFA10-TEST
                 org-type:     OTHER
                 org-name:     Organisation for Abuse
+                address:      RIPE NCC
+                e-mail:       dbtest@ripe.net
+                admin-c:      TP1-TEST
+                tech-c:       TP1-TEST
+                abuse-c:      AH1-TEST
+                ref-nfy:      dbtest-org@ripe.net
+                mnt-ref:      owner3-mnt
+                mnt-by:       lir-mnt
+                source:       TEST
+                """,
+            "ORG-OTH-COUNTRY": """\
+                organisation: ORG-OFA11-TEST
+                org-type:     OTHER
+                org-name:     Organisation for country and Abuse
+                country:      NL
                 address:      RIPE NCC
                 e-mail:       dbtest@ripe.net
                 admin-c:      TP1-TEST

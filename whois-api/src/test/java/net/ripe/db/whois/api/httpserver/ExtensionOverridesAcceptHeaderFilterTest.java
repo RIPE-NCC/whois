@@ -61,6 +61,16 @@ public class ExtensionOverridesAcceptHeaderFilterTest {
     }
 
     @Test
+    public void txt_extension() throws Exception {
+        final HttpServletRequest request = doFilter("http", "localhost", "/whois/test/inet6num/No%20clue%20what%20the%20range%20is.txt");
+
+        assertThat(request.getRequestURI(), is("/whois/test/inet6num/No%20clue%20what%20the%20range%20is"));
+        assertThat(request.getRequestURL().toString(), is("http://localhost/whois/test/inet6num/No%20clue%20what%20the%20range%20is"));
+        assertThat(request.getHeader("Accept"), is("text/plain"));
+        assertThat(toList(request.getHeaders("Accept")), contains("text/plain"));
+    }
+
+    @Test
     public void unknown_extension() throws Exception {
         final HttpServletRequest request = doFilter("http", "localhost", "/whois/test/inet6num/No%20clue%20what%20the%20range%20is.unknown");
 

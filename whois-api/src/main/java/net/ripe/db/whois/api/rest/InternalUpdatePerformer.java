@@ -8,13 +8,14 @@ import net.ripe.db.whois.api.rest.domain.Link;
 import net.ripe.db.whois.api.rest.domain.WhoisObject;
 import net.ripe.db.whois.api.rest.domain.WhoisResources;
 import net.ripe.db.whois.api.rest.mapper.WhoisObjectMapper;
+import net.ripe.db.whois.api.rest.marshal.StreamingHelper;
 import net.ripe.db.whois.common.DateTimeProvider;
 import net.ripe.db.whois.common.Message;
 import net.ripe.db.whois.common.Messages;
 import net.ripe.db.whois.common.conversion.PasswordFilter;
 import net.ripe.db.whois.common.rpsl.RpslAttribute;
 import net.ripe.db.whois.common.rpsl.RpslObject;
-import net.ripe.db.whois.common.sso.CrowdClientException;
+import net.ripe.db.whois.common.sso.AuthServiceClientException;
 import net.ripe.db.whois.common.sso.SsoTokenTranslator;
 import net.ripe.db.whois.update.domain.Action;
 import net.ripe.db.whois.update.domain.ClientCertificateCredential;
@@ -60,7 +61,6 @@ public class InternalUpdatePerformer {
     private final WhoisObjectMapper whoisObjectMapper;
     private final LoggerContext loggerContext;
     private final SsoTokenTranslator ssoTokenTranslator;
-
     @Autowired
     public InternalUpdatePerformer(final UpdateRequestHandler updateRequestHandler,
                                    final DateTimeProvider dateTimeProvider,
@@ -221,7 +221,7 @@ public class InternalUpdatePerformer {
         if (!StringUtils.isBlank(ssoToken)) {
             try {
                 updateContext.setUserSession(ssoTokenTranslator.translateSsoToken(ssoToken));
-            } catch (CrowdClientException e) {
+            } catch (AuthServiceClientException e) {
                 logError(e);
                 updateContext.addGlobalMessage(RestMessages.ssoAuthIgnored());
             }
@@ -256,7 +256,6 @@ public class InternalUpdatePerformer {
     }
 
     public static class StreamingResponse implements StreamingOutput {
-
         final WhoisResources whoisResources;
         final HttpServletRequest request;
 

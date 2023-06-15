@@ -35,8 +35,6 @@ public class Autnum extends RdapObject implements Serializable {
     @XmlElement(required = true)
     protected String name;
     @XmlElement(required = true)
-    protected String type;
-    @XmlElement(required = true)
     protected String country;
 
     public Autnum() {
@@ -74,14 +72,6 @@ public class Autnum extends RdapObject implements Serializable {
 
     public void setName(final String value) {
         this.name = value;
-    }
-
-    public String getType() {
-        return type;
-    }
-
-    public void setType(final String value) {
-        this.type = value;
     }
 
     public String getCountry() {

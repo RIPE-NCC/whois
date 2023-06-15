@@ -5,17 +5,16 @@ import net.ripe.db.whois.update.domain.PreparedUpdate;
 import net.ripe.db.whois.update.domain.UpdateContext;
 import net.ripe.db.whois.update.log.LoggerContext;
 import org.junit.jupiter.api.Test;
-
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.Collections;
 
-import static org.hamcrest.Matchers.is;
-import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.equalTo;
+import static org.hamcrest.Matchers.is;
 
 @ExtendWith(MockitoExtension.class)
 public class PasswordCredentialValidatorTest {
@@ -49,7 +48,7 @@ public class PasswordCredentialValidatorTest {
 
     @Test
     public void supports() {
-        assertEquals(PasswordCredential.class, subject.getSupportedCredentials());
+        assertThat(subject.getSupportedCredentials(), equalTo(PasswordCredential.class));
     }
 
     @Test

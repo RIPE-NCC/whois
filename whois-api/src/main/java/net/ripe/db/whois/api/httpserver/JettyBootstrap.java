@@ -1,5 +1,6 @@
 package net.ripe.db.whois.api.httpserver;
 
+import jakarta.servlet.DispatcherType;
 import net.ripe.db.whois.common.ApplicationService;
 import net.ripe.db.whois.common.aspects.RetryFor;
 import org.eclipse.jetty.jmx.ObjectMBean;
@@ -12,11 +13,8 @@ import org.eclipse.jetty.server.NetworkConnector;
 import org.eclipse.jetty.server.RequestLog;
 import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.server.ServerConnector;
-import org.eclipse.jetty.server.Slf4jRequestLogWriter;
 import org.eclipse.jetty.server.handler.HandlerList;
-import org.eclipse.jetty.server.handler.ResourceHandler;
 import org.eclipse.jetty.servlet.FilterHolder;
-import org.eclipse.jetty.util.resource.Resource;
 import org.eclipse.jetty.webapp.WebAppContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -28,7 +26,6 @@ import org.springframework.stereotype.Component;
 import javax.management.JMException;
 import javax.management.MalformedObjectNameException;
 import javax.management.ObjectName;
-import jakarta.servlet.DispatcherType;
 import java.lang.management.ManagementFactory;
 import java.time.ZoneOffset;
 import java.util.EnumSet;
@@ -48,34 +45,32 @@ public class JettyBootstrap implements ApplicationService {
     private Server server;
 
     private int port = 0;
+    private final int idleTimeout;
 
     private final RewriteEngine rewriteEngine;
     private final String trustedIpRanges;
     private final boolean rewriteEngineEnabled;
 
     private final boolean dosFilterEnabled;
-
-    private final DelayShutdownHook delayShutdownHook;
-
     @Autowired
     public JettyBootstrap(final RemoteAddressFilter remoteAddressFilter,
                           final ExtensionOverridesAcceptHeaderFilter extensionOverridesAcceptHeaderFilter,
                           final List<ServletDeployer> servletDeployers,
                           final RewriteEngine rewriteEngine,
-                          final DelayShutdownHook delayShutdownHook,
                           @Value("${ipranges.trusted}") final String trustedIpRanges,
+                          @Value("${http.idle.timeout.sec:60}") final int idleTimeout,
                           @Value("${dos.filter.enabled:false}") final boolean dosFilterEnabled,
                           @Value("${rewrite.engine.enabled:false}") final boolean rewriteEngineEnabled) throws MalformedObjectNameException {
         this.remoteAddressFilter = remoteAddressFilter;
         this.extensionOverridesAcceptHeaderFilter = extensionOverridesAcceptHeaderFilter;
         this.servletDeployers = servletDeployers;
         this.rewriteEngine = rewriteEngine;
-        this.delayShutdownHook = delayShutdownHook;
         this.trustedIpRanges = trustedIpRanges;
         this.rewriteEngineEnabled = rewriteEngineEnabled;
         LOGGER.info("Rewrite engine is {}abled", rewriteEngineEnabled? "en" : "dis");
         this.dosFilterMBeanName = ObjectName.getInstance("net.ripe.db.whois:name=DosFilter");
         this.dosFilterEnabled = dosFilterEnabled;
+        this.idleTimeout = idleTimeout;
     }
 
     @Override
@@ -98,12 +93,6 @@ public class JettyBootstrap implements ApplicationService {
         return server;
     }
 
-    // handler to serve static resources directly from jetty
-    private ResourceHandler getStaticResourceHandler(String resourceBase) {
-        ResourceHandler resourceHandler = new ResourceHandler();
-        resourceHandler.setBaseResource(Resource.newClassPathResource(resourceBase));
-        return resourceHandler;
-    }
 
     private Server createAndStartServer(final int port) {
         final WebAppContext context = new WebAppContext();
@@ -171,13 +160,13 @@ public class JettyBootstrap implements ApplicationService {
 
     @RetryFor(attempts = 5, value = Exception.class)
     private Server createAndStartServer(int port, HandlerList handlers) throws Exception {
-        delayShutdownHook.register();
         final Server server = new Server(port);
         server.setHandler(handlers);
-        server.setStopAtShutdown(true);
+        server.setStopAtShutdown(false);
         server.setRequestLog(createRequestLog());
 
         final HttpConfiguration httpConfig = new HttpConfiguration();
+        httpConfig.setIdleTimeout(idleTimeout * 1000L);
         httpConfig.addCustomizer( new RemoteAddressCustomizer() );
 
         final HttpConnectionFactory connectionFactory = new HttpConnectionFactory( httpConfig );
@@ -185,6 +174,8 @@ public class JettyBootstrap implements ApplicationService {
 
         //the port in the Server constructor is overridden by the new connector
         connector.setPort(port);
+        LOGGER.info("setting idle connection timeout at connector level to {}", idleTimeout);
+        connector.setIdleTimeout(idleTimeout * 1000L);
 
         server.setConnectors( new ServerConnector[] { connector } );
 
@@ -216,6 +207,6 @@ public class JettyBootstrap implements ApplicationService {
 
     // Log requests to org.eclipse.jetty.server.RequestLog
     private RequestLog createRequestLog() {
-        return new CustomRequestLog(new FilteredSlf4jRequestLogWriter("password"), EXTENDED_RIPE_LOG_FORMAT);
+        return new CustomRequestLog(new FilteredPasswordSlf4RequestLogWriter(), EXTENDED_RIPE_LOG_FORMAT);
     }
 }

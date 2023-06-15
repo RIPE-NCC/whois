@@ -15,6 +15,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.dao.EmptyResultDataAccessException;
 
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.core.Is.is;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
@@ -33,14 +34,14 @@ public class MemberOfValidatorTest {
 
     @Test
     public void getActions() {
-        assertThat(subject.getActions().size(), is(2));
+        assertThat(subject.getActions(), hasSize(2));
         assertThat(subject.getActions().contains(Action.MODIFY), is(true));
         assertThat(subject.getActions().contains(Action.CREATE), is(true));
     }
 
     @Test
     public void getTypes() {
-        assertThat(subject.getTypes().size(), is(4));
+        assertThat(subject.getTypes(), hasSize(4));
         assertThat(subject.getTypes().contains(ObjectType.AUT_NUM), is(true));
         assertThat(subject.getTypes().contains(ObjectType.ROUTE), is(true));
         assertThat(subject.getTypes().contains(ObjectType.ROUTE6), is(true));
@@ -51,7 +52,7 @@ public class MemberOfValidatorTest {
     public void nothing_to_validate_when_no_new_member_of() {
         when(update.getUpdatedObject()).thenReturn(RpslObject.parse("aut-num: AS23454"));
 
-        subject.validate(update, updateContext);
+       subject.validate(update, updateContext);
 
         verifyNoMoreInteractions(updateContext);
     }
@@ -62,7 +63,7 @@ public class MemberOfValidatorTest {
         when(update.getUpdatedObject()).thenReturn(RpslObject.parse("aut-num: AS23454\nmnt-by: TEST-MNT\nmember-of: AS-23425"));
         when(objectDao.getByKey(ObjectType.AS_SET, "AS-23425")).thenThrow(EmptyResultDataAccessException.class);
 
-        subject.validate(update, updateContext);
+       subject.validate(update, updateContext);
 
         verify(updateContext, never()).addMessage(update, UpdateMessages.referenceNotFound("AS-23425"));
     }
@@ -73,7 +74,7 @@ public class MemberOfValidatorTest {
         when(update.getUpdatedObject()).thenReturn(RpslObject.parse("aut-num: AS23454\nmnt-by: TEST-MNT\nmember-of: AS-23425"));
         when(objectDao.getByKey(ObjectType.AS_SET, "AS-23425")).thenReturn(RpslObject.parse("as-set: AS-23425\nmbrs-by-ref: OTHER-MNT\ndescr: description"));
 
-        subject.validate(update, updateContext);
+       subject.validate(update, updateContext);
 
         verify(updateContext).addMessage(update, UpdateMessages.membersNotSupportedInReferencedSet("[AS-23425]"));
     }
@@ -84,7 +85,7 @@ public class MemberOfValidatorTest {
         when(update.getUpdatedObject()).thenReturn(RpslObject.parse("aut-num: AS23454\nmnt-by: TEST-MNT\nmember-of: AS-23425"));
         when(objectDao.getByKey(ObjectType.AS_SET, "AS-23425")).thenReturn(RpslObject.parse("as-set: AS-23425\nmbrs-by-ref: TEST-MNT\ndescr: description"));
 
-        subject.validate(update, updateContext);
+       subject.validate(update, updateContext);
 
         verifyNoMoreInteractions(updateContext);
     }
@@ -95,7 +96,7 @@ public class MemberOfValidatorTest {
         when(update.getUpdatedObject()).thenReturn(RpslObject.parse("route: 193.254.30.0/24\norigin:AS12726\nmnt-by: TEST-MNT\nmember-of: RS-TEST-FOO"));
         when(objectDao.getByKey(ObjectType.ROUTE_SET, "RS-TEST-FOO")).thenThrow(EmptyResultDataAccessException.class);
 
-        subject.validate(update, updateContext);
+       subject.validate(update, updateContext);
 
         verifyNoMoreInteractions(updateContext);
     }
@@ -106,7 +107,7 @@ public class MemberOfValidatorTest {
         when(update.getUpdatedObject()).thenReturn(RpslObject.parse("route: 193.254.30.0/24\norigin:AS12726\nmnt-by: TEST-MNT\nmember-of: RS-TEST-FOO"));
         when(objectDao.getByKey(ObjectType.ROUTE_SET, "RS-TEST-FOO")).thenReturn(RpslObject.parse("route-set:RS-TEST-FOO\nmbrs-by-ref: any\ndescr: description"));
 
-        subject.validate(update, updateContext);
+       subject.validate(update, updateContext);
 
         verifyNoMoreInteractions(updateContext);
     }
@@ -117,7 +118,7 @@ public class MemberOfValidatorTest {
         when(update.getUpdatedObject()).thenReturn(RpslObject.parse("route: 193.254.30.0/24\norigin:AS12726\nmnt-by: TEST-MNT\nmember-of: RS-TEST-FOO"));
         when(objectDao.getByKey(ObjectType.ROUTE_SET, "RS-TEST-FOO")).thenReturn(RpslObject.parse("route-set: RS-TEST-FOO\nmbrs-by-ref: TEST-MNT\ndescr: description"));
 
-        subject.validate(update, updateContext);
+       subject.validate(update, updateContext);
 
         verifyNoMoreInteractions(updateContext);
     }
@@ -128,7 +129,7 @@ public class MemberOfValidatorTest {
         when(update.getUpdatedObject()).thenReturn(RpslObject.parse("route6:2001:1578:0200::/40\norigin:AS12726\nmnt-by: TEST-MNT\nmember-of: RS-TEST-FOO"));
         when(objectDao.getByKey(ObjectType.ROUTE_SET, "RS-TEST-FOO")).thenThrow(EmptyResultDataAccessException.class);
 
-        subject.validate(update, updateContext);
+       subject.validate(update, updateContext);
 
         verifyNoMoreInteractions(updateContext);
     }
@@ -139,7 +140,7 @@ public class MemberOfValidatorTest {
         when(update.getUpdatedObject()).thenReturn(RpslObject.parse("route6:2001:1578:0200::/40\norigin:AS12726\nmnt-by: TEST-MNT\nmember-of: RS-TEST-FOO"));
         when(objectDao.getByKey(ObjectType.ROUTE_SET, "RS-TEST-FOO")).thenReturn(RpslObject.parse("route-set:RS-TEST-FOO\nmbrs-by-ref: any\ndescr: description"));
 
-        subject.validate(update, updateContext);
+       subject.validate(update, updateContext);
 
         verifyNoMoreInteractions(updateContext);
     }
@@ -150,7 +151,7 @@ public class MemberOfValidatorTest {
         when(update.getUpdatedObject()).thenReturn(RpslObject.parse("route6:2001:1578:0200::/40\norigin:AS12726\nmnt-by: TEST-MNT\nmember-of: RS-TEST-FOO"));
         when(objectDao.getByKey(ObjectType.ROUTE_SET, "RS-TEST-FOO")).thenReturn(RpslObject.parse("route-set: RS-TEST-FOO\nmbrs-by-ref: TEST-MNT\ndescr: description"));
 
-        subject.validate(update, updateContext);
+       subject.validate(update, updateContext);
 
         verifyNoMoreInteractions(updateContext);
     }
@@ -162,7 +163,7 @@ public class MemberOfValidatorTest {
         when(update.getUpdatedObject()).thenReturn(RpslObject.parse("inet-rtr: test.ripe.net\nmnt-by: TEST-MNT\nmember-of: RTRS-23425"));
         when(objectDao.getByKey(ObjectType.RTR_SET, "RTRS-23425")).thenThrow(EmptyResultDataAccessException.class);
 
-        subject.validate(update, updateContext);
+       subject.validate(update, updateContext);
 
         verifyNoMoreInteractions(updateContext);
     }
@@ -173,7 +174,7 @@ public class MemberOfValidatorTest {
         when(update.getUpdatedObject()).thenReturn(RpslObject.parse("inet-rtr: test.ripe.net\nmnt-by: TEST-MNT\nmember-of: RTRS-23425"));
         when(objectDao.getByKey(ObjectType.RTR_SET, "RTRS-23425")).thenReturn(RpslObject.parse("route-set: RTRS-23425\nmbrs-by-ref: OTHER-MNT\ndescr: description"));
 
-        subject.validate(update, updateContext);
+       subject.validate(update, updateContext);
 
         verify(updateContext).addMessage(update, UpdateMessages.membersNotSupportedInReferencedSet("[RTRS-23425]"));
     }
@@ -184,7 +185,7 @@ public class MemberOfValidatorTest {
         when(update.getUpdatedObject()).thenReturn(RpslObject.parse("inet-rtr: test.ripe.net\nmnt-by: TEST-MNT\nmember-of: RTRS-23425"));
         when(objectDao.getByKey(ObjectType.RTR_SET, "RTRS-23425")).thenReturn(RpslObject.parse("rtr-set: RTRS-23425\nmbrs-by-ref: TEST-MNT\ndescr: description"));
 
-        subject.validate(update, updateContext);
+       subject.validate(update, updateContext);
 
         verifyNoMoreInteractions(updateContext);
     }

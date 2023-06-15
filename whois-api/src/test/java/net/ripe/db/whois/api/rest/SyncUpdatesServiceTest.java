@@ -9,7 +9,7 @@ import net.ripe.db.whois.common.DateTimeProvider;
 import net.ripe.db.whois.common.domain.IpRanges;
 import net.ripe.db.whois.common.source.Source;
 import net.ripe.db.whois.common.source.SourceContext;
-import net.ripe.db.whois.common.sso.CrowdClientException;
+import net.ripe.db.whois.common.sso.AuthServiceClientException;
 import net.ripe.db.whois.common.sso.SsoTokenTranslator;
 import net.ripe.db.whois.common.sso.UserSession;
 import net.ripe.db.whois.update.domain.Keyword;
@@ -31,6 +31,7 @@ import java.io.OutputStream;
 import java.net.HttpURLConnection;
 import java.util.Collections;
 
+import static jakarta.ws.rs.core.Response.Status.UNAUTHORIZED;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.is;
@@ -294,7 +295,7 @@ public class SyncUpdatesServiceTest {
     @Test
     public void handle_multipart_post() {
         when(messageHandler.handle(any(UpdateRequest.class), any(UpdateContext.class))).thenReturn(new UpdateResponse(UpdateStatus.SUCCESS, "OK"));
-        when(ssoTokenTranslator.translateSsoToken("valid-token")).thenReturn(new UserSession("test@ripe.net", "Test User", true, "2033-01-30T16:38:27.369+11:00"));
+        when(ssoTokenTranslator.translateSsoToken("valid-token")).thenReturn(new UserSession("offereduuid","test@ripe.net", "Test User", true, "2033-01-30T16:38:27.369+11:00"));
 
         final String data = "person:   Ed Shryane\n" +
                 "address:  Ripe NCC Singel 258\n" +
@@ -329,7 +330,7 @@ public class SyncUpdatesServiceTest {
     @Test
     public void handle_multipart_post_invalid_sso_token() {
         when(messageHandler.handle(any(UpdateRequest.class), any(UpdateContext.class))).thenReturn(new UpdateResponse(UpdateStatus.SUCCESS, "OK"));
-        when(ssoTokenTranslator.translateSsoToken("invalid-token")).thenThrow(new CrowdClientException("Unknown RIPE NCC Access token: invalid-token"));
+        when(ssoTokenTranslator.translateSsoToken("invalid-token")).thenThrow(new AuthServiceClientException(UNAUTHORIZED.getStatusCode(),"Unknown RIPE NCC Access token: invalid-token"));
 
         final String data = "person:   Ed Shryane\n" +
                 "address:  Ripe NCC Singel 258\n" +

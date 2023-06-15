@@ -11,6 +11,7 @@ import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -33,7 +34,7 @@ import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
 import static org.junit.jupiter.api.Assertions.fail;
 
-@org.junit.jupiter.api.Tag("IntegrationTest")
+@Tag("IntegrationTest")
 public class AutocompleteServiceTestIntegration extends AbstractIntegrationTest {
     @Autowired FullTextIndex fullTextIndex;
 
@@ -287,7 +288,7 @@ public class AutocompleteServiceTestIntegration extends AbstractIntegrationTest 
 
         final List<Map<String, Object>> response = query("ww", "admin-c", "person", "created");
 
-        assertThat(response.size(), is(1));
+        assertThat(response, hasSize(1));
         assertThat(response.get(0).size(), is(4));
         assertThat(getValues(response, "key"), contains("ww1-test"));
         assertThat(getValues(response, "type"), contains("person"));
@@ -347,7 +348,7 @@ public class AutocompleteServiceTestIntegration extends AbstractIntegrationTest 
 
         final List<String> keys = getValues(query("AUTH", "mnt-by"), "key");
 
-        assertThat(keys.size(), is(3));
+        assertThat(keys, hasSize(3));
         assertThat(keys.get(0), is("AUTH"));
     }
 
@@ -361,7 +362,7 @@ public class AutocompleteServiceTestIntegration extends AbstractIntegrationTest 
 
         final List<String> keys = getValues(query("telecom", "mnt-by"), "key");
 
-        assertThat(keys.size(), is(4));
+        assertThat(keys, hasSize(4));
         assertThat(keys.get(0), is("telecom"));
         assertThat(keys.get(1), is("AB-TELECOM-MNT"));
         assertThat(keys.get(2), is("ADM-RUS-TELECOM"));

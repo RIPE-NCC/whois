@@ -44,7 +44,6 @@ public class Query {
             new AbuseContactValidator(),
             new CombinationValidator(),
             new SearchKeyValidator(),
-            new TagValidator(),
             new VersionValidator(),
             new InverseValidator());
 

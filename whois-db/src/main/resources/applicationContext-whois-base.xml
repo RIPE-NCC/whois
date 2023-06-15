@@ -11,7 +11,12 @@
     <context:mbean-export/>
 
     <context:annotation-config />
-    <import resource="applicationContext-nrtm.xml"/>
-    <bean class="net.ripe.db.whois.scheduler.SchedulerConfig" />
     <context:component-scan base-package="net.ripe.db.whois.db"/>
+
+    <import resource="applicationContext-nrtm.xml"/>
+
+    <import resource="applicationContext-nrtm4.xml"/>
+
+    <bean class="net.ripe.db.whois.scheduler.SchedulerConfig" />
+
 </beans>

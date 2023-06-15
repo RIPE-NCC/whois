@@ -10,6 +10,7 @@ import net.ripe.db.whois.common.rpsl.ObjectType;
 import net.ripe.db.whois.common.rpsl.RpslObject;
 import net.ripe.db.whois.common.support.AbstractDaoIntegrationTest;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
@@ -21,10 +22,10 @@ import static org.hamcrest.Matchers.greaterThanOrEqualTo;
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.lessThanOrEqualTo;
+import static org.hamcrest.Matchers.not;
 import static org.hamcrest.Matchers.nullValue;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
 
-@org.junit.jupiter.api.Tag("IntegrationTest")
+@Tag("IntegrationTest")
 public class JdbcVersionDaoIntegrationTest extends AbstractDaoIntegrationTest {
     @Autowired VersionDao subject;
 
@@ -68,9 +69,9 @@ public class JdbcVersionDaoIntegrationTest extends AbstractDaoIntegrationTest {
         VersionLookupResult result = subject.findByKey(ObjectType.DOMAIN, "test.sk");
         final List<VersionInfo> history = result.getMostRecentlyCreatedVersions();
 
-        assertNotNull(history);
+        assertThat(history, not(nullValue()));
         assertThat(history, hasSize(0));
-        assertNotNull(result.getLastDeletionTimestamp());
+        assertThat(result.getLastDeletionTimestamp(), not(nullValue()));
 
         databaseHelper.addObject("domain:test.sk\ndescr:description1\nsource:RIPE\n");
         databaseHelper.updateObject("domain:test.sk\ndescr:description2\nsource:RIPE\n");
@@ -78,7 +79,7 @@ public class JdbcVersionDaoIntegrationTest extends AbstractDaoIntegrationTest {
 
         VersionLookupResult rerun = subject.findByKey(ObjectType.DOMAIN, "test.sk");
         final List<VersionInfo> recreated = rerun.getMostRecentlyCreatedVersions();
-        assertThat(recreated.size(), is(3));
+        assertThat(recreated, hasSize(3));
         for (VersionInfo aRecreated : recreated) {
             assertThat(aRecreated.getOperation(), is(Operation.UPDATE));
         }
@@ -89,7 +90,7 @@ public class JdbcVersionDaoIntegrationTest extends AbstractDaoIntegrationTest {
         VersionLookupResult result = subject.findByKey(ObjectType.AUT_NUM, "AS20507");
         final List<VersionInfo> history = result.getMostRecentlyCreatedVersions();
 
-        assertNotNull(history);
+        assertThat(history, not(nullValue()));
         assertThat(history, hasSize(4));
 
         isMatching(history.get(0), new VersionInfo(false, 4709, 81, 1032341936L, Operation.UPDATE));

@@ -41,17 +41,12 @@ import static net.ripe.db.whois.query.QueryFlag.ALL_SOURCES;
 import static net.ripe.db.whois.query.QueryFlag.BRIEF;
 import static net.ripe.db.whois.query.QueryFlag.CLIENT;
 import static net.ripe.db.whois.query.QueryFlag.DIFF_VERSIONS;
-import static net.ripe.db.whois.query.QueryFlag.FILTER_TAG_EXCLUDE;
-import static net.ripe.db.whois.query.QueryFlag.FILTER_TAG_INCLUDE;
 import static net.ripe.db.whois.query.QueryFlag.LIST_SOURCES;
 import static net.ripe.db.whois.query.QueryFlag.LIST_SOURCES_OR_VERSION;
 import static net.ripe.db.whois.query.QueryFlag.LIST_VERSIONS;
-import static net.ripe.db.whois.query.QueryFlag.NO_GROUPING;
-import static net.ripe.db.whois.query.QueryFlag.NO_TAG_INFO;
 import static net.ripe.db.whois.query.QueryFlag.PERSISTENT_CONNECTION;
 import static net.ripe.db.whois.query.QueryFlag.PRIMARY_KEYS;
 import static net.ripe.db.whois.query.QueryFlag.SELECT_TYPES;
-import static net.ripe.db.whois.query.QueryFlag.SHOW_TAG_INFO;
 import static net.ripe.db.whois.query.QueryFlag.SHOW_VERSION;
 import static net.ripe.db.whois.query.QueryFlag.SOURCES;
 import static net.ripe.db.whois.query.QueryFlag.TEMPLATE;
@@ -68,7 +63,6 @@ public class WhoisSearchService {
             PERSISTENT_CONNECTION,
 
             // port43 filter flags that make no sense in xml/json
-            NO_GROUPING,
             BRIEF,
             ABUSE_CONTACT,
             PRIMARY_KEYS,
@@ -82,12 +76,6 @@ public class WhoisSearchService {
             SOURCES,
             ALL_SOURCES,
             SELECT_TYPES,
-
-            // tags are handled from queryparam
-            NO_TAG_INFO,
-            SHOW_TAG_INFO,
-            FILTER_TAG_EXCLUDE,
-            FILTER_TAG_INCLUDE,
 
             // versions are accessible via REST URL /versions/
             DIFF_VERSIONS,
@@ -119,8 +107,6 @@ public class WhoisSearchService {
      * @param searchKey (Mandatory) query search key
      * @param inverseAttributes perform an inverse query using the specified attribute(s)
      * @param client Sends information about the client to the server
-     * @param includeTags return only objects with the specified tag(s)
-     * @param excludeTags do not return objects with the specified tag(s)
      * @param types Filter results by object type(s)
      * @param flags Whois Query search flags
      * @param unformatted return attribute values without formatting
@@ -132,7 +118,7 @@ public class WhoisSearchService {
      *
      */
     @GET
-    @Produces({MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON})
+    @Produces({MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON, MediaType.TEXT_PLAIN})
     @Path("/search")
     public Response search(
             @Context final HttpServletRequest request,
@@ -140,8 +126,6 @@ public class WhoisSearchService {
             @QueryParam("query-string") final String searchKey,
             @QueryParam("inverse-attribute") final Set<String> inverseAttributes,
             @QueryParam("client") final String client,
-            @QueryParam("include-tag") final Set<String> includeTags,
-            @QueryParam("exclude-tag") final Set<String> excludeTags,
             @QueryParam("type-filter") final Set<String> types,
             @QueryParam("flags") final Set<String> flags,
             @QueryParam("unformatted") final String unformatted,
@@ -158,12 +142,9 @@ public class WhoisSearchService {
         checkForInvalidFlags(request, separateFlags);
 
         final QueryBuilder queryBuilder = new QueryBuilder();
-        queryBuilder.addFlag(QueryFlag.SHOW_TAG_INFO);
         queryBuilder.addCommaList(QueryFlag.SOURCES, sources);
         queryBuilder.addCommaList(QueryFlag.SELECT_TYPES, types);
         queryBuilder.addCommaList(QueryFlag.INVERSE, inverseAttributes);
-        queryBuilder.addCommaList(QueryFlag.FILTER_TAG_INCLUDE, includeTags);
-        queryBuilder.addCommaList(QueryFlag.FILTER_TAG_EXCLUDE, excludeTags);
 
         if (client != null) {
             queryBuilder.addCommaList(QueryFlag.CLIENT, client);

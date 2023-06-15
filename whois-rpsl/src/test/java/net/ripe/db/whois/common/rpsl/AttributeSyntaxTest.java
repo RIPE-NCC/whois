@@ -123,12 +123,16 @@ public class AttributeSyntaxTest {
         verifySuccess(ObjectType.MNTNER, AttributeType.AUTH, "SSO test2-+._sso@ripe.net");
         verifySuccess(ObjectType.MNTNER, AttributeType.AUTH, "SSO P'O@ripe.net");
         verifySuccess(ObjectType.MNTNER, AttributeType.AUTH, "SSO P-L@ripe.net");
+        verifySuccess(ObjectType.MNTNER, AttributeType.AUTH, "SSO P&L@ripe.net");
+        verifySuccess(ObjectType.MNTNER, AttributeType.AUTH, "SSO a@b");
 
         verifyFailure(ObjectType.MNTNER, AttributeType.AUTH, "x509-ab./");
         verifyFailure(ObjectType.MNTNER, AttributeType.AUTH, "x509-ab./");
         verifyFailure(ObjectType.MNTNER, AttributeType.AUTH, "pgpkey-ghij./12");
         verifyFailure(ObjectType.MNTNER, AttributeType.AUTH, "SSO tes,,,.....");
         verifyFailure(ObjectType.MNTNER, AttributeType.AUTH, "SSO ");
+        verifyFailure(ObjectType.MNTNER, AttributeType.AUTH, "SSO a");
+        verifyFailure(ObjectType.MNTNER, AttributeType.AUTH, "SSO a@");
 
         verifyFailure(ObjectType.MNTNER, AttributeType.AUTH, "md5-pw bcdefghijklmnopqrstuvwx");
         verifyFailure(ObjectType.MNTNER, AttributeType.AUTH, "md5-pw $1$abcdefghi$bcdefghijklmnopqrstuvwx");
@@ -1016,7 +1020,6 @@ public class AttributeSyntaxTest {
         verifySuccess(ObjectType.ORGANISATION, AttributeType.ORG_TYPE, "RIR");
         verifySuccess(ObjectType.ORGANISATION, AttributeType.ORG_TYPE, "NIR");
         verifySuccess(ObjectType.ORGANISATION, AttributeType.ORG_TYPE, "LIR");
-        verifySuccess(ObjectType.ORGANISATION, AttributeType.ORG_TYPE, "WHITEPAGES");
         verifySuccess(ObjectType.ORGANISATION, AttributeType.ORG_TYPE, "DIRECT_ASSIGNMENT");
         verifySuccess(ObjectType.ORGANISATION, AttributeType.ORG_TYPE, "OTHER");
 
@@ -1029,7 +1032,6 @@ public class AttributeSyntaxTest {
                 "o 'RIR' for Regional Internet Registries\n" +
                 "o 'NIR' for National Internet Registries (there are no NIRs in the RIPE NCC service region)\n" +
                 "o 'LIR' for Local Internet Registries\n" +
-                "o 'WHITEPAGES' for special links to industry people\n" +
                 "o 'DIRECT_ASSIGNMENT' for direct contract with RIPE NCC\n" +
                 "o 'OTHER' for all other organisations.\n\n"));
     }

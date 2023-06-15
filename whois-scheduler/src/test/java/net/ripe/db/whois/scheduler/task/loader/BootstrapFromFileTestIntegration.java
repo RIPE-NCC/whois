@@ -1,10 +1,9 @@
 package net.ripe.db.whois.scheduler.task.loader;
 
 import net.ripe.db.whois.api.fulltextsearch.FullTextIndex;
-import net.ripe.db.whois.api.fulltextsearch.FullTextSearch;
+import net.ripe.db.whois.api.fulltextsearch.FullTextSearchService;
 import net.ripe.db.whois.api.fulltextsearch.SearchRequest;
 import net.ripe.db.whois.api.fulltextsearch.SearchResponse;
-
 import net.ripe.db.whois.common.dao.RpslObjectUpdateDao;
 import net.ripe.db.whois.common.rpsl.RpslObject;
 import net.ripe.db.whois.common.support.database.diff.Database;
@@ -12,30 +11,30 @@ import net.ripe.db.whois.common.support.database.diff.DatabaseDiff;
 import net.ripe.db.whois.scheduler.AbstractSchedulerIntegrationTest;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
-
 import org.springframework.beans.factory.annotation.Autowired;
 
 import jakarta.servlet.http.HttpServletRequest;
 import java.io.IOException;
 
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.greaterThan;
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.not;
-import static org.hamcrest.MatcherAssert.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 
-@org.junit.jupiter.api.Tag("IntegrationTest")
+@Tag("IntegrationTest")
 public class BootstrapFromFileTestIntegration extends AbstractSchedulerIntegrationTest {
     @Autowired
     private Bootstrap bootstrap;
 
     @Autowired
-    private FullTextSearch fullTextSearch;
+    private FullTextSearchService fullTextSearchService;
 
     @Autowired
     private FullTextIndex fullTextIndex;
@@ -240,7 +239,7 @@ public class BootstrapFromFileTestIntegration extends AbstractSchedulerIntegrati
         HttpServletRequest request = mock(HttpServletRequest.class);
         when(request.getRemoteAddr()).thenReturn("127.0.0.1");
 
-        return fullTextSearch.search(
+        return fullTextSearchService.search(
                 new SearchRequest.SearchRequestBuilder()
                     .setQuery(queryStr)
                     .setRows("10")

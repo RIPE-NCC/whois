@@ -29,6 +29,10 @@
             <artifactId>whois-update</artifactId>
         </dependency>
         <dependency>
+            <groupId>net.ripe.db</groupId>
+            <artifactId>whois-nrtm4</artifactId>
+        </dependency>
+        <dependency>
             <groupId>commons-validator</groupId>
             <artifactId>commons-validator</artifactId>
         </dependency>
@@ -94,9 +98,14 @@
             <artifactId>jakarta.xml.bind-api</artifactId>
         </dependency>
         <dependency>
-            <groupId>org.glassfish.jaxb</groupId>
-            <artifactId>jaxb-runtime</artifactId>
+            <groupId>com.sun.xml.bind</groupId>
+            <artifactId>jaxb-impl</artifactId>
         </dependency>
+
+<!--        <dependency>-->
+<!--            <groupId>org.glassfish.jaxb</groupId>-->
+<!--            <artifactId>jaxb-runtime</artifactId>-->
+<!--        </dependency>-->
 
         <!-- Lucene full text search -->
         <dependency>
@@ -127,6 +136,14 @@
             <groupId>com.googlecode.ez-vcard</groupId>
             <artifactId>ez-vcard</artifactId>
         </dependency>
+        <dependency>
+            <groupId>jakarta.mail</groupId>
+            <artifactId>jakarta.mail-api</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.eclipse.angus</groupId>
+            <artifactId>jakarta.mail</artifactId>
+        </dependency>
 
         <!-- Solr -->
         <dependency>
@@ -136,6 +153,14 @@
         </dependency>
 
         <!-- testing -->
+
+        <!-- TODO: [ES] testcontainers dependency depends on JUnit 4 -->
+        <dependency>
+            <groupId>org.testcontainers</groupId>
+            <artifactId>elasticsearch</artifactId>
+            <version>1.16.2</version>
+            <scope>test</scope>
+        </dependency>
 
         <dependency>
             <groupId>net.ripe.db</groupId>
@@ -154,6 +179,11 @@
         </dependency>
         <dependency>
             <groupId>net.ripe.db</groupId>
+            <artifactId>whois-nrtm4</artifactId>
+            <type>test-jar</type>
+        </dependency>
+        <dependency>
+            <groupId>net.ripe.db</groupId>
             <artifactId>whois-rpsl</artifactId>
             <type>test-jar</type>
         </dependency>
@@ -163,7 +193,7 @@
         <dependency>
             <groupId>org.skyscreamer</groupId>
             <artifactId>jsonassert</artifactId>
-            <version>1.5.0</version>
+            <version>1.5.1</version>
             <scope>test</scope>
         </dependency>
         <dependency>

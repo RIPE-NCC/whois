@@ -47,7 +47,7 @@ public class AbuseCDuplicateValidatorTest {
     public void no_abuse_c() {
         when(update.getUpdatedObject()).thenReturn(RpslObject.parse("inetnum: 192.168.0.0 - 192.168.255.255\nsource: TEST"));
 
-        subject.validate(update, updateContext);
+       subject.validate(update, updateContext);
 
         verifyNoMoreInteractions(updateContext);
     }
@@ -57,7 +57,7 @@ public class AbuseCDuplicateValidatorTest {
     public void has_abuse_c_but_no_org() {
         when(update.getUpdatedObject()).thenReturn(RpslObject.parse("inetnum: 192.168.0.0 - 192.168.255.255\nabuse-c: AA1-TEST\nsource: TEST"));
 
-        subject.validate(update, updateContext);
+       subject.validate(update, updateContext);
 
         verifyNoMoreInteractions(updateContext);
     }
@@ -77,7 +77,7 @@ public class AbuseCDuplicateValidatorTest {
                 "abuse-c: AA1-TEST\n" +
                 "source: TEST"));
 
-        subject.validate(update, updateContext);
+       subject.validate(update, updateContext);
 
         verify(updateContext).addMessage(update, UpdateMessages.duplicateAbuseC(CIString.ciString("AA1-TEST"), CIString.ciString("ORG-AA1-TEST")));
         verifyNoMoreInteractions(updateContext);
@@ -93,7 +93,7 @@ public class AbuseCDuplicateValidatorTest {
                 "abuse-c: BB1-TEST\n" +
                 "source: TEST"));
 
-        subject.validate(update, updateContext);
+       subject.validate(update, updateContext);
 
         verifyNoMoreInteractions(updateContext);
     }
@@ -113,7 +113,7 @@ public class AbuseCDuplicateValidatorTest {
                 "abuse-c: AA1-TEST\n" +
                 "source: TEST"));
 
-        subject.validate(update, updateContext);
+       subject.validate(update, updateContext);
 
         verify(updateContext).addMessage(update, UpdateMessages.duplicateAbuseC(CIString.ciString("AA1-TEST"), CIString.ciString("ORG-AA1-TEST")));
         verifyNoMoreInteractions(updateContext);
@@ -134,7 +134,7 @@ public class AbuseCDuplicateValidatorTest {
                 "abuse-c: AA1-TEST\n" +
                 "source: TEST"));
 
-        subject.validate(update, updateContext);
+       subject.validate(update, updateContext);
 
         verify(updateContext).addMessage(update, UpdateMessages.duplicateAbuseC(CIString.ciString("AA1-TEST"), CIString.ciString("ORG-AA1-TEST")));
         verifyNoMoreInteractions(updateContext);
@@ -162,7 +162,7 @@ public class AbuseCDuplicateValidatorTest {
                 "abuse-c: AA1-TEST\n" +
                 "source: TEST"));
 
-        subject.validate(update, updateContext);
+       subject.validate(update, updateContext);
 
         verify(updateContext).addMessage(update, UpdateMessages.duplicateAbuseC(CIString.ciString("AA1-TEST"), CIString.ciString("ORG-AA1-TEST")));
         verifyNoMoreInteractions(updateContext);
@@ -190,7 +190,7 @@ public class AbuseCDuplicateValidatorTest {
                 "abuse-c: AA1-TEST\n" +
                 "source: TEST"));
 
-        subject.validate(update, updateContext);
+       subject.validate(update, updateContext);
 
         verify(updateContext).addMessage(update, UpdateMessages.duplicateAbuseC(CIString.ciString("AA1-TEST"), CIString.ciString("ORG-AA1-TEST")));
         verifyNoMoreInteractions(updateContext);

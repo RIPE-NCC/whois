@@ -112,7 +112,7 @@ public class ResponseFactoryTest {
 
         when(dateTimeProvider.getCurrentDateTime()).thenReturn(LocalDateTime.ofInstant(Instant.EPOCH, ZoneOffset.UTC));
         lenient().when(updateContext.printGlobalMessages()).thenReturn("");
-        lenient().when(updateContext.getUserSession()).thenReturn(new UserSession("test@ripe.net", "Test User", true,"2033-01-30T16:38:27.369+11:00"));
+        lenient().when(updateContext.getUserSession()).thenReturn(new UserSession("offereduuid","test@ripe.net", "Test User", true,"2033-01-30T16:38:27.369+11:00"));
         when(applicationVersion.getVersion()).thenReturn("1.2.3");
 
         ReflectionTestUtils.setField(subject, "source", "TEST");
@@ -354,10 +354,6 @@ public class ResponseFactoryTest {
                 "\n" +
                 "http://www.ripe.net/data-tools/support/documentation\n" +
                 "\n" +
-                "RIPE Database FAQ is available at\n" +
-                "\n" +
-                "http://www.ripe.net/data-tools/db/faq\n" +
-                "\n" +
                 "RPSL RFCs are available at\n" +
                 "\n" +
                 "ftp://ftp.ripe.net/rfc/rfc2622.txt\n" +
@@ -413,7 +409,7 @@ public class ResponseFactoryTest {
 
     @Test
     public void notification_success_with_user_in_the_session() {
-        when(updateContext.getUserSession()).thenReturn(new UserSession("test@ripe.net", "Test User", true,"2033-01-30T16:38:27.369+11:00"));
+        when(updateContext.getUserSession()).thenReturn(new UserSession("offereduuid","test@ripe.net", "Test User", true,"2033-01-30T16:38:27.369+11:00"));
 
         final RpslObject object1 = RpslObject.parse("mntner: DEV-ROOT1-MNT");
         final Update update1 = new Update(new Paragraph(object1.toString()), Operation.UNSPECIFIED, Lists.<String>newArrayList(), object1);
@@ -432,7 +428,7 @@ public class ResponseFactoryTest {
     @Test
     public void notification_success_with_effective_sso_credentials() {
 
-        when(updateContext.getUserSession()).thenReturn(new UserSession("test@ripe.net", "Test User", true,"2033-01-30T16:38:27.369+11:00"));
+        when(updateContext.getUserSession()).thenReturn(new UserSession("offereduuid","test@ripe.net", "Test User", true,"2033-01-30T16:38:27.369+11:00"));
 
         final RpslObject object1 = RpslObject.parse("mntner: DEV-ROOT1-MNT");
         final Update update1 = new Update(new Paragraph(object1.toString()), Operation.UNSPECIFIED, Lists.<String>newArrayList(), object1);

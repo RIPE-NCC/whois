@@ -1,11 +1,9 @@
 package net.ripe.db.whois.scheduler.task.export;
 
 import com.google.common.collect.Maps;
-import net.ripe.db.whois.common.domain.Tag;
 import net.ripe.db.whois.common.rpsl.ObjectType;
 import net.ripe.db.whois.common.rpsl.RpslObject;
 import net.ripe.db.whois.query.QueryMessages;
-import net.ripe.db.whois.query.domain.TagResponseObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -16,7 +14,6 @@ import java.io.IOException;
 import java.io.OutputStreamWriter;
 import java.io.Writer;
 import java.nio.charset.StandardCharsets;
-import java.util.List;
 import java.util.Map;
 import java.util.zip.GZIPOutputStream;
 
@@ -50,7 +47,7 @@ public class ExportFileWriter {
         }
     }
 
-    public void write(final RpslObject object, final List<Tag> tags) throws IOException {
+    public void write(final RpslObject object) throws IOException {
         if (exportFilter.shouldExport(object)) {
             final String filename = filenameStrategy.getFilename(object.getType());
             if (filename != null) {
@@ -60,11 +57,6 @@ public class ExportFileWriter {
                 if (decoratedObject != null) {
                     writer.write('\n');
                     decoratedObject.writeTo(writer);
-
-                    if (!tags.isEmpty()) {
-                        writer.write('\n');
-                        writer.write(new TagResponseObject(decoratedObject.getKey(), tags).toString());
-                    }
                 }
             }
         }

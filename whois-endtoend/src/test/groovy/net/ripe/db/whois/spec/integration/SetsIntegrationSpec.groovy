@@ -117,7 +117,7 @@ class SetsIntegrationSpec extends BaseWhoisSourceSpec {
                     source:     TEST
                     password:   update
                 """
-        def createResponse = syncUpdate(new SyncUpdate(data: data.stripIndent()))
+        def createResponse = syncUpdate(new SyncUpdate(data: data.stripIndent(true)))
 
       expect:
         createResponse =~ /SUCCESS/
@@ -135,7 +135,7 @@ class SetsIntegrationSpec extends BaseWhoisSourceSpec {
                     password:   update
                     delete: YES
                 """
-        def deleteResponse = syncUpdate(new SyncUpdate(data: deleteData.stripIndent()))
+        def deleteResponse = syncUpdate(new SyncUpdate(data: deleteData.stripIndent(true)))
 
       then:
         deleteResponse =~ /SUCCESS/
@@ -154,7 +154,7 @@ class SetsIntegrationSpec extends BaseWhoisSourceSpec {
                     source:         TEST
                     password:       emptypassword
                     """
-        def createResponse = syncUpdate(new SyncUpdate(data: createData.stripIndent()))
+        def createResponse = syncUpdate(new SyncUpdate(data: createData.stripIndent(true)))
 
       expect:
         createResponse =~ /SUCCESS/
@@ -172,7 +172,7 @@ class SetsIntegrationSpec extends BaseWhoisSourceSpec {
             source:          TEST
             password:        password
         """
-        def inetResponse = syncUpdate(new SyncUpdate(data: inetData.stripIndent()))
+        def inetResponse = syncUpdate(new SyncUpdate(data: inetData.stripIndent(true)))
 
       then:
         inetResponse =~ /SUCCESS/
@@ -189,7 +189,7 @@ class SetsIntegrationSpec extends BaseWhoisSourceSpec {
                     password:       emptypassword
                     delete:         true
                     """
-        def deleteResponse = syncUpdate(new SyncUpdate(data: deleteData.stripIndent()))
+        def deleteResponse = syncUpdate(new SyncUpdate(data: deleteData.stripIndent(true)))
 
       then:
         deleteResponse =~ /FAIL/
@@ -207,7 +207,7 @@ class SetsIntegrationSpec extends BaseWhoisSourceSpec {
                     source:         TEST
                     password:       emptypassword
                     """
-        def createResponse = syncUpdate(new SyncUpdate(data: data.stripIndent()))
+        def createResponse = syncUpdate(new SyncUpdate(data: data.stripIndent(true)))
 
       expect:
         createResponse =~ /FAIL/
@@ -226,7 +226,7 @@ class SetsIntegrationSpec extends BaseWhoisSourceSpec {
                     password:       emptypassword
                     password:       update
                     """
-        def createResponse = syncUpdate(new SyncUpdate(data: data.stripIndent()))
+        def createResponse = syncUpdate(new SyncUpdate(data: data.stripIndent(true)))
 
       expect:
         createResponse =~ /SUCCESS/
@@ -245,7 +245,7 @@ class SetsIntegrationSpec extends BaseWhoisSourceSpec {
                     source:         TEST
                     password:       emptypassword
                     """
-        def createResponse = syncUpdate(new SyncUpdate(data: data.stripIndent()))
+        def createResponse = syncUpdate(new SyncUpdate(data: data.stripIndent(true)))
 
       expect:
         createResponse =~ /SUCCESS/
@@ -263,7 +263,7 @@ class SetsIntegrationSpec extends BaseWhoisSourceSpec {
                     source:         TEST
                     password:       emptypassword
                     """
-        def parentResponse = syncUpdate(new SyncUpdate(data: parentData.stripIndent()))
+        def parentResponse = syncUpdate(new SyncUpdate(data: parentData.stripIndent(true)))
 
       expect:
         parentResponse =~ /SUCCESS/
@@ -279,7 +279,7 @@ class SetsIntegrationSpec extends BaseWhoisSourceSpec {
                     password:       emptypassword
                     password:       update
                     """
-        def childResponse = syncUpdate(new SyncUpdate(data: childData.stripIndent()))
+        def childResponse = syncUpdate(new SyncUpdate(data: childData.stripIndent(true)))
 
       then:
         childResponse =~ /SUCCESS/
@@ -295,7 +295,7 @@ class SetsIntegrationSpec extends BaseWhoisSourceSpec {
                     password:       emptypassword
                     password:       update
                     """
-        def grandchildResponse = syncUpdate(new SyncUpdate(data: grandchildData.stripIndent()))
+        def grandchildResponse = syncUpdate(new SyncUpdate(data: grandchildData.stripIndent(true)))
 
       then:
         grandchildResponse =~ /SUCCESS/
@@ -314,7 +314,7 @@ class SetsIntegrationSpec extends BaseWhoisSourceSpec {
                     source:         TEST
                     password:       emptypassword
                     """
-        def parentResponse = syncUpdate(new SyncUpdate(data: parentData.stripIndent()))
+        def parentResponse = syncUpdate(new SyncUpdate(data: parentData.stripIndent(true)))
       expect:
         parentResponse =~ /SUCCESS/
 
@@ -329,7 +329,7 @@ class SetsIntegrationSpec extends BaseWhoisSourceSpec {
                     source:         TEST
                     password:       emptypassword
                     """
-        def childResponse = syncUpdate(new SyncUpdate(data: childData.stripIndent()))
+        def childResponse = syncUpdate(new SyncUpdate(data: childData.stripIndent(true)))
 
       then:
         childResponse =~ /Create FAILED: \[filter-set\] fltr-parent:fltr-child/
@@ -352,7 +352,7 @@ class SetsIntegrationSpec extends BaseWhoisSourceSpec {
                     source:         TEST
                     password:       emptypassword
                     """
-        def parentResponse = syncUpdate(new SyncUpdate(data: parentData.stripIndent()))
+        def parentResponse = syncUpdate(new SyncUpdate(data: parentData.stripIndent(true)))
 
       expect:
         parentResponse =~ /SUCCESS/
@@ -370,7 +370,7 @@ class SetsIntegrationSpec extends BaseWhoisSourceSpec {
                     password:       emptypassword
                     password:       password
                     """
-        def childResponse = syncUpdate(new SyncUpdate(data: childData.stripIndent()))
+        def childResponse = syncUpdate(new SyncUpdate(data: childData.stripIndent(true)))
 
       then:
         childResponse =~ /SUCCESS/
@@ -389,7 +389,7 @@ class SetsIntegrationSpec extends BaseWhoisSourceSpec {
                     source:         TEST
                     password:       emptypassword
                     """
-        def parentResponse = syncUpdate(new SyncUpdate(data: parentData.stripIndent()))
+        def parentResponse = syncUpdate(new SyncUpdate(data: parentData.stripIndent(true)))
 
       expect:
         parentResponse =~ /SUCCESS/
@@ -406,7 +406,7 @@ class SetsIntegrationSpec extends BaseWhoisSourceSpec {
                     password:       emptypassword
                     password:       update
                     """
-        def childResponse = syncUpdate(new SyncUpdate(data: childData.stripIndent()))
+        def childResponse = syncUpdate(new SyncUpdate(data: childData.stripIndent(true)))
 
       then:
         childResponse =~ /FAIL/
@@ -427,7 +427,7 @@ class SetsIntegrationSpec extends BaseWhoisSourceSpec {
                     source:         TEST
                     password:       emptypassword
                     """
-        def parentResponse = syncUpdate(new SyncUpdate(data: data.stripIndent()))
+        def parentResponse = syncUpdate(new SyncUpdate(data: data.stripIndent(true)))
 
       expect:
         parentResponse =~ /SUCCESS/
@@ -444,7 +444,7 @@ class SetsIntegrationSpec extends BaseWhoisSourceSpec {
                     source:         TEST
                     password:       emptypassword
                     """
-        def updateResponse = syncUpdate(new SyncUpdate(data: updateData.stripIndent()))
+        def updateResponse = syncUpdate(new SyncUpdate(data: updateData.stripIndent(true)))
 
       then:
         updateResponse =~ /SUCCESS/
@@ -462,7 +462,7 @@ class SetsIntegrationSpec extends BaseWhoisSourceSpec {
                     source:         TEST
                     password:       emptypassword
                     """
-        def parentResponse = syncUpdate(new SyncUpdate(data: parent.stripIndent()))
+        def parentResponse = syncUpdate(new SyncUpdate(data: parent.stripIndent(true)))
 
       expect:
         parentResponse =~ /SUCCESS/
@@ -479,7 +479,7 @@ class SetsIntegrationSpec extends BaseWhoisSourceSpec {
                     password:       update
                     password:       emptypassword
                     """
-        def updateResponse = syncUpdate(new SyncUpdate(data: child.stripIndent()))
+        def updateResponse = syncUpdate(new SyncUpdate(data: child.stripIndent(true)))
 
       then:
         updateResponse =~ /SUCCESS/
@@ -495,7 +495,7 @@ class SetsIntegrationSpec extends BaseWhoisSourceSpec {
                     password:       emptypassword
                     delete:         YES
                     """
-        def deleteResponse = syncUpdate(new SyncUpdate(data: deleteParent.stripIndent()))
+        def deleteResponse = syncUpdate(new SyncUpdate(data: deleteParent.stripIndent(true)))
 
       then:
         deleteResponse =~ /SUCCESS/
@@ -510,7 +510,7 @@ class SetsIntegrationSpec extends BaseWhoisSourceSpec {
                     source:         TEST
                     password:       update
                     """
-        def updateChildResponse = syncUpdate(new SyncUpdate(data: updateChild.stripIndent()))
+        def updateChildResponse = syncUpdate(new SyncUpdate(data: updateChild.stripIndent(true)))
 
       then:
         updateChildResponse =~ /SUCCESS/
@@ -527,9 +527,9 @@ class SetsIntegrationSpec extends BaseWhoisSourceSpec {
                     mnt-by:         TEST-MNT
                     mbrs-by-ref:    UPD-MNT
                     source:         TEST
-                    password:       emptypassword
+                    override:     denis,override1
                     """
-        def asResponse = syncUpdate(new SyncUpdate(data: data.stripIndent()))
+        def asResponse = syncUpdate(new SyncUpdate(data: data.stripIndent(true)))
 
       expect:
         asResponse =~ /Create SUCCEEDED: \[as-set\] as-ripe/
@@ -546,7 +546,7 @@ class SetsIntegrationSpec extends BaseWhoisSourceSpec {
                         source:         TEST
                         password:       update
                         """
-        def autnumDataResponse = syncUpdate(new SyncUpdate(data: autnumData.stripIndent()))
+        def autnumDataResponse = syncUpdate(new SyncUpdate(data: autnumData.stripIndent(true)))
 
       then:
         autnumDataResponse =~ /Create SUCCEEDED: \[aut-num\] AS123/
@@ -563,7 +563,7 @@ class SetsIntegrationSpec extends BaseWhoisSourceSpec {
                     password:       emptypassword
                     delete:         YES
                     """
-        def deleteResponse = syncUpdate(new SyncUpdate(data: delete.stripIndent()))
+        def deleteResponse = syncUpdate(new SyncUpdate(data: delete.stripIndent(true)))
 
       then:
         deleteResponse =~ /FAIL/
@@ -581,7 +581,7 @@ class SetsIntegrationSpec extends BaseWhoisSourceSpec {
                     source:         TEST
                     password:       emptypassword
                     """
-        def updateDataResponse = syncUpdate(new SyncUpdate(data: updateData.stripIndent()))
+        def updateDataResponse = syncUpdate(new SyncUpdate(data: updateData.stripIndent(true)))
 
       then:
         updateDataResponse =~ /Modify SUCCEEDED: \[as-set\] as-ripe/
@@ -599,7 +599,7 @@ class SetsIntegrationSpec extends BaseWhoisSourceSpec {
                     source:         TEST
                     password:       emptypassword
                     """
-        def createResponse = syncUpdate(new SyncUpdate(data: data.stripIndent()))
+        def createResponse = syncUpdate(new SyncUpdate(data: data.stripIndent(true)))
 
         expect:
         createResponse =~ /Create SUCCEEDED: \[route-set\] RS-PROD/
@@ -614,7 +614,7 @@ class SetsIntegrationSpec extends BaseWhoisSourceSpec {
                     delete:      no reason, really
                     password:    update
                     """
-        def deleteResponse = syncUpdate(new SyncUpdate(data: deldata.stripIndent()))
+        def deleteResponse = syncUpdate(new SyncUpdate(data: deldata.stripIndent(true)))
 
         then:
         deleteResponse =~ /Delete SUCCEEDED: \[route\] 10.0.0.0\/8AS101/
@@ -630,7 +630,7 @@ class SetsIntegrationSpec extends BaseWhoisSourceSpec {
                     source:         TEST
                     password:       emptypassword
                     """
-        def modResponse = syncUpdate(new SyncUpdate(data: moddata.stripIndent()))
+        def modResponse = syncUpdate(new SyncUpdate(data: moddata.stripIndent(true)))
 
         then:
         modResponse =~ /Modify SUCCEEDED: \[route-set\] RS-PROD/

@@ -2,13 +2,14 @@ package net.ripe.db.whois.update.handler.validator.inetnum;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
+import com.google.common.collect.Lists;
+import net.ripe.db.whois.common.Message;
 import net.ripe.db.whois.common.dao.RpslObjectDao;
 import net.ripe.db.whois.common.domain.CIString;
 import net.ripe.db.whois.common.domain.Maintainers;
 import net.ripe.db.whois.common.rpsl.AttributeType;
 import net.ripe.db.whois.common.rpsl.ObjectType;
 import net.ripe.db.whois.common.rpsl.RpslObject;
-import net.ripe.db.whois.common.rpsl.ValidationMessages;
 import net.ripe.db.whois.common.rpsl.attrs.Inet6numStatus;
 import net.ripe.db.whois.common.rpsl.attrs.InetStatus;
 import net.ripe.db.whois.common.rpsl.attrs.InetnumStatus;
@@ -24,6 +25,8 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import java.util.Collections;
+import java.util.List;
 import java.util.Objects;
 import java.util.Set;
 
@@ -32,10 +35,8 @@ import static net.ripe.db.whois.common.rpsl.AttributeType.SPONSORING_ORG;
 import static net.ripe.db.whois.common.rpsl.ObjectType.AUT_NUM;
 import static net.ripe.db.whois.common.rpsl.ObjectType.INET6NUM;
 import static net.ripe.db.whois.common.rpsl.ObjectType.INETNUM;
-import static net.ripe.db.whois.common.rpsl.ObjectType.ORGANISATION;
 import static net.ripe.db.whois.update.domain.Action.CREATE;
 import static net.ripe.db.whois.update.domain.Action.MODIFY;
-import static net.ripe.db.whois.update.domain.UpdateMessages.sponsoringOrgNotLIR;
 
 @Component
 public class SponsoringOrgValidator implements BusinessRuleValidator {
@@ -63,7 +64,7 @@ public class SponsoringOrgValidator implements BusinessRuleValidator {
     }
 
     @Override
-    public void validate(final PreparedUpdate update, final UpdateContext updateContext) {
+    public List<Message> performValidation(final PreparedUpdate update, final UpdateContext updateContext) {
 
         final CIString refSponsoringOrg = update.getReferenceObject().getValueOrNullForAttribute(SPONSORING_ORG);
         final CIString updSponsoringOrg = update.getUpdatedObject().getValueOrNullForAttribute(SPONSORING_ORG);
@@ -73,71 +74,30 @@ public class SponsoringOrgValidator implements BusinessRuleValidator {
 
         // Sponsoring-org has to be there on creating an end-user resource
         if (sponsoringOrgMustBePresent(action, updatedObject)) {
-            updateContext.addMessage(update, UpdateMessages.sponsoringOrgMustBePresent());
-            return;
+            return Collections.emptyList();
         }
 
         // otherwise, if no change, bail out
         if (!sponsoringOrgHasChangedAtAll(refSponsoringOrg, updSponsoringOrg, action)) {
-            return;
+            return Collections.emptyList();
         }
 
-        if (updatedObject.findAttributes(AttributeType.SPONSORING_ORG).size() > 1) {
-            updateContext.addMessage(update, ValidationMessages.tooManyAttributesOfType(AttributeType.SPONSORING_ORG));
-            return;
-        }
-
-        if (sponsoringOrgStatusCheck(updatedObject)) {
-            updateContext.addMessage(update, UpdateMessages.sponsoringOrgNotAllowedWithStatus(updatedObject.getValueForAttribute(AttributeType.STATUS)));
-            return;
-        }
-
-        if (updSponsoringOrg != null) {
-            final RpslObject sponsoringOrganisation = objectDao.getByKeyOrNull(ORGANISATION, updSponsoringOrg);
-
-            if (sponsoringOrganisation != null && !isLir(sponsoringOrganisation)) {
-                updateContext.addMessage(update, updatedObject.findAttribute(AttributeType.SPONSORING_ORG), sponsoringOrgNotLIR());
-            }
-        }
-
+        final List<Message> validationMessages = Lists.newArrayList();
         final boolean authByRS = updateContext.getSubject(update).hasPrincipal(Principal.RS_MAINTAINER);
-        final boolean isOverride = updateContext.getSubject(update).hasPrincipal(Principal.OVERRIDE_MAINTAINER);
 
-        if (!authByRS && !isOverride) {
+        if (!authByRS) {
             if (sponsoringOrgAdded(refSponsoringOrg, updSponsoringOrg, action)) {
-                updateContext.addMessage(update, UpdateMessages.sponsoringOrgAdded());
+                validationMessages.add(UpdateMessages.sponsoringOrgAdded());
             } else if (sponsoringOrgRemoved(refSponsoringOrg, updSponsoringOrg, action)) {
-                updateContext.addMessage(update, UpdateMessages.sponsoringOrgRemoved());
+                validationMessages.add(UpdateMessages.sponsoringOrgRemoved());
             } else if (sponsoringOrgChanged(refSponsoringOrg, updSponsoringOrg, action)) {
-                updateContext.addMessage(update, UpdateMessages.sponsoringOrgChanged());
+                validationMessages.add(UpdateMessages.sponsoringOrgChanged());
             } else {
                 LOGGER.warn("Unexpected action {}, ref {} upd {}", action.getDescription(), refSponsoringOrg, updSponsoringOrg);
             }
         }
-    }
 
-    private boolean sponsoringOrgStatusCheck(final RpslObject updatedObject) {
-        final CIString statusString = updatedObject.getValueForAttribute(AttributeType.STATUS);
-        InetStatus status;
-
-        try {
-            switch (updatedObject.getType()) {
-                case INETNUM:
-                    status = InetnumStatus.getStatusFor(statusString);
-                    break;
-
-                case INET6NUM:
-                    status = Inet6numStatus.getStatusFor(statusString);
-                    break;
-
-                default:
-                    return false;
-            }
-        } catch (IllegalArgumentException e) {
-            return false;
-        }
-
-        return !ALLOWED_STATUSES.contains(status);
+        return validationMessages;
     }
 
     private boolean sponsoringOrgMustBePresent(final Action action, final RpslObject updatedObject) {
@@ -187,6 +147,10 @@ public class SponsoringOrgValidator implements BusinessRuleValidator {
         return OrgType.getFor(organisation.getValueForAttribute(AttributeType.ORG_TYPE)) == OrgType.OTHER;
     }
 
+    @Override
+    public boolean isSkipForOverride() {
+        return true;
+    }
     @Override
     public ImmutableList<Action> getActions() {
         return ACTIONS;

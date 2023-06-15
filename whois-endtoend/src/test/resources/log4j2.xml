@@ -58,6 +58,19 @@
             </Policies>
         </RollingFile>
 
+        <RollingFile name="NRTM4LOG"
+                     append="true"
+                     filePattern="var/log/nrtm4/nrtmlog.%d{yyyyMMdd}"
+                     ignoreExceptions="false">
+            <ThresholdFilter level="debug"/>
+            <PatternLayout>
+                <Pattern>%d{yyyyMMdd HH:mm:ss} %m%n</Pattern>
+            </PatternLayout>
+            <Policies>
+                <TimeBasedTriggeringPolicy interval="1"/>
+            </Policies>
+        </RollingFile>
+
         <RollingFile name="REQUESTLOG"
                      append="true"
                      filePattern="var/log/jetty/requestlog.%d{yyyyMMdd}"
@@ -105,6 +118,10 @@
             <AppenderRef ref="NRTMLOG"/>
         </Logger>
 
+        <Logger name="net.ripe.db.whois.nrtm4.Nrtm4Log" level="all" additivity="false">
+            <AppenderRef ref="NRTM4LOG"/>
+        </Logger>
+
         <Logger name="org.eclipse.jetty.server.RequestLog" level="all" additivity="false">
             <AppenderRef ref="REQUESTLOG"/>
         </Logger>
@@ -130,7 +147,7 @@
             <!-- don't log RDAP info -->
         </Logger>
 
-        <Logger name="net.ripe.db.whois.api.rest.search.ManagedAttributeSearch" level="error">
+        <Logger name="net.ripe.db.whois.common.search.ManagedAttributeSearch" level="error">
             <!-- don't log invalid status -->
         </Logger>
 

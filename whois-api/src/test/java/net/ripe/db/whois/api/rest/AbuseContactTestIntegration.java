@@ -6,6 +6,7 @@ import net.ripe.db.whois.api.rest.domain.AbuseResources;
 
 import org.junit.jupiter.api.BeforeEach;
 
+import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 
 import jakarta.ws.rs.BadRequestException;
@@ -18,7 +19,7 @@ import static org.hamcrest.Matchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.junit.jupiter.api.Assertions.fail;
 
-@org.junit.jupiter.api.Tag("IntegrationTest")
+@Tag("IntegrationTest")
 public class AbuseContactTestIntegration extends AbstractIntegrationTest {
 
     @BeforeEach

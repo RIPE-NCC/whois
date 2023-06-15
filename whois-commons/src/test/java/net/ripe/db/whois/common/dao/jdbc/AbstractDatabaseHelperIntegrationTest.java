@@ -35,7 +35,7 @@ public abstract class AbstractDatabaseHelperIntegrationTest extends AbstractJUni
     private static byte[] propertyStore = null;
 
     @BeforeAll
-    public synchronized static void setupAbstractDatabaseHelperTest() throws Exception {
+    public static synchronized void setupAbstractDatabaseHelperTest() throws Exception {
         DatabaseHelper.setupDatabase();
         Slf4JLogConfiguration.init();
 
@@ -59,8 +59,8 @@ public abstract class AbstractDatabaseHelperIntegrationTest extends AbstractJUni
     }
 
     @AfterAll
-    public synchronized static void resetAbstractDatabaseHelperTest() throws Exception {
-        Properties properties = new Properties();
+    public static synchronized void resetAbstractDatabaseHelperTest() throws Exception {
+        final Properties properties = new Properties();
         properties.load(new ByteArrayInputStream(propertyStore));
         System.setProperties(properties);
         propertyStore = null;

@@ -158,7 +158,7 @@ ${result}
     }
 
     def send(Message message) {
-        message.from = whoisFixture.send(message.subject, message.body.stripIndent())
+        message.from = whoisFixture.send(message.subject, message.body.stripIndent(true))
         print """\
 >>>>> SEND MESSAGE
 
@@ -167,7 +167,7 @@ subject: ${message.subject}
 
 ----
 
-${message.body.stripIndent()}
+${message.body.stripIndent(true)}
 
 <<<<<
 """
@@ -292,7 +292,7 @@ ${response}
     }
 
     def object(String string) {
-        return RpslObject.parse(string.stripIndent()).toString()
+        return RpslObject.parse(string.stripIndent(true)).toString()
     }
 
 
@@ -310,10 +310,6 @@ ${response}
 
     def getRpslObjectDao() {
         return whoisFixture.getRpslObjectDao()
-    }
-
-    def getTagsDao() {
-        return whoisFixture.getTagsDao()
     }
 
     def getAuthoritativeResourceDao() {
