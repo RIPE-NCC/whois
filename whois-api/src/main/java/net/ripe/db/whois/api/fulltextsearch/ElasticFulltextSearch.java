@@ -86,7 +86,7 @@ public class ElasticFulltextSearch extends FulltextSearch {
         }
 
         if (searchRequest.getStart() + searchRequest.getRows() > MAX_ROW_LIMIT_SIZE) {
-            throw new IllegalArgumentException("The maximum doc position to fetch is " + MAX_ROW_LIMIT_SIZE);
+            throw new IllegalArgumentException("Exceeded maximum " + MAX_ROW_LIMIT_SIZE + " documents");
         }
 
         return new ElasticSearchAccountingCallback<SearchResponse>(accessControlListManager, remoteAddr, source) {
