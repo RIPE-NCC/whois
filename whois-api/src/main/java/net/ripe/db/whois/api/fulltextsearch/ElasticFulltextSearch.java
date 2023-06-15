@@ -151,7 +151,7 @@ public class ElasticFulltextSearch extends FulltextSearch {
                 .size(searchRequest.getRows()).from(start)
                 .aggregation(AGGREGATION_BUILDER)
                 .sort(SORT_BUILDERS)
-                .highlighter(highlightBuilder);
+                .highlighter(highlightBuilder).trackTotalHits(true);
         return sourceBuilder;
     }
 
