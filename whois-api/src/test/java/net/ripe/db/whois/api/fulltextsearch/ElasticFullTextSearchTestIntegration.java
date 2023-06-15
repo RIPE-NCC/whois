@@ -2351,8 +2351,7 @@ public class ElasticFullTextSearchTestIntegration extends AbstractElasticSearchI
             query("facet=true&format=xml&hl=true&q=(TEST%20AND%20BANK)&start=99991&wt=json&rows=10");
         });
         assertThat(badRequestException.getMessage(), is("HTTP 400 Bad Request"));
-        assertThat(badRequestException.getResponse().readEntity(String.class), is("The maximum doc position to fetch " +
-                "is 100000"));
+        assertThat(badRequestException.getResponse().readEntity(String.class), is("Exceeded maximum 100000 documents"));
     }
     // helper methods
 
