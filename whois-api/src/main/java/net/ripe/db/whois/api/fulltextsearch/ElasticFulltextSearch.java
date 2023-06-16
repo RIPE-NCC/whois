@@ -60,6 +60,7 @@ public class ElasticFulltextSearch extends FulltextSearch {
     //Truncate after 100k of characters
     private static final int HIGHLIGHT_OFFSET_SIZE = 100000;
 
+    private static final int MAX_ROW_LIMIT_SIZE = 100000;
     private final int maxResultSize;
 
     @Autowired
@@ -82,6 +83,10 @@ public class ElasticFulltextSearch extends FulltextSearch {
 
         if (searchRequest.getRows() > maxResultSize) {
             throw new IllegalArgumentException("Too many results requested, the maximum allowed is " + maxResultSize);
+        }
+
+        if (searchRequest.getStart() + searchRequest.getRows() > MAX_ROW_LIMIT_SIZE) {
+            throw new IllegalArgumentException("Exceeded maximum " + MAX_ROW_LIMIT_SIZE + " documents");
         }
 
         return new ElasticSearchAccountingCallback<SearchResponse>(accessControlListManager, remoteAddr, source) {

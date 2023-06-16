@@ -2345,6 +2345,14 @@ public class ElasticFullTextSearchTestIntegration extends AbstractElasticSearchI
         assertThat(badRequestException.getResponse().readEntity(String.class), is("Too many results requested, the maximum allowed is 10"));
     }
 
+    @Test
+    public void request_from_higher_position_than_allowed() {
+        final BadRequestException badRequestException = assertThrows(BadRequestException.class, () -> {
+            query("facet=true&format=xml&hl=true&q=(TEST%20AND%20BANK)&start=99991&wt=json&rows=10");
+        });
+        assertThat(badRequestException.getMessage(), is("HTTP 400 Bad Request"));
+        assertThat(badRequestException.getResponse().readEntity(String.class), is("Exceeded maximum 100000 documents"));
+    }
     // helper methods
 
     private QueryResponse query(final String queryString) {
