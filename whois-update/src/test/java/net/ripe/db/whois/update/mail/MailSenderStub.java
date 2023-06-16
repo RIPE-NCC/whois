@@ -19,6 +19,7 @@ import org.springframework.stereotype.Component;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.Properties;
 import java.util.Set;
 import java.util.concurrent.Callable;
 import java.util.concurrent.TimeUnit;
@@ -28,7 +29,9 @@ import java.util.concurrent.TimeUnit;
 public class MailSenderStub extends MailSenderBase implements Stub {
     private static final Logger LOGGER = LoggerFactory.getLogger(MailSenderStub.class);
 
-    private final Set<MimeMessage> messages = Collections.synchronizedSet(Sets.<MimeMessage>newHashSet());
+    private static final Session SESSION = Session.getInstance(new Properties());
+
+    private final Set<MimeMessage> messages = Collections.synchronizedSet(Sets.newHashSet());
 
     @Override
     public void reset() {
@@ -38,9 +41,8 @@ public class MailSenderStub extends MailSenderBase implements Stub {
     @Override
     public void send(MimeMessagePreparator mimeMessagePreparator) {
         try {
-            final MimeMessage mimeMessage = new MimeMessage((Session) null);
+            final MimeMessage mimeMessage = new MimeMessage(SESSION);
             mimeMessagePreparator.prepare(mimeMessage);
-//            LOGGER.info("Send message: {}\n\n{}\n\n", EnumerationUtils.toList(mimeMessage.getAllHeaderLines()), mimeMessage.getContent());
             messages.add(mimeMessage);
         } catch (Exception e) {
             throw new RuntimeException("Send message", e);

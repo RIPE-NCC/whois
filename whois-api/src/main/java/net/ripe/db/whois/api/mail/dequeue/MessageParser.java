@@ -6,6 +6,7 @@ import jakarta.mail.Address;
 import jakarta.mail.Header;
 import jakarta.mail.MessagingException;
 import jakarta.mail.Part;
+import jakarta.mail.Session;
 import jakarta.mail.internet.AddressException;
 import jakarta.mail.internet.ContentType;
 import jakarta.mail.internet.InternetAddress;
@@ -34,6 +35,7 @@ import org.springframework.stereotype.Component;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.Charset;
@@ -45,6 +47,7 @@ import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Enumeration;
 import java.util.List;
+import java.util.Properties;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -59,6 +62,7 @@ public class MessageParser {
 
     private static final DateTimeFormatter DATE_FORMAT = DateTimeFormatter.ofPattern("EEE MMM dd HH:mm:ss z yyyy");
     private static final Pattern HEADER_BASE_64 = Pattern.compile("Content-Transfer-Encoding:\\s+base64*");
+    private static final Session SESSION = Session.getInstance(new Properties());
 
     private final LoggerContext loggerContext;
     private final DateTimeProvider dateTimeProvider;
@@ -67,6 +71,14 @@ public class MessageParser {
     public MessageParser(final LoggerContext loggerContext, final DateTimeProvider dateTimeProvider) {
         this.loggerContext = loggerContext;
         this.dateTimeProvider = dateTimeProvider;
+    }
+
+    public MailMessage parse(final String message, final UpdateContext updateContext) throws MessagingException {
+        return parse(new MimeMessage(SESSION, new ByteArrayInputStream(message.getBytes())), updateContext);
+    }
+
+    public MailMessage parse(final InputStream message, final UpdateContext updateContext) throws MessagingException {
+        return parse(new MimeMessage(SESSION, message), updateContext);
     }
 
     public MailMessage parse(final MimeMessage message, final UpdateContext updateContext) throws MessagingException {

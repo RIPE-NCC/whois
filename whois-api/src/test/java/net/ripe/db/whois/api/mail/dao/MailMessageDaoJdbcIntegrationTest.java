@@ -15,6 +15,7 @@ import org.springframework.util.FileCopyUtils;
 import java.io.InputStreamReader;
 import java.util.List;
 import java.util.Map;
+import java.util.Properties;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.hasSize;
@@ -26,6 +27,9 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 
 @Tag("IntegrationTest")
 public class MailMessageDaoJdbcIntegrationTest extends AbstractIntegrationTest {
+
+    private static final Session SESSION = Session.getInstance(new Properties());
+
     private MailMessageDao subject;
     @Autowired private MessageDequeue messageDequeue;
 
@@ -38,7 +42,7 @@ public class MailMessageDaoJdbcIntegrationTest extends AbstractIntegrationTest {
     @Test
     public void addMessage_invalid() {
         assertThrows(IllegalArgumentException.class, () -> {
-            subject.addMessage(new MimeMessage((Session) null));
+            subject.addMessage(new MimeMessage(SESSION));
 
             assertThat(getAllMessages(), hasSize(0));
         });
