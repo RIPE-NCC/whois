@@ -39,10 +39,11 @@ import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.not;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.fail;
 
 @Tag("ElasticSearchTest")
-public class ElasticFullTextSearchTestIntegration  extends AbstractElasticSearchIntegrationTest {
+public class ElasticFullTextSearchTestIntegration extends AbstractElasticSearchIntegrationTest {
 
     private static final String WHOIS_INDEX = "whois_fulltext";
     private static final String METADATA_INDEX = "metadata_fulltext";
@@ -57,7 +58,7 @@ public class ElasticFullTextSearchTestIntegration  extends AbstractElasticSearch
     public static void setUpProperties() {
         System.setProperty("elastic.whois.index", WHOIS_INDEX);
         System.setProperty("elastic.commit.index", METADATA_INDEX);
-        System.setProperty("fulltext.search.max.results", "3");
+        System.setProperty("fulltext.search.max.results", "10");
     }
 
     @AfterAll
@@ -122,26 +123,25 @@ public class ElasticFullTextSearchTestIntegration  extends AbstractElasticSearch
         assertThat(queryResponse.getResults().getNumFound(), is(1L));
         assertThat(queryResponse.getResults(), hasSize(1));
         final SolrDocument solrDocument = queryResponse.getResults().get(0);
-        assertThat(solrDocument.getFirstValue("primary-key"), is("1"));
         assertThat(solrDocument.getFirstValue("object-type"), is("mntner"));
         assertThat(solrDocument.getFirstValue("lookup-key"), is("DEV-MNT"));
         assertThat(solrDocument.getFirstValue("mntner"), is("DEV-MNT"));
     }
 
     @Test
-    public void search_single_result_object_deleted_before_index_updated() {
+    public void search_single_result_even_deleted_from_database() {
         final RpslObject mntner = RpslObject.parse(
                 "mntner: DEV-MNT\n" +
                 "source: RIPE");
         databaseHelper.addObject(mntner);
-         rebuildIndex();
+        rebuildIndex();
         databaseHelper.deleteObject(mntner);
 
         final QueryResponse queryResponse = query("q=DEV-MNT");
 
         assertThat(queryResponse.getStatus(), is(0));
-        assertThat(queryResponse.getResults().getNumFound(), is(0L));
-        assertThat(queryResponse.getResults(), hasSize(0));
+        assertThat(queryResponse.getResults().getNumFound(), is(1L));
+        assertThat(queryResponse.getResults(), hasSize(1));
     }
 
     @Test
@@ -223,7 +223,8 @@ public class ElasticFullTextSearchTestIntegration  extends AbstractElasticSearch
     }
 
     @Test
-    public void search_multiple_results_with_search_limit() {
+    public void search_multiple_results_with_first_three_records() {
+
         databaseHelper.addObject(RpslObject.parse(
                 "mntner: DEV1-MNT\n" +
                         "remarks: Some remark\n" +
@@ -249,11 +250,12 @@ public class ElasticFullTextSearchTestIntegration  extends AbstractElasticSearch
 
          rebuildIndex();
 
-        final QueryResponse queryResponse = query("q=remark&facet=true");
+        final QueryResponse queryResponse = query("q=remark&facet=true&rows=3&start=0");
 
-        //search limit to 3
+        //rows to return 3, however the total that ES is able to find is 5
         assertThat(queryResponse.getStatus(), is(0));
-        assertThat(queryResponse.getResults().getNumFound(), is(3L));
+        assertThat(queryResponse.getResults(), hasSize(3));
+        assertThat(queryResponse.getResults().getNumFound(), is(5L));
 
 
         final List<FacetField> facets = queryResponse.getFacetFields();
@@ -910,6 +912,40 @@ public class ElasticFullTextSearchTestIntegration  extends AbstractElasticSearch
             assertThat(aclJdbcTemplate.update("DELETE FROM acl_denied WHERE prefix = ?", localhost.toString()), is(1));
             ipResourceConfiguration.reload();
         }
+    }
+
+    @Test
+    public void too_many_personal_object_temporary_block() {
+        testPersonalObjectAccounting.accountPersonalObject(Inet4Address.getLoopbackAddress(), 5000);
+
+        databaseHelper.addObject(RpslObject.parse(
+                "person: John McDonald\n" +
+                        "nic-hdl: AA1-RIPE\n" +
+                        "source: RIPE"));
+        rebuildIndex();
+
+        try {
+            query("q=john%20mcdonald");
+            fail("request should have been blocked");
+        } catch (ClientErrorException cee) {
+            assertThat(cee.getResponse().getStatus(), is(429));
+        }
+    }
+
+    @Test
+    public void should_account_for_personal_objects() {
+        testPersonalObjectAccounting.accountPersonalObject(Inet4Address.getLoopbackAddress(), 1);
+
+        databaseHelper.addObject(RpslObject.parse(
+                "person: John McDonald\n" +
+                        "nic-hdl: AA1-RIPE\n" +
+                        "source: RIPE"));
+        rebuildIndex();
+
+        query("q=john%20mcdonald");
+
+        int totalCount = testPersonalObjectAccounting.getQueriedPersonalObjects(Inet4Address.getLoopbackAddress());
+        assertThat(totalCount, is(2));
     }
 
     @Test
@@ -2130,6 +2166,193 @@ public class ElasticFullTextSearchTestIntegration  extends AbstractElasticSearch
         assertThat(queryResponse.getResults().get(9).get("lookup-key"), is("83.92.220.64 - 83.92.220.71"));
     }
 
+    @Test
+    public void search_multiple_results_paginating() {
+
+        databaseHelper.addObject(RpslObject.parse(
+                "mntner: DEV1-MNT\n" +
+                        "remarks: Some remark\n" +
+                        "source: RIPE"));
+        databaseHelper.addObject(RpslObject.parse(
+                "mntner: DEV2-MNT\n" +
+                        "remarks: Another remark\n" +
+                        "source: RIPE"));
+        databaseHelper.addObject(RpslObject.parse(
+                "mntner: DEV3-MNT\n" +
+                        "remarks: Some remark\n" +
+                        "source: RIPE"));
+        databaseHelper.addObject(RpslObject.parse(
+                "person: First Last\n" +
+                        "nic-hdl: AA1-RIPE\n" +
+                        "remarks: Other remark\n" +
+                        "source: RIPE"));
+        databaseHelper.addObject(RpslObject.parse(
+                "person: First Middle Last\n" +
+                        "nic-hdl: AA2-RIPE\n" +
+                        "remarks: Other remark\n" +
+                        "source: RIPE"));
+
+        rebuildIndex();
+
+        final QueryResponse queryResponse = query("q=remark&facet=true&rows=3&start=1");
+
+        //rows to return 3, however the total that ES is able to find is 5
+        assertThat(queryResponse.getStatus(), is(0));
+        assertThat(queryResponse.getResults(), hasSize(3));
+        assertThat(queryResponse.getResults().getNumFound(), is(5L));
+    }
+
+    @Test
+    public void search_more_matches_than_max_row_just_one_requested() {
+
+        databaseHelper.addObject(RpslObject.parse(
+                "mntner: DEV1-MNT\n" +
+                        "remarks: Some remark\n" +
+                        "source: RIPE"));
+        databaseHelper.addObject(RpslObject.parse(
+                "mntner: DEV2-MNT\n" +
+                        "remarks: Another remark\n" +
+                        "source: RIPE"));
+        databaseHelper.addObject(RpslObject.parse(
+                "mntner: DEV3-MNT\n" +
+                        "remarks: Some remark\n" +
+                        "source: RIPE"));
+        databaseHelper.addObject(RpslObject.parse(
+                "mntner: DEV4-MNT\n" +
+                        "remarks: Some remark\n" +
+                        "source: RIPE"));
+        databaseHelper.addObject(RpslObject.parse(
+                "mntner: DEV5-MNT\n" +
+                        "remarks: Another remark\n" +
+                        "source: RIPE"));
+        databaseHelper.addObject(RpslObject.parse(
+                "mntner: DEV6-MNT\n" +
+                        "remarks: Some remark\n" +
+                        "source: RIPE"));
+        databaseHelper.addObject(RpslObject.parse(
+                "person: First Last\n" +
+                        "nic-hdl: AA1-RIPE\n" +
+                        "remarks: Other remark\n" +
+                        "source: RIPE"));
+        databaseHelper.addObject(RpslObject.parse(
+                "person: First Middle Last\n" +
+                        "nic-hdl: AA2-RIPE\n" +
+                        "remarks: Other remark\n" +
+                        "source: RIPE"));
+        databaseHelper.addObject(RpslObject.parse(
+                "person: First Last\n" +
+                        "nic-hdl: AA3-RIPE\n" +
+                        "remarks: Other remark\n" +
+                        "source: RIPE"));
+        databaseHelper.addObject(RpslObject.parse(
+                "person: First Middle Last\n" +
+                        "nic-hdl: AA4-RIPE\n" +
+                        "remarks: Other remark\n" +
+                        "source: RIPE"));
+        databaseHelper.addObject(RpslObject.parse(
+                "person: First Middle Last\n" +
+                        "nic-hdl: AA5-RIPE\n" +
+                        "remarks: Other remark\n" +
+                        "source: RIPE"));
+
+        rebuildIndex();
+
+        final QueryResponse queryResponse = query("q=remark&facet=true&rows=1&start=10");
+
+        //rows to return 3, however the total that ES is able to find is 5
+        assertThat(queryResponse.getStatus(), is(0));
+        assertThat(queryResponse.getResults(), hasSize(1));
+        assertThat(queryResponse.getResults().getNumFound(), is(11L));
+        assertThat(queryResponse.getResults().get(0).get("lookup-key"), is("DEV6-MNT"));
+    }
+    @Test
+    public void search_multiple_results_paginating_last_records() {
+
+        databaseHelper.addObject(RpslObject.parse(
+                "mntner: DEV1-MNT\n" +
+                        "remarks: Some remark\n" +
+                        "source: RIPE"));
+        databaseHelper.addObject(RpslObject.parse(
+                "mntner: DEV2-MNT\n" +
+                        "remarks: Another remark\n" +
+                        "source: RIPE"));
+        databaseHelper.addObject(RpslObject.parse(
+                "mntner: DEV3-MNT\n" +
+                        "remarks: Some remark\n" +
+                        "source: RIPE"));
+        databaseHelper.addObject(RpslObject.parse(
+                "person: First Last\n" +
+                        "nic-hdl: AA1-RIPE\n" +
+                        "remarks: Other remark\n" +
+                        "source: RIPE"));
+        databaseHelper.addObject(RpslObject.parse(
+                "person: First Middle Last\n" +
+                        "nic-hdl: AA2-RIPE\n" +
+                        "remarks: Other remark\n" +
+                        "source: RIPE"));
+
+        rebuildIndex();
+
+        final QueryResponse queryResponse = query("q=remark&facet=true&rows=3&start=3");
+
+        //rows to return 3, however the total that ES is able to find is 5
+        assertThat(queryResponse.getStatus(), is(0));
+        assertThat(queryResponse.getResults(), hasSize(2));
+        assertThat(queryResponse.getResults().getNumFound(), is(5L));
+    }
+
+    @Test
+    public void search_starting_lower_value_than_rows() {
+
+        databaseHelper.addObject(RpslObject.parse(
+                "mntner: DEV1-MNT\n" +
+                        "remarks: Some remark\n" +
+                        "source: RIPE"));
+        databaseHelper.addObject(RpslObject.parse(
+                "mntner: DEV2-MNT\n" +
+                        "remarks: Another remark\n" +
+                        "source: RIPE"));
+        databaseHelper.addObject(RpslObject.parse(
+                "mntner: DEV3-MNT\n" +
+                        "remarks: Some remark\n" +
+                        "source: RIPE"));
+        databaseHelper.addObject(RpslObject.parse(
+                "person: First Last\n" +
+                        "nic-hdl: AA1-RIPE\n" +
+                        "remarks: Other remark\n" +
+                        "source: RIPE"));
+        databaseHelper.addObject(RpslObject.parse(
+                "person: First Middle Last\n" +
+                        "nic-hdl: AA2-RIPE\n" +
+                        "remarks: Other remark\n" +
+                        "source: RIPE"));
+
+        rebuildIndex();
+
+        final QueryResponse queryResponse = query("q=remark&facet=true&rows=1&start=3");
+
+        //rows to return 3, however the total that ES is able to find is 5
+        assertThat(queryResponse.getStatus(), is(0));
+        assertThat(queryResponse.getResults(), hasSize(1));
+        assertThat(queryResponse.getResults().getNumFound(), is(5L));
+    }
+    @Test
+    public void request_more_than_allowed_rows_bad_request() {
+        final BadRequestException badRequestException = assertThrows(BadRequestException.class, () -> {
+            query("facet=true&format=xml&hl=true&q=(TEST%20AND%20BANK)&start=0&wt=json&rows=11");
+        });
+        assertThat(badRequestException.getMessage(), is("HTTP 400 Bad Request"));
+        assertThat(badRequestException.getResponse().readEntity(String.class), is("Too many results requested, the maximum allowed is 10"));
+    }
+
+    @Test
+    public void request_from_higher_position_than_allowed() {
+        final BadRequestException badRequestException = assertThrows(BadRequestException.class, () -> {
+            query("facet=true&format=xml&hl=true&q=(TEST%20AND%20BANK)&start=99991&wt=json&rows=10");
+        });
+        assertThat(badRequestException.getMessage(), is("HTTP 400 Bad Request"));
+        assertThat(badRequestException.getResponse().readEntity(String.class), is("Exceeded maximum 100000 documents"));
+    }
     // helper methods
 
     private QueryResponse query(final String queryString) {
