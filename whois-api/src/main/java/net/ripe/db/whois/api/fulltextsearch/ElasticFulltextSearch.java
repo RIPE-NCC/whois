@@ -138,16 +138,16 @@ public class ElasticFulltextSearch extends FulltextSearch {
     }
 
     private org.elasticsearch.action.search.SearchResponse performFulltextSearch(final SearchRequest searchRequest) throws IOException {
-        org.elasticsearch.action.search.SearchResponse response;
         try {
-            response = elasticIndexService.getClient().search(getFulltextRequest(searchRequest), RequestOptions.DEFAULT);
+            return elasticIndexService.getClient().search(getFulltextRequest(searchRequest), RequestOptions.DEFAULT);
         } catch (ElasticsearchStatusException ex){
             if (ex.status().equals(RestStatus.BAD_REQUEST)){
-                throw new IllegalArgumentException("The query syntax doesn't fit ES standards, please see the documentation for more info");
+                LOGGER.info("ElasticFullTextSearch fails due to the query: " + ex.getMessage());
+                throw new IllegalArgumentException("Invalid query syntax, please see the documentation for more info");
             }
+            LOGGER.error("ElasticFullTextSearch error: " + ex.getMessage());
             throw ex;
         }
-        return response;
     }
 
     private org.elasticsearch.action.search.SearchRequest getFulltextRequest(final SearchRequest searchRequest ) {
