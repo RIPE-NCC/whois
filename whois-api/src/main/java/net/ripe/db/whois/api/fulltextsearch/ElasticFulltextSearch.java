@@ -15,10 +15,12 @@ import net.ripe.db.whois.common.source.Source;
 import net.ripe.db.whois.common.source.SourceContext;
 import net.ripe.db.whois.query.acl.AccessControlListManager;
 import org.apache.commons.lang3.StringUtils;
+import org.elasticsearch.ElasticsearchStatusException;
 import org.elasticsearch.client.RequestOptions;
 import org.elasticsearch.index.query.MultiMatchQueryBuilder;
 import org.elasticsearch.index.query.QueryBuilders;
 import org.elasticsearch.index.query.QueryStringQueryBuilder;
+import org.elasticsearch.rest.RestStatus;
 import org.elasticsearch.search.SearchHit;
 import org.elasticsearch.search.aggregations.AggregationBuilders;
 import org.elasticsearch.search.aggregations.bucket.terms.Terms;
@@ -136,7 +138,16 @@ public class ElasticFulltextSearch extends FulltextSearch {
     }
 
     private org.elasticsearch.action.search.SearchResponse performFulltextSearch(final SearchRequest searchRequest) throws IOException {
-        return elasticIndexService.getClient().search(getFulltextRequest(searchRequest), RequestOptions.DEFAULT);
+        try {
+            return elasticIndexService.getClient().search(getFulltextRequest(searchRequest), RequestOptions.DEFAULT);
+        } catch (ElasticsearchStatusException ex){
+            if (ex.status().equals(RestStatus.BAD_REQUEST)){
+                LOGGER.info("ElasticFullTextSearch fails due to the query: " + ex.getMessage());
+                throw new IllegalArgumentException("Invalid query syntax");
+            }
+            LOGGER.error("ElasticFullTextSearch error: " + ex.getMessage());
+            throw ex;
+        }
     }
 
     private org.elasticsearch.action.search.SearchRequest getFulltextRequest(final SearchRequest searchRequest ) {
