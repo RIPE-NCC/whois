@@ -143,7 +143,7 @@ public class ElasticFulltextSearch extends FulltextSearch {
         } catch (ElasticsearchStatusException ex){
             if (ex.status().equals(RestStatus.BAD_REQUEST)){
                 LOGGER.info("ElasticFullTextSearch fails due to the query: " + ex.getMessage());
-                throw new IllegalArgumentException("Invalid query syntax, please see the documentation for more info");
+                throw new IllegalArgumentException("Invalid query syntax");
             }
             LOGGER.error("ElasticFullTextSearch error: " + ex.getMessage());
             throw ex;

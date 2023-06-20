@@ -2343,7 +2343,7 @@ public class ElasticFullTextSearchTestIntegration extends AbstractElasticSearchI
             query("facet=true&format=xml&hl=true&q=(TEST%20AND%20BANK%20NOT)&start=0&wt=json&rows=10");
         });
         assertThat(badRequestException.getMessage(), is("HTTP 400 Bad Request"));
-        assertThat(badRequestException.getResponse().readEntity(String.class), is("Invalid query syntax, please see the documentation for more info"));
+        assertThat(badRequestException.getResponse().readEntity(String.class), is("Invalid query syntax"));
     }
     @Test
     public void request_more_than_allowed_rows_bad_request() {
