@@ -2,7 +2,6 @@ package net.ripe.db.whois.api.rdap;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.google.common.collect.Lists;
-import net.ripe.db.whois.api.rdap.domain.RdapObject;
 import org.glassfish.jersey.server.ParamException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -42,6 +41,13 @@ public class RdapExceptionMapper implements ExceptionMapper<Exception> {
             return createErrorResponse(HttpServletResponse.SC_BAD_REQUEST, "400 Bad Request",
                     "unknown " + parameterName);
         }
+        if (exception instanceof AutnumException){
+            final AutnumException autnumException = (AutnumException) exception;
+            return createAutnumErrorResponse(autnumException.getErrorCode(), autnumException.getErrorTitle(),
+                    autnumException.getErrorDescription() == null? "Unknown error cause" :
+                            autnumException.getErrorDescription());
+        }
+
         if (exception instanceof RdapException){
             final RdapException rdapException = (RdapException) exception;
             return createErrorResponse(rdapException.getErrorCode(), rdapException.getErrorTitle(),
@@ -67,12 +73,14 @@ public class RdapExceptionMapper implements ExceptionMapper<Exception> {
 
     private Response createErrorResponse(final int status, final String errorTitle, final String ... errorMessage) {
         return Response.status(status)
-                .entity(createErrorEntity(status, errorTitle, errorMessage))
+                .entity(rdapObjectMapper.mapError(status, errorTitle, Lists.newArrayList(errorMessage)))
                 .header(HttpHeaders.CONTENT_TYPE, "application/rdap+json")
                 .build();
     }
-
-    private RdapObject createErrorEntity(final int errorCode, final String errorTitle, final String ... errorTexts) {
-        return rdapObjectMapper.mapError(errorCode, errorTitle, Lists.newArrayList(errorTexts));
+    private Response createAutnumErrorResponse(final int status, final String errorTitle, final String ... errorMessage) {
+        return Response.status(status)
+                .entity(rdapObjectMapper.mapAutnumError(status, errorTitle, Lists.newArrayList(errorMessage)))
+                .header(HttpHeaders.CONTENT_TYPE, "application/rdap+json")
+                .build();
     }
 }

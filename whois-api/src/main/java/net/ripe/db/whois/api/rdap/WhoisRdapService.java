@@ -215,14 +215,18 @@ public class WhoisRdapService {
     }
 
     private Response lookupForAutNum(final HttpServletRequest request, final String key) {
-        if (isRedirect(AUT_NUM, key) && !rdapRequestValidator.isReservedAsNumber(key)) {
-            return redirect(getRequestPath(request), AUT_NUM, key);
+        try {
+            if (isRedirect(AUT_NUM, key) && !rdapRequestValidator.isReservedAsNumber(key)) {
+                return redirect(getRequestPath(request), AUT_NUM, key);
+            }
+
+            final Query query = getQueryObject(ImmutableSet.of(AUT_NUM), key);
+            List<RpslObject> result = rdapQueryHandler.handleAutNumQuery(query, request);
+
+            return getResponse(request, result);
+        } catch (RdapException ex){
+            throw new AutnumException(ex.getErrorTitle(), ex.getErrorTitle(), ex.getErrorCode());
         }
-
-        final Query query = getQueryObject(ImmutableSet.of(AUT_NUM), key);
-        List<RpslObject> result = rdapQueryHandler.handleAutNumQuery(query, request);
-
-        return getResponse(request, result);
     }
 
     private Boolean isRedirect(ObjectType objectType, final String key) {

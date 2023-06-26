@@ -1,6 +1,6 @@
 package net.ripe.db.whois.api.rdap;
 
-public class RdapException extends RuntimeException {
+public class AutnumException extends RuntimeException {
 
     private final String errorTitle;
 
@@ -8,7 +8,7 @@ public class RdapException extends RuntimeException {
 
     private final int errorCode;
 
-    public RdapException(final String errorTitle, final String errorDescription, final int errorCode){
+    public AutnumException(final String errorTitle, final String errorDescription, final int errorCode){
         this.errorTitle = errorTitle;
         this.errorDescription = errorDescription;
         this.errorCode = errorCode;

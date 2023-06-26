@@ -50,6 +50,7 @@ import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.not;
 import static org.hamcrest.Matchers.nullValue;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.fail;
 
 @Tag("IntegrationTest")
@@ -1214,6 +1215,17 @@ public class WhoisRdapServiceTestIntegration extends AbstractRdapIntegrationTest
         }
     }
 
+    @Test
+    public void lookup_autnum_not_found_still_flat_conformance() {
+        final NotFoundException notFoundException = assertThrows(NotFoundException.class, () -> {
+            createResource("autnum/1")
+                    .request(MediaType.APPLICATION_JSON_TYPE)
+                    .get(Autnum.class);
+        });
+        final RdapObject rdapObject = notFoundException.getResponse().readEntity(RdapObject.class);
+        assertThat(rdapObject.getRdapConformance(), containsInAnyOrder("cidr0", "rdap_level_0",
+                "nro_rdap_profile_0", "nro_rdap_profile_asn_flat_0"));
+    }
     @Test
     public void lookup_autnum_invalid_syntax() {
         try {
