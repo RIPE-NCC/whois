@@ -386,7 +386,7 @@ public class WhoisRdapService {
             uri = delegatedStatsService.getUriForRedirect(requestPath, query);
         } catch (WebApplicationException e) {
             LOGGER.error(e.getMessage(), e);
-            throw new RdapException("404 Not found", "404 Redirect URI not found", HttpStatus.NOT_FOUND_404);
+            throw new RdapException("404 Not found", "Redirect URI not found", HttpStatus.NOT_FOUND_404);
         }
 
         return Response.status(Response.Status.MOVED_PERMANENTLY).location(uri).build();
@@ -398,7 +398,7 @@ public class WhoisRdapService {
             uri = delegatedStatsService.getUriForRedirect(requestPath, objectType, searchValue);
         } catch (WebApplicationException e) {
             LOGGER.error(e.getMessage(), e);
-            throw new RdapException("404 Not found", "404 Redirect URI not found", HttpStatus.NOT_FOUND_404);
+            throw new RdapException("404 Not found", "Redirect URI not found", HttpStatus.NOT_FOUND_404);
         }
 
         return Response.status(Response.Status.MOVED_PERMANENTLY).location(uri).build();
@@ -413,7 +413,7 @@ public class WhoisRdapService {
                         domain.getReverseIp().toString());
         } catch (WebApplicationException e) {
             LOGGER.error(e.getMessage(), e);
-            throw new RdapException("404 Not found", "404 Redirect URI not found", HttpStatus.NOT_FOUND_404);
+            throw new RdapException("404 Not found", "Redirect URI not found", HttpStatus.NOT_FOUND_404);
         }
 
         return Response.status(Response.Status.MOVED_PERMANENTLY).location(uri).build();

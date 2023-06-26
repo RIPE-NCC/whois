@@ -1342,7 +1342,7 @@ public class WhoisRdapServiceTestIntegration extends AbstractRdapIntegrationTest
         });
         assertErrorStatus(notFoundException, 404);
         assertErrorTitle(notFoundException, "404 Not found");
-        assertErrorDescription(notFoundException, "404 Redirect URI not found");
+        assertErrorDescription(notFoundException, "Redirect URI not found");
     }
 
     @Test
