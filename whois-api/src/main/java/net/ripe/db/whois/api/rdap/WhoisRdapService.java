@@ -174,7 +174,7 @@ public class WhoisRdapService {
             return handleSearch(new String[]{"organisation", "nic-hdl"}, handle, request);
         }
 
-        throw new RdapException("Bad Request", "The server is not able to process the request", HttpStatus.BAD_REQUEST_400);
+        throw new RdapException("400 Bad Request", "The server is not able to process the request", HttpStatus.BAD_REQUEST_400);
     }
 
     @GET
@@ -385,7 +385,8 @@ public class WhoisRdapService {
         try {
             uri = delegatedStatsService.getUriForRedirect(requestPath, query);
         } catch (WebApplicationException e) {
-            throw new RdapException("404 Redirect URI not found", e.getMessage(), HttpStatus.NOT_FOUND_404);
+            LOGGER.error(e.getMessage(), e);
+            throw new RdapException("404 Not found", "404 Redirect URI not found", HttpStatus.NOT_FOUND_404);
         }
 
         return Response.status(Response.Status.MOVED_PERMANENTLY).location(uri).build();
@@ -396,7 +397,8 @@ public class WhoisRdapService {
         try {
             uri = delegatedStatsService.getUriForRedirect(requestPath, objectType, searchValue);
         } catch (WebApplicationException e) {
-            throw new RdapException("404 Redirect URI not found", e.getMessage(), HttpStatus.NOT_FOUND_404);
+            LOGGER.error(e.getMessage(), e);
+            throw new RdapException("404 Not found", "404 Redirect URI not found", HttpStatus.NOT_FOUND_404);
         }
 
         return Response.status(Response.Status.MOVED_PERMANENTLY).location(uri).build();
@@ -410,7 +412,8 @@ public class WhoisRdapService {
                         getReverseObjectType(domain),
                         domain.getReverseIp().toString());
         } catch (WebApplicationException e) {
-            throw new RdapException("404 Redirect URI not found", e.getMessage(), HttpStatus.NOT_FOUND_404);
+            LOGGER.error(e.getMessage(), e);
+            throw new RdapException("404 Not found", "404 Redirect URI not found", HttpStatus.NOT_FOUND_404);
         }
 
         return Response.status(Response.Status.MOVED_PERMANENTLY).location(uri).build();
@@ -447,14 +450,14 @@ public class WhoisRdapService {
         LOGGER.debug("Search {} for {}", fields, term);
 
         if (StringUtils.isEmpty(term)) {
-            throw new RdapException("Bad Request", "Empty search term", HttpStatus.BAD_REQUEST_400);
+            throw new RdapException("400 Bad Request", "Empty search term", HttpStatus.BAD_REQUEST_400);
         }
 
         try {
             final List<RpslObject> objects = rdapFullTextSearch.performSearch(fields, term, request.getRemoteAddr(), source);
 
             if (objects.isEmpty()) {
-                throw new RdapException("Not Found", "Requested object not found: " + term, HttpStatus.NOT_FOUND_404);
+                throw new RdapException("404 Not Found", "Requested object not found: " + term, HttpStatus.NOT_FOUND_404);
             }
 
             return Response.ok(rdapObjectMapper.mapSearch(
