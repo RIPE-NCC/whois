@@ -123,7 +123,7 @@ public class WhoisRdapService {
 
         LOGGER.debug("Request: {}", RestServiceHelper.getRequestURI(request));
         if (requestType == null) {
-            throw new RdapException("Bad Request", "requestType parameter is required", HttpStatus.BAD_REQUEST_400);
+            throw new RdapException("400 Bad Request", "requestType parameter is required", HttpStatus.BAD_REQUEST_400);
         }
 
         final Set<ObjectType> whoisObjectTypes = requestType.getWhoisObjectTypes(key);  // null
@@ -148,10 +148,10 @@ public class WhoisRdapService {
                         lookupObject(request, whoisObjectTypes, key);
             }
             case NAMESERVER: {
-                throw new RdapException("Not Implemented", "Nameserver not supported", HttpStatus.NOT_IMPLEMENTED_501);
+                throw new RdapException("501 Not Implemented", "Nameserver not supported", HttpStatus.NOT_IMPLEMENTED_501);
             }
             default: {
-                throw new RdapException("Bad Request", "unknown type" + requestType, HttpStatus.BAD_REQUEST_400);
+                throw new RdapException("400 Bad Request", "unknown type" + requestType, HttpStatus.BAD_REQUEST_400);
             }
         }
     }
