@@ -569,7 +569,7 @@ public class WhoisRdapServiceTestIntegration extends AbstractRdapIntegrationTest
                     .get(Ip.class);
             fail();
         } catch (final BadRequestException e) {
-            assertErrorTitle(e, "Invalid syntax.");
+            assertErrorTitle(e, "Bad Request");
             assertErrorDescription(e, "'invalid' is not an IP string literal.");
         }
     }
@@ -857,7 +857,7 @@ public class WhoisRdapServiceTestIntegration extends AbstractRdapIntegrationTest
             fail();
         } catch (BadRequestException e) {
             assertErrorStatus(e, 400);
-            assertErrorTitle(e, "400 Bad Request");
+            assertErrorTitle(e, "Bad Request");
             assertErrorDescription(e, "Bad organisation or mntner syntax: 12345");
         }
     }
@@ -1193,7 +1193,7 @@ public class WhoisRdapServiceTestIntegration extends AbstractRdapIntegrationTest
             fail();
         } catch (BadRequestException e) {
             assertErrorStatus(e, 400);
-            assertErrorTitle(e, "400 Not Found");
+            assertErrorTitle(e, "Bad Request");
             assertErrorDescription(e, "RIPE NCC does not support forward domain queries.");
         }
     }
@@ -1222,7 +1222,7 @@ public class WhoisRdapServiceTestIntegration extends AbstractRdapIntegrationTest
                     .get(Autnum.class);
             fail();
         } catch (BadRequestException e) {
-            assertErrorTitle(e, "Invalid syntax.");
+            assertErrorTitle(e, "Bad Request");
         }
     }
 
@@ -1234,7 +1234,7 @@ public class WhoisRdapServiceTestIntegration extends AbstractRdapIntegrationTest
                     .get(Autnum.class);
             fail();
         } catch (BadRequestException e) {
-            assertErrorTitle(e, "400 Bad Request");
+            assertErrorTitle(e, "Bad Request");
             assertErrorDescription(e, "unknown objectType");
         }
     }
@@ -1535,7 +1535,7 @@ public class WhoisRdapServiceTestIntegration extends AbstractRdapIntegrationTest
             fail();
         } catch (BadRequestException e) {
             assertErrorStatus(e, 400);
-            assertErrorTitle(e, "400 Bad Request");
+            assertErrorTitle(e, "Bad Request");
             assertErrorDescription(e, "unknown objectType");
         }
     }
@@ -1913,7 +1913,7 @@ public class WhoisRdapServiceTestIntegration extends AbstractRdapIntegrationTest
             fail();
         } catch (BadRequestException e) {
             assertErrorStatus(e, 400);
-            assertErrorTitle(e, "400 Bad Request");
+            assertErrorTitle(e, "Bad Request");
             assertErrorDescription(e, "Bad organisation or mntner syntax: ORG-INVALID");
         }
     }
@@ -2086,7 +2086,7 @@ public class WhoisRdapServiceTestIntegration extends AbstractRdapIntegrationTest
                     .get(Entity.class);
             fail();
         } catch (NotFoundException e) {
-            assertErrorTitle(e, "404 Not Found");
+            assertErrorTitle(e, "Not Found");
         }
     }
 
@@ -2169,7 +2169,7 @@ public class WhoisRdapServiceTestIntegration extends AbstractRdapIntegrationTest
                     .get(SearchResult.class);
             fail();
         } catch (NotFoundException e) {
-            assertErrorTitle(e, "404 Not Found");
+            assertErrorTitle(e, "Not Found");
         }
     }
 
@@ -2247,7 +2247,7 @@ public class WhoisRdapServiceTestIntegration extends AbstractRdapIntegrationTest
                     .get(Entity.class);
             fail();
         } catch (NotFoundException e) {
-            assertErrorTitle(e, "404 Not Found");
+            assertErrorTitle(e, "Not Found");
         }
     }
 
@@ -2282,7 +2282,7 @@ public class WhoisRdapServiceTestIntegration extends AbstractRdapIntegrationTest
                     .get(Entity.class);
             fail();
         } catch (NotFoundException e) {
-            assertErrorTitle(e, "404 Not Found");
+            assertErrorTitle(e, "Not Found");
         }
     }
 
@@ -2354,7 +2354,7 @@ public class WhoisRdapServiceTestIntegration extends AbstractRdapIntegrationTest
             fail();
         } catch (BadRequestException e) {
             assertErrorStatus(e, 400);
-            assertErrorTitle(e, "400 Bad Request");
+            assertErrorTitle(e, "Bad Request");
             assertErrorDescription(e, "The server is not able to process the request");
         }
     }
@@ -2368,7 +2368,7 @@ public class WhoisRdapServiceTestIntegration extends AbstractRdapIntegrationTest
             fail();
         } catch (BadRequestException e) {
             assertErrorStatus(e, 400);
-            assertErrorTitle(e, "400 Bad Request");
+            assertErrorTitle(e, "Bad Request");
             assertErrorDescription(e, "The server is not able to process the request");
         }
     }
@@ -2382,7 +2382,7 @@ public class WhoisRdapServiceTestIntegration extends AbstractRdapIntegrationTest
             fail();
         } catch (BadRequestException e) {
             assertErrorStatus(e, 400);
-            assertErrorTitle(e, "400 Bad Request");
+            assertErrorTitle(e, "Bad Request");
             assertErrorDescription(e, "Empty search term");
         }
     }
@@ -2396,7 +2396,7 @@ public class WhoisRdapServiceTestIntegration extends AbstractRdapIntegrationTest
             fail();
         } catch (BadRequestException e) {
             assertErrorStatus(e, 400);
-            assertErrorTitle(e, "400 Bad Request");
+            assertErrorTitle(e, "Bad Request");
             assertErrorDescription(e, "Empty search term");
         }
     }

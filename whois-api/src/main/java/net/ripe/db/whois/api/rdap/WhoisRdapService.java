@@ -123,7 +123,7 @@ public class WhoisRdapService {
 
         LOGGER.debug("Request: {}", RestServiceHelper.getRequestURI(request));
         if (requestType == null) {
-            throw new RdapException("400 Bad Request", "requestType parameter is required", HttpStatus.BAD_REQUEST_400);
+            throw new RdapException("Bad Request", "requestType parameter is required", HttpStatus.BAD_REQUEST_400);
         }
 
         final Set<ObjectType> whoisObjectTypes = requestType.getWhoisObjectTypes(key);  // null
@@ -148,10 +148,10 @@ public class WhoisRdapService {
                         lookupObject(request, whoisObjectTypes, key);
             }
             case NAMESERVER: {
-                throw new RdapException("501 Not Implemented", "Nameserver not supported", HttpStatus.NOT_IMPLEMENTED_501);
+                throw new RdapException("Not Implemented", "Nameserver not supported", HttpStatus.NOT_IMPLEMENTED_501);
             }
             default: {
-                throw new RdapException("400 Not Request", "unknown type" + requestType, HttpStatus.BAD_REQUEST_400);
+                throw new RdapException("Bad Request", "unknown type" + requestType, HttpStatus.BAD_REQUEST_400);
             }
         }
     }
@@ -174,7 +174,7 @@ public class WhoisRdapService {
             return handleSearch(new String[]{"organisation", "nic-hdl"}, handle, request);
         }
 
-        throw new RdapException("400 Bad Request", "The server is not able to process the request", HttpStatus.BAD_REQUEST_400);
+        throw new RdapException("Bad Request", "The server is not able to process the request", HttpStatus.BAD_REQUEST_400);
     }
 
     @GET
@@ -447,14 +447,14 @@ public class WhoisRdapService {
         LOGGER.debug("Search {} for {}", fields, term);
 
         if (StringUtils.isEmpty(term)) {
-            throw new RdapException("400 Bad Request", "Empty search term", HttpStatus.BAD_REQUEST_400);
+            throw new RdapException("Bad Request", "Empty search term", HttpStatus.BAD_REQUEST_400);
         }
 
         try {
             final List<RpslObject> objects = rdapFullTextSearch.performSearch(fields, term, request.getRemoteAddr(), source);
 
             if (objects.isEmpty()) {
-                throw new RdapException("404 Not Found", "Requested object not found: " + term, HttpStatus.NOT_FOUND_404);
+                throw new RdapException("Not Found", "Requested object not found: " + term, HttpStatus.NOT_FOUND_404);
             }
 
             return Response.ok(rdapObjectMapper.mapSearch(

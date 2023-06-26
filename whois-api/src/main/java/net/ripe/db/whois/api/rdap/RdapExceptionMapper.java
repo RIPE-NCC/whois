@@ -39,7 +39,7 @@ public class RdapExceptionMapper implements ExceptionMapper<Exception> {
         }
         if (exception instanceof ParamException){
             final String parameterName = ((ParamException) exception).getParameterName();
-            return createErrorResponse(HttpServletResponse.SC_BAD_REQUEST, "400 Bad Request",
+            return createErrorResponse(HttpServletResponse.SC_BAD_REQUEST, "Bad Request",
                     "unknown " + parameterName);
         }
         if (exception instanceof RdapException){
