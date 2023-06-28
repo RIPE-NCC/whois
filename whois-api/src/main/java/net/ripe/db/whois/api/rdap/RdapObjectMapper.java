@@ -207,14 +207,9 @@ class RdapObjectMapper {
     }
 
     public RdapObject mapAutnumError(final int errorCode, final String errorTitle, final List<String> errorDescriptions){
-        if (Strings.isNullOrEmpty(errorTitle)) {
-            throw new IllegalStateException("title is mandatory");
-        }
-        final RdapObject rdapObject = mapCommons(new RdapObject(), null);
+        final RdapObject rdapObject = mapError(errorCode, errorTitle, errorDescriptions);
         rdapObject.getRdapConformance().add(RdapConformance.FLAT_MODEL.getValue());
-        rdapObject.setErrorCode(errorCode);
-        rdapObject.setErrorTitle(errorTitle);
-        rdapObject.setDescription(errorDescriptions);
+
         return rdapObject;
     }
     public RdapObject mapHelp(final String requestUrl) {
