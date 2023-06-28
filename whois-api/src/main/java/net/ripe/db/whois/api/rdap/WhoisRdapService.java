@@ -151,7 +151,7 @@ public class WhoisRdapService {
                 throw new RdapException("501 Not Implemented", "Nameserver not supported", HttpStatus.NOT_IMPLEMENTED_501);
             }
             default: {
-                throw new RdapException("400 Not Request", "unknown type" + requestType, HttpStatus.BAD_REQUEST_400);
+                throw new RdapException("400 Bad Request", "unknown type" + requestType, HttpStatus.BAD_REQUEST_400);
             }
         }
     }
@@ -225,7 +225,7 @@ public class WhoisRdapService {
 
             return getResponse(request, result);
         } catch (RdapException ex){
-            throw new AutnumException(ex.getErrorTitle(), ex.getErrorTitle(), ex.getErrorCode());
+            throw new AutnumException(ex.getErrorTitle(), ex.getErrorDescription(), ex.getErrorCode());
         }
     }
 
@@ -389,7 +389,8 @@ public class WhoisRdapService {
         try {
             uri = delegatedStatsService.getUriForRedirect(requestPath, query);
         } catch (WebApplicationException e) {
-            throw new RdapException("404 Redirect URI not found", e.getMessage(), HttpStatus.NOT_FOUND_404);
+            LOGGER.error(e.getMessage(), e);
+            throw new RdapException("404 Not found", "Redirect URI not found", HttpStatus.NOT_FOUND_404);
         }
 
         return Response.status(Response.Status.MOVED_PERMANENTLY).location(uri).build();
@@ -400,7 +401,8 @@ public class WhoisRdapService {
         try {
             uri = delegatedStatsService.getUriForRedirect(requestPath, objectType, searchValue);
         } catch (WebApplicationException e) {
-            throw new RdapException("404 Redirect URI not found", e.getMessage(), HttpStatus.NOT_FOUND_404);
+            LOGGER.error(e.getMessage(), e);
+            throw new RdapException("404 Not found", "Redirect URI not found", HttpStatus.NOT_FOUND_404);
         }
 
         return Response.status(Response.Status.MOVED_PERMANENTLY).location(uri).build();
@@ -414,7 +416,8 @@ public class WhoisRdapService {
                         getReverseObjectType(domain),
                         domain.getReverseIp().toString());
         } catch (WebApplicationException e) {
-            throw new RdapException("404 Redirect URI not found", e.getMessage(), HttpStatus.NOT_FOUND_404);
+            LOGGER.error(e.getMessage(), e);
+            throw new RdapException("404 Not found", "Redirect URI not found", HttpStatus.NOT_FOUND_404);
         }
 
         return Response.status(Response.Status.MOVED_PERMANENTLY).location(uri).build();
