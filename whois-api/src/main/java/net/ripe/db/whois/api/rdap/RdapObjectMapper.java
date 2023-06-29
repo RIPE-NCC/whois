@@ -60,6 +60,7 @@ import javax.annotation.Nullable;
 import javax.ws.rs.InternalServerErrorException;
 import java.time.LocalDateTime;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -448,7 +449,7 @@ class RdapObjectMapper {
         return lastChangedEvent;
     }
 
-    private static List<Entity> createContactEntities(final RpslObject rpslObject) {
+    private List<Entity> createContactEntities(final RpslObject rpslObject) {
         final List<Entity> entities = Lists.newArrayList();
         final Map<CIString, Set<AttributeType>> contacts = Maps.newTreeMap();
 
@@ -466,8 +467,18 @@ class RdapObjectMapper {
         for (final Map.Entry<CIString, Set<AttributeType>> entry : contacts.entrySet()) {
             final Entity entity = new Entity();
             entity.setHandle(entry.getKey().toString());
+            final Set<ObjectType> objectPossibleTypes = new HashSet<>();
             for (final AttributeType attributeType : entry.getValue()) {
+                objectPossibleTypes.addAll(attributeType.getReferences());
                 entity.getRoles().add(CONTACT_ATTRIBUTE_TO_ROLE_NAME.get(attributeType));
+            }
+
+            for (final ObjectType objectType : objectPossibleTypes){
+                final RpslObject referencedRpslObject = rpslObjectDao.getByKeyOrNull(objectType, entry.getKey());
+                if (referencedRpslObject == null){
+                    continue;
+                }
+                entity.setVCardArray(createVCard(referencedRpslObject));
             }
             entities.add(entity);
         }
@@ -475,12 +486,12 @@ class RdapObjectMapper {
         return entities;
     }
 
-    private static Entity createEntity(final RpslObject rpslObject) {
+    private Entity createEntity(final RpslObject rpslObject) {
         // top-level entity has no role
         return createEntity(rpslObject, null);
     }
 
-    private static Entity createEntity(final RpslObject rpslObject, @Nullable final Role role) {
+    private Entity createEntity(final RpslObject rpslObject, @Nullable final Role role) {
         final Entity entity = new Entity();
         entity.setHandle(rpslObject.getKey().toString());
         if (role != null) {
@@ -607,7 +618,6 @@ class RdapObjectMapper {
             default:
                 break;
         }
-
         builder.addAdr(rpslObject.getValuesForAttribute(ADDRESS))
                 .addTel(rpslObject.getValuesForAttribute(PHONE))
                 .addFax(rpslObject.getValuesForAttribute(FAX_NO))
