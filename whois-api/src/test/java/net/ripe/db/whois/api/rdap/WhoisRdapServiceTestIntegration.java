@@ -1898,6 +1898,17 @@ public class WhoisRdapServiceTestIntegration extends AbstractRdapIntegrationTest
     }
 
     @Test
+    public void lookup_org_error_correct_conformance() {
+        final NotFoundException notFoundException = assertThrows(NotFoundException.class, () -> {
+            createResource("entity/ORG-NONE-TEST")
+                    .request(MediaType.APPLICATION_JSON_TYPE)
+                    .get(Entity.class);
+        });
+        final RdapObject rdapObject = notFoundException.getResponse().readEntity(RdapObject.class);
+        assertThat(rdapObject.getRdapConformance(), containsInAnyOrder("cidr0", "rdap_level_0",
+                "nro_rdap_profile_0"));
+    }
+    @Test
     public void lookup_org_invalid_syntax() {
         final BadRequestException badRequestException = assertThrows(BadRequestException.class, () -> {
             createResource("entity/ORG-INVALID")
