@@ -60,7 +60,6 @@ import javax.annotation.Nullable;
 import javax.ws.rs.InternalServerErrorException;
 import java.time.LocalDateTime;
 import java.util.Collections;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -467,23 +466,28 @@ class RdapObjectMapper {
         for (final Map.Entry<CIString, Set<AttributeType>> entry : contacts.entrySet()) {
             final Entity entity = new Entity();
             entity.setHandle(entry.getKey().toString());
-            final Set<ObjectType> objectPossibleTypes = new HashSet<>();
+            final Set<ObjectType> objectPossibleTypes = Sets.newHashSet();
             for (final AttributeType attributeType : entry.getValue()) {
                 objectPossibleTypes.addAll(attributeType.getReferences());
                 entity.getRoles().add(CONTACT_ATTRIBUTE_TO_ROLE_NAME.get(attributeType));
             }
 
-            for (final ObjectType objectType : objectPossibleTypes){
-                final RpslObject referencedRpslObject = rpslObjectDao.getByKeyOrNull(objectType, entry.getKey());
-                if (referencedRpslObject == null){
-                    continue;
-                }
-                entity.setVCardArray(createVCard(referencedRpslObject));
-            }
+            mapEntityVcard(entry, entity, objectPossibleTypes);
             entities.add(entity);
         }
 
         return entities;
+    }
+
+    private void mapEntityVcard(final Map.Entry<CIString, Set<AttributeType>> entry, final Entity entity,
+                                final Set<ObjectType> objectPossibleTypes) {
+        for (final ObjectType objectType : objectPossibleTypes){
+            final RpslObject referencedRpslObject = rpslObjectDao.getByKeyOrNull(objectType, entry.getKey());
+            if (referencedRpslObject == null){
+                continue;
+            }
+            entity.setVCardArray(createVCard(referencedRpslObject));
+        }
     }
 
     private Entity createEntity(final RpslObject rpslObject) {
