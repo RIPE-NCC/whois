@@ -921,6 +921,22 @@ public class WhoisRdapServiceTestIntegration extends AbstractRdapIntegrationTest
         assertTnCNotice(notices.get(2),"https://rdap.db.ripe.net/entity/FR1-TEST");
     }
 
+    @Test
+    public void lookup_role_nested_object_links() {
+        final Entity entity = createResource("entity/FR1-TEST")
+                .request(MediaType.APPLICATION_JSON_TYPE)
+                .get(Entity.class);
+
+        final List<Entity> entities = entity.getEntitySearchResults();
+        assertThat(entities.get(0).getLinks().get(0).getHref(), is("https://rdap.db.ripe.net/entity/OWNER-MNT"));
+        assertThat(entities.get(0).getLinks().get(0).getValue(), is("https://rdap.db.ripe.net/entity/FR1-TEST"));
+        assertThat(entities.get(0).getLinks().get(1).getValue(), is("http://www.ripe.net/data-tools/support/documentation/terms"));
+
+        assertThat(entities.get(1).getLinks().get(0).getHref(), is("https://rdap.db.ripe.net/entity/PP1-TEST"));
+        assertThat(entities.get(1).getLinks().get(0).getValue(), is("https://rdap.db.ripe.net/entity/FR1-TEST"));
+        assertThat(entities.get(1).getLinks().get(1).getValue(), is("http://www.ripe" +
+                ".net/data-tools/support/documentation/terms"));
+    }
     // domain
 
     @Test

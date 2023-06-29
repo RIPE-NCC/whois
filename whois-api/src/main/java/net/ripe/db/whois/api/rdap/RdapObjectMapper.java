@@ -113,6 +113,8 @@ class RdapObjectMapper {
     private final Ipv6Tree ipv6Tree;
     private final String port43;
 
+    private final String rdapBasePath;
+
     @Autowired
     public RdapObjectMapper(
             final NoticeFactory noticeFactory,
@@ -120,13 +122,15 @@ class RdapObjectMapper {
             final ReservedResources reservedResources,
             final Ipv4Tree ipv4Tree,
             final Ipv6Tree ipv6Tree,
-            @Value("${rdap.port43:}") final String port43) {
+            @Value("${rdap.port43:}") final String port43,
+            @Value("${rdap.public.baseUrl:}") final String rdapBasePath) {
         this.noticeFactory = noticeFactory;
         this.rpslObjectDao = rpslObjectDao;
         this.ipv4Tree = ipv4Tree;
         this.ipv6Tree = ipv6Tree;
         this.port43 = port43;
         this.reservedResources = reservedResources;
+        this.rdapBasePath = rdapBasePath;
     }
 
     public Object map(final String requestUrl,
@@ -258,23 +262,23 @@ class RdapObjectMapper {
 
         switch (rpslObjectType) {
             case DOMAIN:
-                rdapResponse = createDomain(rpslObject);
+                rdapResponse = createDomain(rpslObject, requestUrl);
                 break;
             case AUT_NUM:
-                rdapResponse = createAutnumResponse(rpslObject);
+                rdapResponse = createAutnumResponse(rpslObject, requestUrl);
                 break;
             case AS_BLOCK:
-                rdapResponse = createAsBlockResponse(rpslObject);
+                rdapResponse = createAsBlockResponse(rpslObject, requestUrl);
                 break;
             case INETNUM:
             case INET6NUM:
-                rdapResponse = createIp(rpslObject);
+                rdapResponse = createIp(rpslObject, requestUrl);
                 break;
             case PERSON:
             case ROLE:
             case MNTNER:
             case ORGANISATION:
-                rdapResponse = createEntity(rpslObject);
+                rdapResponse = createEntity(rpslObject, requestUrl);
                 break;
             default:
                 throw new IllegalArgumentException("Unhandled object type: " + rpslObject.getType());
@@ -285,7 +289,7 @@ class RdapObjectMapper {
                 rdapResponse.getRemarks().add(createRemark(rpslObject.getKey(), abuseContact));
             }
 
-            rdapResponse.getEntitySearchResults().add(createEntity(abuseContact.getAbuseRole(), Role.ABUSE));
+            rdapResponse.getEntitySearchResults().add(createEntity(abuseContact.getAbuseRole(), Role.ABUSE, requestUrl));
         }
 
         if (hasDescriptions(rpslObject)) {
@@ -313,6 +317,16 @@ class RdapObjectMapper {
         rdapResponse.getLinks().add(COPYRIGHT_LINK);
     }
 
+    private void mapEntityLinks(final Entity entity, final String requestUrl, final CIString attributeValue) {
+        if (requestUrl != null) {
+            entity.getLinks().add(new Link(requestUrl, "self",
+                    rdapBasePath + "/" + entity.getObjectClassName() + "/" + attributeValue,
+                    null, null));
+        }
+        entity.getLinks().add(COPYRIGHT_LINK);
+    }
+
+
     private RdapObject mapCommonNoticesAndPort(final RdapObject rdapResponse, final String requestUrl) {
         rdapResponse.getNotices().add(noticeFactory.generateTnC(requestUrl));
         rdapResponse.setPort43(port43);
@@ -325,7 +339,7 @@ class RdapObjectMapper {
         return rdapResponse;
     }
 
-    private Ip createIp(final RpslObject rpslObject) {
+    private Ip createIp(final RpslObject rpslObject, final String requestUrl) {
         final Ip ip = new Ip();
         final IpInterval ipInterval = IpInterval.parse(rpslObject.getKey());
         ip.setHandle(rpslObject.getKey().toString());
@@ -341,7 +355,7 @@ class RdapObjectMapper {
         handleLanguageAttribute(rpslObject, ip);
         handleCountryAttribute(rpslObject, ip);
         ip.setCidr0_cidrs(getIpCidr0Notation(toIpRange(ipInterval)));
-        ip.getEntitySearchResults().addAll(createContactEntities(rpslObject));
+        ip.getEntitySearchResults().addAll(createContactEntities(rpslObject, requestUrl));
         return ip;
     }
 
@@ -448,7 +462,7 @@ class RdapObjectMapper {
         return lastChangedEvent;
     }
 
-    private static List<Entity> createContactEntities(final RpslObject rpslObject) {
+    private List<Entity> createContactEntities(final RpslObject rpslObject, final String requestUrl) {
         final List<Entity> entities = Lists.newArrayList();
         final Map<CIString, Set<AttributeType>> contacts = Maps.newTreeMap();
 
@@ -469,32 +483,35 @@ class RdapObjectMapper {
             for (final AttributeType attributeType : entry.getValue()) {
                 entity.getRoles().add(CONTACT_ATTRIBUTE_TO_ROLE_NAME.get(attributeType));
             }
+            mapEntityLinks(entity, requestUrl, entry.getKey());
+
             entities.add(entity);
         }
 
         return entities;
     }
 
-    private static Entity createEntity(final RpslObject rpslObject) {
+    private Entity createEntity(final RpslObject rpslObject, final String requestUrl) {
         // top-level entity has no role
-        return createEntity(rpslObject, null);
+        return createEntity(rpslObject, null, requestUrl);
     }
 
-    private static Entity createEntity(final RpslObject rpslObject, @Nullable final Role role) {
+    private Entity createEntity(final RpslObject rpslObject, @Nullable final Role role,
+                                       final String requestUrl) {
         final Entity entity = new Entity();
         entity.setHandle(rpslObject.getKey().toString());
         if (role != null) {
             entity.getRoles().add(role);
         }
         entity.setVCardArray(createVCard(rpslObject));
-        entity.getEntitySearchResults().addAll(createContactEntities(rpslObject));
+        entity.getEntitySearchResults().addAll(createContactEntities(rpslObject, requestUrl));
 
         handleLanguageAttribute(rpslObject, entity);
 
         return entity;
     }
 
-    private Autnum createAutnumResponse(final RpslObject rpslObject) {
+    private Autnum createAutnumResponse(final RpslObject rpslObject, final String requestUrl) {
         final Autnum autnum = new Autnum();
         autnum.setHandle(rpslObject.getKey().toString());
         autnum.setName(rpslObject.getValueForAttribute(AttributeType.AS_NAME).toString().replace(" ", ""));
@@ -502,12 +519,12 @@ class RdapObjectMapper {
         autnum.setStartAutnum(asNumber);
         autnum.setEndAutnum(asNumber);
         autnum.setStatus(Collections.singletonList(getResourceStatus(rpslObject).getValue()));
-        autnum.getEntitySearchResults().addAll(createContactEntities(rpslObject));
+        autnum.getEntitySearchResults().addAll(createContactEntities(rpslObject, requestUrl));
         autnum.getRdapConformance().add(RdapConformance.FLAT_MODEL.getValue());
         return autnum;
     }
 
-    private Autnum createAsBlockResponse(final RpslObject rpslObject) {
+    private Autnum createAsBlockResponse(final RpslObject rpslObject, final String requestUrl) {
         final Autnum autnum = new Autnum();
         final String key = rpslObject.getValueForAttribute(AttributeType.AS_BLOCK).toString();
         final AsBlockRange blockRange = getAsBlockRange(key);
@@ -518,11 +535,11 @@ class RdapObjectMapper {
         autnum.setStartAutnum(blockRange.getBegin());
         autnum.setEndAutnum(blockRange.getEnd());
         autnum.setStatus(Collections.singletonList(getResourceStatus(rpslObject).getValue()));
-        autnum.getEntitySearchResults().addAll(createContactEntities(rpslObject));
+        autnum.getEntitySearchResults().addAll(createContactEntities(rpslObject, requestUrl));
         return autnum;
     }
 
-    private Domain createDomain(final RpslObject rpslObject) {
+    private Domain createDomain(final RpslObject rpslObject, final String requestUrl) {
         final Domain domain = new Domain();
         domain.setHandle(rpslObject.getKey().toString());
         domain.setLdhName(IpInterval.addTrailingDot(rpslObject.getKey().toString()));
@@ -583,7 +600,7 @@ class RdapObjectMapper {
             domain.setSecureDNS(secureDNS);
         }
 
-        domain.getEntitySearchResults().addAll(createContactEntities(rpslObject));
+        domain.getEntitySearchResults().addAll(createContactEntities(rpslObject, requestUrl));
         return domain;
     }
 
