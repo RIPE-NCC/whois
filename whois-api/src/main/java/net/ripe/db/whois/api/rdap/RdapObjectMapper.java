@@ -462,6 +462,7 @@ class RdapObjectMapper {
         return lastChangedEvent;
     }
 
+
     private List<Entity> createContactEntities(final RpslObject rpslObject, final String requestUrl) {
         final List<Entity> entities = Lists.newArrayList();
         final Map<CIString, Set<AttributeType>> contacts = Maps.newTreeMap();
@@ -480,15 +481,28 @@ class RdapObjectMapper {
         for (final Map.Entry<CIString, Set<AttributeType>> entry : contacts.entrySet()) {
             final Entity entity = new Entity();
             entity.setHandle(entry.getKey().toString());
+            final Set<ObjectType> objectPossibleTypes = Sets.newHashSet();
             for (final AttributeType attributeType : entry.getValue()) {
+                objectPossibleTypes.addAll(attributeType.getReferences());
                 entity.getRoles().add(CONTACT_ATTRIBUTE_TO_ROLE_NAME.get(attributeType));
             }
             mapEntityLinks(entity, requestUrl, entry.getKey());
-
+            mapEntityVcard(entry, entity, objectPossibleTypes);
             entities.add(entity);
         }
 
         return entities;
+    }
+
+    private void mapEntityVcard(final Map.Entry<CIString, Set<AttributeType>> entry, final Entity entity,
+                                final Set<ObjectType> objectPossibleTypes) {
+        for (final ObjectType objectType : objectPossibleTypes){
+            final RpslObject referencedRpslObject = rpslObjectDao.getByKeyOrNull(objectType, entry.getKey());
+            if (referencedRpslObject == null){
+                continue;
+            }
+            entity.setVCardArray(createVCard(referencedRpslObject));
+        }
     }
 
     private Entity createEntity(final RpslObject rpslObject, final String requestUrl) {
@@ -496,8 +510,7 @@ class RdapObjectMapper {
         return createEntity(rpslObject, null, requestUrl);
     }
 
-    private Entity createEntity(final RpslObject rpslObject, @Nullable final Role role,
-                                       final String requestUrl) {
+    private Entity createEntity(final RpslObject rpslObject, @Nullable final Role role, final String requestUrl) {
         final Entity entity = new Entity();
         entity.setHandle(rpslObject.getKey().toString());
         if (role != null) {
@@ -624,7 +637,6 @@ class RdapObjectMapper {
             default:
                 break;
         }
-
         builder.addAdr(rpslObject.getValuesForAttribute(ADDRESS))
                 .addTel(rpslObject.getValuesForAttribute(PHONE))
                 .addFax(rpslObject.getValuesForAttribute(FAX_NO))
