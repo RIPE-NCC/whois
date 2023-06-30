@@ -2,6 +2,7 @@ package net.ripe.db.whois.api.rdap;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.google.common.collect.Lists;
+import net.ripe.db.whois.api.rdap.domain.RdapObject;
 import org.glassfish.jersey.server.ParamException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -73,14 +74,22 @@ public class RdapExceptionMapper implements ExceptionMapper<Exception> {
 
     private Response createErrorResponse(final int status, final String errorTitle, final String ... errorMessage) {
         return Response.status(status)
-                .entity(rdapObjectMapper.mapError(status, errorTitle, Lists.newArrayList(errorMessage)))
+                .entity(createErrorEntity(status, errorTitle, errorMessage))
                 .header(HttpHeaders.CONTENT_TYPE, "application/rdap+json")
                 .build();
     }
     private Response createAutnumErrorResponse(final int status, final String errorTitle, final String ... errorMessage) {
         return Response.status(status)
-                .entity(rdapObjectMapper.mapAutnumError(status, errorTitle, Lists.newArrayList(errorMessage)))
+                .entity(createAutnumErrorEntity(status, errorTitle, errorMessage))
                 .header(HttpHeaders.CONTENT_TYPE, "application/rdap+json")
                 .build();
+    }
+
+    private RdapObject createErrorEntity(final int errorCode, final String errorTitle, final String ... errorTexts) {
+        return rdapObjectMapper.mapError(errorCode, errorTitle, Lists.newArrayList(errorTexts));
+    }
+
+    private RdapObject createAutnumErrorEntity(final int errorCode, final String errorTitle, final String ... errorTexts) {
+        return rdapObjectMapper.mapAutnumError(errorCode, errorTitle, Lists.newArrayList(errorTexts));
     }
 }
