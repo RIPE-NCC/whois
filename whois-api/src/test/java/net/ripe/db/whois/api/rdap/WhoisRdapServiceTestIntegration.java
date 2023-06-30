@@ -1940,11 +1940,21 @@ public class WhoisRdapServiceTestIntegration extends AbstractRdapIntegrationTest
         assertThat(entities, hasSize(2));
         assertThat(entities.get(0).getHandle(), is("OWNER-MNT"));
         assertThat(entities.get(0).getRoles(), contains(Role.REGISTRANT));
-        assertThat(entities.get(0).getVCardArray(), is(nullValue()));
+        assertThat(entities.get(0).getVCardArray().get(0), is("vcard"));
+        assertThat(entities.get(0).getVCardArray().get(1).toString(), is("" +
+                "[[version, {}, text, 4.0], " +
+                "[fn, {}, text, OWNER-MNT], " +
+                "[kind, {}, text, individual]]"));
 
         assertThat(entities.get(1).getHandle(), is("TP1-TEST"));
         assertThat(entities.get(1).getRoles(), contains(Role.ADMINISTRATIVE));
-        assertThat(entities.get(1).getVCardArray(), is(nullValue()));
+        assertThat(entities.get(1).getVCardArray().get(0), is("vcard"));
+        assertThat(entities.get(1).getVCardArray().get(1).toString(), is("" +
+                "[[version, {}, text, 4.0], " +
+                "[fn, {}, text, Test Person], " +
+                "[kind, {}, text, individual], " +
+                "[adr, {label=Singel 258}, text, [, , , , , , ]], " +
+                "[tel, {type=voice}, text, +31 6 12345678]]"));
 
         assertThat(entity.getLinks(), hasSize(2));
         assertThat(entity.getLinks().get(0).getRel(), is("self"));
