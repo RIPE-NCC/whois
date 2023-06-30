@@ -328,7 +328,7 @@ public class WhoisRdapElasticServiceTestIntegration extends AbstractElasticSearc
             fail();
         } catch (BadRequestException e) {
             assertErrorStatus(e, 400);
-            assertErrorTitle(e, "400 Not Found");
+            assertErrorTitle(e, "400 Bad Request");
             assertErrorDescription(e, "RIPE NCC does not support forward domain queries.");
         }
     }
