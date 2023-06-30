@@ -1,4 +1,4 @@
--- delete tags functionality from whois
+-- add key pairs to nrtm database
 
 DROP TABLE IF EXISTS `key_pair`;
 CREATE TABLE `key_pair`
@@ -15,4 +15,4 @@ CREATE TABLE `key_pair`
   DEFAULT CHARSET = utf8;
 
 TRUNCATE version;
-INSERT INTO version VALUES ('whois-1.107');
+INSERT INTO version VALUES ('nrtm-1.107');
