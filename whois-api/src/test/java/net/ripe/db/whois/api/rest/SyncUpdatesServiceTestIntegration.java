@@ -1188,23 +1188,16 @@ public class SyncUpdatesServiceTestIntegration extends AbstractIntegrationTest {
                 .get()
                 .toString();
 
-        try {
-            dnsGatewayStub.addResponse(CIString.ciString("e.0.0.0.a.1.ip6.arpa"), UpdateMessages.dnsCheckMessageParsingError());
+        dnsGatewayStub.addResponse(CIString.ciString("e.0.0.0.a.1.ip6.arpa"), UpdateMessages.dnsCheckMessageParsingError());
 
-            final String response = RestTest.target(getPort(), "whois/syncupdates/test?" +
-
-                            "DATA=" + SyncUpdateUtils.encode(updatedPerson + "\npassword: emptypassword\n\n\n" + domain1))
+        final String response = RestTest.target(getPort(), "whois/syncupdates/test?" +
+                        "DATA=" + SyncUpdateUtils.encode(updatedPerson + "\npassword: emptypassword\n\n\n" + domain1))
                     .request()
                     .cookie("crowd.token_key", "valid-token")
                     .get(String.class);
 
-
-            assertThat(response, containsString("Create FAILED: [domain] e.0.0.0.a.1.ip6.arpa"));
-            assertThat(response, containsString("***Error:   Error parsing response while performing DNS check"));
-
-        } finally {
-            dnsGatewayStub.setProduceTimeouts(false);
-        }
+        assertThat(response, containsString("Create FAILED: [domain] e.0.0.0.a.1.ip6.arpa"));
+        assertThat(response, containsString("***Error:   Error parsing response while performing DNS check"));
     }
 
     // helper methods
