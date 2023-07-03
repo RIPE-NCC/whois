@@ -4,6 +4,7 @@ import net.ripe.db.whois.api.AbstractIntegrationTest;
 import net.ripe.db.whois.api.RestTest;
 import net.ripe.db.whois.api.rest.domain.WhoisResources;
 import net.ripe.db.whois.api.syncupdate.SyncUpdateUtils;
+import net.ripe.db.whois.common.Message;
 import net.ripe.db.whois.common.domain.CIString;
 import net.ripe.db.whois.common.domain.IpRanges;
 import net.ripe.db.whois.common.domain.User;
@@ -13,6 +14,7 @@ import net.ripe.db.whois.common.rpsl.RpslAttribute;
 import net.ripe.db.whois.common.rpsl.RpslObject;
 import net.ripe.db.whois.common.rpsl.RpslObjectBuilder;
 import net.ripe.db.whois.update.dns.DnsGatewayStub;
+import net.ripe.db.whois.update.domain.UpdateMessages;
 import net.ripe.db.whois.update.mail.MailSenderStub;
 import org.eclipse.jetty.http.HttpStatus;
 import org.glassfish.jersey.media.multipart.FormDataMultiPart;
@@ -1163,22 +1165,14 @@ public class SyncUpdatesServiceTestIntegration extends AbstractIntegrationTest {
         final RpslObject domain1 = RpslObject.parse("" +
                 "domain:        e.0.0.0.a.1.ip6.arpa\n" +
                 "descr:         Reverse delegation for 1a00:fb8::/23\n" +
-                "admin-c:       JAAP-TEST\n" +
-                "tech-c:        JAAP-TEST\n" +
-                "zone-c:        JAAP-TEST\n" +
+                "admin-c:       TP1-TEST\n" +
+                "tech-c:        TP1-TEST\n" +
+                "zone-c:        TP1-TEST\n" +
                 "nserver:       ns1.xs4all.nl\n" +
                 "nserver:       ns2.xs4all.nl\n" +
                 "mnt-by:        NON-EXISTING-MNT\n" +
                 "source:        TEST");
-        final RpslObject domain2 = RpslObject.parse("" +
-                "domain:        33.33.in-addr.arpa\n" +
-                "admin-c:       JAAP-TEST\n" +
-                "tech-c:        JAAP-TEST\n" +
-                "zone-c:        JAAP-TEST\n" +
-                "nserver:       ns1.example.com\n" +
-                "nserver:       ns2.example.com\n" +
-                "mnt-by:        mntner-mnt\n" +
-                "source:        TEST");
+
 
         final RpslObject person = new RpslObjectBuilder(PERSON_ANY1_TEST)
                 .addAttributeSorted(new RpslAttribute(AttributeType.NOTIFY, "test@test.net"))
@@ -1195,16 +1189,18 @@ public class SyncUpdatesServiceTestIntegration extends AbstractIntegrationTest {
                 .toString();
 
         try {
-            dnsGatewayStub.setProduceTimeouts(true);
+            dnsGatewayStub.addResponse(CIString.ciString("e.0.0.0.a.1.ip6.arpa"), UpdateMessages.dnsCheckMessageParsingError());
 
             final String response = RestTest.target(getPort(), "whois/syncupdates/test?" +
 
-                            "DATA=" + SyncUpdateUtils.encode(updatedPerson + "\noverride: agoston,zoh\n\n\n" + domain1 + "\n\n\n" + domain2))
+                            "DATA=" + SyncUpdateUtils.encode(updatedPerson + "\npassword: emptypassword\n\n\n" + domain1))
                     .request()
                     .cookie("crowd.token_key", "valid-token")
                     .get(String.class);
 
-            assertThat(response, containsString("***Error:   Timeout performing DNS check"));
+
+            assertThat(response, containsString("Create FAILED: [domain] e.0.0.0.a.1.ip6.arpa"));
+            assertThat(response, containsString("***Error:   Error parsing response while performing DNS check"));
 
         } finally {
             dnsGatewayStub.setProduceTimeouts(false);
