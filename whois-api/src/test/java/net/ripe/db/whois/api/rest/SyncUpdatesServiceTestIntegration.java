@@ -2,6 +2,7 @@ package net.ripe.db.whois.api.rest;
 
 import net.ripe.db.whois.api.AbstractIntegrationTest;
 import net.ripe.db.whois.api.RestTest;
+import net.ripe.db.whois.api.rest.domain.WhoisResources;
 import net.ripe.db.whois.api.syncupdate.SyncUpdateUtils;
 import net.ripe.db.whois.common.domain.CIString;
 import net.ripe.db.whois.common.domain.IpRanges;
@@ -11,6 +12,7 @@ import net.ripe.db.whois.common.rpsl.ObjectType;
 import net.ripe.db.whois.common.rpsl.RpslAttribute;
 import net.ripe.db.whois.common.rpsl.RpslObject;
 import net.ripe.db.whois.common.rpsl.RpslObjectBuilder;
+import net.ripe.db.whois.update.dns.DnsGatewayStub;
 import net.ripe.db.whois.update.mail.MailSenderStub;
 import org.eclipse.jetty.http.HttpStatus;
 import org.glassfish.jersey.media.multipart.FormDataMultiPart;
@@ -46,6 +48,9 @@ import static org.junit.jupiter.api.Assertions.fail;
 
 @Tag("IntegrationTest")
 public class SyncUpdatesServiceTestIntegration extends AbstractIntegrationTest {
+
+    @Autowired
+    private DnsGatewayStub dnsGatewayStub;
 
     private static final String MNTNER_TEST_MNTNER = "" +
             "mntner:        mntner-mnt\n" +
@@ -1140,6 +1145,70 @@ public class SyncUpdatesServiceTestIntegration extends AbstractIntegrationTest {
         assertThat(getAddressesAsString(message.getReplyTo()), not(containsInAnyOrder("person@net.net")));
 
         assertThat(response, containsString("Modify SUCCEEDED: [person] TP1-TEST   Test Person"));
+    }
+
+    @Test
+    public void create_multiple_domain_object_fail_dns_timeout() {
+
+        databaseHelper.insertUser(User.createWithPlainTextPassword("agoston", "zoh", ObjectType.AUT_NUM));
+
+        databaseHelper.addObject(PERSON_ANY1_TEST);
+        databaseHelper.addObject(MNTNER_TEST_MNTNER);
+
+        databaseHelper.addObject("" +
+                "inet6num:      1a00:fb8::/23\n" +
+                "mnt-by:        mntner-mnt\n" +
+                "mnt-domains:   mntner-mnt\n" +
+                "source:        TEST");
+        final RpslObject domain1 = RpslObject.parse("" +
+                "domain:        e.0.0.0.a.1.ip6.arpa\n" +
+                "descr:         Reverse delegation for 1a00:fb8::/23\n" +
+                "admin-c:       JAAP-TEST\n" +
+                "tech-c:        JAAP-TEST\n" +
+                "zone-c:        JAAP-TEST\n" +
+                "nserver:       ns1.xs4all.nl\n" +
+                "nserver:       ns2.xs4all.nl\n" +
+                "mnt-by:        NON-EXISTING-MNT\n" +
+                "source:        TEST");
+        final RpslObject domain2 = RpslObject.parse("" +
+                "domain:        33.33.in-addr.arpa\n" +
+                "admin-c:       JAAP-TEST\n" +
+                "tech-c:        JAAP-TEST\n" +
+                "zone-c:        JAAP-TEST\n" +
+                "nserver:       ns1.example.com\n" +
+                "nserver:       ns2.example.com\n" +
+                "mnt-by:        mntner-mnt\n" +
+                "source:        TEST");
+
+        final RpslObject person = new RpslObjectBuilder(PERSON_ANY1_TEST)
+                .addAttributeSorted(new RpslAttribute(AttributeType.NOTIFY, "test@test.net"))
+                .addAttributeSorted(new RpslAttribute(AttributeType.ADDRESS, "address"))
+                .addAttributeSorted(new RpslAttribute(AttributeType.PHONE, "+123456789"))
+                .addAttributeSorted(new RpslAttribute(AttributeType.MNT_BY, "mntner-mnt"))
+                .get();
+
+        databaseHelper.updateObject(person);
+
+        final String updatedPerson = new RpslObjectBuilder(databaseHelper.lookupObject(ObjectType.PERSON, person.getKey().toString()))
+                .addAttributeSorted(new RpslAttribute(AttributeType.REMARKS, "test"))
+                .get()
+                .toString();
+
+        try {
+            dnsGatewayStub.setProduceTimeouts(true);
+
+            final String response = RestTest.target(getPort(), "whois/syncupdates/test?" +
+
+                            "DATA=" + SyncUpdateUtils.encode(updatedPerson + "\noverride: agoston,zoh\n\n\n" + domain1 + "\n\n\n" + domain2))
+                    .request()
+                    .cookie("crowd.token_key", "valid-token")
+                    .get(String.class);
+
+            assertThat(response, containsString("***Error:   Timeout performing DNS check"));
+
+        } finally {
+            dnsGatewayStub.setProduceTimeouts(false);
+        }
     }
 
     // helper methods
