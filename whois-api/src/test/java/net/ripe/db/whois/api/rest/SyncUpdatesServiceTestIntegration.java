@@ -1173,17 +1173,7 @@ public class SyncUpdatesServiceTestIntegration extends AbstractIntegrationTest {
                 "mnt-by:        NON-EXISTING-MNT\n" +
                 "source:        TEST");
 
-
-        final RpslObject person = new RpslObjectBuilder(PERSON_ANY1_TEST)
-                .addAttributeSorted(new RpslAttribute(AttributeType.NOTIFY, "test@test.net"))
-                .addAttributeSorted(new RpslAttribute(AttributeType.ADDRESS, "address"))
-                .addAttributeSorted(new RpslAttribute(AttributeType.PHONE, "+123456789"))
-                .addAttributeSorted(new RpslAttribute(AttributeType.MNT_BY, "mntner-mnt"))
-                .get();
-
-        databaseHelper.updateObject(person);
-
-        final String updatedPerson = new RpslObjectBuilder(databaseHelper.lookupObject(ObjectType.PERSON, person.getKey().toString()))
+        final String updatedPerson = new RpslObjectBuilder(databaseHelper.lookupObject(ObjectType.PERSON, "TP1-TEST"))
                 .addAttributeSorted(new RpslAttribute(AttributeType.REMARKS, "test"))
                 .get()
                 .toString();
