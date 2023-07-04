@@ -61,3 +61,10 @@ The RIPE database doesn't contain any forward domain objects, consequently a nam
 Only "mnt-by:" Maintainers are Listed as Registrants
 -----------------------------------------------------
 Only maintainers referenced in "mnt-by:" attributes will be listed as Registrants in responses.
+
+IANA delegated objects will return a 404
+-----------------------------------------------------
+There must be a placeholder with "administrative" status for the IANA-delegated object.
+
+Since there are no IANA-delegated files in the RIPE database, a Not Found response will be given.  
+
