@@ -247,7 +247,7 @@ public class DummifierNrtm implements Dummifier {
                         "e-mail:         ripe-dbm@ripe.net\n" +
                         "admin-c:        DUMY-RIPE\n" +
                         "tech-c:         DUMY-RIPE\n" +
-                        "nic-hdl:        PLACE-RIPE\n" +
+                        "nic-hdl:        ROLE-RIPE\n" +
                         "mnt-by:         RIPE-DBM-MNT\n" +
                         "remarks:        **********************************************************\n" +
                         "remarks:        * This is a placeholder object to protect personal data.\n" +
