@@ -852,6 +852,43 @@ class RouteIntegrationSpec extends BaseWhoisSourceSpec {
         response =~ /Create SUCCEEDED: \[route\] 198.0.0.0\/32AS456/
     }
 
+    def "create route member-of and delete route set"() {
+        given:
+        def create = new SyncUpdate(data: """\
+                route: 198.0/32
+                descr: other route
+                origin: AS456
+                mnt-by: LOWER-MNT
+                member-of: RS-BLA123
+                source: TEST
+                password: otherpassword
+                password: emptypassword
+                """.stripIndent(true))
+
+        expect:
+        def response = syncUpdate create
+        response =~ /SUCCESS/
+        response =~ /Create SUCCEEDED: \[route\] 198.0.0.0\/32AS456/
+
+        when:
+        def delete = syncUpdate(new SyncUpdate(data: """\
+                route-set: RS-BLA123
+                descr: route set description
+                tech-c: TEST-PN
+                admin-c: TEST-PN
+                mnt-by: TEST-MNT
+                mbrs-by-ref: LOWER-MNT
+                source: TEST
+                password:        update
+                delete: reason
+                """))
+
+        then:
+        delete =~ /FAIL/
+        delete.contains("***Error:   Object [route-set] RS-BLA123 is referenced from other objects")
+
+    }
+
     def "create route member-of does not exist in route-set"() {
       when:
         def create = new SyncUpdate(data: """\
