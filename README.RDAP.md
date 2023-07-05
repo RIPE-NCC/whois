@@ -62,9 +62,8 @@ Only "mnt-by:" Maintainers are Listed as Registrants
 -----------------------------------------------------
 Only maintainers referenced in "mnt-by:" attributes will be listed as Registrants in responses.
 
-IANA delegated objects will return a 404
+Objects with "administrative" status are not returned
 -----------------------------------------------------
-There must be a placeholder with "administrative" status for the IANA-delegated object.
+If the prefix is either delegated but unallocated or only partially delegated to the RIPE region, then a 404 is returned. An object with "administrative" status is never returned.
 
-Since there are no IANA-delegated files in the RIPE database, a Not Found response will be given.  
-
+Refer to NRO RDAP Profile section 4.5. "Status"
