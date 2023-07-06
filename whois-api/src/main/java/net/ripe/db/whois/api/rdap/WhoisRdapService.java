@@ -330,7 +330,7 @@ public class WhoisRdapService {
                         autnumResult,
                         inetnumResult,
                         inet6numResult,
-                        maxEntityResultSize, baseUrl))
+                        maxEntityResultSize))
                 .header(CONTENT_TYPE, CONTENT_TYPE_RDAP_JSON)
                 .build();
     }
@@ -352,7 +352,7 @@ public class WhoisRdapService {
         return Response.ok(
                         rdapObjectMapper.mapDomainEntity(
                                 getRequestUrl(request),
-                                domainObject, inetnumObject, baseUrl))
+                                domainObject, inetnumObject))
                 .header(CONTENT_TYPE, CONTENT_TYPE_RDAP_JSON)
                 .build();
     }
@@ -375,7 +375,7 @@ public class WhoisRdapService {
                 rdapObjectMapper.map(
                         getRequestUrl(request),
                         resultObject,
-                        abuseCFinder.getAbuseContact(resultObject).orElse(null), baseUrl))
+                        abuseCFinder.getAbuseContact(resultObject).orElse(null)))
                 .header(CONTENT_TYPE, CONTENT_TYPE_RDAP_JSON)
                 .build();
     }
@@ -463,7 +463,7 @@ public class WhoisRdapService {
             return Response.ok(rdapObjectMapper.mapSearch(
                     getRequestUrl(request),
                     objects,
-                    maxResultSize, baseUrl))
+                    maxResultSize))
                     .header(CONTENT_TYPE, CONTENT_TYPE_RDAP_JSON)
                     .build();
         }
