@@ -387,6 +387,7 @@ public class WhoisRdapService {
     private boolean isIANABlock(final RpslObject rpslObject) {
         return rpslObject.getKey().toString().equals("::/0") || rpslObject.getKey().toString().equals("0.0.0.0 - 255.255.255.255");
     }
+
     private Response redirect(final String requestPath, final Query query) {
         final URI uri;
         try {
