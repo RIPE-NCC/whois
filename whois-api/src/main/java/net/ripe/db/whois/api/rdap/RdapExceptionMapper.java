@@ -34,7 +34,7 @@ public class RdapExceptionMapper implements ExceptionMapper<Exception> {
 
     @Override
     public Response toResponse(final Exception exception) {
-        if (exception instanceof IllegalArgumentException || exception instanceof JsonProcessingException){
+        if (exception instanceof JsonProcessingException){
             return createErrorResponse(HttpServletResponse.SC_BAD_REQUEST, exception.getMessage());
         }
         if (exception instanceof ParamException){
