@@ -366,6 +366,10 @@ public class WhoisRdapService {
 
         final RpslObject resultObject = rpslIterator.next();
 
+        if (isIANABlock(resultObject)){
+            throw new RdapException("404 Not Found", "Requested object not found", HttpStatus.NOT_FOUND_404);
+        }
+
         if (rpslIterator.hasNext()) {
             throw new RdapException("500 Internal Error", "Unexpected result size: " + Iterators.size(rpslIterator),
                     HttpStatus.INTERNAL_SERVER_ERROR_500);
@@ -380,6 +384,9 @@ public class WhoisRdapService {
                 .build();
     }
 
+    private boolean isIANABlock(final RpslObject rpslObject) {
+        return rpslObject.getKey().toString().equals("::/0") || rpslObject.getKey().toString().equals("0.0.0.0 - 255.255.255.255");
+    }
     private Response redirect(final String requestPath, final Query query) {
         final URI uri;
         try {

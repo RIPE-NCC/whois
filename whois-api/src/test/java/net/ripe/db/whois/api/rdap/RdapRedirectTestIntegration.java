@@ -3,27 +3,26 @@ package net.ripe.db.whois.api.rdap;
 import net.ripe.db.whois.api.AbstractIntegrationTest;
 import net.ripe.db.whois.api.RestTest;
 import net.ripe.db.whois.api.rdap.domain.Ip;
+import net.ripe.db.whois.api.rdap.domain.RdapObject;
 import net.ripe.db.whois.common.dao.DailySchedulerDao;
 import net.ripe.db.whois.common.dao.jdbc.DatabaseHelper;
 import net.ripe.db.whois.common.grs.AuthoritativeResourceData;
+import org.eclipse.jetty.http.HttpStatus;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.annotation.DirtiesContext;
 
-import javax.ws.rs.BadRequestException;
 import javax.ws.rs.NotFoundException;
 import javax.ws.rs.RedirectionException;
 import javax.ws.rs.core.MediaType;
 import java.io.IOException;
 
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.is;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -266,18 +265,18 @@ public class RdapRedirectTestIntegration extends AbstractIntegrationTest {
                     ".net/ip/217.180.0.0/16"));
         }
     }
-
-    @Disabled("TODO: expect NotFoundException for missing in-region resource")
+    
     @Test
     public void inetnum_inside_range_not_found() {
         try {
             RestTest.target(getPort(), String.format("rdap/%s", "ip/192.0.0.1"))
                 .request(MediaType.APPLICATION_JSON_TYPE)
                 .get(String.class);
-        } catch (BadRequestException e) {
-            // TODO: expect NotFoundException
-            final String entity = e.getResponse().readEntity(String.class);
-            assertThat(entity, containsString("something"));
+        } catch (NotFoundException e) {
+            final RdapObject error = e.getResponse().readEntity(RdapObject.class);
+            assertThat(error.getErrorCode(), is(HttpStatus.NOT_FOUND_404));
+            assertThat(error.getErrorTitle(), is("404 Not Found"));
+            assertThat(error.getDescription().get(0), is("Requested object not found"));
         }
     }
 
