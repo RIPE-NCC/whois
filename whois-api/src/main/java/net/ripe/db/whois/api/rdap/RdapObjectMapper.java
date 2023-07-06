@@ -266,15 +266,19 @@ class RdapObjectMapper {
         RdapObject rdapResponse;
         final ObjectType rpslObjectType = rpslObject.getType();
 
-        rdapResponse = switch (rpslObjectType) {
-            case DOMAIN -> createDomain(rpslObject);
-            case AUT_NUM -> createAutnumResponse(rpslObject);
-            case AS_BLOCK -> createAsBlockResponse(rpslObject);
-            case INETNUM, INET6NUM -> createIp(rpslObject);
-            case PERSON, ROLE, MNTNER, ORGANISATION -> createEntity(rpslObject);
-            default -> throw new RdapException("400 Bad Request", "Unhandled object type: " + rpslObject.getType(),
-                    HttpStatus.BAD_REQUEST_400);
-        };
+        try {
+            rdapResponse = switch (rpslObjectType) {
+                case DOMAIN -> createDomain(rpslObject);
+                case AUT_NUM -> createAutnumResponse(rpslObject);
+                case AS_BLOCK -> createAsBlockResponse(rpslObject);
+                case INETNUM, INET6NUM -> createIp(rpslObject);
+                case PERSON, ROLE, MNTNER, ORGANISATION -> createEntity(rpslObject);
+                default -> throw new RdapException("400 Bad Request", "Unhandled object type: " + rpslObject.getType(),
+                        HttpStatus.BAD_REQUEST_400);
+            };
+        } catch (IllegalArgumentException ex){
+            throw new RdapException("400 Bad Request", ex.getMessage(), HttpStatus.BAD_REQUEST_400);
+        }
 
         if (abuseContact != null) {
             if (abuseContact.isSuspect() && abuseContact.getOrgId() != null) {
