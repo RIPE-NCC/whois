@@ -10,17 +10,20 @@ import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.annotation.DirtiesContext;
 
+import javax.ws.rs.BadRequestException;
 import javax.ws.rs.NotFoundException;
 import javax.ws.rs.RedirectionException;
 import javax.ws.rs.core.MediaType;
 import java.io.IOException;
 
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.is;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -70,6 +73,7 @@ public class RdapRedirectTestIntegration extends AbstractIntegrationTest {
         addResourceData("two", "AS200");
         addResourceData("three", "AS300");
 
+        addResourceData("test", "192.0.0.0 - 192.255.255.255");
         addResourceData("one", "193.0.0.0 - 193.0.7.255");
         addResourceData("one", "2001:67c:370::/48");
 
@@ -262,6 +266,21 @@ public class RdapRedirectTestIntegration extends AbstractIntegrationTest {
                     ".net/ip/217.180.0.0/16"));
         }
     }
+
+    @Disabled("TODO: expect NotFoundException for missing in-region resource")
+    @Test
+    public void inetnum_inside_range_not_found() {
+        try {
+            RestTest.target(getPort(), String.format("rdap/%s", "ip/192.0.0.1"))
+                .request(MediaType.APPLICATION_JSON_TYPE)
+                .get(String.class);
+        } catch (BadRequestException e) {
+            // TODO: expect NotFoundException
+            final String entity = e.getResponse().readEntity(String.class);
+            assertThat(entity, containsString("something"));
+        }
+    }
+
     // inet6num
 
     @Test
