@@ -58,6 +58,8 @@ import org.springframework.stereotype.Component;
 
 import javax.annotation.Nullable;
 import javax.ws.rs.InternalServerErrorException;
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.time.LocalDateTime;
 import java.util.Collections;
 import java.util.List;
@@ -113,7 +115,6 @@ class RdapObjectMapper {
     private final Ipv6Tree ipv6Tree;
     private final String port43;
 
-    private final String rdapBasePath;
 
     @Autowired
     public RdapObjectMapper(
@@ -122,15 +123,13 @@ class RdapObjectMapper {
             final ReservedResources reservedResources,
             final Ipv4Tree ipv4Tree,
             final Ipv6Tree ipv6Tree,
-            @Value("${rdap.port43:}") final String port43,
-            @Value("${rdap.public.baseUrl:}") final String rdapBasePath) {
+            @Value("${rdap.port43:}") final String port43) {
         this.noticeFactory = noticeFactory;
         this.rpslObjectDao = rpslObjectDao;
         this.ipv4Tree = ipv4Tree;
         this.ipv6Tree = ipv6Tree;
         this.port43 = port43;
         this.reservedResources = reservedResources;
-        this.rdapBasePath = rdapBasePath;
     }
 
     public Object map(final String requestUrl,
@@ -319,10 +318,17 @@ class RdapObjectMapper {
 
     private void mapEntityLinks(final Entity entity, final String requestUrl, final CIString attributeValue) {
         if (requestUrl != null) {
+            URL url;
+            try {
+                url = new URL(requestUrl);
+            } catch (MalformedURLException ex) {
+                throw new IllegalStateException("Malformed Url");
+            }
             entity.getLinks().add(new Link(requestUrl, "self",
-                    rdapBasePath + "/" + entity.getObjectClassName() + "/" + attributeValue,
+                    url.getProtocol() + "://" + url.getHost() + "/" + entity.getObjectClassName() + "/" + attributeValue,
                     null, null));
         }
+
         entity.getLinks().add(COPYRIGHT_LINK);
     }
 
