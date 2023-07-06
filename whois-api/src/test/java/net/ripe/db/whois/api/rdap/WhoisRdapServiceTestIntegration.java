@@ -1426,6 +1426,64 @@ public class WhoisRdapServiceTestIntegration extends AbstractRdapIntegrationTest
     }
 
     @Test
+    public void lookup_autnum_irt_mnt_vcard() {
+
+        databaseHelper.addObject("" +
+            "irt: irt-IRT1\n" +
+            "address: Street 1\n" +
+            "e-mail: test@ripe.net\n" +
+            "admin-c: TP1-TEST\n" +
+            "tech-c: TP1-TEST\n" +
+            "auth: MD5-PW \\$1\\$fU9ZMQN9\\$QQtm3kRqZXWAuLpeOiLN7. # update\n" +
+            "mnt-by: OWNER-MNT\n" +
+            "source: TEST\n");
+
+        databaseHelper.updateObject("" +
+                "aut-num:       AS102\n" +
+                "as-name:       AS-TEST\n" +
+                "descr:         A single ASN\n" +
+                "admin-c:       TP1-TEST\n" +
+                "tech-c:        TP1-TEST\n" +
+                "mnt-by:        OWNER-MNT\n" +
+                "mnt-irt:       irt-IRT1\n"  +
+                "created:         2022-08-14T11:48:28Z\n" +
+                "last-modified:   2022-10-25T12:22:39Z\n" +
+                "source:        TEST");
+
+        final Autnum autnum = createResource("autnum/102")
+                .request(MediaType.APPLICATION_JSON_TYPE)
+                .get(Autnum.class);
+
+        final List<Entity> entities = autnum.getEntitySearchResults();
+        assertThat(entities, hasSize(3));
+
+        assertThat(entities.get(0).getHandle(), is("irt-IRT1"));
+        assertThat(entities.get(0).getRoles(), contains(Role.ABUSE));
+        assertThat(entities.get(0).getVCardArray().get(1).toString(), is("" +
+                "[[version, {}, text, 4.0], " +
+                "[fn, {}, text, irt-IRT1], " +
+                "[kind, {}, text, group], " +
+                "[adr, {label=Street 1}, text, [, , , , , , ]], " +
+                "[email, {type=email}, text, test@ripe.net]]"));
+
+        assertThat(entities.get(1).getHandle(), is("OWNER-MNT"));
+        assertThat(entities.get(1).getRoles(), contains(Role.REGISTRANT));
+        assertThat(entities.get(1).getVCardArray().get(1).toString(), is("" +
+                "[[version, {}, text, 4.0], " +
+                "[fn, {}, text, OWNER-MNT], " +
+                "[kind, {}, text, individual]]"));
+
+        assertThat(entities.get(2).getHandle(), is("TP1-TEST"));
+        assertThat(entities.get(2).getRoles(), containsInAnyOrder(Role.ADMINISTRATIVE, Role.TECHNICAL));
+        assertThat(entities.get(2).getVCardArray().get(1).toString(), is("" +
+                "[[version, {}, text, 4.0], " +
+                "[fn, {}, text, Test Person], " +
+                "[kind, {}, text, individual], " +
+                "[adr, {label=Singel 258}, text, [, , , , , , ]], " +
+                "[tel, {type=voice}, text, +31 6 12345678]]"));
+
+    }
+    @Test
     public void lookup_autnum_has_abuse_contact_object() {
         databaseHelper.addObject("" +
                 "role:          Abuse Contact\n" +

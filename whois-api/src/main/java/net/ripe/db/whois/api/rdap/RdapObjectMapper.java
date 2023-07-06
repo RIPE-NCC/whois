@@ -80,7 +80,9 @@ import static net.ripe.db.whois.common.rpsl.AttributeType.DS_RDATA;
 import static net.ripe.db.whois.common.rpsl.AttributeType.E_MAIL;
 import static net.ripe.db.whois.common.rpsl.AttributeType.FAX_NO;
 import static net.ripe.db.whois.common.rpsl.AttributeType.GEOLOC;
+import static net.ripe.db.whois.common.rpsl.AttributeType.IRT;
 import static net.ripe.db.whois.common.rpsl.AttributeType.MNT_BY;
+import static net.ripe.db.whois.common.rpsl.AttributeType.MNT_IRT;
 import static net.ripe.db.whois.common.rpsl.AttributeType.ORG;
 import static net.ripe.db.whois.common.rpsl.AttributeType.ORG_NAME;
 import static net.ripe.db.whois.common.rpsl.AttributeType.PERSON;
@@ -103,7 +105,8 @@ class RdapObjectMapper {
         CONTACT_ATTRIBUTE_TO_ROLE_NAME.put(TECH_C, Role.TECHNICAL);
         CONTACT_ATTRIBUTE_TO_ROLE_NAME.put(MNT_BY, Role.REGISTRANT);
         CONTACT_ATTRIBUTE_TO_ROLE_NAME.put(ZONE_C, Role.ZONE);
-        CONTACT_ATTRIBUTE_TO_ROLE_NAME.put(ORG, Role.REGISTRANT); // TODO: [MA] both mnt_by and org have same role
+        CONTACT_ATTRIBUTE_TO_ROLE_NAME.put(ORG, Role.REGISTRANT);// TODO: [MA] both mnt_by and org have same role
+        CONTACT_ATTRIBUTE_TO_ROLE_NAME.put(MNT_IRT, Role.ABUSE);
     }
 
     private final NoticeFactory noticeFactory;
@@ -262,29 +265,14 @@ class RdapObjectMapper {
         RdapObject rdapResponse;
         final ObjectType rpslObjectType = rpslObject.getType();
 
-        switch (rpslObjectType) {
-            case DOMAIN:
-                rdapResponse = createDomain(rpslObject);
-                break;
-            case AUT_NUM:
-                rdapResponse = createAutnumResponse(rpslObject);
-                break;
-            case AS_BLOCK:
-                rdapResponse = createAsBlockResponse(rpslObject);
-                break;
-            case INETNUM:
-            case INET6NUM:
-                rdapResponse = createIp(rpslObject);
-                break;
-            case PERSON:
-            case ROLE:
-            case MNTNER:
-            case ORGANISATION:
-                rdapResponse = createEntity(rpslObject);
-                break;
-            default:
-                throw new IllegalArgumentException("Unhandled object type: " + rpslObject.getType());
-        }
+        rdapResponse = switch (rpslObjectType) {
+            case DOMAIN -> createDomain(rpslObject);
+            case AUT_NUM -> createAutnumResponse(rpslObject);
+            case AS_BLOCK -> createAsBlockResponse(rpslObject);
+            case INETNUM, INET6NUM -> createIp(rpslObject);
+            case PERSON, ROLE, MNTNER, ORGANISATION -> createEntity(rpslObject);
+            default -> throw new IllegalArgumentException("Unhandled object type: " + rpslObject.getType());
+        };
 
         if (abuseContact != null) {
             if (abuseContact.isSuspect() && abuseContact.getOrgId() != null) {
@@ -624,6 +612,9 @@ class RdapObjectMapper {
                 break;
             case ROLE:
                 builder.addFn(rpslObject.getValueForAttribute(ROLE)).addKind(GROUP);
+                break;
+            case IRT:
+                builder.addFn(rpslObject.getValueForAttribute(IRT)).addKind(GROUP);
                 break;
             default:
                 break;
