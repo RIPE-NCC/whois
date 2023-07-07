@@ -265,13 +265,14 @@ public class RdapRedirectTestIntegration extends AbstractIntegrationTest {
                     ".net/ip/217.180.0.0/16"));
         }
     }
-    
+
     @Test
     public void inetnum_inside_range_not_found() {
         try {
             RestTest.target(getPort(), String.format("rdap/%s", "ip/192.0.0.1"))
                 .request(MediaType.APPLICATION_JSON_TYPE)
                 .get(String.class);
+            fail();
         } catch (NotFoundException e) {
             final RdapObject error = e.getResponse().readEntity(RdapObject.class);
             assertThat(error.getErrorCode(), is(HttpStatus.NOT_FOUND_404));
