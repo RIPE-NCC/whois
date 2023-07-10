@@ -31,7 +31,6 @@ import java.text.SimpleDateFormat;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -138,7 +137,7 @@ public class RdapResponseJsonTest {
         ipAddresses.getIpv6().add("2001:db8::123");
         nameserver.setIpAddresses(ipAddresses);
         nameserver.getRemarks().add(new Remark(Lists.newArrayList("She sells sea shells down by the sea shore.",
-                "Originally written by Terry Sullivan."), Collections.emptyList()));
+                "Originally written by Terry Sullivan.")));
         nameserver.getLinks().add(new Link("http://example.net/nameserver/xxxx", "self", "http://example.net/nameserver/xxxx", null, null));
         nameserver.setPort43("whois.example.net");
 
@@ -200,7 +199,7 @@ public class RdapResponseJsonTest {
         domain.getNameservers().add(nameserver2);
 
         final Remark remark = new Remark(Lists.newArrayList("She sells sea shells down by the sea shore.",
-                "Originally written by Terry Sullivan."), Collections.emptyList());
+                "Originally written by Terry Sullivan."));
         domain.getRemarks().add(remark);
         final Link link = new Link("http://example.net/domain/XXXX", "self", "http://example.net/domain/XXXXX", null, null);
         domain.getLinks().add(link);
@@ -336,7 +335,7 @@ public class RdapResponseJsonTest {
         ip.getStatus().add("allocated");
 
         final Remark remark = new Remark(Lists.newArrayList("She sells sea shells down by the sea shore.",
-                "Originally written by Terry Sullivan."), Collections.emptyList());
+                "Originally written by Terry Sullivan."));
         ip.getRemarks().add(remark);
 
         final Link link = new Link("http://example.net/ip/2001:db8::/48", "self", "http://example.net/ip/2001:db8::/48", null, null);

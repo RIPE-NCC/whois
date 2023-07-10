@@ -412,23 +412,21 @@ class RdapObjectMapper {
     private static Remark createRemark(final RpslObject rpslObject) {
         final List<String> descriptions = Lists.newArrayList();
 
-        final List<String> remarks = Lists.newArrayList();
-
         for (final CIString description : rpslObject.getValuesForAttribute(AttributeType.DESCR)) {
             descriptions.add(description.toString());
         }
 
         for (final CIString remark : rpslObject.getValuesForAttribute(AttributeType.REMARKS)) {
-            remarks.add(remark.toString());
+            descriptions.add(remark.toString());
         }
 
-        return new Remark(descriptions, remarks);
+        return new Remark(descriptions);
     }
 
     private static Remark createRemark(final CIString key, final AbuseContact abuseContact) {
         return new Remark(
            Collections.singletonList(
-               QueryMessages.unvalidatedAbuseCShown(key, abuseContact.getAbuseMailbox(), abuseContact.getOrgId()).toString().replaceAll("% ", "")), Collections.emptyList());
+               QueryMessages.unvalidatedAbuseCShown(key, abuseContact.getAbuseMailbox(), abuseContact.getOrgId()).toString().replaceAll("% ", "")));
     }
 
     private static boolean hasDescriptionsOrRemarks(final RpslObject rpslObject) {

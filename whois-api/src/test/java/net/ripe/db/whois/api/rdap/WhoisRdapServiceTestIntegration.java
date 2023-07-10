@@ -813,8 +813,7 @@ public class WhoisRdapServiceTestIntegration extends AbstractRdapIntegrationTest
         assertThat(entity.getObjectClassName(), is("entity"));
 
         assertThat(entity.getRemarks(), hasSize(1));
-        assertThat(entity.getRemarks().get(0).getDescription(), is(nullValue()));
-        assertThat(entity.getRemarks().get(0).getRemarks(), contains("remark"));
+        assertThat(entity.getRemarks().get(0).getDescription(), contains("remark"));
 
         final List<Event> events = entity.getEvents();
         assertThat(events, hasSize(2));
@@ -1567,8 +1566,6 @@ public class WhoisRdapServiceTestIntegration extends AbstractRdapIntegrationTest
                 autnum.getRemarks().get(0).getDescription(),
                 contains("Abuse contact for 'AS102' is 'abuse@test.net'\n" +
                         "Abuse-mailbox validation failed. Please refer to ORG-TEST1-TEST for further information.\n") );
-        assertThat(
-                autnum.getRemarks().get(0).getRemarks(),is(nullValue()));
     }
 
     @Test
@@ -1613,13 +1610,12 @@ public class WhoisRdapServiceTestIntegration extends AbstractRdapIntegrationTest
                 autnum.getRemarks().get(0).getDescription(),
                 contains("Abuse contact for 'AS102' is 'abuse@test.net'\n" +
                         "Abuse-mailbox validation failed. Please refer to ORG-TEST1-TEST for further information.\n") );
-        assertThat(
-                autnum.getRemarks().get(0).getRemarks(), is(nullValue()));
 
         assertThat(
-                autnum.getRemarks().get(1).getDescription(), contains("test description"));
+                autnum.getRemarks().get(1).getDescription().get(0), is("test description"));
         assertThat(
-                autnum.getRemarks().get(1).getRemarks(), contains("test remarks"));
+                autnum.getRemarks().get(1).getDescription().get(1), is("test remarks"));
+
     }
     // general
 
@@ -1798,13 +1794,12 @@ public class WhoisRdapServiceTestIntegration extends AbstractRdapIntegrationTest
                 .get(Ip.class);
 
         assertThat(ip.getRemarks().size(), is(1));
-        assertThat(ip.getRemarks().get(0).getDescription().size(), is(2));
-        assertThat(ip.getRemarks().get(0).getRemarks().size(), is(2));
+        assertThat(ip.getRemarks().get(0).getDescription().size(), is(4));
 
         assertThat(ip.getRemarks().get(0).getDescription().get(0), is("TEST network"));
         assertThat(ip.getRemarks().get(0).getDescription().get(1), is("TEST1 network"));
-        assertThat(ip.getRemarks().get(0).getRemarks().get(0), is("TEST network remark"));
-        assertThat(ip.getRemarks().get(0).getRemarks().get(1), is("TEST1 network remark"));
+        assertThat(ip.getRemarks().get(0).getDescription().get(2), is("TEST network remark"));
+        assertThat(ip.getRemarks().get(0).getDescription().get(3), is("TEST1 network remark"));
     }
     // organisation entity
 
@@ -1843,8 +1838,8 @@ public class WhoisRdapServiceTestIntegration extends AbstractRdapIntegrationTest
 
         assertThat(response.getRemarks().size(), is(1));
 
-        assertThat(response.getRemarks().get(0).getDescription(), contains("Drugs and gambling"));
-        assertThat(response.getRemarks().get(0).getRemarks(), contains("Nice to deal with generally"));
+        assertThat(response.getRemarks().get(0).getDescription().get(0), is("Drugs and gambling"));
+        assertThat(response.getRemarks().get(0).getDescription().get(1), is("Nice to deal with generally"));
     }
 
     @Test

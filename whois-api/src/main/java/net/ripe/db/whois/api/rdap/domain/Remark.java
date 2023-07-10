@@ -16,11 +16,8 @@ import java.util.List;
 public class Remark implements Serializable {
     protected List<String> description;
 
-    protected List<String> remarks;
-
-    public Remark(final List<String> description, final List<String> remarks) {
+    public Remark(final List<String> description) {
         this.description = description;
-        this.remarks = remarks;
     }
 
     public Remark() {
@@ -31,7 +28,4 @@ public class Remark implements Serializable {
         return description;
     }
 
-    public List<String> getRemarks() {
-        return remarks;
-    }
 }
