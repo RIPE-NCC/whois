@@ -1571,6 +1571,56 @@ public class WhoisRdapServiceTestIntegration extends AbstractRdapIntegrationTest
                 autnum.getRemarks().get(0).getRemarks(),is(nullValue()));
     }
 
+    @Test
+    public void lookup_autnum_has_invalid_abuse_contact_should_add_object_remarks_description() {
+        databaseHelper.addObject("" +
+                "role:          Abuse Contact\n" +
+                "address:       Singel 358\n" +
+                "phone:         +31 6 12345678\n" +
+                "nic-hdl:       AB-TEST\n" +
+                "e-mail:        work@test.com\n" +
+                "e-mail:        personal@test.com\n" +
+                "abuse-mailbox: abuse@test.net\n" +
+                "mnt-by:        OWNER-MNT\n" +
+                "created:         2022-08-14T11:48:28Z\n" +
+                "last-modified:   2022-10-25T12:22:39Z\n" +
+                "source:        TEST");
+
+        databaseHelper.updateObject("" +
+                "aut-num:       AS102\n" +
+                "as-name:       AS-TEST\n" +
+                "org:           ORG-TEST1-TEST\n" +
+                "admin-c:       TP1-TEST\n" +
+                "descr:       test description\n" +
+                "remarks:       test remarks\n" +
+                "tech-c:        TP1-TEST\n" +
+                "mnt-by:        OWNER-MNT\n" +
+                "abuse-c:       AB-TEST\n" +
+                "created:         2022-08-14T11:48:28Z\n" +
+                "last-modified:   2022-10-25T12:22:39Z\n" +
+                "source:        TEST");
+
+        databaseHelper.getInternalsTemplate().update(
+                "INSERT INTO abuse_email (address, status, created_at) values (?, ?, ?)", "abuse@test.net", "SUSPECT", LocalDateTime.now()
+        );
+
+        final Autnum autnum = createResource("autnum/102")
+                .request(MediaType.APPLICATION_JSON_TYPE)
+                .get(Autnum.class);
+
+        assertThat(autnum.getRemarks().size(), is(2));
+        assertThat(
+                autnum.getRemarks().get(0).getDescription(),
+                contains("Abuse contact for 'AS102' is 'abuse@test.net'\n" +
+                        "Abuse-mailbox validation failed. Please refer to ORG-TEST1-TEST for further information.\n") );
+        assertThat(
+                autnum.getRemarks().get(0).getRemarks(), is(nullValue()));
+
+        assertThat(
+                autnum.getRemarks().get(1).getDescription(), contains("test description"));
+        assertThat(
+                autnum.getRemarks().get(1).getRemarks(), contains("test remarks"));
+    }
     // general
 
     @Test
