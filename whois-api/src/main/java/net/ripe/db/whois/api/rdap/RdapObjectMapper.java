@@ -276,7 +276,7 @@ class RdapObjectMapper {
             rdapResponse.getEntitySearchResults().add(createEntity(abuseContact.getAbuseRole(), Role.ABUSE));
         }
 
-        if (hasDescriptions(rpslObject)) {
+        if (hasDescriptionsOrRemarks(rpslObject)) {
             rdapResponse.getRemarks().add(createRemark(rpslObject));
         }
 
@@ -416,6 +416,10 @@ class RdapObjectMapper {
             descriptions.add(description.toString());
         }
 
+        for (final CIString remark : rpslObject.getValuesForAttribute(AttributeType.REMARKS)) {
+            descriptions.add(remark.toString());
+        }
+
         return new Remark(descriptions);
     }
 
@@ -425,8 +429,8 @@ class RdapObjectMapper {
                QueryMessages.unvalidatedAbuseCShown(key, abuseContact.getAbuseMailbox(), abuseContact.getOrgId()).toString().replaceAll("% ", "")));
     }
 
-    private static boolean hasDescriptions(final RpslObject rpslObject) {
-        return !rpslObject.getValuesForAttribute(AttributeType.DESCR).isEmpty();
+    private static boolean hasDescriptionsOrRemarks(final RpslObject rpslObject) {
+        return !rpslObject.getValuesForAttribute(AttributeType.DESCR).isEmpty() || !rpslObject.getValuesForAttribute(AttributeType.REMARKS).isEmpty();
     }
 
     private static Event createEvent(final LocalDateTime lastChanged, final Action action) {
