@@ -276,7 +276,7 @@ class RdapObjectMapper {
             rdapResponse.getEntitySearchResults().add(createEntity(abuseContact.getAbuseRole(), Role.ABUSE));
         }
 
-        if (hasDescriptions(rpslObject)) {
+        if (hasDescriptionsOrRemarks(rpslObject)) {
             rdapResponse.getRemarks().add(createRemark(rpslObject));
         }
 
@@ -412,21 +412,27 @@ class RdapObjectMapper {
     private static Remark createRemark(final RpslObject rpslObject) {
         final List<String> descriptions = Lists.newArrayList();
 
+        final List<String> remarks = Lists.newArrayList();
+
         for (final CIString description : rpslObject.getValuesForAttribute(AttributeType.DESCR)) {
             descriptions.add(description.toString());
         }
 
-        return new Remark(descriptions);
+        for (final CIString remark : rpslObject.getValuesForAttribute(AttributeType.REMARKS)) {
+            remarks.add(remark.toString());
+        }
+
+        return new Remark(descriptions, remarks);
     }
 
     private static Remark createRemark(final CIString key, final AbuseContact abuseContact) {
         return new Remark(
            Collections.singletonList(
-               QueryMessages.unvalidatedAbuseCShown(key, abuseContact.getAbuseMailbox(), abuseContact.getOrgId()).toString().replaceAll("% ", "")));
+               QueryMessages.unvalidatedAbuseCShown(key, abuseContact.getAbuseMailbox(), abuseContact.getOrgId()).toString().replaceAll("% ", "")), Collections.emptyList());
     }
 
-    private static boolean hasDescriptions(final RpslObject rpslObject) {
-        return !rpslObject.getValuesForAttribute(AttributeType.DESCR).isEmpty();
+    private static boolean hasDescriptionsOrRemarks(final RpslObject rpslObject) {
+        return !rpslObject.getValuesForAttribute(AttributeType.DESCR).isEmpty() || !rpslObject.getValuesForAttribute(AttributeType.REMARKS).isEmpty();
     }
 
     private static Event createEvent(final LocalDateTime lastChanged, final Action action) {
