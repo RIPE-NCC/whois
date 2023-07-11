@@ -812,7 +812,8 @@ public class WhoisRdapServiceTestIntegration extends AbstractRdapIntegrationTest
 
         assertThat(entity.getObjectClassName(), is("entity"));
 
-        assertThat(entity.getRemarks(), hasSize(0));
+        assertThat(entity.getRemarks(), hasSize(1));
+        assertThat(entity.getRemarks().get(0).getDescription(), contains("remark"));
 
         final List<Event> events = entity.getEvents();
         assertThat(events, hasSize(2));
@@ -1427,7 +1428,6 @@ public class WhoisRdapServiceTestIntegration extends AbstractRdapIntegrationTest
 
     @Test
     public void lookup_autnum_irt_mnt_vcard() {
-
         databaseHelper.addObject("" +
             "irt: irt-IRT1\n" +
             "address: Street 1\n" +
@@ -1572,13 +1572,62 @@ public class WhoisRdapServiceTestIntegration extends AbstractRdapIntegrationTest
                 .request(MediaType.APPLICATION_JSON_TYPE)
                 .get(Autnum.class);
 
+        assertThat(autnum.getRemarks().size(), is(1));
         assertThat(
                 autnum.getRemarks().get(0).getDescription(),
                 contains("Abuse contact for 'AS102' is 'abuse@test.net'\n" +
-                        "Abuse-mailbox validation failed. Please refer to ORG-TEST1-TEST for further information.\n")
-        );
+                        "Abuse-mailbox validation failed. Please refer to ORG-TEST1-TEST for further information.\n") );
     }
 
+    @Test
+    public void lookup_autnum_has_invalid_abuse_contact_should_add_object_remarks_description() {
+        databaseHelper.addObject("" +
+                "role:          Abuse Contact\n" +
+                "address:       Singel 358\n" +
+                "phone:         +31 6 12345678\n" +
+                "nic-hdl:       AB-TEST\n" +
+                "e-mail:        work@test.com\n" +
+                "e-mail:        personal@test.com\n" +
+                "abuse-mailbox: abuse@test.net\n" +
+                "mnt-by:        OWNER-MNT\n" +
+                "created:         2022-08-14T11:48:28Z\n" +
+                "last-modified:   2022-10-25T12:22:39Z\n" +
+                "source:        TEST");
+
+        databaseHelper.updateObject("" +
+                "aut-num:       AS102\n" +
+                "as-name:       AS-TEST\n" +
+                "org:           ORG-TEST1-TEST\n" +
+                "admin-c:       TP1-TEST\n" +
+                "descr:       test description\n" +
+                "remarks:       test remarks\n" +
+                "tech-c:        TP1-TEST\n" +
+                "mnt-by:        OWNER-MNT\n" +
+                "abuse-c:       AB-TEST\n" +
+                "created:         2022-08-14T11:48:28Z\n" +
+                "last-modified:   2022-10-25T12:22:39Z\n" +
+                "source:        TEST");
+
+        databaseHelper.getInternalsTemplate().update(
+                "INSERT INTO abuse_email (address, status, created_at) values (?, ?, ?)", "abuse@test.net", "SUSPECT", LocalDateTime.now()
+        );
+
+        final Autnum autnum = createResource("autnum/102")
+                .request(MediaType.APPLICATION_JSON_TYPE)
+                .get(Autnum.class);
+
+        assertThat(autnum.getRemarks().size(), is(2));
+        assertThat(
+                autnum.getRemarks().get(0).getDescription(),
+                contains("Abuse contact for 'AS102' is 'abuse@test.net'\n" +
+                        "Abuse-mailbox validation failed. Please refer to ORG-TEST1-TEST for further information.\n") );
+
+        assertThat(
+                autnum.getRemarks().get(1).getDescription().get(0), is("test description"));
+        assertThat(
+                autnum.getRemarks().get(1).getDescription().get(1), is("test remarks"));
+
+    }
     // general
 
     @Test
@@ -1705,6 +1754,64 @@ public class WhoisRdapServiceTestIntegration extends AbstractRdapIntegrationTest
                 "[email, {type=abuse}, text, abuse@test.net]]"));
     }
 
+
+    @Test
+    public void lookup_inetnum_multiple_remarks() {
+        databaseHelper.addObject("" +
+                "role:          Abuse Contact\n" +
+                "address:       Singel 258\n" +
+                "phone:         +31 6 12345678\n" +
+                "nic-hdl:       AB-TEST\n" +
+                "abuse-mailbox: abuse@test.net\n" +
+                "mnt-by:        OWNER-MNT\n" +
+                "created:         2022-08-14T11:48:28Z\n" +
+                "last-modified:   2022-10-25T12:22:39Z\n" +
+                "source:        TEST");
+        databaseHelper.addObject("" +
+                "organisation:  ORG-TO2-TEST\n" +
+                "org-name:      Test organisation\n" +
+                "org-type:      OTHER\n" +
+                "abuse-c:       AB-TEST\n" +
+                "descr:         Drugs and gambling\n" +
+                "remarks:       Nice to deal with generally\n" +
+                "address:       1 Fake St. Fauxville\n" +
+                "phone:         +01-000-000-000\n" +
+                "fax-no:        +01-000-000-000\n" +
+                "e-mail:        org@test.com\n" +
+                "mnt-by:        OWNER-MNT\n" +
+                "created:         2022-08-14T11:48:28Z\n" +
+                "last-modified:   2022-10-25T12:22:39Z\n" +
+                "source:        TEST");
+        databaseHelper.addObject("" +
+                "inetnum:      192.0.0.0 - 192.255.255.255\n" +
+                "netname:      TEST-NET-NAME\n" +
+                "descr:        TEST network\n" +
+                "descr:        TEST1 network\n" +
+                "remarks:        TEST network remark\n" +
+                "remarks:        TEST1 network remark\n" +
+                "org:          ORG-TO2-TEST\n" +
+                "country:      NL\n" +
+                "tech-c:       TP1-TEST\n" +
+                "status:       OTHER\n" +
+                "mnt-by:       OWNER-MNT\n" +
+                "created:         2022-08-14T11:48:28Z\n" +
+                "last-modified:   2022-10-25T12:22:39Z\n" +
+                "source:       TEST");
+
+        ipTreeUpdater.rebuild();
+
+        final Ip ip = createResource("ip/192.0.0.128")
+                .request(MediaType.APPLICATION_JSON_TYPE)
+                .get(Ip.class);
+
+        assertThat(ip.getRemarks().size(), is(1));
+        assertThat(ip.getRemarks().get(0).getDescription().size(), is(4));
+
+        assertThat(ip.getRemarks().get(0).getDescription().get(0), is("TEST network"));
+        assertThat(ip.getRemarks().get(0).getDescription().get(1), is("TEST1 network"));
+        assertThat(ip.getRemarks().get(0).getDescription().get(2), is("TEST network remark"));
+        assertThat(ip.getRemarks().get(0).getDescription().get(3), is("TEST1 network remark"));
+    }
     // organisation entity
 
     @Test
@@ -1739,6 +1846,11 @@ public class WhoisRdapServiceTestIntegration extends AbstractRdapIntegrationTest
         assertThat(response.getHandle(), equalTo("ORG-TEST1-TEST"));
         assertThat(response.getNetworks(), is(empty()));
         assertThat(response.getAutnums().get(0).getName(), equalTo("AS-TEST"));
+
+        assertThat(response.getRemarks().size(), is(1));
+
+        assertThat(response.getRemarks().get(0).getDescription().get(0), is("Drugs and gambling"));
+        assertThat(response.getRemarks().get(0).getDescription().get(1), is("Nice to deal with generally"));
     }
 
     @Test

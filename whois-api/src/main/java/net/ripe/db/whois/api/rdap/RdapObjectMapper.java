@@ -69,7 +69,6 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import static net.ripe.db.whois.api.rdap.domain.Status.ACTIVE;
-import static net.ripe.db.whois.api.rdap.domain.Status.ADMINISTRATIVE;
 import static net.ripe.db.whois.api.rdap.domain.Status.RESERVED;
 import static net.ripe.db.whois.api.rdap.domain.vcard.VCardKind.GROUP;
 import static net.ripe.db.whois.api.rdap.domain.vcard.VCardKind.INDIVIDUAL;
@@ -288,7 +287,7 @@ class RdapObjectMapper {
             rdapResponse.getEntitySearchResults().add(createEntity(abuseContact.getAbuseRole(), Role.ABUSE));
         }
 
-        if (hasDescriptions(rpslObject)) {
+        if (hasDescriptionsOrRemarks(rpslObject)) {
             rdapResponse.getRemarks().add(createRemark(rpslObject));
         }
 
@@ -334,9 +333,7 @@ class RdapObjectMapper {
         ip.setEndAddress(toIpRange(ipInterval).end().toString());
         ip.setName(rpslObject.getValueForAttribute(AttributeType.NETNAME).toString());
         ip.setType(rpslObject.getValueForAttribute(AttributeType.STATUS).toString());
-        if (!isIANABlock(rpslObject)) {
-            ip.setParentHandle(lookupParentHandle(ipInterval));
-        }
+        ip.setParentHandle(lookupParentHandle(ipInterval));
         ip.setStatus(Collections.singletonList(getResourceStatus(rpslObject).getValue()));
         handleLanguageAttribute(rpslObject, ip);
         handleCountryAttribute(rpslObject, ip);
@@ -354,18 +351,13 @@ class RdapObjectMapper {
                 return reservedResources.isReservedAsBlock(rpslObject.getKey().toUpperCase()) ? RESERVED : ACTIVE;
             case INETNUM:
             case INET6NUM:
-                return  isIANABlock(rpslObject) ? ADMINISTRATIVE :
-                        reservedResources.isBogon(rpslObject.getKey().toString()) ? RESERVED : ACTIVE;
+                return reservedResources.isBogon(rpslObject.getKey().toString()) ? RESERVED : ACTIVE;
             default:
                 throw new RdapException("400 Bad Request", "Unhandled object type: " + rpslObject.getType(),
                         HttpStatus.BAD_REQUEST_400);
         }
     }
-
-    private boolean isIANABlock(final RpslObject rpslObject) {
-        return rpslObject.getKey().toString().equals("::/0") || rpslObject.getKey().toString().equals("0.0.0.0 - 255.255.255.255");
-    }
-
+    
     private List<IpCidr0> getIpCidr0Notation(final AbstractIpRange ipRange) {
        return Lists.newArrayList(
                Iterables.transform(ipRange.splitToPrefixes(), (Function<AbstractIpRange, IpCidr0>) prefix -> {
@@ -429,6 +421,10 @@ class RdapObjectMapper {
             descriptions.add(description.toString());
         }
 
+        for (final CIString remark : rpslObject.getValuesForAttribute(AttributeType.REMARKS)) {
+            descriptions.add(remark.toString());
+        }
+
         return new Remark(descriptions);
     }
 
@@ -438,8 +434,8 @@ class RdapObjectMapper {
                QueryMessages.unvalidatedAbuseCShown(key, abuseContact.getAbuseMailbox(), abuseContact.getOrgId()).toString().replaceAll("% ", "")));
     }
 
-    private static boolean hasDescriptions(final RpslObject rpslObject) {
-        return !rpslObject.getValuesForAttribute(AttributeType.DESCR).isEmpty();
+    private static boolean hasDescriptionsOrRemarks(final RpslObject rpslObject) {
+        return !rpslObject.getValuesForAttribute(AttributeType.DESCR).isEmpty() || !rpslObject.getValuesForAttribute(AttributeType.REMARKS).isEmpty();
     }
 
     private static Event createEvent(final LocalDateTime lastChanged, final Action action) {
