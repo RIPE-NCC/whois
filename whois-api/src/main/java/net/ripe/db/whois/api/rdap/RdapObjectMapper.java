@@ -138,6 +138,9 @@ class RdapObjectMapper {
     public Object map(final String requestUrl,
                       final RpslObject rpslObject,
                       @Nullable final AbuseContact abuseContact) {
+        if (isIANABlock(rpslObject)){
+            throw new RdapException("404 Not Found", "Requested object not found", HttpStatus.NOT_FOUND_404);
+        }
         return mapCommons(getRdapObject(requestUrl, rpslObject, abuseContact), requestUrl);
     }
 
@@ -352,7 +355,9 @@ class RdapObjectMapper {
         ip.setEndAddress(toIpRange(ipInterval).end().toString());
         ip.setName(rpslObject.getValueForAttribute(AttributeType.NETNAME).toString());
         ip.setType(rpslObject.getValueForAttribute(AttributeType.STATUS).toString());
-        ip.setParentHandle(lookupParentHandle(ipInterval));
+        if (!isIANABlock(rpslObject)) {
+            ip.setParentHandle(lookupParentHandle(ipInterval));
+        }
         ip.setStatus(Collections.singletonList(getResourceStatus(rpslObject).getValue()));
         handleLanguageAttribute(rpslObject, ip);
         handleCountryAttribute(rpslObject, ip);
@@ -361,6 +366,9 @@ class RdapObjectMapper {
         return ip;
     }
 
+    private boolean isIANABlock(final RpslObject rpslObject) {
+        return rpslObject.getKey().toString().equals("::/0") || rpslObject.getKey().toString().equals("0.0.0.0 - 255.255.255.255");
+    }
     private Status getResourceStatus(final RpslObject rpslObject) {
         switch (rpslObject.getType()) {
             case AUT_NUM:
