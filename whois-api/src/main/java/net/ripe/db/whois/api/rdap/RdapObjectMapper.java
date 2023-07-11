@@ -50,6 +50,7 @@ import net.ripe.db.whois.query.QueryMessages;
 import net.ripe.db.whois.query.planner.AbuseContact;
 import net.ripe.db.whois.update.domain.ReservedResources;
 import org.apache.commons.lang.StringUtils;
+import org.eclipse.jetty.http.HttpStatus;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
@@ -208,6 +209,12 @@ class RdapObjectMapper {
         return rdapObject;
     }
 
+    public RdapObject mapAutnumError(final int errorCode, final String errorTitle, final List<String> errorDescriptions){
+        final RdapObject rdapObject = mapError(errorCode, errorTitle, errorDescriptions);
+        rdapObject.getRdapConformance().add(RdapConformance.FLAT_MODEL.getValue());
+
+        return rdapObject;
+    }
     public RdapObject mapHelp(final String requestUrl) {
         final RdapObject rdapObject = mapCommonNoticesAndPort(new RdapObject(), requestUrl);
         mapCommonLinks(rdapObject, requestUrl);
@@ -258,14 +265,19 @@ class RdapObjectMapper {
         RdapObject rdapResponse;
         final ObjectType rpslObjectType = rpslObject.getType();
 
-        rdapResponse = switch (rpslObjectType) {
-            case DOMAIN -> createDomain(rpslObject);
-            case AUT_NUM -> createAutnumResponse(rpslObject);
-            case AS_BLOCK -> createAsBlockResponse(rpslObject);
-            case INETNUM, INET6NUM -> createIp(rpslObject);
-            case PERSON, ROLE, MNTNER, ORGANISATION -> createEntity(rpslObject);
-            default -> throw new IllegalArgumentException("Unhandled object type: " + rpslObject.getType());
-        };
+        try {
+            rdapResponse = switch (rpslObjectType) {
+                case DOMAIN -> createDomain(rpslObject);
+                case AUT_NUM -> createAutnumResponse(rpslObject);
+                case AS_BLOCK -> createAsBlockResponse(rpslObject);
+                case INETNUM, INET6NUM -> createIp(rpslObject);
+                case PERSON, ROLE, MNTNER, ORGANISATION -> createEntity(rpslObject);
+                default -> throw new RdapException("400 Bad Request", "Unhandled object type: " + rpslObject.getType(),
+                        HttpStatus.BAD_REQUEST_400);
+            };
+        } catch (IllegalArgumentException ex){
+            throw new RdapException("400 Bad Request", ex.getMessage(), HttpStatus.BAD_REQUEST_400);
+        }
 
         if (abuseContact != null) {
             if (abuseContact.isSuspect() && abuseContact.getOrgId() != null) {
@@ -341,7 +353,8 @@ class RdapObjectMapper {
             case INET6NUM:
                 return reservedResources.isBogon(rpslObject.getKey().toString()) ? RESERVED : ACTIVE;
             default:
-                throw new IllegalArgumentException("Unhandled object type: " + rpslObject.getType());
+                throw new RdapException("400 Bad Request", "Unhandled object type: " + rpslObject.getType(),
+                        HttpStatus.BAD_REQUEST_400);
         }
     }
     
@@ -375,7 +388,7 @@ class RdapObjectMapper {
     private String lookupParentHandle(final IpInterval ipInterval) {
         final RpslObject parentRpslObject = getRpslObject(lookupParentIpEntry(ipInterval).getObjectId());
         if (parentRpslObject == null) {
-            throw new IllegalStateException("No parentHandle for " + ipInterval);
+            throw new RdapException("500 Internal Error", "No parentHandle for " + ipInterval, HttpStatus.INTERNAL_SERVER_ERROR_500);
         }
 
         return parentRpslObject.getKey().toString();
@@ -385,18 +398,18 @@ class RdapObjectMapper {
         if (ipInterval instanceof Ipv4Resource) {
             final List<Ipv4Entry> firstLessSpecific = ipv4Tree.findFirstLessSpecific((Ipv4Resource) ipInterval);
             if (firstLessSpecific.isEmpty()) {
-                throw new IllegalStateException("No parent for " + ipInterval);
+                throw new RdapException("500 Internal Error", "No parentHandle for " + ipInterval, HttpStatus.INTERNAL_SERVER_ERROR_500);
             }
             return firstLessSpecific.get(0);
         } else {
             if (ipInterval instanceof Ipv6Resource) {
                 final List<Ipv6Entry> firstLessSpecific = ipv6Tree.findFirstLessSpecific((Ipv6Resource) ipInterval);
                 if (firstLessSpecific.isEmpty()) {
-                    throw new IllegalStateException("No parent for " + ipInterval);
+                    throw new RdapException("500 Internal Error", "No parentHandle for " + ipInterval, HttpStatus.INTERNAL_SERVER_ERROR_500);
                 }
                 return firstLessSpecific.get(0);
             } else {
-                throw new IllegalStateException("Unknown interval type " + ipInterval.getClass().getName());
+                throw new RdapException("500 Internal Error", "Unknown interval type " + ipInterval.getClass().getName(), HttpStatus.INTERNAL_SERVER_ERROR_500);
             }
         }
     }

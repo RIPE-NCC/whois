@@ -1203,6 +1203,17 @@ public class WhoisRdapServiceTestIntegration extends AbstractRdapIntegrationTest
     }
 
     @Test
+    public void lookup_autnum_not_found_still_flat_conformance() {
+        final NotFoundException notFoundException = assertThrows(NotFoundException.class, () -> {
+            createResource("autnum/1")
+                    .request(MediaType.APPLICATION_JSON_TYPE)
+                    .get(Autnum.class);
+        });
+        final RdapObject rdapObject = notFoundException.getResponse().readEntity(RdapObject.class);
+        assertThat(rdapObject.getRdapConformance(), containsInAnyOrder("cidr0", "rdap_level_0",
+                "nro_rdap_profile_0", "nro_rdap_profile_asn_flat_0"));
+    }
+    @Test
     public void lookup_autnum_invalid_syntax() {
         final BadRequestException badRequestException = assertThrows(BadRequestException.class, () -> {
             createResource("autnum/XYZ")
@@ -2056,6 +2067,17 @@ public class WhoisRdapServiceTestIntegration extends AbstractRdapIntegrationTest
         assertErrorDescription(notFoundException, "Requested organisation not found: ORG-NONE-TEST");
     }
 
+    @Test
+    public void lookup_org_error_correct_conformance() {
+        final NotFoundException notFoundException = assertThrows(NotFoundException.class, () -> {
+            createResource("entity/ORG-NONE-TEST")
+                    .request(MediaType.APPLICATION_JSON_TYPE)
+                    .get(Entity.class);
+        });
+        final RdapObject rdapObject = notFoundException.getResponse().readEntity(RdapObject.class);
+        assertThat(rdapObject.getRdapConformance(), containsInAnyOrder("cidr0", "rdap_level_0",
+                "nro_rdap_profile_0"));
+    }
     @Test
     public void lookup_org_invalid_syntax() {
         final BadRequestException badRequestException = assertThrows(BadRequestException.class, () -> {
