@@ -50,6 +50,7 @@ import net.ripe.db.whois.query.QueryMessages;
 import net.ripe.db.whois.query.planner.AbuseContact;
 import net.ripe.db.whois.update.domain.ReservedResources;
 import org.apache.commons.lang.StringUtils;
+import org.eclipse.jetty.http.HttpStatus;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
@@ -70,7 +71,6 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import static net.ripe.db.whois.api.rdap.domain.Status.ACTIVE;
-import static net.ripe.db.whois.api.rdap.domain.Status.ADMINISTRATIVE;
 import static net.ripe.db.whois.api.rdap.domain.Status.RESERVED;
 import static net.ripe.db.whois.api.rdap.domain.vcard.VCardKind.GROUP;
 import static net.ripe.db.whois.api.rdap.domain.vcard.VCardKind.INDIVIDUAL;
@@ -212,6 +212,12 @@ class RdapObjectMapper {
         return rdapObject;
     }
 
+    public RdapObject mapAutnumError(final int errorCode, final String errorTitle, final List<String> errorDescriptions){
+        final RdapObject rdapObject = mapError(errorCode, errorTitle, errorDescriptions);
+        rdapObject.getRdapConformance().add(RdapConformance.FLAT_MODEL.getValue());
+
+        return rdapObject;
+    }
     public RdapObject mapHelp(final String requestUrl) {
         final RdapObject rdapObject = mapCommonNoticesAndPort(new RdapObject(), requestUrl);
         mapCommonLinks(rdapObject, requestUrl);
@@ -262,14 +268,18 @@ class RdapObjectMapper {
         RdapObject rdapResponse;
         final ObjectType rpslObjectType = rpslObject.getType();
 
-        rdapResponse = switch (rpslObjectType) {
-            case DOMAIN -> createDomain(rpslObject, requestUrl);
-            case AUT_NUM -> createAutnumResponse(rpslObject, requestUrl);
-            case AS_BLOCK -> createAsBlockResponse(rpslObject, requestUrl);
-            case INETNUM, INET6NUM -> createIp(rpslObject, requestUrl);
-            case PERSON, ROLE, MNTNER, ORGANISATION -> createEntity(rpslObject, requestUrl);
-            default -> throw new IllegalArgumentException("Unhandled object type: " + rpslObject.getType());
-        };
+        try {
+            rdapResponse = switch (rpslObjectType) {
+                case DOMAIN -> createDomain(rpslObject, requestUrl);
+                case AUT_NUM -> createAutnumResponse(rpslObject, requestUrl);
+                case AS_BLOCK -> createAsBlockResponse(rpslObject, requestUrl);
+                case INETNUM, INET6NUM -> createIp(rpslObject, requestUrl);
+                case PERSON, ROLE, MNTNER, ORGANISATION -> createEntity(rpslObject, requestUrl);
+                default -> throw new IllegalArgumentException("Unhandled object type: " + rpslObject.getType());
+            };
+        } catch (IllegalArgumentException ex){
+            throw new RdapException("400 Bad Request", ex.getMessage(), HttpStatus.BAD_REQUEST_400);
+        }
 
         if (abuseContact != null) {
             if (abuseContact.isSuspect() && abuseContact.getOrgId() != null) {
@@ -279,7 +289,7 @@ class RdapObjectMapper {
             rdapResponse.getEntitySearchResults().add(createEntity(abuseContact.getAbuseRole(), Role.ABUSE, requestUrl));
         }
 
-        if (hasDescriptions(rpslObject)) {
+        if (hasDescriptionsOrRemarks(rpslObject)) {
             rdapResponse.getRemarks().add(createRemark(rpslObject));
         }
 
@@ -342,9 +352,7 @@ class RdapObjectMapper {
         ip.setEndAddress(toIpRange(ipInterval).end().toString());
         ip.setName(rpslObject.getValueForAttribute(AttributeType.NETNAME).toString());
         ip.setType(rpslObject.getValueForAttribute(AttributeType.STATUS).toString());
-        if (!isIANABlock(rpslObject)) {
-            ip.setParentHandle(lookupParentHandle(ipInterval));
-        }
+        ip.setParentHandle(lookupParentHandle(ipInterval));
         ip.setStatus(Collections.singletonList(getResourceStatus(rpslObject).getValue()));
         handleLanguageAttribute(rpslObject, ip);
         handleCountryAttribute(rpslObject, ip);
@@ -362,17 +370,13 @@ class RdapObjectMapper {
                 return reservedResources.isReservedAsBlock(rpslObject.getKey().toUpperCase()) ? RESERVED : ACTIVE;
             case INETNUM:
             case INET6NUM:
-                return  isIANABlock(rpslObject) ? ADMINISTRATIVE :
-                        reservedResources.isBogon(rpslObject.getKey().toString()) ? RESERVED : ACTIVE;
+                return reservedResources.isBogon(rpslObject.getKey().toString()) ? RESERVED : ACTIVE;
             default:
-                throw new IllegalArgumentException("Unhandled object type: " + rpslObject.getType());
+                throw new RdapException("400 Bad Request", "Unhandled object type: " + rpslObject.getType(),
+                        HttpStatus.BAD_REQUEST_400);
         }
     }
-
-    private boolean isIANABlock(final RpslObject rpslObject) {
-        return rpslObject.getKey().toString().equals("::/0") || rpslObject.getKey().toString().equals("0.0.0.0 - 255.255.255.255");
-    }
-
+    
     private List<IpCidr0> getIpCidr0Notation(final AbstractIpRange ipRange) {
        return Lists.newArrayList(
                Iterables.transform(ipRange.splitToPrefixes(), (Function<AbstractIpRange, IpCidr0>) prefix -> {
@@ -403,7 +407,7 @@ class RdapObjectMapper {
     private String lookupParentHandle(final IpInterval ipInterval) {
         final RpslObject parentRpslObject = getRpslObject(lookupParentIpEntry(ipInterval).getObjectId());
         if (parentRpslObject == null) {
-            throw new IllegalStateException("No parentHandle for " + ipInterval);
+            throw new RdapException("500 Internal Error", "No parentHandle for " + ipInterval, HttpStatus.INTERNAL_SERVER_ERROR_500);
         }
 
         return parentRpslObject.getKey().toString();
@@ -413,18 +417,18 @@ class RdapObjectMapper {
         if (ipInterval instanceof Ipv4Resource) {
             final List<Ipv4Entry> firstLessSpecific = ipv4Tree.findFirstLessSpecific((Ipv4Resource) ipInterval);
             if (firstLessSpecific.isEmpty()) {
-                throw new IllegalStateException("No parent for " + ipInterval);
+                throw new RdapException("500 Internal Error", "No parentHandle for " + ipInterval, HttpStatus.INTERNAL_SERVER_ERROR_500);
             }
             return firstLessSpecific.get(0);
         } else {
             if (ipInterval instanceof Ipv6Resource) {
                 final List<Ipv6Entry> firstLessSpecific = ipv6Tree.findFirstLessSpecific((Ipv6Resource) ipInterval);
                 if (firstLessSpecific.isEmpty()) {
-                    throw new IllegalStateException("No parent for " + ipInterval);
+                    throw new RdapException("500 Internal Error", "No parentHandle for " + ipInterval, HttpStatus.INTERNAL_SERVER_ERROR_500);
                 }
                 return firstLessSpecific.get(0);
             } else {
-                throw new IllegalStateException("Unknown interval type " + ipInterval.getClass().getName());
+                throw new RdapException("500 Internal Error", "Unknown interval type " + ipInterval.getClass().getName(), HttpStatus.INTERNAL_SERVER_ERROR_500);
             }
         }
     }
@@ -436,6 +440,10 @@ class RdapObjectMapper {
             descriptions.add(description.toString());
         }
 
+        for (final CIString remark : rpslObject.getValuesForAttribute(AttributeType.REMARKS)) {
+            descriptions.add(remark.toString());
+        }
+
         return new Remark(descriptions);
     }
 
@@ -445,8 +453,8 @@ class RdapObjectMapper {
                QueryMessages.unvalidatedAbuseCShown(key, abuseContact.getAbuseMailbox(), abuseContact.getOrgId()).toString().replaceAll("% ", "")));
     }
 
-    private static boolean hasDescriptions(final RpslObject rpslObject) {
-        return !rpslObject.getValuesForAttribute(AttributeType.DESCR).isEmpty();
+    private static boolean hasDescriptionsOrRemarks(final RpslObject rpslObject) {
+        return !rpslObject.getValuesForAttribute(AttributeType.DESCR).isEmpty() || !rpslObject.getValuesForAttribute(AttributeType.REMARKS).isEmpty();
     }
 
     private static Event createEvent(final LocalDateTime lastChanged, final Action action) {
