@@ -215,14 +215,18 @@ public class WhoisRdapService {
     }
 
     private Response lookupForAutNum(final HttpServletRequest request, final String key) {
-        if (isRedirect(AUT_NUM, key) && !rdapRequestValidator.isReservedAsNumber(key)) {
-            return redirect(getRequestPath(request), AUT_NUM, key);
+        try {
+            if (isRedirect(AUT_NUM, key) && !rdapRequestValidator.isReservedAsNumber(key)) {
+                return redirect(getRequestPath(request), AUT_NUM, key);
+            }
+
+            final Query query = getQueryObject(ImmutableSet.of(AUT_NUM), key);
+            List<RpslObject> result = rdapQueryHandler.handleAutNumQuery(query, request);
+
+            return getResponse(request, result);
+        } catch (RdapException ex){
+            throw new AutnumException(ex.getErrorTitle(), ex.getErrorDescription(), ex.getErrorCode());
         }
-
-        final Query query = getQueryObject(ImmutableSet.of(AUT_NUM), key);
-        List<RpslObject> result = rdapQueryHandler.handleAutNumQuery(query, request);
-
-        return getResponse(request, result);
     }
 
     private Boolean isRedirect(ObjectType objectType, final String key) {
@@ -366,6 +370,10 @@ public class WhoisRdapService {
 
         final RpslObject resultObject = rpslIterator.next();
 
+        if (isIANABlock(resultObject)){
+            throw new RdapException("404 Not Found", "Requested object not found", HttpStatus.NOT_FOUND_404);
+        }
+
         if (rpslIterator.hasNext()) {
             throw new RdapException("500 Internal Error", "Unexpected result size: " + Iterators.size(rpslIterator),
                     HttpStatus.INTERNAL_SERVER_ERROR_500);
@@ -378,6 +386,10 @@ public class WhoisRdapService {
                         abuseCFinder.getAbuseContact(resultObject).orElse(null)))
                 .header(CONTENT_TYPE, CONTENT_TYPE_RDAP_JSON)
                 .build();
+    }
+
+    private boolean isIANABlock(final RpslObject rpslObject) {
+        return rpslObject.getKey().toString().equals("::/0") || rpslObject.getKey().toString().equals("0.0.0.0 - 255.255.255.255");
     }
 
     private Response redirect(final String requestPath, final Query query) {

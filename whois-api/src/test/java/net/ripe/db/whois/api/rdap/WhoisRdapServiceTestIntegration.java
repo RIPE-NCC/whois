@@ -18,6 +18,7 @@ import net.ripe.db.whois.api.rdap.domain.Role;
 import net.ripe.db.whois.api.rdap.domain.SearchResult;
 import net.ripe.db.whois.common.rpsl.RpslObject;
 import net.ripe.db.whois.query.support.TestWhoisLog;
+import org.eclipse.jetty.http.HttpStatus;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Disabled;
@@ -480,14 +481,15 @@ public class WhoisRdapServiceTestIntegration extends AbstractRdapIntegrationTest
 
     @Test
     public void lookup_inetnum_not_found() {
-        final Ip ip = createResource("ip/193.0.0.0")
-                .request(MediaType.APPLICATION_JSON_TYPE)
-                .get(Ip.class);
-
-        assertThat(ip.getHandle(), is("0.0.0.0 - 255.255.255.255"));
-        assertThat(ip.getIpVersion(), is("v4"));
-        assertThat(ip.getStatus(), contains("administrative"));
-
+        final NotFoundException notFoundException = assertThrows(NotFoundException.class, () -> {
+            createResource("ip/193.0.0.0")
+                    .request(MediaType.APPLICATION_JSON_TYPE)
+                    .get(Ip.class);
+        });
+        final RdapObject error = notFoundException.getResponse().readEntity(RdapObject.class);
+        assertThat(error.getErrorCode(), is(HttpStatus.NOT_FOUND_404));
+        assertThat(error.getErrorTitle(), is("404 Not Found"));
+        assertThat(error.getDescription().get(0), is("Requested object not found"));
     }
 
     @Test
@@ -922,6 +924,22 @@ public class WhoisRdapServiceTestIntegration extends AbstractRdapIntegrationTest
         assertTnCNotice(notices.get(2),"https://rdap.db.ripe.net/entity/FR1-TEST");
     }
 
+    @Test
+    public void lookup_role_nested_object_links() {
+        final Entity entity = createResource("entity/FR1-TEST")
+                .request(MediaType.APPLICATION_JSON_TYPE)
+                .get(Entity.class);
+
+        final List<Entity> entities = entity.getEntitySearchResults();
+        assertThat(entities.get(0).getLinks().get(0).getHref(), is("https://rdap.db.ripe.net/entity/OWNER-MNT"));
+        assertThat(entities.get(0).getLinks().get(0).getValue(), is("https://rdap.db.ripe.net/entity/FR1-TEST"));
+        assertThat(entities.get(0).getLinks().get(1).getValue(), is("http://www.ripe.net/data-tools/support/documentation/terms"));
+
+        assertThat(entities.get(1).getLinks().get(0).getHref(), is("https://rdap.db.ripe.net/entity/PP1-TEST"));
+        assertThat(entities.get(1).getLinks().get(0).getValue(), is("https://rdap.db.ripe.net/entity/FR1-TEST"));
+        assertThat(entities.get(1).getLinks().get(1).getValue(), is("http://www.ripe" +
+                ".net/data-tools/support/documentation/terms"));
+    }
     // domain
 
     @Test
@@ -1202,6 +1220,17 @@ public class WhoisRdapServiceTestIntegration extends AbstractRdapIntegrationTest
         assertErrorDescription(notFoundException, "Requested object not found");
     }
 
+    @Test
+    public void lookup_autnum_not_found_still_flat_conformance() {
+        final NotFoundException notFoundException = assertThrows(NotFoundException.class, () -> {
+            createResource("autnum/1")
+                    .request(MediaType.APPLICATION_JSON_TYPE)
+                    .get(Autnum.class);
+        });
+        final RdapObject rdapObject = notFoundException.getResponse().readEntity(RdapObject.class);
+        assertThat(rdapObject.getRdapConformance(), containsInAnyOrder("cidr0", "rdap_level_0",
+                "nro_rdap_profile_0", "nro_rdap_profile_asn_flat_0"));
+    }
     @Test
     public void lookup_autnum_invalid_syntax() {
         final BadRequestException badRequestException = assertThrows(BadRequestException.class, () -> {
@@ -2056,6 +2085,17 @@ public class WhoisRdapServiceTestIntegration extends AbstractRdapIntegrationTest
         assertErrorDescription(notFoundException, "Requested organisation not found: ORG-NONE-TEST");
     }
 
+    @Test
+    public void lookup_org_error_correct_conformance() {
+        final NotFoundException notFoundException = assertThrows(NotFoundException.class, () -> {
+            createResource("entity/ORG-NONE-TEST")
+                    .request(MediaType.APPLICATION_JSON_TYPE)
+                    .get(Entity.class);
+        });
+        final RdapObject rdapObject = notFoundException.getResponse().readEntity(RdapObject.class);
+        assertThat(rdapObject.getRdapConformance(), containsInAnyOrder("cidr0", "rdap_level_0",
+                "nro_rdap_profile_0"));
+    }
     @Test
     public void lookup_org_invalid_syntax() {
         final BadRequestException badRequestException = assertThrows(BadRequestException.class, () -> {
