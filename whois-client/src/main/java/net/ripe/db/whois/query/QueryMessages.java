@@ -265,7 +265,7 @@ public final class QueryMessages {
                 + "Sorry, access from your host has been permanently\n"
                 + "denied because of a repeated excessive querying.\n"
                 + "For more information, see\n"
-                + "http://www.ripe.net/data-tools/db/faq/faq-db/why-did-you-receive-the-error-201-access-denied",
+                + "https://apps.db.ripe.net/docs/FAQ/#why-did-i-receive-an-error-201-access-denied",
                 remoteAddress.getHostAddress());
     }
 
@@ -276,7 +276,7 @@ public final class QueryMessages {
                 + "Queries from your IP address have passed the daily limit of controlled objects.\n"
                 + "Access from your host has been temporarily denied.\n"
                 + "For more information, see\n"
-                + "http://www.ripe.net/data-tools/db/faq/faq-db/why-did-you-receive-the-error-201-access-denied",
+                + "https://apps.db.ripe.net/docs/FAQ/#why-did-i-receive-an-error-201-access-denied",
                 remoteAddress.getHostAddress());
     }
 
