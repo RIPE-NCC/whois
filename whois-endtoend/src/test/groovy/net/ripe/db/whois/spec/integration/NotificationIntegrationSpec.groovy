@@ -563,7 +563,7 @@ class NotificationIntegrationSpec extends BaseWhoisSourceSpec {
                 "\n" +
                 "\n" +
                 "The RIPE Database is subject to Terms and Conditions:\n" +
-                "http://www.ripe.net/db/support/db-terms-conditions.pdf"
+                "https://apps.db.ripe.net/docs/HTML-Terms-And-Conditions"
         )
 
         noMoreMessages()

@@ -435,7 +435,7 @@ public class SimpleTestIntegration extends AbstractQueryIntegrationTest {
                 "% The objects are in RPSL format.\n" +
                 "%\n" +
                 "% The RIPE Database is subject to Terms and Conditions.\n" +
-                "% See http://www.ripe.net/db/support/db-terms-conditions.pdf\n" +
+                "% See https://apps.db.ripe.net/docs/HTML-Terms-And-Conditions\n" +
                 "\n" +
                 "% Information related to 'AS760-MNT'\n" +
                 "\n" +
