@@ -33,7 +33,7 @@ public class RdapExceptionMapper implements ExceptionMapper<Exception> {
 
     @Override
     public Response toResponse(final Exception exception) {
-        if (exception instanceof IllegalArgumentException || exception instanceof JsonProcessingException){
+        if (exception instanceof JsonProcessingException){
             return createErrorResponse(HttpServletResponse.SC_BAD_REQUEST, exception.getMessage());
         }
         if (exception instanceof ParamException){
@@ -41,6 +41,13 @@ public class RdapExceptionMapper implements ExceptionMapper<Exception> {
             return createErrorResponse(HttpServletResponse.SC_BAD_REQUEST, "400 Bad Request",
                     "unknown " + parameterName);
         }
+        if (exception instanceof AutnumException){
+            final AutnumException autnumException = (AutnumException) exception;
+            return createAutnumErrorResponse(autnumException.getErrorCode(), autnumException.getErrorTitle(),
+                    autnumException.getErrorDescription() == null? "Unknown error cause" :
+                            autnumException.getErrorDescription());
+        }
+
         if (exception instanceof RdapException){
             final RdapException rdapException = (RdapException) exception;
             return createErrorResponse(rdapException.getErrorCode(), rdapException.getErrorTitle(),
@@ -70,8 +77,18 @@ public class RdapExceptionMapper implements ExceptionMapper<Exception> {
                 .header(HttpHeaders.CONTENT_TYPE, "application/rdap+json")
                 .build();
     }
+    private Response createAutnumErrorResponse(final int status, final String errorTitle, final String ... errorMessage) {
+        return Response.status(status)
+                .entity(createAutnumErrorEntity(status, errorTitle, errorMessage))
+                .header(HttpHeaders.CONTENT_TYPE, "application/rdap+json")
+                .build();
+    }
 
     private RdapObject createErrorEntity(final int errorCode, final String errorTitle, final String ... errorTexts) {
         return rdapObjectMapper.mapError(errorCode, errorTitle, Lists.newArrayList(errorTexts));
+    }
+
+    private RdapObject createAutnumErrorEntity(final int errorCode, final String errorTitle, final String ... errorTexts) {
+        return rdapObjectMapper.mapAutnumError(errorCode, errorTitle, Lists.newArrayList(errorTexts));
     }
 }

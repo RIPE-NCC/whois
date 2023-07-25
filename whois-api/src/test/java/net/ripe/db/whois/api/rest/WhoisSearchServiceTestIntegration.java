@@ -801,7 +801,7 @@ public class WhoisSearchServiceTestIntegration extends AbstractIntegrationTest {
                             "  },\n" +
                             "  \"terms-and-conditions\" : {\n" +
                             "    \"type\" : \"locator\",\n" +
-                            "    \"href\" : \"http://www.ripe.net/db/support/db-terms-conditions.pdf\"\n" +
+                            "    \"href\" : \"https://apps.db.ripe.net/docs/HTML-Terms-And-Conditions\"\n" +
                             "  }\n" +
                             "}", getPort()
             )));
@@ -827,7 +827,7 @@ public class WhoisSearchServiceTestIntegration extends AbstractIntegrationTest {
                             "<args value=\"TEST\"/>" +
                             "</errormessage>" +
                             "</errormessages>" +
-                            "<terms-and-conditions xlink:type=\"locator\" xlink:href=\"http://www.ripe.net/db/support/db-terms-conditions.pdf\"/>" +
+                            "<terms-and-conditions xlink:type=\"locator\" xlink:href=\"https://apps.db.ripe.net/docs/HTML-Terms-And-Conditions\"/>" +
                             "</whois-resources>", getPort()
             )));
         }
@@ -848,7 +848,7 @@ public class WhoisSearchServiceTestIntegration extends AbstractIntegrationTest {
                     "\n" +
                     "No entries found in source %%s.\n" +
                     "[TEST]\n" +
-                    "http://www.ripe.net/db/support/db-terms-conditions.pdf", getPort())));
+                    "https://apps.db.ripe.net/docs/HTML-Terms-And-Conditions", getPort())));
         }
     }
 
@@ -867,7 +867,7 @@ public class WhoisSearchServiceTestIntegration extends AbstractIntegrationTest {
                     "\n" +
                     "No entries found in source %%s.\n" +
                     "[TEST]\n" +
-                    "http://www.ripe.net/db/support/db-terms-conditions.pdf", getPort())));
+                    "https://apps.db.ripe.net/docs/HTML-Terms-And-Conditions", getPort())));
         }
     }
 
@@ -1005,7 +1005,7 @@ public class WhoisSearchServiceTestIntegration extends AbstractIntegrationTest {
                         "},\n" +
                         "\"terms-and-conditions\" : {\n" +
                         "  \"type\" : \"locator\",\n" +
-                        "  \"href\" : \"http://www.ripe.net/db/support/db-terms-conditions.pdf\"\n" +
+                        "  \"href\" : \"https://apps.db.ripe.net/docs/HTML-Terms-And-Conditions\"\n" +
                         "},\n" +
                         "\"version\" : {\n" +
                         "  \"version\" : \"" + applicationVersion.getVersion() + "\",\n" +
@@ -1109,7 +1109,7 @@ public class WhoisSearchServiceTestIntegration extends AbstractIntegrationTest {
                 "    </attributes>\n" +
                 "</object>\n" +
                 "</objects>\n" +
-                "<terms-and-conditions xlink:type=\"locator\" xlink:href=\"http://www.ripe.net/db/support/db-terms-conditions.pdf\"/>\n" +
+                "<terms-and-conditions xlink:type=\"locator\" xlink:href=\"https://apps.db.ripe.net/docs/HTML-Terms-And-Conditions\"/>\n" +
                 "<version " +
                 "version=\"" + applicationVersion.getVersion() + "\" " +
                 "timestamp=\"" + applicationVersion.getTimestamp() + "\" " +

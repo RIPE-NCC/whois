@@ -4,6 +4,7 @@ import jakarta.mail.MessagingException;
 import jakarta.mail.Session;
 import jakarta.mail.internet.MimeMessage;
 import net.ripe.db.whois.common.DateTimeProvider;
+import net.ripe.db.whois.common.aspects.RetryFor;
 import net.ripe.db.whois.common.domain.Hosts;
 import net.ripe.db.whois.common.domain.Timestamp;
 import net.ripe.db.whois.update.domain.DequeueStatus;
@@ -11,6 +12,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.dao.RecoverableDataAccessException;
+import org.springframework.dao.TransientDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
 
@@ -23,6 +26,7 @@ import java.util.Properties;
 import java.util.UUID;
 
 @Repository
+@RetryFor(value = {TransientDataAccessException.class, RecoverableDataAccessException.class})
 class MailMessageDaoJdbc implements MailMessageDao {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(MailMessageDaoJdbc.class);

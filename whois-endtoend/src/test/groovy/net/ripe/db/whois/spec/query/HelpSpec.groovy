@@ -12,7 +12,7 @@ class HelpSpec extends BaseQueryUpdateSpec {
 % The objects are in RPSL format.
 %
 % The RIPE Database is subject to Terms and Conditions.
-% See http://www.ripe.net/db/support/db-terms-conditions.pdf
+% See https://apps.db.ripe.net/docs/HTML-Terms-And-Conditions
 
 """
 

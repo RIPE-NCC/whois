@@ -18,6 +18,7 @@ import net.ripe.db.whois.api.rdap.domain.Role;
 import net.ripe.db.whois.api.rdap.domain.SearchResult;
 import net.ripe.db.whois.common.rpsl.RpslObject;
 import net.ripe.db.whois.query.support.TestWhoisLog;
+import org.eclipse.jetty.http.HttpStatus;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Disabled;
@@ -50,7 +51,7 @@ import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.not;
 import static org.hamcrest.Matchers.nullValue;
-import static org.junit.jupiter.api.Assertions.fail;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 @Tag("IntegrationTest")
 @DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_EACH_TEST_METHOD)
@@ -480,14 +481,15 @@ public class WhoisRdapServiceTestIntegration extends AbstractRdapIntegrationTest
 
     @Test
     public void lookup_inetnum_not_found() {
-        final Ip ip = createResource("ip/193.0.0.0")
-                .request(MediaType.APPLICATION_JSON_TYPE)
-                .get(Ip.class);
-
-        assertThat(ip.getHandle(), is("0.0.0.0 - 255.255.255.255"));
-        assertThat(ip.getIpVersion(), is("v4"));
-        assertThat(ip.getStatus(), contains("administrative"));
-
+        final NotFoundException notFoundException = assertThrows(NotFoundException.class, () -> {
+            createResource("ip/193.0.0.0")
+                    .request(MediaType.APPLICATION_JSON_TYPE)
+                    .get(Ip.class);
+        });
+        final RdapObject error = notFoundException.getResponse().readEntity(RdapObject.class);
+        assertThat(error.getErrorCode(), is(HttpStatus.NOT_FOUND_404));
+        assertThat(error.getErrorTitle(), is("404 Not Found"));
+        assertThat(error.getDescription().get(0), is("Requested object not found"));
     }
 
     @Test
@@ -551,27 +553,24 @@ public class WhoisRdapServiceTestIntegration extends AbstractRdapIntegrationTest
                 "source:       TEST");
         ipTreeUpdater.rebuild();
 
-        try {
+        final BadRequestException badRequestException = assertThrows(BadRequestException.class, () -> {
             createResource("ip/192.0.0.0//32")
                     .request(MediaType.APPLICATION_JSON_TYPE)
                     .get(Ip.class);
-            fail();
-        } catch (final BadRequestException e) {
-            assertThat(e.getResponse().readEntity(String.class), containsString("reason: Ambiguous URI empty segment"));
-        }
+        });
+        assertThat(badRequestException.getResponse().readEntity(String.class), containsString("reason: Ambiguous URI empty segment"));
     }
 
     @Test
     public void lookup_inetnum_invalid_syntax() {
-        try {
+        final BadRequestException badRequestException = assertThrows(BadRequestException.class, () -> {
             createResource("ip/invalid")
                     .request(MediaType.APPLICATION_JSON_TYPE)
                     .get(Ip.class);
-            fail();
-        } catch (final BadRequestException e) {
-            assertErrorTitle(e, "Invalid syntax.");
-            assertErrorDescription(e, "'invalid' is not an IP string literal.");
-        }
+        });
+        assertErrorTitle(badRequestException, "400 Bad Request");
+        assertErrorStatus(badRequestException, 400);
+        assertErrorDescription(badRequestException, "'invalid' is not an IP string literal.");
     }
 
     @Disabled("TODO: handle multiple mnt-by values")
@@ -815,7 +814,8 @@ public class WhoisRdapServiceTestIntegration extends AbstractRdapIntegrationTest
 
         assertThat(entity.getObjectClassName(), is("entity"));
 
-        assertThat(entity.getRemarks(), hasSize(0));
+        assertThat(entity.getRemarks(), hasSize(1));
+        assertThat(entity.getRemarks().get(0).getDescription(), contains("remark"));
 
         final List<Event> events = entity.getEvents();
         assertThat(events, hasSize(2));
@@ -836,30 +836,26 @@ public class WhoisRdapServiceTestIntegration extends AbstractRdapIntegrationTest
 
     @Test
     public void lookup_entity_not_found() {
-        try {
+        final NotFoundException notFoundException = assertThrows(NotFoundException.class, () -> {
             createResource("entity/ORG-BAD1-TEST")
                     .request(MediaType.APPLICATION_JSON_TYPE)
                     .get(Entity.class);
-            fail();
-        } catch (final NotFoundException e) {
-            assertErrorStatus(e, 404);
-            assertErrorTitle(e, "404 Not Found");
-            assertErrorDescription(e, "Requested organisation not found: ORG-BAD1-TEST");
-        }
+        });
+        assertErrorStatus(notFoundException, 404);
+        assertErrorTitle(notFoundException, "404 Not Found");
+        assertErrorDescription(notFoundException, "Requested organisation not found: ORG-BAD1-TEST");
     }
 
     @Test
     public void lookup_entity_invalid_syntax() {
-        try {
+        final BadRequestException badRequestException = assertThrows(BadRequestException.class, () -> {
             createResource("entity/12345")
                     .request(MediaType.APPLICATION_JSON_TYPE)
                     .get(Entity.class);
-            fail();
-        } catch (BadRequestException e) {
-            assertErrorStatus(e, 400);
-            assertErrorTitle(e, "400 Bad Request");
-            assertErrorDescription(e, "Bad organisation or mntner syntax: 12345");
-        }
+        });
+        assertErrorStatus(badRequestException, 400);
+        assertErrorTitle(badRequestException, "400 Bad Request");
+        assertErrorDescription(badRequestException, "Bad organisation or mntner syntax: 12345");
     }
 
     @Test
@@ -928,6 +924,22 @@ public class WhoisRdapServiceTestIntegration extends AbstractRdapIntegrationTest
         assertTnCNotice(notices.get(2),"https://rdap.db.ripe.net/entity/FR1-TEST");
     }
 
+    @Test
+    public void lookup_role_nested_object_links() {
+        final Entity entity = createResource("entity/FR1-TEST")
+                .request(MediaType.APPLICATION_JSON_TYPE)
+                .get(Entity.class);
+
+        final List<Entity> entities = entity.getEntitySearchResults();
+        assertThat(entities.get(0).getLinks().get(0).getHref(), is("https://rdap.db.ripe.net/entity/OWNER-MNT"));
+        assertThat(entities.get(0).getLinks().get(0).getValue(), is("https://rdap.db.ripe.net/entity/FR1-TEST"));
+        assertThat(entities.get(0).getLinks().get(1).getValue(), is("http://www.ripe.net/data-tools/support/documentation/terms"));
+
+        assertThat(entities.get(1).getLinks().get(0).getHref(), is("https://rdap.db.ripe.net/entity/PP1-TEST"));
+        assertThat(entities.get(1).getLinks().get(0).getValue(), is("https://rdap.db.ripe.net/entity/FR1-TEST"));
+        assertThat(entities.get(1).getLinks().get(1).getValue(), is("http://www.ripe" +
+                ".net/data-tools/support/documentation/terms"));
+    }
     // domain
 
     @Test
@@ -1160,83 +1172,87 @@ public class WhoisRdapServiceTestIntegration extends AbstractRdapIntegrationTest
 
     @Test
     public void not_found() {
-        try {
+        final NotFoundException notFoundException = assertThrows(NotFoundException.class, () -> {
             createResource("test")
                     .request(MediaType.APPLICATION_JSON_TYPE)
                     .get(RdapObject.class);
-            fail();
-        } catch (NotFoundException e) {
-            assertErrorStatus(e, 404);
-            assertErrorTitle(e, "HTTP 404 Not Found");
-        }
+        });
+        assertErrorTitle(notFoundException, "HTTP 404 Not Found");
+        assertErrorStatus(notFoundException, 404);
     }
 
 
     @Test
     public void domain_not_found() {
-        try {
+        final NotFoundException notFoundException = assertThrows(NotFoundException.class, () -> {
             createResource("domain/10.in-addr.arpa")
                     .request(MediaType.APPLICATION_JSON_TYPE)
                     .get(Domain.class);
-            fail();
-        } catch (NotFoundException e) {
-            assertErrorStatus(e, 404);
-        }
+        });
+        assertErrorTitle(notFoundException, "404 Not Found");
+        assertErrorStatus(notFoundException, 404);
+        assertErrorDescription(notFoundException, "Requested object not found");
     }
 
     @Test
     public void lookup_forward_domain() {
-        try {
+        final BadRequestException badRequestException = assertThrows(BadRequestException.class, () -> {
             createResource("domain/ripe.net")
                     .request(MediaType.APPLICATION_JSON_TYPE)
                     .get(Domain.class);
-            fail();
-        } catch (BadRequestException e) {
-            assertErrorStatus(e, 400);
-            assertErrorTitle(e, "400 Not Found");
-            assertErrorDescription(e, "RIPE NCC does not support forward domain queries.");
-        }
+        });
+        assertErrorStatus(badRequestException, 400);
+        assertErrorTitle(badRequestException, "400 Bad Request");
+        assertErrorDescription(badRequestException, "RIPE NCC does not support forward domain queries.");
     }
 
     // autnum
 
     @Test
     public void lookup_autnum_not_found() {
-        try {
+        final NotFoundException notFoundException = assertThrows(NotFoundException.class, () -> {
             createResource("autnum/1")
                     .request(MediaType.APPLICATION_JSON_TYPE)
                     .get(Autnum.class);
-            fail();
-        } catch (NotFoundException e) {
-            assertErrorStatus(e, 404);
-            assertErrorTitle(e, "404 Not Found");
-            assertErrorDescription(e, "Requested object not found");
-        }
+        });
+        assertErrorStatus(notFoundException, 404);
+        assertErrorTitle(notFoundException, "404 Not Found");
+        assertErrorDescription(notFoundException, "Requested object not found");
     }
 
     @Test
+    public void lookup_autnum_not_found_still_flat_conformance() {
+        final NotFoundException notFoundException = assertThrows(NotFoundException.class, () -> {
+            createResource("autnum/1")
+                    .request(MediaType.APPLICATION_JSON_TYPE)
+                    .get(Autnum.class);
+        });
+        final RdapObject rdapObject = notFoundException.getResponse().readEntity(RdapObject.class);
+        assertThat(rdapObject.getRdapConformance(), containsInAnyOrder("cidr0", "rdap_level_0",
+                "nro_rdap_profile_0", "nro_rdap_profile_asn_flat_0"));
+    }
+    @Test
     public void lookup_autnum_invalid_syntax() {
-        try {
+        final BadRequestException badRequestException = assertThrows(BadRequestException.class, () -> {
             createResource("autnum/XYZ")
                     .request(MediaType.APPLICATION_JSON_TYPE)
                     .get(Autnum.class);
-            fail();
-        } catch (BadRequestException e) {
-            assertErrorTitle(e, "Invalid syntax.");
-        }
+        });
+        assertErrorStatus(badRequestException, 400);
+        assertErrorTitle(badRequestException, "400 Bad Request");
+        assertErrorDescription(badRequestException, "Invalid syntax (ASXYZ)");
     }
 
     @Test
     public void lookup_asBlock_bad_request() {
-        try {
+        final BadRequestException badRequestException = assertThrows(BadRequestException.class, () -> {
             createResource("as-block/XYZ")
                     .request(MediaType.APPLICATION_JSON_TYPE)
                     .get(Autnum.class);
-            fail();
-        } catch (BadRequestException e) {
-            assertErrorTitle(e, "400 Bad Request");
-            assertErrorDescription(e, "unknown objectType");
-        }
+        });
+        assertErrorStatus(badRequestException, 400);
+        assertErrorTitle(badRequestException, "400 Bad Request");
+        assertErrorDescription(badRequestException, "unknown objectType");
     }
 
     @Test
@@ -1349,14 +1365,14 @@ public class WhoisRdapServiceTestIntegration extends AbstractRdapIntegrationTest
 
     @Test
     public void lookup_autnum_within_block() {
-        try {
+        final NotFoundException notFoundException = assertThrows(NotFoundException.class, () -> {
             createResource("autnum/1500")
                     .request(MediaType.APPLICATION_JSON_TYPE)
                     .get(Autnum.class);
-            fail();
-        } catch (NotFoundException e) {
-            assertErrorTitle(e, "404 Redirect URI not found");
-        }
+        });
+        assertErrorStatus(notFoundException, 404);
+        assertErrorTitle(notFoundException, "404 Not found");
+        assertErrorDescription(notFoundException, "Redirect URI not found");
     }
 
     @Test
@@ -1428,6 +1444,63 @@ public class WhoisRdapServiceTestIntegration extends AbstractRdapIntegrationTest
                 "[email, {type=abuse}, text, abuse@test.net]]"));
     }
 
+    @Test
+    public void lookup_autnum_irt_mnt_vcard() {
+        databaseHelper.addObject("" +
+            "irt: irt-IRT1\n" +
+            "address: Street 1\n" +
+            "e-mail: test@ripe.net\n" +
+            "admin-c: TP1-TEST\n" +
+            "tech-c: TP1-TEST\n" +
+            "auth: MD5-PW \\$1\\$fU9ZMQN9\\$QQtm3kRqZXWAuLpeOiLN7. # update\n" +
+            "mnt-by: OWNER-MNT\n" +
+            "source: TEST\n");
+
+        databaseHelper.updateObject("" +
+                "aut-num:       AS102\n" +
+                "as-name:       AS-TEST\n" +
+                "descr:         A single ASN\n" +
+                "admin-c:       TP1-TEST\n" +
+                "tech-c:        TP1-TEST\n" +
+                "mnt-by:        OWNER-MNT\n" +
+                "mnt-irt:       irt-IRT1\n"  +
+                "created:         2022-08-14T11:48:28Z\n" +
+                "last-modified:   2022-10-25T12:22:39Z\n" +
+                "source:        TEST");
+
+        final Autnum autnum = createResource("autnum/102")
+                .request(MediaType.APPLICATION_JSON_TYPE)
+                .get(Autnum.class);
+
+        final List<Entity> entities = autnum.getEntitySearchResults();
+        assertThat(entities, hasSize(3));
+
+        assertThat(entities.get(0).getHandle(), is("irt-IRT1"));
+        assertThat(entities.get(0).getRoles(), contains(Role.ABUSE));
+        assertThat(entities.get(0).getVCardArray().get(1).toString(), is("" +
+                "[[version, {}, text, 4.0], " +
+                "[fn, {}, text, irt-IRT1], " +
+                "[kind, {}, text, group], " +
+                "[adr, {label=Street 1}, text, [, , , , , , ]], " +
+                "[email, {type=email}, text, test@ripe.net]]"));
+
+        assertThat(entities.get(1).getHandle(), is("OWNER-MNT"));
+        assertThat(entities.get(1).getRoles(), contains(Role.REGISTRANT));
+        assertThat(entities.get(1).getVCardArray().get(1).toString(), is("" +
+                "[[version, {}, text, 4.0], " +
+                "[fn, {}, text, OWNER-MNT], " +
+                "[kind, {}, text, individual]]"));
+
+        assertThat(entities.get(2).getHandle(), is("TP1-TEST"));
+        assertThat(entities.get(2).getRoles(), containsInAnyOrder(Role.ADMINISTRATIVE, Role.TECHNICAL));
+        assertThat(entities.get(2).getVCardArray().get(1).toString(), is("" +
+                "[[version, {}, text, 4.0], " +
+                "[fn, {}, text, Test Person], " +
+                "[kind, {}, text, individual], " +
+                "[adr, {label=Singel 258}, text, [, , , , , , ]], " +
+                "[tel, {type=voice}, text, +31 6 12345678]]"));
+
+    }
     @Test
     public void lookup_autnum_has_abuse_contact_object() {
         databaseHelper.addObject("" +
@@ -1517,27 +1590,74 @@ public class WhoisRdapServiceTestIntegration extends AbstractRdapIntegrationTest
                 .request(MediaType.APPLICATION_JSON_TYPE)
                 .get(Autnum.class);
 
+        assertThat(autnum.getRemarks().size(), is(1));
         assertThat(
                 autnum.getRemarks().get(0).getDescription(),
                 contains("Abuse contact for 'AS102' is 'abuse@test.net'\n" +
-                        "Abuse-mailbox validation failed. Please refer to ORG-TEST1-TEST for further information.\n")
-        );
+                        "Abuse-mailbox validation failed. Please refer to ORG-TEST1-TEST for further information.\n") );
     }
 
+    @Test
+    public void lookup_autnum_has_invalid_abuse_contact_should_add_object_remarks_description() {
+        databaseHelper.addObject("" +
+                "role:          Abuse Contact\n" +
+                "address:       Singel 358\n" +
+                "phone:         +31 6 12345678\n" +
+                "nic-hdl:       AB-TEST\n" +
+                "e-mail:        work@test.com\n" +
+                "e-mail:        personal@test.com\n" +
+                "abuse-mailbox: abuse@test.net\n" +
+                "mnt-by:        OWNER-MNT\n" +
+                "created:         2022-08-14T11:48:28Z\n" +
+                "last-modified:   2022-10-25T12:22:39Z\n" +
+                "source:        TEST");
+
+        databaseHelper.updateObject("" +
+                "aut-num:       AS102\n" +
+                "as-name:       AS-TEST\n" +
+                "org:           ORG-TEST1-TEST\n" +
+                "admin-c:       TP1-TEST\n" +
+                "descr:       test description\n" +
+                "remarks:       test remarks\n" +
+                "tech-c:        TP1-TEST\n" +
+                "mnt-by:        OWNER-MNT\n" +
+                "abuse-c:       AB-TEST\n" +
+                "created:         2022-08-14T11:48:28Z\n" +
+                "last-modified:   2022-10-25T12:22:39Z\n" +
+                "source:        TEST");
+
+        databaseHelper.getInternalsTemplate().update(
+                "INSERT INTO abuse_email (address, status, created_at) values (?, ?, ?)", "abuse@test.net", "SUSPECT", LocalDateTime.now()
+        );
+
+        final Autnum autnum = createResource("autnum/102")
+                .request(MediaType.APPLICATION_JSON_TYPE)
+                .get(Autnum.class);
+
+        assertThat(autnum.getRemarks().size(), is(2));
+        assertThat(
+                autnum.getRemarks().get(0).getDescription(),
+                contains("Abuse contact for 'AS102' is 'abuse@test.net'\n" +
+                        "Abuse-mailbox validation failed. Please refer to ORG-TEST1-TEST for further information.\n") );
+
+        assertThat(
+                autnum.getRemarks().get(1).getDescription().get(0), is("test description"));
+        assertThat(
+                autnum.getRemarks().get(1).getDescription().get(1), is("test remarks"));
+
+    }
     // general
 
     @Test
     public void lookup_invalid_type() {
-        try {
+        final BadRequestException badRequestException = assertThrows(BadRequestException.class, () -> {
             createResource("unknown/example.com")
                     .request("application/rdap+json")
                     .get(Entity.class);
-            fail();
-        } catch (BadRequestException e) {
-            assertErrorStatus(e, 400);
-            assertErrorTitle(e, "400 Bad Request");
-            assertErrorDescription(e, "unknown objectType");
-        }
+        });
+        assertErrorStatus(badRequestException, 400);
+        assertErrorTitle(badRequestException, "400 Bad Request");
+        assertErrorDescription(badRequestException, "unknown objectType");
     }
 
     @Test
@@ -1571,15 +1691,14 @@ public class WhoisRdapServiceTestIntegration extends AbstractRdapIntegrationTest
 
     @Test
     public void lookup_as_block_when_no_autnum_found() {
-        try {
+        final NotFoundException notFoundException = assertThrows(NotFoundException.class, () -> {
             createResource("autnum/103")
                     .request(MediaType.APPLICATION_JSON_TYPE)
                     .get(Entity.class);
-            fail();
-        } catch (NotFoundException e){
-            assertErrorStatus(e, 404);
-            assertErrorTitle(e, "404 Not Found");
-        }
+        });
+        assertErrorStatus(notFoundException, 404);
+        assertErrorTitle(notFoundException, "404 Not Found");
+        assertErrorDescription(notFoundException, "Requested object not found");
     }
 
     @Test
@@ -1653,6 +1772,64 @@ public class WhoisRdapServiceTestIntegration extends AbstractRdapIntegrationTest
                 "[email, {type=abuse}, text, abuse@test.net]]"));
     }
 
+
+    @Test
+    public void lookup_inetnum_multiple_remarks() {
+        databaseHelper.addObject("" +
+                "role:          Abuse Contact\n" +
+                "address:       Singel 258\n" +
+                "phone:         +31 6 12345678\n" +
+                "nic-hdl:       AB-TEST\n" +
+                "abuse-mailbox: abuse@test.net\n" +
+                "mnt-by:        OWNER-MNT\n" +
+                "created:         2022-08-14T11:48:28Z\n" +
+                "last-modified:   2022-10-25T12:22:39Z\n" +
+                "source:        TEST");
+        databaseHelper.addObject("" +
+                "organisation:  ORG-TO2-TEST\n" +
+                "org-name:      Test organisation\n" +
+                "org-type:      OTHER\n" +
+                "abuse-c:       AB-TEST\n" +
+                "descr:         Drugs and gambling\n" +
+                "remarks:       Nice to deal with generally\n" +
+                "address:       1 Fake St. Fauxville\n" +
+                "phone:         +01-000-000-000\n" +
+                "fax-no:        +01-000-000-000\n" +
+                "e-mail:        org@test.com\n" +
+                "mnt-by:        OWNER-MNT\n" +
+                "created:         2022-08-14T11:48:28Z\n" +
+                "last-modified:   2022-10-25T12:22:39Z\n" +
+                "source:        TEST");
+        databaseHelper.addObject("" +
+                "inetnum:      192.0.0.0 - 192.255.255.255\n" +
+                "netname:      TEST-NET-NAME\n" +
+                "descr:        TEST network\n" +
+                "descr:        TEST1 network\n" +
+                "remarks:        TEST network remark\n" +
+                "remarks:        TEST1 network remark\n" +
+                "org:          ORG-TO2-TEST\n" +
+                "country:      NL\n" +
+                "tech-c:       TP1-TEST\n" +
+                "status:       OTHER\n" +
+                "mnt-by:       OWNER-MNT\n" +
+                "created:         2022-08-14T11:48:28Z\n" +
+                "last-modified:   2022-10-25T12:22:39Z\n" +
+                "source:       TEST");
+
+        ipTreeUpdater.rebuild();
+
+        final Ip ip = createResource("ip/192.0.0.128")
+                .request(MediaType.APPLICATION_JSON_TYPE)
+                .get(Ip.class);
+
+        assertThat(ip.getRemarks().size(), is(1));
+        assertThat(ip.getRemarks().get(0).getDescription().size(), is(4));
+
+        assertThat(ip.getRemarks().get(0).getDescription().get(0), is("TEST network"));
+        assertThat(ip.getRemarks().get(0).getDescription().get(1), is("TEST1 network"));
+        assertThat(ip.getRemarks().get(0).getDescription().get(2), is("TEST network remark"));
+        assertThat(ip.getRemarks().get(0).getDescription().get(3), is("TEST1 network remark"));
+    }
     // organisation entity
 
     @Test
@@ -1687,6 +1864,11 @@ public class WhoisRdapServiceTestIntegration extends AbstractRdapIntegrationTest
         assertThat(response.getHandle(), equalTo("ORG-TEST1-TEST"));
         assertThat(response.getNetworks(), is(empty()));
         assertThat(response.getAutnums().get(0).getName(), equalTo("AS-TEST"));
+
+        assertThat(response.getRemarks().size(), is(1));
+
+        assertThat(response.getRemarks().get(0).getDescription().get(0), is("Drugs and gambling"));
+        assertThat(response.getRemarks().get(0).getDescription().get(1), is("Nice to deal with generally"));
     }
 
     @Test
@@ -1893,29 +2075,37 @@ public class WhoisRdapServiceTestIntegration extends AbstractRdapIntegrationTest
 
     @Test
     public void lookup_org_not_found() {
-        try {
+        final NotFoundException notFoundException = assertThrows(NotFoundException.class, () -> {
             createResource("entity/ORG-NONE-TEST")
                     .request(MediaType.APPLICATION_JSON_TYPE)
                     .get(Entity.class);
-            fail();
-        } catch (NotFoundException e) {
-            assertErrorTitle(e, "404 Not Found");
-            assertErrorDescription(e, "Requested organisation not found: ORG-NONE-TEST");
-        }
+        });
+        assertErrorStatus(notFoundException, 404);
+        assertErrorTitle(notFoundException, "404 Not Found");
+        assertErrorDescription(notFoundException, "Requested organisation not found: ORG-NONE-TEST");
     }
 
     @Test
+    public void lookup_org_error_correct_conformance() {
+        final NotFoundException notFoundException = assertThrows(NotFoundException.class, () -> {
+            createResource("entity/ORG-NONE-TEST")
+                    .request(MediaType.APPLICATION_JSON_TYPE)
+                    .get(Entity.class);
+        });
+        final RdapObject rdapObject = notFoundException.getResponse().readEntity(RdapObject.class);
+        assertThat(rdapObject.getRdapConformance(), containsInAnyOrder("cidr0", "rdap_level_0",
+                "nro_rdap_profile_0"));
+    }
+    @Test
     public void lookup_org_invalid_syntax() {
-        try {
+        final BadRequestException badRequestException = assertThrows(BadRequestException.class, () -> {
             createResource("entity/ORG-INVALID")
                     .request(MediaType.APPLICATION_JSON_TYPE)
                     .get(Entity.class);
-            fail();
-        } catch (BadRequestException e) {
-            assertErrorStatus(e, 400);
-            assertErrorTitle(e, "400 Bad Request");
-            assertErrorDescription(e, "Bad organisation or mntner syntax: ORG-INVALID");
-        }
+        });
+        assertErrorStatus(badRequestException, 400);
+        assertErrorTitle(badRequestException, "400 Bad Request");
+        assertErrorDescription(badRequestException, "Bad organisation or mntner syntax: ORG-INVALID");
     }
 
     @Test
@@ -1938,11 +2128,21 @@ public class WhoisRdapServiceTestIntegration extends AbstractRdapIntegrationTest
         assertThat(entities, hasSize(2));
         assertThat(entities.get(0).getHandle(), is("OWNER-MNT"));
         assertThat(entities.get(0).getRoles(), contains(Role.REGISTRANT));
-        assertThat(entities.get(0).getVCardArray(), is(nullValue()));
+        assertThat(entities.get(0).getVCardArray().get(0), is("vcard"));
+        assertThat(entities.get(0).getVCardArray().get(1).toString(), is("" +
+                "[[version, {}, text, 4.0], " +
+                "[fn, {}, text, OWNER-MNT], " +
+                "[kind, {}, text, individual]]"));
 
         assertThat(entities.get(1).getHandle(), is("TP1-TEST"));
         assertThat(entities.get(1).getRoles(), contains(Role.ADMINISTRATIVE));
-        assertThat(entities.get(1).getVCardArray(), is(nullValue()));
+        assertThat(entities.get(1).getVCardArray().get(0), is("vcard"));
+        assertThat(entities.get(1).getVCardArray().get(1).toString(), is("" +
+                "[[version, {}, text, 4.0], " +
+                "[fn, {}, text, Test Person], " +
+                "[kind, {}, text, individual], " +
+                "[adr, {label=Singel 258}, text, [, , , , , , ]], " +
+                "[tel, {type=voice}, text, +31 6 12345678]]"));
 
         assertThat(entity.getLinks(), hasSize(2));
         assertThat(entity.getLinks().get(0).getRel(), is("self"));
@@ -2079,15 +2279,15 @@ public class WhoisRdapServiceTestIntegration extends AbstractRdapIntegrationTest
 
     @Test
     public void search_domain_not_found() {
-        try {
+        final NotFoundException notFoundException = assertThrows(NotFoundException.class, () -> {
             fullTextIndex.rebuild();
             createResource("domains?name=ripe.net")
                     .request(MediaType.APPLICATION_JSON_TYPE)
                     .get(Entity.class);
-            fail();
-        } catch (NotFoundException e) {
-            assertErrorTitle(e, "404 Not Found");
-        }
+        });
+        assertErrorStatus(notFoundException, 404);
+        assertErrorTitle(notFoundException, "404 Not Found");
+        assertErrorDescription(notFoundException, "Requested object not found: ripe.net");
     }
 
     @Test
@@ -2116,31 +2316,27 @@ public class WhoisRdapServiceTestIntegration extends AbstractRdapIntegrationTest
 
     @Test
     public void search_nameservers_not_found() {
-        try {
+        final ServerErrorException serverErrorException = assertThrows(ServerErrorException.class, () -> {
             fullTextIndex.rebuild();
             createResource("nameservers?name=ns1.ripe.net")
                     .request(MediaType.APPLICATION_JSON_TYPE)
                     .get(Entity.class);
-            fail();
-        } catch (ServerErrorException e) {
-            assertErrorStatus(e, 501);
-            assertErrorTitle(e, "501 Not Implemented");
-            assertErrorDescription(e, "Nameserver not supported");
-        }
+        });
+        assertErrorStatus(serverErrorException, 501);
+        assertErrorTitle(serverErrorException, "501 Not Implemented");
+        assertErrorDescription(serverErrorException, "Nameserver not supported");
     }
 
     @Test
     public void lookup_nameserver_not_found() {
-        try {
+        final ServerErrorException serverErrorException = assertThrows(ServerErrorException.class, () -> {
             createResource("nameserver/test")
                     .request(MediaType.APPLICATION_JSON_TYPE)
                     .get(Autnum.class);
-            fail();
-        } catch (ServerErrorException e) {
-            assertErrorStatus(e, 501);
-            assertErrorTitle(e, "501 Not Implemented");
-            assertErrorDescription(e, "Nameserver not supported");
-        }
+        });
+        assertErrorStatus(serverErrorException, 501);
+        assertErrorTitle(serverErrorException, "501 Not Implemented");
+        assertErrorDescription(serverErrorException, "Nameserver not supported");
     }
 
     // search - entities - person
@@ -2163,14 +2359,14 @@ public class WhoisRdapServiceTestIntegration extends AbstractRdapIntegrationTest
         fullTextIndex.rebuild();
         databaseHelper.deleteObject(person);
 
-        try {
+        final NotFoundException notFoundException = assertThrows(NotFoundException.class, () -> {
             createResource("entities?fn=Lost%20Person")
                     .request(MediaType.APPLICATION_JSON_TYPE)
                     .get(SearchResult.class);
-            fail();
-        } catch (NotFoundException e) {
-            assertErrorTitle(e, "404 Not Found");
-        }
+        });
+        assertErrorStatus(notFoundException, 404);
+        assertErrorTitle(notFoundException, "404 Not Found");
+        assertErrorDescription(notFoundException, "Requested object not found: Lost Person");
     }
 
     @Test
@@ -2201,14 +2397,14 @@ public class WhoisRdapServiceTestIntegration extends AbstractRdapIntegrationTest
         databaseHelper.addObject("person: Tëst Person3\nnic-hdl:TP3-TEST\ncreated:2022-08-14T11:48:28Z\nlast-modified:2022-10-25T12:22:39Z\nsource: TEST");
         fullTextIndex.rebuild();
 
-        try {
+        final NotFoundException notFoundException = assertThrows(NotFoundException.class, () -> {
             createResource("entities?fn=T%EBst%20Person3")
                     .request(MediaType.APPLICATION_JSON_TYPE)
                     .get(SearchResult.class);
-            fail();
-        } catch (NotFoundException e) {
-            // expected - Jetty uses UTF-8 when decoding characters, not latin1
-        }
+        });
+        assertErrorStatus(notFoundException, 404);
+        assertErrorTitle(notFoundException, "404 Not Found");
+        assertErrorDescriptionContains(notFoundException, "st Person3");
     }
 
     @Test
@@ -2228,27 +2424,27 @@ public class WhoisRdapServiceTestIntegration extends AbstractRdapIntegrationTest
         databaseHelper.addObject("person: Tëst Person3\nnic-hdl: TP3-TEST\nsource: TEST");
         fullTextIndex.rebuild();
 
-        try {
+        final NotFoundException notFoundException = assertThrows(NotFoundException.class, () -> {
             createResource("entities?fn=Test%20Person3")
                     .request(MediaType.APPLICATION_JSON_TYPE)
                     .get(SearchResult.class);
-            fail();
-        } catch (NotFoundException e) {
-            // expected (no character substitution)
-        }
+        });
+        assertErrorStatus(notFoundException, 404);
+        assertErrorTitle(notFoundException, "404 Not Found");
+        assertErrorDescription(notFoundException, "Requested object not found: Test Person3");
     }
 
     @Test
     public void search_entity_person_by_name_not_found() {
-        try {
+        final NotFoundException notFoundException = assertThrows(NotFoundException.class, () -> {
             fullTextIndex.rebuild();
             createResource("entities?fn=Santa%20Claus")
                     .request(MediaType.APPLICATION_JSON_TYPE)
                     .get(Entity.class);
-            fail();
-        } catch (NotFoundException e) {
-            assertErrorTitle(e, "404 Not Found");
-        }
+        });
+        assertErrorStatus(notFoundException, 404);
+        assertErrorTitle(notFoundException, "404 Not Found");
+        assertErrorDescription(notFoundException, "Requested object not found: Santa Claus");
     }
 
     @Test
@@ -2275,15 +2471,15 @@ public class WhoisRdapServiceTestIntegration extends AbstractRdapIntegrationTest
 
     @Test
     public void search_entity_person_by_handle_not_found() {
-        try {
+        final NotFoundException notFoundException = assertThrows(NotFoundException.class, () -> {
             fullTextIndex.rebuild();
             createResource("entities?handle=XYZ-TEST")
                     .request(MediaType.APPLICATION_JSON_TYPE)
                     .get(Entity.class);
-            fail();
-        } catch (NotFoundException e) {
-            assertErrorTitle(e, "404 Not Found");
-        }
+        });
+        assertErrorStatus(notFoundException, 404);
+        assertErrorTitle(notFoundException, "404 Not Found");
+        assertErrorDescription(notFoundException, "Requested object not found: XYZ-TEST");
     }
 
     // search - entities - role
@@ -2347,58 +2543,50 @@ public class WhoisRdapServiceTestIntegration extends AbstractRdapIntegrationTest
 
     @Test
     public void search_entity_without_query_params() {
-        try {
+        final BadRequestException badRequestException = assertThrows(BadRequestException.class, () -> {
             createResource("entities")
                     .request(MediaType.APPLICATION_JSON_TYPE)
                     .get(Entity.class);
-            fail();
-        } catch (BadRequestException e) {
-            assertErrorStatus(e, 400);
-            assertErrorTitle(e, "400 Bad Request");
-            assertErrorDescription(e, "The server is not able to process the request");
-        }
+        });
+        assertErrorStatus(badRequestException, 400);
+        assertErrorTitle(badRequestException, "400 Bad Request");
+        assertErrorDescription(badRequestException, "The server is not able to process the request");
     }
 
     @Test
     public void search_entity_both_fn_and_handle_query_params() {
-        try {
+        final BadRequestException badRequestException = assertThrows(BadRequestException.class, () -> {
             createResource("entities?fn=XXXX&handle=YYYY")
                     .request(MediaType.APPLICATION_JSON_TYPE)
                     .get(Entity.class);
-            fail();
-        } catch (BadRequestException e) {
-            assertErrorStatus(e, 400);
-            assertErrorTitle(e, "400 Bad Request");
-            assertErrorDescription(e, "The server is not able to process the request");
-        }
+        });
+        assertErrorStatus(badRequestException, 400);
+        assertErrorTitle(badRequestException, "400 Bad Request");
+        assertErrorDescription(badRequestException, "The server is not able to process the request");
     }
 
     @Test
     public void search_entity_empty_name() {
-        try {
+        final BadRequestException badRequestException = assertThrows(BadRequestException.class, () -> {
             createResource("entities?fn=")
                     .request(MediaType.APPLICATION_JSON_TYPE)
                     .get(Entity.class);
-            fail();
-        } catch (BadRequestException e) {
-            assertErrorStatus(e, 400);
-            assertErrorTitle(e, "400 Bad Request");
-            assertErrorDescription(e, "Empty search term");
-        }
+        });
+        assertErrorStatus(badRequestException, 400);
+        assertErrorTitle(badRequestException, "400 Bad Request");
+        assertErrorDescription(badRequestException, "Empty search term");
     }
 
     @Test
     public void search_entity_empty_handle() {
-        try {
+        final BadRequestException badRequestException = assertThrows(BadRequestException.class, () -> {
             createResource("entities?handle=")
                     .request(MediaType.APPLICATION_JSON_TYPE)
                     .get(Entity.class);
-            fail();
-        } catch (BadRequestException e) {
-            assertErrorStatus(e, 400);
-            assertErrorTitle(e, "400 Bad Request");
-            assertErrorDescription(e, "Empty search term");
-        }
+        });
+        assertErrorStatus(badRequestException, 400);
+        assertErrorTitle(badRequestException, "400 Bad Request");
+        assertErrorDescription(badRequestException, "Empty search term");
     }
 
     @Test
@@ -2607,10 +2795,10 @@ public class WhoisRdapServiceTestIntegration extends AbstractRdapIntegrationTest
     private void assertTnCNotice(final Notice notice, final String value) {
         assertThat(notice.getTitle(), is("Terms and Conditions"));
         assertThat(notice.getDescription(), contains("This is the RIPE Database query service. The objects are in RDAP format."));
-        assertThat(notice.getLinks().get(0).getHref(), is("http://www.ripe.net/db/support/db-terms-conditions.pdf"));
+        assertThat(notice.getLinks().get(0).getHref(), is("https://apps.db.ripe.net/docs/HTML-Terms-And-Conditions"));
 
         assertThat(notice.getLinks().get(0).getRel(), is("terms-of-service"));
-        assertThat(notice.getLinks().get(0).getHref(), is("http://www.ripe.net/db/support/db-terms-conditions.pdf"));
+        assertThat(notice.getLinks().get(0).getHref(), is("https://apps.db.ripe.net/docs/HTML-Terms-And-Conditions"));
         assertThat(notice.getLinks().get(0).getType(), is("application/pdf"));
         assertThat(notice.getLinks().get(0).getValue(), is(value));
     }

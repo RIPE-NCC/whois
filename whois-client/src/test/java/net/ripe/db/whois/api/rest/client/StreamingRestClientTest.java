@@ -70,7 +70,7 @@ public class StreamingRestClientTest {
                         "<whois-resources xmlns:xlink=\"http://www.w3.org/1999/xlink\">" +
                         "<link xlink:type=\"locator\" xlink:href=\"http://localhost:57744/search?query-ng=bla\"/>" +
                         "<errormessages><errormessage severity=\"Error\" text=\"Query param 'query-string' cannot be empty\"/></errormessages>" +
-                        "<terms-and-conditions xlink:type=\"locator\" xlink:href=\"http://www.ripe.net/db/support/db-terms-conditions.pdf\"/>" +
+                        "<terms-and-conditions xlink:type=\"locator\" xlink:href=\"https://apps.db.ripe.net/docs/HTML-Terms-And-Conditions\"/>" +
                         "</whois-resources>\n").getBytes()));
 
         assertThat(whoisResources.getErrorMessages(), hasSize(1));

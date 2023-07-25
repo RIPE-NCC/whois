@@ -294,7 +294,7 @@ public class WhoisFixture {
     }
 
     public List<String> queryPersistent(final List<String> queries) throws Exception {
-        final String END_OF_HEADER = "% See http://www.ripe.net/db/support/db-terms-conditions.pdf\n\n";
+        final String END_OF_HEADER = "% See https://apps.db.ripe.net/docs/HTML-Terms-And-Conditions\n\n";
         final WhoisClientHandler client = NettyWhoisClientFactory.newLocalClient(QueryServer.port);
 
         List<String> responses = new ArrayList<>();
