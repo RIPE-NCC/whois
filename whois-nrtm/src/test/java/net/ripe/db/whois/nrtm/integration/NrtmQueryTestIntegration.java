@@ -85,7 +85,7 @@ public class NrtmQueryTestIntegration extends AbstractNrtmIntegrationBase {
 
         assertThat(response, containsString(
                 "% The RIPE Database is subject to Terms and Conditions.\n" +
-                        "% See http://www.ripe.net/db/support/db-terms-conditions.pdf\n" +
+                        "% See https://apps.db.ripe.net/docs/HTML-Terms-And-Conditions\n" +
                         "\n" +
                         "TEST:3:X:0-0\n" +
                         "TEST-NONAUTH:3:X:0-0\n" +
