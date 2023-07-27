@@ -363,7 +363,7 @@ class RdapObjectMapper {
         return ip;
     }
 
-    public boolean isIANABlock(final RpslObject rpslObject) {
+    public static boolean isIANABlock(final RpslObject rpslObject) {
         return rpslObject.getKey().toString().equals("::/0") || rpslObject.getKey().toString().equals("0.0.0.0 - 255.255.255.255");
     }
     private Status getResourceStatus(final RpslObject rpslObject) {
