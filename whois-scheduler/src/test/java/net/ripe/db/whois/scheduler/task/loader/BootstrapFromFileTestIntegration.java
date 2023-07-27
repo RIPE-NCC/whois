@@ -6,8 +6,6 @@ import net.ripe.db.whois.common.rpsl.RpslObject;
 import net.ripe.db.whois.common.support.database.diff.Database;
 import net.ripe.db.whois.common.support.database.diff.DatabaseDiff;
 import net.ripe.db.whois.scheduler.AbstractSchedulerIntegrationTest;
-import org.junit.jupiter.api.AfterAll;
-import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -32,17 +30,6 @@ public class BootstrapFromFileTestIntegration extends AbstractSchedulerIntegrati
 
     @Autowired
     private RpslObjectUpdateDao rpslObjectUpdateDao;
-
-    @BeforeAll
-    public static void setProperty() {
-        // We only enable fulltext indexing here, so it doesn't slow down the rest of the test suite
-        System.setProperty("dir.fulltext.index", "var${jvmId:}/idx");
-    }
-
-    @AfterAll
-    public static void clearProperty() {
-        System.clearProperty("dir.fulltext.index");
-    }
 
     @Test
     public void testThatBootstrapLeavesDatabaseInWorkingState() throws Exception {

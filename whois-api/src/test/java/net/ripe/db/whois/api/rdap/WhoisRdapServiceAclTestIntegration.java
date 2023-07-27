@@ -3,6 +3,7 @@ package net.ripe.db.whois.api.rdap;
 import net.ripe.db.whois.api.rdap.domain.Entity;
 import net.ripe.db.whois.query.acl.IpResourceConfiguration;
 import net.ripe.db.whois.query.support.TestPersonalObjectAccounting;
+import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
@@ -34,6 +35,14 @@ class WhoisRdapServiceAclTestIntegration extends AbstractRdapIntegrationTest {
         System.setProperty("elastic.commit.index", METADATA_INDEX);
         System.setProperty("fulltext.search.max.results", "10");
     }
+
+    @AfterAll
+    public static void resetProperties() {
+        System.clearProperty("elastic.commit.index");
+        System.clearProperty("elastic.whois.index");
+        System.clearProperty("fulltext.search.max.results");
+    }
+
     @Test
     public void lookup_person_entity_acl_denied() {
         try {

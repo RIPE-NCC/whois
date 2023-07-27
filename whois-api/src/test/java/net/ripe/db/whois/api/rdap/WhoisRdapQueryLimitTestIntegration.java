@@ -2,6 +2,7 @@ package net.ripe.db.whois.api.rdap;
 
 import net.ripe.db.whois.api.rdap.domain.SearchResult;
 import net.ripe.db.whois.query.support.TestWhoisLog;
+import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Tag;
@@ -33,6 +34,13 @@ public class WhoisRdapQueryLimitTestIntegration extends AbstractRdapIntegrationT
         System.setProperty("fulltext.search.max.results", "10");
 
         System.setProperty("rdap.search.max.results", "2");
+    }
+
+    @AfterAll
+    public static void resetProperties() {
+        System.clearProperty("elastic.commit.index");
+        System.clearProperty("elastic.whois.index");
+        System.clearProperty("fulltext.search.max.results");
     }
 
     @BeforeEach

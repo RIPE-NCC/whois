@@ -47,8 +47,10 @@ public class AutocompleteServiceTestIntegration extends AbstractElasticSearchInt
     }
 
     @AfterAll
-    public static void clearProperty() {
-        System.clearProperty("dir.fulltext.index");
+    public static void resetProperties() {
+        System.clearProperty("elastic.commit.index");
+        System.clearProperty("elastic.whois.index");
+        System.clearProperty("fulltext.search.max.results");
     }
 
     @BeforeEach

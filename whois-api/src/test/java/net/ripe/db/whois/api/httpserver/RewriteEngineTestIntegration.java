@@ -74,14 +74,7 @@ public class RewriteEngineTestIntegration extends AbstractElasticSearchIntegrati
 
     @BeforeAll
     public static void setProperty() {
-        // We only enable fulltext indexing here, so it doesn't slow down the rest of the test suite
-        System.setProperty("dir.fulltext.index", "var${jvmId:}/idx");
         System.setProperty("fulltext.search.max.results", "3");
-    }
-
-    @AfterAll
-    public static void clearProperty() {
-        System.clearProperty("dir.fulltext.index");
     }
 
     @BeforeEach

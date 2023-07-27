@@ -19,6 +19,7 @@ import net.ripe.db.whois.api.rdap.domain.SearchResult;
 import net.ripe.db.whois.common.rpsl.RpslObject;
 import net.ripe.db.whois.query.support.TestWhoisLog;
 import org.eclipse.jetty.http.HttpStatus;
+import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Disabled;
@@ -72,6 +73,13 @@ public class WhoisRdapServiceTestIntegration extends AbstractRdapIntegrationTest
         System.setProperty("fulltext.search.max.results", "10");
 
         System.setProperty("rdap.entity.max.results", "3");
+    }
+
+    @AfterAll
+    public static void resetProperties() {
+        System.clearProperty("elastic.commit.index");
+        System.clearProperty("elastic.whois.index");
+        System.clearProperty("fulltext.search.max.results");
     }
 
     @BeforeEach
