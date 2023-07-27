@@ -2,6 +2,7 @@ package net.ripe.db.whois.api.rdap;
 
 import com.google.common.collect.Lists;
 import com.google.common.net.HttpHeaders;
+import net.ripe.db.whois.api.RestTest;
 import net.ripe.db.whois.api.rdap.domain.Action;
 import net.ripe.db.whois.api.rdap.domain.Autnum;
 import net.ripe.db.whois.api.rdap.domain.Domain;
@@ -51,6 +52,7 @@ import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.not;
 import static org.hamcrest.Matchers.nullValue;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.fail;
 
 @Tag("IntegrationTest")
 @DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_EACH_TEST_METHOD)
@@ -785,13 +787,30 @@ public class WhoisRdapServiceTestIntegration extends AbstractRdapIntegrationTest
 
     @Test
     public void lookup_inet6num_not_found() {
-        final Ip ip = createResource("ip/2001:2002:2003::/48")
-                .request(MediaType.APPLICATION_JSON_TYPE)
-                .get(Ip.class);
+        final NotFoundException notFoundException = assertThrows(NotFoundException.class, () -> {
+            createResource("ip/2001:2002:2003::/48")
+                    .request(MediaType.APPLICATION_JSON_TYPE)
+                    .get(Ip.class);
+            fail();
+        });
+        final RdapObject error = notFoundException.getResponse().readEntity(RdapObject.class);
+        assertThat(error.getErrorCode(), is(HttpStatus.NOT_FOUND_404));
+        assertThat(error.getErrorTitle(), is("404 Not Found"));
+        assertThat(error.getDescription().get(0), is("Requested object not found"));
+    }
 
-        assertThat(ip.getHandle(), is("::/0"));
-        assertThat(ip.getIpVersion(), is("v6"));
-        assertThat(ip.getStatus(), contains("administrative"));
+    @Test
+    public void inetnum_inside_range_not_found() {
+        final NotFoundException notFoundException = assertThrows(NotFoundException.class, () -> {
+            RestTest.target(getPort(), String.format("rdap/%s", "ip/192.0.0.1"))
+                    .request(MediaType.APPLICATION_JSON_TYPE)
+                    .get(String.class);
+            fail();
+        });
+        final RdapObject error = notFoundException.getResponse().readEntity(RdapObject.class);
+        assertThat(error.getErrorCode(), is(HttpStatus.NOT_FOUND_404));
+        assertThat(error.getErrorTitle(), is("404 Not Found"));
+        assertThat(error.getDescription().get(0), is("Requested object not found"));
     }
 
     // person entity

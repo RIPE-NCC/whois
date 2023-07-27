@@ -352,7 +352,9 @@ class RdapObjectMapper {
         ip.setEndAddress(toIpRange(ipInterval).end().toString());
         ip.setName(rpslObject.getValueForAttribute(AttributeType.NETNAME).toString());
         ip.setType(rpslObject.getValueForAttribute(AttributeType.STATUS).toString());
-        ip.setParentHandle(lookupParentHandle(ipInterval));
+        if (!isIANABlock(rpslObject)) {
+            ip.setParentHandle(lookupParentHandle(ipInterval));
+        }
         ip.setStatus(Collections.singletonList(getResourceStatus(rpslObject).getValue()));
         handleLanguageAttribute(rpslObject, ip);
         handleCountryAttribute(rpslObject, ip);
@@ -361,6 +363,9 @@ class RdapObjectMapper {
         return ip;
     }
 
+    public static boolean isIANABlock(final RpslObject rpslObject) {
+        return rpslObject.getKey().toString().equals("::/0") || rpslObject.getKey().toString().equals("0.0.0.0 - 255.255.255.255");
+    }
     private Status getResourceStatus(final RpslObject rpslObject) {
         switch (rpslObject.getType()) {
             case AUT_NUM:

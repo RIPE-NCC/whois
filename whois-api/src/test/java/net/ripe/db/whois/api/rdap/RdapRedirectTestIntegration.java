@@ -3,11 +3,9 @@ package net.ripe.db.whois.api.rdap;
 import net.ripe.db.whois.api.AbstractIntegrationTest;
 import net.ripe.db.whois.api.RestTest;
 import net.ripe.db.whois.api.rdap.domain.Ip;
-import net.ripe.db.whois.api.rdap.domain.RdapObject;
 import net.ripe.db.whois.common.dao.DailySchedulerDao;
 import net.ripe.db.whois.common.dao.jdbc.DatabaseHelper;
 import net.ripe.db.whois.common.grs.AuthoritativeResourceData;
-import org.eclipse.jetty.http.HttpStatus;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
@@ -263,21 +261,6 @@ public class RdapRedirectTestIntegration extends AbstractIntegrationTest {
         } catch (final RedirectionException e) {
             assertThat(e.getResponse().getHeaders().getFirst("Location").toString(), is("https://rdap.one" +
                     ".net/ip/217.180.0.0/16"));
-        }
-    }
-
-    @Test
-    public void inetnum_inside_range_not_found() {
-        try {
-            RestTest.target(getPort(), String.format("rdap/%s", "ip/192.0.0.1"))
-                .request(MediaType.APPLICATION_JSON_TYPE)
-                .get(String.class);
-            fail();
-        } catch (NotFoundException e) {
-            final RdapObject error = e.getResponse().readEntity(RdapObject.class);
-            assertThat(error.getErrorCode(), is(HttpStatus.NOT_FOUND_404));
-            assertThat(error.getErrorTitle(), is("404 Not Found"));
-            assertThat(error.getDescription().get(0), is("Requested object not found"));
         }
     }
 
