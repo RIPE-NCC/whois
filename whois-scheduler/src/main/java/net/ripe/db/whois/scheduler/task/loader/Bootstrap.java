@@ -2,6 +2,7 @@ package net.ripe.db.whois.scheduler.task.loader;
 
 import com.google.common.util.concurrent.Uninterruptibles;
 import net.javacrumbs.shedlock.spring.annotation.SchedulerLock;
+import net.ripe.db.whois.api.elasticsearch.ElasticFullTextIndex;
 import net.ripe.db.whois.common.iptree.IpTreeUpdater;
 import net.ripe.db.whois.common.scheduler.DailyScheduledTask;
 import net.ripe.db.whois.common.source.SourceContext;
@@ -23,18 +24,18 @@ public class Bootstrap implements DailyScheduledTask {
     private final LoaderSafe loaderSafe;
     private final SourceContext sourceContext;
 
-    private final FullTextIndex fullTextIndex;
+    private final ElasticFullTextIndex elasticFullTextIndex;
 
     @Value("${bootstrap.dumpfile:}")
     private String[] dumpFileLocation;
 
     @Autowired
     public Bootstrap(final LoaderRisky loaderRisky, final LoaderSafe loaderSafe,
-                     final SourceContext sourceContext, final FullTextIndex fullTextIndex) {
+                     final SourceContext sourceContext, final ElasticFullTextIndex elasticFullTextIndex) {
         this.loaderRisky = loaderRisky;
         this.loaderSafe = loaderSafe;
         this.sourceContext = sourceContext;
-        this.fullTextIndex = fullTextIndex;
+        this.elasticFullTextIndex = elasticFullTextIndex;
     }
 
     public void setDumpFileLocation(final String... testDumpFileLocation) {
@@ -55,7 +56,7 @@ public class Bootstrap implements DailyScheduledTask {
 
             final String result = loaderRisky.loadSplitFiles(dumpFileLocation);
 
-            fullTextIndex.rebuild();
+            elasticFullTextIndex.init();
 
             return result;
         } finally {
