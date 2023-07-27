@@ -47,6 +47,16 @@ public class RewriteEngineTestIntegration extends AbstractElasticSearchIntegrati
     @BeforeAll
     public static void enableRewriteEngine() {
         System.setProperty("rewrite.engine.enabled", "true");
+        System.setProperty("elastic.whois.index", WHOIS_INDEX);
+        System.setProperty("elastic.commit.index", METADATA_INDEX);
+        System.setProperty("fulltext.search.max.results", "10");
+    }
+
+    @AfterAll
+    public static void resetProperties() {
+        System.clearProperty("elastic.commit.index");
+        System.clearProperty("elastic.whois.index");
+        System.clearProperty("fulltext.search.max.results");
     }
 
     @AfterAll
