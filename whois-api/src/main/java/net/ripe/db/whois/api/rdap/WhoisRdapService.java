@@ -375,6 +375,10 @@ public class WhoisRdapService {
                     HttpStatus.INTERNAL_SERVER_ERROR_500);
         }
 
+        if (rdapObjectMapper.isIANABlock(resultObject)){
+            throw new RdapException("404 Not Found", "Requested object not found", HttpStatus.NOT_FOUND_404);
+        }
+
         return Response.ok(
                 rdapObjectMapper.map(
                         getRequestUrl(request),

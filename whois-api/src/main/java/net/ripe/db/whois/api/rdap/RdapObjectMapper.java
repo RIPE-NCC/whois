@@ -138,9 +138,6 @@ class RdapObjectMapper {
     public Object map(final String requestUrl,
                       final RpslObject rpslObject,
                       @Nullable final AbuseContact abuseContact) {
-        if (isIANABlock(rpslObject)){
-            throw new RdapException("404 Not Found", "Requested object not found", HttpStatus.NOT_FOUND_404);
-        }
         return mapCommons(getRdapObject(requestUrl, rpslObject, abuseContact), requestUrl);
     }
 
@@ -366,7 +363,7 @@ class RdapObjectMapper {
         return ip;
     }
 
-    private boolean isIANABlock(final RpslObject rpslObject) {
+    public boolean isIANABlock(final RpslObject rpslObject) {
         return rpslObject.getKey().toString().equals("::/0") || rpslObject.getKey().toString().equals("0.0.0.0 - 255.255.255.255");
     }
     private Status getResourceStatus(final RpslObject rpslObject) {
