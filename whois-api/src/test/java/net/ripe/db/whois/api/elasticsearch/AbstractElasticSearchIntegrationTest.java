@@ -46,14 +46,11 @@ public abstract class AbstractElasticSearchIntegrationTest extends AbstractInteg
         } else {
             System.setProperty("elastic.host", "elasticsearch:9200");
         }
-
-        System.setProperty("elasticsearch.enabled", "true");
     }
 
     @AfterAll
     public static void resetElasticCluster() {
         System.clearProperty("elastic.host");
-        System.clearProperty("elasticsearch.enabled");
     }
 
     @BeforeEach

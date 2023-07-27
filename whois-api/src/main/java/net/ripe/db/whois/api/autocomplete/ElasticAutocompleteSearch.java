@@ -2,8 +2,8 @@ package net.ripe.db.whois.api.autocomplete;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
-import net.ripe.db.whois.api.fulltextsearch.FullTextIndex;
 import net.ripe.db.whois.api.elasticsearch.ElasticIndexService;
+import net.ripe.db.whois.api.fulltextsearch.FullTextIndex;
 import net.ripe.db.whois.common.rpsl.AttributeType;
 import net.ripe.db.whois.common.rpsl.ObjectType;
 import org.elasticsearch.action.search.SearchRequest;
@@ -19,7 +19,6 @@ import org.elasticsearch.search.builder.SearchSourceBuilder;
 import org.elasticsearch.search.sort.SortBuilder;
 import org.elasticsearch.search.sort.SortBuilders;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.Conditional;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.Nullable;
@@ -32,7 +31,6 @@ import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 @Component
-@Conditional(ElasticSearchCondition.class)
 public class ElasticAutocompleteSearch implements AutocompleteSearch {
 
     private static final int MAX_SEARCH_RESULTS = 10;
