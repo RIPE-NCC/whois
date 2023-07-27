@@ -3,7 +3,6 @@ package net.ripe.db.whois.api.autocomplete;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import net.ripe.db.whois.api.elasticsearch.ElasticIndexService;
-import net.ripe.db.whois.api.fulltextsearch.FullTextIndex;
 import net.ripe.db.whois.common.rpsl.AttributeType;
 import net.ripe.db.whois.common.rpsl.ObjectType;
 import org.elasticsearch.action.search.SearchRequest;
@@ -33,6 +32,9 @@ import java.util.stream.Collectors;
 @Component
 public class ElasticAutocompleteSearch implements AutocompleteSearch {
 
+    public static final String OBJECT_TYPE_FIELD_NAME = "object-type";
+    public static final String PRIMARY_KEY_FIELD_NAME = "primary-key";
+    public static final String LOOKUP_KEY_FIELD_NAME = "lookup-key";
     private static final int MAX_SEARCH_RESULTS = 10;
     private static final Pattern COMMENT_PATTERN = Pattern.compile("#.*");
     public static final List<SortBuilder<?>> SORT_BUILDERS = Arrays.asList(SortBuilders.scoreSort(), SortBuilders.fieldSort("lookup-key.raw").unmappedType("keyword"));
@@ -82,8 +84,8 @@ public class ElasticAutocompleteSearch implements AutocompleteSearch {
             final Map<String, Object>  attributes = hit.getSourceAsMap();
 
             final Map<String, Object> result = Maps.newLinkedHashMap();
-            result.put("key", attributes.get(FullTextIndex.LOOKUP_KEY_FIELD_NAME));
-            result.put("type", attributes.get(FullTextIndex.OBJECT_TYPE_FIELD_NAME));
+            result.put("key", attributes.get(LOOKUP_KEY_FIELD_NAME));
+            result.put("type", attributes.get(OBJECT_TYPE_FIELD_NAME));
 
             for (final AttributeType responseAttribute : responseAttributes) {
 

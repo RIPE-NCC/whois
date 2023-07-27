@@ -1,6 +1,5 @@
 package net.ripe.db.whois.scheduler.task.loader;
 
-import net.ripe.db.whois.api.fulltextsearch.FullTextIndex;
 import net.ripe.db.whois.api.fulltextsearch.FullTextSearchService;
 import net.ripe.db.whois.api.fulltextsearch.SearchRequest;
 import net.ripe.db.whois.api.fulltextsearch.SearchResponse;

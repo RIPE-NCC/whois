@@ -2,7 +2,6 @@ package net.ripe.db.whois.api.rdap;
 
 import com.google.common.collect.Lists;
 import com.google.common.net.HttpHeaders;
-import net.ripe.db.whois.api.fulltextsearch.FullTextIndex;
 import net.ripe.db.whois.api.rdap.domain.Action;
 import net.ripe.db.whois.api.rdap.domain.Autnum;
 import net.ripe.db.whois.api.rdap.domain.Domain;
@@ -57,14 +56,19 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 @DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_EACH_TEST_METHOD)
 public class WhoisRdapServiceTestIntegration extends AbstractRdapIntegrationTest {
 
-    @Autowired
-    FullTextIndex fullTextIndex;
+    private static final String WHOIS_INDEX = "whois_fulltext";
+
+    private static final String METADATA_INDEX = "metadata_fulltext";
     @Autowired
     TestWhoisLog queryLog;
 
 
     @BeforeAll
     public static void beforeClass() {
+        System.setProperty("elastic.whois.index", WHOIS_INDEX);
+        System.setProperty("elastic.commit.index", METADATA_INDEX);
+        System.setProperty("fulltext.search.max.results", "10");
+
         System.setProperty("rdap.entity.max.results", "3");
     }
 
@@ -2280,7 +2284,7 @@ public class WhoisRdapServiceTestIntegration extends AbstractRdapIntegrationTest
     @Test
     public void search_domain_not_found() {
         final NotFoundException notFoundException = assertThrows(NotFoundException.class, () -> {
-            fullTextIndex.rebuild();
+            rebuildIndex();
             createResource("domains?name=ripe.net")
                     .request(MediaType.APPLICATION_JSON_TYPE)
                     .get(Entity.class);
@@ -2292,7 +2296,7 @@ public class WhoisRdapServiceTestIntegration extends AbstractRdapIntegrationTest
 
     @Test
     public void search_domain_exact_match() {
-        fullTextIndex.rebuild();
+        rebuildIndex();
 
         final SearchResult response = createResource("domains?name=31.12.202.in-addr.arpa")
                 .request(MediaType.APPLICATION_JSON_TYPE)
@@ -2303,7 +2307,7 @@ public class WhoisRdapServiceTestIntegration extends AbstractRdapIntegrationTest
 
     @Test
     public void search_domain_is_case_insensitive() {
-        fullTextIndex.rebuild();
+        rebuildIndex();
 
         final SearchResult response = createResource("domains?name=31.12.202.IN-AddR.arpa")     // mixed case in request
                 .request(MediaType.APPLICATION_JSON_TYPE)
@@ -2317,7 +2321,7 @@ public class WhoisRdapServiceTestIntegration extends AbstractRdapIntegrationTest
     @Test
     public void search_nameservers_not_found() {
         final ServerErrorException serverErrorException = assertThrows(ServerErrorException.class, () -> {
-            fullTextIndex.rebuild();
+            rebuildIndex();
             createResource("nameservers?name=ns1.ripe.net")
                     .request(MediaType.APPLICATION_JSON_TYPE)
                     .get(Entity.class);
@@ -2343,7 +2347,7 @@ public class WhoisRdapServiceTestIntegration extends AbstractRdapIntegrationTest
 
     @Test
     public void search_entity_person_by_name() {
-        fullTextIndex.rebuild();
+        rebuildIndex();
 
         final SearchResult response = createResource("entities?fn=Test%20Person")
                 .request(MediaType.APPLICATION_JSON_TYPE)
@@ -2356,7 +2360,7 @@ public class WhoisRdapServiceTestIntegration extends AbstractRdapIntegrationTest
     public void search_entity_person_object_deleted_before_index_updated() {
         final RpslObject person = RpslObject.parse("person: Lost Person\nnic-hdl: LP1-TEST\nsource: TEST");
         databaseHelper.addObject(person);
-        fullTextIndex.rebuild();
+        rebuildIndex();
         databaseHelper.deleteObject(person);
 
         final NotFoundException notFoundException = assertThrows(NotFoundException.class, () -> {
@@ -2371,7 +2375,7 @@ public class WhoisRdapServiceTestIntegration extends AbstractRdapIntegrationTest
 
     @Test
     public void search_entity_person_by_name_is_case_insensitive() {
-        fullTextIndex.rebuild();
+        rebuildIndex();
 
         final SearchResult response = createResource("entities?fn=tESt%20PeRSOn")       // mixed case in request
                 .request(MediaType.APPLICATION_JSON_TYPE)
@@ -2383,7 +2387,7 @@ public class WhoisRdapServiceTestIntegration extends AbstractRdapIntegrationTest
     @Test
     public void search_entity_person_umlaut() {
         databaseHelper.addObject("person: Tëst Person3\nnic-hdl:TP3-TEST\ncreated:2022-08-14T11:48:28Z\nlast-modified:2022-10-25T12:22:39Z\nsource: TEST");
-        fullTextIndex.rebuild();
+        rebuildIndex();
 
         final SearchResult response = createResource("entities?fn=Tëst%20Person3")
                 .request(MediaType.APPLICATION_JSON_TYPE)
@@ -2395,7 +2399,7 @@ public class WhoisRdapServiceTestIntegration extends AbstractRdapIntegrationTest
     @Test
     public void search_entity_person_umlaut_latin1_encoded() {
         databaseHelper.addObject("person: Tëst Person3\nnic-hdl:TP3-TEST\ncreated:2022-08-14T11:48:28Z\nlast-modified:2022-10-25T12:22:39Z\nsource: TEST");
-        fullTextIndex.rebuild();
+        rebuildIndex();
 
         final NotFoundException notFoundException = assertThrows(NotFoundException.class, () -> {
             createResource("entities?fn=T%EBst%20Person3")
@@ -2410,7 +2414,7 @@ public class WhoisRdapServiceTestIntegration extends AbstractRdapIntegrationTest
     @Test
     public void search_entity_person_umlaut_utf8_encoded() {
         databaseHelper.addObject("person: Tëst Person3\nnic-hdl:TP3-TEST\ncreated:2022-08-14T11:48:28Z\nlast-modified:2022-10-25T12:22:39Z\nsource: TEST");
-        fullTextIndex.rebuild();
+        rebuildIndex();
 
         final SearchResult response = createResource("entities?fn=T%C3%ABst%20Person3")
                 .request(MediaType.APPLICATION_JSON_TYPE)
@@ -2422,7 +2426,7 @@ public class WhoisRdapServiceTestIntegration extends AbstractRdapIntegrationTest
     @Test
     public void search_entity_person_umlaut_substitution() {
         databaseHelper.addObject("person: Tëst Person3\nnic-hdl: TP3-TEST\nsource: TEST");
-        fullTextIndex.rebuild();
+        rebuildIndex();
 
         final NotFoundException notFoundException = assertThrows(NotFoundException.class, () -> {
             createResource("entities?fn=Test%20Person3")
@@ -2437,7 +2441,7 @@ public class WhoisRdapServiceTestIntegration extends AbstractRdapIntegrationTest
     @Test
     public void search_entity_person_by_name_not_found() {
         final NotFoundException notFoundException = assertThrows(NotFoundException.class, () -> {
-            fullTextIndex.rebuild();
+            rebuildIndex();
             createResource("entities?fn=Santa%20Claus")
                     .request(MediaType.APPLICATION_JSON_TYPE)
                     .get(Entity.class);
@@ -2449,7 +2453,7 @@ public class WhoisRdapServiceTestIntegration extends AbstractRdapIntegrationTest
 
     @Test
     public void search_entity_person_by_handle() {
-        fullTextIndex.rebuild();
+        rebuildIndex();
 
         final SearchResult response = createResource("entities?handle=TP2-TEST")
                 .request(MediaType.APPLICATION_JSON_TYPE)
@@ -2460,7 +2464,7 @@ public class WhoisRdapServiceTestIntegration extends AbstractRdapIntegrationTest
 
     @Test
     public void search_entity_person_by_handle_is_case_insensitive() {
-        fullTextIndex.rebuild();
+        rebuildIndex();
 
         final SearchResult response = createResource("entities?handle=Tp2-tESt")       // mixed case in request
                 .request(MediaType.APPLICATION_JSON_TYPE)
@@ -2472,7 +2476,7 @@ public class WhoisRdapServiceTestIntegration extends AbstractRdapIntegrationTest
     @Test
     public void search_entity_person_by_handle_not_found() {
         final NotFoundException notFoundException = assertThrows(NotFoundException.class, () -> {
-            fullTextIndex.rebuild();
+            rebuildIndex();
             createResource("entities?handle=XYZ-TEST")
                     .request(MediaType.APPLICATION_JSON_TYPE)
                     .get(Entity.class);
@@ -2486,7 +2490,7 @@ public class WhoisRdapServiceTestIntegration extends AbstractRdapIntegrationTest
 
     @Test
     public void search_entity_role_by_name() {
-        fullTextIndex.rebuild();
+        rebuildIndex();
 
         final SearchResult response = createResource("entities?handle=FR*-TEST")
                 .request(MediaType.APPLICATION_JSON_TYPE)
@@ -2497,7 +2501,7 @@ public class WhoisRdapServiceTestIntegration extends AbstractRdapIntegrationTest
 
     @Test
     public void search_entity_role_by_handle() {
-        fullTextIndex.rebuild();
+        rebuildIndex();
 
         final SearchResult response = createResource("entities?fn=F*st%20Role")
                 .request(MediaType.APPLICATION_JSON_TYPE)
@@ -2510,7 +2514,7 @@ public class WhoisRdapServiceTestIntegration extends AbstractRdapIntegrationTest
 
     @Test
     public void search_entity_organisation_by_name() {
-        fullTextIndex.rebuild();
+        rebuildIndex();
 
         final SearchResult response = createResource("entities?fn=organisation")
                 .request(MediaType.APPLICATION_JSON_TYPE)
@@ -2521,7 +2525,7 @@ public class WhoisRdapServiceTestIntegration extends AbstractRdapIntegrationTest
 
     @Test
     public void search_entity_organisation_by_name_is_case_insensitive() {
-        fullTextIndex.rebuild();
+        rebuildIndex();
 
         final SearchResult response = createResource("entities?fn=ORGanisAtioN")
                 .request(MediaType.APPLICATION_JSON_TYPE)
@@ -2532,7 +2536,7 @@ public class WhoisRdapServiceTestIntegration extends AbstractRdapIntegrationTest
 
     @Test
     public void search_entity_organisation_by_handle() {
-        fullTextIndex.rebuild();
+        rebuildIndex();
 
         final SearchResult response = createResource("entities?handle=ORG-TEST1-TEST")
                 .request(MediaType.APPLICATION_JSON_TYPE)
@@ -2591,7 +2595,7 @@ public class WhoisRdapServiceTestIntegration extends AbstractRdapIntegrationTest
 
     @Test
     public void search_entity_multiple_object_response() {
-        fullTextIndex.rebuild();
+        rebuildIndex();
 
         final SearchResult result = createResource("entities?handle=*TEST")
                 .request(MediaType.APPLICATION_JSON_TYPE)
@@ -2803,4 +2807,13 @@ public class WhoisRdapServiceTestIntegration extends AbstractRdapIntegrationTest
         assertThat(notice.getLinks().get(0).getValue(), is(value));
     }
 
+    @Override
+    public String getWhoisIndex() {
+        return WHOIS_INDEX;
+    }
+
+    @Override
+    public String getMetadataIndex() {
+        return METADATA_INDEX;
+    }
 }

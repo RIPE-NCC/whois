@@ -1,8 +1,7 @@
 package net.ripe.db.whois.api.httpserver;
 
-import net.ripe.db.whois.api.AbstractIntegrationTest;
 import net.ripe.db.whois.api.RestTest;
-import net.ripe.db.whois.api.fulltextsearch.FullTextIndex;
+import net.ripe.db.whois.api.elasticsearch.AbstractElasticSearchIntegrationTest;
 import net.ripe.db.whois.api.rdap.domain.Entity;
 import net.ripe.db.whois.api.rest.domain.WhoisResources;
 import net.ripe.db.whois.api.rest.mapper.FormattedClientAttributeMapper;
@@ -40,8 +39,11 @@ import static org.hamcrest.Matchers.is;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 @Tag("IntegrationTest")
-public class RewriteEngineTestIntegration extends AbstractIntegrationTest {
+public class RewriteEngineTestIntegration extends AbstractElasticSearchIntegrationTest {
 
+    private static final String WHOIS_INDEX = "whois_fulltext";
+
+    private static final String METADATA_INDEX = "metadata_fulltext";
     @BeforeAll
     public static void enableRewriteEngine() {
         System.setProperty("rewrite.engine.enabled", "true");
@@ -57,9 +59,6 @@ public class RewriteEngineTestIntegration extends AbstractIntegrationTest {
 
     @Autowired
     WhoisObjectMapper whoisObjectMapper;
-
-    @Autowired
-    FullTextIndex fullTextIndex;
 
     final RpslObject person = RpslObject.parse(
             "person:        Pauleth Palthen\n" +
@@ -268,7 +267,7 @@ public class RewriteEngineTestIntegration extends AbstractIntegrationTest {
 
     @Test
     public void fulltext_search() {
-        fullTextIndex.rebuild();
+        rebuildIndex();
 
         Response response = RestTest.target(getPort(), "fulltextsearch/select?facet=true&format=xml&hl=true&q=(test)&start=0&wt=json")
                 .request()
@@ -285,4 +284,13 @@ public class RewriteEngineTestIntegration extends AbstractIntegrationTest {
         return uri.getHost();
     }
 
+    @Override
+    public String getWhoisIndex() {
+        return WHOIS_INDEX;
+    }
+
+    @Override
+    public String getMetadataIndex() {
+        return METADATA_INDEX;
+    }
 }

@@ -3,7 +3,6 @@ package net.ripe.db.whois.api.elasticsearch;
 import com.google.common.base.CharMatcher;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
-import net.ripe.db.whois.api.fulltextsearch.FullTextIndex;
 import net.ripe.db.whois.common.rpsl.AttributeType;
 import net.ripe.db.whois.common.rpsl.ObjectTemplate;
 import net.ripe.db.whois.common.rpsl.RpslAttribute;
@@ -33,6 +32,8 @@ import java.io.IOException;
 import java.util.List;
 import java.util.Set;
 
+import static net.ripe.db.whois.api.autocomplete.ElasticAutocompleteSearch.LOOKUP_KEY_FIELD_NAME;
+import static net.ripe.db.whois.api.autocomplete.ElasticAutocompleteSearch.OBJECT_TYPE_FIELD_NAME;
 import static org.slf4j.LoggerFactory.getLogger;
 
 @Component
@@ -218,8 +219,8 @@ public class ElasticIndexService {
             }
         }
 
-        builder.field(FullTextIndex.LOOKUP_KEY_FIELD_NAME, rpslObject.getKey().toString());
-        builder.field(FullTextIndex.OBJECT_TYPE_FIELD_NAME, filterRpslObject.getType().getName());
+        builder.field(LOOKUP_KEY_FIELD_NAME, rpslObject.getKey().toString());
+        builder.field(OBJECT_TYPE_FIELD_NAME, filterRpslObject.getType().getName());
 
         return builder.endObject();
     }

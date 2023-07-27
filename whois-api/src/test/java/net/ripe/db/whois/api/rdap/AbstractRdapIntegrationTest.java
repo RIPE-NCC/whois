@@ -1,8 +1,8 @@
 package net.ripe.db.whois.api.rdap;
 
 
-import net.ripe.db.whois.api.AbstractIntegrationTest;
 import net.ripe.db.whois.api.RestTest;
+import net.ripe.db.whois.api.elasticsearch.AbstractElasticSearchIntegrationTest;
 import net.ripe.db.whois.api.rdap.domain.Entity;
 import net.ripe.db.whois.api.rest.client.RestClientUtils;
 import org.junit.jupiter.api.AfterAll;
@@ -17,16 +17,13 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.is;
 
-public abstract class AbstractRdapIntegrationTest extends AbstractIntegrationTest {
+public abstract class AbstractRdapIntegrationTest extends AbstractElasticSearchIntegrationTest {
 
     @BeforeAll
     public static void rdapSetProperties() {
         System.setProperty("rdap.sources", "TEST-GRS");
         System.setProperty("rdap.redirect.test", "https://rdap.test.net");
         System.setProperty("rdap.public.baseUrl", "https://rdap.db.ripe.net");
-
-        // We only enable fulltext indexing here, so it doesn't slow down the rest of the test suite
-        System.setProperty("dir.fulltext.index", "var${jvmId:}/idx");
     }
 
     @AfterAll
@@ -34,7 +31,6 @@ public abstract class AbstractRdapIntegrationTest extends AbstractIntegrationTes
         System.clearProperty("rdap.sources");
         System.clearProperty("rdap.redirect.test");
         System.clearProperty("rdap.public.baseUrl");
-        System.clearProperty("dir.fulltext.index");
     }
 
     // helper methods

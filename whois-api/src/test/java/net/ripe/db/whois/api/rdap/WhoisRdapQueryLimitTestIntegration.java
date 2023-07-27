@@ -1,6 +1,5 @@
 package net.ripe.db.whois.api.rdap;
 
-import net.ripe.db.whois.api.fulltextsearch.FullTextIndex;
 import net.ripe.db.whois.api.rdap.domain.SearchResult;
 import net.ripe.db.whois.query.support.TestWhoisLog;
 import org.junit.jupiter.api.BeforeAll;
@@ -20,13 +19,19 @@ import static org.hamcrest.Matchers.hasSize;
 @DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_EACH_TEST_METHOD)
 public class WhoisRdapQueryLimitTestIntegration extends AbstractRdapIntegrationTest {
 
-    @Autowired
-    FullTextIndex fullTextIndex;
+    private static final String WHOIS_INDEX = "whois_fulltext";
+
+    private static final String METADATA_INDEX = "metadata_fulltext";
+
     @Autowired
     TestWhoisLog queryLog;
 
     @BeforeAll
     public static void beforeClass() {
+        System.setProperty("elastic.whois.index", WHOIS_INDEX);
+        System.setProperty("elastic.commit.index", METADATA_INDEX);
+        System.setProperty("fulltext.search.max.results", "10");
+
         System.setProperty("rdap.search.max.results", "2");
     }
 
@@ -169,7 +174,7 @@ public class WhoisRdapQueryLimitTestIntegration extends AbstractRdapIntegrationT
     // search - domain
     @Test
     public void search_domain_with_wildcard() {
-        fullTextIndex.rebuild();
+        rebuildIndex();
 
         final SearchResult response = createResource("domains?name=*.in-addr.arpa")
                 .request(MediaType.APPLICATION_JSON_TYPE)
@@ -184,7 +189,7 @@ public class WhoisRdapQueryLimitTestIntegration extends AbstractRdapIntegrationT
 
     @Test
     public void search_entity_organisation_by_handle_with_wildcard_prefix() {
-        fullTextIndex.rebuild();
+        rebuildIndex();
 
         final SearchResult response = createResource("entities?handle=*TEST1-TEST")
                 .request(MediaType.APPLICATION_JSON_TYPE)
@@ -197,7 +202,7 @@ public class WhoisRdapQueryLimitTestIntegration extends AbstractRdapIntegrationT
 
     @Test
     public void search_entity_organisation_by_handle_with_wildcard_middle() {
-        fullTextIndex.rebuild();
+        rebuildIndex();
 
         final SearchResult response = createResource("entities?handle=ORG*TEST")
                 .request(MediaType.APPLICATION_JSON_TYPE)
@@ -212,7 +217,7 @@ public class WhoisRdapQueryLimitTestIntegration extends AbstractRdapIntegrationT
 
     @Test
     public void search_entity_organisation_by_handle_with_wildcard_suffix() {
-        fullTextIndex.rebuild();
+        rebuildIndex();
 
         final SearchResult response = createResource("entities?handle=ORG*")
                 .request(MediaType.APPLICATION_JSON_TYPE)
@@ -227,7 +232,7 @@ public class WhoisRdapQueryLimitTestIntegration extends AbstractRdapIntegrationT
 
     @Test
     public void search_entity_organisation_by_handle_with_wildcard_prefix_middle_and_suffix() {
-        fullTextIndex.rebuild();
+        rebuildIndex();
 
         final SearchResult response = createResource("entities?handle=*ORG*TEST*")
                 .request(MediaType.APPLICATION_JSON_TYPE)
@@ -242,7 +247,7 @@ public class WhoisRdapQueryLimitTestIntegration extends AbstractRdapIntegrationT
 
     @Test
     public void search_entity_organisation_by_name_with_wildcard() {
-        fullTextIndex.rebuild();
+        rebuildIndex();
 
         final SearchResult response = createResource("entities?fn=organis*tion")
                 .request(MediaType.APPLICATION_JSON_TYPE)
@@ -253,5 +258,15 @@ public class WhoisRdapQueryLimitTestIntegration extends AbstractRdapIntegrationT
         assertThat(response.getEntitySearchResults().get(1).getHandle(), equalTo("ORG-TEST2-TEST"));
         assertThat(response.getNotices(), hasSize(2));
         assertThat(response.getNotices().get(0).getTitle(), equalTo("limited search results to 2 maximum"));
+    }
+
+    @Override
+    public String getWhoisIndex() {
+        return WHOIS_INDEX;
+    }
+
+    @Override
+    public String getMetadataIndex() {
+        return METADATA_INDEX;
     }
 }

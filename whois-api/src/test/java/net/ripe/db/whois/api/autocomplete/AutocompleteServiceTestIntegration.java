@@ -1,10 +1,8 @@
 package net.ripe.db.whois.api.autocomplete;
 
 import com.google.common.collect.Lists;
-import net.ripe.db.whois.api.AbstractIntegrationTest;
 import net.ripe.db.whois.api.RestTest;
-import net.ripe.db.whois.api.fulltextsearch.FullTextIndex;
-
+import net.ripe.db.whois.api.elasticsearch.AbstractElasticSearchIntegrationTest;
 import net.ripe.db.whois.common.rpsl.AttributeType;
 import net.ripe.db.whois.common.rpsl.ObjectType;
 import org.junit.jupiter.api.AfterAll;
@@ -13,7 +11,6 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
-
 import org.springframework.beans.factory.annotation.Autowired;
 
 import javax.ws.rs.BadRequestException;
@@ -35,15 +32,18 @@ import static org.hamcrest.Matchers.is;
 import static org.junit.jupiter.api.Assertions.fail;
 
 @Tag("IntegrationTest")
-public class AutocompleteServiceTestIntegration extends AbstractIntegrationTest {
-    @Autowired FullTextIndex fullTextIndex;
+public class AutocompleteServiceTestIntegration extends AbstractElasticSearchIntegrationTest {
+    private static final String WHOIS_INDEX = "whois_fulltext";
+
+    private static final String METADATA_INDEX = "metadata_fulltext";
 
     @Autowired AutocompleteService autocompleteService;
 
     @BeforeAll
     public static void setProperty() {
-        // We only enable fulltext indexing here, so it doesn't slow down the rest of the test suite
-        System.setProperty("dir.fulltext.index", "var${jvmId:}/idx");
+        System.setProperty("elastic.whois.index", WHOIS_INDEX);
+        System.setProperty("elastic.commit.index", METADATA_INDEX);
+        System.setProperty("fulltext.search.max.results", "10");
     }
 
     @AfterAll
@@ -769,7 +769,13 @@ public class AutocompleteServiceTestIntegration extends AbstractIntegrationTest 
         return builder.toString();
     }
 
-    private void rebuildIndex() {
-        fullTextIndex.rebuild();
+    @Override
+    public String getWhoisIndex() {
+        return WHOIS_INDEX;
+    }
+
+    @Override
+    public String getMetadataIndex() {
+        return METADATA_INDEX;
     }
 }
