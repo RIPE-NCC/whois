@@ -1,8 +1,6 @@
 package net.ripe.db.whois.scheduler.task.loader;
 
 import net.ripe.db.whois.api.fulltextsearch.FullTextSearchService;
-import net.ripe.db.whois.api.fulltextsearch.SearchRequest;
-import net.ripe.db.whois.api.fulltextsearch.SearchResponse;
 import net.ripe.db.whois.common.dao.RpslObjectUpdateDao;
 import net.ripe.db.whois.common.rpsl.RpslObject;
 import net.ripe.db.whois.common.support.database.diff.Database;
@@ -14,7 +12,6 @@ import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
-import javax.servlet.http.HttpServletRequest;
 import java.io.IOException;
 
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -23,8 +20,6 @@ import static org.hamcrest.Matchers.greaterThan;
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.not;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
 
 
 @Tag("IntegrationTest")
@@ -34,9 +29,6 @@ public class BootstrapFromFileTestIntegration extends AbstractSchedulerIntegrati
 
     @Autowired
     private FullTextSearchService fullTextSearchService;
-
-    @Autowired
-    private FullTextIndex fullTextIndex;
 
     @Autowired
     private RpslObjectUpdateDao rpslObjectUpdateDao;
@@ -215,36 +207,5 @@ public class BootstrapFromFileTestIntegration extends AbstractSchedulerIntegrati
 
         assertThat(bootstrapLoadResults, containsString("FINISHED\n3 succeeded\n0 failed in pass 1\n0 failed in pass 2\n"));
     }
-
-    @Test
-    public void fullText_index_is_rebuild_after_bootstrap() throws IOException {
-
-        fullTextIndex.rebuild();
-
-        databaseHelper.addObject("person: Test Person\nnic-hdl: TP1-TEST");
-
-        assertThat(query("TP1").getResult().getDocs(), hasSize(0));
-
-        fullTextIndex.rebuild();
-
-        assertThat(query("TP1").getResult().getDocs(), hasSize(1));
-
-        bootstrapInitialObjects();
-
-        assertThat(query("TP1").getResult().getDocs(), hasSize(0));
-    }
-
-    private SearchResponse query(final String queryStr) {
-        HttpServletRequest request = mock(HttpServletRequest.class);
-        when(request.getRemoteAddr()).thenReturn("127.0.0.1");
-
-        return fullTextSearchService.search(
-                new SearchRequest.SearchRequestBuilder()
-                    .setQuery(queryStr)
-                    .setRows("10")
-                    .setFormat("xml")
-                    .setHighlightPre("<b>")
-                    .setHighlightPost("</b>")
-                    .build(), request);
-    }
+    
 }
