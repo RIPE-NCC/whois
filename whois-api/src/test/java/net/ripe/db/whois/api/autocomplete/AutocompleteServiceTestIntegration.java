@@ -33,9 +33,9 @@ import static org.junit.jupiter.api.Assertions.fail;
 
 @Tag("ElasticSearchTest")
 public class AutocompleteServiceTestIntegration extends AbstractElasticSearchIntegrationTest {
-    private static final String WHOIS_INDEX = "whois_fulltext";
+    private static final String WHOIS_INDEX = "whois_autocomplete_1";
 
-    private static final String METADATA_INDEX = "metadata_fulltext";
+    private static final String METADATA_INDEX = "metadata_autocomplete_1";
 
     @Autowired AutocompleteService autocompleteService;
 

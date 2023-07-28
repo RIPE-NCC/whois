@@ -19,9 +19,9 @@ import static org.junit.jupiter.api.Assertions.fail;
 @DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_EACH_TEST_METHOD)
 class WhoisRdapServiceAclTestIntegration extends AbstractRdapIntegrationTest {
 
-    private static final String WHOIS_INDEX = "whois_fulltext";
+    private static final String WHOIS_INDEX = "whois_acl";
 
-    private static final String METADATA_INDEX = "metadata_fulltext";
+    private static final String METADATA_INDEX = "metadata_acl";
     private static final String LOCALHOST_WITH_PREFIX = "127.0.0.1/32";
 
     @Autowired

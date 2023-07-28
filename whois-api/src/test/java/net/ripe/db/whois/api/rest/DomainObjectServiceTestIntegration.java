@@ -28,9 +28,9 @@ import static org.junit.jupiter.api.Assertions.fail;
 @Tag("ElasticSearchTest")
 public class DomainObjectServiceTestIntegration extends AbstractElasticSearchIntegrationTest {
 
-    private static final String WHOIS_INDEX = "whois_fulltext";
+    private static final String WHOIS_INDEX = "whois_domain";
 
-    private static final String METADATA_INDEX = "metadata_fulltext";
+    private static final String METADATA_INDEX = "metadata_domain";
     @Autowired
     private WhoisObjectMapper whoisObjectMapper;
 

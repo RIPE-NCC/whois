@@ -20,9 +20,9 @@ import static org.hamcrest.Matchers.hasSize;
 @DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_EACH_TEST_METHOD)
 public class WhoisRdapQueryLimitTestIntegration extends AbstractRdapIntegrationTest {
 
-    private static final String WHOIS_INDEX = "whois_fulltext";
+    private static final String WHOIS_INDEX = "whois_query_limit";
 
-    private static final String METADATA_INDEX = "metadata_fulltext";
+    private static final String METADATA_INDEX = "metadata_query_limit";
 
     @Autowired
     TestWhoisLog queryLog;

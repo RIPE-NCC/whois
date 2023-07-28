@@ -41,9 +41,9 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 @Tag("ElasticSearchTest")
 public class RewriteEngineTestIntegration extends AbstractElasticSearchIntegrationTest {
 
-    private static final String WHOIS_INDEX = "whois_fulltext";
+    private static final String WHOIS_INDEX = "whois_rewrite";
 
-    private static final String METADATA_INDEX = "metadata_fulltext";
+    private static final String METADATA_INDEX = "metadata_rewrite";
     @BeforeAll
     public static void enableRewriteEngine() {
         System.setProperty("rewrite.engine.enabled", "true");
