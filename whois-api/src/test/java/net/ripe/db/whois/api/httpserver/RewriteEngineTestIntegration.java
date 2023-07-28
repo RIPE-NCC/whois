@@ -82,11 +82,6 @@ public class RewriteEngineTestIntegration extends AbstractElasticSearchIntegrati
                     "last-modified:   2022-10-25T12:22:39Z\n" +
                     "source:        TEST\n");
 
-    @BeforeAll
-    public static void setProperty() {
-        System.setProperty("fulltext.search.max.results", "3");
-    }
-
     @BeforeEach
     public void setup() {
         databaseHelper.addObject("person: Test Person\nnic-hdl: TP1-TEST\ncreated:         2022-08-14T11:48:28Z\nlast-modified:   2022-10-25T12:22:39Z\nsource: TEST\n");
