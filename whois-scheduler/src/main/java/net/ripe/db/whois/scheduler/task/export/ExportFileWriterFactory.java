@@ -29,41 +29,34 @@ class ExportFileWriterFactory {
     private final DummifierNrtm dummifierNrtm;
     private final DummifierCurrent dummifierCurrent;
 
-    private final String legacyExternalExportDir;
+    private final String externalExportDir;
     private final String source;
     private final String nonAuthSource;
-    private final String externalExportDir;
     private final String internalExportDir;
 
     @Autowired
     ExportFileWriterFactory(final DummifierNrtm dummifierNrtm, final DummifierCurrent dummifierCurrent,
                             @Value("${dir.rpsl.export.internal}") final String internalExportDir,
                             @Value("${dir.rpsl.export.external}") final String externalExportDir,
-                            @Value("${dir.rpsl.export.external.legacy}") final String legacyExternalExportDir,
                             @Value("${whois.source}") final String source,
                             @Value("${whois.nonauth.source}") final String nonAuthSource) {
         this.dummifierNrtm = dummifierNrtm;
         this.dummifierCurrent = dummifierCurrent;
         this.internalExportDir = internalExportDir;
         this.externalExportDir = externalExportDir;
-        this.legacyExternalExportDir = legacyExternalExportDir;
         this.source = source;
         this.nonAuthSource = nonAuthSource;
     }
 
     public List<ExportFileWriter> createExportFileWriters(final File baseDir, final int lastSerial) {
-        final File fullDir = new File(baseDir, legacyExternalExportDir);
-        final File fullDirNew = new File(baseDir, externalExportDir);
-        final File splitDir = new File(baseDir, legacyExternalExportDir + File.separator + SPLITFILE_FOLDERNAME);
-        final File splitDirNew = new File(baseDir, externalExportDir + File.separator + SPLITFILE_FOLDERNAME);
+        final File fullDir = new File(baseDir, externalExportDir);
+        final File splitDir = new File(baseDir, externalExportDir + File.separator + SPLITFILE_FOLDERNAME);
         final File internalDir = new File(baseDir, internalExportDir + File.separator + SPLITFILE_FOLDERNAME);
 
-        initDirs(fullDirNew, fullDir, splitDirNew, splitDir, internalDir);
+        initDirs(fullDir, splitDir, internalDir);
 
         try {
-            FileCopyUtils.copy(String.valueOf(lastSerial).getBytes(StandardCharsets.ISO_8859_1), new File(fullDirNew, CURRENTSERIAL_FILENAME));
             FileCopyUtils.copy(String.valueOf(lastSerial).getBytes(StandardCharsets.ISO_8859_1), new File(fullDir, CURRENTSERIAL_FILENAME));
-            FileCopyUtils.copy(String.valueOf(lastSerial).getBytes(StandardCharsets.ISO_8859_1), new File(fullDirNew, CURRENTSERIAL_NONAUTH_FILENAME));
             FileCopyUtils.copy(String.valueOf(lastSerial).getBytes(StandardCharsets.ISO_8859_1), new File(fullDir, CURRENTSERIAL_NONAUTH_FILENAME));
         } catch (IOException e) {
             throw new RuntimeException("Writing current serial", e);
@@ -81,14 +74,10 @@ class ExportFileWriterFactory {
         return Lists.newArrayList(
                 new ExportFileWriter(fullDir, singleFile, new DecorationStrategy.DummifyLegacy(dummifierNrtm), sourceFilter),
                 new ExportFileWriter(splitDir, splitFile, new DecorationStrategy.DummifyLegacy(dummifierNrtm), sourceFilter),
-                new ExportFileWriter(fullDirNew, singleFile, new DecorationStrategy.DummifyCurrent(dummifierCurrent), sourceFilter),
-                new ExportFileWriter(splitDirNew, splitFile, new DecorationStrategy.DummifyCurrent(dummifierCurrent), sourceFilter),
                 new ExportFileWriter(internalDir, splitFile, new DecorationStrategy.None(), sourceFilter),
 
                 new ExportFileWriter(fullDir, nonAuthSingleFile, new DecorationStrategy.DummifyLegacy(dummifierNrtm), nonAuthSourceFilter),
                 new ExportFileWriter(splitDir, nonAuthSplitFile, new DecorationStrategy.DummifyLegacy(dummifierNrtm), nonAuthSourceFilter),
-                new ExportFileWriter(fullDirNew, nonAuthSingleFile, new DecorationStrategy.DummifyCurrent(dummifierCurrent), nonAuthSourceFilter),
-                new ExportFileWriter(splitDirNew, nonAuthSplitFile, new DecorationStrategy.DummifyCurrent(dummifierCurrent), nonAuthSourceFilter),
                 new ExportFileWriter(internalDir, nonAuthSplitFile, new DecorationStrategy.None(), nonAuthSourceFilter)
         );
     }
@@ -106,8 +95,7 @@ class ExportFileWriterFactory {
 
             final String fileName = file.getName();
             if (! (fileName.equals(externalExportDir)
-                    || fileName.equals(internalExportDir)
-                    || fileName.equals(legacyExternalExportDir))) {
+                    || fileName.equals(internalExportDir))) {
                 return false;
             }
         }

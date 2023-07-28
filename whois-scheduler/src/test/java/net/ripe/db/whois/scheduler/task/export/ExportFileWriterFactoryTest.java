@@ -38,7 +38,7 @@ public class ExportFileWriterFactoryTest {
 
     @BeforeEach
     public void setup() {
-        subject = new ExportFileWriterFactory(dummifierNrtm, dummifierCurrent, "internal", "dbase_new", "dbase", "test", "test-nonauth");
+        subject = new ExportFileWriterFactory(dummifierNrtm, dummifierCurrent, "internal", "dbase", "test", "test-nonauth");
     }
 
     @Test
@@ -57,12 +57,11 @@ public class ExportFileWriterFactoryTest {
 
         final File[] files = folder.toFile().listFiles();
         assertThat(files, not(nullValue()));
-        assertThat(files.length, is(3));
+        assertThat(files.length, is(2));
 
         for (final File file : files) {
             if (! (file.getAbsolutePath().endsWith("internal")
-                    || file.getAbsolutePath().endsWith("dbase")
-                    || file.getAbsolutePath().endsWith("dbase_new"))) {
+                    || file.getAbsolutePath().endsWith("dbase"))) {
                 fail("Unexpected folder: " + file.getAbsolutePath());
             }
         }
@@ -98,9 +97,6 @@ public class ExportFileWriterFactoryTest {
 
         final String savedSerial = new String(FileCopyUtils.copyToByteArray(currentSerialFile), StandardCharsets.ISO_8859_1);
         assertThat(savedSerial, is(String.valueOf(LAST_SERIAL)));
-
-        final File newSerialFile = new File(folder.toFile(), "dbase_new/RIPE.CURRENTSERIAL");
-        assertThat(newSerialFile.exists(), is(true));
 
         final String newSavedSerial = new String(FileCopyUtils.copyToByteArray(currentSerialFile), StandardCharsets.ISO_8859_1);
         assertThat(newSavedSerial, is(String.valueOf(LAST_SERIAL)));
