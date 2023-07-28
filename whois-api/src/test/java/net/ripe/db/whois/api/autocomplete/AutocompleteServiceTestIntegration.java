@@ -31,7 +31,7 @@ import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
 import static org.junit.jupiter.api.Assertions.fail;
 
-@Tag("IntegrationTest")
+@Tag("ElasticSearchTest")
 public class AutocompleteServiceTestIntegration extends AbstractElasticSearchIntegrationTest {
     private static final String WHOIS_INDEX = "whois_fulltext";
 

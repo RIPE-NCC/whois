@@ -15,7 +15,7 @@ import javax.ws.rs.core.MediaType;
 
 import static org.junit.jupiter.api.Assertions.fail;
 
-@Tag("IntegrationTest")
+@Tag("ElasticSearchTest")
 @DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_EACH_TEST_METHOD)
 class WhoisRdapServiceAclTestIntegration extends AbstractRdapIntegrationTest {
 
