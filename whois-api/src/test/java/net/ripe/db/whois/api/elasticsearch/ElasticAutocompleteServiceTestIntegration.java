@@ -9,6 +9,7 @@ import net.ripe.db.whois.common.rpsl.ObjectType;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -258,6 +259,18 @@ public class ElasticAutocompleteServiceTestIntegration extends AbstractElasticSe
     }
 
     @Test
+    @Disabled
+    public void key_type_invalid_query_characters() {
+        databaseHelper.addObject(
+                "mntner:        test-mnt\n" +
+                        "source:        TEST");
+        rebuildIndex();
+
+        assertThat(
+                query("*test", "mnt-by"),
+                hasSize(0));
+    }
+    @Test
     public void multiple_matches_no_duplicates() {
         databaseHelper.addObject("mntner:  bla-bla-mnt\n");
         rebuildIndex();
@@ -329,6 +342,7 @@ public class ElasticAutocompleteServiceTestIntegration extends AbstractElasticSe
                                 "  \"auth\" : [ \"MD5-PW\", \"PGPKEY-XYZ\", \"MD5-PW\", \"SSO\" ]\n" +
                                 "} ]"));
     }
+
 
     @Test
     public void wildcard_not_allowed_as_first_character() {
@@ -462,6 +476,15 @@ public class ElasticAutocompleteServiceTestIntegration extends AbstractElasticSe
         rebuildIndex();
 
         assertThat(getValues(query("AA1", "organisation", "org-name"), "org-name"), contains("Any"));
+    }
+
+    @Test
+    @Disabled
+    public void filter_comment_multiple_values() {
+        databaseHelper.addObject("route-set: AS34086:RS-OTC\nmembers: 46.29.103.32/27\nmembers: 46.29.96.0/24\nmnt-ref:AA1-MNT, # first\n+AA2-MNT,    # second\n\tAA3-MNT\t#third\nsource: TEST");
+        rebuildIndex();
+
+        assertThat(getValues(query("AS34086:RS-OTC", "route-set", "mnt-ref"), "mnt-ref"), contains("AA1-MNT,"));
     }
 
     // complex lookups (specify attributes)
@@ -650,6 +673,25 @@ public class ElasticAutocompleteServiceTestIntegration extends AbstractElasticSe
 
         assertThat(response, hasSize(1));
         assertThat(getValues(response, "key"), contains("tr1-test"));
+    }
+
+    @Test
+    @Disabled
+    public void select_invalid_query_characters() {
+        databaseHelper.addObject(
+                "role:          test role\n" +
+                        "nic-hdl:       tr1-test\n" +
+                        "abuse-mailbox: noreply@ripe.net\n" +
+                        "source:        TEST");
+        rebuildIndex();
+
+        assertThat(
+                query(
+                        Lists.newArrayList(AttributeType.ABUSE_MAILBOX),
+                        Lists.newArrayList(ObjectType.ROLE),
+                        Lists.newArrayList(AttributeType.NIC_HDL, AttributeType.ABUSE_MAILBOX),
+                        "*noreply"),
+                hasSize(0));
     }
 
     @Test
