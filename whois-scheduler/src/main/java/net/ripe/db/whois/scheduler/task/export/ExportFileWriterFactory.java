@@ -3,7 +3,6 @@ package net.ripe.db.whois.scheduler.task.export;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
-import net.ripe.db.whois.common.rpsl.DummifierCurrent;
 import net.ripe.db.whois.common.rpsl.DummifierNrtm;
 import net.ripe.db.whois.common.rpsl.ObjectType;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -27,21 +26,18 @@ class ExportFileWriterFactory {
     private static final String CURRENTSERIAL_NONAUTH_FILENAME = "RIPE-NONAUTH.CURRENTSERIAL";
 
     private final DummifierNrtm dummifierNrtm;
-    private final DummifierCurrent dummifierCurrent;
-
     private final String externalExportDir;
     private final String source;
     private final String nonAuthSource;
     private final String internalExportDir;
 
     @Autowired
-    ExportFileWriterFactory(final DummifierNrtm dummifierNrtm, final DummifierCurrent dummifierCurrent,
+    ExportFileWriterFactory(final DummifierNrtm dummifierNrtm,
                             @Value("${dir.rpsl.export.internal}") final String internalExportDir,
                             @Value("${dir.rpsl.export.external}") final String externalExportDir,
                             @Value("${whois.source}") final String source,
                             @Value("${whois.nonauth.source}") final String nonAuthSource) {
         this.dummifierNrtm = dummifierNrtm;
-        this.dummifierCurrent = dummifierCurrent;
         this.internalExportDir = internalExportDir;
         this.externalExportDir = externalExportDir;
         this.source = source;

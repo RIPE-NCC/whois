@@ -1,6 +1,5 @@
 package net.ripe.db.whois.scheduler.task.export;
 
-import net.ripe.db.whois.common.rpsl.DummifierCurrent;
 import net.ripe.db.whois.common.rpsl.DummifierNrtm;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -33,12 +32,11 @@ public class ExportFileWriterFactoryTest {
 
     @Mock
     DummifierNrtm dummifierNrtm;
-    @Mock DummifierCurrent dummifierCurrent;
     ExportFileWriterFactory subject;
 
     @BeforeEach
     public void setup() {
-        subject = new ExportFileWriterFactory(dummifierNrtm, dummifierCurrent, "internal", "dbase", "test", "test-nonauth");
+        subject = new ExportFileWriterFactory(dummifierNrtm, "internal", "dbase", "test", "test-nonauth");
     }
 
     @Test
