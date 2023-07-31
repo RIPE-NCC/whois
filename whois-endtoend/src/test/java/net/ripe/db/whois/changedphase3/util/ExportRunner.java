@@ -10,9 +10,9 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.zip.GZIPInputStream;
 
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.not;
-import static org.hamcrest.MatcherAssert.assertThat;
 import static org.junit.jupiter.api.Assertions.fail;
 
 public class ExportRunner extends AbstractScenarioRunner {
@@ -67,51 +67,34 @@ public class ExportRunner extends AbstractScenarioRunner {
 
             context.getDatabaseTextExport().run();
 
-            String oldDumpFile = readFile(EXPORT_DIR + "/dbase/ripe.db.gz");
-            String oldSplitFile = readFile(EXPORT_DIR + "/dbase/split/ripe.db.mntner.gz");
-
-            String newdumpFile = readFile(EXPORT_DIR + "/dbase_new/ripe.db.gz");
-            String newSplitFile = readFile(EXPORT_DIR + "/dbase_new/split/ripe.db.mntner.gz");
+            String dumpFile = readFile(EXPORT_DIR + "/dbase/ripe.db.gz");
+            String splitFile = readFile(EXPORT_DIR + "/dbase/split/ripe.db.mntner.gz");
 
             String internalFile = readFile(EXPORT_DIR + "/internal/split/ripe.db.mntner.gz");
 
             if (scenario.getPostCond() == Scenario.ObjectStatus.OBJ_EXISTS_WITH_CHANGED) {
-                assertThat(oldDumpFile, containsString("TESTING-MNT"));
-                assertThat(oldDumpFile, containsString("changed:"));
+                assertThat(dumpFile, containsString("TESTING-MNT"));
+                assertThat(dumpFile, containsString("changed:"));
 
-                assertThat(oldSplitFile, containsString("TESTING-MNT"));
-                assertThat(oldSplitFile, containsString("changed:"));
-
-                assertThat(newdumpFile, containsString("TESTING-MNT"));
-                assertThat(newdumpFile, containsString("changed:"));
-
-                assertThat(newSplitFile, containsString("TESTING-MNT"));
-                assertThat(newSplitFile, containsString("changed:"));
+                assertThat(splitFile, containsString("TESTING-MNT"));
+                assertThat(splitFile, containsString("changed:"));
 
                 assertThat(internalFile, containsString("TESTING-MNT"));
                 assertThat(internalFile, containsString("changed:"));
 
             } else if (scenario.getPostCond() == Scenario.ObjectStatus.OBJ_EXISTS_NO_CHANGED__) {
-                assertThat(oldDumpFile, containsString("TESTING-MNT"));
-                assertThat(oldDumpFile, not(containsString("changed:")));
+                assertThat(dumpFile, containsString("TESTING-MNT"));
+                assertThat(dumpFile, not(containsString("changed:")));
 
-                assertThat(oldSplitFile, containsString("TESTING-MNT"));
-                assertThat(oldSplitFile, not(containsString("changed:")));
-
-                assertThat(newdumpFile, containsString("TESTING-MNT"));
-                assertThat(newdumpFile, not(containsString("changed:")));
-
-                assertThat(newSplitFile, containsString("TESTING-MNT"));
-                assertThat(newSplitFile, not(containsString("changed:")));
+                assertThat(splitFile, containsString("TESTING-MNT"));
+                assertThat(splitFile, not(containsString("changed:")));
 
                 assertThat(internalFile, containsString("TESTING-MNT"));
                 assertThat(internalFile, not(containsString("changed:")));
 
             } else if (scenario.getPostCond() == Scenario.ObjectStatus.OBJ_DOES_NOT_EXIST_____) {
-                assertThat(oldDumpFile, not(containsString("TESTING-MNT")));
-                assertThat(oldSplitFile, not(containsString("TESTING-MNT")));
-                assertThat(newdumpFile, not(containsString("TESTING-MNT")));
-                assertThat(newSplitFile, not(containsString("TESTING-MNT")));
+                assertThat(dumpFile, not(containsString("TESTING-MNT")));
+                assertThat(splitFile, not(containsString("TESTING-MNT")));
                 assertThat(internalFile, not(containsString("TESTING-MNT")));
             }
 
