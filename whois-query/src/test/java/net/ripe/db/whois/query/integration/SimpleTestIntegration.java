@@ -3,6 +3,7 @@ package net.ripe.db.whois.query.integration;
 import com.google.common.collect.Lists;
 import net.ripe.db.whois.common.TestDateTimeProvider;
 import net.ripe.db.whois.common.dao.RpslObjectUpdateInfo;
+import net.ripe.db.whois.common.dao.jdbc.DatabaseHelper;
 import net.ripe.db.whois.common.domain.CIString;
 import net.ripe.db.whois.common.iptree.IpTreeUpdater;
 import net.ripe.db.whois.common.rpsl.RpslObject;
@@ -434,7 +435,7 @@ public class SimpleTestIntegration extends AbstractQueryIntegrationTest {
                 "% The objects are in RPSL format.\n" +
                 "%\n" +
                 "% The RIPE Database is subject to Terms and Conditions.\n" +
-                "% See http://www.ripe.net/db/support/db-terms-conditions.pdf\n" +
+                "% See https://apps.db.ripe.net/docs/HTML-Terms-And-Conditions\n" +
                 "\n" +
                 "% Information related to 'AS760-MNT'\n" +
                 "\n" +
@@ -645,5 +646,21 @@ public class SimpleTestIntegration extends AbstractQueryIntegrationTest {
         assertThat(query, containsString("o ASSIGNED"));
         assertThat(query, containsString("o LEGACY"));
         assertThat(query, containsString("o OTHER"));
+    }
+
+    @Test
+    public void person_with_non_ascii_latin1_characters() {
+        databaseHelper.addObject(
+            "person:    Test User\n" +
+            "address:   Schönau am Königssee\n" +
+            "phone:     +49 6 12345678\n" +
+            "e-mail:    test@net.net\n" +
+            "nic-hdl:   TU1-TEST\n" +
+            "mnt-by:    RIPE-NCC-HM-MNT\n" +
+            "source:    TEST\n");
+
+        final String query = TelnetWhoisClient.queryLocalhost(QueryServer.port, "TU1-TEST");
+
+        assertThat(query, containsString("Schönau am Königssee"));
     }
 }

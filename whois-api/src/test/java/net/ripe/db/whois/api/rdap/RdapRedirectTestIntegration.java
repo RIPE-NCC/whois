@@ -2,6 +2,7 @@ package net.ripe.db.whois.api.rdap;
 
 import net.ripe.db.whois.api.AbstractIntegrationTest;
 import net.ripe.db.whois.api.RestTest;
+import net.ripe.db.whois.api.rdap.domain.Ip;
 import net.ripe.db.whois.common.dao.DailySchedulerDao;
 import net.ripe.db.whois.common.dao.jdbc.DatabaseHelper;
 import net.ripe.db.whois.common.grs.AuthoritativeResourceData;
@@ -20,6 +21,7 @@ import javax.ws.rs.core.MediaType;
 import java.io.IOException;
 
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.is;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.fail;
@@ -68,6 +70,7 @@ public class RdapRedirectTestIntegration extends AbstractIntegrationTest {
         addResourceData("two", "AS200");
         addResourceData("three", "AS300");
 
+        addResourceData("test", "192.0.0.0 - 192.255.255.255");
         addResourceData("one", "193.0.0.0 - 193.0.7.255");
         addResourceData("one", "2001:67c:370::/48");
 
@@ -183,6 +186,82 @@ public class RdapRedirectTestIntegration extends AbstractIntegrationTest {
                 .request(MediaType.APPLICATION_JSON_TYPE)
                 .get(String.class);
         });
+    }
+
+    @Test
+    public void inetnum_match_partial_delegation() {
+        databaseHelper.addObject("" +
+                "inetnum:      217.0.0.0 - 217.255.255.255\n" +
+                "netname:      TEST-NET-NAME\n" +
+                "status:         OTHER\n" +
+                "created:        2022-08-14T11:48:28Z\n" +
+                "last-modified:  2022-10-25T12:22:39Z\n" +
+                "source:       TEST");
+        databaseHelper.addObject("" +
+                "inetnum:      217.180.128.0 - 217.180.191.255\n" +
+                "netname:      TEST-NET-NAME\n" +
+                "source:       TEST");
+        ipTreeUpdater.rebuild();
+
+        addResourceData("test", "217.0.0.0 - 217.255.255.255");
+
+        refreshResourceData();
+        //217.180.192.0 - 217.180.255.255 is not allocated
+
+        final Ip ip = RestTest.target(getPort(), String.format("rdap/%s", "ip/217.180.0.0/16"))
+                .request(MediaType.APPLICATION_JSON_TYPE)
+                .get(Ip.class);
+
+        assertThat(ip.getHandle(), equalTo("217.0.0.0 - 217.255.255.255"));
+
+    }
+
+    @Test
+    public void inetnum_redirect_partial_delegation() {
+        databaseHelper.addObject("" +
+                "inetnum:      217.180.128.0 - 217.180.191.255\n" +
+                "netname:      TEST-NET-NAME\n" +
+                "source:       TEST");
+        ipTreeUpdater.rebuild();
+
+        addResourceData("one", "217.180.0.0 - 217.180.255.255");
+        addResourceData("test", "217.180.128.0 - 217.180.191.255");
+
+        refreshResourceData();
+        //217.180.192.0 - 217.180.255.255 is not allocated
+        try {
+            RestTest.target(getPort(), String.format("rdap/%s", "ip/217.180.0.0/16"))
+                    .request(MediaType.APPLICATION_JSON_TYPE)
+                    .get(String.class);
+            fail();
+        } catch (final RedirectionException e) {
+            assertThat(e.getResponse().getHeaders().getFirst("Location").toString(), is("https://rdap.one" +
+                    ".net/ip/217.180.0.0/16"));
+        }
+    }
+
+    @Test
+    public void inetnum_larger_assigment_redirect_partial_delegation() {
+        databaseHelper.addObject("" +
+                "inetnum:      217.180.128.0 - 217.180.191.255\n" +
+                "netname:      TEST-NET-NAME\n" +
+                "source:       TEST");
+        ipTreeUpdater.rebuild();
+
+        addResourceData("one", "217.0.0.0 - 217.255.255.255");
+        addResourceData("test", "217.180.128.0 - 217.180.191.255");
+
+        refreshResourceData();
+        //217.180.192.0 - 217.180.255.255 is not allocated
+        try {
+            RestTest.target(getPort(), String.format("rdap/%s", "ip/217.180.0.0/16"))
+                    .request(MediaType.APPLICATION_JSON_TYPE)
+                    .get(String.class);
+            fail();
+        } catch (final RedirectionException e) {
+            assertThat(e.getResponse().getHeaders().getFirst("Location").toString(), is("https://rdap.one" +
+                    ".net/ip/217.180.0.0/16"));
+        }
     }
 
     // inet6num
