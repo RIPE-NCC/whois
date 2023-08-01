@@ -3,8 +3,6 @@ package net.ripe.db.whois.api.rdap;
 import net.ripe.db.whois.api.rdap.domain.Entity;
 import net.ripe.db.whois.query.acl.IpResourceConfiguration;
 import net.ripe.db.whois.query.support.TestPersonalObjectAccounting;
-import org.junit.jupiter.api.AfterAll;
-import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,13 +13,9 @@ import javax.ws.rs.core.MediaType;
 
 import static org.junit.jupiter.api.Assertions.fail;
 
-@Tag("ElasticSearchTest")
+@Tag("IntegrationTest")
 @DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_EACH_TEST_METHOD)
 class WhoisRdapServiceAclTestIntegration extends AbstractRdapIntegrationTest {
-
-    private static final String WHOIS_INDEX = "whois_acl";
-
-    private static final String METADATA_INDEX = "metadata_acl";
     private static final String LOCALHOST_WITH_PREFIX = "127.0.0.1/32";
 
     @Autowired
@@ -29,19 +23,6 @@ class WhoisRdapServiceAclTestIntegration extends AbstractRdapIntegrationTest {
     @Autowired
     private TestPersonalObjectAccounting testPersonalObjectAccounting;
 
-    @BeforeAll
-    public static void beforeClass() {
-        System.setProperty("elastic.whois.index", WHOIS_INDEX);
-        System.setProperty("elastic.commit.index", METADATA_INDEX);
-        System.setProperty("fulltext.search.max.results", "10");
-    }
-
-    @AfterAll
-    public static void resetProperties() {
-        System.clearProperty("elastic.commit.index");
-        System.clearProperty("elastic.whois.index");
-        System.clearProperty("fulltext.search.max.results");
-    }
 
     @Test
     public void lookup_person_entity_acl_denied() {
@@ -64,15 +45,5 @@ class WhoisRdapServiceAclTestIntegration extends AbstractRdapIntegrationTest {
             ipResourceConfiguration.reload();
             testPersonalObjectAccounting.resetAccounting();
         }
-    }
-
-    @Override
-    public String getWhoisIndex() {
-        return WHOIS_INDEX;
-    }
-
-    @Override
-    public String getMetadataIndex() {
-        return METADATA_INDEX;
     }
 }

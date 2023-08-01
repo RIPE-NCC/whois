@@ -1,5 +1,6 @@
-package net.ripe.db.whois.api.rdap;
+package net.ripe.db.whois.api.elasticsearch;
 
+import net.ripe.db.whois.api.RestTest;
 import net.ripe.db.whois.api.rdap.domain.SearchResult;
 import net.ripe.db.whois.query.support.TestWhoisLog;
 import org.junit.jupiter.api.AfterAll;
@@ -11,6 +12,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.annotation.DirtiesContext;
 
+import javax.ws.rs.client.WebTarget;
 import javax.ws.rs.core.MediaType;
 
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -19,7 +21,7 @@ import static org.hamcrest.Matchers.hasSize;
 
 @Tag("ElasticSearchTest")
 @DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_EACH_TEST_METHOD)
-public class WhoisRdapQueryLimitTestIntegration extends AbstractRdapIntegrationTest {
+public class WhoisRdapQueryLimitTestIntegration extends AbstractElasticSearchIntegrationTest {
 
     private static final String WHOIS_INDEX = "whois_query_limit";
 
@@ -270,6 +272,9 @@ public class WhoisRdapQueryLimitTestIntegration extends AbstractRdapIntegrationT
         assertThat(response.getNotices().get(0).getTitle(), equalTo("limited search results to 2 maximum"));
     }
 
+    protected WebTarget createResource(final String path) {
+        return RestTest.target(getPort(), String.format("rdap/%s", path));
+    }
     @Override
     public String getWhoisIndex() {
         return WHOIS_INDEX;

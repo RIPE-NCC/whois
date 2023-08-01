@@ -1,8 +1,8 @@
 package net.ripe.db.whois.api.rdap;
 
 
+import net.ripe.db.whois.api.AbstractIntegrationTest;
 import net.ripe.db.whois.api.RestTest;
-import net.ripe.db.whois.api.elasticsearch.AbstractElasticSearchIntegrationTest;
 import net.ripe.db.whois.api.rdap.domain.Entity;
 import net.ripe.db.whois.api.rest.client.RestClientUtils;
 import org.junit.jupiter.api.AfterAll;
@@ -17,7 +17,7 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.is;
 
-public abstract class AbstractRdapIntegrationTest extends AbstractElasticSearchIntegrationTest {
+public abstract class AbstractRdapIntegrationTest extends AbstractIntegrationTest {
 
     @BeforeAll
     public static void rdapSetProperties() {
