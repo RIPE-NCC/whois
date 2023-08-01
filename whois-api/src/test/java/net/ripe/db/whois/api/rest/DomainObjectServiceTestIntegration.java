@@ -1,15 +1,13 @@
 package net.ripe.db.whois.api.rest;
 
 import com.google.common.collect.Lists;
+import net.ripe.db.whois.api.AbstractIntegrationTest;
 import net.ripe.db.whois.api.RestTest;
-import net.ripe.db.whois.api.elasticsearch.AbstractElasticSearchIntegrationTest;
 import net.ripe.db.whois.api.rest.domain.WhoisResources;
 import net.ripe.db.whois.api.rest.mapper.FormattedClientAttributeMapper;
 import net.ripe.db.whois.api.rest.mapper.WhoisObjectMapper;
 import net.ripe.db.whois.common.rpsl.RpslObject;
 import net.ripe.db.whois.update.dns.DnsGatewayStub;
-import org.junit.jupiter.api.AfterAll;
-import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
@@ -25,31 +23,15 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.hasSize;
 import static org.junit.jupiter.api.Assertions.fail;
 
-@Tag("ElasticSearchTest")
-public class DomainObjectServiceTestIntegration extends AbstractElasticSearchIntegrationTest {
+@Tag("IntegrationTest")
+public class DomainObjectServiceTestIntegration extends AbstractIntegrationTest {
 
-    private static final String WHOIS_INDEX = "whois_domain";
-
-    private static final String METADATA_INDEX = "metadata_domain";
     @Autowired
     private WhoisObjectMapper whoisObjectMapper;
 
     @Autowired
     private DnsGatewayStub dnsGatewayStub;
 
-    @BeforeAll
-    public static void beforeClass() {
-        System.setProperty("elastic.whois.index", WHOIS_INDEX);
-        System.setProperty("elastic.commit.index", METADATA_INDEX);
-        System.setProperty("fulltext.search.max.results", "10");
-    }
-
-    @AfterAll
-    public static void resetProperties() {
-        System.clearProperty("elastic.commit.index");
-        System.clearProperty("elastic.whois.index");
-        System.clearProperty("fulltext.search.max.results");
-    }
     @BeforeEach
     public void setup() {
         databaseHelper.addObject("" +
@@ -397,15 +379,5 @@ public class DomainObjectServiceTestIntegration extends AbstractElasticSearchInt
     }
     private WhoisResources mapRpslObjects(final RpslObject... rpslObjects) {
         return whoisObjectMapper.mapRpslObjects(FormattedClientAttributeMapper.class, rpslObjects);
-    }
-
-    @Override
-    public String getWhoisIndex() {
-        return WHOIS_INDEX;
-    }
-
-    @Override
-    public String getMetadataIndex() {
-        return METADATA_INDEX;
     }
 }

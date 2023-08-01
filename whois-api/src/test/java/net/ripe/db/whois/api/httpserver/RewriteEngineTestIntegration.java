@@ -1,7 +1,7 @@
 package net.ripe.db.whois.api.httpserver;
 
+import net.ripe.db.whois.api.AbstractIntegrationTest;
 import net.ripe.db.whois.api.RestTest;
-import net.ripe.db.whois.api.elasticsearch.AbstractElasticSearchIntegrationTest;
 import net.ripe.db.whois.api.rdap.domain.Entity;
 import net.ripe.db.whois.api.rest.domain.WhoisResources;
 import net.ripe.db.whois.api.rest.mapper.FormattedClientAttributeMapper;
@@ -38,25 +38,12 @@ import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
-@Tag("ElasticSearchTest")
-public class RewriteEngineTestIntegration extends AbstractElasticSearchIntegrationTest {
-
-    private static final String WHOIS_INDEX = "whois_rewrite";
-
-    private static final String METADATA_INDEX = "metadata_rewrite";
+@Tag("IntegrationTest")
+public class RewriteEngineTestIntegration extends AbstractIntegrationTest {
+    
     @BeforeAll
     public static void enableRewriteEngine() {
         System.setProperty("rewrite.engine.enabled", "true");
-        System.setProperty("elastic.whois.index", WHOIS_INDEX);
-        System.setProperty("elastic.commit.index", METADATA_INDEX);
-        System.setProperty("fulltext.search.max.results", "10");
-    }
-
-    @AfterAll
-    public static void resetProperties() {
-        System.clearProperty("elastic.commit.index");
-        System.clearProperty("elastic.whois.index");
-        System.clearProperty("fulltext.search.max.results");
     }
 
     @AfterAll
@@ -263,18 +250,6 @@ public class RewriteEngineTestIntegration extends AbstractElasticSearchIntegrati
         assertThat(response.getStatus(), is(HttpStatus.OK_200));
     }
 
-    @Test
-    public void fulltext_search() {
-        rebuildIndex();
-
-        Response response = RestTest.target(getPort(), "fulltextsearch/select?facet=true&format=xml&hl=true&q=(test)&start=0&wt=json")
-                .request()
-                .header(HttpHeaders.HOST, getHost(restApiBaseUrl))
-                .get();
-
-        assertThat(response.getStatus(), is(HttpStatus.OK_200));
-    }
-
     // helper methods
 
     private String getHost(final String url) {
@@ -282,13 +257,4 @@ public class RewriteEngineTestIntegration extends AbstractElasticSearchIntegrati
         return uri.getHost();
     }
 
-    @Override
-    public String getWhoisIndex() {
-        return WHOIS_INDEX;
-    }
-
-    @Override
-    public String getMetadataIndex() {
-        return METADATA_INDEX;
-    }
 }
