@@ -40,7 +40,7 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 
 @Tag("IntegrationTest")
 public class RewriteEngineTestIntegration extends AbstractIntegrationTest {
-    
+
     @BeforeAll
     public static void enableRewriteEngine() {
         System.setProperty("rewrite.engine.enabled", "true");

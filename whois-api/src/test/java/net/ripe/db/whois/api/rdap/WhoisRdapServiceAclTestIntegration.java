@@ -23,7 +23,6 @@ class WhoisRdapServiceAclTestIntegration extends AbstractRdapIntegrationTest {
     @Autowired
     private TestPersonalObjectAccounting testPersonalObjectAccounting;
 
-
     @Test
     public void lookup_person_entity_acl_denied() {
         try {
@@ -46,4 +45,5 @@ class WhoisRdapServiceAclTestIntegration extends AbstractRdapIntegrationTest {
             testPersonalObjectAccounting.resetAccounting();
         }
     }
+
 }

@@ -9,7 +9,7 @@ import javax.ws.rs.NotFoundException;
 
 import static org.junit.jupiter.api.Assertions.fail;
 
-@Tag("ElasticSearchTest")
+@Tag("IntegrationTest")
 public class FullTextSearchNoIndexTestIntegration extends AbstractIntegrationTest {
 
     @Test
