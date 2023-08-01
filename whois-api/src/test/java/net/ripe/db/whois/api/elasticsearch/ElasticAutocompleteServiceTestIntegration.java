@@ -259,8 +259,7 @@ public class ElasticAutocompleteServiceTestIntegration extends AbstractElasticSe
     }
 
     @Test
-    @Disabled
-    public void key_type_invalid_query_characters() {
+    public void search_using_asterisk() {
         databaseHelper.addObject(
                 "mntner:        test-mnt\n" +
                         "source:        TEST");
@@ -268,7 +267,7 @@ public class ElasticAutocompleteServiceTestIntegration extends AbstractElasticSe
 
         assertThat(
                 query("*test", "mnt-by"),
-                hasSize(0));
+                hasSize(1));
     }
     @Test
     public void multiple_matches_no_duplicates() {
@@ -676,8 +675,7 @@ public class ElasticAutocompleteServiceTestIntegration extends AbstractElasticSe
     }
 
     @Test
-    @Disabled
-    public void select_invalid_query_characters() {
+    public void search_using_asterisk_filtering() {
         databaseHelper.addObject(
                 "role:          test role\n" +
                         "nic-hdl:       tr1-test\n" +
@@ -691,7 +689,7 @@ public class ElasticAutocompleteServiceTestIntegration extends AbstractElasticSe
                         Lists.newArrayList(ObjectType.ROLE),
                         Lists.newArrayList(AttributeType.NIC_HDL, AttributeType.ABUSE_MAILBOX),
                         "*noreply"),
-                hasSize(0));
+                hasSize(1));
     }
 
     @Test
