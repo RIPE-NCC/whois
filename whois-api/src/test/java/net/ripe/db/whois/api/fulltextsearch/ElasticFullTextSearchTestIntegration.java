@@ -1,6 +1,7 @@
 package net.ripe.db.whois.api.fulltextsearch;
 
 import com.google.common.collect.Lists;
+import com.google.common.net.HttpHeaders;
 import net.ripe.db.whois.api.RestTest;
 import net.ripe.db.whois.api.elasticsearch.AbstractElasticSearchIntegrationTest;
 import net.ripe.db.whois.common.ip.IpInterval;
@@ -8,9 +9,12 @@ import net.ripe.db.whois.common.rpsl.RpslObject;
 import net.ripe.db.whois.query.acl.IpResourceConfiguration;
 import net.ripe.db.whois.query.dao.jdbc.JdbcAccessControlListDao;
 import net.ripe.db.whois.query.support.TestPersonalObjectAccounting;
+import org.apache.solr.client.solrj.impl.XMLResponseParser;
 import org.apache.solr.client.solrj.response.FacetField;
 import org.apache.solr.client.solrj.response.QueryResponse;
 import org.apache.solr.common.SolrDocument;
+import org.apache.solr.common.util.NamedList;
+import org.eclipse.jetty.http.HttpStatus;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
@@ -18,20 +22,24 @@ import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.jdbc.core.JdbcTemplate;
 
 import javax.sql.DataSource;
 import javax.ws.rs.BadRequestException;
 import javax.ws.rs.ClientErrorException;
+import javax.ws.rs.NotFoundException;
+import javax.ws.rs.core.Response;
 import java.io.IOException;
+import java.io.StringReader;
 import java.net.Inet4Address;
+import java.net.URI;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import static net.ripe.db.whois.api.fulltextsearch.FullTextSolrUtils.parseResponse;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.Matchers.containsInAnyOrder;
@@ -52,6 +60,8 @@ public class ElasticFullTextSearchTestIntegration extends AbstractElasticSearchI
     @Autowired JdbcAccessControlListDao jdbcAccessControlListDao;
     @Autowired IpResourceConfiguration ipResourceConfiguration;
 
+    @Value("${api.rest.baseurl}")
+    private String restApiBaseUrl;
     private JdbcTemplate aclJdbcTemplate;
 
     @BeforeAll
@@ -2338,6 +2348,19 @@ public class ElasticFullTextSearchTestIntegration extends AbstractElasticSearchI
     }
 
     @Test
+    public void fulltext_search() {
+        Response response = RestTest.target(getPort(), "whois/fulltextsearch/select?facet=true&format=xml&hl=true&q=remark&start=0&wt=json")
+                .request()
+                .header(HttpHeaders.HOST, getHost(restApiBaseUrl))
+                .get();
+
+        assertThat(response.getStatus(), is(HttpStatus.OK_200));
+    }
+    private String getHost(final String url) {
+        final URI uri = URI.create(url);
+        return uri.getHost();
+    }
+    @Test
     public void request_bad_syntax_query_bad_request() {
         final BadRequestException badRequestException = assertThrows(BadRequestException.class, () -> {
             query("facet=true&format=xml&hl=true&q=(TEST%20AND%20BANK%20NOT)&start=0&wt=json&rows=10");
@@ -2361,6 +2384,16 @@ public class ElasticFullTextSearchTestIntegration extends AbstractElasticSearchI
         });
         assertThat(badRequestException.getMessage(), is("HTTP 400 Bad Request"));
         assertThat(badRequestException.getResponse().readEntity(String.class), is("Exceeded maximum 100000 documents"));
+    }
+
+    @Test
+    public void search() {
+        try {
+            searchQuery("q=test");
+            fail();
+        } catch (NotFoundException e) {
+            // expected
+        }
     }
     // helper methods
 
@@ -2390,9 +2423,20 @@ public class ElasticFullTextSearchTestIntegration extends AbstractElasticSearchI
                     .collect(Collectors.toList());
     }
 
+    private String searchQuery(final String queryString) {
+        return RestTest.target(getPort(), "search?" + queryString)
+                .request()
+                .get(String.class);
+    }
     private long numFound(final QueryResponse queryResponse) {
         return queryResponse.getResults().getNumFound();
     }
 
+    private static QueryResponse parseResponse(final String fullTextResponse) {
+        final NamedList<Object> namedList = new XMLResponseParser().processResponse(new StringReader(fullTextResponse));
+        final QueryResponse queryResponse = new QueryResponse();
+        queryResponse.setResponse(namedList);
+        return queryResponse;
+    }
 }
 

@@ -32,12 +32,16 @@ import java.io.IOException;
 import java.util.List;
 import java.util.Set;
 
-import static net.ripe.db.whois.api.autocomplete.ElasticAutocompleteSearch.LOOKUP_KEY_FIELD_NAME;
-import static net.ripe.db.whois.api.autocomplete.ElasticAutocompleteSearch.OBJECT_TYPE_FIELD_NAME;
 import static org.slf4j.LoggerFactory.getLogger;
 
 @Component
 public class ElasticIndexService {
+
+    public static final String OBJECT_TYPE_FIELD_NAME = "object-type";
+
+    public static final String PRIMARY_KEY_FIELD_NAME = "primary-key";
+
+    public static final String LOOKUP_KEY_FIELD_NAME = "lookup-key";
     private static final Logger LOGGER = getLogger(ElasticIndexService.class);
 
     public static final Set<AttributeType> SKIPPED_ATTRIBUTES = Sets.newEnumSet(Sets.newHashSet(AttributeType.CERTIF,

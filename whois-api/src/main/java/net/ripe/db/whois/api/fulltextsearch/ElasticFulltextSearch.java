@@ -44,9 +44,9 @@ import java.util.Set;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
-import static net.ripe.db.whois.api.autocomplete.ElasticAutocompleteSearch.LOOKUP_KEY_FIELD_NAME;
-import static net.ripe.db.whois.api.autocomplete.ElasticAutocompleteSearch.OBJECT_TYPE_FIELD_NAME;
-import static net.ripe.db.whois.api.autocomplete.ElasticAutocompleteSearch.PRIMARY_KEY_FIELD_NAME;
+import static net.ripe.db.whois.api.elasticsearch.ElasticIndexService.LOOKUP_KEY_FIELD_NAME;
+import static net.ripe.db.whois.api.elasticsearch.ElasticIndexService.OBJECT_TYPE_FIELD_NAME;
+import static net.ripe.db.whois.api.elasticsearch.ElasticIndexService.PRIMARY_KEY_FIELD_NAME;
 
 @Component
 public class ElasticFulltextSearch extends FulltextSearch {

@@ -29,12 +29,13 @@ import java.util.Set;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
+import static net.ripe.db.whois.api.elasticsearch.ElasticIndexService.LOOKUP_KEY_FIELD_NAME;
+import static net.ripe.db.whois.api.elasticsearch.ElasticIndexService.OBJECT_TYPE_FIELD_NAME;
+
 @Component
 public class ElasticAutocompleteSearch implements AutocompleteSearch {
 
-    public static final String OBJECT_TYPE_FIELD_NAME = "object-type";
-    public static final String PRIMARY_KEY_FIELD_NAME = "primary-key";
-    public static final String LOOKUP_KEY_FIELD_NAME = "lookup-key";
+
     private static final int MAX_SEARCH_RESULTS = 10;
     private static final Pattern COMMENT_PATTERN = Pattern.compile("#.*");
     public static final List<SortBuilder<?>> SORT_BUILDERS = Arrays.asList(SortBuilders.scoreSort(), SortBuilders.fieldSort("lookup-key.raw").unmappedType("keyword"));
