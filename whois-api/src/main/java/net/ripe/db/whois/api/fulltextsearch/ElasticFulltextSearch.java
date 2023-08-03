@@ -2,7 +2,6 @@ package net.ripe.db.whois.api.fulltextsearch;
 
 import com.google.common.base.Stopwatch;
 import com.google.common.collect.Lists;
-import net.ripe.db.whois.api.autocomplete.ElasticSearchCondition;
 import net.ripe.db.whois.api.elasticsearch.ElasticIndexService;
 import net.ripe.db.whois.api.elasticsearch.ElasticSearchAccountingCallback;
 import net.ripe.db.whois.common.ApplicationVersion;
@@ -33,7 +32,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.context.annotation.Conditional;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.Nullable;
@@ -46,8 +44,11 @@ import java.util.Set;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
+import static net.ripe.db.whois.api.elasticsearch.ElasticIndexService.LOOKUP_KEY_FIELD_NAME;
+import static net.ripe.db.whois.api.elasticsearch.ElasticIndexService.OBJECT_TYPE_FIELD_NAME;
+import static net.ripe.db.whois.api.elasticsearch.ElasticIndexService.PRIMARY_KEY_FIELD_NAME;
+
 @Component
-@Conditional(ElasticSearchCondition.class)
 public class ElasticFulltextSearch extends FulltextSearch {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(ElasticFulltextSearch.class);
@@ -108,12 +109,12 @@ public class ElasticFulltextSearch extends FulltextSearch {
                     final List<RpslAttribute> attributes = Lists.newArrayList();
                     highlightDocs.add(createHighlights(hit));
 
-                    final ObjectType objectType = ObjectType.getByName(hitAttributes.get(FullTextIndex.OBJECT_TYPE_FIELD_NAME).toString());
-                    final String pKey = hitAttributes.get(FullTextIndex.LOOKUP_KEY_FIELD_NAME).toString();
+                    final ObjectType objectType = ObjectType.getByName(hitAttributes.get(OBJECT_TYPE_FIELD_NAME).toString());
+                    final String pKey = hitAttributes.get(LOOKUP_KEY_FIELD_NAME).toString();
 
-                    responseStrs.add(new SearchResponse.Str(FullTextIndex.PRIMARY_KEY_FIELD_NAME, hit.getId()));
-                    responseStrs.add(new SearchResponse.Str(FullTextIndex.OBJECT_TYPE_FIELD_NAME, objectType.getName()));
-                    responseStrs.add(new SearchResponse.Str(FullTextIndex.LOOKUP_KEY_FIELD_NAME, pKey));
+                    responseStrs.add(new SearchResponse.Str(PRIMARY_KEY_FIELD_NAME, hit.getId()));
+                    responseStrs.add(new SearchResponse.Str(OBJECT_TYPE_FIELD_NAME, objectType.getName()));
+                    responseStrs.add(new SearchResponse.Str(LOOKUP_KEY_FIELD_NAME, pKey));
                     
                     final Set<AttributeType> templateAttributes = ObjectTemplate.getTemplate(objectType).getAllAttributes();
 

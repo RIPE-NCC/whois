@@ -3,7 +3,6 @@ package net.ripe.db.whois.api.rdap;
 import com.google.common.collect.Lists;
 import com.google.common.net.HttpHeaders;
 import net.ripe.db.whois.api.RestTest;
-import net.ripe.db.whois.api.fulltextsearch.FullTextIndex;
 import net.ripe.db.whois.api.rdap.domain.Action;
 import net.ripe.db.whois.api.rdap.domain.Autnum;
 import net.ripe.db.whois.api.rdap.domain.Domain;
@@ -16,11 +15,9 @@ import net.ripe.db.whois.api.rdap.domain.Notice;
 import net.ripe.db.whois.api.rdap.domain.RdapObject;
 import net.ripe.db.whois.api.rdap.domain.Remark;
 import net.ripe.db.whois.api.rdap.domain.Role;
-import net.ripe.db.whois.api.rdap.domain.SearchResult;
 import net.ripe.db.whois.common.rpsl.RpslObject;
 import net.ripe.db.whois.query.support.TestWhoisLog;
 import org.eclipse.jetty.http.HttpStatus;
-import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Tag;
@@ -35,10 +32,8 @@ import javax.ws.rs.ServerErrorException;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.time.LocalDateTime;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
-import java.util.stream.Collectors;
 
 import static net.ripe.db.whois.common.support.DateMatcher.isBefore;
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -60,15 +55,7 @@ import static org.junit.jupiter.api.Assertions.fail;
 public class WhoisRdapServiceTestIntegration extends AbstractRdapIntegrationTest {
 
     @Autowired
-    FullTextIndex fullTextIndex;
-    @Autowired
     TestWhoisLog queryLog;
-
-
-    @BeforeAll
-    public static void beforeClass() {
-        System.setProperty("rdap.entity.max.results", "3");
-    }
 
     @BeforeEach
     public void setup() {
@@ -2292,60 +2279,6 @@ public class WhoisRdapServiceTestIntegration extends AbstractRdapIntegrationTest
         assertTnCNotice(notices.get(2), "https://rdap.db.ripe.net/entity/ORG-ONE-TEST");
     }
 
-    // search
-
-    // search - domain
-
-    @Test
-    public void search_domain_not_found() {
-        final NotFoundException notFoundException = assertThrows(NotFoundException.class, () -> {
-            fullTextIndex.rebuild();
-            createResource("domains?name=ripe.net")
-                    .request(MediaType.APPLICATION_JSON_TYPE)
-                    .get(Entity.class);
-        });
-        assertErrorStatus(notFoundException, 404);
-        assertErrorTitle(notFoundException, "404 Not Found");
-        assertErrorDescription(notFoundException, "Requested object not found: ripe.net");
-    }
-
-    @Test
-    public void search_domain_exact_match() {
-        fullTextIndex.rebuild();
-
-        final SearchResult response = createResource("domains?name=31.12.202.in-addr.arpa")
-                .request(MediaType.APPLICATION_JSON_TYPE)
-                .get(SearchResult.class);
-
-        assertThat(response.getDomainSearchResults().get(0).getHandle(), equalTo("31.12.202.in-addr.arpa"));
-    }
-
-    @Test
-    public void search_domain_is_case_insensitive() {
-        fullTextIndex.rebuild();
-
-        final SearchResult response = createResource("domains?name=31.12.202.IN-AddR.arpa")     // mixed case in request
-                .request(MediaType.APPLICATION_JSON_TYPE)
-                .get(SearchResult.class);
-
-        assertThat(response.getDomainSearchResults().get(0).getHandle(), equalTo("31.12.202.in-addr.arpa"));
-    }
-
-    // search - nameservers
-
-    @Test
-    public void search_nameservers_not_found() {
-        final ServerErrorException serverErrorException = assertThrows(ServerErrorException.class, () -> {
-            fullTextIndex.rebuild();
-            createResource("nameservers?name=ns1.ripe.net")
-                    .request(MediaType.APPLICATION_JSON_TYPE)
-                    .get(Entity.class);
-        });
-        assertErrorStatus(serverErrorException, 501);
-        assertErrorTitle(serverErrorException, "501 Not Implemented");
-        assertErrorDescription(serverErrorException, "Nameserver not supported");
-    }
-
     @Test
     public void lookup_nameserver_not_found() {
         final ServerErrorException serverErrorException = assertThrows(ServerErrorException.class, () -> {
@@ -2358,243 +2291,7 @@ public class WhoisRdapServiceTestIntegration extends AbstractRdapIntegrationTest
         assertErrorDescription(serverErrorException, "Nameserver not supported");
     }
 
-    // search - entities - person
-
-    @Test
-    public void search_entity_person_by_name() {
-        fullTextIndex.rebuild();
-
-        final SearchResult response = createResource("entities?fn=Test%20Person")
-                .request(MediaType.APPLICATION_JSON_TYPE)
-                .get(SearchResult.class);
-
-        assertThat(response.getEntitySearchResults().get(0).getHandle(), equalTo("TP1-TEST"));
-    }
-
-    @Test
-    public void search_entity_person_object_deleted_before_index_updated() {
-        final RpslObject person = RpslObject.parse("person: Lost Person\nnic-hdl: LP1-TEST\nsource: TEST");
-        databaseHelper.addObject(person);
-        fullTextIndex.rebuild();
-        databaseHelper.deleteObject(person);
-
-        final NotFoundException notFoundException = assertThrows(NotFoundException.class, () -> {
-            createResource("entities?fn=Lost%20Person")
-                    .request(MediaType.APPLICATION_JSON_TYPE)
-                    .get(SearchResult.class);
-        });
-        assertErrorStatus(notFoundException, 404);
-        assertErrorTitle(notFoundException, "404 Not Found");
-        assertErrorDescription(notFoundException, "Requested object not found: Lost Person");
-    }
-
-    @Test
-    public void search_entity_person_by_name_is_case_insensitive() {
-        fullTextIndex.rebuild();
-
-        final SearchResult response = createResource("entities?fn=tESt%20PeRSOn")       // mixed case in request
-                .request(MediaType.APPLICATION_JSON_TYPE)
-                .get(SearchResult.class);
-
-        assertThat(response.getEntitySearchResults().get(0).getHandle(), equalTo("TP1-TEST"));
-    }
-
-    @Test
-    public void search_entity_person_umlaut() {
-        databaseHelper.addObject("person: Tëst Person3\nnic-hdl:TP3-TEST\ncreated:2022-08-14T11:48:28Z\nlast-modified:2022-10-25T12:22:39Z\nsource: TEST");
-        fullTextIndex.rebuild();
-
-        final SearchResult response = createResource("entities?fn=Tëst%20Person3")
-                .request(MediaType.APPLICATION_JSON_TYPE)
-                .get(SearchResult.class);
-
-        assertThat(response.getEntitySearchResults().get(0).getHandle(), equalTo("TP3-TEST"));
-    }
-
-    @Test
-    public void search_entity_person_umlaut_latin1_encoded() {
-        databaseHelper.addObject("person: Tëst Person3\nnic-hdl:TP3-TEST\ncreated:2022-08-14T11:48:28Z\nlast-modified:2022-10-25T12:22:39Z\nsource: TEST");
-        fullTextIndex.rebuild();
-
-        final NotFoundException notFoundException = assertThrows(NotFoundException.class, () -> {
-            createResource("entities?fn=T%EBst%20Person3")
-                    .request(MediaType.APPLICATION_JSON_TYPE)
-                    .get(SearchResult.class);
-        });
-        assertErrorStatus(notFoundException, 404);
-        assertErrorTitle(notFoundException, "404 Not Found");
-        assertErrorDescriptionContains(notFoundException, "st Person3");
-    }
-
-    @Test
-    public void search_entity_person_umlaut_utf8_encoded() {
-        databaseHelper.addObject("person: Tëst Person3\nnic-hdl:TP3-TEST\ncreated:2022-08-14T11:48:28Z\nlast-modified:2022-10-25T12:22:39Z\nsource: TEST");
-        fullTextIndex.rebuild();
-
-        final SearchResult response = createResource("entities?fn=T%C3%ABst%20Person3")
-                .request(MediaType.APPLICATION_JSON_TYPE)
-                .get(SearchResult.class);
-
-        assertThat(response.getEntitySearchResults().get(0).getHandle(), equalTo("TP3-TEST"));
-    }
-
-    @Test
-    public void search_entity_person_umlaut_substitution() {
-        databaseHelper.addObject("person: Tëst Person3\nnic-hdl: TP3-TEST\nsource: TEST");
-        fullTextIndex.rebuild();
-
-        final NotFoundException notFoundException = assertThrows(NotFoundException.class, () -> {
-            createResource("entities?fn=Test%20Person3")
-                    .request(MediaType.APPLICATION_JSON_TYPE)
-                    .get(SearchResult.class);
-        });
-        assertErrorStatus(notFoundException, 404);
-        assertErrorTitle(notFoundException, "404 Not Found");
-        assertErrorDescription(notFoundException, "Requested object not found: Test Person3");
-    }
-
-    @Test
-    public void search_entity_person_by_name_not_found() {
-        final NotFoundException notFoundException = assertThrows(NotFoundException.class, () -> {
-            fullTextIndex.rebuild();
-            createResource("entities?fn=Santa%20Claus")
-                    .request(MediaType.APPLICATION_JSON_TYPE)
-                    .get(Entity.class);
-        });
-        assertErrorStatus(notFoundException, 404);
-        assertErrorTitle(notFoundException, "404 Not Found");
-        assertErrorDescription(notFoundException, "Requested object not found: Santa Claus");
-    }
-
-    @Test
-    public void search_entity_person_by_handle() {
-        fullTextIndex.rebuild();
-
-        final SearchResult response = createResource("entities?handle=TP2-TEST")
-                .request(MediaType.APPLICATION_JSON_TYPE)
-                .get(SearchResult.class);
-
-        assertThat(response.getEntitySearchResults().get(0).getHandle(), equalTo("TP2-TEST"));
-    }
-
-    @Test
-    public void search_entity_person_by_handle_is_case_insensitive() {
-        fullTextIndex.rebuild();
-
-        final SearchResult response = createResource("entities?handle=Tp2-tESt")       // mixed case in request
-                .request(MediaType.APPLICATION_JSON_TYPE)
-                .get(SearchResult.class);
-
-        assertThat(response.getEntitySearchResults().get(0).getHandle(), equalTo("TP2-TEST"));
-    }
-
-    @Test
-    public void search_entity_person_by_handle_not_found() {
-        final NotFoundException notFoundException = assertThrows(NotFoundException.class, () -> {
-            fullTextIndex.rebuild();
-            createResource("entities?handle=XYZ-TEST")
-                    .request(MediaType.APPLICATION_JSON_TYPE)
-                    .get(Entity.class);
-        });
-        assertErrorStatus(notFoundException, 404);
-        assertErrorTitle(notFoundException, "404 Not Found");
-        assertErrorDescription(notFoundException, "Requested object not found: XYZ-TEST");
-    }
-
-    // search - entities - role
-
-    @Test
-    public void search_entity_role_by_name() {
-        fullTextIndex.rebuild();
-
-        final SearchResult response = createResource("entities?handle=FR*-TEST")
-                .request(MediaType.APPLICATION_JSON_TYPE)
-                .get(SearchResult.class);
-
-        assertThat(response.getEntitySearchResults().get(0).getHandle(), equalTo("FR1-TEST"));
-    }
-
-    @Test
-    public void search_entity_role_by_handle() {
-        fullTextIndex.rebuild();
-
-        final SearchResult response = createResource("entities?fn=F*st%20Role")
-                .request(MediaType.APPLICATION_JSON_TYPE)
-                .get(SearchResult.class);
-
-        assertThat(response.getEntitySearchResults().get(0).getHandle(), equalTo("FR1-TEST"));
-    }
-
     // search - entities - organisation
-
-    @Test
-    public void search_entity_organisation_by_name() {
-        fullTextIndex.rebuild();
-
-        final SearchResult response = createResource("entities?fn=organisation")
-                .request(MediaType.APPLICATION_JSON_TYPE)
-                .get(SearchResult.class);
-
-        assertThat(response.getEntitySearchResults().get(0).getHandle(), equalTo("ORG-TEST1-TEST"));
-    }
-
-    @Test
-    public void search_entity_organisation_by_name_is_case_insensitive() {
-        fullTextIndex.rebuild();
-
-        final SearchResult response = createResource("entities?fn=ORGanisAtioN")
-                .request(MediaType.APPLICATION_JSON_TYPE)
-                .get(SearchResult.class);
-
-        assertThat(response.getEntitySearchResults().get(0).getHandle(), equalTo("ORG-TEST1-TEST"));
-    }
-
-    @Test
-    public void search_entity_organisation_by_handle() {
-        fullTextIndex.rebuild();
-
-        final SearchResult response = createResource("entities?handle=ORG-TEST1-TEST")
-                .request(MediaType.APPLICATION_JSON_TYPE)
-                .get(SearchResult.class);
-
-        assertThat(response.getEntitySearchResults().get(0).getHandle(), equalTo("ORG-TEST1-TEST"));
-    }
-
-    @Test
-    public void search_entity_without_query_params() {
-        final BadRequestException badRequestException = assertThrows(BadRequestException.class, () -> {
-            createResource("entities")
-                    .request(MediaType.APPLICATION_JSON_TYPE)
-                    .get(Entity.class);
-        });
-        assertErrorStatus(badRequestException, 400);
-        assertErrorTitle(badRequestException, "400 Bad Request");
-        assertErrorDescription(badRequestException, "The server is not able to process the request");
-    }
-
-    @Test
-    public void search_entity_both_fn_and_handle_query_params() {
-        final BadRequestException badRequestException = assertThrows(BadRequestException.class, () -> {
-            createResource("entities?fn=XXXX&handle=YYYY")
-                    .request(MediaType.APPLICATION_JSON_TYPE)
-                    .get(Entity.class);
-        });
-        assertErrorStatus(badRequestException, 400);
-        assertErrorTitle(badRequestException, "400 Bad Request");
-        assertErrorDescription(badRequestException, "The server is not able to process the request");
-    }
-
-    @Test
-    public void search_entity_empty_name() {
-        final BadRequestException badRequestException = assertThrows(BadRequestException.class, () -> {
-            createResource("entities?fn=")
-                    .request(MediaType.APPLICATION_JSON_TYPE)
-                    .get(Entity.class);
-        });
-        assertErrorStatus(badRequestException, 400);
-        assertErrorTitle(badRequestException, "400 Bad Request");
-        assertErrorDescription(badRequestException, "Empty search term");
-    }
 
     @Test
     public void search_entity_empty_handle() {
@@ -2606,33 +2303,6 @@ public class WhoisRdapServiceTestIntegration extends AbstractRdapIntegrationTest
         assertErrorStatus(badRequestException, 400);
         assertErrorTitle(badRequestException, "400 Bad Request");
         assertErrorDescription(badRequestException, "Empty search term");
-    }
-
-    @Test
-    public void search_entity_multiple_object_response() {
-        fullTextIndex.rebuild();
-
-        final SearchResult result = createResource("entities?handle=*TEST")
-                .request(MediaType.APPLICATION_JSON_TYPE)
-                .get(SearchResult.class);
-
-        assertThat(
-                result.getEntitySearchResults()
-                        .stream()
-                        .map(Entity::getHandle)
-                        .collect(Collectors.toList()),
-                containsInAnyOrder("TP1-TEST", "TP2-TEST", "PP1-TEST", "FR1-TEST", "ORG-TEST1-TEST"));
-        assertThat(
-                result.getEntitySearchResults()
-                        .stream()
-                        .filter(entity -> entity.getHandle().equals("ORG-TEST1-TEST"))
-                        .map(RdapObject::getNotices)
-                        .flatMap(Collection::stream)
-                        .map(Notice::getTitle)
-                        .collect(Collectors.toList()),
-                containsInAnyOrder("Source", "Filtered", "Whois Inaccuracy Reporting"));
-        assertThat(result.getNotices(), hasSize(1));
-        assertThat(result.getNotices().get(0).getTitle(), is("Terms and Conditions"));
     }
 
     // Cross-origin requests
@@ -2821,5 +2491,4 @@ public class WhoisRdapServiceTestIntegration extends AbstractRdapIntegrationTest
         assertThat(notice.getLinks().get(0).getType(), is("application/pdf"));
         assertThat(notice.getLinks().get(0).getValue(), is(value));
     }
-
 }

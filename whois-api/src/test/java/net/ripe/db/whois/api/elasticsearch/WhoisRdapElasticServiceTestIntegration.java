@@ -27,6 +27,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import javax.ws.rs.BadRequestException;
 import javax.ws.rs.ClientErrorException;
 import javax.ws.rs.NotFoundException;
+import javax.ws.rs.ServerErrorException;
 import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.client.WebTarget;
 import javax.ws.rs.core.MediaType;
@@ -47,6 +48,7 @@ import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.fail;
 
 @Tag("ElasticSearchTest")
@@ -72,9 +74,6 @@ public class WhoisRdapElasticServiceTestIntegration extends AbstractElasticSearc
         System.setProperty("rdap.sources", "TEST-GRS");
         System.setProperty("rdap.redirect.test", "https://rdap.test.net");
         System.setProperty("rdap.public.baseUrl", "https://rdap.db.ripe.net");
-
-        // We only enable fulltext indexing here, so it doesn't slow down the rest of the test suite
-        System.setProperty("dir.fulltext.index", "var${jvmId:}/idx");
     }
 
     @AfterAll
@@ -84,7 +83,6 @@ public class WhoisRdapElasticServiceTestIntegration extends AbstractElasticSearc
         System.clearProperty("rdap.sources");
         System.clearProperty("rdap.redirect.test");
         System.clearProperty("rdap.public.baseUrl");
-        System.clearProperty("dir.fulltext.index");
     }
 
     @BeforeEach
@@ -338,14 +336,15 @@ public class WhoisRdapElasticServiceTestIntegration extends AbstractElasticSearc
 
     @Test
     public void search_domain_not_found() {
-        try {
+        final NotFoundException notFoundException = assertThrows(NotFoundException.class, () -> {
+            rebuildIndex();
             createResource("domains?name=ripe.net")
                     .request(MediaType.APPLICATION_JSON_TYPE)
                     .get(Entity.class);
-            fail();
-        } catch (NotFoundException e) {
-            assertErrorTitle(e, "404 Not Found");
-        }
+        });
+        assertErrorStatus(notFoundException, 404);
+        assertErrorTitle(notFoundException, "404 Not Found");
+        assertErrorDescription(notFoundException, "Requested object not found: ripe.net");
     }
 
     @Test
@@ -369,7 +368,6 @@ public class WhoisRdapElasticServiceTestIntegration extends AbstractElasticSearc
 
     @Test
     public void search_domain_is_case_insensitive() {
-
         final SearchResult response = createResource("domains?name=31.12.202.IN-AddR.arpa")     // mixed case in request
                 .request(MediaType.APPLICATION_JSON_TYPE)
                 .get(SearchResult.class);
@@ -377,6 +375,18 @@ public class WhoisRdapElasticServiceTestIntegration extends AbstractElasticSearc
         assertThat(response.getDomainSearchResults().get(0).getHandle(), equalTo("31.12.202.in-addr.arpa"));
     }
 
+    @Test
+    public void search_nameservers_not_found() {
+        final ServerErrorException serverErrorException = assertThrows(ServerErrorException.class, () -> {
+            rebuildIndex();
+            createResource("nameservers?name=ns1.ripe.net")
+                    .request(MediaType.APPLICATION_JSON_TYPE)
+                    .get(Entity.class);
+        });
+        assertErrorStatus(serverErrorException, 501);
+        assertErrorTitle(serverErrorException, "501 Not Implemented");
+        assertErrorDescription(serverErrorException, "Nameserver not supported");
+    }
 
     // search - entities - person
 
@@ -397,14 +407,14 @@ public class WhoisRdapElasticServiceTestIntegration extends AbstractElasticSearc
         rebuildIndex();
         databaseHelper.deleteObject(person);
 
-        try {
+        final NotFoundException notFoundException = assertThrows(NotFoundException.class, () -> {
             createResource("entities?fn=Lost%20Person")
                     .request(MediaType.APPLICATION_JSON_TYPE)
                     .get(SearchResult.class);
-            fail();
-        } catch (NotFoundException e) {
-            assertErrorTitle(e, "404 Not Found");
-        }
+        });
+        assertErrorStatus(notFoundException, 404);
+        assertErrorTitle(notFoundException, "404 Not Found");
+        assertErrorDescription(notFoundException, "Requested object not found: Lost Person");
     }
 
     @Test
@@ -431,14 +441,14 @@ public class WhoisRdapElasticServiceTestIntegration extends AbstractElasticSearc
         databaseHelper.addObject("person: Tëst Person3\nnic-hdl: TP3-TEST\ncreated: 2022-08-14T11:48:28Z\nlast-modified:   2022-10-25T12:22:39Z\nsource: TEST");
         rebuildIndex();
 
-        try {
+        final NotFoundException notFoundException = assertThrows(NotFoundException.class, () -> {
             createResource("entities?fn=T%EBst%20Person3")
-                .request(MediaType.APPLICATION_JSON_TYPE)
-                .get(SearchResult.class);
-            fail();
-        } catch (NotFoundException e) {
-            // expected - Jetty uses UTF-8 when decoding characters, not latin1
-        }
+                    .request(MediaType.APPLICATION_JSON_TYPE)
+                    .get(SearchResult.class);
+        });
+        assertErrorStatus(notFoundException, 404);
+        assertErrorTitle(notFoundException, "404 Not Found");
+        assertErrorDescriptionContains(notFoundException, "st Person3");
     }
 
     @Test
@@ -458,26 +468,27 @@ public class WhoisRdapElasticServiceTestIntegration extends AbstractElasticSearc
         databaseHelper.addObject("person: Tëst Person3\nnic-hdl: TP3-TEST\ncreated: 2022-08-14T11:48:28Z\nlast-modified:   2022-10-25T12:22:39Z\nsource: TEST");
         rebuildIndex();
 
-        try {
+        final NotFoundException notFoundException = assertThrows(NotFoundException.class, () -> {
             createResource("entities?fn=Test%20Person3")
-                .request(MediaType.APPLICATION_JSON_TYPE)
-                .get(SearchResult.class);
-            fail();
-        } catch (NotFoundException e) {
-            // expected (no character substitution)
-        }
+                    .request(MediaType.APPLICATION_JSON_TYPE)
+                    .get(SearchResult.class);
+        });
+        assertErrorStatus(notFoundException, 404);
+        assertErrorTitle(notFoundException, "404 Not Found");
+        assertErrorDescription(notFoundException, "Requested object not found: Test Person3");
     }
 
     @Test
     public void search_entity_person_by_name_not_found() {
-        try {
+        final NotFoundException notFoundException = assertThrows(NotFoundException.class, () -> {
+            rebuildIndex();
             createResource("entities?fn=Santa%20Claus")
                     .request(MediaType.APPLICATION_JSON_TYPE)
                     .get(Entity.class);
-            fail();
-        } catch (NotFoundException e) {
-            assertErrorTitle(e, "404 Not Found");
-        }
+        });
+        assertErrorStatus(notFoundException, 404);
+        assertErrorTitle(notFoundException, "404 Not Found");
+        assertErrorDescription(notFoundException, "Requested object not found: Santa Claus");
     }
 
     @Test
@@ -502,14 +513,15 @@ public class WhoisRdapElasticServiceTestIntegration extends AbstractElasticSearc
 
     @Test
     public void search_entity_person_by_handle_not_found() {
-        try {
+        final NotFoundException notFoundException = assertThrows(NotFoundException.class, () -> {
             createResource("entities?handle=XYZ-TEST")
                     .request(MediaType.APPLICATION_JSON_TYPE)
                     .get(Entity.class);
             fail();
-        } catch (NotFoundException e) {
-            assertErrorTitle(e, "404 Not Found");
-        }
+        });
+        assertErrorStatus(notFoundException, 404);
+        assertErrorTitle(notFoundException, "404 Not Found");
+        assertErrorDescription(notFoundException, "Requested object not found: XYZ-TEST");
     }
 
     // search - entities - role
@@ -568,44 +580,39 @@ public class WhoisRdapElasticServiceTestIntegration extends AbstractElasticSearc
 
     @Test
     public void search_entity_without_query_params() {
-        try {
+        final BadRequestException badRequestException = assertThrows(BadRequestException.class, () -> {
             createResource("entities")
                     .request(MediaType.APPLICATION_JSON_TYPE)
                     .get(Entity.class);
             fail();
-        } catch (BadRequestException e) {
-            assertErrorStatus(e, 400);
-            assertErrorTitle(e, "400 Bad Request");
-            assertErrorDescription(e, "The server is not able to process the request");
-        }
+        });
+        assertErrorStatus(badRequestException, 400);
+        assertErrorTitle(badRequestException, "400 Bad Request");
+        assertErrorDescription(badRequestException, "The server is not able to process the request");
     }
 
     @Test
     public void search_entity_both_fn_and_handle_query_params() {
-        try {
+        final BadRequestException badRequestException = assertThrows(BadRequestException.class, () -> {
             createResource("entities?fn=XXXX&handle=YYYY")
                     .request(MediaType.APPLICATION_JSON_TYPE)
                     .get(Entity.class);
-            fail();
-        } catch (BadRequestException e) {
-            assertErrorStatus(e, 400);
-            assertErrorTitle(e, "400 Bad Request");
-            assertErrorDescription(e, "The server is not able to process the request");
-        }
+        });
+        assertErrorStatus(badRequestException, 400);
+        assertErrorTitle(badRequestException, "400 Bad Request");
+        assertErrorDescription(badRequestException, "The server is not able to process the request");
     }
 
     @Test
     public void search_entity_empty_name() {
-        try {
+        final BadRequestException badRequestException = assertThrows(BadRequestException.class, () -> {
             createResource("entities?fn=")
                     .request(MediaType.APPLICATION_JSON_TYPE)
                     .get(Entity.class);
-            fail();
-        } catch (BadRequestException e) {
-            assertErrorStatus(e, 400);
-            assertErrorTitle(e, "400 Bad Request");
-            assertErrorDescription(e, "Empty search term");
-        }
+        });
+        assertErrorStatus(badRequestException, 400);
+        assertErrorTitle(badRequestException, "400 Bad Request");
+        assertErrorDescription(badRequestException, "Empty search term");
     }
 
     @Test
@@ -728,18 +735,23 @@ public class WhoisRdapElasticServiceTestIntegration extends AbstractElasticSearc
         final Entity entity = exception.getResponse().readEntity(Entity.class);
         assertThat(entity.getDescription().get(0), is(description));
     }
-    protected void assertErrorTitle(final ClientErrorException exception, final String title) {
+    protected void assertErrorTitle(final WebApplicationException exception, final String title) {
         final Entity entity = exception.getResponse().readEntity(Entity.class);
         assertThat(entity.getErrorTitle(), is(title));
     }
 
-    protected void assertErrorStatus(final ClientErrorException exception, final int status) {
+    protected void assertErrorStatus(final WebApplicationException exception, final int status) {
         final Entity entity = exception.getResponse().readEntity(Entity.class);
         assertThat(entity.getErrorCode(), is(status));
     }
 
-    protected void assertErrorTitleContains(final ClientErrorException exception, final String title) {
+    protected void assertErrorTitleContains(final WebApplicationException exception, final String title) {
         final Entity entity = exception.getResponse().readEntity(Entity.class);
         assertThat(entity.getErrorTitle(), containsString(title));
+    }
+
+    protected void assertErrorDescriptionContains(final WebApplicationException exception, final String description) {
+        final Entity entity = exception.getResponse().readEntity(Entity.class);
+        assertThat(entity.getDescription().get(0), containsString(description));
     }
 }
