@@ -3,7 +3,6 @@ package net.ripe.db.whois.api.elasticsearch;
 import com.google.common.base.CharMatcher;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
-import net.ripe.db.whois.api.fulltextsearch.FullTextIndex;
 import net.ripe.db.whois.common.rpsl.AttributeType;
 import net.ripe.db.whois.common.rpsl.ObjectTemplate;
 import net.ripe.db.whois.common.rpsl.RpslAttribute;
@@ -37,6 +36,12 @@ import static org.slf4j.LoggerFactory.getLogger;
 
 @Component
 public class ElasticIndexService {
+
+    public static final String OBJECT_TYPE_FIELD_NAME = "object-type";
+
+    public static final String PRIMARY_KEY_FIELD_NAME = "primary-key";
+
+    public static final String LOOKUP_KEY_FIELD_NAME = "lookup-key";
     private static final Logger LOGGER = getLogger(ElasticIndexService.class);
 
     public static final Set<AttributeType> SKIPPED_ATTRIBUTES = Sets.newEnumSet(Sets.newHashSet(AttributeType.CERTIF,
@@ -218,8 +223,8 @@ public class ElasticIndexService {
             }
         }
 
-        builder.field(FullTextIndex.LOOKUP_KEY_FIELD_NAME, rpslObject.getKey().toString());
-        builder.field(FullTextIndex.OBJECT_TYPE_FIELD_NAME, filterRpslObject.getType().getName());
+        builder.field(LOOKUP_KEY_FIELD_NAME, rpslObject.getKey().toString());
+        builder.field(OBJECT_TYPE_FIELD_NAME, filterRpslObject.getType().getName());
 
         return builder.endObject();
     }
