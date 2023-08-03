@@ -257,11 +257,11 @@ public class WhoisRdapQueryLimitTestIntegration extends AbstractElasticSearchInt
     }
 
     @Test
-    @Disabled
+    @Disabled("TODO: [MH] migrate from Lucene. org-name search doesn't match 'test(2)' from test(2) organisation")
     public void search_entity_organisation_by_name_with_wildcard() {
         rebuildIndex();
 
-        final SearchResult response = createResource("entities?fn=organis*tion")
+        final SearchResult response = createResource("entities?fn=*organis*tion")
                 .request(MediaType.APPLICATION_JSON_TYPE)
                 .get(SearchResult.class);
 

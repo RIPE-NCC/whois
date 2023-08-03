@@ -478,7 +478,7 @@ public class ElasticAutocompleteServiceTestIntegration extends AbstractElasticSe
     }
 
     @Test
-    @Disabled
+    @Disabled("TODO: [MH] migrated from Lucene, issue with ':' in ES")
     public void filter_comment_multiple_values() {
         databaseHelper.addObject("route-set: AS34086:RS-OTC\nmembers: 46.29.103.32/27\nmembers: 46.29.96.0/24\nmnt-ref:AA1-MNT, # first\n+AA2-MNT,    # second\n\tAA3-MNT\t#third\nsource: TEST");
         rebuildIndex();
