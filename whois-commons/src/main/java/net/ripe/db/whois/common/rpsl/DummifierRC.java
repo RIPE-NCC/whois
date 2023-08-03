@@ -54,7 +54,12 @@ public class DummifierRC implements Dummifier {
         for (int i = 0; i < attributes.size(); i++) {
             RpslAttribute replacement = attributes.get(i);
 
-            replacement = dummifyAttributes(rpslObject, attributes, i, replacement);
+            replacement = dummifyOrgName(rpslObject, replacement);
+            replacement = dummifyDescr(replacement);
+            replacement = dummifyRemarks(replacement);
+            replacement = dummifyOwner(replacement);
+
+            attributes.set(i, replacement);
 
             final AttributeType attributeType = replacement.getType();
 
@@ -84,16 +89,6 @@ public class DummifierRC implements Dummifier {
         }
 
         return FILTER_CHANGED_FUNCTION.apply(new RpslObject(rpslObject, attributes));
-    }
-
-    private RpslAttribute dummifyAttributes(RpslObject rpslObject, List<RpslAttribute> attributes, int i, RpslAttribute replacement) {
-        replacement = dummifyOrgName(rpslObject, replacement);
-        replacement = dummifyDescr(replacement);
-        replacement = dummifyRemarks(replacement);
-        replacement = dummifyOwner(replacement);
-
-        attributes.set(i, replacement);
-        return replacement;
     }
 
     private RpslAttribute dummifyOrgName(final RpslObject rpslObject, final RpslAttribute rpslAttribute) {

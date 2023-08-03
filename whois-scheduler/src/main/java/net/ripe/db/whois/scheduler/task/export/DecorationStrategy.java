@@ -17,12 +17,12 @@ public interface DecorationStrategy {
         }
     }
 
-    class DummifyLegacy implements DecorationStrategy {
+    class DummifySplitFiles implements DecorationStrategy {
         private static final int VERSION = 3;
         private final DummifierNrtm dummifier;
         private final Set<ObjectType> writtenPlaceHolders = Sets.newHashSet();
 
-        public DummifyLegacy(final DummifierNrtm dummifier) {
+        public DummifySplitFiles(final DummifierNrtm dummifier) {
             this.dummifier = dummifier;
         }
 

@@ -36,7 +36,7 @@ public class DecorationStrategyTest {
 
     @Test
     public void decorate_dummify_allowed() {
-        DecorationStrategy subject = new DecorationStrategy.DummifyLegacy(dummifier);
+        DecorationStrategy subject = new DecorationStrategy.DummifySplitFiles(dummifier);
         Mockito.when(dummifier.isAllowed(3, object)).thenReturn(true);
 
         final RpslObject dummified = RpslObject.parse("mntner: DEV-MNT");
@@ -51,7 +51,7 @@ public class DecorationStrategyTest {
 
     @Test
     public void decorate_dummify_not_allowed() {
-        DecorationStrategy subject = new DecorationStrategy.DummifyLegacy(dummifier);
+        DecorationStrategy subject = new DecorationStrategy.DummifySplitFiles(dummifier);
         Mockito.when(dummifier.isAllowed(3, object)).thenReturn(false);
 
         final RpslObject decorated = subject.decorate(object);

@@ -14,14 +14,16 @@ import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.Arrays;
 import java.util.List;
 
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.containsInAnyOrder;
+import static org.hamcrest.Matchers.endsWith;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.not;
 import static org.hamcrest.Matchers.nullValue;
 import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.junit.jupiter.api.Assertions.fail;
 
 @ExtendWith(MockitoExtension.class)
 public class ExportFileWriterFactoryTest {
@@ -57,13 +59,10 @@ public class ExportFileWriterFactoryTest {
         assertThat(files, not(nullValue()));
         assertThat(files.length, is(2));
 
-        for (final File file : files) {
-            if (! (file.getAbsolutePath().endsWith("internal")
-                    || file.getAbsolutePath().endsWith("dbase"))) {
-                fail("Unexpected folder: " + file.getAbsolutePath());
-            }
-        }
+        assertThat(Arrays.stream(files).map(File::getAbsolutePath).toList(), containsInAnyOrder(endsWith("internal"),
+                endsWith("dbase")));
     }
+
 
     @Test
     public void isExportDir_home() {

@@ -68,12 +68,12 @@ class ExportFileWriterFactory {
         final ExportFilter nonAuthSourceFilter = new ExportFilter.SourceExportFilter(nonAuthSource, Sets.immutableEnumSet(AUT_NUM, ROUTE, ROUTE6), false);
 
         return Lists.newArrayList(
-                new ExportFileWriter(fullDir, singleFile, new DecorationStrategy.DummifyLegacy(dummifierNrtm), sourceFilter),
-                new ExportFileWriter(splitDir, splitFile, new DecorationStrategy.DummifyLegacy(dummifierNrtm), sourceFilter),
+                new ExportFileWriter(fullDir, singleFile, new DecorationStrategy.DummifySplitFiles(dummifierNrtm), sourceFilter),
+                new ExportFileWriter(splitDir, splitFile, new DecorationStrategy.DummifySplitFiles(dummifierNrtm), sourceFilter),
                 new ExportFileWriter(internalDir, splitFile, new DecorationStrategy.None(), sourceFilter),
 
-                new ExportFileWriter(fullDir, nonAuthSingleFile, new DecorationStrategy.DummifyLegacy(dummifierNrtm), nonAuthSourceFilter),
-                new ExportFileWriter(splitDir, nonAuthSplitFile, new DecorationStrategy.DummifyLegacy(dummifierNrtm), nonAuthSourceFilter),
+                new ExportFileWriter(fullDir, nonAuthSingleFile, new DecorationStrategy.DummifySplitFiles(dummifierNrtm), nonAuthSourceFilter),
+                new ExportFileWriter(splitDir, nonAuthSplitFile, new DecorationStrategy.DummifySplitFiles(dummifierNrtm), nonAuthSourceFilter),
                 new ExportFileWriter(internalDir, nonAuthSplitFile, new DecorationStrategy.None(), nonAuthSourceFilter)
         );
     }
