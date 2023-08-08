@@ -73,10 +73,7 @@
         <junit.version>5.9.3</junit.version>
 
         <log4j.version>2.20.0</log4j.version>
-
-        <!-- Needs to be in sync with the version of Lucene used by the ElasticSearch client -->
-        <lucene.version>8.9.0</lucene.version>
-
+        
         <mail.version>1.6.2</mail.version>
         <!-- TODO: update mariadb to 3.x -->
         <mariadb-java-client.version>2.7.9</mariadb-java-client.version>
