@@ -2161,11 +2161,11 @@ public class ElasticFullTextSearchTestIntegration extends AbstractElasticSearchI
         final QueryResponse queryResponse = query("facet=true&format=xml&hl=true&q=(TEST%20AND%20BANK)" +
                 "&start=0&wt=json");
 
-        assertThat(queryResponse.getResults().get(0).get("lookup-key"), is("2a00:2381:b2f::/48"));
-        assertThat(queryResponse.getResults().get(1).get("lookup-key"), is("2a00:2381:b2f::/56"));
+        assertThat(queryResponse.getResults().get(0).get("lookup-key"), is("TP1-TEST"));
+        assertThat(queryResponse.getResults().get(1).get("lookup-key"),  is("TP2-TEST"));
         assertThat(queryResponse.getResults().get(2).get("lookup-key"), is("81.128.169.144 - 81.128.169.159"));
-        assertThat(queryResponse.getResults().get(3).get("lookup-key"), is("TP1-TEST"));
-        assertThat(queryResponse.getResults().get(4).get("lookup-key"), is("TP2-TEST"));
+        assertThat(queryResponse.getResults().get(3).get("lookup-key"), is("2a00:2381:b2f::/48"));
+        assertThat(queryResponse.getResults().get(4).get("lookup-key"), is("2a00:2381:b2f::/56"));
         assertThat(queryResponse.getResults().get(5).get("lookup-key"), is("193.89.255.72 - 193.89.255.79"));
         assertThat(queryResponse.getResults().get(6).get("lookup-key"), is("2001:6f0:2501::/48"));
         assertThat(queryResponse.getResults().get(7).get("lookup-key"), is("31.15.33.192 - 31.15.33.195"));
