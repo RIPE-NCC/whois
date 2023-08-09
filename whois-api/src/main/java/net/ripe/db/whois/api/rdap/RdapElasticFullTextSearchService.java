@@ -93,7 +93,7 @@ public class RdapElasticFullTextSearchService implements RdapFullTextSearch {
                 private QueryBuilder getQueryBuilder(final String[] fields, final String term) {
                     if (term.indexOf('*') == -1 && term.indexOf('?') == -1) {
                         final MultiMatchQueryBuilder multiMatchQuery = new MultiMatchQueryBuilder(term, fields)
-                                .type(MultiMatchQueryBuilder.Type.PHRASE_PREFIX)
+                                .type(MultiMatchQueryBuilder.Type.PHRASE)
                                 .operator(Operator.AND);
                         return multiMatchQuery;
                     }

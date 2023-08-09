@@ -991,7 +991,7 @@ public class ElasticFullTextSearchTestIntegration extends AbstractElasticSearchI
         assertThat(queryResponse.getResults(), hasSize(1));
         assertThat(queryResponse.getHighlighting().keySet(), contains("1"));
         assertThat(queryResponse.getHighlighting().get("1").keySet(), hasSize(2));
-        assertThat(queryResponse.getHighlighting().get("1").get("mntner"), contains("<b>DEV-MNT<\\/b>"));
+        assertThat(queryResponse.getHighlighting().get("1").get("mntner"), contains("<b>DEV<\\/b>-MNT"));
         assertThat(queryResponse.getHighlighting().get("1").get("remarks"), contains("<b>DEV<\\/b> mntner"));
     }
 
@@ -1048,7 +1048,7 @@ public class ElasticFullTextSearchTestIntegration extends AbstractElasticSearchI
         assertThat(queryResponse.getResults(), hasSize(1));
         assertThat(queryResponse.getHighlighting().keySet(), contains("1"));
         assertThat(queryResponse.getHighlighting().get("1").keySet(), hasSize(2));
-        assertThat(queryResponse.getHighlighting().get("1").get("mntner"), contains("<b>DEV-MNT<\\/b>"));
+        assertThat(queryResponse.getHighlighting().get("1").get("mntner"), contains("<b>DEV<\\/b>-MNT"));
         assertThat(queryResponse.getHighlighting().get("1").get("remarks"), contains("\"<b>DEV<\\/b> mntner\""));
     }
 
@@ -1972,9 +1972,6 @@ public class ElasticFullTextSearchTestIntegration extends AbstractElasticSearchI
         assertThat(queryResponse.getHighlighting().get("4").get("object-type").size(), is(1));
         assertThat(queryResponse.getHighlighting().get("4").get("object-type").get(0), is("<b>person</b>"));
     }
-
-
-
 
     @Test
     public void query_returns_maximum_results_and_mixed_objects_sorted_by_score_lookup() {
