@@ -1980,9 +1980,9 @@ public class ElasticFullTextSearchTestIntegration extends AbstractElasticSearchI
         databaseHelper.addObject("""
                 person:          Niels Christian Bank-Pedersen
                 address:         RC
+                mnt-by:          TEST-SE-MNT
                 e-mail:          bank.es
                 nic-hdl:         TP1-TEST
-                mnt-by:          TEST-SE-MNT
                 source:          TEST
                 """);
 
@@ -2160,6 +2160,9 @@ public class ElasticFullTextSearchTestIntegration extends AbstractElasticSearchI
         rebuildIndex();
         final QueryResponse queryResponse = query("facet=true&format=xml&hl=true&q=(RC%20AND%20BANK)" +
                 "&start=0&wt=json");
+
+
+        assertThat(queryResponse.toString(), is("2a00:2381:b2f::/48"));
 
         assertThat(queryResponse.getResults().get(0).get("lookup-key"), is("2a00:2381:b2f::/48"));
         assertThat(queryResponse.getResults().get(1).get("lookup-key"), is("2a00:2381:b2f::/56"));
