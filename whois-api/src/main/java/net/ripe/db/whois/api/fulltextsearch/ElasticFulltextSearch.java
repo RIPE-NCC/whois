@@ -17,7 +17,9 @@ import org.apache.commons.lang3.StringUtils;
 import org.elasticsearch.ElasticsearchStatusException;
 import org.elasticsearch.client.RequestOptions;
 import org.elasticsearch.index.query.MultiMatchQueryBuilder;
+import org.elasticsearch.index.query.Operator;
 import org.elasticsearch.index.query.QueryBuilders;
+import org.elasticsearch.index.query.QueryStringQueryBuilder;
 import org.elasticsearch.rest.RestStatus;
 import org.elasticsearch.search.SearchHit;
 import org.elasticsearch.search.aggregations.AggregationBuilders;
@@ -228,8 +230,8 @@ public class ElasticFulltextSearch extends FulltextSearch {
         return SearchRequest.XML_FORMAT.equals(format) ? escape(highlightPost) : highlightPost;
     }
 
-    private MultiMatchQueryBuilder getQueryBuilder(final String query) {
-        return QueryBuilders.multiMatchQuery(escape(query)).type(MultiMatchQueryBuilder.Type.PHRASE);
+    private QueryStringQueryBuilder getQueryBuilder(final String query) {
+        return QueryBuilders.queryStringQuery(escape(query)).defaultOperator(Operator.AND).type(MultiMatchQueryBuilder.Type.PHRASE);
     }
 
     private SearchResponse.Lst createHighlights(final SearchHit hit) {
