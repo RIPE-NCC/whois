@@ -1979,7 +1979,7 @@ public class ElasticFullTextSearchTestIntegration extends AbstractElasticSearchI
 
         databaseHelper.addObject("""
                 person:          Niels Christian Bank-Pedersen
-                address:         TEST
+                address:         TT
                 e-mail:          bank.es
                 nic-hdl:         TP1-TEST
                 mnt-by:          TEST-SE-MNT
@@ -1989,7 +1989,7 @@ public class ElasticFullTextSearchTestIntegration extends AbstractElasticSearchI
         databaseHelper.addObject("""
                 inetnum:         81.128.169.144 - 81.128.169.159
                 netname:         TEST-BANK
-                descr:           TEST Bank
+                descr:           TT Bank
                 admin-c:         TP1-TEST
                 tech-c:          TP1-TEST
                 status:          ALLOCATED UNSPECIFIED
@@ -2002,7 +2002,7 @@ public class ElasticFullTextSearchTestIntegration extends AbstractElasticSearchI
         databaseHelper.addObject("""
                 inet6num:        2a00:2381:b2f::/48
                 netname:         TEST-BANK
-                descr:           TEST Bank
+                descr:           TT BANK
                 admin-c:         TP1-TEST
                 tech-c:          TP1-TEST
                 status:          ALLOCATED UNSPECIFIED
@@ -2015,7 +2015,7 @@ public class ElasticFullTextSearchTestIntegration extends AbstractElasticSearchI
         databaseHelper.addObject("""
                 inet6num:        2a00:2381:b2f::/56
                 netname:         TEST-BANK
-                descr:           TEST Bank
+                descr:           TT Bank
                 admin-c:         TP1-TEST
                 tech-c:          TP1-TEST
                 status:          ALLOCATED UNSPECIFIED
@@ -2158,7 +2158,7 @@ public class ElasticFullTextSearchTestIntegration extends AbstractElasticSearchI
                 """);
 
         rebuildIndex();
-        final QueryResponse queryResponse = query("facet=true&format=xml&hl=true&q=(TEST%20AND%20BANK)" +
+        final QueryResponse queryResponse = query("facet=true&format=xml&hl=true&q=(TT%20AND%20BANK)" +
                 "&start=0&wt=json");
 
         assertThat(queryResponse.getResults().get(0).get("lookup-key"), is("2a00:2381:b2f::/48"));
