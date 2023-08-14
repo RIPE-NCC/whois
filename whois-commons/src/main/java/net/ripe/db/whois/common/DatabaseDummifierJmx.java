@@ -1,5 +1,6 @@
 package net.ripe.db.whois.common;
 
+import com.google.common.collect.ImmutableSet;
 import joptsimple.OptionParser;
 import joptsimple.OptionSet;
 import net.ripe.db.whois.common.dao.jdbc.JdbcStreamingHelper;
@@ -32,6 +33,7 @@ import javax.sql.DataSource;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.Iterator;
+import java.util.Set;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutorService;
@@ -56,6 +58,8 @@ public class DatabaseDummifierJmx extends JmxBase {
     private static final String ARG_USER = "user";
     private static final String ARG_PASS = "pass";
 
+    private static final String ARG_ENV = "env";
+
     private static TransactionTemplate transactionTemplate;
     private static JdbcTemplate jdbcTemplate;
 
@@ -63,6 +67,9 @@ public class DatabaseDummifierJmx extends JmxBase {
 
     private static final AtomicInteger jobsAdded = new AtomicInteger();
     private static final AtomicInteger jobsDone = new AtomicInteger();
+
+    private static final Set<String> AVAILABLE_ENVIRONMENTS = ImmutableSet.of("dev", "prepdev", "test", "rc",
+            "training");
 
     public DatabaseDummifierJmx() {
         super(LOGGER);
@@ -72,13 +79,14 @@ public class DatabaseDummifierJmx extends JmxBase {
     @ManagedOperationParameters({
             @ManagedOperationParameter(name = "jdbcUrl", description = "jdbc url"),
             @ManagedOperationParameter(name = "user", description = "jdbc username"),
-            @ManagedOperationParameter(name = "pass", description = "jdbc password")
+            @ManagedOperationParameter(name = "pass", description = "jdbc password"),
+            @ManagedOperationParameter(name= "env", description = "current environment")
     })
-    public String dummify(final String jdbcUrl, final String user, final String pass) {
+    public String dummify(final String jdbcUrl, final String user, final String pass, final String env) {
         return invokeOperation("dummify", jdbcUrl, new Callable<String>() {
             @Override
             public String call() {
-                validateJdbcUrl(user, pass);
+                validateEnvironment(env);
                 final SimpleDataSourceFactory simpleDataSourceFactory = new SimpleDataSourceFactory("org.mariadb.jdbc.Driver");
                 final DataSource dataSource = simpleDataSourceFactory.createDataSource(jdbcUrl, user, pass);
                 jdbcTemplate = new JdbcTemplate(dataSource);
@@ -117,14 +125,10 @@ public class DatabaseDummifierJmx extends JmxBase {
         });
     }
 
-    private void validateJdbcUrl(final String user, final String password) {
-        if (!user.equals(password) && !user.equals(reverse(password))) {
-            throw new IllegalArgumentException("dummifier runs on non-production environments only (user==password)");
+    private void validateEnvironment(final String env) {
+        if (!AVAILABLE_ENVIRONMENTS.contains(env)) {
+            throw new IllegalArgumentException("dummifier runs on non-production environments only");
         }
-    }
-
-    private static String reverse(final String string) {
-        return new StringBuilder(string).reverse().toString();
     }
 
     private void addWork(final String table, final JdbcTemplate jdbcTemplate, final ExecutorService executorService) {
@@ -234,6 +238,7 @@ public class DatabaseDummifierJmx extends JmxBase {
         parser.accepts(ARG_JDBCURL).withRequiredArg().required();
         parser.accepts(ARG_USER).withRequiredArg().required();
         parser.accepts(ARG_PASS).withRequiredArg().required();
+        parser.accepts(ARG_ENV).withRequiredArg().required();
         return parser;
     }
 
@@ -242,6 +247,7 @@ public class DatabaseDummifierJmx extends JmxBase {
         String jdbcUrl = options.valueOf(ARG_JDBCURL).toString();
         String user = options.valueOf(ARG_USER).toString();
         String pass = options.valueOf(ARG_PASS).toString();
-        new DatabaseDummifierJmx().dummify(jdbcUrl, user, pass);
+        String env = options.valueOf(ARG_ENV).toString();
+        new DatabaseDummifierJmx().dummify(jdbcUrl, user, pass, env);
     }
 }
