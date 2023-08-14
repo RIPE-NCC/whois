@@ -2161,19 +2161,208 @@ public class ElasticFullTextSearchTestIntegration extends AbstractElasticSearchI
         final QueryResponse queryResponse = query("facet=true&format=xml&hl=true&q=(RC%20AND%20BANK)" +
                 "&start=0&wt=json");
 
+        assertThat(queryResponse.getResults().size(), is(4));
 
-        assertThat(queryResponse.toString(), is("2a00:2381:b2f::/48"));
+        assertThat(queryResponse.getResults().get(0).get("lookup-key"), is("TP1-TEST"));
+        assertThat(queryResponse.getResults().get(1).get("lookup-key"), is("2a00:2381:b2f::/48"));
+        assertThat(queryResponse.getResults().get(2).get("lookup-key"), is("2a00:2381:b2f::/56"));
+        assertThat(queryResponse.getResults().get(3).get("lookup-key"), is("81.128.169.144 - 81.128.169.159"));
+    }
+
+    @Test
+    public void query_returns_maximum_results_and_mixed_objects_sorted_by_score_lookup_with_phrase() {
+        databaseHelper.addObject("mntner: TEST-SE-MNT");
+
+        databaseHelper.addObject("""
+                person:          Niels Christian Bank-Pedersen
+                address:         RC
+                mnt-by:          TEST-SE-MNT
+                e-mail:          bank.es
+                nic-hdl:         TP1-TEST
+                source:          TEST
+                """);
+
+        databaseHelper.addObject("""
+                inetnum:         81.128.169.144 - 81.128.169.159
+                netname:         TEST-BANK
+                descr:           RC Bank
+                admin-c:         TP1-TEST
+                tech-c:          TP1-TEST
+                status:          ALLOCATED UNSPECIFIED
+                mnt-by:          TEST-SE-MNT
+                mnt-lower:       TEST-SE-MNT
+                mnt-routes:      TEST-SE-MNT
+                source:          TEST
+                """);
+
+        databaseHelper.addObject("""
+                inet6num:        2a00:2381:b2f::/48
+                netname:         TEST-BANK
+                descr:           RC BANK
+                admin-c:         TP1-TEST
+                tech-c:          TP1-TEST
+                status:          ALLOCATED UNSPECIFIED
+                mnt-by:          TEST-SE-MNT
+                mnt-lower:       TEST-SE-MNT
+                mnt-routes:      TEST-SE-MNT
+                source:          TEST
+                """);
+
+        databaseHelper.addObject("""
+                inet6num:        2a00:2381:b2f::/56
+                netname:         TEST-BANK
+                descr:           RC Bank
+                admin-c:         TP1-TEST
+                tech-c:          TP1-TEST
+                status:          ALLOCATED UNSPECIFIED
+                mnt-by:          TEST-SE-MNT
+                mnt-lower:       TEST-SE-MNT
+                mnt-routes:      TEST-SE-MNT
+                source:          TEST
+                """);
+
+        databaseHelper.addObject("""
+                inetnum:         31.15.49.116 - 31.15.49.119
+                netname:         BANK-NET
+                descr:           Bank
+                admin-c:         TP1-TEST
+                tech-c:          TP1-TEST
+                status:          ALLOCATED UNSPECIFIED
+                mnt-by:          TEST-SE-MNT
+                source:          TEST
+                """);
+
+        databaseHelper.addObject("""
+                inet6num:        2001:6f0:2501::/48
+                netname:         BANK-NET
+                descr:           Bank
+                admin-c:         TP1-TEST
+                tech-c:          TP1-TEST
+                status:          ALLOCATED UNSPECIFIED
+                mnt-by:          TEST-SE-MNT
+                source:          TEST
+                """);
+
+        databaseHelper.addObject("""
+                inetnum:         87.54.47.216 - 87.54.47.223
+                netname:         BANK-NET
+                admin-c:         TP1-TEST
+                tech-c:          TP1-TEST
+                status:          ALLOCATED UNSPECIFIED
+                mnt-by:          TEST-SE-MNT
+                source:          TEST
+                """);
+
+        databaseHelper.addObject("""
+            inetnum:         95.58.17.72 - 95.58.17.75
+            netname:         Bank
+            admin-c:         TP1-TEST
+            tech-c:          TP1-TEST
+            status:          ALLOCATED UNSPECIFIED
+            mnt-by:          TEST-SE-MNT
+            source:          TEST
+                """);
+
+        databaseHelper.addObject("""
+            inetnum:         83.92.220.64 - 83.92.220.71
+            netname:         BANK-NET
+            admin-c:         TP1-TEST
+            tech-c:          TP1-TEST
+            status:          ALLOCATED UNSPECIFIED
+            mnt-by:          TEST-SE-MNT
+            source:          TEST
+                """);
+
+        databaseHelper.addObject("""
+            inetnum:         193.89.255.72 - 193.89.255.79
+            netname:         BANK-NET
+            admin-c:         TP1-TEST
+            tech-c:          TP1-TEST
+            status:          ALLOCATED UNSPECIFIED
+            mnt-by:          TEST-SE-MNT
+            source:          TEST
+                """);
+
+        databaseHelper.addObject("""
+            inetnum:         195.249.50.128 - 195.249.50.191
+            netname:         BANK
+            admin-c:         TP1-TEST
+            tech-c:          TP1-TEST
+            status:          ALLOCATED UNSPECIFIED
+            mnt-by:          TEST-SE-MNT
+            source:          TEST
+                """);
+
+        databaseHelper.addObject("""
+                inetnum:         31.15.33.192 - 31.15.33.195
+                netname:         BANK-NET
+                descr:           Bank AB
+                admin-c:         TP1-TEST
+                tech-c:          TP1-TEST
+                status:          ALLOCATED UNSPECIFIED
+                mnt-by:          TEST-SE-MNT
+                source:          TEST
+                """);
+
+        databaseHelper.addObject("""
+                inetnum:         37.233.74.12 - 37.233.74.12
+                admin-c:         TP1-TEST
+                tech-c:          TP1-TEST
+                status:          ALLOCATED UNSPECIFIED
+                mnt-by:          TEST-SE-MNT
+                source:          TEST
+                """);
+
+        databaseHelper.addObject("""
+                inetnum:         88.131.111.160 - 88.131.111.191
+                netname:         BANK
+                descr:           Bank
+                admin-c:         TP1-TEST
+                tech-c:          TP1-TEST
+                status:          ALLOCATED UNSPECIFIED
+                mnt-by:          TEST-SE-MNT
+                source:          TEST
+                """);
+
+        databaseHelper.addObject("""
+                inetnum:         212.214.152.144 - 212.214.152.151
+                netname:         AVANZA-BANK-NET
+                admin-c:         TP1-TEST
+                tech-c:          TP1-TEST
+                status:          ALLOCATED UNSPECIFIED
+                mnt-by:          TEST-SE-MNT
+                source:          TEST
+                """);
+
+        databaseHelper.addObject("""
+                inetnum:         217.119.169.120 - 217.119.169.123
+                netname:         NORDEA-BANK-NET
+                country:         SE
+                admin-c:         TP1-TEST
+                tech-c:          TP1-TEST
+                status:          ALLOCATED UNSPECIFIED
+                mnt-by:          TEST-SE-MNT
+                source:          TEST
+                """);
+
+        databaseHelper.addObject("""
+                person:          Bjorn Kogge
+                address:         Forex Bank AB
+                nic-hdl:         TP2-TEST
+                mnt-by:          TEST-SE-MNT
+                source:          TEST
+                """);
+
+        rebuildIndex();
+        final QueryResponse queryResponse = query("facet=true&format=xml&hl=true&q=(RC%20%20BANK)" +
+                "&start=0&wt=json");
+
+
+        assertThat(queryResponse.getResults().size(), is(3));
 
         assertThat(queryResponse.getResults().get(0).get("lookup-key"), is("2a00:2381:b2f::/48"));
         assertThat(queryResponse.getResults().get(1).get("lookup-key"), is("2a00:2381:b2f::/56"));
         assertThat(queryResponse.getResults().get(2).get("lookup-key"), is("81.128.169.144 - 81.128.169.159"));
-        assertThat(queryResponse.getResults().get(3).get("lookup-key"), is("TP1-TEST"));
-        assertThat(queryResponse.getResults().get(4).get("lookup-key"), is("TP2-TEST"));
-        assertThat(queryResponse.getResults().get(5).get("lookup-key"), is("193.89.255.72 - 193.89.255.79"));
-        assertThat(queryResponse.getResults().get(6).get("lookup-key"), is("2001:6f0:2501::/48"));
-        assertThat(queryResponse.getResults().get(7).get("lookup-key"), is("31.15.33.192 - 31.15.33.195"));
-        assertThat(queryResponse.getResults().get(8).get("lookup-key"), is("31.15.49.116 - 31.15.49.119"));
-        assertThat(queryResponse.getResults().get(9).get("lookup-key"), is("83.92.220.64 - 83.92.220.71"));
     }
 
     @Test
