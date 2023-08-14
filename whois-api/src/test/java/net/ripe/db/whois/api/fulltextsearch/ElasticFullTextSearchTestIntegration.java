@@ -2357,7 +2357,6 @@ public class ElasticFullTextSearchTestIntegration extends AbstractElasticSearchI
         final QueryResponse queryResponse = query("facet=true&format=xml&hl=true&q=(RC%20%20BANK)" +
                 "&start=0&wt=json");
 
-
         assertThat(queryResponse.getResults().size(), is(3));
 
         assertThat(queryResponse.getResults().get(0).get("lookup-key"), is("2a00:2381:b2f::/48"));
