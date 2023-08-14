@@ -8,7 +8,6 @@ import net.ripe.db.whois.common.source.Source;
 import net.ripe.db.whois.query.acl.AccessControlListManager;
 import net.ripe.db.whois.query.domain.QueryCompletionInfo;
 import net.ripe.db.whois.query.domain.QueryException;
-import org.apache.commons.lang.StringEscapeUtils;
 import org.elasticsearch.action.search.SearchRequest;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.client.RequestOptions;
@@ -17,7 +16,6 @@ import org.elasticsearch.index.query.MultiMatchQueryBuilder;
 import org.elasticsearch.index.query.Operator;
 import org.elasticsearch.index.query.QueryBuilder;
 import org.elasticsearch.index.query.QueryBuilders;
-import org.elasticsearch.index.query.ZeroTermsQueryOption;
 import org.elasticsearch.search.SearchHit;
 import org.elasticsearch.search.builder.SearchSourceBuilder;
 import org.elasticsearch.search.sort.SortBuilder;
@@ -95,8 +93,7 @@ public class RdapElasticFullTextSearchService implements RdapFullTextSearch {
                 private QueryBuilder getQueryBuilder(final String[] fields, final String term) {
                     if (term.indexOf('*') == -1 && term.indexOf('?') == -1) {
                         final MultiMatchQueryBuilder multiMatchQuery = new MultiMatchQueryBuilder(term, fields)
-                                .type(MultiMatchQueryBuilder.Type.PHRASE)
-                                .zeroTermsQuery(ZeroTermsQueryOption.ALL)
+                                .type(MultiMatchQueryBuilder.Type.PHRASE_PREFIX)
                                 .operator(Operator.AND);
                         return multiMatchQuery;
                     }
