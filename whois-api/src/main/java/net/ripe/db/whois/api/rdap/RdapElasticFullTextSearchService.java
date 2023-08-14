@@ -17,6 +17,7 @@ import org.elasticsearch.index.query.MultiMatchQueryBuilder;
 import org.elasticsearch.index.query.Operator;
 import org.elasticsearch.index.query.QueryBuilder;
 import org.elasticsearch.index.query.QueryBuilders;
+import org.elasticsearch.index.query.ZeroTermsQueryOption;
 import org.elasticsearch.search.SearchHit;
 import org.elasticsearch.search.builder.SearchSourceBuilder;
 import org.elasticsearch.search.sort.SortBuilder;
@@ -95,6 +96,7 @@ public class RdapElasticFullTextSearchService implements RdapFullTextSearch {
                     if (term.indexOf('*') == -1 && term.indexOf('?') == -1) {
                         final MultiMatchQueryBuilder multiMatchQuery = new MultiMatchQueryBuilder(StringEscapeUtils.escapeJava(term), fields)
                                 .type(MultiMatchQueryBuilder.Type.PHRASE)
+                                .zeroTermsQuery(ZeroTermsQueryOption.ALL)
                                 .operator(Operator.AND);
                         return multiMatchQuery;
                     }
