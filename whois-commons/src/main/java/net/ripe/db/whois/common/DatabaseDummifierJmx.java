@@ -1,6 +1,5 @@
 package net.ripe.db.whois.common;
 
-import com.google.common.collect.ImmutableSet;
 import joptsimple.OptionParser;
 import joptsimple.OptionSet;
 import net.ripe.db.whois.common.dao.jdbc.JdbcStreamingHelper;
@@ -33,7 +32,6 @@ import javax.sql.DataSource;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.Iterator;
-import java.util.Set;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutorService;
@@ -68,8 +66,15 @@ public class DatabaseDummifierJmx extends JmxBase {
     private static final AtomicInteger jobsAdded = new AtomicInteger();
     private static final AtomicInteger jobsDone = new AtomicInteger();
 
-    private static final Set<String> AVAILABLE_ENVIRONMENTS = ImmutableSet.of("dev", "prepdev", "test", "rc",
-            "training");
+    private enum Environment {
+        DEV,
+        PREPDEV,
+        TRAINING,
+        TEST,
+        RC,
+        PROD;
+    }
+
 
     public DatabaseDummifierJmx() {
         super(LOGGER);
@@ -82,7 +87,7 @@ public class DatabaseDummifierJmx extends JmxBase {
             @ManagedOperationParameter(name = "pass", description = "jdbc password"),
             @ManagedOperationParameter(name= "env", description = "current environment")
     })
-    public String dummify(final String jdbcUrl, final String user, final String pass, final String env) {
+    public String dummify(final String jdbcUrl, final String user, final String pass, final Environment env) {
         return invokeOperation("dummify", jdbcUrl, new Callable<String>() {
             @Override
             public String call() {
@@ -125,8 +130,8 @@ public class DatabaseDummifierJmx extends JmxBase {
         });
     }
 
-    private void validateEnvironment(final String env) {
-        if (!AVAILABLE_ENVIRONMENTS.contains(env)) {
+    private void validateEnvironment(final Environment env) {
+        if (Environment.PROD.equals(env)) {
             throw new IllegalArgumentException("dummifier runs on non-production environments only");
         }
     }
@@ -247,7 +252,12 @@ public class DatabaseDummifierJmx extends JmxBase {
         String jdbcUrl = options.valueOf(ARG_JDBCURL).toString();
         String user = options.valueOf(ARG_USER).toString();
         String pass = options.valueOf(ARG_PASS).toString();
-        String env = options.valueOf(ARG_ENV).toString();
+        Environment env;
+        try {
+            env = Environment.valueOf(options.valueOf(ARG_ENV).toString().toUpperCase());
+        } catch (IllegalArgumentException ex){
+            throw new IllegalArgumentException("Available env: DEV, PREPDEV, TRAINING, TEST, RC, PROD");
+        }
         new DatabaseDummifierJmx().dummify(jdbcUrl, user, pass, env);
     }
 }
