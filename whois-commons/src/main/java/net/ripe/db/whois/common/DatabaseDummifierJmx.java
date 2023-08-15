@@ -256,7 +256,9 @@ public class DatabaseDummifierJmx extends JmxBase {
         try {
             env = Environment.valueOf(options.valueOf(ARG_ENV).toString().toUpperCase());
         } catch (IllegalArgumentException ex){
-            throw new IllegalArgumentException("Available env: DEV, PREPDEV, TRAINING, TEST, RC, PROD");
+            throw new IllegalArgumentException("Env property doesn't match. Available env: DEV, PREPDEV, TRAINING, " +
+                    "TEST, RC, " +
+                    "PROD");
         }
         new DatabaseDummifierJmx().dummify(jdbcUrl, user, pass, env);
     }
