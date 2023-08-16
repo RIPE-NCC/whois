@@ -17,7 +17,6 @@ import net.ripe.db.whois.common.sso.AuthServiceClientException;
 import net.ripe.db.whois.query.QueryMessages;
 import net.ripe.db.whois.query.domain.QueryCompletionInfo;
 import net.ripe.db.whois.query.domain.QueryException;
-import org.apache.commons.lang.StringUtils;
 import org.eclipse.jetty.http.HttpHeader;
 import org.eclipse.jetty.http.HttpScheme;
 import org.slf4j.Logger;
@@ -32,6 +31,8 @@ import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
+
+import static org.apache.commons.lang.StringUtils.isEmpty;
 
 public class RestServiceHelper {
 
@@ -59,7 +60,7 @@ public class RestServiceHelper {
     }
 
     private static String filter(final String queryString) {
-        if (StringUtils.isEmpty(queryString)) {
+        if (isEmpty(queryString)) {
             return "";
         }
 
@@ -70,7 +71,7 @@ public class RestServiceHelper {
             builder.append(separator).append(PasswordFilter.filterPasswordsInUrl(queryString));
         } else {
             String removedPasswordsInQueryString = PasswordFilter.removePasswordsInUrl(queryString);
-            if (!StringUtils.isEmpty(removedPasswordsInQueryString)) {
+            if (!isEmpty(removedPasswordsInQueryString)) {
                 builder.append(separator).append(removedPasswordsInQueryString);
             }
         }
@@ -177,7 +178,7 @@ public class RestServiceHelper {
 
     public static boolean isHttpProtocol(final HttpServletRequest request) {
         final String header = request.getHeader(HttpHeader.X_FORWARDED_PROTO.toString());
-        return !org.apache.commons.lang.StringUtils.isEmpty(header) && HttpScheme.HTTP.is(header);
+        return !isEmpty(header) && HttpScheme.HTTP.is(header);
     }
 
     private static boolean skipStackTrace(final Exception exception) {
