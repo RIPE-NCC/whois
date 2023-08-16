@@ -191,6 +191,8 @@ public class SyncUpdatesService {
 
             final UpdateContext updateContext = new UpdateContext(loggerContext);
 
+            RestServiceHelper.checkHttp(httpServletRequest, updateContext);
+
             setSsoSessionToContext(updateContext, request.getSsoToken());
             updateContext.setClientCertificate(ClientCertificateExtractor.getClientCertificate(httpServletRequest, dateTimeProvider));
 

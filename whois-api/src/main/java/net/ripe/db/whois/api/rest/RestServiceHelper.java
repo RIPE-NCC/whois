@@ -17,7 +17,11 @@ import net.ripe.db.whois.common.sso.AuthServiceClientException;
 import net.ripe.db.whois.query.QueryMessages;
 import net.ripe.db.whois.query.domain.QueryCompletionInfo;
 import net.ripe.db.whois.query.domain.QueryException;
+import net.ripe.db.whois.update.domain.UpdateContext;
+import net.ripe.db.whois.update.domain.UpdateMessages;
 import org.apache.commons.lang.StringUtils;
+import org.eclipse.jetty.http.HttpHeader;
+import org.eclipse.jetty.http.HttpScheme;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.jdbc.CannotGetJdbcConnectionException;
@@ -173,7 +177,16 @@ public class RestServiceHelper {
         return new WebApplicationException(responseBuilder.build());
     }
 
+    public static void checkHttp(final HttpServletRequest request, final UpdateContext updateContext) {
+        final String header = request.getHeader(HttpHeader.X_FORWARDED_PROTO.toString());
+        if (!org.apache.commons.lang3.StringUtils.isEmpty(header) && HttpScheme.HTTP.is(header)){
+            updateContext.addGlobalMessage(UpdateMessages.httpSyncupdate());
+        }
+    }
+
     private static boolean skipStackTrace(final Exception exception) {
         return SKIP_STACK_TRACE.contains(exception.getClass());
     }
+
+
 }

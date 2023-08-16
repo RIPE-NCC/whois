@@ -7,15 +7,15 @@ import net.ripe.db.whois.common.rpsl.ObjectType
 import net.ripe.db.whois.common.rpsl.RpslAttribute
 import net.ripe.db.whois.common.rpsl.RpslObject
 import net.ripe.db.whois.query.support.TestWhoisLog
-import net.ripe.db.whois.spec.domain.AckResponse
-import net.ripe.db.whois.spec.domain.Message
-import net.ripe.db.whois.spec.domain.NotificationResponse
-import net.ripe.db.whois.spec.domain.SyncUpdate
-import net.ripe.db.whois.spec.domain.SyncUpdateResponse
+import net.ripe.db.whois.spec.domain.*
 import net.ripe.db.whois.update.dns.DnsGatewayStub
+import org.eclipse.jetty.http.HttpHeader
+import org.eclipse.jetty.http.HttpScheme
 import spock.lang.Specification
 
 import javax.mail.Address
+import javax.ws.rs.core.MultivaluedHashMap
+import javax.ws.rs.core.MultivaluedMap
 
 class BaseEndToEndSpec extends Specification {
     static WhoisFixture whoisFixture
@@ -237,11 +237,18 @@ ${notification.contents}
     }
 
     String syncUpdate(String content) {
-        syncUpdate(content, null, false)
+        syncUpdate(content, null, false, null)
     }
 
-    String syncUpdate(String content, String charset, boolean notifications) {
-        def response = syncUpdate(new SyncUpdate(data: content, charset: charset))
+    String syncUpdateHttp(String content) {
+        MultivaluedMap<String, String> headers = new MultivaluedHashMap<>();
+        headers.add(HttpHeader.X_FORWARDED_PROTO.toString(), HttpScheme.HTTP.toString())
+
+        syncUpdate(content, null, false, headers)
+    }
+
+    String syncUpdate(String content, String charset, boolean notifications, MultivaluedMap<String, String> headers) {
+        def response = syncUpdate(new SyncUpdate(data: content, charset: charset, headers: headers))
         if (!notifications) {
             clearAllMails()
         }
@@ -264,7 +271,8 @@ ${syncUpdate.getData()}
 <<<<<
 """
 
-        def response = whoisFixture.syncupdate(syncUpdate.getData(), syncUpdate.getCharset(), syncUpdate.isHelp(), syncUpdate.isDiff(), syncUpdate.isForceNew(), syncUpdate.isRedirect())
+        def response = whoisFixture.syncupdate(syncUpdate.getData(), syncUpdate.getCharset(), syncUpdate.isHelp(),
+                syncUpdate.isDiff(), syncUpdate.isForceNew(), syncUpdate.isRedirect(), syncUpdate.getHeaders())
 
         print """\
 >>>>> RECEIVE SYNCUPDATE RESPONSE

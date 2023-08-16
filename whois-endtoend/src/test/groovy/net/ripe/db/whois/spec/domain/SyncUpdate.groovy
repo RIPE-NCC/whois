@@ -1,8 +1,11 @@
 package net.ripe.db.whois.spec.domain
 
+import javax.ws.rs.core.MultivaluedMap
+
 class SyncUpdate {
     String data
     String charset
+    MultivaluedMap<String, String> headers
     boolean help
     boolean diff
     boolean forceNew
@@ -14,6 +17,10 @@ class SyncUpdate {
 
     def setCharset(String charset) {
         this.charset = charset
+    }
+
+    def setHeaders(MultivaluedMap<String, String> headers) {
+        this.headers = headers
     }
 
     def setRawData(String rawData) {

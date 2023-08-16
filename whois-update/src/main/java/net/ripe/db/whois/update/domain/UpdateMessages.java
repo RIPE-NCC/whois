@@ -83,6 +83,10 @@ public final class UpdateMessages {
         return new Message(Type.ERROR, "Reference \"%s\" not found", reference);
     }
 
+    public static Message httpSyncupdate(){
+        return new Message(Type.WARNING, "This Syncupdates request used insecure HTTP, which may be removed in a future release. Please switch to HTTPS.");
+    }
+
     public static Message invalidReference(final ObjectType objectType, final CharSequence key) {
         return new Message(Type.ERROR, "Invalid reference to [%s] %s", objectType.getName(), key);
     }
