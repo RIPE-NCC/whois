@@ -741,11 +741,11 @@ class RoleSpec extends BaseQueryUpdateSpec {
         ack.countErrorWarnInfo(0, 3, 0)
         ack.successes.any { it.operation == "Create" && it.key == "[role] FR1-TEST   Abuse Role" }
         def warnings = ack.allWarnings
-        warnings[0] == " This Syncupdates request used insecure HTTP, which may be removed in\n" +
+        warnings[0] == "This Syncupdates request used insecure HTTP, which may be removed in\n" +
                 "            a future release. Please switch to HTTPS."
-        warnings[1] == " Value changed due to conversion of IDN email address(es) into\n" +
+        warnings[1] == "Value changed due to conversion of IDN email address(es) into\n" +
                 "            Punycode"
-        warnings[2] == " There are no limits on queries for ROLE objects containing\n" +
+        warnings[2] == "There are no limits on queries for ROLE objects containing\n" +
                 "            \"abuse-mailbox:\""
 
         query_object_matches("-T role FR1-TEST", "role", "Abuse Role", "email@xn--zrich-kva.example")

@@ -102,9 +102,9 @@ This update was processed by RIPE Database Update Service version 1.21-SNAPSHOT 
         def warnings = response.allWarnings
       then:
         warnings.size() == 3
-        warnings[0] == " Invalid keyword(s) found: create with notify"
-        warnings[1] == " All keywords were ignored"
-        warnings[2] == " Some warning"
+        warnings[0] == "Invalid keyword(s) found: create with notify"
+        warnings[1] == "All keywords were ignored"
+        warnings[2] == "Some warning"
     }
 
     def errorSection() {
