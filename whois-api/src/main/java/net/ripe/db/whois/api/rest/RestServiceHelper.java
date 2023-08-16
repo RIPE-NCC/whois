@@ -17,8 +17,6 @@ import net.ripe.db.whois.common.sso.AuthServiceClientException;
 import net.ripe.db.whois.query.QueryMessages;
 import net.ripe.db.whois.query.domain.QueryCompletionInfo;
 import net.ripe.db.whois.query.domain.QueryException;
-import net.ripe.db.whois.update.domain.UpdateContext;
-import net.ripe.db.whois.update.domain.UpdateMessages;
 import org.apache.commons.lang.StringUtils;
 import org.eclipse.jetty.http.HttpHeader;
 import org.eclipse.jetty.http.HttpScheme;
@@ -177,11 +175,9 @@ public class RestServiceHelper {
         return new WebApplicationException(responseBuilder.build());
     }
 
-    public static void checkHttp(final HttpServletRequest request, final UpdateContext updateContext) {
+    public static boolean isHttpProtocol(final HttpServletRequest request) {
         final String header = request.getHeader(HttpHeader.X_FORWARDED_PROTO.toString());
-        if (!org.apache.commons.lang3.StringUtils.isEmpty(header) && HttpScheme.HTTP.is(header)){
-            updateContext.addGlobalMessage(UpdateMessages.httpSyncupdate());
-        }
+        return !org.apache.commons.lang.StringUtils.isEmpty(header) && HttpScheme.HTTP.is(header);
     }
 
     private static boolean skipStackTrace(final Exception exception) {
