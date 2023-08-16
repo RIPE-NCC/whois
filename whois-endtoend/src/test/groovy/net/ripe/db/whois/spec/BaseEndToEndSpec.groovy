@@ -13,12 +13,9 @@ import net.ripe.db.whois.spec.domain.NotificationResponse
 import net.ripe.db.whois.spec.domain.SyncUpdate
 import net.ripe.db.whois.spec.domain.SyncUpdateResponse
 import net.ripe.db.whois.update.dns.DnsGatewayStub
-import org.eclipse.jetty.http.HttpHeader
-import org.eclipse.jetty.http.HttpScheme
 import spock.lang.Specification
 
 import javax.mail.Address
-import javax.ws.rs.core.MultivaluedHashMap
 import javax.ws.rs.core.MultivaluedMap
 
 class BaseEndToEndSpec extends Specification {
@@ -243,13 +240,6 @@ ${notification.contents}
 
     String syncUpdate(String content) {
         syncUpdate(content, null, false, null)
-    }
-
-    String syncUpdateHttp(String content) {
-        MultivaluedMap<String, String> headers = new MultivaluedHashMap<>();
-        headers.add(HttpHeader.X_FORWARDED_PROTO.toString(), HttpScheme.HTTP.toString())
-
-        syncUpdate(content, null, false, headers)
     }
 
     String syncUpdate(String content, String charset, boolean notifications, MultivaluedMap<String, String> headers) {

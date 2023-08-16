@@ -4,6 +4,11 @@ package net.ripe.db.whois.spec.update
 import net.ripe.db.whois.spec.BaseQueryUpdateSpec
 import net.ripe.db.whois.spec.domain.AckResponse
 import net.ripe.db.whois.spec.domain.Message
+import org.eclipse.jetty.http.HttpHeader
+import org.eclipse.jetty.http.HttpScheme
+
+import javax.ws.rs.core.MultivaluedHashMap
+import javax.ws.rs.core.MultivaluedMap
 
 @org.junit.jupiter.api.Tag("IntegrationTest")
 class RoleSpec extends BaseQueryUpdateSpec {
@@ -716,7 +721,9 @@ class RoleSpec extends BaseQueryUpdateSpec {
         queryObjectNotFound("-r -T role FR1-TEST", "role", "Abuse Role")
 
         when:
-        def message = syncUpdateHttp("""
+        MultivaluedMap<String, String> headers = new MultivaluedHashMap<>();
+        headers.add(HttpHeader.X_FORWARDED_PROTO.toString(), HttpScheme.HTTP.toString())
+        def message = syncUpdate("""
                 role:          Abuse Role
                 address:       St James Street
                 address:       Burnley
@@ -728,7 +735,7 @@ class RoleSpec extends BaseQueryUpdateSpec {
                 source:        TEST
 
                 password: owner
-                """.stripIndent(true)
+                """.stripIndent(true), null, false, headers
         )
 
         then:
