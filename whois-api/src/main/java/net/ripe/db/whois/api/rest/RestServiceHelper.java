@@ -183,6 +183,4 @@ public class RestServiceHelper {
     private static boolean skipStackTrace(final Exception exception) {
         return SKIP_STACK_TRACE.contains(exception.getClass());
     }
-
-
 }

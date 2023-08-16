@@ -160,7 +160,6 @@ ${result}
     }
 
     def send(String message) {
-
         whoisFixture.send(message)
     }
 
