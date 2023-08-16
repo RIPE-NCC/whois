@@ -99,51 +99,6 @@
             <artifactId>jaxb-runtime</artifactId>
         </dependency>
 
-        <!-- Lucene full text search -->
-        <dependency>
-            <groupId>org.apache.lucene</groupId>
-            <artifactId>lucene-core</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.lucene</groupId>
-            <artifactId>lucene-queries</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.lucene</groupId>
-            <artifactId>lucene-queryparser</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.lucene</groupId>
-            <artifactId>lucene-analyzers-common</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.lucene</groupId>
-            <artifactId>lucene-highlighter</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.lucene</groupId>
-            <artifactId>lucene-facet</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>com.googlecode.ez-vcard</groupId>
-            <artifactId>ez-vcard</artifactId>
-        </dependency>
-
-        <dependency>
-            <groupId>commons-io</groupId>
-            <artifactId>commons-io</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>commons-net</groupId>
-            <artifactId>commons-net</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.commons</groupId>
-            <artifactId>commons-compress</artifactId>
-        </dependency>
-
-        <!-- testing -->
-
         <!-- Solr -->
         <dependency>
             <groupId>org.apache.solr</groupId>
@@ -173,7 +128,7 @@
             <artifactId>whois-update</artifactId>
             <type>test-jar</type>
         </dependency>
-        
+
         <!-- JSON testing -->
 
         <dependency>
@@ -194,7 +149,6 @@
             <version>1.07.00</version>
             <scope>test</scope>
         </dependency>
-
 
     </dependencies>
 

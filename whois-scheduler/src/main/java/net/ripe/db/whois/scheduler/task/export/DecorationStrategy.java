@@ -2,7 +2,6 @@ package net.ripe.db.whois.scheduler.task.export;
 
 import com.google.common.collect.Sets;
 import net.ripe.db.whois.common.rpsl.DummifierNrtm;
-import net.ripe.db.whois.common.rpsl.DummifierCurrent;
 import net.ripe.db.whois.common.rpsl.ObjectType;
 import net.ripe.db.whois.common.rpsl.RpslObject;
 import net.ripe.db.whois.common.rpsl.transform.FilterChangedFunction;
@@ -18,12 +17,12 @@ public interface DecorationStrategy {
         }
     }
 
-    class DummifyLegacy implements DecorationStrategy {
+    class DummifySplitFiles implements DecorationStrategy {
         private static final int VERSION = 3;
         private final DummifierNrtm dummifier;
         private final Set<ObjectType> writtenPlaceHolders = Sets.newHashSet();
 
-        public DummifyLegacy(final DummifierNrtm dummifier) {
+        public DummifySplitFiles(final DummifierNrtm dummifier) {
             this.dummifier = dummifier;
         }
 
@@ -42,23 +41,6 @@ public interface DecorationStrategy {
                 }
             }
 
-            return null;
-        }
-    }
-
-    class DummifyCurrent implements DecorationStrategy {
-        private static final int VERSION = 3;
-        private final DummifierCurrent dummifier;
-
-        public DummifyCurrent(final DummifierCurrent dummifier) {
-            this.dummifier = dummifier;
-        }
-
-        @Override
-        public RpslObject decorate(final RpslObject object) {
-            if (dummifier.isAllowed(VERSION, object)) {
-                return dummifier.dummify(VERSION, object);
-            }
             return null;
         }
     }
