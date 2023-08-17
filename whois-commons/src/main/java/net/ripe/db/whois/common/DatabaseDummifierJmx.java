@@ -81,10 +81,12 @@ public class DatabaseDummifierJmx extends JmxBase {
         return invokeOperation("dummify", jdbcUrl, new Callable<String>() {
             @Override
             public String call() {
-                validateEnvironment(env);
                 final SimpleDataSourceFactory simpleDataSourceFactory = new SimpleDataSourceFactory("org.mariadb.jdbc.Driver");
                 final DataSource dataSource = simpleDataSourceFactory.createDataSource(jdbcUrl, user, pass);
                 jdbcTemplate = new JdbcTemplate(dataSource);
+
+                final String dbEnvironment = jdbcTemplate.queryForObject("SELECT name FROM environment LIMIT 1", String.class);
+                validateEnvironment(env, dbEnvironment);
 
                 final DataSourceTransactionManager transactionManager = new DataSourceTransactionManager(dataSource);
                 transactionTemplate = new TransactionTemplate(transactionManager);
@@ -120,7 +122,13 @@ public class DatabaseDummifierJmx extends JmxBase {
         });
     }
 
-    private void validateEnvironment(final EnvironmentEnum env) {
+    private void validateEnvironment(final EnvironmentEnum env, final String dbEnvironment) {
+        if (dbEnvironment == null){
+            throw new IllegalStateException("Environment no specified  in the schema");
+        }
+        if (!env.name().equalsIgnoreCase(dbEnvironment)){
+            throw new IllegalArgumentException("Requested environment and database environment doesn't match");
+        }
         if (EnvironmentEnum.PROD.equals(env)) {
             throw new IllegalArgumentException("dummifier runs on non-production environments only");
         }
