@@ -84,9 +84,7 @@ public class DatabaseDummifierJmx extends JmxBase {
                 final SimpleDataSourceFactory simpleDataSourceFactory = new SimpleDataSourceFactory("org.mariadb.jdbc.Driver");
                 final DataSource dataSource = simpleDataSourceFactory.createDataSource(jdbcUrl, user, pass);
                 jdbcTemplate = new JdbcTemplate(dataSource);
-
-                final String dbEnvironment = jdbcTemplate.queryForObject("SELECT name FROM environment LIMIT 1", String.class);
-                validateEnvironment(env, dbEnvironment);
+                validateEnvironment(env);
 
                 final DataSourceTransactionManager transactionManager = new DataSourceTransactionManager(dataSource);
                 transactionTemplate = new TransactionTemplate(transactionManager);
@@ -122,9 +120,10 @@ public class DatabaseDummifierJmx extends JmxBase {
         });
     }
 
-    private void validateEnvironment(final EnvironmentEnum env, final String dbEnvironment) {
+    private void validateEnvironment(final EnvironmentEnum env) {
+        final String dbEnvironment = jdbcTemplate.queryForObject("SELECT name FROM environment LIMIT 1", String.class);
         if (dbEnvironment == null){
-            throw new IllegalStateException("Environment no specified  in the schema");
+            throw new IllegalStateException("Environment not specified in the schema");
         }
         if (!env.name().equalsIgnoreCase(dbEnvironment)){
             throw new IllegalArgumentException("Requested environment and database environment doesn't match");
