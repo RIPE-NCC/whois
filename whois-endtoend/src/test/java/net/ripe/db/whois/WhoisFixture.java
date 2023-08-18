@@ -45,6 +45,7 @@ import org.springframework.test.util.ReflectionTestUtils;
 import javax.mail.MessagingException;
 import javax.mail.internet.MimeMessage;
 import javax.sql.DataSource;
+import javax.ws.rs.core.MultivaluedMap;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -192,11 +193,14 @@ public class WhoisFixture {
         rpslObjectUpdateDao.deleteObject(byKey.getObjectId(), byKey.getKey());
     }
 
-    public String syncupdate(final String data, final String charset, final boolean isHelp, final boolean isDiff, final boolean isNew, final boolean isRedirect) {
-        return syncupdate(jettyBootstrap, data, charset, isHelp, isDiff, isNew, isRedirect);
+    public String syncupdate(final String data, final String charset, final boolean isHelp, final boolean isDiff,
+                             final boolean isNew, final boolean isRedirect, final MultivaluedMap<String, String> headers) {
+        return syncupdate(jettyBootstrap, data, charset, isHelp, isDiff, isNew, isRedirect, headers);
     }
 
-    public static String syncupdate(final JettyBootstrap jettyBootstrap, final String data, final String charset, final boolean isHelp, final boolean isDiff, final boolean isNew, final boolean isRedirect) {
+    public static String syncupdate(final JettyBootstrap jettyBootstrap, final String data, final String charset,
+                                    final boolean isHelp, final boolean isDiff, final boolean isNew,
+                                    final boolean isRedirect, final MultivaluedMap<String, String> headers) {
         return new SyncUpdateBuilder()
                 .setHost("localhost")
                 .setPort(jettyBootstrap.getPort())
@@ -207,6 +211,7 @@ public class WhoisFixture {
                 .setDiff(isDiff)
                 .setNew(isNew)
                 .setRedirect(isRedirect)
+                .setHeaders(headers)
                 .build()
                 .post();
     }
