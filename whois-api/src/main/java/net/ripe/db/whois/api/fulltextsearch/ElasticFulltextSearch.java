@@ -26,6 +26,7 @@ import org.elasticsearch.search.aggregations.bucket.terms.Terms;
 import org.elasticsearch.search.aggregations.bucket.terms.TermsAggregationBuilder;
 import org.elasticsearch.search.builder.SearchSourceBuilder;
 import org.elasticsearch.search.fetch.subphase.highlight.HighlightBuilder;
+import org.elasticsearch.search.fetch.subphase.highlight.HighlightField;
 import org.elasticsearch.search.sort.SortBuilder;
 import org.elasticsearch.search.sort.SortBuilders;
 import org.slf4j.Logger;
@@ -242,19 +243,21 @@ public class ElasticFulltextSearch extends FulltextSearch {
                 return;
             }
             if(attribute.contains(".custom")) {
-                final SearchResponse.Arr arr = new SearchResponse.Arr(StringUtils.substringBefore(highlightField.name(), ".custom"));
-                arr.setStr(new SearchResponse.Str(null, StringUtils.join(highlightField.getFragments(), ",")));
-                documentArrs.add(arr);
+                addHighlight(highlightField, ".custom", documentArrs);
 
                 //Somehow if searched term contains "." highlight field custom has no value for it.
             } else if(!hit.getHighlightFields().containsKey(attribute + ".custom"))  {
-                final SearchResponse.Arr arr = new SearchResponse.Arr(highlightField.name());
-                arr.setStr(new SearchResponse.Str(null, StringUtils.join(highlightField.getFragments(), ",")));
-                documentArrs.add(arr);
+                addHighlight(highlightField, ".raw", documentArrs);
             }
         });
         documentLst.setArrs(documentArrs);
         return documentLst;
+    }
+
+    private static void addHighlight(final HighlightField highlightField, final String separator, final List<SearchResponse.Arr> documentArrs) {
+        final SearchResponse.Arr arr = new SearchResponse.Arr(StringUtils.substringBefore(highlightField.name(), separator));
+        arr.setStr(new SearchResponse.Str(null, StringUtils.join(highlightField.getFragments(), ",")));
+        documentArrs.add(arr);
     }
 
     private SearchResponse.Lst getCountByType(final Terms facets) {
