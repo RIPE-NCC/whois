@@ -27,10 +27,22 @@
         <dependency>
             <groupId>net.ripe.db</groupId>
             <artifactId>whois-update</artifactId>
+            <exclusions>
+                <exclusion>
+                    <groupId>org.bouncycastle</groupId>
+                    <artifactId>bcprov-jdk15on</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
         <dependency>
             <groupId>net.ripe.db</groupId>
             <artifactId>whois-nrtm4</artifactId>
+            <exclusions>
+                <exclusion>
+                    <groupId>org.bouncycastle</groupId>
+                    <artifactId>bcprov-jdk15on</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
         <dependency>
             <groupId>commons-validator</groupId>
@@ -243,8 +255,6 @@
                     <usedDependencies>
                         <dependency>org.glassfish.jersey.containers:jersey-container-servlet</dependency>
                         <dependency>org.springframework:spring-oxm</dependency>
-                        <dependency>org.apache.lucene:lucene-queries</dependency>
-                        <dependency>com.googlecode.ez-vcard:ez-vcard</dependency>
                     </usedDependencies>
 
                     <!-- Ignore dependencies coming from another dependencies that we are already using, and for
@@ -296,6 +306,9 @@
                         <ignoredUsedUndeclaredDependency>stax:stax-api</ignoredUsedUndeclaredDependency>
                         <ignoredUsedUndeclaredDependency>org.elasticsearch:elasticsearch</ignoredUsedUndeclaredDependency>
                         <ignoredUsedUndeclaredDependency>org.elasticsearch.client:elasticsearch-rest-high-level-client</ignoredUsedUndeclaredDependency>
+                        <ignoredUsedUndeclaredDependency>org.bouncycastle:bcprov-jdk15on</ignoredUsedUndeclaredDependency>
+                        <ignoredUsedUndeclaredDependency>org.apache.lucene:lucene-core</ignoredUsedUndeclaredDependency>
+                        <ignoredUsedUndeclaredDependency>com.vaadin.external.google:android-json</ignoredUsedUndeclaredDependency>
                     </ignoredUsedUndeclaredDependencies>
 
                     <!-- Ignore dependencies coming from another dependency and which we are just using in
