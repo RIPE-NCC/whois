@@ -71,7 +71,6 @@
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-dependency-plugin</artifactId>
                 <configuration>
-
                     <!-- Ignore dependencies coming from another dependencies that we are already using, and for
                     which we don't want to take control -->
                     <ignoredUsedUndeclaredDependencies>
@@ -88,6 +87,11 @@
                         <ignoredUsedUndeclaredDependency>net.javacrumbs.shedlock:shedlock-spring</ignoredUsedUndeclaredDependency>
                         <ignoredUsedUndeclaredDependency>org.slf4j:slf4j-api</ignoredUsedUndeclaredDependency>
                         <ignoredUsedUndeclaredDependency>org.eclipse.jetty.toolchain:jetty-servlet-api:jar</ignoredUsedUndeclaredDependency>
+                        <ignoredUsedUndeclaredDependency>commons-lang:commons-lang:jar</ignoredUsedUndeclaredDependency>
+                        <ignoredUsedUndeclaredDependency>jakarta.annotation:jakarta.annotation-api:jar</ignoredUsedUndeclaredDependency>
+                        <ignoredUsedUndeclaredDependency>org.springframework:spring-core:jar</ignoredUsedUndeclaredDependency>
+                        <ignoredUsedUndeclaredDependency>com.mchange:c3p0:jar</ignoredUsedUndeclaredDependency>
+                        <ignoredUsedUndeclaredDependency>jakarta.ws.rs:jakarta.ws.rs-api:jar</ignoredUsedUndeclaredDependency>
                     </ignoredUsedUndeclaredDependencies>
                 </configuration>
             </plugin>

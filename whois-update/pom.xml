@@ -124,6 +124,7 @@
                         <ignoredUsedUndeclaredDependency>com.google.guava:guava</ignoredUsedUndeclaredDependency>
                         <ignoredUsedUndeclaredDependency>org.springframework:spring-core</ignoredUsedUndeclaredDependency>
                         <ignoredUsedUndeclaredDependency>org.springframework:spring-context</ignoredUsedUndeclaredDependency>
+                        <ignoredUsedUndeclaredDependency>commons-collections:commons-collections</ignoredUsedUndeclaredDependency>
                     </ignoredUsedUndeclaredDependencies>
 
                     <!-- Ignore dependencies coming from another dependency and which we are just using in

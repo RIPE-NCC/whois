@@ -113,6 +113,7 @@
                     test scope in this module -->
                     <ignoredNonTestScopedDependencies>
                         <ignoredNonTestScopedDependency>org.eclipse.jetty.toolchain:jetty-servlet-api</ignoredNonTestScopedDependency>
+                        <ignoredNonTestScopedDependency>net.ripe.db:whois-api</ignoredNonTestScopedDependency>
                     </ignoredNonTestScopedDependencies>
                 </configuration>
             </plugin>
