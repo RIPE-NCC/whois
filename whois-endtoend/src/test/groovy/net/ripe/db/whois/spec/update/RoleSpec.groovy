@@ -10,9 +10,6 @@ import org.eclipse.jetty.http.HttpScheme
 import javax.ws.rs.core.MultivaluedHashMap
 import javax.ws.rs.core.MultivaluedMap
 
-import static org.hamcrest.MatcherAssert.assertThat
-import static org.hamcrest.Matchers.containsString
-
 @org.junit.jupiter.api.Tag("IntegrationTest")
 class RoleSpec extends BaseQueryUpdateSpec {
 
