@@ -26,7 +26,6 @@ Number of objects processed with errors:   26
 DETAILED EXPLANATION:
 
 ***Warning: Invalid keyword(s) found: create with notify
-
 ***Warning: All keywords were ignored
 
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~

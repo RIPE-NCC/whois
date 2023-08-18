@@ -21,7 +21,7 @@ abstract class Response extends BasicResponse {
 
     def getAllInfos() { strings(/(?m)^\*\*\*Info:\s*(.*)$/) }
 
-    def getAllWarnings() { strings(/(?m)^\*\*\*Warning:\s((.|[\s\S]*?(?=\n{2,}))*)$/) }
+    def getAllWarnings() { strings(/(?m)^\*\*\*Warning:\s*(.*)$/) }
 
     def getAllErrors() { strings(/(?m)^\*\*\*Error:\s*(.*)$/) }
 
