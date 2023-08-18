@@ -92,6 +92,7 @@
         <spring.version>5.3.29</spring.version>
         <springockito.version>1.0.9</springockito.version>
         <spock.version>2.3-groovy-3.0</spock.version>
+        <maven.dependency>3.5.0</maven.dependency>
         <stax-utils.version>20070216</stax-utils.version>
 
         <validation.version>2.0.1.Final</validation.version>
@@ -525,11 +526,6 @@
                  <artifactId>jackson-annotations</artifactId>
                  <version>${jackson.version}</version>
              </dependency>
-            <dependency>
-                <groupId>com.fasterxml.jackson.core</groupId>
-                <artifactId>jackson-databind</artifactId>
-                <version>${jackson.version}</version>
-            </dependency>
 
             <!-- StaxUtils for the XMLWriterUtils -->
             <dependency>
@@ -1047,7 +1043,7 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-dependency-plugin</artifactId>
-                <version>3.5.0</version>
+                <version>${maven.dependency}</version>
             </plugin>
         </plugins>
     </build>

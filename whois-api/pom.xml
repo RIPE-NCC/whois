@@ -27,26 +27,10 @@
         <dependency>
             <groupId>net.ripe.db</groupId>
             <artifactId>whois-update</artifactId>
-            <exclusions>
-                <exclusion>
-                    <groupId>org.bouncycastle</groupId>
-                    <artifactId>bcpg-jdk15on</artifactId>
-                </exclusion>
-                <exclusion>
-                    <groupId>org.bouncycastle</groupId>
-                    <artifactId>bcprov-jdk15on</artifactId>
-                </exclusion>
-            </exclusions>
         </dependency>
         <dependency>
             <groupId>net.ripe.db</groupId>
             <artifactId>whois-nrtm4</artifactId>
-            <exclusions>
-                <exclusion>
-                    <groupId>org.bouncycastle</groupId>
-                    <artifactId>bcprov-jdk15on</artifactId>
-                </exclusion>
-            </exclusions>
         </dependency>
         <dependency>
             <groupId>commons-validator</groupId>
@@ -132,12 +116,6 @@
         <dependency>
             <groupId>net.ripe.db</groupId>
             <artifactId>whois-commons</artifactId>
-            <exclusions>
-                <exclusion>
-                    <groupId>org.apache.lucene</groupId>
-                    <artifactId>lucene-core</artifactId>
-                </exclusion>
-            </exclusions>
             <type>test-jar</type>
         </dependency>
         <dependency>
@@ -148,16 +126,6 @@
         <dependency>
             <groupId>net.ripe.db</groupId>
             <artifactId>whois-update</artifactId>
-            <exclusions>
-                <exclusion>
-                    <groupId>org.bouncycastle</groupId>
-                    <artifactId>bcpg-jdk15on</artifactId>
-                </exclusion>
-                <exclusion>
-                    <groupId>org.bouncycastle</groupId>
-                    <artifactId>bcprov-jdk15on</artifactId>
-                </exclusion>
-            </exclusions>
             <type>test-jar</type>
         </dependency>
 
@@ -167,12 +135,6 @@
             <groupId>org.skyscreamer</groupId>
             <artifactId>jsonassert</artifactId>
             <version>1.5.1</version>
-            <exclusions>
-                <exclusion>
-                    <groupId>com.vaadin.external.google</groupId>
-                    <artifactId>android-json</artifactId>
-                </exclusion>
-            </exclusions>
             <scope>test</scope>
         </dependency>
         <dependency>
@@ -281,6 +243,8 @@
                     <usedDependencies>
                         <dependency>org.glassfish.jersey.containers:jersey-container-servlet</dependency>
                         <dependency>org.springframework:spring-oxm</dependency>
+                        <dependency>org.apache.lucene:lucene-queries</dependency>
+                        <dependency>com.googlecode.ez-vcard:ez-vcard</dependency>
                     </usedDependencies>
 
                     <!-- Ignore dependencies coming from another dependencies that we are already using, and for
