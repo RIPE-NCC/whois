@@ -287,7 +287,7 @@ ${response}
     }
 
     SyncUpdateResponse syncUpdateWithResponseWithNotifications(String content) {
-        new SyncUpdateResponse(syncUpdate(content, null, true));
+        new SyncUpdateResponse(syncUpdate(content, null, true, null));
     }
 
     def noMoreMessages() {
