@@ -64,7 +64,7 @@ public class ElasticAutocompleteServiceTestIntegration extends AbstractElasticSe
         databaseHelper.addObject("mntner: random1-mnt");
         databaseHelper.addObject("mntner: random2-mnt");
 
-        elasticFullTextIndex.update();
+        rebuildIndex();
         Uninterruptibles.sleepUninterruptibly(1, TimeUnit.SECONDS);
     }
 
