@@ -43,6 +43,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
+import java.util.function.Function;
+import java.util.stream.Collector;
 import java.util.stream.Collectors;
 
 import static net.ripe.db.whois.api.elasticsearch.ElasticIndexService.LOOKUP_KEY_FIELD_NAME;
@@ -238,22 +240,25 @@ public class ElasticFulltextSearch extends FulltextSearch {
         final SearchResponse.Lst documentLst = new SearchResponse.Lst(hit.getId());
         final List<SearchResponse.Arr> documentArrs = Lists.newArrayList();
 
-        hit.getHighlightFields().forEach((attribute, highlightField) -> {
-            if(StringUtils.isEmpty(attribute) || attribute.startsWith("lookup-key")){
+        hit.getHighlightFields().values().stream().collect(getHighlightsCollector()).forEach((attribute, highlightField) -> {
+            if("lookup-key".equals(attribute)){
                 return;
             }
 
-            LOGGER.info("Highligted fields are: {} -{}  ", highlightField.name(), StringUtils.join(highlightField.getFragments(), ","));
-            final String attributeName  = attribute.contains(".custom") ?
-                                                StringUtils.substringBefore(highlightField.name(), ".custom" ) :
-                                                StringUtils.substringBefore(highlightField.name(), ".raw" );
-
-            final SearchResponse.Arr arr = new SearchResponse.Arr(attributeName);
+            final SearchResponse.Arr arr = new SearchResponse.Arr(attribute);
             arr.setStr(new SearchResponse.Str(null, StringUtils.join(highlightField.getFragments(), ",")));
             documentArrs.add(arr);
         });
+
         documentLst.setArrs(documentArrs);
         return documentLst;
+    }
+
+    private static Collector<HighlightField, ?, Map<String, HighlightField>> getHighlightsCollector() {
+        return Collectors.toMap(highlightField -> highlightField.name().contains(".custom") ?
+                        StringUtils.substringBefore(highlightField.name(), ".custom") :
+                        StringUtils.substringBefore(highlightField.name(), ".raw"), Function.identity(),
+                (existing, replacement) -> existing);
     }
 
     private SearchResponse.Lst getCountByType(final Terms facets) {
