@@ -239,25 +239,21 @@ public class ElasticFulltextSearch extends FulltextSearch {
         final List<SearchResponse.Arr> documentArrs = Lists.newArrayList();
 
         hit.getHighlightFields().forEach((attribute, highlightField) -> {
-            if("lookup-key".equals(attribute) || "lookup-key.custom".equals(attribute)){
+            if(StringUtils.isEmpty(attribute) || attribute.startsWith("lookup-key")){
                 return;
             }
-            if(attribute.contains(".custom")) {
-                addHighlight(highlightField, ".custom", documentArrs);
 
-                //Somehow if searched term contains "." highlight field custom has no value for it.
-            } else if(!hit.getHighlightFields().containsKey(attribute + ".custom"))  {
-                addHighlight(highlightField, ".raw", documentArrs);
-            }
+            LOGGER.info("Highligted fields are: {} -{}  ", highlightField.name(), StringUtils.join(highlightField.getFragments(), ","));
+            final String attributeName  = attribute.contains(".custom") ?
+                                                StringUtils.substringBefore(highlightField.name(), ".custom" ) :
+                                                StringUtils.substringBefore(highlightField.name(), ".raw" );
+
+            final SearchResponse.Arr arr = new SearchResponse.Arr(attributeName);
+            arr.setStr(new SearchResponse.Str(null, StringUtils.join(highlightField.getFragments(), ",")));
+            documentArrs.add(arr);
         });
         documentLst.setArrs(documentArrs);
         return documentLst;
-    }
-
-    private static void addHighlight(final HighlightField highlightField, final String separator, final List<SearchResponse.Arr> documentArrs) {
-        final SearchResponse.Arr arr = new SearchResponse.Arr(StringUtils.substringBefore(highlightField.name(), separator));
-        arr.setStr(new SearchResponse.Str(null, StringUtils.join(highlightField.getFragments(), ",")));
-        documentArrs.add(arr);
     }
 
     private SearchResponse.Lst getCountByType(final Terms facets) {
