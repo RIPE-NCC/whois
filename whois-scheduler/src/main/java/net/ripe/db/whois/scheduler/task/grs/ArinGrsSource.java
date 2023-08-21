@@ -23,7 +23,6 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.Nullable;
-import javax.ws.rs.BadRequestException;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
