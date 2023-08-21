@@ -9,6 +9,9 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.PostConstruct;
+import javax.ws.rs.BadRequestException;
+import javax.ws.rs.ClientErrorException;
+import javax.ws.rs.NotFoundException;
 
 @Component
 public class SentryConfigurations {
@@ -39,6 +42,7 @@ public class SentryConfigurations {
             options.setRelease(String.format("%s@%s",environment, applicationVersion.getCommitId()));
             options.setDsn(sentryDsn);
             options.setEnvironment(environment);
+            options.addIgnoredExceptionForType(ClientErrorException.class);
         });
     }
 }

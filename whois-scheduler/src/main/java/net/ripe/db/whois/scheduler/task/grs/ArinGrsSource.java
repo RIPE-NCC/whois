@@ -16,11 +16,14 @@ import net.ripe.db.whois.common.rpsl.RpslObject;
 import net.ripe.db.whois.common.rpsl.RpslObjectBuilder;
 import net.ripe.db.whois.common.source.SourceContext;
 import org.apache.commons.lang.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.Nullable;
+import javax.ws.rs.BadRequestException;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
@@ -28,6 +31,7 @@ import java.io.InputStreamReader;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -42,6 +46,8 @@ import static net.ripe.db.whois.common.domain.CIString.ciString;
 
 @Component
 class ArinGrsSource extends GrsSource {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(ArinGrsSource.class);
     private static final Pattern IPV6_SPLIT_PATTERN = Pattern.compile("(?i)([0-9a-f:]*)\\s*-\\s*([0-9a-f:]*)\\s*");
     private static final Pattern AS_NUMBER_RANGE = Pattern.compile("^(\\d+) [-] (\\d+)$");
 
@@ -70,10 +76,8 @@ class ArinGrsSource extends GrsSource {
 
     @Override
     public void handleObjects(final File file, final ObjectHandler handler) throws IOException {
-        ZipFile zipFile = null;
 
-        try {
-            zipFile = new ZipFile(file, ZipFile.OPEN_READ);
+        try (ZipFile zipFile = new ZipFile(file, ZipFile.OPEN_READ)) {
             final ZipEntry zipEntry = zipFile.getEntry(zipEntryName);
             if (zipEntry == null) {
                 logger.error("Zipfile {} does not contain dump {}", file, zipEntryName);
@@ -102,9 +106,16 @@ class ArinGrsSource extends GrsSource {
                             final Matcher rangeMatcher = AS_NUMBER_RANGE.matcher(asnumber);
                             if (rangeMatcher.find()) {
                                 final List<RpslObject> objects = Lists.newArrayList();
-
-                                final int begin = Integer.parseInt(rangeMatcher.group(1));
-                                final int end = Integer.parseInt(rangeMatcher.group(2));
+                                int begin;
+                                int end;
+                                try {
+                                    begin = Integer.parseInt(rangeMatcher.group(1));
+                                    end = Integer.parseInt(rangeMatcher.group(2));
+                                } catch (NumberFormatException ex) {
+                                    //Ignoring those asnumbers from Arin with big numbers
+                                    LOGGER.info(asnumber + " is too large to parse to Integer");
+                                    return Collections.emptyList();
+                                }
 
                                 for (int index = begin; index <= end; index++) {
                                     attributes.set(0, new RpslAttribute(AttributeType.AUT_NUM, String.format("AS%d", index)));
@@ -129,7 +140,6 @@ class ArinGrsSource extends GrsSource {
 
                         final AttributeType attributeType = attribute.getType();
                         if (attributeType == null) {
-                            continue;
                         } else if (AttributeType.INETNUM.equals(attributeType) || AttributeType.INET6NUM.equals(attributeType)) {
                             newAttributes.add(0, attribute);
                         } else {
@@ -150,10 +160,6 @@ class ArinGrsSource extends GrsSource {
                     return null;
                 }
             });
-        } finally {
-            if (zipFile != null) {
-                zipFile.close();
-            }
         }
     }
 

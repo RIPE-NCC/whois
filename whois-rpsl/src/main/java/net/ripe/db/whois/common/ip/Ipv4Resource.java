@@ -9,6 +9,7 @@ import org.apache.commons.lang.Validate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.ws.rs.BadRequestException;
 import java.net.Inet4Address;
 import java.net.InetAddress;
 import java.util.ArrayList;
@@ -111,7 +112,12 @@ public final class Ipv4Resource extends IpInterval<Ipv4Resource> implements Comp
             return new Ipv4Resource(begin, end);
         }
 
-        return new Ipv4Resource(InetAddresses.forString(resource));
+        try {
+            return new Ipv4Resource(InetAddresses.forString(resource));
+        } catch (IllegalArgumentException ex){
+            LOGGER.info(ex.getMessage());
+            throw new BadRequestException(ex.getMessage());
+        }
     }
 
     public static Ipv4Resource parseIPv4Resource(final String resource) {
