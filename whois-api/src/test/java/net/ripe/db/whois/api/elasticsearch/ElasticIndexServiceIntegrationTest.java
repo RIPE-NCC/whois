@@ -103,7 +103,7 @@ public class ElasticIndexServiceIntegrationTest extends AbstractElasticSearchInt
                                     "changed:      limerick-dbm@ripe.net 20021107\n" +
                                     "source:       TEST', 'LIM-WEBUPDATES')");
 
-        rebuildIndex();
+        elasticFullTextIndex.update();
         assertThat(elasticIndexService.getWhoisDocCount(), is(1L));
     }
 
