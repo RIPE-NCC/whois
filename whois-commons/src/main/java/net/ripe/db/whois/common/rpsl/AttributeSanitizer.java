@@ -18,6 +18,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.CheckForNull;
+import javax.ws.rs.BadRequestException;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -101,7 +102,7 @@ public class AttributeSanitizer {
             if (sanitizer != null) {
                 try {
                     cleanValue = sanitizer.sanitize(orgAttr);
-                } catch (IllegalArgumentException ignored) {
+                } catch (BadRequestException|IllegalArgumentException ignored) {
                     // no break on syntactically broken objects
                     LOGGER.debug("{}: {}", ignored.getClass().getName(), ignored.getMessage());
                 }
@@ -138,7 +139,7 @@ public class AttributeSanitizer {
 
             try {
                 newValue = sanitizer.sanitize(attribute);
-            } catch (IllegalArgumentException ignored) {
+            } catch (BadRequestException|IllegalArgumentException ignored) {
                 // no break on syntactically broken objects  TODO: investigate why this is
                 LOGGER.debug("{}: {}", ignored.getClass().getName(), ignored.getMessage());
             }

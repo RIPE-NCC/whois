@@ -5,6 +5,8 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import javax.ws.rs.BadRequestException;
+
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 @ExtendWith(MockitoExtension.class)
@@ -34,7 +36,7 @@ public class RdapRequestValidatorTest {
 
     @Test
     public void shouldThrowExceptionForInvalidIP() {
-        assertThrows(RdapException.class, () -> {
+        assertThrows(BadRequestException.class, () -> {
             validator.validateIp("", "invalid");
         });
     }

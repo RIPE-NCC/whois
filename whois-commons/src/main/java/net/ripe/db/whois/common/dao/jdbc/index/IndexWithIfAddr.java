@@ -10,6 +10,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.jdbc.core.JdbcTemplate;
 
+import javax.ws.rs.BadRequestException;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
@@ -61,7 +62,7 @@ class IndexWithIfAddr extends IndexStrategyWithSingleLookupTable {
                 if (result.begin() == result.end()) {
                     return result;
                 }
-            } catch (IllegalArgumentException ignored) {
+            } catch (BadRequestException|IllegalArgumentException ignored) {
                 LOGGER.debug("{}: {}", ignored.getClass().getName(), ignored.getMessage());
             }
         }

@@ -917,7 +917,7 @@ public interface AttributeSyntax extends Documented {
                     try {
                         InetnumStatus.getStatusFor(ciString(value));
                         return true;
-                    } catch (IllegalArgumentException ignored) {
+                    } catch (BadRequestException|IllegalArgumentException ignored) {
                         return false;
                     }
                 case INET6NUM:

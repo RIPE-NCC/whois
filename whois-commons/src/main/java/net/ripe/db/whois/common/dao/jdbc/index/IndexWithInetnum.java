@@ -9,6 +9,7 @@ import net.ripe.db.whois.common.rpsl.AttributeType;
 import net.ripe.db.whois.common.rpsl.RpslObject;
 import org.springframework.jdbc.core.JdbcTemplate;
 
+import javax.ws.rs.BadRequestException;
 import java.util.Collections;
 import java.util.List;
 
@@ -54,7 +55,7 @@ class IndexWithInetnum extends IndexStrategyWithSingleLookupTable {
     private Ipv4Resource parseIpv4Resource(final String s) {
         try {
             return Ipv4Resource.parse(s);
-        } catch (IllegalArgumentException ignored) {
+        } catch (BadRequestException|IllegalArgumentException ignored) {
             return null;
         }
     }

@@ -10,6 +10,7 @@ import net.ripe.db.whois.common.rpsl.attrs.InetnumStatus;
 import net.ripe.db.whois.update.domain.PreparedUpdate;
 
 import javax.annotation.CheckForNull;
+import javax.ws.rs.BadRequestException;
 
 public final class InetStatusHelper {
     private InetStatusHelper() {
@@ -39,7 +40,7 @@ public final class InetStatusHelper {
             case INETNUM:
                 try {
                     return InetnumStatus.getStatusFor(value);
-                } catch (IllegalArgumentException ignored) {
+                } catch (BadRequestException|IllegalArgumentException ignored) {
                     return null;
                 }
             case INET6NUM:
