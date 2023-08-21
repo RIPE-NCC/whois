@@ -4,6 +4,8 @@ import net.ripe.db.whois.common.ip.Ipv4Resource;
 import net.ripe.db.whois.common.ip.Ipv6Resource;
 import org.junit.jupiter.api.Test;
 
+import javax.ws.rs.BadRequestException;
+
 import static net.ripe.db.whois.common.domain.CIString.ciString;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
@@ -104,7 +106,7 @@ public class NServerTest {
 
     @Test
     public void hostname_and_invalid_ip() {
-        assertThrows(AttributeParseException.class, () -> {
+        assertThrows(BadRequestException.class, () -> {
             NServer.parse("dns.comcor.ru dns.comcor.ru");
         });
     }

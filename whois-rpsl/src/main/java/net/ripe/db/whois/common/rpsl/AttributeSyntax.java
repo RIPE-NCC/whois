@@ -34,6 +34,7 @@ import net.ripe.db.whois.common.rpsl.attrs.OrgType;
 import net.ripe.db.whois.common.rpsl.attrs.RangeOperation;
 import org.apache.commons.validator.routines.UrlValidator;
 
+import javax.ws.rs.BadRequestException;
 import java.util.HashMap;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -1072,7 +1073,7 @@ public interface AttributeSyntax extends Documented {
             try {
                 attributeParser.parse(value);
                 return true;
-            } catch (IllegalArgumentException ignored) {
+            } catch (IllegalArgumentException|BadRequestException ignored) {
                 return false;
             }
         }
