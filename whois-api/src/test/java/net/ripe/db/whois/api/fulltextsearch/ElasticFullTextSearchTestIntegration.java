@@ -722,6 +722,16 @@ public class ElasticFullTextSearchTestIntegration extends AbstractElasticSearchI
     }
 
     @Test
+    public void search_inet6num_no_escape_colons() {
+        databaseHelper.addObject(
+                "inet6num: 2001:0638:0501::/48\n" +
+                        "netname: RIPE-NCC\n" +
+                        "source: RIPE\n");
+        rebuildIndex();
+        assertThat(numFound(query("q=(2001:0638:0501::/48+OR+2001:0638:0502::/48)")), is(1L));
+    }
+
+    @Test
     public void search_inet6num_double_colons() {
         databaseHelper.addObject(
                 "inet6num: 2a00:1f78::fffe/48\n" +

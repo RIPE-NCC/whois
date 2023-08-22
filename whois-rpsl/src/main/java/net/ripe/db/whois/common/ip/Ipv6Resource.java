@@ -1,5 +1,6 @@
 package net.ripe.db.whois.common.ip;
 
+import com.google.common.collect.Lists;
 import com.google.common.net.InetAddresses;
 import com.google.common.primitives.Longs;
 import net.ripe.db.whois.common.domain.CIString;
@@ -12,7 +13,12 @@ import java.math.BigInteger;
 import java.net.Inet6Address;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
+import java.util.Collections;
+import java.util.List;
+import java.util.regex.MatchResult;
+import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 public class Ipv6Resource extends IpInterval<Ipv6Resource> implements Comparable<Ipv6Resource> {
     public static final String IPV6_REVERSE_DOMAIN = ".ip6.arpa";
@@ -33,6 +39,7 @@ public class Ipv6Resource extends IpInterval<Ipv6Resource> implements Comparable
     private final long endMsb;
     private final long endLsb;
 
+    private static final Pattern IPV6_SPLIT_PATTERN = Pattern.compile("(([0-9A-Fa-f]{1,4}(?::[0-9A-Fa-f]{1,4}){7}|::|:(?::[0-9A-Fa-f]{1,4}){1,6}|[0-9A-Fa-f]{1,4}:(?::[0-9A-Fa-f]{1,4}){1,5}|(?:[0-9A-Fa-f]{1,4}:){2}(?::[0-9A-Fa-f]{1,4}){1,4}|(?:[0-9A-Fa-f]{1,4}:){3}(?::[0-9A-Fa-f]{1,4}){1,3}|(?:[0-9A-Fa-f]{1,4}:){4}(?::[0-9A-Fa-f]{1,4}){1,2}|(?:[0-9A-Fa-f]{1,4}:){5}:[0-9A-Fa-f]{1,4}|(?:[0-9A-Fa-f]{1,4}:){1,6}:)((\\/[0-9]{1,2})|$))");
     public static long lsb(final BigInteger begin) {
         return begin.and(MASK).longValue();
     }
@@ -106,6 +113,14 @@ public class Ipv6Resource extends IpInterval<Ipv6Resource> implements Comparable
         return new Ipv6Resource(res[0], res[1], prefixLength);
     }
 
+    public static List<String> extractIPv6(final String string){
+        final List<String> extractedIpv6 = Lists.newArrayList();
+        final Matcher ipv6 = IPV6_SPLIT_PATTERN.matcher(string);
+        while (ipv6.find()) {
+            extractedIpv6.add(ipv6.group(0));
+        }
+        return extractedIpv6;
+    }
     public static Ipv6Resource parse(final CIString prefixOrAddress) {
         return parse(prefixOrAddress.toString());
     }
