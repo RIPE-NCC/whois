@@ -36,7 +36,7 @@ public class RdapRequestValidatorTest {
 
     @Test
     public void shouldThrowExceptionForInvalidIP() {
-        assertThrows(BadRequestException.class, () -> {
+        assertThrows(RdapException.class, () -> {
             validator.validateIp("", "invalid");
         });
     }
