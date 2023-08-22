@@ -10,6 +10,7 @@ import org.eclipse.jetty.util.annotation.ManagedOperation;
 import org.eclipse.jetty.util.annotation.Name;
 import org.slf4j.Logger;
 
+import javax.ws.rs.BadRequestException;
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
 
@@ -30,22 +31,25 @@ public class WhoisDoSFilter extends DoSFilter {
 
     @Override
     protected boolean checkWhitelist(final String candidate) {
-        if (candidate.contains(".")) {
-            final Ipv4Resource address = Ipv4Resource.parse(candidate);
-            for (Ipv4Resource entry : ipv4whitelist) {
-                if (entry.contains(address)) {
-                    return true;
+        try {
+            if (candidate.contains(".")) {
+                final Ipv4Resource address = Ipv4Resource.parse(candidate);
+                for (Ipv4Resource entry : ipv4whitelist) {
+                    if (entry.contains(address)) {
+                        return true;
+                    }
+                }
+            } else {
+                final Ipv6Resource address = Ipv6Resource.parse(candidate);
+                for (Ipv6Resource entry : ipv6whitelist) {
+                    if (entry.contains(address)) {
+                        return true;
+                    }
                 }
             }
-        } else {
-            final Ipv6Resource address = Ipv6Resource.parse(candidate);
-            for (Ipv6Resource entry : ipv6whitelist) {
-                if (entry.contains(address)) {
-                    return true;
-                }
-            }
+        } catch (IllegalArgumentException ex){
+            throw new BadRequestException(ex);
         }
-
         return false;
     }
 

@@ -3,8 +3,6 @@ package net.ripe.db.whois.common.ip;
 import org.hamcrest.Matcher;
 import org.junit.jupiter.api.Test;
 
-import javax.ws.rs.BadRequestException;
-
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.is;
@@ -172,14 +170,14 @@ public class Ipv4ResourceTest {
 
     @Test
     public void invalidResource() {
-        assertThrows(BadRequestException.class, () -> {
+        assertThrows(IllegalArgumentException.class, () -> {
             Ipv4Resource.parse("invalid resource");
         });
     }
 
     @Test
     public void invalidResourceType() {
-        assertThrows(BadRequestException.class, () -> {
+        assertThrows(IllegalArgumentException.class, () -> {
             Ipv4Resource.parse("::0");
         });
     }

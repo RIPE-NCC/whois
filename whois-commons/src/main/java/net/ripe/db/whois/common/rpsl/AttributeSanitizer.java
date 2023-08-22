@@ -102,7 +102,7 @@ public class AttributeSanitizer {
             if (sanitizer != null) {
                 try {
                     cleanValue = sanitizer.sanitize(orgAttr);
-                } catch (BadRequestException|IllegalArgumentException ignored) {
+                } catch (IllegalArgumentException ignored) {
                     // no break on syntactically broken objects
                     LOGGER.debug("{}: {}", ignored.getClass().getName(), ignored.getMessage());
                 }
@@ -139,7 +139,7 @@ public class AttributeSanitizer {
 
             try {
                 newValue = sanitizer.sanitize(attribute);
-            } catch (BadRequestException|IllegalArgumentException ignored) {
+            } catch (IllegalArgumentException ignored) {
                 // no break on syntactically broken objects  TODO: investigate why this is
                 LOGGER.debug("{}: {}", ignored.getClass().getName(), ignored.getMessage());
             }

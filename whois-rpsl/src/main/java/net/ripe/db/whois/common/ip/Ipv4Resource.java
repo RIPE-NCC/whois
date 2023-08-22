@@ -9,8 +9,6 @@ import org.apache.commons.lang.Validate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-
-import javax.ws.rs.BadRequestException;
 import java.net.Inet4Address;
 import java.net.InetAddress;
 import java.util.ArrayList;
@@ -93,32 +91,27 @@ public final class Ipv4Resource extends IpInterval<Ipv4Resource> implements Comp
     }
 
     public static Ipv4Resource parse(final String resource) {
-        final int indexOfSlash = resource.indexOf('/');
-        if (indexOfSlash >= 0) {
-            int begin = textToNumericFormat(resource.substring(0, indexOfSlash).trim());
-            final int prefixLength = Integer.parseInt(resource.substring(indexOfSlash+1, resource.length()).trim());
-            if (prefixLength < 0 || prefixLength > 32 || (prefixLength < 32 && begin << prefixLength != 0)) {
-                throw new IllegalArgumentException("prefix length " + prefixLength + " is invalid");
+            final int indexOfSlash = resource.indexOf('/');
+            if (indexOfSlash >= 0) {
+                int begin = textToNumericFormat(resource.substring(0, indexOfSlash).trim());
+                final int prefixLength = Integer.parseInt(resource.substring(indexOfSlash+1, resource.length()).trim());
+                if (prefixLength < 0 || prefixLength > 32 || (prefixLength < 32 && begin << prefixLength != 0)) {
+                    throw new IllegalArgumentException("prefix length " + prefixLength + " is invalid");
+                }
+                final int mask = (int)((1L << (32-prefixLength)) - 1);
+                final int end = begin | mask;
+                begin = begin & ~mask;
+                return new Ipv4Resource(begin, end);
             }
-            final int mask = (int)((1L << (32-prefixLength)) - 1);
-            final int end = begin | mask;
-            begin = begin & ~mask;
-            return new Ipv4Resource(begin, end);
-        }
 
-        final int indexOfDash = resource.indexOf('-');
-        if (indexOfDash >= 0) {
-            final long begin = ((long)textToNumericFormat(resource.substring(0, indexOfDash).trim())) & 0xffffffffL;
-            final long end = ((long)textToNumericFormat(resource.substring(indexOfDash+1, resource.length()).trim())) & 0xffffffffL;
-            return new Ipv4Resource(begin, end);
-        }
+            final int indexOfDash = resource.indexOf('-');
+            if (indexOfDash >= 0) {
+                final long begin = ((long)textToNumericFormat(resource.substring(0, indexOfDash).trim())) & 0xffffffffL;
+                final long end = ((long)textToNumericFormat(resource.substring(indexOfDash+1, resource.length()).trim())) & 0xffffffffL;
+                return new Ipv4Resource(begin, end);
+            }
 
-        try {
             return new Ipv4Resource(InetAddresses.forString(resource));
-        } catch (IllegalArgumentException ex){
-            LOGGER.info(ex.getMessage());
-            throw new BadRequestException(ex.getMessage());
-        }
     }
 
     public static Ipv4Resource parseIPv4Resource(final String resource) {

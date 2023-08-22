@@ -34,7 +34,6 @@ import net.ripe.db.whois.common.rpsl.attrs.OrgType;
 import net.ripe.db.whois.common.rpsl.attrs.RangeOperation;
 import org.apache.commons.validator.routines.UrlValidator;
 
-import javax.ws.rs.BadRequestException;
 import java.util.HashMap;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -917,7 +916,7 @@ public interface AttributeSyntax extends Documented {
                     try {
                         InetnumStatus.getStatusFor(ciString(value));
                         return true;
-                    } catch (BadRequestException|IllegalArgumentException ignored) {
+                    } catch (IllegalArgumentException ignored) {
                         return false;
                     }
                 case INET6NUM:
@@ -1073,7 +1072,7 @@ public interface AttributeSyntax extends Documented {
             try {
                 attributeParser.parse(value);
                 return true;
-            } catch (IllegalArgumentException|BadRequestException ignored) {
+            } catch (IllegalArgumentException ignored) {
                 return false;
             }
         }

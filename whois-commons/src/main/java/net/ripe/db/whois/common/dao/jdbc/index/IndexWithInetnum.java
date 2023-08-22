@@ -55,7 +55,7 @@ class IndexWithInetnum extends IndexStrategyWithSingleLookupTable {
     private Ipv4Resource parseIpv4Resource(final String s) {
         try {
             return Ipv4Resource.parse(s);
-        } catch (BadRequestException|IllegalArgumentException ignored) {
+        } catch (IllegalArgumentException ignored) {
             return null;
         }
     }

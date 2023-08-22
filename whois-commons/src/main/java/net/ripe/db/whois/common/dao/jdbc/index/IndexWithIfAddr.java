@@ -62,7 +62,7 @@ class IndexWithIfAddr extends IndexStrategyWithSingleLookupTable {
                 if (result.begin() == result.end()) {
                     return result;
                 }
-            } catch (BadRequestException|IllegalArgumentException ignored) {
+            } catch (IllegalArgumentException ignored) {
                 LOGGER.debug("{}: {}", ignored.getClass().getName(), ignored.getMessage());
             }
         }

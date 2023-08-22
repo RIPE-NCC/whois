@@ -99,7 +99,7 @@ public class AuthoritativeResource {
                 default:
                     return true;
             }
-        } catch (BadRequestException|IllegalArgumentException ignored) {
+        } catch (IllegalArgumentException ignored) {
             return false;
         }
     }
