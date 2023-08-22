@@ -10,6 +10,8 @@ import org.eclipse.jetty.http.HttpStatus;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import javax.ws.rs.BadRequestException;
+
 import static net.ripe.db.whois.common.rpsl.ObjectType.MNTNER;
 import static net.ripe.db.whois.common.rpsl.ObjectType.ORGANISATION;
 import static org.apache.commons.lang.StringUtils.isEmpty;
@@ -40,7 +42,7 @@ public class RdapRequestValidator {
     public void validateIp(final String rawUri, final String key) {
         try {
             IpInterval.parse(key);
-        } catch (IllegalArgumentException e) {
+        } catch (BadRequestException|IllegalArgumentException e) {
             throw new RdapException("400 Bad Request", e.getMessage(), HttpStatus.BAD_REQUEST_400);
         }
 
