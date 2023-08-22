@@ -13,6 +13,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
+import javax.ws.rs.BadRequestException;
 import javax.ws.rs.InternalServerErrorException;
 import java.util.List;
 import java.util.Set;
@@ -77,7 +78,7 @@ public class ReservedResources {
         for (final String bogon : bogons) {
             try {
                 results.add(IpInterval.parse(bogon));
-            } catch (IllegalArgumentException e) {
+            } catch (BadRequestException|IllegalArgumentException e) {
                 LOGGER.warn("{} is not a valid prefix, skipping...", bogon);
             }
         }
