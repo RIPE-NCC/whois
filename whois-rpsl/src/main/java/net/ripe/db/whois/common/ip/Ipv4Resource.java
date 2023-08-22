@@ -9,7 +9,6 @@ import org.apache.commons.lang.Validate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-
 import javax.ws.rs.BadRequestException;
 import java.net.Inet4Address;
 import java.net.InetAddress;
@@ -113,12 +112,7 @@ public final class Ipv4Resource extends IpInterval<Ipv4Resource> implements Comp
             return new Ipv4Resource(begin, end);
         }
 
-        try {
-            return new Ipv4Resource(InetAddresses.forString(resource));
-        } catch (IllegalArgumentException ex){
-            LOGGER.info(ex.getMessage());
-            throw new BadRequestException(ex.getMessage());
-        }
+        return new Ipv4Resource(InetAddresses.forString(resource));
     }
 
     public static Ipv4Resource parseIPv4Resource(final String resource) {
@@ -248,17 +242,21 @@ public final class Ipv4Resource extends IpInterval<Ipv4Resource> implements Comp
 
     private static int textToNumericFormat(final String src) {
         int result = 0;
-        final Iterator<String> it = IPV4_TEXT_SPLITTER.split(src).iterator();
-        for (int octet = 0; octet < 4; octet++) {
-            result <<= 8;
-            final int value = it.hasNext() ? Integer.parseInt(it.next()) : 0;
-            if (value < 0 || value > 255) {
-                throw new IllegalArgumentException(src+" is not a valid ipv4 address");
+        try {
+            final Iterator<String> it = IPV4_TEXT_SPLITTER.split(src).iterator();
+            for (int octet = 0; octet < 4; octet++) {
+                result <<= 8;
+                final int value = it.hasNext() ? Integer.parseInt(it.next()) : 0;
+                if (value < 0 || value > 255) {
+                    throw new IllegalArgumentException(src + " is not a valid ipv4 address");
+                }
+                result |= value & 0xff;
             }
-            result |= value & 0xff;
-        }
-        if (it.hasNext()) {
-            throw new IllegalArgumentException(src+" has more than 4 octets");
+            if (it.hasNext()) {
+                throw new IllegalArgumentException(src + " has more than 4 octets");
+            }
+        } catch (NumberFormatException ex){
+          throw new BadRequestException(ex);
         }
         return result;
     }
