@@ -21,7 +21,6 @@ import net.ripe.db.whois.common.rpsl.RpslObject;
 import org.slf4j.Logger;
 
 import javax.annotation.concurrent.Immutable;
-import javax.ws.rs.BadRequestException;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.util.List;

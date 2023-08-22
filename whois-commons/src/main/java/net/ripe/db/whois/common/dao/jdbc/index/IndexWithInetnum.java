@@ -9,7 +9,6 @@ import net.ripe.db.whois.common.rpsl.AttributeType;
 import net.ripe.db.whois.common.rpsl.RpslObject;
 import org.springframework.jdbc.core.JdbcTemplate;
 
-import javax.ws.rs.BadRequestException;
 import java.util.Collections;
 import java.util.List;
 
