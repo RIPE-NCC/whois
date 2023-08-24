@@ -108,7 +108,7 @@ public class UpdateContext {
         if(!dnsCheckResponses.containsKey(update)) {
             return false;
         }
-        return dnsCheckResponses.get(update).getMessages().stream().filter( message -> message.getType() == Messages.Type.ERROR).findAny().isPresent();
+        return dnsCheckResponses.get(update).getMessages().stream().anyMatch(message -> message.getType() == Messages.Type.ERROR);
     }
 
     public void addMessage(final UpdateContainer updateContainer, final Message message) {

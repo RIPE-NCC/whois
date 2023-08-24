@@ -1,6 +1,7 @@
 package net.ripe.db.whois.spec
 
 import net.ripe.db.whois.WhoisFixture
+import net.ripe.db.whois.spec.domain.Message
 import net.ripe.db.whois.common.TestDateTimeProvider
 import net.ripe.db.whois.common.rpsl.AttributeType
 import net.ripe.db.whois.common.rpsl.ObjectType
@@ -8,7 +9,6 @@ import net.ripe.db.whois.common.rpsl.RpslAttribute
 import net.ripe.db.whois.common.rpsl.RpslObject
 import net.ripe.db.whois.query.support.TestWhoisLog
 import net.ripe.db.whois.spec.domain.AckResponse
-import net.ripe.db.whois.spec.domain.Message
 import net.ripe.db.whois.spec.domain.NotificationResponse
 import net.ripe.db.whois.spec.domain.SyncUpdate
 import net.ripe.db.whois.spec.domain.SyncUpdateResponse
@@ -16,6 +16,7 @@ import net.ripe.db.whois.update.dns.DnsGatewayStub
 import spock.lang.Specification
 
 import javax.mail.Address
+import javax.ws.rs.core.MultivaluedMap
 
 class BaseEndToEndSpec extends Specification {
     static WhoisFixture whoisFixture
@@ -237,11 +238,11 @@ ${notification.contents}
     }
 
     String syncUpdate(String content) {
-        syncUpdate(content, null, false)
+        syncUpdate(content, null, false, null)
     }
 
-    String syncUpdate(String content, String charset, boolean notifications) {
-        def response = syncUpdate(new SyncUpdate(data: content, charset: charset))
+    String syncUpdate(String content, String charset, boolean notifications, MultivaluedMap<String, String> headers) {
+        def response = syncUpdate(new SyncUpdate(data: content, charset: charset, headers: headers))
         if (!notifications) {
             clearAllMails()
         }
@@ -264,7 +265,8 @@ ${syncUpdate.getData()}
 <<<<<
 """
 
-        def response = whoisFixture.syncupdate(syncUpdate.getData(), syncUpdate.getCharset(), syncUpdate.isHelp(), syncUpdate.isDiff(), syncUpdate.isForceNew(), syncUpdate.isRedirect())
+        def response = whoisFixture.syncupdate(syncUpdate.getData(), syncUpdate.getCharset(), syncUpdate.isHelp(),
+                syncUpdate.isDiff(), syncUpdate.isForceNew(), syncUpdate.isRedirect(), syncUpdate.getHeaders())
 
         print """\
 >>>>> RECEIVE SYNCUPDATE RESPONSE
@@ -285,7 +287,7 @@ ${response}
     }
 
     SyncUpdateResponse syncUpdateWithResponseWithNotifications(String content) {
-        new SyncUpdateResponse(syncUpdate(content, null, true));
+        new SyncUpdateResponse(syncUpdate(content, null, true, null));
     }
 
     def noMoreMessages() {

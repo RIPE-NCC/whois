@@ -219,7 +219,7 @@ public class WhoisRdapElasticServiceTestIntegration extends AbstractElasticSearc
                 "source:         TEST");
         ipTreeUpdater.rebuild();
 
-        elasticFullTextIndex.update();
+        rebuildIndex();
         Uninterruptibles.sleepUninterruptibly(1, TimeUnit.SECONDS);
     }
 
