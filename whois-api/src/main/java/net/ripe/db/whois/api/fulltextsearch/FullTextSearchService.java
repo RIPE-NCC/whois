@@ -1,6 +1,7 @@
 package net.ripe.db.whois.api.fulltextsearch;
 
 import net.ripe.db.whois.api.rest.RestServiceHelper;
+import net.ripe.db.whois.common.ip.IpExtractor;
 import net.ripe.db.whois.query.domain.QueryException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -17,6 +18,7 @@ import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.io.IOException;
+import java.util.Set;
 
 @Component
 @Path("/fulltextsearch")
@@ -48,7 +50,7 @@ public class FullTextSearchService {
                     new SearchRequest.SearchRequestBuilder()
                             .setRows(rows)
                             .setStart(start)
-                            .setQuery(query)
+                            .setQuery(escapeIPv6Colon(query))
                             .setHighlight(highlight)
                             .setHighlightPre(highlightPre)
                             .setHighlightPost(highlightPost)
@@ -63,6 +65,17 @@ public class FullTextSearchService {
             LOGGER.error(e.getMessage(), e);
             return internalServerError("Unexpected error");
         }
+    }
+
+    private String escapeIPv6Colon(String query){
+        final Set<String> ipv6Matches = IpExtractor.ipv6FromString(query);
+        if (ipv6Matches.isEmpty()){
+            return query;
+        }
+        for (String ipv6Match:ipv6Matches) {
+            query = query.replace(ipv6Match, ipv6Match.replace(":", "\\:"));
+        }
+        return query;
     }
 
     private Response ok(final SearchResponse searchResponse) {

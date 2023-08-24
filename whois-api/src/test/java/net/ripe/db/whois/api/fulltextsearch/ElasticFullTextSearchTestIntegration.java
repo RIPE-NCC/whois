@@ -2708,6 +2708,17 @@ public class ElasticFullTextSearchTestIntegration extends AbstractElasticSearchI
         assertThat(numFound(query("q=::/0")), is(1L));
     }
 
+    @Test
+    public void request_for_big_ipv6(){
+        databaseHelper.addObject(RpslObject.parse(
+                "inet6num: ::123:2\n" +
+                        "netname: RIPE-NCC\n" +
+                        "descr: some description\n" +
+                        "source: TEST"));
+        rebuildIndex();
+
+        assertThat(numFound(query("q=::123:2")), is(1L));
+    }
     // helper methods
 
     private QueryResponse query(final String queryString) {

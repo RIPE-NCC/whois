@@ -144,7 +144,7 @@ public class ElasticFulltextSearch extends FulltextSearch {
 
     private org.elasticsearch.action.search.SearchResponse performFulltextSearch(final SearchRequest searchRequest) throws IOException {
         try {
-            return elasticIndexService.getClient().search(getFulltextRequest(escapeIPv6Colon(searchRequest)), RequestOptions.DEFAULT);
+            return elasticIndexService.getClient().search(getFulltextRequest(searchRequest), RequestOptions.DEFAULT);
         } catch (ElasticsearchStatusException ex){
             if (ex.status().equals(RestStatus.BAD_REQUEST)){
                 LOGGER.info("ElasticFullTextSearch fails due to the query: " + ex.getMessage());
@@ -153,27 +153,6 @@ public class ElasticFulltextSearch extends FulltextSearch {
             LOGGER.error("ElasticFullTextSearch error: " + ex.getMessage());
             throw ex;
         }
-    }
-
-    private SearchRequest escapeIPv6Colon(final SearchRequest searchRequest){
-        final List<String> ipv6Matches = Ipv6Resource.extractIPv6(searchRequest.getQuery());
-        String originalQuery = searchRequest.getQuery();
-        if (!ipv6Matches.isEmpty()){
-            for (String ipv6Match:ipv6Matches) {
-                originalQuery = originalQuery.replace(ipv6Match, ipv6Match.replace(":", "\\:"));
-            }
-            return new SearchRequest.SearchRequestBuilder()
-                    .setRows(String.valueOf(searchRequest.getRows()))
-                    .setStart(String.valueOf(searchRequest.getStart()))
-                    .setQuery(originalQuery)
-                    .setHighlight(String.valueOf(searchRequest.isHighlight()))
-                    .setHighlightPre(searchRequest.getHighlightPre())
-                    .setHighlightPost(searchRequest.getHighlightPost())
-                    .setFormat(searchRequest.getFormat())
-                    .setFacet(String.valueOf(searchRequest.isFacet()))
-                    .build();
-        }
-        return searchRequest;
     }
 
     private org.elasticsearch.action.search.SearchRequest getFulltextRequest(final SearchRequest searchRequest ) {
