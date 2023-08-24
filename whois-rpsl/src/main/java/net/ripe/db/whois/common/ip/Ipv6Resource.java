@@ -1,6 +1,5 @@
 package net.ripe.db.whois.common.ip;
 
-import com.google.common.collect.Lists;
 import com.google.common.net.InetAddresses;
 import com.google.common.primitives.Longs;
 import net.ripe.db.whois.common.domain.CIString;
@@ -13,14 +12,7 @@ import java.math.BigInteger;
 import java.net.Inet6Address;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
-import java.util.regex.MatchResult;
-import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import java.util.stream.Collectors;
 
 public class Ipv6Resource extends IpInterval<Ipv6Resource> implements Comparable<Ipv6Resource> {
     public static final String IPV6_REVERSE_DOMAIN = ".ip6.arpa";
