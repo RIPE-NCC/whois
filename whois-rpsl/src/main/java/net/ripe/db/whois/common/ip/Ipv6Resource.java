@@ -42,8 +42,8 @@ public class Ipv6Resource extends IpInterval<Ipv6Resource> implements Comparable
     private static final Pattern IPV6_SPLIT_PATTERN = Pattern.compile("(([0-9A-Fa-f]{1,4}(?::[0-9A-Fa-f]{1,4})" +
             "{7}|::|:(?::[0-9A-Fa-f]{1,4}){1,6}|[0-9A-Fa-f]{1,4}:(?::[0-9A-Fa-f]{1,4}){1,5}|(?:[0-9A-Fa-f]{1,4}:){2}" +
             "(?::[0-9A-Fa-f]{1,4}){1,4}|(?:[0-9A-Fa-f]{1,4}:){3}(?::[0-9A-Fa-f]{1,4}){1,3}|(?:[0-9A-Fa-f]{1,4}:){4}" +
-            "(?::[0-9A-Fa-f]{1,4}){1,2}|(?:[0-9A-Fa-f]{1,4}:){5}:[0-9A-Fa-f]{1,4}|(?:[0-9A-Fa-f]{1,4}:){1,6}:)(" +
-            "(\\/[0-9]{1,2})|\\s|\\S|$))");
+            "(?::[0-9A-Fa-f]{1,4}){1,2}|(?:[0-9A-Fa-f]{1,4}:){5}:[0-9A-Fa-f]{1,4}|(?:[0-9A-Fa-f]{1,4}:){1,6}:))(" +
+            "(\\/[0-9]{1,2})|\\s|\\S|$)");
     public static long lsb(final BigInteger begin) {
         return begin.and(MASK).longValue();
     }

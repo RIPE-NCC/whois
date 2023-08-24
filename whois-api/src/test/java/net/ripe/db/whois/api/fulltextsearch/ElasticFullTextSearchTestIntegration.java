@@ -2696,6 +2696,18 @@ public class ElasticFullTextSearchTestIntegration extends AbstractElasticSearchI
         assertThat(numFound(query("q=2a00:1f78::fffe/48+-+2a00:1f78::ffff/48")), is(1L));
     }
 
+    @Test
+    public void request_for_root_ipv6(){
+        databaseHelper.addObject(RpslObject.parse(
+                "inet6num: ::/0\n" +
+                        "netname: RIPE-NCC\n" +
+                        "descr: some description\n" +
+                        "source: TEST"));
+        rebuildIndex();
+
+        assertThat(numFound(query("q=::/0")), is(1L));
+    }
+
     // helper methods
 
     private QueryResponse query(final String queryString) {
