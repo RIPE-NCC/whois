@@ -245,7 +245,6 @@ public class ElasticFulltextSearch extends FulltextSearch {
                 return;
             }
 
-            LOGGER.info("final highlights are : {}:  {} - {}", attribute, highlightField.name(),   StringUtils.join(highlightField.getFragments(), ","));
             final SearchResponse.Arr arr = new SearchResponse.Arr(attribute);
             arr.setStr(new SearchResponse.Str(null, StringUtils.join(highlightField.getFragments(), ",")));
             documentArrs.add(arr);
