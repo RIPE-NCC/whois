@@ -16,7 +16,6 @@ import net.ripe.db.whois.common.source.SourceContext;
 import net.ripe.db.whois.query.acl.AccessControlListManager;
 import org.apache.commons.lang3.StringUtils;
 import org.elasticsearch.ElasticsearchStatusException;
-import org.elasticsearch.action.search.SearchRequestBuilder;
 import org.elasticsearch.client.RequestOptions;
 import org.elasticsearch.index.query.MultiMatchQueryBuilder;
 import org.elasticsearch.index.query.QueryBuilders;

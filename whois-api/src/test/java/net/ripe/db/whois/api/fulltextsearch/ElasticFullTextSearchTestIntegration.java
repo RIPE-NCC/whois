@@ -2596,6 +2596,106 @@ public class ElasticFullTextSearchTestIntegration extends AbstractElasticSearchI
             // expected
         }
     }
+
+    @Test
+    public void request_for_ipv6_prefix(){
+        databaseHelper.addObject(RpslObject.parse(
+                "inet6num: 2a00:1f78::fffe/48\n" +
+                        "netname: RIPE-NCC\n" +
+                        "descr: some description\n" +
+                        "source: TEST"));
+        rebuildIndex();
+
+        assertThat(numFound(query("q=2a00:1f78::fffe/48")), is(1L));
+    }
+
+    @Test
+    public void request_for_ipv6_mixing_filtering(){
+        databaseHelper.addObject(RpslObject.parse(
+                "inet6num: 2a00:1f78::fffe/48\n" +
+                        "netname: RIPE-NCC\n" +
+                        "descr: some description\n" +
+                        "source: TEST"));
+        databaseHelper.addObject(RpslObject.parse(
+                "person: First Last\n" +
+                        "nic-hdl: AA1-RIPE\n" +
+                        "remarks: 2a00:1f78::ffff\n" +
+                        "source: RIPE"));
+        rebuildIndex();
+
+        assertThat(numFound(query("q=(inet6num:(2a00:1f78::fffe/48)" +
+                "+OR+remarks:(2a00:1f78::ffff))+AND+" +
+                "(object-type:inet6num+OR+object-type:person)")), is(2L));
+    }
+
+    @Test
+    public void request_for_ipv6_prefix_filtering(){
+        databaseHelper.addObject(RpslObject.parse(
+                "inet6num: 2a00:1f78::fffe/48\n" +
+                        "netname: RIPE-NCC\n" +
+                        "descr: some description\n" +
+                        "source: TEST"));
+        databaseHelper.addObject(RpslObject.parse(
+                "person: First Last\n" +
+                        "nic-hdl: AA1-RIPE\n" +
+                        "remarks: 2a00:1f78::ffff/48\n" +
+                        "source: RIPE"));
+        rebuildIndex();
+
+        assertThat(numFound(query("q=(inet6num:(2a00:1f78::fffe/48)" +
+                "+OR+remarks:(2a00:1f78::ffff/48))+AND+" +
+                "(object-type:inet6num+OR+object-type:person)")), is(2L));
+    }
+
+    @Test
+    public void request_for_ipv6_without_prefix(){
+        databaseHelper.addObject(RpslObject.parse(
+                "inet6num: 2a00:1f78::fffe/48\n" +
+                        "netname: RIPE-NCC\n" +
+                        "descr: some description\n" +
+                        "source: TEST"));
+        rebuildIndex();
+
+        assertThat(numFound(query("q=2a00:1f78::fffe")), is(1L));
+    }
+
+    @Test
+    public void request_for_full_ipv6(){
+        databaseHelper.addObject(RpslObject.parse(
+                "inet6num: 2001:0000:130F:0000:0000:09C0:876A:130B\n" +
+                        "netname: RIPE-NCC\n" +
+                        "descr: some description\n" +
+                        "source: TEST"));
+        rebuildIndex();
+
+        assertThat(numFound(query("q=2001:0000:130F:0000:0000:09C0:876A:130B")), is(1L));
+    }
+
+    @Test
+    public void request_for_ipv6_range_without_prefix(){
+        databaseHelper.addObject(RpslObject.parse(
+                "inet6num: 2001:0000:130F:0000:0000:09C0:876A:130B\n" +
+                        "netname: RIPE-NCC\n" +
+                        "descr: some description\n" +
+                        "source: TEST"));
+        rebuildIndex();
+
+        assertThat(numFound(query("q=2001:0000:130F:0000:0000:09C0:876A:130B+-+" +
+                "2001:0000:130F:0000:0000:09C0:876A:130f")), is(1L));
+    }
+
+    @Test
+    public void request_for_ipv6_range_with_prefix(){
+        databaseHelper.addObject(RpslObject.parse(
+                "inet6num: 2a00:1f78::fffe/48\n" +
+                        "netname: RIPE-NCC\n" +
+                        "descr: some description\n" +
+                        "source: TEST"));
+        rebuildIndex();
+
+        assertThat(numFound(query("q=2a00:1f78::fffe/48+-+2a00:1f78::ffff/48")), is(1L));
+    }
+
     // helper methods
 
     private QueryResponse query(final String queryString) {
