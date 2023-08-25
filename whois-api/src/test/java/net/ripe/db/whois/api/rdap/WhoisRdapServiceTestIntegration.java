@@ -562,7 +562,7 @@ public class WhoisRdapServiceTestIntegration extends AbstractRdapIntegrationTest
         assertErrorDescription(badRequestException, "'invalid' is not an IP string literal.");
     }
 
-    @Disabled("TODO: handle multiple mnt-by values")
+  //  @Disabled("TODO: handle multiple mnt-by values")
     @Test
     public void lookup_inetnum_multiple_mntby() {
         databaseHelper.addObject("" +
@@ -591,8 +591,13 @@ public class WhoisRdapServiceTestIntegration extends AbstractRdapIntegrationTest
         Ip ip = createResource("ip/192.132.75.165")
                 .request(MediaType.APPLICATION_JSON_TYPE)
                 .get(Ip.class);
-    }
 
+        assertThat(ip.getEntitySearchResults().get(0).getHandle(), is("OWNER-MNT"));
+        assertThat(ip.getEntitySearchResults().get(0).getRoles().get(0).name(), is("REGISTRANT"));
+        assertThat(ip.getEntitySearchResults().get(1).getHandle(), is("SECOND-MNT"));
+        assertThat(ip.getEntitySearchResults().get(1).getRoles().get(0).name(), is("REGISTRANT"));
+
+    }
 
     // inet6num
 
