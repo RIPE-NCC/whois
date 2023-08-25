@@ -9,6 +9,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.PostConstruct;
+import javax.ws.rs.ClientErrorException;
 
 @Component
 public class SentryConfigurations {
@@ -44,6 +45,7 @@ public class SentryConfigurations {
             options.setRelease(String.format("%s@%s",environment, applicationVersion.getCommitId()));
             options.setDsn(sentryDsn);
             options.setEnvironment(environment.name().toLowerCase());
+            options.addIgnoredExceptionForType(ClientErrorException.class);
         });
     }
 }
