@@ -476,12 +476,13 @@ class RdapObjectMapper {
 
         for (final AttributeType attributeType : CONTACT_ATTRIBUTE_TO_ROLE_NAME.keySet()) {
             for (final RpslAttribute attribute : rpslObject.findAttributes(attributeType)) {
-                final CIString contactName = attribute.getCleanValue();
-                if (contacts.containsKey(contactName)) {
-                    contacts.get(contactName).add(attribute.getType());
-                } else {
-                    contacts.put(contactName, Sets.newHashSet(attribute.getType()));
-                }
+                attribute.getCleanValues().forEach( contactName -> {
+                    if (contacts.containsKey(contactName)) {
+                        contacts.get(contactName).add(attribute.getType());
+                    } else {
+                        contacts.put(contactName, Sets.newHashSet(attribute.getType()));
+                    }
+                });
             }
         }
 
