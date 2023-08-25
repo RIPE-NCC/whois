@@ -562,7 +562,6 @@ public class WhoisRdapServiceTestIntegration extends AbstractRdapIntegrationTest
         assertErrorDescription(badRequestException, "'invalid' is not an IP string literal.");
     }
 
-  //  @Disabled("TODO: handle multiple mnt-by values")
     @Test
     public void lookup_inetnum_multiple_mntby() {
         databaseHelper.addObject("" +
