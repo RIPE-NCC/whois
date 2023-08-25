@@ -10,7 +10,6 @@ import org.eclipse.jetty.util.annotation.ManagedOperation;
 import org.eclipse.jetty.util.annotation.Name;
 import org.slf4j.Logger;
 
-import javax.ws.rs.BadRequestException;
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
 
