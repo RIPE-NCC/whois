@@ -17,7 +17,7 @@ public class SentryConfigurations {
 
     private final ApplicationVersion applicationVersion;
     private final String sentryDsn;
-    private EnvironmentEnum environment;
+    private Environment environment;
 
     @Autowired
     public SentryConfigurations(
@@ -28,7 +28,7 @@ public class SentryConfigurations {
         this.sentryDsn = sentryDsn;
         this.environment = null;
         try {
-            this.environment = EnvironmentEnum.valueOf(environment.toUpperCase());
+            this.environment = Environment.valueOf(environment.toUpperCase());
         } catch (IllegalArgumentException ex){
             // We do not set any environment or return an error in this case. Will be tackle in the init method
         }

@@ -77,7 +77,7 @@ public class DatabaseDummifierJmx extends JmxBase {
             @ManagedOperationParameter(name = "pass", description = "jdbc password"),
             @ManagedOperationParameter(name= "env", description = "current environment")
     })
-    public String dummify(final String jdbcUrl, final String user, final String pass, final EnvironmentEnum env) {
+    public String dummify(final String jdbcUrl, final String user, final String pass, final Environment env) {
         return invokeOperation("dummify", jdbcUrl, new Callable<String>() {
             @Override
             public String call() {
@@ -120,7 +120,7 @@ public class DatabaseDummifierJmx extends JmxBase {
         });
     }
 
-    private void validateEnvironment(final EnvironmentEnum env) {
+    private void validateEnvironment(final Environment env) {
         final String dbEnvironment = jdbcTemplate.queryForObject("SELECT name FROM environment LIMIT 1", String.class);
         if (dbEnvironment == null){
             throw new IllegalStateException("Environment not specified in the schema");
@@ -128,7 +128,7 @@ public class DatabaseDummifierJmx extends JmxBase {
         if (!env.name().equalsIgnoreCase(dbEnvironment)){
             throw new IllegalArgumentException("Requested environment and database environment doesn't match");
         }
-        if (EnvironmentEnum.PROD.equals(env)) {
+        if (Environment.PROD.equals(env)) {
             throw new IllegalArgumentException("dummifier runs on non-production environments only");
         }
     }
@@ -249,9 +249,9 @@ public class DatabaseDummifierJmx extends JmxBase {
         String jdbcUrl = options.valueOf(ARG_JDBCURL).toString();
         String user = options.valueOf(ARG_USER).toString();
         String pass = options.valueOf(ARG_PASS).toString();
-        EnvironmentEnum env;
+        final Environment env;
         try {
-            env = EnvironmentEnum.valueOf(options.valueOf(ARG_ENV).toString().toUpperCase());
+            env = Environment.valueOf(options.valueOf(ARG_ENV).toString().toUpperCase());
         } catch (IllegalArgumentException ex){
             throw new IllegalArgumentException("Env property doesn't match. Available env: DEV, PREPDEV, TRAINING, " +
                     "TEST, RC, " +
