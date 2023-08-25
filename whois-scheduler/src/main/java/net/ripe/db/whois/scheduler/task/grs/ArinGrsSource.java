@@ -111,8 +111,7 @@ class ArinGrsSource extends GrsSource {
                                     begin = Integer.parseInt(rangeMatcher.group(1));
                                     end = Integer.parseInt(rangeMatcher.group(2));
                                 } catch (NumberFormatException ex) {
-                                    //Ignoring those asnumbers from Arin with big numbers
-                                    LOGGER.info(asnumber + " is too large to parse to Integer");
+                                    LOGGER.info(String.format("%s is larger than 32 bit limit in RIPE Database", asnumber));
                                     return Collections.emptyList();
                                 }
 

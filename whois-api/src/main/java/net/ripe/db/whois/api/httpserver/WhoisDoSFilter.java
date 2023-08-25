@@ -31,25 +31,22 @@ public class WhoisDoSFilter extends DoSFilter {
 
     @Override
     protected boolean checkWhitelist(final String candidate) {
-        try {
-            if (candidate.contains(".")) {
-                final Ipv4Resource address = Ipv4Resource.parse(candidate);
-                for (Ipv4Resource entry : ipv4whitelist) {
-                    if (entry.contains(address)) {
-                        return true;
-                    }
-                }
-            } else {
-                final Ipv6Resource address = Ipv6Resource.parse(candidate);
-                for (Ipv6Resource entry : ipv6whitelist) {
-                    if (entry.contains(address)) {
-                        return true;
-                    }
+        if (candidate.contains(".")) {
+            final Ipv4Resource address = Ipv4Resource.parse(candidate);
+            for (Ipv4Resource entry : ipv4whitelist) {
+                if (entry.contains(address)) {
+                    return true;
                 }
             }
-        } catch (IllegalArgumentException ex){
-            throw new BadRequestException(ex);
+        } else {
+            final Ipv6Resource address = Ipv6Resource.parse(candidate);
+            for (Ipv6Resource entry : ipv6whitelist) {
+                if (entry.contains(address)) {
+                    return true;
+                }
+            }
         }
+
         return false;
     }
 
