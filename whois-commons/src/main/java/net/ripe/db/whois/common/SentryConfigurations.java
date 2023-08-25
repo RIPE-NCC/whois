@@ -9,6 +9,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.PostConstruct;
+import javax.ws.rs.ClientErrorException;
 
 @Component
 public class SentryConfigurations {
@@ -17,7 +18,7 @@ public class SentryConfigurations {
 
     private final ApplicationVersion applicationVersion;
     private final String sentryDsn;
-    private final String environment;
+    private Environment environment;
 
     @Autowired
     public SentryConfigurations(
@@ -26,19 +27,25 @@ public class SentryConfigurations {
             final ApplicationVersion applicationVersion) {
         this.applicationVersion = applicationVersion;
         this.sentryDsn = sentryDsn;
-        this.environment = environment;
+        this.environment = null;
+        try {
+            this.environment = Environment.valueOf(environment.toUpperCase());
+        } catch (IllegalArgumentException ex){
+            // We do not set any environment or return an error in this case. Will be tackle in the init method
+        }
     }
 
     @PostConstruct
     public void init() {
-        if(StringUtils.isEmpty(sentryDsn) || StringUtils.isEmpty(environment)) {
+        if(StringUtils.isEmpty(sentryDsn) || environment == null) {
             LOGGER.info("Sentry is not enabled");
             return;
         }
         Sentry.init(options -> {
             options.setRelease(String.format("%s@%s",environment, applicationVersion.getCommitId()));
             options.setDsn(sentryDsn);
-            options.setEnvironment(environment);
+            options.setEnvironment(environment.name().toLowerCase());
+            options.addIgnoredExceptionForType(ClientErrorException.class);
         });
     }
 }
