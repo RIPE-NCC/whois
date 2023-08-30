@@ -2,7 +2,6 @@ package net.ripe.db.whois.api.fulltextsearch;
 
 import com.google.common.base.Stopwatch;
 import com.google.common.collect.Lists;
-import net.ripe.db.whois.api.autocomplete.ElasticSearchCondition;
 import net.ripe.db.whois.api.elasticsearch.ElasticIndexService;
 import net.ripe.db.whois.api.elasticsearch.ElasticSearchAccountingCallback;
 import net.ripe.db.whois.common.ApplicationVersion;
@@ -27,13 +26,13 @@ import org.elasticsearch.search.aggregations.bucket.terms.Terms;
 import org.elasticsearch.search.aggregations.bucket.terms.TermsAggregationBuilder;
 import org.elasticsearch.search.builder.SearchSourceBuilder;
 import org.elasticsearch.search.fetch.subphase.highlight.HighlightBuilder;
+import org.elasticsearch.search.fetch.subphase.highlight.HighlightField;
 import org.elasticsearch.search.sort.SortBuilder;
 import org.elasticsearch.search.sort.SortBuilders;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.context.annotation.Conditional;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.Nullable;
@@ -44,10 +43,15 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
+import java.util.function.Function;
+import java.util.stream.Collector;
 import java.util.stream.Collectors;
 
+import static net.ripe.db.whois.api.elasticsearch.ElasticIndexService.LOOKUP_KEY_FIELD_NAME;
+import static net.ripe.db.whois.api.elasticsearch.ElasticIndexService.OBJECT_TYPE_FIELD_NAME;
+import static net.ripe.db.whois.api.elasticsearch.ElasticIndexService.PRIMARY_KEY_FIELD_NAME;
+
 @Component
-@Conditional(ElasticSearchCondition.class)
 public class ElasticFulltextSearch extends FulltextSearch {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(ElasticFulltextSearch.class);
@@ -108,12 +112,12 @@ public class ElasticFulltextSearch extends FulltextSearch {
                     final List<RpslAttribute> attributes = Lists.newArrayList();
                     highlightDocs.add(createHighlights(hit));
 
-                    final ObjectType objectType = ObjectType.getByName(hitAttributes.get(FullTextIndex.OBJECT_TYPE_FIELD_NAME).toString());
-                    final String pKey = hitAttributes.get(FullTextIndex.LOOKUP_KEY_FIELD_NAME).toString();
+                    final ObjectType objectType = ObjectType.getByName(hitAttributes.get(OBJECT_TYPE_FIELD_NAME).toString());
+                    final String pKey = hitAttributes.get(LOOKUP_KEY_FIELD_NAME).toString();
 
-                    responseStrs.add(new SearchResponse.Str(FullTextIndex.PRIMARY_KEY_FIELD_NAME, hit.getId()));
-                    responseStrs.add(new SearchResponse.Str(FullTextIndex.OBJECT_TYPE_FIELD_NAME, objectType.getName()));
-                    responseStrs.add(new SearchResponse.Str(FullTextIndex.LOOKUP_KEY_FIELD_NAME, pKey));
+                    responseStrs.add(new SearchResponse.Str(PRIMARY_KEY_FIELD_NAME, hit.getId()));
+                    responseStrs.add(new SearchResponse.Str(OBJECT_TYPE_FIELD_NAME, objectType.getName()));
+                    responseStrs.add(new SearchResponse.Str(LOOKUP_KEY_FIELD_NAME, pKey));
                     
                     final Set<AttributeType> templateAttributes = ObjectTemplate.getTemplate(objectType).getAllAttributes();
 
@@ -229,31 +233,32 @@ public class ElasticFulltextSearch extends FulltextSearch {
     }
 
     private QueryStringQueryBuilder getQueryBuilder(final String query) {
-        return QueryBuilders.queryStringQuery(escape(query)).type(MultiMatchQueryBuilder.Type.PHRASE_PREFIX);
+        return QueryBuilders.queryStringQuery(escape(query)).type(MultiMatchQueryBuilder.Type.PHRASE);
     }
 
     private SearchResponse.Lst createHighlights(final SearchHit hit) {
         final SearchResponse.Lst documentLst = new SearchResponse.Lst(hit.getId());
         final List<SearchResponse.Arr> documentArrs = Lists.newArrayList();
 
-        hit.getHighlightFields().forEach((attribute, highlightField) -> {
-            if("lookup-key".equals(attribute) || "lookup-key.custom".equals(attribute)){
+        hit.getHighlightFields().values().stream().collect(getHighlightsCollector()).forEach((attribute, highlightField) -> {
+            if("lookup-key".equals(attribute)){
                 return;
             }
-            if(attribute.contains(".custom")) {
-                final SearchResponse.Arr arr = new SearchResponse.Arr(StringUtils.substringBefore(highlightField.name(), ".custom"));
-                arr.setStr(new SearchResponse.Str(null, StringUtils.join(highlightField.getFragments(), ",")));
-                documentArrs.add(arr);
 
-                //Somehow if searched term contains "." highlight field custom has no vlue for it.
-            } else if(!hit.getHighlightFields().containsKey(attribute + ".custom"))  {
-                final SearchResponse.Arr arr = new SearchResponse.Arr(highlightField.name());
-                arr.setStr(new SearchResponse.Str(null, StringUtils.join(highlightField.getFragments(), ",")));
-                documentArrs.add(arr);
-            }
+            final SearchResponse.Arr arr = new SearchResponse.Arr(attribute);
+            arr.setStr(new SearchResponse.Str(null, StringUtils.join(highlightField.getFragments(), ",")));
+            documentArrs.add(arr);
         });
+
         documentLst.setArrs(documentArrs);
         return documentLst;
+    }
+
+    private static Collector<HighlightField, ?, Map<String, HighlightField>> getHighlightsCollector() {
+        return Collectors.toMap(highlightField -> highlightField.name().contains(".custom") ?
+                        StringUtils.substringBefore(highlightField.name(), ".custom") :
+                        StringUtils.substringBefore(highlightField.name(), ".raw"), Function.identity(),
+                (existing, replacement) -> existing);
     }
 
     private SearchResponse.Lst getCountByType(final Terms facets) {

@@ -16,6 +16,7 @@ import net.ripe.db.whois.common.sso.SsoTokenTranslator;
 import net.ripe.db.whois.update.domain.ContentWithCredentials;
 import net.ripe.db.whois.update.domain.Keyword;
 import net.ripe.db.whois.update.domain.UpdateContext;
+import net.ripe.db.whois.update.domain.UpdateMessages;
 import net.ripe.db.whois.update.domain.UpdateRequest;
 import net.ripe.db.whois.update.domain.UpdateResponse;
 import net.ripe.db.whois.update.handler.UpdateRequestHandler;
@@ -190,6 +191,10 @@ public class SyncUpdatesService {
             loggerContext.log("msg-in.txt", new SyncUpdateLogCallback(request.toString()));
 
             final UpdateContext updateContext = new UpdateContext(loggerContext);
+
+            if( RestServiceHelper.isHttpProtocol(httpServletRequest) ){
+                updateContext.addGlobalMessage(UpdateMessages.httpSyncupdate());
+            }
 
             setSsoSessionToContext(updateContext, request.getSsoToken());
             updateContext.setClientCertificate(ClientCertificateExtractor.getClientCertificate(httpServletRequest, dateTimeProvider));

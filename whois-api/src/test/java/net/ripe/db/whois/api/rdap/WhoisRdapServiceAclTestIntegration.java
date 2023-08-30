@@ -16,7 +16,6 @@ import static org.junit.jupiter.api.Assertions.fail;
 @Tag("IntegrationTest")
 @DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_EACH_TEST_METHOD)
 class WhoisRdapServiceAclTestIntegration extends AbstractRdapIntegrationTest {
-
     private static final String LOCALHOST_WITH_PREFIX = "127.0.0.1/32";
 
     @Autowired
