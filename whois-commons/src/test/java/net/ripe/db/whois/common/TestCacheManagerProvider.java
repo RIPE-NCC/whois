@@ -1,7 +1,7 @@
 package net.ripe.db.whois.common;
 
+import com.google.common.collect.Lists;
 import net.ripe.db.whois.common.profiles.WhoisProfile;
-import org.apache.commons.compress.utils.Lists;
 import org.springframework.cache.Cache;
 import org.springframework.cache.CacheManager;
 import org.springframework.cache.concurrent.ConcurrentMapCache;
