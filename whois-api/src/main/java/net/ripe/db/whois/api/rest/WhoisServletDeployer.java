@@ -1,7 +1,13 @@
 package net.ripe.db.whois.api.rest;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
+import com.fasterxml.jackson.databind.introspect.AnnotationIntrospectorPair;
+import com.fasterxml.jackson.databind.introspect.JacksonAnnotationIntrospector;
+import com.fasterxml.jackson.databind.json.JsonMapper;
+import com.fasterxml.jackson.databind.type.TypeFactory;
 import com.fasterxml.jackson.jakarta.rs.json.JacksonJsonProvider;
+import com.fasterxml.jackson.module.jakarta.xmlbind.JakartaXmlBindAnnotationIntrospector;
 import jakarta.servlet.DispatcherType;
 import jakarta.ws.rs.ext.MessageBodyWriter;
 import net.ripe.db.whois.api.autocomplete.AutocompleteService;
@@ -101,9 +107,16 @@ public class WhoisServletDeployer implements ServletDeployer {
         resourceConfig.register(healthCheckService);
         resourceConfig.register(new CacheControlFilter());
 
+        final ObjectMapper objectMapper = JsonMapper.builder().build();
+        objectMapper.setAnnotationIntrospector(
+                new AnnotationIntrospectorPair(
+                        new JacksonAnnotationIntrospector(),
+                        new JakartaXmlBindAnnotationIntrospector(TypeFactory.defaultInstance())));
+
         final JacksonJsonProvider jaxbJsonProvider = new JacksonJsonProvider();
         jaxbJsonProvider.configure(SerializationFeature.INDENT_OUTPUT, true);
         jaxbJsonProvider.configure(SerializationFeature.WRAP_ROOT_VALUE, false);
+        jaxbJsonProvider.setMapper(objectMapper);
         resourceConfig.register(jaxbJsonProvider);
 
         final MessageBodyWriter<WhoisResources> customMessageBodyWriter = new WhoisResourcesPlainTextWriter();
