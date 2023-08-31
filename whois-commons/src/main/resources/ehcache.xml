@@ -1,19 +1,40 @@
-<ehcache>
+<?xml version="1.0" encoding="utf-8"?>
+<config
+    xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance'
+    xmlns='http://www.ehcache.org/v3'
+    xsi:schemaLocation="http://www.ehcache.org/v3 http://www.ehcache.org/schema/ehcache-core.xsd">
 
-    <cache name="ssoValidateToken"
-           maxEntriesLocalHeap="10000"
-           eternal="false"
-           timeToLiveSeconds="60"/>
+    <cache alias="ssoValidateToken">
+        <key-type>java.lang.String</key-type>
+        <value-type>net.ripe.db.whois.common.sso.domain.ValidateTokenResponse</value-type>
+        <expiry>
+            <ttl>60</ttl>
+        </expiry>
+        <resources>
+            <heap>10000</heap>
+        </resources>
+    </cache>
 
-    <cache name="ssoUuid"
-           maxEntriesLocalHeap="10000"
-           eternal="false"
-           timeToLiveSeconds="60"/>
+    <cache alias="ssoUuid">
+        <key-type>java.lang.String</key-type>
+        <value-type>java.lang.String</value-type>
+        <expiry>
+            <ttl>60</ttl>
+        </expiry>
+        <resources>
+            <heap>10000</heap>
+        </resources>
+    </cache>
 
-    <cache name="ssoUserDetails"
-           maxEntriesLocalHeap="10000"
-           eternal="false"
-           timeToLiveSeconds="60"/>
+    <cache alias="ssoUserDetails">
+        <key-type>java.lang.String</key-type>
+        <value-type>net.ripe.db.whois.common.sso.domain.ValidateTokenResponse</value-type>
+        <expiry>
+            <ttl>60</ttl>
+        </expiry>
+        <resources>
+            <heap>10000</heap>
+        </resources>
+    </cache>
 
-
-</ehcache>
+</config>

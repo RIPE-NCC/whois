@@ -74,12 +74,12 @@
         <property name="password" value="${whois.db.slave.password}"/>
     </bean>
 
-    <bean id="cacheManager" class="org.springframework.cache.ehcache.EhCacheCacheManager">
-        <property name="cacheManager" ref="ehcacheManager"/>
+    <bean id="cacheManagerFactoryBean" class="org.springframework.cache.jcache.JCacheManagerFactoryBean">
+        <property name="cacheManagerUri" value="classpath:/ehcache.xml"/>
     </bean>
-    <bean id="ehcacheManager" class="org.springframework.cache.ehcache.EhCacheManagerFactoryBean">
-        <property name="configLocation" value="classpath:/ehcache.xml"/>
-        <property name="shared" value="true"/>
+    <bean id="cacheManager" class="org.springframework.cache.jcache.JCacheCacheManager">
+        <property name="cacheManager" ref="cacheManagerFactoryBean" />
     </bean>
+
 
 </beans>

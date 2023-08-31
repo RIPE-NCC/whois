@@ -17,7 +17,7 @@
             <artifactId>whois-rpsl</artifactId>
         </dependency>
         <dependency>
-            <groupId>net.sf.ehcache</groupId>
+            <groupId>org.ehcache</groupId>
             <artifactId>ehcache</artifactId>
         </dependency>
         <dependency>
