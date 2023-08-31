@@ -1,11 +1,16 @@
 package net.ripe.db.whois.common;
 
 import net.ripe.db.whois.common.profiles.WhoisProfile;
+import org.apache.commons.compress.utils.Lists;
+import org.springframework.cache.Cache;
 import org.springframework.cache.CacheManager;
+import org.springframework.cache.concurrent.ConcurrentMapCache;
 import org.springframework.cache.support.SimpleCacheManager;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Profile;
+
+import java.util.List;
 
 @Profile({WhoisProfile.TEST})
 @Configuration
@@ -16,7 +21,14 @@ public class TestCacheManagerProvider {
     @Bean(name = "cacheManager")
     public CacheManager cacheManagerInstance() {
         if (this.cacheManager == null) {
-            this.cacheManager = new SimpleCacheManager();
+            final SimpleCacheManager simpleCacheManager = new SimpleCacheManager();
+            // TODO: [ES] can caches be defined by @Cachaeble annotations?
+            final List<Cache> caches = Lists.newArrayList();
+            caches.add(new ConcurrentMapCache("ssoUuid"));
+            caches.add(new ConcurrentMapCache("ssoUserDetails"));
+            caches.add(new ConcurrentMapCache("ssoValidateToken"));
+            simpleCacheManager.setCaches(caches);
+            this.cacheManager = simpleCacheManager;
         }
 
         return this.cacheManager;

@@ -4,7 +4,6 @@ import net.ripe.db.whois.api.AbstractIntegrationTest;
 import net.ripe.db.whois.common.sso.AuthServiceClient;
 import net.ripe.db.whois.common.sso.domain.ValidateTokenResponse;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,10 +14,8 @@ import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.not;
 import static org.hamcrest.Matchers.nullValue;
 
-@Disabled("TODO: [ES] cacheManager has no caches?")
 @Tag("IntegrationTest")
 public class AuthServiceClientTestIntegration extends AbstractIntegrationTest {
-
 
     @Autowired
     private CacheManager cacheManager;
