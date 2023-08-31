@@ -75,24 +75,24 @@ public class FullTextSearchService {
 
         final StringBuilder sb = new StringBuilder();
 
-        final Pattern colonSplitter = Pattern.compile("[^:\\n]*((:){1,2}|$)"); //take everything that finish with :
-        final Matcher matches = colonSplitter.matcher(query);
-        while (matches.find()) {
-            if(matches.group(0).contains("\\:")){ //colon already escaped
-                sb.append(matches.group(0));
+        final Pattern colonRegex = Pattern.compile("[^:\\n]*((:){1,2}|$)"); //take everything that finish with :
+        final Matcher wordsWithTrailingColon = colonRegex.matcher(query);
+        while (wordsWithTrailingColon.find()) {
+            if(wordsWithTrailingColon.group(0).contains("\\:")){ //colon already escaped
+                sb.append(wordsWithTrailingColon.group(0));
                 continue;
             }
-            final String[] splittedWords = matches.group(0).split("[^\\w-]+"); //Split in words (including dashes)
-            if (splittedWords.length==0){ //No word in front of :, we need to escape
-                sb.append(matches.group(0).replace(":", "\\:"));
+            final String[] words = wordsWithTrailingColon.group(0).split("[^\\w-]+"); //Split in words (including dashes)
+            if (words.length==0){ //No word in front of :, we need to escape
+                sb.append(wordsWithTrailingColon.group(0).replace(":", "\\:"));
                 continue;
             }
-            final String word = splittedWords[splittedWords.length-1];//the last word (just before the :)
+            final String word = words[words.length-1];//the last word (just before the :)
             if (AttributeType.getByNameOrNull(word.split(":")[0]) == null && !"object-type".equals(word.split(":")[0])) {
-                sb.append(matches.group(0).replace(":", "\\:"));
+                sb.append(wordsWithTrailingColon.group(0).replace(":", "\\:"));
                 continue;
             }
-            sb.append(matches.group(0));
+            sb.append(wordsWithTrailingColon.group(0)); //Known attribute or object-type
         }
 
         return sb.toString();
