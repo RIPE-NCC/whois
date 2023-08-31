@@ -51,7 +51,6 @@
         <diffutils.version>1.3.0</diffutils.version>
 
         <elasticsearch.version>7.15.0</elasticsearch.version>
-        <ehcache.version>3.10.8</ehcache.version>
         <ezvcard.version>0.12.0</ezvcard.version>
 
         <findbugs.version>3.0.2</findbugs.version>
@@ -294,6 +293,7 @@
                 <artifactId>spring-tx</artifactId>
                 <version>${spring.version}</version>
             </dependency>
+
             <!-- -->
             <dependency>
                 <groupId>de.jflex</groupId>
@@ -423,6 +423,11 @@
                     <exclusion>
                         <groupId>commons-beanutils</groupId>
                         <artifactId>commons-beanutils</artifactId>
+                    </exclusion>
+                    <!-- commons-logging conflicts with spring-jcl -->
+                    <exclusion>
+                        <groupId>commons-logging</groupId>
+                        <artifactId>commons-logging</artifactId>
                     </exclusion>
                 </exclusions>
             </dependency>
@@ -572,6 +577,13 @@
                 <groupId>org.elasticsearch.client</groupId>
                 <artifactId>elasticsearch-rest-high-level-client</artifactId>
                 <version>${elasticsearch.version}</version>
+                <exclusions>
+                    <!-- commons-logging conflicts with spring-jcl -->
+                    <exclusion>
+                        <groupId>commons-logging</groupId>
+                        <artifactId>commons-logging</artifactId>
+                    </exclusion>
+                </exclusions>
             </dependency>
 
             <!-- diffutils -->
@@ -581,11 +593,6 @@
                 <version>${diffutils.version}</version>
             </dependency>
 
-            <dependency>
-                <groupId>org.ehcache</groupId>
-                <artifactId>ehcache</artifactId>
-                <version>${ehcache.version}</version>
-            </dependency>
             <dependency>
                 <groupId>javax.cache</groupId>
                 <artifactId>cache-api</artifactId>
