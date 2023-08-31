@@ -87,8 +87,8 @@ public class FullTextSearchService {
                 sb.append(wordsWithTrailingColon.group(0).replace(":", "\\:"));
                 continue;
             }
-            final String word = words[words.length-1];//the last word (just before the :)
-            if (AttributeType.getByNameOrNull(word.split(":")[0]) == null && !"object-type".equals(word.split(":")[0])) {
+            final String lastWord = words[words.length-1]; //the last word (just before the :)
+            if (AttributeType.getByNameOrNull(lastWord.split(":")[0]) == null && !"object-type".equals(lastWord.split(":")[0])) {
                 sb.append(wordsWithTrailingColon.group(0).replace(":", "\\:"));
                 continue;
             }
