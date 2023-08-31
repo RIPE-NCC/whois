@@ -41,7 +41,6 @@ public class Ed25519Util {
 
         verifier.init(false, new Ed25519PublicKeyParameters(publicKey, 0));
         verifier.update(contents, 0, contents.length);
-
         return verifier.verifySignature(Base64.getDecoder().decode(signature));
     }
 }
