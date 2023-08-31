@@ -107,7 +107,9 @@ public class WhoisServletDeployer implements ServletDeployer {
         resourceConfig.register(healthCheckService);
         resourceConfig.register(new CacheControlFilter());
 
-        final ObjectMapper objectMapper = JsonMapper.builder().build();
+        final ObjectMapper objectMapper = JsonMapper.builder()
+            .enable(SerializationFeature.INDENT_OUTPUT)
+            .build();
         objectMapper.setAnnotationIntrospector(
                 new AnnotationIntrospectorPair(
                         new JacksonAnnotationIntrospector(),
