@@ -1,7 +1,8 @@
 package net.ripe.db.whois.api.fulltextsearch;
 
 import net.ripe.db.whois.api.rest.RestServiceHelper;
-import net.ripe.db.whois.common.ip.IpExtractor;
+import net.ripe.db.whois.common.rpsl.AttributeType;
+import net.ripe.db.whois.common.rpsl.ObjectType;
 import net.ripe.db.whois.query.domain.QueryException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -9,6 +10,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import javax.servlet.http.HttpServletRequest;
+import javax.ws.rs.BadRequestException;
 import javax.ws.rs.DefaultValue;
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
@@ -18,7 +20,11 @@ import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.io.IOException;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Set;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 @Component
 @Path("/fulltextsearch")
@@ -50,7 +56,7 @@ public class FullTextSearchService {
                     new SearchRequest.SearchRequestBuilder()
                             .setRows(rows)
                             .setStart(start)
-                            .setQuery(escapeIPv6Colon(query))
+                            .setQuery(escapeColon(query))
                             .setHighlight(highlight)
                             .setHighlightPre(highlightPre)
                             .setHighlightPost(highlightPost)
@@ -67,15 +73,34 @@ public class FullTextSearchService {
         }
     }
 
-    private String escapeIPv6Colon(String query){
-        final Set<String> ipv6Matches = IpExtractor.ipv6FromString(query);
-        if (ipv6Matches.isEmpty()){
+    private String escapeColon(final String query){
+        if (query==null || !query.contains(":")){
             return query;
         }
-        for (String ipv6Match:ipv6Matches) {
-            query = query.replace(ipv6Match, ipv6Match.replace(":", "\\:"));
+
+        final StringBuilder sb = new StringBuilder();
+
+        final Pattern colonSplitter = Pattern.compile("[^:\\n]*((:){1,2}|$)"); //take everything that finish with :
+        final Matcher matches = colonSplitter.matcher(query);
+        while (matches.find()) {
+            if(matches.group(0).contains("\\:")){ //colon already escaped
+                sb.append(matches.group(0));
+                continue;
+            }
+            final String[] splittedWords = matches.group(0).split("[^\\w-]+"); //Split in words (including dashes)
+            if (splittedWords.length==0){ //No word in front of :, we need to escape
+                sb.append(matches.group(0).replace(":", "\\:"));
+                continue;
+            }
+            final String word = splittedWords[splittedWords.length-1];//the last word (just before the :)
+            if (AttributeType.getByNameOrNull(word.split(":")[0]) == null && !"object-type".equals(word.split(":")[0])) {
+                sb.append(matches.group(0).replace(":", "\\:"));
+                continue;
+            }
+            sb.append(matches.group(0));
         }
-        return query;
+
+        return sb.toString();
     }
 
     private Response ok(final SearchResponse searchResponse) {
