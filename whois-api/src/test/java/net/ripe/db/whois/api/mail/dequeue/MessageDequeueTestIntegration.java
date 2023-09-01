@@ -12,8 +12,6 @@ import net.ripe.db.whois.update.mail.MailSenderStub;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
-import org.kubek2k.springockito.annotations.ReplaceWithMock;
-import org.kubek2k.springockito.annotations.SpringockitoContextLoader;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -29,7 +27,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doAnswer;
 
 @DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_EACH_TEST_METHOD)
-@ContextConfiguration(loader = SpringockitoContextLoader.class, locations = {"classpath:applicationContext-api-test.xml"}, inheritLocations = false)
+@ContextConfiguration(locations = {"classpath:applicationContext-api-test.xml", "classpath:applicationContext-api-test-update-request-handler-mock.xml"}, inheritLocations = false)
 @Tag("IntegrationTest")
 public class MessageDequeueTestIntegration extends AbstractIntegrationTest {
 
@@ -37,7 +35,7 @@ public class MessageDequeueTestIntegration extends AbstractIntegrationTest {
 
     @Autowired private MailSenderStub mailSender;
     @Autowired private MailUpdatesTestSupport mailUpdatesTestSupport;
-    @Autowired @ReplaceWithMock private UpdateRequestHandler messageHandler;
+    @Autowired private UpdateRequestHandler messageHandler;
 
     @BeforeAll
     public static void setNumberOfThreads() {

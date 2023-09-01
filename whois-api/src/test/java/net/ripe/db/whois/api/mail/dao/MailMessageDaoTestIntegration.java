@@ -6,8 +6,7 @@ import net.ripe.db.whois.api.MimeMessageProvider;
 import net.ripe.db.whois.api.mail.dequeue.MessageDequeue;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
-import org.kubek2k.springockito.annotations.ReplaceWithMock;
-import org.kubek2k.springockito.annotations.SpringockitoContextLoader;
+import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.ContextConfiguration;
@@ -20,11 +19,11 @@ import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.nullValue;
 
 @DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_EACH_TEST_METHOD)
-@ContextConfiguration(loader = SpringockitoContextLoader.class, locations = {"classpath:applicationContext-api-test.xml"}, inheritLocations = false)
+@ContextConfiguration(locations = {"classpath:applicationContext-api-test.xml", "classpath:applicationContext-api-test-message-dequeue-mock.xml"}, inheritLocations = false)
 @Tag("IntegrationTest")
 public class MailMessageDaoTestIntegration extends AbstractIntegrationTest {
     @Autowired MailMessageDao subject;
-    @Autowired @ReplaceWithMock private MessageDequeue messageDequeue;
+    @Autowired private MessageDequeue messageDequeue;
 
     @Test
     public void claim_multiple_threads() throws Exception {

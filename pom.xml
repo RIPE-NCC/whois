@@ -77,7 +77,6 @@
         <mail.version>2.0.2</mail.version>
         <!-- TODO: update mariadb to 3.x -->
         <mariadb-java-client.version>2.7.10</mariadb-java-client.version>
-        <!-- TODO: springockito not compatible with updated Mockito -->
         <mockito.version>3.12.4</mockito.version>
 
         <netty.version>4.1.97.Final</netty.version>
@@ -90,7 +89,6 @@
         <slf4j.version>2.0.7</slf4j.version>
         <solrj.version>1.4.1</solrj.version>
         <spring.version>6.0.11</spring.version>
-        <springockito.version>1.0.9</springockito.version>
         <spock.version>2.3-groovy-3.0</spock.version>
         <stax-utils.version>20070216</stax-utils.version>
 
@@ -705,18 +703,6 @@
             <artifactId>hamcrest</artifactId>
             <version>${hamcrest.version}</version>
             <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.kubek2k</groupId>
-            <artifactId>springockito-annotations</artifactId>
-            <version>${springockito.version}</version>
-            <scope>test</scope>
-            <exclusions>
-                <exclusion>
-                    <groupId>org.mockito</groupId>
-                    <artifactId>mockito-all</artifactId>
-                </exclusion>
-            </exclusions>
         </dependency>
         <dependency>
             <groupId>org.awaitility</groupId>
