@@ -1,5 +1,6 @@
 package net.ripe.db.whois.api.fulltextsearch;
 
+import io.netty.util.internal.StringUtil;
 import net.ripe.db.whois.api.rest.RestServiceHelper;
 import net.ripe.db.whois.common.rpsl.AttributeType;
 import net.ripe.db.whois.query.domain.QueryException;
@@ -69,7 +70,7 @@ public class FullTextSearchService {
     }
 
     private String escapeColon(final String query){
-        if (query==null || !query.contains(":")){
+        if (StringUtil.isNullOrEmpty(query) || !query.contains(":")){
             return query;
         }
 
