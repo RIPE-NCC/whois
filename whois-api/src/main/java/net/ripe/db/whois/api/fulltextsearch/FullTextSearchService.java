@@ -21,6 +21,8 @@ import javax.ws.rs.core.Response;
 import java.io.IOException;
 import java.util.Arrays;
 
+import static net.ripe.db.whois.api.elasticsearch.ElasticIndexService.OBJECT_TYPE_FIELD_NAME;
+
 @Component
 @Path("/fulltextsearch")
 public class FullTextSearchService {
@@ -82,7 +84,7 @@ public class FullTextSearchService {
 
     private static boolean shouldEscapeColon(final String splitColon) {
         final String[] words = splitColon.split("[^\\w-]+"); //Split in words (including dashes)
-        return words.length == 0 || (AttributeType.getByNameOrNull(words[words.length - 1]) == null && !"object-type" .equals(words[words.length - 1]));
+        return words.length == 0 || (AttributeType.getByNameOrNull(words[words.length - 1]) == null && !OBJECT_TYPE_FIELD_NAME.equalsIgnoreCase(words[words.length - 1]));
     }
 
     private Response ok(final SearchResponse searchResponse) {
