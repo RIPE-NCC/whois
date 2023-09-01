@@ -4,6 +4,7 @@ import io.netty.util.internal.StringUtil;
 import net.ripe.db.whois.api.rest.RestServiceHelper;
 import net.ripe.db.whois.common.rpsl.AttributeType;
 import net.ripe.db.whois.query.domain.QueryException;
+import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -69,34 +70,35 @@ public class FullTextSearchService {
         }
     }
 
-    private String escapeColon(final String query){
-        if (StringUtil.isNullOrEmpty(query) || !query.contains(":")){
+    private static String escapeColon(final String query){
+        if (StringUtils.isEmpty(query) || !query.contains(":") || query.contains("\\:")){
             return query;
         }
 
         final StringBuilder sb = new StringBuilder();
 
-        final Pattern colonRegex = Pattern.compile("[^:\\n]*((:){1,2}|$)"); //take everything that finish with :
-        final Matcher wordsWithTrailingColon = colonRegex.matcher(query);
-        while (wordsWithTrailingColon.find()) {
-            if(wordsWithTrailingColon.group(0).contains("\\:")){ //colon already escaped
-                sb.append(wordsWithTrailingColon.group(0));
-                continue;
-            }
-            final String[] words = wordsWithTrailingColon.group(0).split("[^\\w-]+"); //Split in words (including dashes)
-            if (words.length==0){ //No word in front of :, we need to escape
-                sb.append(wordsWithTrailingColon.group(0).replace(":", "\\:"));
-                continue;
-            }
-            final String lastWord = words[words.length-1]; //the last word (just before the :)
-            if (AttributeType.getByNameOrNull(lastWord.split(":")[0]) == null && !"object-type".equals(lastWord.split(":")[0])) {
-                sb.append(wordsWithTrailingColon.group(0).replace(":", "\\:"));
-                continue;
-            }
-            sb.append(wordsWithTrailingColon.group(0)); //Known attribute or object-type
+        final String[] splitted = query.split(":");
+        int index = 0;
+        while (index < (splitted.length - 1)) {
+            sb.append(splitted[index])
+                    .append(shouldEscapeColon(splitted[index]));
+            index++;
+        }
+        sb.append(splitted[splitted.length - 1]);
+        return sb.toString();
+    }
+
+    private static String shouldEscapeColon(final String splitColon) {
+        final String[] words = splitColon.split("[^\\w-]+"); //Split in words (including dashes)
+        if (words.length==0){ //No word in front of :, we need to escape
+            return "\\:";
         }
 
-        return sb.toString();
+        final String lastWord = words[words.length-1]; //the last word (just before the :)
+        if (AttributeType.getByNameOrNull(lastWord) == null && !"object-type".equals(lastWord)) {
+            return "\\:";
+        }
+        return ":";
     }
 
     private Response ok(final SearchResponse searchResponse) {
