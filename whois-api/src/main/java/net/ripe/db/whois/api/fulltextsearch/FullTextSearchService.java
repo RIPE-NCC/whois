@@ -77,9 +77,9 @@ public class FullTextSearchService {
 
         final StringBuilder sb = new StringBuilder();
 
-        final String[] split = query.split(":");
-        Arrays.stream(split).limit(split.length - 1).forEach(splitColon -> sb.append(splitColon).append(shouldEscapeColon(splitColon) ? "\\:" : ":"));
-        return sb.append(split[split.length - 1]).toString();
+        final String[] splittedQuery = query.split(":");
+        Arrays.stream(splittedQuery).limit(splittedQuery.length - 1).forEach(splitColon -> sb.append(splitColon).append(shouldEscapeColon(splitColon) ? "\\:" : ":"));
+        return sb.append(splittedQuery[splittedQuery.length - 1]).toString();
     }
 
     private static boolean shouldEscapeColon(final String splitColon) {
