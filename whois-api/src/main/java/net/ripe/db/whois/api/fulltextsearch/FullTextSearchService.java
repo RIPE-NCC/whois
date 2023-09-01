@@ -1,6 +1,5 @@
 package net.ripe.db.whois.api.fulltextsearch;
 
-import io.netty.util.internal.StringUtil;
 import net.ripe.db.whois.api.rest.RestServiceHelper;
 import net.ripe.db.whois.common.rpsl.AttributeType;
 import net.ripe.db.whois.query.domain.QueryException;
@@ -20,8 +19,7 @@ import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.io.IOException;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
+import java.util.Arrays;
 
 @Component
 @Path("/fulltextsearch")
@@ -77,28 +75,14 @@ public class FullTextSearchService {
 
         final StringBuilder sb = new StringBuilder();
 
-        final String[] splitted = query.split(":");
-        int index = 0;
-        while (index < (splitted.length - 1)) {
-            sb.append(splitted[index])
-                    .append(shouldEscapeColon(splitted[index]));
-            index++;
-        }
-        sb.append(splitted[splitted.length - 1]);
-        return sb.toString();
+        final String[] split = query.split(":");
+        Arrays.stream(split).limit(split.length - 1).forEach(splitColon -> sb.append(splitColon).append(shouldEscapeColon(splitColon) ? "\\:" : ":"));
+        return sb.append(split[split.length - 1]).toString();
     }
 
-    private static String shouldEscapeColon(final String splitColon) {
+    private static boolean shouldEscapeColon(final String splitColon) {
         final String[] words = splitColon.split("[^\\w-]+"); //Split in words (including dashes)
-        if (words.length==0){ //No word in front of :, we need to escape
-            return "\\:";
-        }
-
-        final String lastWord = words[words.length-1]; //the last word (just before the :)
-        if (AttributeType.getByNameOrNull(lastWord) == null && !"object-type".equals(lastWord)) {
-            return "\\:";
-        }
-        return ":";
+        return words.length == 0 || (AttributeType.getByNameOrNull(words[words.length - 1]) == null && !"object-type" .equals(words[words.length - 1]));
     }
 
     private Response ok(final SearchResponse searchResponse) {
