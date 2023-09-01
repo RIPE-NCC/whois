@@ -1,6 +1,8 @@
 package net.ripe.db.whois.api.nrtmv4;
 
 import static org.junit.jupiter.api.Assertions.assertThrows;
+
+import com.Ostermiller.util.Base64;
 import com.google.common.collect.Lists;
 import com.google.common.net.HttpHeaders;
 import net.ripe.db.nrtm4.DeltaFileGenerator;
@@ -280,7 +282,19 @@ public class NrtmClientServiceTestIntegration extends AbstractNrtmIntegrationTes
         assertThat(response.getStatus(), is(Response.Status.OK.getStatusCode()));
 
         final String signature = response.readEntity(String.class);
+
         assertThat(Ed25519Util.verifySignature(signature, nrtmKeyConfigDao.getPublicKey(), notificationFile.getBytes()), is(Boolean.TRUE));
+    }
+
+    @Test
+    public void should_get_base64_signature(){
+        insertUpdateNotificationFile();
+        generateAndSaveKeyPair();
+
+        final Response response = getResponseFromHttpsRequest("TEST/update-notification-file.json.sig", MediaType.APPLICATION_JSON);
+        final String signature = response.readEntity(String.class);
+
+        assertThat(Base64.isBase64(signature), is(true));
     }
 
     @Test
