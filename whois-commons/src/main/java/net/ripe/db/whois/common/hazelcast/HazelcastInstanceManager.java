@@ -1,9 +1,9 @@
 package net.ripe.db.whois.common.hazelcast;
 
-import com.hazelcast.config.CacheSimpleConfig;
 import com.hazelcast.config.Config;
 import com.hazelcast.config.EvictionConfig;
 import com.hazelcast.config.EvictionPolicy;
+import com.hazelcast.config.MapConfig;
 import com.hazelcast.core.Hazelcast;
 import com.hazelcast.core.HazelcastInstance;
 import com.hazelcast.spring.cache.HazelcastCacheManager;
@@ -59,29 +59,28 @@ public class HazelcastInstanceManager {
                 .setSize(10_000)
                 .setEvictionPolicy(EvictionPolicy.LRU);
 
+            // Configure Hazelcast maps: https://docs.hazelcast.com/imdg/4.2/data-structures/map
+
             // @Cacheable(cacheNames="ssoValidateToken", key="#authToken")
-            final CacheSimpleConfig ssoValidateTokenConfig = new CacheSimpleConfig("ssoValidateToken")
-                .setKeyType("java.lang.String")
-                .setValueType("net.ripe.db.whois.common.sso.domain.ValidateTokenResponse")
-                .setStatisticsEnabled(true)
-                .setEvictionConfig(evictionConfig);
-            config.addCacheConfig(ssoValidateTokenConfig);
+            config.addMapConfig(new MapConfig()
+                    .setName("ssoValidateToken")
+                    .setStatisticsEnabled(true)
+                    .setEvictionConfig(evictionConfig)
+                    .setTimeToLiveSeconds(60));
 
             // @Cacheable(cacheNames="ssoUuid", key="#username")
-            final CacheSimpleConfig ssoUuidConfig = new CacheSimpleConfig("ssoUuid")
-                .setKeyType("java.lang.String")
-                .setValueType("java.lang.String")
-                .setStatisticsEnabled(true)
-                .setEvictionConfig(evictionConfig);
-            config.addCacheConfig(ssoUuidConfig);
+            config.addMapConfig(new MapConfig()
+                    .setName("ssoUuid")
+                    .setStatisticsEnabled(true)
+                    .setEvictionConfig(evictionConfig)
+                    .setTimeToLiveSeconds(60));
 
             // @Cacheable(cacheNames="ssoUserDetails", key="#uuid")
-            final CacheSimpleConfig ssoUserDetailsConfig = new CacheSimpleConfig("ssoUserDetails")
-                .setKeyType("java.lang.String")
-                .setValueType("net.ripe.db.whois.common.sso.domain.ValidateTokenResponse")
-                .setStatisticsEnabled(true)
-                .setEvictionConfig(evictionConfig);
-            config.addCacheConfig(ssoUserDetailsConfig);
+            config.addMapConfig(new MapConfig()
+                    .setName("ssoUserDetails")
+                    .setStatisticsEnabled(true)
+                    .setEvictionConfig(evictionConfig)
+                    .setTimeToLiveSeconds(60));
 
             this.hazelcastInstance = getHazelcastInstance(config);
         }
