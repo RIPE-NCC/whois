@@ -7,4 +7,4 @@ CREATE TABLE `environment` (
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
 TRUNCATE version;
-INSERT INTO version VALUES ('whois-1.108');
+INSERT INTO version VALUES ('internals-1.108');
