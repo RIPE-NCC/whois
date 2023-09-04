@@ -4,6 +4,7 @@ import com.hazelcast.config.Config;
 import com.hazelcast.config.EvictionConfig;
 import com.hazelcast.config.EvictionPolicy;
 import com.hazelcast.config.MapConfig;
+import com.hazelcast.config.MaxSizePolicy;
 import com.hazelcast.core.Hazelcast;
 import com.hazelcast.core.HazelcastInstance;
 import com.hazelcast.spring.cache.HazelcastCacheManager;
@@ -38,7 +39,6 @@ public class HazelcastInstanceManager {
         this.port = port;
     }
 
-    // TODO: [ES] can configuration be simplified?
     @Bean
     @Profile(WhoisProfile.DEPLOYED)
     public HazelcastInstance hazelcastInstance() {
@@ -57,6 +57,7 @@ public class HazelcastInstanceManager {
             // TODO: https://stackoverflow.com/questions/67720942/how-to-set-ttl-on-hazelcast-cache-map-with-spring-cacheble
             final EvictionConfig evictionConfig = new EvictionConfig()
                 .setSize(10_000)
+                .setMaxSizePolicy(MaxSizePolicy.PER_NODE)
                 .setEvictionPolicy(EvictionPolicy.LRU);
 
             // Configure Hazelcast maps: https://docs.hazelcast.com/imdg/4.2/data-structures/map
@@ -83,6 +84,8 @@ public class HazelcastInstanceManager {
                     .setTimeToLiveSeconds(60));
 
             this.hazelcastInstance = getHazelcastInstance(config);
+
+            LOGGER.info("Created hazelcast instance");
         }
 
         return this.hazelcastInstance;
