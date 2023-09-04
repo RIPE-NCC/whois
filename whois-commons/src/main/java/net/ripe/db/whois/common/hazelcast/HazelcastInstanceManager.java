@@ -53,26 +53,33 @@ public class HazelcastInstanceManager {
             config.getNetworkConfig().setPort(port).setPortAutoIncrement(false);
             config.getNetworkConfig().getJoin().getTcpIpConfig().setMembers(Arrays.asList(interfaces.split(","))).setEnabled(true);
 
-            // TODO: [ES] time to live eviction not supported?
-            final EvictionConfig evictionConfig = new EvictionConfig().setSize(10000).setEvictionPolicy(EvictionPolicy.LRU);
+            // TODO: [ES] support time to live eviction
+            // TODO: https://stackoverflow.com/questions/67720942/how-to-set-ttl-on-hazelcast-cache-map-with-spring-cacheble
+            final EvictionConfig evictionConfig = new EvictionConfig()
+                .setSize(10_000)
+                .setEvictionPolicy(EvictionPolicy.LRU);
 
-            // TODO: [ES] is this cache configuration necessary? Is it done already automatically (based on the annotation) ?
-
+            // @Cacheable(cacheNames="ssoValidateToken", key="#authToken")
             final CacheSimpleConfig ssoValidateTokenConfig = new CacheSimpleConfig("ssoValidateToken")
                 .setKeyType("java.lang.String")
                 .setValueType("net.ripe.db.whois.common.sso.domain.ValidateTokenResponse")
+                .setStatisticsEnabled(true)
                 .setEvictionConfig(evictionConfig);
             config.addCacheConfig(ssoValidateTokenConfig);
 
+            // @Cacheable(cacheNames="ssoUuid", key="#username")
             final CacheSimpleConfig ssoUuidConfig = new CacheSimpleConfig("ssoUuid")
                 .setKeyType("java.lang.String")
                 .setValueType("java.lang.String")
+                .setStatisticsEnabled(true)
                 .setEvictionConfig(evictionConfig);
             config.addCacheConfig(ssoUuidConfig);
 
+            // @Cacheable(cacheNames="ssoUserDetails", key="#uuid")
             final CacheSimpleConfig ssoUserDetailsConfig = new CacheSimpleConfig("ssoUserDetails")
                 .setKeyType("java.lang.String")
                 .setValueType("net.ripe.db.whois.common.sso.domain.ValidateTokenResponse")
+                .setStatisticsEnabled(true)
                 .setEvictionConfig(evictionConfig);
             config.addCacheConfig(ssoUserDetailsConfig);
 
