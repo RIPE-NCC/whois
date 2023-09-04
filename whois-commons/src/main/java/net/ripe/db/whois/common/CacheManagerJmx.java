@@ -1,8 +1,8 @@
 package net.ripe.db.whois.common;
 
-import com.hazelcast.cache.CacheNotExistsException;
-import com.hazelcast.cache.ICache;
-import com.hazelcast.core.HazelcastInstance;
+import com.hazelcast.map.IMap;
+import com.hazelcast.map.LocalMapStats;
+import com.hazelcast.spring.cache.HazelcastCache;
 import net.ripe.db.whois.common.jmx.JmxBase;
 import net.ripe.db.whois.common.profiles.DeployedProfile;
 import org.slf4j.Logger;
@@ -24,13 +24,11 @@ public class CacheManagerJmx extends JmxBase {
     private static final Logger LOGGER = LoggerFactory.getLogger(CacheManagerJmx.class);
 
     private final CacheManager cacheManager;
-    private final HazelcastInstance hazelcastInstance;
 
     @Autowired
-    public CacheManagerJmx(final CacheManager cacheManager, final HazelcastInstance hazelcastInstance) {
+    public CacheManagerJmx(final CacheManager cacheManager) {
         super(LOGGER);
         this.cacheManager = cacheManager;
-        this.hazelcastInstance = hazelcastInstance;
     }
 
     @ManagedOperation(description = "Get cache status")
@@ -38,16 +36,10 @@ public class CacheManagerJmx extends JmxBase {
         @ManagedOperationParameter(name = "name", description = "cache name"),
     })
     public void getStatus(final String name) {
-        final ICache<Object, Object> cache;
-        try {
-            cache = hazelcastInstance.getCacheManager().getCache(name);
-        } catch (CacheNotExistsException e) {
-            throw new IllegalStateException(e);
-        }
-
-        final ICache unwrappedCache =  cache.unwrap( ICache.class );
-        final com.hazelcast.cache.CacheStatistics cacheStatistics = unwrappedCache.getLocalCacheStatistics();
-        LOGGER.info("{} cache: gets {} size {}", name, cacheStatistics.getCacheGets(), cache.size());
+        final HazelcastCache cache = (HazelcastCache)cacheManager.getCache(name);
+        final IMap<Object, Object> nativeCache = cache.getNativeCache();
+        final LocalMapStats localMapStats = nativeCache.getLocalMapStats();
+        LOGGER.info("{} cache status is {}", name, localMapStats);
     }
 
     @ManagedOperation(description = "Clear contents of cache")
