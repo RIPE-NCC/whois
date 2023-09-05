@@ -53,8 +53,6 @@ public class HazelcastInstanceManager {
             config.getNetworkConfig().setPort(port).setPortAutoIncrement(false);
             config.getNetworkConfig().getJoin().getTcpIpConfig().setMembers(Arrays.asList(interfaces.split(","))).setEnabled(true);
 
-            // TODO: [ES] support time to live eviction
-            // TODO: https://stackoverflow.com/questions/67720942/how-to-set-ttl-on-hazelcast-cache-map-with-spring-cacheble
             final EvictionConfig evictionConfig = new EvictionConfig()
                 .setSize(10_000)
                 .setMaxSizePolicy(MaxSizePolicy.PER_NODE)

@@ -22,7 +22,6 @@ public class TestCacheManagerProvider {
     public CacheManager cacheManagerInstance() {
         if (this.cacheManager == null) {
             final SimpleCacheManager simpleCacheManager = new SimpleCacheManager();
-            // TODO: [ES] can caches be defined by @Cachaeble annotations?
             final List<Cache> caches = Lists.newArrayList();
             caches.add(new ConcurrentMapCache("ssoUuid"));
             caches.add(new ConcurrentMapCache("ssoUserDetails"));
