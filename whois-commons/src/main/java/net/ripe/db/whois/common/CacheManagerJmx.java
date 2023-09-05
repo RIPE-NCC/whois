@@ -39,7 +39,7 @@ public class CacheManagerJmx extends JmxBase {
         final HazelcastCache cache = (HazelcastCache)cacheManager.getCache(name);
         final IMap<Object, Object> nativeCache = cache.getNativeCache();
         final LocalMapStats localMapStats = nativeCache.getLocalMapStats();
-        LOGGER.info("{} cache status is {}", name, localMapStats);
+        LOGGER.info("{} cache size is {} status is {}", name, nativeCache.size(), localMapStats);
     }
 
     @ManagedOperation(description = "Clear contents of cache")
