@@ -1,6 +1,7 @@
 package net.ripe.db.whois.api.nrtm4;
 
 import com.google.common.net.HttpHeaders;
+import net.ripe.db.nrtm4.SnapshotFileGenerator;
 import net.ripe.db.nrtm4.dao.DeltaFileSourceAwareDao;
 import net.ripe.db.nrtm4.dao.NrtmKeyConfigDao;
 import net.ripe.db.nrtm4.dao.UpdateNotificationFileSourceAwareDao;
@@ -36,6 +37,8 @@ public class NrtmClientService {
     private final UpdateNotificationFileSourceAwareDao updateNotificationFileSourceAwareDao;
     private final NrtmSourceDao nrtmSourceDao;
     private final NrtmKeyConfigDao nrtmKeyConfigDao;
+
+    private final SnapshotFileGenerator snapshotFileGenerator;
     final String nrtmUrl;
 
     @Autowired
@@ -100,6 +103,17 @@ public class NrtmClientService {
         }
 
         throw new BadRequestException("Invalid Nrtm filename");
+    }
+
+    @GET
+    @Path("1/2")
+    @Produces({MediaType.APPLICATION_OCTET_STREAM, MediaType.APPLICATION_JSON})
+    public Response nrtmFiles(
+            @Context final HttpServletRequest httpServletRequest) {
+            snapshotFileGenerator.createSnapshot();
+
+            return  Response.ok().build();
+
     }
 
     private void validateSource(final String source, final String fileName) {
