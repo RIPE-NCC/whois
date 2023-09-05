@@ -16,7 +16,7 @@ import static net.ripe.db.nrtm4.util.ByteArrayUtil.byteArrayToHexString;
 public class NrtmFileUtil {
 
     private static final Random random = new Random();
-    public static final char RECORD_SEPERATOR = 0x1e;
+    public static final String RECORD_SEPERATOR = "\u001E";
 
     public static String newFileName(final NrtmVersionInfo file) {
         final String prefix = file.type().getFileNamePrefix();
