@@ -21,6 +21,7 @@ import net.ripe.db.whois.common.TestDateTimeProvider;
 import net.ripe.db.whois.common.dao.jdbc.JdbcRpslObjectOperations;
 import net.ripe.db.whois.common.rpsl.DummifierNrtmV4;
 import net.ripe.db.whois.common.rpsl.RpslObject;
+import org.apache.commons.net.util.Base64;
 import org.bouncycastle.crypto.AsymmetricCipherKeyPair;
 import org.bouncycastle.crypto.params.Ed25519PrivateKeyParameters;
 import org.bouncycastle.crypto.params.Ed25519PublicKeyParameters;
@@ -280,7 +281,19 @@ public class NrtmClientServiceTestIntegration extends AbstractNrtmIntegrationTes
         assertThat(response.getStatus(), is(Response.Status.OK.getStatusCode()));
 
         final String signature = response.readEntity(String.class);
+
         assertThat(Ed25519Util.verifySignature(signature, nrtmKeyConfigDao.getPublicKey(), notificationFile.getBytes()), is(Boolean.TRUE));
+    }
+
+    @Test
+    public void should_get_base64_signature(){
+        insertUpdateNotificationFile();
+        generateAndSaveKeyPair();
+
+        final Response response = getResponseFromHttpsRequest("TEST/update-notification-file.json.sig", MediaType.APPLICATION_JSON);
+        final String signature = response.readEntity(String.class);
+
+        assertThat(Base64.isArrayByteBase64(signature.getBytes()), is(true));
     }
 
     @Test

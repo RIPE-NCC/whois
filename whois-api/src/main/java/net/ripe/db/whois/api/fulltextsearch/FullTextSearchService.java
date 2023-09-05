@@ -10,13 +10,18 @@ import jakarta.ws.rs.core.Context;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 import net.ripe.db.whois.api.rest.RestServiceHelper;
+import net.ripe.db.whois.common.rpsl.AttributeType;
 import net.ripe.db.whois.query.domain.QueryException;
+import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.io.IOException;
+import java.util.Arrays;
+
+import static net.ripe.db.whois.api.elasticsearch.ElasticIndexService.OBJECT_TYPE_FIELD_NAME;
 
 @Component
 @Path("/fulltextsearch")
@@ -48,7 +53,7 @@ public class FullTextSearchService {
                     new SearchRequest.SearchRequestBuilder()
                             .setRows(rows)
                             .setStart(start)
-                            .setQuery(query)
+                            .setQuery(escapeColon(query))
                             .setHighlight(highlight)
                             .setHighlightPre(highlightPre)
                             .setHighlightPost(highlightPost)
@@ -63,6 +68,23 @@ public class FullTextSearchService {
             LOGGER.error(e.getMessage(), e);
             return internalServerError("Unexpected error");
         }
+    }
+
+    private static String escapeColon(final String query){
+        if (StringUtils.isEmpty(query) || !query.contains(":") || query.contains("\\:")){
+            return query;
+        }
+
+        final StringBuilder sb = new StringBuilder();
+
+        final String[] splittedQuery = query.split(":");
+        Arrays.stream(splittedQuery).limit(splittedQuery.length - 1).forEach(splitColon -> sb.append(splitColon).append(shouldEscapeColon(splitColon) ? "\\:" : ":"));
+        return sb.append(splittedQuery[splittedQuery.length - 1]).toString();
+    }
+
+    private static boolean shouldEscapeColon(final String splitColon) {
+        final String[] words = splitColon.split("[^\\w-]+"); //Split in words (including dashes)
+        return words.length == 0 || (AttributeType.getByNameOrNull(words[words.length - 1]) == null && !OBJECT_TYPE_FIELD_NAME.equalsIgnoreCase(words[words.length - 1]));
     }
 
     private Response ok(final SearchResponse searchResponse) {
