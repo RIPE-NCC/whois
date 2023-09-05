@@ -134,8 +134,7 @@ public class NrtmClientService {
 
     private Response getResponseForDelta(final String payload) {
         return Response.ok(payload)
-               // .header(HttpHeaders.CONTENT_TYPE, "application/json-seq")
-                .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON)
+                .header(HttpHeaders.CONTENT_TYPE, "application/json-seq")
                 .build();
     }
 }
