@@ -23,4 +23,10 @@ public enum NrtmDocumentType {
         return fileNamePrefix;
     }
 
+    public static NrtmDocumentType getDocumentType(final String fileType) {
+        for(NrtmDocumentType documentType : values())
+            if(documentType.name().equalsIgnoreCase(fileType)) return documentType;
+        throw new IllegalArgumentException();
+    }
+
 }

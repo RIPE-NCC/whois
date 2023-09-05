@@ -10,7 +10,7 @@ import net.ripe.db.nrtm4.domain.DeltaFileVersionInfo;
 import net.ripe.db.nrtm4.domain.NotificationFile;
 import net.ripe.db.nrtm4.domain.NrtmSource;
 import net.ripe.db.nrtm4.domain.NrtmVersionInfo;
-import net.ripe.db.nrtm4.domain.PublishableNotificationFile;
+import net.ripe.db.nrtm4.domain.NrtmNotificationFile;
 import net.ripe.db.nrtm4.domain.SnapshotFileVersionInfo;
 import net.ripe.db.whois.common.DateTimeProvider;
 import net.ripe.db.whois.common.dao.VersionDateTime;
@@ -135,14 +135,14 @@ public class UpdateNotificationFileGenerator {
                      snapshotFileWithVersion.versionInfo() : deltaFiles.get(deltaFiles.size() - 1).versionInfo();
     }
 
-    private List<PublishableNotificationFile.NrtmFileLink> getPublishableFile(final List<DeltaFileVersionInfo> files) {
+    private List<NrtmNotificationFile.NrtmFileLink> getPublishableFile(final List<DeltaFileVersionInfo> files) {
         return files.stream()
                 .map(file -> getPublishableFile(file.versionInfo(), file.deltaFile().name(),file.deltaFile().hash()))
                 .toList();
     }
 
-    private PublishableNotificationFile.NrtmFileLink getPublishableFile(final NrtmVersionInfo versionInfo, final String file, final String hash) {
-        return new PublishableNotificationFile.NrtmFileLink(
+    private NrtmNotificationFile.NrtmFileLink getPublishableFile(final NrtmVersionInfo versionInfo, final String file, final String hash) {
+        return new NrtmNotificationFile.NrtmFileLink(
                 versionInfo.version(),
                 urlString(versionInfo.source().getName().toString(), file),
                 hash);
@@ -154,7 +154,7 @@ public class UpdateNotificationFileGenerator {
 
     private String getPayload(final SnapshotFileVersionInfo snapshotFile, final List<DeltaFileVersionInfo> deltaFiles, final NrtmVersionInfo fileVersion, final long createdTimestamp) {
         try {
-            final PublishableNotificationFile notification = new PublishableNotificationFile(
+            final NrtmNotificationFile notification = new NrtmNotificationFile(
                     fileVersion,
                     new VersionDateTime(createdTimestamp).toString(),
                     null,

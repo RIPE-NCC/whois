@@ -95,7 +95,7 @@ public class NrtmClientService {
 
         if(fileName.startsWith(NrtmDocumentType.DELTA.getFileNamePrefix())) {
             return deltaFileSourceAwareDao.getByFileName(filenameWithExt(fileName))
-                    .map( delta -> getResponse(delta.payload()))
+                    .map( delta -> getResponseForDelta(delta.payload()))
                     .orElseThrow(() -> new NotFoundException("Requested Delta file does not exists"));
         }
 
@@ -128,6 +128,12 @@ public class NrtmClientService {
     private Response getResponse(final String payload) {
         return Response.ok(payload)
                 .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON)
+                .build();
+    }
+
+    private Response getResponseForDelta(final String payload) {
+        return Response.ok(payload)
+                .header(HttpHeaders.CONTENT_TYPE, "application/json-seq")
                 .build();
     }
 }

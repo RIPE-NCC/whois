@@ -5,7 +5,7 @@ import net.ripe.db.nrtm4.dao.NrtmFileRepository;
 import net.ripe.db.nrtm4.dao.NrtmVersionInfoDao;
 import net.ripe.db.nrtm4.dao.WhoisObjectDao;
 import net.ripe.db.nrtm4.dao.WhoisObjectRepository;
-import net.ripe.db.nrtm4.domain.DeltaChange;
+import net.ripe.db.nrtm4.domain.DeltaFileRecord;
 import net.ripe.db.nrtm4.domain.NrtmDocumentType;
 import net.ripe.db.nrtm4.domain.NrtmVersionInfo;
 import net.ripe.db.whois.common.DateTimeProvider;
@@ -63,7 +63,7 @@ public class DeltaFileGenerator {
             return;
         }
 
-        final Map<CIString, List<DeltaChange>> deltaMap = new HashMap<>();
+        final Map<CIString, List<DeltaFileRecord>> deltaMap = new HashMap<>();
         sourceVersions.forEach(sv -> deltaMap.put(sv.source().getName(), new ArrayList<>()));
 
         final List<SerialEntry> whoisChanges = whoisObjectRepository.getSerialEntriesBetween(sourceVersions.get(0).lastSerialId(), serialIDTo);
@@ -90,10 +90,10 @@ public class DeltaFileGenerator {
         cleanUpOldFiles();
     }
 
-    private DeltaChange getDeltaChange(final SerialEntry serialEntry) {
+    private DeltaFileRecord getDeltaChange(final SerialEntry serialEntry) {
         return serialEntry.getOperation() == Operation.DELETE ?
-                DeltaChange.delete(serialEntry.getRpslObject().getType(), serialEntry.getPrimaryKey())
-                : DeltaChange.addModify(dummifierNrtmV4.dummify(serialEntry.getRpslObject()));
+                DeltaFileRecord.delete(serialEntry.getRpslObject().getType(), serialEntry.getPrimaryKey())
+                : DeltaFileRecord.addModify(dummifierNrtmV4.dummify(serialEntry.getRpslObject()));
     }
 
     private void cleanUpOldFiles() {

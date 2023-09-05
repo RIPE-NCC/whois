@@ -1,5 +1,8 @@
 package net.ripe.db.nrtm4.util;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import net.ripe.db.nrtm4.domain.NrtmFileRecord;
 import net.ripe.db.nrtm4.domain.NrtmVersionInfo;
 import org.apache.commons.lang.StringUtils;
 
@@ -13,6 +16,7 @@ import static net.ripe.db.nrtm4.util.ByteArrayUtil.byteArrayToHexString;
 public class NrtmFileUtil {
 
     private static final Random random = new Random();
+    public static final char RECORD_SEPERATOR = 0x1e;
 
     public static String newFileName(final NrtmVersionInfo file) {
         final String prefix = file.type().getFileNamePrefix();
@@ -43,4 +47,14 @@ public class NrtmFileUtil {
         return Long.toHexString(random.nextLong()) + Long.toHexString(random.nextLong());
     }
 
+    public static String getNrtmFileRecord(final NrtmFileRecord record) throws JsonProcessingException {
+        return getNrtmFileRecord(new StringBuilder(), record).toString();
+    }
+
+    public static StringBuilder getNrtmFileRecord(final StringBuilder sb, final NrtmFileRecord record) throws JsonProcessingException {
+        //TODO[MA]: Should be using a library right now only jq tool supports json-text-sequence
+        return sb.append(RECORD_SEPERATOR)
+                .append(new ObjectMapper().writeValueAsString(record))
+                .append("\n");
+    }
 }
