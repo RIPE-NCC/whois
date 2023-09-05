@@ -37,8 +37,6 @@ public class NrtmClientService {
     private final UpdateNotificationFileSourceAwareDao updateNotificationFileSourceAwareDao;
     private final NrtmSourceDao nrtmSourceDao;
     private final NrtmKeyConfigDao nrtmKeyConfigDao;
-
-    private final SnapshotFileGenerator snapshotFileGenerator;
     final String nrtmUrl;
 
     @Autowired
@@ -105,17 +103,6 @@ public class NrtmClientService {
         throw new BadRequestException("Invalid Nrtm filename");
     }
 
-    @GET
-    @Path("1/2")
-    @Produces({MediaType.APPLICATION_OCTET_STREAM, MediaType.APPLICATION_JSON})
-    public Response nrtmFiles(
-            @Context final HttpServletRequest httpServletRequest) {
-            snapshotFileGenerator.createSnapshot();
-
-            return  Response.ok().build();
-
-    }
-
     private void validateSource(final String source, final String fileName) {
         if(!NrtmFileUtil.getSource(fileName).equals(source)) {
             throw new BadRequestException("Invalid source and filename combination");
@@ -147,7 +134,8 @@ public class NrtmClientService {
 
     private Response getResponseForDelta(final String payload) {
         return Response.ok(payload)
-                .header(HttpHeaders.CONTENT_TYPE, "application/json-seq")
+               // .header(HttpHeaders.CONTENT_TYPE, "application/json-seq")
+                .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON)
                 .build();
     }
 }
