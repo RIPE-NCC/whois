@@ -8,7 +8,7 @@ import net.ripe.db.nrtm4.dao.NrtmVersionInfoDao;
 import net.ripe.db.nrtm4.domain.DeltaFileRecord;
 import net.ripe.db.nrtm4.domain.NrtmDocumentType;
 import net.ripe.db.nrtm4.domain.NrtmVersionInfo;
-import net.ripe.db.nrtm4.domain.NrtmNotificationFile;
+import net.ripe.db.nrtm4.domain.UpdateNotificationFile;
 import net.ripe.db.nrtm4.domain.SnapshotFileRecord;
 import net.ripe.db.nrtm4.domain.NrtmVersionRecord;
 import net.ripe.db.nrtm4.util.NrtmFileUtil;
@@ -79,12 +79,12 @@ public class SnapshotFileGenerationTestIntegration extends AbstractNrtmIntegrati
         snapshotFileGenerator.createSnapshot();
         updateNotificationFileGenerator.generateFile();
 
-        final NrtmNotificationFile nrtmNotificationFile = getNotificationFileBySource("TEST");
+        final UpdateNotificationFile updateNotificationFile = getNotificationFileBySource("TEST");
 
-        assertThat(nrtmNotificationFile.getSnapshot().getUrl(), is(notNullValue()));
-        assertThat(nrtmNotificationFile.getSnapshot().getVersion(), is(notNullValue()));
-        assertThat(nrtmNotificationFile.getSessionID(), is(notNullValue()));
-        assertThat(nrtmNotificationFile.getSnapshot().getHash(), is(notNullValue()));
+        assertThat(updateNotificationFile.getSnapshot().getUrl(), is(notNullValue()));
+        assertThat(updateNotificationFile.getSnapshot().getVersion(), is(notNullValue()));
+        assertThat(updateNotificationFile.getSessionID(), is(notNullValue()));
+        assertThat(updateNotificationFile.getSnapshot().getHash(), is(notNullValue()));
     }
     @Test
     public void should_get_snapshot_file_test_source() throws IOException, JSONException {
@@ -196,7 +196,7 @@ public class SnapshotFileGenerationTestIntegration extends AbstractNrtmIntegrati
         snapshotFileGenerator.createSnapshot();
         updateNotificationFileGenerator.generateFile();
 
-        final NrtmNotificationFile testUpdateNotification = getNotificationFileBySource("TEST");
+        final UpdateNotificationFile testUpdateNotification = getNotificationFileBySource("TEST");
         final NrtmVersionRecord snapResponse = getNrtmVersionInfo(getSnapshotRecords("TEST")[0]);
 
         assertThat(snapResponse.getType().lowerCaseName(), is("snapshot"));
@@ -307,7 +307,7 @@ public class SnapshotFileGenerationTestIntegration extends AbstractNrtmIntegrati
 
         updateNotificationFileGenerator.generateFile();
 
-        final NrtmNotificationFile notificationFile = getNotificationFileBySource("TEST");
+        final UpdateNotificationFile notificationFile = getNotificationFileBySource("TEST");
         assertThat(notificationFile.getType(), is(NrtmDocumentType.NOTIFICATION));
         assertThat(notificationFile.getVersion(), is(5L));
 

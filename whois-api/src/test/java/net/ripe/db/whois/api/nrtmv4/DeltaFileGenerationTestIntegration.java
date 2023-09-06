@@ -3,7 +3,7 @@ package net.ripe.db.whois.api.nrtmv4;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.google.common.collect.Lists;
 import net.ripe.db.nrtm4.domain.DeltaFileRecord;
-import net.ripe.db.nrtm4.domain.NrtmNotificationFile;
+import net.ripe.db.nrtm4.domain.UpdateNotificationFile;
 import net.ripe.db.nrtm4.domain.NrtmVersionRecord;
 import net.ripe.db.whois.api.AbstractNrtmIntegrationTest;
 import net.ripe.db.whois.common.rpsl.DummifierNrtmV4;
@@ -69,7 +69,7 @@ public class DeltaFileGenerationTestIntegration extends AbstractNrtmIntegrationT
         snapshotFileGenerator.createSnapshot();
         updateNotificationFileGenerator.generateFile();
 
-        final NrtmNotificationFile nrtmNotificationFile = getNotificationFileBySource("TEST");
+        final UpdateNotificationFile updateNotificationFile = getNotificationFileBySource("TEST");
         final RpslObject updatedObject = RpslObject.parse("" +
                 "inet6num:       ::/0\n" +
                 "netname:        IANA-BLK\n" +
@@ -93,7 +93,7 @@ public class DeltaFileGenerationTestIntegration extends AbstractNrtmIntegrationT
 
         final String[] secondIterationDelta = getDeltasFromUpdateNotificationBySource("TEST", 1);
 
-        assertThat(nrtmNotificationFile.getSnapshot().getVersion(), is(1L));
+        assertThat(updateNotificationFile.getSnapshot().getVersion(), is(1L));
         assertNrtmFileInfo(firstIterationDelta[0], "delta", 2, "TEST");
         assertNrtmFileInfo(secondIterationDelta[0], "delta", 3, "TEST");
     }
@@ -117,7 +117,7 @@ public class DeltaFileGenerationTestIntegration extends AbstractNrtmIntegrationT
                 "source:         TEST")));
 
         updateNotificationFileGenerator.generateFile();
-        final NrtmNotificationFile firsIteration = getNotificationFileBySource("TEST");
+        final UpdateNotificationFile firsIteration = getNotificationFileBySource("TEST");
         assertThat(firsIteration.getDeltas().get(0).getUrl(), is(notNullValue()));
         assertThat(firsIteration.getSessionID(), is(notNullValue()));
         assertThat(firsIteration.getDeltas().get(0).getVersion(), is(notNullValue()));
@@ -252,7 +252,7 @@ public class DeltaFileGenerationTestIntegration extends AbstractNrtmIntegrationT
                 "last-modified:   2022-10-25T12:22:39Z\n" +
                 "source:         TEST")));
         updateNotificationFileGenerator.generateFile();
-        final NrtmNotificationFile testUpdateNotification = getNotificationFileBySource("TEST");
+        final UpdateNotificationFile testUpdateNotification = getNotificationFileBySource("TEST");
         final String[] testDelta = getDeltasFromUpdateNotificationBySource("TEST", 0);
 
         final NrtmVersionRecord nrtmVersionFile = getNrtmVersionInfo(testDelta[0]);
@@ -286,7 +286,7 @@ public class DeltaFileGenerationTestIntegration extends AbstractNrtmIntegrationT
 
 
         updateNotificationFileGenerator.generateFile();
-        final NrtmNotificationFile testUpdateNotification = getNotificationFileBySource("TEST");
+        final UpdateNotificationFile testUpdateNotification = getNotificationFileBySource("TEST");
         final String[] testDelta = getDeltasFromUpdateNotificationBySource("TEST", 2);
 
         assertThat(testUpdateNotification.getSnapshot().getVersion(), is(new JSONObject(testDelta[0]).getLong("version")));
@@ -331,7 +331,7 @@ public class DeltaFileGenerationTestIntegration extends AbstractNrtmIntegrationT
 
         updateNotificationFileGenerator.generateFile();
 
-        final NrtmNotificationFile publishableFile = getNotificationFileBySource("TEST-NONAUTH");
+        final UpdateNotificationFile publishableFile = getNotificationFileBySource("TEST-NONAUTH");
         assertThat(publishableFile.getDeltas().size(), is(1));
         assertThat(publishableFile.getDeltas().get(0).getVersion(), is(2L));
 
@@ -365,7 +365,7 @@ public class DeltaFileGenerationTestIntegration extends AbstractNrtmIntegrationT
 
         updateNotificationFileGenerator.generateFile();
 
-        final NrtmNotificationFile firstIteration = getNotificationFileBySource("TEST-NONAUTH");
+        final UpdateNotificationFile firstIteration = getNotificationFileBySource("TEST-NONAUTH");
         assertThat(firstIteration.getDeltas().size(), is(1));
         assertThat(firstIteration.getDeltas().get(0).getVersion(), is(3L));
         assertThat(publishableFile.getSnapshot().getVersion(), is(not(firstIteration.getSnapshot().getVersion())));

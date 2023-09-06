@@ -10,7 +10,7 @@ import java.util.Objects;
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @JsonPropertyOrder({"nrtm_version", "timestamp", "type", "next_signing_key", "source", "session_id", "version", "snapshot", "deltas"})
-public class NrtmNotificationFile extends NrtmVersionRecord {
+public class UpdateNotificationFile extends NrtmVersionRecord {
 
     private final String timestamp;
     @JsonProperty("next_signing_key")
@@ -18,14 +18,14 @@ public class NrtmNotificationFile extends NrtmVersionRecord {
     private final NrtmFileLink snapshot;
     private final List<NrtmFileLink> deltas;
 
-    private NrtmNotificationFile() {
+    private UpdateNotificationFile() {
         timestamp = null;
         nextSigningKey = null;
         snapshot = null;
         deltas = null;
     }
 
-    public NrtmNotificationFile(
+    public UpdateNotificationFile(
         final NrtmVersionInfo version,
         final String timestamp,
         final String nextSigningKey,

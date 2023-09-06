@@ -10,7 +10,7 @@ import net.ripe.db.nrtm4.dao.NrtmKeyConfigDao;
 import net.ripe.db.nrtm4.domain.DeltaFileRecord;
 import net.ripe.db.nrtm4.domain.NrtmDocumentType;
 import net.ripe.db.nrtm4.domain.NrtmSource;
-import net.ripe.db.nrtm4.domain.NrtmNotificationFile;
+import net.ripe.db.nrtm4.domain.UpdateNotificationFile;
 import net.ripe.db.nrtm4.domain.NrtmVersionRecord;
 import net.ripe.db.nrtm4.util.NrtmFileUtil;
 import net.ripe.db.whois.common.domain.CIString;
@@ -197,31 +197,31 @@ public abstract class AbstractNrtmIntegrationTest extends AbstractIntegrationTes
         return RestTest.target(getPort(), String.format("nrtmv4/%s", path));
     }
 
-    protected NrtmNotificationFile getNotificationFileBySource(final String sourceName) {
-        return getResponseFromHttpsRequest(sourceName + "/update-notification-file.json", MediaType.APPLICATION_JSON).readEntity(NrtmNotificationFile.class);
+    protected UpdateNotificationFile getNotificationFileBySource(final String sourceName) {
+        return getResponseFromHttpsRequest(sourceName + "/update-notification-file.json", MediaType.APPLICATION_JSON).readEntity(UpdateNotificationFile.class);
     }
 
-    protected String getSnapshotNameFromUpdateNotification(final NrtmNotificationFile notificationFile) {
+    protected String getSnapshotNameFromUpdateNotification(final UpdateNotificationFile notificationFile) {
         return notificationFile.getSnapshot().getUrl().split("/")[4];
     }
 
     protected Response getSnapshotFromUpdateNotificationBySource(final String sourceName) throws JsonProcessingException {
         final Response updateNotificationResponse = getResponseFromHttpsRequest(sourceName + "/update-notification-file.json", MediaType.APPLICATION_JSON);
-        final NrtmNotificationFile notificationFile = new ObjectMapper().readValue(updateNotificationResponse.readEntity(String.class),
-                NrtmNotificationFile.class);
+        final UpdateNotificationFile notificationFile = new ObjectMapper().readValue(updateNotificationResponse.readEntity(String.class),
+                UpdateNotificationFile.class);
         return getResponseFromHttpsRequest(sourceName + "/" + getSnapshotNameFromUpdateNotification(notificationFile)
                 , MediaType.APPLICATION_JSON);
     }
 
     protected String[] getDeltasFromUpdateNotificationBySource(final String sourceName, final int deltaPosition) {
-        final NrtmNotificationFile updateNotificationResponse = getResponseFromHttpsRequest(sourceName +
-                "/update-notification-file.json", MediaType.APPLICATION_JSON).readEntity(NrtmNotificationFile.class);
+        final UpdateNotificationFile updateNotificationResponse = getResponseFromHttpsRequest(sourceName +
+                "/update-notification-file.json", MediaType.APPLICATION_JSON).readEntity(UpdateNotificationFile.class);
 
         final String response = getResponseFromHttpsRequest(sourceName + "/" + getDeltaNameFromUpdateNotification(updateNotificationResponse, deltaPosition), "application/json-seq").readEntity(String.class);
         return StringUtils.split( response, NrtmFileUtil.RECORD_SEPERATOR);
     }
 
-    protected String getDeltaNameFromUpdateNotification(final NrtmNotificationFile notificationFile, final int deltaPosition) {
+    protected String getDeltaNameFromUpdateNotification(final UpdateNotificationFile notificationFile, final int deltaPosition) {
         return notificationFile.getDeltas().get(deltaPosition).getUrl().split("/")[4];
     }
 
