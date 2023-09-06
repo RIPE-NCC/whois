@@ -32,8 +32,7 @@ public class IpTreeHealthCheck implements HealthCheck {
         return ipTreeHealthy.get();
     }
 
-    //@Scheduled(fixedDelay = 60 * 1_000)
-    @Scheduled(fixedRate=60*60*1000)
+    @Scheduled(fixedDelay = 60 * 1_000)
     void updateStatus() {
         ipTreeHealthy.set(ipTreeCacheManager.check(sourceContext));
         if (!ipTreeHealthy.get()) {
