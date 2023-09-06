@@ -1,4 +1,4 @@
-package net.ripe.db.whois.query.hazelcast;
+package net.ripe.db.whois.common.hazelcast;
 
 import com.hazelcast.cluster.MembershipEvent;
 import com.hazelcast.cluster.MembershipListener;

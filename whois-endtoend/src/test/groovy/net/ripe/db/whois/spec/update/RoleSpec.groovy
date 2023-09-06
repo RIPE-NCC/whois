@@ -1,14 +1,12 @@
 package net.ripe.db.whois.spec.update
 
-
+import jakarta.ws.rs.core.MultivaluedHashMap
+import jakarta.ws.rs.core.MultivaluedMap
 import net.ripe.db.whois.spec.BaseQueryUpdateSpec
 import net.ripe.db.whois.spec.domain.AckResponse
 import net.ripe.db.whois.spec.domain.Message
 import org.eclipse.jetty.http.HttpHeader
 import org.eclipse.jetty.http.HttpScheme
-
-import javax.ws.rs.core.MultivaluedHashMap
-import javax.ws.rs.core.MultivaluedMap
 
 @org.junit.jupiter.api.Tag("IntegrationTest")
 class RoleSpec extends BaseQueryUpdateSpec {

@@ -194,5 +194,5 @@ public class BootstrapFromFileTestIntegration extends AbstractSchedulerIntegrati
 
         assertThat(bootstrapLoadResults, containsString("FINISHED\n3 succeeded\n0 failed in pass 1\n0 failed in pass 2\n"));
     }
-    
+
 }

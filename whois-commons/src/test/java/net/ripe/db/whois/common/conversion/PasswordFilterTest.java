@@ -1,8 +1,7 @@
 package net.ripe.db.whois.common.conversion;
 
+import jakarta.ws.rs.core.UriBuilder;
 import org.junit.jupiter.api.Test;
-
-import javax.ws.rs.core.UriBuilder;
 
 import static org.hamcrest.CoreMatchers.containsString;
 import static org.hamcrest.CoreMatchers.nullValue;

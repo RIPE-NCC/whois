@@ -17,8 +17,6 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
-import org.kubek2k.springockito.annotations.ReplaceWithMock;
-import org.kubek2k.springockito.annotations.SpringockitoContextLoader;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -40,11 +38,11 @@ import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.when;
 
 @DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_EACH_TEST_METHOD)
-@ContextConfiguration(loader = SpringockitoContextLoader.class, locations = {"classpath:applicationContext-query-test.xml"}, inheritLocations = false)
+@ContextConfiguration(locations = {"classpath:applicationContext-query-test.xml", "classpath:applicationContext-query-test-mock.xml"}, inheritLocations = false)
 @Tag("IntegrationTest")
 public class SimpleWhoisServerTestIntegration extends AbstractQueryIntegrationTest {
-    @Autowired @ReplaceWithMock private QueryHandler queryHandler;
-    @Autowired @ReplaceWithMock private AccessControlListManager accessControlListManager;
+    @Autowired private QueryHandler queryHandler;
+    @Autowired private AccessControlListManager accessControlListManager;
 
     @BeforeEach
     public void setUp() throws Exception {
@@ -54,19 +52,19 @@ public class SimpleWhoisServerTestIntegration extends AbstractQueryIntegrationTe
     }
 
     @AfterEach
-    public void tearDown() throws Exception {
+    public void tearDown() {
         queryServer.stop(true);
     }
 
     @Test
-    public void performIncorrectQuery() throws IOException {
+    public void performIncorrectQuery() {
         final String response = new TelnetWhoisClient(QueryServer.port).sendQuery("-W test");
 
         assertThat(stripHeader(response), containsString(trim(QueryMessages.malformedQuery())));
     }
 
     @Test
-    public void performWhoisQuery() throws IOException {
+    public void performWhoisQuery() {
         final String queryString = "-rBGxTinetnum 10.0.0.0";
         final String queryResult = "inetnum:        10.0.0.0 - 10.255.255.255";
 
@@ -85,7 +83,7 @@ public class SimpleWhoisServerTestIntegration extends AbstractQueryIntegrationTe
     }
 
     @Test
-    public void whoisQueryGivesException() throws IOException {
+    public void whoisQueryGivesException() {
         doThrow(IllegalStateException.class).when(queryHandler).streamResults(any(Query.class), any(InetAddress.class), anyInt(), any(ResponseHandler.class));
 
         final String response = new TelnetWhoisClient(QueryServer.port).sendQuery("-rBGxTinetnum 10.0.0.0");
@@ -95,7 +93,7 @@ public class SimpleWhoisServerTestIntegration extends AbstractQueryIntegrationTe
     }
 
     @Test
-    public void end_of_transmission_exception() throws IOException {
+    public void end_of_transmission_exception() {
         doThrow(IllegalStateException.class).when(queryHandler).streamResults(any(Query.class), any(InetAddress.class), anyInt(), any(ResponseHandler.class));
 
         final String response = new TelnetWhoisClient(QueryServer.port).sendQuery("10.0.0.0");
