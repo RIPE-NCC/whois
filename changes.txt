@@ -1,5 +1,18 @@
 # next
 
+# 1.108
+
+[nrtm] Use base64 instead of Hex (#1302)
+[nrtm] JSON Text Sequences (#1304)
+[rdap] Add multi mnt-by error (#1301)
+[rdap] Add remarks (#1278)
+[update] Warn when http (#1292)
+[api] Remove Lucene support (#1285)
+[api] Elasticsearch do not rebuild from scratch (#1294)
+[api] Elasticsearch use phrase without prefix due to bug (#1298)
+[api] Elasticsearch scape colons (#1299)
+[all] Jakarta / EE9 (#744)
+
 # 1.107
 
 [nrtm] NWI-14 add mnt-ref to additional object types (#1243)
