@@ -12,7 +12,7 @@ import net.ripe.db.whois.common.rpsl.RpslObject;
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @JsonPropertyOrder({ "action", "object_class", "primary_key", "object"})
-public class DeltaChange {
+public class DeltaFileRecord implements NrtmFileRecord {
 
     public enum Action {
         DELETE,
@@ -33,14 +33,14 @@ public class DeltaChange {
     @JsonDeserialize(using = RpslObjectJsonSupport.Deserializer.class)
     private final RpslObject object;
 
-    private DeltaChange() {
+    private DeltaFileRecord() {
         action = null;
         objectType = null;
         primaryKey = null;
         object = null;
     }
 
-    private DeltaChange(
+    private DeltaFileRecord(
         final Action action,
         final ObjectType objectType,
         final String primaryKey,
@@ -52,12 +52,12 @@ public class DeltaChange {
         this.object = rpslObject;
     }
 
-    public static DeltaChange addModify(final RpslObject rpslObject) {
-        return new DeltaChange(Action.ADD_MODIFY, null, null, rpslObject);
+    public static DeltaFileRecord addModify(final RpslObject rpslObject) {
+        return new DeltaFileRecord(Action.ADD_MODIFY, null, null, rpslObject);
     }
 
-    public static DeltaChange delete(final ObjectType objectType, final String primaryKey) {
-        return new DeltaChange(Action.DELETE, objectType, primaryKey, null);
+    public static DeltaFileRecord delete(final ObjectType objectType, final String primaryKey) {
+        return new DeltaFileRecord(Action.DELETE, objectType, primaryKey, null);
     }
 
     public Action getAction() {

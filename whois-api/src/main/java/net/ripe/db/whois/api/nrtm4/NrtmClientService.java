@@ -13,9 +13,9 @@ import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 import net.ripe.db.nrtm4.dao.DeltaFileSourceAwareDao;
 import net.ripe.db.nrtm4.dao.NrtmKeyConfigDao;
-import net.ripe.db.nrtm4.dao.NrtmSourceDao;
-import net.ripe.db.nrtm4.dao.SnapshotFileSourceAwareDao;
 import net.ripe.db.nrtm4.dao.UpdateNotificationFileSourceAwareDao;
+import net.ripe.db.nrtm4.dao.SnapshotFileSourceAwareDao;
+import net.ripe.db.nrtm4.dao.NrtmSourceDao;
 import net.ripe.db.nrtm4.domain.NrtmDocumentType;
 import net.ripe.db.nrtm4.domain.NrtmSource;
 import net.ripe.db.nrtm4.util.NrtmFileUtil;
@@ -96,7 +96,7 @@ public class NrtmClientService {
 
         if(fileName.startsWith(NrtmDocumentType.DELTA.getFileNamePrefix())) {
             return deltaFileSourceAwareDao.getByFileName(filenameWithExt(fileName))
-                    .map( delta -> getResponse(delta.payload()))
+                    .map( delta -> getResponseForDelta(delta.payload()))
                     .orElseThrow(() -> new NotFoundException("Requested Delta file does not exists"));
         }
 
@@ -129,6 +129,12 @@ public class NrtmClientService {
     private Response getResponse(final String payload) {
         return Response.ok(payload)
                 .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON)
+                .build();
+    }
+
+    private Response getResponseForDelta(final String payload) {
+        return Response.ok(payload)
+                .header(HttpHeaders.CONTENT_TYPE, "application/json-seq")
                 .build();
     }
 }
