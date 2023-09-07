@@ -61,6 +61,8 @@ public class DatabaseDummifierJmx extends JmxBase {
     private static TransactionTemplate transactionTemplate;
     private static JdbcTemplate jdbcTemplate;
 
+    private static JdbcTemplate internalTemplate;
+
     private static final DummifierRC dummifier = new DummifierRC();
 
     private static final AtomicInteger jobsAdded = new AtomicInteger();
@@ -84,6 +86,10 @@ public class DatabaseDummifierJmx extends JmxBase {
                 final SimpleDataSourceFactory simpleDataSourceFactory = new SimpleDataSourceFactory("org.mariadb.jdbc.Driver");
                 final DataSource dataSource = simpleDataSourceFactory.createDataSource(jdbcUrl, user, pass);
                 jdbcTemplate = new JdbcTemplate(dataSource);
+
+                final DataSource internalSource = simpleDataSourceFactory.createDataSource("jdbc:mariadb://localhost/INTERNALS_RIPE", user, pass);
+                internalTemplate = new JdbcTemplate(internalSource);
+
                 validateEnvironment(env);
 
                 final DataSourceTransactionManager transactionManager = new DataSourceTransactionManager(dataSource);
@@ -121,7 +127,7 @@ public class DatabaseDummifierJmx extends JmxBase {
     }
 
     private void validateEnvironment(final Environment env) {
-        final String dbEnvironment = jdbcTemplate.queryForObject("SELECT name FROM environment LIMIT 1", String.class);
+        final String dbEnvironment = internalTemplate.queryForObject("SELECT name FROM environment LIMIT 1", String.class);
         if (dbEnvironment == null){
             throw new IllegalStateException("Environment not specified in the schema");
         }

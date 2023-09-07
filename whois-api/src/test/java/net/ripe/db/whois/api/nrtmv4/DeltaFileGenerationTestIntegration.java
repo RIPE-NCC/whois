@@ -2,6 +2,8 @@ package net.ripe.db.whois.api.nrtmv4;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.google.common.collect.Lists;
+import jakarta.ws.rs.core.MediaType;
+import jakarta.ws.rs.core.Response;
 import net.ripe.db.nrtm4.domain.DeltaFileRecord;
 import net.ripe.db.nrtm4.domain.UpdateNotificationFile;
 import net.ripe.db.nrtm4.domain.NrtmVersionRecord;
@@ -15,8 +17,6 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.annotation.DirtiesContext;
 
-import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.Response;
 import java.time.LocalDateTime;
 import java.util.Collections;
 import java.util.List;

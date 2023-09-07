@@ -3,6 +3,7 @@ package net.ripe.db.whois.api.rdap;
 import com.google.common.collect.Lists;
 import com.google.common.net.InetAddresses;
 import com.mchange.v1.util.UnexpectedException;
+import jakarta.servlet.http.HttpServletRequest;
 import net.ripe.db.whois.api.rest.ApiResponseHandler;
 import net.ripe.db.whois.common.domain.ResponseObject;
 import net.ripe.db.whois.common.rpsl.ObjectType;
@@ -17,7 +18,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import javax.servlet.http.HttpServletRequest;
 import java.net.InetAddress;
 import java.util.List;
 import java.util.stream.Stream;

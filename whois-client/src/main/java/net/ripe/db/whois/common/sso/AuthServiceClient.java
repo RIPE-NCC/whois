@@ -1,8 +1,15 @@
 package net.ripe.db.whois.common.sso;
 
 import com.fasterxml.jackson.databind.DeserializationFeature;
-import com.fasterxml.jackson.jaxrs.json.JacksonJaxbJsonProvider;
-import com.fasterxml.jackson.jaxrs.json.JacksonJsonProvider;
+import com.fasterxml.jackson.jakarta.rs.json.JacksonJsonProvider;
+import jakarta.ws.rs.BadRequestException;
+import jakarta.ws.rs.ForbiddenException;
+import jakarta.ws.rs.NotFoundException;
+import jakarta.ws.rs.ProcessingException;
+import jakarta.ws.rs.WebApplicationException;
+import jakarta.ws.rs.client.Client;
+import jakarta.ws.rs.client.ClientBuilder;
+import jakarta.ws.rs.core.MediaType;
 import net.ripe.db.whois.common.sso.domain.MemberContactsResponse;
 import net.ripe.db.whois.common.sso.domain.ValidateTokenResponse;
 import org.apache.commons.lang.StringUtils;
@@ -15,21 +22,13 @@ import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.Nullable;
-import javax.ws.rs.BadRequestException;
-import javax.ws.rs.ForbiddenException;
-import javax.ws.rs.NotFoundException;
-import javax.ws.rs.ProcessingException;
-import javax.ws.rs.WebApplicationException;
-import javax.ws.rs.client.Client;
-import javax.ws.rs.client.ClientBuilder;
-import javax.ws.rs.core.MediaType;
 import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import static javax.ws.rs.core.Response.Status.BAD_REQUEST;
-import static javax.ws.rs.core.Response.Status.INTERNAL_SERVER_ERROR;
-import static javax.ws.rs.core.Response.Status.UNAUTHORIZED;
+import static jakarta.ws.rs.core.Response.Status.BAD_REQUEST;
+import static jakarta.ws.rs.core.Response.Status.INTERNAL_SERVER_ERROR;
+import static jakarta.ws.rs.core.Response.Status.UNAUTHORIZED;
 
 @Component
 public class AuthServiceClient {
@@ -60,7 +59,7 @@ public class AuthServiceClient {
         this.restUrl = restUrl;
         this.apiKey = apiKey;
 
-        final JacksonJsonProvider jsonProvider = (new JacksonJaxbJsonProvider())
+        final JacksonJsonProvider jsonProvider = (new JacksonJsonProvider())
                 .configure(DeserializationFeature.UNWRAP_ROOT_VALUE, false)
                 .configure(DeserializationFeature.ACCEPT_SINGLE_VALUE_AS_ARRAY, true);
         this.client = (ClientBuilder.newBuilder()

@@ -1,17 +1,16 @@
 package net.ripe.db.whois.api.rdap;
 
 
+import jakarta.ws.rs.ClientErrorException;
+import jakarta.ws.rs.WebApplicationException;
+import jakarta.ws.rs.client.WebTarget;
+import jakarta.ws.rs.core.MediaType;
 import net.ripe.db.whois.api.AbstractIntegrationTest;
 import net.ripe.db.whois.api.RestTest;
 import net.ripe.db.whois.api.rdap.domain.Entity;
 import net.ripe.db.whois.api.rest.client.RestClientUtils;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
-
-import javax.ws.rs.ClientErrorException;
-import javax.ws.rs.WebApplicationException;
-import javax.ws.rs.client.WebTarget;
-import javax.ws.rs.core.MediaType;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.containsString;
@@ -42,12 +41,12 @@ public abstract class AbstractRdapIntegrationTest extends AbstractIntegrationTes
     protected String syncupdate(String data) {
         WebTarget resource = RestTest.target(getPort(), String.format("whois/syncupdates/test"));
         return resource.request()
-                .post(javax.ws.rs.client.Entity.entity("DATA=" + RestClientUtils.encode(data),
-                                MediaType.APPLICATION_FORM_URLENCODED),
+                .post(jakarta.ws.rs.client.Entity.entity("DATA=" + RestClientUtils.encode(data),
+                        MediaType.APPLICATION_FORM_URLENCODED),
                         String.class);
 
     }
-    
+
     protected void assertErrorDescription(final WebApplicationException exception, final String description) {
         final Entity entity = exception.getResponse().readEntity(Entity.class);
         assertThat(entity.getDescription().get(0), is(description));

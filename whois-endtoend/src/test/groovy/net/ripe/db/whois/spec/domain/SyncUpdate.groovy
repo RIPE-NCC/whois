@@ -1,6 +1,6 @@
 package net.ripe.db.whois.spec.domain
 
-import javax.ws.rs.core.MultivaluedMap
+import jakarta.ws.rs.core.MultivaluedMap
 
 class SyncUpdate {
     String data

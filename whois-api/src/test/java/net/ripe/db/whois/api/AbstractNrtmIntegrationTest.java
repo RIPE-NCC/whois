@@ -3,6 +3,9 @@ package net.ripe.db.whois.api;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.Lists;
+import jakarta.ws.rs.client.WebTarget;
+import jakarta.ws.rs.core.MediaType;
+import jakarta.ws.rs.core.Response;
 import net.ripe.db.nrtm4.DeltaFileGenerator;
 import net.ripe.db.nrtm4.SnapshotFileGenerator;
 import net.ripe.db.nrtm4.UpdateNotificationFileGenerator;
@@ -25,9 +28,6 @@ import org.junit.jupiter.api.BeforeEach;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import javax.annotation.Nullable;
-import javax.ws.rs.client.WebTarget;
-import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.Response;
 import java.util.List;
 
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -242,7 +242,7 @@ public abstract class AbstractNrtmIntegrationTest extends AbstractIntegrationTes
     }
 
     protected Response getResponseFromHttpRequest(@Nullable final String path) {
-        return getWebTarget(path).request(javax.ws.rs.core.MediaType.APPLICATION_JSON).header(HttpHeader.X_FORWARDED_PROTO.asString(), HttpScheme.HTTP.asString()).get(Response.class);
+        return getWebTarget(path).request(MediaType.APPLICATION_JSON).header(HttpHeader.X_FORWARDED_PROTO.asString(), HttpScheme.HTTP.asString()).get(Response.class);
     }
 
     protected WebTarget getWebTarget(String path) {

@@ -1,11 +1,11 @@
 package net.ripe.db.whois.api.rest.marshal;
 
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.ws.rs.WebApplicationException;
+import jakarta.ws.rs.core.Response;
 import net.ripe.db.whois.api.rest.RestServiceHelper;
 import net.ripe.db.whois.common.Message;
 
-import javax.servlet.http.HttpServletRequest;
-import javax.ws.rs.WebApplicationException;
-import javax.ws.rs.core.Response;
 import java.util.List;
 
 

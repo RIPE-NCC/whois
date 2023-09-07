@@ -13,10 +13,10 @@ import net.ripe.db.whois.common.rpsl.RpslAttribute;
 import net.ripe.db.whois.common.rpsl.RpslObject;
 import net.ripe.db.whois.common.rpsl.RpslObjectBuilder;
 
-import javax.ws.rs.ClientErrorException;
-import javax.ws.rs.NotFoundException;
-import javax.ws.rs.client.Entity;
-import javax.ws.rs.core.MediaType;
+import jakarta.ws.rs.ClientErrorException;
+import jakarta.ws.rs.NotFoundException;
+import jakarta.ws.rs.client.Entity;
+import jakarta.ws.rs.core.MediaType;
 import java.util.List;
 
 import static org.hamcrest.Matchers.containsString;

@@ -162,3 +162,9 @@ CREATE TABLE `non_auth_route_unregistered_space` (
     `created_at` DATE NOT NULL,
     PRIMARY KEY (`object_pkey`)
 )  ENGINE=InnoDB DEFAULT CHARSET=latin1;
+
+DROP TABLE IF EXISTS `environment`;
+CREATE TABLE `environment` (
+   `name` varchar(8) NOT NULL,
+   PRIMARY KEY (`name`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;

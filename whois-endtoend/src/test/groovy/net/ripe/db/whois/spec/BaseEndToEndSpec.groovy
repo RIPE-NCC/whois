@@ -1,5 +1,7 @@
 package net.ripe.db.whois.spec
 
+import jakarta.mail.Address
+import jakarta.ws.rs.core.MultivaluedMap;
 import net.ripe.db.whois.WhoisFixture
 import net.ripe.db.whois.spec.domain.Message
 import net.ripe.db.whois.common.TestDateTimeProvider
@@ -14,9 +16,6 @@ import net.ripe.db.whois.spec.domain.SyncUpdate
 import net.ripe.db.whois.spec.domain.SyncUpdateResponse
 import net.ripe.db.whois.update.dns.DnsGatewayStub
 import spock.lang.Specification
-
-import javax.mail.Address
-import javax.ws.rs.core.MultivaluedMap
 
 class BaseEndToEndSpec extends Specification {
     static WhoisFixture whoisFixture

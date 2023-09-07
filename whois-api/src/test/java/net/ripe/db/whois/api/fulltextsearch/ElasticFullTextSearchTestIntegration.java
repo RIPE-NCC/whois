@@ -2,6 +2,10 @@ package net.ripe.db.whois.api.fulltextsearch;
 
 import com.google.common.collect.Lists;
 import com.google.common.net.HttpHeaders;
+import jakarta.ws.rs.BadRequestException;
+import jakarta.ws.rs.ClientErrorException;
+import jakarta.ws.rs.NotFoundException;
+import jakarta.ws.rs.core.Response;
 import net.ripe.db.whois.api.RestTest;
 import net.ripe.db.whois.api.elasticsearch.AbstractElasticSearchIntegrationTest;
 import net.ripe.db.whois.common.ip.IpInterval;
@@ -26,10 +30,6 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.jdbc.core.JdbcTemplate;
 
 import javax.sql.DataSource;
-import javax.ws.rs.BadRequestException;
-import javax.ws.rs.ClientErrorException;
-import javax.ws.rs.NotFoundException;
-import javax.ws.rs.core.Response;
 import java.io.IOException;
 import java.io.StringReader;
 import java.net.Inet4Address;

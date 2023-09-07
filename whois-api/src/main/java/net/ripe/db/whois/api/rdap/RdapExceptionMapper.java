@@ -2,21 +2,20 @@ package net.ripe.db.whois.api.rdap;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.google.common.collect.Lists;
+import jakarta.servlet.http.HttpServletResponse;
+import jakarta.ws.rs.NotAcceptableException;
+import jakarta.ws.rs.NotAllowedException;
+import jakarta.ws.rs.NotFoundException;
+import jakarta.ws.rs.core.HttpHeaders;
+import jakarta.ws.rs.core.Response;
+import jakarta.ws.rs.ext.ExceptionMapper;
+import jakarta.ws.rs.ext.Provider;
 import net.ripe.db.whois.api.rdap.domain.RdapObject;
 import org.glassfish.jersey.server.ParamException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-
-import javax.servlet.http.HttpServletResponse;
-import javax.ws.rs.NotAcceptableException;
-import javax.ws.rs.NotAllowedException;
-import javax.ws.rs.NotFoundException;
-import javax.ws.rs.core.HttpHeaders;
-import javax.ws.rs.core.Response;
-import javax.ws.rs.ext.ExceptionMapper;
-import javax.ws.rs.ext.Provider;
 
 @Provider
 @Component

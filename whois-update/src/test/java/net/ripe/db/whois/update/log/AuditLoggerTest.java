@@ -24,7 +24,6 @@ import java.util.Map;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.is;
-import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -32,15 +31,13 @@ import static org.mockito.Mockito.when;
 public class AuditLoggerTest {
     @Spy ByteArrayOutputStream outputStream;
     @Mock DateTimeProvider dateTimeProvider;
-    AuditLogger subject;
-
+    private AuditLogger subject;
     private Update update;
 
     @BeforeEach
     public void setUp() throws Exception {
         when(dateTimeProvider.getCurrentDateTime()).thenReturn(LocalDateTime.of(2012, 12, 1, 0, 0));
         update = new Update(new Paragraph("paragraph"), Operation.DELETE, Arrays.asList("reason"), RpslObject.parse("mntner:DEV-ROOT-MNT"));
-
         subject = new AuditLogger(dateTimeProvider, outputStream);
     }
 
@@ -205,6 +202,6 @@ public class AuditLoggerTest {
                 "</dbupdate>\n"
         ));
 
-        verify(outputStream, times(1)).close();
+        verify(outputStream).close();
     }
 }

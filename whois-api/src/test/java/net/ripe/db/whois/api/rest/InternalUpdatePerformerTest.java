@@ -1,6 +1,8 @@
 package net.ripe.db.whois.api.rest;
 
 import com.google.common.collect.Lists;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.ws.rs.core.Response;
 import net.ripe.db.whois.api.rest.mapper.WhoisObjectServerMapper;
 import net.ripe.db.whois.common.DateTimeProvider;
 import net.ripe.db.whois.common.Message;
@@ -26,8 +28,6 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import javax.servlet.http.HttpServletRequest;
-import javax.ws.rs.core.Response;
 import java.time.ZonedDateTime;
 import java.util.Collections;
 import java.util.Optional;

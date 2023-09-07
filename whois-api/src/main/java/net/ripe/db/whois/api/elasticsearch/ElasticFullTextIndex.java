@@ -1,6 +1,7 @@
 package net.ripe.db.whois.api.elasticsearch;
 
 import com.google.common.base.Stopwatch;
+import jakarta.annotation.PostConstruct;
 import net.javacrumbs.shedlock.spring.annotation.SchedulerLock;
 import net.ripe.db.whois.common.dao.jdbc.JdbcRpslObjectOperations;
 import net.ripe.db.whois.common.dao.jdbc.JdbcStreamingHelper;
@@ -17,7 +18,6 @@ import org.springframework.jdbc.core.ResultSetExtractor;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
-import javax.annotation.PostConstruct;
 import javax.sql.DataSource;
 import java.io.IOException;
 import java.sql.ResultSet;

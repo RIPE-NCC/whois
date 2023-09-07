@@ -1,6 +1,7 @@
 package net.ripe.db.whois.api.rdap;
 
 import com.google.common.collect.Lists;
+import jakarta.ws.rs.core.MediaType;
 import net.ripe.db.whois.api.rdap.domain.Link;
 import net.ripe.db.whois.api.rdap.domain.Notice;
 import net.ripe.db.whois.common.rpsl.AttributeType;
@@ -8,7 +9,6 @@ import net.ripe.db.whois.common.rpsl.RpslObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import javax.ws.rs.core.MediaType;
 import java.util.List;
 
 

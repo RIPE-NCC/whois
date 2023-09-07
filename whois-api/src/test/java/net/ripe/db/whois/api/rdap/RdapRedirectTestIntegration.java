@@ -15,9 +15,9 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.annotation.DirtiesContext;
 
-import javax.ws.rs.NotFoundException;
-import javax.ws.rs.RedirectionException;
-import javax.ws.rs.core.MediaType;
+import jakarta.ws.rs.NotFoundException;
+import jakarta.ws.rs.RedirectionException;
+import jakarta.ws.rs.core.MediaType;
 import java.io.IOException;
 
 import static org.hamcrest.MatcherAssert.assertThat;
