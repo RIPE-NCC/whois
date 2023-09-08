@@ -1,4 +1,4 @@
-package net.ripe.db.nrtm4;
+package net.ripe.db.nrtm4.generator;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import net.ripe.db.nrtm4.dao.DeltaFileDao;

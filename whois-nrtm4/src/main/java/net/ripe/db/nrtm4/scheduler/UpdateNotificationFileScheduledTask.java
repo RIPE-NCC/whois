@@ -1,6 +1,8 @@
-package net.ripe.db.nrtm4;
+package net.ripe.db.nrtm4.scheduler;
 
 import net.javacrumbs.shedlock.spring.annotation.SchedulerLock;
+import net.ripe.db.nrtm4.Nrtmv4Condition;
+import net.ripe.db.nrtm4.generator.UpdateNotificationFileGenerator;
 import net.ripe.db.whois.common.scheduler.DailyScheduledTask;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

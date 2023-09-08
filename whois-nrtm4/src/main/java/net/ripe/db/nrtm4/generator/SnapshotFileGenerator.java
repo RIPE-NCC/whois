@@ -1,6 +1,8 @@
-package net.ripe.db.nrtm4;
+package net.ripe.db.nrtm4.generator;
 
 import com.google.common.base.Stopwatch;
+import net.ripe.db.nrtm4.SnapshotRecordConsumer;
+import net.ripe.db.nrtm4.SnapshotRecordProducer;
 import net.ripe.db.nrtm4.dao.NrtmFileRepository;
 import net.ripe.db.nrtm4.dao.NrtmKeyConfigDao;
 import net.ripe.db.nrtm4.dao.NrtmVersionInfoDao;
@@ -16,7 +18,6 @@ import net.ripe.db.nrtm4.util.NrtmFileUtil;
 import net.ripe.db.whois.common.DateTimeProvider;
 import net.ripe.db.whois.common.domain.CIString;
 import net.ripe.db.whois.common.rpsl.DummifierNrtmV4;
-import net.ripe.db.whois.common.rpsl.RpslObject;
 import org.bouncycastle.crypto.AsymmetricCipherKeyPair;
 import org.bouncycastle.crypto.params.Ed25519PrivateKeyParameters;
 import org.bouncycastle.crypto.params.Ed25519PublicKeyParameters;
@@ -30,7 +31,6 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.ExecutionException;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.stream.Collectors;
 
