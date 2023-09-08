@@ -7,12 +7,10 @@ import net.ripe.db.nrtm4.domain.SnapshotState;
 import net.ripe.db.nrtm4.domain.WhoisObjectData;
 import net.ripe.db.whois.common.rpsl.AttributeType;
 import net.ripe.db.whois.common.rpsl.DummifierNrtmV4;
-import net.ripe.db.whois.common.rpsl.RpslAttribute;
 import net.ripe.db.whois.common.rpsl.RpslObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Timer;

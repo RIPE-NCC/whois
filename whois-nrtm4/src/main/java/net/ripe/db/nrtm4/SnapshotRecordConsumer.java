@@ -50,11 +50,7 @@ public class SnapshotRecordConsumer implements Supplier<Map<CIString, byte[]>> {
             }
 
             return resources.entrySet().stream().collect(Collectors.toMap(Map.Entry::getKey, value -> value.getValue().getOutputstream().toByteArray()));
-        } catch (final InterruptedException e) {
-            LOGGER.warn("Iterator interrupted", e);
-            Thread.currentThread().interrupt();
-            throw new RuntimeException(e);
-        } catch (final IOException e) {
+        } catch (final Exception  e) {
             LOGGER.error("Exception writing snapshot {}", e);
             Thread.currentThread().interrupt();
             throw new RuntimeException(e);

@@ -99,7 +99,7 @@ public class SnapshotFileGenerator {
             CompletableFuture.allOf(snapshotRecordProducer, snapshotRecordConsumer);
             final Map<CIString, byte[]> payloadBySource = snapshotRecordConsumer.get();
             saveToDatabase(sourceToNewVersion, payloadBySource);
-        } catch (InterruptedException | ExecutionException e) {
+        } catch (Exception e) {
             LOGGER.error("Unexpected throwable caught when fetching results", e);
             throw new RuntimeException(e);
         }
