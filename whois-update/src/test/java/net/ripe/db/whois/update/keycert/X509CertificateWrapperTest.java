@@ -72,6 +72,25 @@ public class X509CertificateWrapperTest {
     }
 
     @Test
+    public void getCertificateAsString() throws Exception {
+        final X509CertificateWrapper subject = X509CertificateWrapper.parse(x509Keycert);
+
+        assertThat(subject.getCertificateAsString(), is(
+            "-----BEGIN CERTIFICATE-----\n" +
+                "MIIB2zCCAUQCCQCawUbZqWvWuzANBgkqhkiG9w0BAQUFADAyMQswCQYDVQQGEwJO\n" +
+                "TDETMBEGA1UECBMKU29tZS1TdGF0ZTEOMAwGA1UEChMFQk9HVVMwHhcNMTMwNDE4\n" +
+                "MTU0MjIwWhcNMTQwNDE4MTU0MjIwWjAyMQswCQYDVQQGEwJOTDETMBEGA1UECBMK\n" +
+                "U29tZS1TdGF0ZTEOMAwGA1UEChMFQk9HVVMwgZ8wDQYJKoZIhvcNAQEBBQADgY0A\n" +
+                "MIGJAoGBAKfXtOd5+eArsGTY2NG4LJQUA0Uozfn9sGfLrdF7eWo940aY4VlVBeIr\n" +
+                "FM6jJt9BNBx3r9ZngzlkCIM8oZ6gyRf/lFI8yga2eOzr6QUf/VtVmBCOMW1BxAXf\n" +
+                "CyMT7jK2PPpe8SXD8NQ9VvzDbP8LHFA0zAV+t/6qvlpGXJft9YnbAgMBAAEwDQYJ\n" +
+                "KoZIhvcNAQEFBQADgYEARyzeqtZT00UOvlSz3NHSuX0AGhiOQvXei2G9XwJ9L7dX\n" +
+                "gbeh5wCvh9j19fcmmgpiLRIeijzc19bk/bgYddrAH3+OyjBsH7RmVHMO3FXbpTNq\n" +
+                "q91Ey/fALhdTtl20RNnbRE/iFlwoI56iiA9dTTQs5LH4BGnrK6XZK0xawfpx77k=\n" +
+                "-----END CERTIFICATE-----"));
+    }
+
+    @Test
     public void notYetValid() {
         when(dateTimeProvider.getCurrentDateTime()).thenReturn(LocalDateTime.parse("2014-01-02T00:00:00"));
         final X509CertificateWrapper subject = X509CertificateWrapper.parse(x509Keycert);

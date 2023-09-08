@@ -18,12 +18,17 @@ import java.security.cert.CertificateException;
 import java.security.cert.CertificateFactory;
 import java.security.cert.X509Certificate;
 import java.time.LocalDateTime;
+import java.util.Base64;
 import java.util.List;
 import java.util.Objects;
+
 
 public final class X509CertificateWrapper implements KeyWrapper {
 
     private static final Provider PROVIDER = new BouncyCastleProvider();
+
+    private static final String LINE_SEPARATOR = System.getProperty("line.separator");
+    private static final Base64.Encoder BASE64_ENCODER = Base64.getMimeEncoder(64, LINE_SEPARATOR.getBytes());
 
     public static final String X509_HEADER = "-----BEGIN CERTIFICATE-----";
     public static final String X509_FOOTER = "-----END CERTIFICATE-----";
@@ -32,7 +37,7 @@ public final class X509CertificateWrapper implements KeyWrapper {
 
     private final X509Certificate certificate;
 
-    private X509CertificateWrapper(final X509Certificate certificate) {
+    public X509CertificateWrapper(final X509Certificate certificate) {
         this.certificate = certificate;
     }
 
@@ -67,7 +72,7 @@ public final class X509CertificateWrapper implements KeyWrapper {
         return pgpKey.contains(X509_HEADER) && pgpKey.contains(X509_FOOTER);
     }
 
-    private String convertFromRfc2253ToCompatFormat(String name) {
+    private String convertFromRfc2253ToCompatFormat(final String name) {
         //Convert from RFC2253 format Subject DN returned by the JDK, to match the OpenSSL compat format in the database.
         if (name != null && name.length() > 0) {
             String result = "/" + name;
@@ -129,6 +134,20 @@ public final class X509CertificateWrapper implements KeyWrapper {
             }
             return builder.toString();
         } catch (NoSuchAlgorithmException | CertificateEncodingException e) {
+            throw new IllegalArgumentException("Invalid X509 Certificate", e);
+        }
+    }
+
+    public String getCertificateAsString() {
+        final StringBuilder builder = new StringBuilder();
+        try {
+            return builder.append(X509_HEADER)
+                .append(LINE_SEPARATOR)
+                .append(new String(BASE64_ENCODER.encode(certificate.getEncoded())))
+                .append(LINE_SEPARATOR)
+                .append(X509_FOOTER)
+                .toString();
+        } catch (CertificateEncodingException e) {
             throw new IllegalArgumentException("Invalid X509 Certificate", e);
         }
     }

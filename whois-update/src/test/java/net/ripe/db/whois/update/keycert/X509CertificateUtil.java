@@ -1,13 +1,11 @@
 package net.ripe.db.whois.update.keycert;
 
-import com.google.common.base.Splitter;
 import net.ripe.db.whois.common.DateTimeProvider;
 import net.ripe.db.whois.common.domain.CIString;
 import net.ripe.db.whois.common.rpsl.AttributeType;
 import net.ripe.db.whois.common.rpsl.RpslAttribute;
 import net.ripe.db.whois.common.rpsl.RpslObject;
 import net.ripe.db.whois.common.rpsl.RpslObjectBuilder;
-import org.apache.commons.codec.binary.Base64;
 import org.bouncycastle.asn1.x500.X500Name;
 import org.bouncycastle.cert.X509v3CertificateBuilder;
 import org.bouncycastle.cert.jcajce.JcaX509CertificateConverter;
@@ -21,7 +19,6 @@ import java.math.BigInteger;
 import java.security.KeyPair;
 import java.security.KeyPairGenerator;
 import java.security.NoSuchAlgorithmException;
-import java.security.cert.CertificateEncodingException;
 import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
 import java.time.Duration;
@@ -29,34 +26,25 @@ import java.time.Instant;
 import java.util.Date;
 
 import static net.ripe.db.whois.common.rpsl.AttributeType.CERTIF;
-import static net.ripe.db.whois.update.keycert.X509CertificateWrapper.X509_FOOTER;
-import static net.ripe.db.whois.update.keycert.X509CertificateWrapper.X509_HEADER;
 
 public class X509CertificateTestUtil {
 
     public static RpslObject createKeycertObject(final CIString key,
                                                  final X509Certificate x509,
                                                  final CIString mntner) {
-        final String base64;
-        try {
-            base64 = Base64.encodeBase64String(x509.getEncoded());
-        } catch (CertificateEncodingException e) {
-            throw new RuntimeException(e);
-        }
-
         final RpslObjectBuilder builder = new RpslObjectBuilder();
 
         builder.append(new RpslAttribute(AttributeType.KEY_CERT, key));
         builder.append(new RpslAttribute(AttributeType.METHOD, "X509"));
 
-        builder.append(new RpslAttribute(CERTIF, X509_HEADER));
-        Splitter.fixedLength(104 - 40).split(base64).forEach(certif -> builder.append(new RpslAttribute(CERTIF, certif.replaceAll(" ", "").replaceAll("\n", ""))));
-        builder.append(new RpslAttribute(CERTIF, X509_FOOTER));
+        final X509CertificateWrapper x509Wrapper = new X509CertificateWrapper(x509);
 
-        X509CertificateWrapper keyWrapper = X509CertificateWrapper.parse(builder.get());
+        x509Wrapper.getCertificateAsString().lines().forEach(line -> {
+            builder.append(new RpslAttribute(CERTIF, line));
+        });
 
-        keyWrapper.getOwners().forEach(owner -> builder.addAttributeSorted(new RpslAttribute(AttributeType.OWNER, owner)));
-        builder.addAttributeSorted(new RpslAttribute(AttributeType.FINGERPR, keyWrapper.getFingerprint()));
+        x509Wrapper.getOwners().forEach(owner -> builder.addAttributeSorted(new RpslAttribute(AttributeType.OWNER, owner)));
+        builder.addAttributeSorted(new RpslAttribute(AttributeType.FINGERPR, x509Wrapper.getFingerprint()));
 
         builder.addAttributeSorted(new RpslAttribute(AttributeType.MNT_BY, mntner));
         builder.addAttributeSorted(new RpslAttribute(AttributeType.SOURCE, "TEST"));
@@ -89,13 +77,8 @@ public class X509CertificateTestUtil {
                 .setProvider(new BouncyCastleProvider()).getCertificate(certificateBuilder.build(contentSigner));
     }
 
-    public static String asPem(final X509Certificate certificate) throws CertificateEncodingException {
-        // provide pem cert with spaces instead of line breaks like Apache does:
-        return X509_HEADER +
-                " " +
-                Base64.encodeBase64URLSafeString(certificate.getEncoded()) +
-                " " +
-                X509_FOOTER;
+    public static String asPem(final X509Certificate certificate) {
+        return new X509CertificateWrapper(certificate).getCertificateAsString();
     }
 
 }
