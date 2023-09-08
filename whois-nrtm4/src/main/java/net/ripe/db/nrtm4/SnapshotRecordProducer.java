@@ -22,7 +22,7 @@ import java.util.function.Supplier;
 public class SnapshotRecordProducer implements Supplier {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(SnapshotRecordProducer.class);
-    private static final int BATCH_SIZE = 1000;
+    private static final int BATCH_SIZE = 100;
     public static final RpslObjectData POISON_PILL = new RpslObjectData(0, 0, null);
     private final BlockingQueue<RpslObjectData> sharedQueue;
     private final SnapshotState snapshotState;
@@ -45,7 +45,7 @@ public class SnapshotRecordProducer implements Supplier {
         final int total = snapshotState.whoisObjectData().size();
 
         final Timer timer = new Timer(true);
-        printPrgress(numberOfEnqueuedObjects, total, timer);
+        printProgress(numberOfEnqueuedObjects, total, timer);
 
         try {
             batches.parallelStream().forEach(objectBatch -> {
@@ -85,7 +85,7 @@ public class SnapshotRecordProducer implements Supplier {
         return null;
     }
 
-    private void printPrgress(AtomicInteger numberOfEnqueuedObjects, int total, Timer timer) {
+    private void printProgress(AtomicInteger numberOfEnqueuedObjects, int total, Timer timer) {
         timer.schedule(new TimerTask() {
             @Override
             public void run() {

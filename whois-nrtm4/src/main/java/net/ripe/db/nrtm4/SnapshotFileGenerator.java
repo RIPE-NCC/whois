@@ -78,16 +78,19 @@ public class SnapshotFileGenerator {
         final Stopwatch stopwatch = Stopwatch.createStarted();
         initializeNrtm();
 
-        final List<NrtmSource> sources = nrtmSourceDao.getSources();
         final List<NrtmVersionInfo> sourceVersions = nrtmVersionInfoDao.findLastVersionPerSource();
 
         final SnapshotState snapshotState = whoisObjectRepository.getSnapshotState(sourceVersions.isEmpty() ? null : sourceVersions.get(0).lastSerialId());
         LOGGER.info("Found {} objects in {}", snapshotState.whoisObjectData().size(), stopwatch);
 
-        final List<NrtmVersionInfo> sourceToNewVersion = sources.stream()
+        final List<NrtmVersionInfo> sourceToNewVersion = nrtmSourceDao.getSources().stream()
                                                             .filter( source -> canProceed(sourceVersions, source))
                                                             .map( source -> getNewVersion(source, sourceVersions, snapshotState.serialId()))
                                                             .collect(Collectors.toList());
+        if(sourceToNewVersion.isEmpty()) {
+            LOGGER.info("Skipping generation fo snapshot for all sources");
+            return;
+        }
 
         final LinkedBlockingQueue<RpslObjectData> sharedQueue = new LinkedBlockingQueue<>(QUEUE_CAPACITY);
 
@@ -107,7 +110,7 @@ public class SnapshotFileGenerator {
         cleanUpOldFiles();
     }
 
-    private void saveToDatabase(List<NrtmVersionInfo> sourceToNewVersion,  final Map<CIString, byte[]> payloadBySource) {
+    private void saveToDatabase(final List<NrtmVersionInfo> sourceToNewVersion,  final Map<CIString, byte[]> payloadBySource) {
         payloadBySource.forEach( (source, payload ) -> {
             final Optional<NrtmVersionInfo> versionInfo = sourceToNewVersion.stream().filter( (version) -> version.source().getName().equals(source)).findAny();
             if(versionInfo.isPresent()) {

@@ -26,7 +26,7 @@ public class GzipOutStreamWriter {
     }
 
     public ByteArrayOutputStream getOutputstream() {
-        return bos;
+        return this.bos;
     }
 
     @Override
@@ -38,14 +38,12 @@ public class GzipOutStreamWriter {
         try {
             gzOut.close();
         } catch (IOException e) {
-            LOGGER.error("Exception while closing outputstream {}", e);
-            Thread.currentThread().interrupt();
+            LOGGER.error("Exception while closing gzipStream {}", e);
         }
         try {
             bos.close();
         } catch (IOException e) {
             LOGGER.error("Exception while closing outputstream {}", e);
-            Thread.currentThread().interrupt();
-        }
+       }
     }
 }
