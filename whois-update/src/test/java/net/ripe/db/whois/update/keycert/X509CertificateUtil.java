@@ -27,7 +27,7 @@ import java.util.Date;
 
 import static net.ripe.db.whois.common.rpsl.AttributeType.CERTIF;
 
-public class X509CertificateTestUtil {
+public class X509CertificateUtil {
 
     public static RpslObject createKeycertObject(final CIString key,
                                                  final X509Certificate x509,
@@ -52,22 +52,20 @@ public class X509CertificateTestUtil {
         return builder.get();
     }
 
-    public static X509Certificate generate(final String cn,
-                                           final DateTimeProvider dateTimeProvider) throws OperatorCreationException, CertificateException, NoSuchAlgorithmException {
-
-        KeyPairGenerator keyGen = KeyPairGenerator.getInstance("RSA");
+    public static X509Certificate generateCertificate(final DateTimeProvider dateTimeProvider) throws OperatorCreationException, CertificateException, NoSuchAlgorithmException {
+        final KeyPairGenerator keyGen = KeyPairGenerator.getInstance("RSA");
         keyGen.initialize(2048);
-        KeyPair keyPair = keyGen.generateKeyPair();
+        final KeyPair keyPair = keyGen.generateKeyPair();
 
-        final Instant now = dateTimeProvider.getCurrentZonedDateTime().minusDays(1).toInstant();
-        final Date notBefore = Date.from(now);
-        final Date notAfter = Date.from(now.plus(Duration.ofDays(365)));
+        final Instant oneDayAgo = dateTimeProvider.getCurrentZonedDateTime().minusDays(1).toInstant();
+        final Date notBefore = Date.from(oneDayAgo);
+        final Date notAfter = Date.from(oneDayAgo.plus(Duration.ofDays(365)));
 
         final ContentSigner contentSigner = new JcaContentSignerBuilder("SHA256WithRSA").build(keyPair.getPrivate());
-        final X500Name x500Name = new X500Name("CN=" + cn);
+        final X500Name x500Name = new X500Name("CN=test-cn");
         final X509v3CertificateBuilder certificateBuilder =
                 new JcaX509v3CertificateBuilder(x500Name,
-                        BigInteger.valueOf(now.toEpochMilli()),
+                        BigInteger.valueOf(oneDayAgo.toEpochMilli()),
                         notBefore,
                         notAfter,
                         x500Name,
@@ -77,7 +75,7 @@ public class X509CertificateTestUtil {
                 .setProvider(new BouncyCastleProvider()).getCertificate(certificateBuilder.build(contentSigner));
     }
 
-    public static String asPem(final X509Certificate certificate) {
+    public static String getCertificateAsString(final X509Certificate certificate) {
         return new X509CertificateWrapper(certificate).getCertificateAsString();
     }
 
