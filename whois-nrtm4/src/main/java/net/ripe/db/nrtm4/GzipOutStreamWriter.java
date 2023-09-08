@@ -22,7 +22,7 @@ public class GzipOutStreamWriter {
     }
 
     public void write(final NrtmFileRecord record) throws IOException {
-        gzOut.write(NrtmFileUtil.getNrtmFileRecord(record).getBytes());
+        gzOut.write(NrtmFileUtil.convertToJSONTextSeq(record).getBytes());
     }
 
     public ByteArrayOutputStream getOutputstream() {

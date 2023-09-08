@@ -68,10 +68,10 @@ public class NrtmFileRepository {
 
     private DeltaFile getDeltaFile(final NrtmVersionInfo newVersion, final List<DeltaFileRecord> deltas) throws JsonProcessingException {
 
-        final StringBuilder json = NrtmFileUtil.getNrtmFileRecord(new StringBuilder(),new NrtmVersionRecord(newVersion, NrtmDocumentType.DELTA));
+        final StringBuilder json = NrtmFileUtil.convertToJSONTextSeq(new StringBuilder(),new NrtmVersionRecord(newVersion, NrtmDocumentType.DELTA));
 
         for (final DeltaFileRecord delta : deltas) {
-            NrtmFileUtil.getNrtmFileRecord(json, delta);
+            NrtmFileUtil.convertToJSONTextSeq(json, delta);
         }
 
         final String hash = NrtmFileUtil.calculateSha256(json.toString().getBytes(StandardCharsets.UTF_8));
