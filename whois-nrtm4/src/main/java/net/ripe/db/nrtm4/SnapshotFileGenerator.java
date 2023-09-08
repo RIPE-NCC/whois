@@ -1,7 +1,6 @@
 package net.ripe.db.nrtm4;
 
 import com.google.common.base.Stopwatch;
-import com.google.common.collect.Lists;
 import net.ripe.db.nrtm4.dao.NrtmFileRepository;
 import net.ripe.db.nrtm4.dao.NrtmKeyConfigDao;
 import net.ripe.db.nrtm4.dao.NrtmVersionInfoDao;
@@ -10,13 +9,14 @@ import net.ripe.db.nrtm4.dao.WhoisObjectRepository;
 import net.ripe.db.nrtm4.domain.NrtmDocumentType;
 import net.ripe.db.nrtm4.domain.NrtmSource;
 import net.ripe.db.nrtm4.domain.NrtmVersionInfo;
-import net.ripe.db.nrtm4.domain.RpslObjectData;
+import net.ripe.db.nrtm4.domain.SnapshotFileRecord;
 import net.ripe.db.nrtm4.domain.SnapshotState;
 import net.ripe.db.nrtm4.util.Ed25519Util;
 import net.ripe.db.nrtm4.util.NrtmFileUtil;
 import net.ripe.db.whois.common.DateTimeProvider;
 import net.ripe.db.whois.common.domain.CIString;
 import net.ripe.db.whois.common.rpsl.DummifierNrtmV4;
+import net.ripe.db.whois.common.rpsl.RpslObject;
 import org.bouncycastle.crypto.AsymmetricCipherKeyPair;
 import org.bouncycastle.crypto.params.Ed25519PrivateKeyParameters;
 import org.bouncycastle.crypto.params.Ed25519PublicKeyParameters;
@@ -25,7 +25,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
 import java.time.ZoneOffset;
-import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -34,7 +33,6 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 import static java.util.stream.Collectors.groupingBy;
 import static net.ripe.db.nrtm4.util.NrtmFileUtil.calculateSha256;
@@ -92,7 +90,7 @@ public class SnapshotFileGenerator {
             return;
         }
 
-        final LinkedBlockingQueue<RpslObjectData> sharedQueue = new LinkedBlockingQueue<>(QUEUE_CAPACITY);
+        final LinkedBlockingQueue<SnapshotFileRecord> sharedQueue = new LinkedBlockingQueue<>(QUEUE_CAPACITY);
 
         final CompletableFuture<Void> snapshotRecordProducer = CompletableFuture.supplyAsync(new SnapshotRecordProducer(sharedQueue, dummifierNrtmV4, snapshotState, whoisObjectRepository));
         final CompletableFuture<Map<CIString, byte[]>> snapshotRecordConsumer = CompletableFuture.supplyAsync(new SnapshotRecordConsumer(sharedQueue, sourceToNewVersion));

@@ -2,15 +2,17 @@ package net.ripe.db.nrtm4;
 
 import com.google.common.collect.Lists;
 import net.ripe.db.nrtm4.dao.WhoisObjectRepository;
-import net.ripe.db.nrtm4.domain.RpslObjectData;
+import net.ripe.db.nrtm4.domain.SnapshotFileRecord;
 import net.ripe.db.nrtm4.domain.SnapshotState;
 import net.ripe.db.nrtm4.domain.WhoisObjectData;
 import net.ripe.db.whois.common.rpsl.AttributeType;
 import net.ripe.db.whois.common.rpsl.DummifierNrtmV4;
+import net.ripe.db.whois.common.rpsl.RpslAttribute;
 import net.ripe.db.whois.common.rpsl.RpslObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Timer;
@@ -23,14 +25,14 @@ public class SnapshotRecordProducer implements Supplier {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(SnapshotRecordProducer.class);
     private static final int BATCH_SIZE = 100;
-    public static final RpslObjectData POISON_PILL = new RpslObjectData(0, 0, null);
-    private final BlockingQueue<RpslObjectData> sharedQueue;
+    public static final SnapshotFileRecord POISON_PILL = new SnapshotFileRecord(null);
+    private final BlockingQueue<SnapshotFileRecord> sharedQueue;
     private final SnapshotState snapshotState;
     private final WhoisObjectRepository whoisObjectRepository;
 
     private final DummifierNrtmV4 dummifierNrtmV4;
 
-    public SnapshotRecordProducer(final BlockingQueue<RpslObjectData> sharedQueue, final DummifierNrtmV4 dummifierNrtmV4, final SnapshotState snapshotState, final WhoisObjectRepository whoisObjectRepository) {
+    public SnapshotRecordProducer(final BlockingQueue<SnapshotFileRecord> sharedQueue, final DummifierNrtmV4 dummifierNrtmV4, final SnapshotState snapshotState, final WhoisObjectRepository whoisObjectRepository) {
         this.sharedQueue = sharedQueue;
         this.snapshotState = snapshotState;
         this.whoisObjectRepository = whoisObjectRepository;
@@ -63,7 +65,7 @@ public class SnapshotRecordProducer implements Supplier {
 
                     try {
                         if (dummifierNrtmV4.isAllowed(rpslObject)) {
-                            sharedQueue.put(new RpslObjectData(object.objectId(), object.sequenceId(), dummifierNrtmV4.dummify(rpslObject)));
+                            sharedQueue.put(new SnapshotFileRecord(dummifierNrtmV4.dummify(rpslObject)));
                         }
                     } catch (final InterruptedException e) {
                             LOGGER.error("Interrupted " + rpslObject.getValueForAttribute(AttributeType.SOURCE));

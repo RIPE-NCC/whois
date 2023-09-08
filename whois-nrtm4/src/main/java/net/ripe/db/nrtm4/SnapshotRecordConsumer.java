@@ -4,7 +4,6 @@ import com.google.common.collect.Maps;
 import net.ripe.db.nrtm4.domain.NrtmDocumentType;
 import net.ripe.db.nrtm4.domain.NrtmVersionInfo;
 import net.ripe.db.nrtm4.domain.NrtmVersionRecord;
-import net.ripe.db.nrtm4.domain.RpslObjectData;
 import net.ripe.db.nrtm4.domain.SnapshotFileRecord;
 import net.ripe.db.whois.common.domain.CIString;
 import net.ripe.db.whois.common.rpsl.AttributeType;
@@ -13,22 +12,20 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
+import static net.ripe.db.nrtm4.SnapshotRecordProducer.POISON_PILL;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.BlockingQueue;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
-import static net.ripe.db.nrtm4.RpslObjectEnqueuer.POISON_PILL;
-
 public class SnapshotRecordConsumer implements Supplier<Map<CIString, byte[]>> {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(SnapshotRecordConsumer.class);
-
-    private final BlockingQueue<RpslObjectData> sharedQueue;
+    private final BlockingQueue<SnapshotFileRecord> sharedQueue;
     private  final List<NrtmVersionInfo>  sourceToVersionInfo;
 
-    public SnapshotRecordConsumer(final BlockingQueue<RpslObjectData> sharedQueue, final List<NrtmVersionInfo> sourceToVersionInfo) {
+    public SnapshotRecordConsumer(final BlockingQueue<SnapshotFileRecord> sharedQueue, final List<NrtmVersionInfo> sourceToVersionInfo) {
         this.sharedQueue = sharedQueue;
         this.sourceToVersionInfo = sourceToVersionInfo;
     }
@@ -39,18 +36,16 @@ public class SnapshotRecordConsumer implements Supplier<Map<CIString, byte[]>> {
         final Map<CIString, GzipOutStreamWriter> resources = initializeResources(sourceToVersionInfo);
         try {
             while (true) {
-                final RpslObjectData rpslObjectData = sharedQueue.take();
-                if (rpslObjectData.objectId() == POISON_PILL.objectId()) {
+                final SnapshotFileRecord record = sharedQueue.take();
+                if (record.getObject() == null) {
                     LOGGER.info("closing the resources");
                     resources.values().forEach(GzipOutStreamWriter::close);
                     break;
                 }
 
-                LOGGER.info("Processing rpslObject {}", rpslObjectData.rpslObject().getKey());
-
-                final CIString source = rpslObjectData.rpslObject().getValueForAttribute(AttributeType.SOURCE);
+                final CIString source = record.getObject().getValueForAttribute(AttributeType.SOURCE);
                 if (resources.containsKey(source)) {
-                    resources.get(source).write(new SnapshotFileRecord(rpslObjectData.rpslObject()));
+                    resources.get(source).write(record);
                 }
             }
 
