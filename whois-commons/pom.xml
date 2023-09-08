@@ -39,10 +39,17 @@
             <groupId>net.ripe.commons</groupId>
             <artifactId>commons-ip-math</artifactId>
         </dependency>
+
+        <!-- TODO: [ES] are these dependencies necessary? -->
         <dependency>
-            <groupId>net.sf.ehcache</groupId>
-            <artifactId>ehcache</artifactId>
+            <groupId>com.hazelcast</groupId>
+            <artifactId>hazelcast-all</artifactId>
         </dependency>
+        <dependency>
+            <groupId>javax.cache</groupId>
+            <artifactId>cache-api</artifactId>
+        </dependency>
+
         <dependency>
             <groupId>org.springframework</groupId>
             <artifactId>spring-context</artifactId>
@@ -121,6 +128,7 @@
             <plugin>
                 <groupId>org.jacoco</groupId>
                 <artifactId>jacoco-maven-plugin</artifactId>
+                <version>0.8.8</version>
                 <!-- TODO: Including this in jacoco plugin throws Can't add different class with same name: org/apache/commons/collections/ArrayStack
                             I tried to exclude this file, package  and dependency also still from some other dependency tree it gets included
                  -->
@@ -146,6 +154,7 @@
                     <!-- Ignore dependencies coming from another dependencies that we are already using, and for
                     which we don't want to take control -->
                     <ignoredUsedUndeclaredDependencies>
+                        <ignoredUsedUndeclaredDependency>jakarta.inject:jakarta.inject-api</ignoredUsedUndeclaredDependency>
                         <ignoredUsedUndeclaredDependency>io.sentry:sentry</ignoredUsedUndeclaredDependency>
                         <ignoredUsedUndeclaredDependency>org.springframework:spring-tx</ignoredUsedUndeclaredDependency>
                         <ignoredUsedUndeclaredDependency>org.glassfish.hk2.external:jakarta.inject</ignoredUsedUndeclaredDependency>

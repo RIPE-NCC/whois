@@ -1,12 +1,12 @@
 package net.ripe.db.nrtm4.dao;
 
+import jakarta.ws.rs.InternalServerErrorException;
 import net.ripe.db.whois.common.DateTimeProvider;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
 
 import javax.sql.DataSource;
-import javax.ws.rs.InternalServerErrorException;
 import java.time.ZoneOffset;
 
 @Repository

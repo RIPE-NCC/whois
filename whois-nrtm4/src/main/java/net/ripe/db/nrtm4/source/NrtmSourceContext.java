@@ -4,6 +4,7 @@ import com.google.common.collect.Iterables;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 import com.mchange.v2.c3p0.DataSources;
+import jakarta.annotation.PreDestroy;
 import net.ripe.db.whois.common.domain.CIString;
 import net.ripe.db.whois.common.source.IllegalSourceException;
 import net.ripe.db.whois.common.source.Source;
@@ -17,7 +18,6 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.CheckForNull;
-import javax.annotation.PreDestroy;
 import javax.sql.DataSource;
 import java.sql.SQLException;
 import java.util.Collection;
@@ -25,7 +25,6 @@ import java.util.Collections;
 import java.util.Map;
 import java.util.Set;
 
-import static net.ripe.db.whois.common.domain.CIString.ciSet;
 import static net.ripe.db.whois.common.domain.CIString.ciString;
 
 @Component

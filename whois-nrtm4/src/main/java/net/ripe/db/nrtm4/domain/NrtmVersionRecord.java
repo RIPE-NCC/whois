@@ -1,11 +1,14 @@
 package net.ripe.db.nrtm4.domain;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 
 import static net.ripe.db.nrtm4.NrtmConstants.NRTM_VERSION;
 
-
-public abstract class PublishableNrtmFile {
+@JsonInclude(JsonInclude.Include.NON_NULL)
+@JsonPropertyOrder({ "nrtm_version", "type", "source", "session_id", "version"})
+public class NrtmVersionRecord implements NrtmFileRecord {
 
     @JsonProperty("nrtm_version")
     private final int nrtmVersion = NRTM_VERSION;
@@ -15,18 +18,25 @@ public abstract class PublishableNrtmFile {
     private final String sessionID;
     private final long version;
 
-    protected PublishableNrtmFile() {
-        type = null;
-        source = null;
-        sessionID = null;
-        version = 0L;
+    public NrtmVersionRecord() {
+        this.type = null;
+        this.source = null;
+        this.sessionID = null;
+        this.version = 0L;
     }
 
-    public PublishableNrtmFile(final NrtmVersionInfo version, final NrtmDocumentType type) {
+    public NrtmVersionRecord(final NrtmVersionInfo version, final NrtmDocumentType type) {
         this.type = type;
         this.source = version.source();
         this.sessionID = version.sessionID();
         this.version = version.version();
+    }
+
+    public NrtmVersionRecord(final NrtmSource source, final String sessionId, final Long version, final NrtmDocumentType type) {
+        this.type = type;
+        this.source = source;
+        this.sessionID = sessionId;
+        this.version = version;
     }
 
     public int getNrtmVersion() {

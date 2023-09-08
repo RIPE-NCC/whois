@@ -129,6 +129,7 @@
             <plugin>
                 <groupId>io.starter</groupId>
                 <artifactId>aspectj-maven-plugin</artifactId>
+                <version>1.12.9</version>
                 <configuration>
                     <skip>true</skip>
                     <aspectLibraries>
@@ -173,9 +174,11 @@
                     <!-- Ignore dependencies coming from another dependencies that we are already using, and for
                     which we don't want to take control -->
                     <ignoredUsedUndeclaredDependencies>
+                        <ignoredUsedUndeclaredDependency>com.fasterxml.jackson.jakarta.rs:jackson-jakarta-rs-json-provider</ignoredUsedUndeclaredDependency>
+                        <ignoredUsedUndeclaredDependency>org.eclipse.jetty:jetty-http</ignoredUsedUndeclaredDependency>
+                        <ignoredUsedUndeclaredDependency>org.eclipse.angus:jakarta.mail</ignoredUsedUndeclaredDependency>
                         <ignoredUsedUndeclaredDependency>net.ripe.db:whois-client</ignoredUsedUndeclaredDependency>
                         <ignoredUsedUndeclaredDependency>net.ripe.db:whois-query</ignoredUsedUndeclaredDependency>
-                        <ignoredUsedUndeclaredDependency>javax.mail:javax.mail-api</ignoredUsedUndeclaredDependency>
                         <ignoredUsedUndeclaredDependency>com.fasterxml.jackson.jaxrs:jackson-jaxrs-json-provider</ignoredUsedUndeclaredDependency>
                         <ignoredUsedUndeclaredDependency>net.ripe.db:whois-update</ignoredUsedUndeclaredDependency>
                         <ignoredUsedUndeclaredDependency>net.ripe.db:whois-api</ignoredUsedUndeclaredDependency>
@@ -198,7 +201,10 @@
                     <!-- Ignore dependencies coming from another dependency and which we are just using in
                     test scope in this module -->
                     <ignoredNonTestScopedDependencies>
-                        <ignoredNonTestScopedDependency>javax.mail:javax.mail-api</ignoredNonTestScopedDependency>
+                        <ignoredNonTestScopedDependency>com.fasterxml.jackson.jakarta.rs:jackson-jakarta-rs-json-provider</ignoredNonTestScopedDependency>
+                        <ignoredNonTestScopedDependency>org.eclipse.jetty:jetty-http</ignoredNonTestScopedDependency>
+
+                        <ignoredNonTestScopedDependency>org.eclipse.angus:jakarta.mail</ignoredNonTestScopedDependency>
                         <ignoredNonTestScopedDependency>net.ripe.db:whois-api</ignoredNonTestScopedDependency>
                         <ignoredNonTestScopedDependency>net.ripe.db:whois-commons</ignoredNonTestScopedDependency>
                         <ignoredNonTestScopedDependency>net.ripe.db:whois-scheduler</ignoredNonTestScopedDependency>

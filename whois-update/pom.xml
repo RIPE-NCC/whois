@@ -31,15 +31,15 @@
         <!-- bouncy castle -->
         <dependency>
             <groupId>org.bouncycastle</groupId>
-            <artifactId>bcpg-jdk15on</artifactId>
+            <artifactId>bcpg-jdk18on</artifactId>
         </dependency>
         <dependency>
             <groupId>org.bouncycastle</groupId>
-            <artifactId>bcmail-jdk15on</artifactId>
+            <artifactId>bcjmail-jdk18on</artifactId>
         </dependency>
         <dependency>
             <groupId>org.bouncycastle</groupId>
-            <artifactId>bcprov-jdk15on</artifactId>
+            <artifactId>bcprov-jdk18on</artifactId>
         </dependency>
         <!-- velocity -->
         <dependency>
@@ -81,6 +81,7 @@
             <plugin>
                 <groupId>io.starter</groupId>
                 <artifactId>aspectj-maven-plugin</artifactId>
+                <version>1.12.9</version>
                 <configuration>
                     <aspectLibraries>
                         <aspectLibrary>
@@ -98,19 +99,17 @@
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-dependency-plugin</artifactId>
                 <configuration>
-                    <!-- Dependencies marked as not used, but actually they are necessary to run the project-->
-                    <usedDependencies>
-                        <dependency>org.bouncycastle:bcmail-jdk15on</dependency>
-                    </usedDependencies>
-
                     <!-- Ignore dependencies coming from another dependencies that we are already using, and for
                     which we don't want to take control -->
                     <ignoredUsedUndeclaredDependencies>
+                        <ignoredUsedUndeclaredDependency>com.fasterxml.jackson.jakarta.rs:jackson-jakarta-rs-json-provider</ignoredUsedUndeclaredDependency>
+                        <ignoredUsedUndeclaredDependency>org.bouncycastle:bcpkix-jdk18on</ignoredUsedUndeclaredDependency>
+                        <ignoredUsedUndeclaredDependency>org.bouncycastle:bcutil-jdk18on</ignoredUsedUndeclaredDependency>
                         <ignoredUsedUndeclaredDependency>org.springframework:spring-tx</ignoredUsedUndeclaredDependency>
                         <ignoredUsedUndeclaredDependency>org.aspectj:aspectjweaver</ignoredUsedUndeclaredDependency>
                         <ignoredUsedUndeclaredDependency>net.ripe.db:whois-client</ignoredUsedUndeclaredDependency>
                         <ignoredUsedUndeclaredDependency>commons-codec:commons-codec</ignoredUsedUndeclaredDependency>
-                        <ignoredUsedUndeclaredDependency>javax.mail:javax.mail-api</ignoredUsedUndeclaredDependency>
+                        <ignoredUsedUndeclaredDependency>org.eclipse.angus:jakarta.mail</ignoredUsedUndeclaredDependency>
                         <ignoredUsedUndeclaredDependency>com.fasterxml.jackson.jaxrs:jackson-jaxrs-json-provider</ignoredUsedUndeclaredDependency>
                         <ignoredUsedUndeclaredDependency>org.springframework:spring-beans</ignoredUsedUndeclaredDependency>
                         <ignoredUsedUndeclaredDependency>com.fasterxml.jackson.core:jackson-databind</ignoredUsedUndeclaredDependency>

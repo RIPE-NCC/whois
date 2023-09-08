@@ -1,14 +1,12 @@
 package net.ripe.db.nrtm4.dao;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.google.common.collect.Maps;
-import net.ripe.db.nrtm4.domain.DeltaChange;
+import net.ripe.db.nrtm4.domain.DeltaFileRecord;
 import net.ripe.db.nrtm4.domain.DeltaFile;
 import net.ripe.db.nrtm4.domain.NrtmDocumentType;
 import net.ripe.db.nrtm4.domain.NrtmSource;
 import net.ripe.db.nrtm4.domain.NrtmVersionInfo;
-import net.ripe.db.nrtm4.domain.PublishableDeltaFile;
+import net.ripe.db.nrtm4.domain.NrtmVersionRecord;
 import net.ripe.db.nrtm4.domain.SnapshotFile;
 import net.ripe.db.nrtm4.util.NrtmFileUtil;
 import net.ripe.db.whois.common.DateTimeProvider;
@@ -21,7 +19,6 @@ import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.stereotype.Repository;
-import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.sql.DataSource;
@@ -46,7 +43,7 @@ public class NrtmFileRepository {
     }
 
     @Transactional
-    public void saveDeltaVersion(final NrtmVersionInfo version, final int serialIDTo, final List<DeltaChange> deltas) throws JsonProcessingException {
+    public void saveDeltaVersion(final NrtmVersionInfo version, final int serialIDTo, final List<DeltaFileRecord> deltas) throws JsonProcessingException {
        if(deltas.isEmpty()) {
            LOGGER.info("No delta changes found for source {}", version.source().getName());
            return;
@@ -69,11 +66,16 @@ public class NrtmFileRepository {
         LOGGER.info("Created {} snapshot version {}", version.source().getName(), version.version());
     }
 
-    private DeltaFile getDeltaFile(final NrtmVersionInfo newVersion, final List<DeltaChange> deltas) throws JsonProcessingException {
-        final PublishableDeltaFile publishableDeltaFile = new PublishableDeltaFile(newVersion, deltas);
-        final String json = new ObjectMapper().writeValueAsString(publishableDeltaFile);
-        final String hash = NrtmFileUtil.calculateSha256(json.getBytes(StandardCharsets.UTF_8));
-        return DeltaFile.of(newVersion.id(), NrtmFileUtil.newFileName(newVersion), hash, json);
+    private DeltaFile getDeltaFile(final NrtmVersionInfo newVersion, final List<DeltaFileRecord> deltas) throws JsonProcessingException {
+
+        final StringBuilder json = NrtmFileUtil.getNrtmFileRecord(new StringBuilder(),new NrtmVersionRecord(newVersion, NrtmDocumentType.DELTA));
+
+        for (final DeltaFileRecord delta : deltas) {
+            NrtmFileUtil.getNrtmFileRecord(json, delta);
+        }
+
+        final String hash = NrtmFileUtil.calculateSha256(json.toString().getBytes(StandardCharsets.UTF_8));
+        return DeltaFile.of(newVersion.id(), NrtmFileUtil.newFileName(newVersion), hash, json.toString());
     }
 
     private NrtmVersionInfo saveNewDeltaVersion(final NrtmVersionInfo version, final int lastSerialID) {

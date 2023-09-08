@@ -25,12 +25,12 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.annotation.DirtiesContext;
 
-import javax.ws.rs.BadRequestException;
-import javax.ws.rs.HttpMethod;
-import javax.ws.rs.NotFoundException;
-import javax.ws.rs.ServerErrorException;
-import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.Response;
+import jakarta.ws.rs.BadRequestException;
+import jakarta.ws.rs.HttpMethod;
+import jakarta.ws.rs.NotFoundException;
+import jakarta.ws.rs.ServerErrorException;
+import jakarta.ws.rs.core.MediaType;
+import jakarta.ws.rs.core.Response;
 import java.time.LocalDateTime;
 import java.util.Collections;
 import java.util.List;
@@ -562,7 +562,6 @@ public class WhoisRdapServiceTestIntegration extends AbstractRdapIntegrationTest
         assertErrorDescription(badRequestException, "'invalid' is not an IP string literal.");
     }
 
-    @Disabled("TODO: handle multiple mnt-by values")
     @Test
     public void lookup_inetnum_multiple_mntby() {
         databaseHelper.addObject("" +
@@ -591,8 +590,13 @@ public class WhoisRdapServiceTestIntegration extends AbstractRdapIntegrationTest
         Ip ip = createResource("ip/192.132.75.165")
                 .request(MediaType.APPLICATION_JSON_TYPE)
                 .get(Ip.class);
-    }
 
+        assertThat(ip.getEntitySearchResults().get(0).getHandle(), is("OWNER-MNT"));
+        assertThat(ip.getEntitySearchResults().get(0).getRoles().get(0).name(), is("REGISTRANT"));
+        assertThat(ip.getEntitySearchResults().get(1).getHandle(), is("SECOND-MNT"));
+        assertThat(ip.getEntitySearchResults().get(1).getRoles().get(0).name(), is("REGISTRANT"));
+
+    }
 
     // inet6num
 

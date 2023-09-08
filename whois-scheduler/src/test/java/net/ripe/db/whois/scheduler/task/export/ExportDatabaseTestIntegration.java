@@ -110,7 +110,6 @@ public class ExportDatabaseTestIntegration extends AbstractSchedulerIntegrationT
 
         checkFile("dbase/ripe.db.gz",
                 "person:         Placeholder Person Object\n",
-                "role:           Placeholder Role Object\n",
                 "mntner:         DEV-MNT0\n",
                 "mntner:         DEV-MNT1\n",
                 "mntner:         DEV-MNT2\n",
@@ -132,7 +131,6 @@ public class ExportDatabaseTestIntegration extends AbstractSchedulerIntegrationT
                         "remarks:        ****************************\n");
 
         checkFile("dbase/split/ripe.db.person.gz", "person:         Placeholder Person Object");
-        checkFile("dbase/split/ripe.db.role.gz", "role:           Placeholder Role Object");
 
         checkFile("dbase/split/ripe.db.mntner.gz",
                 "mntner:         DEV-MNT0\n",
@@ -250,7 +248,6 @@ public class ExportDatabaseTestIntegration extends AbstractSchedulerIntegrationT
         }
 
         checkFile("dbase/split/ripe.db.person.gz", "person:         Placeholder Person Object");
-        checkFile("dbase/split/ripe.db.role.gz", "role:           Placeholder Role Object");
 
         checkFile("dbase/split/ripe.db.role.gz", "" +
                 "role:           Abuse role\n" +

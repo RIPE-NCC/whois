@@ -1,5 +1,7 @@
 package net.ripe.db.whois.api.elasticsearch;
 
+import jakarta.ws.rs.client.WebTarget;
+import jakarta.ws.rs.core.MediaType;
 import net.ripe.db.whois.api.RestTest;
 import net.ripe.db.whois.api.rdap.domain.SearchResult;
 import net.ripe.db.whois.query.support.TestWhoisLog;
@@ -11,9 +13,6 @@ import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.annotation.DirtiesContext;
-
-import javax.ws.rs.client.WebTarget;
-import javax.ws.rs.core.MediaType;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;

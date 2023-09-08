@@ -45,7 +45,7 @@
         </dependency>
         <dependency>
             <groupId>org.bouncycastle</groupId>
-            <artifactId>bcprov-jdk15on</artifactId>
+            <artifactId>bcprov-jdk18on</artifactId>
         </dependency>
     </dependencies>
 
@@ -54,6 +54,7 @@
             <plugin>
                 <groupId>io.starter</groupId>
                 <artifactId>aspectj-maven-plugin</artifactId>
+                <version>1.12.9</version>
                 <configuration>
                     <aspectLibraries>
                         <aspectLibrary>
@@ -74,6 +75,7 @@
                     <!-- Ignore dependencies coming from another dependencies that we are already using, and for
                     which we don't want to take control -->
                     <ignoredUsedUndeclaredDependencies>
+                        <ignoredUsedUndeclaredDependency>org.eclipse.jetty.toolchain:jetty-jakarta-servlet-api</ignoredUsedUndeclaredDependency>
                         <ignoredUsedUndeclaredDependency>org.springframework:spring-tx</ignoredUsedUndeclaredDependency>
                         <ignoredUsedUndeclaredDependency>org.aspectj:aspectjweaver</ignoredUsedUndeclaredDependency>
                         <ignoredUsedUndeclaredDependency>com.fasterxml.jackson.core:jackson-annotations</ignoredUsedUndeclaredDependency>

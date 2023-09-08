@@ -14,10 +14,8 @@ import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.not;
 import static org.hamcrest.Matchers.nullValue;
 
-
 @Tag("IntegrationTest")
 public class AuthServiceClientTestIntegration extends AbstractIntegrationTest {
-
 
     @Autowired
     private CacheManager cacheManager;

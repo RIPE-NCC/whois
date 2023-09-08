@@ -2,6 +2,10 @@ package net.ripe.db.whois.api.fulltextsearch;
 
 import com.google.common.collect.Lists;
 import com.google.common.net.HttpHeaders;
+import jakarta.ws.rs.BadRequestException;
+import jakarta.ws.rs.ClientErrorException;
+import jakarta.ws.rs.NotFoundException;
+import jakarta.ws.rs.core.Response;
 import net.ripe.db.whois.api.RestTest;
 import net.ripe.db.whois.api.elasticsearch.AbstractElasticSearchIntegrationTest;
 import net.ripe.db.whois.common.ip.IpInterval;
@@ -26,10 +30,6 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.jdbc.core.JdbcTemplate;
 
 import javax.sql.DataSource;
-import javax.ws.rs.BadRequestException;
-import javax.ws.rs.ClientErrorException;
-import javax.ws.rs.NotFoundException;
-import javax.ws.rs.core.Response;
 import java.io.IOException;
 import java.io.StringReader;
 import java.net.Inet4Address;
@@ -722,6 +722,16 @@ public class ElasticFullTextSearchTestIntegration extends AbstractElasticSearchI
     }
 
     @Test
+    public void search_inet6num_no_escape_colons() {
+        databaseHelper.addObject(
+                "inet6num: 2001:0638:0501::/48\n" +
+                        "netname: RIPE-NCC\n" +
+                        "source: RIPE\n");
+        rebuildIndex();
+        assertThat(numFound(query("q=(2001:0638:0501::/48+OR+2001:0638:0502::/48)")), is(1L));
+    }
+
+    @Test
     public void search_inet6num_double_colons() {
         databaseHelper.addObject(
                 "inet6num: 2a00:1f78::fffe/48\n" +
@@ -991,7 +1001,7 @@ public class ElasticFullTextSearchTestIntegration extends AbstractElasticSearchI
         assertThat(queryResponse.getResults(), hasSize(1));
         assertThat(queryResponse.getHighlighting().keySet(), contains("1"));
         assertThat(queryResponse.getHighlighting().get("1").keySet(), hasSize(2));
-        assertThat(queryResponse.getHighlighting().get("1").get("mntner"), contains("<b>DEV-MNT<\\/b>"));
+        assertThat(queryResponse.getHighlighting().get("1").get("mntner"), contains("<b>DEV<\\/b>-MNT"));
         assertThat(queryResponse.getHighlighting().get("1").get("remarks"), contains("<b>DEV<\\/b> mntner"));
     }
 
@@ -1027,8 +1037,11 @@ public class ElasticFullTextSearchTestIntegration extends AbstractElasticSearchI
         assertThat(searchResponse.getLsts().get(1).getLsts(), hasSize(1));
         assertThat(searchResponse.getLsts().get(1).getLsts().get(0).getName(), is("1"));
         assertThat(searchResponse.getLsts().get(1).getLsts().get(0).getArrs(), hasSize(2));
-        assertThat(searchResponse.getLsts().get(1).getLsts().get(0).getArrs().get(0).getName(), is("remarks"));
-        assertThat(searchResponse.getLsts().get(1).getLsts().get(0).getArrs().get(0).getStr().getValue(), is("<b>DEV</b> mntner"));
+        assertThat(searchResponse.getLsts().get(1).getLsts().get(0).getArrs().get(0).getName(), is("mntner"));
+        assertThat(searchResponse.getLsts().get(1).getLsts().get(0).getArrs().get(0).getStr().getValue(), is("<b>DEV</b>-MNT"));
+
+        assertThat(searchResponse.getLsts().get(1).getLsts().get(0).getArrs().get(1).getName(), is("remarks"));
+        assertThat(searchResponse.getLsts().get(1).getLsts().get(0).getArrs().get(1).getStr().getValue(), is("<b>DEV</b> mntner"));
         assertThat(searchResponse.getLsts().get(2).getName(), is("version"));
     }
 
@@ -1048,7 +1061,7 @@ public class ElasticFullTextSearchTestIntegration extends AbstractElasticSearchI
         assertThat(queryResponse.getResults(), hasSize(1));
         assertThat(queryResponse.getHighlighting().keySet(), contains("1"));
         assertThat(queryResponse.getHighlighting().get("1").keySet(), hasSize(2));
-        assertThat(queryResponse.getHighlighting().get("1").get("mntner"), contains("<b>DEV-MNT<\\/b>"));
+        assertThat(queryResponse.getHighlighting().get("1").get("mntner"), contains("<b>DEV<\\/b>-MNT"));
         assertThat(queryResponse.getHighlighting().get("1").get("remarks"), contains("\"<b>DEV<\\/b> mntner\""));
     }
 
@@ -1973,26 +1986,23 @@ public class ElasticFullTextSearchTestIntegration extends AbstractElasticSearchI
         assertThat(queryResponse.getHighlighting().get("4").get("object-type").get(0), is("<b>person</b>"));
     }
 
-
-
-
     @Test
     public void query_returns_maximum_results_and_mixed_objects_sorted_by_score_lookup() {
         databaseHelper.addObject("mntner: TEST-SE-MNT");
 
         databaseHelper.addObject("""
                 person:          Niels Christian Bank-Pedersen
-                address:         TEST
+                address:         RC
+                mnt-by:          TEST-SE-MNT
                 e-mail:          bank.es
                 nic-hdl:         TP1-TEST
-                mnt-by:          TEST-SE-MNT
                 source:          TEST
                 """);
 
         databaseHelper.addObject("""
                 inetnum:         81.128.169.144 - 81.128.169.159
                 netname:         TEST-BANK
-                descr:           TEST Bank
+                descr:           RC Bank
                 admin-c:         TP1-TEST
                 tech-c:          TP1-TEST
                 status:          ALLOCATED UNSPECIFIED
@@ -2005,7 +2015,7 @@ public class ElasticFullTextSearchTestIntegration extends AbstractElasticSearchI
         databaseHelper.addObject("""
                 inet6num:        2a00:2381:b2f::/48
                 netname:         TEST-BANK
-                descr:           TEST Bank
+                descr:           RC BANK
                 admin-c:         TP1-TEST
                 tech-c:          TP1-TEST
                 status:          ALLOCATED UNSPECIFIED
@@ -2018,7 +2028,7 @@ public class ElasticFullTextSearchTestIntegration extends AbstractElasticSearchI
         databaseHelper.addObject("""
                 inet6num:        2a00:2381:b2f::/56
                 netname:         TEST-BANK
-                descr:           TEST Bank
+                descr:           RC Bank
                 admin-c:         TP1-TEST
                 tech-c:          TP1-TEST
                 status:          ALLOCATED UNSPECIFIED
@@ -2161,19 +2171,210 @@ public class ElasticFullTextSearchTestIntegration extends AbstractElasticSearchI
                 """);
 
         rebuildIndex();
-        final QueryResponse queryResponse = query("facet=true&format=xml&hl=true&q=(TEST%20AND%20BANK)" +
+        final QueryResponse queryResponse = query("facet=true&format=xml&hl=true&q=(RC%20AND%20BANK)" +
                 "&start=0&wt=json");
+
+        assertThat(queryResponse.getResults().size(), is(4));
+
+        assertThat(queryResponse.getResults().get(0).get("lookup-key"), is("TP1-TEST"));
+        assertThat(queryResponse.getResults().get(1).get("lookup-key"), is("2a00:2381:b2f::/48"));
+        assertThat(queryResponse.getResults().get(2).get("lookup-key"), is("2a00:2381:b2f::/56"));
+        assertThat(queryResponse.getResults().get(3).get("lookup-key"), is("81.128.169.144 - 81.128.169.159"));
+    }
+
+    @Test
+    public void query_returns_maximum_results_and_mixed_objects_sorted_by_score_lookup_with_phrase() {
+        databaseHelper.addObject("mntner: TEST-SE-MNT");
+
+        databaseHelper.addObject("""
+                person:          Niels Christian Bank-Pedersen
+                address:         RC
+                mnt-by:          TEST-SE-MNT
+                e-mail:          bank.es
+                nic-hdl:         TP1-TEST
+                source:          TEST
+                """);
+
+        databaseHelper.addObject("""
+                inetnum:         81.128.169.144 - 81.128.169.159
+                netname:         TEST-BANK
+                descr:           RC Bank
+                admin-c:         TP1-TEST
+                tech-c:          TP1-TEST
+                status:          ALLOCATED UNSPECIFIED
+                mnt-by:          TEST-SE-MNT
+                mnt-lower:       TEST-SE-MNT
+                mnt-routes:      TEST-SE-MNT
+                source:          TEST
+                """);
+
+        databaseHelper.addObject("""
+                inet6num:        2a00:2381:b2f::/48
+                netname:         TEST-BANK
+                descr:           RC BANK
+                admin-c:         TP1-TEST
+                tech-c:          TP1-TEST
+                status:          ALLOCATED UNSPECIFIED
+                mnt-by:          TEST-SE-MNT
+                mnt-lower:       TEST-SE-MNT
+                mnt-routes:      TEST-SE-MNT
+                source:          TEST
+                """);
+
+        databaseHelper.addObject("""
+                inet6num:        2a00:2381:b2f::/56
+                netname:         TEST-BANK
+                descr:           RC Bank
+                admin-c:         TP1-TEST
+                tech-c:          TP1-TEST
+                status:          ALLOCATED UNSPECIFIED
+                mnt-by:          TEST-SE-MNT
+                mnt-lower:       TEST-SE-MNT
+                mnt-routes:      TEST-SE-MNT
+                source:          TEST
+                """);
+
+        databaseHelper.addObject("""
+                inetnum:         31.15.49.116 - 31.15.49.119
+                netname:         BANK-NET
+                descr:           Bank
+                admin-c:         TP1-TEST
+                tech-c:          TP1-TEST
+                status:          ALLOCATED UNSPECIFIED
+                mnt-by:          TEST-SE-MNT
+                source:          TEST
+                """);
+
+        databaseHelper.addObject("""
+                inet6num:        2001:6f0:2501::/48
+                netname:         BANK-NET
+                descr:           Bank
+                admin-c:         TP1-TEST
+                tech-c:          TP1-TEST
+                status:          ALLOCATED UNSPECIFIED
+                mnt-by:          TEST-SE-MNT
+                source:          TEST
+                """);
+
+        databaseHelper.addObject("""
+                inetnum:         87.54.47.216 - 87.54.47.223
+                netname:         BANK-NET
+                admin-c:         TP1-TEST
+                tech-c:          TP1-TEST
+                status:          ALLOCATED UNSPECIFIED
+                mnt-by:          TEST-SE-MNT
+                source:          TEST
+                """);
+
+        databaseHelper.addObject("""
+            inetnum:         95.58.17.72 - 95.58.17.75
+            netname:         Bank
+            admin-c:         TP1-TEST
+            tech-c:          TP1-TEST
+            status:          ALLOCATED UNSPECIFIED
+            mnt-by:          TEST-SE-MNT
+            source:          TEST
+                """);
+
+        databaseHelper.addObject("""
+            inetnum:         83.92.220.64 - 83.92.220.71
+            netname:         BANK-NET
+            admin-c:         TP1-TEST
+            tech-c:          TP1-TEST
+            status:          ALLOCATED UNSPECIFIED
+            mnt-by:          TEST-SE-MNT
+            source:          TEST
+                """);
+
+        databaseHelper.addObject("""
+            inetnum:         193.89.255.72 - 193.89.255.79
+            netname:         BANK-NET
+            admin-c:         TP1-TEST
+            tech-c:          TP1-TEST
+            status:          ALLOCATED UNSPECIFIED
+            mnt-by:          TEST-SE-MNT
+            source:          TEST
+                """);
+
+        databaseHelper.addObject("""
+            inetnum:         195.249.50.128 - 195.249.50.191
+            netname:         BANK
+            admin-c:         TP1-TEST
+            tech-c:          TP1-TEST
+            status:          ALLOCATED UNSPECIFIED
+            mnt-by:          TEST-SE-MNT
+            source:          TEST
+                """);
+
+        databaseHelper.addObject("""
+                inetnum:         31.15.33.192 - 31.15.33.195
+                netname:         BANK-NET
+                descr:           Bank AB
+                admin-c:         TP1-TEST
+                tech-c:          TP1-TEST
+                status:          ALLOCATED UNSPECIFIED
+                mnt-by:          TEST-SE-MNT
+                source:          TEST
+                """);
+
+        databaseHelper.addObject("""
+                inetnum:         37.233.74.12 - 37.233.74.12
+                admin-c:         TP1-TEST
+                tech-c:          TP1-TEST
+                status:          ALLOCATED UNSPECIFIED
+                mnt-by:          TEST-SE-MNT
+                source:          TEST
+                """);
+
+        databaseHelper.addObject("""
+                inetnum:         88.131.111.160 - 88.131.111.191
+                netname:         BANK
+                descr:           Bank
+                admin-c:         TP1-TEST
+                tech-c:          TP1-TEST
+                status:          ALLOCATED UNSPECIFIED
+                mnt-by:          TEST-SE-MNT
+                source:          TEST
+                """);
+
+        databaseHelper.addObject("""
+                inetnum:         212.214.152.144 - 212.214.152.151
+                netname:         AVANZA-BANK-NET
+                admin-c:         TP1-TEST
+                tech-c:          TP1-TEST
+                status:          ALLOCATED UNSPECIFIED
+                mnt-by:          TEST-SE-MNT
+                source:          TEST
+                """);
+
+        databaseHelper.addObject("""
+                inetnum:         217.119.169.120 - 217.119.169.123
+                netname:         NORDEA-BANK-NET
+                country:         SE
+                admin-c:         TP1-TEST
+                tech-c:          TP1-TEST
+                status:          ALLOCATED UNSPECIFIED
+                mnt-by:          TEST-SE-MNT
+                source:          TEST
+                """);
+
+        databaseHelper.addObject("""
+                person:          Bjorn Kogge
+                address:         Forex Bank AB
+                nic-hdl:         TP2-TEST
+                mnt-by:          TEST-SE-MNT
+                source:          TEST
+                """);
+
+        rebuildIndex();
+        final QueryResponse queryResponse = query("facet=true&format=xml&hl=true&q=(RC%20%20BANK)" +
+                "&start=0&wt=json");
+
+        assertThat(queryResponse.getResults().size(), is(3));
 
         assertThat(queryResponse.getResults().get(0).get("lookup-key"), is("2a00:2381:b2f::/48"));
         assertThat(queryResponse.getResults().get(1).get("lookup-key"), is("2a00:2381:b2f::/56"));
         assertThat(queryResponse.getResults().get(2).get("lookup-key"), is("81.128.169.144 - 81.128.169.159"));
-        assertThat(queryResponse.getResults().get(3).get("lookup-key"), is("TP1-TEST"));
-        assertThat(queryResponse.getResults().get(4).get("lookup-key"), is("TP2-TEST"));
-        assertThat(queryResponse.getResults().get(5).get("lookup-key"), is("193.89.255.72 - 193.89.255.79"));
-        assertThat(queryResponse.getResults().get(6).get("lookup-key"), is("2001:6f0:2501::/48"));
-        assertThat(queryResponse.getResults().get(7).get("lookup-key"), is("31.15.33.192 - 31.15.33.195"));
-        assertThat(queryResponse.getResults().get(8).get("lookup-key"), is("31.15.49.116 - 31.15.49.119"));
-        assertThat(queryResponse.getResults().get(9).get("lookup-key"), is("83.92.220.64 - 83.92.220.71"));
     }
 
     @Test
@@ -2394,6 +2595,129 @@ public class ElasticFullTextSearchTestIntegration extends AbstractElasticSearchI
         } catch (NotFoundException e) {
             // expected
         }
+    }
+
+    @Test
+    public void request_for_ipv6_prefix(){
+        databaseHelper.addObject(RpslObject.parse(
+                "inet6num: 2a00:1f78::fffe/48\n" +
+                        "netname: RIPE-NCC\n" +
+                        "descr: some description\n" +
+                        "source: TEST"));
+        rebuildIndex();
+
+        assertThat(numFound(query("q=2a00:1f78::fffe/48")), is(1L));
+    }
+
+    @Test
+    public void request_for_ipv6_mixing_filtering(){
+        databaseHelper.addObject(RpslObject.parse(
+                "inet6num: 2a00:1f78::fffe/48\n" +
+                        "netname: RIPE-NCC\n" +
+                        "descr: some description\n" +
+                        "source: TEST"));
+        databaseHelper.addObject(RpslObject.parse(
+                "person: First Last\n" +
+                        "nic-hdl: AA1-RIPE\n" +
+                        "remarks: 2a00:1f78::ffff\n" +
+                        "source: RIPE"));
+        rebuildIndex();
+
+        assertThat(numFound(query("q=(inet6num:(2a00:1f78::fffe/48)" +
+                "+OR+remarks:(2a00:1f78::ffff))+AND+" +
+                "(object-type:inet6num+OR+object-type:person)")), is(2L));
+    }
+
+    @Test
+    public void request_for_ipv6_prefix_filtering(){
+        databaseHelper.addObject(RpslObject.parse(
+                "inet6num: 2a00:1f78::fffe/48\n" +
+                        "netname: RIPE-NCC\n" +
+                        "descr: some description\n" +
+                        "source: TEST"));
+        databaseHelper.addObject(RpslObject.parse(
+                "person: First Last\n" +
+                        "nic-hdl: AA1-RIPE\n" +
+                        "remarks: 2a00:1f78::ffff/48\n" +
+                        "source: RIPE"));
+        rebuildIndex();
+
+        assertThat(numFound(query("q=(inet6num:(2a00:1f78::fffe/48)" +
+                "+OR+remarks:(2a00:1f78::ffff/48))+AND+" +
+                "(object-type:inet6num+OR+object-type:person)")), is(2L));
+    }
+
+    @Test
+    public void request_for_ipv6_without_prefix(){
+        databaseHelper.addObject(RpslObject.parse(
+                "inet6num: 2a00:1f78::fffe/48\n" +
+                        "netname: RIPE-NCC\n" +
+                        "descr: some description\n" +
+                        "source: TEST"));
+        rebuildIndex();
+
+        assertThat(numFound(query("q=2a00:1f78::fffe")), is(1L));
+    }
+
+    @Test
+    public void request_for_full_ipv6(){
+        databaseHelper.addObject(RpslObject.parse(
+                "inet6num: 2001:0000:130F:0000:0000:09C0:876A:130B\n" +
+                        "netname: RIPE-NCC\n" +
+                        "descr: some description\n" +
+                        "source: TEST"));
+        rebuildIndex();
+
+        assertThat(numFound(query("q=2001:0000:130F:0000:0000:09C0:876A:130B")), is(1L));
+    }
+
+    @Test
+    public void request_for_ipv6_range_without_prefix(){
+        databaseHelper.addObject(RpslObject.parse(
+                "inet6num: 2001:0000:130F:0000:0000:09C0:876A:130B\n" +
+                        "netname: RIPE-NCC\n" +
+                        "descr: some description\n" +
+                        "source: TEST"));
+        rebuildIndex();
+
+        assertThat(numFound(query("q=2001:0000:130F:0000:0000:09C0:876A:130B+-+" +
+                "2001:0000:130F:0000:0000:09C0:876A:130f")), is(1L));
+    }
+
+    @Test
+    public void request_for_ipv6_range_with_prefix(){
+        databaseHelper.addObject(RpslObject.parse(
+                "inet6num: 2a00:1f78::fffe/48\n" +
+                        "netname: RIPE-NCC\n" +
+                        "descr: some description\n" +
+                        "source: TEST"));
+        rebuildIndex();
+
+        assertThat(numFound(query("q=2a00:1f78::fffe/48+-+2a00:1f78::ffff/48")), is(1L));
+    }
+
+    @Test
+    public void request_for_root_ipv6(){
+        databaseHelper.addObject(RpslObject.parse(
+                "inet6num: ::/0\n" +
+                        "netname: RIPE-NCC\n" +
+                        "descr: some description\n" +
+                        "source: TEST"));
+        rebuildIndex();
+
+        assertThat(numFound(query("q=::/0")), is(1L));
+    }
+
+    @Test
+    public void request_for_big_ipv6(){
+        databaseHelper.addObject(RpslObject.parse(
+                "inet6num: ::123:2\n" +
+                        "netname: RIPE-NCC\n" +
+                        "descr: some description\n" +
+                        "source: TEST"));
+        rebuildIndex();
+
+        assertThat(numFound(query("q=::123:2")), is(1L));
     }
     // helper methods
 

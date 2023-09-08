@@ -47,6 +47,7 @@
             <plugin>
                 <groupId>io.starter</groupId>
                 <artifactId>aspectj-maven-plugin</artifactId>
+                <version>1.12.9</version>
                 <configuration>
                     <aspectLibraries>
                         <aspectLibrary>

@@ -2,6 +2,13 @@ package net.ripe.db.whois.api.elasticsearch;
 
 import com.google.common.collect.Lists;
 import com.google.common.util.concurrent.Uninterruptibles;
+import jakarta.ws.rs.BadRequestException;
+import jakarta.ws.rs.ClientErrorException;
+import jakarta.ws.rs.NotFoundException;
+import jakarta.ws.rs.ServerErrorException;
+import jakarta.ws.rs.WebApplicationException;
+import jakarta.ws.rs.client.WebTarget;
+import jakarta.ws.rs.core.MediaType;
 import net.ripe.db.whois.api.RestTest;
 import net.ripe.db.whois.api.rdap.domain.Action;
 import net.ripe.db.whois.api.rdap.domain.Domain;
@@ -24,13 +31,6 @@ import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
-import javax.ws.rs.BadRequestException;
-import javax.ws.rs.ClientErrorException;
-import javax.ws.rs.NotFoundException;
-import javax.ws.rs.ServerErrorException;
-import javax.ws.rs.WebApplicationException;
-import javax.ws.rs.client.WebTarget;
-import javax.ws.rs.core.MediaType;
 import java.io.IOException;
 import java.net.InetAddress;
 import java.time.LocalDateTime;
@@ -219,7 +219,7 @@ public class WhoisRdapElasticServiceTestIntegration extends AbstractElasticSearc
                 "source:         TEST");
         ipTreeUpdater.rebuild();
 
-        elasticFullTextIndex.update();
+        rebuildIndex();
         Uninterruptibles.sleepUninterruptibly(1, TimeUnit.SECONDS);
     }
 
@@ -725,7 +725,7 @@ public class WhoisRdapElasticServiceTestIntegration extends AbstractElasticSearc
     protected String syncupdate(String data) {
         WebTarget resource = RestTest.target(getPort(), String.format("whois/syncupdates/test"));
         return resource.request()
-                .post(javax.ws.rs.client.Entity.entity("DATA=" + RestClientUtils.encode(data),
+                .post(jakarta.ws.rs.client.Entity.entity("DATA=" + RestClientUtils.encode(data),
                                 MediaType.APPLICATION_FORM_URLENCODED),
                         String.class);
 

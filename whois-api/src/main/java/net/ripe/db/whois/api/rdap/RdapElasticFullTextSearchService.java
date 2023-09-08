@@ -1,5 +1,6 @@
 package net.ripe.db.whois.api.rdap;
 
+import jakarta.ws.rs.core.Response;
 import net.ripe.db.whois.api.elasticsearch.ElasticIndexService;
 import net.ripe.db.whois.api.elasticsearch.ElasticSearchAccountingCallback;
 import net.ripe.db.whois.common.dao.RpslObjectDao;
@@ -26,7 +27,6 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.stereotype.Component;
 
-import javax.ws.rs.core.Response;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;

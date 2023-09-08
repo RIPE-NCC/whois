@@ -34,11 +34,7 @@ public interface DecorationStrategy {
 
             final ObjectType objectType = object.getType();
             if (writtenPlaceHolders.add(objectType)) {
-                if (objectType.equals(ObjectType.ROLE)) {
-                    return DummifierNrtm.getPlaceholderRoleObject();
-                } else {
-                    return DummifierNrtm.getPlaceholderPersonObject();
-                }
+                return DummifierNrtm.getPlaceholderPersonObject();
             }
 
             return null;
