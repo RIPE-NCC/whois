@@ -4,8 +4,6 @@ import com.google.common.base.Stopwatch;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import net.ripe.db.nrtm4.GzipOutStreamWriter;
-import net.ripe.db.nrtm4.SnapshotRecordProcessor;
-import net.ripe.db.nrtm4.SnapshotRecordCreator;
 import net.ripe.db.nrtm4.dao.NrtmFileRepository;
 import net.ripe.db.nrtm4.dao.NrtmKeyConfigDao;
 import net.ripe.db.nrtm4.dao.NrtmVersionInfoDao;
@@ -32,20 +30,14 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
-import java.io.IOException;
 import java.time.ZoneOffset;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import java.util.Timer;
-import java.util.TimerTask;
 import java.util.UUID;
-import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 import static java.util.stream.Collectors.groupingBy;
 import static net.ripe.db.nrtm4.util.NrtmFileUtil.calculateSha256;
@@ -200,13 +192,10 @@ public class SnapshotFileGenerator {
     private Map<CIString, GzipOutStreamWriter> initializeResources(final List<NrtmVersionInfo> sourceToVersionInfo)  {
 
         final Map<CIString, GzipOutStreamWriter> resources = Maps.newHashMap();
-
         sourceToVersionInfo.forEach(nrtmVersionInfo -> {
             final GzipOutStreamWriter resource = new GzipOutStreamWriter();
             resource.write(new NrtmVersionRecord(nrtmVersionInfo, NrtmDocumentType.SNAPSHOT));
-
             resources.put(nrtmVersionInfo.source().getName(), resource);
-
         });
 
         return resources;
