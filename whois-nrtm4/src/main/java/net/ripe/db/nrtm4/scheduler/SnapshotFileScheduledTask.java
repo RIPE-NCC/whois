@@ -22,7 +22,7 @@ public class SnapshotFileScheduledTask implements DailyScheduledTask {
     }
 
     @Override
-    @Scheduled(cron = "0 0 0 * * *")
+    @Scheduled(cron = "0 0/10 0 * * *")
     @SchedulerLock(name = "NrtmSnapshotFileGenerationTask")
     public void run() {
         try {

@@ -88,9 +88,9 @@ public class SnapshotFileGenerator {
                 .map( source -> getNewVersion(source, sourceVersions, snapshotState.serialId()))
                 .collect(Collectors.toList());
 
-        final Map<CIString, byte[]> sourceResources = writeToGzipStream(snapshotState, sourceToNewVersion);
+        final Map<CIString, byte[]> sourceToOutputBytes = writeToGzipStream(snapshotState, sourceToNewVersion);
 
-        saveToDatabase(sourceToNewVersion,  sourceResources);
+        saveToDatabase(sourceToNewVersion, sourceToOutputBytes);
         LOGGER.info("Snapshot generation complete {}", stopwatch);
         cleanUpOldFiles();
     }
