@@ -1,4 +1,4 @@
-package net.ripe.db.nrtm4;
+package net.ripe.db.nrtm4.generator;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import net.ripe.db.nrtm4.dao.NrtmFileRepository;

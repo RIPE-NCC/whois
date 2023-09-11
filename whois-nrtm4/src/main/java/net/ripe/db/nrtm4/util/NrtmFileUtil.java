@@ -47,11 +47,11 @@ public class NrtmFileUtil {
         return Long.toHexString(random.nextLong()) + Long.toHexString(random.nextLong());
     }
 
-    public static String getNrtmFileRecord(final NrtmFileRecord record) throws JsonProcessingException {
-        return getNrtmFileRecord(new StringBuilder(), record).toString();
+    public static String convertToJSONTextSeq(final NrtmFileRecord record) throws JsonProcessingException {
+        return convertToJSONTextSeq(new StringBuilder(), record).toString();
     }
 
-    public static StringBuilder getNrtmFileRecord(final StringBuilder sb, final NrtmFileRecord record) throws JsonProcessingException {
+    public static StringBuilder convertToJSONTextSeq(final StringBuilder sb, final NrtmFileRecord record) throws JsonProcessingException {
         //TODO[MA]: Should be using a library right now only jq tool supports json-text-sequence
         return sb.append(RECORD_SEPERATOR)
                 .append(new ObjectMapper().writeValueAsString(record))
