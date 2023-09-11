@@ -54,6 +54,7 @@ import static net.ripe.db.nrtm4.util.NrtmFileUtil.calculateSha256;
 public class SnapshotFileGenerator {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(SnapshotFileGenerator.class);
+    public static final int BATCH_SIZE = 100;
     private final WhoisObjectRepository whoisObjectRepository;
 
     private final DummifierNrtmV4 dummifierNrtmV4;
@@ -61,7 +62,7 @@ public class SnapshotFileGenerator {
     private final NrtmSourceDao nrtmSourceDao;
     private final NrtmFileRepository nrtmFileRepository;
     private final DateTimeProvider dateTimeProvider;
-
+    private final NrtmKeyConfigDao nrtmKeyConfigDao;
 
     public SnapshotFileGenerator(
         final DummifierNrtmV4 dummifierNrtmV4,
@@ -69,6 +70,7 @@ public class SnapshotFileGenerator {
         final WhoisObjectRepository whoisObjectRepository,
         final NrtmFileRepository nrtmFileRepository,
         final DateTimeProvider dateTimeProvider,
+        final NrtmKeyConfigDao nrtmKeyConfigDao,
         final NrtmSourceDao nrtmSourceDao
     ) {
         this.dummifierNrtmV4 = dummifierNrtmV4;
@@ -77,18 +79,19 @@ public class SnapshotFileGenerator {
         this.whoisObjectRepository = whoisObjectRepository;
         this.nrtmFileRepository = nrtmFileRepository;
         this.dateTimeProvider = dateTimeProvider;
+        this.nrtmKeyConfigDao = nrtmKeyConfigDao;
     }
 
     public void createSnapshot()  {
         final Stopwatch stopwatch = Stopwatch.createStarted();
+        initializeNrtm();
 
         final List<NrtmVersionInfo> sourceVersions = nrtmVersionInfoDao.findLastVersionPerSource();
 
         final SnapshotState snapshotState = whoisObjectRepository.getSnapshotState(sourceVersions.isEmpty() ? null : sourceVersions.get(0).lastSerialId());
         LOGGER.info("Found {} objects in {}", snapshotState.whoisObjectData().size(), stopwatch);
 
-
-        final List<NrtmVersionInfo> sourceToNewVersion = getSources().stream()
+        final List<NrtmVersionInfo> sourceToNewVersion = nrtmSourceDao.getSources().stream()
                 .filter( source -> canProceed(sourceVersions, source))
                 .map( source -> getNewVersion(source, sourceVersions, snapshotState.serialId()))
                 .collect(Collectors.toList());
@@ -100,61 +103,39 @@ public class SnapshotFileGenerator {
         cleanUpOldFiles();
     }
 
-    private List<NrtmSource> getSources() {
-        List<NrtmSource> sources = nrtmSourceDao.getSources();
-        if(sources.isEmpty()) {
-            nrtmSourceDao.createSources();
-            return nrtmSourceDao.getSources();
-        }
-        return sources;
-    }
-
     private Map<CIString, byte[]> writeToGzipStream(final SnapshotState snapshotState, final List<NrtmVersionInfo> sourceToNewVersion) {
         final Map<CIString, GzipOutStreamWriter> sourceResources = initializeResources(sourceToNewVersion);
 
         final AtomicInteger numberOfEnqueuedObjects = new AtomicInteger(0);
-        final List<List<WhoisObjectData>> batches = Lists.partition(snapshotState.whoisObjectData(), 100);
-
-        final Timer timer = new Timer(true);
-        printProgress( numberOfEnqueuedObjects, snapshotState.whoisObjectData().size(), timer);
+        final List<List<WhoisObjectData>> batches = Lists.partition(snapshotState.whoisObjectData(), BATCH_SIZE);
 
         try {
             batches.parallelStream().map(objectBatch -> {
-                final Map<Integer, String> rpslMap = whoisObjectRepository.findRpslMapForObjects(objectBatch);
                 final List<RpslObject> rpslObjects = Lists.newArrayList();
 
-                for (final WhoisObjectData object : objectBatch) {
-                    numberOfEnqueuedObjects.incrementAndGet();
-
-                    final String rpsl = rpslMap.get(object.objectId());
-                    final RpslObject rpslObject;
+                whoisObjectRepository.findRpslMapForObjects(objectBatch).values().forEach( object -> {
                     try {
-                        rpslObject = RpslObject.parse(rpsl);
+                        final RpslObject rpslObject = RpslObject.parse(object);
+                        if (dummifierNrtmV4.isAllowed(rpslObject)) {
+                            rpslObjects.add(dummifierNrtmV4.dummify(rpslObject));
+                        }
                     } catch (final Exception e) {
                         LOGGER.warn("Parsing RPSL threw exception", e);
-                        continue;
                     }
-                    if (dummifierNrtmV4.isAllowed(rpslObject)) {
-                        rpslObjects.add(dummifierNrtmV4.dummify(rpslObject));
+                });
 
-                    }
-                }
+                LOGGER.info("{} batch completed, out of {} ",  numberOfEnqueuedObjects.incrementAndGet(), batches.size());
                 return rpslObjects;
             }).flatMap(Collection::stream).forEach(rpslObject -> {
                 if(sourceResources.containsKey(rpslObject.getValueForAttribute(AttributeType.SOURCE))) {
-                    try {
-                        sourceResources.get(rpslObject.getValueForAttribute(AttributeType.SOURCE)).write(new SnapshotFileRecord(rpslObject));
-                    } catch (IOException e) {
-                        LOGGER.warn("Error while writing snapshotfile", e);
-                        throw new RuntimeException(e);
-                    }
+                    sourceResources.get(rpslObject.getValueForAttribute(AttributeType.SOURCE)).write(new SnapshotFileRecord(rpslObject));
                 }
             });
+
         } catch (final Exception e) {
             LOGGER.warn("Error while writing snapshotfile", e);
             throw new RuntimeException(e);
         } finally {
-            timer.cancel();
             sourceResources.values().forEach(GzipOutStreamWriter::close);
         }
 
@@ -171,6 +152,22 @@ public class SnapshotFileGenerator {
             }
         }
         return true;
+    }
+
+    private void initializeNrtm() {
+        final List<NrtmSource> sourceList = nrtmSourceDao.getSources();
+        if (sourceList.isEmpty()) {
+            LOGGER.info("Creating sources...");
+            nrtmSourceDao.createSources();
+        }
+
+        if(!nrtmKeyConfigDao.isKeyPairExists()) {
+            final AsymmetricCipherKeyPair asymmetricCipherKeyPair = Ed25519Util.generateEd25519KeyPair();
+            final byte[] privateKey =((Ed25519PrivateKeyParameters) asymmetricCipherKeyPair.getPrivate()).getEncoded();
+            final byte[] publicKey = ((Ed25519PublicKeyParameters) asymmetricCipherKeyPair.getPublic()).getEncoded();
+
+            nrtmKeyConfigDao.saveKeyPair(privateKey, publicKey);
+        }
     }
 
     private  NrtmVersionInfo getNewVersion(final NrtmSource source, final List<NrtmVersionInfo> sourceVersions, final int currentSerialId) {
@@ -200,30 +197,16 @@ public class SnapshotFileGenerator {
         });
     }
 
-    private void printProgress(final AtomicInteger numberOfEnqueuedObjects, final int total, final Timer timer) {
-        timer.schedule(new TimerTask() {
-            @Override
-            public void run() {
-                final int done = numberOfEnqueuedObjects.get();
-                LOGGER.info("Enqueued {} RPSL objects out of {} ({}%).", done, total, Math.round(done * 1000. / total) / 10.);
-            }
-        }, 0, 2000);
-    }
-
     private Map<CIString, GzipOutStreamWriter> initializeResources(final List<NrtmVersionInfo> sourceToVersionInfo)  {
 
         final Map<CIString, GzipOutStreamWriter> resources = Maps.newHashMap();
 
         sourceToVersionInfo.forEach(nrtmVersionInfo -> {
-            try {
-                final GzipOutStreamWriter resource = new GzipOutStreamWriter();
-                resource.write(new NrtmVersionRecord(nrtmVersionInfo, NrtmDocumentType.SNAPSHOT));
+            final GzipOutStreamWriter resource = new GzipOutStreamWriter();
+            resource.write(new NrtmVersionRecord(nrtmVersionInfo, NrtmDocumentType.SNAPSHOT));
 
-                resources.put(nrtmVersionInfo.source().getName(), resource);
+            resources.put(nrtmVersionInfo.source().getName(), resource);
 
-            } catch (IOException e) {
-                LOGGER.error("Exception while creating a outputstream for {}-  {}", nrtmVersionInfo.source().getName(), e);
-            }
         });
 
         return resources;

@@ -16,13 +16,23 @@ public class GzipOutStreamWriter {
     final ByteArrayOutputStream bos;
     final GZIPOutputStream gzOut;
 
-    public GzipOutStreamWriter() throws IOException {
-        this.bos = new ByteArrayOutputStream();
-        this.gzOut = new GZIPOutputStream(bos);
+    public GzipOutStreamWriter() {
+        try {
+            this.bos = new ByteArrayOutputStream();
+            this.gzOut = new GZIPOutputStream(bos);
+        } catch (IOException e) {
+            LOGGER.warn("Error while creating outputstream", e);
+            throw new RuntimeException(e);
+        }
     }
 
-    public void write(final NrtmFileRecord record) throws IOException {
-        gzOut.write(NrtmFileUtil.convertToJSONTextSeq(record).getBytes());
+    public void write(final NrtmFileRecord record)  {
+        try {
+            gzOut.write(NrtmFileUtil.convertToJSONTextSeq(record).getBytes());
+        } catch (IOException e) {
+            LOGGER.warn("Error while writing snapshotfile", e);
+            throw new RuntimeException(e);
+        }
     }
 
     public ByteArrayOutputStream getOutputstream() {

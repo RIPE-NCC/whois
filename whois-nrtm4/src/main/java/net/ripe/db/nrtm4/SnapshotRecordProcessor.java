@@ -10,7 +10,6 @@ import net.ripe.db.whois.common.rpsl.AttributeType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.BlockingQueue;
@@ -61,15 +60,9 @@ public class SnapshotRecordProcessor implements Supplier<Map<CIString, byte[]>> 
         final Map<CIString, GzipOutStreamWriter> resources = Maps.newHashMap();
 
         sourceToVersionInfo.forEach(nrtmVersionInfo -> {
-            try {
-                final GzipOutStreamWriter resource = new GzipOutStreamWriter();
-                resource.write(new NrtmVersionRecord(nrtmVersionInfo, NrtmDocumentType.SNAPSHOT));
-
-                resources.put(nrtmVersionInfo.source().getName(), resource);
-
-            } catch (IOException e) {
-                LOGGER.error("Exception while creating a outputstream for {}-  {}", nrtmVersionInfo.source().getName(), e);
-            }
+            final GzipOutStreamWriter resource = new GzipOutStreamWriter();
+            resource.write(new NrtmVersionRecord(nrtmVersionInfo, NrtmDocumentType.SNAPSHOT));
+            resources.put(nrtmVersionInfo.source().getName(), resource);
         });
 
         return resources;
