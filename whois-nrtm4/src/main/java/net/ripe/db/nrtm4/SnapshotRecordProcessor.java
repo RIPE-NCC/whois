@@ -36,7 +36,6 @@ public class SnapshotRecordProcessor implements Supplier<Map<CIString, byte[]>> 
             while (true) {
                 final SnapshotFileRecord record = sharedQueue.take();
                 if (record.getObject() == null) {
-                    LOGGER.info("closing the resources");
                     resources.values().forEach(GzipOutStreamWriter::close);
                     break;
                 }
@@ -52,6 +51,8 @@ public class SnapshotRecordProcessor implements Supplier<Map<CIString, byte[]>> 
             LOGGER.error("Exception writing snapshot {}", e);
             Thread.currentThread().interrupt();
             throw new RuntimeException(e);
+        } finally {
+            resources.values().forEach(GzipOutStreamWriter::close);
         }
     }
 

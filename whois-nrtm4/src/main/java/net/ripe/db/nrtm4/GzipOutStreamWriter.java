@@ -29,12 +29,8 @@ public class GzipOutStreamWriter {
         return this.bos;
     }
 
-    @Override
-    protected void finalize() {
-        close();
-    }
-
     public void close() {
+        LOGGER.info("closing resources");
         try {
             gzOut.close();
         } catch (IOException e) {
