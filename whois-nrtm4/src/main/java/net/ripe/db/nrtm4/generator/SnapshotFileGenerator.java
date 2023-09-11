@@ -1,8 +1,8 @@
 package net.ripe.db.nrtm4.generator;
 
 import com.google.common.base.Stopwatch;
-import net.ripe.db.nrtm4.SnapshotRecordConsumer;
-import net.ripe.db.nrtm4.SnapshotRecordProducer;
+import net.ripe.db.nrtm4.SnapshotRecordProcessor;
+import net.ripe.db.nrtm4.SnapshotRecordCreator;
 import net.ripe.db.nrtm4.dao.NrtmFileRepository;
 import net.ripe.db.nrtm4.dao.NrtmKeyConfigDao;
 import net.ripe.db.nrtm4.dao.NrtmVersionInfoDao;
@@ -86,18 +86,18 @@ public class SnapshotFileGenerator {
                                                             .map( source -> getNewVersion(source, sourceVersions, snapshotState.serialId()))
                                                             .collect(Collectors.toList());
         if(sourceToNewVersion.isEmpty()) {
-            LOGGER.info("Skipping generation fo snapshot for all sources");
+            LOGGER.info("Skipping generation for snapshot for all sources");
             return;
         }
 
         final LinkedBlockingQueue<SnapshotFileRecord> sharedQueue = new LinkedBlockingQueue<>(QUEUE_CAPACITY);
 
-        final CompletableFuture<Void> snapshotRecordProducer = CompletableFuture.supplyAsync(new SnapshotRecordProducer(sharedQueue, dummifierNrtmV4, snapshotState, whoisObjectRepository));
-        final CompletableFuture<Map<CIString, byte[]>> snapshotRecordConsumer = CompletableFuture.supplyAsync(new SnapshotRecordConsumer(sharedQueue, sourceToNewVersion));
+        final CompletableFuture<Void> recordCreatorThread = CompletableFuture.supplyAsync(new SnapshotRecordCreator(sharedQueue, dummifierNrtmV4, snapshotState, whoisObjectRepository));
+        final CompletableFuture<Map<CIString, byte[]>> recordProcessorThread = CompletableFuture.supplyAsync(new SnapshotRecordProcessor(sharedQueue, sourceToNewVersion));
 
         try {
-            CompletableFuture.allOf(snapshotRecordProducer, snapshotRecordConsumer);
-            final Map<CIString, byte[]> payloadBySource = snapshotRecordConsumer.get();
+            CompletableFuture.allOf(recordCreatorThread, recordProcessorThread);
+            final Map<CIString, byte[]> payloadBySource = recordProcessorThread.get();
             saveToDatabase(sourceToNewVersion, payloadBySource);
         } catch (Exception e) {
             LOGGER.error("Unexpected throwable caught when fetching results", e);

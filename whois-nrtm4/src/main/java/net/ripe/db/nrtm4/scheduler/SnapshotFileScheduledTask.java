@@ -32,5 +32,4 @@ public class SnapshotFileScheduledTask implements DailyScheduledTask {
             throw new RuntimeException(e);
         }
     }
-
 }

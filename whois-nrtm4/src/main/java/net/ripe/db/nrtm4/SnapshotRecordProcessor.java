@@ -7,25 +7,23 @@ import net.ripe.db.nrtm4.domain.NrtmVersionRecord;
 import net.ripe.db.nrtm4.domain.SnapshotFileRecord;
 import net.ripe.db.whois.common.domain.CIString;
 import net.ripe.db.whois.common.rpsl.AttributeType;
-import net.ripe.db.whois.common.rpsl.RpslObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
-import static net.ripe.db.nrtm4.SnapshotRecordProducer.POISON_PILL;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.BlockingQueue;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
-public class SnapshotRecordConsumer implements Supplier<Map<CIString, byte[]>> {
+public class SnapshotRecordProcessor implements Supplier<Map<CIString, byte[]>> {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(SnapshotRecordConsumer.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(SnapshotRecordProcessor.class);
     private final BlockingQueue<SnapshotFileRecord> sharedQueue;
     private  final List<NrtmVersionInfo>  sourceToVersionInfo;
 
-    public SnapshotRecordConsumer(final BlockingQueue<SnapshotFileRecord> sharedQueue, final List<NrtmVersionInfo> sourceToVersionInfo) {
+    public SnapshotRecordProcessor(final BlockingQueue<SnapshotFileRecord> sharedQueue, final List<NrtmVersionInfo> sourceToVersionInfo) {
         this.sharedQueue = sharedQueue;
         this.sourceToVersionInfo = sourceToVersionInfo;
     }

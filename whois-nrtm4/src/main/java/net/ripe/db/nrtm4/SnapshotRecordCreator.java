@@ -19,9 +19,9 @@ import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Supplier;
 
-public class SnapshotRecordProducer implements Supplier {
+public class SnapshotRecordCreator implements Supplier {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(SnapshotRecordProducer.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(SnapshotRecordCreator.class);
     private static final int BATCH_SIZE = 100;
     public static final SnapshotFileRecord POISON_PILL = new SnapshotFileRecord(null);
     private final BlockingQueue<SnapshotFileRecord> sharedQueue;
@@ -30,7 +30,7 @@ public class SnapshotRecordProducer implements Supplier {
 
     private final DummifierNrtmV4 dummifierNrtmV4;
 
-    public SnapshotRecordProducer(final BlockingQueue<SnapshotFileRecord> sharedQueue, final DummifierNrtmV4 dummifierNrtmV4, final SnapshotState snapshotState, final WhoisObjectRepository whoisObjectRepository) {
+    public SnapshotRecordCreator(final BlockingQueue<SnapshotFileRecord> sharedQueue, final DummifierNrtmV4 dummifierNrtmV4, final SnapshotState snapshotState, final WhoisObjectRepository whoisObjectRepository) {
         this.sharedQueue = sharedQueue;
         this.snapshotState = snapshotState;
         this.whoisObjectRepository = whoisObjectRepository;
