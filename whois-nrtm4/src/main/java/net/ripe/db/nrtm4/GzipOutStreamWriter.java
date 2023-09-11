@@ -30,16 +30,16 @@ public class GzipOutStreamWriter {
     }
 
     public void close() {
-        LOGGER.info("closing resources");
+        LOGGER.debug("closing resources");
         try {
             gzOut.close();
         } catch (IOException e) {
-            LOGGER.error("Exception while closing gzipStream {}", e);
+            LOGGER.debug("Exception while closing gzipStream {}", e);
         }
         try {
             bos.close();
         } catch (IOException e) {
-            LOGGER.error("Exception while closing outputstream {}", e);
+            LOGGER.debug("Exception while closing outputstream {}", e);
        }
     }
 }
