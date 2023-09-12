@@ -223,7 +223,7 @@ public class SnapshotFileGenerator {
         });
     }
 
-    private void printProgress(final AtomicInteger noOfBatchesProcessed, int total, Timer timer) {
+    private void printProgress(final AtomicInteger noOfBatchesProcessed, final int total, final Timer timer) {
         timer.schedule(new TimerTask() {
             @Override
             public void run() {
