@@ -35,6 +35,8 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Timer;
+import java.util.TimerTask;
 import java.util.UUID;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
@@ -98,8 +100,11 @@ public class SnapshotFileGenerator {
     private Map<CIString, byte[]> writeToGzipStream(final SnapshotState snapshotState, final List<NrtmVersionInfo> sourceToNewVersion) {
         final Map<CIString, GzipOutStreamWriter> sourceResources = initializeResources(sourceToNewVersion);
 
-        final AtomicInteger numberOfEnqueuedObjects = new AtomicInteger(0);
+        final AtomicInteger noOfBatchesProcessedObjects = new AtomicInteger(0);
         final List<List<WhoisObjectData>> batches = Lists.partition(snapshotState.whoisObjectData(), BATCH_SIZE);
+
+        final Timer timer = new Timer(true);
+        printProgress(noOfBatchesProcessedObjects, batches.size(), timer);
 
         try {
             batches.parallelStream().map(objectBatch -> {
@@ -116,7 +121,7 @@ public class SnapshotFileGenerator {
                     }
                 });
 
-                LOGGER.info("{} batch completed, out of {} ",  numberOfEnqueuedObjects.incrementAndGet(), batches.size());
+                noOfBatchesProcessedObjects.incrementAndGet();
                 return rpslObjects;
             }).flatMap(Collection::stream).forEach(rpslObject -> {
                 if(sourceResources.containsKey(rpslObject.getValueForAttribute(AttributeType.SOURCE))) {
@@ -128,10 +133,10 @@ public class SnapshotFileGenerator {
             LOGGER.warn("Error while writing snapshotfile", e);
             throw new RuntimeException(e);
         } finally {
+            timer.cancel();
             sourceResources.values().forEach(GzipOutStreamWriter::close);
         }
 
-        LOGGER.info("completed writing to outputstream");
         return  sourceResources.entrySet().stream().collect(Collectors.toMap(Map.Entry::getKey, value -> value.getValue().getOutputstream().toByteArray()));
     }
 
@@ -216,5 +221,15 @@ public class SnapshotFileGenerator {
                 }
             }
         });
+    }
+
+    private void printProgress(final AtomicInteger noOfBatchesProcessed, int total, Timer timer) {
+        timer.schedule(new TimerTask() {
+            @Override
+            public void run() {
+                final int done = noOfBatchesProcessed.get();
+                LOGGER.info("Processed {} Batches objects out of {} ({}%).", done, total, (done * 100/ total));
+            }
+        }, 0, 10000);
     }
 }
