@@ -101,11 +101,11 @@ public class SnapshotFileGenerator {
     private Map<CIString, byte[]> writeToGzipStream(final SnapshotState snapshotState, final List<NrtmVersionInfo> sourceToNewVersion) {
         final Map<CIString, GzipOutStreamWriter> sourceResources = initializeResources(sourceToNewVersion);
 
-        final AtomicInteger noOfBatchesProcessedObjects = new AtomicInteger(0);
+        final AtomicInteger noOfBatchesProcessed = new AtomicInteger(0);
         final List<List<WhoisObjectData>> batches = Lists.partition(snapshotState.whoisObjectData(), BATCH_SIZE);
 
         final Timer timer = new Timer(true);
-        printProgress(noOfBatchesProcessedObjects, batches.size(), timer);
+        printProgress(noOfBatchesProcessed, batches.size(), timer);
 
         try {
             batches.parallelStream().map(objectBatch -> {
@@ -122,7 +122,7 @@ public class SnapshotFileGenerator {
                     }
                 });
 
-                noOfBatchesProcessedObjects.incrementAndGet();
+                noOfBatchesProcessed.incrementAndGet();
                 return rpslObjects;
             }).flatMap(Collection::stream).forEach(rpslObject -> {
                 if(sourceResources.containsKey(rpslObject.getValueForAttribute(AttributeType.SOURCE))) {
