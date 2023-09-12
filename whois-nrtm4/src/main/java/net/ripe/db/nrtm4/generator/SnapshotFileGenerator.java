@@ -50,7 +50,6 @@ public class SnapshotFileGenerator {
     private static final Logger LOGGER = LoggerFactory.getLogger(SnapshotFileGenerator.class);
     public static final int BATCH_SIZE = 100;
     private final WhoisObjectRepository whoisObjectRepository;
-
     private final DummifierNrtmV4 dummifierNrtmV4;
     private final NrtmVersionInfoDao nrtmVersionInfoDao;
     private final NrtmSourceDao nrtmSourceDao;
@@ -105,7 +104,7 @@ public class SnapshotFileGenerator {
         final List<List<WhoisObjectData>> batches = Lists.partition(snapshotState.whoisObjectData(), BATCH_SIZE);
 
         final Timer timer = new Timer(true);
-        printProgress(noOfBatchesProcessed, batches.size(), timer);
+        printProgress(noOfBatchesProcessed, snapshotState.whoisObjectData().size(), timer);
 
         try {
             batches.parallelStream().map(objectBatch -> {
@@ -229,7 +228,7 @@ public class SnapshotFileGenerator {
             @Override
             public void run() {
                 final int done = noOfBatchesProcessed.get();
-                LOGGER.info("Processed {} Batches out of {} ({}%).", done, total, (done * 100/ total));
+                LOGGER.info("Processed {} objects out of {} ({}%).", (done * BATCH_SIZE), total, (done * 100/ total));
             }
         }, 0, 10000);
     }
