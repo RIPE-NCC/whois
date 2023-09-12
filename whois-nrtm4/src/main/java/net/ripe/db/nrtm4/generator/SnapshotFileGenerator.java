@@ -94,6 +94,7 @@ public class SnapshotFileGenerator {
 
         saveToDatabase(sourceToNewVersion, sourceToOutputBytes);
         LOGGER.info("Snapshot generation complete {}", stopwatch);
+
         cleanUpOldFiles();
     }
 
@@ -228,7 +229,7 @@ public class SnapshotFileGenerator {
             @Override
             public void run() {
                 final int done = noOfBatchesProcessed.get();
-                LOGGER.info("Processed {} Batches objects out of {} ({}%).", done, total, (done * 100/ total));
+                LOGGER.info("Processed {} Batches out of {} ({}%).", done, total, (done * 100/ total));
             }
         }, 0, 10000);
     }
