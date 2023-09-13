@@ -113,7 +113,7 @@ public class SnapshotFileGenerator {
                 whoisObjectRepository.findRpslMapForObjects(objectBatch).values().forEach( object -> {
                     try {
                         final RpslObject rpslObject = RpslObject.parse(object);
-                        if (dummifierNrtmV4.isAllowed(rpslObject)) {
+                           if (dummifierNrtmV4.isAllowed(rpslObject)) {
                             rpslObjects.add(dummifierNrtmV4.dummify(rpslObject));
                         }
                     } catch (final Exception e) {

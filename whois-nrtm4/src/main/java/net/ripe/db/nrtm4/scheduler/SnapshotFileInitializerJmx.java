@@ -27,15 +27,14 @@ import java.util.concurrent.Callable;
 @ManagedResource(objectName = JmxBase.OBJECT_NAME_BASE + "InitializeSnapshotFileNrtmv4", description = "Initialize snapshot file")
 public class SnapshotFileInitializerJmx extends JmxBase {
     private static final Logger LOGGER = LoggerFactory.getLogger(SnapshotFileInitializerJmx.class);
-    @Autowired
-    private LockableTaskScheduler taskScheduler;
-    @Autowired
+
+    private TaskScheduler taskScheduler;
     private final SnapshotFileGenerator snapshotFileGenerator;
-    @Autowired
     private final NrtmFileRepository nrtmFileRepository;
 
+
     @Autowired
-    public SnapshotFileInitializerJmx(final LockableTaskScheduler taskScheduler, final NrtmFileRepository nrtmFileRepository, final SnapshotFileGenerator snapshotFileGenerator) {
+    public SnapshotFileInitializerJmx(final TaskScheduler taskScheduler, final NrtmFileRepository nrtmFileRepository, final SnapshotFileGenerator snapshotFileGenerator) {
         super(LOGGER);
         this.snapshotFileGenerator  = snapshotFileGenerator;
         this.taskScheduler = taskScheduler;
@@ -50,9 +49,10 @@ public class SnapshotFileInitializerJmx extends JmxBase {
         return invokeOperation("Initialize snapshot file", comment, () -> {
             try {
                 taskScheduler.schedule(() -> scheduledTask(), Instant.now());
+
                 return "Initializing snapshot started";
             } catch (RuntimeException e) {
-                LOGGER.error("Unable to initalize snapshot file for nrmv4 ", e);
+                LOGGER.error("Unable to initialize snapshot file for nrmv4 ", e);
                 return String.format("Unable to recover: %s", e.getMessage());
             }
         });
