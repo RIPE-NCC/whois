@@ -163,6 +163,18 @@ public class NrtmFileRepository {
         deleteVersionInfos(versionIds);
     }
 
+    @Transactional
+    public void cleanupNrtmv4Database() {
+        LOGGER.warn("Cleaning up NRTMv4 Database");
+
+        jdbcTemplate.update("delete from snapshot_file");
+        jdbcTemplate.update("delete from delta_file");
+        jdbcTemplate.update("delete from notification_file");
+        jdbcTemplate.update("delete from version_info");
+        jdbcTemplate.update("delete from key_pair");
+        jdbcTemplate.update("delete from source");
+    }
+
     private void deleteVersionInfos(final List<Long> versionIds) {
         final int rows = namedParameterJdbcTemplate.update("DELETE FROM version_info WHERE id IN (:versionIds)", Map.of("versionIds", versionIds));
         if (rows != versionIds.size()) {

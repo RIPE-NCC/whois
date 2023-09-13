@@ -1,6 +1,7 @@
 package net.ripe.db.nrtm4.scheduler;
 
 import net.javacrumbs.shedlock.spring.annotation.SchedulerLock;
+import net.ripe.db.nrtm4.NrtmConstants;
 import net.ripe.db.nrtm4.Nrtmv4Condition;
 import net.ripe.db.nrtm4.generator.SnapshotFileGenerator;
 import net.ripe.db.whois.common.scheduler.DailyScheduledTask;
@@ -23,7 +24,7 @@ public class SnapshotFileScheduledTask implements DailyScheduledTask {
 
     @Override
     @Scheduled(cron = "0 0 0 * * *")
-    @SchedulerLock(name = "NrtmSnapshotFileGenerationTask")
+    @SchedulerLock(name = NrtmConstants.SNAPSHOT_FILE_TASK_NAME)
     public void run() {
         try {
             snapshotFileGenerator.createSnapshot();
