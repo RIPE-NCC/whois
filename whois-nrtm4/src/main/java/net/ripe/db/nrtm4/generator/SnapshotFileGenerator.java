@@ -130,7 +130,7 @@ public class SnapshotFileGenerator {
             });
 
         } catch (final Exception e) {
-            LOGGER.warn("Error while writing snapshotfile", e);
+            LOGGER.error("Error while writing snapshotfile", e);
             throw new RuntimeException(e);
         } finally {
             timer.cancel();
