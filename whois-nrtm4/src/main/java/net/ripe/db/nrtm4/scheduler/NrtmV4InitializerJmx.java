@@ -1,10 +1,12 @@
 package net.ripe.db.nrtm4.scheduler;
 
+import net.ripe.db.nrtm4.Nrtmv4Condition;
 import net.ripe.db.nrtm4.dao.NrtmFileRepository;
 import net.ripe.db.whois.common.jmx.JmxBase;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Conditional;
 import org.springframework.jmx.export.annotation.ManagedOperation;
 import org.springframework.jmx.export.annotation.ManagedOperationParameter;
 import org.springframework.jmx.export.annotation.ManagedOperationParameters;
@@ -16,6 +18,7 @@ import org.springframework.stereotype.Component;
 import java.time.Instant;
 
 @Component
+@Conditional(Nrtmv4Condition.class)
 @ManagedResource(objectName = "net.ripe.db.nrtm4:name=NrtmV4Initializer", description = "Initialize snapshot file")
 public class NrtmV4InitializerJmx extends JmxBase {
     private static final Logger LOGGER = LoggerFactory.getLogger(NrtmV4InitializerJmx.class);
