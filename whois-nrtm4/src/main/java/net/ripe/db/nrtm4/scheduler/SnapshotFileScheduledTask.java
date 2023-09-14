@@ -24,7 +24,7 @@ public class SnapshotFileScheduledTask implements DailyScheduledTask {
 
     @Override
     @Scheduled(cron = "0 0 0 * * *")
-    @SchedulerLock(name = NrtmConstants.SNAPSHOT_FILE_TASK_NAME)
+    @SchedulerLock(name = "NrtmSnapshotFileGenerationTask")
     public void run() {
         try {
             snapshotFileGenerator.createSnapshot();
