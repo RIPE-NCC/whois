@@ -1,13 +1,9 @@
 package net.ripe.db.nrtm4.scheduler;
 
-import net.javacrumbs.shedlock.spring.LockableTaskScheduler;
 import net.javacrumbs.shedlock.spring.annotation.SchedulerLock;
 import net.ripe.db.nrtm4.NrtmConstants;
 import net.ripe.db.nrtm4.dao.NrtmFileRepository;
 import net.ripe.db.nrtm4.generator.SnapshotFileGenerator;
-import net.ripe.db.whois.common.dao.RpslObjectUpdateDao;
-import net.ripe.db.whois.common.dao.RpslObjectUpdateInfo;
-import net.ripe.db.whois.common.dao.jdbc.IndexDao;
 import net.ripe.db.whois.common.jmx.JmxBase;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -20,11 +16,9 @@ import org.springframework.scheduling.TaskScheduler;
 import org.springframework.stereotype.Component;
 
 import java.time.Instant;
-import java.util.Date;
-import java.util.concurrent.Callable;
 
 @Component
-@ManagedResource(objectName = JmxBase.OBJECT_NAME_BASE + "InitializeSnapshotFileNrtmv4", description = "Initialize snapshot file")
+@ManagedResource(objectName = "net.ripe.db.nrtm4:name=SnapshotFileInitializer", description = "Initialize snapshot file")
 public class SnapshotFileInitializerJmx extends JmxBase {
     private static final Logger LOGGER = LoggerFactory.getLogger(SnapshotFileInitializerJmx.class);
 
