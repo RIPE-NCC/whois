@@ -16,7 +16,7 @@ import org.springframework.stereotype.Component;
 import java.time.Instant;
 
 @Component
-@ManagedResource(objectName = "net.ripe.db.nrtm4:name=SnapshotFileInitializer", description = "Initialize snapshot file")
+@ManagedResource(objectName = "net.ripe.db.nrtm4:name=NrtmV4Initializer", description = "Initialize snapshot file")
 public class NrtmV4InitializerJmx extends JmxBase {
     private static final Logger LOGGER = LoggerFactory.getLogger(NrtmV4InitializerJmx.class);
     private final ScheduledMethodRunnable snapshotGenerationTask;
@@ -37,10 +37,15 @@ public class NrtmV4InitializerJmx extends JmxBase {
     })
     public String runInitializerTask(final String comment) {
         return invokeOperation("Initialize snapshot file", comment, () -> {
-                nrtmFileRepository.cleanupNrtmv4Database();
+               try {
+                   nrtmFileRepository.cleanupNrtmv4Database();
+               } catch (Exception ex) {
+                   LOGGER.error("Error while cleaning NRTM database through jmx due to {}", ex.getMessage());
+                   return "unable to clean NRTM database, check whois logs for further info ";
+               }
 
                 taskScheduler.schedule(snapshotGenerationTask, Instant.now());
-                return "Initializing snapshot started";
+                return "Snapshot file generation task started in background";
             });
     }
 }
