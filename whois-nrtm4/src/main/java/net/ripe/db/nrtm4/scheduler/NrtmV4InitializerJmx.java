@@ -14,33 +14,32 @@ import org.springframework.scheduling.support.ScheduledMethodRunnable;
 import org.springframework.stereotype.Component;
 
 import java.time.Instant;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.ScheduledFuture;
 
 @Component
 @ManagedResource(objectName = "net.ripe.db.nrtm4:name=SnapshotFileInitializer", description = "Initialize snapshot file")
-public class SnapshotFileInitializerJmx extends JmxBase {
-    private static final Logger LOGGER = LoggerFactory.getLogger(SnapshotFileInitializerJmx.class);
-    public static final ScheduledMethodRunnable SNAPSHOT_GENERATION_METHOD = new ScheduledMethodRunnable(SnapshotFileScheduledTask.class, SnapshotFileScheduledTask.class.getDeclaredMethods()[0]);
-    private TaskScheduler taskScheduler;
+public class NrtmV4InitializerJmx extends JmxBase {
+    private static final Logger LOGGER = LoggerFactory.getLogger(NrtmV4InitializerJmx.class);
+    private final ScheduledMethodRunnable snapshotGenerationTask;
+    private final TaskScheduler taskScheduler;
     private final NrtmFileRepository nrtmFileRepository;
 
     @Autowired
-    public SnapshotFileInitializerJmx(final TaskScheduler taskScheduler, final NrtmFileRepository nrtmFileRepository) {
+    public NrtmV4InitializerJmx(final TaskScheduler taskScheduler, final SnapshotFileScheduledTask snapshotFileScheduledTask, final NrtmFileRepository nrtmFileRepository) {
         super(LOGGER);
         this.taskScheduler = taskScheduler;
         this.nrtmFileRepository = nrtmFileRepository;
+        this.snapshotGenerationTask = new ScheduledMethodRunnable(snapshotFileScheduledTask, SnapshotFileScheduledTask.class.getDeclaredMethods()[0]);
     }
 
     @ManagedOperation(description = "Initialize NRTMv4 Database and create initial snapshot file")
     @ManagedOperationParameters({
             @ManagedOperationParameter(name = "comment", description = "Comment for invoking the operation")
     })
-    public String initializeSnapshotFile(final String comment) {
+    public String runInitializerTask(final String comment) {
         return invokeOperation("Initialize snapshot file", comment, () -> {
                 nrtmFileRepository.cleanupNrtmv4Database();
 
-                taskScheduler.schedule(SNAPSHOT_GENERATION_METHOD, Instant.now());
+                taskScheduler.schedule(snapshotGenerationTask, Instant.now());
                 return "Initializing snapshot started";
             });
     }
