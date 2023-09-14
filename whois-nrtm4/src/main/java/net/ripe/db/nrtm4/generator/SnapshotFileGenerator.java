@@ -228,7 +228,7 @@ public class SnapshotFileGenerator {
             @Override
             public void run() {
                 final int done = noOfBatchesProcessed.get();
-                LOGGER.info("Processed {} objects out of {} ({}%).", (done * BATCH_SIZE), total, (done * 100/ total));
+                LOGGER.info("Processed {} objects out of {} ({}%).", (done * BATCH_SIZE), total, ((done * BATCH_SIZE) * 100/ total));
             }
         }, 0, 10000);
     }
