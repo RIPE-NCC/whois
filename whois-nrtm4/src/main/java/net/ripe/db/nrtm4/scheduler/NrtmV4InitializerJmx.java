@@ -2,6 +2,7 @@ package net.ripe.db.nrtm4.scheduler;
 
 import net.ripe.db.nrtm4.Nrtmv4Condition;
 import net.ripe.db.nrtm4.dao.NrtmFileRepository;
+import net.ripe.db.whois.common.DateTimeProvider;
 import net.ripe.db.whois.common.jmx.JmxBase;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -15,7 +16,7 @@ import org.springframework.scheduling.TaskScheduler;
 import org.springframework.scheduling.support.ScheduledMethodRunnable;
 import org.springframework.stereotype.Component;
 
-import java.time.Instant;
+import static net.ripe.db.whois.common.DateUtil.toDate;
 
 @Component
 @Conditional(Nrtmv4Condition.class)
@@ -26,11 +27,15 @@ public class NrtmV4InitializerJmx extends JmxBase {
     private final TaskScheduler taskScheduler;
     private final NrtmFileRepository nrtmFileRepository;
 
+    private final DateTimeProvider dateTimeProvider;
+
+
     @Autowired
-    public NrtmV4InitializerJmx(final TaskScheduler taskScheduler, final SnapshotFileScheduledTask snapshotFileScheduledTask, final NrtmFileRepository nrtmFileRepository) {
+    public NrtmV4InitializerJmx(final DateTimeProvider dateTimeProvider, final TaskScheduler taskScheduler, final SnapshotFileScheduledTask snapshotFileScheduledTask, final NrtmFileRepository nrtmFileRepository) {
         super(LOGGER);
         this.taskScheduler = taskScheduler;
         this.nrtmFileRepository = nrtmFileRepository;
+        this.dateTimeProvider = dateTimeProvider;
         this.snapshotGenerationTask = new ScheduledMethodRunnable(snapshotFileScheduledTask, SnapshotFileScheduledTask.class.getDeclaredMethods()[0]);
     }
 
@@ -47,7 +52,7 @@ public class NrtmV4InitializerJmx extends JmxBase {
                    return "unable to clean NRTM database, check whois logs for further info ";
                }
 
-                taskScheduler.schedule(snapshotGenerationTask, Instant.now());
+                taskScheduler.schedule(snapshotGenerationTask, toDate(dateTimeProvider.getCurrentDateTime()));
                 return "Snapshot file generation task started in background";
             });
     }
