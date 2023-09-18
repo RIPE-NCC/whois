@@ -17,6 +17,7 @@ import org.springframework.scheduling.TaskScheduler;
 import org.springframework.scheduling.support.ScheduledMethodRunnable;
 
 import java.time.LocalDateTime;
+import java.time.ZoneOffset;
 
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.times;
@@ -40,11 +41,11 @@ public class NrtmV4InitializerJmxTest {
 
     @Test
     public void shouldInitializeNrtmv4()  {
-        when(dateTimeProvider.getCurrentDateTime()).thenReturn(LOCAL_DATE_TIME);
+        when(dateTimeProvider.getCurrentZonedDateTime()).thenReturn(LOCAL_DATE_TIME.atZone(ZoneOffset.UTC));
         subject.runInitializerTask("test");
 
         verify(nrtmFileRepository, times(1)).cleanupNrtmv4Database();
-        verify(taskScheduler, times(1)).schedule(scheduleTaskCaptor.capture(), eq(toDate(LOCAL_DATE_TIME)));
+        verify(taskScheduler, times(1)).schedule(scheduleTaskCaptor.capture(), eq(LOCAL_DATE_TIME.atZone(ZoneOffset.UTC).toInstant()));
         assertThat(scheduleTaskCaptor.getValue().getTarget().getClass(), is(SnapshotFileScheduledTask.class));
     }
 }

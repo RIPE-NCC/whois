@@ -16,6 +16,8 @@ import org.springframework.scheduling.TaskScheduler;
 import org.springframework.scheduling.support.ScheduledMethodRunnable;
 import org.springframework.stereotype.Component;
 
+import java.time.ZoneOffset;
+
 import static net.ripe.db.whois.common.DateUtil.toDate;
 
 @Component
@@ -52,7 +54,7 @@ public class NrtmV4InitializerJmx extends JmxBase {
                    return "unable to clean NRTM database, check whois logs for further info ";
                }
 
-                taskScheduler.schedule(snapshotGenerationTask, toDate(dateTimeProvider.getCurrentDateTime()));
+                taskScheduler.schedule(snapshotGenerationTask, dateTimeProvider.getCurrentZonedDateTime().toInstant());
                 return "Snapshot file generation task started in background";
             });
     }
