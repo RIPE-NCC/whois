@@ -51,7 +51,7 @@ public class NrtmFileRepository {
 
        final NrtmVersionInfo newVersion = saveNewDeltaVersion(version, serialIDTo);
        final DeltaFile deltaFile = getDeltaFile(newVersion, deltas);
-
+       LOGGER.info("New version who should disappear by rollback " + newVersion);
        saveDeltaFile(deltaFile.versionId(), deltaFile.name(), deltaFile.hash(), deltaFile.payload());
        LOGGER.info("Created {} delta version {}", newVersion.source().getName(), newVersion.version());
     }
@@ -61,7 +61,7 @@ public class NrtmFileRepository {
 
         final NrtmVersionInfo newVersion = saveNewSnapshotVersion(version);
         final SnapshotFile snapshotFile = SnapshotFile.of(newVersion.id(), fileName, hash);
-
+        LOGGER.info("New version who should disappear by rollback " + newVersion);
         saveSnapshot(snapshotFile, payload);
         LOGGER.info("Created {} snapshot version {}", version.source().getName(), version.version());
     }
@@ -123,6 +123,7 @@ public class NrtmFileRepository {
             VALUES (?, ?, ?, ?)
             """;
         jdbcTemplate.update(sql, versionId, name, hash, payload);
+        throw new IllegalArgumentException("Test transactional");
     }
 
     public void saveSnapshot(final SnapshotFile snapshotFile, final byte[] payload) {
@@ -135,6 +136,7 @@ public class NrtmFileRepository {
                 snapshotFile.name(),
                 snapshotFile.hash(),
                 payload);
+        throw new IllegalArgumentException("Test transactional");
     }
 
     @Transactional
