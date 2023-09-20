@@ -85,6 +85,7 @@ public class UpdateNotificationFileGenerator {
           final String json = getPayload(snapshotFile.get(), deltaFiles, fileVersion, createdTimestamp);
 
            try {
+               nrtmSourceContext.setCurrentSourceToWhoisMaster();
                saveNotificationFile(createdTimestamp, notificationFile, fileVersion, json);
            } finally {
                nrtmSourceContext.setCurrentSourceToWhoisSlave();

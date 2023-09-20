@@ -46,7 +46,7 @@ public class NrtmFileRepository {
         this.namedParameterJdbcTemplate = new NamedParameterJdbcTemplate(jdbcTemplate);
     }
 
-    @Transactional
+    @Transactional("nrtmTransactionManager")
     public void saveDeltaVersion(final NrtmVersionInfo version, final int serialIDTo, final List<DeltaFileRecord> deltas) throws JsonProcessingException {
         if (deltas.isEmpty()) {
             LOGGER.info("No delta changes found for source {}", version.source().getName());
@@ -62,7 +62,7 @@ public class NrtmFileRepository {
         LOGGER.info("Created {} delta version {}", newVersion.source().getName(), newVersion.version());
     }
 
-    @Transactional
+    @Transactional("nrtmTransactionManager")
     public void saveSnapshotVersion(final NrtmVersionInfo version, final String fileName, final String hash, final byte[] payload)  {
         final NrtmVersionInfo newVersion = saveNewSnapshotVersion(version);
         LOGGER.info("snap is transaction active? {}", TransactionSynchronizationManager.isActualTransactionActive());
