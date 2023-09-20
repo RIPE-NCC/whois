@@ -12,6 +12,7 @@ import net.ripe.db.nrtm4.domain.NrtmSource;
 import net.ripe.db.nrtm4.domain.NrtmVersionInfo;
 import net.ripe.db.nrtm4.domain.UpdateNotificationFile;
 import net.ripe.db.nrtm4.domain.SnapshotFileVersionInfo;
+import net.ripe.db.nrtm4.source.NrtmSourceContext;
 import net.ripe.db.whois.common.DateTimeProvider;
 import net.ripe.db.whois.common.dao.VersionDateTime;
 import org.slf4j.Logger;
@@ -38,6 +39,8 @@ public class UpdateNotificationFileGenerator {
     private final SnapshotFileDao snapshotFileDao;
     private final NrtmSourceDao nrtmSourceDao;
 
+    private final NrtmSourceContext nrtmSourceContext;
+
     public UpdateNotificationFileGenerator(
         @Value("${nrtm.baseUrl}") final String baseUrl,
         final DateTimeProvider dateTimeProvider,
@@ -45,7 +48,8 @@ public class UpdateNotificationFileGenerator {
         final UpdateNotificationFileDao updateNotificationFileDao,
         final NrtmVersionInfoDao nrtmVersionInfoDao,
         final NrtmSourceDao nrtmSourceDao,
-        final SnapshotFileDao snapshotFileDao
+        final SnapshotFileDao snapshotFileDao,
+        final NrtmSourceContext nrtmSourceContext
     ) {
         this.baseUrl = baseUrl;
         this.dateTimeProvider = dateTimeProvider;
@@ -54,6 +58,7 @@ public class UpdateNotificationFileGenerator {
         this.nrtmVersionInfoDao = nrtmVersionInfoDao;
         this.snapshotFileDao = snapshotFileDao;
         this.nrtmSourceDao = nrtmSourceDao;
+        this.nrtmSourceContext = nrtmSourceContext;
     }
 
     public void generateFile() {
@@ -79,7 +84,11 @@ public class UpdateNotificationFileGenerator {
           final NrtmVersionInfo fileVersion = getVersion(deltaFiles, snapshotFile.get());
           final String json = getPayload(snapshotFile.get(), deltaFiles, fileVersion, createdTimestamp);
 
-          saveNotificationFile(createdTimestamp, notificationFile, fileVersion, json);
+           try {
+               saveNotificationFile(createdTimestamp, notificationFile, fileVersion, json);
+           } finally {
+               nrtmSourceContext.setCurrentSourceToWhoisSlave();
+           }
        }
     }
 

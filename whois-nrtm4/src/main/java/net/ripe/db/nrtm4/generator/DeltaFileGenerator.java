@@ -8,6 +8,7 @@ import net.ripe.db.nrtm4.dao.WhoisObjectRepository;
 import net.ripe.db.nrtm4.domain.DeltaFileRecord;
 import net.ripe.db.nrtm4.domain.NrtmDocumentType;
 import net.ripe.db.nrtm4.domain.NrtmVersionInfo;
+import net.ripe.db.nrtm4.source.NrtmSourceContext;
 import net.ripe.db.whois.common.DateTimeProvider;
 import net.ripe.db.whois.common.domain.CIString;
 import net.ripe.db.whois.common.domain.serials.Operation;
@@ -37,6 +38,7 @@ public class DeltaFileGenerator {
     private final WhoisObjectRepository whoisObjectRepository;
     private final WhoisObjectDao whoisObjectDao;
 
+    private final NrtmSourceContext nrtmSourceContext;
 
     DeltaFileGenerator(
             final NrtmFileRepository nrtmFileRepository,
@@ -44,7 +46,8 @@ public class DeltaFileGenerator {
             final NrtmVersionInfoDao nrtmVersionInfoDao,
             final WhoisObjectDao whoisObjectDao,
             final DateTimeProvider dateTimeProvider,
-            final WhoisObjectRepository whoisObjectRepository
+            final WhoisObjectRepository whoisObjectRepository,
+            final NrtmSourceContext nrtmSourceContext
     ) {
         this.nrtmFileRepository = nrtmFileRepository;
         this.dummifierNrtmV4 = dummifierNrtmV4;
@@ -52,6 +55,7 @@ public class DeltaFileGenerator {
         this.whoisObjectRepository = whoisObjectRepository;
         this.whoisObjectDao = whoisObjectDao;
         this.dateTimeProvider = dateTimeProvider;
+        this.nrtmSourceContext = nrtmSourceContext;
     }
 
     public void createDeltas() {
@@ -77,17 +81,23 @@ public class DeltaFileGenerator {
             deltaMap.get(source).add(getDeltaChange(serialEntry));
         }
 
-        for (final NrtmVersionInfo version : sourceVersions) {
-            try {
-                nrtmFileRepository.saveDeltaVersion(version, serialIDTo, deltaMap.get(version.source().getName()));
-            } catch (final JsonProcessingException e) {
-                LOGGER.error("Exception saving delta for {}", version.source().getName(), e);
+        try {
+            nrtmSourceContext.setCurrentSourceToWhoisMaster();
+
+            for (final NrtmVersionInfo version : sourceVersions) {
+                try {
+                    nrtmFileRepository.saveDeltaVersion(version, serialIDTo, deltaMap.get(version.source().getName()));
+                } catch (final JsonProcessingException e) {
+                    LOGGER.error("Exception saving delta for {}", version.source().getName(), e);
+                }
             }
+
+            LOGGER.info("Delta file generation completed");
+
+            cleanUpOldFiles();
+        } finally {
+            nrtmSourceContext.setCurrentSourceToWhoisSlave();
         }
-
-        LOGGER.info("Delta file generation completed");
-
-        cleanUpOldFiles();
     }
 
     private DeltaFileRecord getDeltaChange(final SerialEntry serialEntry) {

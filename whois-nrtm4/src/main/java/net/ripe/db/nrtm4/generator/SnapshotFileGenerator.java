@@ -16,6 +16,7 @@ import net.ripe.db.nrtm4.domain.NrtmVersionRecord;
 import net.ripe.db.nrtm4.domain.SnapshotFileRecord;
 import net.ripe.db.nrtm4.domain.SnapshotState;
 import net.ripe.db.nrtm4.domain.WhoisObjectData;
+import net.ripe.db.nrtm4.source.NrtmSourceContext;
 import net.ripe.db.nrtm4.util.Ed25519Util;
 import net.ripe.db.nrtm4.util.NrtmFileUtil;
 import net.ripe.db.whois.common.DateTimeProvider;
@@ -57,6 +58,8 @@ public class SnapshotFileGenerator {
     private final DateTimeProvider dateTimeProvider;
     private final NrtmKeyConfigDao nrtmKeyConfigDao;
 
+    private final NrtmSourceContext nrtmSourceContext;
+
     public SnapshotFileGenerator(
         final DummifierNrtmV4 dummifierNrtmV4,
         final NrtmVersionInfoDao nrtmVersionInfoDao,
@@ -64,7 +67,8 @@ public class SnapshotFileGenerator {
         final NrtmFileRepository nrtmFileRepository,
         final DateTimeProvider dateTimeProvider,
         final NrtmKeyConfigDao nrtmKeyConfigDao,
-        final NrtmSourceDao nrtmSourceDao
+        final NrtmSourceDao nrtmSourceDao,
+        final NrtmSourceContext nrtmSourceContext
     ) {
         this.dummifierNrtmV4 = dummifierNrtmV4;
         this.nrtmVersionInfoDao = nrtmVersionInfoDao;
@@ -73,6 +77,7 @@ public class SnapshotFileGenerator {
         this.nrtmFileRepository = nrtmFileRepository;
         this.dateTimeProvider = dateTimeProvider;
         this.nrtmKeyConfigDao = nrtmKeyConfigDao;
+        this.nrtmSourceContext = nrtmSourceContext;
     }
 
     public void createSnapshot()  {
@@ -91,10 +96,16 @@ public class SnapshotFileGenerator {
 
         final Map<CIString, byte[]> sourceToOutputBytes = writeToGzipStream(snapshotState, sourceToNewVersion);
 
-        saveToDatabase(sourceToNewVersion, sourceToOutputBytes);
-        LOGGER.info("Snapshot generation complete {}", stopwatch);
+        try {
+            nrtmSourceContext.setCurrentSourceToWhoisMaster();
 
-        cleanUpOldFiles();
+            saveToDatabase(sourceToNewVersion, sourceToOutputBytes);
+            LOGGER.info("Snapshot generation complete {}", stopwatch);
+
+            cleanUpOldFiles();
+        } finally {
+            nrtmSourceContext.setCurrentSourceToWhoisSlave();
+        }
     }
 
     private Map<CIString, byte[]> writeToGzipStream(final SnapshotState snapshotState, final List<NrtmVersionInfo> sourceToNewVersion) {
@@ -207,9 +218,9 @@ public class SnapshotFileGenerator {
     }
 
     private void saveToDatabase(final List<NrtmVersionInfo> sourceToNewVersion,  final Map<CIString, byte[]> payloadBySource) {
-        payloadBySource.forEach( (source, payload ) -> {
-            final Optional<NrtmVersionInfo> versionInfo = sourceToNewVersion.stream().filter( (version) -> version.source().getName().equals(source)).findAny();
-            if(versionInfo.isPresent()) {
+        payloadBySource.forEach((source, payload) -> {
+            final Optional<NrtmVersionInfo> versionInfo = sourceToNewVersion.stream().filter((version) -> version.source().getName().equals(source)).findAny();
+            if (versionInfo.isPresent()) {
                 try {
                     final String fileName = NrtmFileUtil.newGzFileName(versionInfo.get());
                     LOGGER.info("Source {} snapshot file {}", source, fileName);

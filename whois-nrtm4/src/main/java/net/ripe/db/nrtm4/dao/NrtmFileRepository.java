@@ -8,6 +8,7 @@ import net.ripe.db.nrtm4.domain.NrtmSource;
 import net.ripe.db.nrtm4.domain.NrtmVersionInfo;
 import net.ripe.db.nrtm4.domain.NrtmVersionRecord;
 import net.ripe.db.nrtm4.domain.SnapshotFile;
+import net.ripe.db.nrtm4.source.NrtmSourceContext;
 import net.ripe.db.nrtm4.util.NrtmFileUtil;
 import net.ripe.db.whois.common.DateTimeProvider;
 import net.ripe.db.whois.common.dao.jdbc.JdbcRpslObjectOperations;
@@ -37,7 +38,9 @@ public class NrtmFileRepository {
     private final DateTimeProvider dateTimeProvider;
     private final NamedParameterJdbcTemplate namedParameterJdbcTemplate;
 
-    public NrtmFileRepository(@Qualifier("nrtmSourceAwareDataSource") final DataSource dataSource, final DateTimeProvider dateTimeProvider) {
+
+    public NrtmFileRepository(@Qualifier("nrtmSourceAwareDataSource") final DataSource dataSource,
+                              final DateTimeProvider dateTimeProvider) {
         this.jdbcTemplate = new JdbcTemplate(dataSource);
         this.dateTimeProvider = dateTimeProvider;
         this.namedParameterJdbcTemplate = new NamedParameterJdbcTemplate(jdbcTemplate);
@@ -45,18 +48,18 @@ public class NrtmFileRepository {
 
     @Transactional
     public void saveDeltaVersion(final NrtmVersionInfo version, final int serialIDTo, final List<DeltaFileRecord> deltas) throws JsonProcessingException {
-        if(deltas.isEmpty()) {
-           LOGGER.info("No delta changes found for source {}", version.source().getName());
-           return;
-       }
+        if (deltas.isEmpty()) {
+            LOGGER.info("No delta changes found for source {}", version.source().getName());
+            return;
+        }
         LOGGER.info("Delta is transaction active? {}", TransactionSynchronizationManager.isActualTransactionActive());
         LOGGER.info("Delta current isolation level = {}", TransactionSynchronizationManager.getCurrentTransactionIsolationLevel());
         LOGGER.info("Delta current transaction name = {}", TransactionSynchronizationManager.getCurrentTransactionName());
-       final NrtmVersionInfo newVersion = saveNewDeltaVersion(version, serialIDTo);
-       final DeltaFile deltaFile = getDeltaFile(newVersion, deltas);
-       LOGGER.info("New version who should disappear by rollback " + newVersion);
-       saveDeltaFile(deltaFile.versionId(), deltaFile.name(), deltaFile.hash(), deltaFile.payload());
-       LOGGER.info("Created {} delta version {}", newVersion.source().getName(), newVersion.version());
+        final NrtmVersionInfo newVersion = saveNewDeltaVersion(version, serialIDTo);
+        final DeltaFile deltaFile = getDeltaFile(newVersion, deltas);
+        LOGGER.info("New version who should disappear by rollback " + newVersion);
+        saveDeltaFile(deltaFile.versionId(), deltaFile.name(), deltaFile.hash(), deltaFile.payload());
+        LOGGER.info("Created {} delta version {}", newVersion.source().getName(), newVersion.version());
     }
 
     @Transactional
