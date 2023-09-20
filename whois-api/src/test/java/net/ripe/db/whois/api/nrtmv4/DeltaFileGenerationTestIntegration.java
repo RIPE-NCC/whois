@@ -4,7 +4,6 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.google.common.collect.Lists;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
-import net.ripe.db.nrtm4.dao.SnapshotFileSourceAwareDao;
 import net.ripe.db.nrtm4.domain.DeltaFileRecord;
 import net.ripe.db.nrtm4.domain.NrtmVersionInfo;
 import net.ripe.db.nrtm4.domain.UpdateNotificationFile;
@@ -36,8 +35,6 @@ public class DeltaFileGenerationTestIntegration extends AbstractNrtmIntegrationT
     @Autowired
     DummifierNrtmV4 dummifierNrtmV4;
 
-    @Autowired
-    SnapshotFileSourceAwareDao snapshotFileSourceAwareDao;
 
     @Test
     public void should_get_delta_file() throws JSONException, JsonProcessingException {

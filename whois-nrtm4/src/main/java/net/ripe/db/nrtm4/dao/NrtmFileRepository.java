@@ -19,7 +19,6 @@ import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.stereotype.Repository;
-import org.springframework.transaction.annotation.EnableTransactionManagement;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.transaction.support.TransactionSynchronizationManager;
 
@@ -50,6 +49,9 @@ public class NrtmFileRepository {
            LOGGER.info("No delta changes found for source {}", version.source().getName());
            return;
        }
+        LOGGER.info("Delta is transaction active? {}", TransactionSynchronizationManager.isActualTransactionActive());
+        LOGGER.info("Delta current isolation level = {}", TransactionSynchronizationManager.getCurrentTransactionIsolationLevel());
+        LOGGER.info("Delta current transaction name = {}", TransactionSynchronizationManager.getCurrentTransactionName());
        final NrtmVersionInfo newVersion = saveNewDeltaVersion(version, serialIDTo);
        final DeltaFile deltaFile = getDeltaFile(newVersion, deltas);
        LOGGER.info("New version who should disappear by rollback " + newVersion);
@@ -60,6 +62,9 @@ public class NrtmFileRepository {
     @Transactional
     public void saveSnapshotVersion(final NrtmVersionInfo version, final String fileName, final String hash, final byte[] payload)  {
         final NrtmVersionInfo newVersion = saveNewSnapshotVersion(version);
+        LOGGER.info("snap is transaction active? {}", TransactionSynchronizationManager.isActualTransactionActive());
+        LOGGER.info("snap current isolation level = {}", TransactionSynchronizationManager.getCurrentTransactionIsolationLevel());
+        LOGGER.info("snap current transaction name = {}", TransactionSynchronizationManager.getCurrentTransactionName());
         final SnapshotFile snapshotFile = SnapshotFile.of(newVersion.id(), fileName, hash);
         saveSnapshot(snapshotFile, payload);
         LOGGER.info("Created {} snapshot version {}", version.source().getName(), version.version());
