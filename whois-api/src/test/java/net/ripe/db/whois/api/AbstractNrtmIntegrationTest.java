@@ -6,6 +6,7 @@ import com.google.common.collect.Lists;
 import jakarta.ws.rs.client.WebTarget;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
+import net.ripe.db.nrtm4.dao.NrtmVersionInfoDao;
 import net.ripe.db.nrtm4.generator.DeltaFileGenerator;
 import net.ripe.db.nrtm4.generator.SnapshotFileGenerator;
 import net.ripe.db.nrtm4.generator.UpdateNotificationFileGenerator;
@@ -47,6 +48,8 @@ public abstract class AbstractNrtmIntegrationTest extends AbstractIntegrationTes
     @Autowired
     protected DeltaFileGenerator deltaFileGenerator;
 
+    @Autowired
+    protected NrtmVersionInfoDao nrtmVersionInfoDao;
 
     @BeforeEach
     public void setup() {

@@ -19,7 +19,9 @@ import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.stereotype.Repository;
+import org.springframework.transaction.annotation.EnableTransactionManagement;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.transaction.support.TransactionSynchronizationManager;
 
 import javax.sql.DataSource;
 import java.nio.charset.StandardCharsets;
@@ -29,6 +31,7 @@ import java.util.List;
 import java.util.Map;
 
 @Repository
+@Transactional
 public class NrtmFileRepository {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(NrtmFileRepository.class);
@@ -42,13 +45,12 @@ public class NrtmFileRepository {
         this.namedParameterJdbcTemplate = new NamedParameterJdbcTemplate(jdbcTemplate);
     }
 
-    @Transactional
+
     public void saveDeltaVersion(final NrtmVersionInfo version, final int serialIDTo, final List<DeltaFileRecord> deltas) throws JsonProcessingException {
-       if(deltas.isEmpty()) {
+        if(deltas.isEmpty()) {
            LOGGER.info("No delta changes found for source {}", version.source().getName());
            return;
        }
-
        final NrtmVersionInfo newVersion = saveNewDeltaVersion(version, serialIDTo);
        final DeltaFile deltaFile = getDeltaFile(newVersion, deltas);
        LOGGER.info("New version who should disappear by rollback " + newVersion);
@@ -56,12 +58,10 @@ public class NrtmFileRepository {
        LOGGER.info("Created {} delta version {}", newVersion.source().getName(), newVersion.version());
     }
 
-    @Transactional
-    public void saveSnapshotVersion(final NrtmVersionInfo version, final String fileName, final String hash, final byte[] payload)  {
 
+    public void saveSnapshotVersion(final NrtmVersionInfo version, final String fileName, final String hash, final byte[] payload)  {
         final NrtmVersionInfo newVersion = saveNewSnapshotVersion(version);
         final SnapshotFile snapshotFile = SnapshotFile.of(newVersion.id(), fileName, hash);
-        LOGGER.info("New version who should disappear by rollback " + newVersion);
         saveSnapshot(snapshotFile, payload);
         LOGGER.info("Created {} snapshot version {}", version.source().getName(), version.version());
     }
@@ -136,7 +136,6 @@ public class NrtmFileRepository {
                 snapshotFile.name(),
                 snapshotFile.hash(),
                 payload);
-        throw new IllegalArgumentException("Test transactional");
     }
 
     @Transactional

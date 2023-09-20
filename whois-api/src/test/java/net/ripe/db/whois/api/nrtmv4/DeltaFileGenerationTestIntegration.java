@@ -5,6 +5,7 @@ import com.google.common.collect.Lists;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 import net.ripe.db.nrtm4.domain.DeltaFileRecord;
+import net.ripe.db.nrtm4.domain.NrtmVersionInfo;
 import net.ripe.db.nrtm4.domain.UpdateNotificationFile;
 import net.ripe.db.nrtm4.domain.NrtmVersionRecord;
 import net.ripe.db.whois.api.AbstractNrtmIntegrationTest;
@@ -25,6 +26,7 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.not;
 import static org.hamcrest.Matchers.notNullValue;
+import static org.junit.Assert.assertThrows;
 
 
 @Tag("IntegrationTest")
@@ -158,6 +160,36 @@ public class DeltaFileGenerationTestIntegration extends AbstractNrtmIntegrationT
         assertNrtmFileInfo(nonAuthDelta[0], "delta", 2, "TEST-NONAUTH");
 
         assertThat(getNrtmVersionInfo(testDelta[0]).getSessionID(), is(not(getNrtmVersionInfo(nonAuthDelta[0]).getSessionID())));
+    }
+
+    @Test
+    public void deltas_should_rollback_in_case_of_error()  {
+        snapshotFileGenerator.createSnapshot();
+        updateNotificationFileGenerator.generateFile();
+
+        final RpslObject updatedObject = RpslObject.parse("" +
+                "inet6num:       ::/0\n" +
+                "netname:        IANA-BLK\n" +
+                "descr:          The whole IPv6 address space:Updated for test\n" +
+                "country:        NL\n" +
+                "tech-c:         TP1-TEST\n" +
+                "admin-c:        TP1-TEST\n" +
+                "status:         OTHER\n" +
+                "mnt-by:         OWNER-MNT\n" +
+                "created:         2022-08-14T11:48:28Z\n" +
+                "last-modified:   2022-10-25T12:22:39Z\n" +
+                "source:         TEST");
+        databaseHelper.updateObject(updatedObject);
+        databaseHelper.deleteObject(updatedObject);
+
+        NrtmVersionInfo nrtmVersionInfo = nrtmVersionInfoDao.findLastVersionPerSource().stream().filter(v -> v.source().getName().equals("TEST")).findFirst().get();
+
+        assertThrows(IllegalArgumentException.class, () -> deltaFileGenerator.createDeltas());
+
+        NrtmVersionInfo finalVersionInfo = nrtmVersionInfoDao.findLastVersionPerSource().stream().filter(v -> v.source().getName().equals("TEST")).findFirst().get();
+
+        assertThat(nrtmVersionInfo.type().lowerCaseName(), is(finalVersionInfo.type().lowerCaseName()));
+        assertThat(nrtmVersionInfo.version(), is(finalVersionInfo.version()));
     }
 
     @Test

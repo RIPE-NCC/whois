@@ -36,5 +36,5 @@
     <bean id="nrtmTransactionManager" class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
         <property name="dataSource" ref="nrtmDataSource"/>
     </bean>
-
+    <tx:annotation-driven transaction-manager="nrtmTransactionManager" />
 </beans>
