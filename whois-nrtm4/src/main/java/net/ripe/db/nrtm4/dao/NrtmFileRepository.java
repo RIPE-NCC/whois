@@ -31,7 +31,6 @@ import java.util.List;
 import java.util.Map;
 
 @Repository
-@Transactional
 public class NrtmFileRepository {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(NrtmFileRepository.class);
@@ -39,13 +38,13 @@ public class NrtmFileRepository {
     private final DateTimeProvider dateTimeProvider;
     private final NamedParameterJdbcTemplate namedParameterJdbcTemplate;
 
-    public NrtmFileRepository(@Qualifier("nrtmDataSource") final DataSource dataSource, final DateTimeProvider dateTimeProvider) {
+    public NrtmFileRepository(@Qualifier("nrtmSourceAwareDataSource") final DataSource dataSource, final DateTimeProvider dateTimeProvider) {
         this.jdbcTemplate = new JdbcTemplate(dataSource);
         this.dateTimeProvider = dateTimeProvider;
         this.namedParameterJdbcTemplate = new NamedParameterJdbcTemplate(jdbcTemplate);
     }
 
-
+    @Transactional
     public void saveDeltaVersion(final NrtmVersionInfo version, final int serialIDTo, final List<DeltaFileRecord> deltas) throws JsonProcessingException {
         if(deltas.isEmpty()) {
            LOGGER.info("No delta changes found for source {}", version.source().getName());
@@ -58,7 +57,7 @@ public class NrtmFileRepository {
        LOGGER.info("Created {} delta version {}", newVersion.source().getName(), newVersion.version());
     }
 
-
+    @Transactional
     public void saveSnapshotVersion(final NrtmVersionInfo version, final String fileName, final String hash, final byte[] payload)  {
         final NrtmVersionInfo newVersion = saveNewSnapshotVersion(version);
         final SnapshotFile snapshotFile = SnapshotFile.of(newVersion.id(), fileName, hash);

@@ -14,6 +14,8 @@
 
     <import resource="applicationContext-commons.xml"/>
 
+    <tx:annotation-driven mode="aspectj"/>
+
     <context:spring-configured/>
     <context:component-scan base-package="net.ripe.db.nrtm4"/>
 
@@ -33,7 +35,6 @@
     </bean>
 
     <bean id="nrtmTransactionManager" class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
-        <property name="dataSource" ref="nrtmDataSource"/>
+        <property name="dataSource" ref="nrtmSourceAwareDataSource"/>
     </bean>
-    <tx:annotation-driven transaction-manager="nrtmTransactionManager" mode="aspectj"/>
 </beans>
