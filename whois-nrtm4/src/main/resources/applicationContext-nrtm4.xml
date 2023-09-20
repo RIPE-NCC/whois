@@ -13,7 +13,6 @@
                            http://www.springframework.org/schema/cache/spring-cache.xsd">
 
     <import resource="applicationContext-commons.xml"/>
-    <tx:annotation-driven mode="aspectj"/>
 
     <context:spring-configured/>
     <context:component-scan base-package="net.ripe.db.nrtm4"/>
@@ -36,5 +35,5 @@
     <bean id="nrtmTransactionManager" class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
         <property name="dataSource" ref="nrtmDataSource"/>
     </bean>
-    <tx:annotation-driven transaction-manager="nrtmTransactionManager" />
+    <tx:annotation-driven transaction-manager="nrtmTransactionManager" mode="aspectj"/>
 </beans>

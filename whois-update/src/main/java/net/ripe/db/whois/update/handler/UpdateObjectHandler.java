@@ -12,10 +12,13 @@ import net.ripe.db.whois.update.domain.UpdateContext;
 import net.ripe.db.whois.update.domain.UpdateMessages;
 import net.ripe.db.whois.update.handler.validator.BusinessRuleValidator;
 import net.ripe.db.whois.update.sso.SsoTranslator;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.transaction.support.TransactionSynchronizationManager;
 
 import java.util.Collections;
 import java.util.Comparator;
@@ -24,6 +27,8 @@ import java.util.Map;
 
 @Component
 class UpdateObjectHandler {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(UpdateObjectHandler.class);
     private final RpslObjectUpdateDao rpslObjectUpdateDao;
     private final SsoTranslator ssoTranslator;
     private final Map<Action, Map<ObjectType, List<BusinessRuleValidator>>> validatorsByActionAndType;
@@ -64,6 +69,9 @@ class UpdateObjectHandler {
 
     @Transactional(propagation = Propagation.MANDATORY)
     public void execute(final PreparedUpdate update, final UpdateContext updateContext) {
+        LOGGER.info("[UpdateObjectHandler]is transaction active? {}", TransactionSynchronizationManager.isActualTransactionActive());
+        LOGGER.info("[UpdateObjectHandler]current isolation level = {}", TransactionSynchronizationManager.getCurrentTransactionIsolationLevel());
+        LOGGER.info("[UpdateObjectHandler]current transaction name = {}", TransactionSynchronizationManager.getCurrentTransactionName());
         if (!updateContext.hasErrors(update)) {
             final RpslObjectUpdateInfo updateInfo;
             final RpslObject updatedObject = ssoTranslator.translateFromCacheAuthToUuid(updateContext, update.getUpdatedObject());
