@@ -46,6 +46,8 @@ public abstract class AbstractNrtmIntegrationTest extends AbstractIntegrationTes
 
     @Autowired
     protected DeltaFileGenerator deltaFileGenerator;
+
+
     @BeforeEach
     public void setup() {
         databaseHelper.addObject("" +
