@@ -4,7 +4,7 @@ import com.google.common.base.Stopwatch;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import net.ripe.db.nrtm4.GzipOutStreamWriter;
-import net.ripe.db.nrtm4.dao.NrtmFileRepository;
+import net.ripe.db.nrtm4.dao.UpdateNrtmFileRepository;
 import net.ripe.db.nrtm4.dao.NrtmKeyConfigDao;
 import net.ripe.db.nrtm4.dao.NrtmVersionInfoDao;
 import net.ripe.db.nrtm4.dao.NrtmSourceDao;
@@ -54,30 +54,27 @@ public class SnapshotFileGenerator {
     private final DummifierNrtmV4 dummifierNrtmV4;
     private final NrtmVersionInfoDao nrtmVersionInfoDao;
     private final NrtmSourceDao nrtmSourceDao;
-    private final NrtmFileRepository nrtmFileRepository;
+    private final UpdateNrtmFileRepository updateNrtmFileRepository;
     private final DateTimeProvider dateTimeProvider;
     private final NrtmKeyConfigDao nrtmKeyConfigDao;
 
-    private final NrtmSourceContext nrtmSourceContext;
 
     public SnapshotFileGenerator(
         final DummifierNrtmV4 dummifierNrtmV4,
         final NrtmVersionInfoDao nrtmVersionInfoDao,
         final WhoisObjectRepository whoisObjectRepository,
-        final NrtmFileRepository nrtmFileRepository,
+        final UpdateNrtmFileRepository updateNrtmFileRepository,
         final DateTimeProvider dateTimeProvider,
         final NrtmKeyConfigDao nrtmKeyConfigDao,
-        final NrtmSourceDao nrtmSourceDao,
-        final NrtmSourceContext nrtmSourceContext
+        final NrtmSourceDao nrtmSourceDao
     ) {
         this.dummifierNrtmV4 = dummifierNrtmV4;
         this.nrtmVersionInfoDao = nrtmVersionInfoDao;
         this.nrtmSourceDao = nrtmSourceDao;
         this.whoisObjectRepository = whoisObjectRepository;
-        this.nrtmFileRepository = nrtmFileRepository;
+        this.updateNrtmFileRepository = updateNrtmFileRepository;
         this.dateTimeProvider = dateTimeProvider;
         this.nrtmKeyConfigDao = nrtmKeyConfigDao;
-        this.nrtmSourceContext = nrtmSourceContext;
     }
 
     public void createSnapshot()  {
@@ -96,16 +93,10 @@ public class SnapshotFileGenerator {
 
         final Map<CIString, byte[]> sourceToOutputBytes = writeToGzipStream(snapshotState, sourceToNewVersion);
 
-        try {
-            nrtmSourceContext.setCurrentSourceToWhoisMaster();
+        saveToDatabase(sourceToNewVersion, sourceToOutputBytes);
+        LOGGER.info("Snapshot generation complete {}", stopwatch);
 
-            saveToDatabase(sourceToNewVersion, sourceToOutputBytes);
-            LOGGER.info("Snapshot generation complete {}", stopwatch);
-
-            cleanUpOldFiles();
-        } finally {
-            nrtmSourceContext.setCurrentSourceToWhoisSlave();
-        }
+        cleanUpOldFiles();
     }
 
     private Map<CIString, byte[]> writeToGzipStream(final SnapshotState snapshotState, final List<NrtmVersionInfo> sourceToNewVersion) {
@@ -200,7 +191,7 @@ public class SnapshotFileGenerator {
 
         versionsBySource.forEach( (nrtmSource, versions) -> {
             if(versions.size() > 2) {
-                nrtmFileRepository.deleteSnapshotFiles(versions.subList(2, versions.size()).stream().map(NrtmVersionInfo::id).toList());
+                updateNrtmFileRepository.deleteSnapshotFiles(versions.subList(2, versions.size()).stream().map(NrtmVersionInfo::id).toList());
             }
         });
     }
@@ -225,7 +216,7 @@ public class SnapshotFileGenerator {
                     final String fileName = NrtmFileUtil.newGzFileName(versionInfo.get());
                     LOGGER.info("Source {} snapshot file {}", source, fileName);
                     LOGGER.info("Calculated hash for {}", source);
-                    nrtmFileRepository.saveSnapshotVersion(versionInfo.get(), fileName, calculateSha256(payload), payload);
+                    updateNrtmFileRepository.saveSnapshotVersion(versionInfo.get(), fileName, calculateSha256(payload), payload);
                     LOGGER.info("Wrote {} to DB {}", source);
                 } catch (final Throwable t) {
                     LOGGER.error("Unexpected throwable caught when inserting snapshot file", t);

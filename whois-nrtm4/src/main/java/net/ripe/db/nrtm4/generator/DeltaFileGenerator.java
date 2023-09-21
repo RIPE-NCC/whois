@@ -1,7 +1,7 @@
 package net.ripe.db.nrtm4.generator;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import net.ripe.db.nrtm4.dao.NrtmFileRepository;
+import net.ripe.db.nrtm4.dao.UpdateNrtmFileRepository;
 import net.ripe.db.nrtm4.dao.NrtmVersionInfoDao;
 import net.ripe.db.nrtm4.dao.WhoisObjectDao;
 import net.ripe.db.nrtm4.dao.WhoisObjectRepository;
@@ -31,31 +31,28 @@ public class DeltaFileGenerator {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(DeltaFileGenerator.class);
 
-    private final NrtmFileRepository nrtmFileRepository;
+    private final UpdateNrtmFileRepository updateNrtmFileRepository;
     private final DummifierNrtmV4 dummifierNrtmV4;
     private final DateTimeProvider dateTimeProvider;
     private final NrtmVersionInfoDao nrtmVersionInfoDao;
     private final WhoisObjectRepository whoisObjectRepository;
     private final WhoisObjectDao whoisObjectDao;
 
-    private final NrtmSourceContext nrtmSourceContext;
 
     DeltaFileGenerator(
-            final NrtmFileRepository nrtmFileRepository,
+            final UpdateNrtmFileRepository updateNrtmFileRepository,
             final DummifierNrtmV4 dummifierNrtmV4,
             final NrtmVersionInfoDao nrtmVersionInfoDao,
             final WhoisObjectDao whoisObjectDao,
             final DateTimeProvider dateTimeProvider,
-            final WhoisObjectRepository whoisObjectRepository,
-            final NrtmSourceContext nrtmSourceContext
+            final WhoisObjectRepository whoisObjectRepository
     ) {
-        this.nrtmFileRepository = nrtmFileRepository;
+        this.updateNrtmFileRepository = updateNrtmFileRepository;
         this.dummifierNrtmV4 = dummifierNrtmV4;
         this.nrtmVersionInfoDao = nrtmVersionInfoDao;
         this.whoisObjectRepository = whoisObjectRepository;
         this.whoisObjectDao = whoisObjectDao;
         this.dateTimeProvider = dateTimeProvider;
-        this.nrtmSourceContext = nrtmSourceContext;
     }
 
     public void createDeltas() {
@@ -81,23 +78,17 @@ public class DeltaFileGenerator {
             deltaMap.get(source).add(getDeltaChange(serialEntry));
         }
 
-        try {
-            nrtmSourceContext.setCurrentSourceToWhoisMaster();
-
-            for (final NrtmVersionInfo version : sourceVersions) {
-                try {
-                    nrtmFileRepository.saveDeltaVersion(version, serialIDTo, deltaMap.get(version.source().getName()));
-                } catch (final JsonProcessingException e) {
-                    LOGGER.error("Exception saving delta for {}", version.source().getName(), e);
-                }
+        for (final NrtmVersionInfo version : sourceVersions) {
+            try {
+                updateNrtmFileRepository.saveDeltaVersion(version, serialIDTo, deltaMap.get(version.source().getName()));
+            } catch (final JsonProcessingException e) {
+                LOGGER.error("Exception saving delta for {}", version.source().getName(), e);
             }
-
-            LOGGER.info("Delta file generation completed");
-
-            cleanUpOldFiles();
-        } finally {
-            nrtmSourceContext.setCurrentSourceToWhoisSlave();
         }
+
+        LOGGER.info("Delta file generation completed");
+
+        cleanUpOldFiles();
     }
 
     private DeltaFileRecord getDeltaChange(final SerialEntry serialEntry) {
@@ -112,6 +103,6 @@ public class DeltaFileGenerator {
         final LocalDateTime twoDayAgo = dateTimeProvider.getCurrentDateTime().minusDays(2);
 
         final List<Long> versions = nrtmVersionInfoDao.getAllVersionsByTypeBefore(NrtmDocumentType.DELTA, twoDayAgo);
-        nrtmFileRepository.deleteDeltaFiles(versions);
+        updateNrtmFileRepository.deleteDeltaFiles(versions);
     }
 }

@@ -29,15 +29,15 @@ import java.util.List;
 import java.util.Map;
 
 @Repository
-public class NrtmFileRepository {
+public class UpdateNrtmFileRepository {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(NrtmFileRepository.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(UpdateNrtmFileRepository.class);
     private final JdbcTemplate jdbcTemplate;
     private final DateTimeProvider dateTimeProvider;
     private final NamedParameterJdbcTemplate namedParameterJdbcTemplate;
 
 
-    public NrtmFileRepository(@Qualifier("nrtmSourceAwareDataSource") final DataSource dataSource, final DateTimeProvider dateTimeProvider) {
+    public UpdateNrtmFileRepository(@Qualifier("nrtmMasterDataSource") final DataSource dataSource, final DateTimeProvider dateTimeProvider) {
         this.jdbcTemplate = new JdbcTemplate(dataSource);
         this.dateTimeProvider = dateTimeProvider;
         this.namedParameterJdbcTemplate = new NamedParameterJdbcTemplate(jdbcTemplate);
@@ -120,6 +120,7 @@ public class NrtmFileRepository {
             VALUES (?, ?, ?, ?)
             """;
         jdbcTemplate.update(sql, versionId, name, hash, payload);
+        throw new IllegalStateException("Test NRTM rollback");
     }
 
     public void saveSnapshot(final SnapshotFile snapshotFile, final byte[] payload) {

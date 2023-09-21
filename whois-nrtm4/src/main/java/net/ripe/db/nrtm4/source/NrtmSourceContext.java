@@ -120,9 +120,6 @@ public class NrtmSourceContext implements SourceContext {
         return aliases.get(source);
     }
 
-    public void setCurrentSourceToWhoisSlave() {
-        setCurrent(mainSlaveSource);
-    }
     public void setCurrentSourceToWhoisMaster() {
         setCurrent(mainMasterSource);
     }

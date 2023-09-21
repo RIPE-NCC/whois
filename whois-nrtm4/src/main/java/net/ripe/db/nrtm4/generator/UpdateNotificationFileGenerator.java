@@ -39,8 +39,6 @@ public class UpdateNotificationFileGenerator {
     private final SnapshotFileDao snapshotFileDao;
     private final NrtmSourceDao nrtmSourceDao;
 
-    private final NrtmSourceContext nrtmSourceContext;
-
     public UpdateNotificationFileGenerator(
         @Value("${nrtm.baseUrl}") final String baseUrl,
         final DateTimeProvider dateTimeProvider,
@@ -48,8 +46,7 @@ public class UpdateNotificationFileGenerator {
         final UpdateNotificationFileDao updateNotificationFileDao,
         final NrtmVersionInfoDao nrtmVersionInfoDao,
         final NrtmSourceDao nrtmSourceDao,
-        final SnapshotFileDao snapshotFileDao,
-        final NrtmSourceContext nrtmSourceContext
+        final SnapshotFileDao snapshotFileDao
     ) {
         this.baseUrl = baseUrl;
         this.dateTimeProvider = dateTimeProvider;
@@ -58,7 +55,6 @@ public class UpdateNotificationFileGenerator {
         this.nrtmVersionInfoDao = nrtmVersionInfoDao;
         this.snapshotFileDao = snapshotFileDao;
         this.nrtmSourceDao = nrtmSourceDao;
-        this.nrtmSourceContext = nrtmSourceContext;
     }
 
     public void generateFile() {
@@ -84,12 +80,7 @@ public class UpdateNotificationFileGenerator {
           final NrtmVersionInfo fileVersion = getVersion(deltaFiles, snapshotFile.get());
           final String json = getPayload(snapshotFile.get(), deltaFiles, fileVersion, createdTimestamp);
 
-           try {
-               nrtmSourceContext.setCurrentSourceToWhoisMaster();
-               saveNotificationFile(createdTimestamp, notificationFile, fileVersion, json);
-           } finally {
-               nrtmSourceContext.setCurrentSourceToWhoisSlave();
-           }
+           saveNotificationFile(createdTimestamp, notificationFile, fileVersion, json);
        }
     }
 
