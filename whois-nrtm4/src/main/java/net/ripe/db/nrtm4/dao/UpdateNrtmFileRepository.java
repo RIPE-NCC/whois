@@ -138,7 +138,7 @@ public class UpdateNrtmFileRepository {
                 payload);
     }
 
-    @Transactional
+    @Transactional("nrtmTransactionManager")
     public void deleteSnapshotFiles(final List<Long> versionIds) {
         if(versionIds.isEmpty()) {
             return;
@@ -151,7 +151,7 @@ public class UpdateNrtmFileRepository {
         deleteVersionInfos(versionIds);
     }
 
-    @Transactional
+    @Transactional("nrtmTransactionManager")
     public void deleteDeltaFiles(final List<Long> versionIds) {
         if(versionIds.isEmpty()) {
             return;
@@ -164,7 +164,7 @@ public class UpdateNrtmFileRepository {
         deleteVersionInfos(versionIds);
     }
 
-    @Transactional
+    @Transactional("nrtmTransactionManager")
     public void cleanupNrtmv4Database() {
         LOGGER.warn("Cleaning up NRTMv4 Database");
 
