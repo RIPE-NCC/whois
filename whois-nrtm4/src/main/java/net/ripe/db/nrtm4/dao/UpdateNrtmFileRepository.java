@@ -29,6 +29,7 @@ import java.util.List;
 import java.util.Map;
 
 @Repository
+@Transactional(transactionManager = "nrtmTransactionManager")
 public class UpdateNrtmFileRepository {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(UpdateNrtmFileRepository.class);
@@ -43,7 +44,6 @@ public class UpdateNrtmFileRepository {
         this.namedParameterJdbcTemplate = new NamedParameterJdbcTemplate(jdbcTemplate);
     }
 
-    @Transactional("nrtmTransactionManager")
     public void saveDeltaVersion(final NrtmVersionInfo version, final int serialIDTo, final List<DeltaFileRecord> deltas) throws JsonProcessingException {
         if (deltas.isEmpty()) {
             LOGGER.info("No delta changes found for source {}", version.source().getName());
@@ -57,7 +57,6 @@ public class UpdateNrtmFileRepository {
         LOGGER.info("Created {} delta version {}", newVersion.source().getName(), newVersion.version());
     }
 
-    @Transactional("nrtmTransactionManager")
     public void saveSnapshotVersion(final NrtmVersionInfo version, final String fileName, final String hash, final byte[] payload)  {
 
         final NrtmVersionInfo newVersion = saveNewSnapshotVersion(version);
@@ -138,7 +137,6 @@ public class UpdateNrtmFileRepository {
                 payload);
     }
 
-    @Transactional("nrtmTransactionManager")
     public void deleteSnapshotFiles(final List<Long> versionIds) {
         if(versionIds.isEmpty()) {
             return;
@@ -151,7 +149,6 @@ public class UpdateNrtmFileRepository {
         deleteVersionInfos(versionIds);
     }
 
-    @Transactional("nrtmTransactionManager")
     public void deleteDeltaFiles(final List<Long> versionIds) {
         if(versionIds.isEmpty()) {
             return;
@@ -163,8 +160,7 @@ public class UpdateNrtmFileRepository {
         }
         deleteVersionInfos(versionIds);
     }
-
-    @Transactional("nrtmTransactionManager")
+    
     public void cleanupNrtmv4Database() {
         LOGGER.warn("Cleaning up NRTMv4 Database");
 
