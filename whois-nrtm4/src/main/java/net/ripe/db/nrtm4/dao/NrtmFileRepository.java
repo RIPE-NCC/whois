@@ -39,8 +39,7 @@ public class NrtmFileRepository {
     private final NamedParameterJdbcTemplate namedParameterJdbcTemplate;
 
 
-    public NrtmFileRepository(@Qualifier("nrtmSourceAwareDataSource") final DataSource dataSource,
-                              final DateTimeProvider dateTimeProvider) {
+    public NrtmFileRepository(@Qualifier("nrtmSourceAwareDataSource") final DataSource dataSource, final DateTimeProvider dateTimeProvider) {
         this.jdbcTemplate = new JdbcTemplate(dataSource);
         this.dateTimeProvider = dateTimeProvider;
         this.namedParameterJdbcTemplate = new NamedParameterJdbcTemplate(jdbcTemplate);
@@ -52,12 +51,8 @@ public class NrtmFileRepository {
             LOGGER.info("No delta changes found for source {}", version.source().getName());
             return;
         }
-        LOGGER.info("Delta is transaction active? {}", TransactionSynchronizationManager.isActualTransactionActive());
-        LOGGER.info("Delta current isolation level = {}", TransactionSynchronizationManager.getCurrentTransactionIsolationLevel());
-        LOGGER.info("Delta current transaction name = {}", TransactionSynchronizationManager.getCurrentTransactionName());
         final NrtmVersionInfo newVersion = saveNewDeltaVersion(version, serialIDTo);
         final DeltaFile deltaFile = getDeltaFile(newVersion, deltas);
-        LOGGER.info("New version who should disappear by rollback " + newVersion);
         saveDeltaFile(deltaFile.versionId(), deltaFile.name(), deltaFile.hash(), deltaFile.payload());
         LOGGER.info("Created {} delta version {}", newVersion.source().getName(), newVersion.version());
     }
@@ -65,9 +60,6 @@ public class NrtmFileRepository {
     @Transactional("nrtmTransactionManager")
     public void saveSnapshotVersion(final NrtmVersionInfo version, final String fileName, final String hash, final byte[] payload)  {
         final NrtmVersionInfo newVersion = saveNewSnapshotVersion(version);
-        LOGGER.info("snap is transaction active? {}", TransactionSynchronizationManager.isActualTransactionActive());
-        LOGGER.info("snap current isolation level = {}", TransactionSynchronizationManager.getCurrentTransactionIsolationLevel());
-        LOGGER.info("snap current transaction name = {}", TransactionSynchronizationManager.getCurrentTransactionName());
         final SnapshotFile snapshotFile = SnapshotFile.of(newVersion.id(), fileName, hash);
         saveSnapshot(snapshotFile, payload);
         LOGGER.info("Created {} snapshot version {}", version.source().getName(), version.version());
@@ -130,7 +122,6 @@ public class NrtmFileRepository {
             VALUES (?, ?, ?, ?)
             """;
         jdbcTemplate.update(sql, versionId, name, hash, payload);
-        throw new IllegalArgumentException("Test transactional");
     }
 
     public void saveSnapshot(final SnapshotFile snapshotFile, final byte[] payload) {

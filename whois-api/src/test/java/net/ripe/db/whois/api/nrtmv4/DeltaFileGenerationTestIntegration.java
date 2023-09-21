@@ -164,36 +164,6 @@ public class DeltaFileGenerationTestIntegration extends AbstractNrtmIntegrationT
     }
 
     @Test
-    public void deltas_should_rollback_in_case_of_error()  {
-        snapshotFileGenerator.createSnapshot();
-        updateNotificationFileGenerator.generateFile();
-
-        final RpslObject updatedObject = RpslObject.parse("" +
-                "inet6num:       ::/0\n" +
-                "netname:        IANA-BLK\n" +
-                "descr:          The whole IPv6 address space:Updated for test\n" +
-                "country:        NL\n" +
-                "tech-c:         TP1-TEST\n" +
-                "admin-c:        TP1-TEST\n" +
-                "status:         OTHER\n" +
-                "mnt-by:         OWNER-MNT\n" +
-                "created:         2022-08-14T11:48:28Z\n" +
-                "last-modified:   2022-10-25T12:22:39Z\n" +
-                "source:         TEST");
-        databaseHelper.updateObject(updatedObject);
-        databaseHelper.deleteObject(updatedObject);
-
-        NrtmVersionInfo nrtmVersionInfo = nrtmVersionInfoDao.findLastVersionPerSource().stream().filter(v -> v.source().getName().equals("TEST")).findFirst().get();
-
-        assertThrows(IllegalArgumentException.class, () -> deltaFileGenerator.createDeltas());
-
-        NrtmVersionInfo finalVersionInfo = nrtmVersionInfoDao.findLastVersionPerSource().stream().filter(v -> v.source().getName().equals("TEST")).findFirst().get();
-
-        assertThat(nrtmVersionInfo.type().lowerCaseName(), is(finalVersionInfo.type().lowerCaseName()));
-        assertThat(nrtmVersionInfo.version(), is(finalVersionInfo.version()));
-    }
-
-    @Test
     public void should_get_delta_file_correct_order() throws JSONException, JsonProcessingException {
         snapshotFileGenerator.createSnapshot();
         updateNotificationFileGenerator.generateFile();
