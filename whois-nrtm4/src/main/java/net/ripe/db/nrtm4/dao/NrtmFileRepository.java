@@ -68,10 +68,10 @@ public class NrtmFileRepository {
 
     private DeltaFile getDeltaFile(final NrtmVersionInfo newVersion, final List<DeltaFileRecord> deltas) throws JsonProcessingException {
 
-        final StringBuilder json = NrtmFileUtil.getNrtmFileRecord(new StringBuilder(),new NrtmVersionRecord(newVersion, NrtmDocumentType.DELTA));
+        final StringBuilder json = NrtmFileUtil.convertToJSONTextSeq(new StringBuilder(),new NrtmVersionRecord(newVersion, NrtmDocumentType.DELTA));
 
         for (final DeltaFileRecord delta : deltas) {
-            NrtmFileUtil.getNrtmFileRecord(json, delta);
+            NrtmFileUtil.convertToJSONTextSeq(json, delta);
         }
 
         final String hash = NrtmFileUtil.calculateSha256(json.toString().getBytes(StandardCharsets.UTF_8));
@@ -161,6 +161,18 @@ public class NrtmFileRepository {
             throw new IllegalArgumentException("Unable to delete few old delta files with version id's " + versionIds);
         }
         deleteVersionInfos(versionIds);
+    }
+
+    @Transactional
+    public void cleanupNrtmv4Database() {
+        LOGGER.warn("Cleaning up NRTMv4 Database");
+
+        jdbcTemplate.update("delete from snapshot_file");
+        jdbcTemplate.update("delete from delta_file");
+        jdbcTemplate.update("delete from notification_file");
+        jdbcTemplate.update("delete from version_info");
+        jdbcTemplate.update("delete from key_pair");
+        jdbcTemplate.update("delete from source");
     }
 
     private void deleteVersionInfos(final List<Long> versionIds) {

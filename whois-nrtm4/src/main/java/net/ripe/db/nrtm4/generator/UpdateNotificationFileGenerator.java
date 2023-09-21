@@ -1,4 +1,4 @@
-package net.ripe.db.nrtm4;
+package net.ripe.db.nrtm4.generator;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import net.ripe.db.nrtm4.dao.DeltaFileDao;
@@ -69,7 +69,7 @@ public class UpdateNotificationFileGenerator {
           final Optional<SnapshotFileVersionInfo> snapshotFile = snapshotFileDao.getLastSnapshotWithVersion(nrtmSource);
 
           if( !canProceed(notificationFile, nrtmSource, oneDayAgo, snapshotFile)) {
-              LOGGER.info("Skipping generation of update notification file");
+              LOGGER.info("Skipping generation of update notification file for source {}", nrtmSource.getName());
               continue;
           }
 
