@@ -5,7 +5,6 @@ import com.google.common.collect.Lists;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 import net.ripe.db.nrtm4.domain.DeltaFileRecord;
-import net.ripe.db.nrtm4.domain.NrtmVersionInfo;
 import net.ripe.db.nrtm4.domain.UpdateNotificationFile;
 import net.ripe.db.nrtm4.domain.NrtmVersionRecord;
 import net.ripe.db.whois.api.AbstractNrtmIntegrationTest;
@@ -26,7 +25,6 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.not;
 import static org.hamcrest.Matchers.notNullValue;
-import static org.junit.Assert.assertThrows;
 
 
 @Tag("IntegrationTest")
@@ -34,7 +32,6 @@ import static org.junit.Assert.assertThrows;
 public class DeltaFileGenerationTestIntegration extends AbstractNrtmIntegrationTest {
     @Autowired
     DummifierNrtmV4 dummifierNrtmV4;
-
 
     @Test
     public void should_get_delta_file() throws JSONException, JsonProcessingException {
