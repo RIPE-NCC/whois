@@ -124,7 +124,6 @@ public class UpdateNrtmFileRepository {
             VALUES (?, ?, ?, ?)
             """;
         jdbcTemplate.update(sql, versionId, name, hash, payload);
-        throw new IllegalStateException("Test NRTM rollback");
     }
 
     public void saveSnapshot(final SnapshotFile snapshotFile, final byte[] payload) {
