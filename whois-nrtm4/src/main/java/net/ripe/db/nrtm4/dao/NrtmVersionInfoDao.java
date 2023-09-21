@@ -39,7 +39,7 @@ public class NrtmVersionInfoDao {
     private final RowMapper<NrtmVersionInfo> rowMapper = rowMapperWithOffset.apply(0);
     private final JdbcTemplate jdbcTemplate;
 
-    public NrtmVersionInfoDao(@Qualifier("nrtmDataSource") final DataSource dataSource) {
+    public NrtmVersionInfoDao(@Qualifier("nrtmMasterDataSource") final DataSource dataSource) {
         this.jdbcTemplate = new JdbcTemplate(dataSource);
     }
 

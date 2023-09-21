@@ -80,7 +80,7 @@ public class UpdateNotificationFileGenerator {
           final NrtmVersionInfo fileVersion = getVersion(deltaFiles, snapshotFile.get());
           final String json = getPayload(snapshotFile.get(), deltaFiles, fileVersion, createdTimestamp);
 
-           saveNotificationFile(createdTimestamp, notificationFile, fileVersion, json);
+          saveNotificationFile(createdTimestamp, notificationFile, fileVersion, json);
        }
     }
 

@@ -48,7 +48,7 @@ public class NrtmSourceContext implements SourceContext {
     public NrtmSourceContext(
             @Value("${whois.source}") final String mainSourceNameString,
             @Value("${whois.nonauth.source}") final String nonauthRipeSourceNameString,
-            @Qualifier("nrtmDataSource") final DataSource nrtmMasterDataSource,
+            @Qualifier("nrtmMasterDataSource") final DataSource nrtmMasterDataSource,
             @Qualifier("nrtmSlaveDataSource") final DataSource whoisSlaveDataSource) {
 
         mainSourceName = ciString(mainSourceNameString);

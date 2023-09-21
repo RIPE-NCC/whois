@@ -49,16 +49,20 @@ public class UpdateNrtmFileRepository {
             LOGGER.info("No delta changes found for source {}", version.source().getName());
             return;
         }
+
         final NrtmVersionInfo newVersion = saveNewDeltaVersion(version, serialIDTo);
         final DeltaFile deltaFile = getDeltaFile(newVersion, deltas);
+
         saveDeltaFile(deltaFile.versionId(), deltaFile.name(), deltaFile.hash(), deltaFile.payload());
         LOGGER.info("Created {} delta version {}", newVersion.source().getName(), newVersion.version());
     }
 
     @Transactional("nrtmTransactionManager")
     public void saveSnapshotVersion(final NrtmVersionInfo version, final String fileName, final String hash, final byte[] payload)  {
+
         final NrtmVersionInfo newVersion = saveNewSnapshotVersion(version);
         final SnapshotFile snapshotFile = SnapshotFile.of(newVersion.id(), fileName, hash);
+
         saveSnapshot(snapshotFile, payload);
         LOGGER.info("Created {} snapshot version {}", version.source().getName(), version.version());
     }

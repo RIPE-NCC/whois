@@ -16,7 +16,6 @@ import net.ripe.db.nrtm4.domain.NrtmVersionRecord;
 import net.ripe.db.nrtm4.domain.SnapshotFileRecord;
 import net.ripe.db.nrtm4.domain.SnapshotState;
 import net.ripe.db.nrtm4.domain.WhoisObjectData;
-import net.ripe.db.nrtm4.source.NrtmSourceContext;
 import net.ripe.db.nrtm4.util.Ed25519Util;
 import net.ripe.db.nrtm4.util.NrtmFileUtil;
 import net.ripe.db.whois.common.DateTimeProvider;

@@ -31,7 +31,7 @@ public class SnapshotFileDao {
                     NrtmVersionInfoDao.rowMapperWithOffset.apply(4).mapRow(rs, rowNum)
             );
 
-    public SnapshotFileDao(@Qualifier("nrtmDataSource") final DataSource dataSource) {
+    public SnapshotFileDao(@Qualifier("nrtmMasterDataSource") final DataSource dataSource) {
         this.jdbcTemplate = new JdbcTemplate(dataSource);
     }
 
