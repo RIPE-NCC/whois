@@ -27,7 +27,7 @@ public class UpdateNotificationFileDao {
             rs.getString(4)
         );
 
-    public UpdateNotificationFileDao(@Qualifier("nrtmDataSource") final DataSource dataSource) {
+    public UpdateNotificationFileDao(@Qualifier("nrtmMasterDataSource") final DataSource dataSource) {
         this.jdbcTemplate = new JdbcTemplate(dataSource);
     }
 

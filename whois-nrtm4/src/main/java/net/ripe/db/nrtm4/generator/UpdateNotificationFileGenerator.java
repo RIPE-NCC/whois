@@ -12,6 +12,7 @@ import net.ripe.db.nrtm4.domain.NrtmSource;
 import net.ripe.db.nrtm4.domain.NrtmVersionInfo;
 import net.ripe.db.nrtm4.domain.UpdateNotificationFile;
 import net.ripe.db.nrtm4.domain.SnapshotFileVersionInfo;
+import net.ripe.db.nrtm4.source.NrtmSourceContext;
 import net.ripe.db.whois.common.DateTimeProvider;
 import net.ripe.db.whois.common.dao.VersionDateTime;
 import org.slf4j.Logger;

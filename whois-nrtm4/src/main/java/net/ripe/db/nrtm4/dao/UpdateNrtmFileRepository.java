@@ -29,34 +29,34 @@ import java.util.List;
 import java.util.Map;
 
 @Repository
-public class NrtmFileRepository {
+@Transactional(transactionManager = "nrtmTransactionManager")
+public class UpdateNrtmFileRepository {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(NrtmFileRepository.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(UpdateNrtmFileRepository.class);
     private final JdbcTemplate jdbcTemplate;
     private final DateTimeProvider dateTimeProvider;
     private final NamedParameterJdbcTemplate namedParameterJdbcTemplate;
 
-    public NrtmFileRepository(@Qualifier("nrtmDataSource") final DataSource dataSource, final DateTimeProvider dateTimeProvider) {
+
+    public UpdateNrtmFileRepository(@Qualifier("nrtmMasterDataSource") final DataSource dataSource, final DateTimeProvider dateTimeProvider) {
         this.jdbcTemplate = new JdbcTemplate(dataSource);
         this.dateTimeProvider = dateTimeProvider;
         this.namedParameterJdbcTemplate = new NamedParameterJdbcTemplate(jdbcTemplate);
     }
 
-    @Transactional
     public void saveDeltaVersion(final NrtmVersionInfo version, final int serialIDTo, final List<DeltaFileRecord> deltas) throws JsonProcessingException {
-       if(deltas.isEmpty()) {
-           LOGGER.info("No delta changes found for source {}", version.source().getName());
-           return;
-       }
+        if (deltas.isEmpty()) {
+            LOGGER.info("No delta changes found for source {}", version.source().getName());
+            return;
+        }
 
-       final NrtmVersionInfo newVersion = saveNewDeltaVersion(version, serialIDTo);
-       final DeltaFile deltaFile = getDeltaFile(newVersion, deltas);
+        final NrtmVersionInfo newVersion = saveNewDeltaVersion(version, serialIDTo);
+        final DeltaFile deltaFile = getDeltaFile(newVersion, deltas);
 
-       saveDeltaFile(deltaFile.versionId(), deltaFile.name(), deltaFile.hash(), deltaFile.payload());
-       LOGGER.info("Created {} delta version {}", newVersion.source().getName(), newVersion.version());
+        saveDeltaFile(deltaFile.versionId(), deltaFile.name(), deltaFile.hash(), deltaFile.payload());
+        LOGGER.info("Created {} delta version {}", newVersion.source().getName(), newVersion.version());
     }
 
-    @Transactional
     public void saveSnapshotVersion(final NrtmVersionInfo version, final String fileName, final String hash, final byte[] payload)  {
 
         final NrtmVersionInfo newVersion = saveNewSnapshotVersion(version);
@@ -137,7 +137,6 @@ public class NrtmFileRepository {
                 payload);
     }
 
-    @Transactional
     public void deleteSnapshotFiles(final List<Long> versionIds) {
         if(versionIds.isEmpty()) {
             return;
@@ -150,7 +149,6 @@ public class NrtmFileRepository {
         deleteVersionInfos(versionIds);
     }
 
-    @Transactional
     public void deleteDeltaFiles(final List<Long> versionIds) {
         if(versionIds.isEmpty()) {
             return;
@@ -162,8 +160,7 @@ public class NrtmFileRepository {
         }
         deleteVersionInfos(versionIds);
     }
-
-    @Transactional
+    
     public void cleanupNrtmv4Database() {
         LOGGER.warn("Cleaning up NRTMv4 Database");
 

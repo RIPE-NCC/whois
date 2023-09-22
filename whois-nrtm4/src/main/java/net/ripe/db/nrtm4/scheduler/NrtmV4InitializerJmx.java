@@ -1,7 +1,7 @@
 package net.ripe.db.nrtm4.scheduler;
 
 import net.ripe.db.nrtm4.Nrtmv4Condition;
-import net.ripe.db.nrtm4.dao.NrtmFileRepository;
+import net.ripe.db.nrtm4.dao.UpdateNrtmFileRepository;
 import net.ripe.db.whois.common.DateTimeProvider;
 import net.ripe.db.whois.common.jmx.JmxBase;
 import org.slf4j.Logger;
@@ -16,9 +16,6 @@ import org.springframework.scheduling.TaskScheduler;
 import org.springframework.scheduling.support.ScheduledMethodRunnable;
 import org.springframework.stereotype.Component;
 
-import java.time.ZoneOffset;
-
-import static net.ripe.db.whois.common.DateUtil.toDate;
 
 @Component
 @Conditional(Nrtmv4Condition.class)
@@ -27,13 +24,13 @@ public class NrtmV4InitializerJmx extends JmxBase {
     private static final Logger LOGGER = LoggerFactory.getLogger(NrtmV4InitializerJmx.class);
     private final ScheduledMethodRunnable snapshotGenerationTask;
     private final TaskScheduler taskScheduler;
-    private final NrtmFileRepository nrtmFileRepository;
+    private final UpdateNrtmFileRepository nrtmFileRepository;
 
     private final DateTimeProvider dateTimeProvider;
 
 
     @Autowired
-    public NrtmV4InitializerJmx(final DateTimeProvider dateTimeProvider, final TaskScheduler taskScheduler, final SnapshotFileScheduledTask snapshotFileScheduledTask, final NrtmFileRepository nrtmFileRepository) {
+    public NrtmV4InitializerJmx(final DateTimeProvider dateTimeProvider, final TaskScheduler taskScheduler, final SnapshotFileScheduledTask snapshotFileScheduledTask, final UpdateNrtmFileRepository nrtmFileRepository) {
         super(LOGGER);
         this.taskScheduler = taskScheduler;
         this.nrtmFileRepository = nrtmFileRepository;

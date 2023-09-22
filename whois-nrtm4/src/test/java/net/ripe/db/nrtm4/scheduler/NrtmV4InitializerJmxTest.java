@@ -1,10 +1,9 @@
 package net.ripe.db.nrtm4.scheduler;
 
-import net.ripe.db.nrtm4.dao.NrtmFileRepository;
+import net.ripe.db.nrtm4.dao.UpdateNrtmFileRepository;
 import net.ripe.db.whois.common.DateTimeProvider;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import static net.ripe.db.whois.common.DateUtil.toDate;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 
@@ -30,7 +29,7 @@ public class NrtmV4InitializerJmxTest {
     public static final LocalDateTime LOCAL_DATE_TIME = LocalDateTime.of(2012, 12, 1, 0, 0);
     @Mock SnapshotFileScheduledTask snapshotFileScheduledTask;
     @Mock TaskScheduler taskScheduler;
-    @Mock  NrtmFileRepository nrtmFileRepository;
+    @Mock UpdateNrtmFileRepository nrtmFileRepository;
 
     @Mock DateTimeProvider dateTimeProvider;
     @Captor

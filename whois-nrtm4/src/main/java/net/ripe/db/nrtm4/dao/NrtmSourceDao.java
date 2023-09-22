@@ -21,7 +21,7 @@ public class NrtmSourceDao {
     private final String source;
 
     NrtmSourceDao(
-        @Qualifier("nrtmDataSource") final DataSource dataSource,
+        @Qualifier("nrtmMasterDataSource") final DataSource dataSource,
         @Value("${whois.source}") final String source,
         @Value("${whois.nonauth.source}") final String nonauthSource
     ) {

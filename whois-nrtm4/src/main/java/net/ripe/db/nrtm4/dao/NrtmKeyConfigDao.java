@@ -17,7 +17,7 @@ public class NrtmKeyConfigDao {
     private final DateTimeProvider dateTimeProvider;
 
 
-    NrtmKeyConfigDao(@Qualifier("nrtmSlaveDataSource") final DataSource readOnlyDataSource, @Qualifier("nrtmDataSource") final DataSource writeDataSource, final DateTimeProvider dateTimeProvider ) {
+    NrtmKeyConfigDao(@Qualifier("nrtmSlaveDataSource") final DataSource readOnlyDataSource, @Qualifier("nrtmMasterDataSource") final DataSource writeDataSource, final DateTimeProvider dateTimeProvider ) {
         this.readTemplate = new JdbcTemplate(readOnlyDataSource);
         this.dateTimeProvider = dateTimeProvider;
         this.writeTemplate = new JdbcTemplate(writeDataSource);
