@@ -83,6 +83,11 @@ public class ElasticFullTextIndex {
             return;
         }
 
+        if(esSerialId == dbMaxSerialId) {
+            LOGGER.info("No database update since last run.ES serial id is {} and database max serial id is {}", esSerialId, dbMaxSerialId);
+            return;
+        }
+
         LOGGER.info("Index serial ({}) lower than database serial ({}), updating", esSerialId, dbMaxSerialId);
         final Stopwatch stopwatch = Stopwatch.createStarted();
 
