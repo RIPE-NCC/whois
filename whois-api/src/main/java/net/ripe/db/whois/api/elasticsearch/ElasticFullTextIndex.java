@@ -33,7 +33,7 @@ public class ElasticFullTextIndex {
 
     @Autowired
     public ElasticFullTextIndex(final ElasticIndexService elasticIndexService,
-                                @Qualifier("jdbcSlaveSerialDao") final SerialDao serialDao,
+                                @Qualifier("jdbcSerialDao") final SerialDao serialDao,
                                 @Qualifier("whoisSlaveDataSource") final DataSource dataSource,
                                 @Value("${whois.source}") final String source) {
         this.elasticIndexService = elasticIndexService;
