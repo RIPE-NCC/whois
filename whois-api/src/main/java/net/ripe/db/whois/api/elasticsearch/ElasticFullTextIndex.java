@@ -3,8 +3,8 @@ package net.ripe.db.whois.api.elasticsearch;
 import com.google.common.base.Stopwatch;
 import jakarta.annotation.PostConstruct;
 import net.javacrumbs.shedlock.spring.annotation.SchedulerLock;
+import net.ripe.db.whois.common.dao.SerialDao;
 import net.ripe.db.whois.common.dao.jdbc.JdbcRpslObjectOperations;
-import net.ripe.db.whois.common.dao.jdbc.JdbcStreamingHelper;
 import net.ripe.db.whois.common.domain.serials.SerialEntry;
 import net.ripe.db.whois.common.rpsl.RpslObject;
 import org.slf4j.Logger;
@@ -14,18 +14,12 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.dao.DataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
-import org.springframework.jdbc.core.ResultSetExtractor;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
 import javax.sql.DataSource;
 import java.io.IOException;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.util.concurrent.ArrayBlockingQueue;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.ThreadPoolExecutor;
-import java.util.concurrent.TimeUnit;
+import java.util.Map;
 
 // TODO [DA] Lucene implementation has some mechanism around thread safety. check if that is also necessary
 @Component
@@ -35,14 +29,17 @@ public class ElasticFullTextIndex {
     private final ElasticIndexService elasticIndexService;
     private final JdbcTemplate jdbcTemplate;
     private final String source;
+    private final SerialDao serialDao;
 
     @Autowired
     public ElasticFullTextIndex(final ElasticIndexService elasticIndexService,
+                                @Qualifier("jdbcSlaveSerialDao") final SerialDao serialDao,
                                 @Qualifier("whoisSlaveDataSource") final DataSource dataSource,
                                 @Value("${whois.source}") final String source) {
         this.elasticIndexService = elasticIndexService;
         this.jdbcTemplate = new JdbcTemplate(dataSource);
         this.source = source;
+        this.serialDao = serialDao;
     }
 
     @PostConstruct
@@ -77,7 +74,9 @@ public class ElasticFullTextIndex {
         }
 
         final ElasticIndexMetadata committedMetadata = elasticIndexService.getMetadata();
-        final int dbMaxSerialId = JdbcRpslObjectOperations.getSerials(jdbcTemplate).getEnd();
+        final Map<Integer, Integer> noOfObjetsWithSerialId = serialDao.getCountOfObjectForLatestSerialId();
+        final int dbMaxSerialId = (Integer) noOfObjetsWithSerialId.keySet().toArray()[0];
+
         final int esSerialId = committedMetadata.getSerial();
         if (esSerialId > dbMaxSerialId) {
             LOGGER.error("Seems like ES is ahead of database, this should never have happened. ES max serial id is {} and database max serial id is {}", esSerialId, dbMaxSerialId);
@@ -109,6 +108,13 @@ public class ElasticFullTextIndex {
         LOGGER.debug("Updated index in {}", stopwatch.stop());
 
         elasticIndexService.updateMetadata(new ElasticIndexMetadata(dbMaxSerialId, source));
+
+        int countInDb = (int) noOfObjetsWithSerialId.values().toArray()[1];
+        // One Object POEM-CDMA can not be parsed to RPSl so cannot be indexed
+        long countInES = elasticIndexService.getWhoisDocCount();
+        if(countInES != (countInDb - 1)) {
+            LOGGER.error(String.format("Number of objects in DB (%s) does not match to number of objects indexed in ES (%s) for serialId (%s)", countInDb, countInES, dbMaxSerialId));
+        }
     }
 
     private SerialEntry getSerialEntry(int serial) {

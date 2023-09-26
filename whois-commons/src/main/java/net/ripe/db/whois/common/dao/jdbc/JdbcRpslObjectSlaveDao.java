@@ -18,4 +18,5 @@ public class JdbcRpslObjectSlaveDao extends JdbcRpslObjectDao {
         super(dataSource, sourceContext);
     }
 
+
 }
