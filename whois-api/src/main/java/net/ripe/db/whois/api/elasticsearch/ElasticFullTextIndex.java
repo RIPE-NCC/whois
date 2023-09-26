@@ -112,7 +112,6 @@ public class ElasticFullTextIndex {
         }
 
         LOGGER.debug("Updated index in {}", stopwatch.stop());
-
         elasticIndexService.updateMetadata(new ElasticIndexMetadata(dbMaxSerialId, source));
 
         // One Object POEM-CDMA can not be parsed to RPSl so cannot be indexed
