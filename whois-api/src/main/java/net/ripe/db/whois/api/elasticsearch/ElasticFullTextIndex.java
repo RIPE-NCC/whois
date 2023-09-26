@@ -105,6 +105,7 @@ public class ElasticFullTextIndex {
                 break;
             }
         }
+
         LOGGER.debug("Updated index in {}", stopwatch.stop());
 
         elasticIndexService.updateMetadata(new ElasticIndexMetadata(dbMaxSerialId, source));
@@ -112,16 +113,19 @@ public class ElasticFullTextIndex {
         validateCountOfObjects(maxSerialIdWithObjectCount, dbMaxSerialId);
     }
 
-    private void validateCountOfObjects(Map<Integer, Integer> noOfObjetsWithSerialId, int dbMaxSerialId) throws IOException {
-        int countInDb = (int) noOfObjetsWithSerialId.values().toArray()[0];
+    private void validateCountOfObjects( final Map<Integer, Integer> maxSerialIdWithObjectCount, final int dbMaxSerialId) throws IOException {
         // One Object POEM-CDMA can not be parsed to RPSl so cannot be indexed
-        long countInES = elasticIndexService.getWhoisDocCount();
-        if(countInES != (countInDb - 1)) {
+        final int countInDb = ((int) maxSerialIdWithObjectCount.values().toArray()[0]) - 1;
+        final long countInES = elasticIndexService.getWhoisDocCount();
+
+        LOGGER.info(String.format("Number of objects in DB (%s) vs number of objects indexed in ES (%s) for serialId (%s)", countInDb, countInES, dbMaxSerialId));
+
+        if(countInES != countInDb) {
             LOGGER.error(String.format("Number of objects in DB (%s) does not match to number of objects indexed in ES (%s) for serialId (%s)", countInDb, countInES, dbMaxSerialId));
         }
     }
 
-    private SerialEntry getSerialEntry(int serial) {
+    private SerialEntry getSerialEntry(final int serial) {
         try {
             return JdbcRpslObjectOperations.getSerialEntry(jdbcTemplate, serial);
         } catch (Exception e) {
