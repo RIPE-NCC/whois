@@ -60,8 +60,8 @@ public class JdbcSerialDao implements SerialDao {
     @CheckForNull
     @Transactional(isolation = Isolation.REPEATABLE_READ, propagation = Propagation.REQUIRES_NEW)
     public Map<Integer, Integer> getMaxSerialIdWithObjectCount() {
-        final int lastSerialId = JdbcRpslObjectOperations.getSerials(jdbcTemplate).getEnd();
-        final int countInDb = jdbcTemplate.queryForObject( "select count(*) from last where sequence_id > 0", Integer.class);
+        final Integer lastSerialId =  jdbcTemplate.queryForObject("SELECT MAX(serial_id) FROM serials", Integer.class);
+        final Integer countInDb = jdbcTemplate.queryForObject( "SELECT count(*) FROM last WHERE sequence_id > 0", Integer.class);
 
         return Collections.singletonMap(lastSerialId,countInDb);
     }
