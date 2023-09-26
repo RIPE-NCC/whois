@@ -110,16 +110,9 @@ public class ElasticFullTextIndex {
 
         elasticIndexService.updateMetadata(new ElasticIndexMetadata(dbMaxSerialId, source));
 
-        validateCountOfObjects(maxSerialIdWithObjectCount, dbMaxSerialId);
-    }
-
-    private void validateCountOfObjects( final Map<Integer, Integer> maxSerialIdWithObjectCount, final int dbMaxSerialId) throws IOException {
         // One Object POEM-CDMA can not be parsed to RPSl so cannot be indexed
         final int countInDb = ((int) maxSerialIdWithObjectCount.values().toArray()[0]) - 1;
         final long countInES = elasticIndexService.getWhoisDocCount();
-
-        LOGGER.info(String.format("Number of objects in DB (%s) vs number of objects indexed in ES (%s) for serialId (%s)", countInDb, countInES, dbMaxSerialId));
-
         if(countInES != countInDb) {
             LOGGER.error(String.format("Number of objects in DB (%s) does not match to number of objects indexed in ES (%s) for serialId (%s)", countInDb, countInES, dbMaxSerialId));
         }
