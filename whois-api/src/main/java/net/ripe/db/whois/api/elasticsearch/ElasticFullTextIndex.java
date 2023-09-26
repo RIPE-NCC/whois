@@ -74,8 +74,8 @@ public class ElasticFullTextIndex {
         }
 
         final ElasticIndexMetadata committedMetadata = elasticIndexService.getMetadata();
-        final Map<Integer, Integer> noOfObjetsWithSerialId = serialDao.getCountOfObjectForLatestSerialId();
-        final int dbMaxSerialId = (Integer) noOfObjetsWithSerialId.keySet().toArray()[0];
+        final Map<Integer, Integer> maxSerialIdWithObjectCount = serialDao.getMaxSerialIdWithObjectCount();
+        final int dbMaxSerialId = (Integer) maxSerialIdWithObjectCount.keySet().toArray()[0];
 
         final int esSerialId = committedMetadata.getSerial();
         if (esSerialId > dbMaxSerialId) {
@@ -109,7 +109,11 @@ public class ElasticFullTextIndex {
 
         elasticIndexService.updateMetadata(new ElasticIndexMetadata(dbMaxSerialId, source));
 
-        int countInDb = (int) noOfObjetsWithSerialId.values().toArray()[1];
+        validateCountOfObjects(maxSerialIdWithObjectCount, dbMaxSerialId);
+    }
+
+    private void validateCountOfObjects(Map<Integer, Integer> noOfObjetsWithSerialId, int dbMaxSerialId) throws IOException {
+        int countInDb = (int) noOfObjetsWithSerialId.values().toArray()[0];
         // One Object POEM-CDMA can not be parsed to RPSl so cannot be indexed
         long countInES = elasticIndexService.getWhoisDocCount();
         if(countInES != (countInDb - 1)) {

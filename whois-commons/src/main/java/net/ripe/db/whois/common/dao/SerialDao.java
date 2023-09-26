@@ -16,5 +16,5 @@ public interface SerialDao {
 
     Integer getAgeOfExactOrNextExistingSerial(int serialId);
 
-    Map<Integer, Integer> getCountOfObjectForLatestSerialId();
+    Map<Integer, Integer> getMaxSerialIdWithObjectCount();
 }
