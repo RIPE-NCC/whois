@@ -13,6 +13,7 @@ import net.ripe.db.whois.api.rdap.domain.Link;
 import net.ripe.db.whois.api.rdap.domain.Nameserver;
 import net.ripe.db.whois.api.rdap.domain.Notice;
 import net.ripe.db.whois.api.rdap.domain.RdapObject;
+import net.ripe.db.whois.api.rdap.domain.Redaction;
 import net.ripe.db.whois.api.rdap.domain.Remark;
 import net.ripe.db.whois.api.rdap.domain.Role;
 import net.ripe.db.whois.common.rpsl.RpslObject;
@@ -70,7 +71,7 @@ public class RdapServiceTestIntegration extends AbstractRdapIntegrationTest {
                 "upd-to:        noreply@ripe.net\n" +
                 "auth:          MD5-PW $1$d9fKeTr2$Si7YudNf4rUGmR71n/cqk/ #test\n" +
                 "mnt-by:        OWNER-MNT\n" +
-                "referral-by:   OWNER-MNT\n" +
+                "mbrs-by-ref:   OWNER-MNT\n" +
                 "created:         2011-07-28T00:35:42Z\n" +
                 "last-modified:   2019-02-28T10:14:46Z\n" +
                 "source:        TEST");
@@ -373,7 +374,7 @@ public class RdapServiceTestIntegration extends AbstractRdapIntegrationTest {
                 "address:        Singel 258\n" +
                 "e-mail:         bitbucket@ripe.net\n" +
                 "descr:          Acme Carpet Organisation\n" +
-                "remark:         some remark\n" +
+                "remarks:         some remark\n" +
                 "phone:          +31 1234567\n" +
                 "fax-no:         +31 98765432\n" +
                 "geoloc:         52.375599 4.899902\n" +
@@ -2173,7 +2174,7 @@ public class RdapServiceTestIntegration extends AbstractRdapIntegrationTest {
                 "upd-to:        noreply@ripe.net\n" +
                 "auth:          MD5-PW $1$d9fKeTr2$Si7YudNf4rUGmR71n/cqk/ #test\n" +
                 "mnt-by:        OWNER-MNT\n" +
-                "referral-by:   OWNER-MNT\n" +
+                "mbrs-by-ref:   OWNER-MNT\n" +
                 "created:         2022-08-14T11:48:28Z\n" +
                 "last-modified:   2022-10-25T12:22:39Z\n" +
                 "source:        TEST");
@@ -2282,6 +2283,40 @@ public class RdapServiceTestIntegration extends AbstractRdapIntegrationTest {
         assertTnCNotice(notices.get(2), "https://rdap.db.ripe.net/entity/ORG-ONE-TEST");
     }
 
+    @Test
+    public void lookup_redactions() {
+        databaseHelper.addObject("" +
+                "organisation:  ORG-ONE-TEST\n" +
+                "org-name:      Organisation One\n" +
+                "org-type:      LIR\n" +
+                "descr:         Test organisation\n" +
+                "address:       One Org Street\n" +
+                "e-mail:        test@ripe.net\n" +
+                "language:      EN\n" +
+                "admin-c:       TP2-TEST\n" +
+                "tech-c:        TP1-TEST\n" +
+                "tech-c:        TP2-TEST\n" +
+                "mnt-ref:       OWNER-MNT\n" +
+                "mnt-ref:       OWNER-MNT\n" +
+                "mnt-by:        OWNER-MNT\n" +
+                "created:         2011-07-28T00:35:42Z\n" +
+                "last-modified:   2019-02-28T10:14:46Z\n" +
+                "source:        TEST");
+
+        final Entity entity = createResource("entity/ORG-ONE-TEST")
+                .request(MediaType.APPLICATION_JSON_TYPE)
+                .get(Entity.class);
+
+        assertThat(entity.getRedacted().size(), is(2));
+
+        assertThat(entity.getRedacted().get(0).getName().getDescription(), is("e-mail contact information"));
+        assertThat(entity.getRedacted().get(0).getReason().getDescription(), is("Personal data"));
+        assertThat(entity.getRedacted().get(0).getMethod(), is("removal"));
+
+        assertThat(entity.getRedacted().get(1).getName().getDescription(), is("Incoming references protection"));
+        assertThat(entity.getRedacted().get(1).getReason().getDescription(), is("No registrant mntner"));
+        assertThat(entity.getRedacted().get(1).getMethod(), is("removal"));
+    }
     @Test
     public void lookup_nameserver_not_found() {
         final ServerErrorException serverErrorException = assertThrows(ServerErrorException.class, () -> {
@@ -2454,9 +2489,9 @@ public class RdapServiceTestIntegration extends AbstractRdapIntegrationTest {
                 .get(RdapObject.class);
 
         assertThat(help.getPort43(), is("whois.ripe.net"));
-        assertThat(help.getRdapConformance(), hasSize(4));
+        assertThat(help.getRdapConformance(), hasSize(5));
         assertThat(help.getRdapConformance(), containsInAnyOrder("cidr0", "rdap_level_0", "nro_rdap_profile_0",
-                "nro_rdap_profile_asn_flat_0"));
+                "nro_rdap_profile_asn_flat_0", "redacted"));
 
         final List<Notice> notices = help.getNotices();
         assertThat(notices, hasSize(1));
