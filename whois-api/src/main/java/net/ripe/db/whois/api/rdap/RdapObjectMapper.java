@@ -349,7 +349,7 @@ class RdapObjectMapper {
     }
 
     private void mapRedactionConformance(final RdapObject rdapResponse){
-        if (!rdapResponse.getRedacted().isEmpty()){
+        if (!rdapResponse.getRedacted().isEmpty() || rdapResponse.getEntitySearchResults().stream().map(RdapObject::getRedacted).anyMatch(list -> !list.isEmpty())){
             rdapResponse.getRdapConformance().add(RdapConformance.REDACTED.getValue());
         }
     }
@@ -641,7 +641,7 @@ class RdapObjectMapper {
     }
 
     private static VCard createVCard(final RpslObject rpslObject) {
-        return commonVcard(rpslObject).addAdr(rpslObject.getValuesForAttribute(E_MAIL)).build();
+        return commonVcard(rpslObject).addEmail(rpslObject.getValuesForAttribute(E_MAIL)).build();
     }
 
     private static VCardBuilder commonVcard(RpslObject rpslObject) {
@@ -659,7 +659,7 @@ class RdapObjectMapper {
         }
         builder.addTel(rpslObject.getValuesForAttribute(PHONE))
                 .addFax(rpslObject.getValuesForAttribute(FAX_NO))
-                .addEmail(rpslObject.getValuesForAttribute(ADDRESS))
+                .addAdr(rpslObject.getValuesForAttribute(ADDRESS))
                 .addAbuseMailBox(rpslObject.getValueOrNullForAttribute(ABUSE_MAILBOX))
                 .addOrg(rpslObject.getValuesForAttribute(ORG))
                 .addGeo(rpslObject.getValuesForAttribute(GEOLOC));

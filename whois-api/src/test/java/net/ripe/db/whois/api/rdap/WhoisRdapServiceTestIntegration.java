@@ -14,7 +14,6 @@ import net.ripe.db.whois.api.rdap.domain.Link;
 import net.ripe.db.whois.api.rdap.domain.Nameserver;
 import net.ripe.db.whois.api.rdap.domain.Notice;
 import net.ripe.db.whois.api.rdap.domain.RdapObject;
-import net.ripe.db.whois.api.rdap.domain.Redaction;
 import net.ripe.db.whois.api.rdap.domain.Remark;
 import net.ripe.db.whois.api.rdap.domain.Role;
 import net.ripe.db.whois.common.rpsl.RpslObject;
@@ -585,8 +584,7 @@ public class WhoisRdapServiceTestIntegration extends AbstractRdapIntegrationTest
                 "country:      NL\n" +
                 "tech-c:       TP1-TEST\n" +
                 "status:       OTHER\n" +
-                "mnt-by:       OWNER-MNT\n" +
-                "mnt-by:       SECOND-MNT\n" +
+                "mnt-by:       OWNER-MNT,SECOND-MNT\n" +
                 "created:         2022-08-14T11:48:28Z\n" +
                 "last-modified:   2022-10-25T12:22:39Z\n" +
                 "source:       TEST");
@@ -819,11 +817,12 @@ public class WhoisRdapServiceTestIntegration extends AbstractRdapIntegrationTest
         assertThat(entity.getVCardArray(), hasSize(2));
         assertThat(entity.getVCardArray().get(0).toString(), is("vcard"));
         assertThat(entity.getVCardArray().get(1).toString(), equalTo("" +
-                "[[version, {}, text, 4.0], [fn, {}, text, Pauleth Palthen], " +
+                "[[version, {}, text, 4.0], " +
+                "[fn, {}, text, Pauleth Palthen], " +
                 "[kind, {}, text, individual], " +
                 "[tel, {type=voice}, text, +31-1234567890], " +
-                "[email, {type=email}, text, Singel 258], " +
-                "[adr, {label=noreply@ripe.net}, text, [, , , , , , ]]]"));
+                "[adr, {label=Singel 258}, text, [, , , , , , ]], " +
+                "[email, {type=email}, text, noreply@ripe.net]]"));
 
         assertThat(entity.getObjectClassName(), is("entity"));
 
@@ -912,9 +911,8 @@ public class WhoisRdapServiceTestIntegration extends AbstractRdapIntegrationTest
                 "[[version, {}, text, 4.0], " +
                 "[fn, {}, text, First Role], " +
                 "[kind, {}, text, group], " +
-                "[email, {type=email}, text, Singel 258], " +
-                "[adr, {label=dbtest@ripe.net}, " +
-                "text, [, , , , , , ]]]"));
+                "[adr, {label=Singel 258}, text, [, , , , , , ]], " +
+                "[email, {type=email}, text, dbtest@ripe.net]]"));
 
         assertThat(entity.getEntitySearchResults(), hasSize(2));
         assertThat(entity.getEntitySearchResults().get(0).getHandle(), is("OWNER-MNT"));
@@ -1455,9 +1453,10 @@ public class WhoisRdapServiceTestIntegration extends AbstractRdapIntegrationTest
                 "[fn, {}, text, Abuse Contact], " +
                 "[kind, {}, text, group], " +
                 "[tel, {type=voice}, text, +31 6 12345678], " +
-                "[email, {type=email}, text, Singel 358], " +
+                "[adr, {label=Singel 358}, text, [, , , , , , ]], " +
                 "[email, {type=abuse}, text, abuse@test.net], " +
-                "[adr, {label=work@test.com\npersonal@test.com}, text, [, , , , , , ]]]"));
+                "[email, {type=email}, text, work@test.com], " +
+                "[email, {type=email}, text, personal@test.com]]"));
     }
 
     @Test
@@ -1497,7 +1496,7 @@ public class WhoisRdapServiceTestIntegration extends AbstractRdapIntegrationTest
                 "[[version, {}, text, 4.0], " +
                 "[fn, {}, text, irt-IRT1], " +
                 "[kind, {}, text, group], " +
-                "[email, {type=email}, text, Street 1]]"));
+                "[adr, {label=Street 1}, text, [, , , , , , ]]]"));
 
         assertThat(entities.get(1).getHandle(), is("OWNER-MNT"));
         assertThat(entities.get(1).getRoles(), contains(Role.REGISTRANT));
@@ -1513,7 +1512,7 @@ public class WhoisRdapServiceTestIntegration extends AbstractRdapIntegrationTest
                 "[fn, {}, text, Test Person], " +
                 "[kind, {}, text, individual], " +
                 "[tel, {type=voice}, text, +31 6 12345678], " +
-                "[email, {type=email}, text, Singel 258]]"));
+                "[adr, {label=Singel 258}, text, [, , , , , , ]]]"));
 
     }
     @Test
@@ -1564,9 +1563,10 @@ public class WhoisRdapServiceTestIntegration extends AbstractRdapIntegrationTest
                 "[fn, {}, text, Abuse Contact], " +
                 "[kind, {}, text, group], " +
                 "[tel, {type=voice}, text, +31 6 12345678], " +
-                "[email, {type=email}, text, Singel 358], " +
+                "[adr, {label=Singel 358}, text, [, , , , , , ]], " +
                 "[email, {type=abuse}, text, abuse@test.net], " +
-                "[adr, {label=work@test.com\npersonal@test.com}, text, [, , , , , , ]]]"));
+                "[email, {type=email}, text, work@test.com], " +
+                "[email, {type=email}, text, personal@test.com]]"));
     }
 
     @Test
@@ -1782,7 +1782,7 @@ public class WhoisRdapServiceTestIntegration extends AbstractRdapIntegrationTest
                 "[fn, {}, text, Abuse Contact], " +
                 "[kind, {}, text, group], " +
                 "[tel, {type=voice}, text, +31 6 12345678], " +
-                "[email, {type=email}, text, Singel 258], " +
+                "[adr, {label=Singel 258}, text, [, , , , , , ]], " +
                 "[email, {type=abuse}, text, abuse@test.net]]"));
     }
 
@@ -2156,7 +2156,7 @@ public class WhoisRdapServiceTestIntegration extends AbstractRdapIntegrationTest
                 "[fn, {}, text, Test Person], " +
                 "[kind, {}, text, individual], " +
                 "[tel, {type=voice}, text, +31 6 12345678], " +
-                "[email, {type=email}, text, Singel 258]]"));
+                "[adr, {label=Singel 258}, text, [, , , , , , ]]]"));
 
         assertThat(entity.getLinks(), hasSize(2));
         assertThat(entity.getLinks().get(0).getRel(), is("self"));
@@ -2274,9 +2274,8 @@ public class WhoisRdapServiceTestIntegration extends AbstractRdapIntegrationTest
                 "[[version, {}, text, 4.0], " +
                 "[fn, {}, text, Organisation One], " +
                 "[kind, {}, text, org], " +
-                "[email, {type=email}, text, One Org Street], " +
-                "[adr, {label=test@ripe.net}, " +
-                "text, [, , , , , , ]]]"));
+                "[adr, {label=One Org Street}, text, [, , , , , , ]], " +
+                "[email, {type=email}, text, test@ripe.net]]"));
 
         assertCopyrightLink(entity.getLinks(), "https://rdap.db.ripe.net/entity/ORG-ONE-TEST");
 
@@ -2303,9 +2302,10 @@ public class WhoisRdapServiceTestIntegration extends AbstractRdapIntegrationTest
                 "language:      EN\n" +
                 "admin-c:       TP2-TEST\n" +
                 "tech-c:        TP1-TEST\n" +
-                "tech-c:        TP2-TEST\n" + //as email
+                "tech-c:        TP2-TEST\n" + //has email
                 "mnt-ref:       OWNER-MNT\n" +
                 "mnt-ref:       OWNER-MNT\n" +
+                "mbrs-by-ref:   OWNER-MNT, OWNER-MNT\n" +
                 "mnt-by:        OWNER-MNT\n" +
                 "created:         2011-07-28T00:35:42Z\n" +
                 "last-modified:   2019-02-28T10:14:46Z\n" +
@@ -2315,7 +2315,7 @@ public class WhoisRdapServiceTestIntegration extends AbstractRdapIntegrationTest
                 .request(MediaType.APPLICATION_JSON_TYPE)
                 .get(Entity.class);
 
-        assertThat(entity.getRedacted().size(), is(2));
+        assertThat(entity.getRedacted().size(), is(3));
 
         assertThat(entity.getRedacted().get(0).getName().getDescription(), is("e-mail contact information"));
         assertThat(entity.getRedacted().get(0).getReason().getDescription(), is("Personal data"));
@@ -2328,7 +2328,16 @@ public class WhoisRdapServiceTestIntegration extends AbstractRdapIntegrationTest
         assertDoesNotThrow(() -> JsonPath.compile(entity.getRedacted().get(1).getPrePath()));
         assertThat("$.entities[?(@.handle=='mnt-ref')]", is(entity.getRedacted().get(1).getPrePath()));
         assertThat(entity.getRedacted().get(1).getMethod(), is("removal"));
+
+        assertThat(entity.getRedacted().get(2).getName().getDescription(), is("Indirect population of a set"));
+        assertThat(entity.getRedacted().get(2).getReason().getDescription(), is("No registrant mntner"));
+        assertDoesNotThrow(() -> JsonPath.compile(entity.getRedacted().get(2).getPrePath()));
+        assertThat("$.entities[?(@.handle=='mbrs-by-ref')]", is(entity.getRedacted().get(2).getPrePath()));
+        assertThat(entity.getRedacted().get(1).getMethod(), is("removal"));
+
+        assertThat(entity.getRdapConformance(), containsInAnyOrder("cidr0", "rdap_level_0", "nro_rdap_profile_0", "redacted"));
     }
+
     @Test
     public void lookup_nameserver_not_found() {
         final ServerErrorException serverErrorException = assertThrows(ServerErrorException.class, () -> {

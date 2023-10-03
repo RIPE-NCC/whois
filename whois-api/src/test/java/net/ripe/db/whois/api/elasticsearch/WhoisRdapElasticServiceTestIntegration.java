@@ -2,6 +2,7 @@ package net.ripe.db.whois.api.elasticsearch;
 
 import com.google.common.collect.Lists;
 import com.google.common.util.concurrent.Uninterruptibles;
+import com.hazelcast.com.jayway.jsonpath.JsonPath;
 import jakarta.ws.rs.BadRequestException;
 import jakarta.ws.rs.ClientErrorException;
 import jakarta.ws.rs.NotFoundException;
@@ -18,6 +19,7 @@ import net.ripe.db.whois.api.rdap.domain.Link;
 import net.ripe.db.whois.api.rdap.domain.Nameserver;
 import net.ripe.db.whois.api.rdap.domain.Notice;
 import net.ripe.db.whois.api.rdap.domain.RdapObject;
+import net.ripe.db.whois.api.rdap.domain.Redaction;
 import net.ripe.db.whois.api.rdap.domain.SearchResult;
 import net.ripe.db.whois.api.rest.client.RestClientUtils;
 import net.ripe.db.whois.common.rpsl.RpslObject;
@@ -48,6 +50,7 @@ import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.fail;
 
@@ -714,6 +717,26 @@ public class WhoisRdapElasticServiceTestIntegration extends AbstractElasticSearc
         assertThat(notice.getLinks().get(0).getHref(), is("https://apps.db.ripe.net/docs/HTML-Terms-And-Conditions"));
         assertThat(notice.getLinks().get(0).getType(), is("application/pdf"));
         assertThat(notice.getLinks().get(0).getValue(), is(value));
+    }
+
+    // Test redactions
+
+    @Test
+    public void search_redactions() {
+        final SearchResult result = createResource("entities?handle=*TEST")
+                .request(MediaType.APPLICATION_JSON_TYPE)
+                .get(SearchResult.class);
+
+        assertThat(result.getEntitySearchResults()
+                .stream()
+                .filter(entity -> entity.getHandle().equals("ORG-TEST1-TEST"))
+                .map(RdapObject::getRedacted)
+                .flatMap(Collection::stream)
+                .map(Redaction::getPrePath)
+                .collect(Collectors.toList()), contains("$.entities[?(@.roles=='ADMINISTRATIVE')].vcardArray[1][?" +
+                "(@[0]=='e-mail')]"));
+
+        assertThat(result.getRdapConformance(), containsInAnyOrder("cidr0", "rdap_level_0", "nro_rdap_profile_0", "redacted"));
     }
 
     // helper methods

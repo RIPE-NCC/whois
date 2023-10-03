@@ -3,6 +3,7 @@ package net.ripe.db.whois.api.rdap;
 import com.google.common.collect.Maps;
 import net.ripe.db.whois.api.rdap.domain.Redaction;
 import net.ripe.db.whois.common.dao.RpslObjectDao;
+import net.ripe.db.whois.common.domain.CIString;
 import net.ripe.db.whois.common.rpsl.AttributeType;
 import net.ripe.db.whois.common.rpsl.ObjectType;
 import net.ripe.db.whois.common.rpsl.RpslAttribute;
@@ -12,7 +13,9 @@ import org.springframework.stereotype.Component;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import static net.ripe.db.whois.api.rdap.RdapObjectMapper.CONTACT_ATTRIBUTE_TO_ROLE_NAME;
 import static net.ripe.db.whois.common.rpsl.AttributeType.E_MAIL;
@@ -65,12 +68,17 @@ public class RedactionObjectMapper {
     }
 
     private void checkContactEntityLevelCreation(final List<Redaction> redactions, final RpslAttribute rpslAttribute, final AttributeType rpslAttributeType) {
-        final RpslObject referencedRpslObject = getObject(rpslAttributeType.getReferences(), rpslAttribute.getCleanValue().toString());
-        for (final Map.Entry<AttributeType, Redaction> unsupportedVcard : UNSUPPORTED_VCARDS.entrySet()) {
-            if (referencedRpslObject.containsAttribute(unsupportedVcard.getKey())){
-                createRedaction(unsupportedVcard.getValue(), String.format(UNSUPPORTED_VCARD_SYNTAX,
-                        CONTACT_ATTRIBUTE_TO_ROLE_NAME.get(rpslAttributeType).name(), unsupportedVcard.getKey()),
-                        redactions);
+        final List<RpslObject> referencedRpslObject = getObject(rpslAttributeType.getReferences(), rpslAttribute.getCleanValues());
+        if (!referencedRpslObject.isEmpty()) {
+            for (final Map.Entry<AttributeType, Redaction> unsupportedVcard : UNSUPPORTED_VCARDS.entrySet()) {
+                for (final RpslObject rpslObject : referencedRpslObject) {
+                    if (rpslObject.containsAttribute(unsupportedVcard.getKey())) {
+                        createRedaction(unsupportedVcard.getValue(), String.format(UNSUPPORTED_VCARD_SYNTAX,
+                                        CONTACT_ATTRIBUTE_TO_ROLE_NAME.get(rpslAttributeType).name(), unsupportedVcard.getKey()),
+                                redactions);
+                        break;
+                    }
+                }
             }
         }
     }
@@ -82,14 +90,12 @@ public class RedactionObjectMapper {
         }
     }
 
-    private RpslObject getObject(final Set<ObjectType> possibleObjectTypes, final String lookupKey){
+    private List<RpslObject> getObject(final Set<ObjectType> possibleObjectTypes, final Set<CIString> lookupKeys){
+        final List<RpslObject> objects = Lists.newArrayList();
         for (final ObjectType objectType : possibleObjectTypes) {
-            final RpslObject rpslObject = rpslObjectDao.getByKeyOrNull(objectType, lookupKey);
-            if (rpslObject != null){
-                return rpslObject;
-            }
+            objects.addAll(lookupKeys.stream().map(lookupKey -> rpslObjectDao.getByKeyOrNull(objectType, lookupKey)).filter(Objects::nonNull).toList());
         }
-        return null;
+        return objects;
     }
 
 }
