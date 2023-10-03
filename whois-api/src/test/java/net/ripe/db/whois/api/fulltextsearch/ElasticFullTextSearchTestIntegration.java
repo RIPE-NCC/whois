@@ -2719,6 +2719,19 @@ public class ElasticFullTextSearchTestIntegration extends AbstractElasticSearchI
 
         assertThat(numFound(query("q=::123:2")), is(1L));
     }
+
+    @Test
+    public void request_for_email_english_stopword(){
+        databaseHelper.addObject(RpslObject.parse(
+                "person: First Last\n" +
+                        "nic-hdl: AA1-RIPE\n" +
+                        "remarks: Other remark\n" +
+                        "e-mail:  it@test.it\n" +
+                        "source: RIPE"));
+        rebuildIndex();
+
+        assertThat(numFound(query("q=test.it")), is(1L));
+    }
     // helper methods
 
     private QueryResponse query(final String queryString) {
