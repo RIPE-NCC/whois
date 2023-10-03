@@ -2303,7 +2303,7 @@ public class WhoisRdapServiceTestIntegration extends AbstractRdapIntegrationTest
                 "language:      EN\n" +
                 "admin-c:       TP2-TEST\n" +
                 "tech-c:        TP1-TEST\n" +
-                "tech-c:        TP2-TEST\n" +
+                "tech-c:        TP2-TEST\n" + //as email
                 "mnt-ref:       OWNER-MNT\n" +
                 "mnt-ref:       OWNER-MNT\n" +
                 "mnt-by:        OWNER-MNT\n" +
@@ -2320,11 +2320,13 @@ public class WhoisRdapServiceTestIntegration extends AbstractRdapIntegrationTest
         assertThat(entity.getRedacted().get(0).getName().getDescription(), is("e-mail contact information"));
         assertThat(entity.getRedacted().get(0).getReason().getDescription(), is("Personal data"));
         assertDoesNotThrow(() -> JsonPath.compile(entity.getRedacted().get(0).getPrePath()));
+        assertThat("$.entities[?(@.roles=='TECHNICAL')].vcardArray[1][?(@[0]=='e-mail')]", is(entity.getRedacted().get(0).getPrePath()));
         assertThat(entity.getRedacted().get(0).getMethod(), is("removal"));
 
         assertThat(entity.getRedacted().get(1).getName().getDescription(), is("Incoming references protection"));
         assertThat(entity.getRedacted().get(1).getReason().getDescription(), is("No registrant mntner"));
         assertDoesNotThrow(() -> JsonPath.compile(entity.getRedacted().get(1).getPrePath()));
+        assertThat("$.entities[?(@.handle=='mnt-ref')]", is(entity.getRedacted().get(1).getPrePath()));
         assertThat(entity.getRedacted().get(1).getMethod(), is("removal"));
     }
     @Test
