@@ -733,7 +733,7 @@ public class WhoisRdapElasticServiceTestIntegration extends AbstractElasticSearc
                 .map(RdapObject::getRedacted)
                 .flatMap(Collection::stream)
                 .map(Redaction::getPrePath)
-                .collect(Collectors.toList()), contains("$.entities[?(@.roles=='ADMINISTRATIVE')].vcardArray[1][?" +
+                .collect(Collectors.toList()), contains("$.entities[?(@.roles=='administrative')].vcardArray[1][?" +
                 "(@[0]=='e-mail')]"));
 
         assertThat(result.getRdapConformance(), containsInAnyOrder("cidr0", "rdap_level_0", "nro_rdap_profile_0", "redacted"));

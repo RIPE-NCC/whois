@@ -296,7 +296,7 @@ class RdapObjectMapper {
             rdapResponse.getRemarks().add(createRemark(rpslObject));
         }
 
-        rdapResponse.getRedacted().addAll(redactionObjectMapper.createContactOrEntityRedaction(rpslObject.getAttributes()));
+        rdapResponse.getRedacted().addAll(redactionObjectMapper.createEntitiesRedaction(rpslObject.getAttributes()));
         rdapResponse.getEvents().add(createEvent(DateUtil.fromString(rpslObject.getValueForAttribute(AttributeType.CREATED)), Action.REGISTRATION));
         rdapResponse.getEvents().add(createEvent(DateUtil.fromString(rpslObject.getValueForAttribute(AttributeType.LAST_MODIFIED)), Action.LAST_CHANGED));
 
