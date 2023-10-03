@@ -22,7 +22,6 @@ import net.ripe.db.whois.api.rdap.domain.Link;
 import net.ripe.db.whois.api.rdap.domain.Nameserver;
 import net.ripe.db.whois.api.rdap.domain.Notice;
 import net.ripe.db.whois.api.rdap.domain.RdapObject;
-import net.ripe.db.whois.api.rdap.domain.Redaction;
 import net.ripe.db.whois.api.rdap.domain.Remark;
 import net.ripe.db.whois.api.rdap.domain.Role;
 import net.ripe.db.whois.api.rdap.domain.SearchResult;
@@ -41,7 +40,6 @@ import net.ripe.db.whois.common.iptree.Ipv4Tree;
 import net.ripe.db.whois.common.iptree.Ipv6Entry;
 import net.ripe.db.whois.common.iptree.Ipv6Tree;
 import net.ripe.db.whois.common.rpsl.AttributeType;
-import net.ripe.db.whois.common.rpsl.ObjectTemplate;
 import net.ripe.db.whois.common.rpsl.ObjectType;
 import net.ripe.db.whois.common.rpsl.RpslAttribute;
 import net.ripe.db.whois.common.rpsl.RpslObject;
@@ -64,7 +62,6 @@ import javax.annotation.Nullable;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -104,7 +101,7 @@ class RdapObjectMapper {
     private static final String TERMS_AND_CONDITIONS = "http://www.ripe.net/data-tools/support/documentation/terms";
     private static final Link COPYRIGHT_LINK = new Link(TERMS_AND_CONDITIONS, "copyright", TERMS_AND_CONDITIONS, null, null);
 
-    private static final Map<AttributeType, Role> CONTACT_ATTRIBUTE_TO_ROLE_NAME = Maps.newHashMap();
+    public static final Map<AttributeType, Role> CONTACT_ATTRIBUTE_TO_ROLE_NAME = Maps.newHashMap();
     static {
         CONTACT_ATTRIBUTE_TO_ROLE_NAME.put(ADMIN_C, Role.ADMINISTRATIVE);
         CONTACT_ATTRIBUTE_TO_ROLE_NAME.put(TECH_C, Role.TECHNICAL);
@@ -113,23 +110,14 @@ class RdapObjectMapper {
         CONTACT_ATTRIBUTE_TO_ROLE_NAME.put(ORG, Role.REGISTRANT);// TODO: [MA] both mnt_by and org have same role
         CONTACT_ATTRIBUTE_TO_ROLE_NAME.put(MNT_IRT, Role.ABUSE);
     }
-
-    private static final Map<AttributeType, Redaction> UNSUPPORTED_ATTRIBUTES_RELATED_REDACTIONS = Maps.newHashMap();
-    static {
-        UNSUPPORTED_ATTRIBUTES_RELATED_REDACTIONS.put(E_MAIL, new Redaction(new Redaction.Description("e-mail contact information"), new Redaction.Description("Personal data")));
-        UNSUPPORTED_ATTRIBUTES_RELATED_REDACTIONS.put(AttributeType.NOTIFY, new Redaction(new Redaction.Description("Updates notification e-mail information"), new Redaction.Description("Personal data")));
-        UNSUPPORTED_ATTRIBUTES_RELATED_REDACTIONS.put(AttributeType.MBRS_BY_REF, new Redaction(new Redaction.Description("Indirect population of a set"), new Redaction.Description("No registrant mntner")));
-        UNSUPPORTED_ATTRIBUTES_RELATED_REDACTIONS.put(AttributeType.MNT_DOMAINS, new Redaction(new Redaction.Description("Domain objects protection"), new Redaction.Description("No registrant mntner")));
-        UNSUPPORTED_ATTRIBUTES_RELATED_REDACTIONS.put(AttributeType.MNT_LOWER, new Redaction(new Redaction.Description("Low level objects protection"), new Redaction.Description("No registrant mntner")));
-        UNSUPPORTED_ATTRIBUTES_RELATED_REDACTIONS.put(AttributeType.MNT_REF, new Redaction(new Redaction.Description("Incoming references protection"), new Redaction.Description("No registrant mntner")));
-        UNSUPPORTED_ATTRIBUTES_RELATED_REDACTIONS.put(AttributeType.MNT_ROUTES, new Redaction(new Redaction.Description("Route object creation protection"), new Redaction.Description("No registrant mntner")));
-    }
     private final NoticeFactory noticeFactory;
     private final RpslObjectDao rpslObjectDao;
     private final ReservedResources reservedResources;
     private final Ipv4Tree ipv4Tree;
     private final Ipv6Tree ipv6Tree;
     private final String port43;
+
+    private final RedactionObjectMapper redactionObjectMapper;
 
 
     @Autowired
@@ -139,13 +127,15 @@ class RdapObjectMapper {
             final ReservedResources reservedResources,
             final Ipv4Tree ipv4Tree,
             final Ipv6Tree ipv6Tree,
-            @Value("${rdap.port43:}") final String port43) {
+            @Value("${rdap.port43:}") final String port43,
+            final RedactionObjectMapper redactionObjectMapper) {
         this.noticeFactory = noticeFactory;
         this.rpslObjectDao = rpslObjectDao;
         this.ipv4Tree = ipv4Tree;
         this.ipv6Tree = ipv6Tree;
         this.port43 = port43;
         this.reservedResources = reservedResources;
+        this.redactionObjectMapper = redactionObjectMapper;
     }
 
     public Object map(final String requestUrl,
@@ -306,7 +296,7 @@ class RdapObjectMapper {
             rdapResponse.getRemarks().add(createRemark(rpslObject));
         }
 
-        rdapResponse.getRedacted().addAll(getRedactions(rpslObjectType, rpslObject.getAttributes()));
+        rdapResponse.getRedacted().addAll(redactionObjectMapper.createContactOrEntityRedaction(rpslObject.getAttributes()));
         rdapResponse.getEvents().add(createEvent(DateUtil.fromString(rpslObject.getValueForAttribute(AttributeType.CREATED)), Action.REGISTRATION));
         rdapResponse.getEvents().add(createEvent(DateUtil.fromString(rpslObject.getValueForAttribute(AttributeType.LAST_MODIFIED)), Action.LAST_CHANGED));
 
@@ -315,21 +305,6 @@ class RdapObjectMapper {
         return rdapResponse;
     }
 
-    private List<Redaction> getRedactions(final ObjectType objectType, final List<RpslAttribute> rpslAttributes){
-        final List<AttributeType> unsupportedValuesPerObjectType = ObjectTemplate.getTemplate(objectType).getAllAttributes().stream().filter(UNSUPPORTED_ATTRIBUTES_RELATED_REDACTIONS::containsKey).toList();
-
-        final List<Redaction> redactions = Lists.newArrayList();
-        for (final RpslAttribute rpslAttribute : rpslAttributes) {
-            AttributeType rpslAttributeType = AttributeType.getByName(rpslAttribute.getKey());
-            if (unsupportedValuesPerObjectType.contains(rpslAttributeType)){
-                Redaction redaction = UNSUPPORTED_ATTRIBUTES_RELATED_REDACTIONS.get(rpslAttributeType);
-                if (!redactions.contains(redaction)){
-                    redactions.add(redaction);
-                }
-            }
-        }
-        return redactions;
-    }
     private RdapObject mapCommons(final RdapObject rdapResponse, final String requestUrl) {
         final RdapObject rdapObject = mapCommonNoticesAndPort(rdapResponse, requestUrl);
         mapCommonLinks(rdapObject, requestUrl);
@@ -545,7 +520,7 @@ class RdapObjectMapper {
             if (referencedRpslObject == null){
                 continue;
             }
-            entity.setVCardArray(createVCard(referencedRpslObject));
+            entity.setVCardArray(createContactVCard(referencedRpslObject));
         }
     }
 
@@ -660,39 +635,35 @@ class RdapObjectMapper {
         domain.getEntitySearchResults().addAll(createContactEntities(rpslObject, requestUrl));
         return domain;
     }
+    private static VCard createContactVCard(final RpslObject rpslObject) {
+        return commonVcard(rpslObject).build();
+
+    }
 
     private static VCard createVCard(final RpslObject rpslObject) {
+        return commonVcard(rpslObject).addAdr(rpslObject.getValuesForAttribute(E_MAIL)).build();
+    }
+
+    private static VCardBuilder commonVcard(RpslObject rpslObject) {
         final VCardBuilder builder = new VCardBuilder();
         builder.addVersion();
 
         switch (rpslObject.getType()) {
-            case PERSON:
-                builder.addFn(rpslObject.getValueForAttribute(PERSON)).addKind(INDIVIDUAL);
-                break;
-            case MNTNER:
-                builder.addFn(rpslObject.getValueForAttribute(AttributeType.MNTNER)).addKind(INDIVIDUAL);
-                break;
-            case ORGANISATION:
-                builder.addFn(rpslObject.getValueForAttribute(ORG_NAME)).addKind(ORGANISATION);
-                break;
-            case ROLE:
-                builder.addFn(rpslObject.getValueForAttribute(ROLE)).addKind(GROUP);
-                break;
-            case IRT:
-                builder.addFn(rpslObject.getValueForAttribute(IRT)).addKind(GROUP);
-                break;
-            default:
-                break;
+            case PERSON -> builder.addFn(rpslObject.getValueForAttribute(PERSON)).addKind(INDIVIDUAL);
+            case MNTNER -> builder.addFn(rpslObject.getValueForAttribute(AttributeType.MNTNER)).addKind(INDIVIDUAL);
+            case ORGANISATION -> builder.addFn(rpslObject.getValueForAttribute(ORG_NAME)).addKind(ORGANISATION);
+            case ROLE -> builder.addFn(rpslObject.getValueForAttribute(ROLE)).addKind(GROUP);
+            case IRT -> builder.addFn(rpslObject.getValueForAttribute(IRT)).addKind(GROUP);
+            default -> {
+            }
         }
-        builder.addAdr(rpslObject.getValuesForAttribute(ADDRESS))
-                .addTel(rpslObject.getValuesForAttribute(PHONE))
+        builder.addTel(rpslObject.getValuesForAttribute(PHONE))
                 .addFax(rpslObject.getValuesForAttribute(FAX_NO))
-                .addEmail(rpslObject.getValuesForAttribute(E_MAIL))
+                .addEmail(rpslObject.getValuesForAttribute(ADDRESS))
                 .addAbuseMailBox(rpslObject.getValueOrNullForAttribute(ABUSE_MAILBOX))
                 .addOrg(rpslObject.getValuesForAttribute(ORG))
                 .addGeo(rpslObject.getValuesForAttribute(GEOLOC));
-
-        return builder.build();
+        return builder;
     }
 
     private static AsBlockRange getAsBlockRange(final String asBlock) {

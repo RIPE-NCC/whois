@@ -14,6 +14,7 @@ import java.io.Serializable;
 @XmlType(name = "Redaction", propOrder = {
         "name",
         "reason",
+        "prePath",
         "method"
 })
 @JsonInclude(JsonInclude.Include.NON_EMPTY)
@@ -23,7 +24,7 @@ public class Redaction implements Serializable {
 
     private Description reason;
 
-    private JsonPath prePath;
+    private String prePath;
 
     private String method;
 
@@ -32,7 +33,6 @@ public class Redaction implements Serializable {
     }
     public Redaction(final Description name, final Description reason){
         this.name = name;
-        //this.prePath = prePath;
         this.reason = reason;
         this.method = "removal";
     }
@@ -47,6 +47,14 @@ public class Redaction implements Serializable {
 
     public String getMethod() {
         return method;
+    }
+
+    public String getPrePath() {
+        return prePath;
+    }
+
+    public void setPrePath(final String prePath) {
+        this.prePath = prePath;
     }
 
     @XmlAccessorType(XmlAccessType.FIELD)
