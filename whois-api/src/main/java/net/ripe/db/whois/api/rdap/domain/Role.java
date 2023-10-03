@@ -30,6 +30,10 @@ public enum Role {
         this.value = value;
     }
 
+    public String getValue() {
+        return value;
+    }
+
     public static class Adapter extends XmlAdapter<String, Role> {
 
         @Override

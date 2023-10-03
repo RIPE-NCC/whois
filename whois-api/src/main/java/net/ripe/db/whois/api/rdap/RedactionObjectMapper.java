@@ -1,6 +1,7 @@
 package net.ripe.db.whois.api.rdap;
 
 import com.google.common.collect.Maps;
+import com.google.common.collect.Sets;
 import net.ripe.db.whois.api.rdap.domain.Redaction;
 import net.ripe.db.whois.common.dao.RpslObjectDao;
 import net.ripe.db.whois.common.domain.CIString;
@@ -9,6 +10,7 @@ import net.ripe.db.whois.common.rpsl.ObjectType;
 import net.ripe.db.whois.common.rpsl.RpslAttribute;
 import net.ripe.db.whois.common.rpsl.RpslObject;
 import org.apache.commons.compress.utils.Lists;
+
 import org.springframework.stereotype.Component;
 
 import java.util.List;
@@ -53,49 +55,74 @@ public class RedactionObjectMapper {
         this.rpslObjectDao = rpslObjectDao;
     }
 
-    public List<Redaction> createContactOrEntityRedaction(final List<RpslAttribute> rpslAttributes){
-        // TODO: [MH] Part of this logic can be merge with the logic of contactEntities in RdapObjectMapper. Big refactor to make a clear merge
+    public List<Redaction> createEntitiesRedaction(final List<RpslAttribute> rpslAttributes){
         final List<Redaction> redactions = Lists.newArrayList();
+        final Map<CIString, Set<AttributeType>> contacts = Maps.newTreeMap();
         for (final RpslAttribute rpslAttribute: rpslAttributes) {
             final AttributeType rpslAttributeType = AttributeType.getByName(rpslAttribute.getKey());
             if (UNSUPPORTED_ENTITIES.containsKey(rpslAttributeType)){
                 createRedaction(UNSUPPORTED_ENTITIES.get(rpslAttributeType), String.format(UNSUPPORTED_ENTITIES_SYNTAX, rpslAttributeType), redactions);
-            } else if (CONTACT_ATTRIBUTE_TO_ROLE_NAME.containsKey(rpslAttributeType)){
-                checkContactEntityLevelCreation(redactions, rpslAttribute, rpslAttributeType);
+            } else {
+                // TODO: [MH] Part of this logic can be merge with the logic of contactEntities in RdapObjectMapper. Big refactor to make a clear merge
+                for (final AttributeType attributeType : CONTACT_ATTRIBUTE_TO_ROLE_NAME.keySet()) {
+                    if (attributeType.equals(rpslAttributeType)){
+                        rpslAttribute.getCleanValues().forEach( contactName -> {
+                            if (contacts.containsKey(contactName)) {
+                                contacts.get(contactName).add(attributeType);
+                            } else {
+                                contacts.put(contactName, Sets.newHashSet(attributeType));
+                            }
+                        });
+                    }
+                }
+            }
+        }
+        if (!contacts.isEmpty()) {
+            redactions.addAll(checkContactEntityLevelCreation(contacts));
+        }
+        return redactions;
+    }
+
+    private List<Redaction> checkContactEntityLevelCreation(final Map<CIString, Set<AttributeType>> contacts) {
+        final List<Redaction> redactions = Lists.newArrayList();
+        for (final Map.Entry<CIString, Set<AttributeType>> entry : contacts.entrySet()) {
+            final Set<ObjectType> references = entry.getValue().stream().flatMap(attributeType -> attributeType.getReferences().stream()).collect(Collectors.toSet());
+            final RpslObject referencedRpslObject = getObject(references, entry.getKey());
+            if (referencedRpslObject == null){
+                return Lists.newArrayList();
+            }
+            final String roles = entry.getValue().stream().map(attribute -> {
+                if (CONTACT_ATTRIBUTE_TO_ROLE_NAME.containsKey(attribute)) {
+                    return CONTACT_ATTRIBUTE_TO_ROLE_NAME.get(attribute).getValue();
+                }
+                return null;
+            }).filter(Objects::nonNull).collect(Collectors.joining(" && "));
+
+            for (final Map.Entry<AttributeType, Redaction> unsupportedVcard : UNSUPPORTED_VCARDS.entrySet()) {
+                if (referencedRpslObject.containsAttribute(unsupportedVcard.getKey())) {
+                    createRedaction(unsupportedVcard.getValue(), String.format(UNSUPPORTED_VCARD_SYNTAX, roles, unsupportedVcard.getKey()), redactions);
+                }
             }
         }
         return redactions;
     }
 
-    private void checkContactEntityLevelCreation(final List<Redaction> redactions, final RpslAttribute rpslAttribute, final AttributeType rpslAttributeType) {
-        final List<RpslObject> referencedRpslObject = getObject(rpslAttributeType.getReferences(), rpslAttribute.getCleanValues());
-        if (!referencedRpslObject.isEmpty()) {
-            for (final Map.Entry<AttributeType, Redaction> unsupportedVcard : UNSUPPORTED_VCARDS.entrySet()) {
-                for (final RpslObject rpslObject : referencedRpslObject) {
-                    if (rpslObject.containsAttribute(unsupportedVcard.getKey())) {
-                        createRedaction(unsupportedVcard.getValue(), String.format(UNSUPPORTED_VCARD_SYNTAX,
-                                        CONTACT_ATTRIBUTE_TO_ROLE_NAME.get(rpslAttributeType).name(), unsupportedVcard.getKey()),
-                                redactions);
-                        break;
-                    }
-                }
+    private void createRedaction(final Redaction unsupportedVcard, final String unsupportedCardSyntax,
+                                 final List<Redaction> redactions) {
+        unsupportedVcard.setPrePath(unsupportedCardSyntax);
+        if (!redactions.contains(unsupportedVcard)){
+            redactions.add(unsupportedVcard);
+        }
+    }
+
+    private RpslObject getObject(final Set<ObjectType> possibleObjectTypes, final CIString lookupKey){
+        for (final ObjectType objectType : possibleObjectTypes) {
+            final RpslObject rpslObject = rpslObjectDao.getByKeyOrNull(objectType, lookupKey);
+            if (rpslObject != null){
+                return rpslObject;
             }
         }
-    }
-
-    private void createRedaction(final Redaction redaction, final String prePath, final List<Redaction> redactions) {
-        redaction.setPrePath(prePath);
-        if (!redactions.contains(redaction)){
-            redactions.add(redaction);
-        }
-    }
-
-    private List<RpslObject> getObject(final Set<ObjectType> possibleObjectTypes, final Set<CIString> lookupKeys){
-        final List<RpslObject> objects = Lists.newArrayList();
-        for (final ObjectType objectType : possibleObjectTypes) {
-            objects.addAll(lookupKeys.stream().map(lookupKey -> rpslObjectDao.getByKeyOrNull(objectType, lookupKey)).filter(Objects::nonNull).toList());
-        }
-        return objects;
+        return null;
     }
 
 }
