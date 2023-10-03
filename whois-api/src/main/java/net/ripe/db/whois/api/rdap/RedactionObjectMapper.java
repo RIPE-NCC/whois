@@ -64,11 +64,13 @@ public class RedactionObjectMapper {
         return redactions;
     }
 
-    private void checkContactEntityLevelCreation(List<Redaction> redactions, RpslAttribute rpslAttribute, AttributeType rpslAttributeType) {
+    private void checkContactEntityLevelCreation(final List<Redaction> redactions, final RpslAttribute rpslAttribute, final AttributeType rpslAttributeType) {
         final RpslObject referencedRpslObject = getObject(rpslAttributeType.getReferences(), rpslAttribute.getCleanValue().toString());
         for (final Map.Entry<AttributeType, Redaction> unsupportedVcard : UNSUPPORTED_VCARDS.entrySet()) {
             if (referencedRpslObject.containsAttribute(unsupportedVcard.getKey())){
-                createRedaction(unsupportedVcard.getValue(), String.format(UNSUPPORTED_VCARD_SYNTAX, CONTACT_ATTRIBUTE_TO_ROLE_NAME.get(rpslAttributeType).name(), rpslAttributeType), redactions);
+                createRedaction(unsupportedVcard.getValue(), String.format(UNSUPPORTED_VCARD_SYNTAX,
+                        CONTACT_ATTRIBUTE_TO_ROLE_NAME.get(rpslAttributeType).name(), unsupportedVcard.getKey()),
+                        redactions);
             }
         }
     }
