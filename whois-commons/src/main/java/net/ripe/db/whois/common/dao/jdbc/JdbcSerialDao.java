@@ -9,10 +9,16 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Primary;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
+import org.springframework.transaction.annotation.Isolation;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
 
 import javax.annotation.CheckForNull;
+import javax.annotation.Nullable;
 import javax.sql.DataSource;
+import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 
 
 @Repository
@@ -48,5 +54,15 @@ public class JdbcSerialDao implements SerialDao {
     @CheckForNull
     public Integer getAgeOfExactOrNextExistingSerial(final int serialId) {
         return JdbcRpslObjectOperations.getAgeOfExactOrNextExistingSerial(dateTimeProvider, jdbcTemplate, serialId);
+    }
+
+    @Override
+    @CheckForNull
+    @Transactional(isolation = Isolation.REPEATABLE_READ, propagation = Propagation.REQUIRES_NEW)
+    public Map<Integer, Integer> getMaxSerialIdWithObjectCount() {
+        final Integer maxSerialId =  jdbcTemplate.queryForObject("SELECT MAX(serial_id) FROM serials", Integer.class);
+        final Integer countInDb = jdbcTemplate.queryForObject( "SELECT count(*) FROM last WHERE sequence_id > 0", Integer.class);
+
+        return Collections.singletonMap(maxSerialId,countInDb);
     }
 }
