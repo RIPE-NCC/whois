@@ -61,7 +61,8 @@ public class RedactionObjectMapper {
         for (final RpslAttribute rpslAttribute: rpslAttributes) {
             final AttributeType rpslAttributeType = AttributeType.getByName(rpslAttribute.getKey());
             if (UNSUPPORTED_ENTITIES.containsKey(rpslAttributeType)){
-                createRedaction(UNSUPPORTED_ENTITIES.get(rpslAttributeType), String.format(UNSUPPORTED_ENTITIES_SYNTAX, rpslAttributeType), redactions);
+                createRedaction(UNSUPPORTED_ENTITIES.get(rpslAttributeType),
+                        String.format(UNSUPPORTED_ENTITIES_SYNTAX, String.join(",", rpslAttribute.getCleanValues())), redactions);
             } else {
                 // TODO: [MH] Part of this logic can be merge with the logic of contactEntities in RdapObjectMapper. Big refactor to make a clear merge
                 for (final AttributeType attributeType : CONTACT_ATTRIBUTE_TO_ROLE_NAME.keySet()) {
