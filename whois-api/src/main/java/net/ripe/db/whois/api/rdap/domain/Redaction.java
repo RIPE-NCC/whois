@@ -54,10 +54,6 @@ public class Redaction implements Serializable {
         return prePath;
     }
 
-    public void setPrePath(final String prePath) {
-        this.prePath = prePath;
-    }
-
     @Override
     public boolean equals(Object o) {
         if (this == o) {
@@ -67,9 +63,10 @@ public class Redaction implements Serializable {
             return false;
         }
         Redaction redaction = (Redaction) o;
-        return name.description.equals(redaction.name.description) && Objects.equals(reason.description,
-                redaction.reason.description) && Objects.equals(prePath,
-                redaction.prePath) && Objects.equals(method, redaction.method);
+        return name.description.equals(redaction.name.description) &&
+                reason.description.equals(redaction.reason.description) &&
+                prePath.equals(redaction.prePath) &&
+                method.equals(redaction.method);
     }
 
     @Override
@@ -96,5 +93,25 @@ public class Redaction implements Serializable {
         public String getDescription() {
             return description;
         }
+
+        @Override
+        public boolean equals(Object o) {
+            if (this == o) {
+                return true;
+            }
+            if (o == null || getClass() != o.getClass()) {
+                return false;
+            }
+            Description description1 = (Description) o;
+            return description.equals(description1.description);
+        }
+
+        @Override
+        public int hashCode() {
+            return Objects.hash(description);
+        }
+
+
     }
+
 }

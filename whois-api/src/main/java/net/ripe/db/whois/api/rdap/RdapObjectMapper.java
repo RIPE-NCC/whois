@@ -118,9 +118,6 @@ class RdapObjectMapper {
     private final Ipv6Tree ipv6Tree;
     private final String port43;
 
-    private final RedactionObjectMapper redactionObjectMapper;
-
-
     @Autowired
     public RdapObjectMapper(
             final NoticeFactory noticeFactory,
@@ -128,15 +125,13 @@ class RdapObjectMapper {
             final ReservedResources reservedResources,
             final Ipv4Tree ipv4Tree,
             final Ipv6Tree ipv6Tree,
-            @Value("${rdap.port43:}") final String port43,
-            final RedactionObjectMapper redactionObjectMapper) {
+            @Value("${rdap.port43:}") final String port43) {
         this.noticeFactory = noticeFactory;
         this.rpslObjectDao = rpslObjectDao;
         this.ipv4Tree = ipv4Tree;
         this.ipv6Tree = ipv6Tree;
         this.port43 = port43;
         this.reservedResources = reservedResources;
-        this.redactionObjectMapper = redactionObjectMapper;
     }
 
     public Object map(final String requestUrl,
@@ -499,7 +494,7 @@ class RdapObjectMapper {
             }
         }
 
-        final List<Redaction> contactEntityRedactions = Lists.newArrayList();
+      //  final List<Redaction> contactEntityRedactions = Lists.newArrayList();
         for (final Map.Entry<CIString, Set<AttributeType>> entry : contacts.entrySet()) {
             final Entity entity = new Entity();
             entity.setHandle(entry.getKey().toString());
@@ -509,18 +504,18 @@ class RdapObjectMapper {
                 entity.getRoles().add(CONTACT_ATTRIBUTE_TO_ROLE_NAME.get(attributeType));
             }
             mapEntityLinks(entity, requestUrl, entry.getKey());
-            mapEntityVcard(entry, entity, objectPossibleTypes);
+            mapEntityVcard(rdapObject, entry, entity, objectPossibleTypes);
             entities.add(entity);
-            redactionObjectMapper.createContactEntityRedaction(entry.getKey(), objectPossibleTypes, entity.getRoles(),
-                    contactEntityRedactions);
+         /*   redactionObjectMapper.createContactEntityRedaction(entry.getKey(), objectPossibleTypes, entity.getRoles(),
+                    contactEntityRedactions);*/
         }
 
         rdapObject.getEntitySearchResults().addAll(entities);
-        rdapObject.getRedacted().addAll(contactEntityRedactions);
-        rdapObject.getRedacted().addAll(redactionObjectMapper.createEntityRedaction(rpslObject.getAttributes()));
+       // rdapObject.getRedacted().addAll(contactEntityRedactions);
+        rdapObject.getRedacted().addAll(RedactionObjectMapper.createEntityRedaction(rpslObject.getAttributes()));
     }
 
-    private void mapEntityVcard(final Map.Entry<CIString, Set<AttributeType>> entry, final Entity entity,
+    private void mapEntityVcard(final RdapObject rdapObject, final Map.Entry<CIString, Set<AttributeType>> entry, final Entity entity,
                                 final Set<ObjectType> objectPossibleTypes) {
         for (final ObjectType objectType : objectPossibleTypes){
             final RpslObject referencedRpslObject = rpslObjectDao.getByKeyOrNull(objectType, entry.getKey());
@@ -528,6 +523,7 @@ class RdapObjectMapper {
                 continue;
             }
             entity.setVCardArray(createVCard(referencedRpslObject));
+            rdapObject.getRedacted().addAll(RedactionObjectMapper.createContactEntityRedaction(referencedRpslObject, entity.getRoles()));
         }
     }
 
