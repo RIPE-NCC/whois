@@ -1,9 +1,6 @@
 package net.ripe.db.whois.api.rdap.domain;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
-import com.hazelcast.com.jayway.jsonpath.JsonPath;
-import com.hazelcast.org.apache.calcite.runtime.Resources;
-import jakarta.ws.rs.DefaultValue;
 import jakarta.xml.bind.annotation.XmlAccessType;
 import jakarta.xml.bind.annotation.XmlAccessorType;
 import jakarta.xml.bind.annotation.XmlElement;
