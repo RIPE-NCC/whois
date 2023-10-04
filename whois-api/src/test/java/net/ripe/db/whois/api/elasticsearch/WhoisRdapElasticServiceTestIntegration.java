@@ -2,7 +2,6 @@ package net.ripe.db.whois.api.elasticsearch;
 
 import com.google.common.collect.Lists;
 import com.google.common.util.concurrent.Uninterruptibles;
-import com.hazelcast.com.jayway.jsonpath.JsonPath;
 import jakarta.ws.rs.BadRequestException;
 import jakarta.ws.rs.ClientErrorException;
 import jakarta.ws.rs.NotFoundException;
@@ -50,7 +49,6 @@ import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
-import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.fail;
 
@@ -185,6 +183,7 @@ public class WhoisRdapElasticServiceTestIntegration extends AbstractElasticSearc
                 "admin-c:       PP1-TEST\n" +
                 "e-mail:        org@test.com\n" +
                 "mnt-by:        OWNER-MNT\n" +
+                "mnt-ref:       OWNER-MNT\n" +
                 "created:         2022-08-14T11:48:28Z\n" +
                 "last-modified:   2022-10-25T12:22:39Z\n" +
                 "source:        TEST");
@@ -733,8 +732,7 @@ public class WhoisRdapElasticServiceTestIntegration extends AbstractElasticSearc
                 .map(RdapObject::getRedacted)
                 .flatMap(Collection::stream)
                 .map(Redaction::getPrePath)
-                .collect(Collectors.toList()), contains("$.entities[?(@.roles=='administrative')].vcardArray[1][?" +
-                "(@[0]=='e-mail')]"));
+                .collect(Collectors.toList()), contains("$.entities[?(@.handle=='mnt-ref')]"));
 
         assertThat(result.getRdapConformance(), containsInAnyOrder("cidr0", "rdap_level_0", "nro_rdap_profile_0", "redacted"));
     }

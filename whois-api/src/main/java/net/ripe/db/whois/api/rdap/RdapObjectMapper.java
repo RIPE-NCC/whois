@@ -349,7 +349,7 @@ class RdapObjectMapper {
     }
 
     private void mapRedactionConformance(final RdapObject rdapResponse){
-        if (!rdapResponse.getRedacted().isEmpty() || rdapResponse.getEntitySearchResults().stream().map(RdapObject::getRedacted).anyMatch(list -> !list.isEmpty())){
+        if (!rdapResponse.getRedacted().isEmpty() || (rdapResponse.getEntitySearchResults() != null && rdapResponse.getEntitySearchResults().stream().map(RdapObject::getRedacted).anyMatch(list -> !list.isEmpty()))){
             rdapResponse.getRdapConformance().add(RdapConformance.REDACTED.getValue());
         }
     }
