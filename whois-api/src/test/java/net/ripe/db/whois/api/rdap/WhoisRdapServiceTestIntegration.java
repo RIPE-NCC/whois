@@ -2293,6 +2293,19 @@ public class WhoisRdapServiceTestIntegration extends AbstractRdapIntegrationTest
     @Test
     public void lookup_redactions() {
         databaseHelper.addObject("" +
+                "mntner:        ANOTHER-MNT\n" +
+                "descr:         Owner Maintainer\n" +
+                "admin-c:       TP1-TEST\n" +
+                "upd-to:        noreply@ripe.net\n" +
+                "auth:          MD5-PW $1$d9fKeTr2$Si7YudNf4rUGmR71n/cqk/ #test\n" +
+                "mnt-by:        OWNER-MNT\n" +
+                "mbrs-by-ref:   OWNER-MNT\n" +
+                "notify:        test@ripe.net\n" +
+                "created:         2011-07-28T00:35:42Z\n" +
+                "last-modified:   2019-02-28T10:14:46Z\n" +
+                "source:        TEST");
+
+        databaseHelper.addObject("" +
                 "organisation:  ORG-ONE-TEST\n" +
                 "org-name:      Organisation One\n" +
                 "org-type:      LIR\n" +
@@ -2305,8 +2318,8 @@ public class WhoisRdapServiceTestIntegration extends AbstractRdapIntegrationTest
                 "tech-c:        TP2-TEST\n" + //has email
                 "mnt-ref:       OWNER-MNT\n" +
                 "mnt-ref:       OWNER-MNT\n" +
-                "mbrs-by-ref:   OWNER-MNT, OWNER-MNT\n" +
-                "mnt-by:        OWNER-MNT\n" +
+                "mbrs-by-ref:   OWNER-MNT, ANOTHER-MNT\n" +
+                "mnt-by:        ANOTHER-MNT\n" +
                 "created:         2011-07-28T00:35:42Z\n" +
                 "last-modified:   2019-02-28T10:14:46Z\n" +
                 "source:        TEST");
@@ -2315,27 +2328,26 @@ public class WhoisRdapServiceTestIntegration extends AbstractRdapIntegrationTest
                 .request(MediaType.APPLICATION_JSON_TYPE)
                 .get(Entity.class);
 
-        assertThat(entity.getRedacted().size(), is(2));
+        assertThat(entity.getRedacted().size(), is(3));
 
         assertThat(entity.getRedacted().get(0).getName().getDescription(), is("Authenticate incoming references"));
         assertThat(entity.getRedacted().get(0).getReason().getDescription(), is("No registrant mntner"));
         assertDoesNotThrow(() -> JsonPath.compile(entity.getRedacted().get(0).getPrePath()));
-        assertThat("$.entities[?(@.handle=='mnt-ref')]", is(entity.getRedacted().get(0).getPrePath()));
+        assertThat("$.entities[?(@.handle=='OWNER-MNT')]", is(entity.getRedacted().get(0).getPrePath()));
         assertThat(entity.getRedacted().get(0).getMethod(), is("removal"));
 
         assertThat(entity.getRedacted().get(1).getName().getDescription(), is("Authenticate members by reference"));
         assertThat(entity.getRedacted().get(1).getReason().getDescription(), is("No registrant mntner"));
         assertDoesNotThrow(() -> JsonPath.compile(entity.getRedacted().get(1).getPrePath()));
-        assertThat("$.entities[?(@.handle=='mbrs-by-ref')]", is(entity.getRedacted().get(1).getPrePath()));
+        assertThat("$.entities[?(@.handle=='OWNER-MNT,ANOTHER-MNT')]", is(entity.getRedacted().get(1).getPrePath()));
         assertThat(entity.getRedacted().get(1).getMethod(), is("removal"));
 
-        /*assertThat(entity.getRedacted().get(2).getName().getDescription(), is("e-mail contact information"));
+        assertThat(entity.getRedacted().get(2).getName().getDescription(), is("Updates notification e-mail information"));
         assertThat(entity.getRedacted().get(2).getReason().getDescription(), is("Personal data"));
         assertDoesNotThrow(() -> JsonPath.compile(entity.getRedacted().get(2).getPrePath()));
-        assertThat("$.entities[?(@.roles=='technical && administrative')].vcardArray[1][?(@[0]=='e-mail')]",
-                is(entity.getRedacted().get(2).getPrePath())); We are using a set so this can be technical &&
-                administrative or administrative && technical...Sets doesn't care of the order
-        assertThat(entity.getRedacted().get(2).getMethod(), is("removal"));*/
+        assertThat("$.entities[?(@.roles=='registrant')].vcardArray[1][?(@[0]=='notify')]",
+                is(entity.getRedacted().get(2).getPrePath()));
+        assertThat(entity.getRedacted().get(2).getMethod(), is("removal"));
 
         assertThat(entity.getRdapConformance(), containsInAnyOrder("cidr0", "rdap_level_0", "nro_rdap_profile_0", "redacted"));
     }
