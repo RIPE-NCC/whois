@@ -520,7 +520,7 @@ class RdapObjectMapper {
             if (referencedRpslObject == null){
                 continue;
             }
-            entity.setVCardArray(createContactVCard(referencedRpslObject));
+            entity.setVCardArray(createVCard(referencedRpslObject));
         }
     }
 
@@ -635,13 +635,9 @@ class RdapObjectMapper {
         domain.getEntitySearchResults().addAll(createContactEntities(rpslObject, requestUrl));
         return domain;
     }
-    private static VCard createContactVCard(final RpslObject rpslObject) {
-        return commonVcard(rpslObject).build();
-
-    }
 
     private static VCard createVCard(final RpslObject rpslObject) {
-        return commonVcard(rpslObject).addEmail(rpslObject.getValuesForAttribute(E_MAIL)).build();
+        return commonVcard(rpslObject).build();
     }
 
     private static VCardBuilder commonVcard(RpslObject rpslObject) {
@@ -659,6 +655,7 @@ class RdapObjectMapper {
         }
         builder.addTel(rpslObject.getValuesForAttribute(PHONE))
                 .addFax(rpslObject.getValuesForAttribute(FAX_NO))
+                .addEmail(rpslObject.getValuesForAttribute(E_MAIL))
                 .addAdr(rpslObject.getValuesForAttribute(ADDRESS))
                 .addAbuseMailBox(rpslObject.getValueOrNullForAttribute(ABUSE_MAILBOX))
                 .addOrg(rpslObject.getValuesForAttribute(ORG))
