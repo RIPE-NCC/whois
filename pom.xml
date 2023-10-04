@@ -62,6 +62,7 @@
         <hazelcast.version>4.2.8</hazelcast.version>
 
         <jackson.version>2.15.2</jackson.version>
+        <jackson.path.version>2.4.0</jackson.path.version>
         <jaxb.api.version>4.0.0</jaxb.api.version>
         <jaxb.impl.version>4.0.3</jaxb.impl.version>
         <jersey.version>3.0.11</jersey.version>
@@ -544,7 +545,11 @@
                 <artifactId>jackson-module-jakarta-xmlbind-annotations</artifactId>
                 <version>${jackson.version}</version>
             </dependency>
-
+            <dependency>
+                <groupId>com.jayway.jsonpath</groupId>
+                <artifactId>json-path</artifactId>
+                <version>${jackson.path.version}</version>
+            </dependency>
             <!-- StaxUtils for the XMLWriterUtils -->
             <dependency>
                 <groupId>net.java.dev.stax-utils</groupId>

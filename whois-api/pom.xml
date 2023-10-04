@@ -98,6 +98,10 @@
             <groupId>com.fasterxml.jackson.module</groupId>
             <artifactId>jackson-module-jakarta-xmlbind-annotations</artifactId>
         </dependency>
+        <dependency>
+            <groupId>com.jayway.jsonpath</groupId>
+            <artifactId>json-path</artifactId>
+        </dependency>
 
         <!-- StaxUtils for the XMLWriterUtils -->
         <dependency>
@@ -159,7 +163,6 @@
             <version>0.2</version>
             <scope>test</scope>
         </dependency>
-
     </dependencies>
 
     <build>

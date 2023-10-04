@@ -32,19 +32,19 @@ import static net.ripe.db.whois.common.rpsl.AttributeType.MNT_ROUTES;
 public class RedactionObjectMapper {
 
     private final RpslObjectDao rpslObjectDao;
-    private static final Map<AttributeType, Redaction> UNSUPPORTED_ENTITIES = Maps.newHashMap();
+    private static final Map<AttributeType, Pair> UNSUPPORTED_ENTITIES = Maps.newHashMap();
     static {
-        UNSUPPORTED_ENTITIES.put(MBRS_BY_REF, new Redaction(new Redaction.Description("Indirect population of a set"), new Redaction.Description("No registrant mntner")));
-        UNSUPPORTED_ENTITIES.put(MNT_DOMAINS, new Redaction(new Redaction.Description("Domain objects protection"), new Redaction.Description("No registrant mntner")));
-        UNSUPPORTED_ENTITIES.put(MNT_LOWER, new Redaction(new Redaction.Description("Low level objects protection"), new Redaction.Description("No registrant mntner")));
-        UNSUPPORTED_ENTITIES.put(MNT_REF, new Redaction(new Redaction.Description("Incoming references protection"), new Redaction.Description("No registrant mntner")));
-        UNSUPPORTED_ENTITIES.put(MNT_ROUTES, new Redaction(new Redaction.Description("Route object creation protection"), new Redaction.Description("No registrant mntner")));
+        UNSUPPORTED_ENTITIES.put(MBRS_BY_REF, new Pair("Authenticate members by reference", "No registrant mntner"));
+        UNSUPPORTED_ENTITIES.put(MNT_DOMAINS, new Pair("Authenticate domain objects", "No registrant mntner"));
+        UNSUPPORTED_ENTITIES.put(MNT_LOWER, new Pair("Authenticate more specific resources", "No registrant mntner"));
+        UNSUPPORTED_ENTITIES.put(MNT_REF, new Pair("Authenticate incoming references", "No registrant mntner"));
+        UNSUPPORTED_ENTITIES.put(MNT_ROUTES, new Pair("Authenticate route objects", "No registrant mntner"));
     }
 
-    private static final Map<AttributeType, Redaction> UNSUPPORTED_VCARDS = Maps.newHashMap();
+    private static final Map<AttributeType, Pair> UNSUPPORTED_VCARDS = Maps.newHashMap();
     {
-        UNSUPPORTED_VCARDS.put(E_MAIL, new Redaction(new Redaction.Description("e-mail contact information"),new Redaction.Description("Personal data")));
-        UNSUPPORTED_VCARDS.put(NOTIFY, new Redaction(new Redaction.Description("Updates notification e-mail information"), new Redaction.Description("Personal data")));
+        UNSUPPORTED_VCARDS.put(E_MAIL, new Pair("e-mail contact information", "Personal data"));
+        UNSUPPORTED_VCARDS.put(NOTIFY, new Pair("Updates notification e-mail information", "Personal data"));
     }
 
     public static String UNSUPPORTED_ENTITIES_SYNTAX = "$.entities[?(@.handle=='%s')]";
@@ -98,7 +98,7 @@ public class RedactionObjectMapper {
                 return null;
             }).filter(Objects::nonNull).collect(Collectors.joining(" && "));
 
-            for (final Map.Entry<AttributeType, Redaction> unsupportedVcard : UNSUPPORTED_VCARDS.entrySet()) {
+            for (final Map.Entry<AttributeType, Pair> unsupportedVcard : UNSUPPORTED_VCARDS.entrySet()) {
                 if (referencedRpslObject.containsAttribute(unsupportedVcard.getKey())) {
                     createRedaction(unsupportedVcard.getValue(), String.format(UNSUPPORTED_VCARD_SYNTAX, roles, unsupportedVcard.getKey()), redactions);
                 }
@@ -107,11 +107,13 @@ public class RedactionObjectMapper {
         return redactions;
     }
 
-    private void createRedaction(final Redaction unsupportedVcard, final String unsupportedCardSyntax,
+    private void createRedaction(final Pair unsupportedVcard, final String unsupportedCardSyntax,
                                  final List<Redaction> redactions) {
-        unsupportedVcard.setPrePath(unsupportedCardSyntax);
-        if (!redactions.contains(unsupportedVcard)){
-            redactions.add(unsupportedVcard);
+        final Redaction redaction = new Redaction(new Redaction.Description(unsupportedVcard.getName()),
+                unsupportedCardSyntax,
+                new Redaction.Description(unsupportedVcard.reason));
+        if (!redactions.contains(redaction)){
+            redactions.add(redaction);
         }
     }
 
@@ -123,6 +125,26 @@ public class RedactionObjectMapper {
             }
         }
         return null;
+    }
+
+    private static class Pair {
+
+        private final String name;
+
+        private final String reason;
+
+        Pair(final String name, final String reason){
+            this.name = name;
+            this.reason = reason;
+        }
+
+        public String getName() {
+            return name;
+        }
+
+        public String getReason() {
+            return reason;
+        }
     }
 
 }
