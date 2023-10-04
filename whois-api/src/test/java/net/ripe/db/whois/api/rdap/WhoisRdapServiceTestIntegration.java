@@ -2,7 +2,8 @@ package net.ripe.db.whois.api.rdap;
 
 import com.google.common.collect.Lists;
 import com.google.common.net.HttpHeaders;
-import com.hazelcast.com.jayway.jsonpath.JsonPath;
+
+import com.jayway.jsonpath.JsonPath;
 import net.ripe.db.whois.api.RestTest;
 import net.ripe.db.whois.api.rdap.domain.Action;
 import net.ripe.db.whois.api.rdap.domain.Autnum;
@@ -31,7 +32,6 @@ import jakarta.ws.rs.NotFoundException;
 import jakarta.ws.rs.ServerErrorException;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
-import org.springframework.test.web.reactive.server.JsonPathAssertions;
 
 import java.time.LocalDateTime;
 import java.util.Collections;
@@ -2317,13 +2317,13 @@ public class WhoisRdapServiceTestIntegration extends AbstractRdapIntegrationTest
 
         assertThat(entity.getRedacted().size(), is(3));
 
-        assertThat(entity.getRedacted().get(0).getName().getDescription(), is("Incoming references protection"));
+        assertThat(entity.getRedacted().get(0).getName().getDescription(), is("Authenticate incoming references"));
         assertThat(entity.getRedacted().get(0).getReason().getDescription(), is("No registrant mntner"));
         assertDoesNotThrow(() -> JsonPath.compile(entity.getRedacted().get(0).getPrePath()));
         assertThat("$.entities[?(@.handle=='mnt-ref')]", is(entity.getRedacted().get(0).getPrePath()));
         assertThat(entity.getRedacted().get(0).getMethod(), is("removal"));
 
-        assertThat(entity.getRedacted().get(1).getName().getDescription(), is("Indirect population of a set"));
+        assertThat(entity.getRedacted().get(1).getName().getDescription(), is("Authenticate members by reference"));
         assertThat(entity.getRedacted().get(1).getReason().getDescription(), is("No registrant mntner"));
         assertDoesNotThrow(() -> JsonPath.compile(entity.getRedacted().get(1).getPrePath()));
         assertThat("$.entities[?(@.handle=='mbrs-by-ref')]", is(entity.getRedacted().get(1).getPrePath()));
