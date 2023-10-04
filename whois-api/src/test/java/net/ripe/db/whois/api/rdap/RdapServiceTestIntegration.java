@@ -94,6 +94,7 @@ public class RdapServiceTestIntegration extends AbstractRdapIntegrationTest {
                 "e-mail:        noreply@ripe.net\n" +
                 "mnt-by:        OWNER-MNT\n" +
                 "nic-hdl:       TP2-TEST\n" +
+                "notify:       test@ripe.net\n" +
                 "created:         2011-07-28T00:35:42Z\n" +
                 "last-modified:   2019-02-28T10:14:46Z\n" +
                 "source:        TEST");
@@ -2313,9 +2314,9 @@ public class RdapServiceTestIntegration extends AbstractRdapIntegrationTest {
                 "address:       One Org Street\n" +
                 "e-mail:        test@ripe.net\n" +
                 "language:      EN\n" +
-                "admin-c:       TP2-TEST\n" + //has email
+                "admin-c:       TP2-TEST\n" + //has email and notify
                 "tech-c:        TP1-TEST\n" +
-                "tech-c:        TP2-TEST\n" + //has email
+                "tech-c:        TP2-TEST\n" + //has email and notify
                 "mnt-ref:       OWNER-MNT\n" +
                 "mnt-ref:       OWNER-MNT\n" +
                 "mbrs-by-ref:   OWNER-MNT, ANOTHER-MNT\n" +
@@ -2328,26 +2329,32 @@ public class RdapServiceTestIntegration extends AbstractRdapIntegrationTest {
                 .request(MediaType.APPLICATION_JSON_TYPE)
                 .get(Entity.class);
 
-        assertThat(entity.getRedacted().size(), is(3));
+        assertThat(entity.getRedacted().size(), is(4));
 
-        assertThat(entity.getRedacted().get(0).getName().getDescription(), is("Authenticate incoming references"));
-        assertThat(entity.getRedacted().get(0).getReason().getDescription(), is("No registrant mntner"));
+        assertThat(entity.getRedacted().get(0).getName().getDescription(), is("Updates notification e-mail information"));
+        assertThat(entity.getRedacted().get(0).getReason().getDescription(), is("Personal data"));
         assertDoesNotThrow(() -> JsonPath.compile(entity.getRedacted().get(0).getPrePath()));
-        assertThat("$.entities[?(@.handle=='OWNER-MNT')]", is(entity.getRedacted().get(0).getPrePath()));
+        assertThat("$.entities[?(@.roles=='registrant')].vcardArray[1][?(@[0]=='notify')]",
+                is(entity.getRedacted().get(0).getPrePath()));
         assertThat(entity.getRedacted().get(0).getMethod(), is("removal"));
 
-        assertThat(entity.getRedacted().get(1).getName().getDescription(), is("Authenticate members by reference"));
-        assertThat(entity.getRedacted().get(1).getReason().getDescription(), is("No registrant mntner"));
+        assertThat(entity.getRedacted().get(1).getName().getDescription(), is("Updates notification e-mail information"));
+        assertThat(entity.getRedacted().get(1).getReason().getDescription(), is("Personal data"));
         assertDoesNotThrow(() -> JsonPath.compile(entity.getRedacted().get(1).getPrePath()));
-        assertThat("$.entities[?(@.handle=='OWNER-MNT,ANOTHER-MNT')]", is(entity.getRedacted().get(1).getPrePath()));
+        assertThat("$.entities[?(@.roles=='technical && administrative')].vcardArray[1][?(@[0]=='notify')]", is(entity.getRedacted().get(1).getPrePath()));
         assertThat(entity.getRedacted().get(1).getMethod(), is("removal"));
 
-        assertThat(entity.getRedacted().get(2).getName().getDescription(), is("Updates notification e-mail information"));
-        assertThat(entity.getRedacted().get(2).getReason().getDescription(), is("Personal data"));
+        assertThat(entity.getRedacted().get(2).getName().getDescription(), is("Authenticate incoming references"));
+        assertThat(entity.getRedacted().get(2).getReason().getDescription(), is("No registrant mntner"));
         assertDoesNotThrow(() -> JsonPath.compile(entity.getRedacted().get(2).getPrePath()));
-        assertThat("$.entities[?(@.roles=='registrant')].vcardArray[1][?(@[0]=='notify')]",
-                is(entity.getRedacted().get(2).getPrePath()));
+        assertThat("$.entities[?(@.handle=='OWNER-MNT')]", is(entity.getRedacted().get(2).getPrePath()));
         assertThat(entity.getRedacted().get(2).getMethod(), is("removal"));
+
+        assertThat(entity.getRedacted().get(3).getName().getDescription(), is("Authenticate members by reference"));
+        assertThat(entity.getRedacted().get(3).getReason().getDescription(), is("No registrant mntner"));
+        assertDoesNotThrow(() -> JsonPath.compile(entity.getRedacted().get(3).getPrePath()));
+        assertThat("$.entities[?(@.handle=='OWNER-MNT,ANOTHER-MNT')]", is(entity.getRedacted().get(3).getPrePath()));
+        assertThat(entity.getRedacted().get(3).getMethod(), is("removal"));
 
         assertThat(entity.getRdapConformance(), containsInAnyOrder("cidr0", "rdap_level_0", "nro_rdap_profile_0", "redacted"));
     }
