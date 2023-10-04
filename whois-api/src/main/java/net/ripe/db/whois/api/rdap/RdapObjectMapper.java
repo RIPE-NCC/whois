@@ -370,7 +370,7 @@ class RdapObjectMapper {
         handleLanguageAttribute(rpslObject, ip);
         handleCountryAttribute(rpslObject, ip);
         ip.setCidr0_cidrs(getIpCidr0Notation(toIpRange(ipInterval)));
-        mapContactEntities(ip, rpslObject, requestUrl);
+        mapContactEntitiesAndRedaction(ip, rpslObject, requestUrl);
         return ip;
     }
 
@@ -481,7 +481,7 @@ class RdapObjectMapper {
     }
 
 
-    private void mapContactEntities(final RdapObject rdapObject, final RpslObject rpslObject, final String requestUrl) {
+    private void mapContactEntitiesAndRedaction(final RdapObject rdapObject, final RpslObject rpslObject, final String requestUrl) {
 
         final List<Entity> entities = Lists.newArrayList();
         final Map<CIString, Set<AttributeType>> contacts = Maps.newTreeMap();
@@ -543,7 +543,7 @@ class RdapObjectMapper {
             entity.getRoles().add(role);
         }
         entity.setVCardArray(createVCard(rpslObject));
-        mapContactEntities(entity, rpslObject, requestUrl);
+        mapContactEntitiesAndRedaction(entity, rpslObject, requestUrl);
 
         handleLanguageAttribute(rpslObject, entity);
 
@@ -558,7 +558,7 @@ class RdapObjectMapper {
         autnum.setStartAutnum(asNumber);
         autnum.setEndAutnum(asNumber);
         autnum.setStatus(Collections.singletonList(getResourceStatus(rpslObject).getValue()));
-        mapContactEntities(autnum, rpslObject, requestUrl);
+        mapContactEntitiesAndRedaction(autnum, rpslObject, requestUrl);
         autnum.getRdapConformance().add(RdapConformance.FLAT_MODEL.getValue());
         return autnum;
     }
@@ -574,7 +574,7 @@ class RdapObjectMapper {
         autnum.setStartAutnum(blockRange.getBegin());
         autnum.setEndAutnum(blockRange.getEnd());
         autnum.setStatus(Collections.singletonList(getResourceStatus(rpslObject).getValue()));
-        mapContactEntities(autnum, rpslObject, requestUrl);
+        mapContactEntitiesAndRedaction(autnum, rpslObject, requestUrl);
         return autnum;
     }
 
@@ -638,7 +638,7 @@ class RdapObjectMapper {
         if (secureDNS.isDelegationSigned()) {
             domain.setSecureDNS(secureDNS);
         }
-        mapContactEntities(domain, rpslObject, requestUrl);
+        mapContactEntitiesAndRedaction(domain, rpslObject, requestUrl);
         return domain;
     }
 
