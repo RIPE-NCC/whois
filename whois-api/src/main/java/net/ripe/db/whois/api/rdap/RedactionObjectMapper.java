@@ -43,7 +43,7 @@ public class RedactionObjectMapper {
 
     private static final Map<AttributeType, Pair> UNSUPPORTED_VCARDS = Maps.newHashMap();
     {
-        UNSUPPORTED_VCARDS.put(E_MAIL, new Pair("e-mail contact information", "Personal data"));
+        //UNSUPPORTED_VCARDS.put(E_MAIL, new Pair("e-mail contact information", "Personal data"));
         UNSUPPORTED_VCARDS.put(NOTIFY, new Pair("Updates notification e-mail information", "Personal data"));
     }
 
