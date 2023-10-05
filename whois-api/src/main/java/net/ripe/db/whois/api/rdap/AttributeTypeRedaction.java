@@ -7,12 +7,11 @@ public enum AttributeTypeRedaction {
     MNT_LOWER( "Authenticate more specific resources", "No registrant mntner"),
     MNT_REF( "Authenticate incoming references", "No registrant mntner"),
     MNT_ROUTES( "Authenticate route objects", "No registrant mntner"),
-
     NOTIFY( "Updates notification e-mail information", "Personal data");
 
-    private String name;
+    private final String name;
 
-    private String reason;
+    private final String reason;
 
     AttributeTypeRedaction(final String name, final String reason){
         this.name = name;

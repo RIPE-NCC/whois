@@ -31,10 +31,10 @@ public class Redaction implements Serializable {
     public Redaction() {
         // required no-arg constructor
     }
-    public Redaction(final Description name, final String prePath, final Description reason){
-        this.name = name;
+    public Redaction(final String name, final String prePath, final String reason){
+        this.name = new Description(name);
         this.prePath = prePath;
-        this.reason = reason;
+        this.reason = new Description(reason);
         this.method = "removal";
     }
 
