@@ -7,7 +7,7 @@ import net.ripe.db.whois.common.domain.CIString;
 import net.ripe.db.whois.common.rpsl.AttributeType;
 import net.ripe.db.whois.common.rpsl.RpslAttribute;
 import net.ripe.db.whois.common.rpsl.RpslObject;
-import org.springframework.stereotype.Component;
+
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -18,7 +18,6 @@ import static net.ripe.db.whois.common.rpsl.AttributeType.MNT_LOWER;
 import static net.ripe.db.whois.common.rpsl.AttributeType.MNT_REF;
 import static net.ripe.db.whois.common.rpsl.AttributeType.MNT_ROUTES;
 
-@Component
 public class RedactionObjectMapper {
 
     private static final List<AttributeType> unsupportedRegistrantAttributes = Lists.newArrayList(MBRS_BY_REF,
@@ -28,7 +27,7 @@ public class RedactionObjectMapper {
 
     public static String REDACTED_ENTITIES_SYNTAX = "$.entities[?(@.handle=='%s')]";
 
-    public static String UNSUPPORTED_VCARD_SYNTAX = "$.entities[?(@.roles=='%s')].vcardArray[1][?(@[0]=='%s')]";
+    public static String REDACTED_VCARD_SYNTAX = "$.entities[?(@.roles=='%s')].vcardArray[1][?(@[0]=='%s')]";
 
     public static Set<Redaction> createEntityRedaction(final List<RpslAttribute> rpslAttributes){
         return rpslAttributes.stream()
@@ -36,18 +35,17 @@ public class RedactionObjectMapper {
                 .flatMap( rpslAttribute -> {
                     final List<Redaction> redactions = Lists.newArrayList();
                     for (final CIString values : rpslAttribute.getCleanValues()) {
-                        redactions.add(createRedactionByAttributeType(AttributeType.getByName(rpslAttribute.getKey()),
-                                String.format(REDACTED_ENTITIES_SYNTAX, values)));
+                        redactions.add(createRedactionByAttributeType(rpslAttribute.getType(), String.format(REDACTED_ENTITIES_SYNTAX, values)));
                     }
                     return redactions.stream();
                 }).collect(Collectors.toSet());
     }
 
 
-    public static Set<Redaction> createContactEntityRedaction(final RpslObject referencedRpslObject, final List<Role> roles) {
+    public static Set<Redaction> createContactEntityRedaction(final RpslObject rpslObject, final List<Role> roles) {
         final String joinedRoles = roles.stream().sorted().map(Role::getValue).collect(Collectors.joining(" && "));
-        return unsupportedPersonalAttributes.stream().filter(referencedRpslObject::containsAttribute).
-                map(unsupportedVcard -> createRedactionByAttributeType(unsupportedVcard, String.format(UNSUPPORTED_VCARD_SYNTAX, joinedRoles, unsupportedVcard))).collect(Collectors.toSet());
+        return unsupportedPersonalAttributes.stream().filter(rpslObject::containsAttribute).
+                map(unsupportedVcard -> createRedactionByAttributeType(unsupportedVcard, String.format(REDACTED_VCARD_SYNTAX, joinedRoles, unsupportedVcard))).collect(Collectors.toSet());
     }
 
     private static Redaction createRedactionByAttributeType(final AttributeType attributeType, final String unsupportedCardSyntax){
