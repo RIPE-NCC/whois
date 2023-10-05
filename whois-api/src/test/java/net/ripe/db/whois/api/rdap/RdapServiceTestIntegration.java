@@ -2341,7 +2341,11 @@ public class RdapServiceTestIntegration extends AbstractRdapIntegrationTest {
         assertThat(entity.getRedacted().get(1).getName().getDescription(), is("Updates notification e-mail information"));
         assertThat(entity.getRedacted().get(1).getReason().getDescription(), is("Personal data"));
         assertDoesNotThrow(() -> JsonPath.compile(entity.getRedacted().get(1).getPrePath()));
-        assertThat("$.entities[?(@.roles=='technical && administrative')].vcardArray[1][?(@[0]=='notify')]", is(entity.getRedacted().get(1).getPrePath()));
+
+        assertThat(entity.getRedacted().get(1).getPrePath(), containsString("technical"));
+        assertThat(entity.getRedacted().get(1).getPrePath(), containsString("administrative"));
+        assertThat(entity.getRedacted().get(1).getPrePath(), containsString("vcardArray[1][?(@[0]=='notify')"));
+
         assertThat(entity.getRedacted().get(1).getMethod(), is("removal"));
 
         assertThat(entity.getRedacted().get(2).getName().getDescription(), is("Authenticate incoming references"));
