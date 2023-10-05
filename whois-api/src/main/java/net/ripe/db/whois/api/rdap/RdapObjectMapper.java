@@ -22,7 +22,6 @@ import net.ripe.db.whois.api.rdap.domain.Link;
 import net.ripe.db.whois.api.rdap.domain.Nameserver;
 import net.ripe.db.whois.api.rdap.domain.Notice;
 import net.ripe.db.whois.api.rdap.domain.RdapObject;
-import net.ripe.db.whois.api.rdap.domain.Redaction;
 import net.ripe.db.whois.api.rdap.domain.Remark;
 import net.ripe.db.whois.api.rdap.domain.Role;
 import net.ripe.db.whois.api.rdap.domain.SearchResult;
@@ -477,8 +476,6 @@ class RdapObjectMapper {
 
 
     private void mapContactEntitiesAndRedaction(final RdapObject rdapObject, final RpslObject rpslObject, final String requestUrl) {
-
-        final List<Entity> entities = Lists.newArrayList();
         final Map<CIString, Set<AttributeType>> contacts = Maps.newTreeMap();
 
         for (final RpslAttribute rpslAttribute: rpslObject.getAttributes()) {
@@ -493,8 +490,7 @@ class RdapObjectMapper {
                 });
             }
         }
-
-      //  final List<Redaction> contactEntityRedactions = Lists.newArrayList();
+        final List<Entity> entities = Lists.newArrayList();
         for (final Map.Entry<CIString, Set<AttributeType>> entry : contacts.entrySet()) {
             final Entity entity = new Entity();
             entity.setHandle(entry.getKey().toString());
@@ -504,19 +500,16 @@ class RdapObjectMapper {
                 entity.getRoles().add(CONTACT_ATTRIBUTE_TO_ROLE_NAME.get(attributeType));
             }
             mapEntityLinks(entity, requestUrl, entry.getKey());
-            mapEntityVcard(rdapObject, entry, entity, objectPossibleTypes);
+            mapEntityVcardAndContactRedaction(rdapObject, entry, entity, objectPossibleTypes);
             entities.add(entity);
-         /*   redactionObjectMapper.createContactEntityRedaction(entry.getKey(), objectPossibleTypes, entity.getRoles(),
-                    contactEntityRedactions);*/
         }
 
-        rdapObject.getEntitySearchResults().addAll(entities);
-       // rdapObject.getRedacted().addAll(contactEntityRedactions);
         rdapObject.getRedacted().addAll(RedactionObjectMapper.createEntityRedaction(rpslObject.getAttributes()));
+        rdapObject.getEntitySearchResults().addAll(entities);
     }
 
-    private void mapEntityVcard(final RdapObject rdapObject, final Map.Entry<CIString, Set<AttributeType>> entry, final Entity entity,
-                                final Set<ObjectType> objectPossibleTypes) {
+    private void mapEntityVcardAndContactRedaction(final RdapObject rdapObject, final Map.Entry<CIString, Set<AttributeType>> entry, final Entity entity,
+                                                   final Set<ObjectType> objectPossibleTypes) {
         for (final ObjectType objectType : objectPossibleTypes){
             final RpslObject referencedRpslObject = rpslObjectDao.getByKeyOrNull(objectType, entry.getKey());
             if (referencedRpslObject == null){
