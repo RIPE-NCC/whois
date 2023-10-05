@@ -20,10 +20,10 @@ import static net.ripe.db.whois.common.rpsl.AttributeType.MNT_ROUTES;
 
 public class RedactionObjectMapper {
 
-    private static final List<AttributeType> unsupportedRegistrantAttributes = Lists.newArrayList(MBRS_BY_REF,
+    private static final List<AttributeType> UNSUPPORTED_REGISTRANT_ATTRIBUTES = Lists.newArrayList(MBRS_BY_REF,
             MNT_DOMAINS, MNT_LOWER, MNT_REF, MNT_ROUTES);
 
-    private static final List<AttributeType> unsupportedPersonalAttributes = Lists.newArrayList(NOTIFY);
+    private static final List<AttributeType> UNSUPPORTED_PERSONAL_ATTRIBUTES = Lists.newArrayList(NOTIFY);
 
     public static String REDACTED_ENTITIES_SYNTAX = "$.entities[?(@.handle=='%s')]";
 
@@ -31,7 +31,7 @@ public class RedactionObjectMapper {
 
     public static Set<Redaction> createEntityRedaction(final List<RpslAttribute> rpslAttributes){
         return rpslAttributes.stream()
-                .filter( rpslAttribute -> unsupportedRegistrantAttributes.contains(rpslAttribute.getType()))
+                .filter( rpslAttribute -> UNSUPPORTED_REGISTRANT_ATTRIBUTES.contains(rpslAttribute.getType()))
                 .flatMap( rpslAttribute -> {
                     final List<Redaction> redactions = Lists.newArrayList();
                     for (final CIString values : rpslAttribute.getCleanValues()) {
@@ -44,7 +44,7 @@ public class RedactionObjectMapper {
 
     public static Set<Redaction> createContactEntityRedaction(final RpslObject rpslObject, final List<Role> roles) {
         final String joinedRoles = roles.stream().sorted().map(Role::getValue).collect(Collectors.joining(" && "));
-        return unsupportedPersonalAttributes.stream().filter(rpslObject::containsAttribute).
+        return UNSUPPORTED_PERSONAL_ATTRIBUTES.stream().filter(rpslObject::containsAttribute).
                 map(unsupportedVcard -> createRedactionByAttributeType(unsupportedVcard, String.format(REDACTED_VCARD_SYNTAX, joinedRoles, unsupportedVcard))).collect(Collectors.toSet());
     }
 
