@@ -1,27 +1,15 @@
 package net.ripe.db.whois.api.rdap;
 
-import com.google.common.collect.Maps;
 import net.ripe.db.whois.api.rdap.domain.Redaction;
 import net.ripe.db.whois.api.rdap.domain.Role;
-import net.ripe.db.whois.common.dao.RpslObjectDao;
-import net.ripe.db.whois.common.domain.CIString;
 import net.ripe.db.whois.common.rpsl.AttributeType;
-import net.ripe.db.whois.common.rpsl.ObjectType;
 import net.ripe.db.whois.common.rpsl.RpslAttribute;
 import net.ripe.db.whois.common.rpsl.RpslObject;
-import org.apache.commons.compress.utils.Lists;
-
-import org.elasticsearch.client.Node;
-import org.glassfish.jersey.internal.guava.Sets;
 import org.springframework.stereotype.Component;
-
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
-
-import static net.ripe.db.whois.api.rdap.RdapObjectMapper.CONTACT_ATTRIBUTE_TO_ROLE_NAME;
 import static net.ripe.db.whois.common.rpsl.AttributeType.NOTIFY;
 import static net.ripe.db.whois.common.rpsl.AttributeType.MBRS_BY_REF;
 import static net.ripe.db.whois.common.rpsl.AttributeType.MNT_DOMAINS;
