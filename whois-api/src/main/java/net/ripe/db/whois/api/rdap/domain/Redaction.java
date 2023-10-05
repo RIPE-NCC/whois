@@ -10,7 +10,7 @@ import java.io.Serializable;
 import java.util.Objects;
 
 @XmlAccessorType(XmlAccessType.FIELD)
-@XmlType(name = "Redaction", propOrder = {
+@XmlType(name = "redaction", propOrder = {
         "name",
         "reason",
         "prePath",

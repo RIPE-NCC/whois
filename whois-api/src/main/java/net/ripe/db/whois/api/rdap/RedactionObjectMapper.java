@@ -3,6 +3,7 @@ package net.ripe.db.whois.api.rdap;
 import com.google.common.collect.Lists;
 import net.ripe.db.whois.api.rdap.domain.Redaction;
 import net.ripe.db.whois.api.rdap.domain.Role;
+import net.ripe.db.whois.common.domain.CIString;
 import net.ripe.db.whois.common.rpsl.AttributeType;
 import net.ripe.db.whois.common.rpsl.RpslAttribute;
 import net.ripe.db.whois.common.rpsl.RpslObject;
@@ -32,9 +33,14 @@ public class RedactionObjectMapper {
     public static Set<Redaction> createEntityRedaction(final List<RpslAttribute> rpslAttributes){
         return rpslAttributes.stream()
                 .filter( rpslAttribute -> unsupportedRegistrantAttributes.contains(rpslAttribute.getType()))
-                .map( rpslAttribute -> createRedactionByAttributeType(AttributeType.getByName(rpslAttribute.getKey()),
-                        String.format(REDACTED_ENTITIES_SYNTAX, String.join(",", rpslAttribute.getCleanValues()))))
-                .collect(Collectors.toSet());
+                .flatMap( rpslAttribute -> {
+                    final List<Redaction> redactions = Lists.newArrayList();
+                    for (final CIString values : rpslAttribute.getCleanValues()) {
+                        redactions.add(createRedactionByAttributeType(AttributeType.getByName(rpslAttribute.getKey()),
+                                String.format(REDACTED_ENTITIES_SYNTAX, values)));
+                    }
+                    return redactions.stream();
+                }).collect(Collectors.toSet());
     }
 
 
