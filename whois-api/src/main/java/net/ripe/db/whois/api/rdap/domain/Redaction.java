@@ -59,10 +59,8 @@ public class Redaction implements Serializable {
         if (this == o) {
             return true;
         }
-        if (o == null || getClass() != o.getClass()) {
-            return false;
-        }
-        Redaction redaction = (Redaction) o;
+        if (!(o instanceof Redaction redaction)) return false;
+
         return name.description.equals(redaction.name.description) &&
                 reason.description.equals(redaction.reason.description) &&
                 prePath.equals(redaction.prePath) &&

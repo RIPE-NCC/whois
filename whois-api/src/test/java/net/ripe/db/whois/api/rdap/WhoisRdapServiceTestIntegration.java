@@ -232,8 +232,8 @@ public class WhoisRdapServiceTestIntegration extends AbstractRdapIntegrationTest
         assertThat(ip.getStatus(), contains("reserved"));
 
         assertThat(ip.getPort43(), is("whois.ripe.net"));
-        assertThat(ip.getRdapConformance(), hasSize(3));
-        assertThat(ip.getRdapConformance(), containsInAnyOrder("rdap_level_0", "cidr0", "nro_rdap_profile_0"));
+        assertThat(ip.getRdapConformance(), hasSize(4));
+        assertThat(ip.getRdapConformance(), containsInAnyOrder("rdap_level_0", "cidr0", "nro_rdap_profile_0", "redacted"));
 
 
         final List<Remark> remarks = ip.getRemarks();
@@ -518,7 +518,8 @@ public class WhoisRdapServiceTestIntegration extends AbstractRdapIntegrationTest
         assertThat(ip.getCidr0_cidrs().get(1).getV4prefix(), is("192.132.76.0"));
         assertThat(ip.getCidr0_cidrs().get(1).getLength(), is(23));
 
-        assertThat(ip.getRdapConformance(), containsInAnyOrder("cidr0", "rdap_level_0", "nro_rdap_profile_0"));
+        assertThat(ip.getRdapConformance(), containsInAnyOrder("cidr0", "rdap_level_0", "nro_rdap_profile_0",
+                "redacted"));
 
         var notices = ip.getNotices();
         var inaccuracyNotice = notices.get(1);
@@ -821,9 +822,9 @@ public class WhoisRdapServiceTestIntegration extends AbstractRdapIntegrationTest
                 "[[version, {}, text, 4.0], " +
                 "[fn, {}, text, Pauleth Palthen], " +
                 "[kind, {}, text, individual], " +
+                "[adr, {label=Singel 258}, text, [, , , , , , ]], " +
                 "[tel, {type=voice}, text, +31-1234567890], " +
-                "[email, {type=email}, text, noreply@ripe.net], " +
-                "[adr, {label=Singel 258}, text, [, , , , , , ]]]"));
+                "[email, {type=email}, text, noreply@ripe.net]]"));
 
         assertThat(entity.getObjectClassName(), is("entity"));
 
@@ -901,8 +902,9 @@ public class WhoisRdapServiceTestIntegration extends AbstractRdapIntegrationTest
                 .get(Entity.class);
 
         assertThat(entity.getPort43(), is("whois.ripe.net"));
-        assertThat(entity.getRdapConformance(), hasSize(3));
-        assertThat(entity.getRdapConformance(), containsInAnyOrder("rdap_level_0", "cidr0", "nro_rdap_profile_0"));
+        assertThat(entity.getRdapConformance(), hasSize(4));
+        assertThat(entity.getRdapConformance(), containsInAnyOrder("rdap_level_0", "cidr0", "nro_rdap_profile_0",
+                "redacted"));
 
         assertThat(entity.getHandle(), equalTo("FR1-TEST"));
         assertThat(entity.getRoles(), hasSize(0));
@@ -912,8 +914,8 @@ public class WhoisRdapServiceTestIntegration extends AbstractRdapIntegrationTest
                 "[[version, {}, text, 4.0], " +
                 "[fn, {}, text, First Role], " +
                 "[kind, {}, text, group], " +
-                "[email, {type=email}, text, dbtest@ripe.net], " +
-                "[adr, {label=Singel 258}, text, [, , , , , , ]]]"));
+                "[adr, {label=Singel 258}, text, [, , , , , , ]], " +
+                "[email, {type=email}, text, dbtest@ripe.net]]"));
 
         assertThat(entity.getEntitySearchResults(), hasSize(2));
         assertThat(entity.getEntitySearchResults().get(0).getHandle(), is("OWNER-MNT"));
@@ -1245,7 +1247,7 @@ public class WhoisRdapServiceTestIntegration extends AbstractRdapIntegrationTest
         });
         final RdapObject rdapObject = notFoundException.getResponse().readEntity(RdapObject.class);
         assertThat(rdapObject.getRdapConformance(), containsInAnyOrder("cidr0", "rdap_level_0",
-                "nro_rdap_profile_0", "nro_rdap_profile_asn_flat_0"));
+                "nro_rdap_profile_0", "nro_rdap_profile_asn_flat_0", "redacted"));
     }
     @Test
     public void lookup_autnum_invalid_syntax() {
@@ -1363,7 +1365,8 @@ public class WhoisRdapServiceTestIntegration extends AbstractRdapIntegrationTest
         assertThat(response.getMediaType(), is(new MediaType("application", "rdap+json")));
         final String entity = response.readEntity(String.class);
         assertThat(entity, containsString("\"handle\" : \"AS102\""));
-        assertThat(entity, containsString("rdapConformance\" : [ \"nro_rdap_profile_asn_flat_0\", \"cidr0\", \"rdap_level_0\", \"nro_rdap_profile_0\" ]"));
+        assertThat(entity, containsString("rdapConformance\" : [ \"nro_rdap_profile_asn_flat_0\", \"cidr0\", " +
+                "\"rdap_level_0\", \"nro_rdap_profile_0\", \"redacted\" ]"));
     }
 
     @Test
@@ -1376,7 +1379,8 @@ public class WhoisRdapServiceTestIntegration extends AbstractRdapIntegrationTest
         final String entity = response.readEntity(String.class);
         assertThat(entity, containsString("\"handle\" : \"AS102\""));
         assertThat(entity,
-                containsString("rdapConformance\" : [ \"nro_rdap_profile_asn_flat_0\", \"cidr0\", \"rdap_level_0\", \"nro_rdap_profile_0\" ]"));
+                containsString("rdapConformance\" : [ \"nro_rdap_profile_asn_flat_0\", \"cidr0\", \"rdap_level_0\", " +
+                        "\"nro_rdap_profile_0\", \"redacted\" ]"));
     }
 
     @Test
@@ -1453,10 +1457,10 @@ public class WhoisRdapServiceTestIntegration extends AbstractRdapIntegrationTest
                 "[[version, {}, text, 4.0], " +
                 "[fn, {}, text, Abuse Contact], " +
                 "[kind, {}, text, group], " +
+                "[adr, {label=Singel 358}, text, [, , , , , , ]], " +
                 "[tel, {type=voice}, text, +31 6 12345678], " +
                 "[email, {type=email}, text, work@test.com], " +
                 "[email, {type=email}, text, personal@test.com], " +
-                "[adr, {label=Singel 358}, text, [, , , , , , ]], " +
                 "[email, {type=abuse}, text, abuse@test.net]]"));
     }
 
@@ -1563,10 +1567,11 @@ public class WhoisRdapServiceTestIntegration extends AbstractRdapIntegrationTest
         assertThat(entities.get(3).getVCardArray().get(1).toString(), is("" +
                 "[[version, {}, text, 4.0], " +
                 "[fn, {}, text, Abuse Contact], " +
-                "[kind, {}, text, group], [tel, {type=voice}, text, +31 6 12345678], " +
+                "[kind, {}, text, group], " +
+                "[adr, {label=Singel 358}, text, [, , , , , , ]], " +
+                "[tel, {type=voice}, text, +31 6 12345678], " +
                 "[email, {type=email}, text, work@test.com], " +
                 "[email, {type=email}, text, personal@test.com], " +
-                "[adr, {label=Singel 358}, text, [, , , , , , ]], " +
                 "[email, {type=abuse}, text, abuse@test.net]]"));
     }
 
@@ -1782,8 +1787,8 @@ public class WhoisRdapServiceTestIntegration extends AbstractRdapIntegrationTest
                 "[[version, {}, text, 4.0], " +
                 "[fn, {}, text, Abuse Contact], " +
                 "[kind, {}, text, group], " +
-                "[tel, {type=voice}, text, +31 6 12345678], " +
                 "[adr, {label=Singel 258}, text, [, , , , , , ]], " +
+                "[tel, {type=voice}, text, +31 6 12345678], " +
                 "[email, {type=abuse}, text, abuse@test.net]]"));
     }
 
@@ -2109,7 +2114,7 @@ public class WhoisRdapServiceTestIntegration extends AbstractRdapIntegrationTest
         });
         final RdapObject rdapObject = notFoundException.getResponse().readEntity(RdapObject.class);
         assertThat(rdapObject.getRdapConformance(), containsInAnyOrder("cidr0", "rdap_level_0",
-                "nro_rdap_profile_0"));
+                "nro_rdap_profile_0", "redacted"));
     }
     @Test
     public void lookup_org_invalid_syntax() {
@@ -2275,8 +2280,8 @@ public class WhoisRdapServiceTestIntegration extends AbstractRdapIntegrationTest
                 "[[version, {}, text, 4.0], " +
                 "[fn, {}, text, Organisation One], " +
                 "[kind, {}, text, org], " +
-                "[email, {type=email}, text, test@ripe.net], " +
-                "[adr, {label=One Org Street}, text, [, , , , , , ]]]"));
+                "[adr, {label=One Org Street}, text, [, , , , , , ]], " +
+                "[email, {type=email}, text, test@ripe.net]]"));
 
         assertCopyrightLink(entity.getLinks(), "https://rdap.db.ripe.net/entity/ORG-ONE-TEST");
 
@@ -2578,8 +2583,8 @@ public class WhoisRdapServiceTestIntegration extends AbstractRdapIntegrationTest
 
     private void assertCommon(RdapObject object) {
         assertThat(object.getPort43(), is("whois.ripe.net"));
-        assertThat(object.getRdapConformance(), hasSize(3));
-        assertThat(object.getRdapConformance(), containsInAnyOrder("rdap_level_0", "cidr0", "nro_rdap_profile_0"));
+        assertThat(object.getRdapConformance(), hasSize(4));
+        assertThat(object.getRdapConformance(), containsInAnyOrder("rdap_level_0", "cidr0", "nro_rdap_profile_0", "redacted"));
     }
 
     private void assertCopyrightLink(final List<Link> links, final String value) {

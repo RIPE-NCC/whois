@@ -703,8 +703,9 @@ public class WhoisRdapElasticServiceTestIntegration extends AbstractElasticSearc
 
     private void assertCommon(RdapObject object) {
         assertThat(object.getPort43(), is("whois.ripe.net"));
-        assertThat(object.getRdapConformance(), hasSize(3));
-        assertThat(object.getRdapConformance(), containsInAnyOrder("rdap_level_0", "cidr0", "nro_rdap_profile_0"));
+        assertThat(object.getRdapConformance(), hasSize(4));
+        assertThat(object.getRdapConformance(), containsInAnyOrder("rdap_level_0", "cidr0", "nro_rdap_profile_0",
+                "redacted"));
     }
 
     private void assertTnCNotice(final Notice notice, final String value) {
@@ -732,7 +733,7 @@ public class WhoisRdapElasticServiceTestIntegration extends AbstractElasticSearc
                 .map(RdapObject::getRedacted)
                 .flatMap(Collection::stream)
                 .map(Redaction::getPrePath)
-                .collect(Collectors.toList()), contains("$.entities[?(@.handle=='mnt-ref')]"));
+                .collect(Collectors.toList()), contains("$.entities[?(@.handle=='OWNER-MNT')]"));
 
         assertThat(result.getRdapConformance(), containsInAnyOrder("cidr0", "rdap_level_0", "nro_rdap_profile_0", "redacted"));
     }

@@ -336,15 +336,8 @@ class RdapObjectMapper {
 
     private RdapObject mapCommonConformances(final RdapObject rdapResponse) {
         rdapResponse.getRdapConformance().addAll(List.of(RdapConformance.CIDR_0.getValue(),
-            RdapConformance.LEVEL_0.getValue(), RdapConformance.NRO_PROFILE_0.getValue()));
-        mapRedactionConformance(rdapResponse);
+            RdapConformance.LEVEL_0.getValue(), RdapConformance.NRO_PROFILE_0.getValue(), RdapConformance.REDACTED.getValue()));
         return rdapResponse;
-    }
-
-    private void mapRedactionConformance(final RdapObject rdapResponse){
-        if (!rdapResponse.getRedacted().isEmpty() || (rdapResponse.getEntitySearchResults() != null && rdapResponse.getEntitySearchResults().stream().map(RdapObject::getRedacted).anyMatch(list -> !list.isEmpty()))){
-            rdapResponse.getRdapConformance().add(RdapConformance.REDACTED.getValue());
-        }
     }
 
     private Ip createIp(final RpslObject rpslObject, final String requestUrl) {
