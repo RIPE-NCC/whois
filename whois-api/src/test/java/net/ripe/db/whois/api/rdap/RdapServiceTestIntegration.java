@@ -1498,11 +1498,10 @@ public class RdapServiceTestIntegration extends AbstractRdapIntegrationTest {
         assertThat(entities.get(0).getHandle(), is("irt-IRT1"));
         assertThat(entities.get(0).getRoles(), contains(Role.ABUSE));
         assertThat(entities.get(0).getVCardArray().get(1).toString(), is("" +
-                "[[version, {}, text, 4.0], " +
-                "[fn, {}, text, irt-IRT1], " +
+                "[[version, {}, text, 4.0], [fn, {}, text, irt-IRT1], " +
                 "[kind, {}, text, group], " +
-                "[email, {type=email}, text, test@ripe.net], " +
-                "[adr, {label=Street 1}, text, [, , , , , , ]]]"));
+                "[adr, {label=Street 1}, text, [, , , , , , ]], " +
+                "[email, {type=email}, text, test@ripe.net]]"));
 
         assertThat(entities.get(1).getHandle(), is("OWNER-MNT"));
         assertThat(entities.get(1).getRoles(), contains(Role.REGISTRANT));
@@ -1517,8 +1516,8 @@ public class RdapServiceTestIntegration extends AbstractRdapIntegrationTest {
                 "[[version, {}, text, 4.0], " +
                 "[fn, {}, text, Test Person], " +
                 "[kind, {}, text, individual], " +
-                "[tel, {type=voice}, text, +31 6 12345678], " +
-                "[adr, {label=Singel 258}, text, [, , , , , , ]]]"));
+                "[adr, {label=Singel 258}, text, [, , , , , , ]], " +
+                "[tel, {type=voice}, text, +31 6 12345678]]"));
 
     }
     @Test
@@ -2161,8 +2160,8 @@ public class RdapServiceTestIntegration extends AbstractRdapIntegrationTest {
                 "[[version, {}, text, 4.0], " +
                 "[fn, {}, text, Test Person], " +
                 "[kind, {}, text, individual], " +
-                "[tel, {type=voice}, text, +31 6 12345678], " +
-                "[adr, {label=Singel 258}, text, [, , , , , , ]]]"));
+                "[adr, {label=Singel 258}, text, [, , , , , , ]], " +
+                "[tel, {type=voice}, text, +31 6 12345678]]"));
 
         assertThat(entity.getLinks(), hasSize(2));
         assertThat(entity.getLinks().get(0).getRel(), is("self"));
