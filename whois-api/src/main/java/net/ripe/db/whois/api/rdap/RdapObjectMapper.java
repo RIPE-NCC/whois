@@ -499,7 +499,7 @@ class RdapObjectMapper {
                 entity.getRoles().add(CONTACT_ATTRIBUTE_TO_ROLE_NAME.get(attributeType));
             }
             mapEntityLinks(entity, requestUrl, entry.getKey());
-            mapEntityVcardAndContactRedaction(rdapObject, entry, entity, objectPossibleTypes);
+            mapVcardAndRedaction(rdapObject, entry, entity, objectPossibleTypes);
             entities.add(entity);
         }
 
@@ -507,8 +507,8 @@ class RdapObjectMapper {
         rdapObject.getEntitySearchResults().addAll(entities);
     }
 
-    private void mapEntityVcardAndContactRedaction(final RdapObject rdapObject, final Map.Entry<CIString, Set<AttributeType>> entry, final Entity entity,
-                                                   final Set<ObjectType> objectPossibleTypes) {
+    private void mapVcardAndRedaction(final RdapObject rdapObject, final Map.Entry<CIString, Set<AttributeType>> entry, final Entity entity,
+                                      final Set<ObjectType> objectPossibleTypes) {
         for (final ObjectType objectType : objectPossibleTypes){
             final RpslObject referencedRpslObject = rpslObjectDao.getByKeyOrNull(objectType, entry.getKey());
             if (referencedRpslObject == null){
@@ -631,10 +631,6 @@ class RdapObjectMapper {
     }
 
     private static VCard createVCard(final RpslObject rpslObject) {
-        return commonVcard(rpslObject).build();
-    }
-
-    private static VCardBuilder commonVcard(RpslObject rpslObject) {
         final VCardBuilder builder = new VCardBuilder();
         builder.addVersion();
 
@@ -647,14 +643,14 @@ class RdapObjectMapper {
             default -> {
             }
         }
-        builder.addTel(rpslObject.getValuesForAttribute(PHONE))
+        builder.addAdr(rpslObject.getValuesForAttribute(ADDRESS))
+                .addTel(rpslObject.getValuesForAttribute(PHONE))
                 .addFax(rpslObject.getValuesForAttribute(FAX_NO))
                 .addEmail(rpslObject.getValuesForAttribute(E_MAIL))
-                .addAdr(rpslObject.getValuesForAttribute(ADDRESS))
                 .addAbuseMailBox(rpslObject.getValueOrNullForAttribute(ABUSE_MAILBOX))
                 .addOrg(rpslObject.getValuesForAttribute(ORG))
                 .addGeo(rpslObject.getValuesForAttribute(GEOLOC));
-        return builder;
+        return builder.build();
     }
 
     private static AsBlockRange getAsBlockRange(final String asBlock) {
