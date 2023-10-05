@@ -22,9 +22,8 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.when;
 
-// TODO: [ES] remove class
 @ExtendWith(MockitoExtension.class)
-public class DelegatedStatsServiceTest {
+public class RdapDelegatedStatsServiceTest {
     @Mock AuthoritativeResourceData authoritativeResourceData;
     @Mock AuthoritativeResource authoritativeResourceOne;
     @Mock AuthoritativeResource authoritativeResourceTwo;
