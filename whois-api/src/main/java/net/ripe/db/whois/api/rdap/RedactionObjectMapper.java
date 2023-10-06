@@ -3,7 +3,6 @@ package net.ripe.db.whois.api.rdap;
 import com.google.common.collect.Lists;
 import net.ripe.db.whois.api.rdap.domain.Redaction;
 import net.ripe.db.whois.api.rdap.domain.Role;
-import net.ripe.db.whois.common.domain.CIString;
 import net.ripe.db.whois.common.rpsl.AttributeType;
 import net.ripe.db.whois.common.rpsl.RpslAttribute;
 import net.ripe.db.whois.common.rpsl.RpslObject;
@@ -32,23 +31,23 @@ public class RedactionObjectMapper {
     public static Set<Redaction> createEntityRedaction(final List<RpslAttribute> rpslAttributes){
         return rpslAttributes.stream()
                 .filter( rpslAttribute -> UNSUPPORTED_REGISTRANT_ATTRIBUTES.contains(rpslAttribute.getType()))
-                .flatMap( rpslAttribute -> {
-                    final List<Redaction> redactions = Lists.newArrayList();
-                    for (final CIString values : rpslAttribute.getCleanValues()) {
-                        redactions.add(createRedactionByAttributeType(rpslAttribute.getType(), String.format(REDACTED_ENTITIES_SYNTAX, values)));
-                    }
-                    return redactions.stream();
-                }).collect(Collectors.toSet());
+                .flatMap( rpslAttribute -> rpslAttribute.getCleanValues().stream()
+                        .map(value -> createRedaction(rpslAttribute.getType(), String.format(REDACTED_ENTITIES_SYNTAX, value))))
+                .collect(Collectors.toSet());
     }
 
 
     public static Set<Redaction> createContactEntityRedaction(final RpslObject rpslObject, final List<Role> roles) {
-        final String joinedRoles = roles.stream().sorted().map(Role::getValue).collect(Collectors.joining(" && "));
-        return UNSUPPORTED_PERSONAL_ATTRIBUTES.stream().filter(rpslObject::containsAttribute).
-                map(unsupportedVcard -> createRedactionByAttributeType(unsupportedVcard, String.format(REDACTED_VCARD_SYNTAX, joinedRoles, unsupportedVcard))).collect(Collectors.toSet());
+        final String joinedRoles = roles.stream().sorted()
+                .map(Role::getValue)
+                .collect(Collectors.joining(" && "));
+        return UNSUPPORTED_PERSONAL_ATTRIBUTES.stream()
+                .filter(rpslObject::containsAttribute)
+                .map(unsupportedVcard -> createRedaction(unsupportedVcard, String.format(REDACTED_VCARD_SYNTAX, joinedRoles, unsupportedVcard)))
+                .collect(Collectors.toSet());
     }
 
-    private static Redaction createRedactionByAttributeType(final AttributeType attributeType, final String unsupportedCardSyntax){
+    private static Redaction createRedaction(final AttributeType attributeType, final String unsupportedCardSyntax){
         return switch (attributeType) {
             case MBRS_BY_REF -> new Redaction("Authenticate members by reference", unsupportedCardSyntax, "No registrant mntner");
             case MNT_DOMAINS -> new Redaction("Authenticate domain objects", unsupportedCardSyntax, "No registrant mntner");

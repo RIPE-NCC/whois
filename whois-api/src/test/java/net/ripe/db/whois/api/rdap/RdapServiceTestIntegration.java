@@ -15,6 +15,7 @@ import net.ripe.db.whois.api.rdap.domain.Link;
 import net.ripe.db.whois.api.rdap.domain.Nameserver;
 import net.ripe.db.whois.api.rdap.domain.Notice;
 import net.ripe.db.whois.api.rdap.domain.RdapObject;
+import net.ripe.db.whois.api.rdap.domain.Redaction;
 import net.ripe.db.whois.api.rdap.domain.Remark;
 import net.ripe.db.whois.api.rdap.domain.Role;
 import net.ripe.db.whois.common.rpsl.RpslObject;
@@ -2338,63 +2339,26 @@ public class RdapServiceTestIntegration extends AbstractRdapIntegrationTest {
 
         assertThat(entity.getRedacted().size(), is(9));
 
-        assertThat(entity.getRedacted().get(0).getName().getDescription(), is("Updates notification e-mail information"));
-        assertThat(entity.getRedacted().get(0).getReason().getDescription(), is("Personal data"));
-        assertDoesNotThrow(() -> JsonPath.compile(entity.getRedacted().get(0).getPrePath()));
-        assertThat("$.entities[?(@.roles=='registrant')].vcardArray[1][?(@[0]=='notify')]",
-                is(entity.getRedacted().get(0).getPrePath()));
-        assertThat(entity.getRedacted().get(0).getMethod(), is("removal"));
-
-        assertThat(entity.getRedacted().get(1).getName().getDescription(), is("Updates notification e-mail information"));
-        assertThat(entity.getRedacted().get(1).getReason().getDescription(), is("Personal data"));
-        JsonPath jsonPath = assertDoesNotThrow(() -> JsonPath.compile(entity.getRedacted().get(1).getPrePath()));
-
-        assertThat("$.entities[?(@.roles=='technical && administrative')].vcardArray[1][?(@[0]=='notify')]", is(entity.getRedacted().get(1).getPrePath()));
-        assertThat(entity.getRedacted().get(1).getMethod(), is("removal"));
-
-        assertThat(entity.getRedacted().get(2).getName().getDescription(), is("Authenticate more specific resources"));
-        assertThat(entity.getRedacted().get(2).getReason().getDescription(), is("No registrant mntner"));
-        assertDoesNotThrow(() -> JsonPath.compile(entity.getRedacted().get(2).getPrePath()));
-        assertThat("$.entities[?(@.handle=='ANOTHER-MNT')]", is(entity.getRedacted().get(2).getPrePath()));
-        assertThat(entity.getRedacted().get(2).getMethod(), is("removal"));
-
-        assertThat(entity.getRedacted().get(3).getName().getDescription(), is("Authenticate incoming references"));
-        assertThat(entity.getRedacted().get(3).getReason().getDescription(), is("No registrant mntner"));
-        assertDoesNotThrow(() -> JsonPath.compile(entity.getRedacted().get(3).getPrePath()));
-        assertThat("$.entities[?(@.handle=='OWNER-MNT')]", is(entity.getRedacted().get(3).getPrePath()));
-        assertThat(entity.getRedacted().get(3).getMethod(), is("removal"));
-
-        assertThat(entity.getRedacted().get(4).getName().getDescription(), is("Authenticate members by reference"));
-        assertThat(entity.getRedacted().get(4).getReason().getDescription(), is("No registrant mntner"));
-        assertDoesNotThrow(() -> JsonPath.compile(entity.getRedacted().get(4).getPrePath()));
-        assertThat("$.entities[?(@.handle=='ANOTHER-MNT')]", is(entity.getRedacted().get(4).getPrePath()));
-        assertThat(entity.getRedacted().get(4).getMethod(), is("removal"));
-
-        assertThat(entity.getRedacted().get(5).getName().getDescription(), is("Authenticate route objects"));
-        assertThat(entity.getRedacted().get(5).getReason().getDescription(), is("No registrant mntner"));
-        assertDoesNotThrow(() -> JsonPath.compile(entity.getRedacted().get(5).getPrePath()));
-        assertThat("$.entities[?(@.handle=='ANOTHER-MNT')]", is(entity.getRedacted().get(5).getPrePath()));
-        assertThat(entity.getRedacted().get(5).getMethod(), is("removal"));
-
-        assertThat(entity.getRedacted().get(6).getName().getDescription(), is("Authenticate domain objects"));
-        assertThat(entity.getRedacted().get(6).getReason().getDescription(), is("No registrant mntner"));
-        assertDoesNotThrow(() -> JsonPath.compile(entity.getRedacted().get(6).getPrePath()));
-        assertThat("$.entities[?(@.handle=='ANOTHER-MNT')]", is(entity.getRedacted().get(6).getPrePath()));
-        assertThat(entity.getRedacted().get(6).getMethod(), is("removal"));
-
-        assertThat(entity.getRedacted().get(7).getName().getDescription(), is("Authenticate incoming references"));
-        assertThat(entity.getRedacted().get(7).getReason().getDescription(), is("No registrant mntner"));
-        assertDoesNotThrow(() -> JsonPath.compile(entity.getRedacted().get(7).getPrePath()));
-        assertThat("$.entities[?(@.handle=='ANOTHER-MNT')]", is(entity.getRedacted().get(7).getPrePath()));
-        assertThat(entity.getRedacted().get(7).getMethod(), is("removal"));
-
-        assertThat(entity.getRedacted().get(8).getName().getDescription(), is("Authenticate members by reference"));
-        assertThat(entity.getRedacted().get(8).getReason().getDescription(), is("No registrant mntner"));
-        assertDoesNotThrow(() -> JsonPath.compile(entity.getRedacted().get(8).getPrePath()));
-        assertThat("$.entities[?(@.handle=='OWNER-MNT')]", is(entity.getRedacted().get(8).getPrePath()));
-        assertThat(entity.getRedacted().get(8).getMethod(), is("removal"));
+        assertRedaction(entity.getRedacted().get(0), "Updates notification e-mail information", "Personal data", "$.entities[?(@.roles=='registrant')].vcardArray[1][?(@[0]=='notify')]");
+        assertRedaction(entity.getRedacted().get(1),  "Updates notification e-mail information", "Personal data","$.entities[?(@.roles=='technical && administrative')].vcardArray[1][?(@[0]=='notify')]");
+        assertRedaction(entity.getRedacted().get(2),  "Authenticate more specific resources", "No registrant mntner", "$.entities[?(@.handle=='ANOTHER-MNT')]");
+        assertRedaction(entity.getRedacted().get(3), "Authenticate incoming references", "No registrant mntner", "$.entities[?(@.handle=='OWNER-MNT')]");
+        assertRedaction(entity.getRedacted().get(4), "Authenticate members by reference", "No registrant mntner", "$.entities[?(@.handle=='ANOTHER-MNT')]");
+        assertRedaction(entity.getRedacted().get(5), "Authenticate route objects", "No registrant mntner", "$.entities[?(@.handle=='ANOTHER-MNT')]");
+        assertRedaction(entity.getRedacted().get(6), "Authenticate domain objects", "No registrant mntner", "$.entities[?(@.handle=='ANOTHER-MNT')]");
+        assertRedaction(entity.getRedacted().get(7), "Authenticate incoming references", "No registrant mntner", "$.entities[?(@.handle=='ANOTHER-MNT')]");
+        assertRedaction(entity.getRedacted().get(8), "Authenticate members by reference", "No registrant mntner", "$.entities[?(@.handle=='OWNER-MNT')]");
 
         assertThat(entity.getRdapConformance(), containsInAnyOrder("cidr0", "rdap_level_0", "nro_rdap_profile_0", "redacted"));
+    }
+
+    private void assertRedaction(final Redaction redaction, final String value, final String Personal_data,
+                                 final String expectedPrePath) {
+        assertThat(redaction.getName().getDescription(), is(value));
+        assertThat(redaction.getReason().getDescription(), is(Personal_data));
+        assertDoesNotThrow(() -> JsonPath.compile(redaction.getPrePath()));
+        assertThat(expectedPrePath, is(redaction.getPrePath()));
+        assertThat(redaction.getMethod(), is("removal"));
     }
 
     @Test
