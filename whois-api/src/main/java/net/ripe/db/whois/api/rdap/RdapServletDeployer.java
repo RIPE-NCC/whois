@@ -15,15 +15,15 @@ import jakarta.servlet.DispatcherType;
 import java.util.EnumSet;
 
 @Component
-public class WhoisRdapServletDeployer implements ServletDeployer {
+public class RdapServletDeployer implements ServletDeployer {
 
-    private final WhoisRdapService whoisRDAPService;
+    private final RdapService RDAPService;
     private final RdapExceptionMapper rdapExceptionMapper;
     private final RdapRequestTypeConverter rdapRequestTypeConverter;
 
     @Autowired
-    public WhoisRdapServletDeployer(final WhoisRdapService whoisRDAPService, final RdapExceptionMapper rdapExceptionMapper, final RdapRequestTypeConverter rdapRequestTypeConverter) {
-        this.whoisRDAPService = whoisRDAPService;
+    public RdapServletDeployer(final RdapService RDAPService, final RdapExceptionMapper rdapExceptionMapper, final RdapRequestTypeConverter rdapRequestTypeConverter) {
+        this.RDAPService = RDAPService;
         this.rdapExceptionMapper = rdapExceptionMapper;
         this.rdapRequestTypeConverter = rdapRequestTypeConverter;
     }
@@ -40,7 +40,7 @@ public class WhoisRdapServletDeployer implements ServletDeployer {
         crossOriginFilterHolder.setInitParameter(CrossOriginFilter.ALLOWED_METHODS_PARAM, "GET, OPTIONS");
 
         final ResourceConfig resourceConfig = new ResourceConfig();
-        resourceConfig.register(whoisRDAPService);
+        resourceConfig.register(RDAPService);
         resourceConfig.register(rdapRequestTypeConverter);
         resourceConfig.register(rdapExceptionMapper);
         resourceConfig.register(rdapJsonProvider);
