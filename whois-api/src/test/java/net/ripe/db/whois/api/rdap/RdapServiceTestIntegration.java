@@ -37,6 +37,7 @@ import jakarta.ws.rs.core.Response;
 import java.time.LocalDateTime;
 import java.util.Collections;
 import java.util.List;
+import java.util.regex.Pattern;
 
 import static net.ripe.db.whois.common.support.DateMatcher.isBefore;
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -2339,25 +2340,37 @@ public class RdapServiceTestIntegration extends AbstractRdapIntegrationTest {
 
         assertThat(entity.getRedacted().size(), is(9));
 
-        assertRedaction(entity.getRedacted().get(0), "Updates notification e-mail information", "Personal data", "$.entities[?(@.roles=='registrant')].vcardArray[1][?(@[0]=='notify')]");
-        assertRedaction(entity.getRedacted().get(1),  "Updates notification e-mail information", "Personal data","$.entities[?(@.roles=='technical && administrative')].vcardArray[1][?(@[0]=='notify')]");
-        assertRedaction(entity.getRedacted().get(2),  "Authenticate more specific resources", "No registrant mntner", "$.entities[?(@.handle=='ANOTHER-MNT')]");
-        assertRedaction(entity.getRedacted().get(3), "Authenticate incoming references", "No registrant mntner", "$.entities[?(@.handle=='OWNER-MNT')]");
-        assertRedaction(entity.getRedacted().get(4), "Authenticate members by reference", "No registrant mntner", "$.entities[?(@.handle=='ANOTHER-MNT')]");
-        assertRedaction(entity.getRedacted().get(5), "Authenticate route objects", "No registrant mntner", "$.entities[?(@.handle=='ANOTHER-MNT')]");
-        assertRedaction(entity.getRedacted().get(6), "Authenticate domain objects", "No registrant mntner", "$.entities[?(@.handle=='ANOTHER-MNT')]");
-        assertRedaction(entity.getRedacted().get(7), "Authenticate incoming references", "No registrant mntner", "$.entities[?(@.handle=='ANOTHER-MNT')]");
-        assertRedaction(entity.getRedacted().get(8), "Authenticate members by reference", "No registrant mntner", "$.entities[?(@.handle=='OWNER-MNT')]");
+        assertPersonalRedaction(entity.getRedacted().get(0), "Updates notification e-mail information","registrant", "notify");
+        assertPersonalRedaction(entity.getRedacted().get(1),  "Updates notification e-mail information","technical && administrative", "notify");
+        assertRegistrantRedaction(entity.getRedacted().get(2),  "Authenticate more specific resources", "ANOTHER-MNT");
+        assertRegistrantRedaction(entity.getRedacted().get(3), "Authenticate incoming references", "OWNER-MNT");
+        assertRegistrantRedaction(entity.getRedacted().get(4), "Authenticate members by reference", "ANOTHER-MNT");
+        assertRegistrantRedaction(entity.getRedacted().get(5), "Authenticate route objects", "ANOTHER-MNT");
+        assertRegistrantRedaction(entity.getRedacted().get(6), "Authenticate domain objects", "ANOTHER-MNT");
+        assertRegistrantRedaction(entity.getRedacted().get(7), "Authenticate incoming references", "ANOTHER-MNT");
+        assertRegistrantRedaction(entity.getRedacted().get(8), "Authenticate members by reference", "OWNER-MNT");
 
         assertThat(entity.getRdapConformance(), containsInAnyOrder("cidr0", "rdap_level_0", "nro_rdap_profile_0", "redacted"));
     }
 
-    private void assertRedaction(final Redaction redaction, final String value, final String Personal_data,
-                                 final String expectedPrePath) {
-        assertThat(redaction.getName().getDescription(), is(value));
-        assertThat(redaction.getReason().getDescription(), is(Personal_data));
-        assertDoesNotThrow(() -> JsonPath.compile(redaction.getPrePath()));
-        assertThat(expectedPrePath, is(redaction.getPrePath()));
+    private void assertRegistrantRedaction(final Redaction redaction, final String name, final String value) {
+        assertThat(redaction.getName().getDescription(), is(name));
+        assertThat(redaction.getReason().getDescription(), is("No registrant mntner"));
+        assertDoesNotThrow(() -> JsonPath.compile(String.format("$.entities[?(@.handle=='%s')]", value)));
+        assertThat(String.format("$.entities[?(@.handle=='%s')]", value), is(redaction.getPrePath()));
+        assertThat(redaction.getMethod(), is("removal"));
+    }
+    private void assertPersonalRedaction(final Redaction redaction, final String name, final String roles, final String attribute) {
+        assertThat(redaction.getName().getDescription(), is(name));
+        assertThat(redaction.getReason().getDescription(), is("Personal data"));
+        assertDoesNotThrow(() -> JsonPath.compile(String.format("$.entities[?(@.roles=='%s')].vcardArray[1][?(@[0]=='%s')]", roles, attribute)));
+
+        for (final String role : roles.split(" && ")) {
+            assertThat(redaction.getPrePath(), containsString(role));
+        }
+
+        assertThat(redaction.getPrePath(), containsString("$.entities[?(@.roles=="));
+        assertThat(redaction.getPrePath(), containsString(String.format(")].vcardArray[1][?(@[0]=='%s')]", attribute)));
         assertThat(redaction.getMethod(), is("removal"));
     }
 

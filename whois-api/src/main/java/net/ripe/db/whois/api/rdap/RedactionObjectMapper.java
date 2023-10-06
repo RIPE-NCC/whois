@@ -38,7 +38,7 @@ public class RedactionObjectMapper {
 
 
     public static Set<Redaction> createContactEntityRedaction(final RpslObject rpslObject, final List<Role> roles) {
-        final String joinedRoles = roles.stream().sorted()
+        final String joinedRoles = roles.stream()
                 .map(Role::getValue)
                 .collect(Collectors.joining(" && "));
         return UNSUPPORTED_PERSONAL_ATTRIBUTES.stream()
