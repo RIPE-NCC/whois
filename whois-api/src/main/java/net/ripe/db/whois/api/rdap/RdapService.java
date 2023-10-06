@@ -56,8 +56,8 @@ import static net.ripe.db.whois.common.rpsl.ObjectType.ORGANISATION;
 
 @Component
 @Path("/")
-public class WhoisRdapService {
-    private static final Logger LOGGER = LoggerFactory.getLogger(WhoisRdapService.class);
+public class RdapService {
+    private static final Logger LOGGER = LoggerFactory.getLogger(RdapService.class);
     private static final String CONTENT_TYPE_RDAP_JSON = "application/rdap+json";
     private static final Joiner COMMA_JOINER = Joiner.on(",");
 
@@ -89,17 +89,17 @@ public class WhoisRdapService {
      *                           the maximum value we truncate the response and we add a notification in the response.
      */
     @Autowired
-    public WhoisRdapService(final RdapQueryHandler rdapQueryHandler,
-                            final AbuseCFinder abuseCFinder,
-                            final RdapObjectMapper rdapObjectMapper,
-                            final DelegatedStatsService delegatedStatsService,
-                            final RdapFullTextSearch rdapFullTextSearch,
-                            final SourceContext sourceContext,
-                            final RpslObjectUpdateDao rpslObjectUpdateDao,
-                            @Value("${rdap.public.baseUrl:}") final String baseUrl,
-                            final RdapRequestValidator rdapRequestValidator,
-                            @Value("${rdap.search.max.results:100}") final int maxResultSize,
-                            @Value("${rdap.entity.max.results:100}") final int maxEntityResultSize) {
+    public RdapService(final RdapQueryHandler rdapQueryHandler,
+                       final AbuseCFinder abuseCFinder,
+                       final RdapObjectMapper rdapObjectMapper,
+                       final DelegatedStatsService delegatedStatsService,
+                       final RdapFullTextSearch rdapFullTextSearch,
+                       final SourceContext sourceContext,
+                       final RpslObjectUpdateDao rpslObjectUpdateDao,
+                       @Value("${rdap.public.baseUrl:}") final String baseUrl,
+                       final RdapRequestValidator rdapRequestValidator,
+                       @Value("${rdap.search.max.results:100}") final int maxResultSize,
+                       @Value("${rdap.entity.max.results:100}") final int maxEntityResultSize) {
         this.sourceContext = sourceContext;
         this.rdapQueryHandler = rdapQueryHandler;
         this.abuseCFinder = abuseCFinder;
