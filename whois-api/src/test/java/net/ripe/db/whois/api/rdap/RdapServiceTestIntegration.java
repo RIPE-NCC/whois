@@ -1,5 +1,9 @@
 package net.ripe.db.whois.api.rdap;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.Lists;
 import com.google.common.net.HttpHeaders;
 
@@ -21,6 +25,7 @@ import net.ripe.db.whois.api.rdap.domain.Role;
 import net.ripe.db.whois.common.rpsl.RpslObject;
 import net.ripe.db.whois.query.support.TestWhoisLog;
 import org.eclipse.jetty.http.HttpStatus;
+import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
@@ -36,9 +41,11 @@ import jakarta.ws.rs.core.Response;
 
 import java.time.LocalDateTime;
 import java.util.Collections;
+import java.util.LinkedHashMap;
 import java.util.List;
-import java.util.regex.Pattern;
 
+import static net.ripe.db.whois.api.rdap.RedactionObjectMapper.REDACTED_ENTITIES_SYNTAX;
+import static net.ripe.db.whois.api.rdap.RedactionObjectMapper.REDACTED_VCARD_SYNTAX;
 import static net.ripe.db.whois.common.support.DateMatcher.isBefore;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.arrayContainingInAnyOrder;
@@ -2298,16 +2305,57 @@ public class RdapServiceTestIntegration extends AbstractRdapIntegrationTest {
     }
 
     @Test
-    public void lookup_redactions() {
+    public void lookup_nameserver_not_found() {
+        final ServerErrorException serverErrorException = assertThrows(ServerErrorException.class, () -> {
+            createResource("nameserver/test")
+                    .request(MediaType.APPLICATION_JSON_TYPE)
+                    .get(Autnum.class);
+        });
+        assertErrorStatus(serverErrorException, 501);
+        assertErrorTitle(serverErrorException, "501 Not Implemented");
+        assertErrorDescription(serverErrorException, "Nameserver not supported");
+    }
+
+    // Redactions
+    @Test
+    public void lookup_personal_redactions() throws JsonProcessingException {
         databaseHelper.addObject("" +
-                "mntner:        ANOTHER-MNT\n" +
-                "descr:         Owner Maintainer\n" +
-                "admin-c:       TP1-TEST\n" +
-                "upd-to:        noreply@ripe.net\n" +
-                "auth:          MD5-PW $1$d9fKeTr2$Si7YudNf4rUGmR71n/cqk/ #test\n" +
+                "organisation:  ORG-ONE-TEST\n" +
+                "org-name:      Organisation One\n" +
+                "org-type:      LIR\n" +
+                "descr:         Test organisation\n" +
+                "address:       One Org Street\n" +
+                "e-mail:        test@ripe.net\n" +
+                "language:      EN\n" +
+                "admin-c:       TP2-TEST\n" + //has notify
+                "tech-c:        TP1-TEST\n" +
+                "tech-c:        TP2-TEST\n" + //has notify
                 "mnt-by:        OWNER-MNT\n" +
-                "mbrs-by-ref:   OWNER-MNT\n" +
-                "notify:        test@ripe.net\n" +
+                "created:         2011-07-28T00:35:42Z\n" +
+                "last-modified:   2019-02-28T10:14:46Z\n" +
+                "source:        TEST");
+
+        final Response response = createResource("entity/ORG-ONE-TEST")
+                .request(MediaType.APPLICATION_JSON_TYPE)
+                .get(Response.class);
+
+
+        final String entityJson = response.readEntity(String.class);
+        final List<Redaction> redactions = getRedactionsFromJson(entityJson);
+
+        assertThat(redactions.size(), is(1));
+
+        assertPersonalRedaction(redactions.get(0), "TP2-TEST", entityJson);
+
+        assertThat(getConformationsFromJson(entityJson), containsInAnyOrder("cidr0", "rdap_level_0", "nro_rdap_profile_0", "redacted"));
+    }
+    @Test
+    public void lookup_domain_redactions() throws JsonProcessingException {
+        databaseHelper.addObject("" +
+                "mntner:        DOMAIN-MNT\n" +
+                "admin-c:       TP1-TEST\n" +
+                "auth:          MD5-PW $1$d9fKeTr2$Si7YudNf4rUGmR71n/cqk/ #test\n" +
+                "mnt-by:        DOMAIN-MNT\n" +
                 "created:         2011-07-28T00:35:42Z\n" +
                 "last-modified:   2019-02-28T10:14:46Z\n" +
                 "source:        TEST");
@@ -2320,70 +2368,206 @@ public class RdapServiceTestIntegration extends AbstractRdapIntegrationTest {
                 "address:       One Org Street\n" +
                 "e-mail:        test@ripe.net\n" +
                 "language:      EN\n" +
-                "admin-c:       TP2-TEST\n" + //has email and notify
-                "tech-c:        TP1-TEST\n" +
-                "tech-c:        TP2-TEST\n" + //has email and notify
-                "mnt-ref:       OWNER-MNT\n" +
-                "mnt-ref:       ANOTHER-MNT\n" +
-                "mbrs-by-ref:   OWNER-MNT, ANOTHER-MNT\n" +
-                "mnt-lower:       ANOTHER-MNT\n" +
-                "mnt-domains:       ANOTHER-MNT\n" +
-                "mnt-routes:       ANOTHER-MNT\n" +
-                "mnt-by:        ANOTHER-MNT\n" +
+                "mnt-domains:       DOMAIN-MNT\n" +
+                "mnt-by:        OWNER-MNT\n" +
                 "created:         2011-07-28T00:35:42Z\n" +
                 "last-modified:   2019-02-28T10:14:46Z\n" +
                 "source:        TEST");
 
-        final Entity entity = createResource("entity/ORG-ONE-TEST")
+        final Response response = createResource("entity/ORG-ONE-TEST")
                 .request(MediaType.APPLICATION_JSON_TYPE)
-                .get(Entity.class);
+                .get(Response.class);
 
-        assertThat(entity.getRedacted().size(), is(9));
 
-        assertPersonalRedaction(entity.getRedacted().get(0), "Updates notification e-mail information","registrant", "notify");
-        assertPersonalRedaction(entity.getRedacted().get(1),  "Updates notification e-mail information","technical && administrative", "notify");
-        assertRegistrantRedaction(entity.getRedacted().get(2),  "Authenticate more specific resources", "ANOTHER-MNT");
-        assertRegistrantRedaction(entity.getRedacted().get(3), "Authenticate incoming references", "OWNER-MNT");
-        assertRegistrantRedaction(entity.getRedacted().get(4), "Authenticate members by reference", "ANOTHER-MNT");
-        assertRegistrantRedaction(entity.getRedacted().get(5), "Authenticate route objects", "ANOTHER-MNT");
-        assertRegistrantRedaction(entity.getRedacted().get(6), "Authenticate domain objects", "ANOTHER-MNT");
-        assertRegistrantRedaction(entity.getRedacted().get(7), "Authenticate incoming references", "ANOTHER-MNT");
-        assertRegistrantRedaction(entity.getRedacted().get(8), "Authenticate members by reference", "OWNER-MNT");
+        final String entityJson = response.readEntity(String.class);
+        final List<Redaction> redactions = getRedactionsFromJson(entityJson);
 
-        assertThat(entity.getRdapConformance(), containsInAnyOrder("cidr0", "rdap_level_0", "nro_rdap_profile_0", "redacted"));
-    }
+        assertThat(redactions.size(), is(1));
 
-    private void assertRegistrantRedaction(final Redaction redaction, final String name, final String value) {
-        assertThat(redaction.getName().getDescription(), is(name));
-        assertThat(redaction.getReason().getDescription(), is("No registrant mntner"));
-        assertDoesNotThrow(() -> JsonPath.compile(String.format("$.entities[?(@.handle=='%s')]", value)));
-        assertThat(String.format("$.entities[?(@.handle=='%s')]", value), is(redaction.getPrePath()));
-        assertThat(redaction.getMethod(), is("removal"));
-    }
-    private void assertPersonalRedaction(final Redaction redaction, final String name, final String roles, final String attribute) {
-        assertThat(redaction.getName().getDescription(), is(name));
-        assertThat(redaction.getReason().getDescription(), is("Personal data"));
-        assertDoesNotThrow(() -> JsonPath.compile(String.format("$.entities[?(@.roles=='%s')].vcardArray[1][?(@[0]=='%s')]", roles, attribute)));
+        assertRegistrantRedaction(redactions.get(0), "Authenticate domain objects", "DOMAIN-MNT", entityJson);
 
-        for (final String role : roles.split(" && ")) {
-            assertThat(redaction.getPrePath(), containsString(role));
-        }
-
-        assertThat(redaction.getPrePath(), containsString("$.entities[?(@.roles=="));
-        assertThat(redaction.getPrePath(), containsString(String.format(")].vcardArray[1][?(@[0]=='%s')]", attribute)));
-        assertThat(redaction.getMethod(), is("removal"));
+        assertThat(getConformationsFromJson(entityJson), containsInAnyOrder("cidr0", "rdap_level_0", "nro_rdap_profile_0", "redacted"));
     }
 
     @Test
-    public void lookup_nameserver_not_found() {
-        final ServerErrorException serverErrorException = assertThrows(ServerErrorException.class, () -> {
-            createResource("nameserver/test")
-                    .request(MediaType.APPLICATION_JSON_TYPE)
-                    .get(Autnum.class);
-        });
-        assertErrorStatus(serverErrorException, 501);
-        assertErrorTitle(serverErrorException, "501 Not Implemented");
-        assertErrorDescription(serverErrorException, "Nameserver not supported");
+    public void lookup_incoming_ref_redactions() throws JsonProcessingException {
+        databaseHelper.addObject("" +
+                "mntner:        INCOMING-MNT\n" +
+                "admin-c:       TP1-TEST\n" +
+                "auth:          MD5-PW $1$d9fKeTr2$Si7YudNf4rUGmR71n/cqk/ #test\n" +
+                "mnt-by:        INCOMING-MNT\n" +
+                "created:         2011-07-28T00:35:42Z\n" +
+                "last-modified:   2019-02-28T10:14:46Z\n" +
+                "source:        TEST");
+
+        databaseHelper.addObject("" +
+                "mntner:        INCOMING2-MNT\n" +
+                "admin-c:       TP1-TEST\n" +
+                "auth:          MD5-PW $1$d9fKeTr2$Si7YudNf4rUGmR71n/cqk/ #test\n" +
+                "mnt-by:        INCOMING2-MNT\n" +
+                "created:         2011-07-28T00:35:42Z\n" +
+                "last-modified:   2019-02-28T10:14:46Z\n" +
+                "source:        TEST");
+
+        databaseHelper.addObject("" +
+                "organisation:  ORG-ONE-TEST\n" +
+                "org-name:      Organisation One\n" +
+                "org-type:      LIR\n" +
+                "descr:         Test organisation\n" +
+                "address:       One Org Street\n" +
+                "e-mail:        test@ripe.net\n" +
+                "language:      EN\n" +
+                "mnt-ref:       INCOMING-MNT\n" +
+                "mnt-ref:       INCOMING2-MNT\n" +
+                "mnt-by:        OWNER-MNT\n" +
+                "created:         2011-07-28T00:35:42Z\n" +
+                "last-modified:   2019-02-28T10:14:46Z\n" +
+                "source:        TEST");
+
+        final Response response = createResource("entity/ORG-ONE-TEST")
+                .request(MediaType.APPLICATION_JSON_TYPE)
+                .get(Response.class);
+
+
+        final String entityJson = response.readEntity(String.class);
+        final List<Redaction> redactions = getRedactionsFromJson(entityJson);
+
+        assertThat(redactions.size(), is(2));
+
+        assertRegistrantRedaction(redactions.get(0), "Authenticate incoming references", "INCOMING2-MNT", entityJson);
+        assertRegistrantRedaction(redactions.get(1), "Authenticate incoming references", "INCOMING-MNT", entityJson);
+
+        assertThat(getConformationsFromJson(entityJson), containsInAnyOrder("cidr0", "rdap_level_0", "nro_rdap_profile_0", "redacted"));
+    }
+
+    @Test
+    public void lookup_member_by_redactions() throws JsonProcessingException {
+        databaseHelper.addObject("" +
+                "mntner:        MEMBERBY-MNT\n" +
+                "admin-c:       TP1-TEST\n" +
+                "auth:          MD5-PW $1$d9fKeTr2$Si7YudNf4rUGmR71n/cqk/ #test\n" +
+                "mnt-by:        MEMBERBY-MNT\n" +
+                "created:         2011-07-28T00:35:42Z\n" +
+                "last-modified:   2019-02-28T10:14:46Z\n" +
+                "source:        TEST");
+
+        databaseHelper.addObject("" +
+                "mntner:        MEMBERBY2-MNT\n" +
+                "admin-c:       TP1-TEST\n" +
+                "auth:          MD5-PW $1$d9fKeTr2$Si7YudNf4rUGmR71n/cqk/ #test\n" +
+                "mnt-by:        MEMBERBY2-MNT\n" +
+                "created:         2011-07-28T00:35:42Z\n" +
+                "last-modified:   2019-02-28T10:14:46Z\n" +
+                "source:        TEST");
+
+        databaseHelper.addObject("" +
+                "organisation:  ORG-ONE-TEST\n" +
+                "org-name:      Organisation One\n" +
+                "org-type:      LIR\n" +
+                "descr:         Test organisation\n" +
+                "address:       One Org Street\n" +
+                "e-mail:        test@ripe.net\n" +
+                "language:      EN\n" +
+                "mnt-by:        OWNER-MNT\n" +
+                "mbrs-by-ref:   MEMBERBY-MNT, MEMBERBY2-MNT\n" +
+                "created:         2011-07-28T00:35:42Z\n" +
+                "last-modified:   2019-02-28T10:14:46Z\n" +
+                "source:        TEST");
+
+        final Response response = createResource("entity/ORG-ONE-TEST")
+                .request(MediaType.APPLICATION_JSON_TYPE)
+                .get(Response.class);
+
+
+        final String entityJson = response.readEntity(String.class);
+        final List<Redaction> redactions = getRedactionsFromJson(entityJson);
+
+        assertThat(redactions.size(), is(2));
+
+        assertRegistrantRedaction(redactions.get(0), "Authenticate members by reference", "MEMBERBY2-MNT", entityJson);
+        assertRegistrantRedaction(redactions.get(1), "Authenticate members by reference", "MEMBERBY-MNT", entityJson);
+
+        assertThat(getConformationsFromJson(entityJson), containsInAnyOrder("cidr0", "rdap_level_0", "nro_rdap_profile_0", "redacted"));
+    }
+
+    @Test
+    public void lookup_less_specific_redactions() throws JsonProcessingException {
+        databaseHelper.addObject("" +
+                "mntner:        LESS-MNT\n" +
+                "admin-c:       TP1-TEST\n" +
+                "auth:          MD5-PW $1$d9fKeTr2$Si7YudNf4rUGmR71n/cqk/ #test\n" +
+                "mnt-by:        LESS-MNT\n" +
+                "created:         2011-07-28T00:35:42Z\n" +
+                "last-modified:   2019-02-28T10:14:46Z\n" +
+                "source:        TEST");
+
+        databaseHelper.addObject("" +
+                "organisation:  ORG-ONE-TEST\n" +
+                "org-name:      Organisation One\n" +
+                "org-type:      LIR\n" +
+                "descr:         Test organisation\n" +
+                "address:       One Org Street\n" +
+                "e-mail:        test@ripe.net\n" +
+                "language:      EN\n" +
+                "mnt-by:        OWNER-MNT\n" +
+                "mnt-lower:       LESS-MNT\n" +
+                "created:         2011-07-28T00:35:42Z\n" +
+                "last-modified:   2019-02-28T10:14:46Z\n" +
+                "source:        TEST");
+
+        final Response response = createResource("entity/ORG-ONE-TEST")
+                .request(MediaType.APPLICATION_JSON_TYPE)
+                .get(Response.class);
+
+
+        final String entityJson = response.readEntity(String.class);
+        final List<Redaction> redactions = getRedactionsFromJson(entityJson);
+
+        assertThat(redactions.size(), is(1));
+
+        assertRegistrantRedaction(redactions.get(0),  "Authenticate more specific resources", "LESS-MNT", entityJson);
+
+        assertThat(getConformationsFromJson(entityJson), containsInAnyOrder("cidr0", "rdap_level_0", "nro_rdap_profile_0", "redacted"));
+    }
+
+    @Test
+    public void lookup_route_redactions() throws JsonProcessingException {
+        databaseHelper.addObject("" +
+                "mntner:        ROUTE-MNT\n" +
+                "admin-c:       TP1-TEST\n" +
+                "auth:          MD5-PW $1$d9fKeTr2$Si7YudNf4rUGmR71n/cqk/ #test\n" +
+                "mnt-by:        ROUTE-MNT\n" +
+                "created:         2011-07-28T00:35:42Z\n" +
+                "last-modified:   2019-02-28T10:14:46Z\n" +
+                "source:        TEST");
+
+        databaseHelper.addObject("" +
+                "organisation:  ORG-ONE-TEST\n" +
+                "org-name:      Organisation One\n" +
+                "org-type:      LIR\n" +
+                "descr:         Test organisation\n" +
+                "address:       One Org Street\n" +
+                "e-mail:        test@ripe.net\n" +
+                "language:      EN\n" +
+                "mnt-by:        OWNER-MNT\n" +
+                "mnt-routes:       ROUTE-MNT\n" +
+                "created:         2011-07-28T00:35:42Z\n" +
+                "last-modified:   2019-02-28T10:14:46Z\n" +
+                "source:        TEST");
+
+        final Response response = createResource("entity/ORG-ONE-TEST")
+                .request(MediaType.APPLICATION_JSON_TYPE)
+                .get(Response.class);
+
+
+        final String entityJson = response.readEntity(String.class);
+        final List<Redaction> redactions = getRedactionsFromJson(entityJson);
+
+        assertThat(redactions.size(), is(1));
+
+        assertRegistrantRedaction(redactions.get(0), "Authenticate route objects", "ROUTE-MNT", entityJson);
+
+        assertThat(getConformationsFromJson(entityJson), containsInAnyOrder("cidr0", "rdap_level_0", "nro_rdap_profile_0", "redacted"));
     }
 
     // search - entities - organisation
@@ -2586,4 +2770,52 @@ public class RdapServiceTestIntegration extends AbstractRdapIntegrationTest {
         assertThat(notice.getLinks().get(0).getType(), is("application/pdf"));
         assertThat(notice.getLinks().get(0).getValue(), is(value));
     }
+
+    private void assertRegistrantRedaction(final Redaction redaction, final String name, final String value, final String json) {
+        final String fullPathMatch = String.format(REDACTED_ENTITIES_SYNTAX, value);
+
+        assertThat(redaction.getPrePath(), is(fullPathMatch)); //prePath as expected prePath
+        final JsonPath fullJsonPath = assertDoesNotThrow(() -> JsonPath.compile(redaction.getPrePath()));
+        final List<Object> entities = fullJsonPath.read(json);
+        assertThat(entities.size(), is(0));
+
+        assertThat(redaction.getName().getDescription(), is(name));
+        assertThat(redaction.getReason().getDescription(), is("No registrant mntner"));
+        assertThat(redaction.getMethod(), is("removal"));
+    }
+    private void assertPersonalRedaction(final Redaction redaction, final String pkey, final String json) {
+        final String fullPathMatch = String.format(REDACTED_VCARD_SYNTAX, pkey, getRoles(pkey, json), "notify");
+
+        assertThat(redaction.getPrePath().equals(fullPathMatch), is(true)); //prePath as expected prePath
+        final JsonPath fullJsonPath = assertDoesNotThrow(() -> JsonPath.compile(redaction.getPrePath())); //prePath in correct format
+        final List<Object> entities = fullJsonPath.read(json);
+        assertThat(entities.size(), is(0)); //role, pkey and attribute do not exist in the json
+
+        assertThat(redaction.getName().getDescription(), is("Updates notification e-mail information"));
+        assertThat(redaction.getReason().getDescription(), is("Personal data"));
+        assertThat(redaction.getMethod(), is("removal"));
+    }
+
+    @NotNull
+    private String getRoles(final String pkey, final String json) {
+        final String entityPath = String.format("$.entities[?(@.handle=='%s')]", pkey);
+        final List<Object> entityAttributes = JsonPath.compile(entityPath).read(json);
+        return String.join(" && ", ((List<String>) ((LinkedHashMap) entityAttributes.get(0)).get("roles")));
+    }
+
+    @NotNull
+    private List<Redaction> getRedactionsFromJson(final String entityJson) throws JsonProcessingException {
+        final ObjectMapper objectMapper = new ObjectMapper();
+        final JsonNode redactionNode = objectMapper.readTree(entityJson).path("redacted");
+        return objectMapper.convertValue(redactionNode,
+                new TypeReference<List<Redaction>>(){});
+    }
+    @NotNull
+    private List<String> getConformationsFromJson(final String entityJson) throws JsonProcessingException {
+        final ObjectMapper objectMapper = new ObjectMapper();
+        final JsonNode redactionNode = objectMapper.readTree(entityJson).path("rdapConformance");
+        return objectMapper.convertValue(redactionNode,
+                new TypeReference<List<String>>(){});
+    }
+
 }
