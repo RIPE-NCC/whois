@@ -2762,14 +2762,13 @@ public class RdapServiceTestIntegration extends AbstractRdapIntegrationTest {
 
     private void assertRegistrantRedaction(final Redaction redaction, final String name, final String value, final String json) {
         final String getAllHandlerMatch = "$.entities[*].handle";
-        final JsonPath allHandlersPath = JsonPath.compile(getAllHandlerMatch);
-        final List<Object> handlers = allHandlersPath.read(json);
+        final List<Object> handlers = JsonPath.read(json, getAllHandlerMatch);
         assertThat(handlers, not(contains(value)));
 
         final String fullPathMatch = String.format(REDACTED_ENTITIES_SYNTAX, value);
         assertThat(redaction.getPrePath(), is(fullPathMatch)); //prePath as expected prePath
-        final JsonPath fullJsonPath = assertDoesNotThrow(() -> JsonPath.compile(redaction.getPrePath()));
-        final List<Object> entities = fullJsonPath.read(json);
+        assertDoesNotThrow(() -> JsonPath.compile(redaction.getPrePath()));
+        final List<Object> entities = JsonPath.read(json, redaction.getPrePath());
         assertThat(entities.size(), is(0));
 
         assertThat(redaction.getName().getDescription(), is(name));
