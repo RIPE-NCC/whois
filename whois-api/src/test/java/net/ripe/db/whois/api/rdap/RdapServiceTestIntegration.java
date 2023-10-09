@@ -41,7 +41,6 @@ import jakarta.ws.rs.core.Response;
 
 import java.time.LocalDateTime;
 import java.util.Collections;
-import java.util.LinkedHashMap;
 import java.util.List;
 
 import static net.ripe.db.whois.api.rdap.RedactionObjectMapper.REDACTED_ENTITIES_SYNTAX;
@@ -54,6 +53,7 @@ import static org.hamcrest.Matchers.containsInAnyOrder;
 import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.empty;
 import static org.hamcrest.Matchers.equalTo;
+import static org.hamcrest.Matchers.hasItem;
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.not;
@@ -2345,7 +2345,7 @@ public class RdapServiceTestIntegration extends AbstractRdapIntegrationTest {
 
         assertThat(redactions.size(), is(1));
 
-        assertPersonalRedaction(redactions.get(0), "TP2-TEST", entityJson);
+        assertPersonalRedaction(redactions.get(0), entityJson);
 
         assertThat(getConformationsFromJson(entityJson), containsInAnyOrder("cidr0", "rdap_level_0", "nro_rdap_profile_0", "redacted"));
     }
@@ -2772,8 +2772,12 @@ public class RdapServiceTestIntegration extends AbstractRdapIntegrationTest {
     }
 
     private void assertRegistrantRedaction(final Redaction redaction, final String name, final String value, final String json) {
-        final String fullPathMatch = String.format(REDACTED_ENTITIES_SYNTAX, value);
+        final String getAllHandlerMatch = "$.entities[*].handle";
+        final JsonPath allHandlersPath = JsonPath.compile(getAllHandlerMatch);
+        final List<Object> handlers = allHandlersPath.read(json);
+        assertThat(handlers, not(contains(value)));
 
+        final String fullPathMatch = String.format(REDACTED_ENTITIES_SYNTAX, value);
         assertThat(redaction.getPrePath(), is(fullPathMatch)); //prePath as expected prePath
         final JsonPath fullJsonPath = assertDoesNotThrow(() -> JsonPath.compile(redaction.getPrePath()));
         final List<Object> entities = fullJsonPath.read(json);
@@ -2783,10 +2787,15 @@ public class RdapServiceTestIntegration extends AbstractRdapIntegrationTest {
         assertThat(redaction.getReason().getDescription(), is("No registrant mntner"));
         assertThat(redaction.getMethod(), is("removal"));
     }
-    private void assertPersonalRedaction(final Redaction redaction, final String pkey, final String json) {
-        final String fullPathMatch = String.format(REDACTED_VCARD_SYNTAX, pkey, getRoles(pkey, json), "notify");
+    private void assertPersonalRedaction(final Redaction redaction, final String json) {
+        final String vcardPathMatch = String.format("$.entities[?(@.handle=='%s')].vcardArray[1][*][0]", "TP2-TEST");
+        final JsonPath vcardPath = JsonPath.compile(vcardPathMatch);
+        final List<Object> vcards = vcardPath.read(json);
+        assertThat(vcards, hasItem("version"));
+        assertThat(vcards, not(contains("notify")));
 
-        assertThat(redaction.getPrePath().equals(fullPathMatch), is(true)); //prePath as expected prePath
+
+        assertThat(String.format(REDACTED_VCARD_SYNTAX, "TP2-TEST", "notify"), is(redaction.getPrePath()));
         final JsonPath fullJsonPath = assertDoesNotThrow(() -> JsonPath.compile(redaction.getPrePath())); //prePath in correct format
         final List<Object> entities = fullJsonPath.read(json);
         assertThat(entities.size(), is(0)); //role, pkey and attribute do not exist in the json
@@ -2794,13 +2803,6 @@ public class RdapServiceTestIntegration extends AbstractRdapIntegrationTest {
         assertThat(redaction.getName().getDescription(), is("Updates notification e-mail information"));
         assertThat(redaction.getReason().getDescription(), is("Personal data"));
         assertThat(redaction.getMethod(), is("removal"));
-    }
-
-    @NotNull
-    private String getRoles(final String pkey, final String json) {
-        final String entityPath = String.format("$.entities[?(@.handle=='%s')]", pkey);
-        final List<Object> entityAttributes = JsonPath.compile(entityPath).read(json);
-        return String.join(" && ", ((List<String>) ((LinkedHashMap) entityAttributes.get(0)).get("roles")));
     }
 
     @NotNull

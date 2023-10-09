@@ -508,7 +508,7 @@ class RdapObjectMapper {
                 continue;
             }
             entity.setVCardArray(createVCard(referencedRpslObject));
-            rdapObject.getRedacted().addAll(RedactionObjectMapper.createContactEntityRedaction(referencedRpslObject, entity.getRoles()));
+            rdapObject.getRedacted().addAll(RedactionObjectMapper.createContactEntityRedaction(referencedRpslObject));
         }
     }
 

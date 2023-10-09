@@ -26,7 +26,7 @@ public class RedactionObjectMapper {
 
     public static String REDACTED_ENTITIES_SYNTAX = "$.entities[?(@.handle=='%s')]";
 
-    public static String REDACTED_VCARD_SYNTAX = "$.entities[?(@.handle=='%s' && @.roles[0]=='%s')].vcardArray[1][?(@[0]=='%s')]";
+    public static String REDACTED_VCARD_SYNTAX = "$.entities[?(@.handle=='%s')].vcardArray[1][?(@[0]=='%s')]";
 
     public static Set<Redaction> createEntityRedaction(final List<RpslAttribute> rpslAttributes){
         return rpslAttributes.stream()
@@ -37,13 +37,10 @@ public class RedactionObjectMapper {
     }
 
 
-    public static Set<Redaction> createContactEntityRedaction(final RpslObject rpslObject, final List<Role> roles) {
-        final String joinedRoles = roles.stream()
-                .map(Role::getValue)
-                .collect(Collectors.joining(" && "));
+    public static Set<Redaction> createContactEntityRedaction(final RpslObject rpslObject) {
         return UNSUPPORTED_PERSONAL_ATTRIBUTES.stream()
                 .filter(rpslObject::containsAttribute)
-                .map(unsupportedVcard -> createRedaction(unsupportedVcard, String.format(REDACTED_VCARD_SYNTAX, rpslObject.getKey(), joinedRoles, unsupportedVcard)))
+                .map(unsupportedVcard -> createRedaction(unsupportedVcard, String.format(REDACTED_VCARD_SYNTAX, rpslObject.getKey(), unsupportedVcard)))
                 .collect(Collectors.toSet());
     }
 
