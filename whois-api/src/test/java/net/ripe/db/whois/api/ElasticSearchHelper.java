@@ -38,7 +38,7 @@ public class ElasticSearchHelper {
             }
 
             CreateIndexRequest whoisRequest = new CreateIndexRequest(indexName);
-            whoisRequest.settings(getSettings());
+            whoisRequest.settings(getSettings(hostname.split(",").length));
             whoisRequest.mapping(getMappings());
 
             esClient.indices().create(whoisRequest, RequestOptions.DEFAULT);
@@ -83,12 +83,12 @@ public class ElasticSearchHelper {
         }
     }
 
-    private XContentBuilder getSettings() throws IOException {
+    public static XContentBuilder getSettings(final int nodes) throws IOException {
 
         final XContentBuilder indexSettings =  XContentFactory.jsonBuilder();
         indexSettings.startObject()
                 .startObject("index")
-                    .field("number_of_replicas", "1")
+                    .field("number_of_replicas", nodes == 1 ? 1 : nodes-1)
                     .field("auto_expand_replicas", false)
                     .field("max_result_window", 100000)
                 .endObject()
@@ -128,7 +128,7 @@ public class ElasticSearchHelper {
         return indexSettings;
     }
 
-    private XContentBuilder getMappings() throws IOException {
+    public static XContentBuilder getMappings() throws IOException {
         final XContentBuilder mappings = XContentFactory.jsonBuilder().startObject();
 
          mappings.startArray("dynamic_templates").startObject()
