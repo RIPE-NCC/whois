@@ -83,7 +83,7 @@ public class ElasticSearchHelper {
         }
     }
 
-    private XContentBuilder getSettings() throws IOException {
+    public static XContentBuilder getSettings() throws IOException {
 
         final XContentBuilder indexSettings =  XContentFactory.jsonBuilder();
         indexSettings.startObject()
@@ -128,7 +128,7 @@ public class ElasticSearchHelper {
         return indexSettings;
     }
 
-    private XContentBuilder getMappings() throws IOException {
+    public static XContentBuilder getMappings() throws IOException {
         final XContentBuilder mappings = XContentFactory.jsonBuilder().startObject();
 
          mappings.startArray("dynamic_templates").startObject()
