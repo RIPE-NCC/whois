@@ -2335,12 +2335,11 @@ public class RdapServiceTestIntegration extends AbstractRdapIntegrationTest {
                 "last-modified:   2019-02-28T10:14:46Z\n" +
                 "source:        TEST");
 
-        final Response response = createResource("entity/ORG-ONE-TEST")
+        final String entityJson = createResource("entity/ORG-ONE-TEST")
                 .request(MediaType.APPLICATION_JSON_TYPE)
-                .get(Response.class);
+                .get(String.class);
 
 
-        final String entityJson = response.readEntity(String.class);
         final List<Redaction> redactions = getRedactionsFromJson(entityJson);
 
         assertThat(redactions.size(), is(1));
@@ -2374,12 +2373,10 @@ public class RdapServiceTestIntegration extends AbstractRdapIntegrationTest {
                 "last-modified:   2019-02-28T10:14:46Z\n" +
                 "source:        TEST");
 
-        final Response response = createResource("entity/ORG-ONE-TEST")
+        final String entityJson = createResource("entity/ORG-ONE-TEST")
                 .request(MediaType.APPLICATION_JSON_TYPE)
-                .get(Response.class);
+                .get(String.class);
 
-
-        final String entityJson = response.readEntity(String.class);
         final List<Redaction> redactions = getRedactionsFromJson(entityJson);
 
         assertThat(redactions.size(), is(1));
@@ -2424,12 +2421,10 @@ public class RdapServiceTestIntegration extends AbstractRdapIntegrationTest {
                 "last-modified:   2019-02-28T10:14:46Z\n" +
                 "source:        TEST");
 
-        final Response response = createResource("entity/ORG-ONE-TEST")
+        final String entityJson = createResource("entity/ORG-ONE-TEST")
                 .request(MediaType.APPLICATION_JSON_TYPE)
-                .get(Response.class);
+                .get(String.class);
 
-
-        final String entityJson = response.readEntity(String.class);
         final List<Redaction> redactions = getRedactionsFromJson(entityJson);
 
         assertThat(redactions.size(), is(2));
@@ -2474,12 +2469,10 @@ public class RdapServiceTestIntegration extends AbstractRdapIntegrationTest {
                 "last-modified:   2019-02-28T10:14:46Z\n" +
                 "source:        TEST");
 
-        final Response response = createResource("entity/ORG-ONE-TEST")
+        final String entityJson = createResource("entity/ORG-ONE-TEST")
                 .request(MediaType.APPLICATION_JSON_TYPE)
-                .get(Response.class);
+                .get(String.class);
 
-
-        final String entityJson = response.readEntity(String.class);
         final List<Redaction> redactions = getRedactionsFromJson(entityJson);
 
         assertThat(redactions.size(), is(2));
@@ -2515,12 +2508,10 @@ public class RdapServiceTestIntegration extends AbstractRdapIntegrationTest {
                 "last-modified:   2019-02-28T10:14:46Z\n" +
                 "source:        TEST");
 
-        final Response response = createResource("entity/ORG-ONE-TEST")
+        final String entityJson = createResource("entity/ORG-ONE-TEST")
                 .request(MediaType.APPLICATION_JSON_TYPE)
-                .get(Response.class);
+                .get(String.class);
 
-
-        final String entityJson = response.readEntity(String.class);
         final List<Redaction> redactions = getRedactionsFromJson(entityJson);
 
         assertThat(redactions.size(), is(1));
@@ -2555,12 +2546,10 @@ public class RdapServiceTestIntegration extends AbstractRdapIntegrationTest {
                 "last-modified:   2019-02-28T10:14:46Z\n" +
                 "source:        TEST");
 
-        final Response response = createResource("entity/ORG-ONE-TEST")
+        final String entityJson = createResource("entity/ORG-ONE-TEST")
                 .request(MediaType.APPLICATION_JSON_TYPE)
-                .get(Response.class);
+                .get(String.class);
 
-
-        final String entityJson = response.readEntity(String.class);
         final List<Redaction> redactions = getRedactionsFromJson(entityJson);
 
         assertThat(redactions.size(), is(1));
@@ -2789,15 +2778,14 @@ public class RdapServiceTestIntegration extends AbstractRdapIntegrationTest {
     }
     private void assertPersonalRedaction(final Redaction redaction, final String json) {
         final String vcardPathMatch = String.format("$.entities[?(@.handle=='%s')].vcardArray[1][*][0]", "TP2-TEST");
-        final JsonPath vcardPath = JsonPath.compile(vcardPathMatch);
-        final List<Object> vcards = vcardPath.read(json);
+        final List<Object> vcards = JsonPath.read(json, vcardPathMatch);
         assertThat(vcards, hasItem("version"));
         assertThat(vcards, not(contains("notify")));
 
 
         assertThat(String.format(REDACTED_VCARD_SYNTAX, "TP2-TEST", "notify"), is(redaction.getPrePath()));
-        final JsonPath fullJsonPath = assertDoesNotThrow(() -> JsonPath.compile(redaction.getPrePath())); //prePath in correct format
-        final List<Object> entities = fullJsonPath.read(json);
+        assertDoesNotThrow(() -> JsonPath.compile(redaction.getPrePath())); //prePath in correct format
+        final List<Object> entities = JsonPath.read(json, redaction.getPrePath());
         assertThat(entities.size(), is(0)); //role, pkey and attribute do not exist in the json
 
         assertThat(redaction.getName().getDescription(), is("Updates notification e-mail information"));
