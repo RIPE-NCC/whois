@@ -28,9 +28,9 @@ public class RedactionObjectMapper {
     public static String REDACTED_VCARD_SYNTAX = "$.vcardArray[1][?(@[0]=='%s')]";
     public static String REDACTED_ENTITIES_VCARD_SYNTAX = "$.entities[?(@.handle=='%s')].vcardArray[1][?(@[0]=='%s')]";
 
-    public static Set<Redaction> createEntityRedaction(final List<RpslAttribute> rpslAttributes){
+    public static Set<Redaction> createEntityRedaction(final RpslObject rpslObject){
         final Set<Redaction> redactions = Sets.newHashSet();
-        for (final RpslAttribute rpslAttribute : rpslAttributes) {
+        for (final RpslAttribute rpslAttribute : rpslObject.getAttributes()) {
             if (UNSUPPORTED_PERSONAL_ATTRIBUTES.contains(rpslAttribute.getType())){
                 redactions.add(createRedaction(rpslAttribute.getType(), String.format(REDACTED_VCARD_SYNTAX, rpslAttribute.getType())));
             }
@@ -61,5 +61,4 @@ public class RedactionObjectMapper {
             default -> throw new IllegalArgumentException("Unhandled object type: " + attributeType);
         };
     }
-
 }

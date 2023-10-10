@@ -468,48 +468,50 @@ class RdapObjectMapper {
 
 
     private void mapContactEntitiesAndRedaction(final RdapObject rdapObject, final RpslObject rpslObject, final String requestUrl) {
-        final Map<CIString, Set<AttributeType>> contacts = Maps.newTreeMap();
 
-        for (final RpslAttribute rpslAttribute: rpslObject.getAttributes()) {
-            final AttributeType rpslAttributeType = AttributeType.getByName(rpslAttribute.getKey());
-            if (CONTACT_ATTRIBUTE_TO_ROLE_NAME.containsKey(rpslAttributeType)){
-                rpslAttribute.getCleanValues().forEach( contactName -> {
-                    if (contacts.containsKey(contactName)) {
-                        contacts.get(contactName).add(rpslAttributeType);
-                    } else {
-                        contacts.put(contactName, Sets.newHashSet(rpslAttributeType));
-                    }
-                });
-            }
-        }
-        final List<Entity> entities = Lists.newArrayList();
-        for (final Map.Entry<CIString, Set<AttributeType>> entry : contacts.entrySet()) {
-            final Entity entity = new Entity();
-            entity.setHandle(entry.getKey().toString());
-            final Set<ObjectType> objectPossibleTypes = Sets.newHashSet();
-            for (final AttributeType attributeType : entry.getValue()) {
-                objectPossibleTypes.addAll(attributeType.getReferences());
-                entity.getRoles().add(CONTACT_ATTRIBUTE_TO_ROLE_NAME.get(attributeType));
-            }
-            mapEntityLinks(entity, requestUrl, entry.getKey());
-            mapVcardAndRedaction(rdapObject, entry, entity, objectPossibleTypes);
-            entities.add(entity);
-        }
+        final Map<CIString, Entity> contactsEntities = Maps.newTreeMap();
+        final List<RpslAttribute> filteredAttributes = rpslObject.getAttributes().stream().filter( rpslAttribute -> CONTACT_ATTRIBUTE_TO_ROLE_NAME.containsKey(rpslAttribute.getType())).collect(Collectors.toList());
 
-        rdapObject.getRedacted().addAll(RedactionObjectMapper.createEntityRedaction(rpslObject.getAttributes()));
-        rdapObject.getEntitySearchResults().addAll(entities);
+        filteredAttributes.forEach( rpslAttribute -> {
+            for (final CIString value : rpslAttribute.getCleanValues()) {
+                if (contactsEntities.containsKey(value)) {
+                    contactsEntities.get(value).getRoles().add(CONTACT_ATTRIBUTE_TO_ROLE_NAME.get(rpslAttribute.getType()));
+                    continue;
+                }
+
+                final Entity entity = new Entity();
+                entity.setHandle(value.toString());
+                entity.getRoles().add(CONTACT_ATTRIBUTE_TO_ROLE_NAME.get(rpslAttribute.getType()));
+
+                mapVcardAndRedaction(rdapObject, value, rpslAttribute.getType(), entity);
+                mapEntityLinks(entity, requestUrl, value);
+
+                contactsEntities.put(value, entity);
+            }
+        });
+
+        rdapObject.getRedacted().addAll(RedactionObjectMapper.createEntityRedaction(rpslObject));
+        rdapObject.getEntitySearchResults().addAll(contactsEntities.values());
     }
 
-    private void mapVcardAndRedaction(final RdapObject rdapObject, final Map.Entry<CIString, Set<AttributeType>> entry, final Entity entity,
-                                      final Set<ObjectType> objectPossibleTypes) {
-        for (final ObjectType objectType : objectPossibleTypes){
-            final RpslObject referencedRpslObject = rpslObjectDao.getByKeyOrNull(objectType, entry.getKey());
-            if (referencedRpslObject == null){
-                continue;
-            }
-            entity.setVCardArray(createVCard(referencedRpslObject));
-            rdapObject.getRedacted().addAll(RedactionObjectMapper.createContactEntityRedaction(referencedRpslObject));
+    private void mapVcardAndRedaction(final RdapObject rdapObject, final CIString attributeValue, final AttributeType type, final Entity entity) {
+        final RpslObject referencedRpslObject = getRpslObjectByAttributeType(attributeValue, type);
+        if(referencedRpslObject == null) {
+            return;
         }
+
+        entity.setVCardArray(createVCard(referencedRpslObject));
+        rdapObject.getRedacted().addAll(RedactionObjectMapper.createContactEntityRedaction(referencedRpslObject));
+    }
+
+    private RpslObject getRpslObjectByAttributeType(final CIString attributeValue, final AttributeType type) {
+        for (final ObjectType objectType : type.getReferences()){
+            RpslObject referencedRpslObject = rpslObjectDao.getByKeyOrNull(objectType, attributeValue);
+            if (referencedRpslObject != null){
+               return referencedRpslObject;
+            }
+        }
+        return null;
     }
 
     private Entity createEntity(final RpslObject rpslObject, final String requestUrl) {
