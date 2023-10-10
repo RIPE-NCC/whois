@@ -28,13 +28,12 @@ public class RedactionObjectMapper {
     public static Set<Redaction> createContactEntityRedaction(final RpslObject rpslObject) {
         final Set<Redaction> redactions = Sets.newHashSet();
         rpslObject.getAttributes().forEach( rpslAttribute ->
-            addRedactionForVcard(redactions, rpslAttribute.getType(),  String.format(REDACTED_ENTITIES_SYNTAX, rpslObject.getKey()))
+            addRedactionForVcard(redactions, rpslAttribute.getType(), String.format(REDACTED_ENTITIES_SYNTAX, rpslObject.getKey()))
         );
         return  redactions;
     }
 
     private static void addRedactionForRegistrant(final Set<Redaction> redactions, final AttributeType attributeType, final String prefix){
-
          switch (attributeType) {
             case MBRS_BY_REF -> redactions.add(new Redaction("Authenticate members by reference", prefix, "No registrant mntner"));
             case MNT_DOMAINS -> redactions.add(new Redaction("Authenticate domain objects", prefix, "No registrant mntner"));
@@ -45,11 +44,11 @@ public class RedactionObjectMapper {
     }
 
     private static void addRedactionForVcard(final Set<Redaction> redactions, final AttributeType attributeType, final String prefix){
-         switch (attributeType) {
-            case NOTIFY -> redactions.add(new Redaction("Updates notification e-mail information",
-                                                    String.format("%s.vcardArray[1][?(@[0]=='%s')]", prefix, attributeType.getName()),
-                                                    "Personal data")
-                                          );
-        };
+        if (attributeType == AttributeType.NOTIFY) {
+            redactions.add(new Redaction("Updates notification e-mail information",
+                    String.format("%s.vcardArray[1][?(@[0]=='%s')]", prefix, attributeType.getName()),
+                    "Personal data")
+            );
+        }
     }
 }
