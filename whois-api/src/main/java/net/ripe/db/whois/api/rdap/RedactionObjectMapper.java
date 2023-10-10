@@ -1,8 +1,8 @@
 package net.ripe.db.whois.api.rdap;
 
 import com.google.common.collect.Lists;
+import com.google.common.collect.Sets;
 import net.ripe.db.whois.api.rdap.domain.Redaction;
-import net.ripe.db.whois.api.rdap.domain.Role;
 import net.ripe.db.whois.common.rpsl.AttributeType;
 import net.ripe.db.whois.common.rpsl.RpslAttribute;
 import net.ripe.db.whois.common.rpsl.RpslObject;
@@ -25,22 +25,28 @@ public class RedactionObjectMapper {
     private static final List<AttributeType> UNSUPPORTED_PERSONAL_ATTRIBUTES = Lists.newArrayList(NOTIFY);
 
     public static String REDACTED_ENTITIES_SYNTAX = "$.entities[?(@.handle=='%s')]";
-
-    public static String REDACTED_VCARD_SYNTAX = "$.entities[?(@.handle=='%s')].vcardArray[1][?(@[0]=='%s')]";
+    public static String REDACTED_VCARD_SYNTAX = "$.vcardArray[1][?(@[0]=='%s')]";
+    public static String REDACTED_ENTITIES_VCARD_SYNTAX = "$.entities[?(@.handle=='%s')].vcardArray[1][?(@[0]=='%s')]";
 
     public static Set<Redaction> createEntityRedaction(final List<RpslAttribute> rpslAttributes){
-        return rpslAttributes.stream()
-                .filter( rpslAttribute -> UNSUPPORTED_REGISTRANT_ATTRIBUTES.contains(rpslAttribute.getType()))
-                .flatMap( rpslAttribute -> rpslAttribute.getCleanValues().stream()
-                        .map(value -> createRedaction(rpslAttribute.getType(), String.format(REDACTED_ENTITIES_SYNTAX, value))))
-                .collect(Collectors.toSet());
+        final Set<Redaction> redactions = Sets.newHashSet();
+        for (final RpslAttribute rpslAttribute : rpslAttributes) {
+            if (UNSUPPORTED_PERSONAL_ATTRIBUTES.contains(rpslAttribute.getType())){
+                redactions.add(createRedaction(rpslAttribute.getType(), String.format(REDACTED_VCARD_SYNTAX, rpslAttribute.getType())));
+            }
+            if (UNSUPPORTED_REGISTRANT_ATTRIBUTES.contains(rpslAttribute.getType())){
+                redactions.addAll(rpslAttribute.getCleanValues().stream()
+                        .map(value -> createRedaction(rpslAttribute.getType(), String.format(REDACTED_ENTITIES_SYNTAX, value)))
+                        .collect(Collectors.toSet()));
+            }
+        }
+        return redactions;
     }
-
 
     public static Set<Redaction> createContactEntityRedaction(final RpslObject rpslObject) {
         return UNSUPPORTED_PERSONAL_ATTRIBUTES.stream()
                 .filter(rpslObject::containsAttribute)
-                .map(unsupportedVcard -> createRedaction(unsupportedVcard, String.format(REDACTED_VCARD_SYNTAX, rpslObject.getKey(), unsupportedVcard)))
+                .map(unsupportedVcard -> createRedaction(unsupportedVcard, String.format(REDACTED_ENTITIES_VCARD_SYNTAX, rpslObject.getKey(), unsupportedVcard)))
                 .collect(Collectors.toSet());
     }
 

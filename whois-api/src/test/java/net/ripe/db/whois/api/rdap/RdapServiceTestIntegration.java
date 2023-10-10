@@ -44,6 +44,7 @@ import java.util.Collections;
 import java.util.List;
 
 import static net.ripe.db.whois.api.rdap.RedactionObjectMapper.REDACTED_ENTITIES_SYNTAX;
+import static net.ripe.db.whois.api.rdap.RedactionObjectMapper.REDACTED_ENTITIES_VCARD_SYNTAX;
 import static net.ripe.db.whois.api.rdap.RedactionObjectMapper.REDACTED_VCARD_SYNTAX;
 import static net.ripe.db.whois.common.support.DateMatcher.isBefore;
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -2318,7 +2319,7 @@ public class RdapServiceTestIntegration extends AbstractRdapIntegrationTest {
 
     // Redactions
     @Test
-    public void lookup_personal_redactions() throws JsonProcessingException {
+    public void lookup_contact_entities_personal_redactions() throws JsonProcessingException {
         databaseHelper.addObject("" +
                 "organisation:  ORG-ONE-TEST\n" +
                 "org-name:      Organisation One\n" +
@@ -2339,6 +2340,35 @@ public class RdapServiceTestIntegration extends AbstractRdapIntegrationTest {
                 .request(MediaType.APPLICATION_JSON_TYPE)
                 .get(String.class);
 
+
+        final List<Redaction> redactions = getRedactionsFromJson(entityJson);
+
+        assertThat(redactions.size(), is(1));
+
+        assertPersonalRedactionInsideEntities(redactions.get(0), entityJson);
+
+        assertThat(getConformationsFromJson(entityJson), containsInAnyOrder("cidr0", "rdap_level_0", "nro_rdap_profile_0", "redacted"));
+    }
+
+    @Test
+    public void lookup_entity_personal_redactions() throws JsonProcessingException {
+        databaseHelper.addObject("" +
+                "organisation:  ORG-ONE-TEST\n" +
+                "org-name:      Organisation One\n" +
+                "org-type:      LIR\n" +
+                "descr:         Test organisation\n" +
+                "address:       One Org Street\n" +
+                "e-mail:        test@ripe.net\n" +
+                "language:      EN\n" +
+                "notify:       test@ripe.net\n" +
+                "mnt-by:        OWNER-MNT\n" +
+                "created:         2011-07-28T00:35:42Z\n" +
+                "last-modified:   2019-02-28T10:14:46Z\n" +
+                "source:        TEST");
+
+        final String entityJson = createResource("entity/ORG-ONE-TEST")
+                .request(MediaType.APPLICATION_JSON_TYPE)
+                .get(String.class);
 
         final List<Redaction> redactions = getRedactionsFromJson(entityJson);
 
@@ -2775,14 +2805,31 @@ public class RdapServiceTestIntegration extends AbstractRdapIntegrationTest {
         assertThat(redaction.getReason().getDescription(), is("No registrant mntner"));
         assertThat(redaction.getMethod(), is("removal"));
     }
+
     private void assertPersonalRedaction(final Redaction redaction, final String json) {
-        final String vcardPathMatch = String.format("$.entities[?(@.handle=='%s')].vcardArray[1][*][0]", "TP2-TEST");
+        final String vcardPathMatch = "$.vcardArray[1][*][0]";
         final List<Object> vcards = JsonPath.read(json, vcardPathMatch);
         assertThat(vcards, hasItem("version"));
         assertThat(vcards, not(contains("notify")));
 
 
-        assertThat(String.format(REDACTED_VCARD_SYNTAX, "TP2-TEST", "notify"), is(redaction.getPrePath()));
+        assertThat(String.format(REDACTED_VCARD_SYNTAX, "notify"), is(redaction.getPrePath()));
+        assertDoesNotThrow(() -> JsonPath.compile(redaction.getPrePath())); //prePath in correct format
+        final List<Object> entities = JsonPath.read(json, redaction.getPrePath());
+        assertThat(entities.size(), is(0)); //role, pkey and attribute do not exist in the json
+
+        assertThat(redaction.getName().getDescription(), is("Updates notification e-mail information"));
+        assertThat(redaction.getReason().getDescription(), is("Personal data"));
+        assertThat(redaction.getMethod(), is("removal"));
+    }
+    private void assertPersonalRedactionInsideEntities(final Redaction redaction, final String json) {
+        final String vcardPathMatch = "$.entities[?(@.handle=='TP2-TEST')].vcardArray[1][*][0]";
+        final List<Object> vcards = JsonPath.read(json, vcardPathMatch);
+        assertThat(vcards, hasItem("version"));
+        assertThat(vcards, not(contains("notify")));
+
+
+        assertThat(String.format(REDACTED_ENTITIES_VCARD_SYNTAX, "TP2-TEST", "notify"), is(redaction.getPrePath()));
         assertDoesNotThrow(() -> JsonPath.compile(redaction.getPrePath())); //prePath in correct format
         final List<Object> entities = JsonPath.read(json, redaction.getPrePath());
         assertThat(entities.size(), is(0)); //role, pkey and attribute do not exist in the json
