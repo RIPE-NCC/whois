@@ -2405,8 +2405,8 @@ public class RdapServiceTestIntegration extends AbstractRdapIntegrationTest {
 
         assertThat(redactions.size(), is(2));
 
-        assertPersonalRedactionInsideEntities(redactions.get(1), entityJson);
-        assertPersonalRedaction(redactions.get(2), entityJson);
+        assertPersonalRedactionInsideEntities(redactions.get(0), entityJson);
+        assertPersonalRedaction(redactions.get(1), entityJson);
 
 
         assertThat(getConformationsFromJson(entityJson), containsInAnyOrder("cidr0", "rdap_level_0", "nro_rdap_profile_0", "redacted"));
