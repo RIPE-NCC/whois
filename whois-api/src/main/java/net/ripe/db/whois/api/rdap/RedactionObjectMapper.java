@@ -11,12 +11,20 @@ public class RedactionObjectMapper {
 
     public static String REDACTED_ENTITIES_SYNTAX = "$.entities[?(@.handle=='%s')]";
 
-    public static Set<Redaction> createEntityRedaction(final RpslObject rpslObject){
+    public static Set<Redaction> createRedactions(final RpslObject rpslObject){
         final Set<Redaction> redactions = Sets.newHashSet();
 
         rpslObject.getAttributes().forEach( rpslAttribute -> {
             addRedactionForVcard(redactions, rpslAttribute.getType(), "$");
+        });
 
+        redactions.addAll(createNonEntityRedactions(rpslObject));
+        return redactions;
+    }
+
+    public static Set<Redaction> createNonEntityRedactions(final RpslObject rpslObject){
+        final Set<Redaction> redactions = Sets.newHashSet();
+        rpslObject.getAttributes().forEach( rpslAttribute -> {
             rpslAttribute.getCleanValues().forEach( value ->
                     addRedactionForRegistrant(redactions, rpslAttribute.getType(), String.format(REDACTED_ENTITIES_SYNTAX, value))
             );

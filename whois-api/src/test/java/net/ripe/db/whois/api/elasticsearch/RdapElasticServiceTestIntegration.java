@@ -53,7 +53,7 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.fail;
 
 @Tag("ElasticSearchTest")
-public class WhoisRdapElasticServiceTestIntegration extends AbstractElasticSearchIntegrationTest {
+public class RdapElasticServiceTestIntegration extends AbstractElasticSearchIntegrationTest {
 
     private static final String WHOIS_INDEX = "whois_rdap";
     private static final String METADATA_INDEX = "metadata_rdap";
@@ -187,14 +187,6 @@ public class WhoisRdapElasticServiceTestIntegration extends AbstractElasticSearc
                 "created:         2022-08-14T11:48:28Z\n" +
                 "last-modified:   2022-10-25T12:22:39Z\n" +
                 "source:        TEST");
-        databaseHelper.addObject("" +
-                "as-block:       AS100 - AS200\n" +
-                "descr:          ARIN ASN block\n" +
-                "org:            ORG-TEST1-TEST\n" +
-                "mnt-by:         OWNER-MNT\n" +
-                "created:         2022-08-14T11:48:28Z\n" +
-                "last-modified:   2022-10-25T12:22:39Z\n" +
-                "source:         TEST");
         databaseHelper.addObject("" +
                 "inetnum:        0.0.0.0 - 255.255.255.255\n" +
                 "netname:        IANA-BLK\n" +

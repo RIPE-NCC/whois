@@ -101,20 +101,19 @@ class RdapObjectMapper {
     private static final String TERMS_AND_CONDITIONS = "http://www.ripe.net/data-tools/support/documentation/terms";
     private static final Link COPYRIGHT_LINK = new Link(TERMS_AND_CONDITIONS, "copyright", TERMS_AND_CONDITIONS, null, null);
 
-    private static final Map<AttributeType, Role> CONTACT_ATTRIBUTE_TO_ROLE_NAME = Map.of(
-        ADMIN_C, Role.ADMINISTRATIVE,
-        TECH_C, Role.TECHNICAL,
-        MNT_BY, Role.REGISTRANT,
-        ZONE_C, Role.ZONE,
-        ORG, Role.REGISTRANT,// TODO: [MA] both mnt_by and org have same role
-        MNT_IRT, Role.ABUSE);
-
     private final NoticeFactory noticeFactory;
     private final RpslObjectDao rpslObjectDao;
     private final ReservedResources reservedResources;
     private final Ipv4Tree ipv4Tree;
     private final Ipv6Tree ipv6Tree;
     private final String port43;
+    private static final Map<AttributeType, Role> CONTACT_ATTRIBUTE_TO_ROLE_NAME = Map.of(
+            ADMIN_C, Role.ADMINISTRATIVE,
+            TECH_C, Role.TECHNICAL,
+            MNT_BY, Role.REGISTRANT,
+            ZONE_C, Role.ZONE,
+            ORG, Role.REGISTRANT,// TODO: [MA] both mnt_by and org have same role
+            MNT_IRT, Role.ABUSE);
 
     @Autowired
     public RdapObjectMapper(
@@ -356,7 +355,9 @@ class RdapObjectMapper {
         handleLanguageAttribute(rpslObject, ip);
         handleCountryAttribute(rpslObject, ip);
         ip.setCidr0_cidrs(getIpCidr0Notation(toIpRange(ipInterval)));
-        mapContactEntitiesAndRedaction(ip, rpslObject, requestUrl);
+
+        this.mapContactEntitiesAndContactEntitiesRedaction(ip, rpslObject, requestUrl);
+        ip.getRedacted().addAll(RedactionObjectMapper.createNonEntityRedactions(rpslObject));
         return ip;
     }
 
@@ -466,9 +467,7 @@ class RdapObjectMapper {
         return lastChangedEvent;
     }
 
-
-    private void mapContactEntitiesAndRedaction(final RdapObject rdapObject, final RpslObject rpslObject, final String requestUrl) {
-
+    private void mapContactEntitiesAndContactEntitiesRedaction(final RdapObject rdapObject, final RpslObject rpslObject, final String requestUrl) {
         final Map<CIString, Entity> contactsEntities = Maps.newTreeMap();
         final List<RpslAttribute> filteredAttributes = rpslObject.getAttributes().stream().filter( rpslAttribute -> CONTACT_ATTRIBUTE_TO_ROLE_NAME.containsKey(rpslAttribute.getType())).collect(Collectors.toList());
 
@@ -489,8 +488,6 @@ class RdapObjectMapper {
                 contactsEntities.put(value, entity);
             }
         });
-
-        rdapObject.getRedacted().addAll(RedactionObjectMapper.createEntityRedaction(rpslObject));
         rdapObject.getEntitySearchResults().addAll(contactsEntities.values());
     }
 
@@ -526,7 +523,8 @@ class RdapObjectMapper {
             entity.getRoles().add(role);
         }
         entity.setVCardArray(createVCard(rpslObject));
-        mapContactEntitiesAndRedaction(entity, rpslObject, requestUrl);
+        this.mapContactEntitiesAndContactEntitiesRedaction(entity, rpslObject, requestUrl);
+        entity.getRedacted().addAll(RedactionObjectMapper.createRedactions(rpslObject));
 
         handleLanguageAttribute(rpslObject, entity);
 
@@ -541,7 +539,8 @@ class RdapObjectMapper {
         autnum.setStartAutnum(asNumber);
         autnum.setEndAutnum(asNumber);
         autnum.setStatus(Collections.singletonList(getResourceStatus(rpslObject).getValue()));
-        mapContactEntitiesAndRedaction(autnum, rpslObject, requestUrl);
+        this.mapContactEntitiesAndContactEntitiesRedaction(autnum, rpslObject, requestUrl);
+        autnum.getRedacted().addAll(RedactionObjectMapper.createNonEntityRedactions(rpslObject));
         autnum.getRdapConformance().add(RdapConformance.FLAT_MODEL.getValue());
         return autnum;
     }
@@ -557,7 +556,8 @@ class RdapObjectMapper {
         autnum.setStartAutnum(blockRange.getBegin());
         autnum.setEndAutnum(blockRange.getEnd());
         autnum.setStatus(Collections.singletonList(getResourceStatus(rpslObject).getValue()));
-        mapContactEntitiesAndRedaction(autnum, rpslObject, requestUrl);
+        this.mapContactEntitiesAndContactEntitiesRedaction(autnum, rpslObject, requestUrl);
+        autnum.getRedacted().addAll(RedactionObjectMapper.createNonEntityRedactions(rpslObject));
         return autnum;
     }
 
@@ -621,7 +621,8 @@ class RdapObjectMapper {
         if (secureDNS.isDelegationSigned()) {
             domain.setSecureDNS(secureDNS);
         }
-        mapContactEntitiesAndRedaction(domain, rpslObject, requestUrl);
+        this.mapContactEntitiesAndContactEntitiesRedaction(domain, rpslObject, requestUrl);
+        domain.getRedacted().addAll(RedactionObjectMapper.createNonEntityRedactions(rpslObject));
         return domain;
     }
 
