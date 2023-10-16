@@ -3,6 +3,7 @@ package net.ripe.db.whois.api.rdap;
 import com.google.common.collect.Sets;
 import net.ripe.db.whois.api.rdap.domain.Redaction;
 import net.ripe.db.whois.common.rpsl.AttributeType;
+import net.ripe.db.whois.common.rpsl.RpslAttribute;
 import net.ripe.db.whois.common.rpsl.RpslObject;
 
 import java.util.Set;
@@ -16,19 +17,22 @@ public class RedactionObjectMapper {
 
         rpslObject.getAttributes().forEach( rpslAttribute -> {
             addRedactionForVcard(redactions, rpslAttribute.getType(), "$");
+            addNonEntityRedactions(redactions, rpslAttribute);
         });
 
-        redactions.addAll(createNonEntityRedactions(rpslObject));
+        return redactions;
+    }
+
+    public static Set<Redaction> addNonEntityRedactions(final Set<Redaction> redactions, final RpslAttribute rpslAttribute){
+        rpslAttribute.getCleanValues().forEach( value ->
+                    addRedactionForRegistrant(redactions, rpslAttribute.getType(), String.format(REDACTED_ENTITIES_SYNTAX, value))
+            );
         return redactions;
     }
 
     public static Set<Redaction> createNonEntityRedactions(final RpslObject rpslObject){
         final Set<Redaction> redactions = Sets.newHashSet();
-        rpslObject.getAttributes().forEach( rpslAttribute -> {
-            rpslAttribute.getCleanValues().forEach( value ->
-                    addRedactionForRegistrant(redactions, rpslAttribute.getType(), String.format(REDACTED_ENTITIES_SYNTAX, value))
-            );
-        });
+        rpslObject.getAttributes().forEach( rpslAttribute -> addNonEntityRedactions(redactions, rpslAttribute));
 
         return redactions;
     }
