@@ -2341,7 +2341,7 @@ public class RdapServiceTestIntegration extends AbstractRdapIntegrationTest {
 
         assertThat(redactions.size(), is(4));
 
-        assertPersonalRedactionInsideEntities(redactions.get(0), entityJson);
+        assertPersonalRedactionInsideEntities(redactions.get(0), entityJson, "TP2-TEST");
         assertPersonalRedaction(redactions.get(1), entityJson);
         assertRegistrantRedaction(redactions.get(2), "Authenticate incoming references", "INCOMING2-MNT", entityJson);
         assertRegistrantRedaction(redactions.get(3),  "Authenticate incoming references", "INCOMING-MNT", entityJson);
@@ -2349,6 +2349,58 @@ public class RdapServiceTestIntegration extends AbstractRdapIntegrationTest {
         assertThat(getConformationsFromJson(entityJson), containsInAnyOrder("cidr0", "rdap_level_0", "nro_rdap_profile_0", "redacted"));
     }
 
+    @Test
+    public void lookup_organisation_redactions_different_person() throws JsonProcessingException {
+        createEntityRedactionObjects();
+
+        databaseHelper.addObject("" +
+                "person:        Tester Person\n" +
+                "nic-hdl:       TP3-TEST\n" +
+                "address:       One Org Street\n" +
+                "e-mail:        test@ripe.net\n" +
+                "notify:       test@ripe.net\n" +
+                "notify:       test1@ripe.net\n" +
+                "mnt-by:        OWNER-MNT\n" +
+                "created:         2011-07-28T00:35:42Z\n" +
+                "last-modified:   2019-02-28T10:14:46Z\n" +
+                "source:        TEST");
+
+        databaseHelper.addObject("" +
+                "organisation:  ORG-ONE-TEST\n" +
+                "org-name:      Organisation One\n" +
+                "org-type:      LIR\n" +
+                "descr:         Test organisation\n" +
+                "address:       One Org Street\n" +
+                "e-mail:        test@ripe.net\n" +
+                "language:      EN\n" +
+                "admin-c:       TP2-TEST\n" + //has notify
+                "tech-c:        TP1-TEST\n" +
+                "tech-c:        TP3-TEST\n" + //has notify
+                "notify:       test@ripe.net\n" +
+                "notify:       test1@ripe.net\n" +
+                "mnt-by:        OWNER-MNT\n" +
+                "mnt-ref:       INCOMING-MNT\n" +
+                "mnt-ref:       INCOMING2-MNT\n" +
+                "created:         2011-07-28T00:35:42Z\n" +
+                "last-modified:   2019-02-28T10:14:46Z\n" +
+                "source:        TEST");
+
+        final String entityJson = createResource("entity/ORG-ONE-TEST")
+                .request(MediaType.APPLICATION_JSON_TYPE)
+                .get(String.class);
+
+        List<Redaction> redactions = getRedactionsFromJson(entityJson);
+
+        assertThat(redactions.size(), is(5));
+
+        assertPersonalRedactionInsideEntities(redactions.get(0), entityJson, "TP2-TEST");
+        assertPersonalRedactionInsideEntities(redactions.get(1), entityJson, "TP3-TEST");
+        assertPersonalRedaction(redactions.get(2), entityJson);
+        assertRegistrantRedaction(redactions.get(3), "Authenticate incoming references", "INCOMING2-MNT", entityJson);
+        assertRegistrantRedaction(redactions.get(4),  "Authenticate incoming references", "INCOMING-MNT", entityJson);
+
+        assertThat(getConformationsFromJson(entityJson), containsInAnyOrder("cidr0", "rdap_level_0", "nro_rdap_profile_0", "redacted"));
+    }
 
     @Test
     public void lookup_person_redactions() throws JsonProcessingException {
@@ -2405,7 +2457,7 @@ public class RdapServiceTestIntegration extends AbstractRdapIntegrationTest {
 
         assertThat(redactions.size(), is(1));
 
-        assertPersonalRedactionInsideEntities(redactions.get(0), entityJson);
+        assertPersonalRedactionInsideEntities(redactions.get(0), entityJson, "TP2-TEST");
     }
 
     @Test
@@ -2699,15 +2751,17 @@ public class RdapServiceTestIntegration extends AbstractRdapIntegrationTest {
         assertThat(redaction.getReason().getDescription(), is("Personal data"));
         assertThat(redaction.getMethod(), is("removal"));
     }
-    private void assertPersonalRedactionInsideEntities(final Redaction redaction, final String json) {
-        final String vcardPathMatch = "$.entities[?(@.handle=='TP2-TEST')].vcardArray[1][*][0]";
+    private void assertPersonalRedactionInsideEntities(final Redaction redaction, final String json, final String personKey) {
+        final String expectedSubString = "$.entities[?(@.handle=='" + personKey + "')].vcardArray[1]";
+        assertThat(redaction.getPrePath(), containsString(expectedSubString));
+
+        final String topPrePathString = redaction.getPrePath().substring(0, expectedSubString.length());
+        final String vcardPathMatch = topPrePathString + "[*][0]";
         final List<Object> vcards = JsonPath.read(json, vcardPathMatch);
         assertThat(vcards, hasItem("version"));
         assertThat(vcards, not(contains("notify")));
 
         assertDoesNotThrow(() -> JsonPath.compile(redaction.getPrePath())); //prePath in correct format
-        final List<Object> entities = JsonPath.read(json, redaction.getPrePath());
-        assertThat(entities.size(), is(0)); //role, pkey and attribute do not exist in the json
 
         assertThat(redaction.getName().getDescription(), is("Updates notification e-mail information"));
         assertThat(redaction.getReason().getDescription(), is("Personal data"));
