@@ -17,22 +17,21 @@ public class RedactionObjectMapper {
 
         rpslObject.getAttributes().forEach( rpslAttribute -> {
             addRedactionForVcard(redactions, rpslAttribute.getType(), "$");
-            addNonEntityRedactions(redactions, rpslAttribute);
+            addRegistrantRedactions(redactions, rpslAttribute);
         });
 
         return redactions;
     }
 
-    public static Set<Redaction> addNonEntityRedactions(final Set<Redaction> redactions, final RpslAttribute rpslAttribute){
+    public static void addRegistrantRedactions(final Set<Redaction> redactions, final RpslAttribute rpslAttribute){
         rpslAttribute.getCleanValues().forEach( value ->
                     addRedactionForRegistrant(redactions, rpslAttribute.getType(), String.format(REDACTED_ENTITIES_SYNTAX, value))
             );
-        return redactions;
     }
 
-    public static Set<Redaction> createNonEntityRedactions(final RpslObject rpslObject){
+    public static Set<Redaction> createRegistrantRedactionsForRpsl(final RpslObject rpslObject){
         final Set<Redaction> redactions = Sets.newHashSet();
-        rpslObject.getAttributes().forEach( rpslAttribute -> addNonEntityRedactions(redactions, rpslAttribute));
+        rpslObject.getAttributes().forEach( rpslAttribute -> addRegistrantRedactions(redactions, rpslAttribute));
 
         return redactions;
     }
