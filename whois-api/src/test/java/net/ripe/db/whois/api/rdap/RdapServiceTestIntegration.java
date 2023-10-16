@@ -2738,14 +2738,16 @@ public class RdapServiceTestIntegration extends AbstractRdapIntegrationTest {
     }
 
     private void assertPersonalRedaction(final Redaction redaction, final String json) {
-        final String vcardPathMatch = "$.vcardArray[1][*][0]";
+        final String expectedSubString = "$.vcardArray[1]";
+        assertThat(redaction.getPrePath(), containsString(expectedSubString));
+
+        final String topPrePathString = redaction.getPrePath().substring(0, expectedSubString.length());
+        final String vcardPathMatch = topPrePathString + "[*][0]";
         final List<Object> vcards = JsonPath.read(json, vcardPathMatch);
         assertThat(vcards, hasItem("version"));
         assertThat(vcards, not(contains("notify")));
 
         assertDoesNotThrow(() -> JsonPath.compile(redaction.getPrePath())); //prePath in correct format
-        final List<Object> entities = JsonPath.read(json, redaction.getPrePath());
-        assertThat(entities.size(), is(0)); //role, pkey and attribute do not exist in the json
 
         assertThat(redaction.getName().getDescription(), is("Updates notification e-mail information"));
         assertThat(redaction.getReason().getDescription(), is("Personal data"));
