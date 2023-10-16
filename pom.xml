@@ -65,7 +65,7 @@
         <jaxb.api.version>4.0.0</jaxb.api.version>
         <jaxb.impl.version>4.0.3</jaxb.impl.version>
         <jersey.version>3.0.11</jersey.version>
-        <jetty.version>11.0.16</jetty.version>
+        <jetty.version>11.0.17</jetty.version>
         <jflex.version>1.9.1</jflex.version>
         <jopt-simple.version>5.0.4</jopt-simple.version>
         <jsoup.version>1.16.1</jsoup.version>
