@@ -8,12 +8,17 @@ import jakarta.xml.bind.annotation.XmlAccessorType;
 import jakarta.xml.bind.annotation.XmlElement;
 import jakarta.xml.bind.annotation.XmlRootElement;
 
+import java.io.Serial;
+import java.io.Serializable;
 import java.util.List;
 
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlRootElement
 @JsonIgnoreProperties(ignoreUnknown = true)
-public class ValidateTokenResponse {
+public class ValidateTokenResponse implements Serializable {
+
+    @Serial
+    private static final long serialVersionUID = 1L;
 
     @XmlElement(required = true)
     public Response response;
@@ -21,7 +26,9 @@ public class ValidateTokenResponse {
     @XmlAccessorType(XmlAccessType.FIELD)
     @XmlRootElement
     @JsonIgnoreProperties(ignoreUnknown = true)
-    public static class Response {
+    public static class Response implements Serializable {
+        @Serial
+        private static final long serialVersionUID = 1L;
         @XmlElement(required = true)
         public Content content;
     }
@@ -29,7 +36,9 @@ public class ValidateTokenResponse {
     @XmlAccessorType(XmlAccessType.FIELD)
     @XmlRootElement
     @JsonIgnoreProperties(ignoreUnknown = true)
-    public static class Content {
+    public static class Content implements Serializable {
+        @Serial
+        private static final long serialVersionUID = 1L;
         @XmlElement(required = true)
         public String firstName;
         @XmlElement(required = true)
@@ -52,7 +61,9 @@ public class ValidateTokenResponse {
     @XmlAccessorType(XmlAccessType.FIELD)
     @XmlRootElement
     @JsonIgnoreProperties(ignoreUnknown = true)
-    public static class AccessRole {
+    public static class AccessRole implements Serializable {
+        @Serial
+        private static final long serialVersionUID = 1L;
         @XmlElement(required = true)
         public long membershipId;
         @XmlElement(required = true)
