@@ -55,6 +55,9 @@ public class RestMessages {
         return new Message(Messages.Type.ERROR, "This request is only allowed from within the RIPE NCC network");
     }
 
+    public static Message deprecated() {
+        return new Message(Messages.Type.ERROR, "This request is only allowed from within the RIPE NCC network");
+    }
     public static Message jsonProcessingError(final JsonProcessingException e) {
         final String trimmed = e.getMessage()
                                     .replaceAll("(?m) \\(.*\\)$", "")

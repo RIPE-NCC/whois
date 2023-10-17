@@ -1,5 +1,6 @@
 package net.ripe.db.whois.api.rest;
 
+import com.google.common.net.HttpHeaders;
 import com.google.common.net.InetAddresses;
 import net.ripe.db.whois.api.QueryBuilder;
 import net.ripe.db.whois.api.rest.domain.Parameters;
@@ -17,12 +18,15 @@ import net.ripe.db.whois.query.domain.QueryException;
 import net.ripe.db.whois.query.query.Query;
 import net.ripe.db.whois.update.domain.Keyword;
 import net.ripe.db.whois.update.domain.Origin;
+import net.ripe.db.whois.update.domain.PasswordCredential;
 import net.ripe.db.whois.update.domain.Update;
 import net.ripe.db.whois.update.domain.UpdateContext;
 import net.ripe.db.whois.update.log.LoggerContext;
 import net.ripe.db.whois.update.sso.SsoTranslator;
+import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
+import org.eclipse.jetty.http.HttpScheme;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
@@ -44,8 +48,10 @@ import jakarta.ws.rs.core.Context;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 import java.net.URI;
+import java.nio.charset.StandardCharsets;
 import java.util.List;
 
+import static jakarta.servlet.http.HttpServletRequest.BASIC_AUTH;
 import static net.ripe.db.whois.api.rest.RestServiceHelper.getServerAttributeMapper;
 import static net.ripe.db.whois.api.rest.RestServiceHelper.isQueryParamSet;
 import static net.ripe.db.whois.common.domain.CIString.ciString;
@@ -127,6 +133,11 @@ public class WhoisRestService {
             ssoTranslator.populateCacheAuthToUsername(updateContext, originalObject);
             originalObject = ssoTranslator.translateFromCacheAuthToUsername(updateContext, originalObject);
 
+            if (!passwords.isEmpty()){
+                updateContext.addGlobalMessage(RestMessages);
+            }
+            addBasicAuth(request, passwords);
+
             final Update update = updatePerformer.createUpdate(updateContext, originalObject, passwords, reason, override);
 
             return updatePerformer.createResponse(
@@ -184,6 +195,8 @@ public class WhoisRestService {
             final RpslObject submittedObject = getSubmittedObject(request, resource, isQueryParamSet(unformatted));
             validateSubmittedUpdateObject(request, submittedObject, objectType, key);
 
+            addBasicAuth(request, passwords);
+
             final Update update = updatePerformer.createUpdate(updateContext, submittedObject, passwords, null, override);
 
             return updatePerformer.createResponse(
@@ -230,6 +243,8 @@ public class WhoisRestService {
 
             final RpslObject submittedObject = getSubmittedObject(request, resource, isQueryParamSet(unformatted));
             validateSubmittedCreateObject(request, submittedObject, objectType);
+
+            addBasicAuth(request, passwords);
 
             final Update update = updatePerformer.createUpdate(updateContext, submittedObject, passwords, null, override);
 
@@ -300,6 +315,8 @@ public class WhoisRestService {
         if (isQueryParamSet(unfiltered)) {
             queryBuilder.addFlag(QueryFlag.NO_FILTERING);
         }
+
+        addBasicAuth(request, passwords);
 
         final Query query;
         try {
@@ -426,5 +443,19 @@ public class WhoisRestService {
         if (isQueryParamSet(dryRun)) {
             updateContext.dryRun();
         }
+    }
+
+    private void addBasicAuth(final HttpServletRequest request, final List<String> passwords){
+        if (!HttpScheme.HTTPS.is(request.getHeader(HttpHeaders.X_FORWARDED_PROTO))){
+            return;
+        }
+        final String authHeader = request.getHeader(HttpHeaders.AUTHORIZATION);
+        if (authHeader== null || !authHeader.toUpperCase().startsWith(BASIC_AUTH)){
+            return;
+        }
+
+        final String base64Credentials = authHeader.substring(BASIC_AUTH.length()).trim();
+        final byte[] credDecoded = new Base64().decode(base64Credentials);
+        passwords.add(new String(credDecoded, StandardCharsets.ISO_8859_1));
     }
 }

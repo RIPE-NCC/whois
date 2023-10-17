@@ -28,8 +28,10 @@ import net.ripe.db.whois.common.rpsl.RpslObjectFilter;
 import net.ripe.db.whois.common.support.TelnetWhoisClient;
 import net.ripe.db.whois.query.QueryServer;
 import net.ripe.db.whois.update.mail.MailSenderStub;
+import org.eclipse.jetty.http.HttpScheme;
 import org.eclipse.jetty.http.HttpStatus;
 import org.glassfish.jersey.client.ClientProperties;
+import org.glassfish.jersey.client.authentication.HttpAuthenticationFeature;
 import org.glassfish.jersey.client.filter.EncodingFilter;
 import org.glassfish.jersey.message.GZipEncoder;
 import org.glassfish.jersey.uri.UriComponent;
@@ -92,6 +94,7 @@ import static org.hamcrest.Matchers.nullValue;
 import static org.hamcrest.Matchers.startsWith;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.fail;
+import static org.testcontainers.shaded.com.google.common.net.HttpHeaders.X_FORWARDED_PROTO;
 
 // FIXME: make this into a suite that runs twice: once with XML, once with JSON
 @Tag("IntegrationTest")
@@ -3561,6 +3564,114 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
         }
     }
 
+    @Test
+    public void create_object_with_basic_auth_succeed() {
+        final HttpAuthenticationFeature feature = HttpAuthenticationFeature.basicBuilder().build();
+        final RpslObject personObject = RpslObject.parse("" +
+                "person:    Some Person\n" +
+                "address:   Singel 258\n" +
+                "phone:     +31-1234567890\n" +
+                "e-mail:    noreply@ripe.net\n" +
+                "mnt-by:    OWNER-MNT\n" +
+                "nic-hdl:   AUTO-1\n" +
+                "remarks:   remark\n" +
+                "source:    TEST\n");
+
+        final WhoisResources whoisResources = RestTest.target(getPort(), "whois/test/person")
+                .register(feature)
+                .request()
+                .property(HttpAuthenticationFeature.HTTP_AUTHENTICATION_BASIC_USERNAME, "OWNER-MNT")
+                .property(HttpAuthenticationFeature.HTTP_AUTHENTICATION_BASIC_PASSWORD, "test")
+                .header(X_FORWARDED_PROTO, HttpScheme.HTTPS)
+                .post(Entity.entity(map(personObject), MediaType.APPLICATION_JSON_TYPE), WhoisResources.class);
+        assertThat(whoisResources.getErrorMessages(), is(empty()));
+        final WhoisObject object = whoisResources.getWhoisObjects().get(0);
+        assertThat(object.getAttributes(), hasItem(new Attribute("person", "Some Person")));
+    }
+
+    @Test
+    public void create_object_with_basic_auth_multiple_mn_by_succeed() {
+        final HttpAuthenticationFeature feature = HttpAuthenticationFeature.basicBuilder().build();
+        databaseHelper.addObject(RpslObject.parse("" +
+                "mntner:         ANOTHER-MNTNER-MNT\n" +
+                "descr:          Maintainer\n" +
+                "admin-c:        TP1-TEST\n" +
+                "auth:           MD5-PW $1$wxAIKa6O$TPvMN6WI4BMWYUUpAZg6c0 #anothermntner\n" +
+                "mnt-by:         ANOTHER-MNTNER-MNT\n" +
+                "upd-to:         noreply@ripe.net\n" +
+                "source:         TEST"));
+
+        final RpslObject personObject = RpslObject.parse("" +
+                "person:    Some Person\n" +
+                "address:   Singel 258\n" +
+                "phone:     +31-1234567890\n" +
+                "e-mail:    noreply@ripe.net\n" +
+                "mnt-by:    ANOTHER-MNTNER-MNT\n" +
+                "mnt-by:    OWNER-MNT\n" +
+                "nic-hdl:   AUTO-1\n" +
+                "remarks:   remark\n" +
+                "source:    TEST\n");
+
+        final WhoisResources whoisResources = RestTest.target(getPort(), "whois/test/person")
+                .register(feature)
+                .request()
+                .property(HttpAuthenticationFeature.HTTP_AUTHENTICATION_BASIC_USERNAME, "OWNER-MNT")
+                .property(HttpAuthenticationFeature.HTTP_AUTHENTICATION_BASIC_PASSWORD, "test")
+                .header(X_FORWARDED_PROTO, HttpScheme.HTTPS)
+                .post(Entity.entity(map(personObject), MediaType.APPLICATION_JSON_TYPE), WhoisResources.class);
+        assertThat(whoisResources.getErrorMessages(), is(empty()));
+        final WhoisObject object = whoisResources.getWhoisObjects().get(0);
+        assertThat(object.getAttributes(), hasItem(new Attribute("person", "Some Person")));
+    }
+
+    @Test
+    public void create_object_with_basic_auth_and_parameter_warn() {
+        final HttpAuthenticationFeature feature = HttpAuthenticationFeature.basicBuilder().build();
+        final RpslObject personObject = RpslObject.parse("" +
+                "person:    Some Person\n" +
+                "address:   Singel 258\n" +
+                "phone:     +31-1234567890\n" +
+                "e-mail:    noreply@ripe.net\n" +
+                "mnt-by:    OWNER-MNT\n" +
+                "nic-hdl:   AUTO-1\n" +
+                "remarks:   remark\n" +
+                "source:    TEST\n");
+
+        final WhoisResources whoisResources = RestTest.target(getPort(), "whois/test/person?password=badPassword")
+                .register(feature)
+                .request()
+                .property(HttpAuthenticationFeature.HTTP_AUTHENTICATION_BASIC_USERNAME, "OWNER-MNT")
+                .property(HttpAuthenticationFeature.HTTP_AUTHENTICATION_BASIC_PASSWORD, "test")
+                .header(X_FORWARDED_PROTO, HttpScheme.HTTPS)
+                .post(Entity.entity(map(personObject), MediaType.APPLICATION_JSON_TYPE), WhoisResources.class);
+        RestTest.assertErrorMessage(whoisResources, 0, "Warning", "Submitted object identical to database object");
+        final WhoisObject object = whoisResources.getWhoisObjects().get(0);
+        assertThat(object.getAttributes(), hasItem(new Attribute("person", "Some Person")));
+    }
+
+    @Test
+    public void create_object_with_basic_auth_http_error() {
+        final HttpAuthenticationFeature feature = HttpAuthenticationFeature.basicBuilder().build();
+        final RpslObject personObject = RpslObject.parse("" +
+                "person:    Some Person\n" +
+                "address:   Singel 258\n" +
+                "phone:     +31-1234567890\n" +
+                "e-mail:    noreply@ripe.net\n" +
+                "mnt-by:    OWNER-MNT\n" +
+                "nic-hdl:   AUTO-1\n" +
+                "remarks:   remark\n" +
+                "source:    TEST\n");
+
+        assertThrows(NotAuthorizedException.class, () -> {
+            RestTest.target(getPort(), "whois/test/person")
+                    .register(feature)
+                    .request()
+                    .property(HttpAuthenticationFeature.HTTP_AUTHENTICATION_BASIC_USERNAME, "OWNER-MNT")
+                    .property(HttpAuthenticationFeature.HTTP_AUTHENTICATION_BASIC_PASSWORD, "test")
+                    .post(Entity.entity(map(personObject), MediaType.APPLICATION_JSON_TYPE), WhoisResources.class);
+        });
+    }
+
     // delete
 
     @Test
@@ -3969,7 +4080,6 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
                     source:     TEST-NONAUTH
                     """);
 
-
         final RpslObject updatedObject = new RpslObjectBuilder(TEST_AS_SET).replaceAttribute(TEST_AS_SET.findAttribute(AttributeType.SOURCE),
                         new RpslAttribute(AttributeType.SOURCE, "TEST-NONAUTH")).sort().get();
 
@@ -3996,7 +4106,6 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
                 """);
 
         databaseHelper.addObject(TEST_AS_SET);
-
 
         final RpslObject updatedObject = new RpslObjectBuilder(TEST_AS_SET).replaceAttribute(TEST_AS_SET.findAttribute(AttributeType.SOURCE),
                 new RpslAttribute(AttributeType.SOURCE, "TEST-NONAUTH")).sort().get();
@@ -4030,7 +4139,6 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
                     mnt-by:     OWNER-MNT
                     source:     TEST-NONAUTH
                     """);
-
 
         final RpslObject updatedObject = new RpslObjectBuilder(TEST_AS_SET).replaceAttribute(TEST_AS_SET.findAttribute(AttributeType.SOURCE),
                 new RpslAttribute(AttributeType.SOURCE, "TEST")).sort().get();
@@ -4068,10 +4176,8 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
                     source:     TEST-NONAUTH
                     """);
 
-
         final RpslObject updatedObject = new RpslObjectBuilder(TEST_AS_SET).replaceAttribute(TEST_AS_SET.findAttribute(AttributeType.SOURCE),
                 new RpslAttribute(AttributeType.SOURCE, "TEST-NONAUTH")).sort().get();
-
 
         final WhoisResources whoisResources =RestTest.target(getPort(), "whois/test/as-set/AS-TEST?password" +
                             "=test")
