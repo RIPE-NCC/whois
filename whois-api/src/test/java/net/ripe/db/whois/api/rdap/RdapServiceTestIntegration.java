@@ -52,6 +52,7 @@ import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.empty;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.hasSize;
+import static org.hamcrest.Matchers.in;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.not;
 import static org.hamcrest.Matchers.nullValue;
@@ -2488,6 +2489,60 @@ public class RdapServiceTestIntegration extends AbstractRdapIntegrationTest {
         assertThat(ip.getRedacted().size(), is(0));
         assertCommon(ip);
     }
+
+    @Test
+    public void lookup_org_inetnum_autnum_entity_redactions() throws JsonProcessingException {
+        databaseHelper.addObject("" +
+                "person:        Tester Person\n" +
+                "nic-hdl:       TP3-TEST\n" +
+                "address:       One Org Street\n" +
+                "e-mail:        test@ripe.net\n" +
+                "notify:       test@ripe.net\n" +
+                "notify:       test1@ripe.net\n" +
+                "mnt-by:        OWNER-MNT\n" +
+                "created:         2011-07-28T00:35:42Z\n" +
+                "last-modified:   2019-02-28T10:14:46Z\n" +
+                "source:        TEST");
+
+        databaseHelper.addObject("" +
+                "aut-num:       AS64496\n" +
+                "as-name:       AS-TEST\n" +
+                "descr:         A single ASN\n" +
+                "org:           ORG-TEST1-TEST\n" +
+                "admin-c:       TP1-TEST\n" +
+                "tech-c:        TP2-TEST\n" +
+                "mnt-by:        OWNER-MNT\n" +
+                "notify:       test@ripe.net\n" +
+                "created:         2022-08-14T11:48:28Z\n" +
+                "last-modified:   2022-10-25T12:22:39Z\n" +
+                "source:        TEST");
+
+        databaseHelper.addObject("" +
+                "inetnum:      109.111.192.0 - 109.111.223.255\n" +
+                "netname:      TEST-NET-NAME\n" +
+                "descr:        TEST network\n" +
+                "org:          ORG-TEST1-TEST\n" +
+                "country:      NL\n" +
+                "admin-c:       TP2-TEST\n" +
+                "tech-c:       TP3-TEST\n" +
+                "status:       OTHER\n" +
+                "mnt-by:       OWNER-MNT\n" +
+                "created:         2022-08-14T11:48:28Z\n" +
+                "last-modified:   2022-10-25T12:22:39Z\n" +
+                "source:       TEST");
+
+
+        final Entity entity = createResource("entity/ORG-TEST1-TEST")
+                .request(MediaType.APPLICATION_JSON_TYPE)
+                .get(Entity.class);
+
+        assertThat(entity.getRedacted().size(), is(3));
+
+        assertPersonalRedactionForAutnumEntities(entity, 0, "AS64496", "TP2-TEST");
+        assertPersonalRedactionForNetworkEntities(entity, 1, "109.111.192.0 - 109.111.223.255", "TP2-TEST");
+        assertPersonalRedactionForNetworkEntities(entity, 2, "109.111.192.0 - 109.111.223.255", "TP3-TEST");
+        assertCommon(entity);
+    }
     // search - entities - organisation
 
     @Test
@@ -2695,16 +2750,7 @@ public class RdapServiceTestIntegration extends AbstractRdapIntegrationTest {
         List<Object> vcards = JsonPath.read(entityJson, entity.getRedacted().get(redaction).getPrePath());
         assertThat(vcards.size(), is(0));
 
-        ((ArrayList) entity.getVCardArray().get(1)).add(0, Lists.newArrayList("notify", "", TEXT.getValue(), "abc@ripe.net"));
-
-        final String entityAfterAddingVcard = getObjectMapper().writeValueAsString(entity);
-
-        vcards = JsonPath.read(entityAfterAddingVcard, entity.getRedacted().get(redaction).getPrePath());
-        assertThat(vcards.size(), is(1));
-
-        assertThat(entity.getRedacted().get(redaction).getName().getDescription(), is("Updates notification e-mail information"));
-        assertThat(entity.getRedacted().get(redaction).getReason().getDescription(), is("Personal data"));
-        assertThat(entity.getRedacted().get(redaction).getMethod(), is("removal"));
+        assertCommonPersonalRedaction(entity, redaction, entity);
     }
 
     private void assertPersonalRedactionForEntities(final RdapObject entity, final String personKey, final int redaction) throws JsonProcessingException {
@@ -2727,6 +2773,50 @@ public class RdapServiceTestIntegration extends AbstractRdapIntegrationTest {
         assertThat(entity.getRedacted().get(redaction).getMethod(), is("removal"));
     }
 
+    private void assertPersonalRedactionForNetworkEntities(final Entity entity, final int redaction, final String networkKey, final String personKey) throws JsonProcessingException {
+        final String entityJson = getObjectMapper().writeValueAsString(entity);
+
+        List<Object> vcards = JsonPath.read(entityJson, entity.getRedacted().get(redaction).getPrePath());
+        assertThat(vcards.size(), is(0));
+
+        final Entity insideEntity = entity.getNetworks()
+                .stream()
+                .filter( network -> network.getHandle().equals(networkKey))
+                .flatMap(network -> network.getEntitySearchResults().stream())
+                .filter(contacEntity -> contacEntity.getHandle().equals(personKey))
+                .findFirst().get();
+
+        assertCommonPersonalRedaction(entity, redaction, insideEntity);
+    }
+
+    private void assertPersonalRedactionForAutnumEntities(final Entity entity, final int redaction, final String networkKey, final String personKey) throws JsonProcessingException {
+        final String entityJson = getObjectMapper().writeValueAsString(entity);
+
+        List<Object> vcards = JsonPath.read(entityJson, entity.getRedacted().get(redaction).getPrePath());
+        assertThat(vcards.size(), is(0));
+
+        final Entity insideEntity = entity.getAutnums()
+                .stream()
+                .filter( network -> network.getHandle().equals(networkKey))
+                .flatMap(network -> network.getEntitySearchResults().stream())
+                .filter(contacEntity -> contacEntity.getHandle().equals(personKey))
+                .findFirst().get();
+
+        assertCommonPersonalRedaction(entity, redaction, insideEntity);
+    }
+
+    private void assertCommonPersonalRedaction(Entity entity, int redaction, Entity insideEntity) throws JsonProcessingException {
+        ((ArrayList) insideEntity.getVCardArray().get(1)).add(0, Lists.newArrayList("notify", "", TEXT.getValue(), "abc@ripe.net"));
+
+        final String entityAfterAddingVcard = getObjectMapper().writeValueAsString(entity);
+
+        final List<Object> vcards = JsonPath.read(entityAfterAddingVcard, entity.getRedacted().get(redaction).getPrePath());
+        assertThat(vcards.size(), is(1));
+
+        assertThat(entity.getRedacted().get(redaction).getName().getDescription(), is("Updates notification e-mail information"));
+        assertThat(entity.getRedacted().get(redaction).getReason().getDescription(), is("Personal data"));
+        assertThat(entity.getRedacted().get(redaction).getMethod(), is("removal"));
+    }
 
     private void createEntityRedactionObjects() {
         databaseHelper.addObject("" +

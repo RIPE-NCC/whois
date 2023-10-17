@@ -13,6 +13,8 @@ import java.util.stream.Collectors;
 public class RedactionObjectMapper {
 
     public static String REDACTED_ENTITIES_SYNTAX = "$.entities[?(@.handle=='%s')]";
+
+    public static String REDACTED_PARENT_SYNTAX = "$.%s[?(@.handle=='%s')].entities[?(@.handle=='%s')]";
     public static List<AttributeType> REDACTED_PERSONAL_ATTR = Lists.newArrayList(AttributeType.NOTIFY);
 
     public static Set<Redaction> createEntityRedactions(final RpslObject rpslObject){
@@ -23,6 +25,9 @@ public class RedactionObjectMapper {
         return createPersonalRedaction(rpslObject.findAttributes(REDACTED_PERSONAL_ATTR), String.format(REDACTED_ENTITIES_SYNTAX, rpslObject.getKey()));
     }
 
+    public static Set<Redaction> createParentEntityRedaction(final String attributeName, final String handle, final RpslObject rpslObject) {
+        return createPersonalRedaction(rpslObject.findAttributes(REDACTED_PERSONAL_ATTR), String.format(REDACTED_PARENT_SYNTAX, attributeName, handle, rpslObject.getKey()));
+    }
     private static Set<Redaction> createPersonalRedaction(final List<RpslAttribute> attributeTypes, final String prefix){
        return attributeTypes.stream()
                .map( rpslAttribute -> new Redaction("Updates notification e-mail information",
