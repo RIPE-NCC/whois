@@ -1,7 +1,6 @@
 package net.ripe.db.whois.api.rdap;
 
 import com.google.common.collect.Lists;
-import com.google.common.collect.Sets;
 import net.ripe.db.whois.api.rdap.domain.Redaction;
 import net.ripe.db.whois.common.rpsl.AttributeType;
 import net.ripe.db.whois.common.rpsl.RpslAttribute;
@@ -31,6 +30,5 @@ public class RedactionObjectMapper {
                                                 "Personal data")
                 )
                .collect(Collectors.toSet());
-
     }
 }
