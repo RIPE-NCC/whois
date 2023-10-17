@@ -357,7 +357,6 @@ class RdapObjectMapper {
         ip.setCidr0_cidrs(getIpCidr0Notation(toIpRange(ipInterval)));
 
         this.mapContactEntitiesAndRedactions(ip, rpslObject, requestUrl);
-        ip.getRedacted().addAll(RedactionObjectMapper.createRegistrantRedactionsForRpsl(rpslObject));
         return ip;
     }
 
@@ -524,7 +523,7 @@ class RdapObjectMapper {
         }
         entity.setVCardArray(createVCard(rpslObject));
         this.mapContactEntitiesAndRedactions(entity, rpslObject, requestUrl);
-        entity.getRedacted().addAll(RedactionObjectMapper.createRedactions(rpslObject));
+        entity.getRedacted().addAll(RedactionObjectMapper.createMainEntityRedactions(rpslObject));
 
         handleLanguageAttribute(rpslObject, entity);
 
@@ -540,7 +539,6 @@ class RdapObjectMapper {
         autnum.setEndAutnum(asNumber);
         autnum.setStatus(Collections.singletonList(getResourceStatus(rpslObject).getValue()));
         this.mapContactEntitiesAndRedactions(autnum, rpslObject, requestUrl);
-        autnum.getRedacted().addAll(RedactionObjectMapper.createRegistrantRedactionsForRpsl(rpslObject));
         autnum.getRdapConformance().add(RdapConformance.FLAT_MODEL.getValue());
         return autnum;
     }
@@ -557,7 +555,6 @@ class RdapObjectMapper {
         autnum.setEndAutnum(blockRange.getEnd());
         autnum.setStatus(Collections.singletonList(getResourceStatus(rpslObject).getValue()));
         this.mapContactEntitiesAndRedactions(autnum, rpslObject, requestUrl);
-        autnum.getRedacted().addAll(RedactionObjectMapper.createRegistrantRedactionsForRpsl(rpslObject));
         return autnum;
     }
 
@@ -622,7 +619,6 @@ class RdapObjectMapper {
             domain.setSecureDNS(secureDNS);
         }
         this.mapContactEntitiesAndRedactions(domain, rpslObject, requestUrl);
-        domain.getRedacted().addAll(RedactionObjectMapper.createRegistrantRedactionsForRpsl(rpslObject));
         return domain;
     }
 

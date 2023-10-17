@@ -51,12 +51,10 @@ import static org.hamcrest.Matchers.containsInAnyOrder;
 import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.empty;
 import static org.hamcrest.Matchers.equalTo;
-import static org.hamcrest.Matchers.hasItem;
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.not;
 import static org.hamcrest.Matchers.nullValue;
-import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.fail;
 
@@ -2336,11 +2334,8 @@ public class RdapServiceTestIntegration extends AbstractRdapIntegrationTest {
                 .request(MediaType.APPLICATION_JSON_TYPE)
                 .get(Entity.class);
 
-        assertPersonalRedaction(entity, 1);
         assertPersonalRedactionForEntities(entity, "TP2-TEST", 0);
-
-        assertRegistrantRedaction("Authenticate incoming references", "INCOMING2-MNT", entity, 2);
-        assertRegistrantRedaction("Authenticate incoming references", "INCOMING-MNT", entity, 3);
+        assertPersonalRedaction(entity, 1);
 
         assertCommon(entity);
     }
@@ -2385,12 +2380,9 @@ public class RdapServiceTestIntegration extends AbstractRdapIntegrationTest {
                 .request(MediaType.APPLICATION_JSON_TYPE)
                 .get(Entity.class);
 
-        assertPersonalRedaction(entity, 2);
         assertPersonalRedactionForEntities(entity, "TP2-TEST", 0);
         assertPersonalRedactionForEntities(entity, "TP3-TEST", 1);
-
-        assertRegistrantRedaction("Authenticate incoming references", "INCOMING2-MNT", entity, 3);
-        assertRegistrantRedaction("Authenticate incoming references", "INCOMING-MNT", entity, 4);
+        assertPersonalRedaction(entity, 2);
 
         assertCommon(entity);
     }
@@ -2418,9 +2410,6 @@ public class RdapServiceTestIntegration extends AbstractRdapIntegrationTest {
                 .get(Entity.class);
 
         assertPersonalRedaction(entity, 0);
-
-        assertRegistrantRedaction("Authenticate incoming references", "INCOMING2-MNT", entity, 1);
-        assertRegistrantRedaction("Authenticate incoming references", "INCOMING-MNT", entity, 2);
     }
 
     @Test
@@ -2437,15 +2426,15 @@ public class RdapServiceTestIntegration extends AbstractRdapIntegrationTest {
                 "last-modified:   2019-02-28T10:14:46Z\n" +
                 "source:        TEST");
 
-        final Autnum entity = createResource("autnum/103")
+        final Autnum autnum = createResource("autnum/103")
                 .request(MediaType.APPLICATION_JSON_TYPE)
                 .get(Autnum.class);
 
-        assertPersonalRedactionForEntities(entity, "TP2-TEST", 0);
+        assertPersonalRedactionForEntities(autnum, "TP2-TEST", 0);
     }
 
     @Test
-    public void lookup_inetnum_redactions() throws JsonProcessingException {
+    public void lookup_inetnum_redactions() {
         databaseHelper.addObject("" +
                 "mntner:        ROUTE-MNT\n" +
                 "admin-c:       TP1-TEST\n" +
@@ -2492,15 +2481,12 @@ public class RdapServiceTestIntegration extends AbstractRdapIntegrationTest {
 
         ipTreeUpdater.rebuild();
 
-        final Ip entity = createResource("ip/192.0.2.0")
+        final Ip ip = createResource("ip/192.0.2.0")
                 .request(MediaType.APPLICATION_JSON_TYPE)
                 .get(Ip.class);
 
-        assertRegistrantRedaction("Authenticate domain objects", "DOMAIN-MNT", entity,0);
-        assertRegistrantRedaction("Authenticate more specific resources", "LESS-MNT",entity, 1);
-        assertRegistrantRedaction("Authenticate route objects", "ROUTE-MNT", entity,2);
-
-        assertCommon(entity);
+        assertThat(ip.getRedacted().size(), is(0));
+        assertCommon(ip);
     }
     // search - entities - organisation
 
@@ -2701,24 +2687,6 @@ public class RdapServiceTestIntegration extends AbstractRdapIntegrationTest {
         assertThat(notice.getLinks().get(0).getHref(), is("https://apps.db.ripe.net/docs/HTML-Terms-And-Conditions"));
         assertThat(notice.getLinks().get(0).getType(), is("application/pdf"));
         assertThat(notice.getLinks().get(0).getValue(), is(value));
-    }
-
-    private void assertRegistrantRedaction(final String name, final String value, final RdapObject entity, final int redaction) throws JsonProcessingException {
-        final String entityJson = getObjectMapper().writeValueAsString(entity);
-
-        List<Entity> registrantEntity = JsonPath.read(entityJson, entity.getRedacted().get(redaction).getPrePath());
-        assertThat(registrantEntity.size(), is(0));
-
-        entity.getEntitySearchResults().add( new Entity(value, Collections.emptyList(), Collections.emptyList(), Collections.EMPTY_MAP));
-        
-        final String modifiedEntity = getObjectMapper().writeValueAsString(entity);
-
-        registrantEntity = JsonPath.read(modifiedEntity, entity.getRedacted().get(redaction).getPrePath());
-        assertThat(registrantEntity.size(), is(1));
-
-        assertThat(entity.getRedacted().get(redaction).getName().getDescription(), is(name));
-        assertThat(entity.getRedacted().get(redaction).getReason().getDescription(), is("No registrant mntner"));
-        assertThat(entity.getRedacted().get(redaction).getMethod(), is("removal"));
     }
 
     private void assertPersonalRedaction(final Entity entity, final int redaction) throws JsonProcessingException {
