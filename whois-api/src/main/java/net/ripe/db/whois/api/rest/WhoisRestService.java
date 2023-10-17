@@ -18,7 +18,6 @@ import net.ripe.db.whois.query.domain.QueryException;
 import net.ripe.db.whois.query.query.Query;
 import net.ripe.db.whois.update.domain.Keyword;
 import net.ripe.db.whois.update.domain.Origin;
-import net.ripe.db.whois.update.domain.PasswordCredential;
 import net.ripe.db.whois.update.domain.Update;
 import net.ripe.db.whois.update.domain.UpdateContext;
 import net.ripe.db.whois.update.log.LoggerContext;
@@ -106,7 +105,7 @@ public class WhoisRestService {
             @PathParam("objectType") final String objectType,
             @PathParam("key") final String key,
             @QueryParam("reason") @DefaultValue("--") final String reason,
-            @QueryParam("password") final List<String> passwords,
+            @Deprecated @QueryParam("password") final List<String> passwords,
             @CookieParam(AuthServiceClient.TOKEN_KEY) final String crowdTokenKey,
             @QueryParam("override") final String override,
             @QueryParam("dry-run") final String dryRun) {
@@ -133,10 +132,7 @@ public class WhoisRestService {
             ssoTranslator.populateCacheAuthToUsername(updateContext, originalObject);
             originalObject = ssoTranslator.translateFromCacheAuthToUsername(updateContext, originalObject);
 
-            if (!passwords.isEmpty()){
-                updateContext.addGlobalMessage(RestMessages);
-            }
-            addBasicAuth(request, passwords);
+            addBasicAndWarnDeprecatedParam(request, passwords, updateContext);
 
             final Update update = updatePerformer.createUpdate(updateContext, originalObject, passwords, reason, override);
 
@@ -195,7 +191,7 @@ public class WhoisRestService {
             final RpslObject submittedObject = getSubmittedObject(request, resource, isQueryParamSet(unformatted));
             validateSubmittedUpdateObject(request, submittedObject, objectType, key);
 
-            addBasicAuth(request, passwords);
+            addBasicAndWarnDeprecatedParam(request, passwords, updateContext);
 
             final Update update = updatePerformer.createUpdate(updateContext, submittedObject, passwords, null, override);
 
@@ -244,7 +240,7 @@ public class WhoisRestService {
             final RpslObject submittedObject = getSubmittedObject(request, resource, isQueryParamSet(unformatted));
             validateSubmittedCreateObject(request, submittedObject, objectType);
 
-            addBasicAuth(request, passwords);
+            addBasicAndWarnDeprecatedParam(request, passwords, updateContext);
 
             final Update update = updatePerformer.createUpdate(updateContext, submittedObject, passwords, null, override);
 
@@ -316,7 +312,7 @@ public class WhoisRestService {
             queryBuilder.addFlag(QueryFlag.NO_FILTERING);
         }
 
-        addBasicAuth(request, passwords);
+        addBasic(request, passwords);
 
         final Query query;
         try {
@@ -445,7 +441,14 @@ public class WhoisRestService {
         }
     }
 
-    private void addBasicAuth(final HttpServletRequest request, final List<String> passwords){
+    private void addBasicAndWarnDeprecatedParam(final HttpServletRequest request, final List<String> passwords, final UpdateContext updateContext) {
+        if (!passwords.isEmpty()){
+            updateContext.addGlobalMessage(RestMessages.deprecatedPasswordParameter());
+        }
+        addBasic(request, passwords);
+    }
+
+    private void addBasic(final HttpServletRequest request, final List<String> passwords){
         if (!HttpScheme.HTTPS.is(request.getHeader(HttpHeaders.X_FORWARDED_PROTO))){
             return;
         }

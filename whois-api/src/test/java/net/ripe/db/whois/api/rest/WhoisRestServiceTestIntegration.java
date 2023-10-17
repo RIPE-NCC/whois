@@ -3644,7 +3644,7 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
                 .property(HttpAuthenticationFeature.HTTP_AUTHENTICATION_BASIC_PASSWORD, "test")
                 .header(X_FORWARDED_PROTO, HttpScheme.HTTPS)
                 .post(Entity.entity(map(personObject), MediaType.APPLICATION_JSON_TYPE), WhoisResources.class);
-        RestTest.assertErrorMessage(whoisResources, 0, "Warning", "Submitted object identical to database object");
+        RestTest.assertErrorMessage(whoisResources, 0, "Warning", "Password parameter has been deprecated, use basic auth instead");
         final WhoisObject object = whoisResources.getWhoisObjects().get(0);
         assertThat(object.getAttributes(), hasItem(new Attribute("person", "Some Person")));
     }

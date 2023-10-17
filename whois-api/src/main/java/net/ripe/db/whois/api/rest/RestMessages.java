@@ -55,6 +55,10 @@ public class RestMessages {
         return new Message(Messages.Type.ERROR, "This request is only allowed from within the RIPE NCC network");
     }
 
+    public static Message deprecatedPasswordParameter() {
+        return new Message(Messages.Type.WARNING, "Password parameter has been deprecated, use basic auth instead");
+    }
+
     public static Message deprecated() {
         return new Message(Messages.Type.ERROR, "This request is only allowed from within the RIPE NCC network");
     }
