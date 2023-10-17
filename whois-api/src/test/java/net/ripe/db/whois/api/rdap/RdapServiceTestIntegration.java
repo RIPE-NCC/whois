@@ -1,9 +1,8 @@
 package net.ripe.db.whois.api.rdap;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import com.google.common.collect.Lists;
 import com.google.common.net.HttpHeaders;
 
@@ -19,7 +18,6 @@ import net.ripe.db.whois.api.rdap.domain.Link;
 import net.ripe.db.whois.api.rdap.domain.Nameserver;
 import net.ripe.db.whois.api.rdap.domain.Notice;
 import net.ripe.db.whois.api.rdap.domain.RdapObject;
-import net.ripe.db.whois.api.rdap.domain.Redaction;
 import net.ripe.db.whois.api.rdap.domain.Remark;
 import net.ripe.db.whois.api.rdap.domain.Role;
 import net.ripe.db.whois.common.rpsl.RpslObject;
@@ -40,10 +38,11 @@ import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-import static net.ripe.db.whois.api.rdap.RedactionObjectMapper.REDACTED_ENTITIES_SYNTAX;
+import static net.ripe.db.whois.api.rdap.domain.vcard.VCardType.TEXT;
 import static net.ripe.db.whois.common.support.DateMatcher.isBefore;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.arrayContainingInAnyOrder;
@@ -2333,20 +2332,17 @@ public class RdapServiceTestIntegration extends AbstractRdapIntegrationTest {
                 "last-modified:   2019-02-28T10:14:46Z\n" +
                 "source:        TEST");
 
-        final String entityJson = createResource("entity/ORG-ONE-TEST")
+        final Entity entity = createResource("entity/ORG-ONE-TEST")
                 .request(MediaType.APPLICATION_JSON_TYPE)
-                .get(String.class);
+                .get(Entity.class);
 
-        List<Redaction> redactions = getRedactionsFromJson(entityJson);
+        assertPersonalRedaction(entity, 1);
+        assertPersonalRedactionForEntities(entity, "TP2-TEST", 0);
 
-        assertThat(redactions.size(), is(4));
+        assertRegistrantRedaction("Authenticate incoming references", "INCOMING2-MNT", entity, 2);
+        assertRegistrantRedaction("Authenticate incoming references", "INCOMING-MNT", entity, 3);
 
-        assertPersonalRedactionInsideEntities(redactions.get(0), entityJson, "TP2-TEST");
-        assertPersonalRedaction(redactions.get(1), entityJson);
-        assertRegistrantRedaction(redactions.get(2), "Authenticate incoming references", "INCOMING2-MNT", entityJson);
-        assertRegistrantRedaction(redactions.get(3),  "Authenticate incoming references", "INCOMING-MNT", entityJson);
-
-        assertThat(getConformationsFromJson(entityJson), containsInAnyOrder("cidr0", "rdap_level_0", "nro_rdap_profile_0", "redacted"));
+        assertCommon(entity);
     }
 
     @Test
@@ -2385,21 +2381,18 @@ public class RdapServiceTestIntegration extends AbstractRdapIntegrationTest {
                 "last-modified:   2019-02-28T10:14:46Z\n" +
                 "source:        TEST");
 
-        final String entityJson = createResource("entity/ORG-ONE-TEST")
+        final Entity entity = createResource("entity/ORG-ONE-TEST")
                 .request(MediaType.APPLICATION_JSON_TYPE)
-                .get(String.class);
+                .get(Entity.class);
 
-        List<Redaction> redactions = getRedactionsFromJson(entityJson);
+        assertPersonalRedaction(entity, 2);
+        assertPersonalRedactionForEntities(entity, "TP2-TEST", 0);
+        assertPersonalRedactionForEntities(entity, "TP3-TEST", 1);
 
-        assertThat(redactions.size(), is(5));
+        assertRegistrantRedaction("Authenticate incoming references", "INCOMING2-MNT", entity, 3);
+        assertRegistrantRedaction("Authenticate incoming references", "INCOMING-MNT", entity, 4);
 
-        assertPersonalRedactionInsideEntities(redactions.get(0), entityJson, "TP2-TEST");
-        assertPersonalRedactionInsideEntities(redactions.get(1), entityJson, "TP3-TEST");
-        assertPersonalRedaction(redactions.get(2), entityJson);
-        assertRegistrantRedaction(redactions.get(3), "Authenticate incoming references", "INCOMING2-MNT", entityJson);
-        assertRegistrantRedaction(redactions.get(4),  "Authenticate incoming references", "INCOMING-MNT", entityJson);
-
-        assertThat(getConformationsFromJson(entityJson), containsInAnyOrder("cidr0", "rdap_level_0", "nro_rdap_profile_0", "redacted"));
+        assertCommon(entity);
     }
 
     @Test
@@ -2420,18 +2413,14 @@ public class RdapServiceTestIntegration extends AbstractRdapIntegrationTest {
                 "last-modified:   2019-02-28T10:14:46Z\n" +
                 "source:        TEST");
 
-        final String entityJson = createResource("entity/TP3-TEST")
+        final Entity entity = createResource("entity/TP3-TEST")
                 .request(MediaType.APPLICATION_JSON_TYPE)
-                .get(String.class);
+                .get(Entity.class);
 
-        final List<Redaction> redactions = getRedactionsFromJson(entityJson);
-        assertThat(redactions.size(), is(3));
+        assertPersonalRedaction(entity, 0);
 
-        assertPersonalRedaction(redactions.get(0), entityJson);
-        assertRegistrantRedaction(redactions.get(1), "Authenticate incoming references", "INCOMING2-MNT", entityJson);
-        assertRegistrantRedaction(redactions.get(2),  "Authenticate incoming references", "INCOMING-MNT", entityJson);
-
-        assertThat(getConformationsFromJson(entityJson), containsInAnyOrder("cidr0", "rdap_level_0", "nro_rdap_profile_0", "redacted"));
+        assertRegistrantRedaction("Authenticate incoming references", "INCOMING2-MNT", entity, 1);
+        assertRegistrantRedaction("Authenticate incoming references", "INCOMING-MNT", entity, 2);
     }
 
     @Test
@@ -2448,16 +2437,11 @@ public class RdapServiceTestIntegration extends AbstractRdapIntegrationTest {
                 "last-modified:   2019-02-28T10:14:46Z\n" +
                 "source:        TEST");
 
-
-        final String entityJson = createResource("autnum/103")
+        final Autnum entity = createResource("autnum/103")
                 .request(MediaType.APPLICATION_JSON_TYPE)
-                .get(String.class);
+                .get(Autnum.class);
 
-        final List<Redaction> redactions = getRedactionsFromJson(entityJson);
-
-        assertThat(redactions.size(), is(1));
-
-        assertPersonalRedactionInsideEntities(redactions.get(0), entityJson, "TP2-TEST");
+        assertPersonalRedactionForEntities(entity, "TP2-TEST", 0);
     }
 
     @Test
@@ -2508,17 +2492,15 @@ public class RdapServiceTestIntegration extends AbstractRdapIntegrationTest {
 
         ipTreeUpdater.rebuild();
 
-        final String entityJson = createResource("ip/192.0.2.0")
+        final Ip entity = createResource("ip/192.0.2.0")
                 .request(MediaType.APPLICATION_JSON_TYPE)
-                .get(String.class);
+                .get(Ip.class);
 
-        final List<Redaction> redactions = getRedactionsFromJson(entityJson);
+        assertRegistrantRedaction("Authenticate domain objects", "DOMAIN-MNT", entity,0);
+        assertRegistrantRedaction("Authenticate more specific resources", "LESS-MNT",entity, 1);
+        assertRegistrantRedaction("Authenticate route objects", "ROUTE-MNT", entity,2);
 
-        assertThat(redactions.size(), is(3));
-
-        assertRegistrantRedaction(redactions.get(0),  "Authenticate domain objects", "DOMAIN-MNT", entityJson);
-        assertRegistrantRedaction(redactions.get(1),  "Authenticate more specific resources", "LESS-MNT", entityJson);
-        assertRegistrantRedaction(redactions.get(2),  "Authenticate route objects", "ROUTE-MNT", entityJson);
+        assertCommon(entity);
     }
     // search - entities - organisation
 
@@ -2721,69 +2703,62 @@ public class RdapServiceTestIntegration extends AbstractRdapIntegrationTest {
         assertThat(notice.getLinks().get(0).getValue(), is(value));
     }
 
-    private void assertRegistrantRedaction(final Redaction redaction, final String name, final String value, final String json) {
-        final String getAllHandlerMatch = "$.entities[*].handle";
-        final List<Object> handlers = JsonPath.read(json, getAllHandlerMatch);
-        assertThat(handlers, not(contains(value)));
+    private void assertRegistrantRedaction(final String name, final String value, final RdapObject entity, final int redaction) throws JsonProcessingException {
+        final String entityJson = getObjectMapper().writeValueAsString(entity);
 
-        final String fullPathMatch = String.format(REDACTED_ENTITIES_SYNTAX, value);
-        assertThat(redaction.getPrePath(), is(fullPathMatch)); //prePath as expected prePath
-        assertDoesNotThrow(() -> JsonPath.compile(redaction.getPrePath()));
-        final List<Object> entities = JsonPath.read(json, redaction.getPrePath());
-        assertThat(entities.size(), is(0));
+        List<Entity> registrantEntity = JsonPath.read(entityJson, entity.getRedacted().get(redaction).getPrePath());
+        assertThat(registrantEntity.size(), is(0));
 
-        assertThat(redaction.getName().getDescription(), is(name));
-        assertThat(redaction.getReason().getDescription(), is("No registrant mntner"));
-        assertThat(redaction.getMethod(), is("removal"));
+        entity.getEntitySearchResults().add( new Entity(value, Collections.emptyList(), Collections.emptyList(), Collections.EMPTY_MAP));
+        
+        final String modifiedEntity = getObjectMapper().writeValueAsString(entity);
+
+        registrantEntity = JsonPath.read(modifiedEntity, entity.getRedacted().get(redaction).getPrePath());
+        assertThat(registrantEntity.size(), is(1));
+
+        assertThat(entity.getRedacted().get(redaction).getName().getDescription(), is(name));
+        assertThat(entity.getRedacted().get(redaction).getReason().getDescription(), is("No registrant mntner"));
+        assertThat(entity.getRedacted().get(redaction).getMethod(), is("removal"));
     }
 
-    private void assertPersonalRedaction(final Redaction redaction, final String json) {
-        final String expectedSubString = "$.vcardArray[1]";
-        assertThat(redaction.getPrePath(), containsString(expectedSubString));
+    private void assertPersonalRedaction(final Entity entity, final int redaction) throws JsonProcessingException {
+        final String entityJson = getObjectMapper().writeValueAsString(entity);
 
-        final String topPrePathString = redaction.getPrePath().substring(0, expectedSubString.length());
-        final String vcardPathMatch = topPrePathString + "[*][0]";
-        final List<Object> vcards = JsonPath.read(json, vcardPathMatch);
-        assertThat(vcards, hasItem("version"));
-        assertThat(vcards, not(contains("notify")));
+        List<Object> vcards = JsonPath.read(entityJson, entity.getRedacted().get(redaction).getPrePath());
+        assertThat(vcards.size(), is(0));
 
-        assertDoesNotThrow(() -> JsonPath.compile(redaction.getPrePath())); //prePath in correct format
+        ((ArrayList) entity.getVCardArray().get(1)).add(0, Lists.newArrayList("notify", "", TEXT.getValue(), "abc@ripe.net"));
 
-        assertThat(redaction.getName().getDescription(), is("Updates notification e-mail information"));
-        assertThat(redaction.getReason().getDescription(), is("Personal data"));
-        assertThat(redaction.getMethod(), is("removal"));
-    }
-    private void assertPersonalRedactionInsideEntities(final Redaction redaction, final String json, final String personKey) {
-        final String expectedSubString = "$.entities[?(@.handle=='" + personKey + "')].vcardArray[1]";
-        assertThat(redaction.getPrePath(), containsString(expectedSubString));
+        final String entityAfterAddingVcard = getObjectMapper().writeValueAsString(entity);
 
-        final String topPrePathString = redaction.getPrePath().substring(0, expectedSubString.length());
-        final String vcardPathMatch = topPrePathString + "[*][0]";
-        final List<Object> vcards = JsonPath.read(json, vcardPathMatch);
-        assertThat(vcards, hasItem("version"));
-        assertThat(vcards, not(contains("notify")));
+        vcards = JsonPath.read(entityAfterAddingVcard, entity.getRedacted().get(redaction).getPrePath());
+        assertThat(vcards.size(), is(1));
 
-        assertDoesNotThrow(() -> JsonPath.compile(redaction.getPrePath())); //prePath in correct format
-
-        assertThat(redaction.getName().getDescription(), is("Updates notification e-mail information"));
-        assertThat(redaction.getReason().getDescription(), is("Personal data"));
-        assertThat(redaction.getMethod(), is("removal"));
+        assertThat(entity.getRedacted().get(redaction).getName().getDescription(), is("Updates notification e-mail information"));
+        assertThat(entity.getRedacted().get(redaction).getReason().getDescription(), is("Personal data"));
+        assertThat(entity.getRedacted().get(redaction).getMethod(), is("removal"));
     }
 
-    @NotNull
-    private List<Redaction> getRedactionsFromJson(final String entityJson) throws JsonProcessingException {
-        final ObjectMapper objectMapper = new ObjectMapper();
-        final JsonNode redactionNode = objectMapper.readTree(entityJson).path("redacted");
-        return objectMapper.convertValue(redactionNode,
-                new TypeReference<List<Redaction>>(){});
+    private void assertPersonalRedactionForEntities(final RdapObject entity, final String personKey, final int redaction) throws JsonProcessingException {
+
+        final String entityJson = getObjectMapper().writeValueAsString(entity);
+
+        List<Object> vcards = JsonPath.read(entityJson, entity.getRedacted().get(redaction).getPrePath());
+        assertThat(vcards.size(), is(0));
+
+        final Entity insideEntity = entity.getEntitySearchResults().stream().filter( contacEntity -> contacEntity.getHandle().equals(personKey)).findFirst().get();
+        ((ArrayList) insideEntity.getVCardArray().get(1)).add(0,  Lists.newArrayList("notify", "", TEXT.getValue(), "abc@ripe.net"));
+
+        final String entityAfterAddingVcard = getObjectMapper().writeValueAsString(entity);
+
+        vcards = JsonPath.read(entityAfterAddingVcard, entity.getRedacted().get(redaction).getPrePath());
+        assertThat(vcards.size(), is(1));
+
+        assertThat(entity.getRedacted().get(redaction).getName().getDescription(), is("Updates notification e-mail information"));
+        assertThat(entity.getRedacted().get(redaction).getReason().getDescription(), is("Personal data"));
+        assertThat(entity.getRedacted().get(redaction).getMethod(), is("removal"));
     }
-    @NotNull
-    private List<String> getConformationsFromJson(final String entityJson) throws JsonProcessingException {
-        final ObjectMapper objectMapper = new ObjectMapper();
-        final JsonNode redactionNode = objectMapper.readTree(entityJson).path("rdapConformance");
-        return objectMapper.convertValue(redactionNode,
-                new TypeReference<List<String>>(){});
-    }
+
 
     private void createEntityRedactionObjects() {
         databaseHelper.addObject("" +
@@ -2804,5 +2779,8 @@ public class RdapServiceTestIntegration extends AbstractRdapIntegrationTest {
                 "last-modified:   2019-02-28T10:14:46Z\n" +
                 "source:        TEST");
     }
-
+    @NotNull
+    private static ObjectMapper getObjectMapper() {
+        return new ObjectMapper().registerModule(new JavaTimeModule());
+    }
 }

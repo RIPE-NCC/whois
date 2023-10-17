@@ -1,6 +1,7 @@
 package net.ripe.db.whois.api.rdap.domain;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.google.common.collect.Lists;
 
 import jakarta.xml.bind.annotation.XmlAccessType;
@@ -69,6 +70,7 @@ public class RdapObject implements Serializable {
         return this.status;
     }
 
+    @JsonProperty("entities")
     public List<Entity> getEntitySearchResults() {
         if (entities == null) {
             entities = Lists.newArrayList();

@@ -356,7 +356,7 @@ class RdapObjectMapper {
         handleCountryAttribute(rpslObject, ip);
         ip.setCidr0_cidrs(getIpCidr0Notation(toIpRange(ipInterval)));
 
-        this.mapContactEntitiesAndContactEntitiesRedaction(ip, rpslObject, requestUrl);
+        this.mapContactEntitiesAndRedactions(ip, rpslObject, requestUrl);
         ip.getRedacted().addAll(RedactionObjectMapper.createRegistrantRedactionsForRpsl(rpslObject));
         return ip;
     }
@@ -467,7 +467,7 @@ class RdapObjectMapper {
         return lastChangedEvent;
     }
 
-    private void mapContactEntitiesAndContactEntitiesRedaction(final RdapObject rdapObject, final RpslObject rpslObject, final String requestUrl) {
+    private void mapContactEntitiesAndRedactions(final RdapObject rdapObject, final RpslObject rpslObject, final String requestUrl) {
         final Map<CIString, Entity> contactsEntities = Maps.newTreeMap();
         final List<RpslAttribute> filteredAttributes = rpslObject.getAttributes().stream().filter( rpslAttribute -> CONTACT_ATTRIBUTE_TO_ROLE_NAME.containsKey(rpslAttribute.getType())).collect(Collectors.toList());
 
@@ -523,7 +523,7 @@ class RdapObjectMapper {
             entity.getRoles().add(role);
         }
         entity.setVCardArray(createVCard(rpslObject));
-        this.mapContactEntitiesAndContactEntitiesRedaction(entity, rpslObject, requestUrl);
+        this.mapContactEntitiesAndRedactions(entity, rpslObject, requestUrl);
         entity.getRedacted().addAll(RedactionObjectMapper.createRedactions(rpslObject));
 
         handleLanguageAttribute(rpslObject, entity);
@@ -539,7 +539,7 @@ class RdapObjectMapper {
         autnum.setStartAutnum(asNumber);
         autnum.setEndAutnum(asNumber);
         autnum.setStatus(Collections.singletonList(getResourceStatus(rpslObject).getValue()));
-        this.mapContactEntitiesAndContactEntitiesRedaction(autnum, rpslObject, requestUrl);
+        this.mapContactEntitiesAndRedactions(autnum, rpslObject, requestUrl);
         autnum.getRedacted().addAll(RedactionObjectMapper.createRegistrantRedactionsForRpsl(rpslObject));
         autnum.getRdapConformance().add(RdapConformance.FLAT_MODEL.getValue());
         return autnum;
@@ -556,7 +556,7 @@ class RdapObjectMapper {
         autnum.setStartAutnum(blockRange.getBegin());
         autnum.setEndAutnum(blockRange.getEnd());
         autnum.setStatus(Collections.singletonList(getResourceStatus(rpslObject).getValue()));
-        this.mapContactEntitiesAndContactEntitiesRedaction(autnum, rpslObject, requestUrl);
+        this.mapContactEntitiesAndRedactions(autnum, rpslObject, requestUrl);
         autnum.getRedacted().addAll(RedactionObjectMapper.createRegistrantRedactionsForRpsl(rpslObject));
         return autnum;
     }
@@ -621,7 +621,7 @@ class RdapObjectMapper {
         if (secureDNS.isDelegationSigned()) {
             domain.setSecureDNS(secureDNS);
         }
-        this.mapContactEntitiesAndContactEntitiesRedaction(domain, rpslObject, requestUrl);
+        this.mapContactEntitiesAndRedactions(domain, rpslObject, requestUrl);
         domain.getRedacted().addAll(RedactionObjectMapper.createRegistrantRedactionsForRpsl(rpslObject));
         return domain;
     }
