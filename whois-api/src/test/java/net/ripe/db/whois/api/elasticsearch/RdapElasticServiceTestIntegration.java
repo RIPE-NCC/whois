@@ -184,6 +184,7 @@ public class RdapElasticServiceTestIntegration extends AbstractElasticSearchInte
                 "e-mail:        org@test.com\n" +
                 "mnt-by:        OWNER-MNT\n" +
                 "mnt-ref:       OWNER-MNT\n" +
+                "notify:        notify@ripe.net\n" +
                 "created:         2022-08-14T11:48:28Z\n" +
                 "last-modified:   2022-10-25T12:22:39Z\n" +
                 "source:        TEST");
@@ -725,7 +726,7 @@ public class RdapElasticServiceTestIntegration extends AbstractElasticSearchInte
                 .map(RdapObject::getRedacted)
                 .flatMap(Collection::stream)
                 .map(Redaction::getPrePath)
-                .collect(Collectors.toList()), contains("$.entities[?(@.handle=='OWNER-MNT')]"));
+                .collect(Collectors.toList()), contains("$.vcardArray[1][?(@[0]=='notify')]"));
 
         assertThat(result.getRdapConformance(), containsInAnyOrder("cidr0", "rdap_level_0", "nro_rdap_profile_0", "redacted"));
     }
