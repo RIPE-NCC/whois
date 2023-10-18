@@ -70,8 +70,7 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import static net.ripe.db.whois.api.rdap.RedactionObjectMapper.REDACTED_PERSONAL_ATTR;
-import static net.ripe.db.whois.api.rdap.RedactionObjectMapper.addEntityRedaction;
-import static net.ripe.db.whois.api.rdap.RedactionObjectMapper.mapCommmonRedactions;
+import static net.ripe.db.whois.api.rdap.RedactionObjectMapper.mapRedactions;
 import static net.ripe.db.whois.api.rdap.domain.Status.ACTIVE;
 import static net.ripe.db.whois.api.rdap.domain.Status.RESERVED;
 import static net.ripe.db.whois.api.rdap.domain.vcard.VCardKind.GROUP;
@@ -87,7 +86,6 @@ import static net.ripe.db.whois.common.rpsl.AttributeType.GEOLOC;
 import static net.ripe.db.whois.common.rpsl.AttributeType.IRT;
 import static net.ripe.db.whois.common.rpsl.AttributeType.MNT_BY;
 import static net.ripe.db.whois.common.rpsl.AttributeType.MNT_IRT;
-import static net.ripe.db.whois.common.rpsl.AttributeType.NOTIFY;
 import static net.ripe.db.whois.common.rpsl.AttributeType.ORG;
 import static net.ripe.db.whois.common.rpsl.AttributeType.ORG_NAME;
 import static net.ripe.db.whois.common.rpsl.AttributeType.PERSON;
@@ -169,7 +167,7 @@ class RdapObjectMapper {
         final RdapObject rdapObject = mapCommonNoticesAndPort(domain, requestUrl);
         rdapObject.getLinks().add(COPYRIGHT_LINK);
 
-        mapCommmonRedactions(rdapObject);
+        mapRedactions(rdapObject);
         return mapCommonConformances(rdapObject);
     }
 
@@ -296,7 +294,7 @@ class RdapObjectMapper {
     private RdapObject mapCommons(final RdapObject rdapResponse, final String requestUrl) {
         final RdapObject rdapObject = mapCommonNoticesAndPort(rdapResponse, requestUrl);
         mapCommonLinks(rdapObject, requestUrl);
-        mapCommmonRedactions(rdapResponse);
+        mapRedactions(rdapResponse);
         return mapCommonConformances(rdapObject);
     }
 
@@ -522,8 +520,6 @@ class RdapObjectMapper {
         this.mapContactEntities(entity, rpslObject, requestUrl);
 
         handleLanguageAttribute(rpslObject, entity);
-
-        addEntityRedaction(entity);
         return entity;
     }
 

@@ -13,28 +13,32 @@ import java.util.stream.Collectors;
 public class RedactionObjectMapper {
 
     public static final List<AttributeType> REDACTED_PERSONAL_ATTR = Lists.newArrayList(AttributeType.NOTIFY);
-    public static void mapCommmonRedactions(final RdapObject rdapObject) {
+    public static void mapRedactions(final RdapObject rdapObject) {
+
+        addEntityRedaction(rdapObject);
 
         if(rdapObject.getNetwork() != null) {
-            createEntitiesRedaction(rdapObject, rdapObject.getNetwork().getEntitySearchResults(), "$.network");
+            addEntitiesRedaction(rdapObject, rdapObject.getNetwork().getEntitySearchResults(), "$.network");
         }
 
         rdapObject.getNetworks().forEach( ip -> {
-            createEntitiesRedaction(rdapObject, ip.getEntitySearchResults(), String.format("$.networks[?(@.handle=='%s')]", ip.getHandle()));
+            addEntitiesRedaction(rdapObject, ip.getEntitySearchResults(), String.format("$.networks[?(@.handle=='%s')]", ip.getHandle()));
         });
 
         rdapObject.getAutnums().forEach( autnum -> {
-            createEntitiesRedaction(rdapObject, autnum.getEntitySearchResults(), String.format("$.autnums[?(@.handle=='%s')]", autnum.getHandle()));
+            addEntitiesRedaction(rdapObject, autnum.getEntitySearchResults(), String.format("$.autnums[?(@.handle=='%s')]", autnum.getHandle()));
         });
 
-        createEntitiesRedaction(rdapObject, rdapObject.getEntitySearchResults(), "$");
+        addEntitiesRedaction(rdapObject, rdapObject.getEntitySearchResults(), "$");
     }
 
-    public static void addEntityRedaction(final Entity entity) {
-        entity.getRedacted().addAll(getPersonalRedaction(entity.getvCardRedactedAttr(), "$"));
+    private static void addEntityRedaction(RdapObject rdapObject) {
+        if(rdapObject instanceof Entity) {
+            rdapObject.getRedacted().addAll(getPersonalRedaction( ((Entity) rdapObject).getvCardRedactedAttr(), "$"));
+        }
     }
 
-    private static void createEntitiesRedaction(final RdapObject rdapObject, final List<Entity> entities, final String prefix) {
+    private static void addEntitiesRedaction(final RdapObject rdapObject, final List<Entity> entities, final String prefix) {
         entities.forEach( entity -> {
             rdapObject.getRedacted().addAll(getPersonalRedaction(entity.getvCardRedactedAttr(), String.format("%s.entities[?(@.handle=='%s')]", prefix, entity.getHandle())));
         });
