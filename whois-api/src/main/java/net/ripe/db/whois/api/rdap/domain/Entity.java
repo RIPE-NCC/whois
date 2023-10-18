@@ -12,7 +12,6 @@ import jakarta.xml.bind.annotation.XmlTransient;
 import jakarta.xml.bind.annotation.XmlType;
 import net.ripe.db.whois.api.rdap.domain.vcard.VCard;
 import net.ripe.db.whois.common.rpsl.AttributeType;
-import net.ripe.db.whois.common.rpsl.RpslAttribute;
 
 import java.io.Serializable;
 import java.util.List;
