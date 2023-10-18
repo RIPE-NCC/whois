@@ -2332,8 +2332,8 @@ public class RdapServiceTestIntegration extends AbstractRdapIntegrationTest {
                 .request(MediaType.APPLICATION_JSON_TYPE)
                 .get(Entity.class);
 
-        assertPersonalRedactionForEntities(entity, "TP2-TEST", 0);
-        assertPersonalRedaction(entity, 1);
+        assertPersonalRedactionForEntities(entity, "TP2-TEST", 1);
+        assertPersonalRedaction(entity, 0);
 
         assertCommon(entity);
     }
@@ -2378,9 +2378,10 @@ public class RdapServiceTestIntegration extends AbstractRdapIntegrationTest {
                 .request(MediaType.APPLICATION_JSON_TYPE)
                 .get(Entity.class);
 
-        assertPersonalRedactionForEntities(entity, "TP2-TEST", 0);
-        assertPersonalRedactionForEntities(entity, "TP3-TEST", 1);
-        assertPersonalRedaction(entity, 2);
+        assertPersonalRedaction(entity, 0);
+
+        assertPersonalRedactionForEntities(entity, "TP2-TEST", 1);
+        assertPersonalRedactionForEntities(entity, "TP3-TEST", 2);
 
         assertCommon(entity);
     }
@@ -2432,62 +2433,6 @@ public class RdapServiceTestIntegration extends AbstractRdapIntegrationTest {
     }
 
     @Test
-    public void lookup_inetnum_redactions() {
-        databaseHelper.addObject("" +
-                "mntner:        ROUTE-MNT\n" +
-                "admin-c:       TP1-TEST\n" +
-                "auth:          MD5-PW $1$d9fKeTr2$Si7YudNf4rUGmR71n/cqk/ #test\n" +
-                "mnt-by:        ROUTE-MNT\n" +
-                "created:         2011-07-28T00:35:42Z\n" +
-                "last-modified:   2019-02-28T10:14:46Z\n" +
-                "source:        TEST");
-
-        databaseHelper.addObject("" +
-                "mntner:        DOMAIN-MNT\n" +
-                "admin-c:       TP1-TEST\n" +
-                "auth:          MD5-PW $1$d9fKeTr2$Si7YudNf4rUGmR71n/cqk/ #test\n" +
-                "mnt-by:        DOMAIN-MNT\n" +
-                "created:         2011-07-28T00:35:42Z\n" +
-                "last-modified:   2019-02-28T10:14:46Z\n" +
-                "source:        TEST");
-
-        databaseHelper.addObject("" +
-                "mntner:        LESS-MNT\n" +
-                "admin-c:       TP1-TEST\n" +
-                "auth:          MD5-PW $1$d9fKeTr2$Si7YudNf4rUGmR71n/cqk/ #test\n" +
-                "mnt-by:        LESS-MNT\n" +
-                "created:         2011-07-28T00:35:42Z\n" +
-                "last-modified:   2019-02-28T10:14:46Z\n" +
-                "source:        TEST");
-
-        databaseHelper.addObject("" +
-                "inetnum:      192.0.2.0 - 192.0.2.255\n" +
-                "netname:      TEST-NET-NAME\n" +
-                "descr:        TEST network\n" +
-                "notify:       test@ripe.net\n" +
-                "country:      NL\n" +
-                "language:     en\n" +
-                "tech-c:       TP1-TEST\n" +
-                "mnt-domains:       DOMAIN-MNT\n" +
-                "mnt-lower:       LESS-MNT\n" +
-                "mnt-routes:       ROUTE-MNT\n" +
-                "status:       OTHER\n" +
-                "mnt-by:       OWNER-MNT\n" +
-                "created:         2022-08-14T11:48:28Z\n" +
-                "last-modified:   2022-10-25T12:22:39Z\n" +
-                "source:       TEST");
-
-        ipTreeUpdater.rebuild();
-
-        final Ip ip = createResource("ip/192.0.2.0")
-                .request(MediaType.APPLICATION_JSON_TYPE)
-                .get(Ip.class);
-
-        assertThat(ip.getRedacted().size(), is(0));
-        assertCommon(ip);
-    }
-
-    @Test
     public void lookup_org_inetnum_autnum_entity_redactions() throws JsonProcessingException {
         databaseHelper.addObject("" +
                 "person:        Tester Person\n" +
@@ -2535,9 +2480,10 @@ public class RdapServiceTestIntegration extends AbstractRdapIntegrationTest {
 
         assertThat(entity.getRedacted().size(), is(3));
 
-        assertPersonalRedactionForAutnumEntities(entity, 0, "AS64496", "TP2-TEST");
-        assertPersonalRedactionForNetworksEntities(entity, 1, "109.111.192.0 - 109.111.223.255", "TP2-TEST");
-        assertPersonalRedactionForNetworksEntities(entity, 2, "109.111.192.0 - 109.111.223.255", "TP3-TEST");
+        assertPersonalRedactionForNetworksEntities(entity, 0, "109.111.192.0 - 109.111.223.255", "TP2-TEST");
+        assertPersonalRedactionForNetworksEntities(entity, 1, "109.111.192.0 - 109.111.223.255", "TP3-TEST");
+        assertPersonalRedactionForAutnumEntities(entity, 2, "AS64496", "TP2-TEST");
+
         assertCommon(entity);
     }
 
