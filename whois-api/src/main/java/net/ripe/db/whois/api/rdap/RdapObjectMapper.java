@@ -177,13 +177,13 @@ class RdapObjectMapper {
                                         final List<RpslObjectInfo> inetnumResult,
                                         final List<RpslObjectInfo> inet6numResult,
                                         final int maxResultSize) {
-        final RdapObject organisation = getRdapObject(requestUrl, organisationObject, null);
 
-        final List<Autnum> autnums = mapAutnums(requestUrl, autnumResult, organisation);
+        final List<Autnum> autnums = mapAutnums(requestUrl, autnumResult);
 
         final List<RpslObjectInfo> topLevelInetnums = new TopLevelFilter<Ipv4Resource>(inetnumResult).getTopLevelValues();
         final List<RpslObjectInfo> topLevelInet6nums = new TopLevelFilter<Ipv4Resource>(inet6numResult).getTopLevelValues();
 
+        final RdapObject organisation = getRdapObject(requestUrl, organisationObject, null);
         final List<Ip> networks = mapNetworks(requestUrl, topLevelInetnums, topLevelInet6nums, maxResultSize, organisation);
 
         if ((topLevelInetnums.size() + topLevelInet6nums.size()) > maxResultSize) {
@@ -223,7 +223,7 @@ class RdapObjectMapper {
         return rdapObject;
     }
 
-    private List<Autnum> mapAutnums(final String requestUrl, final List<RpslObjectInfo> autnumResult, final RdapObject organisation) {
+    private List<Autnum> mapAutnums(final String requestUrl, final List<RpslObjectInfo> autnumResult) {
         return autnumResult.stream()
                 .map(this::getRpslObject)
                 .filter(Objects::nonNull)
