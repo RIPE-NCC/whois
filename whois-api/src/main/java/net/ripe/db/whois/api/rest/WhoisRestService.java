@@ -2,6 +2,8 @@ package net.ripe.db.whois.api.rest;
 
 import com.google.common.net.HttpHeaders;
 import com.google.common.net.InetAddresses;
+import jakarta.ws.rs.ClientErrorException;
+import jakarta.ws.rs.NotSupportedException;
 import net.ripe.db.whois.api.QueryBuilder;
 import net.ripe.db.whois.api.rest.domain.Parameters;
 import net.ripe.db.whois.api.rest.domain.WhoisResources;
@@ -26,6 +28,7 @@ import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
 import org.eclipse.jetty.http.HttpScheme;
+import org.eclipse.jetty.http.HttpStatus;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
@@ -449,14 +452,15 @@ public class WhoisRestService {
     }
 
     private void addBasic(final HttpServletRequest request, final List<String> passwords){
-        if (!HttpScheme.HTTPS.is(request.getHeader(HttpHeaders.X_FORWARDED_PROTO))){
-            return;
-        }
         final String authHeader = request.getHeader(HttpHeaders.AUTHORIZATION);
         if (authHeader== null || !authHeader.toUpperCase().startsWith(BASIC_AUTH)){
             return;
         }
-
+        if (!HttpScheme.HTTPS.is(request.getHeader(HttpHeaders.X_FORWARDED_PROTO))){
+            throw new WebApplicationException(Response.status(HttpStatus.UPGRADE_REQUIRED_426)
+                    .entity(RestServiceHelper.createErrorEntity(request, RestMessages.httpVersionNotSupported()))
+                    .build());
+        }
         final String base64Credentials = authHeader.substring(BASIC_AUTH.length()).trim();
         final byte[] credDecoded = new Base64().decode(base64Credentials);
         passwords.add(new String(credDecoded, StandardCharsets.ISO_8859_1));

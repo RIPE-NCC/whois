@@ -43,6 +43,10 @@ public class RestMessages {
         return new Message(Messages.Type.ERROR, "Flags are not allowed in 'query-string'");
     }
 
+    public static Message httpVersionNotSupported() {
+        return new Message(Messages.Type.ERROR, "HTTP Version is not supported");
+    }
+
     public static Message invalidTimestampFormat(final CharSequence timestamp) {
         return new Message(Messages.Type.ERROR, "Timestamp parameter '%s' does not have the correct format", timestamp);
     }

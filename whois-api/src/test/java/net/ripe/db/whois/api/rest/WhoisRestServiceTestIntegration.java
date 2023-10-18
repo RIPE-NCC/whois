@@ -2,6 +2,8 @@ package net.ripe.db.whois.api.rest;
 
 import com.google.common.base.Strings;
 import com.google.common.io.ByteStreams;
+import jakarta.ws.rs.NotSupportedException;
+import jakarta.ws.rs.WebApplicationException;
 import net.ripe.db.whois.api.AbstractIntegrationTest;
 import net.ripe.db.whois.api.RestTest;
 import net.ripe.db.whois.api.rest.domain.Attribute;
@@ -3650,6 +3652,56 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
     }
 
     @Test
+    public void create_object_with_basic_auth_wrong_passwd_error() {
+        final HttpAuthenticationFeature feature = HttpAuthenticationFeature.basicBuilder().build();
+        final RpslObject personObject = RpslObject.parse("" +
+                "person:    Some Person\n" +
+                "address:   Singel 258\n" +
+                "phone:     +31-1234567890\n" +
+                "e-mail:    noreply@ripe.net\n" +
+                "mnt-by:    OWNER-MNT\n" +
+                "nic-hdl:   AUTO-1\n" +
+                "remarks:   remark\n" +
+                "source:    TEST\n");
+
+        final NotAuthorizedException exception = assertThrows(NotAuthorizedException.class, () -> {
+            RestTest.target(getPort(), "whois/test/person")
+                    .register(feature)
+                    .request()
+                    .property(HttpAuthenticationFeature.HTTP_AUTHENTICATION_BASIC_USERNAME, "OWNER-MNT")
+                    .property(HttpAuthenticationFeature.HTTP_AUTHENTICATION_BASIC_PASSWORD, "test1")
+                    .header(X_FORWARDED_PROTO, HttpScheme.HTTPS)
+                    .post(Entity.entity(map(personObject), MediaType.APPLICATION_JSON_TYPE), WhoisResources.class);
+        });
+        assertThat(exception.getResponse().getStatus(), is(HttpStatus.UNAUTHORIZED_401));
+    }
+
+    @Test
+    public void create_object_with_basic_auth_wrong_mntner_error() {
+        final HttpAuthenticationFeature feature = HttpAuthenticationFeature.basicBuilder().build();
+        final RpslObject personObject = RpslObject.parse("" +
+                "person:    Some Person\n" +
+                "address:   Singel 258\n" +
+                "phone:     +31-1234567890\n" +
+                "e-mail:    noreply@ripe.net\n" +
+                "mnt-by:    OWNER-MNT\n" +
+                "nic-hdl:   AUTO-1\n" +
+                "remarks:   remark\n" +
+                "source:    TEST\n");
+
+        final NotAuthorizedException exception = assertThrows(NotAuthorizedException.class, () -> {
+            RestTest.target(getPort(), "whois/test/person")
+                    .register(feature)
+                    .request()
+                    .property(HttpAuthenticationFeature.HTTP_AUTHENTICATION_BASIC_USERNAME, "OWNER1-MNT")
+                    .property(HttpAuthenticationFeature.HTTP_AUTHENTICATION_BASIC_PASSWORD, "test")
+                    .header(X_FORWARDED_PROTO, HttpScheme.HTTPS)
+                    .post(Entity.entity(map(personObject), MediaType.APPLICATION_JSON_TYPE), WhoisResources.class);
+        });
+        assertThat(exception.getResponse().getStatus(), is(HttpStatus.UNAUTHORIZED_401));
+    }
+
+    @Test
     public void create_object_with_basic_auth_http_error() {
         final HttpAuthenticationFeature feature = HttpAuthenticationFeature.basicBuilder().build();
         final RpslObject personObject = RpslObject.parse("" +
@@ -3662,14 +3714,15 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
                 "remarks:   remark\n" +
                 "source:    TEST\n");
 
-        assertThrows(NotAuthorizedException.class, () -> {
-            RestTest.target(getPort(), "whois/test/person")
+        final WebApplicationException exception = assertThrows(WebApplicationException.class, () -> {
+            RestTest.target(getPort(), "whois/test/person?password=test")
                     .register(feature)
                     .request()
                     .property(HttpAuthenticationFeature.HTTP_AUTHENTICATION_BASIC_USERNAME, "OWNER-MNT")
                     .property(HttpAuthenticationFeature.HTTP_AUTHENTICATION_BASIC_PASSWORD, "test")
                     .post(Entity.entity(map(personObject), MediaType.APPLICATION_JSON_TYPE), WhoisResources.class);
         });
+        assertThat(exception.getResponse().getStatus(), is(HttpStatus.UPGRADE_REQUIRED_426));
     }
 
     // delete
@@ -3992,6 +4045,77 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
                 .delete(String.class);
 
         assertThat(mailSenderStub.anyMoreMessages(), is(false));
+    }
+
+    @Test
+    public void delete_person_using_basic_auth() {
+        databaseHelper.addObject(
+                "mntner:        TEST-MNT\n" +
+                        "descr:         Test maintainer\n" +
+                        "admin-c:       TP1-TEST\n" +
+                        "upd-to:        upd-to@ripe.net\n" +
+                        "mnt-nfy:       mnt-nfy@ripe.net\n" +
+                        "auth:          MD5-PW $1$EmukTVYX$Z6fWZT8EAzHoOJTQI6jFJ1  # 123\n" +
+                        "mnt-by:        TEST-MNT\n" +
+                        "source:        TEST"
+        );
+        databaseHelper.addObject(
+                "person:        Pauleth Palthen\n" +
+                        "address:       Singel 258\n" +
+                        "phone:         +31-1234567890\n" +
+                        "e-mail:        noreply@ripe.net\n" +
+                        "mnt-by:        TEST-MNT\n" +
+                        "nic-hdl:       PP1-TEST\n" +
+                        "remarks:       remark\n" +
+                        "source:        TEST\n"
+        );
+
+        final WhoisResources whoisResources = RestTest.target(getPort(), "whois/test/person/PP1-TEST")
+                .register(HttpAuthenticationFeature.basicBuilder().build())
+                .request()
+                .property(HttpAuthenticationFeature.HTTP_AUTHENTICATION_BASIC_USERNAME, "TEST-MNT")
+                .property(HttpAuthenticationFeature.HTTP_AUTHENTICATION_BASIC_PASSWORD, "123")
+                .header(X_FORWARDED_PROTO, HttpScheme.HTTPS)
+                .delete(WhoisResources.class);
+
+        assertThat(whoisResources.getErrorMessages(), is(empty()));
+        assertThat(whoisResources.getWhoisObjects(), hasSize(1));
+        assertThat(whoisResources.getWhoisObjects().get(0).getAttributes(), hasItem(new Attribute("person", "Pauleth Palthen")));
+
+    }
+
+    @Test
+    public void delete_object_with_basic_auth_http_error() {
+        databaseHelper.addObject(
+                "mntner:        TEST-MNT\n" +
+                        "descr:         Test maintainer\n" +
+                        "admin-c:       TP1-TEST\n" +
+                        "upd-to:        upd-to@ripe.net\n" +
+                        "mnt-nfy:       mnt-nfy@ripe.net\n" +
+                        "auth:          MD5-PW $1$EmukTVYX$Z6fWZT8EAzHoOJTQI6jFJ1  # 123\n" +
+                        "mnt-by:        TEST-MNT\n" +
+                        "source:        TEST"
+        );
+        databaseHelper.addObject(
+                "person:        Pauleth Palthen\n" +
+                        "address:       Singel 258\n" +
+                        "phone:         +31-1234567890\n" +
+                        "e-mail:        noreply@ripe.net\n" +
+                        "mnt-by:        TEST-MNT\n" +
+                        "nic-hdl:       PP1-TEST\n" +
+                        "remarks:       remark\n" +
+                        "source:        TEST\n"
+        );
+
+        final WebApplicationException exception = assertThrows(WebApplicationException.class, () -> {
+            RestTest.target(getPort(), "whois/test/person/PP1-TEST")
+                    .register(HttpAuthenticationFeature.basicBuilder().build())
+                    .request()
+                    .property(HttpAuthenticationFeature.HTTP_AUTHENTICATION_BASIC_USERNAME, "OWNER-MNT")
+                    .property(HttpAuthenticationFeature.HTTP_AUTHENTICATION_BASIC_PASSWORD, "123")
+                    .delete(WhoisResources.class);
+        });
+        assertThat(exception.getResponse().getStatus(), is(HttpStatus.UPGRADE_REQUIRED_426));
     }
 
     @Test
