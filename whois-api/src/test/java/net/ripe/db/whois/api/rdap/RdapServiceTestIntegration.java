@@ -5,8 +5,13 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import com.google.common.collect.Lists;
 import com.google.common.net.HttpHeaders;
-
 import com.jayway.jsonpath.JsonPath;
+import jakarta.ws.rs.BadRequestException;
+import jakarta.ws.rs.HttpMethod;
+import jakarta.ws.rs.NotFoundException;
+import jakarta.ws.rs.ServerErrorException;
+import jakarta.ws.rs.core.MediaType;
+import jakarta.ws.rs.core.Response;
 import net.ripe.db.whois.api.RestTest;
 import net.ripe.db.whois.api.rdap.domain.Action;
 import net.ripe.db.whois.api.rdap.domain.Autnum;
@@ -30,13 +35,6 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.annotation.DirtiesContext;
 
-import jakarta.ws.rs.BadRequestException;
-import jakarta.ws.rs.HttpMethod;
-import jakarta.ws.rs.NotFoundException;
-import jakarta.ws.rs.ServerErrorException;
-import jakarta.ws.rs.core.MediaType;
-import jakarta.ws.rs.core.Response;
-
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -52,7 +50,6 @@ import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.empty;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.hasSize;
-import static org.hamcrest.Matchers.in;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.not;
 import static org.hamcrest.Matchers.nullValue;
@@ -2539,9 +2536,53 @@ public class RdapServiceTestIntegration extends AbstractRdapIntegrationTest {
         assertThat(entity.getRedacted().size(), is(3));
 
         assertPersonalRedactionForAutnumEntities(entity, 0, "AS64496", "TP2-TEST");
-        assertPersonalRedactionForNetworkEntities(entity, 1, "109.111.192.0 - 109.111.223.255", "TP2-TEST");
-        assertPersonalRedactionForNetworkEntities(entity, 2, "109.111.192.0 - 109.111.223.255", "TP3-TEST");
+        assertPersonalRedactionForNetworksEntities(entity, 1, "109.111.192.0 - 109.111.223.255", "TP2-TEST");
+        assertPersonalRedactionForNetworksEntities(entity, 2, "109.111.192.0 - 109.111.223.255", "TP3-TEST");
         assertCommon(entity);
+    }
+
+    @Test
+    public void lookup_domain_object_inetnum_redactions() throws JsonProcessingException {
+
+        databaseHelper.addObject("" +
+                "inetnum:       80.179.52.0 - 80.179.55.255\n" +
+                "netname:       SANDBOX11470-IPv4-ALLOCATION\n" +
+                "org:           ORG-TEST1-TEST\n" +
+                "country:       EU\n" +
+                "admin-c:       TP1-TEST\n" +
+                "tech-c:        TP1-TEST\n" +
+                "status:        ALLOCATED PA\n" +
+                "mnt-by:        OWNER-MNT\n" +
+                "tech-c:       TP2-TEST\n" +
+                "created:       2013-12-10T16:54:20Z\n" +
+                "last-modified: 2013-12-10T16:54:20Z\n" +
+                "source:        RIPE\n");
+
+        databaseHelper.addObject("" +
+                "domain:        52.179.80.in-addr.arpa\n" +
+                "descr:         Test domain\n" +
+                "admin-c:       TP1-TEST\n" +
+                "tech-c:        TP1-TEST\n" +
+                "zone-c:        TP1-TEST\n" +
+                "nserver:       ns1.test.com.au 10.0.0.1\n" +
+                "nserver:       ns2.test.com.au 2001:10::2\n" +
+                "ds-rdata:      52151 1 1 13ee60f7499a70e5aadaf05828e7fc59e8e70bc1\n" +
+                "ds-rdata:      17881 5 1 2e58131e5fe28ec965a7b8e4efb52d0a028d7a78\n" +
+                "ds-rdata:      17881 5 2 8c6265733a73e5588bfac516a4fcfbe1103a544b95f254cb67a21e474079547e\n" +
+                "mnt-by:        OWNER-MNT\n" +
+                "created:       2011-07-28T00:35:42Z\n" +
+                "last-modified: 2019-02-28T10:14:46Z\n" +
+                "source:        TEST");
+
+        ipTreeUpdater.rebuild();
+
+        final Domain domain = createResource("domain/52.179.80.in-addr.arpa")
+                .request(MediaType.APPLICATION_JSON_TYPE)
+                .get(Domain.class);
+
+        assertThat(domain.getRedacted().size(), is(1));
+
+        assertPersonalRedactionForNetworkEntities(domain,0, "80.179.52.0 - 80.179.55.255", "TP2-TEST");
     }
     // search - entities - organisation
 
@@ -2773,7 +2814,7 @@ public class RdapServiceTestIntegration extends AbstractRdapIntegrationTest {
         assertThat(entity.getRedacted().get(redaction).getMethod(), is("removal"));
     }
 
-    private void assertPersonalRedactionForNetworkEntities(final Entity entity, final int redaction, final String networkKey, final String personKey) throws JsonProcessingException {
+    private void assertPersonalRedactionForNetworksEntities(final Entity entity, final int redaction, final String networkKey, final String personKey) throws JsonProcessingException {
         final String entityJson = getObjectMapper().writeValueAsString(entity);
 
         List<Object> vcards = JsonPath.read(entityJson, entity.getRedacted().get(redaction).getPrePath());
@@ -2789,6 +2830,28 @@ public class RdapServiceTestIntegration extends AbstractRdapIntegrationTest {
         assertCommonPersonalRedaction(entity, redaction, insideEntity);
     }
 
+    private void assertPersonalRedactionForNetworkEntities(final Domain domain, final int redaction, final String networkKey, final String personKey) throws JsonProcessingException {
+        final String entityJson = getObjectMapper().writeValueAsString(domain);
+
+        List<Object> vcards = JsonPath.read(entityJson, domain.getRedacted().get(redaction).getPrePath());
+        assertThat(vcards.size(), is(0));
+
+        final Entity insideEntity = domain.getNetwork().getEntitySearchResults()
+                .stream()
+                .filter(contacEntity -> contacEntity.getHandle().equals(personKey))
+                .findFirst().get();
+
+        ((ArrayList) insideEntity.getVCardArray().get(1)).add(0, Lists.newArrayList("notify", "", TEXT.getValue(), "abc@ripe.net"));
+
+        final String entityAfterAddingVcard = getObjectMapper().writeValueAsString(domain);
+
+        final List<Object> vcardsAfterChange = JsonPath.read(entityAfterAddingVcard, domain.getRedacted().get(redaction).getPrePath());
+        assertThat(vcardsAfterChange.size(), is(1));
+
+        assertThat(domain.getRedacted().get(redaction).getName().getDescription(), is("Updates notification e-mail information"));
+        assertThat(domain.getRedacted().get(redaction).getReason().getDescription(), is("Personal data"));
+        assertThat(domain.getRedacted().get(redaction).getMethod(), is("removal"));
+    }
     private void assertPersonalRedactionForAutnumEntities(final Entity entity, final int redaction, final String networkKey, final String personKey) throws JsonProcessingException {
         final String entityJson = getObjectMapper().writeValueAsString(entity);
 

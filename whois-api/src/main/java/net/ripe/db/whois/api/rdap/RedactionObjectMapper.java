@@ -1,6 +1,7 @@
 package net.ripe.db.whois.api.rdap;
 
 import com.google.common.collect.Lists;
+import net.ripe.db.whois.api.rdap.domain.PreparedParentRedaction;
 import net.ripe.db.whois.api.rdap.domain.Redaction;
 import net.ripe.db.whois.common.rpsl.AttributeType;
 import net.ripe.db.whois.common.rpsl.RpslAttribute;
@@ -25,8 +26,10 @@ public class RedactionObjectMapper {
         return createPersonalRedaction(rpslObject.findAttributes(REDACTED_PERSONAL_ATTR), String.format(REDACTED_ENTITIES_SYNTAX, rpslObject.getKey()));
     }
 
-    public static Set<Redaction> createParentEntityRedaction(final String attributeName, final String handle, final RpslObject rpslObject) {
-        return createPersonalRedaction(rpslObject.findAttributes(REDACTED_PERSONAL_ATTR), String.format(REDACTED_PARENT_SYNTAX, attributeName, handle, rpslObject.getKey()));
+    public static Set<Redaction> createParentEntityRedaction(final PreparedParentRedaction preparedParentRedaction, final RpslObject rpslObject) {
+        return createPersonalRedaction(rpslObject.findAttributes(REDACTED_PERSONAL_ATTR),
+                String.format(REDACTED_PARENT_SYNTAX, preparedParentRedaction.getSubFolder(),
+                        preparedParentRedaction.getHandle(), rpslObject.getKey()));
     }
     private static Set<Redaction> createPersonalRedaction(final List<RpslAttribute> attributeTypes, final String prefix){
        return attributeTypes.stream()
