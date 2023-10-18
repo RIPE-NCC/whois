@@ -32,7 +32,7 @@ public class RedactionObjectMapper {
         addEntitiesRedaction(rdapObject, rdapObject.getEntitySearchResults(), "$");
     }
 
-    private static void addEntityRedaction(RdapObject rdapObject) {
+    private static void addEntityRedaction(final RdapObject rdapObject) {
         if(rdapObject instanceof Entity) {
             rdapObject.getRedacted().addAll(getPersonalRedaction( ((Entity) rdapObject).getvCardRedactedAttr(), "$"));
         }
