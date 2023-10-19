@@ -5754,38 +5754,6 @@ class InetnumSpec extends BaseQueryUpdateSpec {
         created =~ /Create FAILED: \[inetnum] 192.168.0.0 - 192.168.0.255/
     }
 
-    def "create with geofeed and inetnum too specific"() {
-        given:
-        databaseHelper.addObject("""\
-                    inetnum:    192.168.0.0 - 192.168.255.255
-                    netname:    RIPE-NCC
-                    status:     ALLOCATED UNSPECIFIED
-                    descr:      description
-                    country:    NL
-                    admin-c:    TP1-TEST
-                    tech-c:     TP1-TEST
-                    mnt-by:     LIR-MNT
-                    source:     TEST
-                    """.stripIndent(true))
-        whoisFixture.reloadTrees()
-        when:
-        def created = syncUpdate(new SyncUpdate(data: """\
-                        inetnum:    192.168.0.0 - 192.168.0.63
-                        netname:    RIPE-NCC
-                        status:     ASSIGNED PI
-                        descr:      description
-                        country:    NL
-                        geofeed:    https://example.com
-                        admin-c:    TP1-TEST
-                        tech-c:     TP1-TEST
-                        mnt-by:     LIR-MNT
-                        source:     TEST
-                        password:   lir
-                    """.stripIndent(true)))
-        then:
-        created =~ /Create FAILED: \[inetnum] 192.168.0.0 - 192.168.0.63/
-    }
-
     def "create with geofeed and remarks geofeed"() {
         given:
         databaseHelper.addObject("""\

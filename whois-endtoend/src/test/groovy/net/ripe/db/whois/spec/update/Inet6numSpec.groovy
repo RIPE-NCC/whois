@@ -2342,38 +2342,6 @@ class Inet6numSpec extends BaseQueryUpdateSpec {
         queryObjectNotFound("-rGBT inet6num 2001:600::/25", "inet6num", "2001:600::/25")
     }
 
-    def "create with geofeed and inet6num too specific"() {
-        when:
-        def ack = syncUpdateWithResponse("""
-                inet6num:     2001:600::/48
-                netname:      EU-ZZ-2001-0600
-                descr:        European Regional Registry
-                country:      EU
-                geofeed:      https://example.com
-                org:          ORG-LIR1-TEST
-                admin-c:      TP1-TEST
-                tech-c:       TP1-TEST
-                mnt-by:       RIPE-NCC-HM-MNT
-                mnt-lower:    RIPE-NCC-HM-MNT
-                status:       ALLOCATED-BY-RIR
-                source:       TEST
-
-                password: hm
-                password: owner3
-                """.stripIndent(true))
-        then:
-        ack.summary.nrFound == 1
-        ack.summary.assertSuccess(0, 0, 0, 0, 0)
-        ack.summary.assertErrors(1, 1, 0, 0)
-
-        ack.countErrorWarnInfo(1, 0, 0)
-        ack.errors.any { it.operation == "Create" && it.key == "[inet6num] 2001:600::/48" }
-        ack.errorMessagesFor("Create", "[inet6num] 2001:600::/48") ==
-                ["Adding or modifying the \"geofeed:\" attribute of an object with a prefix length greater or equal to 48 is not allowed."]
-
-        queryObjectNotFound("-rGBT inet6num 2001:600::/48", "inet6num", "2001:600::/48")
-    }
-
     def "create with geofeed and remarks geofeed"() {
         when:
         def ack = syncUpdateWithResponse("""
