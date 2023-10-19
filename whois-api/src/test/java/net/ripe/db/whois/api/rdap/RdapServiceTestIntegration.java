@@ -2847,7 +2847,7 @@ public class RdapServiceTestIntegration extends AbstractRdapIntegrationTest {
                 "source:        TEST");
     }
     @NotNull
-    private static ObjectMapper getObjectMapper() {
-        return new ObjectMapper().registerModule(new JavaTimeModule());
+    private  ObjectMapper getObjectMapper() {
+        return new RdapJsonProvider().locateMapper(RdapObject.class, MediaType.APPLICATION_JSON_TYPE);
     }
 }
