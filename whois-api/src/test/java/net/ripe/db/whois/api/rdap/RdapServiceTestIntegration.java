@@ -2,7 +2,6 @@ package net.ripe.db.whois.api.rdap;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import com.google.common.collect.Lists;
 import com.google.common.net.HttpHeaders;
 import com.jayway.jsonpath.JsonPath;
@@ -2412,6 +2411,28 @@ public class RdapServiceTestIntegration extends AbstractRdapIntegrationTest {
     }
 
     @Test
+    public void lookup_person_without_redactions() throws JsonProcessingException {
+        createEntityRedactionObjects();
+
+        databaseHelper.addObject("" +
+                "person:        Tester Person\n" +
+                "nic-hdl:       TP3-TEST\n" +
+                "address:       One Org Street\n" +
+                "mnt-by:        OWNER-MNT\n" +
+                "mnt-ref:       INCOMING-MNT\n" +
+                "mnt-ref:       INCOMING2-MNT\n" +
+                "created:         2011-07-28T00:35:42Z\n" +
+                "last-modified:   2019-02-28T10:14:46Z\n" +
+                "source:        TEST");
+
+        final Entity entity = createResource("entity/TP3-TEST")
+                .request(MediaType.APPLICATION_JSON_TYPE)
+                .get(Entity.class);
+
+        assertThat(entity.getRedacted().size(), is(0));
+    }
+
+    @Test
     public void lookup_aut_num_redactions() throws JsonProcessingException {
         databaseHelper.addObject("" +
                 "aut-num:       AS103\n" +
@@ -2776,6 +2797,21 @@ public class RdapServiceTestIntegration extends AbstractRdapIntegrationTest {
         assertCommonPersonalRedaction(entity, redaction, insideEntity);
     }
 
+    private void assertPersonalRedactionForAutnumEntities(final Entity entity, final int redaction, final String networkKey, final String personKey) throws JsonProcessingException {
+        final String entityJson = getObjectMapper().writeValueAsString(entity);
+
+        List<Object> vcards = JsonPath.read(entityJson, entity.getRedacted().get(redaction).getPrePath());
+        assertThat(vcards.size(), is(0));
+
+        final Entity insideEntity = entity.getAutnums()
+                .stream()
+                .filter( autnum -> autnum.getHandle().equals(networkKey))
+                .flatMap(autnum -> autnum.getEntitySearchResults().stream())
+                .filter(contacEntity -> contacEntity.getHandle().equals(personKey))
+                .findFirst().get();
+
+        assertCommonPersonalRedaction(entity, redaction, insideEntity);
+    }
     private void assertPersonalRedactionForNetworkEntities(final Domain domain, final int redaction, final String networkKey, final String personKey) throws JsonProcessingException {
         final String entityJson = getObjectMapper().writeValueAsString(domain);
 
@@ -2797,21 +2833,6 @@ public class RdapServiceTestIntegration extends AbstractRdapIntegrationTest {
         assertThat(domain.getRedacted().get(redaction).getName().getDescription(), is("Updates notification e-mail information"));
         assertThat(domain.getRedacted().get(redaction).getReason().getDescription(), is("Personal data"));
         assertThat(domain.getRedacted().get(redaction).getMethod(), is("removal"));
-    }
-    private void assertPersonalRedactionForAutnumEntities(final Entity entity, final int redaction, final String networkKey, final String personKey) throws JsonProcessingException {
-        final String entityJson = getObjectMapper().writeValueAsString(entity);
-
-        List<Object> vcards = JsonPath.read(entityJson, entity.getRedacted().get(redaction).getPrePath());
-        assertThat(vcards.size(), is(0));
-
-        final Entity insideEntity = entity.getAutnums()
-                .stream()
-                .filter( network -> network.getHandle().equals(networkKey))
-                .flatMap(network -> network.getEntitySearchResults().stream())
-                .filter(contacEntity -> contacEntity.getHandle().equals(personKey))
-                .findFirst().get();
-
-        assertCommonPersonalRedaction(entity, redaction, insideEntity);
     }
 
     private void assertCommonPersonalRedaction(Entity entity, int redaction, Entity insideEntity) throws JsonProcessingException {
