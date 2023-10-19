@@ -142,9 +142,13 @@ class RdapObjectMapper {
         final SearchResult searchResult = new SearchResult();
         for (final RpslObject object : objects) {
             if (object.getType() == DOMAIN) {
-                searchResult.addDomainSearchResult((Domain) getRdapObject(requestUrl, object, null));
+                final Domain domain = (Domain) getRdapObject(requestUrl, object, null);
+                mapRedactions(domain);
+                searchResult.addDomainSearchResult(domain);
             } else {
-                searchResult.addEntitySearchResult((Entity) getRdapObject(requestUrl, object, null));
+                final Entity entity = (Entity) getRdapObject(requestUrl, object, null);
+                mapRedactions(entity);
+                searchResult.addEntitySearchResult(entity);
             }
         }
 
@@ -153,7 +157,10 @@ class RdapObjectMapper {
             notice.setTitle(String.format("limited search results to %s maximum" , maxResultSize));
             searchResult.getNotices().add(notice);
         }
-        return mapCommons(searchResult, requestUrl);
+
+        final RdapObject rdapObject = mapCommonNoticesAndPort(searchResult, requestUrl);
+        mapCommonLinks(rdapObject, requestUrl);
+        return mapCommonConformances(rdapObject);
     }
 
     public Object mapDomainEntity(
