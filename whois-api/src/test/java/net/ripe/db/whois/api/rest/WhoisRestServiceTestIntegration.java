@@ -2,8 +2,20 @@ package net.ripe.db.whois.api.rest;
 
 import com.google.common.base.Strings;
 import com.google.common.io.ByteStreams;
-import jakarta.ws.rs.NotSupportedException;
+import jakarta.ws.rs.BadRequestException;
+import jakarta.ws.rs.ClientErrorException;
+import jakarta.ws.rs.HttpMethod;
+import jakarta.ws.rs.InternalServerErrorException;
+import jakarta.ws.rs.NotAllowedException;
+import jakarta.ws.rs.NotAuthorizedException;
+import jakarta.ws.rs.NotFoundException;
+import jakarta.ws.rs.ServiceUnavailableException;
 import jakarta.ws.rs.WebApplicationException;
+import jakarta.ws.rs.client.Entity;
+import jakarta.ws.rs.core.HttpHeaders;
+import jakarta.ws.rs.core.MediaType;
+import jakarta.ws.rs.core.Response;
+import jakarta.ws.rs.core.Variant;
 import net.ripe.db.whois.api.AbstractIntegrationTest;
 import net.ripe.db.whois.api.RestTest;
 import net.ripe.db.whois.api.rest.domain.Attribute;
@@ -46,19 +58,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.dao.EmptyResultDataAccessException;
 
-import jakarta.ws.rs.BadRequestException;
-import jakarta.ws.rs.ClientErrorException;
-import jakarta.ws.rs.HttpMethod;
-import jakarta.ws.rs.InternalServerErrorException;
-import jakarta.ws.rs.NotAllowedException;
-import jakarta.ws.rs.NotAuthorizedException;
-import jakarta.ws.rs.NotFoundException;
-import jakarta.ws.rs.ServiceUnavailableException;
-import jakarta.ws.rs.client.Entity;
-import jakarta.ws.rs.core.HttpHeaders;
-import jakarta.ws.rs.core.MediaType;
-import jakarta.ws.rs.core.Response;
-import jakarta.ws.rs.core.Variant;
 import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.FileInputStream;
@@ -169,7 +168,7 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
             "upd-to:         noreply@ripe.net\n" +
             "source:         TEST");
 
-    private static String TEST_ROLE_STRING = "" +
+    private static final String TEST_ROLE_STRING = "" +
             "role:           Test Role\n" +
             "address:        Singel 258\n" +
             "phone:          +31 6 12345678\n" +
@@ -4081,7 +4080,41 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
         assertThat(whoisResources.getErrorMessages(), is(empty()));
         assertThat(whoisResources.getWhoisObjects(), hasSize(1));
         assertThat(whoisResources.getWhoisObjects().get(0).getAttributes(), hasItem(new Attribute("person", "Pauleth Palthen")));
+    }
 
+    @Test
+    public void delete_person_using_basic_auth_bad_password() {
+        databaseHelper.addObject(
+                "mntner:        TEST-MNT\n" +
+                        "descr:         Test maintainer\n" +
+                        "admin-c:       TP1-TEST\n" +
+                        "upd-to:        upd-to@ripe.net\n" +
+                        "mnt-nfy:       mnt-nfy@ripe.net\n" +
+                        "auth:          MD5-PW $1$EmukTVYX$Z6fWZT8EAzHoOJTQI6jFJ1  # 123\n" +
+                        "mnt-by:        TEST-MNT\n" +
+                        "source:        TEST"
+        );
+        databaseHelper.addObject(
+                "person:        Pauleth Palthen\n" +
+                        "address:       Singel 258\n" +
+                        "phone:         +31-1234567890\n" +
+                        "e-mail:        noreply@ripe.net\n" +
+                        "mnt-by:        TEST-MNT\n" +
+                        "nic-hdl:       PP1-TEST\n" +
+                        "remarks:       remark\n" +
+                        "source:        TEST\n"
+        );
+
+        final NotAuthorizedException exception = assertThrows(NotAuthorizedException.class, () -> {
+            RestTest.target(getPort(), "whois/test/person/PP1-TEST")
+                    .register(HttpAuthenticationFeature.basicBuilder().build())
+                    .request()
+                    .property(HttpAuthenticationFeature.HTTP_AUTHENTICATION_BASIC_USERNAME, "OWNER-MNT")
+                    .property(HttpAuthenticationFeature.HTTP_AUTHENTICATION_BASIC_PASSWORD, "test")
+                    .header(X_FORWARDED_PROTO, HttpScheme.HTTPS)
+                    .delete(WhoisResources.class);
+        });
+        assertThat(exception.getResponse().getStatus(), is(HttpStatus.UNAUTHORIZED_401));
     }
 
     @Test
@@ -4281,7 +4314,7 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
 
 
     @Test
-    public void update_flat_as_set_change_source_bad_request() {
+    public void update_flat_as_set_change_source() {
         final RpslObject TEST_AS_SET = RpslObject.parse("""
                 as-set:     AS-TEST
                 tech-c:     TP1-TEST
@@ -4314,6 +4347,93 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
         final WhoisObject object = whoisResources.getWhoisObjects().get(0);
         assertThat(object.getSource().getId(), is("test"));
     }
+
+
+    @Test
+    public void update_mntner_using_basic_auth() {
+        final RpslObject TEST_PERSON = RpslObject.parse(
+                "mntner:        TEST-MNT\n" +
+                        "descr:         Test maintainer\n" +
+                        "admin-c:       TP1-TEST\n" +
+                        "upd-to:        upd-to@ripe.net\n" +
+                        "mnt-nfy:       mnt-nfy@ripe.net\n" +
+                        "auth:          MD5-PW $1$EmukTVYX$Z6fWZT8EAzHoOJTQI6jFJ1  # 123\n" +
+                        "mnt-by:        TEST-MNT\n" +
+                        "source:        TEST"
+        );
+
+        final RpslObject updatedObject = new RpslObjectBuilder(TEST_PERSON).replaceAttribute(TEST_PERSON.findAttribute(AttributeType.DESCR),
+                new RpslAttribute(AttributeType.DESCR, "Test maintainer updated")).sort().get();
+
+        final WhoisResources whoisResources = RestTest.target(getPort(), "whois/test/mntner/TEST-MNT")
+                .register(HttpAuthenticationFeature.basicBuilder().build())
+                .request()
+                .property(HttpAuthenticationFeature.HTTP_AUTHENTICATION_BASIC_USERNAME, "TEST-MNT")
+                .property(HttpAuthenticationFeature.HTTP_AUTHENTICATION_BASIC_PASSWORD, "123")
+                .header(X_FORWARDED_PROTO, HttpScheme.HTTPS)
+                .put(Entity.entity(map(updatedObject), MediaType.APPLICATION_XML), WhoisResources.class);
+
+        assertThat(whoisResources.getErrorMessages(), is(empty()));
+        assertThat(whoisResources.getWhoisObjects(), hasSize(1));
+        assertThat(whoisResources.getWhoisObjects().get(0).getAttributes(), hasItem(new Attribute("descr", "Test maintainer updated")));
+    }
+
+    @Test
+    public void update_mntner_using_basic_auth_bad_name() {
+        final RpslObject TEST_PERSON = RpslObject.parse(
+                "mntner:        TEST-MNT\n" +
+                        "descr:         Test maintainer\n" +
+                        "admin-c:       TP1-TEST\n" +
+                        "upd-to:        upd-to@ripe.net\n" +
+                        "mnt-nfy:       mnt-nfy@ripe.net\n" +
+                        "auth:          MD5-PW $1$EmukTVYX$Z6fWZT8EAzHoOJTQI6jFJ1  # 123\n" +
+                        "mnt-by:        TEST-MNT\n" +
+                        "source:        TEST"
+        );
+
+        final RpslObject updatedObject = new RpslObjectBuilder(TEST_PERSON).replaceAttribute(TEST_PERSON.findAttribute(AttributeType.DESCR),
+                new RpslAttribute(AttributeType.DESCR, "Test maintainer updated")).sort().get();
+
+        final NotAuthorizedException exception = assertThrows(NotAuthorizedException.class, () -> {
+            RestTest.target(getPort(), "whois/test/mntner/TEST-MNT")
+                    .register(HttpAuthenticationFeature.basicBuilder().build())
+                    .request()
+                    .property(HttpAuthenticationFeature.HTTP_AUTHENTICATION_BASIC_USERNAME, "OWNER1-MNT")
+                    .property(HttpAuthenticationFeature.HTTP_AUTHENTICATION_BASIC_PASSWORD, "123")
+                    .header(X_FORWARDED_PROTO, HttpScheme.HTTPS)
+                    .put(Entity.entity(map(updatedObject), MediaType.APPLICATION_XML), WhoisResources.class);
+        });
+        assertThat(exception.getResponse().getStatus(), is(HttpStatus.UNAUTHORIZED_401));
+    }
+
+    @Test
+    public void update_object_with_basic_auth_http_error() {
+        final RpslObject TEST_PERSON = RpslObject.parse(
+                "mntner:        TEST-MNT\n" +
+                        "descr:         Test maintainer\n" +
+                        "admin-c:       TP1-TEST\n" +
+                        "upd-to:        upd-to@ripe.net\n" +
+                        "mnt-nfy:       mnt-nfy@ripe.net\n" +
+                        "auth:          MD5-PW $1$EmukTVYX$Z6fWZT8EAzHoOJTQI6jFJ1  # 123\n" +
+                        "mnt-by:        TEST-MNT\n" +
+                        "source:        TEST"
+        );
+
+        final RpslObject updatedObject = new RpslObjectBuilder(TEST_PERSON).replaceAttribute(TEST_PERSON.findAttribute(AttributeType.DESCR),
+                new RpslAttribute(AttributeType.DESCR, "Test maintainer updated")).sort().get();
+
+        final WebApplicationException exception = assertThrows(WebApplicationException.class, () -> {
+            RestTest.target(getPort(), "whois/test/mntner/TEST-MNT")
+                    .register(HttpAuthenticationFeature.basicBuilder().build())
+                    .request()
+                    .property(HttpAuthenticationFeature.HTTP_AUTHENTICATION_BASIC_USERNAME, "OWNER-MNT")
+                    .property(HttpAuthenticationFeature.HTTP_AUTHENTICATION_BASIC_PASSWORD, "123")
+                    .put(Entity.entity(map(updatedObject), MediaType.APPLICATION_XML), WhoisResources.class);
+        });
+        assertThat(exception.getResponse().getStatus(), is(HttpStatus.UPGRADE_REQUIRED_426));
+    }
+
+
     @Test
     public void update_missing_attribute_value() {
         try {
