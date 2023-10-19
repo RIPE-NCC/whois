@@ -21,10 +21,10 @@ More information [here](https://apps.db.ripe.net/docs/)
 
 ### Running within an IDE
 
-See [Running whois from within Intellij](https://apps.db.ripe.net/docs/18.Installation-and-Development/03-Building-whois.html#running-whois-from-within-intellij) for instructions.
+See [Running whois from within Intellij](https://apps.db.ripe.net/docs/Installation-and-Development/Building-whois/#running-whois-from-within-intellij) for instructions.
 
 ### Running outside an IDE
-- See [Installation instructions](https://apps.db.ripe.net/docs/18.Installation-and-Development/06-Installation-instructions.html#installation-instructions).
+- See [Installation instructions](https://apps.db.ripe.net/docs/Installation-and-Development/Installation-instructions).
 
 Git
 ---
