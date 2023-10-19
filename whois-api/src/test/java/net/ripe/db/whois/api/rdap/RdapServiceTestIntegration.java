@@ -2331,7 +2331,7 @@ public class RdapServiceTestIntegration extends AbstractRdapIntegrationTest {
                 .request(MediaType.APPLICATION_JSON_TYPE)
                 .get(Entity.class);
 
-        assertPersonalRedactionForEntities(entity, "TP2-TEST", 1);
+        assertPersonalRedactionForEntities(entity, entity.getEntitySearchResults(), "TP2-TEST", 1);
         assertPersonalRedaction(entity, 0);
 
         assertCommon(entity);
@@ -2379,8 +2379,8 @@ public class RdapServiceTestIntegration extends AbstractRdapIntegrationTest {
 
         assertPersonalRedaction(entity, 0);
 
-        assertPersonalRedactionForEntities(entity, "TP2-TEST", 1);
-        assertPersonalRedactionForEntities(entity, "TP3-TEST", 2);
+        assertPersonalRedactionForEntities(entity, entity.getEntitySearchResults(), "TP2-TEST", 1);
+        assertPersonalRedactionForEntities(entity, entity.getEntitySearchResults(), "TP3-TEST", 2);
 
         assertCommon(entity);
     }
@@ -2450,7 +2450,7 @@ public class RdapServiceTestIntegration extends AbstractRdapIntegrationTest {
                 .request(MediaType.APPLICATION_JSON_TYPE)
                 .get(Autnum.class);
 
-        assertPersonalRedactionForEntities(autnum, "TP2-TEST", 0);
+        assertPersonalRedactionForEntities(autnum, autnum.getEntitySearchResults(), "TP2-TEST", 0);
     }
 
     @Test
@@ -2504,7 +2504,7 @@ public class RdapServiceTestIntegration extends AbstractRdapIntegrationTest {
         final Ip ip = entity.getNetworks().stream().filter( network -> network.getHandle().equals("109.111.192.0 - 109.111.223.255")).findFirst().get();
         assertPersonalRedactionForEntities(entity, ip.getEntitySearchResults(), "TP2-TEST", 0);
         assertPersonalRedactionForEntities(entity, ip.getEntitySearchResults(), "TP3-TEST", 1);
-        
+
         final Autnum autnum = entity.getAutnums().stream().filter(network -> network.getHandle().equals("AS64496")).findFirst().get();
         assertPersonalRedactionForEntities(entity, autnum.getEntitySearchResults(), "TP2-TEST", 2);
 
@@ -2762,26 +2762,6 @@ public class RdapServiceTestIntegration extends AbstractRdapIntegrationTest {
         assertThat(vcards.size(), is(0));
 
         assertCommonPersonalRedaction(entity, redaction, entity);
-    }
-
-    private void assertPersonalRedactionForEntities(final RdapObject entity, final String personKey, final int redaction) throws JsonProcessingException {
-
-        final String entityJson = getObjectMapper().writeValueAsString(entity);
-
-        List<Object> vcards = JsonPath.read(entityJson, entity.getRedacted().get(redaction).getPrePath());
-        assertThat(vcards.size(), is(0));
-
-        final Entity insideEntity = entity.getEntitySearchResults().stream().filter( contacEntity -> contacEntity.getHandle().equals(personKey)).findFirst().get();
-        ((ArrayList) insideEntity.getVCardArray().get(1)).add(0,  Lists.newArrayList("notify", "", TEXT.getValue(), "abc@ripe.net"));
-
-        final String entityAfterAddingVcard = getObjectMapper().writeValueAsString(entity);
-
-        vcards = JsonPath.read(entityAfterAddingVcard, entity.getRedacted().get(redaction).getPrePath());
-        assertThat(vcards.size(), is(1));
-
-        assertThat(entity.getRedacted().get(redaction).getName().getDescription(), is("Updates notification e-mail information"));
-        assertThat(entity.getRedacted().get(redaction).getReason().getDescription(), is("Personal data"));
-        assertThat(entity.getRedacted().get(redaction).getMethod(), is("removal"));
     }
 
     private void assertPersonalRedactionForEntities(final RdapObject entity, final List<Entity> entities, final String personKey, final int redaction) throws JsonProcessingException {
