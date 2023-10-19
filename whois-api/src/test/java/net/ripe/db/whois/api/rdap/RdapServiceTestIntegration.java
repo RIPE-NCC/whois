@@ -2549,7 +2549,7 @@ public class RdapServiceTestIntegration extends AbstractRdapIntegrationTest {
 
         assertThat(domain.getRedacted().size(), is(1));
 
-        assertPersonalRedactionForNetworkEntities(domain,0, "80.179.52.0 - 80.179.55.255", "TP2-TEST");
+        assertPersonalRedactionForEntities(domain, domain.getNetwork().getEntitySearchResults(), "TP2-TEST", 0);
     }
     // search - entities - organisation
 
@@ -2781,61 +2781,17 @@ public class RdapServiceTestIntegration extends AbstractRdapIntegrationTest {
         assertThat(entity.getRedacted().get(redaction).getMethod(), is("removal"));
     }
 
-    private void assertPersonalRedactionForNetworksEntities(final Entity entity, final int redaction, final String networkKey, final String personKey) throws JsonProcessingException {
+    private void assertPersonalRedactionForEntities(final RdapObject entity, final List<Entity> entities, final String personKey, final int redaction) throws JsonProcessingException {
         final String entityJson = getObjectMapper().writeValueAsString(entity);
 
         List<Object> vcards = JsonPath.read(entityJson, entity.getRedacted().get(redaction).getPrePath());
         assertThat(vcards.size(), is(0));
 
-        final Entity insideEntity = entity.getNetworks()
-                .stream()
-                .filter( network -> network.getHandle().equals(networkKey))
-                .flatMap(network -> network.getEntitySearchResults().stream())
-                .filter(contacEntity -> contacEntity.getHandle().equals(personKey))
-                .findFirst().get();
-
+        final Entity insideEntity = entities.stream().filter( contacEntity -> contacEntity.getHandle().equals(personKey)).findFirst().get();
         assertCommonPersonalRedaction(entity, redaction, insideEntity);
     }
 
-    private void assertPersonalRedactionForAutnumEntities(final Entity entity, final int redaction, final String networkKey, final String personKey) throws JsonProcessingException {
-        final String entityJson = getObjectMapper().writeValueAsString(entity);
-
-        List<Object> vcards = JsonPath.read(entityJson, entity.getRedacted().get(redaction).getPrePath());
-        assertThat(vcards.size(), is(0));
-
-        final Entity insideEntity = entity.getAutnums()
-                .stream()
-                .filter( autnum -> autnum.getHandle().equals(networkKey))
-                .flatMap(autnum -> autnum.getEntitySearchResults().stream())
-                .filter(contacEntity -> contacEntity.getHandle().equals(personKey))
-                .findFirst().get();
-
-        assertCommonPersonalRedaction(entity, redaction, insideEntity);
-    }
-    private void assertPersonalRedactionForNetworkEntities(final Domain domain, final int redaction, final String networkKey, final String personKey) throws JsonProcessingException {
-        final String entityJson = getObjectMapper().writeValueAsString(domain);
-
-        List<Object> vcards = JsonPath.read(entityJson, domain.getRedacted().get(redaction).getPrePath());
-        assertThat(vcards.size(), is(0));
-
-        final Entity insideEntity = domain.getNetwork().getEntitySearchResults()
-                .stream()
-                .filter(contacEntity -> contacEntity.getHandle().equals(personKey))
-                .findFirst().get();
-
-        ((ArrayList) insideEntity.getVCardArray().get(1)).add(0, Lists.newArrayList("notify", "", TEXT.getValue(), "abc@ripe.net"));
-
-        final String entityAfterAddingVcard = getObjectMapper().writeValueAsString(domain);
-
-        final List<Object> vcardsAfterChange = JsonPath.read(entityAfterAddingVcard, domain.getRedacted().get(redaction).getPrePath());
-        assertThat(vcardsAfterChange.size(), is(1));
-
-        assertThat(domain.getRedacted().get(redaction).getName().getDescription(), is("Updates notification e-mail information"));
-        assertThat(domain.getRedacted().get(redaction).getReason().getDescription(), is("Personal data"));
-        assertThat(domain.getRedacted().get(redaction).getMethod(), is("removal"));
-    }
-
-    private void assertCommonPersonalRedaction(Entity entity, int redaction, Entity insideEntity) throws JsonProcessingException {
+    private void assertCommonPersonalRedaction(RdapObject entity, int redaction, Entity insideEntity) throws JsonProcessingException {
         ((ArrayList) insideEntity.getVCardArray().get(1)).add(0, Lists.newArrayList("notify", "", TEXT.getValue(), "abc@ripe.net"));
 
         final String entityAfterAddingVcard = getObjectMapper().writeValueAsString(entity);
@@ -2846,6 +2802,22 @@ public class RdapServiceTestIntegration extends AbstractRdapIntegrationTest {
         assertThat(entity.getRedacted().get(redaction).getName().getDescription(), is("Updates notification e-mail information"));
         assertThat(entity.getRedacted().get(redaction).getReason().getDescription(), is("Personal data"));
         assertThat(entity.getRedacted().get(redaction).getMethod(), is("removal"));
+    }
+
+    private void assertPersonalRedactionForNetworksEntities(final Entity entity, final int redaction, final String networkKey, final String personKey) throws JsonProcessingException {
+        final List<Entity> entities = entity.getNetworks()
+                .stream()
+                .filter( network -> network.getHandle().equals(networkKey)).findFirst().get().getEntitySearchResults();
+
+        assertPersonalRedactionForEntities(entity, entities, personKey, redaction);
+    }
+
+    private void assertPersonalRedactionForAutnumEntities(final Entity entity, final int redaction, final String networkKey, final String personKey) throws JsonProcessingException {
+        final List<Entity> entities = entity.getAutnums()
+                .stream()
+                .filter( network -> network.getHandle().equals(networkKey)).findFirst().get().getEntitySearchResults();
+
+        assertPersonalRedactionForEntities(entity, entities, personKey, redaction);
     }
 
     private void createEntityRedactionObjects() {
