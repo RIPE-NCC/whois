@@ -15,7 +15,7 @@
             <groupId>org.springframework</groupId>
             <artifactId>spring-oxm</artifactId>
         </dependency>
-        
+
         <dependency>
             <groupId>net.ripe.db</groupId>
             <artifactId>whois-query</artifactId>
@@ -154,6 +154,8 @@
                         </transformer>
                         <transformer implementation="org.apache.maven.plugins.shade.resource.AppendingTransformer">
                             <resource>META-INF/spring.schemas</resource>
+                        </transformer>
+                        <transformer implementation="org.apache.maven.plugins.shade.resource.ServicesResourceTransformer">
                         </transformer>
                     </transformers>
                 </configuration>
