@@ -1,6 +1,22 @@
 package net.ripe.db.whois.api.rest;
 
 import com.google.common.net.InetAddresses;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.ws.rs.Consumes;
+import jakarta.ws.rs.CookieParam;
+import jakarta.ws.rs.DELETE;
+import jakarta.ws.rs.DefaultValue;
+import jakarta.ws.rs.GET;
+import jakarta.ws.rs.POST;
+import jakarta.ws.rs.PUT;
+import jakarta.ws.rs.Path;
+import jakarta.ws.rs.PathParam;
+import jakarta.ws.rs.Produces;
+import jakarta.ws.rs.QueryParam;
+import jakarta.ws.rs.WebApplicationException;
+import jakarta.ws.rs.core.Context;
+import jakarta.ws.rs.core.MediaType;
+import jakarta.ws.rs.core.Response;
 import net.ripe.db.whois.api.QueryBuilder;
 import net.ripe.db.whois.api.rest.domain.Parameters;
 import net.ripe.db.whois.api.rest.domain.WhoisResources;
@@ -27,22 +43,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
-import jakarta.servlet.http.HttpServletRequest;
-import jakarta.ws.rs.Consumes;
-import jakarta.ws.rs.CookieParam;
-import jakarta.ws.rs.DELETE;
-import jakarta.ws.rs.DefaultValue;
-import jakarta.ws.rs.GET;
-import jakarta.ws.rs.POST;
-import jakarta.ws.rs.PUT;
-import jakarta.ws.rs.Path;
-import jakarta.ws.rs.PathParam;
-import jakarta.ws.rs.Produces;
-import jakarta.ws.rs.QueryParam;
-import jakarta.ws.rs.WebApplicationException;
-import jakarta.ws.rs.core.Context;
-import jakarta.ws.rs.core.MediaType;
-import jakarta.ws.rs.core.Response;
 import java.net.URI;
 import java.util.List;
 
@@ -100,7 +100,7 @@ public class WhoisRestService {
             @PathParam("objectType") final String objectType,
             @PathParam("key") final String key,
             @QueryParam("reason") @DefaultValue("--") final String reason,
-            @QueryParam("password") final List<String> passwords,
+            @Deprecated @QueryParam("password") final List<String> passwords,
             @CookieParam(AuthServiceClient.TOKEN_KEY) final String crowdTokenKey,
             @QueryParam("override") final String override,
             @QueryParam("dry-run") final String dryRun) {
@@ -126,6 +126,8 @@ public class WhoisRestService {
 
             ssoTranslator.populateCacheAuthToUsername(updateContext, originalObject);
             originalObject = ssoTranslator.translateFromCacheAuthToUsername(updateContext, originalObject);
+
+            warnDeprecatedParam(request, passwords, updateContext);
 
             final Update update = updatePerformer.createUpdate(updateContext, originalObject, passwords, reason, override);
 
@@ -158,7 +160,7 @@ public class WhoisRestService {
             @PathParam("source") final String source,
             @PathParam("objectType") final String objectType,
             @PathParam("key") final String key,
-            @QueryParam("password") final List<String> passwords,
+            @Deprecated @QueryParam("password") final List<String> passwords,
             @CookieParam(AuthServiceClient.TOKEN_KEY) final String crowdTokenKey,
             @QueryParam("override") final String override,
             @QueryParam("dry-run") final String dryRun,
@@ -183,6 +185,8 @@ public class WhoisRestService {
 
             final RpslObject submittedObject = getSubmittedObject(request, resource, isQueryParamSet(unformatted));
             validateSubmittedUpdateObject(request, submittedObject, objectType, key);
+
+            warnDeprecatedParam(request, passwords, updateContext);
 
             final Update update = updatePerformer.createUpdate(updateContext, submittedObject, passwords, null, override);
 
@@ -213,7 +217,7 @@ public class WhoisRestService {
             @Context final HttpServletRequest request,
             @PathParam("source") final String source,
             @PathParam("objectType") final String objectType,
-            @QueryParam("password") final List<String> passwords,
+            @Deprecated @QueryParam("password") final List<String> passwords,
             @CookieParam(AuthServiceClient.TOKEN_KEY) final String crowdTokenKey,
             @QueryParam("override") final String override,
             @QueryParam("dry-run") final String dryRun,
@@ -230,6 +234,8 @@ public class WhoisRestService {
 
             final RpslObject submittedObject = getSubmittedObject(request, resource, isQueryParamSet(unformatted));
             validateSubmittedCreateObject(request, submittedObject, objectType);
+
+            warnDeprecatedParam(request, passwords, updateContext);
 
             final Update update = updatePerformer.createUpdate(updateContext, submittedObject, passwords, null, override);
 
@@ -276,7 +282,7 @@ public class WhoisRestService {
             @PathParam("source") final String source,
             @PathParam("objectType") final String objectType,
             @PathParam("key") final String key,
-            @QueryParam("password") final List<String> passwords,
+            @Deprecated @QueryParam("password") final List<String> passwords,
             @CookieParam(AuthServiceClient.TOKEN_KEY) final String crowdTokenKey,
             @QueryParam("unformatted") final String unformatted,
             @QueryParam("unfiltered") final String unfiltered,
@@ -327,16 +333,12 @@ public class WhoisRestService {
 
     private boolean requiresNonAuthRedirect(final String source, final String objectType, final String key) {
         if (sourceContext.getMasterSource().getName().equals(source)) {
-            switch (ObjectType.getByName(objectType)) {
-                case AUT_NUM:
-                    return !authoritativeResourceData.getAuthoritativeResource().isMaintainedInRirSpace(AUT_NUM, ciString(key));
-                case ROUTE:
-                    return !authoritativeResourceData.getAuthoritativeResource().isRouteMaintainedInRirSpace(ROUTE, ciString(key));
-                case ROUTE6:
-                    return !authoritativeResourceData.getAuthoritativeResource().isRouteMaintainedInRirSpace(ROUTE6, ciString(key));
-                default:
-                    return false;
-            }
+            return switch (ObjectType.getByName(objectType)) {
+                case AUT_NUM -> !authoritativeResourceData.getAuthoritativeResource().isMaintainedInRirSpace(AUT_NUM, ciString(key));
+                case ROUTE -> !authoritativeResourceData.getAuthoritativeResource().isRouteMaintainedInRirSpace(ROUTE, ciString(key));
+                case ROUTE6 -> !authoritativeResourceData.getAuthoritativeResource().isRouteMaintainedInRirSpace(ROUTE6, ciString(key));
+                default -> false;
+            };
         }
 
         return false;
@@ -344,16 +346,12 @@ public class WhoisRestService {
 
     private boolean requiresRipeRedirect(final String source, final String objectType, final String key) {
         if(sourceContext.getNonauthSource().getName().equals(source)) {
-            switch (ObjectType.getByName(objectType)) {
-                case AUT_NUM:
-                    return authoritativeResourceData.getAuthoritativeResource().isMaintainedInRirSpace(AUT_NUM, ciString(key));
-                case ROUTE:
-                    return authoritativeResourceData.getAuthoritativeResource().isRouteMaintainedInRirSpace(ROUTE, ciString(key));
-                case ROUTE6:
-                    return authoritativeResourceData.getAuthoritativeResource().isRouteMaintainedInRirSpace(ROUTE6, ciString(key));
-                default:
-                    return false;
-            }
+            return switch (ObjectType.getByName(objectType)) {
+                case AUT_NUM -> authoritativeResourceData.getAuthoritativeResource().isMaintainedInRirSpace(AUT_NUM, ciString(key));
+                case ROUTE -> authoritativeResourceData.getAuthoritativeResource().isRouteMaintainedInRirSpace(ROUTE, ciString(key));
+                case ROUTE6 -> authoritativeResourceData.getAuthoritativeResource().isRouteMaintainedInRirSpace(ROUTE6, ciString(key));
+                default -> false;
+            };
         }
 
         return false;
@@ -427,4 +425,11 @@ public class WhoisRestService {
             updateContext.dryRun();
         }
     }
+
+    private void warnDeprecatedParam(final HttpServletRequest request, final List<String> passwords, final UpdateContext updateContext) {
+        if (!passwords.isEmpty()){
+            updateContext.addGlobalMessage(RestMessages.deprecatedPasswordParameter());
+        }
+    }
+
 }

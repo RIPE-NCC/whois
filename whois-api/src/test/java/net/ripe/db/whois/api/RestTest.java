@@ -74,11 +74,6 @@ public class RestTest {
         assertErrorMessage(whoisResources, 0, severity, text, argument);
     }
 
-    public static void assertErrorMessage(final ClientErrorException e, final int number, final String severity, final String text, final String... argument) {
-        WhoisResources whoisResources = e.getResponse().readEntity(WhoisResources.class);
-        assertErrorMessage(whoisResources, number, severity, text, argument);
-    }
-
     public static void assertErrorMessage(final WhoisResources whoisResources, final int number, final String severity, final String text, final String... argument) {
 
         ErrorMessage errorMsg = whoisResources.getErrorMessages().get(number);

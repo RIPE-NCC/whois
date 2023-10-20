@@ -29,7 +29,7 @@ public class PasswordHelper {
         return false;
     }
 
-    public static final String hashMd5Password(final String cleantextPassword) {
+    public static String hashMd5Password(final String cleantextPassword) {
         return Md5Crypt.md5Crypt(cleantextPassword.getBytes());
     }
 }
