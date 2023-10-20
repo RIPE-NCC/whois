@@ -2,7 +2,6 @@ package net.ripe.db.whois.update.authentication.credential;
 
 import net.ripe.db.whois.common.Message;
 import net.ripe.db.whois.common.Messages;
-import net.ripe.db.whois.common.rpsl.AttributeType;
 import net.ripe.db.whois.common.rpsl.PasswordHelper;
 import net.ripe.db.whois.update.domain.PasswordCredential;
 import net.ripe.db.whois.update.domain.PreparedUpdate;
@@ -40,9 +39,9 @@ class PasswordCredentialValidator implements CredentialValidator<PasswordCredent
 
         for (final PasswordCredential offeredCredential : offeredCredentials) {
             try {
-                String offeredPassword = offeredCredential.password();
-                String knownPassword = knownCredential.password();
-                if (PasswordHelper.authenticateMd5Passwords(update.getUpdatedObject().getValuesForAttribute(AttributeType.MNT_BY), knownPassword, offeredPassword)) {
+                String offeredPassword = offeredCredential.getPassword();
+                String knownPassword = knownCredential.getPassword();
+                if (PasswordHelper.authenticateMd5Passwords(knownPassword, offeredPassword)) {
                     loggerContext.logString(
                             update.getUpdate(),
                             getClass().getCanonicalName(),

@@ -12,11 +12,11 @@ public class PasswordHelper {
     private static final Pattern MD5_PATTERN = Pattern.compile("(?i)MD5-PW ((\\$1\\$.{1,8})\\$.{22})");
 
     private static final String BASIC_AUTH_NAME_PASSWORD_SEPARATOR = ":";
-    public static boolean authenticateMd5Passwords(final Set<CIString> mntKey, final String authValue, final String... passwords) {
-        return authenticateMd5Passwords(mntKey, authValue, Arrays.asList(passwords));
+    public static boolean authenticateMd5Passwords(final String authValue, final String... passwords) {
+        return authenticateMd5Passwords(authValue, Arrays.asList(passwords));
     }
 
-    public static boolean authenticateMd5Passwords(final Set<CIString> mntKeys, final String authValue, final Iterable<String> passwords) {
+    public static boolean authenticateMd5Passwords(final String authValue, final Iterable<String> passwords) {
         final Matcher matcher = MD5_PATTERN.matcher(authValue);
         if (matcher.matches()) {
             final String known = matcher.group(1);
@@ -24,7 +24,7 @@ public class PasswordHelper {
 
             for (String password : passwords) {
                 final String offered = Md5Crypt.md5Crypt(password.getBytes(), salt);
-                if (known.equals(offered) || authenticateBasicAuth(mntKeys, known, password, salt)) {
+                if (known.equals(offered)) {
                     return true;
                 }
             }

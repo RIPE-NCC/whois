@@ -24,6 +24,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
@@ -81,7 +82,7 @@ public class AuthenticationModule {
 
     private boolean hasValidCredentialForCandidate(final PreparedUpdate update, final UpdateContext updateContext, final Credentials offered, final RpslObject maintainer) {
         final List<CIString> authAttributes = Lists.newArrayList(maintainer.getValuesForAttribute(AttributeType.AUTH));
-        authAttributes.sort(AUTH_COMPARATOR);
+        Collections.sort(authAttributes, AUTH_COMPARATOR);
 
         for (final CIString auth : authAttributes) {
             final Credential credential = getCredential(auth);
@@ -102,14 +103,23 @@ public class AuthenticationModule {
     }
 
     private Credential getCredential(final CIString auth) {
-        final String startCredential =  auth.toString().split(" ")[0];
-        return switch(startCredential.toLowerCase()){
-            case "md5-pw" -> new PasswordCredential(auth.toString());
-            case "pgpkey" -> PgpCredential.createKnownCredential(auth.toString());
-            case "x509" -> X509Credential.createKnownCredential(auth.toString());
-            case "sso" -> SsoCredential.createKnownCredential(auth.toString());
-            default -> null;
-        };
+        if (auth.startsWith("md5-pw")) {
+            return new PasswordCredential(auth.toString());
+        }
+
+        if (auth.startsWith("pgpkey")) {
+            return PgpCredential.createKnownCredential(auth.toString());
+        }
+
+        if (auth.startsWith("x509")) {
+            return X509Credential.createKnownCredential(auth.toString());
+        }
+
+        if (auth.startsWith("sso")) {
+            return SsoCredential.createKnownCredential(auth.toString());
+        }
+
+        return null;
     }
 
     private boolean hasPasswordRemovedRemark(final RpslObject maintainer) {
