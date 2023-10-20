@@ -47,25 +47,10 @@ public class RestMessages {
         return new Message(Messages.Type.ERROR, "HTTP Version is not supported");
     }
 
-    public static Message invalidTimestampFormat(final CharSequence timestamp) {
-        return new Message(Messages.Type.ERROR, "Timestamp parameter '%s' does not have the correct format", timestamp);
-    }
-
     public static Message ssoAuthIgnored() {
         return new Message(Messages.Type.INFO, "RIPE NCC Access token ignored");
     }
 
-    public static Message invalidRequestIp() {
-        return new Message(Messages.Type.ERROR, "This request is only allowed from within the RIPE NCC network");
-    }
-
-    public static Message deprecatedPasswordParameter() {
-        return new Message(Messages.Type.WARNING, "Password parameter has been deprecated, use basic auth instead");
-    }
-
-    public static Message deprecated() {
-        return new Message(Messages.Type.ERROR, "This request is only allowed from within the RIPE NCC network");
-    }
     public static Message jsonProcessingError(final JsonProcessingException e) {
         final String trimmed = e.getMessage()
                                     .replaceAll("(?m) \\(.*\\)$", "")
