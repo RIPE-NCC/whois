@@ -44,7 +44,7 @@ public class RestMessages {
     }
 
     public static Message httpVersionNotSupported() {
-        return new Message(Messages.Type.ERROR, "HTTP Version is not supported");
+        return new Message(Messages.Type.ERROR, "HTTP Version is not supported with Basic Auth");
     }
 
     public static Message ssoAuthIgnored() {
