@@ -105,7 +105,7 @@ public class FilterAuthFunction implements FilterFunction {
         final List<RpslAttribute> extendedAuthAttributes = Lists.newArrayList(rpslObject.findAttributes(AttributeType.AUTH));
         extendedAuthAttributes.addAll(getMntByAuthAttributes(rpslObject));
 
-        return passwordAuthentication(extendedAuthAttributes) || ssoAuthentication(extendedAuthAttributes);
+        return passwordAuthentication(rpslObject.getKey(), extendedAuthAttributes) || ssoAuthentication(extendedAuthAttributes);
     }
 
     private Set<RpslAttribute> getMntByAuthAttributes(final RpslObject rpslObject) {
@@ -148,13 +148,13 @@ public class FilterAuthFunction implements FilterFunction {
         return false;
     }
 
-    private boolean passwordAuthentication(final List<RpslAttribute> authAttributes) {
+    private boolean passwordAuthentication(final CIString mntnerKey, final List<RpslAttribute> authAttributes) {
         if (CollectionUtils.isEmpty(passwords)) {
             return false;
         }
 
         for (RpslAttribute authAttribute : authAttributes) {
-            if (PasswordHelper.authenticateMd5Passwords(authAttribute.getCleanValue().toString(), passwords)) {
+            if (PasswordHelper.authenticateMd5Passwords(Sets.newHashSet(mntnerKey), authAttribute.getCleanValue().toString(), passwords)) {
                 return true;
             }
         }

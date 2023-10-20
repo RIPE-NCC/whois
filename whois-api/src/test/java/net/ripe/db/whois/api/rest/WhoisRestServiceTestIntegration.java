@@ -1249,6 +1249,37 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
     }
 
     @Test
+    public void lookup_mntner_basic_auth_is_unfiltered() {
+        databaseHelper.addObject("" +
+                "mntner:      AUTH-MNT\n" +
+                "descr:       Maintainer\n" +
+                "admin-c:     TP1-TEST\n" +
+                "upd-to:      noreply@ripe.net\n" +
+                "auth:        MD5-PW $1$d9fKeTr2$Si7YudNf4rUGmR71n/cqk/ #test\n" +
+                "mnt-by:      AUTH-MNT\n" +
+                "source:      TEST");
+
+        final WhoisResources whoisResources = RestTest.target(getPort(), "whois/test/mntner/AUTH-MNT?unfiltered")
+                .register(HttpAuthenticationFeature.basicBuilder().build())
+                .request()
+                .property(HttpAuthenticationFeature.HTTP_AUTHENTICATION_BASIC_USERNAME, "AUTH-MNT")
+                .property(HttpAuthenticationFeature.HTTP_AUTHENTICATION_BASIC_PASSWORD, "test")
+                .header(X_FORWARDED_PROTO, HttpScheme.HTTPS)
+                .get(WhoisResources.class);
+
+        assertThat(whoisResources.getErrorMessages(), is(empty()));
+        assertThat(whoisResources.getWhoisObjects(), hasSize(1));
+        final WhoisObject whoisObject = whoisResources.getWhoisObjects().get(0);
+        assertThat(whoisObject.getAttributes(), contains(
+                new Attribute("mntner", "AUTH-MNT"),
+                new Attribute("descr", "Maintainer"),
+                new Attribute("admin-c", "TP1-TEST", null, "person", Link.create("http://rest-test.db.ripe.net/test/person/TP1-TEST"), null),
+                new Attribute("upd-to", "noreply@ripe.net", null, null, null, null),
+                new Attribute("auth", "MD5-PW $1$d9fKeTr2$Si7YudNf4rUGmR71n/cqk/", "test", null, null, null),
+                new Attribute("mnt-by", "AUTH-MNT", null, "mntner", Link.create("http://rest-test.db.ripe.net/test/mntner/AUTH-MNT"), null),
+                new Attribute("source", "TEST", null, null, null, null)));
+    }
+    @Test
     public void lookup_mntner_xml_text() {
         databaseHelper.addObject(RpslObjectFilter.buildGenericObject(OWNER_MNT, "mntner: TRICKY-MNT", "remarks: ", "remarks: remark with # comment"));
 
@@ -3567,7 +3598,6 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
 
     @Test
     public void create_object_with_basic_auth_succeed() {
-        final HttpAuthenticationFeature feature = HttpAuthenticationFeature.basicBuilder().build();
         final RpslObject personObject = RpslObject.parse("" +
                 "person:    Some Person\n" +
                 "address:   Singel 258\n" +
@@ -3579,7 +3609,7 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
                 "source:    TEST\n");
 
         final WhoisResources whoisResources = RestTest.target(getPort(), "whois/test/person")
-                .register(feature)
+                .register(HttpAuthenticationFeature.basicBuilder().build())
                 .request()
                 .property(HttpAuthenticationFeature.HTTP_AUTHENTICATION_BASIC_USERNAME, "OWNER-MNT")
                 .property(HttpAuthenticationFeature.HTTP_AUTHENTICATION_BASIC_PASSWORD, "test")
@@ -3621,31 +3651,6 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
                 .header(X_FORWARDED_PROTO, HttpScheme.HTTPS)
                 .post(Entity.entity(map(personObject), MediaType.APPLICATION_JSON_TYPE), WhoisResources.class);
         assertThat(whoisResources.getErrorMessages(), is(empty()));
-        final WhoisObject object = whoisResources.getWhoisObjects().get(0);
-        assertThat(object.getAttributes(), hasItem(new Attribute("person", "Some Person")));
-    }
-
-    @Test
-    public void create_object_with_basic_auth_and_parameter_warn() {
-        final HttpAuthenticationFeature feature = HttpAuthenticationFeature.basicBuilder().build();
-        final RpslObject personObject = RpslObject.parse("" +
-                "person:    Some Person\n" +
-                "address:   Singel 258\n" +
-                "phone:     +31-1234567890\n" +
-                "e-mail:    noreply@ripe.net\n" +
-                "mnt-by:    OWNER-MNT\n" +
-                "nic-hdl:   AUTO-1\n" +
-                "remarks:   remark\n" +
-                "source:    TEST\n");
-
-        final WhoisResources whoisResources = RestTest.target(getPort(), "whois/test/person?password=badPassword")
-                .register(feature)
-                .request()
-                .property(HttpAuthenticationFeature.HTTP_AUTHENTICATION_BASIC_USERNAME, "OWNER-MNT")
-                .property(HttpAuthenticationFeature.HTTP_AUTHENTICATION_BASIC_PASSWORD, "test")
-                .header(X_FORWARDED_PROTO, HttpScheme.HTTPS)
-                .post(Entity.entity(map(personObject), MediaType.APPLICATION_JSON_TYPE), WhoisResources.class);
-        RestTest.assertErrorMessage(whoisResources, 0, "Warning", "Password parameter has been deprecated, use basic auth instead");
         final WhoisObject object = whoisResources.getWhoisObjects().get(0);
         assertThat(object.getAttributes(), hasItem(new Attribute("person", "Some Person")));
     }
