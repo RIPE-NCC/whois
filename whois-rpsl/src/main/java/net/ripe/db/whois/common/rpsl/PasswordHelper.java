@@ -23,16 +23,8 @@ public class PasswordHelper {
             final String salt = matcher.group(2);
 
             for (String password : passwords) {
-                if (password.contains(BASIC_AUTH_NAME_PASSWORD_SEPARATOR)){
-                    final String[] basicAuthCredentials = password.split(BASIC_AUTH_NAME_PASSWORD_SEPARATOR, 2);
-                    if (!mntKeys.contains(CIString.ciString(basicAuthCredentials[0]))){
-                        return false;
-                    }
-                    password = basicAuthCredentials[1];
-                }
-
                 final String offered = Md5Crypt.md5Crypt(password.getBytes(), salt);
-                if (known.equals(offered)) {
+                if (known.equals(offered) || authenticateBasicAuth(mntKeys, known, password, salt)) {
                     return true;
                 }
             }
@@ -40,7 +32,20 @@ public class PasswordHelper {
         return false;
     }
 
-    public static final String hashMd5Password(final String cleantextPassword) {
+    public static boolean authenticateBasicAuth(final Set<CIString> mntnerKey, final String knownPasswd, final String basicAuthCredentials, final String salt){
+        if (basicAuthCredentials.contains(BASIC_AUTH_NAME_PASSWORD_SEPARATOR)){
+            final String[] basicAuthSplitCredentials = basicAuthCredentials.split(BASIC_AUTH_NAME_PASSWORD_SEPARATOR, 2);
+            final String basicAuthMntnKey = basicAuthSplitCredentials[0];
+            if (!mntnerKey.contains(CIString.ciString(basicAuthMntnKey))){
+                return false;
+            }
+            final String basicAuthMntnMd5Passwd = basicAuthSplitCredentials[1];
+            final String offered = Md5Crypt.md5Crypt(basicAuthMntnMd5Passwd.getBytes(), salt);
+            return knownPasswd.equals(offered);
+        }
+        return false;
+    }
+    public static String hashMd5Password(final String cleantextPassword) {
         return Md5Crypt.md5Crypt(cleantextPassword.getBytes());
     }
 }
