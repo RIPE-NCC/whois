@@ -1,6 +1,9 @@
 package net.ripe.db.whois.api.rest;
 
 import com.google.common.collect.Lists;
+import jakarta.ws.rs.NotAuthorizedException;
+import jakarta.ws.rs.client.Entity;
+import jakarta.ws.rs.core.MediaType;
 import net.ripe.db.whois.api.AbstractIntegrationTest;
 import net.ripe.db.whois.api.RestTest;
 import net.ripe.db.whois.api.rest.domain.WhoisResources;
@@ -13,14 +16,8 @@ import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
-import jakarta.ws.rs.NotAuthorizedException;
-import jakarta.ws.rs.client.Entity;
-import jakarta.ws.rs.core.MediaType;
-import java.io.IOException;
-
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.containsString;
-import static org.hamcrest.Matchers.empty;
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
 import static org.junit.jupiter.api.Assertions.fail;
@@ -85,14 +82,15 @@ public class RipeMaintainerAuthenticationRestTestIntegration extends AbstractInt
     }
 
     @Test
-    public void rest_api_update_from_within_ripe_network() throws IOException {
+    public void rest_api_update_from_within_ripe_network(){
         ipRanges.setTrusted("127.0.0.1", "::1");
 
         final WhoisResources whoisResources = RestTest.target(getPort(), "whois/test/person?password=emptypassword")
                 .request()
                 .post(Entity.entity(map(TEST_PERSON), MediaType.APPLICATION_XML), WhoisResources.class);
 
-        assertThat(whoisResources.getErrorMessages(), is(empty()));
+        assertThat(whoisResources.getErrorMessages(), hasSize(1));
+        RestTest.assertErrorMessage(whoisResources, 0, "Warning", "Password parameter has been deprecated, use basic auth instead");
         assertThat(whoisResources.getWhoisObjects(), hasSize(1));
         assertThat(whoisResources.getWhoisObjects().get(0).getPrimaryKey().get(0).getValue(), is("TP1-TEST"));
     }
