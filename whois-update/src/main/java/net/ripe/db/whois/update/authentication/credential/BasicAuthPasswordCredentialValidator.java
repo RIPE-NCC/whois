@@ -33,9 +33,8 @@ public class BasicAuthPasswordCredentialValidator extends PasswordCredentialVali
                     if (!mntnerKey.contains(CIString.ciString(basicAuthCredentials[0]))){
                         return false;
                     }
-                    offeredPassword = basicAuthCredentials[1];
+                    return hasValidPassword(update, knownCredential.getPassword(), basicAuthCredentials[1]);
                 }
-                return hasValidPassword(update, knownCredential.getPassword(), offeredPassword);
             } catch (IllegalArgumentException e) {
                 updateContext.addGlobalMessage(new Message(Messages.Type.WARNING, e.getMessage()));
             }

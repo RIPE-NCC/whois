@@ -37,11 +37,13 @@ public class UpdateContext {
     private final Map<String, String> ssoTranslation = Maps.newHashMap();
     private final LoggerContext loggerContext;
 
-    private int nrSinceRestart;
+    private final int nrSinceRestart;
     private boolean dryRun;
     private boolean batchUpdate;
     private UserSession userSession;
     private Optional<X509CertificateWrapper> clientCertificate;
+
+    private String basicAuth;
 
     public UpdateContext(final LoggerContext loggerContext) {
         this.loggerContext = loggerContext;
@@ -55,6 +57,14 @@ public class UpdateContext {
     public void dryRun() {
         loggerContext.logDryRun();
         this.dryRun = true;
+    }
+
+    public String getBasicAuth() {
+        return basicAuth;
+    }
+
+    public void setBasicAuth(String basicAuth) {
+        this.basicAuth = basicAuth;
     }
 
     public int getNrSinceRestart() {

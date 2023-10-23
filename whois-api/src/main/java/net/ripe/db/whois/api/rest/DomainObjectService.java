@@ -2,6 +2,21 @@ package net.ripe.db.whois.api.rest;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.ws.rs.BadRequestException;
+import jakarta.ws.rs.Consumes;
+import jakarta.ws.rs.CookieParam;
+import jakarta.ws.rs.InternalServerErrorException;
+import jakarta.ws.rs.NotAuthorizedException;
+import jakarta.ws.rs.POST;
+import jakarta.ws.rs.Path;
+import jakarta.ws.rs.PathParam;
+import jakarta.ws.rs.Produces;
+import jakarta.ws.rs.QueryParam;
+import jakarta.ws.rs.WebApplicationException;
+import jakarta.ws.rs.core.Context;
+import jakarta.ws.rs.core.MediaType;
+import jakarta.ws.rs.core.Response;
 import net.ripe.db.whois.api.rest.domain.WhoisObject;
 import net.ripe.db.whois.api.rest.domain.WhoisResources;
 import net.ripe.db.whois.api.rest.mapper.FormattedServerAttributeMapper;
@@ -29,21 +44,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import jakarta.servlet.http.HttpServletRequest;
-import jakarta.ws.rs.BadRequestException;
-import jakarta.ws.rs.Consumes;
-import jakarta.ws.rs.CookieParam;
-import jakarta.ws.rs.InternalServerErrorException;
-import jakarta.ws.rs.NotAuthorizedException;
-import jakarta.ws.rs.POST;
-import jakarta.ws.rs.Path;
-import jakarta.ws.rs.PathParam;
-import jakarta.ws.rs.Produces;
-import jakarta.ws.rs.QueryParam;
-import jakarta.ws.rs.WebApplicationException;
-import jakarta.ws.rs.core.Context;
-import jakarta.ws.rs.core.MediaType;
-import jakarta.ws.rs.core.Response;
 import java.util.List;
 import java.util.Set;
 
@@ -96,10 +96,8 @@ public class DomainObjectService {
 
             auditlogRequest(request);
 
-            final Credentials credentials = createCredentials(updateContext, passwords);
+            final List<Update> updates = extractUpdates(resources, passwords, updateContext);
 
-            final List<Update> updates = extractUpdates(resources, credentials);
-            
             final WhoisResources updatedResources = updatePerformer.performUpdates(updateContext, origin, updates, Keyword.NEW, request);
 
             validateUpdates(updateContext, updates, updatedResources);
@@ -123,6 +121,19 @@ public class DomainObjectService {
         } finally {
             updatePerformer.closeContext();
         }
+    }
+
+    private List<Update> extractUpdates(final WhoisResources resources, final List<String> passwords, final UpdateContext updateContext) {
+        final List<Update> updates = Lists.newArrayList();
+        resources.getWhoisObjects().forEach( whoisObject -> {
+            if (ObjectType.getByName(whoisObject.getType()) != ObjectType.DOMAIN) {
+                throw new IllegalArgumentException("supports 'domain' objects only");
+            }
+            final RpslObject rpslObject = whoisObjectMapper.map(whoisObject, FormattedServerAttributeMapper.class);
+            updates.add(updatePerformer.createUpdate(updateContext, rpslObject, passwords, null, null));
+          }
+        );
+        return updates;
     }
 
     private WebApplicationException specializeWebApplicationException(

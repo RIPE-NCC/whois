@@ -1,6 +1,5 @@
 package net.ripe.db.whois.api.rest;
 
-import com.google.common.net.HttpHeaders;
 import com.google.common.net.InetAddresses;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.ws.rs.Consumes;
@@ -38,20 +37,15 @@ import net.ripe.db.whois.update.domain.Update;
 import net.ripe.db.whois.update.domain.UpdateContext;
 import net.ripe.db.whois.update.log.LoggerContext;
 import net.ripe.db.whois.update.sso.SsoTranslator;
-import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
-import org.eclipse.jetty.http.HttpScheme;
-import org.eclipse.jetty.http.HttpStatus;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import java.net.URI;
-import java.nio.charset.StandardCharsets;
 import java.util.List;
 
-import static jakarta.servlet.http.HttpServletRequest.BASIC_AUTH;
 import static net.ripe.db.whois.api.rest.RestServiceHelper.getServerAttributeMapper;
 import static net.ripe.db.whois.api.rest.RestServiceHelper.isQueryParamSet;
 import static net.ripe.db.whois.common.domain.CIString.ciString;
@@ -133,8 +127,6 @@ public class WhoisRestService {
             ssoTranslator.populateCacheAuthToUsername(updateContext, originalObject);
             originalObject = ssoTranslator.translateFromCacheAuthToUsername(updateContext, originalObject);
 
-            addBasic(request, passwords);
-
             final Update update = updatePerformer.createUpdate(updateContext, originalObject, passwords, reason, override);
 
             return updatePerformer.createResponse(
@@ -192,8 +184,6 @@ public class WhoisRestService {
             final RpslObject submittedObject = getSubmittedObject(request, resource, isQueryParamSet(unformatted));
             validateSubmittedUpdateObject(request, submittedObject, objectType, key);
 
-            addBasic(request, passwords);
-
             final Update update = updatePerformer.createUpdate(updateContext, submittedObject, passwords, null, override);
 
             return updatePerformer.createResponse(
@@ -240,8 +230,6 @@ public class WhoisRestService {
 
             final RpslObject submittedObject = getSubmittedObject(request, resource, isQueryParamSet(unformatted));
             validateSubmittedCreateObject(request, submittedObject, objectType);
-
-            addBasic(request, passwords);
 
             final Update update = updatePerformer.createUpdate(updateContext, submittedObject, passwords, null, override);
 
@@ -313,7 +301,6 @@ public class WhoisRestService {
             queryBuilder.addFlag(QueryFlag.NO_FILTERING);
         }
 
-        addBasic(request, passwords);
 
         final Query query;
         try {
@@ -432,20 +419,5 @@ public class WhoisRestService {
         if (isQueryParamSet(dryRun)) {
             updateContext.dryRun();
         }
-    }
-
-    private void addBasic(final HttpServletRequest request, final List<String> passwords){
-        final String authHeader = request.getHeader(HttpHeaders.AUTHORIZATION);
-        if (authHeader== null || !authHeader.toUpperCase().startsWith(BASIC_AUTH)){
-            return;
-        }
-        if (!HttpScheme.HTTPS.is(request.getHeader(HttpHeaders.X_FORWARDED_PROTO))){
-            throw new WebApplicationException(Response.status(HttpStatus.UPGRADE_REQUIRED_426)
-                    .entity(RestServiceHelper.createErrorEntity(request, RestMessages.httpVersionNotSupported()))
-                    .build());
-        }
-        final String base64Credentials = authHeader.substring(BASIC_AUTH.length()).trim();
-        final byte[] credDecoded = new Base64().decode(base64Credentials);
-        passwords.add(new String(credDecoded, StandardCharsets.ISO_8859_1));
     }
 }

@@ -3621,6 +3621,29 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
     }
 
     @Test
+    public void create_object_with_basic_auth_multiple_password_succeed() {
+        final RpslObject personObject = RpslObject.parse("" +
+                "person:    Some Person\n" +
+                "address:   Singel 258\n" +
+                "phone:     +31-1234567890\n" +
+                "e-mail:    noreply@ripe.net\n" +
+                "mnt-by:    OWNER-MNT\n" +
+                "nic-hdl:   AUTO-1\n" +
+                "remarks:   remark\n" +
+                "source:    TEST\n");
+
+        final WhoisResources whoisResources = RestTest.target(getPort(), "whois/test/person?password=test1,test2")
+                .register(HttpAuthenticationFeature.basicBuilder().build())
+                .request()
+                .property(HttpAuthenticationFeature.HTTP_AUTHENTICATION_BASIC_USERNAME, "OWNER-MNT")
+                .property(HttpAuthenticationFeature.HTTP_AUTHENTICATION_BASIC_PASSWORD, "test")
+                .header(X_FORWARDED_PROTO, HttpScheme.HTTPS)
+                .post(Entity.entity(map(personObject), MediaType.APPLICATION_JSON_TYPE), WhoisResources.class);
+        assertThat(whoisResources.getErrorMessages(), is(empty()));
+        final WhoisObject object = whoisResources.getWhoisObjects().get(0);
+        assertThat(object.getAttributes(), hasItem(new Attribute("person", "Some Person")));
+    }
+    @Test
     public void create_object_with_basic_auth_multiple_mn_by_succeed() {
         final HttpAuthenticationFeature feature = HttpAuthenticationFeature.basicBuilder().build();
         databaseHelper.addObject(RpslObject.parse("" +
