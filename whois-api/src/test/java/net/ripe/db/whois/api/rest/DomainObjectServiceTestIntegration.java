@@ -3,6 +3,7 @@ package net.ripe.db.whois.api.rest;
 import com.google.common.collect.Lists;
 import jakarta.ws.rs.BadRequestException;
 import jakarta.ws.rs.NotAuthorizedException;
+import jakarta.ws.rs.WebApplicationException;
 import jakarta.ws.rs.client.Entity;
 import jakarta.ws.rs.core.MediaType;
 import net.ripe.db.whois.api.AbstractIntegrationTest;
@@ -12,6 +13,9 @@ import net.ripe.db.whois.api.rest.mapper.FormattedClientAttributeMapper;
 import net.ripe.db.whois.api.rest.mapper.WhoisObjectMapper;
 import net.ripe.db.whois.common.rpsl.RpslObject;
 import net.ripe.db.whois.update.dns.DnsGatewayStub;
+import org.eclipse.jetty.http.HttpScheme;
+import org.eclipse.jetty.http.HttpStatus;
+import org.glassfish.jersey.client.authentication.HttpAuthenticationFeature;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
@@ -21,7 +25,10 @@ import java.util.List;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.hasSize;
+import static org.hamcrest.Matchers.is;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.fail;
+import static org.testcontainers.shaded.com.google.common.net.HttpHeaders.X_FORWARDED_PROTO;
 
 @Tag("IntegrationTest")
 public class DomainObjectServiceTestIntegration extends AbstractIntegrationTest {
@@ -53,7 +60,7 @@ public class DomainObjectServiceTestIntegration extends AbstractIntegrationTest 
                 "descr:         XS4ALL Maintainer\n" +
                 "admin-c:       JAAP-TEST\n" +
                 "auth:          SSO person@net.net\n" +
-                "auth:          MD5-PW $1$Y8rG1Ste$QzFB.VSD5mDy7nlb/BJix/ #TEST2-MNT\n" +
+                "auth:          MD5-PW $1$vaPU9aca$00ANzJP6L7whYo9bIxiMc1 #TEST2-MNT\n" +
                 "mnt-by:        TEST-MNT\n" +
                 "source:        TEST");
 
@@ -124,7 +131,7 @@ public class DomainObjectServiceTestIntegration extends AbstractIntegrationTest 
                     "source:        TEST");
 
         try {
-            RestTest.target(getPort(), "whois/domain-objects/TEST?password=123")
+            RestTest.target(getPort(), "whois/domain-objects/TEST")
                     .request()
                     .cookie("crowd.token_key", "valid-token")
                     .post(Entity.entity(mapRpslObjects(domain), MediaType.APPLICATION_JSON_TYPE), WhoisResources.class);
@@ -377,6 +384,196 @@ public class DomainObjectServiceTestIntegration extends AbstractIntegrationTest 
                     "a nameserver.");
         }
     }
+
+    @Test
+    public void create_domain_object_sing_basic_auth_succeed() {
+
+        databaseHelper.addObject("" +
+                "inetnum:      33.33.0.0/16\n" +
+                "mnt-by:        TEST2-MNT\n" +
+                "mnt-domains:   TEST-MNT\n" +
+                "source:        TEST");
+
+        final RpslObject domain = RpslObject.parse("" +
+                "domain:        33.33.in-addr.arpa\n" +
+                "admin-c:       JAAP-TEST\n" +
+                "tech-c:        JAAP-TEST\n" +
+                "zone-c:        JAAP-TEST\n" +
+                "nserver:       ns1.example.com\n" +
+                "nserver:       ns2.example.com\n" +
+                "mnt-by:        TEST-MNT\n" +
+                "source:        TEST");
+
+
+        final WhoisResources response = RestTest.target(getPort(), "whois/domain-objects/TEST")
+                .register(HttpAuthenticationFeature.basicBuilder().build())
+                .request()
+                .property(HttpAuthenticationFeature.HTTP_AUTHENTICATION_BASIC_USERNAME, "TEST-MNT")
+                .property(HttpAuthenticationFeature.HTTP_AUTHENTICATION_BASIC_PASSWORD, "test")
+                .header(X_FORWARDED_PROTO, HttpScheme.HTTPS)
+                .post(Entity.entity(mapRpslObjects(domain), MediaType.APPLICATION_JSON_TYPE), WhoisResources.class);
+
+        RestTest.assertErrorCount(response, 0);
+        assertThat(response.getWhoisObjects(), hasSize(1));
+    }
+
+    @Test
+    public void create_domain_object_sing_basic_auth_http_error() {
+
+        databaseHelper.addObject("" +
+                "inetnum:      33.33.0.0/16\n" +
+                "mnt-by:        TEST2-MNT\n" +
+                "mnt-domains:   TEST-MNT\n" +
+                "source:        TEST");
+
+        final RpslObject domain = RpslObject.parse("" +
+                "domain:        33.33.in-addr.arpa\n" +
+                "admin-c:       JAAP-TEST\n" +
+                "tech-c:        JAAP-TEST\n" +
+                "zone-c:        JAAP-TEST\n" +
+                "nserver:       ns1.example.com\n" +
+                "nserver:       ns2.example.com\n" +
+                "mnt-by:        TEST-MNT\n" +
+                "source:        TEST");
+
+        final WebApplicationException exception = assertThrows(WebApplicationException.class, () -> {
+                    RestTest.target(getPort(), "whois/domain-objects/TEST")
+                            .register(HttpAuthenticationFeature.basicBuilder().build())
+                            .request()
+                            .property(HttpAuthenticationFeature.HTTP_AUTHENTICATION_BASIC_USERNAME, "TEST-MNT")
+                            .property(HttpAuthenticationFeature.HTTP_AUTHENTICATION_BASIC_PASSWORD, "test")
+                            .post(Entity.entity(mapRpslObjects(domain), MediaType.APPLICATION_JSON_TYPE), WhoisResources.class);
+        });
+
+        assertThat(exception.getResponse().getStatus(), is(HttpStatus.UPGRADE_REQUIRED_426));
+    }
+
+    @Test
+    public void create_domain_object_sing_basic_auth_wrong_passwd_error() {
+
+        databaseHelper.addObject("" +
+                "inetnum:      33.33.0.0/16\n" +
+                "mnt-by:        TEST2-MNT\n" +
+                "mnt-domains:   TEST-MNT\n" +
+                "source:        TEST");
+
+        final RpslObject domain = RpslObject.parse("" +
+                "domain:        33.33.in-addr.arpa\n" +
+                "admin-c:       JAAP-TEST\n" +
+                "tech-c:        JAAP-TEST\n" +
+                "zone-c:        JAAP-TEST\n" +
+                "nserver:       ns1.example.com\n" +
+                "nserver:       ns2.example.com\n" +
+                "mnt-by:        TEST-MNT\n" +
+                "source:        TEST");
+
+
+        assertThrows(NotAuthorizedException.class, () -> {
+            RestTest.target(getPort(), "whois/domain-objects/TEST")
+                    .register(HttpAuthenticationFeature.basicBuilder().build())
+                    .request()
+                    .property(HttpAuthenticationFeature.HTTP_AUTHENTICATION_BASIC_USERNAME, "TEST-MNT")
+                    .property(HttpAuthenticationFeature.HTTP_AUTHENTICATION_BASIC_PASSWORD, "test1")
+                    .header(X_FORWARDED_PROTO, HttpScheme.HTTPS)
+                    .post(Entity.entity(mapRpslObjects(domain), MediaType.APPLICATION_JSON_TYPE), WhoisResources.class);
+        });
+    }
+
+    @Test
+    public void create_domain_object_sing_basic_auth_wrong_mnt_name_error() {
+
+        databaseHelper.addObject("" +
+                "inetnum:      33.33.0.0/16\n" +
+                "mnt-by:        TEST-MNT\n" +
+                "mnt-domains:   TEST-MNT\n" +
+                "source:        TEST");
+
+        final RpslObject domain = RpslObject.parse("" +
+                "domain:        33.33.in-addr.arpa\n" +
+                "admin-c:       JAAP-TEST\n" +
+                "tech-c:        JAAP-TEST\n" +
+                "zone-c:        JAAP-TEST\n" +
+                "nserver:       ns1.example.com\n" +
+                "nserver:       ns2.example.com\n" +
+                "mnt-by:        TEST-MNT\n" +
+                "source:        TEST");
+
+
+        assertThrows(NotAuthorizedException.class, () -> {
+            RestTest.target(getPort(), "whois/domain-objects/TEST")
+                    .register(HttpAuthenticationFeature.basicBuilder().build())
+                    .request()
+                    .property(HttpAuthenticationFeature.HTTP_AUTHENTICATION_BASIC_USERNAME, "TEST2-MNT")
+                    .property(HttpAuthenticationFeature.HTTP_AUTHENTICATION_BASIC_PASSWORD, "test")
+                    .header(X_FORWARDED_PROTO, HttpScheme.HTTPS)
+                    .post(Entity.entity(mapRpslObjects(domain), MediaType.APPLICATION_JSON_TYPE), WhoisResources.class);
+        });
+    }
+
+    @Test
+    public void create_domain_object_sing_ok_basic_auth_password_succeed() {
+
+        databaseHelper.addObject("" +
+                "inetnum:      33.33.0.0/16\n" +
+                "mnt-by:        TEST-MNT\n" +
+                "mnt-domains:   TEST-MNT\n" +
+                "source:        TEST");
+
+        final RpslObject domain = RpslObject.parse("" +
+                "domain:        33.33.in-addr.arpa\n" +
+                "admin-c:       JAAP-TEST\n" +
+                "tech-c:        JAAP-TEST\n" +
+                "zone-c:        JAAP-TEST\n" +
+                "nserver:       ns1.example.com\n" +
+                "nserver:       ns2.example.com\n" +
+                "mnt-by:        TEST-MNT\n" +
+                "source:        TEST");
+
+
+        final WhoisResources response = RestTest.target(getPort(), "whois/domain-objects/TEST?password=TEST2-MNT,test1")
+                .register(HttpAuthenticationFeature.basicBuilder().build())
+                .request()
+                .property(HttpAuthenticationFeature.HTTP_AUTHENTICATION_BASIC_USERNAME, "TEST-MNT")
+                .property(HttpAuthenticationFeature.HTTP_AUTHENTICATION_BASIC_PASSWORD, "test")
+                .header(X_FORWARDED_PROTO, HttpScheme.HTTPS)
+                .post(Entity.entity(mapRpslObjects(domain), MediaType.APPLICATION_JSON_TYPE), WhoisResources.class);
+
+        RestTest.assertErrorCount(response, 0);
+        assertThat(response.getWhoisObjects(), hasSize(1));
+    }
+
+    @Test
+    public void create_domain_object_sing_wrong_basic_auth_password_succeed() {
+
+        databaseHelper.addObject("" +
+                "inetnum:      33.33.0.0/16\n" +
+                "mnt-by:        TEST-MNT\n" +
+                "mnt-domains:   TEST-MNT\n" +
+                "source:        TEST");
+
+        final RpslObject domain = RpslObject.parse("" +
+                "domain:        33.33.in-addr.arpa\n" +
+                "admin-c:       JAAP-TEST\n" +
+                "tech-c:        JAAP-TEST\n" +
+                "zone-c:        JAAP-TEST\n" +
+                "nserver:       ns1.example.com\n" +
+                "nserver:       ns2.example.com\n" +
+                "mnt-by:        TEST-MNT\n" +
+                "source:        TEST");
+
+
+        final WhoisResources response = RestTest.target(getPort(), "whois/domain-objects/TEST?password=test")
+                .register(HttpAuthenticationFeature.basicBuilder().build())
+                .request()
+                .property(HttpAuthenticationFeature.HTTP_AUTHENTICATION_BASIC_USERNAME, "TEST-MNT")
+                .property(HttpAuthenticationFeature.HTTP_AUTHENTICATION_BASIC_PASSWORD, "test1")
+                .header(X_FORWARDED_PROTO, HttpScheme.HTTPS)
+                .post(Entity.entity(mapRpslObjects(domain), MediaType.APPLICATION_JSON_TYPE), WhoisResources.class);
+
+        RestTest.assertErrorCount(response, 0);
+        assertThat(response.getWhoisObjects(), hasSize(1));
+    }
+
     private WhoisResources mapRpslObjects(final RpslObject... rpslObjects) {
         return whoisObjectMapper.mapRpslObjects(FormattedClientAttributeMapper.class, rpslObjects);
     }

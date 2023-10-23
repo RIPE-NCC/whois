@@ -24,7 +24,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.util.Collection;
-import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
@@ -82,7 +81,7 @@ public class AuthenticationModule {
 
     private boolean hasValidCredentialForCandidate(final PreparedUpdate update, final UpdateContext updateContext, final Credentials offered, final RpslObject maintainer) {
         final List<CIString> authAttributes = Lists.newArrayList(maintainer.getValuesForAttribute(AttributeType.AUTH));
-        Collections.sort(authAttributes, AUTH_COMPARATOR);
+        authAttributes.sort(AUTH_COMPARATOR);
 
         for (final CIString auth : authAttributes) {
             final Credential credential = getCredential(auth);

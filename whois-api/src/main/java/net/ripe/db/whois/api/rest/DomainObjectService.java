@@ -1,7 +1,6 @@
 package net.ripe.db.whois.api.rest;
 
 import com.google.common.collect.Lists;
-import com.google.common.collect.Sets;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.ws.rs.BadRequestException;
 import jakarta.ws.rs.Consumes;
@@ -17,22 +16,14 @@ import jakarta.ws.rs.WebApplicationException;
 import jakarta.ws.rs.core.Context;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
-import net.ripe.db.whois.api.rest.domain.WhoisObject;
 import net.ripe.db.whois.api.rest.domain.WhoisResources;
 import net.ripe.db.whois.api.rest.mapper.FormattedServerAttributeMapper;
 import net.ripe.db.whois.api.rest.mapper.WhoisObjectMapper;
 import net.ripe.db.whois.common.rpsl.ObjectType;
 import net.ripe.db.whois.common.rpsl.RpslObject;
 import net.ripe.db.whois.common.sso.AuthServiceClient;
-import net.ripe.db.whois.update.domain.ClientCertificateCredential;
-import net.ripe.db.whois.update.domain.Credential;
-import net.ripe.db.whois.update.domain.Credentials;
 import net.ripe.db.whois.update.domain.Keyword;
-import net.ripe.db.whois.update.domain.Operation;
 import net.ripe.db.whois.update.domain.Origin;
-import net.ripe.db.whois.update.domain.Paragraph;
-import net.ripe.db.whois.update.domain.PasswordCredential;
-import net.ripe.db.whois.update.domain.SsoCredential;
 import net.ripe.db.whois.update.domain.Update;
 import net.ripe.db.whois.update.domain.UpdateContext;
 import net.ripe.db.whois.update.domain.UpdateMessages;
@@ -45,7 +36,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
-import java.util.Set;
 
 import static jakarta.ws.rs.core.Response.Status.BAD_REQUEST;
 import static jakarta.ws.rs.core.Response.Status.CONFLICT;
@@ -142,16 +132,12 @@ public class DomainObjectService {
 
         final Response response = e.getResponse();
 
-        switch (response.getStatus()) {
-            case HttpStatus.UNAUTHORIZED_401:
-                return new NotAuthorizedException(createResponse(UNAUTHORIZED, resources));
-
-            case HttpStatus.INTERNAL_SERVER_ERROR_500:
-                return new InternalServerErrorException(createResponse(INTERNAL_SERVER_ERROR, resources));
-
-            default:
-                return new BadRequestException(createResponse(BAD_REQUEST, resources));
-        }
+        return switch (response.getStatus()) {
+            case HttpStatus.UNAUTHORIZED_401 -> new NotAuthorizedException(createResponse(UNAUTHORIZED, resources));
+            case HttpStatus.INTERNAL_SERVER_ERROR_500 -> new InternalServerErrorException(createResponse(INTERNAL_SERVER_ERROR, resources));
+            case HttpStatus.UPGRADE_REQUIRED_426 -> e;
+            default -> new BadRequestException(createResponse(BAD_REQUEST, resources));
+        };
     }
 
     private void validateUpdates(UpdateContext updateContext, List<Update> updates, WhoisResources resources) {
@@ -177,42 +163,6 @@ public class DomainObjectService {
                     }
             }
         }
-    }
-
-    private List<Update> extractUpdates(final WhoisResources whoisResources, final Credentials credentials) {
-
-        List<Update> result = Lists.newArrayList();
-
-        for (WhoisObject whoisObject : whoisResources.getWhoisObjects()) {
-            // TODO [TK]: map whoisObject.getAction() to Operation.DELETE, Operation.CREATE (not there yet), etc.
-
-            if (ObjectType.getByName(whoisObject.getType()) != ObjectType.DOMAIN) {
-                throw new IllegalArgumentException("supports 'domain' objects only");
-            }
-            final RpslObject rpslObject = whoisObjectMapper.map(whoisObject, FormattedServerAttributeMapper.class);
-            final Paragraph paragraph = new Paragraph(rpslObject.toString(), credentials);
-            final Update update = new Update(paragraph, Operation.UNSPECIFIED, null, rpslObject);
-
-            result.add(update);
-        }
-        return result;
-    }
-
-    private Credentials createCredentials(final UpdateContext updateContext, final List<String> passwords) {
-
-        final Set<Credential> credentials = Sets.newHashSet();
-
-        for (String password : passwords) {
-            credentials.add(new PasswordCredential(password));
-        }
-
-        if (updateContext.getUserSession() != null) {
-            credentials.add(SsoCredential.createOfferedCredential(updateContext.getUserSession()));
-        }
-
-        updateContext.getClientCertificate().ifPresent(x509 -> credentials.add(ClientCertificateCredential.createOfferedCredential(x509)));
-
-        return new Credentials(credentials);
     }
 
     private Response createResponse(Response.Status status, WhoisResources updatedResources) {
