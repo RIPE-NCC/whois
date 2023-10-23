@@ -39,21 +39,24 @@ class PasswordCredentialValidator implements CredentialValidator<PasswordCredent
 
         for (final PasswordCredential offeredCredential : offeredCredentials) {
             try {
-                String offeredPassword = offeredCredential.getPassword();
-                String knownPassword = knownCredential.getPassword();
-                if (PasswordHelper.authenticateMd5Passwords(knownPassword, offeredPassword)) {
-                    loggerContext.logString(
-                            update.getUpdate(),
-                            getClass().getCanonicalName(),
-                            String.format("Validated %s against known encrypted password: %s)", update.getFormattedKey(), knownPassword));
-
-                    return true;
-                }
+                return hasValidPassword(update, knownCredential.getPassword(), offeredCredential.getPassword());
             } catch (IllegalArgumentException e) {
                 updateContext.addGlobalMessage(new Message(Messages.Type.WARNING, e.getMessage()));
             }
         }
 
+        return false;
+    }
+
+    protected boolean hasValidPassword(final PreparedUpdate update, final String knownPassword, final String offeredPassword){
+        if (PasswordHelper.authenticateMd5Passwords(knownPassword, offeredPassword)) {
+            loggerContext.logString(
+                    update.getUpdate(),
+                    getClass().getCanonicalName(),
+                    String.format("Validated %s against known encrypted password: %s)", update.getFormattedKey(), knownPassword));
+
+            return true;
+        }
         return false;
     }
 }
