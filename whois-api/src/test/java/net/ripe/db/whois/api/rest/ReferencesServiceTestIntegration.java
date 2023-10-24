@@ -5,6 +5,7 @@ import jakarta.mail.MessagingException;
 import jakarta.ws.rs.BadRequestException;
 import jakarta.ws.rs.NotAuthorizedException;
 import jakarta.ws.rs.NotFoundException;
+import jakarta.ws.rs.WebApplicationException;
 import jakarta.ws.rs.client.Entity;
 import jakarta.ws.rs.core.MediaType;
 import net.ripe.db.whois.api.AbstractIntegrationTest;
@@ -29,6 +30,9 @@ import net.ripe.db.whois.common.rpsl.RpslAttribute;
 import net.ripe.db.whois.common.rpsl.RpslObject;
 import net.ripe.db.whois.common.rpsl.RpslObjectBuilder;
 import net.ripe.db.whois.update.mail.MailSenderStub;
+import org.eclipse.jetty.http.HttpScheme;
+import org.eclipse.jetty.http.HttpStatus;
+import org.glassfish.jersey.client.authentication.HttpAuthenticationFeature;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
@@ -49,7 +53,9 @@ import static org.hamcrest.Matchers.hasItems;
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.core.IsNot.not;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.fail;
+import static org.testcontainers.shaded.com.google.common.net.HttpHeaders.X_FORWARDED_PROTO;
 
 @Tag("IntegrationTest")
 public class ReferencesServiceTestIntegration extends AbstractIntegrationTest {
@@ -269,6 +275,216 @@ public class ReferencesServiceTestIntegration extends AbstractIntegrationTest {
             assertThat(response.getErrorMessages().get(0).toString(), is("mntner ANOTHER-MNT already exists"));
         }
     }
+
+
+    @Test
+    public void create_person_mntner_pair_basic_auth_succeed() {
+
+        final WhoisResources whoisResources =
+                mapRpslObjects(
+                        RpslObject.parse(
+                                "person:    Some Person\n" +
+                                        "address:   Amsterdam\n" +
+                                        "phone:     +3161234\n" +
+                                        "nic-hdl:   AUTO-1\n" +
+                                        "mnt-by:    TEST-MNT\n" +
+                                        "source:    TEST"),
+                        RpslObject.parse(
+                                "mntner:    TEST-MNT\n" +
+                                        "descr:     Maintainer\n" +
+                                        "admin-c:   AUTO-1\n" +
+                                        "upd-to:    person@net.net\n" +
+                                        "auth:      MD5-PW $1$d9fKeTr2$Si7YudNf4rUGmR71n/cqk/ #test\n" +
+                                        "mnt-by:    TEST-MNT\n" +
+                                        "source:    TEST"));
+
+
+        final WhoisResources response = RestTest.target(getPort(), "whois/references/TEST")
+                .register(HttpAuthenticationFeature.basicBuilder().build())
+                .request()
+                .property(HttpAuthenticationFeature.HTTP_AUTHENTICATION_BASIC_USERNAME, "TEST-MNT")
+                .property(HttpAuthenticationFeature.HTTP_AUTHENTICATION_BASIC_PASSWORD, "test")
+                .header(X_FORWARDED_PROTO, HttpScheme.HTTPS)
+                .post(Entity.entity(whoisResources, MediaType.APPLICATION_JSON_TYPE), WhoisResources.class);
+
+        assertThat(response.getWhoisObjects(), hasSize(2));
+
+        final WhoisObject person = getWhoisObject(response, "person");
+        assertThat(getAttribute(person, "nic-hdl"), is("SP1-TEST"));
+        assertThat(getAttribute(person, "mnt-by"), is("TEST-MNT"));
+
+        final WhoisObject mntner = getWhoisObject(response, "mntner");
+        assertThat(getAttribute(mntner, "admin-c"), is("SP1-TEST"));
+    }
+
+    @Test
+    public void create_person_mntner_pair_basic_auth_http_error() {
+
+        final WhoisResources whoisResources =
+                mapRpslObjects(
+                        RpslObject.parse(
+                                "person:    Some Person\n" +
+                                        "address:   Amsterdam\n" +
+                                        "phone:     +3161234\n" +
+                                        "nic-hdl:   AUTO-1\n" +
+                                        "mnt-by:    TEST-MNT\n" +
+                                        "source:    TEST"),
+                        RpslObject.parse(
+                                "mntner:    TEST-MNT\n" +
+                                        "descr:     Maintainer\n" +
+                                        "admin-c:   AUTO-1\n" +
+                                        "upd-to:    person@net.net\n" +
+                                        "auth:      MD5-PW $1$d9fKeTr2$Si7YudNf4rUGmR71n/cqk/ #test\n" +
+                                        "mnt-by:    TEST-MNT\n" +
+                                        "source:    TEST"));
+
+        final WebApplicationException exception = assertThrows(WebApplicationException.class, () -> {
+            RestTest.target(getPort(), "whois/references/TEST")
+                    .register(HttpAuthenticationFeature.basicBuilder().build())
+                    .request()
+                    .property(HttpAuthenticationFeature.HTTP_AUTHENTICATION_BASIC_USERNAME, "TEST-MNT")
+                    .property(HttpAuthenticationFeature.HTTP_AUTHENTICATION_BASIC_PASSWORD, "test")
+                    .post(Entity.entity(whoisResources, MediaType.APPLICATION_JSON_TYPE), WhoisResources.class);
+        });
+
+        assertThat(exception.getResponse().getStatus(), is(HttpStatus.UPGRADE_REQUIRED_426));
+    }
+
+    @Test
+    public void create_person_mntner_pair_basic_auth_wrong_passwd_error() {
+
+        final WhoisResources whoisResources =
+                mapRpslObjects(
+                        RpslObject.parse(
+                                "person:    Some Person\n" +
+                                        "address:   Amsterdam\n" +
+                                        "phone:     +3161234\n" +
+                                        "nic-hdl:   AUTO-1\n" +
+                                        "mnt-by:    TEST-MNT\n" +
+                                        "source:    TEST"),
+                        RpslObject.parse(
+                                "mntner:    TEST-MNT\n" +
+                                        "descr:     Maintainer\n" +
+                                        "admin-c:   AUTO-1\n" +
+                                        "upd-to:    person@net.net\n" +
+                                        "auth:      MD5-PW $1$d9fKeTr2$Si7YudNf4rUGmR71n/cqk/ #test\n" +
+                                        "mnt-by:    TEST-MNT\n" +
+                                        "source:    TEST"));
+
+
+        assertThrows(NotAuthorizedException.class, () -> {
+            RestTest.target(getPort(), "whois/references/TEST")
+                    .register(HttpAuthenticationFeature.basicBuilder().build())
+                    .request()
+                    .property(HttpAuthenticationFeature.HTTP_AUTHENTICATION_BASIC_USERNAME, "TEST-MNT")
+                    .property(HttpAuthenticationFeature.HTTP_AUTHENTICATION_BASIC_PASSWORD, "test1")
+                    .header(X_FORWARDED_PROTO, HttpScheme.HTTPS)
+                    .post(Entity.entity(whoisResources, MediaType.APPLICATION_JSON_TYPE), WhoisResources.class);
+        });
+    }
+
+    @Test
+    public void create_person_mntner_pair_basic_auth_wrong_mnt_name_error() {
+
+        final WhoisResources whoisResources =
+                mapRpslObjects(
+                        RpslObject.parse(
+                                "person:    Some Person\n" +
+                                        "address:   Amsterdam\n" +
+                                        "phone:     +3161234\n" +
+                                        "nic-hdl:   AUTO-1\n" +
+                                        "mnt-by:    TEST-MNT\n" +
+                                        "source:    TEST"),
+                        RpslObject.parse(
+                                "mntner:    TEST-MNT\n" +
+                                        "descr:     Maintainer\n" +
+                                        "admin-c:   AUTO-1\n" +
+                                        "upd-to:    person@net.net\n" +
+                                        "auth:      MD5-PW $1$d9fKeTr2$Si7YudNf4rUGmR71n/cqk/ #test\n" +
+                                        "mnt-by:    TEST-MNT\n" +
+                                        "source:    TEST"));
+
+
+        assertThrows(NotAuthorizedException.class, () -> {
+            RestTest.target(getPort(), "whois/references/TEST")
+                    .register(HttpAuthenticationFeature.basicBuilder().build())
+                    .request()
+                    .property(HttpAuthenticationFeature.HTTP_AUTHENTICATION_BASIC_USERNAME, "SSO-MNT")
+                    .property(HttpAuthenticationFeature.HTTP_AUTHENTICATION_BASIC_PASSWORD, "test")
+                    .header(X_FORWARDED_PROTO, HttpScheme.HTTPS)
+                    .post(Entity.entity(whoisResources, MediaType.APPLICATION_JSON_TYPE), WhoisResources.class);
+        });
+    }
+
+    @Test
+    public void create_person_mntner_pair_ok_basic_auth_wrong_password_succeed() {
+
+        final WhoisResources whoisResources =
+                mapRpslObjects(
+                        RpslObject.parse(
+                                "person:    Some Person\n" +
+                                        "address:   Amsterdam\n" +
+                                        "phone:     +3161234\n" +
+                                        "nic-hdl:   AUTO-1\n" +
+                                        "mnt-by:    TEST-MNT\n" +
+                                        "source:    TEST"),
+                        RpslObject.parse(
+                                "mntner:    TEST-MNT\n" +
+                                        "descr:     Maintainer\n" +
+                                        "admin-c:   AUTO-1\n" +
+                                        "upd-to:    person@net.net\n" +
+                                        "auth:      MD5-PW $1$d9fKeTr2$Si7YudNf4rUGmR71n/cqk/ #test\n" +
+                                        "mnt-by:    TEST-MNT\n" +
+                                        "source:    TEST"));
+
+
+        final WhoisResources response = RestTest.target(getPort(), "whois/references/TEST?password=TEST2-MNT,test1")
+                .register(HttpAuthenticationFeature.basicBuilder().build())
+                .request()
+                .property(HttpAuthenticationFeature.HTTP_AUTHENTICATION_BASIC_USERNAME, "TEST-MNT")
+                .property(HttpAuthenticationFeature.HTTP_AUTHENTICATION_BASIC_PASSWORD, "test")
+                .header(X_FORWARDED_PROTO, HttpScheme.HTTPS)
+                .post(Entity.entity(whoisResources, MediaType.APPLICATION_JSON_TYPE), WhoisResources.class);
+
+        RestTest.assertErrorCount(response, 0);
+        assertThat(response.getWhoisObjects(), hasSize(2));
+    }
+
+    @Test
+    public void create_person_mntner_pair_wrong_basic_ok_auth_password_succeed() {
+
+        final WhoisResources whoisResources =
+                mapRpslObjects(
+                        RpslObject.parse(
+                                "person:    Some Person\n" +
+                                        "address:   Amsterdam\n" +
+                                        "phone:     +3161234\n" +
+                                        "nic-hdl:   AUTO-1\n" +
+                                        "mnt-by:    TEST-MNT\n" +
+                                        "source:    TEST"),
+                        RpslObject.parse(
+                                "mntner:    TEST-MNT\n" +
+                                        "descr:     Maintainer\n" +
+                                        "admin-c:   AUTO-1\n" +
+                                        "upd-to:    person@net.net\n" +
+                                        "auth:      MD5-PW $1$d9fKeTr2$Si7YudNf4rUGmR71n/cqk/ #test\n" +
+                                        "mnt-by:    TEST-MNT\n" +
+                                        "source:    TEST"));
+
+
+        final WhoisResources response = RestTest.target(getPort(), "whois/references/TEST?password=TEST2-MNT&password=test")
+                .register(HttpAuthenticationFeature.basicBuilder().build())
+                .request()
+                .property(HttpAuthenticationFeature.HTTP_AUTHENTICATION_BASIC_USERNAME, "TEST-MNT")
+                .property(HttpAuthenticationFeature.HTTP_AUTHENTICATION_BASIC_PASSWORD, "test1")
+                .header(X_FORWARDED_PROTO, HttpScheme.HTTPS)
+                .post(Entity.entity(whoisResources, MediaType.APPLICATION_JSON_TYPE), WhoisResources.class);
+
+        RestTest.assertErrorCount(response, 0);
+        assertThat(response.getWhoisObjects(), hasSize(2));
+    }
+
+
 
     // READ
 
@@ -1363,6 +1579,139 @@ public class ReferencesServiceTestIntegration extends AbstractIntegrationTest {
             assertThat(entity, containsString("Referencing object TP1-TEST itself is referenced by ANOTHER-MNT"));
             assertThat(entity, not(containsString("$1$d9fKeTr2$Si7YudNf4rUGmR71n/cqk/")));
         }
+    }
+
+    @Test
+    public void delete_mntner_basic_auth_succeed() {
+
+        databaseHelper.addObject(
+                "mntner:        ANOTHER-MNT\n" +
+                        "auth:          MD5-PW $1$d9fKeTr2$Si7YudNf4rUGmR71n/cqk/ #test\n" +
+                        "mnt-by:        ANOTHER-MNT\n" +
+                        "source:        TEST");
+
+        assertThat(objectExists(ObjectType.MNTNER, "ANOTHER-MNT"), is(true));
+
+        RestTest.target(getPort(), "whois/references/TEST/mntner/ANOTHER-MNT")
+                .register(HttpAuthenticationFeature.basicBuilder().build())
+                .request()
+                .property(HttpAuthenticationFeature.HTTP_AUTHENTICATION_BASIC_USERNAME, "ANOTHER-MNT")
+                .property(HttpAuthenticationFeature.HTTP_AUTHENTICATION_BASIC_PASSWORD, "test")
+                .header(X_FORWARDED_PROTO, HttpScheme.HTTPS)
+                .delete(WhoisResources.class);
+
+        assertThat(objectExists(ObjectType.MNTNER, "ANOTHER-MNT"), is(false));
+    }
+
+    @Test
+    public void delete_mntner_basic_auth_http_error() {
+
+        databaseHelper.addObject(
+                "mntner:        ANOTHER-MNT\n" +
+                        "auth:          MD5-PW $1$d9fKeTr2$Si7YudNf4rUGmR71n/cqk/ #test\n" +
+                        "mnt-by:        ANOTHER-MNT\n" +
+                        "source:        TEST");
+
+        assertThat(objectExists(ObjectType.MNTNER, "ANOTHER-MNT"), is(true));
+
+        final WebApplicationException exception = assertThrows(WebApplicationException.class, () -> {
+            RestTest.target(getPort(), "whois/references/TEST/mntner/ANOTHER-MNT")
+                    .register(HttpAuthenticationFeature.basicBuilder().build())
+                    .request()
+                    .property(HttpAuthenticationFeature.HTTP_AUTHENTICATION_BASIC_USERNAME, "ANOTHER-MNT")
+                    .property(HttpAuthenticationFeature.HTTP_AUTHENTICATION_BASIC_PASSWORD, "test")
+                    .delete(WhoisResources.class);
+        });
+
+        assertThat(exception.getResponse().getStatus(), is(HttpStatus.UPGRADE_REQUIRED_426));
+    }
+
+    @Test
+    public void delete_mntner_basic_auth_wrong_passwd_error() {
+
+        databaseHelper.addObject(
+                "mntner:        ANOTHER-MNT\n" +
+                        "auth:          MD5-PW $1$d9fKeTr2$Si7YudNf4rUGmR71n/cqk/ #test\n" +
+                        "mnt-by:        ANOTHER-MNT\n" +
+                        "source:        TEST");
+
+        assertThat(objectExists(ObjectType.MNTNER, "ANOTHER-MNT"), is(true));
+
+
+        assertThrows(NotAuthorizedException.class, () -> {
+            RestTest.target(getPort(), "whois/references/TEST/mntner/ANOTHER-MNT")
+                    .register(HttpAuthenticationFeature.basicBuilder().build())
+                    .request()
+                    .property(HttpAuthenticationFeature.HTTP_AUTHENTICATION_BASIC_USERNAME, "ANOTHER-MNT")
+                    .property(HttpAuthenticationFeature.HTTP_AUTHENTICATION_BASIC_PASSWORD, "test1")
+                    .header(X_FORWARDED_PROTO, HttpScheme.HTTPS)
+                    .delete(WhoisResources.class);
+        });
+    }
+
+    @Test
+    public void delete_mntner_basic_auth_wrong_mnt_name_error() {
+
+        databaseHelper.addObject(
+                "mntner:        ANOTHER-MNT\n" +
+                        "auth:          MD5-PW $1$d9fKeTr2$Si7YudNf4rUGmR71n/cqk/ #test\n" +
+                        "mnt-by:        ANOTHER-MNT\n" +
+                        "source:        TEST");
+
+
+        assertThrows(NotAuthorizedException.class, () -> {
+            RestTest.target(getPort(), "whois/references/TEST/mntner/ANOTHER-MNT")
+                    .register(HttpAuthenticationFeature.basicBuilder().build())
+                    .request()
+                    .property(HttpAuthenticationFeature.HTTP_AUTHENTICATION_BASIC_USERNAME, "SSO-MNT")
+                    .property(HttpAuthenticationFeature.HTTP_AUTHENTICATION_BASIC_PASSWORD, "test")
+                    .header(X_FORWARDED_PROTO, HttpScheme.HTTPS)
+                    .delete(WhoisResources.class);
+        });
+    }
+
+    @Test
+    public void delete_mntner_ok_basic_auth_wrong_password_succeed() {
+
+        databaseHelper.addObject(
+                "mntner:        ANOTHER-MNT\n" +
+                        "auth:          MD5-PW $1$d9fKeTr2$Si7YudNf4rUGmR71n/cqk/ #test\n" +
+                        "mnt-by:        ANOTHER-MNT\n" +
+                        "source:        TEST");
+
+        assertThat(objectExists(ObjectType.MNTNER, "ANOTHER-MNT"), is(true));
+
+        RestTest.target(getPort(), "whois/references/TEST/mntner/ANOTHER-MNT?password=TEST2-MNT,test1")
+                .register(HttpAuthenticationFeature.basicBuilder().build())
+                .request()
+                .property(HttpAuthenticationFeature.HTTP_AUTHENTICATION_BASIC_USERNAME, "ANOTHER-MNT")
+                .property(HttpAuthenticationFeature.HTTP_AUTHENTICATION_BASIC_PASSWORD, "test")
+                .header(X_FORWARDED_PROTO, HttpScheme.HTTPS)
+                .delete(WhoisResources.class);
+
+        assertThat(objectExists(ObjectType.MNTNER, "ANOTHER-MNT"), is(false));
+    }
+
+    @Test
+    public void delete_mntner_wrong_basic_ok_auth_password_succeed() {
+
+        databaseHelper.addObject(
+                "mntner:        ANOTHER-MNT\n" +
+                        "auth:          MD5-PW $1$d9fKeTr2$Si7YudNf4rUGmR71n/cqk/ #test\n" +
+                        "mnt-by:        ANOTHER-MNT\n" +
+                        "source:        TEST");
+
+        assertThat(objectExists(ObjectType.MNTNER, "ANOTHER-MNT"), is(true));
+
+        final WhoisResources response = RestTest.target(getPort(), "whois/references/TEST/mntner/ANOTHER-MNT?password=TEST2-MNT&password=test")
+                .register(HttpAuthenticationFeature.basicBuilder().build())
+                .request()
+                .property(HttpAuthenticationFeature.HTTP_AUTHENTICATION_BASIC_USERNAME, "TEST-MNT")
+                .property(HttpAuthenticationFeature.HTTP_AUTHENTICATION_BASIC_PASSWORD, "test1")
+                .header(X_FORWARDED_PROTO, HttpScheme.HTTPS)
+                .delete(WhoisResources.class);
+
+        assertThat(objectExists(ObjectType.MNTNER, "ANOTHER-MNT"), is(false));
     }
 
     // helper methods

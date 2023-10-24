@@ -7,6 +7,32 @@ import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.ws.rs.BadRequestException;
+import jakarta.ws.rs.Consumes;
+import jakarta.ws.rs.CookieParam;
+import jakarta.ws.rs.DELETE;
+import jakarta.ws.rs.DefaultValue;
+import jakarta.ws.rs.GET;
+import jakarta.ws.rs.InternalServerErrorException;
+import jakarta.ws.rs.NotAuthorizedException;
+import jakarta.ws.rs.POST;
+import jakarta.ws.rs.PUT;
+import jakarta.ws.rs.Path;
+import jakarta.ws.rs.PathParam;
+import jakarta.ws.rs.Produces;
+import jakarta.ws.rs.QueryParam;
+import jakarta.ws.rs.WebApplicationException;
+import jakarta.ws.rs.core.Context;
+import jakarta.ws.rs.core.MediaType;
+import jakarta.ws.rs.core.Response;
+import jakarta.ws.rs.core.StreamingOutput;
+import jakarta.xml.bind.annotation.XmlAccessType;
+import jakarta.xml.bind.annotation.XmlAccessorType;
+import jakarta.xml.bind.annotation.XmlElement;
+import jakarta.xml.bind.annotation.XmlElementRef;
+import jakarta.xml.bind.annotation.XmlElementWrapper;
+import jakarta.xml.bind.annotation.XmlRootElement;
 import net.ripe.db.whois.api.rest.domain.Action;
 import net.ripe.db.whois.api.rest.domain.ActionRequest;
 import net.ripe.db.whois.api.rest.domain.Attribute;
@@ -51,32 +77,6 @@ import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.annotation.Nullable;
-import jakarta.servlet.http.HttpServletRequest;
-import jakarta.ws.rs.BadRequestException;
-import jakarta.ws.rs.Consumes;
-import jakarta.ws.rs.CookieParam;
-import jakarta.ws.rs.DELETE;
-import jakarta.ws.rs.DefaultValue;
-import jakarta.ws.rs.GET;
-import jakarta.ws.rs.InternalServerErrorException;
-import jakarta.ws.rs.NotAuthorizedException;
-import jakarta.ws.rs.POST;
-import jakarta.ws.rs.PUT;
-import jakarta.ws.rs.Path;
-import jakarta.ws.rs.PathParam;
-import jakarta.ws.rs.Produces;
-import jakarta.ws.rs.QueryParam;
-import jakarta.ws.rs.WebApplicationException;
-import jakarta.ws.rs.core.Context;
-import jakarta.ws.rs.core.MediaType;
-import jakarta.ws.rs.core.Response;
-import jakarta.ws.rs.core.StreamingOutput;
-import jakarta.xml.bind.annotation.XmlAccessType;
-import jakarta.xml.bind.annotation.XmlAccessorType;
-import jakarta.xml.bind.annotation.XmlElement;
-import jakarta.xml.bind.annotation.XmlElementRef;
-import jakarta.xml.bind.annotation.XmlElementWrapper;
-import jakarta.xml.bind.annotation.XmlRootElement;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.util.Collection;
@@ -191,23 +191,23 @@ public class ReferencesService {
             return createResponse(request, filterWhoisObjects(updatedResources), Response.Status.OK);
 
         } catch (WebApplicationException e) {
-            final Response response = e.getResponse();
-            switch (response.getStatus()) {
-                case HttpStatus.UNAUTHORIZED_401:
-                    throw new NotAuthorizedException(createResponse(request, whoisResources, Response.Status.UNAUTHORIZED));
-
-                case HttpStatus.INTERNAL_SERVER_ERROR_500:
-                    throw new InternalServerErrorException(createResponse(request, whoisResources, Response.Status.INTERNAL_SERVER_ERROR));
-
-                default:
-                    throw new BadRequestException(createResponse(request, whoisResources, Response.Status.BAD_REQUEST));
-            }
+            throw specializeWebApplicationException(whoisResources, request, e);
         } catch (ReferenceUpdateFailedException e) {
             return createResponse(request, e.whoisResources, e.status);
         } catch (Exception e) {
             LOGGER.error("Unexpected", e);
             return createResponse(request, whoisResources, Response.Status.INTERNAL_SERVER_ERROR);
         }
+    }
+
+    private WebApplicationException specializeWebApplicationException(WhoisResources whoisResources, HttpServletRequest request, WebApplicationException e) {
+        final Response response = e.getResponse();
+        return switch (response.getStatus()) {
+            case HttpStatus.UNAUTHORIZED_401 ->  new NotAuthorizedException(createResponse(request, whoisResources, Response.Status.UNAUTHORIZED));
+            case HttpStatus.INTERNAL_SERVER_ERROR_500 ->  new InternalServerErrorException(createResponse(request, whoisResources, Response.Status.INTERNAL_SERVER_ERROR));
+            case HttpStatus.UPGRADE_REQUIRED_426 -> e;
+            default ->  new BadRequestException(createResponse(request, whoisResources, Response.Status.BAD_REQUEST));
+        };
     }
 
     private RpslObject createPerson(final WhoisResources whoisResources) {
@@ -355,18 +355,7 @@ public class ReferencesService {
             return createResponse(request, updatedResources, Response.Status.OK);
 
         } catch (WebApplicationException e) {
-            final Response response = e.getResponse();
-
-            switch (response.getStatus()) {
-                case HttpStatus.UNAUTHORIZED_401:
-                    throw new NotAuthorizedException(createResponse(request, whoisResources, Response.Status.UNAUTHORIZED));
-
-                case HttpStatus.INTERNAL_SERVER_ERROR_500:
-                    throw new InternalServerErrorException(createResponse(request, whoisResources, Response.Status.INTERNAL_SERVER_ERROR));
-
-                default:
-                    throw new BadRequestException(createResponse(request, whoisResources, Response.Status.BAD_REQUEST));
-            }
+            throw specializeWebApplicationException(whoisResources, request, e);
 
         } catch (ReferenceUpdateFailedException e) {
             return createResponse(request, e.whoisResources, e.status);
