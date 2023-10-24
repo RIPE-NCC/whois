@@ -36,15 +36,16 @@ class PasswordCredentialValidator implements CredentialValidator<PasswordCredent
                                       final UpdateContext updateContext,
                                       final Collection<PasswordCredential> offeredCredentials,
                                       final PasswordCredential knownCredential) {
-        boolean hasValidCredential = false;
         for (final PasswordCredential offeredCredential : offeredCredentials) {
             try {
-                hasValidCredential = hasValidPassword(update, knownCredential.getPassword(), offeredCredential.getPassword());
+                if (hasValidPassword(update, knownCredential.getPassword(), offeredCredential.getPassword())){
+                    return true;
+                }
             } catch (IllegalArgumentException e) {
                 updateContext.addGlobalMessage(new Message(Messages.Type.WARNING, e.getMessage()));
             }
         }
-        return hasValidCredential;
+        return false;
     }
 
     protected boolean hasValidPassword(final PreparedUpdate update, final String knownPassword, final String offeredPassword){

@@ -24,7 +24,6 @@ public class BasicAuthPasswordCredentialValidator extends PasswordCredentialVali
 
     @Override
     public boolean hasValidCredential(PreparedUpdate update, UpdateContext updateContext, Collection<PasswordCredential> offeredCredentials, PasswordCredential knownCredential) {
-        boolean hasValidCredential = false;
         for (final PasswordCredential offeredCredential : offeredCredentials) {
             try {
                 String offeredPassword = offeredCredential.getPassword();
@@ -34,12 +33,14 @@ public class BasicAuthPasswordCredentialValidator extends PasswordCredentialVali
                     if (!mntnerKey.contains(CIString.ciString(basicAuthCredentials[0]))){
                         continue;
                     }
-                    hasValidCredential = hasValidPassword(update, knownCredential.getPassword(), basicAuthCredentials[1]);
+                    if (hasValidPassword(update, knownCredential.getPassword(), basicAuthCredentials[1])){
+                        return true;
+                    }
                 }
             } catch (IllegalArgumentException e) {
                 updateContext.addGlobalMessage(new Message(Messages.Type.WARNING, e.getMessage()));
             }
         }
-        return hasValidCredential;
+        return false;
     }
 }
