@@ -129,28 +129,28 @@ public class RdapService {
         final Set<ObjectType> whoisObjectTypes = requestType.getWhoisObjectTypes(key);  // null
 
         switch (requestType) {
-            case AUTNUM: {
+            case AUTNUM -> {
                 String autnumKey = String.format("AS%s", key);
                 rdapRequestValidator.validateAutnum(autnumKey);
                 return lookupForAutNum(request, autnumKey);
             }
-            case DOMAIN: {
+            case DOMAIN -> {
                 rdapRequestValidator.validateDomain(key);
                 return lookupForDomain(request, key);
             }
-            case IP: {
+            case IP -> {
                 rdapRequestValidator.validateIp(request.getRequestURI(), key);
                 return lookupWithRedirectUrl(request, whoisObjectTypes, key);
             }
-            case ENTITY: {
+            case ENTITY -> {
                 rdapRequestValidator.validateEntity(key);
                 return key.toUpperCase().startsWith("ORG-") ? lookupForOrganisation(request, key) :
                         lookupObject(request, whoisObjectTypes, key);
             }
-            case NAMESERVER: {
+            case NAMESERVER -> {
                 throw new RdapException("501 Not Implemented", "Nameserver not supported", HttpStatus.NOT_IMPLEMENTED_501);
             }
-            default: {
+            default -> {
                 throw new RdapException("400 Bad Request", "unknown type" + requestType, HttpStatus.BAD_REQUEST_400);
             }
         }

@@ -544,7 +544,6 @@
                 <artifactId>jackson-module-jakarta-xmlbind-annotations</artifactId>
                 <version>${jackson.version}</version>
             </dependency>
-
             <!-- StaxUtils for the XMLWriterUtils -->
             <dependency>
                 <groupId>net.java.dev.stax-utils</groupId>
