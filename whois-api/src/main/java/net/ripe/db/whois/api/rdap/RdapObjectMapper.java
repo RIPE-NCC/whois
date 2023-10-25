@@ -80,7 +80,6 @@ import static net.ripe.db.whois.common.rpsl.AttributeType.ABUSE_MAILBOX;
 import static net.ripe.db.whois.common.rpsl.AttributeType.ADDRESS;
 import static net.ripe.db.whois.common.rpsl.AttributeType.ADMIN_C;
 import static net.ripe.db.whois.common.rpsl.AttributeType.DS_RDATA;
-import static net.ripe.db.whois.common.rpsl.AttributeType.E_MAIL;
 import static net.ripe.db.whois.common.rpsl.AttributeType.FAX_NO;
 import static net.ripe.db.whois.common.rpsl.AttributeType.GEOLOC;
 import static net.ripe.db.whois.common.rpsl.AttributeType.IRT;
@@ -639,7 +638,6 @@ class RdapObjectMapper {
         builder.addAdr(rpslObject.getValuesForAttribute(ADDRESS))
                 .addTel(rpslObject.getValuesForAttribute(PHONE))
                 .addFax(rpslObject.getValuesForAttribute(FAX_NO))
-                .addEmail(rpslObject.getValuesForAttribute(E_MAIL))
                 .addAbuseMailBox(rpslObject.getValueOrNullForAttribute(ABUSE_MAILBOX))
                 .addOrg(rpslObject.getValuesForAttribute(ORG))
                 .addGeo(rpslObject.getValuesForAttribute(GEOLOC));

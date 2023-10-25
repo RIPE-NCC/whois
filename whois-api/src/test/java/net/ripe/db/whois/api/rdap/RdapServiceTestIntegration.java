@@ -817,8 +817,7 @@ public class RdapServiceTestIntegration extends AbstractRdapIntegrationTest {
                 "[fn, {}, text, Pauleth Palthen], " +
                 "[kind, {}, text, individual], " +
                 "[adr, {label=Singel 258}, text, [, , , , , , ]], " +
-                "[tel, {type=voice}, text, +31-1234567890], " +
-                "[email, {type=email}, text, noreply@ripe.net]]"));
+                "[tel, {type=voice}, text, +31-1234567890]]"));
 
         assertThat(entity.getObjectClassName(), is("entity"));
 
@@ -908,8 +907,7 @@ public class RdapServiceTestIntegration extends AbstractRdapIntegrationTest {
                 "[[version, {}, text, 4.0], " +
                 "[fn, {}, text, First Role], " +
                 "[kind, {}, text, group], " +
-                "[adr, {label=Singel 258}, text, [, , , , , , ]], " +
-                "[email, {type=email}, text, dbtest@ripe.net]]"));
+                "[adr, {label=Singel 258}, text, [, , , , , , ]]]"));
 
         assertThat(entity.getEntitySearchResults(), hasSize(2));
         assertThat(entity.getEntitySearchResults().get(0).getHandle(), is("OWNER-MNT"));
@@ -1453,8 +1451,6 @@ public class RdapServiceTestIntegration extends AbstractRdapIntegrationTest {
                 "[kind, {}, text, group], " +
                 "[adr, {label=Singel 358}, text, [, , , , , , ]], " +
                 "[tel, {type=voice}, text, +31 6 12345678], " +
-                "[email, {type=email}, text, work@test.com], " +
-                "[email, {type=email}, text, personal@test.com], " +
                 "[email, {type=abuse}, text, abuse@test.net]]"));
     }
 
@@ -1494,8 +1490,7 @@ public class RdapServiceTestIntegration extends AbstractRdapIntegrationTest {
         assertThat(entities.get(0).getVCardArray().get(1).toString(), is("" +
                 "[[version, {}, text, 4.0], [fn, {}, text, irt-IRT1], " +
                 "[kind, {}, text, group], " +
-                "[adr, {label=Street 1}, text, [, , , , , , ]], " +
-                "[email, {type=email}, text, test@ripe.net]]"));
+                "[adr, {label=Street 1}, text, [, , , , , , ]]]"));
 
         assertThat(entities.get(1).getHandle(), is("OWNER-MNT"));
         assertThat(entities.get(1).getRoles(), contains(Role.REGISTRANT));
@@ -1563,8 +1558,6 @@ public class RdapServiceTestIntegration extends AbstractRdapIntegrationTest {
                 "[kind, {}, text, group], " +
                 "[adr, {label=Singel 358}, text, [, , , , , , ]], " +
                 "[tel, {type=voice}, text, +31 6 12345678], " +
-                "[email, {type=email}, text, work@test.com], " +
-                "[email, {type=email}, text, personal@test.com], " +
                 "[email, {type=abuse}, text, abuse@test.net]]"));
     }
 
@@ -2273,8 +2266,7 @@ public class RdapServiceTestIntegration extends AbstractRdapIntegrationTest {
                 "[[version, {}, text, 4.0], " +
                 "[fn, {}, text, Organisation One], " +
                 "[kind, {}, text, org], " +
-                "[adr, {label=One Org Street}, text, [, , , , , , ]], " +
-                "[email, {type=email}, text, test@ripe.net]]"));
+                "[adr, {label=One Org Street}, text, [, , , , , , ]]]"));
 
         assertCopyrightLink(entity.getLinks(), "https://rdap.db.ripe.net/entity/ORG-ONE-TEST");
 
