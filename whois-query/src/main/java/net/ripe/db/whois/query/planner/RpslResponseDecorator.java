@@ -153,13 +153,15 @@ public class RpslResponseDecorator {
     }
 
     private Iterable<? extends ResponseObject> filterAuth(Query query, final Iterable<? extends ResponseObject> objects) {
-        List<String> passwords = query.getPasswords();
+        final List<String> passwords = query.getPasswords();
         final String ssoToken = query.getSsoToken();
+        final String basicAuth = query.getBasicAuth();
 
         final FilterAuthFunction filterAuthFunction =
                 (CollectionUtils.isEmpty(passwords) && StringUtils.isBlank(ssoToken)) ?
                         FILTER_AUTH_FUNCTION :
-                        new FilterAuthFunction(passwords, ssoToken, ssoTokenTranslator, authServiceClient, rpslObjectDao);
+                        new FilterAuthFunction(passwords, ssoToken, ssoTokenTranslator, authServiceClient,
+                                rpslObjectDao, basicAuth);
 
         return Iterables.transform(objects, input -> {
             if (input instanceof RpslObject) {

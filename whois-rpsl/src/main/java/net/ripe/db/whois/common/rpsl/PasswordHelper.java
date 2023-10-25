@@ -1,10 +1,10 @@
 package net.ripe.db.whois.common.rpsl;
 
-import net.ripe.db.whois.common.domain.CIString;
 import org.apache.commons.codec.digest.Md5Crypt;
+import org.apache.commons.collections.KeyValue;
+import org.apache.commons.collections.keyvalue.DefaultKeyValue;
 
 import java.util.Arrays;
-import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -32,19 +32,15 @@ public class PasswordHelper {
         return false;
     }
 
-    public static boolean authenticateBasicAuth(final Set<CIString> mntnerKey, final String knownPasswd, final String basicAuthCredentials, final String salt){
-        if (basicAuthCredentials.contains(BASIC_AUTH_NAME_PASSWORD_SEPARATOR)){
-            final String[] basicAuthSplitCredentials = basicAuthCredentials.split(BASIC_AUTH_NAME_PASSWORD_SEPARATOR, 2);
-            final String basicAuthMntnKey = basicAuthSplitCredentials[0];
-            if (!mntnerKey.contains(CIString.ciString(basicAuthMntnKey))){
-                return false;
-            }
-            final String basicAuthMntnMd5Passwd = basicAuthSplitCredentials[1];
-            final String offered = Md5Crypt.md5Crypt(basicAuthMntnMd5Passwd.getBytes(), salt);
-            return knownPasswd.equals(offered);
+    public static KeyValue extractBasicAuthNameAndPassword(final String basicAuthCredentials){
+        if (basicAuthCredentials == null || !basicAuthCredentials.contains(BASIC_AUTH_NAME_PASSWORD_SEPARATOR)) {
+            return null;
         }
-        return false;
+        final String[] basicAuthSplitCredentials = basicAuthCredentials.split(BASIC_AUTH_NAME_PASSWORD_SEPARATOR, 2);
+        return new DefaultKeyValue(basicAuthSplitCredentials[0], basicAuthSplitCredentials[1]);
+
     }
+
     public static String hashMd5Password(final String cleantextPassword) {
         return Md5Crypt.md5Crypt(cleantextPassword.getBytes());
     }

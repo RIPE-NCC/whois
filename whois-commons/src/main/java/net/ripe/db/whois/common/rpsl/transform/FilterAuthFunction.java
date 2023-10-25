@@ -17,6 +17,7 @@ import net.ripe.db.whois.common.sso.AuthServiceClient;
 import net.ripe.db.whois.common.sso.AuthServiceClientException;
 import net.ripe.db.whois.common.sso.SsoTokenTranslator;
 import net.ripe.db.whois.common.sso.UserSession;
+import org.apache.commons.collections.KeyValue;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.util.CollectionUtils;
 
@@ -43,6 +44,8 @@ public class FilterAuthFunction implements FilterFunction {
     private List<String> passwords = null;
     private String token = null;
     private RpslObjectDao rpslObjectDao = null;
+
+    private String basicAuth = null;
     private SsoTokenTranslator ssoTokenTranslator;
     private AuthServiceClient authServiceClient;
 
@@ -50,12 +53,13 @@ public class FilterAuthFunction implements FilterFunction {
                               final String token,
                               final SsoTokenTranslator ssoTokenTranslator,
                               final AuthServiceClient authServiceClient,
-                              final RpslObjectDao rpslObjectDao) {
+                              final RpslObjectDao rpslObjectDao, final String basicAuth) {
         this.token = token;
         this.passwords = passwords;
         this.ssoTokenTranslator = ssoTokenTranslator;
         this.authServiceClient = authServiceClient;
         this.rpslObjectDao = rpslObjectDao;
+        this.basicAuth = basicAuth;
     }
 
     public FilterAuthFunction() {
@@ -105,7 +109,7 @@ public class FilterAuthFunction implements FilterFunction {
         final List<RpslAttribute> extendedAuthAttributes = Lists.newArrayList(rpslObject.findAttributes(AttributeType.AUTH));
         extendedAuthAttributes.addAll(getMntByAuthAttributes(rpslObject));
 
-        return passwordAuthentication(extendedAuthAttributes) || ssoAuthentication(extendedAuthAttributes);
+        return basicAuthAuthentication(rpslObject.getKey(), extendedAuthAttributes) || passwordAuthentication(extendedAuthAttributes) || ssoAuthentication(extendedAuthAttributes);
     }
 
     private Set<RpslAttribute> getMntByAuthAttributes(final RpslObject rpslObject) {
@@ -160,4 +164,18 @@ public class FilterAuthFunction implements FilterFunction {
         }
         return false;
     }
+
+    private boolean basicAuthAuthentication(final CIString mntnKey, final List<RpslAttribute> authAttributes){
+        final KeyValue keyValue = PasswordHelper.extractBasicAuthNameAndPassword(basicAuth);
+        if (keyValue == null || !mntnKey.equals(CIString.ciString(keyValue.getKey().toString()))){
+            return false;
+        }
+        for (RpslAttribute authAttribute : authAttributes) {
+            if (PasswordHelper.authenticateMd5Passwords(authAttribute.getCleanValue().toString(), keyValue.getValue().toString())) {
+                return true;
+            }
+        }
+        return false;
+    }
+
 }

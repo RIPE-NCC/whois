@@ -304,7 +304,7 @@ public class WhoisRestService {
 
         final Query query;
         try {
-            query = Query.parse(queryBuilder.build(key), crowdTokenKey, passwords, isTrusted(request)).setMatchPrimaryKeyOnly(true);
+            query = Query.parse(queryBuilder.build(key), crowdTokenKey, passwords, BasicAuthExtractor.getBasicAuth(request), isTrusted(request)).setMatchPrimaryKeyOnly(true);
         } catch (QueryException e) {
             throw RestServiceHelper.createWebApplicationException(e, request);
         }

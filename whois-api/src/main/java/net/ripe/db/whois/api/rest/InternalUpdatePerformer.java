@@ -2,7 +2,6 @@ package net.ripe.db.whois.api.rest;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
-import com.google.common.net.HttpHeaders;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.ws.rs.WebApplicationException;
 import jakarta.ws.rs.core.Response;
@@ -42,23 +41,17 @@ import net.ripe.db.whois.update.domain.UpdateStatus;
 import net.ripe.db.whois.update.handler.UpdateRequestHandler;
 import net.ripe.db.whois.update.log.LogCallback;
 import net.ripe.db.whois.update.log.LoggerContext;
-import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.lang.StringUtils;
-import org.eclipse.jetty.http.HttpScheme;
-import org.eclipse.jetty.http.HttpStatus;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.io.IOException;
 import java.io.OutputStream;
-import java.nio.charset.StandardCharsets;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-
-import static jakarta.servlet.http.HttpServletRequest.BASIC_AUTH;
 
 @Component
 public class InternalUpdatePerformer {
@@ -85,7 +78,7 @@ public class InternalUpdatePerformer {
         loggerContext.init(getRequestId(origin.getFrom()));
         final UpdateContext updateContext = new UpdateContext(loggerContext);
         setSsoSessionToContext(updateContext, ssoToken);
-        setBasicAuthToContext(updateContext, request);
+        updateContext.setBasicAuth(BasicAuthExtractor.getBasicAuth(request));
         updateContext.setClientCertificate(ClientCertificateExtractor.getClientCertificate(request, dateTimeProvider));
         return updateContext;
     }
@@ -238,21 +231,6 @@ public class InternalUpdatePerformer {
                 updateContext.addGlobalMessage(RestMessages.ssoAuthIgnored());
             }
         }
-    }
-
-    private void setBasicAuthToContext(final UpdateContext updateContext, final HttpServletRequest request){
-        final String authHeader = request.getHeader(HttpHeaders.AUTHORIZATION);
-        if (authHeader== null || !authHeader.toUpperCase().startsWith(BASIC_AUTH)){
-            return;
-        }
-        if (!HttpScheme.HTTPS.is(request.getHeader(HttpHeaders.X_FORWARDED_PROTO))){
-            throw new WebApplicationException(Response.status(HttpStatus.UPGRADE_REQUIRED_426)
-                    .entity(RestServiceHelper.createErrorEntity(request, RestMessages.httpVersionNotSupported()))
-                    .build());
-        }
-        final String base64Credentials = authHeader.substring(BASIC_AUTH.length()).trim();
-        final byte[] credDecoded = new Base64().decode(base64Credentials);
-        updateContext.setBasicAuth(new String(credDecoded, StandardCharsets.ISO_8859_1));
     }
 
     public void logInfo(final String message) {

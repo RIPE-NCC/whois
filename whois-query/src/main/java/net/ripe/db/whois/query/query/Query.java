@@ -60,8 +60,10 @@ public class Query {
     // TODO: [AH] these fields should be part of QueryContext, not Query
     private List<String> passwords;
     private String ssoToken;
-    private Origin origin;
-    private boolean trusted;
+
+    private String basicAuth;
+    private final Origin origin;
+    private final boolean trusted;
     // TODO: [AH] we should use -x flag for direct match for all object types instead of this hack
     private boolean matchPrimaryKeyOnly;
 
@@ -105,10 +107,12 @@ public class Query {
         }
     }
 
-    public static Query parse(final String args, final String ssoToken, final List<String> passwords, final boolean trusted) {
+    public static Query parse(final String args, final String ssoToken, final List<String> passwords,
+                              final String basicAuth, final boolean trusted) {
         final Query query = parse(args, Origin.REST, trusted);
         query.ssoToken = ssoToken;
         query.passwords = passwords;
+        query.basicAuth = basicAuth;
         return query;
     }
 
@@ -255,6 +259,10 @@ public class Query {
 
     public boolean isNoValidSyntax() {
         return queryParser.hasOption(QueryFlag.NO_VALID_SYNTAX);
+    }
+
+    public String getBasicAuth() {
+        return basicAuth;
     }
 
     public SystemInfoOption getSystemInfoOption() {
