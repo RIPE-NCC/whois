@@ -1279,6 +1279,126 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
                 new Attribute("mnt-by", "AUTH-MNT", null, "mntner", Link.create("http://rest-test.db.ripe.net/test/mntner/AUTH-MNT"), null),
                 new Attribute("source", "TEST", null, null, null, null)));
     }
+
+    @Test
+    public void lookup_mntner_basic_auth_wrong_passwd_is_filtered() {
+        databaseHelper.addObject("" +
+                "mntner:      AUTH-MNT\n" +
+                "descr:       Maintainer\n" +
+                "admin-c:     TP1-TEST\n" +
+                "upd-to:      noreply@ripe.net\n" +
+                "auth:        MD5-PW $1$d9fKeTr2$Si7YudNf4rUGmR71n/cqk/ #test\n" +
+                "mnt-by:      AUTH-MNT\n" +
+                "source:      TEST");
+
+        final WhoisResources whoisResources = RestTest.target(getPort(), "whois/test/mntner/AUTH-MNT?password=test1&unfiltered")
+                .register(HttpAuthenticationFeature.basicBuilder().build())
+                .request()
+                .property(HttpAuthenticationFeature.HTTP_AUTHENTICATION_BASIC_USERNAME, "AUTH-MNT")
+                .property(HttpAuthenticationFeature.HTTP_AUTHENTICATION_BASIC_PASSWORD, "wrong")
+                .header(X_FORWARDED_PROTO, HttpScheme.HTTPS)
+                .get(WhoisResources.class);
+
+        assertThat(whoisResources.getErrorMessages(), is(empty()));
+        assertThat(whoisResources.getWhoisObjects(), hasSize(1));
+        final WhoisObject whoisObject = whoisResources.getWhoisObjects().get(0);
+        assertThat(whoisObject.getAttributes(), contains(
+                new Attribute("mntner", "AUTH-MNT"),
+                new Attribute("descr", "Maintainer"),
+                new Attribute("admin-c", "TP1-TEST", null, "person", Link.create("http://rest-test.db.ripe.net/test/person/TP1-TEST"), null),
+                new Attribute("upd-to", "noreply@ripe.net", null, null, null, null),
+                new Attribute("auth", "MD5-PW", "Filtered", null, null, null),
+                new Attribute("mnt-by", "AUTH-MNT", null, "mntner", Link.create("http://rest-test.db.ripe.net/test/mntner/AUTH-MNT"), null),
+                new Attribute("source", "TEST", "Filtered", null, null, null)));
+    }
+
+    @Test
+    public void lookup_mntner_basic_auth_wrong_name_is_filtered() {
+        databaseHelper.addObject("" +
+                "mntner:      AUTH-MNT\n" +
+                "descr:       Maintainer\n" +
+                "admin-c:     TP1-TEST\n" +
+                "upd-to:      noreply@ripe.net\n" +
+                "auth:        MD5-PW $1$d9fKeTr2$Si7YudNf4rUGmR71n/cqk/ #test\n" +
+                "mnt-by:      AUTH-MNT\n" +
+                "source:      TEST");
+
+        final WhoisResources whoisResources = RestTest.target(getPort(), "whois/test/mntner/AUTH-MNT?password=test1&unfiltered")
+                .register(HttpAuthenticationFeature.basicBuilder().build())
+                .request()
+                .property(HttpAuthenticationFeature.HTTP_AUTHENTICATION_BASIC_USERNAME, "WRONG-MNT")
+                .property(HttpAuthenticationFeature.HTTP_AUTHENTICATION_BASIC_PASSWORD, "test")
+                .header(X_FORWARDED_PROTO, HttpScheme.HTTPS)
+                .get(WhoisResources.class);
+
+        assertThat(whoisResources.getErrorMessages(), is(empty()));
+        assertThat(whoisResources.getWhoisObjects(), hasSize(1));
+        final WhoisObject whoisObject = whoisResources.getWhoisObjects().get(0);
+        assertThat(whoisObject.getAttributes(), contains(
+                new Attribute("mntner", "AUTH-MNT"),
+                new Attribute("descr", "Maintainer"),
+                new Attribute("admin-c", "TP1-TEST", null, "person", Link.create("http://rest-test.db.ripe.net/test/person/TP1-TEST"), null),
+                new Attribute("upd-to", "noreply@ripe.net", null, null, null, null),
+                new Attribute("auth", "MD5-PW", "Filtered", null, null, null),
+                new Attribute("mnt-by", "AUTH-MNT", null, "mntner", Link.create("http://rest-test.db.ripe.net/test/mntner/AUTH-MNT"), null),
+                new Attribute("source", "TEST", "Filtered", null, null, null)));
+    }
+
+    @Test
+    public void lookup_mntner_wrong_basic_auth_correct_password_is_unfiltered() {
+        databaseHelper.addObject("" +
+                "mntner:      AUTH-MNT\n" +
+                "descr:       Maintainer\n" +
+                "admin-c:     TP1-TEST\n" +
+                "upd-to:      noreply@ripe.net\n" +
+                "auth:        MD5-PW $1$d9fKeTr2$Si7YudNf4rUGmR71n/cqk/ #test\n" +
+                "mnt-by:      AUTH-MNT\n" +
+                "source:      TEST");
+
+        final WhoisResources whoisResources = RestTest.target(getPort(), "whois/test/mntner/AUTH-MNT?password=test&unfiltered")
+                .register(HttpAuthenticationFeature.basicBuilder().build())
+                .request()
+                .property(HttpAuthenticationFeature.HTTP_AUTHENTICATION_BASIC_USERNAME, "WRONG-MNT")
+                .property(HttpAuthenticationFeature.HTTP_AUTHENTICATION_BASIC_PASSWORD, "wrong")
+                .header(X_FORWARDED_PROTO, HttpScheme.HTTPS)
+                .get(WhoisResources.class);
+
+        assertThat(whoisResources.getErrorMessages(), is(empty()));
+        assertThat(whoisResources.getWhoisObjects(), hasSize(1));
+        final WhoisObject whoisObject = whoisResources.getWhoisObjects().get(0);
+        assertThat(whoisObject.getAttributes(), contains(
+                new Attribute("mntner", "AUTH-MNT"),
+                new Attribute("descr", "Maintainer"),
+                new Attribute("admin-c", "TP1-TEST", null, "person", Link.create("http://rest-test.db.ripe.net/test/person/TP1-TEST"), null),
+                new Attribute("upd-to", "noreply@ripe.net", null, null, null, null),
+                new Attribute("auth", "MD5-PW $1$d9fKeTr2$Si7YudNf4rUGmR71n/cqk/", "test", null, null, null),
+                new Attribute("mnt-by", "AUTH-MNT", null, "mntner", Link.create("http://rest-test.db.ripe.net/test/mntner/AUTH-MNT"), null),
+                new Attribute("source", "TEST", null, null, null, null)));
+    }
+
+    @Test
+    public void lookup_mntner_basic_auth_http_then_error() {
+        databaseHelper.addObject("" +
+                "mntner:      AUTH-MNT\n" +
+                "descr:       Maintainer\n" +
+                "admin-c:     TP1-TEST\n" +
+                "upd-to:      noreply@ripe.net\n" +
+                "auth:        MD5-PW $1$d9fKeTr2$Si7YudNf4rUGmR71n/cqk/ #test\n" +
+                "mnt-by:      AUTH-MNT\n" +
+                "source:      TEST");
+
+        final WebApplicationException exception = assertThrows(WebApplicationException.class, () -> {
+                    RestTest.target(getPort(), "whois/test/mntner/AUTH-MNT?password=test&unfiltered")
+                            .register(HttpAuthenticationFeature.basicBuilder().build())
+                            .request()
+                            .property(HttpAuthenticationFeature.HTTP_AUTHENTICATION_BASIC_USERNAME, "AUTH-MNT")
+                            .property(HttpAuthenticationFeature.HTTP_AUTHENTICATION_BASIC_PASSWORD, "test")
+                            .get(WhoisResources.class);
+                });
+
+        assertThat(exception.getResponse().getStatus(), is(HttpStatus.UPGRADE_REQUIRED_426));
+    }
+
     @Test
     public void lookup_mntner_xml_text() {
         databaseHelper.addObject(RpslObjectFilter.buildGenericObject(OWNER_MNT, "mntner: TRICKY-MNT", "remarks: ", "remarks: remark with # comment"));
