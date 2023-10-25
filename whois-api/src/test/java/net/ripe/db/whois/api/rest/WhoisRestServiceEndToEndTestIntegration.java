@@ -148,7 +148,7 @@ public class WhoisRestServiceEndToEndTestIntegration extends AbstractIntegration
                     .post(Entity.entity(whoisObjectMapper.mapRpslObjects(FormattedClientAttributeMapper.class, assignment), mediaType), WhoisResources.class);
 
             assertThat(whoisResources.getErrorMessages(), hasSize(1));
-            RestTest.assertErrorMessage(whoisResources, 0, "Warning", "Password parameter has been deprecated, use basic auth instead");
+            RestTest.assertErrorMessage(whoisResources, 0, "Warning", "The password query parameter is deprecated, please switch to HTTP basic access authentication.");
             assertThat(whoisResources.getWhoisObjects(), hasSize(1));
             assertThat(whoisResources.getWhoisObjects().get(0).getPrimaryKey().get(0).getValue(), is("10.0.0.0 - 10.0.255.255"));
         } catch (ClientErrorException e) {
@@ -171,7 +171,7 @@ public class WhoisRestServiceEndToEndTestIntegration extends AbstractIntegration
                     .post(Entity.entity(whoisObjectMapper.mapRpslObjects(FormattedClientAttributeMapper.class, assignment), mediaType), WhoisResources.class);
 
             assertThat(whoisResources.getErrorMessages(), hasSize(1));
-            RestTest.assertErrorMessage(whoisResources, 0, "Warning", "Password parameter has been deprecated, use basic auth instead");
+            RestTest.assertErrorMessage(whoisResources, 0, "Warning", "The password query parameter is deprecated, please switch to HTTP basic access authentication.");
             assertThat(whoisResources.getWhoisObjects(), hasSize(1));
             assertThat(whoisResources.getWhoisObjects().get(0).getPrimaryKey().get(0).getValue(), is("10.0.0.0 - 10.0.255.255"));
         } catch (ClientErrorException e) {
@@ -194,7 +194,7 @@ public class WhoisRestServiceEndToEndTestIntegration extends AbstractIntegration
                     .post(Entity.entity(whoisObjectMapper.mapRpslObjects(FormattedClientAttributeMapper.class, assignment), mediaType), WhoisResources.class);
 
             assertThat(whoisResources.getErrorMessages(), hasSize(1));
-            RestTest.assertErrorMessage(whoisResources, 0, "Warning", "Password parameter has been deprecated, use basic auth instead");
+            RestTest.assertErrorMessage(whoisResources, 0, "Warning", "The password query parameter is deprecated, please switch to HTTP basic access authentication.");
             assertThat(whoisResources.getWhoisObjects(), hasSize(1));
             assertThat(whoisResources.getWhoisObjects().get(0).getPrimaryKey().get(0).getValue(), is("10.0.0.0 - 10.0.255.255"));
         } catch (ClientErrorException e) {
@@ -253,7 +253,7 @@ public class WhoisRestServiceEndToEndTestIntegration extends AbstractIntegration
                     .post(Entity.entity(whoisObjectMapper.mapRpslObjects(FormattedClientAttributeMapper.class, assignment), mediaType), WhoisResources.class);
 
             assertThat(whoisResources.getErrorMessages(), hasSize(1));
-            RestTest.assertErrorMessage(whoisResources, 0, "Warning", "Password parameter has been deprecated, use basic auth instead");
+            RestTest.assertErrorMessage(whoisResources, 0, "Warning", "The password query parameter is deprecated, please switch to HTTP basic access authentication.");
             assertThat(whoisResources.getWhoisObjects(), hasSize(1));
             assertThat(whoisResources.getWhoisObjects().get(0).getPrimaryKey().get(0).getValue(), is("10.0.0.0 - 10.0.255.255"));
         } catch (ClientErrorException e) {
@@ -275,7 +275,7 @@ public class WhoisRestServiceEndToEndTestIntegration extends AbstractIntegration
                     .post(Entity.entity(whoisObjectMapper.mapRpslObjects(FormattedClientAttributeMapper.class, assignment), mediaType), WhoisResources.class);
 
             assertThat(whoisResources.getErrorMessages(), hasSize(1));
-            RestTest.assertErrorMessage(whoisResources, 0, "Warning", "Password parameter has been deprecated, use basic auth instead");
+            RestTest.assertErrorMessage(whoisResources, 0, "Warning", "The password query parameter is deprecated, please switch to HTTP basic access authentication.");
             assertThat(whoisResources.getWhoisObjects(), hasSize(1));
             assertThat(whoisResources.getWhoisObjects().get(0).getPrimaryKey().get(0).getValue(), is("10.0.0.0 - 10.0.255.255"));
         } catch (ClientErrorException e) {
@@ -298,7 +298,7 @@ public class WhoisRestServiceEndToEndTestIntegration extends AbstractIntegration
                     .post(Entity.entity(whoisObjectMapper.mapRpslObjects(FormattedClientAttributeMapper.class, assignment), mediaType), WhoisResources.class);
 
             assertThat(whoisResources.getErrorMessages(), hasSize(1));
-            RestTest.assertErrorMessage(whoisResources, 0, "Warning", "Password parameter has been deprecated, use basic auth instead");
+            RestTest.assertErrorMessage(whoisResources, 0, "Warning", "The password query parameter is deprecated, please switch to HTTP basic access authentication.");
             assertThat(whoisResources.getWhoisObjects(), hasSize(1));
             assertThat(whoisResources.getWhoisObjects().get(0).getPrimaryKey().get(0).getValue(), is("10.0.0.0 - 10.0.255.255"));
         } catch (ClientErrorException e) {
@@ -338,7 +338,7 @@ public class WhoisRestServiceEndToEndTestIntegration extends AbstractIntegration
                     .post(Entity.entity(whoisObjectMapper.mapRpslObjects(FormattedClientAttributeMapper.class, assignment), MediaType.APPLICATION_XML), WhoisResources.class);
 
             assertThat(whoisResources.getErrorMessages(), hasSize(1));
-            RestTest.assertErrorMessage(whoisResources, 0, "Warning", "Password parameter has been deprecated, use basic auth instead");
+            RestTest.assertErrorMessage(whoisResources, 0, "Warning", "The password query parameter is deprecated, please switch to HTTP basic access authentication.");
             assertThat(whoisResources.getWhoisObjects(), hasSize(1));
             assertThat(whoisResources.getWhoisObjects().get(0).getPrimaryKey().get(0).getValue(), is("10.0.0.0 - 10.0.255.255"));
         } catch (ClientErrorException e) {
@@ -381,7 +381,7 @@ public class WhoisRestServiceEndToEndTestIntegration extends AbstractIntegration
                     .post(Entity.entity(whoisObjectMapper.mapRpslObjects(FormattedClientAttributeMapper.class, assignment), mediaType), WhoisResources.class);
 
             assertThat(whoisResources.getErrorMessages(), hasSize(1));
-            RestTest.assertErrorMessage(whoisResources, 0, "Warning", "Password parameter has been deprecated, use basic auth instead");
+            RestTest.assertErrorMessage(whoisResources, 0, "Warning", "The password query parameter is deprecated, please switch to HTTP basic access authentication.");
             assertThat(whoisResources.getWhoisObjects(), hasSize(1));
             assertThat(whoisResources.getWhoisObjects().get(0).getPrimaryKey().get(0).getValue(), is("10.0.0.0 - 10.0.255.255"));
         } catch (ClientErrorException e) {
@@ -406,7 +406,7 @@ public class WhoisRestServiceEndToEndTestIntegration extends AbstractIntegration
                     .post(Entity.entity(whoisObjectMapper.mapRpslObjects(FormattedClientAttributeMapper.class, assignment), MediaType.APPLICATION_XML), WhoisResources.class);
 
             assertThat(whoisResources.getErrorMessages(), hasSize(1));
-            RestTest.assertErrorMessage(whoisResources, 0, "Warning", "Password parameter has been deprecated, use basic auth instead");
+            RestTest.assertErrorMessage(whoisResources, 0, "Warning", "The password query parameter is deprecated, please switch to HTTP basic access authentication.");
             assertThat(whoisResources.getWhoisObjects(), hasSize(1));
             assertThat(whoisResources.getWhoisObjects().get(0).getPrimaryKey().get(0).getValue(), is("10.0.0.0 - 10.0.255.255"));
         } catch (ClientErrorException e) {
@@ -431,7 +431,7 @@ public class WhoisRestServiceEndToEndTestIntegration extends AbstractIntegration
                     .post(Entity.entity(whoisObjectMapper.mapRpslObjects(FormattedClientAttributeMapper.class, assignment), MediaType.APPLICATION_XML), WhoisResources.class);
 
             assertThat(whoisResources.getErrorMessages(), hasSize(1));
-            RestTest.assertErrorMessage(whoisResources, 0, "Warning", "Password parameter has been deprecated, use basic auth instead");
+            RestTest.assertErrorMessage(whoisResources, 0, "Warning", "The password query parameter is deprecated, please switch to HTTP basic access authentication.");
             assertThat(whoisResources.getWhoisObjects(), hasSize(1));
             assertThat(whoisResources.getWhoisObjects().get(0).getPrimaryKey().get(0).getValue(), is("10.0.0.0 - 10.0.255.255"));
         } catch (ClientErrorException e) {
@@ -477,7 +477,7 @@ public class WhoisRestServiceEndToEndTestIntegration extends AbstractIntegration
                     .post(Entity.entity(whoisObjectMapper.mapRpslObjects(FormattedClientAttributeMapper.class, assignment), mediaType), WhoisResources.class);
 
             assertThat(whoisResources.getErrorMessages(), hasSize(1));
-            RestTest.assertErrorMessage(whoisResources, 0, "Warning", "Password parameter has been deprecated, use basic auth instead");
+            RestTest.assertErrorMessage(whoisResources, 0, "Warning", "The password query parameter is deprecated, please switch to HTTP basic access authentication.");
             assertThat(whoisResources.getWhoisObjects(), hasSize(1));
             assertThat(whoisResources.getWhoisObjects().get(0).getPrimaryKey().get(0).getValue(), is("10.0.0.0 - 10.0.255.255"));
         } catch (ClientErrorException e) {
@@ -574,7 +574,7 @@ public class WhoisRestServiceEndToEndTestIntegration extends AbstractIntegration
                     .put(Entity.entity(whoisObjectMapper.mapRpslObjects(FormattedClientAttributeMapper.class, updatedAssignment), MediaType.APPLICATION_XML), WhoisResources.class);
 
             assertThat(whoisResources.getErrorMessages(), hasSize(1));
-            RestTest.assertErrorMessage(whoisResources, 0, "Warning", "Password parameter has been deprecated, use basic auth instead");
+            RestTest.assertErrorMessage(whoisResources, 0, "Warning", "The password query parameter is deprecated, please switch to HTTP basic access authentication.");
             assertThat(whoisResources.getWhoisObjects(), hasSize(1));
             assertThat(whoisResources.getWhoisObjects().get(0).getPrimaryKey().get(0).getValue(), is("10.0.0.0 - 10.0.255.255"));
         } catch (ClientErrorException e) {
@@ -768,7 +768,7 @@ public class WhoisRestServiceEndToEndTestIntegration extends AbstractIntegration
                 Authorisation for [%s] %s failed
                 using "%s:"
                 not authenticated by: %s""");
-        RestTest.assertErrorMessage(whoisResources, 1, "Warning", "Password parameter has been deprecated, use basic auth instead");
+        RestTest.assertErrorMessage(whoisResources, 1, "Warning", "The password query parameter is deprecated, please switch to HTTP basic access authentication.");
 
         assertThat(errorMessages.get(0).getArgs(), hasSize(args.length));
         for (int i = 0; i < args.length; i++) {

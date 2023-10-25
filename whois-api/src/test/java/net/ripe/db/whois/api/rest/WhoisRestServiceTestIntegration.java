@@ -1613,7 +1613,7 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
                 .post(Entity.entity(map(PAULETH_PALTHEN), MediaType.APPLICATION_XML), WhoisResources.class);
 
         assertThat(whoisResources.getErrorMessages(), hasSize(1));
-        RestTest.assertErrorMessage(whoisResources, 0, "Warning", "Password parameter has been deprecated, use basic auth instead");
+        RestTest.assertErrorMessage(whoisResources, 0, "Warning", "The password query parameter is deprecated, please switch to HTTP basic access authentication.");
     }
 
 
@@ -1893,7 +1893,7 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
                 .request()
                 .post(Entity.entity(map(TEST_AS_SET), MediaType.APPLICATION_XML), WhoisResources.class);
         assertThat(whoisResources.getErrorMessages(), hasSize(2));
-        RestTest.assertErrorMessage(whoisResources, 0, "Warning", "Password parameter has been deprecated, use basic auth instead");
+        RestTest.assertErrorMessage(whoisResources, 0, "Warning", "The password query parameter is deprecated, please switch to HTTP basic access authentication.");
         RestTest.assertErrorMessage(whoisResources, 1, "Warning", "The \"source:\" attribute value has been updated from \"%s\" to \"%s\" to match the referenced AUT-NUM \"%s\"", "TEST", "TEST-NONAUTH",
                 "AS3333");
 
@@ -1954,7 +1954,7 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
                 .post(Entity.entity(map(TEST_AS_SET), MediaType.APPLICATION_XML), WhoisResources.class);
         assertThat(whoisResources.getErrorMessages(), hasSize(2));
 
-        RestTest.assertErrorMessage(whoisResources, 0, "Warning", "Password parameter has been deprecated, use basic auth instead");
+        RestTest.assertErrorMessage(whoisResources, 0, "Warning", "The password query parameter is deprecated, please switch to HTTP basic access authentication.");
         RestTest.assertErrorMessage(whoisResources, 1, "Warning", "The \"source:\" attribute value has been updated from \"%s\" to \"%s\" to match the referenced AUT-NUM \"%s\"", "TEST", "TEST-NONAUTH", "AS3333");
 
         final WhoisObject object = whoisResources.getWhoisObjects().get(0);
@@ -1987,7 +1987,7 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
                 .post(Entity.entity(map(TEST_AS_SET), MediaType.APPLICATION_XML), WhoisResources.class);
 
         assertThat(whoisResources.getErrorMessages(), hasSize(2));
-        RestTest.assertErrorMessage(whoisResources, 0, "Warning", "Password parameter has been deprecated, use basic auth instead");
+        RestTest.assertErrorMessage(whoisResources, 0, "Warning", "The password query parameter is deprecated, please switch to HTTP basic access authentication.");
         RestTest.assertErrorMessage(whoisResources, 1, "Warning", "The \"source:\" attribute value has been updated from \"%s\" to \"%s\" to match the referenced AUT-NUM \"%s\"", "TEST-NONAUTH", "TEST",
                 "AS3333");
 
@@ -2378,7 +2378,7 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
 
         assertThat(response.getErrorMessages(), hasSize(2));
 
-        RestTest.assertErrorMessage(response, 0, "Warning", "Password parameter has been deprecated, use basic auth instead");
+        RestTest.assertErrorMessage(response, 0, "Warning", "The password query parameter is deprecated, please switch to HTTP basic access authentication.");
         RestTest.assertErrorMessage(response, 1, "Warning", "Invalid character(s) were substituted in attribute \"%s\" value");
 
         assertThat(response.getErrorMessages().get(1).getArgs(), hasSize(1));
@@ -2419,7 +2419,7 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
                                 "</whois-resources>", MediaType.APPLICATION_XML), WhoisResources.class);
 
         RestTest.assertWarningCount(response, 3);
-        RestTest.assertErrorMessage(response, 0, "Warning", "Password parameter has been deprecated, use basic auth instead");
+        RestTest.assertErrorMessage(response, 0, "Warning", "The password query parameter is deprecated, please switch to HTTP basic access authentication.");
         RestTest.assertErrorMessage(response, 1, "Warning", "Submitted object identical to database object");
         RestTest.assertErrorMessage(response, 2, "Warning", "Invalid character(s) were substituted in attribute \"%s\" value", "person");
     }
@@ -2963,7 +2963,7 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
                                 </object>
                             </objects>
                             <errormessages>
-                                <errormessage severity="Warning" text="Password parameter has been deprecated, use basic auth instead"/>
+                                <errormessage severity="Warning" text="The password query parameter is deprecated, please switch to HTTP basic access authentication."/>
                             </errormessages>
                             <terms-and-conditions xlink:type="locator" xlink:href="https://apps.db.ripe.net/docs/HTML-Terms-And-Conditions"/>
                         </whois-resources>""", getPort())));
@@ -3077,7 +3077,7 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
                   "errormessages" : {
                     "errormessage" : [ {
                       "severity" : "Warning",
-                      "text" : "Password parameter has been deprecated, use basic auth instead"
+                      "text" : "The password query parameter is deprecated, please switch to HTTP basic access authentication."
                     } ]
                   },
                   "terms-and-conditions" : {
@@ -3271,7 +3271,7 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
 
         final List<ErrorMessage> messages = whoisResources.getErrorMessages();
         assertThat(messages, hasSize(2));
-        RestTest.assertErrorMessage(whoisResources, 0, "Warning", "Password parameter has been deprecated, use basic auth instead");
+        RestTest.assertErrorMessage(whoisResources, 0, "Warning", "The password query parameter is deprecated, please switch to HTTP basic access authentication.");
         RestTest.assertErrorMessage(whoisResources, 1, "Info", "Dry-run performed, no changes to the database have been made");
 
         assertThat(RestTest.target(getPort(), "whois/test/person/PP1-TEST").request().get().getStatus(), is(HttpStatus.NOT_FOUND_404));
@@ -3286,7 +3286,7 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
         final List<ErrorMessage> messages = whoisResources.getErrorMessages();
 
         assertThat(messages, hasSize(2));
-        RestTest.assertErrorMessage(whoisResources, 0, "Warning", "Password parameter has been deprecated, use basic auth instead");
+        RestTest.assertErrorMessage(whoisResources, 0, "Warning", "The password query parameter is deprecated, please switch to HTTP basic access authentication.");
         RestTest.assertErrorMessage(whoisResources, 1, "Info", "Dry-run performed, no changes to the database have been made");
 
         assertThat(RestTest.target(getPort(), "whois/test/person/PP1-TEST").request().get().getStatus(), is(HttpStatus.NOT_FOUND_404));
@@ -3301,7 +3301,7 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
         final List<ErrorMessage> messages = whoisResources.getErrorMessages();
         assertThat(messages, hasSize(1));
 
-        RestTest.assertErrorMessage(whoisResources, 0, "Warning", "Password parameter has been deprecated, use basic auth instead");
+        RestTest.assertErrorMessage(whoisResources, 0, "Warning", "The password query parameter is deprecated, please switch to HTTP basic access authentication.");
         assertThat(RestTest.target(getPort(), "whois/test/person/PP1-TEST").request().get().getStatus(), is(HttpStatus.OK_200));
     }
 
@@ -3319,7 +3319,7 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
                                     WhoisResources.class);
 
             RestTest.assertWarningCount(response, 2);
-            RestTest.assertErrorMessage(response, 0, "Warning", "Password parameter has been deprecated, use basic auth instead");
+            RestTest.assertErrorMessage(response, 0, "Warning", "The password query parameter is deprecated, please switch to HTTP basic access authentication.");
             RestTest.assertErrorMessage(response, 1, "Warning", "Value changed due to conversion into the ISO-8859-1 (Latin-1) character set");
 
             final RpslObject lookupObject = databaseHelper.lookupObject(ObjectType.PERSON, "TP1-TEST");
@@ -3623,7 +3623,7 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
                 .post(Entity.entity(map(personObject), MediaType.APPLICATION_JSON_TYPE), WhoisResources.class);
 
         assertThat(whoisResources.getErrorMessages(), hasSize(1));
-        RestTest.assertErrorMessage(whoisResources, 0, "Warning", "Password parameter has been deprecated, use basic auth instead");
+        RestTest.assertErrorMessage(whoisResources, 0, "Warning", "The password query parameter is deprecated, please switch to HTTP basic access authentication.");
 
         final WhoisObject object = whoisResources.getWhoisObjects().get(0);
         assertThat(object.getAttributes(), hasItem(new Attribute("person", "Some Person")));
@@ -3742,7 +3742,7 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
                 .delete(WhoisResources.class);
 
         RestTest.assertInfoCount(whoisResources, 1);
-        RestTest.assertErrorMessage(whoisResources, 0, "Warning", "Password parameter has been deprecated, use basic auth instead");
+        RestTest.assertErrorMessage(whoisResources, 0, "Warning", "The password query parameter is deprecated, please switch to HTTP basic access authentication.");
         RestTest.assertErrorMessage(whoisResources, 1, "Info", "RIPE NCC Access token ignored");
         assertThat(whoisResources.getWhoisObjects(), hasSize(1));
         assertThat(whoisResources.getWhoisObjects().get(0).getAttributes(), hasItem(new Attribute("auth", "SSO person@net.net")));
@@ -3980,7 +3980,7 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
                 .delete(WhoisResources.class);
 
         assertThat(whoisResources.getErrorMessages(), hasSize(1));
-        RestTest.assertErrorMessage(whoisResources, 0, "Warning", "Password parameter has been deprecated, use basic auth instead");
+        RestTest.assertErrorMessage(whoisResources, 0, "Warning", "The password query parameter is deprecated, please switch to HTTP basic access authentication.");
 
         assertThat(whoisResources.getWhoisObjects(), hasSize(1));
         assertThat(whoisResources.getWhoisObjects().get(0).getAttributes(), hasItem(new Attribute("person", "Pauleth Palthen")));
@@ -3997,7 +3997,7 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
         final List<ErrorMessage> messages = whoisResources.getErrorMessages();
         assertThat(messages, hasSize(2));
 
-        RestTest.assertErrorMessage(whoisResources, 0, "Warning", "Password parameter has been deprecated, use basic auth instead");
+        RestTest.assertErrorMessage(whoisResources, 0, "Warning", "The password query parameter is deprecated, please switch to HTTP basic access authentication.");
         RestTest.assertErrorMessage(whoisResources, 1, "Info", "Dry-run performed, no changes to the database have been made");
 
         assertThat(RestTest.target(getPort(), "whois/test/person/PP1-TEST").request().get().getStatus(), is(HttpStatus.OK_200));
@@ -4049,7 +4049,7 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
                 .put(Entity.entity(map(updatedObject), MediaType.APPLICATION_XML), WhoisResources.class);
 
         RestTest.assertInfoCount(whoisResources, 1);
-        RestTest.assertErrorMessage(whoisResources, 0, "Warning", "Password parameter has been deprecated, use basic auth instead");
+        RestTest.assertErrorMessage(whoisResources, 0, "Warning", "The password query parameter is deprecated, please switch to HTTP basic access authentication.");
         RestTest.assertErrorMessage(whoisResources, 1, "Info", "Value %s converted to %s", "test", "TEST");
         assertThat(whoisResources.getWhoisObjects(), hasSize(1));
         final WhoisObject object = whoisResources.getWhoisObjects().get(0);
@@ -4147,7 +4147,7 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
 
         assertThat(whoisResources.getErrorMessages(), hasSize(3));
 
-        RestTest.assertErrorMessage(whoisResources, 0, "Warning", "Password parameter has been deprecated, use basic auth instead");
+        RestTest.assertErrorMessage(whoisResources, 0, "Warning", "The password query parameter is deprecated, please switch to HTTP basic access authentication.");
         RestTest.assertErrorMessage(whoisResources, 1, "Warning", "The \"source:\" attribute value has been updated from \"%s\" to \"%s\" to match the referenced AUT-NUM \"%s\"", "TEST", "TEST-NONAUTH",
                 "AS3334");
 
@@ -4186,7 +4186,7 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
                 .put(Entity.entity(map(updatedObject), MediaType.APPLICATION_XML), WhoisResources.class);
 
         assertThat(whoisResources.getErrorMessages(), hasSize(3));
-        RestTest.assertErrorMessage(whoisResources, 0, "Warning", "Password parameter has been deprecated, use basic auth instead");
+        RestTest.assertErrorMessage(whoisResources, 0, "Warning", "The password query parameter is deprecated, please switch to HTTP basic access authentication.");
         RestTest.assertErrorMessage(whoisResources, 1, "Warning", "Supplied attribute '%s' has been replaced with a generated value", "source");
 
         assertThat(whoisResources.getWhoisObjects(), hasSize(1));
@@ -4216,7 +4216,7 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
                 .put(Entity.entity(map(updatedObject), MediaType.APPLICATION_XML), WhoisResources.class);
 
         assertThat(whoisResources.getErrorMessages(), hasSize(1));
-        RestTest.assertErrorMessage(whoisResources, 0, "Warning", "Password parameter has been deprecated, use basic auth instead");
+        RestTest.assertErrorMessage(whoisResources, 0, "Warning", "The password query parameter is deprecated, please switch to HTTP basic access authentication.");
 
         assertThat(whoisResources.getWhoisObjects(), hasSize(1));
         assertThat(whoisResources.getWhoisObjects().get(0).getAttributes(), hasItem(new Attribute("descr", "Test maintainer updated")));
@@ -4266,7 +4266,7 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
 
         RestTest.assertWarningCount(whoisResources, 2);
 
-        RestTest.assertErrorMessage(whoisResources, 0, "Warning", "Password parameter has been deprecated, use basic auth instead");
+        RestTest.assertErrorMessage(whoisResources, 0, "Warning", "The password query parameter is deprecated, please switch to HTTP basic access authentication.");
         RestTest.assertErrorMessage(whoisResources, 1, "Warning", "Submitted object identical to database object");
 
         assertThat(whoisResources.getWhoisObjects(), hasSize(1));
@@ -4464,7 +4464,7 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
                   "errormessages" : {
                     "errormessage" : [ {
                       "severity" : "Warning",
-                      "text" : "Password parameter has been deprecated, use basic auth instead"
+                      "text" : "The password query parameter is deprecated, please switch to HTTP basic access authentication."
                     } ]
                   },
                   "terms-and-conditions" : {
@@ -4972,7 +4972,7 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
         final List<ErrorMessage> messages = whoisResources.getErrorMessages();
         assertThat(messages, hasSize(2));
 
-        RestTest.assertErrorMessage(whoisResources, 0, "Warning", "Password parameter has been deprecated, use basic auth instead");
+        RestTest.assertErrorMessage(whoisResources, 0, "Warning", "The password query parameter is deprecated, please switch to HTTP basic access authentication.");
         RestTest.assertErrorMessage(whoisResources, 1, "Info", "Dry-run performed, no changes to the database have been made");
 
         final String storedObject = RestTest.target(getPort(), "whois/test/person/PP1-TEST").request().get(String.class);
@@ -5150,7 +5150,7 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
 
         RestTest.assertInfoCount(createResponse, 1);
 
-        RestTest.assertErrorMessage(createResponse, 0, "Warning", "Password parameter has been deprecated, use basic auth instead");
+        RestTest.assertErrorMessage(createResponse, 0, "Warning", "The password query parameter is deprecated, please switch to HTTP basic access authentication.");
         RestTest.assertErrorMessage(createResponse, 1, "Info", "Please use the \"remarks:\" attribute instead of end of line comment on primary key");
         assertThat(createResponse.getErrorMessages().get(1).getAttribute(), is(new Attribute("nic-hdl", "PP1-TEST # create comment")));
 
@@ -5170,7 +5170,7 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
                 .put(Entity.entity(map(updatePerson), MediaType.APPLICATION_XML), WhoisResources.class);
 
         RestTest.assertInfoCount(updateResponse, 2);
-        RestTest.assertErrorMessage(updateResponse, 0, "Warning", "Password parameter has been deprecated, use basic auth instead");
+        RestTest.assertErrorMessage(updateResponse, 0, "Warning", "The password query parameter is deprecated, please switch to HTTP basic access authentication.");
         RestTest.assertErrorMessage(updateResponse, 1, "Info", "Please use the \"remarks:\" attribute instead of end of line comment on primary key");
         assertThat(updateResponse.getErrorMessages().get(1).getAttribute(), is(new Attribute("person", "Pauleth Palthen # comment")));
         RestTest.assertErrorMessage(updateResponse, 1, "Info", "Please use the \"remarks:\" attribute instead of end of line comment on primary key");

@@ -90,7 +90,7 @@ public class RipeMaintainerAuthenticationRestTestIntegration extends AbstractInt
                 .post(Entity.entity(map(TEST_PERSON), MediaType.APPLICATION_XML), WhoisResources.class);
 
         assertThat(whoisResources.getErrorMessages(), hasSize(1));
-        RestTest.assertErrorMessage(whoisResources, 0, "Warning", "Password parameter has been deprecated, use basic auth instead");
+        RestTest.assertErrorMessage(whoisResources, 0, "Warning", "The password query parameter is deprecated, please switch to HTTP basic access authentication.");
         assertThat(whoisResources.getWhoisObjects(), hasSize(1));
         assertThat(whoisResources.getWhoisObjects().get(0).getPrimaryKey().get(0).getValue(), is("TP1-TEST"));
     }

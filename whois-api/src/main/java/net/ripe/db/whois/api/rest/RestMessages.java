@@ -48,7 +48,7 @@ public class RestMessages {
     }
 
     public static Message deprecatedPasswordParameter(){
-        return new Message(Messages.Type.WARNING, "Password parameter has been deprecated, use basic auth instead");
+        return new Message(Messages.Type.WARNING, "The password query parameter is deprecated, please switch to HTTP basic access authentication.");
     }
 
     public static Message jsonProcessingError(final JsonProcessingException e) {
