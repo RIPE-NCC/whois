@@ -78,7 +78,6 @@ public class InternalUpdatePerformer {
         loggerContext.init(getRequestId(origin.getFrom()));
         final UpdateContext updateContext = new UpdateContext(loggerContext);
         setSsoSessionToContext(updateContext, ssoToken);
-        updateContext.setBasicAuth(BasicAuthExtractor.getBasicAuth(request));
         updateContext.setClientCertificate(ClientCertificateExtractor.getClientCertificate(request, dateTimeProvider));
         return updateContext;
     }

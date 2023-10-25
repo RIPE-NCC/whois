@@ -82,6 +82,7 @@ public class DomainObjectService {
             final Origin origin = updatePerformer.createOrigin(request);
 
             final UpdateContext updateContext = updatePerformer.initContext(origin, crowdTokenKey, request);
+            updateContext.setBasicAuth(BasicAuthExtractor.getBasicAuth(request));
             updateContext.setBatchUpdate();
 
             auditlogRequest(request);

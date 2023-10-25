@@ -187,7 +187,14 @@ public class ReferencesService {
 
             validateObjectNotFound(whoisResources, mntner);
 
-            final WhoisResources updatedResources = performUpdates(request, actionRequests, passwords, crowdTokenKey, null, SsoAuthForm.ACCOUNT, null);
+            final Origin origin = updatePerformer.createOrigin(request);
+            final UpdateContext updateContext = updatePerformer.initContext(origin, crowdTokenKey, request);
+            updateContext.setBatchUpdate();
+            updateContext.setBasicAuth(BasicAuthExtractor.getBasicAuth(request));
+            auditlogRequest(request);
+
+            final List<Update> updates = prepareUpdates(updateContext, actionRequests, passwords, null, SsoAuthForm.ACCOUNT, null);
+            final WhoisResources updatedResources = performUpdates(origin, updateContext, updates, request);
             return createResponse(request, filterWhoisObjects(updatedResources), Response.Status.OK);
 
         } catch (WebApplicationException e) {
@@ -225,40 +232,37 @@ public class ReferencesService {
         return builder.get();
     }
 
+
+    private List<Update> prepareUpdates(
+            final UpdateContext updateContext,
+            final List<ActionRequest> actionRequests,
+            final List<String> passwords,
+            final String override,
+            final SsoAuthForm ssoAuthForm,
+            final String reason) {
+        final List<Update> updates = Lists.newArrayList();
+        for (final ActionRequest actionRequest : actionRequests) {
+            final String deleteReason = Action.DELETE.equals(actionRequest.getAction()) ? (reason != null ? reason : "--") : null;
+
+            final RpslObject rpslObject;
+            if (ssoAuthForm == SsoAuthForm.UUID) {
+                ssoTranslator.populateCacheAuthToUsername(updateContext, actionRequest.getRpslObject());
+                rpslObject = ssoTranslator.translateFromCacheAuthToUsername(updateContext, actionRequest.getRpslObject());
+            } else {
+                rpslObject = actionRequest.getRpslObject();
+            }
+            updates.add(updatePerformer.createUpdate(updateContext, rpslObject, passwords, deleteReason, override));
+        }
+        return updates;
+    }
+
     /**
      * Update multiple objects in the database. Rollback if any update fails.
      * Must be public for Transaction-annotation to have effect
      */
     @Transactional(isolation = Isolation.READ_COMMITTED, propagation = Propagation.REQUIRES_NEW)
-    public WhoisResources performUpdates(
-            final HttpServletRequest request,
-            final List<ActionRequest> actionRequests,
-            final List<String> passwords,
-            final String crowdTokenKey,
-            final String override,
-            final SsoAuthForm ssoAuthForm,
-            final String reason) {
-
+    public WhoisResources performUpdates(final Origin origin, final UpdateContext updateContext, final List<Update> updates, final HttpServletRequest request) {
         try {
-            final Origin origin = updatePerformer.createOrigin(request);
-            final UpdateContext updateContext = updatePerformer.initContext(origin, crowdTokenKey, request);
-            updateContext.setBatchUpdate();
-            auditlogRequest(request);
-
-            final List<Update> updates = Lists.newArrayList();
-            for (final ActionRequest actionRequest : actionRequests) {
-                final String deleteReason = Action.DELETE.equals(actionRequest.getAction()) ? (reason != null ? reason : "--") : null;
-
-                final RpslObject rpslObject;
-                if (ssoAuthForm == SsoAuthForm.UUID) {
-                    ssoTranslator.populateCacheAuthToUsername(updateContext, actionRequest.getRpslObject());
-                    rpslObject = ssoTranslator.translateFromCacheAuthToUsername(updateContext, actionRequest.getRpslObject());
-                } else {
-                    rpslObject = actionRequest.getRpslObject();
-                }
-                updates.add(updatePerformer.createUpdate(updateContext, rpslObject, passwords, deleteReason, override));
-            }
-
             final WhoisResources whoisResources = updatePerformer.performUpdates(updateContext, origin, updates, Keyword.NONE, request);
 
             for (final Update update : updates) {
@@ -276,9 +280,7 @@ public class ReferencesService {
                     }
                 }
             }
-
             return whoisResources;
-
         } catch (ReferenceUpdateFailedException e) {
             throw e;
         } catch (Exception e) {
@@ -351,7 +353,14 @@ public class ReferencesService {
         validateSource(sourceParam);
 
         try {
-            final WhoisResources updatedResources = performUpdates(request, convertToActionRequests(whoisResources), Collections.emptyList(), "", override, SsoAuthForm.ACCOUNT, null);
+            final Origin origin = updatePerformer.createOrigin(request);
+            final UpdateContext updateContext = updatePerformer.initContext(origin, "", request);
+            updateContext.setBatchUpdate();
+            auditlogRequest(request);
+
+            final List<Update> updates = prepareUpdates(updateContext, convertToActionRequests(whoisResources), Collections.emptyList(), override, SsoAuthForm.ACCOUNT, null);
+            final WhoisResources updatedResources = performUpdates(origin, updateContext, updates, request);
+
             return createResponse(request, updatedResources, Response.Status.OK);
 
         } catch (WebApplicationException e) {
@@ -394,11 +403,16 @@ public class ReferencesService {
         final Map<RpslObjectInfo, RpslObject> references = findReferences(primaryObject);
         validateReferences(primaryObject, references);
 
+        final Origin origin = updatePerformer.createOrigin(request);
+        final UpdateContext updateContext = updatePerformer.initContext(origin, crowdTokenKey, request);
+        updateContext.setBasicAuth(BasicAuthExtractor.getBasicAuth(request));
+        auditlogRequest(request);
+
         try {
 
             if (references.isEmpty()) {
                 // delete the primary object directly
-                performUpdate(request, primaryObject, reason, passwords, crowdTokenKey);
+                performUpdate(request, primaryObject, reason, passwords, origin, updateContext);
                 return createResponse(request, primaryObject, Response.Status.OK);
             }
 
@@ -428,7 +442,9 @@ public class ReferencesService {
             actionRequests.add(new ActionRequest(tmpMntnerWithReplacements.rpslObject, Action.DELETE));
 
             // batch update
-            final WhoisResources whoisResources = performUpdates(request, actionRequests, passwords, crowdTokenKey, override, SsoAuthForm.UUID, reason);
+            updateContext.setBatchUpdate();
+            final List<Update> updates = prepareUpdates(updateContext, actionRequests, passwords, override, SsoAuthForm.UUID, reason);
+            final WhoisResources whoisResources = performUpdates(origin, updateContext, updates, request);
 
             removeDuplicatesAndRestoreReplacedReferences(whoisResources, tmpMntnerWithReplacements);
 
@@ -476,16 +492,12 @@ public class ReferencesService {
     /**
      * Update a single object in the database
      */
-    private Response performUpdate(
+    private void performUpdate(
                 final HttpServletRequest request,
                 final RpslObject rpslObject,
                 final String deleteReason,
-                final List<String> passwords,
-                final String crowdTokenKey) {
+                final List<String> passwords, final Origin origin, final UpdateContext updateContext) {
         try {
-            final Origin origin = updatePerformer.createOrigin(request);
-            final UpdateContext updateContext = updatePerformer.initContext(origin, crowdTokenKey, request);
-
             auditlogRequest(request);
 
             ssoTranslator.populateCacheAuthToUsername(updateContext, rpslObject);
@@ -515,8 +527,6 @@ public class ReferencesService {
 
                 throw new WebApplicationException(response);
             }
-
-            return response;
 
         } catch (WebApplicationException e) {
             throw e;
