@@ -60,6 +60,8 @@ public class RdapObject implements Serializable {
     @XmlElement(name = "description")
     protected List<String> errorDescription;
 
+    protected List<Redaction> redacted;
+
     public List<Object> getStatus() {
         if (status == null) {
             status = Lists.newArrayList();
@@ -115,6 +117,13 @@ public class RdapObject implements Serializable {
             autnums = Lists.newArrayList();
         }
         return autnums;
+    }
+
+    public List<Redaction> getRedacted() {
+        if (redacted == null) {
+            redacted = Lists.newArrayList();
+        }
+        return redacted;
     }
 
     public void setLang(final String value) {
