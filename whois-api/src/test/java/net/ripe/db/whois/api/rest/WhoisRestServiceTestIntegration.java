@@ -1259,7 +1259,7 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
                 "mnt-by:      AUTH-MNT\n" +
                 "source:      TEST");
 
-        final WhoisResources whoisResources = RestTest.target(getPort(), "whois/test/mntner/AUTH-MNT?password=test1&unfiltered")
+        final WhoisResources whoisResources = RestTest.target(getPort(), "whois/test/mntner/AUTH-MNT?unfiltered")
                 .register(HttpAuthenticationFeature.basicBuilder().build())
                 .request()
                 .property(HttpAuthenticationFeature.HTTP_AUTHENTICATION_BASIC_USERNAME, "AUTH-MNT")

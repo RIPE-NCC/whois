@@ -102,7 +102,7 @@ public class FilterAuthFunction implements FilterFunction {
     }
 
     private boolean isMntnerAuthenticated(final RpslObject rpslObject) {
-        if (CollectionUtils.isEmpty(passwords) && StringUtils.isBlank(token)) {
+        if (StringUtils.isBlank(basicAuth) && CollectionUtils.isEmpty(passwords) && StringUtils.isBlank(token)) {
             return false;
         }
 

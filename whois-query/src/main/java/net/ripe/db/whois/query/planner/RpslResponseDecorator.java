@@ -158,7 +158,7 @@ public class RpslResponseDecorator {
         final String basicAuth = query.getBasicAuth();
 
         final FilterAuthFunction filterAuthFunction =
-                (CollectionUtils.isEmpty(passwords) && StringUtils.isBlank(ssoToken)) ?
+                (StringUtils.isBlank(basicAuth) && CollectionUtils.isEmpty(passwords) && StringUtils.isBlank(ssoToken)) ?
                         FILTER_AUTH_FUNCTION :
                         new FilterAuthFunction(passwords, ssoToken, ssoTokenTranslator, authServiceClient,
                                 rpslObjectDao, basicAuth);
