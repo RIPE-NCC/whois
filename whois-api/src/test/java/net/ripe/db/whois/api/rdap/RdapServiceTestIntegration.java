@@ -24,6 +24,7 @@ import net.ripe.db.whois.api.rdap.domain.Notice;
 import net.ripe.db.whois.api.rdap.domain.RdapObject;
 import net.ripe.db.whois.api.rdap.domain.Remark;
 import net.ripe.db.whois.api.rdap.domain.Role;
+import net.ripe.db.whois.common.rpsl.AttributeType;
 import net.ripe.db.whois.common.rpsl.RpslObject;
 import net.ripe.db.whois.query.support.TestWhoisLog;
 import org.eclipse.jetty.http.HttpStatus;
@@ -38,8 +39,11 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 
 import static net.ripe.db.whois.api.rdap.domain.vcard.VCardType.TEXT;
+import static net.ripe.db.whois.common.rpsl.AttributeType.E_MAIL;
+import static net.ripe.db.whois.common.rpsl.AttributeType.NOTIFY;
 import static net.ripe.db.whois.common.support.DateMatcher.isBefore;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.arrayContainingInAnyOrder;
@@ -61,6 +65,10 @@ public class RdapServiceTestIntegration extends AbstractRdapIntegrationTest {
 
     @Autowired
     TestWhoisLog queryLog;
+
+    private static final Map<AttributeType, String> ATTRIBUTE_TYPE_NAME_DESCRIPTION = Map.of(
+            E_MAIL, "Personal e-mail information",
+            NOTIFY, "Updates notification e-mail information");
 
     @BeforeEach
     public void setup() {
@@ -2323,8 +2331,11 @@ public class RdapServiceTestIntegration extends AbstractRdapIntegrationTest {
                 .request(MediaType.APPLICATION_JSON_TYPE)
                 .get(Entity.class);
 
-        assertPersonalRedactionForEntities(entity, entity.getEntitySearchResults(), "TP2-TEST", 1);
-        assertPersonalRedaction(entity, 0);
+        assertPersonalRedaction(entity, 0, NOTIFY);
+        assertPersonalRedaction(entity, 1, E_MAIL);
+        assertPersonalRedactionForEntities(entity, entity.getEntitySearchResults(), "TP2-TEST", 2, E_MAIL);
+        assertPersonalRedactionForEntities(entity, entity.getEntitySearchResults(), "TP2-TEST", 3, NOTIFY);
+
 
         assertCommon(entity);
     }
@@ -2369,11 +2380,13 @@ public class RdapServiceTestIntegration extends AbstractRdapIntegrationTest {
                 .request(MediaType.APPLICATION_JSON_TYPE)
                 .get(Entity.class);
 
-        assertPersonalRedaction(entity, 0);
+        assertPersonalRedaction(entity, 0, NOTIFY);
+        assertPersonalRedaction(entity, 1, E_MAIL);
 
-        assertPersonalRedactionForEntities(entity, entity.getEntitySearchResults(), "TP2-TEST", 1);
-        assertPersonalRedactionForEntities(entity, entity.getEntitySearchResults(), "TP3-TEST", 2);
-
+        assertPersonalRedactionForEntities(entity, entity.getEntitySearchResults(), "TP2-TEST", 2, E_MAIL);
+        assertPersonalRedactionForEntities(entity, entity.getEntitySearchResults(), "TP2-TEST", 3, NOTIFY);
+        assertPersonalRedactionForEntities(entity, entity.getEntitySearchResults(), "TP3-TEST", 4, E_MAIL);
+        assertPersonalRedactionForEntities(entity, entity.getEntitySearchResults(), "TP3-TEST", 5, NOTIFY);
         assertCommon(entity);
     }
 
@@ -2399,11 +2412,12 @@ public class RdapServiceTestIntegration extends AbstractRdapIntegrationTest {
                 .request(MediaType.APPLICATION_JSON_TYPE)
                 .get(Entity.class);
 
-        assertPersonalRedaction(entity, 0);
+        assertPersonalRedaction(entity, 0, NOTIFY);
+        assertPersonalRedaction(entity, 1, E_MAIL);
     }
 
     @Test
-    public void lookup_person_without_redactions() throws JsonProcessingException {
+    public void lookup_person_without_redactions() {
         createEntityRedactionObjects();
 
         databaseHelper.addObject("" +
@@ -2442,7 +2456,8 @@ public class RdapServiceTestIntegration extends AbstractRdapIntegrationTest {
                 .request(MediaType.APPLICATION_JSON_TYPE)
                 .get(Autnum.class);
 
-        assertPersonalRedactionForEntities(autnum, autnum.getEntitySearchResults(), "TP2-TEST", 0);
+        assertPersonalRedactionForEntities(autnum, autnum.getEntitySearchResults(), "TP2-TEST", 0, E_MAIL);
+        assertPersonalRedactionForEntities(autnum, autnum.getEntitySearchResults(), "TP2-TEST", 1, NOTIFY);
     }
 
     @Test
@@ -2491,14 +2506,23 @@ public class RdapServiceTestIntegration extends AbstractRdapIntegrationTest {
                 .request(MediaType.APPLICATION_JSON_TYPE)
                 .get(Entity.class);
 
-        assertThat(entity.getRedacted().size(), is(3));
+        assertThat(entity.getRedacted().size(), is(10));
+
+        assertPersonalRedaction(entity, 0, E_MAIL);
 
         final Ip ip = entity.getNetworks().stream().filter( network -> network.getHandle().equals("109.111.192.0 - 109.111.223.255")).findFirst().get();
-        assertPersonalRedactionForEntities(entity, ip.getEntitySearchResults(), "TP2-TEST", 0);
-        assertPersonalRedactionForEntities(entity, ip.getEntitySearchResults(), "TP3-TEST", 1);
+        assertPersonalRedactionForEntities(entity, ip.getEntitySearchResults(), "ORG-TEST1-TEST", 1, E_MAIL);
+        assertPersonalRedactionForEntities(entity, ip.getEntitySearchResults(), "TP2-TEST", 2, NOTIFY);
+        assertPersonalRedactionForEntities(entity, ip.getEntitySearchResults(), "TP2-TEST", 3, E_MAIL);
+        assertPersonalRedactionForEntities(entity, ip.getEntitySearchResults(), "TP3-TEST", 4, E_MAIL);
+        assertPersonalRedactionForEntities(entity, ip.getEntitySearchResults(), "TP3-TEST", 5, NOTIFY);
 
         final Autnum autnum = entity.getAutnums().stream().filter(network -> network.getHandle().equals("AS64496")).findFirst().get();
-        assertPersonalRedactionForEntities(entity, autnum.getEntitySearchResults(), "TP2-TEST", 2);
+        assertPersonalRedactionForEntities(entity, autnum.getEntitySearchResults(), "ORG-TEST1-TEST", 6, E_MAIL);
+        assertPersonalRedactionForEntities(entity, autnum.getEntitySearchResults(), "TP2-TEST", 7, NOTIFY);
+        assertPersonalRedactionForEntities(entity, autnum.getEntitySearchResults(), "TP2-TEST", 8, E_MAIL);
+
+        assertPersonalRedactionForEntities(entity, entity.getEntitySearchResults(), "PP1-TEST", 9, E_MAIL);
 
         assertCommon(entity);
     }
@@ -2542,9 +2566,11 @@ public class RdapServiceTestIntegration extends AbstractRdapIntegrationTest {
                 .request(MediaType.APPLICATION_JSON_TYPE)
                 .get(Domain.class);
 
-        assertThat(domain.getRedacted().size(), is(1));
+        assertThat(domain.getRedacted().size(), is(3));
 
-        assertPersonalRedactionForEntities(domain, domain.getNetwork().getEntitySearchResults(), "TP2-TEST", 0);
+        assertPersonalRedactionForEntities(domain, domain.getNetwork().getEntitySearchResults(), "ORG-TEST1-TEST", 0, E_MAIL);
+        assertPersonalRedactionForEntities(domain, domain.getNetwork().getEntitySearchResults(), "TP2-TEST", 1, NOTIFY);
+        assertPersonalRedactionForEntities(domain, domain.getNetwork().getEntitySearchResults(), "TP2-TEST", 2, E_MAIL);
     }
     // search - entities - organisation
 
@@ -2747,34 +2773,36 @@ public class RdapServiceTestIntegration extends AbstractRdapIntegrationTest {
         assertThat(notice.getLinks().get(0).getValue(), is(value));
     }
 
-    private void assertPersonalRedaction(final Entity entity, final int redaction) throws JsonProcessingException {
+    private void assertPersonalRedaction(final Entity entity, final int redaction, final AttributeType attribute) throws JsonProcessingException {
         final String entityJson = getObjectMapper().writeValueAsString(entity);
 
         List<Object> vcards = JsonPath.read(entityJson, entity.getRedacted().get(redaction).getPrePath());
         assertThat(vcards.size(), is(0));
 
-        assertCommonPersonalRedaction(entity, redaction, entity);
+        assertCommonPersonalRedaction(entity, redaction, entity, attribute);
     }
 
-    private void assertPersonalRedactionForEntities(final RdapObject entity, final List<Entity> entities, final String personKey, final int redaction) throws JsonProcessingException {
+    private void assertPersonalRedactionForEntities(final RdapObject entity, final List<Entity> entities, final String personKey, final int redaction, final AttributeType attribute) throws JsonProcessingException {
         final String entityJson = getObjectMapper().writeValueAsString(entity);
 
         List<Object> vcards = JsonPath.read(entityJson, entity.getRedacted().get(redaction).getPrePath());
         assertThat(vcards.size(), is(0));
 
         final Entity insideEntity = entities.stream().filter( contacEntity -> contacEntity.getHandle().equals(personKey)).findFirst().get();
-        assertCommonPersonalRedaction(entity, redaction, insideEntity);
+        assertCommonPersonalRedaction(entity, redaction, insideEntity, attribute);
     }
 
-    private void assertCommonPersonalRedaction(final RdapObject entity, final int redaction, final Entity insideEntity) throws JsonProcessingException {
-        ((ArrayList) insideEntity.getVCardArray().get(1)).add(0, Lists.newArrayList("notify", "", TEXT.getValue(), "abc@ripe.net"));
+    private void assertCommonPersonalRedaction(final RdapObject entity, final int redaction,
+                                               final Entity insideEntity, final AttributeType attribute) throws JsonProcessingException {
+        ((ArrayList) insideEntity.getVCardArray().get(1)).add(0, Lists.newArrayList(attribute.getName(), "", TEXT.getValue(),
+                "abc@ripe.net"));
 
         final String entityAfterAddingVcard = getObjectMapper().writeValueAsString(entity);
 
         final List<Object> vcards = JsonPath.read(entityAfterAddingVcard, entity.getRedacted().get(redaction).getPrePath());
         assertThat(vcards.size(), is(1));
 
-        assertThat(entity.getRedacted().get(redaction).getName().getDescription(), is("Updates notification e-mail information"));
+        assertThat(entity.getRedacted().get(redaction).getName().getDescription(), is(ATTRIBUTE_TYPE_NAME_DESCRIPTION.get(attribute)));
         assertThat(entity.getRedacted().get(redaction).getReason().getDescription(), is("Personal data"));
         assertThat(entity.getRedacted().get(redaction).getMethod(), is("removal"));
     }

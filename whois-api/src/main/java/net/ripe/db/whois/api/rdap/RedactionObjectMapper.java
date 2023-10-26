@@ -5,14 +5,14 @@ import net.ripe.db.whois.api.rdap.domain.Entity;
 import net.ripe.db.whois.api.rdap.domain.RdapObject;
 import net.ripe.db.whois.api.rdap.domain.Redaction;
 import net.ripe.db.whois.common.rpsl.AttributeType;
+import org.glassfish.jersey.internal.guava.Sets;
 
 import java.util.List;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 public class RedactionObjectMapper {
 
-    public static final List<AttributeType> REDACTED_PERSONAL_ATTR = Lists.newArrayList(AttributeType.NOTIFY);
+    public static final List<AttributeType> REDACTED_PERSONAL_ATTR = Lists.newArrayList(AttributeType.NOTIFY, AttributeType.E_MAIL);
     public static void mapRedactions(final RdapObject rdapObject) {
 
         addEntityRedaction(rdapObject);
@@ -45,11 +45,15 @@ public class RedactionObjectMapper {
     }
 
     private static Set<Redaction> getPersonalRedaction(final List<AttributeType> attributeTypes, final String prefix){
-        return attributeTypes.stream()
-                .map( attributeType -> new Redaction("Updates notification e-mail information",
-                        String.format("%s.vcardArray[1][?(@[0]=='%s')]", prefix, attributeType.getName()),
-                        "Personal data")
-                )
-                .collect(Collectors.toSet());
+        final Set<Redaction> redactions = Sets.newHashSet();
+        attributeTypes.forEach(attributeType -> {
+            switch(attributeType){
+                case NOTIFY -> redactions.add(new Redaction("Updates notification e-mail information", String.format("%s.vcardArray[1][?(@[0]=='%s')]", prefix, attributeType.getName()),
+                        "Personal data"));
+                case E_MAIL -> redactions.add(new Redaction("Personal e-mail information", String.format("%s.vcardArray[1][?(@[0]=='%s')]", prefix, attributeType.getName()),
+                        "Personal data"));
+            }
+        });
+        return redactions;
     }
 }
