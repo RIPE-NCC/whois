@@ -1,30 +1,29 @@
 package net.ripe.db.whois.api.rdap;
 
-import com.google.common.collect.Lists;
 import net.ripe.db.whois.api.rdap.domain.Entity;
 import net.ripe.db.whois.common.rpsl.AttributeType;
 import net.ripe.db.whois.common.rpsl.ObjectType;
 import net.ripe.db.whois.common.rpsl.RpslAttribute;
 import net.ripe.db.whois.common.rpsl.RpslObject;
 
-import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 import java.util.Set;
-import java.util.stream.Collectors;
 
-import static net.ripe.db.whois.api.rdap.RedactionObjectMapper.REDACTED_PERSONAL_ATTR;
 import static net.ripe.db.whois.api.rdap.domain.vcard.VCardKind.GROUP;
 import static net.ripe.db.whois.api.rdap.domain.vcard.VCardKind.INDIVIDUAL;
 import static net.ripe.db.whois.api.rdap.domain.vcard.VCardKind.ORGANISATION;
+import static net.ripe.db.whois.common.rpsl.AttributeType.E_MAIL;
 import static net.ripe.db.whois.common.rpsl.AttributeType.IRT;
+import static net.ripe.db.whois.common.rpsl.AttributeType.NOTIFY;
 import static net.ripe.db.whois.common.rpsl.AttributeType.ORG_NAME;
 import static net.ripe.db.whois.common.rpsl.AttributeType.PERSON;
 import static net.ripe.db.whois.common.rpsl.AttributeType.ROLE;
 
 public class RdapVcardMapper {
 
-    private static final Map<ObjectType, List<AttributeType>> PERSON_ATTRIBUTE_PER_OBJECT_TYPE = Map.of();
+    private static final Map<AttributeType, Set<ObjectType>> PERSONAL_ATTR_TO_OBJECT_TYPE = Map.of(
+            NOTIFY, Set.of(ObjectType.values()), //personal attribute in all the objects
+            E_MAIL, Set.of(ObjectType.ROLE, ObjectType.PERSON));
 
     public static void createVCard(final Entity entity, final RpslObject rpslObject) {
         VCardBuilder builder = new VCardBuilder();
@@ -38,38 +37,33 @@ public class RdapVcardMapper {
             case IRT -> builder.addFn(rpslObject.getValueForAttribute(IRT)).addKind(GROUP);
         }
 
-        mapNonPersonalAttributes(removePersonalAttributes(rpslObject), builder);
-        entity.setVCardArray(builder.build());
-
-        final Set<AttributeType> redactedAttributes = rpslObject.findAttributes(REDACTED_PERSONAL_ATTR).stream().map(RpslAttribute::getType).collect(Collectors.toSet());
-        entity.getvCardRedactedAttr().addAll(redactedAttributes);
+        processAttributes(entity, rpslObject, builder);
     }
 
-    private static List<RpslAttribute> removePersonalAttributes(final RpslObject rpslObject){
-        final List<AttributeType> personalAttributes = PERSON_ATTRIBUTE_PER_OBJECT_TYPE.get(rpslObject.getType());
-        if (personalAttributes == null || personalAttributes.isEmpty()){
-            return rpslObject.getAttributes();
-        }
-        final List<RpslAttribute> nonPersonalRpslAttributes = Lists.newArrayList();
+    private static void processAttributes(final Entity entity, final RpslObject rpslObject, final VCardBuilder builder){
         rpslObject.getAttributes().forEach(rpslAttribute -> {
-            if (!personalAttributes.contains(rpslAttribute.getType())){
-                nonPersonalRpslAttributes.add(rpslAttribute);
+            if (isPersonalAttribute(rpslObject.getType(), rpslAttribute)) {
+                entity.getvCardRedactedAttr().add(rpslAttribute.getType());
+            } else {
+                mapNonPersonalAttributes(rpslAttribute, builder);
             }
         });
-        return nonPersonalRpslAttributes;
+        entity.setVCardArray(builder.build());
     }
 
-    private static void mapNonPersonalAttributes(final List<RpslAttribute> rpslAttributes, final VCardBuilder builder){
-        rpslAttributes.forEach(attribute -> {
-            switch(Objects.requireNonNull(attribute.getType())){
-                case ADDRESS -> builder.addAdr(attribute.getCleanValues());
-                case PHONE -> builder.addTel(attribute.getCleanValues());
-                case FAX_NO -> builder.addFax(attribute.getCleanValues());
-                case ABUSE_MAILBOX -> builder.addAbuseMailBox(attribute.getCleanValue());
-                case ORG -> builder.addOrg(attribute.getCleanValues());
-                case GEOLOC -> builder.addGeo(attribute.getCleanValues());
-                case E_MAIL -> builder.addEmail(attribute.getCleanValues());
-            }
-        });
+    private static boolean isPersonalAttribute(final ObjectType objectType, final RpslAttribute rpslAttribute) {
+        return PERSONAL_ATTR_TO_OBJECT_TYPE.containsKey(rpslAttribute.getType()) && PERSONAL_ATTR_TO_OBJECT_TYPE.get(rpslAttribute.getType()).contains(objectType);
+    }
+
+    private static void mapNonPersonalAttributes(final RpslAttribute attribute, final VCardBuilder builder){
+        switch(attribute.getType()){
+            case ADDRESS -> builder.addAdr(attribute.getCleanValues());
+            case PHONE -> builder.addTel(attribute.getCleanValues());
+            case FAX_NO -> builder.addFax(attribute.getCleanValues());
+            case ABUSE_MAILBOX -> builder.addAbuseMailBox(attribute.getCleanValue());
+            case ORG -> builder.addOrg(attribute.getCleanValues());
+            case GEOLOC -> builder.addGeo(attribute.getCleanValues());
+            case E_MAIL -> builder.addEmail(attribute.getCleanValues());
+        };
     }
 }

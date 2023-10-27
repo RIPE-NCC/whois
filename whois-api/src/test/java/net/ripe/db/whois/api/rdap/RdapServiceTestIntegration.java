@@ -1498,7 +1498,8 @@ public class RdapServiceTestIntegration extends AbstractRdapIntegrationTest {
         assertThat(entities.get(0).getVCardArray().get(1).toString(), is("" +
                 "[[version, {}, text, 4.0], [fn, {}, text, irt-IRT1], " +
                 "[kind, {}, text, group], " +
-                "[adr, {label=Street 1}, text, [, , , , , , ]]]"));
+                "[adr, {label=Street 1}, text, [, , , , , , ]], " +
+                "[email, {type=email}, text, test@ripe.net]]"));
 
         assertThat(entities.get(1).getHandle(), is("OWNER-MNT"));
         assertThat(entities.get(1).getRoles(), contains(Role.REGISTRANT));
@@ -2274,7 +2275,8 @@ public class RdapServiceTestIntegration extends AbstractRdapIntegrationTest {
                 "[[version, {}, text, 4.0], " +
                 "[fn, {}, text, Organisation One], " +
                 "[kind, {}, text, org], " +
-                "[adr, {label=One Org Street}, text, [, , , , , , ]]]"));
+                "[adr, {label=One Org Street}, text, [, , , , , , ]], " +
+                "[email, {type=email}, text, test@ripe.net]]"));
 
         assertCopyrightLink(entity.getLinks(), "https://rdap.db.ripe.net/entity/ORG-ONE-TEST");
 
@@ -2332,9 +2334,8 @@ public class RdapServiceTestIntegration extends AbstractRdapIntegrationTest {
                 .get(Entity.class);
 
         assertPersonalRedaction(entity, 0, NOTIFY);
-        assertPersonalRedaction(entity, 1, E_MAIL);
-        assertPersonalRedactionForEntities(entity, entity.getEntitySearchResults(), "TP2-TEST", 2, E_MAIL);
-        assertPersonalRedactionForEntities(entity, entity.getEntitySearchResults(), "TP2-TEST", 3, NOTIFY);
+        assertPersonalRedactionForEntities(entity, entity.getEntitySearchResults(), "TP2-TEST", 1, E_MAIL);
+        assertPersonalRedactionForEntities(entity, entity.getEntitySearchResults(), "TP2-TEST", 2, NOTIFY);
 
 
         assertCommon(entity);
@@ -2381,12 +2382,11 @@ public class RdapServiceTestIntegration extends AbstractRdapIntegrationTest {
                 .get(Entity.class);
 
         assertPersonalRedaction(entity, 0, NOTIFY);
-        assertPersonalRedaction(entity, 1, E_MAIL);
 
-        assertPersonalRedactionForEntities(entity, entity.getEntitySearchResults(), "TP2-TEST", 2, E_MAIL);
-        assertPersonalRedactionForEntities(entity, entity.getEntitySearchResults(), "TP2-TEST", 3, NOTIFY);
-        assertPersonalRedactionForEntities(entity, entity.getEntitySearchResults(), "TP3-TEST", 4, E_MAIL);
-        assertPersonalRedactionForEntities(entity, entity.getEntitySearchResults(), "TP3-TEST", 5, NOTIFY);
+        assertPersonalRedactionForEntities(entity, entity.getEntitySearchResults(), "TP2-TEST", 1, E_MAIL);
+        assertPersonalRedactionForEntities(entity, entity.getEntitySearchResults(), "TP2-TEST", 2, NOTIFY);
+        assertPersonalRedactionForEntities(entity, entity.getEntitySearchResults(), "TP3-TEST", 3, E_MAIL);
+        assertPersonalRedactionForEntities(entity, entity.getEntitySearchResults(), "TP3-TEST", 4, NOTIFY);
         assertCommon(entity);
     }
 
@@ -2506,23 +2506,20 @@ public class RdapServiceTestIntegration extends AbstractRdapIntegrationTest {
                 .request(MediaType.APPLICATION_JSON_TYPE)
                 .get(Entity.class);
 
-        assertThat(entity.getRedacted().size(), is(10));
+        assertThat(entity.getRedacted().size(), is(7));
 
-        assertPersonalRedaction(entity, 0, E_MAIL);
 
         final Ip ip = entity.getNetworks().stream().filter( network -> network.getHandle().equals("109.111.192.0 - 109.111.223.255")).findFirst().get();
-        assertPersonalRedactionForEntities(entity, ip.getEntitySearchResults(), "ORG-TEST1-TEST", 1, E_MAIL);
-        assertPersonalRedactionForEntities(entity, ip.getEntitySearchResults(), "TP2-TEST", 2, NOTIFY);
-        assertPersonalRedactionForEntities(entity, ip.getEntitySearchResults(), "TP2-TEST", 3, E_MAIL);
-        assertPersonalRedactionForEntities(entity, ip.getEntitySearchResults(), "TP3-TEST", 4, E_MAIL);
-        assertPersonalRedactionForEntities(entity, ip.getEntitySearchResults(), "TP3-TEST", 5, NOTIFY);
+        assertPersonalRedactionForEntities(entity, ip.getEntitySearchResults(), "TP2-TEST", 0, NOTIFY);
+        assertPersonalRedactionForEntities(entity, ip.getEntitySearchResults(), "TP2-TEST", 1, E_MAIL);
+        assertPersonalRedactionForEntities(entity, ip.getEntitySearchResults(), "TP3-TEST", 2, E_MAIL);
+        assertPersonalRedactionForEntities(entity, ip.getEntitySearchResults(), "TP3-TEST", 3, NOTIFY);
 
         final Autnum autnum = entity.getAutnums().stream().filter(network -> network.getHandle().equals("AS64496")).findFirst().get();
-        assertPersonalRedactionForEntities(entity, autnum.getEntitySearchResults(), "ORG-TEST1-TEST", 6, E_MAIL);
-        assertPersonalRedactionForEntities(entity, autnum.getEntitySearchResults(), "TP2-TEST", 7, NOTIFY);
-        assertPersonalRedactionForEntities(entity, autnum.getEntitySearchResults(), "TP2-TEST", 8, E_MAIL);
+        assertPersonalRedactionForEntities(entity, autnum.getEntitySearchResults(), "TP2-TEST", 4, NOTIFY);
+        assertPersonalRedactionForEntities(entity, autnum.getEntitySearchResults(), "TP2-TEST", 5, E_MAIL);
 
-        assertPersonalRedactionForEntities(entity, entity.getEntitySearchResults(), "PP1-TEST", 9, E_MAIL);
+        assertPersonalRedactionForEntities(entity, entity.getEntitySearchResults(), "PP1-TEST", 6, E_MAIL);
 
         assertCommon(entity);
     }
@@ -2566,11 +2563,10 @@ public class RdapServiceTestIntegration extends AbstractRdapIntegrationTest {
                 .request(MediaType.APPLICATION_JSON_TYPE)
                 .get(Domain.class);
 
-        assertThat(domain.getRedacted().size(), is(3));
+        assertThat(domain.getRedacted().size(), is(2));
 
-        assertPersonalRedactionForEntities(domain, domain.getNetwork().getEntitySearchResults(), "ORG-TEST1-TEST", 0, E_MAIL);
-        assertPersonalRedactionForEntities(domain, domain.getNetwork().getEntitySearchResults(), "TP2-TEST", 1, NOTIFY);
-        assertPersonalRedactionForEntities(domain, domain.getNetwork().getEntitySearchResults(), "TP2-TEST", 2, E_MAIL);
+        assertPersonalRedactionForEntities(domain, domain.getNetwork().getEntitySearchResults(), "TP2-TEST", 0, NOTIFY);
+        assertPersonalRedactionForEntities(domain, domain.getNetwork().getEntitySearchResults(), "TP2-TEST", 1, E_MAIL);
     }
     // search - entities - organisation
 

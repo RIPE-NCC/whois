@@ -1,6 +1,5 @@
 package net.ripe.db.whois.api.rdap;
 
-import com.google.common.collect.Lists;
 import net.ripe.db.whois.api.rdap.domain.Entity;
 import net.ripe.db.whois.api.rdap.domain.RdapObject;
 import net.ripe.db.whois.api.rdap.domain.Redaction;
@@ -12,7 +11,6 @@ import java.util.Set;
 
 public class RedactionObjectMapper {
 
-    public static final List<AttributeType> REDACTED_PERSONAL_ATTR = Lists.newArrayList(AttributeType.NOTIFY, AttributeType.E_MAIL);
     public static void mapRedactions(final RdapObject rdapObject) {
 
         addEntityRedaction(rdapObject);
