@@ -69,27 +69,14 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import static net.ripe.db.whois.api.rdap.RedactionObjectMapper.REDACTED_PERSONAL_ATTR;
 import static net.ripe.db.whois.api.rdap.RedactionObjectMapper.mapRedactions;
 import static net.ripe.db.whois.api.rdap.domain.Status.ACTIVE;
 import static net.ripe.db.whois.api.rdap.domain.Status.RESERVED;
-import static net.ripe.db.whois.api.rdap.domain.vcard.VCardKind.GROUP;
-import static net.ripe.db.whois.api.rdap.domain.vcard.VCardKind.INDIVIDUAL;
-import static net.ripe.db.whois.api.rdap.domain.vcard.VCardKind.ORGANISATION;
-import static net.ripe.db.whois.common.rpsl.AttributeType.ABUSE_MAILBOX;
-import static net.ripe.db.whois.common.rpsl.AttributeType.ADDRESS;
 import static net.ripe.db.whois.common.rpsl.AttributeType.ADMIN_C;
 import static net.ripe.db.whois.common.rpsl.AttributeType.DS_RDATA;
-import static net.ripe.db.whois.common.rpsl.AttributeType.FAX_NO;
-import static net.ripe.db.whois.common.rpsl.AttributeType.GEOLOC;
-import static net.ripe.db.whois.common.rpsl.AttributeType.IRT;
 import static net.ripe.db.whois.common.rpsl.AttributeType.MNT_BY;
 import static net.ripe.db.whois.common.rpsl.AttributeType.MNT_IRT;
 import static net.ripe.db.whois.common.rpsl.AttributeType.ORG;
-import static net.ripe.db.whois.common.rpsl.AttributeType.ORG_NAME;
-import static net.ripe.db.whois.common.rpsl.AttributeType.PERSON;
-import static net.ripe.db.whois.common.rpsl.AttributeType.PHONE;
-import static net.ripe.db.whois.common.rpsl.AttributeType.ROLE;
 import static net.ripe.db.whois.common.rpsl.AttributeType.TECH_C;
 import static net.ripe.db.whois.common.rpsl.AttributeType.ZONE_C;
 import static net.ripe.db.whois.common.rpsl.ObjectType.DOMAIN;
@@ -497,7 +484,7 @@ class RdapObjectMapper {
             return;
         }
 
-        createVCard(entity, referencedRpslObject);
+        RdapVcardMapper.createVCard(entity, referencedRpslObject);
     }
 
     private RpslObject getRpslObjectByAttributeType(final CIString attributeValue, final AttributeType type) {
@@ -522,7 +509,7 @@ class RdapObjectMapper {
             entity.getRoles().add(role);
         }
 
-        createVCard(entity, rpslObject);
+        RdapVcardMapper.createVCard(entity, rpslObject);
         this.mapContactEntities(entity, rpslObject, requestUrl);
 
         handleLanguageAttribute(rpslObject, entity);
@@ -620,32 +607,6 @@ class RdapObjectMapper {
         this.mapContactEntities(domain, rpslObject, requestUrl);
 
         return domain;
-    }
-
-    private static void createVCard(final Entity entity, final RpslObject rpslObject) {
-        final VCardBuilder builder = new VCardBuilder();
-        builder.addVersion();
-
-        switch (rpslObject.getType()) {
-            case PERSON -> builder.addFn(rpslObject.getValueForAttribute(PERSON)).addKind(INDIVIDUAL);
-            case MNTNER -> builder.addFn(rpslObject.getValueForAttribute(AttributeType.MNTNER)).addKind(INDIVIDUAL);
-            case ORGANISATION -> builder.addFn(rpslObject.getValueForAttribute(ORG_NAME)).addKind(ORGANISATION);
-            case ROLE -> builder.addFn(rpslObject.getValueForAttribute(ROLE)).addKind(GROUP);
-            case IRT -> builder.addFn(rpslObject.getValueForAttribute(IRT)).addKind(GROUP);
-            default -> {
-            }
-        }
-        builder.addAdr(rpslObject.getValuesForAttribute(ADDRESS))
-                .addTel(rpslObject.getValuesForAttribute(PHONE))
-                .addFax(rpslObject.getValuesForAttribute(FAX_NO))
-                .addAbuseMailBox(rpslObject.getValueOrNullForAttribute(ABUSE_MAILBOX))
-                .addOrg(rpslObject.getValuesForAttribute(ORG))
-                .addGeo(rpslObject.getValuesForAttribute(GEOLOC));
-
-        final Set<AttributeType> redactedAttributes = rpslObject.findAttributes(REDACTED_PERSONAL_ATTR).stream().map(RpslAttribute::getType).collect(Collectors.toSet());
-        entity.getvCardRedactedAttr().addAll(redactedAttributes);
-
-        entity.setVCardArray(builder.build());
     }
 
     private static AsBlockRange getAsBlockRange(final String asBlock) {
