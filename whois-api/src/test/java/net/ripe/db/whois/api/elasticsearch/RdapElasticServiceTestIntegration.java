@@ -18,6 +18,7 @@ import net.ripe.db.whois.api.rdap.domain.Link;
 import net.ripe.db.whois.api.rdap.domain.Nameserver;
 import net.ripe.db.whois.api.rdap.domain.Notice;
 import net.ripe.db.whois.api.rdap.domain.RdapObject;
+import net.ripe.db.whois.api.rdap.domain.Redaction;
 import net.ripe.db.whois.api.rdap.domain.SearchResult;
 import net.ripe.db.whois.api.rest.client.RestClientUtils;
 import net.ripe.db.whois.common.rpsl.RpslObject;
@@ -52,7 +53,7 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.fail;
 
 @Tag("ElasticSearchTest")
-public class WhoisRdapElasticServiceTestIntegration extends AbstractElasticSearchIntegrationTest {
+public class RdapElasticServiceTestIntegration extends AbstractElasticSearchIntegrationTest {
 
     private static final String WHOIS_INDEX = "whois_rdap";
     private static final String METADATA_INDEX = "metadata_rdap";
@@ -182,17 +183,11 @@ public class WhoisRdapElasticServiceTestIntegration extends AbstractElasticSearc
                 "admin-c:       PP1-TEST\n" +
                 "e-mail:        org@test.com\n" +
                 "mnt-by:        OWNER-MNT\n" +
+                "mnt-ref:       OWNER-MNT\n" +
+                "notify:        notify@ripe.net\n" +
                 "created:         2022-08-14T11:48:28Z\n" +
                 "last-modified:   2022-10-25T12:22:39Z\n" +
                 "source:        TEST");
-        databaseHelper.addObject("" +
-                "as-block:       AS100 - AS200\n" +
-                "descr:          ARIN ASN block\n" +
-                "org:            ORG-TEST1-TEST\n" +
-                "mnt-by:         OWNER-MNT\n" +
-                "created:         2022-08-14T11:48:28Z\n" +
-                "last-modified:   2022-10-25T12:22:39Z\n" +
-                "source:         TEST");
         databaseHelper.addObject("" +
                 "inetnum:        0.0.0.0 - 255.255.255.255\n" +
                 "netname:        IANA-BLK\n" +
@@ -701,8 +696,9 @@ public class WhoisRdapElasticServiceTestIntegration extends AbstractElasticSearc
 
     private void assertCommon(RdapObject object) {
         assertThat(object.getPort43(), is("whois.ripe.net"));
-        assertThat(object.getRdapConformance(), hasSize(3));
-        assertThat(object.getRdapConformance(), containsInAnyOrder("rdap_level_0", "cidr0", "nro_rdap_profile_0"));
+        assertThat(object.getRdapConformance(), hasSize(4));
+        assertThat(object.getRdapConformance(), containsInAnyOrder("rdap_level_0", "cidr0", "nro_rdap_profile_0",
+                "redacted"));
     }
 
     private void assertTnCNotice(final Notice notice, final String value) {
@@ -714,6 +710,26 @@ public class WhoisRdapElasticServiceTestIntegration extends AbstractElasticSearc
         assertThat(notice.getLinks().get(0).getHref(), is("https://apps.db.ripe.net/docs/HTML-Terms-And-Conditions"));
         assertThat(notice.getLinks().get(0).getType(), is("application/pdf"));
         assertThat(notice.getLinks().get(0).getValue(), is(value));
+    }
+
+    // Test redactions
+
+    @Test
+    public void search_redactions() {
+        final SearchResult result = createResource("entities?handle=*TEST")
+                .request(MediaType.APPLICATION_JSON_TYPE)
+                .get(SearchResult.class);
+
+        assertThat(result.getEntitySearchResults()
+                .stream()
+                .filter(entity -> entity.getHandle().equals("ORG-TEST1-TEST"))
+                .map(RdapObject::getRedacted)
+                .flatMap(Collection::stream)
+                .map(Redaction::getPrePath)
+                .collect(Collectors.toList()), contains("$.vcardArray[1][?(@[0]=='notify')]", "$.vcardArray[1][?" +
+                "(@[0]=='e-mail')]", "$.entities[?(@.handle=='PP1-TEST')].vcardArray[1][?(@[0]=='e-mail')]"));
+
+        assertThat(result.getRdapConformance(), containsInAnyOrder("cidr0", "rdap_level_0", "nro_rdap_profile_0", "redacted"));
     }
 
     // helper methods

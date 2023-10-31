@@ -117,7 +117,7 @@ class RdapServiceAclTestIntegration extends AbstractRdapIntegrationTest {
                 .request(MediaType.APPLICATION_JSON_TYPE)
                 .get(Entity.class);
 
-        assertThat(((ArrayList)entity.getVCardArray().get(1)).get(3).toString(), is("[email, {type=email}, text, owner@ripe.net]"));
+        assertThat(((ArrayList)entity.getVCardArray().get(1)).get(2).toString(), is("[kind, {}, text, individual]"));
         assertThat(testPersonalObjectAccounting.getQueriedPersonalObjects(InetAddress.getByName(LOCALHOST)), is(0));
     }
 

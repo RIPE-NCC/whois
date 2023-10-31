@@ -1,7 +1,16 @@
 package net.ripe.db.whois.api.rdap;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.Lists;
 import com.google.common.net.HttpHeaders;
+import com.jayway.jsonpath.JsonPath;
+import jakarta.ws.rs.BadRequestException;
+import jakarta.ws.rs.HttpMethod;
+import jakarta.ws.rs.NotFoundException;
+import jakarta.ws.rs.ServerErrorException;
+import jakarta.ws.rs.core.MediaType;
+import jakarta.ws.rs.core.Response;
 import net.ripe.db.whois.api.RestTest;
 import net.ripe.db.whois.api.rdap.domain.Action;
 import net.ripe.db.whois.api.rdap.domain.Autnum;
@@ -15,25 +24,26 @@ import net.ripe.db.whois.api.rdap.domain.Notice;
 import net.ripe.db.whois.api.rdap.domain.RdapObject;
 import net.ripe.db.whois.api.rdap.domain.Remark;
 import net.ripe.db.whois.api.rdap.domain.Role;
+import net.ripe.db.whois.common.rpsl.AttributeType;
 import net.ripe.db.whois.common.rpsl.RpslObject;
 import net.ripe.db.whois.query.support.TestWhoisLog;
 import org.eclipse.jetty.http.HttpStatus;
+import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.annotation.DirtiesContext;
 
-import jakarta.ws.rs.BadRequestException;
-import jakarta.ws.rs.HttpMethod;
-import jakarta.ws.rs.NotFoundException;
-import jakarta.ws.rs.ServerErrorException;
-import jakarta.ws.rs.core.MediaType;
-import jakarta.ws.rs.core.Response;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 
+import static net.ripe.db.whois.api.rdap.domain.vcard.VCardType.TEXT;
+import static net.ripe.db.whois.common.rpsl.AttributeType.E_MAIL;
+import static net.ripe.db.whois.common.rpsl.AttributeType.NOTIFY;
 import static net.ripe.db.whois.common.support.DateMatcher.isBefore;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.arrayContainingInAnyOrder;
@@ -56,6 +66,10 @@ public class RdapServiceTestIntegration extends AbstractRdapIntegrationTest {
     @Autowired
     TestWhoisLog queryLog;
 
+    private static final Map<AttributeType, String> ATTRIBUTE_TYPE_NAME_DESCRIPTION = Map.of(
+            E_MAIL, "Personal e-mail information",
+            NOTIFY, "Updates notification e-mail information");
+
     @BeforeEach
     public void setup() {
         databaseHelper.addObject("" +
@@ -70,7 +84,7 @@ public class RdapServiceTestIntegration extends AbstractRdapIntegrationTest {
                 "upd-to:        noreply@ripe.net\n" +
                 "auth:          MD5-PW $1$d9fKeTr2$Si7YudNf4rUGmR71n/cqk/ #test\n" +
                 "mnt-by:        OWNER-MNT\n" +
-                "referral-by:   OWNER-MNT\n" +
+                "mbrs-by-ref:   OWNER-MNT\n" +
                 "created:         2011-07-28T00:35:42Z\n" +
                 "last-modified:   2019-02-28T10:14:46Z\n" +
                 "source:        TEST");
@@ -90,6 +104,7 @@ public class RdapServiceTestIntegration extends AbstractRdapIntegrationTest {
                 "e-mail:        noreply@ripe.net\n" +
                 "mnt-by:        OWNER-MNT\n" +
                 "nic-hdl:       TP2-TEST\n" +
+                "notify:       test@ripe.net\n" +
                 "created:         2011-07-28T00:35:42Z\n" +
                 "last-modified:   2019-02-28T10:14:46Z\n" +
                 "source:        TEST");
@@ -157,14 +172,6 @@ public class RdapServiceTestIntegration extends AbstractRdapIntegrationTest {
                 "last-modified:   2022-10-25T12:22:39Z\n" +
                 "source:        TEST");
         databaseHelper.addObject("" +
-                "as-block:       AS100 - AS200\n" +
-                "descr:          ARIN ASN block\n" +
-                "org:            ORG-TEST1-TEST\n" +
-                "mnt-by:         OWNER-MNT\n" +
-                "created:         2022-08-14T11:48:28Z\n" +
-                "last-modified:   2022-10-25T12:22:39Z\n" +
-                "source:         TEST");
-        databaseHelper.addObject("" +
                 "inetnum:        0.0.0.0 - 255.255.255.255\n" +
                 "netname:        IANA-BLK\n" +
                 "descr:          The whole IPv4 address space\n" +
@@ -227,8 +234,8 @@ public class RdapServiceTestIntegration extends AbstractRdapIntegrationTest {
         assertThat(ip.getStatus(), contains("reserved"));
 
         assertThat(ip.getPort43(), is("whois.ripe.net"));
-        assertThat(ip.getRdapConformance(), hasSize(3));
-        assertThat(ip.getRdapConformance(), containsInAnyOrder("rdap_level_0", "cidr0", "nro_rdap_profile_0"));
+        assertThat(ip.getRdapConformance(), hasSize(4));
+        assertThat(ip.getRdapConformance(), containsInAnyOrder("rdap_level_0", "cidr0", "nro_rdap_profile_0", "redacted"));
 
 
         final List<Remark> remarks = ip.getRemarks();
@@ -373,7 +380,7 @@ public class RdapServiceTestIntegration extends AbstractRdapIntegrationTest {
                 "address:        Singel 258\n" +
                 "e-mail:         bitbucket@ripe.net\n" +
                 "descr:          Acme Carpet Organisation\n" +
-                "remark:         some remark\n" +
+                "remarks:         some remark\n" +
                 "phone:          +31 1234567\n" +
                 "fax-no:         +31 98765432\n" +
                 "geoloc:         52.375599 4.899902\n" +
@@ -513,7 +520,8 @@ public class RdapServiceTestIntegration extends AbstractRdapIntegrationTest {
         assertThat(ip.getCidr0_cidrs().get(1).getV4prefix(), is("192.132.76.0"));
         assertThat(ip.getCidr0_cidrs().get(1).getLength(), is(23));
 
-        assertThat(ip.getRdapConformance(), containsInAnyOrder("cidr0", "rdap_level_0", "nro_rdap_profile_0"));
+        assertThat(ip.getRdapConformance(), containsInAnyOrder("cidr0", "rdap_level_0", "nro_rdap_profile_0",
+                "redacted"));
 
         var notices = ip.getNotices();
         var inaccuracyNotice = notices.get(1);
@@ -635,11 +643,10 @@ public class RdapServiceTestIntegration extends AbstractRdapIntegrationTest {
         assertThat(ip.getCidr0_cidrs(), hasSize(1));
         assertThat(ip.getCidr0_cidrs().get(0).getV6prefix(), is("2001:2002:2003::"));
         assertThat(ip.getCidr0_cidrs().get(0).getLength(), is(48));
-        assertThat(ip.getRdapConformance(), containsInAnyOrder("cidr0", "rdap_level_0", "nro_rdap_profile_0"));
 
         assertThat(ip.getPort43(), is("whois.ripe.net"));
-        assertThat(ip.getRdapConformance(), hasSize(3));
-        assertThat(ip.getRdapConformance(), containsInAnyOrder("cidr0", "rdap_level_0", "nro_rdap_profile_0"));
+        assertThat(ip.getRdapConformance(), hasSize(4));
+        assertThat(ip.getRdapConformance(), containsInAnyOrder("rdap_level_0", "cidr0", "nro_rdap_profile_0", "redacted"));
 
         final List<Remark> remarks = ip.getRemarks();
         assertThat(remarks, hasSize(1));
@@ -818,8 +825,7 @@ public class RdapServiceTestIntegration extends AbstractRdapIntegrationTest {
                 "[fn, {}, text, Pauleth Palthen], " +
                 "[kind, {}, text, individual], " +
                 "[adr, {label=Singel 258}, text, [, , , , , , ]], " +
-                "[tel, {type=voice}, text, +31-1234567890], " +
-                "[email, {type=email}, text, noreply@ripe.net]]"));
+                "[tel, {type=voice}, text, +31-1234567890]]"));
 
         assertThat(entity.getObjectClassName(), is("entity"));
 
@@ -896,7 +902,11 @@ public class RdapServiceTestIntegration extends AbstractRdapIntegrationTest {
                 .request(MediaType.APPLICATION_JSON_TYPE)
                 .get(Entity.class);
 
-        assertCommon(entity);
+        assertThat(entity.getPort43(), is("whois.ripe.net"));
+        assertThat(entity.getRdapConformance(), hasSize(4));
+        assertThat(entity.getRdapConformance(), containsInAnyOrder("rdap_level_0", "cidr0", "nro_rdap_profile_0",
+                "redacted"));
+
         assertThat(entity.getHandle(), equalTo("FR1-TEST"));
         assertThat(entity.getRoles(), hasSize(0));
         assertThat(entity.getVCardArray(), hasSize(2));
@@ -905,8 +915,7 @@ public class RdapServiceTestIntegration extends AbstractRdapIntegrationTest {
                 "[[version, {}, text, 4.0], " +
                 "[fn, {}, text, First Role], " +
                 "[kind, {}, text, group], " +
-                "[adr, {label=Singel 258}, text, [, , , , , , ]], " +
-                "[email, {type=email}, text, dbtest@ripe.net]]"));
+                "[adr, {label=Singel 258}, text, [, , , , , , ]]]"));
 
         assertThat(entity.getEntitySearchResults(), hasSize(2));
         assertThat(entity.getEntitySearchResults().get(0).getHandle(), is("OWNER-MNT"));
@@ -1238,7 +1247,7 @@ public class RdapServiceTestIntegration extends AbstractRdapIntegrationTest {
         });
         final RdapObject rdapObject = notFoundException.getResponse().readEntity(RdapObject.class);
         assertThat(rdapObject.getRdapConformance(), containsInAnyOrder("cidr0", "rdap_level_0",
-                "nro_rdap_profile_0", "nro_rdap_profile_asn_flat_0"));
+                "nro_rdap_profile_0", "nro_rdap_profile_asn_flat_0", "redacted"));
     }
     @Test
     public void lookup_autnum_invalid_syntax() {
@@ -1356,7 +1365,8 @@ public class RdapServiceTestIntegration extends AbstractRdapIntegrationTest {
         assertThat(response.getMediaType(), is(new MediaType("application", "rdap+json")));
         final String entity = response.readEntity(String.class);
         assertThat(entity, containsString("\"handle\" : \"AS102\""));
-        assertThat(entity, containsString("rdapConformance\" : [ \"nro_rdap_profile_asn_flat_0\", \"cidr0\", \"rdap_level_0\", \"nro_rdap_profile_0\" ]"));
+        assertThat(entity, containsString("rdapConformance\" : [ \"nro_rdap_profile_asn_flat_0\", \"cidr0\", " +
+                "\"rdap_level_0\", \"nro_rdap_profile_0\", \"redacted\" ]"));
     }
 
     @Test
@@ -1369,7 +1379,8 @@ public class RdapServiceTestIntegration extends AbstractRdapIntegrationTest {
         final String entity = response.readEntity(String.class);
         assertThat(entity, containsString("\"handle\" : \"AS102\""));
         assertThat(entity,
-                containsString("rdapConformance\" : [ \"nro_rdap_profile_asn_flat_0\", \"cidr0\", \"rdap_level_0\", \"nro_rdap_profile_0\" ]"));
+                containsString("rdapConformance\" : [ \"nro_rdap_profile_asn_flat_0\", \"cidr0\", \"rdap_level_0\", " +
+                        "\"nro_rdap_profile_0\", \"redacted\" ]"));
     }
 
     @Test
@@ -1448,22 +1459,20 @@ public class RdapServiceTestIntegration extends AbstractRdapIntegrationTest {
                 "[kind, {}, text, group], " +
                 "[adr, {label=Singel 358}, text, [, , , , , , ]], " +
                 "[tel, {type=voice}, text, +31 6 12345678], " +
-                "[email, {type=email}, text, work@test.com], " +
-                "[email, {type=email}, text, personal@test.com], " +
                 "[email, {type=abuse}, text, abuse@test.net]]"));
     }
 
     @Test
     public void lookup_autnum_irt_mnt_vcard() {
         databaseHelper.addObject("" +
-            "irt: irt-IRT1\n" +
-            "address: Street 1\n" +
-            "e-mail: test@ripe.net\n" +
-            "admin-c: TP1-TEST\n" +
-            "tech-c: TP1-TEST\n" +
-            "auth: MD5-PW \\$1\\$fU9ZMQN9\\$QQtm3kRqZXWAuLpeOiLN7. # update\n" +
-            "mnt-by: OWNER-MNT\n" +
-            "source: TEST\n");
+                "irt: irt-IRT1\n" +
+                "address: Street 1\n" +
+                "e-mail: test@ripe.net\n" +
+                "admin-c: TP1-TEST\n" +
+                "tech-c: TP1-TEST\n" +
+                "auth: MD5-PW \\$1\\$fU9ZMQN9\\$QQtm3kRqZXWAuLpeOiLN7. # update\n" +
+                "mnt-by: OWNER-MNT\n" +
+                "source: TEST\n");
 
         databaseHelper.updateObject("" +
                 "aut-num:       AS102\n" +
@@ -1487,11 +1496,9 @@ public class RdapServiceTestIntegration extends AbstractRdapIntegrationTest {
         assertThat(entities.get(0).getHandle(), is("irt-IRT1"));
         assertThat(entities.get(0).getRoles(), contains(Role.ABUSE));
         assertThat(entities.get(0).getVCardArray().get(1).toString(), is("" +
-                "[[version, {}, text, 4.0], " +
-                "[fn, {}, text, irt-IRT1], " +
+                "[[version, {}, text, 4.0], [fn, {}, text, irt-IRT1], " +
                 "[kind, {}, text, group], " +
-                "[adr, {label=Street 1}, text, [, , , , , , ]], " +
-                "[email, {type=email}, text, test@ripe.net]]"));
+                "[adr, {label=Street 1}, text, [, , , , , , ]]]"));
 
         assertThat(entities.get(1).getHandle(), is("OWNER-MNT"));
         assertThat(entities.get(1).getRoles(), contains(Role.REGISTRANT));
@@ -1559,8 +1566,6 @@ public class RdapServiceTestIntegration extends AbstractRdapIntegrationTest {
                 "[kind, {}, text, group], " +
                 "[adr, {label=Singel 358}, text, [, , , , , , ]], " +
                 "[tel, {type=voice}, text, +31 6 12345678], " +
-                "[email, {type=email}, text, work@test.com], " +
-                "[email, {type=email}, text, personal@test.com], " +
                 "[email, {type=abuse}, text, abuse@test.net]]"));
     }
 
@@ -2103,7 +2108,7 @@ public class RdapServiceTestIntegration extends AbstractRdapIntegrationTest {
         });
         final RdapObject rdapObject = notFoundException.getResponse().readEntity(RdapObject.class);
         assertThat(rdapObject.getRdapConformance(), containsInAnyOrder("cidr0", "rdap_level_0",
-                "nro_rdap_profile_0"));
+                "nro_rdap_profile_0", "redacted"));
     }
     @Test
     public void lookup_org_invalid_syntax() {
@@ -2173,7 +2178,7 @@ public class RdapServiceTestIntegration extends AbstractRdapIntegrationTest {
                 "upd-to:        noreply@ripe.net\n" +
                 "auth:          MD5-PW $1$d9fKeTr2$Si7YudNf4rUGmR71n/cqk/ #test\n" +
                 "mnt-by:        OWNER-MNT\n" +
-                "referral-by:   OWNER-MNT\n" +
+                "mbrs-by-ref:   OWNER-MNT\n" +
                 "created:         2022-08-14T11:48:28Z\n" +
                 "last-modified:   2022-10-25T12:22:39Z\n" +
                 "source:        TEST");
@@ -2232,7 +2237,10 @@ public class RdapServiceTestIntegration extends AbstractRdapIntegrationTest {
                 .request(MediaType.APPLICATION_JSON_TYPE)
                 .get(Entity.class);
 
-        assertCommon(entity);
+        assertThat(entity.getPort43(), is("whois.ripe.net"));
+        assertThat(entity.getRdapConformance(), hasSize(4));
+        assertThat(entity.getRdapConformance(), containsInAnyOrder("rdap_level_0", "cidr0", "nro_rdap_profile_0", "redacted"));
+
         assertThat(entity.getHandle(), equalTo("ORG-ONE-TEST"));
         assertThat(entity.getRoles(), hasSize(0));
         assertThat(entity.getLang(), is("EN"));
@@ -2266,8 +2274,7 @@ public class RdapServiceTestIntegration extends AbstractRdapIntegrationTest {
                 "[[version, {}, text, 4.0], " +
                 "[fn, {}, text, Organisation One], " +
                 "[kind, {}, text, org], " +
-                "[adr, {label=One Org Street}, text, [, , , , , , ]], " +
-                "[email, {type=email}, text, test@ripe.net]]"));
+                "[adr, {label=One Org Street}, text, [, , , , , , ]]]"));
 
         assertCopyrightLink(entity.getLinks(), "https://rdap.db.ripe.net/entity/ORG-ONE-TEST");
 
@@ -2294,6 +2301,277 @@ public class RdapServiceTestIntegration extends AbstractRdapIntegrationTest {
         assertErrorDescription(serverErrorException, "Nameserver not supported");
     }
 
+    // Redactions
+
+    @Test
+    public void lookup_organisation_redactions() throws JsonProcessingException {
+        createEntityRedactionObjects();
+
+        databaseHelper.addObject("" +
+                "organisation:  ORG-ONE-TEST\n" +
+                "org-name:      Organisation One\n" +
+                "org-type:      LIR\n" +
+                "descr:         Test organisation\n" +
+                "address:       One Org Street\n" +
+                "e-mail:        test@ripe.net\n" +
+                "language:      EN\n" +
+                "admin-c:       TP2-TEST\n" + //has notify
+                "tech-c:        TP1-TEST\n" +
+                "tech-c:        TP2-TEST\n" + //has notify
+                "notify:       test@ripe.net\n" +
+                "notify:       test1@ripe.net\n" +
+                "mnt-by:        OWNER-MNT\n" +
+                "mnt-ref:       INCOMING-MNT\n" +
+                "mnt-ref:       INCOMING2-MNT\n" +
+                "created:         2011-07-28T00:35:42Z\n" +
+                "last-modified:   2019-02-28T10:14:46Z\n" +
+                "source:        TEST");
+
+        final Entity entity = createResource("entity/ORG-ONE-TEST")
+                .request(MediaType.APPLICATION_JSON_TYPE)
+                .get(Entity.class);
+
+        assertPersonalRedaction(entity, 0, NOTIFY);
+        assertPersonalRedaction(entity, 1, E_MAIL);
+        assertPersonalRedactionForEntities(entity, entity.getEntitySearchResults(), "TP2-TEST", 2, E_MAIL);
+        assertPersonalRedactionForEntities(entity, entity.getEntitySearchResults(), "TP2-TEST", 3, NOTIFY);
+
+
+        assertCommon(entity);
+    }
+
+    @Test
+    public void lookup_organisation_redactions_different_person() throws JsonProcessingException {
+        createEntityRedactionObjects();
+
+        databaseHelper.addObject("" +
+                "person:        Tester Person\n" +
+                "nic-hdl:       TP3-TEST\n" +
+                "address:       One Org Street\n" +
+                "e-mail:        test@ripe.net\n" +
+                "notify:       test@ripe.net\n" +
+                "notify:       test1@ripe.net\n" +
+                "mnt-by:        OWNER-MNT\n" +
+                "created:         2011-07-28T00:35:42Z\n" +
+                "last-modified:   2019-02-28T10:14:46Z\n" +
+                "source:        TEST");
+
+        databaseHelper.addObject("" +
+                "organisation:  ORG-ONE-TEST\n" +
+                "org-name:      Organisation One\n" +
+                "org-type:      LIR\n" +
+                "descr:         Test organisation\n" +
+                "address:       One Org Street\n" +
+                "e-mail:        test@ripe.net\n" +
+                "language:      EN\n" +
+                "admin-c:       TP2-TEST\n" + //has notify
+                "tech-c:        TP1-TEST\n" +
+                "tech-c:        TP3-TEST\n" + //has notify
+                "notify:       test@ripe.net\n" +
+                "notify:       test1@ripe.net\n" +
+                "mnt-by:        OWNER-MNT\n" +
+                "mnt-ref:       INCOMING-MNT\n" +
+                "mnt-ref:       INCOMING2-MNT\n" +
+                "created:         2011-07-28T00:35:42Z\n" +
+                "last-modified:   2019-02-28T10:14:46Z\n" +
+                "source:        TEST");
+
+        final Entity entity = createResource("entity/ORG-ONE-TEST")
+                .request(MediaType.APPLICATION_JSON_TYPE)
+                .get(Entity.class);
+
+        assertPersonalRedaction(entity, 0, NOTIFY);
+        assertPersonalRedaction(entity, 1, E_MAIL);
+
+        assertPersonalRedactionForEntities(entity, entity.getEntitySearchResults(), "TP2-TEST", 2, E_MAIL);
+        assertPersonalRedactionForEntities(entity, entity.getEntitySearchResults(), "TP2-TEST", 3, NOTIFY);
+        assertPersonalRedactionForEntities(entity, entity.getEntitySearchResults(), "TP3-TEST", 4, E_MAIL);
+        assertPersonalRedactionForEntities(entity, entity.getEntitySearchResults(), "TP3-TEST", 5, NOTIFY);
+        assertCommon(entity);
+    }
+
+    @Test
+    public void lookup_person_redactions() throws JsonProcessingException {
+        createEntityRedactionObjects();
+
+        databaseHelper.addObject("" +
+                "person:        Tester Person\n" +
+                "nic-hdl:       TP3-TEST\n" +
+                "address:       One Org Street\n" +
+                "e-mail:        test@ripe.net\n" +
+                "notify:       test@ripe.net\n" +
+                "notify:       test1@ripe.net\n" +
+                "mnt-by:        OWNER-MNT\n" +
+                "mnt-ref:       INCOMING-MNT\n" +
+                "mnt-ref:       INCOMING2-MNT\n" +
+                "created:         2011-07-28T00:35:42Z\n" +
+                "last-modified:   2019-02-28T10:14:46Z\n" +
+                "source:        TEST");
+
+        final Entity entity = createResource("entity/TP3-TEST")
+                .request(MediaType.APPLICATION_JSON_TYPE)
+                .get(Entity.class);
+
+        assertPersonalRedaction(entity, 0, NOTIFY);
+        assertPersonalRedaction(entity, 1, E_MAIL);
+    }
+
+    @Test
+    public void lookup_person_without_redactions() {
+        createEntityRedactionObjects();
+
+        databaseHelper.addObject("" +
+                "person:        Tester Person\n" +
+                "nic-hdl:       TP3-TEST\n" +
+                "address:       One Org Street\n" +
+                "mnt-by:        OWNER-MNT\n" +
+                "mnt-ref:       INCOMING-MNT\n" +
+                "mnt-ref:       INCOMING2-MNT\n" +
+                "created:         2011-07-28T00:35:42Z\n" +
+                "last-modified:   2019-02-28T10:14:46Z\n" +
+                "source:        TEST");
+
+        final Entity entity = createResource("entity/TP3-TEST")
+                .request(MediaType.APPLICATION_JSON_TYPE)
+                .get(Entity.class);
+
+        assertThat(entity.getRedacted().size(), is(0));
+    }
+
+    @Test
+    public void lookup_aut_num_redactions() throws JsonProcessingException {
+        databaseHelper.addObject("" +
+                "aut-num:       AS103\n" +
+                "as-name:       AS-TEST\n" +
+                "descr:         A single ASN\n" +
+                "admin-c:       TP2-TEST\n" + //has notify
+                "tech-c:        TP1-TEST\n" +
+                "notify:       test@ripe.net\n" +
+                "mnt-by:        OWNER-MNT\n" +
+                "created:       2011-07-28T00:35:42Z\n" +
+                "last-modified:   2019-02-28T10:14:46Z\n" +
+                "source:        TEST");
+
+        final Autnum autnum = createResource("autnum/103")
+                .request(MediaType.APPLICATION_JSON_TYPE)
+                .get(Autnum.class);
+
+        assertPersonalRedactionForEntities(autnum, autnum.getEntitySearchResults(), "TP2-TEST", 0, E_MAIL);
+        assertPersonalRedactionForEntities(autnum, autnum.getEntitySearchResults(), "TP2-TEST", 1, NOTIFY);
+    }
+
+    @Test
+    public void lookup_org_inetnum_autnum_entity_redactions() throws JsonProcessingException {
+        databaseHelper.addObject("" +
+                "person:        Tester Person\n" +
+                "nic-hdl:       TP3-TEST\n" +
+                "address:       One Org Street\n" +
+                "e-mail:        test@ripe.net\n" +
+                "notify:       test@ripe.net\n" +
+                "notify:       test1@ripe.net\n" +
+                "mnt-by:        OWNER-MNT\n" +
+                "created:         2011-07-28T00:35:42Z\n" +
+                "last-modified:   2019-02-28T10:14:46Z\n" +
+                "source:        TEST");
+
+        databaseHelper.addObject("" +
+                "aut-num:       AS64496\n" +
+                "as-name:       AS-TEST\n" +
+                "descr:         A single ASN\n" +
+                "org:           ORG-TEST1-TEST\n" +
+                "admin-c:       TP1-TEST\n" +
+                "tech-c:        TP2-TEST\n" +
+                "mnt-by:        OWNER-MNT\n" +
+                "notify:       test@ripe.net\n" +
+                "created:         2022-08-14T11:48:28Z\n" +
+                "last-modified:   2022-10-25T12:22:39Z\n" +
+                "source:        TEST");
+
+        databaseHelper.addObject("" +
+                "inetnum:      109.111.192.0 - 109.111.223.255\n" +
+                "netname:      TEST-NET-NAME\n" +
+                "descr:        TEST network\n" +
+                "org:          ORG-TEST1-TEST\n" +
+                "country:      NL\n" +
+                "admin-c:       TP2-TEST\n" +
+                "tech-c:       TP3-TEST\n" +
+                "status:       OTHER\n" +
+                "mnt-by:       OWNER-MNT\n" +
+                "created:         2022-08-14T11:48:28Z\n" +
+                "last-modified:   2022-10-25T12:22:39Z\n" +
+                "source:       TEST");
+
+
+        final Entity entity = createResource("entity/ORG-TEST1-TEST")
+                .request(MediaType.APPLICATION_JSON_TYPE)
+                .get(Entity.class);
+
+        assertThat(entity.getRedacted().size(), is(10));
+
+        assertPersonalRedaction(entity, 0, E_MAIL);
+
+        final Ip ip = entity.getNetworks().stream().filter( network -> network.getHandle().equals("109.111.192.0 - 109.111.223.255")).findFirst().get();
+        assertPersonalRedactionForEntities(entity, ip.getEntitySearchResults(), "ORG-TEST1-TEST", 1, E_MAIL);
+        assertPersonalRedactionForEntities(entity, ip.getEntitySearchResults(), "TP2-TEST", 2, NOTIFY);
+        assertPersonalRedactionForEntities(entity, ip.getEntitySearchResults(), "TP2-TEST", 3, E_MAIL);
+        assertPersonalRedactionForEntities(entity, ip.getEntitySearchResults(), "TP3-TEST", 4, E_MAIL);
+        assertPersonalRedactionForEntities(entity, ip.getEntitySearchResults(), "TP3-TEST", 5, NOTIFY);
+
+        final Autnum autnum = entity.getAutnums().stream().filter(network -> network.getHandle().equals("AS64496")).findFirst().get();
+        assertPersonalRedactionForEntities(entity, autnum.getEntitySearchResults(), "ORG-TEST1-TEST", 6, E_MAIL);
+        assertPersonalRedactionForEntities(entity, autnum.getEntitySearchResults(), "TP2-TEST", 7, NOTIFY);
+        assertPersonalRedactionForEntities(entity, autnum.getEntitySearchResults(), "TP2-TEST", 8, E_MAIL);
+
+        assertPersonalRedactionForEntities(entity, entity.getEntitySearchResults(), "PP1-TEST", 9, E_MAIL);
+
+        assertCommon(entity);
+    }
+
+    @Test
+    public void lookup_domain_object_inetnum_redactions() throws JsonProcessingException {
+
+        databaseHelper.addObject("" +
+                "inetnum:       80.179.52.0 - 80.179.55.255\n" +
+                "netname:       SANDBOX11470-IPv4-ALLOCATION\n" +
+                "org:           ORG-TEST1-TEST\n" +
+                "country:       EU\n" +
+                "admin-c:       TP1-TEST\n" +
+                "tech-c:        TP1-TEST\n" +
+                "status:        ALLOCATED PA\n" +
+                "mnt-by:        OWNER-MNT\n" +
+                "tech-c:       TP2-TEST\n" +
+                "created:       2013-12-10T16:54:20Z\n" +
+                "last-modified: 2013-12-10T16:54:20Z\n" +
+                "source:        RIPE\n");
+
+        databaseHelper.addObject("" +
+                "domain:        52.179.80.in-addr.arpa\n" +
+                "descr:         Test domain\n" +
+                "admin-c:       TP1-TEST\n" +
+                "tech-c:        TP1-TEST\n" +
+                "zone-c:        TP1-TEST\n" +
+                "nserver:       ns1.test.com.au 10.0.0.1\n" +
+                "nserver:       ns2.test.com.au 2001:10::2\n" +
+                "ds-rdata:      52151 1 1 13ee60f7499a70e5aadaf05828e7fc59e8e70bc1\n" +
+                "ds-rdata:      17881 5 1 2e58131e5fe28ec965a7b8e4efb52d0a028d7a78\n" +
+                "ds-rdata:      17881 5 2 8c6265733a73e5588bfac516a4fcfbe1103a544b95f254cb67a21e474079547e\n" +
+                "mnt-by:        OWNER-MNT\n" +
+                "created:       2011-07-28T00:35:42Z\n" +
+                "last-modified: 2019-02-28T10:14:46Z\n" +
+                "source:        TEST");
+
+        ipTreeUpdater.rebuild();
+
+        final Domain domain = createResource("domain/52.179.80.in-addr.arpa")
+                .request(MediaType.APPLICATION_JSON_TYPE)
+                .get(Domain.class);
+
+        assertThat(domain.getRedacted().size(), is(3));
+
+        assertPersonalRedactionForEntities(domain, domain.getNetwork().getEntitySearchResults(), "ORG-TEST1-TEST", 0, E_MAIL);
+        assertPersonalRedactionForEntities(domain, domain.getNetwork().getEntitySearchResults(), "TP2-TEST", 1, NOTIFY);
+        assertPersonalRedactionForEntities(domain, domain.getNetwork().getEntitySearchResults(), "TP2-TEST", 2, E_MAIL);
+    }
     // search - entities - organisation
 
     @Test
@@ -2454,9 +2732,9 @@ public class RdapServiceTestIntegration extends AbstractRdapIntegrationTest {
                 .get(RdapObject.class);
 
         assertThat(help.getPort43(), is("whois.ripe.net"));
-        assertThat(help.getRdapConformance(), hasSize(4));
+        assertThat(help.getRdapConformance(), hasSize(5));
         assertThat(help.getRdapConformance(), containsInAnyOrder("cidr0", "rdap_level_0", "nro_rdap_profile_0",
-                "nro_rdap_profile_asn_flat_0"));
+                "nro_rdap_profile_asn_flat_0", "redacted"));
 
         final List<Notice> notices = help.getNotices();
         assertThat(notices, hasSize(1));
@@ -2467,8 +2745,8 @@ public class RdapServiceTestIntegration extends AbstractRdapIntegrationTest {
 
     private void assertCommon(RdapObject object) {
         assertThat(object.getPort43(), is("whois.ripe.net"));
-        assertThat(object.getRdapConformance(), hasSize(3));
-        assertThat(object.getRdapConformance(), containsInAnyOrder("rdap_level_0", "cidr0", "nro_rdap_profile_0"));
+        assertThat(object.getRdapConformance(), hasSize(4));
+        assertThat(object.getRdapConformance(), containsInAnyOrder("rdap_level_0", "cidr0", "nro_rdap_profile_0", "redacted"));
     }
 
     private void assertCopyrightLink(final List<Link> links, final String value) {
@@ -2493,5 +2771,63 @@ public class RdapServiceTestIntegration extends AbstractRdapIntegrationTest {
         assertThat(notice.getLinks().get(0).getHref(), is("https://apps.db.ripe.net/docs/HTML-Terms-And-Conditions"));
         assertThat(notice.getLinks().get(0).getType(), is("application/pdf"));
         assertThat(notice.getLinks().get(0).getValue(), is(value));
+    }
+
+    private void assertPersonalRedaction(final Entity entity, final int redaction, final AttributeType attribute) throws JsonProcessingException {
+        final String entityJson = getObjectMapper().writeValueAsString(entity);
+
+        List<Object> vcards = JsonPath.read(entityJson, entity.getRedacted().get(redaction).getPrePath());
+        assertThat(vcards.size(), is(0));
+
+        assertCommonPersonalRedaction(entity, redaction, entity, attribute);
+    }
+
+    private void assertPersonalRedactionForEntities(final RdapObject entity, final List<Entity> entities, final String personKey, final int redaction, final AttributeType attribute) throws JsonProcessingException {
+        final String entityJson = getObjectMapper().writeValueAsString(entity);
+
+        List<Object> vcards = JsonPath.read(entityJson, entity.getRedacted().get(redaction).getPrePath());
+        assertThat(vcards.size(), is(0));
+
+        final Entity insideEntity = entities.stream().filter( contacEntity -> contacEntity.getHandle().equals(personKey)).findFirst().get();
+        assertCommonPersonalRedaction(entity, redaction, insideEntity, attribute);
+    }
+
+    private void assertCommonPersonalRedaction(final RdapObject entity, final int redaction,
+                                               final Entity insideEntity, final AttributeType attribute) throws JsonProcessingException {
+        ((ArrayList) insideEntity.getVCardArray().get(1)).add(0, Lists.newArrayList(attribute.getName(), "", TEXT.getValue(),
+                "abc@ripe.net"));
+
+        final String entityAfterAddingVcard = getObjectMapper().writeValueAsString(entity);
+
+        final List<Object> vcards = JsonPath.read(entityAfterAddingVcard, entity.getRedacted().get(redaction).getPrePath());
+        assertThat(vcards.size(), is(1));
+
+        assertThat(entity.getRedacted().get(redaction).getName().getDescription(), is(ATTRIBUTE_TYPE_NAME_DESCRIPTION.get(attribute)));
+        assertThat(entity.getRedacted().get(redaction).getReason().getDescription(), is("Personal data"));
+        assertThat(entity.getRedacted().get(redaction).getMethod(), is("removal"));
+    }
+
+    private void createEntityRedactionObjects() {
+        databaseHelper.addObject("" +
+                "mntner:        INCOMING-MNT\n" +
+                "admin-c:       TP1-TEST\n" +
+                "auth:          MD5-PW $1$d9fKeTr2$Si7YudNf4rUGmR71n/cqk/ #test\n" +
+                "mnt-by:        INCOMING-MNT\n" +
+                "created:         2011-07-28T00:35:42Z\n" +
+                "last-modified:   2019-02-28T10:14:46Z\n" +
+                "source:        TEST");
+
+        databaseHelper.addObject("" +
+                "mntner:        INCOMING2-MNT\n" +
+                "admin-c:       TP1-TEST\n" +
+                "auth:          MD5-PW $1$d9fKeTr2$Si7YudNf4rUGmR71n/cqk/ #test\n" +
+                "mnt-by:        INCOMING2-MNT\n" +
+                "created:         2011-07-28T00:35:42Z\n" +
+                "last-modified:   2019-02-28T10:14:46Z\n" +
+                "source:        TEST");
+    }
+    @NotNull
+    private  ObjectMapper getObjectMapper() {
+        return new RdapJsonProvider().locateMapper(RdapObject.class, MediaType.APPLICATION_JSON_TYPE);
     }
 }

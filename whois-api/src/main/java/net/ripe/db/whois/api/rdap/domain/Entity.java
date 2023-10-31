@@ -1,5 +1,6 @@
 package net.ripe.db.whois.api.rdap.domain;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.google.common.collect.Lists;
 import jakarta.xml.bind.annotation.XmlAccessType;
@@ -7,8 +8,10 @@ import jakarta.xml.bind.annotation.XmlAccessorType;
 import jakarta.xml.bind.annotation.XmlElement;
 import jakarta.xml.bind.annotation.XmlRootElement;
 import jakarta.xml.bind.annotation.XmlSchemaType;
+import jakarta.xml.bind.annotation.XmlTransient;
 import jakarta.xml.bind.annotation.XmlType;
 import net.ripe.db.whois.api.rdap.domain.vcard.VCard;
+import net.ripe.db.whois.common.rpsl.AttributeType;
 
 import java.io.Serializable;
 import java.util.List;
@@ -32,6 +35,10 @@ public class Entity extends RdapObject implements Serializable, Comparable<Entit
     protected List<Role> roles;
     protected Map publicIds;
 
+    @XmlTransient
+    @JsonIgnore
+    private List<AttributeType> vCardRedactedAttr;
+
     public Entity() {
         super();
         super.setObjectClassName("entity");
@@ -43,6 +50,15 @@ public class Entity extends RdapObject implements Serializable, Comparable<Entit
         this.vcardArray = vcardArray;
         this.roles = roles;
         this.publicIds = publicIds;
+    }
+
+
+    public List<AttributeType> getvCardRedactedAttr() {
+        if(this.vCardRedactedAttr == null) {
+            this.vCardRedactedAttr = Lists.newArrayList();
+        }
+
+        return vCardRedactedAttr;
     }
 
     public String getHandle() {
