@@ -41,10 +41,14 @@ import java.util.UUID;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+/**
+ * Provide a keystore file for the embedded Jetty SSL Connector configuration.
+ *
+ * Either use an existing keystore, or create a new one based on the private key and SSL certificate.
+ */
 // TODO: [ES] remove duplicate WhoisKeystore class from whois-internal
 @Component
 public class WhoisKeystore {
-
 
     private static final Logger LOGGER = LoggerFactory.getLogger(WhoisKeystore.class);
 
@@ -120,7 +124,7 @@ public class WhoisKeystore {
         final List<PrivateKey> privateKeys = Lists.newArrayList();
         for (String privateKeyFilename : privateKeyFilenames) {
             if (!exists(privateKeyFilename)) {
-                LOGGER.warn("Private key {} not found", privateKeyFilename);
+                LOGGER.info("Private key {} not found", privateKeyFilename);
                 continue;
             }
             privateKeys.addAll(readPrivateKeys(privateKeyFilename));
@@ -132,7 +136,7 @@ public class WhoisKeystore {
         final List<Certificate> certificates = Lists.newArrayList();
         for (String certificateFilename : certificateFilenames) {
             if (!exists(certificateFilename)) {
-                LOGGER.warn("Certificate {} not found", certificateFilename);
+                LOGGER.info("Certificate {} not found", certificateFilename);
                 continue;
             }
             certificates.addAll(readCertificates(certificateFilename));
@@ -244,7 +248,7 @@ public class WhoisKeystore {
         try {
             keyStoreLastModified = Files.getLastModifiedTime(new File(this.keystoreFilename).toPath());
         } catch (IOException e) {
-            LOGGER.warn("Caught {} on get modified time for keystore {}: {}", e.getClass().getName(), this.keystoreFilename, e.getMessage());
+            LOGGER.info("Caught {} on get modified time for keystore {}: {}", e.getClass().getName(), this.keystoreFilename, e.getMessage());
             return false;
         }
 
@@ -255,7 +259,7 @@ public class WhoisKeystore {
                     return true;
                 }
             } catch (IOException e) {
-                LOGGER.warn("Caught {} on get modified time for certificate {}: {}", e.getClass().getName(), certificateFilename, e.getMessage());
+                LOGGER.info("Caught {} on get modified time for certificate {}: {}", e.getClass().getName(), certificateFilename, e.getMessage());
             }
         }
 
@@ -266,7 +270,7 @@ public class WhoisKeystore {
                     return true;
                 }
             } catch (IOException e) {
-                LOGGER.warn("Caught {} on get modified time for private key {}: {}", e.getClass().getName(), privateKeyFilename, e.getMessage());
+                LOGGER.info("Caught {} on get modified time for private key {}: {}", e.getClass().getName(), privateKeyFilename, e.getMessage());
             }
         }
 
@@ -303,7 +307,7 @@ public class WhoisKeystore {
         try {
             aliases = keyStore.aliases();
         } catch (KeyStoreException e) {
-            LOGGER.warn("Caught {} on keystore aliases {}: {}", e.getClass().getName(), this.keystoreFilename, e.getMessage());
+            LOGGER.info("Caught {} on keystore aliases {}: {}", e.getClass().getName(), this.keystoreFilename, e.getMessage());
             throw e;
         }
 
@@ -312,7 +316,7 @@ public class WhoisKeystore {
             try {
                 keyStore.deleteEntry(alias);
             } catch (KeyStoreException e) {
-                LOGGER.warn("Caught {} on delete keystore alias {}: {}", e.getClass().getName(), alias, e.getMessage());
+                LOGGER.info("Caught {} on delete keystore alias {}: {}", e.getClass().getName(), alias, e.getMessage());
                 throw e;
             }
         }
@@ -390,7 +394,7 @@ public class WhoisKeystore {
     }
 
     private boolean exists(final String filename) {
-        return ! StringUtils.isEmpty(filename) && (new File(filename)).exists();
+        return !StringUtils.isEmpty(filename) && (new File(filename)).exists();
     }
 
     private boolean isNullOrEmpty(final String[] stringArray) {
