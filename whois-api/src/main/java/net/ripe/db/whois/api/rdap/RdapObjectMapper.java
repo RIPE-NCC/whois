@@ -69,7 +69,6 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import static net.ripe.db.whois.api.rdap.RedactionObjectMapper.REDACTED_PERSONAL_ATTR;
 import static net.ripe.db.whois.api.rdap.RedactionObjectMapper.mapRedactions;
 import static net.ripe.db.whois.api.rdap.domain.Status.ACTIVE;
 import static net.ripe.db.whois.api.rdap.domain.Status.RESERVED;
@@ -79,12 +78,16 @@ import static net.ripe.db.whois.api.rdap.domain.vcard.VCardKind.ORGANISATION;
 import static net.ripe.db.whois.common.rpsl.AttributeType.ABUSE_MAILBOX;
 import static net.ripe.db.whois.common.rpsl.AttributeType.ADDRESS;
 import static net.ripe.db.whois.common.rpsl.AttributeType.ADMIN_C;
+import static net.ripe.db.whois.common.rpsl.AttributeType.COUNTRY;
 import static net.ripe.db.whois.common.rpsl.AttributeType.DS_RDATA;
+import static net.ripe.db.whois.common.rpsl.AttributeType.E_MAIL;
 import static net.ripe.db.whois.common.rpsl.AttributeType.FAX_NO;
 import static net.ripe.db.whois.common.rpsl.AttributeType.GEOLOC;
 import static net.ripe.db.whois.common.rpsl.AttributeType.IRT;
+import static net.ripe.db.whois.common.rpsl.AttributeType.LANGUAGE;
 import static net.ripe.db.whois.common.rpsl.AttributeType.MNT_BY;
 import static net.ripe.db.whois.common.rpsl.AttributeType.MNT_IRT;
+import static net.ripe.db.whois.common.rpsl.AttributeType.NOTIFY;
 import static net.ripe.db.whois.common.rpsl.AttributeType.ORG;
 import static net.ripe.db.whois.common.rpsl.AttributeType.ORG_NAME;
 import static net.ripe.db.whois.common.rpsl.AttributeType.PERSON;
@@ -642,8 +645,8 @@ class RdapObjectMapper {
                 .addOrg(rpslObject.getValuesForAttribute(ORG))
                 .addGeo(rpslObject.getValuesForAttribute(GEOLOC));
 
-        final Set<AttributeType> redactedAttributes = rpslObject.findAttributes(REDACTED_PERSONAL_ATTR).stream().map(RpslAttribute::getType).collect(Collectors.toSet());
-        entity.getvCardRedactedAttr().addAll(redactedAttributes);
+        entity.getRedactedRpslAttrs().addAll(rpslObject.findAttributes(NOTIFY));
+        entity.getRedactedRpslAttrs().addAll(rpslObject.findAttributes(E_MAIL));
 
         entity.setVCardArray(builder.build());
     }
@@ -661,9 +664,12 @@ class RdapObjectMapper {
         if (languages.isEmpty()) {
             return;
         }
-        // TODO: [ES] add warning notice if additional languages found
+
         rdapObject.setLang(languages.get(0).getCleanValue().toString());
-        addNoticeForMultipleValues(rdapObject, AttributeType.LANGUAGE, languages, rpslObject.getKey().toString());
+
+        if(languages.size() > 1) {
+         rdapObject.getRedactedRpslAttrs().addAll(rpslObject.findAttributes(LANGUAGE));
+        }
     }
 
     private static void handleCountryAttribute(final RpslObject rpslObject, final Ip ip) {
@@ -671,23 +677,12 @@ class RdapObjectMapper {
         if (countries.isEmpty()) {
             return;
         }
-        // TODO: [ES] add warning notice if additional languages found
+
         ip.setCountry(countries.get(0).getCleanValue().toString());
-        addNoticeForMultipleValues(ip, AttributeType.COUNTRY, countries, ip.getHandle());
-    }
 
-    private static void addNoticeForMultipleValues(final RdapObject rdapObject, final AttributeType type, final List<RpslAttribute> values, final String key) {
-        if (values.isEmpty() || values.size() == 1) {
-            return;
+        if(countries.size() > 1) {
+          ip.getRedactedRpslAttrs().addAll(rpslObject.findAttributes(COUNTRY));
         }
-
-        final String commaSeperatedValues = values.stream().map(RpslAttribute::getCleanValue).collect(Collectors.joining(", "));
-        final String title = String.format("Multiple %s attributes found", type.getName());
-        final String desc = String.format("There are multiple %s attributes %s in %s, but only the first %s %s was returned.", type.getName(), commaSeperatedValues, key, type.getName(), values.get(0).getCleanValue());
-
-        final Notice notice = new Notice();
-        notice.setTitle(title);
-        notice.getDescription().add(desc);
-        rdapObject.getNotices().add(notice);
     }
+
 }

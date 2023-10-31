@@ -14,6 +14,8 @@ import java.util.Objects;
         "name",
         "reason",
         "prePath",
+        "postPath",
+        "pathLang",
         "method"
 })
 @JsonInclude(JsonInclude.Include.NON_EMPTY)
@@ -23,19 +25,22 @@ public class Redaction implements Serializable {
 
     private Description reason;
 
-    @XmlElement(required = true)
     private String prePath;
+    private String postPath;
+    private String pathLang;
 
     private String method;
 
     public Redaction() {
         // required no-arg constructor
     }
-    public Redaction(final String name, final String prePath, final String reason){
+    private Redaction(final String name, final String prePath, final String postPath, final String pathLang, final String reason, final String method){
         this.name = new Description(name);
         this.prePath = prePath;
+        this.postPath = postPath;
+        this.pathLang = pathLang;
         this.reason = new Description(reason);
-        this.method = "removal";
+        this.method = method;
     }
 
     public Description getName() {
@@ -46,6 +51,14 @@ public class Redaction implements Serializable {
         return reason;
     }
 
+    public String getPostPath() {
+        return postPath;
+    }
+
+    public String getPathLang() {
+        return pathLang;
+    }
+
     public String getMethod() {
         return method;
     }
@@ -54,22 +67,18 @@ public class Redaction implements Serializable {
         return prePath;
     }
 
+
     @Override
     public boolean equals(Object o) {
-        if (this == o) {
-            return true;
-        }
-        if (!(o instanceof Redaction redaction)) return false;
-
-        return name.description.equals(redaction.name.description) &&
-                reason.description.equals(redaction.reason.description) &&
-                prePath.equals(redaction.prePath) &&
-                method.equals(redaction.method);
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Redaction redaction = (Redaction) o;
+        return name.equals(redaction.name) && reason.equals(redaction.reason) && Objects.equals(prePath, redaction.prePath) && Objects.equals(postPath, redaction.postPath) && Objects.equals(pathLang, redaction.pathLang) && method.equals(redaction.method);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(name, reason, prePath, method);
+        return Objects.hash(name, reason, prePath, postPath, pathLang, method);
     }
 
     @XmlAccessorType(XmlAccessType.FIELD)
@@ -109,7 +118,14 @@ public class Redaction implements Serializable {
             return Objects.hash(description);
         }
 
+    }
 
+    public static Redaction getRedactionByRemoval(final String name, final String prePath, final String reason) {
+        return  new Redaction(name, prePath, null, null, reason, "removal");
+    }
+
+    public static Redaction getRedactionByPartialValue(final String name, final String postPath, final String reason) {
+        return  new Redaction(name, null, postPath, "jsonpath", reason, "partialValue");
     }
 
 }
