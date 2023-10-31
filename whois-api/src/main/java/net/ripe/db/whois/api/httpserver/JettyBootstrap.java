@@ -42,16 +42,15 @@ public class JettyBootstrap implements ApplicationService {
     private final RemoteAddressFilter remoteAddressFilter;
     private final ExtensionOverridesAcceptHeaderFilter extensionOverridesAcceptHeaderFilter;
     private final List<ServletDeployer> servletDeployers;
-    private Server server;
-
-    private int port = 0;
-    private final int idleTimeout;
-
     private final RewriteEngine rewriteEngine;
     private final String trustedIpRanges;
     private final boolean rewriteEngineEnabled;
-
     private final boolean dosFilterEnabled;
+    private Server server;
+    private int securePort;
+    private int port = 0;
+    private final int idleTimeout;
+
     @Autowired
     public JettyBootstrap(final RemoteAddressFilter remoteAddressFilter,
                           final ExtensionOverridesAcceptHeaderFilter extensionOverridesAcceptHeaderFilter,
@@ -60,17 +59,22 @@ public class JettyBootstrap implements ApplicationService {
                           @Value("${ipranges.trusted}") final String trustedIpRanges,
                           @Value("${http.idle.timeout.sec:60}") final int idleTimeout,
                           @Value("${dos.filter.enabled:false}") final boolean dosFilterEnabled,
-                          @Value("${rewrite.engine.enabled:false}") final boolean rewriteEngineEnabled) throws MalformedObjectNameException {
+                          @Value("${rewrite.engine.enabled:false}") final boolean rewriteEngineEnabled,
+                          @Value("${port.api:0}") final int port,
+                          @Value("${port.api.secure:0}") final int securePort) throws MalformedObjectNameException {
         this.remoteAddressFilter = remoteAddressFilter;
         this.extensionOverridesAcceptHeaderFilter = extensionOverridesAcceptHeaderFilter;
         this.servletDeployers = servletDeployers;
         this.rewriteEngine = rewriteEngine;
         this.trustedIpRanges = trustedIpRanges;
         this.rewriteEngineEnabled = rewriteEngineEnabled;
-        LOGGER.info("Rewrite engine is {}abled", rewriteEngineEnabled? "en" : "dis");
+        LOGGER.info("Rewrite engine is {}abled", rewriteEngineEnabled ? "en" : "dis");
         this.dosFilterMBeanName = ObjectName.getInstance("net.ripe.db.whois:name=DosFilter");
         this.dosFilterEnabled = dosFilterEnabled;
         this.idleTimeout = idleTimeout;
+        this.securePort = securePort;
+        this.port = port;
+        this.server = null;
     }
 
     @Override
@@ -78,7 +82,6 @@ public class JettyBootstrap implements ApplicationService {
         server = createAndStartServer(port);
     }
 
-    @Value("${port.api:0}")
     public void setPort(final int port) {
         if (port > 0) {
             this.port = port;
@@ -167,7 +170,11 @@ public class JettyBootstrap implements ApplicationService {
 
         final HttpConfiguration httpConfig = new HttpConfiguration();
         httpConfig.setIdleTimeout(idleTimeout * 1000L);
-        httpConfig.addCustomizer( new RemoteAddressCustomizer() );
+
+        if (securePort == 0) {
+            // client address is set in X-Forwarded-For header by loadbalancer
+            httpConfig.addCustomizer( new RemoteAddressCustomizer() );
+        }
 
         final HttpConnectionFactory connectionFactory = new HttpConnectionFactory( httpConfig );
         final ServerConnector connector = new ServerConnector(server, connectionFactory);
