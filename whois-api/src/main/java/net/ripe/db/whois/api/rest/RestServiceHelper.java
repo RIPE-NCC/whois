@@ -3,6 +3,9 @@ package net.ripe.db.whois.api.rest;
 import com.google.common.base.Splitter;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.ws.rs.WebApplicationException;
+import jakarta.ws.rs.core.Response;
 import net.ripe.db.whois.api.rest.domain.ErrorMessage;
 import net.ripe.db.whois.api.rest.domain.Link;
 import net.ripe.db.whois.api.rest.domain.WhoisResources;
@@ -17,16 +20,12 @@ import net.ripe.db.whois.common.sso.AuthServiceClientException;
 import net.ripe.db.whois.query.QueryMessages;
 import net.ripe.db.whois.query.domain.QueryCompletionInfo;
 import net.ripe.db.whois.query.domain.QueryException;
-import org.eclipse.jetty.http.HttpHeader;
 import org.eclipse.jetty.http.HttpScheme;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.jdbc.CannotGetJdbcConnectionException;
 import org.springframework.jdbc.core.PreparedStatementCallback;
 
-import jakarta.servlet.http.HttpServletRequest;
-import jakarta.ws.rs.WebApplicationException;
-import jakarta.ws.rs.core.Response;
 import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
@@ -177,8 +176,7 @@ public class RestServiceHelper {
     }
 
     public static boolean isHttpProtocol(final HttpServletRequest request) {
-        final String header = request.getHeader(HttpHeader.X_FORWARDED_PROTO.toString());
-        return !isEmpty(header) && HttpScheme.HTTP.is(header);
+        return HttpScheme.HTTP.is(request.getScheme());
     }
 
     private static boolean skipStackTrace(final Exception exception) {

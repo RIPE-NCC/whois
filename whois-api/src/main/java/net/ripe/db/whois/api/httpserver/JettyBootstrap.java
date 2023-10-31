@@ -46,10 +46,10 @@ public class JettyBootstrap implements ApplicationService {
     private final String trustedIpRanges;
     private final boolean rewriteEngineEnabled;
     private final boolean dosFilterEnabled;
+    private final int idleTimeout;
     private Server server;
     private int securePort;
     private int port = 0;
-    private final int idleTimeout;
 
     @Autowired
     public JettyBootstrap(final RemoteAddressFilter remoteAddressFilter,
@@ -171,9 +171,11 @@ public class JettyBootstrap implements ApplicationService {
         final HttpConfiguration httpConfig = new HttpConfiguration();
         httpConfig.setIdleTimeout(idleTimeout * 1000L);
 
-        if (securePort == 0) {
+        if (isLoadBalancerProxyingRequests()) {
             // client address is set in X-Forwarded-For header by loadbalancer
-            httpConfig.addCustomizer( new RemoteAddressCustomizer() );
+            httpConfig.addCustomizer(new RemoteAddressCustomizer());
+            // request prorocol is set in X-Forwarded-Proto header by loadbalancer
+            httpConfig.addCustomizer(new ProtocolCustomizer());
         }
 
         final HttpConnectionFactory connectionFactory = new HttpConnectionFactory( httpConfig );
@@ -215,5 +217,10 @@ public class JettyBootstrap implements ApplicationService {
     // Log requests to org.eclipse.jetty.server.RequestLog
     private RequestLog createRequestLog() {
         return new CustomRequestLog(new FilteredPasswordSlf4RequestLogWriter(), EXTENDED_RIPE_LOG_FORMAT);
+    }
+
+    private boolean isLoadBalancerProxyingRequests() {
+        // if we are not handling HTTPS then assume a loadbalancer is proxying requests
+        return securePort == 0;
     }
 }
