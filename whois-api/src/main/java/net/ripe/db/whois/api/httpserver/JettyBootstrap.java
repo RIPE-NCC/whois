@@ -171,10 +171,10 @@ public class JettyBootstrap implements ApplicationService {
         final HttpConfiguration httpConfig = new HttpConfiguration();
         httpConfig.setIdleTimeout(idleTimeout * 1000L);
 
-        if (isLoadBalancerProxyingRequests()) {
-            // client address is set in X-Forwarded-For header by loadbalancer
+        if (isHttpProxy()) {
+            // client address is set in X-Forwarded-For header by HTTP proxy
             httpConfig.addCustomizer(new RemoteAddressCustomizer());
-            // request prorocol is set in X-Forwarded-Proto header by loadbalancer
+            // request protocol is set in X-Forwarded-Proto header by HTTP proxy
             httpConfig.addCustomizer(new ProtocolCustomizer());
         }
 
@@ -219,7 +219,7 @@ public class JettyBootstrap implements ApplicationService {
         return new CustomRequestLog(new FilteredPasswordSlf4RequestLogWriter(), EXTENDED_RIPE_LOG_FORMAT);
     }
 
-    private boolean isLoadBalancerProxyingRequests() {
+    private boolean isHttpProxy() {
         // if we are not handling HTTPS then assume a loadbalancer is proxying requests
         return securePort == 0;
     }
