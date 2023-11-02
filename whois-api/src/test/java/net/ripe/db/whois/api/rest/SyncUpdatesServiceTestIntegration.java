@@ -1,8 +1,18 @@
 package net.ripe.db.whois.api.rest;
 
+import jakarta.mail.Address;
+import jakarta.mail.MessagingException;
+import jakarta.mail.internet.MimeMessage;
+import jakarta.ws.rs.BadRequestException;
+import jakarta.ws.rs.client.Entity;
+import jakarta.ws.rs.core.HttpHeaders;
+import jakarta.ws.rs.core.MediaType;
+import jakarta.ws.rs.core.Response;
 import net.ripe.db.whois.api.AbstractIntegrationTest;
 import net.ripe.db.whois.api.RestTest;
+import net.ripe.db.whois.api.rest.domain.WhoisResources;
 import net.ripe.db.whois.api.syncupdate.SyncUpdateUtils;
+import net.ripe.db.whois.common.Message;
 import net.ripe.db.whois.common.domain.CIString;
 import net.ripe.db.whois.common.domain.IpRanges;
 import net.ripe.db.whois.common.domain.User;
@@ -11,6 +21,8 @@ import net.ripe.db.whois.common.rpsl.ObjectType;
 import net.ripe.db.whois.common.rpsl.RpslAttribute;
 import net.ripe.db.whois.common.rpsl.RpslObject;
 import net.ripe.db.whois.common.rpsl.RpslObjectBuilder;
+import net.ripe.db.whois.update.dns.DnsGatewayStub;
+import net.ripe.db.whois.update.domain.UpdateMessages;
 import net.ripe.db.whois.update.mail.MailSenderStub;
 import org.eclipse.jetty.http.HttpStatus;
 import org.glassfish.jersey.media.multipart.FormDataMultiPart;
@@ -19,14 +31,6 @@ import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
-import javax.mail.Address;
-import javax.mail.MessagingException;
-import javax.mail.internet.MimeMessage;
-import javax.ws.rs.BadRequestException;
-import javax.ws.rs.client.Entity;
-import javax.ws.rs.core.HttpHeaders;
-import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.Response;
 import java.io.IOException;
 import java.net.HttpURLConnection;
 import java.net.URL;
@@ -42,12 +46,13 @@ import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.not;
 import static org.hamcrest.Matchers.nullValue;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.fail;
 
 @Tag("IntegrationTest")
 public class SyncUpdatesServiceTestIntegration extends AbstractIntegrationTest {
+
+    @Autowired
+    private DnsGatewayStub dnsGatewayStub;
 
     private static final String MNTNER_TEST_MNTNER = "" +
             "mntner:        mntner-mnt\n" +
@@ -166,8 +171,8 @@ public class SyncUpdatesServiceTestIntegration extends AbstractIntegrationTest {
                 .get(String.class);
 
         assertThat(response, containsString("Create SUCCEEDED: [mntner] mntner"));
-        assertNotNull(getMessage("noreply@ripe.net"));
-        assertFalse(anyMoreMessages());
+        assertThat(getMessage("noreply@ripe.net"), not(nullValue()));
+        assertThat(anyMoreMessages(), is(false));
     }
 
     @Test
@@ -181,7 +186,7 @@ public class SyncUpdatesServiceTestIntegration extends AbstractIntegrationTest {
                 .get(String.class);
 
         assertThat(response, containsString("Modify SUCCEEDED: [mntner] mntner"));
-        assertNotNull(getMessage("noreply@ripe.net"));
+        assertThat(getMessage("noreply@ripe.net"), not(nullValue()));
         assertThat(anyMoreMessages(), is(false));
     }
 
@@ -1142,6 +1147,47 @@ public class SyncUpdatesServiceTestIntegration extends AbstractIntegrationTest {
         assertThat(getAddressesAsString(message.getReplyTo()), not(containsInAnyOrder("person@net.net")));
 
         assertThat(response, containsString("Modify SUCCEEDED: [person] TP1-TEST   Test Person"));
+    }
+
+    @Test
+    public void create_multiple_domain_object_fail_dns_timeout() {
+
+        databaseHelper.insertUser(User.createWithPlainTextPassword("agoston", "zoh", ObjectType.AUT_NUM));
+
+        databaseHelper.addObject(PERSON_ANY1_TEST);
+        databaseHelper.addObject(MNTNER_TEST_MNTNER);
+
+        databaseHelper.addObject("" +
+                "inet6num:      1a00:fb8::/23\n" +
+                "mnt-by:        mntner-mnt\n" +
+                "mnt-domains:   mntner-mnt\n" +
+                "source:        TEST");
+        final RpslObject domain1 = RpslObject.parse("" +
+                "domain:        e.0.0.0.a.1.ip6.arpa\n" +
+                "descr:         Reverse delegation for 1a00:fb8::/23\n" +
+                "admin-c:       TP1-TEST\n" +
+                "tech-c:        TP1-TEST\n" +
+                "zone-c:        TP1-TEST\n" +
+                "nserver:       ns1.xs4all.nl\n" +
+                "nserver:       ns2.xs4all.nl\n" +
+                "mnt-by:        NON-EXISTING-MNT\n" +
+                "source:        TEST");
+
+        final String updatedPerson = new RpslObjectBuilder(databaseHelper.lookupObject(ObjectType.PERSON, "TP1-TEST"))
+                .addAttributeSorted(new RpslAttribute(AttributeType.REMARKS, "test"))
+                .get()
+                .toString();
+
+        dnsGatewayStub.addResponse(CIString.ciString("e.0.0.0.a.1.ip6.arpa"), UpdateMessages.dnsCheckMessageParsingError());
+
+        final String response = RestTest.target(getPort(), "whois/syncupdates/test?" +
+                        "DATA=" + SyncUpdateUtils.encode(updatedPerson + "\npassword: emptypassword\n\n\n" + domain1))
+                    .request()
+                    .cookie("crowd.token_key", "valid-token")
+                    .get(String.class);
+
+        assertThat(response, containsString("Create FAILED: [domain] e.0.0.0.a.1.ip6.arpa"));
+        assertThat(response, containsString("***Error:   Error parsing response while performing DNS check"));
     }
 
     // helper methods

@@ -2,7 +2,6 @@ package net.ripe.db.whois.api.autocomplete;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
-import net.ripe.db.whois.api.fulltextsearch.FullTextIndex;
 import net.ripe.db.whois.api.elasticsearch.ElasticIndexService;
 import net.ripe.db.whois.common.rpsl.AttributeType;
 import net.ripe.db.whois.common.rpsl.ObjectType;
@@ -19,7 +18,6 @@ import org.elasticsearch.search.builder.SearchSourceBuilder;
 import org.elasticsearch.search.sort.SortBuilder;
 import org.elasticsearch.search.sort.SortBuilders;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.Conditional;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.Nullable;
@@ -31,13 +29,16 @@ import java.util.Set;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
+import static net.ripe.db.whois.api.elasticsearch.ElasticIndexService.LOOKUP_KEY_FIELD_NAME;
+import static net.ripe.db.whois.api.elasticsearch.ElasticIndexService.OBJECT_TYPE_FIELD_NAME;
+
 @Component
-@Conditional(ElasticSearchCondition.class)
 public class ElasticAutocompleteSearch implements AutocompleteSearch {
+
 
     private static final int MAX_SEARCH_RESULTS = 10;
     private static final Pattern COMMENT_PATTERN = Pattern.compile("#.*");
-    public static final List<SortBuilder<?>> SORT_BUILDERS = Arrays.asList(SortBuilders.scoreSort(), SortBuilders.fieldSort("lookup-key.raw").unmappedType("string"));
+    public static final List<SortBuilder<?>> SORT_BUILDERS = Arrays.asList(SortBuilders.scoreSort(), SortBuilders.fieldSort("lookup-key.raw").unmappedType("keyword"));
 
     private final ElasticIndexService elasticIndexService;
 
@@ -84,8 +85,8 @@ public class ElasticAutocompleteSearch implements AutocompleteSearch {
             final Map<String, Object>  attributes = hit.getSourceAsMap();
 
             final Map<String, Object> result = Maps.newLinkedHashMap();
-            result.put("key", attributes.get(FullTextIndex.LOOKUP_KEY_FIELD_NAME));
-            result.put("type", attributes.get(FullTextIndex.OBJECT_TYPE_FIELD_NAME));
+            result.put("key", attributes.get(LOOKUP_KEY_FIELD_NAME));
+            result.put("type", attributes.get(OBJECT_TYPE_FIELD_NAME));
 
             for (final AttributeType responseAttribute : responseAttributes) {
 

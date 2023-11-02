@@ -48,7 +48,7 @@ public class PeeringSetAttributeMustBePresentTest {
         when(update.getType()).thenReturn(ObjectType.PEERING_SET);
         when(update.getUpdatedObject()).thenReturn(RpslObject.parse("peering-set: prng-ripe\ndescr: description\npeering: AS6845 at 194.102.255.254\nmp-peering: AS702:PRNG-AT-CUSTOMER"));
 
-        subject.validate(update, updateContext);
+       subject.validate(update, updateContext);
 
         verify(updateContext).addMessage(update, UpdateMessages.eitherSimpleOrComplex(ObjectType.PEERING_SET, "peering", "mp-peering"));
     }
@@ -58,7 +58,7 @@ public class PeeringSetAttributeMustBePresentTest {
         when(update.getType()).thenReturn(ObjectType.PEERING_SET);
         when(update.getUpdatedObject()).thenReturn(RpslObject.parse("peering-set: prng-ripe\ndescr: description"));
 
-        subject.validate(update, updateContext);
+       subject.validate(update, updateContext);
 
         verify(updateContext).addMessage(update, UpdateMessages.neitherSimpleOrComplex(ObjectType.PEERING_SET, "peering", "mp-peering"));
     }
@@ -68,7 +68,7 @@ public class PeeringSetAttributeMustBePresentTest {
         when(update.getType()).thenReturn(ObjectType.PEERING_SET);
         when(update.getUpdatedObject()).thenReturn(RpslObject.parse("peering-set: prng-ripe\ndescr: description\nmp-peering: AS702:PRNG-AT-CUSTOMER"));
 
-        subject.validate(update, updateContext);
+       subject.validate(update, updateContext);
 
         verify(updateContext, never()).addMessage(update, UpdateMessages.eitherSimpleOrComplex(ObjectType.PEERING_SET, "peering", "mp-peering"));
         verify(updateContext, never()).addMessage(update, UpdateMessages.neitherSimpleOrComplex(ObjectType.PEERING_SET, "peering", "mp-peering"));
@@ -79,7 +79,7 @@ public class PeeringSetAttributeMustBePresentTest {
         when(update.getType()).thenReturn(ObjectType.PEERING_SET);
         when(update.getUpdatedObject()).thenReturn(RpslObject.parse("peering-set: prng-ripe\ndescr: description\npeering: AS6845 at 194.102.255.254"));
 
-        subject.validate(update, updateContext);
+       subject.validate(update, updateContext);
 
         verify(updateContext, never()).addMessage(update, UpdateMessages.eitherSimpleOrComplex(ObjectType.PEERING_SET, "peering", "mp-peering"));
         verify(updateContext, never()).addMessage(update, UpdateMessages.neitherSimpleOrComplex(ObjectType.PEERING_SET, "peering", "mp-peering"));
@@ -91,7 +91,7 @@ public class PeeringSetAttributeMustBePresentTest {
         when(update.getType()).thenReturn(ObjectType.FILTER_SET);
         when(update.getUpdatedObject()).thenReturn(RpslObject.parse("filter-set: prng-ripe\ndescr: description\nfilter: AS6845 at 194.102.255.254\nmp-filter: AS702:PRNG-AT-CUSTOMER"));
 
-        subject.validate(update, updateContext);
+       subject.validate(update, updateContext);
 
         verify(updateContext).addMessage(update, UpdateMessages.eitherSimpleOrComplex(ObjectType.FILTER_SET, "filter", "mp-filter"));
     }
@@ -101,7 +101,7 @@ public class PeeringSetAttributeMustBePresentTest {
         when(update.getType()).thenReturn(ObjectType.FILTER_SET);
         when(update.getUpdatedObject()).thenReturn(RpslObject.parse("filter-set: prng-ripe\ndescr: description"));
 
-        subject.validate(update, updateContext);
+       subject.validate(update, updateContext);
 
         verify(updateContext).addMessage(update, UpdateMessages.neitherSimpleOrComplex(ObjectType.FILTER_SET, "filter", "mp-filter"));
     }
@@ -111,7 +111,7 @@ public class PeeringSetAttributeMustBePresentTest {
         when(update.getType()).thenReturn(ObjectType.FILTER_SET);
         when(update.getUpdatedObject()).thenReturn(RpslObject.parse("filter-set: prng-ripe\ndescr: description\nmp-filter: AS702:PRNG-AT-CUSTOMER"));
 
-        subject.validate(update, updateContext);
+       subject.validate(update, updateContext);
 
         verify(updateContext, never()).addMessage(update, UpdateMessages.eitherSimpleOrComplex(ObjectType.FILTER_SET, "filter", "mp-filter"));
         verify(updateContext, never()).addMessage(update, UpdateMessages.neitherSimpleOrComplex(ObjectType.FILTER_SET, "filter", "mp-filter"));
@@ -122,7 +122,7 @@ public class PeeringSetAttributeMustBePresentTest {
         when(update.getType()).thenReturn(ObjectType.FILTER_SET);
         when(update.getUpdatedObject()).thenReturn(RpslObject.parse("filter-set: prng-ripe\ndescr: description\nfilter: AS6845 at 194.102.255.254"));
 
-        subject.validate(update, updateContext);
+       subject.validate(update, updateContext);
 
         verify(updateContext, never()).addMessage(update, UpdateMessages.eitherSimpleOrComplex(ObjectType.FILTER_SET, "filter", "mp-filter"));
         verify(updateContext, never()).addMessage(update, UpdateMessages.neitherSimpleOrComplex(ObjectType.FILTER_SET, "filter", "mp-filter"));

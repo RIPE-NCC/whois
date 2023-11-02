@@ -44,7 +44,8 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.hamcrest.Matchers.not;
+import static org.hamcrest.Matchers.nullValue;
 import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -157,7 +158,7 @@ public class RpslObjectSearcherTest {
     @Test
     public void inverse_lookup_never_returns_null() {
         for (final AttributeType attributeType : AttributeType.values()) {
-            assertNotNull(subject.search(Query.parse("-i " + attributeType.getName() + " query"), sourceContext));
+            assertThat(subject.search(Query.parse("-i " + attributeType.getName() + " query"), sourceContext), not(nullValue()));
         }
     }
 

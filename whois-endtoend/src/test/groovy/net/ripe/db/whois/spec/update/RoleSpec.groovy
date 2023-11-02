@@ -1,9 +1,12 @@
 package net.ripe.db.whois.spec.update
 
-
+import jakarta.ws.rs.core.MultivaluedHashMap
+import jakarta.ws.rs.core.MultivaluedMap
 import net.ripe.db.whois.spec.BaseQueryUpdateSpec
 import net.ripe.db.whois.spec.domain.AckResponse
 import net.ripe.db.whois.spec.domain.Message
+import org.eclipse.jetty.http.HttpHeader
+import org.eclipse.jetty.http.HttpScheme
 
 @org.junit.jupiter.api.Tag("IntegrationTest")
 class RoleSpec extends BaseQueryUpdateSpec {
@@ -102,7 +105,7 @@ class RoleSpec extends BaseQueryUpdateSpec {
                 delete:  testing
 
                 password: owner
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:
@@ -172,7 +175,7 @@ class RoleSpec extends BaseQueryUpdateSpec {
                 source:  TEST
 
                 password: owner
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:
@@ -212,7 +215,7 @@ class RoleSpec extends BaseQueryUpdateSpec {
                 source:  TEST
 
                 password: owner
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:
@@ -251,7 +254,7 @@ class RoleSpec extends BaseQueryUpdateSpec {
                 source:  TEST
 
                 password: owner
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:
@@ -295,7 +298,7 @@ class RoleSpec extends BaseQueryUpdateSpec {
                 source:  TEST
 
                 password: owner
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:
@@ -342,7 +345,7 @@ class RoleSpec extends BaseQueryUpdateSpec {
                 source:  TEST
 
                 password: owner
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:
@@ -389,7 +392,7 @@ class RoleSpec extends BaseQueryUpdateSpec {
                 source:  TEST
 
                 password: owner
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:
@@ -430,7 +433,7 @@ class RoleSpec extends BaseQueryUpdateSpec {
                 source:  TEST
 
                 password: owner
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:
@@ -491,7 +494,7 @@ class RoleSpec extends BaseQueryUpdateSpec {
                 notify:  dbtest2-nfy@ripe.net
 
                 password: owner3
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:
@@ -530,7 +533,7 @@ class RoleSpec extends BaseQueryUpdateSpec {
                 source:  TEST
 
                 password: owner
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:
@@ -576,7 +579,7 @@ class RoleSpec extends BaseQueryUpdateSpec {
                 source:  TEST
 
                 password: owner
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:
@@ -614,7 +617,7 @@ class RoleSpec extends BaseQueryUpdateSpec {
                 source:  TEST
 
                 password: owner
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:
@@ -654,7 +657,7 @@ class RoleSpec extends BaseQueryUpdateSpec {
                 source:  TEST
 
                 password: owner
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:
@@ -690,7 +693,7 @@ class RoleSpec extends BaseQueryUpdateSpec {
                 source:        TEST
 
                 password: owner
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:
@@ -705,6 +708,50 @@ class RoleSpec extends BaseQueryUpdateSpec {
         ack.warningSuccessMessagesFor("Create", "[role] FR1-TEST   Abuse Role") ==
                 ["Value changed due to conversion of IDN email address(es) into Punycode",
                  "There are no limits on queries for ROLE objects containing \"abuse-mailbox:\""]
+
+        query_object_matches("-T role FR1-TEST", "role", "Abuse Role", "email@xn--zrich-kva.example")
+    }
+
+    def "Abuse-mailbox with Umlaut IDN Converted to Punycode using HTTP"() {
+        given:
+
+        expect:
+        queryObjectNotFound("-r -T role FR1-TEST", "role", "Abuse Role")
+
+        when:
+        MultivaluedMap<String, String> headers = new MultivaluedHashMap<>();
+        headers.add(HttpHeader.X_FORWARDED_PROTO.toString(), HttpScheme.HTTP.toString())
+        def message = syncUpdate("""
+                role:          Abuse Role
+                address:       St James Street
+                address:       Burnley
+                address:       UK
+                e-mail:        dbtest@ripe.net
+                abuse-mailbox: email@zürich.example
+                nic-hdl:       FR1-TEST
+                mnt-by:        owner-mnt
+                source:        TEST
+
+                password: owner
+                """.stripIndent(true), null, false, headers
+        )
+
+        then:
+        def ack = new AckResponse("", message)
+
+        ack.summary.nrFound == 1
+        ack.summary.assertSuccess(1, 1, 0, 0, 0)
+        ack.summary.assertErrors(0, 0, 0, 0)
+
+        ack.countErrorWarnInfo(0, 3, 0)
+        ack.successes.any { it.operation == "Create" && it.key == "[role] FR1-TEST   Abuse Role" }
+
+        ack.contents.contains("***Warning: This Syncupdates request used insecure HTTP, which may be removed in\n" +
+                "            a future release. Please switch to HTTPS.")
+        ack.contents.contains("***Warning: Value changed due to conversion of IDN email address(es) into\n" +
+                "            Punycode")
+        ack.contents.contains("***Warning: There are no limits on queries for ROLE objects containing\n" +
+                "            \"abuse-mailbox:\"")
 
         query_object_matches("-T role FR1-TEST", "role", "Abuse Role", "email@xn--zrich-kva.example")
     }
@@ -728,9 +775,9 @@ class RoleSpec extends BaseQueryUpdateSpec {
                 source:        TEST
 
                 password: owner
-                """.stripIndent(),
+                """.stripIndent(true),
             "UTF-8",
-            false
+            false, null
         )
 
         then:
@@ -768,7 +815,7 @@ class RoleSpec extends BaseQueryUpdateSpec {
                 source:        TEST
 
                 password: owner
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:
@@ -803,7 +850,7 @@ class RoleSpec extends BaseQueryUpdateSpec {
                 source:        TEST
 
                 password: owner
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:
@@ -840,7 +887,7 @@ class RoleSpec extends BaseQueryUpdateSpec {
                 source:  TEST
 
                 password: owner
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:
@@ -903,7 +950,7 @@ class RoleSpec extends BaseQueryUpdateSpec {
                 source:  TEST
 
                 password: owner
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:
@@ -968,7 +1015,7 @@ class RoleSpec extends BaseQueryUpdateSpec {
                 source:  TEST
 
                 password: owner
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:
@@ -1036,7 +1083,7 @@ class RoleSpec extends BaseQueryUpdateSpec {
                 source:  TEST
 
                 password: owner
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:

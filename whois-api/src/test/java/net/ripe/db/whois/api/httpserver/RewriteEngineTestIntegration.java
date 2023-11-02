@@ -1,8 +1,12 @@
 package net.ripe.db.whois.api.httpserver;
 
+import jakarta.ws.rs.BadRequestException;
+import jakarta.ws.rs.ForbiddenException;
+import jakarta.ws.rs.core.HttpHeaders;
+import jakarta.ws.rs.core.MediaType;
+import jakarta.ws.rs.core.Response;
 import net.ripe.db.whois.api.AbstractIntegrationTest;
 import net.ripe.db.whois.api.RestTest;
-import net.ripe.db.whois.api.fulltextsearch.FullTextIndex;
 import net.ripe.db.whois.api.rdap.domain.Entity;
 import net.ripe.db.whois.api.rest.domain.WhoisResources;
 import net.ripe.db.whois.api.rest.mapper.FormattedClientAttributeMapper;
@@ -24,10 +28,6 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 
-import javax.ws.rs.ForbiddenException;
-import javax.ws.rs.core.HttpHeaders;
-import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.Response;
 import java.net.URI;
 
 import static net.ripe.db.whois.common.rpsl.ObjectType.PERSON;
@@ -36,8 +36,7 @@ import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.empty;
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.junit.jupiter.api.Assertions.fail;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 @Tag("IntegrationTest")
 public class RewriteEngineTestIntegration extends AbstractIntegrationTest {
@@ -58,9 +57,6 @@ public class RewriteEngineTestIntegration extends AbstractIntegrationTest {
     @Autowired
     WhoisObjectMapper whoisObjectMapper;
 
-    @Autowired
-    FullTextIndex fullTextIndex;
-
     final RpslObject person = RpslObject.parse(
             "person:        Pauleth Palthen\n" +
                     "address:       Singel 258\n" +
@@ -72,18 +68,6 @@ public class RewriteEngineTestIntegration extends AbstractIntegrationTest {
                     "created:         2022-08-14T11:48:28Z\n" +
                     "last-modified:   2022-10-25T12:22:39Z\n" +
                     "source:        TEST\n");
-
-    @BeforeAll
-    public static void setProperty() {
-        // We only enable fulltext indexing here, so it doesn't slow down the rest of the test suite
-        System.setProperty("dir.fulltext.index", "var${jvmId:}/idx");
-        System.setProperty("fulltext.search.max.results", "3");
-    }
-
-    @AfterAll
-    public static void clearProperty() {
-        System.clearProperty("dir.fulltext.index");
-    }
 
     @BeforeEach
     public void setup() {
@@ -118,16 +102,25 @@ public class RewriteEngineTestIntegration extends AbstractIntegrationTest {
 
     @Test
     public void dont_allow_password_over_http() {
-        try {
-            final WhoisResources whoisResources = RestTest.target(getPort(), "test/person/TP1-TEST?password=123")
+        final ForbiddenException throwable = assertThrows(ForbiddenException.class, () ->
+            RestTest.target(getPort(), "test/person/TP1-TEST?password=123")
                     .request()
                     .header(HttpHeaders.HOST, getHost(restApiBaseUrl))
                     .header(HttpHeader.X_FORWARDED_PROTO.toString(), HttpScheme.HTTP)
-                    .get(WhoisResources.class);
-            fail("Should have resulted in 403");
-        } catch (ForbiddenException fe) {
-            // expected
-        }
+                    .get(WhoisResources.class)
+        );
+        final String error = throwable.getResponse().readEntity(String.class);
+        assertThat(error.contains("""
+                <title>Error 403 Forbidden</title>
+                </head>
+                <body><h2>HTTP ERROR 403 Forbidden</h2>
+                <table>
+                <tr><th>URI:</th><td>/test/person/TP1-TEST</td></tr>
+                <tr><th>STATUS:</th><td>403</td></tr>
+                <tr><th>MESSAGE:</th><td>Forbidden</td></tr>
+                <tr><th>SERVLET:</th><td>-</td></tr>
+                </table>
+                """), is(true));
     }
 
     @Test
@@ -141,9 +134,9 @@ public class RewriteEngineTestIntegration extends AbstractIntegrationTest {
                 .request()
                 .header(HttpHeaders.HOST, getHost(restApiBaseUrl))
                 .header(HttpHeader.X_FORWARDED_PROTO.toString(), HttpScheme.HTTPS)
-                .put(javax.ws.rs.client.Entity.entity(whoisObjectMapper.mapRpslObjects(FormattedClientAttributeMapper.class, updated), MediaType.APPLICATION_XML), WhoisResources.class);
+                .put(jakarta.ws.rs.client.Entity.entity(whoisObjectMapper.mapRpslObjects(FormattedClientAttributeMapper.class, updated), MediaType.APPLICATION_XML), WhoisResources.class);
 
-        assertTrue(databaseHelper.lookupObject(PERSON, updated.getKey().toString()).containsAttribute(AttributeType.REMARKS));
+        assertThat(databaseHelper.lookupObject(PERSON, updated.getKey().toString()).containsAttribute(AttributeType.REMARKS), is(true));
     }
 
     @Test
@@ -159,9 +152,9 @@ public class RewriteEngineTestIntegration extends AbstractIntegrationTest {
                 .request()
                 .header(HttpHeaders.HOST, getHost(restApiBaseUrl))
                 .header(HttpHeader.X_FORWARDED_PROTO.toString(), HttpScheme.HTTPS)
-                .post(javax.ws.rs.client.Entity.entity(whoisObjectMapper.mapRpslObjects(FormattedClientAttributeMapper.class, updated), MediaType.APPLICATION_XML), WhoisResources.class);
+                .post(jakarta.ws.rs.client.Entity.entity(whoisObjectMapper.mapRpslObjects(FormattedClientAttributeMapper.class, updated), MediaType.APPLICATION_XML), WhoisResources.class);
 
-        assertTrue(databaseHelper.lookupObject(PERSON, updated.getKey().toString()).containsAttribute(AttributeType.REMARKS));
+        assertThat(databaseHelper.lookupObject(PERSON, updated.getKey().toString()).containsAttribute(AttributeType.REMARKS), is(true));
     }
 
     @Test
@@ -187,14 +180,24 @@ public class RewriteEngineTestIntegration extends AbstractIntegrationTest {
 
     @Test
     public void rest_bad_request_fallthrough() {
-        assertThat(
+        final BadRequestException throwable = assertThrows(BadRequestException.class, () ->
                 RestTest.target(getPort(), "does_not_exist")
                         .request()
                         .header(HttpHeaders.HOST, getHost(restApiBaseUrl))
-                        .get(Response.class)
-                        .getStatus(),
-                is(HttpStatus.BAD_REQUEST_400)
+                        .get(WhoisResources.class)
         );
+        final String error = throwable.getResponse().readEntity(String.class);
+        assertThat(error.contains("""
+                <title>Error 400 Bad Request</title>
+                </head>
+                <body><h2>HTTP ERROR 400 Bad Request</h2>
+                <table>
+                <tr><th>URI:</th><td>/does_not_exist</td></tr>
+                <tr><th>STATUS:</th><td>400</td></tr>
+                <tr><th>MESSAGE:</th><td>Bad Request</td></tr>
+                <tr><th>SERVLET:</th><td>-</td></tr>
+                </table>
+                """), is(true));
     }
 
     @Test
@@ -234,7 +237,7 @@ public class RewriteEngineTestIntegration extends AbstractIntegrationTest {
                 .header(HttpHeaders.HOST, getHost(restApiBaseUrl))
                 .get(String.class);
 
-        assertTrue(result.contains("abuse@test.net"));
+        assertThat(result, containsString("abuse@test.net"));
     }
 
     @Test
@@ -243,18 +246,6 @@ public class RewriteEngineTestIntegration extends AbstractIntegrationTest {
                 .request()
                 .header(HttpHeaders.HOST, getHost(restApiBaseUrl))
                 .options();
-
-        assertThat(response.getStatus(), is(HttpStatus.OK_200));
-    }
-
-    @Test
-    public void fulltext_search() {
-        fullTextIndex.rebuild();
-
-        Response response = RestTest.target(getPort(), "fulltextsearch/select?facet=true&format=xml&hl=true&q=(test)&start=0&wt=json")
-                .request()
-                .header(HttpHeaders.HOST, getHost(restApiBaseUrl))
-                .get();
 
         assertThat(response.getStatus(), is(HttpStatus.OK_200));
     }

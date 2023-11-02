@@ -10,20 +10,20 @@ import net.ripe.db.whois.common.rpsl.AttributeType;
 import net.ripe.db.whois.common.rpsl.RpslAttribute;
 import net.ripe.db.whois.common.rpsl.RpslObject;
 import net.ripe.db.whois.common.rpsl.RpslObjectBuilder;
-import net.ripe.db.whois.update.keycert.X509CertificateTestUtil;
+import net.ripe.db.whois.update.keycert.X509CertificateUtil;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
-import javax.ws.rs.client.Entity;
-import javax.ws.rs.core.MediaType;
+import jakarta.ws.rs.client.Entity;
+import jakarta.ws.rs.core.MediaType;
 import java.security.cert.X509Certificate;
 
 import static net.ripe.db.whois.common.domain.CIString.ciString;
 import static net.ripe.db.whois.common.rpsl.ObjectType.ROUTE6;
-import static net.ripe.db.whois.update.keycert.X509CertificateTestUtil.asPem;
+import static net.ripe.db.whois.update.keycert.X509CertificateUtil.getCertificateAsString;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 
@@ -58,8 +58,8 @@ public class WhoisClientCertificateAuthenticationTestIntegration extends Abstrac
     @Test
     public void update_route_authenticate_with_client_cert() throws Exception {
 
-        final X509Certificate cert = X509CertificateTestUtil.generate("test-cn", testDateTimeProvider);
-        final RpslObject keycert = X509CertificateTestUtil.createKeycertObject(ciString("X509-1"), cert, ciString("OWNER-MNT"));
+        final X509Certificate cert = X509CertificateUtil.generateCertificate(testDateTimeProvider);
+        final RpslObject keycert = X509CertificateUtil.createKeycertObject(ciString("X509-1"), cert, ciString("OWNER-MNT"));
         databaseHelper.addObject(keycert);
 
         final RpslObject ownerWithX509 = new RpslObjectBuilder(OWNER_MNT)
@@ -83,7 +83,7 @@ public class WhoisClientCertificateAuthenticationTestIntegration extends Abstrac
 
         RestTest.target(getPort(), "whois/test/route6/2001::/32AS12726")
                 .request(MediaType.APPLICATION_XML)
-                .header("SSL_CLIENT_CERT", asPem(cert))
+                .header("SSL_CLIENT_CERT", getCertificateAsString(cert).replace('\n', ' '))
                 .header("SSL_CLIENT_VERIFY", "GENEROUS")
                 .put(Entity.entity(updatedRoute, MediaType.APPLICATION_XML), WhoisResources.class);
 

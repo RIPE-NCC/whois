@@ -19,7 +19,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.test.util.ReflectionTestUtils;
 
-import javax.ws.rs.core.Cookie;
+import jakarta.ws.rs.core.Cookie;
 import java.time.LocalDateTime;
 import java.util.Collection;
 import java.util.Iterator;
@@ -35,8 +35,6 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
 
 @Tag("IntegrationTest")
@@ -124,9 +122,9 @@ public class RestClientTestIntegration extends AbstractIntegrationTest {
                 .search();
 
         final Iterator<RpslObject> iterator = result.iterator();
-        assertTrue(iterator.hasNext());
+        assertThat(iterator.hasNext(), is(true));
         final RpslObject rpslObject = iterator.next();
-        assertFalse(iterator.hasNext());
+        assertThat(iterator.hasNext(), is(false));
         assertThat(rpslObject.getKey().toUpperCase(), is("AS102"));
     }
 

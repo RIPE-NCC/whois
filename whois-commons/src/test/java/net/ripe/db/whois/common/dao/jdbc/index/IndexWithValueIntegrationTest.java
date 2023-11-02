@@ -11,6 +11,8 @@ import org.junit.jupiter.api.Test;
 import java.util.List;
 
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.empty;
+import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.core.Is.is;
 
 @Tag("IntegrationTest")
@@ -23,7 +25,7 @@ public class IndexWithValueIntegrationTest extends IndexIntegrationTestBase {
 
         final List<RpslObjectInfo> results = subject.findInIndex(whoisTemplate, "mntner");
 
-        assertThat(results.size(), is(0));
+        assertThat(results, is(empty()));
     }
 
     @Test
@@ -34,7 +36,7 @@ public class IndexWithValueIntegrationTest extends IndexIntegrationTestBase {
 
         final List<RpslObjectInfo> results = subject.findInIndex(whoisTemplate, "TEST-NIC");
 
-        assertThat(results.size(), is(1));
+        assertThat(results, hasSize(1));
     }
 
     @Test

@@ -623,7 +623,7 @@ class MailMessageIntegrationSpec extends BaseWhoisSourceSpec {
             source:       TEST
 
             password:     owner
-            """.stripIndent())
+            """.stripIndent(true))
 
         def ack = ackFor message
 

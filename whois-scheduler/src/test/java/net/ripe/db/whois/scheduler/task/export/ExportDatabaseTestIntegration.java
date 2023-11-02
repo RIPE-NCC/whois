@@ -110,7 +110,6 @@ public class ExportDatabaseTestIntegration extends AbstractSchedulerIntegrationT
 
         checkFile("dbase/ripe.db.gz",
                 "person:         Placeholder Person Object\n",
-                "role:           Placeholder Role Object\n",
                 "mntner:         DEV-MNT0\n",
                 "mntner:         DEV-MNT1\n",
                 "mntner:         DEV-MNT2\n",
@@ -132,7 +131,6 @@ public class ExportDatabaseTestIntegration extends AbstractSchedulerIntegrationT
                         "remarks:        ****************************\n");
 
         checkFile("dbase/split/ripe.db.person.gz", "person:         Placeholder Person Object");
-        checkFile("dbase/split/ripe.db.role.gz", "role:           Placeholder Role Object");
 
         checkFile("dbase/split/ripe.db.mntner.gz",
                 "mntner:         DEV-MNT0\n",
@@ -250,7 +248,6 @@ public class ExportDatabaseTestIntegration extends AbstractSchedulerIntegrationT
         }
 
         checkFile("dbase/split/ripe.db.person.gz", "person:         Placeholder Person Object");
-        checkFile("dbase/split/ripe.db.role.gz", "role:           Placeholder Role Object");
 
         checkFile("dbase/split/ripe.db.role.gz", "" +
                 "role:           Abuse role\n" +
@@ -272,129 +269,6 @@ public class ExportDatabaseTestIntegration extends AbstractSchedulerIntegrationT
         checkFile("internal/split/ripe.db.organisation.gz", "" +
                 "organisation:   ORG1\n" +
                 "abuse-c:        AR1-RIPE\n" +
-                "source:         TEST");
-    }
-
-    @Test
-    public void export_proposed_dummification() throws IOException {
-        databaseHelper.addObject(RpslObject.parse("" +
-                "inetnum:   193.0.0.0 - 193.255.255.255\n" +
-                "netname:   TEST-RIPE\n" +
-                "admin-c:   PN1-RIPE\n" +
-                "tech-c:    PN1-RIPE\n" +
-                "notify:    test@ripe.net\n" +
-                "source:    TEST"));
-
-        databaseHelper.addObject(RpslObject.parse("" +
-                "organisation:  ORG-TO1-TEST\n" +
-                "org-name:      Test Organisation\n" +
-                "org-type:      OTHER\n" +
-                "address:       Test Org\n" +
-                "               Street\n" +
-                "               1234 City\n" +
-                "               Country\n" +
-                "phone:         +12 3456 78\n" +
-                "fax-no:        +12 234 567\n" +
-                "e-mail:        test@ripe.net\n" +
-                "source:        TEST"));
-
-        databaseHelper.addObject(RpslObject.parse("" +
-                "mntner:        TEST-MNT\n" +
-                "descr:         description\n" +
-                "upd-to:        test@ripe.net\n" +
-                "auth:          X509-1\n" +
-                "auth:          PGPKEY-AA\n" +
-                "auth:          MD5-PW\n" +
-                "mnt-nfy:       test@test.com\n" +
-                "ref-nfy:       foo@bar.com\n" +
-                "mnt-by:        TEST-MNT\n" +
-                "source:        TEST"));
-
-        databaseHelper.addObject(RpslObject.parse("" +
-                "role:      Test Role1\n" +
-                "address:   Street\n" +
-                "address:   City\n" +
-                "address:   Country\n" +
-                "phone:     +12 345 678\n" +
-                "fax-no:    +12 345 678\n" +
-                "e-mail:    test@bar.com\n" +
-                "nic-hdl:   ROLE-NIC\n" +
-                "source:    TEST"));
-
-        databaseHelper.addObject(RpslObject.parse("" +
-                "role:          Test Role2\n" +
-                "address:       Street\n" +
-                "address:       City\n" +
-                "address:       Country\n" +
-                "phone:         +12 345 678\n" +
-                "fax-no:        +12 345 678\n" +
-                "e-mail:        test@bar.com\n" +
-                "abuse-mailbox: abuse@test.net\n" +
-                "nic-hdl:       AB-NIC\n" +
-                "source:        TEST"));
-
-        sourceContext.removeCurrentSource();
-
-        rpslObjectsExporter.export();
-
-        for (final ObjectType objectType : ObjectType.values()) {
-            checkFile("dbase_new/split/ripe.db." + objectType.getName() + ".gz");
-        }
-
-        checkFile("dbase_new/split/ripe.db.inetnum.gz", "" +
-                "inetnum:        193.0.0.0 - 193.255.255.255\n" +
-                "netname:        TEST-RIPE\n" +
-                "admin-c:        PN1-RIPE\n" +
-                "tech-c:         PN1-RIPE\n" +
-                "notify:         ***@ripe.net\n" +
-                "source:         TEST");
-
-        checkFile("dbase_new/split/ripe.db.organisation.gz", "" +
-                "organisation:   ORG-TO1-TEST\n" +
-                "org-name:       Test Organisation\n" +
-                "org-type:       OTHER\n" +
-                "address:        Test Org\n" +
-                "                Street\n" +
-                "                1234 City\n" +
-                "                Country\n" +
-                "phone:          +12 3... ..\n" +
-                "fax-no:         +12 2.. ...\n" +
-                "e-mail:         ***@ripe.net\n" +
-                "source:         TEST");
-
-        checkFile("dbase_new/split/ripe.db.mntner.gz", "" +
-                "mntner:         TEST-MNT\n" +
-                "descr:          description\n" +
-                "upd-to:         ***@ripe.net\n" +
-                "auth:           X509-1\n" +
-                "auth:           PGPKEY-AA\n" +
-                "auth:           MD5-PW # Filtered\n" +
-                "mnt-nfy:        ***@test.com\n" +
-                "ref-nfy:        ***@bar.com\n" +
-                "mnt-by:         TEST-MNT\n" +
-                "source:         TEST");
-
-        checkFile("dbase_new/split/ripe.db.role.gz", "" +
-                "role:           Test Role1\n" +
-                "address:        ***\n" +
-                "address:        ***\n" +
-                "address:        Country\n" +
-                "phone:          +12 3.. ...\n" +
-                "fax-no:         +12 3.. ...\n" +
-                "e-mail:         ***@bar.com\n" +
-                "nic-hdl:        ROLE-NIC\n" +
-                "source:         TEST");
-
-        checkFile("dbase_new/split/ripe.db.role.gz", "" +
-                "role:           Test Role2\n" +
-                "address:        Street\n" +
-                "address:        City\n" +
-                "address:        Country\n" +
-                "phone:          +12 345 678\n" +
-                "fax-no:         +12 345 678\n" +
-                "e-mail:         ***@bar.com\n" +
-                "abuse-mailbox:  abuse@test.net\n" +
-                "nic-hdl:        AB-NIC\n" +
                 "source:         TEST");
     }
 
@@ -420,7 +294,7 @@ public class ExportDatabaseTestIntegration extends AbstractSchedulerIntegrationT
                     "# The contents of this file are subject to \n" +
                     "# RIPE Database Terms and Conditions\n" +
                     "#\n" +
-                    "# http://www.ripe.net/db/support/db-terms-conditions.pdf\n" +
+                    "# https://apps.db.ripe.net/docs/HTML-Terms-And-Conditions\n" +
                     "#"));
         }
 

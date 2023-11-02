@@ -1,5 +1,8 @@
 package net.ripe.db.whois.api.rest;
 
+import jakarta.ws.rs.NotAuthorizedException;
+import jakarta.ws.rs.client.Entity;
+import jakarta.ws.rs.core.MediaType;
 import net.ripe.db.whois.api.AbstractIntegrationTest;
 import net.ripe.db.whois.api.RestTest;
 import net.ripe.db.whois.api.rest.domain.Attribute;
@@ -23,9 +26,6 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.EmptyResultDataAccessException;
 
-import javax.ws.rs.NotAuthorizedException;
-import javax.ws.rs.client.Entity;
-import javax.ws.rs.core.MediaType;
 import java.time.LocalDateTime;
 
 import static org.hamcrest.MatcherAssert.assertThat;

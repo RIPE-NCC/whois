@@ -233,7 +233,7 @@ class OrgSpec extends BaseQueryUpdateSpec {
                 delete:  testing
 
                 password: owner
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:
@@ -272,7 +272,7 @@ class OrgSpec extends BaseQueryUpdateSpec {
                 source:          TEST
 
                 password: owner2
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:
@@ -314,7 +314,7 @@ class OrgSpec extends BaseQueryUpdateSpec {
                 source:          TEST
 
                 password: owner2
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:
@@ -351,7 +351,7 @@ class OrgSpec extends BaseQueryUpdateSpec {
                 source:          TEST
 
                 password: owner2
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:
@@ -388,7 +388,7 @@ class OrgSpec extends BaseQueryUpdateSpec {
                 source:          TEST
 
                 password: owner2
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:
@@ -424,7 +424,7 @@ class OrgSpec extends BaseQueryUpdateSpec {
                 mnt-by:          owner2-mnt
                 source:          TEST
 
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:
@@ -459,7 +459,7 @@ class OrgSpec extends BaseQueryUpdateSpec {
                 source:          TEST
 
                 password: owner2
-                """.stripIndent(), orgtype)
+                """.stripIndent(true), orgtype)
         )
 
         expect:
@@ -504,7 +504,7 @@ class OrgSpec extends BaseQueryUpdateSpec {
                 source:          TEST
 
                 password: hm
-                """.stripIndent()
+                """.stripIndent(true)
             )
 
         then:
@@ -538,7 +538,7 @@ class OrgSpec extends BaseQueryUpdateSpec {
                 source:          TEST
 
                 password: hm
-                """.stripIndent()
+                """.stripIndent(true)
             )
 
         then:
@@ -572,7 +572,7 @@ class OrgSpec extends BaseQueryUpdateSpec {
                 source:          TEST
 
                 password: hm
-                """.stripIndent()
+                """.stripIndent(true)
             )
 
         then:
@@ -606,7 +606,7 @@ class OrgSpec extends BaseQueryUpdateSpec {
                 source:          TEST
 
                 password: hm
-                """.stripIndent()
+                """.stripIndent(true)
             )
 
         then:
@@ -639,7 +639,7 @@ class OrgSpec extends BaseQueryUpdateSpec {
                 source:          TEST
 
                 password: owner2
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:
@@ -673,7 +673,7 @@ class OrgSpec extends BaseQueryUpdateSpec {
                 source:          TEST
 
                 password: owner2
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:
@@ -710,7 +710,7 @@ class OrgSpec extends BaseQueryUpdateSpec {
                 source:          TEST
 
                 password: owner3
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:
@@ -747,7 +747,7 @@ class OrgSpec extends BaseQueryUpdateSpec {
                 source:          TEST
 
                 password: owner2
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:
@@ -811,7 +811,7 @@ class OrgSpec extends BaseQueryUpdateSpec {
                 source:          TEST
 
                 password: owner2
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:
@@ -848,7 +848,7 @@ class OrgSpec extends BaseQueryUpdateSpec {
                 source:          TEST
 
                 password: owner2
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:
@@ -888,7 +888,7 @@ class OrgSpec extends BaseQueryUpdateSpec {
                 source:          TEST
 
                 password: owner2
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:
@@ -953,7 +953,7 @@ class OrgSpec extends BaseQueryUpdateSpec {
                 source:          TEST
 
                 password: owner2
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:
@@ -987,7 +987,7 @@ class OrgSpec extends BaseQueryUpdateSpec {
                 source:          TEST
 
                 password: owner2
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:
@@ -1034,7 +1034,7 @@ class OrgSpec extends BaseQueryUpdateSpec {
                 source:          TEST
 
                 password: owner2
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:
@@ -1070,7 +1070,7 @@ class OrgSpec extends BaseQueryUpdateSpec {
                 source:          TEST
 
                 password: owner2
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:
@@ -1106,7 +1106,7 @@ class OrgSpec extends BaseQueryUpdateSpec {
                 source:          TEST
 
                 password: owner2
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:
@@ -1142,7 +1142,7 @@ class OrgSpec extends BaseQueryUpdateSpec {
                 source:          TEST
 
                 password: owner2
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:
@@ -1178,7 +1178,7 @@ class OrgSpec extends BaseQueryUpdateSpec {
                 source:  TEST
 
                 password: owner2
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:
@@ -1214,7 +1214,7 @@ class OrgSpec extends BaseQueryUpdateSpec {
                 source:  TEST
 
                 password: owner2
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:
@@ -1252,7 +1252,7 @@ class OrgSpec extends BaseQueryUpdateSpec {
                 source:  TEST
 
                 password: owner2
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:
@@ -1288,7 +1288,7 @@ class OrgSpec extends BaseQueryUpdateSpec {
                 source:  TEST
 
                 password: owner2
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:
@@ -1350,7 +1350,7 @@ class OrgSpec extends BaseQueryUpdateSpec {
 
                 password: owner2
                 password: owner3
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:
@@ -1391,7 +1391,7 @@ class OrgSpec extends BaseQueryUpdateSpec {
                 delete:  testing
 
                 password: owner2
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:
@@ -1419,7 +1419,7 @@ class OrgSpec extends BaseQueryUpdateSpec {
 
                 password: owner2
                 password: owner3
-                """.stripIndent()
+                """.stripIndent(true)
         )
         then:
         def ackForCreate = ackFor createMessage
@@ -1464,7 +1464,7 @@ class OrgSpec extends BaseQueryUpdateSpec {
                 delete:  testing
 
                 password: owner2
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:
@@ -1521,7 +1521,7 @@ class OrgSpec extends BaseQueryUpdateSpec {
                 password: owner
                 password: owner2
                 password: owner3
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:
@@ -1563,7 +1563,7 @@ class OrgSpec extends BaseQueryUpdateSpec {
                 source:          TEST
 
                 password: owner2
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:
@@ -1604,7 +1604,7 @@ class OrgSpec extends BaseQueryUpdateSpec {
 
                 password: owner2
                 password: owner3
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:
@@ -1658,7 +1658,7 @@ class OrgSpec extends BaseQueryUpdateSpec {
 
                 password: owner2
                 password: owner3
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:
@@ -1715,7 +1715,7 @@ class OrgSpec extends BaseQueryUpdateSpec {
 
                 password: owner2
                 password: owner3
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:
@@ -1775,7 +1775,7 @@ class OrgSpec extends BaseQueryUpdateSpec {
 
                 password: owner2
                 password: owner3
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:
@@ -1832,7 +1832,7 @@ class OrgSpec extends BaseQueryUpdateSpec {
 
                 password: owner2
                 password: owner3
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:
@@ -1870,7 +1870,7 @@ class OrgSpec extends BaseQueryUpdateSpec {
                 source:  TEST
 
                 password: owner2
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:
@@ -1909,7 +1909,7 @@ class OrgSpec extends BaseQueryUpdateSpec {
                 mnt-by:          ripe-ncc-hm-mnt
                 source:          TEST
                 override:        denis,override1
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:
@@ -1919,7 +1919,7 @@ class OrgSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(1, 0, 1, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
 
-        ack.countErrorWarnInfo(0, 0, 1)
+        ack.countErrorWarnInfo(0, 2, 1)
 
         query_object_matches("-r -GBT organisation ORG-FO1-TEST", "organisation", "ORG-FO1-TEST", "LIR")
     }
@@ -1948,7 +1948,7 @@ class OrgSpec extends BaseQueryUpdateSpec {
                 source:       TEST
 
                 password: owner2
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:
@@ -1989,7 +1989,7 @@ class OrgSpec extends BaseQueryUpdateSpec {
                 source:       TEST
 
                 password: hm
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:
@@ -2029,7 +2029,7 @@ class OrgSpec extends BaseQueryUpdateSpec {
                 source:       TEST
 
                 password: hm
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:
@@ -2065,7 +2065,7 @@ class OrgSpec extends BaseQueryUpdateSpec {
                 mnt-by:       ripe-ncc-hm-mnt
                 source:       TEST
                 override:   denis,override1
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:
@@ -2075,7 +2075,7 @@ class OrgSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(1, 0, 1, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
 
-        ack.countErrorWarnInfo(0, 0, 1)
+        ack.countErrorWarnInfo(0, 5, 1)
 
         query_object_matches("-r -GBT organisation ORG-LIR2-TEST", "organisation", "ORG-LIR2-TEST", "LIR")
     }
@@ -2102,7 +2102,7 @@ class OrgSpec extends BaseQueryUpdateSpec {
                 source:          TEST
 
                 password: owner2
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:
@@ -2141,7 +2141,7 @@ class OrgSpec extends BaseQueryUpdateSpec {
                 source:       TEST
                 override:   denis,override1
 
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:
@@ -2150,7 +2150,7 @@ class OrgSpec extends BaseQueryUpdateSpec {
         ack.summary.nrFound == 1
         ack.summary.assertSuccess(1, 0, 1, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
-        ack.countErrorWarnInfo(0, 0, 1)
+        ack.countErrorWarnInfo(0, 1, 1)
 
         query_object_matches("-r -T organisation ORG-LIR2-TEST", "organisation", "ORG-LIR2-TEST", "My Registry")
     }
@@ -2179,7 +2179,7 @@ class OrgSpec extends BaseQueryUpdateSpec {
                 source:       TEST
 
                 password:     hm
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:
@@ -2217,7 +2217,7 @@ class OrgSpec extends BaseQueryUpdateSpec {
                 source:       TEST
 
                 password:     lir
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:
@@ -2256,7 +2256,7 @@ class OrgSpec extends BaseQueryUpdateSpec {
                 source:       TEST
 
                 password: lir
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:
@@ -2300,7 +2300,7 @@ class OrgSpec extends BaseQueryUpdateSpec {
                 source:       TEST
 
                 password: lir
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:
@@ -2341,7 +2341,7 @@ class OrgSpec extends BaseQueryUpdateSpec {
                 source:       TEST
 
                 password: lir
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:
@@ -2381,7 +2381,7 @@ class OrgSpec extends BaseQueryUpdateSpec {
                 source:       TEST
 
                 password: lir
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:
@@ -2423,7 +2423,7 @@ class OrgSpec extends BaseQueryUpdateSpec {
 
                 password:     lir
                 password:     owner3
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:
@@ -2465,7 +2465,7 @@ class OrgSpec extends BaseQueryUpdateSpec {
                 source:       TEST
                 override:   denis,override1
 
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:
@@ -2475,7 +2475,7 @@ class OrgSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(1, 0, 1, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
 
-        ack.countErrorWarnInfo(0, 0, 1)
+        ack.countErrorWarnInfo(0, 1, 1)
 
         query_object_matches("-r -T inetnum 192.168.0.0 - 192.169.255.255", "inetnum", "192.168.0.0 - 192.169.255.255", "org:\\s*ORG-LIRA-TEST")
     }
@@ -2504,7 +2504,7 @@ class OrgSpec extends BaseQueryUpdateSpec {
 
                 password:     hm
                 password:     owner3
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:
@@ -2545,7 +2545,7 @@ class OrgSpec extends BaseQueryUpdateSpec {
 
                 password:     lir
                 password:     owner3
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:
@@ -2583,7 +2583,7 @@ class OrgSpec extends BaseQueryUpdateSpec {
 
                 password:     lir
                 password:     owner3
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:
@@ -2624,7 +2624,7 @@ class OrgSpec extends BaseQueryUpdateSpec {
 
                 password:     lir
                 password:     owner3
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:
@@ -2664,7 +2664,7 @@ class OrgSpec extends BaseQueryUpdateSpec {
 
                 password:     lir
                 password:     owner3
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:
@@ -2705,7 +2705,7 @@ class OrgSpec extends BaseQueryUpdateSpec {
 
                 password:     owner
                 password:     owner3
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:
@@ -2746,7 +2746,7 @@ class OrgSpec extends BaseQueryUpdateSpec {
 
                 password:     lir
                 password:     owner3
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:
@@ -2788,7 +2788,7 @@ class OrgSpec extends BaseQueryUpdateSpec {
                 source:       TEST
                 override:   denis,override1
 
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:
@@ -2799,7 +2799,7 @@ class OrgSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(1, 0, 1, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
 
-        ack.countErrorWarnInfo(0, 0, 1)
+        ack.countErrorWarnInfo(0, 1, 1)
 
         query_object_matches("-r -T inetnum 192.168.255.0 - 192.168.255.255", "inetnum", "192.168.255.0 - 192.168.255.255", "org:\\s*ORG-LIRA-TEST")
     }
@@ -2829,7 +2829,7 @@ class OrgSpec extends BaseQueryUpdateSpec {
 
                 password:     nccend
                 password:     owner3
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:
@@ -2867,7 +2867,7 @@ class OrgSpec extends BaseQueryUpdateSpec {
                 source:          TEST
 
                 password: owner2
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:
@@ -2920,7 +2920,7 @@ class OrgSpec extends BaseQueryUpdateSpec {
                 source:          TEST
 
                 password: owner2
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:
@@ -2973,7 +2973,7 @@ class OrgSpec extends BaseQueryUpdateSpec {
                 source:          TEST
 
                 password: owner2
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:
@@ -3026,7 +3026,7 @@ class OrgSpec extends BaseQueryUpdateSpec {
                 source:          TEST
 
                 password: owner2
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:
@@ -3063,7 +3063,7 @@ class OrgSpec extends BaseQueryUpdateSpec {
                 source:          TEST
 
                 password: owner2
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:
@@ -3096,7 +3096,7 @@ class OrgSpec extends BaseQueryUpdateSpec {
                 source:          TEST
 
                 password: hm
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:
@@ -3146,7 +3146,7 @@ class OrgSpec extends BaseQueryUpdateSpec {
                 source:          TEST
 
                 password: owner2
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:
@@ -3193,7 +3193,7 @@ class OrgSpec extends BaseQueryUpdateSpec {
                 source:          TEST
 
                 password: owner2
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:
@@ -3242,7 +3242,7 @@ class OrgSpec extends BaseQueryUpdateSpec {
                 delete: dontlikeit
 
                 password: owner2
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:
@@ -3291,7 +3291,7 @@ class OrgSpec extends BaseQueryUpdateSpec {
                 source:          TEST
 
                 password: hm
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:
@@ -3340,7 +3340,7 @@ class OrgSpec extends BaseQueryUpdateSpec {
                 source:          TEST
 
                 password: hm
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:
@@ -3391,7 +3391,7 @@ class OrgSpec extends BaseQueryUpdateSpec {
                 delete: dontlikeit
 
                 password: hm
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:
@@ -3419,7 +3419,7 @@ class OrgSpec extends BaseQueryUpdateSpec {
                 mnt-ref:         owner2-mnt
                 source:          TEST
                 override:        denis,override1
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:
@@ -3465,7 +3465,7 @@ class OrgSpec extends BaseQueryUpdateSpec {
                 mnt-by:          owner2-mnt
                 source:          TEST
                 override:        denis,override1
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:
@@ -3511,7 +3511,7 @@ class OrgSpec extends BaseQueryUpdateSpec {
                 mnt-by:          owner2-mnt
                 source:          TEST
                 override:        denis,override1
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:
@@ -3559,7 +3559,7 @@ class OrgSpec extends BaseQueryUpdateSpec {
                 source:          TEST
                 override:        denis,override1
                 delete:          idontlikeit
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:
@@ -3607,7 +3607,7 @@ class OrgSpec extends BaseQueryUpdateSpec {
                 source:          TEST
 
                 password: owner2
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:
@@ -3653,7 +3653,7 @@ class OrgSpec extends BaseQueryUpdateSpec {
                 mnt-by:          owner2-mnt
                 source:          TEST
                 override:        denis,override1
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:
@@ -3703,7 +3703,7 @@ class OrgSpec extends BaseQueryUpdateSpec {
             mnt-by:          owner2-mnt
             source:          TEST
             password: owner2
-            """.stripIndent()
+            """.stripIndent(true)
         )
 
         then:
@@ -3739,7 +3739,7 @@ class OrgSpec extends BaseQueryUpdateSpec {
             source:       TEST
 
             password: lir
-            """.stripIndent()
+            """.stripIndent(true)
         )
 
         then:
@@ -3779,7 +3779,7 @@ class OrgSpec extends BaseQueryUpdateSpec {
                 source:       TEST
 
                 password: lir
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:
@@ -3818,7 +3818,7 @@ class OrgSpec extends BaseQueryUpdateSpec {
                 source:       TEST
 
                 password: lir
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:
@@ -3832,6 +3832,233 @@ class OrgSpec extends BaseQueryUpdateSpec {
         ack.errors.any { it.operation == "Modify" && it.key == "[organisation] ORG-OFA11-TEST" }
         ack.errorMessagesFor("Modify", "[organisation] ORG-OFA11-TEST") ==
                 ["Attribute \"country:\" can only be changed by the RIPE NCC for this object. Please contact \"ncc@ripe.net\" to change it."]
+    }
+
+    def "modify organisation, org-type:LIR, add country, user password"() {
+
+        expect:
+        query_object_matches("-r -T organisation ORG-LIRA-TEST", "organisation", "ORG-LIRA-TEST", "org-type:\\s*LIR")
+
+        when:
+        def message = syncUpdate("""
+                organisation: ORG-LIRA-TEST
+                org-type:     LIR
+                org-name:     Local Internet Registry Abuse
+                country:      NL
+                address:      RIPE NCC
+                e-mail:       dbtest@ripe.net
+                admin-c:      TP1-TEST
+                tech-c:       TP1-TEST
+                abuse-c:      AH1-TEST
+                ref-nfy:      dbtest-org@ripe.net
+                mnt-ref:      owner3-mnt
+                mnt-by:       ripe-ncc-hm-mnt
+                source:       TEST
+
+                password: owner2
+                """.stripIndent(true)
+        )
+
+        then:
+        def ack = new AckResponse("", message)
+
+        ack.summary.nrFound == 1
+        ack.summary.assertSuccess(0, 0, 0, 0, 0)
+        ack.summary.assertErrors(1, 0, 1, 0)
+        ack.countErrorWarnInfo(2, 0, 0)
+
+        ack.errors.any { it.operation == "Modify" && it.key == "[organisation] ORG-LIRA-TEST" }
+        ack.errorMessagesFor("Modify", "[organisation] ORG-LIRA-TEST") ==
+                ['Authorisation for [organisation] ORG-LIRA-TEST failed using "mnt-by:" not authenticated by: RIPE-NCC-HM-MNT', "Attribute \"country:\" can only be changed by the RIPE NCC for this object. Please contact \"ncc@ripe.net\" to change it."]
+    }
+
+    def "modify organisation, org-type:LIR, modify country, user password"() {
+
+        expect:
+        query_object_matches("-r -T organisation ORG-HR1-TEST", "organisation", "ORG-HR1-TEST", "org-type:\\s*LIR")
+
+        when:
+        def message = syncUpdate("""
+                organisation:    ORG-HR1-TEST
+                org-type:        LIR
+                org-name:        Regional Internet Registry
+                country:         FR
+                address:         RIPE NCC
+                e-mail:          dbtest@ripe.net
+                ref-nfy:         dbtest-org@ripe.net
+                mnt-ref:         owner3-mnt
+                mnt-by:          owner2-mnt
+                source:  TEST
+
+                password: owner2
+                """.stripIndent(true)
+        )
+
+        then:
+        def ack = new AckResponse("", message)
+
+        ack.summary.nrFound == 1
+        ack.summary.assertSuccess(0, 0, 0, 0, 0)
+        ack.summary.assertErrors(1, 0, 1, 0)
+        ack.countErrorWarnInfo(1, 0, 0)
+
+        ack.errors.any { it.operation == "Modify" && it.key == "[organisation] ORG-HR1-TEST" }
+        ack.errorMessagesFor("Modify", "[organisation] ORG-HR1-TEST") ==
+                ["Attribute \"country:\" can only be changed by the RIPE NCC for this object. Please contact \"ncc@ripe.net\" to change it."]
+    }
+
+    def "modify organisation, org-type:LIR, delete country, user password"() {
+        expect:
+        query_object_matches("-r -T organisation ORG-HR1-TEST", "organisation", "ORG-HR1-TEST", "org-type:\\s*LIR")
+
+        when:
+        def message = syncUpdate("""
+                organisation:    ORG-HR1-TEST
+                org-type:        LIR
+                org-name:        Regional Internet Registry
+                address:         RIPE NCC
+                e-mail:          dbtest@ripe.net
+                ref-nfy:         dbtest-org@ripe.net
+                mnt-ref:         owner3-mnt
+                mnt-by:          owner2-mnt
+                source:  TEST
+
+                password: owner2
+                """.stripIndent(true)
+        )
+
+        then:
+        def ack = new AckResponse("", message)
+
+        ack.summary.nrFound == 1
+        ack.summary.assertSuccess(0, 0, 0, 0, 0)
+        ack.summary.assertErrors(1, 0, 1, 0)
+        ack.countErrorWarnInfo(1, 0, 0)
+
+        ack.errors.any { it.operation == "Modify" && it.key == "[organisation] ORG-HR1-TEST" }
+        ack.errorMessagesFor("Modify", "[organisation] ORG-HR1-TEST") ==
+                ["Attribute \"country:\" can only be changed by the RIPE NCC for this object. Please contact \"ncc@ripe.net\" to change it."]
+    }
+
+    def "modify organisation, org-type:LIR, add country, override"() {
+
+        expect:
+        query_object_matches("-r -T organisation ORG-LIRA-TEST", "organisation", "ORG-LIRA-TEST", "org-type:\\s*LIR")
+
+        when:
+        def message = syncUpdate("""
+                organisation: ORG-LIRA-TEST
+                org-type:     LIR
+                org-name:     Local Internet Registry Abuse
+                country:      NL
+                address:      RIPE NCC
+                e-mail:       dbtest@ripe.net
+                admin-c:      TP1-TEST
+                tech-c:       TP1-TEST
+                abuse-c:      AH1-TEST
+                ref-nfy:      dbtest-org@ripe.net
+                mnt-ref:      owner3-mnt
+                mnt-by:       ripe-ncc-hm-mnt
+                source:       TEST
+                override:        denis,override1
+                """.stripIndent(true)
+        )
+
+        then:
+        def ack = new AckResponse("", message)
+
+        ack.summary.nrFound == 1
+        ack.summary.assertSuccess(1, 0, 1, 0, 0)
+        ack.summary.assertErrors(0, 0, 0, 0)
+    }
+
+    def "modify organisation, org-type:LIR, modify country, override"() {
+
+        expect:
+        query_object_matches("-r -T organisation ORG-HR1-TEST", "organisation", "ORG-HR1-TEST", "org-type:\\s*LIR")
+
+        when:
+        def message = syncUpdate("""
+                organisation:    ORG-HR1-TEST
+                org-type:        LIR
+                org-name:        Regional Internet Registry
+                country:         FR
+                address:         RIPE NCC
+                e-mail:          dbtest@ripe.net
+                ref-nfy:         dbtest-org@ripe.net
+                mnt-ref:         owner3-mnt
+                mnt-by:          owner2-mnt
+                source:  TEST
+                override:        denis,override1
+                """.stripIndent(true)
+        )
+
+        then:
+        def ack = new AckResponse("", message)
+
+        ack.summary.nrFound == 1
+        ack.summary.assertSuccess(1, 0, 1, 0, 0)
+        ack.summary.assertErrors(0, 0, 0, 0)
+    }
+
+    def "modify organisation, org-type:LIR, delete country, override"() {
+        expect:
+        query_object_matches("-r -T organisation ORG-HR1-TEST", "organisation", "ORG-HR1-TEST", "org-type:\\s*LIR")
+
+        when:
+        def message = syncUpdate("""
+                organisation:    ORG-HR1-TEST
+                org-type:        LIR
+                org-name:        Regional Internet Registry
+                address:         RIPE NCC
+                e-mail:          dbtest@ripe.net
+                ref-nfy:         dbtest-org@ripe.net
+                mnt-ref:         owner3-mnt
+                mnt-by:          owner2-mnt
+                source:  TEST
+                override:        denis,override1
+                """.stripIndent(true)
+        )
+
+        then:
+        def ack = new AckResponse("", message)
+
+        ack.summary.nrFound == 1
+        ack.summary.assertSuccess(1, 0, 1, 0, 0)
+        ack.summary.assertErrors(0, 0, 0, 0)
+    }
+
+    def "modify organisation, org-type:LIR, add country, alloc maintainer"() {
+
+        expect:
+        query_object_matches("-r -T organisation ORG-LIRA-TEST", "organisation", "ORG-LIRA-TEST", "org-type:\\s*LIR")
+
+        when:
+        def message = syncUpdate("""
+                organisation: ORG-LIRA-TEST
+                org-type:     LIR
+                org-name:     Local Internet Registry Abuse
+                country:      NL
+                address:      RIPE NCC
+                e-mail:       dbtest@ripe.net
+                admin-c:      TP1-TEST
+                tech-c:       TP1-TEST
+                abuse-c:      AH1-TEST
+                ref-nfy:      dbtest-org@ripe.net
+                mnt-ref:      owner3-mnt
+                mnt-by:       ripe-ncc-hm-mnt
+                source:       TEST
+
+                password: hm
+                """.stripIndent(true)
+        )
+
+        then:
+        def ack = new AckResponse("", message)
+
+        ack.summary.nrFound == 1
+        ack.summary.assertSuccess(1, 0, 1, 0, 0)
+        ack.summary.assertErrors(0, 0, 0, 0)
     }
 
     def "create organisation, add comment not in managed attribute"() {
@@ -3855,7 +4082,7 @@ class OrgSpec extends BaseQueryUpdateSpec {
                 source:          TEST
 
                 password: owner2
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:
@@ -3897,7 +4124,7 @@ class OrgSpec extends BaseQueryUpdateSpec {
                 source:       TEST
 
                 password: lir
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:
@@ -3933,7 +4160,7 @@ class OrgSpec extends BaseQueryUpdateSpec {
                 mnt-by:          ripe-ncc-hm-mnt
                 source:          TEST
                 override:        denis,override1
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:
@@ -3943,7 +4170,7 @@ class OrgSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(1, 0, 1, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
 
-        ack.countErrorWarnInfo(0, 0, 1)
+        ack.countErrorWarnInfo(0, 3, 1)
     }
 
     def "modify organisation, remove comment allowed in managed attribute by end user"() {
@@ -3970,7 +4197,7 @@ class OrgSpec extends BaseQueryUpdateSpec {
                 mnt-by:          ripe-NCC-hM-mnT
                 source:          TEST
                 password:        owner2
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:
@@ -4006,7 +4233,7 @@ class OrgSpec extends BaseQueryUpdateSpec {
                 mnt-by:          ripe-NCC-hM-mnT
                 source:          TEST
                 password:        hm
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:

@@ -4,9 +4,9 @@ import com.google.common.base.Joiner;
 import com.google.common.collect.Maps;
 import org.springframework.util.FileCopyUtils;
 
-import javax.ws.rs.core.HttpHeaders;
-import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.MultivaluedMap;
+import jakarta.ws.rs.core.HttpHeaders;
+import jakarta.ws.rs.core.MediaType;
+import jakarta.ws.rs.core.MultivaluedMap;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStreamWriter;

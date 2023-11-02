@@ -1,6 +1,8 @@
 package net.ripe.db.whois.update.handler.validator.asblock;
 
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.Lists;
+import net.ripe.db.whois.common.Message;
 import net.ripe.db.whois.common.dao.RpslObjectDao;
 import net.ripe.db.whois.common.rpsl.ObjectType;
 import net.ripe.db.whois.common.rpsl.RpslObject;
@@ -38,21 +40,24 @@ public class AsblockHierarchyValidator implements BusinessRuleValidator {
     }
 
     @Override
-    public void validate(final PreparedUpdate update, final UpdateContext updateContext) {
-        AsBlockRange asBlockNew = AsBlockRange.parse(update.getUpdatedObject().getKey().toString());
+    public List<Message> performValidation(final PreparedUpdate update, final UpdateContext updateContext) {
+        final AsBlockRange asBlockNew = AsBlockRange.parse(update.getUpdatedObject().getKey().toString());
         final List<RpslObject> intersections = rpslObjectDao.findAsBlockIntersections(asBlockNew.getBegin(), asBlockNew.getEnd());
+        final List<Message> messages = Lists.newArrayList();
 
         for (final RpslObject intersection : intersections) {
             final AsBlockRange asBlockExisting = AsBlockRange.parse(intersection.getKey().toString());
             if (asBlockExisting.equals(asBlockNew)) {
-                updateContext.addMessage(update, UpdateMessages.asblockAlreadyExists());
+                messages.add(UpdateMessages.asblockAlreadyExists());
             } else if (asBlockExisting.contains(asBlockNew)) {
-                updateContext.addMessage(update, UpdateMessages.asblockParentAlreadyExists());
+                messages.add(UpdateMessages.asblockParentAlreadyExists());
             } else if (asBlockNew.contains(asBlockExisting)) {
-                updateContext.addMessage(update, UpdateMessages.asblockChildAlreadyExists());
+                messages.add(UpdateMessages.asblockChildAlreadyExists());
             } else {
-                updateContext.addMessage(update, UpdateMessages.intersectingAsblockAlreadyExists());
+                messages.add(UpdateMessages.intersectingAsblockAlreadyExists());
             }
         }
+
+        return messages;
     }
 }

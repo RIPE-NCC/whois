@@ -1024,6 +1024,8 @@ CREATE TABLE `zone_c` (
   KEY `object_type` (`object_type`),
   KEY `object_id` (`object_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+
+
 /*!40101 SET character_set_client = @saved_cs_client */;
 /*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
 

@@ -1,4 +1,4 @@
-image: $CI_REGISTRY/swe-database-team/gitlab-ci/whois-build:6113670d
+image: $CI_REGISTRY/swe-database-team/gitlab-ci/whois-build:21fc0efa
 
 variables:
   MAVEN_OPTS: "-Dmaven.repo.local=.m2/repository"
@@ -14,8 +14,6 @@ include:
     file: '/templates/release-template.yml'
   - project: 'swe-database-team/gitlab-ci'
     file: '/templates/deployment-template.yml'
-  - project: 'swe-database-team/gitlab-ci'
-    file: '/templates/deployment-salt-template.yml'
 
 stages:
   - build
@@ -131,14 +129,6 @@ whois-nrtm:
     - *mariadb_configuration
   script:
     - mvn $MAVEN_OPTS -Ddb.host=mariadb verify -PintegrationAll -pl whois-nrtm
-
-whois-nrtm4:
-  <<:
-    - *it_env
-    - *mariadb_configuration
-  script:
-    - mvn $MAVEN_OPTS -Ddb.host=mariadb verify -PintegrationAll -pl whois-nrtm4
-
 
 whois-query:
   <<:

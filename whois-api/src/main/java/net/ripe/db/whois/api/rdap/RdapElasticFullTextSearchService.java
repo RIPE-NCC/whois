@@ -1,6 +1,6 @@
 package net.ripe.db.whois.api.rdap;
 
-import net.ripe.db.whois.api.autocomplete.ElasticSearchCondition;
+import jakarta.ws.rs.core.Response;
 import net.ripe.db.whois.api.elasticsearch.ElasticIndexService;
 import net.ripe.db.whois.api.elasticsearch.ElasticSearchAccountingCallback;
 import net.ripe.db.whois.common.dao.RpslObjectDao;
@@ -24,21 +24,18 @@ import org.elasticsearch.search.sort.SortBuilders;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.context.annotation.Conditional;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.stereotype.Component;
 
-import javax.ws.rs.core.Response;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
 @Component
-@Conditional(ElasticSearchCondition.class)
 public class RdapElasticFullTextSearchService implements RdapFullTextSearch {
 
-    public static final List<SortBuilder<?>> SORT_BUILDERS = Arrays.asList(SortBuilders.scoreSort(), SortBuilders.fieldSort("lookup-key.raw").unmappedType("string"));
+    public static final List<SortBuilder<?>> SORT_BUILDERS = Arrays.asList(SortBuilders.scoreSort(), SortBuilders.fieldSort("lookup-key.raw").unmappedType("keyword"));
 
     private final int maxResultSize;
     private final RpslObjectDao objectDao;

@@ -33,10 +33,10 @@ import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
-import javax.ws.rs.BadRequestException;
-import javax.ws.rs.NotFoundException;
-import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.Response;
+import jakarta.ws.rs.BadRequestException;
+import jakarta.ws.rs.NotFoundException;
+import jakarta.ws.rs.core.MediaType;
+import jakarta.ws.rs.core.Response;
 import java.io.FileNotFoundException;
 import java.io.InputStream;
 import java.net.InetAddress;
@@ -53,7 +53,7 @@ import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.not;
 import static org.hamcrest.Matchers.nullValue;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.fail;
 
 @Tag("IntegrationTest")
@@ -745,7 +745,7 @@ public class WhoisSearchServiceTestIntegration extends AbstractIntegrationTest {
 
     @Test
     public void search_illegal_character_encoding_in_query_param() throws Exception {
-        Assertions.assertThrows(FileNotFoundException.class, () -> {
+        assertThrows(FileNotFoundException.class, () -> {
             try (
                     final InputStream inputStream = new URL(
                             String.format("http://localhost:%d/whois/search?flags=rB&source=TEST&type-filter=mntner&query-string=AA1-MNT+{+192.168.0.0/16+}",
@@ -801,7 +801,7 @@ public class WhoisSearchServiceTestIntegration extends AbstractIntegrationTest {
                             "  },\n" +
                             "  \"terms-and-conditions\" : {\n" +
                             "    \"type\" : \"locator\",\n" +
-                            "    \"href\" : \"http://www.ripe.net/db/support/db-terms-conditions.pdf\"\n" +
+                            "    \"href\" : \"https://apps.db.ripe.net/docs/HTML-Terms-And-Conditions\"\n" +
                             "  }\n" +
                             "}", getPort()
             )));
@@ -827,7 +827,7 @@ public class WhoisSearchServiceTestIntegration extends AbstractIntegrationTest {
                             "<args value=\"TEST\"/>" +
                             "</errormessage>" +
                             "</errormessages>" +
-                            "<terms-and-conditions xlink:type=\"locator\" xlink:href=\"http://www.ripe.net/db/support/db-terms-conditions.pdf\"/>" +
+                            "<terms-and-conditions xlink:type=\"locator\" xlink:href=\"https://apps.db.ripe.net/docs/HTML-Terms-And-Conditions\"/>" +
                             "</whois-resources>", getPort()
             )));
         }
@@ -848,7 +848,7 @@ public class WhoisSearchServiceTestIntegration extends AbstractIntegrationTest {
                     "\n" +
                     "No entries found in source %%s.\n" +
                     "[TEST]\n" +
-                    "http://www.ripe.net/db/support/db-terms-conditions.pdf", getPort())));
+                    "https://apps.db.ripe.net/docs/HTML-Terms-And-Conditions", getPort())));
         }
     }
 
@@ -867,7 +867,7 @@ public class WhoisSearchServiceTestIntegration extends AbstractIntegrationTest {
                     "\n" +
                     "No entries found in source %%s.\n" +
                     "[TEST]\n" +
-                    "http://www.ripe.net/db/support/db-terms-conditions.pdf", getPort())));
+                    "https://apps.db.ripe.net/docs/HTML-Terms-And-Conditions", getPort())));
         }
     }
 
@@ -1005,7 +1005,7 @@ public class WhoisSearchServiceTestIntegration extends AbstractIntegrationTest {
                         "},\n" +
                         "\"terms-and-conditions\" : {\n" +
                         "  \"type\" : \"locator\",\n" +
-                        "  \"href\" : \"http://www.ripe.net/db/support/db-terms-conditions.pdf\"\n" +
+                        "  \"href\" : \"https://apps.db.ripe.net/docs/HTML-Terms-And-Conditions\"\n" +
                         "},\n" +
                         "\"version\" : {\n" +
                         "  \"version\" : \"" + applicationVersion.getVersion() + "\",\n" +
@@ -1109,7 +1109,7 @@ public class WhoisSearchServiceTestIntegration extends AbstractIntegrationTest {
                 "    </attributes>\n" +
                 "</object>\n" +
                 "</objects>\n" +
-                "<terms-and-conditions xlink:type=\"locator\" xlink:href=\"http://www.ripe.net/db/support/db-terms-conditions.pdf\"/>\n" +
+                "<terms-and-conditions xlink:type=\"locator\" xlink:href=\"https://apps.db.ripe.net/docs/HTML-Terms-And-Conditions\"/>\n" +
                 "<version " +
                 "version=\"" + applicationVersion.getVersion() + "\" " +
                 "timestamp=\"" + applicationVersion.getTimestamp() + "\" " +
@@ -1156,7 +1156,7 @@ public class WhoisSearchServiceTestIntegration extends AbstractIntegrationTest {
 
     @Test
     public void search_huge_query_string() {
-        Assertions.assertThrows(NotFoundException.class, () -> {
+        assertThrows(NotFoundException.class, () -> {
             RestTest.target(getPort(), String.format("whois/search?query-string=%s&source=TEST", Strings.repeat("X", 5900)))
                     .request(MediaType.APPLICATION_XML)
                     .get(WhoisResources.class);
@@ -1720,16 +1720,17 @@ public class WhoisSearchServiceTestIntegration extends AbstractIntegrationTest {
                 "mnt-by:         OWNER-MNT\n" +
                 "source:         TEST-NONAUTH\n"));
         ipTreeUpdater.rebuild();
+
         final WhoisResources whoisResources = RestTest.target(getPort(), "whois/search?query-string=AS102")
                 .request(MediaType.APPLICATION_XML)
                 .get(WhoisResources.class);
 
-        boolean hasSourceTestNonAuth = hasObjectWithSpecifiedSource(whoisResources.getWhoisObjects(), "TEST-NONAUTH");
-        boolean hasSourceTest = hasObjectWithSpecifiedSource(whoisResources.getWhoisObjects(), "TEST");
         assertThat(whoisResources.getErrorMessages(), is(empty()));
         assertThat(whoisResources.getWhoisObjects(), hasSize(2));
-        assertTrue(hasSourceTestNonAuth);
-        assertTrue(hasSourceTest);
+        boolean hasSourceTestNonAuth = hasObjectWithSpecifiedSource(whoisResources.getWhoisObjects(), "TEST-NONAUTH");
+        assertThat(hasSourceTestNonAuth, is(true));
+        boolean hasSourceTest = hasObjectWithSpecifiedSource(whoisResources.getWhoisObjects(), "TEST");
+        assertThat(hasSourceTest, is(true));
     }
 
     // searching for inetnum without specifying sources should return all related object even route with source: NONAUTH
@@ -1754,18 +1755,18 @@ public class WhoisSearchServiceTestIntegration extends AbstractIntegrationTest {
                 "admin-c:         TP1-TEST\n" +
                 "mnt-lower:       OWNER-MNT\n" +
                 "source:          TEST-NONAUTH\n"));
-
         ipTreeUpdater.rebuild();
+
         final WhoisResources whoisResources = RestTest.target(getPort(), "whois/search?query-string=10.0.0.0/24")
                 .request(MediaType.APPLICATION_XML)
                 .get(WhoisResources.class);
 
-        boolean hasSourceTestNonAuth = hasObjectWithSpecifiedSource(whoisResources.getWhoisObjects(), "TEST-NONAUTH");
-        boolean hasSourceTest = hasObjectWithSpecifiedSource(whoisResources.getWhoisObjects(), "TEST");
         assertThat(whoisResources.getErrorMessages(), is(empty()));
         assertThat(whoisResources.getWhoisObjects(), hasSize(4));
-        assertTrue(hasSourceTestNonAuth);
-        assertTrue(hasSourceTest);
+        boolean hasSourceTestNonAuth = hasObjectWithSpecifiedSource(whoisResources.getWhoisObjects(), "TEST-NONAUTH");
+        assertThat(hasSourceTestNonAuth, is(true));
+        boolean hasSourceTest = hasObjectWithSpecifiedSource(whoisResources.getWhoisObjects(), "TEST");
+        assertThat(hasSourceTest, is(true));
     }
 
     @Test
@@ -1779,16 +1780,17 @@ public class WhoisSearchServiceTestIntegration extends AbstractIntegrationTest {
                 "mnt-lower:       OWNER-MNT\n" +
                 "source:          TEST-NONAUTH\n"));
         ipTreeUpdater.rebuild();
+
         final WhoisResources whoisResources = RestTest.target(getPort(), "whois/search?query-string=193.4.0.0/16AS102")
                 .request(MediaType.APPLICATION_XML)
                 .get(WhoisResources.class);
 
-        boolean hasSourceTestNonAuth = hasObjectWithSpecifiedSource(whoisResources.getWhoisObjects(), "TEST-NONAUTH");
-        boolean hasSourceTest = hasObjectWithSpecifiedSource(whoisResources.getWhoisObjects(), "TEST");
         assertThat(whoisResources.getErrorMessages(), is(empty()));
         assertThat(whoisResources.getWhoisObjects(), hasSize(2));
-        assertTrue(hasSourceTestNonAuth);
-        assertTrue(hasSourceTest);
+        boolean hasSourceTestNonAuth = hasObjectWithSpecifiedSource(whoisResources.getWhoisObjects(), "TEST-NONAUTH");
+        assertThat(hasSourceTestNonAuth, is(true));
+        boolean hasSourceTest = hasObjectWithSpecifiedSource(whoisResources.getWhoisObjects(), "TEST");
+        assertThat(hasSourceTest, is(true));
     }
 
     //  If "sources" is used in queries out-of-region resources will be shown only if ‘RIPE-NONAUTH’ is included explicitly.
@@ -1904,7 +1906,7 @@ public class WhoisSearchServiceTestIntegration extends AbstractIntegrationTest {
                 "source:          TEST-NONAUTH\n"));
         ipTreeUpdater.rebuild();
 
-        Assertions.assertThrows(NotFoundException.class, () -> {
+        assertThrows(NotFoundException.class, () -> {
             RestTest.target(getPort(), "whois/search?query-string=193.4.0.0/16AS102&source=TEST")
                     .request(MediaType.APPLICATION_XML)
                     .get(WhoisResources.class);
@@ -1938,12 +1940,12 @@ public class WhoisSearchServiceTestIntegration extends AbstractIntegrationTest {
                 .request(MediaType.APPLICATION_XML)
                 .get(WhoisResources.class);
 
-        boolean hasSourceTestNonAuth = hasObjectWithSpecifiedSource(whoisResources.getWhoisObjects(), "TEST-NONAUTH");
-        boolean hasSourceTest = hasObjectWithSpecifiedSource(whoisResources.getWhoisObjects(), "TEST");
         assertThat(whoisResources.getErrorMessages(), is(empty()));
         assertThat(whoisResources.getWhoisObjects(), hasSize(4));
-        assertTrue(hasSourceTestNonAuth);
-        assertTrue(hasSourceTest);
+        boolean hasSourceTestNonAuth = hasObjectWithSpecifiedSource(whoisResources.getWhoisObjects(), "TEST-NONAUTH");
+        assertThat(hasSourceTestNonAuth, is(true));
+        boolean hasSourceTest = hasObjectWithSpecifiedSource(whoisResources.getWhoisObjects(), "TEST");
+        assertThat(hasSourceTest, is(true));
     }
 
     @Test

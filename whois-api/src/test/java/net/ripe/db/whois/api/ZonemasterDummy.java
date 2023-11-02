@@ -19,13 +19,13 @@ import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Component;
 import org.springframework.test.util.ReflectionTestUtils;
 
-import javax.annotation.PostConstruct;
-import javax.annotation.PreDestroy;
-import javax.servlet.ServletException;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import javax.ws.rs.core.HttpHeaders;
-import javax.ws.rs.core.MediaType;
+import jakarta.annotation.PostConstruct;
+import jakarta.annotation.PreDestroy;
+import jakarta.servlet.ServletException;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
+import jakarta.ws.rs.core.HttpHeaders;
+import jakarta.ws.rs.core.MediaType;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.List;
@@ -69,6 +69,11 @@ public class ZonemasterDummy implements Stub {
                 }
                 if (ZonemasterRequest.Method.VERSION_INFO.getMethod().equals(map.get("method")) &&
                         entry.getKey().equals(String.valueOf(map.get("id")))) {
+                    putResponseBody(response, removeFirst(entry.getValue()));
+                    return;
+                }
+                if (ZonemasterRequest.Method.GET_TEST_RESULTS.getMethod().equals(map.get("method")) &&
+                        entry.getKey().equals(String.valueOf(map.get("id")))){
                     putResponseBody(response, removeFirst(entry.getValue()));
                     return;
                 }

@@ -1,6 +1,5 @@
 package net.ripe.db.whois.api.rest;
 
-import com.google.common.base.Splitter;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
 import com.google.common.net.HttpHeaders;
@@ -11,7 +10,6 @@ import net.ripe.db.whois.api.rest.domain.WhoisResources;
 import net.ripe.db.whois.api.rest.mapper.FormattedClientAttributeMapper;
 import net.ripe.db.whois.api.rest.mapper.WhoisObjectMapper;
 import net.ripe.db.whois.api.syncupdate.SyncUpdateUtils;
-import net.ripe.db.whois.common.collect.IterableTransformer;
 import net.ripe.db.whois.common.domain.User;
 import net.ripe.db.whois.common.profiles.WhoisProfile;
 import net.ripe.db.whois.common.rpsl.AttributeType;
@@ -28,15 +26,15 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.test.context.ActiveProfiles;
 
-import javax.ws.rs.ClientErrorException;
-import javax.ws.rs.NotAuthorizedException;
-import javax.ws.rs.client.Entity;
-import javax.ws.rs.core.MediaType;
+import jakarta.ws.rs.ClientErrorException;
+import jakarta.ws.rs.NotAuthorizedException;
+import jakarta.ws.rs.client.Entity;
+import jakarta.ws.rs.core.MediaType;
 import java.io.File;
 import java.text.MessageFormat;
 import java.time.LocalDateTime;
-import java.util.Deque;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import static net.ripe.db.whois.common.rpsl.RpslObjectFilter.buildGenericObject;
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -46,7 +44,6 @@ import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.not;
 import static org.hamcrest.Matchers.nullValue;
-import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.fail;
 
 @ActiveProfiles(profiles = WhoisProfile.TEST, inheritProfiles = false)
@@ -497,7 +494,7 @@ public class WhoisRestServiceEndToEndTestIntegration extends AbstractIntegration
             assertThat(errorMessage.getText(), is("Deprecated attribute \"changed\". This attribute has been removed."));
             assertThat(whoisResources.getWhoisObjects(), hasSize(1));
             assertThat(whoisResources.getWhoisObjects().get(0).getPrimaryKey().get(0).getValue(), is("10.0.0.0 - 10.0.255.255"));
-            assertFalse(whoisResources.getWhoisObjects().get(0).getAttributes().contains(AttributeType.CHANGED));
+            assertThat(whoisResources.getWhoisObjects().get(0).getAttributes(), not(contains(AttributeType.CHANGED)));
         } catch (ClientErrorException e) {
             reportAndThrowUnknownError(e);
         }
@@ -545,7 +542,7 @@ public class WhoisRestServiceEndToEndTestIntegration extends AbstractIntegration
             assertThat(errorMessage.getText(), is("Deprecated attribute \"changed\". This attribute has been removed."));
             assertThat(whoisResources.getWhoisObjects(), hasSize(1));
             assertThat(whoisResources.getWhoisObjects().get(0).getPrimaryKey().get(0).getValue(), is("10.0.0.0 - 10.0.255.255"));
-            assertFalse(whoisResources.getWhoisObjects().get(0).getAttributes().contains(AttributeType.CHANGED));
+            assertThat(whoisResources.getWhoisObjects().get(0).getAttributes(), not(contains(AttributeType.CHANGED)));
         } catch (ClientErrorException e) {
             reportAndThrowUnknownError(e);
         }
@@ -663,18 +660,10 @@ public class WhoisRestServiceEndToEndTestIntegration extends AbstractIntegration
         }
 
         final String audit = FileHelper.fetchGzip(new File(auditLog + "/20010206/170000.rest_10.20.30.40_100/000.audit.xml.gz"));
-        final Iterable<String> linesContainingPassword = new IterableTransformer<String>(Splitter.on('\n').split(audit)) {
-            @Override
-            public void apply(String input, Deque<String> result) {
-                if (input.toLowerCase().contains("password")) {
-                    result.add(input.trim());
-                }
-            }
-            // TODO when we add message to ack about which MNTNER authorises update, split pw and SSO into different MNTNERs and check the correct MNTENR authorised the update
-        };
 
+        final List<String> linesContainingPassword = audit.lines().filter( input -> input.toLowerCase().contains("password")).map( input -> input.trim()).collect(Collectors.toList());
         assertThat(linesContainingPassword, contains(
-                "<![CDATA[PUT /whois/test/person/TP2-TEST?password=FILTERED",
+                "<message><![CDATA[PUT /whois/test/person/TP2-TEST?password=FILTERED",
                 "<credential>PasswordCredential</credential>"));
     }
 
@@ -762,11 +751,11 @@ public class WhoisRestServiceEndToEndTestIntegration extends AbstractIntegration
     private void assertUnauthorizedErrorMessage(final NotAuthorizedException exception, final String... args) {
         final WhoisResources whoisResources = exception.getResponse().readEntity(WhoisResources.class);
         final List<ErrorMessage> errorMessages = whoisResources.getErrorMessages();
-        assertThat(errorMessages.size(), is(1));
+        assertThat(errorMessages, hasSize(1));
         assertThat(errorMessages.get(0).getText(), is("Authorisation for [%s] %s failed\n" +
                 "using \"%s:\"\n" +
                 "not authenticated by: %s"));
-        assertThat(errorMessages.get(0).getArgs().size(), is(args.length));
+        assertThat(errorMessages.get(0).getArgs(), hasSize(args.length));
         for (int i = 0; i < args.length; i++) {
             assertThat(errorMessages.get(0).getArgs().get(i).getValue(), is(args[i]));
         }

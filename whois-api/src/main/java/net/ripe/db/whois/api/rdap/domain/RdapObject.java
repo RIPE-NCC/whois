@@ -3,12 +3,12 @@ package net.ripe.db.whois.api.rdap.domain;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.google.common.collect.Lists;
 
-import javax.xml.bind.annotation.XmlAccessType;
-import javax.xml.bind.annotation.XmlAccessorType;
-import javax.xml.bind.annotation.XmlElement;
-import javax.xml.bind.annotation.XmlRootElement;
-import javax.xml.bind.annotation.XmlSeeAlso;
-import javax.xml.bind.annotation.XmlType;
+import jakarta.xml.bind.annotation.XmlAccessType;
+import jakarta.xml.bind.annotation.XmlAccessorType;
+import jakarta.xml.bind.annotation.XmlElement;
+import jakarta.xml.bind.annotation.XmlRootElement;
+import jakarta.xml.bind.annotation.XmlSeeAlso;
+import jakarta.xml.bind.annotation.XmlType;
 import java.io.Serializable;
 import java.util.List;
 
@@ -59,6 +59,8 @@ public class RdapObject implements Serializable {
     protected String errorTitle;
     @XmlElement(name = "description")
     protected List<String> errorDescription;
+
+    protected List<Redaction> redacted;
 
     public List<Object> getStatus() {
         if (status == null) {
@@ -115,6 +117,13 @@ public class RdapObject implements Serializable {
             autnums = Lists.newArrayList();
         }
         return autnums;
+    }
+
+    public List<Redaction> getRedacted() {
+        if (redacted == null) {
+            redacted = Lists.newArrayList();
+        }
+        return redacted;
     }
 
     public void setLang(final String value) {

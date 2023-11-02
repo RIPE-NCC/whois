@@ -33,7 +33,7 @@ public class UpdateContext {
     private final Map<Update, CIString> placeHolderForUpdate = Maps.newHashMap();
     private final Map<CIString, GeneratedKey> generatedKeys = Maps.newHashMap();
     private final Map<Update, Context> contexts = Maps.newLinkedHashMap();
-    private final Map<DnsCheckRequest, DnsCheckResponse> dnsCheckResponses = Maps.newHashMap();
+    private final Map<Update, DnsCheckResponse> dnsCheckResponses = Maps.newHashMap();
     private final Map<String, String> ssoTranslation = Maps.newHashMap();
     private final LoggerContext loggerContext;
 
@@ -71,7 +71,7 @@ public class UpdateContext {
     }
 
     public void addDnsCheckResponse(final DnsCheckRequest request, final DnsCheckResponse response) {
-        final DnsCheckResponse previous = dnsCheckResponses.put(request, response);
+        final DnsCheckResponse previous = dnsCheckResponses.put(request.getUpdate(), response);
         if (previous != null) {
             throw new IllegalStateException("Existing response for request: " + request);
         }
@@ -99,8 +99,16 @@ public class UpdateContext {
     }
 
     @CheckForNull
-    public DnsCheckResponse getCachedDnsCheckResponse(final DnsCheckRequest dnsCheckRequest) {
-        return dnsCheckResponses.get(dnsCheckRequest);
+    public DnsCheckResponse getCachedDnsCheckResponse(final Update update) {
+        return dnsCheckResponses.get(update);
+    }
+
+    @CheckForNull
+    public boolean hasDNSCheckFailed(final Update update) {
+        if(!dnsCheckResponses.containsKey(update)) {
+            return false;
+        }
+        return dnsCheckResponses.get(update).getMessages().stream().anyMatch(message -> message.getType() == Messages.Type.ERROR);
     }
 
     public void addMessage(final UpdateContainer updateContainer, final Message message) {

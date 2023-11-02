@@ -158,6 +158,64 @@ public class InverseQueryTestIntegration extends AbstractQueryIntegrationTest {
         assertThat(query("-i referral-by TEST"), containsString("\"referral-by\" is not a known attribute."));
     }
 
+
+    @Test
+    public void inverse_mnt_ref_person() {
+        databaseHelper.addObject(
+                "person:    Henry Mitchell\n" +
+                        "nic-hdl:   TEST-HM3\n" +
+                        "mnt-ref:   OWNER-MNT\n" +
+                        "source:    TEST");
+
+        final String response = query("-i mnt-ref OWNER-MNT");
+
+        assertThat(response, containsString("TEST-HM3"));
+    }
+
+    @Test
+    public void inverse_mnt_ref_role() {
+        databaseHelper.addObject(
+                "role:    tester\n" +
+                        "nic-hdl:   RL-TEST\n" +
+                        "mnt-ref:   OWNER-MNT\n" +
+                        "source:    TEST");
+
+        final String response = query("-i mnt-ref OWNER-MNT");
+
+        assertThat(response, containsString("RL-TEST"));
+    }
+
+    @Test
+    public void inverse_mnt_ref_irt() {
+        databaseHelper.addObject(
+                "irt: irt-IRT1\n" +
+                        "mnt-ref:   OWNER-MNT\n" +
+                        "source:    TEST");
+
+        final String response = query("-i mnt-ref OWNER-MNT");
+
+        assertThat(response, containsString("irt-IRT1"));
+    }
+
+    @Test
+    public void inverse_mnt_ref_mntner() {
+        databaseHelper.addObject(
+                "mntner: TEST-MNT\n" +
+                        "mnt-ref:   OWNER-MNT\n" +
+                        "mnt-by:   TEST-MNT\n" +
+                        "source:    TEST");
+
+        final String response = query("-i mnt-ref OWNER-MNT");
+
+        assertThat(response, containsString("TEST-MNT"));
+    }
+
+    @Test
+    public void inverse_mnt_ref_no_results() {
+        final String response = query("-i mnt-ref OWNER-MNT");
+
+        assertThat(response, containsString("no entries found"));
+    }
     private String query(final String query) {
         return TelnetWhoisClient.queryLocalhost(QueryServer.port, query);
     }

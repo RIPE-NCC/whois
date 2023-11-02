@@ -73,7 +73,7 @@ class NonAllocationAttributeValidationSpec extends BaseQueryUpdateSpec {
                 mnt-lower:    LIR-MNT
                 source:       TEST
                 password: lir
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:
@@ -111,7 +111,7 @@ class NonAllocationAttributeValidationSpec extends BaseQueryUpdateSpec {
                 mnt-lower:    LIR-MNT
                 source:       TEST
                 password: lir
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:
@@ -144,7 +144,7 @@ class NonAllocationAttributeValidationSpec extends BaseQueryUpdateSpec {
                 mnt-by:       LIR-MNT
                 source:       TEST
                 password: lir
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:
@@ -182,7 +182,7 @@ class NonAllocationAttributeValidationSpec extends BaseQueryUpdateSpec {
                 mnt-lower:    LIR2-MNT                     # added
                 source:       TEST
                 password: lir
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:
@@ -216,7 +216,7 @@ class NonAllocationAttributeValidationSpec extends BaseQueryUpdateSpec {
                 mnt-lower:    LIR-MNT        # added
                 source:       TEST
                 password: lir
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:
@@ -255,7 +255,7 @@ class NonAllocationAttributeValidationSpec extends BaseQueryUpdateSpec {
                 mnt-lower:    LIR-MNT
                 source:       TEST
                 override: denis,override1
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:
@@ -263,7 +263,7 @@ class NonAllocationAttributeValidationSpec extends BaseQueryUpdateSpec {
         ack.summary.nrFound == 1
         ack.summary.assertSuccess(1, 0, 1, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
-        ack.countErrorWarnInfo(0, 0, 1)
+        ack.countErrorWarnInfo(0, 2, 1)
         ack.successes.any { it.operation == "Modify" && it.key == "[inetnum] 192.168.1.0 - 192.168.1.255" }
     }
 }

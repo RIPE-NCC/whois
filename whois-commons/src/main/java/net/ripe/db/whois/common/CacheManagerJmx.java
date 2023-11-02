@@ -1,10 +1,15 @@
 package net.ripe.db.whois.common;
 
+import com.hazelcast.map.IMap;
+import com.hazelcast.map.LocalMapStats;
+import com.hazelcast.spring.cache.HazelcastCache;
 import net.ripe.db.whois.common.jmx.JmxBase;
-import net.sf.ehcache.CacheManager;
+import net.ripe.db.whois.common.profiles.DeployedProfile;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.Cache;
+import org.springframework.cache.CacheManager;
 import org.springframework.jmx.export.annotation.ManagedOperation;
 import org.springframework.jmx.export.annotation.ManagedOperationParameter;
 import org.springframework.jmx.export.annotation.ManagedOperationParameters;
@@ -12,6 +17,7 @@ import org.springframework.jmx.export.annotation.ManagedResource;
 import org.springframework.stereotype.Component;
 
 @Component
+@DeployedProfile
 @ManagedResource(objectName = JmxBase.OBJECT_NAME_BASE + "CacheManager", description = "Cache Manager operations")
 public class CacheManagerJmx extends JmxBase {
 
@@ -29,46 +35,19 @@ public class CacheManagerJmx extends JmxBase {
     @ManagedOperationParameters({
         @ManagedOperationParameter(name = "name", description = "cache name"),
     })
-    public String status(final String name) {
-        backgroundOperation("get cache status", name, () -> {
-
-            if (!cacheManager.cacheExists(name)) {
-                LOGGER.error("Cache {} doesn't exist?", name);
-                return null;
-            }
-
-            LOGGER.info(
-                "Cache {} is {}: Keys {} Size {} Evicted {} Expired {} Hits {} Hit Ratio {} Misses {} Puts {} Size {}",
-                    name,
-                    cacheManager.getCache(name).getStatus(),
-                    cacheManager.getCache(name).getKeys().size(),
-                    cacheManager.getCache(name).getSize(),
-                    cacheManager.getCache(name).getStatistics().cacheEvictedCount(),
-                    cacheManager.getCache(name).getStatistics().cacheExpiredCount(),
-                    cacheManager.getCache(name).getStatistics().cacheHitCount(),
-                    cacheManager.getCache(name).getStatistics().cacheHitRatio(),
-                    cacheManager.getCache(name).getStatistics().cacheMissCount(),
-                    cacheManager.getCache(name).getStatistics().cachePutCount(),
-                    cacheManager.getCache(name).getStatistics().getSize());
-
-            return null;
-        });
-        return "Get cache status " + name;
+    public void getStatus(final String name) {
+        final HazelcastCache cache = (HazelcastCache)cacheManager.getCache(name);
+        final IMap<Object, Object> nativeCache = cache.getNativeCache();
+        final LocalMapStats localMapStats = nativeCache.getLocalMapStats();
+        LOGGER.info("{} cache size is {} status is {}", name, nativeCache.size(), localMapStats);
     }
 
     @ManagedOperation(description = "Clear contents of cache")
     @ManagedOperationParameters({
-        @ManagedOperationParameter(name = "prefix", description = "clear contents of cache(s) starting with prefix"),
+        @ManagedOperationParameter(name = "name", description = "clear contents of named cache"),
     })
-    public String clearAll(final String prefix) {
-        backgroundOperation("clear contents of cache(s) starting with prefix", prefix, () -> {
-            cacheManager.clearAllStartingWith(prefix);
-            LOGGER.info("cacheManager.clearAllStartingWith {} completed.", prefix);
-            return null;
-        });
-        return "Clear contents of cache(s) starting with prefix " + prefix;
+    public void clearAll(final String name) {
+        final Cache cache = cacheManager.getCache(name);
+        cache.clear();
     }
-
-
-
 }

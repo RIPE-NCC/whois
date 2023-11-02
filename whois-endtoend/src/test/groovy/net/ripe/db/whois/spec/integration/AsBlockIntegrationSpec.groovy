@@ -100,7 +100,7 @@ class AsBlockIntegrationSpec extends BaseWhoisSourceSpec {
                         mnt-lower:      RIPE-DBM-MNT
                         source:         TEST
                         password:       update
-                        """.stripIndent())
+                        """.stripIndent(true))
         when:
         def response = syncUpdate(update);
 
@@ -127,7 +127,7 @@ class AsBlockIntegrationSpec extends BaseWhoisSourceSpec {
                         mnt-lower:      RIPE-DBM-MNT
                         source:         TEST
                         password:       update
-                        """.stripIndent())
+                        """.stripIndent(true))
         when:
         def response = syncUpdate(update)
 
@@ -154,7 +154,7 @@ class AsBlockIntegrationSpec extends BaseWhoisSourceSpec {
                         mnt-lower:      RIPE-DBM-MNT1
                         source:         TEST
                         password:       test
-                        """.stripIndent())
+                        """.stripIndent(true))
         when:
         def response = syncUpdate(update);
 
@@ -167,7 +167,7 @@ class AsBlockIntegrationSpec extends BaseWhoisSourceSpec {
     def "delete as-block"() {
         given:
         def update = new SyncUpdate(data: "" +
-                fixtures["AS222 - AS333"].stripIndent() +
+                fixtures["AS222 - AS333"].stripIndent(true) +
                 "delete: some reason\n" +
                 "password: update")
 

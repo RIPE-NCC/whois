@@ -2,6 +2,7 @@ package net.ripe.db.whois.update.domain;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
+import jakarta.ws.rs.InternalServerErrorException;
 import net.ripe.db.whois.common.ip.Interval;
 import net.ripe.db.whois.common.ip.IpInterval;
 import net.ripe.db.whois.common.rpsl.attrs.AsBlockRange;
@@ -13,7 +14,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
-import javax.ws.rs.InternalServerErrorException;
 import java.util.List;
 import java.util.Set;
 

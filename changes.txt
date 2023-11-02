@@ -1,6 +1,53 @@
 # next
 
-1.105
+# 1.108
+
+[nrtm] Use base64 instead of Hex (#1302)
+[nrtm] JSON Text Sequences (#1304)
+[rdap] Add multi mnt-by error (#1301)
+[rdap] Add remarks (#1278)
+[update] Warn when http (#1292)
+[api] Remove Lucene support (#1285)
+[api] Elasticsearch do not rebuild from scratch (#1294)
+[api] Elasticsearch use phrase without prefix due to bug (#1298)
+[api] Elasticsearch scape colons (#1299)
+[all] Jakarta / EE9 (#744)
+
+# 1.107
+
+[nrtm] NWI-14 add mnt-ref to additional object types (#1243)
+[nrtm] Sign NRTMv4 notifications (#1241)
+[nrtm] Separate job for NRTMv4 snapshot file (#1219)
+[api] Truncate long fields while indexing in Elasticsearch (#1236)
+[api] Elasticsearch filters inconsistence (#1231)
+[rdap] Limit resource lookups in RDAP organisation entity requests (#1220)
+[update] Allow any characters in local part of SSO auth email addresses (#1237)
+[update] LIR country attribute bug
+[all] Include country: in Organisation Split File (#1251)
+
+# 1.106.1
+
+[nrtm] NWI-12 NRTMv4 changes 
+[update] Updated Zonemaster client to match API Changes (#1206, #1207)
+[update] Add all warnings to update with override response (#1189)
+[rdap] Handle expected servlet exceptions in RDAP exception mapper (#1193)
+[rdap] Redirect Inverse Domain queries to the Authoritative Source (#1213)
+[api] Fix hightlight issue with dot in Elasticsearch (#1194)
+[api] UnmappedType warning for Elasticsearch (#1191)
+[all] Updated dependencies
+
+# 1.106
+
+[update] NWI-19 Implement AS_SET NONAUTH (#1169)
+[rdap] Implement "networks" and "autnums" elements in RDAP entity response (#1103)
+[rdap] Flat model, don't return as-block (#1125)
+[rdap] Refactor rdap errors (#1124)
+[rdap] Events and notices (#1112)
+[nrtm] NRTMv4 changes (#1166, #1156)
+[nrtm] initialise the nrtmv4 database (#1099)
+[all] Improve AS-SET documentation (#1147)
+
+# 1.105
 
 [update] NWI-19: Change to AS-SET object naming rules
 

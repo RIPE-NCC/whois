@@ -8,7 +8,6 @@ import net.ripe.db.whois.update.autokey.dao.NicHandleRepository;
 import net.ripe.db.whois.update.dao.CountryCodeRepository;
 import net.ripe.db.whois.update.domain.NicHandle;
 import net.ripe.db.whois.update.domain.UpdateMessages;
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -20,6 +19,7 @@ import java.util.Collections;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.fail;
 import static org.mockito.Mockito.when;
 
@@ -68,7 +68,7 @@ public class NicHandleFactoryTest {
 
     @Test
     public void generate_invalid_placeHolder() {
-        Assertions.assertThrows(IllegalArgumentException.class, () -> {
+        assertThrows(IllegalArgumentException.class, () -> {
             subject.generate("AUTO", RpslObject.parse("person: name"));
         });
     }

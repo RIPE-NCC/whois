@@ -2,29 +2,28 @@
 <beans xmlns="http://www.springframework.org/schema/beans"
        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:tx="http://www.springframework.org/schema/tx"
        xmlns:context="http://www.springframework.org/schema/context"
-       xmlns:cache="http://www.springframework.org/schema/cache"
        xsi:schemaLocation="http://www.springframework.org/schema/beans
                            http://www.springframework.org/schema/beans/spring-beans.xsd
-                           http://www.springframework.org/schema/tx
-                           http://www.springframework.org/schema/tx/spring-tx.xsd
                            http://www.springframework.org/schema/context
-                           http://www.springframework.org/schema/context/spring-context.xsd
-                           http://www.springframework.org/schema/cache
-                           http://www.springframework.org/schema/cache/spring-cache.xsd">
+                           http://www.springframework.org/schema/context/spring-context.xsd">
 
     <import resource="applicationContext-commons.xml"/>
-    <tx:annotation-driven mode="aspectj"/>
 
-    <context:spring-configured/>
     <context:component-scan base-package="net.ripe.db.nrtm4"/>
 
-    <context:annotation-config/>
-    <cache:annotation-driven/>
-
-    <bean id="nrtmDataSource" parent="abstractDataSource">
+    <bean id="nrtmMasterDataSource" parent="abstractDataSource">
         <property name="jdbcUrl" value="${nrtm.database.url}"/>
         <property name="user" value="${nrtm.database.username}"/>
         <property name="password" value="${nrtm.database.password}"/>
     </bean>
 
+    <bean id="nrtmSlaveDataSource" parent="abstractDataSource">
+        <property name="jdbcUrl" value="${nrtm.slave.database.url}"/>
+        <property name="user" value="${nrtm.slave.database.username}"/>
+        <property name="password" value="${nrtm.slave.database.password}"/>
+    </bean>
+
+    <bean id="nrtmTransactionManager" class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
+        <property name="dataSource" ref="nrtmMasterDataSource"/>
+    </bean>
 </beans>

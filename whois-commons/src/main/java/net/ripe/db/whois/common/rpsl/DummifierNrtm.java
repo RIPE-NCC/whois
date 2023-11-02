@@ -30,10 +30,9 @@ public class DummifierNrtm implements Dummifier {
             AttributeType.ZONE_C
     );
 
-    static final List<AttributeType> ATTRIBUTES_TO_KEEP = Lists.newArrayList(
-            AttributeType.ABUSE_C,
-            AttributeType.LAST_MODIFIED,
-            AttributeType.CREATED);
+    static final Map<ObjectType, List<AttributeType>> ATTRIBUTES_TO_KEEP_OBJECT_TYPE = Map.of(
+            ObjectType.MNTNER, Lists.newArrayList(AttributeType.LAST_MODIFIED,AttributeType.CREATED),
+            ObjectType.ORGANISATION, Lists.newArrayList(AttributeType.ABUSE_C,AttributeType.COUNTRY,AttributeType.LAST_MODIFIED,AttributeType.CREATED));
 
     static final Map<AttributeType, String> DUMMIFICATION_REPLACEMENTS = Maps.newEnumMap(AttributeType.class);
     static {
@@ -52,7 +51,7 @@ public class DummifierNrtm implements Dummifier {
 
         // [EB]: Shortcircuit for objects we'd normally skip for old protocols.
         if (version <= 2 && usePlaceHolder(rpslObject)) {
-            return objectType.equals(ObjectType.ROLE) ? getPlaceholderRoleObject() : getPlaceholderPersonObject();
+            return getPlaceholderPersonObject();
         }
 
         final List<RpslAttribute> attributes = Lists.newArrayList(rpslObject.getAttributes());
@@ -66,14 +65,14 @@ public class DummifierNrtm implements Dummifier {
         return new RpslObject(rpslObject, attributes);
     }
 
-    private void stripSomeNonMandatoryAttributes(List<RpslAttribute> attributes, ObjectType objectType) {
-        if (!STRIPPED_OBJECT_TYPES.contains(objectType)) {
+    private void stripSomeNonMandatoryAttributes(final List<RpslAttribute> attributes, final ObjectType objectType) {
+        if (!ATTRIBUTES_TO_KEEP_OBJECT_TYPE.containsKey(objectType)) {
             return;
         }
         final ObjectTemplate objectTemplate = ObjectTemplate.getTemplate(objectType);
         final Set<AttributeType> mandatoryAttributes = objectTemplate.getMandatoryAttributes();
 
-        attributes.removeIf(attribute -> !mandatoryAttributes.contains(attribute.getType()) && !ATTRIBUTES_TO_KEEP.contains(attribute.getType()));
+        attributes.removeIf(attribute -> !mandatoryAttributes.contains(attribute.getType()) && !ATTRIBUTES_TO_KEEP_OBJECT_TYPE.get(objectType).contains(attribute.getType()));
     }
 
     private void dummifyRemainingAttributes(final List<RpslAttribute> attributes, final CIString key) {
@@ -224,31 +223,6 @@ public class DummifierNrtm implements Dummifier {
                         "address:        The Netherlands\n" +
                         "phone:          +31 20 535 4444\n" +
                         "nic-hdl:        DUMY-RIPE\n" +
-                        "mnt-by:         RIPE-DBM-MNT\n" +
-                        "remarks:        **********************************************************\n" +
-                        "remarks:        * This is a placeholder object to protect personal data.\n" +
-                        "remarks:        * To view the original object, please query the RIPE\n" +
-                        "remarks:        * Database at:\n" +
-                        "remarks:        * http://www.ripe.net/whois\n" +
-                        "remarks:        **********************************************************\n" +
-                        "created:        2009-07-24T17:00:00Z\n" +
-                        "last-modified:  2009-07-24T17:00:00Z\n" +
-                        "source:         RIPE"
-        );
-    }
-
-    public static RpslObject getPlaceholderRoleObject() {
-        return RpslObject.parse("" +
-                        "role:           Placeholder Role Object\n" +
-                        "address:        RIPE Network Coordination Centre\n" +
-                        "address:        P.O. Box 10096\n" +
-                        "address:        1001 EB Amsterdam\n" +
-                        "address:        The Netherlands\n" +
-                        "phone:          +31 20 535 4444\n" +
-                        "e-mail:         ripe-dbm@ripe.net\n" +
-                        "admin-c:        DUMY-RIPE\n" +
-                        "tech-c:         DUMY-RIPE\n" +
-                        "nic-hdl:        ROLE-RIPE\n" +
                         "mnt-by:         RIPE-DBM-MNT\n" +
                         "remarks:        **********************************************************\n" +
                         "remarks:        * This is a placeholder object to protect personal data.\n" +

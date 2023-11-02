@@ -1,17 +1,17 @@
 package net.ripe.db.whois.common.rpsl.attrs;
 
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 public class MntRoutesTest {
 
     @Test
     public void empty() {
-        Assertions.assertThrows(AttributeParseException.class, () -> {
+        assertThrows(AttributeParseException.class, () -> {
             MntRoutes.parse("");
         });
     }
@@ -36,7 +36,7 @@ public class MntRoutesTest {
 
     @Test
     public void maintainer_with_any_and_range() {
-        Assertions.assertThrows(AttributeParseException.class, () -> {
+        assertThrows(AttributeParseException.class, () -> {
             MntRoutes.parse("RIPE-NCC-RPSL-MNT { ANY,194.104.182.0/24^+ }");
         });
     }
@@ -64,14 +64,14 @@ public class MntRoutesTest {
 
     @Test
     public void maintainer_with_any_inside_brackets() {
-        Assertions.assertThrows(AttributeParseException.class, () -> {
+        assertThrows(AttributeParseException.class, () -> {
             MntRoutes.parse("TEST-MNT { ANY }");
         });
     }
 
     @Test
     public void maintainer_with_any_inside_brackets_no_padding_space() {
-        Assertions.assertThrows(AttributeParseException.class, () -> {
+        assertThrows(AttributeParseException.class, () -> {
             MntRoutes.parse("TEST-MNT {ANY}");
         });
     }

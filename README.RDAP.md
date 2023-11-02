@@ -16,13 +16,9 @@ Multiple organisation e-mail and phone attributes are returned, but not with pre
 ----------------------------------------------------------------------------------------
 Preferences are not assigned to multiple e-mail or phone elements.
 
-AS block returned if AS number not found
+Flat AS Model
 ----------------------------------------
-If an AS number is allocated to the RIPE region, that is returned.
-
-If an AS number is allocated to a different region, a redirect is returned.
-
-If an AS number is not allocated to any region, the parent AS block is returned. This includes reserved AS numbers.
+Not Found (404) is thrown if AS number is not found.
 
 Custom "ZONE" role for domain objects
 -------------------------------------
@@ -58,18 +54,6 @@ Netname may not match Whois
 ----------------------------
 The netname value returned by RDAP may not match what is returned by Whois.
 
-Entity does not include networks
----------------------------------
-An entity (i.e. for an organisation) should include any related networks. 
-
-This list of networks should have a maximum size to prevent the response from growing too large and taking too long.
-
-Ref. RFC 7483, Section 5.1 The Entity Object Class. (https://tools.ietf.org/html/rfc7483#section-5.1).
-
-Example:
-* Request: http://rdap.db.ripe.net/entity/ORG-RIEN1-RIPE
- * Response: Should include "networks" element with referenced networks, including 193.0.0.0 - 193.0.23.255
-
 Nameserver queries always return Not Implemented
 -------------------------------------------------
 The RIPE database doesn't contain any forward domain objects, consequently a nameserver query will always return Not Implemented.
@@ -77,3 +61,9 @@ The RIPE database doesn't contain any forward domain objects, consequently a nam
 Only "mnt-by:" Maintainers are Listed as Registrants
 -----------------------------------------------------
 Only maintainers referenced in "mnt-by:" attributes will be listed as Registrants in responses.
+
+Objects with "administrative" status are not returned
+-----------------------------------------------------
+If the prefix is either delegated but unallocated or only partially delegated to the RIPE region, then a 404 is returned. An object with "administrative" status is never returned.
+
+Refer to NRO RDAP Profile section 4.5. "Status"

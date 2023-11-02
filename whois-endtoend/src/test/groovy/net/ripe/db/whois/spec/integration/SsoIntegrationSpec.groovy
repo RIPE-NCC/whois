@@ -48,7 +48,7 @@ class SsoIntegrationSpec extends BaseWhoisSourceSpec {
                             mnt-by: TEST-MNT3
                             source: TEST
                             password: update3
-                            """.stripIndent()))
+                            """.stripIndent(true)))
       expect:
         response =~ /SUCCESS/
 
@@ -116,7 +116,7 @@ source:         TEST # Filtered/
                             mnt-by: TEST-MNT3
                             source: TEST
                             password: update3
-                            """.stripIndent()))
+                            """.stripIndent(true)))
 
         notificationFor("nfy@ripe.net")
 
@@ -130,7 +130,7 @@ source:         TEST # Filtered/
                             mnt-by: TEST-MNT3
                             source: TEST
                             password: update3
-                            """.stripIndent()))
+                            """.stripIndent(true)))
       expect:
         response =~ /SUCCESS/
 

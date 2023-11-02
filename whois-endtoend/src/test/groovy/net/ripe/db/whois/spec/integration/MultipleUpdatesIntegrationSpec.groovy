@@ -51,7 +51,7 @@ class MultipleUpdatesIntegrationSpec extends BaseWhoisSourceSpec {
                 source:  TEST
 
                 password: update
-                """.stripIndent())
+                """.stripIndent(true))
 
 
       when:
@@ -84,7 +84,7 @@ class MultipleUpdatesIntegrationSpec extends BaseWhoisSourceSpec {
                 source:  TEST
 
                 password: update
-                """.stripIndent())
+                """.stripIndent(true))
 
 
       when:
@@ -135,7 +135,7 @@ class MultipleUpdatesIntegrationSpec extends BaseWhoisSourceSpec {
                 source:  TEST
 
                 password: update
-                """.stripIndent())
+                """.stripIndent(true))
 
 
       when:
@@ -170,7 +170,7 @@ class MultipleUpdatesIntegrationSpec extends BaseWhoisSourceSpec {
                 source:  TEST
 
                 password: update
-                """.stripIndent())
+                """.stripIndent(true))
 
 
       when:
@@ -203,7 +203,7 @@ class MultipleUpdatesIntegrationSpec extends BaseWhoisSourceSpec {
                 source:  TEST
 
                 password: update
-                """.stripIndent())
+                """.stripIndent(true))
 
 
       when:
@@ -237,7 +237,7 @@ class MultipleUpdatesIntegrationSpec extends BaseWhoisSourceSpec {
                 source:  TEST
 
                 password: update
-                """.stripIndent())
+                """.stripIndent(true))
 
 
       when:
@@ -271,7 +271,7 @@ class MultipleUpdatesIntegrationSpec extends BaseWhoisSourceSpec {
 
                 password: update
                 password: emptypassword
-                """.stripIndent())
+                """.stripIndent(true))
 
 
       when:
@@ -315,7 +315,7 @@ class MultipleUpdatesIntegrationSpec extends BaseWhoisSourceSpec {
 
                 password: update
                 password: emptypassword
-                """.stripIndent())
+                """.stripIndent(true))
 
       when:
         def response = syncUpdate update
@@ -359,7 +359,7 @@ class MultipleUpdatesIntegrationSpec extends BaseWhoisSourceSpec {
 
                 password: update
                 password: emptypassword
-                """.stripIndent())
+                """.stripIndent(true))
 
       when:
         def response = syncUpdate update
@@ -413,7 +413,7 @@ class MultipleUpdatesIntegrationSpec extends BaseWhoisSourceSpec {
                 mnt-by:  TST-MNT
                 source:  TEST
                 delete: allows removing maintainer
-                """.stripIndent())
+                """.stripIndent(true))
 
 
       when:
@@ -454,7 +454,7 @@ class MultipleUpdatesIntegrationSpec extends BaseWhoisSourceSpec {
                 upd-to: dbtest@ripe.net
                 auth: MD5-PW \$1\$/7f2XnzQ\$p5ddbI7SXq4z4yNrObFS/0 # emptypassword
                 source: TEST
-                """.stripIndent())
+                """.stripIndent(true))
 
       when:
         def response = syncUpdate update
