@@ -11,15 +11,8 @@ import com.fasterxml.jackson.module.jakarta.xmlbind.JakartaXmlBindAnnotationIntr
 import jakarta.ws.rs.client.Client;
 import jakarta.ws.rs.client.ClientBuilder;
 import jakarta.ws.rs.client.WebTarget;
+import net.ripe.db.whois.api.rest.client.RestClientUtils;
 import org.glassfish.jersey.media.multipart.MultiPartFeature;
-
-import javax.net.ssl.SSLContext;
-import javax.net.ssl.TrustManager;
-import javax.net.ssl.X509TrustManager;
-import java.security.KeyManagementException;
-import java.security.NoSuchAlgorithmException;
-import java.security.cert.CertificateException;
-import java.security.cert.X509Certificate;
 
 public class SecureRestTest extends RestTest {
 
@@ -36,28 +29,8 @@ public class SecureRestTest extends RestTest {
                 .configure(DeserializationFeature.ACCEPT_SINGLE_VALUE_AS_ARRAY, true);
         jsonProvider.setMapper(objectMapper);
 
-        final SSLContext sslContext;
-        try {
-            sslContext = SSLContext.getInstance("TLS");
-            sslContext.init(null, new TrustManager[]{
-                new X509TrustManager() {
-                    @Override
-                    public void checkClientTrusted(final X509Certificate[] arg0, final String arg1) throws CertificateException {
-                    }
-                    @Override
-                    public void checkServerTrusted(final X509Certificate[] arg0, final String arg1) throws CertificateException {
-                    }
-                    @Override
-                    public X509Certificate[] getAcceptedIssuers() {
-                        return new X509Certificate[0];
-                    }
-            }}, new java.security.SecureRandom());
-        } catch (NoSuchAlgorithmException | KeyManagementException e) {
-            throw new IllegalStateException(e);
-        }
-
         client = ClientBuilder.newBuilder()
-                .sslContext(sslContext)
+                .sslContext(RestClientUtils.trustAllSSLContext())
                 .hostnameVerifier((hostname, session) -> true)
                 .register(MultiPartFeature.class)
                 .register(jsonProvider)
@@ -67,5 +40,6 @@ public class SecureRestTest extends RestTest {
     public static WebTarget target(final int port, final String path) {
         return client.target(String.format("https://localhost:%d/%s", port, path));
     }
+
 
 }
