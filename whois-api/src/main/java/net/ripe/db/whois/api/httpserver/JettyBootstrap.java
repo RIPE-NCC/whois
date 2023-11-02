@@ -425,6 +425,6 @@ public class JettyBootstrap implements ApplicationService {
 
     private boolean isHttpProxy() {
         // if we are not handling HTTPS then assume a loadbalancer is proxying requests
-        return securePort == 0;
+        return securePort < 0;
     }
 }
