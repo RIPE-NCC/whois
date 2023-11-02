@@ -137,6 +137,8 @@ public class JettyBootstrap implements ApplicationService {
     @Override
     public void start() {
         this.server = createAndStartServer();
+        updatePorts();
+        logJettyStarted();
         logHttpsConfig();
     }
 
@@ -306,9 +308,6 @@ public class JettyBootstrap implements ApplicationService {
 
         final ServerConnector sslConnector = new ServerConnector(server, sslConnectionFactory, alpn, h2, new HttpConnectionFactory(httpsConfiguration));
         sslConnector.setPort(this.securePort);
-
-        LOGGER.info("Jetty secure port {}", this.securePort);
-
         return sslConnector;
     }
 
@@ -348,8 +347,6 @@ public class JettyBootstrap implements ApplicationService {
     @RetryFor(attempts = 5, value = Exception.class)
     private Server startServer(final Server server) throws Exception {
         server.start();
-        this.port = ((NetworkConnector)server.getConnectors()[0]).getLocalPort();
-        LOGGER.info("Jetty started on port {}", this.port);
         return server;
     }
 
@@ -393,6 +390,26 @@ public class JettyBootstrap implements ApplicationService {
 
                 }
             }
+        }
+    }
+
+    // Update port numbers once server has started (if initially set to 0, a random unused port is used)
+    private void updatePorts() {
+        for (Connector connector : this.server.getConnectors()) {
+            final int localPort = ((NetworkConnector) connector).getLocalPort();
+            if (connector.getProtocols().contains("ssl")) {
+                this.securePort = localPort;
+            } else {
+                this.port = localPort;
+            }
+        }
+    }
+
+    private void logJettyStarted() {
+        if (this.securePort > 0) {
+            LOGGER.info("Jetty started on HTTP port {} HTTPS port {}", this.port, this.securePort);
+        } else {
+            LOGGER.info("Jetty started on HTTP port {} (NO HTTPS)", this.port);
         }
     }
 
