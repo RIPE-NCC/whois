@@ -100,6 +100,7 @@ public class JettyBootstrap implements ApplicationService {
     private final String trustedIpRanges;
     private final boolean rewriteEngineEnabled;
     private final boolean dosFilterEnabled;
+    private final boolean sniHostCheck;
     private Server server;
     private int securePort;
     private int port;
@@ -112,6 +113,7 @@ public class JettyBootstrap implements ApplicationService {
                           final RewriteEngine rewriteEngine,
                           @Value("${ipranges.trusted}") final String trustedIpRanges,
                           @Value("${http.idle.timeout.sec:60}") final int idleTimeout,
+                          @Value("${http.sni.host.check:true}") final boolean sniHostCheck,
                           @Value("${dos.filter.enabled:false}") final boolean dosFilterEnabled,
                           @Value("${rewrite.engine.enabled:false}") final boolean rewriteEngineEnabled,
                           final WhoisKeystore whoisKeystore,
@@ -128,6 +130,7 @@ public class JettyBootstrap implements ApplicationService {
         LOGGER.info("Rewrite engine is {}abled", rewriteEngineEnabled ? "en" : "dis");
         this.dosFilterMBeanName = ObjectName.getInstance("net.ripe.db.whois:name=DosFilter");
         this.dosFilterEnabled = dosFilterEnabled;
+        this.sniHostCheck = sniHostCheck;
         this.idleTimeout = idleTimeout;
         this.securePort = securePort;
         this.port = port;
@@ -296,7 +299,14 @@ public class JettyBootstrap implements ApplicationService {
         sslContextFactory.setExcludeProtocols(DEFAULT_EXCLUDED_PROTOCOLS);
 
         final HttpConfiguration httpsConfiguration = new HttpConfiguration();
-        httpsConfiguration.addCustomizer(new SecureRequestCustomizer());
+
+        final SecureRequestCustomizer secureRequestCustomizer = new SecureRequestCustomizer();
+        if (!sniHostCheck) {
+            LOGGER.warn("SNI host check is OFF");   // normally off for testing on localhost
+            secureRequestCustomizer.setSniHostCheck(false);
+        }
+        httpsConfiguration.addCustomizer(secureRequestCustomizer);
+
         httpsConfiguration.setIdleTimeout(idleTimeout * 1000L);
         httpsConfiguration.setUriCompliance(UriCompliance.LEGACY);
 
