@@ -1,32 +1,17 @@
 package net.ripe.db.whois.api.httpserver;
 
 import com.google.common.util.concurrent.Uninterruptibles;
-import org.bouncycastle.asn1.x500.X500Name;
-import org.bouncycastle.asn1.x509.SubjectPublicKeyInfo;
-import org.bouncycastle.cert.X509CertificateHolder;
-import org.bouncycastle.cert.X509v3CertificateBuilder;
-import org.bouncycastle.jce.provider.BouncyCastleProvider;
-import org.bouncycastle.openssl.jcajce.JcaPEMWriter;
-import org.bouncycastle.operator.ContentSigner;
-import org.bouncycastle.operator.OperatorCreationException;
-import org.bouncycastle.operator.jcajce.JcaContentSignerBuilder;
 import org.junit.jupiter.api.Test;
 
-import javax.annotation.Nullable;
 import java.io.File;
-import java.io.FileWriter;
 import java.io.IOException;
-import java.math.BigInteger;
 import java.nio.file.Files;
 import java.nio.file.StandardCopyOption;
-import java.security.KeyPair;
-import java.security.KeyPairGenerator;
 import java.security.KeyStore;
+import java.security.KeyStoreException;
 import java.security.NoSuchAlgorithmException;
-import java.security.PrivateKey;
-import java.time.Instant;
-import java.time.temporal.ChronoUnit;
-import java.util.Date;
+import java.security.cert.Certificate;
+import java.security.cert.CertificateException;
 import java.util.concurrent.TimeUnit;
 
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -56,7 +41,7 @@ class WhoisKeystoreTest {
 
     @Test
     public void create_keystore() {
-        final TestData testData = generateTestData();
+        final CertificatePrivateKeyPair testData = new CertificatePrivateKeyPair();
 
         final WhoisKeystore subject = generateWhoisKeystore(testData);
 
@@ -66,7 +51,7 @@ class WhoisKeystoreTest {
 
     @Test
     public void keystore_outdated() throws Exception {
-        final TestData testData = generateTestData("cn=one");
+        final CertificatePrivateKeyPair testData = new CertificatePrivateKeyPair("cn=one");
 
         final WhoisKeystore subject = generateWhoisKeystore(testData);
 
@@ -76,8 +61,8 @@ class WhoisKeystoreTest {
         Uninterruptibles.sleepUninterruptibly(1L, TimeUnit.SECONDS);
 
         // generate new certificate
-        final TestData moreTestData = generateTestData("cn=two");
-        Files.copy(new File(moreTestData.certificateFilename).toPath(), new File(testData.certificateFilename).toPath(), StandardCopyOption.REPLACE_EXISTING);
+        final CertificatePrivateKeyPair moreTestData = new CertificatePrivateKeyPair("cn=two");
+        Files.copy(new File(moreTestData.getCertificateFilename()).toPath(), new File(testData.getCertificateFilename()).toPath(), StandardCopyOption.REPLACE_EXISTING);
         assertThat(subject.isKeystoreOutdated(), is(true));
 
         // load new certificate
@@ -90,84 +75,16 @@ class WhoisKeystoreTest {
 
     // helper methods
 
-    private TestData generateTestData() {
-        return generateTestData("CN=subject");
+    private static WhoisKeystore generateWhoisKeystore(final CertificatePrivateKeyPair testData) {
+        return new WhoisKeystore(new String[]{testData.getPrivateKeyFilename()}, new String[]{testData.getCertificateFilename()}, null);
     }
 
-    private TestData generateTestData(final String certificateAlias) {
-        try {
-            final KeyPair keyPair = generateKeyPair();
-            final X509CertificateHolder certificate = generateCertificate(keyPair, certificateAlias);
-            return new TestData(certificate, keyPair.getPrivate());
-        } catch (NoSuchAlgorithmException | OperatorCreationException | IOException e) {
-            throw new IllegalStateException(e);
-        }
-    }
-
-    private KeyPair generateKeyPair() throws NoSuchAlgorithmException {
-        return KeyPairGenerator.getInstance("RSA").generateKeyPair();
-    }
-
-    private X509CertificateHolder generateCertificate(final KeyPair keyPair, final String alias) throws OperatorCreationException {
-        final SubjectPublicKeyInfo publicKeyInfo = SubjectPublicKeyInfo.getInstance(keyPair.getPublic().getEncoded());
-
-        final Date notBefore = Date.from(Instant.now().minus(1L, ChronoUnit.DAYS));
-        final Date notAfter = Date.from(Instant.now().plus(1L, ChronoUnit.DAYS));
-
-        final X509v3CertificateBuilder certificateBuilder = new X509v3CertificateBuilder(
-                new X500Name("CN=issuer"),
-                BigInteger.ONE,
-                notBefore,
-                notAfter,
-                new X500Name(alias),    // subject
-                publicKeyInfo);
-        final ContentSigner signer = new JcaContentSignerBuilder("SHA256WithRSA")
-                .setProvider(new BouncyCastleProvider())
-                .build(keyPair.getPrivate());
-
-        return certificateBuilder.build(signer);
-    }
-
-    private static WhoisKeystore generateWhoisKeystore(final TestData testData) {
-        return new WhoisKeystore(new String[]{testData.privateKeyFilename}, new String[]{testData.certificateFilename}, null);
-    }
-
-    @Nullable
-    private static java.security.cert.Certificate loadCertificateFromKeystore(final String keystoreFilename, final String keystorePassword, final String alias) {
+    private static Certificate loadCertificateFromKeystore(final String keystoreFilename, final String keystorePassword, final String alias) {
         try {
             final KeyStore keystore = KeyStore.getInstance(new File(keystoreFilename), keystorePassword.toCharArray());
             return keystore.getCertificate(alias);
-        } catch (Exception e) {
-            return null;
-        }
-    }
-
-    private static class TestData {
-        private final String certificateFilename;
-        private final String privateKeyFilename;
-
-        public TestData(final X509CertificateHolder certificate, final PrivateKey privateKey) throws IOException {
-            this.certificateFilename = writeCertificateFile(certificate);
-            this.privateKeyFilename = writePrivateKey(privateKey);
-        }
-
-        private static String writeCertificateFile(final X509CertificateHolder certificate) throws IOException {
-            return writeObjectToFile(certificate, "certificate", "crt");
-        }
-
-        private static String writePrivateKey(final PrivateKey privateKey) throws IOException {
-            return writeObjectToFile(privateKey, "privatekey", "key");
-        }
-
-        private static String writeObjectToFile(final Object object, final String prefix, final String suffix) throws IOException {
-            return writeObjectToFile(object, Files.createTempFile(prefix, suffix).toFile());
-        }
-
-        private static String writeObjectToFile(final Object object, final File file) throws IOException {
-            try (final JcaPEMWriter writer = new JcaPEMWriter(new FileWriter(file))) {
-                writer.writeObject(object);
-            }
-            return file.getAbsolutePath();
+        } catch (CertificateException | KeyStoreException | NoSuchAlgorithmException | IOException e) {
+            throw new IllegalStateException(e);
         }
     }
 
