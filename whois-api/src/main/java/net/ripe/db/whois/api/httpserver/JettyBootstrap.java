@@ -102,7 +102,7 @@ public class JettyBootstrap implements ApplicationService {
     private final boolean dosFilterEnabled;
     private Server server;
     private int securePort;
-    private int port = 0;
+    private int port;
     private final int idleTimeout;
 
     @Autowired
@@ -116,7 +116,7 @@ public class JettyBootstrap implements ApplicationService {
                           @Value("${rewrite.engine.enabled:false}") final boolean rewriteEngineEnabled,
                           final WhoisKeystore whoisKeystore,
                           @Value("${port.api:0}") final int port,
-                          @Value("${port.api.secure:0}") final int securePort
+                          @Value("${port.api.secure:-1}") final int securePort
               ) throws MalformedObjectNameException {
         this.remoteAddressFilter = remoteAddressFilter;
         this.extensionOverridesAcceptHeaderFilter = extensionOverridesAcceptHeaderFilter;
@@ -148,6 +148,10 @@ public class JettyBootstrap implements ApplicationService {
         return this.port;
     }
 
+    public int getSecurePort() {
+        return this.securePort;
+    }
+
     public Server getServer() {
         return this.server;
     }
@@ -170,7 +174,7 @@ public class JettyBootstrap implements ApplicationService {
     private Server createServer() {
         final Server server = new Server();
 
-        if (this.securePort > 0) {
+        if (this.securePort >= 0) {
              server.setConnectors(new Connector[]{createConnector(server), createSecureConnector(server)});
          } else {
              server.setConnectors(new Connector[]{createConnector(server)});
