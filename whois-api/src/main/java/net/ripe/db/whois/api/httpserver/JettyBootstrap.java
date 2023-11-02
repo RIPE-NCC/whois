@@ -125,7 +125,7 @@ public class JettyBootstrap implements ApplicationService {
         this.whoisKeystore = whoisKeystore;
         this.trustedIpRanges = trustedIpRanges;
         this.rewriteEngineEnabled = rewriteEngineEnabled;
-        LOGGER.info("Rewrite engine is {}abled", rewriteEngineEnabled? "en" : "dis");
+        LOGGER.info("Rewrite engine is {}abled", rewriteEngineEnabled ? "en" : "dis");
         this.dosFilterMBeanName = ObjectName.getInstance("net.ripe.db.whois:name=DosFilter");
         this.dosFilterEnabled = dosFilterEnabled;
         this.idleTimeout = idleTimeout;
@@ -211,7 +211,12 @@ public class JettyBootstrap implements ApplicationService {
 
     private Connector createConnector(final Server server) {
         final HttpConfiguration httpConfiguration = new HttpConfiguration();
-        httpConfiguration.addCustomizer(new RemoteAddressCustomizer());
+        if (isHttpProxy()) {
+            // client address is set in X-Forwarded-For header by HTTP proxy
+            httpConfiguration.addCustomizer(new RemoteAddressCustomizer());
+            // request protocol is set in X-Forwarded-Proto header by HTTP proxy
+            httpConfiguration.addCustomizer(new ProtocolCustomizer());
+        }
         httpConfiguration.setIdleTimeout(idleTimeout * 1000L);
         httpConfiguration.setUriCompliance(UriCompliance.LEGACY);
         final ServerConnector connector = new ServerConnector(server, new HttpConnectionFactory(httpConfiguration), new HTTP2CServerConnectionFactory(httpConfiguration));
@@ -387,4 +392,8 @@ public class JettyBootstrap implements ApplicationService {
         }
     }
 
+    private boolean isHttpProxy() {
+        // if we are not handling HTTPS then assume a loadbalancer is proxying requests
+        return securePort == 0;
+    }
 }

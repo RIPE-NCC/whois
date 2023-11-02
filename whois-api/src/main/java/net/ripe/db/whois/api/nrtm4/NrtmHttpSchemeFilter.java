@@ -1,6 +1,5 @@
 package net.ripe.db.whois.api.nrtm4;
 
-import com.google.common.net.HttpHeaders;
 import jakarta.servlet.Filter;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.FilterConfig;
@@ -30,14 +29,14 @@ public class NrtmHttpSchemeFilter implements Filter {
     }
 
     @Override
-    public void init(FilterConfig filterConfig) throws ServletException {
+    public void init(final FilterConfig filterConfig) throws ServletException {
     }
 
     @Override
     public void destroy() {
     }
 
-    private boolean isHttps(HttpServletRequest request) {
-        return HttpScheme.HTTPS.is(request.getHeader(HttpHeaders.X_FORWARDED_PROTO));
+    private boolean isHttps(final HttpServletRequest request) {
+        return HttpScheme.HTTPS.is(request.getScheme());
     }
 }
