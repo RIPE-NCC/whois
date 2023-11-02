@@ -17,7 +17,7 @@ import java.util.concurrent.TimeUnit;
 
 @ContextConfiguration(locations = {"classpath:applicationContext-api-test.xml"})
 public abstract class AbstractIntegrationTest extends AbstractDaoIntegrationTest {
-    @Autowired JettyBootstrap jettyBootstrap;
+    @Autowired protected JettyBootstrap jettyBootstrap;
     @Autowired protected List<ApplicationService> applicationServices;
 
     @BeforeEach

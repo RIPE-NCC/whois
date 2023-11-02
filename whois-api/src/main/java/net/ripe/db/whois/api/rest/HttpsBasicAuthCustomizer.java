@@ -10,7 +10,6 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletRequestWrapper;
 import jakarta.servlet.http.HttpServletResponse;
 import org.apache.commons.lang3.StringUtils;
-import org.eclipse.jetty.http.HttpScheme;
 import org.eclipse.jetty.http.HttpStatus;
 import org.springframework.stereotype.Component;
 
@@ -33,7 +32,7 @@ public class HttpsBasicAuthCustomizer implements Filter {
 
         final HttpServletRequest httpRequest = (HttpServletRequest) request;
 
-        if (!isHttps(httpRequest)){
+        if (RestServiceHelper.isHttpProtocol(httpRequest)){
             final HttpServletResponse httpResponse = (HttpServletResponse)response;
             httpResponse.sendError(HttpStatus.UPGRADE_REQUIRED_426, "HTTPS required for Basic authorization");
             return;
@@ -47,7 +46,7 @@ public class HttpsBasicAuthCustomizer implements Filter {
            return false;
        }
 
-       if(!isBasicAuth((HttpServletRequest) request)) {
+       if(!RestServiceHelper.isBasicAuth((HttpServletRequest) request)) {
             return false;
        }
 
@@ -78,15 +77,6 @@ public class HttpsBasicAuthCustomizer implements Filter {
 
             return modifiedQueryString.append("password=").append(basicAuthPassword).toString();
         }
-    }
-
-    private boolean isHttps(final HttpServletRequest request) {
-        return HttpScheme.HTTPS.toString().equals(request.getScheme());
-    }
-
-    private boolean isBasicAuth(final HttpServletRequest request) {
-        final String authorization = request.getHeader(HttpHeaders.AUTHORIZATION);
-        return authorization != null && authorization.toUpperCase().startsWith(BASIC_AUTH);
     }
 
     private static String getBasicAuthPassword(final String authHeader){

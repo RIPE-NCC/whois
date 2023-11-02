@@ -43,22 +43,22 @@ public class RestTest {
                 .build();
     }
 
-    public static final WebTarget target(final int port, final String path) {
+    public static WebTarget target(final int port, final String path) {
         return client.target(String.format("http://localhost:%d/%s", port, path));
     }
 
-    public static final WebTarget target(final int port, final String path, String queryParam) {
+    public static WebTarget target(final int port, final String path, String queryParam) {
         return client.target(String.format("http://localhost:%d/%s?%s", port, path,
                 StringUtils.isBlank(queryParam) ? "" : queryParam));
     }
 
-    public static final WebTarget target(final int port, final String path, String queryParam, final String apiKey) {
+    public static WebTarget target(final int port, final String path, String queryParam, final String apiKey) {
         return client.target(String.format("http://localhost:%d/%s?%sapiKey=%s", port, path,
                 StringUtils.isBlank(queryParam) ? "" : queryParam + "&",
                 apiKey));
     }
 
-    public static final WebTarget target(final int port, final String path, final String pathParam, String queryParam, final String apiKey) {
+    public static WebTarget target(final int port, final String path, final String pathParam, String queryParam, final String apiKey) {
         return client.target(String.format("http://localhost:%d/%s/%s?%sapiKey=%s", port, path, RestClientUtils.encode(pathParam),
                 StringUtils.isBlank(queryParam) ? "" : queryParam + "&",
                 apiKey));

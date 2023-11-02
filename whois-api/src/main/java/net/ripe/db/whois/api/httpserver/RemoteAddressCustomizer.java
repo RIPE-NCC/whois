@@ -15,8 +15,8 @@ import java.net.InetSocketAddress;
 import java.util.Enumeration;
 
 /**
- * X-Forwarded-For address will replace the request address.
- * In case of multiple (comma separated) ip address in X-Forwarded-For, rightmost will replace the request address.
+ * When HTTP requests are proxied via a loadbalancer, the X-Forwarded-For value will replace the request address.
+ * In case of multiple (comma separated) values in X-Forwarded-For, the last value is used.
  */
 public class RemoteAddressCustomizer  implements HttpConfiguration.Customizer {
 
@@ -25,7 +25,7 @@ public class RemoteAddressCustomizer  implements HttpConfiguration.Customizer {
     private static final Splitter COMMA_SPLITTER = Splitter.on(',').omitEmptyStrings().trimResults();
 
     @Override
-    public void customize(Connector connector, HttpConfiguration httpConfiguration, Request request) {
+    public void customize(final Connector connector, final HttpConfiguration httpConfiguration, final Request request) {
         request.setRemoteAddr(InetSocketAddress.createUnresolved(getRemoteAddress(request), request.getRemotePort()));
         LOGGER.debug("Received client ip is {}", request.getRemoteAddr());
     }
