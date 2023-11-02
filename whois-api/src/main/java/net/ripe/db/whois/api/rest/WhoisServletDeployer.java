@@ -15,6 +15,7 @@ import net.ripe.db.whois.api.fulltextsearch.FullTextSearchService;
 import net.ripe.db.whois.api.healthcheck.HealthCheckService;
 import net.ripe.db.whois.api.httpserver.DefaultExceptionMapper;
 import net.ripe.db.whois.api.httpserver.ServletDeployer;
+import net.ripe.db.whois.api.nrtm4.NrtmCacheControl;
 import net.ripe.db.whois.api.rest.domain.WhoisResources;
 import org.eclipse.jetty.servlet.FilterHolder;
 import org.eclipse.jetty.servlet.ServletHolder;
@@ -45,6 +46,7 @@ public class WhoisServletDeployer implements ServletDeployer {
     private final ReferencesService referencesService;
     private final DefaultExceptionMapper defaultExceptionMapper;
     private final MaintenanceModeFilter maintenanceModeFilter;
+    private final HttpsBasicAuthCustomizer httpsBasicAuthCustomizer;
     private final DomainObjectService domainObjectService;
     private final FullTextSearchService fullTextSearch;
     private final BatchUpdatesService batchUpdatesService;
@@ -62,6 +64,7 @@ public class WhoisServletDeployer implements ServletDeployer {
                                 final ReferencesService referencesService,
                                 final DefaultExceptionMapper defaultExceptionMapper,
                                 final MaintenanceModeFilter maintenanceModeFilter,
+                                final HttpsBasicAuthCustomizer httpsBasicAuthCustomizer,
                                 final DomainObjectService domainObjectService,
                                 final FullTextSearchService fullTextSearch,
                                 final BatchUpdatesService batchUpdatesService,
@@ -81,11 +84,13 @@ public class WhoisServletDeployer implements ServletDeployer {
         this.fullTextSearch = fullTextSearch;
         this.batchUpdatesService = batchUpdatesService;
         this.healthCheckService = healthCheckService;
+        this.httpsBasicAuthCustomizer = httpsBasicAuthCustomizer;
     }
 
     @Override
     public void deploy(WebAppContext context) {
         context.addFilter(new FilterHolder(maintenanceModeFilter), "/whois/*", EnumSet.allOf(DispatcherType.class));
+        context.addFilter(new FilterHolder(httpsBasicAuthCustomizer), "/whois/*", EnumSet.allOf(DispatcherType.class));
 
         final ResourceConfig resourceConfig = new ResourceConfig();
         EncodingFilter.enableFor(resourceConfig, GZipEncoder.class);
@@ -106,6 +111,8 @@ public class WhoisServletDeployer implements ServletDeployer {
         resourceConfig.register(batchUpdatesService);
         resourceConfig.register(healthCheckService);
         resourceConfig.register(new CacheControlFilter());
+        resourceConfig.register(new HttpBasicAuthResponseFilter());
+
 
         final ObjectMapper objectMapper = JsonMapper.builder()
             .enable(SerializationFeature.INDENT_OUTPUT)
