@@ -108,7 +108,6 @@ public class WhoisRestBasicAuthTestIntegration extends AbstractHttpsIntegrationT
                 .header("Authorization", getBasicAuthenticationHeader("test", "incorrect"))
                 .get(WhoisResources.class);
 
-        //TODO [TP] there should be an error message in the response for the lookup with incorrect password
         assertThat(whoisResources.getErrorMessages(), is(empty()));
         assertThat(whoisResources.getWhoisObjects(), hasSize(1));
         final WhoisObject whoisObject = whoisResources.getWhoisObjects().get(0);
@@ -131,7 +130,6 @@ public class WhoisRestBasicAuthTestIntegration extends AbstractHttpsIntegrationT
                 .header("Authorization", getBasicAuthenticationHeader("test", "test"))
                 .get(WhoisResources.class);
 
-        //TODO [TP] there should be an error message in the response for the incorrect password
         assertThat(whoisResources.getErrorMessages(), is(empty()));
         assertThat(whoisResources.getWhoisObjects(), hasSize(1));
         final WhoisObject whoisObject = whoisResources.getWhoisObjects().get(0);
