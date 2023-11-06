@@ -2838,7 +2838,7 @@ public class RdapServiceTestIntegration extends AbstractRdapIntegrationTest {
 
     private void assertMultipleValuesRedaction(final RdapObject rdapObject, final String prefix, final AttributeType type,final String multipleValues) {
         final String rdapAttrName = (type == LANGUAGE) ? "lang" : type.getName();
-        final Redaction redaction = rdapObject.getRedacted().stream().filter( redaction1 -> redaction1.getPostPath()!= null && redaction1.getPostPath().contains(rdapAttrName)).findFirst().get();
+        final Redaction redaction = rdapObject.getRedacted().stream().filter( redactedField -> redactedField.getPostPath()!= null && redactedField.getPostPath().contains(rdapAttrName)).findFirst().get();
 
         final Redaction expectedRedaction = Redaction.getRedactionByPartialValue(String.format("Multiple %s attributes found", type.getName()),
                 String.format("%s.%s", prefix, rdapAttrName),
@@ -2861,7 +2861,7 @@ public class RdapServiceTestIntegration extends AbstractRdapIntegrationTest {
     private void assertPersonalRedaction(final Entity entity,final AttributeType attribute) throws JsonProcessingException {
         final String entityJson = getEntityJson(entity);
 
-        final Redaction redaction = entity.getRedacted().stream().filter( redaction1 -> redaction1.getPrePath().contains(attribute.getName())).findAny().get();
+        final Redaction redaction = entity.getRedacted().stream().filter( redactedField -> redactedField.getPrePath().contains(attribute.getName())).findAny().get();
         List<Object> vcards = JsonPath.read(entityJson, redaction.getPrePath());
         assertThat(vcards.size(), is(0));
 
@@ -2871,7 +2871,7 @@ public class RdapServiceTestIntegration extends AbstractRdapIntegrationTest {
     private void assertPersonalRedactionForEntities(final RdapObject entity, final List<Entity> entities, final String prefix, final String personKey, final AttributeType attribute) throws JsonProcessingException {
         final String entityJson = getEntityJson(entity);
 
-        final Redaction redaction = entity.getRedacted().stream().filter( redaction1 -> redaction1.getPrePath().contains(prefix) &&  redaction1.getPrePath().contains(personKey) &&  redaction1.getPrePath().contains(attribute.getName())).findAny().get();
+        final Redaction redaction = entity.getRedacted().stream().filter( redactedField -> redactedField.getPrePath().contains(prefix) &&  redactedField.getPrePath().contains(personKey) &&  redactedField.getPrePath().contains(attribute.getName())).findAny().get();
 
         List<Object> vcards = JsonPath.read(entityJson, redaction.getPrePath());
         assertThat(vcards.size(), is(0));
@@ -2881,7 +2881,7 @@ public class RdapServiceTestIntegration extends AbstractRdapIntegrationTest {
     }
 
     private void assertCommonPersonalRedaction(final RdapObject entity, final Redaction redaction,
-                                               final Entity insideEntity, final AttributeType attribute) throws JsonProcessingException {
+                                               final Entity insideEntity, final AttributeType attribute) {
         ((ArrayList) insideEntity.getVCardArray().get(1)).add(0, Lists.newArrayList(attribute.getName(), "", TEXT.getValue(),
                 "abc@ripe.net"));
 

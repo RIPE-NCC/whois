@@ -54,7 +54,7 @@ public class RedactionObjectMapper {
 
         attributeTypeByValues.entrySet().forEach(entry -> {
             final String attributeName = entry.getKey().getName();
-            final String values = entry.getValue().stream().collect(Collectors.joining(", "));
+            final String values = String.join(", ", entry.getValue());
 
             switch(entry.getKey()){
                 case NOTIFY ->
