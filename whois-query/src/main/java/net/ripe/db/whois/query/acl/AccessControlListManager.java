@@ -1,5 +1,6 @@
 package net.ripe.db.whois.query.acl;
 
+import com.google.common.net.InetAddresses;
 import net.ripe.db.whois.common.DateTimeProvider;
 import net.ripe.db.whois.common.domain.BlockEvent;
 import net.ripe.db.whois.common.domain.IpRanges;
@@ -63,15 +64,15 @@ public class AccessControlListManager {
         return resourceConfiguration.isProxy(remoteAddress);
     }
 
-    int getPersonalDataLimit(final InetAddress remoteAddress) {
-        return resourceConfiguration.getLimit(remoteAddress);
+    int getPersonalDataLimit(final PersonalAccountingIdentifier accountingId) {
+        return resourceConfiguration.getLimit(InetAddresses.forString(accountingId));
     }
 
-    public boolean isUnlimited(final InetAddress remoteAddress) {
-        return getPersonalDataLimit(remoteAddress) < 0;
+    public boolean isUnlimited(final PersonalAccountingIdentifier accountingId) {
+        return getPersonalDataLimit(accountingId) < 0;
     }
 
-    public boolean canQueryPersonalObjects(final InetAddress remoteAddress) {
+    public boolean canQueryPersonalObjects(final PersonalAccountingIdentifier remoteAddress) {
         return getPersonalObjects(remoteAddress) >= 0;
     }
 
@@ -79,7 +80,7 @@ public class AccessControlListManager {
         return ipRanges.isTrusted(IpInterval.asIpInterval(remoteAddress));
     }
 
-    public int getPersonalObjects(final InetAddress remoteAddress) {
+    public int getPersonalObjects(final PersonalAccountingIdentifier remoteAddress) {
         if (isUnlimited(remoteAddress)) {
             return Integer.MAX_VALUE;
         }

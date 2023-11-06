@@ -19,7 +19,7 @@ import java.util.concurrent.TimeUnit;
 public class HazelcastPersonalObjectAccounting implements PersonalObjectAccounting {
     private static final Logger LOGGER = LoggerFactory.getLogger(HazelcastPersonalObjectAccounting.class);
 
-    private final IMap<InetAddress, Integer> counterMap;
+    private final IMap<PersonalAccountingIdentifier, Integer> counterMap;
     private final HazelcastInstance hazelcastInstance;
 
     @Autowired
@@ -31,7 +31,7 @@ public class HazelcastPersonalObjectAccounting implements PersonalObjectAccounti
     }
 
     @Override
-    public int getQueriedPersonalObjects(final InetAddress remoteAddress) {
+    public int getQueriedPersonalObjects(final PersonalAccountingIdentifier remoteAddress) {
         Integer count = null;
         try {
             count = counterMap.get(remoteAddress);
@@ -48,7 +48,7 @@ public class HazelcastPersonalObjectAccounting implements PersonalObjectAccounti
     }
 
     @Override
-    public int accountPersonalObject(final InetAddress remoteAddress, final int amount) {
+    public int accountPersonalObject(final PersonalAccountingIdentifier remoteAddress, final int amount) {
         boolean isLocked = false;
 
         try {
@@ -74,7 +74,7 @@ public class HazelcastPersonalObjectAccounting implements PersonalObjectAccounti
         return 0;
     }
 
-    private void unlockKey(InetAddress remoteAddress) {
+    private void unlockKey(PersonalAccountingIdentifier remoteAddress) {
         try {
             counterMap.unlock(remoteAddress);
         } catch(Exception e) {

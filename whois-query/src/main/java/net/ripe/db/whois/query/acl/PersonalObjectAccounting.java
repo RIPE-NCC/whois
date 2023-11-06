@@ -10,7 +10,7 @@ public interface PersonalObjectAccounting {
      * @param remoteAddress The remote address
      * @return The number of personal objects
      */
-    int getQueriedPersonalObjects(InetAddress remoteAddress);
+    int getQueriedPersonalObjects(PersonalAccountingIdentifier remoteAddress);
 
     /**
      * Account a personal object.
@@ -19,7 +19,7 @@ public interface PersonalObjectAccounting {
      * @param amount        The amount to count
      * @return The personal object balance
      */
-    int accountPersonalObject(InetAddress remoteAddress, int amount);
+    int accountPersonalObject(PersonalAccountingIdentifier remoteAddress, int amount);
 
     /**
      * Resets all counters
