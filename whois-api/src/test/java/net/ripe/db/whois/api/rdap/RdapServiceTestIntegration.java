@@ -2850,7 +2850,7 @@ public class RdapServiceTestIntegration extends AbstractRdapIntegrationTest {
         final Object redactedElement =  JsonPath.read(entityJson, redaction.getPostPath());
 
         if(redactedElement instanceof JSONArray) {
-            //incase of networks  it is a list
+            //in case it's networks  it is a list
             assertThat(((JSONArray) redactedElement).get(0), is(multipleValues.split(",")[0]));
         } else {
             assertThat(redactedElement, is(multipleValues.split(",")[0]));
