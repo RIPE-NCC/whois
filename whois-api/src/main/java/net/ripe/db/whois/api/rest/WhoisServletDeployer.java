@@ -13,6 +13,7 @@ import jakarta.ws.rs.ext.MessageBodyWriter;
 import net.ripe.db.whois.api.autocomplete.AutocompleteService;
 import net.ripe.db.whois.api.fulltextsearch.FullTextSearchService;
 import net.ripe.db.whois.api.healthcheck.HealthCheckService;
+import net.ripe.db.whois.api.httpserver.ClientCertificateService;
 import net.ripe.db.whois.api.httpserver.DefaultExceptionMapper;
 import net.ripe.db.whois.api.httpserver.ServletDeployer;
 import net.ripe.db.whois.api.rest.domain.WhoisResources;
@@ -49,6 +50,7 @@ public class WhoisServletDeployer implements ServletDeployer {
     private final FullTextSearchService fullTextSearch;
     private final BatchUpdatesService batchUpdatesService;
     private final HealthCheckService healthCheckService;
+    private final ClientCertificateService clientCertificateService;
 
     @Autowired
     public WhoisServletDeployer(final WhoisRestService whoisRestService,
@@ -65,7 +67,8 @@ public class WhoisServletDeployer implements ServletDeployer {
                                 final DomainObjectService domainObjectService,
                                 final FullTextSearchService fullTextSearch,
                                 final BatchUpdatesService batchUpdatesService,
-                                final HealthCheckService healthCheckService) {
+                                final HealthCheckService healthCheckService,
+                                final ClientCertificateService clientCertificateService) {
         this.whoisRestService = whoisRestService;
         this.whoisSearchService = whoisSearchService;
         this.whoisVersionService = whoisVersionService;
@@ -81,6 +84,7 @@ public class WhoisServletDeployer implements ServletDeployer {
         this.fullTextSearch = fullTextSearch;
         this.batchUpdatesService = batchUpdatesService;
         this.healthCheckService = healthCheckService;
+        this.clientCertificateService = clientCertificateService;
     }
 
     @Override
@@ -105,6 +109,7 @@ public class WhoisServletDeployer implements ServletDeployer {
         resourceConfig.register(fullTextSearch);
         resourceConfig.register(batchUpdatesService);
         resourceConfig.register(healthCheckService);
+        resourceConfig.register(clientCertificateService);
         resourceConfig.register(new CacheControlFilter());
 
         final ObjectMapper objectMapper = JsonMapper.builder()

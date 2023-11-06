@@ -554,7 +554,19 @@ public class RdapServiceTestIntegration extends AbstractRdapIntegrationTest {
                     .request(MediaType.APPLICATION_JSON_TYPE)
                     .get(Ip.class);
         });
-        assertThat(badRequestException.getResponse().readEntity(String.class), containsString("reason: Ambiguous URI empty segment"));
+
+        assertThat(badRequestException.getResponse().readEntity(String.class), containsString("Ambiguous URI empty segment"));
+    }
+
+    @Test
+    public void lookup_inetnum_empty_ip() {
+        final BadRequestException badRequestException = assertThrows(BadRequestException.class, () -> {
+            createResource("ip/")
+                    .request(MediaType.APPLICATION_JSON_TYPE)
+                    .get(Ip.class);
+        });
+
+        assertThat(badRequestException.getResponse().readEntity(String.class), containsString("empty lookup term"));
     }
 
     @Test

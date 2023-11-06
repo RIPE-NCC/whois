@@ -2,12 +2,10 @@ package net.ripe.db.whois.api.httpserver;
 
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import org.eclipse.jetty.http.HttpHeader;
 import org.eclipse.jetty.http.HttpScheme;
 import org.eclipse.jetty.rewrite.handler.Rule;
 
 import java.io.IOException;
-import java.util.Enumeration;
 
 public class HttpTransportRule extends Rule {
 
@@ -26,12 +24,7 @@ public class HttpTransportRule extends Rule {
 
 
     private boolean hasTransport(final HttpServletRequest request) {
-        final Enumeration<String> header = request.getHeaders(HttpHeader.X_FORWARDED_PROTO.toString());
-        if (header == null || !header.hasMoreElements()) {
-            return false;
-        }
-
-        return transport.is(header.nextElement());
+        return transport.is(request.getScheme());
     }
 
     @Override
