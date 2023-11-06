@@ -31,6 +31,7 @@ import static net.ripe.db.whois.api.rest.HttpBasicAuthResponseFilter.BASIC_CHARS
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.Matchers.containsInAnyOrder;
+import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.empty;
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
@@ -105,7 +106,7 @@ public class WhoisRestBasicAuthTestIntegration extends AbstractHttpsIntegrationT
     public void lookup_mntner_incorrect_basic_auth_password_without_unfiltered_param_is_fully_filtered() {
         final WhoisResources whoisResources = SecureRestTest.target(getSecurePort(), "whois/test/mntner/OWNER-MNT")
                 .request()
-                .header("Authorization", getBasicAuthenticationHeader("test", "incorrect"))
+                .header(HttpHeaders.AUTHORIZATION, getBasicAuthenticationHeader("test", "incorrect"))
                 .get(WhoisResources.class);
 
         assertThat(whoisResources.getErrorMessages(), is(empty()));
@@ -127,7 +128,7 @@ public class WhoisRestBasicAuthTestIntegration extends AbstractHttpsIntegrationT
 
         final WhoisResources whoisResources = SecureRestTest.target(getSecurePort(), "whois/test/irt/irt-test?unfiltered")
                 .request()
-                .header("Authorization", getBasicAuthenticationHeader("test", "test"))
+                .header(HttpHeaders.AUTHORIZATION, getBasicAuthenticationHeader("test", "test"))
                 .get(WhoisResources.class);
 
         assertThat(whoisResources.getErrorMessages(), is(empty()));
@@ -148,7 +149,7 @@ public class WhoisRestBasicAuthTestIntegration extends AbstractHttpsIntegrationT
     public void create_succeeds_with_basic_auth_no_password_query() {
         final WhoisResources whoisResources = SecureRestTest.target(getSecurePort(), "whois/test/person")
                 .request()
-                .header("Authorization", getBasicAuthenticationHeader("test", "test"))
+                .header(HttpHeaders.AUTHORIZATION, getBasicAuthenticationHeader("test", "test"))
                 .post(Entity.entity(map(PAULETH_PALTHEN), MediaType.APPLICATION_XML), WhoisResources.class);
 
         assertThat(whoisResources.getLink().getHref(), is(String.format("https://localhost:%s/test/person",getSecurePort())));
@@ -159,12 +160,42 @@ public class WhoisRestBasicAuthTestIntegration extends AbstractHttpsIntegrationT
     }
 
     @Test
+    public void create_succeeds_with_basic_auth_multiple_password_incorrect() {
+        final WhoisResources whoisResources = SecureRestTest.target(getSecurePort(), "whois/test/person?password=incorrect1&password=Incorrect2")
+                .request()
+                .header(HttpHeaders.AUTHORIZATION, getBasicAuthenticationHeader("test", "test"))
+                .post(Entity.entity(map(PAULETH_PALTHEN), MediaType.APPLICATION_XML), WhoisResources.class);
+
+        assertThat(whoisResources.getLink().getHref(), is(String.format("https://localhost:%s/test/person",getSecurePort())));
+        assertThat(whoisResources.getErrorMessages(), is(empty()));
+        final WhoisObject object = whoisResources.getWhoisObjects().get(0);
+
+        assertPersonObject(whoisResources, object);
+    }
+
+    @Test
+    public void create_succeeds_with_basic_auth_incorrect_multiple_password_correct() {
+        final WhoisResources whoisResources = SecureRestTest.target(getSecurePort(), "whois/test/person?password=incorrect1&password=test")
+                .request()
+                .header(HttpHeaders.AUTHORIZATION, getBasicAuthenticationHeader("test", "incorrect"))
+                .post(Entity.entity(map(PAULETH_PALTHEN), MediaType.APPLICATION_XML), WhoisResources.class);
+
+        assertThat(whoisResources.getLink().getHref(), is(String.format("https://localhost:%s/test/person",getSecurePort())));
+        assertThat(whoisResources.getErrorMessages(), is(empty()));
+        final WhoisObject object = whoisResources.getWhoisObjects().get(0);
+
+        assertPersonObject(whoisResources, object);
+    }
+
+
+    @Test
     public void create_failed_with_basic_auth_incorrect_www_authenticate_cookie() {
         final Response response = SecureRestTest.target(getSecurePort(), "whois/test/person")
                 .request()
-                .header("Authorization", getBasicAuthenticationHeader("test", "incorrect"))
+                .header(HttpHeaders.AUTHORIZATION, getBasicAuthenticationHeader("test", "incorrect"))
                 .post(Entity.entity(map(PAULETH_PALTHEN), MediaType.APPLICATION_XML), Response.class);
 
+        assertThat(response.getStatus(), is(HttpStatus.UNAUTHORIZED_401));
         assertThat(response.getHeaderString(HttpHeaders.WWW_AUTHENTICATE), is(BASIC_CHARSET_ISO_8859_1_LATIN_1));
     }
 
@@ -174,6 +205,7 @@ public class WhoisRestBasicAuthTestIntegration extends AbstractHttpsIntegrationT
                 .request()
                 .post(Entity.entity(map(PAULETH_PALTHEN), MediaType.APPLICATION_XML), Response.class);
 
+        assertThat(response.getStatus(), is(HttpStatus.UNAUTHORIZED_401));
         assertThat(response.getHeaderString(HttpHeaders.WWW_AUTHENTICATE), is(nullValue()));
     }
 
@@ -182,17 +214,18 @@ public class WhoisRestBasicAuthTestIntegration extends AbstractHttpsIntegrationT
 
         final Response response =  RestTest.target(getPort(), "whois/test/person")
                     .request()
-                    .header("Authorization", getBasicAuthenticationHeader("test", "test"))
+                    .header(HttpHeaders.AUTHORIZATION, getBasicAuthenticationHeader("test", "test"))
                     .post(Entity.entity(map(PAULETH_PALTHEN), MediaType.APPLICATION_XML), Response.class);
 
         assertThat(response.getStatus(), is(HttpStatus.UPGRADE_REQUIRED_426));
+        assertThat(response.readEntity(String.class), containsString("HTTPS required for Basic authorization"));
     }
 
     @Test
-    public void create_failed_unauthorized_WWW_authenticate_header() {
+    public void create_success_no_basic_auth_no_WWW_authenticate_header() {
         final Response response = SecureRestTest.target(getSecurePort(), "whois/test/person?password=incorrect")
                 .request()
-                .header("Authorization", getBasicAuthenticationHeader("test", "test"))
+                .header(HttpHeaders.AUTHORIZATION, getBasicAuthenticationHeader("test", "test"))
                 .post(Entity.entity(map(PAULETH_PALTHEN), MediaType.APPLICATION_XML), Response.class);
 
         assertThat(response.getStatus(), is(OK.getStatusCode()));
@@ -203,7 +236,7 @@ public class WhoisRestBasicAuthTestIntegration extends AbstractHttpsIntegrationT
     public void create_succeeds_with_correct_basic_auth_and_wrong_password_query() throws NoSuchAlgorithmException, KeyManagementException {
         final WhoisResources whoisResources = SecureRestTest.target(getSecurePort(), "whois/test/person?password=incorrect")
                 .request()
-                .header("Authorization", getBasicAuthenticationHeader("test", "test"))
+                .header(HttpHeaders.AUTHORIZATION, getBasicAuthenticationHeader("test", "test"))
                 .post(Entity.entity(map(PAULETH_PALTHEN), MediaType.APPLICATION_XML), WhoisResources.class);
 
         assertThat(whoisResources.getLink().getHref(), is(String.format("https://localhost:%s/test/person", getSecurePort())));
@@ -225,7 +258,7 @@ public class WhoisRestBasicAuthTestIntegration extends AbstractHttpsIntegrationT
 
         final Response whoisResources = SecureRestTest.target(getSecurePort(), "whois/references/TEST/role/TR2-TEST")
                 .request()
-                .header("Authorization", getBasicAuthenticationHeader("test", "test"))
+                .header(HttpHeaders.AUTHORIZATION, getBasicAuthenticationHeader("test", "test"))
                 .delete(Response.class);
 
         assertThat(whoisResources.getStatus(), is(OK.getStatusCode()));
@@ -235,7 +268,7 @@ public class WhoisRestBasicAuthTestIntegration extends AbstractHttpsIntegrationT
     public void create_succeeds_with_incorrect_basic_auth_and_correct_password_query() {
         final WhoisResources whoisResources = SecureRestTest.target(getSecurePort(), "whois/test/person?password=test")
                 .request()
-                .header("Authorization", getBasicAuthenticationHeader("test", "incorrect"))
+                .header(HttpHeaders.AUTHORIZATION, getBasicAuthenticationHeader("test", "incorrect"))
                 .post(Entity.entity(map(PAULETH_PALTHEN), MediaType.APPLICATION_XML), WhoisResources.class);
 
         assertThat(whoisResources.getLink().getHref(), is(String.format("https://localhost:%s/test/person", getSecurePort())));
@@ -269,5 +302,4 @@ public class WhoisRestBasicAuthTestIntegration extends AbstractHttpsIntegrationT
 
         assertThat(whoisResources.getTermsAndConditions().getHref(), is(WhoisResources.TERMS_AND_CONDITIONS));
     }
-
 }

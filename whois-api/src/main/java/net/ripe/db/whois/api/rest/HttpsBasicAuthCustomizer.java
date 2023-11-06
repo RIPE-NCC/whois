@@ -46,11 +46,7 @@ public class HttpsBasicAuthCustomizer implements Filter {
            return false;
        }
 
-       if(!RestServiceHelper.isBasicAuth((HttpServletRequest) request)) {
-            return false;
-       }
-
-       return true;
+       return RestServiceHelper.isBasicAuth((HttpServletRequest) request);
     }
 
     @Override
