@@ -110,7 +110,7 @@ class RdapObjectMapper {
     private final Ipv4Tree ipv4Tree;
     private final Ipv6Tree ipv6Tree;
     private final String port43;
-    private static final Map<AttributeType, Role>   CONTACT_ATTRIBUTE_TO_ROLE_NAME = Map.of(
+    private static final Map<AttributeType, Role> CONTACT_ATTRIBUTE_TO_ROLE_NAME = Map.of(
             ADMIN_C, Role.ADMINISTRATIVE,
             TECH_C, Role.TECHNICAL,
             MNT_BY, Role.REGISTRANT,
