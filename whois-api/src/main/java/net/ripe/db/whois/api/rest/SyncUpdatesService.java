@@ -3,6 +3,22 @@ package net.ripe.db.whois.api.rest;
 import com.google.common.base.Splitter;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.ws.rs.Consumes;
+import jakarta.ws.rs.CookieParam;
+import jakarta.ws.rs.Encoded;
+import jakarta.ws.rs.FormParam;
+import jakarta.ws.rs.GET;
+import jakarta.ws.rs.HeaderParam;
+import jakarta.ws.rs.POST;
+import jakarta.ws.rs.Path;
+import jakarta.ws.rs.PathParam;
+import jakarta.ws.rs.Produces;
+import jakarta.ws.rs.QueryParam;
+import jakarta.ws.rs.core.Context;
+import jakarta.ws.rs.core.HttpHeaders;
+import jakarta.ws.rs.core.MediaType;
+import jakarta.ws.rs.core.Response;
 import net.ripe.db.whois.api.UpdatesParser;
 import net.ripe.db.whois.common.DateTimeProvider;
 import net.ripe.db.whois.common.Message;
@@ -28,22 +44,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.Nullable;
-import jakarta.servlet.http.HttpServletRequest;
-import jakarta.ws.rs.Consumes;
-import jakarta.ws.rs.CookieParam;
-import jakarta.ws.rs.Encoded;
-import jakarta.ws.rs.FormParam;
-import jakarta.ws.rs.GET;
-import jakarta.ws.rs.HeaderParam;
-import jakarta.ws.rs.POST;
-import jakarta.ws.rs.Path;
-import jakarta.ws.rs.PathParam;
-import jakarta.ws.rs.Produces;
-import jakarta.ws.rs.QueryParam;
-import jakarta.ws.rs.core.Context;
-import jakarta.ws.rs.core.HttpHeaders;
-import jakarta.ws.rs.core.MediaType;
-import jakarta.ws.rs.core.Response;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.io.UnsupportedEncodingException;
@@ -197,7 +197,7 @@ public class SyncUpdatesService {
             }
 
             setSsoSessionToContext(updateContext, request.getSsoToken());
-            updateContext.setClientCertificate(ClientCertificateExtractor.getClientCertificate(httpServletRequest, dateTimeProvider));
+            setClientCertificates(updateContext, httpServletRequest);
 
             final String content = request.hasParam("DATA") ? request.getParam("DATA") : "";
 
@@ -224,6 +224,10 @@ public class SyncUpdatesService {
                 updateContext.addGlobalMessage(RestMessages.ssoAuthIgnored());
             }
         }
+    }
+
+    public void setClientCertificates(final UpdateContext updateContext, final HttpServletRequest request) {
+        updateContext.setClientCertificates(ClientCertificateExtractor.getClientCertificates(request));
     }
 
     private Response getResponse(final UpdateResponse updateResponse) {

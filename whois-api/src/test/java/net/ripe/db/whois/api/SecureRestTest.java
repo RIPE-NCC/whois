@@ -14,32 +14,43 @@ import jakarta.ws.rs.client.WebTarget;
 import net.ripe.db.whois.api.rest.client.RestClientUtils;
 import org.glassfish.jersey.media.multipart.MultiPartFeature;
 
+import javax.net.ssl.SSLContext;
+
 public class SecureRestTest extends RestTest {
 
-    private static final Client client;
+    private static final ObjectMapper OBJECT_MAPPER = JsonMapper.builder().build();
     static {
-        final ObjectMapper objectMapper = JsonMapper.builder().build();
-        objectMapper.setAnnotationIntrospector(
+        OBJECT_MAPPER.setAnnotationIntrospector(
                 new AnnotationIntrospectorPair(
                         new JacksonAnnotationIntrospector(),
                         new JakartaXmlBindAnnotationIntrospector(TypeFactory.defaultInstance())));
+    }
 
-        final JacksonJsonProvider jsonProvider = new JacksonJsonProvider()
-                .configure(DeserializationFeature.UNWRAP_ROOT_VALUE, false)
-                .configure(DeserializationFeature.ACCEPT_SINGLE_VALUE_AS_ARRAY, true);
-        jsonProvider.setMapper(objectMapper);
-
-        client = ClientBuilder.newBuilder()
-                .sslContext(RestClientUtils.trustAllSSLContext())
-                .hostnameVerifier((hostname, session) -> true)
-                .register(MultiPartFeature.class)
-                .register(jsonProvider)
-                .build();
+    private static final JacksonJsonProvider JSON_PROVIDER = new JacksonJsonProvider();
+    static {
+        JSON_PROVIDER.configure(DeserializationFeature.UNWRAP_ROOT_VALUE, false);
+        JSON_PROVIDER.configure(DeserializationFeature.ACCEPT_SINGLE_VALUE_AS_ARRAY, true);
+        JSON_PROVIDER.setMapper(OBJECT_MAPPER);
     }
 
     public static WebTarget target(final int port, final String path) {
-        return client.target(String.format("https://localhost:%d/%s", port, path));
+        return client().target(String.format("https://localhost:%d/%s", port, path));
     }
 
+    public static WebTarget target(final SSLContext sslContext, final int port, final String path) {
+        return client(sslContext).target(String.format("https://localhost:%d/%s", port, path));
+    }
 
+    private static Client client() {
+        return client(RestClientUtils.trustAllSSLContext());
+    }
+
+    private static Client client(final SSLContext sslContext) {
+        return ClientBuilder.newBuilder()
+                .sslContext(sslContext)
+                .hostnameVerifier((hostname, session) -> true)
+                .register(MultiPartFeature.class)
+                .register(JSON_PROVIDER)
+                .build();
+    }
 }
