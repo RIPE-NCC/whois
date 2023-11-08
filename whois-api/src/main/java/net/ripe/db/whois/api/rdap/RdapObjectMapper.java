@@ -6,6 +6,7 @@ import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
+import io.netty.util.internal.StringUtil;
 import jakarta.ws.rs.InternalServerErrorException;
 import net.ripe.commons.ip.AbstractIpRange;
 import net.ripe.commons.ip.Ipv4Range;
@@ -62,6 +63,7 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.time.LocalDateTime;
 import java.util.Collections;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -69,6 +71,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import static net.ripe.db.whois.api.rdap.RedactionObjectMapper.RDAP_VCARD_REDACTED_ATTRIBUTES;
 import static net.ripe.db.whois.api.rdap.RedactionObjectMapper.mapRedactions;
 import static net.ripe.db.whois.api.rdap.domain.Status.ACTIVE;
 import static net.ripe.db.whois.api.rdap.domain.Status.RESERVED;
@@ -80,14 +83,12 @@ import static net.ripe.db.whois.common.rpsl.AttributeType.ADDRESS;
 import static net.ripe.db.whois.common.rpsl.AttributeType.ADMIN_C;
 import static net.ripe.db.whois.common.rpsl.AttributeType.COUNTRY;
 import static net.ripe.db.whois.common.rpsl.AttributeType.DS_RDATA;
-import static net.ripe.db.whois.common.rpsl.AttributeType.E_MAIL;
 import static net.ripe.db.whois.common.rpsl.AttributeType.FAX_NO;
 import static net.ripe.db.whois.common.rpsl.AttributeType.GEOLOC;
 import static net.ripe.db.whois.common.rpsl.AttributeType.IRT;
 import static net.ripe.db.whois.common.rpsl.AttributeType.LANGUAGE;
 import static net.ripe.db.whois.common.rpsl.AttributeType.MNT_BY;
 import static net.ripe.db.whois.common.rpsl.AttributeType.MNT_IRT;
-import static net.ripe.db.whois.common.rpsl.AttributeType.NOTIFY;
 import static net.ripe.db.whois.common.rpsl.AttributeType.ORG;
 import static net.ripe.db.whois.common.rpsl.AttributeType.ORG_NAME;
 import static net.ripe.db.whois.common.rpsl.AttributeType.PERSON;
@@ -293,6 +294,7 @@ class RdapObjectMapper {
             rdapResponse.getRemarks().add(createRemark(rpslObject));
         }
 
+        handlePartialValueAttributes(rpslObject, rdapResponse);
         rdapResponse.getEvents().add(createEvent(DateUtil.fromString(rpslObject.getValueForAttribute(AttributeType.CREATED)), Action.REGISTRATION));
         rdapResponse.getEvents().add(createEvent(DateUtil.fromString(rpslObject.getValueForAttribute(AttributeType.LAST_MODIFIED)), Action.LAST_CHANGED));
 
@@ -356,8 +358,8 @@ class RdapObjectMapper {
             ip.setParentHandle(lookupParentHandle(ipInterval));
         }
         ip.setStatus(Collections.singletonList(getResourceStatus(rpslObject).getValue()));
-        handleLanguageAttribute(rpslObject, ip);
-        handleCountryAttribute(rpslObject, ip);
+        /*handleLanguageAttribute(rpslObject, ip);
+        handleCountryAttribute(rpslObject, ip);*/
         ip.setCidr0_cidrs(getIpCidr0Notation(toIpRange(ipInterval)));
 
         this.mapContactEntities(ip, rpslObject, requestUrl);
@@ -528,7 +530,7 @@ class RdapObjectMapper {
         createVCard(entity, rpslObject);
         this.mapContactEntities(entity, rpslObject, requestUrl);
 
-        handleLanguageAttribute(rpslObject, entity);
+        //handleLanguageAttribute(rpslObject, entity);
         return entity;
     }
 
@@ -645,8 +647,8 @@ class RdapObjectMapper {
                 .addOrg(rpslObject.getValuesForAttribute(ORG))
                 .addGeo(rpslObject.getValuesForAttribute(GEOLOC));
 
-        entity.getRedactedRpslAttrs().addAll(rpslObject.findAttributes(NOTIFY));
-        entity.getRedactedRpslAttrs().addAll(rpslObject.findAttributes(E_MAIL));
+        RDAP_VCARD_REDACTED_ATTRIBUTES.forEach(attributeType -> entity.getRedactedRpslAttrs()
+                .addAll(rpslObject.findAttributes(attributeType)));
 
         entity.setVCardArray(builder.build());
     }
@@ -659,30 +661,27 @@ class RdapObjectMapper {
         }
     }
 
-    private static void handleLanguageAttribute(final RpslObject rpslObject, final RdapObject rdapObject) {
-        final List<RpslAttribute> languages = rpslObject.findAttributes(AttributeType.LANGUAGE);
-        if (languages.isEmpty()) {
-            return;
-        }
-
-        rdapObject.setLang(languages.get(0).getCleanValue().toString());
-
-        if(languages.size() > 1) {
-         rdapObject.getRedactedRpslAttrs().addAll(rpslObject.findAttributes(LANGUAGE));
-        }
+    private static void handlePartialValueAttributes(final RpslObject rpslObject, final RdapObject rdapObject){
+        rpslObject.getAttributes().forEach(rpslAttribute -> {
+            switch (rpslAttribute.getType()){
+                case LANGUAGE -> {
+                    if (!StringUtil.isNullOrEmpty(rdapObject.getLang())){
+                        rdapObject.getRedactedRpslAttrs().addAll(rpslObject.findAttributes(LANGUAGE));
+                        break;
+                    }
+                    final Iterator<CIString> attributeValuesAttribute = rpslAttribute.getCleanValues().iterator();
+                    rdapObject.setLang(attributeValuesAttribute.next().toString());
+                }
+                case COUNTRY -> {
+                    final Ip ip = (Ip)rdapObject;
+                    if (!StringUtil.isNullOrEmpty(ip.getCountry())){
+                        rdapObject.getRedactedRpslAttrs().addAll(rpslObject.findAttributes(COUNTRY));
+                        break;
+                    }
+                    final Iterator<CIString> attributeValuesAttribute = rpslAttribute.getCleanValues().iterator();
+                    ip.setCountry(attributeValuesAttribute.next().toString());
+                }
+            }
+        });
     }
-
-    private static void handleCountryAttribute(final RpslObject rpslObject, final Ip ip) {
-        final List<RpslAttribute> countries = rpslObject.findAttributes(AttributeType.COUNTRY);
-        if (countries.isEmpty()) {
-            return;
-        }
-
-        ip.setCountry(countries.get(0).getCleanValue().toString());
-
-        if(countries.size() > 1) {
-          ip.getRedactedRpslAttrs().addAll(rpslObject.findAttributes(COUNTRY));
-        }
-    }
-
 }

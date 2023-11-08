@@ -29,7 +29,6 @@ import net.ripe.db.whois.common.rpsl.AttributeType;
 import net.ripe.db.whois.common.rpsl.RpslObject;
 import net.ripe.db.whois.query.support.TestWhoisLog;
 import org.eclipse.jetty.http.HttpStatus;
-import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
@@ -69,9 +68,10 @@ public class RdapServiceTestIntegration extends AbstractRdapIntegrationTest {
     @Autowired
     TestWhoisLog queryLog;
 
-    private static final Map<AttributeType, String> ATTRIBUTE_TYPE_NAME_DESCRIPTION = Map.of(
-            E_MAIL, "Personal e-mail information",
-            NOTIFY, "Updates notification e-mail information");
+    private static final Map<String, String> ATTRIBUTE_TYPE_NAME_DESCRIPTION = Map.of(
+            "e-mail", "Personal e-mail information",
+            "notify", "Updates notification e-mail information",
+            "lang", "Personal language information");
 
     @BeforeEach
     public void setup() {
@@ -387,7 +387,8 @@ public class RdapServiceTestIntegration extends AbstractRdapIntegrationTest {
         assertThat(entity.getHandle(), equalTo("ORG-AC1-TEST"));
         assertThat(entity.getLang(), is("DK"));
 
-        assertThat(entity.getRedacted().size(), is(0));
+        assertThat(entity.getRedacted().size(), is(1));
+        assertPersonalRedaction(entity, LANGUAGE);
         // no notice for single language
         final List<Notice> notices = entity.getNotices();
         assertThat(notices, hasSize(4));
@@ -425,6 +426,7 @@ public class RdapServiceTestIntegration extends AbstractRdapIntegrationTest {
         assertThat(entity.getHandle(), equalTo("ORG-LANG-TEST"));
         assertThat(entity.getLang(), is("DK"));
 
+        assertPersonalRedaction(entity, LANGUAGE);
         assertMultipleValuesRedaction(entity, "$", LANGUAGE, "DK, EN");
 
         final List<Notice> notices = entity.getNotices();
@@ -2446,6 +2448,7 @@ public class RdapServiceTestIntegration extends AbstractRdapIntegrationTest {
 
         assertPersonalRedaction(entity,  NOTIFY);
         assertPersonalRedaction(entity,  E_MAIL);
+        assertPersonalRedaction(entity,  LANGUAGE);
 
         assertPersonalRedactionForEntities(entity, entity.getEntitySearchResults(), "$","TP2-TEST",  NOTIFY);
         assertPersonalRedactionForEntities(entity, entity.getEntitySearchResults(),"$", "TP3-TEST",  E_MAIL);
@@ -2454,7 +2457,7 @@ public class RdapServiceTestIntegration extends AbstractRdapIntegrationTest {
     }
 
     @Test
-    public void lookup_person_redactions() throws JsonProcessingException {
+    public void lookup_person_redactions() {
         createEntityRedactionObjects();
 
         databaseHelper.addObject("" +
@@ -2838,7 +2841,7 @@ public class RdapServiceTestIntegration extends AbstractRdapIntegrationTest {
 
     private void assertMultipleValuesRedaction(final RdapObject rdapObject, final String prefix, final AttributeType type,final String multipleValues) {
         final String rdapAttrName = (type == LANGUAGE) ? "lang" : type.getName();
-        final Redaction redaction = rdapObject.getRedacted().stream().filter( redaction1 -> redaction1.getPostPath()!= null && redaction1.getPostPath().contains(rdapAttrName)).findFirst().get();
+        final Redaction redaction = rdapObject.getRedacted().stream().filter( redact -> redact.getPostPath()!= null && redact.getPostPath().contains(rdapAttrName)).findFirst().get();
 
         final Redaction expectedRedaction = Redaction.getRedactionByPartialValue(String.format("Multiple %s attributes found", type.getName()),
                 String.format("%s.%s", prefix, rdapAttrName),
@@ -2858,31 +2861,37 @@ public class RdapServiceTestIntegration extends AbstractRdapIntegrationTest {
 
     }
 
-    private void assertPersonalRedaction(final Entity entity,final AttributeType attribute) throws JsonProcessingException {
+    private void assertPersonalRedaction(final Entity entity,final AttributeType attribute) {
+        final String rdapAttrName = (attribute == LANGUAGE) ? "lang" : attribute.getName();
         final String entityJson = getEntityJson(entity);
 
-        final Redaction redaction = entity.getRedacted().stream().filter( redaction1 -> redaction1.getPrePath().contains(attribute.getName())).findAny().get();
-        List<Object> vcards = JsonPath.read(entityJson, redaction.getPrePath());
+        final Redaction redaction =
+                entity.getRedacted().stream().filter( redact -> redact.getPrePath()!= null && redact.getPrePath().contains(rdapAttrName)).findAny().get();
+        final List<Object> vcards = JsonPath.read(entityJson, redaction.getPrePath());
         assertThat(vcards.size(), is(0));
 
-        assertCommonPersonalRedaction(entity, redaction, entity, attribute);
+        assertCommonPersonalRedaction(entity, redaction, entity, rdapAttrName);
     }
 
-    private void assertPersonalRedactionForEntities(final RdapObject entity, final List<Entity> entities, final String prefix, final String personKey, final AttributeType attribute) throws JsonProcessingException {
+    private void assertPersonalRedactionForEntities(final RdapObject entity, final List<Entity> entities, final String prefix, final String personKey, final AttributeType attribute) {
         final String entityJson = getEntityJson(entity);
 
-        final Redaction redaction = entity.getRedacted().stream().filter( redaction1 -> redaction1.getPrePath().contains(prefix) &&  redaction1.getPrePath().contains(personKey) &&  redaction1.getPrePath().contains(attribute.getName())).findAny().get();
+        final Redaction redaction = entity.getRedacted().stream()
+                .filter(redact -> redact.getPrePath().contains(prefix) &&  redact.getPrePath().contains(personKey) &&  redact.getPrePath().contains(attribute.getName()))
+                .findAny().get();
 
-        List<Object> vcards = JsonPath.read(entityJson, redaction.getPrePath());
+        final List<Object> vcards = JsonPath.read(entityJson, redaction.getPrePath());
         assertThat(vcards.size(), is(0));
 
         final Entity insideEntity = entities.stream().filter( contacEntity -> contacEntity.getHandle().equals(personKey)).findFirst().get();
-        assertCommonPersonalRedaction(entity, redaction, insideEntity, attribute);
+        assertCommonPersonalRedaction(entity, redaction, insideEntity, attribute.getName());
     }
 
     private void assertCommonPersonalRedaction(final RdapObject entity, final Redaction redaction,
-                                               final Entity insideEntity, final AttributeType attribute) throws JsonProcessingException {
-        ((ArrayList) insideEntity.getVCardArray().get(1)).add(0, Lists.newArrayList(attribute.getName(), "", TEXT.getValue(),
+                                               final Entity insideEntity, final String attributeType) {
+
+
+        ((ArrayList) insideEntity.getVCardArray().get(1)).add(0, Lists.newArrayList(attributeType, "", TEXT.getValue(),
                 "abc@ripe.net"));
 
         final String entityAfterAddingVcard = getEntityJson(entity);
@@ -2890,7 +2899,9 @@ public class RdapServiceTestIntegration extends AbstractRdapIntegrationTest {
         final List<Object> vcards = JsonPath.read(entityAfterAddingVcard, redaction.getPrePath());
         assertThat(vcards.size(), is(1));
 
-        assertThat(redaction.getName().getDescription(), is(ATTRIBUTE_TYPE_NAME_DESCRIPTION.get(attribute)));
+        ((ArrayList) insideEntity.getVCardArray().get(1)).remove(0);
+
+        assertThat(redaction.getName().getDescription(), is(ATTRIBUTE_TYPE_NAME_DESCRIPTION.get(attributeType)));
         assertThat(redaction.getReason().getDescription(), is("Personal data"));
         assertThat(redaction.getMethod(), is("removal"));
     }
