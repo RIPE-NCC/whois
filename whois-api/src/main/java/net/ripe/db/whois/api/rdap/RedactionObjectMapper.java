@@ -18,8 +18,7 @@ public class RedactionObjectMapper {
 
     final static List<AttributeType> RDAP_VCARD_REDACTED_ATTRIBUTES = List.of(
             AttributeType.NOTIFY,
-            AttributeType.E_MAIL,
-            AttributeType.LANGUAGE);
+            AttributeType.E_MAIL);
 
     public static void mapRedactions(final RdapObject rdapObject) {
         addRedaction(rdapObject, rdapObject.getRedactedRpslAttrs(), rdapObject.getEntitySearchResults(), "$");
@@ -67,14 +66,9 @@ public class RedactionObjectMapper {
                                 String.format("%s.%s", prefix, attributeName),
                                 String.format("There are multiple %s attributes %s found, but only the first %s %s returned.", attributeName, values, attributeName, value.get(0))));
                 case LANGUAGE -> {
-                    if (value.size() > 1) {
                         redactions.add(Redaction.getRedactionByPartialValue(String.format("Multiple %s attributes found", attributeName),
                                 String.format("%s.lang", prefix),
                                 String.format("There are multiple %s attributes %s found, but only the first %s %s returned.", attributeName, values, attributeName, value.get(0))));
-                    }
-                    redactions.add(Redaction.getRedactionByRemoval("Personal language information",
-                            String.format("%s.vcardArray[1][?(@[0]=='lang')]", prefix),
-                            "Personal data"));
                 }
             }
         });

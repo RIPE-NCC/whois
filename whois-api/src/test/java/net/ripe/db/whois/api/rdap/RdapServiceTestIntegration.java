@@ -68,10 +68,9 @@ public class RdapServiceTestIntegration extends AbstractRdapIntegrationTest {
     @Autowired
     TestWhoisLog queryLog;
 
-    private static final Map<String, String> ATTRIBUTE_TYPE_NAME_DESCRIPTION = Map.of(
-            "e-mail", "Personal e-mail information",
-            "notify", "Updates notification e-mail information",
-            "lang", "Personal language information");
+    private static final Map<AttributeType, String> ATTRIBUTE_TYPE_NAME_DESCRIPTION = Map.of(
+            E_MAIL, "Personal e-mail information",
+            NOTIFY, "Updates notification e-mail information");
 
     @BeforeEach
     public void setup() {
@@ -387,8 +386,7 @@ public class RdapServiceTestIntegration extends AbstractRdapIntegrationTest {
         assertThat(entity.getHandle(), equalTo("ORG-AC1-TEST"));
         assertThat(entity.getLang(), is("DK"));
 
-        assertThat(entity.getRedacted().size(), is(1));
-        assertPersonalRedaction(entity, LANGUAGE);
+        assertThat(entity.getRedacted().size(), is(0));
         // no notice for single language
         final List<Notice> notices = entity.getNotices();
         assertThat(notices, hasSize(4));
@@ -426,7 +424,6 @@ public class RdapServiceTestIntegration extends AbstractRdapIntegrationTest {
         assertThat(entity.getHandle(), equalTo("ORG-LANG-TEST"));
         assertThat(entity.getLang(), is("DK"));
 
-        assertPersonalRedaction(entity, LANGUAGE);
         assertMultipleValuesRedaction(entity, "$", LANGUAGE, "DK, EN");
 
         final List<Notice> notices = entity.getNotices();
@@ -2448,7 +2445,6 @@ public class RdapServiceTestIntegration extends AbstractRdapIntegrationTest {
 
         assertPersonalRedaction(entity,  NOTIFY);
         assertPersonalRedaction(entity,  E_MAIL);
-        assertPersonalRedaction(entity,  LANGUAGE);
 
         assertPersonalRedactionForEntities(entity, entity.getEntitySearchResults(), "$","TP2-TEST",  NOTIFY);
         assertPersonalRedactionForEntities(entity, entity.getEntitySearchResults(),"$", "TP3-TEST",  E_MAIL);
@@ -2862,15 +2858,14 @@ public class RdapServiceTestIntegration extends AbstractRdapIntegrationTest {
     }
 
     private void assertPersonalRedaction(final Entity entity,final AttributeType attribute) {
-        final String rdapAttrName = (attribute == LANGUAGE) ? "lang" : attribute.getName();
         final String entityJson = getEntityJson(entity);
 
         final Redaction redaction =
-                entity.getRedacted().stream().filter( redact -> redact.getPrePath()!= null && redact.getPrePath().contains(rdapAttrName)).findAny().get();
+                entity.getRedacted().stream().filter( redact -> redact.getPrePath()!= null && redact.getPrePath().contains(attribute.getName())).findAny().get();
         final List<Object> vcards = JsonPath.read(entityJson, redaction.getPrePath());
         assertThat(vcards.size(), is(0));
 
-        assertCommonPersonalRedaction(entity, redaction, entity, rdapAttrName);
+        assertCommonPersonalRedaction(entity, redaction, entity, attribute);
     }
 
     private void assertPersonalRedactionForEntities(final RdapObject entity, final List<Entity> entities, final String prefix, final String personKey, final AttributeType attribute) {
@@ -2884,15 +2879,11 @@ public class RdapServiceTestIntegration extends AbstractRdapIntegrationTest {
         assertThat(vcards.size(), is(0));
 
         final Entity insideEntity = entities.stream().filter( contacEntity -> contacEntity.getHandle().equals(personKey)).findFirst().get();
-        assertCommonPersonalRedaction(entity, redaction, insideEntity, attribute.getName());
+        assertCommonPersonalRedaction(entity, redaction, insideEntity, attribute);
     }
 
-    private void assertCommonPersonalRedaction(final RdapObject entity, final Redaction redaction,
-                                               final Entity insideEntity, final String attributeType) {
-
-
-        ((ArrayList) insideEntity.getVCardArray().get(1)).add(0, Lists.newArrayList(attributeType, "", TEXT.getValue(),
-                "abc@ripe.net"));
+    private void assertCommonPersonalRedaction(final RdapObject entity, final Redaction redaction, final Entity insideEntity, final AttributeType attributeType) {
+        ((ArrayList) insideEntity.getVCardArray().get(1)).add(0, Lists.newArrayList(attributeType.getName(), "", TEXT.getValue(), "abc@ripe.net"));
 
         final String entityAfterAddingVcard = getEntityJson(entity);
 
