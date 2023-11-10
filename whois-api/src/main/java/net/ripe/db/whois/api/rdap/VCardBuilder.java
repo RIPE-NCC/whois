@@ -20,6 +20,7 @@ import static net.ripe.db.whois.api.rdap.domain.vcard.VCardName.EMAIL;
 import static net.ripe.db.whois.api.rdap.domain.vcard.VCardName.FN;
 import static net.ripe.db.whois.api.rdap.domain.vcard.VCardName.GEO;
 import static net.ripe.db.whois.api.rdap.domain.vcard.VCardName.KIND;
+import static net.ripe.db.whois.api.rdap.domain.vcard.VCardName.LANG;
 import static net.ripe.db.whois.api.rdap.domain.vcard.VCardName.ORG;
 import static net.ripe.db.whois.api.rdap.domain.vcard.VCardName.TELEPHONE;
 import static net.ripe.db.whois.api.rdap.domain.vcard.VCardName.VERSION;
@@ -84,6 +85,11 @@ public class VCardBuilder {
 
     public VCardBuilder addOrg(final Set<CIString> values) {
         values.forEach( org-> addProperty(ORG, EMPTY_MAP, TEXT, org));
+        return this;
+    }
+
+    public VCardBuilder addLang(final Set<CIString> values) {
+        values.forEach( lang-> addProperty(LANG, EMPTY_MAP, TEXT, lang));
         return this;
     }
 

@@ -645,6 +645,7 @@ class RdapObjectMapper {
                 .addFax(rpslObject.getValuesForAttribute(FAX_NO))
                 .addAbuseMailBox(rpslObject.getValueOrNullForAttribute(ABUSE_MAILBOX))
                 .addOrg(rpslObject.getValuesForAttribute(ORG))
+                .addLang(rpslObject.getValuesForAttribute(LANGUAGE))
                 .addGeo(rpslObject.getValuesForAttribute(GEOLOC));
 
         RDAP_VCARD_REDACTED_ATTRIBUTES.forEach(attributeType -> entity.getRedactedRpslAttrs()
