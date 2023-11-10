@@ -358,8 +358,6 @@ class RdapObjectMapper {
             ip.setParentHandle(lookupParentHandle(ipInterval));
         }
         ip.setStatus(Collections.singletonList(getResourceStatus(rpslObject).getValue()));
-        /*handleLanguageAttribute(rpslObject, ip);
-        handleCountryAttribute(rpslObject, ip);*/
         ip.setCidr0_cidrs(getIpCidr0Notation(toIpRange(ipInterval)));
 
         this.mapContactEntities(ip, rpslObject, requestUrl);
@@ -530,7 +528,6 @@ class RdapObjectMapper {
         createVCard(entity, rpslObject);
         this.mapContactEntities(entity, rpslObject, requestUrl);
 
-        //handleLanguageAttribute(rpslObject, entity);
         return entity;
     }
 

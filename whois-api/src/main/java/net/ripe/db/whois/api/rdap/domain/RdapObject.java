@@ -3,7 +3,6 @@ package net.ripe.db.whois.api.rdap.domain;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.google.common.collect.Lists;
-import com.google.common.collect.Sets;
 import jakarta.xml.bind.annotation.XmlAccessType;
 import jakarta.xml.bind.annotation.XmlAccessorType;
 import jakarta.xml.bind.annotation.XmlElement;
@@ -14,7 +13,6 @@ import jakarta.xml.bind.annotation.XmlType;
 import net.ripe.db.whois.common.rpsl.RpslAttribute;
 
 import java.io.Serializable;
-import java.util.LinkedHashSet;
 import java.util.List;
 
 @XmlAccessorType(XmlAccessType.FIELD)
@@ -67,7 +65,7 @@ public class RdapObject implements Serializable {
 
     @XmlTransient
     @JsonIgnore
-    private LinkedHashSet<RpslAttribute> redactedRpslAttrs;
+    private List<RpslAttribute> redactedRpslAttrs;
 
     protected List<Redaction> redacted;
 
@@ -78,9 +76,9 @@ public class RdapObject implements Serializable {
         return this.status;
     }
 
-    public LinkedHashSet<RpslAttribute> getRedactedRpslAttrs() {
+    public List<RpslAttribute> getRedactedRpslAttrs() {
         if(this.redactedRpslAttrs == null) {
-            this.redactedRpslAttrs = Sets.newLinkedHashSet();
+            this.redactedRpslAttrs = Lists.newArrayList();
         }
 
         return redactedRpslAttrs;

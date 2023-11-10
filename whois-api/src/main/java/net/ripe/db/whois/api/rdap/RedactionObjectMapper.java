@@ -8,7 +8,6 @@ import net.ripe.db.whois.common.domain.CIString;
 import net.ripe.db.whois.common.rpsl.AttributeType;
 import net.ripe.db.whois.common.rpsl.RpslAttribute;
 
-import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -34,7 +33,8 @@ public class RedactionObjectMapper {
                 String.format("$.autnums[?(@.handle=='%s')]", autnum.getHandle())));
     }
 
-    private static void addRedaction(final RdapObject rdapObject, final LinkedHashSet<RpslAttribute> redactedAttributes, final List<Entity> entities, final String prefix) {
+    private static void addRedaction(final RdapObject rdapObject, final List<RpslAttribute> redactedAttributes,
+                                     final List<Entity> entities, final String prefix) {
         rdapObject.getRedacted().addAll(getRedactions(redactedAttributes, prefix));
         addEntitiesRedaction(rdapObject, entities, prefix);
     }
@@ -44,7 +44,7 @@ public class RedactionObjectMapper {
                 String.format("%s.entities[?(@.handle=='%s')]", prefix, entity.getHandle()))));
     }
 
-    private static Set<Redaction> getRedactions(final LinkedHashSet<RpslAttribute> rpslAttributes, final String prefix) {
+    private static Set<Redaction> getRedactions(final List<RpslAttribute> rpslAttributes, final String prefix) {
         final Set<Redaction> redactions = Sets.newHashSet();
 
         final Map<AttributeType, List<CIString>> attributeTypeByValues =  rpslAttributes.stream()
