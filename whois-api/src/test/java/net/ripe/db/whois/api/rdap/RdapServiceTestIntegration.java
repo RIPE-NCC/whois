@@ -617,7 +617,19 @@ public class RdapServiceTestIntegration extends AbstractRdapIntegrationTest {
                     .request(MediaType.APPLICATION_JSON_TYPE)
                     .get(Ip.class);
         });
-        assertThat(badRequestException.getResponse().readEntity(String.class), containsString("reason: Ambiguous URI empty segment"));
+
+        assertThat(badRequestException.getResponse().readEntity(String.class), containsString("Ambiguous URI empty segment"));
+    }
+
+    @Test
+    public void lookup_inetnum_empty_ip() {
+        final BadRequestException badRequestException = assertThrows(BadRequestException.class, () -> {
+            createResource("ip/")
+                    .request(MediaType.APPLICATION_JSON_TYPE)
+                    .get(Ip.class);
+        });
+
+        assertThat(badRequestException.getResponse().readEntity(String.class), containsString("empty lookup term"));
     }
 
     @Test
@@ -1002,7 +1014,7 @@ public class RdapServiceTestIntegration extends AbstractRdapIntegrationTest {
         assertThat(notices.get(0).getTitle(), is("Filtered"));
         assertThat(notices.get(1).getTitle(), is("Source"));
 
-        assertTnCNotice(notices.get(2),"https://rdap.db.ripe.net/entity/FR1-TEST");
+        assertTnCNotice(notices.get(2), "https://rdap.db.ripe.net/entity/FR1-TEST");
     }
 
     @Test
@@ -1083,7 +1095,7 @@ public class RdapServiceTestIntegration extends AbstractRdapIntegrationTest {
     }
 
     @Test
-    public void lookup_domain_object_inet4num(){
+    public void lookup_domain_object_inet4num() {
 
         databaseHelper.addObject("" +
                 "inetnum:       80.179.52.0 - 80.179.55.255\n" +
@@ -1134,7 +1146,7 @@ public class RdapServiceTestIntegration extends AbstractRdapIntegrationTest {
     }
 
     @Test
-    public void lookup_domain_object_inet6num(){
+    public void lookup_domain_object_inet6num() {
 
         databaseHelper.addObject("" +
                 "inet6num:      2a00:2cce::/32\n" +
@@ -1185,7 +1197,7 @@ public class RdapServiceTestIntegration extends AbstractRdapIntegrationTest {
     }
 
     @Test
-    public void lookup_domain_object_without_inetnum(){
+    public void lookup_domain_object_without_inetnum() {
 
         databaseHelper.addObject("" +
                 "domain:        52.179.80.in-addr.arpa\n" +
@@ -1233,6 +1245,7 @@ public class RdapServiceTestIntegration extends AbstractRdapIntegrationTest {
         assertThat(links.get(0).getRel(), is("copyright"));
         assertThat(links.get(0).getHref(), is("http://www.ripe.net/data-tools/support/documentation/terms"));
     }
+
     @Test
     public void lookup_domain_object_is_case_insensitive() {
         final Domain domain = createResource("domain/31.12.202.IN-AddR.ARPA")       // mixed case in request
@@ -1312,6 +1325,7 @@ public class RdapServiceTestIntegration extends AbstractRdapIntegrationTest {
         assertThat(rdapObject.getRdapConformance(), containsInAnyOrder("cidr0", "rdap_level_0",
                 "nro_rdap_profile_0", "nro_rdap_profile_asn_flat_0", "redacted"));
     }
+
     @Test
     public void lookup_autnum_invalid_syntax() {
         final BadRequestException badRequestException = assertThrows(BadRequestException.class, () -> {
@@ -1544,7 +1558,7 @@ public class RdapServiceTestIntegration extends AbstractRdapIntegrationTest {
                 "admin-c:       TP1-TEST\n" +
                 "tech-c:        TP1-TEST\n" +
                 "mnt-by:        OWNER-MNT\n" +
-                "mnt-irt:       irt-IRT1\n"  +
+                "mnt-irt:       irt-IRT1\n" +
                 "created:         2022-08-14T11:48:28Z\n" +
                 "last-modified:   2022-10-25T12:22:39Z\n" +
                 "source:        TEST");
@@ -1580,6 +1594,7 @@ public class RdapServiceTestIntegration extends AbstractRdapIntegrationTest {
                 "[tel, {type=voice}, text, +31 6 12345678]]"));
 
     }
+
     @Test
     public void lookup_autnum_has_abuse_contact_object() {
         databaseHelper.addObject("" +
@@ -1671,7 +1686,7 @@ public class RdapServiceTestIntegration extends AbstractRdapIntegrationTest {
         assertThat(
                 autnum.getRemarks().get(0).getDescription(),
                 contains("Abuse contact for 'AS102' is 'abuse@test.net'\n" +
-                        "Abuse-mailbox validation failed. Please refer to ORG-TEST1-TEST for further information.\n") );
+                        "Abuse-mailbox validation failed. Please refer to ORG-TEST1-TEST for further information.\n"));
     }
 
     @Test
@@ -1715,7 +1730,7 @@ public class RdapServiceTestIntegration extends AbstractRdapIntegrationTest {
         assertThat(
                 autnum.getRemarks().get(0).getDescription(),
                 contains("Abuse contact for 'AS102' is 'abuse@test.net'\n" +
-                        "Abuse-mailbox validation failed. Please refer to ORG-TEST1-TEST for further information.\n") );
+                        "Abuse-mailbox validation failed. Please refer to ORG-TEST1-TEST for further information.\n"));
 
         assertThat(
                 autnum.getRemarks().get(1).getDescription().get(0), is("test description"));
@@ -2035,6 +2050,7 @@ public class RdapServiceTestIntegration extends AbstractRdapIntegrationTest {
         assertThat(response.getAutnums().get(0).getName(), equalTo("AS-TEST"));
         assertThat(response.getNetworks().get(0).getName(), equalTo("TEST-NET-NAME"));
     }
+
     @Test
     public void lookup_org_max_inetnum_handle() {
         databaseHelper.addObject("" +
@@ -2173,6 +2189,7 @@ public class RdapServiceTestIntegration extends AbstractRdapIntegrationTest {
         assertThat(rdapObject.getRdapConformance(), containsInAnyOrder("cidr0", "rdap_level_0",
                 "nro_rdap_profile_0", "redacted"));
     }
+
     @Test
     public void lookup_org_invalid_syntax() {
         final BadRequestException badRequestException = assertThrows(BadRequestException.class, () -> {
@@ -2395,10 +2412,10 @@ public class RdapServiceTestIntegration extends AbstractRdapIntegrationTest {
                 .request(MediaType.APPLICATION_JSON_TYPE)
                 .get(Entity.class);
 
-        assertPersonalRedaction(entity,  NOTIFY);
+        assertPersonalRedaction(entity, NOTIFY);
         assertPersonalRedaction(entity, E_MAIL);
-        assertPersonalRedactionForEntities(entity, entity.getEntitySearchResults(), "$","TP2-TEST", E_MAIL);
-        assertPersonalRedactionForEntities(entity, entity.getEntitySearchResults(), "$","TP2-TEST", NOTIFY);
+        assertPersonalRedactionForEntities(entity, entity.getEntitySearchResults(), "$", "TP2-TEST", E_MAIL);
+        assertPersonalRedactionForEntities(entity, entity.getEntitySearchResults(), "$", "TP2-TEST", NOTIFY);
 
 
         assertCommon(entity);
@@ -2444,12 +2461,12 @@ public class RdapServiceTestIntegration extends AbstractRdapIntegrationTest {
                 .request(MediaType.APPLICATION_JSON_TYPE)
                 .get(Entity.class);
 
-        assertPersonalRedaction(entity,  NOTIFY);
-        assertPersonalRedaction(entity,  E_MAIL);
+        assertPersonalRedaction(entity, NOTIFY);
+        assertPersonalRedaction(entity, E_MAIL);
 
-        assertPersonalRedactionForEntities(entity, entity.getEntitySearchResults(), "$","TP2-TEST",  NOTIFY);
-        assertPersonalRedactionForEntities(entity, entity.getEntitySearchResults(),"$", "TP3-TEST",  E_MAIL);
-        assertPersonalRedactionForEntities(entity, entity.getEntitySearchResults(), "$","TP3-TEST",  NOTIFY);
+        assertPersonalRedactionForEntities(entity, entity.getEntitySearchResults(), "$", "TP2-TEST", NOTIFY);
+        assertPersonalRedactionForEntities(entity, entity.getEntitySearchResults(), "$", "TP3-TEST", E_MAIL);
+        assertPersonalRedactionForEntities(entity, entity.getEntitySearchResults(), "$", "TP3-TEST", NOTIFY);
         assertCommon(entity);
     }
 
@@ -2519,8 +2536,8 @@ public class RdapServiceTestIntegration extends AbstractRdapIntegrationTest {
                 .request(MediaType.APPLICATION_JSON_TYPE)
                 .get(Autnum.class);
 
-        assertPersonalRedactionForEntities(autnum, autnum.getEntitySearchResults(), "$","TP2-TEST", E_MAIL);
-        assertPersonalRedactionForEntities(autnum, autnum.getEntitySearchResults(), "$","TP2-TEST", NOTIFY);
+        assertPersonalRedactionForEntities(autnum, autnum.getEntitySearchResults(), "$", "TP2-TEST", E_MAIL);
+        assertPersonalRedactionForEntities(autnum, autnum.getEntitySearchResults(), "$", "TP2-TEST", NOTIFY);
     }
 
     @Test
@@ -2573,19 +2590,19 @@ public class RdapServiceTestIntegration extends AbstractRdapIntegrationTest {
 
         assertPersonalRedaction(entity, E_MAIL);
 
-        final Ip ip = entity.getNetworks().stream().filter( network -> network.getHandle().equals("109.111.192.0 - 109.111.223.255")).findFirst().get();
-        assertPersonalRedactionForEntities(entity, ip.getEntitySearchResults(),"$.networks", "ORG-TEST1-TEST", E_MAIL);
-        assertPersonalRedactionForEntities(entity, ip.getEntitySearchResults(),"$.networks", "TP2-TEST", NOTIFY);
-        assertPersonalRedactionForEntities(entity, ip.getEntitySearchResults(), "$.networks","TP2-TEST", E_MAIL);
-        assertPersonalRedactionForEntities(entity, ip.getEntitySearchResults(),"$.networks", "TP3-TEST", E_MAIL);
-        assertPersonalRedactionForEntities(entity, ip.getEntitySearchResults(),"$.networks", "TP3-TEST", NOTIFY);
+        final Ip ip = entity.getNetworks().stream().filter(network -> network.getHandle().equals("109.111.192.0 - 109.111.223.255")).findFirst().get();
+        assertPersonalRedactionForEntities(entity, ip.getEntitySearchResults(), "$.networks", "ORG-TEST1-TEST", E_MAIL);
+        assertPersonalRedactionForEntities(entity, ip.getEntitySearchResults(), "$.networks", "TP2-TEST", NOTIFY);
+        assertPersonalRedactionForEntities(entity, ip.getEntitySearchResults(), "$.networks", "TP2-TEST", E_MAIL);
+        assertPersonalRedactionForEntities(entity, ip.getEntitySearchResults(), "$.networks", "TP3-TEST", E_MAIL);
+        assertPersonalRedactionForEntities(entity, ip.getEntitySearchResults(), "$.networks", "TP3-TEST", NOTIFY);
 
         final Autnum autnum = entity.getAutnums().stream().filter(network -> network.getHandle().equals("AS64496")).findFirst().get();
-        assertPersonalRedactionForEntities(entity, autnum.getEntitySearchResults(),"$.autnums", "ORG-TEST1-TEST", E_MAIL);
-        assertPersonalRedactionForEntities(entity, autnum.getEntitySearchResults(), "$.autnums","TP2-TEST", NOTIFY);
-        assertPersonalRedactionForEntities(entity, autnum.getEntitySearchResults(), "$.autnums","TP2-TEST", E_MAIL);
+        assertPersonalRedactionForEntities(entity, autnum.getEntitySearchResults(), "$.autnums", "ORG-TEST1-TEST", E_MAIL);
+        assertPersonalRedactionForEntities(entity, autnum.getEntitySearchResults(), "$.autnums", "TP2-TEST", NOTIFY);
+        assertPersonalRedactionForEntities(entity, autnum.getEntitySearchResults(), "$.autnums", "TP2-TEST", E_MAIL);
 
-        assertPersonalRedactionForEntities(entity, entity.getEntitySearchResults(), "$","PP1-TEST",  E_MAIL);
+        assertPersonalRedactionForEntities(entity, entity.getEntitySearchResults(), "$", "PP1-TEST", E_MAIL);
 
         assertCommon(entity);
     }
@@ -2631,9 +2648,9 @@ public class RdapServiceTestIntegration extends AbstractRdapIntegrationTest {
 
         assertThat(domain.getRedacted().size(), is(3));
 
-        assertPersonalRedactionForEntities(domain, domain.getNetwork().getEntitySearchResults(), "$","ORG-TEST1-TEST",  E_MAIL);
-        assertPersonalRedactionForEntities(domain, domain.getNetwork().getEntitySearchResults(), "$","TP2-TEST", NOTIFY);
-        assertPersonalRedactionForEntities(domain, domain.getNetwork().getEntitySearchResults(), "$","TP2-TEST",  E_MAIL);
+        assertPersonalRedactionForEntities(domain, domain.getNetwork().getEntitySearchResults(), "$", "ORG-TEST1-TEST", E_MAIL);
+        assertPersonalRedactionForEntities(domain, domain.getNetwork().getEntitySearchResults(), "$", "TP2-TEST", NOTIFY);
+        assertPersonalRedactionForEntities(domain, domain.getNetwork().getEntitySearchResults(), "$", "TP2-TEST", E_MAIL);
     }
     // search - entities - organisation
 
@@ -2700,7 +2717,7 @@ public class RdapServiceTestIntegration extends AbstractRdapIntegrationTest {
                 .options();
 
         assertThat(response.getHeaderString(HttpHeaders.ACCESS_CONTROL_ALLOW_ORIGIN), is("http://www.foo.net"));
-        assertThat(response.getHeaderString(HttpHeaders.ACCESS_CONTROL_ALLOW_METHODS).split("[,]"), arrayContainingInAnyOrder("GET","OPTIONS"));
+        assertThat(response.getHeaderString(HttpHeaders.ACCESS_CONTROL_ALLOW_METHODS).split("[,]"), arrayContainingInAnyOrder("GET", "OPTIONS"));
     }
 
     @Test
@@ -2836,9 +2853,9 @@ public class RdapServiceTestIntegration extends AbstractRdapIntegrationTest {
         assertThat(notice.getLinks().get(0).getValue(), is(value));
     }
 
-    private void assertMultipleValuesRedaction(final RdapObject rdapObject, final String prefix, final AttributeType type,final String multipleValues) {
+    private void assertMultipleValuesRedaction(final RdapObject rdapObject, final String prefix, final AttributeType type, final String multipleValues) {
         final String rdapAttrName = (type == LANGUAGE) ? "lang" : type.getName();
-        final Redaction redaction = rdapObject.getRedacted().stream().filter( redact -> redact.getPostPath()!= null && redact.getPostPath().contains(rdapAttrName)).findFirst().get();
+        final Redaction redaction = rdapObject.getRedacted().stream().filter(redact -> redact.getPostPath() != null && redact.getPostPath().contains(rdapAttrName)).findFirst().get();
 
         final Redaction expectedRedaction = Redaction.getRedactionByPartialValue(String.format("Multiple %s attributes found", type.getName()),
                 String.format("%s.%s", prefix, rdapAttrName),
@@ -2847,9 +2864,9 @@ public class RdapServiceTestIntegration extends AbstractRdapIntegrationTest {
         assertThat(redaction, equalTo(expectedRedaction));
 
         final String entityJson = getEntityJson(rdapObject);
-        final Object redactedElement =  JsonPath.read(entityJson, redaction.getPostPath());
+        final Object redactedElement = JsonPath.read(entityJson, redaction.getPostPath());
 
-        if(redactedElement instanceof JSONArray) {
+        if (redactedElement instanceof JSONArray) {
             //incase of networks  it is a list
             assertThat(((JSONArray) redactedElement).get(0), is(multipleValues.split(",")[0]));
         } else {
@@ -2858,11 +2875,11 @@ public class RdapServiceTestIntegration extends AbstractRdapIntegrationTest {
 
     }
 
-    private void assertPersonalRedaction(final Entity entity,final AttributeType attribute) {
+    private void assertPersonalRedaction(final Entity entity, final AttributeType attribute) {
         final String entityJson = getEntityJson(entity);
 
         final Redaction redaction =
-                entity.getRedacted().stream().filter( redact -> redact.getPrePath()!= null && redact.getPrePath().contains(attribute.getName())).findAny().get();
+                entity.getRedacted().stream().filter(redact -> redact.getPrePath() != null && redact.getPrePath().contains(attribute.getName())).findAny().get();
         final List<Object> vcards = JsonPath.read(entityJson, redaction.getPrePath());
         assertThat(vcards.size(), is(0));
 
@@ -2873,13 +2890,13 @@ public class RdapServiceTestIntegration extends AbstractRdapIntegrationTest {
         final String entityJson = getEntityJson(entity);
 
         final Redaction redaction = entity.getRedacted().stream()
-                .filter(redact -> redact.getPrePath().contains(prefix) &&  redact.getPrePath().contains(personKey) &&  redact.getPrePath().contains(attribute.getName()))
+                .filter(redact -> redact.getPrePath().contains(prefix) && redact.getPrePath().contains(personKey) && redact.getPrePath().contains(attribute.getName()))
                 .findAny().get();
 
         final List<Object> vcards = JsonPath.read(entityJson, redaction.getPrePath());
         assertThat(vcards.size(), is(0));
 
-        final Entity insideEntity = entities.stream().filter( contacEntity -> contacEntity.getHandle().equals(personKey)).findFirst().get();
+        final Entity insideEntity = entities.stream().filter(contacEntity -> contacEntity.getHandle().equals(personKey)).findFirst().get();
         assertCommonPersonalRedaction(entity, redaction, insideEntity, attribute);
     }
 
@@ -2925,5 +2942,4 @@ public class RdapServiceTestIntegration extends AbstractRdapIntegrationTest {
             throw new RuntimeException(e);
         }
     }
-
 }
