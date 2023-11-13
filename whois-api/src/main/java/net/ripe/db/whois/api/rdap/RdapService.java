@@ -273,16 +273,13 @@ public class RdapService {
     protected Response lookupForOrganisation(final HttpServletRequest request, final String key) {
         final List<RpslObject> organisationResult = rdapQueryHandler.handleQueryStream(getQueryObject(Set.of(ORGANISATION), key), request).toList();
 
-        final RpslObject organisation;
-        switch (organisationResult.size()) {
-            case 0:
-                throw new RdapException("404 Not Found", "Requested organisation not found: " + key, HttpStatus.NOT_FOUND_404);
-            case 1:
-                organisation = organisationResult.get(0);
-                break;
-            default:
-                throw new RdapException("500 Internal Error", "Unexpected result size: " + organisationResult.size(), HttpStatus.INTERNAL_SERVER_ERROR_500);
-        }
+        final RpslObject organisation = switch (organisationResult.size()) {
+            case 0 ->
+                    throw new RdapException("404 Not Found", "Requested organisation not found: " + key, HttpStatus.NOT_FOUND_404);
+            case 1 -> organisationResult.get(0);
+            default ->
+                    throw new RdapException("500 Internal Error", "Unexpected result size: " + organisationResult.size(), HttpStatus.INTERNAL_SERVER_ERROR_500);
+        };
 
         final Set<RpslObjectInfo> references = getReferences(organisation);
 
