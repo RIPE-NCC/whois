@@ -7,6 +7,7 @@ import net.ripe.db.whois.api.RestTest;
 import net.ripe.db.whois.api.SecureRestTest;
 import net.ripe.db.whois.api.httpserver.AbstractClientCertificateIntegrationTest;
 import net.ripe.db.whois.api.httpserver.CertificatePrivateKeyPair;
+import net.ripe.db.whois.api.httpserver.WhoisKeystore;
 import net.ripe.db.whois.api.rest.domain.WhoisObject;
 import net.ripe.db.whois.api.rest.domain.WhoisResources;
 import net.ripe.db.whois.api.rest.mapper.FormattedClientAttributeMapper;
@@ -23,13 +24,16 @@ import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
+import javax.net.ssl.SSLContext;
+import java.nio.file.Files;
+import java.nio.file.Path;
+
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
 import static org.junit.jupiter.api.Assertions.fail;
 
-// TODO
 @Tag("IntegrationTest")
 public class WhoisClientCertificateAuthenticationTestIntegration extends AbstractClientCertificateIntegrationTest {
 
@@ -83,7 +87,9 @@ public class WhoisClientCertificateAuthenticationTestIntegration extends Abstrac
         } catch (NotAuthorizedException e) {
             final WhoisResources whoisResources = e.getResponse().readEntity(WhoisResources.class);
             RestTest.assertErrorCount(whoisResources, 1);
-            RestTest.assertErrorMessage(whoisResources, 0, "Error", "Authorisation for [%s] %s failed\nusing \"%s:\"\nnot authenticated by: %s", "person", "TP1-TEST", "mnt-by", "OWNER-MNT");
+            RestTest.assertErrorMessage(whoisResources, 0, "Error",
+                "Authorisation for [%s] %s failed\nusing \"%s:\"\n" +
+                 "not authenticated by: %s", "person", "TP1-TEST", "mnt-by", "OWNER-MNT");
         }
     }
 
@@ -130,7 +136,9 @@ public class WhoisClientCertificateAuthenticationTestIntegration extends Abstrac
         } catch (NotAuthorizedException e) {
             final WhoisResources whoisResources = e.getResponse().readEntity(WhoisResources.class);
             RestTest.assertErrorCount(whoisResources, 1);
-            RestTest.assertErrorMessage(whoisResources, 0, "Error", "Authorisation for [%s] %s failed\nusing \"%s:\"\nnot authenticated by: %s", "person", "TP1-TEST", "mnt-by", "OWNER-MNT");
+            RestTest.assertErrorMessage(whoisResources, 0, "Error",
+                "Authorisation for [%s] %s failed\nusing \"%s:\"\n" +
+                 "not authenticated by: %s", "person", "TP1-TEST", "mnt-by", "OWNER-MNT");
         }
     }
 
@@ -158,7 +166,9 @@ public class WhoisClientCertificateAuthenticationTestIntegration extends Abstrac
         } catch (NotAuthorizedException e) {
             final WhoisResources whoisResources = e.getResponse().readEntity(WhoisResources.class);
             RestTest.assertErrorCount(whoisResources, 1);
-            RestTest.assertErrorMessage(whoisResources, 0, "Error", "Authorisation for [%s] %s failed\nusing \"%s:\"\nnot authenticated by: %s", "person", "TP1-TEST", "mnt-by", "OWNER-MNT");
+            RestTest.assertErrorMessage(whoisResources, 0, "Error",
+                "Authorisation for [%s] %s failed\nusing \"%s:\"\n" +
+                 "not authenticated by: %s", "person", "TP1-TEST", "mnt-by", "OWNER-MNT");
         }
     }
 
@@ -186,6 +196,43 @@ public class WhoisClientCertificateAuthenticationTestIntegration extends Abstrac
 
         assertThat(whoisResources.getWhoisObjects(), hasSize(1));
         assertThat(whoisResources.getWhoisObjects().get(0).getAttributes().get(3).getValue(), containsString("updated"));
+    }
+
+    @Test
+    public void update_person_missing_private_key_unauthorised() throws Exception {
+        // create certificate and don't use private key
+        final CertificatePrivateKeyPair certificatePrivateKeyPair = new CertificatePrivateKeyPair();
+        final Path emptyFile = Files.createTempFile("privateKey", "key");
+        final WhoisKeystore whoisKeystore = new WhoisKeystore(new String[]{emptyFile.toString()}, new String[]{certificatePrivateKeyPair.getCertificateFilename()}, null);
+        final SSLContext sslContext = createSSLContext(whoisKeystore.getKeystore(), whoisKeystore.getPassword());
+
+        final RpslObject updatedPerson = RpslObject.parse(
+            "person: Test Person\n" +
+             "address: Amsterdam\n" +
+             "phone: +31 6 12345678\n" +
+             "remarks: updated\n" +
+             "nic-hdl: TP1-TEST\n" +
+             "mnt-by: OWNER-MNT\n" +
+             "source: TEST");
+
+        // generate client cert and add to mntner
+        final RpslObject keycertObject = createKeycertObject(certificatePrivateKeyPair.getCertificate(), "OWNER-MNT");
+        databaseHelper.addObject(keycertObject);
+        final RpslObject updatedMntner = addAttribute(OWNER_MNT, AttributeType.AUTH, keycertObject.getKey());
+        databaseHelper.updateObject(updatedMntner);
+
+        try {
+            SecureRestTest.target(sslContext, getSecurePort(), "whois/test/person/TP1-TEST")
+                    .request()
+                    .put(Entity.entity(map(updatedPerson), MediaType.APPLICATION_XML), WhoisResources.class);
+            fail();
+        } catch (NotAuthorizedException e) {
+            final WhoisResources whoisResources = e.getResponse().readEntity(WhoisResources.class);
+            RestTest.assertErrorCount(whoisResources, 1);
+            RestTest.assertErrorMessage(whoisResources, 0, "Error",
+                "Authorisation for [%s] %s failed\nusing \"%s:\"\n" +
+                 "not authenticated by: %s", "person", "TP1-TEST", "mnt-by", "OWNER-MNT");
+        }
     }
 
     @Test

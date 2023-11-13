@@ -28,7 +28,7 @@ import static net.ripe.db.whois.common.rpsl.AttributeType.CERTIF;
 
 public class AbstractClientCertificateIntegrationTest extends AbstractHttpsIntegrationTest {
 
-    // generate certificate for client-side authentication
+    // generate certificate and private key for client-side authentication
     private static final CertificatePrivateKeyPair CERTIFICATE_PRIVATE_KEY = new CertificatePrivateKeyPair();
 
     // create keystore containing client-side certificate
@@ -59,10 +59,14 @@ public class AbstractClientCertificateIntegrationTest extends AbstractHttpsInteg
     // helper methods
 
     // Use client certificate in SSL context
-    private static SSLContext createSSLContext() {
+    protected static SSLContext createSSLContext() {
+        return createSSLContext(CLIENT_KEYSTORE.getKeystore(), CLIENT_KEYSTORE.getPassword());
+    }
+
+    protected static SSLContext createSSLContext(final String keystoreFilename, final String keystorePassword) {
         final KeyStore keyStore;
         try {
-            keyStore = KeyStore.getInstance(new File(CLIENT_KEYSTORE.getKeystore()), CLIENT_KEYSTORE.getPassword().toCharArray());
+            keyStore = KeyStore.getInstance(new File(keystoreFilename), keystorePassword.toCharArray());
         } catch (KeyStoreException | IOException | NoSuchAlgorithmException | CertificateException e) {
             throw new IllegalStateException(e);
         }
@@ -70,17 +74,15 @@ public class AbstractClientCertificateIntegrationTest extends AbstractHttpsInteg
         final KeyManager keyManager;
         try {
             final KeyManagerFactory keyManagerFactory = KeyManagerFactory.getInstance(KeyManagerFactory.getDefaultAlgorithm());
-            keyManagerFactory.init(keyStore, CLIENT_KEYSTORE.getPassword().toCharArray());
+            keyManagerFactory.init(keyStore, keystorePassword.toCharArray());
             keyManager = keyManagerFactory.getKeyManagers()[0];
         } catch (NoSuchAlgorithmException | KeyStoreException | UnrecoverableKeyException e) {
             throw new IllegalStateException(e);
         }
 
-        final TrustManager trustManager = new DummyTrustManager();
-
         try {
             final SSLContext sslContext = SSLContext.getInstance("TLS");
-            sslContext.init(new KeyManager[]{keyManager}, new TrustManager[]{trustManager}, new SecureRandom());
+            sslContext.init(new KeyManager[]{keyManager}, new TrustManager[]{new DummyTrustManager()}, new SecureRandom());
             return sslContext;
         } catch (NoSuchAlgorithmException | KeyManagementException e) {
             throw new IllegalStateException(e);
