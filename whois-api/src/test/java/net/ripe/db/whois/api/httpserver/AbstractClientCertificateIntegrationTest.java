@@ -22,6 +22,7 @@ import java.security.SecureRandom;
 import java.security.UnrecoverableKeyException;
 import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import static net.ripe.db.whois.common.rpsl.AttributeType.CERTIF;
 
@@ -38,6 +39,9 @@ public class AbstractClientCertificateIntegrationTest extends AbstractHttpsInteg
 
     // create client-side SSL context with keystore
     private static final SSLContext CLIENT_SSL_CONTEXT = createSSLContext();
+
+    // offset to create x509 keycert primary keys
+    private static final AtomicInteger X509_KEYCERT_OFFSET = new AtomicInteger();
 
     @BeforeAll
     public static void enableClientAuth() {
@@ -89,7 +93,7 @@ public class AbstractClientCertificateIntegrationTest extends AbstractHttpsInteg
 
         final X509CertificateWrapper x509Wrapper = new X509CertificateWrapper(x509);
 
-        final String key = String.format("%s-TEST", x509Wrapper.getFingerprint().replaceAll("[:]", "").substring(24));
+        final String key = String.format("X509-%d", X509_KEYCERT_OFFSET.incrementAndGet());
         builder.append(new RpslAttribute(AttributeType.KEY_CERT, key));
         builder.append(new RpslAttribute(AttributeType.METHOD, "X509"));
 
