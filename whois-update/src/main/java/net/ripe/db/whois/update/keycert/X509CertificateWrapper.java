@@ -49,7 +49,7 @@ public final class X509CertificateWrapper implements KeyWrapper {
         return parse(RpslObjectFilter.getCertificateFromKeyCert(rpslObject).getBytes(StandardCharsets.ISO_8859_1));
     }
 
-    static X509CertificateWrapper parse(final String certificate) {
+    public static X509CertificateWrapper parse(final String certificate) {
         return parse(certificate.getBytes());
     }
 
@@ -120,12 +120,12 @@ public final class X509CertificateWrapper implements KeyWrapper {
     @Override
     public String getFingerprint() {
         try {
-            MessageDigest md = MessageDigest.getInstance("MD5");
-            byte[] der = certificate.getEncoded();
+            final MessageDigest md = MessageDigest.getInstance("MD5");
+            final byte[] der = certificate.getEncoded();
             md.update(der);
-            byte[] digest = md.digest();
+            final byte[] digest = md.digest();
 
-            StringBuilder builder = new StringBuilder();
+            final StringBuilder builder = new StringBuilder();
             for (byte next : digest) {
                 if (builder.length() > 0) {
                     builder.append(':');

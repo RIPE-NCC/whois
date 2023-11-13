@@ -15,7 +15,7 @@ public class ClientCertificateCredential implements Credential {
         this.fingerprint = x509CertificateWrapper.getFingerprint();
     }
 
-    public static Credential createOfferedCredential(X509CertificateWrapper x509CertificateWrapper) {
+    public static Credential createOfferedCredential(final X509CertificateWrapper x509CertificateWrapper) {
         return new ClientCertificateCredential(x509CertificateWrapper);
     }
 
