@@ -64,13 +64,13 @@
         <jackson.version>2.15.2</jackson.version>
         <jaxb.api.version>4.0.0</jaxb.api.version>
         <jaxb.impl.version>4.0.3</jaxb.impl.version>
+        <jcache.version>1.1.1</jcache.version>
         <jersey.version>3.0.11</jersey.version>
         <jetty.version>11.0.17</jetty.version>
         <jflex.version>1.9.1</jflex.version>
         <jopt-simple.version>5.0.4</jopt-simple.version>
         <jsoup.version>1.16.1</jsoup.version>
         <junit.version>5.9.3</junit.version>
-        <jcache.version>1.1.1</jcache.version>
 
         <log4j.version>2.20.0</log4j.version>
 
@@ -92,7 +92,7 @@
         <spock.version>2.3-groovy-3.0</spock.version>
         <stax-utils.version>20070216</stax-utils.version>
 
-        <validation.version>2.0.1.Final</validation.version>
+        <validation.version>3.0.2</validation.version>
         <velocity.version>2.3</velocity.version>
 
         <whois.main>OVERRIDE</whois.main>
@@ -461,8 +461,33 @@
 
             <!-- Jetty as an embedded server -->
             <dependency>
+                <groupId>org.eclipse.jetty.http2</groupId>
+                <artifactId>http2-common</artifactId>
+                <version>${jetty.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.eclipse.jetty.http2</groupId>
+                <artifactId>http2-hpack</artifactId>
+                <version>${jetty.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.eclipse.jetty.http2</groupId>
+                <artifactId>http2-server</artifactId>
+                <version>${jetty.version}</version>
+            </dependency>
+            <dependency>
                 <groupId>org.eclipse.jetty</groupId>
-                <artifactId>jetty-webapp</artifactId>
+                <artifactId>jetty-alpn-java-server</artifactId>
+                <version>${jetty.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.eclipse.jetty</groupId>
+                <artifactId>jetty-alpn-server</artifactId>
+                <version>${jetty.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.eclipse.jetty</groupId>
+                <artifactId>jetty-io</artifactId>
                 <version>${jetty.version}</version>
             </dependency>
             <dependency>
@@ -478,6 +503,11 @@
             <dependency>
                 <groupId>org.eclipse.jetty</groupId>
                 <artifactId>jetty-rewrite</artifactId>
+                <version>${jetty.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.eclipse.jetty</groupId>
+                <artifactId>jetty-webapp</artifactId>
                 <version>${jetty.version}</version>
             </dependency>
 
@@ -514,16 +544,22 @@
                 <artifactId>jersey-hk2</artifactId>
                 <version>${jersey.version}</version>
             </dependency>
+
             <dependency>
                 <!-- don't use the Validation API in our code, use the static checks (JSR305) instead -->
-                <groupId>javax.validation</groupId>
-                <artifactId>validation-api</artifactId>
+                <groupId>jakarta.validation</groupId>
+                <artifactId>jakarta.validation-api</artifactId>
                 <version>${validation.version}</version>
                 <!-- set scope to prevent compile-time checks but Jersey can use at runtime -->
                 <scope>runtime</scope>
             </dependency>
 
             <!-- Jackson JSON Library -->
+            <dependency>
+                <groupId>com.fasterxml.jackson.core</groupId>
+                <artifactId>jackson-core</artifactId>
+                <version>${jackson.version}</version>
+            </dependency>
             <dependency>
                 <groupId>com.fasterxml.jackson.jakarta.rs</groupId>
                 <artifactId>jackson-jakarta-rs-base</artifactId>
@@ -544,6 +580,12 @@
                 <artifactId>jackson-module-jakarta-xmlbind-annotations</artifactId>
                 <version>${jackson.version}</version>
             </dependency>
+            <dependency>
+                <groupId>com.fasterxml.jackson.datatype</groupId>
+                <artifactId>jackson-datatype-jsr310</artifactId>
+                <version>${jackson.version}</version>
+            </dependency>
+
             <!-- StaxUtils for the XMLWriterUtils -->
             <dependency>
                 <groupId>net.java.dev.stax-utils</groupId>
@@ -829,7 +871,7 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
-                <version>3.8.0</version>
+                <version>3.8.1</version>
                 <configuration>
                     <release>${java.version}</release>
                     <encoding>${project.build.sourceEncoding}</encoding>
@@ -839,7 +881,8 @@
                         <arg>-Xlint:-rawtypes</arg>
                         <arg>-Xlint:-serial</arg>
                         <arg>-Xlint:-fallthrough</arg>
-                    	<arg>--add-modules</arg><arg>java.sql,java.xml</arg>
+                    	<arg>--add-modules</arg>
+                    	<arg>java.sql,java.xml</arg>
                     </compilerArgs>
                     <showWarnings>true</showWarnings>
                     <showDeprecation>true</showDeprecation>
@@ -1015,7 +1058,7 @@
             <plugin>
                 <groupId>org.owasp</groupId>
                 <artifactId>dependency-check-maven</artifactId>
-                <version>6.2.2</version>
+                <version>6.5.0</version>
                 <executions>
                     <execution>
                         <id>not-by-default</id>
