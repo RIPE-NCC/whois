@@ -6,6 +6,7 @@ import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
+import io.netty.util.internal.StringUtil;
 import jakarta.ws.rs.InternalServerErrorException;
 import net.ripe.commons.ip.AbstractIpRange;
 import net.ripe.commons.ip.Ipv4Range;
@@ -62,6 +63,7 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.time.LocalDateTime;
 import java.util.Collections;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -69,7 +71,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import static net.ripe.db.whois.api.rdap.RedactionObjectMapper.REDACTED_PERSONAL_ATTR;
+import static net.ripe.db.whois.api.rdap.RedactionObjectMapper.RDAP_VCARD_REDACTED_ATTRIBUTES;
 import static net.ripe.db.whois.api.rdap.RedactionObjectMapper.mapRedactions;
 import static net.ripe.db.whois.api.rdap.domain.Status.ACTIVE;
 import static net.ripe.db.whois.api.rdap.domain.Status.RESERVED;
@@ -79,10 +81,12 @@ import static net.ripe.db.whois.api.rdap.domain.vcard.VCardKind.ORGANISATION;
 import static net.ripe.db.whois.common.rpsl.AttributeType.ABUSE_MAILBOX;
 import static net.ripe.db.whois.common.rpsl.AttributeType.ADDRESS;
 import static net.ripe.db.whois.common.rpsl.AttributeType.ADMIN_C;
+import static net.ripe.db.whois.common.rpsl.AttributeType.COUNTRY;
 import static net.ripe.db.whois.common.rpsl.AttributeType.DS_RDATA;
 import static net.ripe.db.whois.common.rpsl.AttributeType.FAX_NO;
 import static net.ripe.db.whois.common.rpsl.AttributeType.GEOLOC;
 import static net.ripe.db.whois.common.rpsl.AttributeType.IRT;
+import static net.ripe.db.whois.common.rpsl.AttributeType.LANGUAGE;
 import static net.ripe.db.whois.common.rpsl.AttributeType.MNT_BY;
 import static net.ripe.db.whois.common.rpsl.AttributeType.MNT_IRT;
 import static net.ripe.db.whois.common.rpsl.AttributeType.ORG;
@@ -107,7 +111,7 @@ class RdapObjectMapper {
     private final Ipv4Tree ipv4Tree;
     private final Ipv6Tree ipv6Tree;
     private final String port43;
-    private static final Map<AttributeType, Role>   CONTACT_ATTRIBUTE_TO_ROLE_NAME = Map.of(
+    private static final Map<AttributeType, Role> CONTACT_ATTRIBUTE_TO_ROLE_NAME = Map.of(
             ADMIN_C, Role.ADMINISTRATIVE,
             TECH_C, Role.TECHNICAL,
             MNT_BY, Role.REGISTRANT,
@@ -290,6 +294,7 @@ class RdapObjectMapper {
             rdapResponse.getRemarks().add(createRemark(rpslObject));
         }
 
+        handlePartialValueAttributes(rpslObject, rdapResponse);
         rdapResponse.getEvents().add(createEvent(DateUtil.fromString(rpslObject.getValueForAttribute(AttributeType.CREATED)), Action.REGISTRATION));
         rdapResponse.getEvents().add(createEvent(DateUtil.fromString(rpslObject.getValueForAttribute(AttributeType.LAST_MODIFIED)), Action.LAST_CHANGED));
 
@@ -353,8 +358,6 @@ class RdapObjectMapper {
             ip.setParentHandle(lookupParentHandle(ipInterval));
         }
         ip.setStatus(Collections.singletonList(getResourceStatus(rpslObject).getValue()));
-        handleLanguageAttribute(rpslObject, ip);
-        handleCountryAttribute(rpslObject, ip);
         ip.setCidr0_cidrs(getIpCidr0Notation(toIpRange(ipInterval)));
 
         this.mapContactEntities(ip, rpslObject, requestUrl);
@@ -525,7 +528,6 @@ class RdapObjectMapper {
         createVCard(entity, rpslObject);
         this.mapContactEntities(entity, rpslObject, requestUrl);
 
-        handleLanguageAttribute(rpslObject, entity);
         return entity;
     }
 
@@ -642,8 +644,8 @@ class RdapObjectMapper {
                 .addOrg(rpslObject.getValuesForAttribute(ORG))
                 .addGeo(rpslObject.getValuesForAttribute(GEOLOC));
 
-        final Set<AttributeType> redactedAttributes = rpslObject.findAttributes(REDACTED_PERSONAL_ATTR).stream().map(RpslAttribute::getType).collect(Collectors.toSet());
-        entity.getvCardRedactedAttr().addAll(redactedAttributes);
+        RDAP_VCARD_REDACTED_ATTRIBUTES.forEach(attributeType -> entity.getRedactedRpslAttrs()
+                .addAll(rpslObject.findAttributes(attributeType)));
 
         entity.setVCardArray(builder.build());
     }
@@ -656,38 +658,27 @@ class RdapObjectMapper {
         }
     }
 
-    private static void handleLanguageAttribute(final RpslObject rpslObject, final RdapObject rdapObject) {
-        final List<RpslAttribute> languages = rpslObject.findAttributes(AttributeType.LANGUAGE);
-        if (languages.isEmpty()) {
-            return;
-        }
-        // TODO: [ES] add warning notice if additional languages found
-        rdapObject.setLang(languages.get(0).getCleanValue().toString());
-        addNoticeForMultipleValues(rdapObject, AttributeType.LANGUAGE, languages, rpslObject.getKey().toString());
-    }
-
-    private static void handleCountryAttribute(final RpslObject rpslObject, final Ip ip) {
-        final List<RpslAttribute> countries = rpslObject.findAttributes(AttributeType.COUNTRY);
-        if (countries.isEmpty()) {
-            return;
-        }
-        // TODO: [ES] add warning notice if additional languages found
-        ip.setCountry(countries.get(0).getCleanValue().toString());
-        addNoticeForMultipleValues(ip, AttributeType.COUNTRY, countries, ip.getHandle());
-    }
-
-    private static void addNoticeForMultipleValues(final RdapObject rdapObject, final AttributeType type, final List<RpslAttribute> values, final String key) {
-        if (values.isEmpty() || values.size() == 1) {
-            return;
-        }
-
-        final String commaSeperatedValues = values.stream().map(RpslAttribute::getCleanValue).collect(Collectors.joining(", "));
-        final String title = String.format("Multiple %s attributes found", type.getName());
-        final String desc = String.format("There are multiple %s attributes %s in %s, but only the first %s %s was returned.", type.getName(), commaSeperatedValues, key, type.getName(), values.get(0).getCleanValue());
-
-        final Notice notice = new Notice();
-        notice.setTitle(title);
-        notice.getDescription().add(desc);
-        rdapObject.getNotices().add(notice);
+    private static void handlePartialValueAttributes(final RpslObject rpslObject, final RdapObject rdapObject){
+        rpslObject.getAttributes().forEach(rpslAttribute -> {
+            switch (rpslAttribute.getType()){
+                case LANGUAGE -> {
+                    if (!StringUtil.isNullOrEmpty(rdapObject.getLang())){
+                        rdapObject.getRedactedRpslAttrs().addAll(rpslObject.findAttributes(LANGUAGE));
+                        break;
+                    }
+                    final Iterator<CIString> attributeValuesAttribute = rpslAttribute.getCleanValues().iterator();
+                    rdapObject.setLang(attributeValuesAttribute.next().toString());
+                }
+                case COUNTRY -> {
+                    final Ip ip = (Ip)rdapObject;
+                    if (!StringUtil.isNullOrEmpty(ip.getCountry())){
+                        rdapObject.getRedactedRpslAttrs().addAll(rpslObject.findAttributes(COUNTRY));
+                        break;
+                    }
+                    final Iterator<CIString> attributeValuesAttribute = rpslAttribute.getCleanValues().iterator();
+                    ip.setCountry(attributeValuesAttribute.next().toString());
+                }
+            }
+        });
     }
 }
