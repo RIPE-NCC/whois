@@ -4,6 +4,7 @@ import jakarta.mail.MessagingException;
 import jakarta.mail.internet.MimeMessage;
 import jakarta.ws.rs.core.MultivaluedMap;
 import net.ripe.db.whois.api.MailUpdatesTestSupport;
+import net.ripe.db.whois.api.httpserver.CertificatePrivateKeyPair;
 import net.ripe.db.whois.api.httpserver.JettyBootstrap;
 import net.ripe.db.whois.api.mail.dequeue.MessageDequeue;
 import net.ripe.db.whois.api.rest.WhoisRestService;
@@ -88,7 +89,6 @@ public class WhoisFixture {
 
     static {
         Slf4JLogConfiguration.init();
-
         System.setProperty("application.version", "0.1-ENDTOEND");
         System.setProperty("mail.update.threads", "2");
         System.setProperty("mail.dequeue.interval", "10");
@@ -97,6 +97,12 @@ public class WhoisFixture {
         System.setProperty("feature.toggle.changed.attr.available", "true");
         System.setProperty("ipranges.bogons", "192.0.2.0/24,2001:2::/48");
         System.setProperty("git.commit.id.abbrev", "0");
+        // enable https
+        final CertificatePrivateKeyPair certificatePrivateKeyPair = new CertificatePrivateKeyPair();
+        System.setProperty("port.api.secure", "0");
+        System.setProperty("http.sni.host.check", "false");
+        System.setProperty("whois.certificates", certificatePrivateKeyPair.getCertificateFilename());
+        System.setProperty("whois.private.keys", certificatePrivateKeyPair.getPrivateKeyFilename());
     }
 
     public void start() throws Exception {
@@ -113,7 +119,6 @@ public class WhoisFixture {
         stubs = applicationContext.getBeansOfType(Stub.class);
         messageDequeue = applicationContext.getBean(MessageDequeue.class);
         testDateTimeProvider = applicationContext.getBean(TestDateTimeProvider.class);
-
         rpslObjectDao = applicationContext.getBean(RpslObjectDao.class);
         rpslObjectUpdateDao = applicationContext.getBean(RpslObjectUpdateDao.class);
         authoritativeResourceDao = applicationContext.getBean(AuthoritativeResourceDao.class);
@@ -202,8 +207,9 @@ public class WhoisFixture {
                                     final boolean isHelp, final boolean isDiff, final boolean isNew,
                                     final boolean isRedirect, final MultivaluedMap<String, String> headers) {
         return new SyncUpdateBuilder()
+                .setProtocol("https")
                 .setHost("localhost")
-                .setPort(jettyBootstrap.getPort())
+                .setPort(jettyBootstrap.getSecurePort())
                 .setSource("TEST")
                 .setData(data)
                 .setCharset(charset)

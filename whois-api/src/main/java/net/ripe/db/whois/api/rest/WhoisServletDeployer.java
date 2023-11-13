@@ -86,8 +86,8 @@ public class WhoisServletDeployer implements ServletDeployer {
         this.fullTextSearch = fullTextSearch;
         this.batchUpdatesService = batchUpdatesService;
         this.healthCheckService = healthCheckService;
-        this.httpsBasicAuthCustomizer = httpsBasicAuthCustomizer;
         this.clientCertificateService = clientCertificateService;
+        this.httpsBasicAuthCustomizer = httpsBasicAuthCustomizer;
     }
 
     @Override

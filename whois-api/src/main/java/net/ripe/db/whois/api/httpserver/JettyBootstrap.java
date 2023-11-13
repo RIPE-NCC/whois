@@ -2,6 +2,7 @@ package net.ripe.db.whois.api.httpserver;
 
 import io.netty.handler.ssl.util.TrustManagerFactoryWrapper;
 import jakarta.servlet.DispatcherType;
+import jakarta.ws.rs.HEAD;
 import net.ripe.db.whois.common.ApplicationService;
 import net.ripe.db.whois.common.aspects.RetryFor;
 import org.eclipse.jetty.alpn.server.ALPNServerConnectionFactory;
@@ -111,12 +112,12 @@ public class JettyBootstrap implements ApplicationService {
                           final ExtensionOverridesAcceptHeaderFilter extensionOverridesAcceptHeaderFilter,
                           final List<ServletDeployer> servletDeployers,
                           final RewriteEngine rewriteEngine,
+                          final WhoisKeystore whoisKeystore,
                           @Value("${ipranges.trusted}") final String trustedIpRanges,
                           @Value("${http.idle.timeout.sec:60}") final int idleTimeout,
                           @Value("${http.sni.host.check:true}") final boolean sniHostCheck,
                           @Value("${dos.filter.enabled:false}") final boolean dosFilterEnabled,
                           @Value("${rewrite.engine.enabled:false}") final boolean rewriteEngineEnabled,
-                          final WhoisKeystore whoisKeystore,
                           @Value("${port.api:0}") final int port,
                           @Value("${port.api.secure:-1}") final int securePort
               ) throws MalformedObjectNameException {
@@ -425,6 +426,6 @@ public class JettyBootstrap implements ApplicationService {
 
     private boolean isHttpProxy() {
         // if we are not handling HTTPS then assume a loadbalancer is proxying requests
-        return securePort == 0;
+        return securePort < 0;
     }
 }
