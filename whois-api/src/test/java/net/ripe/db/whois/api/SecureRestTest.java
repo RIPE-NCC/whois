@@ -16,6 +16,13 @@ import org.glassfish.jersey.media.multipart.MultiPartFeature;
 
 import javax.net.ssl.SSLContext;
 
+/**
+ * REST client that uses HTTPS.
+ *
+ * Only used for testing because we need to connect to "localhost", so
+ * hostname verification (SNI) is turned off and self-signed certificates are trusted.
+ *
+ */
 public class SecureRestTest extends RestTest {
 
     private static final ObjectMapper OBJECT_MAPPER = JsonMapper.builder().build();

@@ -24,6 +24,7 @@ import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+// TODO: split into "insecure" builder for testing only
 public class SyncUpdateBuilder {
 
     private String url;

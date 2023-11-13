@@ -27,11 +27,16 @@ import static net.ripe.db.whois.common.rpsl.AttributeType.CERTIF;
 
 public class AbstractClientCertificateIntegrationTest extends AbstractHttpsIntegrationTest {
 
+    // generate certificate for client-side authentication
     private static final CertificatePrivateKeyPair CERTIFICATE_PRIVATE_KEY = new CertificatePrivateKeyPair();
+
+    // create keystore containing client-side certificate
     private static final WhoisKeystore CLIENT_KEYSTORE = new WhoisKeystore(
             new String[]{CERTIFICATE_PRIVATE_KEY.getPrivateKeyFilename()},
             new String[]{CERTIFICATE_PRIVATE_KEY.getCertificateFilename()},
             null);
+
+    // create client-side SSL context with keystore
     private static final SSLContext CLIENT_SSL_CONTEXT = createSSLContext();
 
     @BeforeAll
@@ -49,6 +54,7 @@ public class AbstractClientCertificateIntegrationTest extends AbstractHttpsInteg
 
     // helper methods
 
+    // Use client certificate in SSL context
     private static SSLContext createSSLContext() {
         final KeyStore keyStore;
         try {
@@ -77,6 +83,7 @@ public class AbstractClientCertificateIntegrationTest extends AbstractHttpsInteg
         }
     }
 
+    // Create X509 keycert object
     public static RpslObject createKeycertObject(final X509Certificate x509, final String mntner) {
         final RpslObjectBuilder builder = new RpslObjectBuilder();
 
