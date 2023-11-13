@@ -9,8 +9,7 @@ public enum VCardName {
     GEO("geo"),
     FN("fn"),
     EMAIL("email"),
-    ADDRESS("adr"),
-    LANG("lang");
+    ADDRESS("adr");
 
     final String value;
 

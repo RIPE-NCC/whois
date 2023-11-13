@@ -55,10 +55,6 @@ public class Redaction implements Serializable {
         return postPath;
     }
 
-    public String getPathLang() {
-        return pathLang;
-    }
-
     public String getMethod() {
         return method;
     }
