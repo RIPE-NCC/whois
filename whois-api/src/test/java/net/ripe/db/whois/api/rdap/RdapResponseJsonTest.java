@@ -85,18 +85,23 @@ public class RdapResponseJsonTest {
                 .addAdr(ciSet("Suite 1234", "4321 Rue Somewhere"))
                 .addTel(ciSet("tel:+1-555-555-1234;ext=102"))
                 .addTel(ciSet("tel:+1-555-555-4321"))
+                .addEmail(ciSet("joe.user@example.com"))
                 .addGeo(ciSet("geo:46.772673,-71.282945"));
 
         assertThat(marshal(builder.build()), equalTo("" +
-                "{\n" +
-                "  \"vcard\" : [ [ \"version\", { }, \"text\", \"4.0\" ], [ \"fn\", { }, \"text\", \"Joe User\" ], [ \"kind\", { }, \"text\", \"individual\" ], [ \"org\", { }, \"text\", \"Example\" ], [ \"adr\", {\n" +
+                "{\n  \"vcard\" : [ [ \"version\", {" +
+                " }, \"text\", \"4.0\" ], [ \"fn\", {" +
+                " }, \"text\", \"Joe User\" ], [ \"kind\", {" +
+                " }, \"text\", \"individual\" ], [ \"org\", {" +
+                " }, \"text\", \"Example\" ], [ \"adr\", {\n" +
                 "    \"label\" : \"Suite 1234\\n4321 Rue Somewhere\"\n" +
                 "  }, \"text\", [ \"\", \"\", \"\", \"\", \"\", \"\", \"\" ] ], [ \"tel\", {\n" +
                 "    \"type\" : \"voice\"\n" +
                 "  }, \"uri\", \"tel:+1-555-555-1234;ext=102\" ], [ \"tel\", {\n" +
                 "    \"type\" : \"voice\"\n" +
-                "  }, \"uri\", \"tel:+1-555-555-4321\" ], [ \"geo\", { }, \"uri\", \"geo:46.772673,-71.282945\" ] ]\n" +
-                "}"));
+                "  }, \"uri\", \"tel:+1-555-555-4321\" ], [ \"email\", {\n" +
+                "    \"type\" : \"email\"\n" +
+                "  }, \"text\", \"joe.user@example.com\" ], [ \"geo\", { }, \"uri\", \"geo:46.772673,-71.282945\" ] ]\n}"));
     }
 
     @Test
@@ -229,7 +234,8 @@ public class RdapResponseJsonTest {
         builder.addVersion()
                 .addFn(ciString("Joe User"))
                 .addKind(INDIVIDUAL)
-                .addOrg(ciSet("Example"));
+                .addOrg(ciSet("Example"))
+                .addEmail(ciSet("joe.user@example.com"));
 
         entity.setVCardArray(builder.build());
 
@@ -248,7 +254,7 @@ public class RdapResponseJsonTest {
         domain.setSecureDNS(secureDNS);
 
         assertThat(marshal(domain), equalTo("" + 
-                "{\n" +
+                "{\n" + 
                 "  \"handle\" : \"XXXX\",\n" +
                 "  \"ldhName\" : \"192.in-addr.arpa\",\n" +
                 "  \"nameServers\" : [ {\n" +
@@ -269,7 +275,13 @@ public class RdapResponseJsonTest {
                 "  },\n" +
                 "  \"entities\" : [ {\n" +
                 "    \"handle\" : \"XXXX\",\n" +
-                "    \"vcardArray\" : [ \"vcard\", [ [ \"version\", { }, \"text\", \"4.0\" ], [ \"fn\", { }, \"text\", \"Joe User\" ], [ \"kind\", { }, \"text\", \"individual\" ], [ \"org\", { }, \"text\", \"Example\" ] ] ],\n" +
+                "    \"vcardArray\" : [ \"vcard\", [ [ \"version\", {" +        // TODO: vcardarray not formatted properly
+                " }, \"text\", \"4.0\" ], [ \"fn\", {" +
+                " }, \"text\", \"Joe User\" ], [ \"kind\", {" +
+                " }, \"text\", \"individual\" ], [ \"org\", {" +
+                " }, \"text\", \"Example\" ], [ \"email\", {\n" +
+                "      \"type\" : \"email\"\n" +
+                "    }, \"text\", \"joe.user@example.com\" ] ] ],\n" +
                 "    \"roles\" : [ \"registrant\" ],\n" +
                 "    \"events\" : [ {\n" +
                 "      \"eventAction\" : \"registration\",\n" +
@@ -351,7 +363,8 @@ public class RdapResponseJsonTest {
                 .addKind(INDIVIDUAL)
                 .addOrg(ciSet("Example"))
                 .addAdr(ciSet("Suite 1234", "4321 Rue Somewhere"))
-                .addTel(ciSet("tel:+1-555-555-1234;ext=102"));
+                .addTel(ciSet("tel:+1-555-555-1234;ext=102"))
+                .addEmail(ciSet("joe.user@example.com"));
         entity.setVCardArray(builder.build());
         entity.getRoles().add(Role.REGISTRANT);
         entity.getRemarks().add(remark);
@@ -374,18 +387,26 @@ public class RdapResponseJsonTest {
                 "  \"parentHandle\" : \"YYYY-RIR\",\n" +
                 "  \"entities\" : [ {\n" +
                 "    \"handle\" : \"XXXX\",\n" +
-                "    \"vcardArray\" : [ \"vcard\", [ [ \"version\", { }, \"text\", \"4.0\" ], [ \"fn\", { }, \"text\", \"Joe User\" ], [ \"kind\", { }, \"text\", \"individual\" ], [ \"org\", { }, \"text\", \"Example\" ], [ \"adr\", {\n" +
-                "      \"label\" : \"Suite 1234\\n4321 Rue Somewhere\"\n" +
+                "    \"vcardArray\" : [ \"vcard\", [ " +
+                "[ \"version\", { }, \"text\", \"4.0\" ], " +
+                "[ \"fn\", { }, \"text\", \"Joe User\" ], " +
+                "[ \"kind\", { }, \"text\", \"individual\" ], " +
+                "[ \"org\", { }, \"text\", \"Example\" ], " +
+                "[ \"adr\", {\n" +
+                        "      \"label\" : \"Suite 1234\\n4321 Rue Somewhere\"\n" +
                 "    }, \"text\", [ \"\", \"\", \"\", \"\", \"\", \"\", \"\" ] ], [ \"tel\", {\n" +
                 "      \"type\" : \"voice\"\n" +
-                "    }, \"uri\", \"tel:+1-555-555-1234;ext=102\" ] ] ],\n" +
+                "    }, \"uri\", \"tel:+1-555-555-1234;ext=102\" ], " +
+                "[ \"email\", {\n" +
+                "      \"type\" : \"email\"\n" +
+                "    }, \"text\", \"joe.user@example.com\" ] ] ],\n" +
                 "    \"roles\" : [ \"registrant\" ],\n" +
                 "    \"events\" : [ {\n" +
                 "      \"eventAction\" : \"registration\",\n" +
-                "      \"eventDate\" : \"2013-06-26T02:48:44Z\"\n" +
+                "      \"eventDate\" : \"" + DATE_TIME_UTC + "\"\n" +
                 "    }, {\n" +
                 "      \"eventAction\" : \"last changed\",\n" +
-                "      \"eventDate\" : \"2013-06-26T02:48:44Z\",\n" +
+                "      \"eventDate\" : \"" + DATE_TIME_UTC + "\",\n" +
                 "      \"eventActor\" : \"joe@example.com\"\n" +
                 "    } ],\n" +
                 "    \"links\" : [ {\n" +
@@ -400,10 +421,10 @@ public class RdapResponseJsonTest {
                 "  } ],\n" +
                 "  \"events\" : [ {\n" +
                 "    \"eventAction\" : \"registration\",\n" +
-                "    \"eventDate\" : \"2013-06-26T02:48:44Z\"\n" +
+                "    \"eventDate\" : \"" + DATE_TIME_UTC + "\"\n" +
                 "  }, {\n" +
                 "    \"eventAction\" : \"last changed\",\n" +
-                "    \"eventDate\" : \"2013-06-26T02:48:44Z\",\n" +
+                "    \"eventDate\" : \"" + DATE_TIME_UTC + "\",\n" +
                 "    \"eventActor\" : \"joe@example.com\"\n" +
                 "  } ],\n" +
                 "  \"links\" : [ {\n" +

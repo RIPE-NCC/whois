@@ -726,7 +726,7 @@ public class RdapElasticServiceTestIntegration extends AbstractElasticSearchInte
                 .map(RdapObject::getRedacted)
                 .flatMap(Collection::stream)
                 .map(Redaction::getPrePath)
-                .collect(Collectors.toList()), containsInAnyOrder("$.vcardArray[1][?(@[0]=='notify')]", "$.vcardArray[1][?" +
+                .collect(Collectors.toList()), contains("$.vcardArray[1][?(@[0]=='notify')]", "$.vcardArray[1][?" +
                 "(@[0]=='e-mail')]", "$.entities[?(@.handle=='PP1-TEST')].vcardArray[1][?(@[0]=='e-mail')]"));
 
         assertThat(result.getRdapConformance(), containsInAnyOrder("cidr0", "rdap_level_0", "nro_rdap_profile_0", "redacted"));
