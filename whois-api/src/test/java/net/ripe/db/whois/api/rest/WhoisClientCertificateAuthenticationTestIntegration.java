@@ -6,12 +6,15 @@ import jakarta.ws.rs.core.MediaType;
 import net.ripe.db.whois.api.RestTest;
 import net.ripe.db.whois.api.SecureRestTest;
 import net.ripe.db.whois.api.httpserver.AbstractClientCertificateIntegrationTest;
+import net.ripe.db.whois.api.httpserver.CertificatePrivateKeyPair;
+import net.ripe.db.whois.api.rest.domain.WhoisObject;
 import net.ripe.db.whois.api.rest.domain.WhoisResources;
 import net.ripe.db.whois.api.rest.mapper.FormattedClientAttributeMapper;
+import net.ripe.db.whois.api.rest.mapper.FormattedServerAttributeMapper;
 import net.ripe.db.whois.api.rest.mapper.WhoisObjectMapper;
-import net.ripe.db.whois.common.dao.jdbc.DatabaseHelper;
 import net.ripe.db.whois.common.domain.CIString;
 import net.ripe.db.whois.common.rpsl.AttributeType;
+import net.ripe.db.whois.common.rpsl.ObjectType;
 import net.ripe.db.whois.common.rpsl.RpslAttribute;
 import net.ripe.db.whois.common.rpsl.RpslObject;
 import net.ripe.db.whois.common.rpsl.RpslObjectBuilder;
@@ -20,6 +23,10 @@ import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.containsString;
+import static org.hamcrest.Matchers.hasSize;
+import static org.hamcrest.Matchers.is;
 import static org.junit.jupiter.api.Assertions.fail;
 
 // TODO
@@ -53,7 +60,59 @@ public class WhoisClientCertificateAuthenticationTestIntegration extends Abstrac
     }
 
     @Test
-    public void update_person_with_client_cert_unauthorised() {
+    public void update_person_incorrect_password_auth_mntner_with_client_cert_unauthorised() {
+        final RpslObject updatedPerson = RpslObject.parse(
+            "person: Test Person\n" +
+             "address: Amsterdam\n" +
+             "phone: +31 6 12345678\n" +
+             "remarks: updated\n" +
+             "nic-hdl: TP1-TEST\n" +
+             "mnt-by: OWNER-MNT\n" +
+             "source: TEST");
+
+        final RpslObject keycertObject = createKeycertObject(new CertificatePrivateKeyPair().getCertificate(), "OWNER-MNT");
+        databaseHelper.addObject(keycertObject);
+        final RpslObject updatedMntner = addAttribute(OWNER_MNT, AttributeType.AUTH, keycertObject.getKey());
+        databaseHelper.updateObject(updatedMntner);
+
+        try {
+            RestTest.target(getPort(), "whois/test/person/TP1-TEST?password=invalid")
+                .request()
+                .put(Entity.entity(map(updatedPerson), MediaType.APPLICATION_XML), WhoisResources.class);
+            fail();
+        } catch (NotAuthorizedException e) {
+            final WhoisResources whoisResources = e.getResponse().readEntity(WhoisResources.class);
+            RestTest.assertErrorCount(whoisResources, 1);
+            RestTest.assertErrorMessage(whoisResources, 0, "Error", "Authorisation for [%s] %s failed\nusing \"%s:\"\nnot authenticated by: %s", "person", "TP1-TEST", "mnt-by", "OWNER-MNT");
+        }
+    }
+
+    @Test
+    public void update_person_correct_password_auth_mntner_with_client_cert_successful() {
+        final RpslObject updatedPerson = RpslObject.parse(
+            "person: Test Person\n" +
+             "address: Amsterdam\n" +
+             "phone: +31 6 12345678\n" +
+             "remarks: updated\n" +
+             "nic-hdl: TP1-TEST\n" +
+             "mnt-by: OWNER-MNT\n" +
+             "source: TEST");
+
+        final RpslObject keycertObject = createKeycertObject(new CertificatePrivateKeyPair().getCertificate(), "OWNER-MNT");
+        databaseHelper.addObject(keycertObject);
+        final RpslObject updatedMntner = addAttribute(OWNER_MNT, AttributeType.AUTH, keycertObject.getKey());
+        databaseHelper.updateObject(updatedMntner);
+
+        final WhoisResources whoisResources = RestTest.target(getPort(), "whois/test/person/TP1-TEST?password=test")
+            .request()
+            .put(Entity.entity(map(updatedPerson), MediaType.APPLICATION_XML), WhoisResources.class);
+
+        assertThat(whoisResources.getWhoisObjects(), hasSize(1));
+        assertThat(whoisResources.getWhoisObjects().get(0).getAttributes().get(3).getValue(), containsString("updated"));
+    }
+
+    @Test
+    public void update_person_with_client_cert_no_mntner_cert_unauthorised() {
         final RpslObject updatedPerson = RpslObject.parse(
             "person: Test Person\n" +
              "address: Amsterdam\n" +
@@ -76,7 +135,7 @@ public class WhoisClientCertificateAuthenticationTestIntegration extends Abstrac
     }
 
     @Test
-    public void update_person_with_client_cert_successful() {
+    public void update_person_with_client_cert_auth_different_mntner_cert_unauthorised() {
         final RpslObject updatedPerson = RpslObject.parse(
             "person: Test Person\n" +
              "address: Amsterdam\n" +
@@ -86,61 +145,87 @@ public class WhoisClientCertificateAuthenticationTestIntegration extends Abstrac
              "mnt-by: OWNER-MNT\n" +
              "source: TEST");
 
+        final RpslObject keycertObject = createKeycertObject(new CertificatePrivateKeyPair().getCertificate(), "OWNER-MNT");
+        databaseHelper.addObject(keycertObject);
+        final RpslObject updatedMntner = addAttribute(OWNER_MNT, AttributeType.AUTH, keycertObject.getKey());
+        databaseHelper.updateObject(updatedMntner);
+
+        try {
+            SecureRestTest.target(getClientSSLContext(), getSecurePort(), "whois/test/person/TP1-TEST")
+                .request()
+                .put(Entity.entity(map(updatedPerson), MediaType.APPLICATION_XML), WhoisResources.class);
+            fail();
+        } catch (NotAuthorizedException e) {
+            final WhoisResources whoisResources = e.getResponse().readEntity(WhoisResources.class);
+            RestTest.assertErrorCount(whoisResources, 1);
+            RestTest.assertErrorMessage(whoisResources, 0, "Error", "Authorisation for [%s] %s failed\nusing \"%s:\"\nnot authenticated by: %s", "person", "TP1-TEST", "mnt-by", "OWNER-MNT");
+        }
+    }
+
+    @Test
+    public void update_person_with_client_cert_and_mntner_cert_successful() {
+        final RpslObject updatedPerson = RpslObject.parse(
+            "person: Test Person\n" +
+             "address: Amsterdam\n" +
+             "phone: +31 6 12345678\n" +
+             "remarks: updated\n" +
+             "nic-hdl: TP1-TEST\n" +
+             "mnt-by: OWNER-MNT\n" +
+             "source: TEST");
+
+        // generate client cert and add to mntner
         final RpslObject keycertObject = createKeycertObject(getClientCertificate(), "OWNER-MNT");
         databaseHelper.addObject(keycertObject);
         final RpslObject updatedMntner = addAttribute(OWNER_MNT, AttributeType.AUTH, keycertObject.getKey());
         databaseHelper.updateObject(updatedMntner);
 
-        DatabaseHelper.dumpSchema(databaseHelper.getWhoisTemplate().getDataSource());
-
+        // connect with mntner's client cert for authentication
         final WhoisResources whoisResources = SecureRestTest.target(getClientSSLContext(), getSecurePort(), "whois/test/person/TP1-TEST")
                 .request()
                 .put(Entity.entity(map(updatedPerson), MediaType.APPLICATION_XML), WhoisResources.class);
 
+        assertThat(whoisResources.getWhoisObjects(), hasSize(1));
+        assertThat(whoisResources.getWhoisObjects().get(0).getAttributes().get(3).getValue(), containsString("updated"));
     }
 
+    @Test
+    public void update_route6_with_client_cert_and_mntner_cert_successful() {
+        final RpslObject route6 = RpslObject.parse(
+            "route6:          2001::/32\n" +
+            "descr:           Test route\n" +
+            "origin:          AS12726\n" +
+            "mnt-by:          OWNER-MNT\n" +
+            "source:          TEST\n"
+        );
+        databaseHelper.addObject(route6);
 
-//    @Test
-//    public void update_route_authenticate_with_client_cert() throws Exception {
-//
-////        final X509Certificate cert = X509CertificateUtil.generateCertificate(testDateTimeProvider);
-////        final RpslObject keycert = X509CertificateUtil.createKeycertObject(ciString("X509-1"), cert, ciString("OWNER-MNT"));
-////        databaseHelper.addObject(keycert);
-//
-////        final RpslObject ownerWithX509 = new RpslObjectBuilder(OWNER_MNT)
-////                .addAttributeSorted(new RpslAttribute(AttributeType.AUTH, keycert.getKey()))
-////                .get();
-////        databaseHelper.updateObject(ownerWithX509);
-//
-//        final RpslObject route = RpslObject.parse(
-//            "route6:          2001::/32\n" +
-//            "descr:           Test route\n" +
-//            "origin:          AS12726\n" +
-//            "mnt-by:          OWNER-MNT\n" +
-//            "source:          TEST\n"
-//        );
-//        databaseHelper.addObject(route);
-//
-//        final RpslObject updatedObject = new RpslObjectBuilder(route)
-//                .addAttributeSorted(new RpslAttribute(AttributeType.REMARKS, "updated"))
-//                .get();
-//        final WhoisResources updatedRoute = whoisObjectMapper.mapRpslObjects(FormattedClientAttributeMapper.class, updatedObject);
-//
-//        RestTest.target(getPort(), "whois/test/route6/2001::/32AS12726")
-//                .request(MediaType.APPLICATION_XML)
-////                .header("SSL_CLIENT_CERT", getCertificateAsString(cert).replace('\n', ' '))
-////                .header("SSL_CLIENT_VERIFY", "GENEROUS")
-//                .put(Entity.entity(updatedRoute, MediaType.APPLICATION_XML), WhoisResources.class);
-//
-//        assertThat(databaseHelper.lookupObject(ROUTE6, "2001::/32AS12726").containsAttribute(AttributeType.REMARKS), is(true));
-//    }
+        // generate client cert and add to mntner
+        final RpslObject keycertObject = createKeycertObject(getClientCertificate(), "OWNER-MNT");
+        databaseHelper.addObject(keycertObject);
+        final RpslObject updatedMntner = addAttribute(OWNER_MNT, AttributeType.AUTH, keycertObject.getKey());
+        databaseHelper.updateObject(updatedMntner);
 
+        final RpslObject updatedRoute6 = new RpslObjectBuilder(route6).append(new RpslAttribute(AttributeType.REMARKS, "updated")).get();
 
+        // connect with mntner's client cert for authentication
+        final WhoisResources whoisResources = SecureRestTest.target(getClientSSLContext(), getSecurePort(), "whois/test/route6/2001::/32AS12726")
+                .request()
+                .put(Entity.entity(map(updatedRoute6), MediaType.APPLICATION_XML), WhoisResources.class);
+
+        assertThat(whoisResources.getWhoisObjects(), hasSize(1));
+        assertThat(whoisResources.getWhoisObjects().get(0).getAttributes().get(6).getValue(), containsString("updated"));
+
+        assertThat(databaseHelper.lookupObject(ObjectType.ROUTE6, "2001::/32AS12726").containsAttribute(AttributeType.REMARKS), is(true));
+    }
 
     // helper methods
 
     private WhoisResources map(final RpslObject rpslObject) {
         return whoisObjectMapper.mapRpslObjects(FormattedClientAttributeMapper.class, rpslObject);
+    }
+
+    private RpslObject map(final WhoisObject whoisObject) {
+        return whoisObjectMapper.map(whoisObject, FormattedServerAttributeMapper.class);
     }
 
     private RpslObject addAttribute(final RpslObject rpslObject, final AttributeType attributeType, final CIString attributeValue) {
