@@ -35,6 +35,10 @@ public class Entity extends RdapObject implements Serializable, Comparable<Entit
     protected List<Role> roles;
     protected Map publicIds;
 
+    @XmlTransient
+    @JsonIgnore
+    private List<AttributeType> vCardRedactedAttr;
+
     public Entity() {
         super();
         super.setObjectClassName("entity");
@@ -46,6 +50,15 @@ public class Entity extends RdapObject implements Serializable, Comparable<Entit
         this.vcardArray = vcardArray;
         this.roles = roles;
         this.publicIds = publicIds;
+    }
+
+
+    public List<AttributeType> getvCardRedactedAttr() {
+        if(this.vCardRedactedAttr == null) {
+            this.vCardRedactedAttr = Lists.newArrayList();
+        }
+
+        return vCardRedactedAttr;
     }
 
     public String getHandle() {
