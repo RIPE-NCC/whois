@@ -90,8 +90,7 @@ public class ClientCertificateCredentialValidator implements CredentialValidator
             return false;
         }
 
-        // TODO: [ES] enough to compare fingerprints?
-        return x509CertificateWrapper.getFingerprint().equals(offeredCredential.getFingerprint());
+        return x509CertificateWrapper.getCertificate().equals(offeredCredential.getCertificate());
     }
 
     @CheckForNull
