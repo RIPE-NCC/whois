@@ -33,8 +33,8 @@ public class CertificatePrivateKeyPair {
         Security.addProvider(new BouncyCastleProvider());
     }
 
-    private X509Certificate certificate;
-    private PrivateKey privateKey;
+    private final X509Certificate certificate;
+    private final PrivateKey privateKey;
     private final String certificateFilename;
     private final String privateKeyFilename;
 
