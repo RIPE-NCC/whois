@@ -34,7 +34,7 @@ public class NrtmClientAclLimitTestIntegration extends AbstractNrtmIntegrationBa
     protected NrtmImporter nrtmImporter;
 
     @Autowired
-    private IpAccessControlListManager IPAccessControlListManager;
+    private IpAccessControlListManager ipAccessControlListManager;
     @Autowired
     private IpResourceConfiguration ipResourceConfiguration;
     @Autowired
@@ -75,7 +75,7 @@ public class NrtmClientAclLimitTestIntegration extends AbstractNrtmIntegrationBa
     public void acl_blocked() throws Exception {
         final InetAddress localhost = InetAddress.getByName(LOCALHOST);
 
-        IPAccessControlListManager.accountPersonalObjects(localhost, IPAccessControlListManager.getPersonalObjects(localhost) + 1);
+        ipAccessControlListManager.accountPersonalObjects(localhost, ipAccessControlListManager.getPersonalObjects(localhost) + 1);
         nrtmImporter.start();
         objectExists(ObjectType.MNTNER, "TEST-MNT", false);
     }

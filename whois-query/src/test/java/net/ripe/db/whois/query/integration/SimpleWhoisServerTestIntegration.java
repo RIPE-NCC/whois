@@ -42,11 +42,11 @@ import static org.mockito.Mockito.when;
 @Tag("IntegrationTest")
 public class SimpleWhoisServerTestIntegration extends AbstractQueryIntegrationTest {
     @Autowired private QueryHandler queryHandler;
-    @Autowired private IpAccessControlListManager IPAccessControlListManager;
+    @Autowired private IpAccessControlListManager ipAccessControlListManager;
 
     @BeforeEach
     public void setUp() throws Exception {
-        when(IPAccessControlListManager.canQueryPersonalObjects(any(InetAddress.class))).thenReturn(true);
+        when(ipAccessControlListManager.canQueryPersonalObjects(any(InetAddress.class))).thenReturn(true);
 
         queryServer.start();
     }

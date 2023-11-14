@@ -17,11 +17,11 @@ import java.util.List;
 @ChannelHandler.Sharable
 public class QueryDecoder extends MessageToMessageDecoder<String> {
 
-    private final IpAccessControlListManager IPAccessControlListManager;
+    private final IpAccessControlListManager ipAccessControlListManager;
 
     @Autowired
-    public QueryDecoder(final IpAccessControlListManager IPAccessControlListManager) {
-        this.IPAccessControlListManager = IPAccessControlListManager;
+    public QueryDecoder(final IpAccessControlListManager ipAccessControlListManager) {
+        this.ipAccessControlListManager = ipAccessControlListManager;
     }
 
     @Override
@@ -37,6 +37,6 @@ public class QueryDecoder extends MessageToMessageDecoder<String> {
     }
 
     private boolean isTrusted(final Channel channel) {
-        return IPAccessControlListManager.isTrusted(((InetSocketAddress)channel.remoteAddress()).getAddress());
+        return ipAccessControlListManager.isTrusted(((InetSocketAddress)channel.remoteAddress()).getAddress());
     }
 }

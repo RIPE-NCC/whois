@@ -22,12 +22,12 @@ public class NrtmAclLimitHandler extends ChannelInboundHandlerAdapter {
     public static final String REJECTED = "REJECTED";
 
     private final NrtmLog nrtmLog;
-    private final IpAccessControlListManager IPAccessControlListManager;
+    private final IpAccessControlListManager ipAccessControlListManager;
 
     @Autowired
-    public NrtmAclLimitHandler(final IpAccessControlListManager IPAccessControlListManager, final NrtmLog nrtmLog) {
+    public NrtmAclLimitHandler(final IpAccessControlListManager ipAccessControlListManager, final NrtmLog nrtmLog) {
         this.nrtmLog = nrtmLog;
-        this.IPAccessControlListManager = IPAccessControlListManager;
+        this.ipAccessControlListManager = ipAccessControlListManager;
     }
 
     @Override
@@ -35,12 +35,12 @@ public class NrtmAclLimitHandler extends ChannelInboundHandlerAdapter {
         final Channel channel = ctx.channel();
         final InetAddress remoteAddress = ChannelUtil.getRemoteAddress(channel);
 
-        if (IPAccessControlListManager.isDenied(remoteAddress)) {
+        if (ipAccessControlListManager.isDenied(remoteAddress)) {
             nrtmLog.log(remoteAddress, REJECTED);
             throw new NrtmException(QueryMessages.accessDeniedPermanently(remoteAddress));
         }
 
-        if (!IPAccessControlListManager.canQueryPersonalObjects(remoteAddress)) {
+        if (!ipAccessControlListManager.canQueryPersonalObjects(remoteAddress)) {
             nrtmLog.log(remoteAddress, REJECTED);
             throw new NrtmException(QueryMessages.accessDeniedTemporarily(remoteAddress));
         }

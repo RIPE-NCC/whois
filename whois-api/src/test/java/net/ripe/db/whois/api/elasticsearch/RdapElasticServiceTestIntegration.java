@@ -62,7 +62,7 @@ public class RdapElasticServiceTestIntegration extends AbstractElasticSearchInte
     private static final String LOCALHOST = "127.0.0.1";
 
     @Autowired
-    private IpAccessControlListManager IPAccessControlListManager;
+    private IpAccessControlListManager ipAccessControlListManager;
     @Autowired
     private IpResourceConfiguration ipResourceConfiguration;
     @Autowired
@@ -679,13 +679,13 @@ public class RdapElasticServiceTestIntegration extends AbstractElasticSearchInte
     public void lookup_person_acl_counted() throws Exception {
         final InetAddress localhost = InetAddress.getByName(LOCALHOST);
         try {
-            final int limit = IPAccessControlListManager.getPersonalObjects(localhost);
+            final int limit = ipAccessControlListManager.getPersonalObjects(localhost);
 
             createResource("entities?handle=PP1-TEST")
                     .request(MediaType.APPLICATION_JSON_TYPE)
                     .get(SearchResult.class);
 
-            final int remaining = IPAccessControlListManager.getPersonalObjects(localhost);
+            final int remaining = ipAccessControlListManager.getPersonalObjects(localhost);
             assertThat(remaining, is(limit-1));
 
         } finally {
