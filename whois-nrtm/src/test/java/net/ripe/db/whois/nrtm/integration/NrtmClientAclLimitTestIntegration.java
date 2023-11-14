@@ -6,7 +6,7 @@ import net.ripe.db.whois.common.rpsl.ObjectType;
 import net.ripe.db.whois.common.rpsl.RpslObject;
 import net.ripe.db.whois.nrtm.NrtmServer;
 import net.ripe.db.whois.nrtm.client.NrtmImporter;
-import net.ripe.db.whois.query.acl.IpAccessControlListManager;
+import net.ripe.db.whois.query.acl.AccessControlListManager;
 import net.ripe.db.whois.query.acl.IpResourceConfiguration;
 import net.ripe.db.whois.query.support.TestPersonalObjectAccounting;
 import org.junit.jupiter.api.AfterEach;
@@ -34,7 +34,7 @@ public class NrtmClientAclLimitTestIntegration extends AbstractNrtmIntegrationBa
     protected NrtmImporter nrtmImporter;
 
     @Autowired
-    private IpAccessControlListManager ipAccessControlListManager;
+    private AccessControlListManager accessControlListManager;
     @Autowired
     private IpResourceConfiguration ipResourceConfiguration;
     @Autowired
@@ -75,7 +75,7 @@ public class NrtmClientAclLimitTestIntegration extends AbstractNrtmIntegrationBa
     public void acl_blocked() throws Exception {
         final InetAddress localhost = InetAddress.getByName(LOCALHOST);
 
-        ipAccessControlListManager.accountPersonalObjects(localhost, ipAccessControlListManager.getPersonalObjects(localhost) + 1);
+        accessControlListManager.accountPersonalObjects(localhost, null,accessControlListManager.getPersonalObjects(localhost, null) + 1);
         nrtmImporter.start();
         objectExists(ObjectType.MNTNER, "TEST-MNT", false);
     }

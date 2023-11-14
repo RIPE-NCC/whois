@@ -4,7 +4,6 @@ import com.google.common.net.InetAddresses;
 import net.ripe.db.whois.common.domain.ResponseObject;
 import net.ripe.db.whois.common.source.SourceContext;
 import net.ripe.db.whois.query.acl.AccessControlListManager;
-import net.ripe.db.whois.query.acl.IpAccessControlListManager;
 import net.ripe.db.whois.query.domain.QueryCompletionInfo;
 import net.ripe.db.whois.query.domain.ResponseHandler;
 import net.ripe.db.whois.query.executor.QueryExecutor;

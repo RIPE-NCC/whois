@@ -6,7 +6,7 @@ import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInboundHandlerAdapter;
 import net.ripe.db.whois.common.pipeline.ChannelUtil;
 import net.ripe.db.whois.query.QueryMessages;
-import net.ripe.db.whois.query.acl.IpAccessControlListManager;
+import net.ripe.db.whois.query.acl.AccessControlListManager;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -22,12 +22,12 @@ public class NrtmAclLimitHandler extends ChannelInboundHandlerAdapter {
     public static final String REJECTED = "REJECTED";
 
     private final NrtmLog nrtmLog;
-    private final IpAccessControlListManager ipAccessControlListManager;
+    private final AccessControlListManager accessControlListManager;
 
     @Autowired
-    public NrtmAclLimitHandler(final IpAccessControlListManager ipAccessControlListManager, final NrtmLog nrtmLog) {
+    public NrtmAclLimitHandler(final AccessControlListManager accessControlListManager, final NrtmLog nrtmLog) {
         this.nrtmLog = nrtmLog;
-        this.ipAccessControlListManager = ipAccessControlListManager;
+        this.accessControlListManager = accessControlListManager;
     }
 
     @Override
@@ -35,12 +35,12 @@ public class NrtmAclLimitHandler extends ChannelInboundHandlerAdapter {
         final Channel channel = ctx.channel();
         final InetAddress remoteAddress = ChannelUtil.getRemoteAddress(channel);
 
-        if (ipAccessControlListManager.isDenied(remoteAddress)) {
+        if (accessControlListManager.isDenied(remoteAddress, null)) {
             nrtmLog.log(remoteAddress, REJECTED);
             throw new NrtmException(QueryMessages.accessDeniedPermanently(remoteAddress));
         }
 
-        if (!ipAccessControlListManager.canQueryPersonalObjects(remoteAddress)) {
+        if (!accessControlListManager.canQueryPersonalObjects(remoteAddress, null)) {
             nrtmLog.log(remoteAddress, REJECTED);
             throw new NrtmException(QueryMessages.accessDeniedTemporarily(remoteAddress));
         }

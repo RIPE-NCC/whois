@@ -1,6 +1,7 @@
 package net.ripe.db.whois.query.acl;
 
 import jakarta.annotation.PostConstruct;
+import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -28,7 +29,7 @@ public class SSOResourceConfiguration {
     }
 
     public boolean isDenied(final String ssoId) {
-        return ssoId == null ? false : denied.contains(ssoId);
+        return StringUtils.isEmpty(ssoId) ? false : denied.contains(ssoId);
     }
 
     public int getLimit() {

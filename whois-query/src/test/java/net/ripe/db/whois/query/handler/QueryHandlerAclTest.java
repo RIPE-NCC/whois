@@ -8,7 +8,6 @@ import net.ripe.db.whois.common.source.Source;
 import net.ripe.db.whois.common.source.SourceContext;
 import net.ripe.db.whois.query.QueryMessages;
 import net.ripe.db.whois.query.acl.AccessControlListManager;
-import net.ripe.db.whois.query.acl.IpAccessControlListManager;
 import net.ripe.db.whois.query.domain.MessageObject;
 import net.ripe.db.whois.query.domain.QueryCompletionInfo;
 import net.ripe.db.whois.query.domain.QueryException;

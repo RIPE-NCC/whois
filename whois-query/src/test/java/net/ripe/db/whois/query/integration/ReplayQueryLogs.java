@@ -5,7 +5,6 @@ import net.ripe.db.whois.common.source.Source;
 import net.ripe.db.whois.common.support.QueryExecutorConfiguration;
 import net.ripe.db.whois.common.support.QueryLogEntry;
 import net.ripe.db.whois.query.acl.AccessControlListManager;
-import net.ripe.db.whois.query.acl.IpAccessControlListManager;
 import net.ripe.db.whois.query.support.QueryExecutor;
 import org.apache.commons.lang.StringUtils;
 import org.junit.jupiter.api.BeforeEach;

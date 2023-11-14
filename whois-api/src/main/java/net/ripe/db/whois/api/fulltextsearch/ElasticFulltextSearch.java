@@ -13,7 +13,6 @@ import net.ripe.db.whois.common.rpsl.RpslObject;
 import net.ripe.db.whois.common.source.Source;
 import net.ripe.db.whois.common.source.SourceContext;
 import net.ripe.db.whois.query.acl.AccessControlListManager;
-import net.ripe.db.whois.query.acl.IpAccessControlListManager;
 import org.apache.commons.lang3.StringUtils;
 import org.elasticsearch.ElasticsearchStatusException;
 import org.elasticsearch.client.RequestOptions;
