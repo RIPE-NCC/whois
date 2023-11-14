@@ -2,6 +2,21 @@ package net.ripe.db.whois.api.rest;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.ws.rs.BadRequestException;
+import jakarta.ws.rs.Consumes;
+import jakarta.ws.rs.CookieParam;
+import jakarta.ws.rs.InternalServerErrorException;
+import jakarta.ws.rs.NotAuthorizedException;
+import jakarta.ws.rs.POST;
+import jakarta.ws.rs.Path;
+import jakarta.ws.rs.PathParam;
+import jakarta.ws.rs.Produces;
+import jakarta.ws.rs.QueryParam;
+import jakarta.ws.rs.WebApplicationException;
+import jakarta.ws.rs.core.Context;
+import jakarta.ws.rs.core.MediaType;
+import jakarta.ws.rs.core.Response;
 import net.ripe.db.whois.api.rest.domain.WhoisObject;
 import net.ripe.db.whois.api.rest.domain.WhoisResources;
 import net.ripe.db.whois.api.rest.mapper.FormattedServerAttributeMapper;
@@ -22,6 +37,7 @@ import net.ripe.db.whois.update.domain.Update;
 import net.ripe.db.whois.update.domain.UpdateContext;
 import net.ripe.db.whois.update.domain.UpdateMessages;
 import net.ripe.db.whois.update.domain.UpdateStatus;
+import net.ripe.db.whois.update.keycert.X509CertificateWrapper;
 import net.ripe.db.whois.update.log.LoggerContext;
 import org.eclipse.jetty.http.HttpStatus;
 import org.slf4j.Logger;
@@ -29,21 +45,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import jakarta.servlet.http.HttpServletRequest;
-import jakarta.ws.rs.BadRequestException;
-import jakarta.ws.rs.Consumes;
-import jakarta.ws.rs.CookieParam;
-import jakarta.ws.rs.InternalServerErrorException;
-import jakarta.ws.rs.NotAuthorizedException;
-import jakarta.ws.rs.POST;
-import jakarta.ws.rs.Path;
-import jakarta.ws.rs.PathParam;
-import jakarta.ws.rs.Produces;
-import jakarta.ws.rs.QueryParam;
-import jakarta.ws.rs.WebApplicationException;
-import jakarta.ws.rs.core.Context;
-import jakarta.ws.rs.core.MediaType;
-import jakarta.ws.rs.core.Response;
 import java.util.List;
 import java.util.Set;
 
@@ -99,7 +100,7 @@ public class DomainObjectService {
             final Credentials credentials = createCredentials(updateContext, passwords);
 
             final List<Update> updates = extractUpdates(resources, credentials);
-            
+
             final WhoisResources updatedResources = updatePerformer.performUpdates(updateContext, origin, updates, Keyword.NEW, request);
 
             validateUpdates(updateContext, updates, updatedResources);
@@ -199,7 +200,11 @@ public class DomainObjectService {
             credentials.add(SsoCredential.createOfferedCredential(updateContext.getUserSession()));
         }
 
-        updateContext.getClientCertificate().ifPresent(x509 -> credentials.add(ClientCertificateCredential.createOfferedCredential(x509)));
+        if (updateContext.getClientCertificates() != null) {
+            for (X509CertificateWrapper clientCertificate : updateContext.getClientCertificates()) {
+                credentials.add(ClientCertificateCredential.createOfferedCredential(clientCertificate));
+            }
+        }
 
         return new Credentials(credentials);
     }
