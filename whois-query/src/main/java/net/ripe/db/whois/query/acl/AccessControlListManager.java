@@ -55,7 +55,7 @@ public class AccessControlListManager {
     }
 
     public int getPersonalObjects(final InetAddress remoteAddress, final String ssoId) {
-        if (isUnlimited(remoteAddress) || isTrusted(remoteAddress)) {
+        if (isUnlimited(remoteAddress)) {
             return Integer.MAX_VALUE;
         }
 
@@ -69,7 +69,7 @@ public class AccessControlListManager {
      * @param amount        The amount of personal objects accounted.
      */
     public void accountPersonalObjects(final InetAddress remoteAddress, final String ssoId, final int amount) {
-        if (isUnlimited(remoteAddress) || isTrusted(remoteAddress)) {
+        if (isUnlimited(remoteAddress)) {
             return;
         }
 
