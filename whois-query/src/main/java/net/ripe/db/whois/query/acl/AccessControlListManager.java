@@ -4,6 +4,7 @@ import net.ripe.db.whois.common.rpsl.AttributeType;
 import net.ripe.db.whois.common.rpsl.ObjectType;
 import net.ripe.db.whois.common.rpsl.RpslObject;
 import net.ripe.db.whois.common.source.Source;
+import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -58,7 +59,7 @@ public class AccessControlListManager {
             return Integer.MAX_VALUE;
         }
 
-        return ssoId != null ? ssoAccessControlListManager.getPersonalObjects(ssoId) : ipAccessControlListManager.getPersonalObjects(remoteAddress);
+        return StringUtils.isEmpty(ssoId) ? ipAccessControlListManager.getPersonalObjects(remoteAddress) : ssoAccessControlListManager.getPersonalObjects(ssoId);
     }
 
     /**
@@ -72,11 +73,11 @@ public class AccessControlListManager {
             return;
         }
 
-        if(ssoId != null) {
-            ssoAccessControlListManager.accountPersonalObjects(ssoId, amount);
+        if(StringUtils.isEmpty(ssoId)) {
+            ipAccessControlListManager.accountPersonalObjects(remoteAddress, amount);
             return;
         }
 
-        ipAccessControlListManager.accountPersonalObjects(remoteAddress, amount);
+        ssoAccessControlListManager.accountPersonalObjects(ssoId, amount);
     }
 }

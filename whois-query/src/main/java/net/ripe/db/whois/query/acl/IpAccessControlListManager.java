@@ -71,7 +71,7 @@ public class IpAccessControlListManager {
         }
 
         final InetAddress maskedAddress = mask(remoteAddress, IPV6_NETMASK);
-        final int queried = personalObjectAccounting.getQueriedPersonalObjects(maskedAddress.toString());
+        final int queried = personalObjectAccounting.getQueriedPersonalObjects(maskedAddress);
         final int personalDataLimit = getPersonalDataLimit(remoteAddress);
 
         return personalDataLimit - queried;
@@ -90,7 +90,7 @@ public class IpAccessControlListManager {
         }
 
         final InetAddress maskedAddress = mask(remoteAddress, IPV6_NETMASK);
-        final int remaining = limit - personalObjectAccounting.accountPersonalObject(maskedAddress.toString(), amount);
+        final int remaining = limit - personalObjectAccounting.accountPersonalObject(maskedAddress, amount);
         if (remaining < 0) {
             blockTemporary(maskedAddress, limit);
         }

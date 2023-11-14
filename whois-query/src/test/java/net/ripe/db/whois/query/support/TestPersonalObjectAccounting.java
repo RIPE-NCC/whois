@@ -12,11 +12,11 @@ import java.util.Map;
 @Profile({WhoisProfile.TEST})
 @Component
 public class TestPersonalObjectAccounting implements PersonalObjectAccounting {
-    private Map<String, Integer> queriedPersonalObjects = new HashMap<>();
+    private Map<InetAddress, Integer> queriedPersonalObjects = new HashMap<>();
 
     @Override
-    public int getQueriedPersonalObjects(final String identifier) {
-        final Integer count = queriedPersonalObjects.get(identifier);
+    public int getQueriedPersonalObjects(final InetAddress remoteAddress) {
+        final Integer count = queriedPersonalObjects.get(remoteAddress);
         if (count == null) {
             return 0;
         }
@@ -25,16 +25,26 @@ public class TestPersonalObjectAccounting implements PersonalObjectAccounting {
     }
 
     @Override
-    public int accountPersonalObject(final String identifier, final int amount) {
-        Integer count = queriedPersonalObjects.get(identifier);
+    public int getQueriedPersonalObjects(final String ssoId) {
+       throw new RuntimeException("testing");
+    }
+
+    @Override
+    public int accountPersonalObject(final InetAddress remoteAddress, final int amount) {
+        Integer count = queriedPersonalObjects.get(remoteAddress);
         if (count == null) {
             count = amount;
         } else {
             count += amount;
         }
 
-        queriedPersonalObjects.put(identifier, count);
+        queriedPersonalObjects.put(remoteAddress, count);
         return count;
+    }
+
+    @Override
+    public int accountPersonalObject(final String ssoId, final int amount) {
+        throw new RuntimeException("testing");
     }
 
     @Override

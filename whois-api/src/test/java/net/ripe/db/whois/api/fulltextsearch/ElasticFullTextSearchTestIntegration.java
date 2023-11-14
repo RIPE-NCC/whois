@@ -896,7 +896,7 @@ public class ElasticFullTextSearchTestIntegration extends AbstractElasticSearchI
 
     @Test
     public void temporary_block() {
-        testPersonalObjectAccounting.accountPersonalObject(Inet4Address.getLoopbackAddress().toString(), 5001);
+        testPersonalObjectAccounting.accountPersonalObject(Inet4Address.getLoopbackAddress(), 5001);
 
         databaseHelper.addObject(RpslObject.parse(
                 "person: John McDonald\n" +
@@ -937,7 +937,7 @@ public class ElasticFullTextSearchTestIntegration extends AbstractElasticSearchI
 
     @Test
     public void too_many_personal_object_temporary_block() {
-        testPersonalObjectAccounting.accountPersonalObject(Inet4Address.getLoopbackAddress().toString(), 5000);
+        testPersonalObjectAccounting.accountPersonalObject(Inet4Address.getLoopbackAddress(), 5000);
 
         databaseHelper.addObject(RpslObject.parse(
                 "person: John McDonald\n" +
@@ -955,7 +955,7 @@ public class ElasticFullTextSearchTestIntegration extends AbstractElasticSearchI
 
     @Test
     public void should_account_for_personal_objects() {
-        testPersonalObjectAccounting.accountPersonalObject(Inet4Address.getLoopbackAddress().toString(), 1);
+        testPersonalObjectAccounting.accountPersonalObject(Inet4Address.getLoopbackAddress(), 1);
 
         databaseHelper.addObject(RpslObject.parse(
                 "person: John McDonald\n" +
@@ -965,7 +965,7 @@ public class ElasticFullTextSearchTestIntegration extends AbstractElasticSearchI
 
         query("q=john%20mcdonald");
 
-        int totalCount = testPersonalObjectAccounting.getQueriedPersonalObjects(Inet4Address.getLoopbackAddress().toString());
+        int totalCount = testPersonalObjectAccounting.getQueriedPersonalObjects(Inet4Address.getLoopbackAddress());
         assertThat(totalCount, is(2));
     }
 

@@ -74,7 +74,7 @@ public class WhoisProxyProtocolTestIntegration extends AbstractQueryIntegrationT
         InetAddress clientIp = InetAddress.getByName("12.34.56.78");
 
         send(clientIp, "ADM-TEST");
-        assertThat(testPersonalObjectAccounting.getQueriedPersonalObjects(clientIp.toString()), is(1));
+        assertThat(testPersonalObjectAccounting.getQueriedPersonalObjects(clientIp), is(1));
     }
 
     @Test
@@ -82,7 +82,7 @@ public class WhoisProxyProtocolTestIntegration extends AbstractQueryIntegrationT
         InetAddress clientIp = InetAddress.getByName("ee80:aa00:bb00:cc00::");
 
         send(clientIp, "ADM-TEST");
-        assertThat(testPersonalObjectAccounting.getQueriedPersonalObjects(clientIp.toString()), is(1));
+        assertThat(testPersonalObjectAccounting.getQueriedPersonalObjects(clientIp), is(1));
     }
 
     private String send(final InetAddress clientIp, final String query) {
