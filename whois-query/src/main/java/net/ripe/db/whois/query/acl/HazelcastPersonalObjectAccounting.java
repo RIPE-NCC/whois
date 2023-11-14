@@ -18,7 +18,6 @@ import java.util.concurrent.TimeUnit;
 @Component
 public class HazelcastPersonalObjectAccounting implements PersonalObjectAccounting {
     private static final Logger LOGGER = LoggerFactory.getLogger(HazelcastPersonalObjectAccounting.class);
-
     private final IMap<InetAddress, Integer> remoteAddrCounterMap;
     private final IMap<String, Integer> ssoCounterMap;
     private final HazelcastInstance hazelcastInstance;
@@ -57,7 +56,6 @@ public class HazelcastPersonalObjectAccounting implements PersonalObjectAccounti
 
         return count == null ? 0 : count;
     }
-
 
     @Override
     public int accountPersonalObject(final InetAddress remoteAddress, final int amount) {
@@ -113,13 +111,12 @@ public class HazelcastPersonalObjectAccounting implements PersonalObjectAccounti
         return 0;
     }
 
-    private void unlockKey(InetAddress remoteAddress) {
+    private void unlockKey(final InetAddress remoteAddress) {
         try {
             remoteAddrCounterMap.unlock(remoteAddress);
         } catch(Exception e) {
             LOGGER.info("Unable to unlock object key {}. Threw {}: {}", remoteAddress, e.getClass().getName(), e.getMessage());
         }
-
     }
 
     private void unlockKey(final String ssoId) {
@@ -128,7 +125,6 @@ public class HazelcastPersonalObjectAccounting implements PersonalObjectAccounti
         } catch(Exception e) {
             LOGGER.info("Unable to unlock object key {}. Threw {}: {}", ssoId, e.getClass().getName(), e.getMessage());
         }
-
     }
 
     @Override

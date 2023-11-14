@@ -2,24 +2,9 @@ package net.ripe.db.whois.query.acl;
 
 import net.ripe.db.whois.common.DateTimeProvider;
 import net.ripe.db.whois.common.domain.BlockEvent;
-import net.ripe.db.whois.common.domain.IpRanges;
-import net.ripe.db.whois.common.ip.IpInterval;
-import net.ripe.db.whois.common.ip.Ipv4Resource;
-import net.ripe.db.whois.common.ip.Ipv6Resource;
-import net.ripe.db.whois.common.rpsl.AttributeType;
-import net.ripe.db.whois.common.rpsl.ObjectType;
-import net.ripe.db.whois.common.rpsl.RpslObject;
-import net.ripe.db.whois.common.source.Source;
-import net.ripe.db.whois.query.dao.IpAccessControlListDao;
 import net.ripe.db.whois.query.dao.SSOAccessControlListDao;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-
-import java.net.Inet6Address;
-import java.net.InetAddress;
-import java.net.UnknownHostException;
 
 @Component
 public class SSOAccessControlListManager {
@@ -77,5 +62,4 @@ public class SSOAccessControlListManager {
     int getPersonalDataLimit() {
         return resourceConfiguration.getLimit();
     }
-
 }

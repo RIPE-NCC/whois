@@ -58,7 +58,7 @@ public class ElasticFullTextSearchTestIntegration extends AbstractElasticSearchI
 
     @Autowired TestPersonalObjectAccounting testPersonalObjectAccounting;
     @Autowired
-    JdbcIpAccessControlListDao jdbcIPAccessControlListDao;
+    JdbcIpAccessControlListDao jdbcIpAccessControlListDao;
     @Autowired IpResourceConfiguration ipResourceConfiguration;
 
     @Value("${api.rest.baseurl}")
@@ -915,7 +915,7 @@ public class ElasticFullTextSearchTestIntegration extends AbstractElasticSearchI
     @Test
     public void permanent_block() {
         final IpInterval localhost = IpInterval.parse(Inet4Address.getLoopbackAddress().getHostAddress());
-        jdbcIPAccessControlListDao.savePermanentBlock(localhost, LocalDate.now(), 1, "test");
+        jdbcIpAccessControlListDao.savePermanentBlock(localhost, LocalDate.now(), 1, "test");
         ipResourceConfiguration.reload();
 
         databaseHelper.addObject(RpslObject.parse(
