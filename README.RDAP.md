@@ -12,9 +12,9 @@ Multiple language attributes are not returned
 ---------------------------------------------
 inetnum, inet6num, and organisation objects can have multiple language attributes, but only the first language is returned.
 
-Multiple organisation e-mail and phone attributes are returned, but not with preferences
+Multiple organisation phone attributes are returned, but not with preferences
 ----------------------------------------------------------------------------------------
-Preferences are not assigned to multiple e-mail or phone elements.
+Preferences are not assigned to multiple phone elements.
 
 Flat AS Model
 ----------------------------------------
