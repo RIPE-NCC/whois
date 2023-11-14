@@ -3,6 +3,7 @@ package net.ripe.db.whois.query.handler;
 import com.google.common.net.InetAddresses;
 import net.ripe.db.whois.common.domain.ResponseObject;
 import net.ripe.db.whois.common.source.SourceContext;
+import net.ripe.db.whois.query.acl.AccessControlListManager;
 import net.ripe.db.whois.query.acl.IpAccessControlListManager;
 import net.ripe.db.whois.query.domain.QueryCompletionInfo;
 import net.ripe.db.whois.query.domain.ResponseHandler;
@@ -31,7 +32,7 @@ import static org.mockito.Mockito.when;
 public class QueryHandlerExceptionTest {
     @Mock WhoisLog whoisLog;
     @Mock
-    IpAccessControlListManager IPAccessControlListManager;
+    AccessControlListManager accessControlListManager;
     @Mock SourceContext sourceContext;
     @Mock QueryExecutor queryExecutor;
     QueryHandler subject;
@@ -42,7 +43,7 @@ public class QueryHandlerExceptionTest {
 
     @BeforeEach
     public void setUp() throws Exception {
-        subject = new QueryHandler(whoisLog, IPAccessControlListManager, sourceContext, queryExecutor);
+        subject = new QueryHandler(whoisLog, accessControlListManager, sourceContext, queryExecutor);
     }
 
     @Test

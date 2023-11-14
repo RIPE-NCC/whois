@@ -5,7 +5,7 @@ import net.ripe.db.whois.common.Message;
 import net.ripe.db.whois.common.domain.ResponseObject;
 import net.ripe.db.whois.common.source.SourceContext;
 import net.ripe.db.whois.query.QueryMessages;
-import net.ripe.db.whois.query.acl.IpAccessControlListManager;
+import net.ripe.db.whois.query.acl.AccessControlListManager;
 import net.ripe.db.whois.query.domain.QueryCompletionInfo;
 import net.ripe.db.whois.query.domain.QueryException;
 import net.ripe.db.whois.query.domain.ResponseHandler;
@@ -35,7 +35,7 @@ import static org.mockito.Mockito.when;
 public class QueryHandlerBlockedTest {
     @Mock WhoisLog whoisLog;
     @Mock
-    IpAccessControlListManager IPAccessControlListManager;
+    AccessControlListManager accessControlListManager;
     @Mock SourceContext sourceContext;
     @Mock QueryExecutor queryExecutor;
     QueryHandler subject;
@@ -46,59 +46,59 @@ public class QueryHandlerBlockedTest {
 
     @BeforeEach
     public void setUp() throws Exception {
-        subject = new QueryHandler(whoisLog, IPAccessControlListManager, sourceContext, queryExecutor);
+        subject = new QueryHandler(whoisLog, accessControlListManager, sourceContext, queryExecutor);
         when(queryExecutor.supports(any(Query.class))).thenReturn(true);
         when(queryExecutor.isAclSupported()).thenReturn(true);
     }
 
     @Test
     public void blocked_permanently() {
-        when(IPAccessControlListManager.isDenied(remoteAddress)).thenReturn(true);
+        when(accessControlListManager.isDenied(remoteAddress, null)).thenReturn(true);
         expectedFailure(Query.parse("10.0.0.0"), QueryCompletionInfo.BLOCKED, QueryMessages.accessDeniedPermanently(remoteAddress));
     }
 
     @Test
     public void blocked_permanently_proxy() {
-        when(IPAccessControlListManager.isDenied(remoteAddress)).thenReturn(true);
+        when(accessControlListManager.isDenied(remoteAddress, null)).thenReturn(true);
         expectedFailure(Query.parse("-VclientId,11.0.0.0 10.0.0.0"), QueryCompletionInfo.BLOCKED, QueryMessages.accessDeniedPermanently(remoteAddress));
     }
 
     @Test
     public void blocked_permanently_proxy_client() {
         InetAddress clientAddress = InetAddresses.forString("11.0.0.0");
-        when(IPAccessControlListManager.canQueryPersonalObjects(remoteAddress)).thenReturn(true);
-        when(IPAccessControlListManager.isAllowedToProxy(remoteAddress)).thenReturn(true);
-        lenient().when(IPAccessControlListManager.isDenied(clientAddress)).thenReturn(true);
+        when(accessControlListManager.canQueryPersonalObjects(remoteAddress, null)).thenReturn(true);
+        when(accessControlListManager.isAllowedToProxy(remoteAddress)).thenReturn(true);
+        lenient().when(accessControlListManager.isDenied(clientAddress, null)).thenReturn(true);
 
         expectedFailure(Query.parse("-VclientId,11.0.0.0 10.0.0.0"), QueryCompletionInfo.BLOCKED, QueryMessages.accessDeniedPermanently(clientAddress));
     }
 
     @Test
     public void blocked_temporary() {
-        when(IPAccessControlListManager.canQueryPersonalObjects(remoteAddress)).thenReturn(false);
+        when(accessControlListManager.canQueryPersonalObjects(remoteAddress, null)).thenReturn(false);
         expectedFailure(Query.parse("10.0.0.0"), QueryCompletionInfo.BLOCKED, QueryMessages.accessDeniedTemporarily(remoteAddress));
     }
 
     @Test
     public void blocked_temporary_proxy() {
-        when(IPAccessControlListManager.canQueryPersonalObjects(remoteAddress)).thenReturn(false);
+        when(accessControlListManager.canQueryPersonalObjects(remoteAddress, null)).thenReturn(false);
         expectedFailure(Query.parse("-VclientId,11.0.0.0 10.0.0.0"), QueryCompletionInfo.BLOCKED, QueryMessages.accessDeniedTemporarily(remoteAddress));
     }
 
     @Test
     public void blocked_temporary_proxy_client() {
         InetAddress clientAddress = InetAddresses.forString("11.0.0.0");
-        when(IPAccessControlListManager.canQueryPersonalObjects(remoteAddress)).thenReturn(true);
-        when(IPAccessControlListManager.isAllowedToProxy(remoteAddress)).thenReturn(true);
-        when(IPAccessControlListManager.canQueryPersonalObjects(clientAddress)).thenReturn(false);
+        when(accessControlListManager.canQueryPersonalObjects(remoteAddress, null)).thenReturn(true);
+        when(accessControlListManager.isAllowedToProxy(remoteAddress)).thenReturn(true);
+        when(accessControlListManager.canQueryPersonalObjects(clientAddress, null)).thenReturn(false);
 
         expectedFailure(Query.parse("-VclientId,11.0.0.0 10.0.0.0"), QueryCompletionInfo.BLOCKED, QueryMessages.accessDeniedTemporarily(clientAddress));
     }
 
     @Test
     public void proxy_not_allowed() {
-        when(IPAccessControlListManager.canQueryPersonalObjects(remoteAddress)).thenReturn(true);
-        when(IPAccessControlListManager.isAllowedToProxy(remoteAddress)).thenReturn(false);
+        when(accessControlListManager.canQueryPersonalObjects(remoteAddress, null)).thenReturn(true);
+        when(accessControlListManager.isAllowedToProxy(remoteAddress)).thenReturn(false);
 
         expectedFailure(Query.parse("-VclientId,11.0.0.0 10.0.0.0"), QueryCompletionInfo.PROXY_NOT_ALLOWED, QueryMessages.notAllowedToProxy());
     }

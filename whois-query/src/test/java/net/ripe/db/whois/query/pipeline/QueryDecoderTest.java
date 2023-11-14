@@ -35,7 +35,7 @@ public class QueryDecoderTest {
     @Mock private ChannelFuture channelFutureMock;
     @Mock private ChannelPipeline channelPipelineMock;
     @Mock private ChannelHandlerContext channelHandlerContextMock;
-    @Mock private IpAccessControlListManager IPAccessControlListManager;
+    @Mock private IpAccessControlListManager ipAccessControlListManager;
     @InjectMocks private QueryDecoder subject;
 
     @Test
@@ -48,7 +48,7 @@ public class QueryDecoderTest {
     @Test
     public void validDecodedStringShouldReturnQuery() {
         when(channelHandlerContextMock.channel()).thenReturn(channelMock);
-        when(IPAccessControlListManager.isTrusted(any(InetAddress.class))).thenReturn(true);
+        when(ipAccessControlListManager.isTrusted(any(InetAddress.class))).thenReturn(true);
 
         final String queryString = "-Tperson DW-RIPE";
         final Query expectedQuery = Query.parse(queryString);
@@ -63,7 +63,7 @@ public class QueryDecoderTest {
     @Test
     public void invalidOptionQuery() {
         when(channelHandlerContextMock.channel()).thenReturn(channelMock);
-        when(IPAccessControlListManager.isTrusted(any(InetAddress.class))).thenReturn(true);
+        when(ipAccessControlListManager.isTrusted(any(InetAddress.class))).thenReturn(true);
 
         final String queryString = "-Yperson DW-RIPE";
         final List<Object> actualQuery = new ArrayList<>();
@@ -80,7 +80,7 @@ public class QueryDecoderTest {
     @Test
     public void invalidProxyQuery() {
         when(channelHandlerContextMock.channel()).thenReturn(channelMock);
-        when(IPAccessControlListManager.isTrusted(any(InetAddress.class))).thenReturn(true);
+        when(ipAccessControlListManager.isTrusted(any(InetAddress.class))).thenReturn(true);
 
         final String queryString = "-Vone,two,three DW-RIPE";
         final List<Object> actualQuery = new ArrayList<>();

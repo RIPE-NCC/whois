@@ -43,19 +43,19 @@ public class HazelcastPersonalObjectAccountingTest {
 
     @Test
     public void test_queried_personal_objects() {
-        assertThat(subject.getQueriedPersonalObjects(ipv4Address), is(0));
+        assertThat(subject.getQueriedPersonalObjects(ipv4Address.toString()), is(0));
     }
 
     private void test_account_personal_object(int amount) {
-        final int balance = subject.accountPersonalObject(ipv4Address, amount);
+        final int balance = subject.accountPersonalObject(ipv4Address.toString(), amount);
         assertThat(balance, is(amount));
-        assertThat(subject.getQueriedPersonalObjects(ipv4Address), is(amount));
+        assertThat(subject.getQueriedPersonalObjects(ipv4Address.toString()), is(amount));
     }
 
     @Test
     public void test_account_personal_object_amount_1() {
         for (int i = 1; i < 100; i++) {
-            int balance = subject.accountPersonalObject(ipv4Address, 1);
+            int balance = subject.accountPersonalObject(ipv4Address.toString(), 1);
             assertThat(balance, is(i));
         }
     }
@@ -72,11 +72,11 @@ public class HazelcastPersonalObjectAccountingTest {
 
     @Test
     public void test_reset_personal_object_limits() {
-        subject.accountPersonalObject(ipv4Address, 1);
-        assertThat(subject.getQueriedPersonalObjects(ipv4Address), is(1));
+        subject.accountPersonalObject(ipv4Address.toString(), 1);
+        assertThat(subject.getQueriedPersonalObjects(ipv4Address.toString()), is(1));
 
         subject.resetAccounting();
 
-        assertThat(subject.getQueriedPersonalObjects(ipv4Address), is(0));
+        assertThat(subject.getQueriedPersonalObjects(ipv4Address.toString()), is(0));
     }
 }

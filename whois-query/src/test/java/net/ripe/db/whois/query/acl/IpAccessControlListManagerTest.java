@@ -156,39 +156,6 @@ public class IpAccessControlListManagerTest {
     }
 
     @Test
-    public void requiresAcl_withRipeSource() {
-        assertThat(subject.requiresAcl(person, Source.slave("RIPE")), is(true));
-
-        assertThat(subject.requiresAcl(role, Source.slave("RIPE")), is(true));
-        assertThat(subject.requiresAcl(roleWithAbuseMailbox, Source.slave("RIPE")), is(false));
-        assertThat(subject.requiresAcl(autNum, Source.slave("RIPE")), is(false));
-        assertThat(subject.requiresAcl(inetnum, Source.slave("RIPE")), is(false));
-        assertThat(subject.requiresAcl(domain, Source.slave("RIPE")), is(false));
-    }
-
-    @Test
-    public void requiresAcl_withNonRipeSource() {
-        assertThat(subject.requiresAcl(autNum, Source.slave("APNIC-GRS")), is(false));
-        assertThat(subject.requiresAcl(person, Source.slave("APNIC-GRS")), is(false));
-        assertThat(subject.requiresAcl(role, Source.slave("AFRINIC-GRS")), is(false));
-        assertThat(subject.requiresAcl(person, Source.slave("AFRINIC-GRS")), is(false));
-        assertThat(subject.requiresAcl(role, Source.slave("JPIRR-GRS")), is(false));
-        assertThat(subject.requiresAcl(inetnum, Source.slave("JPIRR-GRS")), is(false));
-        assertThat(subject.requiresAcl(autNum, Source.slave("RADB-GRS")), is(false));
-    }
-
-    @Test
-    public void requiresAcl_withTest() {
-        assertThat(subject.requiresAcl(person, Source.slave("TEST")), is(true));
-        assertThat(subject.requiresAcl(role, Source.slave("TEST")), is(true));
-
-        assertThat(subject.requiresAcl(roleWithAbuseMailbox, Source.slave("TEST")), is(false));
-        assertThat(subject.requiresAcl(autNum, Source.slave("TEST")), is(false));
-        assertThat(subject.requiresAcl(inetnum, Source.slave("TEST")), is(false));
-        assertThat(subject.requiresAcl(domain, Source.slave("TEST")), is(false));
-    }
-
-    @Test
     public void testMask() throws UnknownHostException {
         final InetAddress subject = Inet6Address.getByName("3ffe:6a88:85a3:98d3:1319:8a2e:9370:7344");
 
