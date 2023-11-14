@@ -11,7 +11,7 @@ import net.ripe.db.whois.api.elasticsearch.AbstractElasticSearchIntegrationTest;
 import net.ripe.db.whois.common.ip.IpInterval;
 import net.ripe.db.whois.common.rpsl.RpslObject;
 import net.ripe.db.whois.query.acl.IpResourceConfiguration;
-import net.ripe.db.whois.query.dao.jdbc.JdbcAccessControlListDao;
+import net.ripe.db.whois.query.dao.jdbc.JdbcIpAccessControlListDao;
 import net.ripe.db.whois.query.support.TestPersonalObjectAccounting;
 import org.apache.solr.client.solrj.impl.XMLResponseParser;
 import org.apache.solr.client.solrj.response.FacetField;
@@ -57,7 +57,8 @@ public class ElasticFullTextSearchTestIntegration extends AbstractElasticSearchI
     private static final String METADATA_INDEX = "metadata_fulltext";
 
     @Autowired TestPersonalObjectAccounting testPersonalObjectAccounting;
-    @Autowired JdbcAccessControlListDao jdbcAccessControlListDao;
+    @Autowired
+    JdbcIpAccessControlListDao jdbcIPAccessControlListDao;
     @Autowired IpResourceConfiguration ipResourceConfiguration;
 
     @Value("${api.rest.baseurl}")
@@ -914,7 +915,7 @@ public class ElasticFullTextSearchTestIntegration extends AbstractElasticSearchI
     @Test
     public void permanent_block() {
         final IpInterval localhost = IpInterval.parse(Inet4Address.getLoopbackAddress().getHostAddress());
-        jdbcAccessControlListDao.savePermanentBlock(localhost, LocalDate.now(), 1, "test");
+        jdbcIPAccessControlListDao.savePermanentBlock(localhost, LocalDate.now(), 1, "test");
         ipResourceConfiguration.reload();
 
         databaseHelper.addObject(RpslObject.parse(

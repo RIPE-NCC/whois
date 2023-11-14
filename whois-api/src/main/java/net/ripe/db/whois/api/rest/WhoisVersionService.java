@@ -16,7 +16,7 @@ import net.ripe.db.whois.common.domain.ResponseObject;
 import net.ripe.db.whois.common.rpsl.ObjectType;
 import net.ripe.db.whois.common.source.SourceContext;
 import net.ripe.db.whois.query.QueryFlag;
-import net.ripe.db.whois.query.acl.AccessControlListManager;
+import net.ripe.db.whois.query.acl.IpAccessControlListManager;
 import net.ripe.db.whois.query.domain.DeletedVersionResponseObject;
 import net.ripe.db.whois.query.domain.MessageObject;
 import net.ripe.db.whois.query.domain.VersionResponseObject;
@@ -42,7 +42,7 @@ import java.util.List;
 @Path("/")
 public class WhoisVersionService {
 
-    private final AccessControlListManager accessControlListManager;
+    private final IpAccessControlListManager ipAccessControlListManager;
     private final QueryHandler queryHandler;
     private final SourceContext sourceContext;
     private final WhoisObjectMapper whoisObjectMapper;
@@ -50,12 +50,12 @@ public class WhoisVersionService {
 
     @Autowired
     public WhoisVersionService(
-            final AccessControlListManager accessControlListManager,
+            final IpAccessControlListManager ipAccessControlListManager,
             final QueryHandler queryHandler,
             final SourceContext sourceContext,
             final WhoisObjectMapper whoisObjectMapper,
             final WhoisObjectServerMapper whoisObjectServerMapper) {
-        this.accessControlListManager = accessControlListManager;
+        this.ipAccessControlListManager = ipAccessControlListManager;
         this.queryHandler = queryHandler;
         this.sourceContext = sourceContext;
         this.whoisObjectMapper = whoisObjectMapper;
@@ -151,7 +151,7 @@ public class WhoisVersionService {
     }
 
     private boolean isTrusted(final HttpServletRequest request) {
-        return accessControlListManager.isTrusted(InetAddresses.forString(request.getRemoteAddr()));
+        return ipAccessControlListManager.isTrusted(InetAddresses.forString(request.getRemoteAddr()));
     }
 
     private void checkForMainSource(final HttpServletRequest request, final String source) {

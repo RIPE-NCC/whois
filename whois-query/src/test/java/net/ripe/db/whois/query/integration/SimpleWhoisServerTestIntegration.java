@@ -6,7 +6,7 @@ import net.ripe.db.whois.common.rpsl.RpslObject;
 import net.ripe.db.whois.common.support.TelnetWhoisClient;
 import net.ripe.db.whois.query.QueryMessages;
 import net.ripe.db.whois.query.QueryServer;
-import net.ripe.db.whois.query.acl.AccessControlListManager;
+import net.ripe.db.whois.query.acl.IpAccessControlListManager;
 import net.ripe.db.whois.query.domain.ResponseHandler;
 import net.ripe.db.whois.query.handler.QueryHandler;
 import net.ripe.db.whois.query.query.Query;
@@ -42,11 +42,11 @@ import static org.mockito.Mockito.when;
 @Tag("IntegrationTest")
 public class SimpleWhoisServerTestIntegration extends AbstractQueryIntegrationTest {
     @Autowired private QueryHandler queryHandler;
-    @Autowired private AccessControlListManager accessControlListManager;
+    @Autowired private IpAccessControlListManager IPAccessControlListManager;
 
     @BeforeEach
     public void setUp() throws Exception {
-        when(accessControlListManager.canQueryPersonalObjects(any(InetAddress.class))).thenReturn(true);
+        when(IPAccessControlListManager.canQueryPersonalObjects(any(InetAddress.class))).thenReturn(true);
 
         queryServer.start();
     }

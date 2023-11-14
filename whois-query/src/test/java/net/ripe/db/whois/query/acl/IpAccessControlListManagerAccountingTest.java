@@ -2,7 +2,7 @@ package net.ripe.db.whois.query.acl;
 
 import net.ripe.db.whois.common.DateTimeProvider;
 import net.ripe.db.whois.common.domain.IpRanges;
-import net.ripe.db.whois.query.dao.AccessControlListDao;
+import net.ripe.db.whois.query.dao.IpAccessControlListDao;
 import net.ripe.db.whois.query.support.TestPersonalObjectAccounting;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -19,12 +19,13 @@ import static org.hamcrest.Matchers.is;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
-public class AccessControlListManagerAccountingTest {
-    private AccessControlListManager subject;
+public class IpAccessControlListManagerAccountingTest {
+    private IpAccessControlListManager subject;
 
     @Mock DateTimeProvider dateTimeProvider;
     @Mock IpResourceConfiguration ipResourceConfiguration;
-    @Mock AccessControlListDao accessControlListDao;
+    @Mock
+    IpAccessControlListDao ipAccessControlListDao;
     @Mock IpRanges ipRanges;
     private PersonalObjectAccounting personalObjectAccounting = new TestPersonalObjectAccounting();
 
@@ -34,7 +35,7 @@ public class AccessControlListManagerAccountingTest {
 
     @BeforeEach
     public void setUp() throws Exception {
-        subject = new AccessControlListManager(dateTimeProvider, ipResourceConfiguration, accessControlListDao, personalObjectAccounting, ipRanges);
+        subject = new IpAccessControlListManager(dateTimeProvider, ipResourceConfiguration, ipAccessControlListDao, personalObjectAccounting, ipRanges);
         ipv4Address = Inet4Address.getLocalHost();
         ipv6Address = Inet6Address.getByName("::1");
     }

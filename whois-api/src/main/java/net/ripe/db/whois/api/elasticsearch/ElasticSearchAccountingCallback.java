@@ -5,6 +5,7 @@ import net.ripe.db.whois.common.rpsl.RpslObject;
 import net.ripe.db.whois.common.source.Source;
 import net.ripe.db.whois.query.QueryMessages;
 import net.ripe.db.whois.query.acl.AccessControlListManager;
+import net.ripe.db.whois.query.acl.IpAccessControlListManager;
 import net.ripe.db.whois.query.domain.QueryCompletionInfo;
 import net.ripe.db.whois.query.domain.QueryException;
 
@@ -33,9 +34,9 @@ public abstract class ElasticSearchAccountingCallback<T> {
 
     public T search() throws IOException {
 
-        if (accessControlListManager.isDenied(remoteAddress)) {
+        if (accessControlListManager.isDenied(remoteAddress, null)) {
             throw new QueryException(QueryCompletionInfo.BLOCKED, QueryMessages.accessDeniedPermanently(remoteAddress));
-        } else if (!accessControlListManager.canQueryPersonalObjects(remoteAddress)) {
+        } else if (!accessControlListManager.canQueryPersonalObjects(remoteAddress, null)) {
             throw new QueryException(QueryCompletionInfo.BLOCKED, QueryMessages.accessDeniedTemporarily(remoteAddress));
         }
 
@@ -43,7 +44,7 @@ public abstract class ElasticSearchAccountingCallback<T> {
             return doSearch();
         } finally {
             if (enabled && accountedObjects > 0) {
-                accessControlListManager.accountPersonalObjects(remoteAddress, accountedObjects);
+                accessControlListManager.accountPersonalObjects(remoteAddress, null, accountedObjects);
             }
         }
     }
@@ -53,7 +54,7 @@ public abstract class ElasticSearchAccountingCallback<T> {
     protected void account(final RpslObject rpslObject) {
         if (enabled && accessControlListManager.requiresAcl(rpslObject, source)) {
             if (accountingLimit == -1) {
-                accountingLimit = accessControlListManager.getPersonalObjects(remoteAddress);
+                accountingLimit = accessControlListManager.getPersonalObjects(remoteAddress, null);
             }
 
             if (++accountedObjects > accountingLimit) {

@@ -25,7 +25,7 @@ import net.ripe.db.whois.common.rpsl.AttributeSyntax;
 import net.ripe.db.whois.common.rpsl.ObjectType;
 import net.ripe.db.whois.common.rpsl.RpslObject;
 import net.ripe.db.whois.query.QueryFlag;
-import net.ripe.db.whois.query.acl.AccessControlListManager;
+import net.ripe.db.whois.query.acl.IpAccessControlListManager;
 import net.ripe.db.whois.query.handler.QueryHandler;
 import net.ripe.db.whois.query.planner.AbuseCFinder;
 import net.ripe.db.whois.query.query.Query;
@@ -41,15 +41,15 @@ import java.util.Optional;
 public class AbuseContactService {
 
     private final QueryHandler queryHandler;
-    private final AccessControlListManager accessControlListManager;
+    private final IpAccessControlListManager ipAccessControlListManager;
     private final AbuseCFinder abuseCFinder;
 
     @Autowired
     public AbuseContactService(final QueryHandler queryHandler,
-                               final AccessControlListManager accessControlListManager,
+                               final IpAccessControlListManager ipAccessControlListManager,
                                final AbuseCFinder abuseCFinder) {
         this.queryHandler = queryHandler;
-        this.accessControlListManager = accessControlListManager;
+        this.ipAccessControlListManager = ipAccessControlListManager;
         this.abuseCFinder = abuseCFinder;
     }
 
@@ -112,7 +112,7 @@ public class AbuseContactService {
     }
 
     private boolean isTrusted(final HttpServletRequest request) {
-        return accessControlListManager.isTrusted(InetAddresses.forString(request.getRemoteAddr()));
+        return ipAccessControlListManager.isTrusted(InetAddresses.forString(request.getRemoteAddr()));
     }
 
     private ObjectType getObjectType(final String key) {

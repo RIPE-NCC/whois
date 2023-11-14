@@ -15,7 +15,7 @@ import net.ripe.db.whois.api.rest.domain.TypeFilters;
 import net.ripe.db.whois.common.source.SourceContext;
 import net.ripe.db.whois.query.QueryFlag;
 import net.ripe.db.whois.query.QueryParser;
-import net.ripe.db.whois.query.acl.AccessControlListManager;
+import net.ripe.db.whois.query.acl.IpAccessControlListManager;
 import net.ripe.db.whois.query.query.Query;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -85,16 +85,16 @@ public class WhoisSearchService {
 
     private static final Service SEARCH_SERVICE = new Service("search");
 
-    private final AccessControlListManager accessControlListManager;
+    private final IpAccessControlListManager ipAccessControlListManager;
     private final RpslObjectStreamer rpslObjectStreamer;
     private final SourceContext sourceContext;
 
     @Autowired
     public WhoisSearchService(
-            final AccessControlListManager accessControlListManager,
+            final IpAccessControlListManager ipAccessControlListManager,
             final RpslObjectStreamer rpslObjectStreamer,
             final SourceContext sourceContext) {
-        this.accessControlListManager = accessControlListManager;
+        this.ipAccessControlListManager = ipAccessControlListManager;
         this.rpslObjectStreamer = rpslObjectStreamer;
         this.sourceContext = sourceContext;
     }
@@ -244,6 +244,6 @@ public class WhoisSearchService {
     }
 
     private boolean isTrusted(final HttpServletRequest request) {
-        return accessControlListManager.isTrusted(InetAddresses.forString(request.getRemoteAddr()));
+        return ipAccessControlListManager.isTrusted(InetAddresses.forString(request.getRemoteAddr()));
     }
 }

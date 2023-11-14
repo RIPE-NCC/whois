@@ -5,7 +5,7 @@ import io.netty.channel.ChannelHandler;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.MessageToMessageDecoder;
 import net.ripe.db.whois.common.Message;
-import net.ripe.db.whois.query.acl.AccessControlListManager;
+import net.ripe.db.whois.query.acl.IpAccessControlListManager;
 import net.ripe.db.whois.query.query.Query;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -17,11 +17,11 @@ import java.util.List;
 @ChannelHandler.Sharable
 public class QueryDecoder extends MessageToMessageDecoder<String> {
 
-    private final AccessControlListManager accessControlListManager;
+    private final IpAccessControlListManager IPAccessControlListManager;
 
     @Autowired
-    public QueryDecoder(final AccessControlListManager accessControlListManager) {
-        this.accessControlListManager = accessControlListManager;
+    public QueryDecoder(final IpAccessControlListManager IPAccessControlListManager) {
+        this.IPAccessControlListManager = IPAccessControlListManager;
     }
 
     @Override
@@ -37,6 +37,6 @@ public class QueryDecoder extends MessageToMessageDecoder<String> {
     }
 
     private boolean isTrusted(final Channel channel) {
-        return accessControlListManager.isTrusted(((InetSocketAddress)channel.remoteAddress()).getAddress());
+        return IPAccessControlListManager.isTrusted(((InetSocketAddress)channel.remoteAddress()).getAddress());
     }
 }

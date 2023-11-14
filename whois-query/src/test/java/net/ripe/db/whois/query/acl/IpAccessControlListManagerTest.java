@@ -8,7 +8,7 @@ import net.ripe.db.whois.common.ip.IpInterval;
 import net.ripe.db.whois.common.ip.Ipv6Resource;
 import net.ripe.db.whois.common.rpsl.RpslObject;
 import net.ripe.db.whois.common.source.Source;
-import net.ripe.db.whois.query.dao.AccessControlListDao;
+import net.ripe.db.whois.query.dao.IpAccessControlListDao;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -23,7 +23,7 @@ import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.time.LocalDate;
 
-import static net.ripe.db.whois.query.acl.AccessControlListManager.mask;
+import static net.ripe.db.whois.query.acl.IpAccessControlListManager.mask;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 import static org.mockito.ArgumentMatchers.any;
@@ -33,7 +33,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
-public class AccessControlListManagerTest {
+public class IpAccessControlListManagerTest {
 
     private final RpslObject role = RpslObject.parse("role: Test Role\nnic-hdl: TR1-TEST");
     private final RpslObject roleWithAbuseMailbox = RpslObject.parse("role: Test Role\nnic-hdl: TR1-TEST\nabuse-mailbox: abuse@mailbox.com");
@@ -44,10 +44,12 @@ public class AccessControlListManagerTest {
 
     @Mock DateTimeProvider dateTimeProvider;
     @Mock IpResourceConfiguration ipResourceConfiguration;
-    @Mock AccessControlListDao accessControlListDao;
+    @Mock
+    IpAccessControlListDao ipAccessControlListDao;
     @Mock PersonalObjectAccounting personalObjectAccounting;
     @Mock IpRanges ipRanges;
-    @InjectMocks AccessControlListManager subject;
+    @InjectMocks
+    IpAccessControlListManager subject;
 
     private InetAddress ipv4Restricted;
     private InetAddress ipv4Unrestricted;
@@ -147,7 +149,7 @@ public class AccessControlListManagerTest {
     @Test
     public void test_if_block_temporary_is_logged() {
         subject.blockTemporary(ipv6Restricted, PERSONAL_DATA_LIMIT);
-        verify(accessControlListDao).saveAclEvent(ipv6ResourceCaptor.capture(), eq(now), eq(PERSONAL_DATA_LIMIT), eq(BlockEvent.Type.BLOCK_TEMPORARY));
+        verify(ipAccessControlListDao).saveAclEvent(ipv6ResourceCaptor.capture(), eq(now), eq(PERSONAL_DATA_LIMIT), eq(BlockEvent.Type.BLOCK_TEMPORARY));
 
         Ipv6Resource ipv6Resource = ipv6ResourceCaptor.getValue();
         assertThat(ipv6Resource.toString(), is("2001::/64"));
@@ -208,7 +210,7 @@ public class AccessControlListManagerTest {
         assertThat(mask(subject, 1).getHostAddress(), is("0:0:0:0:0:0:0:0"));
         assertThat(mask(subject, 0).getHostAddress(), is("0:0:0:0:0:0:0:0"));
 
-        assertThat(mask(Inet6Address.getByName("::1"), AccessControlListManager.IPV6_NETMASK), is(Inet6Address.getByName("0:0:0:0:0:0:0:0")));
+        assertThat(mask(Inet6Address.getByName("::1"), IpAccessControlListManager.IPV6_NETMASK), is(Inet6Address.getByName("0:0:0:0:0:0:0:0")));
     }
 
     @Test

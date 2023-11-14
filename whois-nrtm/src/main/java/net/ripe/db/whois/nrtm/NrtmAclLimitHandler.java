@@ -6,7 +6,7 @@ import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInboundHandlerAdapter;
 import net.ripe.db.whois.common.pipeline.ChannelUtil;
 import net.ripe.db.whois.query.QueryMessages;
-import net.ripe.db.whois.query.acl.AccessControlListManager;
+import net.ripe.db.whois.query.acl.IpAccessControlListManager;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -22,12 +22,12 @@ public class NrtmAclLimitHandler extends ChannelInboundHandlerAdapter {
     public static final String REJECTED = "REJECTED";
 
     private final NrtmLog nrtmLog;
-    private final AccessControlListManager accessControlListManager;
+    private final IpAccessControlListManager IPAccessControlListManager;
 
     @Autowired
-    public NrtmAclLimitHandler(final AccessControlListManager accessControlListManager, final NrtmLog nrtmLog) {
+    public NrtmAclLimitHandler(final IpAccessControlListManager IPAccessControlListManager, final NrtmLog nrtmLog) {
         this.nrtmLog = nrtmLog;
-        this.accessControlListManager = accessControlListManager;
+        this.IPAccessControlListManager = IPAccessControlListManager;
     }
 
     @Override
@@ -35,12 +35,12 @@ public class NrtmAclLimitHandler extends ChannelInboundHandlerAdapter {
         final Channel channel = ctx.channel();
         final InetAddress remoteAddress = ChannelUtil.getRemoteAddress(channel);
 
-        if (accessControlListManager.isDenied(remoteAddress)) {
+        if (IPAccessControlListManager.isDenied(remoteAddress)) {
             nrtmLog.log(remoteAddress, REJECTED);
             throw new NrtmException(QueryMessages.accessDeniedPermanently(remoteAddress));
         }
 
-        if (!accessControlListManager.canQueryPersonalObjects(remoteAddress)) {
+        if (!IPAccessControlListManager.canQueryPersonalObjects(remoteAddress)) {
             nrtmLog.log(remoteAddress, REJECTED);
             throw new NrtmException(QueryMessages.accessDeniedTemporarily(remoteAddress));
         }

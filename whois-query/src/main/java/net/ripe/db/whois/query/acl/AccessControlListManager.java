@@ -1,49 +1,26 @@
 package net.ripe.db.whois.query.acl;
 
-import com.google.common.net.InetAddresses;
-import net.ripe.db.whois.common.DateTimeProvider;
-import net.ripe.db.whois.common.domain.BlockEvent;
-import net.ripe.db.whois.common.domain.IpRanges;
-import net.ripe.db.whois.common.ip.IpInterval;
-import net.ripe.db.whois.common.ip.Ipv4Resource;
-import net.ripe.db.whois.common.ip.Ipv6Resource;
 import net.ripe.db.whois.common.rpsl.AttributeType;
 import net.ripe.db.whois.common.rpsl.ObjectType;
 import net.ripe.db.whois.common.rpsl.RpslObject;
 import net.ripe.db.whois.common.source.Source;
-import net.ripe.db.whois.query.dao.AccessControlListDao;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import java.net.Inet6Address;
 import java.net.InetAddress;
-import java.net.UnknownHostException;
 
 @Component
 public class AccessControlListManager {
-    private static final Logger LOGGER = LoggerFactory.getLogger(AccessControlListManager.class);
-
-    static final int IPV6_NETMASK = 64;
-
-    private final DateTimeProvider dateTimeProvider;
-    private final IpResourceConfiguration resourceConfiguration;
-    private final AccessControlListDao accessControlListDao;
-    private final PersonalObjectAccounting personalObjectAccounting;
-    private final IpRanges ipRanges;
+    private final SSOAccessControlListManager ssoAccessControlListManager;
+    private final IpAccessControlListManager ipAccessControlListManager;
 
     @Autowired
-    public AccessControlListManager(final DateTimeProvider dateTimeProvider,
-                                    final IpResourceConfiguration resourceConfiguration,
-                                    final AccessControlListDao accessControlListDao,
-                                    final PersonalObjectAccounting personalObjectAccounting,
-                                    final IpRanges ipRanges) {
-        this.dateTimeProvider = dateTimeProvider;
-        this.resourceConfiguration = resourceConfiguration;
-        this.accessControlListDao = accessControlListDao;
-        this.personalObjectAccounting = personalObjectAccounting;
-        this.ipRanges = ipRanges;
+    public AccessControlListManager(final SSOAccessControlListManager ssoAccessControlListManager,
+                                    final IpAccessControlListManager ipAccessControlListManager) {
+        this.ssoAccessControlListManager = ssoAccessControlListManager;
+        this.ipAccessControlListManager = ipAccessControlListManager;
     }
 
     public boolean requiresAcl(final RpslObject rpslObject, final Source source) {
@@ -56,40 +33,32 @@ public class AccessControlListManager {
                 || (ObjectType.ROLE.equals(objectType) && rpslObject.findAttributes(AttributeType.ABUSE_MAILBOX).isEmpty());
     }
 
-    public boolean isDenied(final InetAddress remoteAddress) {
-        return resourceConfiguration.isDenied(remoteAddress);
+    public boolean isDenied(final InetAddress remoteAddress, final String ssoId) {
+        return ipAccessControlListManager.isDenied(remoteAddress) || ssoAccessControlListManager.isDenied(ssoId);
     }
 
     public boolean isAllowedToProxy(final InetAddress remoteAddress) {
-        return resourceConfiguration.isProxy(remoteAddress);
+        return ipAccessControlListManager.isAllowedToProxy(remoteAddress);
     }
 
-    int getPersonalDataLimit(final PersonalAccountingIdentifier accountingId) {
-        return resourceConfiguration.getLimit(InetAddresses.forString(accountingId));
+    public boolean isUnlimited(final InetAddress remoteAddress) {
+        return ipAccessControlListManager.isUnlimited(remoteAddress);
     }
 
-    public boolean isUnlimited(final PersonalAccountingIdentifier accountingId) {
-        return getPersonalDataLimit(accountingId) < 0;
-    }
-
-    public boolean canQueryPersonalObjects(final PersonalAccountingIdentifier remoteAddress) {
-        return getPersonalObjects(remoteAddress) >= 0;
+    public boolean canQueryPersonalObjects(final InetAddress remoteAddress, final String ssoId) {
+        return getPersonalObjects(remoteAddress,ssoId) >= 0;
     }
 
     public boolean isTrusted(final InetAddress remoteAddress) {
-        return ipRanges.isTrusted(IpInterval.asIpInterval(remoteAddress));
+        return ipAccessControlListManager.isTrusted(remoteAddress);
     }
 
-    public int getPersonalObjects(final PersonalAccountingIdentifier remoteAddress) {
-        if (isUnlimited(remoteAddress)) {
+    public int getPersonalObjects(final InetAddress remoteAddress, final String ssoId) {
+        if (isUnlimited(remoteAddress) || isTrusted(remoteAddress)) {
             return Integer.MAX_VALUE;
         }
 
-        final InetAddress maskedAddress = mask(remoteAddress, IPV6_NETMASK);
-        final int queried = personalObjectAccounting.getQueriedPersonalObjects(maskedAddress);
-        final int personalDataLimit = getPersonalDataLimit(remoteAddress);
-
-        return personalDataLimit - queried;
+        return ssoId != null ? ssoAccessControlListManager.getPersonalObjects(ssoId) : ipAccessControlListManager.getPersonalObjects(remoteAddress);
     }
 
     /**
@@ -98,51 +67,16 @@ public class AccessControlListManager {
      * @param remoteAddress The remote address.
      * @param amount        The amount of personal objects accounted.
      */
-    public void accountPersonalObjects(final InetAddress remoteAddress, final int amount) {
-        final int limit = getPersonalDataLimit(remoteAddress);
-        if (limit < 0) {
+    public void accountPersonalObjects(final InetAddress remoteAddress, final String ssoId, final int amount) {
+        if (isUnlimited(remoteAddress) || isTrusted(remoteAddress)) {
             return;
         }
 
-        final InetAddress maskedAddress = mask(remoteAddress, IPV6_NETMASK);
-        final int remaining = limit - personalObjectAccounting.accountPersonalObject(maskedAddress, amount);
-        if (remaining < 0) {
-            blockTemporary(maskedAddress, limit);
-        }
-    }
-
-    public void blockTemporary(final InetAddress hostAddress, final int limit) {
-        IpInterval<?> maskedAddress;
-        if (hostAddress instanceof Inet6Address) {
-            maskedAddress = Ipv6Resource.parse(mask(hostAddress, IPV6_NETMASK).getHostAddress() + "/" + IPV6_NETMASK);
-        } else {
-            maskedAddress = Ipv4Resource.asIpInterval(hostAddress);
-        }
-        accessControlListDao.saveAclEvent(maskedAddress, dateTimeProvider.getCurrentDate(), limit, BlockEvent.Type.BLOCK_TEMPORARY);
-    }
-
-
-    public static InetAddress mask(final InetAddress address, final int mask) {
-        if (address instanceof Inet6Address) {
-            byte[] bytes = address.getAddress();
-
-            int part = mask % 8;
-            int firstMaskedIndex = (mask / 8) + (part == 0 ? 0 : 1);
-            for (int i = firstMaskedIndex; i < bytes.length; i++) {
-                bytes[i] = (byte) 0;
-            }
-
-            if (part != 0) {
-                bytes[mask / 8] &= ~((1 << (8 - part)) - 1);
-            }
-
-            try {
-                return Inet6Address.getByAddress(bytes);
-            } catch (UnknownHostException e) {
-                LOGGER.warn("We do not change the length; we cannot ever have this exception", e);
-            }
+        if(ssoId != null) {
+            ssoAccessControlListManager.accountPersonalObjects(ssoId, amount);
+            return;
         }
 
-        return address;
+        ipAccessControlListManager.accountPersonalObjects(remoteAddress, amount);
     }
 }

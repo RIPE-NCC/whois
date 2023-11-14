@@ -4,7 +4,7 @@ import net.ripe.db.whois.common.rpsl.RpslObject;
 import net.ripe.db.whois.common.source.Source;
 import net.ripe.db.whois.common.support.QueryExecutorConfiguration;
 import net.ripe.db.whois.common.support.QueryLogEntry;
-import net.ripe.db.whois.query.acl.AccessControlListManager;
+import net.ripe.db.whois.query.acl.IpAccessControlListManager;
 import net.ripe.db.whois.query.support.QueryExecutor;
 import org.apache.commons.lang.StringUtils;
 import org.junit.jupiter.api.BeforeEach;
@@ -56,15 +56,15 @@ public class ReplayQueryLogs {
         private final Resource queryLog;
         private final int delayBetweenQueries;
         private final ExecutorService executorService;
-        private final AccessControlListManager accessControlListManager;
+        private final IpAccessControlListManager ipAccessControlListManager;
 
         public Replay(final String whoisHost, final int whoisPort, final Resource queryLog, final int delayBetweenQueries, final int nrThreads) throws UnknownHostException {
             this.queryLog = queryLog;
             this.delayBetweenQueries = delayBetweenQueries;
             this.executorService = Executors.newFixedThreadPool(nrThreads);
-            this.accessControlListManager = mock(AccessControlListManager.class);
+            this.ipAccessControlListManager = mock(ipAccessControlListManager.class);
 
-            when(accessControlListManager.requiresAcl(any(RpslObject.class), any(Source.class))).thenReturn(false);
+            when(ipAccessControlListManager.requiresAcl(any(RpslObject.class), any(Source.class))).thenReturn(false);
 
             queryExecutor = new QueryExecutor(new QueryExecutorConfiguration("WHO-IS", whoisHost, whoisPort, -1), LOGGER);
         }

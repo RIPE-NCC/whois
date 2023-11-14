@@ -19,7 +19,7 @@ import java.util.concurrent.TimeUnit;
 public class HazelcastPersonalObjectAccounting implements PersonalObjectAccounting {
     private static final Logger LOGGER = LoggerFactory.getLogger(HazelcastPersonalObjectAccounting.class);
 
-    private final IMap<PersonalAccountingIdentifier, Integer> counterMap;
+    private final IMap<String, Integer> counterMap;
     private final HazelcastInstance hazelcastInstance;
 
     @Autowired
@@ -31,10 +31,10 @@ public class HazelcastPersonalObjectAccounting implements PersonalObjectAccounti
     }
 
     @Override
-    public int getQueriedPersonalObjects(final PersonalAccountingIdentifier remoteAddress) {
+    public int getQueriedPersonalObjects(final String identifier) {
         Integer count = null;
         try {
-            count = counterMap.get(remoteAddress);
+            count = counterMap.get(identifier);
         } catch (OperationTimeoutException | IllegalStateException e) {
             // no answer from hazelcast, expected, don't rethrow
             LOGGER.debug("{}: {}", e.getClass().getName(), e.getMessage());
@@ -48,37 +48,37 @@ public class HazelcastPersonalObjectAccounting implements PersonalObjectAccounti
     }
 
     @Override
-    public int accountPersonalObject(final PersonalAccountingIdentifier remoteAddress, final int amount) {
+    public int accountPersonalObject(final String identifier, final int amount) {
         boolean isLocked = false;
 
         try {
-            if (isLocked = counterMap.tryLock(remoteAddress,3, TimeUnit.SECONDS)) {
-                Integer count = counterMap.get(remoteAddress);
+            if (isLocked = counterMap.tryLock(identifier,3, TimeUnit.SECONDS)) {
+                Integer count = counterMap.get(identifier);
                 count = (count == null) ? amount : (count + amount);
-                counterMap.put(remoteAddress, count);
+                counterMap.put(identifier, count);
 
                 return count;
             }
 
             //if cannot get a lock in specified time, return the current state not zero
-            return counterMap.get(remoteAddress);
+            return counterMap.get(identifier);
 
         } catch (Exception e) {
             LOGGER.info("Unable to account personal object, allowed by default. Threw {}: {}", e.getClass().getName(), e.getMessage());
         } finally {
             //unlock only if it is locked by this instance
             if(isLocked) {
-                unlockKey(remoteAddress);
+                unlockKey(identifier);
             }
         }
         return 0;
     }
 
-    private void unlockKey(PersonalAccountingIdentifier remoteAddress) {
+    private void unlockKey(final String identifier) {
         try {
-            counterMap.unlock(remoteAddress);
+            counterMap.unlock(identifier);
         } catch(Exception e) {
-            LOGGER.info("Unable to unlock object key {}. Threw {}: {}", remoteAddress, e.getClass().getName(), e.getMessage());
+            LOGGER.info("Unable to unlock object key {}. Threw {}: {}", identifier, e.getClass().getName(), e.getMessage());
         }
 
     }

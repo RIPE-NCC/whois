@@ -5,7 +5,7 @@ import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelFutureListener;
 import io.netty.channel.ChannelHandlerContext;
 import net.ripe.db.whois.query.QueryMessages;
-import net.ripe.db.whois.query.acl.AccessControlListManager;
+import net.ripe.db.whois.query.acl.IpAccessControlListManager;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -32,13 +32,13 @@ public class NrtmAclLimitHandlerTest {
     @Mock private Channel channel;
     @Mock private ChannelFuture channelFuture;
     @Mock private NrtmLog nrtmLog;
-    @Mock private AccessControlListManager accessControlListManager;
+    @Mock private IpAccessControlListManager IPAccessControlListManager;
 
     private NrtmAclLimitHandler subject;
 
     @BeforeEach
     public void setUp() {
-        this.subject = new NrtmAclLimitHandler(accessControlListManager, nrtmLog);
+        this.subject = new NrtmAclLimitHandler(IPAccessControlListManager, nrtmLog);
 
         when(ctx.channel()).thenReturn(channel);
     }
@@ -48,7 +48,7 @@ public class NrtmAclLimitHandlerTest {
         final InetSocketAddress remoteAddress = new InetSocketAddress("10.0.0.0", 43);
 
         when(channel.remoteAddress()).thenReturn(remoteAddress);
-        when(accessControlListManager.isDenied(remoteAddress.getAddress())).thenReturn(true);
+        when(IPAccessControlListManager.isDenied(remoteAddress.getAddress())).thenReturn(true);
 
         try {
             subject.channelActive(ctx);
@@ -64,8 +64,8 @@ public class NrtmAclLimitHandlerTest {
         final InetSocketAddress remoteAddress = new InetSocketAddress("10.0.0.0", 43);
 
         when(channel.remoteAddress()).thenReturn(remoteAddress);
-        when(accessControlListManager.isDenied(remoteAddress.getAddress())).thenReturn(false);
-        when(accessControlListManager.canQueryPersonalObjects(remoteAddress.getAddress())).thenReturn(false);
+        when(IPAccessControlListManager.isDenied(remoteAddress.getAddress())).thenReturn(false);
+        when(IPAccessControlListManager.canQueryPersonalObjects(remoteAddress.getAddress())).thenReturn(false);
 
         try {
             subject.channelActive(ctx);
@@ -80,8 +80,8 @@ public class NrtmAclLimitHandlerTest {
     public void acl_limit_not_breached() throws Exception {
         final InetSocketAddress remoteAddress = new InetSocketAddress("10.0.0.0", 43);
         when(channel.remoteAddress()).thenReturn(remoteAddress);
-        when(accessControlListManager.isDenied(remoteAddress.getAddress())).thenReturn(false);
-        when(accessControlListManager.canQueryPersonalObjects(remoteAddress.getAddress())).thenReturn(true);
+        when(IPAccessControlListManager.isDenied(remoteAddress.getAddress())).thenReturn(false);
+        when(IPAccessControlListManager.canQueryPersonalObjects(remoteAddress.getAddress())).thenReturn(true);
 
         subject.channelActive(ctx);
 

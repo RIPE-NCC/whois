@@ -64,7 +64,7 @@ public class QueryHandler {
                     throw e;
                 } finally {
                     if (accountedObjects > 0) {
-                        accessControlListManager.accountPersonalObjects(accountingAddress, accountedObjects);
+                        accessControlListManager.accountPersonalObjects(accountingAddress, query.getSsoToken(), accountedObjects);
                     }
                 }
             }
@@ -99,9 +99,9 @@ public class QueryHandler {
             }
 
             private void checkBlocked(final InetAddress inetAddress) {
-                if (accessControlListManager.isDenied(inetAddress)) {
+                if (accessControlListManager.isDenied(inetAddress, query.getSsoToken())) {
                     throw new QueryException(QueryCompletionInfo.BLOCKED, QueryMessages.accessDeniedPermanently(inetAddress));
-                } else if (!accessControlListManager.canQueryPersonalObjects(inetAddress)) {
+                } else if (!accessControlListManager.canQueryPersonalObjects(inetAddress, query.getSsoToken())) {
                     throw new QueryException(QueryCompletionInfo.BLOCKED, QueryMessages.accessDeniedTemporarily(inetAddress));
                 }
             }
@@ -118,7 +118,7 @@ public class QueryHandler {
                         if (responseObject instanceof RpslObject) {
                             if (useAcl && accessControlListManager.requiresAcl((RpslObject) responseObject, sourceContext.getCurrentSource())) {
                                 if (accountingLimit == -1) {
-                                    accountingLimit = accessControlListManager.getPersonalObjects(accountingAddress);
+                                    accountingLimit = accessControlListManager.getPersonalObjects(accountingAddress, query.getSsoToken());
                                 }
 
                                 if (++accountedObjects > accountingLimit) {

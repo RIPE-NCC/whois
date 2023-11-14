@@ -7,7 +7,7 @@ import net.ripe.db.whois.common.rpsl.RpslObject;
 import net.ripe.db.whois.common.source.Source;
 import net.ripe.db.whois.common.source.SourceContext;
 import net.ripe.db.whois.query.QueryMessages;
-import net.ripe.db.whois.query.acl.AccessControlListManager;
+import net.ripe.db.whois.query.acl.IpAccessControlListManager;
 import net.ripe.db.whois.query.domain.MessageObject;
 import net.ripe.db.whois.query.domain.QueryCompletionInfo;
 import net.ripe.db.whois.query.domain.QueryException;
@@ -44,7 +44,8 @@ import static org.mockito.Mockito.when;
 @ExtendWith(MockitoExtension.class)
 public class QueryHandlerAclTest {
     @Mock WhoisLog whoisLog;
-    @Mock AccessControlListManager accessControlListManager;
+    @Mock
+    IpAccessControlListManager IPAccessControlListManager;
     @Mock SourceContext sourceContext;
     @Mock QueryExecutor queryExecutor;
     QueryHandler subject;
@@ -56,7 +57,7 @@ public class QueryHandlerAclTest {
 
     @BeforeEach
     public void setUp() throws Exception {
-        subject = new QueryHandler(whoisLog, accessControlListManager, sourceContext, queryExecutor);
+        subject = new QueryHandler(whoisLog, IPAccessControlListManager, sourceContext, queryExecutor);
 
         message = new MessageObject("test");
         maintainer = RpslObject.parse("mntner: DEV-MNT");
@@ -81,8 +82,8 @@ public class QueryHandlerAclTest {
         }).when(queryExecutor).execute(any(Query.class), any(ResponseHandler.class));
 
         lenient().when(sourceContext.getCurrentSource()).thenReturn(Source.slave("RIPE"));
-        when(accessControlListManager.canQueryPersonalObjects(remoteAddress)).thenReturn(true);
-        lenient().when(accessControlListManager.requiresAcl(any(RpslObject.class), any(Source.class))).thenAnswer(new Answer<Object>() {
+        when(IPAccessControlListManager.canQueryPersonalObjects(remoteAddress)).thenReturn(true);
+        lenient().when(IPAccessControlListManager.requiresAcl(any(RpslObject.class), any(Source.class))).thenAnswer(new Answer<Object>() {
             @Override
             @SuppressWarnings("SuspiciousMethodCalls")
             public Object answer(final InvocationOnMock invocationOnMock) throws Throwable {
@@ -93,30 +94,30 @@ public class QueryHandlerAclTest {
 
     @Test
     public void source_without_acl() {
-        when(accessControlListManager.requiresAcl(any(RpslObject.class), any(Source.class))).thenReturn(false);
+        when(IPAccessControlListManager.requiresAcl(any(RpslObject.class), any(Source.class))).thenReturn(false);
 
         final Query query = Query.parse("DEV-MNT");
         subject.streamResults(query, remoteAddress, contextId, responseHandler);
 
-        verify(accessControlListManager, never()).accountPersonalObjects(any(InetAddress.class), any(Integer.class));
+        verify(IPAccessControlListManager, never()).accountPersonalObjects(any(InetAddress.class), any(Integer.class));
         verifyLog(query, null, 0, 4);
     }
 
     @Test
     public void acl_with_unlimited() {
-        when(accessControlListManager.isUnlimited(remoteAddress)).thenReturn(true);
+        when(IPAccessControlListManager.isUnlimited(remoteAddress)).thenReturn(true);
 
         final Query query = Query.parse("DEV-MNT");
         subject.streamResults(query, remoteAddress, contextId, responseHandler);
 
-        verify(accessControlListManager, never()).requiresAcl(any(RpslObject.class), any(Source.class));
-        verify(accessControlListManager, never()).accountPersonalObjects(any(InetAddress.class), any(Integer.class));
+        verify(IPAccessControlListManager, never()).requiresAcl(any(RpslObject.class), any(Source.class));
+        verify(IPAccessControlListManager, never()).accountPersonalObjects(any(InetAddress.class), any(Integer.class));
         verifyLog(query, null, 0, 4);
     }
 
     @Test
     public void acl_without_hitting_limit() {
-        when(accessControlListManager.getPersonalObjects(remoteAddress)).thenReturn(10);
+        when(IPAccessControlListManager.getPersonalObjects(remoteAddress)).thenReturn(10);
 
         final Query query = Query.parse("DEV-MNT");
         subject.streamResults(query, remoteAddress, contextId, responseHandler);
@@ -125,14 +126,14 @@ public class QueryHandlerAclTest {
         verify(responseHandler, times(5)).handle(responseCaptor.capture());
         assertThat(responseCaptor.getAllValues(), contains(message, maintainer, personTest, roleTest, roleAbuse));
 
-        verify(accessControlListManager).accountPersonalObjects(remoteAddress, 2);
+        verify(IPAccessControlListManager).accountPersonalObjects(remoteAddress, 2);
 
         verifyLog(query, null, 2, 2);
     }
 
     @Test
     public void acl_hitting_limit() {
-        when(accessControlListManager.getPersonalObjects(remoteAddress)).thenReturn(1);
+        when(IPAccessControlListManager.getPersonalObjects(remoteAddress)).thenReturn(1);
 
         final Query query = Query.parse("DEV-MNT");
         try {
@@ -146,7 +147,7 @@ public class QueryHandlerAclTest {
             verify(responseHandler, times(3)).handle(responseCaptor.capture());
             assertThat(responseCaptor.getAllValues(), contains(message, maintainer, personTest));
 
-            verify(accessControlListManager).accountPersonalObjects(remoteAddress, 2);
+            verify(IPAccessControlListManager).accountPersonalObjects(remoteAddress, 2);
 
             verifyLog(query, QueryCompletionInfo.BLOCKED, 2, 1);
         }
@@ -156,9 +157,9 @@ public class QueryHandlerAclTest {
     public void acl_with_proxy() {
         final InetAddress clientAddress = InetAddresses.forString("10.0.0.0");
 
-        when(accessControlListManager.isAllowedToProxy(remoteAddress)).thenReturn(true);
-        when(accessControlListManager.canQueryPersonalObjects(clientAddress)).thenReturn(true);
-        when(accessControlListManager.getPersonalObjects(clientAddress)).thenReturn(10);
+        when(IPAccessControlListManager.isAllowedToProxy(remoteAddress)).thenReturn(true);
+        when(IPAccessControlListManager.canQueryPersonalObjects(clientAddress)).thenReturn(true);
+        when(IPAccessControlListManager.getPersonalObjects(clientAddress)).thenReturn(10);
 
         final Query query = Query.parse("-VclientId,10.0.0.0 DEV-MNT");
         subject.streamResults(query, remoteAddress, contextId, responseHandler);
@@ -167,7 +168,7 @@ public class QueryHandlerAclTest {
         verify(responseHandler, times(5)).handle(responseCaptor.capture());
         assertThat(responseCaptor.getAllValues(), contains(message, maintainer, personTest, roleTest, roleAbuse));
 
-        verify(accessControlListManager).accountPersonalObjects(clientAddress, 2);
+        verify(IPAccessControlListManager).accountPersonalObjects(clientAddress, 2);
 
         verifyLog(query, null, 2, 2);
     }
