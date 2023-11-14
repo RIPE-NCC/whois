@@ -107,7 +107,7 @@ class RdapServiceAclTestIntegration extends AbstractRdapIntegrationTest {
             .request(MediaType.APPLICATION_JSON_TYPE)
             .get(Entity.class);
 
-        assertThat(testPersonalObjectAccounting.getQueriedPersonalObjects(InetAddress.getByName(LOCALHOST)), is(1));
+        assertThat(testPersonalObjectAccounting.getQueriedPersonalObjects(InetAddress.getByName(LOCALHOST).toString()), is(1));
     }
 
     // TODO: [ES] mntner e-mail is not filtered and mntner is not counted in ACL
@@ -118,9 +118,6 @@ class RdapServiceAclTestIntegration extends AbstractRdapIntegrationTest {
                 .get(Entity.class);
 
         assertThat(((ArrayList)entity.getVCardArray().get(1)).get(2).toString(), is("[kind, {}, text, individual]"));
-        assertThat(testPersonalObjectAccounting.getQueriedPersonalObjects(InetAddress.getByName(LOCALHOST)), is(0));
+        assertThat(testPersonalObjectAccounting.getQueriedPersonalObjects(InetAddress.getByName(LOCALHOST).toString()), is(0));
     }
-
-
-
 }

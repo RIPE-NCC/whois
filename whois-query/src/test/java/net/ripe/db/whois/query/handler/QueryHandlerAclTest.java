@@ -118,7 +118,7 @@ public class QueryHandlerAclTest {
 
     @Test
     public void acl_without_hitting_limit() {
-        when(accessControlListManager.getPersonalObjects(remoteAddress, any(String.class))).thenReturn(10);
+        when(accessControlListManager.getPersonalObjects(remoteAddress, null)).thenReturn(10);
 
         final Query query = Query.parse("DEV-MNT");
         subject.streamResults(query, remoteAddress, contextId, responseHandler);
@@ -127,7 +127,7 @@ public class QueryHandlerAclTest {
         verify(responseHandler, times(5)).handle(responseCaptor.capture());
         assertThat(responseCaptor.getAllValues(), contains(message, maintainer, personTest, roleTest, roleAbuse));
 
-        verify(accessControlListManager).accountPersonalObjects(remoteAddress, any(String.class),2);
+        verify(accessControlListManager).accountPersonalObjects(remoteAddress,null,2);
 
         verifyLog(query, null, 2, 2);
     }
@@ -148,7 +148,7 @@ public class QueryHandlerAclTest {
             verify(responseHandler, times(3)).handle(responseCaptor.capture());
             assertThat(responseCaptor.getAllValues(), contains(message, maintainer, personTest));
 
-            verify(accessControlListManager).accountPersonalObjects(remoteAddress, any(String.class),2);
+            verify(accessControlListManager).accountPersonalObjects(remoteAddress,null,2);
 
             verifyLog(query, QueryCompletionInfo.BLOCKED, 2, 1);
         }
