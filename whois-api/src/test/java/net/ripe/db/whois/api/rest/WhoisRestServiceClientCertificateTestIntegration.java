@@ -35,7 +35,7 @@ import static org.hamcrest.Matchers.is;
 import static org.junit.jupiter.api.Assertions.fail;
 
 @Tag("IntegrationTest")
-public class WhoisClientCertificateAuthenticationTestIntegration extends AbstractClientCertificateIntegrationTest {
+public class WhoisRestServiceClientCertificateTestIntegration extends AbstractClientCertificateIntegrationTest {
 
     private static final RpslObject OWNER_MNT = RpslObject.parse("" +
             "mntner:      OWNER-MNT\n" +
