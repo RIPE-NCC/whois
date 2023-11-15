@@ -134,8 +134,8 @@ public class IpAccessControlListManagerTest {
 
     @Test
     public void check_getLimit_unrestricted() throws Exception {
-        assertThat(subject.getPersonalObjects(ipv4Unrestricted, null), is(PERSONAL_DATA_NO_LIMIT));
-        assertThat(subject.getPersonalObjects(ipv6Unrestricted, null), is(PERSONAL_DATA_NO_LIMIT));
+        assertThat(subject.getPersonalObjects(ipv4Unrestricted, null), is(Integer.MAX_VALUE));
+        assertThat(subject.getPersonalObjects(ipv6Unrestricted, null), is(Integer.MAX_VALUE));
     }
 
     @Test
