@@ -147,18 +147,6 @@ public class IpAccessControlListManagerTest {
     @Captor
     ArgumentCaptor<Ipv6Resource> ipv6ResourceCaptor;
 
-
-    @Ignore
-    //TODO: FIX it
-    @Test
-    public void test_if_block_temporary_is_logged() {
-        subject.accountPersonalObjects(ipv6Restricted, null, -1);
-        verify(ipAccessControlListDao).saveAclEvent(ipv6ResourceCaptor.capture(), eq(now), eq(PERSONAL_DATA_LIMIT), eq(BlockEvent.Type.BLOCK_TEMPORARY));
-
-        Ipv6Resource ipv6Resource = ipv6ResourceCaptor.getValue();
-        assertThat(ipv6Resource.toString(), is("2001::/64"));
-    }
-
     @Test
     public void testMask() throws UnknownHostException {
         final InetAddress subject = Inet6Address.getByName("3ffe:6a88:85a3:98d3:1319:8a2e:9370:7344");
