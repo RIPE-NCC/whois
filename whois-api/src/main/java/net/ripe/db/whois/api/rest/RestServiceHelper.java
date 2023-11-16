@@ -3,6 +3,7 @@ package net.ripe.db.whois.api.rest;
 import com.google.common.base.Splitter;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
+import com.google.common.net.HttpHeaders;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.ws.rs.WebApplicationException;
 import jakarta.ws.rs.core.Response;
@@ -31,6 +32,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 
+import static jakarta.servlet.http.HttpServletRequest.BASIC_AUTH;
 import static org.apache.commons.lang.StringUtils.isEmpty;
 
 public class RestServiceHelper {
@@ -182,4 +184,10 @@ public class RestServiceHelper {
     private static boolean skipStackTrace(final Exception exception) {
         return SKIP_STACK_TRACE.contains(exception.getClass());
     }
+
+    public static boolean isBasicAuth(final HttpServletRequest request) {
+        final String authorization = request.getHeader(HttpHeaders.AUTHORIZATION);
+        return authorization != null && authorization.toUpperCase().startsWith(BASIC_AUTH);
+    }
+
 }

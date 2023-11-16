@@ -4,6 +4,7 @@ import org.bouncycastle.asn1.x500.X500Name;
 import org.bouncycastle.asn1.x509.SubjectPublicKeyInfo;
 import org.bouncycastle.cert.X509CertificateHolder;
 import org.bouncycastle.cert.X509v3CertificateBuilder;
+import org.bouncycastle.cert.jcajce.JcaX509CertificateConverter;
 import org.bouncycastle.jce.provider.BouncyCastleProvider;
 import org.bouncycastle.openssl.jcajce.JcaPEMWriter;
 import org.bouncycastle.operator.ContentSigner;
@@ -20,6 +21,8 @@ import java.security.KeyPairGenerator;
 import java.security.NoSuchAlgorithmException;
 import java.security.PrivateKey;
 import java.security.Security;
+import java.security.cert.CertificateException;
+import java.security.cert.X509Certificate;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.Date;
@@ -30,6 +33,8 @@ public class CertificatePrivateKeyPair {
         Security.addProvider(new BouncyCastleProvider());
     }
 
+    private final X509Certificate certificate;
+    private final PrivateKey privateKey;
     private final String certificateFilename;
     private final String privateKeyFilename;
 
@@ -41,11 +46,21 @@ public class CertificatePrivateKeyPair {
         try {
             final KeyPair keyPair = generateKeyPair();
             final X509CertificateHolder certificate = generateCertificate(keyPair, certificateAlias);
+            this.certificate = convertCertificate(certificate);
+            this.privateKey = keyPair.getPrivate();
             this.certificateFilename = writeCertificateFile(certificate);
             this.privateKeyFilename = writePrivateKey(keyPair.getPrivate());
         } catch (NoSuchAlgorithmException | OperatorCreationException | IOException e) {
             throw new IllegalStateException(e);
         }
+    }
+
+    public X509Certificate getCertificate() {
+        return certificate;
+    }
+
+    public PrivateKey getPrivateKey() {
+        return privateKey;
     }
 
     public String getCertificateFilename() {
@@ -78,7 +93,18 @@ public class CertificatePrivateKeyPair {
     }
 
     private static KeyPair generateKeyPair() throws NoSuchAlgorithmException {
-        return KeyPairGenerator.getInstance("RSA").generateKeyPair();
+        final KeyPairGenerator rsa = KeyPairGenerator.getInstance("RSA");
+        rsa.initialize(2048);
+        return rsa.generateKeyPair();
+    }
+
+    private X509Certificate convertCertificate(final X509CertificateHolder certificate) {
+        try {
+            return new JcaX509CertificateConverter()
+                .setProvider(new BouncyCastleProvider()).getCertificate(certificate);
+        } catch (CertificateException e) {
+            throw new IllegalStateException(e);
+        }
     }
 
     private static X509CertificateHolder generateCertificate(final KeyPair keyPair, final String alias) throws OperatorCreationException {
@@ -88,7 +114,7 @@ public class CertificatePrivateKeyPair {
         final Date notAfter = Date.from(Instant.now().plus(1L, ChronoUnit.DAYS));
 
         final X509v3CertificateBuilder certificateBuilder = new X509v3CertificateBuilder(
-                new X500Name("CN=issuer"),
+                new X500Name("CN=ripe.net"),
                 BigInteger.ONE,
                 notBefore,
                 notAfter,
@@ -100,5 +126,4 @@ public class CertificatePrivateKeyPair {
 
         return certificateBuilder.build(signer);
     }
-
 }

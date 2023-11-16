@@ -26,12 +26,4 @@ public abstract class AbstractHttpsIntegrationTest extends AbstractIntegrationTe
         return jettyBootstrap.getSecurePort();
     }
 
-    // helper methods
-
-
-
-
-
-
-
 }
