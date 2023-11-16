@@ -294,7 +294,7 @@ class RdapObjectMapper {
             rdapResponse.getRemarks().add(createRemark(rpslObject));
         }
 
-        handlePartialValueAttributes(rpslObject, rdapResponse);
+        handleMultipleValuesAttributes(rpslObject, rdapResponse);
         rdapResponse.getEvents().add(createEvent(DateUtil.fromString(rpslObject.getValueForAttribute(AttributeType.CREATED)), Action.REGISTRATION));
         rdapResponse.getEvents().add(createEvent(DateUtil.fromString(rpslObject.getValueForAttribute(AttributeType.LAST_MODIFIED)), Action.LAST_CHANGED));
 
@@ -658,7 +658,7 @@ class RdapObjectMapper {
         }
     }
 
-    private static void handlePartialValueAttributes(final RpslObject rpslObject, final RdapObject rdapObject){
+    private static void handleMultipleValuesAttributes(final RpslObject rpslObject, final RdapObject rdapObject){
         rpslObject.getAttributes().forEach(rpslAttribute -> {
             switch (rpslAttribute.getType()){
                 case LANGUAGE -> {
