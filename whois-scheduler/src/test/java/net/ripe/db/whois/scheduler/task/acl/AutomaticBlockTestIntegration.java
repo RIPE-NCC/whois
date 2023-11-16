@@ -74,7 +74,7 @@ public class AutomaticBlockTestIntegration extends AbstractSchedulerIntegrationT
         queryAndCheckBanned(QueryMessages.accessDeniedPermanently(localHost));
 
         testDateTimeProvider.setTime(LocalDateTime.now().plusDays(currentDay++));
-        databaseHelper.unban("127.0.0.1/32");
+        databaseHelper.unbanIp("127.0.0.1/32");
 
         dailyMaintenance();
 

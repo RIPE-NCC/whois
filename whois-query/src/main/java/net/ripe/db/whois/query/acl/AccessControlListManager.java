@@ -10,6 +10,9 @@ import net.ripe.db.whois.common.rpsl.AttributeType;
 import net.ripe.db.whois.common.rpsl.ObjectType;
 import net.ripe.db.whois.common.rpsl.RpslObject;
 import net.ripe.db.whois.common.source.Source;
+import net.ripe.db.whois.common.sso.AuthServiceClientException;
+import net.ripe.db.whois.common.sso.SsoTokenTranslator;
+import net.ripe.db.whois.common.sso.UserSession;
 import net.ripe.db.whois.query.dao.IpAccessControlListDao;
 import net.ripe.db.whois.query.dao.SSOAccessControlListDao;
 import org.apache.commons.lang.StringUtils;
@@ -26,8 +29,7 @@ import java.net.UnknownHostException;
 public class AccessControlListManager {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(AccessControlListManager.class);
-
-    static final int IPV6_NETMASK = 64;
+    public static final int IPV6_NETMASK = 64;
 
     private final DateTimeProvider dateTimeProvider;
     private final IpResourceConfiguration ipResourceConfiguration;
@@ -36,7 +38,7 @@ public class AccessControlListManager {
     private final IpRanges ipRanges;
     private final SSOResourceConfiguration ssoResourceConfiguration;
     private final SSOAccessControlListDao ssoAccessControlListDao;
-
+    private final SsoTokenTranslator ssoTokenTranslator;
 
     @Autowired
     public AccessControlListManager(final DateTimeProvider dateTimeProvider,
@@ -44,6 +46,7 @@ public class AccessControlListManager {
                                     final IpAccessControlListDao ipAccessControlListDao,
                                     final PersonalObjectAccounting personalObjectAccounting,
                                     final SSOAccessControlListDao ssoAccessControlListDao,
+                                    final SsoTokenTranslator ssoTokenTranslator,
                                     final SSOResourceConfiguration ssoResourceConfiguration,
                                     final IpRanges ipRanges) {
         this.dateTimeProvider = dateTimeProvider;
@@ -52,6 +55,7 @@ public class AccessControlListManager {
         this.personalObjectAccounting = personalObjectAccounting;
         this.ssoResourceConfiguration = ssoResourceConfiguration;
         this.ssoAccessControlListDao = ssoAccessControlListDao;
+        this.ssoTokenTranslator = ssoTokenTranslator;
         this.ipRanges = ipRanges;
     }
 
@@ -65,8 +69,13 @@ public class AccessControlListManager {
                 || (ObjectType.ROLE.equals(objectType) && rpslObject.findAttributes(AttributeType.ABUSE_MAILBOX).isEmpty());
     }
 
-    public boolean isDenied(final InetAddress remoteAddress, final String ssoId) {
-        return ipResourceConfiguration.isDenied(remoteAddress) || ssoResourceConfiguration.isDenied(ssoId);
+    public boolean isDenied(final InetAddress remoteAddress, final String ssoToken) {
+        if(ipResourceConfiguration.isDenied(remoteAddress)) {
+            return true;
+        }
+
+        final String username = getUserName(ssoToken);
+        return username != null ? ssoResourceConfiguration.isDenied(username) : false;
     }
 
     public boolean isAllowedToProxy(final InetAddress remoteAddress) {
@@ -77,25 +86,43 @@ public class AccessControlListManager {
         return ipResourceConfiguration.getLimit(remoteAddress) < 0;
     }
 
-    public boolean canQueryPersonalObjects(final InetAddress remoteAddress, final String ssoId) {
-        return getPersonalObjects(remoteAddress,ssoId) >= 0;
+    public boolean canQueryPersonalObjects(final InetAddress remoteAddress, final String ssoToken) {
+        return getPersonalObjects(remoteAddress,ssoToken) >= 0;
     }
 
     public boolean isTrusted(final InetAddress remoteAddress) {
         return ipRanges.isTrusted(IpInterval.asIpInterval(remoteAddress));
     }
 
-    public int getPersonalObjects(final InetAddress remoteAddress, final String ssoId) {
+    public int getPersonalObjects(final InetAddress remoteAddress, final String ssoToken) {
         if (isUnlimited(remoteAddress)) {
             return Integer.MAX_VALUE;
         }
 
-        final PersonalAccountingManager accountingManager = getAccountingManager(remoteAddress, ssoId);
+        final PersonalAccountingManager accountingManager = getAccountingManager(remoteAddress, ssoToken);
         return accountingManager.getPersonalObjects();
     }
 
-    private PersonalAccountingManager getAccountingManager(InetAddress remoteAddress, String ssoId) {
-        return StringUtils.isEmpty(ssoId) ? new RemoteAddrAccountingManager(remoteAddress) : new SSOAccountingManager(ssoId);
+    private PersonalAccountingManager getAccountingManager(final InetAddress remoteAddress, final String ssoToken) {
+       final String username =  getUserName(ssoToken);
+       return username == null ? new RemoteAddrAccountingManager(remoteAddress) : new SSOAccountingManager(username);
+    }
+
+    private String getUserName(final String ssoToken) {
+        if(StringUtils.isEmpty(ssoToken)) {
+            return null;
+        }
+
+        try {
+            final UserSession userSession = ssoTokenTranslator.translateSsoToken(ssoToken);
+            if(userSession != null && !StringUtils.isEmpty(userSession.getUsername())) {
+                return userSession.getUsername();
+            }
+        } catch (AuthServiceClientException e) {
+            LOGGER.warn("Cannot translate ssoToken, will account by remoteAddr", e.getMessage());
+        }
+
+        return null;
     }
 
     /**
@@ -104,25 +131,25 @@ public class AccessControlListManager {
      * @param remoteAddress The remote address.
      * @param amount        The amount of personal objects accounted.
      */
-    public void accountPersonalObjects(final InetAddress remoteAddress, final String ssoId, final int amount) {
+    public void accountPersonalObjects(final InetAddress remoteAddress, final String ssoToken, final int amount) {
         if (isUnlimited(remoteAddress)) {
             return;
         }
 
-        final PersonalAccountingManager accountingManager = getAccountingManager(remoteAddress, ssoId);
+        final PersonalAccountingManager accountingManager = getAccountingManager(remoteAddress, ssoToken);
         accountingManager.accountPersonalObjects(amount);
     }
 
     public class SSOAccountingManager implements PersonalAccountingManager {
-        private final String ssoId;
+        private final String userName;
 
-        public SSOAccountingManager(final String ssoId) {
-            this.ssoId = ssoId;
+        public SSOAccountingManager(final String userName) {
+            this.userName = userName;
         }
 
         @Override
         public int getPersonalObjects() {
-            final int queried = personalObjectAccounting.getQueriedPersonalObjects(ssoId);
+            final int queried = personalObjectAccounting.getQueriedPersonalObjects(userName);
             final int personalDataLimit = getPersonalDataLimit();
 
             return personalDataLimit - queried;
@@ -132,7 +159,7 @@ public class AccessControlListManager {
         public void accountPersonalObjects(final int amount) {
             final int limit = getPersonalDataLimit();
 
-            final int remaining = limit - personalObjectAccounting.accountPersonalObject(ssoId, amount);
+            final int remaining = limit - personalObjectAccounting.accountPersonalObject(userName, amount);
             if (remaining < 0) {
                 blockTemporary(limit);
             }
@@ -140,7 +167,7 @@ public class AccessControlListManager {
 
         @Override
         public void blockTemporary(final int limit) {
-            ssoAccessControlListDao.saveAclEvent(ssoId, dateTimeProvider.getCurrentDate(), limit, BlockEvent.Type.BLOCK_TEMPORARY);
+            ssoAccessControlListDao.saveAclEvent(userName, dateTimeProvider.getCurrentDate(), limit, BlockEvent.Type.BLOCK_TEMPORARY);
         }
 
         @Override

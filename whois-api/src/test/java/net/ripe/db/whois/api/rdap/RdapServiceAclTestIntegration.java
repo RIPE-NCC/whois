@@ -95,7 +95,7 @@ class RdapServiceAclTestIntegration extends AbstractRdapIntegrationTest {
                 assertErrorDescriptionContains(e, "%ERROR:201: access denied for 127.0.0.1");
             }
         } finally {
-            databaseHelper.unban(LOCALHOST_WITH_PREFIX);
+            databaseHelper.unbanIp(LOCALHOST_WITH_PREFIX);
             ipResourceConfiguration.reload();
             testPersonalObjectAccounting.resetAccounting();
         }

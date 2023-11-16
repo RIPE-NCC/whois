@@ -669,7 +669,7 @@ public class RdapElasticServiceTestIntegration extends AbstractElasticSearchInte
                         "information, see\n% https://apps.db.ripe.net/docs/FAQ/#why-did-i-receive-an-error-201-access-denied\n");
             }
         } finally {
-            databaseHelper.unban(LOCALHOST_WITH_PREFIX);
+            databaseHelper.unbanIp(LOCALHOST_WITH_PREFIX);
             ipResourceConfiguration.reload();
             testPersonalObjectAccounting.resetAccounting();
         }

@@ -2,6 +2,7 @@ package net.ripe.db.whois.query.acl;
 
 import net.ripe.db.whois.common.DateTimeProvider;
 import net.ripe.db.whois.common.domain.IpRanges;
+import net.ripe.db.whois.common.sso.SsoTokenTranslator;
 import net.ripe.db.whois.query.dao.IpAccessControlListDao;
 import net.ripe.db.whois.query.dao.SSOAccessControlListDao;
 import net.ripe.db.whois.query.support.TestPersonalObjectAccounting;
@@ -31,6 +32,8 @@ public class IpAccessControlListManagerAccountingTest {
     SSOAccessControlListDao ssoAccessControlListDao;
     @Mock
     SSOResourceConfiguration ssoResourceConfiguration;
+    @Mock
+    SsoTokenTranslator ssoTokenTranslator;
 
     @Mock IpRanges ipRanges;
     private PersonalObjectAccounting personalObjectAccounting = new TestPersonalObjectAccounting();
@@ -41,7 +44,7 @@ public class IpAccessControlListManagerAccountingTest {
 
     @BeforeEach
     public void setUp() throws Exception {
-        subject = new AccessControlListManager(dateTimeProvider, ipResourceConfiguration, ipAccessControlListDao, personalObjectAccounting, ssoAccessControlListDao, ssoResourceConfiguration, ipRanges);
+        subject = new AccessControlListManager(dateTimeProvider, ipResourceConfiguration, ipAccessControlListDao, personalObjectAccounting, ssoAccessControlListDao, ssoTokenTranslator, ssoResourceConfiguration, ipRanges);
         ipv4Address = Inet4Address.getLocalHost();
         ipv6Address = Inet6Address.getByName("::1");
     }
