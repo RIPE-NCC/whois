@@ -482,6 +482,14 @@ public class DatabaseHelper implements EmbeddedValueResolverAware {
         aclTemplate.update("DELETE FROM acl_limit");
     }
 
+    public void clearAclTables() {
+        aclTemplate.update("DELETE FROM acl_denied");
+        aclTemplate.update("DELETE FROM acl_event");
+        aclTemplate.update("DELETE FROM acl_sso_denied");
+        aclTemplate.update("DELETE FROM acl_sso_event");
+        clearAclLimits();
+    }
+
     public void insertAclIpLimit(final String prefix, final int limit, final boolean unlimitedConnections) {
         aclTemplate.update(
                 "INSERT INTO acl_limit (prefix, daily_limit, unlimited_connections, comment) VALUES (?, ?, ?, ?)",

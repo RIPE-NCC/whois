@@ -59,11 +59,7 @@ public class WhoisRestServiceAclTestIntegration extends AbstractIntegrationTest 
 
     @AfterEach
     public void reset() throws Exception {
-        databaseHelper.getAclTemplate().update("DELETE FROM acl_denied");
-        databaseHelper.getAclTemplate().update("DELETE FROM acl_event");
-        databaseHelper.getAclTemplate().update("DELETE FROM acl_sso_denied");
-        databaseHelper.getAclTemplate().update("DELETE FROM acl_sso_event");
-        databaseHelper.clearAclLimits();
+        databaseHelper.clearAclTables();
 
         ipResourceConfiguration.reload();
         ssoResourceConfiguration.reload();
