@@ -38,7 +38,7 @@ public class ExportFileWriterFactoryTest {
 
     @BeforeEach
     public void setup() {
-        subject = new ExportFileWriterFactory(dummifierNrtm, "internal", "dbase", "test", "test-nonauth");
+        subject = new ExportFileWriterFactory(dummifierNrtm, "internal", "dbase", "TEST", "TEST-NONAUTH");
     }
 
     @Test
