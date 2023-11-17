@@ -15,6 +15,7 @@ import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
 
+import static net.ripe.db.whois.common.rpsl.ObjectType.AS_SET;
 import static net.ripe.db.whois.common.rpsl.ObjectType.AUT_NUM;
 import static net.ripe.db.whois.common.rpsl.ObjectType.ROUTE;
 import static net.ripe.db.whois.common.rpsl.ObjectType.ROUTE6;
@@ -65,7 +66,7 @@ class ExportFileWriterFactory {
         final FilenameStrategy nonAuthSplitFile = new FilenameStrategy.NonAuthSplitFile();
 
         final ExportFilter sourceFilter = new ExportFilter.SourceExportFilter(source, ImmutableSet.copyOf(ObjectType.values()));
-        final ExportFilter nonAuthSourceFilter = new ExportFilter.SourceExportFilter(nonAuthSource, Sets.immutableEnumSet(AUT_NUM, ROUTE, ROUTE6), false);
+        final ExportFilter nonAuthSourceFilter = new ExportFilter.SourceExportFilter(nonAuthSource, Sets.immutableEnumSet(AS_SET, AUT_NUM, ROUTE, ROUTE6), false);
 
         return Lists.newArrayList(
                 new ExportFileWriter(fullDir, singleFile, new DecorationStrategy.DummifySplitFiles(dummifierNrtm), sourceFilter),
