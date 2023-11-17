@@ -50,8 +50,6 @@ public class ExportDatabaseTestIntegration extends AbstractSchedulerIntegrationT
 
     Set<RpslObject> objects;
 
-    private final static Set<ObjectType> NON_AUTH_TYPES = Sets.immutableEnumSet(ObjectType.AUT_NUM, ObjectType.ROUTE, ObjectType.ROUTE6);
-
     @BeforeEach
     public void setupServer() {
         objects = Sets.newHashSet();
@@ -69,7 +67,7 @@ public class ExportDatabaseTestIntegration extends AbstractSchedulerIntegrationT
         for (int i = 0; i < 10; i++) {
             final RpslObject personObject = RpslObject.parse("" +
                     "person: Test person " + i + "\n" +
-                    "nic-hdl: PN" + i + "-RIPE\n" +
+                    "nic-hdl: PN" + i + "-TEST\n" +
                     "source: TEST");
 
             databaseHelper.addObject(personObject);
@@ -77,7 +75,7 @@ public class ExportDatabaseTestIntegration extends AbstractSchedulerIntegrationT
 
             final RpslObject roleObject = RpslObject.parse("" +
                     "role: Test role " + i + "\n" +
-                    "nic-hdl: ROLE" + i + "-RIPE\n" +
+                    "nic-hdl: ROLE" + i + "-TEST\n" +
                     "source: TEST");
 
             databaseHelper.addObject(roleObject);
@@ -102,13 +100,13 @@ public class ExportDatabaseTestIntegration extends AbstractSchedulerIntegrationT
         assertThat(exportDir.exists(), is(true));
 
         for (final ObjectType objectType : ObjectType.values()) {
-            checkFile("dbase/split/ripe.db." + objectType.getName() + ".gz");
-            checkFile("internal/split/ripe.db." + objectType.getName() + ".gz");
+            checkFile("dbase/split/test.db." + objectType.getName() + ".gz");
+            checkFile("internal/split/test.db." + objectType.getName() + ".gz");
         }
 
-        checkFile("dbase/RIPE.CURRENTSERIAL", "120");
+        checkFile("dbase/TEST.CURRENTSERIAL", "120");
 
-        checkFile("dbase/ripe.db.gz",
+        checkFile("dbase/test.db.gz",
                 "person:         Placeholder Person Object\n",
                 "mntner:         DEV-MNT0\n",
                 "mntner:         DEV-MNT1\n",
@@ -130,9 +128,9 @@ public class ExportDatabaseTestIntegration extends AbstractSchedulerIntegrationT
                         "remarks:        * http://www.ripe.net/whois\n" +
                         "remarks:        ****************************\n");
 
-        checkFile("dbase/split/ripe.db.person.gz", "person:         Placeholder Person Object");
+        checkFile("dbase/split/test.db.person.gz", "person:         Placeholder Person Object");
 
-        checkFile("dbase/split/ripe.db.mntner.gz",
+        checkFile("dbase/split/test.db.mntner.gz",
                 "mntner:         DEV-MNT0\n",
                 "mntner:         DEV-MNT1\n",
                 "mntner:         DEV-MNT2\n",
@@ -153,7 +151,7 @@ public class ExportDatabaseTestIntegration extends AbstractSchedulerIntegrationT
                         "remarks:        * http://www.ripe.net/whois\n" +
                         "remarks:        ****************************\n");
 
-        checkFile("internal/split/ripe.db.person.gz",
+        checkFile("internal/split/test.db.person.gz",
                 "person:         Test person 0",
                 "person:         Test person 1",
                 "person:         Test person 2",
@@ -161,10 +159,10 @@ public class ExportDatabaseTestIntegration extends AbstractSchedulerIntegrationT
                 "person:         Test person 4",
                 "" +
                         "person:         Test person 9\n" +
-                        "nic-hdl:        PN9-RIPE\n" +
+                        "nic-hdl:        PN9-TEST\n" +
                         "source:         TEST");
 
-        checkFile("internal/split/ripe.db.role.gz",
+        checkFile("internal/split/test.db.role.gz",
                 "role:           Test role 0",
                 "role:           Test role 1",
                 "role:           Test role 2",
@@ -172,10 +170,10 @@ public class ExportDatabaseTestIntegration extends AbstractSchedulerIntegrationT
                 "role:           Test role 4",
                 "" +
                         "role:           Test role 9\n" +
-                        "nic-hdl:        ROLE9-RIPE\n" +
+                        "nic-hdl:        ROLE9-TEST\n" +
                         "source:         TEST");
 
-        checkFile("internal/split/ripe.db.mntner.gz",
+        checkFile("internal/split/test.db.mntner.gz",
                 "" +
                         "mntner:         DEV-MNT0\n" +
                         "auth:           MD5-PW $1$xNv6umMG$cBd9DXqWEpsqeBq2AUjGy/\n" +
@@ -226,13 +224,13 @@ public class ExportDatabaseTestIntegration extends AbstractSchedulerIntegrationT
     public void export_role_with_abuse_mailbox() throws IOException {
         databaseHelper.addObject(RpslObject.parse("" +
                 "role:           Abuse role\n" +
-                "nic-hdl:        AR1-RIPE\n" +
+                "nic-hdl:        AR1-TEST\n" +
                 "abuse-mailbox:  abuse@mailbox.com\n" +
                 "source:         TEST"));
 
         databaseHelper.addObject(RpslObject.parse("" +
                 "organisation:   ORG1\n" +
-                "abuse-c:        AR1-RIPE\n" +
+                "abuse-c:        AR1-TEST\n" +
                 "source:         TEST"));
 
         sourceContext.removeCurrentSource();
@@ -243,32 +241,32 @@ public class ExportDatabaseTestIntegration extends AbstractSchedulerIntegrationT
         assertThat(exportDir.exists(), is(true));
 
         for (final ObjectType objectType : ObjectType.values()) {
-            checkFile("dbase/split/ripe.db." + objectType.getName() + ".gz");
-            checkFile("internal/split/ripe.db." + objectType.getName() + ".gz");
+            checkFile("dbase/split/test.db." + objectType.getName() + ".gz");
+            checkFile("internal/split/test.db." + objectType.getName() + ".gz");
         }
 
-        checkFile("dbase/split/ripe.db.person.gz", "person:         Placeholder Person Object");
+        checkFile("dbase/split/test.db.person.gz", "person:         Placeholder Person Object");
 
-        checkFile("dbase/split/ripe.db.role.gz", "" +
+        checkFile("dbase/split/test.db.role.gz", "" +
                 "role:           Abuse role\n" +
-                "nic-hdl:        AR1-RIPE\n" +
+                "nic-hdl:        AR1-TEST\n" +
                 "abuse-mailbox:  abuse@mailbox.com\n" +
                 "source:         TEST");
 
-        checkFile("dbase/split/ripe.db.organisation.gz", "" +
+        checkFile("dbase/split/test.db.organisation.gz", "" +
                 "organisation:   ORG1\n" +
-                "abuse-c:        AR1-RIPE\n" +
+                "abuse-c:        AR1-TEST\n" +
                 "source:         TEST");
 
-        checkFile("internal/split/ripe.db.role.gz", "" +
+        checkFile("internal/split/test.db.role.gz", "" +
                 "role:           Abuse role\n" +
-                "nic-hdl:        AR1-RIPE\n" +
+                "nic-hdl:        AR1-TEST\n" +
                 "abuse-mailbox:  abuse@mailbox.com\n" +
                 "source:         TEST");
 
-        checkFile("internal/split/ripe.db.organisation.gz", "" +
+        checkFile("internal/split/test.db.organisation.gz", "" +
                 "organisation:   ORG1\n" +
-                "abuse-c:        AR1-RIPE\n" +
+                "abuse-c:        AR1-TEST\n" +
                 "source:         TEST");
     }
 
@@ -308,31 +306,31 @@ public class ExportDatabaseTestIntegration extends AbstractSchedulerIntegrationT
         databaseHelper.addObject(RpslObject.parse("" +
                 "aut-num:        AS252\n" +
                 "source:         TEST"));
-
         databaseHelper.addObject(RpslObject.parse("" +
                 "aut-num:        AS251\n" +
                 "source:         TEST-NONAUTH"));
+        databaseHelper.addObject(RpslObject.parse("" +
+                "as-set:         AS251:AS-ALL\n" +
+                "source:         TEST-NONAUTH"));
 
         sourceContext.removeCurrentSource();
-
         rpslObjectsExporter.export();
 
         assertThat(tmpDir.exists(), is(false));
         assertThat(exportDir.exists(), is(true));
 
         for (final ObjectType objectType : ObjectType.values()) {
-            checkFile("dbase/split/ripe.db." + objectType.getName() + ".gz");
-            checkFile("internal/split/ripe.db." + objectType.getName() + ".gz");
-            if (NON_AUTH_TYPES.contains(objectType)) {
-                checkFile("dbase/split/ripe-nonauth.db." + objectType.getName() + ".gz");
-                checkFile("internal/split/ripe-nonauth.db." + objectType.getName() + ".gz");
+            checkFile("dbase/split/test.db." + objectType.getName() + ".gz");
+            checkFile("internal/split/test.db." + objectType.getName() + ".gz");
+            if (ExportFileWriterFactory.NONAUTH_OBJECT_TYPES.contains(objectType)) {
+                checkFile("dbase/split/test-nonauth.db." + objectType.getName() + ".gz");
+                checkFile("internal/split/test-nonauth.db." + objectType.getName() + ".gz");
             }
         }
 
-
-
-        checkFile("dbase/split/ripe.db.aut-num.gz", "aut-num:        AS252");
-        checkFile("dbase/split/ripe-nonauth.db.aut-num.gz", "aut-num:        AS251");
+        checkFile("dbase/split/test.db.aut-num.gz", "aut-num:        AS252");
+        checkFile("dbase/split/test-nonauth.db.aut-num.gz", "aut-num:        AS251");
+        checkFile("dbase/split/test-nonauth.db.as-set.gz", "as-set:         AS251:AS-ALL");
     }
 
 }
