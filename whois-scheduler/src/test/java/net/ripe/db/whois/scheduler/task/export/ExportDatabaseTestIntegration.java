@@ -100,13 +100,13 @@ public class ExportDatabaseTestIntegration extends AbstractSchedulerIntegrationT
         assertThat(exportDir.exists(), is(true));
 
         for (final ObjectType objectType : ObjectType.values()) {
-            checkFile("dbase/split/test.db." + objectType.getName() + ".gz");
+            checkFile("public/split/test.db." + objectType.getName() + ".gz");
             checkFile("internal/split/test.db." + objectType.getName() + ".gz");
         }
 
-        checkFile("dbase/TEST.CURRENTSERIAL", "120");
+        checkFile("public/TEST.CURRENTSERIAL", "120");
 
-        checkFile("dbase/test.db.gz",
+        checkFile("public/test.db.gz",
                 "person:         Placeholder Person Object\n",
                 "mntner:         DEV-MNT0\n",
                 "mntner:         DEV-MNT1\n",
@@ -128,9 +128,9 @@ public class ExportDatabaseTestIntegration extends AbstractSchedulerIntegrationT
                         "remarks:        * http://www.ripe.net/whois\n" +
                         "remarks:        ****************************\n");
 
-        checkFile("dbase/split/test.db.person.gz", "person:         Placeholder Person Object");
+        checkFile("public/split/test.db.person.gz", "person:         Placeholder Person Object");
 
-        checkFile("dbase/split/test.db.mntner.gz",
+        checkFile("public/split/test.db.mntner.gz",
                 "mntner:         DEV-MNT0\n",
                 "mntner:         DEV-MNT1\n",
                 "mntner:         DEV-MNT2\n",
@@ -140,16 +140,16 @@ public class ExportDatabaseTestIntegration extends AbstractSchedulerIntegrationT
                 "mntner:         DEV-MNT6\n",
                 "mntner:         DEV-MNT7\n",
                 "" +
-                        "mntner:         DEV-MNT99\n" +
-                        "auth:           MD5-PW $1$SaltSalt$DummifiedMD5HashValue.   # Real value hidden for security\n" +
-                        "source:         TEST\n" +
-                        "remarks:        ****************************\n" +
-                        "remarks:        * THIS OBJECT IS MODIFIED\n" +
-                        "remarks:        * Please note that all data that is generally regarded as personal\n" +
-                        "remarks:        * data has been removed from this object.\n" +
-                        "remarks:        * To view the original object, please query the RIPE Database at:\n" +
-                        "remarks:        * http://www.ripe.net/whois\n" +
-                        "remarks:        ****************************\n");
+                "mntner:         DEV-MNT99\n" +
+                "auth:           MD5-PW $1$SaltSalt$DummifiedMD5HashValue.   # Real value hidden for security\n" +
+                "source:         TEST\n" +
+                "remarks:        ****************************\n" +
+                "remarks:        * THIS OBJECT IS MODIFIED\n" +
+                "remarks:        * Please note that all data that is generally regarded as personal\n" +
+                "remarks:        * data has been removed from this object.\n" +
+                "remarks:        * To view the original object, please query the RIPE Database at:\n" +
+                "remarks:        * http://www.ripe.net/whois\n" +
+                "remarks:        ****************************\n");
 
         checkFile("internal/split/test.db.person.gz",
                 "person:         Test person 0",
@@ -158,9 +158,9 @@ public class ExportDatabaseTestIntegration extends AbstractSchedulerIntegrationT
                 "person:         Test person 3",
                 "person:         Test person 4",
                 "" +
-                        "person:         Test person 9\n" +
-                        "nic-hdl:        PN9-TEST\n" +
-                        "source:         TEST");
+                "person:         Test person 9\n" +
+                "nic-hdl:        PN9-TEST\n" +
+                "source:         TEST");
 
         checkFile("internal/split/test.db.role.gz",
                 "role:           Test role 0",
@@ -169,9 +169,9 @@ public class ExportDatabaseTestIntegration extends AbstractSchedulerIntegrationT
                 "role:           Test role 3",
                 "role:           Test role 4",
                 "" +
-                        "role:           Test role 9\n" +
-                        "nic-hdl:        ROLE9-TEST\n" +
-                        "source:         TEST");
+                "role:           Test role 9\n" +
+                "nic-hdl:        ROLE9-TEST\n" +
+                "source:         TEST");
 
         checkFile("internal/split/test.db.mntner.gz",
                 "" +
@@ -241,19 +241,19 @@ public class ExportDatabaseTestIntegration extends AbstractSchedulerIntegrationT
         assertThat(exportDir.exists(), is(true));
 
         for (final ObjectType objectType : ObjectType.values()) {
-            checkFile("dbase/split/test.db." + objectType.getName() + ".gz");
+            checkFile("public/split/test.db." + objectType.getName() + ".gz");
             checkFile("internal/split/test.db." + objectType.getName() + ".gz");
         }
 
-        checkFile("dbase/split/test.db.person.gz", "person:         Placeholder Person Object");
+        checkFile("public/split/test.db.person.gz", "person:         Placeholder Person Object");
 
-        checkFile("dbase/split/test.db.role.gz", "" +
+        checkFile("public/split/test.db.role.gz", "" +
                 "role:           Abuse role\n" +
                 "nic-hdl:        AR1-TEST\n" +
                 "abuse-mailbox:  abuse@mailbox.com\n" +
                 "source:         TEST");
 
-        checkFile("dbase/split/test.db.organisation.gz", "" +
+        checkFile("public/split/test.db.organisation.gz", "" +
                 "organisation:   ORG1\n" +
                 "abuse-c:        AR1-TEST\n" +
                 "source:         TEST");
@@ -320,17 +320,17 @@ public class ExportDatabaseTestIntegration extends AbstractSchedulerIntegrationT
         assertThat(exportDir.exists(), is(true));
 
         for (final ObjectType objectType : ObjectType.values()) {
-            checkFile("dbase/split/test.db." + objectType.getName() + ".gz");
+            checkFile("public/split/test.db." + objectType.getName() + ".gz");
             checkFile("internal/split/test.db." + objectType.getName() + ".gz");
             if (ExportFileWriterFactory.NONAUTH_OBJECT_TYPES.contains(objectType)) {
-                checkFile("dbase/split/test-nonauth.db." + objectType.getName() + ".gz");
+                checkFile("public/split/test-nonauth.db." + objectType.getName() + ".gz");
                 checkFile("internal/split/test-nonauth.db." + objectType.getName() + ".gz");
             }
         }
 
-        checkFile("dbase/split/test.db.aut-num.gz", "aut-num:        AS252");
-        checkFile("dbase/split/test-nonauth.db.aut-num.gz", "aut-num:        AS251");
-        checkFile("dbase/split/test-nonauth.db.as-set.gz", "as-set:         AS251:AS-ALL");
+        checkFile("public/split/test.db.aut-num.gz", "aut-num:        AS252");
+        checkFile("public/split/test-nonauth.db.aut-num.gz", "aut-num:        AS251");
+        checkFile("public/split/test-nonauth.db.as-set.gz", "as-set:         AS251:AS-ALL");
     }
 
 }
