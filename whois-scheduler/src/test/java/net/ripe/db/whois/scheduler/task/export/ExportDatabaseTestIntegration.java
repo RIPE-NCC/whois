@@ -31,6 +31,8 @@ import static org.hamcrest.Matchers.startsWith;
 @Tag("IntegrationTest")
 public class ExportDatabaseTestIntegration extends AbstractSchedulerIntegrationTest {
 
+    private final static Set<ObjectType> NON_AUTH_TYPES = Sets.immutableEnumSet(ObjectType.AS_SET, ObjectType.AUT_NUM, ObjectType.ROUTE, ObjectType.ROUTE6);
+
     @Autowired RpslObjectsExporter rpslObjectsExporter;
     @Autowired SourceContext sourceContext;
 
@@ -49,8 +51,6 @@ public class ExportDatabaseTestIntegration extends AbstractSchedulerIntegrationT
     }
 
     Set<RpslObject> objects;
-
-    private final static Set<ObjectType> NON_AUTH_TYPES = Sets.immutableEnumSet(ObjectType.AUT_NUM, ObjectType.ROUTE, ObjectType.ROUTE6);
 
     @BeforeEach
     public void setupServer() {
@@ -308,13 +308,14 @@ public class ExportDatabaseTestIntegration extends AbstractSchedulerIntegrationT
         databaseHelper.addObject(RpslObject.parse("" +
                 "aut-num:        AS252\n" +
                 "source:         TEST"));
-
         databaseHelper.addObject(RpslObject.parse("" +
                 "aut-num:        AS251\n" +
                 "source:         TEST-NONAUTH"));
+        databaseHelper.addObject(RpslObject.parse("" +
+                "as-set:         AS251:AS-ALL\n" +
+                "source:         TEST-NONAUTH"));
 
         sourceContext.removeCurrentSource();
-
         rpslObjectsExporter.export();
 
         assertThat(tmpDir.exists(), is(false));
@@ -329,10 +330,9 @@ public class ExportDatabaseTestIntegration extends AbstractSchedulerIntegrationT
             }
         }
 
-
-
         checkFile("dbase/split/ripe.db.aut-num.gz", "aut-num:        AS252");
         checkFile("dbase/split/ripe-nonauth.db.aut-num.gz", "aut-num:        AS251");
+        checkFile("dbase/split/ripe-nonauth.db.as-set.gz", "as-set:         AS251:AS-ALL");
     }
 
 }
