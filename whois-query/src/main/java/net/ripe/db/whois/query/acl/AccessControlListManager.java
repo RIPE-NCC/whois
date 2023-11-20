@@ -114,16 +114,13 @@ public class AccessControlListManager {
     }
 
     private String getUserName(final String ssoToken) {
-        LOGGER.info("fetching details for ssoToken " + ssoToken);
         if( !isSSOAccountingEnabled || StringUtils.isEmpty(ssoToken)) {
-            LOGGER.info("SSO is not enabled or sso token is null");
             return null;
         }
 
         try {
             final UserSession userSession = ssoTokenTranslator.translateSsoToken(ssoToken);
             if(userSession != null && !StringUtils.isEmpty(userSession.getUsername())) {
-                LOGGER.info("Got username as " + userSession.getUsername());
                 return userSession.getUsername();
             }
         } catch (AuthServiceClientException e) {

@@ -49,7 +49,6 @@ public class HazelcastPersonalObjectAccounting implements PersonalObjectAccounti
         Integer count = null;
         try {
             count = ssoCounterMap.get(ssoId);
-            LOGGER.info("count for ssoid is " + ssoId + ":" + count);
         } catch (OperationTimeoutException | IllegalStateException e) {
             // no answer from hazelcast, expected, don't rethrow
             LOGGER.debug("{}: {}", e.getClass().getName(), e.getMessage());
