@@ -1,5 +1,17 @@
 # next
 
+# 1.109
+
+[rdap] Rdap redaction (#1317)
+[rdap] Removed organisation "e-mail" from RDAP and added to redactions (#1333)
+[update] Removed geofeed prefix validation (#1326)
+[api] Added HTTPS Support to Whois Backend (#1329)
+[api] Support HTTP Basic authentication (#1342)
+[api] Support HTTPS Client Certificate Authentication (#1343)
+[nrtm] Initialize nrtm from command-line (JMX) (#1310)
+[nrtm] Use parallel stream to generate NRTMv4 snapshots (#1309)
+[all] Include AS-SET in NONAUTH dump (#1352)
+
 # 1.108
 
 [nrtm] Use base64 instead of Hex (#1302)
