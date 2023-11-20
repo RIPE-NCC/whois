@@ -19,6 +19,7 @@ import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import java.net.Inet6Address;
@@ -39,6 +40,7 @@ public class AccessControlListManager {
     private final SSOResourceConfiguration ssoResourceConfiguration;
     private final SSOAccessControlListDao ssoAccessControlListDao;
     private final SsoTokenTranslator ssoTokenTranslator;
+    private final boolean isSSOAccountingEnabled;
 
     @Autowired
     public AccessControlListManager(final DateTimeProvider dateTimeProvider,
@@ -48,6 +50,7 @@ public class AccessControlListManager {
                                     final SSOAccessControlListDao ssoAccessControlListDao,
                                     final SsoTokenTranslator ssoTokenTranslator,
                                     final SSOResourceConfiguration ssoResourceConfiguration,
+                                    @Value("${personal.query.accounting.sso:true}") final boolean isSSOAccountingEnabled,
                                     final IpRanges ipRanges) {
         this.dateTimeProvider = dateTimeProvider;
         this.ipResourceConfiguration = ipResourceConfiguration;
@@ -57,6 +60,7 @@ public class AccessControlListManager {
         this.ssoAccessControlListDao = ssoAccessControlListDao;
         this.ssoTokenTranslator = ssoTokenTranslator;
         this.ipRanges = ipRanges;
+        this.isSSOAccountingEnabled = isSSOAccountingEnabled;
     }
 
     public boolean requiresAcl(final RpslObject rpslObject, final Source source) {
@@ -109,7 +113,7 @@ public class AccessControlListManager {
     }
 
     private String getUserName(final String ssoToken) {
-        if(StringUtils.isEmpty(ssoToken)) {
+        if( !isSSOAccountingEnabled || StringUtils.isEmpty(ssoToken)) {
             return null;
         }
 

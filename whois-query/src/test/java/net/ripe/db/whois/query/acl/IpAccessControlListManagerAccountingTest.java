@@ -44,7 +44,7 @@ public class IpAccessControlListManagerAccountingTest {
 
     @BeforeEach
     public void setUp() throws Exception {
-        subject = new AccessControlListManager(dateTimeProvider, ipResourceConfiguration, ipAccessControlListDao, personalObjectAccounting, ssoAccessControlListDao, ssoTokenTranslator, ssoResourceConfiguration, ipRanges);
+        subject = new AccessControlListManager(dateTimeProvider, ipResourceConfiguration, ipAccessControlListDao, personalObjectAccounting, ssoAccessControlListDao, ssoTokenTranslator, ssoResourceConfiguration, true, ipRanges);
         ipv4Address = Inet4Address.getLocalHost();
         ipv6Address = Inet6Address.getByName("::1");
     }
