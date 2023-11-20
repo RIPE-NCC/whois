@@ -109,17 +109,21 @@ public class AccessControlListManager {
 
     private PersonalAccountingManager getAccountingManager(final InetAddress remoteAddress, final String ssoToken) {
        final String username =  getUserName(ssoToken);
+
        return username == null ? new RemoteAddrAccountingManager(remoteAddress) : new SSOAccountingManager(username);
     }
 
     private String getUserName(final String ssoToken) {
+        LOGGER.info("fetching details for ssoToken " + ssoToken);
         if( !isSSOAccountingEnabled || StringUtils.isEmpty(ssoToken)) {
+            LOGGER.info("SSO is not enabled or sso token is null");
             return null;
         }
 
         try {
             final UserSession userSession = ssoTokenTranslator.translateSsoToken(ssoToken);
             if(userSession != null && !StringUtils.isEmpty(userSession.getUsername())) {
+                LOGGER.info("Got username as " + userSession.getUsername());
                 return userSession.getUsername();
             }
         } catch (AuthServiceClientException e) {
@@ -156,6 +160,7 @@ public class AccessControlListManager {
             final int queried = personalObjectAccounting.getQueriedPersonalObjects(userName);
             final int personalDataLimit = getPersonalDataLimit();
 
+            LOGGER.info("personal data limit is :" + personalDataLimit);
             return personalDataLimit - queried;
         }
 
