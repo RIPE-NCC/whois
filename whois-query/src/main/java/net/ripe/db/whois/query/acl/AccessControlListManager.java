@@ -50,7 +50,7 @@ public class AccessControlListManager {
                                     final SSOAccessControlListDao ssoAccessControlListDao,
                                     final SsoTokenTranslator ssoTokenTranslator,
                                     final SSOResourceConfiguration ssoResourceConfiguration,
-                                    @Value("${personal.query.accounting.sso:true}") final boolean isSSOAccountingEnabled,
+                                    @Value("${personal.accounting.by.sso:true}") final boolean isSSOAccountingEnabled,
                                     final IpRanges ipRanges) {
         this.dateTimeProvider = dateTimeProvider;
         this.ipResourceConfiguration = ipResourceConfiguration;
