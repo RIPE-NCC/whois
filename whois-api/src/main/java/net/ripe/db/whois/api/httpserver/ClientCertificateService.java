@@ -16,7 +16,7 @@ import static org.eclipse.jetty.server.SecureRequestCustomizer.JAKARTA_SERVLET_R
 /**
  * Return TLS client certificate information to the client.
  */
-@Component      // TODO: [ES] remove redundant ClientCertificateController from whois-internal
+@Component
 @Path("/client")
 public class ClientCertificateService {
 

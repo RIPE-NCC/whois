@@ -90,7 +90,7 @@ public class ClientCertificateCredentialValidator implements CredentialValidator
             return false;
         }
 
-        return x509CertificateWrapper.getFingerprint().equals(offeredCredential.getFingerprint());
+        return x509CertificateWrapper.getCertificate().equals(offeredCredential.getCertificate());
     }
 
     @CheckForNull

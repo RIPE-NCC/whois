@@ -1,4 +1,4 @@
-package net.ripe.db.whois.api.httpserver;
+    package net.ripe.db.whois.api.httpserver;
 
 import com.google.common.base.Splitter;
 import com.google.common.base.Strings;
@@ -25,7 +25,6 @@ public class ProtocolCustomizer implements HttpConfiguration.Customizer {
     @Override
     public void customize(final Connector connector, final HttpConfiguration channelConfig, final Request request) {
         request.setHttpURI(setScheme(request.getHttpURI(), getScheme(request)));
-        LOGGER.debug("Received request scheme is {}", request.getScheme());
     }
 
     private String getScheme(final Request request) {
@@ -39,12 +38,11 @@ public class ProtocolCustomizer implements HttpConfiguration.Customizer {
             return request.getScheme();
         }
 
-        LOGGER.info("Scheme is {}", header);        ////////////////////////////
-
         return Iterables.getLast(COMMA_SPLITTER.split(header));
     }
 
     private static HttpURI setScheme(final HttpURI uri, final String scheme) {
+        LOGGER.debug("Scheme is {} for {}", scheme, uri.asString());
         return HttpURI.build(uri).scheme(scheme).asImmutable();
     }
 }
