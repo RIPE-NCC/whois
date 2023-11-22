@@ -1,4 +1,3 @@
-/*
 package net.ripe.db.whois.query.acl;
 
 import com.google.common.net.InetAddresses;
@@ -8,7 +7,9 @@ import net.ripe.db.whois.common.domain.IpRanges;
 import net.ripe.db.whois.common.ip.IpInterval;
 import net.ripe.db.whois.common.ip.Ipv6Resource;
 import net.ripe.db.whois.common.rpsl.RpslObject;
+import net.ripe.db.whois.common.sso.SsoTokenTranslator;
 import net.ripe.db.whois.query.dao.IpAccessControlListDao;
+import net.ripe.db.whois.query.dao.SSOAccessControlListDao;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -49,10 +50,10 @@ public class IpAccessControlListManagerTest {
     @Mock
     IpAccessControlListDao ipAccessControlListDao;
     @Mock PersonalObjectAccounting personalObjectAccounting;
+    @Mock SSOAccessControlListDao ssoAccessControlListDao;
+    @Mock SsoTokenTranslator ssoTokenTranslator;
     @Mock IpRanges ipRanges;
-    @InjectMocks
     AccessControlListManager subject;
-
 
     private InetAddress ipv4Restricted;
     private InetAddress ipv4Unrestricted;
@@ -84,6 +85,9 @@ public class IpAccessControlListManagerTest {
         mockResourceConfiguration(ipv4Unrestricted, false, true, PERSONAL_DATA_NO_LIMIT);
         mockResourceConfiguration(ipv6Restricted, true, false, PERSONAL_DATA_LIMIT);
         mockResourceConfiguration(ipv6Unrestricted, false, true, PERSONAL_DATA_NO_LIMIT);
+
+        subject = new AccessControlListManager(dateTimeProvider, ipResourceConfiguration, ipAccessControlListDao, personalObjectAccounting, ssoAccessControlListDao, ssoTokenTranslator, ssoResourceConfiguration, false, ipRanges);
+
     }
 
     private void mockResourceConfiguration(InetAddress address, boolean denied, boolean proxy, int limit) throws UnknownHostException {
@@ -186,4 +190,3 @@ public class IpAccessControlListManagerTest {
         assertThat(subject.isTrusted(InetAddresses.forString("10.0.0.1")), is(false));
     }
 }
-*/
