@@ -87,7 +87,7 @@ public class RewriteEngine {
 
     private void restRedirectRules(final VirtualHostRuleContainer virtualHost) {
         virtualHost.addRule(new CaseInsensitiveRewriteRegexRule(
-    "^/(fulltextsearch|search|geolocation|metadata|abuse-contact|references|autocomplete|domain)/?(.*)$",
+    "^/(fulltextsearch|search|geolocation|metadata|abuse-contact|references|autocomplete|domain|client)/?(.*)$",
     "/whois/$1/$2"
         ));
 
