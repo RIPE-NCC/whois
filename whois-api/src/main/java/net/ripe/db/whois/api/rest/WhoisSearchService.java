@@ -3,6 +3,7 @@ package net.ripe.db.whois.api.rest;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Sets;
 import com.google.common.net.InetAddresses;
+import jakarta.ws.rs.CookieParam;
 import net.ripe.db.whois.api.QueryBuilder;
 import net.ripe.db.whois.api.rest.domain.Flags;
 import net.ripe.db.whois.api.rest.domain.InverseAttributes;
@@ -13,6 +14,7 @@ import net.ripe.db.whois.api.rest.domain.Service;
 import net.ripe.db.whois.api.rest.domain.Sources;
 import net.ripe.db.whois.api.rest.domain.TypeFilters;
 import net.ripe.db.whois.common.source.SourceContext;
+import net.ripe.db.whois.common.sso.AuthServiceClient;
 import net.ripe.db.whois.query.QueryFlag;
 import net.ripe.db.whois.query.QueryParser;
 import net.ripe.db.whois.query.acl.AccessControlListManager;
@@ -122,6 +124,7 @@ public class WhoisSearchService {
     @Path("/search")
     public Response search(
             @Context final HttpServletRequest request,
+            @CookieParam(AuthServiceClient.TOKEN_KEY) final String crowdTokenKey,
             @QueryParam("source") final Set<String> sources,
             @QueryParam("query-string") final String searchKey,
             @QueryParam("inverse-attribute") final Set<String> inverseAttributes,
@@ -154,7 +157,7 @@ public class WhoisSearchService {
             queryBuilder.addFlag(separateFlag);
         }
 
-        final Query query = Query.parse(queryBuilder.build(searchKey), Query.Origin.REST, isTrusted(request));
+        final Query query = Query.parse(queryBuilder.build(searchKey), crowdTokenKey, Query.Origin.REST, isTrusted(request));
 
         final Parameters parameters = new Parameters.Builder()
                 .inverseAttributes(new InverseAttributes(inverseAttributes))

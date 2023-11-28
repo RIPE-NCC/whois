@@ -84,7 +84,7 @@ public class ElasticFulltextSearch extends FulltextSearch {
     }
 
     @Override
-    public SearchResponse performSearch(final SearchRequest searchRequest, final String remoteAddr) throws IOException {
+    public SearchResponse performSearch(final SearchRequest searchRequest, final String ssoToken, final String remoteAddr) throws IOException {
         final Stopwatch stopwatch = Stopwatch.createStarted();
 
         if (searchRequest.getRows() > maxResultSize) {
@@ -95,7 +95,7 @@ public class ElasticFulltextSearch extends FulltextSearch {
             throw new IllegalArgumentException("Exceeded maximum " + MAX_ROW_LIMIT_SIZE + " documents");
         }
 
-        return new ElasticSearchAccountingCallback<SearchResponse>(accessControlListManager, remoteAddr, source) {
+        return new ElasticSearchAccountingCallback<SearchResponse>(accessControlListManager, ssoToken, remoteAddr, source) {
 
             @Override
             protected SearchResponse doSearch() throws IOException {
