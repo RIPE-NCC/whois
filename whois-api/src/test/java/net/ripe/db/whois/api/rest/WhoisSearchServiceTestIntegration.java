@@ -19,6 +19,7 @@ import net.ripe.db.whois.common.MaintenanceMode;
 import net.ripe.db.whois.common.TestDateTimeProvider;
 import net.ripe.db.whois.common.rpsl.AttributeType;
 import net.ripe.db.whois.common.rpsl.RpslObject;
+import net.ripe.db.whois.common.sso.AuthServiceClient;
 import net.ripe.db.whois.query.QueryFlag;
 import net.ripe.db.whois.query.acl.AccessControlListManager;
 import net.ripe.db.whois.query.acl.IpResourceConfiguration;
@@ -1986,7 +1987,7 @@ public class WhoisSearchServiceTestIntegration extends AbstractIntegrationTest {
         try {
             RestTest.target(getPort(), "whois/search?query-string=LP1-TEST&source=TEST&client=testId,10.1.2.3")
                     .request(MediaType.APPLICATION_XML)
-                    .cookie("crowd.token_key", VALID_TOKEN)
+                    .cookie(AuthServiceClient.TOKEN_KEY, VALID_TOKEN)
                     .get(WhoisResources.class);
             fail();
         } catch (BadRequestException e) {
@@ -2041,7 +2042,7 @@ public class WhoisSearchServiceTestIntegration extends AbstractIntegrationTest {
 
         final WhoisResources whoisResources = RestTest.target(getPort(), "whois/search?query-string=LP1-TEST&source=TEST&flags=no-filtering&flags=rB&client=testId")
                 .request(MediaType.APPLICATION_XML)
-                .cookie("crowd.token_key", VALID_TOKEN)
+                .cookie(AuthServiceClient.TOKEN_KEY, VALID_TOKEN)
                 .get(WhoisResources.class);
 
         assertThat(whoisResources.getErrorMessages(), is(empty()));

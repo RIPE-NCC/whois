@@ -46,7 +46,7 @@ public abstract class ElasticSearchAccountingCallback<T> {
             return doSearch();
         } finally {
             if (enabled && accountedObjects > 0) {
-                accessControlListManager.accountPersonalObjects(remoteAddress, null, accountedObjects);
+                accessControlListManager.accountPersonalObjects(remoteAddress, ssoToken, accountedObjects);
             }
         }
     }

@@ -10,6 +10,7 @@ import net.ripe.db.whois.api.RestTest;
 import net.ripe.db.whois.api.elasticsearch.AbstractElasticSearchIntegrationTest;
 import net.ripe.db.whois.common.ip.IpInterval;
 import net.ripe.db.whois.common.rpsl.RpslObject;
+import net.ripe.db.whois.common.sso.AuthServiceClient;
 import net.ripe.db.whois.query.acl.IpResourceConfiguration;
 import net.ripe.db.whois.query.dao.jdbc.JdbcIpAccessControlListDao;
 import net.ripe.db.whois.query.support.TestPersonalObjectAccounting;
@@ -954,7 +955,7 @@ public class ElasticFullTextSearchTestIntegration extends AbstractElasticSearchI
             parseResponse(
                     RestTest.target(getPort(), "whois/fulltextsearch/select?q=john%20mcdonald")
                             .request()
-                            .cookie("crowd.token_key", VALID_TOKEN)
+                            .cookie(AuthServiceClient.TOKEN_KEY, VALID_TOKEN)
                             .get(String.class));
             fail("request should have been blocked");
         } catch (ClientErrorException cee) {
@@ -997,7 +998,7 @@ public class ElasticFullTextSearchTestIntegration extends AbstractElasticSearchI
             parseResponse(
                     RestTest.target(getPort(), "whois/fulltextsearch/select?q=john%20mcdonald")
                             .request()
-                            .cookie("crowd.token_key", VALID_TOKEN)
+                            .cookie(AuthServiceClient.TOKEN_KEY, VALID_TOKEN)
                             .get(String.class));
             fail("request should have been blocked");
         } catch (ClientErrorException cee) {
@@ -1032,15 +1033,14 @@ public class ElasticFullTextSearchTestIntegration extends AbstractElasticSearchI
                         "source: RIPE"));
         rebuildIndex();
 
-        parseResponse(
-                RestTest.target(getPort(), "whois/fulltextsearch/select?q=john%20mcdonald")
-                        .request()
-                        .cookie("crowd.token_key", VALID_TOKEN)
-                        .get(String.class));
+        RestTest.target(getPort(), "whois/fulltextsearch/select?q=john%20mcdonald")
+                .request()
+                .cookie(AuthServiceClient.TOKEN_KEY, VALID_TOKEN)
+                .get(String.class);
 
         int totalCountIp = testPersonalObjectAccounting.getQueriedPersonalObjects(Inet4Address.getLoopbackAddress());
         int totalCountSSO = testPersonalObjectAccounting.getQueriedPersonalObjects(VALID_TOKEN_USER_NAME);
-        assertThat(totalCountIp, is(1));
+        assertThat(totalCountIp, is(1)) ;
         assertThat(totalCountSSO, is(2));
     }
 
