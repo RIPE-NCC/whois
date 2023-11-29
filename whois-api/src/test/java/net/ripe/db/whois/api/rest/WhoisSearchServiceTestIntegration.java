@@ -59,6 +59,9 @@ import static org.junit.jupiter.api.Assertions.fail;
 public class WhoisSearchServiceTestIntegration extends AbstractIntegrationTest {
 
     private static final String LOCALHOST = "127.0.0.1";
+    public static final String VALID_TOKEN = "valid-token";
+    public static final String VALID_TOKEN_USER_NAME = "person@net.net";
+
 
     @Autowired
     private AccessControlListManager accessControlListManager;
@@ -1970,6 +1973,30 @@ public class WhoisSearchServiceTestIntegration extends AbstractIntegrationTest {
     }
 
     @Test
+    public void lookup_person_with_proxy_not_allowed_using_sso() {
+
+        databaseHelper.addObject("" +
+                "person:    Lo Person\n" +
+                "admin-c:   TP1-TEST\n" +
+                "tech-c:    TP1-TEST\n" +
+                "nic-hdl:   LP1-TEST\n" +
+                "mnt-by:    OWNER-MNT\n" +
+                "source:    TEST\n");
+
+        try {
+            RestTest.target(getPort(), "whois/search?query-string=LP1-TEST&source=TEST&client=testId,10.1.2.3")
+                    .request(MediaType.APPLICATION_XML)
+                    .cookie("crowd.token_key", VALID_TOKEN)
+                    .get(WhoisResources.class);
+            fail();
+        } catch (BadRequestException e) {
+            assertThat(e.getResponse().getStatus(), is(400));
+            assertThat(e.getResponse().readEntity(String.class), containsString("ERROR:203: you are not allowed to act as a proxy"));
+        }
+    }
+
+
+    @Test
     public void lookup_person_with_client_flag_no_proxy() throws Exception {
         final InetAddress localhost = InetAddress.getByName(LOCALHOST);
 
@@ -1993,6 +2020,38 @@ public class WhoisSearchServiceTestIntegration extends AbstractIntegrationTest {
         //ACL is accounted for as there is no proxy ip specified
         final int remaining = accessControlListManager.getPersonalObjects(localhost, null);
         assertThat(remaining, is(limit - 1));
+
+        assertThat(whoisResources.getParameters().getClient(), is("testId"));
+    }
+
+    @Test
+    public void lookup_person_with_client_flag_no_proxy_using_sso() throws Exception {
+        final InetAddress localhost = InetAddress.getByName(LOCALHOST);
+
+        databaseHelper.addObject("" +
+                "person:    Lo Person\n" +
+                "admin-c:   TP1-TEST\n" +
+                "tech-c:    TP1-TEST\n" +
+                "nic-hdl:   LP1-TEST\n" +
+                "mnt-by:    OWNER-MNT\n" +
+                "source:    TEST\n");
+
+        final int countBeforeQueryIp = testPersonalObjectAccounting.getQueriedPersonalObjects(localhost);
+        final int countBeforeQuesrySSO = testPersonalObjectAccounting.getQueriedPersonalObjects(VALID_TOKEN_USER_NAME);
+
+        final WhoisResources whoisResources = RestTest.target(getPort(), "whois/search?query-string=LP1-TEST&source=TEST&flags=no-filtering&flags=rB&client=testId")
+                .request(MediaType.APPLICATION_XML)
+                .cookie("crowd.token_key", VALID_TOKEN)
+                .get(WhoisResources.class);
+
+        assertThat(whoisResources.getErrorMessages(), is(empty()));
+        assertThat(whoisResources.getWhoisObjects(), hasSize(1));
+
+        //ACL is accounted for as there is no proxy ip specified
+        final int countAfterQueryIp = testPersonalObjectAccounting.getQueriedPersonalObjects(localhost);
+        final int countAfterQuerySSO = testPersonalObjectAccounting.getQueriedPersonalObjects(VALID_TOKEN_USER_NAME);
+        assertThat(countAfterQueryIp, is(countBeforeQueryIp));
+        assertThat(countAfterQuerySSO, is(countBeforeQuesrySSO + 1));
 
         assertThat(whoisResources.getParameters().getClient(), is("testId"));
     }
