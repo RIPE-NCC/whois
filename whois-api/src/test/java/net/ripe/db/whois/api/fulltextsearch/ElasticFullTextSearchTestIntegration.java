@@ -1033,7 +1033,7 @@ public class ElasticFullTextSearchTestIntegration extends AbstractElasticSearchI
         rebuildIndex();
 
         parseResponse(
-                RestTest.target(getPort(), String.format("whois/fulltextsearch/select?q=john%20mcdonald"))
+                RestTest.target(getPort(), "whois/fulltextsearch/select?q=john%20mcdonald")
                         .request()
                         .cookie("crowd.token_key", VALID_TOKEN)
                         .get(String.class));
