@@ -472,10 +472,10 @@ public class DatabaseHelper implements EmbeddedValueResolverAware {
                 prefix, "comment", new Date());
     }
 
-    public void insertAclSSODenied(final String prefix) {
+    public void insertAclSSODenied(final String ssoId) {
         aclTemplate.update(
                 "INSERT INTO acl_sso_denied (sso_id, comment, denied_date) VALUES (?, ?, ?)",
-                prefix, "comment", new Date());
+                ssoId, "comment", new Date());
     }
 
     public void clearAclLimits() {
