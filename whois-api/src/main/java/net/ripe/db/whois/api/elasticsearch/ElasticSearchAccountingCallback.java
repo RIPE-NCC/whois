@@ -5,6 +5,7 @@ import net.ripe.db.whois.common.rpsl.RpslObject;
 import net.ripe.db.whois.common.source.Source;
 import net.ripe.db.whois.query.QueryMessages;
 import net.ripe.db.whois.query.acl.AccessControlListManager;
+import net.ripe.db.whois.query.acl.AccountingIdentifier;
 import net.ripe.db.whois.query.domain.QueryCompletionInfo;
 import net.ripe.db.whois.query.domain.QueryException;
 
@@ -33,13 +34,14 @@ public abstract class ElasticSearchAccountingCallback<T> {
 
     public T search() throws IOException {
 
-        accessControlListManager.checkBlocked(remoteAddress, null);
+        final AccountingIdentifier accountingIdentifier = getAccountingIdentifier();
+        accessControlListManager.checkBlocked(accountingIdentifier);
 
         try {
             return doSearch();
         } finally {
             if (enabled && accountedObjects > 0) {
-                accessControlListManager.accountPersonalObjects(remoteAddress, null, accountedObjects);
+                accessControlListManager.accountPersonalObjects(accountingIdentifier, accountedObjects);
             }
         }
     }
@@ -49,12 +51,16 @@ public abstract class ElasticSearchAccountingCallback<T> {
     protected void account(final RpslObject rpslObject) {
         if (enabled && accessControlListManager.requiresAcl(rpslObject, source)) {
             if (accountingLimit == -1) {
-                accountingLimit = accessControlListManager.getPersonalObjects(remoteAddress, null);
+                accountingLimit = accessControlListManager.getPersonalObjects(getAccountingIdentifier());
             }
 
             if (++accountedObjects > accountingLimit) {
                 throw new QueryException(QueryCompletionInfo.BLOCKED, QueryMessages.accessDeniedTemporarily(remoteAddress.getHostAddress()));
             }
         }
+    }
+
+    private AccountingIdentifier getAccountingIdentifier() {
+        return new AccountingIdentifier(remoteAddress, null);
     }
 }

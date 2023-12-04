@@ -8,6 +8,7 @@ import net.ripe.db.whois.common.rpsl.RpslObject;
 import net.ripe.db.whois.common.source.BasicSourceContext;
 import net.ripe.db.whois.query.QueryMessages;
 import net.ripe.db.whois.query.acl.AccessControlListManager;
+import net.ripe.db.whois.query.acl.AccountingIdentifier;
 import net.ripe.db.whois.query.domain.QueryCompletionInfo;
 import net.ripe.db.whois.query.domain.QueryException;
 import net.ripe.db.whois.query.domain.ResponseHandler;
@@ -64,9 +65,13 @@ public class QueryHandler {
                     throw e;
                 } finally {
                     if (accountedObjects > 0) {
-                        accessControlListManager.accountPersonalObjects(accountingAddress, query.getSsoToken(), accountedObjects);
+                        accessControlListManager.accountPersonalObjects(getAccountingIdentifier(), accountedObjects);
                     }
                 }
+            }
+
+            private AccountingIdentifier getAccountingIdentifier() {
+                return new AccountingIdentifier(accountingAddress, query.getSsoToken());
             }
 
             private QueryExecutor getQueryExecutor() {
@@ -81,7 +86,7 @@ public class QueryHandler {
 
             private void initAcl(final QueryExecutor queryExecutor) {
                 if (queryExecutor.isAclSupported()) {
-                    accessControlListManager.checkBlocked(remoteAddress, query.getSsoToken());
+                    accessControlListManager.checkBlocked(new AccountingIdentifier(remoteAddress, query.getSsoToken()));
 
                     if (query.hasProxyWithIp()) {
                         if (!accessControlListManager.isAllowedToProxy(remoteAddress)) {
@@ -89,7 +94,7 @@ public class QueryHandler {
                         }
 
                         accountingAddress = InetAddresses.forString(query.getProxyIp());
-                        accessControlListManager.checkBlocked(accountingAddress, query.getSsoToken());
+                        accessControlListManager.checkBlocked(new AccountingIdentifier(accountingAddress, query.getSsoToken()));
                     } else {
                         accountingAddress = remoteAddress;
                     }
@@ -110,7 +115,7 @@ public class QueryHandler {
                         if (responseObject instanceof RpslObject) {
                             if (useAcl && accessControlListManager.requiresAcl((RpslObject) responseObject, sourceContext.getCurrentSource())) {
                                 if (accountingLimit == -1) {
-                                    accountingLimit = accessControlListManager.getPersonalObjects(accountingAddress, query.getSsoToken());
+                                    accountingLimit = accessControlListManager.getPersonalObjects(getAccountingIdentifier());
                                 }
 
                                 if (++accountedObjects > accountingLimit) {

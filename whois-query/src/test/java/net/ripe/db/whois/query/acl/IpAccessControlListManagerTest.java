@@ -68,6 +68,9 @@ public class IpAccessControlListManagerTest {
     private static final int PERSONAL_DATA_LIMIT_UNKNOWN = 0;
 
     private final LocalDate now = LocalDate.now();
+    private AccountingIdentifier accountingIdentifierIpv6;
+    private AccountingIdentifier accountingIdentifierIpv4;
+
 
     @BeforeEach
     public void setup() throws UnknownHostException {
@@ -76,6 +79,9 @@ public class IpAccessControlListManagerTest {
         ipv4Restricted = InetAddress.getByName("127.1.0.0");
         ipv4Unrestricted = InetAddress.getByName("127.0.0.0");
         ipv4Unknown = InetAddress.getByName("1.0.0.0");
+
+        accountingIdentifierIpv4 = new AccountingIdentifier(ipv4Restricted, null);
+        accountingIdentifierIpv6 = new AccountingIdentifier(ipv6Restricted, null);
 
         ipv6Restricted = InetAddress.getByName("2001::1");
         ipv6Unrestricted = InetAddress.getByName("2001:1::1");
@@ -118,20 +124,20 @@ public class IpAccessControlListManagerTest {
 
     @Test
     public void check_getLimit_restricted() throws Exception {
-        assertThat(subject.getPersonalObjects(ipv4Restricted, null), is(PERSONAL_DATA_LIMIT));
-        assertThat(subject.getPersonalObjects(ipv6Restricted, null), is(PERSONAL_DATA_LIMIT));
+        assertThat(subject.getPersonalObjects(accountingIdentifierIpv4), is(PERSONAL_DATA_LIMIT));
+        assertThat(subject.getPersonalObjects(accountingIdentifierIpv6), is(PERSONAL_DATA_LIMIT));
     }
 
     @Test
     public void check_getLimit_unrestricted() throws Exception {
-        assertThat(subject.getPersonalObjects(ipv4Unrestricted, null), is(Integer.MAX_VALUE));
-        assertThat(subject.getPersonalObjects(ipv6Unrestricted, null), is(Integer.MAX_VALUE));
+        assertThat(subject.getPersonalObjects(accountingIdentifierIpv4), is(Integer.MAX_VALUE));
+        assertThat(subject.getPersonalObjects(accountingIdentifierIpv6), is(Integer.MAX_VALUE));
     }
 
     @Test
     public void check_getLimit_unknown() throws Exception {
-        assertThat(subject.getPersonalObjects(ipv4Unknown, null), is(PERSONAL_DATA_LIMIT_UNKNOWN));
-        assertThat(subject.getPersonalObjects(ipv6Unknown, null), is(PERSONAL_DATA_LIMIT_UNKNOWN));
+        assertThat(subject.getPersonalObjects(accountingIdentifierIpv4), is(PERSONAL_DATA_LIMIT_UNKNOWN));
+        assertThat(subject.getPersonalObjects(accountingIdentifierIpv6), is(PERSONAL_DATA_LIMIT_UNKNOWN));
     }
 
     @Captor
