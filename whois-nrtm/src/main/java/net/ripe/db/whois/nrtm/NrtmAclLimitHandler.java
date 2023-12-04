@@ -7,6 +7,7 @@ import io.netty.channel.ChannelInboundHandlerAdapter;
 import net.ripe.db.whois.common.pipeline.ChannelUtil;
 import net.ripe.db.whois.query.QueryMessages;
 import net.ripe.db.whois.query.acl.AccessControlListManager;
+import net.ripe.db.whois.query.domain.QueryException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -35,14 +36,18 @@ public class NrtmAclLimitHandler extends ChannelInboundHandlerAdapter {
         final Channel channel = ctx.channel();
         final InetAddress remoteAddress = ChannelUtil.getRemoteAddress(channel);
 
-        if (accessControlListManager.isDenied(remoteAddress, null)) {
-            nrtmLog.log(remoteAddress, REJECTED);
-            throw new NrtmException(QueryMessages.accessDeniedPermanently(remoteAddress));
-        }
+
+       try {
+           accessControlListManager.checkBlocked(remoteAddress, null);
+       } catch (QueryException e) {
+           nrtmLog.log(remoteAddress, REJECTED);
+           throw new NrtmException(e.getMessage());
+
+       }
 
         if (!accessControlListManager.canQueryPersonalObjects(remoteAddress, null)) {
             nrtmLog.log(remoteAddress, REJECTED);
-            throw new NrtmException(QueryMessages.accessDeniedTemporarily(remoteAddress));
+            throw new NrtmException(QueryMessages.accessDeniedTemporarily(remoteAddress.getHostAddress()));
         }
 
         ctx.fireChannelActive();

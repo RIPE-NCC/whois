@@ -81,7 +81,7 @@ public class QueryHandler {
 
             private void initAcl(final QueryExecutor queryExecutor) {
                 if (queryExecutor.isAclSupported()) {
-                    checkBlocked(remoteAddress);
+                    accessControlListManager.checkBlocked(remoteAddress, query.getSsoToken());
 
                     if (query.hasProxyWithIp()) {
                         if (!accessControlListManager.isAllowedToProxy(remoteAddress)) {
@@ -89,20 +89,12 @@ public class QueryHandler {
                         }
 
                         accountingAddress = InetAddresses.forString(query.getProxyIp());
-                        checkBlocked(accountingAddress);
+                        accessControlListManager.checkBlocked(accountingAddress, query.getSsoToken());
                     } else {
                         accountingAddress = remoteAddress;
                     }
 
                     useAcl = !accessControlListManager.isUnlimited(accountingAddress);
-                }
-            }
-
-            private void checkBlocked(final InetAddress inetAddress) {
-                if (accessControlListManager.isDenied(inetAddress, query.getSsoToken())) {
-                    throw new QueryException(QueryCompletionInfo.BLOCKED, QueryMessages.accessDeniedPermanently(inetAddress));
-                } else if (!accessControlListManager.canQueryPersonalObjects(inetAddress, query.getSsoToken())) {
-                    throw new QueryException(QueryCompletionInfo.BLOCKED, QueryMessages.accessDeniedTemporarily(inetAddress));
                 }
             }
 
@@ -122,7 +114,7 @@ public class QueryHandler {
                                 }
 
                                 if (++accountedObjects > accountingLimit) {
-                                    throw new QueryException(QueryCompletionInfo.BLOCKED, QueryMessages.accessDeniedTemporarily(accountingAddress));
+                                    throw new QueryException(QueryCompletionInfo.BLOCKED, QueryMessages.accessDeniedTemporarily(accountingAddress.getHostAddress()));
                                 }
                             } else {
                                 notAccountedObjects++;

@@ -62,16 +62,16 @@ public class AutomaticBlockTestIntegration extends AbstractSchedulerIntegrationT
             queryAndCheckNotBanned(personQuery, "person:         test person");
 
             // Caught by ACL manager
-            queryAndCheckBanned(QueryMessages.accessDeniedTemporarily(localHost));
+            queryAndCheckBanned(QueryMessages.accessDeniedTemporarily(localHost.getHostAddress()));
 
             // Caught by ACL handler
-            queryAndCheckBanned(QueryMessages.accessDeniedTemporarily(localHost));
+            queryAndCheckBanned(QueryMessages.accessDeniedTemporarily(localHost.getHostAddress()));
             dailyMaintenance();
         }
 
         testDateTimeProvider.setTime(LocalDateTime.now().plusDays(currentDay++));
         dailyMaintenance();
-        queryAndCheckBanned(QueryMessages.accessDeniedPermanently(localHost));
+        queryAndCheckBanned(QueryMessages.accessDeniedPermanently(localHost.getHostAddress()));
 
         testDateTimeProvider.setTime(LocalDateTime.now().plusDays(currentDay++));
         databaseHelper.unbanIp("127.0.0.1/32");
@@ -93,8 +93,8 @@ public class AutomaticBlockTestIntegration extends AbstractSchedulerIntegrationT
     private void queryAndCheckNotBanned(final String query, final String personOrRole) throws Exception {
         final String result = query(query);
         assertThat(result, containsString(personOrRole));
-        assertThat(result, not(containsString(QueryMessages.accessDeniedTemporarily(localHost).toString())));
-        assertThat(result, not(containsString(QueryMessages.accessDeniedPermanently(localHost).toString())));
+        assertThat(result, not(containsString(QueryMessages.accessDeniedTemporarily(localHost.getHostAddress()).toString())));
+        assertThat(result, not(containsString(QueryMessages.accessDeniedPermanently(localHost.getHostAddress()).toString())));
     }
 
     private void queryAndCheckBanned(final Message messages) throws Exception {

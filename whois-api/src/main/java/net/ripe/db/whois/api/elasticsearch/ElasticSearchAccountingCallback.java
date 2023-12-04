@@ -33,11 +33,7 @@ public abstract class ElasticSearchAccountingCallback<T> {
 
     public T search() throws IOException {
 
-        if (accessControlListManager.isDenied(remoteAddress, null)) {
-            throw new QueryException(QueryCompletionInfo.BLOCKED, QueryMessages.accessDeniedPermanently(remoteAddress));
-        } else if (!accessControlListManager.canQueryPersonalObjects(remoteAddress, null)) {
-            throw new QueryException(QueryCompletionInfo.BLOCKED, QueryMessages.accessDeniedTemporarily(remoteAddress));
-        }
+        accessControlListManager.checkBlocked(remoteAddress, null);
 
         try {
             return doSearch();
@@ -57,7 +53,7 @@ public abstract class ElasticSearchAccountingCallback<T> {
             }
 
             if (++accountedObjects > accountingLimit) {
-                throw new QueryException(QueryCompletionInfo.BLOCKED, QueryMessages.accessDeniedTemporarily(remoteAddress));
+                throw new QueryException(QueryCompletionInfo.BLOCKED, QueryMessages.accessDeniedTemporarily(remoteAddress.getHostAddress()));
             }
         }
     }

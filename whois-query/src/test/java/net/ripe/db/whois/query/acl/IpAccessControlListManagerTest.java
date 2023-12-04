@@ -96,23 +96,7 @@ public class IpAccessControlListManagerTest {
         lenient().when(ipResourceConfiguration.getLimit(address)).thenReturn(limit);
     }
 
-    @Test
-    public void check_denied_restricted() throws Exception {
-        assertThat(subject.isDenied(ipv4Restricted, null), is(true));
-        assertThat(subject.isDenied(ipv6Restricted, null), is(true));
-    }
 
-    @Test
-    public void check_denied_unrestricted() throws Exception {
-        assertThat(subject.isDenied(ipv4Unrestricted, null), is(false));
-        assertThat(subject.isDenied(ipv6Unrestricted, null),is(false));
-    }
-
-    @Test
-    public void check_denied_unknown() throws Exception {
-        assertThat(subject.isDenied(ipv4Unknown, null), is(false));
-        assertThat(subject.isDenied(ipv6Unknown, null), is(false));
-    }
 
     @Test
     public void check_proxy_restricted() throws Exception {

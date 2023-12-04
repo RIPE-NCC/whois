@@ -82,7 +82,7 @@ public class QueryHandlerAclTest {
         }).when(queryExecutor).execute(any(Query.class), any(ResponseHandler.class));
 
         lenient().when(sourceContext.getCurrentSource()).thenReturn(Source.slave("RIPE"));
-        when(accessControlListManager.canQueryPersonalObjects(remoteAddress, null)).thenReturn(true);
+        lenient().when(accessControlListManager.canQueryPersonalObjects(remoteAddress, null)).thenReturn(true);
         lenient().when(accessControlListManager.requiresAcl(any(RpslObject.class), any(Source.class))).thenAnswer(new Answer<Object>() {
             @Override
             @SuppressWarnings("SuspiciousMethodCalls")
@@ -141,7 +141,7 @@ public class QueryHandlerAclTest {
             fail("Expected failure");
         } catch (QueryException e) {
             assertThat(e.getCompletionInfo(), is(QueryCompletionInfo.BLOCKED));
-            assertThat(e.getMessages(), containsInAnyOrder(QueryMessages.accessDeniedTemporarily(remoteAddress)));
+            assertThat(e.getMessages(), containsInAnyOrder(QueryMessages.accessDeniedTemporarily(remoteAddress.getHostAddress())));
 
             final ArgumentCaptor<ResponseObject> responseCaptor = ArgumentCaptor.forClass(ResponseObject.class);
             verify(responseHandler, times(3)).handle(responseCaptor.capture());
@@ -158,7 +158,7 @@ public class QueryHandlerAclTest {
         final InetAddress clientAddress = InetAddresses.forString("10.0.0.0");
 
         when(accessControlListManager.isAllowedToProxy(remoteAddress)).thenReturn(true);
-        when(accessControlListManager.canQueryPersonalObjects(clientAddress, null)).thenReturn(true);
+        lenient().when(accessControlListManager.canQueryPersonalObjects(clientAddress, null)).thenReturn(true);
         when(accessControlListManager.getPersonalObjects(clientAddress, null)).thenReturn(10);
 
         final Query query = Query.parse("-VclientId,10.0.0.0 DEV-MNT");

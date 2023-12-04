@@ -13,8 +13,11 @@ import net.ripe.db.whois.common.source.Source;
 import net.ripe.db.whois.common.sso.AuthServiceClientException;
 import net.ripe.db.whois.common.sso.SsoTokenTranslator;
 import net.ripe.db.whois.common.sso.UserSession;
+import net.ripe.db.whois.query.QueryMessages;
 import net.ripe.db.whois.query.dao.IpAccessControlListDao;
 import net.ripe.db.whois.query.dao.SSOAccessControlListDao;
+import net.ripe.db.whois.query.domain.QueryCompletionInfo;
+import net.ripe.db.whois.query.domain.QueryException;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -73,13 +76,15 @@ public class AccessControlListManager {
                 || (ObjectType.ROLE.equals(objectType) && rpslObject.findAttributes(AttributeType.ABUSE_MAILBOX).isEmpty());
     }
 
-    public boolean isDenied(final InetAddress remoteAddress, final String ssoToken) {
+    public void checkBlocked(final InetAddress remoteAddress, final String ssoToken) {
         if(ipResourceConfiguration.isDenied(remoteAddress)) {
-            return true;
+            throw new QueryException(QueryCompletionInfo.BLOCKED, QueryMessages.accessDeniedPermanently(remoteAddress.getHostAddress()));
         }
 
         final String username = getUserName(ssoToken);
-        return username != null ? ssoResourceConfiguration.isDenied(username) : false;
+        if( ssoResourceConfiguration.isDenied(username)) {
+            throw new QueryException(QueryCompletionInfo.BLOCKED, QueryMessages.accessDeniedPermanently(username));
+        }
     }
 
     public boolean isAllowedToProxy(final InetAddress remoteAddress) {
