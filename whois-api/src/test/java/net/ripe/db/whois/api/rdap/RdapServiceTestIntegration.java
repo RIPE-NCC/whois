@@ -374,6 +374,7 @@ public class RdapServiceTestIntegration extends AbstractRdapIntegrationTest {
                 "geoloc:         52.375599 4.899902\n" +
                 "language:       DK\n" +
                 "admin-c:        TP1-TEST\n" +
+                "country:        NL\n"+
                 "mnt-by:         OWNER-MNT\n" +
                 "created:        2022-08-14T11:48:28Z\n" +
                 "last-modified:  2022-10-25T12:22:39Z\n" +

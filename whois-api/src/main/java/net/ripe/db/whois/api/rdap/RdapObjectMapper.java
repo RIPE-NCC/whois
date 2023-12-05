@@ -670,13 +670,14 @@ class RdapObjectMapper {
                     rdapObject.setLang(attributeValuesAttribute.next().toString());
                 }
                 case COUNTRY -> {
-                    final Ip ip = (Ip)rdapObject;
-                    if (!StringUtil.isNullOrEmpty(ip.getCountry())){
-                        rdapObject.getRedactedRpslAttrs().addAll(rpslObject.findAttributes(COUNTRY));
-                        break;
+                    if (rdapObject instanceof final Ip ip) {
+                        if (!StringUtil.isNullOrEmpty(ip.getCountry())) {
+                            rdapObject.getRedactedRpslAttrs().addAll(rpslObject.findAttributes(COUNTRY));
+                            break;
+                        }
+                        final Iterator<CIString> attributeValuesAttribute = rpslAttribute.getCleanValues().iterator();
+                        ip.setCountry(attributeValuesAttribute.next().toString());
                     }
-                    final Iterator<CIString> attributeValuesAttribute = rpslAttribute.getCleanValues().iterator();
-                    ip.setCountry(attributeValuesAttribute.next().toString());
                 }
             }
         });
