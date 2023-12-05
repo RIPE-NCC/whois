@@ -37,13 +37,6 @@ import static org.mockito.Mockito.when;
 @ExtendWith(MockitoExtension.class)
 public class IpAccessControlListManagerTest {
 
-    private final RpslObject role = RpslObject.parse("role: Test Role\nnic-hdl: TR1-TEST");
-    private final RpslObject roleWithAbuseMailbox = RpslObject.parse("role: Test Role\nnic-hdl: TR1-TEST\nabuse-mailbox: abuse@mailbox.com");
-    private final RpslObject person = RpslObject.parse("person: Test Person\nnic-hdl: TP1-TEST");
-    private final RpslObject domain = RpslObject.parse("domain: 0.0.0.0");
-    private final RpslObject autNum = RpslObject.parse("aut-num: AS1234");
-    private final RpslObject inetnum = RpslObject.parse("inetnum: 10.0.0.0");
-
     @Mock DateTimeProvider dateTimeProvider;
     @Mock IpResourceConfiguration ipResourceConfiguration;
     @Mock SSOResourceConfiguration ssoResourceConfiguration;
@@ -80,9 +73,6 @@ public class IpAccessControlListManagerTest {
         ipv4Unrestricted = InetAddress.getByName("127.0.0.0");
         ipv4Unknown = InetAddress.getByName("1.0.0.0");
 
-        accountingIdentifierIpv4 = new AccountingIdentifier(ipv4Restricted, null);
-        accountingIdentifierIpv6 = new AccountingIdentifier(ipv6Restricted, null);
-
         ipv6Restricted = InetAddress.getByName("2001::1");
         ipv6Unrestricted = InetAddress.getByName("2001:1::1");
         ipv6Unknown = InetAddress.getByName("::1");
@@ -103,7 +93,6 @@ public class IpAccessControlListManagerTest {
     }
 
 
-
     @Test
     public void check_proxy_restricted() throws Exception {
         assertThat(subject.isAllowedToProxy(ipv4Restricted), is(false));
@@ -117,31 +106,28 @@ public class IpAccessControlListManagerTest {
     }
 
     @Test
-    public void check_proxy_unknown() throws Exception {
+    public void check_proxy_unknown() {
         assertThat(subject.isAllowedToProxy(ipv4Unknown), is(false));
         assertThat(subject.isAllowedToProxy(ipv6Unknown), is(false));
     }
 
     @Test
-    public void check_getLimit_restricted() throws Exception {
-        assertThat(subject.getPersonalObjects(accountingIdentifierIpv4), is(PERSONAL_DATA_LIMIT));
-        assertThat(subject.getPersonalObjects(accountingIdentifierIpv6), is(PERSONAL_DATA_LIMIT));
+    public void check_getLimit_restricted() {
+        assertThat(subject.getPersonalObjects(new AccountingIdentifier(ipv4Restricted, null)), is(PERSONAL_DATA_LIMIT));
+        assertThat(subject.getPersonalObjects(new AccountingIdentifier(ipv6Restricted, null)), is(PERSONAL_DATA_LIMIT));
     }
 
     @Test
-    public void check_getLimit_unrestricted() throws Exception {
-        assertThat(subject.getPersonalObjects(accountingIdentifierIpv4), is(Integer.MAX_VALUE));
-        assertThat(subject.getPersonalObjects(accountingIdentifierIpv6), is(Integer.MAX_VALUE));
+    public void check_getLimit_unrestricted() {
+        assertThat(subject.getPersonalObjects(new AccountingIdentifier(ipv4Unrestricted, null)), is(Integer.MAX_VALUE));
+        assertThat(subject.getPersonalObjects(new AccountingIdentifier(ipv6Unrestricted, null)), is(Integer.MAX_VALUE));
     }
 
     @Test
-    public void check_getLimit_unknown() throws Exception {
-        assertThat(subject.getPersonalObjects(accountingIdentifierIpv4), is(PERSONAL_DATA_LIMIT_UNKNOWN));
-        assertThat(subject.getPersonalObjects(accountingIdentifierIpv6), is(PERSONAL_DATA_LIMIT_UNKNOWN));
+    public void check_getLimit_unknown() {
+        assertThat(subject.getPersonalObjects(new AccountingIdentifier(ipv4Unknown, null)), is(PERSONAL_DATA_LIMIT_UNKNOWN));
+        assertThat(subject.getPersonalObjects(new AccountingIdentifier(ipv6Unknown, null)), is(PERSONAL_DATA_LIMIT_UNKNOWN));
     }
-
-    @Captor
-    ArgumentCaptor<Ipv6Resource> ipv6ResourceCaptor;
 
     @Test
     public void testMask() throws UnknownHostException {

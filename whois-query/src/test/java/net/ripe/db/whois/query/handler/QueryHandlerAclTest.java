@@ -127,7 +127,6 @@ public class QueryHandlerAclTest {
     @Test
     public void acl_without_hitting_limit() {
         when(accessControlListManager.getPersonalObjects( MockitoHamcrest.argThat(hasProperty("remoteAddress", equalTo(remoteAddress))))).thenReturn(10);
-        when(accessControlListManager.requiresAcl(any(RpslObject.class), any(Source.class))).thenReturn(true);
 
         final Query query = Query.parse("DEV-MNT");
         subject.streamResults(query, remoteAddress, contextId, responseHandler);

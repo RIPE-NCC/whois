@@ -85,6 +85,10 @@ public class AccessControlListManager {
         if( ssoResourceConfiguration.isDenied(username)) {
             throw new QueryException(QueryCompletionInfo.BLOCKED, QueryMessages.accessDeniedPermanently(username));
         }
+
+        if(!canQueryPersonalObjects(accountingIdentifier)) {
+            throw new QueryException(QueryCompletionInfo.BLOCKED, QueryMessages.accessDeniedTemporarily(username == null ? accountingIdentifier.getRemoteAddress().getHostAddress() : username));
+        }
     }
 
     public boolean isAllowedToProxy(final InetAddress remoteAddress) {
