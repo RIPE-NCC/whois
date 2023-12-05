@@ -8,6 +8,7 @@ import net.ripe.db.whois.common.rpsl.AttributeType;
 import net.ripe.db.whois.common.support.TelnetWhoisClient;
 import net.ripe.db.whois.query.QueryServer;
 import net.ripe.db.whois.query.acl.AccessControlListManager;
+import net.ripe.db.whois.query.acl.AccountingIdentifier;
 import net.ripe.db.whois.query.acl.IpResourceConfiguration;
 import net.ripe.db.whois.query.acl.PersonalAccountingManager;
 import net.ripe.db.whois.query.acl.SSOResourceConfiguration;
@@ -99,7 +100,9 @@ public class WhoisRestServiceIpAclTestIntegration extends AbstractIntegrationTes
     @Test
     public void lookup_person_acl_blocked() throws Exception {
         final InetAddress localhost = InetAddress.getByName(LOCALHOST);
-        accessControlListManager.accountPersonalObjects(localhost, null, accessControlListManager.getPersonalObjects(localhost, null) + 1);
+        final AccountingIdentifier accountingIdentifier = new AccountingIdentifier(localhost, null);
+
+        accessControlListManager.accountPersonalObjects(accountingIdentifier, accessControlListManager.getPersonalObjects(accountingIdentifier) + 1);
 
         try {
             RestTest.target(getPort(), "whois/test/person/TP1-TEST").request().get(String.class);
@@ -112,13 +115,15 @@ public class WhoisRestServiceIpAclTestIntegration extends AbstractIntegrationTes
     @Test
     public void lookup_person_filtered_acl_still_counted() throws Exception {
         final InetAddress localhost = InetAddress.getByName(LOCALHOST);
+        final AccountingIdentifier accountingIdentifier = new AccountingIdentifier(localhost, null);
+
         databaseHelper.addObject(
                 "person:    Test Person\n" +
                         "nic-hdl:   TP2-TEST\n" +
                         "e-mail:   test@ripe.net\n" +
                         "source:    TEST");
 
-        final int limit = accessControlListManager.getPersonalObjects(localhost, null);
+        final int limit = accessControlListManager.getPersonalObjects(accountingIdentifier);
 
         final WhoisResources whoisResources =  RestTest.target(getPort(), "whois/test/person/TP2-TEST")
                                                     .request()
@@ -129,7 +134,7 @@ public class WhoisRestServiceIpAclTestIntegration extends AbstractIntegrationTes
                             .anyMatch( (attribute)-> attribute.getName().equals(AttributeType.E_MAIL)),
                         is(false));
 
-        final int remaining = accessControlListManager.getPersonalObjects(localhost, null);
+        final int remaining = accessControlListManager.getPersonalObjects(accountingIdentifier);
         assertThat(remaining, is(limit-1));
     }
 
@@ -156,7 +161,9 @@ public class WhoisRestServiceIpAclTestIntegration extends AbstractIntegrationTes
     @Test
     public void lookup_autnum_acl_blocked() throws Exception {
         final InetAddress localhost = InetAddress.getByName(LOCALHOST);
-        accessControlListManager.accountPersonalObjects(localhost, null, accessControlListManager.getPersonalObjects(localhost, null) + 1);
+        final AccountingIdentifier accountingIdentifier = new AccountingIdentifier(localhost, null);
+
+        accessControlListManager.accountPersonalObjects(accountingIdentifier, accessControlListManager.getPersonalObjects(accountingIdentifier) + 1);
 
         try {
             RestTest.target(getPort(), "whois/test/aut-num/AS102").request().get(String.class);
@@ -185,7 +192,9 @@ public class WhoisRestServiceIpAclTestIntegration extends AbstractIntegrationTes
     @Test
     public void lookup_version_acl_blocked() throws Exception {
         final InetAddress localhost = InetAddress.getByName(LOCALHOST);
-        accessControlListManager.accountPersonalObjects(localhost, null, accessControlListManager.getPersonalObjects(localhost, null) + 1);
+        final AccountingIdentifier accountingIdentifier = new AccountingIdentifier(localhost, null);
+
+        accessControlListManager.accountPersonalObjects(accountingIdentifier, accessControlListManager.getPersonalObjects(accountingIdentifier) + 1);
 
         try {
             RestTest.target(getPort(), "whois/test/aut-num/AS102/versions/1")
@@ -200,7 +209,9 @@ public class WhoisRestServiceIpAclTestIntegration extends AbstractIntegrationTes
     @Test
     public void diff_version_acl_blocked() throws Exception {
         final InetAddress localhost = InetAddress.getByName(LOCALHOST);
-        accessControlListManager.accountPersonalObjects(localhost, null, accessControlListManager.getPersonalObjects(localhost, null) + 1);
+        final AccountingIdentifier accountingIdentifier = new AccountingIdentifier(localhost, null);
+
+        accessControlListManager.accountPersonalObjects(accountingIdentifier, accessControlListManager.getPersonalObjects(accountingIdentifier) + 1);
 
         assertThat(TelnetWhoisClient.queryLocalhost(QueryServer.port, "--diff-versions 1 TP1-TEST"),
                     containsString(" Access from your host has been temporarily denied."));

@@ -1,4 +1,3 @@
-/*
 package net.ripe.db.whois.query.handler;
 
 import com.google.common.collect.Sets;
@@ -21,6 +20,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
+import org.mockito.hamcrest.MockitoHamcrest;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.mockito.stubbing.Answer;
@@ -30,6 +30,8 @@ import java.net.InetAddress;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.Matchers.containsInAnyOrder;
+import static org.hamcrest.Matchers.equalTo;
+import static org.hamcrest.Matchers.hasProperty;
 import static org.hamcrest.Matchers.is;
 import static org.junit.jupiter.api.Assertions.fail;
 import static org.mockito.Mockito.any;
@@ -124,7 +126,8 @@ public class QueryHandlerAclTest {
 
     @Test
     public void acl_without_hitting_limit() {
-        when(accessControlListManager.getPersonalObjects(accountingIdentifier)).thenReturn(10);
+        when(accessControlListManager.getPersonalObjects( MockitoHamcrest.argThat(hasProperty("remoteAddress", equalTo(remoteAddress))))).thenReturn(10);
+        when(accessControlListManager.requiresAcl(any(RpslObject.class), any(Source.class))).thenReturn(true);
 
         final Query query = Query.parse("DEV-MNT");
         subject.streamResults(query, remoteAddress, contextId, responseHandler);
@@ -134,14 +137,14 @@ public class QueryHandlerAclTest {
         verify(responseHandler, times(5)).handle(responseCaptor.capture());
         assertThat(responseCaptor.getAllValues(), contains(message, maintainer, personTest, roleTest, roleAbuse));
 
-        verify(accessControlListManager).accountPersonalObjects(accountingIdentifier,2);
+        verify(accessControlListManager).accountPersonalObjects(MockitoHamcrest.argThat(hasProperty("remoteAddress", equalTo(remoteAddress))),eq(2));
 
         verifyLog(query, null, 2, 2);
     }
 
     @Test
     public void acl_hitting_limit() {
-        when(accessControlListManager.getPersonalObjects(accountingIdentifier)).thenReturn(1);
+        when(accessControlListManager.getPersonalObjects(MockitoHamcrest.argThat(hasProperty("remoteAddress", equalTo(remoteAddress))))).thenReturn(1);
 
         final Query query = Query.parse("DEV-MNT");
         try {
@@ -155,7 +158,7 @@ public class QueryHandlerAclTest {
             verify(responseHandler, times(3)).handle(responseCaptor.capture());
             assertThat(responseCaptor.getAllValues(), contains(message, maintainer, personTest));
 
-            verify(accessControlListManager).accountPersonalObjects(accountingIdentifier,2);
+            verify(accessControlListManager).accountPersonalObjects(MockitoHamcrest.argThat(hasProperty("remoteAddress", equalTo(remoteAddress))),eq(2));
 
             verifyLog(query, QueryCompletionInfo.BLOCKED, 2, 1);
         }
@@ -166,8 +169,8 @@ public class QueryHandlerAclTest {
         final InetAddress clientAddress = InetAddresses.forString("10.0.0.0");
 
         when(accessControlListManager.isAllowedToProxy(remoteAddress)).thenReturn(true);
-        lenient().when(accessControlListManager.canQueryPersonalObjects(accountingIdentifier)).thenReturn(true);
-        when(accessControlListManager.getPersonalObjects(accountingIdentifier)).thenReturn(10);
+        lenient().when(accessControlListManager.canQueryPersonalObjects(MockitoHamcrest.argThat(hasProperty("remoteAddress", equalTo(remoteAddress))))).thenReturn(true);
+        when(accessControlListManager.getPersonalObjects(MockitoHamcrest.argThat(hasProperty("remoteAddress", equalTo(clientAddress))))).thenReturn(10);
 
         final Query query = Query.parse("-VclientId,10.0.0.0 DEV-MNT");
         subject.streamResults(query, remoteAddress, contextId, responseHandler);
@@ -176,7 +179,7 @@ public class QueryHandlerAclTest {
         verify(responseHandler, times(5)).handle(responseCaptor.capture());
         assertThat(responseCaptor.getAllValues(), contains(message, maintainer, personTest, roleTest, roleAbuse));
 
-        verify(accessControlListManager).accountPersonalObjects(accountingIdentifier, 2);
+        verify(accessControlListManager).accountPersonalObjects(MockitoHamcrest.argThat(hasProperty("remoteAddress", equalTo(clientAddress))), eq(2));
 
         verifyLog(query, null, 2, 2);
     }
@@ -185,4 +188,3 @@ public class QueryHandlerAclTest {
         verify(whoisLog).logQueryResult(any(), eq(nrAccounted), eq(nrNotAccounted), eq(completionInfo), anyLong(), eq(remoteAddress), eq(contextId), eq(query.toString()));
     }
 }
-*/
