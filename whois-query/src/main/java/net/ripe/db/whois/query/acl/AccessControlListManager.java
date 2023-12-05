@@ -142,7 +142,7 @@ public class AccessControlListManager {
     /**
      * Account for the ResponseObject given
      *
-     * @param remoteAddress The remote address.
+     * @param accountingIdentifier The remote address and ssoken
      * @param amount        The amount of personal objects accounted.
      */
     public void accountPersonalObjects(final AccountingIdentifier accountingIdentifier, final int amount) {
