@@ -437,6 +437,32 @@ public class RdapServiceTestIntegration extends AbstractRdapIntegrationTest {
     }
 
     @Test
+    public void lookup_org_single_language_codes_no_redaction(){
+        databaseHelper.addObject("" +
+                "organisation:  ORG-TEST2-TEST\n" +
+                "org-name:      Test organisation\n" +
+                "org-type:      OTHER\n" +
+                "descr:         Drugs and gambling\n" +
+                "remarks:       Nice to deal with generally\n" +
+                "address:       1 Fake St. Fauxville\n" +
+                "phone:         +01-000-000-000\n" +
+                "fax-no:        +01-000-000-000\n" +
+                "country:      NL\n" +
+                "language:      NL\n" +
+                "mnt-by:        OWNER-MNT\n" +
+                "created:         2022-08-14T11:48:28Z\n" +
+                "last-modified:   2022-10-25T12:22:39Z\n" +
+                "source:        TEST");
+
+        final Entity entity = createResource("entity/ORG-TEST2-TEST")
+                .request(MediaType.APPLICATION_JSON_TYPE)
+                .get(Entity.class);
+
+        assertThat(entity.getRedacted().size(), is(0));
+        assertCommon(entity);
+    }
+
+    @Test
     public void lookup_multiple_redaction_inside_network() {
 
         databaseHelper.addObject("" +
@@ -2385,7 +2411,7 @@ public class RdapServiceTestIntegration extends AbstractRdapIntegrationTest {
     // Redactions
 
     @Test
-    public void lookup_organisation_redactions() throws JsonProcessingException {
+    public void lookup_organisation_redactions() {
         createEntityRedactionObjects();
 
         databaseHelper.addObject("" +
@@ -2422,7 +2448,7 @@ public class RdapServiceTestIntegration extends AbstractRdapIntegrationTest {
     }
 
     @Test
-    public void lookup_organisation_redactions_different_person() throws JsonProcessingException {
+    public void lookup_organisation_redactions_different_person() {
         createEntityRedactionObjects();
 
         databaseHelper.addObject("" +
@@ -2519,7 +2545,7 @@ public class RdapServiceTestIntegration extends AbstractRdapIntegrationTest {
     }
 
     @Test
-    public void lookup_aut_num_redactions() throws JsonProcessingException {
+    public void lookup_aut_num_redactions() {
         databaseHelper.addObject("" +
                 "aut-num:       AS103\n" +
                 "as-name:       AS-TEST\n" +
@@ -2541,7 +2567,7 @@ public class RdapServiceTestIntegration extends AbstractRdapIntegrationTest {
     }
 
     @Test
-    public void lookup_org_inetnum_autnum_entity_redactions() throws JsonProcessingException {
+    public void lookup_org_inetnum_autnum_entity_redactions() {
         databaseHelper.addObject("" +
                 "person:        Tester Person\n" +
                 "nic-hdl:       TP3-TEST\n" +
@@ -2608,7 +2634,47 @@ public class RdapServiceTestIntegration extends AbstractRdapIntegrationTest {
     }
 
     @Test
-    public void lookup_domain_object_inetnum_redactions() throws JsonProcessingException {
+    public void lookup_org_with_inetnum_one_country_and_language_no_redactions() {
+        databaseHelper.addObject("" +
+                "organisation:  ORG-TEST2-TEST\n" +
+                "org-name:      Test organisation\n" +
+                "org-type:      OTHER\n" +
+                "descr:         Drugs and gambling\n" +
+                "remarks:       Nice to deal with generally\n" +
+                "address:       1 Fake St. Fauxville\n" +
+                "phone:         +01-000-000-000\n" +
+                "fax-no:        +01-000-000-000\n" +
+                "country:      NL\n" +
+                "language:      NL\n" +
+                "mnt-by:        OWNER-MNT\n" +
+                "created:         2022-08-14T11:48:28Z\n" +
+                "last-modified:   2022-10-25T12:22:39Z\n" +
+                "source:        TEST");
+
+        databaseHelper.addObject("" +
+                "inetnum:      109.111.192.0 - 109.111.223.255\n" +
+                "netname:      TEST-NET-NAME\n" +
+                "descr:        TEST network\n" +
+                "org:          ORG-TEST2-TEST\n" +
+                "country:      NL\n" +
+                "language:      NL\n" +
+                "status:       OTHER\n" +
+                "mnt-by:       OWNER-MNT\n" +
+                "created:         2022-08-14T11:48:28Z\n" +
+                "last-modified:   2022-10-25T12:22:39Z\n" +
+                "source:       TEST");
+
+
+        final Entity entity = createResource("entity/ORG-TEST2-TEST")
+                .request(MediaType.APPLICATION_JSON_TYPE)
+                .get(Entity.class);
+
+        assertThat(entity.getRedacted().size(), is(0));
+        assertCommon(entity);
+    }
+
+    @Test
+    public void lookup_domain_object_inetnum_redactions(){
 
         databaseHelper.addObject("" +
                 "inetnum:       80.179.52.0 - 80.179.55.255\n" +
@@ -2652,6 +2718,7 @@ public class RdapServiceTestIntegration extends AbstractRdapIntegrationTest {
         assertPersonalRedactionForEntities(domain, domain.getNetwork().getEntitySearchResults(), "$", "TP2-TEST", NOTIFY);
         assertPersonalRedactionForEntities(domain, domain.getNetwork().getEntitySearchResults(), "$", "TP2-TEST", E_MAIL);
     }
+
     // search - entities - organisation
 
     @Test

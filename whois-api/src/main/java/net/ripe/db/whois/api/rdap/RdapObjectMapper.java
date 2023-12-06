@@ -532,7 +532,6 @@ class RdapObjectMapper {
             entity.getRoles().add(role);
         }
 
-
         final String language = getAndHandleMultipleAttributes(rpslObject, LANGUAGE, entity);
         if(language != null) {
             entity.setLang(language);
@@ -672,7 +671,6 @@ class RdapObjectMapper {
     }
 
     private static String getAndHandleMultipleAttributes(final RpslObject rpslObject, final AttributeType type, final RdapObject rdapObject) {
-
         final List<RpslAttribute> attributes =  rpslObject.findAttributes(type);
         if(attributes.size() == 0) {
             return null;
