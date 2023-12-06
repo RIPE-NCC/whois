@@ -6,7 +6,6 @@ import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
-import io.netty.util.internal.StringUtil;
 import jakarta.ws.rs.InternalServerErrorException;
 import net.ripe.commons.ip.AbstractIpRange;
 import net.ripe.commons.ip.Ipv4Range;
@@ -662,7 +661,7 @@ class RdapObjectMapper {
         rpslObject.getAttributes().forEach(rpslAttribute -> {
             switch (rpslAttribute.getType()){
                 case LANGUAGE -> {
-                    if (!StringUtil.isNullOrEmpty(rdapObject.getLang())){
+                    if (! StringUtils.isEmpty(rdapObject.getLang())){
                         rdapObject.getRedactedRpslAttrs().addAll(rpslObject.findAttributes(LANGUAGE));
                         break;
                     }
@@ -671,7 +670,7 @@ class RdapObjectMapper {
                 }
                 case COUNTRY -> {
                     final Ip ip = (Ip)rdapObject;
-                    if (!StringUtil.isNullOrEmpty(ip.getCountry())){
+                    if (!StringUtils.isEmpty(ip.getCountry())) {
                         rdapObject.getRedactedRpslAttrs().addAll(rpslObject.findAttributes(COUNTRY));
                         break;
                     }
