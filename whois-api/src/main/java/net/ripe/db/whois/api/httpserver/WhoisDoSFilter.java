@@ -1,10 +1,10 @@
 package net.ripe.db.whois.api.httpserver;
 
 import com.google.common.base.Joiner;
+import com.google.common.base.Splitter;
 import net.ripe.db.whois.common.ip.Ipv4Resource;
 import net.ripe.db.whois.common.ip.Ipv6Resource;
 import org.eclipse.jetty.servlets.DoSFilter;
-import org.eclipse.jetty.util.StringUtil;
 import org.eclipse.jetty.util.annotation.ManagedAttribute;
 import org.eclipse.jetty.util.annotation.ManagedOperation;
 import org.eclipse.jetty.util.annotation.Name;
@@ -24,6 +24,7 @@ public class WhoisDoSFilter extends DoSFilter {
     private static final Logger LOGGER = getLogger(WhoisDoSFilter.class);
 
     private static final Joiner COMMA_JOINER = Joiner.on(',');
+    private static final Splitter COMMA_SPLITTER = Splitter.on(',').trimResults().omitEmptyStrings();
 
     private final List<Ipv4Resource> ipv4whitelist = new CopyOnWriteArrayList<>();
     private final List<Ipv6Resource> ipv6whitelist = new CopyOnWriteArrayList<>();
@@ -80,7 +81,7 @@ public class WhoisDoSFilter extends DoSFilter {
     @Override
     public void setWhitelist(final String commaSeparatedList) {
         clearWhitelist();
-        for (String address : StringUtil.csvSplit(commaSeparatedList)) {
+        for (String address : COMMA_SPLITTER.split(commaSeparatedList)) {
             addWhitelistAddress(address, false);
         }
         LOGGER.info("DoSFilter IP whitelist: {}", getWhitelist());
