@@ -674,16 +674,14 @@ class RdapObjectMapper {
     private static String getAndHandleMultipleAttributes(final RpslObject rpslObject, final AttributeType type, final RdapObject rdapObject) {
 
         final List<RpslAttribute> attributes =  rpslObject.findAttributes(type);
-
-        if(attributes.size() == 1) {
-            return attributes.get(0).getCleanValue().toString();
-        }
-
         if(attributes.size() == 0) {
             return null;
         }
 
-        rdapObject.getRedactedRpslAttrs().addAll(attributes);
+        if(attributes.size() > 1) {
+            rdapObject.getRedactedRpslAttrs().addAll(attributes);
+        }
+
         return attributes.get(0).getCleanValue().toString();
     }
 }
