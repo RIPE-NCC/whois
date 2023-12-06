@@ -6,7 +6,6 @@ import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
-import io.netty.util.internal.StringUtil;
 import jakarta.ws.rs.InternalServerErrorException;
 import net.ripe.commons.ip.AbstractIpRange;
 import net.ripe.commons.ip.Ipv4Range;
@@ -63,7 +62,6 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.time.LocalDateTime;
 import java.util.Collections;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -294,7 +292,6 @@ class RdapObjectMapper {
             rdapResponse.getRemarks().add(createRemark(rpslObject));
         }
 
-        handleMultipleValuesAttributes(rpslObject, rdapResponse);
         rdapResponse.getEvents().add(createEvent(DateUtil.fromString(rpslObject.getValueForAttribute(AttributeType.CREATED)), Action.REGISTRATION));
         rdapResponse.getEvents().add(createEvent(DateUtil.fromString(rpslObject.getValueForAttribute(AttributeType.LAST_MODIFIED)), Action.LAST_CHANGED));
 
@@ -359,6 +356,16 @@ class RdapObjectMapper {
         }
         ip.setStatus(Collections.singletonList(getResourceStatus(rpslObject).getValue()));
         ip.setCidr0_cidrs(getIpCidr0Notation(toIpRange(ipInterval)));
+
+        final String country = getAndHandleMultipleAttributes(rpslObject, COUNTRY, ip);
+        if(country != null) {
+            ip.setCountry(country);
+        }
+
+        final String language = getAndHandleMultipleAttributes(rpslObject, LANGUAGE, ip);
+        if(language != null) {
+            ip.setLang(language);
+        }
 
         this.mapContactEntities(ip, rpslObject, requestUrl);
         return ip;
@@ -525,6 +532,12 @@ class RdapObjectMapper {
             entity.getRoles().add(role);
         }
 
+
+        final String language = getAndHandleMultipleAttributes(rpslObject, LANGUAGE, entity);
+        if(language != null) {
+            entity.setLang(language);
+        }
+
         createVCard(entity, rpslObject);
         this.mapContactEntities(entity, rpslObject, requestUrl);
 
@@ -658,28 +671,19 @@ class RdapObjectMapper {
         }
     }
 
-    private static void handleMultipleValuesAttributes(final RpslObject rpslObject, final RdapObject rdapObject){
-        rpslObject.getAttributes().forEach(rpslAttribute -> {
-            switch (rpslAttribute.getType()){
-                case LANGUAGE -> {
-                    if (!StringUtil.isNullOrEmpty(rdapObject.getLang())){
-                        rdapObject.getRedactedRpslAttrs().addAll(rpslObject.findAttributes(LANGUAGE));
-                        break;
-                    }
-                    final Iterator<CIString> attributeValuesAttribute = rpslAttribute.getCleanValues().iterator();
-                    rdapObject.setLang(attributeValuesAttribute.next().toString());
-                }
-                case COUNTRY -> {
-                    if (rdapObject instanceof final Ip ip) {
-                        if (!StringUtil.isNullOrEmpty(ip.getCountry())) {
-                            rdapObject.getRedactedRpslAttrs().addAll(rpslObject.findAttributes(COUNTRY));
-                            break;
-                        }
-                        final Iterator<CIString> attributeValuesAttribute = rpslAttribute.getCleanValues().iterator();
-                        ip.setCountry(attributeValuesAttribute.next().toString());
-                    }
-                }
-            }
-        });
+    private static String getAndHandleMultipleAttributes(final RpslObject rpslObject, final AttributeType type, final RdapObject rdapObject) {
+
+        final List<RpslAttribute> attributes =  rpslObject.findAttributes(type);
+
+        if(attributes.size() == 1) {
+            return attributes.get(0).getCleanValue().toString();
+        }
+
+        if(attributes.size() == 0) {
+            return null;
+        }
+
+        rdapObject.getRedactedRpslAttrs().addAll(attributes);
+        return attributes.get(0).getCleanValue().toString();
     }
 }
