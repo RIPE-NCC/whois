@@ -20,6 +20,7 @@ import org.elasticsearch.client.core.CountResponse;
 import org.elasticsearch.client.indices.GetIndexRequest;
 import org.elasticsearch.common.xcontent.XContentBuilder;
 import org.elasticsearch.common.xcontent.XContentFactory;
+import org.elasticsearch.common.xcontent.XContentType;
 import org.elasticsearch.index.query.QueryBuilders;
 import org.elasticsearch.index.reindex.DeleteByQueryRequest;
 import org.elasticsearch.search.builder.SearchSourceBuilder;
@@ -93,22 +94,17 @@ public class ElasticIndexService {
     }
 
     protected void updateIndex(final RpslObject rpslObject){
-        LOGGER.error("UPDATE INDEX");
         if (!isElasticRunning()) {
             return;
         }
 
         try {
-            LOGGER.error("GETTING");
-            final boolean exists = client.exists(new GetRequest(whoisAliasIndex,
-                            String.valueOf(rpslObject.getObjectId())),
+            final boolean exists = client.exists(new GetRequest(whoisAliasIndex, String.valueOf(rpslObject.getObjectId())),
                     RequestOptions.DEFAULT);
-            LOGGER.error("GET REPONSE WITH {}", exists);
             if (exists) {
                 LOGGER.error("Updating doc {}", rpslObject.getObjectId());
                 updateEntry(rpslObject);
             } else {
-                LOGGER.error("Adding doc {}", rpslObject.getObjectId());
                 addEntry(rpslObject);
             }
         } catch (Exception ioe) {
@@ -125,7 +121,7 @@ public class ElasticIndexService {
 
     protected void updateEntry(final RpslObject rpslObject) throws IOException{
         final UpdateRequest updateRequest = new UpdateRequest(whoisAliasIndex,
-                String.valueOf(rpslObject.getObjectId())).doc(rpslObject);
+                String.valueOf(rpslObject.getObjectId())).doc(rpslObject, XContentType.JSON);
         client.update(updateRequest, RequestOptions.DEFAULT);
     }
 
