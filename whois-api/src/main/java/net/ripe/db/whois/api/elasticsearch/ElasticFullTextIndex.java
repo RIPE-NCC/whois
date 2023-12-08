@@ -73,6 +73,7 @@ public class ElasticFullTextIndex {
             return InetAddress.getLocalHost().getHostName();
         } catch (UnknownHostException ignored) {
             LOGGER.debug("{}: {}", ignored.getClass().getName(), ignored.getMessage());
+            throw new RuntimeException();
         }
     }
 
