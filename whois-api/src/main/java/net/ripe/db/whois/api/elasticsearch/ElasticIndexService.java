@@ -92,16 +92,35 @@ public class ElasticIndexService {
         return true;
     }
 
-    protected void addEntry(final RpslObject rpslObject) throws IOException {
+    protected void updateIndex(final RpslObject rpslObject) throws IOException{
         if (!isElasticRunning()) {
             return;
         }
 
+        if(client.get(new GetRequest().id(String.valueOf(rpslObject.getObjectId())), RequestOptions.DEFAULT).isExists()){
+            updateEntry(rpslObject);
+        } else {
+            addEntry(rpslObject);
+        }
+
+    }
+    protected void addEntry(final RpslObject rpslObject) throws IOException {
         try {
             final IndexRequest request = new IndexRequest(whoisAliasIndex);
             request.id(String.valueOf(rpslObject.getObjectId()));
             request.source(json(rpslObject));
             client.index(request, RequestOptions.DEFAULT);
+        } catch (Exception ioe) {
+            LOGGER.error("Failed to ES index {}: {}", rpslObject.getKey(), ioe);
+        }
+    }
+
+    protected void updateEntry(final RpslObject rpslObject) {
+        try {
+            UpdateRequest updateRequest = new UpdateRequest(whoisAliasIndex,
+                    String.valueOf(rpslObject.getObjectId())).doc(rpslObject);
+
+            client.update(updateRequest, RequestOptions.DEFAULT);
         } catch (Exception ioe) {
             LOGGER.error("Failed to ES index {}: {}", rpslObject.getKey(), ioe);
         }
