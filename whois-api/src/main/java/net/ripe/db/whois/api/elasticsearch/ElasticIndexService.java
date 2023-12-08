@@ -100,7 +100,8 @@ public class ElasticIndexService {
 
         try {
             LOGGER.error("GETTING");
-            final boolean exists = client.exists(new GetRequest(String.valueOf(rpslObject.getObjectId())),
+            final boolean exists = client.exists(new GetRequest(whoisAliasIndex,
+                            String.valueOf(rpslObject.getObjectId())),
                     RequestOptions.DEFAULT);
             LOGGER.error("GET REPONSE WITH {}", exists);
             if (exists) {
