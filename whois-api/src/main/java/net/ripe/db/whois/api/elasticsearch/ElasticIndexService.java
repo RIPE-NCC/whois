@@ -93,21 +93,21 @@ public class ElasticIndexService {
     }
 
     protected void updateIndex(final RpslObject rpslObject){
-        LOGGER.info("UPDATE INDEX");
+        LOGGER.error("UPDATE INDEX");
         if (!isElasticRunning()) {
             return;
         }
 
         try {
-            LOGGER.info("GETTING");
-            final GetResponse getResponse = client.get(new GetRequest().id(String.valueOf(rpslObject.getObjectId())),
+            LOGGER.error("GETTING");
+            final boolean exists = client.exists(new GetRequest(String.valueOf(rpslObject.getObjectId())),
                     RequestOptions.DEFAULT);
-            LOGGER.info("GET REPONSE WITH {}", getResponse.isExists());
-            if (getResponse.isExists()) {
-                LOGGER.info("Updating doc {}", rpslObject.getObjectId());
+            LOGGER.error("GET REPONSE WITH {}", exists);
+            if (exists) {
+                LOGGER.error("Updating doc {}", rpslObject.getObjectId());
                 updateEntry(rpslObject);
             } else {
-                LOGGER.info("Adding doc {}", rpslObject.getObjectId());
+                LOGGER.error("Adding doc {}", rpslObject.getObjectId());
                 addEntry(rpslObject);
             }
         } catch (Exception ioe) {
