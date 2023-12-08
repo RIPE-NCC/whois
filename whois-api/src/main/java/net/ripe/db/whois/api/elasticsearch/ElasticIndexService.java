@@ -92,38 +92,38 @@ public class ElasticIndexService {
         return true;
     }
 
-    protected void updateIndex(final RpslObject rpslObject) throws IOException{
+    protected void updateIndex(final RpslObject rpslObject){
         if (!isElasticRunning()) {
             return;
         }
 
-        if(client.get(new GetRequest().id(String.valueOf(rpslObject.getObjectId())), RequestOptions.DEFAULT).isExists()){
-            updateEntry(rpslObject);
-        } else {
-            addEntry(rpslObject);
+        try {
+            final GetResponse getResponse = client.get(new GetRequest().id(String.valueOf(rpslObject.getObjectId())),
+                    RequestOptions.DEFAULT);
+            
+            if (getResponse.isExists()) {
+                LOGGER.info("Updating doc {}", rpslObject.getObjectId());
+                updateEntry(rpslObject);
+            } else {
+                LOGGER.info("Adding doc {}", rpslObject.getObjectId());
+                addEntry(rpslObject);
+            }
+        } catch (Exception ioe) {
+            LOGGER.error("Failed to ES index {}: {}", rpslObject.getKey(), ioe);
         }
 
     }
     protected void addEntry(final RpslObject rpslObject) throws IOException {
-        try {
-            final IndexRequest request = new IndexRequest(whoisAliasIndex);
-            request.id(String.valueOf(rpslObject.getObjectId()));
-            request.source(json(rpslObject));
-            client.index(request, RequestOptions.DEFAULT);
-        } catch (Exception ioe) {
-            LOGGER.error("Failed to ES index {}: {}", rpslObject.getKey(), ioe);
-        }
+        final IndexRequest request = new IndexRequest(whoisAliasIndex);
+        request.id(String.valueOf(rpslObject.getObjectId()));
+        request.source(json(rpslObject));
+        client.index(request, RequestOptions.DEFAULT);
     }
 
-    protected void updateEntry(final RpslObject rpslObject) {
-        try {
-            UpdateRequest updateRequest = new UpdateRequest(whoisAliasIndex,
-                    String.valueOf(rpslObject.getObjectId())).doc(rpslObject);
-
-            client.update(updateRequest, RequestOptions.DEFAULT);
-        } catch (Exception ioe) {
-            LOGGER.error("Failed to ES index {}: {}", rpslObject.getKey(), ioe);
-        }
+    protected void updateEntry(final RpslObject rpslObject) throws IOException{
+        final UpdateRequest updateRequest = new UpdateRequest(whoisAliasIndex,
+                String.valueOf(rpslObject.getObjectId())).doc(rpslObject);
+        client.update(updateRequest, RequestOptions.DEFAULT);
     }
 
     protected void deleteEntry(final int objectId) {
