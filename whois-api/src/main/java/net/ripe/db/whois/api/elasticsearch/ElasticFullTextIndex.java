@@ -101,8 +101,14 @@ public class ElasticFullTextIndex {
             final RpslObject rpslObject = serialEntry.getRpslObject();
 
             switch (serialEntry.getOperation()) {
-                case UPDATE -> elasticIndexService.updateIndex(rpslObject);
-                case DELETE -> elasticIndexService.deleteEntry(rpslObject.getObjectId());
+                case UPDATE -> {
+                    LOGGER.info("UPDATING");
+                    elasticIndexService.updateIndex(rpslObject);
+                }
+                case DELETE -> {
+                    LOGGER.info("DELETING");
+                    elasticIndexService.deleteEntry(rpslObject.getObjectId());
+                }
             }
         }
 

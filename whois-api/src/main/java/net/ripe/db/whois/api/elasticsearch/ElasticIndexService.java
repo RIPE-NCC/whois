@@ -93,13 +93,16 @@ public class ElasticIndexService {
     }
 
     protected void updateIndex(final RpslObject rpslObject){
+        LOGGER.info("UPDATE INDEX");
         if (!isElasticRunning()) {
             return;
         }
 
         try {
+            LOGGER.info("GETTING");
             final GetResponse getResponse = client.get(new GetRequest().id(String.valueOf(rpslObject.getObjectId())),
                     RequestOptions.DEFAULT);
+            LOGGER.info("GET REPONSE WITH {}", getResponse.isExists());
             if (getResponse.isExists()) {
                 LOGGER.info("Updating doc {}", rpslObject.getObjectId());
                 updateEntry(rpslObject);
