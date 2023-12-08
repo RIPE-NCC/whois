@@ -19,8 +19,6 @@ import org.springframework.stereotype.Component;
 
 import javax.sql.DataSource;
 import java.io.IOException;
-import java.net.InetAddress;
-import java.net.UnknownHostException;
 import java.util.Map;
 
 // TODO [DA] Lucene implementation has some mechanism around thread safety. check if that is also necessary
@@ -58,7 +56,7 @@ public class ElasticFullTextIndex {
             LOGGER.error("Elasticsearch is not enabled");
             return;
         }
-        LOGGER.info("started scheduled job for elastic search indexes in {} host", getHostName());
+        LOGGER.info("started scheduled job for elastic search indexes in {} host", System.getProperty("instance.name"));
         try {
             update();
         } catch (DataAccessException | IOException | IllegalStateException e) {
@@ -66,15 +64,6 @@ public class ElasticFullTextIndex {
         }
 
         LOGGER.info("Completed updating Elasticsearch indexes");
-    }
-
-    private String getHostName() {
-        try {
-            return InetAddress.getLocalHost().getHostName();
-        } catch (UnknownHostException ignored) {
-            LOGGER.debug("{}: {}", ignored.getClass().getName(), ignored.getMessage());
-            throw new RuntimeException();
-        }
     }
 
     protected void update() throws IOException {
