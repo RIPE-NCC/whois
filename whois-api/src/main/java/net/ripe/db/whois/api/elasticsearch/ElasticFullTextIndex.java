@@ -19,6 +19,8 @@ import org.springframework.stereotype.Component;
 
 import javax.sql.DataSource;
 import java.io.IOException;
+import java.net.InetAddress;
+import java.net.UnknownHostException;
 import java.util.Map;
 
 // TODO [DA] Lucene implementation has some mechanism around thread safety. check if that is also necessary
@@ -56,8 +58,7 @@ public class ElasticFullTextIndex {
             LOGGER.error("Elasticsearch is not enabled");
             return;
         }
-
-        LOGGER.info("started scheduled job for  elastic search  indexes");
+        LOGGER.info("started scheduled job for elastic search indexes in {} host", getHostName());
         try {
             update();
         } catch (DataAccessException | IOException | IllegalStateException e) {
@@ -65,6 +66,14 @@ public class ElasticFullTextIndex {
         }
 
         LOGGER.info("Completed updating Elasticsearch indexes");
+    }
+
+    private String getHostName() {
+        try {
+            return InetAddress.getLocalHost().getHostName();
+        } catch (UnknownHostException ignored) {
+            LOGGER.debug("{}: {}", ignored.getClass().getName(), ignored.getMessage());
+        }
     }
 
     protected void update() throws IOException {
@@ -92,22 +101,19 @@ public class ElasticFullTextIndex {
         final Stopwatch stopwatch = Stopwatch.createStarted();
 
         for (int serial = esSerialId + 1; serial <= dbMaxSerialId; serial++) {
-          final SerialEntry serialEntry = getSerialEntry(serial);
-          if (serialEntry == null) {
-              // suboptimal;there could be big gaps in serial entries.
-             continue;
-          }
+            final SerialEntry serialEntry = getSerialEntry(serial);
+            if (serialEntry == null) {
+                // suboptimal;there could be big gaps in serial entries.
+                continue;
+            }
 
-        final RpslObject rpslObject = serialEntry.getRpslObject();
+            final RpslObject rpslObject = serialEntry.getRpslObject();
 
-        switch (serialEntry.getOperation()) {
-            case UPDATE:
-                //indexService.deleteEntry(rpslObject.getObjectId());
-                elasticIndexService.addEntry(rpslObject);
-                break;
-            case DELETE:
-                elasticIndexService.deleteEntry(rpslObject.getObjectId());
-                break;
+            switch (serialEntry.getOperation()) {
+                case UPDATE ->
+                    //indexService.deleteEntry(rpslObject.getObjectId());
+                        elasticIndexService.addEntry(rpslObject);
+                case DELETE -> elasticIndexService.deleteEntry(rpslObject.getObjectId());
             }
         }
 
