@@ -100,7 +100,6 @@ public class ElasticIndexService {
         try {
             final GetResponse getResponse = client.get(new GetRequest().id(String.valueOf(rpslObject.getObjectId())),
                     RequestOptions.DEFAULT);
-            
             if (getResponse.isExists()) {
                 LOGGER.info("Updating doc {}", rpslObject.getObjectId());
                 updateEntry(rpslObject);
