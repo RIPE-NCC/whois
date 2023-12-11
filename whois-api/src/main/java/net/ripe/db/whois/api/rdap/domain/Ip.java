@@ -20,7 +20,7 @@ import java.util.List;
     "type",
     "country",
     "parentHandle",
-    "cidr0_cidrs", 
+    "cidr0_cidrs",
     "geofeedv1_geofeed"
 })
 @XmlRootElement(name = "ip")
