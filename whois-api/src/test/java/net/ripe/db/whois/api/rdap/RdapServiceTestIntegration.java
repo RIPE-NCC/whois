@@ -237,8 +237,8 @@ public class RdapServiceTestIntegration extends AbstractRdapIntegrationTest {
         assertThat(ip.getStatus(), contains("reserved"));
 
         assertThat(ip.getPort43(), is("whois.ripe.net"));
-        assertThat(ip.getRdapConformance(), hasSize(4));
-        assertThat(ip.getRdapConformance(), containsInAnyOrder("rdap_level_0", "cidr0", "nro_rdap_profile_0", "redacted"));
+        assertThat(ip.getRdapConformance(), hasSize(5));
+        assertThat(ip.getRdapConformance(), containsInAnyOrder("rdap_level_0", "cidr0", "nro_rdap_profile_0", "redacted", "geofeedv1"));
 
 
         final List<Remark> remarks = ip.getRemarks();
@@ -690,7 +690,7 @@ public class RdapServiceTestIntegration extends AbstractRdapIntegrationTest {
         assertThat(ip.getCidr0_cidrs().get(1).getLength(), is(23));
 
         assertThat(ip.getRdapConformance(), containsInAnyOrder("cidr0", "rdap_level_0", "nro_rdap_profile_0",
-                "redacted"));
+                "redacted", "geofeedv1"));
 
         var notices = ip.getNotices();
         var inaccuracyNotice = notices.get(1);
@@ -826,8 +826,8 @@ public class RdapServiceTestIntegration extends AbstractRdapIntegrationTest {
         assertThat(ip.getCidr0_cidrs().get(0).getLength(), is(48));
 
         assertThat(ip.getPort43(), is("whois.ripe.net"));
-        assertThat(ip.getRdapConformance(), hasSize(4));
-        assertThat(ip.getRdapConformance(), containsInAnyOrder("rdap_level_0", "cidr0", "nro_rdap_profile_0", "redacted"));
+        assertThat(ip.getRdapConformance(), hasSize(5));
+        assertThat(ip.getRdapConformance(), containsInAnyOrder("rdap_level_0", "cidr0", "nro_rdap_profile_0", "redacted", "geofeedv1"));
 
         final List<Remark> remarks = ip.getRemarks();
         assertThat(remarks, hasSize(1));
@@ -3113,9 +3113,9 @@ public class RdapServiceTestIntegration extends AbstractRdapIntegrationTest {
                 .get(RdapObject.class);
 
         assertThat(help.getPort43(), is("whois.ripe.net"));
-        assertThat(help.getRdapConformance(), hasSize(5));
+        assertThat(help.getRdapConformance(), hasSize(6));
         assertThat(help.getRdapConformance(), containsInAnyOrder("cidr0", "rdap_level_0", "nro_rdap_profile_0",
-                "nro_rdap_profile_asn_flat_0", "redacted"));
+                "nro_rdap_profile_asn_flat_0", "redacted", "geofeedv1"));
 
         final List<Notice> notices = help.getNotices();
         assertThat(notices, hasSize(1));
