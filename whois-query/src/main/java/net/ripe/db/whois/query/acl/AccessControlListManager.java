@@ -123,17 +123,16 @@ public class AccessControlListManager {
     }
 
     private String getUserName(final String ssoToken) {
+
         if( !isSSOAccountingEnabled || StringUtils.isEmpty(ssoToken)) {
             return null;
         }
 
         try {
-            final UserSession userSession = ssoTokenTranslator.translateSsoToken(ssoToken);
-            if(userSession != null && !StringUtils.isEmpty(userSession.getUsername())) {
-                return userSession.getUsername();
-            }
+
+            throw new AuthServiceClientException(503, "tetsing eception");
         } catch (AuthServiceClientException e) {
-            LOGGER.warn("Cannot translate ssoToken, will account by remoteAddr", e.getMessage());
+            LOGGER.warn("Cannot translate ssoToken, will account by remoteAddr due to {}", e.getMessage());
         }
 
         return null;
