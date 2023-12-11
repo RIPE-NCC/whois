@@ -12,6 +12,7 @@ import org.elasticsearch.action.delete.DeleteRequest;
 import org.elasticsearch.action.get.GetRequest;
 import org.elasticsearch.action.get.GetResponse;
 import org.elasticsearch.action.index.IndexRequest;
+import org.elasticsearch.action.index.IndexResponse;
 import org.elasticsearch.action.update.UpdateRequest;
 import org.elasticsearch.client.RequestOptions;
 import org.elasticsearch.client.RestHighLevelClient;
@@ -20,7 +21,6 @@ import org.elasticsearch.client.core.CountResponse;
 import org.elasticsearch.client.indices.GetIndexRequest;
 import org.elasticsearch.common.xcontent.XContentBuilder;
 import org.elasticsearch.common.xcontent.XContentFactory;
-import org.elasticsearch.common.xcontent.XContentType;
 import org.elasticsearch.index.query.QueryBuilders;
 import org.elasticsearch.index.reindex.DeleteByQueryRequest;
 import org.elasticsearch.search.builder.SearchSourceBuilder;
@@ -92,37 +92,17 @@ public class ElasticIndexService {
 
         return true;
     }
-
-    protected void updateIndex(final RpslObject rpslObject){
+    
+    protected void addEntry(final RpslObject rpslObject) throws IOException {
         if (!isElasticRunning()) {
             return;
         }
 
-        try {
-            final boolean exists = client.exists(new GetRequest(whoisAliasIndex, String.valueOf(rpslObject.getObjectId())),
-                    RequestOptions.DEFAULT);
-            if (exists) {
-                LOGGER.error("Updating doc {}", rpslObject.getObjectId());
-                updateEntry(rpslObject);
-            } else {
-                addEntry(rpslObject);
-            }
-        } catch (Exception ioe) {
-            LOGGER.error("Failed to ES index {}: {}", rpslObject.getKey(), ioe);
-        }
-
-    }
-    protected void addEntry(final RpslObject rpslObject) throws IOException {
         final IndexRequest request = new IndexRequest(whoisAliasIndex);
         request.id(String.valueOf(rpslObject.getObjectId()));
         request.source(json(rpslObject));
-        client.index(request, RequestOptions.DEFAULT);
-    }
-
-    protected void updateEntry(final RpslObject rpslObject) throws IOException{
-        final UpdateRequest updateRequest = new UpdateRequest(whoisAliasIndex,
-                String.valueOf(rpslObject.getObjectId())).doc(rpslObject, XContentType.JSON);
-        client.update(updateRequest, RequestOptions.DEFAULT);
+        IndexResponse indexResponse = client.index(request, RequestOptions.DEFAULT);
+        LOGGER.error("Index Response: {} ", indexResponse.getResult() );
     }
 
     protected void deleteEntry(final int objectId) {

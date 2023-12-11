@@ -103,7 +103,7 @@ public class ElasticFullTextIndex {
             switch (serialEntry.getOperation()) {
                 case UPDATE -> {
                     LOGGER.info("UPDATING");
-                    elasticIndexService.updateIndex(rpslObject);
+                    elasticIndexService.addEntry(rpslObject);
                 }
                 case DELETE -> {
                     LOGGER.info("DELETING");
