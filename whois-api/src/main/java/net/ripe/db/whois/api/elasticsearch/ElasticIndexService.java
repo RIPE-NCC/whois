@@ -22,7 +22,6 @@ import org.elasticsearch.common.xcontent.XContentBuilder;
 import org.elasticsearch.common.xcontent.XContentFactory;
 import org.elasticsearch.index.query.QueryBuilders;
 import org.elasticsearch.index.reindex.DeleteByQueryRequest;
-import org.elasticsearch.search.builder.SearchSourceBuilder;
 import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -133,10 +132,6 @@ public class ElasticIndexService {
         }
 
         final CountRequest countRequest = new CountRequest(whoisAliasIndex);
-        final SearchSourceBuilder searchSourceBuilder = new SearchSourceBuilder();
-        searchSourceBuilder.query(QueryBuilders.matchAllQuery());
-        countRequest.source(searchSourceBuilder);
-
         final CountResponse countResponse = client.count(countRequest, RequestOptions.DEFAULT);
         return countResponse.getCount();
     }

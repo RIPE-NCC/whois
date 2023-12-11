@@ -91,6 +91,7 @@ public class ElasticFullTextIndex {
         LOGGER.info("Index serial ({}) lower than database serial ({}), updating", esSerialId, dbMaxSerialId);
         final Stopwatch stopwatch = Stopwatch.createStarted();
 
+        LOGGER.error("Initial number of docs in the index {}", elasticIndexService.getWhoisDocCount());
         for (int serial = esSerialId + 1; serial <= dbMaxSerialId; serial++) {
             final SerialEntry serialEntry = getSerialEntry(serial);
             if (serialEntry == null) {
@@ -101,10 +102,14 @@ public class ElasticFullTextIndex {
             final RpslObject rpslObject = serialEntry.getRpslObject();
 
             switch (serialEntry.getOperation()) {
-                case UPDATE -> elasticIndexService.updateIfExistCreateIfNot(rpslObject);
+                case UPDATE -> {
+                    LOGGER.error("UPDATE/CREATE");
+                    elasticIndexService.updateIfExistCreateIfNot(rpslObject);
+                }
                 case DELETE -> elasticIndexService.deleteEntry(rpslObject.getObjectId());
             }
         }
+        LOGGER.error("Final number of docs in the index {}", elasticIndexService.getWhoisDocCount());
 
         LOGGER.debug("Updated index in {}", stopwatch.stop());
         elasticIndexService.updateMetadata(new ElasticIndexMetadata(dbMaxSerialId, source));
