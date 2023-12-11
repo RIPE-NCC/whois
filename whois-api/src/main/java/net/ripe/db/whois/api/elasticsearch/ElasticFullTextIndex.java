@@ -109,9 +109,13 @@ public class ElasticFullTextIndex {
                 case DELETE -> elasticIndexService.deleteEntry(rpslObject.getObjectId());
             }
         }
+
+        elasticIndexService.refreshIndex();
         LOGGER.error("Final number of docs in the index {}", elasticIndexService.getWhoisDocCount());
 
         LOGGER.debug("Updated index in {}", stopwatch.stop());
+
+
         elasticIndexService.updateMetadata(new ElasticIndexMetadata(dbMaxSerialId, source));
 
         final int countInDb = ((int) maxSerialIdWithObjectCount.values().toArray()[0]);

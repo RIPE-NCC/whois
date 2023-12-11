@@ -8,6 +8,7 @@ import net.ripe.db.whois.common.rpsl.AttributeType;
 import net.ripe.db.whois.common.rpsl.ObjectTemplate;
 import net.ripe.db.whois.common.rpsl.RpslAttribute;
 import net.ripe.db.whois.common.rpsl.RpslObject;
+import org.elasticsearch.action.admin.indices.refresh.RefreshRequest;
 import org.elasticsearch.action.delete.DeleteRequest;
 import org.elasticsearch.action.get.GetRequest;
 import org.elasticsearch.action.get.GetResponse;
@@ -124,6 +125,14 @@ public class ElasticIndexService {
         request.setQuery(QueryBuilders.matchAllQuery());
 
         client.deleteByQuery(request, RequestOptions.DEFAULT);
+    }
+
+    protected void refreshIndex(){
+        try {
+            client.indices().refresh(new RefreshRequest(whoisAliasIndex), RequestOptions.DEFAULT);
+        } catch (IOException ex){
+            throw new IllegalStateException(ex);
+        }
     }
 
     protected long getWhoisDocCount() throws IOException {
