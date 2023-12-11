@@ -7,5 +7,5 @@ public interface PersonalAccountingManager {
      void accountPersonalObjects(final int amount);
 
      void blockTemporary(final int limit);
-    int getPersonalDataLimit();
+     int getPersonalDataLimit();
 }

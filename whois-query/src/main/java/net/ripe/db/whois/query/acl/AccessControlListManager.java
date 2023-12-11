@@ -142,7 +142,7 @@ public class AccessControlListManager {
     /**
      * Account for the ResponseObject given
      *
-     * @param accountingIdentifier The remote address and ssoken
+     * @param accountingIdentifier The remote address and ssoTken
      * @param amount        The amount of personal objects accounted.
      */
     public void accountPersonalObjects(final AccountingIdentifier accountingIdentifier, final int amount) {
@@ -154,7 +154,7 @@ public class AccessControlListManager {
         accountingManager.accountPersonalObjects(amount);
     }
 
-    public class SSOAccountingManager implements PersonalAccountingManager {
+    private class SSOAccountingManager implements PersonalAccountingManager {
         private final String userName;
 
         public SSOAccountingManager(final String userName) {
@@ -191,7 +191,7 @@ public class AccessControlListManager {
         }
     }
 
-    public class RemoteAddrAccountingManager implements PersonalAccountingManager {
+    private class RemoteAddrAccountingManager implements PersonalAccountingManager {
         private final InetAddress remoteAddress;
         private final InetAddress maskedAddress;
 

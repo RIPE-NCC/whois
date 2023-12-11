@@ -86,6 +86,10 @@ public class HazelcastPersonalObjectAccounting implements PersonalObjectAccounti
 
     @Override
     public int accountPersonalObject(final String ssoId, final int amount) {
+        return accountForId(ssoId, amount);
+    }
+
+    private int accountForId(final String ssoId, final int amount) {
         boolean isLocked = false;
 
         try {
