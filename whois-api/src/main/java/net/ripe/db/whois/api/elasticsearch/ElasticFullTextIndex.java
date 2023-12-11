@@ -101,14 +101,8 @@ public class ElasticFullTextIndex {
             final RpslObject rpslObject = serialEntry.getRpslObject();
 
             switch (serialEntry.getOperation()) {
-                case UPDATE -> {
-                    LOGGER.info("UPDATING");
-                    elasticIndexService.addEntry(rpslObject);
-                }
-                case DELETE -> {
-                    LOGGER.info("DELETING");
-                    elasticIndexService.deleteEntry(rpslObject.getObjectId());
-                }
+                case UPDATE -> elasticIndexService.updateIfExistCreateIfNot(rpslObject);
+                case DELETE -> elasticIndexService.deleteEntry(rpslObject.getObjectId());
             }
         }
 
@@ -117,7 +111,7 @@ public class ElasticFullTextIndex {
 
         final int countInDb = ((int) maxSerialIdWithObjectCount.values().toArray()[0]);
         final long countInES = elasticIndexService.getWhoisDocCount();
-        if(countInES != countInDb) {
+        if (countInES != countInDb) {
             LOGGER.error(String.format("Number of objects in DB (%s) does not match to number of objects indexed in ES (%s) for serialId (%s)", countInDb, countInES, dbMaxSerialId));
         }
     }

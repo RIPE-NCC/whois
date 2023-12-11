@@ -187,7 +187,7 @@ public abstract class AbstractElasticSearchIntegrationTest extends AbstractInteg
             }
 
             try {
-                elasticIndexService.addEntry(rpslObject);
+                elasticIndexService.updateIfExistCreateIfNot(rpslObject);
             } catch (IOException e) {
                 throw new IllegalStateException("Indexing", e);
             }

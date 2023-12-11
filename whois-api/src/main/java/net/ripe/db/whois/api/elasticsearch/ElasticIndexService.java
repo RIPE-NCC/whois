@@ -12,7 +12,6 @@ import org.elasticsearch.action.delete.DeleteRequest;
 import org.elasticsearch.action.get.GetRequest;
 import org.elasticsearch.action.get.GetResponse;
 import org.elasticsearch.action.index.IndexRequest;
-import org.elasticsearch.action.index.IndexResponse;
 import org.elasticsearch.action.update.UpdateRequest;
 import org.elasticsearch.client.RequestOptions;
 import org.elasticsearch.client.RestHighLevelClient;
@@ -92,8 +91,8 @@ public class ElasticIndexService {
 
         return true;
     }
-    
-    protected void addEntry(final RpslObject rpslObject) throws IOException {
+
+    protected void updateIfExistCreateIfNot(final RpslObject rpslObject) throws IOException {
         if (!isElasticRunning()) {
             return;
         }
@@ -101,8 +100,7 @@ public class ElasticIndexService {
         final IndexRequest request = new IndexRequest(whoisAliasIndex);
         request.id(String.valueOf(rpslObject.getObjectId()));
         request.source(json(rpslObject));
-        IndexResponse indexResponse = client.index(request, RequestOptions.DEFAULT);
-        LOGGER.error("Index Response: {} ", indexResponse.getResult() );
+        client.index(request, RequestOptions.DEFAULT);
     }
 
     protected void deleteEntry(final int objectId) {
@@ -137,6 +135,8 @@ public class ElasticIndexService {
         final CountRequest countRequest = new CountRequest(whoisAliasIndex);
         final SearchSourceBuilder searchSourceBuilder = new SearchSourceBuilder();
         searchSourceBuilder.query(QueryBuilders.matchAllQuery());
+        countRequest.source(searchSourceBuilder);
+
         final CountResponse countResponse = client.count(countRequest, RequestOptions.DEFAULT);
         return countResponse.getCount();
     }
