@@ -11,6 +11,7 @@ import net.ripe.commons.ip.AbstractIpRange;
 import net.ripe.commons.ip.Ipv4Range;
 import net.ripe.commons.ip.Ipv6Range;
 import net.ripe.db.whois.api.TopLevelFilter;
+import net.ripe.db.whois.api.elasticsearch.ElasticIndexService;
 import net.ripe.db.whois.api.rdap.domain.Action;
 import net.ripe.db.whois.api.rdap.domain.Autnum;
 import net.ripe.db.whois.api.rdap.domain.Domain;
@@ -51,6 +52,7 @@ import net.ripe.db.whois.query.planner.AbuseContact;
 import net.ripe.db.whois.update.domain.ReservedResources;
 import org.apache.commons.lang.StringUtils;
 import org.eclipse.jetty.http.HttpStatus;
+import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
@@ -61,14 +63,17 @@ import javax.annotation.Nullable;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import static net.ripe.db.whois.api.rdap.RdapConformance.GEO_FEED_V1;
 import static net.ripe.db.whois.api.rdap.RedactionObjectMapper.RDAP_VCARD_REDACTED_ATTRIBUTES;
 import static net.ripe.db.whois.api.rdap.RedactionObjectMapper.mapRedactions;
 import static net.ripe.db.whois.api.rdap.domain.Status.ACTIVE;
@@ -80,8 +85,10 @@ import static net.ripe.db.whois.common.rpsl.AttributeType.ABUSE_MAILBOX;
 import static net.ripe.db.whois.common.rpsl.AttributeType.ADDRESS;
 import static net.ripe.db.whois.common.rpsl.AttributeType.ADMIN_C;
 import static net.ripe.db.whois.common.rpsl.AttributeType.COUNTRY;
+import static net.ripe.db.whois.common.rpsl.AttributeType.DESCR;
 import static net.ripe.db.whois.common.rpsl.AttributeType.DS_RDATA;
 import static net.ripe.db.whois.common.rpsl.AttributeType.FAX_NO;
+import static net.ripe.db.whois.common.rpsl.AttributeType.GEOFEED;
 import static net.ripe.db.whois.common.rpsl.AttributeType.GEOLOC;
 import static net.ripe.db.whois.common.rpsl.AttributeType.IRT;
 import static net.ripe.db.whois.common.rpsl.AttributeType.LANGUAGE;
@@ -91,17 +98,20 @@ import static net.ripe.db.whois.common.rpsl.AttributeType.ORG;
 import static net.ripe.db.whois.common.rpsl.AttributeType.ORG_NAME;
 import static net.ripe.db.whois.common.rpsl.AttributeType.PERSON;
 import static net.ripe.db.whois.common.rpsl.AttributeType.PHONE;
+import static net.ripe.db.whois.common.rpsl.AttributeType.REMARKS;
 import static net.ripe.db.whois.common.rpsl.AttributeType.ROLE;
 import static net.ripe.db.whois.common.rpsl.AttributeType.TECH_C;
 import static net.ripe.db.whois.common.rpsl.AttributeType.ZONE_C;
 import static net.ripe.db.whois.common.rpsl.ObjectType.DOMAIN;
 import static net.ripe.db.whois.common.rpsl.ObjectType.INET6NUM;
+import static org.slf4j.LoggerFactory.getLogger;
 
 @Component
 class RdapObjectMapper {
 
     private static final String TERMS_AND_CONDITIONS = "http://www.ripe.net/data-tools/support/documentation/terms";
     private static final Link COPYRIGHT_LINK = new Link(TERMS_AND_CONDITIONS, "copyright", TERMS_AND_CONDITIONS, null, null);
+    private static final Logger LOGGER = getLogger(RdapObjectMapper.class);
 
     private final NoticeFactory noticeFactory;
     private final RpslObjectDao rpslObjectDao;
@@ -366,6 +376,8 @@ class RdapObjectMapper {
         if(language != null) {
             ip.setLang(language);
         }
+
+        setGeoFeed(rpslObject, ip);
 
         this.mapContactEntities(ip, rpslObject, requestUrl);
         return ip;
@@ -681,5 +693,26 @@ class RdapObjectMapper {
         }
 
         return attributes.get(0).getCleanValue().toString();
+    }
+
+    private static void setGeoFeed(final RpslObject rpslObject, final Ip ip) {
+        ip.getRdapConformance().add(GEO_FEED_V1.getValue());
+
+        if(rpslObject.containsAttribute(GEOFEED)) {
+            ip.setGeofeedv1_geofeed(rpslObject.getValueForAttribute(GEOFEED).toString());
+            return;
+        }
+
+        final Optional<RpslAttribute> geoFeedAttribute = rpslObject.findAttributes(DESCR, REMARKS).stream().filter(rpslAttribute -> (rpslAttribute.getCleanValue().toUpperCase()).startsWith(GEOFEED.getName().toUpperCase())).findFirst();
+        geoFeedAttribute.ifPresent(rpslAttribute -> {
+
+            final String[] geoFeed = rpslAttribute.getCleanValue().toString().split(" ");
+            if(geoFeed.length < 2) {
+                LOGGER.warn("Seems like geo feed is not set properly for object {}", rpslObject.getKey());
+                return;
+            }
+
+            ip.setGeofeedv1_geofeed(geoFeed[1]);
+        });
     }
 }
