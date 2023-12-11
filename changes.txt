@@ -1,5 +1,9 @@
 # next
 
+# 1.109.1
+
+[rdap] Organisation RDAP Object is Assumed to be an IP on Country Attribute (#1362)
+
 # 1.109
 
 [rdap] Rdap redaction (#1317)
