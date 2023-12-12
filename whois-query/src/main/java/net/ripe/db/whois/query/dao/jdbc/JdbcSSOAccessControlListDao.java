@@ -52,7 +52,7 @@ public class JdbcSSOAccessControlListDao implements SSOAccessControlListDao {
                     type.name()
             );
         } catch (DataIntegrityViolationException e) {
-            LOGGER.debug("Attempt to create temporary block twice: prefix {}, date {}", ssoId, date);
+            LOGGER.debug("Attempt to create temporary block twice: sso_id {}, date {}", ssoId, date);
         }
     }
 
@@ -62,15 +62,15 @@ public class JdbcSSOAccessControlListDao implements SSOAccessControlListDao {
         public List<BlockEvents> extractData(final ResultSet rs) throws SQLException, DataAccessException {
             final Map<String, List<BlockEvent>> blockEventsMap = new HashMap<>();
             while (rs.next()) {
-                final String prefix = rs.getString("sso_id");
+                final String ssoId = rs.getString("sso_id");
                 final LocalDateTime time = Timestamp.from(rs.getTimestamp("event_time")).toLocalDateTime();
                 final int limit = rs.getInt("daily_limit");
                 final BlockEvent.Type type = BlockEvent.Type.valueOf(rs.getString("event_type"));
 
-                List<BlockEvent> blockEvents = blockEventsMap.get(prefix);
+                List<BlockEvent> blockEvents = blockEventsMap.get(ssoId);
                 if (blockEvents == null) {
                     blockEvents = new ArrayList<>();
-                    blockEventsMap.put(prefix, blockEvents);
+                    blockEventsMap.put(ssoId, blockEvents);
                 }
                 blockEvents.add(new BlockEvent(time, limit, type));
             }
@@ -87,7 +87,7 @@ public class JdbcSSOAccessControlListDao implements SSOAccessControlListDao {
     @Override
     public List<BlockEvents> getTemporaryBlocks(final LocalDate blockTime) {
         return jdbcTemplate.query(
-                "SELECT sso_id, event_time, daily_limit, event_type FROM acl_sso_event WHERE event_time >= ? ORDER BY prefix, event_time ASC",
+                "SELECT sso_id, event_time, daily_limit, event_type FROM acl_sso_event WHERE event_time >= ? ORDER BY sso_id, event_time ASC",
                 new BlockEventsExtractor(),
                 DateUtil.toDate(blockTime)
         );
