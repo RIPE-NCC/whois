@@ -105,6 +105,27 @@ public class Query {
         }
     }
 
+    public static Query parse(final String args, final String ssoToken, final Origin origin, final boolean trusted) {
+        try {
+            final Query query = new Query(args.trim(), origin, trusted);
+            query.ssoToken = ssoToken;
+
+            for (final QueryValidator queryValidator : QUERY_VALIDATORS) {
+                queryValidator.validate(query, query.messages);
+            }
+
+            final Collection<Message> errors = query.messages.getMessages(Messages.Type.ERROR);
+            if (!errors.isEmpty()) {
+                throw new QueryException(QueryCompletionInfo.PARAMETER_ERROR, errors);
+            }
+
+            return query;
+        } catch (OptionException e) {
+            throw new QueryException(QueryCompletionInfo.PARAMETER_ERROR, QueryMessages.malformedQuery());
+        }
+    }
+
+
     public static Query parse(final String args, final String ssoToken, final List<String> passwords, final boolean trusted) {
         final Query query = parse(args, Origin.REST, trusted);
         query.ssoToken = ssoToken;

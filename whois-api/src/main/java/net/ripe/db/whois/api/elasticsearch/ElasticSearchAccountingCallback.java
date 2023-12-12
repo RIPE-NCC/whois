@@ -16,6 +16,7 @@ public abstract class ElasticSearchAccountingCallback<T> {
 
     private final AccessControlListManager accessControlListManager;
     private final InetAddress remoteAddress;
+    private final String ssoToken;
     private final Source source;
 
     private int accountingLimit = -1;
@@ -25,9 +26,11 @@ public abstract class ElasticSearchAccountingCallback<T> {
 
     public ElasticSearchAccountingCallback(final AccessControlListManager accessControlListManager,
                                            final String remoteAddress,
+                                           final String ssoToken,
                                            final Source source) {
         this.accessControlListManager = accessControlListManager;
         this.remoteAddress = InetAddresses.forString(remoteAddress);
+        this.ssoToken = ssoToken;
         this.enabled = !accessControlListManager.isUnlimited(this.remoteAddress);
         this.source = source;
     }
@@ -61,6 +64,6 @@ public abstract class ElasticSearchAccountingCallback<T> {
     }
 
     private AccountingIdentifier getAccountingIdentifier() {
-        return new AccountingIdentifier(remoteAddress, null);
+        return new AccountingIdentifier(remoteAddress, ssoToken);
     }
 }
