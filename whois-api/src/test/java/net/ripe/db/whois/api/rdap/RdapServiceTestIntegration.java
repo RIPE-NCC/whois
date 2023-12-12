@@ -54,6 +54,7 @@ import static org.hamcrest.Matchers.containsInAnyOrder;
 import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.empty;
 import static org.hamcrest.Matchers.equalTo;
+import static org.hamcrest.Matchers.hasItem;
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.not;
@@ -236,8 +237,8 @@ public class RdapServiceTestIntegration extends AbstractRdapIntegrationTest {
         assertThat(ip.getStatus(), contains("reserved"));
 
         assertThat(ip.getPort43(), is("whois.ripe.net"));
-        assertThat(ip.getRdapConformance(), hasSize(4));
-        assertThat(ip.getRdapConformance(), containsInAnyOrder("rdap_level_0", "cidr0", "nro_rdap_profile_0", "redacted"));
+        assertThat(ip.getRdapConformance(), hasSize(5));
+        assertThat(ip.getRdapConformance(), containsInAnyOrder("rdap_level_0", "cidr0", "nro_rdap_profile_0", "redacted", "geofeedv1"));
 
 
         final List<Remark> remarks = ip.getRemarks();
@@ -259,6 +260,84 @@ public class RdapServiceTestIntegration extends AbstractRdapIntegrationTest {
 
         assertTnCNotice(notices.get(2), "https://rdap.db.ripe.net/ip/192.0.2.0/24");
         assertCopyrightLink(ip.getLinks(), "https://rdap.db.ripe.net/ip/192.0.2.0/24");
+    }
+
+    @Test
+    public void lookup_inetnum_geoFeed_attribute() {
+        databaseHelper.addObject("" +
+                "inetnum:      192.0.2.0 - 192.0.2.255\n" +
+                "netname:      TEST-NET-NAME\n" +
+                "geofeed:      https://test.net/geo/test.csv\n" +
+                "descr:        TEST network\n" +
+                "country:      NL\n" +
+                "language:     en\n" +
+                "tech-c:       TP1-TEST\n" +
+                "status:       OTHER\n" +
+                "mnt-by:       OWNER-MNT\n" +
+                "created:         2022-08-14T11:48:28Z\n" +
+                "last-modified:   2022-10-25T12:22:39Z\n" +
+                "source:       TEST");
+        ipTreeUpdater.rebuild();
+
+        final Ip ip = createResource("ip/192.0.2.0/24")
+                .request(MediaType.APPLICATION_JSON_TYPE)
+                .get(Ip.class);
+
+        assertThat(ip.getHandle(), is("192.0.2.0 - 192.0.2.255"));
+        assertThat(ip.getGeofeedv1_geofeed(), is("https://test.net/geo/test.csv"));
+        assertThat(ip.getRdapConformance(), hasItem(RdapConformance.GEO_FEED_V1.getValue()));
+    }
+
+    @Test
+    public void lookup_inetnum_geoFeed_descr() {
+        databaseHelper.addObject("" +
+                "inetnum:      192.0.2.0 - 192.0.2.255\n" +
+                "netname:      TEST-NET-NAME\n" +
+                "descr:        TEST network\n" +
+                "descr:        GeoFeed https://test.net/geo/test.csv\n" +
+                "country:      NL\n" +
+                "language:     en\n" +
+                "tech-c:       TP1-TEST\n" +
+                "status:       OTHER\n" +
+                "mnt-by:       OWNER-MNT\n" +
+                "created:         2022-08-14T11:48:28Z\n" +
+                "last-modified:   2022-10-25T12:22:39Z\n" +
+                "source:       TEST");
+        ipTreeUpdater.rebuild();
+
+        final Ip ip = createResource("ip/192.0.2.0/24")
+                .request(MediaType.APPLICATION_JSON_TYPE)
+                .get(Ip.class);
+
+        assertThat(ip.getHandle(), is("192.0.2.0 - 192.0.2.255"));
+        assertThat(ip.getGeofeedv1_geofeed(), is("https://test.net/geo/test.csv"));
+        assertThat(ip.getRdapConformance(), hasItem(RdapConformance.GEO_FEED_V1.getValue()));
+    }
+
+    @Test
+    public void lookup_inetnum_geoFeed_remarks() {
+        databaseHelper.addObject("" +
+                "inetnum:      192.0.2.0 - 192.0.2.255\n" +
+                "netname:      TEST-NET-NAME\n" +
+                "descr:        TEST network\n" +
+                "remarks:      GeoFeed https://test.net/geo/test.csv\n" +
+                "country:      NL\n" +
+                "language:     en\n" +
+                "tech-c:       TP1-TEST\n" +
+                "status:       OTHER\n" +
+                "mnt-by:       OWNER-MNT\n" +
+                "created:         2022-08-14T11:48:28Z\n" +
+                "last-modified:   2022-10-25T12:22:39Z\n" +
+                "source:       TEST");
+        ipTreeUpdater.rebuild();
+
+        final Ip ip = createResource("ip/192.0.2.0/24")
+                .request(MediaType.APPLICATION_JSON_TYPE)
+                .get(Ip.class);
+
+        assertThat(ip.getHandle(), is("192.0.2.0 - 192.0.2.255"));
+        assertThat(ip.getGeofeedv1_geofeed(), is("https://test.net/geo/test.csv"));
+        assertThat(ip.getRdapConformance(), hasItem(RdapConformance.GEO_FEED_V1.getValue()));
     }
 
     @Test
@@ -611,7 +690,7 @@ public class RdapServiceTestIntegration extends AbstractRdapIntegrationTest {
         assertThat(ip.getCidr0_cidrs().get(1).getLength(), is(23));
 
         assertThat(ip.getRdapConformance(), containsInAnyOrder("cidr0", "rdap_level_0", "nro_rdap_profile_0",
-                "redacted"));
+                "redacted", "geofeedv1"));
 
         var notices = ip.getNotices();
         var inaccuracyNotice = notices.get(1);
@@ -747,8 +826,8 @@ public class RdapServiceTestIntegration extends AbstractRdapIntegrationTest {
         assertThat(ip.getCidr0_cidrs().get(0).getLength(), is(48));
 
         assertThat(ip.getPort43(), is("whois.ripe.net"));
-        assertThat(ip.getRdapConformance(), hasSize(4));
-        assertThat(ip.getRdapConformance(), containsInAnyOrder("rdap_level_0", "cidr0", "nro_rdap_profile_0", "redacted"));
+        assertThat(ip.getRdapConformance(), hasSize(5));
+        assertThat(ip.getRdapConformance(), containsInAnyOrder("rdap_level_0", "cidr0", "nro_rdap_profile_0", "redacted", "geofeedv1"));
 
         final List<Remark> remarks = ip.getRemarks();
         assertThat(remarks, hasSize(1));
@@ -766,6 +845,114 @@ public class RdapServiceTestIntegration extends AbstractRdapIntegrationTest {
 
         assertTnCNotice(notices.get(2), "https://rdap.db.ripe.net/ip/2001:2002:2003::/48");
         assertCopyrightLink(ip.getLinks(), "https://rdap.db.ripe.net/ip/2001:2002:2003::/48");
+    }
+
+    @Test
+    public void lookup_inet6num_geoFeed_attribute() {
+        databaseHelper.addObject("" +
+                "inet6num:       2001:2002:2003::/48\n" +
+                "netname:        RIPE-NCC\n" +
+                "geofeed:        https://test.net/geo/test.csv\n" +
+                "descr:          Private Network\n" +
+                "country:        NL\n" +
+                "language:       EN\n" +
+                "tech-c:         TP1-TEST\n" +
+                "status:         ASSIGNED PA\n" +
+                "mnt-by:         OWNER-MNT\n" +
+                "mnt-lower:      OWNER-MNT\n" +
+                "created:         2022-08-14T11:48:28Z\n" +
+                "last-modified:   2022-10-25T12:22:39Z\n" +
+                "source:         TEST");
+        ipTreeUpdater.rebuild();
+
+        final Ip ip = createResource("ip/2001:2002:2003::/48")
+                .request(MediaType.APPLICATION_JSON_TYPE)
+                .get(Ip.class);
+
+        assertThat(ip.getHandle(), is("2001:2002:2003::/48"));
+        assertThat(ip.getGeofeedv1_geofeed(), is("https://test.net/geo/test.csv"));
+        assertThat(ip.getRdapConformance(), hasItem(RdapConformance.GEO_FEED_V1.getValue()));
+    }
+
+    @Test
+    public void lookup_inet6num_geoFeed_remarks() {
+        databaseHelper.addObject("" +
+                "inet6num:       2001:2002:2003::/48\n" +
+                "netname:        RIPE-NCC\n" +
+                "remarks:        Geofeed https://test.net/geo/test.csv\n" +
+                "descr:          Private Network\n" +
+                "country:        NL\n" +
+                "language:       EN\n" +
+                "tech-c:         TP1-TEST\n" +
+                "status:         ASSIGNED PA\n" +
+                "mnt-by:         OWNER-MNT\n" +
+                "mnt-lower:      OWNER-MNT\n" +
+                "created:         2022-08-14T11:48:28Z\n" +
+                "last-modified:   2022-10-25T12:22:39Z\n" +
+                "source:         TEST");
+        ipTreeUpdater.rebuild();
+
+        final Ip ip = createResource("ip/2001:2002:2003::/48")
+                .request(MediaType.APPLICATION_JSON_TYPE)
+                .get(Ip.class);
+
+        assertThat(ip.getHandle(), is("2001:2002:2003::/48"));
+        assertThat(ip.getGeofeedv1_geofeed(), is("https://test.net/geo/test.csv"));
+        assertThat(ip.getRdapConformance(), hasItem(RdapConformance.GEO_FEED_V1.getValue()));
+    }
+
+    @Test
+    public void lookup_inet6num_geoFeed_remarks_case_insensitive() {
+        databaseHelper.addObject("" +
+                "inet6num:       2001:2002:2003::/48\n" +
+                "netname:        RIPE-NCC\n" +
+                "remarks:        geoFeed https://test.net/geo/test.csv\n" +
+                "descr:          Private Network\n" +
+                "country:        NL\n" +
+                "language:       EN\n" +
+                "tech-c:         TP1-TEST\n" +
+                "status:         ASSIGNED PA\n" +
+                "mnt-by:         OWNER-MNT\n" +
+                "mnt-lower:      OWNER-MNT\n" +
+                "created:         2022-08-14T11:48:28Z\n" +
+                "last-modified:   2022-10-25T12:22:39Z\n" +
+                "source:         TEST");
+        ipTreeUpdater.rebuild();
+
+        final Ip ip = createResource("ip/2001:2002:2003::/48")
+                .request(MediaType.APPLICATION_JSON_TYPE)
+                .get(Ip.class);
+
+        assertThat(ip.getHandle(), is("2001:2002:2003::/48"));
+        assertThat(ip.getGeofeedv1_geofeed(), is("https://test.net/geo/test.csv"));
+        assertThat(ip.getRdapConformance(), hasItem(RdapConformance.GEO_FEED_V1.getValue()));
+    }
+
+    @Test
+    public void lookup_inet6num_geoFeed_descr() {
+        databaseHelper.addObject("" +
+                "inet6num:       2001:2002:2003::/48\n" +
+                "netname:        RIPE-NCC\n" +
+                "descr:          Private Network\n" +
+                "descr:          Geofeed https://test.net/geo/test.csv\n" +
+                "country:        NL\n" +
+                "language:       EN\n" +
+                "tech-c:         TP1-TEST\n" +
+                "status:         ASSIGNED PA\n" +
+                "mnt-by:         OWNER-MNT\n" +
+                "mnt-lower:      OWNER-MNT\n" +
+                "created:         2022-08-14T11:48:28Z\n" +
+                "last-modified:   2022-10-25T12:22:39Z\n" +
+                "source:         TEST");
+        ipTreeUpdater.rebuild();
+
+        final Ip ip = createResource("ip/2001:2002:2003::/48")
+                .request(MediaType.APPLICATION_JSON_TYPE)
+                .get(Ip.class);
+
+        assertThat(ip.getHandle(), is("2001:2002:2003::/48"));
+        assertThat(ip.getGeofeedv1_geofeed(), is("https://test.net/geo/test.csv"));
+        assertThat(ip.getRdapConformance(), hasItem(RdapConformance.GEO_FEED_V1.getValue()));
     }
 
     @Test
@@ -2926,9 +3113,9 @@ public class RdapServiceTestIntegration extends AbstractRdapIntegrationTest {
                 .get(RdapObject.class);
 
         assertThat(help.getPort43(), is("whois.ripe.net"));
-        assertThat(help.getRdapConformance(), hasSize(5));
+        assertThat(help.getRdapConformance(), hasSize(6));
         assertThat(help.getRdapConformance(), containsInAnyOrder("cidr0", "rdap_level_0", "nro_rdap_profile_0",
-                "nro_rdap_profile_asn_flat_0", "redacted"));
+                "nro_rdap_profile_asn_flat_0", "redacted", "geofeedv1"));
 
         final List<Notice> notices = help.getNotices();
         assertThat(notices, hasSize(1));
