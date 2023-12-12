@@ -13,8 +13,11 @@ import net.ripe.db.whois.common.source.Source;
 import net.ripe.db.whois.common.sso.AuthServiceClientException;
 import net.ripe.db.whois.common.sso.SsoTokenTranslator;
 import net.ripe.db.whois.common.sso.UserSession;
+import net.ripe.db.whois.query.QueryMessages;
 import net.ripe.db.whois.query.dao.IpAccessControlListDao;
 import net.ripe.db.whois.query.dao.SSOAccessControlListDao;
+import net.ripe.db.whois.query.domain.QueryCompletionInfo;
+import net.ripe.db.whois.query.domain.QueryException;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -73,13 +76,19 @@ public class AccessControlListManager {
                 || (ObjectType.ROLE.equals(objectType) && rpslObject.findAttributes(AttributeType.ABUSE_MAILBOX).isEmpty());
     }
 
-    public boolean isDenied(final InetAddress remoteAddress, final String ssoToken) {
-        if(ipResourceConfiguration.isDenied(remoteAddress)) {
-            return true;
+    public void checkBlocked(final AccountingIdentifier accountingIdentifier) {
+        if(ipResourceConfiguration.isDenied(accountingIdentifier.getRemoteAddress())) {
+            throw new QueryException(QueryCompletionInfo.BLOCKED, QueryMessages.accessDeniedPermanently(accountingIdentifier.getRemoteAddress().getHostAddress()));
         }
 
-        final String username = getUserName(ssoToken);
-        return username != null ? ssoResourceConfiguration.isDenied(username) : false;
+        final String username = getUserName(accountingIdentifier.getSsoToken());
+        if( ssoResourceConfiguration.isDenied(username)) {
+            throw new QueryException(QueryCompletionInfo.BLOCKED, QueryMessages.accessDeniedPermanently(username));
+        }
+
+        if(!canQueryPersonalObjects(accountingIdentifier)) {
+            throw new QueryException(QueryCompletionInfo.BLOCKED, QueryMessages.accessDeniedTemporarily(username == null ? accountingIdentifier.getRemoteAddress().getHostAddress() : username));
+        }
     }
 
     public boolean isAllowedToProxy(final InetAddress remoteAddress) {
@@ -90,27 +99,27 @@ public class AccessControlListManager {
         return ipResourceConfiguration.getLimit(remoteAddress) < 0;
     }
 
-    public boolean canQueryPersonalObjects(final InetAddress remoteAddress, final String ssoToken) {
-        return getPersonalObjects(remoteAddress,ssoToken) >= 0;
+    public boolean canQueryPersonalObjects(final AccountingIdentifier accountingIdentifier) {
+        return getPersonalObjects(accountingIdentifier) >= 0;
     }
 
     public boolean isTrusted(final InetAddress remoteAddress) {
         return ipRanges.isTrusted(IpInterval.asIpInterval(remoteAddress));
     }
 
-    public int getPersonalObjects(final InetAddress remoteAddress, final String ssoToken) {
-        if (isUnlimited(remoteAddress)) {
+    public int getPersonalObjects(final AccountingIdentifier accountingIdentifier) {
+        if (isUnlimited(accountingIdentifier.getRemoteAddress())) {
             return Integer.MAX_VALUE;
         }
 
-        final PersonalAccountingManager accountingManager = getAccountingManager(remoteAddress, ssoToken);
+        final PersonalAccountingManager accountingManager = getAccountingManager(accountingIdentifier);
         return accountingManager.getPersonalObjects();
     }
 
-    private PersonalAccountingManager getAccountingManager(final InetAddress remoteAddress, final String ssoToken) {
-       final String username =  getUserName(ssoToken);
+    private PersonalAccountingManager getAccountingManager(final AccountingIdentifier accountingIdentifier) {
+       final String username =  getUserName(accountingIdentifier.getSsoToken());
 
-       return username == null ? new RemoteAddrAccountingManager(remoteAddress) : new SSOAccountingManager(username);
+       return username == null ? new RemoteAddrAccountingManager(accountingIdentifier.getRemoteAddress()) : new SSOAccountingManager(username);
     }
 
     private String getUserName(final String ssoToken) {
@@ -124,7 +133,7 @@ public class AccessControlListManager {
                 return userSession.getUsername();
             }
         } catch (AuthServiceClientException e) {
-            LOGGER.warn("Cannot translate ssoToken, will account by remoteAddr", e.getMessage());
+            LOGGER.warn("Cannot translate ssoToken, will account by remoteAddr due to {}", e.getMessage());
         }
 
         return null;
@@ -133,19 +142,19 @@ public class AccessControlListManager {
     /**
      * Account for the ResponseObject given
      *
-     * @param remoteAddress The remote address.
+     * @param accountingIdentifier The remote address and ssoTken
      * @param amount        The amount of personal objects accounted.
      */
-    public void accountPersonalObjects(final InetAddress remoteAddress, final String ssoToken, final int amount) {
-        if (isUnlimited(remoteAddress)) {
+    public void accountPersonalObjects(final AccountingIdentifier accountingIdentifier, final int amount) {
+        if (isUnlimited(accountingIdentifier.getRemoteAddress())) {
             return;
         }
 
-        final PersonalAccountingManager accountingManager = getAccountingManager(remoteAddress, ssoToken);
+        final PersonalAccountingManager accountingManager = getAccountingManager(accountingIdentifier);
         accountingManager.accountPersonalObjects(amount);
     }
 
-    public class SSOAccountingManager implements PersonalAccountingManager {
+    private class SSOAccountingManager implements PersonalAccountingManager {
         private final String userName;
 
         public SSOAccountingManager(final String userName) {
@@ -182,7 +191,7 @@ public class AccessControlListManager {
         }
     }
 
-    public class RemoteAddrAccountingManager implements PersonalAccountingManager {
+    private class RemoteAddrAccountingManager implements PersonalAccountingManager {
         private final InetAddress remoteAddress;
         private final InetAddress maskedAddress;
 

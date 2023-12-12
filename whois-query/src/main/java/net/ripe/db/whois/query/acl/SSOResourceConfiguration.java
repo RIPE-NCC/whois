@@ -29,7 +29,7 @@ public class SSOResourceConfiguration {
     }
 
     public boolean isDenied(final String ssoId) {
-        return StringUtils.isEmpty(ssoId) ? false : denied.contains(ssoId);
+        return !StringUtils.isEmpty(ssoId) && denied.contains(ssoId);
     }
 
     public int getLimit() {

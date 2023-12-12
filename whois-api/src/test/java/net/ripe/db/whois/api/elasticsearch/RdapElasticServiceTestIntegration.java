@@ -23,6 +23,7 @@ import net.ripe.db.whois.api.rdap.domain.SearchResult;
 import net.ripe.db.whois.api.rest.client.RestClientUtils;
 import net.ripe.db.whois.common.rpsl.RpslObject;
 import net.ripe.db.whois.query.acl.AccessControlListManager;
+import net.ripe.db.whois.query.acl.AccountingIdentifier;
 import net.ripe.db.whois.query.acl.IpResourceConfiguration;
 import net.ripe.db.whois.query.support.TestPersonalObjectAccounting;
 import org.junit.jupiter.api.AfterAll;
@@ -678,14 +679,15 @@ public class RdapElasticServiceTestIntegration extends AbstractElasticSearchInte
     @Test
     public void lookup_person_acl_counted() throws Exception {
         final InetAddress localhost = InetAddress.getByName(LOCALHOST);
+        final AccountingIdentifier accountingIdentifier = new AccountingIdentifier(localhost, null);
         try {
-            final int limit = ipAccessControlListManager.getPersonalObjects(localhost, null);
+            final int limit = ipAccessControlListManager.getPersonalObjects(accountingIdentifier);
 
             createResource("entities?handle=PP1-TEST")
                     .request(MediaType.APPLICATION_JSON_TYPE)
                     .get(SearchResult.class);
 
-            final int remaining = ipAccessControlListManager.getPersonalObjects(localhost, null);
+            final int remaining = ipAccessControlListManager.getPersonalObjects(accountingIdentifier);
             assertThat(remaining, is(limit-1));
 
         } finally {

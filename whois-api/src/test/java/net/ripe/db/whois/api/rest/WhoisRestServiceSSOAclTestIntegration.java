@@ -10,6 +10,7 @@ import net.ripe.db.whois.common.rpsl.AttributeType;
 import net.ripe.db.whois.common.support.TelnetWhoisClient;
 import net.ripe.db.whois.query.QueryServer;
 import net.ripe.db.whois.query.acl.AccessControlListManager;
+import net.ripe.db.whois.query.acl.AccountingIdentifier;
 import net.ripe.db.whois.query.acl.IpResourceConfiguration;
 import net.ripe.db.whois.query.acl.SSOResourceConfiguration;
 import net.ripe.db.whois.query.support.TestPersonalObjectAccounting;
@@ -79,7 +80,7 @@ public class WhoisRestServiceSSOAclTestIntegration extends AbstractIntegrationTe
             fail();
         } catch (ClientErrorException e) {
             assertThat(e.getResponse().getStatus(), is(429));       // Too Many Requests
-            assertOnlyErrorMessage(e, "Error", "ERROR:201: access denied for %s\n\nSorry, access from your host has been permanently\ndenied because of a repeated excessive querying.\nFor more information, see\nhttps://apps.db.ripe.net/docs/FAQ/#why-did-i-receive-an-error-201-access-denied\n", "127.0.0.1");
+            assertOnlyErrorMessage(e, "Error", "ERROR:201: access denied for %s\n\nSorry, access from your host has been permanently\ndenied because of a repeated excessive querying.\nFor more information, see\nhttps://apps.db.ripe.net/docs/FAQ/#why-did-i-receive-an-error-201-access-denied\n", "person@net.net");
         }
     }
 
@@ -103,7 +104,9 @@ public class WhoisRestServiceSSOAclTestIntegration extends AbstractIntegrationTe
     @Test
     public void lookup_person_using_sso_acl_blocked() throws Exception {
         final InetAddress localhost = InetAddress.getByName(LOCALHOST);
-        accessControlListManager.accountPersonalObjects(localhost, VALID_TOKEN, accessControlListManager.getPersonalObjects(localhost, "valid-token") + 1);
+        final AccountingIdentifier accountingIdentifier = new AccountingIdentifier(localhost, VALID_TOKEN);
+
+        accessControlListManager.accountPersonalObjects(accountingIdentifier, accessControlListManager.getPersonalObjects(accountingIdentifier) + 1);
 
         try {
             RestTest.target(getPort(), "whois/test/person/TP1-TEST")
@@ -148,6 +151,7 @@ public class WhoisRestServiceSSOAclTestIntegration extends AbstractIntegrationTe
     @Test
     public void lookup_person_using_sso_no_acl_for_unlimited_remoteAddr() throws Exception {
         final InetAddress localhost = InetAddress.getByName(LOCALHOST);
+        final AccountingIdentifier accountingIdentifier = new AccountingIdentifier(localhost, VALID_TOKEN);
 
         databaseHelper.insertAclIpLimit(LOCALHOST_WITH_PREFIX, -1, true);
         ipResourceConfiguration.reload();
@@ -158,7 +162,7 @@ public class WhoisRestServiceSSOAclTestIntegration extends AbstractIntegrationTe
                         "e-mail:   test@ripe.net\n" +
                         "source:    TEST");
 
-        final int limit = accessControlListManager.getPersonalObjects(localhost, VALID_TOKEN);
+        final int limit = accessControlListManager.getPersonalObjects(accountingIdentifier);
 
         final Response response =  RestTest.target(getPort(), "whois/test/person/TP2-TEST")
                 .request()
@@ -167,7 +171,7 @@ public class WhoisRestServiceSSOAclTestIntegration extends AbstractIntegrationTe
 
         assertThat(response.getStatus(), is(HttpStatus.OK_200));
 
-        final int remaining = accessControlListManager.getPersonalObjects(localhost, VALID_TOKEN);
+        final int remaining = accessControlListManager.getPersonalObjects(accountingIdentifier);
         assertThat(remaining, is(limit));
     }
 }

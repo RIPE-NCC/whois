@@ -40,43 +40,47 @@ public class IpAccessControlListManagerAccountingTest {
 
 
     private InetAddress ipv4Address;
+    private AccountingIdentifier accountingIdentifierIpv4;
     private InetAddress ipv6Address;
+    private AccountingIdentifier accountingIdentifierIpv6;
 
     @BeforeEach
     public void setUp() throws Exception {
         subject = new AccessControlListManager(dateTimeProvider, ipResourceConfiguration, ipAccessControlListDao, personalObjectAccounting, ssoAccessControlListDao, ssoTokenTranslator, ssoResourceConfiguration, true, ipRanges);
         ipv4Address = Inet4Address.getLocalHost();
         ipv6Address = Inet6Address.getByName("::1");
+        accountingIdentifierIpv4 = new AccountingIdentifier(ipv4Address, null);
+        accountingIdentifierIpv6 = new AccountingIdentifier(ipv6Address, null);
     }
 
     @Test
     public void unlimited() throws Exception {
         setPersonalLimit(-1);
-        assertThat(subject.canQueryPersonalObjects(ipv4Address, null), is(true));
+        assertThat(subject.canQueryPersonalObjects(accountingIdentifierIpv4), is(true));
 
-        subject.accountPersonalObjects(ipv4Address,null, 1000);
-        assertThat(subject.canQueryPersonalObjects(ipv4Address, null), is(true));
+        subject.accountPersonalObjects(accountingIdentifierIpv4, 1000);
+        assertThat(subject.canQueryPersonalObjects(accountingIdentifierIpv4), is(true));
     }
 
     @Test
     public void limited() throws Exception {
         setPersonalLimit(1);
-        assertThat(subject.canQueryPersonalObjects(ipv4Address, null), is(true));
+        assertThat(subject.canQueryPersonalObjects(accountingIdentifierIpv4), is(true));
 
-        subject.accountPersonalObjects(ipv4Address, null, 1);
-        assertThat(subject.canQueryPersonalObjects(ipv4Address, null), is(true));
+        subject.accountPersonalObjects(accountingIdentifierIpv4, 1);
+        assertThat(subject.canQueryPersonalObjects(accountingIdentifierIpv4), is(true));
 
-        subject.accountPersonalObjects(ipv4Address, null, 1);
-        assertThat(subject.canQueryPersonalObjects(ipv4Address, null), is(false));
+        subject.accountPersonalObjects(accountingIdentifierIpv4, 1);
+        assertThat(subject.canQueryPersonalObjects(accountingIdentifierIpv4), is(false));
     }
 
     @Test
     public void limit_zero() throws Exception {
         setPersonalLimit(0);
-        assertThat(subject.canQueryPersonalObjects(ipv4Address, null), is(true));
+        assertThat(subject.canQueryPersonalObjects(accountingIdentifierIpv4), is(true));
 
-        subject.accountPersonalObjects(ipv4Address, null, 1);
-        assertThat(subject.canQueryPersonalObjects(ipv4Address, null), is(false));
+        subject.accountPersonalObjects(accountingIdentifierIpv4, 1);
+        assertThat(subject.canQueryPersonalObjects(accountingIdentifierIpv4), is(false));
     }
 
     private void setPersonalLimit(int count) {

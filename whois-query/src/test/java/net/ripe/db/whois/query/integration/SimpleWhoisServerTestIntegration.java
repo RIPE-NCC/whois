@@ -7,6 +7,7 @@ import net.ripe.db.whois.common.support.TelnetWhoisClient;
 import net.ripe.db.whois.query.QueryMessages;
 import net.ripe.db.whois.query.QueryServer;
 import net.ripe.db.whois.query.acl.AccessControlListManager;
+import net.ripe.db.whois.query.acl.AccountingIdentifier;
 import net.ripe.db.whois.query.domain.ResponseHandler;
 import net.ripe.db.whois.query.handler.QueryHandler;
 import net.ripe.db.whois.query.query.Query;
@@ -46,7 +47,7 @@ public class SimpleWhoisServerTestIntegration extends AbstractQueryIntegrationTe
 
     @BeforeEach
     public void setUp() throws Exception {
-        when(accessControlListManager.canQueryPersonalObjects(any(InetAddress.class), any(String.class))).thenReturn(true);
+        when(accessControlListManager.canQueryPersonalObjects(any(AccountingIdentifier.class))).thenReturn(true);
 
         queryServer.start();
     }
