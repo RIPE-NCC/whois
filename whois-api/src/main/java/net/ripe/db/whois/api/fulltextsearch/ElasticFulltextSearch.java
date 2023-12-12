@@ -95,7 +95,7 @@ public class ElasticFulltextSearch extends FulltextSearch {
             throw new IllegalArgumentException("Exceeded maximum " + MAX_ROW_LIMIT_SIZE + " documents");
         }
 
-        return new ElasticSearchAccountingCallback<SearchResponse>(accessControlListManager, ssoToken, remoteAddr, source) {
+        return new ElasticSearchAccountingCallback<SearchResponse>(accessControlListManager, remoteAddr, ssoToken, source) {
 
             @Override
             protected SearchResponse doSearch() throws IOException {
