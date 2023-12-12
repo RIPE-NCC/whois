@@ -57,7 +57,7 @@ public class RdapElasticFullTextSearchService implements RdapFullTextSearch {
     public List<RpslObject> performSearch(final String[] fields, final String term, final String clientIp, final Source source) throws IOException {
 
         try {
-            return new ElasticSearchAccountingCallback<List<RpslObject>>(accessControlListManager, null, clientIp, source) {
+            return new ElasticSearchAccountingCallback<List<RpslObject>>(accessControlListManager,  clientIp, null, source) {
 
                 @Override
                 protected List<RpslObject> doSearch() throws IOException {
