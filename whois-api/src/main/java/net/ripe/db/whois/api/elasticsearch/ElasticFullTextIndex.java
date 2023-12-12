@@ -109,7 +109,6 @@ public class ElasticFullTextIndex {
 
         LOGGER.debug("Updated index in {}", stopwatch.stop());
 
-
         elasticIndexService.updateMetadata(new ElasticIndexMetadata(dbMaxSerialId, source));
 
         final int countInDb = ((int) maxSerialIdWithObjectCount.values().toArray()[0]);
