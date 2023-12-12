@@ -10,8 +10,8 @@
             location="classpath:whois.version.properties,classpath:whois.properties"
             system-properties-mode="OVERRIDE"/>
 
-    <bean id="accessControlListDao" class="org.mockito.Mockito" factory-method="mock" primary="true">
-        <constructor-arg value="net.ripe.db.whois.query.dao.AccessControlListDao"/>
+    <bean id="ipAccessControlListDao" class="org.mockito.Mockito" factory-method="mock" primary="true">
+        <constructor-arg value="net.ripe.db.whois.query.dao.IpAccessControlListDao"/>
     </bean>
 
     <bean id="ipTreeCacheManager" class="org.mockito.Mockito" factory-method="mock" primary="true">

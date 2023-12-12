@@ -7,7 +7,7 @@ import net.ripe.db.whois.common.domain.IpResourceEntry;
 import net.ripe.db.whois.common.ip.IpInterval;
 import net.ripe.db.whois.common.ip.Ipv4Resource;
 import net.ripe.db.whois.common.ip.Ipv6Resource;
-import net.ripe.db.whois.query.dao.AccessControlListDao;
+import net.ripe.db.whois.query.dao.IpAccessControlListDao;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
@@ -27,9 +27,10 @@ import static org.hamcrest.Matchers.is;
 import static org.junit.jupiter.api.Assertions.fail;
 
 @Tag("IntegrationTest")
-public class JdbcAccessControlListDaoIntegrationTest extends AbstractQueryDaoIntegrationTest {
+public class JdbcIpAccessControlListDaoIntegrationTest extends AbstractQueryDaoIntegrationTest {
 
-    @Autowired AccessControlListDao subject;
+    @Autowired
+    IpAccessControlListDao subject;
     private InetAddress inetAddress1;
     private InetAddress inetAddress2;
 

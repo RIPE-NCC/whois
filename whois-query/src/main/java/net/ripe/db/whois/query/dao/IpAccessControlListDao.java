@@ -8,7 +8,7 @@ import java.time.LocalDate;
 
 import java.util.List;
 
-public interface AccessControlListDao extends IpResourceConfiguration.Loader {
+public interface IpAccessControlListDao extends IpResourceConfiguration.Loader {
     void saveAclEvent(IpInterval<?> interval, LocalDate date, int limit, BlockEvent.Type type);
 
     List<BlockEvents> getTemporaryBlocks(LocalDate blockTime);
