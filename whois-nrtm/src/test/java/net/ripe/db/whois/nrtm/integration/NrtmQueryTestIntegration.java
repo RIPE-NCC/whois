@@ -103,7 +103,7 @@ public class NrtmQueryTestIntegration extends AbstractNrtmIntegrationBase {
 
             assertThat(response, containsString("ERROR:201: access denied"));
         } finally {
-            databaseHelper.unban("127.0.0.1/32");
+            databaseHelper.unbanIp("127.0.0.1/32");
             ipResourceConfiguration.reload();
             testPersonalObjectAccounting.resetAccounting();
         }

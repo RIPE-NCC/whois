@@ -30,7 +30,8 @@ import static org.mockito.Mockito.when;
 @ExtendWith(MockitoExtension.class)
 public class QueryHandlerExceptionTest {
     @Mock WhoisLog whoisLog;
-    @Mock AccessControlListManager accessControlListManager;
+    @Mock
+    AccessControlListManager accessControlListManager;
     @Mock SourceContext sourceContext;
     @Mock QueryExecutor queryExecutor;
     QueryHandler subject;

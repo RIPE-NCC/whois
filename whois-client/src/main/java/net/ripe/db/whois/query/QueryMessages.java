@@ -258,7 +258,7 @@ public final class QueryMessages {
                 + "Too many arguments supplied.");
     }
 
-    public static Message accessDeniedPermanently(final InetAddress remoteAddress) {
+    public static Message accessDeniedPermanently(final String accountingId) {
         return new QueryMessage(Type.ERROR, ""
                 + "ERROR:201: access denied for %s\n"
                 + "\n"
@@ -266,10 +266,10 @@ public final class QueryMessages {
                 + "denied because of a repeated excessive querying.\n"
                 + "For more information, see\n"
                 + "https://apps.db.ripe.net/docs/FAQ/#why-did-i-receive-an-error-201-access-denied",
-                remoteAddress.getHostAddress());
+                accountingId);
     }
 
-    public static Message accessDeniedTemporarily(final InetAddress remoteAddress) {
+    public static Message accessDeniedTemporarily(final String accountingId) {
         return new QueryMessage(Type.ERROR, ""
                 + "ERROR:201: access denied for %s\n"
                 + "\n"
@@ -277,7 +277,7 @@ public final class QueryMessages {
                 + "Access from your host has been temporarily denied.\n"
                 + "For more information, see\n"
                 + "https://apps.db.ripe.net/docs/FAQ/#why-did-i-receive-an-error-201-access-denied",
-                remoteAddress.getHostAddress());
+                accountingId);
     }
 
     public static Message notAllowedToProxy() {
