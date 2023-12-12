@@ -17,7 +17,6 @@ public abstract class ElasticSearchAccountingCallback<T> {
     private final AccessControlListManager accessControlListManager;
     private final InetAddress remoteAddress;
     private final String ssoToken;
-
     private final Source source;
 
     private int accountingLimit = -1;
