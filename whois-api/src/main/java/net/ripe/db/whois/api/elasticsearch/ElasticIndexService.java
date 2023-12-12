@@ -97,10 +97,14 @@ public class ElasticIndexService {
             return;
         }
 
-        final IndexRequest request = new IndexRequest(whoisAliasIndex);
-        request.id(String.valueOf(rpslObject.getObjectId()));
-        request.source(json(rpslObject));
-        client.index(request, RequestOptions.DEFAULT);
+        try {
+            final IndexRequest request = new IndexRequest(whoisAliasIndex);
+            request.id(String.valueOf(rpslObject.getObjectId()));
+            request.source(json(rpslObject));
+            client.index(request, RequestOptions.DEFAULT);
+        } catch (Exception ioe) {
+            LOGGER.error("Failed to ES index {}: {}", rpslObject.getKey(), ioe);
+        }
     }
 
     protected void deleteEntry(final int objectId) {
@@ -131,7 +135,7 @@ public class ElasticIndexService {
         try {
             client.indices().refresh(new RefreshRequest(whoisAliasIndex), RequestOptions.DEFAULT);
         } catch (IOException ex){
-            throw new IllegalStateException(ex);
+            LOGGER.error("Failed to refresh ES index {}: {}", whoisAliasIndex, ex);
         }
     }
 

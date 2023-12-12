@@ -5,7 +5,6 @@ import jakarta.annotation.PostConstruct;
 import net.javacrumbs.shedlock.spring.annotation.SchedulerLock;
 import net.ripe.db.whois.common.dao.SerialDao;
 import net.ripe.db.whois.common.dao.jdbc.JdbcRpslObjectOperations;
-import net.ripe.db.whois.common.domain.Hosts;
 import net.ripe.db.whois.common.domain.serials.SerialEntry;
 import net.ripe.db.whois.common.rpsl.RpslObject;
 import org.slf4j.Logger;
@@ -57,7 +56,7 @@ public class ElasticFullTextIndex {
             LOGGER.error("Elasticsearch is not enabled");
             return;
         }
-        LOGGER.info("started scheduled job for elastic search indexes in {} host", Hosts.getInstanceName());
+
         try {
             update();
         } catch (DataAccessException | IOException | IllegalStateException e) {
@@ -91,7 +90,6 @@ public class ElasticFullTextIndex {
         LOGGER.info("Index serial ({}) lower than database serial ({}), updating", esSerialId, dbMaxSerialId);
         final Stopwatch stopwatch = Stopwatch.createStarted();
 
-        LOGGER.error("Initial number of docs in the index {}", elasticIndexService.getWhoisDocCount());
         for (int serial = esSerialId + 1; serial <= dbMaxSerialId; serial++) {
             final SerialEntry serialEntry = getSerialEntry(serial);
             if (serialEntry == null) {
@@ -108,7 +106,6 @@ public class ElasticFullTextIndex {
         }
 
         elasticIndexService.refreshIndex();
-        LOGGER.error("Final number of docs in the index {}", elasticIndexService.getWhoisDocCount());
 
         LOGGER.debug("Updated index in {}", stopwatch.stop());
 
