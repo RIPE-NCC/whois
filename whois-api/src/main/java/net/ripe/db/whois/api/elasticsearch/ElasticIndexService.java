@@ -145,6 +145,8 @@ public class ElasticIndexService {
         }
 
         final CountRequest countRequest = new CountRequest(whoisAliasIndex);
+        countRequest.query(QueryBuilders.matchAllQuery());
+
         final CountResponse countResponse = client.count(countRequest, RequestOptions.DEFAULT);
         return countResponse.getCount();
     }

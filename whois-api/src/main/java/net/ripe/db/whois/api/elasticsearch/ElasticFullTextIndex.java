@@ -105,7 +105,7 @@ public class ElasticFullTextIndex {
             }
         }
 
-        elasticIndexService.refreshIndex();
+        //elasticIndexService.refreshIndex();
 
         LOGGER.debug("Updated index in {}", stopwatch.stop());
 
