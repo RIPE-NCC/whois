@@ -59,6 +59,7 @@ public class ElasticFullTextIndex {
             return;
         }
 
+        LOGGER.info("started scheduled job for  elastic search  indexes");
         try {
             update();
         } catch (DataAccessException | IOException | IllegalStateException e) {
@@ -76,6 +77,7 @@ public class ElasticFullTextIndex {
             return;
         }
 
+        LOGGER.info("started scheduled job for checking elastic search indexes");
         try {
             alert();
         } catch (DataAccessException | IOException | IllegalStateException e) {
@@ -92,10 +94,11 @@ public class ElasticFullTextIndex {
         }
 
         elasticIndexService.refreshIndex();
-        
+
         final ElasticIndexMetadata committedMetadata = elasticIndexService.getMetadata();
         final SerialEntry serialEntry = serialDao.getById(committedMetadata.getSerial());
         final int countObjectsInDb = serialDao.getObjectCountUntilObjectId(serialEntry.getRpslObject().getObjectId());
+
         final long countInES = elasticIndexService.getWhoisDocCount();
         if (countInES != countObjectsInDb) {
             LOGGER.error(String.format("Number of objects in DB (%s) does not match to number of objects indexed in ES (%s) for serialId (%s)", countObjectsInDb, countInES, serialEntry.getSerialId()));
