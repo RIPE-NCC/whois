@@ -91,12 +91,12 @@ public class ElasticFullTextIndex {
             return;
         }
 
-        final Map<Integer, Integer> maxSerialIdWithObjectCount = serialDao.getMaxSerialIdWithObjectCount();
-        final int countInDb = ((int) maxSerialIdWithObjectCount.values().toArray()[0]);
+        final ElasticIndexMetadata committedMetadata = elasticIndexService.getMetadata();
+        final SerialEntry serialEntry = serialDao.getById(committedMetadata.getSerial());
+        final int countObjectsInDb = serialDao.getObjectCountUntilObjectId(serialEntry.getRpslObject().getObjectId());
         final long countInES = elasticIndexService.getWhoisDocCount();
-        if (countInES != countInDb) {
-            final int dbMaxSerialId = (Integer) maxSerialIdWithObjectCount.keySet().toArray()[0];
-            LOGGER.error(String.format("Number of objects in DB (%s) does not match to number of objects indexed in ES (%s) for serialId (%s)", countInDb, countInES, dbMaxSerialId));
+        if (countInES != countObjectsInDb) {
+            LOGGER.error(String.format("Number of objects in DB (%s) does not match to number of objects indexed in ES (%s) for serialId (%s)", countObjectsInDb, countInES, serialEntry.getSerialId()));
         }
     }
 

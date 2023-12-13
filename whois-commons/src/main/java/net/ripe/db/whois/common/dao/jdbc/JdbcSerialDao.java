@@ -14,10 +14,8 @@ import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.annotation.CheckForNull;
-import javax.annotation.Nullable;
 import javax.sql.DataSource;
 import java.util.Collections;
-import java.util.List;
 import java.util.Map;
 
 
@@ -64,5 +62,16 @@ public class JdbcSerialDao implements SerialDao {
         final Integer countInDb = jdbcTemplate.queryForObject( "SELECT count(*) FROM last WHERE sequence_id > 0", Integer.class);
 
         return Collections.singletonMap(maxSerialId,countInDb);
+    }
+
+    @Override
+    @CheckForNull
+    @Transactional(isolation = Isolation.REPEATABLE_READ, propagation = Propagation.REQUIRES_NEW)
+    public Integer getObjectCountUntilObjectId(final int objectId) {
+        return jdbcTemplate.queryForObject(
+                "SELECT count(*) FROM last WHERE sequence_id > 0 and object_Id <= ?",
+                Integer.class,
+                objectId
+        );
     }
 }
