@@ -91,6 +91,8 @@ public class ElasticFullTextIndex {
             return;
         }
 
+        elasticIndexService.refreshIndex();
+        
         final ElasticIndexMetadata committedMetadata = elasticIndexService.getMetadata();
         final SerialEntry serialEntry = serialDao.getById(committedMetadata.getSerial());
         final int countObjectsInDb = serialDao.getObjectCountUntilObjectId(serialEntry.getRpslObject().getObjectId());
@@ -138,8 +140,6 @@ public class ElasticFullTextIndex {
                 case DELETE -> elasticIndexService.deleteEntry(rpslObject.getObjectId());
             }
         }
-
-        elasticIndexService.refreshIndex();
 
         LOGGER.debug("Updated index in {}", stopwatch.stop());
 
