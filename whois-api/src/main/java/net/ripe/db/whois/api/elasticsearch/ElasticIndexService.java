@@ -92,7 +92,7 @@ public class ElasticIndexService {
         return true;
     }
 
-    protected void createOrUpdateEntry(final RpslObject rpslObject) {
+    protected void createOrUpdateEntry(final RpslObject rpslObject) throws IOException {
         if (!isElasticRunning()) {
             return;
         }
