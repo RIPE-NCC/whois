@@ -19,15 +19,16 @@ import net.ripe.db.whois.common.MaintenanceMode;
 import net.ripe.db.whois.common.TestDateTimeProvider;
 import net.ripe.db.whois.common.rpsl.AttributeType;
 import net.ripe.db.whois.common.rpsl.RpslObject;
+import net.ripe.db.whois.common.sso.AuthServiceClient;
 import net.ripe.db.whois.query.QueryFlag;
 import net.ripe.db.whois.query.acl.AccessControlListManager;
+import net.ripe.db.whois.query.acl.AccountingIdentifier;
 import net.ripe.db.whois.query.acl.IpResourceConfiguration;
 import net.ripe.db.whois.query.support.TestPersonalObjectAccounting;
 import org.glassfish.jersey.client.filter.EncodingFilter;
 import org.glassfish.jersey.message.DeflateEncoder;
 import org.glassfish.jersey.message.GZipEncoder;
 import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
@@ -60,6 +61,9 @@ import static org.junit.jupiter.api.Assertions.fail;
 public class WhoisSearchServiceTestIntegration extends AbstractIntegrationTest {
 
     private static final String LOCALHOST = "127.0.0.1";
+    public static final String VALID_TOKEN = "valid-token";
+    public static final String VALID_TOKEN_USER_NAME = "person@net.net";
+
 
     @Autowired
     private AccessControlListManager accessControlListManager;
@@ -1971,7 +1975,61 @@ public class WhoisSearchServiceTestIntegration extends AbstractIntegrationTest {
     }
 
     @Test
+    public void lookup_person_with_proxy_not_allowed_using_sso() {
+
+        databaseHelper.addObject("" +
+                "person:    Lo Person\n" +
+                "admin-c:   TP1-TEST\n" +
+                "tech-c:    TP1-TEST\n" +
+                "nic-hdl:   LP1-TEST\n" +
+                "mnt-by:    OWNER-MNT\n" +
+                "source:    TEST\n");
+
+        try {
+            RestTest.target(getPort(), "whois/search?query-string=LP1-TEST&source=TEST&client=testId,10.1.2.3")
+                    .request(MediaType.APPLICATION_XML)
+                    .cookie(AuthServiceClient.TOKEN_KEY, VALID_TOKEN)
+                    .get(WhoisResources.class);
+            fail();
+        } catch (BadRequestException e) {
+            assertThat(e.getResponse().getStatus(), is(400));
+            assertThat(e.getResponse().readEntity(String.class), containsString("ERROR:203: you are not allowed to act as a proxy"));
+        }
+    }
+
+
+    @Test
     public void lookup_person_with_client_flag_no_proxy() throws Exception {
+        final InetAddress localhost = InetAddress.getByName(LOCALHOST);
+        final AccountingIdentifier accountingIdentifier = new AccountingIdentifier(localhost, null);
+
+
+        databaseHelper.addObject("" +
+                "person:    Lo Person\n" +
+                "admin-c:   TP1-TEST\n" +
+                "tech-c:    TP1-TEST\n" +
+                "nic-hdl:   LP1-TEST\n" +
+                "mnt-by:    OWNER-MNT\n" +
+                "source:    TEST\n");
+
+        final int limit = accessControlListManager.getPersonalObjects(accountingIdentifier);
+
+        final WhoisResources whoisResources = RestTest.target(getPort(), "whois/search?query-string=LP1-TEST&source=TEST&flags=no-filtering&flags=rB&client=testId")
+                .request(MediaType.APPLICATION_XML)
+                .get(WhoisResources.class);
+
+        assertThat(whoisResources.getErrorMessages(), is(empty()));
+        assertThat(whoisResources.getWhoisObjects(), hasSize(1));
+
+        //ACL is accounted for as there is no proxy ip specified
+        final int remaining = accessControlListManager.getPersonalObjects(accountingIdentifier);
+        assertThat(remaining, is(limit - 1));
+
+        assertThat(whoisResources.getParameters().getClient(), is("testId"));
+    }
+
+    @Test
+    public void lookup_person_with_client_flag_no_proxy_using_sso() throws Exception {
         final InetAddress localhost = InetAddress.getByName(LOCALHOST);
 
         databaseHelper.addObject("" +
@@ -1982,18 +2040,22 @@ public class WhoisSearchServiceTestIntegration extends AbstractIntegrationTest {
                 "mnt-by:    OWNER-MNT\n" +
                 "source:    TEST\n");
 
-        final int limit = accessControlListManager.getPersonalObjects(localhost);
+        final int countBeforeQueryIp = testPersonalObjectAccounting.getQueriedPersonalObjects(localhost);
+        final int countBeforeQuesrySSO = testPersonalObjectAccounting.getQueriedPersonalObjects(VALID_TOKEN_USER_NAME);
 
         final WhoisResources whoisResources = RestTest.target(getPort(), "whois/search?query-string=LP1-TEST&source=TEST&flags=no-filtering&flags=rB&client=testId")
                 .request(MediaType.APPLICATION_XML)
+                .cookie(AuthServiceClient.TOKEN_KEY, VALID_TOKEN)
                 .get(WhoisResources.class);
 
         assertThat(whoisResources.getErrorMessages(), is(empty()));
         assertThat(whoisResources.getWhoisObjects(), hasSize(1));
 
         //ACL is accounted for as there is no proxy ip specified
-        final int remaining = accessControlListManager.getPersonalObjects(localhost);
-        assertThat(remaining, is(limit - 1));
+        final int countAfterQueryIp = testPersonalObjectAccounting.getQueriedPersonalObjects(localhost);
+        final int countAfterQuerySSO = testPersonalObjectAccounting.getQueriedPersonalObjects(VALID_TOKEN_USER_NAME);
+        assertThat(countAfterQueryIp, is(countBeforeQueryIp));
+        assertThat(countAfterQuerySSO, is(countBeforeQuesrySSO + 1));
 
         assertThat(whoisResources.getParameters().getClient(), is("testId"));
     }
@@ -2016,8 +2078,11 @@ public class WhoisSearchServiceTestIntegration extends AbstractIntegrationTest {
         databaseHelper.insertAclIpProxy(LOCALHOST);
         ipResourceConfiguration.reload();
 
-        final int limit = accessControlListManager.getPersonalObjects(localhost);
-        final int proxylLimit = accessControlListManager.getPersonalObjects(proxyHost);
+        final AccountingIdentifier accountingIdentifier = new AccountingIdentifier(localhost, null);
+        final AccountingIdentifier accountingIdentifierProxy = new AccountingIdentifier(proxyHost, null);
+
+        final int limit = accessControlListManager.getPersonalObjects(accountingIdentifier);
+        final int proxylLimit = accessControlListManager.getPersonalObjects( accountingIdentifierProxy);
 
         final WhoisResources whoisResources = RestTest.target(getPort(), "whois/search?query-string=LP1-TEST&source=TEST&flags=no-filtering&flags=rB&client=testId,10.1.2.3")
                 .request(MediaType.APPLICATION_XML)
@@ -2028,10 +2093,10 @@ public class WhoisSearchServiceTestIntegration extends AbstractIntegrationTest {
         assertThat(whoisResources.getParameters().getClient(), is("testId,10.1.2.3"));
 
         //only proxy ip is counted for ACL
-        final int remaining = accessControlListManager.getPersonalObjects(localhost);
+        final int remaining = accessControlListManager.getPersonalObjects(accountingIdentifier);
         assertThat(remaining, is(limit));
 
-        final int proxyRemaining = accessControlListManager.getPersonalObjects(proxyHost);
+        final int proxyRemaining = accessControlListManager.getPersonalObjects(accountingIdentifierProxy);
         assertThat(proxyRemaining, is(proxylLimit - 1));
 
 

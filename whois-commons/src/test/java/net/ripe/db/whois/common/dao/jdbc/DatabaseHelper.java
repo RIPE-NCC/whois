@@ -446,7 +446,7 @@ public class DatabaseHelper implements EmbeddedValueResolverAware {
         return rpslObjectDao.getByKey(type, pkey);
     }
 
-    public void unban(final String prefix) {
+    public void unbanIp(final String prefix) {
         aclTemplate.update("INSERT INTO acl_event (prefix, event_time, daily_limit, event_type) VALUES (?, ?, ?, ?)",
                 prefix,
                 new Date(),
@@ -456,14 +456,38 @@ public class DatabaseHelper implements EmbeddedValueResolverAware {
         aclTemplate.update("DELETE FROM acl_denied WHERE prefix = ?", prefix);
     }
 
+    public void unbanSSOId(final String ssoId) {
+        aclTemplate.update("INSERT INTO acl_sso_event (sso_id, event_time, daily_limit, event_type) VALUES (?, ?, ?, ?)",
+                ssoId,
+                new Date(),
+                0,
+                BlockEvent.Type.UNBLOCK.name());
+
+        aclTemplate.update("DELETE FROM acl_sso_denied WHERE sso_id = ?", ssoId);
+    }
+
     public void insertAclIpDenied(final String prefix) {
         aclTemplate.update(
                 "INSERT INTO acl_denied (prefix, comment, denied_date) VALUES (?, ?, ?)",
                 prefix, "comment", new Date());
     }
 
+    public void insertAclSSODenied(final String ssoId) {
+        aclTemplate.update(
+                "INSERT INTO acl_sso_denied (sso_id, comment, denied_date) VALUES (?, ?, ?)",
+                ssoId, "comment", new Date());
+    }
+
     public void clearAclLimits() {
         aclTemplate.update("DELETE FROM acl_limit");
+    }
+
+    public void clearAclTables() {
+        aclTemplate.update("DELETE FROM acl_denied");
+        aclTemplate.update("DELETE FROM acl_event");
+        aclTemplate.update("DELETE FROM acl_sso_denied");
+        aclTemplate.update("DELETE FROM acl_sso_event");
+        clearAclLimits();
     }
 
     public void insertAclIpLimit(final String prefix, final int limit, final boolean unlimitedConnections) {

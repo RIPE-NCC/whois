@@ -10,8 +10,9 @@ import net.ripe.db.whois.api.RestTest;
 import net.ripe.db.whois.api.elasticsearch.AbstractElasticSearchIntegrationTest;
 import net.ripe.db.whois.common.ip.IpInterval;
 import net.ripe.db.whois.common.rpsl.RpslObject;
+import net.ripe.db.whois.common.sso.AuthServiceClient;
 import net.ripe.db.whois.query.acl.IpResourceConfiguration;
-import net.ripe.db.whois.query.dao.jdbc.JdbcAccessControlListDao;
+import net.ripe.db.whois.query.dao.jdbc.JdbcIpAccessControlListDao;
 import net.ripe.db.whois.query.support.TestPersonalObjectAccounting;
 import org.apache.solr.client.solrj.impl.XMLResponseParser;
 import org.apache.solr.client.solrj.response.FacetField;
@@ -55,9 +56,13 @@ public class ElasticFullTextSearchTestIntegration extends AbstractElasticSearchI
 
     private static final String WHOIS_INDEX = "whois_fulltext";
     private static final String METADATA_INDEX = "metadata_fulltext";
+    public static final String VALID_TOKEN_USER_NAME = "person@net.net";
+    public static final String VALID_TOKEN = "valid-token";
+
 
     @Autowired TestPersonalObjectAccounting testPersonalObjectAccounting;
-    @Autowired JdbcAccessControlListDao jdbcAccessControlListDao;
+    @Autowired
+    JdbcIpAccessControlListDao jdbcIpAccessControlListDao;
     @Autowired IpResourceConfiguration ipResourceConfiguration;
 
     @Value("${api.rest.baseurl}")
@@ -914,7 +919,7 @@ public class ElasticFullTextSearchTestIntegration extends AbstractElasticSearchI
     @Test
     public void permanent_block() {
         final IpInterval localhost = IpInterval.parse(Inet4Address.getLoopbackAddress().getHostAddress());
-        jdbcAccessControlListDao.savePermanentBlock(localhost, LocalDate.now(), 1, "test");
+        jdbcIpAccessControlListDao.savePermanentBlock(localhost, LocalDate.now(), 1, "test");
         ipResourceConfiguration.reload();
 
         databaseHelper.addObject(RpslObject.parse(
@@ -925,6 +930,33 @@ public class ElasticFullTextSearchTestIntegration extends AbstractElasticSearchI
 
         try {
             query("q=john%20mcdonald");
+            fail("request should have been blocked");
+        } catch (ClientErrorException cee) {
+            assertThat(cee.getResponse().getStatus(), is(429));
+        } finally {
+            assertThat(aclJdbcTemplate.update("DELETE FROM acl_denied WHERE prefix = ?", localhost.toString()), is(1));
+            ipResourceConfiguration.reload();
+        }
+    }
+
+    @Test
+    public void permanent_block_sso() {
+        final IpInterval localhost = IpInterval.parse(Inet4Address.getLoopbackAddress().getHostAddress());
+        jdbcIpAccessControlListDao.savePermanentBlock(localhost, LocalDate.now(), 1, "test");
+        ipResourceConfiguration.reload();
+
+        databaseHelper.addObject(RpslObject.parse(
+                "person: John McDonald\n" +
+                        "nic-hdl: AA1-RIPE\n" +
+                        "source: RIPE"));
+        rebuildIndex();
+
+        try {
+            parseResponse(
+                    RestTest.target(getPort(), "whois/fulltextsearch/select?q=john%20mcdonald")
+                            .request()
+                            .cookie(AuthServiceClient.TOKEN_KEY, VALID_TOKEN)
+                            .get(String.class));
             fail("request should have been blocked");
         } catch (ClientErrorException cee) {
             assertThat(cee.getResponse().getStatus(), is(429));
@@ -953,6 +985,28 @@ public class ElasticFullTextSearchTestIntegration extends AbstractElasticSearchI
     }
 
     @Test
+    public void too_many_personal_object_temporary_block_sso() {
+        testPersonalObjectAccounting.accountPersonalObject(VALID_TOKEN_USER_NAME, 5000);
+
+        databaseHelper.addObject(RpslObject.parse(
+                "person: John McDonald\n" +
+                        "nic-hdl: AA1-RIPE\n" +
+                        "source: RIPE"));
+        rebuildIndex();
+
+        try {
+            parseResponse(
+                    RestTest.target(getPort(), "whois/fulltextsearch/select?q=john%20mcdonald")
+                            .request()
+                            .cookie(AuthServiceClient.TOKEN_KEY, VALID_TOKEN)
+                            .get(String.class));
+            fail("request should have been blocked");
+        } catch (ClientErrorException cee) {
+            assertThat(cee.getResponse().getStatus(), is(429));
+        }
+    }
+
+    @Test
     public void should_account_for_personal_objects() {
         testPersonalObjectAccounting.accountPersonalObject(Inet4Address.getLoopbackAddress(), 1);
 
@@ -966,6 +1020,28 @@ public class ElasticFullTextSearchTestIntegration extends AbstractElasticSearchI
 
         int totalCount = testPersonalObjectAccounting.getQueriedPersonalObjects(Inet4Address.getLoopbackAddress());
         assertThat(totalCount, is(2));
+    }
+
+    @Test
+    public void should_account_for_personal_objects_using_sso() {
+        testPersonalObjectAccounting.accountPersonalObject(Inet4Address.getLoopbackAddress(), 1);
+        testPersonalObjectAccounting.accountPersonalObject(VALID_TOKEN_USER_NAME, 1);
+
+        databaseHelper.addObject(RpslObject.parse(
+                "person: John McDonald\n" +
+                        "nic-hdl: AA1-RIPE\n" +
+                        "source: RIPE"));
+        rebuildIndex();
+
+        RestTest.target(getPort(), "whois/fulltextsearch/select?q=john%20mcdonald")
+                .request()
+                .cookie(AuthServiceClient.TOKEN_KEY, VALID_TOKEN)
+                .get(String.class);
+
+        int totalCountIp = testPersonalObjectAccounting.getQueriedPersonalObjects(Inet4Address.getLoopbackAddress());
+        int totalCountSSO = testPersonalObjectAccounting.getQueriedPersonalObjects(VALID_TOKEN_USER_NAME);
+        assertThat(totalCountIp, is(1)) ;
+        assertThat(totalCountSSO, is(2));
     }
 
     @Test

@@ -4,6 +4,7 @@ import net.javacrumbs.shedlock.spring.annotation.SchedulerLock;
 import net.ripe.db.whois.common.DateTimeProvider;
 import net.ripe.db.whois.common.scheduler.DailyScheduledTask;
 import net.ripe.db.whois.query.dao.IpAccessControlListDao;
+import net.ripe.db.whois.query.dao.SSOAccessControlListDao;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -13,16 +14,16 @@ import org.springframework.stereotype.Component;
 import java.time.LocalDate;
 
 @Component
-public class AutomaticPermanentBlocksCleanup implements DailyScheduledTask {
-    private static final Logger LOGGER = LoggerFactory.getLogger(AutomaticPermanentBlocksCleanup.class);
+public class AutomaticSSOPermanentBlocksCleanup implements DailyScheduledTask {
+    private static final Logger LOGGER = LoggerFactory.getLogger(AutomaticSSOPermanentBlocksCleanup.class);
 
     private final DateTimeProvider dateTimeProvider;
-    private final IpAccessControlListDao ipAccessControlListDao;
+    private final SSOAccessControlListDao ssoAccessControlListDao;
 
     @Autowired
-    public AutomaticPermanentBlocksCleanup(final DateTimeProvider dateTimeProvider, final IpAccessControlListDao ipAccessControlListDao) {
+    public AutomaticSSOPermanentBlocksCleanup(final DateTimeProvider dateTimeProvider, final SSOAccessControlListDao ssoAccessControlListDao) {
         this.dateTimeProvider = dateTimeProvider;
-        this.ipAccessControlListDao = ipAccessControlListDao;
+        this.ssoAccessControlListDao = ssoAccessControlListDao;
     }
 
     @Override
@@ -31,10 +32,10 @@ public class AutomaticPermanentBlocksCleanup implements DailyScheduledTask {
     public void run() {
         final LocalDate eventRemoveDate = dateTimeProvider.getCurrentDate().minusMonths(3);
         LOGGER.debug("Removing block events before {}", eventRemoveDate);
-        ipAccessControlListDao.removeBlockEventsBefore(eventRemoveDate);
+        ssoAccessControlListDao.removeBlockEventsBefore(eventRemoveDate);
 
         final LocalDate blockRemoveDate = dateTimeProvider.getCurrentDate().minusYears(1);
         LOGGER.debug("Removing permanent bans before {}", blockRemoveDate);
-        ipAccessControlListDao.removePermanentBlocksBefore(blockRemoveDate);
+        ssoAccessControlListDao.removePermanentBlocksBefore(blockRemoveDate);
     }
 }

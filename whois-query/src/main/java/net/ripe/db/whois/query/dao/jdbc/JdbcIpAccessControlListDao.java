@@ -8,7 +8,7 @@ import net.ripe.db.whois.common.domain.BlockEvents;
 import net.ripe.db.whois.common.domain.IpResourceEntry;
 import net.ripe.db.whois.common.domain.Timestamp;
 import net.ripe.db.whois.common.ip.IpInterval;
-import net.ripe.db.whois.query.dao.AccessControlListDao;
+import net.ripe.db.whois.query.dao.IpAccessControlListDao;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -33,13 +33,13 @@ import java.util.Map;
 
 @Repository
 @RetryFor(RecoverableDataAccessException.class)
-public class JdbcAccessControlListDao implements AccessControlListDao {
-    private static final Logger LOGGER = LoggerFactory.getLogger(AccessControlListDao.class);
+public class JdbcIpAccessControlListDao implements IpAccessControlListDao {
+    private static final Logger LOGGER = LoggerFactory.getLogger(IpAccessControlListDao.class);
 
     private final JdbcTemplate jdbcTemplate;
 
     @Autowired
-    public JdbcAccessControlListDao(@Qualifier("aclDataSource") DataSource dataSource) {
+    public JdbcIpAccessControlListDao(@Qualifier("aclDataSource") DataSource dataSource) {
         this.jdbcTemplate = new JdbcTemplate(dataSource);
     }
 

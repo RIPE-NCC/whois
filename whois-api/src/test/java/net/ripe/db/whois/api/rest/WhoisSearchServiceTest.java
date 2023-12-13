@@ -44,6 +44,7 @@ public class WhoisSearchServiceTest {
             try {
                 subject.search(
                         request,
+                        null,
                         Sets.newHashSet("TEST"),
                         "AARDVARK-MNT",
                         Collections.EMPTY_SET,
