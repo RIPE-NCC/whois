@@ -79,7 +79,7 @@ public class ElasticFullTextIndex {
         try {
             alert();
         } catch (DataAccessException | IOException | IllegalStateException e) {
-            LOGGER.error("Unable to update fulltext index due to {}: {}", e.getClass(), e.getMessage());
+            LOGGER.error("Unable to perform fulltext index checks due to {}: {}", e.getClass(), e.getMessage());
         }
 
         LOGGER.info("Completed Elasticsearch index check");
