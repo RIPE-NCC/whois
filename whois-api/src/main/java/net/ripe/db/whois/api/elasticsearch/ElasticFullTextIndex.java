@@ -25,9 +25,7 @@ import java.util.Map;
 @Component
 public class ElasticFullTextIndex {
     private static final Logger LOGGER = LoggerFactory.getLogger(ElasticFullTextIndex.class);
-    private static final String UPDATE_TASK_NAME = "elasticFulltextIndexUpdate";
-
-    private static final String ALERT_TASK_NAME = "elasticFulltextIndexAlert";
+    private static final String TASK_NAME = "elasticFulltextIndexUpdate";
     private final ElasticIndexService elasticIndexService;
     private final JdbcTemplate jdbcTemplate;
     private final String source;
@@ -52,7 +50,7 @@ public class ElasticFullTextIndex {
     }
 
     @Scheduled(fixedDelayString = "${fulltext.index.update.interval.msecs:60000}")
-    @SchedulerLock(name = UPDATE_TASK_NAME)
+    @SchedulerLock(name = TASK_NAME)
     public void scheduledUpdate() {
         if (!elasticIndexService.isEnabled()) {
             LOGGER.error("Elasticsearch is not enabled");
@@ -67,42 +65,6 @@ public class ElasticFullTextIndex {
         }
 
         LOGGER.info("Completed updating Elasticsearch indexes");
-    }
-
-    @Scheduled(fixedDelay = 60 * 60 * 1_000L)
-    @SchedulerLock(name = ALERT_TASK_NAME)
-    public void checkIndex() {
-        if (!elasticIndexService.isEnabled()) {
-            LOGGER.error("Elasticsearch is not enabled");
-            return;
-        }
-
-        LOGGER.info("started scheduled job for checking elastic search indexes");
-        try {
-            alert();
-        } catch (DataAccessException | IOException | IllegalStateException e) {
-            LOGGER.error("Unable to perform fulltext index checks due to {}: {}", e.getClass(), e.getMessage());
-        }
-
-        LOGGER.info("Completed Elasticsearch index check");
-    }
-
-    protected void alert() throws IOException{
-        if (shouldRebuild()) {
-            LOGGER.error("ES indexes needs to be rebuild");
-            return;
-        }
-
-        elasticIndexService.refreshIndex();
-
-        final ElasticIndexMetadata committedMetadata = elasticIndexService.getMetadata();
-        final SerialEntry serialEntry = serialDao.getById(committedMetadata.getSerial());
-        final int countObjectsInDb = serialDao.getObjectCountUntilObjectId(serialEntry.getRpslObject().getObjectId());
-
-        final long countInES = elasticIndexService.getWhoisDocCount();
-        if (countInES != countObjectsInDb) {
-            LOGGER.error(String.format("Number of objects in DB (%s) does not match to number of objects indexed in ES (%s) for serialId (%s)", countObjectsInDb, countInES, serialEntry.getSerialId()));
-        }
     }
 
     protected void update() throws IOException {
@@ -146,7 +108,19 @@ public class ElasticFullTextIndex {
 
         LOGGER.debug("Updated index in {}", stopwatch.stop());
 
+        final Stopwatch refreshStopWatch = Stopwatch.createStarted();
+        elasticIndexService.refreshIndex();
+        LOGGER.info("Refresh took {}", refreshStopWatch.stop());
+
+
         elasticIndexService.updateMetadata(new ElasticIndexMetadata(dbMaxSerialId, source));
+
+        // One Object POEM-CDMA can not be parsed to RPSl so cannot be indexed
+        final int countInDb = ((int) maxSerialIdWithObjectCount.values().toArray()[0]) - 1;
+        final long countInES = elasticIndexService.getWhoisDocCount();
+        if(countInES != countInDb) {
+            LOGGER.error(String.format("Number of objects in DB (%s) does not match to number of objects indexed in ES (%s) for serialId (%s)", countInDb, countInES, dbMaxSerialId));
+        }
     }
 
     private SerialEntry getSerialEntry(final int serial) {
