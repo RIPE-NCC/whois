@@ -112,7 +112,6 @@ public class ElasticFullTextIndex {
 
         elasticIndexService.updateMetadata(new ElasticIndexMetadata(dbMaxSerialId, source));
 
-        // One Object POEM-CDMA can not be parsed to RPSl so cannot be indexed
         final int countInDb = (int) maxSerialIdWithObjectCount.values().toArray()[0];
         final long countInES = elasticIndexService.getWhoisDocCount();
         if(countInES != countInDb) {
