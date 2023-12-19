@@ -63,15 +63,4 @@ public class JdbcSerialDao implements SerialDao {
 
         return Collections.singletonMap(maxSerialId,countInDb);
     }
-
-    @Override
-    @CheckForNull
-    @Transactional(isolation = Isolation.REPEATABLE_READ, propagation = Propagation.REQUIRES_NEW)
-    public Integer getObjectCountUntilObjectId(final int objectId) {
-        return jdbcTemplate.queryForObject(
-                "SELECT count(*) FROM last WHERE sequence_id > 0 and object_Id <= ?",
-                Integer.class,
-                objectId
-        );
-    }
 }
