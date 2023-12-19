@@ -108,10 +108,7 @@ public class ElasticFullTextIndex {
 
         LOGGER.debug("Updated index in {}", stopwatch.stop());
 
-        final Stopwatch refreshStopWatch = Stopwatch.createStarted();
         elasticIndexService.refreshIndex();
-        LOGGER.info("Refresh took {}", refreshStopWatch.stop());
-
 
         elasticIndexService.updateMetadata(new ElasticIndexMetadata(dbMaxSerialId, source));
 
