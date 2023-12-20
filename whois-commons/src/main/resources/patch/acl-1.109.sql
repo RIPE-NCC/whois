@@ -25,4 +25,5 @@ CREATE TABLE `acl_sso_event` (
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
+TRUNCATE version;
 INSERT INTO version VALUES ('whois-1.109');
