@@ -32,7 +32,7 @@ public class VCardBuilder {
     private final List<VCardProperty> properties = Lists.newArrayList();
 
     private static final String PARAMETER_KEY = "type";
-    private static final Map ABUSE_MAP = ImmutableMap.of(PARAMETER_KEY,"abuse");
+    private static final Map ABUSE_MAP = ImmutableMap.of(PARAMETER_KEY,"work");
     private static final Map PHONE_MAP = ImmutableMap.of(PARAMETER_KEY, "voice");
     private static final Map FAX_MAP = ImmutableMap.of(PARAMETER_KEY, "fax");
     private static final Map EMPTY_MAP = ImmutableMap.of();

@@ -1750,7 +1750,7 @@ public class RdapServiceTestIntegration extends AbstractRdapIntegrationTest {
                 "[kind, {}, text, group], " +
                 "[adr, {label=Singel 358}, text, [, , , , , , ]], " +
                 "[tel, {type=voice}, text, +31 6 12345678], " +
-                "[email, {type=abuse}, text, abuse@test.net]]"));
+                "[email, {type=work}, text, abuse@test.net]]"));
     }
 
     @Test
@@ -1858,7 +1858,7 @@ public class RdapServiceTestIntegration extends AbstractRdapIntegrationTest {
                 "[kind, {}, text, group], " +
                 "[adr, {label=Singel 358}, text, [, , , , , , ]], " +
                 "[tel, {type=voice}, text, +31 6 12345678], " +
-                "[email, {type=abuse}, text, abuse@test.net]]"));
+                "[email, {type=work}, text, abuse@test.net]]"));
     }
 
     @Test
@@ -2075,7 +2075,7 @@ public class RdapServiceTestIntegration extends AbstractRdapIntegrationTest {
                 "[kind, {}, text, group], " +
                 "[adr, {label=Singel 258}, text, [, , , , , , ]], " +
                 "[tel, {type=voice}, text, +31 6 12345678], " +
-                "[email, {type=abuse}, text, abuse@test.net]]"));
+                "[email, {type=work}, text, abuse@test.net]]"));
     }
 
 
