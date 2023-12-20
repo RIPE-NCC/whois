@@ -33,7 +33,7 @@ public class ElasticFullTextIndex {
 
     @Autowired
     public ElasticFullTextIndex(final ElasticIndexService elasticIndexService,
-                                @Qualifier("jdbcSerialDao") final SerialDao serialDao,
+                                @Qualifier("jdbcSlaveSerialDao") final SerialDao serialDao,
                                 @Qualifier("whoisSlaveDataSource") final DataSource dataSource,
                                 @Value("${whois.source}") final String source) {
         this.elasticIndexService = elasticIndexService;
@@ -92,30 +92,27 @@ public class ElasticFullTextIndex {
         final Stopwatch stopwatch = Stopwatch.createStarted();
 
         for (int serial = esSerialId + 1; serial <= dbMaxSerialId; serial++) {
-          final SerialEntry serialEntry = getSerialEntry(serial);
-          if (serialEntry == null) {
-              // suboptimal;there could be big gaps in serial entries.
-             continue;
-          }
+            final SerialEntry serialEntry = getSerialEntry(serial);
+            if (serialEntry == null) {
+                // suboptimal;there could be big gaps in serial entries.
+                continue;
+            }
 
-        final RpslObject rpslObject = serialEntry.getRpslObject();
+            final RpslObject rpslObject = serialEntry.getRpslObject();
 
-        switch (serialEntry.getOperation()) {
-            case UPDATE:
-                //indexService.deleteEntry(rpslObject.getObjectId());
-                elasticIndexService.addEntry(rpslObject);
-                break;
-            case DELETE:
-                elasticIndexService.deleteEntry(rpslObject.getObjectId());
-                break;
+            switch (serialEntry.getOperation()) {
+                case UPDATE -> elasticIndexService.createOrUpdateEntry(rpslObject);
+                case DELETE -> elasticIndexService.deleteEntry(rpslObject.getObjectId());
             }
         }
 
         LOGGER.debug("Updated index in {}", stopwatch.stop());
+
+        elasticIndexService.refreshIndex();
+
         elasticIndexService.updateMetadata(new ElasticIndexMetadata(dbMaxSerialId, source));
 
-        // One Object POEM-CDMA can not be parsed to RPSl so cannot be indexed
-        final int countInDb = ((int) maxSerialIdWithObjectCount.values().toArray()[0]) - 1;
+        final int countInDb = (int) maxSerialIdWithObjectCount.values().toArray()[0];
         final long countInES = elasticIndexService.getWhoisDocCount();
         if(countInES != countInDb) {
             LOGGER.error(String.format("Number of objects in DB (%s) does not match to number of objects indexed in ES (%s) for serialId (%s)", countInDb, countInES, dbMaxSerialId));
