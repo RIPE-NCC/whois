@@ -132,8 +132,8 @@ public class ElasticFullTextIndex {
         try {
             return JdbcRpslObjectOperations.getMaxSerialIdWithObjectCount(jdbcTemplate);
         } catch (Exception e) {
-            LOGGER.debug("Caught exception reading max serial Id with object count", e);
-            return null;
+            LOGGER.error("Caught exception reading max serial Id with object count", e);
+            throw e;
         }
     }
 
