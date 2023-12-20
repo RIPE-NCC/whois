@@ -3,7 +3,6 @@ package net.ripe.db.whois.api.elasticsearch;
 import com.google.common.base.Stopwatch;
 import jakarta.annotation.PostConstruct;
 import net.javacrumbs.shedlock.spring.annotation.SchedulerLock;
-import net.ripe.db.whois.common.dao.SerialDao;
 import net.ripe.db.whois.common.dao.jdbc.JdbcRpslObjectOperations;
 import net.ripe.db.whois.common.domain.serials.SerialEntry;
 import net.ripe.db.whois.common.rpsl.RpslObject;
@@ -16,6 +15,9 @@ import org.springframework.dao.DataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Isolation;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
 
 import javax.sql.DataSource;
 import java.io.IOException;
@@ -29,17 +31,14 @@ public class ElasticFullTextIndex {
     private final ElasticIndexService elasticIndexService;
     private final JdbcTemplate jdbcTemplate;
     private final String source;
-    private final SerialDao serialDao;
 
     @Autowired
     public ElasticFullTextIndex(final ElasticIndexService elasticIndexService,
-                                @Qualifier("jdbcSlaveSerialDao") final SerialDao serialDao,
                                 @Qualifier("whoisSlaveDataSource") final DataSource dataSource,
                                 @Value("${whois.source}") final String source) {
         this.elasticIndexService = elasticIndexService;
         this.jdbcTemplate = new JdbcTemplate(dataSource);
         this.source = source;
-        this.serialDao = serialDao;
     }
 
     @PostConstruct
@@ -67,14 +66,15 @@ public class ElasticFullTextIndex {
         LOGGER.info("Completed updating Elasticsearch indexes");
     }
 
-    protected void update() throws IOException {
+    @Transactional(isolation = Isolation.REPEATABLE_READ, propagation = Propagation.REQUIRES_NEW)
+    public void update() throws IOException {
         if (shouldRebuild()) {
             LOGGER.error("ES indexes needs to be rebuild");
             return;
         }
 
         final ElasticIndexMetadata committedMetadata = elasticIndexService.getMetadata();
-        final Map<Integer, Integer> maxSerialIdWithObjectCount = serialDao.getMaxSerialIdWithObjectCount();
+        final Map<Integer, Integer> maxSerialIdWithObjectCount = getMaxSerialIdWithObjectCount();
         final int dbMaxSerialId = (Integer) maxSerialIdWithObjectCount.keySet().toArray()[0];
 
         final int esSerialId = committedMetadata.getSerial();
@@ -125,6 +125,15 @@ public class ElasticFullTextIndex {
         } catch (Exception e) {
             LOGGER.debug("Caught exception reading serial {} from the database, Ignoring", serial, e);
             return null;
+        }
+    }
+
+    private Map<Integer, Integer> getMaxSerialIdWithObjectCount() {
+        try {
+            return JdbcRpslObjectOperations.getMaxSerialIdWithObjectCount(jdbcTemplate);
+        } catch (Exception e) {
+            LOGGER.error("Caught exception reading max serial Id with object count", e);
+            throw e;
         }
     }
 

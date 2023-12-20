@@ -39,8 +39,10 @@ import org.springframework.stereotype.Component;
 import javax.annotation.CheckForNull;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 @Component
@@ -407,6 +409,15 @@ public class JdbcRpslObjectOperations {
             LOGGER.debug("SerialDao.getById({})", serialId, e);
             return null;
         }
+    }
+
+
+    @CheckForNull
+    public static Map<Integer, Integer> getMaxSerialIdWithObjectCount(final JdbcTemplate jdbcTemplate) {
+        final Integer maxSerialId =  jdbcTemplate.queryForObject("SELECT MAX(serial_id) FROM serials", Integer.class);
+        final Integer countInDb = jdbcTemplate.queryForObject( "SELECT count(*) FROM last WHERE sequence_id > 0", Integer.class);
+
+        return Collections.singletonMap(maxSerialId,countInDb);
     }
 
     public static List<SerialEntry> getSerialEntriesBetween(final JdbcTemplate jdbcTemplate, final int serialIdFrom, final int serialIdTo) {

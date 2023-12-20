@@ -209,7 +209,7 @@ public class RewriteEngineTestIntegration extends AbstractIntegrationTest {
                 .get(Response.class);
 
         assertThat(response.getStatus(), is(HttpStatus.FOUND_302));
-        assertThat(response.getHeaderString("Location"), is("https://github.com/RIPE-NCC/whois/wiki/WHOIS-REST-API"));
+        assertThat(response.getHeaderString("Location"), is("https://apps.db.ripe.net/docs/RIPE-Database-Structure/REST-API-Data-model/#whoisresources"));
 
     }
 
