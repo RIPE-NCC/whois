@@ -72,7 +72,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import static net.ripe.db.whois.api.rdap.RdapConformance.GEO_FEED_V1;
+import static net.ripe.db.whois.api.rdap.RdapConformance.GEO_FEED_1;
 import static net.ripe.db.whois.api.rdap.RedactionObjectMapper.RDAP_VCARD_REDACTED_ATTRIBUTES;
 import static net.ripe.db.whois.api.rdap.RedactionObjectMapper.mapRedactions;
 import static net.ripe.db.whois.api.rdap.domain.Status.ACTIVE;
@@ -375,7 +375,7 @@ class RdapObjectMapper {
             ip.setLang(language);
         }
 
-        setGeoFeed(rpslObject, ip);
+        setGeoFeed(rpslObject, ip, requestUrl);
 
         this.mapContactEntities(ip, rpslObject, requestUrl);
         return ip;
@@ -693,11 +693,11 @@ class RdapObjectMapper {
         return attributes.get(0).getCleanValue().toString();
     }
 
-    private static void setGeoFeed(final RpslObject rpslObject, final Ip ip) {
-        ip.getRdapConformance().add(GEO_FEED_V1.getValue());
+    private static void setGeoFeed(final RpslObject rpslObject, final Ip ip, final String requestUrl) {
+        ip.getRdapConformance().add(GEO_FEED_1.getValue());
 
         if(rpslObject.containsAttribute(GEOFEED)) {
-            ip.setGeofeedv1_geofeed(rpslObject.getValueForAttribute(GEOFEED).toString());
+            ip.getLinks().add(new Link(requestUrl, "geo", rpslObject.getValueForAttribute(GEOFEED).toString(), null, "application/geofeed+csv"));
             return;
         }
 
@@ -709,8 +709,7 @@ class RdapObjectMapper {
                 LOGGER.warn("Seems like geo feed is not set properly for object {}", rpslObject.getKey());
                 return;
             }
-
-            ip.setGeofeedv1_geofeed(geoFeed[1]);
+            ip.getLinks().add(new Link(requestUrl, "geo", geoFeed[1], null, "application/geofeed+csv"));
         });
     }
 }
