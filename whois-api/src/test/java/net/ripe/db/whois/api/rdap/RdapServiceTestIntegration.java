@@ -264,7 +264,7 @@ public class RdapServiceTestIntegration extends AbstractRdapIntegrationTest {
     }
 
     @Test
-    public void lookup_inetnum_without_geofeed_conformance() {
+    public void lookup_inetnum_without_geofeed_then_conformance() {
         databaseHelper.addObject("" +
                 "inetnum:      192.0.2.0 - 192.0.2.255\n" +
                 "netname:      TEST-NET-NAME\n" +
@@ -873,7 +873,7 @@ public class RdapServiceTestIntegration extends AbstractRdapIntegrationTest {
     }
 
     @Test
-    public void lookup_inet6num_without_geoFeed_conformance() {
+    public void lookup_inet6num_without_geoFeed_then_conformance() {
         databaseHelper.addObject("" +
                 "inet6num:       2001:2002:2003::/48\n" +
                 "netname:        RIPE-NCC\n" +
