@@ -38,9 +38,18 @@ For example: https://rdap.db.ripe.net/entity/KR4422-RIPE
 
 Related Contact information is Filtered
 ---------------------------------------
-Any related contact entities ("technical","administrative","abuse" etc.) have filtered contact information, i.e. "e-mail" and "notify" values are not included. This was done to avoid blocking clients for inadvertently querying excessively for personal data.
+Any related contact entities ("technical","administrative" etc.) have filtered contact information, i.e. "e-mail" 
+and "notify" values are not included. This was done to avoid blocking clients for inadvertently querying excessively for personal data.
 
 A workaround is to query for each entity separately using the contact's nic-hdl, and the unfiltered information is returned (although a limit for personal data does apply).
+
+Abuse Contact information
+--------------------------
+Abuse contact information is not filtered. However, this attribute's type is not "home" or "work" as the RFC specifies. 
+The type of this attribute is "abuse". 
+
+This decision was taken to differentiate between a normal e-mail and abuse e-mail. Nowadays, with the rest of contact 
+entities e-mail attributes filtered (and redacted), this change can not be done because it is a breaking change.
 
 Entity Search
 --------------------------
