@@ -6,7 +6,7 @@ public enum RdapConformance {
     NRO_PROFILE_0("nro_rdap_profile_0"),
     FLAT_MODEL("nro_rdap_profile_asn_flat_0"),
     REDACTED("redacted"),
-    GEO_FEED_V1("geofeedv1");
+    GEO_FEED_1("geofeed1");
 
 
     private final String value;

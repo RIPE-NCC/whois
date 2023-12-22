@@ -40,6 +40,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 import static net.ripe.db.whois.api.rdap.domain.vcard.VCardType.TEXT;
 import static net.ripe.db.whois.common.rpsl.AttributeType.COUNTRY;
@@ -238,7 +239,7 @@ public class RdapServiceTestIntegration extends AbstractRdapIntegrationTest {
 
         assertThat(ip.getPort43(), is("whois.ripe.net"));
         assertThat(ip.getRdapConformance(), hasSize(5));
-        assertThat(ip.getRdapConformance(), containsInAnyOrder("rdap_level_0", "cidr0", "nro_rdap_profile_0", "redacted", "geofeedv1"));
+        assertThat(ip.getRdapConformance(), containsInAnyOrder("rdap_level_0", "cidr0", "nro_rdap_profile_0", "redacted", "geofeed1"));
 
 
         final List<Remark> remarks = ip.getRemarks();
@@ -263,6 +264,30 @@ public class RdapServiceTestIntegration extends AbstractRdapIntegrationTest {
     }
 
     @Test
+    public void lookup_inetnum_without_geofeed_then_conformance() {
+        databaseHelper.addObject("" +
+                "inetnum:      192.0.2.0 - 192.0.2.255\n" +
+                "netname:      TEST-NET-NAME\n" +
+                "descr:        TEST network\n" +
+                "country:      NL\n" +
+                "language:     en\n" +
+                "tech-c:       TP1-TEST\n" +
+                "status:       OTHER\n" +
+                "mnt-by:       OWNER-MNT\n" +
+                "created:         2022-08-14T11:48:28Z\n" +
+                "last-modified:   2022-10-25T12:22:39Z\n" +
+                "source:       TEST");
+        ipTreeUpdater.rebuild();
+
+        final Ip ip = createResource("ip/192.0.2.0/24")
+                .request(MediaType.APPLICATION_JSON_TYPE)
+                .get(Ip.class);
+
+        assertThat(ip.getHandle(), is("192.0.2.0 - 192.0.2.255"));
+        assertThat(ip.getRdapConformance(), hasItem(RdapConformance.GEO_FEED_1.getValue()));
+    }
+
+    @Test
     public void lookup_inetnum_geoFeed_attribute() {
         databaseHelper.addObject("" +
                 "inetnum:      192.0.2.0 - 192.0.2.255\n" +
@@ -284,8 +309,8 @@ public class RdapServiceTestIntegration extends AbstractRdapIntegrationTest {
                 .get(Ip.class);
 
         assertThat(ip.getHandle(), is("192.0.2.0 - 192.0.2.255"));
-        assertThat(ip.getGeofeedv1_geofeed(), is("https://test.net/geo/test.csv"));
-        assertThat(ip.getRdapConformance(), hasItem(RdapConformance.GEO_FEED_V1.getValue()));
+        assertGeoFeedLink(ip.getLinks(), "https://rdap.db.ripe.net/ip/192.0.2.0/24");
+        assertThat(ip.getRdapConformance(), hasItem(RdapConformance.GEO_FEED_1.getValue()));
     }
 
     @Test
@@ -310,8 +335,8 @@ public class RdapServiceTestIntegration extends AbstractRdapIntegrationTest {
                 .get(Ip.class);
 
         assertThat(ip.getHandle(), is("192.0.2.0 - 192.0.2.255"));
-        assertThat(ip.getGeofeedv1_geofeed(), is("https://test.net/geo/test.csv"));
-        assertThat(ip.getRdapConformance(), hasItem(RdapConformance.GEO_FEED_V1.getValue()));
+        assertGeoFeedLink(ip.getLinks(), "https://rdap.db.ripe.net/ip/192.0.2.0/24");
+        assertThat(ip.getRdapConformance(), hasItem(RdapConformance.GEO_FEED_1.getValue()));
     }
 
     @Test
@@ -336,8 +361,8 @@ public class RdapServiceTestIntegration extends AbstractRdapIntegrationTest {
                 .get(Ip.class);
 
         assertThat(ip.getHandle(), is("192.0.2.0 - 192.0.2.255"));
-        assertThat(ip.getGeofeedv1_geofeed(), is("https://test.net/geo/test.csv"));
-        assertThat(ip.getRdapConformance(), hasItem(RdapConformance.GEO_FEED_V1.getValue()));
+        assertGeoFeedLink(ip.getLinks(), "https://rdap.db.ripe.net/ip/192.0.2.0/24");
+        assertThat(ip.getRdapConformance(), hasItem(RdapConformance.GEO_FEED_1.getValue()));
     }
 
     @Test
@@ -690,7 +715,7 @@ public class RdapServiceTestIntegration extends AbstractRdapIntegrationTest {
         assertThat(ip.getCidr0_cidrs().get(1).getLength(), is(23));
 
         assertThat(ip.getRdapConformance(), containsInAnyOrder("cidr0", "rdap_level_0", "nro_rdap_profile_0",
-                "redacted", "geofeedv1"));
+                "redacted", "geofeed1"));
 
         var notices = ip.getNotices();
         var inaccuracyNotice = notices.get(1);
@@ -827,7 +852,7 @@ public class RdapServiceTestIntegration extends AbstractRdapIntegrationTest {
 
         assertThat(ip.getPort43(), is("whois.ripe.net"));
         assertThat(ip.getRdapConformance(), hasSize(5));
-        assertThat(ip.getRdapConformance(), containsInAnyOrder("rdap_level_0", "cidr0", "nro_rdap_profile_0", "redacted", "geofeedv1"));
+        assertThat(ip.getRdapConformance(), containsInAnyOrder("rdap_level_0", "cidr0", "nro_rdap_profile_0", "redacted", "geofeed1"));
 
         final List<Remark> remarks = ip.getRemarks();
         assertThat(remarks, hasSize(1));
@@ -847,6 +872,31 @@ public class RdapServiceTestIntegration extends AbstractRdapIntegrationTest {
         assertCopyrightLink(ip.getLinks(), "https://rdap.db.ripe.net/ip/2001:2002:2003::/48");
     }
 
+    @Test
+    public void lookup_inet6num_without_geoFeed_then_conformance() {
+        databaseHelper.addObject("" +
+                "inet6num:       2001:2002:2003::/48\n" +
+                "netname:        RIPE-NCC\n" +
+                "geofeed:        https://test.net/geo/test.csv\n" +
+                "descr:          Private Network\n" +
+                "country:        NL\n" +
+                "language:       EN\n" +
+                "tech-c:         TP1-TEST\n" +
+                "status:         ASSIGNED PA\n" +
+                "mnt-by:         OWNER-MNT\n" +
+                "mnt-lower:      OWNER-MNT\n" +
+                "created:         2022-08-14T11:48:28Z\n" +
+                "last-modified:   2022-10-25T12:22:39Z\n" +
+                "source:         TEST");
+        ipTreeUpdater.rebuild();
+
+        final Ip ip = createResource("ip/2001:2002:2003::/48")
+                .request(MediaType.APPLICATION_JSON_TYPE)
+                .get(Ip.class);
+
+        assertThat(ip.getHandle(), is("2001:2002:2003::/48"));
+        assertThat(ip.getRdapConformance(), hasItem(RdapConformance.GEO_FEED_1.getValue()));
+    }
     @Test
     public void lookup_inet6num_geoFeed_attribute() {
         databaseHelper.addObject("" +
@@ -870,8 +920,8 @@ public class RdapServiceTestIntegration extends AbstractRdapIntegrationTest {
                 .get(Ip.class);
 
         assertThat(ip.getHandle(), is("2001:2002:2003::/48"));
-        assertThat(ip.getGeofeedv1_geofeed(), is("https://test.net/geo/test.csv"));
-        assertThat(ip.getRdapConformance(), hasItem(RdapConformance.GEO_FEED_V1.getValue()));
+        assertGeoFeedLink(ip.getLinks(), "https://rdap.db.ripe.net/ip/2001:2002:2003::/48");
+        assertThat(ip.getRdapConformance(), hasItem(RdapConformance.GEO_FEED_1.getValue()));
     }
 
     @Test
@@ -897,8 +947,8 @@ public class RdapServiceTestIntegration extends AbstractRdapIntegrationTest {
                 .get(Ip.class);
 
         assertThat(ip.getHandle(), is("2001:2002:2003::/48"));
-        assertThat(ip.getGeofeedv1_geofeed(), is("https://test.net/geo/test.csv"));
-        assertThat(ip.getRdapConformance(), hasItem(RdapConformance.GEO_FEED_V1.getValue()));
+        assertGeoFeedLink(ip.getLinks(), "https://rdap.db.ripe.net/ip/2001:2002:2003::/48");
+        assertThat(ip.getRdapConformance(), hasItem(RdapConformance.GEO_FEED_1.getValue()));
     }
 
     @Test
@@ -924,8 +974,8 @@ public class RdapServiceTestIntegration extends AbstractRdapIntegrationTest {
                 .get(Ip.class);
 
         assertThat(ip.getHandle(), is("2001:2002:2003::/48"));
-        assertThat(ip.getGeofeedv1_geofeed(), is("https://test.net/geo/test.csv"));
-        assertThat(ip.getRdapConformance(), hasItem(RdapConformance.GEO_FEED_V1.getValue()));
+        assertGeoFeedLink(ip.getLinks(), "https://rdap.db.ripe.net/ip/2001:2002:2003::/48");
+        assertThat(ip.getRdapConformance(), hasItem(RdapConformance.GEO_FEED_1.getValue()));
     }
 
     @Test
@@ -951,8 +1001,8 @@ public class RdapServiceTestIntegration extends AbstractRdapIntegrationTest {
                 .get(Ip.class);
 
         assertThat(ip.getHandle(), is("2001:2002:2003::/48"));
-        assertThat(ip.getGeofeedv1_geofeed(), is("https://test.net/geo/test.csv"));
-        assertThat(ip.getRdapConformance(), hasItem(RdapConformance.GEO_FEED_V1.getValue()));
+        assertGeoFeedLink(ip.getLinks(), "https://rdap.db.ripe.net/ip/2001:2002:2003::/48");
+        assertThat(ip.getRdapConformance(), hasItem(RdapConformance.GEO_FEED_1.getValue()));
     }
 
     @Test
@@ -3115,7 +3165,7 @@ public class RdapServiceTestIntegration extends AbstractRdapIntegrationTest {
         assertThat(help.getPort43(), is("whois.ripe.net"));
         assertThat(help.getRdapConformance(), hasSize(6));
         assertThat(help.getRdapConformance(), containsInAnyOrder("cidr0", "rdap_level_0", "nro_rdap_profile_0",
-                "nro_rdap_profile_asn_flat_0", "redacted", "geofeedv1"));
+                "nro_rdap_profile_asn_flat_0", "redacted", "geofeed1"));
 
         final List<Notice> notices = help.getNotices();
         assertThat(notices, hasSize(1));
@@ -3128,6 +3178,16 @@ public class RdapServiceTestIntegration extends AbstractRdapIntegrationTest {
         assertThat(object.getPort43(), is("whois.ripe.net"));
         assertThat(object.getRdapConformance(), hasSize(4));
         assertThat(object.getRdapConformance(), containsInAnyOrder("rdap_level_0", "cidr0", "nro_rdap_profile_0", "redacted"));
+    }
+
+    private void assertGeoFeedLink(final List<Link> links, final String value) {
+        assertThat(links, hasSize(3));
+
+        final Optional<Link> geoFeedLink = links.stream().filter(link -> link.getRel().equals("geo")).findFirst();
+        assertThat(geoFeedLink.isPresent(), is(true));
+        assertThat(geoFeedLink.get().getValue(), is(value));
+        assertThat(geoFeedLink.get().getHref(), is("https://test.net/geo/test.csv"));
+        assertThat(geoFeedLink.get().getType(), is("application/geofeed+csv"));
     }
 
     private void assertCopyrightLink(final List<Link> links, final String value) {

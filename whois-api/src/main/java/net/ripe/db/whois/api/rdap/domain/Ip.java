@@ -1,12 +1,12 @@
 package net.ripe.db.whois.api.rdap.domain;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
-
 import jakarta.xml.bind.annotation.XmlAccessType;
 import jakarta.xml.bind.annotation.XmlAccessorType;
 import jakarta.xml.bind.annotation.XmlElement;
 import jakarta.xml.bind.annotation.XmlRootElement;
 import jakarta.xml.bind.annotation.XmlType;
+
 import java.io.Serializable;
 import java.util.List;
 
@@ -20,8 +20,7 @@ import java.util.List;
     "type",
     "country",
     "parentHandle",
-    "cidr0_cidrs",
-    "geofeedv1_geofeed"
+    "cidr0_cidrs"
 })
 @XmlRootElement(name = "ip")
 @JsonInclude(JsonInclude.Include.NON_EMPTY)
@@ -44,9 +43,6 @@ public class Ip extends RdapObject implements Serializable {
     protected String parentHandle;
     @XmlElement(required = true)
     protected List<IpCidr0> cidr0_cidrs;
-
-    @XmlElement(required = false)
-    protected String geofeedv1_geofeed;
 
     public Ip() {
         super();
@@ -79,14 +75,6 @@ public class Ip extends RdapObject implements Serializable {
 
     public String getEndAddress() {
         return endAddress;
-    }
-
-    public void setGeofeedv1_geofeed(final String geofeedv1_geofeed) {
-        this.geofeedv1_geofeed = geofeedv1_geofeed;
-    }
-
-    public String getGeofeedv1_geofeed() {
-        return geofeedv1_geofeed;
     }
 
     public void setEndAddress(String value) {
