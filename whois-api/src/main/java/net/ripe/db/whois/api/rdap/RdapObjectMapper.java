@@ -108,6 +108,8 @@ import static net.ripe.db.whois.common.rpsl.ObjectType.INET6NUM;
 class RdapObjectMapper {
 
     private static final String TERMS_AND_CONDITIONS = "http://www.ripe.net/data-tools/support/documentation/terms";
+
+    private static final String GEOFEED_CONTENT_TYPE = "application/geofeed+csv";
     private static final Link COPYRIGHT_LINK = new Link(TERMS_AND_CONDITIONS, "copyright", TERMS_AND_CONDITIONS, null, null);
     private static final Logger LOGGER = LoggerFactory.getLogger(RdapObjectMapper.class);
 
@@ -697,7 +699,7 @@ class RdapObjectMapper {
         ip.getRdapConformance().add(GEO_FEED_1.getValue());
 
         if(rpslObject.containsAttribute(GEOFEED)) {
-            ip.getLinks().add(new Link(requestUrl, "geo", rpslObject.getValueForAttribute(GEOFEED).toString(), null, "application/geofeed+csv"));
+            ip.getLinks().add(new Link(requestUrl, "geo", rpslObject.getValueForAttribute(GEOFEED).toString(), null, GEOFEED_CONTENT_TYPE));
             return;
         }
 
@@ -709,7 +711,7 @@ class RdapObjectMapper {
                 LOGGER.warn("Seems like geo feed is not set properly for object {}", rpslObject.getKey());
                 return;
             }
-            ip.getLinks().add(new Link(requestUrl, "geo", geoFeed[1], null, "application/geofeed+csv"));
+            ip.getLinks().add(new Link(requestUrl, "geo", geoFeed[1], null, GEOFEED_CONTENT_TYPE));
         });
     }
 }
