@@ -72,7 +72,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import static net.ripe.db.whois.api.rdap.RdapConformance.GEO_FEED_V1;
+import static net.ripe.db.whois.api.rdap.RdapConformance.GEO_FEED_1;
 import static net.ripe.db.whois.api.rdap.RedactionObjectMapper.RDAP_VCARD_REDACTED_ATTRIBUTES;
 import static net.ripe.db.whois.api.rdap.RedactionObjectMapper.mapRedactions;
 import static net.ripe.db.whois.api.rdap.domain.Status.ACTIVE;
@@ -108,6 +108,8 @@ import static net.ripe.db.whois.common.rpsl.ObjectType.INET6NUM;
 class RdapObjectMapper {
 
     private static final String TERMS_AND_CONDITIONS = "http://www.ripe.net/data-tools/support/documentation/terms";
+
+    private static final String GEOFEED_CONTENT_TYPE = "application/geofeed+csv";
     private static final Link COPYRIGHT_LINK = new Link(TERMS_AND_CONDITIONS, "copyright", TERMS_AND_CONDITIONS, null, null);
     private static final Logger LOGGER = LoggerFactory.getLogger(RdapObjectMapper.class);
 
@@ -375,7 +377,7 @@ class RdapObjectMapper {
             ip.setLang(language);
         }
 
-        setGeoFeed(rpslObject, ip);
+        setGeoFeed(rpslObject, ip, requestUrl);
 
         this.mapContactEntities(ip, rpslObject, requestUrl);
         return ip;
@@ -693,11 +695,11 @@ class RdapObjectMapper {
         return attributes.get(0).getCleanValue().toString();
     }
 
-    private static void setGeoFeed(final RpslObject rpslObject, final Ip ip) {
-        ip.getRdapConformance().add(GEO_FEED_V1.getValue());
+    private static void setGeoFeed(final RpslObject rpslObject, final Ip ip, final String requestUrl) {
+        ip.getRdapConformance().add(GEO_FEED_1.getValue());
 
         if(rpslObject.containsAttribute(GEOFEED)) {
-            ip.setGeofeedv1_geofeed(rpslObject.getValueForAttribute(GEOFEED).toString());
+            ip.getLinks().add(new Link(requestUrl, "geo", rpslObject.getValueForAttribute(GEOFEED).toString(), null, GEOFEED_CONTENT_TYPE));
             return;
         }
 
@@ -709,8 +711,7 @@ class RdapObjectMapper {
                 LOGGER.warn("Seems like geo feed is not set properly for object {}", rpslObject.getKey());
                 return;
             }
-
-            ip.setGeofeedv1_geofeed(geoFeed[1]);
+            ip.getLinks().add(new Link(requestUrl, "geo", geoFeed[1], null, GEOFEED_CONTENT_TYPE));
         });
     }
 }
