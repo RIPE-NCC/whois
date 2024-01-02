@@ -52,7 +52,11 @@ public class EndUserAbuseCValidator implements BusinessRuleValidator {
             return Collections.emptyList();
         }
 
-        final RpslObject organisation = rpslObjectDao.getByKey(ObjectType.ORGANISATION, org);
+        final RpslObject organisation = rpslObjectDao.getByKeyOrNull(ObjectType.ORGANISATION, org);
+        if (organisation == null) {
+            return Collections.emptyList();
+        }
+
         if (OrgType.OTHER != OrgType.getFor(organisation.getValueForAttribute(AttributeType.ORG_TYPE))) {
             return Collections.emptyList();
         }
