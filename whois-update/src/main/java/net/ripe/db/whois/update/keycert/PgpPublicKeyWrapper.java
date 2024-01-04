@@ -153,11 +153,24 @@ public class PgpPublicKeyWrapper implements KeyWrapper {
 
     @Override
     public List<String> getOwners() {
+        return Lists.newArrayList(Iterators.filter(transformUserIdsToLatin1(), userId -> {
+            final Iterator<PGPSignature> signatures = masterKey.getSignaturesForID(userId);
+            while ((signatures != null) && signatures.hasNext()) {
+                if (signatures.next().getSignatureType() == PGPSignature.CERTIFICATION_REVOCATION) {
+                    // remove revoked user id
+                    return false;
+                }
+            }
+            return true;
+        }));
+    }
+
+    private Iterator<String> transformUserIdsToLatin1() {
         try {
-            return Lists.newArrayList(Iterators.transform(masterKey.getUserIDs(), Latin1Conversion::convertString));
+            return Iterators.transform(masterKey.getUserIDs(), Latin1Conversion::convertString);
         } catch (IllegalArgumentException e) {
             // Invalid UTF-8 input
-            return Lists.newArrayList(Iterators.transform(masterKey.getRawUserIDs(), bytes -> Latin1Conversion.convertString(new String(bytes))));
+            return Iterators.transform(masterKey.getRawUserIDs(), bytes -> Latin1Conversion.convertString(new String(bytes)));
         }
     }
 
