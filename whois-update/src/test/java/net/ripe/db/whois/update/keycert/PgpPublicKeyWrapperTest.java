@@ -353,7 +353,7 @@ public class PgpPublicKeyWrapperTest {
     }
 
     @Test
-    public void isRevoked() {
+    public void isRevokedKey() {
         final PgpPublicKeyWrapper subject = PgpPublicKeyWrapper.parse(
                     RpslObject.parse(
                             "key-cert:       PGPKEY-A48E76B2\n" +
@@ -386,7 +386,41 @@ public class PgpPublicKeyWrapperTest {
                             "certif:         -----END PGP PUBLIC KEY BLOCK-----\n" +
                             "mnt-by:         UPD-MNT\n" +
                             "source:         TEST"));
+
         assertThat(subject.isRevoked(), is(true));
+    }
+
+    @Test
+    public void revokedUserId() {
+        final PgpPublicKeyWrapper subject = PgpPublicKeyWrapper.parse(
+                RpslObject.parse(
+                        "key-cert:        PGPKEY-B66A8352\n" +
+                        "fingerpr:        862A 0380 23DF B1AC 167C  B975 F0F7 EAF9 B66A 8352\n" +
+                        "certif:          -----BEGIN PGP PUBLIC KEY BLOCK-----\n" +
+                        "certif:          Comment: GPGTools - http://gpgtools.org\n" +
+                        "certif:          \n" +
+                        "certif:          mDMEZZZziBYJKwYBBAHaRw8BAQdA3gn3SAb4q4k1yJsczyafyKwYcBto67bNCO7+\n" +
+                        "certif:          KRflngu0HFRlc3QgVXNlciA8bm9yZXBseUByaXBlLm5ldD6IjQQwFgoANRYhBIYq\n" +
+                        "certif:          A4Aj37GsFny5dfD36vm2aoNSBQJlln/9Fx0gVXBkYXRlZCBlbWFpbCBhZGRyZXNz\n" +
+                        "certif:          AAoJEPD36vm2aoNScWcA/jfpmhx1tyn2BE4Nk/yerLKr9p+AOuc4JR5ZsE5BBFG8\n" +
+                        "certif:          AQDQATlT2RlLDvVGcJT/6vgrerp7nccYx2z4ycEFikbNCYiTBBMWCgA7AhsDBQsJ\n" +
+                        "certif:          CAcCAiICBhUKCQgLAgQWAgMBAh4HAheAFiEEhioDgCPfsawWfLl18Pfq+bZqg1IF\n" +
+                        "certif:          AmWWc6EACgkQ8Pfq+bZqg1KycQEA/Ceym7oQu7p7nWD+G1g0K69nEk/Y9xP0zq1t\n" +
+                        "certif:          W76CFW0A/jXh3KCZBEuq2xkXUIw8QbM3IFXnLXrQivpXGmf8h/YJtB9VcGRhdGVk\n" +
+                        "certif:          IFVzZXIgPHVwZGF0ZWRAcmlwZS5uZXQ+iJMEExYKADsWIQSGKgOAI9+xrBZ8uXXw\n" +
+                        "certif:          9+r5tmqDUgUCZZZ/3wIbAwULCQgHAgIiAgYVCgkICwIEFgIDAQIeBwIXgAAKCRDw\n" +
+                        "certif:          9+r5tmqDUmKbAQDrDUxKZbGGauhjKgS2CqEvhaAQJUUk8zOIx1GqcS8sUwEA5EYx\n" +
+                        "certif:          ZKoh9nZyvuYsmSCviVNN5KJo/+WMjAztxB3PcQa4OARllnOIEgorBgEEAZdVAQUB\n" +
+                        "certif:          AQdAFftfmeKbDs+uyVr1CgUQsvDNp8XjFArbLQERotlGzEEDAQgHiHgEGBYKACAC\n" +
+                        "certif:          GwwWIQSGKgOAI9+xrBZ8uXXw9+r5tmqDUgUCZZZzqQAKCRDw9+r5tmqDUqPcAP9H\n" +
+                        "certif:          wLsx32+JyfvIa8pijUllFTSi7bWv/+7ye88cextxPwEAhdjTJbzgEQ688pN9Tt3R\n" +
+                        "certif:          NPDvMSOkA3o7imE5fzOLpQw=\n" +
+                        "certif:          =VP54\n" +
+                        "certif:          -----END PGP PUBLIC KEY BLOCK-----" +
+                        "mnt-by:          UPD-MNT\n" +
+                        "source:          TEST"));
+
+        assertThat(subject.getOwners(), contains("Updated User <updated@ripe.net>"));
     }
 
     // helper methods
