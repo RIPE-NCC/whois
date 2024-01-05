@@ -182,7 +182,7 @@ public class RdapService {
     @Path("/ips")
     public Response searchIps(
             @Context final HttpServletRequest request,
-            @QueryParam("fn") final String name,
+            @QueryParam("name") final String name,
             @QueryParam("handle") final String handle) {
 
         LOGGER.debug("Request: {}", RestServiceHelper.getRequestURI(request));
@@ -191,7 +191,7 @@ public class RdapService {
             return handleSearch(new String[]{"netname"}, name != null ? name : handle, request);
         }
 
-        throw new RdapException("400 Bad Request", "Either fn or handle is a required parameter, but never both", HttpStatus.BAD_REQUEST_400);
+        throw new RdapException("400 Bad Request", "Either name or handle is a required parameter, but never both", HttpStatus.BAD_REQUEST_400);
     }
 
     @GET
@@ -199,7 +199,7 @@ public class RdapService {
     @Path("/autnums")
     public Response searchAutnums(
             @Context final HttpServletRequest request,
-            @QueryParam("fn") final String name,
+            @QueryParam("name") final String name,
             @QueryParam("handle") final String handle) {
 
         LOGGER.debug("Request: {}", RestServiceHelper.getRequestURI(request));
@@ -212,7 +212,7 @@ public class RdapService {
             return handleSearch(new String[]{"aut-num"}, handle, request);
         }
 
-        throw new RdapException("400 Bad Request", "Either fn or handle is a required parameter, but never both", HttpStatus.BAD_REQUEST_400);
+        throw new RdapException("400 Bad Request", "Either name or handle is a required parameter, but never both", HttpStatus.BAD_REQUEST_400);
     }
 
     @GET

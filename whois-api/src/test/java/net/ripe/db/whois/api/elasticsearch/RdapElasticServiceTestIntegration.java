@@ -713,7 +713,7 @@ public class RdapElasticServiceTestIntegration extends AbstractElasticSearchInte
 
     @Test
     public void search_ips_inetnum_by_name() {
-        final SearchResult response = createResource("ips?fn=IANA-*-IPV4")
+        final SearchResult response = createResource("ips?name=IANA-*-IPV4")
                 .request(MediaType.APPLICATION_JSON_TYPE)
                 .get(SearchResult.class);
 
@@ -733,7 +733,7 @@ public class RdapElasticServiceTestIntegration extends AbstractElasticSearchInte
 
     @Test
     public void search_ips_inet6num_by_name() {
-        final SearchResult response = createResource("ips?fn=IANA-*-IPV6")
+        final SearchResult response = createResource("ips?name=IANA-*-IPV6")
                 .request(MediaType.APPLICATION_JSON_TYPE)
                 .get(SearchResult.class);
 
@@ -743,7 +743,7 @@ public class RdapElasticServiceTestIntegration extends AbstractElasticSearchInte
     @Test
     public void search_ips_with_empty_parameter_then_error() {
         final BadRequestException badRequestException = assertThrows(BadRequestException.class, () -> {
-            createResource("ips?fn=")
+            createResource("ips?name=")
                     .request(MediaType.APPLICATION_JSON_TYPE)
                     .get(SearchResult.class);
         });
@@ -761,19 +761,19 @@ public class RdapElasticServiceTestIntegration extends AbstractElasticSearchInte
         });
         assertErrorStatus(badRequestException, HttpStatus.BAD_REQUEST_400);
         assertErrorTitle(badRequestException, "400 Bad Request");
-        assertErrorDescription(badRequestException, "Either fn or handle is a required parameter, but never both");
+        assertErrorDescription(badRequestException, "Either name or handle is a required parameter, but never both");
     }
 
     @Test
     public void search_ips_with_both_parameters_then_error() {
         final BadRequestException badRequestException = assertThrows(BadRequestException.class, () -> {
-            createResource("ips?fn=IANA-*-IPV6&handle=IANA-BLK-IPV4")
+            createResource("ips?name=IANA-*-IPV6&handle=IANA-BLK-IPV4")
                     .request(MediaType.APPLICATION_JSON_TYPE)
                     .get(SearchResult.class);
         });
         assertErrorStatus(badRequestException, HttpStatus.BAD_REQUEST_400);
         assertErrorTitle(badRequestException, "400 Bad Request");
-        assertErrorDescription(badRequestException, "Either fn or handle is a required parameter, but never both");
+        assertErrorDescription(badRequestException, "Either name or handle is a required parameter, but never both");
     }
 
     @Test
@@ -793,7 +793,7 @@ public class RdapElasticServiceTestIntegration extends AbstractElasticSearchInte
 
     @Test
     public void search_autnums_by_name() {
-        final SearchResult response = createResource("autnums?fn=AS-TEST")
+        final SearchResult response = createResource("autnums?name=AS-TEST")
                 .request(MediaType.APPLICATION_JSON_TYPE)
                 .get(SearchResult.class);
 
@@ -814,7 +814,7 @@ public class RdapElasticServiceTestIntegration extends AbstractElasticSearchInte
     @Test
     public void search_autnums_with_empty_parameter_then_error() {
         final BadRequestException badRequestException = assertThrows(BadRequestException.class, () -> {
-            createResource("autnums?fn=")
+            createResource("autnums?name=")
                     .request(MediaType.APPLICATION_JSON_TYPE)
                     .get(SearchResult.class);
         });
@@ -832,19 +832,19 @@ public class RdapElasticServiceTestIntegration extends AbstractElasticSearchInte
         });
         assertErrorStatus(badRequestException, HttpStatus.BAD_REQUEST_400);
         assertErrorTitle(badRequestException, "400 Bad Request");
-        assertErrorDescription(badRequestException, "Either fn or handle is a required parameter, but never both");
+        assertErrorDescription(badRequestException, "Either name or handle is a required parameter, but never both");
     }
 
     @Test
     public void search_autnums_with_both_parameters_then_error() {
         final BadRequestException badRequestException = assertThrows(BadRequestException.class, () -> {
-            createResource("autnums?fn=AS1026&handle=AS102")
+            createResource("autnums?name=AS1026&handle=AS102")
                     .request(MediaType.APPLICATION_JSON_TYPE)
                     .get(SearchResult.class);
         });
         assertErrorStatus(badRequestException, HttpStatus.BAD_REQUEST_400);
         assertErrorTitle(badRequestException, "400 Bad Request");
-        assertErrorDescription(badRequestException, "Either fn or handle is a required parameter, but never both");
+        assertErrorDescription(badRequestException, "Either name or handle is a required parameter, but never both");
     }
 
 
