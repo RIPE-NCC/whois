@@ -222,7 +222,8 @@ public class ElasticFullTextSearchTestIntegration extends AbstractElasticSearchI
                 "nic-hdl: AA1-RIPE\n" +
                 "remarks: Other remark\n" +
                 "source: RIPE"));
-         rebuildIndex();
+
+        rebuildIndex();
 
         final QueryResponse queryResponse = query("q=remark&facet=true");
 
@@ -235,6 +236,92 @@ public class ElasticFullTextSearchTestIntegration extends AbstractElasticSearchI
         assertThat(facet.getValueCount(), is(2));
         assertThat(facet.getValues().toString(), containsString("mntner (2)"));
         assertThat(facet.getValues().toString(), containsString("person (1)"));
+    }
+
+
+    @Test
+    public void search_different_object_types_with_facets() {
+        databaseHelper.addObject(RpslObject.parse(
+                "mntner: DEV1-MNT\n" +
+                "remarks: Some remark\n" +
+                "source: RIPE"));
+        databaseHelper.addObject(RpslObject.parse(
+                "person: First Last\n" +
+                "nic-hdl: AA1-RIPE\n" +
+                "remarks: Other remark\n" +
+                "source: RIPE"));
+        databaseHelper.addObject(RpslObject.parse(
+                "irt: irt-IRT1\n" +
+                "mnt-ref:   DEV1-MNT\n" +
+                "remarks: Other remark\n" +
+                "source:    RIPE"));
+        databaseHelper.addObject(RpslObject.parse(
+                "role: role test\n" +
+                "nic-hdl: AA2-RIPE\n" +
+                "remarks: Other remark\n" +
+                "source:    RIPE"));
+        databaseHelper.addObject(RpslObject.parse(
+                "inetnum:  109.107.192.0 - 109.107.223.255\n" +
+                "netname:  CZ-OSKARMOBIL-20091021\n" +
+                "mnt-by:   DEV1-MNT\n" +
+                "remarks: Other remark\n" +
+                "source:    RIPE"));
+        databaseHelper.addObject(RpslObject.parse(
+                "inet6num:  2a01:820::/32\n" +
+                "netname:  VODAFONE-ITALY\n" +
+                "mnt-by:   DEV1-MNT\n" +
+                "remarks: Other remark\n" +
+                "source:    RIPE"));
+        databaseHelper.addObject(RpslObject.parse(
+                "domain: 112.109.in-addr.arpa\n" +
+                "mnt-by:   DEV1-MNT\n" +
+                "remarks: Other remark\n" +
+                "source:    RIPE"));
+        databaseHelper.addObject(RpslObject.parse(
+                "aut-num:         AS34419\n" +
+                "mnt-by:   DEV1-MNT\n" +
+                "remarks: Other remark\n" +
+                "source:    RIPE"));
+        databaseHelper.addObject(RpslObject.parse(
+                "as-set:          AS-VODAFONE\n" +
+                "mnt-by:   DEV1-MNT\n" +
+                "remarks: Other remark\n" +
+                "source:    RIPE"));
+        databaseHelper.addObject(RpslObject.parse(
+                "route:           206.29.144.0/20\n" +
+                "origin:          AS34419\n" +
+                "mnt-by:   DEV1-MNT\n" +
+                "remarks: Other remark\n" +
+                "source:    RIPE"));
+
+        databaseHelper.addObject(RpslObject.parse(
+                "route6:          2a00::/22\n" +
+                "origin:          AS34419\n" +
+                "mnt-by:   DEV1-MNT\n" +
+                "remarks: Other remark\n" +
+                "source:    RIPE"));
+        rebuildIndex();
+
+        final QueryResponse queryResponse = query("q=remark&facet=true");
+
+        assertThat(queryResponse.getStatus(), is(0));
+        assertThat(queryResponse.getResults().getNumFound(), is(11L));
+        final List<FacetField> facets = queryResponse.getFacetFields();
+        assertThat(facets, hasSize(1));
+        final FacetField facet = facets.get(0);
+        assertThat(facet.getName(), is("object-type"));
+        assertThat(facet.getValueCount(), is(11));
+        assertThat(facet.getValues().toString(), containsString("as-set (1)"));
+        assertThat(facet.getValues().toString(), containsString("aut-num (1)"));
+        assertThat(facet.getValues().toString(), containsString("domain (1)"));
+        assertThat(facet.getValues().toString(), containsString("inet6num (1)"));
+        assertThat(facet.getValues().toString(), containsString("inetnum (1)"));
+        assertThat(facet.getValues().toString(), containsString("irt (1)"));
+        assertThat(facet.getValues().toString(), containsString("mntner (1)"));
+        assertThat(facet.getValues().toString(), containsString("person (1)"));
+        assertThat(facet.getValues().toString(), containsString("role (1)"));
+        assertThat(facet.getValues().toString(), containsString("route (1)"));
+        assertThat(facet.getValues().toString(), containsString("route6 (1)"));
     }
 
     @Test
