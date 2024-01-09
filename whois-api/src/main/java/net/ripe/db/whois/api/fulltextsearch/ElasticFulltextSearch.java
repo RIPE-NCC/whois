@@ -159,7 +159,6 @@ public class ElasticFulltextSearch extends FulltextSearch {
         final HighlightBuilder highlightBuilder = getHighlightBuilder(searchRequest);
         final SearchSourceBuilder sourceBuilder = getSourceBuilder(start, highlightBuilder, searchRequest);
 
-
         final org.elasticsearch.action.search.SearchRequest fulltextRequest = new org.elasticsearch.action.search.SearchRequest(elasticIndexService.getWhoisAliasIndex());
         fulltextRequest.source(sourceBuilder);
         return fulltextRequest;
@@ -169,7 +168,7 @@ public class ElasticFulltextSearch extends FulltextSearch {
         final SearchSourceBuilder sourceBuilder = new SearchSourceBuilder()
                 .query(getQueryBuilder(searchRequest.getQuery()))
                 .size(searchRequest.getRows()).from(start)
-                .aggregation(AGGREGATION_BUILDER)
+                .aggregation(AGGREGATION_BUILDER.size(ObjectType.values().length))
                 .sort(SORT_BUILDERS)
                 .highlighter(highlightBuilder).trackTotalHits(true);
         return sourceBuilder;
