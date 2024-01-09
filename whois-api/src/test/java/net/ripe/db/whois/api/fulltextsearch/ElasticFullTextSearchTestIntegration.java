@@ -243,63 +243,63 @@ public class ElasticFullTextSearchTestIntegration extends AbstractElasticSearchI
     public void search_different_object_types_with_facets() {
         databaseHelper.addObject(RpslObject.parse(
                 "mntner: DEV1-MNT\n" +
-                        "remarks: Some remark\n" +
-                        "source: RIPE"));
+                "remarks: Some remark\n" +
+                "source: RIPE"));
         databaseHelper.addObject(RpslObject.parse(
                 "person: First Last\n" +
-                        "nic-hdl: AA1-RIPE\n" +
-                        "remarks: Other remark\n" +
-                        "source: RIPE"));
+                "nic-hdl: AA1-RIPE\n" +
+                "remarks: Other remark\n" +
+                "source: RIPE"));
         databaseHelper.addObject(RpslObject.parse(
                 "irt: irt-IRT1\n" +
-                        "mnt-ref:   DEV1-MNT\n" +
-                        "remarks: Other remark\n" +
-                        "source:    RIPE"));
+                "mnt-ref:   DEV1-MNT\n" +
+                "remarks: Other remark\n" +
+                "source:    RIPE"));
         databaseHelper.addObject(RpslObject.parse(
                 "role: role test\n" +
-                        "nic-hdl: AA2-RIPE\n" +
-                        "remarks: Other remark\n" +
-                        "source:    RIPE"));
+                "nic-hdl: AA2-RIPE\n" +
+                "remarks: Other remark\n" +
+                "source:    RIPE"));
         databaseHelper.addObject(RpslObject.parse(
-                "inetnum:         109.107.192.0 - 109.107.223.255\n" +
-                        "netname:         CZ-OSKARMOBIL-20091021\n" +
-                        "mnt-by:   DEV1-MNT\n" +
-                        "remarks: Other remark\n" +
-                        "source:    RIPE"));
+                "inetnum:  109.107.192.0 - 109.107.223.255\n" +
+                "netname:  CZ-OSKARMOBIL-20091021\n" +
+                "mnt-by:   DEV1-MNT\n" +
+                "remarks: Other remark\n" +
+                "source:    RIPE"));
         databaseHelper.addObject(RpslObject.parse(
-                "inet6num:        2a01:820::/32\n" +
-                        "netname:         VODAFONE-ITALY\n" +
-                        "mnt-by:   DEV1-MNT\n" +
-                        "remarks: Other remark\n" +
-                        "source:    RIPE"));
+                "inet6num:  2a01:820::/32\n" +
+                "netname:  VODAFONE-ITALY\n" +
+                "mnt-by:   DEV1-MNT\n" +
+                "remarks: Other remark\n" +
+                "source:    RIPE"));
         databaseHelper.addObject(RpslObject.parse(
                 "domain: 112.109.in-addr.arpa\n" +
-                        "mnt-by:   DEV1-MNT\n" +
-                        "remarks: Other remark\n" +
-                        "source:    RIPE"));
+                "mnt-by:   DEV1-MNT\n" +
+                "remarks: Other remark\n" +
+                "source:    RIPE"));
         databaseHelper.addObject(RpslObject.parse(
                 "aut-num:         AS34419\n" +
-                        "mnt-by:   DEV1-MNT\n" +
-                        "remarks: Other remark\n" +
-                        "source:    RIPE"));
+                "mnt-by:   DEV1-MNT\n" +
+                "remarks: Other remark\n" +
+                "source:    RIPE"));
         databaseHelper.addObject(RpslObject.parse(
                 "as-set:          AS-VODAFONE\n" +
-                        "mnt-by:   DEV1-MNT\n" +
-                        "remarks: Other remark\n" +
-                        "source:    RIPE"));
+                "mnt-by:   DEV1-MNT\n" +
+                "remarks: Other remark\n" +
+                "source:    RIPE"));
         databaseHelper.addObject(RpslObject.parse(
                 "route:           206.29.144.0/20\n" +
-                        "origin:          AS34419\n" +
-                        "mnt-by:   DEV1-MNT\n" +
-                        "remarks: Other remark\n" +
-                        "source:    RIPE"));
+                "origin:          AS34419\n" +
+                "mnt-by:   DEV1-MNT\n" +
+                "remarks: Other remark\n" +
+                "source:    RIPE"));
 
         databaseHelper.addObject(RpslObject.parse(
                 "route6:          2a00::/22\n" +
-                        "origin:          AS34419\n" +
-                        "mnt-by:   DEV1-MNT\n" +
-                        "remarks: Other remark\n" +
-                        "source:    RIPE"));
+                "origin:          AS34419\n" +
+                "mnt-by:   DEV1-MNT\n" +
+                "remarks: Other remark\n" +
+                "source:    RIPE"));
         rebuildIndex();
 
         final QueryResponse queryResponse = query("q=remark&facet=true");
