@@ -56,7 +56,10 @@ public class ElasticFulltextSearch extends FulltextSearch {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(ElasticFulltextSearch.class);
 
-    public static final TermsAggregationBuilder AGGREGATION_BUILDER = AggregationBuilders.terms("types-count").field("object-type.raw");
+    public static final TermsAggregationBuilder AGGREGATION_BUILDER = AggregationBuilders
+            .terms("types-count")
+            .field("object-type.raw")
+            .size(ObjectType.values().length);
     public static final List<SortBuilder<?>> SORT_BUILDERS = Arrays.asList(SortBuilders.scoreSort(), SortBuilders.fieldSort("lookup-key.raw").unmappedType("keyword"));
     private final AccessControlListManager accessControlListManager;
     private final ElasticIndexService elasticIndexService;
@@ -159,6 +162,7 @@ public class ElasticFulltextSearch extends FulltextSearch {
         final HighlightBuilder highlightBuilder = getHighlightBuilder(searchRequest);
         final SearchSourceBuilder sourceBuilder = getSourceBuilder(start, highlightBuilder, searchRequest);
 
+
         final org.elasticsearch.action.search.SearchRequest fulltextRequest = new org.elasticsearch.action.search.SearchRequest(elasticIndexService.getWhoisAliasIndex());
         fulltextRequest.source(sourceBuilder);
         return fulltextRequest;
@@ -168,7 +172,7 @@ public class ElasticFulltextSearch extends FulltextSearch {
         final SearchSourceBuilder sourceBuilder = new SearchSourceBuilder()
                 .query(getQueryBuilder(searchRequest.getQuery()))
                 .size(searchRequest.getRows()).from(start)
-                .aggregation(AGGREGATION_BUILDER.size(ObjectType.values().length))
+                .aggregation(AGGREGATION_BUILDER)
                 .sort(SORT_BUILDERS)
                 .highlighter(highlightBuilder).trackTotalHits(true);
         return sourceBuilder;
