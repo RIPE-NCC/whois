@@ -60,8 +60,8 @@ For the rest of request either "notify" and "e-mail" is filtered.
 Abuse Contact information
 --------------------------
 Abuse contact information is not filtered because it is not considered personal information. However, this attribute's
-`type` non-conforming to the RDAP spec, is not "home" or "work" as the RFC specifies. The `type` of this attribute is 
-"abuse".
+`type` non-conforming to the [RDAP spec](https://bitbucket.org/nroecg/nro-rdap-profile/raw/v1/nro-rdap-profile.txt) 
+section 5.1.1, is not "home" or "work" as the RFC specifies. The `type` of this attribute is "abuse".
 
 In the previous paragraph `type` is considered as an element of the Jcard
 For example: 
