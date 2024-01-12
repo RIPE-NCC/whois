@@ -4,13 +4,16 @@ Read more about the RDAP specification in the RFC documents on the IETF site: ht
 
 Multiple country attributes are not returned
 --------------------------------------------
-inetnum and inet6num objects can contain multiple country attributes, but RDAP only allows a single value.
+inetnum and inet6num objects can contain multiple country attributes, but RDAP schema only allows a single value.
 
-This implementation returns the first country attribute value, and includes an explanatory notice.
+This implementation returns the first country attribute value, and includes the field as redacted.
 
 Multiple language attributes are not returned
 ---------------------------------------------
-inetnum, inet6num, and organisation objects can have multiple language attributes, but only the first language is returned.
+inetnum, inet6num, and organisation can contain multiple language attributes, but RDAP schema only allows a single 
+value.
+
+This implementation returns the first language attribute value, and include the field as redacted.
 
 Multiple organisation phone attributes are returned, but not with preferences
 ----------------------------------------------------------------------------------------
@@ -18,7 +21,11 @@ Preferences are not assigned to multiple phone elements.
 
 Flat AS Model
 ----------------------------------------
-Not Found (404) is thrown if AS number is not found.
+We support flat model and not hierarchical model in our autnum queries. This means that for an autnum for which we have 
+registration authority but that has not been further delegated by us will respond with a Not Found.
+
+For more information refer to https://bitbucket.org/nroecg/nro-rdap-profile/raw/v1/nro-rdap-profile.txt section 
+6.1.2.3. Flat model
 
 Custom "ZONE" role for domain objects
 -------------------------------------
@@ -34,30 +41,53 @@ Entity Primary Key can match multiple objects
 ---------------------------------------------
 If an entity primary key matches more than one object, a 500 Internal Server Error is returned.
 
+This can not be easily fixed because the same key can be used in multiple different object types: mntner and 
+person/role. So it is not clear what object must be returned for a single object request.
+
 For example: https://rdap.db.ripe.net/entity/KR4422-RIPE
 
 Related Contact information is Filtered
 ---------------------------------------
-Any related contact entities ("technical","administrative" etc.) have filtered contact information, i.e. "e-mail" 
+Some related contact entities ("technical","administrative" etc.) have filtered contact information, i.e. "e-mail" 
 and "notify" values are not included. This was done to avoid blocking clients for inadvertently querying excessively for personal data.
 
-A workaround is to query for each entity separately using the contact's nic-hdl, and the unfiltered information is returned (although a limit for personal data does apply).
+For /entity/ request "e-mail" is enabled and the clients requesting those service must comply with the daily limit 
+according to the AUP: https://www.ripe.net/manage-ips-and-asns/db/support/documentation/ripe-database-acceptable-use
+-policy.
+
+For the rest of request either "notify" and "e-mail" is filtered.
 
 Abuse Contact information
 --------------------------
-Abuse contact information is not filtered. However, this attribute's type is not "home" or "work" as the RFC specifies. 
-The type of this attribute is "abuse". 
+Abuse contact information is not filtered because it is not considered personal information. However, this attribute's
+`type` non-conforming to the RDAP spec, is not "home" or "work" as the RFC specifies. The `type` of this attribute is 
+"abuse".
 
-This decision was taken to differentiate between a normal e-mail and abuse e-mail. Nowadays, with the rest of contact 
-entities e-mail attributes filtered (and redacted), this change can not be done because it is a breaking change.
+In the previous paragraph `type` is considered as an element of the Jcard
+For example: 
+````
+["adr",
+    {
+        "type":"home",
+        "label":"123 Maple Ave\nSuite 90001\nVancouver\nBC\n1239\n"
+    }
+]
+````
 
 Entity Search
 --------------------------
-Entity search on a handle is limited to returning 100 results.
+Entity search on a handle is limited to returning 100 results, so size and response time is not excessive.
+
+This is done as recommendation from the next RFC: https://datatracker.ietf.org/doc/rfc9083/ section 9. To conform with 
+this spec a notification is added when the output is truncated.
 
 Domain Search
 --------------------------
-Domain search is restricted to only search for reverse delegations, and results are limited to 100.
+Domain search is restricted to only search for reverse delegations, there are no forward domains and results are 
+limited to 100. So size and response time is not excessive.
+
+This is done as recommendation from the next RFC: https://datatracker.ietf.org/doc/rfc9083/ section 9. To conform with
+this spec a notification is added when the output is truncated.
 
 Netname may not match Whois
 ----------------------------
@@ -65,14 +95,21 @@ The netname value returned by RDAP may not match what is returned by Whois.
 
 Nameserver queries always return Not Implemented
 -------------------------------------------------
-The RIPE database doesn't contain any forward domain objects, consequently a nameserver query will always return Not Implemented.
+The RIPE database doesn't contain any forward domain objects, consequently according to the RFC 
+https://bitbucket.org/nroecg/nro-rdap-profile/raw/v1/nro-rdap-profile.txt section 6.3 "501 Not Implemented" will be 
+returned.
 
 Only "mnt-by:" Maintainers are Listed as Registrants
 -----------------------------------------------------
-Only maintainers referenced in "mnt-by:" attributes will be listed as Registrants in responses.
+Only maintainers referenced in "mnt-by:" attributes will be listed as Registrants in responses. It is not relevant 
+to include the rest of the mntners as they do not maintain the current object, they are not registrant of the object.
 
 Objects with "administrative" status are not returned
 -----------------------------------------------------
-If the prefix is either delegated but unallocated or only partially delegated to the RIPE region, then a 404 is returned. An object with "administrative" status is never returned.
+If the prefix is either delegated but unallocated or only partially delegated to the RIPE region, 
+then a 404 is returned. An object with "administrative" status is never returned.
 
-Refer to NRO RDAP Profile section 4.5. "Status"
+Currently, IANA allocations are not present n the RIPE database, but just out-of-region placeholders. In the future
+these prefixes will be added just for RDAP, so the correct information will be returned.
+
+Refer to [NRO RDAP](https://bitbucket.org/nroecg/nro-rdap-profile/raw/v1/nro-rdap-profile.txt) Profile section 4.5. "Status"
