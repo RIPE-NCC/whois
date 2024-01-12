@@ -2,11 +2,13 @@ package net.ripe.db.whois.common.rpsl;
 
 import net.ripe.db.whois.common.Message;
 import net.ripe.db.whois.common.Messages;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
-import static org.hamcrest.Matchers.*;
-import static org.junit.Assert.assertThat;
+import static org.hamcrest.Matchers.contains;
+import static org.hamcrest.Matchers.hasSize;
+import static org.hamcrest.Matchers.is;
+import static org.hamcrest.MatcherAssert.assertThat;
 
 public class ObjectMessagesTest {
     private ObjectMessages subject;
@@ -14,7 +16,7 @@ public class ObjectMessagesTest {
     private Message warning;
     private RpslObject object;
 
-    @Before
+    @BeforeEach
     public void setUp() throws Exception {
         subject = new ObjectMessages();
         error = new Message(Messages.Type.ERROR, "error");

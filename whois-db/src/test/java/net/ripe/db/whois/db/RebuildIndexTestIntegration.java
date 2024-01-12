@@ -1,34 +1,52 @@
 package net.ripe.db.whois.db;
 
 import net.ripe.db.whois.api.AbstractIntegrationTest;
-import net.ripe.db.whois.common.IntegrationTest;
+import net.ripe.db.whois.common.DateTimeProvider;
+import net.ripe.db.whois.common.TestDateTimeProvider;
+import net.ripe.db.whois.common.dao.RpslObjectUpdateInfo;
 import net.ripe.db.whois.common.dao.jdbc.IndexDao;
+import net.ripe.db.whois.common.dao.jdbc.domain.ObjectTypeIds;
+import net.ripe.db.whois.common.dao.jdbc.domain.RpslObjectRowMapper;
+import net.ripe.db.whois.common.domain.Timestamp;
+import net.ripe.db.whois.common.domain.serials.Operation;
 import net.ripe.db.whois.common.rpsl.RpslObject;
 import net.ripe.db.whois.common.support.database.diff.Database;
 import net.ripe.db.whois.common.support.database.diff.DatabaseDiff;
 import net.ripe.db.whois.common.support.database.diff.Row;
 import net.ripe.db.whois.common.support.database.diff.Table;
-import org.junit.Before;
-import org.junit.Ignore;
-import org.junit.Test;
-import org.junit.experimental.categories.Category;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Tag;
+import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.jdbc.core.simple.SimpleJdbcInsert;
 import org.springframework.test.context.ContextConfiguration;
 
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
 import static net.ripe.db.whois.common.support.database.diff.Rows.with;
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertThat;
+import static org.hamcrest.Matchers.not;
+import static org.hamcrest.Matchers.nullValue;
 
-@Ignore("[ES] TODO fix integration build")
-@Category(IntegrationTest.class)
+
+@Disabled("[ES] TODO fix integration build [SB] build hangs when this integration test runs, we'll have to figure out why")
+@Tag("IntegrationTest")
 @ContextConfiguration(locations = {"classpath:applicationContext-whois-test.xml"})
 public class RebuildIndexTestIntegration extends AbstractIntegrationTest {
 
     @Autowired IndexDao indexDao;
+    @Autowired
+    TestDateTimeProvider dateTimeProvider;
 
-    @Before
+
+    @BeforeEach
     public void setup() {
         databaseHelper.addObject(RpslObject.parse("" +
                 "person:    Test Person\n" +
@@ -228,15 +246,13 @@ public class RebuildIndexTestIntegration extends AbstractIntegrationTest {
 
         assertThat(diff.getAdded().getAll(), hasSize(0));
         assertThat(diff.getModified().getAll(), hasSize(0));
-        assertThat(diff.getRemoved().getAll(), hasSize(9));
+        assertThat(diff.getRemoved().getAll(), hasSize(7));
         assertThat(diff.getRemoved().getTable("aut_num"), hasSize(1));
         assertThat(diff.getRemoved().getTable("member_of"), hasSize(1));
         assertThat(diff.getRemoved().getTable("tech_c"), hasSize(1));
         assertThat(diff.getRemoved().getTable("admin_c"), hasSize(1));
         assertThat(diff.getRemoved().getTable("org"), hasSize(1));
         assertThat(diff.getRemoved().getTable("mnt_by"), hasSize(1));
-        assertThat(diff.getRemoved().getTable("mnt_lower"), hasSize(1));
-        assertThat(diff.getRemoved().getTable("mnt_routes"), hasSize(1));
         assertThat(diff.getRemoved().getTable("notify"), hasSize(1));
     }
 
@@ -418,7 +434,7 @@ public class RebuildIndexTestIntegration extends AbstractIntegrationTest {
                 "country:        NL\n" +
                 "admin-c:        TP1-TEST\n" +
                 "tech-c:         TP1-TEST\n" +
-                "status:         OTHER\n" +
+                "status:         ASSIGNED PI\n" +
                 "mnt-by:         TST-MNT\n" +
                 "mnt-lower:      TST-MNT\n" +
                 "mnt-domains:    TST-MNT\n" +
@@ -458,7 +474,7 @@ public class RebuildIndexTestIntegration extends AbstractIntegrationTest {
                 "country:        NL\n" +
                 "admin-c:        TP1-TEST\n" +
                 "tech-c:         TP1-TEST\n" +
-                "status:         OTHER\n" +
+                "status:         ASSIGNED PI\n" +
                 "mnt-by:         TST-MNT\n" +
                 "mnt-lower:      TST-MNT\n" +
                 "mnt-domains:    TST-MNT\n" +
@@ -474,7 +490,7 @@ public class RebuildIndexTestIntegration extends AbstractIntegrationTest {
 
         assertThat(diff.getAdded().getAll(), hasSize(0));
         assertThat(diff.getModified().getAll(), hasSize(0));
-        assertThat(diff.getRemoved().getAll(), hasSize(10));
+        assertThat(diff.getRemoved().getAll(), hasSize(11));
         assertThat(diff.getRemoved().getTable("inetnum"), hasSize(1));
         assertThat(diff.getRemoved().getTable("admin_c"), hasSize(1));
         assertThat(diff.getRemoved().getTable("tech_c"), hasSize(1));
@@ -485,6 +501,7 @@ public class RebuildIndexTestIntegration extends AbstractIntegrationTest {
         assertThat(diff.getRemoved().getTable("mnt_irt"), hasSize(1));
         assertThat(diff.getRemoved().getTable("notify"), hasSize(1));
         assertThat(diff.getRemoved().getTable("org"), hasSize(1));
+        assertThat(diff.getRemoved().getTable("status"), hasSize(1));
     }
 
     @Test
@@ -510,14 +527,14 @@ public class RebuildIndexTestIntegration extends AbstractIntegrationTest {
                 "country:        NL\n" +
                 "admin-c:        TP1-TEST\n" +
                 "tech-c:         TP1-TEST\n" +
-                "status:         OTHER\n" +
+                "status:         ASSIGNED PI\n" +
                 "mnt-by:         TST-MNT\n" +
                 "mnt-lower:      TST-MNT\n" +
                 "mnt-domains:    TST-MNT\n" +
                 "mnt-routes:     TST-MNT\n" +
                 "mnt-irt:        irt-IRT1\n" +
                 "notify:         notify@test.net\n" +
-                "status:         OTHER\n" +
+                "status:         ASSIGNED PI\n" +
                 "org:            ORG-TOL1-TEST\n" +
                 "source:         TEST");
 
@@ -538,14 +555,14 @@ public class RebuildIndexTestIntegration extends AbstractIntegrationTest {
                 "country:        NL\n" +
                 "admin-c:        TP1-TEST\n" +
                 "tech-c:         TP1-TEST\n" +
-                "status:         OTHER\n" +
+                "status:         ASSIGNED PI\n" +
                 "mnt-by:         TST-MNT\n" +
                 "mnt-lower:      TST-MNT\n" +
                 "mnt-domains:    TST-MNT\n" +
                 "mnt-routes:     TST-MNT\n" +
                 "mnt-irt:        irt-IRT1\n" +
                 "notify:         notify@test.net\n" +
-                "status:         OTHER\n" +
+                "status:         ASSIGNED PI\n" +
                 "org:            ORG-TOL1-TEST\n" +
                 "source:         TEST\n"));
     }
@@ -573,22 +590,79 @@ public class RebuildIndexTestIntegration extends AbstractIntegrationTest {
                 "country:        NL\n" +
                 "admin-c:        TP1-TEST\n" +
                 "tech-c:         TP1-TEST\n" +
-                "status:         OTHER\n" +
                 "mnt-by:         TST-MNT\n" +
                 "mnt-lower:      TST-MNT\n" +
                 "mnt-domains:    TST-MNT\n" +
                 "mnt-routes:     TST-MNT\n" +
                 "mnt-irt:        irt-IRT1\n" +
                 "notify:         notify@test.net\n" +
-                "status:         OTHER\n" +
+                "status:         ASSIGNED PI\n" +
                 "org:            ORG-TOL1-TEST\n" +
                 "source:         TEST");
 
-        final DatabaseDiff diff = rebuild(object);
 
-        assertThat(diff.getAdded().getAll(), hasSize(0));
-        assertThat(diff.getRemoved().getAll(), hasSize(0));
-        assertThat(diff.getModified().getAll(), hasSize(0));
+        insertIntoLastAndUpdateSerials(dateTimeProvider, whoisTemplate, object);
+
+        RpslObject addedObject = whoisTemplate.queryForObject("select object_id, object from last where pKey = '3333:4444::/48'", new RpslObjectRowMapper());
+
+        assertThat(addedObject.getKey(), is("3333:4444::/48"));
+
+        indexDao.rebuild();
+
+        List<Map<String, Object>> result = whoisTemplate.queryForList("select status, object_type from status");
+        assertThat(result, hasSize(1));
+        assertThat(result.get(0).get("status"), is("ASSIGNED PI"));
+    }
+
+    public static RpslObjectUpdateInfo insertIntoLastAndUpdateSerials(final DateTimeProvider dateTimeProvider, final JdbcTemplate jdbcTemplate, final RpslObject object) {
+        final Integer objectTypeId = ObjectTypeIds.getId(object.getType());
+        final String pkey = object.getKey().toString();
+
+        final int objectId = insertIntoLast(dateTimeProvider, jdbcTemplate, object, objectTypeId, pkey);
+        final int rows = jdbcTemplate.update("INSERT INTO serials "
+                        + " (object_id, sequence_id, atlast, operation) "
+                        + " VALUES "
+                        + " (?, ?, 1, ?)",
+                objectId, 1, Operation.UPDATE.getCode()
+        );
+
+        if (rows != 1) {
+            throw new DataIntegrityViolationException("Rows affected by INSERT INTO serials table: " + rows);
+        }
+
+        return new RpslObjectUpdateInfo(objectId, 1, object.getType(), pkey);
+    }
+
+    private static int insertIntoLast(final DateTimeProvider dateTimeProvider, final JdbcTemplate jdbcTemplate, final RpslObject object, final Integer objectTypeId, final String pkey) {
+        final int count = jdbcTemplate.queryForObject(
+                "SELECT COUNT(*)\n" +
+                        "    FROM last\n" +
+                        "    WHERE object_type=?\n" +
+                        "    AND pkey=?\n" +
+                        "    AND sequence_id > 0",
+                Integer.class,
+                objectTypeId, pkey
+        );
+
+        if (count != 0) {
+            throw new IllegalStateException("Object with type: " + objectTypeId + " and pkey: " + pkey + " already exists");
+        }
+
+        return new SimpleJdbcInsert(jdbcTemplate)
+                .withTableName("last")
+                .usingColumns("object", "timestamp", "sequence_id", "object_type", "pkey")
+                .usingGeneratedKeyColumns("object_id")
+                .executeAndReturnKey(new HashMap<String, Object>() {{
+                    put("object", object.toByteArray());
+                    put("timestamp", now(dateTimeProvider));
+                    put("sequence_id", 1);
+                    put("object_type", objectTypeId);
+                    put("pkey", pkey);
+                }}).intValue();
+    }
+
+    public static int now(final DateTimeProvider dateTimeProvider) {
+        return (int) Timestamp.from(dateTimeProvider.getCurrentDateTime()).getValue();
     }
 
     @Test
@@ -614,14 +688,13 @@ public class RebuildIndexTestIntegration extends AbstractIntegrationTest {
                 "country:        NL\n" +
                 "admin-c:        TP1-TEST\n" +
                 "tech-c:         TP1-TEST\n" +
-                "status:         OTHER\n" +
                 "mnt-by:         TST-MNT\n" +
                 "mnt-lower:      TST-MNT\n" +
                 "mnt-domains:    TST-MNT\n" +
                 "mnt-routes:     TST-MNT\n" +
                 "mnt-irt:        irt-IRT1\n" +
                 "notify:         notify@test.net\n" +
-                "status:         OTHER\n" +
+                "status:         ASSIGNED PI\n" +
                 "org:            ORG-TOL1-TEST\n" +
                 "source:         TEST"));
 
@@ -631,7 +704,7 @@ public class RebuildIndexTestIntegration extends AbstractIntegrationTest {
 
         assertThat(diff.getAdded().getAll(), hasSize(0));
         assertThat(diff.getModified().getAll(), hasSize(0));
-        assertThat(diff.getRemoved().getAll(), hasSize(10));
+        assertThat(diff.getRemoved().getAll(), hasSize(11));
         assertThat(diff.getRemoved().getTable("inet6num"), hasSize(1));
         assertThat(diff.getRemoved().getTable("admin_c"), hasSize(1));
         assertThat(diff.getRemoved().getTable("tech_c"), hasSize(1));
@@ -642,6 +715,7 @@ public class RebuildIndexTestIntegration extends AbstractIntegrationTest {
         assertThat(diff.getRemoved().getTable("mnt_irt"), hasSize(1));
         assertThat(diff.getRemoved().getTable("notify"), hasSize(1));
         assertThat(diff.getRemoved().getTable("org"), hasSize(1));
+        assertThat(diff.getRemoved().getTable("status"), hasSize(1));
     }
 
     @Test
@@ -667,14 +741,14 @@ public class RebuildIndexTestIntegration extends AbstractIntegrationTest {
                 "country:        NL\n" +
                 "admin-c:        TP1-TEST\n" +
                 "tech-c:         TP1-TEST\n" +
-                "status:         OTHER\n" +
+                "status:         ASSIGNED PI\n" +
                 "mnt-by:         TST-MNT\n" +
                 "mnt-lower:      TST-MNT\n" +
                 "mnt-domains:    TST-MNT\n" +
                 "mnt-routes:     TST-MNT\n" +
                 "mnt-irt:        irt-IRT1\n" +
                 "notify:         notify@test.net\n" +
-                "status:         OTHER\n" +
+                "status:         ASSIGNED PI\n" +
                 "org:            ORG-TOL1-TEST\n" +
                 "source:         TEST");
 
@@ -695,14 +769,14 @@ public class RebuildIndexTestIntegration extends AbstractIntegrationTest {
                 "country:        NL\n" +
                 "admin-c:        TP1-TEST\n" +
                 "tech-c:         TP1-TEST\n" +
-                "status:         OTHER\n" +
+                "status:         ASSIGNED PI\n" +
                 "mnt-by:         TST-MNT\n" +
                 "mnt-lower:      TST-MNT\n" +
                 "mnt-domains:    TST-MNT\n" +
                 "mnt-routes:     TST-MNT\n" +
                 "mnt-irt:        irt-IRT1\n" +
                 "notify:         notify@test.net\n" +
-                "status:         OTHER\n" +
+                "status:         ASSIGNED PI\n" +
                 "org:            ORG-TOL1-TEST\n" +
                 "source:         TEST\n"));
     }
@@ -878,10 +952,9 @@ public class RebuildIndexTestIntegration extends AbstractIntegrationTest {
 
         assertThat(diff.getAdded().getAll(), hasSize(0));
         assertThat(diff.getModified().getAll(), hasSize(0));
-        assertThat(diff.getRemoved().getAll(), hasSize(8));
+        assertThat(diff.getRemoved().getAll(), hasSize(7));
         assertThat(diff.getRemoved().getTable("irt"), hasSize(1));
         assertThat(diff.getRemoved().getTable("e_mail"), hasSize(1));
-        assertThat(diff.getRemoved().getTable("abuse_mailbox"), hasSize(1));
         assertThat(diff.getRemoved().getTable("admin_c"), hasSize(1));
         assertThat(diff.getRemoved().getTable("tech_c"), hasSize(1));
         assertThat(diff.getRemoved().getTable("irt_nfy"), hasSize(1));
@@ -989,9 +1062,8 @@ public class RebuildIndexTestIntegration extends AbstractIntegrationTest {
 
         assertThat(diff.getAdded().getAll(), hasSize(0));
         assertThat(diff.getModified().getAll(), hasSize(0));
-        assertThat(diff.getRemoved().getAll(), hasSize(9));
+        assertThat(diff.getRemoved().getAll(), hasSize(8));
         assertThat(diff.getRemoved().getTable("upd_to"), hasSize(1));
-        assertThat(diff.getRemoved().getTable("abuse_mailbox"), hasSize(1));
         assertThat(diff.getRemoved().getTable("mnt_nfy"), hasSize(1));
         assertThat(diff.getRemoved().getTable("notify"), hasSize(1));
         assertThat(diff.getRemoved().getTable("admin_c"), hasSize(1));
@@ -1039,7 +1111,6 @@ public class RebuildIndexTestIntegration extends AbstractIntegrationTest {
                 "admin-c:       TP1-TEST\n" +
                 "tech-c:        TP1-TEST\n" +
                 "abuse-c:       TP1-TEST\n" +
-                "abuse-mailbox: abuse@test.net\n" +
                 "ref-nfy:       rebuild@test.net\n" +
                 "notify:        rebuild@test.net\n" +
                 "address:       NL\n" +
@@ -1054,9 +1125,8 @@ public class RebuildIndexTestIntegration extends AbstractIntegrationTest {
 
         assertThat(diff.getAdded().getAll(), hasSize(0));
         assertThat(diff.getModified().getAll(), hasSize(0));
-        assertThat(diff.getRemoved().getAll(), hasSize(14));
+        assertThat(diff.getRemoved().getAll(), hasSize(13));
         assertThat(diff.getRemoved().getTable("mnt_ref"), hasSize(1));
-        assertThat(diff.getRemoved().getTable("abuse_mailbox"), hasSize(1));
         assertThat(diff.getRemoved().getTable("organisation"), hasSize(1));
         assertThat(diff.getRemoved().getTable("notify"), hasSize(1));
         assertThat(diff.getRemoved().getTable("admin_c"), hasSize(1));
@@ -1167,12 +1237,11 @@ public class RebuildIndexTestIntegration extends AbstractIntegrationTest {
 
         assertThat(diff.getAdded().getAll(), hasSize(0));
         assertThat(diff.getModified().getAll(), hasSize(0));
-        assertThat(diff.getRemoved().getAll(), hasSize(8));
+        assertThat(diff.getRemoved().getAll(), hasSize(7));
         assertThat(diff.getRemoved().getTable("names"), hasSize(2));
         assertThat(diff.getRemoved().getTable("person_role"), hasSize(1));
         assertThat(diff.getRemoved().getTable("mnt_by"), hasSize(1));
         assertThat(diff.getRemoved().getTable("org"), hasSize(1));
-        assertThat(diff.getRemoved().getTable("abuse_mailbox"), hasSize(1));
         assertThat(diff.getRemoved().getTable("notify"), hasSize(1));
         assertThat(diff.getRemoved().getTable("e_mail"), hasSize(1));
     }
@@ -1181,19 +1250,19 @@ public class RebuildIndexTestIntegration extends AbstractIntegrationTest {
     public void person_invalid_email_attribute() throws Exception {
         final RpslObject person = databaseHelper.addObject(
                 "person:       Another Person\n" +
-                "address:      Amsterdam\n" +
-                "phone:        +31 2 12 34 56\n" +
-                "nic-hdl:      AP1-TEST\n" +
-                "mnt-by:       TST-MNT\n" +
-                "source:       TEST");
+                        "address:      Amsterdam\n" +
+                        "phone:        +31 2 12 34 56\n" +
+                        "nic-hdl:      AP1-TEST\n" +
+                        "mnt-by:       TST-MNT\n" +
+                        "source:       TEST");
         whoisTemplate.update("UPDATE last SET object = ? WHERE object_id = ?",
                 ("person:      Another Person\n" +
-                "address:      Amsterdam\n" +
-                "phone:        +31 2 12 34 56\n" +
-                "nic-hdl:      AP1-TEST\n" +
-                "mnt-by:       TST-MNT\n" +
-                "e-mail:       12345678901234567890123456789012345678901234567890123456789012345678901234567890@host.org\n" +
-                "source:       TEST").getBytes(),
+                        "address:      Amsterdam\n" +
+                        "phone:        +31 2 12 34 56\n" +
+                        "nic-hdl:      AP1-TEST\n" +
+                        "mnt-by:       TST-MNT\n" +
+                        "e-mail:       12345678901234567890123456789012345678901234567890123456789012345678901234567890@host.org\n" +
+                        "source:       TEST").getBytes(),
                 person.getObjectId());
 
         final DatabaseDiff diff = rebuild();
@@ -1621,10 +1690,10 @@ public class RebuildIndexTestIntegration extends AbstractIntegrationTest {
     public void route6_sanitized_prefix_length() {
         final RpslObject object = RpslObject.parse(
                 "route6:     2001:a300:800::/32\n" +
-                "descr:      TEST\n" +
-                "origin:     AS123\n" +
-                "mnt-by:     TST-MNT\n" +
-                "source:     TEST");
+                        "descr:      TEST\n" +
+                        "origin:     AS123\n" +
+                        "mnt-by:     TST-MNT\n" +
+                        "source:     TEST");
 
         final DatabaseDiff diff = rebuild(object);
 
@@ -1638,10 +1707,10 @@ public class RebuildIndexTestIntegration extends AbstractIntegrationTest {
         assertThat(lastRow.getString("pkey"), is("2001:a300::/32AS123"));
         assertThat(new String((byte[])lastRow.get("object")), is(
                 "route6:         2001:a300::/32\n" +
-                "descr:          TEST\n" +
-                "origin:         AS123\n" +
-                "mnt-by:         TST-MNT\n" +
-                "source:         TEST\n"));
+                        "descr:          TEST\n" +
+                        "origin:         AS123\n" +
+                        "mnt-by:         TST-MNT\n" +
+                        "source:         TEST\n"));
     }
 
     @Test
@@ -1768,7 +1837,7 @@ public class RebuildIndexTestIntegration extends AbstractIntegrationTest {
 
         final DatabaseDiff diff = rebuild();
 
-        assertNotNull(diff.getToDatabase().getTable("person_role").get(with("nic_hdl", "HIA1-AFRINIC")));
+        assertThat(diff.getToDatabase().getTable("person_role").get(with("nic_hdl", "HIA1-AFRINIC")), not(nullValue()));
     }
 
     @Test
@@ -1786,7 +1855,7 @@ public class RebuildIndexTestIntegration extends AbstractIntegrationTest {
 
         final DatabaseDiff diff = rebuild();
 
-        assertNotNull(diff.getToDatabase().getTable("domain").get(with("domain", "169.236.109.IN-ADDR.ARPA")));
+        assertThat(diff.getToDatabase().getTable("domain").get(with("domain", "169.236.109.IN-ADDR.ARPA")), not(nullValue()));
     }
 
     /*
@@ -1798,17 +1867,17 @@ public class RebuildIndexTestIntegration extends AbstractIntegrationTest {
     tech_c:
      {object_id=6, pe_ro_id=5, object_type=9}
      */
-    @Ignore("TODO: [ES] references to syntactically incorrect values are removed by rebuild")
+    @Disabled("TODO: [ES] references to syntactically incorrect values are removed by rebuild")
     @Test
     public void invalid_nic_hdl() {
         databaseHelper.addObject(
                 "person:    Henry Mitchell\n" +
-                "nic-hdl:   TEST-HM3\n" +
-                "source:    TEST");
+                        "nic-hdl:   TEST-HM3\n" +
+                        "source:    TEST");
         databaseHelper.addObject(
                 "mntner:    Another Maintainer\n" +
-                "tech-c:    TEST-HM3\n" +
-                "source:    TEST");
+                        "tech-c:    TEST-HM3\n" +
+                        "source:    TEST");
 
         final DatabaseDiff diff = rebuild();
 

@@ -1,16 +1,24 @@
 package net.ripe.db.whois.update.keycert;
 
-import org.bouncycastle.jce.provider.X509CertParser;
+import net.ripe.db.whois.common.DateTimeProvider;
 import org.bouncycastle.x509.util.StreamParsingException;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
-import java.io.ByteArrayInputStream;
+import org.mockito.Mock;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.junit.jupiter.MockitoExtension;
+
 import java.security.cert.X509Certificate;
 
 import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertThat;
+import static org.hamcrest.MatcherAssert.assertThat;
 
+@ExtendWith(MockitoExtension.class)
 public class X509SignedMessageTest {
+
+    @Mock
+    private DateTimeProvider dateTimeProvider;
+
 
     @Test
     public void verify_smime_plaintext() throws Exception {
@@ -84,9 +92,16 @@ public class X509SignedMessageTest {
                 "mlPZDYRpwo6Jz9TAdeFWisLWBspnl83R1tQepKTXObjVVCmhsA==\n" +
                 "-----END CERTIFICATE-----");
 
-        X509SignedMessage subject = new X509SignedMessage(signedData, signature);
+        final X509SignedMessage subject = new X509SignedMessage(signedData, signature);
 
         assertThat(subject.verify(certificate), is(true));
+
+// TODO: [ES] fragile tests fails in different timezone
+//        // signing time was 2013-01-03T09:33:44.000
+//        when(dateTimeProvider.getCurrentDateTime()).thenReturn(LocalDateTime.parse("2013-01-03T10:32:44.000"));
+//        assertThat(subject.verifySigningTime(dateTimeProvider), is(true));
+//        when(dateTimeProvider.getCurrentDateTime()).thenReturn(LocalDateTime.parse("2013-01-03T10:34:44.000"));
+//        assertThat(subject.verifySigningTime(dateTimeProvider), is(false));
     }
 
     @Test
@@ -130,7 +145,7 @@ public class X509SignedMessageTest {
                 "AASBgJ8sFkzA3mksoazwIc/eNpMy20wQh1CKtiGU+xTzErkurSg8Z+7pIkod1bbq\n" +
                 "k6tiSWnWhRzmz/YFqgGuzk+O3MyRt3YqU9nZpdaZVZxepN/p/gjQI1gfTXK+7WJ/\n" +
                 "OcKukh/onU6eXZOD50r1RdgFPL4+lXpe0VrWjUOT3CoglnU1";
-        X509Certificate certificate = getCertificate(
+        final X509Certificate certificate = getCertificate(
                 "-----BEGIN CERTIFICATE-----\n" +
                 "MIIB2zCCAUQCCQCawUbZqWvWuzANBgkqhkiG9w0BAQUFADAyMQswCQYDVQQGEwJO\n" +
                 "TDETMBEGA1UECBMKU29tZS1TdGF0ZTEOMAwGA1UEChMFQk9HVVMwHhcNMTMwNDE4\n" +
@@ -144,7 +159,7 @@ public class X509SignedMessageTest {
                 "q91Ey/fALhdTtl20RNnbRE/iFlwoI56iiA9dTTQs5LH4BGnrK6XZK0xawfpx77k=\n" +
                 "-----END CERTIFICATE-----");
 
-        X509SignedMessage subject = new X509SignedMessage(signedData, signature);
+        final X509SignedMessage subject = new X509SignedMessage(signedData, signature);
 
         assertThat(subject.verify(certificate), is(true));
     }
@@ -221,7 +236,7 @@ public class X509SignedMessageTest {
                 "AASBgGh1N+W4rzQ6n9+dvLY4jfP4lavYdcaNKNVZf0Yhx14vW5LQ1iggqtB+ZYtM\n" +
                 "Xzs8SdGSM9FtepvHkLSYtZId0odF/eB6rY7DN3O69TQN7GhmYeICtevT3bkzL950\n" +
                 "P3FhHeI3vHvnW1Xb+fdg46213Ym1tVw3V0caqGdp5Cw5vry5";
-        X509Certificate certificate = getCertificate(
+        final X509Certificate certificate = getCertificate(
                 "-----BEGIN CERTIFICATE-----\n" +
                 "MIIB2zCCAUQCCQCawUbZqWvWuzANBgkqhkiG9w0BAQUFADAyMQswCQYDVQQGEwJO\n" +
                 "TDETMBEGA1UECBMKU29tZS1TdGF0ZTEOMAwGA1UEChMFQk9HVVMwHhcNMTMwNDE4\n" +
@@ -235,7 +250,7 @@ public class X509SignedMessageTest {
                 "q91Ey/fALhdTtl20RNnbRE/iFlwoI56iiA9dTTQs5LH4BGnrK6XZK0xawfpx77k=\n" +
                 "-----END CERTIFICATE-----");
 
-        X509SignedMessage subject = new X509SignedMessage(signedData, signature);
+        final X509SignedMessage subject = new X509SignedMessage(signedData, signature);
 
         assertThat(subject.verify(certificate), is(true));
     }
@@ -307,7 +322,7 @@ public class X509SignedMessageTest {
                 "AQEFAASBgGlxIaAcSIDw5PUw7JscCO7waLRubOusGlg7KaQOodLNAItiqU1xE8jTDmHXt97RTbRG\n" +
                 "AXWPFW9ByXburQmxCSSxxOnIey5ta8qlP8wXQrp86aKVYO9iUWDRH8B7C1R/ApHWhRsIHadscpDn\n" +
                 "0dZdWzSqRcNJzOJjna7eHLz8SEDFAAAAAAAA\n";
-        X509Certificate certificate = getCertificate("-----BEGIN CERTIFICATE-----\n" +
+        final X509Certificate certificate = getCertificate("-----BEGIN CERTIFICATE-----\n" +
                 "MIIDsTCCAxqgAwIBAgICAXwwDQYJKoZIhvcNAQEEBQAwgYUxCzAJBgNVBAYTAk5M\n" +
                 "MRYwFAYDVQQIEw1Ob29yZC1Ib2xsYW5kMRIwEAYDVQQHEwlBbXN0ZXJkYW0xETAP\n" +
                 "BgNVBAoTCFJJUEUgTkNDMQwwCgYDVQQLEwNPUFMxDDAKBgNVBAMTA0NBMjEbMBkG\n" +
@@ -344,9 +359,9 @@ public class X509SignedMessageTest {
         assertThat(first.equals(second), is(false));
     }
 
+    // helper methods
+
     private X509Certificate getCertificate(String certificate) throws StreamParsingException {
-        X509CertParser parser = new X509CertParser();
-        parser.engineInit(new ByteArrayInputStream(certificate.getBytes()));
-        return (X509Certificate) parser.engineRead();
+        return X509CertificateWrapper.parse(certificate).getCertificate();
     }
 }

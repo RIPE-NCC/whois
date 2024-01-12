@@ -1,21 +1,33 @@
 package net.ripe.db.whois.common.sso;
 
 import com.google.common.base.MoreObjects;
-import org.joda.time.LocalDateTime;
-import org.joda.time.format.ISODateTimeFormat;
+
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeFormatterBuilder;
+import java.time.temporal.ChronoField;
 
 public class UserSession {
+
+    private static final DateTimeFormatter ISO_DATE_TIME_FORMATTER = new DateTimeFormatterBuilder()
+            .appendPattern("yyyy-MM-dd'T'HH:mm:ss")
+            .appendFraction(ChronoField.MICRO_OF_SECOND, 0, 3, true)
+            .appendOffset("+HH:MM", "Z")
+            .parseLenient()
+            .toFormatter();
+
     final private String username;
     final private String displayName;
     final private boolean isActive;
     final private LocalDateTime expiryDate;
-    private String uuid;
+    final private String uuid;
 
-    public UserSession(final String username, final String displayName, final boolean isActive, final String expiryDate) {
+    public UserSession(final String uuid, final String username, final String displayName, final boolean isActive, final String expiryDate) {
+        this.uuid = uuid;
         this.username = username;
         this.displayName = displayName;
         this.isActive = isActive;
-        this.expiryDate = expiryDate == null ? LocalDateTime.now().plusHours(1) : LocalDateTime.parse(expiryDate, ISODateTimeFormat.dateTimeParser());
+        this.expiryDate = expiryDate == null ? LocalDateTime.now().plusHours(1) : LocalDateTime.parse(expiryDate, ISO_DATE_TIME_FORMATTER);
     }
 
     public String getDisplayName() {
@@ -36,10 +48,6 @@ public class UserSession {
 
     public String getUuid() {
         return uuid;
-    }
-
-    public void setUuid(final String uuid) {
-        this.uuid = uuid;
     }
 
     @Override

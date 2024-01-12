@@ -1,7 +1,6 @@
 package net.ripe.db.whois.api.rest;
 
 import com.google.common.base.Strings;
-import com.google.common.collect.Lists;
 import net.ripe.db.whois.api.AbstractIntegrationTest;
 import net.ripe.db.whois.api.RestTest;
 import net.ripe.db.whois.api.rest.domain.Attribute;
@@ -15,32 +14,38 @@ import net.ripe.db.whois.api.rest.domain.Sources;
 import net.ripe.db.whois.api.rest.domain.TypeFilters;
 import net.ripe.db.whois.api.rest.domain.WhoisObject;
 import net.ripe.db.whois.api.rest.domain.WhoisResources;
-import net.ripe.db.whois.api.rest.domain.WhoisTag;
-import net.ripe.db.whois.common.IntegrationTest;
+import net.ripe.db.whois.common.ApplicationVersion;
 import net.ripe.db.whois.common.MaintenanceMode;
 import net.ripe.db.whois.common.TestDateTimeProvider;
-import net.ripe.db.whois.common.dao.RpslObjectUpdateInfo;
+import net.ripe.db.whois.common.rpsl.AttributeType;
 import net.ripe.db.whois.common.rpsl.RpslObject;
+import net.ripe.db.whois.common.sso.AuthServiceClient;
 import net.ripe.db.whois.query.QueryFlag;
+import net.ripe.db.whois.query.acl.AccessControlListManager;
+import net.ripe.db.whois.query.acl.AccountingIdentifier;
+import net.ripe.db.whois.query.acl.IpResourceConfiguration;
+import net.ripe.db.whois.query.support.TestPersonalObjectAccounting;
 import org.glassfish.jersey.client.filter.EncodingFilter;
 import org.glassfish.jersey.message.DeflateEncoder;
 import org.glassfish.jersey.message.GZipEncoder;
-import org.joda.time.LocalDateTime;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.experimental.categories.Category;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Tag;
+import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
-import javax.ws.rs.BadRequestException;
-import javax.ws.rs.NotFoundException;
-import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.Response;
+import jakarta.ws.rs.BadRequestException;
+import jakarta.ws.rs.NotFoundException;
+import jakarta.ws.rs.core.MediaType;
+import jakarta.ws.rs.core.Response;
 import java.io.FileNotFoundException;
 import java.io.InputStream;
+import java.net.InetAddress;
 import java.net.URL;
+import java.time.LocalDateTime;
 import java.util.List;
-import java.util.Map;
 
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.Matchers.containsInAnyOrder;
 import static org.hamcrest.Matchers.containsString;
@@ -49,13 +54,46 @@ import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.not;
 import static org.hamcrest.Matchers.nullValue;
-import static org.junit.Assert.assertThat;
-import static org.junit.Assert.fail;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.fail;
 
-@Category(IntegrationTest.class)
+@Tag("IntegrationTest")
 public class WhoisSearchServiceTestIntegration extends AbstractIntegrationTest {
 
-    private static final RpslObject OWNER_MNT = RpslObject.parse("" +
+    private static final String LOCALHOST = "127.0.0.1";
+    public static final String VALID_TOKEN = "valid-token";
+    public static final String VALID_TOKEN_USER_NAME = "person@net.net";
+
+
+    @Autowired
+    private AccessControlListManager accessControlListManager;
+    @Autowired
+    private TestPersonalObjectAccounting testPersonalObjectAccounting;
+    @Autowired
+    private IpResourceConfiguration ipResourceConfiguration;
+
+    public static final String TEST_PERSON_STRING = "" +
+            "person:         Test Person\n" +
+            "address:        Singel 258\n" +
+            "phone:          +31 6 12345678\n" +
+            "nic-hdl:        TP1-TEST\n" +
+            "mnt-by:         OWNER-MNT\n" +
+            "source:         TEST\n";
+
+    public static final RpslObject TEST_PERSON = RpslObject.parse(TEST_PERSON_STRING);
+    public static final String AS102_STRING = "" +
+            "aut-num:        AS102\n" +
+            "as-name:        End-User-2\n" +
+            "descr:          description #testComment\n" +
+            "admin-c:        TP1-TEST\n" +
+            "tech-c:         TP1-TEST\n" +
+            "mnt-by:         OWNER-MNT #testComment\n" +
+            "source:         TEST\n" +
+            "created:        2017-05-16T11:18:05Z\n" +
+            "last-modified:  2017-05-16T11:18:05Z\n";
+
+    public static final RpslObject AS102 = RpslObject.parse(AS102_STRING);
+    public static final String OWNER_MNT_STRING = "" +
             "mntner:      OWNER-MNT\n" +
             "descr:       Owner Maintainer\n" +
             "admin-c:     TP1-TEST\n" +
@@ -63,7 +101,10 @@ public class WhoisSearchServiceTestIntegration extends AbstractIntegrationTest {
             "auth:        MD5-PW $1$d9fKeTr2$Si7YudNf4rUGmR71n/cqk/ #test\n" +
             "auth:        SSO person@net.net\n" +
             "mnt-by:      OWNER-MNT\n" +
-            "source:      TEST");
+            "source:      TEST\n";
+
+
+    private static final RpslObject OWNER_MNT = RpslObject.parse(OWNER_MNT_STRING);
 
     private static final RpslObject RIPE_NCC_HM_MNT = RpslObject.parse("" +
             "mntner:      RIPE-NCC-HM-MNT\n" +
@@ -73,15 +114,8 @@ public class WhoisSearchServiceTestIntegration extends AbstractIntegrationTest {
             "auth:        MD5-PW $1$tnG/zrDw$nps8tg76q4jgg5zg5o6os. # hm\n" +
             "auth:        SSO person@net.net\n" +
             "mnt-by:      RIPE-NCC-HM-MNT\n" +
-            "source:      TEST");
+            "source:      TEST\n");
 
-    private static final RpslObject TEST_PERSON = RpslObject.parse("" +
-            "person:    Test Person\n" +
-            "address:   Singel 258\n" +
-            "phone:     +31 6 12345678\n" +
-            "nic-hdl:   TP1-TEST\n" +
-            "mnt-by:    OWNER-MNT\n" +
-            "source:    TEST\n");
 
     private static final RpslObject TEST_ROLE = RpslObject.parse("" +
             "role:      Test Role\n" +
@@ -94,11 +128,11 @@ public class WhoisSearchServiceTestIntegration extends AbstractIntegrationTest {
             "source:    TEST\n");
 
     private static final RpslObject TEST_OTHER_ORGANISATION = RpslObject.parse("" +
-                "organisation:   ORG-TO1-TEST\n" +
-                "org-name:       Test Organisation\n" +
-                "status:         OTHER\n" +
-                "mnt-by:         OWNER-MNT\n" +
-                "source:         TEST\n");
+            "organisation:   ORG-TO1-TEST\n" +
+            "org-name:       Test Organisation\n" +
+            "status:         OTHER\n" +
+            "mnt-by:         OWNER-MNT\n" +
+            "source:         TEST\n");
 
     private static final RpslObject TEST_LIR_ORGANISATION = RpslObject.parse("" +
             "organisation:   ORG-TO2-TEST\n" +
@@ -108,10 +142,14 @@ public class WhoisSearchServiceTestIntegration extends AbstractIntegrationTest {
             "mnt-by:         OWNER-MNT\n" +
             "source:         TEST\n");
 
-    @Autowired private MaintenanceMode maintenanceMode;
-    @Autowired private TestDateTimeProvider testDateTimeProvider;
+    @Autowired
+    private MaintenanceMode maintenanceMode;
+    @Autowired
+    private TestDateTimeProvider testDateTimeProvider;
+    @Autowired
+    private ApplicationVersion applicationVersion;
 
-    @Before
+    @BeforeEach
     public void setup() {
         databaseHelper.addObject("person: Test Person\nnic-hdl: TP1-TEST");
         databaseHelper.addObject("role: Test Role\nnic-hdl: TR1-TEST");
@@ -120,6 +158,15 @@ public class WhoisSearchServiceTestIntegration extends AbstractIntegrationTest {
         databaseHelper.updateObject(TEST_ROLE);
         maintenanceMode.set("FULL,FULL");
         testDateTimeProvider.setTime(LocalDateTime.parse("2001-02-04T17:00:00"));
+    }
+
+    @AfterEach
+    public void reset() {
+        databaseHelper.getAclTemplate().update("DELETE FROM acl_denied");
+        databaseHelper.getAclTemplate().update("DELETE FROM acl_event");
+        databaseHelper.getAclTemplate().update("DELETE FROM acl_proxy");
+        testPersonalObjectAccounting.resetAccounting();
+        ipResourceConfiguration.reload();
     }
 
     @Test
@@ -186,6 +233,24 @@ public class WhoisSearchServiceTestIntegration extends AbstractIntegrationTest {
     }
 
     @Test
+    public void search_accept_text_plain() {
+        final String rpslObject = RestTest.target(getPort(), "whois/search?query-string=TP1-TEST&source=TEST")
+                .request(MediaType.TEXT_PLAIN)
+                .get(String.class);
+
+        assertThat(rpslObject, is(TEST_PERSON_STRING + '\n'));
+    }
+
+    @Test
+    public void search_accept_text_plain_extension() {
+        final String rpslObject = RestTest.target(getPort(), "whois/search.txt?query-string=TP1-TEST&source=TEST")
+                .request()
+                .get(String.class);
+
+        assertThat(rpslObject, is(TEST_PERSON_STRING + '\n'));
+    }
+
+    @Test
     public void search_json_extension() {
         final WhoisResources whoisResources = RestTest.target(getPort(), "whois/search.json?query-string=OWNER-MNT&source=TEST")
                 .request()
@@ -244,7 +309,7 @@ public class WhoisSearchServiceTestIntegration extends AbstractIntegrationTest {
     }
 
     @Test
-    public void search_with_short_and_long_options_together() {
+    public void search_with_invalid_flag() {
         databaseHelper.addObject("" +
                 "person:    Lo Person\n" +
                 "admin-c:   TP1-TEST\n" +
@@ -254,12 +319,12 @@ public class WhoisSearchServiceTestIntegration extends AbstractIntegrationTest {
                 "source:    TEST\n");
 
         try {
-            RestTest.target(getPort(), "whois/search?query-string=LP1-TEST&source=TEST&flags=show-tag-inforG")
+            RestTest.target(getPort(), "whois/search?query-string=LP1-TEST&source=TEST&flags=show-tag-info")
                     .request(MediaType.APPLICATION_XML)
                     .get(WhoisResources.class);
             fail();
         } catch (BadRequestException e) {
-            RestTest.assertOnlyErrorMessage(e, "Error", "Invalid search flag '%s' (in parameter '%s')", "h", "show-tag-inforG");
+            RestTest.assertOnlyErrorMessage(e, "Error", "Invalid search flag '%s' (in parameter '%s')", "h", "show-tag-info");
         }
     }
 
@@ -285,199 +350,6 @@ public class WhoisSearchServiceTestIntegration extends AbstractIntegrationTest {
         } catch (BadRequestException e) {
             RestTest.assertOnlyErrorMessage(e, "Error", "Disallowed search flag '%s'", "q");
         }
-    }
-
-    @Test
-    public void search_tags_in_response() {
-        final RpslObject autnum = RpslObject.parse("" +
-                "aut-num:        AS102\n" +
-                "as-name:        End-User-2\n" +
-                "descr:          description\n" +
-                "admin-c:        TP1-TEST\n" +
-                "tech-c:         TP1-TEST\n" +
-                "mnt-by:         OWNER-MNT\n" +
-                "source:         TEST\n");
-        Map<RpslObject, RpslObjectUpdateInfo> updateInfos = databaseHelper.addObjects(Lists.newArrayList(autnum));
-
-        whoisTemplate.update("INSERT INTO tags VALUES (?, ?, ?)", updateInfos.get(autnum).getObjectId(), "unref", "28");
-        whoisTemplate.update("INSERT INTO tags VALUES (?, ?, ?)", updateInfos.get(autnum).getObjectId(), "foobar", "description");
-        whoisTemplate.update("INSERT INTO tags VALUES (?, ?, ?)", updateInfos.get(autnum).getObjectId(), "other", "other stuff");
-
-        final WhoisResources whoisResources = RestTest.target(getPort(),
-                "whois/TEST/aut-num/AS102?include-tag=foobar&include-tag=unref")
-                .request(MediaType.APPLICATION_XML)
-                .get(WhoisResources.class);
-
-        assertThat(whoisResources.getErrorMessages(), is(empty()));
-        final WhoisObject whoisObject = whoisResources.getWhoisObjects().get(0);
-        assertThat(whoisObject.getTags(), contains(
-                new WhoisTag("foobar", "description"),
-                new WhoisTag("other", "other stuff"),
-                new WhoisTag("unref", "28")));
-    }
-
-    @Test
-    public void search_tags_in_json_response() {
-        final RpslObject autnum = RpslObject.parse("" +
-                "aut-num:        AS102\n" +
-                "as-name:        End-User-2\n" +
-                "descr:          description\n" +
-                "admin-c:        TP1-TEST\n" +
-                "tech-c:         TP1-TEST\n" +
-                "mnt-by:         OWNER-MNT\n" +
-                "source:         TEST\n");
-        Map<RpslObject, RpslObjectUpdateInfo> updateInfos = databaseHelper.addObjects(Lists.newArrayList(autnum));
-
-        whoisTemplate.update("INSERT INTO tags VALUES (?, ?, ?)", updateInfos.get(autnum).getObjectId(), "unref", "28");
-        whoisTemplate.update("INSERT INTO tags VALUES (?, ?, ?)", updateInfos.get(autnum).getObjectId(), "foobar", "description");
-        whoisTemplate.update("INSERT INTO tags VALUES (?, ?, ?)", updateInfos.get(autnum).getObjectId(), "other", "other stuff");
-
-        final String result = RestTest.target(getPort(),
-                "whois/TEST/aut-num/AS102?include-tag=foobar&include-tag=unref")
-                .request(MediaType.APPLICATION_JSON)
-                .get(String.class);
-
-        assertThat(result, containsString("" +
-                "\"tags\" : {\n" +
-                "    \"tag\" : [ {\n" +
-                "      \"id\" : \"foobar\",\n" +
-                "      \"data\" : \"description\"\n" +
-                "    }, {\n" +
-                "      \"id\" : \"other\",\n" +
-                "      \"data\" : \"other stuff\"\n" +
-                "    }, {\n" +
-                "      \"id\" : \"unref\",\n" +
-                "      \"data\" : \"28\"\n" +
-                "    } ]\n" +
-                "  }"));
-
-        final WhoisResources whoisResources = RestTest.target(getPort(),
-                "whois/TEST/aut-num/AS102?include-tag=foobar&include-tag=unref")
-                .request(MediaType.APPLICATION_JSON)
-                .get(WhoisResources.class);
-
-        assertThat(whoisResources.getErrorMessages(), is(empty()));
-        final WhoisObject whoisObject = whoisResources.getWhoisObjects().get(0);
-        assertThat(whoisObject.getTags(), contains(
-                new WhoisTag("foobar", "description"),
-                new WhoisTag("other", "other stuff"),
-                new WhoisTag("unref", "28")));
-    }
-
-    @Test
-    public void search_include_tag_param() {
-        final RpslObject autnum = RpslObject.parse("" +
-                "aut-num:        AS102\n" +
-                "as-name:        End-User-2\n" +
-                "descr:          description\n" +
-                "admin-c:        TP1-TEST\n" +
-                "tech-c:         TP1-TEST\n" +
-                "mnt-by:         OWNER-MNT\n" +
-                "source:         TEST\n");
-        Map<RpslObject, RpslObjectUpdateInfo> updateInfos = databaseHelper.addObjects(Lists.newArrayList(autnum));
-
-        whoisTemplate.update("INSERT INTO tags VALUES (?, ?, ?)", updateInfos.get(autnum).getObjectId(), "unref", "28");
-        whoisTemplate.update("INSERT INTO tags VALUES (?, ?, ?)", updateInfos.get(autnum).getObjectId(), "foobar", "description");
-        whoisTemplate.update("INSERT INTO tags VALUES (?, ?, ?)", updateInfos.get(autnum).getObjectId(), "other", "other stuff");
-
-        final WhoisResources whoisResources = RestTest.target(getPort(),
-                "whois/search?source=TEST&query-string=AS102&include-tag=foobar&include-tag=unref")
-                .request(MediaType.APPLICATION_XML)
-                .get(WhoisResources.class);
-
-        assertThat(whoisResources.getErrorMessages(), is(empty()));
-        final WhoisObject whoisObject = whoisResources.getWhoisObjects().get(0);
-
-        assertThat(whoisObject.getTags(), contains(
-                new WhoisTag("foobar", "description"),
-                new WhoisTag("other", "other stuff"),
-                new WhoisTag("unref", "28")));
-        assertThat(whoisObject.getAttributes(), contains(
-                new Attribute("aut-num", "AS102"),
-                new Attribute("as-name", "End-User-2"),
-                new Attribute("descr", "description"),
-                new Attribute("admin-c", "TP1-TEST", null, "person", Link.create("http://rest-test.db.ripe.net/test/person/TP1-TEST"), null),
-                new Attribute("tech-c", "TP1-TEST", null, "person", Link.create("http://rest-test.db.ripe.net/test/person/TP1-TEST"), null),
-                new Attribute("mnt-by", "OWNER-MNT", null, "mntner", Link.create("http://rest-test.db.ripe.net/test/mntner/OWNER-MNT"), null),
-                new Attribute("source", "TEST")
-        ));
-    }
-
-    @Test(expected = NotFoundException.class)
-    public void search_include_tag_param_no_results() {
-        databaseHelper.addObject(RpslObject.parse("" +
-                "aut-num:        AS102\n" +
-                "as-name:        End-User-2\n" +
-                "descr:          description\n" +
-                "admin-c:        TP1-TEST\n" +
-                "tech-c:         TP1-TEST\n" +
-                "mnt-by:         OWNER-MNT\n" +
-                "source:         TEST\n"));
-
-        RestTest.target(getPort(),
-                "whois/search?source=TEST&query-string=AS102&include-tag=foobar")
-                .request(MediaType.APPLICATION_XML)
-                .get(WhoisResources.class);
-    }
-
-    @Test(expected = NotFoundException.class)
-    public void search_include_and_exclude_tags_params_no_results() {
-        final RpslObject autnum = RpslObject.parse("" +
-                "aut-num:        AS102\n" +
-                "as-name:        End-User-2\n" +
-                "descr:          description\n" +
-                "admin-c:        TP1-TEST\n" +
-                "tech-c:         TP1-TEST\n" +
-                "mnt-by:         OWNER-MNT\n" +
-                "source:         TEST\n");
-        Map<RpslObject, RpslObjectUpdateInfo> updateInfos = databaseHelper.addObjects(Lists.newArrayList(autnum));
-
-        whoisTemplate.update("INSERT INTO tags VALUES (?, ?, ?)", updateInfos.get(autnum).getObjectId(), "unref", "28");
-        whoisTemplate.update("INSERT INTO tags VALUES (?, ?, ?)", updateInfos.get(autnum).getObjectId(), "foobar", "foobar");
-        whoisTemplate.update("INSERT INTO tags VALUES (?, ?, ?)", updateInfos.get(autnum).getObjectId(), "other", "other stuff");
-
-        RestTest.target(getPort(),
-                "whois/search?source=TEST&query-string=AS102&exclude-tag=foobar&include-tag=unref&include-tag=other")
-                .request(MediaType.APPLICATION_XML)
-                .get(WhoisResources.class);
-    }
-
-    @Test
-    public void search_include_and_exclude_tags_params() {
-        final RpslObject autnum = RpslObject.parse("" +
-                "aut-num:        AS102\n" +
-                "as-name:        End-User-2\n" +
-                "descr:          description\n" +
-                "admin-c:        TP1-TEST\n" +
-                "tech-c:         TP1-TEST\n" +
-                "mnt-by:         OWNER-MNT\n" +
-                "source:         TEST\n");
-        Map<RpslObject, RpslObjectUpdateInfo> updateInfos = databaseHelper.addObjects(Lists.newArrayList(autnum));
-
-        whoisTemplate.update("INSERT INTO tags VALUES (?, ?, ?)", updateInfos.get(autnum).getObjectId(), "unref", "28");
-        whoisTemplate.update("INSERT INTO tags VALUES (?, ?, ?)", updateInfos.get(autnum).getObjectId(), "foobar", "foobar");
-
-        final WhoisResources whoisResources = RestTest.target(getPort(),
-                "whois/search?source=TEST&query-string=AS102&exclude-tag=other&include-tag=unref&include-tag=foobar")
-                .request(MediaType.APPLICATION_XML)
-                .get(WhoisResources.class);
-
-        assertThat(whoisResources.getErrorMessages(), is(empty()));
-
-        final WhoisObject whoisObject = whoisResources.getWhoisObjects().get(0);
-        assertThat(whoisObject.getLink(), is(Link.create("http://rest-test.db.ripe.net/test/aut-num/AS102")));
-        assertThat(whoisObject.getTags(), contains(
-                new WhoisTag("foobar", "foobar"),
-                new WhoisTag("unref", "28")));
-        assertThat(whoisObject.getAttributes(), contains(
-                new Attribute("aut-num", "AS102"),
-                new Attribute("as-name", "End-User-2"),
-                new Attribute("descr", "description"),
-                new Attribute("admin-c", "TP1-TEST", null, "person", Link.create("http://rest-test.db.ripe.net/test/person/TP1-TEST"), null),
-                new Attribute("tech-c", "TP1-TEST", null, "person", Link.create("http://rest-test.db.ripe.net/test/person/TP1-TEST"), null),
-                new Attribute("mnt-by", "OWNER-MNT", null, "mntner", Link.create("http://rest-test.db.ripe.net/test/mntner/OWNER-MNT"), null),
-                new Attribute("source", "TEST")
-        ));
     }
 
     @Test
@@ -640,7 +512,7 @@ public class WhoisSearchServiceTestIntegration extends AbstractIntegrationTest {
                 new Attribute("auth", "MD5-PW", "Filtered", null, null, null),
                 new Attribute("auth", "SSO", "Filtered", null, null, null),
                 new Attribute("mnt-by", "OWNER-MNT", null, "mntner", Link.create("http://rest-test.db.ripe.net/test/mntner/OWNER-MNT"), null),
-                new Attribute("source", "TEST","Filtered", null, null, null)
+                new Attribute("source", "TEST", "Filtered", null, null, null)
         ));
 
         WhoisObject person2 = whoisResources.getWhoisObjects().get(3);
@@ -723,7 +595,7 @@ public class WhoisSearchServiceTestIntegration extends AbstractIntegrationTest {
 
     @Test
     public void search_flags_json() {
-        final String str = RestTest.target(getPort(), "whois/search?query-string=TP1-TEST&source=TEST&flags=BrCx")
+        final String str = RestTest.target(getPort(), "whois/search?query-string=TP1-TEST&source=TEST&flags=BrCxG")
                 .request(MediaType.APPLICATION_JSON)
                 .get(String.class);
         assertThat(str, containsString("" +
@@ -736,28 +608,30 @@ public class WhoisSearchServiceTestIntegration extends AbstractIntegrationTest {
                 "      \"value\" : \"no-irt\"\n" +
                 "    }, {\n" +
                 "      \"value\" : \"exact\"\n" +
+                "    }, {\n" +
+                "      \"value\" : \"no-grouping\"\n" +
                 "    } ]\n" +
                 "  },"));
 
-        final WhoisResources whoisResources = RestTest.target(getPort(), "whois/search?query-string=TP1-TEST&source=TEST&flags=BrCx")
+        final WhoisResources whoisResources = RestTest.target(getPort(), "whois/search?query-string=TP1-TEST&source=TEST&flags=BrCxG")
                 .request(MediaType.APPLICATION_JSON)
                 .get(WhoisResources.class);
 
-        assertThat(whoisResources.getParameters().getFlags().getFlags(), hasSize(4));
+        assertThat(whoisResources.getParameters().getFlags().getFlags(), hasSize(5));
     }
 
     @Test
     public void search_hierarchical_flags() {
         databaseHelper.addObject(
                 "inet6num:       2001:2002:2003::/48\n" +
-                "netname:        RIPE-NCC\n" +
-                "descr:          Private Network\n" +
-                "country:        NL\n" +
-                "tech-c:         TP1-TEST\n" +
-                "status:         ASSIGNED PA\n" +
-                "mnt-by:         OWNER-MNT\n" +
-                "mnt-lower:      OWNER-MNT\n" +
-                "source:         TEST"
+                        "netname:        RIPE-NCC\n" +
+                        "descr:          Private Network\n" +
+                        "country:        NL\n" +
+                        "tech-c:         TP1-TEST\n" +
+                        "status:         ASSIGNED PA\n" +
+                        "mnt-by:         OWNER-MNT\n" +
+                        "mnt-lower:      OWNER-MNT\n" +
+                        "source:         TEST"
         );
         ipTreeUpdater.rebuild();
 
@@ -873,14 +747,16 @@ public class WhoisSearchServiceTestIntegration extends AbstractIntegrationTest {
         }
     }
 
-    @Test(expected = FileNotFoundException.class)
+    @Test
     public void search_illegal_character_encoding_in_query_param() throws Exception {
-        try (
-            final InputStream inputStream = new URL(
-                    String.format("http://localhost:%d/whois/search?flags=rB&source=TEST&type-filter=mntner&query-string=AA1-MNT+{+192.168.0.0/16+}",
-                            getPort())).openStream()) {
-            fail();
-        }
+        assertThrows(FileNotFoundException.class, () -> {
+            try (
+                    final InputStream inputStream = new URL(
+                            String.format("http://localhost:%d/whois/search?flags=rB&source=TEST&type-filter=mntner&query-string=AA1-MNT+{+192.168.0.0/16+}",
+                                    getPort())).openStream()) {
+                fail();
+            }
+        });
     }
 
     @Test
@@ -914,24 +790,24 @@ public class WhoisSearchServiceTestIntegration extends AbstractIntegrationTest {
             final String response = e.getResponse().readEntity(String.class);
             assertThat(response, is(String.format(
                     "{\n" +
-                    "  \"link\" : {\n" +
-                    "    \"type\" : \"locator\",\n" +
-                    "    \"href\" : \"http://localhost:%s/search?query-string=invalid&source=TEST\"\n" +
-                    "  },\n" +
-                    "  \"errormessages\" : {\n" +
-                    "    \"errormessage\" : [ {\n" +
-                    "      \"severity\" : \"Error\",\n" +
-                    "      \"text\" : \"ERROR:101: no entries found\\n\\nNo entries found in source %%s.\\n\",\n" +
-                    "      \"args\" : [ {\n" +
-                    "        \"value\" : \"TEST\"\n" +
-                    "      } ]\n" +
-                    "    } ]\n" +
-                    "  },\n" +
-                    "  \"terms-and-conditions\" : {\n" +
-                    "    \"type\" : \"locator\",\n" +
-                    "    \"href\" : \"http://www.ripe.net/db/support/db-terms-conditions.pdf\"\n" +
-                    "  }\n" +
-                    "}", getPort()
+                            "  \"link\" : {\n" +
+                            "    \"type\" : \"locator\",\n" +
+                            "    \"href\" : \"http://localhost:%s/search?query-string=invalid&source=TEST\"\n" +
+                            "  },\n" +
+                            "  \"errormessages\" : {\n" +
+                            "    \"errormessage\" : [ {\n" +
+                            "      \"severity\" : \"Error\",\n" +
+                            "      \"text\" : \"ERROR:101: no entries found\\n\\nNo entries found in source %%s.\\n\",\n" +
+                            "      \"args\" : [ {\n" +
+                            "        \"value\" : \"TEST\"\n" +
+                            "      } ]\n" +
+                            "    } ]\n" +
+                            "  },\n" +
+                            "  \"terms-and-conditions\" : {\n" +
+                            "    \"type\" : \"locator\",\n" +
+                            "    \"href\" : \"https://apps.db.ripe.net/docs/HTML-Terms-And-Conditions\"\n" +
+                            "  }\n" +
+                            "}", getPort()
             )));
         }
     }
@@ -948,16 +824,54 @@ public class WhoisSearchServiceTestIntegration extends AbstractIntegrationTest {
             final String response = e.getResponse().readEntity(String.class);
             assertThat(response, is(String.format(
                     "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>" +
-                    "<whois-resources xmlns:xlink=\"http://www.w3.org/1999/xlink\">" +
-                    "<link xlink:type=\"locator\" xlink:href=\"http://localhost:%s/search?query-string=invalid&amp;source=TEST\"/>" +
-                    "<errormessages>" +
-                    "<errormessage severity=\"Error\" text=\"ERROR:101: no entries found&#xA;&#xA;No entries found in source %%s.&#xA;\">" +
-                    "<args value=\"TEST\"/>" +
-                    "</errormessage>" +
-                    "</errormessages>" +
-                    "<terms-and-conditions xlink:type=\"locator\" xlink:href=\"http://www.ripe.net/db/support/db-terms-conditions.pdf\"/>" +
-                    "</whois-resources>", getPort()
+                            "<whois-resources xmlns:xlink=\"http://www.w3.org/1999/xlink\">" +
+                            "<link xlink:type=\"locator\" xlink:href=\"http://localhost:%s/search?query-string=invalid&amp;source=TEST\"/>" +
+                            "<errormessages>" +
+                            "<errormessage severity=\"Error\" text=\"ERROR:101: no entries found&#10;&#10;No entries found in source %%s.&#10;\">" +
+                            "<args value=\"TEST\"/>" +
+                            "</errormessage>" +
+                            "</errormessages>" +
+                            "<terms-and-conditions xlink:type=\"locator\" xlink:href=\"https://apps.db.ripe.net/docs/HTML-Terms-And-Conditions\"/>" +
+                            "</whois-resources>", getPort()
             )));
+        }
+    }
+
+    @Test
+    public void search_accept_text_plain_not_found() {
+        try {
+            RestTest.target(getPort(), "whois/search?query-string=invalid&source=TEST")
+                    .request(MediaType.TEXT_PLAIN)
+                    .get(String.class);
+            fail();
+        } catch (NotFoundException e) {
+            final String response = e.getResponse().readEntity(String.class);
+            assertThat(response, is(String.format("http://localhost:%s/search?query-string=invalid&source=TEST\n" +
+                    "Severity: Error\n" +
+                    "Text: ERROR:101: no entries found\n" +
+                    "\n" +
+                    "No entries found in source %%s.\n" +
+                    "[TEST]\n" +
+                    "https://apps.db.ripe.net/docs/HTML-Terms-And-Conditions", getPort())));
+        }
+    }
+
+    @Test
+    public void search_accept_text_plain_not_found_extension() {
+        try {
+            RestTest.target(getPort(), "whois/search.txt?query-string=invalid&source=TEST")
+                    .request()
+                    .get(String.class);
+            fail();
+        } catch (NotFoundException e) {
+            final String response = e.getResponse().readEntity(String.class);
+            assertThat(response, is(String.format("http://localhost:%s/search?query-string=invalid&source=TEST\n" +
+                    "Severity: Error\n" +
+                    "Text: ERROR:101: no entries found\n" +
+                    "\n" +
+                    "No entries found in source %%s.\n" +
+                    "[TEST]\n" +
+                    "https://apps.db.ripe.net/docs/HTML-Terms-And-Conditions", getPort())));
         }
     }
 
@@ -978,127 +892,154 @@ public class WhoisSearchServiceTestIntegration extends AbstractIntegrationTest {
 
         assertThat(response, is(
                 "{\"service\" : {\n" +
-                "  \"name\" : \"search\"\n" +
-                "},\n" +
-                "\"parameters\" : {\n" +
-                "  \"inverse-lookup\" : { },\n" +
-                "  \"type-filters\" : { },\n" +
-                "  \"flags\" : { },\n" +
-                "  \"query-strings\" : {\n" +
-                "    \"query-string\" : [ {\n" +
-                "      \"value\" : \"AS102\"\n" +
-                "    } ]\n" +
-                "  },\n" +
-                "  \"sources\" : {\n" +
-                "    \"source\" : [ {\n" +
-                "      \"id\" : \"TEST\"\n" +
-                "    } ]\n" +
-                "  }\n" +
-                "},\n" +
-                "\"objects\" : {\n" +
-                "  \"object\" : [ {\n" +
-                "    \"type\" : \"aut-num\",\n" +
-                "    \"link\" : {\n" +
-                "      \"type\" : \"locator\",\n" +
-                "      \"href\" : \"http://rest-test.db.ripe.net/test/aut-num/AS102\"\n" +
-                "    },\n" +
-                "    \"source\" : {\n" +
-                "      \"id\" : \"test\"\n" +
-                "    },\n" +
-                "    \"primary-key\" : {\n" +
-                "      \"attribute\" : [ {\n" +
-                "        \"name\" : \"aut-num\",\n" +
-                "        \"value\" : \"AS102\"\n" +
-                "      } ]\n" +
-                "    },\n" +
-                "    \"attributes\" : {\n" +
-                "      \"attribute\" : [ {\n" +
-                "        \"name\" : \"aut-num\",\n" +
-                "        \"value\" : \"AS102\"\n" +
-                "      }, {\n" +
-                "        \"name\" : \"as-name\",\n" +
-                "        \"value\" : \"End-User-2\"\n" +
-                "      }, {\n" +
-                "        \"name\" : \"descr\",\n" +
-                "        \"value\" : \"description\"\n" +
-                "      }, {\n" +
-                "        \"link\" : {\n" +
-                "          \"type\" : \"locator\",\n" +
-                "          \"href\" : \"http://rest-test.db.ripe.net/test/person/TP1-TEST\"\n" +
-                "        },\n" +
-                "        \"name\" : \"admin-c\",\n" +
-                "        \"value\" : \"TP1-TEST\",\n" +
-                "        \"referenced-type\" : \"person\"\n" +
-                "      }, {\n" +
-                "        \"link\" : {\n" +
-                "          \"type\" : \"locator\",\n" +
-                "          \"href\" : \"http://rest-test.db.ripe.net/test/person/TP1-TEST\"\n" +
-                "        },\n" +
-                "        \"name\" : \"tech-c\",\n" +
-                "        \"value\" : \"TP1-TEST\",\n" +
-                "        \"referenced-type\" : \"person\"\n" +
-                "      }, {\n" +
-                "        \"link\" : {\n" +
-                "          \"type\" : \"locator\",\n" +
-                "          \"href\" : \"http://rest-test.db.ripe.net/test/mntner/OWNER-MNT\"\n" +
-                "        },\n" +
-                "        \"name\" : \"mnt-by\",\n" +
-                "        \"value\" : \"OWNER-MNT\",\n" +
-                "        \"referenced-type\" : \"mntner\"\n" +
-                "      }, {\n" +
-                "        \"name\" : \"source\",\n" +
-                "        \"value\" : \"TEST\"\n" +
-                "      } ]\n" +
-                "    }\n" +
-                "  }, {\n" +
-                "    \"type\" : \"person\",\n" +
-                "    \"link\" : {\n" +
-                "      \"type\" : \"locator\",\n" +
-                "      \"href\" : \"http://rest-test.db.ripe.net/test/person/TP1-TEST\"\n" +
-                "    },\n" +
-                "    \"source\" : {\n" +
-                "      \"id\" : \"test\"\n" +
-                "    },\n" +
-                "    \"primary-key\" : {\n" +
-                "      \"attribute\" : [ {\n" +
-                "        \"name\" : \"nic-hdl\",\n" +
-                "        \"value\" : \"TP1-TEST\"\n" +
-                "      } ]\n" +
-                "    },\n" +
-                "    \"attributes\" : {\n" +
-                "      \"attribute\" : [ {\n" +
-                "        \"name\" : \"person\",\n" +
-                "        \"value\" : \"Test Person\"\n" +
-                "      }, {\n" +
-                "        \"name\" : \"address\",\n" +
-                "        \"value\" : \"Singel 258\"\n" +
-                "      }, {\n" +
-                "        \"name\" : \"phone\",\n" +
-                "        \"value\" : \"+31 6 12345678\"\n" +
-                "      }, {\n" +
-                "        \"name\" : \"nic-hdl\",\n" +
-                "        \"value\" : \"TP1-TEST\"\n" +
-                "      }, {\n" +
-                "        \"link\" : {\n" +
-                "          \"type\" : \"locator\",\n" +
-                "          \"href\" : \"http://rest-test.db.ripe.net/test/mntner/OWNER-MNT\"\n" +
-                "        },\n" +
-                "        \"name\" : \"mnt-by\",\n" +
-                "        \"value\" : \"OWNER-MNT\",\n" +
-                "        \"referenced-type\" : \"mntner\"\n" +
-                "      }, {\n" +
-                "        \"name\" : \"source\",\n" +
-                "        \"value\" : \"TEST\"\n" +
-                "      } ]\n" +
-                "    }\n" +
-                "  } ]\n" +
-                "},\n" +
-                "\"terms-and-conditions\" : {\n" +
-                "  \"type\" : \"locator\",\n" +
-                "  \"href\" : \"http://www.ripe.net/db/support/db-terms-conditions.pdf\"\n" +
-                "}\n" +
-                "}"
+                        "  \"name\" : \"search\"\n" +
+                        "},\n" +
+                        "\"parameters\" : {\n" +
+                        "  \"inverse-lookup\" : { },\n" +
+                        "  \"type-filters\" : { },\n" +
+                        "  \"flags\" : { },\n" +
+                        "  \"query-strings\" : {\n" +
+                        "    \"query-string\" : [ {\n" +
+                        "      \"value\" : \"AS102\"\n" +
+                        "    } ]\n" +
+                        "  },\n" +
+                        "  \"sources\" : {\n" +
+                        "    \"source\" : [ {\n" +
+                        "      \"id\" : \"TEST\"\n" +
+                        "    } ]\n" +
+                        "  }\n" +
+                        "},\n" +
+                        "\"objects\" : {\n" +
+                        "  \"object\" : [ {\n" +
+                        "    \"type\" : \"aut-num\",\n" +
+                        "    \"link\" : {\n" +
+                        "      \"type\" : \"locator\",\n" +
+                        "      \"href\" : \"http://rest-test.db.ripe.net/test/aut-num/AS102\"\n" +
+                        "    },\n" +
+                        "    \"source\" : {\n" +
+                        "      \"id\" : \"test\"\n" +
+                        "    },\n" +
+                        "    \"primary-key\" : {\n" +
+                        "      \"attribute\" : [ {\n" +
+                        "        \"name\" : \"aut-num\",\n" +
+                        "        \"value\" : \"AS102\"\n" +
+                        "      } ]\n" +
+                        "    },\n" +
+                        "    \"attributes\" : {\n" +
+                        "      \"attribute\" : [ {\n" +
+                        "        \"name\" : \"aut-num\",\n" +
+                        "        \"value\" : \"AS102\"\n" +
+                        "      }, {\n" +
+                        "        \"name\" : \"as-name\",\n" +
+                        "        \"value\" : \"End-User-2\"\n" +
+                        "      }, {\n" +
+                        "        \"name\" : \"descr\",\n" +
+                        "        \"value\" : \"description\"\n" +
+                        "      }, {\n" +
+                        "        \"link\" : {\n" +
+                        "          \"type\" : \"locator\",\n" +
+                        "          \"href\" : \"http://rest-test.db.ripe.net/test/person/TP1-TEST\"\n" +
+                        "        },\n" +
+                        "        \"name\" : \"admin-c\",\n" +
+                        "        \"value\" : \"TP1-TEST\",\n" +
+                        "        \"referenced-type\" : \"person\"\n" +
+                        "      }, {\n" +
+                        "        \"link\" : {\n" +
+                        "          \"type\" : \"locator\",\n" +
+                        "          \"href\" : \"http://rest-test.db.ripe.net/test/person/TP1-TEST\"\n" +
+                        "        },\n" +
+                        "        \"name\" : \"tech-c\",\n" +
+                        "        \"value\" : \"TP1-TEST\",\n" +
+                        "        \"referenced-type\" : \"person\"\n" +
+                        "      }, {\n" +
+                        "        \"link\" : {\n" +
+                        "          \"type\" : \"locator\",\n" +
+                        "          \"href\" : \"http://rest-test.db.ripe.net/test/mntner/OWNER-MNT\"\n" +
+                        "        },\n" +
+                        "        \"name\" : \"mnt-by\",\n" +
+                        "        \"value\" : \"OWNER-MNT\",\n" +
+                        "        \"referenced-type\" : \"mntner\"\n" +
+                        "      }, {\n" +
+                        "        \"name\" : \"source\",\n" +
+                        "        \"value\" : \"TEST\"\n" +
+                        "      } ]\n" +
+                        "    }\n" +
+                        "  }, {\n" +
+                        "    \"type\" : \"person\",\n" +
+                        "    \"link\" : {\n" +
+                        "      \"type\" : \"locator\",\n" +
+                        "      \"href\" : \"http://rest-test.db.ripe.net/test/person/TP1-TEST\"\n" +
+                        "    },\n" +
+                        "    \"source\" : {\n" +
+                        "      \"id\" : \"test\"\n" +
+                        "    },\n" +
+                        "    \"primary-key\" : {\n" +
+                        "      \"attribute\" : [ {\n" +
+                        "        \"name\" : \"nic-hdl\",\n" +
+                        "        \"value\" : \"TP1-TEST\"\n" +
+                        "      } ]\n" +
+                        "    },\n" +
+                        "    \"attributes\" : {\n" +
+                        "      \"attribute\" : [ {\n" +
+                        "        \"name\" : \"person\",\n" +
+                        "        \"value\" : \"Test Person\"\n" +
+                        "      }, {\n" +
+                        "        \"name\" : \"address\",\n" +
+                        "        \"value\" : \"Singel 258\"\n" +
+                        "      }, {\n" +
+                        "        \"name\" : \"phone\",\n" +
+                        "        \"value\" : \"+31 6 12345678\"\n" +
+                        "      }, {\n" +
+                        "        \"name\" : \"nic-hdl\",\n" +
+                        "        \"value\" : \"TP1-TEST\"\n" +
+                        "      }, {\n" +
+                        "        \"link\" : {\n" +
+                        "          \"type\" : \"locator\",\n" +
+                        "          \"href\" : \"http://rest-test.db.ripe.net/test/mntner/OWNER-MNT\"\n" +
+                        "        },\n" +
+                        "        \"name\" : \"mnt-by\",\n" +
+                        "        \"value\" : \"OWNER-MNT\",\n" +
+                        "        \"referenced-type\" : \"mntner\"\n" +
+                        "      }, {\n" +
+                        "        \"name\" : \"source\",\n" +
+                        "        \"value\" : \"TEST\"\n" +
+                        "      } ]\n" +
+                        "    }\n" +
+                        "  } ]\n" +
+                        "},\n" +
+                        "\"terms-and-conditions\" : {\n" +
+                        "  \"type\" : \"locator\",\n" +
+                        "  \"href\" : \"https://apps.db.ripe.net/docs/HTML-Terms-And-Conditions\"\n" +
+                        "},\n" +
+                        "\"version\" : {\n" +
+                        "  \"version\" : \"" + applicationVersion.getVersion() + "\",\n" +
+                        "  \"timestamp\" : \"" + applicationVersion.getTimestamp() + "\",\n" +
+                        "  \"commit-id\" : \"" + applicationVersion.getCommitId() + "\"\n" +
+                        "}\n" +
+                        "}"
         ));
+    }
+
+    @Test
+    public void search_multiple_objects_text_plain() {
+        databaseHelper.addObject(AS102);
+
+        final String rpslObjects = RestTest.target(getPort(), "whois/search?query-string=AS102&source=TEST")
+                .request(MediaType.TEXT_PLAIN)
+                .get(String.class);
+
+        assertThat(rpslObjects, is(AS102_STRING + "\n" + TEST_PERSON_STRING +"\n"));
+    }
+
+    @Test
+    public void search_multiple_objects_text_plain_extension() {
+        databaseHelper.addObject(AS102);
+
+        final String rpslObjects = RestTest.target(getPort(), "whois/search.txt?query-string=AS102&source=TEST")
+                .request()
+                .get(String.class);
+
+        assertThat(rpslObjects, is(AS102_STRING + "\n" + TEST_PERSON_STRING +"\n"));
     }
 
     @Test
@@ -1172,7 +1113,11 @@ public class WhoisSearchServiceTestIntegration extends AbstractIntegrationTest {
                 "    </attributes>\n" +
                 "</object>\n" +
                 "</objects>\n" +
-                "<terms-and-conditions xlink:type=\"locator\" xlink:href=\"http://www.ripe.net/db/support/db-terms-conditions.pdf\"/>\n" +
+                "<terms-and-conditions xlink:type=\"locator\" xlink:href=\"https://apps.db.ripe.net/docs/HTML-Terms-And-Conditions\"/>\n" +
+                "<version " +
+                "version=\"" + applicationVersion.getVersion() + "\" " +
+                "timestamp=\"" + applicationVersion.getTimestamp() + "\" " +
+                "commit-id=\"" + applicationVersion.getCommitId() + "\"/>\n" +
                 "</whois-resources>\n"));
     }
 
@@ -1180,14 +1125,14 @@ public class WhoisSearchServiceTestIntegration extends AbstractIntegrationTest {
     public void search_not_contains_empty_xmlns() {
         databaseHelper.addObject(
                 "inet6num:       2001:2002:2003::/48\n" +
-                "netname:        RIPE-NCC\n" +
-                "descr:          Private Network\n" +
-                "country:        NL\n" +
-                "tech-c:         TP1-TEST\n" +
-                "status:         ASSIGNED PA\n" +
-                "mnt-by:         OWNER-MNT\n" +
-                "mnt-lower:      OWNER-MNT\n" +
-                "source:         TEST"
+                        "netname:        RIPE-NCC\n" +
+                        "descr:          Private Network\n" +
+                        "country:        NL\n" +
+                        "tech-c:         TP1-TEST\n" +
+                        "status:         ASSIGNED PA\n" +
+                        "mnt-by:         OWNER-MNT\n" +
+                        "mnt-lower:      OWNER-MNT\n" +
+                        "source:         TEST"
         );
         ipTreeUpdater.rebuild();
 
@@ -1213,11 +1158,13 @@ public class WhoisSearchServiceTestIntegration extends AbstractIntegrationTest {
         assertThat(response, containsString("<attribute name=\"auth\" value=\"SSO\" comment=\"Filtered\"/>"));
     }
 
-    @Test(expected = NotFoundException.class)
+    @Test
     public void search_huge_query_string() {
-        RestTest.target(getPort(), String.format("whois/search?query-string=%s&source=TEST", Strings.repeat("X", 5900)))
-                .request(MediaType.APPLICATION_XML)
-                .get(WhoisResources.class);
+        assertThrows(NotFoundException.class, () -> {
+            RestTest.target(getPort(), String.format("whois/search?query-string=%s&source=TEST", Strings.repeat("X", 5900)))
+                    .request(MediaType.APPLICATION_XML)
+                    .get(WhoisResources.class);
+        });
     }
 
     @Test
@@ -1271,21 +1218,21 @@ public class WhoisSearchServiceTestIntegration extends AbstractIntegrationTest {
     @Test
     public void search_multiple_params_and_spaces() throws Exception {
         databaseHelper.addObject(
-              "inetnum:   10.0.0.0 - 10.255.255.255\n" +
-                "netname:   TEST-NET\n" +
-                "descr:     description\n" +
-                "country:   NL\n" +
-                "admin-c:   TP1-TEST\n" +
-                "tech-c:    TP1-TEST\n" +
-                "status:    ASSIGNED PI\n" +
-                "mnt-by:    OWNER-MNT\n" +
-                "source:    TEST\n");
+                "inetnum:   10.0.0.0 - 10.255.255.255\n" +
+                        "netname:   TEST-NET\n" +
+                        "descr:     description\n" +
+                        "country:   NL\n" +
+                        "admin-c:   TP1-TEST\n" +
+                        "tech-c:    TP1-TEST\n" +
+                        "status:    ASSIGNED PI\n" +
+                        "mnt-by:    OWNER-MNT\n" +
+                        "source:    TEST\n");
         ipTreeUpdater.rebuild();
 
         final WhoisResources whoisResources = RestTest.target(getPort(), "whois/search")
                 .queryParam("query-string", "10.0.0.0 - 10.255.255.255")
                 .queryParam("filter-types", "inetnum")
-                .queryParam("flags", "r","exact")
+                .queryParam("flags", "r", "exact")
                 .queryParam("source", "test")
                 .request(MediaType.APPLICATION_XML)
                 .get(WhoisResources.class);
@@ -1321,13 +1268,37 @@ public class WhoisSearchServiceTestIntegration extends AbstractIntegrationTest {
     }
 
     @Test
-    public void search_too_many_arguments() {
+    public void search_too_many_single_query_arguments() {
         try {
             RestTest.target(getPort(), "whois/search?query-string=" +
                     "d%20d%20d%20d%20d%20d%20d%20d%20d%20d%20d%20d%20d%20d%20d%20d%20d%20d%20d%20d%20d%20d%20d%20d%20d%20d" +
                     "%20d%20d%20d%20d%20d%20d%20d%20d%20d%20d%20d%20d%20d%20d%20d%20d%20d%20d%20d%20d%20d%20d%20d%20d%20d" +
                     "%20d%20d%20d%20d%20d%20d%20d%20d%20d%20d%20d%20d%20d%20d%20d%20d%20d%20d%20d%20d%20d%20d%20d%20d%20d" +
                     "%20d%20d%20d%20d")
+                    .request(MediaType.APPLICATION_JSON)
+                    .get(String.class);
+            fail();
+        } catch (BadRequestException e) {
+            RestTest.assertOnlyErrorMessage(e, "Error", "ERROR:118: too many arguments supplied\n\nToo many arguments supplied.\n");
+        }
+    }
+
+    @Test
+    public void search_too_many_multiple_query_arguments() {
+        try {
+            RestTest.target(getPort(), "whois/search?abuse-contact=true&ignore40=true&managed-attributes=true&" +
+                    "resource-holder=true&flags=r&offset=0&limit=20&query-string=126/8%09APNIC%09Jan-05%09whois.apnic.net%09" +
+                    "https://rdap.apnic.net/%09ALLOCATED%20125/8%09APNIC%09Jan-05%09whois.apnic.net%09" +
+                    "https://rdap.apnic.net/%09ALLOCATED%20124/8%09APNIC%09Jan-05%09whois.apnic.net%09" +
+                    "https://rdap.apnic.net/%09ALLOCATED%20123/8%09APNIC%09Jan-06%09whois.apnic.net%09" +
+                    "https://rdap.apnic.net/%09ALLOCATED%20122/8%09APNIC%09Jan-06%09whois.apnic.net%09" +
+                    "https://rdap.apnic.net/%09ALLOCATED%20121/8%09APNIC%09Jan-06%09whois.apnic.net%09" +
+                    "https://rdap.apnic.net/%09ALLOCATED%20120/8%09APNIC%09Jan-07%09whois.apnic.net%09" +
+                    "https://rdap.apnic.net/%09ALLOCATED%20119/8%09APNIC%09Jan-07%09whois.apnic.net%09" +
+                    "https://rdap.apnic.net/%09ALLOCATED%20118/8%09APNIC%09Jan-07%09whois.apnic.net%09" +
+                    "https://rdap.apnic.net/%09ALLOCATED%20117/8%09APNIC%09Jan-07%09whois.apnic.net%09" +
+                    "https://rdap.apnic.net/%09ALLOCATED%20116/8%09APNIC%09Jan-07%09whois.apnic.net%09" +
+                    "https://rdap.apnic.net/%09ALLOCATED")
                     .request(MediaType.APPLICATION_JSON)
                     .get(String.class);
             fail();
@@ -1398,16 +1369,16 @@ public class WhoisSearchServiceTestIntegration extends AbstractIntegrationTest {
     public void search_resource_holder_lir_inetnum() {
         databaseHelper.addObject(TEST_LIR_ORGANISATION);
         databaseHelper.addObject(
-              "inetnum:   10.0.0.0 - 10.0.0.255\n" +
-                "org:       ORG-TO2-TEST\n" +
-                "netname:   TEST-NET\n" +
-                "descr:     description\n" +
-                "country:   NL\n" +
-                "admin-c:   TP1-TEST\n" +
-                "tech-c:    TP1-TEST\n" +
-                "status:    ALLOCATED PA\n" +
-                "mnt-by:    OWNER-MNT\n" +
-                "source:    TEST\n");
+                "inetnum:   10.0.0.0 - 10.0.0.255\n" +
+                        "org:       ORG-TO2-TEST\n" +
+                        "netname:   TEST-NET\n" +
+                        "descr:     description\n" +
+                        "country:   NL\n" +
+                        "admin-c:   TP1-TEST\n" +
+                        "tech-c:    TP1-TEST\n" +
+                        "status:    ALLOCATED PA\n" +
+                        "mnt-by:    OWNER-MNT\n" +
+                        "source:    TEST\n");
         ipTreeUpdater.rebuild();
 
         final WhoisResources response = RestTest.target(getPort(), "whois/search?query-string=10.0.0.0%20-%2010.0.0.255&resource-holder")
@@ -1424,24 +1395,24 @@ public class WhoisSearchServiceTestIntegration extends AbstractIntegrationTest {
     public void search_resource_holder_lir_parent_inetnum() {
         databaseHelper.addObject(TEST_LIR_ORGANISATION);
         databaseHelper.addObject(
-              "inetnum:   10.0.0.0 - 10.255.255.255\n" +
-                "org:       ORG-TO2-TEST\n" +
-                "netname:   PARENT-NET\n" +
-                "country:   NL\n" +
-                "admin-c:   TP1-TEST\n" +
-                "tech-c:    TP1-TEST\n" +
-                "status:    ALLOCATED PA\n" +
-                "mnt-by:    OWNER-MNT\n" +
-                "source:    TEST\n");
+                "inetnum:   10.0.0.0 - 10.255.255.255\n" +
+                        "org:       ORG-TO2-TEST\n" +
+                        "netname:   PARENT-NET\n" +
+                        "country:   NL\n" +
+                        "admin-c:   TP1-TEST\n" +
+                        "tech-c:    TP1-TEST\n" +
+                        "status:    ALLOCATED PA\n" +
+                        "mnt-by:    OWNER-MNT\n" +
+                        "source:    TEST\n");
         databaseHelper.addObject(
-              "inetnum:   10.0.0.0 - 10.0.0.255\n" +
-                "netname:   CHILD-NET\n" +
-                "country:   NL\n" +
-                "admin-c:   TP1-TEST\n" +
-                "tech-c:    TP1-TEST\n" +
-                "status:    ASSIGNED PA\n" +
-                "mnt-by:    OWNER-MNT\n" +
-                "source:    TEST\n");
+                "inetnum:   10.0.0.0 - 10.0.0.255\n" +
+                        "netname:   CHILD-NET\n" +
+                        "country:   NL\n" +
+                        "admin-c:   TP1-TEST\n" +
+                        "tech-c:    TP1-TEST\n" +
+                        "status:    ASSIGNED PA\n" +
+                        "mnt-by:    OWNER-MNT\n" +
+                        "source:    TEST\n");
         ipTreeUpdater.rebuild();
 
         final WhoisResources response = RestTest.target(getPort(), "whois/search?query-string=10.0.0.0%20-%2010.0.0.255&resource-holder")
@@ -1455,28 +1426,92 @@ public class WhoisSearchServiceTestIntegration extends AbstractIntegrationTest {
     }
 
     @Test
+    public void search_autnum_with_managed_attributes() {
+        databaseHelper.addObject("mntner: RIPE-NCC-END-MNT");
+        databaseHelper.addObject("" +
+                "aut-num:        AS102\n" +
+                "as-name:        ASNAME\n" +
+                "status:         ASSIGNED\n" +
+                "descr:          description\n" +
+                "admin-c:        TP1-TEST\n" +
+                "tech-c:         TP1-TEST\n" +
+                "mnt-by:         OWNER-MNT\n" +
+                "mnt-by:         RIPE-NCC-END-MNT\n" +
+                "source:         TEST\n");
+
+        final WhoisResources whoisResources = RestTest.target(getPort(), "whois/search?query-string=AS102&managed-attributes")
+                .request()
+                .get(WhoisResources.class);
+
+        assertThat(whoisResources.getErrorMessages(), is(empty()));
+        assertThat(whoisResources.getWhoisObjects(), hasSize(2));
+        assertThat(whoisResources.getWhoisObjects().get(0).getPrimaryKey(), contains(new Attribute("aut-num", "AS102")));
+        assertThat(whoisResources.getWhoisObjects().get(0).isManaged(), is(true));
+        assertThat(whoisResources.getWhoisObjects().get(0).getAttributes().get(2).getName(), is("status"));
+        assertThat(whoisResources.getWhoisObjects().get(0).getAttributes().get(2).getManaged(), is(true));
+    }
+
+    @Test
+    public void search_autnum_without_managed_attributes() {
+        databaseHelper.addObject("" +
+                "aut-num:        AS102\n" +
+                "as-name:        ASNAME\n" +
+                "status:         OTHER\n" +
+                "descr:          description\n" +
+                "admin-c:        TP1-TEST\n" +
+                "tech-c:         TP1-TEST\n" +
+                "mnt-by:         OWNER-MNT\n" +
+                "source:         TEST\n");
+
+        final WhoisResources whoisResources = RestTest.target(getPort(), "whois/search?query-string=AS102&managed-attributes")
+                .request()
+                .get(WhoisResources.class);
+
+        assertThat(whoisResources.getErrorMessages(), is(empty()));
+        assertThat(whoisResources.getWhoisObjects(), hasSize(2));
+        assertThat(whoisResources.getWhoisObjects().get(0).getPrimaryKey(), contains(new Attribute("aut-num", "AS102")));
+        assertThat(whoisResources.getWhoisObjects().get(0).isManaged(), is(false));
+        assertThat(whoisResources.getWhoisObjects().get(0).getAttributes().get(2).getName(), is("status"));
+        assertThat(whoisResources.getWhoisObjects().get(0).getAttributes().get(2).getManaged(), is(nullValue()));
+    }
+
+    @Test
     public void search_managed_attributes_lir_inetnum() {
         databaseHelper.addObject(TEST_LIR_ORGANISATION);
         databaseHelper.addObject(RIPE_NCC_HM_MNT);
         databaseHelper.addObject(
-             "inetnum:   10.0.0.0 - 10.0.0.255\n" +          // managed
-                "org:       ORG-TO2-TEST\n" +                   // managed
-                "netname:   TEST-NET\n" +                       // managed
-                "descr:     description\n" +
-                "country:   NL\n" +
-                "admin-c:   TP1-TEST\n" +
-                "tech-c:    TP1-TEST\n" +
-                "status:    ALLOCATED PA\n" +                   // managed
-                "mnt-by:    OWNER-MNT\n" +
-                "mnt-by:    RIPE-NCC-HM-MNT\n" +                // managed
-                "source:    TEST\n");                           // managed
+                        "inetnum:   10.0.0.0 - 10.0.0.255\n" +         // managed
+                        "org:       ORG-TO2-TEST\n" +                   // managed
+                        "netname:   TEST-NET\n" +                       // managed
+                        "descr:     description\n" +
+                        "country:   NL\n" +
+                        "admin-c:   TP1-TEST\n" +
+                        "tech-c:    TP1-TEST\n" +
+                        "status:    ALLOCATED PA\n" +                   // managed
+                        "mnt-by:    OWNER-MNT\n" +
+                        "mnt-by:    RIPE-NCC-HM-MNT\n" +                // managed
+                        "source:    TEST\n");                           // managed
         ipTreeUpdater.rebuild();
+
+        final WhoisResources response0 = RestTest.target(getPort(), "whois/search?query-string=10.0.0.0%20-%2010.0.0.255")
+                .request(MediaType.APPLICATION_XML_TYPE)
+                .get(WhoisResources.class);
+
+        // Ensure passing no flags means that the comaintained flag is null (nulls are stripped from JSON response)
+        assertThat(response0.getWhoisObjects(), hasSize(3));
+        assertThat(response0.getWhoisObjects().get(0).isManaged(), is(nullValue()));
+        assertThat(response0.getWhoisObjects().get(1).isManaged(), is(nullValue()));
+        assertThat(response0.getWhoisObjects().get(2).isManaged(), is(nullValue()));
+        assertThat(response0.getWhoisObjects().get(0).getAttributes(), hasSize(11));
 
         final WhoisResources response = RestTest.target(getPort(), "whois/search?query-string=10.0.0.0%20-%2010.0.0.255&managed-attributes")
                 .request(MediaType.APPLICATION_XML_TYPE)
                 .get(WhoisResources.class);
 
         assertThat(response.getWhoisObjects(), hasSize(3));
+        assertThat(response.getWhoisObjects().get(0).isManaged(), is(true));
+        assertThat(response.getWhoisObjects().get(1).isManaged(), is(false));
+        assertThat(response.getWhoisObjects().get(2).isManaged(), is(false));
         assertThat(response.getWhoisObjects().get(0).getAttributes(), hasSize(11));
         assertThat(response.getWhoisObjects().get(0).getAttributes().get(0).getName(), is("inetnum"));
         assertThat(response.getWhoisObjects().get(0).getAttributes().get(0).getManaged(), is(true));
@@ -1499,17 +1534,17 @@ public class WhoisSearchServiceTestIntegration extends AbstractIntegrationTest {
         databaseHelper.addObject(TEST_LIR_ORGANISATION);
         databaseHelper.addObject(RIPE_NCC_HM_MNT);
         databaseHelper.addObject(
-            "inetnum:   10.0.0.0 - 10.0.0.255\n" +
-                "org:       ORG-TO2-TEST\n" +
-                "netname:   TEST-NET\n" +
-                "descr:     description\n" +
-                "country:   NL\n" +
-                "admin-c:   TP1-TEST\n" +
-                "tech-c:    TP1-TEST\n" +
-                "status:    ALLOCATED PA\n" +
-                "mnt-by:    OWNER-MNT\n" +
-                "mnt-by:    RIPE-NCC-HM-MNT\n" +
-                "source:    TEST\n");
+                "inetnum:   10.0.0.0 - 10.0.0.255\n" +
+                        "org:       ORG-TO2-TEST\n" +
+                        "netname:   TEST-NET\n" +
+                        "descr:     description\n" +
+                        "country:   NL\n" +
+                        "admin-c:   TP1-TEST\n" +
+                        "tech-c:    TP1-TEST\n" +
+                        "status:    ALLOCATED PA\n" +
+                        "mnt-by:    OWNER-MNT\n" +
+                        "mnt-by:    RIPE-NCC-HM-MNT\n" +
+                        "source:    TEST\n");
         ipTreeUpdater.rebuild();
 
         final WhoisResources response = RestTest.target(getPort(), "whois/search?query-string=10.0.0.0%20-%2010.0.0.255&abuse-contact")
@@ -1526,17 +1561,17 @@ public class WhoisSearchServiceTestIntegration extends AbstractIntegrationTest {
         databaseHelper.addObject(TEST_LIR_ORGANISATION);
         databaseHelper.addObject(RIPE_NCC_HM_MNT);
         databaseHelper.addObject(
-            "inetnum:   10.0.0.0 - 10.0.0.255\n" +
-                "org:       ORG-TO2-TEST\n" +
-                "netname:   TEST-NET\n" +
-                "descr:     description\n" +
-                "country:   NL\n" +
-                "admin-c:   TP1-TEST\n" +
-                "tech-c:    TP1-TEST\n" +
-                "status:    ALLOCATED PA\n" +
-                "mnt-by:    OWNER-MNT\n" +
-                "mnt-by:    RIPE-NCC-HM-MNT\n" +
-                "source:    TEST\n");
+                "inetnum:   10.0.0.0 - 10.0.0.255\n" +
+                        "org:       ORG-TO2-TEST\n" +
+                        "netname:   TEST-NET\n" +
+                        "descr:     description\n" +
+                        "country:   NL\n" +
+                        "admin-c:   TP1-TEST\n" +
+                        "tech-c:    TP1-TEST\n" +
+                        "status:    ALLOCATED PA\n" +
+                        "mnt-by:    OWNER-MNT\n" +
+                        "mnt-by:    RIPE-NCC-HM-MNT\n" +
+                        "source:    TEST\n");
         ipTreeUpdater.rebuild();
 
         final WhoisResources response = RestTest.target(getPort(), "whois/search?query-string=10.0.0.0%20-%2010.0.0.255&limit=1")
@@ -1552,17 +1587,17 @@ public class WhoisSearchServiceTestIntegration extends AbstractIntegrationTest {
         databaseHelper.addObject(TEST_LIR_ORGANISATION);
         databaseHelper.addObject(RIPE_NCC_HM_MNT);
         databaseHelper.addObject(
-            "inetnum:   10.0.0.0 - 10.0.0.255\n" +
-                "org:       ORG-TO2-TEST\n" +
-                "netname:   TEST-NET\n" +
-                "descr:     description\n" +
-                "country:   NL\n" +
-                "admin-c:   TP1-TEST\n" +
-                "tech-c:    TP1-TEST\n" +
-                "status:    ALLOCATED PA\n" +
-                "mnt-by:    OWNER-MNT\n" +
-                "mnt-by:    RIPE-NCC-HM-MNT\n" +
-                "source:    TEST\n");
+                "inetnum:   10.0.0.0 - 10.0.0.255\n" +
+                        "org:       ORG-TO2-TEST\n" +
+                        "netname:   TEST-NET\n" +
+                        "descr:     description\n" +
+                        "country:   NL\n" +
+                        "admin-c:   TP1-TEST\n" +
+                        "tech-c:    TP1-TEST\n" +
+                        "status:    ALLOCATED PA\n" +
+                        "mnt-by:    OWNER-MNT\n" +
+                        "mnt-by:    RIPE-NCC-HM-MNT\n" +
+                        "source:    TEST\n");
         ipTreeUpdater.rebuild();
 
         final WhoisResources response = RestTest.target(getPort(), "whois/search?query-string=10.0.0.0%20-%2010.0.0.255&limit=1&flags=rB")
@@ -1578,17 +1613,17 @@ public class WhoisSearchServiceTestIntegration extends AbstractIntegrationTest {
         databaseHelper.addObject(TEST_LIR_ORGANISATION);
         databaseHelper.addObject(RIPE_NCC_HM_MNT);
         databaseHelper.addObject(
-            "inetnum:   10.0.0.0 - 10.0.0.255\n" +
-                "org:       ORG-TO2-TEST\n" +
-                "netname:   TEST-NET\n" +
-                "descr:     description\n" +
-                "country:   NL\n" +
-                "admin-c:   TP1-TEST\n" +
-                "tech-c:    TP1-TEST\n" +
-                "status:    ALLOCATED PA\n" +
-                "mnt-by:    OWNER-MNT\n" +
-                "mnt-by:    RIPE-NCC-HM-MNT\n" +
-                "source:    TEST\n");
+                "inetnum:   10.0.0.0 - 10.0.0.255\n" +
+                        "org:       ORG-TO2-TEST\n" +
+                        "netname:   TEST-NET\n" +
+                        "descr:     description\n" +
+                        "country:   NL\n" +
+                        "admin-c:   TP1-TEST\n" +
+                        "tech-c:    TP1-TEST\n" +
+                        "status:    ALLOCATED PA\n" +
+                        "mnt-by:    OWNER-MNT\n" +
+                        "mnt-by:    RIPE-NCC-HM-MNT\n" +
+                        "source:    TEST\n");
         ipTreeUpdater.rebuild();
 
         final WhoisResources response = RestTest.target(getPort(), "whois/search?query-string=10.0.0.0%20-%2010.0.0.255&limit=1&flags=rB&offset=1")
@@ -1603,17 +1638,17 @@ public class WhoisSearchServiceTestIntegration extends AbstractIntegrationTest {
         databaseHelper.addObject(TEST_LIR_ORGANISATION);
         databaseHelper.addObject(RIPE_NCC_HM_MNT);
         databaseHelper.addObject(
-            "inetnum:   10.0.0.0 - 10.0.0.255\n" +
-                "org:       ORG-TO2-TEST\n" +
-                "netname:   TEST-NET\n" +
-                "descr:     description\n" +
-                "country:   NL\n" +
-                "admin-c:   TP1-TEST\n" +
-                "tech-c:    TP1-TEST\n" +
-                "status:    ALLOCATED PA\n" +
-                "mnt-by:    OWNER-MNT\n" +
-                "mnt-by:    RIPE-NCC-HM-MNT\n" +
-                "source:    TEST\n");
+                "inetnum:   10.0.0.0 - 10.0.0.255\n" +
+                        "org:       ORG-TO2-TEST\n" +
+                        "netname:   TEST-NET\n" +
+                        "descr:     description\n" +
+                        "country:   NL\n" +
+                        "admin-c:   TP1-TEST\n" +
+                        "tech-c:    TP1-TEST\n" +
+                        "status:    ALLOCATED PA\n" +
+                        "mnt-by:    OWNER-MNT\n" +
+                        "mnt-by:    RIPE-NCC-HM-MNT\n" +
+                        "source:    TEST\n");
         ipTreeUpdater.rebuild();
 
         final WhoisResources response = RestTest.target(getPort(), "whois/search?query-string=10.0.0.0%20-%2010.0.0.255&limit=1&offset=1")
@@ -1629,17 +1664,17 @@ public class WhoisSearchServiceTestIntegration extends AbstractIntegrationTest {
         databaseHelper.addObject(TEST_LIR_ORGANISATION);
         databaseHelper.addObject(RIPE_NCC_HM_MNT);
         databaseHelper.addObject(
-            "inetnum:   10.0.0.0 - 10.0.0.255\n" +
-                "org:       ORG-TO2-TEST\n" +
-                "netname:   TEST-NET\n" +
-                "descr:     description\n" +
-                "country:   NL\n" +
-                "admin-c:   TP1-TEST\n" +
-                "tech-c:    TP1-TEST\n" +
-                "status:    ALLOCATED PA\n" +
-                "mnt-by:    OWNER-MNT\n" +
-                "mnt-by:    RIPE-NCC-HM-MNT\n" +
-                "source:    TEST\n");
+                "inetnum:   10.0.0.0 - 10.0.0.255\n" +
+                        "org:       ORG-TO2-TEST\n" +
+                        "netname:   TEST-NET\n" +
+                        "descr:     description\n" +
+                        "country:   NL\n" +
+                        "admin-c:   TP1-TEST\n" +
+                        "tech-c:    TP1-TEST\n" +
+                        "status:    ALLOCATED PA\n" +
+                        "mnt-by:    OWNER-MNT\n" +
+                        "mnt-by:    RIPE-NCC-HM-MNT\n" +
+                        "source:    TEST\n");
         ipTreeUpdater.rebuild();
 
         final WhoisResources response = RestTest.target(getPort(), "whois/search?query-string=10.0.0.0%20-%2010.0.0.255&offset=1")
@@ -1656,17 +1691,17 @@ public class WhoisSearchServiceTestIntegration extends AbstractIntegrationTest {
         databaseHelper.addObject(TEST_LIR_ORGANISATION);
         databaseHelper.addObject(RIPE_NCC_HM_MNT);
         databaseHelper.addObject(
-            "inetnum:   10.0.0.0 - 10.0.0.255\n" +
-                "org:       ORG-TO2-TEST\n" +
-                "netname:   TEST-NET\n" +
-                "descr:     description\n" +
-                "country:   NL\n" +
-                "admin-c:   TP1-TEST\n" +
-                "tech-c:    TP1-TEST\n" +
-                "status:    ALLOCATED PA\n" +
-                "mnt-by:    OWNER-MNT\n" +
-                "mnt-by:    RIPE-NCC-HM-MNT\n" +
-                "source:    TEST\n");
+                "inetnum:   10.0.0.0 - 10.0.0.255\n" +
+                        "org:       ORG-TO2-TEST\n" +
+                        "netname:   TEST-NET\n" +
+                        "descr:     description\n" +
+                        "country:   NL\n" +
+                        "admin-c:   TP1-TEST\n" +
+                        "tech-c:    TP1-TEST\n" +
+                        "status:    ALLOCATED PA\n" +
+                        "mnt-by:    OWNER-MNT\n" +
+                        "mnt-by:    RIPE-NCC-HM-MNT\n" +
+                        "source:    TEST\n");
         ipTreeUpdater.rebuild();
 
         final WhoisResources response = RestTest.target(getPort(), "whois/search?query-string=10.0.0.0%20-%2010.0.0.255&limit=1&offset=2")
@@ -1677,4 +1712,501 @@ public class WhoisSearchServiceTestIntegration extends AbstractIntegrationTest {
         assertThat(response.getWhoisObjects().get(0).getPrimaryKey().get(0).getValue(), is("TP1-TEST"));
     }
 
+    // If no source is defined (the default) both "source: RIPE" and “source: RIPE-NONAUTH” ROUTE(6) objects are returned
+    @Test
+    public void search_autnum_no_sources_given() {
+        databaseHelper.addObject(RpslObject.parse("" +
+                "aut-num:        AS102\n" +
+                "as-name:        End-User-2\n" +
+                "descr:          description\n" +
+                "admin-c:        TP1-TEST\n" +
+                "tech-c:         TP1-TEST\n" +
+                "mnt-by:         OWNER-MNT\n" +
+                "source:         TEST-NONAUTH\n"));
+        ipTreeUpdater.rebuild();
+
+        final WhoisResources whoisResources = RestTest.target(getPort(), "whois/search?query-string=AS102")
+                .request(MediaType.APPLICATION_XML)
+                .get(WhoisResources.class);
+
+        assertThat(whoisResources.getErrorMessages(), is(empty()));
+        assertThat(whoisResources.getWhoisObjects(), hasSize(2));
+        boolean hasSourceTestNonAuth = hasObjectWithSpecifiedSource(whoisResources.getWhoisObjects(), "TEST-NONAUTH");
+        assertThat(hasSourceTestNonAuth, is(true));
+        boolean hasSourceTest = hasObjectWithSpecifiedSource(whoisResources.getWhoisObjects(), "TEST");
+        assertThat(hasSourceTest, is(true));
+    }
+
+    // searching for inetnum without specifying sources should return all related object even route with source: NONAUTH
+    @Test
+    public void search_inetnum_no_sources_given() {
+        databaseHelper.addObject(RIPE_NCC_HM_MNT);
+        // inetnum with route TEST-NONAUTH
+        databaseHelper.addObject(RpslObject.parse("" +
+                "inetnum:         10.0.0.0 - 10.0.0.255\n" +
+                "netname:         NON-RIPE-NCC-MANAGED-ADDRESS-BLOCK\n" +
+                "descr:           IPv4 address block not managed by the RIPE NCC\n" +
+                "admin-c:         TP1-TEST\n" +
+                "tech-c:          TP1-TEST\n" +
+                "status:          ALLOCATED UNSPECIFIED\n" +
+                "mnt-by:          RIPE-NCC-HM-MNT\n" +
+                "mnt-lower:       RIPE-NCC-HM-MNT\n" +
+                "source:          TEST\n"));
+        databaseHelper.addObject(RpslObject.parse("" +
+                "route:           10.0.0.0/24\n" +
+                "descr:           Ripe test allocation\n" +
+                "origin:          AS102\n" +
+                "admin-c:         TP1-TEST\n" +
+                "mnt-lower:       OWNER-MNT\n" +
+                "source:          TEST-NONAUTH\n"));
+        ipTreeUpdater.rebuild();
+
+        final WhoisResources whoisResources = RestTest.target(getPort(), "whois/search?query-string=10.0.0.0/24")
+                .request(MediaType.APPLICATION_XML)
+                .get(WhoisResources.class);
+
+        assertThat(whoisResources.getErrorMessages(), is(empty()));
+        assertThat(whoisResources.getWhoisObjects(), hasSize(4));
+        boolean hasSourceTestNonAuth = hasObjectWithSpecifiedSource(whoisResources.getWhoisObjects(), "TEST-NONAUTH");
+        assertThat(hasSourceTestNonAuth, is(true));
+        boolean hasSourceTest = hasObjectWithSpecifiedSource(whoisResources.getWhoisObjects(), "TEST");
+        assertThat(hasSourceTest, is(true));
+    }
+
+    @Test
+    public void search_route_no_sources_given() {
+        databaseHelper.addObject(RpslObject.parse("" +
+                "route:           193.4.0.0/16\n" +
+                "descr:           Ripe test allocation\n" +
+                "origin:          AS102\n" +
+                "admin-c:         TP1-TEST\n" +
+                "mnt-by:          OWNER-MNT\n" +
+                "mnt-lower:       OWNER-MNT\n" +
+                "source:          TEST-NONAUTH\n"));
+        ipTreeUpdater.rebuild();
+
+        final WhoisResources whoisResources = RestTest.target(getPort(), "whois/search?query-string=193.4.0.0/16AS102")
+                .request(MediaType.APPLICATION_XML)
+                .get(WhoisResources.class);
+
+        assertThat(whoisResources.getErrorMessages(), is(empty()));
+        assertThat(whoisResources.getWhoisObjects(), hasSize(2));
+        boolean hasSourceTestNonAuth = hasObjectWithSpecifiedSource(whoisResources.getWhoisObjects(), "TEST-NONAUTH");
+        assertThat(hasSourceTestNonAuth, is(true));
+        boolean hasSourceTest = hasObjectWithSpecifiedSource(whoisResources.getWhoisObjects(), "TEST");
+        assertThat(hasSourceTest, is(true));
+    }
+
+    //  If "sources" is used in queries out-of-region resources will be shown only if ‘RIPE-NONAUTH’ is included explicitly.
+    @Test
+    public void search_autnum_by_sources_nonauth_given() {
+        databaseHelper.addObject(RpslObject.parse("" +
+                "aut-num:        AS102\n" +
+                "as-name:        End-User-2\n" +
+                "descr:          description\n" +
+                "admin-c:        TP1-TEST\n" +
+                "tech-c:         TP1-TEST\n" +
+                "mnt-by:         OWNER-MNT\n" +
+                "source:         TEST-NONAUTH\n"));
+        ipTreeUpdater.rebuild();
+        final WhoisResources whoisResources = RestTest.target(getPort(), "whois/search?query-string=AS102&source=TEST-NONAUTH")
+                .request(MediaType.APPLICATION_XML)
+                .get(WhoisResources.class);
+
+        assertThat(whoisResources.getErrorMessages(), is(empty()));
+        assertThat(whoisResources.getWhoisObjects(), hasSize(2));
+
+        final WhoisObject autnum = whoisResources.getWhoisObjects().get(0);
+
+        assertThat(autnum.getType(), is("aut-num"));
+        assertThat(autnum.getSource().getId(), is("test-nonauth"));
+        assertThat(autnum.getLink().getType(), is("locator"));
+        assertThat(autnum.getLink().getHref(), is("http://rest-test.db.ripe.net/test-nonauth/aut-num/AS102"));
+        assertThat(autnum.getAttributes(), contains(
+                new Attribute("aut-num", "AS102"),
+                new Attribute("as-name", "End-User-2"),
+                new Attribute("descr", "description"),
+                new Attribute("admin-c", "TP1-TEST", null, "person", Link.create("http://rest-test.db.ripe.net/test/person/TP1-TEST"), null),
+                new Attribute("tech-c", "TP1-TEST", null, "person", Link.create("http://rest-test.db.ripe.net/test/person/TP1-TEST"), null),
+                new Attribute("mnt-by", "OWNER-MNT", null, "mntner", Link.create("http://rest-test.db.ripe.net/test/mntner/OWNER-MNT"), null),
+                new Attribute("source", "TEST-NONAUTH")
+        ));
+
+        final WhoisObject person = whoisResources.getWhoisObjects().get(1);
+
+        assertThat(person.getType(), is("person"));
+        assertThat(person.getSource().getId(), is("test"));
+        assertThat(person.getLink().getType(), is("locator"));
+        assertThat(person.getLink().getHref(), is("http://rest-test.db.ripe.net/test/person/TP1-TEST"));
+        assertThat(person.getAttributes(), contains(
+                new Attribute("person", "Test Person"),
+                new Attribute("address", "Singel 258"),
+                new Attribute("phone", "+31 6 12345678"),
+                new Attribute("nic-hdl", "TP1-TEST"),
+                new Attribute("mnt-by", "OWNER-MNT", null, "mntner", Link.create("http://rest-test.db.ripe.net/test/mntner/OWNER-MNT"), null),
+                new Attribute("source", "TEST")
+        ));
+    }
+
+    @Test
+    public void search_route_by_sources_nonauth_given() {
+        databaseHelper.addObject(RpslObject.parse("" +
+                "route:           193.4.0.0/16\n" +
+                "descr:           Ripe test allocation\n" +
+                "origin:          AS102\n" +
+                "admin-c:         TP1-TEST\n" +
+                "mnt-by:          OWNER-MNT\n" +
+                "mnt-lower:       OWNER-MNT\n" +
+                "source:          TEST-NONAUTH\n"));
+        ipTreeUpdater.rebuild();
+        final WhoisResources whoisResources = RestTest.target(getPort(), "whois/search?query-string=193.4.0.0/16AS102&source=TEST-NONAUTH")
+                .request(MediaType.APPLICATION_XML)
+                .get(WhoisResources.class);
+
+        assertThat(whoisResources.getErrorMessages(), is(empty()));
+        assertThat(whoisResources.getWhoisObjects(), hasSize(2));
+
+        final WhoisObject route = whoisResources.getWhoisObjects().get(0);
+
+        assertThat(route.getType(), is("route"));
+        assertThat(route.getSource().getId(), is("test-nonauth"));
+        assertThat(route.getLink().getType(), is("locator"));
+        assertThat(route.getLink().getHref(), is("http://rest-test.db.ripe.net/test-nonauth/route/193.4.0.0/16AS102"));
+        assertThat(route.getAttributes(), contains(
+                new Attribute("route", "193.4.0.0/16"),
+                new Attribute("descr", "Ripe test allocation"),
+                new Attribute("origin", "AS102"),
+                new Attribute("admin-c", "TP1-TEST", null, "person", Link.create("http://rest-test.db.ripe.net/test/person/TP1-TEST"), null),
+                new Attribute("mnt-by", "OWNER-MNT", null, "mntner", Link.create("http://rest-test.db.ripe.net/test/mntner/OWNER-MNT"), null),
+                new Attribute("mnt-lower", "OWNER-MNT", null, "mntner", Link.create("http://rest-test.db.ripe.net/test/mntner/OWNER-MNT"), null),
+                new Attribute("source", "TEST-NONAUTH")
+        ));
+
+        final WhoisObject person = whoisResources.getWhoisObjects().get(1);
+
+        assertThat(person.getType(), is("person"));
+        assertThat(person.getSource().getId(), is("test"));
+        assertThat(person.getLink().getType(), is("locator"));
+        assertThat(person.getLink().getHref(), is("http://rest-test.db.ripe.net/test/person/TP1-TEST"));
+        assertThat(person.getAttributes(), contains(
+                new Attribute("person", "Test Person"),
+                new Attribute("address", "Singel 258"),
+                new Attribute("phone", "+31 6 12345678"),
+                new Attribute("nic-hdl", "TP1-TEST"),
+                new Attribute("mnt-by", "OWNER-MNT", null, "mntner", Link.create("http://rest-test.db.ripe.net/test/mntner/OWNER-MNT"), null),
+                new Attribute("source", "TEST")
+        ));
+    }
+
+    @Test
+    public void search_route_by_sources_auth_given() {
+        databaseHelper.addObject(RpslObject.parse("" +
+                "route:           193.4.0.0/16\n" +
+                "descr:           Ripe test allocation\n" +
+                "origin:          AS102\n" +
+                "admin-c:         TP1-TEST\n" +
+                "mnt-by:          OWNER-MNT\n" +
+                "mnt-lower:       OWNER-MNT\n" +
+                "source:          TEST-NONAUTH\n"));
+        ipTreeUpdater.rebuild();
+
+        assertThrows(NotFoundException.class, () -> {
+            RestTest.target(getPort(), "whois/search?query-string=193.4.0.0/16AS102&source=TEST")
+                    .request(MediaType.APPLICATION_XML)
+                    .get(WhoisResources.class);
+        });
+    }
+
+    @Test
+    public void search_inetnum_with_resource_flag() {
+        databaseHelper.addObject(RIPE_NCC_HM_MNT);
+        // inetnum with route TEST-NONAUTH
+        databaseHelper.addObject(RpslObject.parse("" +
+                "inetnum:         193.4.0.0 - 193.4.0.255\n" +
+                "netname:         NON-RIPE-NCC-MANAGED-ADDRESS-BLOCK\n" +
+                "descr:           IPv4 address block not managed by the RIPE NCC\n" +
+                "admin-c:         TP1-TEST\n" +
+                "tech-c:          TP1-TEST\n" +
+                "status:          ALLOCATED UNSPECIFIED\n" +
+                "mnt-by:          RIPE-NCC-HM-MNT\n" +
+                "mnt-lower:       RIPE-NCC-HM-MNT\n" +
+                "source:          TEST\n"));
+        databaseHelper.addObject(RpslObject.parse("" +
+                "route:           193.4.0.0/24\n" +
+                "descr:           Ripe test allocation\n" +
+                "origin:          AS102\n" +
+                "admin-c:         TP1-TEST\n" +
+                "mnt-by:          OWNER-MNT\n" +
+                "mnt-lower:       OWNER-MNT\n" +
+                "source:          TEST-NONAUTH\n"));
+        ipTreeUpdater.rebuild();
+        final WhoisResources whoisResources = RestTest.target(getPort(), "whois/search?query-string=193.4.0.0/24&resource")
+                .request(MediaType.APPLICATION_XML)
+                .get(WhoisResources.class);
+
+        assertThat(whoisResources.getErrorMessages(), is(empty()));
+        assertThat(whoisResources.getWhoisObjects(), hasSize(4));
+        boolean hasSourceTestNonAuth = hasObjectWithSpecifiedSource(whoisResources.getWhoisObjects(), "TEST-NONAUTH");
+        assertThat(hasSourceTestNonAuth, is(true));
+        boolean hasSourceTest = hasObjectWithSpecifiedSource(whoisResources.getWhoisObjects(), "TEST");
+        assertThat(hasSourceTest, is(true));
+    }
+
+    @Test
+    public void lookup_person_with_proxy_not_allowed() {
+
+        databaseHelper.addObject("" +
+                "person:    Lo Person\n" +
+                "admin-c:   TP1-TEST\n" +
+                "tech-c:    TP1-TEST\n" +
+                "nic-hdl:   LP1-TEST\n" +
+                "mnt-by:    OWNER-MNT\n" +
+                "source:    TEST\n");
+
+        try {
+            RestTest.target(getPort(), "whois/search?query-string=LP1-TEST&source=TEST&client=testId,10.1.2.3")
+                    .request(MediaType.APPLICATION_XML)
+                    .get(WhoisResources.class);
+            fail();
+        } catch (BadRequestException e) {
+            assertThat(e.getResponse().getStatus(), is(400));
+            assertThat(e.getResponse().readEntity(String.class), containsString("ERROR:203: you are not allowed to act as a proxy"));
+        }
+    }
+
+    @Test
+    public void lookup_person_with_proxy_not_allowed_using_sso() {
+
+        databaseHelper.addObject("" +
+                "person:    Lo Person\n" +
+                "admin-c:   TP1-TEST\n" +
+                "tech-c:    TP1-TEST\n" +
+                "nic-hdl:   LP1-TEST\n" +
+                "mnt-by:    OWNER-MNT\n" +
+                "source:    TEST\n");
+
+        try {
+            RestTest.target(getPort(), "whois/search?query-string=LP1-TEST&source=TEST&client=testId,10.1.2.3")
+                    .request(MediaType.APPLICATION_XML)
+                    .cookie(AuthServiceClient.TOKEN_KEY, VALID_TOKEN)
+                    .get(WhoisResources.class);
+            fail();
+        } catch (BadRequestException e) {
+            assertThat(e.getResponse().getStatus(), is(400));
+            assertThat(e.getResponse().readEntity(String.class), containsString("ERROR:203: you are not allowed to act as a proxy"));
+        }
+    }
+
+
+    @Test
+    public void lookup_person_with_client_flag_no_proxy() throws Exception {
+        final InetAddress localhost = InetAddress.getByName(LOCALHOST);
+        final AccountingIdentifier accountingIdentifier = new AccountingIdentifier(localhost, null);
+
+
+        databaseHelper.addObject("" +
+                "person:    Lo Person\n" +
+                "admin-c:   TP1-TEST\n" +
+                "tech-c:    TP1-TEST\n" +
+                "nic-hdl:   LP1-TEST\n" +
+                "mnt-by:    OWNER-MNT\n" +
+                "source:    TEST\n");
+
+        final int limit = accessControlListManager.getPersonalObjects(accountingIdentifier);
+
+        final WhoisResources whoisResources = RestTest.target(getPort(), "whois/search?query-string=LP1-TEST&source=TEST&flags=no-filtering&flags=rB&client=testId")
+                .request(MediaType.APPLICATION_XML)
+                .get(WhoisResources.class);
+
+        assertThat(whoisResources.getErrorMessages(), is(empty()));
+        assertThat(whoisResources.getWhoisObjects(), hasSize(1));
+
+        //ACL is accounted for as there is no proxy ip specified
+        final int remaining = accessControlListManager.getPersonalObjects(accountingIdentifier);
+        assertThat(remaining, is(limit - 1));
+
+        assertThat(whoisResources.getParameters().getClient(), is("testId"));
+    }
+
+    @Test
+    public void lookup_person_with_client_flag_no_proxy_using_sso() throws Exception {
+        final InetAddress localhost = InetAddress.getByName(LOCALHOST);
+
+        databaseHelper.addObject("" +
+                "person:    Lo Person\n" +
+                "admin-c:   TP1-TEST\n" +
+                "tech-c:    TP1-TEST\n" +
+                "nic-hdl:   LP1-TEST\n" +
+                "mnt-by:    OWNER-MNT\n" +
+                "source:    TEST\n");
+
+        final int countBeforeQueryIp = testPersonalObjectAccounting.getQueriedPersonalObjects(localhost);
+        final int countBeforeQuesrySSO = testPersonalObjectAccounting.getQueriedPersonalObjects(VALID_TOKEN_USER_NAME);
+
+        final WhoisResources whoisResources = RestTest.target(getPort(), "whois/search?query-string=LP1-TEST&source=TEST&flags=no-filtering&flags=rB&client=testId")
+                .request(MediaType.APPLICATION_XML)
+                .cookie(AuthServiceClient.TOKEN_KEY, VALID_TOKEN)
+                .get(WhoisResources.class);
+
+        assertThat(whoisResources.getErrorMessages(), is(empty()));
+        assertThat(whoisResources.getWhoisObjects(), hasSize(1));
+
+        //ACL is accounted for as there is no proxy ip specified
+        final int countAfterQueryIp = testPersonalObjectAccounting.getQueriedPersonalObjects(localhost);
+        final int countAfterQuerySSO = testPersonalObjectAccounting.getQueriedPersonalObjects(VALID_TOKEN_USER_NAME);
+        assertThat(countAfterQueryIp, is(countBeforeQueryIp));
+        assertThat(countAfterQuerySSO, is(countBeforeQuesrySSO + 1));
+
+        assertThat(whoisResources.getParameters().getClient(), is("testId"));
+    }
+
+    @Test
+    public void lookup_person_with_proxy() throws Exception {
+        final String PROXY_CLIENT = "10.1.2.3";
+
+        final InetAddress localhost = InetAddress.getByName(LOCALHOST);
+        final InetAddress proxyHost = InetAddress.getByName(PROXY_CLIENT);
+
+        databaseHelper.addObject("" +
+                "person:    Lo Person\n" +
+                "admin-c:   TP1-TEST\n" +
+                "tech-c:    TP1-TEST\n" +
+                "nic-hdl:   LP1-TEST\n" +
+                "mnt-by:    OWNER-MNT\n" +
+                "source:    TEST\n");
+
+        databaseHelper.insertAclIpProxy(LOCALHOST);
+        ipResourceConfiguration.reload();
+
+        final AccountingIdentifier accountingIdentifier = new AccountingIdentifier(localhost, null);
+        final AccountingIdentifier accountingIdentifierProxy = new AccountingIdentifier(proxyHost, null);
+
+        final int limit = accessControlListManager.getPersonalObjects(accountingIdentifier);
+        final int proxylLimit = accessControlListManager.getPersonalObjects( accountingIdentifierProxy);
+
+        final WhoisResources whoisResources = RestTest.target(getPort(), "whois/search?query-string=LP1-TEST&source=TEST&flags=no-filtering&flags=rB&client=testId,10.1.2.3")
+                .request(MediaType.APPLICATION_XML)
+                .get(WhoisResources.class);
+
+        assertThat(whoisResources.getErrorMessages(), is(empty()));
+        assertThat(whoisResources.getWhoisObjects(), hasSize(1));
+        assertThat(whoisResources.getParameters().getClient(), is("testId,10.1.2.3"));
+
+        //only proxy ip is counted for ACL
+        final int remaining = accessControlListManager.getPersonalObjects(accountingIdentifier);
+        assertThat(remaining, is(limit));
+
+        final int proxyRemaining = accessControlListManager.getPersonalObjects(accountingIdentifierProxy);
+        assertThat(proxyRemaining, is(proxylLimit - 1));
+
+
+    }
+
+    @Test
+    public void query_string_normalised() {
+        try {
+            RestTest.target(getPort(), "whois/search?query-string=%E2%80%8E2019%2011:35%5D%20ok")
+                    .request(MediaType.APPLICATION_XML)
+                    .get(WhoisResources.class);
+            fail();
+        } catch (NotFoundException e) {
+            // ensure no stack trace in response
+            assertThat(e.getResponse().readEntity(String.class), not(containsString("Caused by:")));
+        }
+    }
+
+    @Test
+    public void search_inetnum_without_grouping_flag() {
+        databaseHelper.addObject(TEST_LIR_ORGANISATION);
+        databaseHelper.addObject(
+                "inetnum:   10.0.0.0 - 10.0.0.255\n" +
+                        "org:       ORG-TO2-TEST\n" +
+                        "netname:   FIRST-NET\n" +
+                        "country:   NL\n" +
+                        "admin-c:   TP1-TEST\n" +
+                        "tech-c:    TP1-TEST\n" +
+                        "status:    ALLOCATED PA\n" +
+                        "mnt-by:    OWNER-MNT\n" +
+                        "source:    TEST\n");
+        databaseHelper.addObject(
+                "inetnum:   10.1.0.0 - 10.1.0.255\n" +
+                        "org:       ORG-TO2-TEST\n" +
+                        "netname:   SECOND-NET\n" +
+                        "country:   NL\n" +
+                        "admin-c:   TP1-TEST\n" +
+                        "tech-c:    TP1-TEST\n" +
+                        "status:    ALLOCATED PA\n" +
+                        "mnt-by:    OWNER-MNT\n" +
+                        "source:    TEST\n");
+        ipTreeUpdater.rebuild();
+
+        final WhoisResources response = RestTest.target(getPort(), "whois/search?query-string=10.0.0.0%20-%2010.255.255.255&flags=M")
+                .request(MediaType.APPLICATION_XML_TYPE)
+                .get(WhoisResources.class);
+
+        assertThat(response.getWhoisObjects(), hasSize(6));
+        assertThat(response.getWhoisObjects().get(0).getType(), is("inetnum"));
+        assertThat(response.getWhoisObjects().get(0).getPrimaryKey().get(0).getValue(), is("10.0.0.0 - 10.0.0.255"));
+        assertThat(response.getWhoisObjects().get(1).getType(), is("organisation"));
+        assertThat(response.getWhoisObjects().get(1).getPrimaryKey().get(0).getValue(), is("ORG-TO2-TEST"));
+        assertThat(response.getWhoisObjects().get(2).getType(), is("person"));
+        assertThat(response.getWhoisObjects().get(2).getPrimaryKey().get(0).getValue(), is("TP1-TEST"));
+        assertThat(response.getWhoisObjects().get(3).getType(), is("inetnum"));
+        assertThat(response.getWhoisObjects().get(3).getPrimaryKey().get(0).getValue(), is("10.1.0.0 - 10.1.0.255"));
+        assertThat(response.getWhoisObjects().get(4).getType(), is("organisation"));
+        assertThat(response.getWhoisObjects().get(4).getPrimaryKey().get(0).getValue(), is("ORG-TO2-TEST"));
+        assertThat(response.getWhoisObjects().get(5).getType(), is("person"));
+        assertThat(response.getWhoisObjects().get(5).getPrimaryKey().get(0).getValue(), is("TP1-TEST"));
+    }
+
+    @Test
+    public void search_inetnum_with_grouping_flag() {
+        databaseHelper.addObject(TEST_LIR_ORGANISATION);
+        databaseHelper.addObject(
+                "inetnum:   10.0.0.0 - 10.0.0.255\n" +
+                        "org:       ORG-TO2-TEST\n" +
+                        "netname:   FIRST-NET\n" +
+                        "country:   NL\n" +
+                        "admin-c:   TP1-TEST\n" +
+                        "tech-c:    TP1-TEST\n" +
+                        "status:    ALLOCATED PA\n" +
+                        "mnt-by:    OWNER-MNT\n" +
+                        "source:    TEST\n");
+        databaseHelper.addObject(
+                "inetnum:   10.1.0.0 - 10.1.0.255\n" +
+                        "org:       ORG-TO2-TEST\n" +
+                        "netname:   SECOND-NET\n" +
+                        "country:   NL\n" +
+                        "admin-c:   TP1-TEST\n" +
+                        "tech-c:    TP1-TEST\n" +
+                        "status:    ALLOCATED PA\n" +
+                        "mnt-by:    OWNER-MNT\n" +
+                        "source:    TEST\n");
+        ipTreeUpdater.rebuild();
+
+        final WhoisResources response = RestTest.target(getPort(), "whois/search?query-string=10.0.0.0%20-%2010.255.255.255&flags=MG")
+                .request(MediaType.APPLICATION_XML_TYPE)
+                .get(WhoisResources.class);
+
+        assertThat(response.getWhoisObjects(), hasSize(4));
+        assertThat(response.getWhoisObjects().get(0).getType(), is("inetnum"));
+        assertThat(response.getWhoisObjects().get(0).getPrimaryKey().get(0).getValue(), is("10.0.0.0 - 10.0.0.255"));
+        assertThat(response.getWhoisObjects().get(1).getType(), is("inetnum"));
+        assertThat(response.getWhoisObjects().get(1).getPrimaryKey().get(0).getValue(), is("10.1.0.0 - 10.1.0.255"));
+        assertThat(response.getWhoisObjects().get(2).getType(), is("organisation"));
+        assertThat(response.getWhoisObjects().get(2).getPrimaryKey().get(0).getValue(), is("ORG-TO2-TEST"));
+        assertThat(response.getWhoisObjects().get(3).getType(), is("person"));
+        assertThat(response.getWhoisObjects().get(3).getPrimaryKey().get(0).getValue(), is("TP1-TEST"));
+    }
+
+    // helper methods
+
+    private boolean hasObjectWithSpecifiedSource(List<WhoisObject> whoisObjects, String source) {
+        return whoisObjects
+                .stream()
+                .anyMatch(object -> object.getAttributes()
+                        .stream()
+                        .anyMatch(attr -> AttributeType.SOURCE.equals(AttributeType.getByName(attr.getName()))
+                                && attr.getValue().equalsIgnoreCase(source)));
+    }
 }

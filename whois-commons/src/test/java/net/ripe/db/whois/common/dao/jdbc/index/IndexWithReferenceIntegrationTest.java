@@ -1,0 +1,52 @@
+package net.ripe.db.whois.common.dao.jdbc.index;
+
+
+import net.ripe.db.whois.common.dao.RpslObjectInfo;
+import net.ripe.db.whois.common.dao.RpslObjectUpdateInfo;
+import net.ripe.db.whois.common.rpsl.AttributeType;
+import net.ripe.db.whois.common.rpsl.ObjectType;
+import net.ripe.db.whois.common.rpsl.RpslObject;
+import org.junit.jupiter.api.Tag;
+import org.junit.jupiter.api.Test;
+
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.hasSize;
+import static org.hamcrest.core.Is.is;
+
+@Tag("IntegrationTest")
+public class IndexWithReferenceIntegrationTest extends IndexIntegrationTestBase {
+
+    @Test
+    public void findInIndex_found() throws Exception {
+        IndexWithReference subject = new IndexWithReference(AttributeType.MNT_REF, "mnt_ref", "mnt_id");
+        final RpslObject maintainer = RpslObject.parse("mntner:MNT-TEST\nmnt-by:MNT-TEST");
+        final RpslObjectUpdateInfo objectInfo = rpslObjectUpdateDao.createObject(maintainer);
+        whoisTemplate.update(String.format("INSERT INTO mnt_ref(object_id, mnt_id, object_type) VALUES(%s, %s, %s)", 1, objectInfo.getObjectId(), 18));
+
+        assertThat(subject.findInIndex(whoisTemplate, objectInfo.getKey()), hasSize(1));
+        assertThat(subject.findInIndex(whoisTemplate, objectInfo), hasSize(1));
+        assertThat(subject.findInIndex(whoisTemplate, objectInfo, ObjectType.ORGANISATION), hasSize(1));
+    }
+
+    @Test
+    public void findInIndex_not_found() throws Exception {
+        IndexWithReference subject = new IndexWithReference(AttributeType.MNT_REF, "mnt_ref", "mnt_id");
+        final RpslObject maintainer = RpslObject.parse("mntner:MNT-TEST\nmnt-by:MNT-TEST");
+        final RpslObjectUpdateInfo objectInfo = rpslObjectUpdateDao.createObject(maintainer);
+
+        assertThat(subject.findInIndex(whoisTemplate, objectInfo.getKey()), hasSize(0));
+        assertThat(subject.findInIndex(whoisTemplate, objectInfo), hasSize(0));
+        assertThat(subject.findInIndex(whoisTemplate, objectInfo, ObjectType.ORGANISATION), hasSize(0));
+    }
+
+    @Test
+    public void addToIndex() throws Exception {
+        IndexWithReference subject = new IndexWithReference(AttributeType.MNT_LOWER, "mnt_lower", "mnt_id");
+        final RpslObject rpslObject = RpslObject.parse("mntner: RIPE-MNT\nmnt-by:RIPE-MNT");
+        rpslObjectUpdateDao.createObject(rpslObject);
+        final RpslObjectInfo maintainer = new RpslObjectInfo(1, ObjectType.MNTNER, "MNTNER");
+
+        final int added = subject.addToIndex(whoisTemplate, maintainer, null, "RIPE-MNT");
+        assertThat(added, is(1));
+    }
+}

@@ -1,10 +1,10 @@
 package net.ripe.db.whois.spec.update
-import net.ripe.db.whois.common.IntegrationTest
+
 import net.ripe.db.whois.spec.BaseQueryUpdateSpec
 import net.ripe.db.whois.spec.domain.AckResponse
 import net.ripe.db.whois.spec.domain.Message
 
-@org.junit.experimental.categories.Category(IntegrationTest.class)
+@org.junit.jupiter.api.Tag("IntegrationTest")
 class RouteSetSpec extends BaseQueryUpdateSpec {
 
     @Override
@@ -114,7 +114,7 @@ class RouteSetSpec extends BaseQueryUpdateSpec {
                 source:  TEST
 
                 password: lir
-                """.stripIndent())
+                """.stripIndent(true))
 
       then:
         ack.success
@@ -128,28 +128,6 @@ class RouteSetSpec extends BaseQueryUpdateSpec {
         queryObject("-rBT route-set RS-CUSTOMERS", "route-set", "RS-CUSTOMERS")
     }
 
-    // Create top level route-set object with ASNs & as-sets in members & mp-members
-    /**
-     * TODO [as]
-     * I think this test-case is wrong - according to rfc4012 mp-members within route-sets allows for
-     *  * ipv4-address-prefix-range
-     *  * ipv6-address-prefix-range
-     *  * route-set-name
-     *  * route-set-name<range-operator>
-     *
-     * but below there's an as-set value. I propose the following testcase instead:
-     *                 route-set:    RS-CUSTOMERS
-     *                 descr:        test route-set
-     *                 members:      128.9.0.0/16, Rs-TEST:rs-PUG,
-     *                               rs-352
-     *                 mp-members:   2001:1578::/32, RS-352
-     *                 mp-members:   AS101:RS-CH
-     *                 tech-c:       TP1-TEST
-     *                 admin-c:      TP1-TEST
-     *                 mnt-by:       LIR-MNT
-     *                 mnt-lower:    LIR-MNT
-     *                 source:  TEST
-     */
     def "create top level route-set object with ASNs & as-sets in members & mp-members"() {
       expect:
         queryObjectNotFound("-r -T route-set RS-CUSTOMERS", "route-set", "RS-CUSTOMERS")
@@ -171,7 +149,7 @@ class RouteSetSpec extends BaseQueryUpdateSpec {
                 source:  TEST
 
                 password: lir
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -211,7 +189,7 @@ class RouteSetSpec extends BaseQueryUpdateSpec {
                 mnt-lower:    LIR-MNT
                 source:  TEST
                 password: lir
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -257,7 +235,7 @@ class RouteSetSpec extends BaseQueryUpdateSpec {
 
                 password: lir
                 password: lir2
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -291,7 +269,7 @@ class RouteSetSpec extends BaseQueryUpdateSpec {
                 source:  TEST
 
                 password: lir
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -331,7 +309,7 @@ class RouteSetSpec extends BaseQueryUpdateSpec {
 
                 password: lir
                 password: owner
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -369,7 +347,7 @@ class RouteSetSpec extends BaseQueryUpdateSpec {
 
                 password: lir
                 password: owner2
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -407,7 +385,7 @@ class RouteSetSpec extends BaseQueryUpdateSpec {
 
                 password: lir
                 password: owner
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -446,7 +424,7 @@ class RouteSetSpec extends BaseQueryUpdateSpec {
                 source:  TEST
 
                 password: lir
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -482,7 +460,7 @@ class RouteSetSpec extends BaseQueryUpdateSpec {
                 source:  TEST
 
                 password: lir
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -522,7 +500,7 @@ class RouteSetSpec extends BaseQueryUpdateSpec {
 
                 password: lir
                 password: lir2
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -559,7 +537,7 @@ class RouteSetSpec extends BaseQueryUpdateSpec {
                 source:  TEST
 
                 password: lir
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -595,7 +573,7 @@ class RouteSetSpec extends BaseQueryUpdateSpec {
                 source:  TEST
 
                 password: lir
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -635,7 +613,7 @@ class RouteSetSpec extends BaseQueryUpdateSpec {
 
                 password: lir
                 password: lir2
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -672,7 +650,7 @@ class RouteSetSpec extends BaseQueryUpdateSpec {
                 source:  TEST
 
                 password: lir
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -708,7 +686,7 @@ class RouteSetSpec extends BaseQueryUpdateSpec {
                 source:  TEST
 
                 password: lir
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -749,7 +727,7 @@ class RouteSetSpec extends BaseQueryUpdateSpec {
 
                 password: lir
                 password: owner
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -790,7 +768,7 @@ class RouteSetSpec extends BaseQueryUpdateSpec {
                 password: owner
                 password: owner3
                 password: locked
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -829,7 +807,7 @@ class RouteSetSpec extends BaseQueryUpdateSpec {
 
                 password: lir
                 password: owner
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -867,7 +845,7 @@ class RouteSetSpec extends BaseQueryUpdateSpec {
                 source:       TEST
 
                 password: lir
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -917,7 +895,7 @@ class RouteSetSpec extends BaseQueryUpdateSpec {
                 password: owner
                 password: owner3
                 password: locked
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -965,7 +943,7 @@ class RouteSetSpec extends BaseQueryUpdateSpec {
                 password: owner
                 password: owner3
                 password: locked
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -1004,7 +982,7 @@ class RouteSetSpec extends BaseQueryUpdateSpec {
 
                 password: lir
                 password: lir2
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -1044,7 +1022,7 @@ class RouteSetSpec extends BaseQueryUpdateSpec {
 
                 password: lir
                 password: owner
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -1085,7 +1063,7 @@ class RouteSetSpec extends BaseQueryUpdateSpec {
 
                 password: lir
                 password: owner
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -1126,7 +1104,7 @@ class RouteSetSpec extends BaseQueryUpdateSpec {
 
                 password: lir
                 password: owner
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -1168,7 +1146,7 @@ class RouteSetSpec extends BaseQueryUpdateSpec {
 
                 password: lir
                 password: lir2
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -1208,7 +1186,7 @@ class RouteSetSpec extends BaseQueryUpdateSpec {
 
                 password: lir
                 password: lir2
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -1247,7 +1225,7 @@ class RouteSetSpec extends BaseQueryUpdateSpec {
                 source:  TEST
 
                 password: owner2
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -1285,7 +1263,7 @@ class RouteSetSpec extends BaseQueryUpdateSpec {
                 source:  TEST
 
                 password: owner2
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -1325,7 +1303,7 @@ class RouteSetSpec extends BaseQueryUpdateSpec {
                 delete:       testing
 
                 password: owner2
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -1366,7 +1344,7 @@ class RouteSetSpec extends BaseQueryUpdateSpec {
                 delete:       testing
 
                 password: owner
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -1406,7 +1384,7 @@ class RouteSetSpec extends BaseQueryUpdateSpec {
                 delete:       testing
 
                 password: owner2
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -1448,7 +1426,7 @@ class RouteSetSpec extends BaseQueryUpdateSpec {
                 delete:       testing
 
                 password: owner2
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -1499,7 +1477,7 @@ class RouteSetSpec extends BaseQueryUpdateSpec {
 
                 password: lir2
                 password: owner3
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -1534,7 +1512,7 @@ class RouteSetSpec extends BaseQueryUpdateSpec {
                 mnt-lower:    LIR-MNT
                 source:  TEST
                 override:     denis,override1
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -1544,7 +1522,7 @@ class RouteSetSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(1, 1, 0, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
 
-        ack.countErrorWarnInfo(0, 0, 1)
+        ack.countErrorWarnInfo(0, 1, 1)
 
         queryObject("-r -T route-set AS123:RS-CUSTOMERS:RS-CUSTOMERS2", "route-set", "AS123:RS-CUSTOMERS:RS-CUSTOMERS2")
     }

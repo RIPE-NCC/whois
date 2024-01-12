@@ -13,15 +13,15 @@ import net.ripe.db.whois.common.rpsl.RpslAttribute;
 import net.ripe.db.whois.common.rpsl.RpslObject;
 import net.ripe.db.whois.common.rpsl.RpslObjectBuilder;
 import net.ripe.db.whois.common.rpsl.RpslObjectFilter;
-import net.ripe.db.whois.common.sso.CrowdClient;
-import net.ripe.db.whois.common.sso.CrowdClientException;
+import net.ripe.db.whois.common.sso.AuthServiceClient;
+import net.ripe.db.whois.common.sso.AuthServiceClientException;
 import net.ripe.db.whois.common.sso.SsoTokenTranslator;
 import net.ripe.db.whois.common.sso.UserSession;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.util.CollectionUtils;
 
+import javax.annotation.Nonnull;
 import javax.annotation.concurrent.ThreadSafe;
-import javax.validation.constraints.NotNull;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
@@ -44,24 +44,24 @@ public class FilterAuthFunction implements FilterFunction {
     private String token = null;
     private RpslObjectDao rpslObjectDao = null;
     private SsoTokenTranslator ssoTokenTranslator;
-    private CrowdClient crowdClient;
+    private AuthServiceClient authServiceClient;
 
     public FilterAuthFunction(final List<String> passwords,
                               final String token,
                               final SsoTokenTranslator ssoTokenTranslator,
-                              final CrowdClient crowdClient,
+                              final AuthServiceClient authServiceClient,
                               final RpslObjectDao rpslObjectDao) {
         this.token = token;
         this.passwords = passwords;
         this.ssoTokenTranslator = ssoTokenTranslator;
-        this.crowdClient = crowdClient;
+        this.authServiceClient = authServiceClient;
         this.rpslObjectDao = rpslObjectDao;
     }
 
     public FilterAuthFunction() {
     }
 
-    @Override @NotNull
+    @Override @Nonnull
     public RpslObject apply(final RpslObject rpslObject) {
         final List<RpslAttribute> authAttributes = rpslObject.findAttributes(AttributeType.AUTH);
         if (authAttributes.isEmpty()) {
@@ -77,7 +77,7 @@ public class FilterAuthFunction implements FilterFunction {
 
             if (authenticated) {
                 if (passwordType.equals("SSO")) {
-                    final String username = crowdClient.getUsername(authIterator.next());
+                    final String username = authServiceClient.getUsername(authIterator.next());
                     replace.put(authAttribute, new RpslAttribute(AttributeType.AUTH, "SSO " + username));
                 }
             } else {
@@ -139,7 +139,7 @@ public class FilterAuthFunction implements FilterFunction {
                     if (userSession != null && userSession.getUuid().equals(matcher.group(1))) {
                         return true;
                     }
-                } catch (CrowdClientException e) {
+                } catch (AuthServiceClientException e) {
                     return false;
                 }
             }

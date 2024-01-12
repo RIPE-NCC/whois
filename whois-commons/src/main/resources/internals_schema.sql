@@ -1,23 +1,3 @@
-DROP TABLE IF EXISTS `pending_updates`;
-CREATE TABLE pending_updates (
-  `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
-  `object_type` tinyint(3) unsigned NOT NULL,
-  `pkey` varchar(254) NOT NULL,
-  `stored_date` date NOT NULL DEFAULT '0000-00-00',
-  `passed_authentications` VARCHAR(100) NOT NULL,
-  `object` longblob NOT NULL,
-  PRIMARY KEY (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=latin1;
-
-DROP TABLE IF EXISTS `scheduler`;
-CREATE TABLE `scheduler` (
-  `date` date NOT NULL,
-  `task` varchar(256) NOT NULL,
-  `host` varchar(50) NOT NULL,
-  `done` int(10) unsigned DEFAULT NULL,
-  PRIMARY KEY (`date`, `task`)
-) ENGINE=InnoDB DEFAULT CHARSET=latin1;
-
 -- TODO: the id columns is only there because of a mysql bug (see http://bugs.mysql.com/bug.php?id=58481http://bugs.mysql.com/bug.php?id=58481)
 -- TODO: it should be dropped once we manage to upgrade
 DROP TABLE IF EXISTS `authoritative_resource`;
@@ -49,8 +29,8 @@ CREATE TABLE `email_links` (
   `email` varchar(256) NOT NULL,
   `creation_date` int(10) unsigned NOT NULL DEFAULT '0',
   `expiry_date` int(10) unsigned NOT NULL DEFAULT '0',
-  `created_by` varchar(256),
-  `expired_by` varchar(256),
+  `created_by` varchar(256) DEFAULT NULL,
+  `expired_by` varchar(256) DEFAULT NULL,
   PRIMARY KEY (`id`),
   UNIQUE KEY `unique_key` (`hash`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
@@ -61,10 +41,10 @@ CREATE TABLE `forgot_password_audit_log` (
   `timestamp` int(10) UNSIGNED NOT NULL DEFAULT '0',
   `entry` varchar(256) NOT NULL,
   `address` varchar(256) NOT NULL,
-  `mntner` varchar(256),
-  `email` varchar(256),
-  `hash`  varchar(256),
-  `user_sso_email`  varchar(256),
+  `mntner` varchar(256) DEFAULT NULL,
+  `email` varchar(256) DEFAULT NULL,
+  `hash`  varchar(256) DEFAULT NULL,
+  `user_sso_email`  varchar(256) DEFAULT NULL,
   PRIMARY KEY (`id`),
   CONSTRAINT FOREIGN KEY (`hash`) REFERENCES `email_links` (`hash`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
@@ -74,8 +54,117 @@ CREATE TABLE `default_maintainer_history` (
   `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT,
   `org` varchar(256) NOT NULL,
   `mntner` varchar(256) NOT NULL,
-  `timestamp` timestamp NOT NULL,
+  `timestamp` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   `uuid` varchar(256) NOT NULL,
   `email` varchar(256),
+  `in_progress` tinyint(1) DEFAULT NULL,
   PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+
+DROP TABLE IF EXISTS `default_maintainer_sync_history`;
+CREATE TABLE `default_maintainer_sync_history` (
+    `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
+    `org` varchar(256) NOT NULL,
+    `mntner` varchar(256) NOT NULL,
+    `timestamp` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp(),
+    `email` varchar(256) NOT NULL,
+    `is_synchronised` tinyint(1) DEFAULT 0,PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+
+
+DROP TABLE IF EXISTS `default_maintainer_in_progress`;
+CREATE TABLE `default_maintainer_in_progress` (
+    `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT,
+    `org` varchar(256) NOT NULL,
+    `mntner` varchar(256) NOT NULL,
+    `timestamp` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    `uuid` varchar(256) NOT NULL,
+    `email` varchar(256),
+    PRIMARY KEY (`id`),
+    UNIQUE KEY `org_idx` (`org`),
+    UNIQUE KEY `mntner_idx` (`mntner`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+
+DROP TABLE IF EXISTS `default_maintainer_sync`;
+CREATE TABLE `default_maintainer_sync` (
+    `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
+    `org` varchar(256) NOT NULL,
+    `mntner` varchar(256) NOT NULL,
+    `timestamp` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp(),
+    `email` varchar(256) NOT NULL,
+    PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+
+DROP TABLE IF EXISTS `abuse_email`;
+CREATE TABLE `abuse_email` (
+  `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT,
+  `address` varchar(256) NOT NULL,
+  `checked_at` datetime,
+  `comment` varchar(256),
+  `created_at` datetime NOT NULL,
+  `status` varchar(7) NOT NULL,
+  `link_sent_at` datetime,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+
+CREATE UNIQUE INDEX abuse_email_address_i on `abuse_email`(`address`);
+
+DROP TABLE IF EXISTS `abuse_org_email`;
+CREATE TABLE `abuse_org_email` (
+  `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT,
+  `org_id` varchar(256) NOT NULL,
+  `enduser_org_id` varchar(256),
+  `created_at` datetime NOT NULL,
+  `deleted_at` datetime,
+  `email_id` int(10) UNSIGNED NOT NULL,
+  `object_type` tinyint(3) UNSIGNED NOT NULL,
+  `object_pkey` varchar(254) NOT NULL,
+  `abuse_nic_hdl` varchar(30) NOT NULL,
+  PRIMARY KEY (`id`),
+  CONSTRAINT FOREIGN KEY (`email_id`) REFERENCES `abuse_email` (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+
+DROP TABLE IF EXISTS `abuse_ticket`;
+CREATE TABLE `abuse_ticket` (
+  `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT,
+  `created_at` datetime NOT NULL,
+  `last_checked` datetime NOT NULL,
+  `org_id` varchar(256) NOT NULL,
+  `ticketia_status` varchar(256) NOT NULL,
+  `ticket_id` int(10) UNSIGNED NOT NULL,
+  `ticket_type` char(1) NOT NULL,
+  `state` char(1) NOT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+
+CREATE INDEX abuse_ticket_org_id_i ON abuse_ticket(org_id);
+CREATE UNIQUE INDEX abuse_ticket_ticket_id_i on abuse_ticket(ticket_id);
+
+DROP TABLE IF EXISTS `shedlock`;
+CREATE TABLE `shedlock` (
+    `name` VARCHAR(64),
+    `lock_until` TIMESTAMP(3) NULL,
+    `locked_at` TIMESTAMP(3) NULL,
+    `locked_by`  VARCHAR(255),
+    PRIMARY KEY (`name`)
+)  ENGINE=InnoDB DEFAULT CHARSET=latin1;
+
+DROP TABLE IF EXISTS `non_auth_route`;
+CREATE TABLE `non_auth_route` (
+    `object_pkey` VARCHAR(254) NOT NULL,
+    `created_at` DATE NOT NULL,
+    PRIMARY KEY (`object_pkey`)
+)  ENGINE=InnoDB DEFAULT CHARSET=latin1;
+
+DROP TABLE IF EXISTS `non_auth_route_unregistered_space`;
+CREATE TABLE `non_auth_route_unregistered_space` (
+    `object_pkey` VARCHAR(254) NOT NULL,
+    `created_at` DATE NOT NULL,
+    PRIMARY KEY (`object_pkey`)
+)  ENGINE=InnoDB DEFAULT CHARSET=latin1;
+
+DROP TABLE IF EXISTS `environment`;
+CREATE TABLE `environment` (
+   `name` varchar(8) NOT NULL,
+   PRIMARY KEY (`name`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;

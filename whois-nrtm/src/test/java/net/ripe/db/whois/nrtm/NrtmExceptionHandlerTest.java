@@ -1,64 +1,60 @@
 package net.ripe.db.whois.nrtm;
 
-import static org.mockito.Matchers.any;
+import io.netty.channel.Channel;
+import io.netty.channel.ChannelFuture;
+import io.netty.channel.ChannelFutureListener;
+import io.netty.channel.ChannelHandlerContext;
+import io.netty.channel.ChannelId;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+
+import org.mockito.Answers;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.junit.jupiter.MockitoExtension;
+
+import java.net.InetSocketAddress;
+
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import java.net.InetSocketAddress;
-
-import org.jboss.netty.channel.Channel;
-import org.jboss.netty.channel.ChannelFuture;
-import org.jboss.netty.channel.ChannelFutureListener;
-import org.jboss.netty.channel.ChannelHandlerContext;
-import org.jboss.netty.channel.ExceptionEvent;
-import org.jboss.netty.channel.MessageEvent;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
-
-@RunWith(MockitoJUnitRunner.class)
+@ExtendWith(MockitoExtension.class)
 public class NrtmExceptionHandlerTest {
 
-    @Mock private MessageEvent messageEventMock;
-    @Mock private ExceptionEvent exceptionEventMock;
-    @Mock private Channel channelMock;
+    @Mock(answer = Answers.RETURNS_DEEP_STUBS) private Channel channelMock;
     @Mock private ChannelHandlerContext channelHandlerContextMock;
     @Mock private ChannelFuture channelFutureMock;
+    @Mock private ChannelId channelId;
     @InjectMocks private NrtmExceptionHandler subject;
 
     private static final String QUERY = "query";
 
-    @Before
+    @BeforeEach
     public void setup() {
-        when(messageEventMock.getMessage()).thenReturn(QUERY);
-        when(exceptionEventMock.getChannel()).thenReturn(channelMock);
-        when(exceptionEventMock.getCause()).thenReturn(new Throwable());
-        when(channelMock.getRemoteAddress()).thenReturn(new InetSocketAddress(0));
+        when(channelHandlerContextMock.channel()).thenReturn(channelMock);
+        when(channelMock.remoteAddress()).thenReturn(new InetSocketAddress(0));
+        when(channelMock.id()).thenReturn(channelId);
         when(channelMock.isOpen()).thenReturn(true);
         when(channelMock.write(any())).thenReturn(channelFutureMock);
+        when(channelMock.writeAndFlush(any())).thenReturn(channelFutureMock);
     }
 
     @Test
-    public void handle_illegal_argument_exception() throws Exception {
-        when(exceptionEventMock.getCause()).thenReturn(new IllegalArgumentException(QUERY));
+    public void handle_nrtm_exception() throws Exception {
+        subject.exceptionCaught(channelHandlerContextMock, new NrtmException(QUERY));
 
-        subject.exceptionCaught(channelHandlerContextMock, exceptionEventMock);
-
-        verify(channelMock, times(1)).write(QUERY + "\n\n");
+        verify(channelMock, times(1)).writeAndFlush(QUERY + "\n\n");
         verify(channelFutureMock, times(1)).addListener(ChannelFutureListener.CLOSE);
     }
 
     @Test
     public void handle_exception() throws Exception {
-        when(exceptionEventMock.getCause()).thenReturn(new Exception());
+        subject.exceptionCaught(channelHandlerContextMock, new Exception());
 
-        subject.exceptionCaught(channelHandlerContextMock, exceptionEventMock);
-
-        verify(channelMock, times(1)).write(NrtmExceptionHandler.MESSAGE);
+        verify(channelMock, times(1)).writeAndFlush(NrtmMessages.internalError().toString());
         verify(channelFutureMock, times(1)).addListener(ChannelFutureListener.CLOSE);
     }
 }

@@ -7,8 +7,8 @@ import net.ripe.db.whois.common.dao.RpslObjectDao;
 import net.ripe.db.whois.common.dao.RpslObjectInfo;
 import net.ripe.db.whois.common.domain.ResponseObject;
 import net.ripe.db.whois.common.rpsl.RpslObject;
-import net.ripe.db.whois.query.domain.MessageObject;
 import net.ripe.db.whois.query.QueryMessages;
+import net.ripe.db.whois.query.domain.MessageObject;
 import net.ripe.db.whois.query.query.Query;
 
 import java.util.Arrays;
@@ -21,16 +21,18 @@ class GroupRelatedFunction implements GroupFunction {
     private final Set<PrimaryObjectDecorator> decorators;
     private final Query query;
 
-    public GroupRelatedFunction(final RpslObjectDao rpslObjectDao, final Query query, final Set<PrimaryObjectDecorator> decorators) {
+    public GroupRelatedFunction(final RpslObjectDao rpslObjectDao,
+                                final Query query,
+                                final Set<PrimaryObjectDecorator> decorators) {
         this.rpslObjectDao = rpslObjectDao;
         this.decorators = decorators;
         this.query = query;
     }
 
     @Override
-    public Iterable<ResponseObject> apply(final ResponseObject input) {
+    public Iterable<? extends ResponseObject> apply(final ResponseObject input) {
         if (input instanceof RpslObject) {
-            Iterable<ResponseObject> result = Arrays.asList(new MessageObject(QueryMessages.relatedTo(((RpslObject) input).getKey())), input);
+            Iterable<? extends ResponseObject> result = Arrays.asList(new MessageObject(QueryMessages.relatedTo(((RpslObject) input).getKey())), input);
 
             final SortedSet<RpslObjectInfo> relatedTo = Sets.newTreeSet();
             for (final PrimaryObjectDecorator decorator : decorators) {
@@ -39,9 +41,7 @@ class GroupRelatedFunction implements GroupFunction {
                 }
             }
 
-            result = Iterables.concat(result, CollectionHelper.iterateProxy(rpslObjectDao, relatedTo));
-
-            return result;
+            return Iterables.concat(result, CollectionHelper.iterateProxy(rpslObjectDao, relatedTo));
         }
 
         return Collections.singletonList(input);

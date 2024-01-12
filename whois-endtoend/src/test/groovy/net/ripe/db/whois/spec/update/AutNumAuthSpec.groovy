@@ -1,28 +1,16 @@
 package net.ripe.db.whois.spec.update
-import net.ripe.db.whois.common.IntegrationTest
+
 import net.ripe.db.whois.spec.BaseQueryUpdateSpec
 import net.ripe.db.whois.spec.domain.AckResponse
 import net.ripe.db.whois.spec.domain.Message
+import org.junit.jupiter.api.Tag
 
-@org.junit.experimental.categories.Category(IntegrationTest.class)
+@Tag("IntegrationTest")
 class AutNumAuthSpec extends BaseQueryUpdateSpec {
 
     @Override
     Map<String, String> getFixtures() {
         [
-            "RIPE-NCC-RPSL-MNT": """\
-                mntner:      RIPE-NCC-RPSL-MNT
-                descr:       This maintainer may be used to create objects to represent
-                descr:       routing policy in the RIPE Database for number resources not
-                descr:       allocated or assigned from the RIPE NCC.
-                upd-to:      updto_hm@ripe.net
-                mnt-nfy:     mntnfy_hm@ripe.net
-                notify:      notify_hm@ripe.net
-                auth:        MD5-PW \$1\$0W0joRg1\$eOOcT4JsBIh6q3mu/yTvj1 # rpsl
-                notify:      dbtest@ripe.net
-                mnt-by:      RIPE-DBM-MNT
-                source:      TEST
-                """,
             "AS251NOSTAT": """\
                 aut-num:        AS251
                 as-name:        End-User-1
@@ -115,7 +103,6 @@ class AutNumAuthSpec extends BaseQueryUpdateSpec {
                 as-block:       AS444 - AS555
                 descr:          APNIC ASN block
                 mnt-by:         RIPE-DBM-MNT
-                mnt-lower:      RIPE-NCC-RPSL-MNT
                 source:         TEST
                 """,
             "AS0 - AS4294967295": """\
@@ -287,7 +274,7 @@ class AutNumAuthSpec extends BaseQueryUpdateSpec {
                 password:   nccend
                 password:   hm
                 password:   owner3
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -331,7 +318,7 @@ class AutNumAuthSpec extends BaseQueryUpdateSpec {
                 password:   nccend
                 password:   dbm
                 password:   owner3
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -371,7 +358,7 @@ class AutNumAuthSpec extends BaseQueryUpdateSpec {
 
                 password:   nccend
                 password:   owner3
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -412,7 +399,7 @@ class AutNumAuthSpec extends BaseQueryUpdateSpec {
                 source:         TEST
                 override:       denis,override1
 
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -421,7 +408,7 @@ class AutNumAuthSpec extends BaseQueryUpdateSpec {
         ack.summary.nrFound == 1
         ack.summary.assertSuccess(1, 1, 0, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
-        ack.countErrorWarnInfo(0, 0, 1)
+        ack.countErrorWarnInfo(0, 2, 1)
         ack.successes.any { it.operation == "Create" && it.key == "[aut-num] AS250" }
         ack.infoSuccessMessagesFor("Create", "[aut-num] AS250") == [
                 "Authorisation override used"]
@@ -451,7 +438,7 @@ class AutNumAuthSpec extends BaseQueryUpdateSpec {
 
                 password:   nccend
                 password:   owner3
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -487,7 +474,7 @@ class AutNumAuthSpec extends BaseQueryUpdateSpec {
                 source:         TEST
                 override:      denis,override1
 
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -496,7 +483,7 @@ class AutNumAuthSpec extends BaseQueryUpdateSpec {
         ack.summary.nrFound == 1
         ack.summary.assertSuccess(1, 1, 0, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
-        ack.countErrorWarnInfo(0, 0, 1)
+        ack.countErrorWarnInfo(0, 2, 1)
         ack.successes.any { it.operation == "Create" && it.key == "[aut-num] AS650" }
         ack.infoSuccessMessagesFor("Create", "[aut-num] AS650") == [
                 "Authorisation override used"]
@@ -580,7 +567,7 @@ class AutNumAuthSpec extends BaseQueryUpdateSpec {
                 password:   nccend
                 password:   hm
                 password:   owner3
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -642,7 +629,7 @@ class AutNumAuthSpec extends BaseQueryUpdateSpec {
                 password:   nccend
                 password:   hm
                 password:   owner3
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -695,7 +682,7 @@ class AutNumAuthSpec extends BaseQueryUpdateSpec {
                 password:   nccend
                 password:   hm
                 password:   owner3
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -747,6 +734,59 @@ class AutNumAuthSpec extends BaseQueryUpdateSpec {
                               to AS1 11:22:33:44:55:66:77:88 at 11:22:33:44:55:66:77:87
                               action pref=100;
                               networks {1.2.3.4/24, 1::2/35}
+                admin-c:        TP1-TEST
+                tech-c:         TP1-TEST
+                mnt-by:         RIPE-NCC-END-MNT
+                mnt-by:         LIR-MNT
+                source:         TEST
+
+                password:   nccend
+                password:   hm
+                password:   owner3
+                """.stripIndent(true)
+        )
+
+      then:
+        def ack = new AckResponse("", message)
+
+        ack.summary.nrFound == 1
+        ack.summary.assertSuccess(1, 1, 0, 0, 0)
+        ack.summary.assertErrors(0, 0, 0, 0)
+        ack.countErrorWarnInfo(0, 0, 0)
+        ack.successes.any { it.operation == "Create" && it.key == "[aut-num] AS250" }
+
+        queryObject("-rGBT aut-num AS250", "aut-num", "AS250")
+    }
+
+    def "create aut-num, mnt-routes attributes are filtered out"() {
+      given:
+        syncUpdate(getTransient("AS222 - AS333") + "password: dbm\noverride: denis,override1")
+
+      expect:
+        queryObject("-rGBT as-block AS222 - AS333", "as-block", "AS222 - AS333")
+        queryObjectNotFound("-rBG -T aut-num AS250", "aut-num", "AS250")
+
+      when:
+        def message = syncUpdate("""
+                aut-num:        AS250
+                as-name:      ASTEST
+                descr:        TEST TELEKOM
+                status:       ASSIGNED
+                import:       from AS1 accept {1.2.3.4/24}
+                export:       to AS2 announce {1.2.3.4/24}
+                mp-import:    afi ipv4.unicast from AS1 accept ANY;
+                mp-export:    afi ipv6 to AS1 announce {1.2.3.4/24};
+                mp-import:    afi ipv4.multicast, ipv6, ipv4.unicast
+                              from AS1 1.2.3.4 at 1.2.3.4
+                              accept AS2 AND { 1.2.3.4/2, 11:22:33:44:55:66:77:88/35} OR as10;
+                mp-import:    afi ipv4
+                              from AS1 11:22:33:44:55:66:77:88 at 11:22:33:44:55::87
+                              action community.append(100:10);
+                              accept ANY;
+                mp-default:   afi ipv4, ipv4.unicast, ipv6
+                              to AS1 11:22:33:44:55:66:77:88 at 11:22:33:44:55:66:77:87
+                              action pref=100;
+                              networks {1.2.3.4/24, 1::2/35}
                 mnt-routes:   LIR2-MNT {1.2.3.0/25, 1::0/35}
                 mnt-routes:   LIR2-MNT {1.2.3.0/25, 1::0/35}
                 mnt-routes:   LIR2-MNT {1.2.3.0/25}
@@ -762,7 +802,7 @@ class AutNumAuthSpec extends BaseQueryUpdateSpec {
                 password:   nccend
                 password:   hm
                 password:   owner3
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -771,10 +811,14 @@ class AutNumAuthSpec extends BaseQueryUpdateSpec {
         ack.summary.nrFound == 1
         ack.summary.assertSuccess(1, 1, 0, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
-        ack.countErrorWarnInfo(0, 0, 0)
+        ack.countErrorWarnInfo(0, 1, 0)
         ack.successes.any { it.operation == "Create" && it.key == "[aut-num] AS250" }
 
+        ack.warningSuccessMessagesFor("Create", "[aut-num] AS250") ==
+                ["Deprecated attribute \"mnt-routes\". This attribute has been removed."]
+
         queryObject("-rGBT aut-num AS250", "aut-num", "AS250")
+        !queryMatches("-rGBT aut-num AS250", "mnt-routes")
     }
 
     def "create aut-num, import only"() {
@@ -803,7 +847,7 @@ class AutNumAuthSpec extends BaseQueryUpdateSpec {
                 password:   nccend
                 password:   hm
                 password:   owner3
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -843,7 +887,7 @@ class AutNumAuthSpec extends BaseQueryUpdateSpec {
                 password:   nccend
                 password:   hm
                 password:   owner3
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -887,15 +931,17 @@ class AutNumAuthSpec extends BaseQueryUpdateSpec {
                 password:   nccend
                 password:   hm
                 password:   owner3
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
         ack.summary.nrFound == 1
         ack.summary.assertSuccess(1, 1, 0, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
-        ack.countErrorWarnInfo(0, 0, 0)
+        ack.countErrorWarnInfo(0, 1, 0)
         ack.successes.any { it.operation == "Create" && it.key == "[aut-num] AS94967295" }
+        ack.warningSuccessMessagesFor("Create", "[aut-num] AS94967295") ==
+              ["Supplied attribute 'source' has been replaced with a generated value"]
 
         queryObject("-rGBT aut-num AS94967295", "aut-num", "AS94967295")
     }
@@ -925,15 +971,17 @@ class AutNumAuthSpec extends BaseQueryUpdateSpec {
                 password:   nccend
                 password:   hm
                 password:   owner3
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
         ack.summary.nrFound == 1
         ack.summary.assertSuccess(1, 1, 0, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
-        ack.countErrorWarnInfo(0, 0, 0)
+        ack.countErrorWarnInfo(0, 1, 0)
         ack.successes.any { it.operation == "Create" && it.key == "[aut-num] AS4294967295" }
+        ack.warningSuccessMessagesFor("Create", "[aut-num] AS4294967295") ==
+              ["Supplied attribute 'source' has been replaced with a generated value"]
 
         queryObject("-rGBT aut-num AS4294967295", "aut-num", "AS4294967295")
     }
@@ -967,15 +1015,17 @@ class AutNumAuthSpec extends BaseQueryUpdateSpec {
                 password:   nccend
                 password:   hm
                 password:   owner3
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
         ack.summary.nrFound == 1
         ack.summary.assertSuccess(1, 1, 0, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
-        ack.countErrorWarnInfo(0, 0, 0)
+        ack.countErrorWarnInfo(0, 1, 0)
         ack.successes.any { it.operation == "Create" && it.key == "[aut-num] AS65535" }
+        ack.warningSuccessMessagesFor("Create", "[aut-num] AS65535") ==
+            ["Supplied attribute 'source' has been replaced with a generated value"]
 
         queryObject("-rGBT aut-num AS65535", "aut-num", "AS65535")
     }
@@ -1009,15 +1059,17 @@ class AutNumAuthSpec extends BaseQueryUpdateSpec {
                 password:   nccend
                 password:   hm
                 password:   owner3
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
         ack.summary.nrFound == 1
         ack.summary.assertSuccess(1, 1, 0, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
-        ack.countErrorWarnInfo(0, 0, 0)
+        ack.countErrorWarnInfo(0, 1, 0)
         ack.successes.any { it.operation == "Create" && it.key == "[aut-num] As0" }
+        ack.warningSuccessMessagesFor("Create", "[aut-num] As0") ==
+              ["Supplied attribute 'source' has been replaced with a generated value"]
 
         queryObject("-rGBT aut-num As0", "aut-num", "As0")
     }
@@ -1050,7 +1102,7 @@ class AutNumAuthSpec extends BaseQueryUpdateSpec {
                 password:   nccend
                 password:   hm
                 password:   owner3
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -1095,7 +1147,7 @@ class AutNumAuthSpec extends BaseQueryUpdateSpec {
                 password:   nccend
                 password:   hm
                 password:   owner3
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -1141,7 +1193,7 @@ class AutNumAuthSpec extends BaseQueryUpdateSpec {
                 password:   nccend
                 password:   hm
                 password:   owner3
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -1187,7 +1239,7 @@ class AutNumAuthSpec extends BaseQueryUpdateSpec {
                 password:   nccend
                 password:   hm
                 password:   owner3
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -1233,7 +1285,7 @@ class AutNumAuthSpec extends BaseQueryUpdateSpec {
                 password:   nccend
                 password:   hm
                 password:   owner3
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -1278,7 +1330,7 @@ class AutNumAuthSpec extends BaseQueryUpdateSpec {
 
                 password:   nccend
                 password:   hm
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -1323,7 +1375,7 @@ class AutNumAuthSpec extends BaseQueryUpdateSpec {
 
                 password:   nccend
                 password:   hm
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -1371,7 +1423,7 @@ class AutNumAuthSpec extends BaseQueryUpdateSpec {
 
                 password:   nccend
                 password:   hm
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -1414,7 +1466,7 @@ class AutNumAuthSpec extends BaseQueryUpdateSpec {
 
                 password:   nccend
                 password:   hm
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -1456,7 +1508,7 @@ class AutNumAuthSpec extends BaseQueryUpdateSpec {
 
                 password:   nccend
                 password:   hm
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -1499,7 +1551,7 @@ class AutNumAuthSpec extends BaseQueryUpdateSpec {
                 delete:  RS delete
 
                 password:   nccend
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -1542,7 +1594,7 @@ class AutNumAuthSpec extends BaseQueryUpdateSpec {
                 delete:  RS delete
 
                 password:   lir
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -1589,7 +1641,7 @@ class AutNumAuthSpec extends BaseQueryUpdateSpec {
                 source:         TEST
                 delete:  RS delete
                 password:   nccend
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -1634,7 +1686,7 @@ class AutNumAuthSpec extends BaseQueryUpdateSpec {
                 delete:  RS delete
 
                 password:   nccend
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -1678,7 +1730,7 @@ class AutNumAuthSpec extends BaseQueryUpdateSpec {
                 delete:  RS delete
 
                 password:   nccend
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -1722,7 +1774,7 @@ class AutNumAuthSpec extends BaseQueryUpdateSpec {
                 source:         TEST
 
                 password:   lir
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -1767,7 +1819,7 @@ class AutNumAuthSpec extends BaseQueryUpdateSpec {
                 source:         TEST
 
                 password:   lir
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -1783,6 +1835,53 @@ class AutNumAuthSpec extends BaseQueryUpdateSpec {
 
         query_object_matches("-rGBT aut-num AS200", "aut-num", "AS200", "RIPE-NCC-END-MNT")
     }
+
+    def "modify aut-num, added mnt-routes are filtered out"() {
+      given:
+        syncUpdate(getTransient("AS0 - AS4294967295") + "password: dbm\noverride: denis,override1")
+        syncUpdate(getTransient("AS200") + "password: dbm\noverride: denis,override1")
+
+      expect:
+        queryObject("-rGBT as-block AS0 - AS4294967295", "as-block", "AS0 - AS4294967295")
+        queryObject("-rGBT aut-num AS200", "aut-num", "AS200")
+
+      when:
+        def message = send new Message(
+                subject: "",
+                body: """\
+                aut-num:        AS200
+                as-name:        ASTEST
+                descr:          description
+                status:         ASSIGNED
+                sponsoring-org: ORG-LIRA-TEST
+                import:         from AS1 accept ANY
+                export:         to AS1 announce AS2
+                mp-import:      afi ipv6.unicast from AS1 accept ANY
+                mp-export:      afi ipv6.unicast to AS1 announce AS2
+                admin-c:        TP1-TEST
+                tech-c:         TP1-TEST
+                mnt-by:         RIPE-NCC-END-MNT
+                mnt-by:         LIR-MNT
+                mnt-routes:     ROUTES-MNT      # added
+                source:         TEST
+                password:   lir
+                """.stripIndent(true)
+        )
+
+      then:
+        def ack = ackFor message
+
+        ack.summary.nrFound == 1
+        ack.summary.assertSuccess(1, 0, 0, 0, 1)
+        ack.summary.assertErrors(0, 0, 0, 0)
+        ack.countErrorWarnInfo(0, 2, 0)
+        ack.warningSuccessMessagesFor("No operation", "[aut-num] AS200") ==
+                ["Deprecated attribute \"mnt-routes\". This attribute has been removed.",
+                 "Submitted object identical to database object"]
+
+        !queryMatches("-rGBT aut-num AS200", "mnt-routes")
+    }
+
 
     def "create aut-num, (mp-)import/export/default have invalid AS values"() {
       given:
@@ -1834,7 +1933,7 @@ class AutNumAuthSpec extends BaseQueryUpdateSpec {
                 password:   nccend
                 password:   hm
                 password:   owner3
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -2577,21 +2676,22 @@ class AutNumAuthSpec extends BaseQueryUpdateSpec {
                 remarks:      --------------------------------------------------------------
                 admin-c:      TP1-TEST
                 tech-c:       TP1-TEST
-                mnt-routes:   ROUTES-MNT
                 mnt-by:       RIPE-NCC-END-MNT
                 source:       TEST
 
                 password:   nccend
                 password:   hm
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
         ack.summary.nrFound == 1
         ack.summary.assertSuccess(1, 1, 0, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
-        ack.countErrorWarnInfo(0, 0, 0)
+        ack.countErrorWarnInfo(0, 1, 0)
         ack.successes.any { it.operation == "Create" && it.key == "[aut-num] AS702" }
+        ack.warningSuccessMessagesFor("Create", "[aut-num] AS702") ==
+              ["Supplied attribute 'source' has been replaced with a generated value"]
 
         queryObject("-rBG -T aut-num AS702", "aut-num", "AS702")
     }
@@ -2626,7 +2726,7 @@ class AutNumAuthSpec extends BaseQueryUpdateSpec {
                 password:   nccend
                 password:   hm
                 password:   owner3
-                """.stripIndent()
+                """.stripIndent(true)
             )
 
         then:
@@ -2667,15 +2767,17 @@ class AutNumAuthSpec extends BaseQueryUpdateSpec {
                 password:   nccend
                 password:   hm
                 password:   owner3
-                """.stripIndent()
+                """.stripIndent(true)
             )
 
         then:
             ack.summary.nrFound == 1
             ack.summary.assertSuccess(1, 1, 0, 0, 0)
             ack.summary.assertErrors(0, 0, 0, 0)
-            ack.countErrorWarnInfo(0, 0, 0)
+            ack.countErrorWarnInfo(0, 1, 0)
             ack.successes.any { it.operation == "Create" && it.key == "[aut-num] AS260" }
+            ack.warningSuccessMessagesFor("Create", "[aut-num] AS260") ==
+                ["Supplied attribute 'source' has been replaced with a generated value"]
 
             query_object_matches("-rBG -T aut-num AS260", "aut-num", "AS260", "status:\\s*OTHER")
     }
@@ -2710,7 +2812,7 @@ class AutNumAuthSpec extends BaseQueryUpdateSpec {
                 password:   nccend
                 password:   hm
                 password:   owner3
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:
@@ -2755,7 +2857,7 @@ class AutNumAuthSpec extends BaseQueryUpdateSpec {
                 password:   nccend
                 password:   hm
                 password:   owner3
-                """.stripIndent()
+                """.stripIndent(true)
             )
 
         then:
@@ -2796,7 +2898,7 @@ class AutNumAuthSpec extends BaseQueryUpdateSpec {
                 source:         TEST
                 override:   denis,override1
 
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:
@@ -2838,7 +2940,7 @@ class AutNumAuthSpec extends BaseQueryUpdateSpec {
                 source:         TEST
                 override:   denis,override1
 
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:
@@ -2879,7 +2981,7 @@ class AutNumAuthSpec extends BaseQueryUpdateSpec {
                 source:         TEST
                 override:   denis,override1
 
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:
@@ -2920,7 +3022,7 @@ class AutNumAuthSpec extends BaseQueryUpdateSpec {
                 source:         TEST
                 override:   denis,override1
 
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:
@@ -2935,187 +3037,6 @@ class AutNumAuthSpec extends BaseQueryUpdateSpec {
                 ["Supplied attribute 'status' has been replaced with a generated value"]
 
         query_object_matches("-rBG -T aut-num AS12666", "aut-num", "AS12666", "status:\\s*LEGACY")
-    }
-
-
-    def "create aut-num, apnic as-block, with mnt-by LIR, status ASSIGNED, LIR pw, not on legacy list"() {
-        given:
-        syncUpdate(getTransient("AS444 - AS555") + "override: denis,override1")
-
-        expect:
-        queryObject("-rGBT as-block AS444 - AS555", "as-block", "AS444 - AS555")
-        queryObjectNotFound("-rBG -T aut-num AS444", "aut-num", "AS444")
-
-        when:
-        def message = send new Message(
-                subject: "",
-                body: """\
-                aut-num:        AS444
-                as-name:        End-User-1
-                descr:          description
-                status:         ASSIGNED
-                import:         from AS1 accept ANY
-                export:         to AS1 announce AS2
-                mp-import:      afi ipv6.unicast from AS1 accept ANY
-                mp-export:      afi ipv6.unicast to AS1 announce AS2
-                org:            ORG-OTO1-TEST
-                admin-c:        TP1-TEST
-                tech-c:         TP1-TEST
-                mnt-by:         LIR-MNT
-                source:         TEST
-
-                password:   lir
-                password:   rpsl
-                password:   owner3
-                """.stripIndent()
-        )
-
-        then:
-        def ack = ackFor message
-
-        ack.summary.nrFound == 1
-        ack.summary.assertSuccess(1, 1, 0, 0, 0)
-        ack.summary.assertErrors(0, 0, 0, 0)
-        ack.countErrorWarnInfo(0, 1, 0)
-        ack.successes.any { it.operation == "Create" && it.key == "[aut-num] AS444" }
-        ack.warningSuccessMessagesFor("Create", "[aut-num] AS444") ==
-                ["Supplied attribute 'status' has been replaced with a generated value"]
-
-        query_object_matches("-rBG -T aut-num AS444", "aut-num", "AS444", "status:\\s*OTHER")
-    }
-
-    def "create aut-num, apnic as-block, with mnt-by LIR, no status, LIR pw, not on legacy list"() {
-        given:
-        syncUpdate(getTransient("AS444 - AS555") + "override: denis,override1")
-
-        expect:
-        queryObject("-rGBT as-block AS444 - AS555", "as-block", "AS444 - AS555")
-        queryObjectNotFound("-rBG -T aut-num AS444", "aut-num", "AS444")
-
-        when:
-        def message = send new Message(
-                subject: "",
-                body: """\
-                aut-num:        AS444
-                as-name:        End-User-1
-                descr:          description
-                import:         from AS1 accept ANY
-                export:         to AS1 announce AS2
-                mp-import:      afi ipv6.unicast from AS1 accept ANY
-                mp-export:      afi ipv6.unicast to AS1 announce AS2
-                org:            ORG-OTO1-TEST
-                admin-c:        TP1-TEST
-                tech-c:         TP1-TEST
-                mnt-by:         LIR-MNT
-                source:         TEST
-
-                password:   lir
-                password:   rpsl
-                password:   owner3
-                """.stripIndent()
-        )
-
-        then:
-        def ack = ackFor message
-
-        ack.summary.nrFound == 1
-        ack.summary.assertSuccess(1, 1, 0, 0, 0)
-        ack.summary.assertErrors(0, 0, 0, 0)
-        ack.countErrorWarnInfo(0, 0, 0)
-        ack.successes.any { it.operation == "Create" && it.key == "[aut-num] AS444" }
-
-        query_object_matches("-rBG -T aut-num AS444", "aut-num", "AS444", "status:\\s*OTHER")
-    }
-
-
-    def "create aut-num, apnic as-block, with mnt-by LIR, status LEGACY, LIR pw, not on legacy list"() {
-        given:
-        syncUpdate(getTransient("AS444 - AS555") + "override: denis,override1")
-
-        expect:
-        queryObject("-rGBT as-block AS444 - AS555", "as-block", "AS444 - AS555")
-        queryObjectNotFound("-rBG -T aut-num AS444", "aut-num", "AS444")
-
-        when:
-        def message = send new Message(
-                subject: "",
-                body: """\
-                aut-num:        AS444
-                as-name:        End-User-1
-                descr:          description
-                status:         LEGACY
-                import:         from AS1 accept ANY
-                export:         to AS1 announce AS2
-                mp-import:      afi ipv6.unicast from AS1 accept ANY
-                mp-export:      afi ipv6.unicast to AS1 announce AS2
-                org:            ORG-OTO1-TEST
-                admin-c:        TP1-TEST
-                tech-c:         TP1-TEST
-                mnt-by:         LIR-MNT
-                source:         TEST
-
-                password:   lir
-                password:   rpsl
-                password:   owner3
-                """.stripIndent()
-        )
-
-        then:
-        def ack = ackFor message
-
-        ack.summary.nrFound == 1
-        ack.summary.assertSuccess(1, 1, 0, 0, 0)
-        ack.summary.assertErrors(0, 0, 0, 0)
-        ack.countErrorWarnInfo(0, 1, 0)
-        ack.successes.any { it.operation == "Create" && it.key == "[aut-num] AS444" }
-        ack.warningSuccessMessagesFor("Create", "[aut-num] AS444") ==
-                ["Supplied attribute 'status' has been replaced with a generated value"]
-
-        query_object_matches("-rBG -T aut-num AS444", "aut-num", "AS444", "status:\\s*OTHER")
-    }
-
-    def "create aut-num, apnic as-block, with mnt-by LIR, status OTHER, LIR pw, not on legacy list"() {
-        given:
-        syncUpdate(getTransient("AS444 - AS555") + "override: denis,override1")
-
-        expect:
-        queryObject("-rGBT as-block AS444 - AS555", "as-block", "AS444 - AS555")
-        queryObjectNotFound("-rBG -T aut-num AS444", "aut-num", "AS444")
-
-        when:
-        def message = send new Message(
-                subject: "",
-                body: """\
-                aut-num:        AS444
-                as-name:        End-User-1
-                descr:          description
-                status:         OTHER
-                import:         from AS1 accept ANY
-                export:         to AS1 announce AS2
-                mp-import:      afi ipv6.unicast from AS1 accept ANY
-                mp-export:      afi ipv6.unicast to AS1 announce AS2
-                org:            ORG-OTO1-TEST
-                admin-c:        TP1-TEST
-                tech-c:         TP1-TEST
-                mnt-by:         LIR-MNT
-                source:         TEST
-
-                password:   lir
-                password:   rpsl
-                password:   owner3
-                """.stripIndent()
-        )
-
-        then:
-        def ack = ackFor message
-
-        ack.summary.nrFound == 1
-        ack.summary.assertSuccess(1, 1, 0, 0, 0)
-        ack.summary.assertErrors(0, 0, 0, 0)
-        ack.countErrorWarnInfo(0, 0, 0)
-        ack.successes.any { it.operation == "Create" && it.key == "[aut-num] AS444" }
-
-        query_object_matches("-rBG -T aut-num AS444", "aut-num", "AS444", "status:\\s*OTHER")
     }
 
 
@@ -3146,7 +3067,7 @@ class AutNumAuthSpec extends BaseQueryUpdateSpec {
                 source:         TEST
 
                 password:   nccend
-                """.stripIndent()
+                """.stripIndent(true)
             )
 
         then:
@@ -3189,7 +3110,7 @@ class AutNumAuthSpec extends BaseQueryUpdateSpec {
                 source:         TEST
 
                 password:   lir
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:
@@ -3232,7 +3153,7 @@ class AutNumAuthSpec extends BaseQueryUpdateSpec {
                 source:         TEST
                 override:   denis,override1
 
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:
@@ -3277,7 +3198,7 @@ class AutNumAuthSpec extends BaseQueryUpdateSpec {
                 source:         TEST
 
                 password:   lir
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:
@@ -3320,7 +3241,7 @@ class AutNumAuthSpec extends BaseQueryUpdateSpec {
                 source:         TEST
                 override:   denis,override1
 
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:
@@ -3365,7 +3286,7 @@ class AutNumAuthSpec extends BaseQueryUpdateSpec {
                 source:         TEST
 
                 password:   lir
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:
@@ -3374,10 +3295,10 @@ class AutNumAuthSpec extends BaseQueryUpdateSpec {
         ack.summary.nrFound == 1
         ack.summary.assertSuccess(1, 0, 1, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
-        ack.countErrorWarnInfo(0, 1, 0)
+        ack.countErrorWarnInfo(0, 2, 0)
         ack.successes.any { it.operation == "Modify" && it.key == "[aut-num] AS444" }
         ack.warningSuccessMessagesFor("Modify", "[aut-num] AS444") ==
-                ["\"status:\" attribute cannot be removed"]
+                ["\"status:\" attribute cannot be removed","Supplied attribute 'source' has been replaced with a generated value"]
 
         query_object_matches("-rBG -T aut-num AS444", "aut-num", "AS444", "status:\\s*OTHER")
     }
@@ -3408,7 +3329,7 @@ class AutNumAuthSpec extends BaseQueryUpdateSpec {
                 source:         TEST
                 override:   denis,override1
 
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:
@@ -3417,10 +3338,10 @@ class AutNumAuthSpec extends BaseQueryUpdateSpec {
         ack.summary.nrFound == 1
         ack.summary.assertSuccess(1, 0, 1, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
-        ack.countErrorWarnInfo(0, 1, 1)
+        ack.countErrorWarnInfo(0, 2, 1)
         ack.successes.any { it.operation == "Modify" && it.key == "[aut-num] AS444" }
         ack.warningSuccessMessagesFor("Modify", "[aut-num] AS444") ==
-                ["\"status:\" attribute cannot be removed"]
+                ["\"status:\" attribute cannot be removed", "Supplied attribute 'source' has been replaced with a generated value"]
 
         query_object_matches("-rBG -T aut-num AS444", "aut-num", "AS444", "status:\\s*OTHER")
     }
@@ -3453,7 +3374,7 @@ class AutNumAuthSpec extends BaseQueryUpdateSpec {
                 source:         TEST
 
                 password:   nccend
-                """.stripIndent()
+                """.stripIndent(true)
             )
 
         then:
@@ -3494,7 +3415,7 @@ class AutNumAuthSpec extends BaseQueryUpdateSpec {
                 source:         TEST
 
                 password:   nccend
-                """.stripIndent()
+                """.stripIndent(true)
             )
 
         then:
@@ -3537,7 +3458,7 @@ class AutNumAuthSpec extends BaseQueryUpdateSpec {
                 source:         TEST
 
                 password:   nccend
-                """.stripIndent()
+                """.stripIndent(true)
             )
 
         then:
@@ -3580,7 +3501,7 @@ class AutNumAuthSpec extends BaseQueryUpdateSpec {
                 source:         TEST
                 override:   denis,override1
 
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:
@@ -3623,7 +3544,7 @@ class AutNumAuthSpec extends BaseQueryUpdateSpec {
                 source:         TEST
                 override:   denis,override1
 
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:
@@ -3668,7 +3589,7 @@ class AutNumAuthSpec extends BaseQueryUpdateSpec {
                 source:         TEST
                 override:   denis,override1
 
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:
@@ -3725,7 +3646,7 @@ class AutNumAuthSpec extends BaseQueryUpdateSpec {
                 source:         TEST
                 override:   denis,override1
 
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:
@@ -3781,7 +3702,7 @@ class AutNumAuthSpec extends BaseQueryUpdateSpec {
                 source:         TEST
                 override:   denis,override1
 
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:
@@ -3824,7 +3745,7 @@ class AutNumAuthSpec extends BaseQueryUpdateSpec {
                 source:         TEST
                 override:   denis,override1
 
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:
@@ -3833,10 +3754,11 @@ class AutNumAuthSpec extends BaseQueryUpdateSpec {
         ack.summary.nrFound == 1
         ack.summary.assertSuccess(1, 0, 1, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
-        ack.countErrorWarnInfo(0, 1, 1)
+        ack.countErrorWarnInfo(0, 2, 1)
         ack.successes.any { it.operation == "Modify" && it.key == "[aut-num] AS445" }
         ack.warningSuccessMessagesFor("Modify", "[aut-num] AS445") ==
-                ["Supplied attribute 'status' has been replaced with a generated value"]
+                ["Supplied attribute 'status' has been replaced with a generated value",
+                "Supplied attribute 'source' has been replaced with a generated value"]
 
         query_object_matches("-rBG -T aut-num AS445", "aut-num", "AS445", "status:\\s*OTHER")
     }
@@ -3867,7 +3789,7 @@ class AutNumAuthSpec extends BaseQueryUpdateSpec {
                 source:         TEST
                 override:   denis,override1
 
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:
@@ -3876,10 +3798,11 @@ class AutNumAuthSpec extends BaseQueryUpdateSpec {
         ack.summary.nrFound == 1
         ack.summary.assertSuccess(1, 0, 1, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
-        ack.countErrorWarnInfo(0, 1, 1)
+        ack.countErrorWarnInfo(0, 2, 1)
         ack.successes.any { it.operation == "Modify" && it.key == "[aut-num] AS445" }
         ack.warningSuccessMessagesFor("Modify", "[aut-num] AS445") ==
-                ["Supplied attribute 'status' has been replaced with a generated value"]
+                ["Supplied attribute 'status' has been replaced with a generated value",
+                "Supplied attribute 'source' has been replaced with a generated value"]
 
         query_object_matches("-rBG -T aut-num AS445", "aut-num", "AS445", "status:\\s*OTHER")
     }
@@ -3914,7 +3837,7 @@ class AutNumAuthSpec extends BaseQueryUpdateSpec {
                 source:         TEST
 
                 password:   lir
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:
@@ -3962,7 +3885,7 @@ class AutNumAuthSpec extends BaseQueryUpdateSpec {
                 source:         TEST
 
                 password:   lir
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:
@@ -4008,7 +3931,7 @@ class AutNumAuthSpec extends BaseQueryUpdateSpec {
                 source:         TEST
 
                 password:   lir
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:
@@ -4017,10 +3940,11 @@ class AutNumAuthSpec extends BaseQueryUpdateSpec {
         ack.summary.nrFound == 1
         ack.summary.assertSuccess(1, 0, 1, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
-        ack.countErrorWarnInfo(0, 1, 0)
+        ack.countErrorWarnInfo(0, 2, 0)
         ack.successes.any { it.operation == "Modify" && it.key == "[aut-num] AS444" }
         ack.warningSuccessMessagesFor("Modify", "[aut-num] AS444") ==
-                ["Supplied attribute 'status' has been replaced with a generated value"]
+                ["Supplied attribute 'status' has been replaced with a generated value",
+                "Supplied attribute 'source' has been replaced with a generated value"]
 
         query_object_matches("-rBG -T aut-num AS444", "aut-num", "AS444", "status:\\s*OTHER")
     }
@@ -4054,7 +3978,7 @@ class AutNumAuthSpec extends BaseQueryUpdateSpec {
                 source:         TEST
 
                 password:   lir
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:
@@ -4063,10 +3987,11 @@ class AutNumAuthSpec extends BaseQueryUpdateSpec {
         ack.summary.nrFound == 1
         ack.summary.assertSuccess(1, 0, 1, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
-        ack.countErrorWarnInfo(0, 1, 0)
+        ack.countErrorWarnInfo(0, 2, 0)
         ack.successes.any { it.operation == "Modify" && it.key == "[aut-num] AS444" }
         ack.warningSuccessMessagesFor("Modify", "[aut-num] AS444") ==
-                ["Supplied attribute 'status' has been replaced with a generated value"]
+                ["Supplied attribute 'status' has been replaced with a generated value",
+                "Supplied attribute 'source' has been replaced with a generated value"]
 
         query_object_matches("-rBG -T aut-num AS444", "aut-num", "AS444", "status:\\s*OTHER")
     }
@@ -4100,7 +4025,7 @@ class AutNumAuthSpec extends BaseQueryUpdateSpec {
                 source:         TEST
 
                 password:   lir
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:
@@ -4146,7 +4071,7 @@ class AutNumAuthSpec extends BaseQueryUpdateSpec {
                 source:         TEST
 
                 password:   lir
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:
@@ -4191,7 +4116,7 @@ class AutNumAuthSpec extends BaseQueryUpdateSpec {
                 source:         TEST
                 override:   denis,override1
 
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:
@@ -4200,10 +4125,126 @@ class AutNumAuthSpec extends BaseQueryUpdateSpec {
         ack.summary.nrFound == 1
         ack.summary.assertSuccess(1, 0, 1, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
-        ack.countErrorWarnInfo(0, 0, 1)
+        ack.countErrorWarnInfo(0, 1, 1)
         ack.successes.any { it.operation == "Modify" && it.key == "[aut-num] AS12668" }
 
         query_object_matches("-rBG -T aut-num AS12668", "aut-num", "AS12668", "status:\\s*LEGACY")
+    }
+
+    def "create aut-num with abuse-c"() {
+        given:
+        syncUpdate(getTransient("AS222 - AS333") + "password: dbm\noverride: denis,override1")
+
+        expect:
+        queryObject("-rGBT as-block AS222 - AS333", "as-block", "AS222 - AS333")
+        queryObjectNotFound("-rBG -T aut-num AS250", "aut-num", "AS250")
+
+        when:
+        def ack = syncUpdateWithResponse("""
+                aut-num:        AS250
+                as-name:        End-User-1
+                descr:          description
+                sponsoring-org: ORG-LIRA-TEST
+                import:         from AS1 accept ANY
+                export:         to AS1 announce AS2
+                mp-import:      afi ipv6.unicast from AS1 accept ANY
+                mp-export:      afi ipv6.unicast to AS1 announce AS2
+                org:            ORG-OTO1-TEST
+                admin-c:        TP1-TEST
+                tech-c:         TP1-TEST
+                abuse-c:        AH1-TEST
+                mnt-by:         RIPE-NCC-END-MNT
+                mnt-by:         LIR-MNT
+                source:         TEST
+
+                password:   nccend
+                password:   hm
+                password:   owner3
+                """.stripIndent(true)
+        )
+
+        then:
+        ack.summary.nrFound == 1
+        ack.summary.assertSuccess(1, 1, 0, 0, 0)
+        ack.summary.assertErrors(0, 0, 0, 0)
+        ack.countErrorWarnInfo(0, 1, 0)
+        ack.successes.any { it.operation == "Create" && it.key == "[aut-num] AS250" }
+
+        queryObject("-rGBT aut-num AS250", "aut-num", "AS250")
+    }
+
+    def "not update autnum with abuse-c that references role without abuse-mailbox"() {
+        given:
+        dbfixture(  """\
+                role:         Abuse Handler2
+                address:      St James Street
+                address:      Burnley
+                address:      UK
+                e-mail:       dbtest@ripe.net
+                admin-c:      TP1-TEST
+                tech-c:       TP1-TEST
+                nic-hdl:      AH2-TEST
+                mnt-by:       LIR-MNT
+                source:       TEST
+            """.stripIndent(true)
+        )
+        syncUpdate(getTransient("AS222 - AS333") + "password: dbm\noverride: denis,override1")
+        syncUpdate("                aut-num:        AS250\n" +
+                "                as-name:        End-User-1\n" +
+                "                descr:          description\n" +
+                "                sponsoring-org: ORG-LIRA-TEST\n" +
+                "                import:         from AS1 accept ANY\n" +
+                "                export:         to AS1 announce AS2\n" +
+                "                mp-import:      afi ipv6.unicast from AS1 accept ANY\n" +
+                "                mp-export:      afi ipv6.unicast to AS1 announce AS2\n" +
+                "                org:            ORG-OTO1-TEST\n" +
+                "                admin-c:        TP1-TEST\n" +
+                "                tech-c:         TP1-TEST\n" +
+                "                mnt-by:         RIPE-NCC-END-MNT\n" +
+                "                mnt-by:         LIR-MNT\n" +
+                "                source:         TEST\n" +
+                "\n" +
+                "                password:   nccend\n" +
+                "                password:   hm\n" +
+                "                password:   owner3")
+
+        expect:
+        queryObject("-r -T role AH2-TEST", "role", "Abuse Handler2")
+        queryObject("-rGBT aut-num AS250", "aut-num", "AS250")
+
+        when:
+        def ack = syncUpdateWithResponse("""
+                aut-num:        AS250
+                as-name:        End-User-1
+                descr:          description
+                sponsoring-org: ORG-LIRA-TEST
+                import:         from AS1 accept ANY
+                export:         to AS1 announce AS2
+                mp-import:      afi ipv6.unicast from AS1 accept ANY
+                mp-export:      afi ipv6.unicast to AS1 announce AS2
+                org:            ORG-OTO1-TEST
+                admin-c:        TP1-TEST
+                tech-c:         TP1-TEST
+                abuse-c:        AH2-TEST
+                mnt-by:         RIPE-NCC-END-MNT
+                mnt-by:         LIR-MNT
+                source:         TEST
+
+                password:   nccend
+                password:   hm
+                password:   owner3
+                """.stripIndent(true)
+        )
+
+        then:
+        ack.summary.nrFound == 1
+        ack.summary.assertSuccess(0, 0, 0, 0, 0)
+        ack.summary.assertErrors(1, 0, 1, 0)
+
+        ack.countErrorWarnInfo(1, 1, 0)
+        ack.errors.any { it.operation == "Modify" && it.key == "[aut-num] AS250" }
+        ack.errorMessagesFor("Modify", "[aut-num] AS250") ==
+                ["The \"abuse-c\" ROLE object 'AH2-TEST' has no \"abuse-mailbox:\" Add \"abuse-mailbox:\" to the ROLE object, then update the AUT-NUM object"]
     }
 
 }

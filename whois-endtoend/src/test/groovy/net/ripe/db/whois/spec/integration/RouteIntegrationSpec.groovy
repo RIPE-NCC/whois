@@ -1,9 +1,9 @@
 package net.ripe.db.whois.spec.integration
-import net.ripe.db.whois.common.IntegrationTest
-import net.ripe.db.whois.common.rpsl.ObjectType
+
+
 import net.ripe.db.whois.spec.domain.SyncUpdate
 
-@org.junit.experimental.categories.Category(IntegrationTest.class)
+@org.junit.jupiter.api.Tag("IntegrationTest")
 class RouteIntegrationSpec extends BaseWhoisSourceSpec {
 
     @Override
@@ -67,6 +67,14 @@ class RouteIntegrationSpec extends BaseWhoisSourceSpec {
                     mnt-by:       TEST-MNT
                     source:       TEST
                 """,
+                "AS103": """\
+                    aut-num:         AS103
+                    as-name:         TEST-AS
+                    org:             ORG-NCC1-RIPE
+                    notify:          notify@as103.net
+                    mnt-by:          TEST-MNT
+                    source:          TEST
+                """,
                 "AS123": """\
                     aut-num:         AS123
                     as-name:         SNS-AS
@@ -81,7 +89,6 @@ class RouteIntegrationSpec extends BaseWhoisSourceSpec {
                     descr:           "bogus" Ltd
                     org:             ORG-NCC1-RIPE
                     mnt-by:          TEST-MNT
-                    mnt-routes:      ROUTES-MNT
                     source:          TEST
                 """,
                 "AS12726": """\
@@ -90,7 +97,6 @@ class RouteIntegrationSpec extends BaseWhoisSourceSpec {
                     descr:           "bogus" Ltd
                     org:             ORG-NCC1-RIPE
                     mnt-by:          TEST-MNT
-                    mnt-routes:      ROUTES-MNT
                     source:          TEST
                 """,
                 "TEST_ROUTE": """\
@@ -196,7 +202,7 @@ class RouteIntegrationSpec extends BaseWhoisSourceSpec {
                 source: TEST
                 password: update
                 delete: reason
-                """.stripIndent())
+                """.stripIndent(true))
 
       then:
         def response = syncUpdate delete
@@ -216,7 +222,7 @@ class RouteIntegrationSpec extends BaseWhoisSourceSpec {
                             source: TEST
                             password: update
                             password: emptypassword
-                            """.stripIndent()))
+                            """.stripIndent(true)))
       expect:
         insertRoute =~ /SUCCESS/
 
@@ -227,11 +233,10 @@ class RouteIntegrationSpec extends BaseWhoisSourceSpec {
                             descr: "bogus" Ltd
                             org: ORG-NCC1-RIPE
                             mnt-by: TEST-MNT
-                            mnt-routes: ROUTES-MNT
                             source: TEST
                             delete: reason
                             password: update
-                    """.stripIndent())
+                    """.stripIndent(true))
 
       then:
         def responseAutnum = syncUpdate deleteAutnum
@@ -248,7 +253,7 @@ class RouteIntegrationSpec extends BaseWhoisSourceSpec {
                     source: TEST
                     delete: reason
                     password: update
-                    """.stripIndent())
+                    """.stripIndent(true))
 
       then:
         def responseRoute = syncUpdate deleteRoute
@@ -267,7 +272,7 @@ class RouteIntegrationSpec extends BaseWhoisSourceSpec {
                             source: TEST
                             password: update
                             password: emptypassword
-                            """.stripIndent()))
+                            """.stripIndent(true)))
       expect:
         insertRoute =~ /SUCCESS/
 
@@ -278,11 +283,10 @@ class RouteIntegrationSpec extends BaseWhoisSourceSpec {
                             descr: "bogus" Ltd
                             org: ORG-NCC1-RIPE
                             mnt-by: TEST-MNT
-                            mnt-routes: ROUTES-MNT
                             source: TEST
                             delete: reason
                             password: update
-                    """.stripIndent())
+                    """.stripIndent(true))
 
       then:
         def responseAutnum = syncUpdate deleteAutnum
@@ -298,14 +302,13 @@ class RouteIntegrationSpec extends BaseWhoisSourceSpec {
                     mnt-by: TEST-MNT
                     source: TEST
                     password:update
-                    """.stripIndent())
+                    """.stripIndent(true))
 
       then:
         def responseRoute = syncUpdate modifyRoute
 
       then:
-        responseRoute =~ /ERROR/
-        responseRoute =~ /Unknown object referenced AS12726/
+        responseRoute =~ /SUCCESS/
     }
 
     def "modify route noop"() {
@@ -317,7 +320,7 @@ class RouteIntegrationSpec extends BaseWhoisSourceSpec {
                 mnt-by: TEST-MNT
                 source: TEST
                 password: update
-                """.stripIndent())
+                """.stripIndent(true))
 
       then:
         def response = syncUpdate create
@@ -336,7 +339,7 @@ class RouteIntegrationSpec extends BaseWhoisSourceSpec {
                 mnt-by: TEST-MNT
                 source: TEST
                 password: update
-                """.stripIndent())
+                """.stripIndent(true))
 
       then:
         def response = syncUpdate create
@@ -344,7 +347,7 @@ class RouteIntegrationSpec extends BaseWhoisSourceSpec {
       then:
         response =~ /Create FAILED: \[route\] 212.166.64.0\/19AS99999/
         response =~ /Authorisation for \[route\] 212.166.64.0\/19AS99999 failed/
-        response =~ /using "origin:"/
+        response =~ /using "route:"/
     }
 
     def "create route aut-num with mnt-by authentication"() {
@@ -356,7 +359,7 @@ class RouteIntegrationSpec extends BaseWhoisSourceSpec {
                 mnt-by: TEST-MNT
                 source: TEST
                 password: update
-                """.stripIndent())
+                """.stripIndent(true))
 
       then:
         def response = syncUpdate create
@@ -376,7 +379,7 @@ class RouteIntegrationSpec extends BaseWhoisSourceSpec {
                 source: TEST
                 password: emptypassword
                 password: update
-                """.stripIndent())
+                """.stripIndent(true))
 
       then:
         def response = syncUpdate create
@@ -396,7 +399,7 @@ class RouteIntegrationSpec extends BaseWhoisSourceSpec {
                 source: TEST
                 password: emptypassword
                 password: update
-                """.stripIndent())
+                """.stripIndent(true))
 
       then:
         def response = syncUpdate create
@@ -414,7 +417,7 @@ class RouteIntegrationSpec extends BaseWhoisSourceSpec {
                 mnt-by: TEST-MNT
                 source: TEST
                 password: update
-                """.stripIndent())
+                """.stripIndent(true))
 
       then:
         def response = syncUpdate create
@@ -433,7 +436,7 @@ class RouteIntegrationSpec extends BaseWhoisSourceSpec {
                 mnt-by: ROUTES-MNT
                 source: TEST
                 password: update
-                """.stripIndent())
+                """.stripIndent(true))
 
       then:
         def response = syncUpdate create
@@ -456,7 +459,7 @@ class RouteIntegrationSpec extends BaseWhoisSourceSpec {
                             source: TEST
                             password: update
                             password: emptypassword
-                            """.stripIndent()))
+                            """.stripIndent(true)))
       expect:
         insert =~ /SUCCESS/
 
@@ -469,7 +472,7 @@ class RouteIntegrationSpec extends BaseWhoisSourceSpec {
                 source: TEST
                 password: emptypassword
                 password: update
-                """.stripIndent())
+                """.stripIndent(true))
 
       then:
         def response = syncUpdate create
@@ -489,7 +492,7 @@ class RouteIntegrationSpec extends BaseWhoisSourceSpec {
                             source: TEST
                             password: update
                             password: emptypassword
-                            """.stripIndent()))
+                            """.stripIndent(true)))
       expect:
         insert =~ /SUCCESS/
 
@@ -502,7 +505,7 @@ class RouteIntegrationSpec extends BaseWhoisSourceSpec {
                 source: TEST
                 password: otherpassword
                 password: update
-                """.stripIndent())
+                """.stripIndent(true))
 
       then:
         def response = syncUpdate create
@@ -521,7 +524,7 @@ class RouteIntegrationSpec extends BaseWhoisSourceSpec {
                             source: TEST
                             password: update
                             password: emptypassword
-                            """.stripIndent()))
+                            """.stripIndent(true)))
       expect:
         insert =~ /SUCCESS/
 
@@ -533,7 +536,7 @@ class RouteIntegrationSpec extends BaseWhoisSourceSpec {
                 mnt-by: TEST-MNT
                 source: TEST
                 password: update
-                """.stripIndent())
+                """.stripIndent(true))
 
       then:
         def response = syncUpdate create
@@ -552,7 +555,7 @@ class RouteIntegrationSpec extends BaseWhoisSourceSpec {
                             source: TEST
                             password: update
                             password: emptypassword
-                            """.stripIndent()))
+                            """.stripIndent(true)))
       expect:
         insert =~ /SUCCESSFUL/
 
@@ -564,7 +567,7 @@ class RouteIntegrationSpec extends BaseWhoisSourceSpec {
                 mnt-by: ROUTES-MNT
                 source: TEST
                 password: emptypassword
-                """.stripIndent())
+                """.stripIndent(true))
 
       then:
         def response = syncUpdate create
@@ -572,9 +575,6 @@ class RouteIntegrationSpec extends BaseWhoisSourceSpec {
       then:
         response =~ /FAILED:/
         response =~ /Authorisation for \[route\] 180.0.0.0\/16AS123 failed
-            using "mnt-by:"
-            not authenticated by: TEST-MNT/
-        response =~ /Authorisation for \[aut-num\] AS123 failed
             using "mnt-by:"
             not authenticated by: TEST-MNT/
     }
@@ -589,7 +589,7 @@ class RouteIntegrationSpec extends BaseWhoisSourceSpec {
                 source: TEST
                 password: emptypassword
                 password: update
-                """.stripIndent())
+                """.stripIndent(true))
 
       then:
         def response = syncUpdate create
@@ -607,7 +607,7 @@ class RouteIntegrationSpec extends BaseWhoisSourceSpec {
                 mnt-by: TEST-MNT
                 source: TEST
                 password: update
-                """.stripIndent())
+                """.stripIndent(true))
 
       then:
         def response = syncUpdate create
@@ -625,7 +625,7 @@ class RouteIntegrationSpec extends BaseWhoisSourceSpec {
                 mnt-by: TEST-MNT
                 source: TEST
                 password: otherpassword
-                """.stripIndent())
+                """.stripIndent(true))
 
       then:
         def response = syncUpdate create
@@ -633,10 +633,6 @@ class RouteIntegrationSpec extends BaseWhoisSourceSpec {
       then:
         response =~ /FAIL/
         response =~ /Authorisation for \[route\] 195.0.0.0\/24AS123 failed
-            using "mnt-by:"
-            not authenticated by: TEST-MNT/
-
-        response =~ /Authorisation for \[aut-num\] AS123 failed
             using "mnt-by:"
             not authenticated by: TEST-MNT/
 
@@ -656,7 +652,7 @@ class RouteIntegrationSpec extends BaseWhoisSourceSpec {
                 source: TEST
                 password: update
                 password: emptypassword
-                """.stripIndent())
+                """.stripIndent(true))
 
       then:
         def response = syncUpdate create
@@ -675,7 +671,7 @@ class RouteIntegrationSpec extends BaseWhoisSourceSpec {
                 source: TEST
                 password: update
                 password: otherpassword
-                """.stripIndent())
+                """.stripIndent(true))
 
       then:
         def response = syncUpdate create
@@ -693,7 +689,7 @@ class RouteIntegrationSpec extends BaseWhoisSourceSpec {
                 mnt-by: TEST-MNT
                 source: TEST
                 password: update
-                """.stripIndent())
+                """.stripIndent(true))
 
       then:
         def response = syncUpdate create
@@ -711,7 +707,7 @@ class RouteIntegrationSpec extends BaseWhoisSourceSpec {
                 mnt-by: TEST-MNT
                 source: TEST
                 password: wrong
-                """.stripIndent())
+                """.stripIndent(true))
 
       then:
         def response = syncUpdate create
@@ -722,36 +718,9 @@ class RouteIntegrationSpec extends BaseWhoisSourceSpec {
             using "mnt-by:"
             not authenticated by: TEST-MNT/
 
-        response =~ /Authorisation for \[aut-num\] AS123 failed
-            using "mnt-by:"
-            not authenticated by: TEST-MNT/
-
         response =~ /Authorisation for \[inetnum\] 194.0.0.0 - 194.0.0.255 failed
             using "mnt-routes:"
             not authenticated by: ROUTES-MNT/
-    }
-
-    def "create route address prefix range outside route - no authenticating maintainer"() {
-      when:
-        def create = new SyncUpdate(data: """\
-                route: 198.0/24
-                descr: other route
-                origin: AS456
-                mnt-by: TEST-MNT
-                source: TEST
-                password: emptypassword
-                password: update
-                """.stripIndent())
-
-      then:
-        def response = syncUpdate create
-
-      then:
-        response =~ /Create PENDING:/
-
-        response =~ /Authorisation for \[inetnum\] 198.0.0.0 - 198.0.0.255 failed
-            using "mnt-routes:"
-            no valid maintainer found/
     }
 
     def "create route valid address prefix range"() {
@@ -764,7 +733,7 @@ class RouteIntegrationSpec extends BaseWhoisSourceSpec {
                 source: TEST
                 password: emptypassword
                 password: update
-                """.stripIndent())
+                """.stripIndent(true))
 
       then:
         def response = syncUpdate create
@@ -786,7 +755,7 @@ class RouteIntegrationSpec extends BaseWhoisSourceSpec {
                 password: update
                 password: otherpassword
                 password: emptypassword
-                """.stripIndent())
+                """.stripIndent(true))
 
       then:
         def response = syncUpdate create
@@ -808,7 +777,7 @@ class RouteIntegrationSpec extends BaseWhoisSourceSpec {
                 password: update
                 password: otherpassword
                 password: emptypassword
-                """.stripIndent())
+                """.stripIndent(true))
 
       then:
         def response = syncUpdate create
@@ -830,7 +799,7 @@ class RouteIntegrationSpec extends BaseWhoisSourceSpec {
                 password: update
                 password: otherpassword
                 password: emptypassword
-                """.stripIndent())
+                """.stripIndent(true))
 
       then:
         def response = syncUpdate create
@@ -852,7 +821,7 @@ class RouteIntegrationSpec extends BaseWhoisSourceSpec {
                 password: update
                 password: otherpassword
                 password: emptypassword
-                """.stripIndent())
+                """.stripIndent(true))
 
       then:
         def response = syncUpdate create
@@ -873,7 +842,7 @@ class RouteIntegrationSpec extends BaseWhoisSourceSpec {
                 source: TEST
                 password: otherpassword
                 password: emptypassword
-                """.stripIndent())
+                """.stripIndent(true))
 
       then:
         def response = syncUpdate create
@@ -881,6 +850,43 @@ class RouteIntegrationSpec extends BaseWhoisSourceSpec {
       then:
         response =~ /SUCCESS/
         response =~ /Create SUCCEEDED: \[route\] 198.0.0.0\/32AS456/
+    }
+
+    def "create route member-of and delete route set"() {
+        given:
+        def create = new SyncUpdate(data: """\
+                route: 198.0/32
+                descr: other route
+                origin: AS456
+                mnt-by: LOWER-MNT
+                member-of: RS-BLA123
+                source: TEST
+                password: otherpassword
+                password: emptypassword
+                """.stripIndent(true))
+
+        expect:
+        def response = syncUpdate create
+        response =~ /SUCCESS/
+        response =~ /Create SUCCEEDED: \[route\] 198.0.0.0\/32AS456/
+
+        when:
+        def delete = syncUpdate(new SyncUpdate(data: """\
+                route-set: RS-BLA123
+                descr: route set description
+                tech-c: TEST-PN
+                admin-c: TEST-PN
+                mnt-by: TEST-MNT
+                mbrs-by-ref: LOWER-MNT
+                source: TEST
+                password:        update
+                delete: reason
+                """))
+
+        then:
+        delete =~ /FAIL/
+        delete.contains("***Error:   Object [route-set] RS-BLA123 is referenced from other objects")
+
     }
 
     def "create route member-of does not exist in route-set"() {
@@ -894,7 +900,7 @@ class RouteIntegrationSpec extends BaseWhoisSourceSpec {
                 source: TEST
                 password: update
                 password: emptypassword
-                """.stripIndent())
+                """.stripIndent(true))
 
       then:
         def response = syncUpdate create
@@ -916,7 +922,7 @@ class RouteIntegrationSpec extends BaseWhoisSourceSpec {
                 export-comps: {194.55.167.0/24}
                 source: TEST
                 password: update
-                """.stripIndent()))
+                """.stripIndent(true)))
 
       then:
         response =~ /SUCCESS/
@@ -932,7 +938,7 @@ class RouteIntegrationSpec extends BaseWhoisSourceSpec {
                     mnt-by:          TEST-MNT
                     source:          TEST
                     password:        update
-                """.stripIndent()))
+                """.stripIndent(true)))
 
       then:
         response =~ /No operation: \[route\] 193.254.30.0\/24AS12726/
@@ -948,7 +954,7 @@ class RouteIntegrationSpec extends BaseWhoisSourceSpec {
                     member-of:       RS-BLA123
                     source:          TEST
                     password:        update
-                """.stripIndent()))
+                """.stripIndent(true)))
 
       then:
         response =~ /Modify FAILED: \[route\] 193.254.30.0\/24AS12726/
@@ -967,7 +973,7 @@ class RouteIntegrationSpec extends BaseWhoisSourceSpec {
                         source: TEST
                         password: update
                         password: emptypassword
-                        """.stripIndent())
+                        """.stripIndent(true))
       then:
         response =~ /SUCCESS/
         response =~ /Modify SUCCEEDED: \[route\] 180.0.0.0\/24AS12726/
@@ -983,7 +989,7 @@ class RouteIntegrationSpec extends BaseWhoisSourceSpec {
                         pingable: 181.0.0.0
                         source: TEST
                         password: update
-                        """.stripIndent())
+                        """.stripIndent(true))
       then:
         response =~ /FAIL/
         response =~ /Error:   181.0.0.0 is outside the range of this object/
@@ -999,7 +1005,7 @@ class RouteIntegrationSpec extends BaseWhoisSourceSpec {
                         holes: 181.0.0.0/32
                         source: TEST
                         password: update
-                        """.stripIndent())
+                        """.stripIndent(true))
       then:
         response =~ /FAIL/
         response =~ /Error:   181.0.0.0\/32 is outside the range of this object/
@@ -1015,7 +1021,7 @@ class RouteIntegrationSpec extends BaseWhoisSourceSpec {
                         source: TEST
                         password: update
                         password: emptypassword
-                        """.stripIndent())
+                        """.stripIndent(true))
       expect:
         create =~ /SUCCESS/
 
@@ -1027,7 +1033,7 @@ class RouteIntegrationSpec extends BaseWhoisSourceSpec {
                         mnt-by: LOWER-MNT
                         source: TEST
                         password: update
-                        """.stripIndent())
+                        """.stripIndent(true))
       then:
         response =~ /Modify SUCCEEDED: \[route\] 194.0.0.0\/24AS123/
     }
@@ -1042,7 +1048,7 @@ class RouteIntegrationSpec extends BaseWhoisSourceSpec {
                             source: TEST
                             password: update
                             password: emptypassword
-                            """.stripIndent()))
+                            """.stripIndent(true)))
       expect:
         insertRoute =~ /FAIL/
         insertRoute =~ /Automatic creation of route objects of this size in not allowed,
@@ -1059,536 +1065,10 @@ class RouteIntegrationSpec extends BaseWhoisSourceSpec {
                             source: TEST
                             password: update
                             password: emptypassword
-                            """.stripIndent()))
+                            """.stripIndent(true)))
       expect:
         insertRoute != ~/Automatic creation of route objects of this size in not allowed,
             please contact lir-help@ripe.net for further information./
-    }
-
-    def "create route, without pending authentication"() {
-      given:
-        def response = syncUpdate(new SyncUpdate(data: """\
-                            route: 197.0.0.0/24
-                            descr: Test route
-                            origin: AS123
-                            mnt-by: TEST-MNT2
-                            source: TEST
-                            password: update
-                            password: update2
-                            password: update3
-                            """.stripIndent()))
-      expect:
-        response =~ /Create SUCCEEDED: \[route\] 197.0.0.0\/24AS123\n/
-    }
-
-    def "create route, pending inetnum, pending autnum, with mnt-by authentication"() {
-      when:
-        def response = syncUpdate(new SyncUpdate(data: """\
-                route: 212.166.64.0/19
-                descr: other route
-                origin: AS456
-                mnt-by: TEST-MNT
-                source: TEST
-                password: update
-                """.stripIndent()))
-
-      then:
-        response =~ /Create FAILED: \[route\] 212.166.64.0\/19AS456\n/
-        response =~ /Authorisation for \[aut-num\] AS456 failed\n\s+using "mnt-routes:"\n\s+not authenticated by: ROUTES-MNT\n/
-
-        notificationFor("dbtest@ripe.net").authFailed("CREATE", "route", "212.166.64.0/19")
-        noMoreMessages()
-
-        pendingUpdates(ObjectType.ROUTE, "197.0.0.0/24AS123").isEmpty()
-    }
-
-    def "create route, with inetnum, with autnum, missing mnt-by authentication"() {
-      given:
-        def pendInetnum = syncUpdate(new SyncUpdate(data: """\
-                            route: 197.0.0.0/24
-                            descr: Test route
-                            origin: AS123
-                            mnt-by: TEST-MNT2
-                            source: TEST
-                            password: update
-                            password: update3
-                            """.stripIndent()))
-      expect:
-        pendInetnum =~ /Create FAILED: \[route\] 197.0.0.0\/24AS123\n/
-        pendInetnum =~ /not authenticated by: TEST-MNT2\n/
-
-        notificationFor("dbtest@ripe.net").authFailed("CREATE", "route", "197.0.0.0/24")
-        noMoreMessages()
-
-        pendingUpdates(ObjectType.ROUTE, "197.0.0.0/24AS123").isEmpty()
-    }
-
-    def "create route, pending inetnum, with autnum, with mnt-by authentication"() {
-      given:
-        def pendInetnum = syncUpdate(new SyncUpdate(data: """\
-                            route: 197.0.0.0/24
-                            descr: Test route
-                            origin: AS123
-                            mnt-by: TEST-MNT2
-                            source: TEST
-                            password: update
-                            password: update2
-                            """.stripIndent()))
-      expect:
-        pendInetnum =~ /Create PENDING: \[route\] 197.0.0.0\/24AS123\n/
-        pendInetnum =~ /\*\*\*Info:\s+Authorisation for \[inetnum\] 197.0.0.0 - 197.0.0.255 failed\n/
-        pendInetnum =~ /not authenticated by: TEST-MNT3\n/
-        pendInetnum =~ /\*\*\*Warning:\s+This update has only passed one of the two required hierarchical/
-        pendInetnum =~ /\*\*\*Info:\s+The route object 197.0.0.0\/24AS123 will be saved for one week/
-
-        notificationFor("dbtest@ripe.net").pendingAuth("CREATE", "route", "197.0.0.0/24")
-        noMoreMessages()
-
-        pendingUpdates(ObjectType.ROUTE, "197.0.0.0/24AS123").size() == 1
-    }
-
-    def "create route, with inetnum, pending autnum, with mnt-by authentication"() {
-      given:
-        def pendInetnum = syncUpdate(new SyncUpdate(data: """\
-                            route: 197.0.0.0/24
-                            descr: Test route
-                            origin: AS123
-                            mnt-by: TEST-MNT2
-                            source: TEST
-                            password: update2
-                            password: update3
-                            """.stripIndent()))
-      expect:
-        pendInetnum =~ /Create PENDING: \[route\] 197.0.0.0\/24AS123\n/
-        pendInetnum =~ /\*\*\*Info:\s+Authorisation for \[aut-num\] AS123 failed\n/
-        pendInetnum =~ /not authenticated by: TEST-MNT\n/
-        pendInetnum =~ /\*\*\*Warning:\s+This update has only passed one of the two required hierarchical/
-        pendInetnum =~ /\*\*\*Info:\s+The route object 197.0.0.0\/24AS123 will be saved for one week/
-
-        notificationFor("dbtest@ripe.net").pendingAuth("CREATE", "route", "197.0.0.0/24")
-        noMoreMessages()
-
-        pendingUpdates(ObjectType.ROUTE, "197.0.0.0/24AS123").size() == 1
-    }
-
-    def "create route pending auth, 2nd update identical to first update"() {
-      when:
-        def inetnumWithAutnumAuth = syncUpdate(new SyncUpdate(data: """\
-                            route: 197.0.0.0/24
-                            descr: Test route
-                            origin: AS123
-                            mnt-by: TEST-MNT2
-                            source: TEST
-                            password: update
-                            password: update2
-                            """.stripIndent()))
-      then:
-        inetnumWithAutnumAuth =~ /Create PENDING: \[route\] 197.0.0.0\/24AS123\n/
-        notificationFor("dbtest@ripe.net").pendingAuth("CREATE", "route", "197.0.0.0/24")
-        noMoreMessages()
-
-        pendingUpdates(ObjectType.ROUTE, "197.0.0.0/24AS123").size() == 1
-
-      when:
-        def identical = syncUpdate(new SyncUpdate(data: """\
-                            route: 197.0.0.0/24
-                            descr: Test route
-                            origin: AS123
-                            mnt-by: TEST-MNT2
-                            source: TEST
-                            password: update
-                            password: update2
-                            """.stripIndent()))
-      then:
-        identical =~ /Noop PENDING:\s+\[route\] 197.0.0.0\/24AS123\n/
-        identical =~ /\*\*\*Info:\s+Authorisation for \[inetnum\] 197.0.0.0 - 197.0.0.255 failed\n/
-        identical != ~/\*\*\*Warning:\s+This update has only passed one of the two/
-        identical != ~/\*\*\*Info:\s+The route object 197.0.0.0\/24AS123 will be saved/
-        notificationFor("dbtest@ripe.net").pendingAuth("CREATE", "route", "197.0.0.0/24")
-        noMoreMessages()
-
-        pendingUpdates(ObjectType.ROUTE, "197.0.0.0/24AS123").size() == 1
-    }
-
-    def "create route pending auth, 2nd update fails mnt-by auth"() {
-      when:
-        def inetnumWithAutnumAuth = syncUpdate(new SyncUpdate(data: """\
-                            route: 197.0.0.0/24
-                            descr: Test route
-                            origin: AS123
-                            mnt-by: TEST-MNT2
-                            source: TEST
-                            password: update
-                            password: update2
-                            """.stripIndent()))
-      then:
-        inetnumWithAutnumAuth =~ /Create PENDING: \[route\] 197.0.0.0\/24AS123\n/
-        notificationFor("dbtest@ripe.net").pendingAuth("CREATE", "route", "197.0.0.0/24")
-        noMoreMessages()
-
-        pendingUpdates(ObjectType.ROUTE, "197.0.0.0/24AS123").size() == 1
-
-      when:
-        def inetnumWithIpAuth = syncUpdate(new SyncUpdate(data: """\
-                            route: 197.0.0.0/24
-                            descr: Test route
-                            origin: AS123
-                            mnt-by: TEST-MNT2
-                            source: TEST
-                            password: update3
-                            """.stripIndent()))
-      then:
-        inetnumWithIpAuth =~ /Create SUCCEEDED: \[route\] 197.0.0.0\/24AS123\n/
-        inetnumWithIpAuth =~ /\*\*\*Info:    This update concludes a pending update on route 197.0.0.0\/24AS123/
-        noMoreMessages()
-
-        pendingUpdates(ObjectType.ROUTE, "197.0.0.0/24AS123").size() == 0
-    }
-
-    def "create route pending auth, 2nd update passes only mnt-by auth"() {
-      when:
-        def inetnumWithAutnumAuth = syncUpdate(new SyncUpdate(data: """\
-                            route: 197.0.0.0/24
-                            descr: Test route
-                            origin: AS123
-                            mnt-by: TEST-MNT2
-                            source: TEST
-                            password: update
-                            password: update2
-                            """.stripIndent()))
-      then:
-        inetnumWithAutnumAuth =~ /Create PENDING: \[route\] 197.0.0.0\/24AS123\n/
-        notificationFor("dbtest@ripe.net").pendingAuth("CREATE", "route", "197.0.0.0/24")
-        noMoreMessages()
-
-        pendingUpdates(ObjectType.ROUTE, "197.0.0.0/24AS123").size() == 1
-
-      when:
-        def inetnumWithIpAuth = syncUpdate(new SyncUpdate(data: """\
-                            route: 197.0.0.0/24
-                            descr: Test route
-                            origin: AS123
-                            mnt-by: TEST-MNT2
-                            source: TEST
-                            password: update2
-                            """.stripIndent()))
-      then:
-        inetnumWithIpAuth =~ /Create FAILED: \[route\] 197.0.0.0\/24AS123\n/
-        inetnumWithIpAuth =~ /\*\*\*Error:   Authorisation for \[aut-num\] AS123 failed\n/
-        inetnumWithIpAuth =~ /\*\*\*Error:   Authorisation for \[inetnum\] 197.0.0.0 - 197.0.0.255 failed\n/
-        notificationFor("dbtest@ripe.net").authFailed("CREATE", "route", "197.0.0.0/24")
-        noMoreMessages()
-
-        pendingUpdates(ObjectType.ROUTE, "197.0.0.0/24AS123").size() == 1
-    }
-
-    def "create route pending auth, 2nd update is not identical to first update"() {
-      when:
-        def inetnumWithAutnumAuth = syncUpdate(new SyncUpdate(data: """\
-                            route: 197.0.0.0/24
-                            descr: Test route
-                            origin: AS123
-                            mnt-by: TEST-MNT2
-                            source: TEST
-                            password: update
-                            password: update2
-                            """.stripIndent()))
-      then:
-        inetnumWithAutnumAuth =~ /Create PENDING: \[route\] 197.0.0.0\/24AS123\n/
-        notificationFor("dbtest@ripe.net").pendingAuth("CREATE", "route", "197.0.0.0/24")
-        noMoreMessages()
-
-        pendingUpdates(ObjectType.ROUTE, "197.0.0.0/24AS123").size() == 1
-
-      when:
-        def inetnumWithIpAuth = syncUpdate(new SyncUpdate(data: """\
-                            route: 197.0.0.0/24
-                            descr: Other description
-                            origin: AS123
-                            mnt-by: TEST-MNT2
-                            source: TEST
-                            password: update2
-                            password: update3
-                            """.stripIndent()))
-      then:
-        inetnumWithIpAuth =~ /Create PENDING: \[route\] 197.0.0.0\/24AS123\n/
-        notificationFor("dbtest@ripe.net").pendingAuth("CREATE", "route", "197.0.0.0/24")
-        noMoreMessages()
-
-        pendingUpdates(ObjectType.ROUTE, "197.0.0.0/24AS123").size() == 2
-    }
-
-    def "create route pending auth, aut-num deleted after authenticated"() {
-      when:
-        def inetnumWithAutnumAuth = syncUpdate(new SyncUpdate(data: """\
-                            route: 197.0.0.0/24
-                            descr: Test route
-                            origin: AS123
-                            mnt-by: TEST-MNT2
-                            source: TEST
-                            password: update
-                            password: update2
-                            """.stripIndent()))
-      then:
-        inetnumWithAutnumAuth =~ /Create PENDING: \[route\] 197.0.0.0\/24AS123\n/
-        notificationFor("dbtest@ripe.net").pendingAuth("CREATE", "route", "197.0.0.0/24")
-        noMoreMessages()
-
-        pendingUpdates(ObjectType.ROUTE, "197.0.0.0/24AS123").size() == 1
-
-      when:
-        def deleteAutNum = syncUpdate(new SyncUpdate(data: """\
-                            aut-num:         AS123
-                            as-name:         SNS-AS
-                            descr:           "SATELIT SERVIS" Ltd
-                            org:             ORG-NCC1-RIPE
-                            mnt-by:          TEST-MNT
-                            source:          TEST
-                            password:        update
-                            delete:          test
-                            """.stripIndent()))
-      then:
-        deleteAutNum =~ /Delete SUCCEEDED: \[aut-num\] AS123\n/
-        noMoreMessages()
-        pendingUpdates(ObjectType.ROUTE, "197.0.0.0/24AS123").size() == 1
-
-      when:
-        def inetnumWithIpAuth = syncUpdate(new SyncUpdate(data: """\
-                            route: 197.0.0.0/24
-                            descr: Test route
-                            origin: AS123
-                            mnt-by: TEST-MNT2
-                            source: TEST
-                            password: update2
-                            password: update3
-                            """.stripIndent()))
-      then:
-        inetnumWithIpAuth =~ /Create FAILED: \[route\] 197.0.0.0\/24AS123\n/
-        inetnumWithIpAuth =~ /\*\*\*Error:   Unknown object referenced AS123\n/
-        noMoreMessages()
-
-        pendingUpdates(ObjectType.ROUTE, "197.0.0.0/24AS123").size() == 1
-    }
-
-    def "create route pending auth, aut-num updated after authenticated"() {
-      when:
-        def inetnumWithAutnumAuth = syncUpdate(new SyncUpdate(data: """\
-                            route: 197.0.0.0/24
-                            descr: Test route
-                            origin: AS123
-                            mnt-by: TEST-MNT2
-                            source: TEST
-                            password: update
-                            password: update2
-                            """.stripIndent()))
-      then:
-        inetnumWithAutnumAuth =~ /Create PENDING: \[route\] 197.0.0.0\/24AS123\n/
-        notificationFor("dbtest@ripe.net").pendingAuth("CREATE", "route", "197.0.0.0/24")
-        noMoreMessages()
-
-        pendingUpdates(ObjectType.ROUTE, "197.0.0.0/24AS123").size() == 1
-
-      when:
-        def modifyAutNum = syncUpdate(new SyncUpdate(data: """\
-                            aut-num:         AS123
-                            as-name:         SNS-AS
-                            admin-c:         TEST-PN
-                            tech-c:          TEST-PN
-                            descr:           "SATELIT SERVIS" Ltd
-                            org:             ORG-NCC1-RIPE
-                            mnt-by:          ROUTES-MNT
-                            source:          TEST
-                            password:        update
-                            """.stripIndent()))
-      then:
-        modifyAutNum =~ /Modify SUCCEEDED: \[aut-num\] AS123\n/
-        noMoreMessages()
-        pendingUpdates(ObjectType.ROUTE, "197.0.0.0/24AS123").size() == 1
-
-      when:
-        def inetnumWithIpAuth = syncUpdate(new SyncUpdate(data: """\
-                            route: 197.0.0.0/24
-                            descr: Test route
-                            origin: AS123
-                            mnt-by: TEST-MNT2
-                            source: TEST
-                            password: update2
-                            password: update3
-                            """.stripIndent()))
-      then:
-        inetnumWithIpAuth =~ /SUCCEEDED: \[route\] 197.0.0.0\/24AS123\n/
-        inetnumWithIpAuth =~ /\*\*\*Info:    This update concludes a pending update on route 197.0.0.0\/24AS123\n/
-        noMoreMessages()
-
-        pendingUpdates(ObjectType.ROUTE, "197.0.0.0/24AS123").size() == 0
-    }
-
-    def "create route pending auth, inetnum deleted after authenticated"() {
-      given:
-        databaseHelper.addObject("" +
-                "inetnum: 197.0.0.0 - 197.0.255.255\n" +
-                "netname: RIPE-NCC\n" +
-                "descr: description\n" +
-                "country: NL\n" +
-                "admin-c: TEST-PN\n" +
-                "tech-c: TEST-PN\n" +
-                "status: SUB-ALLOCATED PA\n" +
-                "mnt-by: TEST-MNT3\n" +
-                "source: TEST")
-      when:
-        def inetnumWithIpAuth = syncUpdate(new SyncUpdate(data: """\
-                            route: 197.0.0.0/24
-                            descr: Test route
-                            origin: AS123
-                            mnt-by: TEST-MNT2
-                            source: TEST
-                            password: update2
-                            password: update3
-                            """.stripIndent()))
-      then:
-        inetnumWithIpAuth =~ /Create PENDING: \[route\] 197.0.0.0\/24AS123\n/
-        notificationFor("dbtest@ripe.net").pendingAuth("CREATE", "route", "197.0.0.0/24")
-        noMoreMessages()
-
-        pendingUpdates(ObjectType.ROUTE, "197.0.0.0/24AS123").size() == 1
-
-      when:
-        def deleteInetnum = syncUpdate(new SyncUpdate(data: """\
-                            inetnum: 197.0.0.0 - 197.0.0.255
-                            netname: RIPE-NCC
-                            descr: description
-                            country: NL
-                            admin-c: TEST-PN
-                            tech-c: TEST-PN
-                            status: SUB-ALLOCATED PA
-                            mnt-by: TEST-MNT3
-                            source: TEST
-                            password: update3
-                            delete: test
-                            """.stripIndent()))
-      then:
-        deleteInetnum =~ /Delete SUCCEEDED: \[inetnum\] 197.0.0.0 - 197.0.0.255\n/
-        noMoreMessages()
-        pendingUpdates(ObjectType.ROUTE, "197.0.0.0/24AS123").size() == 1
-
-      when:
-        def inetnumWithAutnumAuth = syncUpdate(new SyncUpdate(data: """\
-                            route: 197.0.0.0/24
-                            descr: Test route
-                            origin: AS123
-                            mnt-by: TEST-MNT2
-                            source: TEST
-                            password: update
-                            password: update2
-                            """.stripIndent()))
-      then:
-        inetnumWithAutnumAuth =~ /SUCCEEDED: \[route\] 197.0.0.0\/24AS123\n/
-        inetnumWithAutnumAuth =~ /\*\*\*Info:    This update concludes a pending update on route 197.0.0.0\/24AS123\n/
-        noMoreMessages()
-
-        pendingUpdates(ObjectType.ROUTE, "197.0.0.0/24AS123").size() == 0
-    }
-
-    def "create route pending auth, 1st and 2nd update passes successfully"() {
-      when:
-        def inetnumWithAutnumAuth = syncUpdate(new SyncUpdate(data: """\
-                            route: 197.0.0.0/24
-                            descr: Test route
-                            origin: AS123
-                            mnt-by: TEST-MNT2
-                            source: TEST
-                            password: update
-                            password: update2
-                            """.stripIndent()))
-      then:
-        inetnumWithAutnumAuth =~ /Create PENDING: \[route\] 197.0.0.0\/24AS123\n/
-        notificationFor("dbtest@ripe.net").pendingAuth("CREATE", "route", "197.0.0.0/24")
-        noMoreMessages()
-
-        pendingUpdates(ObjectType.ROUTE, "197.0.0.0/24AS123").size() == 1
-
-      when:
-        def inetnumWithIpAuth = syncUpdate(new SyncUpdate(data: """\
-                            route: 197.0.0.0/24
-                            descr: Test route
-                            origin: AS123
-                            mnt-by: TEST-MNT2
-                            source: TEST
-                            password: update2
-                            password: update3
-                            """.stripIndent()))
-      then:
-        inetnumWithIpAuth =~ /SUCCEEDED: \[route\] 197.0.0.0\/24AS123\n/
-        inetnumWithIpAuth =~ /\*\*\*Info:    This update concludes a pending update on route 197.0.0.0\/24AS123\n/
-        noMoreMessages()
-
-        pendingUpdates(ObjectType.ROUTE, "197.0.0.0/24AS123").size() == 0
-    }
-
-    def "create route pending auth, 1st and 2nd update passes successfully in different order"() {
-      when:
-        def inetnumWithIpAuth = syncUpdate(new SyncUpdate(data: """\
-                            route: 197.0.0.0/24
-                            descr: Test route
-                            origin: AS123
-                            mnt-by: TEST-MNT2
-                            source: TEST
-                            password: update2
-                            password: update3
-                            """.stripIndent()))
-      then:
-        inetnumWithIpAuth =~ /Create PENDING: \[route\] 197.0.0.0\/24AS123\n/
-        notificationFor("dbtest@ripe.net").pendingAuth("CREATE", "route", "197.0.0.0/24")
-        noMoreMessages()
-
-        pendingUpdates(ObjectType.ROUTE, "197.0.0.0/24AS123").size() == 1
-
-      when:
-        def inetnumWithAutnumAuth = syncUpdate(new SyncUpdate(data: """\
-                            route: 197.0.0.0/24
-                            descr: Test route
-                            origin: AS123
-                            mnt-by: TEST-MNT2
-                            source: TEST
-                            password: update
-                            password: update2
-                            """.stripIndent()))
-      then:
-        inetnumWithAutnumAuth =~ /SUCCEEDED: \[route\] 197.0.0.0\/24AS123\n/
-        inetnumWithAutnumAuth =~ /\*\*\*Info:    This update concludes a pending update on route 197.0.0.0\/24AS123\n/
-        noMoreMessages()
-
-        pendingUpdates(ObjectType.ROUTE, "197.0.0.0/24AS123").size() == 0
-    }
-
-    def "update with multiple route objects pending auth"() {
-      when:
-        def response = syncUpdate(new SyncUpdate(data: """\
-                            route: 195.0.0.0/24
-                            descr: Test route
-                            origin: AS456
-                            mnt-by: TEST-MNT
-                            source: TEST
-
-                            route: 196.0.0.0/24
-                            descr: Test route
-                            origin: AS456
-                            mnt-by: TEST-MNT
-                            source: TEST
-
-                            password: update
-                            password: otherpassword
-
-                            """.stripIndent()))
-      then:
-        response =~ /Create PENDING: \[route\] 195.0.0.0\/24AS456\n/
-        response =~ /Create PENDING: \[route\] 196.0.0.0\/24AS456\n/
-
-        def notification = notificationFor("dbtest@ripe.net")
-        notification.pendingAuth("CREATE", "route", "195.0.0.0/24")
-        notification.pendingAuth("CREATE", "route", "196.0.0.0/24")
-
-        noMoreMessages()
     }
 
     def "route reclaim"() {
@@ -1641,8 +1121,98 @@ class RouteIntegrationSpec extends BaseWhoisSourceSpec {
                             source: TEST
                             password: update
                             password: emptypassword
-                            """.stripIndent()))
+                            """.stripIndent(true)))
         expect:
         insertRoute =~ /\nNumber of objects found:\s+0\n/
     }
+
+    def "create route with non-existant origin aut-num"() {
+        given:
+        queryObjectNotFound("-r -T aut-num AS76", "aut-num", "AS76")
+        def insertRoute = syncUpdate(new SyncUpdate(data: """\
+                            route:  195.0.0.0/24
+                            descr:  Test route
+                            origin: AS76
+                            mnt-by: TEST-MNT
+                            source: TEST
+                            password: update
+                            password: emptypassword
+                            """.stripIndent(true)))
+      expect:
+        insertRoute =~ /SUCCESS/
+    }
+
+    def "create route and notify origin aut-num"() {
+        given:
+        def insertRoute = syncUpdate(new SyncUpdate(data: """\
+                            route:  195.0.0.0/24
+                            descr:  Test route
+                            origin: AS103
+                            mnt-by: TEST-MNT
+                            source: TEST
+                            password: update
+                            password: emptypassword
+                            """.stripIndent(true)))
+      expect:
+        insertRoute =~ /SUCCESS/
+
+        def notif = notificationFor "notify@as103.net"
+        notif.subject =~ "Notification of RIPE Database changes"
+        notif.created.any { it.type == "route" && it.key == "195.0.0.0/24" }
+
+        noMoreMessages()
+
+      when:
+        def updateRoute = syncUpdate(new SyncUpdate(data: """\
+                            route:  195.0.0.0/24
+                            descr:  Test route
+                            origin: AS103
+                            remarks: updated
+                            mnt-by: TEST-MNT
+                            source: TEST
+                            password: update
+                            password: emptypassword
+                            """.stripIndent(true)))
+        then:
+          updateRoute =~ /SUCCESS/
+
+          noMoreMessages()
+    }
+
+    def "create route without notify origin aut-num"() {
+        given:
+        def insertRoute = syncUpdate(new SyncUpdate(data: """\
+                            route:  195.0.0.0/24
+                            descr:  Test route
+                            origin: AS123
+                            mnt-by: TEST-MNT
+                            source: TEST
+                            password: update
+                            password: emptypassword
+                            """.stripIndent(true)))
+      expect:
+        insertRoute =~ /SUCCESS/
+
+        noMoreMessages()
+    }
+
+    def "create route with bogon prefix"() {
+      when:
+        def create = new SyncUpdate(data: """\
+                route: 192.0.2.0/24
+                descr: Test route
+                origin: AS123
+                mnt-by: TEST-MNT
+                source: TEST
+                password: update
+                """.stripIndent(true))
+
+      then:
+        def response = syncUpdate create
+
+      then:
+        response =~ /FAIL/
+        response.contains("***Error:   Bogon prefix 192.0.2.0/24 is not allowed.")
+    }
+
 }

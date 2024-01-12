@@ -1,5 +1,8 @@
 package net.ripe.db.whois.api.mail.dequeue;
 
+import jakarta.mail.Message;
+import jakarta.mail.MessagingException;
+import jakarta.mail.internet.MimeMessage;
 import net.ripe.db.whois.api.UpdatesParser;
 import net.ripe.db.whois.api.mail.MailMessage;
 import net.ripe.db.whois.api.mail.dao.MailMessageDao;
@@ -23,9 +26,6 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.dao.DataAccessException;
 import org.springframework.stereotype.Component;
 
-import javax.mail.Message;
-import javax.mail.MessagingException;
-import javax.mail.internet.MimeMessage;
 import java.io.IOException;
 import java.util.List;
 import java.util.concurrent.ExecutorService;
@@ -57,10 +57,10 @@ public class MessageDequeue implements ApplicationService {
     private ExecutorService handlerExecutor;
     private ScheduledExecutorService pollerExecutor;
 
-    @Value("${mail.update.threads}")
+    @Value("${mail.update.threads:2}")
     private int nrThreads;
 
-    @Value("${mail.dequeue.interval}")
+    @Value("${mail.dequeue.interval:1000}")
     private int intervalMs;
 
     @Autowired
@@ -212,7 +212,7 @@ public class MessageDequeue implements ApplicationService {
             LOGGER.debug("Unable to parse Message-Id: {}", headers[0]);
         }
 
-        return "No-Message-Id." + dateTimeProvider.getNanoTime();
+        return "No-Message-Id." + dateTimeProvider.getElapsedTime();
     }
 
     private void handleMessageInContext(final String messageId, final MimeMessage message) throws MessagingException, IOException {

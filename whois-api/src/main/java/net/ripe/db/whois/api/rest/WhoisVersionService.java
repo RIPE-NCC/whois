@@ -5,6 +5,7 @@ import com.google.common.net.InetAddresses;
 import net.ripe.db.whois.api.QueryBuilder;
 import net.ripe.db.whois.api.rest.domain.WhoisObject;
 import net.ripe.db.whois.api.rest.domain.WhoisResources;
+import net.ripe.db.whois.api.rest.domain.WhoisVersion;
 import net.ripe.db.whois.api.rest.domain.WhoisVersions;
 import net.ripe.db.whois.api.rest.mapper.FormattedServerAttributeMapper;
 import net.ripe.db.whois.api.rest.mapper.WhoisObjectMapper;
@@ -25,15 +26,15 @@ import net.ripe.db.whois.query.query.Query;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import javax.servlet.http.HttpServletRequest;
-import javax.ws.rs.GET;
-import javax.ws.rs.Path;
-import javax.ws.rs.PathParam;
-import javax.ws.rs.Produces;
-import javax.ws.rs.WebApplicationException;
-import javax.ws.rs.core.Context;
-import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.Response;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.ws.rs.GET;
+import jakarta.ws.rs.Path;
+import jakarta.ws.rs.PathParam;
+import jakarta.ws.rs.Produces;
+import jakarta.ws.rs.WebApplicationException;
+import jakarta.ws.rs.core.Context;
+import jakarta.ws.rs.core.MediaType;
+import jakarta.ws.rs.core.Response;
 import java.util.Collections;
 import java.util.List;
 
@@ -91,8 +92,14 @@ public class WhoisVersionService {
                     .build());
         }
 
-        final String type = (versions.size() > 0) ? versions.get(0).getType().getName() : deleted.size() > 0 ? deleted.get(0).getType().getName() : null;
-        final WhoisVersions whoisVersions = new WhoisVersions(type, key, whoisObjectServerMapper.mapVersions(deleted, versions));
+        final String type = versions.size() > 0 ? versions.get(0).getType().getName() : deleted.get(0).getType().getName();
+        final List<WhoisVersion> mappedVersions = whoisObjectServerMapper.mapVersions(deleted, versions);
+        // if an object existed and was later deleted, the 'delete' will show up as the first version in the list --
+        // filter it out.
+        while (!mappedVersions.isEmpty() && mappedVersions.get(0).getDeletedDate() != null) {
+            mappedVersions.remove(0);
+        }
+        final WhoisVersions whoisVersions = new WhoisVersions(type, key, mappedVersions);
 
         final WhoisResources whoisResources = new WhoisResources();
         whoisResources.setVersions(whoisVersions);
@@ -155,7 +162,7 @@ public class WhoisVersionService {
         }
     }
 
-    private class VersionsResponseHandler extends ApiResponseHandler {
+    private static class VersionsResponseHandler extends ApiResponseHandler {
         final List<VersionResponseObject> versionObjects = Lists.newArrayList();
         final List<DeletedVersionResponseObject> deletedObjects = Lists.newArrayList();
         VersionWithRpslResponseObject versionWithRpslResponseObject;

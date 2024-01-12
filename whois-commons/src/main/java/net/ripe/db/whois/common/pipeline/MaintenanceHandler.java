@@ -1,8 +1,12 @@
 package net.ripe.db.whois.common.pipeline;
 
+import io.netty.channel.Channel;
+import io.netty.channel.ChannelHandler;
+import io.netty.channel.ChannelHandlerContext;
+import io.netty.channel.ChannelInboundHandlerAdapter;
+import io.netty.util.AttributeKey;
 import net.ripe.db.whois.common.MaintenanceMode;
 import net.ripe.db.whois.common.ip.IpInterval;
-import org.jboss.netty.channel.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -13,7 +17,8 @@ import java.net.InetAddress;
  */
 @Component
 @ChannelHandler.Sharable
-public class MaintenanceHandler extends SimpleChannelUpstreamHandler {
+public class MaintenanceHandler extends ChannelInboundHandlerAdapter {
+    private static final AttributeKey<Object> CONNECTION_REFUSED_KEY = AttributeKey.newInstance("connection_refused");
     private static final Object CONNECTION_REFUSED = new Object();
 
     private final MaintenanceMode maintenanceMode;
@@ -24,26 +29,27 @@ public class MaintenanceHandler extends SimpleChannelUpstreamHandler {
     }
 
     @Override
-    public void channelOpen(final ChannelHandlerContext ctx, final ChannelStateEvent e) throws Exception {
-        final Channel channel = ctx.getChannel();
+    public void channelActive(ChannelHandlerContext ctx) {
+        final Channel channel = ctx.channel();
         final InetAddress remoteAddress = ChannelUtil.getRemoteAddress(channel);
         final IpInterval remoteIp = IpInterval.asIpInterval(remoteAddress);
 
         if (!maintenanceMode.allowRead(remoteIp)) {
-            ctx.setAttachment(CONNECTION_REFUSED);
+            channel.attr(CONNECTION_REFUSED_KEY).set(CONNECTION_REFUSED);
             channel.close();
             return;
         }
 
-        super.channelOpen(ctx, e);
+        ctx.fireChannelActive();
     }
 
     @Override
-    public void channelClosed(final ChannelHandlerContext ctx, final ChannelStateEvent e) throws Exception {
-        if (ctx.getAttachment() == CONNECTION_REFUSED) {
+    public void channelInactive(final ChannelHandlerContext ctx) {
+
+        if (ctx.channel().attr(CONNECTION_REFUSED_KEY).get() == CONNECTION_REFUSED) {
             return;
         }
 
-        super.channelClosed(ctx, e);
+        ctx.fireChannelInactive();
     }
 }

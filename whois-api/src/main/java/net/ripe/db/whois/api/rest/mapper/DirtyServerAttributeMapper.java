@@ -1,6 +1,7 @@
 package net.ripe.db.whois.api.rest.mapper;
 
 import net.ripe.db.whois.api.rest.ReferencedTypeResolver;
+import net.ripe.db.whois.api.rest.SourceResolver;
 import net.ripe.db.whois.api.rest.domain.Attribute;
 import net.ripe.db.whois.api.rest.domain.Link;
 import net.ripe.db.whois.common.domain.CIString;
@@ -16,13 +17,17 @@ import java.util.Set;
 
 @Component
 public class DirtyServerAttributeMapper implements AttributeMapper {
+
     private final ReferencedTypeResolver referencedTypeResolver;
+    private final SourceResolver sourceResolver;
     private final String baseUrl;
 
     @Autowired
     public DirtyServerAttributeMapper(final ReferencedTypeResolver referencedTypeResolver,
-                                    @Value("${api.rest.baseurl}") final String baseUrl) {
+                                      final SourceResolver sourceResolver,
+                                      @Value("${api.rest.baseurl}") final String baseUrl) {
         this.referencedTypeResolver = referencedTypeResolver;
+        this.sourceResolver = sourceResolver;
         this.baseUrl = baseUrl;
     }
 
@@ -35,7 +40,10 @@ public class DirtyServerAttributeMapper implements AttributeMapper {
             final CIString cleanValue = cleanValues.iterator().next();
             final AttributeType attributeType = rpslAttribute.getType();
             final String referencedType = (attributeType != null) ? referencedTypeResolver.getReferencedType(attributeType, cleanValue) : null;
-            final Link link = (referencedType != null) ? Link.create(baseUrl, source, referencedType, cleanValue.toString()) : null;
+
+            final Link link = (referencedType != null) ?
+                    Link.create(baseUrl, sourceResolver.getSource(referencedType, cleanValue, source), referencedType, cleanValue.toString()) : null;
+
             return Collections.singleton(new Attribute(rpslAttribute.getKey(), rpslAttribute.getFormattedValue(), null, referencedType, link, null));
         } else {
             return Collections.singleton(new Attribute(rpslAttribute.getKey(), rpslAttribute.getFormattedValue(), null, null, null, null));

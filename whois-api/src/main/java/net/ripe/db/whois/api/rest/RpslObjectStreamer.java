@@ -5,9 +5,15 @@ import net.ripe.db.whois.api.rest.client.StreamingException;
 import net.ripe.db.whois.api.rest.domain.Link;
 import net.ripe.db.whois.api.rest.domain.Parameters;
 import net.ripe.db.whois.api.rest.domain.Service;
+import net.ripe.db.whois.api.rest.domain.Version;
 import net.ripe.db.whois.api.rest.domain.WhoisObject;
 import net.ripe.db.whois.api.rest.domain.WhoisResources;
 import net.ripe.db.whois.api.rest.mapper.WhoisObjectServerMapper;
+import net.ripe.db.whois.api.rest.marshal.StreamingHelper;
+import net.ripe.db.whois.api.rest.marshal.StreamingMarshal;
+import net.ripe.db.whois.api.rest.marshal.StreamingMarshalTextPlain;
+import net.ripe.db.whois.common.ApplicationVersion;
+import net.ripe.db.whois.common.IllegalArgumentExceptionMessage;
 import net.ripe.db.whois.common.Message;
 import net.ripe.db.whois.common.Messages;
 import net.ripe.db.whois.common.domain.ResponseObject;
@@ -15,7 +21,6 @@ import net.ripe.db.whois.common.rpsl.RpslObject;
 import net.ripe.db.whois.query.domain.MessageObject;
 import net.ripe.db.whois.query.domain.QueryCompletionInfo;
 import net.ripe.db.whois.query.domain.QueryException;
-import net.ripe.db.whois.query.domain.TagResponseObject;
 import net.ripe.db.whois.query.handler.QueryHandler;
 import net.ripe.db.whois.query.query.Query;
 import org.slf4j.Logger;
@@ -24,16 +29,17 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.Nullable;
-import javax.servlet.http.HttpServletRequest;
-import javax.ws.rs.WebApplicationException;
-import javax.ws.rs.core.Response;
-import javax.ws.rs.core.StreamingOutput;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.ws.rs.WebApplicationException;
+import jakarta.ws.rs.core.Response;
+import jakarta.ws.rs.core.StreamingOutput;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.net.InetAddress;
 import java.util.ArrayDeque;
 import java.util.List;
 import java.util.Queue;
+
 
 @Component
 public class RpslObjectStreamer {
@@ -42,13 +48,19 @@ public class RpslObjectStreamer {
 
     private final QueryHandler queryHandler;
     private final WhoisObjectServerMapper whoisObjectServerMapper;
+    private final Version version;
 
     @Autowired
     public RpslObjectStreamer(
             final QueryHandler queryHandler,
-            final WhoisObjectServerMapper whoisObjectServerMapper) {
+            final WhoisObjectServerMapper whoisObjectServerMapper,
+            final ApplicationVersion applicationVersion) {
         this.queryHandler = queryHandler;
         this.whoisObjectServerMapper = whoisObjectServerMapper;
+        this.version = new Version(
+            applicationVersion.getVersion(),
+            applicationVersion.getTimestamp(),
+            applicationVersion.getCommitId());
     }
 
     public Response handleQueryAndStreamResponse(final Query query,
@@ -84,19 +96,15 @@ public class RpslObjectStreamer {
         @Override
         public void write(final OutputStream output) throws IOException, WebApplicationException {
             streamingMarshal = StreamingHelper.getStreamingMarshal(request, output);
-
             final SearchResponseHandler responseHandler = new SearchResponseHandler();
             try {
                 final int contextId = System.identityHashCode(Thread.currentThread());
                 queryHandler.streamResults(query, remoteAddress, contextId, responseHandler);
 
                 if (!responseHandler.rpslObjectFound()) {
-                    throw new WebApplicationException(Response.status(Response.Status.NOT_FOUND)
-                            .entity(RestServiceHelper.createErrorEntity(request, responseHandler.flushAndGetErrors()))
-                            .build());
+                    streamingMarshal.throwNotFoundError(request, responseHandler.flushAndGetErrors());
                 }
                 responseHandler.flushAndGetErrors();
-
             } catch (StreamingException ignored) {
                 LOGGER.debug("{}: {}", ignored.getClass().getName(), ignored.getMessage());
             } catch (QueryException queryException) {
@@ -107,6 +115,8 @@ public class RpslObjectStreamer {
                     default:
                         throw createWebApplicationException(queryException, responseHandler);
                 }
+            } catch (IllegalArgumentExceptionMessage e) {
+                throw new QueryException(QueryCompletionInfo.PARAMETER_ERROR, e.getExceptionMessage());
             } catch (RuntimeException e) {
                 throw createWebApplicationException(e, responseHandler);
             }
@@ -123,9 +133,7 @@ public class RpslObjectStreamer {
         private class SearchResponseHandler extends ApiResponseHandler {
             private boolean rpslObjectFound;
 
-            // tags come separately
             private final Queue<RpslObject> rpslObjectQueue = new ArrayDeque<>(1);
-            private TagResponseObject tagResponseObject = null;
             private final List<Message> errors = Lists.newArrayList();
             private final int offset = parameters.getOffset() != null ? parameters.getOffset() : 0;
             private final int limit = parameters.getLimit() != null ? parameters.getLimit() : Integer.MAX_VALUE;
@@ -134,9 +142,7 @@ public class RpslObjectStreamer {
             // TODO: [AH] replace this 'if instanceof' mess with an OO approach
             @Override
             public void handle(final ResponseObject responseObject) {
-                if (responseObject instanceof TagResponseObject) {
-                    tagResponseObject = (TagResponseObject) responseObject;
-                } else if (responseObject instanceof RpslObject) {
+                if (responseObject instanceof RpslObject) {
                     streamRpslObject((RpslObject) responseObject);
                 } else if (responseObject instanceof MessageObject) {
                     final Message message = ((MessageObject) responseObject).getMessage();
@@ -184,13 +190,15 @@ public class RpslObjectStreamer {
                 }
 
                 final WhoisObject whoisObject = whoisObjectServerMapper.map(rpslObject, parameters);
-                whoisObjectServerMapper.mapTags(whoisObject, tagResponseObject);
                 whoisObjectServerMapper.mapAbuseContact(whoisObject, parameters, rpslObject);
                 whoisObjectServerMapper.mapManagedAttributes(whoisObject, parameters, rpslObject);
                 whoisObjectServerMapper.mapResourceHolder(whoisObject, parameters, rpslObject);
 
-                streamingMarshal.writeArray(whoisObject);
-                tagResponseObject = null;
+                if (streamingMarshal instanceof StreamingMarshalTextPlain) {
+                    streamingMarshal.writeArray(rpslObject);
+                } else {
+                    streamingMarshal.writeArray(whoisObject);
+                }
             }
 
             private boolean withinOffset(final int count, final int offset) {
@@ -220,6 +228,7 @@ public class RpslObjectStreamer {
                 }
 
                 streamingMarshal.write("terms-and-conditions", Link.create(WhoisResources.TERMS_AND_CONDITIONS));
+                streamingMarshal.write("version", version);
                 streamingMarshal.end("whois-resources");
                 streamingMarshal.close();
                 return errors;
@@ -227,6 +236,5 @@ public class RpslObjectStreamer {
         }
 
     }
-
 
 }

@@ -1,11 +1,14 @@
 package net.ripe.db.whois.spec.integration
 
-import net.ripe.db.whois.common.IntegrationTest
+
+import net.ripe.db.whois.common.rpsl.AttributeType
 import net.ripe.db.whois.common.rpsl.ObjectType
 import net.ripe.db.whois.common.rpsl.RpslObject
+import net.ripe.db.whois.spec.domain.Message
 import net.ripe.db.whois.spec.domain.SyncUpdate
+import org.junit.jupiter.api.Tag
 
-@org.junit.experimental.categories.Category(IntegrationTest.class)
+@Tag("IntegrationTest")
 class AutNumIntegrationSpec extends BaseWhoisSourceSpec {
 
     @Override
@@ -57,6 +60,19 @@ class AutNumIntegrationSpec extends BaseWhoisSourceSpec {
             mnt-by:  UPD-MNT
             source:  TEST
             """,
+                "ROLE-A": """\
+            role:         Abuse Handler
+            address:      St James Street
+            address:      Burnley
+            address:      UK
+            e-mail:       dbtest@ripe.net
+            abuse-mailbox:abuse@lir.net
+            admin-c:      AP1-TEST
+            tech-c:       AP1-TEST
+            nic-hdl:      AH1-TEST
+            mnt-by:       UPD-MNT
+            source:       TEST
+            """,
                 "ORG-NCC1-RIPE": """\
             organisation: ORG-NCC1-RIPE
             org-name:     Ripe NCC organisation
@@ -83,7 +99,6 @@ class AutNumIntegrationSpec extends BaseWhoisSourceSpec {
             tech-c:         AP1-TEST
             notify:         noreply@ripe.net
             mnt-lower:      UPD-MNT
-            mnt-routes:     UPD-MNT
             mnt-by:         UPD-MNT
             source:         TEST
             """,
@@ -139,12 +154,11 @@ class AutNumIntegrationSpec extends BaseWhoisSourceSpec {
                         tech-c:         AP1-TEST
                         notify:         noreply@ripe.net
                         mnt-lower:      UPD-MNT
-                        mnt-routes:     UPD-MNT
                         mnt-by:         UPD-MNT
                         source:         TEST
                         password:       update
                         delete:         reason
-                        """.stripIndent())
+                        """.stripIndent(true))
         when:
         def response = syncUpdate update
 
@@ -177,7 +191,7 @@ class AutNumIntegrationSpec extends BaseWhoisSourceSpec {
                         mnt-by:         UPD-MNT
                         source:         TEST
                         password: update
-                        """.stripIndent())
+                        """.stripIndent(true))
 
         when:
         def response = syncUpdate update
@@ -211,7 +225,7 @@ class AutNumIntegrationSpec extends BaseWhoisSourceSpec {
                         mnt-by:         UPD-MNT
                         source:         TEST
                         password:       update
-                        """.stripIndent())
+                        """.stripIndent(true))
 
         when:
         def response = syncUpdate update
@@ -235,7 +249,7 @@ class AutNumIntegrationSpec extends BaseWhoisSourceSpec {
                         mnt-by:         UPD-MNT
                         source:         TEST
                         password: update
-                        """.stripIndent())
+                        """.stripIndent(true))
         when:
         def response = syncUpdate(update);
 
@@ -258,7 +272,7 @@ class AutNumIntegrationSpec extends BaseWhoisSourceSpec {
                         mnt-by:         UPD-MNT
                         source:         TEST
                         password: update
-                        """.stripIndent())
+                        """.stripIndent(true))
         when:
         def response = syncUpdate(update);
 
@@ -284,12 +298,44 @@ class AutNumIntegrationSpec extends BaseWhoisSourceSpec {
                         source:         TEST
                         password: update
                         password: emptypassword
-                        """.stripIndent())
+                        """.stripIndent(true))
         when:
         def response = syncUpdate(update);
 
         then:
         response =~ /SUCCESS/
+    }
+
+    def "create, add comment in managed attribute fails"() {
+        when:
+        def message = send new Message(
+                subject: "",
+                body: """\
+                        aut-num:        AS400
+                        as-name:        End-User-2
+                        status:         OTHER
+                        member-of:      AS-TESTSET
+                        descr:          other description
+                        org:            ORG-NCC1-RIPE #test comment
+                        admin-c:        AP1-TEST
+                        tech-c:         AP1-TEST
+                        notify:         noreply@ripe.net
+                        mnt-routes:     UPD-MNT
+                        mnt-by:         UPD-MNT
+                        source:         TEST
+                        password: emptypassword
+                        password: update
+                        """.stripIndent(true));
+
+        then:
+        def ack = ackFor message
+        ack.summary.nrFound == 1
+        ack.summary.assertSuccess(0, 0, 0, 0, 0)
+        ack.summary.assertErrors(1, 1, 0, 0)
+
+        ack.errors.any { it.operation == "Create" && it.key == "[aut-num] AS400" }
+        ack.errorMessagesFor("Create", "[aut-num] AS400") == [
+                "Comments are not allowed on RIPE NCC managed Attribute \"org:\""]
     }
 
     def "create, authentication against asblock's mnt-by and local mnt-by fail"() {
@@ -306,7 +352,7 @@ class AutNumIntegrationSpec extends BaseWhoisSourceSpec {
                         mnt-by:         UPD-MNT
                         source:         TEST
                         password: alban
-                        """.stripIndent())
+                        """.stripIndent(true))
         when:
         def response = syncUpdate(update);
 
@@ -335,7 +381,7 @@ class AutNumIntegrationSpec extends BaseWhoisSourceSpec {
                         mnt-by:         UPD-MNT
                         source:         TEST
                         password: emptypassword
-                        """.stripIndent())
+                        """.stripIndent(true))
         when:
         def response = syncUpdate(update);
 
@@ -362,7 +408,7 @@ class AutNumIntegrationSpec extends BaseWhoisSourceSpec {
                         source:         TEST
                         password: emptypassword
                         password: update
-                        """.stripIndent()));
+                        """.stripIndent(true)));
         expect:
         insertResponse =~ /SUCCESS/
 
@@ -381,10 +427,61 @@ class AutNumIntegrationSpec extends BaseWhoisSourceSpec {
                         source:         TEST
                         password: emptypassword
                         password: update
-                        """.stripIndent()));
+                        """.stripIndent(true)));
 
         then:
         updateResponse =~ /SUCCESS/
+    }
+
+    def "modify, add comment in managed attribute fails"() {
+        given:
+        def insertResponse = syncUpdate(new SyncUpdate(data: """\
+                        aut-num:        AS400
+                        as-name:        End-User-2
+                        status:         OTHER
+                        member-of:      AS-TESTSET
+                        descr:          description
+                        admin-c:        AP1-TEST
+                        tech-c:         AP1-TEST
+                        notify:         noreply@ripe.net
+                        mnt-routes:     UPD-MNT
+                        mnt-by:         UPD-MNT
+                        source:         TEST
+                        password: emptypassword
+                        password: update
+                        """.stripIndent(true)));
+        expect:
+        insertResponse =~ /SUCCESS/
+
+        when:
+        def message = send new Message(
+                        subject: "",
+                        body: """\
+                        aut-num:        AS400
+                        as-name:        End-User-2
+                        status:         OTHER
+                        member-of:      AS-TESTSET
+                        descr:          other description
+                        org:            ORG-NCC1-RIPE #test comment
+                        admin-c:        AP1-TEST
+                        tech-c:         AP1-TEST
+                        notify:         noreply@ripe.net
+                        mnt-routes:     UPD-MNT
+                        mnt-by:         UPD-MNT
+                        source:         TEST
+                        password: emptypassword
+                        password: update
+                        """.stripIndent(true));
+
+        then:
+        def ack = ackFor message
+        ack.summary.nrFound == 1
+        ack.summary.assertSuccess(0, 0, 0, 0, 0)
+        ack.summary.assertErrors(1, 0, 1, 0)
+
+        ack.errors.any { it.operation == "Modify" && it.key == "[aut-num] AS400" }
+        ack.errorMessagesFor("Modify", "[aut-num] AS400") == [
+                "Comments are not allowed on RIPE NCC managed Attribute \"org:\""]
     }
 
     def "modify, added member-of validation fail"() {
@@ -399,7 +496,7 @@ class AutNumIntegrationSpec extends BaseWhoisSourceSpec {
                         source:         TEST
                         password: emptypassword
                         password: update
-                        """.stripIndent()));
+                        """.stripIndent(true)));
         expect:
         insertResponse =~ /SUCCESS/
 
@@ -415,7 +512,7 @@ class AutNumIntegrationSpec extends BaseWhoisSourceSpec {
                         source:         TEST
                         password: emptypassword
                         password: update
-                        """.stripIndent()));
+                        """.stripIndent(true)));
 
         then:
         updateResponse =~ /FAIL/
@@ -436,7 +533,7 @@ class AutNumIntegrationSpec extends BaseWhoisSourceSpec {
                         source:         TEST
                         password: emptypassword
                         password: update
-                        """.stripIndent()));
+                        """.stripIndent(true)));
         expect:
         insertResponse =~ /SUCCESS/
 
@@ -452,7 +549,7 @@ class AutNumIntegrationSpec extends BaseWhoisSourceSpec {
                         source:         TEST
                         password: emptypassword
                         password: update
-                        """.stripIndent()));
+                        """.stripIndent(true)));
 
         then:
         updateResponse =~ /FAIL/
@@ -472,7 +569,7 @@ class AutNumIntegrationSpec extends BaseWhoisSourceSpec {
                         source:         TEST
                         password: emptypassword
                         password: update
-                        """.stripIndent()));
+                        """.stripIndent(true)));
         expect:
         insertResponse =~ /SUCCESS/
 
@@ -489,7 +586,7 @@ class AutNumIntegrationSpec extends BaseWhoisSourceSpec {
                         source:         TEST
                         password: emptypassword
                         password: update
-                        """.stripIndent()));
+                        """.stripIndent(true)));
 
         then:
         updateResponse =~ /SUCCESS/
@@ -515,12 +612,11 @@ class AutNumIntegrationSpec extends BaseWhoisSourceSpec {
                         admin-c:        AP1-TEST
                         tech-c:         AP1-TEST
                         notify:         noreply@ripe.net
-                        mnt-lower:      _UPD-MNT-MNT-MNT
                         mnt-routes:     UPD-MNT
-                        mnt-by:         UPD-MNT
+                        mnt-by:         _UPD-MNT-MNT-MNT
                         source:         TEST
                         password: update
-                        """.stripIndent())
+                        """.stripIndent(true))
 
         when:
         def response = syncUpdate update
@@ -545,8 +641,9 @@ class AutNumIntegrationSpec extends BaseWhoisSourceSpec {
                         tech-c:         AP1-TEST
                         mnt-by:         UPD-MNT
                         source:         TEST
+                        override:       denis,override1
                         password: update
-                        """.stripIndent())
+                        """.stripIndent(true))
         then:
         response =~ /SUCCESS/
         then:
@@ -566,7 +663,7 @@ class AutNumIntegrationSpec extends BaseWhoisSourceSpec {
                         source:         TEST
                         password: hm
                         password: update
-                        """.stripIndent())
+                        """.stripIndent(true))
         then:
         response =~ /SUCCESS/
         then:
@@ -585,7 +682,7 @@ class AutNumIntegrationSpec extends BaseWhoisSourceSpec {
                         mnt-by:         UPD-MNT
                         source:         TEST
                         password: update
-                        """.stripIndent())
+                        """.stripIndent(true))
         then:
         response =~ /SUCCESS/
         then:
@@ -604,8 +701,9 @@ class AutNumIntegrationSpec extends BaseWhoisSourceSpec {
                         tech-c:         AP1-TEST
                         mnt-by:         UPD-MNT
                         source:         TEST
+                        override:       denis,override1
                         password: update
-                        """.stripIndent())
+                        """.stripIndent(true))
         then:
         response =~ /\*\*\*Warning: Supplied attribute 'status' has been replaced with a generated value/
         response =~ /SUCCESS/
@@ -627,7 +725,7 @@ class AutNumIntegrationSpec extends BaseWhoisSourceSpec {
                         source:         TEST
                         password: hm
                         password: update
-                        """.stripIndent())
+                        """.stripIndent(true))
         then:
         response =~ /SUCCESS/
         response =~ /\*\*\*Warning: Supplied attribute 'status' has been replaced with a generated value/
@@ -649,7 +747,7 @@ class AutNumIntegrationSpec extends BaseWhoisSourceSpec {
                         source:         TEST
                         password: hm
                         password: update
-                        """.stripIndent())
+                        """.stripIndent(true))
         when:
         def update = syncUpdate new SyncUpdate(data: """\
                         aut-num:        AS102
@@ -661,7 +759,7 @@ class AutNumIntegrationSpec extends BaseWhoisSourceSpec {
                         source:         TEST
                         password: hm
                         password: update
-                        """.stripIndent())
+                        """.stripIndent(true))
         then:
         update =~ /Modify SUCCEEDED: \[aut-num\] AS102/
         update =~ /Warning: "status:" attribute cannot be removed/
@@ -688,22 +786,23 @@ class AutNumIntegrationSpec extends BaseWhoisSourceSpec {
         when:
         def currentDateTime = getTimeUtcString()
         def create = syncUpdate new SyncUpdate(data: """\
-                        aut-num:        AS100
+                        aut-num:        AS104
                         as-name:        End-User
                         descr:          description
                         admin-c:        AP1-TEST
                         tech-c:         AP1-TEST
                         mnt-by:         UPD-MNT
                         source:         TEST
+                        override:       denis,override1
                         password: update
-                        """.stripIndent())
+                        """.stripIndent(true))
         then:
-        create =~ /Create SUCCEEDED: \[aut-num\] AS100/
+        create =~ /Create SUCCEEDED: \[aut-num\] AS104/
 
         then:
-        def createdAutnum = databaseHelper.lookupObject(ObjectType.AUT_NUM, "AS100")
+        def createdAutnum = databaseHelper.lookupObject(ObjectType.AUT_NUM, "AS104")
         createdAutnum.equals(RpslObject.parse(String.format(
-                        "aut-num:        AS100\n" +
+                        "aut-num:        AS104\n" +
                         "as-name:        End-User\n" +
                         "descr:          description\n" +
                         "admin-c:        AP1-TEST\n" +
@@ -712,11 +811,11 @@ class AutNumIntegrationSpec extends BaseWhoisSourceSpec {
                         "mnt-by:         UPD-MNT\n" +
                         "created:        %s\n" +
                         "last-modified:  %s\n" +
-                        "source:         TEST", currentDateTime, currentDateTime)))
+                        "source:         TEST-NONAUTH", currentDateTime, currentDateTime)))
 
         when:
         def update = syncUpdate new SyncUpdate(data: """\
-                        aut-num:        AS100
+                        aut-num:        AS104
                         as-name:        End-User
                         descr:          description
                         admin-c:        AP1-TEST
@@ -725,15 +824,15 @@ class AutNumIntegrationSpec extends BaseWhoisSourceSpec {
                         mnt-by:         UPD-MNT
                         source:         TEST
                         password: update
-                        """.stripIndent())
+                        """.stripIndent(true))
         then:
-        update =~ /Modify SUCCEEDED: \[aut-num\] AS100/
+        update =~ /Modify SUCCEEDED: \[aut-num\] AS104/
         update =~ /\*\*\*Warning: "status:" attribute cannot be removed/
 
         then:
-        def updatedAutnum = databaseHelper.lookupObject(ObjectType.AUT_NUM, "AS100")
+        def updatedAutnum = databaseHelper.lookupObject(ObjectType.AUT_NUM, "AS104")
         updatedAutnum.equals(RpslObject.parse(String.format(
-                "aut-num:        AS100\n" +
+                "aut-num:        AS104\n" +
                 "as-name:        End-User\n" +
                 "descr:          description\n" +
                 "admin-c:        AP1-TEST\n" +
@@ -743,14 +842,14 @@ class AutNumIntegrationSpec extends BaseWhoisSourceSpec {
                 "mnt-by:         UPD-MNT\n" +
                 "created:        %s\n" +
                 "last-modified:  %s\n" +
-                "source:         TEST", currentDateTime, currentDateTime)))
+                "source:         TEST-NONAUTH", currentDateTime, currentDateTime)))
     }
 
     def "create aut-num object, user maintainer, replace invalid status"() {
         when:
         def currentDateTime = getTimeUtcString()
         def response = syncUpdate new SyncUpdate(data: """\
-                        aut-num:        AS100
+                        aut-num:        AS104
                         as-name:        End-User
                         status:         INVALID
                         descr:          description
@@ -758,16 +857,17 @@ class AutNumIntegrationSpec extends BaseWhoisSourceSpec {
                         tech-c:         AP1-TEST
                         mnt-by:         UPD-MNT
                         source:         TEST
+                        override:       denis,override1
                         password: update
-                        """.stripIndent())
+                        """.stripIndent(true))
         then:
         response =~ /\*\*\*Warning: Supplied attribute 'status' has been replaced with a generated value/
         response =~ /SUCCESS/
 
         then:
-        def autnum = databaseHelper.lookupObject(ObjectType.AUT_NUM, "AS100")
+        def autnum = databaseHelper.lookupObject(ObjectType.AUT_NUM, "AS104")
         autnum.equals(RpslObject.parse(String.format(
-                        "aut-num:        AS100\n" +
+                        "aut-num:        AS104\n" +
                         "as-name:        End-User\n" +
                         "descr:          description\n" +
                         "admin-c:        AP1-TEST\n" +
@@ -776,7 +876,7 @@ class AutNumIntegrationSpec extends BaseWhoisSourceSpec {
                         "mnt-by:         UPD-MNT\n" +
                         "created:        %s\n" +
                         "last-modified:  %s\n" +
-                        "source:         TEST", currentDateTime, currentDateTime)))
+                        "source:         TEST-NONAUTH", currentDateTime, currentDateTime)))
 
     }
 
@@ -784,7 +884,7 @@ class AutNumIntegrationSpec extends BaseWhoisSourceSpec {
         when:
         def currentDateTime = getTimeUtcString()
         def response = syncUpdate new SyncUpdate(data: """\
-                        aut-num:        AS100
+                        aut-num:        AS104
                         as-name:        End-User
                         status:         OTHER
                         status:         OTHER
@@ -793,16 +893,17 @@ class AutNumIntegrationSpec extends BaseWhoisSourceSpec {
                         tech-c:         AP1-TEST
                         mnt-by:         UPD-MNT
                         source:         TEST
+                        override:       denis,override1
                         password: update
-                        """.stripIndent())
+                        """.stripIndent(true))
 
         then:
         response =~ /SUCCESS/
 
         then:
-        def autnum = databaseHelper.lookupObject(ObjectType.AUT_NUM, "AS100")
+        def autnum = databaseHelper.lookupObject(ObjectType.AUT_NUM, "AS104")
         autnum.equals(RpslObject.parse(String.format(
-                        "aut-num:        AS100\n" +
+                        "aut-num:        AS104\n" +
                         "as-name:        End-User\n" +
                         "status:         OTHER\n" +
                         "descr:          description\n" +
@@ -811,7 +912,7 @@ class AutNumIntegrationSpec extends BaseWhoisSourceSpec {
                         "mnt-by:         UPD-MNT\n" +
                         "created:        %s\n" +
                         "last-modified:  %s\n" +
-                        "source:         TEST", currentDateTime, currentDateTime)))
+                        "source:         TEST-NONAUTH", currentDateTime, currentDateTime)))
 
     }
 
@@ -847,7 +948,7 @@ class AutNumIntegrationSpec extends BaseWhoisSourceSpec {
                 password: ende
                 password: emptypassword
                 password: update
-                """.stripIndent()))
+                """.stripIndent(true)))
 
         then:
         create =~ /Create FAILED: \[aut-num\] AS400/
@@ -868,6 +969,7 @@ class AutNumIntegrationSpec extends BaseWhoisSourceSpec {
                 "address:         RIPE NCC\n" +
                 "e-mail:          dbtest@ripe.net\n" +
                 "ref-nfy:         dbtest-org@ripe.net\n" +
+                "abuse-c:         AH1-TEST\n" +
                 "mnt-by:          upd-mnt\n" +
                 "mnt-ref:          upd-mnt\n" +
                 "source:  TEST")
@@ -885,7 +987,7 @@ class AutNumIntegrationSpec extends BaseWhoisSourceSpec {
                 password: ende
                 password: emptypassword
                 password: update
-                """.stripIndent()))
+                """.stripIndent(true)))
         then:
         create =~ /Create SUCCEEDED: \[aut-num\] AS400/
     }
@@ -910,7 +1012,7 @@ class AutNumIntegrationSpec extends BaseWhoisSourceSpec {
                 password: ende
                 password: emptypassword
                 password: update
-                """.stripIndent()))
+                """.stripIndent(true)))
         then:
         create =~ /Create SUCCEEDED: \[aut-num\] AS400/
     }
@@ -927,6 +1029,7 @@ class AutNumIntegrationSpec extends BaseWhoisSourceSpec {
                 "org-type:        other\n" +
                 "org-name:        Other Test org\n" +
                 "address:         RIPE NCC\n" +
+                "abuse-c:         AH1-TEST\n" +
                 "e-mail:          dbtest@ripe.net\n" +
                 "ref-nfy:         dbtest-org@ripe.net\n" +
                 "mnt-by:          upd-mnt\n" +
@@ -945,7 +1048,7 @@ class AutNumIntegrationSpec extends BaseWhoisSourceSpec {
                 password: emptypassword
                 password: hm
                 password: update
-                """.stripIndent()))
+                """.stripIndent(true)))
         then:
         create =~ /Create SUCCEEDED: \[aut-num\] AS400/
     }
@@ -964,7 +1067,7 @@ class AutNumIntegrationSpec extends BaseWhoisSourceSpec {
                 source:         TEST
                 password: emptypassword
                 password: update
-                """.stripIndent()))
+                """.stripIndent(true)))
 
         then:
         create =~ /Error:   The "sponsoring-org" attribute can only be added by the RIPE NCC/
@@ -986,7 +1089,7 @@ class AutNumIntegrationSpec extends BaseWhoisSourceSpec {
                 password: emptypassword
                 password: update
                 password: hm
-                """.stripIndent()))
+                """.stripIndent(true)))
 
         then:
         update =~ /Create SUCCEEDED: \[aut-num\] AS400/
@@ -1005,7 +1108,7 @@ class AutNumIntegrationSpec extends BaseWhoisSourceSpec {
                 source:         TEST
                 password: emptypassword
                 password: update
-                """.stripIndent()))
+                """.stripIndent(true)))
         then:
         create =~ /Create SUCCEEDED/
 
@@ -1022,7 +1125,7 @@ class AutNumIntegrationSpec extends BaseWhoisSourceSpec {
                 source:         TEST
                 password: emptypassword
                 password: update
-                """.stripIndent()))
+                """.stripIndent(true)))
 
         then:
         update =~ /Error:   The "sponsoring-org" attribute can only be added by the RIPE NCC/
@@ -1044,7 +1147,7 @@ class AutNumIntegrationSpec extends BaseWhoisSourceSpec {
                 password: emptypassword
                 password: update
                 password: hm
-                """.stripIndent()))
+                """.stripIndent(true)))
         then:
         create =~ /Create SUCCEEDED/
 
@@ -1064,7 +1167,7 @@ class AutNumIntegrationSpec extends BaseWhoisSourceSpec {
                 password: emptypassword
                 password: update
                 password: hm
-                """.stripIndent()))
+                """.stripIndent(true)))
 
         then:
         update =~ /Modify SUCCEEDED: \[aut-num\] AS400/
@@ -1084,7 +1187,7 @@ class AutNumIntegrationSpec extends BaseWhoisSourceSpec {
                 mnt-by:         UPD-MNT
                 source:         TEST
                 override:       denis,override1
-                """.stripIndent())
+                """.stripIndent(true))
 
         when:
         def update = syncUpdate(new SyncUpdate(data: """\
@@ -1099,7 +1202,7 @@ class AutNumIntegrationSpec extends BaseWhoisSourceSpec {
                 mnt-by:         UPD-MNT
                 source:         TEST
                 password: update
-                """.stripIndent()))
+                """.stripIndent(true)))
 
         then:
         update =~ /Modify SUCCEEDED: \[aut-num\] AS400/
@@ -1119,7 +1222,7 @@ class AutNumIntegrationSpec extends BaseWhoisSourceSpec {
                 mnt-by:         UPD-MNT
                 source:         TEST
                 override:       denis,override1
-                """.stripIndent())
+                """.stripIndent(true))
 
         when:
         def update = syncUpdate(new SyncUpdate(data: """\
@@ -1133,7 +1236,7 @@ class AutNumIntegrationSpec extends BaseWhoisSourceSpec {
                 mnt-by:         UPD-MNT
                 source:         TEST
                 password: update
-                """.stripIndent()))
+                """.stripIndent(true)))
 
         then:
         update =~ /Modify FAILED: \[aut-num\] AS400/
@@ -1144,7 +1247,7 @@ class AutNumIntegrationSpec extends BaseWhoisSourceSpec {
     def "modify autnum without status in db with same object adds status"() {
         given:
         databaseHelper.addObject("""\
-                aut-num:        AS400
+                aut-num:        AS401
                 as-name:        End-User-2
                 member-of:      AS-TESTSET
                 descr:          description
@@ -1154,11 +1257,11 @@ class AutNumIntegrationSpec extends BaseWhoisSourceSpec {
                 mnt-by:         UPD-MNT
                 source:         TEST
                 override:       denis,override1
-                """.stripIndent())
+                """.stripIndent(true))
 
         when:
         def update = syncUpdate(new SyncUpdate(data: """\
-                aut-num:        AS400
+                aut-num:        AS401
                 as-name:        End-User-2
                 member-of:      AS-TESTSET
                 descr:          description
@@ -1168,11 +1271,11 @@ class AutNumIntegrationSpec extends BaseWhoisSourceSpec {
                 mnt-by:         UPD-MNT
                 source:         TEST
                 password: update
-                """.stripIndent()))
+                """.stripIndent(true)))
 
         then:
-        update =~ /Modify SUCCEEDED: \[aut-num\] AS400/
-        def autnum = databaseHelper.lookupObject(ObjectType.AUT_NUM, "AS400")
+        update =~ /Modify SUCCEEDED: \[aut-num\] AS401/
+        def autnum = databaseHelper.lookupObject(ObjectType.AUT_NUM, "AS401")
         autnum =~ "status:         OTHER"
     }
 
@@ -1207,7 +1310,7 @@ class AutNumIntegrationSpec extends BaseWhoisSourceSpec {
                 delete:         no reason
                 password: emptypassword
                 password: update
-                """.stripIndent()))
+                """.stripIndent(true)))
 
         then:
         delete =~ /Delete SUCCEEDED: \[aut-num\] AS400/
@@ -1226,7 +1329,7 @@ class AutNumIntegrationSpec extends BaseWhoisSourceSpec {
                 mnt-by:         RIPE-NCC-LEGACY-MNT
                 source:         TEST
                 password: update
-                """.stripIndent())
+                """.stripIndent(true))
       then:
         response =~ /Create FAILED: \[aut-num\] AS103/
         response =~ /\*\*\*Error:   You cannot add or remove a RIPE NCC maintainer/
@@ -1244,7 +1347,7 @@ class AutNumIntegrationSpec extends BaseWhoisSourceSpec {
                 mnt-by:         UPD-MNT
                 source:         TEST
                 password: update
-                """.stripIndent())
+                """.stripIndent(true))
       when:
         def response = syncUpdate new SyncUpdate(data: """\
                 aut-num:        AS103
@@ -1257,9 +1360,91 @@ class AutNumIntegrationSpec extends BaseWhoisSourceSpec {
                 mnt-by:         RIPE-NCC-LEGACY-MNT
                 source:         TEST
                 password: update
-                """.stripIndent())
+                """.stripIndent(true))
       then:
         response =~ /Modify FAILED: \[aut-num\] AS103/
         response =~ /\*\*\*Error:   You cannot add or remove a RIPE NCC maintainer/
     }
+
+    def "warn mnt-lower deprecated for aut-num create"() {
+        when:
+            def response = syncUpdate new SyncUpdate(data: """\
+                aut-num:        AS102
+                as-name:        End-User-1
+                descr:          description
+                org:            ORG-NCC1-RIPE
+                admin-c:        AP1-TEST
+                tech-c:         AP1-TEST
+                notify:         noreply@ripe.net
+                mnt-lower:      UPD-MNT
+                mnt-by:         UPD-MNT
+                source:         TEST
+                password: update
+                """.stripIndent(true))
+
+        then:
+            response =~ /Create SUCCEEDED: \[aut-num] AS102/
+            response =~ /Deprecated attribute "mnt-lower". This attribute has been removed./
+            def autnum = databaseHelper.lookupObject(ObjectType.AUT_NUM, "AS102")
+            !autnum.containsAttribute(AttributeType.MNT_LOWER)
+    }
+
+    def "warn mnt-lower deprecated for aut-num update"() {
+        when:
+            def response = syncUpdate new SyncUpdate(data: """\
+                            aut-num:        AS101
+                            as-name:        End-User-1
+                            descr:          description
+                            import:         from AS1 accept ANY
+                            export:         to AS1 announce AS2
+                            mp-import:      afi ipv6.unicast from AS1 accept ANY
+                            import-via:     AS6777 from AS5580 accept AS-ATRATO
+                            export-via:     AS6777 to AS5580 announce AS2
+                            remarks:        remarkable
+                            org:            ORG-NCC1-RIPE
+                            admin-c:        AP1-TEST
+                            tech-c:         AP1-TEST
+                            notify:         noreply@ripe.net
+                            mnt-lower:      UPD-MNT
+                            mnt-by:         UPD-MNT
+                            source:         TEST
+                            password:       update
+                            """.stripIndent(true))
+
+        then:
+            response =~ /Modify SUCCEEDED: \[aut-num] AS101/
+            response =~ /Deprecated attribute "mnt-lower". This attribute has been removed./
+            def autnum = databaseHelper.lookupObject(ObjectType.AUT_NUM, "AS101")
+            !autnum.containsAttribute(AttributeType.MNT_LOWER)
+    }
+
+    def "delete aut-num with mnt-lower"() {
+        when:
+        def response = syncUpdate new SyncUpdate(data: """\
+            aut-num:        AS101
+            as-name:        End-User-1
+            descr:          description
+            import:         from AS1 accept ANY
+            export:         to AS1 announce AS2
+            mp-import:      afi ipv6.unicast from AS1 accept ANY
+            mp-export:      afi ipv6.unicast to AS1 announce AS2
+            import-via:     AS6777 from AS5580 accept AS-ATRATO
+            export-via:     AS6777 to AS5580 announce AS2
+            remarks:        remarkable
+            org:            ORG-NCC1-RIPE
+            admin-c:        AP1-TEST
+            tech-c:         AP1-TEST
+            notify:         noreply@ripe.net
+            mnt-lower:      UPD-MNT
+            mnt-by:         UPD-MNT
+            source:         TEST
+            password:       update
+            delete:         reason
+            """.stripIndent(true))
+
+        then:
+        response =~ /Delete SUCCEEDED: \[aut-num] AS101/
+        !response.contains("Deprecated attribute \"mnt-lower\". This attribute has been removed.")
+    }
+
 }

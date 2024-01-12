@@ -1,21 +1,20 @@
 package net.ripe.db.whois.api.rdap.domain;
 
-import org.joda.time.LocalDateTime;
-import org.joda.time.format.DateTimeFormat;
-import org.joda.time.format.DateTimeFormatter;
-
-import javax.xml.bind.annotation.adapters.XmlAdapter;
+import jakarta.xml.bind.annotation.adapters.XmlAdapter;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.time.format.DateTimeFormatter;
 
 public class DateTimeAdapter extends XmlAdapter<String, LocalDateTime> {
-    private static final DateTimeFormatter DATE_TIME_FORMATTER = DateTimeFormat.forPattern("yyyy-MM-dd'T'HH:mm:ss'Z'");
 
     @Override
-    public LocalDateTime unmarshal(final String v) throws Exception {
-        return DATE_TIME_FORMATTER.parseLocalDateTime(v);
+    public LocalDateTime unmarshal(final String v) {
+        return  LocalDateTime.from(DateTimeFormatter.ISO_OFFSET_DATE_TIME.parse(v));
     }
 
     @Override
-    public String marshal(final LocalDateTime v) throws Exception {
-        return DATE_TIME_FORMATTER.print(v);
+    public String marshal(final LocalDateTime v) {
+        return DateTimeFormatter.ISO_OFFSET_DATE_TIME.format(v.atZone(ZoneId.systemDefault()).withZoneSameInstant(ZoneId.of("UTC")));
     }
+
 }

@@ -3,7 +3,8 @@ package net.ripe.db.whois.api;
 import com.google.common.base.Splitter;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
-import net.ripe.db.whois.common.rpsl.RpslObject;
+import net.ripe.db.whois.common.Latin1Conversion;
+import net.ripe.db.whois.update.domain.ClientCertificateCredential;
 import net.ripe.db.whois.update.domain.ContentWithCredentials;
 import net.ripe.db.whois.update.domain.Credential;
 import net.ripe.db.whois.update.domain.Credentials;
@@ -15,8 +16,12 @@ import net.ripe.db.whois.update.domain.PgpCredential;
 import net.ripe.db.whois.update.domain.SsoCredential;
 import net.ripe.db.whois.update.domain.Update;
 import net.ripe.db.whois.update.domain.UpdateContext;
+import net.ripe.db.whois.update.domain.UpdateMessages;
 import net.ripe.db.whois.update.keycert.PgpSignedMessage;
+import net.ripe.db.whois.update.keycert.X509CertificateWrapper;
 import org.apache.commons.lang.StringUtils;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import java.nio.charset.Charset;
@@ -25,8 +30,12 @@ import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import static net.ripe.db.whois.api.UpdateCreator.createUpdate;
+
 @Component
 public class UpdatesParser {
+
+    private final long maximumObjectSize;
 
     private static final Pattern PASSWORD_PATTERN = Pattern.compile("(?im)^password:(.*)(?:\\n|$)");
     private static final Pattern OVERRIDE_PATTERN = Pattern.compile("(?im)^override:(.*)(?:\\n|$)");
@@ -34,6 +43,11 @@ public class UpdatesParser {
     private static final Pattern DELETE_PATTERN = Pattern.compile("(?im)^delete:(.*)(?:\\n|$)");
 
     private static final Splitter CONTENT_SPLITTER = Splitter.on(Pattern.compile("(?m)^$")).trimResults().omitEmptyStrings();
+
+    @Autowired
+    public UpdatesParser(@Value("${whois.max.object.size:5000000}") final long maximumObjectSize) {
+        this.maximumObjectSize = maximumObjectSize;
+    }
 
     public List<Paragraph> createParagraphs(final ContentWithCredentials contentWithCredentials, final UpdateContext updateContext) {
         String content = StringUtils.remove(contentWithCredentials.getContent(), '\r');
@@ -49,10 +63,15 @@ public class UpdatesParser {
             baseCredentials.add(SsoCredential.createOfferedCredential(updateContext.getUserSession()));
         }
 
+        if (updateContext.getClientCertificates() != null) {
+            for (X509CertificateWrapper clientCertificate : updateContext.getClientCertificates()) {
+                baseCredentials.add(ClientCertificateCredential.createOfferedCredential(clientCertificate));
+            }
+        }
+
         final List<Paragraph> paragraphs = Lists.newArrayList();
 
         int offset = 0;
-
         while (offset < content.length()) {
             final Matcher signedMessageMatcher = PgpSignedMessage.SIGNED_MESSAGE_PATTERN.matcher(content).region(offset, content.length());
             if (signedMessageMatcher.find(offset)) {
@@ -114,7 +133,7 @@ public class UpdatesParser {
 
         final Matcher matcher = PASSWORD_PATTERN.matcher(content);
         while (matcher.find()) {
-            result.add(new PasswordCredential(matcher.group(1).trim()));
+            result.add(new PasswordCredential(Latin1Conversion.convertString(matcher.group(1)).trim()));
         }
 
         return result;
@@ -149,7 +168,7 @@ public class UpdatesParser {
     private String extractOverride(final Set<Credential> credentials, final String paragraph) {
         final Matcher overrideMatcher = OVERRIDE_PATTERN.matcher(paragraph);
         while (overrideMatcher.find()) {
-            credentials.add(OverrideCredential.parse(overrideMatcher.group(1).trim()));
+            credentials.add(OverrideCredential.parse(Latin1Conversion.convertString(overrideMatcher.group(1)).trim()));
         }
 
         return overrideMatcher.reset().replaceAll("");
@@ -176,8 +195,14 @@ public class UpdatesParser {
                 content = matcher.reset().replaceAll("");
             }
 
+            if (content.length() > maximumObjectSize) {
+                updateContext.ignore(paragraph);
+                updateContext.addGlobalMessage(UpdateMessages.maximumObjectSizeExceeded(content.length(), maximumObjectSize));
+                continue;
+            }
+
             try {
-                updates.add(new Update(paragraph, operation, deleteReasons, RpslObject.parse(content)));
+                updates.add(createUpdate(paragraph, operation, deleteReasons, content, updateContext));
             } catch (IllegalArgumentException e) {
                 updateContext.ignore(paragraph);
             }

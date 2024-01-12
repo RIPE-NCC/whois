@@ -1,9 +1,9 @@
 package net.ripe.db.whois.spec.integration
 
-import net.ripe.db.whois.common.IntegrationTest
+
 import net.ripe.db.whois.spec.domain.SyncUpdate
 
-@org.junit.experimental.categories.Category(IntegrationTest.class)
+@org.junit.jupiter.api.Tag("IntegrationTest")
 class NoopIntegrationSpec extends BaseWhoisSourceSpec {
 
     @Override
@@ -82,10 +82,10 @@ class NoopIntegrationSpec extends BaseWhoisSourceSpec {
             mnt-by: UPD-MNT
             upd-to: dbtest@ripe.net
             auth:   MD5-PW \$1\$fU9ZMQN9\$QQtm3kRqZXWAuLpeOiLN7. # update
-            notify: abcdef
+            notify: dbtest@@ripe.net
             source: TEST
             password: update
-            """.stripIndent())
+            """.stripIndent(true))
 
       when:
         def response = syncUpdate update
@@ -100,8 +100,8 @@ class NoopIntegrationSpec extends BaseWhoisSourceSpec {
                 "mnt-by:         UPD-MNT\n" +
                 "upd-to:         dbtest@ripe.net\n" +
                 "auth:           MD5-PW \$1\$fU9ZMQN9\$QQtm3kRqZXWAuLpeOiLN7. # update\n" +
-                "notify:         abcdef\n" +
-                "***Error:   Syntax error in abcdef\n" +
+                "notify:         dbtest@@ripe.net\n" +
+                "***Error:   Syntax error in dbtest@@ripe.net\n" +
                 "source:         TEST")
     }
 

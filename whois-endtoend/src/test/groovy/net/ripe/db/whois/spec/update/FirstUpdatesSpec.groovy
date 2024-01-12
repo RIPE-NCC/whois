@@ -1,10 +1,10 @@
 package net.ripe.db.whois.spec.update
 
-import net.ripe.db.whois.common.IntegrationTest
+
 import net.ripe.db.whois.spec.BaseQueryUpdateSpec
 import net.ripe.db.whois.spec.domain.Message
 
-@org.junit.experimental.categories.Category(IntegrationTest.class)
+@org.junit.jupiter.api.Tag("IntegrationTest")
 class FirstUpdatesSpec extends BaseQueryUpdateSpec {
 
     @Override
@@ -32,7 +32,6 @@ class FirstUpdatesSpec extends BaseQueryUpdateSpec {
                 nic-hdl: FOP1-TEST
                 remarks: test person
                 notify:  dbtest-nfy@ripe.net
-                abuse-mailbox: dbtest-abuse@ripe.net
                 mnt-by:  OWNER-MNT
                 source:  TEST
             """,
@@ -93,7 +92,7 @@ class FirstUpdatesSpec extends BaseQueryUpdateSpec {
                 mnt-by:  OWNER-MNT
 
                 password: owner
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -130,7 +129,7 @@ class FirstUpdatesSpec extends BaseQueryUpdateSpec {
                 remarks:                 # none
                 source:  TEST
                 password: owner
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -166,7 +165,7 @@ class FirstUpdatesSpec extends BaseQueryUpdateSpec {
                 mnt-by:  OWNER-MNT
                 source:  TEST
                 password: owner
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -234,7 +233,7 @@ class FirstUpdatesSpec extends BaseQueryUpdateSpec {
                 mnt-by:  OWNER-MNT\n
                 source:  TEST\n
                 password: owner
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -279,7 +278,7 @@ class FirstUpdatesSpec extends BaseQueryUpdateSpec {
                 asdfg asdfg asdfg
 
                 password: owner
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -322,7 +321,7 @@ class FirstUpdatesSpec extends BaseQueryUpdateSpec {
                 delete:  testing
 
                 password: owner
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -358,7 +357,7 @@ class FirstUpdatesSpec extends BaseQueryUpdateSpec {
                 source:  TEST
 
                 password: owner
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -393,7 +392,7 @@ class FirstUpdatesSpec extends BaseQueryUpdateSpec {
                 mnt-by:  OWNER-MNT
                 source:  TEST
                 password: owner
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -429,7 +428,7 @@ class FirstUpdatesSpec extends BaseQueryUpdateSpec {
                 mnt-by:  OWNER-MNT
                 source:  TEST
                 password: owner
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -464,7 +463,7 @@ class FirstUpdatesSpec extends BaseQueryUpdateSpec {
                 source:  TEST
 
                 password: owner
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -496,7 +495,7 @@ class FirstUpdatesSpec extends BaseQueryUpdateSpec {
                 mnt-by:  OWNER-MNT
                 source:  TEST
                 password: owner
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -525,7 +524,7 @@ class FirstUpdatesSpec extends BaseQueryUpdateSpec {
                 delete:  testing
 
                 password: owner
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -565,7 +564,7 @@ class FirstUpdatesSpec extends BaseQueryUpdateSpec {
                 delete:  testing
 
                 password: owner
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -604,12 +603,11 @@ class FirstUpdatesSpec extends BaseQueryUpdateSpec {
                 nic-hdl: FOP1-TEST
                 remarks: test person
                 notify:  dbtest-nfy@ripe.net
-                abuse-mailbox: dbtest-abuse@ripe.net
                 mnt-by:  OWNER-MNT
                 source:  TEST # some comment not allowed
 
                 password: owner
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:

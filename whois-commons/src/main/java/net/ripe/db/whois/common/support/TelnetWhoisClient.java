@@ -1,13 +1,11 @@
 package net.ripe.db.whois.common.support;
 
-import com.google.common.base.Charsets;
-import com.google.common.base.Function;
-import com.google.common.base.Optional;
 import net.ripe.db.whois.common.aspects.RetryFor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.util.FileCopyUtils;
 
+import javax.annotation.Nullable;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -15,14 +13,17 @@ import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.net.Socket;
 import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
+import java.util.Optional;
 import java.util.concurrent.TimeUnit;
+import java.util.function.Function;
 
 public class TelnetWhoisClient {
     private static final Logger LOGGER = LoggerFactory.getLogger(TelnetWhoisClient.class);
 
     public static final int DEFAULT_PORT = 43;
     public static final String DEFAULT_HOST = "localhost";
-    public static final Charset DEFAULT_CHARSET = Charsets.ISO_8859_1;
+    public static final Charset DEFAULT_CHARSET = StandardCharsets.ISO_8859_1;
     private static final int DEFAULT_TIMEOUT = (int)TimeUnit.MINUTES.toMillis(5);
 
     private final String host;
@@ -67,8 +68,9 @@ public class TelnetWhoisClient {
      * @param timeoutMs timeout in milliseconds. 0 means never time out. Specify -1 to use system timeout.
      * @return
      */
+    @Nullable
     public String sendQuery(final String query, final Charset charset, final int timeoutMs) {
-        return sendQuery(query, passThroughFunction, charset, timeoutMs).orNull();
+        return sendQuery(query, passThroughFunction, charset, timeoutMs).orElse(null);
     }
 
     private final Function<BufferedReader, Optional<String>> passThroughFunction = new Function<BufferedReader, Optional<String>>() {
@@ -91,7 +93,7 @@ public class TelnetWhoisClient {
         try {
             return sendQueryWithRetry(query, function, charset, timeoutMs);
         } catch (IOException e) {
-            final String message = String.format("Error querying for '%s' at '%s': %s", query, host, e.getMessage());
+            final String message = String.format("Error querying for '%s' at '%s':%d %s", query, host, port, e.getMessage());
             throw new IllegalStateException(message, e);
         }
     }

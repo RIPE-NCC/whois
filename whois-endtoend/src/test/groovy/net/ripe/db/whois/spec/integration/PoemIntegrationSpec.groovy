@@ -1,9 +1,9 @@
 package net.ripe.db.whois.spec.integration
 
-import net.ripe.db.whois.common.IntegrationTest
+
 import net.ripe.db.whois.spec.domain.SyncUpdate
 
-@org.junit.experimental.categories.Category(IntegrationTest.class)
+@org.junit.jupiter.api.Tag("IntegrationTest")
 class PoemIntegrationSpec extends BaseWhoisSourceSpec {
 
     @Override
@@ -59,7 +59,7 @@ class PoemIntegrationSpec extends BaseWhoisSourceSpec {
             mnt-by:          LIM-MNT
             source:          TEST
             password:        update
-            """.stripIndent())
+            """.stripIndent(true))
 
       when:
         def response = syncUpdate update
@@ -81,7 +81,7 @@ class PoemIntegrationSpec extends BaseWhoisSourceSpec {
             mnt-by:          UPD-MNT
             source:          TEST
             password:        update
-            """.stripIndent())
+            """.stripIndent(true))
 
       when:
         def response = syncUpdate update
@@ -104,7 +104,7 @@ class PoemIntegrationSpec extends BaseWhoisSourceSpec {
             mnt-by:          UPD-MNT
             source:          TEST
             password:        update
-            """.stripIndent())
+            """.stripIndent(true))
 
       when:
         def response = syncUpdate update
@@ -124,7 +124,7 @@ class PoemIntegrationSpec extends BaseWhoisSourceSpec {
             mnt-by:          LIM-MNT
             source:          TEST
             password:        update
-            """.stripIndent())
+            """.stripIndent(true))
 
         def createResponse = syncUpdate create
 
@@ -143,7 +143,7 @@ class PoemIntegrationSpec extends BaseWhoisSourceSpec {
             mnt-by:          LIM-MNT
             source:          TEST
             password:        update
-            """.stripIndent())
+            """.stripIndent(true))
 
         def updateResponse = syncUpdate update
 
@@ -162,7 +162,7 @@ class PoemIntegrationSpec extends BaseWhoisSourceSpec {
             mnt-by:          LIM-MNT
             source:          TEST
             password:        update
-            """.stripIndent())
+            """.stripIndent(true))
 
         def createResponse = syncUpdate create
 
@@ -180,7 +180,7 @@ class PoemIntegrationSpec extends BaseWhoisSourceSpec {
             source:          TEST
             password:        update
             delete:          test
-            """.stripIndent())
+            """.stripIndent(true))
 
         def deleteResponse = syncUpdate delete
 

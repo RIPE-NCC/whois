@@ -1,23 +1,23 @@
 package net.ripe.db.whois.query.support;
 
-import net.ripe.db.whois.common.support.AbstractDaoTest;
+import net.ripe.db.whois.common.support.AbstractDaoIntegrationTest;
 import net.ripe.db.whois.query.QueryMessages;
 import net.ripe.db.whois.query.QueryServer;
 import net.ripe.db.whois.query.acl.IpResourceConfiguration;
 import org.apache.commons.lang.StringUtils;
-import org.junit.Before;
+import org.junit.jupiter.api.BeforeEach;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
 
 @ContextConfiguration(locations = {"classpath:applicationContext-query-test.xml"})
-public abstract class AbstractQueryIntegrationTest extends AbstractDaoTest {
+public abstract class AbstractQueryIntegrationTest extends AbstractDaoIntegrationTest {
     public static final String HOST = "localhost";
 
     @Autowired protected QueryServer queryServer;
     @Autowired protected IpResourceConfiguration ipResourceConfiguration;
 
     // TODO: [AH] not do this for each test, but reinit context only where needed
-    @Before
+    @BeforeEach
     public final void setUpAbstractIntegrationTest() throws Exception {
         databaseHelper.clearAclLimits();
         databaseHelper.insertAclIpLimit("0/0", -1, true);

@@ -2,7 +2,6 @@ package net.ripe.db.whois.query.support;
 
 import org.hamcrest.BaseMatcher;
 import org.hamcrest.Description;
-import org.hamcrest.Factory;
 import org.hamcrest.Matcher;
 
 import java.util.regex.Pattern;
@@ -30,12 +29,10 @@ public class PatternMatcher extends BaseMatcher<String> {
         return false;
     }
 
-    @Factory
     public static Matcher<String> matchesPattern(String pattern) {
         return new PatternMatcher(pattern);
     }
 
-    @Factory
     public static Matcher<String> matchesPattern(Pattern pattern) {
         return new PatternMatcher(pattern);
     }

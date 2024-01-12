@@ -3,11 +3,13 @@ package net.ripe.db.whois.common.dao.jdbc.index;
 import com.google.common.base.Splitter;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Sets;
+import net.ripe.db.whois.common.IllegalArgumentExceptionMessage;
 import net.ripe.db.whois.common.dao.RpslObjectInfo;
 import net.ripe.db.whois.common.dao.jdbc.domain.RpslObjectInfoResultSetExtractor;
 import net.ripe.db.whois.common.domain.CIString;
 import net.ripe.db.whois.common.rpsl.AttributeType;
 import net.ripe.db.whois.common.rpsl.RpslObject;
+import net.ripe.db.whois.query.QueryMessages;
 import org.apache.commons.lang.Validate;
 import org.springframework.jdbc.core.JdbcTemplate;
 
@@ -33,7 +35,10 @@ class IndexWithName extends IndexStrategyWithSingleLookupTable {
 
     protected static String getObjectQueryByName(String table, String[] names) {
         Validate.notEmpty(names, "no name");
-        Validate.isTrue(names.length < MARIADB_MAX_JOINS, "reached join limit");
+
+        if (names.length > MARIADB_MAX_JOINS) {
+            throw new IllegalArgumentExceptionMessage(QueryMessages.tooManyArguments());
+        }
 
         StringBuilder query = new StringBuilder();
         query.append("SELECT l.object_id, l.object_type, l.pkey FROM last l JOIN ");

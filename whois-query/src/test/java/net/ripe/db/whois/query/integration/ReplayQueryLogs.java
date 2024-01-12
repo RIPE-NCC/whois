@@ -1,6 +1,5 @@
 package net.ripe.db.whois.query.integration;
 
-import net.ripe.db.whois.common.ManualTest;
 import net.ripe.db.whois.common.rpsl.RpslObject;
 import net.ripe.db.whois.common.source.Source;
 import net.ripe.db.whois.common.support.QueryExecutorConfiguration;
@@ -8,9 +7,9 @@ import net.ripe.db.whois.common.support.QueryLogEntry;
 import net.ripe.db.whois.query.acl.AccessControlListManager;
 import net.ripe.db.whois.query.support.QueryExecutor;
 import org.apache.commons.lang.StringUtils;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.experimental.categories.Category;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Tag;
+import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.core.io.ClassPathResource;
@@ -24,11 +23,11 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 
-import static org.mockito.Matchers.any;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-@Category(ManualTest.class)
+@Tag("ManualTest")
 public class ReplayQueryLogs {
     private static final Logger LOGGER = LoggerFactory.getLogger(ReplayQueryLogs.class);
     private static String whoisHost;
@@ -37,7 +36,7 @@ public class ReplayQueryLogs {
     private static int delayBetweenQueries;
     private static int nrThreads;
 
-    @Before
+    @BeforeEach
     public void setUp() throws Exception {
         whoisHost = "whois-pre";
         whoisPort = 43;

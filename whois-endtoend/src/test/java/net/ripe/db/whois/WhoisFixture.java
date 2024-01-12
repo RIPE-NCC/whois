@@ -1,8 +1,13 @@
 package net.ripe.db.whois;
 
+import jakarta.mail.MessagingException;
+import jakarta.mail.internet.MimeMessage;
+import jakarta.ws.rs.core.MultivaluedMap;
 import net.ripe.db.whois.api.MailUpdatesTestSupport;
+import net.ripe.db.whois.api.httpserver.CertificatePrivateKeyPair;
 import net.ripe.db.whois.api.httpserver.JettyBootstrap;
 import net.ripe.db.whois.api.mail.dequeue.MessageDequeue;
+import net.ripe.db.whois.api.rest.WhoisRestService;
 import net.ripe.db.whois.api.rest.client.NotifierCallback;
 import net.ripe.db.whois.api.rest.client.RestClient;
 import net.ripe.db.whois.api.rest.domain.ErrorMessage;
@@ -10,15 +15,16 @@ import net.ripe.db.whois.api.syncupdate.SyncUpdateBuilder;
 import net.ripe.db.whois.common.Slf4JLogConfiguration;
 import net.ripe.db.whois.common.Stub;
 import net.ripe.db.whois.common.TestDateTimeProvider;
+import net.ripe.db.whois.common.dao.AuthoritativeResourceDao;
 import net.ripe.db.whois.common.dao.RpslObjectDao;
 import net.ripe.db.whois.common.dao.RpslObjectInfo;
 import net.ripe.db.whois.common.dao.RpslObjectUpdateDao;
-import net.ripe.db.whois.common.dao.TagsDao;
 import net.ripe.db.whois.common.dao.jdbc.DatabaseHelper;
 import net.ripe.db.whois.common.dao.jdbc.IndexDao;
 import net.ripe.db.whois.common.dao.jdbc.domain.ObjectTypeIds;
 import net.ripe.db.whois.common.domain.IpRanges;
 import net.ripe.db.whois.common.domain.User;
+import net.ripe.db.whois.common.grs.AuthoritativeResourceData;
 import net.ripe.db.whois.common.iptree.IpTreeUpdater;
 import net.ripe.db.whois.common.profiles.WhoisProfile;
 import net.ripe.db.whois.common.rpsl.ObjectType;
@@ -31,21 +37,17 @@ import net.ripe.db.whois.common.support.WhoisClientHandler;
 import net.ripe.db.whois.db.WhoisServer;
 import net.ripe.db.whois.query.QueryServer;
 import net.ripe.db.whois.query.support.TestWhoisLog;
-import net.ripe.db.whois.update.dao.PendingUpdateDao;
 import net.ripe.db.whois.update.dns.DnsGatewayStub;
 import net.ripe.db.whois.update.mail.MailGateway;
 import net.ripe.db.whois.update.mail.MailSenderStub;
-import org.joda.time.LocalDateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.test.util.ReflectionTestUtils;
 
-import javax.mail.MessagingException;
-import javax.mail.internet.MimeMessage;
 import javax.sql.DataSource;
-import java.io.IOException;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
@@ -64,11 +66,12 @@ public class WhoisFixture {
     protected MailUpdatesTestSupport mailUpdatesTestSupport;
     protected RpslObjectDao rpslObjectDao;
     protected RpslObjectUpdateDao rpslObjectUpdateDao;
-    protected TagsDao tagsDao;
-    protected PendingUpdateDao pendingUpdateDao;
+    protected AuthoritativeResourceDao authoritativeResourceDao;
+    protected AuthoritativeResourceData authoritativeResourceData;
     protected MailGateway mailGateway;
     protected MessageDequeue messageDequeue;
     protected DataSource whoisDataSource;
+    protected DataSource internalsDataSource;
     protected DnsGatewayStub dnsGatewayStub;
 
     protected IpRanges ipRanges;
@@ -81,22 +84,25 @@ public class WhoisFixture {
     protected IndexDao indexDao;
     protected WhoisServer whoisServer;
     protected RestClient restClient;
+    protected WhoisRestService whoisRestService;
     protected TestWhoisLog testWhoisLog;
 
     static {
         Slf4JLogConfiguration.init();
-
         System.setProperty("application.version", "0.1-ENDTOEND");
         System.setProperty("mail.update.threads", "2");
         System.setProperty("mail.dequeue.interval", "10");
-        System.setProperty("whois.maintainers.enduser", "RIPE-NCC-END-MNT");
-        System.setProperty("whois.maintainers.legacy", "RIPE-NCC-LEGACY-MNT");
-        System.setProperty("whois.maintainers.alloc", "RIPE-NCC-HM-MNT,RIPE-NCC-HM2-MNT");
-        System.setProperty("whois.maintainers.enum", "RIPE-GII-MNT,RIPE-NCC-MNT");
-        System.setProperty("whois.maintainers.dbm", "RIPE-NCC-LOCKED-MNT,RIPE-DBM-MNT");
         System.setProperty("nrtm.enabled", "false");
         System.setProperty("grs.sources", "TEST-GRS");
         System.setProperty("feature.toggle.changed.attr.available", "true");
+        System.setProperty("ipranges.bogons", "192.0.2.0/24,2001:2::/48");
+        System.setProperty("git.commit.id.abbrev", "0");
+        // enable https
+        final CertificatePrivateKeyPair certificatePrivateKeyPair = new CertificatePrivateKeyPair();
+        System.setProperty("port.api.secure", "0");
+        System.setProperty("http.sni.host.check", "false");
+        System.setProperty("whois.certificates", certificatePrivateKeyPair.getCertificateFilename());
+        System.setProperty("whois.private.keys", certificatePrivateKeyPair.getPrivateKeyFilename());
     }
 
     public void start() throws Exception {
@@ -113,16 +119,17 @@ public class WhoisFixture {
         stubs = applicationContext.getBeansOfType(Stub.class);
         messageDequeue = applicationContext.getBean(MessageDequeue.class);
         testDateTimeProvider = applicationContext.getBean(TestDateTimeProvider.class);
-
         rpslObjectDao = applicationContext.getBean(RpslObjectDao.class);
         rpslObjectUpdateDao = applicationContext.getBean(RpslObjectUpdateDao.class);
-        tagsDao = applicationContext.getBean(TagsDao.class);
-        pendingUpdateDao = applicationContext.getBean(PendingUpdateDao.class);
+        authoritativeResourceDao = applicationContext.getBean(AuthoritativeResourceDao.class);
+        authoritativeResourceData = applicationContext.getBean(AuthoritativeResourceData.class);
         mailGateway = applicationContext.getBean(MailGateway.class);
         whoisDataSource = applicationContext.getBean(SourceAwareDataSource.class);
+        internalsDataSource = applicationContext.getBean("internalsDataSource", DataSource.class);
         sourceContext = applicationContext.getBean(SourceContext.class);
         indexDao = applicationContext.getBean(IndexDao.class);
         restClient = applicationContext.getBean(RestClient.class);
+        whoisRestService = applicationContext.getBean(WhoisRestService.class);
         testWhoisLog = applicationContext.getBean(TestWhoisLog.class);
 
         databaseHelper.setup();
@@ -130,6 +137,7 @@ public class WhoisFixture {
 
 
         ReflectionTestUtils.setField(restClient, "restApiUrl", String.format("http://localhost:%s/whois", jettyBootstrap.getPort()));
+        ReflectionTestUtils.setField(whoisRestService, "baseUrl", String.format("http://localhost:%d/whois", jettyBootstrap.getPort()));
 
         initData();
     }
@@ -155,6 +163,10 @@ public class WhoisFixture {
 
     public void dumpSchema() throws Exception {
         DatabaseHelper.dumpSchema(whoisDataSource);
+    }
+
+    public void dumpInternalsSchema() throws Exception {
+        DatabaseHelper.dumpSchema(internalsDataSource);
     }
 
     public String send(final String content) {
@@ -186,20 +198,26 @@ public class WhoisFixture {
         rpslObjectUpdateDao.deleteObject(byKey.getObjectId(), byKey.getKey());
     }
 
-    public String syncupdate(final String data, final boolean isHelp, final boolean isDiff, final boolean isNew, final boolean isRedirect) throws IOException {
-        return syncupdate(jettyBootstrap, data, isHelp, isDiff, isNew, isRedirect);
+    public String syncupdate(final String data, final String charset, final boolean isHelp, final boolean isDiff,
+                             final boolean isNew, final boolean isRedirect, final MultivaluedMap<String, String> headers) {
+        return syncupdate(jettyBootstrap, data, charset, isHelp, isDiff, isNew, isRedirect, headers);
     }
 
-    public static String syncupdate(final JettyBootstrap jettyBootstrap, final String data, final boolean isHelp, final boolean isDiff, final boolean isNew, final boolean isRedirect) throws IOException {
+    public static String syncupdate(final JettyBootstrap jettyBootstrap, final String data, final String charset,
+                                    final boolean isHelp, final boolean isDiff, final boolean isNew,
+                                    final boolean isRedirect, final MultivaluedMap<String, String> headers) {
         return new SyncUpdateBuilder()
+                .setProtocol("https")
                 .setHost("localhost")
-                .setPort(jettyBootstrap.getPort())
+                .setPort(jettyBootstrap.getSecurePort())
                 .setSource("TEST")
                 .setData(data)
+                .setCharset(charset)
                 .setHelp(isHelp)
                 .setDiff(isDiff)
                 .setNew(isNew)
                 .setRedirect(isRedirect)
+                .setHeaders(headers)
                 .build()
                 .post();
     }
@@ -231,12 +249,8 @@ public class WhoisFixture {
         return databaseHelper;
     }
 
-    public TagsDao getTagsDao() {
-        return tagsDao;
-    }
-
-    public PendingUpdateDao getPendingUpdateDao() {
-        return pendingUpdateDao;
+    public AuthoritativeResourceDao getAuthoritativeResourceDao() {
+        return authoritativeResourceDao;
     }
 
     public RpslObjectDao getRpslObjectDao() {
@@ -291,7 +305,7 @@ public class WhoisFixture {
     }
 
     public List<String> queryPersistent(final List<String> queries) throws Exception {
-        final String END_OF_HEADER = "% See http://www.ripe.net/db/support/db-terms-conditions.pdf\n\n";
+        final String END_OF_HEADER = "% See https://apps.db.ripe.net/docs/HTML-Terms-And-Conditions\n\n";
         final WhoisClientHandler client = NettyWhoisClientFactory.newLocalClient(QueryServer.port);
 
         List<String> responses = new ArrayList<>();
@@ -314,6 +328,10 @@ public class WhoisFixture {
 
     public void reloadTrees() {
         ipTreeUpdater.update();
+    }
+
+    public void refreshAuthoritativeResourceData() {
+        authoritativeResourceData.refreshActiveSource();
     }
 
     public SourceContext getSourceContext() {

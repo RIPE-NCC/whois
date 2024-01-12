@@ -2,11 +2,11 @@ package net.ripe.db.whois.query.query;
 
 import net.ripe.db.whois.common.ip.IpInterval;
 import net.ripe.db.whois.common.rpsl.attrs.AsBlockRange;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.nullValue;
-import static org.junit.Assert.*;
 
 public class SearchKeyTest {
     private SearchKey subject;
@@ -25,8 +25,7 @@ public class SearchKeyTest {
         final IpInterval<?> key = subject.getIpKeyOrNull();
 
         assertThat(key.toString(), is("128.0.0.0/8"));
-        assertTrue(key == subject.getIpKeyOrNull()); // cache hit
-
+        assertThat(key == subject.getIpKeyOrNull(), is(true)); // cache hit
         assertThat(subject.getIpKeyOrNullReverse(), is(nullValue()));
         assertThat(subject.getAsBlockRangeOrNull(), is(nullValue()));
     }
@@ -38,7 +37,7 @@ public class SearchKeyTest {
         final IpInterval<?> key = subject.getIpKeyOrNull();
 
         assertThat(key.toString(), is("::/8"));
-        assertTrue(key == subject.getIpKeyOrNull()); // cache hit
+        assertThat(key == subject.getIpKeyOrNull(), is(true)); // cache hit
 
         assertThat(subject.getIpKeyOrNullReverse(), is(nullValue()));
         assertThat(subject.getAsBlockRangeOrNull(), is(nullValue()));
@@ -51,8 +50,7 @@ public class SearchKeyTest {
         final IpInterval<?> key = subject.getIpKeyOrNullReverse();
 
         assertThat(key.toString(), is("128.0.0.0/8"));
-        assertTrue(key == subject.getIpKeyOrNullReverse()); // cache hit
-
+        assertThat(key == subject.getIpKeyOrNullReverse(), is(true)); // cache hit
         assertThat(subject.getIpKeyOrNull(), is(nullValue()));
         assertThat(subject.getAsBlockRangeOrNull(), is(nullValue()));
     }
@@ -64,8 +62,7 @@ public class SearchKeyTest {
         final IpInterval<?> key = subject.getIpKeyOrNullReverse();
 
         assertThat(key.toString(), is("2000::/4"));
-        assertTrue(key == subject.getIpKeyOrNullReverse()); // cache hit
-
+        assertThat(key == subject.getIpKeyOrNullReverse(), is(true)); // cache hit
         assertThat(subject.getIpKeyOrNull(), is(nullValue()));
         assertThat(subject.getAsBlockRangeOrNull(), is(nullValue()));
     }
@@ -78,7 +75,6 @@ public class SearchKeyTest {
 
         assertThat(key.getBegin(), is(123L));
         assertThat(key.getEnd(), is(123L));
-
         assertThat(subject.getIpKeyOrNull(), is(nullValue()));
         assertThat(subject.getIpKeyOrNullReverse(), is(nullValue()));
     }
@@ -86,7 +82,8 @@ public class SearchKeyTest {
     @Test
     public void comma_in_search_key() {
         subject = new SearchKey("10,10");
-        assertNull(subject.getIpKeyOrNull());
+
+        assertThat(subject.getIpKeyOrNull(), is(nullValue()));
     }
 
     @Test
@@ -94,7 +91,7 @@ public class SearchKeyTest {
         final SearchKey searchKey = new SearchKey("::ffff:0.0.0.0");
         final IpInterval<?> ipKeyOrNull = searchKey.getIpKeyOrNull();
 
-        assertNull(ipKeyOrNull);
+        assertThat(ipKeyOrNull, is(nullValue()));
     }
 
     @Test
@@ -102,6 +99,6 @@ public class SearchKeyTest {
         final SearchKey searchKey = new SearchKey("::ffff:0.0.0.0/72");
         final IpInterval<?> ipKeyOrNull = searchKey.getIpKeyOrNull();
 
-        assertNull(ipKeyOrNull);
+        assertThat(ipKeyOrNull, is(nullValue()));
     }
 }

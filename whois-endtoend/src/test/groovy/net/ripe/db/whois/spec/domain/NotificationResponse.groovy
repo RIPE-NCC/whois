@@ -1,6 +1,6 @@
 package net.ripe.db.whois.spec.domain
 
-import javax.mail.internet.MimeMessage
+import jakarta.mail.internet.MimeMessage
 
 class NotificationResponse extends BasicResponse {
 
@@ -64,12 +64,6 @@ class NotificationResponse extends BasicResponse {
         contents =~ "\\*failed\\*" &&
         contents =~ "---\n${operation} REQUESTED FOR:\n\n+${type}:\\s*${pkey}" &&
         contents =~ "the proper authorisation"
-    }
-
-    def pendingAuth(String operation, String type, String pkey) {
-        contents =~ "Please submit the following objects \\*exactly as shown\\*" &&
-        contents =~ "---\n${operation} REQUESTED FOR:\n\n+${type}:\\s*${pkey}" &&
-        contents =~ "but need\nyour authorisation to complete the change.\nThis update must be completed within one week.\n"
     }
 
     class Object {

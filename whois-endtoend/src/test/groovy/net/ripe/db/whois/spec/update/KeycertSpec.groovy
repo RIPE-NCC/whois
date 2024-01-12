@@ -1,10 +1,12 @@
 package net.ripe.db.whois.spec.update
-import net.ripe.db.whois.common.IntegrationTest
+
 import net.ripe.db.whois.spec.BaseQueryUpdateSpec
 import net.ripe.db.whois.spec.domain.AckResponse
 import net.ripe.db.whois.spec.domain.Message
 
-@org.junit.experimental.categories.Category(IntegrationTest.class)
+import java.time.LocalDateTime
+
+@org.junit.jupiter.api.Tag("IntegrationTest")
 class KeycertSpec extends BaseQueryUpdateSpec {
 
     @Override
@@ -147,6 +149,10 @@ class KeycertSpec extends BaseQueryUpdateSpec {
                 """,
     ]}
 
+    def setup() {
+      setTime(LocalDateTime.parse("2004-01-01T12:00:00")) // certificate must not have expired
+    }
+
     def "create X509 key-cert object, no gen attrs, no X509 exists, X509-1 created"() {
       expect:
         queryObjectNotFound("-r -T key-cert X509-1", "key-cert", "X509-1")
@@ -186,7 +192,7 @@ class KeycertSpec extends BaseQueryUpdateSpec {
                 source:       TEST
 
                 password: lir
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -245,7 +251,7 @@ class KeycertSpec extends BaseQueryUpdateSpec {
                 source:       TEST
 
                 password: lir
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -338,7 +344,7 @@ class KeycertSpec extends BaseQueryUpdateSpec {
 
                 password: lir
                 password: lir2
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -427,7 +433,7 @@ class KeycertSpec extends BaseQueryUpdateSpec {
 
                 password: lir
                 password: lir2
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -531,7 +537,7 @@ class KeycertSpec extends BaseQueryUpdateSpec {
                 notify:       dbtest@ripe.net
                 mnt-by:       LIR2-MNT
                 source:       TEST
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -645,7 +651,7 @@ class KeycertSpec extends BaseQueryUpdateSpec {
                 source:       TEST
 
                 password:    test2
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -709,7 +715,7 @@ class KeycertSpec extends BaseQueryUpdateSpec {
                 source:       TEST
 
                 password: lir
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -767,7 +773,7 @@ class KeycertSpec extends BaseQueryUpdateSpec {
                 source:       TEST
 
                 password: lir
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -844,7 +850,7 @@ class KeycertSpec extends BaseQueryUpdateSpec {
 
                 password: lir
                 password: owner
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -923,7 +929,7 @@ class KeycertSpec extends BaseQueryUpdateSpec {
 
                 password: lir
                 password: owner
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -984,7 +990,7 @@ class KeycertSpec extends BaseQueryUpdateSpec {
                 source:       TEST
 
                 password: lir
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -1049,7 +1055,7 @@ class KeycertSpec extends BaseQueryUpdateSpec {
 
                 password: lir
                 password: owner
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -1116,7 +1122,7 @@ class KeycertSpec extends BaseQueryUpdateSpec {
 
                 password: lir
                 password: owner
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -1173,7 +1179,7 @@ class KeycertSpec extends BaseQueryUpdateSpec {
                 source:       TEST
 
                 password: lir
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -1318,7 +1324,7 @@ class KeycertSpec extends BaseQueryUpdateSpec {
                 source:       TEST
 
                 password: lir
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -1422,7 +1428,7 @@ class KeycertSpec extends BaseQueryUpdateSpec {
 
                 password: lir
                 password: owner
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -1526,7 +1532,7 @@ class KeycertSpec extends BaseQueryUpdateSpec {
 
                 password: lir
                 password: owner
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -1595,7 +1601,7 @@ class KeycertSpec extends BaseQueryUpdateSpec {
                 source:       TEST
 
                 password: lir
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -1656,7 +1662,7 @@ class KeycertSpec extends BaseQueryUpdateSpec {
                 source:       TEST
 
                 password: lir
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -1721,7 +1727,7 @@ class KeycertSpec extends BaseQueryUpdateSpec {
                 source:       TEST
 
                 password: lir
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -1783,7 +1789,7 @@ class KeycertSpec extends BaseQueryUpdateSpec {
                 source:       TEST
 
                 password: lir
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -1844,7 +1850,7 @@ class KeycertSpec extends BaseQueryUpdateSpec {
                 source:       TEST
 
                 password: lir
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -1905,7 +1911,7 @@ class KeycertSpec extends BaseQueryUpdateSpec {
                 source:       TEST
 
                 password: lir
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -1967,7 +1973,7 @@ class KeycertSpec extends BaseQueryUpdateSpec {
                 source:       TEST
 
                 password: lir
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -1980,7 +1986,7 @@ class KeycertSpec extends BaseQueryUpdateSpec {
         ack.countErrorWarnInfo(1, 0, 0)
         ack.errors.any { it.operation == "Modify" && it.key == "[key-cert] X509-1" }
         ack.errorMessagesFor("Modify", "[key-cert] X509-1") == [
-                "Error parsing X509 certificate from key-cert object"]
+                "Invalid X509 Certificate"]
 
         queryObject("-rGBT key-cert X509-1", "key-cert", "X509-1")
     }
@@ -2023,7 +2029,7 @@ class KeycertSpec extends BaseQueryUpdateSpec {
                 source:       TEST
 
                 password: lir
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -2036,7 +2042,7 @@ class KeycertSpec extends BaseQueryUpdateSpec {
         ack.countErrorWarnInfo(1, 0, 0)
         ack.errors.any { it.operation == "Create" && it.key == "[key-cert] AUTO-1" }
         ack.errorMessagesFor("Create", "[key-cert] AUTO-1") == [
-                "Error parsing X509 certificate from key-cert object"]
+                "Invalid X509 Certificate"]
 
         queryObjectNotFound("-rGBT key-cert X509-1", "key-cert", "X509-1")
     }
@@ -2079,7 +2085,7 @@ class KeycertSpec extends BaseQueryUpdateSpec {
                 source:       TEST
 
                 password: lir
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -2136,7 +2142,7 @@ class KeycertSpec extends BaseQueryUpdateSpec {
                 source:       TEST
 
                 password: lir
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -2192,7 +2198,7 @@ class KeycertSpec extends BaseQueryUpdateSpec {
                 source:       TEST
 
                 password: lir
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -2260,7 +2266,7 @@ class KeycertSpec extends BaseQueryUpdateSpec {
 
                 password: lir
                 password: owner
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -2327,7 +2333,7 @@ class KeycertSpec extends BaseQueryUpdateSpec {
                 source:       TEST
 
                 password: owner
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -2531,7 +2537,7 @@ class KeycertSpec extends BaseQueryUpdateSpec {
                 source:       TEST
 
                 password: owner
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -2587,7 +2593,7 @@ class KeycertSpec extends BaseQueryUpdateSpec {
                 source:       TEST
 
                 password: lir
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:
@@ -2670,7 +2676,7 @@ class KeycertSpec extends BaseQueryUpdateSpec {
                 source:       TEST
                 delete:  reason
                 password: lir
-            """.stripIndent())
+            """.stripIndent(true))
       then:
         def ack = ackFor message
 
@@ -2720,7 +2726,7 @@ class KeycertSpec extends BaseQueryUpdateSpec {
                 source:       TEST
 
                 password: lir
-                """.stripIndent())
+                """.stripIndent(true))
 
       then:
         def createAck = new AckResponse("", createResponse)
@@ -2769,7 +2775,7 @@ class KeycertSpec extends BaseQueryUpdateSpec {
                 source:       TEST
 
                 password: lir
-                """.stripIndent())
+                """.stripIndent(true))
 
       then:
         def updateAck = new AckResponse("", updateResponse)
@@ -2816,7 +2822,7 @@ class KeycertSpec extends BaseQueryUpdateSpec {
                 delete: reason
 
                 password: lir
-                """.stripIndent())
+                """.stripIndent(true))
 
       then:
         def deleteAck = new AckResponse("", deleteResponse)
@@ -2830,5 +2836,110 @@ class KeycertSpec extends BaseQueryUpdateSpec {
         queryObjectNotFound("-r -T key-cert PGPKEY-A9B98446", "key-cert", "PGPKEY-A9B98446")
     }
 
+    def "create keycert object, strip utf8 characters in owner"() {
+        expect:
+        queryObjectNotFound("-r -T key-cert PGPKEY-A9B98446", "key-cert", "PGPKEY-A9B98446")
 
+        when:
+        def createResponse = syncUpdate("""\
+                key-cert:     PGPKEY-A9B98446
+                certif:       -----BEGIN PGP PUBLIC KEY BLOCK-----
+                certif:       Comment: GPGTools - https://gpgtools.org
+                certif:       
+                certif:       mQENBFzim1YBCAC3q5JywVOXzNVNVmr/6lHMzZmgRz1qZmJPMCE6ETRSR/jdpUn1
+                certif:       rd61ZpreV9yMKmhesDL5yR9mQUazn3bU0U7kj/b3+yGR6kwty9ToSmPskkNXBAnB
+                certif:       +hWoTAGThtItoXQ9YM1YZS45xJ6EafwOakZHLwgK1GYAXl9OXQ8Uo1iAJuG0p/ht
+                certif:       immsLP5U8sPp99jxax5AFRV7IPbIT0hEFtB05DBT9vaKFiLicmRrXCRAs62Krldc
+                certif:       h6iatMDftYwTnej4mdsLMprWPGwpKREoQHp5QDoxJIMSK0AncWEqfhZv13OXk7c1
+                certif:       GGnJCQ6xqBLiWTadCOPrhgqZA70Gizv7s+v3ABEBAAG0GuKAnG5hbWXigJ0gPHRl
+                certif:       c3RAcmlwZS5uZXQ+iQFOBBMBCgA4FiEEOMuDci6p77iZtOyGbiz9uw7xN/AFAlzi
+                certif:       m1YCGwMFCwkIBwMFFQoJCAsFFgIDAQACHgECF4AACgkQbiz9uw7xN/ANcgf+Ijoq
+                certif:       7JH5kRmbQoiDjf3oQQKhSzFnNPdSHNcg9HwIb75Oa0kQwXuv2q+fnV8K7b3+1ika
+                certif:       OD8SdcfI3pb1YBOGiUnMnQamDpi4wE2FzpCRQkuqR0/69szIzP1Ci6zq0kdGX9OO
+                certif:       IzOAjlKymnKxL/y+mPrZ+ASQTqRjaxWf8243eKKInHEXh9Q3hWexMPn6j0rlOlEx
+                certif:       PVR66TCNC3y4ST8JMvZmS8Q5sFDlalkBqhm9QqNhEG5ntkKCGP0JJk7OsjUmgGp8
+                certif:       gHO++Un7q8/gVIOMit0qlOvYpns8FnOz85yQNOiB2wQeSuSY9Essu6DvN3ssPL97
+                certif:       FtXTJoTmPLnNRVIVVrkBDQRc4ptWAQgAvjjeYBVAi0h98Q8SKv4zl+bW4UzFaE1V
+                certif:       vTcQwoIrZPf3B78Uk2usW5P+YMomElReomvUXAQEMU07zxP1ubGwO+CJcQgARc0V
+                certif:       dXC3fPUEAxGfhVr+5uscpzdNhF8TLo/HhbqjM/7RphFcPAvTkP1pcxeR99fnYc+N
+                certif:       svvfzH5YSlmMhOCJH858MxUjQlhtBJ5FeWo+P0HVlPELZewn+Q50AGE0RmKpxpLT
+                certif:       T2qsb59ZinbGo08to5WZNvnQ05vOXRqXKM6QK6Vf9aP0Osa9/SoAjXeDr4A2d5ff
+                certif:       exkeK3+prsR/L2SuNKrpFpulRKdB8nrDXWpaWTv0VQi8yVbdenqC1QARAQABiQE2
+                certif:       BBgBCgAgFiEEOMuDci6p77iZtOyGbiz9uw7xN/AFAlzim1YCGwwACgkQbiz9uw7x
+                certif:       N/C4EAf9F9bWm/IulOTgsoLsW1DmMRKy9Jt1iT0OfbtN5Szti3iAVL9DayJEx42i
+                certif:       YZsiQkqdcmCVaDuALYok8hlGfvSJdi2HBRqvpPfB6BUWtYzb/Kopf/sWQYy5Tb3P
+                certif:       0FQySCMmgq2BiDVlwrhqPq4IT2XBLC4/5vfw4yGetSchkQOoozhoZdzY1pf1879R
+                certif:       sNMJD4oZlcmmjeqM/ZIL3GNdp3wwYaKxhcbEjk9QO0dGDwgHh8RJkcP4Z8zWC1qZ
+                certif:       tY/jVRc0+VYier5srBLXKCvB61ENeP4TKC/LiROk3GygfB3yk3WtPg08sFugrUrP
+                certif:       VAVBBoiBq8FoUodQym0pgVeNFacBow==
+                certif:       =VscF
+                certif:       -----END PGP PUBLIC KEY BLOCK-----
+                remarks:      pgp key with utf8 owner with unsupported characters
+                notify:       noreply@ripe.net
+                mnt-by:       LIR-MNT
+                source:       TEST
+
+                password: lir
+                """.stripIndent(true))
+
+        then:
+        def createAck = new AckResponse("", createResponse)
+
+        createAck.summary.nrFound == 1
+        createAck.summary.assertSuccess(1, 1, 0, 0, 0)
+        createAck.summary.assertErrors(0, 0, 0, 0)
+        createAck.countErrorWarnInfo(0, 0, 0)
+
+        then:
+        def createdKeycert = queryObject("-rGBT key-cert PGPKEY-A9B98446", "key-cert", "PGPKEY-A9B98446")
+        createdKeycert =~ "owner:          \\?name\\? <test@ripe.net>"
+    }
+
+    def "create keycert object, substitute utf8 characters in owner"() {
+        expect:
+        queryObjectNotFound("-r -T key-cert PGPKEY-81530CE5", "key-cert", "PGPKEY-81530CE5")
+
+        when:
+        def createResponse = syncUpdate("""\
+                key-cert:     PGPKEY-81530CE5
+                certif:       -----BEGIN PGP PUBLIC KEY BLOCK-----
+                certif:       Comment: GPGTools - http://gpgtools.org
+                certif:       
+                certif:       mI0EXQjxkQEEANUPiAPTvzUhnsS24TqnF+KMSpQ9WewSMZJoS3wGoCfd43ojwDOu
+                certif:       GM+KHmyW/xozSYmohGv3ijxZHfiAMe60Fmbk6oXRM3vggoKIEUL47SqEEj0KoMHq
+                certif:       PMQdloExseR8bwe/4+jfQlBFTuZICPxq8BNM0j/1kYtq/ANYek0bvlq9ABEBAAG0
+                certif:       HFnDvCBIw7bDtiA8bm9yZXBseUByaXBlLm5ldD6IzgQTAQgAOBYhBMCWkEUoLqES
+                certif:       u8LvBqquTeOBUwzlBQJdCPGRAhsDBQsJCAcCBhUKCQgLAgQWAgMBAh4BAheAAAoJ
+                certif:       EKquTeOBUwzlS0YD/2ll/+z/sS09eKRhgJafxP3BtZB7p4Wfsvn6qbMtAwKDE19C
+                certif:       jI3Xol9aHBWwQVlFRv8he6q4KCQWLQNlCBVb5zr4sj3MNu0ZkAuOd5TaxAwg39NJ
+                certif:       oEqFjOY6BSvxvV1rK8CoyLyRzQO4QAqLtsyEdo1f6oadJwzTuIyxy5ybnJPkuI0E
+                certif:       XQjxkQEEAMyOnAgcAyqWRIHbqWLX7xT6JGZB/6KjY7ydjj5Utn8+qFWFa3ZS4rQN
+                certif:       P8NLge1MG7t4lNeKnahL5JbghNP7o2WGyiNevfmU2R6Jf/D0hqHT0iTo7cw+z6CG
+                certif:       rwSKXXYfzenR/jDplfIaH2Cc5fnk5XeFkl0GfB+G0J8a7tReRnN5ABEBAAGItgQY
+                certif:       AQgAIBYhBMCWkEUoLqESu8LvBqquTeOBUwzlBQJdCPGRAhsMAAoJEKquTeOBUwzl
+                certif:       RcID/25XMrXRHwuq3IZMOJVGj0RvT62jOMjk2zkkBJvhN+oppOQogJMt3Js4n3jC
+                certif:       4OHLlOutrvy0SqZ3FVFWoNx2xI1JTzeybTXuq/hElm5d+gMRe+sYpTmSRGC9pZzU
+                certif:       eS9BNaCg1ILDy0I3N3SSChOtXaYRlPbap2KibUfzoTo5k4YZ
+                certif:       =XLqs
+                certif:       -----END PGP PUBLIC KEY BLOCK-----
+                remarks:      pgp key with utf8 owner
+                notify:       noreply@ripe.net
+                mnt-by:       LIR-MNT
+                source:       TEST
+
+                password: lir
+                """.stripIndent(true))
+
+        then:
+        def createAck = new AckResponse("", createResponse)
+
+        createAck.summary.nrFound == 1
+        createAck.summary.assertSuccess(1, 1, 0, 0, 0)
+        createAck.summary.assertErrors(0, 0, 0, 0)
+        createAck.countErrorWarnInfo(0, 0, 0)
+
+        then:
+        def createdKeycert = queryObject("-rGBT key-cert PGPKEY-81530CE5", "key-cert", "PGPKEY-81530CE5")
+        createdKeycert =~ "owner:          Yü Höö <noreply@ripe.net>"
+    }
 }

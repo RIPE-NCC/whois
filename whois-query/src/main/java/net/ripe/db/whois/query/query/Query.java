@@ -44,7 +44,6 @@ public class Query {
             new AbuseContactValidator(),
             new CombinationValidator(),
             new SearchKeyValidator(),
-            new TagValidator(),
             new VersionValidator(),
             new InverseValidator());
 
@@ -106,6 +105,27 @@ public class Query {
         }
     }
 
+    public static Query parse(final String args, final String ssoToken, final Origin origin, final boolean trusted) {
+        try {
+            final Query query = new Query(args.trim(), origin, trusted);
+            query.ssoToken = ssoToken;
+
+            for (final QueryValidator queryValidator : QUERY_VALIDATORS) {
+                queryValidator.validate(query, query.messages);
+            }
+
+            final Collection<Message> errors = query.messages.getMessages(Messages.Type.ERROR);
+            if (!errors.isEmpty()) {
+                throw new QueryException(QueryCompletionInfo.PARAMETER_ERROR, errors);
+            }
+
+            return query;
+        } catch (OptionException e) {
+            throw new QueryException(QueryCompletionInfo.PARAMETER_ERROR, QueryMessages.malformedQuery());
+        }
+    }
+
+
     public static Query parse(final String args, final String ssoToken, final List<String> passwords, final boolean trusted) {
         final Query query = parse(args, Origin.REST, trusted);
         query.ssoToken = ssoToken;
@@ -123,6 +143,10 @@ public class Query {
 
     public boolean isTrusted() {
         return trusted;
+    }
+
+    public boolean hasSubstitutions() {
+        return queryParser.hasSubstitutions();
     }
 
     public boolean via(Origin origin) {
@@ -221,15 +245,19 @@ public class Query {
             if (values.length != 2) {
                 throw new QueryException(QueryCompletionInfo.PARAMETER_ERROR, QueryMessages.malformedQuery("diff versions must be in the format a:b"));
             }
-            final int firstValue = Integer.parseInt(values[0]);
-            final int secondValue = Integer.parseInt(values[1]);
-            if (firstValue < 1 || secondValue < 1) {
-                throw new QueryException(QueryCompletionInfo.PARAMETER_ERROR, QueryMessages.malformedQuery("diff version number must be greater than 0"));
+            try {
+                final int firstValue = Integer.parseInt(values[0]);
+                final int secondValue = Integer.parseInt(values[1]);
+                if (firstValue < 1 || secondValue < 1) {
+                    throw new QueryException(QueryCompletionInfo.PARAMETER_ERROR, QueryMessages.malformedQuery("diff version number must be greater than 0"));
+                }
+                if (secondValue == firstValue) {
+                    throw new QueryException(QueryCompletionInfo.PARAMETER_ERROR, QueryMessages.malformedQuery("diff versions are the same"));
+                }
+                return new int[]{firstValue, secondValue};
+            } catch (NumberFormatException e) {
+                throw new QueryException(QueryCompletionInfo.PARAMETER_ERROR, QueryMessages.malformedQuery("diff version must be a number"));
             }
-            if (secondValue == firstValue) {
-                throw new QueryException(QueryCompletionInfo.PARAMETER_ERROR, QueryMessages.malformedQuery("diff versions are the same"));
-            }
-            return new int[]{firstValue, secondValue};
         }
         return new int[]{-1, -1};
     }
@@ -520,7 +548,7 @@ public class Query {
             try {
                 final AttributeType type = AttributeType.getByName(attributeType);
                 if (AttributeType.PERSON.equals(type)) {
-                    ret.addAll(Arrays.asList(AttributeType.ADMIN_C, AttributeType.TECH_C, AttributeType.ZONE_C, AttributeType.AUTHOR, AttributeType.PING_HDL));
+                    ret.addAll(Arrays.asList(AttributeType.ABUSE_C, AttributeType.ADMIN_C, AttributeType.TECH_C, AttributeType.ZONE_C, AttributeType.AUTHOR, AttributeType.PING_HDL));
                 } else {
                     ret.add(type);
                 }

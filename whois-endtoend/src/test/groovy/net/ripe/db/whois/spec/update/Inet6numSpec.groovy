@@ -1,10 +1,10 @@
 package net.ripe.db.whois.spec.update
-import net.ripe.db.whois.common.IntegrationTest
+
 import net.ripe.db.whois.spec.BaseQueryUpdateSpec
 import net.ripe.db.whois.spec.domain.AckResponse
 import net.ripe.db.whois.spec.domain.Message
 
-@org.junit.experimental.categories.Category(IntegrationTest.class)
+@org.junit.jupiter.api.Tag("IntegrationTest")
 class Inet6numSpec extends BaseQueryUpdateSpec {
 
     @Override
@@ -231,7 +231,7 @@ class Inet6numSpec extends BaseQueryUpdateSpec {
 
                 password: owner3
                 password: hm
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:
@@ -267,7 +267,7 @@ class Inet6numSpec extends BaseQueryUpdateSpec {
                 source:       TEST
                 override: denis,override1
 
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:
@@ -275,7 +275,7 @@ class Inet6numSpec extends BaseQueryUpdateSpec {
             ack.summary.assertSuccess(1, 0, 1, 0, 0)
             ack.summary.assertErrors(0, 0, 0, 0)
 
-            ack.countErrorWarnInfo(0, 0, 2)
+            ack.countErrorWarnInfo(0, 3, 2)
             ack.successes.any { it.operation == "Modify" && it.key == "[inet6num] ::/0" }
             ack.infoSuccessMessagesFor("Modify", "[inet6num] ::/0") == ["Value 0::/0 converted to ::/0", "Authorisation override used"]
     }
@@ -304,7 +304,7 @@ class Inet6numSpec extends BaseQueryUpdateSpec {
 
                 password: owner3
                 password: hm
-                """.stripIndent()
+                """.stripIndent(true)
             )
 
         then:
@@ -340,7 +340,7 @@ class Inet6numSpec extends BaseQueryUpdateSpec {
 
                 password: hm
                 password: owner3
-                """.stripIndent()
+                """.stripIndent(true)
             )
 
         then:
@@ -381,7 +381,7 @@ class Inet6numSpec extends BaseQueryUpdateSpec {
                 source:       TEST
 
                 password: lir
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:
@@ -424,7 +424,7 @@ class Inet6numSpec extends BaseQueryUpdateSpec {
                 source:       TEST
 
                 password: lir
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:
@@ -440,6 +440,98 @@ class Inet6numSpec extends BaseQueryUpdateSpec {
                 ["Value 2001:600:1:1:1:1:1:1/64 converted to 2001:600:1:1::/64"]
 
         queryObject("-rGBT inet6num 2001:600:1:1::/64", "inet6num", "2001:600:1:1::/64")
+    }
+
+    def "create /65 assignment"() {
+        given:
+        syncUpdate(getTransient("RIR-ALLOC-25") + "password: hm\npassword: owner3")
+        queryObject("-r -T inet6num 2001:600::/25", "inet6num", "2001:600::/25")
+        syncUpdate(getTransient("LIR-ALLOC-30") + "password: lir\npassword: hm\npassword: owner3")
+        queryObject("-r -T inet6num 2001:600::/30", "inet6num", "2001:600::/30")
+
+        expect:
+        queryObjectNotFound("-r -T inet6num 2001:600:1:1::/64", "inet6num", "2001:600:1:1::/64")
+
+        when:
+        def message = send new Message(
+                subject: "",
+                body: """\
+                inet6num:     2001:600::/65
+                netname:      EU-ZZ-2001-0600
+                descr:        European Regional Registry
+                country:      EU
+                admin-c:      TP1-TEST
+                tech-c:       TP1-TEST
+                mnt-by:       lir-MNT
+                status:       ASSIGNED
+                source:       TEST
+
+                password: lir
+                """.stripIndent(true)
+        )
+
+        then:
+        def ack = ackFor message
+
+        ack.summary.nrFound == 1
+        ack.summary.assertSuccess(0, 0, 0, 0, 0)
+        ack.summary.assertErrors(1, 1, 0, 0)
+
+        ack.countErrorWarnInfo(1, 0, 0)
+        ack.errors.any { it.operation == "Create" && it.key == "[inet6num] 2001:600::/65" }
+        ack.errorMessagesFor("Create", "[inet6num] 2001:600::/65") ==
+                [ "Minimum prefix size is 64" ]
+
+        queryObjectNotFound("-r -T inet6num 2001:600::/65", "inet6num", "2001:600::/65")
+    }
+
+    def "modify /67 assignment"() {
+        given:
+        syncUpdate(getTransient("RIR-ALLOC-25") + "password: hm\npassword: owner3")
+        queryObject("-r -T inet6num 2001:600::/25", "inet6num", "2001:600::/25")
+        syncUpdate(getTransient("LIR-ALLOC-30") + "password: lir\npassword: hm\npassword: owner3")
+        queryObject("-r -T inet6num 2001:600::/30", "inet6num", "2001:600::/30")
+        dbfixture(
+                "inet6num:     2001:600::/67\n" +
+                "netname:      EU-ZZ-2001-0600\n" +
+                "descr:        European Regional Registry\n" +
+                "country:      EU\n" +
+                "admin-c:      TP1-TEST\n" +
+                "tech-c:       TP1-TEST\n" +
+                "mnt-by:       lir-MNT\n" +
+                "status:       ASSIGNED\n" +
+                "source:       TEST"
+        )
+
+        when:
+        def message = send new Message(
+                subject: "",
+                body: """\
+                inet6num:     2001:600::/67
+                netname:      EU-ZZ-2001-0600
+                descr:        European Regional Registry2
+                country:      EU
+                admin-c:      TP1-TEST
+                tech-c:       TP1-TEST
+                mnt-by:       lir-MNT
+                status:       ASSIGNED
+                source:       TEST
+
+                password: lir
+                """.stripIndent(true)
+        )
+
+        then:
+        def ack = ackFor message
+
+        ack.summary.nrFound == 1
+        ack.summary.assertSuccess(1, 0, 1, 0, 0)
+        ack.summary.assertErrors(0, 0, 0, 0)
+
+        ack.countErrorWarnInfo(0, 0, 0)
+        ack.successes.any { it.operation == "Modify" && it.key == "[inet6num] 2001:600::/67" }
+
+        queryObject("-rGBT inet6num 2001:600::/67", "inet6num", "2001:600::/67")
     }
 
     def "create /64 assignment with all bits, 1 at end, then delete with same format"() {
@@ -478,7 +570,7 @@ class Inet6numSpec extends BaseQueryUpdateSpec {
                 delete:  check address format
 
                 password: lir
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:
@@ -522,7 +614,7 @@ class Inet6numSpec extends BaseQueryUpdateSpec {
                 source:       TEST
 
                 password: lir
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:
@@ -538,106 +630,6 @@ class Inet6numSpec extends BaseQueryUpdateSpec {
                 ["Value 2001:600:0:0::0:0/64 converted to 2001:600::/64"]
 
         queryObject("-rGBT inet6num 2001:600::/64", "inet6num", "2001:600::/64")
-    }
-
-    def "create /128 assignment with all zeroes and modify it"() {
-        given:
-        syncUpdate(getTransient("RIR-ALLOC-25") + "password: hm\npassword: owner3")
-        queryObject("-r -T inet6num 2001:600::/25", "inet6num", "2001:600::/25")
-        syncUpdate(getTransient("LIR-ALLOC-30") + "password: lir\npassword: hm\npassword: owner3")
-        queryObject("-r -T inet6num 2001:600::/30", "inet6num", "2001:600::/30")
-
-        expect:
-        queryObjectNotFound("-r -T inet6num 2001:600::/64", "inet6num", "2001:600::/128")
-
-        when:
-        def message = send new Message(
-                subject: "",
-                body: """\
-                inet6num:     2001:600:0:0:0:0:0:0/128
-                netname:      EU-ZZ-2001-0600
-                descr:        European Regional Registry
-                country:      EU
-                admin-c:      TP1-TEST
-                tech-c:       TP1-TEST
-                mnt-by:       lir-MNT
-                status:       ASSIGNED
-                source:       TEST
-
-                inet6num:     2001:600:0:0:0:0:0:0/128
-                netname:      EU-ZZ-2001-0600
-                descr:        European Regional Registry
-                country:      EU
-                admin-c:      TP1-TEST
-                tech-c:       TP1-TEST
-                mnt-by:       lir-MNT
-                remarks:      just added
-                status:       ASSIGNED
-                source:       TEST
-
-                password: lir
-                """.stripIndent()
-        )
-
-        then:
-        def ack = ackFor message
-
-        ack.summary.nrFound == 2
-        ack.summary.assertSuccess(2, 1, 1, 0, 0)
-        ack.summary.assertErrors(0, 0, 0, 0)
-
-        ack.countErrorWarnInfo(0, 0, 2)
-        ack.successes.any { it.operation == "Create" && it.key == "[inet6num] 2001:600::/128" }
-        ack.infoSuccessMessagesFor("Create", "[inet6num] 2001:600::/128") ==
-                ["Value 2001:600:0:0:0:0:0:0/128 converted to 2001:600::/128"]
-        ack.successes.any { it.operation == "Modify" && it.key == "[inet6num] 2001:600::/128" }
-        ack.infoSuccessMessagesFor("Modify", "[inet6num] 2001:600::/128") ==
-                ["Value 2001:600:0:0:0:0:0:0/128 converted to 2001:600::/128"]
-
-        queryObject("-rGBT inet6num 2001:600::/128", "inet6num", "2001:600::/128")
-    }
-
-    def "create /128 assignment with all bits, 1 at end"() {
-        given:
-        syncUpdate(getTransient("RIR-ALLOC-25") + "password: hm\npassword: owner3")
-        queryObject("-r -T inet6num 2001:600::/25", "inet6num", "2001:600::/25")
-        syncUpdate(getTransient("LIR-ALLOC-30") + "password: lir\npassword: hm\npassword: owner3")
-        queryObject("-r -T inet6num 2001:600::/30", "inet6num", "2001:600::/30")
-
-        expect:
-        queryObjectNotFound("-r -T inet6num 2001:600::1/128", "inet6num", "2001:600::1/128")
-
-        when:
-        def message = send new Message(
-                subject: "",
-                body: """\
-                inet6num:     2001:600:0:0:0:0:0:1/128
-                netname:      EU-ZZ-2001-0600
-                descr:        European Regional Registry
-                country:      EU
-                admin-c:      TP1-TEST
-                tech-c:       TP1-TEST
-                mnt-by:       lir-MNT
-                status:       ASSIGNED
-                source:       TEST
-
-                password: lir
-                """.stripIndent()
-        )
-
-        then:
-        def ack = ackFor message
-
-        ack.summary.nrFound == 1
-        ack.summary.assertSuccess(1, 1, 0, 0, 0)
-        ack.summary.assertErrors(0, 0, 0, 0)
-
-        ack.countErrorWarnInfo(0, 0, 1)
-        ack.successes.any { it.operation == "Create" && it.key == "[inet6num] 2001:600::1/128" }
-        ack.infoSuccessMessagesFor("Create", "[inet6num] 2001:600::1/128") ==
-                ["Value 2001:600:0:0:0:0:0:1/128 converted to 2001:600::1/128"]
-
-        queryObject("-rGBT inet6num 2001:600::1/128", "inet6num", "2001:600::1/128")
     }
 
     def "create allocation with invalid legacy status"() {
@@ -662,7 +654,7 @@ class Inet6numSpec extends BaseQueryUpdateSpec {
 
                 password: hm
                 password: owner3
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:
@@ -702,7 +694,7 @@ class Inet6numSpec extends BaseQueryUpdateSpec {
 
                 password: hm
                 password: owner3
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:
@@ -742,7 +734,7 @@ class Inet6numSpec extends BaseQueryUpdateSpec {
 
                 password: hm
                 password: owner3
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:
@@ -758,43 +750,6 @@ class Inet6numSpec extends BaseQueryUpdateSpec {
                 ["Syntax error in ALLOCATED PA"]
 
         queryObjectNotFound("-rGBT inet6num 2001:600::/25", "inet6num", "2001:600::/25")
-    }
-
-    def "create allocation, parent has invalid legacy status"() {
-        expect:
-            queryObjectNotFound("-r -T inet6num 1981:600::/48", "inet6num", "1981:600::/48")
-
-        when:
-            def ack = syncUpdateWithResponse("""
-                inet6num:     1981:600::/48
-                netname:      EU-ZZ-2001-0600
-                descr:        European Regional Registry
-                country:      EU
-                org:          ORG-LIR1-TEST
-                admin-c:      TP1-TEST
-                tech-c:       TP1-TEST
-                mnt-by:       LIR-MNT
-                mnt-lower:    LIR-MNT
-                status:       ALLOCATED-BY-LIR
-                source:       TEST
-
-                password: hm
-                password: lir
-                password: owner3
-                """.stripIndent()
-        )
-
-        then:
-            ack.summary.nrFound == 1
-            ack.summary.assertSuccess(0, 0, 0, 0, 0)
-            ack.summary.assertErrors(1, 1, 0, 0)
-
-            ack.countErrorWarnInfo(1, 0, 0)
-            ack.errors.any { it.operation == "Create" && it.key == "[inet6num] 1981:600::/48" }
-            ack.errorMessagesFor("Create", "[inet6num] 1981:600::/48") ==
-                    ["Parent 1981:600::/25 has invalid status: SUBTLA"]
-
-            queryObjectNotFound("-rGBT inet6num 1981:600::/48", "inet6num", "1981:600::/48")
     }
 
     def "create RIR allocation not mnt-by RS"() {
@@ -818,7 +773,7 @@ class Inet6numSpec extends BaseQueryUpdateSpec {
                 password: hm
                 password: lir
                 password: owner3
-                """.stripIndent()
+                """.stripIndent(true)
             )
 
         then:
@@ -854,7 +809,7 @@ class Inet6numSpec extends BaseQueryUpdateSpec {
 
                 password: hm
                 password: owner3
-                """.stripIndent()
+                """.stripIndent(true)
             )
 
         then:
@@ -888,7 +843,7 @@ class Inet6numSpec extends BaseQueryUpdateSpec {
 
                 password: hm
                 password: owner3
-                """.stripIndent()
+                """.stripIndent(true)
             )
 
         then:
@@ -929,7 +884,7 @@ class Inet6numSpec extends BaseQueryUpdateSpec {
 
                 password: lir
                 password: owner3
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:
@@ -974,7 +929,7 @@ class Inet6numSpec extends BaseQueryUpdateSpec {
                 source:       TEST
 
                 password: lir
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:
@@ -1010,7 +965,7 @@ class Inet6numSpec extends BaseQueryUpdateSpec {
                 source:       TEST
                 override:  denis,override1
 
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:
@@ -1020,7 +975,7 @@ class Inet6numSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(1, 1, 0, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
 
-        ack.countErrorWarnInfo(0, 0, 1)
+        ack.countErrorWarnInfo(0, 2, 1)
         ack.successes.any { it.operation == "Create" && it.key == "[inet6num] 2001:600::/25" }
         ack.infoSuccessMessagesFor("Create", "[inet6num] 2001:600::/25") == [
                 "Authorisation override used"]
@@ -1048,7 +1003,7 @@ class Inet6numSpec extends BaseQueryUpdateSpec {
                 delete:       old status
 
                 password: hm
-                """.stripIndent()
+                """.stripIndent(true)
             )
 
         then:
@@ -1088,7 +1043,7 @@ class Inet6numSpec extends BaseQueryUpdateSpec {
                 delete:       ass
 
                 password: lir
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:
@@ -1129,7 +1084,7 @@ class Inet6numSpec extends BaseQueryUpdateSpec {
                 delete:       ass
 
                 password: lir
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:
@@ -1170,7 +1125,7 @@ class Inet6numSpec extends BaseQueryUpdateSpec {
                 delete:       ass
 
                 password: hm
-                """.stripIndent()
+                """.stripIndent(true)
             )
 
         then:
@@ -1208,7 +1163,7 @@ class Inet6numSpec extends BaseQueryUpdateSpec {
                 delete:       ass
 
                 password: lir
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:
@@ -1248,7 +1203,7 @@ class Inet6numSpec extends BaseQueryUpdateSpec {
                 delete:       ass
 
                 password: hm
-                """.stripIndent()
+                """.stripIndent(true)
             )
 
         then:
@@ -1284,7 +1239,7 @@ class Inet6numSpec extends BaseQueryUpdateSpec {
                 delete:       alloc
                 override:  denis,override1
 
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:
@@ -1294,7 +1249,7 @@ class Inet6numSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(1, 0, 0, 1, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
 
-        ack.countErrorWarnInfo(0, 0, 1)
+        ack.countErrorWarnInfo(0, 1, 1)
         ack.successes.any { it.operation == "Delete" && it.key == "[inet6num] 2001:600::/25" }
         ack.infoSuccessMessagesFor("Delete", "[inet6num] 2001:600::/25") == [
                 "Authorisation override used"]
@@ -1326,7 +1281,7 @@ class Inet6numSpec extends BaseQueryUpdateSpec {
 
                 password: hm
                 password: owner3
-                """.stripIndent()
+                """.stripIndent(true)
             )
 
         then:
@@ -1364,7 +1319,7 @@ class Inet6numSpec extends BaseQueryUpdateSpec {
 
                 password: hm
                 password: owner3
-                """.stripIndent()
+                """.stripIndent(true)
             )
 
         then:
@@ -1406,7 +1361,7 @@ class Inet6numSpec extends BaseQueryUpdateSpec {
                 password: lir2
                 password: lir3
                 password: owner3
-                """.stripIndent()
+                """.stripIndent(true)
             )
 
         then:
@@ -1447,7 +1402,7 @@ class Inet6numSpec extends BaseQueryUpdateSpec {
                 password: hm
                 password: lir
                 password: owner3
-                """.stripIndent()
+                """.stripIndent(true)
             )
 
         then:
@@ -1479,15 +1434,14 @@ class Inet6numSpec extends BaseQueryUpdateSpec {
                 admin-c:      TP1-TEST
                 tech-c:       TP1-TEST
                 mnt-by:       ripe-ncc-hm-MNT
-                mnt-by:       ripe-ncc-hm2-MNT
                 mnt-lower:    liR2-MNT
                 status:       ALLOCATED-BY-RIR
                 source:       TEST
 
-                password: hm2
+                password: hm
                 password: owner2
                 password: owner3
-                """.stripIndent()
+                """.stripIndent(true)
             )
 
         then:
@@ -1519,7 +1473,6 @@ class Inet6numSpec extends BaseQueryUpdateSpec {
                 admin-c:      TP1-TEST
                 tech-c:       TP1-TEST
                 mnt-by:       ripe-ncc-hm-MNT
-                mnt-by:       ripe-ncc-hm2-MNT
                 mnt-by:       liR2-MNT
                 mnt-by:       liR3-MNT
                 mnt-lower:    liR2-MNT
@@ -1535,7 +1488,6 @@ class Inet6numSpec extends BaseQueryUpdateSpec {
                 admin-c:      TP1-TEST
                 tech-c:       TP1-TEST
                 mnt-by:       ripe-ncc-hm-MNT
-                mnt-by:       ripe-ncc-hm2-MNT
                 mnt-by:       liR2-MNT
                 mnt-by:       liR3-MNT
                 mnt-lower:    liR2-MNT
@@ -1545,7 +1497,7 @@ class Inet6numSpec extends BaseQueryUpdateSpec {
                 source:       TEST
 
                 password: lir3
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:
@@ -1555,7 +1507,7 @@ class Inet6numSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(2, 1, 1, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
 
-        ack.countErrorWarnInfo(0, 0, 1)
+        ack.countErrorWarnInfo(0, 2, 1)
         ack.successes.any { it.operation == "Create" && it.key == "[inet6num] 2001:600::/30" }
         ack.infoSuccessMessagesFor("Create", "[inet6num] 2001:600::/30") == [
                 "Authorisation override used"]
@@ -1602,7 +1554,7 @@ class Inet6numSpec extends BaseQueryUpdateSpec {
                 source:       TEST
 
                 password: lir
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:
@@ -1661,7 +1613,7 @@ class Inet6numSpec extends BaseQueryUpdateSpec {
                 source:       TEST
                 override:  denis,override1
 
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:
@@ -1671,7 +1623,7 @@ class Inet6numSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(2, 0, 2, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
 
-        ack.countErrorWarnInfo(0, 0, 2)
+        ack.countErrorWarnInfo(0, 2, 2)
         ack.successes.any { it.operation == "Modify" && it.key == "[inet6num] 2001:600::/32" }
         ack.infoSuccessMessagesFor("Modify", "[inet6num] 2001:600::/32") == [
                 "Authorisation override used"]
@@ -1736,7 +1688,7 @@ class Inet6numSpec extends BaseQueryUpdateSpec {
                 password: lir
                 password: hm
                 password: owner3
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:
@@ -1781,7 +1733,7 @@ class Inet6numSpec extends BaseQueryUpdateSpec {
                 source:       TEST
 
                 password: lir
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:
@@ -1823,7 +1775,7 @@ class Inet6numSpec extends BaseQueryUpdateSpec {
                 source:       TEST
 
                 password: lir
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:
@@ -1865,7 +1817,7 @@ class Inet6numSpec extends BaseQueryUpdateSpec {
                 source:       TEST
 
                 password: lir
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:
@@ -1907,7 +1859,7 @@ class Inet6numSpec extends BaseQueryUpdateSpec {
                 source:       TEST
 
                 password: lir
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:
@@ -1952,7 +1904,7 @@ class Inet6numSpec extends BaseQueryUpdateSpec {
 
                 password: lir
                 password: test
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:
@@ -1996,7 +1948,7 @@ class Inet6numSpec extends BaseQueryUpdateSpec {
                 source:       TEST
 
                 password: lir
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:
@@ -2039,7 +1991,7 @@ class Inet6numSpec extends BaseQueryUpdateSpec {
                 source:       TEST
 
                 password: lir
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:
@@ -2082,7 +2034,7 @@ class Inet6numSpec extends BaseQueryUpdateSpec {
                 source:       TEST
 
                 password: lir
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:
@@ -2125,7 +2077,7 @@ class Inet6numSpec extends BaseQueryUpdateSpec {
                 source:       TEST
 
                 password: lir
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:
@@ -2178,7 +2130,7 @@ class Inet6numSpec extends BaseQueryUpdateSpec {
                 org:          ORG-OTO1-TEST
                 mnt-by:       lir-MNT
                 mnt-irt:      irt-test
-                status:       AGGREGATED-BY-LIR  #this is # aggregated space
+                status:       AGGREGATED-BY-LIR
                 assignment-size: 65
                 mnt-lower:    owner2-mnt
                 mnt-domains:    owner-mnt
@@ -2200,7 +2152,7 @@ class Inet6numSpec extends BaseQueryUpdateSpec {
                 password: owner3
                 password: lir
                 password: test
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:
@@ -2243,7 +2195,7 @@ class Inet6numSpec extends BaseQueryUpdateSpec {
                 source:       TEST
 
                 password: lir
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:
@@ -2259,4 +2211,167 @@ class Inet6numSpec extends BaseQueryUpdateSpec {
         query_object_matches("-rGBT inet6num 2001:600::/64", "inet6num", "2001:600::/64", "just added")
     }
 
+    def "create with abuse-c"() {
+        expect:
+        queryObjectNotFound("-r -T inet6num 2001:600::/25", "inet6num", "2001:600::/25")
+
+        when:
+        def ack = syncUpdateWithResponse("""
+                inet6num:     2001:0600::/25
+                netname:      EU-ZZ-2001-0600
+                descr:        European Regional Registry
+                country:      EU
+                org:          ORG-LIR1-TEST
+                admin-c:      TP1-TEST
+                tech-c:       TP1-TEST
+                abuse-c:      AH1-TEST
+                mnt-by:       RIPE-NCC-HM-MNT
+                mnt-lower:    RIPE-NCC-HM-MNT
+                status:       ALLOCATED-BY-RIR
+                source:       TEST
+
+                password: hm
+                password: owner3
+                """.stripIndent(true)
+        )
+
+        then:
+        ack.summary.nrFound == 1
+        ack.summary.assertSuccess(1, 1, 0, 0, 0)
+        ack.summary.assertErrors(0, 0, 0, 0)
+
+        ack.countErrorWarnInfo(0, 0, 1)
+        ack.successes.any { it.operation == "Create" && it.key == "[inet6num] 2001:600::/25" }
+        ack.infoSuccessMessagesFor("Create", "[inet6num] 2001:600::/25") ==
+                ["Value 2001:0600::/25 converted to 2001:600::/25"]
+
+        queryObject("-rGBT inet6num 2001:600::/25", "inet6num", "2001:600::/25")
+    }
+
+    def "create with geofeed"() {
+        when:
+        def ack = syncUpdateWithResponse("""
+                inet6num:     2001:600::/25
+                netname:      EU-ZZ-2001-0600
+                descr:        European Regional Registry
+                country:      EU
+                geofeed:      https://www.example.com
+                org:          ORG-LIR1-TEST
+                admin-c:      TP1-TEST
+                tech-c:       TP1-TEST
+                mnt-by:       RIPE-NCC-HM-MNT
+                mnt-lower:    RIPE-NCC-HM-MNT
+                status:       ALLOCATED-BY-RIR
+                source:       TEST
+
+                password: hm
+                password: owner3
+                """.stripIndent(true))
+        then:
+        ack.summary.nrFound == 1
+        ack.summary.assertSuccess(1, 1, 0, 0, 0)
+        ack.summary.assertErrors(0, 0, 0, 0)
+
+        ack.countErrorWarnInfo(0, 0, 0)
+        ack.successes.any { it.operation == "Create" && it.key == "[inet6num] 2001:600::/25" }
+
+        queryObject("-rGBT inet6num 2001:600::/25", "inet6num", "2001:600::/25")
+    }
+
+    def "create with invalid geofeed"() {
+        when:
+        def ack = syncUpdateWithResponse("""
+                inet6num:     2001:600::/25
+                netname:      EU-ZZ-2001-0600
+                descr:        European Regional Registry
+                country:      EU
+                geofeed:      not an url
+                org:          ORG-LIR1-TEST
+                admin-c:      TP1-TEST
+                tech-c:       TP1-TEST
+                mnt-by:       RIPE-NCC-HM-MNT
+                mnt-lower:    RIPE-NCC-HM-MNT
+                status:       ALLOCATED-BY-RIR
+                source:       TEST
+
+                password: hm
+                password: owner3
+                """.stripIndent(true))
+        then:
+        ack.summary.nrFound == 1
+        ack.summary.assertSuccess(0, 0, 0, 0, 0)
+        ack.summary.assertErrors(1, 1, 0, 0)
+
+        ack.countErrorWarnInfo(1, 0, 0)
+        ack.errors.any { it.operation == "Create" && it.key == "[inet6num] 2001:600::/25" }
+        ack.errorMessagesFor("Create", "[inet6num] 2001:600::/25") ==
+                ["Syntax error in not an url"]
+
+        queryObjectNotFound("-rGBT inet6num 2001:600::/25", "inet6num", "2001:600::/25")
+    }
+
+    def "create with not secure url as geofeed"() {
+        when:
+        def ack = syncUpdateWithResponse("""
+                inet6num:     2001:600::/25
+                netname:      EU-ZZ-2001-0600
+                descr:        European Regional Registry
+                country:      EU
+                geofeed:      http://unsecure.com
+                org:          ORG-LIR1-TEST
+                admin-c:      TP1-TEST
+                tech-c:       TP1-TEST
+                mnt-by:       RIPE-NCC-HM-MNT
+                mnt-lower:    RIPE-NCC-HM-MNT
+                status:       ALLOCATED-BY-RIR
+                source:       TEST
+
+                password: hm
+                password: owner3
+                """.stripIndent(true))
+        then:
+        ack.summary.nrFound == 1
+        ack.summary.assertSuccess(0, 0, 0, 0, 0)
+        ack.summary.assertErrors(1, 1, 0, 0)
+
+        ack.countErrorWarnInfo(1, 0, 0)
+        ack.errors.any { it.operation == "Create" && it.key == "[inet6num] 2001:600::/25" }
+        ack.errorMessagesFor("Create", "[inet6num] 2001:600::/25") ==
+                ["Syntax error in http://unsecure.com"]
+
+        queryObjectNotFound("-rGBT inet6num 2001:600::/25", "inet6num", "2001:600::/25")
+    }
+
+    def "create with geofeed and remarks geofeed"() {
+        when:
+        def ack = syncUpdateWithResponse("""
+                inet6num:     2001:600::/25
+                netname:      EU-ZZ-2001-0600
+                descr:        European Regional Registry
+                country:      EU
+                geofeed:      https://example.com
+                remarks:      geofeed: https://example.com
+                org:          ORG-LIR1-TEST
+                admin-c:      TP1-TEST
+                tech-c:       TP1-TEST
+                mnt-by:       RIPE-NCC-HM-MNT
+                mnt-lower:    RIPE-NCC-HM-MNT
+                status:       ALLOCATED-BY-RIR
+                source:       TEST
+
+                password: hm
+                password: owner3
+                """.stripIndent(true))
+        then:
+        ack.summary.nrFound == 1
+        ack.summary.assertSuccess(0, 0, 0, 0, 0)
+        ack.summary.assertErrors(1, 1, 0, 0)
+
+        ack.countErrorWarnInfo(1, 0, 0)
+        ack.errors.any { it.operation == "Create" && it.key == "[inet6num] 2001:600::/25" }
+        ack.errorMessagesFor("Create", "[inet6num] 2001:600::/25") ==
+                ["Only one between the \"geofeed:\" and \"remark: geofeed:\" attributes is allowed."]
+
+        queryObjectNotFound("-rGBT inet6num 2001:600::/25", "inet6num", "2001:600::/25")
+    }
 }

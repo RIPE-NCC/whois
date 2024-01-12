@@ -1,11 +1,11 @@
 package net.ripe.db.whois.spec.query
 
-import net.ripe.db.whois.common.IntegrationTest
+
 import net.ripe.db.whois.spec.BaseQueryUpdateSpec
 import net.ripe.db.whois.spec.BasicFixtures
 import net.ripe.db.whois.spec.domain.AckResponse
 
-@org.junit.experimental.categories.Category(IntegrationTest.class)
+@org.junit.jupiter.api.Tag("IntegrationTest")
 class VersionHistorySpec extends BaseQueryUpdateSpec {
 
     @Override
@@ -112,11 +112,11 @@ class VersionHistorySpec extends BaseQueryUpdateSpec {
                 auth:    MD5-PW \$1\$fU9ZMQN9\$QQtm3kRqZXWAuLpeOiLN7. # update
                 source:  TEST
                 """,
-            "PAUL": """\
-                mntner:  PAUL
+            "PAUL-MNT": """\
+                mntner:  PAUL-MNT
                 descr:   description
                 admin-c: TP1-TEST
-                mnt-by:  PAUL
+                mnt-by:  PAUL-MNT
                 upd-to:  updto_cre@ripe.net
                 auth:    MD5-PW \$1\$fU9ZMQN9\$QQtm3kRqZXWAuLpeOiLN7. # update
                 source:  TEST
@@ -152,8 +152,8 @@ class VersionHistorySpec extends BaseQueryUpdateSpec {
 
       and:
         queryLineMatches("--list-versions 2001::/20", "^% Version history for INET6NUM object \"2001::/20\"")
-        queryLineMatches("--list-versions 2001::/20", "^1\\s*[0-9-]+\\s*[0-9:]+\\s*ADD/UPD")
-        ! queryLineMatches("--list-versions 2001::/20", "^2\\s*[0-9-]+\\s*[0-9:]+\\s*ADD/UPD")
+        queryLineMatches("--list-versions 2001::/20", "^1\\s*[0-9-]+T\\s*[0-9:]+Z\\s*ADD/UPD")
+        ! queryLineMatches("--list-versions 2001::/20", "^2\\s*[0-9-]+T\\s*[0-9:]+Z\\s*ADD/UPD")
     }
 
     def "query --list-versions, 2 versions"() {
@@ -180,7 +180,7 @@ class VersionHistorySpec extends BaseQueryUpdateSpec {
                 source:       TEST
                 override:  denis,override1
 
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -194,9 +194,9 @@ class VersionHistorySpec extends BaseQueryUpdateSpec {
         ack.successes.any { it.operation == "Modify" && it.key == "[inet6num] 2001::/20" }
 
         queryLineMatches("--list-versions 2001::/20", "^% Version history for INET6NUM object \"2001::/20\"")
-        queryLineMatches("--list-versions 2001::/20", "^1\\s*[0-9-]+\\s*[0-9:]+\\s*ADD/UPD")
-        queryLineMatches("--list-versions 2001::/20", "^2\\s*[0-9-]+\\s*[0-9:]+\\s*ADD/UPD")
-        ! queryLineMatches("--list-versions 2001::/20", "^3\\s*[0-9-]+\\s*[0-9:]+\\s*ADD/UPD")
+        queryLineMatches("--list-versions 2001::/20", "^1\\s*[0-9-]+T\\s*[0-9:]+Z\\s*ADD/UPD")
+        queryLineMatches("--list-versions 2001::/20", "^2\\s*[0-9-]+T\\s*[0-9:]+Z\\s*ADD/UPD")
+        ! queryLineMatches("--list-versions 2001::/20", "^3\\s*[0-9-]+T\\s*[0-9:]+Z\\s*ADD/UPD")
     }
 
     def "query --show-version 2, 2 versions"() {
@@ -223,7 +223,7 @@ class VersionHistorySpec extends BaseQueryUpdateSpec {
                 source:       TEST
                 override:  denis,override1
 
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -279,7 +279,7 @@ class VersionHistorySpec extends BaseQueryUpdateSpec {
                 source:       TEST
                 override:  denis,override1
 
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -293,10 +293,10 @@ class VersionHistorySpec extends BaseQueryUpdateSpec {
         ack.successes.any { it.operation == "Modify" && it.key == "[inetnum] 192.168.0.0 - 192.169.255.255" }
 
         queryLineMatches("--list-versions 192.168.0.0 - 192.169.255.255", "^% Version history for INETNUM object \"192.168.0.0 - 192.169.255.255\"")
-        queryLineMatches("--list-versions 192.168.0.0 - 192.169.255.255", "^1\\s*[0-9-]+\\s*[0-9:]+\\s*ADD/UPD")
-        queryLineMatches("--list-versions 192.168.0.0 - 192.169.255.255", "^2\\s*[0-9-]+\\s*[0-9:]+\\s*ADD/UPD")
-        queryLineMatches("--list-versions 192.168.0.0 - 192.169.255.255", "^3\\s*[0-9-]+\\s*[0-9:]+\\s*ADD/UPD")
-        ! queryLineMatches("--list-versions 192.168.0.0 - 192.169.255.255", "^4\\s*[0-9-]+\\s*[0-9:]+\\s*ADD/UPD")
+        queryLineMatches("--list-versions 192.168.0.0 - 192.169.255.255", "^1\\s*[0-9-]+T\\s*[0-9:]+Z\\s*ADD/UPD")
+        queryLineMatches("--list-versions 192.168.0.0 - 192.169.255.255", "^2\\s*[0-9-]+T\\s*[0-9:]+Z\\s*ADD/UPD")
+        queryLineMatches("--list-versions 192.168.0.0 - 192.169.255.255", "^3\\s*[0-9-]+T\\s*[0-9:]+Z\\s*ADD/UPD")
+        ! queryLineMatches("--list-versions 192.168.0.0 - 192.169.255.255", "^4\\s*[0-9-]+T\\s*[0-9:]+Z\\s*ADD/UPD")
     }
 
     def "query --show-version 3, 3 versions"() {
@@ -337,7 +337,7 @@ class VersionHistorySpec extends BaseQueryUpdateSpec {
                 source:       TEST
                 override:  denis,override1
 
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -393,7 +393,7 @@ class VersionHistorySpec extends BaseQueryUpdateSpec {
                 source:       TEST
                 override:  denis,override1
 
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -449,7 +449,7 @@ class VersionHistorySpec extends BaseQueryUpdateSpec {
                 source:       TEST
                 override:  denis,override1
 
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -519,7 +519,7 @@ class VersionHistorySpec extends BaseQueryUpdateSpec {
                 delete:       comment
                 override:  denis,override1
 
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -529,7 +529,7 @@ class VersionHistorySpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(3, 0, 2, 1, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
 
-        ack.countErrorWarnInfo(0, 0, 3)
+        ack.countErrorWarnInfo(0, 1, 3)
         ack.successes.any { it.operation == "Modify" && it.key == "[inetnum] 192.168.0.0 - 192.169.255.255" }
         ack.successes.any { it.operation == "Delete" && it.key == "[inetnum] 192.168.0.0 - 192.169.255.255" }
 
@@ -537,7 +537,7 @@ class VersionHistorySpec extends BaseQueryUpdateSpec {
 
         queryLineMatches("--list-versions 192.168.0.0 - 192.169.255.255", "^% Version history for INETNUM object \"192.168.0.0 - 192.169.255.255\"")
         queryLineMatches("--list-versions 192.168.0.0 - 192.169.255.255", "% This object was deleted on")
-        ! queryLineMatches("--list-versions 192.168.0.0 - 192.169.255.255", "^1\\s*[0-9-]+\\s*[0-9:]+\\s*ADD/UPD")
+        ! queryLineMatches("--list-versions 192.168.0.0 - 192.169.255.255", "^1\\s*[0-9-]+T\\s*[0-9:]+Z\\s*ADD/UPD")
     }
 
     def "query --list-versions, 4 versions, deleted, re-created with only 1 version of new object"() {
@@ -593,7 +593,7 @@ class VersionHistorySpec extends BaseQueryUpdateSpec {
                 source:       TEST
                 override:  denis,override1
 
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -603,7 +603,7 @@ class VersionHistorySpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(3, 1, 1, 1, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
 
-        ack.countErrorWarnInfo(0, 0, 3)
+        ack.countErrorWarnInfo(0, 2, 3)
         ack.successes.any { it.operation == "Modify" && it.key == "[inetnum] 192.168.0.0 - 192.169.255.255" }
         ack.successes.any { it.operation == "Delete" && it.key == "[inetnum] 192.168.0.0 - 192.169.255.255" }
         ack.successes.any { it.operation == "Create" && it.key == "[inetnum] 192.168.0.0 - 192.169.255.255" }
@@ -611,31 +611,31 @@ class VersionHistorySpec extends BaseQueryUpdateSpec {
         query_object_matches("-GBr 192.168.0.0 - 192.169.255.255", "inetnum", "192.168.0.0 - 192.169.255.255", "version 1")
 
         queryLineMatches("--list-versions 192.168.0.0 - 192.169.255.255", "^% Version history for INETNUM object \"192.168.0.0 - 192.169.255.255\"")
-        queryLineMatches("--list-versions 192.168.0.0 - 192.169.255.255", "^1\\s*[0-9-]+\\s*[0-9:]+\\s*ADD/UPD")
-        ! queryLineMatches("--list-versions 192.168.0.0 - 192.169.255.255", "^2\\s*[0-9-]+\\s*[0-9:]+\\s*ADD/UPD")
+        queryLineMatches("--list-versions 192.168.0.0 - 192.169.255.255", "^1\\s*[0-9-]+T\\s*[0-9:]+Z\\s*ADD/UPD")
+        ! queryLineMatches("--list-versions 192.168.0.0 - 192.169.255.255", "^2\\s*[0-9-]+T\\s*[0-9:]+Z\\s*ADD/UPD")
     }
 
     def "query --list-versions, person and role object with same pkey"() {
         given:
         syncUpdate(getTransient("PN-FF") + "override: denis,override1")
         syncUpdate("""
-                mntner:  ff1-TEST
+                mntner:  ff1-TEST-MNT
                 descr:   description
                 admin-c: TP1-TEST
-                mnt-by:  ff1-TEST
+                mnt-by:  ff1-TEST-MNT
                 upd-to:  updto_cre@ripe.net
                 auth:    MD5-PW \$1\$fU9ZMQN9\$QQtm3kRqZXWAuLpeOiLN7. # update
                 source:  TEST
                 override: denis,override1
-                """.stripIndent())
+                """.stripIndent(true))
 
         expect:
         queryObject("-rBG -T person ff1-test", "person", "fred fred")
-        queryObject("-rBG -T mntner ff1-test", "mntner", "ff1-TEST")
+        queryObject("-rBG -T mntner ff1-TEST-MNT", "mntner", "ff1-TEST-MNT")
 
-        queryLineMatches("--list-versions ff1-test", "^% Version history for MNTNER object \"ff1-test\"")
-        ! queryLineMatches("--list-versions ff1-test", "^% Version history for PERSON object \"ff1-test\"")
-        ! queryLineMatches("--list-versions ff1-test", "% History not available for PERSON and ROLE objects")
+        queryLineMatches("--list-versions ff1-TEST-MNT", "^% Version history for MNTNER object \"ff1-TEST-MNT\"")
+        ! queryLineMatches("--list-versions ff1-TEST-MNT", "^% Version history for PERSON object \"ff1-TEST-MNT\"")
+        ! queryLineMatches("--list-versions ff1-TEST-MNT", "% History not available for PERSON and ROLE objects")
     }
 
     def "query --list-versions, 2 versions, person object"() {
@@ -658,7 +658,7 @@ class VersionHistorySpec extends BaseQueryUpdateSpec {
                 remarks: version 2
                 source:  TEST
                 override:  denis,override1
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -675,7 +675,7 @@ class VersionHistorySpec extends BaseQueryUpdateSpec {
 
         queryLineMatches("--list-versions ff1-test", "^% Version history for PERSON object \"ff1-test\"")
         queryLineMatches("--list-versions ff1-test", "% History not available for PERSON and ROLE objects")
-        ! queryLineMatches("--list-versions ff1-test", "^1\\s*[0-9-]+\\s*[0-9:]+\\s*ADD/UPD")
+        ! queryLineMatches("--list-versions ff1-test", "^1\\s*[0-9-]+T\\s*[0-9:]+Z\\s*ADD/UPD")
     }
 
     def "query --list-versions, 2 versions, role object"() {
@@ -699,7 +699,7 @@ class VersionHistorySpec extends BaseQueryUpdateSpec {
                 source:  TEST
                 override:  denis,override1
 
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -716,7 +716,7 @@ class VersionHistorySpec extends BaseQueryUpdateSpec {
 
         queryLineMatches("--list-versions FR1-TEST", "^% Version history for ROLE object \"FR1-TEST\"")
         queryLineMatches("--list-versions FR1-TEST", "% History not available for PERSON and ROLE objects")
-        ! queryLineMatches("--list-versions FR1-TEST", "^1\\s*[0-9-]+\\s*[0-9:]+\\s*ADD/UPD")
+        ! queryLineMatches("--list-versions FR1-TEST", "^1\\s*[0-9-]+T\\s*[0-9:]+Z\\s*ADD/UPD")
     }
 
     def "query --list-versions, 2 versions, organisation object"() {
@@ -751,7 +751,7 @@ class VersionHistorySpec extends BaseQueryUpdateSpec {
                 source:          TEST
                 override:  denis,override1
 
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -767,8 +767,8 @@ class VersionHistorySpec extends BaseQueryUpdateSpec {
         query_object_matches("-GBr ORG-FVO1-TEST", "organisation", "ORG-FVO1-TEST", "version 2")
 
         queryLineMatches("--list-versions ORG-FVO1-TEST", "^% Version history for ORGANISATION object \"ORG-FVO1-TEST\"")
-        queryLineMatches("--list-versions ORG-FVO1-TEST", "^2\\s*[0-9-]+\\s*[0-9:]+\\s*ADD/UPD")
-        ! queryLineMatches("--list-versions ORG-FVO1-TEST", "^3\\s*[0-9-]+\\s*[0-9:]+\\s*ADD/UPD")
+        queryLineMatches("--list-versions ORG-FVO1-TEST", "^2\\s*[0-9-]+T\\s*[0-9:]+Z\\s*ADD/UPD")
+        ! queryLineMatches("--list-versions ORG-FVO1-TEST", "^3\\s*[0-9-]+T\\s*[0-9:]+Z\\s*ADD/UPD")
     }
 
     def "query --list-versions, 2 versions, mntner object"() {
@@ -791,7 +791,7 @@ class VersionHistorySpec extends BaseQueryUpdateSpec {
                 source:  TEST
                 override:  denis,override1
 
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -807,31 +807,31 @@ class VersionHistorySpec extends BaseQueryUpdateSpec {
         query_object_matches("-GBr SELF-MNT", "mntner", "SELF-MNT", "version 2")
 
         queryLineMatches("--list-versions SELF-MNT", "^% Version history for MNTNER object \"SELF-MNT\"")
-        queryLineMatches("--list-versions SELF-MNT", "^2\\s*[0-9-]+\\s*[0-9:]+\\s*ADD/UPD")
-        ! queryLineMatches("--list-versions SELF-MNT", "^3\\s*[0-9-]+\\s*[0-9:]+\\s*ADD/UPD")
+        queryLineMatches("--list-versions SELF-MNT", "^2\\s*[0-9-]+T\\s*[0-9:]+Z\\s*ADD/UPD")
+        ! queryLineMatches("--list-versions SELF-MNT", "^3\\s*[0-9-]+T\\s*[0-9:]+Z\\s*ADD/UPD")
     }
 
-    def "query --list-versions, 2 versions, mntner object with name PAUL"() {
+    def "query --list-versions, 2 versions, mntner object with name PAUL-MNT"() {
       given:
-        syncUpdate(getTransient("PAUL") + "override: denis,override1")
+        syncUpdate(getTransient("PAUL-MNT") + "override: denis,override1")
 
       expect:
         // "SELF-MNT"
-        queryObject("-rBG -T mntner PAUL", "mntner", "PAUL")
+        queryObject("-rBG -T mntner PAUL-MNT", "mntner", "PAUL-MNT")
 
       when:
         def message = syncUpdate("""\
-                mntner:  PAUL
+                mntner:  PAUL-MNT
                 descr:   description
                 admin-c: TP1-TEST
-                mnt-by:  PAUL
+                mnt-by:  PAUL-MNT
                 upd-to:  updto_cre@ripe.net
                 auth:    MD5-PW \$1\$fU9ZMQN9\$QQtm3kRqZXWAuLpeOiLN7. # update
                 remarks: version 2
                 source:  TEST
                 override:  denis,override1
 
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -842,13 +842,13 @@ class VersionHistorySpec extends BaseQueryUpdateSpec {
         ack.summary.assertErrors(0, 0, 0, 0)
 
         ack.countErrorWarnInfo(0, 0, 1)
-        ack.successes.any { it.operation == "Modify" && it.key == "[mntner] PAUL" }
+        ack.successes.any { it.operation == "Modify" && it.key == "[mntner] PAUL-MNT" }
 
-        query_object_matches("-GBr PAUL", "mntner", "PAUL", "version 2")
+        query_object_matches("-GBr PAUL-MNT", "mntner", "PAUL-MNT", "version 2")
 
-        queryLineMatches("--list-versions PAUL", "^% Version history for MNTNER object \"PAUL\"")
-        queryLineMatches("--list-versions PAUL", "^2\\s*[0-9-]+\\s*[0-9:]+\\s*ADD/UPD")
-        ! queryLineMatches("--list-versions PAUL", "^3\\s*[0-9-]+\\s*[0-9:]+\\s*ADD/UPD")
+        queryLineMatches("--list-versions PAUL-MNT", "^% Version history for MNTNER object \"PAUL-MNT\"")
+        queryLineMatches("--list-versions PAUL-MNT", "^2\\s*[0-9-]+T\\s*[0-9:]+Z\\s*ADD/UPD")
+        ! queryLineMatches("--list-versions PAUL-MNT", "^3\\s*[0-9-]+T\\s*[0-9:]+Z\\s*ADD/UPD")
     }
 
     def "query help"() {
@@ -861,6 +861,7 @@ class VersionHistorySpec extends BaseQueryUpdateSpec {
 
     def "query --list-versions, 2 exact matching route, 2 versions of each"() {
       given:
+        dbfixture(getTransient("ALLOC-PA"))
         syncUpdate(getTransient("ASS-END") + "override: denis,override1")
         syncUpdate(getTransient("AS1000") + "override: denis,override1")
         syncUpdate(getTransient("AS2000") + "override: denis,override1")
@@ -905,7 +906,7 @@ class VersionHistorySpec extends BaseQueryUpdateSpec {
                 source:         TEST
                 override:  denis,override1
 
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -922,16 +923,17 @@ class VersionHistorySpec extends BaseQueryUpdateSpec {
         query_object_matches("-GBr -T route 192.168.200.0/24", "route", "192.168.200.0/24", "version 2")
 
         queryLineMatches("--list-versions 192.168.200.0/24AS1000", "^% Version history for ROUTE object \"192.168.200.0/24AS1000\"")
-        queryLineMatches("--list-versions 192.168.200.0/24AS1000", "^2\\s*[0-9-]+\\s*[0-9:]+\\s*ADD/UPD")
-        ! queryLineMatches("--list-versions 192.168.200.0/24AS1000", "^3\\s*[0-9-]+\\s*[0-9:]+\\s*ADD/UPD")
+        queryLineMatches("--list-versions 192.168.200.0/24AS1000", "^2\\s*[0-9-]+T\\s*[0-9:]+Z\\s*ADD/UPD")
+        ! queryLineMatches("--list-versions 192.168.200.0/24AS1000", "^3\\s*[0-9-]+T\\s*[0-9:]+Z\\s*ADD/UPD")
 
         queryLineMatches("--list-versions 192.168.200.0/24AS2000", "^% Version history for ROUTE object \"192.168.200.0/24AS2000\"")
-        queryLineMatches("--list-versions 192.168.200.0/24AS2000", "^2\\s*[0-9-]+\\s*[0-9:]+\\s*ADD/UPD")
-        ! queryLineMatches("--list-versions 192.168.200.0/24AS2000", "^3\\s*[0-9-]+\\s*[0-9:]+\\s*ADD/UPD")
+        queryLineMatches("--list-versions 192.168.200.0/24AS2000", "^2\\s*[0-9-]+T\\s*[0-9:]+Z\\s*ADD/UPD")
+        ! queryLineMatches("--list-versions 192.168.200.0/24AS2000", "^3\\s*[0-9-]+T\\s*[0-9:]+Z\\s*ADD/UPD")
     }
 
     def "query --show-version for 2 exact matching route, 2 & 3 versions exist"() {
       given:
+        dbfixture(getTransient("ALLOC-PA"))
         syncUpdate(getTransient("ASS-END") + "override: denis,override1")
         syncUpdate(getTransient("AS1000") + "override: denis,override1")
         syncUpdate(getTransient("AS2000") + "override: denis,override1")
@@ -984,7 +986,7 @@ class VersionHistorySpec extends BaseQueryUpdateSpec {
                 source:         TEST
                 override:  denis,override1
 
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -1048,7 +1050,7 @@ class VersionHistorySpec extends BaseQueryUpdateSpec {
                 source:       TEST
                 override:  denis,override1
 
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -1062,10 +1064,10 @@ class VersionHistorySpec extends BaseQueryUpdateSpec {
         ack.successes.any { it.operation == "Modify" && it.key == "[inetnum] 192.168.0.0 - 192.169.255.255" }
 
         queryLineMatches("--list-versions 192.168.0.0-192.169.255.255", "^% Version history for INETNUM object \"192.168.0.0 - 192.169.255.255\"")
-        queryLineMatches("--list-versions 192.168.0.0-192.169.255.255", "^1\\s*[0-9-]+\\s*[0-9:]+\\s*ADD/UPD")
-        queryLineMatches("--list-versions 192.168.0.0-192.169.255.255", "^2\\s*[0-9-]+\\s*[0-9:]+\\s*ADD/UPD")
-        queryLineMatches("--list-versions 192.168.0.0-192.169.255.255", "^3\\s*[0-9-]+\\s*[0-9:]+\\s*ADD/UPD")
-        ! queryLineMatches("--list-versions 192.168.0.0 - 192.169.255.255", "^4\\s*[0-9-]+\\s*[0-9:]+\\s*ADD/UPD")
+        queryLineMatches("--list-versions 192.168.0.0-192.169.255.255", "^1\\s*[0-9-]+T\\s*[0-9:]+Z\\s*ADD/UPD")
+        queryLineMatches("--list-versions 192.168.0.0-192.169.255.255", "^2\\s*[0-9-]+T\\s*[0-9:]+Z\\s*ADD/UPD")
+        queryLineMatches("--list-versions 192.168.0.0-192.169.255.255", "^3\\s*[0-9-]+T\\s*[0-9:]+Z\\s*ADD/UPD")
+        ! queryLineMatches("--list-versions 192.168.0.0 - 192.169.255.255", "^4\\s*[0-9-]+T\\s*[0-9:]+Z\\s*ADD/UPD")
     }
 
     def "query --show-version 5, 2 versions"() {
@@ -1092,7 +1094,7 @@ class VersionHistorySpec extends BaseQueryUpdateSpec {
                 source:       TEST
                 override:  denis,override1
 
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -1133,7 +1135,7 @@ class VersionHistorySpec extends BaseQueryUpdateSpec {
                 source:       TEST
                 override:  denis,override1
 
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -1175,7 +1177,7 @@ class VersionHistorySpec extends BaseQueryUpdateSpec {
                 source:       TEST
                 override:  denis,override1
 
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -1217,7 +1219,7 @@ class VersionHistorySpec extends BaseQueryUpdateSpec {
                 source:       TEST
                 override:  denis,override1
 
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -1258,7 +1260,7 @@ class VersionHistorySpec extends BaseQueryUpdateSpec {
                 source:       TEST
                 override:  denis,override1
 
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -1298,7 +1300,7 @@ class VersionHistorySpec extends BaseQueryUpdateSpec {
                 source:       TEST
                 override:  denis,override1
 
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -1340,7 +1342,7 @@ class VersionHistorySpec extends BaseQueryUpdateSpec {
                 source:       TEST
                 override:  denis,override1
 
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -1380,7 +1382,7 @@ class VersionHistorySpec extends BaseQueryUpdateSpec {
                 source:       TEST
                 override:  denis,override1
 
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -1421,7 +1423,7 @@ class VersionHistorySpec extends BaseQueryUpdateSpec {
                 source:       TEST
                 override:  denis,override1
 
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -1466,7 +1468,7 @@ class VersionHistorySpec extends BaseQueryUpdateSpec {
                 source:       TEST
                 override:  denis,override1
 
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -1506,7 +1508,7 @@ class VersionHistorySpec extends BaseQueryUpdateSpec {
                 source:       TEST
                 override:  denis,override1
 
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -1546,7 +1548,7 @@ class VersionHistorySpec extends BaseQueryUpdateSpec {
                 source:       TEST
                 override:  denis,override1
 
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -1586,7 +1588,7 @@ class VersionHistorySpec extends BaseQueryUpdateSpec {
                 source:       TEST
                 override:  denis,override1
 
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -1616,7 +1618,7 @@ class VersionHistorySpec extends BaseQueryUpdateSpec {
                 source:         TEST
                 override: denis,override1
 
-                """.stripIndent()
+                """.stripIndent(true)
             )
 
         then:
@@ -1672,7 +1674,7 @@ class VersionHistorySpec extends BaseQueryUpdateSpec {
                 source:       TEST
                 override:  denis,override1
 
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:
@@ -1729,7 +1731,7 @@ class VersionHistorySpec extends BaseQueryUpdateSpec {
                 source:       TEST
                 override:  denis,override1
 
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:

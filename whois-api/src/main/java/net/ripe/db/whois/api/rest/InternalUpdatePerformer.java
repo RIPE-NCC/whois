@@ -2,20 +2,23 @@ package net.ripe.db.whois.api.rest;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
+import net.ripe.db.whois.api.UpdateCreator;
 import net.ripe.db.whois.api.rest.domain.ErrorMessage;
 import net.ripe.db.whois.api.rest.domain.Link;
 import net.ripe.db.whois.api.rest.domain.WhoisObject;
 import net.ripe.db.whois.api.rest.domain.WhoisResources;
 import net.ripe.db.whois.api.rest.mapper.WhoisObjectMapper;
+import net.ripe.db.whois.api.rest.marshal.StreamingHelper;
 import net.ripe.db.whois.common.DateTimeProvider;
 import net.ripe.db.whois.common.Message;
 import net.ripe.db.whois.common.Messages;
 import net.ripe.db.whois.common.conversion.PasswordFilter;
 import net.ripe.db.whois.common.rpsl.RpslAttribute;
 import net.ripe.db.whois.common.rpsl.RpslObject;
-import net.ripe.db.whois.common.sso.CrowdClientException;
+import net.ripe.db.whois.common.sso.AuthServiceClientException;
 import net.ripe.db.whois.common.sso.SsoTokenTranslator;
 import net.ripe.db.whois.update.domain.Action;
+import net.ripe.db.whois.update.domain.ClientCertificateCredential;
 import net.ripe.db.whois.update.domain.Credential;
 import net.ripe.db.whois.update.domain.Credentials;
 import net.ripe.db.whois.update.domain.Keyword;
@@ -32,16 +35,17 @@ import net.ripe.db.whois.update.domain.UpdateMessages;
 import net.ripe.db.whois.update.domain.UpdateRequest;
 import net.ripe.db.whois.update.domain.UpdateStatus;
 import net.ripe.db.whois.update.handler.UpdateRequestHandler;
+import net.ripe.db.whois.update.keycert.X509CertificateWrapper;
 import net.ripe.db.whois.update.log.LogCallback;
 import net.ripe.db.whois.update.log.LoggerContext;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import javax.servlet.http.HttpServletRequest;
-import javax.ws.rs.WebApplicationException;
-import javax.ws.rs.core.Response;
-import javax.ws.rs.core.StreamingOutput;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.ws.rs.WebApplicationException;
+import jakarta.ws.rs.core.Response;
+import jakarta.ws.rs.core.StreamingOutput;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.util.Collection;
@@ -58,7 +62,6 @@ public class InternalUpdatePerformer {
     private final WhoisObjectMapper whoisObjectMapper;
     private final LoggerContext loggerContext;
     private final SsoTokenTranslator ssoTokenTranslator;
-
     @Autowired
     public InternalUpdatePerformer(final UpdateRequestHandler updateRequestHandler,
                                    final DateTimeProvider dateTimeProvider,
@@ -72,10 +75,11 @@ public class InternalUpdatePerformer {
         this.ssoTokenTranslator = ssoTokenTranslator;
     }
 
-    public UpdateContext initContext(final Origin origin, final String ssoToken) {
+    public UpdateContext initContext(final Origin origin, final String ssoToken, final HttpServletRequest request) {
         loggerContext.init(getRequestId(origin.getFrom()));
         final UpdateContext updateContext = new UpdateContext(loggerContext);
         setSsoSessionToContext(updateContext, ssoToken);
+        setClientCertificates(updateContext, request);
         return updateContext;
     }
 
@@ -97,19 +101,29 @@ public class InternalUpdatePerformer {
     }
 
     public Response createResponse(final UpdateContext updateContext, final WhoisResources whoisResources, final Update update, final HttpServletRequest request) {
-        final UpdateStatus status = updateContext.getStatus(update);
-
         final Response.ResponseBuilder responseBuilder;
-        if (status == UpdateStatus.SUCCESS) {
-            responseBuilder = Response.status(Response.Status.OK);
-        } else if (status == UpdateStatus.FAILED_AUTHENTICATION) {
-            responseBuilder = Response.status(Response.Status.UNAUTHORIZED);
-        } else if (status == UpdateStatus.EXCEPTION) {
-            responseBuilder = Response.status(Response.Status.INTERNAL_SERVER_ERROR);
-        } else if (updateContext.getMessages(update).contains(UpdateMessages.newKeywordAndObjectExists())) {
-            responseBuilder = Response.status(Response.Status.CONFLICT);
-        } else {
-            responseBuilder = Response.status(Response.Status.BAD_REQUEST);
+        switch (updateContext.getStatus(update)) {
+            case SUCCESS:
+                responseBuilder = Response.status(Response.Status.OK);
+                break;
+            case FAILED_AUTHENTICATION:
+                responseBuilder = Response.status(Response.Status.UNAUTHORIZED);
+                    break;
+            case EXCEPTION:
+                responseBuilder = Response.status(Response.Status.INTERNAL_SERVER_ERROR);
+                break;
+            case FAILED:
+            default: {
+                if (updateContext.getMessages(update).contains(UpdateMessages.newKeywordAndObjectExists())) {
+                    responseBuilder = Response.status(Response.Status.CONFLICT);
+                } else {
+                    if (updateContext.getMessages(update).contains(UpdateMessages.unexpectedError())) {
+                        responseBuilder = Response.status(Response.Status.INTERNAL_SERVER_ERROR);
+                    } else {
+                        responseBuilder = Response.status(Response.Status.BAD_REQUEST);
+                    }
+                }
+            }
         }
 
         return responseBuilder.entity(new StreamingResponse(request, whoisResources)).build();
@@ -168,11 +182,13 @@ public class InternalUpdatePerformer {
     }
 
     public Update createUpdate(final UpdateContext updateContext, final RpslObject rpslObject, final List<String> passwords, final String deleteReason, final String override) {
-        return new Update(
+        return UpdateCreator.createUpdate(
                 createParagraph(updateContext, rpslObject, passwords, override),
                 deleteReason != null ? Operation.DELETE : Operation.UNSPECIFIED,
                 deleteReason != null ? Lists.newArrayList(deleteReason) : null,
-                rpslObject);
+                rpslObject.toString(),
+                updateContext
+        );
     }
 
     private static Paragraph createParagraph(final UpdateContext updateContext, final RpslObject rpslObject, final List<String> passwords, final String override) {
@@ -189,6 +205,12 @@ public class InternalUpdatePerformer {
             credentials.add(SsoCredential.createOfferedCredential(updateContext.getUserSession()));
         }
 
+        if (updateContext.getClientCertificates() != null) {
+            for (X509CertificateWrapper clientCertificate : updateContext.getClientCertificates()) {
+                credentials.add(ClientCertificateCredential.createOfferedCredential(clientCertificate));
+            }
+        }
+
         return new Paragraph(rpslObject.toString(), new Credentials(credentials));
     }
 
@@ -197,18 +219,22 @@ public class InternalUpdatePerformer {
     }
 
     private String getRequestId(final String remoteAddress) {
-        return String.format("rest_%s_%s", remoteAddress, dateTimeProvider.getNanoTime());
+        return String.format("rest_%s_%s", remoteAddress, dateTimeProvider.getElapsedTime());
     }
 
     public void setSsoSessionToContext(final UpdateContext updateContext, final String ssoToken) {
         if (!StringUtils.isBlank(ssoToken)) {
             try {
                 updateContext.setUserSession(ssoTokenTranslator.translateSsoToken(ssoToken));
-            } catch (CrowdClientException e) {
+            } catch (AuthServiceClientException e) {
                 logError(e);
                 updateContext.addGlobalMessage(RestMessages.ssoAuthIgnored());
             }
         }
+    }
+
+    public void setClientCertificates(final UpdateContext updateContext, final HttpServletRequest request) {
+        updateContext.setClientCertificates(ClientCertificateExtractor.getClientCertificates(request));
     }
 
     public void logInfo(final String message) {
@@ -239,7 +265,6 @@ public class InternalUpdatePerformer {
     }
 
     public static class StreamingResponse implements StreamingOutput {
-
         final WhoisResources whoisResources;
         final HttpServletRequest request;
 

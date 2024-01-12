@@ -1,9 +1,9 @@
 package net.ripe.db.whois.api.rdap.domain;
 
-import javax.xml.bind.annotation.XmlEnum;
-import javax.xml.bind.annotation.XmlType;
-import javax.xml.bind.annotation.adapters.XmlAdapter;
-import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
+import jakarta.xml.bind.annotation.XmlEnum;
+import jakarta.xml.bind.annotation.XmlType;
+import jakarta.xml.bind.annotation.adapters.XmlAdapter;
+import jakarta.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 
 @XmlType(name = "role")
 @XmlEnum
@@ -15,10 +15,13 @@ public enum Role {
     ADMINISTRATIVE("administrative"),
     ABUSE("abuse"),
     BILLING("billing"),
+    NOC("noc"),
+    NOTIFICATIONS("notifications"),
     REGISTRAR("registrar"),
     RESELLER("reseller"),
     SPONSOR("sponsor"),
     PROXY("proxy"),
+    UNKNOWN("unknown"),             // catch-all for role values not in RDAP spec
     ZONE("zone");                   // TODO: [ES] not in RDAP spec, added for domain objects
 
     final String value;
@@ -30,17 +33,17 @@ public enum Role {
     public static class Adapter extends XmlAdapter<String, Role> {
 
         @Override
-        public Role unmarshal(final String value) throws Exception {
+        public Role unmarshal(final String value) {
             for (Role role : Role.values()) {
                 if (role.value.equals(value)) {
                     return role;
                 }
             }
-            throw new IllegalArgumentException(value);
+            return UNKNOWN;
         }
 
         @Override
-        public String marshal(final Role role) throws Exception {
+        public String marshal(final Role role) {
             return role.value;
         }
     }

@@ -2,16 +2,20 @@ package net.ripe.db.whois.nrtm.client;
 
 import java.io.IOException;
 import java.net.InetSocketAddress;
+import java.net.StandardSocketOptions;
 import java.nio.ByteBuffer;
 import java.nio.channels.SocketChannel;
 
 public class SocketChannelFactory {
+
+    private static final int READ_TIMEOUT = 5 * 60 * 1000;
 
     private SocketChannelFactory() {}
 
     public static SocketChannel createSocketChannel(final String host, final int port) throws IOException {
         final SocketChannel socketChannel = SocketChannel.open();
         socketChannel.configureBlocking(true);
+        socketChannel.socket().setSoTimeout(READ_TIMEOUT);
         socketChannel.connect(new InetSocketAddress(host, port));
         return socketChannel;
     }

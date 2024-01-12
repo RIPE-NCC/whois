@@ -1,10 +1,10 @@
 package net.ripe.db.whois.query.executor;
 
-import com.google.common.base.Function;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 import net.ripe.db.whois.common.dao.VersionDao;
+import net.ripe.db.whois.common.dao.VersionDateTime;
 import net.ripe.db.whois.common.dao.VersionInfo;
 import net.ripe.db.whois.common.dao.VersionLookupResult;
 import net.ripe.db.whois.common.domain.ResponseObject;
@@ -15,12 +15,13 @@ import net.ripe.db.whois.common.rpsl.RpslObjectFilter;
 import net.ripe.db.whois.common.rpsl.transform.FilterAuthFunction;
 import net.ripe.db.whois.common.rpsl.transform.FilterChangedFunction;
 import net.ripe.db.whois.common.rpsl.transform.FilterEmailFunction;
+import net.ripe.db.whois.common.rpsl.transform.FilterPersonalDataFunction;
 import net.ripe.db.whois.common.source.BasicSourceContext;
 import net.ripe.db.whois.query.QueryMessages;
-import net.ripe.db.whois.query.VersionDateTime;
 import net.ripe.db.whois.query.domain.DeletedVersionResponseObject;
 import net.ripe.db.whois.query.domain.MessageObject;
 import net.ripe.db.whois.query.domain.ResponseHandler;
+import net.ripe.db.whois.query.domain.VersionDiffResponseObject;
 import net.ripe.db.whois.query.domain.VersionResponseObject;
 import net.ripe.db.whois.query.domain.VersionWithRpslResponseObject;
 import net.ripe.db.whois.query.query.Query;
@@ -45,6 +46,7 @@ public class VersionQueryExecutor implements QueryExecutor {
     private static final FilterEmailFunction FILTER_EMAIL_FUNCTION = new FilterEmailFunction();
     private static final FilterAuthFunction FILTER_AUTH_FUNCTION = new FilterAuthFunction();
     private static final FilterChangedFunction FILTER_CHANGED_FUNCTION = new FilterChangedFunction();
+    private static final FilterPersonalDataFunction FILTER_PERSONAL_DATA_FUNCTION = new FilterPersonalDataFunction();
 
     protected final VersionDao versionDao;
     protected final BasicSourceContext sourceContext;
@@ -57,7 +59,7 @@ public class VersionQueryExecutor implements QueryExecutor {
 
     @Override
     public boolean isAclSupported() {
-        return false;
+        return true;
     }
 
     @Override
@@ -75,19 +77,16 @@ public class VersionQueryExecutor implements QueryExecutor {
     }
 
     private Iterable<? extends ResponseObject> decorate(final Query query, Iterable<? extends ResponseObject> responseObjects) {
-        final Iterable<ResponseObject> objects = Iterables.transform(responseObjects, new Function<ResponseObject, ResponseObject>() {
-            @Override
-            public ResponseObject apply(final ResponseObject input) {
-                if (input instanceof RpslObject) {
-                    ResponseObject filtered = filter((RpslObject) input);
+        final Iterable<ResponseObject> objects = Iterables.transform(responseObjects, responseObject -> {
+                if (responseObject instanceof RpslObject) {
+                    ResponseObject filtered = filter((RpslObject) responseObject);
                     if (query.isObjectVersion()) {
                         filtered = new VersionWithRpslResponseObject((RpslObject) filtered, query.getObjectVersion());
                     }
                     return filtered;
                 }
-                return input;
-            }
-        });
+                return responseObject;
+            });
 
         if (Iterables.isEmpty(objects)) {
             return Collections.singletonList(new MessageObject(QueryMessages.noResults(sourceContext.getCurrentSource().getName())));
@@ -156,7 +155,7 @@ public class VersionQueryExecutor implements QueryExecutor {
         final List<VersionInfo> versionInfos = res.getMostRecentlyCreatedVersions();
         int versionPadding = getPadding(versionInfos);
 
-        messages.add(new MessageObject(String.format("\n%-" + versionPadding + "s  %-16s  %-7s\n", VERSION_HEADER, DATE_HEADER, OPERATION_HEADER)));
+        messages.add(new MessageObject(String.format("%-" + versionPadding + "s  %-16s  %-7s\n", VERSION_HEADER, DATE_HEADER, OPERATION_HEADER)));
 
         for (int i = 0; i < versionInfos.size(); i++) {
             final VersionInfo versionInfo = versionInfos.get(i);
@@ -178,7 +177,7 @@ public class VersionQueryExecutor implements QueryExecutor {
                         (version == versionInfos.size()),
                         rpslObject.getKey(),
                         info.getOperation() == Operation.UPDATE ? "UPDATE" : "DELETE",
-                        info.getTimestamp())),
+                        info.getTimestamp().toString())),
                 rpslObject
         );
     }
@@ -190,7 +189,7 @@ public class VersionQueryExecutor implements QueryExecutor {
 
         return Lists.newArrayList(
                 new MessageObject(QueryMessages.versionDifferenceHeader(versions[0], versions[1], firstObject.getKey())),
-                new MessageObject(RpslObjectFilter.diff(firstObject, secondObject)));
+                new VersionDiffResponseObject(RpslObjectFilter.diff(firstObject, secondObject)));
     }
 
     private Collection<ObjectType> getObjectType(final Query query) {
@@ -227,9 +226,11 @@ public class VersionQueryExecutor implements QueryExecutor {
     }
 
     private RpslObject filter(final RpslObject rpslObject) {
-        return FILTER_CHANGED_FUNCTION.apply(
-                FILTER_AUTH_FUNCTION.apply(
-                    FILTER_EMAIL_FUNCTION.apply(rpslObject)));
+        return
+            FILTER_PERSONAL_DATA_FUNCTION.apply(
+                FILTER_CHANGED_FUNCTION.apply(
+                    FILTER_AUTH_FUNCTION.apply(
+                        FILTER_EMAIL_FUNCTION.apply(rpslObject))));
     }
 
 }

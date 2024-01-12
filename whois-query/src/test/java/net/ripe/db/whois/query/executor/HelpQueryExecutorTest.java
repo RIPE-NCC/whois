@@ -1,18 +1,20 @@
 package net.ripe.db.whois.query.executor;
 
 import com.google.common.base.Splitter;
-import net.ripe.db.whois.query.query.Query;
 import net.ripe.db.whois.query.QueryFlag;
-import org.junit.Before;
-import org.junit.Test;
+import net.ripe.db.whois.query.query.Query;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
-import static org.hamcrest.Matchers.*;
-import static org.junit.Assert.assertThat;
+import static org.hamcrest.Matchers.containsString;
+import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.startsWith;
+import static org.hamcrest.MatcherAssert.assertThat;
 
 public class HelpQueryExecutorTest {
     private HelpQueryExecutor subject;
 
-    @Before
+    @BeforeEach
     public void setUp() throws Exception {
         subject = new HelpQueryExecutor();
     }

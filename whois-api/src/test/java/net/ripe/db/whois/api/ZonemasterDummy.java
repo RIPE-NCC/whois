@@ -1,11 +1,13 @@
 package net.ripe.db.whois.api;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import net.ripe.db.whois.common.Stub;
 import net.ripe.db.whois.common.aspects.RetryFor;
 import net.ripe.db.whois.common.profiles.WhoisProfile;
 import net.ripe.db.whois.update.dns.zonemaster.ZonemasterRestClient;
+import net.ripe.db.whois.update.dns.zonemaster.domain.ZonemasterRequest;
 import org.eclipse.jetty.server.NetworkConnector;
 import org.eclipse.jetty.server.Request;
 import org.eclipse.jetty.server.Server;
@@ -17,13 +19,13 @@ import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Component;
 import org.springframework.test.util.ReflectionTestUtils;
 
-import javax.annotation.PostConstruct;
-import javax.annotation.PreDestroy;
-import javax.servlet.ServletException;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import javax.ws.rs.core.HttpHeaders;
-import javax.ws.rs.core.MediaType;
+import jakarta.annotation.PostConstruct;
+import jakarta.annotation.PreDestroy;
+import jakarta.servlet.ServletException;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
+import jakarta.ws.rs.core.HttpHeaders;
+import jakarta.ws.rs.core.MediaType;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.List;
@@ -34,9 +36,10 @@ import java.util.Map;
 @Component
 public class ZonemasterDummy implements Stub {
 
+    private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
     private static final Logger LOGGER = LoggerFactory.getLogger(ZonemasterDummy.class);
 
-    private static final Map<String, List<String>> RESPONSES = Maps.newHashMap();
+    private  final Map<String, List<String>> responses = Maps.newHashMap();
 
     private Server server;
     private int port = 0;
@@ -48,18 +51,33 @@ public class ZonemasterDummy implements Stub {
         this.zonemasterClient = zonemasterClient;
     }
 
-    private static class ZonemasterHandler extends AbstractHandler {
+    private class ZonemasterHandler extends AbstractHandler {
 
         @Override
         public void handle(final String target, final Request baseRequest, final HttpServletRequest request, final HttpServletResponse response) throws IOException, ServletException {
             final String requestBody = getRequestBody(request);
-            for (Map.Entry<String, List<String>> entry : RESPONSES.entrySet()) {
-                if (requestBody.contains(entry.getKey())) {
+            Map<String, Object> map = OBJECT_MAPPER.readValue(requestBody, Map.class);
+
+
+            for (Map.Entry<String, List<String>> entry : responses.entrySet()) {
+                if (ZonemasterRequest.Method.START_DOMAIN_TEST.getMethod().equals(map.get("method"))){
+                    Map<String, String> parameters = OBJECT_MAPPER.convertValue(map.get("params"), Map.class);
+                    if(entry.getKey().equals(parameters.get("domain"))){
+                        putResponseBody(response, removeFirst(entry.getValue()));
+                        return;
+                    }
+                }
+                if (ZonemasterRequest.Method.VERSION_INFO.getMethod().equals(map.get("method")) &&
+                        entry.getKey().equals(String.valueOf(map.get("id")))) {
+                    putResponseBody(response, removeFirst(entry.getValue()));
+                    return;
+                }
+                if (ZonemasterRequest.Method.GET_TEST_RESULTS.getMethod().equals(map.get("method")) &&
+                        entry.getKey().equals(String.valueOf(map.get("id")))){
                     putResponseBody(response, removeFirst(entry.getValue()));
                     return;
                 }
             }
-
             throw new IllegalStateException("request not handled: " + requestBody);
         }
 
@@ -110,11 +128,11 @@ public class ZonemasterDummy implements Stub {
     }
 
     public void whenThen(final String when, final String then) {
-        final List<String> values = RESPONSES.get(when);
+        final List<String> values = responses.get(when);
         if (values != null) {
             values.add(then);
         } else {
-            RESPONSES.put(when, Lists.newArrayList(then));
+            responses.put(when, Lists.newArrayList(then));
         }
     }
 
@@ -129,6 +147,6 @@ public class ZonemasterDummy implements Stub {
 
     @Override
     public void reset() {
-
+        responses.clear();
     }
 }

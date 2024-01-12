@@ -2,12 +2,12 @@ package net.ripe.db.whois.api.rest.domain;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import jakarta.xml.bind.annotation.XmlAccessType;
+import jakarta.xml.bind.annotation.XmlAccessorType;
+import jakarta.xml.bind.annotation.XmlElement;
+import jakarta.xml.bind.annotation.XmlRootElement;
+import jakarta.xml.bind.annotation.XmlType;
 
-import javax.xml.bind.annotation.XmlAccessType;
-import javax.xml.bind.annotation.XmlAccessorType;
-import javax.xml.bind.annotation.XmlElement;
-import javax.xml.bind.annotation.XmlRootElement;
-import javax.xml.bind.annotation.XmlType;
 import java.util.Collections;
 import java.util.List;
 
@@ -24,15 +24,18 @@ import static com.fasterxml.jackson.annotation.JsonInclude.Include.NON_EMPTY;
         "errorMessages",
         "geolocationAttributes",
         "versions",
-        "termsAndConditions"
+        "termsAndConditions",
+        "version",
 })
 @JsonInclude(NON_EMPTY)
 @XmlRootElement(name = "whois-resources")
 public class WhoisResources {
-    public static final String TERMS_AND_CONDITIONS = "http://www.ripe.net/db/support/db-terms-conditions.pdf";
+    public static final String TERMS_AND_CONDITIONS = "https://apps.db.ripe.net/docs/HTML-Terms-And-Conditions";
 
     private Parameters parameters;
 
+    @XmlElement
+    private Version version;
     @XmlElement
     private Service service;
     @XmlElement(name = "objects", required = true)

@@ -1,10 +1,9 @@
 package net.ripe.db.whois.spec.update
 
-import net.ripe.db.whois.common.IntegrationTest
-import net.ripe.db.whois.spec.BaseQueryUpdateSpec
-import org.junit.experimental.categories.Category
 
-@Category(IntegrationTest.class)
+import net.ripe.db.whois.spec.BaseQueryUpdateSpec
+
+@org.junit.jupiter.api.Tag("IntegrationTest")
 class MntLowerAttributeValidationSpec extends BaseQueryUpdateSpec {
 
     @Override
@@ -40,6 +39,18 @@ class MntLowerAttributeValidationSpec extends BaseQueryUpdateSpec {
                 admin-c:      TP1-TEST
                 tech-c:       TP1-TEST
                 status:       ALLOCATED PA
+                mnt-by:       LIR-MNT
+                source:       TEST
+                """,
+         "ALLOCATED-8"  : """\
+                inetnum:      192.0.0.0 - 192.255.255.255
+                netname:      TEST-NET-NAME
+                country:      NL
+                org:          ORG-LIR1-TEST
+                admin-c:      TP1-TEST
+                tech-c:       TP1-TEST
+                status:       ALLOCATED PA
+                mnt-by:       RIPE-NCC-HM-MNT
                 mnt-by:       LIR-MNT
                 source:       TEST
                 """,
@@ -171,7 +182,7 @@ class MntLowerAttributeValidationSpec extends BaseQueryUpdateSpec {
                 mnt-lower:    LIR-MNT         # added
                 source:       TEST
                 password: lir
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:
@@ -203,7 +214,7 @@ class MntLowerAttributeValidationSpec extends BaseQueryUpdateSpec {
                 mnt-lower:    LIR-MNT         # added
                 source:       TEST
                 password: lir
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:
@@ -239,7 +250,7 @@ class MntLowerAttributeValidationSpec extends BaseQueryUpdateSpec {
                 mnt-lower:    LIR-MNT         # added
                 source:       TEST
                 password: lir
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:
@@ -253,6 +264,7 @@ class MntLowerAttributeValidationSpec extends BaseQueryUpdateSpec {
 
     def "modify inetnum (assigned pa and co-maintained): add mnt-lower of lir mnt by lir"() {
         given:
+        dbfixture(getTransient("ALLOCATED-8"))
         syncUpdate(getTransient("ASSIGNED-PA-CO-MAINTAINED") + "override: denis,override1")
 
         expect:
@@ -272,7 +284,7 @@ class MntLowerAttributeValidationSpec extends BaseQueryUpdateSpec {
                 mnt-lower:    LIR-MNT         # added
                 source:       TEST
                 password: lir
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:
@@ -286,6 +298,7 @@ class MntLowerAttributeValidationSpec extends BaseQueryUpdateSpec {
 
     def "modify inetnum (assigned pa and ripe maintained): add mnt-lower of lir mnt by lir"() {
         given:
+        dbfixture(getTransient("ALLOCATED-8"))
         syncUpdate(getTransient("ASSIGNED-PA-RIPE-MAINTAINED") + "override: denis,override1")
 
         expect:
@@ -304,7 +317,7 @@ class MntLowerAttributeValidationSpec extends BaseQueryUpdateSpec {
                 mnt-lower:    LIR-MNT         # added
                 source:       TEST
                 password: lir
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:
@@ -321,6 +334,7 @@ class MntLowerAttributeValidationSpec extends BaseQueryUpdateSpec {
 
     def "modify inetnum (assigned pa and lir maintained): add mnt-lower of lir mnt by lir"() {
         given:
+        dbfixture(getTransient("ALLOCATED-8"))
         syncUpdate(getTransient("ASSIGNED-PA-LIR-MAINTAINED") + "override: denis,override1")
 
         expect:
@@ -339,7 +353,7 @@ class MntLowerAttributeValidationSpec extends BaseQueryUpdateSpec {
                 mnt-lower:    LIR-MNT         # added
                 source:       TEST
                 password: lir
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:
@@ -372,7 +386,7 @@ class MntLowerAttributeValidationSpec extends BaseQueryUpdateSpec {
                 mnt-lower:    LIR-MNT         # added
                 source:       TEST
                 password: lir
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:
@@ -404,7 +418,7 @@ class MntLowerAttributeValidationSpec extends BaseQueryUpdateSpec {
                 mnt-lower:    LIR-MNT         # added
                 source:       TEST
                 password: lir
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:
@@ -439,7 +453,7 @@ class MntLowerAttributeValidationSpec extends BaseQueryUpdateSpec {
                 mnt-lower:    LIR-MNT         # added
                 source:       TEST
                 password: lir
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:
@@ -472,7 +486,7 @@ class MntLowerAttributeValidationSpec extends BaseQueryUpdateSpec {
                 mnt-lower:    LIR-MNT         # added
                 source:       TEST
                 password: lir
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:
@@ -504,7 +518,7 @@ class MntLowerAttributeValidationSpec extends BaseQueryUpdateSpec {
                 mnt-lower:    LIR-MNT         # added
                 source:       TEST
                 password: lir
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:
@@ -540,7 +554,7 @@ class MntLowerAttributeValidationSpec extends BaseQueryUpdateSpec {
                 mnt-lower:    LIR-MNT         # added
                 source:       TEST
                 password: lir
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:
@@ -575,7 +589,7 @@ class MntLowerAttributeValidationSpec extends BaseQueryUpdateSpec {
                 mnt-lower:    LIR-MNT         # added
                 source:       TEST
                 password: hm
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:
@@ -607,7 +621,7 @@ class MntLowerAttributeValidationSpec extends BaseQueryUpdateSpec {
                 mnt-lower:    LIR-MNT         # added
                 source:       TEST
                 password: hm
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:
@@ -640,7 +654,7 @@ class MntLowerAttributeValidationSpec extends BaseQueryUpdateSpec {
                 mnt-lower:    LIR-MNT         # added
                 source:       TEST
                 password: hm
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:
@@ -658,6 +672,7 @@ class MntLowerAttributeValidationSpec extends BaseQueryUpdateSpec {
 
     def "modify inetnum (assigned pa and co-maintained): add mnt-lower of lir mnt by ripe"() {
         given:
+        dbfixture(getTransient("ALLOCATED-8"))
         syncUpdate(getTransient("ASSIGNED-PA-CO-MAINTAINED") + "override: denis,override1")
 
         expect:
@@ -677,7 +692,7 @@ class MntLowerAttributeValidationSpec extends BaseQueryUpdateSpec {
                 mnt-lower:    LIR-MNT         # added
                 source:       TEST
                 password: hm
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:
@@ -691,6 +706,7 @@ class MntLowerAttributeValidationSpec extends BaseQueryUpdateSpec {
 
     def "modify inetnum (assigned pa and ripe maintained): add mnt-lower of lir mnt by ripe"() {
         given:
+        dbfixture(getTransient("ALLOCATED-8"))
         syncUpdate(getTransient("ASSIGNED-PA-RIPE-MAINTAINED") + "override: denis,override1")
 
         expect:
@@ -709,7 +725,7 @@ class MntLowerAttributeValidationSpec extends BaseQueryUpdateSpec {
                 mnt-lower:    LIR-MNT         # added
                 source:       TEST
                 password: hm
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:
@@ -724,6 +740,7 @@ class MntLowerAttributeValidationSpec extends BaseQueryUpdateSpec {
 
     def "modify inetnum (assigned pa and lir maintained): add mnt-lower of lir mnt by ripe"() {
         given:
+        dbfixture(getTransient("ALLOCATED-8"))
         syncUpdate(getTransient("ASSIGNED-PA-LIR-MAINTAINED") + "override: denis,override1")
 
         expect:
@@ -742,7 +759,7 @@ class MntLowerAttributeValidationSpec extends BaseQueryUpdateSpec {
                 mnt-lower:    LIR-MNT         # added
                 source:       TEST
                 password: hm
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:

@@ -1,6 +1,6 @@
 package net.ripe.db.whois.update.handler.validator.common;
 
-import net.ripe.db.whois.common.Message;
+import net.ripe.db.whois.common.MessageWithAttribute;
 import net.ripe.db.whois.common.Messages;
 import net.ripe.db.whois.common.rpsl.AttributeType;
 import net.ripe.db.whois.common.rpsl.ObjectType;
@@ -9,19 +9,21 @@ import net.ripe.db.whois.common.rpsl.RpslObject;
 import net.ripe.db.whois.update.domain.Action;
 import net.ripe.db.whois.update.domain.PreparedUpdate;
 import net.ripe.db.whois.update.domain.UpdateContext;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.List;
 
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.contains;
-import static org.junit.Assert.assertThat;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoMoreInteractions;
+import static org.mockito.Mockito.when;
 
-@RunWith(MockitoJUnitRunner.class)
+@ExtendWith(MockitoExtension.class)
 public class MntRoutesValidatorTest {
     @Mock PreparedUpdate update;
     @Mock UpdateContext updateContext;
@@ -34,7 +36,7 @@ public class MntRoutesValidatorTest {
 
     @Test
     public void getTypes() {
-        assertThat(subject.getTypes(), contains(ObjectType.AUT_NUM, ObjectType.INET6NUM, ObjectType.INETNUM, ObjectType.ROUTE, ObjectType.ROUTE6));
+        assertThat(subject.getTypes(), contains(ObjectType.INET6NUM, ObjectType.INETNUM, ObjectType.ROUTE, ObjectType.ROUTE6));
     }
 
     @Test
@@ -45,9 +47,9 @@ public class MntRoutesValidatorTest {
                 "mnt-routes:  EXACT-MR-MNT any\n" +
                 "source:      TEST\n"));
 
-        subject.validate(update, updateContext);
+       subject.validate(update, updateContext);
 
-        verifyZeroInteractions(updateContext);
+        verifyNoMoreInteractions(updateContext);
     }
 
     @Test
@@ -58,9 +60,9 @@ public class MntRoutesValidatorTest {
                 "mnt-routes:  EXACT-MR-MNT {20.13.0.0/16^+}\n" +
                 "source:      TEST\n"));
 
-        subject.validate(update, updateContext);
+       subject.validate(update, updateContext);
 
-        verifyZeroInteractions(updateContext);
+        verifyNoMoreInteractions(updateContext);
     }
 
     @Test
@@ -72,9 +74,11 @@ public class MntRoutesValidatorTest {
                 "source:      TEST\n");
         when(update.getUpdatedObject()).thenReturn(rpslObject);
 
-        subject.validate(update, updateContext);
+       subject.validate(update, updateContext);
 
-        verify(updateContext).addMessage(update, rpslObject.findAttribute(AttributeType.MNT_ROUTES), new Message(Messages.Type.ERROR, "Syntax error in EXACT-MR-MNT {any, 20.13.0.0/16^+} (ANY can only occur as a single value)"));
+        final RpslAttribute mnt_routes = rpslObject.findAttribute(AttributeType.MNT_ROUTES);
+
+        verify(updateContext).addMessage(update, mnt_routes, new MessageWithAttribute(Messages.Type.ERROR, mnt_routes, "Syntax error in EXACT-MR-MNT {any, 20.13.0.0/16^+} (ANY can only occur as a single value)"));
     }
 
     @Test
@@ -86,9 +90,9 @@ public class MntRoutesValidatorTest {
                 "mnt-routes:  EXACT-MR-MNT any\n" +
                 "source:      TEST\n"));
 
-        subject.validate(update, updateContext);
+       subject.validate(update, updateContext);
 
-        verifyZeroInteractions(updateContext);
+        verifyNoMoreInteractions(updateContext);
     }
 
     @Test
@@ -102,9 +106,9 @@ public class MntRoutesValidatorTest {
                 "mnt-routes:  EXACT-MR-MNT any\n" +
                 "source:      TEST\n"));
 
-        subject.validate(update, updateContext);
+       subject.validate(update, updateContext);
 
-        verifyZeroInteractions(updateContext);
+        verifyNoMoreInteractions(updateContext);
     }
 
     @Test
@@ -116,9 +120,9 @@ public class MntRoutesValidatorTest {
                 "mnt-routes:  EXACT-MR-MNT {20.13.0.0/16}\n" +
                 "source:      TEST\n"));
 
-        subject.validate(update, updateContext);
+       subject.validate(update, updateContext);
 
-        verifyZeroInteractions(updateContext);
+        verifyNoMoreInteractions(updateContext);
     }
 
     @Test
@@ -131,11 +135,11 @@ public class MntRoutesValidatorTest {
                 "source:      TEST\n");
         when(update.getUpdatedObject()).thenReturn(rpslObject);
 
-        subject.validate(update, updateContext);
+       subject.validate(update, updateContext);
 
         final List<RpslAttribute> attributes = rpslObject.findAttributes(AttributeType.MNT_ROUTES);
-        verify(updateContext).addMessage(update, attributes.get(0), new Message(Messages.Type.ERROR, "Syntax error in EXACT-MR-MNT {20.13.0.0/16^+} (ANY can only occur as a single value)"));
-        verify(updateContext).addMessage(update, attributes.get(1), new Message(Messages.Type.ERROR, "Syntax error in EXACT-MR-MNT any (ANY can only occur as a single value)"));
+        verify(updateContext).addMessage(update, attributes.get(0), new MessageWithAttribute(Messages.Type.ERROR, attributes.get(0), "Syntax error in EXACT-MR-MNT {20.13.0.0/16^+} (ANY can only occur as a single value)"));
+        verify(updateContext).addMessage(update, attributes.get(1), new MessageWithAttribute(Messages.Type.ERROR,attributes.get(1),  "Syntax error in EXACT-MR-MNT any (ANY can only occur as a single value)"));
     }
 
     @Test
@@ -148,8 +152,8 @@ public class MntRoutesValidatorTest {
                 "source:      TEST\n");
         when(update.getUpdatedObject()).thenReturn(rpslObject);
 
-        subject.validate(update, updateContext);
+       subject.validate(update, updateContext);
 
-        verifyZeroInteractions(updateContext);
+        verifyNoMoreInteractions(updateContext);
     }
 }

@@ -1,58 +1,59 @@
 package net.ripe.db.whois.common;
 
 import org.apache.commons.lang.StringUtils;
-import org.joda.time.DateTime;
-import org.joda.time.DateTimeFieldType;
-import org.joda.time.DateTimeZone;
-import org.joda.time.ReadablePartial;
-import org.joda.time.format.DateTimeFormat;
-import org.joda.time.format.DateTimeFormatter;
-import org.joda.time.format.ISODateTimeFormat;
+
+import java.time.ZoneOffset;
+import java.time.format.DateTimeFormatter;
+import java.time.temporal.ChronoField;
+import java.time.temporal.TemporalAccessor;
 
 public final class FormatHelper {
-    private static final DateTimeFormatter DATE_FORMAT = DateTimeFormat.forPattern("yyyy-MM-dd");
-    private static final DateTimeFormatter DATE_TIME_FORMAT = DateTimeFormat.forPattern("yyyy-MM-dd HH:mm:ss");
-    private static final DateTimeFormatter DATE_TIME_UTC_FORMAT = ISODateTimeFormat.dateTimeNoMillis().withZone(DateTimeZone.UTC);
+    private static final DateTimeFormatter DATE_FORMAT = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+    private static final DateTimeFormatter DATE_TIME_FORMAT = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+    private static final DateTimeFormatter DATE_TIME_UTC_FORMAT = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss'Z'").withZone(ZoneOffset.UTC);
+    private static final DateTimeFormatter DAY_DATE_UTC_FORMAT = DateTimeFormatter.ofPattern("E MMM d HH:mm:ss yyyy'Z'").withZone(ZoneOffset.UTC);
 
     private static final String SPACES = StringUtils.repeat(" ", 100);
 
     private FormatHelper() {
+        // do not instantiate
     }
 
-    public static String dateToString(final ReadablePartial readablePartial) {
-        if (readablePartial == null) {
+    public static String dateToString(final TemporalAccessor temporalAccessor) {
+        if (temporalAccessor == null) {
             return null;
         }
 
-        return DATE_FORMAT.print(readablePartial);
+        return DATE_FORMAT.format(temporalAccessor);
     }
 
-    public static String dateTimeToString(final ReadablePartial readablePartial) {
-        if (readablePartial == null) {
+
+    public static String dateTimeToString(final TemporalAccessor temporalAccessor) {
+        if (temporalAccessor == null) {
             return null;
         }
 
-        if (readablePartial.isSupported(DateTimeFieldType.hourOfDay())) {
-            return DATE_TIME_FORMAT.print(readablePartial);
+        if (temporalAccessor.isSupported(ChronoField.HOUR_OF_DAY)) {
+            return DATE_TIME_FORMAT.format(temporalAccessor);
         }
 
-        return DATE_FORMAT.print(readablePartial);
+        return DATE_FORMAT.format(temporalAccessor);
     }
 
-    public static String dateTimeToUtcString(final ReadablePartial readablePartial) {
-        if (readablePartial == null) {
+    public static String dateTimeToUtcString(final TemporalAccessor temporalAccessor) {
+        if (temporalAccessor == null) {
             return null;
         }
 
-        return DATE_TIME_UTC_FORMAT.print(readablePartial);
+        return DATE_TIME_UTC_FORMAT.format(temporalAccessor);
     }
 
-    public static String dateTimeToUtcString(final DateTime dateTime) {
-        if (dateTime == null) {
+    public static String dayDateTimeToUtcString(final TemporalAccessor temporalAccessor) {
+        if (temporalAccessor == null) {
             return null;
         }
 
-        return DATE_TIME_UTC_FORMAT.print(dateTime);
+        return DAY_DATE_UTC_FORMAT.format(temporalAccessor);
     }
 
     public static String prettyPrint(final String prefix, final String value, final int indentation, final int maxLineLength) {

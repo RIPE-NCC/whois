@@ -1,21 +1,21 @@
 package net.ripe.db.whois.spec.update
 
-import net.ripe.db.whois.common.IntegrationTest
+
 import net.ripe.db.whois.spec.BaseQueryUpdateSpec
 
-@org.junit.experimental.categories.Category(IntegrationTest.class)
+@org.junit.jupiter.api.Tag("IntegrationTest")
 class NonAllocationAttributeValidationSpec extends BaseQueryUpdateSpec {
 
     @Override
     Map<String, String> getTransients() {
-        ["ALLOCATED-PI-192-168"       : """\
+        ["ALLOCATED-UNS-192-168"       : """\
                 inetnum:      192.168.0.0 - 192.168.255.255
                 netname:      ALLOCATION-192-168
                 country:      NL
                 org:          ORG-LIR1-TEST
                 admin-c:      TP1-TEST
                 tech-c:       TP1-TEST
-                status:       ALLOCATED PI
+                status:       ALLOCATED UNSPECIFIED
                 mnt-by:       RIPE-NCC-HM-MNT
                 mnt-by:       LIR-MNT
                 mnt-lower:    LIR-MNT
@@ -51,7 +51,7 @@ class NonAllocationAttributeValidationSpec extends BaseQueryUpdateSpec {
 
     def "modify inetnum, change sponsoring-org by lir mntner is not possible"() {
         given:
-        syncUpdate(getTransient("ALLOCATED-PI-192-168") + "override: denis, override1")
+        syncUpdate(getTransient("ALLOCATED-UNS-192-168") + "override: denis, override1")
         syncUpdate(getTransient("ASSIGNED-PI-192-168-1") + "override: denis, override1")
 
         expect:
@@ -64,7 +64,7 @@ class NonAllocationAttributeValidationSpec extends BaseQueryUpdateSpec {
                 netname:      ASSIGNED-192-168-1
                 country:      NL
                 org:          ORG-LIR1-TEST
-                sponsoring-org: ORG-LIR1-TEST  # changed
+                sponsoring-org: ORG-LIR1-TEST
                 admin-c:      TP1-TEST
                 tech-c:       TP1-TEST
                 status:       ASSIGNED PI
@@ -73,7 +73,7 @@ class NonAllocationAttributeValidationSpec extends BaseQueryUpdateSpec {
                 mnt-lower:    LIR-MNT
                 source:       TEST
                 password: lir
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:
@@ -89,7 +89,7 @@ class NonAllocationAttributeValidationSpec extends BaseQueryUpdateSpec {
 
     def "modify inetnum, change netname (ASSIGNED PI) by lir mntner is possible"() {
         given:
-        syncUpdate(getTransient("ALLOCATED-PI-192-168") + "override: denis, override1")
+        syncUpdate(getTransient("ALLOCATED-UNS-192-168") + "override: denis, override1")
         syncUpdate(getTransient("ASSIGNED-PI-192-168-1") + "override: denis, override1")
 
         expect:
@@ -111,7 +111,7 @@ class NonAllocationAttributeValidationSpec extends BaseQueryUpdateSpec {
                 mnt-lower:    LIR-MNT
                 source:       TEST
                 password: lir
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:
@@ -125,7 +125,7 @@ class NonAllocationAttributeValidationSpec extends BaseQueryUpdateSpec {
 
     def "modify inetnum without ripe mnt, change netname (ASSIGNED PI) by lir mntner is possible"() {
         given:
-        syncUpdate(getTransient("ALLOCATED-PI-192-168") + "override: denis, override1")
+        syncUpdate(getTransient("ALLOCATED-UNS-192-168") + "override: denis, override1")
         syncUpdate(getTransient("ASSIGNMENT-END-USER") + "override: denis, override1")
 
         expect:
@@ -144,7 +144,7 @@ class NonAllocationAttributeValidationSpec extends BaseQueryUpdateSpec {
                 mnt-by:       LIR-MNT
                 source:       TEST
                 password: lir
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:
@@ -159,7 +159,7 @@ class NonAllocationAttributeValidationSpec extends BaseQueryUpdateSpec {
 
     def "modify inetnum, add mnt-lower by lir mntner"() {
         given:
-        syncUpdate(getTransient("ALLOCATED-PI-192-168") + "override: denis, override1")
+        syncUpdate(getTransient("ALLOCATED-UNS-192-168") + "override: denis, override1")
         syncUpdate(getTransient("ASSIGNED-PI-192-168-1") + "override: denis, override1")
 
         expect:
@@ -182,7 +182,7 @@ class NonAllocationAttributeValidationSpec extends BaseQueryUpdateSpec {
                 mnt-lower:    LIR2-MNT                     # added
                 source:       TEST
                 password: lir
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:
@@ -196,7 +196,7 @@ class NonAllocationAttributeValidationSpec extends BaseQueryUpdateSpec {
 
     def "modify inetnum without ripe mnt, add mnt-lower by lir mntner"() {
         given:
-        syncUpdate(getTransient("ALLOCATED-PI-192-168") + "override: denis, override1")
+        syncUpdate(getTransient("ALLOCATED-UNS-192-168") + "override: denis, override1")
         syncUpdate(getTransient("ASSIGNMENT-END-USER") + "override: denis, override1")
 
         expect:
@@ -216,7 +216,7 @@ class NonAllocationAttributeValidationSpec extends BaseQueryUpdateSpec {
                 mnt-lower:    LIR-MNT        # added
                 source:       TEST
                 password: lir
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:
@@ -233,7 +233,7 @@ class NonAllocationAttributeValidationSpec extends BaseQueryUpdateSpec {
     def "modify inetnum, change sponsoring-org with override is possible"() {
 
         given:
-        syncUpdate(getTransient("ALLOCATED-PI-192-168") + "override: denis, override1")
+        syncUpdate(getTransient("ALLOCATED-UNS-192-168") + "override: denis, override1")
         syncUpdate(getTransient("ASSIGNED-PI-192-168-1") + "override: denis, override1")
 
         expect:
@@ -255,7 +255,7 @@ class NonAllocationAttributeValidationSpec extends BaseQueryUpdateSpec {
                 mnt-lower:    LIR-MNT
                 source:       TEST
                 override: denis,override1
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:
@@ -263,7 +263,7 @@ class NonAllocationAttributeValidationSpec extends BaseQueryUpdateSpec {
         ack.summary.nrFound == 1
         ack.summary.assertSuccess(1, 0, 1, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
-        ack.countErrorWarnInfo(0, 0, 1)
+        ack.countErrorWarnInfo(0, 2, 1)
         ack.successes.any { it.operation == "Modify" && it.key == "[inetnum] 192.168.1.0 - 192.168.1.255" }
     }
 }

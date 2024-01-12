@@ -1,10 +1,10 @@
 package net.ripe.db.whois.spec.update
 
-import net.ripe.db.whois.common.IntegrationTest
+
 import net.ripe.db.whois.spec.BaseQueryUpdateSpec
 import net.ripe.db.whois.spec.domain.Message
 
-@org.junit.experimental.categories.Category(IntegrationTest.class)
+@org.junit.jupiter.api.Tag("IntegrationTest")
 class DeleteMaintainerSpec extends BaseQueryUpdateSpec {
 
     @Override
@@ -168,7 +168,7 @@ class DeleteMaintainerSpec extends BaseQueryUpdateSpec {
                 referral-by: DEL-MNT
                 mnt-by:      DEL-MNT
                 source:      TEST
-                """.stripIndent())
+                """.stripIndent(true))
 
         expect:
         queryObject("-r -T mntner DEL-MNT", "mntner", "DEL-MNT")
@@ -382,7 +382,7 @@ class DeleteMaintainerSpec extends BaseQueryUpdateSpec {
                 delete: testing
 
                 password: owner
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -425,7 +425,7 @@ class DeleteMaintainerSpec extends BaseQueryUpdateSpec {
                 delete: testing
 
                 password: delete
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -468,7 +468,7 @@ class DeleteMaintainerSpec extends BaseQueryUpdateSpec {
                 delete: testing
 
                 password: delete
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -511,7 +511,7 @@ class DeleteMaintainerSpec extends BaseQueryUpdateSpec {
                 delete: testing
 
                 password: delete
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:

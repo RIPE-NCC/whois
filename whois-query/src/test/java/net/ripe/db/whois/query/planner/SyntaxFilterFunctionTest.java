@@ -1,17 +1,16 @@
 package net.ripe.db.whois.query.planner;
 
-import com.google.common.base.Predicate;
 import com.google.common.collect.Iterables;
 import net.ripe.db.whois.common.domain.ResponseObject;
 import net.ripe.db.whois.common.rpsl.RpslObject;
 import net.ripe.db.whois.query.QueryMessages;
 import net.ripe.db.whois.query.domain.MessageObject;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import static org.hamcrest.CoreMatchers.not;
 import static org.hamcrest.CoreMatchers.nullValue;
-import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.core.Is.is;
+import static org.hamcrest.MatcherAssert.assertThat;
 
 public class SyntaxFilterFunctionTest {
     private final SyntaxFilterFunction validSyntaxFilterFunction = new SyntaxFilterFunction(true);
@@ -30,12 +29,7 @@ public class SyntaxFilterFunctionTest {
 
         final Iterable<? extends ResponseObject> result = validSyntaxFilterFunction.apply(object);
 
-        final ResponseObject responseObject = Iterables.find(result, new Predicate<ResponseObject>() {
-            @Override
-            public boolean apply(final ResponseObject input) {
-                return input instanceof RpslObject;
-            }
-        });
+        final ResponseObject responseObject = Iterables.find(result, input -> input instanceof RpslObject);
         assertThat(responseObject, is(not(nullValue())));
     }
 
@@ -54,7 +48,7 @@ public class SyntaxFilterFunctionTest {
         final Iterable<? extends ResponseObject> result = validSyntaxFilterFunction.apply(object);
 
         assertThat(Iterables.size(result), is(1));
-        assertThat(Iterables.getFirst(result, null), is((ResponseObject)new MessageObject(QueryMessages.invalidSyntax("tst-ripe"))));
+        assertThat(Iterables.getFirst(result, null), is(new MessageObject(QueryMessages.invalidSyntax("tst-ripe"))));
     }
 
     @Test
@@ -71,7 +65,7 @@ public class SyntaxFilterFunctionTest {
         final Iterable<? extends ResponseObject> result = novalidSyntaxFilterFunction.apply(object);
 
         assertThat(Iterables.size(result), is(1));
-        assertThat(Iterables.getFirst(result, null), is((ResponseObject)new MessageObject(QueryMessages.validSyntax("TST-MNT"))));
+        assertThat(Iterables.getFirst(result, null), is(new MessageObject(QueryMessages.validSyntax("TST-MNT"))));
     }
 
     @Test
@@ -88,12 +82,7 @@ public class SyntaxFilterFunctionTest {
 
         final Iterable<? extends ResponseObject> result = novalidSyntaxFilterFunction.apply(object);
 
-        final ResponseObject responseObject = Iterables.find(result, new Predicate<ResponseObject>() {
-            @Override
-            public boolean apply(final ResponseObject input) {
-                return input instanceof RpslObject;
-            }
-        });
+        final ResponseObject responseObject = Iterables.find(result, input -> input instanceof RpslObject);
         assertThat(responseObject, is(not(nullValue())));
     }
 }

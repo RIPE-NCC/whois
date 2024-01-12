@@ -69,6 +69,11 @@ public class MultipleUpdateHandler {
                 updateLog.logUpdateResult(updateRequest, updateContext, update, stopwatch.stop());
             }
         }
+
+        if (updateContext.isDryRun()) {
+            throw new UpdateAbortedException();
+        }
+
     }
 
 }

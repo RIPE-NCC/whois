@@ -1,9 +1,9 @@
 package net.ripe.db.whois.spec.integration
 
-import net.ripe.db.whois.common.IntegrationTest
+
 import net.ripe.db.whois.spec.domain.SyncUpdate
 
-@org.junit.experimental.categories.Category(IntegrationTest.class)
+@org.junit.jupiter.api.Tag("IntegrationTest")
 class CommonUpdateIntegrationSpec extends BaseWhoisSourceSpec {
 
     @Override
@@ -114,7 +114,7 @@ class CommonUpdateIntegrationSpec extends BaseWhoisSourceSpec {
             and were NOT PROCESSED:
 
             mtner: not-an-object
-            """.stripIndent()
+            """.stripIndent(true)
     }
 
     def "send object with space in type attribute name"() {
@@ -132,7 +132,7 @@ class CommonUpdateIntegrationSpec extends BaseWhoisSourceSpec {
             and were NOT PROCESSED:
 
             mntner :      DEL-MNT
-        """.stripIndent()
+        """.stripIndent(true)
     }
 
     def "send object with unbalanced indent type not contains key"() {
@@ -156,7 +156,7 @@ class CommonUpdateIntegrationSpec extends BaseWhoisSourceSpec {
             person:  First Person Error
                            address: St James Street
                            address: Burnley
-                           address: UK""".stripIndent()
+                           address: UK""".stripIndent(true)
     }
 
     def "send object with extra spaces before each line"() {
@@ -172,7 +172,7 @@ class CommonUpdateIntegrationSpec extends BaseWhoisSourceSpec {
 
             ---
             Create FAILED: \\[mntner\\] DEV-MNT source: TEST
-        """.stripIndent()
+        """.stripIndent(true)
     }
 
     def "send object with too many passwords"() {
@@ -218,7 +218,7 @@ class CommonUpdateIntegrationSpec extends BaseWhoisSourceSpec {
     def "non-ascii password"() {
         when:
         def response = syncUpdate new SyncUpdate(data:
-                getFixtures().get("OWNER-MNT").stripIndent()
+                getFixtures().get("OWNER-MNT").stripIndent(true)
                         + "remarks: changed\n"
                         + "password: C'était\n")
         then:
@@ -236,7 +236,7 @@ class CommonUpdateIntegrationSpec extends BaseWhoisSourceSpec {
                 upd-to:      dbtest@ripe.net
                 source:      TEST #comment
                 password:    owner
-                """.stripIndent())
+                """.stripIndent(true))
 
         then:
         response =~ /End of line comments not allowed on "source:" attribute/
@@ -253,7 +253,7 @@ class CommonUpdateIntegrationSpec extends BaseWhoisSourceSpec {
                 upd-to:      dbtest@ripe.net
                 source:      Test # Filtered
                 password:    owner
-                """.stripIndent())
+                """.stripIndent(true))
 
         then:
         response =~ /Cannot submit filtered whois output for updates/

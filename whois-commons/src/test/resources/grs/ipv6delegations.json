@@ -1,0 +1,31 @@
+{
+  "response": {
+    "status": 200,
+    "message": "OK",
+    "pageNumber": 1,
+    "pageSize": 1,
+    "pageCount": 20,
+    "startIndex": 1,
+    "totalSize": 20,
+    "links": [
+      {
+        "rel": "self",
+        "href": "/resource-services/ipv6-delegations?page-number=1&page-size=1"
+      },
+      {
+        "rel": "next",
+        "href": "/resource-services/ipv6-delegations?page-number=2&page-size=1"
+      },
+      {
+        "rel": "last",
+        "href": "/resource-services/ipv6-delegations?page-number=20&page-size=1"
+      }
+    ],
+    "results": [
+      {
+        "range": "2001:600::-2001:7f9:ffff:ffff:ffff:ffff:ffff:ffff",
+        "date": "1999-07-01"
+      }
+    ]
+  }
+}

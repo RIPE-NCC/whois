@@ -1,7 +1,7 @@
 package net.ripe.db.whois.update.keycert;
 
-import com.google.common.base.Charsets;
 import net.ripe.db.whois.common.DateTimeProvider;
+import net.ripe.db.whois.common.DateUtil;
 import org.bouncycastle.bcpg.ArmoredInputStream;
 import org.bouncycastle.openpgp.PGPObjectFactory;
 import org.bouncycastle.openpgp.PGPPublicKey;
@@ -10,7 +10,6 @@ import org.bouncycastle.openpgp.PGPSignatureList;
 import org.bouncycastle.openpgp.PGPUtil;
 import org.bouncycastle.openpgp.bc.BcPGPObjectFactory;
 import org.bouncycastle.openpgp.operator.bc.BcPGPContentVerifierBuilderProvider;
-import org.joda.time.LocalDateTime;
 import org.springframework.util.FileCopyUtils;
 
 import javax.annotation.concurrent.Immutable;
@@ -20,6 +19,8 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.nio.ByteBuffer;
 import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
+import java.time.LocalDateTime;
 import java.util.Arrays;
 import java.util.Objects;
 import java.util.regex.Matcher;
@@ -54,7 +55,7 @@ public final class PgpSignedMessage {
     }
 
     public static PgpSignedMessage parse(final String signedContent, final String signature) {
-        return parse(signedContent, signature, Charsets.ISO_8859_1);
+        return parse(signedContent, signature, StandardCharsets.ISO_8859_1);
     }
 
     public static PgpSignedMessage parse(final String signedContent, final String signature, final Charset charset) {
@@ -79,7 +80,7 @@ public final class PgpSignedMessage {
     }
 
     public static PgpSignedMessage parse(final String clearText) {
-        return parse(clearText, Charsets.ISO_8859_1);
+        return parse(clearText, StandardCharsets.ISO_8859_1);
     }
 
     public static PgpSignedMessage parse(final String clearText, final Charset charset) {
@@ -93,7 +94,7 @@ public final class PgpSignedMessage {
 
     private static PgpSignedMessage parse(final byte[] bytes) {
         try {
-            final InputStream decoderStream = PGPUtil.getDecoderStream(new ByteArrayInputStream(bytes));     // encodeAsLatin1(matcher.group(0))
+            final InputStream decoderStream = PGPUtil.getDecoderStream(new ByteArrayInputStream(bytes));     // TODO: [ES] encodeAsLatin1(matcher.group(0))
             if (!(decoderStream instanceof ArmoredInputStream)) {
                 throw new IllegalArgumentException("Unexpected content");
             }
@@ -174,10 +175,11 @@ public final class PgpSignedMessage {
         }
     }
 
+    // The signing time must be within an hour of the current time.
     public boolean verifySigningTime(final DateTimeProvider dateTimeProvider) {
-        final LocalDateTime signingTime = new LocalDateTime(getPgpSignature().getCreationTime());
-        final LocalDateTime oneWeekAgo = dateTimeProvider.getCurrentDateTime().minusDays(7);
-        return !signingTime.isBefore(oneWeekAgo);
+        final LocalDateTime signingTime = DateUtil.fromDate(getPgpSignature().getCreationTime());
+        final LocalDateTime currentTime = dateTimeProvider.getCurrentDateTime();
+        return (signingTime.isAfter(currentTime.minusHours(1)) && signingTime.isBefore(currentTime.plusHours(1)));
     }
 
     public String getKeyId() {

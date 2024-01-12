@@ -1,6 +1,5 @@
 package net.ripe.db.whois.query.executor;
 
-import com.google.common.base.Function;
 import com.google.common.base.Joiner;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Sets;
@@ -9,8 +8,8 @@ import net.ripe.db.whois.common.domain.ResponseObject;
 import net.ripe.db.whois.common.source.IllegalSourceException;
 import net.ripe.db.whois.common.source.Source;
 import net.ripe.db.whois.common.source.SourceContext;
-import net.ripe.db.whois.query.domain.MessageObject;
 import net.ripe.db.whois.query.QueryMessages;
+import net.ripe.db.whois.query.domain.MessageObject;
 import net.ripe.db.whois.query.domain.ResponseHandler;
 import net.ripe.db.whois.query.planner.RpslResponseDecorator;
 import net.ripe.db.whois.query.query.Query;
@@ -63,7 +62,7 @@ public class SearchQueryExecutor implements QueryExecutor {
         for (final Source source : sources) {
             try {
                 sourceContext.setCurrent(source);
-                final Iterable<? extends ResponseObject> searchResults = rpslObjectSearcher.search(query);
+                final Iterable<? extends ResponseObject> searchResults = rpslObjectSearcher.search(query, sourceContext);
 
                 for (final ResponseObject responseObject : rpslResponseDecorator.getResponse(query, searchResults)) {
 
@@ -82,12 +81,7 @@ public class SearchQueryExecutor implements QueryExecutor {
         }
 
         if (noResults) {
-            responseHandler.handle(new MessageObject(QueryMessages.noResults(Joiner.on(',').join(Iterables.transform(sources, new Function<Source, String>() {
-                @Override
-                public String apply(final Source input) {
-                    return input.getName().toUpperCase();
-                }
-            })))));
+            responseHandler.handle(new MessageObject(QueryMessages.noResults(Joiner.on(',').join(Iterables.transform(sources, source -> source.getName().toUpperCase())))));
         }
     }
 
@@ -114,18 +108,13 @@ public class SearchQueryExecutor implements QueryExecutor {
             }
         } else {
             if (!sourceContext.getAdditionalSourceNames().isEmpty()) {
-                sources.add(sourceContext.getWhoisSlaveSource());
-                sources.addAll(Sets.newLinkedHashSet(Iterables.transform(sourceContext.getAdditionalSourceNames(), new Function<CIString, Source>() {
-                    @Override
-                    public Source apply(final CIString input) {
-                        return Source.slave(input);
-                    }
-                })));
+                sources.add(sourceContext.getSlaveSource());
+                sources.addAll(Sets.newLinkedHashSet(Iterables.transform(sourceContext.getAdditionalSourceNames(), input -> Source.slave(input))));
             }
         }
 
         if (sources.isEmpty()) {
-            sources.add(sourceContext.getWhoisSlaveSource());
+            sources.add(sourceContext.getSlaveSource());
         }
 
         return sources;

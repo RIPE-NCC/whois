@@ -11,25 +11,25 @@ import net.ripe.db.whois.update.domain.OverrideOptions;
 import net.ripe.db.whois.update.domain.PreparedUpdate;
 import net.ripe.db.whois.update.domain.Update;
 import net.ripe.db.whois.update.domain.UpdateContext;
-import org.joda.time.DateTimeZone;
-import org.joda.time.LocalDateTime;
-import org.joda.time.format.DateTimeFormatter;
-import org.joda.time.format.ISODateTimeFormat;
-import org.junit.Before;
-import org.junit.Ignore;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
 
-import static org.hamcrest.MatcherAssert.assertThat;
+import org.mockito.Mock;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.junit.jupiter.MockitoExtension;
+
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+
 import static org.hamcrest.core.Is.is;
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.mockito.Mockito.when;
 
-@RunWith(MockitoJUnitRunner.class)
+@ExtendWith(MockitoExtension.class)
 public class TimestampAttributeGeneratorTest {
     //TODO [TP]: remove defensive code checks wher we check whether timestamp attributes are in original object.
-    final private static DateTimeFormatter ISO_FORMATTER = ISODateTimeFormat.dateTimeNoMillis();
+    final private static DateTimeFormatter ISO_FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss'Z'");
 
     private static final String TIMESTAMP_STRING_PAST = "2014-01-26T11:44:59Z";
     private static final String TIMESTAMP_STRING_ACTION = "2015-02-27T12:45:00Z";
@@ -51,7 +51,7 @@ public class TimestampAttributeGeneratorTest {
     private TestDateTimeProvider testDateTimeProvider = new TestDateTimeProvider();
     private TimestampAttributeGenerator subject;
 
-    @Before
+    @BeforeEach
     public void before() {
         testHelper = new AttributeGeneratorTestHelper(updateContext, update);
         subject = new TimestampAttributeGenerator(testDateTimeProvider);
@@ -182,7 +182,7 @@ public class TimestampAttributeGeneratorTest {
         testHelper.assertNoMessages();
     }
 
-    @Ignore("TP: remove defensive code. all attributes have timestamps")
+    @Disabled("TP: remove defensive code. all attributes have timestamps")
     @Test
     public void modify_original_has_no_timestamps_input_has_wrong_timestamps() {
         testDateTimeProvider.setTime(actionTime());
@@ -368,7 +368,7 @@ public class TimestampAttributeGeneratorTest {
         testHelper.assertNoMessages();
     }
 
-    @Ignore("TP: remove defensive code. all attributes have timestamps")
+    @Disabled("TP: remove defensive code. all attributes have timestamps")
     @Test
     public void delete_original_no_timestamps_input_has_wrong_timestamps() {
 
@@ -393,7 +393,7 @@ public class TimestampAttributeGeneratorTest {
                 ValidationMessages.suppliedAttributeReplacedWithGeneratedValue(AttributeType.LAST_MODIFIED));
     }
 
-    @Ignore("TP: remove defensive code. all attributes have timestamps")
+    @Disabled("TP: remove defensive code. all attributes have timestamps")
     @Test
     public void delete_original_no_timestamps_input_has_right_timestamps() {
 
@@ -528,6 +528,6 @@ public class TimestampAttributeGeneratorTest {
     // End of section skip-last-modified is true
 
     private LocalDateTime actionTime() {
-        return ISO_FORMATTER.parseDateTime(TIMESTAMP_STRING_ACTION).withZone(DateTimeZone.UTC).toLocalDateTime();
+        return LocalDateTime.from(ISO_FORMATTER.parse(TIMESTAMP_STRING_ACTION));
     }
 }

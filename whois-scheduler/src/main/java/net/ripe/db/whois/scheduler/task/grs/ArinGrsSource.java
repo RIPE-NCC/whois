@@ -1,7 +1,5 @@
 package net.ripe.db.whois.scheduler.task.grs;
 
-import com.google.common.base.Charsets;
-import com.google.common.base.Function;
 import com.google.common.base.Joiner;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
@@ -18,6 +16,8 @@ import net.ripe.db.whois.common.rpsl.RpslObject;
 import net.ripe.db.whois.common.rpsl.RpslObjectBuilder;
 import net.ripe.db.whois.common.source.SourceContext;
 import org.apache.commons.lang.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
@@ -28,10 +28,13 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.URL;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.function.Function;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.zip.ZipEntry;
@@ -42,6 +45,8 @@ import static net.ripe.db.whois.common.domain.CIString.ciString;
 
 @Component
 class ArinGrsSource extends GrsSource {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(ArinGrsSource.class);
     private static final Pattern IPV6_SPLIT_PATTERN = Pattern.compile("(?i)([0-9a-f:]*)\\s*-\\s*([0-9a-f:]*)\\s*");
     private static final Pattern AS_NUMBER_RANGE = Pattern.compile("^(\\d+) [-] (\\d+)$");
 
@@ -70,17 +75,15 @@ class ArinGrsSource extends GrsSource {
 
     @Override
     public void handleObjects(final File file, final ObjectHandler handler) throws IOException {
-        ZipFile zipFile = null;
 
-        try {
-            zipFile = new ZipFile(file, ZipFile.OPEN_READ);
+        try (ZipFile zipFile = new ZipFile(file, ZipFile.OPEN_READ)) {
             final ZipEntry zipEntry = zipFile.getEntry(zipEntryName);
             if (zipEntry == null) {
                 logger.error("Zipfile {} does not contain dump {}", file, zipEntryName);
                 return;
             }
 
-            final BufferedReader reader = new BufferedReader(new InputStreamReader(zipFile.getInputStream(zipEntry), Charsets.UTF_8));
+            final BufferedReader reader = new BufferedReader(new InputStreamReader(zipFile.getInputStream(zipEntry), StandardCharsets.UTF_8));
             handleLines(reader, new LineHandler() {
                 @Override
                 public void handleLines(final List<String> lines) {
@@ -102,9 +105,15 @@ class ArinGrsSource extends GrsSource {
                             final Matcher rangeMatcher = AS_NUMBER_RANGE.matcher(asnumber);
                             if (rangeMatcher.find()) {
                                 final List<RpslObject> objects = Lists.newArrayList();
-
-                                final int begin = Integer.parseInt(rangeMatcher.group(1));
-                                final int end = Integer.parseInt(rangeMatcher.group(2));
+                                int begin;
+                                int end;
+                                try {
+                                    begin = Integer.parseInt(rangeMatcher.group(1));
+                                    end = Integer.parseInt(rangeMatcher.group(2));
+                                } catch (NumberFormatException ex) {
+                                    LOGGER.info(String.format("%s is larger than 32 bit limit in RIPE Database", asnumber));
+                                    return Collections.emptyList();
+                                }
 
                                 for (int index = begin; index <= end; index++) {
                                     attributes.set(0, new RpslAttribute(AttributeType.AUT_NUM, String.format("AS%d", index)));
@@ -129,7 +138,6 @@ class ArinGrsSource extends GrsSource {
 
                         final AttributeType attributeType = attribute.getType();
                         if (attributeType == null) {
-                            continue;
                         } else if (AttributeType.INETNUM.equals(attributeType) || AttributeType.INET6NUM.equals(attributeType)) {
                             newAttributes.add(0, attribute);
                         } else {
@@ -150,10 +158,6 @@ class ArinGrsSource extends GrsSource {
                     return null;
                 }
             });
-        } finally {
-            if (zipFile != null) {
-                zipFile.close();
-            }
         }
     }
 
@@ -187,46 +191,35 @@ class ArinGrsSource extends GrsSource {
                 {"NetType", AttributeType.STATUS},
                 {"Source", AttributeType.SOURCE},
         }) {
-            addTransformFunction(new Function<RpslAttribute, RpslAttribute>() {
-                @Override
-                public RpslAttribute apply(final RpslAttribute input) {
-                    return new RpslAttribute((AttributeType) mapped[1], input.getValue());
-                }
-            }, (String) mapped[0]);
+            addTransformFunction(input -> new RpslAttribute((AttributeType) mapped[1], input.getValue()), (String) mapped[0]);
         }
 
-        addTransformFunction(new Function<RpslAttribute, RpslAttribute>() {
-            @Override
-            public RpslAttribute apply(final RpslAttribute input) {
+        addTransformFunction(input -> {
                 return new RpslAttribute(AttributeType.ADDRESS, String.format("%s # %s", input.getValue(), input.getKey()));
-            }
         }, "City", "Country", "PostalCode", "Street", "State/Prov");
 
-        addTransformFunction(new Function<RpslAttribute, RpslAttribute>() {
-            @Override
-            public RpslAttribute apply(final RpslAttribute input) {
-                final String value = input.getCleanValue().toString();
+        addTransformFunction(input -> {
+            final String value = input.getCleanValue().toString();
 
-                // Fix IPv6 syntax
-                if (value.contains(":")) {
-                    final Matcher matcher = IPV6_SPLIT_PATTERN.matcher(value);
-                    if (matcher.find()) {
-                        final Ipv6Resource beginResource = Ipv6Resource.parse(matcher.group(1));
-                        final Ipv6Resource endResource = Ipv6Resource.parse(matcher.group(2));
-                        final Ipv6Resource ipv6Resource = new Ipv6Resource(beginResource.begin(), endResource.end());
+            // Fix IPv6 syntax
+            if (value.contains(":")) {
+                final Matcher matcher = IPV6_SPLIT_PATTERN.matcher(value);
+                if (matcher.find()) {
+                    final Ipv6Resource beginResource = Ipv6Resource.parse(matcher.group(1));
+                    final Ipv6Resource endResource = Ipv6Resource.parse(matcher.group(2));
+                    final Ipv6Resource ipv6Resource = new Ipv6Resource(beginResource.begin(), endResource.end());
 
-                        return new RpslAttribute(AttributeType.INET6NUM, ipv6Resource.toString());
-                    }
+                    return new RpslAttribute(AttributeType.INET6NUM, ipv6Resource.toString());
                 }
+            }
 
-                final IpInterval<?> ipInterval = IpInterval.parse(value);
-                if (ipInterval instanceof Ipv4Resource) {
-                    return new RpslAttribute(AttributeType.INETNUM, input.getValue());
-                } else if (ipInterval instanceof Ipv6Resource) {
-                    return new RpslAttribute(AttributeType.INET6NUM, input.getValue());
-                } else {
-                    throw new IllegalArgumentException(String.format("Unexpected input: %s", input.getCleanValue()));
-                }
+            final IpInterval<?> ipInterval = IpInterval.parse(value);
+            if (ipInterval instanceof Ipv4Resource) {
+                return new RpslAttribute(AttributeType.INETNUM, input.getValue());
+            } else if (ipInterval instanceof Ipv6Resource) {
+                return new RpslAttribute(AttributeType.INET6NUM, input.getValue());
+            } else {
+                throw new IllegalArgumentException(String.format("Unexpected input: %s", input.getCleanValue()));
             }
         }, "NetRange");
     }

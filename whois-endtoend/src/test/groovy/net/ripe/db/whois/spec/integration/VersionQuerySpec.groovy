@@ -1,10 +1,10 @@
 package net.ripe.db.whois.spec.integration
 
-import net.ripe.db.whois.common.IntegrationTest
+
 import net.ripe.db.whois.common.source.Source
 import net.ripe.db.whois.spec.domain.SyncUpdate
 
-@org.junit.experimental.categories.Category(IntegrationTest.class)
+@org.junit.jupiter.api.Tag("IntegrationTest")
 class VersionQuerySpec extends BaseWhoisSourceSpec {
     @Override
     Map<String, String> getFixtures() {
@@ -160,17 +160,6 @@ class VersionQuerySpec extends BaseWhoisSourceSpec {
                 notify:      notify_hm@ripe.net
                 auth:        MD5-PW \$1\$mV2gSZtj\$1oVwjZr0ecFZQHsNbw2Ss.  #hm
                 mnt-by:      RIPE-NCC-HM-MNT
-                source:      TEST
-                """,
-                "RIPE-NCC-HM2-MNT": """\
-                mntner:      RIPE-NCC-HM2-MNT
-                descr:       hostmaster MNTNER
-                admin-c:     TP1-TEST
-                upd-to:      updto_hm@ripe.net
-                mnt-nfy:     mntnfy_hm@ripe.net
-                notify:      notify_hm@ripe.net
-                auth:        MD5-PW \$1\$GAdTrvdG\$SEqxCNjKkR3ogcIq7teRv0  #hm2
-                mnt-by:      RIPE-NCC-HM2-MNT
                 source:      TEST
                 """,
                 "LIR-MNT": """\
@@ -743,7 +732,7 @@ class VersionQuerySpec extends BaseWhoisSourceSpec {
 % The objects are in RPSL format.
 %
 % The RIPE Database is subject to Terms and Conditions.
-% See http://www.ripe.net/db/support/db-terms-conditions.pdf
+% See https://apps.db.ripe.net/docs/HTML-Terms-And-Conditions
 
 """
 
@@ -822,7 +811,7 @@ class VersionQuerySpec extends BaseWhoisSourceSpec {
         !(response =~ /ERROR:/)
 
         response =~ "% Version 1 of object \"" + pkey + "\""
-        response =~ /% This version was a (UPDATE|DELETE) operation on \d+-\d+-\d+ \d+:\d+/
+        response =~ /% This version was a (UPDATE|DELETE) operation on \d+-\d+-\d+T\d+:\d+:\d+Z/
         response =~ "% You can use \"--list-versions\" to get a list of versions for an object."
 
       where:
@@ -839,7 +828,7 @@ class VersionQuerySpec extends BaseWhoisSourceSpec {
         !(response =~ /ERROR:/)
 
         response =~ "% Version 1 of object \"" + pkey + "\""
-        response =~ /% This version was a (UPDATE|DELETE) operation on \d+-\d+-\d+ \d+:\d+/
+        response =~ /% This version was a (UPDATE|DELETE) operation on \d+-\d+-\d+T\d+:\d+:\d+Z/
         response =~ "% You can use \"--list-versions\" to get a list of versions for an object."
 
       where:
@@ -886,7 +875,7 @@ class VersionQuerySpec extends BaseWhoisSourceSpec {
             source:      TEST
             remarks:     updated version
             password:    mb-parent
-            """.stripIndent())
+            """.stripIndent(true))
       then:
         updateResponse =~ "SUCCESS"
 
@@ -899,6 +888,36 @@ class VersionQuerySpec extends BaseWhoisSourceSpec {
         !(response =~ /ERROR:/)
 
         response =~ /remarks:\s+updated version/
+
+        // no related objects
+        !(response =~ /person:\s+/)
+    }
+
+    def "--show-version 3 AS1000 LATIN-1 Characters"() {
+        when:
+        def updateResponse = syncUpdate new SyncUpdate(data: """\
+            aut-num:     AS1000
+            as-name:     TEST-AS
+            descr:       Testing Authorisation code
+            admin-c:     TP1-TEST
+            tech-c:      TP1-TEST
+            mnt-by:      PARENT-MB-MNT
+            source:      TEST
+            remarks:     À Á Â Ã Ä Å Æ Ç È É Ê Ë Ì Í Î Ï
+            password:    mb-parent
+            """.stripIndent(true))
+        then:
+        updateResponse =~ "SUCCESS"
+
+        when:
+        def response = query "--show-version 3 AS1000"
+
+        then:
+        response =~ header
+        !(response =~ advert)
+        !(response =~ /ERROR:/)
+
+        response =~ /remarks:\s+À Á Â Ã Ä Å Æ Ç È É Ê Ë Ì Í Î Ï/
 
         // no related objects
         !(response =~ /person:\s+/)
@@ -954,10 +973,9 @@ class VersionQuerySpec extends BaseWhoisSourceSpec {
         !(response =~ /ERROR:/)
 
         response =~ "% Difference between version 1 and 2 of object \"TST-MNT\""
-        response =~ "@@ -1,2 \\+1,7 @@\n" +
+        response =~ "@@ -1,2 \\+1,6 @@\n" +
                 " mntner:         TST-MNT\n" +
                 "\\+descr:          MNTNER for test\n" +
-                "\\+admin-c:        TP1-TEST\n" +
                 "\\+auth:           MD5-PW # Filtered\n" +
                 "\\+mnt-by:         OWNER-MNT\n" +
                 "\\+source:         TEST # Filtered"
@@ -976,10 +994,9 @@ class VersionQuerySpec extends BaseWhoisSourceSpec {
         !(response =~ /ERROR:/)
 
         response =~ "% Difference between version 2 and 1 of object \"TST-MNT\""
-        response =~ "@@ -1,7 \\+1,2 @@\n" +
+        response =~ "@@ -1,6 \\+1,2 @@\n" +
                 " mntner:         TST-MNT\n" +
                 "-descr:          MNTNER for test\n" +
-                "-admin-c:        TP1-TEST\n" +
                 "-auth:           MD5-PW # Filtered\n" +
                 "-mnt-by:         OWNER-MNT\n" +
                 "-source:         TEST # Filtered"
@@ -1001,6 +1018,45 @@ class VersionQuerySpec extends BaseWhoisSourceSpec {
         pkey << ["TST-MNT"]
     }
 
+    def "--diff-versions (invalid first version number)"() {
+        when:
+        def response = query "--diff-versions §:1 " + pkey
+
+        then:
+        response =~ header
+        response =~ "% diff version must be a number\n%\n" +
+                "%ERROR:111: invalid option supplied"
+
+        where:
+        pkey << ["TST-MNT"]
+    }
+
+    def "--diff-versions (invalid second version number)"() {
+        when:
+        def response = query "--diff-versions 2:1- " + pkey
+
+        then:
+        response =~ header
+        response =~ "% diff version must be a number\n%\n" +
+                "%ERROR:111: invalid option supplied"
+
+        where:
+        pkey << ["TST-MNT"]
+    }
+
+    def "--diff-versions (both first and second version number invalid)"() {
+        when:
+        def response = query "--diff-versions §:1- " + pkey
+
+        then:
+        response =~ header
+        response =~ "% diff version must be a number\n%\n" +
+                "%ERROR:111: invalid option supplied"
+
+        where:
+        pkey << ["TST-MNT"]
+    }
+
     def "--diff-versions (out of range)"() {
       when:
         def response = query "--diff-versions 1:3 " + pkey
@@ -1010,6 +1066,36 @@ class VersionQuerySpec extends BaseWhoisSourceSpec {
         response =~ "%ERROR:117: version cannot exceed 2 for this object"
 
       where:
+        pkey << ["TST-MNT"]
+    }
+
+    def "--diff-versions LATIN-1 Characters"() {
+        when:
+        def updateResponse = syncUpdate new SyncUpdate(data: """\
+            mntner:      TST-MNT
+            descr:       MNTNER for test
+            admin-c:     TP1-TEST
+            upd-to:      dbtest@ripe.net
+            auth:        MD5-PW \$1\$d9fKeTr2\$Si7YudNf4rUGmR71n/cqk/  #test
+            mnt-by:      OWNER-MNT
+            remarks:     À Á Â Ã Ä Å Æ Ç È É Ê Ë Ì Í Î Ï
+            source:      TEST
+            password:    owner
+            """.stripIndent(true))
+        then:
+        updateResponse =~ "SUCCESS"
+
+        when:
+        def response = query "--diff-versions 2:3 " + pkey
+
+        then:
+        response =~ header
+        !(response =~ advert)
+        !(response =~ /ERROR:/)
+
+        response =~ /remarks:\s+À Á Â Ã Ä Å Æ Ç È É Ê Ë Ì Í Î Ï/
+
+        where:
         pkey << ["TST-MNT"]
     }
 

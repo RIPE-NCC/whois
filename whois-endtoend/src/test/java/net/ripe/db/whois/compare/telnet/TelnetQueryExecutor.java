@@ -11,13 +11,14 @@ import net.ripe.db.whois.common.support.QueryExecutorConfiguration;
 import net.ripe.db.whois.common.support.TelnetWhoisClient;
 import net.ripe.db.whois.compare.common.ComparisonExecutor;
 import net.ripe.db.whois.query.domain.MessageObject;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
 import java.net.UnknownHostException;
 import java.util.List;
 
-import static org.junit.Assert.assertEquals;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.is;
 
 public class TelnetQueryExecutor implements ComparisonExecutor {
     final QueryExecutorConfiguration configuration;
@@ -94,9 +95,9 @@ public class TelnetQueryExecutor implements ComparisonExecutor {
     /* indexOfIgnoring() is the core feature of the end-to-end testing, hence I've put it here */
     @Test
     public void byteArrayIndexOfTest() {
-        byte[] res = new byte[]{1, '\n', '\n', 2, '\n', '\r', '\n', '\r', 3};
-        assertEquals(1, ByteArrayContains.indexOfIgnoring(res, DOUBLE_NEWLINE, 0, STUPID_NEWLINE));
-        assertEquals(4, ByteArrayContains.indexOfIgnoring(res, DOUBLE_NEWLINE, 3, STUPID_NEWLINE));
-        assertEquals(-1, ByteArrayContains.indexOfIgnoring(res, DOUBLE_NEWLINE, 6, STUPID_NEWLINE));
+        final byte[] res = new byte[]{1, '\n', '\n', 2, '\n', '\r', '\n', '\r', 3};
+        assertThat(ByteArrayContains.indexOfIgnoring(res, DOUBLE_NEWLINE, 0, STUPID_NEWLINE), is(1));
+        assertThat(ByteArrayContains.indexOfIgnoring(res, DOUBLE_NEWLINE, 3, STUPID_NEWLINE), is(4));
+        assertThat(ByteArrayContains.indexOfIgnoring(res, DOUBLE_NEWLINE, 6, STUPID_NEWLINE), is(-1));
     }
 }

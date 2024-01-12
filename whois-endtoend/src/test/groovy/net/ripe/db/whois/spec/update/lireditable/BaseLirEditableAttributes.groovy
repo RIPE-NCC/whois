@@ -1,9 +1,9 @@
 package net.ripe.db.whois.spec.update.lireditable
 
-import net.ripe.db.whois.common.IntegrationTest
+
 import net.ripe.db.whois.spec.BaseQueryUpdateSpec
 
-@org.junit.experimental.categories.Category(IntegrationTest.class)
+@org.junit.jupiter.api.Tag("IntegrationTest")
 class BaseLirEditableAttributes extends BaseQueryUpdateSpec {
 
     def createMandatory(String type,
@@ -21,7 +21,7 @@ class BaseLirEditableAttributes extends BaseQueryUpdateSpec {
                 mnt-by:       ${ripeMntnerValue}
                 mnt-by:       LIR-MNT
                 source:       TEST
-                """.stripIndent()
+                """.stripIndent(true)
     }
 
     def createExtra(String type,
@@ -48,7 +48,7 @@ class BaseLirEditableAttributes extends BaseQueryUpdateSpec {
                 mnt-domains:  DOMAINS-MNT       # extra
                 mnt-irt:      IRT-TEST          # extra
                 source:       TEST
-                """.stripIndent()
+                """.stripIndent(true)
     }
 
     def createRipeNccMntner(String type,
@@ -69,7 +69,7 @@ class BaseLirEditableAttributes extends BaseQueryUpdateSpec {
                 mnt-routes:   ${ripeMntnerValue}  # ripe-ncc-mnt
                 mnt-domains:  ${ripeMntnerValue}  # ripe-ncc-mnt
                 source:       TEST
-                """.stripIndent()
+                """.stripIndent(true)
     }
 
     def createExtraRipeNccMntner(String type,
@@ -93,7 +93,7 @@ class BaseLirEditableAttributes extends BaseQueryUpdateSpec {
                 mnt-domains:  ${ripeMntnerValue}  # ripe-ncc-mnt
                 mnt-domains:  DOMAINS-MNT      # extra
                 source:       TEST
-                """.stripIndent()
+                """.stripIndent(true)
     }
 
     def createIrtTest() {
@@ -111,7 +111,7 @@ class BaseLirEditableAttributes extends BaseQueryUpdateSpec {
                 tech-c:       TP1-TEST
                 mnt-by:       OWNER-MNT
                 source:       TEST
-                """.stripIndent()
+                """.stripIndent(true)
     }
 
     def createIrt2Test() {
@@ -129,7 +129,7 @@ class BaseLirEditableAttributes extends BaseQueryUpdateSpec {
                 tech-c:       TP1-TEST
                 mnt-by:       OWNER-MNT
                 source:       TEST
-                """.stripIndent()
+                """.stripIndent(true)
     }
 
     def createDomains2Mnt() {
@@ -143,6 +143,6 @@ class BaseLirEditableAttributes extends BaseQueryUpdateSpec {
                 auth:        MD5-PW \$1\$anTWxMgQ\$8aBWq5u5ZFHLA5aeZsSxG0  #domains
                 mnt-by:      DOMAINS2-MNT
                 source:      TEST
-                """.stripIndent()
+                """.stripIndent(true)
     }
 }

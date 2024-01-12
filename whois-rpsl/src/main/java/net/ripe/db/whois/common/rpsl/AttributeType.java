@@ -35,6 +35,7 @@ import static net.ripe.db.whois.common.rpsl.AttributeSyntax.FILTER_SET_SYNTAX;
 import static net.ripe.db.whois.common.rpsl.AttributeSyntax.FILTER_SYNTAX;
 import static net.ripe.db.whois.common.rpsl.AttributeSyntax.FREE_FORM_SYNTAX;
 import static net.ripe.db.whois.common.rpsl.AttributeSyntax.GENERATED_SYNTAX;
+import static net.ripe.db.whois.common.rpsl.AttributeSyntax.GEOFEED_SYNTAX;
 import static net.ripe.db.whois.common.rpsl.AttributeSyntax.GEOLOC_SYNTAX;
 import static net.ripe.db.whois.common.rpsl.AttributeSyntax.HOLES_SYNTAX;
 import static net.ripe.db.whois.common.rpsl.AttributeSyntax.IFADDR_SYNTAX;
@@ -179,7 +180,7 @@ public enum AttributeType implements Documented {
             .syntax(DEFAULT_SYNTAX)),
 
     DESCR(new Builder("descr", "de")
-            .doc("A short decription related to the object.")
+            .doc("A short description related to the object.")
             .syntax(FREE_FORM_SYNTAX)),
 
     DOMAIN(new Builder("domain", "dn")
@@ -232,6 +233,10 @@ public enum AttributeType implements Documented {
             .syntax(POETIC_FORM_SYNTAX)
             .references(ObjectType.POETIC_FORM)
             .listValue()),
+
+    GEOFEED(new Builder("geofeed",  "gf")
+            .doc("A URL referencing a CSV file containing geolocation data for the resource.")
+            .syntax(GEOFEED_SYNTAX)),
 
     GEOLOC(new Builder("geoloc", "gl")
             .doc("The location coordinates for the resource.")
@@ -511,8 +516,7 @@ public enum AttributeType implements Documented {
     ORIGIN(new Builder("origin", "or")
             .doc("Specifies the AS that originates the route." +
                     "The corresponding aut-num object should be registered in the database.")
-            .syntax(AS_NUMBER_SYNTAX)
-            .references(ObjectType.AUT_NUM)),
+            .syntax(AS_NUMBER_SYNTAX)),
 
     OWNER(new Builder("owner", "ow")
             .doc("Specifies the owner of the public key.")
@@ -571,7 +575,7 @@ public enum AttributeType implements Documented {
 
     ROLE(new Builder("role", "ro")
             .doc("Specifies the full name of a role entity, e.g. RIPE DBM.")
-            .syntax(ORG_NAME_SYNTAX)),
+            .syntax(ORG_NAME_SYNTAX)),  // TODO: [ES] refactor confusing use of org name syntax
 
     ROUTE(new Builder("route", "rt")
             .doc("Specifies the prefix of the interAS route. Together with the \"origin:\" attribute, " +

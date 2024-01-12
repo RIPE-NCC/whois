@@ -1,47 +1,44 @@
 package net.ripe.db.whois.query.acl;
 
-import net.ripe.db.whois.common.DateTimeProvider;
-import org.joda.time.LocalDate;
-import org.junit.AfterClass;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
+import com.hazelcast.core.Hazelcast;
+import com.hazelcast.core.HazelcastInstance;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
+
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.net.Inet4Address;
 import java.net.InetAddress;
 
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertThat;
-import static org.mockito.Mockito.when;
 
-@RunWith(MockitoJUnitRunner.class)
+@ExtendWith(MockitoExtension.class)
 public class HazelcastPersonalObjectAccountingTest {
     private InetAddress ipv4Address;
 
-    @Mock DateTimeProvider dateTimeProvider;
-    @Mock Runnable runnable;
-    @InjectMocks HazelcastPersonalObjectAccounting subject;
+    private static HazelcastPersonalObjectAccounting subject;
+    private static HazelcastInstance instance;
 
-    @BeforeClass
+    @BeforeAll
     public static void startHazelcast() {
-        HazelcastPersonalObjectAccounting.startHazelcast();
+       instance = Hazelcast.newHazelcastInstance(null);
+       subject = new HazelcastPersonalObjectAccounting(instance);
     }
 
-    @AfterClass
+    @AfterAll
     public static void shutdownHazelcast() {
-        HazelcastPersonalObjectAccounting.shutdownHazelcast();
+        instance.getLifecycleService().shutdown();
     }
 
-    @Before
+    @BeforeEach
     public void setUp() throws Exception {
         subject.resetAccounting();
 
         ipv4Address = Inet4Address.getLocalHost();
-        when(dateTimeProvider.getCurrentDate()).thenReturn(new LocalDate());
     }
 
     @Test

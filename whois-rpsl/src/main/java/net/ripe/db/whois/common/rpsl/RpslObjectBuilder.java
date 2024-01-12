@@ -1,10 +1,15 @@
 package net.ripe.db.whois.common.rpsl;
 
-import com.google.common.base.Charsets;
 import com.google.common.collect.Lists;
 import org.apache.commons.lang.Validate;
 
-import java.util.*;
+import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.EnumSet;
+import java.util.List;
+import java.util.Map;
 
 public class RpslObjectBuilder {
     private RpslObject original;
@@ -41,7 +46,7 @@ public class RpslObjectBuilder {
 
     // Note: we use ISO_8859_1 encoding everywhere as it is the only one that maps directly from byte to char (as in, it effectively is a '(char)byteValue')
     public static List<RpslAttribute> getAttributes(final String input) {
-        return getAttributes(input.getBytes(Charsets.ISO_8859_1));
+        return getAttributes(input.getBytes(StandardCharsets.ISO_8859_1));
     }
 
     public static List<RpslAttribute> getAttributes(final byte[] buf) {
@@ -70,7 +75,7 @@ public class RpslObjectBuilder {
             if (!readKey) throw new IllegalArgumentException("No key found");
             if (start == pos) throw new IllegalArgumentException("Read zero sized key");
 
-            final String key = new String(buf, start, pos - start, Charsets.ISO_8859_1);
+            final String key = new String(buf, start, pos - start, StandardCharsets.ISO_8859_1);
 
             // skip over ':' and continue reading the attribute value
             start = ++pos;
@@ -100,7 +105,7 @@ public class RpslObjectBuilder {
                 stop = pos;
             }
 
-            final String value = new String(buf, start, stop - start, Charsets.ISO_8859_1);
+            final String value = new String(buf, start, stop - start, StandardCharsets.ISO_8859_1);
             newAttributes.add(new RpslAttribute(key, value));
         }
 

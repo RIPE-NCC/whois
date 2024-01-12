@@ -19,7 +19,7 @@ import java.util.Set;
 
 import static net.ripe.db.whois.common.domain.CIString.ciString;
 
-@Profile({WhoisProfile.TEST, WhoisProfile.ENDTOEND})
+@Profile({WhoisProfile.TEST})
 @Component
 public class DnsGatewayStub implements DnsGateway, Stub {
     private final Set<DnsCheckRequest> dnsCheckRequests = Sets.newLinkedHashSet();

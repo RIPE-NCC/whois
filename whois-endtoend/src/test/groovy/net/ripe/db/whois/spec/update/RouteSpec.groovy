@@ -1,10 +1,10 @@
 package net.ripe.db.whois.spec.update
 
-import net.ripe.db.whois.common.IntegrationTest
+
 import net.ripe.db.whois.spec.BaseQueryUpdateSpec
 import net.ripe.db.whois.spec.domain.Message
 
-@org.junit.experimental.categories.Category(IntegrationTest.class)
+@org.junit.jupiter.api.Tag("IntegrationTest")
 class RouteSpec extends BaseQueryUpdateSpec {
 
     @Override
@@ -122,7 +122,7 @@ class RouteSpec extends BaseQueryUpdateSpec {
                 password:   mb-child
                 password:   mb-parent
                 password:   mb-origin
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -176,7 +176,7 @@ class RouteSpec extends BaseQueryUpdateSpec {
                 password:   mb-child
                 password:   mb-parent
                 password:   mb-origin
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -239,7 +239,7 @@ class RouteSpec extends BaseQueryUpdateSpec {
                 password:   mb-child
                 password:   mb-parent
                 password:   mb-origin
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -284,7 +284,7 @@ class RouteSpec extends BaseQueryUpdateSpec {
                 password:   mb-child
                 password:   mb-parent
                 password:   mb-origin
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -330,7 +330,7 @@ class RouteSpec extends BaseQueryUpdateSpec {
                 password:   mb-child
                 password:   mb-parent
                 password:   mb-origin
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -371,23 +371,18 @@ class RouteSpec extends BaseQueryUpdateSpec {
                 password:   mb-child
                 password:   mb-parent
                 password:   mb-origin
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
         def ack = ackFor message
 
         ack.summary.nrFound == 1
-        ack.summary.assertSuccess(0, 0, 0, 0, 0)
-        ack.summary.assertErrors(1, 1, 0, 0)
-        ack.countErrorWarnInfo(2, 0, 0)
-        ack.errors.any { it.operation == "Create" && it.key == "[route] 99.13.0.0/16AS10000" }
-        ack.errorMessagesFor("Create", "[route] 99.13.0.0/16AS10000") ==
-              ["Unknown object referenced AS10000",
-                      "Authorisation for [route] 99.13.0.0/16AS10000 failed using \"origin:\" no valid maintainer found"
-              ]
+        ack.summary.assertSuccess(1, 1, 0, 0, 0)
+        ack.summary.assertErrors(0, 0, 0, 0)
+        ack.countErrorWarnInfo(0, 0, 0)
 
-        queryObjectNotFound("-rGBT route 99.13.0.0/16", "route", "99.13.0.0/16")
+        queryObject("-rGBT route 99.13.0.0/16", "route", "99.13.0.0/16")
     }
 
     def "create child route, invalid inject address"() {
@@ -413,7 +408,7 @@ class RouteSpec extends BaseQueryUpdateSpec {
                 password:   mb-child
                 password:   mb-parent
                 password:   mb-origin
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -469,7 +464,7 @@ class RouteSpec extends BaseQueryUpdateSpec {
                 password:   mb-parent
                 password:   mb-origin
                 password:   owner
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -522,7 +517,7 @@ class RouteSpec extends BaseQueryUpdateSpec {
                 password:   mb-child
                 password:   mb-parent
                 password:   mb-origin
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -573,7 +568,7 @@ class RouteSpec extends BaseQueryUpdateSpec {
                 password:   mb-child
                 password:   mb-parent
                 password:   mb-origin
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -615,7 +610,7 @@ class RouteSpec extends BaseQueryUpdateSpec {
                 password:   mb-child
                 password:   mb-parent
                 password:   mb-origin
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -662,7 +657,7 @@ class RouteSpec extends BaseQueryUpdateSpec {
                 password:   mb-child
                 password:   mb-parent
                 password:   mb-origin
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -709,7 +704,7 @@ class RouteSpec extends BaseQueryUpdateSpec {
                 password:   mb-child
                 password:   mb-parent
                 password:   mb-origin
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -761,7 +756,7 @@ class RouteSpec extends BaseQueryUpdateSpec {
                 password:   mb-child
                 password:   mb-parent
                 password:   mb-origin
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -811,7 +806,7 @@ class RouteSpec extends BaseQueryUpdateSpec {
                 password:   mb-child
                 password:   mb-parent
                 password:   mb-origin
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -856,7 +851,7 @@ class RouteSpec extends BaseQueryUpdateSpec {
                 password:   mb-child
                 password:   mb-parent
                 password:   mb-origin
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -903,7 +898,7 @@ class RouteSpec extends BaseQueryUpdateSpec {
                 password:   mb-child
                 password:   mb-origin
                 password:   hm
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -952,7 +947,7 @@ class RouteSpec extends BaseQueryUpdateSpec {
                 password:   mb-child
                 password:   mb-origin
                 password:   hm
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -1008,7 +1003,7 @@ class RouteSpec extends BaseQueryUpdateSpec {
                 password:   mb-child
                 password:   mb-origin
                 password:   hm
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -1059,7 +1054,7 @@ class RouteSpec extends BaseQueryUpdateSpec {
                 password:   mb-child
                 password:   mb-parent
                 password:   owner
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -1106,7 +1101,7 @@ class RouteSpec extends BaseQueryUpdateSpec {
                 password:   mb-child
                 password:   mb-parent
                 password:   mb-origin
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -1152,7 +1147,7 @@ class RouteSpec extends BaseQueryUpdateSpec {
                 password:   mb-child
                 password:   mb-parent
                 password:   mb-origin
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -1197,7 +1192,7 @@ class RouteSpec extends BaseQueryUpdateSpec {
                 password:   mb-child
                 password:   mb-parent
                 password:   mb-origin
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -1258,7 +1253,7 @@ class RouteSpec extends BaseQueryUpdateSpec {
                 password:   mb-parent
                 password:   mb-origin
                 password:   owner
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -1302,22 +1297,140 @@ class RouteSpec extends BaseQueryUpdateSpec {
                 password:   mb-child
                 password:   mb-parent
                 password:   mb-origin
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
         def ack = ackFor message
 
         ack.summary.nrFound == 1
-        ack.summary.assertSuccess(0, 0, 0, 0, 0)
-        ack.summary.assertErrors(1, 1, 0, 0)
-        ack.countErrorWarnInfo(2, 0, 0)
-        ack.errors.any { it.operation == "Create" && it.key == "[route6] 2001:600::/32AS300300" }
-        ack.errorMessagesFor("Create", "[route6] 2001:600::/32AS300300") ==
-              ["Unknown object referenced AS300300",
-                      "Authorisation for [route6] 2001:600::/32AS300300 failed using \"origin:\" no valid maintainer found"]
+        ack.summary.assertSuccess(1, 1, 0, 0, 0)
+        ack.summary.assertErrors(0, 0, 0, 0)
+        ack.countErrorWarnInfo(0, 0, 0)
 
-        queryObjectNotFound("-rGBT route6 2001:600::/32", "route6", "2001:600::/32")
+        queryObject("-rGBT route6 2001:600::/32", "route6", "2001:600::/32")
     }
 
+    def "not create route with reserved as number origin"() {
+        when:
+        def message = send new Message(
+                subject: "",
+                body: """\
+                route:          99.13.0.0/16
+                descr:          Route
+                origin:         AS64496
+                mnt-by:         CHILD-MB-MNT
+                source:         TEST
+
+                password:   mb-child
+                password:   mb-parent
+                """.stripIndent(true)
+        )
+
+        then:
+        def ack = ackFor message
+
+        ack.summary.nrFound == 1
+        ack.summary.assertSuccess(0, 0, 0, 0, 0)
+        ack.summary.assertErrors(1, 1, 0, 0)
+        ack.countErrorWarnInfo(1, 0, 0)
+        ack.errors.any { it.operation == "Create" && it.key == "[route] 99.13.0.0/16AS64496" }
+        ack.errorMessagesFor("Create", "[route] 99.13.0.0/16AS64496") ==
+                ["Cannot use reserved AS number 64496"]
+
+        queryObjectNotFound("-rGBT route 99.13.0.0/16", "route", "99.13.0.0/16")
+    }
+
+    def "create route, warn about unknown as number"() {
+        when:
+        def message = send new Message(
+                subject: "",
+                body: """\
+                route:          99.13.0.0/16
+                descr:          Route
+                origin:         AS12666
+                mnt-by:         CHILD-MB-MNT
+                source:         TEST
+
+                password:   mb-child
+                password:   mb-parent
+                """.stripIndent(true)
+        )
+
+        then:
+        def ack = ackFor message
+
+        ack.summary.nrFound == 1
+        ack.summary.assertSuccess(1, 1, 0, 0, 0)
+        ack.summary.assertErrors(0, 0, 0, 0)
+        ack.countErrorWarnInfo(0, 1, 0)
+        ack.warningSuccessMessagesFor("Create", "[route] 99.13.0.0/16AS12666") ==
+                ["Specified origin AS number 12666 is allocated to the RIPE region but doesn't exist in the RIPE database"]
+
+        queryObject("-rGBT route 99.13.0.0/16", "route", "99.13.0.0/16")
+    }
+
+    def "create route, hole outside prefix range"() {
+        when:
+            def message = send new Message(
+                    subject: "",
+                    body: """\
+                    route:          10.1.224.0/21
+                    holes:          10.1.0.0/16
+                    descr:          Route
+                    origin:         AS1000
+                    mnt-by:         OWNER-MNT
+                    source:         TEST
+    
+                    password:   owner
+                    password:   owner3
+                    """.stripIndent(true)
+            )
+
+        then:
+            def ack = ackFor message
+
+            ack.summary.nrFound == 1
+            ack.summary.assertSuccess(0, 0, 0, 0, 0)
+            ack.summary.assertErrors(1, 1, 0, 0)
+
+            ack.countErrorWarnInfo(1, 0, 0)
+            ack.errors.any { it.operation == "Create" && it.key == "[route] 10.1.224.0/21AS1000" }
+            ack.errorMessagesFor("Create", "[route] 10.1.224.0/21AS1000") ==
+                    ["10.1.0.0/16 is outside the range of this object"]
+
+            queryObjectNotFound("-rGBT route 10.1.224.0/21AS1000", "route", "10.1.224.0/21AS1000")
+    }
+
+    def "create route, hole has invalid prefix length"() {
+        when:
+            def message = send new Message(
+                    subject: "",
+                    body: """\
+                    route:          10.1.224.0/21
+                    holes:          10.1.226.0/21
+                    descr:          Route
+                    origin:         AS1000
+                    mnt-by:         OWNER-MNT
+                    source:         TEST
+    
+                    password:   owner
+                    password:   owner3
+                    """.stripIndent(true)
+            )
+
+        then:
+            def ack = ackFor message
+
+            ack.summary.nrFound == 1
+            ack.summary.assertSuccess(0, 0, 0, 0, 0)
+            ack.summary.assertErrors(1, 1, 0, 0)
+
+            ack.countErrorWarnInfo(1, 0, 0)
+            ack.errors.any { it.operation == "Create" && it.key == "[route] 10.1.224.0/21AS1000" }
+            ack.errorMessagesFor("Create", "[route] 10.1.224.0/21AS1000") ==
+                    ["Syntax error in 10.1.226.0/21"]
+
+            queryObjectNotFound("-rGBT route 10.1.224.0/21AS1000", "route", "10.1.224.0/21AS1000")
+    }
 }

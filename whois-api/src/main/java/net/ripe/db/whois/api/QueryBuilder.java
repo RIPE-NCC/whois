@@ -11,7 +11,7 @@ import java.util.Collection;
 // TODO: QueryBuilder.get() should return a Query object, constructed optimally (i.e., not by Query.parse())
 public  class QueryBuilder {
     private static final Joiner COMMA_JOINER = Joiner.on(',');
-    private static final Splitter WHITESPACE_SPLITTER = Splitter.on(CharMatcher.WHITESPACE).trimResults().omitEmptyStrings();
+    private static final Splitter WHITESPACE_SPLITTER = Splitter.on(CharMatcher.whitespace()).trimResults().omitEmptyStrings();
 
     private final StringBuilder query = new StringBuilder(128);
 

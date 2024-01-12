@@ -7,7 +7,12 @@ import net.ripe.db.whois.common.dao.RpslObjectDao;
 import net.ripe.db.whois.common.ip.IpInterval;
 import net.ripe.db.whois.common.ip.Ipv4Resource;
 import net.ripe.db.whois.common.ip.Ipv6Resource;
-import net.ripe.db.whois.common.iptree.*;
+import net.ripe.db.whois.common.iptree.IpEntry;
+import net.ripe.db.whois.common.iptree.IpTree;
+import net.ripe.db.whois.common.iptree.Ipv4RouteTree;
+import net.ripe.db.whois.common.iptree.Ipv4Tree;
+import net.ripe.db.whois.common.iptree.Ipv6RouteTree;
+import net.ripe.db.whois.common.iptree.Ipv6Tree;
 import net.ripe.db.whois.common.rpsl.AttributeType;
 import net.ripe.db.whois.common.rpsl.ObjectType;
 import net.ripe.db.whois.common.rpsl.RpslAttribute;
@@ -58,7 +63,7 @@ public class RouteIpAddressAuthentication extends RouteAuthentication {
                 final List<RpslObject> candidates = getCandidatesForMntRoutesAuthentication(ipObject, update);
                 allCandidates.addAll(candidates);
 
-                final List<RpslObject> authenticated = authenticationModule.authenticate(update, updateContext, candidates);
+                final List<RpslObject> authenticated = authenticationModule.authenticate(update, updateContext, candidates, getClass());
                 if (authenticated.isEmpty()) {
                     authenticationMessages.add(UpdateMessages.authenticationFailed(ipObject, AttributeType.MNT_ROUTES, candidates));
                 } else {
@@ -78,7 +83,7 @@ public class RouteIpAddressAuthentication extends RouteAuthentication {
                 final List<RpslObject> candidates = objectDao.getByKeys(ObjectType.MNTNER, ipObject.getValuesForAttribute(AttributeType.MNT_LOWER));
                 allCandidates.addAll(candidates);
 
-                final List<RpslObject> authenticated = authenticationModule.authenticate(update, updateContext, candidates);
+                final List<RpslObject> authenticated = authenticationModule.authenticate(update, updateContext, candidates, getClass());
                 if (authenticated.isEmpty()) {
                     authenticationMessages.add(UpdateMessages.authenticationFailed(ipObject, AttributeType.MNT_LOWER, candidates));
                 } else {
@@ -96,7 +101,7 @@ public class RouteIpAddressAuthentication extends RouteAuthentication {
                 final List<RpslObject> candidates = objectDao.getByKeys(ObjectType.MNTNER, ipObject.getValuesForAttribute(AttributeType.MNT_BY));
                 allCandidates.addAll(candidates);
 
-                final List<RpslObject> authenticated = authenticationModule.authenticate(update, updateContext, candidates);
+                final List<RpslObject> authenticated = authenticationModule.authenticate(update, updateContext, candidates, getClass());
                 if (authenticated.isEmpty()) {
                     authenticationMessages.add(UpdateMessages.authenticationFailed(ipObject, AttributeType.MNT_BY, candidates));
                 } else {

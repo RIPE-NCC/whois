@@ -32,7 +32,6 @@ import java.util.regex.Pattern;
 
 @Component
 class NrtmClientFactory {
-    private static final Pattern OPERATION_AND_SERIAL_PATTERN = Pattern.compile("^(ADD|DEL)[ ](\\d+)$");
 
     private static final Logger LOGGER = LoggerFactory.getLogger(NrtmClientFactory.class);
 
@@ -223,13 +222,15 @@ class NrtmClientFactory {
             }
         }
 
-        private OperationSerial readOperationAndSerial() throws IOException {
-            final String line = readLineWithExpected(" ");
+        private final Pattern OPERATION_AND_SERIAL_PATTERN = Pattern.compile("^(ADD|DEL)[ ](\\d+)$");
 
-            final Matcher matcher = OPERATION_AND_SERIAL_PATTERN.matcher(line);
-            if (!matcher.find()) {
-                throw new IllegalStateException("Unexpected response from NRTM server: \"" + line + "\"");
-            }
+        private OperationSerial readOperationAndSerial() throws IOException {
+
+            Matcher matcher;
+            do {
+                final String line = readLineWithExpected("");
+                matcher = OPERATION_AND_SERIAL_PATTERN.matcher(line);
+            } while (!matcher.find());
 
             final Operation operation = Operation.getByName(matcher.group(1));
             final String serial = matcher.group(2);

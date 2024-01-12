@@ -1,6 +1,5 @@
 package net.ripe.db.whois.update.generator;
 
-import com.google.common.base.Function;
 import com.google.common.collect.Lists;
 import net.ripe.db.whois.common.Message;
 import net.ripe.db.whois.common.dao.RpslObjectDao;
@@ -14,21 +13,22 @@ import net.ripe.db.whois.update.domain.UpdateContext;
 import net.ripe.db.whois.update.keycert.KeyWrapperFactory;
 import net.ripe.db.whois.update.keycert.PgpPublicKeyWrapper;
 import net.ripe.db.whois.update.keycert.X509CertificateWrapper;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Test;
+
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.Arrays;
 import java.util.List;
 
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertThat;
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.mockito.Mockito.when;
 
-@RunWith(MockitoJUnitRunner.class)
+@ExtendWith(MockitoExtension.class)
 public class KeycertAttributeGeneratorTest {
     @Mock private Update update;
     @Mock private UpdateContext updateContext;
@@ -526,12 +526,7 @@ public class KeycertAttributeGeneratorTest {
     // helper methods
 
     private void validateAttributeType(final RpslObject rpslObject, final AttributeType attributeType, final String... values) {
-        final List attributes = Lists.transform(Arrays.asList(values), new Function<String, RpslAttribute>() {
-            @Override
-            public RpslAttribute apply(final String input) {
-                return new RpslAttribute(attributeType, input);
-            }
-        });
+        final List attributes = Lists.transform(Arrays.asList(values), input -> new RpslAttribute(attributeType, input));
 
         assertThat(rpslObject.findAttributes(attributeType), is(attributes));
     }

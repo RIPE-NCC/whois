@@ -8,37 +8,36 @@ import net.ripe.db.whois.common.rpsl.RpslObject;
 import net.ripe.db.whois.update.domain.Operation;
 import net.ripe.db.whois.update.domain.Paragraph;
 import net.ripe.db.whois.update.domain.Update;
-import org.joda.time.LocalDateTime;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.Spy;
-import org.mockito.runners.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.io.ByteArrayOutputStream;
+import java.time.LocalDateTime;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertThat;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
-@RunWith(MockitoJUnitRunner.class)
+@ExtendWith(MockitoExtension.class)
 public class AuditLoggerTest {
     @Spy ByteArrayOutputStream outputStream;
     @Mock DateTimeProvider dateTimeProvider;
-    AuditLogger subject;
-
+    private AuditLogger subject;
     private Update update;
 
-    @Before
+    @BeforeEach
     public void setUp() throws Exception {
-        when(dateTimeProvider.getCurrentDateTime()).thenReturn(new LocalDateTime(2012, 12, 1, 0, 0));
+        when(dateTimeProvider.getCurrentDateTime()).thenReturn(LocalDateTime.of(2012, 12, 1, 0, 0));
         update = new Update(new Paragraph("paragraph"), Operation.DELETE, Arrays.asList("reason"), RpslObject.parse("mntner:DEV-ROOT-MNT"));
-
         subject = new AuditLogger(dateTimeProvider, outputStream);
     }
 
@@ -50,10 +49,10 @@ public class AuditLoggerTest {
         final String log = outputStream.toString("UTF-8");
         assertThat(log, containsString("" +
                 "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"no\"?>\n" +
-                "<dbupdate created=\"2012-12-01 00:00:00\">\n" +
+                "<dbupdate created=\"2012-12-01T00:00:00Z\">\n" +
                 "    <messages/>\n" +
                 "    <updates>\n" +
-                "        <update attempt=\"1\" time=\"2012-12-01 00:00:00\">\n" +
+                "        <update attempt=\"1\" time=\"2012-12-01T00:00:00Z\">\n" +
                 "            <key>[mntner] DEV-ROOT-MNT</key>\n" +
                 "            <operation>DELETE</operation>\n" +
                 "            <reason>reason</reason>\n" +
@@ -74,10 +73,10 @@ public class AuditLoggerTest {
         final String log = outputStream.toString("UTF-8");
         assertThat(log, is("" +
                 "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"no\"?>\n" +
-                "<dbupdate created=\"2012-12-01 00:00:00\">\n" +
+                "<dbupdate created=\"2012-12-01T00:00:00Z\">\n" +
                 "    <messages/>\n" +
                 "    <updates>\n" +
-                "        <update attempt=\"2\" time=\"2012-12-01 00:00:00\">\n" +
+                "        <update attempt=\"2\" time=\"2012-12-01T00:00:00Z\">\n" +
                 "            <key>[mntner] DEV-ROOT-MNT</key>\n" +
                 "            <operation>DELETE</operation>\n" +
                 "            <reason>reason</reason>\n" +
@@ -98,10 +97,10 @@ public class AuditLoggerTest {
         final String log = outputStream.toString("UTF-8");
         assertThat(log, containsString("" +
                 "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"no\"?>\n" +
-                "<dbupdate created=\"2012-12-01 00:00:00\">\n" +
+                "<dbupdate created=\"2012-12-01T00:00:00Z\">\n" +
                 "    <messages/>\n" +
                 "    <updates>\n" +
-                "        <update attempt=\"1\" time=\"2012-12-01 00:00:00\">\n" +
+                "        <update attempt=\"1\" time=\"2012-12-01T00:00:00Z\">\n" +
                 "            <key>[mntner] DEV-ROOT-MNT</key>\n" +
                 "            <operation>DELETE</operation>\n" +
                 "            <reason>reason</reason>\n" +
@@ -123,10 +122,10 @@ public class AuditLoggerTest {
         final String log = outputStream.toString("UTF-8");
         assertThat(log, containsString("" +
                 "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"no\"?>\n" +
-                "<dbupdate created=\"2012-12-01 00:00:00\">\n" +
+                "<dbupdate created=\"2012-12-01T00:00:00Z\">\n" +
                 "    <messages/>\n" +
                 "    <updates>\n" +
-                "        <update attempt=\"1\" time=\"2012-12-01 00:00:00\">\n" +
+                "        <update attempt=\"1\" time=\"2012-12-01T00:00:00Z\">\n" +
                 "            <key>[mntner] DEV-ROOT-MNT</key>\n" +
                 "            <operation>DELETE</operation>\n" +
                 "            <reason>reason</reason>\n" +
@@ -159,10 +158,10 @@ public class AuditLoggerTest {
         final String log = outputStream.toString("UTF-8");
         assertThat(log, containsString("" +
                 "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"no\"?>\n" +
-                "<dbupdate created=\"2012-12-01 00:00:00\">\n" +
+                "<dbupdate created=\"2012-12-01T00:00:00Z\">\n" +
                 "    <messages/>\n" +
                 "    <updates>\n" +
-                "        <update attempt=\"1\" time=\"2012-12-01 00:00:00\">\n" +
+                "        <update attempt=\"1\" time=\"2012-12-01T00:00:00Z\">\n" +
                 "            <key>[mntner] DEV-ROOT-MNT</key>\n" +
                 "            <operation>DELETE</operation>\n" +
                 "            <reason>reason</reason>\n" +
@@ -197,12 +196,12 @@ public class AuditLoggerTest {
 
         assertThat(outputStream.toString("UTF-8"), is("" +
                 "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"no\"?>\n" +
-                "<dbupdate created=\"2012-12-01 00:00:00\">\n" +
+                "<dbupdate created=\"2012-12-01T00:00:00Z\">\n" +
                 "    <messages/>\n" +
                 "    <updates/>\n" +
                 "</dbupdate>\n"
         ));
 
-        verify(outputStream, times(1)).close();
+        verify(outputStream).close();
     }
 }

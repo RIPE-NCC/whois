@@ -1,9 +1,9 @@
 package net.ripe.db.whois.common.rpsl;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertThat;
+import static org.hamcrest.MatcherAssert.assertThat;
 
 public class AttributeSyntaxTest {
 
@@ -82,7 +82,7 @@ public class AttributeSyntaxTest {
     }
 
     @Test
-    public void assignmentSize() throws Exception {
+    public void assignmentSize() {
         verifyFailure(ObjectType.INET6NUM, AttributeType.ASSIGNMENT_SIZE, "");
         verifyFailure(ObjectType.INET6NUM, AttributeType.ASSIGNMENT_SIZE, "A");
         verifyFailure(ObjectType.INET6NUM, AttributeType.ASSIGNMENT_SIZE, "A1");
@@ -110,7 +110,7 @@ public class AttributeSyntaxTest {
     }
 
     @Test
-    public void auth() throws Exception {
+    public void auth() {
         verifySuccess(ObjectType.MNTNER, AttributeType.AUTH, "AUTO-666");
 
         verifySuccess(ObjectType.MNTNER, AttributeType.AUTH, "x509-1");
@@ -123,12 +123,16 @@ public class AttributeSyntaxTest {
         verifySuccess(ObjectType.MNTNER, AttributeType.AUTH, "SSO test2-+._sso@ripe.net");
         verifySuccess(ObjectType.MNTNER, AttributeType.AUTH, "SSO P'O@ripe.net");
         verifySuccess(ObjectType.MNTNER, AttributeType.AUTH, "SSO P-L@ripe.net");
+        verifySuccess(ObjectType.MNTNER, AttributeType.AUTH, "SSO P&L@ripe.net");
+        verifySuccess(ObjectType.MNTNER, AttributeType.AUTH, "SSO a@b");
 
         verifyFailure(ObjectType.MNTNER, AttributeType.AUTH, "x509-ab./");
         verifyFailure(ObjectType.MNTNER, AttributeType.AUTH, "x509-ab./");
         verifyFailure(ObjectType.MNTNER, AttributeType.AUTH, "pgpkey-ghij./12");
         verifyFailure(ObjectType.MNTNER, AttributeType.AUTH, "SSO tes,,,.....");
         verifyFailure(ObjectType.MNTNER, AttributeType.AUTH, "SSO ");
+        verifyFailure(ObjectType.MNTNER, AttributeType.AUTH, "SSO a");
+        verifyFailure(ObjectType.MNTNER, AttributeType.AUTH, "SSO a@");
 
         verifyFailure(ObjectType.MNTNER, AttributeType.AUTH, "md5-pw bcdefghijklmnopqrstuvwx");
         verifyFailure(ObjectType.MNTNER, AttributeType.AUTH, "md5-pw $1$abcdefghi$bcdefghijklmnopqrstuvwx");
@@ -141,7 +145,7 @@ public class AttributeSyntaxTest {
     }
 
     @Test
-    public void changed() throws Exception {
+    public void changed() {
         verifyFailure(ObjectType.PERSON, AttributeType.CHANGED, "a@a");
         verifyFailure(ObjectType.PERSON, AttributeType.CHANGED, "a.a.a");
 
@@ -163,7 +167,7 @@ public class AttributeSyntaxTest {
     }
 
     @Test
-    public void components() throws Exception {
+    public void components() {
         verifySuccess(ObjectType.ROUTE, AttributeType.COMPONENTS, "{217.113.0.0/19^19-24 }");
         verifySuccess(ObjectType.ROUTE, AttributeType.COMPONENTS, "atomic");
 
@@ -171,7 +175,7 @@ public class AttributeSyntaxTest {
     }
 
     @Test
-    public void country() throws Exception {
+    public void country() {
         verifyFailure(ObjectType.INETNUM, AttributeType.COUNTRY, "a");
         verifyFailure(ObjectType.INETNUM, AttributeType.COUNTRY, "aaa,");
 
@@ -219,7 +223,7 @@ public class AttributeSyntaxTest {
     }
 
     @Test
-    public void defaultAttr() throws Exception {
+    public void defaultAttr() {
         verifySuccess(ObjectType.AUT_NUM, AttributeType.DEFAULT, "to AS9004\n    action pref=100;\n    networks ANY");
         verifySuccess(ObjectType.AUT_NUM, AttributeType.DEFAULT, "to AS13237");
 
@@ -229,18 +233,23 @@ public class AttributeSyntaxTest {
     }
 
     @Test
-    public void email() throws Exception {
-        verifyFailure(ObjectType.PERSON, AttributeType.E_MAIL, "a@a");
+    public void email() {
+        verifyFailure(ObjectType.PERSON, AttributeType.E_MAIL, "@");
+        verifyFailure(ObjectType.PERSON, AttributeType.E_MAIL, "a@");
+        verifyFailure(ObjectType.PERSON, AttributeType.E_MAIL, "user@host.org 20180529");
         verifyFailure(ObjectType.PERSON, AttributeType.E_MAIL, "a.a.a");
+        verifyFailure(ObjectType.PERSON, AttributeType.E_MAIL, "user");
 
-        verifySuccess(ObjectType.PERSON, AttributeType.E_MAIL, "foo@provider.com");
+        verifySuccess(ObjectType.PERSON, AttributeType.E_MAIL, "a@a");
+        verifySuccess(ObjectType.PERSON, AttributeType.E_MAIL, "user@host.org");
+        verifySuccess(ObjectType.PERSON, AttributeType.E_MAIL, "Any User <user@host.org>");
         verifySuccess(ObjectType.PERSON, AttributeType.E_MAIL, "a@a.a");
-        verifySuccess(ObjectType.PERSON, AttributeType.E_MAIL, "'anthingcan1242go!@(&)^!(&@^21here\"@0.2345678901234567890123456789012345678901");
-        verifyFailure(ObjectType.PERSON, AttributeType.E_MAIL, "0@2.45678901234567890123456789012345678901234567890123456789012345678901234567890");
+        verifySuccess(ObjectType.PERSON, AttributeType.E_MAIL, "0@2.45678901234567890123456789012345678901234567890123456789012345678901234567890");
+        verifySuccess(ObjectType.PERSON, AttributeType.E_MAIL, "test@ümlaut.email");
     }
 
     @Test
-    public void encryption() throws Exception {
+    public void encryption() {
         verifyFailure(ObjectType.IRT, AttributeType.ENCRYPTION, "PGPKEY-");
         verifyFailure(ObjectType.IRT, AttributeType.ENCRYPTION, "A6D57ECE");
         verifyFailure(ObjectType.IRT, AttributeType.ENCRYPTION, "X509-");
@@ -254,7 +263,7 @@ public class AttributeSyntaxTest {
     }
 
     @Test
-    public void export() throws Exception {
+    public void export() {
         verifySuccess(ObjectType.AUT_NUM, AttributeType.EXPORT, "TO AS0 ANNOUNCE ANY");
         verifySuccess(ObjectType.AUT_NUM, AttributeType.EXPORT, "TO AS0 ANNOUNCE AS1");
         verifySuccess(ObjectType.AUT_NUM, AttributeType.EXPORT, "TO AS0 ANNOUNCE AS-T1");
@@ -288,7 +297,7 @@ public class AttributeSyntaxTest {
     }
 
     @Test
-    public void export_via() throws Exception {
+    public void export_via() {
         verifySuccess(ObjectType.AUT_NUM, AttributeType.EXPORT_VIA, "afi ipv4.unicast AS99070 to AS123456 announce AS-SU-LOCAL");
         verifySuccess(ObjectType.AUT_NUM, AttributeType.EXPORT_VIA, "afi ipv6.unicast AS88262 at 2001:67c:20d0:fffe:ffff:ffff:ffff:fffa to AS123986 action pref=100; announce AS-SU-LOCAL");
         verifySuccess(ObjectType.AUT_NUM, AttributeType.EXPORT_VIA, "                     AS12956  \t84.16.8.225 at 84.16.8.226\t to AS986 AS123 to AS234 announce AS-TEST AND NOT {0.0.0.0/0}");
@@ -303,7 +312,7 @@ public class AttributeSyntaxTest {
     }
 
     @Test
-    public void exportComps() throws Exception {
+    public void exportComps() {
         verifySuccess(ObjectType.ROUTE, AttributeType.EXPORT_COMPS, "{193.130.196.0/24, 193.130.197.0/24}");
         verifySuccess(ObjectType.ROUTE, AttributeType.EXPORT_COMPS, "{ 41.190.128.0/19^19-24 }");
         verifySuccess(ObjectType.ROUTE, AttributeType.EXPORT_COMPS, "{194.55.167.0/24}");
@@ -331,7 +340,7 @@ public class AttributeSyntaxTest {
     }
 
     @Test
-    public void filter() throws Exception {
+    public void filter() {
         verifySuccess(ObjectType.FILTER_SET, AttributeType.FILTER, "AS1");
         verifySuccess(ObjectType.FILTER_SET, AttributeType.FILTER, "as1 As2 AS3");
         verifySuccess(ObjectType.FILTER_SET, AttributeType.FILTER, "as1 aNd As2");
@@ -356,7 +365,21 @@ public class AttributeSyntaxTest {
     }
 
     @Test
-    public void geoLoc() throws Exception {
+    public void geoFeed() {
+        verifyFailure(ObjectType.INETNUM,  AttributeType.GEOFEED, "random text");
+        verifyFailure(ObjectType.INETNUM,  AttributeType.GEOFEED, "http://unsafe.url.com");
+        verifyFailure(ObjectType.INETNUM,  AttributeType.GEOFEED, "https://.com");
+        verifyFailure(ObjectType.INETNUM,  AttributeType.GEOFEED, "ftp://::::@example.com");
+        verifyFailure(ObjectType.INETNUM,  AttributeType.GEOFEED, "https://localhost");
+        verifyFailure(ObjectType.INETNUM,  AttributeType.GEOFEED, "https://not an url");
+        verifyFailure(ObjectType.INETNUM,  AttributeType.GEOFEED, "https://notanurl");
+        verifyFailure(ObjectType.INETNUM,  AttributeType.GEOFEED, "");
+
+        verifySuccess(ObjectType.INETNUM,  AttributeType.GEOFEED, "https://safe.url.com");
+    }
+
+    @Test
+    public void geoLoc() {
         verifyFailure(ObjectType.INETNUM, AttributeType.GEOLOC, "90.90 90.90");
         verifyFailure(ObjectType.INETNUM, AttributeType.GEOLOC, "abc 90 90");
         verifyFailure(ObjectType.INETNUM, AttributeType.GEOLOC, "abc 90 def 180");
@@ -423,7 +446,7 @@ public class AttributeSyntaxTest {
     }
 
     @Test
-    public void importAttr() throws Exception {
+    public void importAttr() {
         verifySuccess(ObjectType.AUT_NUM, AttributeType.IMPORT, " from AS1717 accept ANY");
         verifySuccess(ObjectType.AUT_NUM, AttributeType.IMPORT, "from AS5388\n  action pref=50;\n   accept AS5388");
         verifySuccess(ObjectType.AUT_NUM, AttributeType.IMPORT, "from AS2860:AS-TEST AND AS15525 accept <AS-TEST>");
@@ -447,7 +470,7 @@ public class AttributeSyntaxTest {
     }
 
     @Test
-    public void import_via() throws Exception {
+    public void import_via() {
         verifySuccess(ObjectType.AUT_NUM, AttributeType.IMPORT_VIA, "afi ipv6.unicast AS150607 2001:7f8:5b:3::1 at 2001:7f8:5b:3::2 from AS103357 action next_hop = 10.0.0.1; AS123 from AS-TOOL action pref=100; accept AS-EPIX");
         verifySuccess(ObjectType.AUT_NUM, AttributeType.IMPORT_VIA, "  afi ipv6.unicast AS15685 2001:7f8:14::6:1 at 2001:7f8:14::31:1 from AS-TEST action cost=50; accept ANY");
         verifySuccess(ObjectType.AUT_NUM, AttributeType.IMPORT_VIA, "afi ipv6.unicast AS16777 from AS262144 accept <^[AS9002 AS31133 AS24940]>");
@@ -546,7 +569,7 @@ public class AttributeSyntaxTest {
     }
 
     @Test
-    public void keyCert() throws Exception {
+    public void keyCert() {
         verifyFailure(ObjectType.KEY_CERT, AttributeType.KEY_CERT, "PGPKEY-");
         verifyFailure(ObjectType.KEY_CERT, AttributeType.KEY_CERT, "A6D57ECE");
         verifyFailure(ObjectType.KEY_CERT, AttributeType.KEY_CERT, "X509-");
@@ -560,7 +583,7 @@ public class AttributeSyntaxTest {
     }
 
     @Test
-    public void language() throws Exception {
+    public void language() {
         verifyFailure(ObjectType.INETNUM, AttributeType.LANGUAGE, "a");
         verifyFailure(ObjectType.INETNUM, AttributeType.LANGUAGE, "aaa,");
 
@@ -629,7 +652,7 @@ public class AttributeSyntaxTest {
     }
 
     @Test
-    public void members() throws Exception {
+    public void members() {
         verifySuccess(ObjectType.AS_SET, AttributeType.MEMBERS, "AS-TEST_TRANSIT");
         verifySuccess(ObjectType.AS_SET, AttributeType.MEMBERS, "AS2602");
         verifySuccess(ObjectType.AS_SET, AttributeType.MEMBERS, "            AS2602        "); // regular spaces
@@ -657,12 +680,15 @@ public class AttributeSyntaxTest {
         verifySuccess(ObjectType.RTR_SET, AttributeType.MEMBERS, "rmws-foo-bar.nu.bogus.net");
         verifySuccess(ObjectType.RTR_SET, AttributeType.MEMBERS, "ams-bar.foobar.net");
         verifySuccess(ObjectType.RTR_SET, AttributeType.MEMBERS, "213.232.64.1");
+        verifySuccess(ObjectType.RTR_SET, AttributeType.MEMBERS, "213.232.64.1, 213.232.64.2");
 
+        verifyFailure(ObjectType.RTR_SET, AttributeType.MEMBERS, "195.66.224.0/23");
+        verifyFailure(ObjectType.RTR_SET, AttributeType.MEMBERS, "195.66.224.0 - 195.66.224.255");
         verifyFailure(ObjectType.RTR_SET, AttributeType.MEMBERS, "2a00:10C0::/32");
     }
 
     @Test
-    public void mp_members() throws Exception {
+    public void mp_members() {
         verifySuccess(ObjectType.ROUTE_SET, AttributeType.MP_MEMBERS, "195.66.224.0/23");
         verifySuccess(ObjectType.ROUTE_SET, AttributeType.MP_MEMBERS, "212.7.192.0/19^19-24");
         verifySuccess(ObjectType.ROUTE_SET, AttributeType.MP_MEMBERS, "RS-SIX-BLOG^16-24");
@@ -673,13 +699,17 @@ public class AttributeSyntaxTest {
         verifySuccess(ObjectType.RTR_SET, AttributeType.MP_MEMBERS, "rmws-foo-bar.nu.bogus.net");
         verifySuccess(ObjectType.RTR_SET, AttributeType.MP_MEMBERS, "ams-foo.foobar.net");
         verifySuccess(ObjectType.RTR_SET, AttributeType.MP_MEMBERS, "213.232.64.1");
-        verifySuccess(ObjectType.RTR_SET, AttributeType.MP_MEMBERS, "2001:1578::/32, 2002:1578::/32, 213.232.64.0/24");
-
+        verifySuccess(ObjectType.RTR_SET, AttributeType.MP_MEMBERS, "213.232.64.1, 213.232.64.2");
+        verifySuccess(ObjectType.RTR_SET, AttributeType.MP_MEMBERS, "2001:1578::/32, 2002:1578::/32, 213.232.64.1");
         verifySuccess(ObjectType.RTR_SET, AttributeType.MP_MEMBERS, "2a00:10C0::/32");
+
+        verifyFailure(ObjectType.RTR_SET, AttributeType.MP_MEMBERS, "213.232.64.0/24");
+        verifyFailure(ObjectType.RTR_SET, AttributeType.MP_MEMBERS, "213.232.64.0 - 213.232.64.255");
+        verifyFailure(ObjectType.RTR_SET, AttributeType.MP_MEMBERS, "2001:1578::/32, 2002:1578::/32, 213.232.64.0/24");
     }
 
     @Test
-    public void mntBy() throws Exception {
+    public void mntBy() {
         verifyFailure(ObjectType.IRT, AttributeType.MNT_BY, "A");
         verifyFailure(ObjectType.IRT, AttributeType.MNT_BY, "A1, A");
         verifyFailure(ObjectType.IRT, AttributeType.MNT_BY, "A12345678901234567890123456789012345678901234567890123456789012345678901234567890");
@@ -691,7 +721,7 @@ public class AttributeSyntaxTest {
     }
 
     @Test
-    public void mntDomains() throws Exception {
+    public void mntDomains() {
         verifyFailure(ObjectType.IRT, AttributeType.MNT_DOMAINS, "A");
         verifyFailure(ObjectType.IRT, AttributeType.MNT_DOMAINS, "A1, A");
         verifyFailure(ObjectType.IRT, AttributeType.MNT_DOMAINS, "A12345678901234567890123456789012345678901234567890123456789012345678901234567890");
@@ -714,7 +744,7 @@ public class AttributeSyntaxTest {
     }
 
     @Test
-    public void mntLower() throws Exception {
+    public void mntLower() {
         verifyFailure(ObjectType.IRT, AttributeType.MNT_LOWER, "A");
         verifyFailure(ObjectType.IRT, AttributeType.MNT_LOWER, "A1, A");
         verifyFailure(ObjectType.IRT, AttributeType.MNT_LOWER, "A12345678901234567890123456789012345678901234567890123456789012345678901234567890");
@@ -726,7 +756,7 @@ public class AttributeSyntaxTest {
     }
 
     @Test
-    public void mntRef() throws Exception {
+    public void mntRef() {
         verifyFailure(ObjectType.IRT, AttributeType.MNT_REF, "A");
         verifyFailure(ObjectType.IRT, AttributeType.MNT_REF, "A1, A");
         verifyFailure(ObjectType.IRT, AttributeType.MNT_REF, "A12345678901234567890123456789012345678901234567890123456789012345678901234567890");
@@ -738,7 +768,7 @@ public class AttributeSyntaxTest {
     }
 
     @Test
-    public void mpDefault() throws Exception {
+    public void mpDefault() {
         verifySuccess(ObjectType.AUT_NUM, AttributeType.MP_DEFAULT, "afi ipv6.unicast to AS5541 networks AS31554");
         verifySuccess(ObjectType.AUT_NUM, AttributeType.MP_DEFAULT, "afi ipv6.unicast to AS12502 action pref=100; networks ANY");
 
@@ -747,7 +777,7 @@ public class AttributeSyntaxTest {
     }
 
     @Test
-    public void mpExport() throws Exception {
+    public void mpExport() {
         verifySuccess(ObjectType.AUT_NUM, AttributeType.MP_EXPORT, "        afi ipv4.unicast to AS9070 62.44.108.66 at 62.44.108.65 announce AS-SU-LOCAL\n");
         verifySuccess(ObjectType.AUT_NUM, AttributeType.MP_EXPORT, "afi ipv6.unicast to AS8262 2001:67c:20d0:fffe:ffff:ffff:ffff:fffa at 2001:67c:20d0:fffe:ffff:ffff:ffff:fff9 announce AS-SU-LOCAL");
         verifySuccess(ObjectType.AUT_NUM, AttributeType.MP_EXPORT, "afi ipv6.unicast to   AS12956  \t84.16.8.225 at 84.16.8.226\tannounce AS-TEST AND NOT {0.0.0.0/0}");
@@ -757,7 +787,7 @@ public class AttributeSyntaxTest {
     }
 
     @Test
-    public void mpFilter() throws Exception {
+    public void mpFilter() {
         verifySuccess(ObjectType.FILTER_SET, AttributeType.MP_FILTER, "{ 0.0.0.0/0 }");
         verifySuccess(ObjectType.FILTER_SET, AttributeType.MP_FILTER, "{ 2001:1234::/64^+ }");
         verifySuccess(ObjectType.FILTER_SET, AttributeType.MP_FILTER, "{ 2a00:10C0::/32^+ }");
@@ -771,7 +801,7 @@ public class AttributeSyntaxTest {
     }
 
     @Test
-    public void mpImport() throws Exception {
+    public void mpImport() {
         verifySuccess(ObjectType.AUT_NUM, AttributeType.MP_IMPORT, "afi ipv6.unicast from AS50607 2001:7f8:5b:3::1 at 2001:7f8:5b:3::2 action pref=100; accept AS-EPIX");
         verifySuccess(ObjectType.AUT_NUM, AttributeType.MP_IMPORT, "  afi ipv6.unicast from AS15685 2001:7f8:14::6:1 at 2001:7f8:14::31:1 accept ANY");
         verifySuccess(ObjectType.AUT_NUM, AttributeType.MP_IMPORT, "afi ipv6.unicast from AS6777 accept <^[AS9002 AS31133 AS24940]>");
@@ -786,7 +816,7 @@ public class AttributeSyntaxTest {
     }
 
     @Test
-    public void mpPeer() throws Exception {
+    public void mpPeer() {
         verifySuccess(ObjectType.INET_RTR, AttributeType.MP_PEER, "BGP4 2001::1A asno(AS2334)");
         verifySuccess(ObjectType.INET_RTR, AttributeType.MP_PEER, "BGP4 2001::1A asno(AS0)");
         verifySuccess(ObjectType.INET_RTR, AttributeType.MP_PEER, "BGP4 2001::1A asno(AS1)");
@@ -810,7 +840,7 @@ public class AttributeSyntaxTest {
     }
 
     @Test
-    public void mpPeering() throws Exception {
+    public void mpPeering() {
         verifySuccess(ObjectType.PEERING_SET, AttributeType.MP_PEERING, "AS8262");
         verifySuccess(ObjectType.PEERING_SET, AttributeType.MP_PEERING, "AS702:PRNG-AT-CONTINENTAL");
         verifySuccess(ObjectType.PEERING_SET, AttributeType.MP_PEERING, "AS3043 2001:504:17:115::169");
@@ -823,7 +853,7 @@ public class AttributeSyntaxTest {
     }
 
     @Test
-    public void mntRoutes() throws Exception {
+    public void mntRoutes() {
         verifyFailure(ObjectType.ROUTE, AttributeType.MNT_ROUTES, "");
         verifyFailure(ObjectType.ROUTE, AttributeType.MNT_ROUTES, "A");
         verifyFailure(ObjectType.ROUTE, AttributeType.MNT_ROUTES, "AS13213-MNT {193.150.8.0-193.150.8.255}");
@@ -849,7 +879,7 @@ public class AttributeSyntaxTest {
     }
 
     @Test
-    public void netname() throws Exception {
+    public void netname() {
         verifyFailure(ObjectType.INETNUM, AttributeType.NETNAME, "");
         verifyFailure(ObjectType.INETNUM, AttributeType.NETNAME, "1NETNAME");
         verifyFailure(ObjectType.INETNUM, AttributeType.NETNAME, "NET.NAME");
@@ -861,7 +891,7 @@ public class AttributeSyntaxTest {
     }
 
     @Test
-    public void nichandle() throws Exception {
+    public void nichandle() {
         verifyFailure(ObjectType.ROLE, AttributeType.NIC_HDL, "aa-");
         verifyFailure(ObjectType.ROLE, AttributeType.NIC_HDL, "a-");
         verifyFailure(ObjectType.ROLE, AttributeType.NIC_HDL, "aaaaa-");
@@ -904,7 +934,7 @@ public class AttributeSyntaxTest {
     }
 
     @Test
-    public void object_name() throws Exception {
+    public void object_name() {
         verifyFailure(ObjectType.MNTNER, AttributeType.MNTNER, "A");
         verifyFailure(ObjectType.MNTNER, AttributeType.MNTNER, "A12345678901234567890123456789012345678901234567890123456789012345678901234567890");
         verifyFailure(ObjectType.MNTNER, AttributeType.MNTNER, "ANY");
@@ -990,7 +1020,6 @@ public class AttributeSyntaxTest {
         verifySuccess(ObjectType.ORGANISATION, AttributeType.ORG_TYPE, "RIR");
         verifySuccess(ObjectType.ORGANISATION, AttributeType.ORG_TYPE, "NIR");
         verifySuccess(ObjectType.ORGANISATION, AttributeType.ORG_TYPE, "LIR");
-        verifySuccess(ObjectType.ORGANISATION, AttributeType.ORG_TYPE, "WHITEPAGES");
         verifySuccess(ObjectType.ORGANISATION, AttributeType.ORG_TYPE, "DIRECT_ASSIGNMENT");
         verifySuccess(ObjectType.ORGANISATION, AttributeType.ORG_TYPE, "OTHER");
 
@@ -1003,7 +1032,6 @@ public class AttributeSyntaxTest {
                 "o 'RIR' for Regional Internet Registries\n" +
                 "o 'NIR' for National Internet Registries (there are no NIRs in the RIPE NCC service region)\n" +
                 "o 'LIR' for Local Internet Registries\n" +
-                "o 'WHITEPAGES' for special links to industry people\n" +
                 "o 'DIRECT_ASSIGNMENT' for direct contract with RIPE NCC\n" +
                 "o 'OTHER' for all other organisations.\n\n"));
     }
@@ -1239,14 +1267,11 @@ public class AttributeSyntaxTest {
         verifySuccess(ObjectType.INETNUM, AttributeType.STATUS, "SUB-ALLOCATED PA");
         verifyFailure(ObjectType.INETNUM, AttributeType.STATUS, "ALLOCATED-BY-LIR");
         verifyFailure(ObjectType.INETNUM, AttributeType.STATUS, "ASSIGNED");
-        verifySuccess(ObjectType.INETNUM, AttributeType.STATUS, "ALLOCATED PI");
-        verifySuccess(ObjectType.INETNUM, AttributeType.STATUS, "LIR-PARTITIONED PI");
         verifySuccess(ObjectType.INETNUM, AttributeType.STATUS, "ASSIGNED ANYCAST");
 
         verifyFailure(ObjectType.INETNUM, AttributeType.STATUS, "AGGREGATED-BY-LIR");
         verifySuccess(ObjectType.INET6NUM, AttributeType.STATUS, "AGGREGATED-BY-LIR");
 
-        verifySuccess(ObjectType.INETNUM, AttributeType.STATUS, "ALLOCATED PI");
         verifyFailure(ObjectType.INET6NUM, AttributeType.STATUS, "ALLOCATED PI");
     }
 
@@ -1263,7 +1288,7 @@ public class AttributeSyntaxTest {
     }
 
     @Test
-    public void signature() throws Exception {
+    public void signature() {
         verifyFailure(ObjectType.IRT, AttributeType.SIGNATURE, "PGPKEY-");
         verifyFailure(ObjectType.IRT, AttributeType.SIGNATURE, "A6D57ECE");
         verifyFailure(ObjectType.IRT, AttributeType.SIGNATURE, "X509-");

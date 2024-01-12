@@ -1,22 +1,38 @@
 package net.ripe.db.whois.api.rest;
 
-import com.google.common.base.Charsets;
 import com.google.common.base.Splitter;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.ws.rs.Consumes;
+import jakarta.ws.rs.CookieParam;
+import jakarta.ws.rs.Encoded;
+import jakarta.ws.rs.FormParam;
+import jakarta.ws.rs.GET;
+import jakarta.ws.rs.HeaderParam;
+import jakarta.ws.rs.POST;
+import jakarta.ws.rs.Path;
+import jakarta.ws.rs.PathParam;
+import jakarta.ws.rs.Produces;
+import jakarta.ws.rs.QueryParam;
+import jakarta.ws.rs.core.Context;
+import jakarta.ws.rs.core.HttpHeaders;
+import jakarta.ws.rs.core.MediaType;
+import jakarta.ws.rs.core.Response;
 import net.ripe.db.whois.api.UpdatesParser;
 import net.ripe.db.whois.common.DateTimeProvider;
 import net.ripe.db.whois.common.Message;
 import net.ripe.db.whois.common.Messages;
 import net.ripe.db.whois.common.conversion.PasswordFilter;
 import net.ripe.db.whois.common.domain.CIString;
-import net.ripe.db.whois.common.domain.IpRanges;
 import net.ripe.db.whois.common.source.SourceContext;
-import net.ripe.db.whois.common.sso.CrowdClientException;
+import net.ripe.db.whois.common.sso.AuthServiceClient;
+import net.ripe.db.whois.common.sso.AuthServiceClientException;
 import net.ripe.db.whois.common.sso.SsoTokenTranslator;
 import net.ripe.db.whois.update.domain.ContentWithCredentials;
 import net.ripe.db.whois.update.domain.Keyword;
 import net.ripe.db.whois.update.domain.UpdateContext;
+import net.ripe.db.whois.update.domain.UpdateMessages;
 import net.ripe.db.whois.update.domain.UpdateRequest;
 import net.ripe.db.whois.update.domain.UpdateResponse;
 import net.ripe.db.whois.update.handler.UpdateRequestHandler;
@@ -28,27 +44,13 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.Nullable;
-import javax.servlet.http.HttpServletRequest;
-import javax.ws.rs.Consumes;
-import javax.ws.rs.CookieParam;
-import javax.ws.rs.Encoded;
-import javax.ws.rs.FormParam;
-import javax.ws.rs.GET;
-import javax.ws.rs.HeaderParam;
-import javax.ws.rs.POST;
-import javax.ws.rs.Path;
-import javax.ws.rs.PathParam;
-import javax.ws.rs.QueryParam;
-import javax.ws.rs.core.Context;
-import javax.ws.rs.core.HttpHeaders;
-import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.Response;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
 import java.nio.charset.Charset;
 import java.nio.charset.IllegalCharsetNameException;
+import java.nio.charset.StandardCharsets;
 import java.nio.charset.UnsupportedCharsetException;
 import java.util.Iterator;
 import java.util.Map;
@@ -67,7 +69,6 @@ public class SyncUpdatesService {
     private final UpdatesParser updatesParser;
     private final LoggerContext loggerContext;
     private final SourceContext sourceContext;
-    private final IpRanges ipRanges;
     private final SsoTokenTranslator ssoTokenTranslator;
 
     @Autowired
@@ -76,19 +77,18 @@ public class SyncUpdatesService {
                               final UpdatesParser updatesParser,
                               final LoggerContext loggerContext,
                               final SourceContext sourceContext,
-                              final IpRanges ipRanges,
                               final SsoTokenTranslator ssoTokenTranslator) {
         this.dateTimeProvider = dateTimeProvider;
         this.updateRequestHandler = updateRequestHandler;
         this.updatesParser = updatesParser;
         this.loggerContext = loggerContext;
         this.sourceContext = sourceContext;
-        this.ipRanges = ipRanges;
         this.ssoTokenTranslator = ssoTokenTranslator;
     }
 
     @GET
     @Path("/{source}")
+    @Produces(MediaType.TEXT_PLAIN)
     public Response doGet(
             @Context final HttpServletRequest httpServletRequest,
             @PathParam(SOURCE) final String source,
@@ -98,7 +98,7 @@ public class SyncUpdatesService {
             @QueryParam(Command.DIFF) final String diff,
             @QueryParam(Command.REDIRECT) final String redirect,
             @HeaderParam(HttpHeaders.CONTENT_TYPE) final String contentType,
-            @CookieParam("crowd.token_key") final String crowdTokenKey) {
+            @CookieParam(AuthServiceClient.TOKEN_KEY) final String crowdTokenKey) {
         final Request request = new Request.RequestBuilder()
                 .setData(decode(data, getCharset(contentType)))
                 .setNew(nnew)
@@ -115,6 +115,7 @@ public class SyncUpdatesService {
     @POST
     @Path("/{source}")
     @Consumes(MediaType.APPLICATION_FORM_URLENCODED)
+    @Produces(MediaType.TEXT_PLAIN)
     public Response doUrlEncodedPost(
             @Context final HttpServletRequest httpServletRequest,
             @PathParam(SOURCE) final String source,
@@ -124,7 +125,7 @@ public class SyncUpdatesService {
             @FormParam(Command.DIFF) final String diff,
             @FormParam(Command.REDIRECT) final String redirect,
             @HeaderParam(HttpHeaders.CONTENT_TYPE) final String contentType,
-            @CookieParam("crowd.token_key") final String crowdTokenKey) {
+            @CookieParam(AuthServiceClient.TOKEN_KEY) final String crowdTokenKey) {
         final Request request = new Request.RequestBuilder()
                 .setData(data)
                 .setNew(nnew)
@@ -141,6 +142,7 @@ public class SyncUpdatesService {
     @POST
     @Path("/{source}")
     @Consumes(MediaType.MULTIPART_FORM_DATA)
+    @Produces(MediaType.TEXT_PLAIN)
     public Response doMultipartPost(
             @Context final HttpServletRequest httpServletRequest,
             @PathParam(SOURCE) final String source,
@@ -150,7 +152,7 @@ public class SyncUpdatesService {
             @FormDataParam(Command.DIFF) final String diff,
             @FormDataParam(Command.REDIRECT) final String redirect,
             @HeaderParam(HttpHeaders.CONTENT_TYPE) final String contentType,
-            @CookieParam("crowd.token_key") final String crowdTokenKey) {
+            @CookieParam(AuthServiceClient.TOKEN_KEY) final String crowdTokenKey) {
         final Request request = new Request.RequestBuilder()
                 .setData(data)
                 .setNew(nnew)
@@ -190,7 +192,12 @@ public class SyncUpdatesService {
 
             final UpdateContext updateContext = new UpdateContext(loggerContext);
 
+            if( RestServiceHelper.isHttpProtocol(httpServletRequest) ){
+                updateContext.addGlobalMessage(UpdateMessages.httpSyncupdate());
+            }
+
             setSsoSessionToContext(updateContext, request.getSsoToken());
+            setClientCertificates(updateContext, httpServletRequest);
 
             final String content = request.hasParam("DATA") ? request.getParam("DATA") : "";
 
@@ -212,11 +219,15 @@ public class SyncUpdatesService {
         if (!StringUtils.isBlank(ssoToken)) {
             try {
                 updateContext.setUserSession(ssoTokenTranslator.translateSsoToken(ssoToken));
-            } catch (CrowdClientException e) {
+            } catch (AuthServiceClientException e) {
                 loggerContext.log(new Message(Messages.Type.ERROR, e.getMessage()));
                 updateContext.addGlobalMessage(RestMessages.ssoAuthIgnored());
             }
         }
+    }
+
+    public void setClientCertificates(final UpdateContext updateContext, final HttpServletRequest request) {
+        updateContext.setClientCertificates(ClientCertificateExtractor.getClientCertificates(request));
     }
 
     private Response getResponse(final UpdateResponse updateResponse) {
@@ -230,8 +241,6 @@ public class SyncUpdatesService {
 
         return Response
                 .ok()
-                .header(HttpHeaders.CONTENT_TYPE, MediaType.TEXT_PLAIN)
-                .header(HttpHeaders.CONTENT_LENGTH, updateResponse.getResponse().length())
                 .entity(updateResponse.getResponse())
                 .build();
     }
@@ -276,7 +285,9 @@ public class SyncUpdatesService {
                 }
             }
         }
-        return Charsets.ISO_8859_1;
+
+        // application/x-www-form-urlencoded is UTF-8 by default
+        return StandardCharsets.UTF_8;
     }
 
     @Nullable
@@ -310,7 +321,7 @@ public class SyncUpdatesService {
     }
 
     private String getRequestId(final String remoteAddress) {
-        return "syncupdate_" + remoteAddress + "_" + dateTimeProvider.getNanoTime();
+        return "syncupdate_" + remoteAddress + "_" + dateTimeProvider.getElapsedTime();
     }
 
     private boolean sourceMatchesContext(final String source) {

@@ -1,0 +1,422 @@
+package net.ripe.db.whois.common.dao.jdbc;
+
+
+import net.ripe.db.whois.common.dao.RpslObjectDao;
+import net.ripe.db.whois.common.dao.RpslObjectInfo;
+import net.ripe.db.whois.common.domain.CIString;
+import net.ripe.db.whois.common.rpsl.ObjectType;
+import net.ripe.db.whois.common.rpsl.RpslObject;
+import net.ripe.db.whois.common.source.Source;
+import net.ripe.db.whois.common.support.AbstractDaoIntegrationTest;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Tag;
+import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.dao.EmptyResultDataAccessException;
+
+import java.util.Collection;
+import java.util.Collections;
+import java.util.List;
+
+import static net.ripe.db.whois.common.domain.CIString.ciSet;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.contains;
+import static org.hamcrest.Matchers.hasSize;
+import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.nullValue;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+
+@Tag("IntegrationTest")
+public class JdbcRpslObjectDaoIntegrationTest extends AbstractDaoIntegrationTest {
+    @Autowired RpslObjectDao subject;
+    @Value("${whois.source}") protected String source;
+
+    @BeforeEach
+    public void setup() {
+        sourceContext.setCurrent(Source.slave(source));
+    }
+
+    @AfterEach
+    public void cleanup() {
+        sourceContext.removeCurrentSource();
+    }
+
+    @Test
+    public void findSingleAsBlockUsingSingleBlockQuery() throws Exception {
+        databaseHelper.addObject("as-block:AS31066-AS31066");
+
+        RpslObject result = subject.findAsBlock(31066, 31066);
+
+        assertThat(result.getType(), is(ObjectType.AS_BLOCK));
+        assertThat(result.getKey().toString(), is("AS31066-AS31066"));
+    }
+
+    @Test
+    public void findSingleAsBlockUsingExactRangeQuery() throws Exception {
+        databaseHelper.addObject("as-block:AS31066-AS31066");
+
+        RpslObject result = subject.findAsBlock(31066, 31066);
+
+        assertThat(result.getType(), is(ObjectType.AS_BLOCK));
+        assertThat(result.getKey().toString(), is("AS31066-AS31066"));
+    }
+
+    @Test
+    public void findAsBlockUsingExactRangeQuery() throws Exception {
+        databaseHelper.addObject("as-block:AS31066 - AS31244");
+
+        RpslObject result = subject.findAsBlock(31066, 31244);
+
+        assertThat(result.getType(), is(ObjectType.AS_BLOCK));
+        assertThat(result.getKey().toString(), is("AS31066 - AS31244"));
+    }
+
+    @Test
+    public void findAsBlockUsingContainedSingleBlockQuery() {
+        databaseHelper.addObject("as-block:AS31066 - AS31244");
+
+        RpslObject result = subject.findAsBlock(31200, 31200);
+
+        assertThat(result.getType(), is(ObjectType.AS_BLOCK));
+        assertThat(result.getKey().toString(), is("AS31066 - AS31244"));
+    }
+
+    @Test
+    public void findAsBlockContainedRangeQuery() {
+        databaseHelper.addObject("as-block:AS31066 - AS31244");
+
+        RpslObject result = subject.findAsBlock(31100, 31200);
+
+        assertThat(result.getType(), is(ObjectType.AS_BLOCK));
+        assertThat(result.getKey().toString(), is("AS31066 - AS31244"));
+    }
+
+    @Test
+    public void outOfRangeUsingRangeQuery() {
+        databaseHelper.addObject("as-block:AS31066 - AS31244");
+
+        assertThat(subject.findAsBlock(31066, 31299), is(nullValue()));
+    }
+
+    @Test
+    public void nonexistentUsingSingleAsBlockQuery() {
+        assertThat(subject.findAsBlock(1, 1), is(nullValue()));
+    }
+
+    @Test
+    public void nonexistentUsingAsBlockQuery() {
+        assertThat(subject.findAsBlock(0, 1), is(nullValue()));
+    }
+
+    /*
+     * IRT
+     */
+
+    @Test
+    public void successfulIrtQuery() {
+        databaseHelper.addObject("irt:DEV-IRT");
+
+        RpslObject result = subject.getByKey(ObjectType.IRT, "DEV-IRT");
+
+        assertThat(result.getType(), is(ObjectType.IRT));
+        assertThat(result.getKey().toString(), is("DEV-IRT"));
+    }
+
+    @Test
+     public void nonexistentIrtLookup() {
+        assertThrows(EmptyResultDataAccessException.class, () -> {
+            subject.getByKey(ObjectType.IRT, "nonexistent");
+        });
+    }
+
+    @Test
+    public void getByKeyOrNullIrtLookupReturnsNull() {
+        final RpslObject result = subject.getByKeyOrNull(ObjectType.IRT, CIString.ciString("nonexistent"));
+
+        assertThat(result, is(nullValue()));
+    }
+
+    @Test
+    public void getByKeyOrNullIrtLookup() {
+        databaseHelper.addObject("irt:DEV-IRT");
+
+        final RpslObject result = subject.getByKeyOrNull(ObjectType.IRT, CIString.ciString("DEV-IRT"));
+
+        assertThat(result.getKey().toString(), is("DEV-IRT"));
+    }
+
+    /*
+     * Maintainer
+     */
+
+    @Test
+    public void successfulMaintainerQuery() {
+        databaseHelper.addObject("mntner:DEV-MNT");
+
+        RpslObject result = subject.getByKey(ObjectType.MNTNER, "DEV-MNT");
+        assertThat(result.getType(), is(ObjectType.MNTNER));
+        assertThat(result.getKey().toString(), is("DEV-MNT"));
+    }
+
+    @Test
+    public void nonexistentMaintainerLookup() {
+        assertThrows(EmptyResultDataAccessException.class, () -> {
+            subject.getByKey(ObjectType.MNTNER, "nonexistent");
+        });
+    }
+
+    /*
+     * Poetic Form
+     */
+
+    @Test
+    public void successfulPoeticFormQuery() {
+        databaseHelper.addObject("poetic-form:FORM-SONNET-INDONESIAN");
+
+        RpslObject result = subject.getByKey(ObjectType.POETIC_FORM, "FORM-SONNET-INDONESIAN");
+        assertThat(result.getType(), is(ObjectType.POETIC_FORM));
+        assertThat(result.getKey().toString(), is("FORM-SONNET-INDONESIAN"));
+    }
+
+    @Test
+    public void nonexistentPoeticFormLookup() {
+        assertThrows(EmptyResultDataAccessException.class, () -> {
+            subject.getByKey(ObjectType.POETIC_FORM, "nonexistent");
+        });
+    }
+
+    /*
+     * Poem
+     */
+
+    @Test
+    public void successfulPoemQuery() {
+        databaseHelper.addObject("poem:POEM-MELAYU");
+
+        RpslObject result = subject.getByKey(ObjectType.POEM, "POEM-MELAYU");
+        assertThat(result.getType(), is(ObjectType.POEM));
+        assertThat(result.getKey().toString(), is("POEM-MELAYU"));
+    }
+
+    @Test
+    public void nonexistentPoemLookup() {
+        assertThrows(EmptyResultDataAccessException.class, () -> {
+            subject.getByKey(ObjectType.POEM, "nonexistent");
+        });
+    }
+
+    /*
+     * Key-cert
+     */
+
+    @Test
+    public void successfulKeyCertQuery() {
+        databaseHelper.addObject("key-cert:PGPKEY-7FDA55DE");
+
+        RpslObject result = subject.getByKey(ObjectType.KEY_CERT, "PGPKEY-7FDA55DE");
+        assertThat(result.getType(), is(ObjectType.KEY_CERT));
+        assertThat(result.getKey().toString(), is("PGPKEY-7FDA55DE"));
+    }
+
+    @Test
+    public void nonexistentKeyCertLookup() {
+        assertThrows(EmptyResultDataAccessException.class, () -> {
+            subject.getByKey(ObjectType.KEY_CERT, "nonexistent");
+        });
+    }
+
+    /*
+     * aut-num
+     */
+
+    @Test
+    public void successfulAutNumQuery() {
+        databaseHelper.addObject("aut-num:AS57875");
+
+        RpslObject result = subject.getByKey(ObjectType.AUT_NUM, "AS57875");
+        assertThat(result.getType(), is(ObjectType.AUT_NUM));
+        assertThat(result.getKey().toString(), is("AS57875"));
+    }
+
+    @Test
+    public void nonexistentAutNumQuery() {
+        assertThrows(EmptyResultDataAccessException.class, () -> {
+            subject.getByKey(ObjectType.AUT_NUM, "nonexistent");
+        });
+    }
+
+    /*
+     * rtr-set
+     */
+
+    @Test
+    public void successRtrSetQuery() {
+        databaseHelper.addObject("rtr-set:RTRS-WT");
+
+        RpslObject result = subject.getByKey(ObjectType.RTR_SET, "RTRS-WT");
+        assertThat(result.getType(), is(ObjectType.RTR_SET));
+        assertThat(result.getKey().toString(), is("RTRS-WT"));
+    }
+
+    /*
+     * as-set
+     */
+
+    @Test
+    public void successAsSetQuery() {
+        databaseHelper.addObject("as-set:AS-RIPENCC");
+
+        RpslObject result = subject.getByKey(ObjectType.AS_SET, "AS-RIPENCC");
+        assertThat(result.getType(), is(ObjectType.AS_SET));
+        assertThat(result.getKey().toString(), is("AS-RIPENCC"));
+    }
+
+    /*
+     * filter-set
+     */
+
+    @Test
+    public void successFilterSetQuery() {
+        databaseHelper.addObject("filter-set:FLTR-RIPE");
+
+        RpslObject result = subject.getByKey(ObjectType.FILTER_SET, "FLTR-RIPE");
+        assertThat(result.getType(), is(ObjectType.FILTER_SET));
+        assertThat(result.getKey().toString(), is("FLTR-RIPE"));
+    }
+
+    /*
+     * inet-rtr
+     */
+
+    @Test
+    public void successInetRtrQuery() {
+        databaseHelper.addObject("inet-rtr:Amsterdam.ripe.net\nlocal-as: AS101");
+
+        RpslObject result = subject.getByKey(ObjectType.INET_RTR, "Amsterdam.ripe.net");
+        assertThat(result.getType(), is(ObjectType.INET_RTR));
+        assertThat(result.getKey().toString(), is("Amsterdam.ripe.net"));
+    }
+
+    @Test
+    public void nonexistentInetRtrQuery() {
+        assertThrows(EmptyResultDataAccessException.class, () -> {
+            subject.getByKey(ObjectType.INET_RTR, "nonexistent");
+        });
+    }
+
+    /*
+     * peering-set
+     */
+
+    @Test
+    public void successPeeringSetQuery() {
+        databaseHelper.addObject("peering-set:AS31708:PRNG-CUST");
+
+        RpslObject result = subject.getByKey(ObjectType.PEERING_SET, "AS31708:PRNG-CUST");
+        assertThat(result.getType(), is(ObjectType.PEERING_SET));
+        assertThat(result.getKey().toString(), is("AS31708:PRNG-CUST"));
+    }
+
+    /*
+     * route-set
+     */
+
+    @Test
+    public void successRouteSetQuery() {
+        databaseHelper.addObject("route-set:RS-TWN-AMS-RIPE");
+
+        RpslObject result = subject.getByKey(ObjectType.ROUTE_SET, "RS-TWN-AMS-RIPE");
+        assertThat(result.getType(), is(ObjectType.ROUTE_SET));
+        assertThat(result.getKey().toString(), is("RS-TWN-AMS-RIPE"));
+    }
+
+    @Test
+    public void nonexistentRoleQuery() {
+        assertThrows(EmptyResultDataAccessException.class, () -> {
+            subject.getByKey(ObjectType.ROLE, "nonexistent");
+        });
+    }
+
+    @Test
+    public void test_get_unknown_object() {
+        assertThrows(EmptyResultDataAccessException.class, () -> {
+            int objectId = -1;
+            subject.getById(objectId);
+        });
+    }
+
+    @Test
+    public void test_adminc_related_to_role() {
+        RpslObject person = databaseHelper.addObject(RpslObject.parse("person:Brian Riddle\nnic-hdl:BRD-RIPE"));
+        RpslObject role = databaseHelper.addObject(RpslObject.parse("role:RIPE NCC Operations\nadmin-c:BRD-RIPE\nnic-hdl:OPS4-RIPE"));
+
+        Collection<RpslObjectInfo> result = subject.relatedTo(role, Collections.<ObjectType>emptySet());
+
+        assertThat(result, hasSize(1));
+        assertThat(result.iterator().next().getKey(), is(person.getKey().toString()));
+    }
+
+    @Test
+    public void test_adminc_related_to_role_excluded() {
+        databaseHelper.addObject(RpslObject.parse("person:Brian Riddle\nnic-hdl:BRD-RIPE"));
+        RpslObject role = databaseHelper.addObject(RpslObject.parse("role:RIPE NCC Operations\nadmin-c:BRD-RIPE\nnic-hdl:OPS4-RIPE"));
+
+        Collection<RpslObjectInfo> result = subject.relatedTo(role, Collections.singleton(ObjectType.PERSON));
+        assertThat(result, hasSize(0));
+    }
+
+    @Test
+    public void getByKey_not_normalized() {
+        final RpslObject rpslObject = RpslObject.parse("" +
+                "inet6num:        2001:0658:021A::/48\n" +
+                "netname:         NETNAME\n" +
+                "source:          RIPE\n");
+
+        databaseHelper.addObject(rpslObject);
+
+        final RpslObject byKey = subject.getByKey(ObjectType.INET6NUM, "2001:658:21a::/48");
+        assertThat(byKey, is(rpslObject));
+    }
+
+    @Test
+    public void getByKeys_not_normalized() {
+        final RpslObject rpslObject = RpslObject.parse("" +
+                "inet6num:        2001:0658:021A::/48\n" +
+                "netname:         NETNAME\n" +
+                "source:          RIPE\n");
+
+        databaseHelper.addObject(rpslObject);
+
+        final List<RpslObject> byKeys = subject.getByKeys(ObjectType.INET6NUM, ciSet("2001:658:21a::/48"));
+        assertThat(byKeys, contains(rpslObject));
+    }
+
+    @Test
+    public void getByKeys_different_type() {
+        final RpslObject rpslObject = RpslObject.parse("" +
+                "person:          Test\n" +
+                "nic-hdl:         TEST-PN\n" +
+                "source:          RIPE\n");
+
+        databaseHelper.addObject(rpslObject);
+
+        final List<RpslObject> byKeys = subject.getByKeys(ObjectType.ROLE, ciSet("TEST-PN"));
+        assertThat(byKeys, hasSize(0));
+    }
+
+    @Test
+    public void getById() {
+        final RpslObject rpslObject = RpslObject.parse("" +
+                "person:          Test\n" +
+                "nic-hdl:         TEST-PN\n" +
+                "source:          RIPE\n");
+
+        databaseHelper.addObject(rpslObject);
+
+        final RpslObject object = subject.getById(1);
+        assertThat(object, is(rpslObject));
+    }
+
+}

@@ -5,7 +5,7 @@ import net.ripe.db.whois.common.dao.jdbc.DatabaseHelper
 import net.ripe.db.whois.common.rpsl.ObjectType
 import net.ripe.db.whois.common.rpsl.RpslObject
 import net.ripe.db.whois.spec.BaseEndToEndSpec
-import org.joda.time.LocalDateTime
+import java.time.LocalDateTime
 
 abstract class BaseWhoisSourceSpec extends BaseEndToEndSpec {
 
@@ -16,7 +16,7 @@ abstract class BaseWhoisSourceSpec extends BaseEndToEndSpec {
 
     def setup() {
         whoisFixture.reset()
-        setupObjects(fixtures.values().collect { RpslObject.parse(it.stripIndent()) })
+        setupObjects(fixtures.values().collect { RpslObject.parse(it.stripIndent(true)) })
     }
 
     abstract Map<String, String> getFixtures()
@@ -26,11 +26,15 @@ abstract class BaseWhoisSourceSpec extends BaseEndToEndSpec {
     }
 
     def deleteObject(String key) {
-        whoisFixture.deleteRpslObject(RpslObject.parse(fixtures.get(key).stripIndent()));
+        whoisFixture.deleteRpslObject(RpslObject.parse(fixtures.get(key).stripIndent(true)));
     }
 
     def dumpSchema() {
         whoisFixture.dumpSchema()
+    }
+
+    def dumpInternalsSchema() {
+        whoisFixture.dumpInternalsSchema()
     }
 
     def dnsCheckedFor(String key) {
@@ -50,7 +54,7 @@ abstract class BaseWhoisSourceSpec extends BaseEndToEndSpec {
     }
 
     def getTimeUtcString() {
-        return FormatHelper.dateTimeToUtcString(whoisFixture.testDateTimeProvider.currentDateTimeUtc)
+        return FormatHelper.dateTimeToUtcString(whoisFixture.testDateTimeProvider.currentZonedDateTime)
     }
 
     def resetTime() {
@@ -59,10 +63,6 @@ abstract class BaseWhoisSourceSpec extends BaseEndToEndSpec {
 
     def objectExists(ObjectType objectType, String pkey) {
         whoisFixture.objectExists(objectType, pkey)
-    }
-
-    def getTags(int objectId) {
-        return whoisFixture.getTagsDao().getTags(objectId)
     }
 
     def oneBasicFixture(String key) {
@@ -81,10 +81,6 @@ abstract class BaseWhoisSourceSpec extends BaseEndToEndSpec {
 
     def removeObject(String string) {
         getDatabaseHelper().deleteObject(RpslObject.parse(string))
-    }
-
-    def pendingUpdates(ObjectType objectType, String pkey) {
-        getPendingUpdateDao().findByTypeAndKey(objectType, pkey)
     }
 
 }

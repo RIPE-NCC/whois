@@ -1,15 +1,15 @@
 package net.ripe.db.whois.scheduler.task.grs;
 
-import net.ripe.db.whois.common.IntegrationTest;
+
 import net.ripe.db.whois.common.dao.jdbc.DatabaseHelper;
 import net.ripe.db.whois.common.domain.CIString;
 import net.ripe.db.whois.common.grs.AuthoritativeResourceData;
 import net.ripe.db.whois.common.rpsl.ObjectType;
 import net.ripe.db.whois.scheduler.AbstractSchedulerIntegrationTest;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Test;
-import org.junit.experimental.categories.Category;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Tag;
+import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -17,10 +17,10 @@ import org.springframework.test.annotation.DirtiesContext;
 
 import javax.sql.DataSource;
 
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertThat;
 
-@Category(IntegrationTest.class)
+@Tag("IntegrationTest")
 @DirtiesContext
 public class GrsImporterTestIntegration extends AbstractSchedulerIntegrationTest {
 
@@ -31,12 +31,12 @@ public class GrsImporterTestIntegration extends AbstractSchedulerIntegrationTest
     private DataSource dataSource;
     private JdbcTemplate jdbcTemplate;
 
-    @BeforeClass
+    @BeforeAll
     public static void setUpClass() throws Exception {
         DatabaseHelper.addGrsDatabases("TEST-GRS");
     }
 
-    @Before
+    @BeforeEach
     public void setUp() throws Exception {
         queryServer.start();
         this.jdbcTemplate = new JdbcTemplate(dataSource);
@@ -47,7 +47,7 @@ public class GrsImporterTestIntegration extends AbstractSchedulerIntegrationTest
         assertThat(isMaintainedInRirSpace(ObjectType.AUT_NUM, "AS105"), is(false));
 
         insert("AS105-AS105");
-        authoritativeResourceData.refreshAuthoritativeResourceCacheOnChange();
+        authoritativeResourceData.refreshActiveSource();
 
         assertThat(isMaintainedInRirSpace(ObjectType.AUT_NUM, "AS105"), is(true));
     }
@@ -57,7 +57,7 @@ public class GrsImporterTestIntegration extends AbstractSchedulerIntegrationTest
         assertThat(isMaintainedInRirSpace(ObjectType.AUT_NUM, "AS102"), is(true));
 
         delete("AS102");
-        authoritativeResourceData.refreshAuthoritativeResourceCacheOnChange();
+        authoritativeResourceData.refreshActiveSource();
 
         assertThat(isMaintainedInRirSpace(ObjectType.AUT_NUM, "AS102"), is(false));
     }
@@ -66,7 +66,7 @@ public class GrsImporterTestIntegration extends AbstractSchedulerIntegrationTest
     public void incremental_insert_and_remove_inetnum() throws Exception {
         delete("0.0.0.0/0");
         insert("193.0.0.0/8");
-        authoritativeResourceData.refreshAuthoritativeResourceCacheOnChange();
+        authoritativeResourceData.refreshActiveSource();
 
         assertThat(isMaintainedInRirSpace(ObjectType.INETNUM, "193.0.0.1"), is(true));
         assertThat(isMaintainedInRirSpace(ObjectType.INETNUM, "10.0.0.1"), is(false));

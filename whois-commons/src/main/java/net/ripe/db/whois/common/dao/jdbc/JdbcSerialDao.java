@@ -13,6 +13,7 @@ import org.springframework.stereotype.Repository;
 import javax.annotation.CheckForNull;
 import javax.sql.DataSource;
 
+
 @Repository
 @Primary
 public class JdbcSerialDao implements SerialDao {
@@ -47,4 +48,5 @@ public class JdbcSerialDao implements SerialDao {
     public Integer getAgeOfExactOrNextExistingSerial(final int serialId) {
         return JdbcRpslObjectOperations.getAgeOfExactOrNextExistingSerial(dateTimeProvider, jdbcTemplate, serialId);
     }
+
 }

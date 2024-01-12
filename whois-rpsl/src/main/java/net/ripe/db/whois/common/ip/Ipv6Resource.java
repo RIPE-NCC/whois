@@ -33,10 +33,6 @@ public class Ipv6Resource extends IpInterval<Ipv6Resource> implements Comparable
     private final long endMsb;
     private final long endLsb;
 
-    private Ipv6Resource(final BigInteger begin, final int len) {
-        this(msb(begin), lsb(begin), len);
-    }
-
     public static long lsb(final BigInteger begin) {
         return begin.and(MASK).longValue();
     }
@@ -46,8 +42,7 @@ public class Ipv6Resource extends IpInterval<Ipv6Resource> implements Comparable
     }
 
     public static Ipv6Resource parseFromStrings(final String msb, final String lsb, final int len) {
-        final BigInteger begin = new BigInteger(msb).shiftLeft(LONG_BITCOUNT).add(new BigInteger(lsb));
-        return new Ipv6Resource(begin, len);
+        return new Ipv6Resource(Long.parseLong(msb), Long.parseLong(lsb), len);
     }
 
     private Ipv6Resource(final long msb, final long lsb, final int prefixLength) {
@@ -125,10 +120,18 @@ public class Ipv6Resource extends IpInterval<Ipv6Resource> implements Comparable
             if (prefixLength < 0 || prefixLength > 128) {
                 throw new IllegalArgumentException("Invalid prefix length: " + prefixOrAddress);
             }
-            return parse(InetAddresses.forString(trimmedPrefixOrAddress.substring(0, slashIndex)), prefixLength);
+            return parse(InetAddresses.forString(stripOptionalBrackets(trimmedPrefixOrAddress.substring(0, slashIndex))), prefixLength);
         } else {
-            return parse(InetAddresses.forString(trimmedPrefixOrAddress), IPV6_BITCOUNT);
+            return parse(InetAddresses.forString(stripOptionalBrackets(trimmedPrefixOrAddress)), IPV6_BITCOUNT);
         }
+    }
+
+    private static String stripOptionalBrackets(final String address) {
+        if (address.length() > 1 &&
+            (address.charAt(0) == '[' && address.charAt(address.length() - 1) == ']')) {
+            return address.substring(1, address.length() - 1);
+        }
+        return address;
     }
 
     public static Ipv6Resource parseReverseDomain(final String address) {

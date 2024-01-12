@@ -1,65 +1,70 @@
 package net.ripe.db.whois.scheduler.task.export;
 
 import com.google.common.collect.Lists;
-import net.ripe.db.whois.common.dao.TagsDao;
-import net.ripe.db.whois.common.domain.Tag;
 import net.ripe.db.whois.common.rpsl.RpslObject;
 import net.ripe.db.whois.scheduler.task.export.dao.ExportCallbackHandler;
 import net.ripe.db.whois.scheduler.task.export.dao.ExportDao;
 import org.hamcrest.Matchers;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.TemporaryFolder;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.jupiter.api.io.TempDir;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.invocation.InvocationOnMock;
-import org.mockito.runners.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 import org.mockito.stubbing.Answer;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.Collections;
-import java.util.List;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
-import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.anyInt;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.fail;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 
-@RunWith(MockitoJUnitRunner.class)
+
+@ExtendWith(MockitoExtension.class)
 public class RpslObjectsToTextExporterTest {
-    @Rule public TemporaryFolder folder = new TemporaryFolder();
+    @TempDir
+    Path folder;
 
     @Mock ExportFileWriterFactory exportFileWriterFactory;
     @Mock ExportDao exportDao;
-    @Mock TagsDao tagsDao;
-
     RpslObjectsExporter subject;
     File exportDir;
     File tmpDir;
 
-    @Before
+    @BeforeEach
     public void setUp() throws Exception {
-        exportDir = folder.newFolder("export");
-        tmpDir = folder.newFolder("export_tmp");
-
-        final String exportdirName = exportDir.getAbsolutePath();
-        final String tmpDirName = tmpDir.getAbsolutePath();
+        exportDir = Files.createDirectories(folder.resolve("export")).toFile();
+        tmpDir = Files.createDirectories(folder.resolve( "export_tmp")).toFile();
 
         when(exportFileWriterFactory.isExportDir(any(File.class))).thenReturn(true);
 
-        subject = new RpslObjectsExporter(exportFileWriterFactory, exportDao, tagsDao, exportdirName, tmpDirName, true);
+        subject = new RpslObjectsExporter(exportFileWriterFactory, exportDao, exportDir.toPath().toString(), tmpDir.toPath().toString(), true);
     }
 
-    @Test(expected = RuntimeException.class)
-    public void export_invalid_dir() {
-        Mockito.reset(exportFileWriterFactory);
+    //TempDir is not cleaned up properly after each test run.
+    @AfterEach
+    public void cleanUp()  {
+        exportDir.delete();
+        tmpDir.delete();
+    }
 
-        subject.export();
+    @Test
+    public void export_invalid_dir() {
+        assertThrows(RuntimeException.class, () -> {
+            Mockito.reset(exportFileWriterFactory);
+
+            subject.export();
+        });
     }
 
     @Test
@@ -82,8 +87,6 @@ public class RpslObjectsToTextExporterTest {
     public void export_objects() throws IOException {
         final ExportFileWriter exportFileWriter1 = Mockito.mock(ExportFileWriter.class);
         final ExportFileWriter exportFileWriter2 = Mockito.mock(ExportFileWriter.class);
-        @SuppressWarnings("unchecked")
-        final List<Tag> emptyList = Collections.EMPTY_LIST;
 
         when(exportFileWriterFactory.createExportFileWriters(tmpDir, 0)).thenReturn(Lists.newArrayList(exportFileWriter1, exportFileWriter2));
 
@@ -103,25 +106,20 @@ public class RpslObjectsToTextExporterTest {
             }
         }).when(exportDao).exportObjects(any(ExportCallbackHandler.class));
 
-        when(tagsDao.getTags(anyInt())).thenReturn(emptyList);
-
         subject.export();
 
-        Mockito.verify(exportFileWriter1).write(rpslObject1, emptyList);
-        Mockito.verify(exportFileWriter1).write(rpslObject2, emptyList);
+        Mockito.verify(exportFileWriter1).write(rpslObject1);
+        Mockito.verify(exportFileWriter1).write(rpslObject2);
         Mockito.verify(exportFileWriter1).close();
 
-        Mockito.verify(exportFileWriter2).write(rpslObject1, emptyList);
-        Mockito.verify(exportFileWriter2).write(rpslObject2, emptyList);
+        Mockito.verify(exportFileWriter2).write(rpslObject1);
+        Mockito.verify(exportFileWriter2).write(rpslObject2);
         Mockito.verify(exportFileWriter2).close();
     }
 
     @Test
     public void export_objects_exception() throws IOException {
         final ExportFileWriter exportFileWriter = Mockito.mock(ExportFileWriter.class);
-        @SuppressWarnings("unchecked")
-        final List<Tag> emptyList = Collections.EMPTY_LIST;
-
         when(exportFileWriterFactory.createExportFileWriters(tmpDir, 0)).thenReturn(Lists.newArrayList(exportFileWriter));
 
         final RpslObject rpslObject1 = RpslObject.parse(2, "mntner: DEV-MNT1");
@@ -139,18 +137,17 @@ public class RpslObjectsToTextExporterTest {
             }
         }).when(exportDao).exportObjects(any(ExportCallbackHandler.class));
 
-        Mockito.doThrow(IOException.class).when(exportFileWriter).write(rpslObject1, emptyList);
-
-        when(tagsDao.getTags(2)).thenReturn(emptyList);
+        Mockito.doThrow(IOException.class).when(exportFileWriter).write(rpslObject1);
 
         try {
             subject.export();
-            Assert.fail("Expected exception");
+            fail("Expected exception");
         } catch (RuntimeException ignored) {
+            // expected
         }
 
-        Mockito.verify(exportFileWriter).write(rpslObject1, emptyList);
-        Mockito.verify(exportFileWriter, Mockito.never()).write(rpslObject2, emptyList);
+        Mockito.verify(exportFileWriter).write(rpslObject1);
+        Mockito.verify(exportFileWriter, Mockito.never()).write(rpslObject2);
         Mockito.verify(exportFileWriter).close();
     }
 
@@ -158,8 +155,8 @@ public class RpslObjectsToTextExporterTest {
     public void export_check_files() {
         subject.export();
 
-        Assert.assertThat(exportDir.exists(), Matchers.is(true));
-        Assert.assertThat(tmpDir.exists(), Matchers.is(false));
+        assertThat(exportDir.exists(), Matchers.is(true));
+        assertThat(tmpDir.exists(), Matchers.is(false));
     }
 
     @Test
@@ -186,8 +183,9 @@ public class RpslObjectsToTextExporterTest {
         try {
             startLatch.await(5, TimeUnit.SECONDS);
             subject.export();
-            Assert.fail("Expected exception");
+            fail("Expected exception");
         } catch (IllegalStateException ignored) {
+            // expected
         } finally {
             waitLatch.countDown();
         }

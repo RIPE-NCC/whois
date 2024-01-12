@@ -1,11 +1,11 @@
 package net.ripe.db.whois.spec.update
-import net.ripe.db.whois.common.IntegrationTest
+
 import net.ripe.db.whois.spec.BaseQueryUpdateSpec
 import net.ripe.db.whois.spec.domain.AckResponse
 import net.ripe.db.whois.spec.domain.Message
 import net.ripe.db.whois.spec.domain.SyncUpdate
 
-@org.junit.experimental.categories.Category(IntegrationTest.class)
+@org.junit.jupiter.api.Tag("IntegrationTest")
 class NotificationSpec extends BaseQueryUpdateSpec {
 
     @Override
@@ -577,7 +577,7 @@ class NotificationSpec extends BaseQueryUpdateSpec {
                 source:      TEST
 
                 password:     owner4
-            """.stripIndent())
+            """.stripIndent(true))
 
       then:
         def ack = ackFor message
@@ -643,7 +643,7 @@ class NotificationSpec extends BaseQueryUpdateSpec {
                 source:      TEST
 
                 password:     null
-            """.stripIndent())
+            """.stripIndent(true))
 
       then:
         def ack = ackFor message
@@ -704,7 +704,7 @@ class NotificationSpec extends BaseQueryUpdateSpec {
 
                 password: owner
                 password: owner3
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -754,7 +754,7 @@ class NotificationSpec extends BaseQueryUpdateSpec {
 
                 password: owner
                 password: owner3
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -802,7 +802,7 @@ class NotificationSpec extends BaseQueryUpdateSpec {
                 source:  TEST
 
                 password: owner
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -852,7 +852,7 @@ class NotificationSpec extends BaseQueryUpdateSpec {
                 source:  TEST
 
                 password: owner
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -898,7 +898,7 @@ class NotificationSpec extends BaseQueryUpdateSpec {
                 delete: get rid
 
                 password: owner
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -929,7 +929,7 @@ class NotificationSpec extends BaseQueryUpdateSpec {
         given:
             syncUpdate(getTransient("IRT_TEST_NOTIFY") + "password: test3")
             queryObject("-r -T irt irt-test-notify", "irt", "irt-test-notify")
-            syncUpdate(getTransient("INETNUM") + "password: test3\npassword: hm\npassword: irt")
+            dbfixture(getTransient("INETNUM"))
             queryObject("-r -T inetnum 192.168.200.0 - 192.168.200.255", "inetnum", "192.168.200.0 - 192.168.200.255")
 
         when:
@@ -949,7 +949,7 @@ class NotificationSpec extends BaseQueryUpdateSpec {
                     delete: get rid
 
                     password: test3
-                    """.stripIndent()
+                    """.stripIndent(true)
             )
 
         then:
@@ -977,7 +977,7 @@ class NotificationSpec extends BaseQueryUpdateSpec {
             syncUpdate(getTransient("IRT_TEST_NOTIFY") + "password: test3\npassword: irt")
             queryObject("-r -T irt irt-test-notify", "irt", "irt-test-notify")
 
-            syncUpdate(getTransient("INETNUM") + "password: test3\npassword: hm\npassword: irt")
+            dbfixture(getTransient("INETNUM"))
             queryObject("-r -T inetnum 192.168.200.0 - 192.168.200.255", "inetnum", "192.168.200.0 - 192.168.200.255")
 
             syncUpdate(getTransient("IRT_TEST_NOTIFY2") + "password: test3")
@@ -1000,7 +1000,7 @@ class NotificationSpec extends BaseQueryUpdateSpec {
 
                     password: test3
                     password: irt
-                    """.stripIndent()
+                    """.stripIndent(true)
         )
 
         then:
@@ -1011,8 +1011,10 @@ class NotificationSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(1, 0, 1, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
 
-        ack.countErrorWarnInfo(0, 0, 0)
+        ack.countErrorWarnInfo(0, 1, 0)
         ack.successes.any {it.operation == "Modify" && it.key == "[inetnum] 192.168.200.0 - 192.168.200.255"}
+        ack.warningSuccessMessagesFor("Modify", "[inetnum] 192.168.200.0 - 192.168.200.255") ==
+                ["inetnum parent has incorrect status: ALLOCATED UNSPECIFIED"]
 
         def notif2 = notificationFor "dbtest-irt2@ripe.net"
         notif2.subject =~ "Notification of RIPE Database changes"
@@ -1032,7 +1034,7 @@ class NotificationSpec extends BaseQueryUpdateSpec {
             syncUpdate(getTransient("IRT_TEST_NOTIFY") + "password: test3\npassword: irt")
             queryObject("-r -T irt irt-test-notify", "irt", "irt-test-notify")
 
-            syncUpdate(getTransient("INETNUM") + "password: test3\npassword: hm\npassword: irt")
+            dbfixture(getTransient("INETNUM"))
             queryObject("-r -T inetnum 192.168.200.0 - 192.168.200.255", "inetnum", "192.168.200.0 - 192.168.200.255")
 
         when:
@@ -1050,7 +1052,7 @@ class NotificationSpec extends BaseQueryUpdateSpec {
                     source:       TEST
 
                     password: test3
-                    """.stripIndent()
+                    """.stripIndent(true)
         )
 
         then:
@@ -1061,8 +1063,10 @@ class NotificationSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(1, 0, 1, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
 
-        ack.countErrorWarnInfo(0, 0, 0)
+        ack.countErrorWarnInfo(0, 1, 0)
         ack.successes.any {it.operation == "Modify" && it.key == "[inetnum] 192.168.200.0 - 192.168.200.255"}
+        ack.warningSuccessMessagesFor("Modify", "[inetnum] 192.168.200.0 - 192.168.200.255") ==
+                ["inetnum parent has incorrect status: ALLOCATED UNSPECIFIED"]
 
         def notif = notificationFor "dbtest-irt@ripe.net"
         notif.subject =~ "Notification of RIPE Database changes"
@@ -1078,7 +1082,7 @@ class NotificationSpec extends BaseQueryUpdateSpec {
             syncUpdate(getTransient("IRT_TEST_NOTIFY") + "password: test3\npassword: irt")
             queryObject("-r -T irt irt-test-notify", "irt", "irt-test-notify")
 
-            syncUpdate(getTransient("INETNUM") + "password: test3\npassword: hm\npassword: irt")
+            dbfixture(getTransient("INETNUM"))
             queryObject("-r -T inetnum 192.168.200.0 - 192.168.200.255", "inetnum", "192.168.200.0 - 192.168.200.255")
 
         when:
@@ -1097,7 +1101,7 @@ class NotificationSpec extends BaseQueryUpdateSpec {
                     source:       TEST
 
                     password: test3
-                    """.stripIndent()
+                    """.stripIndent(true)
         )
 
         then:
@@ -1108,8 +1112,10 @@ class NotificationSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(1, 0, 1, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
 
-        ack.countErrorWarnInfo(0, 0, 0)
+        ack.countErrorWarnInfo(0, 1, 0)
         ack.successes.any {it.operation == "Modify" && it.key == "[inetnum] 192.168.200.0 - 192.168.200.255"}
+        ack.warningSuccessMessagesFor("Modify", "[inetnum] 192.168.200.0 - 192.168.200.255") ==
+                ["inetnum parent has incorrect status: ALLOCATED UNSPECIFIED"]
 
         noMoreMessages()
 
@@ -1118,6 +1124,17 @@ class NotificationSpec extends BaseQueryUpdateSpec {
 
     def "create an inetnum referencing an IRT with irt-nfy"() {
         given:
+            dbfixture("""\
+                    inetnum:      192.168.0.0 - 192.168.255.255
+                    netname:      RIPE-NET
+                    country:      NL
+                    admin-c:      TP1-TEST
+                    tech-c:       TP1-TEST
+                    status:       ALLOCATED PA
+                    mnt-by:       RIPE-NCC-HM-MNT
+                    mnt-by:       TST-MNT3
+                    source:       TEST
+            """.stripIndent(true))
             syncUpdate(getTransient("IRT_TEST_NOTIFY") + "password: test3\npassword: irt")
             queryObject("-r -T irt irt-test-notify", "irt", "irt-test-notify")
 
@@ -1139,7 +1156,7 @@ class NotificationSpec extends BaseQueryUpdateSpec {
                     password: test3
                     password: irt
                     password: hm
-                    """.stripIndent()
+                    """.stripIndent(true)
         )
 
         then:
@@ -1185,7 +1202,7 @@ class NotificationSpec extends BaseQueryUpdateSpec {
                 source:       TEST
 
                 password: lir
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:
@@ -1243,7 +1260,7 @@ class NotificationSpec extends BaseQueryUpdateSpec {
                 source:       TEST
 
                 password: lir
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:
@@ -1283,7 +1300,7 @@ class NotificationSpec extends BaseQueryUpdateSpec {
                 source:       TEST
                 password: hm
 
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:
@@ -1340,7 +1357,7 @@ class NotificationSpec extends BaseQueryUpdateSpec {
                 delete:   testing notifications
                 password: hm
 
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:
@@ -1395,7 +1412,7 @@ class NotificationSpec extends BaseQueryUpdateSpec {
                 source:       TEST
                 password: hm
 
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:
@@ -1450,7 +1467,7 @@ class NotificationSpec extends BaseQueryUpdateSpec {
                 source:       TEST
 
                 password: lir
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:
@@ -1508,7 +1525,7 @@ class NotificationSpec extends BaseQueryUpdateSpec {
                 delete:   testing notifications
                 password: hm
 
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:
@@ -1564,7 +1581,7 @@ class NotificationSpec extends BaseQueryUpdateSpec {
                 source:       TEST
 
                 password: false
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:
@@ -1623,7 +1640,7 @@ class NotificationSpec extends BaseQueryUpdateSpec {
                 source:      TEST
                 password: null
 
-                """.stripIndent(), redirect: false)
+                """.stripIndent(true), redirect: false)
         )
 
         then:

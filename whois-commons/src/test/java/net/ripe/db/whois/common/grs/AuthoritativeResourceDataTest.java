@@ -1,60 +1,59 @@
 package net.ripe.db.whois.common.grs;
 
-import net.ripe.db.whois.common.DateTimeProvider;
 import net.ripe.db.whois.common.dao.DailySchedulerDao;
 import net.ripe.db.whois.common.dao.ResourceDataDao;
 import net.ripe.db.whois.common.source.IllegalSourceException;
-import org.joda.time.LocalDate;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.TemporaryFolder;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.jupiter.api.io.TempDir;
 import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
-import org.slf4j.Logger;
+import org.mockito.junit.jupiter.MockitoExtension;
+
+import java.io.File;
 
 import static net.ripe.db.whois.common.domain.CIString.ciString;
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.isA;
-import static org.junit.Assert.assertThat;
-import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.eq;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-@RunWith(MockitoJUnitRunner.class)
+@ExtendWith(MockitoExtension.class)
 public class AuthoritativeResourceDataTest {
-    @Rule public TemporaryFolder folder = new TemporaryFolder();
+    @TempDir
+    public File folder;
 
     @Mock DailySchedulerDao dailySchedulerDao;
     @Mock ResourceDataDao resourceDataDao;
-    @Mock Logger logger;
-    @Mock DateTimeProvider dateTimeProvider;
-    AuthoritativeResourceData subject;
+    AuthoritativeResourceRefreshTask subject;
+    AuthoritativeResourceData authoritativeResourceData;
 
-    @Before
+    @BeforeEach
     public void setUp() {
-        subject = new AuthoritativeResourceData("test", "test", resourceDataDao, dailySchedulerDao, dateTimeProvider);
+        authoritativeResourceData = new AuthoritativeResourceData("test", "test", resourceDataDao);
+        subject = new AuthoritativeResourceRefreshTask(dailySchedulerDao, authoritativeResourceData, resourceDataDao, true, "", "test");
     }
 
     @Test
     public void refresh() {
-        when(dailySchedulerDao.getDailyTaskFinishTime(any(LocalDate.class), any(Class.class))).thenReturn(10l);
         when(resourceDataDao.load(any(String.class))).thenReturn(AuthoritativeResource.unknown());
 
-        subject.init();
+        authoritativeResourceData.init();
 
-        verify(resourceDataDao).load(eq("test"));
-        assertThat(subject.getAuthoritativeResource(ciString("test")), isA(AuthoritativeResource.class));
+        verify(resourceDataDao, times(2)).load(eq("test"));
+        assertThat(authoritativeResourceData.getAuthoritativeResource(ciString("test")), isA(AuthoritativeResource.class));
     }
 
     @Test
     public void refresh_on_change() {
         when(resourceDataDao.getState("test")).thenReturn(new ResourceDataDao.State("test", 1, 1)).thenReturn(new ResourceDataDao.State("test", 2, 2));
 
-        subject.refreshAuthoritativeResourceCacheOnChange();
-        subject.refreshAuthoritativeResourceCacheOnChange();
+        subject.refreshMainAuthoritativeResourceCache();
+        subject.refreshMainAuthoritativeResourceCache();
 
         verify(resourceDataDao, times(2)).load(eq("test"));
     }
@@ -63,15 +62,17 @@ public class AuthoritativeResourceDataTest {
     public void no_refresh_if_unchanged() {
         when(resourceDataDao.getState("test")).thenReturn(new ResourceDataDao.State("test", 1, 1)).thenReturn(new ResourceDataDao.State("test", 1, 1));
 
-        subject.refreshAuthoritativeResourceCacheOnChange();
-        subject.refreshAuthoritativeResourceCacheOnChange();
+        subject.refreshMainAuthoritativeResourceCache();
+        subject.refreshMainAuthoritativeResourceCache();
 
         verify(resourceDataDao, times(1)).load("test");
     }
 
-    @Test(expected = IllegalSourceException.class)
+    @Test
     public void nonexistant_source_throws_exception() {
-        subject.getAuthoritativeResource(ciString("BLAH"));
+        assertThrows(IllegalSourceException.class, () -> {
+            authoritativeResourceData.getAuthoritativeResource(ciString("BLAH"));
+        });
     }
 
 }

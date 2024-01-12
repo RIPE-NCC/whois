@@ -1,10 +1,10 @@
 package net.ripe.db.whois.spec.update
-import net.ripe.db.whois.common.IntegrationTest
+
 import net.ripe.db.whois.spec.BaseQueryUpdateSpec
 import net.ripe.db.whois.spec.domain.AckResponse
 import net.ripe.db.whois.spec.domain.Message
 
-@org.junit.experimental.categories.Category(IntegrationTest.class)
+@org.junit.jupiter.api.Tag("IntegrationTest")
 class OrgSpec extends BaseQueryUpdateSpec {
 
     @Override
@@ -60,6 +60,21 @@ class OrgSpec extends BaseQueryUpdateSpec {
                 e-mail:          dbtest@ripe.net
                 mnt-ref:         owner3-mnt
                 mnt-by:          owner2-mnt
+                source:          TEST
+                """,
+                "ORG-NAME-COMMENT"       : """\
+                organisation:    ORG-FO1-COMMENT
+                org-type:        other
+                org-name:        First Org #test comment
+                org:             ORG-FO1-COMMENT
+                address:         RIPE NCC
+                                 Singel 258
+                                 1016 AB Amsterdam
+                                 Netherlands
+                e-mail:          dbtest@ripe.net
+                mnt-ref:         owner3-mnt
+                mnt-by:          owner2-mnt
+                mnt-by:          ripe-NCC-hM-mnT
                 source:          TEST
                 """,
                 "ALLOC-PA"       : """\
@@ -159,7 +174,7 @@ class OrgSpec extends BaseQueryUpdateSpec {
                 netname:      TEST-NET-NAME
                 descr:        TEST network
                 country:      NL
-                org:          ORG-OR1-TEST
+                org:          ORG-OFA10-TEST
                 admin-c:      TP1-TEST
                 tech-c:       TP1-TEST
                 status:       ASSIGNED PA
@@ -177,6 +192,20 @@ class OrgSpec extends BaseQueryUpdateSpec {
                 mnt-by:      LIR-MNT
                 mnt-by:      RIPE-NCC-END-MNT
                 source:      TEST
+                """,
+                "ASSIGN-PI-OTHER-OFA11": """\
+                inetnum:      192.168.255.0 - 192.168.255.255
+                netname:      TEST-NET-NAME
+                descr:        TEST network
+                country:      NL
+                org:          ORG-OFA11-TEST
+                admin-c:      TP1-TEST
+                tech-c:       TP1-TEST
+                status:       ASSIGNED PI
+                mnt-by:       RIPE-NCC-END-MNT
+                mnt-by:       LIR-MNT
+                mnt-lower:    LIR-MNT
+                source:       TEST
                 """,
         ]
     }
@@ -204,7 +233,7 @@ class OrgSpec extends BaseQueryUpdateSpec {
                 delete:  testing
 
                 password: owner
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:
@@ -243,7 +272,7 @@ class OrgSpec extends BaseQueryUpdateSpec {
                 source:          TEST
 
                 password: owner2
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:
@@ -285,7 +314,7 @@ class OrgSpec extends BaseQueryUpdateSpec {
                 source:          TEST
 
                 password: owner2
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:
@@ -322,7 +351,7 @@ class OrgSpec extends BaseQueryUpdateSpec {
                 source:          TEST
 
                 password: owner2
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:
@@ -359,7 +388,7 @@ class OrgSpec extends BaseQueryUpdateSpec {
                 source:          TEST
 
                 password: owner2
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:
@@ -375,8 +404,7 @@ class OrgSpec extends BaseQueryUpdateSpec {
         queryObject("-r -T organisation ORG-XA1-TEST", "organisation", "ORG-XA1-TEST")
     }
 
-    // FIXME: [AH] the character 'Ő' was converted to a ? in the acknowledgement message
-    def "create organisation with auto-1 and weird (invalid) chars in name, missing auth"() {
+    def "create organisation with auto-1 and latin-1 Supplement and non-latin-1 chars in name, missing auth"() {
         expect:
         queryObjectNotFound("-r -T organisation ORG-AA1-TEST", "organisation", "ORG-AA1-TEST")
 
@@ -386,7 +414,7 @@ class OrgSpec extends BaseQueryUpdateSpec {
                 body: """\
                 organisation:    auto-1
                 org-type:        other
-                org-name:        Hö öns mö åäö ŐÚ
+                org-name:        Hö öns mö åäöÚ Ő
                 address:         RIPE NCC
                                  Singel 258
                                  1016 AB Amsterdam
@@ -396,7 +424,7 @@ class OrgSpec extends BaseQueryUpdateSpec {
                 mnt-by:          owner2-mnt
                 source:          TEST
 
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:
@@ -407,9 +435,10 @@ class OrgSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(0, 0, 0, 0, 0)
         ack.summary.assertErrors(1, 1, 0, 0)
 
-        ack.countErrorWarnInfo(1, 0, 0)
-
-        ack.errorMessagesFor("Create", "[organisation] auto-1") == ["Syntax error in Hö öns mö åäö ?Ú"]
+        ack.countErrorWarnInfo(1, 1, 0)
+        ack.errorMessagesFor("Create", "[organisation] auto-1") == ["Syntax error in Hö öns mö åäöÚ ?"]
+        ack.warningMessagesFor("Create", "[organisation] auto-1") == [
+                "Value changed due to conversion into the ISO-8859-1 (Latin-1) character set"]
 
         queryObjectNotFound("-r -T organisation ORG-AA1-TEST", "organisation", "ORG-AA1-TEST")
     }
@@ -430,7 +459,7 @@ class OrgSpec extends BaseQueryUpdateSpec {
                 source:          TEST
 
                 password: owner2
-                """.stripIndent(), orgtype)
+                """.stripIndent(true), orgtype)
         )
 
         expect:
@@ -452,7 +481,6 @@ class OrgSpec extends BaseQueryUpdateSpec {
                 "LIR",
                 "IANA",
                 "RIR",
-                "WHITEPAGES",
                 "DIRECT_ASSIGNMENT"
         ]
     }
@@ -476,7 +504,7 @@ class OrgSpec extends BaseQueryUpdateSpec {
                 source:          TEST
 
                 password: hm
-                """.stripIndent()
+                """.stripIndent(true)
             )
 
         then:
@@ -510,7 +538,7 @@ class OrgSpec extends BaseQueryUpdateSpec {
                 source:          TEST
 
                 password: hm
-                """.stripIndent()
+                """.stripIndent(true)
             )
 
         then:
@@ -544,42 +572,8 @@ class OrgSpec extends BaseQueryUpdateSpec {
                 source:          TEST
 
                 password: hm
-                """.stripIndent()
+                """.stripIndent(true)
             )
-
-        then:
-            ack.success
-
-            ack.summary.nrFound == 1
-            ack.summary.assertSuccess(1, 1, 0, 0, 0)
-            ack.summary.assertErrors(0, 0, 0, 0)
-
-            ack.countErrorWarnInfo(0, 0, 0)
-
-            queryObject("-r -T organisation ORG-FO1-TEST", "organisation", "ORG-FO1-TEST")
-    }
-
-    def "create organisation org-type WHITEPAGES with power mntner"() {
-        expect:
-            queryObjectNotFound("-r -T organisation ORG-FO1-TEST", "organisation", "ORG-FO1-TEST")
-
-        when:
-           def ack = syncUpdateWithResponse("""
-                organisation:    auto-1
-                org-type:        WHITEPAGES
-                org-name:        First Org
-                address:         RIPE NCC
-                                 Singel 258
-                                 1016 AB Amsterdam
-                                 Netherlands
-                e-mail:          dbtest@ripe.net
-                mnt-ref:         owner3-mnt
-                mnt-by:          ripe-NCC-hM-mnT
-                source:          TEST
-
-                password: hm
-                """.stripIndent()
-           )
 
         then:
             ack.success
@@ -612,7 +606,7 @@ class OrgSpec extends BaseQueryUpdateSpec {
                 source:          TEST
 
                 password: hm
-                """.stripIndent()
+                """.stripIndent(true)
             )
 
         then:
@@ -645,7 +639,7 @@ class OrgSpec extends BaseQueryUpdateSpec {
                 source:          TEST
 
                 password: owner2
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:
@@ -679,7 +673,7 @@ class OrgSpec extends BaseQueryUpdateSpec {
                 source:          TEST
 
                 password: owner2
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:
@@ -716,7 +710,7 @@ class OrgSpec extends BaseQueryUpdateSpec {
                 source:          TEST
 
                 password: owner3
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:
@@ -753,7 +747,7 @@ class OrgSpec extends BaseQueryUpdateSpec {
                 source:          TEST
 
                 password: owner2
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:
@@ -817,7 +811,7 @@ class OrgSpec extends BaseQueryUpdateSpec {
                 source:          TEST
 
                 password: owner2
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:
@@ -854,7 +848,7 @@ class OrgSpec extends BaseQueryUpdateSpec {
                 source:          TEST
 
                 password: owner2
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:
@@ -894,20 +888,21 @@ class OrgSpec extends BaseQueryUpdateSpec {
                 source:          TEST
 
                 password: owner2
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:
         def ack = ackFor message
-        ack.success
+        ack.failed
 
         ack.summary.nrFound == 1
-        ack.summary.assertSuccess(1, 1, 0, 0, 0)
-        ack.summary.assertErrors(0, 0, 0, 0)
+        ack.summary.assertSuccess(0, 0, 0, 0, 0)
+        ack.summary.assertErrors(1, 1, 0, 0)
 
-        ack.countErrorWarnInfo(0, 0, 0)
+        ack.countErrorWarnInfo(1, 0, 0)
 
-        queryObject("-r -T organisation ORG-FO1-TEST", "organisation", "ORG-FO1-TEST")
+        ack.errorMessagesFor("Create", "[organisation] auto-1") == [
+                "Tab characters, multiple lines, or multiple whitespaces are not allowed in the \"org-name:\" value."]
     }
 
     def "create organisation with name having 30 words each of 64 chars"() {
@@ -920,36 +915,37 @@ class OrgSpec extends BaseQueryUpdateSpec {
                 body: """\
                 organisation:    auto-1
                 org-type:        other
-                org-name:        1ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword
-                                 2ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword
-                                 3ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword
-                                 4ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword
-                                 4ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword
-                                 5ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword
-                                 6ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword
-                                 7ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword
-                                 8ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword
-                                 9ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword
-                                 0ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword
-                                 aordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword
-                                 bordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword
-                                 cordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword
-                                 dordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword
-                                 eordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword
-                                 fordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword
-                                 gordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword
-                                 hordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword
-                                 iordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword
-                                 jordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword
-                                 kordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword
-                                 lordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword
-                                 mordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword
-                                 nordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword
-                                 oordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword
-                                 pordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword
-                                 rordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword
-                                 sordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword
-                                 tordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword
+                org-name:        \
+ 1ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword\
+ 2ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword\
+ 3ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword\
+ 4ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword\
+ 4ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword\
+ 5ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword\
+ 6ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword\
+ 7ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword\
+ 8ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword\
+ 9ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword\
+ 0ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword\
+ aordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword\
+ bordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword\
+ cordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword\
+ dordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword\
+ eordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword\
+ fordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword\
+ gordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword\
+ hordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword\
+ iordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword\
+ jordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword\
+ kordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword\
+ lordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword\
+ mordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword\
+ nordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword\
+ oordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword\
+ pordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword\
+ rordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword\
+ sordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword\
+ tordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword
                 address:         RIPE NCC
                 e-mail:          dbtest@ripe.net
                 mnt-ref:         owner3-mnt
@@ -957,7 +953,7 @@ class OrgSpec extends BaseQueryUpdateSpec {
                 source:          TEST
 
                 password: owner2
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:
@@ -983,7 +979,7 @@ class OrgSpec extends BaseQueryUpdateSpec {
                 body: """\
                 organisation:    auto-1
                 org-type:        other
-                org-name:        ABZ 0123456789 .  _ " * (qwerty) @, & :!'`+/-
+                org-name:        ABZ 0123456789 . _ " * (qwerty) @, & :!'`+/-
                 address:         RIPE NCC
                 e-mail:          dbtest@ripe.net
                 mnt-ref:         owner3-mnt
@@ -991,7 +987,7 @@ class OrgSpec extends BaseQueryUpdateSpec {
                 source:          TEST
 
                 password: owner2
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:
@@ -1005,11 +1001,11 @@ class OrgSpec extends BaseQueryUpdateSpec {
         ack.countErrorWarnInfo(0, 0, 0)
 
         def qry = query("-r -T organisation ORG-AA1-TEST")
-        qry.contains(/org-name:       ABZ 0123456789 .  _ " * (qwerty) @, & :!'`+\/-/)
+        qry.contains(/org-name:       ABZ 0123456789 . _ " * (qwerty) @, & :!'`+\/-/)
         def qry5 = query("-Torganisation ABZ")
-        qry5.contains(/org-name:       ABZ 0123456789 .  _ " * (qwerty) @, & :!'`+\/-/)
+        qry5.contains(/org-name:       ABZ 0123456789 . _ " * (qwerty) @, & :!'`+\/-/)
         def qry2 = query("-Torganisation (qwerty)")
-        qry2.contains(/org-name:       ABZ 0123456789 .  _ " * (qwerty) @, & :!'`+\/-/)
+        qry2.contains(/org-name:       ABZ 0123456789 . _ " * (qwerty) @, & :!'`+\/-/)
 
 // TODO: [ES] these queries currently don't work, as -Torganisation expects an organisation id (and not part of the organisation name)
 //        def qry3 = query("-Torganisation @")
@@ -1038,7 +1034,7 @@ class OrgSpec extends BaseQueryUpdateSpec {
                 source:          TEST
 
                 password: owner2
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:
@@ -1074,7 +1070,7 @@ class OrgSpec extends BaseQueryUpdateSpec {
                 source:          TEST
 
                 password: owner2
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:
@@ -1110,7 +1106,7 @@ class OrgSpec extends BaseQueryUpdateSpec {
                 source:          TEST
 
                 password: owner2
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:
@@ -1146,7 +1142,7 @@ class OrgSpec extends BaseQueryUpdateSpec {
                 source:          TEST
 
                 password: owner2
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:
@@ -1182,7 +1178,7 @@ class OrgSpec extends BaseQueryUpdateSpec {
                 source:  TEST
 
                 password: owner2
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:
@@ -1218,7 +1214,7 @@ class OrgSpec extends BaseQueryUpdateSpec {
                 source:  TEST
 
                 password: owner2
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:
@@ -1256,7 +1252,7 @@ class OrgSpec extends BaseQueryUpdateSpec {
                 source:  TEST
 
                 password: owner2
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:
@@ -1292,7 +1288,7 @@ class OrgSpec extends BaseQueryUpdateSpec {
                 source:  TEST
 
                 password: owner2
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:
@@ -1335,11 +1331,11 @@ class OrgSpec extends BaseQueryUpdateSpec {
                 admin-c:TP2-TEST
                 geoloc:      10.568 158.552
                 tech-c: TP2-TEST
+                abuse-c: AH1-TEST
                 phone:
                 ++44282411141 ext. 0
                 e-mail:          dbtest@ripe.net
                 notify:          nfy-dbtest@ripe.net
-                abuse-mailbox:   abuse-dbtest@ripe.net
                 mnt-ref:         owner3-mnt
                 phone:+44282411141
                 fax-no:                                     +44282411141
@@ -1351,11 +1347,10 @@ class OrgSpec extends BaseQueryUpdateSpec {
                 ref-nfy:         ref-nfy2-dbtest@ripe.net
                 mnt-ref:         owner3-mnt
                 notify:          nfy-dbtest@ripe.net
-                abuse-mailbox:   abuse2-dbtest@ripe.net
 
                 password: owner2
                 password: owner3
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:
@@ -1396,7 +1391,7 @@ class OrgSpec extends BaseQueryUpdateSpec {
                 delete:  testing
 
                 password: owner2
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:
@@ -1424,7 +1419,7 @@ class OrgSpec extends BaseQueryUpdateSpec {
 
                 password: owner2
                 password: owner3
-                """.stripIndent()
+                """.stripIndent(true)
         )
         then:
         def ackForCreate = ackFor createMessage
@@ -1469,7 +1464,7 @@ class OrgSpec extends BaseQueryUpdateSpec {
                 delete:  testing
 
                 password: owner2
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:
@@ -1526,7 +1521,7 @@ class OrgSpec extends BaseQueryUpdateSpec {
                 password: owner
                 password: owner2
                 password: owner3
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:
@@ -1568,7 +1563,7 @@ class OrgSpec extends BaseQueryUpdateSpec {
                 source:          TEST
 
                 password: owner2
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:
@@ -1609,7 +1604,7 @@ class OrgSpec extends BaseQueryUpdateSpec {
 
                 password: owner2
                 password: owner3
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:
@@ -1663,7 +1658,7 @@ class OrgSpec extends BaseQueryUpdateSpec {
 
                 password: owner2
                 password: owner3
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:
@@ -1720,7 +1715,7 @@ class OrgSpec extends BaseQueryUpdateSpec {
 
                 password: owner2
                 password: owner3
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:
@@ -1780,7 +1775,7 @@ class OrgSpec extends BaseQueryUpdateSpec {
 
                 password: owner2
                 password: owner3
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:
@@ -1837,7 +1832,7 @@ class OrgSpec extends BaseQueryUpdateSpec {
 
                 password: owner2
                 password: owner3
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:
@@ -1875,7 +1870,7 @@ class OrgSpec extends BaseQueryUpdateSpec {
                 source:  TEST
 
                 password: owner2
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:
@@ -1914,7 +1909,7 @@ class OrgSpec extends BaseQueryUpdateSpec {
                 mnt-by:          ripe-ncc-hm-mnt
                 source:          TEST
                 override:        denis,override1
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:
@@ -1924,7 +1919,7 @@ class OrgSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(1, 0, 1, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
 
-        ack.countErrorWarnInfo(0, 0, 1)
+        ack.countErrorWarnInfo(0, 2, 1)
 
         query_object_matches("-r -GBT organisation ORG-FO1-TEST", "organisation", "ORG-FO1-TEST", "LIR")
     }
@@ -1953,7 +1948,7 @@ class OrgSpec extends BaseQueryUpdateSpec {
                 source:       TEST
 
                 password: owner2
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:
@@ -1967,7 +1962,7 @@ class OrgSpec extends BaseQueryUpdateSpec {
         ack.errors.any { it.operation == "Modify" && it.key == "[organisation] ORG-LIR2-TEST" }
         ack.errorMessagesFor("Modify", "[organisation] ORG-LIR2-TEST") ==
                 ["Authorisation for [organisation] ORG-LIR2-TEST failed using \"mnt-by:\" not authenticated by: RIPE-NCC-HM-MNT",
-                "Attribute \"org-name:\" can only be changed by the RIPE NCC for this object. Please contact \"ncc@ripe.net\" to change it.",]
+                "Attribute \"org-name:\" can only be changed via the LIR portal. Please login to https://lirportal.ripe.net and select \"LIR Account\" under \"My LIR\" to change it.",]
 
         query_object_matches("-r -T organisation ORG-LIR2-TEST", "organisation", "ORG-LIR2-TEST", "Local Internet Registry")
     }
@@ -1994,7 +1989,7 @@ class OrgSpec extends BaseQueryUpdateSpec {
                 source:       TEST
 
                 password: hm
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:
@@ -2034,7 +2029,7 @@ class OrgSpec extends BaseQueryUpdateSpec {
                 source:       TEST
 
                 password: hm
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:
@@ -2070,7 +2065,7 @@ class OrgSpec extends BaseQueryUpdateSpec {
                 mnt-by:       ripe-ncc-hm-mnt
                 source:       TEST
                 override:   denis,override1
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:
@@ -2080,7 +2075,7 @@ class OrgSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(1, 0, 1, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
 
-        ack.countErrorWarnInfo(0, 0, 1)
+        ack.countErrorWarnInfo(0, 5, 1)
 
         query_object_matches("-r -GBT organisation ORG-LIR2-TEST", "organisation", "ORG-LIR2-TEST", "LIR")
     }
@@ -2107,7 +2102,7 @@ class OrgSpec extends BaseQueryUpdateSpec {
                 source:          TEST
 
                 password: owner2
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:
@@ -2146,7 +2141,7 @@ class OrgSpec extends BaseQueryUpdateSpec {
                 source:       TEST
                 override:   denis,override1
 
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:
@@ -2155,7 +2150,7 @@ class OrgSpec extends BaseQueryUpdateSpec {
         ack.summary.nrFound == 1
         ack.summary.assertSuccess(1, 0, 1, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
-        ack.countErrorWarnInfo(0, 0, 1)
+        ack.countErrorWarnInfo(0, 1, 1)
 
         query_object_matches("-r -T organisation ORG-LIR2-TEST", "organisation", "ORG-LIR2-TEST", "My Registry")
     }
@@ -2184,7 +2179,7 @@ class OrgSpec extends BaseQueryUpdateSpec {
                 source:       TEST
 
                 password:     hm
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:
@@ -2222,7 +2217,7 @@ class OrgSpec extends BaseQueryUpdateSpec {
                 source:       TEST
 
                 password:     lir
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:
@@ -2261,7 +2256,7 @@ class OrgSpec extends BaseQueryUpdateSpec {
                 source:       TEST
 
                 password: lir
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:
@@ -2274,36 +2269,38 @@ class OrgSpec extends BaseQueryUpdateSpec {
 
         ack.errors.any { it.operation == "Modify" && it.key == "[organisation] ORG-OR1-TEST" }
         ack.errorMessagesFor("Modify", "[organisation] ORG-OR1-TEST") ==
-                ["Organisation name can only be changed by the RIPE NCC for this organisation. Please contact \"ncc@ripe.net\" to change the name."]
+                ["Attribute \"org-name:\" can only be changed by the RIPE NCC for this object. Please contact \"ncc@ripe.net\" to change it."]
 
         query_object_not_matches("-r -T organisation ORG-OR1-TEST", "organisation", "ORG-OR1-TEST", "New Other Registry")
     }
 
     def "modify organisation, org-type:OTHER, ref from ASSIGNED PA, change org-name"() {
         given:
+        dbfixture(getTransient("ALLOC-PA"))
         syncUpdate(getTransient("ASSIGN-PA-OTHER") + "override: denis,override1")
 
         expect:
         query_object_matches("-r -T inetnum 192.168.255.0 - 192.168.255.255", "inetnum", "192.168.255.0 - 192.168.255.255", "ASSIGNED PA")
-        query_object_matches("-r -T organisation ORG-OR1-TEST", "organisation", "ORG-OR1-TEST", "Other Registry")
-        query_object_matches("-r -T organisation ORG-OR1-TEST", "organisation", "ORG-OR1-TEST", "org-type:\\s*OTHER")
+        query_object_matches("-r -T organisation ORG-OFA10-TEST", "organisation", "ORG-OFA10-TEST", "Organisation for Abuse")
+        query_object_matches("-r -T organisation ORG-OFA10-TEST", "organisation", "ORG-OFA10-TEST", "org-type:\\s*OTHER")
 
         when:
         def message = syncUpdate("""
-                organisation: ORG-OR1-TEST
+                organisation: ORG-OFA10-TEST
                 org-type:     OTHER
-                org-name:     New Other Registry
+                org-name:     New Organisation for Abuse
                 address:      RIPE NCC
                 e-mail:       dbtest@ripe.net
                 admin-c:      TP1-TEST
                 tech-c:       TP1-TEST
+                abuse-c:      AH1-TEST
                 ref-nfy:      dbtest-org@ripe.net
                 mnt-ref:      owner3-mnt
                 mnt-by:       lir-mnt
                 source:       TEST
 
                 password: lir
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:
@@ -2314,14 +2311,15 @@ class OrgSpec extends BaseQueryUpdateSpec {
         ack.summary.assertErrors(0, 0, 0, 0)
         ack.countErrorWarnInfo(0, 0, 0)
 
-        ack.successes.any { it.operation == "Modify" && it.key == "[organisation] ORG-OR1-TEST" }
+        ack.successes.any { it.operation == "Modify" && it.key == "[organisation] ORG-OFA10-TEST" }
 
-        query_object_matches("-r -T organisation ORG-OR1-TEST", "organisation", "ORG-OR1-TEST", "New Other Registry")
+        query_object_matches("-r -T organisation ORG-OFA10-TEST", "organisation", "ORG-OFA10-TEST", "New Organisation for Abuse")
     }
 
     def "modify organisation, org-type:OTHER, ref from legacy, change org-name"() {
         given:
-        syncUpdate(getTransient("LEGACY-OTHER") + "override: denis,override1")
+        dbfixture(getTransient("ALLOC-PA"))
+        dbfixture(getTransient("LEGACY-OTHER"))
 
         expect:
         query_object_matches("-r -T inetnum 10.168.0.0 - 10.169.255.255", "inetnum", "10.168.0.0 - 10.169.255.255", "LEGACY")
@@ -2343,7 +2341,7 @@ class OrgSpec extends BaseQueryUpdateSpec {
                 source:       TEST
 
                 password: lir
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:
@@ -2383,7 +2381,7 @@ class OrgSpec extends BaseQueryUpdateSpec {
                 source:       TEST
 
                 password: lir
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:
@@ -2396,7 +2394,7 @@ class OrgSpec extends BaseQueryUpdateSpec {
 
         ack.errors.any { it.operation == "Modify" && it.key == "[organisation] ORG-OR1-TEST" }
         ack.errorMessagesFor("Modify", "[organisation] ORG-OR1-TEST") ==
-                ["Organisation name can only be changed by the RIPE NCC for this organisation. Please contact \"ncc@ripe.net\" to change the name."]
+                ["Attribute \"org-name:\" can only be changed by the RIPE NCC for this object. Please contact \"ncc@ripe.net\" to change it."]
 
         query_object_not_matches("-r -T organisation ORG-OR1-TEST", "organisation", "ORG-OR1-TEST", "New Other Registry")
     }
@@ -2425,7 +2423,7 @@ class OrgSpec extends BaseQueryUpdateSpec {
 
                 password:     lir
                 password:     owner3
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:
@@ -2467,7 +2465,7 @@ class OrgSpec extends BaseQueryUpdateSpec {
                 source:       TEST
                 override:   denis,override1
 
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:
@@ -2477,7 +2475,7 @@ class OrgSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(1, 0, 1, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
 
-        ack.countErrorWarnInfo(0, 0, 1)
+        ack.countErrorWarnInfo(0, 1, 1)
 
         query_object_matches("-r -T inetnum 192.168.0.0 - 192.169.255.255", "inetnum", "192.168.0.0 - 192.169.255.255", "org:\\s*ORG-LIRA-TEST")
     }
@@ -2506,7 +2504,7 @@ class OrgSpec extends BaseQueryUpdateSpec {
 
                 password:     hm
                 password:     owner3
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:
@@ -2524,7 +2522,7 @@ class OrgSpec extends BaseQueryUpdateSpec {
     def "modify legacy, referenced org is type LIR and also referenced in allocation, change org:"() {
         given:
         syncUpdate(getTransient("ALLOC-PA") + "override: denis,override1")
-        syncUpdate(getTransient("LEGACY") + "override: denis,override1")
+        dbfixture(getTransient("LEGACY"))
 
         expect:
         query_object_matches("-r -T inetnum 192.168.0.0 - 192.169.255.255", "inetnum", "192.168.0.0 - 192.169.255.255", "org:\\s*ORG-LIR2-TEST")
@@ -2547,7 +2545,7 @@ class OrgSpec extends BaseQueryUpdateSpec {
 
                 password:     lir
                 password:     owner3
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:
@@ -2557,7 +2555,9 @@ class OrgSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(1, 0, 1, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
 
-        ack.countErrorWarnInfo(0, 0, 0)
+        ack.countErrorWarnInfo(0, 1, 0)
+        ack.warningSuccessMessagesFor("Modify", "[inetnum] 10.168.0.0 - 10.169.255.255") == [
+                "inetnum parent has incorrect status: ALLOCATED PA"]
 
         query_object_matches("-r -T inetnum 10.168.0.0 - 10.169.255.255", "inetnum", "10.168.0.0 - 10.169.255.255", "org:\\s*ORG-LIRA-TEST")
     }
@@ -2565,7 +2565,7 @@ class OrgSpec extends BaseQueryUpdateSpec {
     def "modify legacy, add org: attribute"() {
         given:
         syncUpdate(getTransient("ALLOC-PA") + "override: denis,override1")
-        syncUpdate(getTransient("LEGACY-NO-ORG") + "override: denis,override1")
+        dbfixture(getTransient("LEGACY-NO-ORG"))
 
         when:
         def message = syncUpdate("""
@@ -2583,7 +2583,7 @@ class OrgSpec extends BaseQueryUpdateSpec {
 
                 password:     lir
                 password:     owner3
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:
@@ -2593,7 +2593,9 @@ class OrgSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(1, 0, 1, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
 
-        ack.countErrorWarnInfo(0, 0, 0)
+        ack.countErrorWarnInfo(0, 1, 0)
+        ack.warningSuccessMessagesFor("Modify", "[inetnum] 10.168.0.0 - 10.169.255.255") == [
+                "inetnum parent has incorrect status: ALLOCATED PA"]
     }
 
     def "modify assignment, referenced org is type LIR and also referenced in allocation, change org:"() {
@@ -2622,7 +2624,7 @@ class OrgSpec extends BaseQueryUpdateSpec {
 
                 password:     lir
                 password:     owner3
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:
@@ -2662,7 +2664,7 @@ class OrgSpec extends BaseQueryUpdateSpec {
 
                 password:     lir
                 password:     owner3
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:
@@ -2703,7 +2705,7 @@ class OrgSpec extends BaseQueryUpdateSpec {
 
                 password:     owner
                 password:     owner3
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:
@@ -2744,7 +2746,7 @@ class OrgSpec extends BaseQueryUpdateSpec {
 
                 password:     lir
                 password:     owner3
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:
@@ -2786,7 +2788,7 @@ class OrgSpec extends BaseQueryUpdateSpec {
                 source:       TEST
                 override:   denis,override1
 
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:
@@ -2797,7 +2799,7 @@ class OrgSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(1, 0, 1, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
 
-        ack.countErrorWarnInfo(0, 0, 1)
+        ack.countErrorWarnInfo(0, 1, 1)
 
         query_object_matches("-r -T inetnum 192.168.255.0 - 192.168.255.255", "inetnum", "192.168.255.0 - 192.168.255.255", "org:\\s*ORG-LIRA-TEST")
     }
@@ -2827,7 +2829,7 @@ class OrgSpec extends BaseQueryUpdateSpec {
 
                 password:     nccend
                 password:     owner3
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:
@@ -2843,4 +2845,1403 @@ class OrgSpec extends BaseQueryUpdateSpec {
         query_object_matches("-r -T inetnum 192.168.255.0 - 192.168.255.255", "inetnum", "192.168.255.0 - 192.168.255.255", "org:\\s*ORG-LIRA-TEST")
     }
 
+    def "create organisation with abuse-mailbox"() {
+        expect:
+        queryObjectNotFound("-r -T organisation ORG-FO1-TEST", "organisation", "ORG-FO1-TEST")
+
+        when:
+        def message = send new Message(
+                subject: "",
+                body: """\
+                organisation:    auto-1
+                org-type:        other
+                org-name:        First Org
+                abuse-mailbox:   abuse@ripe.net
+                address:         RIPE NCC
+                                 Singel 258
+                                 1016 AB Amsterdam
+                                 Netherlands
+                e-mail:          dbtest@ripe.net
+                mnt-ref:         owner3-mnt
+                mnt-by:          owner2-mnt
+                source:          TEST
+
+                password: owner2
+                """.stripIndent(true)
+        )
+
+        then:
+        def ack = ackFor message
+
+        ack.summary.nrFound == 1
+        ack.summary.assertSuccess(0, 0, 0, 0, 0)
+        ack.summary.assertErrors(1, 1, 0, 0)
+
+        ack.countErrorWarnInfo(1, 0, 0)
+        ack.errors.any { it.operation == "Create" && it.key == "[organisation] auto-1" }
+        ack.errorMessagesFor("Create", "[organisation] auto-1") ==
+                [ "\"abuse-mailbox\" is not valid for this object type"]
+    }
+
+    def "update organisation, add abuse-mailbox"() {
+        given:
+        dbfixture(
+                "organisation:    ORG-SO1-TEST\n" +
+                        "org-type:        other\n" +
+                        "org-name:        First Org\n" +
+                        "address:         RIPE NCC" +
+                        "                 Singel 258" +
+                        "                 1016 AB Amsterdam" +
+                        "                 Netherlands\n" +
+                        "e-mail:          dbtest@ripe.net\n" +
+                        "mnt-ref:         owner3-mnt\n" +
+                        "mnt-by:          owner2-mnt\n" +
+                        "source:          TEST\n"
+        )
+
+        expect:
+        queryObject("-r -T organisation ORG-SO1-TEST", "organisation", "ORG-SO1-TEST")
+
+        when:
+        def message = send new Message(
+                subject: "",
+                body: """\
+                organisation:    ORG-SO1-TEST
+                org-type:        other
+                org-name:        First Org
+                abuse-mailbox:   abuse2@ripe.net
+                address:         RIPE NCC
+                                 Singel 258
+                                 1016 AB Amsterdam
+                                 Netherlands
+                e-mail:          dbtest@ripe.net
+                mnt-ref:         owner3-mnt
+                mnt-by:          owner2-mnt
+                source:          TEST
+
+                password: owner2
+                """.stripIndent(true)
+        )
+
+        then:
+        def ack = ackFor message
+
+        ack.summary.nrFound == 1
+        ack.summary.assertSuccess(0, 0, 0, 0, 0)
+        ack.summary.assertErrors(1, 0, 1, 0)
+
+        ack.countErrorWarnInfo(1, 0, 0)
+        ack.errors.any { it.operation == "Modify" && it.key == "[organisation] ORG-SO1-TEST" }
+        ack.errorMessagesFor("Modify", "[organisation] ORG-SO1-TEST") ==
+                [ "\"abuse-mailbox\" is not valid for this object type"]
+    }
+
+    def "update organisation, remove abuse-mailbox"() {
+        given:
+        dbfixture(
+                "organisation:    ORG-SO1-TEST\n" +
+                        "org-type:        other\n" +
+                        "org-name:        First Org\n" +
+                        "abuse-mailbox:   abuse@ripe.net\n" +
+                        "address:         RIPE NCC" +
+                        "                 Singel 258" +
+                        "                 1016 AB Amsterdam" +
+                        "                 Netherlands\n" +
+                        "e-mail:          dbtest@ripe.net\n" +
+                        "mnt-ref:         owner3-mnt\n" +
+                        "mnt-by:          owner2-mnt\n" +
+                        "source:          TEST\n"
+        )
+
+        expect:
+        queryObject("-r -T organisation ORG-SO1-TEST", "organisation", "ORG-SO1-TEST")
+
+        when:
+        def message = send new Message(
+                subject: "",
+                body: """\
+                organisation:    ORG-SO1-TEST
+                org-type:        other
+                org-name:        First Org
+                address:         RIPE NCC
+                                 Singel 258
+                                 1016 AB Amsterdam
+                                 Netherlands
+                e-mail:          dbtest@ripe.net
+                mnt-ref:         owner3-mnt
+                mnt-by:          owner2-mnt
+                source:          TEST
+
+                password: owner2
+                """.stripIndent(true)
+        )
+
+        then:
+        def ack = ackFor message
+
+        ack.summary.nrFound == 1
+        ack.summary.assertSuccess(1, 0, 1, 0, 0)
+        ack.summary.assertErrors(0, 0, 0, 0)
+
+        ack.countErrorWarnInfo(0, 0, 0)
+        ack.successes.any { it.operation == "Modify" && it.key == "[organisation] ORG-SO1-TEST" }
+    }
+
+    def "update organisation with abuse-mailbox, add abuse-mailbox"() {
+        given:
+        dbfixture(
+                "organisation:    ORG-SO1-TEST\n" +
+                        "org-type:        other\n" +
+                        "org-name:        First Org\n" +
+                        "abuse-mailbox:   abuse@ripe.net\n" +
+                        "address:         RIPE NCC" +
+                        "                 Singel 258" +
+                        "                 1016 AB Amsterdam" +
+                        "                 Netherlands\n" +
+                        "e-mail:          dbtest@ripe.net\n" +
+                        "mnt-ref:         owner3-mnt\n" +
+                        "mnt-by:          owner2-mnt\n" +
+                        "source:          TEST\n"
+        )
+
+        expect:
+        queryObject("-r -T organisation ORG-SO1-TEST", "organisation", "ORG-SO1-TEST")
+
+        when:
+        def message = send new Message(
+                subject: "",
+                body: """\
+                organisation:    ORG-SO1-TEST
+                org-type:        other
+                org-name:        First Org
+                abuse-mailbox:   abuse@ripe.net
+                abuse-mailbox:   abuse2@ripe.net
+                address:         RIPE NCC
+                                 Singel 258
+                                 1016 AB Amsterdam
+                                 Netherlands
+                e-mail:          dbtest@ripe.net
+                mnt-ref:         owner3-mnt
+                mnt-by:          owner2-mnt
+                source:          TEST
+
+                password: owner2
+                """.stripIndent(true)
+        )
+
+        then:
+        def ack = ackFor message
+        ack.failed
+
+        ack.summary.nrFound == 1
+        ack.summary.assertSuccess(0, 0, 0, 0, 0)
+        ack.summary.assertErrors(1, 0, 1, 0)
+
+        ack.countErrorWarnInfo(2, 0, 0)
+        ack.errors.any { it.operation == "Modify" && it.key == "[organisation] ORG-SO1-TEST" }
+        ack.errorMessagesFor("Modify", "[organisation] ORG-SO1-TEST") ==
+                [ "\"abuse-mailbox\" is not valid for this object type",
+                  "\"abuse-mailbox\" is not valid for this object type"]
+    }
+
+    def "create other organisation, with country, user maintainer"() {
+        when:
+        def message = send new Message(
+                subject: "",
+                body: """\
+                organisation:    AUTO-1
+                org-type:        OTHER
+                org-name:        First Org
+                address:         RIPE NCC
+                                 Singel 258
+                                 1016 AB Amsterdam
+                                 Netherlands
+                e-mail:          dbtest@ripe.net
+                country:         NL
+                mnt-by:          owner2-mnt
+                mnt-ref:         owner2-mnt
+                source:          TEST
+
+                password: owner2
+                """.stripIndent(true)
+        )
+
+        then:
+        def ack = ackFor message
+        ack.success
+
+        ack.summary.nrFound == 1
+        ack.summary.assertSuccess(1, 1, 0, 0, 0)
+        ack.summary.assertErrors(0, 0, 0, 0)
+        ack.countErrorWarnInfo(0, 0, 0)
+    }
+
+    def "create organisation org-type LIR with country, rs maintainer"() {
+        expect:
+        queryObjectNotFound("-r -T organisation ORG-FO1-TEST", "organisation", "ORG-FO1-TEST")
+
+        when:
+        def ack = syncUpdateWithResponse("""
+                organisation:    auto-1
+                org-type:        LIR
+                org-name:        First Org
+                address:         RIPE NCC
+                                 Singel 258
+                                 1016 AB Amsterdam
+                                 Netherlands
+                country:         NL                 
+                e-mail:          dbtest@ripe.net
+                mnt-ref:         owner3-mnt
+                mnt-by:          ripe-NCC-hM-mnT
+                source:          TEST
+
+                password: hm
+                """.stripIndent(true)
+        )
+
+        then:
+        ack.success
+
+        ack.summary.nrFound == 1
+        ack.summary.assertSuccess(1, 1, 0, 0, 0)
+        ack.summary.assertErrors(0, 0, 0, 0)
+
+        ack.countErrorWarnInfo(0, 0, 0)
+
+        queryObject("-r -T organisation ORG-FO1-TEST", "organisation", "ORG-FO1-TEST")
+    }
+
+    def "update organisation, add country, user maintainer"() {
+        given:
+        dbfixture(
+                "organisation:    ORG-SO1-TEST\n" +
+                "org-type:        other\n" +
+                "org-name:        First Org\n" +
+                "address:         RIPE NCC" +
+                "                 Singel 258" +
+                "                 1016 AB Amsterdam" +
+                "                 Netherlands\n" +
+                "e-mail:          dbtest@ripe.net\n" +
+                "mnt-ref:         owner3-mnt\n" +
+                "mnt-by:          owner2-mnt\n" +
+                "source:          TEST\n"
+        )
+
+        expect:
+        queryObject("-r -T organisation ORG-SO1-TEST", "organisation", "ORG-SO1-TEST")
+
+        when:
+        def ack = syncUpdateWithResponse("""
+                organisation:    ORG-SO1-TEST
+                org-type:        other
+                org-name:        First Org
+                address:         RIPE NCC
+                                 Singel 258
+                                 1016 AB Amsterdam
+                                 Netherlands
+                country:         NL                 
+                e-mail:          dbtest@ripe.net
+                mnt-ref:         owner3-mnt
+                mnt-by:          owner2-mnt
+                source:          TEST
+
+                password: owner2
+                """.stripIndent(true)
+        )
+
+        then:
+        ack.success
+
+        ack.summary.nrFound == 1
+        ack.summary.assertSuccess(1, 0, 1, 0, 0)
+        ack.summary.assertErrors(0, 0, 0, 0)
+        ack.countErrorWarnInfo(0, 0, 0)
+    }
+
+    def "update organisation, remove country, user maintainer"() {
+        given:
+        dbfixture(
+                "organisation:    ORG-SO1-TEST\n" +
+                "org-type:        other\n" +
+                "org-name:        First Org\n" +
+                "address:         RIPE NCC" +
+                "                 Singel 258" +
+                "                 1016 AB Amsterdam" +
+                "                 Netherlands\n" +
+                "country:         NL\n" +
+                "e-mail:          dbtest@ripe.net\n" +
+                "mnt-ref:         owner3-mnt\n" +
+                "mnt-by:          owner2-mnt\n" +
+                "source:          TEST\n"
+        )
+
+        expect:
+        queryObject("-r -T organisation ORG-SO1-TEST", "organisation", "ORG-SO1-TEST")
+
+        when:
+        def ack = syncUpdateWithResponse("""
+                organisation:    ORG-SO1-TEST
+                org-type:        other
+                org-name:        First Org
+                address:         RIPE NCC
+                                 Singel 258
+                                 1016 AB Amsterdam
+                                 Netherlands
+                e-mail:          dbtest@ripe.net
+                mnt-ref:         owner3-mnt
+                mnt-by:          owner2-mnt
+                source:          TEST
+
+                password: owner2
+                """.stripIndent(true)
+        )
+
+        then:
+        ack.success
+
+        ack.summary.nrFound == 1
+        ack.summary.assertSuccess(1, 0, 1, 0, 0)
+        ack.summary.assertErrors(0, 0, 0, 0)
+        ack.countErrorWarnInfo(0, 0, 0)
+    }
+
+    def "delete organisation, with country, user maintainer"() {
+        given:
+        dbfixture(
+                "organisation:    ORG-SO1-TEST\n" +
+                "org-type:        other\n" +
+                "org-name:        First Org\n" +
+                "address:         RIPE NCC" +
+                "                 Singel 258" +
+                "                 1016 AB Amsterdam" +
+                "                 Netherlands\n" +
+                "country:         NL\n" +
+                "e-mail:          dbtest@ripe.net\n" +
+                "mnt-ref:         owner3-mnt\n" +
+                "mnt-by:          owner2-mnt\n" +
+                "source:          TEST\n"
+        )
+
+        expect:
+        queryObject("-r -T organisation ORG-SO1-TEST", "organisation", "ORG-SO1-TEST")
+
+        when:
+        def ack = syncUpdateWithResponse("""
+                organisation:    ORG-SO1-TEST
+                org-type:        other
+                org-name:        First Org
+                address:         RIPE NCC
+                                 Singel 258
+                                 1016 AB Amsterdam
+                                 Netherlands
+                country:         NL
+                e-mail:          dbtest@ripe.net
+                mnt-ref:         owner3-mnt
+                mnt-by:          owner2-mnt
+                source:          TEST
+                delete: dontlikeit
+
+                password: owner2
+                """.stripIndent(true)
+        )
+
+        then:
+        ack.success
+
+        ack.summary.nrFound == 1
+        ack.summary.assertSuccess(1, 0, 0, 1, 0)
+        ack.summary.assertErrors(0, 0, 0, 0)
+        ack.countErrorWarnInfo(0, 0, 0)
+    }
+
+    def "update organisation, add country, rs maintainer"() {
+        given:
+        dbfixture(
+                "organisation:    ORG-SO1-TEST\n" +
+                "org-type:        other\n" +
+                "org-name:        First Org\n" +
+                "address:         RIPE NCC" +
+                "                 Singel 258" +
+                "                 1016 AB Amsterdam" +
+                "                 Netherlands\n" +
+                "e-mail:          dbtest@ripe.net\n" +
+                "mnt-ref:         owner3-mnt\n" +
+                "mnt-by:          owner2-mnt\n" +
+                "mnt-by:          ripe-ncc-hm-mnt\n" +
+                "source:          TEST\n"
+        )
+
+        expect:
+        queryObject("-r -T organisation ORG-SO1-TEST", "organisation", "ORG-SO1-TEST")
+
+        when:
+        def ack = syncUpdateWithResponse("""
+                organisation:    ORG-SO1-TEST
+                org-type:        other
+                org-name:        First Org
+                address:         RIPE NCC
+                                 Singel 258
+                                 1016 AB Amsterdam
+                                 Netherlands
+                country:         NL                 
+                e-mail:          dbtest@ripe.net
+                mnt-ref:         owner3-mnt
+                mnt-by:          owner2-mnt
+                mnt-by:          ripe-ncc-hm-mnt        
+                source:          TEST
+
+                password: hm
+                """.stripIndent(true)
+        )
+
+        then:
+        ack.success
+
+        ack.summary.nrFound == 1
+        ack.summary.assertSuccess(1, 0, 1, 0, 0)
+        ack.summary.assertErrors(0, 0, 0, 0)
+        ack.countErrorWarnInfo(0, 0, 0)
+    }
+
+    def "update organisation, remove country, rs maintainer"() {
+        given:
+        dbfixture(
+                "organisation:    ORG-SO1-TEST\n" +
+                "org-type:        other\n" +
+                "org-name:        First Org\n" +
+                "address:         RIPE NCC" +
+                "                 Singel 258" +
+                "                 1016 AB Amsterdam" +
+                "                 Netherlands\n" +
+                "country:         NL\n" +
+                "e-mail:          dbtest@ripe.net\n" +
+                "mnt-ref:         owner3-mnt\n" +
+                "mnt-by:          owner2-mnt\n" +
+                "mnt-by:          ripe-ncc-hm-mnt\n" +
+                "source:          TEST\n"
+        )
+
+        expect:
+        queryObject("-r -T organisation ORG-SO1-TEST", "organisation", "ORG-SO1-TEST")
+
+        when:
+        def ack = syncUpdateWithResponse("""
+                organisation:    ORG-SO1-TEST
+                org-type:        other
+                org-name:        First Org
+                address:         RIPE NCC
+                                 Singel 258
+                                 1016 AB Amsterdam
+                                 Netherlands
+                e-mail:          dbtest@ripe.net
+                mnt-ref:         owner3-mnt
+                mnt-by:          owner2-mnt
+                mnt-by:          ripe-ncc-hm-mnt        
+                source:          TEST
+
+                password: hm
+                """.stripIndent(true)
+        )
+
+        then:
+        ack.success
+
+        ack.summary.nrFound == 1
+        ack.summary.assertSuccess(1, 0, 1, 0, 0)
+        ack.summary.assertErrors(0, 0, 0, 0)
+        ack.countErrorWarnInfo(0, 0, 0)
+    }
+
+    def "delete organisation, with country, rs maintainer"() {
+        given:
+        dbfixture(
+                "organisation:    ORG-SO1-TEST\n" +
+                "org-type:        other\n" +
+                "org-name:        First Org\n" +
+                "address:         RIPE NCC" +
+                "                 Singel 258" +
+                "                 1016 AB Amsterdam" +
+                "                 Netherlands\n" +
+                "country:         NL\n" +
+                "e-mail:          dbtest@ripe.net\n" +
+                "mnt-ref:         owner3-mnt\n" +
+                "mnt-by:          owner2-mnt\n" +
+                "mnt-by:          ripe-ncc-hm-mnt\n" +
+                "source:          TEST\n"
+        )
+
+        expect:
+        queryObject("-r -T organisation ORG-SO1-TEST", "organisation", "ORG-SO1-TEST")
+
+        when:
+        def ack = syncUpdateWithResponse("""
+                organisation:    ORG-SO1-TEST
+                org-type:        other
+                org-name:        First Org
+                address:         RIPE NCC
+                                 Singel 258
+                                 1016 AB Amsterdam
+                                 Netherlands
+                country:         NL
+                e-mail:          dbtest@ripe.net
+                mnt-ref:         owner3-mnt
+                mnt-by:          owner2-mnt
+                mnt-by:          ripe-ncc-hm-mnt        
+                source:          TEST
+                delete: dontlikeit
+
+                password: hm
+                """.stripIndent(true)
+        )
+
+        then:
+        ack.success
+
+        ack.summary.nrFound == 1
+        ack.summary.assertSuccess(1, 0, 0, 1, 0)
+        ack.summary.assertErrors(0, 0, 0, 0)
+        ack.countErrorWarnInfo(0, 0, 0)
+    }
+
+    def "create other organisation, with country, override"() {
+        when:
+        def ack = syncUpdateWithResponse("""
+                organisation:    AUTO-1
+                org-type:        OTHER
+                org-name:        First Org
+                address:         RIPE NCC
+                                 Singel 258
+                                 1016 AB Amsterdam
+                                 Netherlands
+                e-mail:          dbtest@ripe.net
+                country:         NL
+                mnt-by:          owner2-mnt
+                mnt-ref:         owner2-mnt
+                source:          TEST
+                override:        denis,override1
+                """.stripIndent(true)
+        )
+
+        then:
+        ack.success
+
+        ack.summary.nrFound == 1
+        ack.summary.assertSuccess(1, 1, 0, 0, 0)
+        ack.summary.assertErrors(0, 0, 0, 0)
+        ack.countErrorWarnInfo(0, 0, 1)
+    }
+
+    def "update organisation, add country, override"() {
+        given:
+        dbfixture(
+                "organisation:    ORG-SO1-TEST\n" +
+                "org-type:        other\n" +
+                "org-name:        First Org\n" +
+                "address:         RIPE NCC" +
+                "                 Singel 258" +
+                "                 1016 AB Amsterdam" +
+                "                 Netherlands\n" +
+                "e-mail:          dbtest@ripe.net\n" +
+                "mnt-ref:         owner3-mnt\n" +
+                "mnt-by:          owner2-mnt\n" +
+                "source:          TEST\n"
+        )
+
+        expect:
+        queryObject("-r -T organisation ORG-SO1-TEST", "organisation", "ORG-SO1-TEST")
+
+        when:
+        def ack = syncUpdateWithResponse("""
+                organisation:    ORG-SO1-TEST
+                org-type:        other
+                org-name:        First Org
+                address:         RIPE NCC
+                                 Singel 258
+                                 1016 AB Amsterdam
+                                 Netherlands
+                country:         NL                 
+                e-mail:          dbtest@ripe.net
+                mnt-ref:         owner3-mnt
+                mnt-by:          owner2-mnt
+                source:          TEST
+                override:        denis,override1
+                """.stripIndent(true)
+        )
+
+        then:
+        ack.success
+
+        ack.summary.nrFound == 1
+        ack.summary.assertSuccess(1, 0, 1, 0, 0)
+        ack.summary.assertErrors(0, 0, 0, 0)
+        ack.countErrorWarnInfo(0, 0, 1)
+    }
+
+    def "update organisation, remove country, override"() {
+        given:
+        dbfixture(
+                "organisation:    ORG-SO1-TEST\n" +
+                "org-type:        other\n" +
+                "org-name:        First Org\n" +
+                "address:         RIPE NCC" +
+                "                 Singel 258" +
+                "                 1016 AB Amsterdam" +
+                "                 Netherlands\n" +
+                "country:         NL\n" +
+                "e-mail:          dbtest@ripe.net\n" +
+                "mnt-ref:         owner3-mnt\n" +
+                "mnt-by:          owner2-mnt\n" +
+                "source:          TEST\n"
+        )
+
+        expect:
+        queryObject("-r -T organisation ORG-SO1-TEST", "organisation", "ORG-SO1-TEST")
+
+        when:
+        def ack = syncUpdateWithResponse("""
+                organisation:    ORG-SO1-TEST
+                org-type:        other
+                org-name:        First Org
+                address:         RIPE NCC
+                                 Singel 258
+                                 1016 AB Amsterdam
+                                 Netherlands
+                e-mail:          dbtest@ripe.net
+                mnt-ref:         owner3-mnt
+                mnt-by:          owner2-mnt
+                source:          TEST
+                override:        denis,override1
+                """.stripIndent(true)
+        )
+
+        then:
+        ack.success
+
+        ack.summary.nrFound == 1
+        ack.summary.assertSuccess(1, 0, 1, 0, 0)
+        ack.summary.assertErrors(0, 0, 0, 0)
+        ack.countErrorWarnInfo(0, 0, 1)
+    }
+
+    def "delete organisation, with country, override"() {
+        given:
+        dbfixture(
+                "organisation:    ORG-SO1-TEST\n" +
+                "org-type:        other\n" +
+                "org-name:        First Org\n" +
+                "address:         RIPE NCC" +
+                "                 Singel 258" +
+                "                 1016 AB Amsterdam" +
+                "                 Netherlands\n" +
+                "country:         NL\n" +
+                "e-mail:          dbtest@ripe.net\n" +
+                "mnt-ref:         owner3-mnt\n" +
+                "mnt-by:          owner2-mnt\n" +
+                "source:          TEST\n"
+        )
+
+        expect:
+        queryObject("-r -T organisation ORG-SO1-TEST", "organisation", "ORG-SO1-TEST")
+
+        when:
+        def ack = syncUpdateWithResponse("""
+                organisation:    ORG-SO1-TEST
+                org-type:        other
+                org-name:        First Org
+                address:         RIPE NCC
+                                 Singel 258
+                                 1016 AB Amsterdam
+                                 Netherlands
+                country:         NL
+                e-mail:          dbtest@ripe.net
+                mnt-ref:         owner3-mnt
+                mnt-by:          owner2-mnt
+                source:          TEST
+                override:        denis,override1
+                delete:          idontlikeit
+                """.stripIndent(true)
+        )
+
+        then:
+        ack.success
+
+        ack.summary.nrFound == 1
+        ack.summary.assertSuccess(1, 0, 0, 1, 0)
+        ack.summary.assertErrors(0, 0, 0, 0)
+        ack.countErrorWarnInfo(0, 0, 1)
+    }
+
+    def "modify organisation, with country, user maintainer"() {
+        given:
+        dbfixture(
+                "organisation:    ORG-SO1-TEST\n" +
+                "org-type:        other\n" +
+                "org-name:        First Org\n" +
+                "address:         RIPE NCC" +
+                "                 Singel 258" +
+                "                 1016 AB Amsterdam" +
+                "                 Netherlands\n" +
+                "country:         NL\n" +
+                "e-mail:          dbtest@ripe.net\n" +
+                "mnt-ref:         owner3-mnt\n" +
+                "mnt-by:          owner2-mnt\n" +
+                "source:          TEST\n"
+        )
+
+        expect:
+        queryObject("-r -T organisation ORG-SO1-TEST", "organisation", "ORG-SO1-TEST")
+
+        when:
+        def ack = syncUpdateWithResponse("""
+                organisation:    ORG-SO1-TEST
+                org-type:        other
+                org-name:        First Org
+                address:         RIPE NCC
+                                 Singel 258
+                                 1016 AB Amsterdam
+                                 Netherlands
+                country:         NL
+                e-mail:          dbtest1@ripe.net
+                mnt-ref:         owner3-mnt
+                mnt-by:          owner2-mnt
+                source:          TEST
+
+                password: owner2
+                """.stripIndent(true)
+        )
+
+        then:
+        ack.success
+
+        ack.summary.nrFound == 1
+        ack.summary.assertSuccess(1, 0, 1, 0, 0)
+        ack.summary.assertErrors(0, 0, 0, 0)
+        ack.countErrorWarnInfo(0, 0, 0)
+    }
+
+    def "update organisation, add non existent country, override"() {
+        given:
+        dbfixture(
+            "organisation:    ORG-SO1-TEST\n" +
+            "org-type:        other\n" +
+            "org-name:        First Org\n" +
+            "address:         RIPE NCC" +
+            "                 Singel 258" +
+            "                 1016 AB Amsterdam" +
+            "                 Netherlands\n" +
+            "e-mail:          dbtest@ripe.net\n" +
+            "mnt-ref:         owner3-mnt\n" +
+            "mnt-by:          owner2-mnt\n" +
+            "source:          TEST\n"
+        )
+
+        expect:
+        queryObject("-r -T organisation ORG-SO1-TEST", "organisation", "ORG-SO1-TEST")
+
+        when:
+        def ack = syncUpdateWithResponse("""
+                organisation:    ORG-SO1-TEST
+                org-type:        other
+                org-name:        First Org
+                address:         RIPE NCC
+                                 Singel 258
+                                 1016 AB Amsterdam
+                                 Netherlands
+                country:         FF                 
+                e-mail:          dbtest@ripe.net
+                mnt-ref:         owner3-mnt
+                mnt-by:          owner2-mnt
+                source:          TEST
+                override:        denis,override1
+                """.stripIndent(true)
+        )
+
+        then:
+        ack.failed
+
+        ack.summary.nrFound == 1
+        ack.summary.assertSuccess(0, 0, 0, 0, 0)
+        ack.summary.assertErrors(1, 0, 1, 0)
+
+        ack.countErrorWarnInfo(1, 0, 1)
+        ack.errors.any { it.operation == "Modify" && it.key == "[organisation] ORG-SO1-TEST" }
+        ack.errorMessagesFor("Modify", "[organisation] ORG-SO1-TEST") ==
+                [ "Country not recognised: FF" ]
+    }
+
+    def "modify organisation, org-type:OTHER, change country code with user password"() {
+        given:
+        dbfixture(
+                "organisation:    ORG-SO1-TEST\n" +
+                        "org-type:        other\n" +
+                        "org-name:        First Org\n" +
+                        "country:         FF\n" +
+                        "address:         RIPE NCC" +
+                        "                 Singel 258" +
+                        "                 1016 AB Amsterdam" +
+                        "                 Netherlands\n" +
+                        "e-mail:          dbtest@ripe.net\n" +
+                        "mnt-ref:         owner3-mnt\n" +
+                        "mnt-by:          owner2-mnt\n" +
+                        "source:          TEST\n"
+        )
+        expect:
+        queryObject("-r -T organisation ORG-SO1-TEST", "organisation", "ORG-SO1-TEST")
+
+        when:
+        def ack = syncUpdateWithResponse("""
+            organisation:    ORG-SO1-TEST
+            org-type:        other
+            org-name:        First Org
+            address:         RIPE NCC
+                             Singel 258
+                             1016 AB Amsterdam
+                             Netherlands
+            country:         NL              
+            e-mail:          dbtest@ripe.net
+            mnt-ref:         owner3-mnt
+            mnt-by:          owner2-mnt
+            source:          TEST
+            password: owner2
+            """.stripIndent(true)
+        )
+
+        then:
+        ack.success
+        ack.summary.nrFound == 1
+        ack.summary.assertSuccess(1, 0, 1, 0, 0)
+        ack.summary.assertErrors(0, 0, 0, 0)
+        ack.countErrorWarnInfo(0, 0, 0)
+    }
+
+    def "modify organisation, org-type:OTHER, ref from PI, add country"() {
+        given:
+        databaseHelper.addObject(getTransient("ASSIGN-PI-OTHER"))
+
+        expect:
+        query_object_matches("-r -T inetnum 192.168.255.0 - 192.168.255.255", "inetnum", "192.168.255.0 - 192.168.255.255", "ASSIGNED PI")
+        query_object_matches("-r -T organisation ORG-OR1-TEST", "organisation", "ORG-OR1-TEST", "Other Registry")
+        query_object_matches("-r -T organisation ORG-OR1-TEST", "organisation", "ORG-OR1-TEST", "org-type:\\s*OTHER")
+
+        when:
+        def message = syncUpdate("""
+            organisation: ORG-OR1-TEST
+            org-type:     OTHER
+            org-name:     Other Registry
+            country:      NL
+            address:      RIPE NCC
+            e-mail:       dbtest@ripe.net
+            admin-c:      TP1-TEST
+            tech-c:       TP1-TEST
+            ref-nfy:      dbtest-org@ripe.net
+            mnt-ref:      owner3-mnt
+            mnt-by:       lir-mnt
+            source:       TEST
+
+            password: lir
+            """.stripIndent(true)
+        )
+
+        then:
+        def ack = new AckResponse("", message)
+
+        ack.summary.nrFound == 1
+        ack.summary.assertSuccess(0, 0, 0, 0, 0)
+        ack.summary.assertErrors(1, 0, 1, 0)
+        ack.countErrorWarnInfo(1, 0, 0)
+
+        ack.errors.any { it.operation == "Modify" && it.key == "[organisation] ORG-OR1-TEST" }
+        ack.errorMessagesFor("Modify", "[organisation] ORG-OR1-TEST") ==
+                ["Attribute \"country:\" can only be changed by the RIPE NCC for this object. Please contact \"ncc@ripe.net\" to change it."]
+    }
+
+    def "modify organisation, org-type:OTHER, ref from PI, modify country"() {
+        given:
+        databaseHelper.addObject(getTransient("ASSIGN-PI-OTHER-OFA11"))
+
+        expect:
+        query_object_matches("-r -T organisation ORG-OFA11-TEST", "organisation", "ORG-OFA11-TEST", "org-type:\\s*OTHER")
+
+        when:
+        def message = syncUpdate("""
+                organisation: ORG-OFA11-TEST
+                org-type:     OTHER
+                org-name:     Organisation for country and Abuse
+                country:      FR
+                address:      RIPE NCC
+                e-mail:       dbtest@ripe.net
+                admin-c:      TP1-TEST
+                tech-c:       TP1-TEST
+                abuse-c:      AH1-TEST
+                ref-nfy:      dbtest-org@ripe.net
+                mnt-ref:      owner3-mnt
+                mnt-by:       lir-mnt
+                source:       TEST
+
+                password: lir
+                """.stripIndent(true)
+        )
+
+        then:
+        def ack = new AckResponse("", message)
+
+        ack.summary.nrFound == 1
+        ack.summary.assertSuccess(0, 0, 0, 0, 0)
+        ack.summary.assertErrors(1, 0, 1, 0)
+        ack.countErrorWarnInfo(1, 0, 0)
+
+        ack.errors.any { it.operation == "Modify" && it.key == "[organisation] ORG-OFA11-TEST" }
+        ack.errorMessagesFor("Modify", "[organisation] ORG-OFA11-TEST") ==
+                ["Attribute \"country:\" can only be changed by the RIPE NCC for this object. Please contact \"ncc@ripe.net\" to change it."]
+    }
+
+    def "modify organisation, org-type:OTHER, ref from PI, delete country"() {
+        given:
+        databaseHelper.addObject(getTransient("ASSIGN-PI-OTHER-OFA11"))
+
+        expect:
+        query_object_matches("-r -T organisation ORG-OFA11-TEST", "organisation", "ORG-OFA11-TEST", "org-type:\\s*OTHER")
+
+        when:
+        def message = syncUpdate("""
+                organisation: ORG-OFA11-TEST
+                org-type:     OTHER
+                org-name:     Organisation for country and Abuse
+                address:      RIPE NCC
+                e-mail:       dbtest@ripe.net
+                admin-c:      TP1-TEST
+                tech-c:       TP1-TEST
+                abuse-c:      AH1-TEST
+                ref-nfy:      dbtest-org@ripe.net
+                mnt-ref:      owner3-mnt
+                mnt-by:       lir-mnt
+                source:       TEST
+
+                password: lir
+                """.stripIndent(true)
+        )
+
+        then:
+        def ack = new AckResponse("", message)
+
+        ack.summary.nrFound == 1
+        ack.summary.assertSuccess(0, 0, 0, 0, 0)
+        ack.summary.assertErrors(1, 0, 1, 0)
+        ack.countErrorWarnInfo(1, 0, 0)
+
+        ack.errors.any { it.operation == "Modify" && it.key == "[organisation] ORG-OFA11-TEST" }
+        ack.errorMessagesFor("Modify", "[organisation] ORG-OFA11-TEST") ==
+                ["Attribute \"country:\" can only be changed by the RIPE NCC for this object. Please contact \"ncc@ripe.net\" to change it."]
+    }
+
+    def "modify organisation, org-type:LIR, add country, user password"() {
+
+        expect:
+        query_object_matches("-r -T organisation ORG-LIRA-TEST", "organisation", "ORG-LIRA-TEST", "org-type:\\s*LIR")
+
+        when:
+        def message = syncUpdate("""
+                organisation: ORG-LIRA-TEST
+                org-type:     LIR
+                org-name:     Local Internet Registry Abuse
+                country:      NL
+                address:      RIPE NCC
+                e-mail:       dbtest@ripe.net
+                admin-c:      TP1-TEST
+                tech-c:       TP1-TEST
+                abuse-c:      AH1-TEST
+                ref-nfy:      dbtest-org@ripe.net
+                mnt-ref:      owner3-mnt
+                mnt-by:       ripe-ncc-hm-mnt
+                source:       TEST
+
+                password: owner2
+                """.stripIndent(true)
+        )
+
+        then:
+        def ack = new AckResponse("", message)
+
+        ack.summary.nrFound == 1
+        ack.summary.assertSuccess(0, 0, 0, 0, 0)
+        ack.summary.assertErrors(1, 0, 1, 0)
+        ack.countErrorWarnInfo(2, 0, 0)
+
+        ack.errors.any { it.operation == "Modify" && it.key == "[organisation] ORG-LIRA-TEST" }
+        ack.errorMessagesFor("Modify", "[organisation] ORG-LIRA-TEST") ==
+                ['Authorisation for [organisation] ORG-LIRA-TEST failed using "mnt-by:" not authenticated by: RIPE-NCC-HM-MNT', "Attribute \"country:\" can only be changed by the RIPE NCC for this object. Please contact \"ncc@ripe.net\" to change it."]
+    }
+
+    def "modify organisation, org-type:LIR, modify country, user password"() {
+
+        expect:
+        query_object_matches("-r -T organisation ORG-HR1-TEST", "organisation", "ORG-HR1-TEST", "org-type:\\s*LIR")
+
+        when:
+        def message = syncUpdate("""
+                organisation:    ORG-HR1-TEST
+                org-type:        LIR
+                org-name:        Regional Internet Registry
+                country:         FR
+                address:         RIPE NCC
+                e-mail:          dbtest@ripe.net
+                ref-nfy:         dbtest-org@ripe.net
+                mnt-ref:         owner3-mnt
+                mnt-by:          owner2-mnt
+                source:  TEST
+
+                password: owner2
+                """.stripIndent(true)
+        )
+
+        then:
+        def ack = new AckResponse("", message)
+
+        ack.summary.nrFound == 1
+        ack.summary.assertSuccess(0, 0, 0, 0, 0)
+        ack.summary.assertErrors(1, 0, 1, 0)
+        ack.countErrorWarnInfo(1, 0, 0)
+
+        ack.errors.any { it.operation == "Modify" && it.key == "[organisation] ORG-HR1-TEST" }
+        ack.errorMessagesFor("Modify", "[organisation] ORG-HR1-TEST") ==
+                ["Attribute \"country:\" can only be changed by the RIPE NCC for this object. Please contact \"ncc@ripe.net\" to change it."]
+    }
+
+    def "modify organisation, org-type:LIR, delete country, user password"() {
+        expect:
+        query_object_matches("-r -T organisation ORG-HR1-TEST", "organisation", "ORG-HR1-TEST", "org-type:\\s*LIR")
+
+        when:
+        def message = syncUpdate("""
+                organisation:    ORG-HR1-TEST
+                org-type:        LIR
+                org-name:        Regional Internet Registry
+                address:         RIPE NCC
+                e-mail:          dbtest@ripe.net
+                ref-nfy:         dbtest-org@ripe.net
+                mnt-ref:         owner3-mnt
+                mnt-by:          owner2-mnt
+                source:  TEST
+
+                password: owner2
+                """.stripIndent(true)
+        )
+
+        then:
+        def ack = new AckResponse("", message)
+
+        ack.summary.nrFound == 1
+        ack.summary.assertSuccess(0, 0, 0, 0, 0)
+        ack.summary.assertErrors(1, 0, 1, 0)
+        ack.countErrorWarnInfo(1, 0, 0)
+
+        ack.errors.any { it.operation == "Modify" && it.key == "[organisation] ORG-HR1-TEST" }
+        ack.errorMessagesFor("Modify", "[organisation] ORG-HR1-TEST") ==
+                ["Attribute \"country:\" can only be changed by the RIPE NCC for this object. Please contact \"ncc@ripe.net\" to change it."]
+    }
+
+    def "modify organisation, org-type:LIR, add country, override"() {
+
+        expect:
+        query_object_matches("-r -T organisation ORG-LIRA-TEST", "organisation", "ORG-LIRA-TEST", "org-type:\\s*LIR")
+
+        when:
+        def message = syncUpdate("""
+                organisation: ORG-LIRA-TEST
+                org-type:     LIR
+                org-name:     Local Internet Registry Abuse
+                country:      NL
+                address:      RIPE NCC
+                e-mail:       dbtest@ripe.net
+                admin-c:      TP1-TEST
+                tech-c:       TP1-TEST
+                abuse-c:      AH1-TEST
+                ref-nfy:      dbtest-org@ripe.net
+                mnt-ref:      owner3-mnt
+                mnt-by:       ripe-ncc-hm-mnt
+                source:       TEST
+                override:        denis,override1
+                """.stripIndent(true)
+        )
+
+        then:
+        def ack = new AckResponse("", message)
+
+        ack.summary.nrFound == 1
+        ack.summary.assertSuccess(1, 0, 1, 0, 0)
+        ack.summary.assertErrors(0, 0, 0, 0)
+    }
+
+    def "modify organisation, org-type:LIR, modify country, override"() {
+
+        expect:
+        query_object_matches("-r -T organisation ORG-HR1-TEST", "organisation", "ORG-HR1-TEST", "org-type:\\s*LIR")
+
+        when:
+        def message = syncUpdate("""
+                organisation:    ORG-HR1-TEST
+                org-type:        LIR
+                org-name:        Regional Internet Registry
+                country:         FR
+                address:         RIPE NCC
+                e-mail:          dbtest@ripe.net
+                ref-nfy:         dbtest-org@ripe.net
+                mnt-ref:         owner3-mnt
+                mnt-by:          owner2-mnt
+                source:  TEST
+                override:        denis,override1
+                """.stripIndent(true)
+        )
+
+        then:
+        def ack = new AckResponse("", message)
+
+        ack.summary.nrFound == 1
+        ack.summary.assertSuccess(1, 0, 1, 0, 0)
+        ack.summary.assertErrors(0, 0, 0, 0)
+    }
+
+    def "modify organisation, org-type:LIR, delete country, override"() {
+        expect:
+        query_object_matches("-r -T organisation ORG-HR1-TEST", "organisation", "ORG-HR1-TEST", "org-type:\\s*LIR")
+
+        when:
+        def message = syncUpdate("""
+                organisation:    ORG-HR1-TEST
+                org-type:        LIR
+                org-name:        Regional Internet Registry
+                address:         RIPE NCC
+                e-mail:          dbtest@ripe.net
+                ref-nfy:         dbtest-org@ripe.net
+                mnt-ref:         owner3-mnt
+                mnt-by:          owner2-mnt
+                source:  TEST
+                override:        denis,override1
+                """.stripIndent(true)
+        )
+
+        then:
+        def ack = new AckResponse("", message)
+
+        ack.summary.nrFound == 1
+        ack.summary.assertSuccess(1, 0, 1, 0, 0)
+        ack.summary.assertErrors(0, 0, 0, 0)
+    }
+
+    def "modify organisation, org-type:LIR, add country, alloc maintainer"() {
+
+        expect:
+        query_object_matches("-r -T organisation ORG-LIRA-TEST", "organisation", "ORG-LIRA-TEST", "org-type:\\s*LIR")
+
+        when:
+        def message = syncUpdate("""
+                organisation: ORG-LIRA-TEST
+                org-type:     LIR
+                org-name:     Local Internet Registry Abuse
+                country:      NL
+                address:      RIPE NCC
+                e-mail:       dbtest@ripe.net
+                admin-c:      TP1-TEST
+                tech-c:       TP1-TEST
+                abuse-c:      AH1-TEST
+                ref-nfy:      dbtest-org@ripe.net
+                mnt-ref:      owner3-mnt
+                mnt-by:       ripe-ncc-hm-mnt
+                source:       TEST
+
+                password: hm
+                """.stripIndent(true)
+        )
+
+        then:
+        def ack = new AckResponse("", message)
+
+        ack.summary.nrFound == 1
+        ack.summary.assertSuccess(1, 0, 1, 0, 0)
+        ack.summary.assertErrors(0, 0, 0, 0)
+    }
+
+    def "create organisation, add comment not in managed attribute"() {
+        expect:
+        queryObjectNotFound("-r -T organisation ORG-FO1-TEST", "organisation", "ORG-FO1-TEST")
+
+        when:
+        def message = send new Message(
+                subject: "",
+                body: """\
+                organisation:    auto-1
+                org-type:        other
+                org-name:        First Org # test comment
+                address:         RIPE NCC
+                                 Singel 258
+                                 1016 AB Amsterdam
+                                 Netherlands
+                e-mail:          dbtest@ripe.net
+                mnt-ref:         owner3-mnt
+                mnt-by:          owner2-mnt
+                source:          TEST
+
+                password: owner2
+                """.stripIndent(true)
+        )
+
+        then:
+        def ack = ackFor message
+        ack.summary.nrFound == 1
+        ack.summary.assertSuccess(0, 0, 0, 0, 0)
+        ack.summary.assertErrors(1, 1, 0, 0)
+        ack.countErrorWarnInfo(1, 0, 0)
+
+        ack.errors.any { it.operation == "Create" && it.key == "[organisation] auto-1" }
+        ack.errorMessagesFor("Create", "[organisation] auto-1") == [
+                "Comments are not allowed on RIPE NCC managed Attribute \"org-name:\""]
+    }
+
+    def "modify organisation, add comment not allowed in managed attribute by end user"() {
+        given:
+        databaseHelper.addObject(getTransient("ASSIGN-PI-OTHER-OFA11"))
+
+        expect:
+        query_object_matches("-r -T organisation ORG-OFA11-TEST", "organisation", "ORG-OFA11-TEST", "org-type:\\s*OTHER")
+
+        when:
+        def message = send new Message(
+                subject: "",
+                body: """\
+                organisation: ORG-OFA11-TEST
+                org-type:     OTHER
+                org-name:     Organisation for country and Abuse # add comment
+                country:      NL
+                descr:        test comments
+                address:      RIPE NCC
+                e-mail:       dbtest@ripe.net
+                admin-c:      TP1-TEST
+                tech-c:       TP1-TEST
+                abuse-c:      AH1-TEST
+                ref-nfy:      dbtest-org@ripe.net
+                mnt-ref:      owner3-mnt
+                mnt-by:       lir-mnt
+                source:       TEST
+
+                password: lir
+                """.stripIndent(true)
+        )
+
+        then:
+        def ack = ackFor message
+        ack.summary.nrFound == 1
+        ack.summary.assertSuccess(0, 0, 0, 0, 0)
+        ack.summary.assertErrors(1, 0, 1, 0)
+        ack.countErrorWarnInfo(1, 0, 0)
+
+        ack.errors.any { it.operation == "Modify" && it.key == "[organisation] ORG-OFA11-TEST" }
+        ack.errorMessagesFor("Modify", "[organisation] ORG-OFA11-TEST") == [
+                "Comments are not allowed on RIPE NCC managed Attribute \"org-name:\""]
+    }
+
+    def "modify organisation, add comment allowed in managed attribute by override"() {
+        given:
+        syncUpdate(getTransient("ORG") + "password: owner2\npassword: hm")
+
+        expect:
+        queryObject("-r -T organisation ORG-FO1-TEST", "organisation", "ORG-FO1-TEST")
+
+        when:
+        def message = syncUpdate("""\
+                organisation:    ORG-FO1-TEST
+                org-type:        LIR
+                org-name:        First Org #test comment
+                address:         RIPE NCC
+                                 Singel 258
+                                 1016 AB Amsterdam
+                                 Netherlands
+                e-mail:          dbtest@ripe.net
+                mnt-ref:         owner3-mnt
+                mnt-by:          ripe-ncc-hm-mnt
+                source:          TEST
+                override:        denis,override1
+                """.stripIndent(true)
+        )
+
+        then:
+        def ack = new AckResponse("", message)
+
+        ack.summary.nrFound == 1
+        ack.summary.assertSuccess(1, 0, 1, 0, 0)
+        ack.summary.assertErrors(0, 0, 0, 0)
+
+        ack.countErrorWarnInfo(0, 3, 1)
+    }
+
+    def "modify organisation, remove comment allowed in managed attribute by end user"() {
+        given:
+        databaseHelper.addObject(getTransient("ORG-NAME-COMMENT"))
+
+        expect:
+        query_object_matches("-r -T organisation ORG-FO1-COMMENT", "organisation", "ORG-FO1-COMMENT", "First Org")
+
+        when:
+        def message = syncUpdate("""\
+                organisation:    ORG-FO1-COMMENT
+                org-type:        other
+                org-name:        First Org
+                org:             ORG-FO1-COMMENT
+                remarks:          remove comment 
+                address:         RIPE NCC
+                                 Singel 258
+                                 1016 AB Amsterdam
+                                 Netherlands
+                e-mail:          dbtest@ripe.net
+                mnt-ref:         owner3-mnt
+                mnt-by:          owner2-mnt
+                mnt-by:          ripe-NCC-hM-mnT
+                source:          TEST
+                password:        owner2
+                """.stripIndent(true)
+        )
+
+        then:
+        def ack = new AckResponse("", message)
+
+        ack.summary.nrFound == 1
+        ack.summary.assertSuccess(1, 0, 1, 0, 0)
+        ack.summary.assertErrors(0, 0, 0, 0)
+
+    }
+
+    def "modify organisation, add comment allowed in managed attribute by RS maintainer"() {
+        given:
+        databaseHelper.addObject(getTransient("ORG-NAME-COMMENT"))
+
+        expect:
+        query_object_matches("-r -T organisation ORG-FO1-COMMENT", "organisation", "ORG-FO1-COMMENT", "First Org")
+
+        when:
+        def message = syncUpdate("""\
+                organisation:    ORG-FO1-COMMENT
+                org-type:        other
+                org-name:        First Org
+                org:             ORG-FO1-COMMENT #add comment
+                remarks:         add comment 
+                address:         RIPE NCC
+                                 Singel 258
+                                 1016 AB Amsterdam
+                                 Netherlands
+                e-mail:          dbtest@ripe.net
+                mnt-ref:         owner3-mnt
+                mnt-by:          owner2-mnt
+                mnt-by:          ripe-NCC-hM-mnT
+                source:          TEST
+                password:        hm
+                """.stripIndent(true)
+        )
+
+        then:
+        def ack = new AckResponse("", message)
+
+        ack.summary.nrFound == 1
+        ack.summary.assertSuccess(1, 0, 1, 0, 0)
+        ack.summary.assertErrors(0, 0, 0, 0)
+
+    }
 }

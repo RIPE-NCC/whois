@@ -1,11 +1,12 @@
 package net.ripe.db.whois.spec.update
-import net.ripe.db.whois.common.IntegrationTest
+
 import net.ripe.db.whois.spec.BaseQueryUpdateSpec
 import net.ripe.db.whois.spec.domain.AckResponse
 import net.ripe.db.whois.spec.domain.Message
 import net.ripe.db.whois.spec.domain.SyncUpdate
+import java.time.LocalDateTime
 
-@org.junit.experimental.categories.Category(IntegrationTest.class)
+@org.junit.jupiter.api.Tag("IntegrationTest")
 class AuthSpec extends BaseQueryUpdateSpec {
 
     @Override
@@ -70,6 +71,10 @@ class AuthSpec extends BaseQueryUpdateSpec {
                 """
     ]}
 
+    def setupSpec() {
+        resetTime()
+    }
+
     def "create person 2 mnt-by 1 correct password"() {
       expect:
         queryObjectNotFound("-r -T person FP1-RIPE", "person", "First Person")
@@ -89,7 +94,7 @@ class AuthSpec extends BaseQueryUpdateSpec {
                 source:  TEST
 
                 password: owner2
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -130,7 +135,7 @@ class AuthSpec extends BaseQueryUpdateSpec {
                 password: owner2
                 password: bill
                 password: owner4
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -165,7 +170,7 @@ class AuthSpec extends BaseQueryUpdateSpec {
                 source:  TEST
 
                 password: \$1\$fyALLXZB\$V5Cht4.DAIM3vi64EpC0w/
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -204,7 +209,7 @@ class AuthSpec extends BaseQueryUpdateSpec {
                 source:  TEST
 
                 password: owner
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -242,7 +247,7 @@ class AuthSpec extends BaseQueryUpdateSpec {
                 source:  TEST
 
                 password: owner2
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -279,7 +284,7 @@ class AuthSpec extends BaseQueryUpdateSpec {
                 source:  TEST
 
                 password: owner2
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -313,7 +318,7 @@ class AuthSpec extends BaseQueryUpdateSpec {
                 mnt-by:  owner-mnt, owner2-mnt
                 source:  TEST
 
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -349,7 +354,7 @@ class AuthSpec extends BaseQueryUpdateSpec {
                 source:  TEST
 
                 password: owner
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -388,7 +393,7 @@ class AuthSpec extends BaseQueryUpdateSpec {
                 source:  TEST
 
                 password: fred
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -432,7 +437,7 @@ class AuthSpec extends BaseQueryUpdateSpec {
                 source:  TEST
 
                 password: owner
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -472,7 +477,7 @@ class AuthSpec extends BaseQueryUpdateSpec {
 
                 password: owner
                 password: owner3
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -511,7 +516,7 @@ class AuthSpec extends BaseQueryUpdateSpec {
                 source:  TEST
 
                 password: owner3
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -550,7 +555,7 @@ class AuthSpec extends BaseQueryUpdateSpec {
                 source:  TEST
 
                 password: owner
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -589,7 +594,7 @@ class AuthSpec extends BaseQueryUpdateSpec {
                 mnt-by:  owner-mnt
                 source:  TEST
 
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -630,7 +635,7 @@ class AuthSpec extends BaseQueryUpdateSpec {
                 source:  TEST
                 password: owner3
 
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -671,7 +676,7 @@ class AuthSpec extends BaseQueryUpdateSpec {
 
                 password: owner
                 password: owner2
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -713,7 +718,7 @@ class AuthSpec extends BaseQueryUpdateSpec {
 
                 password: owner
                 password: owner3
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -754,7 +759,7 @@ class AuthSpec extends BaseQueryUpdateSpec {
                 source:  TEST
 
                 password: owner
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -795,7 +800,7 @@ class AuthSpec extends BaseQueryUpdateSpec {
                 delete:  not needed
 
                 password: owner
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -814,6 +819,7 @@ class AuthSpec extends BaseQueryUpdateSpec {
 
     def "create person using pgp signed message"() {
       given:
+        setTime(LocalDateTime.parse("2015-05-21T15:48:04")) // current time must be within 1 hour of signing time
         syncUpdate(
                 "key-cert:       PGPKEY-AAAAAAAA\n" +       // primary key doesn't match public key id
                 "method:         PGP\n" +
@@ -889,7 +895,7 @@ class AuthSpec extends BaseQueryUpdateSpec {
                 Qe5NwGUoB9i9yLJaHnDA79QVdkCLi5b6G6Y6DzzfNRlwdfdz5yAc42BQZ2StaW4=
                 =vEn+
                 -----END PGP SIGNATURE-----
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -900,16 +906,15 @@ class AuthSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(1, 1, 0, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
 
-        ack.countErrorWarnInfo(0, 1, 0)
+        ack.countErrorWarnInfo(0, 0, 0)
         ack.successes.any { it.operation == "Create" && it.key == "[person] FP1-TEST   First Person" }
-        ack.warningSuccessMessagesFor("Create", "[person] FP1-TEST   First Person") == [
-                "Message was signed more than one week ago"]
 
         queryObject("-r -T person FP1-TEST", "person", "First Person")
     }
 
     def "create person using pgp signed message and maintainer has multiple pgpkeys"() {
       given:
+        setTime(LocalDateTime.parse("2015-05-21T15:48:04")) // current time must be within 1 hour of signing time
         syncUpdate(
                 "key-cert:       PGPKEY-AAAAAAAA\n" +       // primary key doesn't match public key id
                 "method:         PGP\n" +
@@ -1031,7 +1036,7 @@ class AuthSpec extends BaseQueryUpdateSpec {
 				I5yVaOhDqhXKfCMe4amyDUzsOaefXdDHXA5tgnUdZerYWzieIdKqcx4ZmBIo4h0=
 				=f046
 				-----END PGP SIGNATURE-----
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -1042,21 +1047,22 @@ class AuthSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(1, 1, 0, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
 
-        ack.countErrorWarnInfo(0, 1, 0)
+        ack.countErrorWarnInfo(0, 0, 0)
         ack.successes.any { it.operation == "Create" && it.key == "[person] FP1-TEST   First Person" }
-        ack.warningSuccessMessagesFor("Create", "[person] FP1-TEST   First Person") == [
-                "Message was signed more than one week ago"]
 
         queryObject("-r -T person FP1-TEST", "person", "First Person")
     }
 
     def "modify person, PGP RSA signed message, no blank line after obj"() {
+      given:
+        setTime(LocalDateTime.parse("2015-05-21T15:48:04")) // current time must be within 1 hour of signing time
+
       expect:
         queryObject("-r -T person TP1-TEST", "person", "Test Person")
 
       when:
         syncUpdate new SyncUpdate(data:
-                oneBasicFixture("TEST-PN").stripIndent().
+                oneBasicFixture("TEST-PN").stripIndent(true).
                         replaceAll("mnt-by:\\s*OWNER-MNT", "mnt-by: PGP-MNT\nremarks: changed maintainer")
                         + "password: owner")
         def message = send new Message(
@@ -1085,7 +1091,7 @@ class AuthSpec extends BaseQueryUpdateSpec {
                 7/IXF0M/7XXNUFCloA748S+3zJcYm5dloZ1tJsrhTMaW78PvJ656PuwghkCL1E8=
                 =3MDy
                 -----END PGP SIGNATURE-----
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -1096,20 +1102,22 @@ class AuthSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(1, 0, 1, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
 
-        ack.countErrorWarnInfo(0, 1, 0)
+        ack.countErrorWarnInfo(0, 0, 0)
         ack.successes.any { it.operation == "Modify" && it.key == "[person] TP1-TEST   Test Person" }
-        ack.warningSuccessMessagesFor("Modify", "[person] TP1-TEST   Test Person") == [
-                "Message was signed more than one week ago"]
 
         queryObject("-rBT person TP1-TEST", "person", "Test Person")
     }
 
     def "modify person, PGP RSA signed message, with blank line after obj"() {
+      given:
+        setTime(LocalDateTime.parse("2015-05-21T16:48:05")) // current time must be within 1 hour of signing time
+
       expect:
         queryObject("-r -T person TP1-TEST", "person", "Test Person")
+
       when:
         syncUpdate new SyncUpdate(data:
-                oneBasicFixture("TEST-PN").stripIndent().
+                oneBasicFixture("TEST-PN").stripIndent(true).
                         replaceAll("mnt-by:\\s*OWNER-MNT", "mnt-by: PGP-MNT\nremarks: changed maintainer")
                         + "password: owner")
         def message = send new Message(
@@ -1139,7 +1147,7 @@ class AuthSpec extends BaseQueryUpdateSpec {
                 /E0ll7ksFSbXTjoBlr5FRlbmb3k8igCUyYtsPwX0qgy7YEYW1soxL64I1kVEOaA=
                 =Ox/e
                 -----END PGP SIGNATURE-----
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -1150,21 +1158,22 @@ class AuthSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(1, 0, 1, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
 
-        ack.countErrorWarnInfo(0, 1, 0)
+        ack.countErrorWarnInfo(0, 0, 0)
         ack.successes.any { it.operation == "Modify" && it.key == "[person] TP1-TEST   Test Person" }
-        ack.warningSuccessMessagesFor("Modify", "[person] TP1-TEST   Test Person") == [
-                "Message was signed more than one week ago"]
 
         queryObject("-rBT person TP1-TEST", "person", "Test Person")
     }
 
     def "modify person, PGP RSA signed message, with 3 blank lines after obj"() {
+      given:
+        setTime(LocalDateTime.parse("2015-05-21T16:50:18")) // current time must be within 1 hour of signing time
+
       expect:
         queryObject("-r -T person TP1-TEST", "person", "Test Person")
 
       when:
         syncUpdate new SyncUpdate(data:
-                oneBasicFixture("TEST-PN").stripIndent().
+                oneBasicFixture("TEST-PN").stripIndent(true).
                         replaceAll("mnt-by:\\s*OWNER-MNT", "mnt-by: PGP-MNT\nremarks: changed maintainer")
                         + "password: owner")
         def message = send new Message(
@@ -1196,7 +1205,7 @@ class AuthSpec extends BaseQueryUpdateSpec {
                 zRaC40WFkdyveVbgytzBX69y6/vQaLJIrGPnzHyZoUQ5aZx6qsc8MC7CXMO6CCs=
                 =0598
                 -----END PGP SIGNATURE-----
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -1207,10 +1216,8 @@ class AuthSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(1, 0, 1, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
 
-        ack.countErrorWarnInfo(0, 1, 0)
+        ack.countErrorWarnInfo(0, 0, 0)
         ack.successes.any { it.operation == "Modify" && it.key == "[person] TP1-TEST   Test Person" }
-        ack.warningSuccessMessagesFor("Modify", "[person] TP1-TEST   Test Person") == [
-                "Message was signed more than one week ago"]
 
         queryObject("-rBT person TP1-TEST", "person", "Test Person")
     }
@@ -1236,7 +1243,7 @@ class AuthSpec extends BaseQueryUpdateSpec {
                 source:       TEST
                 override: denis,override1
 
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -1277,7 +1284,7 @@ class AuthSpec extends BaseQueryUpdateSpec {
 
                 override: denis,override1
 
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -1320,7 +1327,7 @@ class AuthSpec extends BaseQueryUpdateSpec {
                 mnt-by:  OWNER-MNT
                 source:  TEST
                 password: owner
-                """.stripIndent())
+                """.stripIndent(true))
 
       then:
         def ack = ackFor message
@@ -1362,7 +1369,7 @@ class AuthSpec extends BaseQueryUpdateSpec {
                 nic-hdl: AP1-TEST
                 mnt-by:  OWNER-MNT
                 source:  TEST
-                """.stripIndent())
+                """.stripIndent(true))
 
       then:
         def ack = ackFor message
@@ -1406,7 +1413,7 @@ class AuthSpec extends BaseQueryUpdateSpec {
                 mnt-by:  OWNER-MNT
                 source:  TEST
                 password: owner
-                """.stripIndent())
+                """.stripIndent(true))
 
       then:
         def ack = ackFor message
@@ -1421,6 +1428,7 @@ class AuthSpec extends BaseQueryUpdateSpec {
 
     def "No warning if auth lines removed but update succeeds with PGP signed update"() {
       given:
+        setTime(LocalDateTime.parse("2015-07-15T16:51:41"))
         databaseHelper.updateObject(
                 "mntner:      PGP-MNT\n" +
                 "descr:       used for testing PGP signed messages\n" +
@@ -1457,7 +1465,7 @@ class AuthSpec extends BaseQueryUpdateSpec {
                 FrIQEgDdEFAkY5qf4W2JCWPHjzD8tv2Uzp7NfEZsqHiHyFXltuhQbyn3t8LRoBc=
                 =X49Y
                 -----END PGP SIGNATURE-----
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -1468,7 +1476,7 @@ class AuthSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(1, 1, 0, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
 
-        ack.countErrorWarnInfo(0, 1, 0)
+        ack.countErrorWarnInfo(0, 0, 0)
     }
 
     def "No warning if auth lines removed but multiple maintainers and auth succeeds"() {
@@ -1496,7 +1504,7 @@ class AuthSpec extends BaseQueryUpdateSpec {
                 mnt-by:  OWNER-MNT
                 source:  TEST
                 password: owner
-                """.stripIndent())
+                """.stripIndent(true))
 
       then:
         def ack = ackFor message
@@ -1508,6 +1516,5 @@ class AuthSpec extends BaseQueryUpdateSpec {
 
         ack.countErrorWarnInfo(0, 0, 0)
     }
-
 
 }

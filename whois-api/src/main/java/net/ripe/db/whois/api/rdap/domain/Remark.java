@@ -1,10 +1,10 @@
 package net.ripe.db.whois.api.rdap.domain;
 
-import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import com.fasterxml.jackson.annotation.JsonInclude;
 
-import javax.xml.bind.annotation.XmlAccessType;
-import javax.xml.bind.annotation.XmlAccessorType;
-import javax.xml.bind.annotation.XmlType;
+import jakarta.xml.bind.annotation.XmlAccessType;
+import jakarta.xml.bind.annotation.XmlAccessorType;
+import jakarta.xml.bind.annotation.XmlType;
 import java.io.Serializable;
 import java.util.List;
 
@@ -12,7 +12,7 @@ import java.util.List;
 @XmlType(name = "remark", propOrder = {
     "description"
 })
-@JsonSerialize(include = JsonSerialize.Inclusion.NON_EMPTY)
+@JsonInclude(JsonInclude.Include.NON_EMPTY)
 public class Remark implements Serializable {
     protected List<String> description;
 
@@ -27,4 +27,5 @@ public class Remark implements Serializable {
     public List<String> getDescription() {
         return description;
     }
+
 }

@@ -1,11 +1,9 @@
 package net.ripe.db.whois.spec.integration
 
-import net.ripe.db.whois.common.IntegrationTest
-import net.ripe.db.whois.common.rpsl.ObjectType
-import net.ripe.db.whois.spec.domain.SyncUpdate
-import spock.lang.Ignore
 
-@org.junit.experimental.categories.Category(IntegrationTest.class)
+import net.ripe.db.whois.spec.domain.SyncUpdate
+
+@org.junit.jupiter.api.Tag("IntegrationTest")
 class Route6IntegrationSpec extends BaseWhoisSourceSpec {
 
     @Override
@@ -59,6 +57,14 @@ class Route6IntegrationSpec extends BaseWhoisSourceSpec {
                     mnt-by:       TEST-MNT
                     source:       TEST
                 """,
+                "AS103": """\
+                    aut-num:         AS103
+                    as-name:         TEST-AS
+                    org:             ORG-NCC1-RIPE
+                    notify:          notify@as103.net
+                    mnt-by:          TEST-MNT
+                    source:          TEST
+                """,
                 "AS123": """\
                     aut-num:         AS123
                     as-name:         SNS-AS
@@ -73,7 +79,6 @@ class Route6IntegrationSpec extends BaseWhoisSourceSpec {
                     descr:           "foobar" Ltd
                     org:             ORG-NCC1-RIPE
                     mnt-by:          TEST-MNT
-                    mnt-routes:      ROUTES-MNT
                     source:          TEST
                 """,
                 "AS789": """\
@@ -90,7 +95,6 @@ class Route6IntegrationSpec extends BaseWhoisSourceSpec {
                     descr:           "bogus" Ltd
                     org:             ORG-NCC1-RIPE
                     mnt-by:          TEST-MNT
-                    mnt-routes:      ROUTES-MNT
                     source:          TEST
                 """,
                 "MNTBY_ROUTE6": """\
@@ -197,7 +201,7 @@ class Route6IntegrationSpec extends BaseWhoisSourceSpec {
                 source: TEST
                 password: update
                 delete: reason
-                """.stripIndent())
+                """.stripIndent(true))
 
         then:
         def response = syncUpdate delete
@@ -216,7 +220,7 @@ class Route6IntegrationSpec extends BaseWhoisSourceSpec {
                 mnt-by: TEST-MNT
                 source: TEST
                 password: update
-                """.stripIndent())
+                """.stripIndent(true))
 
         then:
         def response = syncUpdate create
@@ -224,26 +228,6 @@ class Route6IntegrationSpec extends BaseWhoisSourceSpec {
         then:
         response =~ /SUCCESS/
         response =~ /No operation: \[route6\] 2001:1578:200::\/40AS12726/
-    }
-
-    def "create route6 aut-num does not exist"() {
-        when:
-        def create = new SyncUpdate(data: """\
-                route6: 2002:1578:0200::/40
-                descr: TEST-ROUTE6
-                origin: AS99999
-                mnt-by: TEST-MNT
-                source: TEST
-                password: update
-                """.stripIndent())
-
-        then:
-        def response = syncUpdate create
-
-        then:
-        response =~ /Create FAILED: \[route6\] 2002:1578:200::\/40AS99999/
-        response =~ /Authorisation for \[route6\] 2002:1578:200::\/40AS99999 failed/
-        response =~ /using "origin:"/
     }
 
     def "create route6 aut-num with mnt-by authentication"() {
@@ -255,7 +239,7 @@ class Route6IntegrationSpec extends BaseWhoisSourceSpec {
                 mnt-by:          TEST-MNT
                 source:          TEST
                 password:        update
-                """.stripIndent())
+                """.stripIndent(true))
 
         then:
         def response = syncUpdate create
@@ -275,7 +259,7 @@ class Route6IntegrationSpec extends BaseWhoisSourceSpec {
                 source: TEST
                 password: emptypassword
                 password: update
-                """.stripIndent())
+                """.stripIndent(true))
 
         then:
         def response = syncUpdate create
@@ -294,17 +278,16 @@ class Route6IntegrationSpec extends BaseWhoisSourceSpec {
                 mnt-by: TEST-MNT
                 source: TEST
                 password: update
-                """.stripIndent())
+                """.stripIndent(true))
 
         then:
         def response = syncUpdate create
 
         then:
         response =~ /FAIL/
-        response.contains("" +
-                "***Error:   Authorisation for [aut-num] AS456 failed\n" +
-                "            using \"mnt-routes:\"\n" +
-                "            not authenticated by: ROUTES-MNT")
+        response.contains("***Error:   Authorisation for [route] 212.166.64.0/19AS456 failed\n" +
+                "            using \"route:\"\n" +
+                "            no valid maintainer found")
     }
 
     def "create route6 ipaddress exact match mnt-routes authentication"() {
@@ -317,7 +300,7 @@ class Route6IntegrationSpec extends BaseWhoisSourceSpec {
                 source: TEST
                 password: emptypassword
                 password: update
-                """.stripIndent())
+                """.stripIndent(true))
 
         then:
         def response = syncUpdate create
@@ -335,7 +318,7 @@ class Route6IntegrationSpec extends BaseWhoisSourceSpec {
                 mnt-by: TEST-MNT
                 source: TEST
                 password: update
-                """.stripIndent())
+                """.stripIndent(true))
 
         then:
         def response = syncUpdate create
@@ -354,7 +337,7 @@ class Route6IntegrationSpec extends BaseWhoisSourceSpec {
                 mnt-by: ROUTES-MNT
                 source: TEST
                 password: update
-                """.stripIndent())
+                """.stripIndent(true))
 
         then:
         def response = syncUpdate create
@@ -380,7 +363,7 @@ class Route6IntegrationSpec extends BaseWhoisSourceSpec {
                 source: TEST
                 password: emptypassword
                 password: update
-                """.stripIndent())
+                """.stripIndent(true))
 
         then:
         def response = syncUpdate create
@@ -399,7 +382,7 @@ class Route6IntegrationSpec extends BaseWhoisSourceSpec {
                 source: TEST
                 password: otherpassword
                 password: update
-                """.stripIndent())
+                """.stripIndent(true))
 
         then:
         def response = syncUpdate create
@@ -417,7 +400,7 @@ class Route6IntegrationSpec extends BaseWhoisSourceSpec {
                 mnt-by: TEST-MNT
                 source: TEST
                 password: update
-                """.stripIndent())
+                """.stripIndent(true))
 
         then:
         def response = syncUpdate create
@@ -435,7 +418,7 @@ class Route6IntegrationSpec extends BaseWhoisSourceSpec {
                 mnt-by: ROUTES-MNT
                 source: TEST
                 password: update
-                """.stripIndent())
+                """.stripIndent(true))
 
         then:
         def response = syncUpdate create
@@ -461,7 +444,7 @@ class Route6IntegrationSpec extends BaseWhoisSourceSpec {
                 source: TEST
                 password: emptypassword
                 password: update
-                """.stripIndent())
+                """.stripIndent(true))
 
         then:
         def response = syncUpdate create
@@ -479,7 +462,7 @@ class Route6IntegrationSpec extends BaseWhoisSourceSpec {
                 mnt-by: TEST-MNT
                 source: TEST
                 password: update
-                """.stripIndent())
+                """.stripIndent(true))
 
         then:
         def response = syncUpdate create
@@ -497,7 +480,7 @@ class Route6IntegrationSpec extends BaseWhoisSourceSpec {
                 mnt-by: TEST-MNT
                 source: TEST
                 password: wrong
-                """.stripIndent())
+                """.stripIndent(true))
 
         then:
         def response = syncUpdate create
@@ -505,10 +488,6 @@ class Route6IntegrationSpec extends BaseWhoisSourceSpec {
         then:
         response =~ /FAIL/
         response =~ /Authorisation for \[route6\] 5353::\/24AS123 failed
-            using "mnt-by:"
-            not authenticated by: TEST-MNT/
-
-        response =~ /Authorisation for \[aut-num\] AS123 failed
             using "mnt-by:"
             not authenticated by: TEST-MNT/
 
@@ -527,7 +506,7 @@ class Route6IntegrationSpec extends BaseWhoisSourceSpec {
                 source: TEST
                 password: update
                 password: emptypassword
-                """.stripIndent())
+                """.stripIndent(true))
 
         then:
         def response = syncUpdate create
@@ -546,7 +525,7 @@ class Route6IntegrationSpec extends BaseWhoisSourceSpec {
                 source: TEST
                 password: update
                 password: otherpassword
-                """.stripIndent())
+                """.stripIndent(true))
 
         then:
         def response = syncUpdate create
@@ -564,7 +543,7 @@ class Route6IntegrationSpec extends BaseWhoisSourceSpec {
                 mnt-by: TEST-MNT
                 source: TEST
                 password: update
-                """.stripIndent())
+                """.stripIndent(true))
 
         then:
         def response = syncUpdate create
@@ -582,7 +561,7 @@ class Route6IntegrationSpec extends BaseWhoisSourceSpec {
                 mnt-by: TEST-MNT
                 source: TEST
                 password: wrong
-                """.stripIndent())
+                """.stripIndent(true))
 
         then:
         def response = syncUpdate create
@@ -590,10 +569,6 @@ class Route6IntegrationSpec extends BaseWhoisSourceSpec {
         then:
         response =~ /FAIL/
         response =~ /Authorisation for \[route6\] bbbb::\/32AS123 failed
-            using "mnt-by:"
-            not authenticated by: TEST-MNT/
-
-        response =~ /Authorisation for \[aut-num\] AS123 failed
             using "mnt-by:"
             not authenticated by: TEST-MNT/
 
@@ -612,14 +587,12 @@ class Route6IntegrationSpec extends BaseWhoisSourceSpec {
                 source: TEST
                 password: emptypassword
                 password: update
-                """.stripIndent())
+                """.stripIndent(true))
 
         then:
         def response = syncUpdate create
 
         then:
-        response =~ /Create PENDING:/
-
         response =~ /Authorisation for \[inet6num\] bbdd::\/24 failed
             using "mnt-routes:"
             no valid maintainer found/
@@ -635,7 +608,7 @@ class Route6IntegrationSpec extends BaseWhoisSourceSpec {
                 source: TEST
                 password: emptypassword
                 password: update
-                """.stripIndent())
+                """.stripIndent(true))
 
         then:
         def response = syncUpdate create
@@ -655,7 +628,7 @@ class Route6IntegrationSpec extends BaseWhoisSourceSpec {
                 mnt-by: TEST-MNT
                 source: TEST
                 password: update
-                """.stripIndent())
+                """.stripIndent(true))
 
         then:
         def response = syncUpdate create
@@ -675,7 +648,7 @@ class Route6IntegrationSpec extends BaseWhoisSourceSpec {
                 mnt-by: TEST-MNT
                 source: TEST
                 password: update
-                """.stripIndent())
+                """.stripIndent(true))
 
         then:
         def response = syncUpdate create
@@ -695,7 +668,7 @@ class Route6IntegrationSpec extends BaseWhoisSourceSpec {
                 mnt-by: TEST-MNT
                 source: TEST
                 password: update
-                """.stripIndent())
+                """.stripIndent(true))
 
         then:
         def response = syncUpdate create
@@ -715,7 +688,7 @@ class Route6IntegrationSpec extends BaseWhoisSourceSpec {
                 mnt-by: TEST-MNT
                 source: TEST
                 password: update
-                """.stripIndent())
+                """.stripIndent(true))
 
         then:
         def response = syncUpdate create
@@ -736,7 +709,7 @@ class Route6IntegrationSpec extends BaseWhoisSourceSpec {
                 source: TEST
                 password: otherpassword
                 password: update
-                """.stripIndent())
+                """.stripIndent(true))
 
         then:
         def response = syncUpdate create
@@ -756,7 +729,7 @@ class Route6IntegrationSpec extends BaseWhoisSourceSpec {
                 member-of: RS-BLA123
                 source: TEST
                 password: update
-                """.stripIndent())
+                """.stripIndent(true))
 
         then:
         def response = syncUpdate create
@@ -779,7 +752,7 @@ class Route6IntegrationSpec extends BaseWhoisSourceSpec {
                     mnt-by:          TEST-MNT
                     source:          TEST
                     password:       update
-                """.stripIndent()))
+                """.stripIndent(true)))
 
         then:
         response =~ /SUCCESS/
@@ -795,7 +768,7 @@ class Route6IntegrationSpec extends BaseWhoisSourceSpec {
                     mnt-by:          TEST-MNT
                     source:          TEST
                     password:        update
-                """.stripIndent()))
+                """.stripIndent(true)))
 
         then:
         response =~ /No operation: \[route6\] 2001:1578:200::\/40AS12726/
@@ -811,7 +784,7 @@ class Route6IntegrationSpec extends BaseWhoisSourceSpec {
                     member-of:       RS-BLA123
                     source:          TEST
                     password:        update
-                """.stripIndent()))
+                """.stripIndent(true)))
 
         then:
         response =~ /Modify FAILED: \[route6\] 9999::\/24AS12726/
@@ -830,7 +803,7 @@ class Route6IntegrationSpec extends BaseWhoisSourceSpec {
                         source: TEST
                         password: update
                         password: emptypassword
-                        """.stripIndent())
+                        """.stripIndent(true))
         then:
         response =~ /SUCCESS/
         response =~ /Modify SUCCEEDED: \[route6\] 9999::\/24AS12726/
@@ -846,7 +819,7 @@ class Route6IntegrationSpec extends BaseWhoisSourceSpec {
                         pingable:       9998::
                         source:         TEST
                         password:       update
-                        """.stripIndent())
+                        """.stripIndent(true))
         then:
         response =~ /FAIL/
         response =~ /Error:   9998:: is outside the range of this object/
@@ -862,7 +835,7 @@ class Route6IntegrationSpec extends BaseWhoisSourceSpec {
                         holes: 9998::/32
                         source: TEST
                         password: update
-                        """.stripIndent())
+                        """.stripIndent(true))
         then:
         response =~ /FAIL/
         response =~ /Error:   9998::\/32 is outside the range of this object/
@@ -878,7 +851,7 @@ class Route6IntegrationSpec extends BaseWhoisSourceSpec {
                         source: TEST
                         password: update
                         password: emptypassword
-                        """.stripIndent())
+                        """.stripIndent(true))
         expect:
         create =~ /SUCCESS/
 
@@ -890,7 +863,7 @@ class Route6IntegrationSpec extends BaseWhoisSourceSpec {
                         mnt-by: LOWER-MNT
                         source: TEST
                         password: update
-                        """.stripIndent())
+                        """.stripIndent(true))
         then:
         response =~ /Modify SUCCEEDED: \[route6\] dddd::\/24AS123/
     }
@@ -906,7 +879,7 @@ class Route6IntegrationSpec extends BaseWhoisSourceSpec {
                             source: TEST
                             password: update
                             password: emptypassword
-                            """.stripIndent()))
+                            """.stripIndent(true)))
         expect:
         insertRoute =~ /SUCCESS/
 
@@ -917,11 +890,10 @@ class Route6IntegrationSpec extends BaseWhoisSourceSpec {
                             descr: "bogus" Ltd
                             org: ORG-NCC1-RIPE
                             mnt-by: TEST-MNT
-                            mnt-routes: ROUTES-MNT
                             source: TEST
                             delete: reason
                             password: update
-                            """.stripIndent())
+                            """.stripIndent(true))
 
         then:
         def responseAutnum = syncUpdate deleteAutnum
@@ -939,66 +911,13 @@ class Route6IntegrationSpec extends BaseWhoisSourceSpec {
                             source: TEST
                             delete: reason
                             password: update
-                            """.stripIndent())
+                            """.stripIndent(true))
 
         then:
         def responseRoute = syncUpdate deleteRoute
 
         then:
         responseRoute =~ /SUCCESS/
-    }
-
-    def "create route, delete referenced autnum object, modify route object"() {
-        given:
-        def insertRoute = syncUpdate(new SyncUpdate(data: """\
-                            route6: 5353::0/24
-                            descr: Test route6
-                            origin: AS12726
-                            pingable: 5353::0
-                            mnt-by: TEST-MNT
-                            source: TEST
-                            password: update
-                            password: emptypassword
-                            """.stripIndent()))
-        expect:
-        insertRoute =~ /SUCCESS/
-
-        when:
-        def deleteAutnum = new SyncUpdate(data: """\
-                            aut-num: AS12726
-                            as-name: BRB-AS
-                            descr: "bogus" Ltd
-                            org: ORG-NCC1-RIPE
-                            mnt-by: TEST-MNT
-                            mnt-routes: ROUTES-MNT
-                            source: TEST
-                            delete: reason
-                            password: update
-                            """.stripIndent())
-
-        then:
-        def responseAutnum = syncUpdate deleteAutnum
-
-        then:
-        responseAutnum =~ /SUCCESS/
-
-        when:
-        def modifyRoute = new SyncUpdate(data: """\
-                            route6: 5353::0/24
-                            descr: Test route6 modified
-                            origin: AS12726
-                            pingable: 5353::
-                            mnt-by: TEST-MNT
-                            source: TEST
-                            password: update
-                            """.stripIndent())
-
-        then:
-        def responseRoute = syncUpdate modifyRoute
-
-        then:
-        responseRoute =~ /ERROR/
-        responseRoute =~ /Unknown object referenced AS12726/
     }
 
     def "create route6 prefix not allowed"() {
@@ -1010,7 +929,7 @@ class Route6IntegrationSpec extends BaseWhoisSourceSpec {
                 mnt-by:          TEST-MNT
                 source:          TEST
                 password:        update
-                """.stripIndent())
+                """.stripIndent(true))
         then:
         response =~ /FAIL/
         response =~ /Automatic creation of route6 objects of this size in not allowed,
@@ -1027,12 +946,12 @@ class Route6IntegrationSpec extends BaseWhoisSourceSpec {
                 source:          TEST
                 password:        update
                 password:        emptypassword
-                """.stripIndent())
+                """.stripIndent(true))
         then:
         response =~ /Create SUCCEEDED: \[route6\] 2000::\/12AS123/
     }
 
-    def "create route6, without pending authentication"() {
+    def "create route6"() {
         given:
         def response = syncUpdate(new SyncUpdate(data: """\
                 route6: 5353::0/24
@@ -1043,206 +962,98 @@ class Route6IntegrationSpec extends BaseWhoisSourceSpec {
                 password: update
                 password: emptypassword
                 password: update2
-                """.stripIndent()))
+                """.stripIndent(true)))
         expect:
         response =~ /SUCCESS/
     }
 
-    def "create route6, pending inet6num, pending autnum, with mnt-by authentication"() {
-        when:
-        def response = syncUpdate(new SyncUpdate(data: """\
-                            route6: 5353::0/24
-                            descr: TEST-ROUTE6
-                            origin: AS456
-                            mnt-by: TEST-MNT2
-                            source: TEST
-                            password: update2
-                            """.stripIndent()))
-
-        then:
-        response =~ /Create FAILED: \[route6\] 5353::\/24AS456\n/
-        response =~ /\*\*\*Error:   Authorisation for \[aut-num\] AS456 failed\n/
-        response =~ /\*\*\*Error:   Authorisation for \[inet6num\] 5353::\/24 failed\n/
-
-        notificationFor("dbtest@ripe.net").authFailed("CREATE", "route6", "5353::/24")
-        noMoreMessages()
-
-        pendingUpdates(ObjectType.ROUTE6, "5353::/24AS456").isEmpty()
-    }
-
-    def "create route6, with inet6num, with autnum, missing mnt-by authentication"() {
+    def "create route6 with non-existant origin aut-num"() {
         given:
-        def response = syncUpdate(new SyncUpdate(data: """\
-                            route6: 5353::0/24
-                            descr: TEST-ROUTE6
-                            origin: AS456
-                            mnt-by: TEST-MNT2
-                            source: TEST
-                            password: update
-                            password: update3
-                            """.stripIndent()))
-        expect:
-        response =~ /Create FAILED: \[route6\] 5353::\/24AS456\n/
-        response =~ /not authenticated by: TEST-MNT2\n/
-
-        notificationFor("dbtest@ripe.net").authFailed("CREATE", "route6", "5353::/24")
-        noMoreMessages()
-
-        pendingUpdates(ObjectType.ROUTE6, "5353::/24AS456").isEmpty()
-    }
-
-    def "create route6, pending inet6num, with autnum, with mnt-by authentication"() {
-        given:
-        def pendInetnum = syncUpdate(new SyncUpdate(data: """\
-                            route6: 5353::0/24
-                            descr: TEST-ROUTE6
-                            origin: AS456
-                            mnt-by: TEST-MNT2
-                            source: TEST
-                            password: emptypassword
-                            password: update2
-                            """.stripIndent()))
-        expect:
-        pendInetnum =~ /Create PENDING: \[route6\] 5353::\/24AS456\n/
-        pendInetnum =~ /\*\*\*Info:\s+Authorisation for \[inet6num\] 5353::\/24 failed\n/
-        pendInetnum =~ /not authenticated by: TEST-MNT\n/
-        pendInetnum =~ /\*\*\*Warning:\s+This update has only passed one of the two required hierarchical/
-        pendInetnum =~ /\*\*\*Info:\s+The route6 object 5353::\/24AS456 will be saved for one week/
-
-        notificationFor("dbtest@ripe.net").pendingAuth("CREATE", "route6", "5353::/24")
-        noMoreMessages()
-
-        pendingUpdates(ObjectType.ROUTE6, "5353::/24AS456").size() == 1
-    }
-
-    def "create route6, with inet6num, pending autnum, with mnt-by authentication"() {
-        given:
-        def pendInetnum = syncUpdate(new SyncUpdate(data: """\
-                            route6: 5353::0/24
-                            descr: TEST-ROUTE6
-                            origin: AS456
-                            mnt-by: TEST-MNT2
-                            source: TEST
-                            password: update
-                            password: update2
-                            """.stripIndent()))
-        expect:
-        pendInetnum =~ /Create PENDING: \[route6\] 5353::\/24AS456\n/
-        pendInetnum =~ /\*\*\*Info:\s+Authorisation for \[aut-num\] AS456 failed\n/
-        pendInetnum =~ /not authenticated by: ROUTES-MNT\n/
-        pendInetnum =~ /\*\*\*Warning:\s+This update has only passed one of the two required hierarchical/
-        pendInetnum =~ /\*\*\*Info:\s+The route6 object 5353::\/24AS456 will be saved for one week/
-
-        notificationFor("dbtest@ripe.net")
-        noMoreMessages()
-
-        pendingUpdates(ObjectType.ROUTE6, "5353::/24AS456").size() == 1
-    }
-
-    def "create route6 pending auth, 2nd update identical to first update"() {
-        when:
-        def inetnumWithAutnumAuth = syncUpdate(new SyncUpdate(data: """\
-                            route6: 5353::0/24
-                            descr: TEST-ROUTE6
-                            origin: AS456
-                            mnt-by: TEST-MNT2
-                            source: TEST
-                            password: emptypassword
-                            password: update2
-                            """.stripIndent()))
-        then:
-        inetnumWithAutnumAuth =~ /Create PENDING: \[route6\] 5353::\/24AS456\n/
-        notificationFor("dbtest@ripe.net").pendingAuth("CREATE", "route6", "5353::/24")
-        noMoreMessages()
-
-        pendingUpdates(ObjectType.ROUTE6, "5353::/24AS456").size() == 1
-
-        when:
-        def identical = syncUpdate(new SyncUpdate(data: """\
-                            route6: 5353::0/24
-                            descr: TEST-ROUTE6
-                            origin: AS456
-                            mnt-by: TEST-MNT2
-                            source: TEST
-                            password: emptypassword
-                            password: update2
-                            """.stripIndent()))
-        then:
-        identical =~ /Noop PENDING:\s+\[route6\] 5353::\/24AS456\n/
-        identical =~ /\*\*\*Info:\s+Authorisation for \[inet6num\] 5353::\/24 failed\n/
-        identical != ~/\*\*\*Warning: This update has only passed one of the two/
-        identical != ~/\*\*\*Info:\s+The route6 object 5353::\/24AS456 will be saved/
-        notificationFor("dbtest@ripe.net").pendingAuth("CREATE", "route6", "5353::/24")
-        noMoreMessages()
-
-        pendingUpdates(ObjectType.ROUTE6, "5353::/24AS456").size() == 1
-    }
-
-    def "create route6 pending auth, 1st and 2nd update passes successfully"() {
-        when:
-        def inetnumWithAutnumAuth = syncUpdate(new SyncUpdate(data: """\
-                            route6: 5353::0/24
-                            descr: TEST-ROUTE6
-                            origin: AS456
-                            mnt-by: TEST-MNT2
-                            source: TEST
-                            password: update
-                            password: update2
-                            """.stripIndent()))
-        then:
-        inetnumWithAutnumAuth =~ /Create PENDING: \[route6\] 5353::\/24AS456\n/
-        notificationFor("dbtest@ripe.net").pendingAuth("CREATE", "route6", "5353::/24")
-        noMoreMessages()
-
-        pendingUpdates(ObjectType.ROUTE6, "5353::/24AS456").size() == 1
-
-        when:
-        def inetnumWithIpAuth = syncUpdate(new SyncUpdate(data: """\
-                            route6: 5353::0/24
-                            descr: TEST-ROUTE6
-                            origin: AS456
-                            mnt-by: TEST-MNT2
-                            source: TEST
-                            password: emptypassword
-                            password: update2
-                            """.stripIndent()))
-        then:
-        inetnumWithIpAuth =~ /SUCCEEDED: \[route6\] 5353::\/24AS456\n/
-        inetnumWithIpAuth =~ /\*\*\*Info:    This update concludes a pending update on route6 5353::\/24AS456\n/
-        noMoreMessages()
-
-        pendingUpdates(ObjectType.ROUTE6, "5353::/24AS456").isEmpty()
-    }
-
-    def "update with multiple route6 objects pending auth"() {
-        when:
-        def response = syncUpdate(new SyncUpdate(data: """\
-                            route6: dddd::/24
-                            descr: Test route
-                            origin: AS456
+        queryObjectNotFound("-r -T aut-num AS76", "aut-num", "AS76")
+        def insertRoute = syncUpdate(new SyncUpdate(data: """\
+                            route6:  2001:1578:0200::/40
+                            descr:  Test route6
+                            origin: AS76
                             mnt-by: TEST-MNT
                             source: TEST
+                            password: update
+                            password: emptypassword
+                            """.stripIndent(true)))
+      expect:
+        insertRoute =~ /SUCCESS/
+    }
 
-                            route6: 5353::/24
-                            descr: Test route
-                            origin: AS456
+    def "create route6 and notify origin aut-num"() {
+        given:
+        def insertRoute = syncUpdate(new SyncUpdate(data: """\
+                            route6:  2001:1578:0200::/40
+                            descr:  Test route6
+                            origin: AS103
                             mnt-by: TEST-MNT
                             source: TEST
-
                             password: update
-                            password: otherpassword
+                            password: emptypassword
+                            """.stripIndent(true)))
+      expect:
+        insertRoute =~ /SUCCESS/
 
-                            """.stripIndent()))
+        def notif = notificationFor "notify@as103.net"
+        notif.subject =~ "Notification of RIPE Database changes"
+        notif.created.any { it.type == "route6" && it.key == "2001:1578:200::/40" }
+
+        noMoreMessages()
+
+      when:
+        def updateRoute = syncUpdate(new SyncUpdate(data: """\
+                            route6:  2001:1578:0200::/40
+                            descr:  Test route6
+                            origin: AS103
+                            remarks: updated
+                            mnt-by: TEST-MNT
+                            source: TEST
+                            password: update
+                            password: emptypassword
+                            """.stripIndent(true)))
         then:
-        response =~ /Create PENDING: \[route6\] dddd::\/24AS456\n/
-        response =~ /Create PENDING: \[route6\] 5353::\/24AS456\n/
+          updateRoute =~ /SUCCESS/
 
-        def notification = notificationFor("dbtest@ripe.net")
-        notification.pendingAuth("CREATE", "route6", "dddd::/24")
-        notification.pendingAuth("CREATE", "route6", "5353::/24")
+          noMoreMessages()
+    }
+
+    def "create route6 without notify origin aut-num"() {
+        given:
+        def insertRoute = syncUpdate(new SyncUpdate(data: """\
+                            route6:  2001:1578:0200::/40
+                            descr:  Test route6
+                            origin: AS123
+                            mnt-by: TEST-MNT
+                            source: TEST
+                            password: update
+                            password: emptypassword
+                            """.stripIndent(true)))
+      expect:
+        insertRoute =~ /SUCCESS/
 
         noMoreMessages()
     }
 
+    def "create route6 with bogon prefix"() {
+        when:
+        def create = new SyncUpdate(data: """\
+                route6:          2001:2::/48
+                descr:           ROUTE6 TEST
+                origin:          AS123
+                mnt-by:          TEST-MNT
+                source:          TEST
+                password:        update
+                """.stripIndent(true))
+
+        then:
+        def response = syncUpdate create
+
+        then:
+        response =~ /FAIL/
+        response.contains("***Error:   Bogon prefix 2001:2::/48 is not allowed.")
+    }
 
 }

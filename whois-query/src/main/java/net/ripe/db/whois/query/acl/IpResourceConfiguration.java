@@ -1,18 +1,23 @@
 package net.ripe.db.whois.query.acl;
 
-import net.ripe.db.whois.common.ip.IpInterval;
 import net.ripe.db.whois.common.domain.IpResourceEntry;
 import net.ripe.db.whois.common.domain.IpResourceTree;
+import net.ripe.db.whois.common.ip.IpInterval;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
-import javax.annotation.PostConstruct;
+import jakarta.annotation.PostConstruct;
 import java.net.InetAddress;
 import java.util.List;
 
 @Component
 public class IpResourceConfiguration {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(IpResourceConfiguration.class);
+
     private static final int TREE_UPDATE_IN_SECONDS = 120;
 
     private static final int DEFAULT_LIMIT = 5000;
@@ -72,10 +77,14 @@ public class IpResourceConfiguration {
     @PostConstruct
     @Scheduled(fixedDelay = TREE_UPDATE_IN_SECONDS * 1000)
     public synchronized void reload() {
-        denied = refreshEntries(loader.loadIpDenied());
-        proxy = refreshEntries(loader.loadIpProxy());
-        limit = refreshEntries(loader.loadIpLimit());
-        unlimitedConnections = refreshEntries(loader.loadUnlimitedConnections());
+        try {
+            denied = refreshEntries(loader.loadIpDenied());
+            proxy = refreshEntries(loader.loadIpProxy());
+            limit = refreshEntries(loader.loadIpLimit());
+            unlimitedConnections = refreshEntries(loader.loadUnlimitedConnections());
+        } catch (RuntimeException e) {
+            LOGGER.warn("Refresh failed due to {}: {}", e.getClass().getName(), e.getMessage());
+        }
     }
 
     private <V> IpResourceTree<V> refreshEntries(final List<IpResourceEntry<V>> entries) {

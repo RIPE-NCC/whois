@@ -1,4 +1,411 @@
 # next
+
+# 1.109.1
+
+[rdap] Organisation RDAP Object is Assumed to be an IP on Country Attribute (#1362)
+
+# 1.109
+
+[rdap] Rdap redaction (#1317)
+[rdap] Removed organisation "e-mail" from RDAP and added to redactions (#1333)
+[update] Removed geofeed prefix validation (#1326)
+[api] Added HTTPS Support to Whois Backend (#1329)
+[api] Support HTTP Basic authentication (#1342)
+[api] Support HTTPS Client Certificate Authentication (#1343)
+[nrtm] Initialize nrtm from command-line (JMX) (#1310)
+[nrtm] Use parallel stream to generate NRTMv4 snapshots (#1309)
+[all] Include AS-SET in NONAUTH dump (#1352)
+
+# 1.108
+
+[nrtm] Use base64 instead of Hex (#1302)
+[nrtm] JSON Text Sequences (#1304)
+[rdap] Add multi mnt-by error (#1301)
+[rdap] Add remarks (#1278)
+[update] Warn when http (#1292)
+[api] Remove Lucene support (#1285)
+[api] Elasticsearch do not rebuild from scratch (#1294)
+[api] Elasticsearch use phrase without prefix due to bug (#1298)
+[api] Elasticsearch scape colons (#1299)
+[all] Jakarta / EE9 (#744)
+
+# 1.107
+
+[nrtm] NWI-14 add mnt-ref to additional object types (#1243)
+[nrtm] Sign NRTMv4 notifications (#1241)
+[nrtm] Separate job for NRTMv4 snapshot file (#1219)
+[api] Truncate long fields while indexing in Elasticsearch (#1236)
+[api] Elasticsearch filters inconsistence (#1231)
+[rdap] Limit resource lookups in RDAP organisation entity requests (#1220)
+[update] Allow any characters in local part of SSO auth email addresses (#1237)
+[update] LIR country attribute bug
+[all] Include country: in Organisation Split File (#1251)
+
+# 1.106.1
+
+[nrtm] NWI-12 NRTMv4 changes 
+[update] Updated Zonemaster client to match API Changes (#1206, #1207)
+[update] Add all warnings to update with override response (#1189)
+[rdap] Handle expected servlet exceptions in RDAP exception mapper (#1193)
+[rdap] Redirect Inverse Domain queries to the Authoritative Source (#1213)
+[api] Fix hightlight issue with dot in Elasticsearch (#1194)
+[api] UnmappedType warning for Elasticsearch (#1191)
+[all] Updated dependencies
+
+# 1.106
+
+[update] NWI-19 Implement AS_SET NONAUTH (#1169)
+[rdap] Implement "networks" and "autnums" elements in RDAP entity response (#1103)
+[rdap] Flat model, don't return as-block (#1125)
+[rdap] Refactor rdap errors (#1124)
+[rdap] Events and notices (#1112)
+[nrtm] NRTMv4 changes (#1166, #1156)
+[nrtm] initialise the nrtmv4 database (#1099)
+[all] Improve AS-SET documentation (#1147)
+
+# 1.105
+
+[update] NWI-19: Change to AS-SET object naming rules
+
+# 1.104
+
+[api] Allow Grouping (-G) flag in Whois Search API (#1077)
+[rdap] cidr0 notation for rdap response (#1068)
+[query] Remove whois tags (#1059)
+[api] Added text/plain to Search and REST APIs (#1054)
+[update] Add comment not NOOP (#1052)
+[update] Do not allow comments in managed attributes (#1045)
+[all] Use documentation prefix 192.0.2.0/24 (#1044)
+[update] Organisation country: is modifiable for end-user orgs without RIPE NCC resources (#1041)
+[api] Do not return deleted versions (#1015)
+[api] Redirect empty requests to syncupdates help (#1011)
+
+# 1.103
+
+[update] Fixed "goefeed:" validation when reading object containing multiple remarks: attributes (#975)
+[all] Removed WHITEPAGES org type. (#1003)
+[update] Better Error Message when Changing "mnt-by:" on Allocations (#988)
+[update] Allow user "mnt-by:" when creating inet6num allocations (already allowed for inetnums) (#982)
+[update] Disallow weak keys and hash algorithms (#642, #974)
+[update] Abuse-c is Required for End User Organisations With Resources (#955, #969)
+[update] Domain overlap validator (#956)
+[api] Increase HTTP idle timeout from 30s to 60s (#998)
+[grs] Lacnic GRS import was incorrectly treated as UTF-8 (should have been latin-1). (#958)
+[update] Updated Zonemaster client to match API Changes (#1005)
+[query] Implemented Elasticsearch (#944, #989, #993, #997)
+[all] Updated dependencies
+
+# 1.102.2
+
+[all] Update log4j to 2.17.0 from 2.15.0 (#965)
+
+# 1.102.1
+
+[all] Update log4j to 2.15.0 to address CVE-2021-44228 (#959)
+
+# 1.102
+
+[all] NWI-13: Added support for the "geofeed:" attribute (#937)
+[Update] Support base64 encoded signed update messages (sent by Thunderbird 78+) (#942)
+[all] Updated "geoloc:" help text (#929)
+[api] Log client IP correctly in HTTP request log (#908)
+[api] Filter passwords in HTTP request log (#919)
+[update] Support IDN in outgoing mail update notifications (#888)
+[all] Added graceful shutdown to healthcheck (#896)
+[grs] Fixed APNIC GRS mirror HTTPS download (#871)
+[all] Removed AWS-specific changes
+[all] Require UTC timezone at startup (#857)
+[all] Updated dependencies
+
+# 1.101
+
+[all] Switch RIPE database to UTC timezone
+[nrtm] Display an error on NRTM if client is blocked by ACL limit (#812)
+[api] Added rewrite rules to embedded Jetty (#801)
+[rdap] RDAP nameserver queries always return Not Implemented (#811)
+[update] Don't use sso as reply-to when override was used. (#818)
+[all] Updated dependencies
+
+# 1.100
+
+[query] Use AWS instance name (#781)
+[update] Use status index during validation (#725)
+[api] Fixed aut-num attribute managed flag (#749)
+[api] Added client flag to API for proxying requests (#728)
+[all] Java 11 support (#673)
+[rdap] nameserver not implemented (#711)
+[update] Delete object bug (#723)
+[all] Removed Travis integration (#724)
+[all] Updated dependencies
+[all] Merged AWS profile (#721)
+[update] Separate email address and leading/trailing space during Punycode conversion (#782)
+
+# 1.99
+
+[update] Require -mnt suffix when creating an MNTNER object (#667)
+[nrtm] Enable TCP_NODELAY in NRTM and query connections (#693)
+[api] Filter out sensitive information in API response on exception (#664)
+[query] Return 'invalid option supplied' on invalid version number given to --diff-version (#662)
+[rdap] Allow *any* CORS origin on RDAP GET requests by default (as recommended by RFC7480). (#661)
+[all] New dummifier for RC environment
+[all] Updated dependent libraries
+[all] Java 11 support
+
+# 1.98
+
+[update] NWI-11 Punycode Internationalized Domain Names in email addresses. (#643)
+[all] Prevent race condition when updating authoritative resources. (#652)
+[rdap] Return remark in rdap response when abuse mailbox validation has failed. (#651)
+[rdap] Rdap CORS changes (#648)
+[rdap] Rdap invalid syntax exception (#647)
+[rdap] An deleted object may be matched by an RDAP lookup (#645)
+[api] An deleted object may not be removed from the fulltextsearch index and matched in a search (#644)
+[all] Refresh legacy autnums list every 15 minutes (#641)
+
+# 1.97.2
+
+[api] Client cert authentication (#637)
+[query] ignore case in RDAP query (#638)
+[query] Optimised finding first managed resource. (#635)
+[update] Cleanup status hierarchy (#633)
+[update] Fixed 500 internal error on domain object update (#636)
+[api] Fulltext search optimize (#631)
+[all] Add daily scheduled job for reloading legacy autnums. (#634)
+[all] More frequent ripe authoritative resource refresh (#627)
+[update] Poetic form should be maintained by RIPE-DBM-MNT (#629)
+
+
+# 1.97.1
+
+[query] Detect a CTRL-C and interrupt (interpret as a delimiter) (#442)
+[update] Fix support for Signed messages with Elliptic Curve Algorithm (#605)
+[all] Updated dependencies
+
+
+# 1.97
+
+[all] Use CI build for releases (#610)
+[nrtm] Apply ACL limit in NRTM (#612)
+[api] Added rate-limiting filter (#609)
+[nrtm] NRTM connection limit (#594)
+[update] Don't allow inconsistent "org-name:" values on create (#607)
+[api] Include build timestamp and commit id in Whois lookup and search responses (#598)
+[nrtm] Open NRTM to non-members (#596)
+[update] Restrict maximum size of object (#601)
+[query] Related irt objects are not returned by default
+[api] Use https in URLs (#604)
+[query] Use local datasource for abuse-c finder (#600)
+
+
+# 1.96.3
+
+[all] Also use grs.import.enabled to disable authoritative resource downloading. (#597)
+[query] Increase maximum pool size per datasource, to allow for spikes in long-running queries.
+
+# 1.96.2
+
+[rdap] Rdap fixes to output UTC time and to support additional roles.
+
+# 1.96.1
+
+# 1.96
+
+[all] Refactor SSO auth pattern matching (#588)
+[all] Rebuild index status sponsoring org (#590)
+[all] Added country code to organisation. (#589)
+[all] Fixed bug in Ipv6Resource.parseFromStrings() (#593)
+
+# 1.95.6
+
+[all] Deprecate mnt-lower in autnum (#585)
+[query] Abuse-c validation comment must refer to the LIR organisation (#573)
+[query] Don't allow more than maximum result rows in fulltextsearch request (#580)
+[update] Use trusted ip instead of override for changing mntner sso attribute (#576)
+
+[all] Update Mariadb JDBC dependency to latest. (#583)
+[all] Update Jetty Dependency to Latest (#579)
+[all] Update Jackson Dependency to Latest (#578)
+[all] Gitlab (#582)
+
+# 1.95.5
+
+# 1.95.4
+[all] Updated commons-compress to 1.19 to mitigate CVE-2019-12402.
+[all] Replace Guava methods with (built-in) Java 8 Alternatives (#577)
+[query] Use slave datasource for query (#581)
+[all] Create status index (#586)
+
+# 1.95.3
+[api] Jetty request log
+[all] Support optional milliseconds in Crowd response. (#571)
+
+# 1.95.2
+[all] Refactored refreshing main and grs sources. (#574)
+[api] Apply ACL for version queries (#572)
+
+# 1.95.1
+[update] Don't perform SSO auth translation in Batch API
+[all] Use a Timestamp class (#569)
+
+# 1.95
+
+[update] Don't allow inet6nums smaller than a /64 to be created. (#562)
+[query] Normalise query input. (#565)
+[all] Separate integration from unit tests (#564)
+[scheduler] Removed custom DailyScheduler, use standard Spring scheduler and ShedLock (#563)
+[update] NWI-8: don't allow SSO credentials to be updated by the user, if the maintainer is synchronised with the LIR Portal (#568)
+[all] Replaced Joda Time with Java Time (#566)
+
+# 1.94.2
+
+[query] Filter personal data (address, email and notify attributes) from historical object versions (#556)
+[query] Filter personal data from historic versions (#553)
+[update] Support custom delete reason in Batch API. (#558)
+[rdap] Return IP parent handle as pkey (#554)
+[rdap] Return org contact (#557)
+[rdap] Return correct entity (muliple objects of different type have same pkey) (#552)
+[all] Upgrade to Spring 5 (#560)
+[all] Replace Joda Time with Java Time (#559)
+
+# 1.94.1
+
+[update] Character Substitutions (#536)
+[update] Do not write UTF8 into Index Tables (#547)
+[rdap] Support multiple country codes in RDAP response, always return first. (#538)
+[rdap] Don't return start/end address in RDAP response in cidr notation. (#539)
+[rdap] Return as-block in case autnum is not found (#542)
+[rdap] RDAP mntner entity query (#543)
+[rdap] Support multiple languages (#544)
+[rdap] RDAP help response (#549)
+[rdap] jCard adr text correction (#550)
+[rdap] Include abuse mailbox (#551)
+[query] Reaching ACL limit in Fulltext search will return 429 Too Many Requests.
+[api] Return "500 internal server error" from the REST API on unexpected error.
+[rpsl] Leave the specification of an actual logging-impl to the user. (#545)
+
+# 1.94
+[api] Full text search acl (#529)
+[all] Suspect abuse-c validation (#530)
+[update] Abuse-c reference can also be from a resource (#531)
+[api] Do not return null elements in Full text search response. (#533)
+[update] Validate email address (do not allow local-only addresses, i.e. missing @domain part). (#532)
+
+# 1.93.2
+[api] Impose a limit on the maximum number of concurrent fulltext searches to prevent memory exhaustion.
+[all] Increase limit in sanity check during GRS import.
+
+# 1.93.1
+[all] Rebuilt release to fix JavaMail dependency.
+
+# 1.93
+[all] Updated to Bouncy Castle 1.60 (supports Curve 25519)
+[all] Updated dependencies
+[update] Bogons (#519)
+[update] Warn the user if the resource abuse-c is identical to the organisation abuse-c (#520)
+[query] Filter out comment in Autocomplete response (#518)
+
+# 1.92.15
+[all] Abuse-c Validation schema changes.
+
+# 1.92.14
+[all] Test elliptic curve algorithms.
+[all] Updated inetnum placeholder for transfers (#516)
+
+# 1.92.13
+[all] Abuse-c Validation schema changes.
+[update] Only validate reserved words on create, so existing objects can be updated.
+
+# 1.92.12
+[all] Abuse-c Validation schema changes.
+
+# 1.92.11
+[all] Abuse-c Validation schema changes.
+
+# 1.92.10
+[all] Abuse-c Validation schema changes.
+
+# 1.92.9
+[all] Updated Spring version (#513)
+[all] Updated JavaMail version.
+[all] Improved Email address validation (#481)
+
+# 1.92.8
+[all] Schema changes for 2017-02 Abuse-c validation.
+
+# 1.92.7
+[all] Removed remaining pending update code (NWI-5)
+[all] Schema changes for 2017-02 Abuse-c validation.
+[api] Upgrades to libraries (#505)
+
+# 1.92.6
+[api] Make source comparison case-insensitive (fixes lookup bug for object with lowercase source value).
+[query] Make source attribute comparison case-insensitive.
+
+# 1.92.5
+[all] Removed references to the RPSL maintainer.
+
+# 1.92.4
+[api] Refactored redirect for objects with nonauth source.
+[query] Added nonauth source to "--list-sources" response.
+[nrtm] Removed empty line between sources in "-q sources" response.
+
+# 1.92.3
+[api] Fixed URL path in REST API redirect for objects with nonauth source.
+
+# 1.92.2
+[all] Added nonauth source to database dump and split files for NWI-5.
+
+# 1.92.1
+[nrtm] Added separate sources for NWI-5.
+[update] Replace short-format attribute names on update (#501)
+[all] Fixed rtr-set members and mp-members syntax (#499)
+
+# 1.92
+[all] Initial NWI-5 release
+
+# 1.91.6
+[all] Updated Spring framework to 4.3.18.
+[update] Validate reserved words and prefixes.
+
+# 1.91.5
+[all] Specify database latin1 character set and collation for testing.
+
+# 1.91.4
+[update] Non-break spaces not handled properly by REST API and Syncupdates.
+[rdap] RDAP related contact information is filtered.
+[all] Added wait loop to Database dummifier task.
+
+
+# 1.91.3
+[update] Don't return internal Zonemaster errors.
+[update] Fixed Syncupdates compressed response.
+[all] Updated Apache Velocity from 1.7 to 2.0.
+
+# 1.91.2
+[all] Jackson 2.9.5
+
+# 1.91.1
+[nrtm] Only write NRTM end of stream comment in keepalive mode
+[update] Add dry-run for batch updates
+[all] Updated SSO API
+
+# 1.91
+
+[update] Added clearer message for which LIR organisation attributes the user can update in the LIR portal
+[update] Don't allow multiple spaces, any tabs, or multiple lines, in the organisation org-name attribute.
+[update] Exclude certain email addresses in abuse-mailbox,e-mail,irt-nfy,mnt-nfy,notify,ref-nfy,upd-to attributes
+[update] Convert non-break spaces in mailupdates to regular spaces
+[nrtm] Added "end of stream" comment to NRTM responses in keepalive mode
+[query] Fixed inconsistent newlines in --list-versions response
+[update] Remove the "changed:" attribute from the database on update
+[all] Updated dependencies
+
+# 1.90.1
+[api] Renamed Whois Search comaintained to managed.
+[all] Removed "abuse-mailbox:" attribute from person,mntner,organisation,irt object types.
+[update] Added Batch API
+
+# 1.90
 [update] Make org-name validation case-sensitive
 [update] only allow assignment-size attribute on inet6num objects with AGGREGATED-BY-LIR status
 [api] Improved REST API response if an attribute value is omitted
@@ -10,6 +417,9 @@
 [api] Improved Search API (#441)
 [update] Removed dnscheck data source
 [grs] Set connect and read timeouts when downloading GRS mirror dumps
+[update] Allow adding an "abuse-c:" attribute to INET(6)NUM and AUT-NUM objects
+[update] Disallow adding "abuse-c:" to object types other than ORGANISATION, INET(6)NUM and AUT-NUM
+[update] Disallow adding "abuse-mailbox:" to any object type other than ROLE
 
 # 1.89.2
 [update] Fix Zonemaster configuration

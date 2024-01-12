@@ -4,16 +4,18 @@ import com.google.common.base.Splitter;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
+import net.javacrumbs.shedlock.spring.annotation.SchedulerLock;
 import net.ripe.db.whois.common.domain.CIString;
 import net.ripe.db.whois.common.scheduler.DailyScheduledTask;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
-import javax.annotation.PostConstruct;
-import javax.annotation.PreDestroy;
+import jakarta.annotation.PostConstruct;
+import jakarta.annotation.PreDestroy;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -42,7 +44,7 @@ public class GrsImporter implements DailyScheduledTask {
 
     private boolean grsImportEnabled;
 
-    @Value("${grs.import.enabled}")
+    @Value("${grs.import.enabled:false}")
     public void setGrsImportEnabled(final boolean grsImportEnabled) {
         LOGGER.info("GRS import enabled: {}", grsImportEnabled);
         this.grsImportEnabled = grsImportEnabled;
@@ -50,7 +52,7 @@ public class GrsImporter implements DailyScheduledTask {
 
     private String defaultSources;
 
-    @Value("${grs.import.sources}")
+    @Value("${grs.import.sources:}")
     public void setDefaultSources(final String defaultSources) {
         this.defaultSources = defaultSources;
     }
@@ -82,6 +84,8 @@ public class GrsImporter implements DailyScheduledTask {
     }
 
     @Override
+    @Scheduled(cron = "0 0 0 * * *", zone = EUROPE_AMSTERDAM)
+    @SchedulerLock(name = "GrsImporter")
     public void run() {
         if (!grsImportEnabled) {
             LOGGER.info("GRS import is not enabled");

@@ -6,8 +6,8 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import javax.annotation.PostConstruct;
-import javax.annotation.PreDestroy;
+import jakarta.annotation.PostConstruct;
+import jakarta.annotation.PreDestroy;
 import java.lang.reflect.Proxy;
 import java.sql.Connection;
 import java.sql.Driver;
@@ -39,6 +39,7 @@ public class LoggingDriver implements Driver {
     }
 
     @PostConstruct
+    @SuppressWarnings("EmptyCatchBlock")
     public synchronized void init() {
         // there should be only one LoggingDriver initialized per JVM (or we won't know which applicationContext's loggerContext to log to)
         try {
@@ -50,7 +51,7 @@ public class LoggingDriver implements Driver {
                 throw new IllegalStateException("Unable to de-register logging JDBC driver", e);
             }
         } catch (SQLException expected) {
-            LOGGER.debug(expected.getMessage(), expected);
+            // ignore
         }
 
         try {

@@ -2,13 +2,29 @@ package net.ripe.db.whois.api.rest;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.ws.rs.BadRequestException;
+import jakarta.ws.rs.Consumes;
+import jakarta.ws.rs.CookieParam;
+import jakarta.ws.rs.InternalServerErrorException;
+import jakarta.ws.rs.NotAuthorizedException;
+import jakarta.ws.rs.POST;
+import jakarta.ws.rs.Path;
+import jakarta.ws.rs.PathParam;
+import jakarta.ws.rs.Produces;
+import jakarta.ws.rs.QueryParam;
+import jakarta.ws.rs.WebApplicationException;
+import jakarta.ws.rs.core.Context;
+import jakarta.ws.rs.core.MediaType;
+import jakarta.ws.rs.core.Response;
 import net.ripe.db.whois.api.rest.domain.WhoisObject;
 import net.ripe.db.whois.api.rest.domain.WhoisResources;
 import net.ripe.db.whois.api.rest.mapper.FormattedServerAttributeMapper;
 import net.ripe.db.whois.api.rest.mapper.WhoisObjectMapper;
 import net.ripe.db.whois.common.rpsl.ObjectType;
 import net.ripe.db.whois.common.rpsl.RpslObject;
-import net.ripe.db.whois.common.sso.UserSession;
+import net.ripe.db.whois.common.sso.AuthServiceClient;
+import net.ripe.db.whois.update.domain.ClientCertificateCredential;
 import net.ripe.db.whois.update.domain.Credential;
 import net.ripe.db.whois.update.domain.Credentials;
 import net.ripe.db.whois.update.domain.Keyword;
@@ -21,6 +37,7 @@ import net.ripe.db.whois.update.domain.Update;
 import net.ripe.db.whois.update.domain.UpdateContext;
 import net.ripe.db.whois.update.domain.UpdateMessages;
 import net.ripe.db.whois.update.domain.UpdateStatus;
+import net.ripe.db.whois.update.keycert.X509CertificateWrapper;
 import net.ripe.db.whois.update.log.LoggerContext;
 import org.eclipse.jetty.http.HttpStatus;
 import org.slf4j.Logger;
@@ -28,29 +45,14 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import javax.servlet.http.HttpServletRequest;
-import javax.ws.rs.BadRequestException;
-import javax.ws.rs.Consumes;
-import javax.ws.rs.CookieParam;
-import javax.ws.rs.InternalServerErrorException;
-import javax.ws.rs.NotAuthorizedException;
-import javax.ws.rs.POST;
-import javax.ws.rs.Path;
-import javax.ws.rs.PathParam;
-import javax.ws.rs.Produces;
-import javax.ws.rs.QueryParam;
-import javax.ws.rs.WebApplicationException;
-import javax.ws.rs.core.Context;
-import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.Response;
 import java.util.List;
 import java.util.Set;
 
-import static javax.ws.rs.core.Response.Status.BAD_REQUEST;
-import static javax.ws.rs.core.Response.Status.CONFLICT;
-import static javax.ws.rs.core.Response.Status.INTERNAL_SERVER_ERROR;
-import static javax.ws.rs.core.Response.Status.OK;
-import static javax.ws.rs.core.Response.Status.UNAUTHORIZED;
+import static jakarta.ws.rs.core.Response.Status.BAD_REQUEST;
+import static jakarta.ws.rs.core.Response.Status.CONFLICT;
+import static jakarta.ws.rs.core.Response.Status.INTERNAL_SERVER_ERROR;
+import static jakarta.ws.rs.core.Response.Status.OK;
+import static jakarta.ws.rs.core.Response.Status.UNAUTHORIZED;
 
 @Component
 @Path("/domain-objects")
@@ -81,7 +83,7 @@ public class DomainObjectService {
             @Context final HttpServletRequest request,
             @PathParam("source") final String sourceParam,
             @QueryParam("password") final List<String> passwords,
-            @CookieParam("crowd.token_key") final String crowdTokenKey) {
+            @CookieParam(AuthServiceClient.TOKEN_KEY) final String crowdTokenKey) {
 
         if (resources == null || resources.getWhoisObjects().size() == 0) {
             return Response.status(BAD_REQUEST).entity("WhoisResources is mandatory").build();
@@ -90,12 +92,12 @@ public class DomainObjectService {
         try {
             final Origin origin = updatePerformer.createOrigin(request);
 
-            final UpdateContext updateContext = updatePerformer.initContext(origin, crowdTokenKey);
+            final UpdateContext updateContext = updatePerformer.initContext(origin, crowdTokenKey, request);
             updateContext.setBatchUpdate();
 
             auditlogRequest(request);
 
-            final Credentials credentials = createCredentials(updateContext.getUserSession(), passwords);
+            final Credentials credentials = createCredentials(updateContext, passwords);
 
             final List<Update> updates = extractUpdates(resources, credentials);
 
@@ -110,10 +112,15 @@ public class DomainObjectService {
 
         } catch (UpdateFailedException e) {
             return createResponse(e.status, e.whoisResources);
+
+        } catch (IllegalArgumentException e) {
+            return createResponse(BAD_REQUEST, e.getMessage());
+
         } catch (Exception e) {
             updatePerformer.logError(e);
             LOGGER.error("Unexpected", e);
-            return createResponse(INTERNAL_SERVER_ERROR, resources);
+            return createResponse(INTERNAL_SERVER_ERROR, e.getMessage());
+
         } finally {
             updatePerformer.closeContext();
         }
@@ -181,7 +188,7 @@ public class DomainObjectService {
         return result;
     }
 
-    private Credentials createCredentials(final UserSession userSession, final List<String> passwords) {
+    private Credentials createCredentials(final UpdateContext updateContext, final List<String> passwords) {
 
         final Set<Credential> credentials = Sets.newHashSet();
 
@@ -189,14 +196,25 @@ public class DomainObjectService {
             credentials.add(new PasswordCredential(password));
         }
 
-        if (userSession != null) {
-            credentials.add(SsoCredential.createOfferedCredential(userSession));
+        if (updateContext.getUserSession() != null) {
+            credentials.add(SsoCredential.createOfferedCredential(updateContext.getUserSession()));
         }
+
+        if (updateContext.getClientCertificates() != null) {
+            for (X509CertificateWrapper clientCertificate : updateContext.getClientCertificates()) {
+                credentials.add(ClientCertificateCredential.createOfferedCredential(clientCertificate));
+            }
+        }
+
         return new Credentials(credentials);
     }
 
     private Response createResponse(Response.Status status, WhoisResources updatedResources) {
         return Response.status(status).entity(updatedResources).build();
+    }
+
+    private Response createResponse(Response.Status status, String message) {
+        return Response.status(status).entity(message).build();
     }
 
     private void auditlogRequest(final HttpServletRequest request) {

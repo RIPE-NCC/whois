@@ -8,7 +8,6 @@ import net.ripe.db.whois.common.domain.Hosts;
 import org.apache.commons.lang.StringUtils;
 
 import java.net.InetAddress;
-import java.util.Set;
 
 import static net.ripe.db.whois.common.Messages.Type;
 
@@ -25,14 +24,14 @@ public final class QueryMessages {
                 + "% The objects are in RPSL format.\n"
                 + "%\n"
                 + "% The RIPE Database is subject to Terms and Conditions.\n"
-                + "% See http://www.ripe.net/db/support/db-terms-conditions.pdf\n");
+                + "% See https://apps.db.ripe.net/docs/HTML-Terms-And-Conditions\n");
     }
 
     // solely used by port43 pipeline handler
     public static Message servedByNotice(final CharSequence version) {
         return new Message(Type.INFO,
                 "%% This query was served by the RIPE Database Query Service version %s (%s)\n",
-                version, Hosts.getLocalHostName());
+                version, Hosts.getInstanceName());
     }
 
     // solely used by text_export
@@ -42,7 +41,7 @@ public final class QueryMessages {
                 "# The contents of this file are subject to \n" +
                 "# RIPE Database Terms and Conditions\n" +
                 "#\n" +
-                "# http://www.ripe.net/db/support/db-terms-conditions.pdf\n" +
+                "# https://apps.db.ripe.net/docs/HTML-Terms-And-Conditions\n" +
                 "#\n");
     }
 
@@ -55,6 +54,15 @@ public final class QueryMessages {
     }
 
     public static Message abuseCShown(final CharSequence key, final CharSequence value) {
+        return new QueryMessage(Type.INFO, "Abuse contact for '%s' is '%s'", key, value);
+    }
+
+    public static Message unvalidatedAbuseCShown(final CharSequence key, final CharSequence value, final CharSequence orgId) {
+        return new QueryMessage(Type.INFO, "Abuse contact for '%s' is '%s'" +
+                "\nAbuse-mailbox validation failed. Please refer to %s for further information.", key, value, orgId);
+    }
+
+    public static Message unvalidatedAbuseCShown(final CharSequence key, final CharSequence value) {
         return new QueryMessage(Type.INFO, "Abuse contact for '%s' is '%s'", key, value);
     }
 
@@ -82,7 +90,7 @@ public final class QueryMessages {
                 type, key, QueryFlag.SHOW_VERSION);
     }
 
-    public static Message versionInformation(final int version, final boolean isCurrentVersion, final CIString key, final String operation, final VersionDateTime timestamp) {
+    public static Message versionInformation(final int version, final boolean isCurrentVersion, final CIString key, final String operation, final String timestamp) {
         return new QueryMessage(Type.INFO, ""
                 + "Version %d %sof object \"%s\"\n"
                 + "This version was a %s operation on %s\n"
@@ -250,26 +258,26 @@ public final class QueryMessages {
                 + "Too many arguments supplied.");
     }
 
-    public static Message accessDeniedPermanently(final InetAddress remoteAddress) {
+    public static Message accessDeniedPermanently(final String accountingId) {
         return new QueryMessage(Type.ERROR, ""
                 + "ERROR:201: access denied for %s\n"
                 + "\n"
                 + "Sorry, access from your host has been permanently\n"
                 + "denied because of a repeated excessive querying.\n"
                 + "For more information, see\n"
-                + "http://www.ripe.net/data-tools/db/faq/faq-db/why-did-you-receive-the-error-201-access-denied",
-                remoteAddress.getHostAddress());
+                + "https://apps.db.ripe.net/docs/FAQ/#why-did-i-receive-an-error-201-access-denied",
+                accountingId);
     }
 
-    public static Message accessDeniedTemporarily(final InetAddress remoteAddress) {
+    public static Message accessDeniedTemporarily(final String accountingId) {
         return new QueryMessage(Type.ERROR, ""
                 + "ERROR:201: access denied for %s\n"
                 + "\n"
                 + "Queries from your IP address have passed the daily limit of controlled objects.\n"
                 + "Access from your host has been temporarily denied.\n"
                 + "For more information, see\n"
-                + "http://www.ripe.net/data-tools/db/faq/faq-db/why-did-you-receive-the-error-201-access-denied",
-                remoteAddress.getHostAddress());
+                + "https://apps.db.ripe.net/docs/FAQ/#why-did-i-receive-an-error-201-access-denied",
+                accountingId);
     }
 
     public static Message notAllowedToProxy() {
@@ -306,39 +314,6 @@ public final class QueryMessages {
                 + "An IP flag (-l, -L, -m, -M, -x, -d or -b) used without an IP key.");
     }
 
-    public static Message tagInfoStart(final CharSequence pkey) {
-        return new QueryMessage(Type.INFO, "Tags relating to '%s'", pkey);
-    }
-
-    public static Message tagInfo(final CharSequence tagType, final CharSequence tagValue) {
-        if (tagValue != null && tagValue.length() > 0) {
-            return new QueryMessage(Type.INFO, "%s # %s", tagType, tagValue);
-        } else {
-            return new QueryMessage(Type.INFO, "%s", tagType);
-        }
-    }
-
-    public static Message unreferencedTagInfo(final CharSequence pkey, final CharSequence value) {
-        return new QueryMessage(Type.INFO, "Unreferenced # '%s' will be deleted in %s days", pkey, value);
-    }
-
-    public static Message filterTagNote(final Set<? extends CharSequence> includeArgs, final Set<? extends CharSequence> excludeArgs) {
-        final StringBuilder message = new StringBuilder("Note: tag filtering is enabled,\n");
-
-        if (!includeArgs.isEmpty()) {
-            message.append("      Only showing objects WITH tag(s): ").append(JOINER.join(includeArgs));
-            if (!excludeArgs.isEmpty()) {
-                message.append('\n');
-            }
-        }
-
-        if (!excludeArgs.isEmpty()) {
-            message.append("      Only showing objects WITHOUT tag(s): ").append(JOINER.join(excludeArgs));
-        }
-
-        return new QueryMessage(Type.INFO, message.toString());
-    }
-
     // FIXME: [AH] this message should be '*HAS* invalid syntax'
     public static Message invalidSyntax(final CharSequence objectKey) {
         return new QueryMessage(Type.INFO, "'%s' invalid syntax", objectKey);
@@ -351,4 +326,9 @@ public final class QueryMessages {
     public static Message inverseSearchNotAllowed() {
         return new QueryMessage(Type.ERROR, "Inverse search on 'auth' attribute is limited to 'key-cert' objects only");
     }
+
+    public static Message valueChangedDueToLatin1Conversion() {
+        return new QueryMessage(Type.INFO, "This query was converted into the ISO-8859-1 (Latin-1) character set.");
+    }
+
 }

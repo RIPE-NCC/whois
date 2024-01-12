@@ -2,33 +2,36 @@ package net.ripe.db.whois.update.mail;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
-import com.jayway.awaitility.Awaitility;
+import jakarta.mail.Address;
+import jakarta.mail.Message;
+import jakarta.mail.MessagingException;
+import jakarta.mail.Session;
+import jakarta.mail.internet.MimeMessage;
 import net.ripe.db.whois.common.Stub;
 import net.ripe.db.whois.common.profiles.WhoisProfile;
+import org.awaitility.Awaitility;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.annotation.Profile;
 import org.springframework.mail.javamail.MimeMessagePreparator;
 import org.springframework.stereotype.Component;
 
-import javax.mail.Address;
-import javax.mail.Message;
-import javax.mail.MessagingException;
-import javax.mail.Session;
-import javax.mail.internet.MimeMessage;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.Properties;
 import java.util.Set;
 import java.util.concurrent.Callable;
 import java.util.concurrent.TimeUnit;
 
-@Profile({WhoisProfile.TEST, WhoisProfile.ENDTOEND})
+@Profile({WhoisProfile.TEST})
 @Component
 public class MailSenderStub extends MailSenderBase implements Stub {
     private static final Logger LOGGER = LoggerFactory.getLogger(MailSenderStub.class);
 
-    private final Set<MimeMessage> messages = Collections.synchronizedSet(Sets.<MimeMessage>newHashSet());
+    private static final Session SESSION = Session.getInstance(new Properties());
+
+    private final Set<MimeMessage> messages = Collections.synchronizedSet(Sets.newHashSet());
 
     @Override
     public void reset() {
@@ -38,9 +41,8 @@ public class MailSenderStub extends MailSenderBase implements Stub {
     @Override
     public void send(MimeMessagePreparator mimeMessagePreparator) {
         try {
-            final MimeMessage mimeMessage = new MimeMessage((Session) null);
+            final MimeMessage mimeMessage = new MimeMessage(SESSION);
             mimeMessagePreparator.prepare(mimeMessage);
-//            LOGGER.info("Send message: {}\n\n{}\n\n", EnumerationUtils.toList(mimeMessage.getAllHeaderLines()), mimeMessage.getContent());
             messages.add(mimeMessage);
         } catch (Exception e) {
             throw new RuntimeException("Send message", e);
@@ -51,7 +53,7 @@ public class MailSenderStub extends MailSenderBase implements Stub {
         final GetResponse getResponse = new GetResponse(to);
 
         try {
-            Awaitility.await().atMost(30, TimeUnit.SECONDS).until(getResponse);
+            Awaitility.await().atMost(30L, TimeUnit.SECONDS).until(getResponse);
             final MimeMessage message = getResponse.getMessage();
             messages.remove(message);
             return message;

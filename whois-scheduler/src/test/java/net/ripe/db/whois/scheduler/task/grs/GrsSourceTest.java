@@ -2,14 +2,15 @@ package net.ripe.db.whois.scheduler.task.grs;
 
 import com.google.common.collect.Lists;
 import net.ripe.db.whois.common.DateTimeProvider;
-import net.ripe.db.whois.common.grs.AuthoritativeResourceData;
 import net.ripe.db.whois.common.domain.io.Downloader;
+import net.ripe.db.whois.common.grs.AuthoritativeResourceData;
 import net.ripe.db.whois.common.source.SourceContext;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+
 import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -18,12 +19,16 @@ import java.io.StringReader;
 import java.nio.file.Path;
 import java.util.List;
 
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertThat;
-import static org.mockito.Mockito.*;
+import static org.mockito.ArgumentMatchers.anyList;
+import static org.mockito.Mockito.doThrow;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoMoreInteractions;
 
-@RunWith(MockitoJUnitRunner.class)
+@ExtendWith(MockitoExtension.class)
 public class GrsSourceTest {
     @Mock SourceContext sourceContext;
     @Mock DateTimeProvider dateTimeProvider;
@@ -32,7 +37,7 @@ public class GrsSourceTest {
     @Mock Downloader downloader;
     GrsSource subject;
 
-    @Before
+    @BeforeEach
     public void setUp() throws Exception {
         subject = new GrsSource("SOME-GRS", sourceContext, dateTimeProvider, authoritativeResourceData, downloader) {
             @Override
@@ -58,7 +63,7 @@ public class GrsSourceTest {
 
         subject.handleLines(reader, lineHandler);
 
-        verifyZeroInteractions(lineHandler);
+        verifyNoMoreInteractions(lineHandler);
     }
 
     @Test
@@ -66,7 +71,7 @@ public class GrsSourceTest {
         final BufferedReader reader = new BufferedReader(new StringReader("line1\n\nline2"));
         final GrsSource.LineHandler lineHandler = mock(GrsSource.LineHandler.class);
 
-        doThrow(NullPointerException.class).when(lineHandler).handleLines(anyListOf(String.class));
+        doThrow(NullPointerException.class).when(lineHandler).handleLines(anyList());
         subject.handleLines(reader, lineHandler);
 
         verify(lineHandler).handleLines(Lists.newArrayList("line1\n"));
@@ -128,7 +133,7 @@ public class GrsSourceTest {
         });
 
         assertThat(handledLines, hasSize(2));
-        assertThat(handledLines.get(0), is((List<String>) Lists.newArrayList(
+        assertThat(handledLines.get(0), is(Lists.newArrayList(
                 "person:         John Smith\n", "" +
                 "address:        Example LTD\n" +
                 "                High street 12\n" +
@@ -146,7 +151,7 @@ public class GrsSourceTest {
                 "changed:        john.smith@example.com 20051105\n",
                 "source:         TEST\n")));
 
-        assertThat(handledLines.get(1), is((List<String>) Lists.newArrayList(
+        assertThat(handledLines.get(1), is(Lists.newArrayList(
                 "mntner:         TEST-ROOT-MNT\n")));
     }
 }

@@ -15,21 +15,20 @@ import net.ripe.db.whois.update.domain.Update;
 import net.ripe.db.whois.update.domain.UpdateContainer;
 import net.ripe.db.whois.update.domain.UpdateStatus;
 import org.apache.commons.lang.StringUtils;
-import org.joda.time.LocalDateTime;
-import org.joda.time.format.DateTimeFormat;
-import org.joda.time.format.DateTimeFormatter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
-import javax.annotation.PostConstruct;
+import jakarta.annotation.PostConstruct;
 import java.io.BufferedOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.Collection;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -39,8 +38,8 @@ import java.util.zip.GZIPOutputStream;
 public class LoggerContext {
     private static final Logger LOGGER = LoggerFactory.getLogger(LoggerContext.class);
 
-    private static final DateTimeFormatter DATE_FORMAT = DateTimeFormat.forPattern("yyyyMMdd");
-    private static final DateTimeFormatter TIME_FORMAT = DateTimeFormat.forPattern("HHmmss");
+    private static final DateTimeFormatter DATE_FORMAT = DateTimeFormatter.ofPattern("yyyyMMdd");
+    private static final DateTimeFormatter TIME_FORMAT = DateTimeFormatter.ofPattern("HHmmss");
     private static final String FILE_SEPARATOR = System.getProperty("file.separator");
     private static final int MAXIMUM_FILENAME_LENGTH = 255;
 
@@ -80,7 +79,7 @@ public class LoggerContext {
 
     public void init(final String folderName) {
         final LocalDateTime now = dateTimeProvider.getCurrentDateTime();
-        final File dir = getCreatedDir(baseDir + FILE_SEPARATOR + DATE_FORMAT.print(now) + FILE_SEPARATOR + trim(TIME_FORMAT.print(now) + "." + sanitize(folderName), MAXIMUM_FILENAME_LENGTH));
+        final File dir = getCreatedDir(baseDir + FILE_SEPARATOR + DATE_FORMAT.format(now) + FILE_SEPARATOR + trim(TIME_FORMAT.format(now) + "." + sanitize(folderName), MAXIMUM_FILENAME_LENGTH));
         init(dir);
     }
 

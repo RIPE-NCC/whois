@@ -1,21 +1,23 @@
 package net.ripe.db.whois.common.rpsl;
 
-import com.google.common.base.Charsets;
-import com.google.common.base.Function;
 import com.google.common.collect.Iterables;
 import net.ripe.db.whois.common.domain.CIString;
 import org.apache.commons.lang.StringUtils;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
-import javax.annotation.Nullable;
+import java.nio.charset.StandardCharsets;
 import java.util.List;
 
-import static org.hamcrest.Matchers.*;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertThat;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.contains;
+import static org.hamcrest.Matchers.containsString;
+import static org.hamcrest.Matchers.equalTo;
+import static org.hamcrest.Matchers.hasSize;
+import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.not;
+import static org.hamcrest.Matchers.nullValue;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.fail;
 
 public class RpslObjectTest {
     private final String maintainer = "" +
@@ -32,54 +34,75 @@ public class RpslObjectTest {
 
     private RpslObject subject;
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test
     public void parseNullFails() {
-        RpslObject.parse((byte[]) null);
+        assertThrows(IllegalArgumentException.class, () -> {
+            RpslObject.parse((byte[]) null);
+        });
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test
     public void parseEmptyFails() {
-        RpslObject.parse(new byte[]{});
+        assertThrows(IllegalArgumentException.class, () -> {
+            RpslObject.parse(new byte[]{});
+        });
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test
     public void parseEmptyStringFails() {
-        parseAndAssign("");
+        assertThrows(IllegalArgumentException.class, () -> {
+            parseAndAssign("");
+        });
+
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test
     public void parseNullSizedKey() {
-        parseAndAssign(":");
+        assertThrows(IllegalArgumentException.class, () -> {
+            parseAndAssign(":");
+        });
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test
     public void parseInvalidCharacterInKey() {
-        parseAndAssign(" :");
+        assertThrows(IllegalArgumentException.class, () -> {
+            parseAndAssign(" :");
+        });
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test
     public void parseEmptyLineBeforeObject() {
-        parseAndAssign("\nk:");
+        assertThrows(IllegalArgumentException.class, () -> {
+            parseAndAssign("\nk:");
+        });
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test
     public void parseEmptyLineAfterObject() {
-        parseAndAssign("k:\n\n");
+        assertThrows(IllegalArgumentException.class, () -> {
+            parseAndAssign("k:\n\n");
+        });
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test
     public void attributeKeyCannotBeNull() {
-        new RpslAttribute((String)null, "");
+        assertThrows(IllegalArgumentException.class, () -> {
+            new RpslAttribute((String)null, "");
+        });
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test
     public void attributeValueCannotBeNull() {
-        new RpslAttribute("", (String)null);
+        assertThrows(IllegalArgumentException.class, () -> {
+            new RpslAttribute("", (String)null);
+        });
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test
     public void checkAllowedCharactersInKey() {
-        parseAndAssign("abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789-:");
+        assertThrows(IllegalArgumentException.class, () -> {
+            parseAndAssign("abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789-:");
+        });
     }
 
     @Test
@@ -116,9 +139,11 @@ public class RpslObjectTest {
         assertThat(addresses.get(0).getValue(), containsString("???????? ?????,??????"));
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test
     public void parseInValidMultiKeyObject() {
-        parseAndAssign("k:\nk");
+        assertThrows(IllegalArgumentException.class, () -> {
+            parseAndAssign("k:\nk");
+        });
     }
 
     @Test
@@ -127,7 +152,7 @@ public class RpslObjectTest {
 
         assertThat(subject, is(not(nullValue())));
         assertThat(subject.getType(), is(ObjectType.MNTNER));
-        assertTrue(subject.containsAttribute(AttributeType.MNTNER));
+        assertThat(subject.containsAttribute(AttributeType.MNTNER), is(true));
         assertThat(subject.getValueForAttribute(AttributeType.MNTNER).toString(), is("DEV-MNT"));
     }
 
@@ -137,7 +162,7 @@ public class RpslObjectTest {
         String value = ":#!@#$%^&*()_+~![]{};':<>,./?\\";
         parseAndAssign(key + ":" + value);
 
-        assertTrue(subject.containsAttribute(AttributeType.MNTNER));
+        assertThat(subject.containsAttribute(AttributeType.MNTNER), is (true));
         assertThat(subject.findAttributes(AttributeType.MNTNER), hasSize(1));
         assertThat(subject.findAttributes(AttributeType.MNTNER).get(0).getValue(), is(value));
     }
@@ -149,7 +174,7 @@ public class RpslObjectTest {
 
         parseAndAssign(key + ":" + value);
 
-        assertTrue(subject.containsAttribute(AttributeType.MNTNER));
+        assertThat(subject.containsAttribute(AttributeType.MNTNER), is(true));
         assertThat(subject.findAttributes(AttributeType.MNTNER), hasSize(1));
         assertThat(subject.findAttributes(AttributeType.MNTNER).get(0).getValue(), is(value));
     }
@@ -161,8 +186,8 @@ public class RpslObjectTest {
 
         parseAndAssign("mntner: DEV-MNT\n" + key + ":" + value + "\n" + key + ":" + value);
 
-        assertTrue(subject.containsAttribute(AttributeType.MNTNER));
-        assertTrue(subject.containsAttribute(AttributeType.DESCR));
+        assertThat(subject.containsAttribute(AttributeType.MNTNER), is(true));
+        assertThat(subject.containsAttribute(AttributeType.DESCR), is(true));
         assertThat(subject.findAttributes(AttributeType.MNTNER), hasSize(1));
         assertThat(subject.findAttributes(AttributeType.DESCR), hasSize(2));
         assertThat(subject.findAttributes(AttributeType.DESCR).get(0).getValue(), is(value));
@@ -170,16 +195,15 @@ public class RpslObjectTest {
 
     @Test
     public void parseMultipleIdenticalKeys() {
-        String key = "descr";
-        int amount = 1000;
+        final int amount = 1000;
 
-        parseAndAssign("mntner: DEV-MNT\n" + StringUtils.repeat(key + ": value", "\n", amount));
+        parseAndAssign("mntner: DEV-MNT\n" + StringUtils.repeat("descr: value", "\n", amount));
 
         assertThat(subject.findAttributes(AttributeType.DESCR), hasSize(amount));
     }
 
     private byte[] bytesFrom(String input) {
-        return input.getBytes(Charsets.ISO_8859_1);
+        return input.getBytes(StandardCharsets.ISO_8859_1);
     }
 
     private void parseAndAssign(String input) {
@@ -222,8 +246,8 @@ public class RpslObjectTest {
         assertThat(subject, is(subject));
         assertThat(subject.hashCode(), is(subject.hashCode()));
 
-        Assert.assertFalse(subject.equals(null));
-        Assert.assertFalse(subject.equals(1));
+        assertThat(subject, not(equalTo(null)));
+        assertThat(subject, not(equalTo(1)));
 
         final RpslObject subject2 = parse(subject.toString());
         assertThat(subject, is(subject2));
@@ -282,7 +306,7 @@ public class RpslObjectTest {
                 "source:          RIPE";
 
         RpslObject ro = parse(multiMnt);
-        assertThat(ro.getAttributes().size(), is(3));
+        assertThat(ro.getAttributes(), hasSize(3));
     }
 
     @Test
@@ -292,10 +316,12 @@ public class RpslObjectTest {
         assertThat(subject.getKey().toString(), is("VM1-DEV"));
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test
     public void test_get_key_person_empty() {
-        parseAndAssign("person: foo # Comment \n");
-        subject.getKey();
+        assertThrows(IllegalArgumentException.class, () -> {
+            parseAndAssign("person: foo # Comment \n");
+            subject.getKey();
+        });
     }
 
     @Test
@@ -360,12 +386,13 @@ public class RpslObjectTest {
         assertThat(RpslObject.parse("mntner: \t  mnt  \t \n \t     a"), is(RpslObject.parse("mntner: mnt\n\ta")));
         assertThat(RpslObject.parse("mntner: \t  one \t two \t \n \t     a"), is(RpslObject.parse("mntner: one two\n\ta")));
         assertThat(RpslObject.parse("mntner:one \t two \t \n \t     a"), is(RpslObject.parse("mntner: one two\n\ta")));
-        assertThat(RpslObject.parse("mntner: mnt # comment"), is(RpslObject.parse("mntner: mnt")));
+        assertThat(RpslObject.parse("mntner: mnt # comment"), is(RpslObject.parse("mntner: mnt # comment")));
         assertThat(RpslObject.parse("mntner: mnt # comment"), is(RpslObject.parse("mntner: mnt # comment")));
         assertThat(RpslObject.parse("mntner: mnt# comment"), is(RpslObject.parse("mntner: mnt # comment")));
         assertThat(RpslObject.parse("mntner: mnt # com  ment"), is(RpslObject.parse("mntner: mnt # com ment")));
         assertThat(RpslObject.parse("mntner: mnt # com  ment"), is(RpslObject.parse("mntner: mnt #com ment")));
-        assertThat(RpslObject.parse("mntner: mnt two three four"), is(RpslObject.parse("mntner: mnt # one\n two\n+ three\n\tfour")));
+        assertThat(RpslObject.parse("mntner: mnt two three four # one"), is(RpslObject.parse("mntner: mnt # one\n two\n+ three\n\tfour")));
+        assertThat(RpslObject.parse("mntner: mnt two three four"), is(RpslObject.parse("mntner: mnt two\n+ three\n\tfour")));
     }
 
     @Test
@@ -373,7 +400,7 @@ public class RpslObjectTest {
         assertThat(RpslObject.parse("mntner: mnt\nsource: RIPE"), is(RpslObject.parse("mntner: mnt\nsource:  RIPE\n")));
         assertThat(RpslObject.parse("mntner: mnt\nsource: RIPE"), is(RpslObject.parse("mntner: mnt\nsource:\tRIPE\n")));
         assertThat(RpslObject.parse("mntner: mnt\n+one\nsource: RIPE"), is(RpslObject.parse("mntner: mnt\n\tone\nsource:\tRIPE\n")));
-        assertThat(RpslObject.parse("mntner: mnt\n+#one\nsource: RIPE"), is(RpslObject.parse("mntner: mnt\n\t #two\nsource:\tRIPE\n")));
+        assertThat(RpslObject.parse("mntner: mnt\n+#one\nsource: RIPE"), not(RpslObject.parse("mntner: mnt\n\t #two\nsource:\tRIPE\n")));
     }
 
     @Test
@@ -394,9 +421,11 @@ public class RpslObjectTest {
         assertThat(object.getKey().toString(), is("DEV-MNT"));
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test
     public void getValueForAttributeNone() {
-        RpslObject.parse("mntner: DEV-MNT\n").getValueForAttribute(AttributeType.MNT_BY);
+        assertThrows(IllegalArgumentException.class, () -> {
+            RpslObject.parse("mntner: DEV-MNT\n").getValueForAttribute(AttributeType.MNT_BY);
+        });
     }
 
     @Test
@@ -404,16 +433,18 @@ public class RpslObjectTest {
         assertThat(RpslObject.parse("mntner: DEV-MNT\n").getValueForAttribute(AttributeType.MNTNER).toString(), is("DEV-MNT"));
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test
     public void getValueForAttributeMultiple() {
-        final RpslObject object = RpslObject.parse("" +
-                "mntner: DEV-MNT\n" +
-                "mnt-by: DEV-MNT5\n" +
-                "mnt-by: DEV-MNT4, DEV-MNT4\n" +
-                "mnt-by: DEV-MNT3, DEV-MNT2\n" +
-                "mnt-by: DEV-MNT1, DEV-MNT2\n");
+        assertThrows(IllegalArgumentException.class, () -> {
+            final RpslObject object = RpslObject.parse("" +
+                    "mntner: DEV-MNT\n" +
+                    "mnt-by: DEV-MNT5\n" +
+                    "mnt-by: DEV-MNT4, DEV-MNT4\n" +
+                    "mnt-by: DEV-MNT3, DEV-MNT2\n" +
+                    "mnt-by: DEV-MNT1, DEV-MNT2\n");
 
-        object.getValueForAttribute(AttributeType.MNT_BY);
+            object.getValueForAttribute(AttributeType.MNT_BY);
+        });
     }
 
     @Test
@@ -492,7 +523,7 @@ public class RpslObjectTest {
                 "mnt-by :DEV-MNT1,DEV-MNT2,DEV-MNT3");
 
         assertThat(object.findAttributes(AttributeType.MNT_BY), hasSize(0));
-        assertNull(object.getAttributes().get(1).getType());
+        assertThat(object.getAttributes().get(1).getType(), is(nullValue()));
     }
 
     @Test
@@ -770,16 +801,6 @@ public class RpslObjectTest {
     // helper methods
 
     private static Iterable<String> convertToString(final Iterable<CIString> c) {
-        return Iterables.transform(c, new Function<CIString, String>() {
-            @Nullable
-            @Override
-            public String apply(@Nullable final CIString input) {
-                if (input == null) {
-                    return null;
-                }
-
-                return input.toString();
-            }
-        });
+        return Iterables.transform(c, input -> (input == null) ? null : input.toString());
     }
 }

@@ -1,0 +1,32 @@
+{
+  "response": {
+    "status": 200,
+    "message": "OK",
+    "pageNumber": 1,
+    "pageSize": 1,
+    "pageCount": 2699,
+    "startIndex": 1,
+    "totalSize": 2699,
+    "links": [
+      {
+        "rel": "self",
+        "href": "/resource-services/ipv4-delegations?page-number=1&page-size=1"
+      },
+      {
+        "rel": "next",
+        "href": "/resource-services/ipv4-delegations?page-number=2&page-size=1"
+      },
+      {
+        "rel": "last",
+        "href": "/resource-services/ipv4-delegations?page-number=2699&page-size=1"
+      }
+    ],
+    "results": [
+      {
+        "range": "1.178.224.0/19",
+        "majorityRir": "",
+        "date": "2020-12-16"
+      }
+    ]
+  }
+}

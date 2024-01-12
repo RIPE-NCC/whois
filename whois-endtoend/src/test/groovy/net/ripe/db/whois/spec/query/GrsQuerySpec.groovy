@@ -1,11 +1,11 @@
 package net.ripe.db.whois.spec.query
 import com.google.common.collect.Sets
-import net.ripe.db.whois.common.IntegrationTest
+
 import net.ripe.db.whois.common.dao.jdbc.DatabaseHelper
 import net.ripe.db.whois.common.rpsl.RpslObject
 import net.ripe.db.whois.spec.BaseEndToEndSpec
 
-@org.junit.experimental.categories.Category(IntegrationTest.class)
+@org.junit.jupiter.api.Tag("IntegrationTest")
 class GrsQuerySpec extends BaseEndToEndSpec {
 
     static def grsFixtures = [
@@ -68,7 +68,7 @@ class GrsQuerySpec extends BaseEndToEndSpec {
 
     def setup () {
         def rpslObjects = Sets.newHashSet();
-        rpslObjects.addAll(grsFixtures.values().collect { RpslObject.parse(it.stripIndent()) })
+        rpslObjects.addAll(grsFixtures.values().collect { RpslObject.parse(it.stripIndent(true)) })
         getDatabaseHelper().addObjects(rpslObjects)
     }
 

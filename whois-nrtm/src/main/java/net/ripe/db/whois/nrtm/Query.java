@@ -1,15 +1,14 @@
 package net.ripe.db.whois.nrtm;
 
-import java.util.Iterator;
-import java.util.NoSuchElementException;
-
 import com.google.common.base.Splitter;
 import com.google.common.collect.Iterables;
-
 import joptsimple.OptionParser;
 import joptsimple.OptionSet;
+import org.apache.commons.lang.StringUtils;
 
 import javax.annotation.concurrent.Immutable;
+import java.util.Iterator;
+import java.util.NoSuchElementException;
 
 @Immutable
 public class Query {
@@ -29,30 +28,36 @@ public class Query {
 
     private final OptionSet options;
     private final String supportedSource;
+    private final String supportedNonAuthSource;
 
+    private String source;
     private int version;
     private int serialBegin;
     private int serialEnd;
     private QueryArgument queryArgument;
 
     public Query(final String supportedSource, final String queryString) {
-        this.supportedSource = supportedSource;
-        options = PARSER.parse(Iterables.toArray(SPACE_SPLITTER.split(queryString), String.class));
+        this(supportedSource, null, queryString);
+    }
 
+    public Query(final String source, final String nonAuthSource, final String queryString) {
+        this.supportedSource = source;
+        this.supportedNonAuthSource = nonAuthSource;
+        this.options = parseOptions(queryString);
         validateAndParseQuery();
     }
 
     private void validateAndParseQuery() {
         if (!options.hasOptions()) {
-            throw new IllegalArgumentException("%ERROR:405: no flags passed");
+            throw new NrtmException("%ERROR:405: no flags passed");
         }
 
         if (options.has("q") && (options.has("g") || options.has("k"))) {
-            throw new IllegalArgumentException("%ERROR:405: -q cannot be used with any other options");
+            throw new NrtmException("%ERROR:405: -q cannot be used with any other options");
         }
 
         if (options.has("k") && !options.has("g")) {
-            throw new IllegalArgumentException("%ERROR:405: -k cannot be used with out -g");
+            throw new NrtmException("%ERROR:405: -k cannot be used with out -g");
         }
 
         if (options.has("g")) {
@@ -63,7 +68,7 @@ public class Query {
             try {
                 queryArgument = QueryArgument.valueOf(options.valueOf("q").toString().toUpperCase());
             } catch (IllegalArgumentException e) {
-                throw new IllegalArgumentException("%ERROR:405: unsupported option for -q flag.");
+                throw new NrtmException("%ERROR:405: unsupported option for -q flag.");
             }
         }
     }
@@ -72,14 +77,16 @@ public class Query {
         try {
             Iterator<String> streamInfo = COLON_SPLITTER.split((String) options.valueOf("g")).iterator();
 
-            final String source = streamInfo.next();
-            if (!supportedSource.equalsIgnoreCase(source)) {
-                throw new IllegalArgumentException("%ERROR:403: unknown source " + source);
+            source = streamInfo.next();
+            if (!supportedSource.equalsIgnoreCase(source) &&
+                    (StringUtils.isNotEmpty(supportedNonAuthSource) &&
+                        !supportedNonAuthSource.equalsIgnoreCase(source))) {
+                throw new NrtmException("%ERROR:403: unknown source " + source);
             }
 
             version = Integer.parseInt(streamInfo.next());
             if (version < 1 || version > NrtmServer.NRTM_VERSION) {
-                throw new IllegalArgumentException("%ERROR:406: NRTM version mismatch");
+                throw new NrtmException("%ERROR:406: NRTM version mismatch");
             }
 
             Iterator<String> serialRange = DASH_SPLITTER.split(streamInfo.next()).iterator();
@@ -93,14 +100,22 @@ public class Query {
             } else {
                 this.serialEnd = Integer.parseInt(nextSerialEnd);
                 if (this.serialEnd < this.serialBegin) {
-                    throw new IllegalArgumentException("%ERROR:405: syntax error");
+                    throw new NrtmException("%ERROR:405: syntax error");
                 }
             }
         } catch (NumberFormatException e) {
-            throw new IllegalArgumentException("%ERROR:405: syntax error", e);
+            throw new NrtmException("%ERROR:405: syntax error");
         } catch (NoSuchElementException e) {
-            throw new IllegalArgumentException("%ERROR:405: syntax error", e);
+            throw new NrtmException("%ERROR:405: syntax error");
         }
+    }
+
+    private OptionSet parseOptions(final String queryString) {
+        return PARSER.parse(Iterables.toArray(SPACE_SPLITTER.split(queryString), String.class));
+    }
+
+    public String getSource() {
+        return source;
     }
 
     public int getSerialBegin() {

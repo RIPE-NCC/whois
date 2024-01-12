@@ -7,24 +7,27 @@ import net.ripe.db.whois.common.dao.RpslObjectInfo;
 import net.ripe.db.whois.common.domain.ResponseObject;
 import net.ripe.db.whois.common.rpsl.ObjectType;
 import net.ripe.db.whois.common.rpsl.RpslObject;
-import net.ripe.db.whois.query.domain.MessageObject;
 import net.ripe.db.whois.query.QueryMessages;
+import net.ripe.db.whois.query.domain.MessageObject;
 import net.ripe.db.whois.query.query.Query;
 import net.ripe.db.whois.query.support.Fixture;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+
 import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.Arrays;
 
 import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.Matchers.hasSize;
-import static org.junit.Assert.assertThat;
-import static org.mockito.Mockito.*;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
-@RunWith(MockitoJUnitRunner.class)
+@ExtendWith(MockitoExtension.class)
 public class GroupRelatedFunctionTest {
     private Query query;
     private ResponseObject relatedToMessage;
@@ -34,7 +37,7 @@ public class GroupRelatedFunctionTest {
     @Mock private RpslObjectDao rpslObjectDao;
     private GroupRelatedFunction subject;
 
-    @Before
+    @BeforeEach
     public void setUp() {
         query = Query.parse("foo");
         relatedToMessage = new MessageObject(QueryMessages.relatedTo("10.0.0.0"));
@@ -45,7 +48,7 @@ public class GroupRelatedFunctionTest {
     @Test
     public void apply_messageObject() {
         final ResponseObject input = new MessageObject("");
-        final Iterable<ResponseObject> responseObjects = subject.apply(input);
+        final Iterable<? extends ResponseObject> responseObjects = subject.apply(input);
         final Iterable<ResponseObject> relatedObjects = subject.getGroupedAfter();
 
         verify(decorator, times(0)).appliesToQuery(query);
@@ -60,7 +63,7 @@ public class GroupRelatedFunctionTest {
 
         when(decorator.appliesToQuery(query)).thenReturn(false);
 
-        final Iterable<ResponseObject> responseObjects = subject.apply(input);
+        final Iterable<? extends ResponseObject> responseObjects = subject.apply(input);
         final Iterable<ResponseObject> relatedObjects = subject.getGroupedAfter();
 
         verify(decorator, times(0)).decorate(query, (RpslObject) input);
@@ -86,7 +89,7 @@ public class GroupRelatedFunctionTest {
         when(rpslObjectDao.getById(1)).thenReturn((RpslObject) result1);
         when(rpslObjectDao.getById(2)).thenReturn((RpslObject) result2);
 
-        final Iterable<ResponseObject> responseObjects = subject.apply(input);
+        final Iterable<? extends ResponseObject> responseObjects = subject.apply(input);
         final Iterable<ResponseObject> relatedObjects = subject.getGroupedAfter();
 
         assertThat(responseObjects, contains(relatedToMessage, input, result2, result1));

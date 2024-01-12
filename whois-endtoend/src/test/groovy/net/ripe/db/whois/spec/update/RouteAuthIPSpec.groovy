@@ -1,11 +1,11 @@
 package net.ripe.db.whois.spec.update
 
-import net.ripe.db.whois.common.IntegrationTest
+
 import net.ripe.db.whois.spec.BaseQueryUpdateSpec
 import net.ripe.db.whois.spec.domain.AckResponse
 import net.ripe.db.whois.spec.domain.Message
 
-@org.junit.experimental.categories.Category(IntegrationTest.class)
+@org.junit.jupiter.api.Tag("IntegrationTest")
 class RouteAuthIPSpec extends BaseQueryUpdateSpec {
 
     @Override
@@ -210,44 +210,6 @@ class RouteAuthIPSpec extends BaseQueryUpdateSpec {
                 """,
     ]}
 
-    def "create exact match route, no exact pw supplied"() {
-      given:
-
-      expect:
-        query_object_matches("-rGBT route 20.13.0.0/16", "route", "20.13.0.0/16", "AS3000")
-
-      when:
-        def message = send new Message(
-                subject: "",
-                body: """\
-                route:          20.13.0.0/16
-                descr:          Route
-                origin:         AS2000
-                mnt-by:         CHILD-MB-MNT
-                source:         TEST
-
-                password:   mb-child
-                """.stripIndent()
-        )
-
-      then:
-        def ack = ackFor message
-
-        ack.summary.nrFound == 1
-        ack.summary.assertSuccess(1, 0, 0, 0, 1)
-        ack.summary.assertErrors(0, 0, 0, 0)
-        ack.countErrorWarnInfo(0, 1, 2)
-        ack.pendingUpdates.any { it.operation == "Create" && it.key == "[route] 20.13.0.0/16AS2000" }
-        ack.warningPendingMessagesFor("Create", "[route] 20.13.0.0/16AS2000") ==
-                ["This update has only passed one of the two required hierarchical authorisations"]
-        ack.infoPendingMessagesFor("Create", "[route] 20.13.0.0/16AS2000") ==
-                ["Authorisation for [route] 20.13.0.0/16AS3000 failed using \"mnt-by:\" not authenticated by: EXACT-MB-MNT",
-                 "The route object 20.13.0.0/16AS2000 will be saved for one week pending the second authorisation"]
-
-        query_object_matches("-rGBT route 20.13.0.0/16", "route", "20.13.0.0/16", "AS3000")
-        query_object_not_matches("-rGBT route 20.13.0.0/16", "route", "20.13.0.0/16", "AS2000")
-    }
-
     def "create exact match route, exact pw supplied"() {
       given:
 
@@ -266,7 +228,7 @@ class RouteAuthIPSpec extends BaseQueryUpdateSpec {
 
                 password:   mb-child
                 password:   mb-exact
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -298,7 +260,7 @@ class RouteAuthIPSpec extends BaseQueryUpdateSpec {
                 override:  denis,override1
 
                 password:   mb-child
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -314,47 +276,6 @@ class RouteAuthIPSpec extends BaseQueryUpdateSpec {
 
         query_object_matches("-rGBT route 20.13.0.0/16", "route", "20.13.0.0/16", "AS3000")
         query_object_matches("-rGBT route 20.13.0.0/16", "route", "20.13.0.0/16", "AS2000")
-    }
-
-    def "create exact match route, exact mnt-lower pw supplied"() {
-      given:
-        syncUpdate(getTransient("EXACT-ROUTE-LOW") + "password: mb-exact\npassword: hm")
-        query_object_matches("-rGBT route 20.13.0.0/16", "route", "20.13.0.0/16", "AS3000")
-        query_object_matches("-rGBT route 20.13.0.0/16", "route", "20.13.0.0/16", "mnt-lower")
-
-      expect:
-
-      when:
-        def message = send new Message(
-                subject: "",
-                body: """\
-                route:          20.13.0.0/16
-                descr:          Route
-                origin:         AS2000
-                mnt-by:         CHILD-MB-MNT
-                source:         TEST
-
-                password:   mb-child
-                password:   ml-exact
-                """.stripIndent()
-        )
-
-      then:
-        def ack = ackFor message
-
-        ack.summary.nrFound == 1
-        ack.summary.assertSuccess(1, 0, 0, 0, 1)
-        ack.summary.assertErrors(0, 0, 0, 0)
-        ack.countErrorWarnInfo(0, 1, 2)
-        ack.pendingUpdates.any { it.operation == "Create" && it.key == "[route] 20.13.0.0/16AS2000" }
-        ack.warningPendingMessagesFor("Create", "[route] 20.13.0.0/16AS2000") ==
-                ["This update has only passed one of the two required hierarchical authorisations"]
-        ack.infoPendingMessagesFor("Create", "[route] 20.13.0.0/16AS2000") ==
-                ["Authorisation for [route] 20.13.0.0/16AS3000 failed using \"mnt-by:\" not authenticated by: EXACT-MB-MNT",
-                "The route object 20.13.0.0/16AS2000 will be saved for one week pending the second authorisation"]
-
-        query_object_matches("-rGBT route 20.13.0.0/16", "route", "20.13.0.0/16", "AS3000")
-        query_object_not_matches("-rGBT route 20.13.0.0/16", "route", "20.13.0.0/16", "AS2000")
     }
 
     def "create exact match route, exact has mnt-lower, exact mnt-by pw supplied"() {
@@ -377,7 +298,7 @@ class RouteAuthIPSpec extends BaseQueryUpdateSpec {
 
                 password:   mb-child
                 password:   mb-exact
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -391,47 +312,6 @@ class RouteAuthIPSpec extends BaseQueryUpdateSpec {
 
         query_object_matches("-rGBT route 20.13.0.0/16", "route", "20.13.0.0/16", "AS3000")
         query_object_matches("-rGBT route 20.13.0.0/16", "route", "20.13.0.0/16", "AS2000")
-    }
-
-    def "create exact match route, exact has mnt-routes, exact mnt-by pw supplied"() {
-      given:
-        syncUpdate(getTransient("EXACT-ROUTE-ROUTES") + "password: mb-exact\npassword: hm")
-        query_object_matches("-rGBT route 20.13.0.0/16", "route", "20.13.0.0/16", "AS3000")
-        query_object_matches("-rGBT route 20.13.0.0/16", "route", "20.13.0.0/16", "mnt-routes")
-
-      expect:
-
-      when:
-        def message = send new Message(
-                subject: "",
-                body: """\
-                route:          20.13.0.0/16
-                descr:          Route
-                origin:         AS2000
-                mnt-by:         CHILD-MB-MNT
-                source:         TEST
-
-                password:   mb-child
-                password:   mb-exact
-                """.stripIndent()
-        )
-
-      then:
-        def ack = ackFor message
-
-        ack.summary.nrFound == 1
-        ack.summary.assertSuccess(1, 0, 0, 0, 1)
-        ack.summary.assertErrors(0, 0, 0, 0)
-        ack.countErrorWarnInfo(0, 1, 2)
-        ack.pendingUpdates.any { it.operation == "Create" && it.key == "[route] 20.13.0.0/16AS2000" }
-        ack.warningPendingMessagesFor("Create", "[route] 20.13.0.0/16AS2000") ==
-                ["This update has only passed one of the two required hierarchical authorisations"]
-        ack.infoPendingMessagesFor("Create", "[route] 20.13.0.0/16AS2000") ==
-                ["Authorisation for [route] 20.13.0.0/16AS3000 failed using \"mnt-routes:\" not authenticated by: EXACT-MR-MNT",
-                 "The route object 20.13.0.0/16AS2000 will be saved for one week pending the second authorisation"]
-
-        query_object_matches("-rGBT route 20.13.0.0/16", "route", "20.13.0.0/16", "AS3000")
-        query_object_not_matches("-rGBT route 20.13.0.0/16", "route", "20.13.0.0/16", "AS2000")
     }
 
     def "create exact match route, exact has mnt-routes, exact mnt-routes pw supplied"() {
@@ -454,7 +334,7 @@ class RouteAuthIPSpec extends BaseQueryUpdateSpec {
 
                 password:   mb-child
                 password:   mr-exact
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -468,90 +348,6 @@ class RouteAuthIPSpec extends BaseQueryUpdateSpec {
 
         query_object_matches("-rGBT route 20.13.0.0/16", "route", "20.13.0.0/16", "AS3000")
         query_object_matches("-rGBT route 20.13.0.0/16", "route", "20.13.0.0/16", "AS2000")
-    }
-
-    def "create exact match route, exact has mb ml mr, exact mnt-by pw supplied"() {
-      given:
-        syncUpdate(getTransient("EXACT-ROUTE-LOW-ROUTES") + "password: mb-exact\npassword: hm")
-        query_object_matches("-rGBT route 20.13.0.0/16", "route", "20.13.0.0/16", "AS3000")
-        query_object_matches("-rGBT route 20.13.0.0/16", "route", "20.13.0.0/16", "mnt-routes")
-        query_object_matches("-rGBT route 20.13.0.0/16", "route", "20.13.0.0/16", "mnt-lower")
-
-      expect:
-
-      when:
-        def message = send new Message(
-                subject: "",
-                body: """\
-                route:          20.13.0.0/16
-                descr:          Route
-                origin:         AS2000
-                mnt-by:         CHILD-MB-MNT
-                source:         TEST
-
-                password:   mb-child
-                password:   mb-exact
-                """.stripIndent()
-        )
-
-      then:
-        def ack = ackFor message
-
-        ack.summary.nrFound == 1
-        ack.summary.assertSuccess(1, 0, 0, 0, 1)
-        ack.summary.assertErrors(0, 0, 0, 0)
-        ack.countErrorWarnInfo(0, 1, 2)
-        ack.pendingUpdates.any { it.operation == "Create" && it.key == "[route] 20.13.0.0/16AS2000" }
-        ack.warningPendingMessagesFor("Create", "[route] 20.13.0.0/16AS2000") ==
-                ["This update has only passed one of the two required hierarchical authorisations"]
-        ack.infoPendingMessagesFor("Create", "[route] 20.13.0.0/16AS2000") ==
-                ["Authorisation for [route] 20.13.0.0/16AS3000 failed using \"mnt-routes:\" not authenticated by: EXACT-MR-MNT",
-                 "The route object 20.13.0.0/16AS2000 will be saved for one week pending the second authorisation"]
-
-        query_object_matches("-rGBT route 20.13.0.0/16", "route", "20.13.0.0/16", "AS3000")
-        query_object_not_matches("-rGBT route 20.13.0.0/16", "route", "20.13.0.0/16", "AS2000")
-    }
-
-    def "create exact match route, exact has mb ml mr, exact mnt-lower pw supplied"() {
-      given:
-        syncUpdate(getTransient("EXACT-ROUTE-LOW-ROUTES") + "password: mb-exact\npassword: hm")
-        query_object_matches("-rGBT route 20.13.0.0/16", "route", "20.13.0.0/16", "AS3000")
-        query_object_matches("-rGBT route 20.13.0.0/16", "route", "20.13.0.0/16", "mnt-routes")
-        query_object_matches("-rGBT route 20.13.0.0/16", "route", "20.13.0.0/16", "mnt-lower")
-
-      expect:
-
-      when:
-        def message = send new Message(
-                subject: "",
-                body: """\
-                route:          20.13.0.0/16
-                descr:          Route
-                origin:         AS2000
-                mnt-by:         CHILD-MB-MNT
-                source:         TEST
-
-                password:   mb-child
-                password:   ml-exact
-                """.stripIndent()
-        )
-
-      then:
-        def ack = ackFor message
-
-        ack.summary.nrFound == 1
-        ack.summary.assertSuccess(1, 0, 0, 0, 1)
-        ack.summary.assertErrors(0, 0, 0, 0)
-        ack.countErrorWarnInfo(0, 1, 2)
-        ack.pendingUpdates.any { it.operation == "Create" && it.key == "[route] 20.13.0.0/16AS2000" }
-        ack.warningPendingMessagesFor("Create", "[route] 20.13.0.0/16AS2000") ==
-                ["This update has only passed one of the two required hierarchical authorisations"]
-        ack.infoPendingMessagesFor("Create", "[route] 20.13.0.0/16AS2000") ==
-                ["Authorisation for [route] 20.13.0.0/16AS3000 failed using \"mnt-routes:\" not authenticated by: EXACT-MR-MNT",
-                 "The route object 20.13.0.0/16AS2000 will be saved for one week pending the second authorisation"]
-
-        query_object_matches("-rGBT route 20.13.0.0/16", "route", "20.13.0.0/16", "AS3000")
-        query_object_not_matches("-rGBT route 20.13.0.0/16", "route", "20.13.0.0/16", "AS2000")
     }
 
     def "create exact match route, exact has mb ml mr, exact mnt-routes pw supplied"() {
@@ -575,7 +371,7 @@ class RouteAuthIPSpec extends BaseQueryUpdateSpec {
 
                 password:   mb-child
                 password:   mr-exact
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -611,7 +407,7 @@ class RouteAuthIPSpec extends BaseQueryUpdateSpec {
                 source:         TEST
 
                 password:   mb-child
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -646,7 +442,7 @@ class RouteAuthIPSpec extends BaseQueryUpdateSpec {
                 delete:   exact match
 
                 password:   mb-child
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -659,87 +455,6 @@ class RouteAuthIPSpec extends BaseQueryUpdateSpec {
         ack.successes.any { it.operation == "Delete" && it.key == "[route] 20.13.0.0/16AS2000" }
 
         query_object_not_matches("-rGBT route 20.13.0.0/16", "route", "20.13.0.0/16", "AS2000")
-    }
-
-    def "create child route, parent has mb ml, parent mnt-by pw supplied"() {
-      given:
-        syncUpdate(getTransient("PARENT-ROUTE-LOW") + "password: mb-parent")
-        query_object_matches("-rGBT route 20.128.0.0/9", "route", "20.128.0.0/9", "AS1000")
-        query_object_matches("-rGBT route 20.128.0.0/9", "route", "20.128.0.0/9", "mnt-lower")
-
-      expect:
-        queryObjectNotFound("-rGBT route 20.130.0.0/16", "route", "20.130.0.0/16")
-
-      when:
-        def message = send new Message(
-                subject: "",
-                body: """\
-                route:          20.130.0.0/16
-                descr:          Route
-                origin:         AS2000
-                mnt-by:         CHILD-MB-MNT
-                source:         TEST
-
-                password:   mb-child
-                password:   mb-parent
-                """.stripIndent()
-        )
-
-      then:
-        def ack = ackFor message
-
-        ack.summary.nrFound == 1
-        ack.summary.assertSuccess(1, 0, 0, 0, 1)
-        ack.summary.assertErrors(0, 0, 0, 0)
-        ack.countErrorWarnInfo(0, 1, 2)
-        ack.pendingUpdates.any { it.operation == "Create" && it.key == "[route] 20.130.0.0/16AS2000" }
-        ack.warningPendingMessagesFor("Create", "[route] 20.130.0.0/16AS2000") ==
-                ["This update has only passed one of the two required hierarchical authorisations"]
-        ack.infoPendingMessagesFor("Create", "[route] 20.130.0.0/16AS2000") ==
-                ["Authorisation for [route] 20.128.0.0/9AS1000 failed using \"mnt-lower:\" not authenticated by: PARENT-ML-MNT",
-                 "The route object 20.130.0.0/16AS2000 will be saved for one week pending the second authorisation"]
-
-        queryObjectNotFound("-rGBT route 20.130.0.0/16", "route", "20.130.0.0/16")
-    }
-
-    def "create child route, parent has mb ml, no parent pw supplied"() {
-      given:
-        syncUpdate(getTransient("PARENT-ROUTE-LOW") + "password: mb-parent")
-        query_object_matches("-rGBT route 20.128.0.0/9", "route", "20.128.0.0/9", "AS1000")
-        query_object_matches("-rGBT route 20.128.0.0/9", "route", "20.128.0.0/9", "mnt-lower")
-
-      expect:
-        queryObjectNotFound("-rGBT route 20.130.0.0/16", "route", "20.130.0.0/16")
-
-      when:
-        def message = send new Message(
-                subject: "",
-                body: """\
-                route:          20.130.0.0/16
-                descr:          Route
-                origin:         AS2000
-                mnt-by:         CHILD-MB-MNT
-                source:         TEST
-
-                password:   mb-child
-                """.stripIndent()
-        )
-
-      then:
-        def ack = ackFor message
-
-        ack.summary.nrFound == 1
-        ack.summary.assertSuccess(1, 0, 0, 0, 1)
-        ack.summary.assertErrors(0, 0, 0, 0)
-        ack.countErrorWarnInfo(0, 1, 2)
-        ack.pendingUpdates.any { it.operation == "Create" && it.key == "[route] 20.130.0.0/16AS2000" }
-        ack.warningPendingMessagesFor("Create", "[route] 20.130.0.0/16AS2000") ==
-                ["This update has only passed one of the two required hierarchical authorisations"]
-        ack.infoPendingMessagesFor("Create", "[route] 20.130.0.0/16AS2000") ==
-                ["Authorisation for [route] 20.128.0.0/9AS1000 failed using \"mnt-lower:\" not authenticated by: PARENT-ML-MNT",
-                 "The route object 20.130.0.0/16AS2000 will be saved for one week pending the second authorisation"]
-
-        queryObjectNotFound("-rGBT route 20.130.0.0/16", "route", "20.130.0.0/16")
     }
 
     def "create child route, parent has mb ml, parent mnt-lower pw supplied"() {
@@ -763,7 +478,7 @@ class RouteAuthIPSpec extends BaseQueryUpdateSpec {
 
                 password:   mb-child
                 password:   ml-parent
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -776,47 +491,6 @@ class RouteAuthIPSpec extends BaseQueryUpdateSpec {
         ack.successes.any { it.operation == "Create" && it.key == "[route] 20.130.0.0/16AS2000" }
 
         queryObject("-rGBT route 20.130.0.0/16", "route", "20.130.0.0/16")
-    }
-
-    def "create child route, parent has mb mr, parent mnt-by pw supplied"() {
-      given:
-        syncUpdate(getTransient("PARENT-ROUTE-ROUTES") + "password: mb-parent")
-        query_object_matches("-rGBT route 20.128.0.0/9", "route", "20.128.0.0/9", "AS1000")
-        query_object_matches("-rGBT route 20.128.0.0/9", "route", "20.128.0.0/9", "mnt-routes")
-
-      expect:
-        queryObjectNotFound("-rGBT route 20.130.0.0/16", "route", "20.130.0.0/16")
-
-      when:
-        def message = send new Message(
-                subject: "",
-                body: """\
-                route:          20.130.0.0/16
-                descr:          Route
-                origin:         AS2000
-                mnt-by:         CHILD-MB-MNT
-                source:         TEST
-
-                password:   mb-child
-                password:   mb-parent
-                """.stripIndent()
-        )
-
-      then:
-        def ack = ackFor message
-
-        ack.summary.nrFound == 1
-        ack.summary.assertSuccess(1, 0, 0, 0, 1)
-        ack.summary.assertErrors(0, 0, 0, 0)
-        ack.countErrorWarnInfo(0, 1, 2)
-        ack.pendingUpdates.any { it.operation == "Create" && it.key == "[route] 20.130.0.0/16AS2000" }
-        ack.warningPendingMessagesFor("Create", "[route] 20.130.0.0/16AS2000") ==
-                ["This update has only passed one of the two required hierarchical authorisations"]
-        ack.infoPendingMessagesFor("Create", "[route] 20.130.0.0/16AS2000") ==
-                ["Authorisation for [route] 20.128.0.0/9AS1000 failed using \"mnt-routes:\" not authenticated by: PARENT-MR-MNT",
-                 "The route object 20.130.0.0/16AS2000 will be saved for one week pending the second authorisation"]
-
-        queryObjectNotFound("-rGBT route 20.130.0.0/16", "route", "20.130.0.0/16")
     }
 
     def "create child route, parent has mb mr, parent mnt-routes pw supplied"() {
@@ -840,7 +514,7 @@ class RouteAuthIPSpec extends BaseQueryUpdateSpec {
 
                 password:   mb-child
                 password:   mr-parent
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -853,90 +527,6 @@ class RouteAuthIPSpec extends BaseQueryUpdateSpec {
         ack.successes.any { it.operation == "Create" && it.key == "[route] 20.130.0.0/16AS2000" }
 
         queryObject("-rGBT route 20.130.0.0/16", "route", "20.130.0.0/16")
-    }
-
-    def "create child route, parent has mb ml mr, parent mnt-by pw supplied"() {
-      given:
-        syncUpdate(getTransient("PARENT-ROUTE-LOW-ROUTES") + "password: mb-parent")
-        query_object_matches("-rGBT route 20.128.0.0/9", "route", "20.128.0.0/9", "AS1000")
-        query_object_matches("-rGBT route 20.128.0.0/9", "route", "20.128.0.0/9", "mnt-lower")
-        query_object_matches("-rGBT route 20.128.0.0/9", "route", "20.128.0.0/9", "mnt-routes")
-
-      expect:
-        queryObjectNotFound("-rGBT route 20.130.0.0/16", "route", "20.130.0.0/16")
-
-      when:
-        def message = send new Message(
-                subject: "",
-                body: """\
-                route:          20.130.0.0/16
-                descr:          Route
-                origin:         AS2000
-                mnt-by:         CHILD-MB-MNT
-                source:         TEST
-
-                password:   mb-child
-                password:   mb-parent
-                """.stripIndent()
-        )
-
-      then:
-        def ack = ackFor message
-
-        ack.summary.nrFound == 1
-        ack.summary.assertSuccess(1, 0, 0, 0, 1)
-        ack.summary.assertErrors(0, 0, 0, 0)
-        ack.countErrorWarnInfo(0, 1, 2)
-        ack.pendingUpdates.any { it.operation == "Create" && it.key == "[route] 20.130.0.0/16AS2000" }
-        ack.warningPendingMessagesFor("Create", "[route] 20.130.0.0/16AS2000") ==
-                ["This update has only passed one of the two required hierarchical authorisations"]
-        ack.infoPendingMessagesFor("Create", "[route] 20.130.0.0/16AS2000") ==
-                ["Authorisation for [route] 20.128.0.0/9AS1000 failed using \"mnt-routes:\" not authenticated by: PARENT-MR-MNT",
-                 "The route object 20.130.0.0/16AS2000 will be saved for one week pending the second authorisation"]
-
-        queryObjectNotFound("-rGBT route 20.130.0.0/16", "route", "20.130.0.0/16")
-    }
-
-    def "create child route, parent has mb ml mr, parent mnt-lower pw supplied"() {
-      given:
-        syncUpdate(getTransient("PARENT-ROUTE-LOW-ROUTES") + "password: mb-parent")
-        query_object_matches("-rGBT route 20.128.0.0/9", "route", "20.128.0.0/9", "AS1000")
-        query_object_matches("-rGBT route 20.128.0.0/9", "route", "20.128.0.0/9", "mnt-lower")
-        query_object_matches("-rGBT route 20.128.0.0/9", "route", "20.128.0.0/9", "mnt-routes")
-
-      expect:
-        queryObjectNotFound("-rGBT route 20.130.0.0/16", "route", "20.130.0.0/16")
-
-      when:
-        def message = send new Message(
-                subject: "",
-                body: """\
-                route:          20.130.0.0/16
-                descr:          Route
-                origin:         AS2000
-                mnt-by:         CHILD-MB-MNT
-                source:         TEST
-
-                password:   mb-child
-                password:   ml-parent
-                """.stripIndent()
-        )
-
-      then:
-        def ack = ackFor message
-
-        ack.summary.nrFound == 1
-        ack.summary.assertSuccess(1, 0, 0, 0, 1)
-        ack.summary.assertErrors(0, 0, 0, 0)
-        ack.countErrorWarnInfo(0, 1, 2)
-        ack.pendingUpdates.any { it.operation == "Create" && it.key == "[route] 20.130.0.0/16AS2000" }
-        ack.warningPendingMessagesFor("Create", "[route] 20.130.0.0/16AS2000") ==
-                ["This update has only passed one of the two required hierarchical authorisations"]
-        ack.infoPendingMessagesFor("Create", "[route] 20.130.0.0/16AS2000") ==
-                ["Authorisation for [route] 20.128.0.0/9AS1000 failed using \"mnt-routes:\" not authenticated by: PARENT-MR-MNT",
-                 "The route object 20.130.0.0/16AS2000 will be saved for one week pending the second authorisation"]
-
-        queryObjectNotFound("-rGBT route 20.130.0.0/16", "route", "20.130.0.0/16")
     }
 
     def "create child route, parent has mb ml mr, parent mnt-routes pw supplied"() {
@@ -961,7 +551,7 @@ class RouteAuthIPSpec extends BaseQueryUpdateSpec {
 
                 password:   mb-child
                 password:   mr-parent
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -1002,7 +592,7 @@ class RouteAuthIPSpec extends BaseQueryUpdateSpec {
 
                 password:   mb-child
                 password:   lir
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -1019,9 +609,9 @@ class RouteAuthIPSpec extends BaseQueryUpdateSpec {
 
     def "create route, exact+parent route and exact+parent inet exist with mb, exact route pw supplied"() {
       given:
-        syncUpdate(getTransient("PARENT-INET") + "password: mbi-parent\npassword: hm")
+        dbfixture(getTransient("PARENT-INET"))
         queryObject("-rGBT inetnum 20.0.0.0 - 20.255.255.255", "inetnum", "20.0.0.0 - 20.255.255.255")
-        syncUpdate(getTransient("EXACT-INET") + "password: mbi-exact\npassword: mbi-parent")
+        dbfixture(getTransient("EXACT-INET"))
         queryObject("-rGBT inetnum 20.13.0.0 - 20.13.255.255", "inetnum", "20.13.0.0 - 20.13.255.255")
 
       expect:
@@ -1040,7 +630,7 @@ class RouteAuthIPSpec extends BaseQueryUpdateSpec {
 
                 password:   mb-child
                 password:   mb-exact
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -1056,145 +646,13 @@ class RouteAuthIPSpec extends BaseQueryUpdateSpec {
         query_object_matches("-rGBT route 20.13.0.0/16", "route", "20.13.0.0/16", "AS2000")
     }
 
-    def "create route, exact+parent route and exact+parent inet exist with mb, parent route pw supplied"() {
-      given:
-        syncUpdate(getTransient("PARENT-INET") + "password: mbi-parent\npassword: hm")
-        queryObject("-rGBT inetnum 20.0.0.0 - 20.255.255.255", "inetnum", "20.0.0.0 - 20.255.255.255")
-        syncUpdate(getTransient("EXACT-INET") + "password: mbi-exact\npassword: mbi-parent")
-        queryObject("-rGBT inetnum 20.13.0.0 - 20.13.255.255", "inetnum", "20.13.0.0 - 20.13.255.255")
-
-      expect:
-        query_object_matches("-rGBT route 20.13.0.0/16", "route", "20.13.0.0/16", "AS3000")
-        query_object_matches("-rGBT route 20.0.0.0/8", "route", "20.0.0.0/8", "AS1000")
-
-      when:
-        def message = send new Message(
-                subject: "",
-                body: """\
-                route:          20.13.0.0/16
-                descr:          Route
-                origin:         AS2000
-                mnt-by:         CHILD-MB-MNT
-                source:         TEST
-
-                password:   mb-child
-                password:   mb-parent
-                """.stripIndent()
-        )
-
-      then:
-        def ack = ackFor message
-
-        ack.summary.nrFound == 1
-        ack.summary.assertSuccess(1, 0, 0, 0, 1)
-        ack.summary.assertErrors(0, 0, 0, 0)
-        ack.countErrorWarnInfo(0, 1, 2)
-        ack.pendingUpdates.any { it.operation == "Create" && it.key == "[route] 20.13.0.0/16AS2000" }
-        ack.warningPendingMessagesFor("Create", "[route] 20.13.0.0/16AS2000") ==
-                ["This update has only passed one of the two required hierarchical authorisations"]
-        ack.infoPendingMessagesFor("Create", "[route] 20.13.0.0/16AS2000") ==
-                ["Authorisation for [route] 20.13.0.0/16AS3000 failed using \"mnt-by:\" not authenticated by: EXACT-MB-MNT",
-                 "The route object 20.13.0.0/16AS2000 will be saved for one week pending the second authorisation"]
-
-        query_object_matches("-rGBT route 20.13.0.0/16", "route", "20.13.0.0/16", "AS3000")
-        query_object_not_matches("-rGBT route 20.13.0.0/16", "route", "20.13.0.0/16", "AS2000")
-    }
-
-    def "create route, exact+parent route and exact+parent inet exist with mb, exact inet pw supplied"() {
-      given:
-        syncUpdate(getTransient("PARENT-INET") + "password: mbi-parent\npassword: hm")
-        queryObject("-rGBT inetnum 20.0.0.0 - 20.255.255.255", "inetnum", "20.0.0.0 - 20.255.255.255")
-        syncUpdate(getTransient("EXACT-INET") + "password: mbi-exact\npassword: mbi-parent")
-        queryObject("-rGBT inetnum 20.13.0.0 - 20.13.255.255", "inetnum", "20.13.0.0 - 20.13.255.255")
-
-      expect:
-        query_object_matches("-rGBT route 20.13.0.0/16", "route", "20.13.0.0/16", "AS3000")
-        query_object_matches("-rGBT route 20.0.0.0/8", "route", "20.0.0.0/8", "AS1000")
-
-      when:
-        def message = send new Message(
-                subject: "",
-                body: """\
-                route:          20.13.0.0/16
-                descr:          Route
-                origin:         AS2000
-                mnt-by:         CHILD-MB-MNT
-                source:         TEST
-
-                password:   mb-child
-                password:   mbi-exact
-                """.stripIndent()
-        )
-
-      then:
-        def ack = ackFor message
-
-        ack.summary.nrFound == 1
-        ack.summary.assertSuccess(1, 0, 0, 0, 1)
-        ack.summary.assertErrors(0, 0, 0, 0)
-        ack.countErrorWarnInfo(0, 1, 2)
-        ack.pendingUpdates.any { it.operation == "Create" && it.key == "[route] 20.13.0.0/16AS2000" }
-        ack.warningPendingMessagesFor("Create", "[route] 20.13.0.0/16AS2000") ==
-                ["This update has only passed one of the two required hierarchical authorisations"]
-        ack.infoPendingMessagesFor("Create", "[route] 20.13.0.0/16AS2000") ==
-                ["Authorisation for [route] 20.13.0.0/16AS3000 failed using \"mnt-by:\" not authenticated by: EXACT-MB-MNT",
-                 "The route object 20.13.0.0/16AS2000 will be saved for one week pending the second authorisation"]
-
-        query_object_matches("-rGBT route 20.13.0.0/16", "route", "20.13.0.0/16", "AS3000")
-        query_object_not_matches("-rGBT route 20.13.0.0/16", "route", "20.13.0.0/16", "AS2000")
-    }
-
-    def "create route, exact+parent route and exact+parent inet exist with mb, parent inet pw supplied"() {
-      given:
-        syncUpdate(getTransient("PARENT-INET") + "password: mbi-parent\npassword: hm")
-        queryObject("-rGBT inetnum 20.0.0.0 - 20.255.255.255", "inetnum", "20.0.0.0 - 20.255.255.255")
-        syncUpdate(getTransient("EXACT-INET") + "password: mbi-exact\npassword: mbi-parent")
-        queryObject("-rGBT inetnum 20.13.0.0 - 20.13.255.255", "inetnum", "20.13.0.0 - 20.13.255.255")
-
-      expect:
-        query_object_matches("-rGBT route 20.13.0.0/16", "route", "20.13.0.0/16", "AS3000")
-        query_object_matches("-rGBT route 20.0.0.0/8", "route", "20.0.0.0/8", "AS1000")
-
-      when:
-        def message = send new Message(
-                subject: "",
-                body: """\
-                route:          20.13.0.0/16
-                descr:          Route
-                origin:         AS2000
-                mnt-by:         CHILD-MB-MNT
-                source:         TEST
-
-                password:   mb-child
-                password:   mbi-parent
-                """.stripIndent()
-        )
-
-      then:
-        def ack = ackFor message
-
-        ack.summary.nrFound == 1
-        ack.summary.assertSuccess(1, 0, 0, 0, 1)
-        ack.summary.assertErrors(0, 0, 0, 0)
-        ack.countErrorWarnInfo(0, 1, 2)
-        ack.pendingUpdates.any { it.operation == "Create" && it.key == "[route] 20.13.0.0/16AS2000" }
-        ack.warningPendingMessagesFor("Create", "[route] 20.13.0.0/16AS2000") ==
-                ["This update has only passed one of the two required hierarchical authorisations"]
-        ack.infoPendingMessagesFor("Create", "[route] 20.13.0.0/16AS2000") ==
-                ["Authorisation for [route] 20.13.0.0/16AS3000 failed using \"mnt-by:\" not authenticated by: EXACT-MB-MNT",
-                 "The route object 20.13.0.0/16AS2000 will be saved for one week pending the second authorisation"]
-
-        query_object_matches("-rGBT route 20.13.0.0/16", "route", "20.13.0.0/16", "AS3000")
-        query_object_not_matches("-rGBT route 20.13.0.0/16", "route", "20.13.0.0/16", "AS2000")
-    }
-
     def "create route, parent route and exact+parent inet exist with mb, parent route pw supplied"() {
       given:
-        syncUpdate(getTransient("PARENT-INET2") + "password: mbi-parent\npassword: hm")
+        dbfixture(getTransient("PARENT-INET2"))
         queryObject("-rGBT inetnum 20.128.0.0 - 20.255.255.255", "inetnum", "20.128.0.0 - 20.255.255.255")
-        syncUpdate(getTransient("EXACT-INET2") + "password: mbi-exact\npassword: mbi-parent")
+        dbfixture(getTransient("EXACT-INET2"))
         queryObject("-rGBT inetnum 20.130.0.0 - 20.130.255.255", "inetnum", "20.130.0.0 - 20.130.255.255")
-        syncUpdate(getTransient("PARENT-ROUTE") + "password: mb-parent\npassword: mbi-parent")
+        dbfixture(getTransient("PARENT-ROUTE"))
         query_object_matches("-rGBT route 20.128.0.0/9", "route", "20.128.0.0/9", "AS1000")
 
       expect:
@@ -1212,7 +670,7 @@ class RouteAuthIPSpec extends BaseQueryUpdateSpec {
 
                 password:   mb-child
                 password:   mb-parent
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -1227,99 +685,11 @@ class RouteAuthIPSpec extends BaseQueryUpdateSpec {
         query_object_matches("-rGBT route 20.130.0.0/16", "route", "20.130.0.0/16", "AS2000")
     }
 
-    def "create route, parent route and exact+parent inet exist with mb, exact inet pw supplied"() {
-      given:
-        syncUpdate(getTransient("PARENT-INET2") + "password: mbi-parent\npassword: hm")
-        queryObject("-rGBT inetnum 20.128.0.0 - 20.255.255.255", "inetnum", "20.128.0.0 - 20.255.255.255")
-        syncUpdate(getTransient("EXACT-INET2") + "password: mbi-exact\npassword: mbi-parent")
-        queryObject("-rGBT inetnum 20.130.0.0 - 20.130.255.255", "inetnum", "20.130.0.0 - 20.130.255.255")
-        syncUpdate(getTransient("PARENT-ROUTE") + "password: mb-parent\npassword: mbi-parent")
-        query_object_matches("-rGBT route 20.128.0.0/9", "route", "20.128.0.0/9", "AS1000")
-
-      expect:
-        queryObjectNotFound("-rGBT route 20.130.0.0/16", "route", "20.130.0.0/16")
-
-      when:
-        def message = send new Message(
-                subject: "",
-                body: """\
-                route:          20.130.0.0/16
-                descr:          Route
-                origin:         AS2000
-                mnt-by:         CHILD-MB-MNT
-                source:         TEST
-
-                password:   mb-child
-                password:   mbi-exact
-                """.stripIndent()
-        )
-
-      then:
-        def ack = ackFor message
-
-        ack.summary.nrFound == 1
-        ack.summary.assertSuccess(1, 0, 0, 0, 1)
-        ack.summary.assertErrors(0, 0, 0, 0)
-        ack.countErrorWarnInfo(0, 1, 2)
-        ack.pendingUpdates.any { it.operation == "Create" && it.key == "[route] 20.130.0.0/16AS2000" }
-        ack.warningPendingMessagesFor("Create", "[route] 20.130.0.0/16AS2000") ==
-                ["This update has only passed one of the two required hierarchical authorisations"]
-        ack.infoPendingMessagesFor("Create", "[route] 20.130.0.0/16AS2000") ==
-                ["Authorisation for [route] 20.128.0.0/9AS1000 failed using \"mnt-by:\" not authenticated by: PARENT-MB-MNT",
-                 "The route object 20.130.0.0/16AS2000 will be saved for one week pending the second authorisation"]
-
-        queryObjectNotFound("-rGBT route 20.130.0.0/16", "route", "20.130.0.0/16")
-    }
-
-    def "create route, parent route and exact+parent inet exist with mb, parent inet pw supplied"() {
-      given:
-        syncUpdate(getTransient("PARENT-INET2") + "password: mbi-parent\npassword: hm")
-        queryObject("-rGBT inetnum 20.128.0.0 - 20.255.255.255", "inetnum", "20.128.0.0 - 20.255.255.255")
-        syncUpdate(getTransient("EXACT-INET2") + "password: mbi-exact\npassword: mbi-parent")
-        queryObject("-rGBT inetnum 20.130.0.0 - 20.130.255.255", "inetnum", "20.130.0.0 - 20.130.255.255")
-        syncUpdate(getTransient("PARENT-ROUTE") + "password: mb-parent\npassword: mbi-parent")
-        query_object_matches("-rGBT route 20.128.0.0/9", "route", "20.128.0.0/9", "AS1000")
-
-      expect:
-        queryObjectNotFound("-rGBT route 20.130.0.0/16", "route", "20.130.0.0/16")
-
-      when:
-        def message = send new Message(
-                subject: "",
-                body: """\
-                route:          20.130.0.0/16
-                descr:          Route
-                origin:         AS2000
-                mnt-by:         CHILD-MB-MNT
-                source:         TEST
-
-                password:   mb-child
-                password:   mbi-parent
-                """.stripIndent()
-        )
-
-      then:
-        def ack = ackFor message
-
-        ack.summary.nrFound == 1
-        ack.summary.assertSuccess(1, 0, 0, 0, 1)
-        ack.summary.assertErrors(0, 0, 0, 0)
-        ack.countErrorWarnInfo(0, 1, 2)
-        ack.pendingUpdates.any { it.operation == "Create" && it.key == "[route] 20.130.0.0/16AS2000" }
-        ack.warningPendingMessagesFor("Create", "[route] 20.130.0.0/16AS2000") ==
-                ["This update has only passed one of the two required hierarchical authorisations"]
-        ack.infoPendingMessagesFor("Create", "[route] 20.130.0.0/16AS2000") ==
-                ["Authorisation for [route] 20.128.0.0/9AS1000 failed using \"mnt-by:\" not authenticated by: PARENT-MB-MNT",
-                 "The route object 20.130.0.0/16AS2000 will be saved for one week pending the second authorisation"]
-
-        queryObjectNotFound("-rGBT route 20.130.0.0/16", "route", "20.130.0.0/16")
-    }
-
     def "create route, exact+parent inet exist with mb, exact inet pw supplied"() {
       given:
-        syncUpdate(getTransient("PARENT-INET3") + "password: mbi-parent\npassword: hm")
+        dbfixture(getTransient("PARENT-INET3"))
         queryObject("-rGBT inetnum 21.128.0.0 - 21.255.255.255", "inetnum", "21.128.0.0 - 21.255.255.255")
-        syncUpdate(getTransient("EXACT-INET3") + "password: mbi-exact\npassword: mbi-parent")
+        dbfixture(getTransient("EXACT-INET3"))
         queryObject("-rGBT inetnum 21.130.0.0 - 21.130.255.255", "inetnum", "21.130.0.0 - 21.130.255.255")
 
       expect:
@@ -1337,7 +707,7 @@ class RouteAuthIPSpec extends BaseQueryUpdateSpec {
 
                 password:   mb-child
                 password:   mbi-exact
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -1352,51 +722,9 @@ class RouteAuthIPSpec extends BaseQueryUpdateSpec {
         query_object_matches("-rGBT route 21.130.0.0/16", "route", "21.130.0.0/16", "AS2000")
     }
 
-    def "create route, exact+parent inet exist with mb, parent inet pw supplied"() {
-      given:
-        syncUpdate(getTransient("PARENT-INET3") + "password: mbi-parent\npassword: hm")
-        queryObject("-rGBT inetnum 21.128.0.0 - 21.255.255.255", "inetnum", "21.128.0.0 - 21.255.255.255")
-        syncUpdate(getTransient("EXACT-INET3") + "password: mbi-exact\npassword: mbi-parent")
-        queryObject("-rGBT inetnum 21.130.0.0 - 21.130.255.255", "inetnum", "21.130.0.0 - 21.130.255.255")
-
-      expect:
-        queryObjectNotFound("-rGBT route 21.130.0.0/16", "route", "21.130.0.0/16")
-
-      when:
-        def message = send new Message(
-                subject: "",
-                body: """\
-                route:          21.130.0.0/16
-                descr:          Route
-                origin:         AS2000
-                mnt-by:         CHILD-MB-MNT
-                source:         TEST
-
-                password:   mb-child
-                password:   mbi-parent
-                """.stripIndent()
-        )
-
-      then:
-        def ack = ackFor message
-
-        ack.summary.nrFound == 1
-        ack.summary.assertSuccess(1, 0, 0, 0, 1)
-        ack.summary.assertErrors(0, 0, 0, 0)
-        ack.countErrorWarnInfo(0, 1, 2)
-        ack.pendingUpdates.any { it.operation == "Create" && it.key == "[route] 21.130.0.0/16AS2000" }
-        ack.warningPendingMessagesFor("Create", "[route] 21.130.0.0/16AS2000") ==
-                ["This update has only passed one of the two required hierarchical authorisations"]
-        ack.infoPendingMessagesFor("Create", "[route] 21.130.0.0/16AS2000") ==
-                ["Authorisation for [inetnum] 21.130.0.0 - 21.130.255.255 failed using \"mnt-by:\" not authenticated by: EXACT-INETNUM-MB-MNT",
-                 "The route object 21.130.0.0/16AS2000 will be saved for one week pending the second authorisation"]
-
-        queryObjectNotFound("-rGBT route 21.130.0.0/16", "route", "21.130.0.0/16")
-    }
-
     def "create route, parent inet exist with mb, parent inet pw supplied"() {
       given:
-        syncUpdate(getTransient("PARENT-INET3") + "password: mbi-parent\npassword: hm")
+        dbfixture(getTransient("PARENT-INET3"))
         queryObject("-rGBT inetnum 21.128.0.0 - 21.255.255.255", "inetnum", "21.128.0.0 - 21.255.255.255")
 
       expect:
@@ -1414,7 +742,7 @@ class RouteAuthIPSpec extends BaseQueryUpdateSpec {
 
                 password:   mb-child
                 password:   mbi-parent
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -1431,7 +759,7 @@ class RouteAuthIPSpec extends BaseQueryUpdateSpec {
 
     def "create route, single IP parent inet, parent inet pw supplied"() {
         given:
-        syncUpdate(getTransient("PARENT-INET5") + "password: mbi-parent\npassword: hm")
+        dbfixture(getTransient("PARENT-INET5"))
 
         expect:
         queryObject("-rGBT inetnum 21.128.255.255 - 21.128.255.255", "inetnum", "21.128.255.255 - 21.128.255.255")
@@ -1449,7 +777,7 @@ class RouteAuthIPSpec extends BaseQueryUpdateSpec {
 
                 password:   mb-child
                 password:   mbi-parent
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:
@@ -1514,7 +842,7 @@ class RouteAuthIPSpec extends BaseQueryUpdateSpec {
                 password:   hm
                 password:   mb-child
                 password:   mbi-parent
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:
@@ -1562,7 +890,7 @@ class RouteAuthIPSpec extends BaseQueryUpdateSpec {
                 password:   mb-exact
                 password:   mb-child
                 password:   mr-exact
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -1605,7 +933,7 @@ class RouteAuthIPSpec extends BaseQueryUpdateSpec {
                 password:   mb-exact
                 password:   mb-child
                 password:   mr-exact
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -1620,54 +948,6 @@ class RouteAuthIPSpec extends BaseQueryUpdateSpec {
 
         query_object_matches("-rGBT route 20.13.0.0/16", "route", "20.13.0.0/16", "AS3000")
         query_object_matches("-rGBT route 20.13.0.0/16", "route", "20.13.0.0/16", "AS2000")
-    }
-
-    def "create exact match route, mnt-routes test 3"() {
-      given:
-
-      expect:
-        query_object_matches("-rGBT route 20.13.0.0/16", "route", "20.13.0.0/16", "AS3000")
-
-      when:
-        def message = send new Message(
-                subject: "",
-                body: """\
-                route:       20.13.0.0/16
-                descr:       exact match route object
-                origin:      AS3000
-                mnt-by:      EXACT-MB-MNT
-                mnt-routes:  EXACT-MR-MNT {20.13.0.0/24^+}
-                source:      TEST
-
-                route:          20.13.0.0/16
-                descr:          Route
-                origin:         AS2000
-                mnt-by:         CHILD-MB-MNT
-                source:         TEST
-
-                password:   mb-exact
-                password:   mb-child
-                password:   mr-exact
-                """.stripIndent()
-        )
-
-      then:
-        def ack = ackFor message
-
-        ack.summary.nrFound == 2
-        ack.summary.assertSuccess(2, 0, 1, 0, 1)
-        ack.summary.assertErrors(0, 0, 0, 0)
-        ack.countErrorWarnInfo(0, 1, 2)
-        ack.successes.any { it.operation == "Modify" && it.key == "[route] 20.13.0.0/16AS3000" }
-        ack.pendingUpdates.any { it.operation == "Create" && it.key == "[route] 20.13.0.0/16AS2000" }
-        ack.warningPendingMessagesFor("Create", "[route] 20.13.0.0/16AS2000") ==
-                ["This update has only passed one of the two required hierarchical authorisations"]
-        ack.infoPendingMessagesFor("Create", "[route] 20.13.0.0/16AS2000") ==
-                ["Authorisation for [route] 20.13.0.0/16AS3000 failed using \"mnt-routes:\" no valid maintainer found",
-                 "The route object 20.13.0.0/16AS2000 will be saved for one week pending the second authorisation"]
-
-        query_object_matches("-rGBT route 20.13.0.0/16", "route", "20.13.0.0/16", "AS3000")
-        query_object_not_matches("-rGBT route 20.13.0.0/16", "route", "20.13.0.0/16", "AS2000")
     }
 
     def "create exact match route, mnt-routes test 4"() {
@@ -1696,7 +976,7 @@ class RouteAuthIPSpec extends BaseQueryUpdateSpec {
                 password:   mb-exact
                 password:   mb-child
                 password:   mr-exact
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -1739,7 +1019,7 @@ class RouteAuthIPSpec extends BaseQueryUpdateSpec {
                 password:   mb-exact
                 password:   mb-child
                 password:   mr-exact
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -1777,7 +1057,7 @@ class RouteAuthIPSpec extends BaseQueryUpdateSpec {
                 password:   mb-exact
                 password:   mb-child
                 password:   mr-exact
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -1818,7 +1098,7 @@ class RouteAuthIPSpec extends BaseQueryUpdateSpec {
                 password:   mb-exact
                 password:   mb-child
                 password:   mr-exact
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -1855,7 +1135,7 @@ class RouteAuthIPSpec extends BaseQueryUpdateSpec {
                 password:   mb-exact
                 password:   mb-child
                 password:   mr-exact
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -1899,7 +1179,7 @@ class RouteAuthIPSpec extends BaseQueryUpdateSpec {
                 password:   mb-exact
                 password:   mb-child
                 password:   lir
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:

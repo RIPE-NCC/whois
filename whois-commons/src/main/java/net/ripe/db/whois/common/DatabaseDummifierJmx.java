@@ -6,7 +6,7 @@ import net.ripe.db.whois.common.dao.jdbc.JdbcStreamingHelper;
 import net.ripe.db.whois.common.jdbc.SimpleDataSourceFactory;
 import net.ripe.db.whois.common.jmx.JmxBase;
 import net.ripe.db.whois.common.rpsl.AttributeType;
-import net.ripe.db.whois.common.rpsl.DummifierCurrent;
+import net.ripe.db.whois.common.rpsl.DummifierRC;
 import net.ripe.db.whois.common.rpsl.ObjectType;
 import net.ripe.db.whois.common.rpsl.PasswordHelper;
 import net.ripe.db.whois.common.rpsl.RpslAttribute;
@@ -43,10 +43,10 @@ import java.util.concurrent.atomic.AtomicInteger;
 @ManagedResource(objectName = JmxBase.OBJECT_NAME_BASE + "Dummifier", description = "Whois data dummifier")
 /**
  * in jmxterm, run with:
- *      run dummify jdbc:mariadb://<host>/<db> <user> <pass>
+ *      run dummify jdbc:mariadb://<host>/<db> <user> <pass> <env>
  *
  * in console, run with
- *      java -Xmx1G -cp whois.jar net.ripe.db.whois.common.DatabaseDummifierJmx --jdbc-url jdbc:mariadb://localhost/BLAH --user XXX --pass XXX
+ *      java -Xmx1G -cp whois.jar net.ripe.db.whois.common.DatabaseDummifierJmx --jdbc-url jdbc:mariadb://localhost/BLAH --user XXX --pass XXX --env XXX
  *
  */
 public class DatabaseDummifierJmx extends JmxBase {
@@ -56,10 +56,14 @@ public class DatabaseDummifierJmx extends JmxBase {
     private static final String ARG_USER = "user";
     private static final String ARG_PASS = "pass";
 
+    private static final String ARG_ENV = "env";
+
     private static TransactionTemplate transactionTemplate;
     private static JdbcTemplate jdbcTemplate;
 
-    private static final DummifierCurrent dummifier = new DummifierCurrent();
+    private static JdbcTemplate internalTemplate;
+
+    private static final DummifierRC dummifier = new DummifierRC();
 
     private static final AtomicInteger jobsAdded = new AtomicInteger();
     private static final AtomicInteger jobsDone = new AtomicInteger();
@@ -72,16 +76,21 @@ public class DatabaseDummifierJmx extends JmxBase {
     @ManagedOperationParameters({
             @ManagedOperationParameter(name = "jdbcUrl", description = "jdbc url"),
             @ManagedOperationParameter(name = "user", description = "jdbc username"),
-            @ManagedOperationParameter(name = "pass", description = "jdbc password")
+            @ManagedOperationParameter(name = "pass", description = "jdbc password"),
+            @ManagedOperationParameter(name= "env", description = "current environment")
     })
-    public String dummify(final String jdbcUrl, final String user, final String pass) {
+    public String dummify(final String jdbcUrl, final String user, final String pass, final Environment env) {
         return invokeOperation("dummify", jdbcUrl, new Callable<String>() {
             @Override
             public String call() {
-                validateJdbcUrl(user, pass);
                 final SimpleDataSourceFactory simpleDataSourceFactory = new SimpleDataSourceFactory("org.mariadb.jdbc.Driver");
                 final DataSource dataSource = simpleDataSourceFactory.createDataSource(jdbcUrl, user, pass);
                 jdbcTemplate = new JdbcTemplate(dataSource);
+
+                final DataSource internalSource = simpleDataSourceFactory.createDataSource("jdbc:mariadb://localhost/INTERNALS_RIPE", user, pass);
+                internalTemplate = new JdbcTemplate(internalSource);
+
+                validateEnvironment(env);
 
                 final DataSourceTransactionManager transactionManager = new DataSourceTransactionManager(dataSource);
                 transactionTemplate = new TransactionTemplate(transactionManager);
@@ -100,24 +109,34 @@ public class DatabaseDummifierJmx extends JmxBase {
                 cleanUpAuthIndex(jdbcTemplate, executorService);
 
                 executorService.shutdown();
+
                 try {
-                    executorService.awaitTermination(1, TimeUnit.DAYS);
+                    while (!executorService.awaitTermination(1, TimeUnit.MINUTES)) {
+                        LOGGER.info("ExecutorService {} active {} completed {} tasks",
+                            ((ThreadPoolExecutor) executorService).getActiveCount(),
+                            ((ThreadPoolExecutor) executorService).getCompletedTaskCount(),
+                            ((ThreadPoolExecutor) executorService).getTaskCount());
+                    }
                 } catch (InterruptedException e) {
                     LOGGER.error("shutdown", e);
                 }
+
                 return "Database dummified";
             }
         });
     }
 
-    private void validateJdbcUrl(final String user, final String password) {
-        if (!user.equals(password) && !user.equals(reverse(password))) {
-            throw new IllegalArgumentException("dummifier runs on non-production environments only (user==password)");
+    private void validateEnvironment(final Environment env) {
+        final String dbEnvironment = internalTemplate.queryForObject("SELECT name FROM environment LIMIT 1", String.class);
+        if (dbEnvironment == null){
+            throw new IllegalStateException("Environment not specified in the schema");
         }
-    }
-
-    private static String reverse(final String string) {
-        return new StringBuilder(string).reverse().toString();
+        if (!env.name().equalsIgnoreCase(dbEnvironment)){
+            throw new IllegalArgumentException("Requested environment and database environment doesn't match");
+        }
+        if (Environment.PROD.equals(env)) {
+            throw new IllegalArgumentException("dummifier runs on non-production environments only");
+        }
     }
 
     private void addWork(final String table, final JdbcTemplate jdbcTemplate, final ExecutorService executorService) {
@@ -227,6 +246,7 @@ public class DatabaseDummifierJmx extends JmxBase {
         parser.accepts(ARG_JDBCURL).withRequiredArg().required();
         parser.accepts(ARG_USER).withRequiredArg().required();
         parser.accepts(ARG_PASS).withRequiredArg().required();
+        parser.accepts(ARG_ENV).withRequiredArg().required();
         return parser;
     }
 
@@ -235,6 +255,14 @@ public class DatabaseDummifierJmx extends JmxBase {
         String jdbcUrl = options.valueOf(ARG_JDBCURL).toString();
         String user = options.valueOf(ARG_USER).toString();
         String pass = options.valueOf(ARG_PASS).toString();
-        new DatabaseDummifierJmx().dummify(jdbcUrl, user, pass);
+        final Environment env;
+        try {
+            env = Environment.valueOf(options.valueOf(ARG_ENV).toString().toUpperCase());
+        } catch (IllegalArgumentException ex){
+            throw new IllegalArgumentException("Env property doesn't match. Available env: DEV, PREPDEV, TRAINING, " +
+                    "TEST, RC, " +
+                    "PROD");
+        }
+        new DatabaseDummifierJmx().dummify(jdbcUrl, user, pass, env);
     }
 }

@@ -2,30 +2,31 @@ package net.ripe.db.whois.common.source;
 
 import net.ripe.db.whois.common.domain.CIString;
 import net.ripe.db.whois.common.jdbc.DataSourceFactory;
-import org.hamcrest.Matchers;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 import javax.sql.DataSource;
 import java.util.Set;
 
 import static net.ripe.db.whois.common.domain.CIString.ciString;
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.hasItems;
+import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
-import static org.hamcrest.collection.IsCollectionWithSize.hasSize;
-import static org.junit.Assert.assertThat;
-import static org.junit.Assert.fail;
-import static org.mockito.Matchers.anyString;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.fail;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.when;
 
-@RunWith(MockitoJUnitRunner.class)
+@ExtendWith(MockitoExtension.class)
 public class SourceContextTest {
     final String mainSourceNameString = "RIPE";
+    final String nonauthRipeSourceNameString = "RIPE-NONAUTH";
     final String additionalSourceNames = "RIPE,RIPE-GRS,APNIC-GRS";
     final String grsSourceNames = "RIPE-GRS,APNIC-GRS";
     final String nrtmSourceNames = "NRTM-GRS";
@@ -43,12 +44,13 @@ public class SourceContextTest {
     @Mock DataSourceFactory dataSourceFactory;
     SourceContext subject;
 
-    @Before
+    @BeforeEach
     public void setUp() throws Exception {
         when(dataSourceFactory.createDataSource(anyString(), anyString(), anyString())).thenReturn(grsDataSource);
 
         subject = new DefaultSourceContext(
                 mainSourceNameString,
+                nonauthRipeSourceNameString,
                 additionalSourceNames,
                 grsSourceNames,
                 nrtmSourceNames,
@@ -66,14 +68,16 @@ public class SourceContextTest {
         );
     }
 
-    @After
+    @AfterEach
     public void tearDown() {
         subject.removeCurrentSource();
     }
 
-    @Test(expected = IllegalSourceException.class)
+    @Test
     public void setCurrent_unknown_source() {
-        subject.setCurrent(Source.slave("UNKNOWN-GRS"));
+        assertThrows(IllegalSourceException.class, () -> {
+            subject.setCurrent(Source.slave("UNKNOWN-GRS"));
+        });
     }
 
     @Test
@@ -114,6 +118,7 @@ public class SourceContextTest {
         try {
             new DefaultSourceContext(
                 mainSourceNameString,
+                nonauthRipeSourceNameString,
                 invalidAdditionalSource,
                 grsSourceNames,
                 nrtmSourceNames,
@@ -140,6 +145,7 @@ public class SourceContextTest {
         final String noAdditionalSources = "";
         subject = new DefaultSourceContext(
             mainSourceNameString,
+            nonauthRipeSourceNameString,
             noAdditionalSources,
             grsSourceNames,
             nrtmSourceNames,
@@ -155,6 +161,6 @@ public class SourceContextTest {
             whoisSlaveDataSource,
             dataSourceFactory
         );
-        assertThat(subject.getAdditionalSourceNames(), Matchers.hasSize(0));
+        assertThat(subject.getAdditionalSourceNames(), hasSize(0));
     }
 }

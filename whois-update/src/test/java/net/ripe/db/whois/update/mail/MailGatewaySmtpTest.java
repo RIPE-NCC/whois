@@ -1,53 +1,56 @@
 package net.ripe.db.whois.update.mail;
 
+import jakarta.mail.SendFailedException;
+import jakarta.mail.internet.MimeMessage;
 import net.ripe.db.whois.update.log.LoggerContext;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
-import org.mockito.runners.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessagePreparator;
 import org.springframework.test.util.ReflectionTestUtils;
 
-import javax.mail.SendFailedException;
 import java.lang.reflect.Field;
 
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.instanceOf;
-import static org.junit.Assert.assertThat;
-import static org.junit.Assert.fail;
+import static org.hamcrest.core.Is.is;
+import static org.junit.jupiter.api.Assertions.fail;
 import static org.mockito.Mockito.any;
-import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyZeroInteractions;
+import static org.mockito.Mockito.verifyNoMoreInteractions;
+import static org.mockito.Mockito.when;
 
-@RunWith(MockitoJUnitRunner.class)
+@ExtendWith(MockitoExtension.class)
 public class MailGatewaySmtpTest {
     @Mock LoggerContext loggerContext;
     @Mock MailConfiguration mailConfiguration;
     @Mock JavaMailSender mailSender;
     @InjectMocks private MailGatewaySmtp subject;
 
-    @Before
+    @BeforeEach
     public void setUp() throws Exception {
         ReflectionTestUtils.setField(subject, "outgoingMailEnabled", true);
     }
 
     @Test
-    public void sendResponse() throws Exception {
+    public void sendResponse() {
         subject.sendEmail("to", "subject", "test", "");
 
-        verify(mailSender, times(1)).send(any(MimeMessagePreparator.class));
+        verify(mailSender).send(any(MimeMessagePreparator.class));
     }
 
     @Test
-    public void sendResponse_disabled() throws Exception {
+    public void sendResponse_disabled() {
         ReflectionTestUtils.setField(subject, "outgoingMailEnabled", false);
+
         subject.sendEmail("to", "subject", "test", "");
 
-        verifyZeroInteractions(mailSender);
+        verifyNoMoreInteractions(mailSender);
     }
 
     @Test
@@ -61,12 +64,12 @@ public class MailGatewaySmtpTest {
             fail();
         } catch (Exception e) {
             assertThat(e, instanceOf(SendFailedException.class));
-            verify(mailSender, times(1)).send(any(MimeMessagePreparator.class));
+            verify(mailSender).send(any(MimeMessagePreparator.class));
         }
     }
 
     @Test
-    public void sendResponseAndCheckForReplyTo() throws Exception {
+    public void sendResponseAndCheckForReplyTo() {
         final String replyToAddress = "test@ripe.net";
 
         setExpectReplyToField(replyToAddress);
@@ -75,7 +78,7 @@ public class MailGatewaySmtpTest {
     }
 
     @Test
-    public void sendResponseAndCheckForEmptyReplyTo() throws Exception {
+    public void sendResponseAndCheckForEmptyReplyTo() {
         final String replyToAddress = "";
 
         setExpectReplyToField(replyToAddress);
@@ -83,15 +86,27 @@ public class MailGatewaySmtpTest {
         subject.sendEmail("to", "subject", "test", "");
     }
 
+    @Test
+    public void checkRecipientAddressesArePunycoded() throws Exception {
+        MailSenderStub mailSenderStub = new MailSenderStub();
+        MailGatewaySmtp mailGatewaySmtp = new MailGatewaySmtp(loggerContext, mailConfiguration, mailSenderStub);
+        ReflectionTestUtils.setField(mailGatewaySmtp, "outgoingMailEnabled", true);
+
+        when(mailConfiguration.getFrom()).thenReturn("from@from.to");
+
+        mailGatewaySmtp.sendEmail("to@to.to", "subject", "test", "email@Åidn.org");
+
+        final MimeMessage message = mailSenderStub.getMessage("to@to.to");
+        assertThat(message.getReplyTo()[0].toString(), is("email@xn--idn-tla.org"));
+    }
+
     private void setExpectReplyToField(final String replyToAddress) {
         Mockito.doAnswer(invocation -> {
+            final Class<?> subjectClass = invocation.getArguments()[0].getClass();
+            final Field replyToField = subjectClass.getDeclaredField("arg$3");
+            replyToField.setAccessible(true);
 
-            Class<?> aClass = invocation.getArguments()[0].getClass();
-            aClass.getDeclaredFields();
-            Field field = aClass.getDeclaredField("val$replyTo");
-            field.setAccessible(true);
-
-            Object value = field.get(invocation.getArguments()[0]);
+            final Object value = replyToField.get(invocation.getArguments()[0]);
 
             if(!replyToAddress.equals(value)) {
                 fail();

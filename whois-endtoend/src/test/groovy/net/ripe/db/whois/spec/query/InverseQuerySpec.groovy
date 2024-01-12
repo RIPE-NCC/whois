@@ -1,10 +1,11 @@
 package net.ripe.db.whois.spec.query
 
-import net.ripe.db.whois.common.IntegrationTest
+
 import net.ripe.db.whois.spec.BaseQueryUpdateSpec
 import net.ripe.db.whois.spec.BasicFixtures
+import org.junit.jupiter.api.Tag
 
-@org.junit.experimental.categories.Category(IntegrationTest.class)
+@Tag("IntegrationTest")
 class InverseQuerySpec extends BaseQueryUpdateSpec {
 
     @Override
@@ -98,11 +99,25 @@ class InverseQuerySpec extends BaseQueryUpdateSpec {
                 mnt-by:      MBRS-MNT
                 source:      TEST
                 """,
+            "ROLE-A001": """\
+                role:         Abuse Handler
+                address:      St James Street
+                address:      Burnley
+                address:      UK
+                e-mail:       dbtest@ripe.net
+                abuse-mailbox:more_abuse@lir.net
+                admin-c:      TP1-TEST
+                tech-c:       TP1-TEST
+                nic-hdl:      AH001-TEST
+                mnt-by:       LIR-MNT
+                source:       TEST
+                """,
             "ORGSUB": """\
                 organisation:    ORG-SUB1-TEST
                 org-type:        other
                 org-name:        S U B
                 address:         RIPE NCC
+                abuse-c:         AH001-TEST
                 e-mail:          dbtest@ripe.net
                 ref-nfy:         org-inverse@ripe.net
                 notify:          notify-inverse@ripe.net
@@ -116,7 +131,7 @@ class InverseQuerySpec extends BaseQueryUpdateSpec {
     @Override
     Map<String, String> getTransients() {
         [
-                "ALLOC-PA": """\
+            "ALLOC-PA": """\
                 inetnum:      192.168.0.0 - 192.169.255.255
                 netname:      TEST-NET-NAME
                 descr:        TEST network
@@ -129,7 +144,7 @@ class InverseQuerySpec extends BaseQueryUpdateSpec {
                 mnt-lower:    LOWER-MNT
                 source:       TEST
                 """,
-                "SUB-LOW-R-D": """\
+            "SUB-LOW-R-D": """\
                 inetnum:      192.168.200.0 - 192.168.255.255
                 netname:      TEST-NET-NAME
                 descr:        TEST network
@@ -144,7 +159,7 @@ class InverseQuerySpec extends BaseQueryUpdateSpec {
                 mnt-domains:  DOMAINS-MNT
                 source:       TEST
                 """,
-                "SUB-LOW": """\
+            "SUB-LOW": """\
                 inetnum:      192.168.0.0 - 192.168.127.255
                 netname:      TEST-NET-NAME
                 descr:        TEST network
@@ -157,7 +172,7 @@ class InverseQuerySpec extends BaseQueryUpdateSpec {
                 mnt-lower:    LOWER-MNT
                 source:       TEST
                 """,
-                "ASS-END": """\
+            "ASS-END": """\
                 inetnum:      192.168.200.0 - 192.168.200.255
                 netname:      RIPE-NET1
                 descr:        /24 assigned
@@ -247,6 +262,29 @@ class InverseQuerySpec extends BaseQueryUpdateSpec {
                 admin-c:      TP1-TEST
                 tech-c:       TP1-TEST
                 mnt-by:       LIR-MNT
+                source:       TEST
+                """,
+            "ABUSEC": """\
+                role:       Abuse-c Role
+                address:    RIPE NCC
+                e-mail:     noreply@ripe.net
+                nic-hdl:    AR1-TEST
+                abuse-mailbox: abuse@ripe.net
+                mnt-by:     LIR-MNT
+                source:     TEST
+                """,
+            "ALLOC-BY-RIR": """\
+                inet6num:     2a00::/20
+                netname:      TEST-NET-NAME
+                descr:        TEST network
+                country:      NL
+                org:          ORG-LIR1-TEST
+                admin-c:      IP1-TEST
+                tech-c:       IP1-TEST
+                abuse-c:      AR1-TEST
+                status:       ALLOCATED-BY-RIR
+                mnt-by:       RIPE-NCC-HM-MNT
+                mnt-lower:    LOWER-MNT
                 source:       TEST
                 """,
         ]
@@ -348,6 +386,8 @@ class InverseQuerySpec extends BaseQueryUpdateSpec {
         syncUpdate(getTransient("PING") + "override: denis,override1")
         syncUpdate(getTransient("PING2") + "override: denis,override1")
         syncUpdate(getTransient("ZONE") + "override: denis,override1")
+        syncUpdate(getTransient("ABUSEC") + "override: denis,override1")
+        syncUpdate(getTransient("ALLOC-BY-RIR") + "override: denis,override1")
 
       expect:
         // "ALLOC-PA"
@@ -364,6 +404,8 @@ class InverseQuerySpec extends BaseQueryUpdateSpec {
         queryObject("-rBG -T route 192.168.0.0/16", "route", "192.168.0.0/16")
         // "ZONE"
         queryObject("-rBG -T domain 168.192.in-addr.arpa", "domain", "168.192.in-addr.arpa")
+        // ABUSE-C
+        queryObject("-rBG -T inet6num 2a00::/20", "inet6num", "2a00::/20")
 
       when:
         def longObjCount = queryCountObjects("-rGB -i person IP2-TEST")
@@ -381,6 +423,7 @@ class InverseQuerySpec extends BaseQueryUpdateSpec {
         query_object_matches("-rGB -i pn IP2-TEST", "aut-num", "AS1000", "admin-c:\\s*IP2-TEST")
         query_object_matches("-rGB -i pc IP2-TEST", "route", "192.168.0.0/16", "ping-hdl:\\s*IP2-TEST")
         query_object_matches("-rGB -i pn IP2-TEST", "domain", "168.192.in-addr.arpa", "zone-c:\\s*IP2-TEST")
+        query_object_matches("-rGB -i pn AR1-TEST", "inet6num", "2a00::/20", "abuse-c:\\s*AR1-TEST")
     }
 
     def "query -i ping-hdl, -i pc, IP1-RIPE"() {

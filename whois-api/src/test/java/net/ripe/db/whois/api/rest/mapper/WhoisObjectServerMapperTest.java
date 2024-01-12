@@ -2,32 +2,30 @@ package net.ripe.db.whois.api.rest.mapper;
 
 import com.google.common.collect.Lists;
 import net.ripe.db.whois.api.rest.ReferencedTypeResolver;
+import net.ripe.db.whois.api.rest.SourceResolver;
 import net.ripe.db.whois.api.rest.domain.Attribute;
 import net.ripe.db.whois.api.rest.domain.Link;
 import net.ripe.db.whois.api.rest.domain.Parameters;
 import net.ripe.db.whois.api.rest.domain.WhoisObject;
-import net.ripe.db.whois.api.rest.domain.WhoisTag;
 import net.ripe.db.whois.api.rest.domain.WhoisVersion;
 import net.ripe.db.whois.api.rest.search.AbuseContactSearch;
-import net.ripe.db.whois.api.rest.search.ManagedAttributeSearch;
+import net.ripe.db.whois.common.search.ManagedAttributeSearch;
 import net.ripe.db.whois.api.rest.search.ResourceHolderSearch;
+import net.ripe.db.whois.common.dao.VersionDateTime;
 import net.ripe.db.whois.common.domain.CIString;
-import net.ripe.db.whois.common.domain.Tag;
 import net.ripe.db.whois.common.domain.serials.Operation;
 import net.ripe.db.whois.common.rpsl.AttributeType;
 import net.ripe.db.whois.common.rpsl.ObjectType;
 import net.ripe.db.whois.common.rpsl.RpslObject;
-import net.ripe.db.whois.query.VersionDateTime;
 import net.ripe.db.whois.query.domain.DeletedVersionResponseObject;
-import net.ripe.db.whois.query.domain.TagResponseObject;
 import net.ripe.db.whois.query.domain.VersionResponseObject;
-import org.joda.time.LocalDateTime;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 import static net.ripe.db.whois.common.domain.CIString.ciString;
@@ -38,11 +36,12 @@ import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.not;
 import static org.hamcrest.Matchers.nullValue;
-import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.eq;
-import static org.mockito.Mockito.when;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.lenient;
 
-@RunWith(MockitoJUnitRunner.class)
+@ExtendWith(MockitoExtension.class)
 public class WhoisObjectServerMapperTest {
     private static final String BASE_URL = "http://localhost/lookup";
 
@@ -56,25 +55,28 @@ public class WhoisObjectServerMapperTest {
     private ManagedAttributeSearch managedAttributeSearch;
     @Mock
     private Parameters parameters;
+    @Mock
+    private SourceResolver sourceResolver;
 
     private WhoisObjectServerMapper whoisObjectServerMapper;
     private WhoisObjectMapper whoisObjectMapper;
 
-    @Before
+    @BeforeEach
     public void setup() {
         whoisObjectMapper = new WhoisObjectMapper(BASE_URL, new AttributeMapper[]{
-                new FormattedServerAttributeMapper(referencedTypeResolver, BASE_URL),
+                new FormattedServerAttributeMapper(referencedTypeResolver, sourceResolver, BASE_URL),
                 new FormattedClientAttributeMapper()
         });
         whoisObjectServerMapper = new WhoisObjectServerMapper(whoisObjectMapper, resourceHolderSearch, abuseContactSearch, managedAttributeSearch);
-        when(parameters.getUnformatted()).thenReturn(Boolean.FALSE);
+        lenient().when(parameters.getUnformatted()).thenReturn(Boolean.FALSE);
+        lenient().when(sourceResolver.getSource(anyString(), any(CIString.class), anyString())).thenReturn("test");
     }
 
     @Test
     public void map_rpsl_mntner() throws Exception {
-        when(referencedTypeResolver.getReferencedType(AttributeType.ADMIN_C, ciString("TP1-TEST"))).thenReturn("person");
-        when(referencedTypeResolver.getReferencedType(AttributeType.AUTH, ciString("PGPKEY-28F6CD6C"))).thenReturn("key-cert");
-        when(referencedTypeResolver.getReferencedType(AttributeType.MNT_BY, ciString("TST-MNT"))).thenReturn("mntner");
+        lenient().when(referencedTypeResolver.getReferencedType(AttributeType.ADMIN_C, ciString("TP1-TEST"))).thenReturn("person");
+        lenient().when(referencedTypeResolver.getReferencedType(AttributeType.AUTH, ciString("PGPKEY-28F6CD6C"))).thenReturn("key-cert");
+        lenient().when(referencedTypeResolver.getReferencedType(AttributeType.MNT_BY, ciString("TST-MNT"))).thenReturn("mntner");
 
         final RpslObject rpslObject = RpslObject.parse(
                 "mntner:      TST-MNT\n" +
@@ -110,10 +112,10 @@ public class WhoisObjectServerMapperTest {
 
     @Test
     public void map_rpsl_as_set_members_multiple_values() throws Exception {
-        when(referencedTypeResolver.getReferencedType(eq(AttributeType.TECH_C), any(CIString.class))).thenReturn("person");
-        when(referencedTypeResolver.getReferencedType(eq(AttributeType.ADMIN_C), any(CIString.class))).thenReturn("person");
-        when(referencedTypeResolver.getReferencedType(eq(AttributeType.MEMBERS), any(CIString.class))).thenReturn("aut-num");
-        when(referencedTypeResolver.getReferencedType(eq(AttributeType.MNT_BY), any(CIString.class))).thenReturn("mntner");
+        lenient().when(referencedTypeResolver.getReferencedType(eq(AttributeType.TECH_C), any(CIString.class))).thenReturn("person");
+        lenient().when(referencedTypeResolver.getReferencedType(eq(AttributeType.ADMIN_C), any(CIString.class))).thenReturn("person");
+        lenient().when(referencedTypeResolver.getReferencedType(eq(AttributeType.MEMBERS), any(CIString.class))).thenReturn("aut-num");
+        lenient().when(referencedTypeResolver.getReferencedType(eq(AttributeType.MNT_BY), any(CIString.class))).thenReturn("mntner");
 
 
         final RpslObject rpslObject = RpslObject.parse("" +
@@ -150,11 +152,11 @@ public class WhoisObjectServerMapperTest {
 
     @Test
     public void map_versions() {
-        final DeletedVersionResponseObject deleted = new DeletedVersionResponseObject(new VersionDateTime(new LocalDateTime()), ObjectType.AUT_NUM, "AS102");
+        final DeletedVersionResponseObject deleted = new DeletedVersionResponseObject(new VersionDateTime(LocalDateTime.now()), ObjectType.AUT_NUM, "AS102");
 
         final List<VersionResponseObject> versionInfos = Lists.newArrayList(
-                new VersionResponseObject(2, Operation.UPDATE, 3, new VersionDateTime(new LocalDateTime()), ObjectType.AUT_NUM, "AS102"),
-                new VersionResponseObject(2, Operation.UPDATE, 4, new VersionDateTime(new LocalDateTime()), ObjectType.AUT_NUM, "AS102"));
+                new VersionResponseObject(2, Operation.UPDATE, 3, new VersionDateTime(LocalDateTime.now()), ObjectType.AUT_NUM, "AS102"),
+                new VersionResponseObject(2, Operation.UPDATE, 4, new VersionDateTime(LocalDateTime.now()), ObjectType.AUT_NUM, "AS102"));
 
         final List<WhoisVersion> whoisVersions = whoisObjectServerMapper.mapVersions(Lists.newArrayList(deleted), versionInfos);
 
@@ -173,35 +175,5 @@ public class WhoisObjectServerMapperTest {
         assertThat(whoisVersion2.getOperation(), is("ADD/UPD"));
         assertThat(whoisVersion2.getRevision(), is(4));
         assertThat(whoisVersion2.getDate(), is(not(nullValue())));
-    }
-
-    @Test
-    public void map_tags() {
-        final TagResponseObject tagResponseObject =
-                new TagResponseObject(ciString("TEST-DBM"),
-                        Lists.newArrayList(
-                                new Tag(ciString("foo"), "foo data"),
-                                new Tag(ciString("bar"), "bar data"),
-                                new Tag(ciString("barf"), "barf data")
-                        ));
-
-
-        final WhoisObject whoisObject = whoisObjectServerMapper.map(RpslObject.parse("mntner: TEST-MNT\nsource: TEST"), parameters);
-        whoisObjectServerMapper.mapTags(whoisObject, tagResponseObject);
-
-        final List<WhoisTag> tags = whoisObject.getTags();
-
-        assertThat(tags, hasSize(3));
-        final WhoisTag tag1 = tags.get(0);
-        assertThat(tag1.getId(), is("foo"));
-        assertThat(tag1.getData(), is("foo data"));
-
-        final WhoisTag tag2 = tags.get(1);
-        assertThat(tag2.getId(), is("bar"));
-        assertThat(tag2.getData(), is("bar data"));
-
-        final WhoisTag tag3 = tags.get(2);
-        assertThat(tag3.getId(), is("barf"));
-        assertThat(tag3.getData(), is("barf data"));
     }
 }

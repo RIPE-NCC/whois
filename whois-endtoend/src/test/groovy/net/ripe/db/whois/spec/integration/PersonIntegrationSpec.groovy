@@ -1,9 +1,9 @@
 package net.ripe.db.whois.spec.integration
-import net.ripe.db.whois.common.IntegrationTest
+
 import net.ripe.db.whois.spec.domain.Message
 import net.ripe.db.whois.spec.domain.SyncUpdate
 
-@org.junit.experimental.categories.Category(IntegrationTest.class)
+@org.junit.jupiter.api.Tag("IntegrationTest")
 class PersonIntegrationSpec extends BaseWhoisSourceSpec {
 
     @Override
@@ -126,7 +126,7 @@ class PersonIntegrationSpec extends BaseWhoisSourceSpec {
                         source:  TEST
                         delete: some reason
                         password: update
-                        """.stripIndent())
+                        """.stripIndent(true))
 
       when:
         def response = syncUpdate update
@@ -139,7 +139,7 @@ class PersonIntegrationSpec extends BaseWhoisSourceSpec {
     def "delete existing person"() {
       given:
         def update = new SyncUpdate(data: "" +
-                fixtures["TEST-PN2"].stripIndent() +
+                fixtures["TEST-PN2"].stripIndent(true) +
                 "delete: some reason\n" +
                 "password: update")
 
@@ -154,7 +154,7 @@ class PersonIntegrationSpec extends BaseWhoisSourceSpec {
     def "delete person with references"() {
       given:
         def update = new SyncUpdate(data: "" +
-                fixtures["ADMIN-PN"].stripIndent() +
+                fixtures["ADMIN-PN"].stripIndent(true) +
                 "delete: some reason\n" +
                 "password: update")
 
@@ -170,7 +170,7 @@ class PersonIntegrationSpec extends BaseWhoisSourceSpec {
     def "delete existing role "() {
       given:
         def update = new SyncUpdate(data: "" +
-                fixtures["ROLE"].stripIndent() +
+                fixtures["ROLE"].stripIndent(true) +
                 "delete: some reason\n" +
                 "password: update")
 
@@ -185,7 +185,7 @@ class PersonIntegrationSpec extends BaseWhoisSourceSpec {
     def "delete self referencing role"() {
       given:
         def update = new SyncUpdate(data: "" +
-                fixtures["SELF-REF"].stripIndent() +
+                fixtures["SELF-REF"].stripIndent(true) +
                 "password:update\n" +
                 "delete:some reason")
       when:
@@ -199,7 +199,7 @@ class PersonIntegrationSpec extends BaseWhoisSourceSpec {
     def "update self referencing role"() {
       given:
         def role = new SyncUpdate(data: ("" +
-                fixtures["SELF-REF"].stripIndent() +
+                fixtures["SELF-REF"].stripIndent(true) +
                 "password:update\n" =~ /admin-c: RL2-RIPE/).replaceFirst("admin-c:RL-TEST"))
 
       when:
@@ -221,7 +221,7 @@ class PersonIntegrationSpec extends BaseWhoisSourceSpec {
                 mnt-by:  UPD-MNT
                 source:  TEST
                 password: update
-                """.stripIndent())
+                """.stripIndent(true))
 
       when:
         def response = syncUpdate person
@@ -243,7 +243,7 @@ class PersonIntegrationSpec extends BaseWhoisSourceSpec {
                 mnt-by:     UPD-MNT
                 source:     TEST
                 password: update
-                """.stripIndent())
+                """.stripIndent(true))
 
       when:
         create =~ /Create SUCCEEDED: \[person\] TP3-TEST/
@@ -266,7 +266,7 @@ class PersonIntegrationSpec extends BaseWhoisSourceSpec {
                 mnt-by:     UPD-MNT
                 source:     TEST
                 password: update
-                """.stripIndent())
+                """.stripIndent(true))
 
       when:
         update =~ /Modify SUCCEEDED: \[person\] TEST-RIPE/
@@ -288,7 +288,7 @@ class PersonIntegrationSpec extends BaseWhoisSourceSpec {
                 nic-hdl:    AUTO-1
                 source:     TEST
                 password: update
-                """.stripIndent())
+                """.stripIndent(true))
 
       when:
         def response = syncUpdate person
@@ -310,7 +310,7 @@ class PersonIntegrationSpec extends BaseWhoisSourceSpec {
                 nic-hdl:    AUTO-1
                 source:     TEST
                 password: update
-                """.stripIndent())
+                """.stripIndent(true))
 
       when:
         def message = send person
@@ -333,7 +333,7 @@ class PersonIntegrationSpec extends BaseWhoisSourceSpec {
                 mnt-by:  UPD-MNT
                 source:  TEST
                 password: update
-                """.stripIndent())
+                """.stripIndent(true))
 
       when:
         def response = syncUpdate person
@@ -354,7 +354,7 @@ class PersonIntegrationSpec extends BaseWhoisSourceSpec {
                 mnt-by:  UPD-MNT
                 source:  TEST
                 password: update
-                """.stripIndent())
+                """.stripIndent(true))
       when:
         firstPerson =~ /SUCCESS/
         firstPerson =~ /Create SUCCEEDED: \[person\] SP1-TEST/
@@ -368,7 +368,7 @@ class PersonIntegrationSpec extends BaseWhoisSourceSpec {
                 mnt-by:  UPD-MNT
                 source:  TEST
                 password: update
-                """.stripIndent())
+                """.stripIndent(true))
       then:
         secondPerson =~ /SUCCESS/
         secondPerson =~ /Create SUCCEEDED: \[person\] SP2-TEST/
@@ -384,7 +384,7 @@ class PersonIntegrationSpec extends BaseWhoisSourceSpec {
                 mnt-by:  UPD-MNT
                 source:  TEST
                 password: update
-                """.stripIndent())
+                """.stripIndent(true))
 
       when:
         def response = syncUpdate person
@@ -395,7 +395,7 @@ class PersonIntegrationSpec extends BaseWhoisSourceSpec {
             and were NOT PROCESSED:
 
             person:  Some person
-            """.stripIndent()
+            """.stripIndent(true)
     }
 
     def "create person with empty nic-hdl"() {
@@ -409,7 +409,7 @@ class PersonIntegrationSpec extends BaseWhoisSourceSpec {
                 nic-hdl:
                 source:  TEST
                 password: update
-                """.stripIndent())
+                """.stripIndent(true))
 
       when:
         def response = syncUpdate person
@@ -420,7 +420,7 @@ class PersonIntegrationSpec extends BaseWhoisSourceSpec {
             and were NOT PROCESSED:
 
             person:  Some person
-            """.stripIndent()
+            """.stripIndent(true)
     }
 
     def "create role with generated nic-hdl and self reference"() {
@@ -439,7 +439,7 @@ class PersonIntegrationSpec extends BaseWhoisSourceSpec {
                 abuse-mailbox: admin@test.com
                 source:  TEST
                 password: update
-                """.stripIndent())
+                """.stripIndent(true))
 
       when:
         def response = syncUpdate person
@@ -466,7 +466,7 @@ class PersonIntegrationSpec extends BaseWhoisSourceSpec {
                 abuse-mailbox: admin@test.com
                 source:  TEST
                 password: update
-                """.stripIndent())
+                """.stripIndent(true))
 
       when:
         def response = syncUpdate person
@@ -490,7 +490,7 @@ class PersonIntegrationSpec extends BaseWhoisSourceSpec {
             mnt-by:  UPD-MNT
             source:  TEST
             password: update
-            """.stripIndent())
+            """.stripIndent(true))
 
       when:
         def response = syncUpdate person
@@ -511,7 +511,7 @@ class PersonIntegrationSpec extends BaseWhoisSourceSpec {
               mnt-by:  UPD-MNT
               source:  TEST
               password: update
-              """.stripIndent())
+              """.stripIndent(true))
 
       when:
         def response = syncUpdate person
@@ -531,7 +531,7 @@ class PersonIntegrationSpec extends BaseWhoisSourceSpec {
               nic-hdl: TP2-TEST
               mnt-by:  UPD-MNT
               source:  TEST
-              """.stripIndent())
+              """.stripIndent(true))
 
       when:
         def response = syncUpdate person
@@ -541,7 +541,7 @@ class PersonIntegrationSpec extends BaseWhoisSourceSpec {
             \\*\\*\\*Error:   Authorisation for \\[person\\] TP2-TEST failed
                         using "mnt-by:"
                         not authenticated by: UPD-MNT
-            """.stripIndent()
+            """.stripIndent(true)
     }
 
     def "create person succeeds with org with nonexistant mnt-ref"() {
@@ -557,7 +557,7 @@ class PersonIntegrationSpec extends BaseWhoisSourceSpec {
               org:     ORG-NCC3-RIPE
               source:  TEST
               password: update
-              """.stripIndent())
+              """.stripIndent(true))
 
       when:
         deleteObject("UPD-MNT2");
@@ -581,7 +581,7 @@ class PersonIntegrationSpec extends BaseWhoisSourceSpec {
               org:     ORG-NCC2-RIPE
               source:  TEST
               password: invalid
-              """.stripIndent())
+              """.stripIndent(true))
 
       when:
         deleteObject("UPD-MNT2");
@@ -590,20 +590,20 @@ class PersonIntegrationSpec extends BaseWhoisSourceSpec {
       then:
         response =~ """
             \\*\\*\\*Warning: Referenced organisation ORG-NCC2-RIPE has mnt-ref attribute UPD-MNT2
-                        which does not exist in the database""".stripIndent()
+                        which does not exist in the database""".stripIndent(true)
         response =~ """
             \\*\\*\\*Error:   Authorisation for \\[person\\] TP3-TEST failed
                         using "mnt-by:"
-                        not authenticated by: UPD-MNT""".stripIndent()
+                        not authenticated by: UPD-MNT""".stripIndent(true)
         response =~ """
             \\*\\*\\*Error:   Authorisation for \\[organisation\\] ORG-NCC2-RIPE failed
                         using "mnt-ref:"
-                        no valid maintainer found""".stripIndent()
+                        no valid maintainer found""".stripIndent(true)
     }
 
     def "modify person fails with org with nonexistant mnt-ref"() {
         def person = new SyncUpdate(data:
-                getFixtures().get("TEST-PN2").stripIndent() + "org: ORG-NCC2-RIPE\n" + "password: invalid\n")
+                getFixtures().get("TEST-PN2").stripIndent(true) + "org: ORG-NCC2-RIPE\n" + "password: invalid\n")
 
       when:
         deleteObject("UPD-MNT2")
@@ -626,7 +626,7 @@ class PersonIntegrationSpec extends BaseWhoisSourceSpec {
               org:     ORG-NCC1-RIPE
               source:  TEST
               password: update
-              """.stripIndent())
+              """.stripIndent(true))
 
       when:
         def response = syncUpdate person
@@ -637,7 +637,7 @@ class PersonIntegrationSpec extends BaseWhoisSourceSpec {
 
     def "modify person with org reference is authorised"() {
         def person = new SyncUpdate(data:
-                getFixtures().get("TEST-PN2").stripIndent() + "org: ORG-NCC1-RIPE\n" + "password: update")
+                getFixtures().get("TEST-PN2").stripIndent(true) + "org: ORG-NCC1-RIPE\n" + "password: update")
 
       when:
         def response = syncUpdate person
@@ -659,7 +659,7 @@ class PersonIntegrationSpec extends BaseWhoisSourceSpec {
               org:     ORG-NCC2-RIPE
               source:  TEST
               password: update
-              """.stripIndent())
+              """.stripIndent(true))
 
       when:
         def response = syncUpdate person
@@ -669,12 +669,12 @@ class PersonIntegrationSpec extends BaseWhoisSourceSpec {
             \\*\\*\\*Error:   Authorisation for \\[organisation\\] ORG-NCC2-RIPE failed
                         using "mnt-ref:"
                         not authenticated by: UPD-MNT2
-            """.stripIndent()
+            """.stripIndent(true)
     }
 
     def "modify person with org reference is not authorised"() {
         def person = new SyncUpdate(data:
-                getFixtures().get("TEST-PN2").stripIndent() + "org: ORG-NCC2-RIPE\n" + "password: update")
+                getFixtures().get("TEST-PN2").stripIndent(true) + "org: ORG-NCC2-RIPE\n" + "password: update")
 
       when:
         def response = syncUpdate person
@@ -684,7 +684,7 @@ class PersonIntegrationSpec extends BaseWhoisSourceSpec {
             \\*\\*\\*Error:   Authorisation for \\[organisation\\] ORG-NCC2-RIPE failed
                         using "mnt-ref:"
                         not authenticated by: UPD-MNT2
-            """.stripIndent()
+            """.stripIndent(true)
     }
 
     def "create person with non-existant org attribute"() {
@@ -700,7 +700,7 @@ class PersonIntegrationSpec extends BaseWhoisSourceSpec {
               org:     ORG-NON-EXISTANT
               source:  TEST
               password: update
-              """.stripIndent())
+              """.stripIndent(true))
 
       when:
         def response = syncUpdate person
@@ -723,7 +723,7 @@ class PersonIntegrationSpec extends BaseWhoisSourceSpec {
               org:     INVALID
               source:  TEST
               password: update
-              """.stripIndent())
+              """.stripIndent(true))
 
       when:
         def response = syncUpdate person
@@ -735,7 +735,7 @@ class PersonIntegrationSpec extends BaseWhoisSourceSpec {
 
     def "change person attribute of existing person succeeds"() {
       given:
-        def data = fixtures["TEST-PN2"].stripIndent() + "password:update"
+        def data = fixtures["TEST-PN2"].stripIndent(true) + "password:update"
         data = (data =~ /person:  Test Person2/).replaceFirst("person: Modify Person")
 
         def modify = new SyncUpdate(data: data)
@@ -762,7 +762,7 @@ class PersonIntegrationSpec extends BaseWhoisSourceSpec {
             mnt-by: UPD-MNT
             source:  TEST
             password: update
-            """.stripIndent()))
+            """.stripIndent(true)))
 
         expect:
             role =~ /SUCCESS/
@@ -779,7 +779,7 @@ class PersonIntegrationSpec extends BaseWhoisSourceSpec {
             mnt-by:       UPD-MNT2
             source:       TEST
             password: update2
-            """.stripIndent()))
+            """.stripIndent(true)))
 
         then:
             org =~ /SUCCESS/
@@ -797,7 +797,7 @@ class PersonIntegrationSpec extends BaseWhoisSourceSpec {
             mnt-by: UPD-MNT
             source:  TEST
             password: update
-            """.stripIndent()))
+            """.stripIndent(true)))
 
         then:
             roleUpdate =~ /There is an organisation referencing role Abuse Role's abuse-mailbox/

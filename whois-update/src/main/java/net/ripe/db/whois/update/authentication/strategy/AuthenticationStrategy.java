@@ -23,11 +23,6 @@ public interface AuthenticationStrategy extends Comparable<AuthenticationStrateg
     String getName();
 
     /**
-     * @return Supported types for pending authentication.
-     */
-    Set<ObjectType> getTypesWithPendingAuthenticationSupport();
-
-    /**
      * Perform one or more authentication steps for the provided update.
      * <p/>
      * If authentication fails, this method must throw an AuthenticationFailedException

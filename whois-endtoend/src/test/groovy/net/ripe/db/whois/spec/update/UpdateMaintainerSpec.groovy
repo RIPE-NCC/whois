@@ -1,9 +1,10 @@
 package net.ripe.db.whois.spec.update
-import net.ripe.db.whois.common.IntegrationTest
+
 import net.ripe.db.whois.spec.BaseQueryUpdateSpec
+import net.ripe.db.whois.spec.domain.AckResponse
 import net.ripe.db.whois.spec.domain.Message
 
-@org.junit.experimental.categories.Category(IntegrationTest.class)
+@org.junit.jupiter.api.Tag("IntegrationTest")
 class UpdateMaintainerSpec extends BaseQueryUpdateSpec {
 
     @Override
@@ -24,6 +25,25 @@ class UpdateMaintainerSpec extends BaseQueryUpdateSpec {
             admin-c: TP1-TEST
             mnt-by: SELF-MNT
             upd-to: updto_cre@ripe.net
+            auth:   MD5-PW \$1\$fU9ZMQN9\$QQtm3kRqZXWAuLpeOiLN7. # update
+            source: TEST
+            """,
+            "UPD": """\
+            mntner: UPD
+            descr: description
+            admin-c: TP1-TEST
+            mnt-by: OWNER-MNT
+            upd-to: dbtest@ripe.net
+            auth:   MD5-PW \$1\$fU9ZMQN9\$QQtm3kRqZXWAuLpeOiLN7. # update
+            source: TEST
+            """,
+            "UPD2": """\
+            mntner: UPD
+            descr: description
+            admin-c: TP1-TEST
+            remarks: added comment
+            mnt-by: OWNER-MNT
+            upd-to: dbtest@ripe.net
             auth:   MD5-PW \$1\$fU9ZMQN9\$QQtm3kRqZXWAuLpeOiLN7. # update
             source: TEST
             """,
@@ -141,7 +161,7 @@ class UpdateMaintainerSpec extends BaseQueryUpdateSpec {
                 source: TEST
 
                 password: update
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -178,7 +198,7 @@ class UpdateMaintainerSpec extends BaseQueryUpdateSpec {
                 source: TEST
 
                 password: update
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:
@@ -286,7 +306,7 @@ class UpdateMaintainerSpec extends BaseQueryUpdateSpec {
                 source: TEST
 
                 password: owner
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -302,6 +322,40 @@ class UpdateMaintainerSpec extends BaseQueryUpdateSpec {
 
         queryObject("-rGBT mntner CRE-MNT", "mntner", "CRE-MNT")
     }
+
+    def "create maintainer object with invalid  (without -mnt suffix) maintainer name"() {
+        expect:
+        queryNothing("-rGBT mntner CRE")
+
+        when:
+        def message = send new Message(
+                subject: "create CRE",
+                body: """\
+                mntner: CRE
+                descr: description
+                admin-c: TP1-TEST
+                mnt-by: OWNER-MNT
+                upd-to: updto_cre@ripe.net
+                auth:   MD5-PW \$1\$fU9ZMQN9\$QQtm3kRqZXWAuLpeOiLN7. # update
+                source: TEST
+
+                password: owner
+                """.stripIndent(true)
+        )
+
+        then:
+        def ack = ackFor message
+
+        ack.failed
+        ack.summary.nrFound == 1
+        ack.summary.assertSuccess(0, 0, 0, 0, 0)
+        ack.summary.assertErrors(1, 1, 0, 0)
+        ack.errorMessagesFor("Create", "[mntner] CRE") == ["When creating a MNTNER the name must end with an -MNT suffix"]
+        ack.countErrorWarnInfo(1, 2, 0)
+
+        queryNothing("-rGBT mntner SELF-MNT")
+    }
+
 
     def "create maintainer object maintained by other mntner using own pw"() {
       expect:
@@ -320,7 +374,7 @@ class UpdateMaintainerSpec extends BaseQueryUpdateSpec {
                 source: TEST
 
                 password: update
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -363,6 +417,33 @@ class UpdateMaintainerSpec extends BaseQueryUpdateSpec {
         ack.successes.find { it.operation == "No operation" && it.key == "[mntner] UPD-MNT"}.warnings == ["Submitted object identical to database object"]
 
         def qryAfter = queryObject("-r -T mntner UPD-MNT", "mntner", "UPD-MNT")
+        qryBefore == qryAfter
+    }
+
+    def "modify maintainer with no -mnt prefix no changes"() {
+        given:
+        def toUpdate = dbfixture(getTransient("UPD"))
+
+        expect:
+        def qryBefore = queryObject("-r -T mntner UPD", "mntner", "UPD")
+
+        when:
+        def message = send new Message(
+                subject: "update UPD",
+                body: toUpdate + "\npassword: owner"
+        )
+
+        then:
+        def ack = ackFor message
+
+        ack.success
+        ack.summary.nrFound == 1
+        ack.summary.assertSuccess(1, 0, 0, 0, 1)
+        ack.summary.assertErrors(0, 0, 0, 0)
+        ack.countErrorWarnInfo(0, 3, 0)
+        ack.successes.find { it.operation == "No operation" && it.key == "[mntner] UPD"}.warnings == ["Submitted object identical to database object"]
+
+        def qryAfter = queryObject("-r -T mntner UPD", "mntner", "UPD")
         qryBefore == qryAfter
     }
 
@@ -411,6 +492,37 @@ class UpdateMaintainerSpec extends BaseQueryUpdateSpec {
 
         def notif = notificationFor "mntnfy_owner@ripe.net"
         notif.added("mntner", "UPD-MNT", "remarks:        added comment")
+    }
+
+    def "modify maintainer with no -mnt suffix add remarks"() {
+        given:
+        dbfixture(getTransient("UPD"))
+        def toUpdate = object(getTransient("UPD2"))
+
+        expect:
+        query_object_not_matches("-r -T mntner UPD", "mntner", "UPD", "remarks:\\s*added comment")
+        queryObject("-r -T mntner UPD", "mntner", "UPD")
+
+        when:
+        def message = send new Message(
+                subject: "update UPD",
+                body: toUpdate + "password: owner"
+        )
+
+        then:
+        def ack = ackFor message
+
+        ack.success
+        ack.summary.nrFound == 1
+        ack.summary.assertSuccess(1, 0, 1, 0, 0)
+        ack.summary.assertErrors(0, 0, 0, 0)
+        ack.countErrorWarnInfo(0, 2, 0)
+
+        ack.successes.any { it.operation == "Modify" && it.key == "[mntner] UPD"}
+        query_object_matches("-r -T mntner UPD", "mntner", "UPD", "remarks:\\s*added comment")
+
+        def notif = notificationFor "mntnfy_owner@ripe.net"
+        notif.added("mntner", "UPD", "remarks:        added comment")
     }
 
     def "update maintainer new keyword"() {
@@ -535,7 +647,6 @@ class UpdateMaintainerSpec extends BaseQueryUpdateSpec {
                 mnt-nfy: mntnfy_cre@ripe.net
                 admin-c: TP1-TEST
                 mnt-by: CRE-MNT, owner-mnt
-                abuse-mailbox: nfy_cre@ripe.net
                 auth:        MD5-PW \$1\$d9fKeTr2\$Si7YudNf4rUGmR71n/cqk/  #test
                 auth:        MD5-PW \$1\$d9fKeTr2\$Si7YudNf4rUGmR71n/cqk/  #test
                 upd-to: updto_cre@ripe.net
@@ -546,7 +657,7 @@ class UpdateMaintainerSpec extends BaseQueryUpdateSpec {
 
                 password: owner3
                 password: update
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -587,7 +698,7 @@ class UpdateMaintainerSpec extends BaseQueryUpdateSpec {
                 source:      TEST
 
                 password: owner
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -620,7 +731,7 @@ class UpdateMaintainerSpec extends BaseQueryUpdateSpec {
                 source: TEST
 
                 password: update
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -638,4 +749,73 @@ class UpdateMaintainerSpec extends BaseQueryUpdateSpec {
 
         queryObjectNotFound("-rGBT mntner NEW-MNT", "mntner", "NEW-MNT")
     }
+
+    def "not create ripe-ncc-rpsl-mntner maintainer object"() {
+        expect:
+        queryNothing("-rGBT mntner RIPE-NCC-RPSL-MNT")
+
+        when:
+        def message = send new Message(
+                subject: "",
+                body: """\
+                mntner: RIPE-NCC-RPSL-MNT
+                descr: description
+                admin-c: TP1-TEST
+                mnt-by: RIPE-NCC-RPSL-MNT
+                upd-to: updto_cre@ripe.net
+                auth:   MD5-PW \$1\$fU9ZMQN9\$QQtm3kRqZXWAuLpeOiLN7. # update
+                source: TEST
+
+                password: update
+                """.stripIndent(true)
+        )
+
+        then:
+        def ack = ackFor message
+
+        ack.errors
+        ack.summary.nrFound == 1
+        ack.summary.assertSuccess(0, 0, 0, 0, 0)
+        ack.summary.assertErrors(1, 1, 0, 0)
+
+        ack.errors.any {it.operation == "Create" && it.key == "[mntner] RIPE-NCC-RPSL-MNT"}
+        ack.countErrorWarnInfo(2, 0, 0)
+        ack.errorMessagesFor("Create", "[mntner] RIPE-NCC-RPSL-MNT") ==
+                ["Authentication by RIPE NCC maintainers only allowed from within the RIPE NCC network","You cannot create a RIPE NCC maintainer"]
+
+        queryObjectNotFound("-rGBT mntner RIPE-NCC-RPSL-MNT", "mntner", "RIPE-NCC-RPSL-MNT")
+    }
+
+    def "create ripe-ncc-rpsl-mntner maintainer object using override"() {
+        expect:
+        queryObjectNotFound("-r -T mntner RIPE-NCC-RPSL-MNT", "mntner", "RIPE-NCC-RPSL-MNT")
+
+        when:
+        def message = syncUpdate("""\
+                mntner: RIPE-NCC-RPSL-MNT
+                descr: description
+                admin-c: TP1-TEST
+                mnt-by: RIPE-NCC-RPSL-MNT
+                upd-to: updto_cre@ripe.net
+                auth:   MD5-PW \$1\$fU9ZMQN9\$QQtm3kRqZXWAuLpeOiLN7. # update
+                source: TEST
+                override:       denis,override1
+
+                password: update
+
+                """.stripIndent(true)
+        )
+
+        then:
+        def ack = new AckResponse("", message)
+
+        ack.summary.assertSuccess(1, 1, 0, 0, 0)
+        ack.summary.assertErrors(0, 0, 0, 0)
+
+        ack.successes.any { it.operation == "Create" && it.key == "[mntner] RIPE-NCC-RPSL-MNT"}
+        ack.countErrorWarnInfo(0, 1, 1)
+
+        queryObject("-rGBT mntner RIPE-NCC-RPSL-MNT", "mntner", "RIPE-NCC-RPSL-MNT")
+    }
+
 }

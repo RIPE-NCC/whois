@@ -1,10 +1,10 @@
 package net.ripe.db.whois.spec.update
 
-import net.ripe.db.whois.common.IntegrationTest
+
 import net.ripe.db.whois.spec.BaseQueryUpdateSpec
 import net.ripe.db.whois.spec.domain.Message
 
-@org.junit.experimental.categories.Category(IntegrationTest.class)
+@org.junit.jupiter.api.Tag("IntegrationTest")
 class SyntaxSpec extends BaseQueryUpdateSpec {
 
     @Override
@@ -45,7 +45,7 @@ class SyntaxSpec extends BaseQueryUpdateSpec {
                 nic-hdl: FP1-TEST
                 mnt-by:  OWNER-MNT
                 source:  TEST
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -83,7 +83,7 @@ class SyntaxSpec extends BaseQueryUpdateSpec {
                 nic-hdl: FP1-TEST
                 mnt-by:  OWNER-MNT
                 source:  TEST
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -117,7 +117,7 @@ class SyntaxSpec extends BaseQueryUpdateSpec {
                 nic-hdl: FP1-TEST
                 mnt-by:  OWNER-MNT
                 source:  TEST
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -151,7 +151,7 @@ class SyntaxSpec extends BaseQueryUpdateSpec {
                 nic-hdl: FP1-TEST
                 mnt-by:  OWNER-MNT
                 source:  TEST
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -187,7 +187,7 @@ class SyntaxSpec extends BaseQueryUpdateSpec {
                 source:  TEST
 
                 password: owner
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -224,7 +224,7 @@ class SyntaxSpec extends BaseQueryUpdateSpec {
                 source:  TEST
 
                 password: owner
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -264,7 +264,7 @@ class SyntaxSpec extends BaseQueryUpdateSpec {
                 source:  TEST
 
                 password: owner
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -302,7 +302,7 @@ class SyntaxSpec extends BaseQueryUpdateSpec {
                 source:  TEST
 
                 password: owner
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -339,7 +339,7 @@ class SyntaxSpec extends BaseQueryUpdateSpec {
                 source:  TEST
 
                 password: owner
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -372,7 +372,7 @@ class SyntaxSpec extends BaseQueryUpdateSpec {
                 source:  TEST
 
                 password: owner
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -407,7 +407,7 @@ class SyntaxSpec extends BaseQueryUpdateSpec {
                 source:  TEST
 
                 password: owner
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -442,7 +442,7 @@ class SyntaxSpec extends BaseQueryUpdateSpec {
                 source:  TEST     # source comment
 
                 password: owner
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -476,7 +476,7 @@ class SyntaxSpec extends BaseQueryUpdateSpec {
                 source:  TEST
 
                 password: owner
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -512,7 +512,7 @@ class SyntaxSpec extends BaseQueryUpdateSpec {
                 source:  TEST
 
                 password: owner
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -524,6 +524,40 @@ class SyntaxSpec extends BaseQueryUpdateSpec {
         ack.summary.assertErrors(0, 0, 0, 0)
 
         ack.countErrorWarnInfo(0, 0, 0)
+        ack.successes.any { it.operation == "Create" && it.key == "[person] FP1-TEST   First Person" }
+
+        queryObject("-rBT person FP1-TEST", "person", "First Person")
+    }
+
+    def "create person with control character"() {
+        expect:
+        queryObjectNotFound("-r -T person FP1-TEST", "person", "First Person")
+
+        when:
+        def message = send new Message(
+                subject: "",
+                body: """\
+                person:  First Person
+                address: St James\u0008Street
+                +#eol comment
+                phone:   +44 282 420469
+                nic-hdl: FP1-TEST
+                mnt-by:  OWNER-MNT
+                source:  TEST
+
+                password: owner
+                """.stripIndent(true)
+        )
+
+        then:
+        def ack = ackFor message
+
+        ack.success
+        ack.summary.nrFound == 1
+        ack.summary.assertSuccess(1, 1, 0, 0, 0)
+        ack.summary.assertErrors(0, 0, 0, 0)
+
+        ack.countErrorWarnInfo(0, 1, 0)
         ack.successes.any { it.operation == "Create" && it.key == "[person] FP1-TEST   First Person" }
 
         queryObject("-rBT person FP1-TEST", "person", "First Person")
@@ -551,7 +585,7 @@ class SyntaxSpec extends BaseQueryUpdateSpec {
                 source:  TEST
 
                 password: owner
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:

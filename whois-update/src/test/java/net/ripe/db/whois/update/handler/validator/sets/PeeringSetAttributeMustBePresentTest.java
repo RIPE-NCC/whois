@@ -7,24 +7,27 @@ import net.ripe.db.whois.update.domain.PreparedUpdate;
 import net.ripe.db.whois.update.domain.UpdateContext;
 import net.ripe.db.whois.update.domain.UpdateMessages;
 import org.hamcrest.Matchers;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+
 import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 import static org.hamcrest.Matchers.containsInAnyOrder;
-import static org.junit.Assert.assertThat;
-import static org.mockito.Mockito.*;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
-@RunWith(MockitoJUnitRunner.class)
+@ExtendWith(MockitoExtension.class)
 public class PeeringSetAttributeMustBePresentTest {
     @Mock PreparedUpdate update;
     @Mock UpdateContext updateContext;
 
     private PeeringSetAttributeMustBePresent subject;
 
-    @Before
+    @BeforeEach
     public void setup() {
         subject = new PeeringSetAttributeMustBePresent();
 
@@ -45,7 +48,7 @@ public class PeeringSetAttributeMustBePresentTest {
         when(update.getType()).thenReturn(ObjectType.PEERING_SET);
         when(update.getUpdatedObject()).thenReturn(RpslObject.parse("peering-set: prng-ripe\ndescr: description\npeering: AS6845 at 194.102.255.254\nmp-peering: AS702:PRNG-AT-CUSTOMER"));
 
-        subject.validate(update, updateContext);
+       subject.validate(update, updateContext);
 
         verify(updateContext).addMessage(update, UpdateMessages.eitherSimpleOrComplex(ObjectType.PEERING_SET, "peering", "mp-peering"));
     }
@@ -55,7 +58,7 @@ public class PeeringSetAttributeMustBePresentTest {
         when(update.getType()).thenReturn(ObjectType.PEERING_SET);
         when(update.getUpdatedObject()).thenReturn(RpslObject.parse("peering-set: prng-ripe\ndescr: description"));
 
-        subject.validate(update, updateContext);
+       subject.validate(update, updateContext);
 
         verify(updateContext).addMessage(update, UpdateMessages.neitherSimpleOrComplex(ObjectType.PEERING_SET, "peering", "mp-peering"));
     }
@@ -65,7 +68,7 @@ public class PeeringSetAttributeMustBePresentTest {
         when(update.getType()).thenReturn(ObjectType.PEERING_SET);
         when(update.getUpdatedObject()).thenReturn(RpslObject.parse("peering-set: prng-ripe\ndescr: description\nmp-peering: AS702:PRNG-AT-CUSTOMER"));
 
-        subject.validate(update, updateContext);
+       subject.validate(update, updateContext);
 
         verify(updateContext, never()).addMessage(update, UpdateMessages.eitherSimpleOrComplex(ObjectType.PEERING_SET, "peering", "mp-peering"));
         verify(updateContext, never()).addMessage(update, UpdateMessages.neitherSimpleOrComplex(ObjectType.PEERING_SET, "peering", "mp-peering"));
@@ -76,7 +79,7 @@ public class PeeringSetAttributeMustBePresentTest {
         when(update.getType()).thenReturn(ObjectType.PEERING_SET);
         when(update.getUpdatedObject()).thenReturn(RpslObject.parse("peering-set: prng-ripe\ndescr: description\npeering: AS6845 at 194.102.255.254"));
 
-        subject.validate(update, updateContext);
+       subject.validate(update, updateContext);
 
         verify(updateContext, never()).addMessage(update, UpdateMessages.eitherSimpleOrComplex(ObjectType.PEERING_SET, "peering", "mp-peering"));
         verify(updateContext, never()).addMessage(update, UpdateMessages.neitherSimpleOrComplex(ObjectType.PEERING_SET, "peering", "mp-peering"));
@@ -88,7 +91,7 @@ public class PeeringSetAttributeMustBePresentTest {
         when(update.getType()).thenReturn(ObjectType.FILTER_SET);
         when(update.getUpdatedObject()).thenReturn(RpslObject.parse("filter-set: prng-ripe\ndescr: description\nfilter: AS6845 at 194.102.255.254\nmp-filter: AS702:PRNG-AT-CUSTOMER"));
 
-        subject.validate(update, updateContext);
+       subject.validate(update, updateContext);
 
         verify(updateContext).addMessage(update, UpdateMessages.eitherSimpleOrComplex(ObjectType.FILTER_SET, "filter", "mp-filter"));
     }
@@ -98,7 +101,7 @@ public class PeeringSetAttributeMustBePresentTest {
         when(update.getType()).thenReturn(ObjectType.FILTER_SET);
         when(update.getUpdatedObject()).thenReturn(RpslObject.parse("filter-set: prng-ripe\ndescr: description"));
 
-        subject.validate(update, updateContext);
+       subject.validate(update, updateContext);
 
         verify(updateContext).addMessage(update, UpdateMessages.neitherSimpleOrComplex(ObjectType.FILTER_SET, "filter", "mp-filter"));
     }
@@ -108,7 +111,7 @@ public class PeeringSetAttributeMustBePresentTest {
         when(update.getType()).thenReturn(ObjectType.FILTER_SET);
         when(update.getUpdatedObject()).thenReturn(RpslObject.parse("filter-set: prng-ripe\ndescr: description\nmp-filter: AS702:PRNG-AT-CUSTOMER"));
 
-        subject.validate(update, updateContext);
+       subject.validate(update, updateContext);
 
         verify(updateContext, never()).addMessage(update, UpdateMessages.eitherSimpleOrComplex(ObjectType.FILTER_SET, "filter", "mp-filter"));
         verify(updateContext, never()).addMessage(update, UpdateMessages.neitherSimpleOrComplex(ObjectType.FILTER_SET, "filter", "mp-filter"));
@@ -119,7 +122,7 @@ public class PeeringSetAttributeMustBePresentTest {
         when(update.getType()).thenReturn(ObjectType.FILTER_SET);
         when(update.getUpdatedObject()).thenReturn(RpslObject.parse("filter-set: prng-ripe\ndescr: description\nfilter: AS6845 at 194.102.255.254"));
 
-        subject.validate(update, updateContext);
+       subject.validate(update, updateContext);
 
         verify(updateContext, never()).addMessage(update, UpdateMessages.eitherSimpleOrComplex(ObjectType.FILTER_SET, "filter", "mp-filter"));
         verify(updateContext, never()).addMessage(update, UpdateMessages.neitherSimpleOrComplex(ObjectType.FILTER_SET, "filter", "mp-filter"));

@@ -1,6 +1,7 @@
 package net.ripe.db.whois.common.rpsl;
 
 import net.ripe.db.whois.common.Message;
+import net.ripe.db.whois.common.MessageWithAttribute;
 import net.ripe.db.whois.common.Messages;
 
 public final class ValidationMessages {
@@ -35,6 +36,10 @@ public final class ValidationMessages {
         return new Message(Messages.Type.ERROR, "Syntax error in %s (%s)", value, reason);
     }
 
+    public static Message syntaxError(final RpslAttribute attribute, final CharSequence reason) {
+        return new MessageWithAttribute(Messages.Type.ERROR, attribute, "Syntax error in %s (%s)", attribute.getCleanValue(), reason);
+    }
+
     public static Message suppliedAttributeReplacedWithGeneratedValue(final AttributeType type) {
         return new Message(Messages.Type.WARNING, "Supplied attribute '%s' has been replaced with a generated value", type.getName());
     }
@@ -53,10 +58,6 @@ public final class ValidationMessages {
 
     public static Message deprecatedAttributeFound(final AttributeType type) {
         return new Message(Messages.Type.WARNING, "Deprecated attribute \"%s\". This attribute will be removed in the future.", type.getName());
-    }
-
-    public static Message changedAttributeRemoved() {
-        return new Message(Messages.Type.WARNING, "Deprecated attribute \"changed\". This attribute has been removed.");
     }
 
 }

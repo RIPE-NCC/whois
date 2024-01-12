@@ -12,17 +12,20 @@ import net.ripe.db.whois.update.domain.Action;
 import net.ripe.db.whois.update.domain.PreparedUpdate;
 import net.ripe.db.whois.update.domain.UpdateContext;
 import net.ripe.db.whois.update.domain.UpdateMessages;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Test;
+
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 import static org.hamcrest.Matchers.containsInAnyOrder;
-import static org.junit.Assert.assertThat;
-import static org.mockito.Mockito.*;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoMoreInteractions;
+import static org.mockito.Mockito.when;
 
-@RunWith(MockitoJUnitRunner.class)
+@ExtendWith(MockitoExtension.class)
 public class IpDomainUniqueHierarchyValidatorTest {
     @Mock UpdateContext updateContext;
     @Mock PreparedUpdate update;
@@ -46,9 +49,9 @@ public class IpDomainUniqueHierarchyValidatorTest {
         when(update.getUpdatedObject()).thenReturn(RpslObject.parse("" +
                 "domain: 2.1.2.1.5.5.5.2.0.2.1.e164.arpa"));
 
-        subject.validate(update, updateContext);
+       subject.validate(update, updateContext);
 
-        verifyZeroInteractions(ipv4DomainTree, ipv6DomainTree);
+        verifyNoMoreInteractions(ipv4DomainTree, ipv6DomainTree);
     }
 
     @Test
@@ -56,12 +59,12 @@ public class IpDomainUniqueHierarchyValidatorTest {
         when(update.getUpdatedObject()).thenReturn(RpslObject.parse("" +
                 "domain: 200.193.193.in-addr.arpa"));
 
-        subject.validate(update, updateContext);
+       subject.validate(update, updateContext);
 
         verify(ipv4DomainTree).findFirstLessSpecific(Ipv4Resource.parse("193.193.200.0/24"));
         verify(ipv4DomainTree).findFirstMoreSpecific(Ipv4Resource.parse("193.193.200.0/24"));
 
-        verifyZeroInteractions(ipv6DomainTree);
+        verifyNoMoreInteractions(ipv6DomainTree);
     }
 
     @Test
@@ -69,12 +72,12 @@ public class IpDomainUniqueHierarchyValidatorTest {
         when(update.getUpdatedObject()).thenReturn(RpslObject.parse("" +
                 "domain: 0.0.0.0.8.f.7.0.1.0.0.2.ip6.arpa"));
 
-        subject.validate(update, updateContext);
+       subject.validate(update, updateContext);
 
         verify(ipv6DomainTree).findFirstLessSpecific(Ipv6Resource.parse("2001:7f8::/48"));
         verify(ipv6DomainTree).findFirstMoreSpecific(Ipv6Resource.parse("2001:7f8::/48"));
 
-        verifyZeroInteractions(ipv4DomainTree);
+        verifyNoMoreInteractions(ipv4DomainTree);
     }
 
     @Test
@@ -86,10 +89,10 @@ public class IpDomainUniqueHierarchyValidatorTest {
 
         when(ipv4DomainTree.findFirstLessSpecific(Ipv4Resource.parse("193.193.200.0/24"))).thenReturn(Lists.newArrayList(new Ipv4Entry(lessSpecific, 1)));
 
-        subject.validate(update, updateContext);
+       subject.validate(update, updateContext);
 
         verify(updateContext).addMessage(update, UpdateMessages.lessSpecificDomainFound(lessSpecific.toString()));
-        verifyZeroInteractions(ipv6DomainTree);
+        verifyNoMoreInteractions(ipv6DomainTree);
     }
 
     @Test
@@ -101,9 +104,9 @@ public class IpDomainUniqueHierarchyValidatorTest {
 
         when(ipv4DomainTree.findFirstMoreSpecific(Ipv4Resource.parse("193.193.200.0/24"))).thenReturn(Lists.newArrayList(new Ipv4Entry(moreSpecific, 1)));
 
-        subject.validate(update, updateContext);
+       subject.validate(update, updateContext);
 
         verify(updateContext).addMessage(update, UpdateMessages.moreSpecificDomainFound(moreSpecific.toString()));
-        verifyZeroInteractions(ipv6DomainTree);
+        verifyNoMoreInteractions(ipv6DomainTree);
     }
 }

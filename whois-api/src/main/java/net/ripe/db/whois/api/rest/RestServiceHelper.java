@@ -2,6 +2,11 @@ package net.ripe.db.whois.api.rest;
 
 import com.google.common.base.Splitter;
 import com.google.common.collect.Lists;
+import com.google.common.collect.Sets;
+import com.google.common.net.HttpHeaders;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.ws.rs.WebApplicationException;
+import jakarta.ws.rs.core.Response;
 import net.ripe.db.whois.api.rest.domain.ErrorMessage;
 import net.ripe.db.whois.api.rest.domain.Link;
 import net.ripe.db.whois.api.rest.domain.WhoisResources;
@@ -11,19 +16,24 @@ import net.ripe.db.whois.api.rest.mapper.DirtySuppressChangedAttributeMapper;
 import net.ripe.db.whois.api.rest.mapper.FormattedServerAttributeMapper;
 import net.ripe.db.whois.api.rest.mapper.RegularSuppressChangedAttributeMapper;
 import net.ripe.db.whois.common.Message;
+import net.ripe.db.whois.common.conversion.PasswordFilter;
+import net.ripe.db.whois.common.sso.AuthServiceClientException;
 import net.ripe.db.whois.query.QueryMessages;
 import net.ripe.db.whois.query.domain.QueryCompletionInfo;
 import net.ripe.db.whois.query.domain.QueryException;
-import org.apache.commons.lang.StringUtils;
+import org.eclipse.jetty.http.HttpScheme;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.jdbc.CannotGetJdbcConnectionException;
+import org.springframework.jdbc.core.PreparedStatementCallback;
 
-import javax.servlet.http.HttpServletRequest;
-import javax.ws.rs.WebApplicationException;
-import javax.ws.rs.core.Response;
 import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Set;
+
+import static jakarta.servlet.http.HttpServletRequest.BASIC_AUTH;
+import static org.apache.commons.lang.StringUtils.isEmpty;
 
 public class RestServiceHelper {
 
@@ -31,7 +41,12 @@ public class RestServiceHelper {
 
     private static final Splitter AMPERSAND_SPLITTER = Splitter.on('&').omitEmptyStrings();
     private static final Splitter EQUALS_SPLITTER = Splitter.on('=').omitEmptyStrings();
-    private static final int STATUS_TOO_MANY_REQUESTS = 429;
+    private static final String OVERRIDE_STRING = "override";
+
+    private static final Set<Class> SKIP_STACK_TRACE = Sets.newHashSet(
+                                                        AuthServiceClientException.class,
+                                                        CannotGetJdbcConnectionException.class,
+                                                        PreparedStatementCallback.class);
 
     private RestServiceHelper() {
         // do not instantiate
@@ -46,21 +61,20 @@ public class RestServiceHelper {
     }
 
     private static String filter(final String queryString) {
-        if (StringUtils.isEmpty(queryString)) {
+        if (isEmpty(queryString)) {
             return "";
         }
 
         final StringBuilder builder = new StringBuilder();
         char separator = '?';
 
-        for (String next : AMPERSAND_SPLITTER.split(queryString)) {
-            final Iterator<String> iterator = EQUALS_SPLITTER.split(next).iterator();
-            if (iterator.hasNext() && iterator.next().equalsIgnoreCase("password")) {
-                continue;
+        if (queryString.contains(OVERRIDE_STRING)) {
+            builder.append(separator).append(PasswordFilter.filterPasswordsInUrl(queryString));
+        } else {
+            String removedPasswordsInQueryString = PasswordFilter.removePasswordsInUrl(queryString);
+            if (!isEmpty(removedPasswordsInQueryString)) {
+                builder.append(separator).append(removedPasswordsInQueryString);
             }
-
-            builder.append(separator).append(next);
-            separator = '&';
         }
 
         return builder.toString();
@@ -115,6 +129,7 @@ public class RestServiceHelper {
         return whoisResources;
     }
 
+
     public static List<ErrorMessage> createErrorMessages(final List<Message> messages) {
         final List<ErrorMessage> errorMessages = Lists.newArrayList();
 
@@ -129,20 +144,27 @@ public class RestServiceHelper {
         return createWebApplicationException(exception, request, Lists.newArrayList());
     }
 
-    public static WebApplicationException createWebApplicationException(final RuntimeException exception, final HttpServletRequest request, final List<Message> messages) {
+    public static WebApplicationException createWebApplicationException(final RuntimeException exception,
+                                                                        final HttpServletRequest request,
+                                                                        final List<Message> messages) {
         final Response.ResponseBuilder responseBuilder;
 
         if (exception instanceof QueryException) {
             final QueryException queryException = (QueryException) exception;
             if (queryException.getCompletionInfo() == QueryCompletionInfo.BLOCKED) {
-                responseBuilder = Response.status(STATUS_TOO_MANY_REQUESTS);
+                responseBuilder = Response.status(Response.Status.TOO_MANY_REQUESTS);
             } else {
                 responseBuilder = Response.status(Response.Status.BAD_REQUEST);
             }
             messages.addAll(queryException.getMessages());
 
         } else {
-            LOGGER.error(exception.getMessage(), exception);
+            if (skipStackTrace(exception)) {
+                LOGGER.error("{}: {}", exception.getClass().getName(), exception.getMessage());
+            } else {
+                LOGGER.error(exception.getMessage(), exception);
+            }
+
             responseBuilder = Response.status(Response.Status.INTERNAL_SERVER_ERROR);
 
             messages.add(QueryMessages.internalErroroccurred());
@@ -154,4 +176,18 @@ public class RestServiceHelper {
 
         return new WebApplicationException(responseBuilder.build());
     }
+
+    public static boolean isHttpProtocol(final HttpServletRequest request) {
+        return HttpScheme.HTTP.is(request.getScheme());
+    }
+
+    private static boolean skipStackTrace(final Exception exception) {
+        return SKIP_STACK_TRACE.contains(exception.getClass());
+    }
+
+    public static boolean isBasicAuth(final HttpServletRequest request) {
+        final String authorization = request.getHeader(HttpHeaders.AUTHORIZATION);
+        return authorization != null && authorization.toUpperCase().startsWith(BASIC_AUTH);
+    }
+
 }

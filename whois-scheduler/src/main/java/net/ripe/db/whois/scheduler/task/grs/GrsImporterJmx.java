@@ -5,7 +5,11 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.jmx.export.annotation.*;
+import org.springframework.jmx.export.annotation.ManagedAttribute;
+import org.springframework.jmx.export.annotation.ManagedOperation;
+import org.springframework.jmx.export.annotation.ManagedOperationParameter;
+import org.springframework.jmx.export.annotation.ManagedOperationParameters;
+import org.springframework.jmx.export.annotation.ManagedResource;
 import org.springframework.stereotype.Component;
 
 import java.util.concurrent.Callable;
@@ -19,7 +23,7 @@ public class GrsImporterJmx extends JmxBase {
 
     private String grsDefaultSources;
 
-    @Value("${grs.import.sources}")
+    @Value("${grs.import.sources:}")
     void setGrsDefaultSources(final String grsDefaultSources) {
         this.grsDefaultSources = grsDefaultSources;
     }

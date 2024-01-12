@@ -8,6 +8,7 @@ import net.ripe.db.whois.common.dao.jdbc.JdbcRpslObjectOperations;
 import net.ripe.db.whois.common.domain.CIString;
 import net.ripe.db.whois.common.source.Source;
 import net.ripe.db.whois.common.source.SourceContext;
+import net.ripe.db.whois.nrtm.NrtmException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,7 +17,7 @@ import org.springframework.context.EmbeddedValueResolverAware;
 import org.springframework.stereotype.Component;
 import org.springframework.util.StringValueResolver;
 
-import javax.annotation.PostConstruct;
+import jakarta.annotation.PostConstruct;
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.ExecutorService;
@@ -31,6 +32,8 @@ import static net.ripe.db.whois.common.domain.CIString.ciString;
 public class NrtmImporter implements EmbeddedValueResolverAware, ApplicationService {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(NrtmImporter.class);
+
+    private static final Splitter COMMA_SPLITTER = Splitter.on(",").trimResults().omitEmptyStrings();
 
     private final boolean enabled;
     private final Set<CIString> sources;
@@ -49,7 +52,7 @@ public class NrtmImporter implements EmbeddedValueResolverAware, ApplicationServ
         this.nrtmClientFactory = nrtmClientFactory;
         this.sourceContext = sourceContext;
         this.enabled = enabled;
-        this.sources = ciSet(Splitter.on(",").trimResults().omitEmptyStrings().split(sources));
+        this.sources = ciSet(COMMA_SPLITTER.split(sources));
     }
 
     @Override
@@ -61,7 +64,7 @@ public class NrtmImporter implements EmbeddedValueResolverAware, ApplicationServ
     void checkSources() {
         for (final CIString source : sources) {
             if (sourceContext.isVirtual(source)) {
-                throw new IllegalArgumentException(String.format("Cannot use NRTM with virtual source: %s", source));
+                throw new NrtmException(String.format("Cannot use NRTM with virtual source: %s", source));
             }
 
             JdbcRpslObjectOperations.sanityCheck(sourceContext.getSourceConfiguration(Source.master(source)).getJdbcTemplate());
@@ -115,7 +118,7 @@ public class NrtmImporter implements EmbeddedValueResolverAware, ApplicationServ
             try {
                 nrtmSources.add(new NrtmSource(source, ciString(originSource), host, Integer.parseInt(port)));
             } catch (NumberFormatException e) {
-                throw new IllegalArgumentException("Invalid NRTM server port: " + port + " for source: " + source);
+                throw new NrtmException("Invalid NRTM server port: " + port + " for source: " + source);
             }
         }
 
@@ -125,7 +128,7 @@ public class NrtmImporter implements EmbeddedValueResolverAware, ApplicationServ
     private String readProperty(final String name) {
         final String value = valueResolver.resolveStringValue(String.format("${%s}", name));
         if (value.equals(name)) {
-            throw new IllegalArgumentException("Property " + name + " is not defined.");
+            throw new NrtmException("Property " + name + " is not defined.");
         }
 
         return value;

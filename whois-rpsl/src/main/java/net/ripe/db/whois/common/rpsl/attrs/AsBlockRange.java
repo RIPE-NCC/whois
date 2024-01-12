@@ -7,6 +7,7 @@ import java.util.regex.Pattern;
 public final class AsBlockRange {
 
     private static final Pattern AS_BLOCK_PATTERN = Pattern.compile("^[Aa][Ss](\\d+)\\s*-\\s*[Aa][Ss](\\d+)$");
+    private static final String AS_PREFIX_FORMAT = "AS%s";
 
     private final long begin;
 
@@ -59,5 +60,18 @@ public final class AsBlockRange {
 
     public long getEnd() {
         return end;
+    }
+
+    public String getEndWithPrefix() {
+        return String.format(AS_PREFIX_FORMAT, end);
+    }
+
+    public String getBeginWithPrefix() {
+        return String.format(AS_PREFIX_FORMAT, begin);
+    }
+
+    @Override
+    public String toString() {
+        return String.join("-", getBeginWithPrefix(), getEndWithPrefix());
     }
 }

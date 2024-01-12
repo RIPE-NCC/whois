@@ -1,6 +1,5 @@
 package net.ripe.db.whois.update.handler.validator.organisation;
 
-import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 import net.ripe.db.whois.common.dao.RpslObjectInfo;
 import net.ripe.db.whois.common.dao.jdbc.JdbcRpslObjectDao;
@@ -13,27 +12,38 @@ import net.ripe.db.whois.update.domain.Action;
 import net.ripe.db.whois.update.domain.PreparedUpdate;
 import net.ripe.db.whois.update.domain.UpdateContext;
 import net.ripe.db.whois.update.domain.UpdateMessages;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.dao.EmptyResultDataAccessException;
 
 import java.util.Collections;
 
 import static net.ripe.db.whois.common.domain.CIString.ciSet;
-import static org.hamcrest.Matchers.containsInAnyOrder;
-import static org.junit.Assert.assertThat;
-import static org.mockito.Matchers.anyCollection;
-import static org.mockito.Matchers.eq;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
-import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
 
-@RunWith(MockitoJUnitRunner.class)
+@ExtendWith(MockitoExtension.class)
 public class AbuseValidatorTest {
+
+    private static final RpslObject LIR_ORG_WITH_ABUSE_C = RpslObject.parse("organisation: ORG-1\nabuse-c: AB-NIC\norg-type: LIR\nsource: TEST");
+    private static final RpslObject LIR_ORG_WITHOUT_ABUSE_C = RpslObject.parse("organisation: ORG-1\norg-type: LIR\nsource: TEST");
+    private static final RpslObject OTHER_ORG_WITHOUT_ABUSE_C = RpslObject.parse("organisation: ORG-1\norg-type: OTHER\nsource: TEST");
+    private static final RpslObject OTHER_ORG_WITH_ABUSE_C = RpslObject.parse("organisation: ORG-1\nabuse-c: AB-NIC\norg-type: OTHER\nsource: TEST");
+
+    private static final RpslObject RESOURCE_RS_MAINTAINED = RpslObject.parse("aut-num: AS6\norg: ORG-1\nmnt-by: AN_RS_MAINTAINER\nsource: TEST");
+    private static final RpslObject RESOURCE_NOT_RS_MAINTAINED = RpslObject.parse("aut-num: AS6\norg: ORG-1\nmnt-by: A_NON_RS_MAINTAINER\nsource: TEST");
+
+    private static final RpslObject ROLE_WITHOUT_ABUSE_MAILBOX = RpslObject.parse("role: Role Test\nnic-hdl: AB-NIC\nsource: TEST");
+    private static final RpslObject ROLE_WITH_ABUSE_MAILBOX = RpslObject.parse("role: Role Test\nnic-hdl: AB-NIC\nabuse-mailbox: abuse@test.net\nsource: TEST");
+    private static final RpslObject PERSON_WITHOUT_ABUSE_MAILBOX = RpslObject.parse("person: Some Person\nnic-hdl: AB-NIC");
+
     @Mock PreparedUpdate update;
     @Mock UpdateContext updateContext;
     @Mock JdbcRpslObjectDao objectDao;
@@ -42,163 +52,131 @@ public class AbuseValidatorTest {
 
     @InjectMocks AbuseValidator subject;
 
+    @BeforeEach
+    public void setup() {
+        when(update.getAction()).thenReturn(Action.MODIFY);
+    }
+
+
     @Test
-    public void getActions() {
-        assertThat(subject.getActions(), containsInAnyOrder(Action.CREATE, Action.MODIFY));
+    public void has_no_abusec() {
+        when(update.getUpdatedObject()).thenReturn(OTHER_ORG_WITHOUT_ABUSE_C);
+
+       subject.validate(update, updateContext);
+
+        verifyNoMoreInteractions(updateContext);
     }
 
     @Test
-    public void getTypes() {
-        assertThat(subject.getTypes(), containsInAnyOrder(ObjectType.ORGANISATION));
+    public void references_role_without_abuse_mailbox() {
+        when(update.getUpdatedObject()).thenReturn(OTHER_ORG_WITH_ABUSE_C);
+        when(objectDao.getByKey(eq(ObjectType.ROLE), eq(CIString.ciString("AB-NIC")))).thenReturn(ROLE_WITHOUT_ABUSE_MAILBOX);
+
+       subject.validate(update, updateContext);
+
+        verify(updateContext).addMessage(update, UpdateMessages.abuseMailboxRequired("AB-NIC", update.getUpdatedObject().getType()));
+        verifyNoMoreInteractions(maintainers);
     }
 
     @Test
-    public void hasNoAbuseC() {
-        when(update.getUpdatedObject()).thenReturn(RpslObject.parse("organisation: ORG-1\n" +
-                                                                    "org-type: OTHER"));
+    public void references_role_with_abuse_mailbox() {
+        when(update.getUpdatedObject()).thenReturn(OTHER_ORG_WITH_ABUSE_C);
+        when(objectDao.getByKey(eq(ObjectType.ROLE), eq(CIString.ciString("AB-NIC")))).thenReturn(ROLE_WITH_ABUSE_MAILBOX);
 
-        subject.validate(update, updateContext);
+       subject.validate(update, updateContext);
 
-        verifyZeroInteractions(updateContext);
+        verifyNoMoreInteractions(updateContext);
+        verifyNoMoreInteractions(maintainers);
     }
 
     @Test
-    public void referencesRoleWithoutAbuseMailbox() {
-        final RpslObject organisation = RpslObject.parse("organisation: ORG-1\nabuse-c: AB-NIC\norg-type: OTHER");
-        when(update.getUpdatedObject()).thenReturn(organisation);
+    public void references_person_instead_of_role() {
+        when(update.getUpdatedObject()).thenReturn(OTHER_ORG_WITH_ABUSE_C);
+        when(objectDao.getByKey(eq(ObjectType.ROLE), eq(CIString.ciString("AB-NIC")))).thenThrow(new EmptyResultDataAccessException(1));
+        when(objectDao.getByKey(eq(ObjectType.PERSON), eq(CIString.ciString("AB-NIC")))).thenReturn(PERSON_WITHOUT_ABUSE_MAILBOX);
 
-        final RpslObject role = RpslObject.parse("role: Role Test\nnic-hdl: AB-NIC");
-        when(objectDao.getByKeys(eq(ObjectType.ROLE), anyCollection())).thenReturn(Lists.newArrayList(role));
-
-        subject.validate(update, updateContext);
-
-        verify(updateContext).addMessage(update, UpdateMessages.abuseMailboxRequired(role.getKey()));
-        verifyZeroInteractions(maintainers);
-    }
-
-    @Test
-    public void referencesRoleWithAbuseMailbox() {
-        when(update.getUpdatedObject()).thenReturn(RpslObject.parse("organisation: ORG-1\nabuse-c: AB-NIC\norg-type: OTHER"));
-        when(objectDao.getByKeys(eq(ObjectType.ROLE), anyCollection())).thenReturn(Lists.newArrayList(RpslObject.parse("role: Role Test\nnic-hdl: AB-NIC\nabuse-mailbox: abuse@test.net")));
-
-        subject.validate(update, updateContext);
-
-        verifyZeroInteractions(updateContext);
-        verifyZeroInteractions(maintainers);
-    }
-
-    @Test
-    public void referencesPersonInsteadOfRole() {
-        when(update.getUpdatedObject()).thenReturn(RpslObject.parse("organisation: ORG-1\nabuse-c: AB-NIC\norg-type: OTHER"));
-        when(objectDao.getByKeys(eq(ObjectType.ROLE), anyCollection())).thenReturn(Collections.EMPTY_LIST);
-        when(objectDao.getByKeys(eq(ObjectType.PERSON), anyCollection())).thenReturn(Lists.newArrayList(RpslObject.parse("person: Some Person\nnic-hdl: AB-NIC")));
-
-        subject.validate(update, updateContext);
+       subject.validate(update, updateContext);
 
         verify(updateContext).addMessage(update, UpdateMessages.abuseCPersonReference());
-        verify(updateContext, never()).addMessage(update, UpdateMessages.abuseMailboxRequired("nic-hdl: AB-NIC"));
-        verifyZeroInteractions(maintainers);
+        verify(updateContext, never()).addMessage(update, UpdateMessages.abuseMailboxRequired("nic-hdl: AB-NIC", update.getUpdatedObject().getType()));
+        verifyNoMoreInteractions(maintainers);
     }
 
     @Test
-    public void referenceNotFound() {
-        when(update.getUpdatedObject()).thenReturn(RpslObject.parse("organisation: ORG-1\nabuse-c: AB-NIC\norg-type: OTHER"));
-        when(objectDao.getByKeys(eq(ObjectType.ROLE), anyCollection())).thenReturn(Collections.EMPTY_LIST);
-        when(objectDao.getByKeys(eq(ObjectType.PERSON), anyCollection())).thenReturn(Collections.EMPTY_LIST);
+    public void reference_not_found() {
+        when(update.getUpdatedObject()).thenReturn(OTHER_ORG_WITH_ABUSE_C);
+        when(objectDao.getByKey(eq(ObjectType.ROLE), eq(CIString.ciString("AB-NIC")))).thenThrow(new EmptyResultDataAccessException(1));
+        when(objectDao.getByKey(eq(ObjectType.PERSON), eq(CIString.ciString("AB-NIC")))).thenThrow(new EmptyResultDataAccessException(1));
 
-        subject.validate(update, updateContext);
+       subject.validate(update, updateContext);
 
-        verifyZeroInteractions(updateContext);
-        verifyZeroInteractions(maintainers);
+        verifyNoMoreInteractions(updateContext);
+        verifyNoMoreInteractions(maintainers);
     }
 
     @Test
-    public void removeAbuseCContact_LIR() {
-        when(update.getAction()).thenReturn(Action.MODIFY);
-        when(update.getReferenceObject()).thenReturn(RpslObject.parse("organisation: ORG-1\nabuse-c: AB-NIC\norg-type: LIR"));
-        when(update.getUpdatedObject()).thenReturn(RpslObject.parse("organisation: ORG-1\norg-type: LIR"));
+    public void remove_abuse_contact_LIR_org() {
+        when(update.getReferenceObject()).thenReturn(LIR_ORG_WITH_ABUSE_C);
+        when(update.getUpdatedObject()).thenReturn(LIR_ORG_WITHOUT_ABUSE_C);
 
-        subject.validate(update, updateContext);
+       subject.validate(update, updateContext);
 
         verify(updateContext).addMessage(update, UpdateMessages.abuseContactNotRemovable());
-        verifyZeroInteractions(maintainers);
+        verifyNoMoreInteractions(maintainers);
     }
 
     @Test
-    public void allow_removeAbuseCContact_when_non_LIR_no_referencing_objects() {
-        when(update.getAction()).thenReturn(Action.MODIFY);
-        when(update.getReferenceObject()).thenReturn(RpslObject.parse("organisation: ORG-1\nabuse-c: AB-NIC\norg-type: OTHER"));
-        when(update.getUpdatedObject()).thenReturn(RpslObject.parse("organisation: ORG-1\norg-type: OTHER"));
-        when(objectDao.getByKeys(eq(ObjectType.ROLE), anyCollection())).thenReturn(Lists.newArrayList(RpslObject.parse("role: Role Test\nnic-hdl: AB-NIC\nabuse-mailbox: abuse@test.net")));
-        when(updateDao.getReferences(update.getReferenceObject())).thenReturn(Collections.EMPTY_SET);
+    public void allow_remove_abuse_contact_when_non_LIR_no_referencing_objects() {
+        when(update.getReferenceObject()).thenReturn(OTHER_ORG_WITH_ABUSE_C);
+        when(update.getUpdatedObject()).thenReturn(OTHER_ORG_WITHOUT_ABUSE_C);
+        when(updateDao.getReferences(update.getUpdatedObject())).thenReturn(Collections.EMPTY_SET);
 
-        subject.validate(update, updateContext);
+       subject.validate(update, updateContext);
 
-        verifyZeroInteractions(updateContext);
-        verifyZeroInteractions(maintainers);
+        verifyNoMoreInteractions(updateContext);
+        verifyNoMoreInteractions(maintainers);
     }
 
 
     @Test
-    public void allow_removeAbuseC_when_referencing_object_is_not_resource() {
-        RpslObject referencingPerson = RpslObject.parse(
-            "person: A Person\n" +
-            "address: Address 1\n" +
-            "phone: +31 20 535 4444\n" +
-            "nic-hdl: DUMY-RIPE\n" +
-            "org: ORG-1\n" +
-            "mnt-by: A_NON_RS_MAINTAINER\n" +
-            "source: RIPE");
-        RpslObjectInfo info = new RpslObjectInfo(1, ObjectType.PERSON, "a");
+    public void allow_remove_abusec_when_referencing_object_is_not_resource() {
+        final RpslObjectInfo info = new RpslObjectInfo(1, ObjectType.PERSON, "AS6");
+        when(update.getReferenceObject()).thenReturn(OTHER_ORG_WITH_ABUSE_C);
+        when(update.getUpdatedObject()).thenReturn(OTHER_ORG_WITHOUT_ABUSE_C);
+        when(updateDao.getReferences(update.getUpdatedObject())).thenReturn(Sets.newHashSet(info));
 
-        when(update.getAction()).thenReturn(Action.MODIFY);
-        when(update.getReferenceObject()).thenReturn(RpslObject.parse("organisation: ORG-1\nabuse-c: AB-NIC\norg-type: OTHER"));
-        when(update.getUpdatedObject()).thenReturn(RpslObject.parse("organisation: ORG-1\norg-type: OTHER"));
-        when(objectDao.getByKeys(eq(ObjectType.ROLE), anyCollection())).thenReturn(Lists.newArrayList(RpslObject.parse("role: Role Test\nnic-hdl: AB-NIC\nabuse-mailbox: abuse@test.net")));
-        when(updateDao.getReferences(update.getReferenceObject())).thenReturn(Sets.newHashSet(info));
-        when(objectDao.getById(1)).thenReturn(referencingPerson);
+       subject.validate(update, updateContext);
 
-        subject.validate(update, updateContext);
-
-        verifyZeroInteractions(updateContext);
-        verifyZeroInteractions(maintainers);
+        verifyNoMoreInteractions(updateContext);
+        verifyNoMoreInteractions(maintainers);
     }
 
     @Test
-    public void allow_removeAbuseC_when_referencing_resources_not_rsMaintained() {
-        RpslObject resource = RpslObject.parse("aut-num: AS6\norg: ORG-1\nmnt-by: A_NON_RS_MAINTAINER");
-        RpslObjectInfo info = new RpslObjectInfo(1, ObjectType.AUT_NUM, "a");
+    public void allow_remove_abuse_contact_when_referencing_resources_is_not_rs_maintained() {
+        final RpslObjectInfo info = new RpslObjectInfo(1, ObjectType.AUT_NUM, "AS6");
+        when(update.getReferenceObject()).thenReturn(OTHER_ORG_WITH_ABUSE_C);
+        when(update.getUpdatedObject()).thenReturn(OTHER_ORG_WITHOUT_ABUSE_C);
+        when(updateDao.getReferences(update.getUpdatedObject())).thenReturn(Sets.newHashSet(info));
+        when(objectDao.getById(info.getObjectId())).thenReturn(RESOURCE_NOT_RS_MAINTAINED);
 
-        when(update.getAction()).thenReturn(Action.MODIFY);
-        when(update.getReferenceObject()).thenReturn(RpslObject.parse("organisation: ORG-1\nabuse-c: AB-NIC\norg-type: OTHER"));
-        when(update.getUpdatedObject()).thenReturn(RpslObject.parse("organisation: ORG-1\norg-type: OTHER"));
-        when(objectDao.getByKeys(eq(ObjectType.ROLE), anyCollection())).thenReturn(Lists.newArrayList(RpslObject.parse("role: Role Test\nnic-hdl: AB-NIC\nabuse-mailbox: abuse@test.net")));
-        when(updateDao.getReferences(update.getReferenceObject())).thenReturn(Sets.newHashSet(info));
-        when(objectDao.getById(1)).thenReturn(resource);
-        when(maintainers.isRsMaintainer(ciSet("A_NON_RS_MAINTAINER"))).thenReturn(false);
+       subject.validate(update, updateContext);
 
-        subject.validate(update, updateContext);
-
-        verifyZeroInteractions(updateContext);
+        verifyNoMoreInteractions(updateContext);
         verify(maintainers).isRsMaintainer(ciSet("A_NON_RS_MAINTAINER"));
         verifyNoMoreInteractions(maintainers);
     }
 
     @Test
-    public void not_allow_removeAbuseC_when_a_referencing_resource_is_rsmaintained() {
-        RpslObject resource = RpslObject.parse("aut-num: AS6\norg: ORG-1\nmnt-by: AN_RS_MAINTAINER");
-
-        RpslObjectInfo info = new RpslObjectInfo(1, ObjectType.AUT_NUM, "a");
-
-        when(update.getAction()).thenReturn(Action.MODIFY);
-        when(update.getReferenceObject()).thenReturn(RpslObject.parse("organisation: ORG-1\nabuse-c: AB-NIC\norg-type: OTHER"));
-        when(update.getUpdatedObject()).thenReturn(RpslObject.parse("organisation: ORG-1\norg-type: OTHER"));
-        when(objectDao.getByKeys(eq(ObjectType.ROLE), anyCollection())).thenReturn(Lists.newArrayList(RpslObject.parse("role: Role Test\nnic-hdl: AB-NIC\nabuse-mailbox: abuse@test.net")));
-        when(updateDao.getReferences(update.getReferenceObject())).thenReturn(Sets.newHashSet(info));
-        when(objectDao.getById(1)).thenReturn(resource);
+    public void do_not_allow_remove_abuse_contact_when_a_referencing_resource_is_rs_maintained() {
         when(maintainers.isRsMaintainer(Sets.newHashSet(CIString.ciString("AN_RS_MAINTAINER")))).thenReturn(true);
 
-        subject.validate(update, updateContext);
+        final RpslObjectInfo info = new RpslObjectInfo(1, ObjectType.AUT_NUM, "AS6");
+        when(update.getReferenceObject()).thenReturn(OTHER_ORG_WITH_ABUSE_C);
+        when(update.getUpdatedObject()).thenReturn(OTHER_ORG_WITHOUT_ABUSE_C);
+        when(updateDao.getReferences(update.getUpdatedObject())).thenReturn(Sets.newHashSet(info));
+        when(objectDao.getById(info.getObjectId())).thenReturn(RESOURCE_RS_MAINTAINED);
+
+       subject.validate(update, updateContext);
 
         verify(updateContext).addMessage(update, UpdateMessages.abuseContactNotRemovable());
         verify(maintainers).isRsMaintainer(ciSet("AN_RS_MAINTAINER"));

@@ -1,24 +1,25 @@
 package net.ripe.db.whois.update.domain;
 
-import net.ripe.db.whois.common.rpsl.*;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import net.ripe.db.whois.common.rpsl.AttributeType;
+import net.ripe.db.whois.common.rpsl.ObjectMessages;
+import net.ripe.db.whois.common.rpsl.ObjectType;
+import net.ripe.db.whois.common.rpsl.RpslObject;
+import net.ripe.db.whois.common.rpsl.ValidationMessages;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertThat;
-import static org.mockito.Mockito.when;
 
-@RunWith(MockitoJUnitRunner.class)
+@ExtendWith(MockitoExtension.class)
 public class UpdateResultTest {
     @Mock Update update;
 
     @Test
     public void string_representation() {
         final RpslObject updatedObject = RpslObject.parse("mntner: DEV-ROOT-MNT\nsource: RIPE #Filtered\ninvalid: invalid\nmnt-by: MNT2");
-        when(update.getType()).thenReturn(ObjectType.MNTNER);
-        when(update.getSubmittedObject()).thenReturn(updatedObject);
 
         final ObjectMessages objectMessages = new ObjectMessages();
         objectMessages.addMessage(UpdateMessages.filteredNotAllowed());

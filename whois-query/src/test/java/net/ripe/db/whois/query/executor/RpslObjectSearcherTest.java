@@ -5,24 +5,33 @@ import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 import net.ripe.db.whois.common.dao.RpslObjectDao;
 import net.ripe.db.whois.common.dao.RpslObjectInfo;
+import net.ripe.db.whois.common.domain.ResponseObject;
 import net.ripe.db.whois.common.ip.Ipv4Resource;
 import net.ripe.db.whois.common.ip.Ipv6Resource;
-import net.ripe.db.whois.common.domain.ResponseObject;
-import net.ripe.db.whois.common.iptree.*;
+import net.ripe.db.whois.common.iptree.Ipv4DomainTree;
+import net.ripe.db.whois.common.iptree.Ipv4Entry;
+import net.ripe.db.whois.common.iptree.Ipv4RouteTree;
+import net.ripe.db.whois.common.iptree.Ipv4Tree;
+import net.ripe.db.whois.common.iptree.Ipv6DomainTree;
+import net.ripe.db.whois.common.iptree.Ipv6Entry;
+import net.ripe.db.whois.common.iptree.Ipv6RouteTree;
+import net.ripe.db.whois.common.iptree.Ipv6Tree;
 import net.ripe.db.whois.common.rpsl.AttributeType;
 import net.ripe.db.whois.common.rpsl.ObjectType;
 import net.ripe.db.whois.common.rpsl.RpslObject;
+import net.ripe.db.whois.common.source.SourceContext;
+import net.ripe.db.whois.query.QueryMessages;
 import net.ripe.db.whois.query.dao.Inet6numDao;
 import net.ripe.db.whois.query.dao.InetnumDao;
-import net.ripe.db.whois.query.QueryMessages;
+import net.ripe.db.whois.query.filter.AttributeFilter;
 import net.ripe.db.whois.query.query.Query;
 import net.ripe.db.whois.query.support.Fixture;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.dao.EmptyResultDataAccessException;
 
 import java.util.Iterator;
@@ -31,12 +40,17 @@ import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import static org.hamcrest.Matchers.*;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertThat;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.contains;
+import static org.hamcrest.Matchers.hasSize;
+import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.not;
+import static org.hamcrest.Matchers.nullValue;
+import static org.mockito.Mockito.lenient;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-@RunWith(MockitoJUnitRunner.class)
+@ExtendWith(MockitoExtension.class)
 public class RpslObjectSearcherTest {
     AtomicInteger rpslObjectId;
     Map<RpslObject, RpslObjectInfo> map;
@@ -50,14 +64,20 @@ public class RpslObjectSearcherTest {
     @Mock Ipv6RouteTree route6Tree;
     @Mock Ipv4DomainTree ipv4DomainTree;
     @Mock Ipv6DomainTree ipv6DomainTree;
+    @Mock Set<AttributeFilter> attributeFilters;
+    @Mock SourceContext sourceContext;
     @InjectMocks RpslObjectSearcher subject;
 
-    @Before
+    @BeforeEach
     public void setUp() throws Exception {
         rpslObjectId = new AtomicInteger(1);
         map = Maps.newHashMap();
 
         Fixture.mockRpslObjectDaoLoadingBehavior(rpslObjectDao);
+
+        Iterator<AttributeFilter> iterator = mock(Iterator.class);
+        when(iterator.hasNext()).thenReturn(false);
+        when(attributeFilters.iterator()).thenReturn(iterator);
     }
 
     @Test
@@ -138,13 +158,13 @@ public class RpslObjectSearcherTest {
     @Test
     public void inverse_lookup_never_returns_null() {
         for (final AttributeType attributeType : AttributeType.values()) {
-            assertNotNull(subject.search(Query.parse("-i " + attributeType.getName() + " query")));
+            assertThat(subject.search(Query.parse("-i " + attributeType.getName() + " query"), sourceContext), not(nullValue()));
         }
     }
 
     @Test
     public void inverse_lookup_unsupported_attribute() {
-        final Iterator<? extends ResponseObject> responseIterator = subject.search(Query.parse("-i e-mail,phone something")).iterator();
+        final Iterator<? extends ResponseObject> responseIterator = subject.search(Query.parse("-i e-mail,phone something"), sourceContext).iterator();
 
         assertThat(responseIterator.next().toString(), is(QueryMessages.attributeNotSearchable("e-mail").toString()));
         assertThat(responseIterator.next().toString(), is(QueryMessages.attributeNotSearchable("phone").toString()));
@@ -159,7 +179,7 @@ public class RpslObjectSearcherTest {
         mockRpslObjects(mntner, organisation);
 
         when(rpslObjectDao.findByAttribute(AttributeType.MNT_BY, "aardvark")).thenReturn(infosFor(mntner));
-        when(rpslObjectDao.findByAttribute(AttributeType.ORG, "aardvark")).thenReturn(infosFor(organisation));
+        lenient().when(rpslObjectDao.findByAttribute(AttributeType.ORG, "aardvark")).thenReturn(infosFor(organisation));
 
         assertQueryResult("-r -i mnt-by,mnt-ref,org aardvark", mntner, organisation);
     }
@@ -172,7 +192,7 @@ public class RpslObjectSearcherTest {
         mockRpslObjects(mntner, organisation);
 
         when(rpslObjectDao.findByAttribute(AttributeType.MNT_BY, "aardvark")).thenReturn(infosFor(mntner));
-        when(rpslObjectDao.findByAttribute(AttributeType.ORG, "aardvark")).thenReturn(infosFor(organisation));
+        lenient().when(rpslObjectDao.findByAttribute(AttributeType.ORG, "aardvark")).thenReturn(infosFor(organisation));
 
         assertQueryResult("-r -T organisation -i mnt-by,mnt-ref,org aardvark", organisation);
     }
@@ -181,7 +201,7 @@ public class RpslObjectSearcherTest {
         for (final RpslObject rpslObject : rpslObjects) {
             final int id = rpslObjectId.getAndIncrement();
             final RpslObjectInfo rpslObjectInfo = new RpslObjectInfo(id, rpslObject.getType(), rpslObject.getKey());
-            when(rpslObjectDao.getById(id)).thenReturn(new RpslObject(id, rpslObject.getAttributes()));
+            lenient().when(rpslObjectDao.getById(id)).thenReturn(new RpslObject(id, rpslObject.getAttributes()));
             map.put(rpslObject, rpslObjectInfo);
         }
     }
@@ -201,7 +221,7 @@ public class RpslObjectSearcherTest {
 
     private void assertQueryResult(final String query, final RpslObject... expectedResults) {
         final Set<RpslObject> rpslObjects = Sets.newLinkedHashSet();
-        for (final ResponseObject responseObject : subject.search(Query.parse(query))) {
+        for (final ResponseObject responseObject : subject.search(Query.parse(query), sourceContext)) {
             if (responseObject instanceof RpslObject) {
                 rpslObjects.add((RpslObject) responseObject);
             }

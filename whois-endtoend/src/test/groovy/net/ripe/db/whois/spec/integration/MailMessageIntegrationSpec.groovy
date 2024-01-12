@@ -1,9 +1,10 @@
 package net.ripe.db.whois.spec.integration
-import net.ripe.db.whois.common.IntegrationTest
+
+
 import net.ripe.db.whois.spec.domain.Message
 import spock.lang.Ignore
 
-@org.junit.experimental.categories.Category(IntegrationTest.class)
+@org.junit.jupiter.api.Tag("IntegrationTest")
 class MailMessageIntegrationSpec extends BaseWhoisSourceSpec {
 
     @Override
@@ -27,6 +28,15 @@ class MailMessageIntegrationSpec extends BaseWhoisSourceSpec {
                 mnt-by:      OWNER-MNT
                 upd-to:      dbtest@ripe.net
                 source:      TEST
+                """,
+                "SSO-MNT": """\
+                mntner:    SSO-MNT
+                admin-c:   TP1-TEST
+                upd-to:    person@net.net
+                auth:      SSO 906635c2-0405-429a-800b-0602bd716124 # person@net.net
+                mnt-by:    SSO-MNT
+                mnt-by:    OWNER-MNT
+                source:    TEST
                 """
         ]
     }
@@ -258,6 +268,33 @@ class MailMessageIntegrationSpec extends BaseWhoisSourceSpec {
         ack.contents.contains("***Error:   No valid update found")
     }
 
+    def "non-break space is substituted with regular space"() {
+      when:
+        def message = send "Date: Fri, 4 Jan 2013 15:29:59 +0100\n" +
+                "From: noreply@ripe.net\n" +
+                "To: test-dbm@ripe.net\n" +
+                "Subject: UPDATE\n" +
+                "Message-Id: <9BC09C2C-D017-4C4A-9A22-1F4F530F1881@ripe.net>\n" +
+                "Content-Type: text/plain; charset=\"utf-8\"\n" +
+                "MIME-Version: 1.0\n" +
+                "Content-Transfer-Encoding: UTF-8\n" +
+                "\n" +
+                "person:  First\u00a0Person\n" +
+                "address: \u00a0St James Street\n" +
+                "address: Burnley\n" +
+                "address: UK\n" +
+                "phone:   +44 282 420469\n" +
+                "nic-hdl: FP1-TEST\n" +
+                "mnt-by:  OWNER-MNT\n" +
+                "source:  TEST\n" +
+                "password: \u00a0owner\n"
+      then:
+        def ack = ackFor message
+
+        ack.success
+        ack.successes.any { it.operation == "Create" && it.key == "[person] FP1-TEST   First Person" }
+    }
+
     def "unknown-8bit charset is handled"() {
       when:
         def message = send "Date: Fri, 4 Jan 2013 15:29:59 +0100\n" +
@@ -321,6 +358,39 @@ class MailMessageIntegrationSpec extends BaseWhoisSourceSpec {
 
         ack.countErrorWarnInfo(0, 0, 0)
         ack.successes.any { it.operation == "Create" && it.key == "[person] FP1-TEST   First Person" }
+    }
+
+    @Ignore // TODO fix delete functionality then enable test
+    def "delete mntner with sso auth is handled"() {
+        when:
+        def message = send "Date: Fri, 4 Jan 2013 15:29:59 +0100\n" +
+                "From: noreply@ripe.net\n" +
+                "To: test-dbm@ripe.net\n" +
+                "Subject: \n" +
+                "Message-Id: <9BC09C2C-D017-4C4A-9A22-1F4F530F1881@ripe.net>\n" +
+                "Content-Type: text/plain; charset=\"utf-8\"\n" +
+                "MIME-Version: 1.0\n" +
+                "Content-Transfer-Encoding: UTF-8\n" +
+                "\n" +
+                "mntner:    SSO-MNT\n" +
+                "admin-c:   TP1-TEST\n" +
+                "upd-to:    person@net.net\n" +
+                "auth:      SSO person@net.net\n" +
+                "mnt-by:    SSO-MNT\n" +
+                "mnt-by:    OWNER-MNT\n" +
+                "source:    TEST\n" +
+                "password: owner\n" +
+                "delete: test\n\n"
+        then:
+        def ack = ackFor message
+
+        ack.success
+        ack.summary.nrFound == 1
+        ack.summary.assertSuccess(1, 0, 0, 1, 0)
+        ack.summary.assertErrors(0, 0, 0, 0)
+
+        ack.countErrorWarnInfo(0, 0, 0)
+        ack.successes.any { it.operation == "Delete" && it.key == "[mntner] SSO-MNT" }
     }
 
     def "text/html is not handled"() {
@@ -553,7 +623,7 @@ class MailMessageIntegrationSpec extends BaseWhoisSourceSpec {
             source:       TEST
 
             password:     owner
-            """.stripIndent())
+            """.stripIndent(true))
 
         def ack = ackFor message
 
@@ -580,10 +650,9 @@ class MailMessageIntegrationSpec extends BaseWhoisSourceSpec {
         ack.contents =~ /\*\*\*Warning: All keywords were ignored/
     }
 
-    @Ignore
-    def "warning on conversion of non latin-1 address"() {
+    def "non latin-1 characters are substituted"() {
       when:
-        def message = send "Date: Fri, 4 Jan 2013 15:29:59 +0100\n" +
+        def create = send "Date: Fri, 4 Jan 2013 15:29:59 +0100\n" +
                 "From: noreply@ripe.net\n" +
                 "To: test-dbm@ripe.net\n" +
                 "Subject: NEW\n" +
@@ -600,17 +669,88 @@ class MailMessageIntegrationSpec extends BaseWhoisSourceSpec {
                 "source:  TEST\n" +
                 "password: owner\n\n"
       then:
+        def createAck = ackFor create
+
+        createAck.success
+        createAck.summary.nrFound == 1
+        createAck.summary.assertSuccess(1, 1, 0, 0, 0)
+        createAck.summary.assertErrors(0, 0, 0, 0)
+
+        createAck.countErrorWarnInfo(0, 1, 0)
+        createAck.successes.any { it.operation == "Create" && it.key == "[person] FP1-TEST   First Person" }
+        createAck.warningSuccessMessagesFor("Create", "[person] FP1-TEST   First Person") == [
+                "Value changed due to conversion into the ISO-8859-1 (Latin-1) character set"]
+
+        queryMatches("-r FP1-TEST", "address:\\s+\\?\\?\\?\\?\\?\\?\\?\\? \\?\\?\\?\\?\\?,\\?\\?\\?\\?\\?\\?")
+
+      then:
+        def update = send "Date: Fri, 4 Jan 2013 15:29:59 +0100\n" +
+                "From: noreply@ripe.net\n" +
+                "To: test-dbm@ripe.net\n" +
+                "Subject: UPDATE\n" +
+                "Message-Id: <9BC09C2C-D017-4C4A-9A22-1F4F530F1881@ripe.net>\n" +
+                "Content-Type: text/plain; charset=\"utf-8\"\n" +
+                "MIME-Version: 1.0\n" +
+                "Content-Transfer-Encoding: UTF-8\n" +
+                "\n" +
+                "person:  First Person\n" +
+                "address: Тверская улица,москва\n" +
+                "remarks: Updated\n" +
+                "phone:   +44 282 420469\n" +
+                "nic-hdl: FP1-TEST\n" +
+                "mnt-by:  OWNER-MNT\n" +
+                "remarks: updated\n" +
+                "source:  TEST\n" +
+                "password: owner\n\n"
+      then:
+        def updateAck = ackFor update
+
+        updateAck.success
+        updateAck.summary.nrFound == 1
+        updateAck.summary.assertSuccess(1, 0, 1, 0, 0)
+        updateAck.summary.assertErrors(0, 0, 0, 0)
+
+        updateAck.countErrorWarnInfo(0, 3, 0)
+        updateAck.successes.any { it.operation == "Modify" && it.key == "[person] FP1-TEST   First Person" }
+        updateAck.warningSuccessMessagesFor("Modify", "[person] FP1-TEST   First Person") == [
+                "Value changed due to conversion into the ISO-8859-1 (Latin-1) character set"]
+
+        queryMatches("-r FP1-TEST", "address:\\s+\\?\\?\\?\\?\\?\\?\\?\\? \\?\\?\\?\\?\\?,\\?\\?\\?\\?\\?\\?")
+    }
+
+    def "latin-1 control characters are substituted"() {
+      when:
+        def message = send "Date: Fri, 4 Jan 2013 15:29:59 +0100\n" +
+                "From: noreply@ripe.net\n" +
+                "To: test-dbm@ripe.net\n" +
+                "Subject: NEW\n" +
+                "Message-Id: <9BC09C2C-D017-4C4A-9A22-1F4F530F1881@ripe.net>\n" +
+                "Content-Type: text/plain; charset=\"utf-8\"\n" +
+                "MIME-Version: 1.0\n" +
+                "Content-Transfer-Encoding: UTF-8\n" +
+                "\n" +
+                "person:  First Person\n" +
+                "address: Test\u000b\u000c\u007F\u008f Address\n" +
+                "phone:   +44 282 420469\n" +
+                "nic-hdl: FP1-TEST\n" +
+                "mnt-by:  OWNER-MNT\n" +
+                "source:  TEST\n" +
+                "password: owner\n\n"
+      then:
         def ack = ackFor message
 
         ack.success
         ack.summary.nrFound == 1
-        ack.contents =~ /\*\*\*Warning: Attribute "address" value changed due to conversion into the ISO-8859-1 (Latin-1) character set/
 
-        queryMatches("-r FP1-TEST", "\\?\\?\\?\\?")
+        ack.countErrorWarnInfo(0, 1, 0)
+        ack.successes.any { it.operation == "Create" && it.key == "[person] FP1-TEST   First Person" }
+        ack.warningSuccessMessagesFor("Create", "[person] FP1-TEST   First Person") == [
+                "Invalid character(s) were substituted in attribute \"address\" value"]
 
+        queryMatches("-r FP1-TEST", "address:\\s+Test\\?\\?\\?\\? Address")
     }
 
-    def "extended ASCII characters, part of ISO8859-1, are supported"() {
+    def "latin-1 extended ASCII characters are preserved"() {
         when:
         def message = send "Date: Fri, 4 Jan 2013 15:29:59 +0100\n" +
                 "From: noreply@ripe.net\n" +
@@ -622,7 +762,7 @@ class MailMessageIntegrationSpec extends BaseWhoisSourceSpec {
                 "Content-Transfer-Encoding: ISO-8859-1\n" +
                 "\n" +
                 "person:  First Person\n" +
-                "address:  ÅçÅç\n" +
+                "address:  ÖÜëñ\n" +
                 "phone:   +44 282 420469\n" +
                 "nic-hdl: FP1-TEST\n" +
                 "mnt-by:  OWNER-MNT\n" +
@@ -634,7 +774,40 @@ class MailMessageIntegrationSpec extends BaseWhoisSourceSpec {
         ack.success
         ack.summary.nrFound == 1
 
-        queryMatches("-r FP1-TEST", "ÅçÅç")
+        queryMatches("-r FP1-TEST", "address:\\s+ÖÜëñ")
+    }
+
+    def "IDN email address converted to Punycode"() {
+      when:
+        def message = send "Date: Fri, 4 Jan 2013 15:29:59 +0100\n" +
+                "From: noreply@ripe.net\n" +
+                "To: test-dbm@ripe.net\n" +
+                "Subject: NEW\n" +
+                "Message-Id: <9BC09C2C-D017-4C4A-9A22-1F4F530F1881@ripe.net>\n" +
+                "Content-Type: text/plain; charset=\"utf-8\"\n" +
+                "MIME-Version: 1.0\n" +
+                "Content-Transfer-Encoding: UTF-8\n" +
+                "\n" +
+                "person:  First Person\n" +
+                "address: Moscow\n" +
+                "e-mail:  example@москва.ru\n" +
+                "phone:   +44 282 420469\n" +
+                "nic-hdl: FP1-TEST\n" +
+                "mnt-by:  OWNER-MNT\n" +
+                "source:  TEST\n" +
+                "password: owner\n\n"
+      then:
+        def ack = ackFor message
+
+        ack.success
+        ack.summary.nrFound == 1
+
+        ack.countErrorWarnInfo(0, 1, 0)
+        ack.successes.any { it.operation == "Create" && it.key == "[person] FP1-TEST   First Person" }
+        ack.warningSuccessMessagesFor("Create", "[person] FP1-TEST   First Person") == [
+                "Value changed due to conversion of IDN email address(es) into Punycode"]
+
+        queryMatches("-Br FP1-TEST", "e-mail:         example@xn--80adxhks.ru")
     }
 
     def "blank lines are replaced by plus continuation character"() {

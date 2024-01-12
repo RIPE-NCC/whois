@@ -15,24 +15,26 @@ import net.ripe.db.whois.update.authentication.credential.AuthenticationModule;
 import net.ripe.db.whois.update.domain.Action;
 import net.ripe.db.whois.update.domain.PreparedUpdate;
 import net.ripe.db.whois.update.domain.UpdateContext;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.ArrayList;
 import java.util.List;
 
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.empty;
+import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.core.Is.is;
-import static org.junit.Assert.assertThat;
-import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.anyInt;
-import static org.mockito.Mockito.verifyZeroInteractions;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyInt;
+import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
 
-@RunWith(MockitoJUnitRunner.class)
+@ExtendWith(MockitoExtension.class)
 public class InetnumAuthenticationTest {
     @Mock private AuthenticationModule authenticationModule;
     @Mock private Ipv4Tree ipv4Tree;
@@ -64,7 +66,6 @@ public class InetnumAuthenticationTest {
     @Test
     public void does_not_support_modifying() {
         when(update.getAction()).thenReturn(Action.MODIFY);
-        when(update.getType()).thenReturn(ObjectType.INETNUM);
 
         assertThat(subject.supports(update), is(false));
     }
@@ -83,13 +84,13 @@ public class InetnumAuthenticationTest {
         final ArrayList<RpslObject> lowerMaintainers = Lists.newArrayList(lowerMaintainer);
         when(rpslObjectDao.getByKeys(ObjectType.MNTNER, parent.getValuesForAttribute(AttributeType.MNT_LOWER))).thenReturn(lowerMaintainers);
 
-        when(authenticationModule.authenticate(update, updateContext, lowerMaintainers)).thenReturn(lowerMaintainers);
+        when(authenticationModule.authenticate(update, updateContext, lowerMaintainers, InetnumAuthentication.class)).thenReturn(lowerMaintainers);
 
         final List<RpslObject> result = subject.authenticate(update, updateContext);
 
-        assertThat(result.size(), is(1));
+        assertThat(result, hasSize(1));
         assertThat(result.get(0), is(lowerMaintainer));
-        verifyZeroInteractions(updateContext);
+        verifyNoMoreInteractions(updateContext);
     }
 
     @Test
@@ -105,16 +106,16 @@ public class InetnumAuthenticationTest {
         final ArrayList<RpslObject> maintainers = Lists.newArrayList(maintainer);
         when(rpslObjectDao.getByKeys(ObjectType.MNTNER, parent.getValuesForAttribute(AttributeType.MNT_BY))).thenReturn(maintainers);
 
-        when(authenticationModule.authenticate(update, updateContext, maintainers)).thenReturn(maintainers);
+        when(authenticationModule.authenticate(update, updateContext, maintainers, InetnumAuthentication.class)).thenReturn(maintainers);
 
         final List<RpslObject> result = subject.authenticate(update, updateContext);
 
-        assertThat(result.size(), is(1));
+        assertThat(result, hasSize(1));
         assertThat(result.get(0), is(maintainer));
-        verifyZeroInteractions(updateContext);
+        verifyNoMoreInteractions(updateContext);
     }
 
-    @Test(expected = AuthenticationFailedException.class)
+    @Test
     public void authenticate_mntlower_inetnum_fails() {
         when(update.getUpdatedObject()).thenReturn(RpslObject.parse("inetnum: 192.0/24"));
 
@@ -127,9 +128,11 @@ public class InetnumAuthenticationTest {
         final ArrayList<RpslObject> maintainers = Lists.newArrayList(maintainer);
         when(rpslObjectDao.getByKeys(ObjectType.MNTNER, parent.getValuesForAttribute(AttributeType.MNT_LOWER))).thenReturn(maintainers);
 
-        when(authenticationModule.authenticate(update, updateContext, maintainers)).thenReturn(Lists.<RpslObject>newArrayList());
+        when(authenticationModule.authenticate(update, updateContext, maintainers, InetnumAuthentication.class)).thenReturn(Lists.<RpslObject>newArrayList());
 
-        subject.authenticate(update, updateContext);
+        assertThrows(AuthenticationFailedException.class, () -> {
+            subject.authenticate(update, updateContext);
+        });
     }
 
     @Test
@@ -145,13 +148,13 @@ public class InetnumAuthenticationTest {
         final ArrayList<RpslObject> maintainers = Lists.newArrayList(maintainer);
         when(rpslObjectDao.getByKeys(ObjectType.MNTNER, parent.getValuesForAttribute(AttributeType.MNT_LOWER))).thenReturn(maintainers);
 
-        when(authenticationModule.authenticate(update, updateContext, maintainers)).thenReturn(Lists.<RpslObject>newArrayList(maintainer));
+        when(authenticationModule.authenticate(update, updateContext, maintainers, InetnumAuthentication.class)).thenReturn(Lists.<RpslObject>newArrayList(maintainer));
 
         final List<RpslObject> result = subject.authenticate(update, updateContext);
 
-        assertThat(result.size(), is(1));
+        assertThat(result, hasSize(1));
         assertThat(result.get(0), is(maintainer));
-        verifyZeroInteractions(updateContext);
+        verifyNoMoreInteractions(updateContext);
     }
 
     @Test

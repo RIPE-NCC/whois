@@ -1,6 +1,5 @@
 package net.ripe.db.whois.common.iptree;
 
-import com.google.common.base.Predicate;
 import com.google.common.base.Stopwatch;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
@@ -16,8 +15,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
-import javax.annotation.PostConstruct;
-import javax.annotation.PreDestroy;
+import jakarta.annotation.PostConstruct;
+import jakarta.annotation.PreDestroy;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -37,8 +36,7 @@ public class IpTreeUpdater {
     private final IpTreeCacheManager ipTreeCacheManager;
 
     private SourceContext sourceContext;
-    private Set<SourceConfiguration> sourceConfigurationsForRebuild;
-    private Set<SourceConfiguration> sourceConfigurationsForUpdate;
+    private Set<SourceConfiguration> sourceConfigurationForSlave;
 
     private ExecutorService executorService;
 
@@ -51,11 +49,8 @@ public class IpTreeUpdater {
     void setSourceContext(final SourceContext sourceContext) {
         this.sourceContext = sourceContext;
 
-        sourceConfigurationsForRebuild = getSourceConfigurationsWithTypePreference(sourceContext, Source.Type.SLAVE);
-        LOGGER.info("Rebuild IpTrees using sources: {}", sourceConfigurationsForRebuild);
-
-        sourceConfigurationsForUpdate = getSourceConfigurationsWithTypePreference(sourceContext, Source.Type.MASTER);
-        LOGGER.info("Update IpTrees using sources: {}", sourceConfigurationsForUpdate);
+        sourceConfigurationForSlave = getSourceConfigurationsWithTypePreference(sourceContext, Source.Type.SLAVE);
+        LOGGER.info("Rebuild IpTrees and scheduled update using sources: {}", sourceConfigurationForSlave);
     }
 
     private Set<SourceConfiguration> getSourceConfigurationsWithTypePreference(final SourceContext sourceContext, final Source.Type preferredType) {
@@ -78,7 +73,7 @@ public class IpTreeUpdater {
 
     @PostConstruct
     public void init() {
-        final int nrThreads = sourceConfigurationsForRebuild.size();
+        final int nrThreads = sourceConfigurationForSlave.size();
         LOGGER.info("Initializing thread pool with {} threads", nrThreads);
         executorService = Executors.newFixedThreadPool(nrThreads, new ThreadFactory() {
             final ThreadGroup threadGroup = new ThreadGroup(Thread.currentThread().getThreadGroup(), "IpTreeUpdater");
@@ -102,7 +97,7 @@ public class IpTreeUpdater {
         LOGGER.info("Building IP trees");
         final Stopwatch stopwatch = Stopwatch.createStarted();
 
-        invokeAll(sourceConfigurationsForRebuild, new OperationCallback() {
+        invokeAll(sourceConfigurationForSlave, new OperationCallback() {
             @Override
             public void execute(final SourceConfiguration sourceConfiguration) {
                 ipTreeCacheManager.rebuild(sourceConfiguration);
@@ -113,12 +108,7 @@ public class IpTreeUpdater {
     }
 
     public void rebuild(final String source) {
-        for (SourceConfiguration sourceConfiguration : Iterables.filter(sourceConfigurationsForRebuild, new Predicate<SourceConfiguration>() {
-            @Override
-            public boolean apply(final SourceConfiguration input) {
-                return input.getSource().getName().contains(source);
-            }
-        })) {
+        for (SourceConfiguration sourceConfiguration : Iterables.filter(sourceConfigurationForSlave, input -> input.getSource().getName().contains(source))) {
             LOGGER.info("Rebuilding IP trees for {}", sourceConfiguration);
             final Stopwatch stopwatch = Stopwatch.createStarted();
             ipTreeCacheManager.rebuild(sourceConfiguration);
@@ -128,7 +118,7 @@ public class IpTreeUpdater {
 
     @Scheduled(fixedDelay = TREE_UPDATE_IN_SECONDS * 1000)
     public void update() {
-        invokeAll(sourceConfigurationsForUpdate, new OperationCallback() {
+        invokeAll(sourceConfigurationForSlave, new OperationCallback() {
             @Override
             public void execute(final SourceConfiguration sourceConfiguration) {
                 ipTreeCacheManager.update(sourceConfiguration);

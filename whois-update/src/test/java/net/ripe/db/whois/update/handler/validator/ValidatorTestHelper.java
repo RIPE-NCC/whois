@@ -2,7 +2,12 @@ package net.ripe.db.whois.update.handler.validator;
 
 import net.ripe.db.whois.common.rpsl.ObjectMessages;
 import net.ripe.db.whois.common.rpsl.RpslObject;
-import net.ripe.db.whois.update.domain.*;
+import net.ripe.db.whois.update.domain.Action;
+import net.ripe.db.whois.update.domain.Operation;
+import net.ripe.db.whois.update.domain.Paragraph;
+import net.ripe.db.whois.update.domain.PreparedUpdate;
+import net.ripe.db.whois.update.domain.Update;
+import net.ripe.db.whois.update.domain.UpdateContext;
 import net.ripe.db.whois.update.log.LoggerContext;
 
 import static org.mockito.Mockito.mock;
@@ -17,7 +22,7 @@ public final class ValidatorTestHelper {
         final PreparedUpdate preparedUpdate = new PreparedUpdate(update, originalObject, updatedObject, Action.MODIFY);
         final UpdateContext updateContext = new UpdateContext(mock(LoggerContext.class));
 
-        subject.validate(preparedUpdate, updateContext);
+       subject.validate(preparedUpdate, updateContext);
 
         return updateContext.getMessages(preparedUpdate);
     }
@@ -28,7 +33,7 @@ public final class ValidatorTestHelper {
         final PreparedUpdate preparedUpdate = new PreparedUpdate(update, originalObject, updatedObject, Action.DELETE);
         final UpdateContext updateContext = new UpdateContext(mock(LoggerContext.class));
 
-        subject.validate(preparedUpdate, updateContext);
+       subject.validate(preparedUpdate, updateContext);
 
         return updateContext.getMessages(preparedUpdate);
     }

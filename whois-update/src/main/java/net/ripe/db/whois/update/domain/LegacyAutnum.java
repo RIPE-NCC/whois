@@ -5,7 +5,7 @@ import net.ripe.db.whois.update.dao.LegacyAutnumDao;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import javax.annotation.PostConstruct;
+import jakarta.annotation.PostConstruct;
 import java.util.List;
 
 @Component
@@ -19,11 +19,16 @@ public class LegacyAutnum {
     }
 
     @PostConstruct
-    void init() {
+    public synchronized void init() {
         cachedLegacyAutnums = legacyAutnumDao.load();
     }
 
     public boolean contains(final CIString autnum) {
         return cachedLegacyAutnums.contains(autnum);
     }
+
+    public int getTotal() {
+        return cachedLegacyAutnums.size();
+    }
+
 }

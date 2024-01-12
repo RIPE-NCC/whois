@@ -1,10 +1,21 @@
 package net.ripe.db.whois.api.fulltextsearch;
 
-import javax.xml.bind.annotation.*;
+import com.fasterxml.jackson.annotation.JsonInclude;
+
+import jakarta.xml.bind.annotation.XmlAccessType;
+import jakarta.xml.bind.annotation.XmlAccessorType;
+import jakarta.xml.bind.annotation.XmlAttribute;
+import jakarta.xml.bind.annotation.XmlElement;
+import jakarta.xml.bind.annotation.XmlElements;
+import jakarta.xml.bind.annotation.XmlRootElement;
+import jakarta.xml.bind.annotation.XmlValue;
 import java.util.List;
+
+import static com.fasterxml.jackson.annotation.JsonInclude.Include.NON_EMPTY;
 
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlRootElement(name = "response")
+@JsonInclude(NON_EMPTY)
 public class SearchResponse {
 
     @XmlElement(required = true)
@@ -31,6 +42,7 @@ public class SearchResponse {
 
     @XmlAccessorType(XmlAccessType.FIELD)
     @XmlRootElement(name = "result")
+    @JsonInclude(NON_EMPTY)
     public static class Result {
 
         @XmlAttribute(required = true)
@@ -65,6 +77,7 @@ public class SearchResponse {
 
         @XmlAccessorType(XmlAccessType.FIELD)
         @XmlRootElement(name = "doc")
+        @JsonInclude(NON_EMPTY)
         public static class Doc {
 
             @XmlElements({@XmlElement(name = "str", type = Str.class)})
@@ -82,6 +95,7 @@ public class SearchResponse {
 
     @XmlAccessorType(XmlAccessType.FIELD)
     @XmlRootElement(name = "lst")
+    @JsonInclude(NON_EMPTY)
     static class Lst {
         @XmlAttribute(required = true)
         private String name;
@@ -137,6 +151,7 @@ public class SearchResponse {
 
     @XmlAccessorType(XmlAccessType.FIELD)
     @XmlRootElement(name = "arr")
+    @JsonInclude(NON_EMPTY)
     static class Arr {
         @XmlAttribute(required = true)
         private String name;
@@ -167,6 +182,7 @@ public class SearchResponse {
 
     @XmlAccessorType(XmlAccessType.FIELD)
     @XmlRootElement(name = "str")
+    @JsonInclude(NON_EMPTY)
     public static class Str {
         @XmlAttribute(required = true)
         private String name;
@@ -194,6 +210,7 @@ public class SearchResponse {
 
     @XmlAccessorType(XmlAccessType.FIELD)
     @XmlRootElement(name = "int")
+    @JsonInclude(NON_EMPTY)
     static class Int {
         @XmlAttribute(required = true)
         private String name;

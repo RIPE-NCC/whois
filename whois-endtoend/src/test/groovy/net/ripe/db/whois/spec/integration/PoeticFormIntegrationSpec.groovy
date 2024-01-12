@@ -1,9 +1,9 @@
 package net.ripe.db.whois.spec.integration
 
-import net.ripe.db.whois.common.IntegrationTest
+
 import net.ripe.db.whois.spec.domain.SyncUpdate
 
-@org.junit.experimental.categories.Category(IntegrationTest.class)
+@org.junit.jupiter.api.Tag("IntegrationTest")
 class PoeticFormIntegrationSpec extends BaseWhoisSourceSpec {
 
     @Override
@@ -18,11 +18,11 @@ class PoeticFormIntegrationSpec extends BaseWhoisSourceSpec {
             auth:   MD5-PW \$1\$fU9ZMQN9\$QQtm3kRqZXWAuLpeOiLN7. # update
             source: TEST
             """,
-                "LIM-MNT": """\
-            mntner: LIM-MNT
+                "RIPE-DBM-MNT": """\
+            mntner: RIPE-DBM-MNT
             descr: description
             admin-c: TEST-RIPE
-            mnt-by: LIM-MNT
+            mnt-by: RIPE-DBM-MNT
             upd-to: dbtest@ripe.net
             auth:   MD5-PW \$1\$5aMDZg3w\$zL59TnpAszf6Ft.zs148X0 # update2
             source: TEST
@@ -50,10 +50,10 @@ class PoeticFormIntegrationSpec extends BaseWhoisSourceSpec {
             descr:           Must be carefully picked
             descr:           and it<92>s funny and often perverse
             admin-c:         TEST-RIPE
-            mnt-by:          UPD-MNT
+            mnt-by:          RIPE-DBM-MNT
             source:          TEST
-            password:        update
-            """.stripIndent())
+            password:        update2
+            """.stripIndent(true))
 
         def response = syncUpdate update
 
@@ -62,16 +62,71 @@ class PoeticFormIntegrationSpec extends BaseWhoisSourceSpec {
         response.contains("Create SUCCEEDED: [poetic-form] FORM-LIMERICK")
     }
 
+    def "add poetic form different mntner"() {
+        given:
+        def update = new SyncUpdate(data: """\
+            poetic-form:     FORM-SONNET-INDONESIAN
+            admin-c:         TEST-RIPE
+            mnt-by:          UPD-MNT
+            source:          TEST
+            password:        update
+            """.stripIndent(true))
+
+        when:
+        def response = syncUpdate update
+
+        then:
+        response.contains("Create FAILED: [poetic-form] FORM-SONNET-INDONESIAN")
+        response.contains("Poetic-form must only be maintained by 'RIPE-DBM-MNT'")
+    }
+
+    def "add poetic form incorrect mntner"() {
+        given:
+        def update = new SyncUpdate(data: """\
+            poetic-form:     FORM-SONNET-INDONESIAN
+            admin-c:         TEST-RIPE
+            mnt-by:          UPD-MNT
+            source:          TEST
+            password:        update2
+            """.stripIndent(true))
+
+        when:
+        def response = syncUpdate update
+
+        then:
+        response.contains("Create FAILED: [poetic-form] FORM-SONNET-INDONESIAN")
+        response.contains("Poetic-form must only be maintained by 'RIPE-DBM-MNT'")
+    }
+
+    def "add poetic form multiple mntners"() {
+        given:
+        def update = new SyncUpdate(data: """\
+            poetic-form:     FORM-SONNET-INDONESIAN
+            admin-c:         TEST-RIPE
+            mnt-by:          UPD-MNT
+            mnt-by:          RIPE-DBM-MNT
+            source:          TEST
+            password:        update2
+            """.stripIndent(true))
+
+        when:
+        def response = syncUpdate update
+
+        then:
+        response.contains("Create FAILED: [poetic-form] FORM-SONNET-INDONESIAN")
+        response.contains("Attribute \"mnt-by\" appears more than once")
+    }
+
     def "modify poetic form"() {
       when:
         def create = new SyncUpdate(data: """\
             poetic-form:     FORM-HAIKU
             descr:           haiku
             admin-c:         TEST-RIPE
-            mnt-by:          UPD-MNT
+            mnt-by:          RIPE-DBM-MNT
             source:          TEST
-            password:        update
-            """.stripIndent())
+            password:        update2
+            """.stripIndent(true))
 
         def createResponse = syncUpdate create
 
@@ -86,10 +141,10 @@ class PoeticFormIntegrationSpec extends BaseWhoisSourceSpec {
             descr:           only seven syllables
             descr:           in its density
             admin-c:         TEST-RIPE
-            mnt-by:          UPD-MNT
+            mnt-by:          RIPE-DBM-MNT
             source:          TEST
-            password:        update
-            """.stripIndent())
+            password:        update2
+            """.stripIndent(true))
 
         def updateResponse = syncUpdate update
 
@@ -104,10 +159,10 @@ class PoeticFormIntegrationSpec extends BaseWhoisSourceSpec {
             poetic-form:     FORM-HAIKU
             descr:           haiku
             admin-c:         TEST-RIPE
-            mnt-by:          UPD-MNT
+            mnt-by:          RIPE-DBM-MNT
             source:          TEST
-            password:        update
-            """.stripIndent())
+            password:        update2
+            """.stripIndent(true))
 
         def createResponse = syncUpdate create
 
@@ -120,11 +175,11 @@ class PoeticFormIntegrationSpec extends BaseWhoisSourceSpec {
             poetic-form:     FORM-HAIKU
             descr:           haiku
             admin-c:         TEST-RIPE
-            mnt-by:          UPD-MNT
+            mnt-by:          RIPE-DBM-MNT
             source:          TEST
-            password:        update
+            password:        update2
             delete:          test
-            """.stripIndent())
+            """.stripIndent(true))
 
         def deleteResponse = syncUpdate delete
 
