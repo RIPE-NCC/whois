@@ -51,6 +51,8 @@ public class ValidateTokenResponse implements Serializable {
         public boolean active;
         @XmlElement(required = true)
         public List<AccessRole> accessRoles;
+        @XmlElement(required = true)
+        public List<String> oldEmails;
 
         @JsonProperty("Name")
         public String getName() {
