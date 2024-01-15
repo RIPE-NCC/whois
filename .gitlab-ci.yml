@@ -37,6 +37,7 @@ build:
   artifacts:
     paths:
       - "*/target/*.jar"
+    expire_in: 6 months
     reports:
       junit:
         - "*/target/surefire-reports/TEST-*.xml"
