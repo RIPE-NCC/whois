@@ -1,8 +1,6 @@
 package net.ripe.db.whois.common.sso.domain;
 
-
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.xml.bind.annotation.XmlAccessType;
 import jakarta.xml.bind.annotation.XmlAccessorType;
 import jakarta.xml.bind.annotation.XmlElement;
@@ -15,7 +13,7 @@ import java.util.List;
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlRootElement
 @JsonIgnoreProperties(ignoreUnknown = true)
-public class ValidateTokenResponse implements Serializable {
+public class HistoricalUserResponse implements Serializable {
 
     @Serial
     private static final long serialVersionUID = 1L;
@@ -30,44 +28,35 @@ public class ValidateTokenResponse implements Serializable {
         @Serial
         private static final long serialVersionUID = 1L;
         @XmlElement(required = true)
-        public Content content;
+        public List<Results> results;
     }
 
     @XmlAccessorType(XmlAccessType.FIELD)
     @XmlRootElement
     @JsonIgnoreProperties(ignoreUnknown = true)
-    public static class Content implements Serializable {
+    public static class Results implements Serializable {
         @Serial
         private static final long serialVersionUID = 1L;
         @XmlElement(required = true)
-        public String firstName;
+        public String eventDateTime;
         @XmlElement(required = true)
-        public String lastName;
+        public String action;
         @XmlElement(required = true)
-        public String email;
-        @XmlElement(required = true)
-        public String id;
-        @XmlElement(required = true)
-        public boolean active;
-        @XmlElement(required = true)
-        public List<AccessRole> accessRoles;
+        public List<AttributeChanges> attributeChanges;
 
-        @JsonProperty("Name")
-        public String getName() {
-            return(firstName + " " + lastName);
-        }
     }
 
     @XmlAccessorType(XmlAccessType.FIELD)
     @XmlRootElement
     @JsonIgnoreProperties(ignoreUnknown = true)
-    public static class AccessRole implements Serializable {
+    public static class AttributeChanges implements Serializable {
         @Serial
         private static final long serialVersionUID = 1L;
         @XmlElement(required = true)
-        public long membershipId;
+        public String name;
         @XmlElement(required = true)
-        public List<String> permissions;
+        public String oldValue;
+        @XmlElement(required = true)
+        public String newValue;
     }
-
 }

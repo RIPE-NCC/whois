@@ -10,6 +10,7 @@ import jakarta.ws.rs.WebApplicationException;
 import jakarta.ws.rs.client.Client;
 import jakarta.ws.rs.client.ClientBuilder;
 import jakarta.ws.rs.core.MediaType;
+import net.ripe.db.whois.common.sso.domain.HistoricalUserResponse;
 import net.ripe.db.whois.common.sso.domain.MemberContactsResponse;
 import net.ripe.db.whois.common.sso.domain.ValidateTokenResponse;
 import org.apache.commons.lang.StringUtils;
@@ -40,6 +41,8 @@ public class AuthServiceClient {
     private static final String VALIDATE_PATH = "/validate";
     private static final String ORGANISATION_MEMBERS_PATH = "/members";
     private static final String USER_SEARCH_PATH = "/accounts/";
+
+    private static final String HISTORICAL_USER_SEARCH_PATH = "/history/user";
 
     private static final String CONTACT_PATH = "/contacts";
     private static final String EMAIL_PATH = "/email";
@@ -150,6 +153,32 @@ public class AuthServiceClient {
                     .request(MediaType.APPLICATION_JSON_TYPE)
                     .header("X-API_KEY", apiKey)
                     .get(ValidateTokenResponse.class);
+        } catch (BadRequestException e) {
+            LOGGER.debug("Failed to get details for uuid {} (token is invalid)", uuid);
+            throw new AuthServiceClientException(UNAUTHORIZED.getStatusCode(), "Invalid token.");
+        } catch (WebApplicationException e) {
+            LOGGER.debug("Failed to get details for uuid {} due to {}:{}\n\tResponse: {}", uuid, e.getClass().getName(), e.getMessage(), e.getResponse().readEntity(String.class));
+            throw new AuthServiceClientException(INTERNAL_SERVER_ERROR.getStatusCode(), "Internal server error");
+        } catch (ProcessingException e) {
+            LOGGER.debug("Failed to get details for uuid {} due to {}:{}", uuid, e.getClass().getName(), e.getMessage());
+            throw new AuthServiceClientException(INTERNAL_SERVER_ERROR.getStatusCode(), "Internal server error");
+        }
+    }
+
+    @Cacheable(cacheNames="ssoHistoricalUserDetails", key="#uuid")
+    public HistoricalUserResponse getHistoricalUserDetails(final String uuid) {
+        if (StringUtils.isEmpty(uuid)) {
+            LOGGER.debug("No uuid was supplied");
+            throw new AuthServiceClientException(BAD_REQUEST.getStatusCode(),"Invalid uuid.");
+        }
+
+        try {
+            return client.target(restUrl)
+                    .path(HISTORICAL_USER_SEARCH_PATH)
+                    .path(uuid)
+                    .request(MediaType.APPLICATION_JSON_TYPE)
+                    .header("X-API_KEY", apiKey)
+                    .get(HistoricalUserResponse.class);
         } catch (BadRequestException e) {
             LOGGER.debug("Failed to get details for uuid {} (token is invalid)", uuid);
             throw new AuthServiceClientException(UNAUTHORIZED.getStatusCode(), "Invalid token.");
