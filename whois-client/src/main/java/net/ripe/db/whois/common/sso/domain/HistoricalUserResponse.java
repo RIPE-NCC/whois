@@ -34,7 +34,7 @@ public class HistoricalUserResponse implements Serializable {
     @XmlAccessorType(XmlAccessType.FIELD)
     @XmlRootElement
     @JsonIgnoreProperties(ignoreUnknown = true)
-    public static class Results implements Serializable, Comparable<Results> {
+    public static class Results implements Serializable {
         @Serial
         private static final long serialVersionUID = 1L;
         @XmlElement(required = true)
@@ -43,10 +43,7 @@ public class HistoricalUserResponse implements Serializable {
         public String action;
         @XmlElement(required = true)
         public List<AttributeChanges> attributeChanges;
-        @Override
-        public int compareTo(Results o) {
-            return this.eventDateTime.compareTo(o.eventDateTime);
-        }
+
     }
 
     @XmlAccessorType(XmlAccessType.FIELD)
