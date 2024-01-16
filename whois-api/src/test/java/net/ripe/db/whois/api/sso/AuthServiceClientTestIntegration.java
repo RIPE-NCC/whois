@@ -18,7 +18,7 @@ import static org.hamcrest.Matchers.nullValue;
 @Tag("IntegrationTest")
 public class AuthServiceClientTestIntegration extends AbstractIntegrationTest {
 
-    private final static String UUID = "8ffe29be-89ef-41c8-ba7f-0e1553a623e5";
+    private static final String UUID = "8ffe29be-89ef-41c8-ba7f-0e1553a623e5";
     @Autowired
     private CacheManager cacheManager;
     @Autowired

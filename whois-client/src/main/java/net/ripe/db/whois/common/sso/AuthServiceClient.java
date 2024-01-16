@@ -77,7 +77,7 @@ public class AuthServiceClient {
     public ValidateTokenResponse validateToken(final String authToken) {
         if (StringUtils.isEmpty(authToken)) {
             LOGGER.debug("No crowdToken was supplied");
-            throw new AuthServiceClientException(BAD_REQUEST.getStatusCode(), "Invalid token.");
+            throw new AuthServiceClientException(BAD_REQUEST.getStatusCode(), "No UUID.");
         }
 
         try {
@@ -114,7 +114,7 @@ public class AuthServiceClient {
     public String getUuid(final String username) {
         if (StringUtils.isEmpty(username)) {
             LOGGER.debug("No username was supplied");
-            throw new AuthServiceClientException(BAD_REQUEST.getStatusCode(), "Invalid username.");
+            throw new AuthServiceClientException(BAD_REQUEST.getStatusCode(), "No username.");
         }
 
         try {
@@ -143,7 +143,7 @@ public class AuthServiceClient {
     public ValidateTokenResponse getUserDetails(final String uuid) {
         if (StringUtils.isEmpty(uuid)) {
             LOGGER.debug("No uuid was supplied");
-            throw new AuthServiceClientException(BAD_REQUEST.getStatusCode(),"Invalid uuid.");
+            throw new AuthServiceClientException(BAD_REQUEST.getStatusCode(),"No UUID.");
         }
 
         try {
