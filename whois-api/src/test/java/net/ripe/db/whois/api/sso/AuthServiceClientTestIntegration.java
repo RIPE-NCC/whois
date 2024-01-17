@@ -10,6 +10,8 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.CacheManager;
 
+import java.time.LocalDateTime;
+
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.not;
@@ -50,6 +52,13 @@ public class AuthServiceClientTestIntegration extends AbstractIntegrationTest {
 
         assertThat(historicalUserDetails.response.results.size(), is(1));
         assertThat(cacheManager.getCache("ssoHistoricalUserDetails").get(UUID), is(not(nullValue())));
+    }
+
+    @Test
+    public void get_historical_event_date_time() {
+        final HistoricalUserResponse historicalUserDetails = authServiceClient.getHistoricalUserDetails(UUID);
+
+        assertThat(historicalUserDetails.response.results.get(0).eventDateTime, is(LocalDateTime.of(2015, 5, 8, 12, 32, 0)));
     }
 
 }
