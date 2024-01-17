@@ -102,7 +102,8 @@ public class AuthServiceServerDummy implements Stub {
 
             response.setStatus(HttpServletResponse.SC_OK);
             response.setContentType("application/json");
-            response.getWriter().println(serializeUuid(user));
+            response.getWriter().println(request.getRequestURI().contains("history") ? serializeHistoricalDetails(user)
+                    : serializeUuid(user));
         }
 
         private String serializeUuid(final SSOUser user) {
@@ -122,10 +123,33 @@ public class AuthServiceServerDummy implements Stub {
                     "      \"active\": %s,\n" +
                     "      \"accessRoles\": [\n" +
                     "      ]\n" +
-                    "\n" +
                     "    }\n" +
                     "  }\n" +
                     "}", user.getFirstName(), user.getLastName(), user.getEmail(), user.getUuid(), user.isActive());
+        }
+
+        private String serializeHistoricalDetails(final SSOUser user){
+            return String.format("{\n" +
+                    "  \"response\": {\n" +
+                    "    \"results\": [\n " +
+                    "    {\n" +
+                    "      \"eventDateTime\": \"2015-05-08 12:32\",\n" +
+                    "      \"action\": \"EMAIL_CHANGE\",\n" +
+                    "      \"uuid\": \"%s\",\n" +
+                    "      \"actor\": \"%s\",\n" +
+                    "      \"actingService\": \"crowd_email_migration\",\n" +
+                    "      \"staff\": false,\n" +
+                    "      \"attributeChanges\": [\n" +
+                    "      {\n" +
+                    "         \"name\": \"email\",\n" +
+                    "         \"oldValue\": \"%s\",\n" +
+                    "         \"newValue\": \"%s\"\n" +
+                    "      }\n" +
+                    "      ]\n" +
+                    "    }\n" +
+                    "    ]\n" +
+                    "  }\n" +
+                    "}",  user.getUuid(), user.getEmail(), user.getEmail(), user.getEmail());
         }
     }
 
