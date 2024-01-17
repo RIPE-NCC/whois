@@ -196,8 +196,8 @@ public class AuthServiceClient {
                     .header("X-API_KEY", apiKey)
                     .get(HistoricalUserResponse.class);
         } catch (BadRequestException e) {
-            LOGGER.debug("Failed to get details for uuid {} (token is invalid)", uuid);
-            throw new AuthServiceClientException(UNAUTHORIZED.getStatusCode(), "Invalid token.");
+            LOGGER.debug("Failed to get details for uuid {} (Invalid UUID)", uuid);
+            throw new AuthServiceClientException(UNAUTHORIZED.getStatusCode(), "Invalid UUID.");
         } catch (WebApplicationException e) {
             LOGGER.debug("Failed to get details for uuid {} due to {}:{}\n\tResponse: {}", uuid, e.getClass().getName(), e.getMessage(), e.getResponse().readEntity(String.class));
             throw new AuthServiceClientException(INTERNAL_SERVER_ERROR.getStatusCode(), "Internal server error");
