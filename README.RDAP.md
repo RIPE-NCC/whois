@@ -17,12 +17,15 @@ This implementation returns the first language attribute value, and include the 
 
 Multiple organisation phone attributes are returned, but not with preferences
 ----------------------------------------------------------------------------------------
-Preferences are not assigned to multiple phone elements.
+Preferences are not assigned to multiple phone elements. The prioritise of the attributes in RPSL objects are unknown, therefore it
+is not possible to figure out the priority of the phone elements.
+
+According to [rfc6350](https://www.rfc-editor.org/rfc/rfc6350) preference parameters are OPTIONAL.
 
 Flat AS Model
 ----------------------------------------
 We support flat model and not hierarchical model in our autnum queries. This means that for an autnum for which we have
-registration authority but that has not been further delegated by us will respond with a Not Found.
+registration authority but that has not been further delegated by us the service will respond with a Not Found.
 
 For more information refer to https://bitbucket.org/nroecg/nro-rdap-profile/raw/v1/nro-rdap-profile.txt section
 6.1.2.3. Flat model
@@ -42,7 +45,7 @@ Entity Primary Key can match multiple objects
 If an entity primary key matches more than one object, a 500 Internal Server Error is returned.
 
 This can not be easily fixed because the same key can be used in multiple different object types: mntner and
-person/role. So it is not clear what object must be returned for a single object request.
+person/role. So it is not clear which object must be returned for a single object request.
 
 For example: https://rdap.db.ripe.net/entity/KR4422-RIPE
 
@@ -51,7 +54,7 @@ Related Contact information is Filtered
 Some related contact entities ("technical","administrative" etc.) have filtered contact information, i.e. "e-mail"
 and "notify" values are not included. This was done to avoid blocking clients for inadvertently querying excessively for personal data.
 
-For /entity/ request "e-mail" is enabled and the clients requesting those service must comply with the daily limit
+For /entity/ request "e-mail" will be enabled and the clients requesting those service will need to comply with the daily limit
 according to the AUP: https://www.ripe.net/manage-ips-and-asns/db/support/documentation/ripe-database-acceptable-use
 -policy.
 
