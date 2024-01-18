@@ -22,6 +22,7 @@ import net.ripe.db.whois.api.rdap.domain.Link;
 import net.ripe.db.whois.api.rdap.domain.Nameserver;
 import net.ripe.db.whois.api.rdap.domain.Notice;
 import net.ripe.db.whois.api.rdap.domain.RdapObject;
+import net.ripe.db.whois.api.rdap.domain.RdapRequestType;
 import net.ripe.db.whois.api.rdap.domain.Remark;
 import net.ripe.db.whois.api.rdap.domain.Role;
 import net.ripe.db.whois.api.rdap.domain.SearchResult;
@@ -86,6 +87,7 @@ import static net.ripe.db.whois.common.rpsl.AttributeType.ADMIN_C;
 import static net.ripe.db.whois.common.rpsl.AttributeType.COUNTRY;
 import static net.ripe.db.whois.common.rpsl.AttributeType.DESCR;
 import static net.ripe.db.whois.common.rpsl.AttributeType.DS_RDATA;
+import static net.ripe.db.whois.common.rpsl.AttributeType.E_MAIL;
 import static net.ripe.db.whois.common.rpsl.AttributeType.FAX_NO;
 import static net.ripe.db.whois.common.rpsl.AttributeType.GEOFEED;
 import static net.ripe.db.whois.common.rpsl.AttributeType.GEOLOC;
@@ -391,7 +393,7 @@ class RdapObjectMapper {
 
         setGeoFeed(rpslObject, ip, requestUrl);
 
-        this.mapContactEntities(ip, rpslObject, requestUrl);
+        this.mapContactEntities(ip, rpslObject, requestUrl, RdapRequestType.IP);
         return ip;
     }
 
@@ -501,7 +503,7 @@ class RdapObjectMapper {
         return lastChangedEvent;
     }
 
-    private void mapContactEntities(final RdapObject rdapObject, final RpslObject rpslObject, final String requestUrl) {
+    private void mapContactEntities(final RdapObject rdapObject, final RpslObject rpslObject, final String requestUrl, final RdapRequestType rdapRequestType) {
         final Map<CIString, Entity> contactsEntities = Maps.newTreeMap();
         final List<RpslAttribute> filteredAttributes = rpslObject.getAttributes().stream().filter( rpslAttribute -> CONTACT_ATTRIBUTE_TO_ROLE_NAME.containsKey(rpslAttribute.getType())).collect(Collectors.toList());
 
@@ -516,7 +518,7 @@ class RdapObjectMapper {
                 entity.setHandle(value.toString());
                 entity.getRoles().add(CONTACT_ATTRIBUTE_TO_ROLE_NAME.get(rpslAttribute.getType()));
 
-                mapVcard(value, rpslAttribute.getType(), entity);
+                mapVCard(value, rpslAttribute.getType(), entity, rdapRequestType);
                 mapEntityLinks(entity, requestUrl, value);
 
                 contactsEntities.put(value, entity);
@@ -525,13 +527,13 @@ class RdapObjectMapper {
         rdapObject.getEntitySearchResults().addAll(contactsEntities.values());
     }
 
-    private void mapVcard(final CIString attributeValue, final AttributeType type, final Entity entity) {
+    private void mapVCard(final CIString attributeValue, final AttributeType type, final Entity entity, final RdapRequestType rdapRequestType) {
         final RpslObject referencedRpslObject = getRpslObjectByAttributeType(attributeValue, type);
         if (referencedRpslObject == null) {
             return;
         }
 
-        createVCard(entity, referencedRpslObject);
+        createVCard(entity, referencedRpslObject, rdapRequestType);
     }
 
     private RpslObject getRpslObjectByAttributeType(final CIString attributeValue, final AttributeType type) {
@@ -561,8 +563,8 @@ class RdapObjectMapper {
             entity.setLang(language);
         }
 
-        createVCard(entity, rpslObject);
-        this.mapContactEntities(entity, rpslObject, requestUrl);
+        createVCard(entity, rpslObject, RdapRequestType.ENTITY);
+        this.mapContactEntities(entity, rpslObject, requestUrl, RdapRequestType.ENTITY);
 
         return entity;
     }
@@ -575,7 +577,7 @@ class RdapObjectMapper {
         autnum.setStartAutnum(asNumber);
         autnum.setEndAutnum(asNumber);
         autnum.setStatus(Collections.singletonList(getResourceStatus(rpslObject).getValue()));
-        this.mapContactEntities(autnum, rpslObject, requestUrl);
+        this.mapContactEntities(autnum, rpslObject, requestUrl, RdapRequestType.AUTNUM);
         autnum.getRdapConformance().add(RdapConformance.FLAT_MODEL.getValue());
         return autnum;
     }
@@ -591,7 +593,7 @@ class RdapObjectMapper {
         autnum.setStartAutnum(blockRange.getBegin());
         autnum.setEndAutnum(blockRange.getEnd());
         autnum.setStatus(Collections.singletonList(getResourceStatus(rpslObject).getValue()));
-        this.mapContactEntities(autnum, rpslObject, requestUrl);
+        this.mapContactEntities(autnum, rpslObject, requestUrl, RdapRequestType.AUTNUM);
         return autnum;
     }
 
@@ -655,12 +657,12 @@ class RdapObjectMapper {
         if (secureDNS.isDelegationSigned()) {
             domain.setSecureDNS(secureDNS);
         }
-        this.mapContactEntities(domain, rpslObject, requestUrl);
+        this.mapContactEntities(domain, rpslObject, requestUrl, RdapRequestType.DOMAIN);
 
         return domain;
     }
 
-    private static void createVCard(final Entity entity, final RpslObject rpslObject) {
+    private static void createVCard(final Entity entity, final RpslObject rpslObject, final RdapRequestType rdapRequestType) {
         final VCardBuilder builder = new VCardBuilder();
         builder.addVersion();
 
@@ -680,8 +682,14 @@ class RdapObjectMapper {
                 .addOrg(rpslObject.getValuesForAttribute(ORG))
                 .addGeo(rpslObject.getValuesForAttribute(GEOLOC));
 
-        RDAP_VCARD_REDACTED_ATTRIBUTES.forEach(attributeType -> entity.getRedactedRpslAttrs()
-                .addAll(rpslObject.findAttributes(attributeType)));
+        if (!rdapRequestType.equals(RdapRequestType.ENTITY)){
+            builder.addEmail(rpslObject.getValuesForAttribute(E_MAIL));
+        }
+
+        RDAP_VCARD_REDACTED_ATTRIBUTES.entrySet()
+                .stream()
+                .filter(attributeTypes -> attributeTypes.getKey().contains(rdapRequestType))
+                .forEach(entry -> entity.getRedactedRpslAttrs().addAll(rpslObject.findAttributes(entry.getValue())));
 
         entity.setVCardArray(builder.build());
     }
