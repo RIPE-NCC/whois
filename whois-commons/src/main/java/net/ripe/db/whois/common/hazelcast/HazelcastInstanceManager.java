@@ -81,6 +81,13 @@ public class HazelcastInstanceManager {
                     .setEvictionConfig(evictionConfig)
                     .setTimeToLiveSeconds(60));
 
+            // @Cacheable(cacheNames="ssoHistoricalUserDetails", key="#uuid")
+            config.addMapConfig(new MapConfig()
+                    .setName("ssoHistoricalUserDetails")
+                    .setStatisticsEnabled(true)
+                    .setEvictionConfig(evictionConfig)
+                    .setTimeToLiveSeconds(60));
+
             this.hazelcastInstance = getHazelcastInstance(config);
 
             LOGGER.info("Created hazelcast instance");
