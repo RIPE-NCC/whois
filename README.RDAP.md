@@ -20,7 +20,7 @@ Multiple organisation phone attributes are returned, but not with preferences
 Preferences are not assigned to multiple phone elements. The prioritise of the attributes in RPSL objects are unknown, therefore it
 is not possible to figure out the priority of the phone elements.
 
-According to [rfc6350](https://www.rfc-editor.org/rfc/rfc6350) preference parameters are OPTIONAL.
+According to [nro-rdap-profile](https://bitbucket.org/nroecg/nro-rdap-profile/raw/v1/nro-rdap-profile.txt) preference parameters are MAY.
 
 Flat AS Model
 ----------------------------------------
