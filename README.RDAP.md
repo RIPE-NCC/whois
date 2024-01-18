@@ -112,7 +112,7 @@ Objects with "administrative" status are not returned
 If the prefix is either delegated but unallocated or only partially delegated to the RIPE region,
 then a 404 is returned. An object with "administrative" status is never returned.
 
-Currently, IANA allocations are not present n the RIPE database, but just out-of-region placeholders. In the future
+Currently, IANA allocations are not present in the RIPE database, but just out-of-region placeholders. In the future
 these prefixes will be added just for RDAP, so the correct information will be returned.
 
 Refer to [NRO RDAP](https://bitbucket.org/nroecg/nro-rdap-profile/raw/v1/nro-rdap-profile.txt) Profile section 4.5. "Status"
