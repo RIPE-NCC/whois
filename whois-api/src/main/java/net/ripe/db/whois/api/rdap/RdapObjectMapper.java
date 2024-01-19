@@ -301,7 +301,7 @@ class RdapObjectMapper {
                 case AUT_NUM -> createAutnumResponse(rpslObject, requestUrl, rdapRequestType);
                 case AS_BLOCK -> createAsBlockResponse(rpslObject, requestUrl, rdapRequestType);
                 case INETNUM, INET6NUM -> createIp(rpslObject, requestUrl, rdapRequestType);
-                case PERSON, ROLE, MNTNER, ORGANISATION -> createEntity(rpslObject, requestUrl);
+                case PERSON, ROLE, MNTNER, ORGANISATION -> createEntity(rpslObject, requestUrl, rdapRequestType);
                 default -> throw new IllegalArgumentException("Unhandled object type: " + rpslObject.getType());
             };
         } catch (IllegalArgumentException ex){
@@ -550,9 +550,9 @@ class RdapObjectMapper {
         return null;
     }
 
-    private Entity createEntity(final RpslObject rpslObject, final String requestUrl) {
+    private Entity createEntity(final RpslObject rpslObject, final String requestUrl, final RdapRequestType rdapRequestType) {
         // top-level entity has no role
-        return createEntity(rpslObject, null, requestUrl, RdapRequestType.ENTITY);
+        return createEntity(rpslObject, null, requestUrl, rdapRequestType);
     }
 
     private Entity createEntity(final RpslObject rpslObject, @Nullable final Role role, final String requestUrl, final RdapRequestType rdapRequestType) {
