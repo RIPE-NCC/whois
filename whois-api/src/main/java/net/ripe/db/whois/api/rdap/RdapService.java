@@ -132,20 +132,20 @@ public class RdapService {
             case AUTNUM -> {
                 String autnumKey = String.format("AS%s", key);
                 rdapRequestValidator.validateAutnum(autnumKey);
-                return lookupForAutNum(request, autnumKey);
+                return lookupForAutNum(request, autnumKey, requestType);
             }
             case DOMAIN -> {
                 rdapRequestValidator.validateDomain(key);
-                return lookupForDomain(request, key);
+                return lookupForDomain(request, key, requestType);
             }
             case IP -> {
                 rdapRequestValidator.validateIp(request.getRequestURI(), key);
-                return lookupWithRedirectUrl(request, whoisObjectTypes, key);
+                return lookupWithRedirectUrl(request, whoisObjectTypes, key, requestType);
             }
             case ENTITY -> {
                 rdapRequestValidator.validateEntity(key);
-                return key.toUpperCase().startsWith("ORG-") ? lookupForOrganisation(request, key) :
-                        lookupObject(request, whoisObjectTypes, key);
+                return key.toUpperCase().startsWith("ORG-") ? lookupForOrganisation(request, key, requestType) :
+                        lookupObject(request, whoisObjectTypes, key, requestType);
             }
             case NAMESERVER -> {
                 throw new RdapException("501 Not Implemented", "Nameserver not supported", HttpStatus.NOT_IMPLEMENTED_501);
@@ -245,14 +245,15 @@ public class RdapService {
                 .build();
     }
 
-    private Response lookupWithRedirectUrl(final HttpServletRequest request, final Set<ObjectType> objectTypes, final String key) {
+    private Response lookupWithRedirectUrl(final HttpServletRequest request, final Set<ObjectType> objectTypes,
+                                           final String key, final RdapRequestType rdapRequestType) {
         if (isRedirect(Iterables.getOnlyElement(objectTypes), key)) {
             return redirect(getRequestPath(request), getQueryObject(objectTypes, key));
         }
-        return lookupObject(request, objectTypes, key);
+        return lookupObject(request, objectTypes, key, rdapRequestType);
     }
 
-    private Response lookupForAutNum(final HttpServletRequest request, final String key) {
+    private Response lookupForAutNum(final HttpServletRequest request, final String key, final RdapRequestType rdapRequestType) {
         try {
             if (isRedirect(AUT_NUM, key) && !rdapRequestValidator.isReservedAsNumber(key)) {
                 return redirect(getRequestPath(request), AUT_NUM, key);
@@ -261,7 +262,7 @@ public class RdapService {
             final Query query = getQueryObject(ImmutableSet.of(AUT_NUM), key);
             List<RpslObject> result = rdapQueryHandler.handleAutNumQuery(query, request);
 
-            return getResponse(request, result);
+            return getResponse(request, result, rdapRequestType);
         } catch (RdapException ex){
             throw new AutnumException(ex.getErrorTitle(), ex.getErrorDescription(), ex.getErrorCode());
         }
@@ -288,7 +289,7 @@ public class RdapService {
         }
     }
 
-    protected Response lookupForDomain(final HttpServletRequest request, final String key) {
+    protected Response lookupForDomain(final HttpServletRequest request, final String key, final RdapRequestType rdapRequestType) {
         final Domain domain = Domain.parse(key);
 
         if (isRedirectDomain(domain)) {
@@ -300,15 +301,15 @@ public class RdapService {
         final Stream<RpslObject> inetnumResult =
                 rdapQueryHandler.handleQueryStream(getQueryObject(ImmutableSet.of(INETNUM, INET6NUM), domain.getReverseIp().toString()), request);
 
-        return getDomainResponse(request, domainResult, inetnumResult);
+        return getDomainResponse(request, domainResult, inetnumResult, rdapRequestType);
     }
 
-    protected Response lookupObject(final HttpServletRequest request, final Set<ObjectType> objectTypes, final String key) {
+    protected Response lookupObject(final HttpServletRequest request, final Set<ObjectType> objectTypes, final String key, final RdapRequestType rdapRequestType) {
         final List<RpslObject> result = rdapQueryHandler.handleQueryStream(getQueryObject(objectTypes, key), request).toList();
-        return getResponse(request, result);
+        return getResponse(request, result, rdapRequestType);
     }
 
-    protected Response lookupForOrganisation(final HttpServletRequest request, final String key) {
+    protected Response lookupForOrganisation(final HttpServletRequest request, final String key, final RdapRequestType rdapRequestType) {
         final List<RpslObject> organisationResult = rdapQueryHandler.handleQueryStream(getQueryObject(Set.of(ORGANISATION), key), request).toList();
 
         final RpslObject organisation = switch (organisationResult.size()) {
@@ -333,7 +334,7 @@ public class RdapService {
             .filter(rpslObjectInfo -> rpslObjectInfo.getObjectType() == INET6NUM)
             .toList();
 
-        return getOrganisationResponse(request, organisation, autnumResult, inetnumResult, inet6numResult);
+        return getOrganisationResponse(request, organisation, autnumResult, inetnumResult, inet6numResult, rdapRequestType);
     }
 
     final Set<RpslObjectInfo> getReferences(final RpslObject organisation) {
@@ -361,7 +362,8 @@ public class RdapService {
                                              final RpslObject organisation,
                                              final List<RpslObjectInfo> autnumResult,
                                              final List<RpslObjectInfo> inetnumResult,
-                                             final List<RpslObjectInfo> inet6numResult) {
+                                             final List<RpslObjectInfo> inet6numResult,
+                                             final RdapRequestType rdapRequestType) {
         return Response.ok(
                     rdapObjectMapper.mapOrganisationEntity(
                         getRequestUrl(request),
@@ -369,13 +371,13 @@ public class RdapService {
                         autnumResult,
                         inetnumResult,
                         inet6numResult,
-                        maxEntityResultSize))
+                        maxEntityResultSize, rdapRequestType))
                 .header(CONTENT_TYPE, CONTENT_TYPE_RDAP_JSON)
                 .build();
     }
 
     private Response getDomainResponse(final HttpServletRequest request, final Stream<RpslObject> domainResult,
-                                       final Stream<RpslObject> inetnumResult) {
+                                       final Stream<RpslObject> inetnumResult, final RdapRequestType rdapRequestType) {
         final Iterator<RpslObject> domainIterator = domainResult.iterator();
         final Iterator<RpslObject> inetnumIterator = inetnumResult.iterator();
         if (!domainIterator.hasNext()) {
@@ -389,14 +391,13 @@ public class RdapService {
                     HttpStatus.INTERNAL_SERVER_ERROR_500);
         }
         return Response.ok(
-                        rdapObjectMapper.mapDomainEntity(
-                                getRequestUrl(request),
-                                domainObject, inetnumObject))
+                rdapObjectMapper.mapDomainEntity(getRequestUrl(request), domainObject, inetnumObject, rdapRequestType))
                 .header(CONTENT_TYPE, CONTENT_TYPE_RDAP_JSON)
                 .build();
     }
 
-    private Response getResponse(HttpServletRequest request, Iterable<RpslObject> result) {
+    private Response getResponse(final HttpServletRequest request, final Iterable<RpslObject> result,
+                                 final RdapRequestType rdapRequestType) {
         Iterator<RpslObject> rpslIterator = result.iterator();
 
         if (!rpslIterator.hasNext()) {
@@ -418,7 +419,7 @@ public class RdapService {
                 rdapObjectMapper.map(
                         getRequestUrl(request),
                         resultObject,
-                        abuseCFinder.getAbuseContact(resultObject).orElse(null)))
+                        abuseCFinder.getAbuseContact(resultObject).orElse(null), rdapRequestType))
                 .header(CONTENT_TYPE, CONTENT_TYPE_RDAP_JSON)
                 .build();
     }

@@ -1164,7 +1164,8 @@ public class RdapServiceTestIntegration extends AbstractRdapIntegrationTest {
                 "[fn, {}, text, Pauleth Palthen], " +
                 "[kind, {}, text, individual], " +
                 "[adr, {label=Singel 258}, text, [, , , , , , ]], " +
-                "[tel, {type=voice}, text, +31-1234567890]]"));
+                "[tel, {type=voice}, text, +31-1234567890], "+
+                "[email, {type=email}, text, noreply@ripe.net]]"));
 
         assertThat(entity.getObjectClassName(), is("entity"));
 
@@ -1254,7 +1255,8 @@ public class RdapServiceTestIntegration extends AbstractRdapIntegrationTest {
                 "[[version, {}, text, 4.0], " +
                 "[fn, {}, text, First Role], " +
                 "[kind, {}, text, group], " +
-                "[adr, {label=Singel 258}, text, [, , , , , , ]]]"));
+                "[adr, {label=Singel 258}, text, [, , , , , , ]], " +
+                "[email, {type=email}, text, dbtest@ripe.net]]"));
 
         assertThat(entity.getEntitySearchResults(), hasSize(2));
         assertThat(entity.getEntitySearchResults().get(0).getHandle(), is("OWNER-MNT"));
@@ -1839,8 +1841,7 @@ public class RdapServiceTestIntegration extends AbstractRdapIntegrationTest {
         assertThat(entities.get(0).getVCardArray().get(1).toString(), is("" +
                 "[[version, {}, text, 4.0], [fn, {}, text, irt-IRT1], " +
                 "[kind, {}, text, group], " +
-                "[adr, {label=Street 1}, text, [, , , , , , ]], " +
-                "[email, {type=email}, text, test@ripe.net]]"));
+                "[adr, {label=Street 1}, text, [, , , , , , ]]]"));
 
         assertThat(entities.get(1).getHandle(), is("OWNER-MNT"));
         assertThat(entities.get(1).getRoles(), contains(Role.REGISTRANT));
@@ -2128,6 +2129,7 @@ public class RdapServiceTestIntegration extends AbstractRdapIntegrationTest {
                 "[tel, {type=voice}, text, +31 6 12345678], " +
                 "[email, {type=abuse}, text, abuse@test.net]]"));
     }
+
 
     @Test
     public void lookup_inetnum_multiple_remarks() {
@@ -2618,7 +2620,8 @@ public class RdapServiceTestIntegration extends AbstractRdapIntegrationTest {
                 "[[version, {}, text, 4.0], " +
                 "[fn, {}, text, Organisation One], " +
                 "[kind, {}, text, org], " +
-                "[adr, {label=One Org Street}, text, [, , , , , , ]]]"));
+                "[adr, {label=One Org Street}, text, [, , , , , , ]], " +
+                "[email, {type=email}, text, test@ripe.net]]"));
 
         assertCopyrightLink(entity.getLinks(), "https://rdap.db.ripe.net/entity/ORG-ONE-TEST");
 
@@ -2844,8 +2847,7 @@ public class RdapServiceTestIntegration extends AbstractRdapIntegrationTest {
                 .request(MediaType.APPLICATION_JSON_TYPE)
                 .get(Entity.class);
 
-        assertThat(entity.getRedacted().size(), is(8));
-
+        assertThat(entity.getRedacted().size(), is(3));
 
         final Ip ip = entity.getNetworks().stream().filter(network -> network.getHandle().equals("109.111.192.0 - 109.111.223.255")).findFirst().get();
         assertPersonalRedactionForEntities(entity, ip.getEntitySearchResults(), "$.networks", "TP2-TEST", NOTIFY);
