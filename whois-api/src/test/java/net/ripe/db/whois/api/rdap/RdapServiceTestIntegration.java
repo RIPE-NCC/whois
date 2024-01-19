@@ -1164,7 +1164,7 @@ public class RdapServiceTestIntegration extends AbstractRdapIntegrationTest {
                 "[fn, {}, text, Pauleth Palthen], " +
                 "[kind, {}, text, individual], " +
                 "[adr, {label=Singel 258}, text, [, , , , , , ]], " +
-                "[tel, {type=voice}, text, +31-1234567890], "+
+                "[tel, {type=voice}, text, +31-1234567890], " +
                 "[email, {type=email}, text, noreply@ripe.net]]"));
 
         assertThat(entity.getObjectClassName(), is("entity"));
@@ -2678,7 +2678,7 @@ public class RdapServiceTestIntegration extends AbstractRdapIntegrationTest {
                 .request(MediaType.APPLICATION_JSON_TYPE)
                 .get(Entity.class);
 
-        assertPersonalRedaction(entity);
+        assertPersonalRedactionForEntities(entity, entity.getEntitySearchResults(), "$", "TP2-TEST", E_MAIL);
         assertPersonalRedactionForEntities(entity, entity.getEntitySearchResults(), "$", "TP2-TEST", NOTIFY);
 
 
@@ -2725,36 +2725,10 @@ public class RdapServiceTestIntegration extends AbstractRdapIntegrationTest {
                 .request(MediaType.APPLICATION_JSON_TYPE)
                 .get(Entity.class);
 
-        assertPersonalRedaction(entity);
-
         assertPersonalRedactionForEntities(entity, entity.getEntitySearchResults(), "$", "TP2-TEST", NOTIFY);
+        assertPersonalRedactionForEntities(entity, entity.getEntitySearchResults(), "$", "TP3-TEST", E_MAIL);
         assertPersonalRedactionForEntities(entity, entity.getEntitySearchResults(), "$", "TP3-TEST", NOTIFY);
         assertCommon(entity);
-    }
-
-    @Test
-    public void lookup_person_redactions() {
-        createEntityRedactionObjects();
-
-        databaseHelper.addObject("" +
-                "person:        Tester Person\n" +
-                "nic-hdl:       TP3-TEST\n" +
-                "address:       One Org Street\n" +
-                "e-mail:        test@ripe.net\n" +
-                "notify:       test@ripe.net\n" +
-                "notify:       test1@ripe.net\n" +
-                "mnt-by:        OWNER-MNT\n" +
-                "mnt-ref:       INCOMING-MNT\n" +
-                "mnt-ref:       INCOMING2-MNT\n" +
-                "created:         2011-07-28T00:35:42Z\n" +
-                "last-modified:   2019-02-28T10:14:46Z\n" +
-                "source:        TEST");
-
-        final Entity entity = createResource("entity/TP3-TEST")
-                .request(MediaType.APPLICATION_JSON_TYPE)
-                .get(Entity.class);
-
-        assertPersonalRedaction(entity);
     }
 
     @Test
@@ -2847,14 +2821,22 @@ public class RdapServiceTestIntegration extends AbstractRdapIntegrationTest {
                 .request(MediaType.APPLICATION_JSON_TYPE)
                 .get(Entity.class);
 
-        assertThat(entity.getRedacted().size(), is(3));
+        assertThat(entity.getRedacted().size(), is(9));
+
 
         final Ip ip = entity.getNetworks().stream().filter(network -> network.getHandle().equals("109.111.192.0 - 109.111.223.255")).findFirst().get();
+        assertPersonalRedactionForEntities(entity, ip.getEntitySearchResults(), "$.networks", "ORG-TEST1-TEST", E_MAIL);
         assertPersonalRedactionForEntities(entity, ip.getEntitySearchResults(), "$.networks", "TP2-TEST", NOTIFY);
+        assertPersonalRedactionForEntities(entity, ip.getEntitySearchResults(), "$.networks", "TP2-TEST", E_MAIL);
+        assertPersonalRedactionForEntities(entity, ip.getEntitySearchResults(), "$.networks", "TP3-TEST", E_MAIL);
         assertPersonalRedactionForEntities(entity, ip.getEntitySearchResults(), "$.networks", "TP3-TEST", NOTIFY);
 
         final Autnum autnum = entity.getAutnums().stream().filter(network -> network.getHandle().equals("AS64496")).findFirst().get();
+        assertPersonalRedactionForEntities(entity, autnum.getEntitySearchResults(), "$.autnums", "ORG-TEST1-TEST", E_MAIL);
         assertPersonalRedactionForEntities(entity, autnum.getEntitySearchResults(), "$.autnums", "TP2-TEST", NOTIFY);
+        assertPersonalRedactionForEntities(entity, autnum.getEntitySearchResults(), "$.autnums", "TP2-TEST", E_MAIL);
+
+        assertPersonalRedactionForEntities(entity, entity.getEntitySearchResults(), "$", "PP1-TEST", E_MAIL);
 
         assertCommon(entity);
     }
@@ -3223,17 +3205,6 @@ public class RdapServiceTestIntegration extends AbstractRdapIntegrationTest {
             assertThat(redactedElement, is(multipleValues.split(",")[0]));
         }
 
-    }
-
-    private void assertPersonalRedaction(final Entity entity) {
-        final String entityJson = getEntityJson(entity);
-
-        final Redaction redaction =
-                entity.getRedacted().stream().filter(redact -> redact.getPrePath() != null && redact.getPrePath().contains(NOTIFY.getName())).findAny().get();
-        final List<Object> vcards = JsonPath.read(entityJson, redaction.getPrePath());
-        assertThat(vcards.size(), is(0));
-
-        assertCommonPersonalRedaction(entity, redaction, entity, NOTIFY);
     }
 
     private void assertPersonalRedactionForEntities(final RdapObject entity, final List<Entity> entities, final String prefix, final String personKey, final AttributeType attribute) {

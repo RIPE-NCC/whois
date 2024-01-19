@@ -334,7 +334,7 @@ public class RdapService {
             .filter(rpslObjectInfo -> rpslObjectInfo.getObjectType() == INET6NUM)
             .toList();
 
-        return getOrganisationResponse(request, organisation, autnumResult, inetnumResult, inet6numResult, rdapRequestType);
+        return getOrganisationResponse(request, organisation, autnumResult, inetnumResult, inet6numResult);
     }
 
     final Set<RpslObjectInfo> getReferences(final RpslObject organisation) {
@@ -362,8 +362,7 @@ public class RdapService {
                                              final RpslObject organisation,
                                              final List<RpslObjectInfo> autnumResult,
                                              final List<RpslObjectInfo> inetnumResult,
-                                             final List<RpslObjectInfo> inet6numResult,
-                                             final RdapRequestType rdapRequestType) {
+                                             final List<RpslObjectInfo> inet6numResult) {
         return Response.ok(
                     rdapObjectMapper.mapOrganisationEntity(
                         getRequestUrl(request),
@@ -371,7 +370,7 @@ public class RdapService {
                         autnumResult,
                         inetnumResult,
                         inet6numResult,
-                        maxEntityResultSize, rdapRequestType))
+                        maxEntityResultSize))
                 .header(CONTENT_TYPE, CONTENT_TYPE_RDAP_JSON)
                 .build();
     }
@@ -391,7 +390,7 @@ public class RdapService {
                     HttpStatus.INTERNAL_SERVER_ERROR_500);
         }
         return Response.ok(
-                rdapObjectMapper.mapDomainEntity(getRequestUrl(request), domainObject, inetnumObject, rdapRequestType))
+                rdapObjectMapper.mapDomainEntity(getRequestUrl(request), domainObject, inetnumObject))
                 .header(CONTENT_TYPE, CONTENT_TYPE_RDAP_JSON)
                 .build();
     }
@@ -419,7 +418,7 @@ public class RdapService {
                 rdapObjectMapper.map(
                         getRequestUrl(request),
                         resultObject,
-                        abuseCFinder.getAbuseContact(resultObject).orElse(null), rdapRequestType))
+                        abuseCFinder.getAbuseContact(resultObject).orElse(null)))
                 .header(CONTENT_TYPE, CONTENT_TYPE_RDAP_JSON)
                 .build();
     }

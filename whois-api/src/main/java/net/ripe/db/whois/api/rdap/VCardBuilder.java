@@ -46,9 +46,8 @@ public class VCardBuilder {
         return this;
     }
 
-    public VCardBuilder addEmail(final Set<CIString> emails) {
+    public void addEmail(final Set<CIString> emails) {
         emails.forEach( email -> addProperty(EMAIL, EMAIL_MAP, TEXT, email));
-        return this;
     }
 
     public VCardBuilder addAbuseMailBox(final CIString abuseMail) {

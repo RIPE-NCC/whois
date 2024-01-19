@@ -1,10 +1,8 @@
 package net.ripe.db.whois.api.rdap;
 
-import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Sets;
 import net.ripe.db.whois.api.rdap.domain.Entity;
 import net.ripe.db.whois.api.rdap.domain.RdapObject;
-import net.ripe.db.whois.api.rdap.domain.RdapRequestType;
 import net.ripe.db.whois.api.rdap.domain.Redaction;
 import net.ripe.db.whois.common.domain.CIString;
 import net.ripe.db.whois.common.rpsl.AttributeType;
@@ -15,17 +13,11 @@ import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import static net.ripe.db.whois.api.rdap.domain.RdapRequestType.AUTNUM;
-import static net.ripe.db.whois.api.rdap.domain.RdapRequestType.DOMAIN;
-import static net.ripe.db.whois.api.rdap.domain.RdapRequestType.ENTITY;
-import static net.ripe.db.whois.api.rdap.domain.RdapRequestType.IP;
-
 public class RedactionObjectMapper {
 
-    final static Map<List<RdapRequestType>, List<AttributeType>> RDAP_VCARD_REDACTED_ATTRIBUTES = ImmutableMap.of(
-                List.of(ENTITY), List.of(AttributeType.NOTIFY),
-                List.of(IP, AUTNUM, DOMAIN), List.of(AttributeType.NOTIFY, AttributeType.E_MAIL)
-            );
+    final static List<AttributeType> RDAP_VCARD_REDACTED_ATTRIBUTES = List.of(
+            AttributeType.NOTIFY,
+            AttributeType.E_MAIL);
 
     public static void mapRedactions(final RdapObject rdapObject) {
         addRedaction(rdapObject, rdapObject.getRedactedRpslAttrs(), rdapObject.getEntitySearchResults(), "$");
