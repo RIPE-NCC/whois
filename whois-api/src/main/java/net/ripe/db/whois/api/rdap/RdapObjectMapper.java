@@ -73,7 +73,6 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import static net.ripe.db.whois.api.rdap.RdapConformance.GEO_FEED_1;
-import static net.ripe.db.whois.api.rdap.RedactionObjectMapper.RDAP_VCARD_REDACTED_ATTRIBUTES;
 import static net.ripe.db.whois.api.rdap.RedactionObjectMapper.mapRedactions;
 import static net.ripe.db.whois.api.rdap.domain.Status.ACTIVE;
 import static net.ripe.db.whois.api.rdap.domain.Status.RESERVED;
@@ -682,17 +681,13 @@ class RdapObjectMapper {
 
         if (!filtered){
             builder.addEmail(rpslObject.getValuesForAttribute(E_MAIL));
-            builder.addEmail(rpslObject.getValuesForAttribute(NOTIFY));
+            entity.getRedactedRpslAttrs().addAll(rpslObject.findAttributes(NOTIFY));
         } else {
-            mapRedactedFields(entity, rpslObject);
+            List.of(NOTIFY, E_MAIL).forEach(attributeType -> entity.getRedactedRpslAttrs()
+                    .addAll(rpslObject.findAttributes(attributeType)));
         }
 
         entity.setVCardArray(builder.build());
-    }
-
-    private static void mapRedactedFields(final Entity entity, final RpslObject rpslObject) {
-        RDAP_VCARD_REDACTED_ATTRIBUTES.forEach(attributeType -> entity.getRedactedRpslAttrs()
-                .addAll(rpslObject.findAttributes(attributeType)));
     }
 
     private static AsBlockRange getAsBlockRange(final String asBlock) {

@@ -15,10 +15,6 @@ import java.util.stream.Collectors;
 
 public class RedactionObjectMapper {
 
-    final static List<AttributeType> RDAP_VCARD_REDACTED_ATTRIBUTES = List.of(
-            AttributeType.NOTIFY,
-            AttributeType.E_MAIL);
-
     public static void mapRedactions(final RdapObject rdapObject) {
         addRedaction(rdapObject, rdapObject.getRedactedRpslAttrs(), rdapObject.getEntitySearchResults(), "$");
 
