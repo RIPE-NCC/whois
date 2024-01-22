@@ -88,7 +88,6 @@ ALTER TABLE rtr_set CONVERT TO CHARACTER SET 'utf8mb4' COLLATE 'utf8mb4_general_
 ALTER TABLE serials CONVERT TO CHARACTER SET 'utf8mb4' COLLATE 'utf8mb4_general_ci';
 ALTER TABLE sponsoring_org CONVERT TO CHARACTER SET 'utf8mb4' COLLATE 'utf8mb4_general_ci';
 ALTER TABLE status CONVERT TO CHARACTER SET 'utf8mb4' COLLATE 'utf8mb4_general_ci';
-ALTER TABLE tags CONVERT TO CHARACTER SET 'utf8mb4' COLLATE 'utf8mb4_general_ci';
 ALTER TABLE tech_c CONVERT TO CHARACTER SET 'utf8mb4' COLLATE 'utf8mb4_general_ci';
 ALTER TABLE transfer_update_lock CONVERT TO CHARACTER SET 'utf8mb4' COLLATE 'utf8mb4_general_ci';
 ALTER TABLE upd_to CONVERT TO CHARACTER SET 'utf8mb4' COLLATE 'utf8mb4_general_ci';

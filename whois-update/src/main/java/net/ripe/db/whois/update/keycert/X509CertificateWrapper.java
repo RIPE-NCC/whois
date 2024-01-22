@@ -7,7 +7,6 @@ import net.ripe.db.whois.common.DateUtil;
 import net.ripe.db.whois.common.rpsl.RpslObject;
 import net.ripe.db.whois.common.rpsl.RpslObjectFilter;
 import org.bouncycastle.jce.provider.BouncyCastleProvider;
-import org.bouncycastle.util.StreamParsingException;
 
 import java.io.ByteArrayInputStream;
 import java.nio.charset.StandardCharsets;
