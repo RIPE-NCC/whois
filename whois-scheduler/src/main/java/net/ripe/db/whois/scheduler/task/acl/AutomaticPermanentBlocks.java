@@ -1,14 +1,15 @@
 package net.ripe.db.whois.scheduler.task.acl;
 
-import net.javacrumbs.shedlock.core.SchedulerLock;
+import net.javacrumbs.shedlock.spring.annotation.SchedulerLock;
 import net.ripe.db.whois.common.DateTimeProvider;
 import net.ripe.db.whois.common.FormatHelper;
 import net.ripe.db.whois.common.domain.BlockEvents;
 import net.ripe.db.whois.common.ip.IpInterval;
 import net.ripe.db.whois.common.scheduler.DailyScheduledTask;
 import net.ripe.db.whois.query.acl.IpResourceConfiguration;
-import net.ripe.db.whois.query.dao.AccessControlListDao;
+import net.ripe.db.whois.query.dao.IpAccessControlListDao;
 import java.time.LocalDate;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,15 +24,15 @@ public class AutomaticPermanentBlocks implements DailyScheduledTask {
     private static final Logger LOGGER = LoggerFactory.getLogger(AutomaticPermanentBlocks.class);
 
     private final DateTimeProvider dateTimeProvider;
-    private final AccessControlListDao accessControlListDao;
+    private final IpAccessControlListDao ipAccessControlListDao;
     private final IpResourceConfiguration ipResourceConfiguration;
 
     @Autowired
     public AutomaticPermanentBlocks(final DateTimeProvider dateTimeProvider,
-                                    final AccessControlListDao accessControlListDao,
+                                    final IpAccessControlListDao ipAccessControlListDao,
                                     final IpResourceConfiguration ipResourceConfiguration) {
         this.dateTimeProvider = dateTimeProvider;
-        this.accessControlListDao = accessControlListDao;
+        this.ipAccessControlListDao = ipAccessControlListDao;
         this.ipResourceConfiguration = ipResourceConfiguration;
     }
 
@@ -41,7 +42,7 @@ public class AutomaticPermanentBlocks implements DailyScheduledTask {
     public void run() {
         final LocalDate now = dateTimeProvider.getCurrentDate();
         final LocalDate checkTemporaryBlockTime = now.minusDays(30);
-        final List<BlockEvents> temporaryBlocks = accessControlListDao.getTemporaryBlocks(checkTemporaryBlockTime);
+        final List<BlockEvents> temporaryBlocks = ipAccessControlListDao.getTemporaryBlocks(checkTemporaryBlockTime);
         for (final BlockEvents blockEvents : temporaryBlocks) {
             handleBlockEvents(now, blockEvents);
         }
@@ -62,7 +63,7 @@ public class AutomaticPermanentBlocks implements DailyScheduledTask {
                             blockEvents.getTemporaryBlockCount(),
                             FormatHelper.dateToString(now));
 
-                    accessControlListDao.savePermanentBlock(IpInterval.parse(prefix), now, ipResourceConfiguration.getLimit(remoteAddress), comment);
+                    ipAccessControlListDao.savePermanentBlock(IpInterval.parse(prefix), now, ipResourceConfiguration.getLimit(remoteAddress), comment);
                     LOGGER.debug("Permanent ban created for prefix: {}", prefix);
                 }
             } catch (Exception e) {

@@ -1,6 +1,6 @@
 package net.ripe.db.whois.common.sso;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.time.Month;
 import java.time.temporal.ChronoField;
@@ -12,7 +12,7 @@ public class UserSessionTest {
 
     @Test
     public void testTimestampParsingNoMillis() {
-        UserSession userSession = new UserSession("username", "displayName", true, "2019-09-19T14:51:05+02:00");
+        UserSession userSession = new UserSession("1","username", "displayName", true, "2019-09-19T14:51:05+02:00");
 
         assertThat(userSession.getExpiryDate().getYear(), is(2019));
         assertThat(userSession.getExpiryDate().getMonth(), is(Month.SEPTEMBER));
@@ -24,7 +24,7 @@ public class UserSessionTest {
 
     @Test
     public void testTimestampParsingWithMillis() {
-        UserSession userSession = new UserSession("username", "displayName", true, "2019-09-19T20:16:43.835+02:00");
+        UserSession userSession = new UserSession("2","username", "displayName", true, "2019-09-19T20:16:43.835+02:00");
 
         assertThat(userSession.getExpiryDate().getYear(), is(2019));
         assertThat(userSession.getExpiryDate().getMonth(), is(Month.SEPTEMBER));
@@ -37,7 +37,7 @@ public class UserSessionTest {
 
     @Test
     public void testTimestampParsingNoOffset() {
-        UserSession userSession = new UserSession("username", "displayName", true, "2019-09-19T20:16:43.835Z");
+        UserSession userSession = new UserSession("3","username", "displayName", true, "2019-09-19T20:16:43.835Z");
 
         assertThat(userSession.getExpiryDate().getYear(), is(2019));
         assertThat(userSession.getExpiryDate().getMonth(), is(Month.SEPTEMBER));

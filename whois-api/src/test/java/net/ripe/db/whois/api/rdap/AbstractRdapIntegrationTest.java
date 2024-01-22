@@ -1,39 +1,35 @@
 package net.ripe.db.whois.api.rdap;
 
 
+import jakarta.ws.rs.ClientErrorException;
+import jakarta.ws.rs.WebApplicationException;
+import jakarta.ws.rs.client.WebTarget;
+import jakarta.ws.rs.core.MediaType;
 import net.ripe.db.whois.api.AbstractIntegrationTest;
 import net.ripe.db.whois.api.RestTest;
 import net.ripe.db.whois.api.rdap.domain.Entity;
 import net.ripe.db.whois.api.rest.client.RestClientUtils;
-import org.junit.AfterClass;
-import org.junit.BeforeClass;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.BeforeAll;
 
-import javax.ws.rs.ClientErrorException;
-import javax.ws.rs.client.WebTarget;
-import javax.ws.rs.core.MediaType;
-
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.is;
-import static org.hamcrest.MatcherAssert.assertThat;
 
 public abstract class AbstractRdapIntegrationTest extends AbstractIntegrationTest {
 
-    @BeforeClass
+    @BeforeAll
     public static void rdapSetProperties() {
         System.setProperty("rdap.sources", "TEST-GRS");
         System.setProperty("rdap.redirect.test", "https://rdap.test.net");
         System.setProperty("rdap.public.baseUrl", "https://rdap.db.ripe.net");
-
-        // We only enable fulltext indexing here, so it doesn't slow down the rest of the test suite
-        System.setProperty("dir.fulltext.index", "var${jvmId:}/idx");
     }
 
-    @AfterClass
+    @AfterAll
     public static void rdapClearProperties() {
         System.clearProperty("rdap.sources");
         System.clearProperty("rdap.redirect.test");
         System.clearProperty("rdap.public.baseUrl");
-        System.clearProperty("dir.fulltext.index");
     }
 
     // helper methods
@@ -45,13 +41,22 @@ public abstract class AbstractRdapIntegrationTest extends AbstractIntegrationTes
     protected String syncupdate(String data) {
         WebTarget resource = RestTest.target(getPort(), String.format("whois/syncupdates/test"));
         return resource.request()
-                .post(javax.ws.rs.client.Entity.entity("DATA=" + RestClientUtils.encode(data),
+                .post(jakarta.ws.rs.client.Entity.entity("DATA=" + RestClientUtils.encode(data),
                         MediaType.APPLICATION_FORM_URLENCODED),
                         String.class);
 
     }
 
-    protected void assertErrorTitle(final ClientErrorException exception, final String title) {
+    protected void assertErrorDescription(final WebApplicationException exception, final String description) {
+        final Entity entity = exception.getResponse().readEntity(Entity.class);
+        assertThat(entity.getDescription().get(0), is(description));
+    }
+
+    protected void assertErrorDescriptionContains(final WebApplicationException exception, final String description) {
+        final Entity entity = exception.getResponse().readEntity(Entity.class);
+        assertThat(entity.getDescription().get(0), containsString(description));
+    }
+    protected void assertErrorTitle(final WebApplicationException exception, final String title) {
         final Entity entity = exception.getResponse().readEntity(Entity.class);
         assertThat(entity.getErrorTitle(), is(title));
     }
@@ -61,7 +66,7 @@ public abstract class AbstractRdapIntegrationTest extends AbstractIntegrationTes
         assertThat(entity.getErrorTitle(), containsString(title));
     }
 
-    protected void assertErrorStatus(final ClientErrorException exception, final int status) {
+    protected void assertErrorStatus(final WebApplicationException exception, final int status) {
         final Entity entity = exception.getResponse().readEntity(Entity.class);
         assertThat(entity.getErrorCode(), is(status));
     }

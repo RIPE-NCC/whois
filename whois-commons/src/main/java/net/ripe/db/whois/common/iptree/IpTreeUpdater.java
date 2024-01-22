@@ -15,8 +15,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
-import javax.annotation.PostConstruct;
-import javax.annotation.PreDestroy;
+import jakarta.annotation.PostConstruct;
+import jakarta.annotation.PreDestroy;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -50,7 +50,7 @@ public class IpTreeUpdater {
         this.sourceContext = sourceContext;
 
         sourceConfigurationForSlave = getSourceConfigurationsWithTypePreference(sourceContext, Source.Type.SLAVE);
-        LOGGER.info("Rebuild IpTress and scheduled update using sources: {}", sourceConfigurationForSlave);
+        LOGGER.info("Rebuild IpTrees and scheduled update using sources: {}", sourceConfigurationForSlave);
     }
 
     private Set<SourceConfiguration> getSourceConfigurationsWithTypePreference(final SourceContext sourceContext, final Source.Type preferredType) {

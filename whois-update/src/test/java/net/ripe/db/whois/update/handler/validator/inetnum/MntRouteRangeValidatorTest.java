@@ -2,29 +2,31 @@ package net.ripe.db.whois.update.handler.validator.inetnum;
 
 import net.ripe.db.whois.common.rpsl.AttributeType;
 import net.ripe.db.whois.common.rpsl.ObjectType;
+import net.ripe.db.whois.common.rpsl.RpslAttribute;
 import net.ripe.db.whois.common.rpsl.RpslObject;
 import net.ripe.db.whois.update.domain.Action;
 import net.ripe.db.whois.update.domain.PreparedUpdate;
 import net.ripe.db.whois.update.domain.UpdateContext;
 import net.ripe.db.whois.update.domain.UpdateMessages;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.List;
 
-import static org.hamcrest.Matchers.containsInAnyOrder;
-import static org.hamcrest.core.Is.is;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.containsInAnyOrder;
+import static org.hamcrest.Matchers.hasSize;
+import static org.hamcrest.core.Is.is;
 import static org.mockito.Mockito.any;
 import static org.mockito.Mockito.eq;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
 
-@RunWith(MockitoJUnitRunner.class)
+@ExtendWith(MockitoExtension.class)
 public class MntRouteRangeValidatorTest {
     @Mock PreparedUpdate update;
     @Mock UpdateContext updateContext;
@@ -38,7 +40,7 @@ public class MntRouteRangeValidatorTest {
 
         when(update.getUpdatedObject()).thenReturn(rpslObject);
 
-        subject.validate(update, updateContext);
+       subject.validate(update, updateContext);
 
         verifyNoMoreInteractions(updateContext);
     }
@@ -51,7 +53,7 @@ public class MntRouteRangeValidatorTest {
 
         when(update.getUpdatedObject()).thenReturn(rpslObject);
 
-        subject.validate(update, updateContext);
+       subject.validate(update, updateContext);
 
         verifyNoMoreInteractions(updateContext);
     }
@@ -65,7 +67,7 @@ public class MntRouteRangeValidatorTest {
 
         when(update.getUpdatedObject()).thenReturn(rpslObject);
 
-        subject.validate(update, updateContext);
+       subject.validate(update, updateContext);
 
         verifyNoMoreInteractions(updateContext);
     }
@@ -79,7 +81,7 @@ public class MntRouteRangeValidatorTest {
 
         when(update.getUpdatedObject()).thenReturn(rpslObject);
 
-        subject.validate(update, updateContext);
+       subject.validate(update, updateContext);
 
         verifyNoMoreInteractions(updateContext);
     }
@@ -92,7 +94,7 @@ public class MntRouteRangeValidatorTest {
 
         when(update.getUpdatedObject()).thenReturn(rpslObject);
 
-        subject.validate(update, updateContext);
+       subject.validate(update, updateContext);
 
         verifyNoMoreInteractions(updateContext);
     }
@@ -105,7 +107,7 @@ public class MntRouteRangeValidatorTest {
 
         when(update.getUpdatedObject()).thenReturn(rpslObject);
 
-        subject.validate(update, updateContext);
+       subject.validate(update, updateContext);
 
         verifyNoMoreInteractions(updateContext);
     }
@@ -118,9 +120,10 @@ public class MntRouteRangeValidatorTest {
 
         when(update.getUpdatedObject()).thenReturn(rpslObject);
 
-        subject.validate(update, updateContext);
+       subject.validate(update, updateContext);
+        final RpslAttribute mnt_routes = rpslObject.findAttribute(AttributeType.MNT_ROUTES);
 
-        verify(updateContext).addMessage(any(PreparedUpdate.class), eq(rpslObject.findAttribute(AttributeType.MNT_ROUTES)), eq(UpdateMessages.invalidIpv4Address("::/128")));
+        verify(updateContext).addMessage(any(PreparedUpdate.class), eq(mnt_routes), eq(UpdateMessages.invalidIpv4Address(mnt_routes,"::/128")));
     }
 
     @Test
@@ -131,9 +134,10 @@ public class MntRouteRangeValidatorTest {
 
         when(update.getUpdatedObject()).thenReturn(rpslObject);
 
-        subject.validate(update, updateContext);
+       subject.validate(update, updateContext);
+        final RpslAttribute mnt_routes = rpslObject.findAttribute(AttributeType.MNT_ROUTES);
 
-        verify(updateContext).addMessage(any(PreparedUpdate.class), eq(rpslObject.findAttribute(AttributeType.MNT_ROUTES)), eq(UpdateMessages.invalidIpv6Address("192.0.0.0/24")));
+        verify(updateContext).addMessage(any(PreparedUpdate.class), eq(mnt_routes), eq(UpdateMessages.invalidIpv6Address(mnt_routes,"192.0.0.0/24")));
     }
 
     @Test
@@ -144,9 +148,10 @@ public class MntRouteRangeValidatorTest {
 
         when(update.getUpdatedObject()).thenReturn(rpslObject);
 
-        subject.validate(update, updateContext);
+       subject.validate(update, updateContext);
+        final RpslAttribute mnt_routes = rpslObject.findAttribute(AttributeType.MNT_ROUTES);
 
-        verify(updateContext).addMessage(any(PreparedUpdate.class), eq(rpslObject.findAttribute(AttributeType.MNT_ROUTES)), eq(UpdateMessages.invalidRouteRange("192.0.0.0/16")));
+        verify(updateContext).addMessage(any(PreparedUpdate.class), eq(mnt_routes),  eq(UpdateMessages.invalidRouteRange(mnt_routes,"192.0.0.0/16")));
     }
 
     @Test
@@ -157,9 +162,10 @@ public class MntRouteRangeValidatorTest {
 
         when(update.getUpdatedObject()).thenReturn(rpslObject);
 
-        subject.validate(update, updateContext);
+       subject.validate(update, updateContext);
+        final RpslAttribute mnt_routes = rpslObject.findAttribute(AttributeType.MNT_ROUTES);
 
-        verify(updateContext).addMessage(any(PreparedUpdate.class), eq(rpslObject.findAttribute(AttributeType.MNT_ROUTES)), eq(UpdateMessages.invalidRouteRange("2a00:c00::/16")));
+        verify(updateContext).addMessage(any(PreparedUpdate.class), eq(mnt_routes), eq(UpdateMessages.invalidRouteRange(mnt_routes,"2a00:c00::/16")));
     }
 
     @Test
@@ -170,10 +176,13 @@ public class MntRouteRangeValidatorTest {
 
         when(update.getUpdatedObject()).thenReturn(rpslObject);
 
-        subject.validate(update, updateContext);
+       subject.validate(update, updateContext);
 
-        verify(updateContext).addMessage(any(PreparedUpdate.class), eq(rpslObject.findAttribute(AttributeType.MNT_ROUTES)), eq(UpdateMessages.invalidRouteRange("192.0.0.0/16")));
-        verify(updateContext).addMessage(any(PreparedUpdate.class), eq(rpslObject.findAttribute(AttributeType.MNT_ROUTES)), eq(UpdateMessages.invalidRouteRange("192.0.0.0/8")));
+        final RpslAttribute mnt_routes = rpslObject.findAttribute(AttributeType.MNT_ROUTES);
+
+
+        verify(updateContext).addMessage(any(PreparedUpdate.class), eq(mnt_routes), eq(UpdateMessages.invalidRouteRange(mnt_routes,"192.0.0.0/16")));
+        verify(updateContext).addMessage(any(PreparedUpdate.class),eq(mnt_routes), eq(UpdateMessages.invalidRouteRange(mnt_routes,"192.0.0.0/8")));
     }
 
     @Test
@@ -184,10 +193,12 @@ public class MntRouteRangeValidatorTest {
 
         when(update.getUpdatedObject()).thenReturn(rpslObject);
 
-        subject.validate(update, updateContext);
+       subject.validate(update, updateContext);
 
-        verify(updateContext).addMessage(any(PreparedUpdate.class), eq(rpslObject.findAttribute(AttributeType.MNT_ROUTES)), eq(UpdateMessages.invalidRouteRange("2a00:c00::/24")));
-        verify(updateContext).addMessage(any(PreparedUpdate.class), eq(rpslObject.findAttribute(AttributeType.MNT_ROUTES)), eq(UpdateMessages.invalidRouteRange("2a00:c00::/16")));
+        final RpslAttribute mnt_routes = rpslObject.findAttribute(AttributeType.MNT_ROUTES);
+
+        verify(updateContext).addMessage(any(PreparedUpdate.class), eq(mnt_routes), eq(UpdateMessages.invalidRouteRange(mnt_routes,"2a00:c00::/24")));
+        verify(updateContext).addMessage(any(PreparedUpdate.class), eq(mnt_routes), eq(UpdateMessages.invalidRouteRange(mnt_routes,"2a00:c00::/16")));
     }
 
     @Test
@@ -201,7 +212,7 @@ public class MntRouteRangeValidatorTest {
     public void supports_actions_create_modify() {
         final List<Action> actions = subject.getActions();
 
-        assertThat(actions.size(), is(2));
+        assertThat(actions, hasSize(2));
         assertThat(actions.contains(Action.CREATE), is(true));
         assertThat(actions.contains(Action.MODIFY), is(true));
     }

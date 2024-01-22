@@ -13,11 +13,12 @@ import net.ripe.db.whois.common.rpsl.RpslObject;
 import net.ripe.db.whois.update.domain.PreparedUpdate;
 import net.ripe.db.whois.update.domain.UpdateContext;
 import net.ripe.db.whois.update.domain.UpdateMessages;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Test;
+
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.Collections;
 
@@ -25,7 +26,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
 
-@RunWith(MockitoJUnitRunner.class)
+@ExtendWith(MockitoExtension.class)
 public class AbuseCDuplicateValidatorTest {
 
 
@@ -46,7 +47,7 @@ public class AbuseCDuplicateValidatorTest {
     public void no_abuse_c() {
         when(update.getUpdatedObject()).thenReturn(RpslObject.parse("inetnum: 192.168.0.0 - 192.168.255.255\nsource: TEST"));
 
-        subject.validate(update, updateContext);
+       subject.validate(update, updateContext);
 
         verifyNoMoreInteractions(updateContext);
     }
@@ -56,7 +57,7 @@ public class AbuseCDuplicateValidatorTest {
     public void has_abuse_c_but_no_org() {
         when(update.getUpdatedObject()).thenReturn(RpslObject.parse("inetnum: 192.168.0.0 - 192.168.255.255\nabuse-c: AA1-TEST\nsource: TEST"));
 
-        subject.validate(update, updateContext);
+       subject.validate(update, updateContext);
 
         verifyNoMoreInteractions(updateContext);
     }
@@ -76,7 +77,7 @@ public class AbuseCDuplicateValidatorTest {
                 "abuse-c: AA1-TEST\n" +
                 "source: TEST"));
 
-        subject.validate(update, updateContext);
+       subject.validate(update, updateContext);
 
         verify(updateContext).addMessage(update, UpdateMessages.duplicateAbuseC(CIString.ciString("AA1-TEST"), CIString.ciString("ORG-AA1-TEST")));
         verifyNoMoreInteractions(updateContext);
@@ -92,7 +93,7 @@ public class AbuseCDuplicateValidatorTest {
                 "abuse-c: BB1-TEST\n" +
                 "source: TEST"));
 
-        subject.validate(update, updateContext);
+       subject.validate(update, updateContext);
 
         verifyNoMoreInteractions(updateContext);
     }
@@ -112,7 +113,7 @@ public class AbuseCDuplicateValidatorTest {
                 "abuse-c: AA1-TEST\n" +
                 "source: TEST"));
 
-        subject.validate(update, updateContext);
+       subject.validate(update, updateContext);
 
         verify(updateContext).addMessage(update, UpdateMessages.duplicateAbuseC(CIString.ciString("AA1-TEST"), CIString.ciString("ORG-AA1-TEST")));
         verifyNoMoreInteractions(updateContext);
@@ -133,7 +134,7 @@ public class AbuseCDuplicateValidatorTest {
                 "abuse-c: AA1-TEST\n" +
                 "source: TEST"));
 
-        subject.validate(update, updateContext);
+       subject.validate(update, updateContext);
 
         verify(updateContext).addMessage(update, UpdateMessages.duplicateAbuseC(CIString.ciString("AA1-TEST"), CIString.ciString("ORG-AA1-TEST")));
         verifyNoMoreInteractions(updateContext);
@@ -161,7 +162,7 @@ public class AbuseCDuplicateValidatorTest {
                 "abuse-c: AA1-TEST\n" +
                 "source: TEST"));
 
-        subject.validate(update, updateContext);
+       subject.validate(update, updateContext);
 
         verify(updateContext).addMessage(update, UpdateMessages.duplicateAbuseC(CIString.ciString("AA1-TEST"), CIString.ciString("ORG-AA1-TEST")));
         verifyNoMoreInteractions(updateContext);
@@ -189,7 +190,7 @@ public class AbuseCDuplicateValidatorTest {
                 "abuse-c: AA1-TEST\n" +
                 "source: TEST"));
 
-        subject.validate(update, updateContext);
+       subject.validate(update, updateContext);
 
         verify(updateContext).addMessage(update, UpdateMessages.duplicateAbuseC(CIString.ciString("AA1-TEST"), CIString.ciString("ORG-AA1-TEST")));
         verifyNoMoreInteractions(updateContext);

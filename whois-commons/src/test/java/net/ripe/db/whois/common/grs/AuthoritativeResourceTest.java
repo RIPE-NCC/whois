@@ -2,39 +2,43 @@ package net.ripe.db.whois.common.grs;
 
 import net.ripe.db.whois.common.rpsl.ObjectType;
 import net.ripe.db.whois.common.rpsl.RpslObject;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.TemporaryFolder;
-import org.junit.runner.RunWith;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.jupiter.api.io.TempDir;
+import org.mockito.junit.jupiter.MockitoExtension;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.Resource;
 
+import java.io.File;
 import java.io.IOException;
 import java.util.Scanner;
 import java.util.zip.GZIPInputStream;
 
 import static net.ripe.db.whois.common.domain.CIString.ciString;
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.Matchers.containsInAnyOrder;
 import static org.hamcrest.Matchers.is;
-import static org.hamcrest.MatcherAssert.assertThat;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
-@RunWith(MockitoJUnitRunner.class)
+@ExtendWith(MockitoExtension.class)
 public class AuthoritativeResourceTest {
     Logger logger = LoggerFactory.getLogger(AuthoritativeResourceTest.class);
-    @Rule public TemporaryFolder folder = new TemporaryFolder();
+    @TempDir
+    public File folder;
 
-    @Test(expected = IllegalArgumentException.class)
-    public void unknown_file() throws IOException {
-        AuthoritativeResource.loadFromFile(logger, "unknown", folder.getRoot().toPath().resolve("unknown"));
+    @Test
+    public void unknown_file() {
+        assertThrows(IllegalArgumentException.class, () -> {
+            AuthoritativeResource.loadFromFile(logger, "unknown", folder.toPath().resolve("unknown"));
+        });
     }
 
     @Test
-    public void empty_file() throws IOException {
-        final AuthoritativeResource resourceData = AuthoritativeResource.loadFromFile(logger, "RIPE-GRS", folder.newFile().toPath());
+    public void empty_file() {
+        final AuthoritativeResource resourceData = AuthoritativeResource.loadFromFile(logger, "RIPE-GRS", folder.toPath());
         assertThat(resourceData.getNrAutNums(), is(0));
         assertThat(resourceData.getNrInetnums(), is(0));
         assertThat(resourceData.getNrInet6nums(), is(0));

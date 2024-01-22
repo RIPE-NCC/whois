@@ -1,6 +1,8 @@
 package net.ripe.db.whois.common.rpsl;
 
 import com.google.common.collect.ImmutableSet;
+import jakarta.mail.internet.AddressException;
+import jakarta.mail.internet.InternetAddress;
 import net.ripe.db.whois.common.ip.Ipv4Resource;
 import net.ripe.db.whois.common.ip.Ipv6Resource;
 import net.ripe.db.whois.common.rpsl.attrs.AddressPrefixRange;
@@ -16,8 +18,6 @@ import net.ripe.db.whois.common.rpsl.attrs.NServer;
 import net.ripe.db.whois.common.rpsl.attrs.SetObject;
 import org.apache.commons.lang.StringUtils;
 
-import javax.mail.internet.AddressException;
-import javax.mail.internet.InternetAddress;
 import java.nio.charset.StandardCharsets;
 import java.util.Set;
 import java.util.regex.Pattern;

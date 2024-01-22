@@ -1,11 +1,144 @@
 # next
 
+# 1.109.1
+
+[rdap] Organisation RDAP Object is Assumed to be an IP on Country Attribute (#1362)
+
+# 1.109
+
+[rdap] Rdap redaction (#1317)
+[rdap] Removed organisation "e-mail" from RDAP and added to redactions (#1333)
+[update] Removed geofeed prefix validation (#1326)
+[api] Added HTTPS Support to Whois Backend (#1329)
+[api] Support HTTP Basic authentication (#1342)
+[api] Support HTTPS Client Certificate Authentication (#1343)
+[nrtm] Initialize nrtm from command-line (JMX) (#1310)
+[nrtm] Use parallel stream to generate NRTMv4 snapshots (#1309)
+[all] Include AS-SET in NONAUTH dump (#1352)
+
+# 1.108
+
+[nrtm] Use base64 instead of Hex (#1302)
+[nrtm] JSON Text Sequences (#1304)
+[rdap] Add multi mnt-by error (#1301)
+[rdap] Add remarks (#1278)
+[update] Warn when http (#1292)
+[api] Remove Lucene support (#1285)
+[api] Elasticsearch do not rebuild from scratch (#1294)
+[api] Elasticsearch use phrase without prefix due to bug (#1298)
+[api] Elasticsearch scape colons (#1299)
+[all] Jakarta / EE9 (#744)
+
+# 1.107
+
+[nrtm] NWI-14 add mnt-ref to additional object types (#1243)
+[nrtm] Sign NRTMv4 notifications (#1241)
+[nrtm] Separate job for NRTMv4 snapshot file (#1219)
+[api] Truncate long fields while indexing in Elasticsearch (#1236)
+[api] Elasticsearch filters inconsistence (#1231)
+[rdap] Limit resource lookups in RDAP organisation entity requests (#1220)
+[update] Allow any characters in local part of SSO auth email addresses (#1237)
+[update] LIR country attribute bug
+[all] Include country: in Organisation Split File (#1251)
+
+# 1.106.1
+
+[nrtm] NWI-12 NRTMv4 changes 
+[update] Updated Zonemaster client to match API Changes (#1206, #1207)
+[update] Add all warnings to update with override response (#1189)
+[rdap] Handle expected servlet exceptions in RDAP exception mapper (#1193)
+[rdap] Redirect Inverse Domain queries to the Authoritative Source (#1213)
+[api] Fix hightlight issue with dot in Elasticsearch (#1194)
+[api] UnmappedType warning for Elasticsearch (#1191)
+[all] Updated dependencies
+
+# 1.106
+
+[update] NWI-19 Implement AS_SET NONAUTH (#1169)
+[rdap] Implement "networks" and "autnums" elements in RDAP entity response (#1103)
+[rdap] Flat model, don't return as-block (#1125)
+[rdap] Refactor rdap errors (#1124)
+[rdap] Events and notices (#1112)
+[nrtm] NRTMv4 changes (#1166, #1156)
+[nrtm] initialise the nrtmv4 database (#1099)
+[all] Improve AS-SET documentation (#1147)
+
+# 1.105
+
+[update] NWI-19: Change to AS-SET object naming rules
+
+# 1.104
+
+[api] Allow Grouping (-G) flag in Whois Search API (#1077)
+[rdap] cidr0 notation for rdap response (#1068)
+[query] Remove whois tags (#1059)
+[api] Added text/plain to Search and REST APIs (#1054)
+[update] Add comment not NOOP (#1052)
+[update] Do not allow comments in managed attributes (#1045)
+[all] Use documentation prefix 192.0.2.0/24 (#1044)
+[update] Organisation country: is modifiable for end-user orgs without RIPE NCC resources (#1041)
+[api] Do not return deleted versions (#1015)
+[api] Redirect empty requests to syncupdates help (#1011)
+
+# 1.103
+
+[update] Fixed "goefeed:" validation when reading object containing multiple remarks: attributes (#975)
+[all] Removed WHITEPAGES org type. (#1003)
+[update] Better Error Message when Changing "mnt-by:" on Allocations (#988)
+[update] Allow user "mnt-by:" when creating inet6num allocations (already allowed for inetnums) (#982)
+[update] Disallow weak keys and hash algorithms (#642, #974)
+[update] Abuse-c is Required for End User Organisations With Resources (#955, #969)
+[update] Domain overlap validator (#956)
+[api] Increase HTTP idle timeout from 30s to 60s (#998)
+[grs] Lacnic GRS import was incorrectly treated as UTF-8 (should have been latin-1). (#958)
+[update] Updated Zonemaster client to match API Changes (#1005)
+[query] Implemented Elasticsearch (#944, #989, #993, #997)
+[all] Updated dependencies
+
+# 1.102.2
+
+[all] Update log4j to 2.17.0 from 2.15.0 (#965)
+
+# 1.102.1
+
+[all] Update log4j to 2.15.0 to address CVE-2021-44228 (#959)
+
+# 1.102
+
+[all] NWI-13: Added support for the "geofeed:" attribute (#937)
+[Update] Support base64 encoded signed update messages (sent by Thunderbird 78+) (#942)
+[all] Updated "geoloc:" help text (#929)
+[api] Log client IP correctly in HTTP request log (#908)
+[api] Filter passwords in HTTP request log (#919)
+[update] Support IDN in outgoing mail update notifications (#888)
+[all] Added graceful shutdown to healthcheck (#896)
+[grs] Fixed APNIC GRS mirror HTTPS download (#871)
+[all] Removed AWS-specific changes
+[all] Require UTC timezone at startup (#857)
+[all] Updated dependencies
+
+# 1.101
+
+[all] Switch RIPE database to UTC timezone
+[nrtm] Display an error on NRTM if client is blocked by ACL limit (#812)
+[api] Added rewrite rules to embedded Jetty (#801)
+[rdap] RDAP nameserver queries always return Not Implemented (#811)
+[update] Don't use sso as reply-to when override was used. (#818)
+[all] Updated dependencies
+
+# 1.100
+
+[query] Use AWS instance name (#781)
+[update] Use status index during validation (#725)
+[api] Fixed aut-num attribute managed flag (#749)
+[api] Added client flag to API for proxying requests (#728)
 [all] Java 11 support (#673)
 [rdap] nameserver not implemented (#711)
 [update] Delete object bug (#723)
 [all] Removed Travis integration (#724)
 [all] Updated dependencies
 [all] Merged AWS profile (#721)
+[update] Separate email address and leading/trailing space during Punycode conversion (#782)
 
 # 1.99
 

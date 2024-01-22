@@ -1,11 +1,11 @@
 package net.ripe.db.whois.spec.update
-import net.ripe.db.whois.common.IntegrationTest
+
 import net.ripe.db.whois.spec.BaseQueryUpdateSpec
 import net.ripe.db.whois.spec.domain.AckResponse
 import net.ripe.db.whois.spec.domain.Message
 import net.ripe.db.whois.spec.domain.SyncUpdate
 
-@org.junit.experimental.categories.Category(IntegrationTest.class)
+@org.junit.jupiter.api.Tag("IntegrationTest")
 class NotificationSpec extends BaseQueryUpdateSpec {
 
     @Override
@@ -577,7 +577,7 @@ class NotificationSpec extends BaseQueryUpdateSpec {
                 source:      TEST
 
                 password:     owner4
-            """.stripIndent())
+            """.stripIndent(true))
 
       then:
         def ack = ackFor message
@@ -643,7 +643,7 @@ class NotificationSpec extends BaseQueryUpdateSpec {
                 source:      TEST
 
                 password:     null
-            """.stripIndent())
+            """.stripIndent(true))
 
       then:
         def ack = ackFor message
@@ -704,7 +704,7 @@ class NotificationSpec extends BaseQueryUpdateSpec {
 
                 password: owner
                 password: owner3
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -754,7 +754,7 @@ class NotificationSpec extends BaseQueryUpdateSpec {
 
                 password: owner
                 password: owner3
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -802,7 +802,7 @@ class NotificationSpec extends BaseQueryUpdateSpec {
                 source:  TEST
 
                 password: owner
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -852,7 +852,7 @@ class NotificationSpec extends BaseQueryUpdateSpec {
                 source:  TEST
 
                 password: owner
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -898,7 +898,7 @@ class NotificationSpec extends BaseQueryUpdateSpec {
                 delete: get rid
 
                 password: owner
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -949,7 +949,7 @@ class NotificationSpec extends BaseQueryUpdateSpec {
                     delete: get rid
 
                     password: test3
-                    """.stripIndent()
+                    """.stripIndent(true)
             )
 
         then:
@@ -1000,7 +1000,7 @@ class NotificationSpec extends BaseQueryUpdateSpec {
 
                     password: test3
                     password: irt
-                    """.stripIndent()
+                    """.stripIndent(true)
         )
 
         then:
@@ -1052,7 +1052,7 @@ class NotificationSpec extends BaseQueryUpdateSpec {
                     source:       TEST
 
                     password: test3
-                    """.stripIndent()
+                    """.stripIndent(true)
         )
 
         then:
@@ -1101,7 +1101,7 @@ class NotificationSpec extends BaseQueryUpdateSpec {
                     source:       TEST
 
                     password: test3
-                    """.stripIndent()
+                    """.stripIndent(true)
         )
 
         then:
@@ -1134,7 +1134,7 @@ class NotificationSpec extends BaseQueryUpdateSpec {
                     mnt-by:       RIPE-NCC-HM-MNT
                     mnt-by:       TST-MNT3
                     source:       TEST
-            """.stripIndent())
+            """.stripIndent(true))
             syncUpdate(getTransient("IRT_TEST_NOTIFY") + "password: test3\npassword: irt")
             queryObject("-r -T irt irt-test-notify", "irt", "irt-test-notify")
 
@@ -1156,7 +1156,7 @@ class NotificationSpec extends BaseQueryUpdateSpec {
                     password: test3
                     password: irt
                     password: hm
-                    """.stripIndent()
+                    """.stripIndent(true)
         )
 
         then:
@@ -1202,7 +1202,7 @@ class NotificationSpec extends BaseQueryUpdateSpec {
                 source:       TEST
 
                 password: lir
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:
@@ -1260,7 +1260,7 @@ class NotificationSpec extends BaseQueryUpdateSpec {
                 source:       TEST
 
                 password: lir
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:
@@ -1300,7 +1300,7 @@ class NotificationSpec extends BaseQueryUpdateSpec {
                 source:       TEST
                 password: hm
 
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:
@@ -1357,7 +1357,7 @@ class NotificationSpec extends BaseQueryUpdateSpec {
                 delete:   testing notifications
                 password: hm
 
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:
@@ -1412,7 +1412,7 @@ class NotificationSpec extends BaseQueryUpdateSpec {
                 source:       TEST
                 password: hm
 
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:
@@ -1467,7 +1467,7 @@ class NotificationSpec extends BaseQueryUpdateSpec {
                 source:       TEST
 
                 password: lir
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:
@@ -1525,7 +1525,7 @@ class NotificationSpec extends BaseQueryUpdateSpec {
                 delete:   testing notifications
                 password: hm
 
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:
@@ -1581,7 +1581,7 @@ class NotificationSpec extends BaseQueryUpdateSpec {
                 source:       TEST
 
                 password: false
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:
@@ -1640,7 +1640,7 @@ class NotificationSpec extends BaseQueryUpdateSpec {
                 source:      TEST
                 password: null
 
-                """.stripIndent(), redirect: false)
+                """.stripIndent(true), redirect: false)
         )
 
         then:

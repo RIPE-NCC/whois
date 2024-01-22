@@ -2,29 +2,28 @@ package net.ripe.db.whois.api.rest;
 
 import net.ripe.db.whois.api.AbstractIntegrationTest;
 import net.ripe.db.whois.api.RestTest;
-import net.ripe.db.whois.common.IntegrationTest;
 import net.ripe.db.whois.common.iptree.IpTreeUpdater;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.experimental.categories.Category;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Tag;
+import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
-import javax.ws.rs.BadRequestException;
-import javax.ws.rs.NotFoundException;
-import javax.ws.rs.core.MediaType;
+import jakarta.ws.rs.BadRequestException;
+import jakarta.ws.rs.NotFoundException;
+import jakarta.ws.rs.core.MediaType;
 
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.not;
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.junit.Assert.fail;
+import static org.junit.jupiter.api.Assertions.fail;
 
-@Category(IntegrationTest.class)
+@Tag("IntegrationTest")
 public class GeolocationTestIntegration extends AbstractIntegrationTest {
 
     @Autowired
     private IpTreeUpdater ipTreeUpdater;
 
-    @Before
+    @BeforeEach
     public void setup() {
         databaseHelper.addObject(
                 "mntner:        OWNER-MNT\n" +
@@ -83,7 +82,7 @@ public class GeolocationTestIntegration extends AbstractIntegrationTest {
         assertThat(response, containsString("<geolocation-attributes>"));
         assertThat(response, containsString("<location value=\"52.375599 4.899902\">"));
         assertThat(response, containsString("<link xlink:type=\"locator\" xlink:href=\"http://rest.db.ripe.net/lookup/test/inetnum/10.0.0.0 - 10.255.255.255\"/>"));
-        assertThat(response, containsString("<terms-and-conditions xlink:type=\"locator\" xlink:href=\"http://www.ripe.net/db/support/db-terms-conditions.pdf\"/>"));
+        assertThat(response, containsString("<terms-and-conditions xlink:type=\"locator\" xlink:href=\"https://apps.db.ripe.net/docs/HTML-Terms-And-Conditions\"/>"));
     }
 
     @Test
@@ -112,7 +111,7 @@ public class GeolocationTestIntegration extends AbstractIntegrationTest {
         assertThat(response, containsString("<location value=\"52.375599 4.899902\">"));
         assertThat(response, containsString("<language value=\"EN\">"));
         assertThat(response, containsString("<link xlink:type=\"locator\" xlink:href=\"http://rest.db.ripe.net/lookup/test/inetnum/10.0.0.0 - 10.255.255.255\"/>"));
-        assertThat(response, containsString("<terms-and-conditions xlink:type=\"locator\" xlink:href=\"http://www.ripe.net/db/support/db-terms-conditions.pdf\"/>"));
+        assertThat(response, containsString("<terms-and-conditions xlink:type=\"locator\" xlink:href=\"https://apps.db.ripe.net/docs/HTML-Terms-And-Conditions\"/>"));
     }
 
     @Test

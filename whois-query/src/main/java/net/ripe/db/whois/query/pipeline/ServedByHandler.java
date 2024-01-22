@@ -1,11 +1,11 @@
 package net.ripe.db.whois.query.pipeline;
 
+import io.netty.channel.ChannelHandlerContext;
+import io.netty.channel.ChannelOutboundHandlerAdapter;
+import io.netty.channel.ChannelPromise;
 import net.ripe.db.whois.query.QueryMessages;
-import org.jboss.netty.channel.ChannelDownstreamHandler;
-import org.jboss.netty.channel.ChannelEvent;
-import org.jboss.netty.channel.ChannelHandlerContext;
 
-public class ServedByHandler implements ChannelDownstreamHandler {
+public class ServedByHandler extends ChannelOutboundHandlerAdapter {
     private final String version;
 
     public ServedByHandler(final String version) {
@@ -13,11 +13,11 @@ public class ServedByHandler implements ChannelDownstreamHandler {
     }
 
     @Override
-    public void handleDownstream(final ChannelHandlerContext ctx, final ChannelEvent e) {
-        if (e instanceof QueryCompletedEvent) {
-            e.getChannel().write(QueryMessages.servedByNotice(version));
+    public void write(final ChannelHandlerContext ctx, Object msg, ChannelPromise promise) {
+        if (msg instanceof QueryCompletedEvent) {
+            ctx.channel().write(QueryMessages.servedByNotice(version));
         }
 
-        ctx.sendDownstream(e);
+        ctx.writeAndFlush(msg);
     }
 }

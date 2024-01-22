@@ -1,10 +1,10 @@
 package net.ripe.db.whois.spec.update
 
-import net.ripe.db.whois.common.IntegrationTest
+
 import net.ripe.db.whois.spec.BaseQueryUpdateSpec
 import net.ripe.db.whois.spec.domain.Message
 
-@org.junit.experimental.categories.Category(IntegrationTest.class)
+@org.junit.jupiter.api.Tag("IntegrationTest")
 class PersonSpec extends BaseQueryUpdateSpec  {
 
     @Override
@@ -87,7 +87,7 @@ class PersonSpec extends BaseQueryUpdateSpec  {
                 delete:  testing
 
                 password: owner
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -156,7 +156,7 @@ class PersonSpec extends BaseQueryUpdateSpec  {
                 delete:  testing
 
                 password: owner
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -313,7 +313,7 @@ class PersonSpec extends BaseQueryUpdateSpec  {
                 source:  TEST
 
                 password: owner
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -353,7 +353,7 @@ class PersonSpec extends BaseQueryUpdateSpec  {
                 source:  TEST
 
                 password: owner
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -389,7 +389,7 @@ class PersonSpec extends BaseQueryUpdateSpec  {
                 nic-hdl: FP1-TEST
                 mnt-by:  OWNER-MNT
                 source:  TEST
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -431,7 +431,7 @@ class PersonSpec extends BaseQueryUpdateSpec  {
                 source:  TEST
 
                 password: owner
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -471,7 +471,7 @@ class PersonSpec extends BaseQueryUpdateSpec  {
                 source:  TEST
 
                 password: owner
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -509,7 +509,7 @@ class PersonSpec extends BaseQueryUpdateSpec  {
                 source:  TEST
 
                 password: owner
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:
@@ -544,7 +544,7 @@ class PersonSpec extends BaseQueryUpdateSpec  {
                 source:  TEST
 
                 password: owner
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -581,7 +581,7 @@ class PersonSpec extends BaseQueryUpdateSpec  {
                 source:  TEST
 
                 password: owner
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -618,7 +618,7 @@ class PersonSpec extends BaseQueryUpdateSpec  {
                 source:  TEST
 
                 password: owner
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -655,7 +655,7 @@ class PersonSpec extends BaseQueryUpdateSpec  {
                 source:  TEST
 
                 password: owner
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -692,7 +692,7 @@ class PersonSpec extends BaseQueryUpdateSpec  {
                 source:  TEST
 
                 password: owner
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -729,7 +729,7 @@ class PersonSpec extends BaseQueryUpdateSpec  {
                 source:  TEST
 
                 password: owner
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -766,7 +766,7 @@ class PersonSpec extends BaseQueryUpdateSpec  {
                 source:  TEST
 
                 password: owner
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -801,7 +801,7 @@ class PersonSpec extends BaseQueryUpdateSpec  {
                 source:  TEST
 
                 password: owner
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -836,7 +836,7 @@ class PersonSpec extends BaseQueryUpdateSpec  {
                 source:  TEST
 
                 password: owner
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -871,7 +871,7 @@ class PersonSpec extends BaseQueryUpdateSpec  {
                 source:  TEST
 
                 password: owner
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -908,7 +908,7 @@ class PersonSpec extends BaseQueryUpdateSpec  {
                 source:  TEST
 
                 password: owner
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -945,7 +945,7 @@ class PersonSpec extends BaseQueryUpdateSpec  {
                 source:  TEST
 
                 password: owner
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -987,7 +987,7 @@ class PersonSpec extends BaseQueryUpdateSpec  {
                 source:  TEST
 
                 password: owner
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -1024,7 +1024,7 @@ class PersonSpec extends BaseQueryUpdateSpec  {
                 source:  TEST
 
                 password: owner
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -1072,7 +1072,7 @@ class PersonSpec extends BaseQueryUpdateSpec  {
                 source:  TEST
 
                 password: owner
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -1115,7 +1115,7 @@ class PersonSpec extends BaseQueryUpdateSpec  {
 
                 password: owner
                 password: owner3
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -1172,7 +1172,7 @@ class PersonSpec extends BaseQueryUpdateSpec  {
 
                 password: owner
                 password: owner3
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -1229,7 +1229,7 @@ class PersonSpec extends BaseQueryUpdateSpec  {
                 source:  TEST
 
                 password: owner
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -1267,7 +1267,7 @@ class PersonSpec extends BaseQueryUpdateSpec  {
                 source:  TEST
 
                 password: owner
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -1304,7 +1304,7 @@ class PersonSpec extends BaseQueryUpdateSpec  {
                 source:  TEST
 
                 password: owner
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -1341,7 +1341,7 @@ class PersonSpec extends BaseQueryUpdateSpec  {
                 source:  TEST
 
                 password: owner
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -1375,7 +1375,7 @@ class PersonSpec extends BaseQueryUpdateSpec  {
                 source:  TEST
 
                 password: owner
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -1410,7 +1410,7 @@ class PersonSpec extends BaseQueryUpdateSpec  {
                 source:  TEST
 
                 password: owner
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -1449,7 +1449,7 @@ class PersonSpec extends BaseQueryUpdateSpec  {
                 source:  TEST
 
                 password: test
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -1488,7 +1488,7 @@ class PersonSpec extends BaseQueryUpdateSpec  {
                 source:  TEST
                 password: owner
 
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:
@@ -1516,7 +1516,7 @@ class PersonSpec extends BaseQueryUpdateSpec  {
                 source:  TEST
                 password: owner
 
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:
@@ -1561,7 +1561,7 @@ class PersonSpec extends BaseQueryUpdateSpec  {
                 source:  TEST
 
                 password: owner
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:
@@ -1606,7 +1606,7 @@ class PersonSpec extends BaseQueryUpdateSpec  {
                 source:  TEST
 
                 password: owner
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:

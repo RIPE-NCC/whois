@@ -2,6 +2,7 @@ package net.ripe.db.whois.update.handler.validator.maintainer;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Sets;
+import net.ripe.db.whois.common.Message;
 import net.ripe.db.whois.common.domain.CIString;
 import net.ripe.db.whois.common.domain.Maintainers;
 import net.ripe.db.whois.common.rpsl.ObjectType;
@@ -15,6 +16,9 @@ import net.ripe.db.whois.update.handler.validator.BusinessRuleValidator;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
 import java.util.Set;
 
 @Component
@@ -35,16 +39,18 @@ public class CreateRipeNccMaintainerValidator implements BusinessRuleValidator {
     }
 
     @Override
-    public void validate(final PreparedUpdate update, final UpdateContext updateContext) {
+    public List<Message> performValidation(final PreparedUpdate update, final UpdateContext updateContext) {
         if (updateContext.getSubject(update).hasPrincipal(Principal.OVERRIDE_MAINTAINER)) {
-            return;
+            return Collections.emptyList();
         }
 
         final RpslObject updatedObject = update.getUpdatedObject();
 
         if (ripeMaintainers.contains(updatedObject.getKey())) {
-            updateContext.addMessage(update, UpdateMessages.creatingRipeMaintainerForbidden());
+            return Arrays.asList(UpdateMessages.creatingRipeMaintainerForbidden());
         }
+
+        return Collections.emptyList();
     }
 
     @Override

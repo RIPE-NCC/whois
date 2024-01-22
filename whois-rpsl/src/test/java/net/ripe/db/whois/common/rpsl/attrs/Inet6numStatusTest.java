@@ -2,7 +2,7 @@ package net.ripe.db.whois.common.rpsl.attrs;
 
 
 import net.ripe.db.whois.common.domain.CIString;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import static net.ripe.db.whois.common.rpsl.attrs.Inet6numStatus.AGGREGATED_BY_LIR;
 import static net.ripe.db.whois.common.rpsl.attrs.Inet6numStatus.ALLOCATED_BY_LIR;
@@ -16,11 +16,10 @@ import static net.ripe.db.whois.common.rpsl.attrs.OrgType.LIR;
 import static net.ripe.db.whois.common.rpsl.attrs.OrgType.NIR;
 import static net.ripe.db.whois.common.rpsl.attrs.OrgType.OTHER;
 import static net.ripe.db.whois.common.rpsl.attrs.OrgType.RIR;
-import static net.ripe.db.whois.common.rpsl.attrs.OrgType.WHITEPAGES;
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.containsInAnyOrder;
 import static org.hamcrest.core.Is.is;
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.junit.Assert.fail;
+import static org.junit.jupiter.api.Assertions.fail;
 
 public class Inet6numStatusTest {
     private final boolean HAS_RS_MAINTAINER = true;
@@ -203,7 +202,6 @@ public class Inet6numStatusTest {
         assertThat(AGGREGATED_BY_LIR.isValidOrgType(OTHER), is(true));
         assertThat(AGGREGATED_BY_LIR.isValidOrgType(DIRECT_ASSIGNMENT), is(false));
         assertThat(AGGREGATED_BY_LIR.isValidOrgType(NIR), is(false));
-        assertThat(AGGREGATED_BY_LIR.isValidOrgType(WHITEPAGES), is(false));
         assertThat(AGGREGATED_BY_LIR.isValidOrgType(IANA), is(false));
         assertThat(AGGREGATED_BY_LIR.isValidOrgType(RIR), is(false));
 
@@ -211,7 +209,6 @@ public class Inet6numStatusTest {
         assertThat(ALLOCATED_BY_LIR.isValidOrgType(OTHER), is(true));
         assertThat(ALLOCATED_BY_LIR.isValidOrgType(DIRECT_ASSIGNMENT), is(false));
         assertThat(ALLOCATED_BY_LIR.isValidOrgType(NIR), is(false));
-        assertThat(ALLOCATED_BY_LIR.isValidOrgType(WHITEPAGES), is(false));
         assertThat(ALLOCATED_BY_LIR.isValidOrgType(IANA), is(false));
         assertThat(ALLOCATED_BY_LIR.isValidOrgType(RIR), is(false));
 
@@ -219,7 +216,6 @@ public class Inet6numStatusTest {
         assertThat(ALLOCATED_BY_RIR.isValidOrgType(OTHER), is(false));
         assertThat(ALLOCATED_BY_RIR.isValidOrgType(DIRECT_ASSIGNMENT), is(false));
         assertThat(ALLOCATED_BY_RIR.isValidOrgType(NIR), is(false));
-        assertThat(ALLOCATED_BY_RIR.isValidOrgType(WHITEPAGES), is(false));
         assertThat(ALLOCATED_BY_RIR.isValidOrgType(IANA), is(true));
         assertThat(ALLOCATED_BY_RIR.isValidOrgType(RIR), is(true));
 
@@ -227,7 +223,6 @@ public class Inet6numStatusTest {
         assertThat(ASSIGNED.isValidOrgType(OTHER), is(true));
         assertThat(ASSIGNED.isValidOrgType(DIRECT_ASSIGNMENT), is(false));
         assertThat(ASSIGNED.isValidOrgType(NIR), is(false));
-        assertThat(ASSIGNED.isValidOrgType(WHITEPAGES), is(false));
         assertThat(ASSIGNED.isValidOrgType(IANA), is(false));
         assertThat(ASSIGNED.isValidOrgType(RIR), is(false));
 
@@ -235,7 +230,6 @@ public class Inet6numStatusTest {
         assertThat(ASSIGNED_ANYCAST.isValidOrgType(OTHER), is(true));
         assertThat(ASSIGNED_ANYCAST.isValidOrgType(DIRECT_ASSIGNMENT), is(false));
         assertThat(ASSIGNED_ANYCAST.isValidOrgType(NIR), is(false));
-        assertThat(ASSIGNED_ANYCAST.isValidOrgType(WHITEPAGES), is(false));
         assertThat(ASSIGNED_ANYCAST.isValidOrgType(IANA), is(false));
         assertThat(ASSIGNED_ANYCAST.isValidOrgType(RIR), is(false));
 
@@ -243,7 +237,6 @@ public class Inet6numStatusTest {
         assertThat(ASSIGNED_PI.isValidOrgType(OTHER), is(true));
         assertThat(ASSIGNED_PI.isValidOrgType(DIRECT_ASSIGNMENT), is(false));
         assertThat(ASSIGNED_PI.isValidOrgType(NIR), is(false));
-        assertThat(ASSIGNED_PI.isValidOrgType(WHITEPAGES), is(false));
         assertThat(ASSIGNED_PI.isValidOrgType(IANA), is(false));
         assertThat(ASSIGNED_PI.isValidOrgType(RIR), is(false));
     }

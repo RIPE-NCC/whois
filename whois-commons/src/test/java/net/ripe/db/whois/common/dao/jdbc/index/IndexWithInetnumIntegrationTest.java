@@ -1,27 +1,28 @@
 package net.ripe.db.whois.common.dao.jdbc.index;
 
-import net.ripe.db.whois.common.IntegrationTest;
 import net.ripe.db.whois.common.dao.RpslObjectInfo;
 import net.ripe.db.whois.common.ip.Ipv4Resource;
 import net.ripe.db.whois.common.rpsl.AttributeType;
 import net.ripe.db.whois.common.rpsl.ObjectType;
 import net.ripe.db.whois.common.rpsl.RpslObject;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.experimental.categories.Category;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Tag;
+import org.junit.jupiter.api.Test;
 
 import java.util.List;
 
-import static org.hamcrest.core.Is.is;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.hasSize;
+import static org.hamcrest.core.Is.is;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
-@Category(IntegrationTest.class)
+@Tag("IntegrationTest")
 public class IndexWithInetnumIntegrationTest extends IndexIntegrationTestBase {
     private RpslObjectInfo rpslObjectInfo;
 
     private IndexWithInetnum subject;
 
-    @Before
+    @BeforeEach
     public void setup() {
         subject = new IndexWithInetnum(AttributeType.INETNUM);
         rpslObjectInfo = new RpslObjectInfo(1, ObjectType.INETNUM, "80.16.151.184 - 80.16.151.191");
@@ -43,7 +44,7 @@ public class IndexWithInetnumIntegrationTest extends IndexIntegrationTestBase {
     public void find_no_inetnum() {
         final List<RpslObjectInfo> found = subject.findInIndex(whoisTemplate, rpslObjectInfo.getKey());
 
-        assertThat(found.size(), is(0));
+        assertThat(found, hasSize(0));
     }
 
     @Test
@@ -52,18 +53,21 @@ public class IndexWithInetnumIntegrationTest extends IndexIntegrationTestBase {
 
         final List<RpslObjectInfo> found = subject.findInIndex(whoisTemplate, rpslObjectInfo.getKey());
 
-        assertThat(found.size(), is(1));
+        assertThat(found, hasSize(1));
         final RpslObjectInfo objectInfo = found.get(0);
         assertThat(objectInfo.getObjectId(), is(rpslObjectInfo.getObjectId()));
         assertThat(objectInfo.getObjectType(), is(ObjectType.INETNUM));
         assertThat(objectInfo.getKey(), is(rpslObjectInfo.getKey()));
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test
     public void add_invalid_inet() {
-        RpslObjectInfo rpslObjectInfo1 = new RpslObjectInfo(1, ObjectType.INETNUM, "10.0.0.129 - 10.0.0.0");
+        assertThrows(IllegalArgumentException.class, () -> {
+            RpslObjectInfo rpslObjectInfo1 = new RpslObjectInfo(1, ObjectType.INETNUM, "10.0.0.129 - 10.0.0.0");
 
-        subject.addToIndex(whoisTemplate, rpslObjectInfo1, RpslObject.parse("inetnum:10.0.0.129 - 10.0.0.0\nnetname:netname"), "ignoredValue");
+            subject.addToIndex(whoisTemplate, rpslObjectInfo1, RpslObject.parse("inetnum:10.0.0.129 - 10.0.0.0\nnetname:netname"), "ignoredValue");
+
+        });
     }
 
     private void checkRows(int expectedCount) {

@@ -3,13 +3,13 @@ package net.ripe.db.whois.update.dns.zonemaster.domain;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonRootName;
 import com.google.common.base.MoreObjects;
-import com.google.common.base.Splitter;
 import com.google.common.collect.Lists;
 import net.ripe.db.whois.common.domain.CIString;
 import net.ripe.db.whois.common.rpsl.AttributeType;
 import net.ripe.db.whois.common.rpsl.RpslObject;
 import net.ripe.db.whois.common.rpsl.attrs.AttributeParseException;
 import net.ripe.db.whois.common.rpsl.attrs.DsRdata;
+import net.ripe.db.whois.common.rpsl.attrs.NServer;
 import net.ripe.db.whois.update.dns.DnsCheckRequest;
 
 import java.util.Collections;
@@ -21,11 +21,7 @@ import java.util.Set;
  *
  * @see <a href="https://github.com/dotse/zonemaster-backend/blob/master/docs/API.md">Zonemaster documentation</a>
  */
-public  class StartDomainTestRequest extends ZonemasterRequest {
-
-    private static Splitter SPACE_SPLITTER = Splitter.on(' ').omitEmptyStrings().trimResults();
-
-    private static String RIPEDB_CONFIG = "ripedb_config";        // Special flag for ns.ripe.net
+public class StartDomainTestRequest extends ZonemasterRequest {
 
     @JsonProperty
     private Params params;
@@ -36,8 +32,7 @@ public  class StartDomainTestRequest extends ZonemasterRequest {
         final StartDomainTestRequest.Params params = new StartDomainTestRequest.Params();
         params.setDsInfos(Collections.emptyList());
         params.setNameservers(Collections.emptyList());
-        params.setDomain(dnsCheckRequest.getDomain());
-        params.setConfig(RIPEDB_CONFIG);
+        params.setDomain(removeTrailingDot(dnsCheckRequest.getDomain()));
 
         final RpslObject rpslObject = dnsCheckRequest.getUpdate().getSubmittedObject();
 
@@ -53,16 +48,30 @@ public  class StartDomainTestRequest extends ZonemasterRequest {
         this.params = params;
     }
 
-    // TODO: [ES] replace STRING_SPLITTER with NServer.parse()
+    public void setClientVersion(final String version) {
+        this.params.setClientVersion(version);
+    }
+
     private List<StartDomainTestRequest.Nameserver> parseNameservers(final Set<CIString> nserverValues) {
         final List<StartDomainTestRequest.Nameserver> nameservers = Lists.newArrayList();
         for (CIString nserverValue : nserverValues) {
-            final List<String> splits = SPACE_SPLITTER.splitToList(nserverValue.toString().trim());
-            nameservers.add(new StartDomainTestRequest.Nameserver(splits.get(0), (splits.size() > 1) ? splits.get(1) : null));
+            try {
+                final NServer nserver = NServer.parse(nserverValue);
+                final String hostname = nserver.getHostname().toString();
+                final String glue = nserver.getGlue() != null ? nserver.getGlue().toString() : null;
+                nameservers.add(new StartDomainTestRequest.Nameserver(hostname, glue));
+            } catch (AttributeParseException e) {
+                // this should not happen: nserver attributes have already been validated
+                throw new IllegalArgumentException("invalid nserver " + nserverValue + ": " + e.getMessage());
+            }
         }
         return nameservers;
     }
 
+    private String removeTrailingDot(String domain) {
+        return domain.replaceAll("\\.+$","");
+
+    }
     private List<StartDomainTestRequest.DsInfo> parseDsRdata(final Set<CIString> dsRdataValues) {
         final List<StartDomainTestRequest.DsInfo> dsInfos = Lists.newArrayList();
         for (CIString dsRdataValue : dsRdataValues) {
@@ -89,12 +98,8 @@ public  class StartDomainTestRequest extends ZonemasterRequest {
         private String clientId = "Whois";
         @JsonProperty
         private String domain;
-        @JsonProperty
-        private String profile = "default_profile";
         @JsonProperty("client_version")
-        private String clientVersion = "1.0.1";
-        @JsonProperty
-        private String config;
+        private String clientVersion = "1.0";
         @JsonProperty
         private String id;
         @JsonProperty
@@ -103,8 +108,6 @@ public  class StartDomainTestRequest extends ZonemasterRequest {
         private List<Nameserver> nameservers;
         @JsonProperty("ds_info")
         private List<DsInfo> dsInfos;
-        @JsonProperty
-        private boolean advanced = true;
         @JsonProperty
         private boolean ipv4 = true;
         @JsonProperty
@@ -130,8 +133,11 @@ public  class StartDomainTestRequest extends ZonemasterRequest {
             this.domain = domain;
         }
 
-        public void setConfig(final String config) {
-            this.config = config;
+        public String getDomain(){
+            return this.domain;
+        }
+        public void setClientVersion(final String clientVersion) {
+            this.clientVersion = clientVersion;
         }
 
         @Override

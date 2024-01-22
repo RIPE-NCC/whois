@@ -1,21 +1,21 @@
 package net.ripe.db.whois.common.aspects;
 
-import net.ripe.db.whois.common.IntegrationTest;
+
 import net.ripe.db.whois.common.support.AbstractDaoIntegrationTest;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.experimental.categories.Category;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Tag;
+import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import static org.hamcrest.Matchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.junit.Assert.fail;
+import static org.hamcrest.Matchers.is;
+import static org.junit.jupiter.api.Assertions.fail;
 
-@Category(IntegrationTest.class)
+@Tag("IntegrationTest")
 public class RetryForAspectIntegrationTest extends AbstractDaoIntegrationTest {
     static final int ATTEMPTS = 5;
 
@@ -24,7 +24,7 @@ public class RetryForAspectIntegrationTest extends AbstractDaoIntegrationTest {
     @Autowired RetryForAspectMethod retryForAspectMethod;
     @Autowired RetryForAspectType retryForAspectType;
 
-    @Before
+    @BeforeEach
     public void setUp() throws Exception {
         attemptCounter = new AtomicInteger();
     }

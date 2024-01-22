@@ -1,8 +1,7 @@
 package net.ripe.db.whois.scheduler.task.loader;
 
 import com.google.common.util.concurrent.Uninterruptibles;
-import net.javacrumbs.shedlock.core.SchedulerLock;
-import net.ripe.db.whois.api.fulltextsearch.FullTextIndex;
+import net.javacrumbs.shedlock.spring.annotation.SchedulerLock;
 import net.ripe.db.whois.common.iptree.IpTreeUpdater;
 import net.ripe.db.whois.common.scheduler.DailyScheduledTask;
 import net.ripe.db.whois.common.source.SourceContext;
@@ -24,18 +23,15 @@ public class Bootstrap implements DailyScheduledTask {
     private final LoaderSafe loaderSafe;
     private final SourceContext sourceContext;
 
-    private final FullTextIndex fullTextIndex;
-
     @Value("${bootstrap.dumpfile:}")
     private String[] dumpFileLocation;
 
     @Autowired
     public Bootstrap(final LoaderRisky loaderRisky, final LoaderSafe loaderSafe,
-                     final SourceContext sourceContext, final FullTextIndex fullTextIndex) {
+                     final SourceContext sourceContext) {
         this.loaderRisky = loaderRisky;
         this.loaderSafe = loaderSafe;
         this.sourceContext = sourceContext;
-        this.fullTextIndex = fullTextIndex;
     }
 
     public void setDumpFileLocation(final String... testDumpFileLocation) {
@@ -54,11 +50,8 @@ public class Bootstrap implements DailyScheduledTask {
             // treeupdaters not recognising rebuild is needed
             Uninterruptibles.sleepUninterruptibly(IpTreeUpdater.TREE_UPDATE_IN_SECONDS, TimeUnit.SECONDS);
 
-            final String result = loaderRisky.loadSplitFiles(dumpFileLocation);
+            return loaderRisky.loadSplitFiles(dumpFileLocation);
 
-            fullTextIndex.rebuild();
-
-            return result;
         } finally {
             sourceContext.removeCurrentSource();
         }
@@ -82,7 +75,7 @@ public class Bootstrap implements DailyScheduledTask {
     }
 
     @Override
-    @Scheduled(cron = "0 0 0 * * *")
+    @Scheduled(cron = "0 0 0 * * *", zone = EUROPE_AMSTERDAM)
     @SchedulerLock(name = "Bootstrap")
     public void run() {
         try {

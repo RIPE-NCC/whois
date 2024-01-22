@@ -1,31 +1,19 @@
 package net.ripe.db.whois.api.httpserver;
 
-import com.google.common.base.Splitter;
-import com.google.common.base.Strings;
-import com.google.common.collect.Iterables;
-import com.google.common.net.HttpHeaders;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import jakarta.servlet.Filter;
+import jakarta.servlet.FilterChain;
+import jakarta.servlet.FilterConfig;
+import jakarta.servlet.ServletException;
+import jakarta.servlet.ServletRequest;
+import jakarta.servlet.ServletResponse;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletRequestWrapper;
 import org.springframework.stereotype.Component;
 
-import javax.annotation.Nullable;
-import javax.servlet.Filter;
-import javax.servlet.FilterChain;
-import javax.servlet.FilterConfig;
-import javax.servlet.ServletException;
-import javax.servlet.ServletRequest;
-import javax.servlet.ServletResponse;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletRequestWrapper;
 import java.io.IOException;
-import java.util.Enumeration;
 
 @Component
 public class RemoteAddressFilter implements Filter {
-
-    private static final Logger LOGGER = LoggerFactory.getLogger(RemoteAddressFilter.class);
-
-    private static final Splitter COMMA_SPLITTER = Splitter.on(',').omitEmptyStrings().trimResults();
 
     @Override
     public void init(final FilterConfig filterConfig) throws ServletException {
@@ -60,32 +48,9 @@ public class RemoteAddressFilter implements Filter {
         }
 
         private static String getRemoteAddress(final HttpServletRequest request) {
-            final String forwardedAddress = getForwardedAddress(request);
-            if (forwardedAddress == null) {
-                final String address = request.getRemoteAddr();
-                if (address.startsWith("[") && address.endsWith("]")) {
-                    return address.substring(1, address.length() - 1);
-                }
-                return address;
-            }
-
-            LOGGER.debug("Received Client IP address is {}", forwardedAddress);
-            return forwardedAddress;
-        }
-
-        @Nullable
-        private static String getForwardedAddress(final HttpServletRequest request) {
-            final Enumeration<String> headers = request.getHeaders(HttpHeaders.X_FORWARDED_FOR);
-            if (headers == null || !headers.hasMoreElements()) {
-                return null;
-            }
-
-            final String header = headers.nextElement();
-            if (Strings.isNullOrEmpty(header)) {
-                return null;
-            }
-
-            return Iterables.getLast(COMMA_SPLITTER.split(header));
+            final String address = request.getRemoteAddr();
+            return (address.startsWith("[") && address.endsWith("]")) ? address.substring(1, address.length() - 1) : address;
         }
     }
+
 }

@@ -4,6 +4,7 @@ import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 import net.ripe.db.whois.common.dao.VersionDao;
+import net.ripe.db.whois.common.dao.VersionDateTime;
 import net.ripe.db.whois.common.dao.VersionInfo;
 import net.ripe.db.whois.common.dao.VersionLookupResult;
 import net.ripe.db.whois.common.domain.ResponseObject;
@@ -17,10 +18,10 @@ import net.ripe.db.whois.common.rpsl.transform.FilterEmailFunction;
 import net.ripe.db.whois.common.rpsl.transform.FilterPersonalDataFunction;
 import net.ripe.db.whois.common.source.BasicSourceContext;
 import net.ripe.db.whois.query.QueryMessages;
-import net.ripe.db.whois.common.dao.VersionDateTime;
 import net.ripe.db.whois.query.domain.DeletedVersionResponseObject;
 import net.ripe.db.whois.query.domain.MessageObject;
 import net.ripe.db.whois.query.domain.ResponseHandler;
+import net.ripe.db.whois.query.domain.VersionDiffResponseObject;
 import net.ripe.db.whois.query.domain.VersionResponseObject;
 import net.ripe.db.whois.query.domain.VersionWithRpslResponseObject;
 import net.ripe.db.whois.query.query.Query;
@@ -188,7 +189,7 @@ public class VersionQueryExecutor implements QueryExecutor {
 
         return Lists.newArrayList(
                 new MessageObject(QueryMessages.versionDifferenceHeader(versions[0], versions[1], firstObject.getKey())),
-                new MessageObject(RpslObjectFilter.diff(firstObject, secondObject)));
+                new VersionDiffResponseObject(RpslObjectFilter.diff(firstObject, secondObject)));
     }
 
     private Collection<ObjectType> getObjectType(final Query query) {

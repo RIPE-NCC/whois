@@ -8,13 +8,14 @@ import net.ripe.db.whois.api.rest.domain.Link;
 import net.ripe.db.whois.api.rest.domain.WhoisObject;
 import net.ripe.db.whois.api.rest.domain.WhoisResources;
 import net.ripe.db.whois.api.rest.mapper.WhoisObjectMapper;
+import net.ripe.db.whois.api.rest.marshal.StreamingHelper;
 import net.ripe.db.whois.common.DateTimeProvider;
 import net.ripe.db.whois.common.Message;
 import net.ripe.db.whois.common.Messages;
 import net.ripe.db.whois.common.conversion.PasswordFilter;
 import net.ripe.db.whois.common.rpsl.RpslAttribute;
 import net.ripe.db.whois.common.rpsl.RpslObject;
-import net.ripe.db.whois.common.sso.CrowdClientException;
+import net.ripe.db.whois.common.sso.AuthServiceClientException;
 import net.ripe.db.whois.common.sso.SsoTokenTranslator;
 import net.ripe.db.whois.update.domain.Action;
 import net.ripe.db.whois.update.domain.ClientCertificateCredential;
@@ -34,16 +35,17 @@ import net.ripe.db.whois.update.domain.UpdateMessages;
 import net.ripe.db.whois.update.domain.UpdateRequest;
 import net.ripe.db.whois.update.domain.UpdateStatus;
 import net.ripe.db.whois.update.handler.UpdateRequestHandler;
+import net.ripe.db.whois.update.keycert.X509CertificateWrapper;
 import net.ripe.db.whois.update.log.LogCallback;
 import net.ripe.db.whois.update.log.LoggerContext;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import javax.servlet.http.HttpServletRequest;
-import javax.ws.rs.WebApplicationException;
-import javax.ws.rs.core.Response;
-import javax.ws.rs.core.StreamingOutput;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.ws.rs.WebApplicationException;
+import jakarta.ws.rs.core.Response;
+import jakarta.ws.rs.core.StreamingOutput;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.util.Collection;
@@ -60,7 +62,6 @@ public class InternalUpdatePerformer {
     private final WhoisObjectMapper whoisObjectMapper;
     private final LoggerContext loggerContext;
     private final SsoTokenTranslator ssoTokenTranslator;
-
     @Autowired
     public InternalUpdatePerformer(final UpdateRequestHandler updateRequestHandler,
                                    final DateTimeProvider dateTimeProvider,
@@ -78,7 +79,7 @@ public class InternalUpdatePerformer {
         loggerContext.init(getRequestId(origin.getFrom()));
         final UpdateContext updateContext = new UpdateContext(loggerContext);
         setSsoSessionToContext(updateContext, ssoToken);
-        updateContext.setClientCertificate(ClientCertificateExtractor.getClientCertificate(request, dateTimeProvider));
+        setClientCertificates(updateContext, request);
         return updateContext;
     }
 
@@ -204,7 +205,11 @@ public class InternalUpdatePerformer {
             credentials.add(SsoCredential.createOfferedCredential(updateContext.getUserSession()));
         }
 
-        updateContext.getClientCertificate().ifPresent(x509 -> credentials.add(ClientCertificateCredential.createOfferedCredential(x509)));
+        if (updateContext.getClientCertificates() != null) {
+            for (X509CertificateWrapper clientCertificate : updateContext.getClientCertificates()) {
+                credentials.add(ClientCertificateCredential.createOfferedCredential(clientCertificate));
+            }
+        }
 
         return new Paragraph(rpslObject.toString(), new Credentials(credentials));
     }
@@ -221,11 +226,15 @@ public class InternalUpdatePerformer {
         if (!StringUtils.isBlank(ssoToken)) {
             try {
                 updateContext.setUserSession(ssoTokenTranslator.translateSsoToken(ssoToken));
-            } catch (CrowdClientException e) {
+            } catch (AuthServiceClientException e) {
                 logError(e);
                 updateContext.addGlobalMessage(RestMessages.ssoAuthIgnored());
             }
         }
+    }
+
+    public void setClientCertificates(final UpdateContext updateContext, final HttpServletRequest request) {
+        updateContext.setClientCertificates(ClientCertificateExtractor.getClientCertificates(request));
     }
 
     public void logInfo(final String message) {
@@ -256,7 +265,6 @@ public class InternalUpdatePerformer {
     }
 
     public static class StreamingResponse implements StreamingOutput {
-
         final WhoisResources whoisResources;
         final HttpServletRequest request;
 

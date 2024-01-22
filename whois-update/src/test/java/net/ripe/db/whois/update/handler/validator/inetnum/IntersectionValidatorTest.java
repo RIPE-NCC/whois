@@ -13,12 +13,12 @@ import net.ripe.db.whois.update.domain.Action;
 import net.ripe.db.whois.update.domain.PreparedUpdate;
 import net.ripe.db.whois.update.domain.UpdateContext;
 import net.ripe.db.whois.update.domain.UpdateMessages;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.Collections;
 
@@ -28,10 +28,9 @@ import static org.hamcrest.Matchers.containsInAnyOrder;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
-import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
 
-@RunWith(MockitoJUnitRunner.class)
+@ExtendWith(MockitoExtension.class)
 public class IntersectionValidatorTest {
     @Mock PreparedUpdate update;
     @Mock UpdateContext updateContext;
@@ -48,17 +47,15 @@ public class IntersectionValidatorTest {
     Ipv6Resource parentIpv6Key;
     Ipv6Entry parentIpv6Entry;
 
-    @Before
+    @BeforeEach
     public void setUp() throws Exception {
         parentIpv4 = RpslObject.parse("inetnum: 0/0");
         parentIpv4Key = Ipv4Resource.parse(parentIpv4.getKey());
         parentIpv4Entry = new Ipv4Entry(parentIpv4Key, 1);
-        when(ipv4Tree.findFirstLessSpecific(any(Ipv4Resource.class))).thenReturn(Lists.newArrayList(parentIpv4Entry));
 
         parentIpv6 = RpslObject.parse("inet6num: ::0/0");
         parentIpv6Key = Ipv6Resource.parse(parentIpv6.getKey());
         parentIpv6Entry = new Ipv6Entry(parentIpv6Key, 2);
-        when(ipv6Tree.findFirstLessSpecific(any(Ipv6Resource.class))).thenReturn(Lists.newArrayList(parentIpv6Entry));
     }
 
     @Test
@@ -73,30 +70,36 @@ public class IntersectionValidatorTest {
 
     @Test
     public void validate_no_children_ipv4() {
+        when(ipv4Tree.findFirstLessSpecific(any(Ipv4Resource.class))).thenReturn(Lists.newArrayList(parentIpv4Entry));
+
         final RpslObject object = RpslObject.parse("inetnum: 193.0.0.0");
 
         when(ipv4Tree.findFirstMoreSpecific(parentIpv4Key)).thenReturn(Lists.<Ipv4Entry>newArrayList());
         when(update.getReferenceObject()).thenReturn(object);
 
-        subject.validate(update, updateContext);
+       subject.validate(update, updateContext);
 
         verifyNoMoreInteractions(updateContext);
     }
 
     @Test
     public void validate_no_children_ipv6() {
+        when(ipv6Tree.findFirstLessSpecific(any(Ipv6Resource.class))).thenReturn(Lists.newArrayList(parentIpv6Entry));
+
         final RpslObject object = RpslObject.parse("inet6num: 2001:0658:021A::/48");
 
         when(ipv6Tree.findFirstMoreSpecific(parentIpv6Key)).thenReturn(Lists.<Ipv6Entry>newArrayList());
         when(update.getReferenceObject()).thenReturn(object);
 
-        subject.validate(update, updateContext);
+       subject.validate(update, updateContext);
 
         verifyNoMoreInteractions(updateContext);
     }
 
     @Test
     public void validate_no_intersections_ipv4() {
+        when(ipv4Tree.findFirstLessSpecific(any(Ipv4Resource.class))).thenReturn(Lists.newArrayList(parentIpv4Entry));
+
         final RpslObject object = RpslObject.parse("inetnum: 193.0.0.0 - 193.0.0.10");
 
         when(ipv4Tree.findFirstMoreSpecific(parentIpv4Key)).thenReturn(Lists.newArrayList(
@@ -108,13 +111,15 @@ public class IntersectionValidatorTest {
 
         when(update.getReferenceObject()).thenReturn(object);
 
-        subject.validate(update, updateContext);
+       subject.validate(update, updateContext);
 
         verifyNoMoreInteractions(updateContext);
     }
 
     @Test
     public void validate_intersections_ipv4() {
+        when(ipv4Tree.findFirstLessSpecific(any(Ipv4Resource.class))).thenReturn(Lists.newArrayList(parentIpv4Entry));
+
         final RpslObject object = RpslObject.parse("inetnum: 193.0.0.0 - 193.0.0.10");
 
         when(ipv4Tree.findFirstMoreSpecific(parentIpv4Key)).thenReturn(Lists.newArrayList(
@@ -124,7 +129,7 @@ public class IntersectionValidatorTest {
 
         when(update.getReferenceObject()).thenReturn(object);
 
-        subject.validate(update, updateContext);
+       subject.validate(update, updateContext);
 
         verify(updateContext).addMessage(update, UpdateMessages.intersectingRange(Ipv4Resource.parse("193.0.0.10 - 193.0.0.12")));
 
@@ -136,7 +141,7 @@ public class IntersectionValidatorTest {
         when(ipv6Tree.findFirstLessSpecific(any(Ipv6Resource.class))).thenReturn(Collections.<Ipv6Entry>emptyList());
         when(update.getReferenceObject()).thenReturn(RpslObject.parse("inet6num: fe80::/32"));
 
-        subject.validate(update, updateContext);
+       subject.validate(update, updateContext);
 
         verify(updateContext).addMessage(update, UpdateMessages.invalidParentEntryForInterval(Ipv6Resource.parse("fe80::/32")));
         verifyNoMoreInteractions(updateContext);

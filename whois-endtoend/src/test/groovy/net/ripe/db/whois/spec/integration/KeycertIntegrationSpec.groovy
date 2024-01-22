@@ -1,13 +1,14 @@
 package net.ripe.db.whois.spec.integration
 import com.google.common.io.Resources
-import net.ripe.db.whois.common.IntegrationTest
+
 import net.ripe.db.whois.spec.domain.SyncUpdate
 
 import java.nio.charset.Charset
+import java.time.LocalDateTime
 import java.util.regex.Matcher
 import java.util.regex.Pattern
 
-@org.junit.experimental.categories.Category(IntegrationTest.class)
+@org.junit.jupiter.api.Tag("IntegrationTest")
 class KeycertIntegrationSpec extends BaseWhoisSourceSpec {
 
     @Override
@@ -35,10 +36,14 @@ class KeycertIntegrationSpec extends BaseWhoisSourceSpec {
         ];
     }
 
+    def setup() {
+      setTime(LocalDateTime.parse("2004-01-01T12:00:00")) // certificate must not have expired
+    }
+
     def "create keycert success"() {
       given:
         def request = getResource("keycerts/PGPKEY-28F6CD6C.TXT") + "password: update";
-        def update = new SyncUpdate(data: request.stripIndent())
+        def update = new SyncUpdate(data: request.stripIndent(true))
 
       when:
         def response = syncUpdate update
@@ -62,7 +67,7 @@ class KeycertIntegrationSpec extends BaseWhoisSourceSpec {
             notify:       eshryane@ripe.net
             source:       TEST
             password: update
-            """.stripIndent())
+            """.stripIndent(true))
 
       when:
         def response = syncUpdate update
@@ -110,7 +115,7 @@ class KeycertIntegrationSpec extends BaseWhoisSourceSpec {
             mny-by:         UPD-MNT
             source:         TEST
             password:       update
-            """.stripIndent())
+            """.stripIndent(true))
       when:
         def response = syncUpdate update
       then:
@@ -132,7 +137,7 @@ class KeycertIntegrationSpec extends BaseWhoisSourceSpec {
             remarks:         remark
             source:          TEST
             password: update
-            """.stripIndent())
+            """.stripIndent(true))
 
       when:
         def response = syncUpdate update
@@ -153,7 +158,7 @@ class KeycertIntegrationSpec extends BaseWhoisSourceSpec {
             remarks:         remark
             source:          TEST
             password: update
-            """.stripIndent())
+            """.stripIndent(true))
 
       when:
         def response = syncUpdate update
@@ -175,7 +180,7 @@ class KeycertIntegrationSpec extends BaseWhoisSourceSpec {
             remarks:         remark
             source:          TEST
             password: update
-            """.stripIndent())
+            """.stripIndent(true))
 
       when:
         def response = syncUpdate update
@@ -188,7 +193,7 @@ class KeycertIntegrationSpec extends BaseWhoisSourceSpec {
     def "create keycert fails on multiple public keys"() {
       given:
         def request = getResource("keycerts/PGPKEY-MULTIPLE-PUBLIC-KEYS.TXT") + "password: update";
-        def update = new SyncUpdate(data: request.stripIndent())
+        def update = new SyncUpdate(data: request.stripIndent(true))
 
       when:
         def response = syncUpdate update
@@ -200,7 +205,7 @@ class KeycertIntegrationSpec extends BaseWhoisSourceSpec {
     def "create keycert succeeds on multiple subkeys"() {
       given:
         def request = getResource("keycerts/PGPKEY-A8D16B70.TXT") + "\npassword: update";
-        def update = new SyncUpdate(data: request.stripIndent())
+        def update = new SyncUpdate(data: request.stripIndent(true))
 
       when:
         def response = syncUpdate update
@@ -217,7 +222,7 @@ class KeycertIntegrationSpec extends BaseWhoisSourceSpec {
         request = request.replaceAll("(?m)method:.*\n", "")
         request = request.replaceAll("(?m)owner:.*\n", "")
 
-        def update = new SyncUpdate(data: request.stripIndent())
+        def update = new SyncUpdate(data: request.stripIndent(true))
 
       when:
         def response = syncUpdate update
@@ -250,7 +255,7 @@ class KeycertIntegrationSpec extends BaseWhoisSourceSpec {
             mnt-by:         UPD-MNT
             source:         TEST
             password: update
-            """.stripIndent())
+            """.stripIndent(true))
       expect:
         response =~ /Create SUCCEEDED: \[key-cert\] PGPKEY-459F13C0/
         response =~ /\*\*\*Warning: Supplied attribute 'owner' has been replaced with a generated value/
@@ -261,7 +266,7 @@ class KeycertIntegrationSpec extends BaseWhoisSourceSpec {
     def "create keycert no generated fields"() {
       given:
         def request = getResource("keycerts/PGPKEY-28F6CD6C.TXT") + "password: update";
-        def update = new SyncUpdate(data: request.stripIndent())
+        def update = new SyncUpdate(data: request.stripIndent(true))
 
       when:
         def response = syncUpdate update
@@ -312,7 +317,7 @@ class KeycertIntegrationSpec extends BaseWhoisSourceSpec {
             notify:         noreply@ripe.net
             source:         TEST
             password:       update
-        """.stripIndent())
+        """.stripIndent(true))
       expect:
         create =~ /Create SUCCEEDED: \[key-cert\] PGPKEY-81CCF97D/
       when:
@@ -356,7 +361,7 @@ class KeycertIntegrationSpec extends BaseWhoisSourceSpec {
             notify:         noreply@ripe.net
             source:         TEST
             password:       update
-        """.stripIndent())
+        """.stripIndent(true))
       then:
         update =~ /Modify SUCCEEDED: \[key-cert\] PGPKEY-81CCF97D/
     }
@@ -364,7 +369,7 @@ class KeycertIntegrationSpec extends BaseWhoisSourceSpec {
     def "update keycert replace modified generated fields"() {
       given:
         def request = getResource("keycerts/PGPKEY-28F6CD6C.TXT") + "password: update";
-        def insertResponse = syncUpdate(new SyncUpdate(data: request.stripIndent()));
+        def insertResponse = syncUpdate(new SyncUpdate(data: request.stripIndent(true)));
 
       expect:
         insertResponse =~ /SUCCESS/
@@ -374,7 +379,7 @@ class KeycertIntegrationSpec extends BaseWhoisSourceSpec {
         request = request.replaceAll("(?m)owner:.*\n", "owner: INVALID\n")
         request = request.replaceAll("(?m)fingerpr:.*\n", "fingerpr: INVALIDFINGERPR\n")
 
-        def updateResponse = syncUpdate(new SyncUpdate(data: request.stripIndent()));
+        def updateResponse = syncUpdate(new SyncUpdate(data: request.stripIndent(true)));
 
       then:
         updateResponse =~ /No operation: \[key-cert\] PGPKEY-28F6CD6C/
@@ -383,7 +388,7 @@ class KeycertIntegrationSpec extends BaseWhoisSourceSpec {
     def "update PGP keycert certificate changed has subkeys"() {
       given:
         def insertRequest = getResource("keycerts/PGPKEY-28F6CD6C.TXT") + "password: update";
-        def insertResponse = syncUpdate(new SyncUpdate(data: insertRequest.stripIndent()));
+        def insertResponse = syncUpdate(new SyncUpdate(data: insertRequest.stripIndent(true)));
 
       expect:
         insertResponse =~ /SUCCESS/
@@ -391,7 +396,7 @@ class KeycertIntegrationSpec extends BaseWhoisSourceSpec {
       when:
         def anotherKeycert = getResource("keycerts/PGPKEY-A8D16B70.TXT")
         def updateRequest = insertRequest.replace(getAttributes(insertRequest, "certif"), getAttributes(anotherKeycert, "certif"))
-        def updateResponse = syncUpdate(new SyncUpdate(data: updateRequest.stripIndent()));
+        def updateResponse = syncUpdate(new SyncUpdate(data: updateRequest.stripIndent(true)));
 
       then:
         updateResponse.contains("Modify SUCCEEDED: [key-cert] PGPKEY-28F6CD6C")
@@ -400,7 +405,7 @@ class KeycertIntegrationSpec extends BaseWhoisSourceSpec {
     def "update PGP keycert certificate changed has multiple public keys"() {
       given:
         def insertRequest = getResource("keycerts/PGPKEY-28F6CD6C.TXT") + "password: update";
-        def insertResponse = syncUpdate(new SyncUpdate(data: insertRequest.stripIndent()));
+        def insertResponse = syncUpdate(new SyncUpdate(data: insertRequest.stripIndent(true)));
 
       expect:
         insertResponse =~ /SUCCESS/
@@ -408,7 +413,7 @@ class KeycertIntegrationSpec extends BaseWhoisSourceSpec {
       when:
         def anotherKeycert = getResource("keycerts/PGPKEY-MULTIPLE-PUBLIC-KEYS.TXT")
         def updateRequest = insertRequest.replace(getAttributes(insertRequest, "certif"), getAttributes(anotherKeycert, "certif"))
-        def updateResponse = syncUpdate(new SyncUpdate(data: updateRequest.stripIndent()));
+        def updateResponse = syncUpdate(new SyncUpdate(data: updateRequest.stripIndent(true)));
 
       then:
         updateResponse.contains("Modify FAILED: [key-cert] PGPKEY-28F6CD6C")
@@ -419,14 +424,14 @@ class KeycertIntegrationSpec extends BaseWhoisSourceSpec {
     def "update X509 keycert certificate changed"() {
       given:
         def insertRequest = getResource("keycerts/AUTO-1-X509.TXT") + "password: update";
-        def insertResponse = syncUpdate(new SyncUpdate(data: insertRequest.stripIndent()));
+        def insertResponse = syncUpdate(new SyncUpdate(data: insertRequest.stripIndent(true)));
 
       expect:
         insertResponse =~ /SUCCESS/
 
       when:
         def anotherKeycert = getResource("keycerts/X509-1.TXT") + "password: update"
-        def updateResponse = syncUpdate(new SyncUpdate(data: anotherKeycert.stripIndent()));
+        def updateResponse = syncUpdate(new SyncUpdate(data: anotherKeycert.stripIndent(true)));
 
       then:
         updateResponse.contains("Modify SUCCEEDED: [key-cert] X509-1")
@@ -435,14 +440,14 @@ class KeycertIntegrationSpec extends BaseWhoisSourceSpec {
     def "delete existing X509"() {
       given:
         def insertRequest = getResource("keycerts/AUTO-1-X509.TXT") + "password: update";
-        def insertResponse = syncUpdate(new SyncUpdate(data: insertRequest.stripIndent()));
+        def insertResponse = syncUpdate(new SyncUpdate(data: insertRequest.stripIndent(true)));
 
       expect:
         insertResponse =~ /SUCCESS/
 
       when:
         def updateRequest = insertRequest.replace("AUTO-1", "X509-1") + "\ndelete: some reason";
-        def updateResponse = syncUpdate(new SyncUpdate(data: updateRequest.stripIndent()))
+        def updateResponse = syncUpdate(new SyncUpdate(data: updateRequest.stripIndent(true)))
 
       then:
         updateResponse =~ /Delete SUCCEEDED: \[key-cert\] X509-1/
@@ -451,7 +456,7 @@ class KeycertIntegrationSpec extends BaseWhoisSourceSpec {
     def "delete existing X509 case insensitive"() {
       given:
         def insertRequest = getResource("keycerts/AUTO-1-X509.TXT") + "password: update";
-        def insertResponse = syncUpdate(new SyncUpdate(data: insertRequest.stripIndent()));
+        def insertResponse = syncUpdate(new SyncUpdate(data: insertRequest.stripIndent(true)));
 
       expect:
         insertResponse =~ /SUCCESS/
@@ -459,7 +464,7 @@ class KeycertIntegrationSpec extends BaseWhoisSourceSpec {
       when:
         def updateRequest = insertRequest.replace("AUTO-1", "X509-1") + "\nDelete: some reason";
         updateRequest = updateRequest.replace("method:          X509", "method:          x509")
-        def updateResponse = syncUpdate(new SyncUpdate(data: updateRequest.stripIndent()))
+        def updateResponse = syncUpdate(new SyncUpdate(data: updateRequest.stripIndent(true)))
 
       then:
         updateResponse =~ /Delete SUCCEEDED: \[key-cert\] X509-1/
@@ -468,7 +473,7 @@ class KeycertIntegrationSpec extends BaseWhoisSourceSpec {
     def "delete non-existing X509"() {
       when:
         def deleteRequest = getResource("keycerts/AUTO-1-X509.TXT") + "delete: reason\npassword: update";
-        def deleteResponse = syncUpdate(new SyncUpdate(data: deleteRequest.stripIndent()))
+        def deleteResponse = syncUpdate(new SyncUpdate(data: deleteRequest.stripIndent(true)))
 
       then:
         deleteResponse =~ /Delete FAILED: \[key-cert\] AUTO-1/
@@ -478,7 +483,7 @@ class KeycertIntegrationSpec extends BaseWhoisSourceSpec {
     def "delete existing PGP"() {
       given:
         def insertRequest = getResource("keycerts/PGPKEY-28F6CD6C.TXT") + "password: update";
-        def insertResponse = syncUpdate(new SyncUpdate(data: insertRequest.stripIndent()));
+        def insertResponse = syncUpdate(new SyncUpdate(data: insertRequest.stripIndent(true)));
 
       expect:
         insertResponse =~ /SUCCESS/
@@ -525,7 +530,7 @@ class KeycertIntegrationSpec extends BaseWhoisSourceSpec {
                 "password:       update\n" +
                 "deLete:         some reason";
 
-        def updateResponse = syncUpdate(new SyncUpdate(data: updateRequest.stripIndent()))
+        def updateResponse = syncUpdate(new SyncUpdate(data: updateRequest.stripIndent(true)))
 
       then:
         updateResponse =~ /SUCCES/
@@ -572,7 +577,7 @@ class KeycertIntegrationSpec extends BaseWhoisSourceSpec {
                 mnt-by:         UPD-MNT
                 source:         TEST
                 password:       update
-            """.stripIndent()))
+            """.stripIndent(true)))
       expect:
         insertResponse =~ /SUCCESS/
       when:
@@ -657,7 +662,7 @@ class KeycertIntegrationSpec extends BaseWhoisSourceSpec {
                 source:         TEST
                 password: update
                 delete: reason
-            """.stripIndent()))
+            """.stripIndent(true)))
       then:
         deleteResponse =~ /SUCCES/
     }
@@ -703,7 +708,7 @@ class KeycertIntegrationSpec extends BaseWhoisSourceSpec {
             password:     update
             """
 
-        def update = new SyncUpdate(data: request.stripIndent())
+        def update = new SyncUpdate(data: request.stripIndent(true))
 
       when:
         def response = syncUpdate update
@@ -755,7 +760,7 @@ class KeycertIntegrationSpec extends BaseWhoisSourceSpec {
             source:          TEST
 
             password:     update
-            """.stripIndent())
+            """.stripIndent(true))
 
       when:
         def response = syncUpdate update

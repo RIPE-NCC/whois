@@ -1,8 +1,8 @@
 package net.ripe.db.whois.spec.update.lireditable
 
-import net.ripe.db.whois.common.IntegrationTest
 
-@org.junit.experimental.categories.Category(IntegrationTest.class)
+
+@org.junit.jupiter.api.Tag("IntegrationTest")
 class LirEditableLegacyAttributeValidationSpec extends BaseLirEditableAttributeValidation {
 
     // data for tests
@@ -82,7 +82,7 @@ class LirEditableLegacyAttributeValidationSpec extends BaseLirEditableAttributeV
                 source:       TEST
                 password: lir
                 password: irt
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:
@@ -130,7 +130,7 @@ class LirEditableLegacyAttributeValidationSpec extends BaseLirEditableAttributeV
                 source:       TEST
                 password: lir
                 password: irt
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:
@@ -168,7 +168,7 @@ class LirEditableLegacyAttributeValidationSpec extends BaseLirEditableAttributeV
                 source:       TEST
                 password: lir
                 password: irt
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:
@@ -210,7 +210,7 @@ class LirEditableLegacyAttributeValidationSpec extends BaseLirEditableAttributeV
                 source:       TEST
                 password: lir
                 password: irt
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:
@@ -254,7 +254,7 @@ class LirEditableLegacyAttributeValidationSpec extends BaseLirEditableAttributeV
                 source:       TEST
                 password: lir
                 password: irt
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:
@@ -295,7 +295,7 @@ class LirEditableLegacyAttributeValidationSpec extends BaseLirEditableAttributeV
                 source:       TEST
                 password: lir
                 password: irt
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:
@@ -337,7 +337,7 @@ class LirEditableLegacyAttributeValidationSpec extends BaseLirEditableAttributeV
                 source:       TEST
                 password: lir
                 password: irt
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:
@@ -381,7 +381,7 @@ class LirEditableLegacyAttributeValidationSpec extends BaseLirEditableAttributeV
                 source:       TEST
                 password: lir
                 password: irt
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:
@@ -408,18 +408,18 @@ class LirEditableLegacyAttributeValidationSpec extends BaseLirEditableAttributeV
         when:
         def ack = syncUpdateWithResponse("""
                 ${resourceType}: ${resourceValue}
-                netname:      TEST-NET-NAME-CHANGED # changed
+                netname:      TEST-NET-NAME-CHANGED
                 country:      NL
-                org:          ORG-LIRA-TEST         # changed
+                org:          ORG-LIRA-TEST
                 admin-c:      TP1-TEST
                 tech-c:       TP1-TEST
                 status:       ${resourceStatus}
                 mnt-by:       ${resourceRipeMntner}
-                mnt-by:       LIR2-MNT              # changed
+                mnt-by:       LIR2-MNT
                 source:       TEST
                 password: ${resourceRipeMntnerPassword}
                 password: owner3
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:
@@ -455,7 +455,7 @@ class LirEditableLegacyAttributeValidationSpec extends BaseLirEditableAttributeV
                 source:       TEST
                 password: lir
                 password: irt
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:
@@ -499,7 +499,7 @@ class LirEditableLegacyAttributeValidationSpec extends BaseLirEditableAttributeV
                 source:       TEST
                 password: lir
                 password: irt
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:
@@ -532,7 +532,7 @@ class LirEditableLegacyAttributeValidationSpec extends BaseLirEditableAttributeV
                 source:       TEST
                 password: lir
                 password: owner3
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:
@@ -563,11 +563,11 @@ class LirEditableLegacyAttributeValidationSpec extends BaseLirEditableAttributeV
                 status:       ${resourceStatus}
                 mnt-by:       ${resourceRipeMntner}
                 mnt-by:       LIR-MNT
-                sponsoring-org: ORG-LIR2-TEST # added
+                sponsoring-org: ORG-LIR2-TEST 
                 source:       TEST
                 password: lir
                 password: owner3
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:
@@ -608,7 +608,7 @@ class LirEditableLegacyAttributeValidationSpec extends BaseLirEditableAttributeV
                 source:       TEST
                 password: lir
                 password: irt
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:
@@ -650,7 +650,7 @@ class LirEditableLegacyAttributeValidationSpec extends BaseLirEditableAttributeV
                 source:       TEST
                 password: lir
                 password: irt
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:
@@ -694,7 +694,7 @@ class LirEditableLegacyAttributeValidationSpec extends BaseLirEditableAttributeV
                 source:       TEST
                 password: lir
                 password: irt
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:
@@ -743,7 +743,7 @@ class LirEditableLegacyAttributeValidationSpec extends BaseLirEditableAttributeV
                 mnt-by:       LIR-MNT
                 source:       TEST
                 password: lir
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:
@@ -775,7 +775,7 @@ class LirEditableLegacyAttributeValidationSpec extends BaseLirEditableAttributeV
                 mnt-by:       LIR-MNT
                 source:       TEST
                 password: lir
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:
@@ -803,7 +803,7 @@ class LirEditableLegacyAttributeValidationSpec extends BaseLirEditableAttributeV
                 netname:      TEST-NET-NAME
                 country:      NL
                 org:          ORG-LIR1-TEST
-                sponsoring-org: ORG-LIR1-TEST      # added
+                sponsoring-org: ORG-LIR1-TEST
                 admin-c:      TP1-TEST
                 tech-c:       TP1-TEST
                 status:       ${resourceStatus}
@@ -811,7 +811,7 @@ class LirEditableLegacyAttributeValidationSpec extends BaseLirEditableAttributeV
                 mnt-by:       LIR-MNT
                 source:       TEST
                 password: ${resourceRipeMntnerPassword}
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:
@@ -846,7 +846,7 @@ class LirEditableLegacyAttributeValidationSpec extends BaseLirEditableAttributeV
                 source:       TEST
                 delete: some reason
                 password: lir
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:
@@ -862,4 +862,37 @@ class LirEditableLegacyAttributeValidationSpec extends BaseLirEditableAttributeV
         ]
     }
 
+    //  MODIFY resource attributes WITH OVERRIDE
+
+    def "modify resource, change lir-locked attributes with override"() {
+        given:
+        dbfixture(getTransient("RSC-MANDATORY"))
+
+        expect:
+        queryObject("-GBr -T ${resourceType} ${resourceValue}", resourceType, resourceValue)
+
+        when:
+        def ack = syncUpdateWithResponse("""
+                ${resourceType}: ${resourceValue}
+                netname:      TEST-NET-NAME-CHANGED # changed
+                country:      NL
+                org:          ORG-LIRA-TEST         # changed
+                admin-c:      TP1-TEST
+                tech-c:       TP1-TEST
+                status:       ${differentStatus}    # changed
+                mnt-by:       ${resourceRipeMntner}
+                mnt-by:       LIR2-MNT              # changed
+                source:       TEST
+                override:     denis,override1
+                """.stripIndent(true)
+        )
+
+        then:
+        ack.success
+        ack.summary.nrFound == 1
+        ack.summary.assertSuccess(1, 0, 1, 0, 0)
+        ack.summary.assertErrors(0, 0, 0, 0)
+        ack.countErrorWarnInfo(0, 5, 1)
+        ack.successes.any { it.operation == "Modify" && it.key == "[${resourceType}] ${resourceValue}" }
+    }
 }

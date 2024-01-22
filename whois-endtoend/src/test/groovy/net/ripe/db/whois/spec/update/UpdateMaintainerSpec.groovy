@@ -1,10 +1,10 @@
 package net.ripe.db.whois.spec.update
-import net.ripe.db.whois.common.IntegrationTest
+
 import net.ripe.db.whois.spec.BaseQueryUpdateSpec
 import net.ripe.db.whois.spec.domain.AckResponse
 import net.ripe.db.whois.spec.domain.Message
 
-@org.junit.experimental.categories.Category(IntegrationTest.class)
+@org.junit.jupiter.api.Tag("IntegrationTest")
 class UpdateMaintainerSpec extends BaseQueryUpdateSpec {
 
     @Override
@@ -161,7 +161,7 @@ class UpdateMaintainerSpec extends BaseQueryUpdateSpec {
                 source: TEST
 
                 password: update
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -198,7 +198,7 @@ class UpdateMaintainerSpec extends BaseQueryUpdateSpec {
                 source: TEST
 
                 password: update
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:
@@ -306,7 +306,7 @@ class UpdateMaintainerSpec extends BaseQueryUpdateSpec {
                 source: TEST
 
                 password: owner
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -340,7 +340,7 @@ class UpdateMaintainerSpec extends BaseQueryUpdateSpec {
                 source: TEST
 
                 password: owner
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:
@@ -374,7 +374,7 @@ class UpdateMaintainerSpec extends BaseQueryUpdateSpec {
                 source: TEST
 
                 password: update
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -657,7 +657,7 @@ class UpdateMaintainerSpec extends BaseQueryUpdateSpec {
 
                 password: owner3
                 password: update
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -698,7 +698,7 @@ class UpdateMaintainerSpec extends BaseQueryUpdateSpec {
                 source:      TEST
 
                 password: owner
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -731,7 +731,7 @@ class UpdateMaintainerSpec extends BaseQueryUpdateSpec {
                 source: TEST
 
                 password: update
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -767,7 +767,7 @@ class UpdateMaintainerSpec extends BaseQueryUpdateSpec {
                 source: TEST
 
                 password: update
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:
@@ -803,7 +803,7 @@ class UpdateMaintainerSpec extends BaseQueryUpdateSpec {
 
                 password: update
 
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:
@@ -813,7 +813,7 @@ class UpdateMaintainerSpec extends BaseQueryUpdateSpec {
         ack.summary.assertErrors(0, 0, 0, 0)
 
         ack.successes.any { it.operation == "Create" && it.key == "[mntner] RIPE-NCC-RPSL-MNT"}
-        ack.countErrorWarnInfo(0, 0, 1)
+        ack.countErrorWarnInfo(0, 1, 1)
 
         queryObject("-rGBT mntner RIPE-NCC-RPSL-MNT", "mntner", "RIPE-NCC-RPSL-MNT")
     }

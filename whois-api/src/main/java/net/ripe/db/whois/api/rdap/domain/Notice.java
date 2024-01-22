@@ -2,11 +2,11 @@ package net.ripe.db.whois.api.rdap.domain;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.google.common.collect.Lists;
+import jakarta.xml.bind.annotation.XmlAccessType;
+import jakarta.xml.bind.annotation.XmlAccessorType;
+import jakarta.xml.bind.annotation.XmlRootElement;
+import jakarta.xml.bind.annotation.XmlType;
 
-import javax.xml.bind.annotation.XmlAccessType;
-import javax.xml.bind.annotation.XmlAccessorType;
-import javax.xml.bind.annotation.XmlRootElement;
-import javax.xml.bind.annotation.XmlType;
 import java.io.Serializable;
 import java.util.List;
 
@@ -19,6 +19,7 @@ import java.util.List;
 @XmlRootElement
 @JsonInclude(JsonInclude.Include.NON_EMPTY)
 public class Notice implements Serializable, Comparable<Notice> {
+
     protected String title;
     protected List<String> description;
     protected List<Link> links;

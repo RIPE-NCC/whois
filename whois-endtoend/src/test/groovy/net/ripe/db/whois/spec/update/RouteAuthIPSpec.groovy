@@ -1,11 +1,11 @@
 package net.ripe.db.whois.spec.update
 
-import net.ripe.db.whois.common.IntegrationTest
+
 import net.ripe.db.whois.spec.BaseQueryUpdateSpec
 import net.ripe.db.whois.spec.domain.AckResponse
 import net.ripe.db.whois.spec.domain.Message
 
-@org.junit.experimental.categories.Category(IntegrationTest.class)
+@org.junit.jupiter.api.Tag("IntegrationTest")
 class RouteAuthIPSpec extends BaseQueryUpdateSpec {
 
     @Override
@@ -228,7 +228,7 @@ class RouteAuthIPSpec extends BaseQueryUpdateSpec {
 
                 password:   mb-child
                 password:   mb-exact
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -260,7 +260,7 @@ class RouteAuthIPSpec extends BaseQueryUpdateSpec {
                 override:  denis,override1
 
                 password:   mb-child
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -298,7 +298,7 @@ class RouteAuthIPSpec extends BaseQueryUpdateSpec {
 
                 password:   mb-child
                 password:   mb-exact
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -334,7 +334,7 @@ class RouteAuthIPSpec extends BaseQueryUpdateSpec {
 
                 password:   mb-child
                 password:   mr-exact
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -371,7 +371,7 @@ class RouteAuthIPSpec extends BaseQueryUpdateSpec {
 
                 password:   mb-child
                 password:   mr-exact
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -407,7 +407,7 @@ class RouteAuthIPSpec extends BaseQueryUpdateSpec {
                 source:         TEST
 
                 password:   mb-child
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -442,7 +442,7 @@ class RouteAuthIPSpec extends BaseQueryUpdateSpec {
                 delete:   exact match
 
                 password:   mb-child
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -478,7 +478,7 @@ class RouteAuthIPSpec extends BaseQueryUpdateSpec {
 
                 password:   mb-child
                 password:   ml-parent
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -514,7 +514,7 @@ class RouteAuthIPSpec extends BaseQueryUpdateSpec {
 
                 password:   mb-child
                 password:   mr-parent
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -551,7 +551,7 @@ class RouteAuthIPSpec extends BaseQueryUpdateSpec {
 
                 password:   mb-child
                 password:   mr-parent
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -592,7 +592,7 @@ class RouteAuthIPSpec extends BaseQueryUpdateSpec {
 
                 password:   mb-child
                 password:   lir
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -630,7 +630,7 @@ class RouteAuthIPSpec extends BaseQueryUpdateSpec {
 
                 password:   mb-child
                 password:   mb-exact
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -670,7 +670,7 @@ class RouteAuthIPSpec extends BaseQueryUpdateSpec {
 
                 password:   mb-child
                 password:   mb-parent
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -707,7 +707,7 @@ class RouteAuthIPSpec extends BaseQueryUpdateSpec {
 
                 password:   mb-child
                 password:   mbi-exact
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -742,7 +742,7 @@ class RouteAuthIPSpec extends BaseQueryUpdateSpec {
 
                 password:   mb-child
                 password:   mbi-parent
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -777,7 +777,7 @@ class RouteAuthIPSpec extends BaseQueryUpdateSpec {
 
                 password:   mb-child
                 password:   mbi-parent
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:
@@ -842,7 +842,7 @@ class RouteAuthIPSpec extends BaseQueryUpdateSpec {
                 password:   hm
                 password:   mb-child
                 password:   mbi-parent
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:
@@ -890,7 +890,7 @@ class RouteAuthIPSpec extends BaseQueryUpdateSpec {
                 password:   mb-exact
                 password:   mb-child
                 password:   mr-exact
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -933,7 +933,7 @@ class RouteAuthIPSpec extends BaseQueryUpdateSpec {
                 password:   mb-exact
                 password:   mb-child
                 password:   mr-exact
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -976,7 +976,7 @@ class RouteAuthIPSpec extends BaseQueryUpdateSpec {
                 password:   mb-exact
                 password:   mb-child
                 password:   mr-exact
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -1019,7 +1019,7 @@ class RouteAuthIPSpec extends BaseQueryUpdateSpec {
                 password:   mb-exact
                 password:   mb-child
                 password:   mr-exact
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -1057,7 +1057,7 @@ class RouteAuthIPSpec extends BaseQueryUpdateSpec {
                 password:   mb-exact
                 password:   mb-child
                 password:   mr-exact
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -1098,7 +1098,7 @@ class RouteAuthIPSpec extends BaseQueryUpdateSpec {
                 password:   mb-exact
                 password:   mb-child
                 password:   mr-exact
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -1135,7 +1135,7 @@ class RouteAuthIPSpec extends BaseQueryUpdateSpec {
                 password:   mb-exact
                 password:   mb-child
                 password:   mr-exact
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -1179,7 +1179,7 @@ class RouteAuthIPSpec extends BaseQueryUpdateSpec {
                 password:   mb-exact
                 password:   mb-child
                 password:   lir
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:

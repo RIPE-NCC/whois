@@ -5,6 +5,7 @@ import com.google.common.collect.Iterables;
 import com.google.common.collect.Sets;
 import net.ripe.db.whois.common.domain.CIString;
 import net.ripe.db.whois.common.rpsl.attrs.MntRoutes;
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.Validate;
 
 import javax.annotation.CheckForNull;
@@ -299,7 +300,7 @@ public final class RpslAttribute {
             if (type != attribute.type) {
                 return false;
             }
-            return Iterables.elementsEqual(getCleanValues(), attribute.getCleanValues());
+            return Iterables.elementsEqual(getCleanValues(), attribute.getCleanValues()) && StringUtils.equalsIgnoreCase(getCleanComment(), attribute.getCleanComment());
         }
     }
 

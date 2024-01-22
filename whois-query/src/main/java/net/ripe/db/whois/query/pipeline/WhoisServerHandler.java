@@ -1,5 +1,8 @@
 package net.ripe.db.whois.query.pipeline;
 
+import io.netty.channel.Channel;
+import io.netty.channel.ChannelHandlerContext;
+import io.netty.channel.ChannelInboundHandlerAdapter;
 import net.ripe.db.whois.common.domain.ResponseObject;
 import net.ripe.db.whois.common.pipeline.ChannelUtil;
 import net.ripe.db.whois.query.domain.QueryCompletionInfo;
@@ -7,17 +10,12 @@ import net.ripe.db.whois.query.domain.QueryException;
 import net.ripe.db.whois.query.domain.ResponseHandler;
 import net.ripe.db.whois.query.handler.QueryHandler;
 import net.ripe.db.whois.query.query.Query;
-import org.jboss.netty.channel.Channel;
-import org.jboss.netty.channel.ChannelHandlerContext;
-import org.jboss.netty.channel.ChannelStateEvent;
-import org.jboss.netty.channel.MessageEvent;
-import org.jboss.netty.channel.SimpleChannelUpstreamHandler;
 
 /**
  * The worker threads are asynchronously pushing data down the Netty pipeline.
  * Make sure IO threads can handle the flow.
  */
-public class WhoisServerHandler extends SimpleChannelUpstreamHandler {
+public class WhoisServerHandler extends ChannelInboundHandlerAdapter {
     private final QueryHandler queryHandler;
     private boolean closed;
 
@@ -26,10 +24,10 @@ public class WhoisServerHandler extends SimpleChannelUpstreamHandler {
     }
 
     @Override
-    public void messageReceived(final ChannelHandlerContext ctx, final MessageEvent event) {
-        final Query query = (Query) event.getMessage();
-        final Channel channel = event.getChannel();
-        queryHandler.streamResults(query, ChannelUtil.getRemoteAddress(channel), channel.getId(), new ResponseHandler() {
+    public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {
+        final Query query = (Query) msg;
+        final Channel channel = ctx.channel();
+        queryHandler.streamResults(query, ChannelUtil.getRemoteAddress(channel), channel.id().hashCode(), new ResponseHandler() {
             @Override
             public String getApi() {
                 return "QRY";
@@ -45,12 +43,12 @@ public class WhoisServerHandler extends SimpleChannelUpstreamHandler {
             }
         });
 
-        channel.getPipeline().sendDownstream(new QueryCompletedEvent(channel));
+        ctx.pipeline().write(new QueryCompletedEvent(channel));
     }
 
     @Override
-    public void channelClosed(final ChannelHandlerContext ctx, final ChannelStateEvent e) throws Exception {
+    public void channelInactive(ChannelHandlerContext ctx) {
         closed = true;
-        super.channelClosed(ctx, e);
+        ctx.fireChannelInactive();
     }
 }

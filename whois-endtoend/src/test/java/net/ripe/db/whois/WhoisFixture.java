@@ -1,6 +1,10 @@
 package net.ripe.db.whois;
 
+import jakarta.mail.MessagingException;
+import jakarta.mail.internet.MimeMessage;
+import jakarta.ws.rs.core.MultivaluedMap;
 import net.ripe.db.whois.api.MailUpdatesTestSupport;
+import net.ripe.db.whois.api.httpserver.CertificatePrivateKeyPair;
 import net.ripe.db.whois.api.httpserver.JettyBootstrap;
 import net.ripe.db.whois.api.mail.dequeue.MessageDequeue;
 import net.ripe.db.whois.api.rest.WhoisRestService;
@@ -15,7 +19,6 @@ import net.ripe.db.whois.common.dao.AuthoritativeResourceDao;
 import net.ripe.db.whois.common.dao.RpslObjectDao;
 import net.ripe.db.whois.common.dao.RpslObjectInfo;
 import net.ripe.db.whois.common.dao.RpslObjectUpdateDao;
-import net.ripe.db.whois.common.dao.TagsDao;
 import net.ripe.db.whois.common.dao.jdbc.DatabaseHelper;
 import net.ripe.db.whois.common.dao.jdbc.IndexDao;
 import net.ripe.db.whois.common.dao.jdbc.domain.ObjectTypeIds;
@@ -43,8 +46,6 @@ import org.springframework.context.support.ClassPathXmlApplicationContext;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.test.util.ReflectionTestUtils;
 
-import javax.mail.MessagingException;
-import javax.mail.internet.MimeMessage;
 import javax.sql.DataSource;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -65,7 +66,6 @@ public class WhoisFixture {
     protected MailUpdatesTestSupport mailUpdatesTestSupport;
     protected RpslObjectDao rpslObjectDao;
     protected RpslObjectUpdateDao rpslObjectUpdateDao;
-    protected TagsDao tagsDao;
     protected AuthoritativeResourceDao authoritativeResourceDao;
     protected AuthoritativeResourceData authoritativeResourceData;
     protected MailGateway mailGateway;
@@ -90,7 +90,6 @@ public class WhoisFixture {
 
     static {
         Slf4JLogConfiguration.init();
-
         System.setProperty("application.version", "0.1-ENDTOEND");
         System.setProperty("mail.update.threads", "2");
         System.setProperty("mail.dequeue.interval", "10");
@@ -99,6 +98,12 @@ public class WhoisFixture {
         System.setProperty("feature.toggle.changed.attr.available", "true");
         System.setProperty("ipranges.bogons", "192.0.2.0/24,2001:2::/48");
         System.setProperty("git.commit.id.abbrev", "0");
+        // enable https
+        final CertificatePrivateKeyPair certificatePrivateKeyPair = new CertificatePrivateKeyPair();
+        System.setProperty("port.api.secure", "0");
+        System.setProperty("http.sni.host.check", "false");
+        System.setProperty("whois.certificates", certificatePrivateKeyPair.getCertificateFilename());
+        System.setProperty("whois.private.keys", certificatePrivateKeyPair.getPrivateKeyFilename());
     }
 
     public void start() throws Exception {
@@ -115,10 +120,8 @@ public class WhoisFixture {
         stubs = applicationContext.getBeansOfType(Stub.class);
         messageDequeue = applicationContext.getBean(MessageDequeue.class);
         testDateTimeProvider = applicationContext.getBean(TestDateTimeProvider.class);
-
         rpslObjectDao = applicationContext.getBean(RpslObjectDao.class);
         rpslObjectUpdateDao = applicationContext.getBean(RpslObjectUpdateDao.class);
-        tagsDao = applicationContext.getBean(TagsDao.class);
         authoritativeResourceDao = applicationContext.getBean(AuthoritativeResourceDao.class);
         authoritativeResourceData = applicationContext.getBean(AuthoritativeResourceData.class);
         mailGateway = applicationContext.getBean(MailGateway.class);
@@ -196,14 +199,18 @@ public class WhoisFixture {
         rpslObjectUpdateDao.deleteObject(byKey.getObjectId(), byKey.getKey());
     }
 
-    public String syncupdate(final String data, final String charset, final boolean isHelp, final boolean isDiff, final boolean isNew, final boolean isRedirect) {
-        return syncupdate(jettyBootstrap, data, charset, isHelp, isDiff, isNew, isRedirect);
+    public String syncupdate(final String data, final String charset, final boolean isHelp, final boolean isDiff,
+                             final boolean isNew, final boolean isRedirect, final MultivaluedMap<String, String> headers) {
+        return syncupdate(jettyBootstrap, data, charset, isHelp, isDiff, isNew, isRedirect, headers);
     }
 
-    public static String syncupdate(final JettyBootstrap jettyBootstrap, final String data, final String charset, final boolean isHelp, final boolean isDiff, final boolean isNew, final boolean isRedirect) {
+    public static String syncupdate(final JettyBootstrap jettyBootstrap, final String data, final String charset,
+                                    final boolean isHelp, final boolean isDiff, final boolean isNew,
+                                    final boolean isRedirect, final MultivaluedMap<String, String> headers) {
         return new SyncUpdateBuilder()
+                .setProtocol("https")
                 .setHost("localhost")
-                .setPort(jettyBootstrap.getPort())
+                .setPort(jettyBootstrap.getSecurePort())
                 .setSource("TEST")
                 .setData(data)
                 .setCharset(charset)
@@ -211,6 +218,7 @@ public class WhoisFixture {
                 .setDiff(isDiff)
                 .setNew(isNew)
                 .setRedirect(isRedirect)
+                .setHeaders(headers)
                 .build()
                 .post();
     }
@@ -240,10 +248,6 @@ public class WhoisFixture {
 
     public DatabaseHelper getDatabaseHelper() {
         return databaseHelper;
-    }
-
-    public TagsDao getTagsDao() {
-        return tagsDao;
     }
 
     public AuthoritativeResourceDao getAuthoritativeResourceDao() {
@@ -302,7 +306,7 @@ public class WhoisFixture {
     }
 
     public List<String> queryPersistent(final List<String> queries) throws Exception {
-        final String END_OF_HEADER = "% See http://www.ripe.net/db/support/db-terms-conditions.pdf\n\n";
+        final String END_OF_HEADER = "% See https://apps.db.ripe.net/docs/HTML-Terms-And-Conditions\n\n";
         final WhoisClientHandler client = NettyWhoisClientFactory.newLocalClient(QueryServer.port);
 
         List<String> responses = new ArrayList<>();

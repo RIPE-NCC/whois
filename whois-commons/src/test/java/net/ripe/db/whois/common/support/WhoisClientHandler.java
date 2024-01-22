@@ -1,19 +1,15 @@
 package net.ripe.db.whois.common.support;
 
 import com.google.common.net.InetAddresses;
+import io.netty.bootstrap.Bootstrap;
+import io.netty.buffer.ByteBuf;
+import io.netty.buffer.Unpooled;
+import io.netty.channel.Channel;
+import io.netty.channel.ChannelFuture;
+import io.netty.channel.ChannelHandlerContext;
+import io.netty.channel.ChannelInboundHandlerAdapter;
 import org.awaitility.Awaitility;
 import org.hamcrest.Matcher;
-import org.jboss.netty.bootstrap.ClientBootstrap;
-import org.jboss.netty.buffer.ChannelBuffer;
-import org.jboss.netty.buffer.ChannelBuffers;
-import org.jboss.netty.channel.Channel;
-import org.jboss.netty.channel.ChannelFuture;
-import org.jboss.netty.channel.ChannelHandlerContext;
-import org.jboss.netty.channel.ChannelStateEvent;
-import org.jboss.netty.channel.ExceptionEvent;
-import org.jboss.netty.channel.MessageEvent;
-import org.jboss.netty.channel.SimpleChannelUpstreamHandler;
-import org.junit.Assert;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -22,40 +18,41 @@ import java.nio.charset.StandardCharsets;
 import java.util.concurrent.Callable;
 import java.util.concurrent.TimeUnit;
 
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.endsWith;
+import static org.hamcrest.Matchers.is;
 
-public class WhoisClientHandler extends SimpleChannelUpstreamHandler {
+public class WhoisClientHandler extends ChannelInboundHandlerAdapter {
     private static final Logger LOGGER = LoggerFactory.getLogger(WhoisClientHandler.class);
 
-    private final ClientBootstrap bootstrap;
+    private final Bootstrap bootstrap;
     private final InetSocketAddress host;
     private Channel channel;
-
-    private final ChannelBuffer response = ChannelBuffers.dynamicBuffer(8192);
+    private final ByteBuf response = Unpooled.buffer(8192);
     private boolean success;
 
-    public WhoisClientHandler(ClientBootstrap bootstrap, String hostName, int port) {
+    public WhoisClientHandler(Bootstrap bootstrap, String hostName, int port) {
         this.bootstrap = bootstrap;
         this.host = new InetSocketAddress(hostName, port);
     }
 
     // avoid DNS lookups
-    public WhoisClientHandler(ClientBootstrap bootstrap, int port) {
+    public WhoisClientHandler(Bootstrap bootstrap, int port) {
         this.bootstrap = bootstrap;
         this.host = new InetSocketAddress(InetAddresses.forString("127.0.0.1"), port);
     }
 
+
     @Override
-    public void channelOpen(ChannelHandlerContext ctx, ChannelStateEvent e) throws Exception {
-        channel = e.getChannel();
+    public void channelActive(ChannelHandlerContext ctx) throws Exception {
+        channel = ctx.channel();
     }
 
     @Override
-    public void messageReceived(ChannelHandlerContext ctx, MessageEvent e) throws Exception {
-        ChannelBuffer cb = (ChannelBuffer) e.getMessage();
+    public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {
         synchronized (response) {
-            response.writeBytes(cb);
+            response.writeBytes(((ByteBuf) msg));
         }
         success = true;
     }
@@ -67,15 +64,16 @@ public class WhoisClientHandler extends SimpleChannelUpstreamHandler {
     }
 
     @Override
-    public void exceptionCaught(ChannelHandlerContext ctx, ExceptionEvent e) throws Exception {
-        LOGGER.error("Unexpected exception from downstream", e.getCause());
+    public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) throws Exception {
+        LOGGER.error("Unexpected exception from downstream", cause);
         success = false;
-        e.getChannel().close();
+        ctx.channel().close();
     }
+
 
     public ChannelFuture connectAndWait() throws InterruptedException {
         ChannelFuture future = bootstrap.connect(host);
-        success = future.await(3, TimeUnit.SECONDS);
+        success = future.await(5, TimeUnit.SECONDS);
         return future;
     }
 
@@ -84,8 +82,12 @@ public class WhoisClientHandler extends SimpleChannelUpstreamHandler {
     }
 
     public ChannelFuture sendLine(String query) throws InterruptedException {
-        Assert.assertTrue(success);
-        ChannelFuture future = channel.write(query + "\n");
+        assertThat(success, is(true));
+
+        // Ensures the channelActive has been fired and channel set before continuing with test
+        Awaitility.waitAtMost(10L, TimeUnit.SECONDS).until(() -> (channel != null));
+
+        ChannelFuture future = channel.writeAndFlush(query + "\n");
         success = future.await(3, TimeUnit.SECONDS);
         return future;
     }
@@ -101,11 +103,15 @@ public class WhoisClientHandler extends SimpleChannelUpstreamHandler {
     }
 
     public void waitForClose() throws InterruptedException {
-        success = channel.getCloseFuture().await(3, TimeUnit.SECONDS);
+        success = channel.closeFuture().await(3, TimeUnit.SECONDS);
     }
 
     public void waitForResponseContains(final String assertText) throws Exception {
         waitForResponse(containsString(assertText));
+    }
+
+    public void waitForResponseContains(final String assertText, final long waitingTime) throws Exception {
+        waitForResponse(containsString(assertText), waitingTime);
     }
 
     public void waitForResponseEndsWith(final String assertText) throws Exception {
@@ -113,7 +119,11 @@ public class WhoisClientHandler extends SimpleChannelUpstreamHandler {
     }
 
     private void waitForResponse(Matcher<String> anwserMatcher) throws Exception {
-        Awaitility.waitAtMost(3L, TimeUnit.SECONDS).until(new Callable<String>() {
+        waitForResponse(anwserMatcher, 3L);
+    }
+
+    private void waitForResponse(Matcher<String> anwserMatcher, final long waitingTime) throws Exception {
+        Awaitility.waitAtMost(waitingTime, TimeUnit.SECONDS).until(new Callable<String>() {
             @Override
             public String call() throws Exception {
                 return getResponse();

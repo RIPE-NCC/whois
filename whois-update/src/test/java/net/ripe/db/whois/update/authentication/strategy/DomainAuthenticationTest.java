@@ -16,12 +16,12 @@ import net.ripe.db.whois.update.domain.Action;
 import net.ripe.db.whois.update.domain.PreparedUpdate;
 import net.ripe.db.whois.update.domain.UpdateContext;
 import net.ripe.db.whois.update.domain.UpdateMessages;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -32,13 +32,14 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.fail;
+import static org.junit.jupiter.api.Assertions.fail;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
 
-@RunWith(MockitoJUnitRunner.class)
+@ExtendWith(MockitoExtension.class)
 public class DomainAuthenticationTest {
     @Mock PreparedUpdate update;
     @Mock UpdateContext updateContext;
@@ -52,14 +53,14 @@ public class DomainAuthenticationTest {
     RpslObject mntner;
     ArrayList<RpslObject> candidates;
 
-    @Before
+    @BeforeEach
     public void setUp() throws Exception {
         mntner = RpslObject.parse("" +
                 "mntner:  DEV-MNT\n");
 
         candidates = Lists.newArrayList(mntner);
 
-        when(objectDao.getByKeys(ObjectType.MNTNER, ciSet("DEV-MNT"))).thenReturn(candidates);
+        lenient().when(objectDao.getByKeys(ObjectType.MNTNER, ciSet("DEV-MNT"))).thenReturn(candidates);
     }
 
     @Test
@@ -73,7 +74,6 @@ public class DomainAuthenticationTest {
     @Test
     public void supports_modify_domain() {
         when(update.getAction()).thenReturn(Action.MODIFY);
-        when(update.getType()).thenReturn(ObjectType.DOMAIN);
 
         assertThat(subject.supports(update), is(false));
     }

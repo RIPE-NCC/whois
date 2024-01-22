@@ -1,49 +1,42 @@
 package net.ripe.db.whois.common.support;
 
-import org.jboss.netty.bootstrap.ClientBootstrap;
-import org.jboss.netty.channel.ChannelPipeline;
-import org.jboss.netty.channel.ChannelPipelineFactory;
-import org.jboss.netty.channel.Channels;
-import org.jboss.netty.channel.socket.nio.NioClientSocketChannelFactory;
-import org.jboss.netty.handler.codec.string.StringEncoder;
+import io.netty.bootstrap.Bootstrap;
+import io.netty.channel.ChannelInitializer;
+import io.netty.channel.nio.NioEventLoopGroup;
+import io.netty.channel.socket.SocketChannel;
+import io.netty.channel.socket.nio.NioSocketChannel;
+import io.netty.handler.codec.string.StringEncoder;
 
 import java.nio.charset.StandardCharsets;
-import java.util.concurrent.Executors;
 
 public final class NettyWhoisClientFactory {
 
     private NettyWhoisClientFactory() {
     }
 
-    private static NioClientSocketChannelFactory createChannelFactory() {
-        return new NioClientSocketChannelFactory(Executors.newCachedThreadPool(), Executors.newCachedThreadPool(), 1, 1);
+    private static Bootstrap createNioSocketChannelBootstrap() {
+        Bootstrap bootstrap = new Bootstrap();
+        bootstrap.group(new NioEventLoopGroup());
+        bootstrap.channel(NioSocketChannel.class);
+        return bootstrap;
     }
 
     public static WhoisClientHandler newLocalClient(int port) {
-        ClientBootstrap bootstrap = new ClientBootstrap(createChannelFactory());
+        Bootstrap bootstrap = createNioSocketChannelBootstrap();
         final WhoisClientHandler clientHandler = new WhoisClientHandler(bootstrap, port);
         initPipeline(bootstrap, clientHandler);
         return clientHandler;
     }
 
-    public static WhoisClientHandler newExternalClient(String hostName, int port) {
-        ClientBootstrap bootstrap = new ClientBootstrap(createChannelFactory());
-        final WhoisClientHandler clientHandler = new WhoisClientHandler(bootstrap, hostName, port);
-        initPipeline(bootstrap, clientHandler);
-        return clientHandler;
-    }
-
-    private static void initPipeline(ClientBootstrap bootstrap, final WhoisClientHandler clientHandler) {
-        bootstrap.setPipelineFactory(new ChannelPipelineFactory() {
+    private static void initPipeline(Bootstrap bootstrap, final WhoisClientHandler clientHandler) {
+        bootstrap.handler(new ChannelInitializer<SocketChannel>() {
             @Override
-            public ChannelPipeline getPipeline() throws Exception {
-                ChannelPipeline pipeline = Channels.pipeline();
+            public void initChannel(SocketChannel ch) throws Exception {
 
-                pipeline.addLast("encoder", new StringEncoder(StandardCharsets.UTF_8));
-                pipeline.addLast("whois-handler", clientHandler);
-
-                return pipeline;
+                ch.pipeline().addLast("encoder", new StringEncoder(StandardCharsets.UTF_8));
+                ch.pipeline().addLast("whois-handler", clientHandler);
             }
         });
+
     }
 }

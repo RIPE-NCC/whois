@@ -1,11 +1,11 @@
 package net.ripe.db.whois.spec.update
 
-import net.ripe.db.whois.common.IntegrationTest
+
 import net.ripe.db.whois.spec.BaseQueryUpdateSpec
 import net.ripe.db.whois.spec.domain.AckResponse
 import net.ripe.db.whois.spec.domain.Message
 
-@org.junit.experimental.categories.Category(IntegrationTest.class)
+@org.junit.jupiter.api.Tag("IntegrationTest")
 class InetrtrSpec extends BaseQueryUpdateSpec {
 
     @Override
@@ -134,7 +134,7 @@ class InetrtrSpec extends BaseQueryUpdateSpec {
                 source:      TEST
 
                 password: test
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:
@@ -193,7 +193,7 @@ class InetrtrSpec extends BaseQueryUpdateSpec {
 
                 password: test2
                 password: owner3
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:
@@ -239,7 +239,7 @@ class InetrtrSpec extends BaseQueryUpdateSpec {
                 source:      TEST
 
                 password: test2
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:
@@ -280,7 +280,7 @@ class InetrtrSpec extends BaseQueryUpdateSpec {
                 source:      TEST
 
                 password: test
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:
@@ -325,7 +325,7 @@ class InetrtrSpec extends BaseQueryUpdateSpec {
                 source:      TEST
 
                 password: test3
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:
@@ -365,7 +365,7 @@ class InetrtrSpec extends BaseQueryUpdateSpec {
                 source:      TEST
 
                 password: test3
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:
@@ -406,7 +406,7 @@ class InetrtrSpec extends BaseQueryUpdateSpec {
                 delete:       test delete
 
                 password: test
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:
@@ -450,7 +450,7 @@ class InetrtrSpec extends BaseQueryUpdateSpec {
                 delete:      test delete
 
                 password: test3
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:
@@ -491,7 +491,7 @@ class InetrtrSpec extends BaseQueryUpdateSpec {
                 source:      TEST
 
                 password: test3
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:
@@ -532,7 +532,7 @@ class InetrtrSpec extends BaseQueryUpdateSpec {
                 source:      TEST
 
                 password: test3
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:
@@ -576,7 +576,7 @@ class InetrtrSpec extends BaseQueryUpdateSpec {
                 source:      TEST
 
                 password: test3
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:
@@ -621,7 +621,7 @@ class InetrtrSpec extends BaseQueryUpdateSpec {
                 source:      TEST
 
                 password: test3
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:
@@ -668,7 +668,7 @@ class InetrtrSpec extends BaseQueryUpdateSpec {
                 source:      TEST
 
                 password: test3
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:
@@ -714,7 +714,7 @@ class InetrtrSpec extends BaseQueryUpdateSpec {
                 source:      TEST
 
                 password: test3
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:
@@ -753,7 +753,7 @@ class InetrtrSpec extends BaseQueryUpdateSpec {
                 source:      TEST
 
                 password: test3
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:
@@ -799,7 +799,7 @@ class InetrtrSpec extends BaseQueryUpdateSpec {
 
                 password: test
 
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:
@@ -841,7 +841,7 @@ class InetrtrSpec extends BaseQueryUpdateSpec {
                 source:      TEST
 
                 password: test
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:
@@ -886,7 +886,7 @@ class InetrtrSpec extends BaseQueryUpdateSpec {
                 source:      TEST
 
                 password: test3
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:
@@ -930,7 +930,7 @@ class InetrtrSpec extends BaseQueryUpdateSpec {
                 source:      TEST
 
                 password: test3
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:
@@ -974,7 +974,7 @@ class InetrtrSpec extends BaseQueryUpdateSpec {
                 source:      TEST
 
                 password: test3
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:
@@ -1018,7 +1018,7 @@ class InetrtrSpec extends BaseQueryUpdateSpec {
                 source:      TEST
 
                 password: test3
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:
@@ -1065,7 +1065,7 @@ class InetrtrSpec extends BaseQueryUpdateSpec {
                 source:      TEST
 
                 password: test3
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:
@@ -1107,7 +1107,7 @@ class InetrtrSpec extends BaseQueryUpdateSpec {
                 source:      TEST
 
                 password: test
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:
@@ -1150,7 +1150,7 @@ class InetrtrSpec extends BaseQueryUpdateSpec {
                 source:      TEST
 
                 password: test
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:
@@ -1191,7 +1191,7 @@ class InetrtrSpec extends BaseQueryUpdateSpec {
                 source:      TEST
 
                 password: test
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:

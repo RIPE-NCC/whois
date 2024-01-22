@@ -1,15 +1,15 @@
 package net.ripe.db.whois.common;
 
 import net.ripe.db.whois.common.rpsl.RpslObject;
-import org.junit.Ignore;
-import org.junit.Test;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
 
 import java.nio.charset.StandardCharsets;
 
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
 
-@Ignore("TODO: [ES] not applicable to UTF8 branch?")
+@Disabled("TODO: [ES] not applicable to UTF8 branch?")
 public class Latin1ConversionTest {
 
     private final static String SUPPLEMENT = "¡¢£¤¥¦§¨©ª«¬®¯°±²³´µ¶·¸¹º»¼½¾¿ÀÁÂÃÄÅÆÇÈÉÊËÌÍÎÏÐÑÒÓÔÕÖ×ØÙÚÛÜÝÞßàáâãäåæçèéêëìíîïðñòóôõö÷øùúûüýþÿ";

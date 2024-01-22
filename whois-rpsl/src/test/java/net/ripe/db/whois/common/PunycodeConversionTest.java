@@ -1,9 +1,9 @@
 package net.ripe.db.whois.common;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
-import static org.hamcrest.Matchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.is;
 
 public class PunycodeConversionTest {
 
@@ -21,6 +21,74 @@ public class PunycodeConversionTest {
                 "role:     Test Role\n" +
                 "nic-hdl:   TR1-TEST\n" +
                 "e-mail: no-reply@xn--zrich-kva.example\n" +
+                "source:    TEST\n"));
+    }
+
+    @Test
+    public void convert_email_trailing_spaces() {
+        final String value =
+                "role:     Test Role\n" +
+                "nic-hdl:   TR1-TEST\n" +
+                "e-mail: no-reply@zürich.example   \n" +
+                "source:    TEST\n";
+
+        final String result = PunycodeConversion.convert(value);
+
+        assertThat(result, is(
+                "role:     Test Role\n" +
+                "nic-hdl:   TR1-TEST\n" +
+                "e-mail: no-reply@xn--zrich-kva.example   \n" +
+                "source:    TEST\n"));
+    }
+
+    @Test
+    public void convert_email_trailing_spaces_with_comment() {
+        final String value =
+                "role:     Test Role\n" +
+                "nic-hdl:   TR1-TEST\n" +
+                "e-mail: no-reply@zürich.example   # TODO \n" +
+                "source:    TEST\n";
+
+        final String result = PunycodeConversion.convert(value);
+
+        assertThat(result, is(
+                "role:     Test Role\n" +
+                "nic-hdl:   TR1-TEST\n" +
+                "e-mail: no-reply@xn--zrich-kva.example   # TODO \n" +
+                "source:    TEST\n"));
+    }
+
+    @Test
+    public void convert_email_many_trailing_spaces() {
+        final String value =
+                "role:     Test Role\n" +
+                "nic-hdl:   TR1-TEST\n" +
+                "e-mail: no-reply@zürich.example" + " ".repeat(100) + "\n" +
+                "source:    TEST\n";
+
+        final String result = PunycodeConversion.convert(value);
+
+        assertThat(result, is(
+                "role:     Test Role\n" +
+                "nic-hdl:   TR1-TEST\n" +
+                "e-mail: no-reply@xn--zrich-kva.example" + " ".repeat(100) + "\n" +
+                "source:    TEST\n"));
+    }
+
+    @Test
+    public void convert_email_many_trailing_spaces_with_comment() {
+        final String value =
+                "role:     Test Role\n" +
+                "nic-hdl:   TR1-TEST\n" +
+                "e-mail: no-reply@zürich.example" + " ".repeat(100)+ "# TODO \n" +
+                "source:    TEST\n";
+
+        final String result = PunycodeConversion.convert(value);
+
+        assertThat(result, is(
+                "role:     Test Role\n" +
+                "nic-hdl:   TR1-TEST\n" +
+                "e-mail: no-reply@xn--zrich-kva.example" + " ".repeat(100)+ "# TODO \n" +
                 "source:    TEST\n"));
     }
 
@@ -89,6 +157,23 @@ public class PunycodeConversionTest {
                 "role:     Test Role\n" +
                 "nic-hdl:   TR1-TEST\n" +
                 "e-mail: Example Usër <example@xn--zrich-kva.example>\n" +
+                "source:    TEST\n"));
+    }
+
+    @Test
+    public void convert_email_name_and_address_and_many_spaces_and_comment() {
+        final String value =
+                "role:     Test Role\n" +
+                "nic-hdl:   TR1-TEST\n" +
+                "e-mail:" + " ".repeat(100) + "Example Test Usër <example@zürich.example>" + " ".repeat(100) + "# comment   \n" +
+                "source:    TEST\n";
+
+        final String result = PunycodeConversion.convert(value);
+
+        assertThat(result, is(
+                "role:     Test Role\n" +
+                "nic-hdl:   TR1-TEST\n" +
+                "e-mail:" + " ".repeat(100) + "Example Test Usër <example@xn--zrich-kva.example>" + " ".repeat(100) + "# comment   \n" +
                 "source:    TEST\n"));
     }
 

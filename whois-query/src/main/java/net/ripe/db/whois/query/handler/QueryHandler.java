@@ -8,6 +8,7 @@ import net.ripe.db.whois.common.rpsl.RpslObject;
 import net.ripe.db.whois.common.source.BasicSourceContext;
 import net.ripe.db.whois.query.QueryMessages;
 import net.ripe.db.whois.query.acl.AccessControlListManager;
+import net.ripe.db.whois.query.acl.AccountingIdentifier;
 import net.ripe.db.whois.query.domain.QueryCompletionInfo;
 import net.ripe.db.whois.query.domain.QueryException;
 import net.ripe.db.whois.query.domain.ResponseHandler;
@@ -39,7 +40,7 @@ public class QueryHandler {
         this.queryExecutors = Lists.newArrayList(queryExecutors);
     }
 
-    public void streamResults(final Query query, final InetAddress remoteAddress, final int contextId, final ResponseHandler responseHandler) {
+    public void streamResults(final Query query, final InetAddress remoteAddress, final Integer contextId, final ResponseHandler responseHandler) {
         new Runnable() {
             private final Stopwatch stopwatch = Stopwatch.createStarted();
 
@@ -64,9 +65,13 @@ public class QueryHandler {
                     throw e;
                 } finally {
                     if (accountedObjects > 0) {
-                        accessControlListManager.accountPersonalObjects(accountingAddress, accountedObjects);
+                        accessControlListManager.accountPersonalObjects(getAccountingIdentifier(), accountedObjects);
                     }
                 }
+            }
+
+            private AccountingIdentifier getAccountingIdentifier() {
+                return new AccountingIdentifier(accountingAddress, query.getSsoToken());
             }
 
             private QueryExecutor getQueryExecutor() {
@@ -81,7 +86,7 @@ public class QueryHandler {
 
             private void initAcl(final QueryExecutor queryExecutor) {
                 if (queryExecutor.isAclSupported()) {
-                    checkBlocked(remoteAddress);
+                    accessControlListManager.checkBlocked(new AccountingIdentifier(remoteAddress, query.getSsoToken()));
 
                     if (query.hasProxyWithIp()) {
                         if (!accessControlListManager.isAllowedToProxy(remoteAddress)) {
@@ -89,20 +94,12 @@ public class QueryHandler {
                         }
 
                         accountingAddress = InetAddresses.forString(query.getProxyIp());
-                        checkBlocked(accountingAddress);
+                        accessControlListManager.checkBlocked(new AccountingIdentifier(accountingAddress, query.getSsoToken()));
                     } else {
                         accountingAddress = remoteAddress;
                     }
 
                     useAcl = !accessControlListManager.isUnlimited(accountingAddress);
-                }
-            }
-
-            private void checkBlocked(final InetAddress inetAddress) {
-                if (accessControlListManager.isDenied(inetAddress)) {
-                    throw new QueryException(QueryCompletionInfo.BLOCKED, QueryMessages.accessDeniedPermanently(inetAddress));
-                } else if (!accessControlListManager.canQueryPersonalObjects(inetAddress)) {
-                    throw new QueryException(QueryCompletionInfo.BLOCKED, QueryMessages.accessDeniedTemporarily(inetAddress));
                 }
             }
 
@@ -118,11 +115,11 @@ public class QueryHandler {
                         if (responseObject instanceof RpslObject) {
                             if (useAcl && accessControlListManager.requiresAcl((RpslObject) responseObject, sourceContext.getCurrentSource())) {
                                 if (accountingLimit == -1) {
-                                    accountingLimit = accessControlListManager.getPersonalObjects(accountingAddress);
+                                    accountingLimit = accessControlListManager.getPersonalObjects(getAccountingIdentifier());
                                 }
 
                                 if (++accountedObjects > accountingLimit) {
-                                    throw new QueryException(QueryCompletionInfo.BLOCKED, QueryMessages.accessDeniedTemporarily(accountingAddress));
+                                    throw new QueryException(QueryCompletionInfo.BLOCKED, QueryMessages.accessDeniedTemporarily(accountingAddress.getHostAddress()));
                                 }
                             } else {
                                 notAccountedObjects++;

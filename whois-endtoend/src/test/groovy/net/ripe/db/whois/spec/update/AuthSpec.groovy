@@ -1,12 +1,12 @@
 package net.ripe.db.whois.spec.update
-import net.ripe.db.whois.common.IntegrationTest
+
 import net.ripe.db.whois.spec.BaseQueryUpdateSpec
 import net.ripe.db.whois.spec.domain.AckResponse
 import net.ripe.db.whois.spec.domain.Message
 import net.ripe.db.whois.spec.domain.SyncUpdate
 import java.time.LocalDateTime
 
-@org.junit.experimental.categories.Category(IntegrationTest.class)
+@org.junit.jupiter.api.Tag("IntegrationTest")
 class AuthSpec extends BaseQueryUpdateSpec {
 
     @Override
@@ -94,7 +94,7 @@ class AuthSpec extends BaseQueryUpdateSpec {
                 source:  TEST
 
                 password: owner2
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -135,7 +135,7 @@ class AuthSpec extends BaseQueryUpdateSpec {
                 password: owner2
                 password: bill
                 password: owner4
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -170,7 +170,7 @@ class AuthSpec extends BaseQueryUpdateSpec {
                 source:  TEST
 
                 password: \$1\$fyALLXZB\$V5Cht4.DAIM3vi64EpC0w/
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -209,7 +209,7 @@ class AuthSpec extends BaseQueryUpdateSpec {
                 source:  TEST
 
                 password: owner
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -247,7 +247,7 @@ class AuthSpec extends BaseQueryUpdateSpec {
                 source:  TEST
 
                 password: owner2
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -284,7 +284,7 @@ class AuthSpec extends BaseQueryUpdateSpec {
                 source:  TEST
 
                 password: owner2
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -318,7 +318,7 @@ class AuthSpec extends BaseQueryUpdateSpec {
                 mnt-by:  owner-mnt, owner2-mnt
                 source:  TEST
 
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -354,7 +354,7 @@ class AuthSpec extends BaseQueryUpdateSpec {
                 source:  TEST
 
                 password: owner
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -393,7 +393,7 @@ class AuthSpec extends BaseQueryUpdateSpec {
                 source:  TEST
 
                 password: fred
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -437,7 +437,7 @@ class AuthSpec extends BaseQueryUpdateSpec {
                 source:  TEST
 
                 password: owner
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -477,7 +477,7 @@ class AuthSpec extends BaseQueryUpdateSpec {
 
                 password: owner
                 password: owner3
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -516,7 +516,7 @@ class AuthSpec extends BaseQueryUpdateSpec {
                 source:  TEST
 
                 password: owner3
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -555,7 +555,7 @@ class AuthSpec extends BaseQueryUpdateSpec {
                 source:  TEST
 
                 password: owner
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -594,7 +594,7 @@ class AuthSpec extends BaseQueryUpdateSpec {
                 mnt-by:  owner-mnt
                 source:  TEST
 
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -635,7 +635,7 @@ class AuthSpec extends BaseQueryUpdateSpec {
                 source:  TEST
                 password: owner3
 
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -676,7 +676,7 @@ class AuthSpec extends BaseQueryUpdateSpec {
 
                 password: owner
                 password: owner2
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -718,7 +718,7 @@ class AuthSpec extends BaseQueryUpdateSpec {
 
                 password: owner
                 password: owner3
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -759,7 +759,7 @@ class AuthSpec extends BaseQueryUpdateSpec {
                 source:  TEST
 
                 password: owner
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -800,7 +800,7 @@ class AuthSpec extends BaseQueryUpdateSpec {
                 delete:  not needed
 
                 password: owner
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -895,7 +895,7 @@ class AuthSpec extends BaseQueryUpdateSpec {
                 Qe5NwGUoB9i9yLJaHnDA79QVdkCLi5b6G6Y6DzzfNRlwdfdz5yAc42BQZ2StaW4=
                 =vEn+
                 -----END PGP SIGNATURE-----
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -1036,7 +1036,7 @@ class AuthSpec extends BaseQueryUpdateSpec {
 				I5yVaOhDqhXKfCMe4amyDUzsOaefXdDHXA5tgnUdZerYWzieIdKqcx4ZmBIo4h0=
 				=f046
 				-----END PGP SIGNATURE-----
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -1062,7 +1062,7 @@ class AuthSpec extends BaseQueryUpdateSpec {
 
       when:
         syncUpdate new SyncUpdate(data:
-                oneBasicFixture("TEST-PN").stripIndent().
+                oneBasicFixture("TEST-PN").stripIndent(true).
                         replaceAll("mnt-by:\\s*OWNER-MNT", "mnt-by: PGP-MNT\nremarks: changed maintainer")
                         + "password: owner")
         def message = send new Message(
@@ -1091,7 +1091,7 @@ class AuthSpec extends BaseQueryUpdateSpec {
                 7/IXF0M/7XXNUFCloA748S+3zJcYm5dloZ1tJsrhTMaW78PvJ656PuwghkCL1E8=
                 =3MDy
                 -----END PGP SIGNATURE-----
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -1117,7 +1117,7 @@ class AuthSpec extends BaseQueryUpdateSpec {
 
       when:
         syncUpdate new SyncUpdate(data:
-                oneBasicFixture("TEST-PN").stripIndent().
+                oneBasicFixture("TEST-PN").stripIndent(true).
                         replaceAll("mnt-by:\\s*OWNER-MNT", "mnt-by: PGP-MNT\nremarks: changed maintainer")
                         + "password: owner")
         def message = send new Message(
@@ -1147,7 +1147,7 @@ class AuthSpec extends BaseQueryUpdateSpec {
                 /E0ll7ksFSbXTjoBlr5FRlbmb3k8igCUyYtsPwX0qgy7YEYW1soxL64I1kVEOaA=
                 =Ox/e
                 -----END PGP SIGNATURE-----
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -1173,7 +1173,7 @@ class AuthSpec extends BaseQueryUpdateSpec {
 
       when:
         syncUpdate new SyncUpdate(data:
-                oneBasicFixture("TEST-PN").stripIndent().
+                oneBasicFixture("TEST-PN").stripIndent(true).
                         replaceAll("mnt-by:\\s*OWNER-MNT", "mnt-by: PGP-MNT\nremarks: changed maintainer")
                         + "password: owner")
         def message = send new Message(
@@ -1205,7 +1205,7 @@ class AuthSpec extends BaseQueryUpdateSpec {
                 zRaC40WFkdyveVbgytzBX69y6/vQaLJIrGPnzHyZoUQ5aZx6qsc8MC7CXMO6CCs=
                 =0598
                 -----END PGP SIGNATURE-----
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -1243,7 +1243,7 @@ class AuthSpec extends BaseQueryUpdateSpec {
                 source:       TEST
                 override: denis,override1
 
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -1284,7 +1284,7 @@ class AuthSpec extends BaseQueryUpdateSpec {
 
                 override: denis,override1
 
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -1327,7 +1327,7 @@ class AuthSpec extends BaseQueryUpdateSpec {
                 mnt-by:  OWNER-MNT
                 source:  TEST
                 password: owner
-                """.stripIndent())
+                """.stripIndent(true))
 
       then:
         def ack = ackFor message
@@ -1369,7 +1369,7 @@ class AuthSpec extends BaseQueryUpdateSpec {
                 nic-hdl: AP1-TEST
                 mnt-by:  OWNER-MNT
                 source:  TEST
-                """.stripIndent())
+                """.stripIndent(true))
 
       then:
         def ack = ackFor message
@@ -1413,7 +1413,7 @@ class AuthSpec extends BaseQueryUpdateSpec {
                 mnt-by:  OWNER-MNT
                 source:  TEST
                 password: owner
-                """.stripIndent())
+                """.stripIndent(true))
 
       then:
         def ack = ackFor message
@@ -1465,7 +1465,7 @@ class AuthSpec extends BaseQueryUpdateSpec {
                 FrIQEgDdEFAkY5qf4W2JCWPHjzD8tv2Uzp7NfEZsqHiHyFXltuhQbyn3t8LRoBc=
                 =X49Y
                 -----END PGP SIGNATURE-----
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -1504,7 +1504,7 @@ class AuthSpec extends BaseQueryUpdateSpec {
                 mnt-by:  OWNER-MNT
                 source:  TEST
                 password: owner
-                """.stripIndent())
+                """.stripIndent(true))
 
       then:
         def ack = ackFor message

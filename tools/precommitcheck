@@ -1,0 +1,44 @@
+#!/usr/bin/env bash
+
+# This script contains any check to be performed as part of the pre-commit hook check
+# To use configure as follows:
+#     ln -fsv tools/precommitcheck .git/hooks/pre-commit
+#
+
+# define checks
+
+# check only allowed properties files are committed
+function check_property_files () {
+
+git diff-index --cached --name-only HEAD | while read line
+do
+  if [[ "$line" == *"properties"* ]];then
+
+    if [[ "$line" != *"-local.properties" ]]; then
+      #  "-local.properties is already in gitignore"
+      continue
+    fi
+
+     #  check only allowed property files are being committed
+     if [[ "$line" != *"whois-commons/src/test/resources/whois.properties"*  ]] &&
+        [[ "$line" != *"whois-commons/src/main/resources/whois.version.properties"* ]] &&
+        [[ "$line" != *"sonar-project.properties"* ]]; then
+          echo "Attempt to commit property file: $line disallowed" &&
+          exit 1
+     fi
+
+     #  check no API key or basic credential
+     grep "apikey=.\+" "$line" &&
+        echo "Attempt to commit property file including apikey disallowed" &&
+        exit 1
+
+     grep "\(ftp\|http\)\(s\?\)://\(.\+\):\(.\+\)" "$line" &&
+        echo "Attempt to commit property file including basic auth disallowed" &&
+        exit 1
+
+  fi
+done
+}
+
+# run checks
+check_property_files

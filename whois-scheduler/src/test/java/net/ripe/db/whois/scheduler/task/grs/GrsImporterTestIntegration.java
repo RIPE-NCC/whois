@@ -1,15 +1,15 @@
 package net.ripe.db.whois.scheduler.task.grs;
 
-import net.ripe.db.whois.common.IntegrationTest;
+
 import net.ripe.db.whois.common.dao.jdbc.DatabaseHelper;
 import net.ripe.db.whois.common.domain.CIString;
 import net.ripe.db.whois.common.grs.AuthoritativeResourceData;
 import net.ripe.db.whois.common.rpsl.ObjectType;
 import net.ripe.db.whois.scheduler.AbstractSchedulerIntegrationTest;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Test;
-import org.junit.experimental.categories.Category;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Tag;
+import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -17,10 +17,10 @@ import org.springframework.test.annotation.DirtiesContext;
 
 import javax.sql.DataSource;
 
-import static org.hamcrest.Matchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.is;
 
-@Category(IntegrationTest.class)
+@Tag("IntegrationTest")
 @DirtiesContext
 public class GrsImporterTestIntegration extends AbstractSchedulerIntegrationTest {
 
@@ -31,12 +31,12 @@ public class GrsImporterTestIntegration extends AbstractSchedulerIntegrationTest
     private DataSource dataSource;
     private JdbcTemplate jdbcTemplate;
 
-    @BeforeClass
+    @BeforeAll
     public static void setUpClass() throws Exception {
         DatabaseHelper.addGrsDatabases("TEST-GRS");
     }
 
-    @Before
+    @BeforeEach
     public void setUp() throws Exception {
         queryServer.start();
         this.jdbcTemplate = new JdbcTemplate(dataSource);

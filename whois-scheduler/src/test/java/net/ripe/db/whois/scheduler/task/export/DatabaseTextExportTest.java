@@ -1,14 +1,15 @@
 package net.ripe.db.whois.scheduler.task.export;
 
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Test;
+
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 import static org.mockito.Mockito.verify;
 
-@RunWith(MockitoJUnitRunner.class)
+@ExtendWith(MockitoExtension.class)
 public class DatabaseTextExportTest {
     @Mock RpslObjectsExporter rpslObjectsExporter;
     @InjectMocks DatabaseTextExport subject;

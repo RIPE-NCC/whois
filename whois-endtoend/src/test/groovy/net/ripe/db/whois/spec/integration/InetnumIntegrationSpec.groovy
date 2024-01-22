@@ -1,9 +1,10 @@
 package net.ripe.db.whois.spec.integration
 
-import net.ripe.db.whois.common.IntegrationTest
-import net.ripe.db.whois.spec.domain.SyncUpdate
 
-@org.junit.experimental.categories.Category(IntegrationTest.class)
+import net.ripe.db.whois.spec.domain.SyncUpdate
+import org.junit.jupiter.api.Tag
+
+@Tag("IntegrationTest")
 class InetnumIntegrationSpec extends BaseWhoisSourceSpec {
 
   @Override
@@ -58,6 +59,43 @@ class InetnumIntegrationSpec extends BaseWhoisSourceSpec {
                     auth:    MD5-PW \$1\$gTs46J2Z\$.iohp.IUDhNAMj7evxnFS1   # legacy
                     source:  TEST
                 """,
+            "REF-MNT"  : """\
+                    mntner:  REF-MNT
+                    descr:   description
+                    admin-c: TEST-PN
+                    mnt-by:  REF-MNT
+                    mnt-ref: RIPE-NCC-HM-MNT
+                    upd-to:  dbtest@ripe.net
+                    auth:    MD5-PW \$1\$fU9ZMQN9\$QQtm3kRqZXWAuLpeOiLN7. # update
+                    source:  TEST
+                """,
+            "ROLE-A001": """\
+                role:         Abuse Handler
+                address:      St James Street
+                address:      Burnley
+                address:      UK
+                e-mail:       dbtest@ripe.net
+                abuse-mailbox:more_abuse@lir.net
+                admin-c:      TEST-PN
+                tech-c:       TEST-PN
+                nic-hdl:      AH001-TEST
+                mnt-by:       TEST-MNT
+                source:       TEST
+                """,
+            "ROLE-RL": """\
+                role:         Abuse Handler
+                address:      St James Street
+                address:      Burnley
+                address:      UK
+                e-mail:       dbtest@ripe.net
+                abuse-mailbox:more_abuse@lir.net
+                admin-c:      TEST-PN
+                tech-c:       TEST-PN
+                mnt-ref:      TEST-MNT 
+                nic-hdl:      RL-TEST
+                mnt-by:       TEST-MNT
+                source:       TEST
+                """,
             "ORG1"     : """\
                     organisation: ORG-TOL1-TEST
                     org-name:     Test Organisation Ltd
@@ -76,6 +114,7 @@ class InetnumIntegrationSpec extends BaseWhoisSourceSpec {
                     descr:        test org
                     address:      street 5
                     e-mail:       org1@test.com
+                    abuse-c:      AH001-TEST
                     mnt-ref:      TEST-MNT
                     mnt-by:       TEST-MNT
                     source:       TEST
@@ -180,7 +219,29 @@ class InetnumIntegrationSpec extends BaseWhoisSourceSpec {
                     auth: MD5-PW \$1\$fU9ZMQN9\$QQtm3kRqZXWAuLpeOiLN7. # update
                     mnt-by: TEST-MNT
                     source: TEST
-                """
+                """,
+            "IRT2"      : """\
+                    irt: irt-IRT2
+                    address: Street 1
+                    e-mail: test@ripe.net
+                    admin-c: TEST-PN
+                    tech-c: TEST-PN
+                    auth: MD5-PW \$1\$fU9ZMQN9\$QQtm3kRqZXWAuLpeOiLN7. # update
+                    mnt-by: TEST-MNT
+                    mnt-ref: RIPE-NCC-HM-MNT
+                    source: TEST
+                """,
+            "PERSON"      : """\
+                    person:  Test Person2
+                    address: Hebrew Road
+                    address: Burnley
+                    address: UK
+                    phone:   +44 282 411141
+                    nic-hdl: TP2-TEST
+                    mnt-by:  TEST-MNT
+                    mnt-ref: TEST-MNT
+                    source:  TEST
+                """,
     ]
   }
 
@@ -198,7 +259,7 @@ class InetnumIntegrationSpec extends BaseWhoisSourceSpec {
                 org: ORG-TOL2-TEST
                 source: TEST
                 password:update
-                """.stripIndent()))
+                """.stripIndent(true)))
     expect:
       insertResponse =~ /SUCCESS/
     when:
@@ -215,7 +276,7 @@ class InetnumIntegrationSpec extends BaseWhoisSourceSpec {
                 source: TEST
                 delete:yes
                 password:update
-                """.stripIndent())
+                """.stripIndent(true))
     then:
       def response = syncUpdate delete
 
@@ -234,7 +295,7 @@ class InetnumIntegrationSpec extends BaseWhoisSourceSpec {
                 tech-c:     TEST-PN
                 mnt-by:     TEST-MNT
                 source:     TEST
-                """.stripIndent())
+                """.stripIndent(true))
       whoisFixture.reloadTrees()
     when:
       def response = syncUpdate(new SyncUpdate(data: """\
@@ -248,7 +309,7 @@ class InetnumIntegrationSpec extends BaseWhoisSourceSpec {
                 source:     TEST
                 delete:     yes
                 password:   update
-                """.stripIndent()))
+                """.stripIndent(true)))
     then:
       response =~ /SUCCESS/
   }
@@ -266,7 +327,7 @@ class InetnumIntegrationSpec extends BaseWhoisSourceSpec {
                 mnt-by: TEST-MNT
                 source: TEST
                 password:update
-                """.stripIndent())
+                """.stripIndent(true))
     then:
       response =~ /No operation: \[inetnum\] 193.0.0.0 - 193.0.0.255/
   }
@@ -285,7 +346,7 @@ class InetnumIntegrationSpec extends BaseWhoisSourceSpec {
                 mnt-by: TEST-MNT
                 source: TEST
                 password:update
-                """.stripIndent())
+                """.stripIndent(true))
     then:
       response =~ /Continuation lines are not allowed here and have been removed/
       response =~ /No operation: \[inetnum\] 193.0.0.0 - 193.0.0.255/
@@ -306,7 +367,7 @@ class InetnumIntegrationSpec extends BaseWhoisSourceSpec {
                     source: TEST
                     password: update
                     password: hm
-                    """.stripIndent()))
+                    """.stripIndent(true)))
     then:
       response =~ /Create SUCCEEDED: \[inetnum\] 192.0.0.0 - 192.0.0.255/
       response =~ /\*\*\*Info:    Value 192.0.0.0\/24 converted to 192.0.0.0 - 192.0.0.255/
@@ -327,7 +388,7 @@ class InetnumIntegrationSpec extends BaseWhoisSourceSpec {
                     source: TEST
                     password: update
                     password: hm
-                    """.stripIndent()))
+                    """.stripIndent(true)))
         then:
         response =~ /Create FAILED: \[inetnum\] 192.0.0.1\/24/
     }
@@ -347,7 +408,7 @@ class InetnumIntegrationSpec extends BaseWhoisSourceSpec {
                             source: TEST
                             password: hm
                             password: update
-                        """.stripIndent()))
+                        """.stripIndent(true)))
     when:
       insertResponse =~ /SUCCESS/
     then:
@@ -364,7 +425,7 @@ class InetnumIntegrationSpec extends BaseWhoisSourceSpec {
                     source: TEST
                     password: hm
                     password: update
-                """.stripIndent())
+                """.stripIndent(true))
     then:
       response =~ /SUCCESS/
       response =~ /Modify SUCCEEDED: \[inetnum\] 192.0.0.0 - 192.0.0.255/
@@ -385,7 +446,7 @@ class InetnumIntegrationSpec extends BaseWhoisSourceSpec {
             source: TEST
             password: update
             password: hm
-        """.stripIndent()))
+        """.stripIndent(true)))
     then:
       insertResponse =~ /SUCCESS/
       insertResponse =~ /Create SUCCEEDED: \[inetnum\] 192.0.0.0 - 192.0.0.255/
@@ -405,7 +466,7 @@ class InetnumIntegrationSpec extends BaseWhoisSourceSpec {
             org: ORG-TOL1-TEST
             source: TEST
             override:denis,override1
-        """.stripIndent()))
+        """.stripIndent(true)))
     then:
       insertResponse =~ /Create SUCCEEDED: \[inetnum\] 192.0.0.0 - 192.0.0.255/
   }
@@ -425,7 +486,7 @@ class InetnumIntegrationSpec extends BaseWhoisSourceSpec {
             source: TEST
             password: update
             password: hm
-        """.stripIndent()))
+        """.stripIndent(true)))
     expect:
       insertResponse =~ /SUCCESS/
     when:
@@ -440,7 +501,7 @@ class InetnumIntegrationSpec extends BaseWhoisSourceSpec {
             mnt-by: RIPE-NCC-HM-MNT
             org: ORG-TOL2-TEST
             source: TEST
-            password: hm""".stripIndent())
+            password: hm""".stripIndent(true))
     then:
       response =~ /FAIL/
       response =~ /Referenced organisation has wrong "org-type"/
@@ -474,7 +535,7 @@ class InetnumIntegrationSpec extends BaseWhoisSourceSpec {
             mnt-by: RIPE-NCC-HM-MNT
             org: ORG-TOL2-TEST
             source: TEST
-            override:denis,override1""".stripIndent()))
+            override:denis,override1""".stripIndent(true)))
     then:
       response =~ /Create SUCCEEDED: \[inetnum\] 192.0.0.0 - 192.0.0.255/
       response =~ /Modify SUCCEEDED: \[inetnum\] 192.0.0.0 - 192.0.0.255/
@@ -495,7 +556,7 @@ class InetnumIntegrationSpec extends BaseWhoisSourceSpec {
                             source: TEST
                             password: update
                             password: hm
-                        """.stripIndent()))
+                        """.stripIndent(true)))
     expect:
       insertResponse =~ /SUCCESS/
     when:
@@ -510,7 +571,7 @@ class InetnumIntegrationSpec extends BaseWhoisSourceSpec {
                             mnt-by: RIPE-NCC-HM-MNT
                             source: TEST
                             password: hm
-                        """.stripIndent()))
+                        """.stripIndent(true)))
     then:
       response =~ /FAIL/
       response =~ /Missing required "org:" attribute/
@@ -531,7 +592,7 @@ class InetnumIntegrationSpec extends BaseWhoisSourceSpec {
                     source: TEST
                     password: hm
                     password: update
-                """.stripIndent()))
+                """.stripIndent(true)))
     expect:
       insertResponse =~ /SUCCESS/
     when:
@@ -547,7 +608,7 @@ class InetnumIntegrationSpec extends BaseWhoisSourceSpec {
                     mnt-by: RIPE-NCC-HM-MNT
                     source: TEST
                     password: hm
-                """.stripIndent())
+                """.stripIndent(true))
     then:
       response =~ /FAIL/
       response =~ /Referenced organisation has wrong "org-type"./
@@ -581,7 +642,7 @@ class InetnumIntegrationSpec extends BaseWhoisSourceSpec {
                     mnt-by: RIPE-NCC-HM-MNT
                     source: TEST
                     override:denis,override1
-                """.stripIndent()))
+                """.stripIndent(true)))
     then:
       response =~ /Create SUCCEEDED: \[inetnum\] 10.0.0.0 - 10.0.0.255/
       response =~ /Modify SUCCEEDED: \[inetnum\] 10.0.0.0 - 10.0.0.255/
@@ -602,7 +663,7 @@ class InetnumIntegrationSpec extends BaseWhoisSourceSpec {
                     source: TEST
                     password: hm
                     password: update
-                """.stripIndent()))
+                """.stripIndent(true)))
     expect:
       insertResponse =~ /SUCCESS/
     when:
@@ -617,7 +678,7 @@ class InetnumIntegrationSpec extends BaseWhoisSourceSpec {
                     mnt-by: RIPE-NCC-HM-MNT
                     source: TEST
                     password: hm
-                """.stripIndent())
+                """.stripIndent(true))
     then:
       response =~ /SUCCESS/
   }
@@ -638,7 +699,7 @@ class InetnumIntegrationSpec extends BaseWhoisSourceSpec {
                     source: TEST
                     password:update
                     password:hm
-                """.stripIndent()))
+                """.stripIndent(true)))
     expect:
       insertResponse =~ /SUCCESS/
     when:
@@ -654,7 +715,7 @@ class InetnumIntegrationSpec extends BaseWhoisSourceSpec {
                     org: ORG-TOL4-TEST
                     source: TEST
                     password:update
-                """.stripIndent()))
+                """.stripIndent(true)))
     then:
       response =~ /FAIL/
       response =~ /Referenced organisation has wrong "org-type".
@@ -690,7 +751,7 @@ class InetnumIntegrationSpec extends BaseWhoisSourceSpec {
                     org: ORG-TOL4-TEST
                     source: TEST
                     override:denis,override1
-                """.stripIndent()))
+                """.stripIndent(true)))
     then:
       response =~ /Create SUCCEEDED: \[inetnum\] 192.0.0.0 - 192.0.0.255/
       response =~ /Modify SUCCEEDED: \[inetnum\] 192.0.0.0 - 192.0.0.255/
@@ -712,7 +773,7 @@ class InetnumIntegrationSpec extends BaseWhoisSourceSpec {
                     source: TEST
                     password:update
                     password:hm
-                """.stripIndent()))
+                """.stripIndent(true)))
     expect:
       insertResponse =~ /SUCCESS/
       insertResponse =~ /Create SUCCEEDED: \[inetnum\] 192.0.0.0 - 192.0.0.255/
@@ -731,7 +792,7 @@ class InetnumIntegrationSpec extends BaseWhoisSourceSpec {
                     mnt-by: TEST-MNT
                     source: TEST
                     password:update
-                """.stripIndent()))
+                """.stripIndent(true)))
     then:
       insertResponse =~ /FAIL/
       insertResponse =~ /Error:   Only RIPE NCC can create\/delete a top level object with status
@@ -763,7 +824,7 @@ class InetnumIntegrationSpec extends BaseWhoisSourceSpec {
                     mnt-by: TEST-MNT
                     source: TEST
                     password:update
-                """.stripIndent()))
+                """.stripIndent(true)))
     then:
       insertResponse =~ /Create SUCCEEDED: \[inetnum\] 192.0.0.0 - 192.0.0.255/
   }
@@ -782,7 +843,7 @@ class InetnumIntegrationSpec extends BaseWhoisSourceSpec {
                     mnt-by: RIPE-NCC-HM-MNT
                     source: TEST
                     password:hm
-                """.stripIndent()))
+                """.stripIndent(true)))
     then:
       insertResponse =~ /Create SUCCEEDED: \[inetnum\] 192.0.0.0 - 192.0.0.255/
   }
@@ -801,7 +862,7 @@ class InetnumIntegrationSpec extends BaseWhoisSourceSpec {
                     mnt-by:     RIPE-NCC-HM-MNT
                     source:     TEST
                     password:hm
-                """.stripIndent()))
+                """.stripIndent(true)))
     when:
       def insertResponse = syncUpdate(new SyncUpdate(data: """\
                     inetnum:    192.0.0.0 - 192.0.0.255
@@ -815,7 +876,7 @@ class InetnumIntegrationSpec extends BaseWhoisSourceSpec {
                     mnt-by:     TEST-MNT
                     source:     TEST
                     password: update
-                """.stripIndent()))
+                """.stripIndent(true)))
     then:
       insertResponse =~ /Create FAILED: \[inetnum\] 192.0.0.0 - 192.0.0.255/
       insertResponse =~ /\*\*\*Error:   You cannot add or remove a RIPE NCC maintainer/
@@ -847,7 +908,7 @@ class InetnumIntegrationSpec extends BaseWhoisSourceSpec {
                     source: TEST
                     password:hm
                     password:update
-                """.stripIndent()))
+                """.stripIndent(true)))
     then:
       insertResponse =~ /Create FAILED: \[inetnum\] 192.0.0.0 - 192.0.0.255/
       insertResponse =~ /Error:   inetnum parent has incorrect status: ASSIGNED PI/
@@ -877,7 +938,7 @@ class InetnumIntegrationSpec extends BaseWhoisSourceSpec {
                     mnt-by: TEST-MNT
                     source: TEST
                     password:update
-                """.stripIndent()))
+                """.stripIndent(true)))
     then:
       create =~ /Create SUCCEEDED: \[inetnum\] 192.0.0.0 - 192.0.0.255/
       create =~ /Info:    Value ASSIGNED PA converted to LEGACY/
@@ -947,7 +1008,7 @@ class InetnumIntegrationSpec extends BaseWhoisSourceSpec {
                     source: TEST
                     delete: reason
                     password:update
-                """.stripIndent()))
+                """.stripIndent(true)))
     then:
       delete =~ /Delete FAILED: \[inetnum\] 192.0.0.0 - 192.0.0.255/
       delete =~ /Error:   Only RIPE NCC can create\/delete a top level object with status
@@ -990,7 +1051,7 @@ class InetnumIntegrationSpec extends BaseWhoisSourceSpec {
                     source: TEST
                     delete: reason
                     password:update
-                """.stripIndent()))
+                """.stripIndent(true)))
     then:
       insertResponse =~ /Delete SUCCEEDED: \[inetnum\] 192.0.0.0 - 192.0.0.255/
   }
@@ -1030,7 +1091,7 @@ class InetnumIntegrationSpec extends BaseWhoisSourceSpec {
                     source: TEST
                     delete: reason
                     password:hm
-                """.stripIndent()))
+                """.stripIndent(true)))
     then:
       delete =~ /SUCCEEDED/
   }
@@ -1069,7 +1130,7 @@ class InetnumIntegrationSpec extends BaseWhoisSourceSpec {
                     mnt-by: TEST-MNT
                     source: TEST
                     password:update
-                """.stripIndent()))
+                """.stripIndent(true)))
     then:
       modify =~ /Modify SUCCEEDED: \[inetnum\] 192.0.0.0 - 192.0.0.255/
   }
@@ -1091,7 +1152,7 @@ class InetnumIntegrationSpec extends BaseWhoisSourceSpec {
                     password: hm
                     password: update
                     password: nccend
-                """.stripIndent()))
+                """.stripIndent(true)))
     expect:
       insertResponse =~ /SUCCESS/
     when:
@@ -1111,7 +1172,7 @@ class InetnumIntegrationSpec extends BaseWhoisSourceSpec {
                     source: TEST
                     password: nccend
                     password: update
-                """.stripIndent())
+                """.stripIndent(true))
     then:
       response =~ /SUCCESS/
   }
@@ -1132,7 +1193,7 @@ class InetnumIntegrationSpec extends BaseWhoisSourceSpec {
                     password: hm
                     password: nccend
                     password: update
-                """.stripIndent()))
+                """.stripIndent(true)))
         expect:
         insertResponse =~ /SUCCESS/
         when:
@@ -1150,7 +1211,7 @@ class InetnumIntegrationSpec extends BaseWhoisSourceSpec {
                     source: TEST
                     password: hm
                     password: update
-                """.stripIndent())
+                """.stripIndent(true))
         then:
         response =~ /Modify FAILED: \[inetnum\] 192.0.0.0 - 192.0.0.255/
         response =~ /\*\*\*Error:   Changing "mnt-lower:" value requires administrative authorisation/
@@ -1173,7 +1234,7 @@ class InetnumIntegrationSpec extends BaseWhoisSourceSpec {
             org:ORG-TOL1-TEST
             password:update
             password:hm
-            """.stripIndent()))
+            """.stripIndent(true)))
     then:
       insertResponse =~ /SUCCESS/
     when:
@@ -1189,7 +1250,7 @@ class InetnumIntegrationSpec extends BaseWhoisSourceSpec {
             mnt-by: RIPE-NCC-HM-MNT
             mnt-lower: TEST-MNT
             source: TEST
-            """.stripIndent())
+            """.stripIndent(true))
     then:
       response =~ /FAIL/
       response =~ /not authenticated by: TEST-MNT, RIPE-NCC-END-MNT/
@@ -1225,7 +1286,7 @@ class InetnumIntegrationSpec extends BaseWhoisSourceSpec {
             mnt-lower: TEST-MNT
             source: TEST
             override: denis,override1
-            """.stripIndent()))
+            """.stripIndent(true)))
     then:
       response =~ /Create SUCCEEDED: \[inetnum\] 192.0.0.0 - 192.0.0.255/
       response =~ /Modify SUCCEEDED: \[inetnum\] 192.0.0.0 - 192.0.0.255/
@@ -1246,7 +1307,7 @@ class InetnumIntegrationSpec extends BaseWhoisSourceSpec {
                     mnt-lower:  TEST-MNT
                     source:     TEST
                     override:denis,override1
-                """.stripIndent()))
+                """.stripIndent(true)))
       addObject("""\
                     inetnum:    192.0.0.0 - 192.0.0.255
                     netname:    RIPE-NCC
@@ -1259,7 +1320,7 @@ class InetnumIntegrationSpec extends BaseWhoisSourceSpec {
                     mnt-by:     TEST-MNT
                     source:     TEST
                     override:denis,override1
-                """.stripIndent())
+                """.stripIndent(true))
     when:
       def response = syncUpdate(new SyncUpdate(data: """\
                     inetnum:    192.0.0.0 - 192.0.0.255
@@ -1273,7 +1334,7 @@ class InetnumIntegrationSpec extends BaseWhoisSourceSpec {
                     mnt-by:     TEST-MNT
                     source:     TEST
                     password: update
-                """.stripIndent()))
+                """.stripIndent(true)))
     then:
       response =~ /Modify FAILED: \[inetnum\] 192.0.0.0 - 192.0.0.255/
       response =~ /\*\*\*Error:   status value cannot be changed, you must delete and re-create the\n\s+object/
@@ -1293,7 +1354,7 @@ class InetnumIntegrationSpec extends BaseWhoisSourceSpec {
                     mnt-lower:  TEST-MNT
                     source:     TEST
                     password:hm
-                """.stripIndent()))
+                """.stripIndent(true)))
       syncUpdate(new SyncUpdate(data: """\
                     inetnum:    192.0.0.0 - 192.0.0.255
                     netname:    RIPE-NCC
@@ -1305,7 +1366,7 @@ class InetnumIntegrationSpec extends BaseWhoisSourceSpec {
                     mnt-by:     TEST-MNT
                     source:     TEST
                     password: update
-                """.stripIndent()))
+                """.stripIndent(true)))
     when:
       def response = syncUpdate(new SyncUpdate(data: """\
                     inetnum:    192.0.0.0 - 192.0.0.255
@@ -1318,7 +1379,7 @@ class InetnumIntegrationSpec extends BaseWhoisSourceSpec {
                     mnt-by:     TEST-MNT
                     source:     TEST
                     password: update
-                """.stripIndent()))
+                """.stripIndent(true)))
     then:
       response =~ /No operation: \[inetnum\] 192.0.0.0 - 192.0.0.255/
       response =~ /\*\*\*Info:    Value ASSIGNED PI converted to LEGACY/
@@ -1338,7 +1399,7 @@ class InetnumIntegrationSpec extends BaseWhoisSourceSpec {
                     mnt-lower:  TEST-MNT
                     source:     TEST
                     password:hm
-                """.stripIndent()))
+                """.stripIndent(true)))
       syncUpdate(new SyncUpdate(data: """\
                     inetnum:    192.0.0.0 - 192.0.0.255
                     netname:    RIPE-NCC
@@ -1350,7 +1411,7 @@ class InetnumIntegrationSpec extends BaseWhoisSourceSpec {
                     mnt-by:     TEST-MNT
                     source:     TEST
                     password: update
-                """.stripIndent()))
+                """.stripIndent(true)))
     when:
       def response = syncUpdate(new SyncUpdate(data: """\
                     inetnum:    192.0.0.0 - 192.0.0.255
@@ -1364,7 +1425,7 @@ class InetnumIntegrationSpec extends BaseWhoisSourceSpec {
                     mnt-by:     TEST-MNT
                     source:     TEST
                     password: update
-                """.stripIndent()))
+                """.stripIndent(true)))
     then:
       response =~ /Modify FAILED: \[inetnum\] 192.0.0.0 - 192.0.0.255/
       response =~ /\*\*\*Error:   You cannot add or remove a RIPE NCC maintainer/
@@ -1384,7 +1445,7 @@ class InetnumIntegrationSpec extends BaseWhoisSourceSpec {
                     mnt-lower:  TEST-MNT
                     source:     TEST
                     password:hm
-                """.stripIndent()))
+                """.stripIndent(true)))
       syncUpdate(new SyncUpdate(data: """\
                     inetnum:    192.0.0.0 - 192.0.0.255
                     netname:    RIPE-NCC
@@ -1396,7 +1457,7 @@ class InetnumIntegrationSpec extends BaseWhoisSourceSpec {
                     mnt-by:     TEST-MNT
                     source:     TEST
                     password: update
-                """.stripIndent()))
+                """.stripIndent(true)))
     when:
       def response = syncUpdate(new SyncUpdate(data: """\
                     inetnum:    192.0.0.0 - 192.0.0.255
@@ -1410,7 +1471,7 @@ class InetnumIntegrationSpec extends BaseWhoisSourceSpec {
                     mnt-by:     TEST-MNT
                     source:     TEST
                     password: update
-                """.stripIndent()))
+                """.stripIndent(true)))
     then:
       response =~ /Modify FAILED: \[inetnum\] 192.0.0.0 - 192.0.0.255/
       response =~ /\*\*\*Error:   You cannot add or remove a RIPE NCC maintainer/
@@ -1429,7 +1490,7 @@ class InetnumIntegrationSpec extends BaseWhoisSourceSpec {
                     mnt-by:     RIPE-NCC-HM-MNT
                     source:     TEST
                     password:hm
-                """.stripIndent()))
+                """.stripIndent(true)))
       syncUpdate(new SyncUpdate(data: """\
                     inetnum:    192.0.0.0 - 192.0.0.255
                     netname:    RIPE-NCC
@@ -1442,7 +1503,7 @@ class InetnumIntegrationSpec extends BaseWhoisSourceSpec {
                     status:     LEGACY
                     source:     TEST
                     override:denis,override1
-                """.stripIndent()))
+                """.stripIndent(true)))
     when:
       def response = syncUpdate(new SyncUpdate(data: """\
                     inetnum:    192.0.0.0 - 192.0.0.255
@@ -1455,7 +1516,7 @@ class InetnumIntegrationSpec extends BaseWhoisSourceSpec {
                     mnt-by:     TEST-MNT
                     source:     TEST
                     password: update
-                """.stripIndent()))
+                """.stripIndent(true)))
     then:
       response =~ /Modify FAILED: \[inetnum\] 192.0.0.0 - 192.0.0.255/
       response =~ /\*\*\*Error:   You cannot add or remove a RIPE NCC maintainer/
@@ -1475,7 +1536,7 @@ class InetnumIntegrationSpec extends BaseWhoisSourceSpec {
                     mnt-lower:  TEST-MNT
                     source:     TEST
                     password:hm
-                """.stripIndent()))
+                """.stripIndent(true)))
       syncUpdate(new SyncUpdate(data: """\
                     inetnum:    192.0.0.0 - 192.0.0.255
                     netname:    RIPE-NCC
@@ -1487,7 +1548,7 @@ class InetnumIntegrationSpec extends BaseWhoisSourceSpec {
                     status:     LEGACY
                     source:     TEST
                     password:update
-                """.stripIndent()))
+                """.stripIndent(true)))
     when:
       def response = syncUpdate(new SyncUpdate(data: """\
                     inetnum:    192.0.0.0 - 192.0.0.255
@@ -1501,7 +1562,7 @@ class InetnumIntegrationSpec extends BaseWhoisSourceSpec {
                     mnt-by:     TEST-MNT
                     source:     TEST
                     override:denis,override1
-                """.stripIndent()))
+                """.stripIndent(true)))
     then:
       response =~ /Modify SUCCEEDED: \[inetnum\] 192.0.0.0 - 192.0.0.255/
       response =~ /\*\*\*Info:    Authorisation override used/
@@ -1521,7 +1582,7 @@ class InetnumIntegrationSpec extends BaseWhoisSourceSpec {
                     mnt-lower:  TEST-MNT
                     source:     TEST
                     password:hm
-                """.stripIndent()))
+                """.stripIndent(true)))
       syncUpdate(new SyncUpdate(data: """\
                     inetnum:    192.0.0.0 - 192.0.0.255
                     netname:    RIPE-NCC
@@ -1535,7 +1596,7 @@ class InetnumIntegrationSpec extends BaseWhoisSourceSpec {
                     mnt-by:     TEST-MNT
                     source:     TEST
                     override:denis,override1
-                """.stripIndent()))
+                """.stripIndent(true)))
     when:
       def response = syncUpdate(new SyncUpdate(data: """\
                     inetnum:    192.0.0.0 - 192.0.0.255
@@ -1549,7 +1610,7 @@ class InetnumIntegrationSpec extends BaseWhoisSourceSpec {
                     mnt-by:     TEST-MNT
                     source:     TEST
                     password: update
-                """.stripIndent()))
+                """.stripIndent(true)))
     then:
       response =~ /Modify FAILED: \[inetnum\] 192.0.0.0 - 192.0.0.255/
       response =~ /\*\*\*Error:   Referenced organisation can only be removed by the RIPE NCC for this\n\s+resource/
@@ -1569,7 +1630,7 @@ class InetnumIntegrationSpec extends BaseWhoisSourceSpec {
                     mnt-lower:  TEST-MNT
                     source:     TEST
                     password:hm
-                """.stripIndent()))
+                """.stripIndent(true)))
       syncUpdate(new SyncUpdate(data: """\
                     inetnum:    192.0.0.0 - 192.0.0.255
                     netname:    RIPE-NCC
@@ -1583,7 +1644,7 @@ class InetnumIntegrationSpec extends BaseWhoisSourceSpec {
                     mnt-by:     TEST-MNT
                     source:     TEST
                     override:denis,override1
-                """.stripIndent()))
+                """.stripIndent(true)))
     when:
       def response = syncUpdate(new SyncUpdate(data: """\
                     inetnum:    192.0.0.0 - 192.0.0.255
@@ -1598,7 +1659,7 @@ class InetnumIntegrationSpec extends BaseWhoisSourceSpec {
                     mnt-by:     TEST-MNT
                     source:     TEST
                     password: update
-                """.stripIndent()))
+                """.stripIndent(true)))
     then:
       response =~ /Modify FAILED: \[inetnum\] 192.0.0.0 - 192.0.0.255/
       response =~ /\*\*\*Error:   Referenced organisation can only be changed by the RIPE NCC for this\n\s+resource/
@@ -1618,7 +1679,7 @@ class InetnumIntegrationSpec extends BaseWhoisSourceSpec {
                     org: ORG-TOL2-TEST
                     source: TEST
                     password:update
-                """.stripIndent()))
+                """.stripIndent(true)))
     expect:
       insertResponse =~ /SUCCESS/
     when:
@@ -1635,7 +1696,7 @@ class InetnumIntegrationSpec extends BaseWhoisSourceSpec {
                     mnt-irt:irt-IRT1
                     org:ORG-TOL2-TEST
                     password:FAIL
-                """.stripIndent())
+                """.stripIndent(true))
     then:
       response =~ /FAIL/
       response =~ /not authenticated by: irt-IRT1/
@@ -1669,7 +1730,7 @@ class InetnumIntegrationSpec extends BaseWhoisSourceSpec {
                     mnt-irt:irt-IRT1
                     org:ORG-TOL2-TEST
                     override:denis,override1
-                """.stripIndent()))
+                """.stripIndent(true)))
     then:
       !(response =~ /FAIL/)
       response =~ /Modify SUCCEEDED: \[inetnum\] 193.0.0.0 - 193.0.0.255/
@@ -1689,7 +1750,7 @@ class InetnumIntegrationSpec extends BaseWhoisSourceSpec {
                     org: ORG-TOL2-TEST
                     source: TEST
                     password:update
-                """.stripIndent()))
+                """.stripIndent(true)))
     expect:
       insertResponse =~ /SUCCESS/
     when:
@@ -1706,7 +1767,7 @@ class InetnumIntegrationSpec extends BaseWhoisSourceSpec {
                     org:ORG-TOL2-TEST
                     source: TEST
                     password:update
-                    """.stripIndent())
+                    """.stripIndent(true))
     then:
       response =~ /SUCCESS/
   }
@@ -1727,7 +1788,7 @@ class InetnumIntegrationSpec extends BaseWhoisSourceSpec {
                 source:       TEST
                 password: update
                 password: hm
-                """.stripIndent()))
+                """.stripIndent(true)))
     then:
       response =~ /SUCCESS/
       response =~ /Create SUCCEEDED: \[inetnum\] 192.168.128.0 - 192.168.255.255/
@@ -1746,7 +1807,7 @@ class InetnumIntegrationSpec extends BaseWhoisSourceSpec {
                 mnt-by:       TEST2-MNT
                 source:       TEST
                 password:     emptypassword
-                """.stripIndent()))
+                """.stripIndent(true)))
     then:
       response =~ /FAIL/
       response =~ /\*\*\*Error:   Authorisation for parent \[inetnum\] 0.0.0.0 - 255.255.255.255 failed/
@@ -1767,7 +1828,7 @@ class InetnumIntegrationSpec extends BaseWhoisSourceSpec {
                 mnt-by:       TEST2-MNT
                 source:       TEST
                 override:     denis,override1
-                """.stripIndent()))
+                """.stripIndent(true)))
     then:
       response =~ /inetnum parent has incorrect status: ALLOCATED UNSPECIFIED/
   }
@@ -1789,7 +1850,7 @@ class InetnumIntegrationSpec extends BaseWhoisSourceSpec {
                 password:     pimaintainer
                 password:     update
                 password:     hm
-                """.stripIndent()))
+                """.stripIndent(true)))
     then:
       response =~ /SUCCESS/
       response =~ /Create SUCCEEDED: \[inetnum\] 192.168.200.0 - 192.168.200.255/
@@ -1811,7 +1872,7 @@ class InetnumIntegrationSpec extends BaseWhoisSourceSpec {
                 password:     emptypassword
                 password:     update
                 password:     hm
-                """.stripIndent()))
+                """.stripIndent(true)))
     then:
       response =~ /SUCCESS/
       response =~ /Create SUCCEEDED: \[inetnum\] 192.168.200.0 - 192.168.200.255/
@@ -1832,8 +1893,263 @@ class InetnumIntegrationSpec extends BaseWhoisSourceSpec {
                 password:     emptypassword
                 password:     update
                 override:     denis,override1
-                """.stripIndent()))
+                """.stripIndent(true)))
     then:
       response =~ /Create SUCCEEDED: \[inetnum\] 192.168.200.0 - 192.168.200.255/
   }
+
+    def "create inetnum succeeds with person with mnt-ref with correct passwd"() {
+        when:
+        def response = syncUpdate(new SyncUpdate(data: """\
+                inetnum:      192.168.200.0 - 192.168.200.255
+                netname:      RIPE-NET1
+                descr:        /24 assigned
+                country:      NL
+                admin-c:      TEST-PN
+                tech-c:       TP2-TEST
+                status:       ASSIGNED PI
+                mnt-by:       TEST2-MNT
+                source:       TEST
+                password:     emptypassword
+                password:     update
+                password:     hm
+                """.stripIndent(true)))
+        then:
+        response =~ /Create SUCCEEDED: \[inetnum\] 192.168.200.0 - 192.168.200.255/
+    }
+
+    def "create inetnum fails with person with mnt-ref with wrong passwd"() {
+        when:
+        def response = syncUpdate(new SyncUpdate(data: """\
+                inetnum:      192.168.200.0 - 192.168.200.255
+                netname:      RIPE-NET1
+                descr:        /24 assigned
+                country:      NL
+                admin-c:      TEST-PN
+                tech-c:       TP2-TEST
+                status:       ASSIGNED PI
+                mnt-by:       TEST2-MNT
+                source:       TEST
+                password:     emptypassword
+                password:     hm
+                """.stripIndent(true)))
+        then:
+        response =~ """
+            \\*\\*\\*Error:   Authorisation for \\[person\\] TP2-TEST failed
+                        using "mnt-ref:"
+                        not authenticated by: TEST-MNT""".stripIndent(true)
+    }
+
+    def "create inetnum succeeds with person with mnt-ref with override"() {
+        when:
+        def response = syncUpdate(new SyncUpdate(data: """\
+                inetnum:      192.168.200.0 - 192.168.200.255
+                netname:      RIPE-NET1
+                descr:        /24 assigned
+                country:      NL
+                admin-c:      TEST-PN
+                tech-c:       TP2-TEST
+                status:       ASSIGNED PI
+                mnt-by:       TEST2-MNT
+                source:       TEST
+                override:     denis,override1
+                """.stripIndent(true)))
+        then:
+        response =~ /Create SUCCEEDED: \[inetnum\] 192.168.200.0 - 192.168.200.255/
+    }
+
+
+    def "create inetnum succeeds with role with mnt-ref with correct passwd"() {
+        when:
+        def response = syncUpdate(new SyncUpdate(data: """\
+                inetnum:      192.168.200.0 - 192.168.200.255
+                netname:      RIPE-NET1
+                descr:        /24 assigned
+                country:      NL
+                admin-c:      RL-TEST
+                tech-c:       TEST-PN
+                status:       ASSIGNED PI
+                mnt-by:       TEST2-MNT
+                source:       TEST
+                password:     emptypassword
+                password:     update
+                password:     hm
+                """.stripIndent(true)))
+        then:
+        response =~ /Create SUCCEEDED: \[inetnum\] 192.168.200.0 - 192.168.200.255/
+    }
+
+    def "create inetnum fails with role with mnt-ref with wrong passwd"() {
+        when:
+        def response = syncUpdate(new SyncUpdate(data: """\
+                inetnum:      192.168.200.0 - 192.168.200.255
+                netname:      RIPE-NET1
+                descr:        /24 assigned
+                country:      NL
+                admin-c:      RL-TEST
+                tech-c:       TEST-PN
+                status:       ASSIGNED PI
+                mnt-by:       TEST2-MNT
+                source:       TEST
+                password:     emptypassword
+                password:     hm
+                """.stripIndent(true)))
+        then:
+        response =~ """
+            \\*\\*\\*Error:   Authorisation for \\[role\\] RL-TEST failed
+                        using "mnt-ref:"
+                        not authenticated by: TEST-MNT""".stripIndent(true)
+    }
+
+    def "create inetnum succeeds with role with mnt-ref with override"() {
+        when:
+        def response = syncUpdate(new SyncUpdate(data: """\
+                inetnum:      192.168.200.0 - 192.168.200.255
+                netname:      RIPE-NET1
+                descr:        /24 assigned
+                country:      NL
+                admin-c:      TEST-PN
+                tech-c:       TEST-PN
+                status:       ASSIGNED PI
+                mnt-by:       TEST2-MNT
+                source:       TEST
+                tech-c:       TP2-TEST
+                password:     emptypassword
+                password:     update
+                override:     denis,override1
+                """.stripIndent(true)))
+        then:
+        response =~ /Create SUCCEEDED: \[inetnum\] 192.168.200.0 - 192.168.200.255/
+    }
+
+    def "create inetnum succeeds with irt with mnt-ref with correct passwd"() {
+        when:
+        def response = syncUpdate(new SyncUpdate(data: """\
+                inetnum:      192.168.200.0 - 192.168.200.255
+                netname:      RIPE-NET1
+                descr:        /24 assigned
+                country:      NL
+                admin-c:      TEST-PN
+                tech-c:       TEST-PN
+                status:       ASSIGNED PI
+                mnt-by:       TEST2-MNT
+                source:       TEST
+                mnt-irt:      irt-IRT2
+                password:     emptypassword
+                password:     update
+                password:     hm
+                """.stripIndent(true)))
+        then:
+        response =~ /Create SUCCEEDED: \[inetnum\] 192.168.200.0 - 192.168.200.255/
+    }
+
+    def "create inetnum fails with irt with mnt-ref with wrong passwd"() {
+        when:
+        def response = syncUpdate(new SyncUpdate(data: """\
+                inetnum:      192.168.200.0 - 192.168.200.255
+                netname:      RIPE-NET1
+                descr:        /24 assigned
+                country:      NL
+                admin-c:      TEST-PN
+                tech-c:       TEST-PN
+                status:       ASSIGNED PI
+                mnt-by:       TEST2-MNT
+                source:       TEST
+                mnt-irt:      irt-IRT2
+                password:     emptypassword
+                password:     update
+                """.stripIndent(true)))
+        then:
+        response =~ """
+            \\*\\*\\*Error:   Authorisation for \\[irt\\] irt-IRT2 failed
+                        using "mnt-ref:"
+                        not authenticated by: RIPE-NCC-HM-MNT""".stripIndent(true)
+    }
+
+    def "create inetnum succeeds with irt with mnt-ref with override"() {
+        when:
+        def response = syncUpdate(new SyncUpdate(data: """\
+                inetnum:      192.168.200.0 - 192.168.200.255
+                netname:      RIPE-NET1
+                descr:        /24 assigned
+                country:      NL
+                admin-c:      RL-TEST
+                tech-c:       TEST-PN
+                status:       ASSIGNED PI
+                mnt-by:       TEST2-MNT
+                source:       TEST
+                tech-c:       TP2-TEST
+                mnt-irt:      irt-IRT2
+                password:     emptypassword
+                password:     update
+                override:     denis,override1
+                """.stripIndent(true)))
+        then:
+        response =~ /Create SUCCEEDED: \[inetnum\] 192.168.200.0 - 192.168.200.255/
+    }
+
+
+    def "create inetnum succeeds with mntner with mnt-ref with correct passwd"() {
+        when:
+        def response = syncUpdate(new SyncUpdate(data: """\
+                inetnum:      192.168.200.0 - 192.168.200.255
+                netname:      RIPE-NET1
+                descr:        /24 assigned
+                country:      NL
+                admin-c:      TEST-PN
+                tech-c:       TEST-PN
+                status:       ASSIGNED PI
+                mnt-by:       REF-MNT
+                source:       TEST
+                password:     emptypassword
+                password:     update
+                password:     hm
+                """.stripIndent(true)))
+        then:
+        response =~ /Create SUCCEEDED: \[inetnum\] 192.168.200.0 - 192.168.200.255/
+    }
+
+    def "create inetnum fails with mntner with mnt-ref with wrong passwd"() {
+        when:
+        def response = syncUpdate(new SyncUpdate(data: """\
+                inetnum:      192.168.200.0 - 192.168.200.255
+                netname:      RIPE-NET1
+                descr:        /24 assigned
+                country:      NL
+                admin-c:      TEST-PN
+                tech-c:       TEST-PN
+                status:       ASSIGNED PI
+                mnt-by:       REF-MNT
+                source:       TEST
+                password:     emptypassword
+                password:     update
+                """.stripIndent(true)))
+        then:
+        response =~ """
+            \\*\\*\\*Error:   Authorisation for \\[mntner\\] REF-MNT failed
+                        using "mnt-ref:"
+                        not authenticated by: RIPE-NCC-HM-MNT""".stripIndent(true)
+    }
+
+    def "create inetnum succeeds with mntner with mnt-ref with override"() {
+        when:
+        def response = syncUpdate(new SyncUpdate(data: """\
+                inetnum:      192.168.200.0 - 192.168.200.255
+                netname:      RIPE-NET1
+                descr:        /24 assigned
+                country:      NL
+                admin-c:      RL-TEST
+                tech-c:       TEST-PN
+                status:       ASSIGNED PI
+                mnt-by:       REF-MNT
+                source:       TEST
+                tech-c:       TP2-TEST
+                password:     emptypassword
+                password:     update
+                override:     denis,override1
+                """.stripIndent(true)))
+        then:
+        response =~ /Create SUCCEEDED: \[inetnum\] 192.168.200.0 - 192.168.200.255/
+    }
+
 }

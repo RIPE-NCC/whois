@@ -3,7 +3,6 @@ package net.ripe.db.whois.common.dao.jdbc;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
-import net.ripe.db.whois.common.IntegrationTest;
 import net.ripe.db.whois.common.dao.RpslObjectInfo;
 import net.ripe.db.whois.common.dao.RpslObjectUpdateDao;
 import net.ripe.db.whois.common.dao.RpslObjectUpdateInfo;
@@ -19,10 +18,10 @@ import net.ripe.db.whois.common.support.database.diff.Database;
 import net.ripe.db.whois.common.support.database.diff.DatabaseDiff;
 import net.ripe.db.whois.common.support.database.diff.Row;
 import net.ripe.db.whois.common.support.database.diff.Rows;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.experimental.categories.Category;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Tag;
+import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.EmptyResultDataAccessException;
 
@@ -34,24 +33,25 @@ import java.util.Map;
 import java.util.Set;
 
 import static net.ripe.db.whois.common.support.database.diff.Rows.with;
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.greaterThan;
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.lessThan;
 import static org.hamcrest.Matchers.not;
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.junit.Assert.fail;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.fail;
 
-@Category(IntegrationTest.class)
+@Tag("IntegrationTest")
 public class JdbcRpslObjectUpdateDaoIntegrationTest extends AbstractDaoIntegrationTest {
     @Autowired RpslObjectUpdateDao subject;
 
-    @Before
+    @BeforeEach
     public void setup() {
         sourceContext.setCurrentSourceToWhoisMaster();
     }
 
-    @After
+    @AfterEach
     public void cleanup() {
         sourceContext.removeCurrentSource();
     }
@@ -157,22 +157,27 @@ public class JdbcRpslObjectUpdateDaoIntegrationTest extends AbstractDaoIntegrati
                 with("mntner", "TEST"));
     }
 
-    @Test(expected = EmptyResultDataAccessException.class)
+    @Test
     public void undelete_basicObject_not_deleted() {
-        final RpslObject mntnerObject = makeObject(ObjectType.MNTNER, "TEST");
-        final RpslObjectUpdateInfo created = subject.createObject(mntnerObject);
+        assertThrows(EmptyResultDataAccessException.class, () -> {
+            final RpslObject mntnerObject = makeObject(ObjectType.MNTNER, "TEST");
+            final RpslObjectUpdateInfo created = subject.createObject(mntnerObject);
 
-        subject.undeleteObject(created.getObjectId());
+            subject.undeleteObject(created.getObjectId());
+        });
     }
 
-    @Test(expected = EmptyResultDataAccessException.class)
+    @Test
     public void undelete_basicObject_twice() {
-        final RpslObject mntnerObject = makeObject(ObjectType.MNTNER, "TEST");
-        final RpslObjectUpdateInfo created = subject.createObject(mntnerObject);
-        final RpslObjectUpdateInfo deleted = subject.deleteObject(created.getObjectId(), created.getKey());
+        assertThrows(EmptyResultDataAccessException.class, () -> {
+            final RpslObject mntnerObject = makeObject(ObjectType.MNTNER, "TEST");
+            final RpslObjectUpdateInfo created = subject.createObject(mntnerObject);
+            final RpslObjectUpdateInfo deleted = subject.deleteObject(created.getObjectId(), created.getKey());
 
-        subject.undeleteObject(deleted.getObjectId());
-        subject.undeleteObject(deleted.getObjectId());
+            subject.undeleteObject(deleted.getObjectId());
+            subject.undeleteObject(deleted.getObjectId());
+        });
+
     }
 
     @Test
@@ -260,12 +265,15 @@ public class JdbcRpslObjectUpdateDaoIntegrationTest extends AbstractDaoIntegrati
                 with("atlast", 0));
     }
 
-    @Test(expected = IllegalStateException.class)
+    @Test
     public void create_object_twice() {
-        final RpslObjectUpdateInfo person = subject.createObject(new RpslObject(1, ImmutableList.of(new RpslAttribute("person", "first person name"), new RpslAttribute("nic-hdl", "P1"))));
-        assertThat(person.getKey(), is("P1"));
+        assertThrows(IllegalStateException.class, () -> {
+            final RpslObjectUpdateInfo person = subject.createObject(new RpslObject(1, ImmutableList.of(new RpslAttribute("person", "first person name"), new RpslAttribute("nic-hdl", "P1"))));
+            assertThat(person.getKey(), is("P1"));
 
-        subject.createObject(new RpslObject(2, ImmutableList.of(new RpslAttribute("person", "first person name"), new RpslAttribute("nic-hdl", "P1"))));
+            subject.createObject(new RpslObject(2, ImmutableList.of(new RpslAttribute("person", "first person name"), new RpslAttribute("nic-hdl", "P1"))));
+
+        });
     }
 
     @Test
@@ -313,19 +321,19 @@ public class JdbcRpslObjectUpdateDaoIntegrationTest extends AbstractDaoIntegrati
 
         // test lookup
         final List<RpslObjectInfo> personIndex = IndexStrategies.get(AttributeType.PERSON).findInIndex(whoisTemplate, "name");
-        assertThat(personIndex.size(), is(2));
+        assertThat(personIndex, hasSize(2));
         assertConsistsOfObjectIds(personIndex, new int[]{1, 2});
 
         final List<RpslObjectInfo> person2Index = IndexStrategies.get(AttributeType.PERSON).findInIndex(whoisTemplate, "second name");
-        assertThat(person2Index.size(), is(1));
+        assertThat(person2Index, hasSize(1));
         assertConsistsOfObjectIds(person2Index, new int[]{2});
 
         final List<RpslObjectInfo> roleIndex = IndexStrategies.get(AttributeType.ROLE).findInIndex(whoisTemplate, "second");
-        assertThat(roleIndex.size(), is(1));
+        assertThat(roleIndex, hasSize(1));
         assertConsistsOfObjectIds(roleIndex, new int[]{4});
 
         final List<RpslObjectInfo> noneIndex = IndexStrategies.get(AttributeType.ROLE).findInIndex(whoisTemplate, "person");
-        assertThat(noneIndex.size(), is(0));
+        assertThat(noneIndex, hasSize(0));
 
         // now delete the objects
         assertThat(subject.deleteObject(first_person.getObjectId(), first_person.getKey()).getObjectId(), greaterThan(0));
@@ -366,15 +374,15 @@ public class JdbcRpslObjectUpdateDaoIntegrationTest extends AbstractDaoIntegrati
 
         // test lookup
         final List<RpslObjectInfo> orgIndex = IndexStrategies.get(AttributeType.ORG_NAME).findInIndex(whoisTemplate, "first");
-        assertThat(orgIndex.size(), is(1));
+        assertThat(orgIndex, hasSize(1));
         assertConsistsOfObjectIds(orgIndex, new int[]{1});
 
         final List<RpslObjectInfo> org2Index = IndexStrategies.get(AttributeType.ORG_NAME).findInIndex(whoisTemplate, "name");
-        assertThat(org2Index.size(), is(2));
+        assertThat(org2Index, hasSize(2));
         assertConsistsOfObjectIds(org2Index, new int[]{1, 2});
 
         final List<RpslObjectInfo> noneIndex = IndexStrategies.get(AttributeType.ORG_NAME).findInIndex(whoisTemplate, "bunny");
-        assertThat(noneIndex.size(), is(0));
+        assertThat(noneIndex, hasSize(0));
 
         // now delete the objects
         assertThat(subject.deleteObject(first_org.getObjectId(), first_org.getKey()).getObjectId(), greaterThan(0));
@@ -384,9 +392,11 @@ public class JdbcRpslObjectUpdateDaoIntegrationTest extends AbstractDaoIntegrati
         assertThat(deleted.getTable("org_name"), hasSize(0));
     }
 
-    @Test(expected = EmptyResultDataAccessException.class)
+    @Test
     public void delete_nonexistant_object() {
-        subject.deleteObject(999, "");
+        assertThrows(EmptyResultDataAccessException.class, () -> {
+            subject.deleteObject(999, "");
+        });
     }
 
     @Test

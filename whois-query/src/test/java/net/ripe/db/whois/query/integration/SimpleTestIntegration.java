@@ -1,24 +1,22 @@
 package net.ripe.db.whois.query.integration;
 
 import com.google.common.collect.Lists;
-import net.ripe.db.whois.common.IntegrationTest;
 import net.ripe.db.whois.common.TestDateTimeProvider;
 import net.ripe.db.whois.common.dao.RpslObjectUpdateInfo;
 import net.ripe.db.whois.common.domain.CIString;
 import net.ripe.db.whois.common.iptree.IpTreeUpdater;
 import net.ripe.db.whois.common.rpsl.RpslObject;
-import net.ripe.db.whois.common.support.DummyWhoisClient;
-import net.ripe.db.whois.common.support.NettyWhoisClientFactory;
 import net.ripe.db.whois.common.support.TelnetWhoisClient;
-import net.ripe.db.whois.common.support.WhoisClientHandler;
 import net.ripe.db.whois.query.QueryMessages;
 import net.ripe.db.whois.query.QueryServer;
 import net.ripe.db.whois.query.support.AbstractQueryIntegrationTest;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Ignore;
-import org.junit.Test;
-import org.junit.experimental.categories.Category;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Tag;
+import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
 
@@ -30,26 +28,34 @@ import static net.ripe.db.whois.common.dao.jdbc.JdbcRpslObjectOperations.insertI
 import static net.ripe.db.whois.common.support.StringMatchesRegexp.stringMatchesRegexp;
 import static net.ripe.db.whois.query.support.PatternCountMatcher.matchesPatternCount;
 import static net.ripe.db.whois.query.support.PatternMatcher.matchesPattern;
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.containsString;
+import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.greaterThan;
+import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.not;
-import static org.junit.Assert.assertEquals;
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.junit.Assert.assertTrue;
 
-@Category(IntegrationTest.class)
+@Tag("IntegrationTest")
 public class SimpleTestIntegration extends AbstractQueryIntegrationTest {
     //TODO [TP]: Too many different things being tested here. Should be refactored.
-
-    private static final String END_OF_HEADER = "% See http://www.ripe.net/db/support/db-terms-conditions.pdf\n\n";
 
     @Autowired IpTreeUpdater ipTreeUpdater;
     @Autowired TestDateTimeProvider dateTimeProvider;
 
+    @BeforeAll
+    public static void setProperty() {
+        System.setProperty("whois.read.timeout.sec", "3");
+    }
+
+    @AfterAll
+    public static void clearProperty() {
+        System.clearProperty("whois.read.timeout.sec");
+    }
+
     // TODO: [AH] most tests don't taint the DB; have a 'tainted' flag in DBHelper, reinit only if needed
-    @Before
-    public void startupWhoisServer() {
+    @BeforeEach
+    public void startupWhoisServer() throws InterruptedException {
         final RpslObject person = RpslObject.parse("person: ADM-TEST\naddress: address\nphone: +312342343\nmnt-by:RIPE-NCC-HM-MNT\nadmin-c: ADM-TEST\nnic-hdl: ADM-TEST\nsource: TEST");
         final RpslObject mntner = RpslObject.parse("mntner: RIPE-NCC-HM-MNT\nmnt-by: RIPE-NCC-HM-MNT\ndescr: description\nadmin-c: ADM-TEST\nsource: TEST");
         databaseHelper.addObjects(Lists.newArrayList(person, mntner));
@@ -63,7 +69,7 @@ public class SimpleTestIntegration extends AbstractQueryIntegrationTest {
         queryServer.start();
     }
 
-    @After
+    @AfterEach
     public void shutdownWhoisServer() {
         queryServer.stop(true);
     }
@@ -71,6 +77,7 @@ public class SimpleTestIntegration extends AbstractQueryIntegrationTest {
     @Test
     public void testLoggingNonProxy() {
         final String response = TelnetWhoisClient.queryLocalhost(QueryServer.port, "-rBGxTinetnum 81.80.117.237 - 81.80.117.237");
+
         assertThat(response, containsString("81.80.117.237 - 81.80.117.237"));
     }
 
@@ -86,42 +93,6 @@ public class SimpleTestIntegration extends AbstractQueryIntegrationTest {
         final String response = TelnetWhoisClient.queryLocalhost(QueryServer.port, "help\n");
 
         assertThat(response, containsString("-L"));
-    }
-
-    @Test
-    public void kFlagShouldKeepTheConnectionOpenUntilTheSecondKWithoutArguments() throws Exception {
-        final WhoisClientHandler client = NettyWhoisClientFactory.newLocalClient(QueryServer.port);
-
-        client.connectAndWait();
-        client.sendLine("-k");
-
-        client.waitForResponseEndsWith(END_OF_HEADER);
-
-        client.sendLine("-k");
-        client.waitForClose();
-
-        assertTrue(client.getSuccess());
-    }
-
-    @Test
-    public void kFlagShouldKeepTheConnectionOpenAfterSupportedQuery() throws Exception {
-        final WhoisClientHandler client = NettyWhoisClientFactory.newLocalClient(QueryServer.port);
-
-        client.connectAndWait();
-        client.sendLine("-k");
-
-        client.waitForResponseEndsWith(END_OF_HEADER);
-        client.clearBuffer();
-
-        client.sendLine("-rBGxTinetnum 81.80.117.237 - 81.80.117.237");
-        client.waitForResponseEndsWith(END_OF_HEADER);
-
-        assertThat(client.getResponse(), containsString("inetnum:        81.80.117.237 - 81.80.117.237"));
-
-        client.sendLine("-k");
-        client.waitForClose();
-
-        assertTrue(client.getSuccess());
     }
 
     @Test
@@ -238,6 +209,7 @@ public class SimpleTestIntegration extends AbstractQueryIntegrationTest {
     @Test
     public void routeSimpleHierarchySearch() throws Exception {
         final String response = TelnetWhoisClient.queryLocalhost(QueryServer.port, "81.80.117.0/24AS123");
+
         assertThat(response, matchesPattern("(?m)^route: *81.80.117.0/24$"));
         assertThat(response, matchesPatternCount("(?m)^\\w+: *", 2));
     }
@@ -245,18 +217,21 @@ public class SimpleTestIntegration extends AbstractQueryIntegrationTest {
     @Test
     public void routeSimpleHierarchySearchWrongAS() throws Exception {
         final String response = TelnetWhoisClient.queryLocalhost(QueryServer.port, "81.80.117.0/24AS456");
+
         assertThat(response, containsString(QueryMessages.noResults("TEST").toString()));
     }
 
     @Test
     public void routeDefaultHierarchySearchForNonexistant() throws Exception {
         final String response = TelnetWhoisClient.queryLocalhost(QueryServer.port, "81.80.117.54/32AS123");
+
         assertThat(response, containsString(QueryMessages.noResults("TEST").toString()));
     }
 
     @Test
     public void routeAllLessSpecificHierarchySearchForNonexistant() throws Exception {
         final String response = TelnetWhoisClient.queryLocalhost(QueryServer.port, "-L 81.80.117.54/32AS123");
+
         assertThat(response, matchesPattern("(?m)^route: *81.80.117.0/24$"));
         assertThat(response, matchesPattern("(?m)^route: *81.80.0.0/16$"));
         assertThat(response, matchesPatternCount("(?m)^\\w+: *", 4));
@@ -265,6 +240,7 @@ public class SimpleTestIntegration extends AbstractQueryIntegrationTest {
     @Test
     public void routeOneLessSpecificHierarchySearchForExisting() throws Exception {
         final String response = TelnetWhoisClient.queryLocalhost(QueryServer.port, "-l 81.80.117.0/24AS123");
+
         assertThat(response, matchesPattern("(?m)^route: *81.80.0.0/16$"));
         assertThat(response, matchesPatternCount("(?m)^\\w+: *", 2));
     }
@@ -272,18 +248,21 @@ public class SimpleTestIntegration extends AbstractQueryIntegrationTest {
     @Test
     public void routeOneLessSpecificHierarchySearchAtTopLevel() throws Exception {
         final String response = TelnetWhoisClient.queryLocalhost(QueryServer.port, "-l 81.80.0.0/16AS123");
+
         assertThat(response, containsString(QueryMessages.noResults("TEST").toString()));
     }
 
     @Test
     public void routeOneMoreSpecificHierarchySearchAtBottomLevel() throws Exception {
         final String response = TelnetWhoisClient.queryLocalhost(QueryServer.port, "-m 81.80.117.0/24AS123");
+
         assertThat(response, containsString(QueryMessages.noResults("TEST").toString()));
     }
 
     @Test
     public void routeOneMoreSpecificHierarchySearch() throws Exception {
         final String response = TelnetWhoisClient.queryLocalhost(QueryServer.port, "-m 81.80.0.0/16AS123");
+
         assertThat(response, matchesPattern("(?m)^route: *81.80.117.0/24$"));
         assertThat(response, matchesPatternCount("(?m)^\\w+: *", 2));
     }
@@ -291,6 +270,7 @@ public class SimpleTestIntegration extends AbstractQueryIntegrationTest {
     @Test
     public void routeOneMoreSpecificHierarchySearchAtTopLevel() throws Exception {
         final String response = TelnetWhoisClient.queryLocalhost(QueryServer.port, "-m 0.0.0.0/0AS123");
+
         assertThat(response, containsString("query options are not allowed on very large ranges/prefixes"));
         assertThat(response, matchesPatternCount("(?m)^\\w+: *", 0));
     }
@@ -298,6 +278,7 @@ public class SimpleTestIntegration extends AbstractQueryIntegrationTest {
     @Test
     public void routeOneMoreSpecificHierarchySearchAtAlmostTopLevel() throws Exception {
         final String response = TelnetWhoisClient.queryLocalhost(QueryServer.port, "-m 81.0.0.0/8AS123");
+
         assertThat(response, matchesPattern("(?m)^route: *81.80.0.0/16$"));
         assertThat(response, matchesPatternCount("(?m)^\\w+: *", 2));
     }
@@ -305,6 +286,7 @@ public class SimpleTestIntegration extends AbstractQueryIntegrationTest {
     @Test
     public void routeAllMoreSpecificHierarchySearchAtAlmostTopLevel() throws Exception {
         final String response = TelnetWhoisClient.queryLocalhost(QueryServer.port, "-M 81.0.0.0/8AS123");
+
         assertThat(response, matchesPattern("(?m)^route: *81.80.0.0/16$"));
         assertThat(response, matchesPattern("(?m)^route: *81.80.117.0/24$"));
         assertThat(response, matchesPatternCount("(?m)^\\w+: *", 4));
@@ -313,6 +295,7 @@ public class SimpleTestIntegration extends AbstractQueryIntegrationTest {
     @Test
     public void routeAllMoreSpecificHierarchySearchAtTopLevelWrongAS() throws Exception {
         final String response = TelnetWhoisClient.queryLocalhost(QueryServer.port, "-M 81.0.0.0/8A456");
+
         assertThat(response, containsString(QueryMessages.noResults("TEST").toString()));
     }
 
@@ -358,12 +341,14 @@ public class SimpleTestIntegration extends AbstractQueryIntegrationTest {
     @Test
     public void unsupported_query() {
         final String response = TelnetWhoisClient.queryLocalhost(QueryServer.port, "(85.115.248.176)");
+
         assertThat(response, containsString(QueryMessages.invalidSearchKey().toString()));
     }
 
     @Test
     public void more_specific_inetnum_query_including_domain_object() {
         final String response = TelnetWhoisClient.queryLocalhost(QueryServer.port, "-r -d -M 81.80.0.0/16");
+
         assertThat(response, containsString("inetnum:        81.80.117.237 - 81.80.117.237"));
         assertThat(response, containsString("domain:         117.80.81.in-addr.arpa"));
     }
@@ -371,6 +356,7 @@ public class SimpleTestIntegration extends AbstractQueryIntegrationTest {
     @Test
     public void check_inverse_with_objecttype() {
         final String response = TelnetWhoisClient.queryLocalhost(QueryServer.port, "-T aut-num -i member-of AS-123");
+
         assertThat(response, not(containsString(QueryMessages.invalidSearchKey().toString())));
         assertThat(response, containsString(QueryMessages.noResults("TEST").toString()));
     }
@@ -398,8 +384,8 @@ public class SimpleTestIntegration extends AbstractQueryIntegrationTest {
         final RpslObjectUpdateInfo rpslObjectInfo = insertIntoLastAndUpdateSerials(dateTimeProvider, jdbcTemplate, rpslObject);
         final Set<CIString> missing = insertIntoTablesIgnoreMissing(jdbcTemplate, rpslObjectInfo, rpslObject);
         assertThat(missing.size(), greaterThan(0));
-        ipTreeUpdater.update();
 
+        ipTreeUpdater.update();
         final String lookupResponse = TelnetWhoisClient.queryLocalhost(QueryServer.port, "0/0");
         assertThat(lookupResponse, containsString("" +
                 "inetnum:        0.0.0.0 - 255.255.255.255\n" +
@@ -418,6 +404,7 @@ public class SimpleTestIntegration extends AbstractQueryIntegrationTest {
                 "source:         TEST # Filtered"));
 
         final String inverseLookupResponse = TelnetWhoisClient.queryLocalhost(QueryServer.port, "-i mnt-by TEST-ROOT-MNT");
+
         assertThat(inverseLookupResponse, containsString("%ERROR:101: no entries found"));
     }
 
@@ -448,7 +435,7 @@ public class SimpleTestIntegration extends AbstractQueryIntegrationTest {
                 "% The objects are in RPSL format.\n" +
                 "%\n" +
                 "% The RIPE Database is subject to Terms and Conditions.\n" +
-                "% See http://www.ripe.net/db/support/db-terms-conditions.pdf\n" +
+                "% See https://apps.db.ripe.net/docs/HTML-Terms-And-Conditions\n" +
                 "\n" +
                 "% Information related to 'AS760-MNT'\n" +
                 "\n" +
@@ -477,7 +464,7 @@ public class SimpleTestIntegration extends AbstractQueryIntegrationTest {
     public void query_updated_domain() throws Exception {
         databaseHelper.updateObject("domain: 117.80.81.in-addr.arpa\nnserver:ns.example.com\nremark:This is the current version\n");
 
-        String response = TelnetWhoisClient.queryLocalhost(QueryServer.port, "117.80.81.in-addr.arpa");
+        final String response = TelnetWhoisClient.queryLocalhost(QueryServer.port, "117.80.81.in-addr.arpa");
 
         assertThat(response, containsString("domain:         117.80.81.in-addr.arpa"));
         assertThat(response, containsString("This is the current version"));
@@ -495,15 +482,14 @@ public class SimpleTestIntegration extends AbstractQueryIntegrationTest {
         assertThat(response, containsString("% Version history for DOMAIN object \"117.80.81.in-addr.arpa\"\n% You can use \"--show-version rev#\" to get an exact version of the object."));
         assertThat(response, containsString("ADD/UPD"));
 
-        List<RpslObjectVersions.Entry> entries = RpslObjectVersions.parse(response).getVersions();
+        final List<RpslObjectVersions.Entry> entries = RpslObjectVersions.parse(response).getVersions();
 
-        assertTrue(entries.size() == 5);
+        assertThat(entries, hasSize(5));
 
         int i = 1;
         for (RpslObjectVersions.Entry entry : entries) {
-            assertEquals(entry.getVersion(), i);
-            assertEquals(entry.getOperation(), RpslObjectVersions.Operation.ADD_UPDATE);
-
+            assertThat(entry.getVersion(), equalTo(i));
+            assertThat(entry.getOperation(), equalTo(RpslObjectVersions.Operation.ADD_UPDATE));
             i++;
         }
     }
@@ -511,6 +497,7 @@ public class SimpleTestIntegration extends AbstractQueryIntegrationTest {
     @Test
     public void invalid_combination() {
         final String response = TelnetWhoisClient.queryLocalhost(QueryServer.port, "-v role -v person");
+
         assertThat(response, containsString("ERROR:110: multiple use of flag"));
         assertThat(response, containsString("The flag \"-v\" cannot be used multiple times."));
     }
@@ -523,13 +510,13 @@ public class SimpleTestIntegration extends AbstractQueryIntegrationTest {
                         "descr:          66121 Saarbrücken\n" +
                         "' USING utf8) WHERE pkey = '117.80.81.in-addr.arpa'");
 
-        final String response = DummyWhoisClient.query(QueryServer.port, "117.80.81.in-addr.arpa");
+        final String response = TelnetWhoisClient.queryLocalhost(QueryServer.port, "117.80.81.in-addr.arpa");
 
         //  0x00FC is UTF-8 representation of u-umlaut (2 bytes)
         assertThat(response, containsString("Saarbr\u00FCcken"));
     }
 
-    @Ignore("TODO: single byte latin1 characters > ASCII in object BLOB column will need to be converted to UTF8")
+    @Disabled("TODO: single byte latin1 characters > ASCII in object BLOB column will need to be converted to UTF8")
     @Test
     public void query_latin1_encoded_object_in_utf8_table() throws Exception {
         // 0xFC is latin1 representation of u-umlaut (1 byte)
@@ -539,13 +526,14 @@ public class SimpleTestIntegration extends AbstractQueryIntegrationTest {
                         "descr:           66121 Saarbrücken" +
                         "' WHERE pkey = '117.80.81.in-addr.arpa'");
 
-        final String response = DummyWhoisClient.query(QueryServer.port, "117.80.81.in-addr.arpa");
+        final String response = TelnetWhoisClient.queryLocalhost(QueryServer.port, "117.80.81.in-addr.arpa");
 
         assertThat(response, containsString("Saarbr\u00FCcken"));
     }
 
     public void testDirectRouteLookup() {
         final String response = TelnetWhoisClient.queryLocalhost(QueryServer.port, "81.80.117.0/24AS123");
+
         assertThat(response, containsString("81.80.117.0/24"));
     }
 
@@ -627,6 +615,7 @@ public class SimpleTestIntegration extends AbstractQueryIntegrationTest {
                 "source:      TEST");
 
         final String result = TelnetWhoisClient.queryLocalhost(QueryServer.port, "--no-valid-syntax DEL-MNT");
+
         assertThat(result, containsString("MD5-PW # Filtered"));
         assertThat(result, containsString("+312342343"));
     }
@@ -685,5 +674,21 @@ public class SimpleTestIntegration extends AbstractQueryIntegrationTest {
         assertThat(query, containsString("o ASSIGNED"));
         assertThat(query, containsString("o LEGACY"));
         assertThat(query, containsString("o OTHER"));
+    }
+
+    @Test
+    public void person_with_non_ascii_latin1_characters() {
+        databaseHelper.addObject(
+            "person:    Test User\n" +
+            "address:   Schönau am Königssee\n" +
+            "phone:     +49 6 12345678\n" +
+            "e-mail:    test@net.net\n" +
+            "nic-hdl:   TU1-TEST\n" +
+            "mnt-by:    RIPE-NCC-HM-MNT\n" +
+            "source:    TEST\n");
+
+        final String query = TelnetWhoisClient.queryLocalhost(QueryServer.port, "TU1-TEST");
+
+        assertThat(query, containsString("Schönau am Königssee"));
     }
 }

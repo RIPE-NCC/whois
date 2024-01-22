@@ -1,26 +1,26 @@
 package net.ripe.db.whois.query.integration;
 
-import net.ripe.db.whois.common.IntegrationTest;
+
 import net.ripe.db.whois.common.support.TelnetWhoisClient;
 import net.ripe.db.whois.query.QueryServer;
 import net.ripe.db.whois.query.support.AbstractQueryIntegrationTest;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.experimental.categories.Category;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Tag;
+import org.junit.jupiter.api.Test;
 
-import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.containsString;
 
-@Category(IntegrationTest.class)
+@Tag("IntegrationTest")
 public class TemplateTestIntegration extends AbstractQueryIntegrationTest {
 
-    @Before
+    @BeforeEach
     public void startupWhoisServer() {
         queryServer.start();
     }
 
-    @After
+    @AfterEach
     public void shutdownWhoisServer() {
         queryServer.stop(true);
     }
@@ -33,7 +33,7 @@ public class TemplateTestIntegration extends AbstractQueryIntegrationTest {
                 "% The objects are in RPSL format.\n" +
                 "%\n" +
                 "% The RIPE Database is subject to Terms and Conditions.\n" +
-                "% See http://www.ripe.net/db/support/db-terms-conditions.pdf\n" +
+                "% See https://apps.db.ripe.net/docs/HTML-Terms-And-Conditions\n" +
                 "\n" +
                 "route:          [mandatory]  [single]     [primary/lookup key]\n" +
                 "descr:          [optional]   [multiple]   [ ]\n" +
@@ -68,7 +68,7 @@ public class TemplateTestIntegration extends AbstractQueryIntegrationTest {
                 "% The objects are in RPSL format.\n" +
                 "%\n" +
                 "% The RIPE Database is subject to Terms and Conditions.\n" +
-                "% See http://www.ripe.net/db/support/db-terms-conditions.pdf\n" +
+                "% See https://apps.db.ripe.net/docs/HTML-Terms-And-Conditions\n" +
                 "\n" +
                 "The route6 class:\n" +
                 "\n" +
@@ -128,6 +128,7 @@ public class TemplateTestIntegration extends AbstractQueryIntegrationTest {
                 "netname:        [mandatory]  [single]     [lookup key]\n" +
                 "descr:          [optional]   [multiple]   [ ]\n" +
                 "country:        [mandatory]  [multiple]   [ ]\n" +
+                "geofeed:        [optional]   [single]     [ ]\n" +
                 "geoloc:         [optional]   [single]     [ ]\n" +
                 "language:       [optional]   [multiple]   [ ]\n" +
                 "org:            [optional]   [single]     [inverse key]\n" +
@@ -167,7 +168,7 @@ public class TemplateTestIntegration extends AbstractQueryIntegrationTest {
                 "\n" +
                 "descr\n" +
                 "\n" +
-                "   A short decription related to the object.\n" +
+                "   A short description related to the object.\n" +
                 "\n" +
                 "     A sequence of ASCII characters.\n" +
                 "\n" +
@@ -177,13 +178,23 @@ public class TemplateTestIntegration extends AbstractQueryIntegrationTest {
                 "\n" +
                 "     Valid two-letter ISO 3166 country code.\n" +
                 "\n" +
+                "geofeed\n" +
+                "\n" +
+                "   A URL referencing a CSV file containing geolocation data for the\n" +
+                "   resource.\n" +
+                "\n" +
+                "     Geofeed is a self-published format for IP geolocation data.\n" +
+                "     A URL referencing a CSV file (described by RFC8805) containing\n" +
+                "     geolocation data for the resource.\n" +
+                "     The URL must be valid and it must specify the HTTPS protocol.\n" +
+                "\n" +
                 "geoloc\n" +
                 "\n" +
                 "   The location coordinates for the resource.\n" +
                 "\n" +
-                "     Location coordinates of the resource. Can take one of the following forms:\n" +
-                "     \n" +
-                "     [-90,90][-180,180]\n" +
+                "     Location coordinates of the resource, in decimal degrees notation.\n" +
+                "     Format is latitude followed by longitude, separated by a space.\n" +
+                "     Latitude ranges from [-90,+90] and longitude from [-180,+180]\n" +
                 "\n" +
                 "language\n" +
                 "\n" +
@@ -469,7 +480,7 @@ public class TemplateTestIntegration extends AbstractQueryIntegrationTest {
                 "\n" +
                 "descr\n" +
                 "\n" +
-                "   A short decription related to the object.\n" +
+                "   A short description related to the object.\n" +
                 "\n" +
                 "     A sequence of ASCII characters.\n" +
                 "\n" +

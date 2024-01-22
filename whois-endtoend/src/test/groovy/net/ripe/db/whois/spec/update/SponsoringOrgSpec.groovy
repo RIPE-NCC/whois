@@ -1,11 +1,11 @@
 package net.ripe.db.whois.spec.update
-import net.ripe.db.whois.common.IntegrationTest
+
 import net.ripe.db.whois.common.rpsl.AttributeType
 import net.ripe.db.whois.common.rpsl.RpslObjectBuilder
 import net.ripe.db.whois.spec.BaseQueryUpdateSpec
 import net.ripe.db.whois.spec.domain.AckResponse
 
-@org.junit.experimental.categories.Category(IntegrationTest.class)
+@org.junit.jupiter.api.Tag("IntegrationTest")
 class SponsoringOrgSpec extends BaseQueryUpdateSpec {
 
     @Override
@@ -320,7 +320,7 @@ class SponsoringOrgSpec extends BaseQueryUpdateSpec {
                 password: nccend
                 password: hm
                 password: owner3
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:
@@ -405,7 +405,7 @@ class SponsoringOrgSpec extends BaseQueryUpdateSpec {
                 password: nccend
                 password: hm
                 password: owner3
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:
@@ -459,7 +459,7 @@ class SponsoringOrgSpec extends BaseQueryUpdateSpec {
                 password: nccend
                 password: hm
                 password: owner3
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:
@@ -501,7 +501,7 @@ class SponsoringOrgSpec extends BaseQueryUpdateSpec {
                 password: nccend
                 password: hm
                 password: owner3
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:
@@ -541,7 +541,7 @@ class SponsoringOrgSpec extends BaseQueryUpdateSpec {
                 password: nccend
                 password: hm
                 password: owner3
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:
@@ -608,7 +608,7 @@ class SponsoringOrgSpec extends BaseQueryUpdateSpec {
                 password: nccend
                 password: hm
                 password: owner3
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:
@@ -688,7 +688,7 @@ class SponsoringOrgSpec extends BaseQueryUpdateSpec {
                 password: nccend
                 password: hm
                 password: owner3
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:
@@ -767,7 +767,7 @@ class SponsoringOrgSpec extends BaseQueryUpdateSpec {
                 password: lir
                 password: hm
                 password: owner3
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:
@@ -841,7 +841,7 @@ class SponsoringOrgSpec extends BaseQueryUpdateSpec {
                 source:         TEST
                 override:     denis,override1
 
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:
@@ -851,7 +851,7 @@ class SponsoringOrgSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(3, 3, 0, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
 
-        ack.countErrorWarnInfo(0, 0, 3)
+        ack.countErrorWarnInfo(0, 7, 3)
         ack.successes.any { it.operation == "Create" && it.key == "[inetnum] 192.168.200.0 - 192.168.200.255" }
         ack.successes.any { it.operation == "Create" && it.key == "[inet6num] 2001:600::/64" }
         ack.successes.any { it.operation == "Create" && it.key == "[aut-num] AS222" }
@@ -915,7 +915,7 @@ class SponsoringOrgSpec extends BaseQueryUpdateSpec {
                 source:         TEST
                 override:     denis,override1
 
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:
@@ -925,7 +925,7 @@ class SponsoringOrgSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(0, 0, 0, 0, 0)
         ack.summary.assertErrors(3, 3, 0, 0)
 
-        ack.countErrorWarnInfo(3, 0, 3)
+        ack.countErrorWarnInfo(3, 7, 3)
         ack.errors.any { it.operation == "Create" && it.key == "[inetnum] 192.168.200.0 - 192.168.200.255" }
         ack.errorMessagesFor("Create", "[inetnum] 192.168.200.0 - 192.168.200.255") ==
                 ["Referenced organisation must have org-type: LIR"]
@@ -962,7 +962,7 @@ class SponsoringOrgSpec extends BaseQueryUpdateSpec {
                 source:       TEST
                 override:     denis,override1
 
-                """.stripIndent());
+                """.stripIndent(true));
 
         expect:
         def ack = new AckResponse("", message)
@@ -971,7 +971,7 @@ class SponsoringOrgSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(0, 0, 0, 0, 0)
         ack.summary.assertErrors(1, 1, 0, 0)
 
-        ack.countErrorWarnInfo(1, 0, 1)
+        ack.countErrorWarnInfo(1, 3, 1)
 
         ack.errors.any { it.operation == "Create" && it.key == "[inetnum] 192.168.200.0 - 192.168.200.255" }
         ack.errorMessagesFor("Create", "[inetnum] 192.168.200.0 - 192.168.200.255") ==
@@ -1002,7 +1002,7 @@ class SponsoringOrgSpec extends BaseQueryUpdateSpec {
                 source:       TEST
                 override:     denis,override1
 
-                """.stripIndent());
+                """.stripIndent(true));
 
         expect:
         def ack = new AckResponse("", message)
@@ -1011,7 +1011,7 @@ class SponsoringOrgSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(0, 0, 0, 0, 0)
         ack.summary.assertErrors(1, 1, 0, 0)
 
-        ack.countErrorWarnInfo(1, 0, 1)
+        ack.countErrorWarnInfo(1, 4, 1)
 
         ack.errors.any { it.operation == "Create" && it.key == "[inetnum] 192.168.200.0 - 192.168.200.255" }
         ack.errorMessagesFor("Create", "[inetnum] 192.168.200.0 - 192.168.200.255") ==
@@ -1042,7 +1042,7 @@ class SponsoringOrgSpec extends BaseQueryUpdateSpec {
                 source:       TEST
                 override:     denis,override1
 
-                """.stripIndent());
+                """.stripIndent(true));
 
         expect:
         def ack = new AckResponse("", message)
@@ -1051,7 +1051,7 @@ class SponsoringOrgSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(0, 0, 0, 0, 0)
         ack.summary.assertErrors(1, 1, 0, 0)
 
-        ack.countErrorWarnInfo(1, 0, 1)
+        ack.countErrorWarnInfo(1, 2, 1)
 
         ack.errors.any { it.operation == "Create" && it.key == "[inetnum] 192.168.200.0 - 192.168.200.255" }
         ack.errorMessagesFor("Create", "[inetnum] 192.168.200.0 - 192.168.200.255") ==
@@ -1082,7 +1082,7 @@ class SponsoringOrgSpec extends BaseQueryUpdateSpec {
                 source:       TEST
                 override:     denis,override1
 
-                """.stripIndent());
+                """.stripIndent(true));
 
         expect:
         def ack = new AckResponse("", message)
@@ -1091,7 +1091,7 @@ class SponsoringOrgSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(0, 0, 0, 0, 0)
         ack.summary.assertErrors(1, 1, 0, 0)
 
-        ack.countErrorWarnInfo(2, 0, 1)
+        ack.countErrorWarnInfo(2, 2, 1)
 
         ack.errors.any { it.operation == "Create" && it.key == "[inetnum] 192.168.200.0 - 192.168.200.255" }
         ack.errorMessagesFor("Create", "[inetnum] 192.168.200.0 - 192.168.200.255") ==
@@ -1123,7 +1123,7 @@ class SponsoringOrgSpec extends BaseQueryUpdateSpec {
                 source:       TEST
                 override:     denis,override1
 
-                """.stripIndent());
+                """.stripIndent(true));
 
         expect:
         def ack = new AckResponse("", message)
@@ -1132,7 +1132,7 @@ class SponsoringOrgSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(0, 0, 0, 0, 0)
         ack.summary.assertErrors(1, 1, 0, 0)
 
-        ack.countErrorWarnInfo(2, 0, 1)
+        ack.countErrorWarnInfo(2, 2, 1)
 
         ack.errors.any { it.operation == "Create" && it.key == "[inetnum] 192.168.200.0 - 192.168.200.255" }
         ack.errorMessagesFor("Create", "[inetnum] 192.168.200.0 - 192.168.200.255") ==
@@ -1164,7 +1164,7 @@ class SponsoringOrgSpec extends BaseQueryUpdateSpec {
                 source:       TEST
                 override:     denis,override1
 
-                """.stripIndent(), status, extra));
+                """.stripIndent(true), status, extra));
 
         expect:
         def ack = new AckResponse("", message)
@@ -1173,7 +1173,7 @@ class SponsoringOrgSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(0, 0, 0, 0, 0)
         ack.summary.assertErrors(1, 1, 0, 0)
 
-        ack.countErrorWarnInfo(1, 0, 1)
+        ack.countErrorWarnInfo(1, 2, 1)
 
         ack.errors.any { it.operation == "Create" && it.key == "[inet6num] 2001:600::/64" }
         ack.errorMessagesFor("Create", "[inet6num] 2001:600::/64") ==
@@ -1185,10 +1185,49 @@ class SponsoringOrgSpec extends BaseQueryUpdateSpec {
 
         where:
         status | extra
-        "ALLOCATED-BY-RIR"  | ""
         "ALLOCATED-BY-LIR"  | ""
         "AGGREGATED-BY-LIR" | "\nassignment-size: 96"
         "ASSIGNED"          | ""
+    }
+
+    def "create inet6num with disallowed statuses (ALLOCATED-BY-RIR), with sponsoring org, with override"() {
+        given:
+        queryObjectNotFound("-r -BG -T inet6num 2001:600::/64", "inet6num", "2001:600::/64")
+
+        def message = syncUpdate(sprintf("""\
+                inet6num:     2001:600::/64
+                netname:      EU-ZZ-2001-600
+                descr:        European Regional Registry
+                country:      EU
+                org:          ORG-OFA10-TEST
+                admin-c:      TP1-TEST
+                tech-c:       TP1-TEST
+                mnt-by:       RIPE-NCC-END-MNT
+                mnt-by:       LIR-MNT
+                mnt-lower:    RIPE-NCC-HM-MNT
+                status:       ALLOCATED-BY-RIR
+                sponsoring-org: ORG-OFA10-TEST
+                source:       TEST
+                override:     denis,override1
+
+                """.stripIndent(true)));
+
+        expect:
+        def ack = new AckResponse("", message)
+
+        ack.summary.nrFound == 1
+        ack.summary.assertSuccess(0, 0, 0, 0, 0)
+        ack.summary.assertErrors(1, 1, 0, 0)
+
+        ack.countErrorWarnInfo(1, 4, 1)
+
+        ack.errors.any { it.operation == "Create" && it.key == "[inet6num] 2001:600::/64" }
+        ack.errorMessagesFor("Create", "[inet6num] 2001:600::/64") ==
+                ["The \"sponsoring-org:\" attribute is not allowed with status value \"ALLOCATED-BY-RIR\""]
+        ack.infoMessagesFor("Create", "[inet6num] 2001:600::/64") ==
+                ["Authorisation override used"]
+
+        queryObjectNotFound("-r -BG -T inet6num 2001:600::/64", "inet6num", "2001:600::/64")
     }
 
     def "remove sponsoring-org without override without RS maintainer"() {
@@ -1286,7 +1325,7 @@ class SponsoringOrgSpec extends BaseQueryUpdateSpec {
                 source:         TEST
 
                 password: nccend
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:
@@ -1383,7 +1422,7 @@ class SponsoringOrgSpec extends BaseQueryUpdateSpec {
                 source:         TEST
 
                 password: lir
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:
@@ -1484,7 +1523,7 @@ class SponsoringOrgSpec extends BaseQueryUpdateSpec {
                 source:         TEST
 
                 password: nccend
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:
@@ -1580,7 +1619,7 @@ class SponsoringOrgSpec extends BaseQueryUpdateSpec {
                 source:         TEST
                 override:     denis,override1
 
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:
@@ -1590,7 +1629,7 @@ class SponsoringOrgSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(4, 0, 4, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
 
-        ack.countErrorWarnInfo(0, 0, 4)
+        ack.countErrorWarnInfo(0, 4, 4)
         ack.successes.any { it.operation == "Modify" && it.key == "[inetnum] 192.168.200.0 - 192.168.200.255" }
         ack.successes.any { it.operation == "Modify" && it.key == "[inetnum] 192.168.201.0 - 192.168.201.255" }
         ack.successes.any { it.operation == "Modify" && it.key == "[inet6num] 2001:600::/64" }
@@ -1671,7 +1710,7 @@ class SponsoringOrgSpec extends BaseQueryUpdateSpec {
                 source:         TEST
 
                 password: nccend
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:
@@ -1765,7 +1804,7 @@ class SponsoringOrgSpec extends BaseQueryUpdateSpec {
                 source:         TEST
                 override:   denis,override1
 
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:
@@ -1775,7 +1814,7 @@ class SponsoringOrgSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(4, 0, 4, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
 
-        ack.countErrorWarnInfo(0, 0, 4)
+        ack.countErrorWarnInfo(0, 4, 4)
         ack.successes.any { it.operation == "Modify" && it.key == "[inetnum] 192.168.100.0 - 192.168.100.255" }
         ack.successes.any { it.operation == "Modify" && it.key == "[inetnum] 192.168.101.0 - 192.168.101.255" }
         ack.successes.any { it.operation == "Modify" && it.key == "[inet6num] 2001:100::/64" }
@@ -1856,7 +1895,7 @@ class SponsoringOrgSpec extends BaseQueryUpdateSpec {
                 source:         TEST
 
                 password: lir
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:
@@ -1957,7 +1996,7 @@ class SponsoringOrgSpec extends BaseQueryUpdateSpec {
                 source:         TEST
 
                 password: lir
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:
@@ -2002,7 +2041,7 @@ class SponsoringOrgSpec extends BaseQueryUpdateSpec {
                 mnt-by:       LIR-MNT
                 mnt-lower:    RIPE-NCC-HM-MNT
                 source:       TEST
-                override: denis, override1""".stripIndent())
+                override: denis, override1""".stripIndent(true))
 
         expect:
             queryObject("-r -BG -T inetnum 192.168.200.0 - 192.168.200.255", "inetnum", "192.168.200.0 - 192.168.200.255")
@@ -2025,7 +2064,7 @@ class SponsoringOrgSpec extends BaseQueryUpdateSpec {
                 password: lir
                 password: nccend
                 password: owner3
-                password: hm""".stripIndent())
+                password: hm""".stripIndent(true))
 
         then:
         def ack = new AckResponse("", message)
@@ -2052,7 +2091,7 @@ class SponsoringOrgSpec extends BaseQueryUpdateSpec {
                 mnt-by:       LIR-MNT
                 mnt-lower:    RIPE-NCC-HM-MNT
                 source:       TEST
-                override: denis, override1""".stripIndent())
+                override: denis, override1""".stripIndent(true))
 
         expect:
         queryObject("-r -BG -T inetnum 192.168.200.0 - 192.168.200.255", "inetnum", "192.168.200.0 - 192.168.200.255")
@@ -2075,7 +2114,7 @@ class SponsoringOrgSpec extends BaseQueryUpdateSpec {
                 password: lir
                 password: owner3
                 password: nccend
-                password: hm""".stripIndent())
+                password: hm""".stripIndent(true))
 
         then:
         def ack = new AckResponse("", message)
@@ -2102,7 +2141,7 @@ class SponsoringOrgSpec extends BaseQueryUpdateSpec {
                 mnt-by:       LIR-MNT
                 mnt-lower:    RIPE-NCC-HM-MNT
                 source:       TEST
-                override: denis, override1""".stripIndent())
+                override: denis, override1""".stripIndent(true))
 
         expect:
         queryObject("-r -BG -T inetnum 192.168.200.0 - 192.168.200.255", "inetnum", "192.168.200.0 - 192.168.200.255")
@@ -2124,7 +2163,7 @@ class SponsoringOrgSpec extends BaseQueryUpdateSpec {
                 password: lir
                 password: nccend
                 password: owner3
-                password: hm""".stripIndent())
+                password: hm""".stripIndent(true))
 
         then:
         def ack = new AckResponse("", message)
@@ -2151,7 +2190,7 @@ class SponsoringOrgSpec extends BaseQueryUpdateSpec {
                 mnt-by:       LIR-MNT
                 mnt-lower:    RIPE-NCC-HM-MNT
                 source:       TEST
-                override: denis, override1""".stripIndent())
+                override: denis, override1""".stripIndent(true))
 
         expect:
         queryObject("-r -BG -T inetnum 192.168.200.0 - 192.168.200.255", "inetnum", "192.168.200.0 - 192.168.200.255")
@@ -2175,7 +2214,7 @@ class SponsoringOrgSpec extends BaseQueryUpdateSpec {
                 password: lir
                 password: nccend
                 password: owner3
-                password: hm""".stripIndent())
+                password: hm""".stripIndent(true))
 
         then:
         def ack = new AckResponse("", message)
@@ -2211,7 +2250,7 @@ class SponsoringOrgSpec extends BaseQueryUpdateSpec {
                 delete:   testing
 
                 password: hm
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:
@@ -2254,7 +2293,7 @@ class SponsoringOrgSpec extends BaseQueryUpdateSpec {
                 delete:   testing
 
                 password: hm
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:
@@ -2339,7 +2378,7 @@ class SponsoringOrgSpec extends BaseQueryUpdateSpec {
                 source:         TEST
 
                 password: lir
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:
@@ -2442,7 +2481,7 @@ class SponsoringOrgSpec extends BaseQueryUpdateSpec {
                 source:         TEST
 
                 password: nccend
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:
@@ -2544,7 +2583,7 @@ class SponsoringOrgSpec extends BaseQueryUpdateSpec {
                 source:         TEST
                 override:   denis,override1
 
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:
@@ -2554,7 +2593,7 @@ class SponsoringOrgSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(0, 0, 0, 0, 0)
         ack.summary.assertErrors(4, 0, 4, 0)
 
-        ack.countErrorWarnInfo(4, 0, 4)
+        ack.countErrorWarnInfo(4, 4, 4)
         ack.errors.any { it.operation == "Modify" && it.key == "[inetnum] 192.168.100.0 - 192.168.100.255" }
         ack.errorMessagesFor("Modify", "[inetnum] 192.168.100.0 - 192.168.100.255") ==
                 ["Referenced organisation must have org-type: LIR"]
@@ -2649,7 +2688,7 @@ class SponsoringOrgSpec extends BaseQueryUpdateSpec {
                 source:         TEST
 
                 password: lir
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:
@@ -2758,7 +2797,7 @@ class SponsoringOrgSpec extends BaseQueryUpdateSpec {
                 source:         TEST
 
                 password: nccend
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:
@@ -2866,7 +2905,7 @@ class SponsoringOrgSpec extends BaseQueryUpdateSpec {
                 source:         TEST
                 override:    denis,override1
 
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:
@@ -2876,7 +2915,7 @@ class SponsoringOrgSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(0, 0, 0, 0, 0)
         ack.summary.assertErrors(4, 0, 4, 0)
 
-        ack.countErrorWarnInfo(4, 0, 4)
+        ack.countErrorWarnInfo(4, 4, 4)
         ack.errors.any { it.operation == "Modify" && it.key == "[inetnum] 192.168.200.0 - 192.168.200.255" }
         ack.errorMessagesFor("Modify", "[inetnum] 192.168.200.0 - 192.168.200.255") ==
                 ["Referenced organisation must have org-type: LIR"]
@@ -2917,7 +2956,7 @@ class SponsoringOrgSpec extends BaseQueryUpdateSpec {
 
                 password: nccend
                 password: hm
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:
@@ -2958,7 +2997,7 @@ class SponsoringOrgSpec extends BaseQueryUpdateSpec {
                 password: nccend
                 password: hm
                 password: owner3
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:
@@ -2998,7 +3037,7 @@ class SponsoringOrgSpec extends BaseQueryUpdateSpec {
                 password: nccend
                 password: hm
                 password: owner3
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:
@@ -3038,7 +3077,7 @@ class SponsoringOrgSpec extends BaseQueryUpdateSpec {
                 password: nccend
                 password: hm
                 password: owner3
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:
@@ -3075,7 +3114,7 @@ class SponsoringOrgSpec extends BaseQueryUpdateSpec {
                     status:         ASSIGNED ANYCAST
                     source:         TEST
                     override:     denis,override1
-                    """.stripIndent())
+                    """.stripIndent(true))
         then:
             def ack = new AckResponse("", message)
 
@@ -3099,7 +3138,7 @@ class SponsoringOrgSpec extends BaseQueryUpdateSpec {
                     mnt-lower:      RIPE-NCC-HM-MNT
                     status:         ASSIGNED ANYCAST
                     source:         TEST
-                    """.stripIndent())
+                    """.stripIndent(true))
         then:
             def message = syncUpdate("""\
                     inet6num:       2001:102::/48
@@ -3116,7 +3155,7 @@ class SponsoringOrgSpec extends BaseQueryUpdateSpec {
                     status:         ASSIGNED ANYCAST
                     source:         TEST
                     override:     denis,override1
-                    """.stripIndent())
+                    """.stripIndent(true))
         then:
             def ack = new AckResponse("", message)
 
@@ -3149,7 +3188,7 @@ class SponsoringOrgSpec extends BaseQueryUpdateSpec {
                 password: nccend
                 password: hm
                 password: owner3
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -3190,7 +3229,7 @@ class SponsoringOrgSpec extends BaseQueryUpdateSpec {
                 source:       TEST
 
                 password: nccend
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:

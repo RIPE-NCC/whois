@@ -1,26 +1,23 @@
 package net.ripe.db.whois.api.mail.dequeue;
 
+import jakarta.mail.internet.MimeMessage;
 import net.ripe.db.whois.api.AbstractIntegrationTest;
 import net.ripe.db.whois.api.MailUpdatesTestSupport;
-import net.ripe.db.whois.common.IntegrationTest;
 import net.ripe.db.whois.update.domain.UpdateContext;
 import net.ripe.db.whois.update.domain.UpdateRequest;
 import net.ripe.db.whois.update.domain.UpdateResponse;
 import net.ripe.db.whois.update.domain.UpdateStatus;
 import net.ripe.db.whois.update.handler.UpdateRequestHandler;
 import net.ripe.db.whois.update.mail.MailSenderStub;
-import org.junit.BeforeClass;
-import org.junit.Test;
-import org.junit.experimental.categories.Category;
-import org.kubek2k.springockito.annotations.ReplaceWithMock;
-import org.kubek2k.springockito.annotations.SpringockitoContextLoader;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Tag;
+import org.junit.jupiter.api.Test;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.ContextConfiguration;
 
-import javax.mail.internet.MimeMessage;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -30,17 +27,17 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doAnswer;
 
 @DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_EACH_TEST_METHOD)
-@ContextConfiguration(loader = SpringockitoContextLoader.class, locations = {"classpath:applicationContext-api-test.xml"}, inheritLocations = false)
-@Category(IntegrationTest.class)
+@ContextConfiguration(locations = {"classpath:applicationContext-api-test.xml", "classpath:applicationContext-api-test-update-request-handler-mock.xml"}, inheritLocations = false)
+@Tag("IntegrationTest")
 public class MessageDequeueTestIntegration extends AbstractIntegrationTest {
 
     private static final int CLIENTS = 8;
 
     @Autowired private MailSenderStub mailSender;
     @Autowired private MailUpdatesTestSupport mailUpdatesTestSupport;
-    @Autowired @ReplaceWithMock private UpdateRequestHandler messageHandler;
+    @Autowired private UpdateRequestHandler messageHandler;
 
-    @BeforeClass
+    @BeforeAll
     public static void setNumberOfThreads() {
         System.setProperty("mail.update.threads", String.valueOf(CLIENTS));
     }

@@ -1,23 +1,22 @@
 package net.ripe.db.whois.compare.rest;
 
 import com.fasterxml.jackson.databind.DeserializationFeature;
-import com.fasterxml.jackson.jaxrs.json.JacksonJaxbJsonProvider;
+import com.fasterxml.jackson.jakarta.rs.json.JacksonJsonProvider;
 import com.google.common.base.Stopwatch;
+import jakarta.ws.rs.ClientErrorException;
+import jakarta.ws.rs.RedirectionException;
+import jakarta.ws.rs.client.Client;
+import jakarta.ws.rs.client.ClientBuilder;
+import jakarta.ws.rs.client.WebTarget;
+import jakarta.ws.rs.core.MediaType;
 import net.ripe.db.whois.common.domain.ResponseObject;
 import net.ripe.db.whois.common.support.QueryExecutorConfiguration;
 import net.ripe.db.whois.compare.common.ComparisonExecutor;
 import net.ripe.db.whois.compare.common.ComparisonExecutorConfig;
-import org.apache.velocity.app.event.implement.EscapeXmlReference;
 import org.glassfish.jersey.media.multipart.MultiPartFeature;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.ws.rs.ClientErrorException;
-import javax.ws.rs.RedirectionException;
-import javax.ws.rs.client.Client;
-import javax.ws.rs.client.ClientBuilder;
-import javax.ws.rs.client.WebTarget;
-import javax.ws.rs.core.MediaType;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.StringReader;
@@ -99,7 +98,7 @@ public class RestExecutor implements ComparisonExecutor {
         private static final Client client;
 
         static {
-            final JacksonJaxbJsonProvider jsonProvider = new JacksonJaxbJsonProvider();
+            final JacksonJsonProvider jsonProvider = new JacksonJsonProvider();
             jsonProvider.configure(DeserializationFeature.UNWRAP_ROOT_VALUE, false);
             jsonProvider.configure(DeserializationFeature.ACCEPT_SINGLE_VALUE_AS_ARRAY, true);
             client = ClientBuilder.newBuilder()

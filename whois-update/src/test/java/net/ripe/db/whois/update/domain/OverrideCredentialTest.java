@@ -1,6 +1,6 @@
 package net.ripe.db.whois.update.domain;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.util.Optional;
 

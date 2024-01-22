@@ -1,23 +1,22 @@
 package net.ripe.db.whois.update.dao;
 
 import com.google.common.collect.Lists;
-import net.ripe.db.whois.common.IntegrationTest;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.experimental.categories.Category;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Tag;
+import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import java.sql.SQLException;
 
 import static net.ripe.db.whois.common.domain.CIString.ciString;
-import static org.hamcrest.collection.IsIterableContainingInOrder.contains;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.collection.IsIterableContainingInOrder.contains;
 
-@Category(IntegrationTest.class)
+@Tag("IntegrationTest")
 public class LegacyAutnumDaoIntegrationTest extends AbstractUpdateDaoIntegrationTest {
     @Autowired LegacyAutnumDao subject;
 
-    @Before
+    @BeforeEach
     public void setup() {
         databaseHelper.getInternalsTemplate().execute("DELETE FROM legacy_autnums");
     }

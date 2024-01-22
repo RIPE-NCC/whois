@@ -2,12 +2,12 @@ package net.ripe.db.whois.api.rest.domain;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 
-import javax.xml.bind.annotation.XmlAccessType;
-import javax.xml.bind.annotation.XmlAccessorType;
-import javax.xml.bind.annotation.XmlAttribute;
-import javax.xml.bind.annotation.XmlElement;
-import javax.xml.bind.annotation.XmlRootElement;
-import javax.xml.bind.annotation.XmlType;
+import jakarta.xml.bind.annotation.XmlAccessType;
+import jakarta.xml.bind.annotation.XmlAccessorType;
+import jakarta.xml.bind.annotation.XmlAttribute;
+import jakarta.xml.bind.annotation.XmlElement;
+import jakarta.xml.bind.annotation.XmlRootElement;
+import jakarta.xml.bind.annotation.XmlType;
 import java.util.Collections;
 import java.util.List;
 
@@ -21,7 +21,6 @@ import static com.fasterxml.jackson.annotation.JsonInclude.Include.NON_EMPTY;
         "source",
         "primaryKey",
         "attributes",
-        "tags",
         "resourceHolder",
         "abuseContact",
         "managed",
@@ -41,9 +40,6 @@ public class WhoisObject {
 
     @XmlElement(name = "attributes", required = true)
     private Attributes attributes;
-
-    @XmlElement
-    private WhoisTags tags;
 
     @XmlElement(name = "resource-holder")
     private ResourceHolder resourceHolder;
@@ -72,7 +68,6 @@ public class WhoisObject {
             final Source source,
             final PrimaryKey primaryKey,
             final Attributes attributes,
-            final WhoisTags tags,
             final String type,
             final Action action,
             final Integer version,
@@ -83,7 +78,6 @@ public class WhoisObject {
         this.source = source;
         this.primaryKey = primaryKey;
         this.attributes = attributes;
-        this.tags = tags;
         this.type = type;
         this.action = action;
         this.version = version;
@@ -99,7 +93,6 @@ public class WhoisObject {
         private Source source;
         private PrimaryKey primaryKey;
         private Attributes attributes;
-        private WhoisTags tags;
         private String type;
         private Action action;
         private Integer version;
@@ -134,11 +127,6 @@ public class WhoisObject {
 
         public Builder attributes(final List<Attribute> attributes) {
             this.attributes = new Attributes(attributes);
-            return this;
-        }
-
-        public Builder tags(final WhoisTags tags) {
-            this.tags = tags;
             return this;
         }
 
@@ -178,7 +166,6 @@ public class WhoisObject {
                     source,
                     primaryKey,
                     attributes,
-                    tags,
                     type,
                     action,
                     version,
@@ -244,14 +231,6 @@ public class WhoisObject {
 
     public void setVersion(final Integer version) {
         this.version = version;
-    }
-
-    public List<WhoisTag> getTags() {
-        return tags != null ? tags.getTags() : Collections.<WhoisTag>emptyList();
-    }
-
-    public void setTags(final List<WhoisTag> tags) {
-        this.tags = new WhoisTags(tags);
     }
 
     public ResourceHolder getResourceHolder() {

@@ -1,24 +1,23 @@
 package net.ripe.db.whois.query.integration;
 
 import com.google.common.base.Strings;
-import net.ripe.db.whois.common.IntegrationTest;
 import net.ripe.db.whois.common.support.TelnetWhoisClient;
 import net.ripe.db.whois.query.QueryServer;
 import net.ripe.db.whois.query.support.AbstractQueryIntegrationTest;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.experimental.categories.Category;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Tag;
+import org.junit.jupiter.api.Test;
 
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.not;
-import static org.hamcrest.MatcherAssert.assertThat;
 
-@Category(IntegrationTest.class)
+@Tag("IntegrationTest")
 public class NamedQueryTestIntegration extends AbstractQueryIntegrationTest {
 
-    @Before
+    @BeforeEach
     public void startupWhoisServer() {
         databaseHelper.addObject("organisation:ORG-ZV1-RIPE");
         databaseHelper.addObject("person:Denis Walker\nnotify:someone@ripe.net\ne-mail:someone@ripe.net\nnic-hdl:DH3037-RIPE");
@@ -27,7 +26,7 @@ public class NamedQueryTestIntegration extends AbstractQueryIntegrationTest {
         queryServer.start();
     }
 
-    @After
+    @AfterEach
     public void shutdownWhoisServer() {
         queryServer.stop(true);
     }
@@ -84,7 +83,7 @@ public class NamedQueryTestIntegration extends AbstractQueryIntegrationTest {
         final String response = TelnetWhoisClient.queryLocalhost(QueryServer.port, "-rT person " + Strings.repeat("arg ", 62));
 
         assertThat(response, containsString("" +
-                "% See http://www.ripe.net/db/support/db-terms-conditions.pdf\n" +
+                "% See https://apps.db.ripe.net/docs/HTML-Terms-And-Conditions\n" +
                 "\n" +
                 "%ERROR:118: too many arguments supplied\n" +
                 "%\n" +

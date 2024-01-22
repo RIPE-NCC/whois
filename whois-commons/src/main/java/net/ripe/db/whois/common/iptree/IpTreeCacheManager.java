@@ -191,6 +191,10 @@ public class IpTreeCacheManager {
         cache.put(source, cacheEntry);
     }
 
+    public boolean check(final SourceContext sourceContext) {
+        return cache.get(sourceContext.getCurrentSourceConfiguration().getSource().getName()) != null;
+    }
+
     public void update(final SourceConfiguration sourceConfiguration) {
         update(sourceConfiguration, sourceConfiguration.getJdbcTemplate());
     }

@@ -35,6 +35,7 @@ import static net.ripe.db.whois.common.rpsl.AttributeSyntax.FILTER_SET_SYNTAX;
 import static net.ripe.db.whois.common.rpsl.AttributeSyntax.FILTER_SYNTAX;
 import static net.ripe.db.whois.common.rpsl.AttributeSyntax.FREE_FORM_SYNTAX;
 import static net.ripe.db.whois.common.rpsl.AttributeSyntax.GENERATED_SYNTAX;
+import static net.ripe.db.whois.common.rpsl.AttributeSyntax.GEOFEED_SYNTAX;
 import static net.ripe.db.whois.common.rpsl.AttributeSyntax.GEOLOC_SYNTAX;
 import static net.ripe.db.whois.common.rpsl.AttributeSyntax.HOLES_SYNTAX;
 import static net.ripe.db.whois.common.rpsl.AttributeSyntax.IFADDR_SYNTAX;
@@ -122,7 +123,8 @@ public enum AttributeType implements Documented {
             .syntax(ALIAS_SYNTAX)),
 
     ASSIGNMENT_SIZE(new Builder("assignment-size", "ae")
-            .doc("Specifies the size of blocks assigned to end users from this aggregated inet6num assignment.")
+            .doc("Specifies the size of blocks assigned to end users from this aggregated inet6num assignment.\n" +
+                    "The maximum assignment size is 128")
             .syntax(NUMBER_SYNTAX)),
 
     AS_BLOCK(new Builder("as-block", "ak")
@@ -179,7 +181,7 @@ public enum AttributeType implements Documented {
             .syntax(DEFAULT_SYNTAX)),
 
     DESCR(new Builder("descr", "de")
-            .doc("A short decription related to the object.")
+            .doc("A short description related to the object.")
             .syntax(FREE_FORM_SYNTAX)),
 
     DOMAIN(new Builder("domain", "dn")
@@ -232,6 +234,10 @@ public enum AttributeType implements Documented {
             .syntax(POETIC_FORM_SYNTAX)
             .references(ObjectType.POETIC_FORM)
             .listValue()),
+
+    GEOFEED(new Builder("geofeed",  "gf")
+            .doc("A URL referencing a CSV file containing geolocation data for the resource.")
+            .syntax(GEOFEED_SYNTAX)),
 
     GEOLOC(new Builder("geoloc", "gl")
             .doc("The location coordinates for the resource.")
