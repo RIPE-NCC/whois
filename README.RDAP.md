@@ -6,25 +6,18 @@ Multiple country attributes are not returned
 --------------------------------------------
 inetnum and inet6num objects can contain multiple country attributes, but RDAP schema only allows a single value.
 
-This implementation returns the first country attribute value, and includes the field as redacted.
+This implementation returns the first country attribute value, and any subsequent country attributes are redacted.
 
 Multiple language attributes are not returned
 ---------------------------------------------
 inetnum, inet6num, and organisation can contain multiple language attributes, but RDAP schema only allows a single
 value.
 
-This implementation returns the first language attribute value, and include the field as redacted.
-
-Multiple organisation phone attributes are returned, but not with preferences
-----------------------------------------------------------------------------------------
-Preferences are not assigned to multiple phone elements. The prioritise of the attributes in RPSL objects are unknown, therefore it
-is not possible to figure out the priority of the phone elements.
-
-According to [nro-rdap-profile](https://bitbucket.org/nroecg/nro-rdap-profile/raw/v1/nro-rdap-profile.txt) preference parameters are MAY.
+This implementation returns the first language attribute value, and any subsequent country attributes are redacted.
 
 Flat AS Model
 ----------------------------------------
-We support flat model and not hierarchical model in our autnum queries. This means that for an autnum for which we have
+We support the ASN flat model rather than the hierarchical model in our autnum queries. This means that for an autnum for which we have
 registration authority but that has not been further delegated by us the service will respond with a Not Found.
 
 For more information refer to https://bitbucket.org/nroecg/nro-rdap-profile/raw/v1/nro-rdap-profile.txt section
@@ -51,22 +44,24 @@ For example: https://rdap.db.ripe.net/entity/KR4422-RIPE
 
 Related Contact information is Filtered
 ---------------------------------------
-Some related contact entities ("technical","administrative" etc.) have filtered contact information, i.e. "e-mail"
-and "notify" values are not included. This was done to avoid blocking clients for inadvertently querying excessively for personal data.
+All contact entities ("technical","administrative" etc.) have filtered contact information, i.e. "e-mail"
+and "notify" values are not included. Contact entities do not count towards the daily query limit
+https://www.ripe.net/manage-ips-and-asns/db/support/documentation/ripe-database-acceptable-use-policy.
+This was done to avoid blocking clients for inadvertently querying excessively for personal data.
 
-For /entity/ request "e-mail" will be enabled and the clients requesting those service will need to comply with the daily limit
-according to the AUP: https://www.ripe.net/manage-ips-and-asns/db/support/documentation/ripe-database-acceptable-use
--policy.
+For entity request "e-mail" will be enabled and the clients requesting those service will need to comply with the daily limit
+according to the Acceptable User Policy (AUP): https://www.ripe.net/manage-ips-and-asns/db/support/documentation/ripe-database-acceptable-use-policy.
 
-For the rest of request either "notify" and "e-mail" is filtered.
+For the rest of request either "e-mail" is filtered. Abuse contact is always returned, and
+attributes related to whois update notification ("notify", "ref-nfy", "upd-to", "mnt-nfy") are filtered
+because they are not a general contact email.
 
 Abuse Contact information
 --------------------------
 Abuse contact information is not filtered because it is not considered personal information. However, this attribute's
-`type` non-conforming to the [RDAP spec](https://bitbucket.org/nroecg/nro-rdap-profile/raw/v1/nro-rdap-profile.txt)
-section 5.1.1, is not "home" or "work" as the RFC specifies. The `type` of this attribute is "abuse".
-
-In the previous paragraph `type` is considered as an element of the Jcard
+`type` does not conform to the to the [RDAP spec](https://bitbucket.org/nroecg/nro-rdap-profile/raw/v1/nro-rdap-profile.txt)
+section 5.1.1, is not "home" or "work" as the RFC specifies. The `type` of this attribute is "abuse". In this
+paragraph `type` is considered as an element of the Jcard.
 For example:
 ````
 ["adr",
@@ -79,7 +74,7 @@ For example:
 
 Entity Search
 --------------------------
-Entity search on a handle is limited to returning 100 results, so size and response time is not excessive.
+Entity search on a handle is limited to returning 100 results, so response size and/or time is not excessive.
 
 This is done as recommendation from the next RFC: https://datatracker.ietf.org/doc/rfc9083/ section 9. To conform with
 this spec a notification is added when the output is truncated.
@@ -87,7 +82,7 @@ this spec a notification is added when the output is truncated.
 Domain Search
 --------------------------
 Domain search is restricted to only search for reverse delegations, there are no forward domains and results are
-limited to 100. So size and response time is not excessive.
+limited to 100. So response size and/or time is not excessive.
 
 This is done as recommendation from the next RFC: https://datatracker.ietf.org/doc/rfc9083/ section 9. To conform with
 this spec a notification is added when the output is truncated.
