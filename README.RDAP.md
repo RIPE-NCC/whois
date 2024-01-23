@@ -87,10 +87,6 @@ limited to 100. So response size and/or time is not excessive.
 This is done as recommendation from the next RFC: https://datatracker.ietf.org/doc/rfc9083/ section 9. To conform with
 this spec a notification is added when the output is truncated.
 
-Netname may not match Whois
-----------------------------
-The netname value returned by RDAP may not match what is returned by Whois.
-
 Nameserver queries always return Not Implemented
 -------------------------------------------------
 The RIPE database doesn't contain any forward domain objects, consequently according to the RFC
