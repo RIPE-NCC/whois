@@ -89,7 +89,7 @@ public class AuthServiceClient {
     }
 
     @Nullable
-    @Cacheable(cacheNames="ssoValidateToken", key="#authToken")
+    @Cacheable(cacheNames="ssoValidateToken", key="#authToken", condition="#authToken!=null")
     public ValidateTokenResponse validateToken(final String authToken) {
         if (StringUtils.isEmpty(authToken)) {
             LOGGER.debug("No crowdToken was supplied");
@@ -126,7 +126,7 @@ public class AuthServiceClient {
             null);
     }
 
-    @Cacheable(cacheNames="ssoUuid", key="#username")
+    @Cacheable(cacheNames="ssoUuid", key="#username", condition="#username!=null")
     public String getUuid(final String username) {
         if (StringUtils.isEmpty(username)) {
             LOGGER.debug("No username was supplied");
@@ -155,7 +155,7 @@ public class AuthServiceClient {
         }
     }
 
-    @Cacheable(cacheNames="ssoUserDetails", key="#uuid")
+    @Cacheable(cacheNames="ssoUserDetails", key="#uuid", condition="#uuid!=null")
     public ValidateTokenResponse getUserDetails(final String uuid) {
         if (StringUtils.isEmpty(uuid)) {
             LOGGER.debug("No uuid was supplied");
@@ -181,11 +181,11 @@ public class AuthServiceClient {
         }
     }
 
-    @Cacheable(cacheNames="ssoHistoricalUserDetails", key="#uuid")
+    @Cacheable(cacheNames="ssoHistoricalUserDetails", key="#uuid", condition="#uuid!=null")
     public HistoricalUserResponse getHistoricalUserDetails(final String uuid) {
         if (StringUtils.isEmpty(uuid)) {
             LOGGER.debug("No uuid was supplied");
-            throw new AuthServiceClientException(BAD_REQUEST.getStatusCode(),"Invalid uuid.");
+            throw new AuthServiceClientException(BAD_REQUEST.getStatusCode(),"No UUID.");
         }
 
         try {
