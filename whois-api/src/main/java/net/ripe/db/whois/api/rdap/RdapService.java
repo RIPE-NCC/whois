@@ -428,6 +428,7 @@ public class RdapService {
         try {
             uri = delegatedStatsService.getUriForRedirect(requestPath, query);
         } catch (WebApplicationException e) {
+            LOGGER.debug(e.getMessage(), e);
             throw new RdapException("404 Not found", "Redirect URI not found", HttpStatus.NOT_FOUND_404);
         }
 
@@ -439,6 +440,7 @@ public class RdapService {
         try {
             uri = delegatedStatsService.getUriForRedirect(requestPath, objectType, searchValue);
         } catch (WebApplicationException e) {
+            LOGGER.debug(e.getMessage(), e);
             throw new RdapException("404 Not found", "Redirect URI not found", HttpStatus.NOT_FOUND_404);
         }
 
@@ -453,6 +455,7 @@ public class RdapService {
                         getReverseObjectType(domain),
                         domain.getReverseIp().toString());
         } catch (WebApplicationException e) {
+            LOGGER.debug(e.getMessage(), e);
             throw new RdapException("404 Not found", "Redirect URI not found", HttpStatus.NOT_FOUND_404);
         }
 
