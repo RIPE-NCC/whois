@@ -107,7 +107,7 @@ public class AuthServiceClientTestIntegration extends AbstractIntegrationTest {
             authServiceClient.getUuid(null);
         });
 
-        assertThat(authServiceClientException.getMessage(), is("No UUID."));
+        assertThat(authServiceClientException.getMessage(), is("No username."));
         assertThat(cacheManager.getCache("ssoUuid").get(USER_EMAIL), is(nullValue()));
     }
 
@@ -119,7 +119,7 @@ public class AuthServiceClientTestIntegration extends AbstractIntegrationTest {
             authServiceClient.getUserDetails(null);
         });
 
-        assertThat(authServiceClientException.getMessage(), is("No username."));
+        assertThat(authServiceClientException.getMessage(), is("No UUID."));
         assertThat(cacheManager.getCache("ssoUserDetails").get(UUID), is(nullValue()));
     }
 
