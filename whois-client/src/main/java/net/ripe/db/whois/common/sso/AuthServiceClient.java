@@ -93,7 +93,7 @@ public class AuthServiceClient {
     public ValidateTokenResponse validateToken(final String authToken) {
         if (StringUtils.isEmpty(authToken)) {
             LOGGER.debug("No crowdToken was supplied");
-            throw new AuthServiceClientException(BAD_REQUEST.getStatusCode(), "No UUID.");
+            throw new AuthServiceClientException(BAD_REQUEST.getStatusCode(), "No Token.");
         }
 
         try {

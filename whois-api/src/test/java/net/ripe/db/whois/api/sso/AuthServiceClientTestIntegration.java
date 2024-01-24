@@ -24,6 +24,8 @@ public class AuthServiceClientTestIntegration extends AbstractIntegrationTest {
 
     private static final String UUID = "8ffe29be-89ef-41c8-ba7f-0e1553a623e5";
 
+    private static final String TOKEN = "eyJhbGciOiJSUzI1NiIsInR5cCIgOiAiSldUIiwia";
+
     private static final String USER_EMAIL = "test@ripe.net";
     @Autowired
     private CacheManager cacheManager;
@@ -40,12 +42,12 @@ public class AuthServiceClientTestIntegration extends AbstractIntegrationTest {
 
     @Test
     public void get_validate_token_response_is_cached() {
-        assertThat(cacheManager.getCache("ssoValidateToken").get(UUID), is(nullValue()));
+        assertThat(cacheManager.getCache("ssoValidateToken").get(TOKEN), is(nullValue()));
 
-        final ValidateTokenResponse userDetails = authServiceClient.validateToken(UUID);
+        final ValidateTokenResponse userDetails = authServiceClient.validateToken(TOKEN);
 
         assertThat(userDetails.response.content.email, is(USER_EMAIL));
-        assertThat(cacheManager.getCache("ssoValidateToken").get(UUID), is(not(nullValue())));
+        assertThat(cacheManager.getCache("ssoValidateToken").get(TOKEN), is(not(nullValue())));
     }
 
     @Test
@@ -89,14 +91,14 @@ public class AuthServiceClientTestIntegration extends AbstractIntegrationTest {
     // Errors
     @Test
     public void get_validate_token_response_null_input_then_error() {
-        assertThat(cacheManager.getCache("ssoValidateToken").get(UUID), is(nullValue()));
+        assertThat(cacheManager.getCache("ssoValidateToken").get(TOKEN), is(nullValue()));
 
         final AuthServiceClientException authServiceClientException = assertThrows(AuthServiceClientException.class, () -> {
             authServiceClient.validateToken(null);
         });
 
-        assertThat(authServiceClientException.getMessage(), is("No UUID."));
-        assertThat(cacheManager.getCache("ssoValidateToken").get(UUID), is(nullValue()));
+        assertThat(authServiceClientException.getMessage(), is("No Token."));
+        assertThat(cacheManager.getCache("ssoValidateToken").get(TOKEN), is(nullValue()));
     }
 
     @Test
