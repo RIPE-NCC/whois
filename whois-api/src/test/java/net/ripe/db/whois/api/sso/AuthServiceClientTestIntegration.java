@@ -15,7 +15,6 @@ import java.time.LocalDateTime;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
-import static org.hamcrest.Matchers.not;
 import static org.hamcrest.Matchers.nullValue;
 import static org.junit.Assert.assertThrows;
 
@@ -47,7 +46,7 @@ public class AuthServiceClientTestIntegration extends AbstractIntegrationTest {
         final ValidateTokenResponse userDetails = authServiceClient.validateToken(TOKEN);
 
         assertThat(userDetails.response.content.email, is(USER_EMAIL));
-        assertThat(cacheManager.getCache("ssoValidateToken").get(TOKEN), is(not(nullValue())));
+        assertThat(((ValidateTokenResponse)cacheManager.getCache("ssoValidateToken").get(TOKEN).get()).response.content.email, is(USER_EMAIL));
     }
 
     @Test
@@ -57,7 +56,7 @@ public class AuthServiceClientTestIntegration extends AbstractIntegrationTest {
         final String userUuid = authServiceClient.getUuid(USER_EMAIL);
 
         assertThat(userUuid, is(UUID));
-        assertThat(cacheManager.getCache("ssoUuid").get(USER_EMAIL), is(not(nullValue())));
+        assertThat(cacheManager.getCache("ssoUuid").get(USER_EMAIL).get().toString(), is(UUID));
     }
 
     @Test
@@ -67,7 +66,8 @@ public class AuthServiceClientTestIntegration extends AbstractIntegrationTest {
         final ValidateTokenResponse userDetails = authServiceClient.getUserDetails(UUID);
 
         assertThat(userDetails.response.content.email, is(USER_EMAIL));
-        assertThat(cacheManager.getCache("ssoUserDetails").get(UUID), is(not(nullValue())));
+        assertThat(((ValidateTokenResponse)cacheManager.getCache("ssoUserDetails").get(UUID).get()).response.content.email
+                , is(USER_EMAIL));
     }
 
     @Test
@@ -77,7 +77,9 @@ public class AuthServiceClientTestIntegration extends AbstractIntegrationTest {
         final HistoricalUserResponse historicalUserDetails = authServiceClient.getHistoricalUserDetails(UUID);
 
         assertThat(historicalUserDetails.response.results.size(), is(1));
-        assertThat(cacheManager.getCache("ssoHistoricalUserDetails").get(UUID), is(not(nullValue())));
+        assertThat(((HistoricalUserResponse)cacheManager.getCache("ssoHistoricalUserDetails").get(UUID).get())
+                        .response.results.get(0).action,
+                is("EMAIL_CHANGE"));
     }
 
     @Test
