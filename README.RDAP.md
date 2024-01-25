@@ -81,8 +81,9 @@ this spec a notification is added when the output is truncated.
 
 Domain Search
 --------------------------
-Domain search is restricted to only search for reverse delegations, there are no forward domains and results are
-limited to 100. So response size and/or time is not excessive.
+Domain search is restricted to only search for reverse delegations, there are no forward domains in the RIPE database.
+
+Domain search is limited to returning 100 results, so response size and/or time is not excessive.
 
 This is done as recommendation from the next RFC: https://datatracker.ietf.org/doc/rfc9083/ section 9. To conform with
 this spec a notification is added when the output is truncated.
@@ -113,4 +114,4 @@ Entity RDAP object can be either a PERSON, ROLE, MNTNER or ORGANISATION RPSL obj
 
 Entity object class represents individual persons, informal groups of people, organisations and related information.
 
-Refer to [rfc9083](https://datatracker.ietf.org/doc/rfc9083/) The Entity Object Class 5.1. section
+Refer to [rfc9083](https://datatracker.ietf.org/doc/rfc9083/) Section 5.1, "The Entity Object Class"
