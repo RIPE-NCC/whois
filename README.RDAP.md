@@ -52,7 +52,7 @@ This was done to avoid blocking clients for inadvertently querying excessively f
 For entity request "e-mail" is enabled and the clients requesting this service need to comply with the daily limit
 according to the Acceptable User Policy (AUP): https://www.ripe.net/manage-ips-and-asns/db/support/documentation/ripe-database-acceptable-use-policy.
 
-For the rest of request either "e-mail" is filtered. Abuse contact is always returned, and
+For the rest of the requests either "e-mail" is filtered. Abuse contact is always returned, and
 attributes related to whois update notification ("notify", "ref-nfy", "upd-to", "mnt-nfy") are filtered
 because they are not a general contact email.
 
