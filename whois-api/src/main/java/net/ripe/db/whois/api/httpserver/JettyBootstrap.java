@@ -185,11 +185,11 @@ public class JettyBootstrap implements ApplicationService {
 
         server.setConnectors(new Connector[]{createConnector(server)});
 
-        if (this.securePort >= 0) {
+        /*if (this.securePort >= 0) {
              server.addConnector(createSecureConnector(server, this.securePort));
-        }
+        }*/
 
-        if (clientAuthPort >= 0) {
+        if (this.clientAuthPort >= 0) {
             server.addConnector(createSecureConnector(server, this.clientAuthPort));
         }
 
