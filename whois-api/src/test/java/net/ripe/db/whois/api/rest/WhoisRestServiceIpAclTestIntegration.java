@@ -1,6 +1,7 @@
 package net.ripe.db.whois.api.rest;
 
-import jakarta.ws.rs.core.Response;
+import jakarta.ws.rs.ClientErrorException;
+import jakarta.ws.rs.core.MediaType;
 import net.ripe.db.whois.api.AbstractIntegrationTest;
 import net.ripe.db.whois.api.RestTest;
 import net.ripe.db.whois.api.rest.domain.WhoisResources;
@@ -10,10 +11,8 @@ import net.ripe.db.whois.query.QueryServer;
 import net.ripe.db.whois.query.acl.AccessControlListManager;
 import net.ripe.db.whois.query.acl.AccountingIdentifier;
 import net.ripe.db.whois.query.acl.IpResourceConfiguration;
-import net.ripe.db.whois.query.acl.PersonalAccountingManager;
 import net.ripe.db.whois.query.acl.SSOResourceConfiguration;
 import net.ripe.db.whois.query.support.TestPersonalObjectAccounting;
-import org.eclipse.jetty.http.HttpStatus;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
@@ -21,8 +20,6 @@ import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
-import jakarta.ws.rs.ClientErrorException;
-import jakarta.ws.rs.core.MediaType;
 import java.net.InetAddress;
 
 import static net.ripe.db.whois.api.RestTest.assertOnlyErrorMessage;
@@ -247,5 +244,32 @@ public class WhoisRestServiceIpAclTestIntegration extends AbstractIntegrationTes
 
         final int accountedBySSO = testPersonalObjectAccounting.getQueriedPersonalObjects(VALID_TOKEN_USER_NAME);
         assertThat(accountedBySSO, is(queriedBySSO));
+    }
+
+
+    @Test
+    public void lookup_unfiltered_organisation_acl_no_accounted() throws Exception {
+        final InetAddress localhost = InetAddress.getByName(LOCALHOST);
+        databaseHelper.addObject(
+                "organisation:  ORG-TO1-TEST\n" +
+                        "org-name:      Test organisation\n" +
+                        "org-type:      OTHER\n" +
+                        "descr:         Test\n" +
+                        "address:       Amsterdam\n" +
+                        "e-mail:        org@ripe.net\n" +
+                        "phone:         +01-000-000-000\n" +
+                        "fax-no:        +01-000-000-000\n" +
+                        "admin-c:       TP1-TEST\n" +
+                        "mnt-by:        OWNER-MNT\n" +
+                        "created:         2022-08-14T11:48:28Z\n" +
+                        "last-modified:   2022-10-25T12:22:39Z\n" +
+                        "source:        TEST");
+
+        RestTest.target(getPort(), "whois/test/organisation/ORG-TO1-TEST?unfiltered")
+                .request()
+                .get(WhoisResources.class);
+
+        final int accountedByIp = testPersonalObjectAccounting.getQueriedPersonalObjects(localhost);
+        assertThat(accountedByIp, is(0));
     }
 }
