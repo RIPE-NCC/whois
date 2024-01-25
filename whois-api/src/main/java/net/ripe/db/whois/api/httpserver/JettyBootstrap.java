@@ -108,6 +108,8 @@ public class JettyBootstrap implements ApplicationService {
 
     private final int clientAuthPort;
 
+    private final String clientAuthBaseUrl;
+
     @Autowired
     public JettyBootstrap(final RemoteAddressFilter remoteAddressFilter,
                           final ExtensionOverridesAcceptHeaderFilter extensionOverridesAcceptHeaderFilter,
@@ -121,7 +123,8 @@ public class JettyBootstrap implements ApplicationService {
                           @Value("${rewrite.engine.enabled:false}") final boolean rewriteEngineEnabled,
                           @Value("${port.api:0}") final int port,
                           @Value("${port.api.secure:-1}") final int securePort,
-                          @Value("${port.client.auth:-1}") final int clientAuthPort
+                          @Value("${port.client.auth:-1}") final int clientAuthPort,
+                          final @Value("${api.client.auth.baseurl}") String clientAuthBaseUrl
                         ) throws MalformedObjectNameException {
         this.remoteAddressFilter = remoteAddressFilter;
         this.extensionOverridesAcceptHeaderFilter = extensionOverridesAcceptHeaderFilter;
@@ -139,6 +142,7 @@ public class JettyBootstrap implements ApplicationService {
         this.port = port;
         this.server = null;
         this.clientAuthPort = clientAuthPort;
+        this.clientAuthBaseUrl = clientAuthBaseUrl;
     }
 
     @Override
@@ -325,6 +329,7 @@ public class JettyBootstrap implements ApplicationService {
         final SslConnectionFactory sslConnectionFactory = new SslConnectionFactory(sslContextFactory, alpn.getProtocol());
 
         final ServerConnector sslConnector = new ServerConnector(server, sslConnectionFactory, alpn, h2, new HttpConnectionFactory(httpsConfiguration));
+        sslConnector.setHost(this.clientAuthBaseUrl);
         sslConnector.setPort(securePort);
         return sslConnector;
     }
