@@ -45,11 +45,11 @@ For example: https://rdap.db.ripe.net/entity/KR4422-RIPE
 Related Contact information is Filtered
 ---------------------------------------
 All contact entities ("technical","administrative" etc.) have filtered contact information, i.e. "e-mail"
-and "notify" values are not included. Contact entities do not count towards the daily query limit
+value is not included. Contact entities do not count towards the daily query limit
 https://www.ripe.net/manage-ips-and-asns/db/support/documentation/ripe-database-acceptable-use-policy.
 This was done to avoid blocking clients for inadvertently querying excessively for personal data.
 
-For entity request "e-mail" will be enabled and the clients requesting those service will need to comply with the daily limit
+For entity request "e-mail" is enabled and the clients requesting those service need to comply with the daily limit
 according to the Acceptable User Policy (AUP): https://www.ripe.net/manage-ips-and-asns/db/support/documentation/ripe-database-acceptable-use-policy.
 
 For the rest of request either "e-mail" is filtered. Abuse contact is always returned, and
@@ -59,7 +59,7 @@ because they are not a general contact email.
 Abuse Contact information
 --------------------------
 Abuse contact information is not filtered because it is not considered personal information. However, this attribute's
-`type` does not conform to the to the [RDAP spec](https://bitbucket.org/nroecg/nro-rdap-profile/raw/v1/nro-rdap-profile.txt)
+`type` does not conform to the [RDAP spec](https://bitbucket.org/nroecg/nro-rdap-profile/raw/v1/nro-rdap-profile.txt)
 section 5.1.1, is not "home" or "work" as the RFC specifies. The `type` of this attribute is "abuse". In this
 paragraph `type` is considered as an element of the Jcard.
 For example:
