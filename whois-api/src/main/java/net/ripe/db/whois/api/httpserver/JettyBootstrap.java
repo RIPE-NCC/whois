@@ -190,11 +190,11 @@ public class JettyBootstrap implements ApplicationService {
         server.setConnectors(new Connector[]{createConnector(server)});
 
         /*if (this.securePort >= 0) {
-             server.addConnector(createSecureConnector(server, this.securePort));
+             server.addConnector(createSecureConnector(server));
         }*/
 
         if (this.clientAuthPort >= 0) {
-            server.addConnector(createSecureConnector(server, this.clientAuthPort));
+            server.addConnector(createClientAuthConnector(server));
         }
 
         final WebAppContext context = new WebAppContext();
@@ -245,6 +245,29 @@ public class JettyBootstrap implements ApplicationService {
         return connector;
     }
 
+
+    private Connector createClientAuthConnector(final Server server) {
+        // Configure the SSL context factory
+        SslContextFactory.Server sslContextFactory = new SslContextFactory.Server();
+
+        final String keystore = whoisKeystore.getKeystore();
+        if (keystore == null) {
+            throw new IllegalStateException("NO keystore");
+        }
+
+        sslContextFactory.setKeyStorePath(keystore);
+        sslContextFactory.setKeyStorePassword(whoisKeystore.getPassword());
+        //sslContextFactory.setKeyManagerPassword("key_password");
+
+        // Enable client certificate authentication
+        sslContextFactory.setNeedClientAuth(true);
+
+        // Create a server connector with the configured SSL context factory
+        ServerConnector sslConnector = new ServerConnector(server, sslContextFactory);
+        sslConnector.setPort(clientAuthPort);
+
+        return sslConnector;
+    }
     /**
      * Use the DoSFilter from Jetty for rate limiting: https://www.eclipse.org/jetty/documentation/current/dos-filter.html.
      * See {@link WhoisDoSFilter} for the customisations added.
@@ -276,7 +299,7 @@ public class JettyBootstrap implements ApplicationService {
         return holder;
     }
 
-    private Connector createSecureConnector(final Server server, final int securePort) {
+    private Connector createSecureConnector(final Server server) {
         // allow (untrusted) self-signed certificates to connect
         final SslContextFactory.Server sslContextFactory = new SslContextFactory.Server() {
             @Override
@@ -329,7 +352,7 @@ public class JettyBootstrap implements ApplicationService {
         final SslConnectionFactory sslConnectionFactory = new SslConnectionFactory(sslContextFactory, alpn.getProtocol());
 
         final ServerConnector sslConnector = new ServerConnector(server, sslConnectionFactory, alpn, h2, new HttpConnectionFactory(httpsConfiguration));
-        sslConnector.setPort(securePort);
+        sslConnector.setPort(this.securePort);
         return sslConnector;
     }
 
