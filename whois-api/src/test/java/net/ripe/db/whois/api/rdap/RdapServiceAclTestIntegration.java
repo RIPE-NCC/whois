@@ -67,6 +67,7 @@ class RdapServiceAclTestIntegration extends AbstractRdapIntegrationTest {
             "last-modified:  2001-02-04T17:00:00Z\n" +
             "source:    TEST\n");
 
+
     private static final RpslObject TEST_INETNUM = RpslObject.parse("" +
                     "inetnum:        0.0.0.0 - 255.255.255.255\n" +
                     "netname:        IANA-BLK\n" +
@@ -104,12 +105,21 @@ class RdapServiceAclTestIntegration extends AbstractRdapIntegrationTest {
             "source:    TEST\n");
 
 
-    private static final RpslObject TEST_ORGANISATION = RpslObject.parse("" +
-                    "organisation:   ORG1\n" +
-                    "org-name:   TEST\n" +
-                    "org-type:   LIR\n" +
-                    "abuse-c:        TP1-TEST\n" +
-                    "source:         TEST");
+    private static final RpslObject TEST_ORGANISATION = RpslObject.parse(
+            "organisation:  ORG-TO1-TEST\n" +
+                    "org-name:      Test organisation\n" +
+                    "org-type:      OTHER\n" +
+                    "descr:         Test\n" +
+                    "address:       Amsterdam\n" +
+                    "e-mail:        org@ripe.net\n" +
+                    "phone:         +01-000-000-000\n" +
+                    "fax-no:        +01-000-000-000\n" +
+                    "admin-c:       TP1-TEST\n" +
+                    "mnt-by:        OWNER-MNT\n" +
+                    "created:         2022-08-14T11:48:28Z\n" +
+                    "last-modified:   2022-10-25T12:22:39Z\n" +
+                    "source:        TEST");
+
 
     @Autowired
     private IpResourceConfiguration ipResourceConfiguration;
@@ -160,7 +170,6 @@ class RdapServiceAclTestIntegration extends AbstractRdapIntegrationTest {
         assertThat(testPersonalObjectAccounting.getQueriedPersonalObjects(InetAddress.getByName(LOCALHOST)), is(1));
     }
 
-    // TODO: [ES] mntner e-mail is not filtered and mntner is not counted in ACL
     @Test
     public void lookup_mntner_acl_not_counted() throws Exception {
         final Entity entity = createResource("entity/OWNER-MNT")
@@ -172,11 +181,19 @@ class RdapServiceAclTestIntegration extends AbstractRdapIntegrationTest {
     }
 
     @Test
+    public void lookup_organisation_acl_no_counted() throws Exception {
+        createResource("entity/ORG-TO1-TEST")
+                .request(MediaType.APPLICATION_JSON_TYPE)
+                .get(Entity.class);
+
+        assertThat(testPersonalObjectAccounting.getQueriedPersonalObjects(InetAddress.getByName(LOCALHOST)), is(0));
+    }
+    @Test
     public void lookup_inetnum_filtered_emails_acl_not_counted() throws Exception {
         databaseHelper.addObject("" +
                 "inetnum:      192.0.2.0 - 192.0.2.255\n" +
                 "netname:      TEST-NET-NAME\n" +
-                "org:      ORG1\n" +
+                "org:      ORG-TO1-TEST\n" +
                 "descr:          Test IPv4\n" +
                 "country:        NL\n" +
                 "tech-c:         TP1-TEST\n" +
@@ -195,11 +212,14 @@ class RdapServiceAclTestIntegration extends AbstractRdapIntegrationTest {
         assertThat(entity.getHandle(), is("192.0.2.0 - 192.0.2.255"));
         assertThat(entity.getEntitySearchResults().size(), is(4));
 
-        assertThat(entity.getEntitySearchResults().get(0).getHandle(), is("ORG1"));
+        assertThat(entity.getEntitySearchResults().get(0).getHandle(), is("ORG-TO1-TEST"));
         assertThat(entity.getEntitySearchResults().get(0).getVCardArray().toString(), is("" +
                 "[vcard, [[version, {}, text, 4.0], " +
-                "[fn, {}, text, TEST], " +
-                "[kind, {}, text, org]]]"));
+                "[fn, {}, text, Test organisation], " +
+                "[kind, {}, text, org], " +
+                "[adr, {label=Amsterdam}, text, [, , , , , , ]], " +
+                "[tel, {type=voice}, text, +01-000-000-000], " +
+                "[tel, {type=fax}, text, +01-000-000-000]]]"));
 
         assertThat(entity.getEntitySearchResults().get(1).getHandle(), is("OWNER-MNT"));
         assertThat(entity.getEntitySearchResults().get(1).getVCardArray().toString(), is("" +
@@ -222,6 +242,7 @@ class RdapServiceAclTestIntegration extends AbstractRdapIntegrationTest {
                 "[adr, {label=Singel 258}, text, [, , , , , , ]], " +
                 "[tel, {type=voice}, text, +31 6 12345678]]]"));
 
+        assertEmailRedactionForEntities(entity, entity.getEntitySearchResults(), "$", "ORG-TO1-TEST");
         assertEmailRedactionForEntities(entity, entity.getEntitySearchResults(), "$", "OWNER-MNT");
         assertEmailRedactionForEntities(entity, entity.getEntitySearchResults(), "$", "ROLE-TEST");
         assertEmailRedactionForEntities(entity, entity.getEntitySearchResults(), "$", "TP1-TEST");
@@ -234,7 +255,7 @@ class RdapServiceAclTestIntegration extends AbstractRdapIntegrationTest {
         databaseHelper.addObject("" +
                 "inet6num:       2001:2002:2003::/48\n" +
                 "netname:      TEST-NET-NAME\n" +
-                "org:      ORG1\n" +
+                "org:      ORG-TO1-TEST\n" +
                 "descr:          Test IPv4\n" +
                 "country:        NL\n" +
                 "tech-c:         TP1-TEST\n" +
@@ -254,11 +275,14 @@ class RdapServiceAclTestIntegration extends AbstractRdapIntegrationTest {
         assertThat(entity.getHandle(), is("2001:2002:2003::/48"));
         assertThat(entity.getEntitySearchResults().size(), is(4));
 
-        assertThat(entity.getEntitySearchResults().get(0).getHandle(), is("ORG1"));
+        assertThat(entity.getEntitySearchResults().get(0).getHandle(), is("ORG-TO1-TEST"));
         assertThat(entity.getEntitySearchResults().get(0).getVCardArray().toString(), is("" +
                 "[vcard, [[version, {}, text, 4.0], " +
-                "[fn, {}, text, TEST], " +
-                "[kind, {}, text, org]]]"));
+                "[fn, {}, text, Test organisation], " +
+                "[kind, {}, text, org], " +
+                "[adr, {label=Amsterdam}, text, [, , , , , , ]], " +
+                "[tel, {type=voice}, text, +01-000-000-000], " +
+                "[tel, {type=fax}, text, +01-000-000-000]]]"));
 
         assertThat(entity.getEntitySearchResults().get(1).getHandle(), is("OWNER-MNT"));
         assertThat(entity.getEntitySearchResults().get(1).getVCardArray().toString(), is("" +
@@ -281,6 +305,7 @@ class RdapServiceAclTestIntegration extends AbstractRdapIntegrationTest {
                 "[adr, {label=Singel 258}, text, [, , , , , , ]], " +
                 "[tel, {type=voice}, text, +31 6 12345678]]]"));
 
+        assertEmailRedactionForEntities(entity, entity.getEntitySearchResults(), "$", "ORG-TO1-TEST");
         assertEmailRedactionForEntities(entity, entity.getEntitySearchResults(), "$", "OWNER-MNT");
         assertEmailRedactionForEntities(entity, entity.getEntitySearchResults(), "$", "ROLE-TEST");
         assertEmailRedactionForEntities(entity, entity.getEntitySearchResults(), "$", "TP1-TEST");
@@ -293,7 +318,7 @@ class RdapServiceAclTestIntegration extends AbstractRdapIntegrationTest {
         databaseHelper.addObject("" +
                 "aut-num:       AS102\n" +
                 "as-name:      TEST-AS-NAME\n" +
-                "org:      ORG1\n" +
+                "org:      ORG-TO1-TEST\n" +
                 "descr:          Test IPv4\n" +
                 "country:        NL\n" +
                 "tech-c:         TP1-TEST\n" +
@@ -312,11 +337,14 @@ class RdapServiceAclTestIntegration extends AbstractRdapIntegrationTest {
         assertThat(entity.getHandle(), is("AS102"));
         assertThat(entity.getEntitySearchResults().size(), is(4));
 
-        assertThat(entity.getEntitySearchResults().get(0).getHandle(), is("ORG1"));
+        assertThat(entity.getEntitySearchResults().get(0).getHandle(), is("ORG-TO1-TEST"));
         assertThat(entity.getEntitySearchResults().get(0).getVCardArray().toString(), is("" +
                 "[vcard, [[version, {}, text, 4.0], " +
-                "[fn, {}, text, TEST], " +
-                "[kind, {}, text, org]]]"));
+                "[fn, {}, text, Test organisation], " +
+                "[kind, {}, text, org], " +
+                "[adr, {label=Amsterdam}, text, [, , , , , , ]], " +
+                "[tel, {type=voice}, text, +01-000-000-000], " +
+                "[tel, {type=fax}, text, +01-000-000-000]]]"));
 
         assertThat(entity.getEntitySearchResults().get(1).getHandle(), is("OWNER-MNT"));
         assertThat(entity.getEntitySearchResults().get(1).getVCardArray().toString(), is("" +
@@ -339,6 +367,7 @@ class RdapServiceAclTestIntegration extends AbstractRdapIntegrationTest {
                 "[adr, {label=Singel 258}, text, [, , , , , , ]], " +
                 "[tel, {type=voice}, text, +31 6 12345678]]]"));
 
+        assertEmailRedactionForEntities(entity, entity.getEntitySearchResults(), "$", "ORG-TO1-TEST");
         assertEmailRedactionForEntities(entity, entity.getEntitySearchResults(), "$", "OWNER-MNT");
         assertEmailRedactionForEntities(entity, entity.getEntitySearchResults(), "$", "ROLE-TEST");
         assertEmailRedactionForEntities(entity, entity.getEntitySearchResults(), "$", "TP1-TEST");
