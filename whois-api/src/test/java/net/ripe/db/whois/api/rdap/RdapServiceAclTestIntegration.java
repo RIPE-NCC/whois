@@ -97,7 +97,7 @@ class RdapServiceAclTestIntegration extends AbstractRdapIntegrationTest {
             "address:   Singel 258\n" +
             "phone:     +31 6 12345678\n" +
             "e-mail:    test@ripe.net\n" +
-            "nic-hdl:   ROLE_TEST\n" +
+            "nic-hdl:   ROLE-TEST\n" +
             "mnt-by:    OWNER-MNT\n" +
             "created:        2001-02-04T17:00:00Z\n" +
             "last-modified:  2001-02-04T17:00:00Z\n" +
@@ -180,7 +180,7 @@ class RdapServiceAclTestIntegration extends AbstractRdapIntegrationTest {
                 "descr:          Test IPv4\n" +
                 "country:        NL\n" +
                 "tech-c:         TP1-TEST\n" +
-                "admin-c:        ROLE_TEST\n" +
+                "admin-c:        ROLE-TEST\n" +
                 "status:         OTHER\n" +
                 "mnt-by:         OWNER-MNT\n" +
                 "created:         2022-08-14T11:48:28Z\n" +
@@ -207,7 +207,7 @@ class RdapServiceAclTestIntegration extends AbstractRdapIntegrationTest {
                 "[fn, {}, text, OWNER-MNT], " +
                 "[kind, {}, text, individual]]]"));
 
-        assertThat(entity.getEntitySearchResults().get(2).getHandle(), is("ROLE_TEST"));
+        assertThat(entity.getEntitySearchResults().get(2).getHandle(), is("ROLE-TEST"));
         assertThat(entity.getEntitySearchResults().get(2).getVCardArray().toString(), is("" +
                 "[vcard, [[version, {}, text, 4.0], " +
                 "[fn, {}, text, Test Role], " +
@@ -222,6 +222,10 @@ class RdapServiceAclTestIntegration extends AbstractRdapIntegrationTest {
                 "[adr, {label=Singel 258}, text, [, , , , , , ]], " +
                 "[tel, {type=voice}, text, +31 6 12345678]]]"));
 
+        assertEmailRedactionForEntities(entity, entity.getEntitySearchResults(), "$", "OWNER-MNT");
+        assertEmailRedactionForEntities(entity, entity.getEntitySearchResults(), "$", "ROLE-TEST");
+        assertEmailRedactionForEntities(entity, entity.getEntitySearchResults(), "$", "TP1-TEST");
+
         assertThat(testPersonalObjectAccounting.getQueriedPersonalObjects(InetAddress.getByName(LOCALHOST)), is(0));
     }
 
@@ -234,7 +238,7 @@ class RdapServiceAclTestIntegration extends AbstractRdapIntegrationTest {
                 "descr:          Test IPv4\n" +
                 "country:        NL\n" +
                 "tech-c:         TP1-TEST\n" +
-                "admin-c:        ROLE_TEST\n" +
+                "admin-c:        ROLE-TEST\n" +
                 "status:         OTHER\n" +
                 "mnt-by:         OWNER-MNT\n" +
                 "created:         2022-08-14T11:48:28Z\n" +
@@ -262,7 +266,7 @@ class RdapServiceAclTestIntegration extends AbstractRdapIntegrationTest {
                 "[fn, {}, text, OWNER-MNT], " +
                 "[kind, {}, text, individual]]]"));
 
-        assertThat(entity.getEntitySearchResults().get(2).getHandle(), is("ROLE_TEST"));
+        assertThat(entity.getEntitySearchResults().get(2).getHandle(), is("ROLE-TEST"));
         assertThat(entity.getEntitySearchResults().get(2).getVCardArray().toString(), is("" +
                 "[vcard, [[version, {}, text, 4.0], " +
                 "[fn, {}, text, Test Role], " +
@@ -277,6 +281,10 @@ class RdapServiceAclTestIntegration extends AbstractRdapIntegrationTest {
                 "[adr, {label=Singel 258}, text, [, , , , , , ]], " +
                 "[tel, {type=voice}, text, +31 6 12345678]]]"));
 
+        assertEmailRedactionForEntities(entity, entity.getEntitySearchResults(), "$", "OWNER-MNT");
+        assertEmailRedactionForEntities(entity, entity.getEntitySearchResults(), "$", "ROLE-TEST");
+        assertEmailRedactionForEntities(entity, entity.getEntitySearchResults(), "$", "TP1-TEST");
+
         assertThat(testPersonalObjectAccounting.getQueriedPersonalObjects(InetAddress.getByName(LOCALHOST)), is(0));
     }
 
@@ -289,7 +297,7 @@ class RdapServiceAclTestIntegration extends AbstractRdapIntegrationTest {
                 "descr:          Test IPv4\n" +
                 "country:        NL\n" +
                 "tech-c:         TP1-TEST\n" +
-                "admin-c:        ROLE_TEST\n" +
+                "admin-c:        ROLE-TEST\n" +
                 "status:         OTHER\n" +
                 "mnt-by:         OWNER-MNT\n" +
                 "created:         2022-08-14T11:48:28Z\n" +
@@ -316,7 +324,7 @@ class RdapServiceAclTestIntegration extends AbstractRdapIntegrationTest {
                 "[fn, {}, text, OWNER-MNT], " +
                 "[kind, {}, text, individual]]]"));
 
-        assertThat(entity.getEntitySearchResults().get(2).getHandle(), is("ROLE_TEST"));
+        assertThat(entity.getEntitySearchResults().get(2).getHandle(), is("ROLE-TEST"));
         assertThat(entity.getEntitySearchResults().get(2).getVCardArray().toString(), is("" +
                 "[vcard, [[version, {}, text, 4.0], " +
                 "[fn, {}, text, Test Role], " +
@@ -331,6 +339,38 @@ class RdapServiceAclTestIntegration extends AbstractRdapIntegrationTest {
                 "[adr, {label=Singel 258}, text, [, , , , , , ]], " +
                 "[tel, {type=voice}, text, +31 6 12345678]]]"));
 
+        assertEmailRedactionForEntities(entity, entity.getEntitySearchResults(), "$", "OWNER-MNT");
+        assertEmailRedactionForEntities(entity, entity.getEntitySearchResults(), "$", "ROLE-TEST");
+        assertEmailRedactionForEntities(entity, entity.getEntitySearchResults(), "$", "TP1-TEST");
+
         assertThat(testPersonalObjectAccounting.getQueriedPersonalObjects(InetAddress.getByName(LOCALHOST)), is(0));
+    }
+
+    @Test
+    public void lookup_role_acl_counted() throws Exception {
+        final Entity entity = createResource("entity/ROLE-TEST")
+                .request(MediaType.APPLICATION_JSON_TYPE)
+                .get(Entity.class);
+
+        assertThat(entity.getHandle(), is("ROLE-TEST"));
+        assertThat(entity.getVCardArray().get(1).toString(), is("" +
+                "[[version, {}, text, 4.0], " +
+                "[fn, {}, text, Test Role], " +
+                "[kind, {}, text, group], " +
+                "[adr, {label=Singel 258}, text, [, , , , , , ]], " +
+                "[tel, {type=voice}, text, +31 6 12345678], " +
+                "[email, {type=email}, text, test@ripe.net]]"));
+
+        assertThat(entity.getEntitySearchResults().size(), is(1));
+
+        assertThat(entity.getEntitySearchResults().get(0).getHandle(), is("OWNER-MNT"));
+        assertThat(entity.getEntitySearchResults().get(0).getVCardArray().toString(), is("" +
+                "[vcard, [[version, {}, text, 4.0], " +
+                "[fn, {}, text, OWNER-MNT], " +
+                "[kind, {}, text, individual]]]"));
+
+        assertEmailRedactionForEntities(entity, entity.getEntitySearchResults(), "$", "OWNER-MNT");
+
+        assertThat(testPersonalObjectAccounting.getQueriedPersonalObjects(InetAddress.getByName(LOCALHOST)), is(1));
     }
 }

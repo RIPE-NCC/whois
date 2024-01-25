@@ -93,7 +93,6 @@ import static net.ripe.db.whois.common.rpsl.AttributeType.IRT;
 import static net.ripe.db.whois.common.rpsl.AttributeType.LANGUAGE;
 import static net.ripe.db.whois.common.rpsl.AttributeType.MNT_BY;
 import static net.ripe.db.whois.common.rpsl.AttributeType.MNT_IRT;
-import static net.ripe.db.whois.common.rpsl.AttributeType.NOTIFY;
 import static net.ripe.db.whois.common.rpsl.AttributeType.ORG;
 import static net.ripe.db.whois.common.rpsl.AttributeType.ORG_NAME;
 import static net.ripe.db.whois.common.rpsl.AttributeType.PERSON;
@@ -681,10 +680,8 @@ class RdapObjectMapper {
 
         if (!filtered){
             builder.addEmail(rpslObject.getValuesForAttribute(E_MAIL));
-            entity.getRedactedRpslAttrs().addAll(rpslObject.findAttributes(NOTIFY));
         } else {
-            List.of(NOTIFY, E_MAIL).forEach(attributeType -> entity.getRedactedRpslAttrs()
-                    .addAll(rpslObject.findAttributes(attributeType)));
+            entity.getRedactedRpslAttrs().addAll(rpslObject.findAttributes(E_MAIL));
         }
 
         entity.setVCardArray(builder.build());
