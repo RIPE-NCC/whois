@@ -49,7 +49,7 @@ value is not included. Contact entities do not count towards the daily query lim
 https://www.ripe.net/manage-ips-and-asns/db/support/documentation/ripe-database-acceptable-use-policy.
 This was done to avoid blocking clients for inadvertently querying excessively for personal data.
 
-For entity request "e-mail" is enabled and the clients requesting those service need to comply with the daily limit
+For entity request "e-mail" is enabled and the clients requesting this service need to comply with the daily limit
 according to the Acceptable User Policy (AUP): https://www.ripe.net/manage-ips-and-asns/db/support/documentation/ripe-database-acceptable-use-policy.
 
 For the rest of request either "e-mail" is filtered. Abuse contact is always returned, and
