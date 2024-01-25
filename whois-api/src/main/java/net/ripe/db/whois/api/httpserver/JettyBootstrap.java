@@ -329,7 +329,6 @@ public class JettyBootstrap implements ApplicationService {
         final SslConnectionFactory sslConnectionFactory = new SslConnectionFactory(sslContextFactory, alpn.getProtocol());
 
         final ServerConnector sslConnector = new ServerConnector(server, sslConnectionFactory, alpn, h2, new HttpConnectionFactory(httpsConfiguration));
-        sslConnector.setHost(this.clientAuthBaseUrl);
         sslConnector.setPort(securePort);
         return sslConnector;
     }
