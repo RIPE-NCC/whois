@@ -2,7 +2,6 @@ package net.ripe.db.whois.api.httpserver;
 
 import io.netty.handler.ssl.util.TrustManagerFactoryWrapper;
 import jakarta.servlet.DispatcherType;
-import jakarta.ws.rs.HEAD;
 import net.ripe.db.whois.common.ApplicationService;
 import net.ripe.db.whois.common.aspects.RetryFor;
 import org.eclipse.jetty.alpn.server.ALPNServerConnectionFactory;
@@ -107,6 +106,8 @@ public class JettyBootstrap implements ApplicationService {
     private int port;
     private final int idleTimeout;
 
+    private final int clientAuthPort;
+
     @Autowired
     public JettyBootstrap(final RemoteAddressFilter remoteAddressFilter,
                           final ExtensionOverridesAcceptHeaderFilter extensionOverridesAcceptHeaderFilter,
@@ -119,8 +120,9 @@ public class JettyBootstrap implements ApplicationService {
                           @Value("${dos.filter.enabled:false}") final boolean dosFilterEnabled,
                           @Value("${rewrite.engine.enabled:false}") final boolean rewriteEngineEnabled,
                           @Value("${port.api:0}") final int port,
-                          @Value("${port.api.secure:-1}") final int securePort
-              ) throws MalformedObjectNameException {
+                          @Value("${port.api.secure:-1}") final int securePort,
+                          @Value("${port.client.auth:-1}") final int clientAuthPort
+                        ) throws MalformedObjectNameException {
         this.remoteAddressFilter = remoteAddressFilter;
         this.extensionOverridesAcceptHeaderFilter = extensionOverridesAcceptHeaderFilter;
         this.servletDeployers = servletDeployers;
@@ -136,6 +138,7 @@ public class JettyBootstrap implements ApplicationService {
         this.securePort = securePort;
         this.port = port;
         this.server = null;
+        this.clientAuthPort = clientAuthPort;
     }
 
     @Override
@@ -180,11 +183,15 @@ public class JettyBootstrap implements ApplicationService {
     private Server createServer() {
         final Server server = new Server();
 
+        server.setConnectors(new Connector[]{createConnector(server)});
+
         if (this.securePort >= 0) {
-             server.setConnectors(new Connector[]{createConnector(server), createSecureConnector(server)});
-         } else {
-             server.setConnectors(new Connector[]{createConnector(server)});
-         }
+             server.addConnector(createSecureConnector(server, this.securePort));
+        }
+
+        if (clientAuthPort >= 0) {
+            server.addConnector(createSecureConnector(server, this.clientAuthPort));
+        }
 
         final WebAppContext context = new WebAppContext();
         context.setContextPath("/");
@@ -265,7 +272,7 @@ public class JettyBootstrap implements ApplicationService {
         return holder;
     }
 
-    private Connector createSecureConnector(final Server server) {
+    private Connector createSecureConnector(final Server server, final int securePort) {
         // allow (untrusted) self-signed certificates to connect
         final SslContextFactory.Server sslContextFactory = new SslContextFactory.Server() {
             @Override
@@ -318,7 +325,7 @@ public class JettyBootstrap implements ApplicationService {
         final SslConnectionFactory sslConnectionFactory = new SslConnectionFactory(sslContextFactory, alpn.getProtocol());
 
         final ServerConnector sslConnector = new ServerConnector(server, sslConnectionFactory, alpn, h2, new HttpConnectionFactory(httpsConfiguration));
-        sslConnector.setPort(this.securePort);
+        sslConnector.setPort(securePort);
         return sslConnector;
     }
 

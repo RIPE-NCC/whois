@@ -27,18 +27,27 @@ public class RewriteEngine {
     private final String source;
     private final String nonAuthSource;
 
+    private final String clientAuthHost;
+
     @Autowired
     public RewriteEngine(final @Value("${api.rest.baseurl}") String baseUrl,
                          final @Value("${whois.source}") String source,
-                         final @Value("${whois.nonauth.source}") String nonAuthSource) {
+                         final @Value("${whois.nonauth.source}") String nonAuthSource,
+                         final @Value("${api.client.auth.baseurl}") String clientAuthBaseUrl) {
         this.source = source;
         this.nonAuthSource = nonAuthSource;
-        URI uri = URI.create(baseUrl);
-        restVirtualHost = uri.getHost();
+
+        URI restBaseUri = URI.create(baseUrl);
+        restVirtualHost = restBaseUri.getHost();
+
+        URI clientAuthBaseUri = URI.create(clientAuthBaseUrl);
+        clientAuthHost = clientAuthBaseUri.getHost();
+
         syncupdatesVirtualHost = restVirtualHost.replace("rest", "syncupdates");
         rdapVirtualHost = restVirtualHost.replace("rest", "rdap");
 
         LOGGER.info("REST virtual host: {}", restVirtualHost);
+        LOGGER.info("Client Auth virtual host: {}", clientAuthHost);
         LOGGER.info("Syncupdates virtual host: {}", syncupdatesVirtualHost);
         LOGGER.info("RDAP virtual host: {}", rdapVirtualHost);
     }
@@ -53,6 +62,12 @@ public class RewriteEngine {
         restVirtualHostRule.addVirtualHost(restVirtualHost);
         rewriteHandler.addRule(restVirtualHostRule);
         restRedirectRules(restVirtualHostRule);
+
+        // Client Auth
+        VirtualHostRuleContainer clientAuthVirtualHostRule = new VirtualHostRuleContainer();
+        clientAuthVirtualHostRule.addVirtualHost(clientAuthHost);
+        rewriteHandler.addRule(clientAuthVirtualHostRule);
+        restRedirectRules(clientAuthVirtualHostRule);
 
         // rdap
         VirtualHostRuleContainer rdapVirtualHostRule = new VirtualHostRuleContainer();
