@@ -189,12 +189,12 @@ public class JettyBootstrap implements ApplicationService {
 
         server.setConnectors(new Connector[]{createConnector(server)});
 
-        /*if (this.securePort >= 0) {
-             server.addConnector(createSecureConnector(server));
-        }*/
+        if (this.securePort >= 0) {
+             server.addConnector(createSecureConnector(server, this.securePort));
+        }
 
         if (this.clientAuthPort >= 0) {
-            server.addConnector(createClientAuthConnector(server));
+            server.addConnector(createSecureConnector(server, this.clientAuthPort));
         }
 
         final WebAppContext context = new WebAppContext();
@@ -246,7 +246,7 @@ public class JettyBootstrap implements ApplicationService {
     }
 
 
-    private Connector createClientAuthConnector(final Server server) {
+    /*private Connector createClientAuthConnector(final Server server) {
         // Configure the SSL context factory
         SslContextFactory.Server sslContextFactory = new SslContextFactory.Server();
 
@@ -267,7 +267,7 @@ public class JettyBootstrap implements ApplicationService {
         sslConnector.setPort(clientAuthPort);
 
         return sslConnector;
-    }
+    }*/
     /**
      * Use the DoSFilter from Jetty for rate limiting: https://www.eclipse.org/jetty/documentation/current/dos-filter.html.
      * See {@link WhoisDoSFilter} for the customisations added.
@@ -299,7 +299,7 @@ public class JettyBootstrap implements ApplicationService {
         return holder;
     }
 
-    private Connector createSecureConnector(final Server server) {
+    private Connector createSecureConnector(final Server server, final int port) {
         // allow (untrusted) self-signed certificates to connect
         final SslContextFactory.Server sslContextFactory = new SslContextFactory.Server() {
             @Override
@@ -327,6 +327,9 @@ public class JettyBootstrap implements ApplicationService {
         sslContextFactory.setValidateCerts(false);
         sslContextFactory.setTrustAll(true);
 
+        // Enable client certificate authentication
+        sslContextFactory.setNeedClientAuth(true);
+
         // Exclude weak / insecure ciphers
         // TODO CBC became weak, we need to skip them in the future https://support.kemptechnologies.com/hc/en-us/articles/9338043775757-CBC-ciphers-marked-as-weak-by-SSL-labs
         // Check client compatability first
@@ -352,7 +355,7 @@ public class JettyBootstrap implements ApplicationService {
         final SslConnectionFactory sslConnectionFactory = new SslConnectionFactory(sslContextFactory, alpn.getProtocol());
 
         final ServerConnector sslConnector = new ServerConnector(server, sslConnectionFactory, alpn, h2, new HttpConnectionFactory(httpsConfiguration));
-        sslConnector.setPort(this.securePort);
+        sslConnector.setPort(port);
         return sslConnector;
     }
 
