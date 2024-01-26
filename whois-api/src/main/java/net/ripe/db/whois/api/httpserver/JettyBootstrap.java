@@ -280,7 +280,8 @@ public class JettyBootstrap implements ApplicationService {
 
     private Connector createClientAuthConnector(final Server server) {
         // Configure the SSL context factory
-        final SslContextFactory.Server sslContextFactory = new SslContextFactory.Server() {
+        final SslContextFactory.Server sslContextFactory = new SslContextFactory.Server();
+        /*final SslContextFactory.Server sslContextFactory = new SslContextFactory.Server() {
             @Override
             protected TrustManager[] getTrustManagers(KeyStore trustStore, Collection<? extends CRL> crls) {
                 return SslContextFactory.TRUST_ALL_CERTS;
@@ -290,7 +291,7 @@ public class JettyBootstrap implements ApplicationService {
             protected TrustManagerFactory getTrustManagerFactoryInstance() {
                 return new TrustManagerFactoryWrapper(SslContextFactory.TRUST_ALL_CERTS[0]);
             }
-        };
+        };*/
 
         final String keystore = whoisKeystore.getKeystore();
         if (keystore == null) {
@@ -300,7 +301,6 @@ public class JettyBootstrap implements ApplicationService {
         sslContextFactory.setKeyStorePath(keystore);
         sslContextFactory.setKeyStorePassword(whoisKeystore.getPassword());
         sslContextFactory.setCipherComparator(HTTP2Cipher.COMPARATOR);
-        //sslContextFactory.setKeyManagerPassword("key_password");
 
         // Enable client certificate authentication
         sslContextFactory.setNeedClientAuth(true);
@@ -309,26 +309,8 @@ public class JettyBootstrap implements ApplicationService {
         sslContextFactory.setExcludeProtocols(DEFAULT_EXCLUDED_PROTOCOLS);
 
 
-        final SecureRequestCustomizer secureRequestCustomizer = new SecureRequestCustomizer();
-        if (!sniHostCheck) {
-            LOGGER.warn("SNI host check is OFF");   // normally off for testing on localhost
-            secureRequestCustomizer.setSniHostCheck(false);
-        }
-
-        final HttpConfiguration httpsConfiguration = new HttpConfiguration();
-        httpsConfiguration.addCustomizer(secureRequestCustomizer);
-
-        httpsConfiguration.setIdleTimeout(idleTimeout * 1000L);
-        httpsConfiguration.setUriCompliance(UriCompliance.LEGACY);
-
-        final HTTP2ServerConnectionFactory h2 = new HTTP2ServerConnectionFactory(httpsConfiguration);
-        final ALPNServerConnectionFactory alpn = new ALPNServerConnectionFactory();
-        alpn.setDefaultProtocol(HttpVersion.HTTP_1_1.asString());
-
-        final SslConnectionFactory sslConnectionFactory = new SslConnectionFactory(sslContextFactory, alpn.getProtocol());
-
         // Create a server connector with the configured SSL context factory
-        final ServerConnector sslConnector = new ServerConnector(server, sslConnectionFactory, alpn, h2, new HttpConnectionFactory(httpsConfiguration));
+        final ServerConnector sslConnector = new ServerConnector(server, sslContextFactory);
         sslConnector.setPort(clientAuthPort);
 
         return sslConnector;
