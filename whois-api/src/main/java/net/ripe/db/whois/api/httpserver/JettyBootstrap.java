@@ -194,7 +194,7 @@ public class JettyBootstrap implements ApplicationService {
         }
 
         if (this.clientAuthPort >= 0) {
-            server.addConnector(createSecureConnector(server, this.clientAuthPort));
+            server.addConnector(createClientAuthConnector(server, this.clientAuthPort));
         }
 
         final WebAppContext context = new WebAppContext();
@@ -246,7 +246,7 @@ public class JettyBootstrap implements ApplicationService {
     }
 
 
-    /*private Connector createClientAuthConnector(final Server server) {
+    private Connector createClientAuthConnector(final Server server) {
         // Configure the SSL context factory
         SslContextFactory.Server sslContextFactory = new SslContextFactory.Server();
 
@@ -267,7 +267,7 @@ public class JettyBootstrap implements ApplicationService {
         sslConnector.setPort(clientAuthPort);
 
         return sslConnector;
-    }*/
+    }
     /**
      * Use the DoSFilter from Jetty for rate limiting: https://www.eclipse.org/jetty/documentation/current/dos-filter.html.
      * See {@link WhoisDoSFilter} for the customisations added.
@@ -321,7 +321,6 @@ public class JettyBootstrap implements ApplicationService {
         sslContextFactory.setKeyStorePath(keystore);
         sslContextFactory.setKeyStorePassword(whoisKeystore.getPassword());
         sslContextFactory.setCipherComparator(HTTP2Cipher.COMPARATOR);
-        
 
         // enable optional client certificates
         sslContextFactory.setWantClientAuth(true);
