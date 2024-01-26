@@ -194,7 +194,7 @@ public class JettyBootstrap implements ApplicationService {
         }
 
         if (this.clientAuthPort >= 0) {
-            server.addConnector(createSecureConnector1(server, this.clientAuthPort));
+            server.addConnector(createSecureConnector(server, this.clientAuthPort));
         }
 
         final WebAppContext context = new WebAppContext();
@@ -321,6 +321,7 @@ public class JettyBootstrap implements ApplicationService {
         sslContextFactory.setKeyStorePath(keystore);
         sslContextFactory.setKeyStorePassword(whoisKeystore.getPassword());
         sslContextFactory.setCipherComparator(HTTP2Cipher.COMPARATOR);
+        
 
         // enable optional client certificates
         sslContextFactory.setWantClientAuth(true);
@@ -353,65 +354,6 @@ public class JettyBootstrap implements ApplicationService {
 
         final ServerConnector sslConnector = new ServerConnector(server, sslConnectionFactory, alpn, h2, new HttpConnectionFactory(httpsConfiguration));
         sslConnector.setPort(port);
-        return sslConnector;
-    }
-
-
-    private Connector createSecureConnector1(final Server server, final int port) {
-        // allow (untrusted) self-signed certificates to connect
-        final SslContextFactory.Server sslContextFactory = new SslContextFactory.Server() {
-            @Override
-            protected TrustManager[] getTrustManagers(KeyStore trustStore, Collection<? extends CRL> crls) {
-                return SslContextFactory.TRUST_ALL_CERTS;
-            }
-
-            @Override
-            protected TrustManagerFactory getTrustManagerFactoryInstance() {
-                return new TrustManagerFactoryWrapper(SslContextFactory.TRUST_ALL_CERTS[0]);
-            }
-        };
-
-        final String keystore = whoisKeystore.getKeystore();
-        if (keystore == null) {
-            throw new IllegalStateException("NO keystore");
-        }
-
-        sslContextFactory.setKeyStorePath(keystore);
-        sslContextFactory.setKeyStorePassword(whoisKeystore.getPassword());
-        sslContextFactory.setCipherComparator(HTTP2Cipher.COMPARATOR);
-
-        // enable optional client certificates
-        sslContextFactory.setWantClientAuth(true);
-        sslContextFactory.setValidateCerts(false);
-        sslContextFactory.setTrustAll(true);
-
-        // Exclude weak / insecure ciphers
-        // TODO CBC became weak, we need to skip them in the future https://support.kemptechnologies.com/hc/en-us/articles/9338043775757-CBC-ciphers-marked-as-weak-by-SSL-labs
-        // Check client compatability first
-        sslContextFactory.setExcludeCipherSuites(DEFAULT_EXCLUDED_CIPHER_SUITES);
-        sslContextFactory.setExcludeProtocols(DEFAULT_EXCLUDED_PROTOCOLS);
-
-        final HttpConfiguration httpsConfiguration = new HttpConfiguration();
-
-        final SecureRequestCustomizer secureRequestCustomizer = new SecureRequestCustomizer();
-        if (!sniHostCheck) {
-            LOGGER.warn("SNI host check is OFF");   // normally off for testing on localhost
-            secureRequestCustomizer.setSniHostCheck(false);
-        }
-        httpsConfiguration.addCustomizer(secureRequestCustomizer);
-
-        httpsConfiguration.setIdleTimeout(idleTimeout * 1000L);
-        httpsConfiguration.setUriCompliance(UriCompliance.LEGACY);
-
-        final HTTP2ServerConnectionFactory h2 = new HTTP2ServerConnectionFactory(httpsConfiguration);
-        final ALPNServerConnectionFactory alpn = new ALPNServerConnectionFactory();
-        alpn.setDefaultProtocol(HttpVersion.HTTP_1_1.asString());
-
-        final SslConnectionFactory sslConnectionFactory = new SslConnectionFactory(sslContextFactory, alpn.getProtocol());
-
-        final ServerConnector sslConnector = new ServerConnector(server, sslConnectionFactory, alpn, h2, new HttpConnectionFactory(httpsConfiguration));
-        sslConnector.setPort(port);
-        sslConnector.setHost(this.clientAuthBaseUrl);
         return sslConnector;
     }
 
