@@ -108,7 +108,7 @@ public class JettyBootstrap implements ApplicationService {
 
     private final int clientAuthPort;
 
-    private final String clientAuthBaseUrl;
+    private final boolean clientCertEnabled;
 
     @Autowired
     public JettyBootstrap(final RemoteAddressFilter remoteAddressFilter,
@@ -124,7 +124,7 @@ public class JettyBootstrap implements ApplicationService {
                           @Value("${port.api:0}") final int port,
                           @Value("${port.api.secure:-1}") final int securePort,
                           @Value("${port.client.auth:-1}") final int clientAuthPort,
-                          final @Value("${api.client.auth.baseurl}") String clientAuthBaseUrl
+                          @Value("${client.auth.enabled}") final boolean clientCertEnabled
                         ) throws MalformedObjectNameException {
         this.remoteAddressFilter = remoteAddressFilter;
         this.extensionOverridesAcceptHeaderFilter = extensionOverridesAcceptHeaderFilter;
@@ -142,7 +142,7 @@ public class JettyBootstrap implements ApplicationService {
         this.port = port;
         this.server = null;
         this.clientAuthPort = clientAuthPort;
-        this.clientAuthBaseUrl = clientAuthBaseUrl;
+        this.clientCertEnabled = clientCertEnabled;
     }
 
     @Override
@@ -190,11 +190,11 @@ public class JettyBootstrap implements ApplicationService {
         server.setConnectors(new Connector[]{createConnector(server)});
 
         if (this.securePort >= 0) {
-             server.addConnector(createSecureConnector(server));
+             server.addConnector(createSecureConnector(server, this.port));
         }
 
         if (this.clientAuthPort >= 0) {
-            server.addConnector(createClientAuthConnector(server));
+            server.addConnector(createSecureConnector(server, this.clientAuthPort));
         }
 
         final WebAppContext context = new WebAppContext();
@@ -278,45 +278,7 @@ public class JettyBootstrap implements ApplicationService {
         return holder;
     }
 
-    private Connector createClientAuthConnector(final Server server) {
-        // Configure the SSL context factory
-        final SslContextFactory.Server sslContextFactory = new SslContextFactory.Server();
-        /*final SslContextFactory.Server sslContextFactory = new SslContextFactory.Server() {
-            @Override
-            protected TrustManager[] getTrustManagers(KeyStore trustStore, Collection<? extends CRL> crls) {
-                return SslContextFactory.TRUST_ALL_CERTS;
-            }
-
-            @Override
-            protected TrustManagerFactory getTrustManagerFactoryInstance() {
-                return new TrustManagerFactoryWrapper(SslContextFactory.TRUST_ALL_CERTS[0]);
-            }
-        };*/
-
-        final String keystore = whoisKeystore.getKeystore();
-        if (keystore == null) {
-            throw new IllegalStateException("NO keystore");
-        }
-
-        sslContextFactory.setKeyStorePath(keystore);
-        sslContextFactory.setKeyStorePassword(whoisKeystore.getPassword());
-        sslContextFactory.setCipherComparator(HTTP2Cipher.COMPARATOR);
-
-        // Enable client certificate authentication
-        sslContextFactory.setNeedClientAuth(true);
-
-        sslContextFactory.setExcludeCipherSuites(DEFAULT_EXCLUDED_CIPHER_SUITES);
-        sslContextFactory.setExcludeProtocols(DEFAULT_EXCLUDED_PROTOCOLS);
-
-
-        // Create a server connector with the configured SSL context factory
-        final ServerConnector sslConnector = new ServerConnector(server, sslContextFactory);
-        sslConnector.setPort(clientAuthPort);
-
-        return sslConnector;
-    }
-
-    private Connector createSecureConnector(final Server server) {
+    private Connector createSecureConnector(final Server server, final int port) {
         // allow (untrusted) self-signed certificates to connect
         final SslContextFactory.Server sslContextFactory = new SslContextFactory.Server() {
             @Override
@@ -339,10 +301,7 @@ public class JettyBootstrap implements ApplicationService {
         sslContextFactory.setKeyStorePassword(whoisKeystore.getPassword());
         sslContextFactory.setCipherComparator(HTTP2Cipher.COMPARATOR);
 
-        // enable optional client certificates
-        sslContextFactory.setWantClientAuth(true);
-        sslContextFactory.setValidateCerts(false);
-        sslContextFactory.setTrustAll(true);
+        configureClientCertificateAuth(sslContextFactory);
 
         // Exclude weak / insecure ciphers
         // TODO CBC became weak, we need to skip them in the future https://support.kemptechnologies.com/hc/en-us/articles/9338043775757-CBC-ciphers-marked-as-weak-by-SSL-labs
@@ -369,8 +328,20 @@ public class JettyBootstrap implements ApplicationService {
         final SslConnectionFactory sslConnectionFactory = new SslConnectionFactory(sslContextFactory, alpn.getProtocol());
 
         final ServerConnector sslConnector = new ServerConnector(server, sslConnectionFactory, alpn, h2, new HttpConnectionFactory(httpsConfiguration));
-        sslConnector.setPort(this.securePort);
+        sslConnector.setPort(port);
         return sslConnector;
+    }
+
+    private void configureClientCertificateAuth(final SslContextFactory.Server sslContextFactory){
+        if (this.clientCertEnabled) {
+            // enable required client certificates
+            sslContextFactory.setNeedClientAuth(true);
+        } else {
+            // enable optional client certificates
+            sslContextFactory.setWantClientAuth(true);
+            sslContextFactory.setValidateCerts(false);
+            sslContextFactory.setTrustAll(true);
+        }
     }
 
     @Scheduled(fixedDelay = 60 * 60 * 1_000L)
