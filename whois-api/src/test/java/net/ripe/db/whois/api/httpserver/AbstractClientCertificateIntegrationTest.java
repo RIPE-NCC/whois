@@ -45,7 +45,7 @@ public class AbstractClientCertificateIntegrationTest extends AbstractHttpsInteg
 
     @BeforeAll
     public static void enableClientAuth() {
-        System.setProperty("client.cert.auth.enabled", "true");
+        System.setProperty("client.auth.enabled", "true");
     }
 
     public SSLContext getClientSSLContext() {
