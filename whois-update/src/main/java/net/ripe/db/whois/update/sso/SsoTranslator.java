@@ -30,17 +30,7 @@ public class SsoTranslator {
         SsoHelper.cacheAuthAttributes(submittedObject.getAttributes(), new AuthTranslator() {
             @Override
             public RpslAttribute translate(final String authType, final String authToken, final RpslAttribute originalAttribute) {
-                if (!authType.equals("SSO")) {
-                    return originalAttribute;
-                }
-
-                if (updateContext.getSsoTranslation().containsUsername(authToken)){
-                    updateContext.addMessage(update, originalAttribute, UpdateMessages.duplicatedSsoAuth(authToken, updateContext.getSsoTranslation().getUuid(authToken)));
-                    return originalAttribute;
-                }
-
-                if (updateContext.getSsoTranslation().containsUuid(authToken)){
-                    updateContext.addMessage(update, originalAttribute, UpdateMessages.duplicatedSsoAuth(updateContext.getSsoTranslation().getUsername(authToken), authToken));
+                if (!authType.equals("SSO") || isDuplicated(authToken, originalAttribute)) {
                     return originalAttribute;
                 }
 
@@ -59,6 +49,19 @@ public class SsoTranslator {
                     updateContext.addMessage(update, originalAttribute, UpdateMessages.ripeAccessAccountUnavailable(authToken));
                 }
                 return null;
+            }
+
+            private boolean isDuplicated(String authToken, RpslAttribute originalAttribute) {
+                if (updateContext.getSsoTranslation().containsUsername(authToken)){
+                    updateContext.addMessage(update, originalAttribute, UpdateMessages.duplicatedSsoAuth(authToken, updateContext.getSsoTranslation().getUuid(authToken)));
+                    return true;
+                }
+
+                if (updateContext.getSsoTranslation().containsUuid(authToken)){
+                    updateContext.addMessage(update, originalAttribute, UpdateMessages.duplicatedSsoAuth(updateContext.getSsoTranslation().getUsername(authToken), authToken));
+                    return true;
+                }
+                return false;
             }
         });
     }
