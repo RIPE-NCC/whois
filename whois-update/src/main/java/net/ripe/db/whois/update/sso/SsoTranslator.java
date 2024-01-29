@@ -13,31 +13,73 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.CheckForNull;
+import java.util.regex.Pattern;
 
 @Component
 public class SsoTranslator {
     private final AuthServiceClient authServiceClient;
 
+    private final static Pattern SSO_SYNTAX_PATTERN = Pattern.compile("(.+@.+){1,90}");
     @Autowired
     public SsoTranslator(final AuthServiceClient authServiceClient) {
         this.authServiceClient = authServiceClient;
+    }
+
+    public void populateCacheAuth(final UpdateContext updateContext, final Update update){
+        final RpslObject submittedObject = update.getSubmittedObject();
+        SsoHelper.cacheAuthAttributes(submittedObject.getAttributes(), new AuthTranslator() {
+            @Override
+            public RpslAttribute translate(final String authType, final String authToken, final RpslAttribute originalAttribute) {
+                if (!authType.equals("SSO")) {
+                    return originalAttribute;
+                }
+
+                if (updateContext.getSsoTranslation().containsUsername(authToken)){
+                    updateContext.addMessage(update, originalAttribute, UpdateMessages.duplicatedSsoAuth(authToken, updateContext.getSsoTranslation().getUuid(authToken)));
+                    return originalAttribute;
+                }
+
+                if (updateContext.getSsoTranslation().containsUuid(authToken)){
+                    updateContext.addMessage(update, originalAttribute, UpdateMessages.duplicatedSsoAuth(updateContext.getSsoTranslation().getUsername(authToken), authToken));
+                    return originalAttribute;
+                }
+
+                try {
+                    String userName;
+                    String uuid;
+                    if (SSO_SYNTAX_PATTERN.matcher(authToken).matches()) {
+                        userName = authToken;
+                        uuid = authServiceClient.getUuid(userName);
+                    } else {
+                        uuid = authToken;
+                        userName = authServiceClient.getUsername(uuid);
+                    }
+                    updateContext.getSsoTranslation().put(userName, uuid);
+                } catch (AuthServiceClientException e){
+                    updateContext.addMessage(update, originalAttribute, UpdateMessages.ripeAccessAccountUnavailable(authToken));
+                }
+                return null;
+            }
+        });
     }
 
     public void populateCacheAuthToUsername(final UpdateContext updateContext, final RpslObject rpslObject) {
         SsoHelper.translateAuth(rpslObject, new AuthTranslator() {
             @Override
             @CheckForNull
-            public RpslAttribute translate(final String authType, final String authToken, final RpslAttribute originalAttribute) {
+            public RpslAttribute translate(final String authType, final String uuid, final RpslAttribute originalAttribute) {
                 if (authType.equals("SSO")) {
-                    if (!updateContext.getSsoTranslation().containsUuid(authToken)) {
+                    if (!updateContext.getSsoTranslation().containsUuid(uuid)) {
                         try {
-                            final String username = authServiceClient.getUsername(authToken);
-                            updateContext.getSsoTranslation().put(username, authToken);
+                            final String username = authServiceClient.getUsername(uuid);
+                            updateContext.getSsoTranslation().put(username, uuid);
                         } catch (AuthServiceClientException e) {
                             if (!updateContext.getGlobalMessages().getErrors().contains(UpdateMessages.ripeAccessServerUnavailable())) {
                                 updateContext.addGlobalMessage(UpdateMessages.ripeAccessServerUnavailable());
                             }
                         }
+                    } else {
+                        updateContext.addGlobalMessage(UpdateMessages.duplicatedSsoAuth(updateContext.getSsoTranslation().getUsername(uuid), uuid));
                     }
                 }
                 return null;
@@ -50,16 +92,17 @@ public class SsoTranslator {
         SsoHelper.translateAuth(submittedObject, new AuthTranslator() {
             @Override
             @CheckForNull
-            public RpslAttribute translate(final String authType, final String authToken, final RpslAttribute originalAttribute) {
+            public RpslAttribute translate(final String authType, final String userName, final RpslAttribute originalAttribute) {
                 if (authType.equals("SSO")) {
-                    if (!updateContext.getSsoTranslation().containsUsername(authToken)) {
+                    if (!updateContext.getSsoTranslation().containsUsername(userName)) {
                         try {
-                            final String uuid = authServiceClient.getUuid(authToken);
-                            // TODO: [ES] put() different typed values than put(username, authToken) above ?
-                            updateContext.getSsoTranslation().put(authToken, uuid);
+                            final String uuid = authServiceClient.getUuid(userName);
+                            updateContext.getSsoTranslation().put(userName, uuid);
                         } catch (AuthServiceClientException e) {
-                            updateContext.addMessage(update, originalAttribute, UpdateMessages.ripeAccessAccountUnavailable(authToken));
+                            updateContext.addMessage(update, originalAttribute, UpdateMessages.ripeAccessAccountUnavailable(userName));
                         }
+                    } else {
+                        updateContext.addMessage(update, originalAttribute, UpdateMessages.duplicatedSsoAuth(userName, updateContext.getSsoTranslation().getUuid(userName)));
                     }
                 }
                 return null;

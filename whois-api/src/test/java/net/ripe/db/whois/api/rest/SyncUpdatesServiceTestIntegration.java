@@ -418,7 +418,7 @@ public class SyncUpdatesServiceTestIntegration extends AbstractIntegrationTest {
     }
 
     @Test
-    public void create_selfreferencing_maintainer_with_sso_uuid() {
+    public void create_selfreferencing_maintainer_with_duplicated_sso_uuid() {
         databaseHelper.addObject(PERSON_ANY1_TEST);
         databaseHelper.addObject(MNTNER_TEST_MNTNER);
 
@@ -429,39 +429,20 @@ public class SyncUpdatesServiceTestIntegration extends AbstractIntegrationTest {
                 "upd-to:        noreply@ripe.net\n" +
                 "auth:          MD5-PW $1$7jwEckGy$EjyaikWbwDB2I4nzM0Fgr1 # pass %95{word}?\n" +
                 "auth:          SSO person@net.net\n" +
-                "auth:          SSO 906635c2-0405-429a-800b-0602bd716124\n" +       // SSO UUID for person@net.net, should not be allowed
+                "auth:          SSO 906635c2-0405-429a-800b-0602bd716124\n" +       // SSO UUID for person@net.net, should throw a warning
                 "mnt-by:        TESTING-MNT\n" +
                 "source:        TEST";
 
-        String response = RestTest.target(getPort(), "whois/syncupdates/test?" +
+        final String response = RestTest.target(getPort(), "whois/syncupdates/test?" +
                 "DATA=" + SyncUpdateUtils.encode(mntner + "\npassword: pass %95{word}?\n"))
                 .request()
                 .get(String.class);
 
         assertThat(response, not(containsString("Create SUCCEEDED: [mntner] TESTING-MNT")));
-//        assertThat(response, stringMatchesRegexp("(?is).*No RIPE NCC Access Account found for\n\\s+906635c2-0405-429a-800b-0602bd716124.*"));
-    }
-
-    public void create_person_with_changed_attribute() {
-        databaseHelper.addObject(PERSON_ANY1_TEST);
-        databaseHelper.addObject(MNTNER_TEST_MNTNER);
-
-        final String response = RestTest.target(getPort(), "whois/syncupdates/test")
-                .request()
-                .post(Entity.entity("DATA=" + SyncUpdateUtils.encode(
-                                "person:        Test Person\n" +
-                                "address:       Amsterdam\n" +
-                                "phone:         +31\n" +
-                                "nic-hdl:       TP2-RIPE\n" +
-                                "mnt-by:        mntner-mnt\n" +
-                                "changed:       user@host.org 20171025\n" +
-                                "source:        TEST\n" +
-                                "password: emptypassword\n"),
-                        MediaType.valueOf("application/x-www-form-urlencoded")), String.class);
-
-        assertThat(response, containsString("Create SUCCEEDED: [person] TP2-RIPE   Test Person"));
-        assertThat(response, containsString("***Warning: Deprecated attribute \"changed\". This attribute has been removed."));
-        assertThat(databaseHelper.lookupObject(ObjectType.PERSON, "TP2-RIPE").containsAttribute(AttributeType.CHANGED), is(false));
+        assertThat(response, containsString("***Error:   Syntax error in SSO 906635c2-0405-429a-800b-0602bd716124"));
+        assertThat(response, containsString("" +
+                "***Warning: Duplicate sso authentication\n" +
+                "            'person@net.net=906635c2-0405-429a-800b-0602bd716124'."));
     }
 
     @Test

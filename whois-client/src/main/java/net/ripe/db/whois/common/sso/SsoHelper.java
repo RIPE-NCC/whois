@@ -8,6 +8,7 @@ import net.ripe.db.whois.common.rpsl.RpslObject;
 import net.ripe.db.whois.common.rpsl.RpslObjectBuilder;
 
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 
 public class SsoHelper {
@@ -35,6 +36,18 @@ public class SsoHelper {
             return rpslObject;
         } else {
             return new RpslObjectBuilder(rpslObject).replaceAttributes(replace).get();
+        }
+    }
+
+
+    public static void cacheAuthAttributes(final List<RpslAttribute> rpslObject, final AuthTranslator authTranslator) {
+        for (RpslAttribute authAttribute : rpslObject) {
+            final Iterator<String> authIterator = SPACE_SPLITTER.split(authAttribute.getCleanValue()).iterator();
+            final String authType = authIterator.next().toUpperCase();
+            if (authIterator.hasNext()) {
+                final String authToken = authIterator.next();
+                authTranslator.translate(authType, authToken, authAttribute);
+            }
         }
     }
 }

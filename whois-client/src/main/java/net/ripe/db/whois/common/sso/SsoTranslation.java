@@ -11,12 +11,6 @@ public class SsoTranslation {
     private final Map<String, String> usernameToUuidCache = Maps.newHashMap();
 
     public void put(final String username, final String uuid) {
-        if (containsUsername(username)) {
-            throw new IllegalStateException("Duplicate username '" + username + "' in SSO translation! (" + username + "=" + uuid + ")");
-        }
-        if (containsUuid(uuid)) {
-            throw new IllegalStateException("Duplicate UUID '" + uuid + "' in SSO translation! (" + username + "=" + uuid + ")");
-        }
         usernameToUuidCache.put(username, uuid);
     }
 

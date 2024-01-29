@@ -85,7 +85,7 @@ public class UpdateRequestHandler {
             dnsChecker.checkAll(updateRequest, updateContext);
 
             for (final Update update : updateRequest.getUpdates()) {
-                ssoTranslator.populateCacheAuthToUuid(updateContext, update);
+                ssoTranslator.populateCacheAuth(updateContext, update);
             }
 
             final UpdateResponse updateResponse;
