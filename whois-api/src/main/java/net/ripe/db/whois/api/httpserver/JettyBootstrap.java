@@ -300,10 +300,12 @@ public class JettyBootstrap implements ApplicationService {
         sslContextFactory.setKeyStorePath(keystore);
         sslContextFactory.setKeyStorePassword(whoisKeystore.getPassword());
         sslContextFactory.setCipherComparator(HTTP2Cipher.COMPARATOR);
-        
+
         if (this.clientCertEnabled) {
             // enable required client certificates
-            sslContextFactory.setNeedClientAuth(true); // The server requires client to provide a valid certificate  during SSL handshake
+            //sslContextFactory.setNeedClientAuth(true); // The server requires client to provide a valid certificate
+            // during SSL handshake
+            sslContextFactory.setWantClientAuth(true);
             sslContextFactory.setValidateCerts(false); // The server will validate the certificate against a truststore
             sslContextFactory.setTrustAll(true);
         }
