@@ -300,8 +300,13 @@ public class JettyBootstrap implements ApplicationService {
         sslContextFactory.setKeyStorePath(keystore);
         sslContextFactory.setKeyStorePassword(whoisKeystore.getPassword());
         sslContextFactory.setCipherComparator(HTTP2Cipher.COMPARATOR);
-
-        configureClientCertificateAuth(sslContextFactory);
+        
+        if (this.clientCertEnabled) {
+            // enable required client certificates
+            sslContextFactory.setNeedClientAuth(true); // The server requires client to provide a valid certificate  during SSL handshake
+            sslContextFactory.setValidateCerts(false); // The server will validate the certificate against a truststore
+            sslContextFactory.setTrustAll(true);
+        }
 
         // Exclude weak / insecure ciphers
         // TODO CBC became weak, we need to skip them in the future https://support.kemptechnologies.com/hc/en-us/articles/9338043775757-CBC-ciphers-marked-as-weak-by-SSL-labs
@@ -332,7 +337,7 @@ public class JettyBootstrap implements ApplicationService {
         return sslConnector;
     }
 
-    private void configureClientCertificateAuth(final SslContextFactory.Server sslContextFactory){
+   /* private void configureClientCertificateAuth(final SslContextFactory.Server sslContextFactory){
         if (this.clientCertEnabled) {
             // enable required client certificates
             sslContextFactory.setNeedClientAuth(true); // The server requires client to provide a valid certificate  during SSL handshake
@@ -344,7 +349,7 @@ public class JettyBootstrap implements ApplicationService {
             sslContextFactory.setValidateCerts(false);
             sslContextFactory.setTrustAll(true);
         }
-    }
+    }*/
 
     @Scheduled(fixedDelay = 60 * 60 * 1_000L)
     private void reloadSecureContextOnKeyChange() {
