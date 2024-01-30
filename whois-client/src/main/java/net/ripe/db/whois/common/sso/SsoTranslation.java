@@ -11,7 +11,9 @@ public class SsoTranslation {
     private final Map<String, String> usernameToUuidCache = Maps.newHashMap();
 
     public void put(final String username, final String uuid) {
-        usernameToUuidCache.put(username, uuid);
+        if (!containsUsername(username) && !containsUuid(uuid)) {
+            usernameToUuidCache.put(username, uuid);
+        }
     }
 
     public boolean containsUsername(final String username) {

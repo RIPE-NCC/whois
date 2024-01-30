@@ -440,9 +440,6 @@ public class SyncUpdatesServiceTestIntegration extends AbstractIntegrationTest {
 
         assertThat(response, not(containsString("Create SUCCEEDED: [mntner] TESTING-MNT")));
         assertThat(response, containsString("***Error:   Syntax error in SSO 906635c2-0405-429a-800b-0602bd716124"));
-        assertThat(response, containsString("" +
-                "***Warning: Duplicate sso authentication\n" +
-                "            'person@net.net=906635c2-0405-429a-800b-0602bd716124'."));
     }
 
 
@@ -458,7 +455,7 @@ public class SyncUpdatesServiceTestIntegration extends AbstractIntegrationTest {
                         "upd-to:        noreply@ripe.net\n" +
                         "auth:          MD5-PW $1$7jwEckGy$EjyaikWbwDB2I4nzM0Fgr1 # pass %95{word}?\n" +
                         "auth:          SSO person@net.net\n" +
-                        "auth:          SSO 906635c2-0405-429a-800b-0602bd716124\n" +       // SSO UUID for person@net.net, should throw a warning
+                        "auth:          SSO 906635c2-0405-429a-800b-0602bd716124\n" +       // SSO UUID for person@net.net, should throw a syntax error
                         "mnt-by:        TESTING-MNT\n" +
                         "source:        TEST";
 
@@ -471,9 +468,6 @@ public class SyncUpdatesServiceTestIntegration extends AbstractIntegrationTest {
 
         assertThat(response, not(containsString("Create SUCCEEDED: [mntner] TESTING-MNT")));
         assertThat(response, containsString("***Error:   Syntax error in SSO 906635c2-0405-429a-800b-0602bd716124"));
-        assertThat(response, containsString("" +
-                "***Warning: Duplicate sso authentication\n" +
-                "            'person@net.net=906635c2-0405-429a-800b-0602bd716124'."));
     }
 
     @Test

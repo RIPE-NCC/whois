@@ -2,6 +2,19 @@ package net.ripe.db.whois.api.rest;
 
 import com.google.common.base.Strings;
 import com.google.common.io.ByteStreams;
+import jakarta.ws.rs.BadRequestException;
+import jakarta.ws.rs.ClientErrorException;
+import jakarta.ws.rs.HttpMethod;
+import jakarta.ws.rs.InternalServerErrorException;
+import jakarta.ws.rs.NotAllowedException;
+import jakarta.ws.rs.NotAuthorizedException;
+import jakarta.ws.rs.NotFoundException;
+import jakarta.ws.rs.ServiceUnavailableException;
+import jakarta.ws.rs.client.Entity;
+import jakarta.ws.rs.core.HttpHeaders;
+import jakarta.ws.rs.core.MediaType;
+import jakarta.ws.rs.core.Response;
+import jakarta.ws.rs.core.Variant;
 import net.ripe.db.whois.api.AbstractIntegrationTest;
 import net.ripe.db.whois.api.RestTest;
 import net.ripe.db.whois.api.rest.domain.Attribute;
@@ -42,19 +55,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.dao.EmptyResultDataAccessException;
 
-import jakarta.ws.rs.BadRequestException;
-import jakarta.ws.rs.ClientErrorException;
-import jakarta.ws.rs.HttpMethod;
-import jakarta.ws.rs.InternalServerErrorException;
-import jakarta.ws.rs.NotAllowedException;
-import jakarta.ws.rs.NotAuthorizedException;
-import jakarta.ws.rs.NotFoundException;
-import jakarta.ws.rs.ServiceUnavailableException;
-import jakarta.ws.rs.client.Entity;
-import jakarta.ws.rs.core.HttpHeaders;
-import jakarta.ws.rs.core.MediaType;
-import jakarta.ws.rs.core.Response;
-import jakarta.ws.rs.core.Variant;
 import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.FileInputStream;
@@ -164,7 +164,7 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
             "upd-to:         noreply@ripe.net\n" +
             "source:         TEST");
 
-    private static String TEST_ROLE_STRING = "" +
+    private static final String TEST_ROLE_STRING = "" +
             "role:           Test Role\n" +
             "address:        Singel 258\n" +
             "phone:          +31 6 12345678\n" +
@@ -4011,6 +4011,7 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
         final WhoisObject object = whoisResources.getWhoisObjects().get(0);
         assertThat(object.getSource().getId(), is("test-nonauth"));
     }
+
     @Test
     public void update_as_set_with_wrong_source_succeeds() {
         final RpslObject TEST_AS_SET = RpslObject.parse("""
@@ -4030,7 +4031,6 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
                     mnt-by:     OWNER-MNT
                     source:     TEST-NONAUTH
                     """);
-
 
         final RpslObject updatedObject = new RpslObjectBuilder(TEST_AS_SET).replaceAttribute(TEST_AS_SET.findAttribute(AttributeType.SOURCE),
                 new RpslAttribute(AttributeType.SOURCE, "TEST")).sort().get();
@@ -4067,7 +4067,6 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
                     mnt-by:     OWNER-MNT
                     source:     TEST-NONAUTH
                     """);
-
 
         final RpslObject updatedObject = new RpslObjectBuilder(TEST_AS_SET).replaceAttribute(TEST_AS_SET.findAttribute(AttributeType.SOURCE),
                 new RpslAttribute(AttributeType.SOURCE, "TEST-NONAUTH")).sort().get();
@@ -4351,6 +4350,61 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
         } catch (BadRequestException e) {
             RestTest.assertOnlyErrorMessage(e, "Error", "Object type and key specified in URI (%s: %s) do not match the WhoisResources contents", "mntner", "OWNER-MNT");
         }
+    }
+
+    @Test
+    public void create_mntner_with_uuid_then_error() {
+        final RpslObject createdRpslObject = RpslObject.parse("" +
+                "mntner:      UUID-MNT\n" +
+                "descr:       uuid Maintainer\n" +
+                "admin-c:     TP1-TEST\n" +
+                "upd-to:      noreply@ripe.net\n" +
+                "auth:        MD5-PW $1$d9fKeTr2$Si7YudNf4rUGmR71n/cqk/ #test\n" +
+                "auth:        SSO 906635c2-0405-429a-800b-0602bd716124\n" +
+                "mnt-by:      UUID-MNT\n" +
+                "source:      TEST");
+
+        final BadRequestException badRequestException = assertThrows(BadRequestException.class, () -> {
+            RestTest.target(getPort(), "whois/test/mntner")
+                    .request(MediaType.APPLICATION_XML)
+                    .post(Entity.entity(map(createdRpslObject), MediaType.APPLICATION_XML), WhoisResources.class);
+        });
+        assertThat(badRequestException.getMessage(), is("HTTP 400 Bad Request"));
+        assertThat(badRequestException.getResponse().readEntity(WhoisResources.class)
+                .getErrorMessages().get(0).toString(), is("Syntax error in SSO 906635c2-0405-429a-800b-0602bd716124"));
+    }
+
+
+    @Test
+    public void update_mntner_with_uuid_then_error() {
+        databaseHelper.addObject("" +
+                "mntner:      UUID-MNT\n" +
+                "descr:       uuid Maintainer\n" +
+                "admin-c:     TP1-TEST\n" +
+                "upd-to:      noreply@ripe.net\n" +
+                "auth:        MD5-PW $1$d9fKeTr2$Si7YudNf4rUGmR71n/cqk/ #test\n" +
+                "auth:          SSO person@net.net\n" +
+                "mnt-by:      UUID-MNT\n" +
+                "source:      TEST");
+
+        final RpslObject updatedRpslObject = RpslObject.parse("" +
+                "mntner:      UUID-MNT\n" +
+                "descr:       uuid Maintainer\n" +
+                "admin-c:     TP1-TEST\n" +
+                "upd-to:      noreply@ripe.net\n" +
+                "auth:        MD5-PW $1$d9fKeTr2$Si7YudNf4rUGmR71n/cqk/ #test\n" +
+                "auth:        SSO 906635c2-0405-429a-800b-0602bd716124\n" +
+                "mnt-by:      UUID-MNT\n" +
+                "source:      TEST");
+
+        final BadRequestException badRequestException = assertThrows(BadRequestException.class, () -> {
+            RestTest.target(getPort(), "whois/test/mntner/UUID-MNT")
+                    .request(MediaType.APPLICATION_XML)
+                    .put(Entity.entity(map(updatedRpslObject), MediaType.APPLICATION_XML), WhoisResources.class);
+        });
+        assertThat(badRequestException.getMessage(), is("HTTP 400 Bad Request"));
+        assertThat(badRequestException.getResponse().readEntity(WhoisResources.class).getErrorMessages()
+                .get(0).toString(), is("Syntax error in SSO 906635c2-0405-429a-800b-0602bd716124"));
     }
 
     @Test

@@ -682,11 +682,6 @@ public final class UpdateMessages {
     public static Message changedAttributeRemoved() {
         return new Message(Messages.Type.WARNING, "Deprecated attribute \"changed\". This attribute has been removed.");
     }
-
-    public static Message duplicatedSsoAuth(final String username, final String uuid) {
-        return new Message(Messages.Type.WARNING, "Duplicate sso authentication '" + username + "=" + uuid + "'.");
-    }
-
     public static Message mntRoutesAttributeRemoved() {
         return new Message(Messages.Type.WARNING, "Deprecated attribute \"mnt-routes\". This attribute has been removed.");
     }
