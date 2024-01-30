@@ -445,6 +445,37 @@ public class SyncUpdatesServiceTestIntegration extends AbstractIntegrationTest {
                 "            'person@net.net=906635c2-0405-429a-800b-0602bd716124'."));
     }
 
+
+    @Test
+    public void update_selfreferencing_maintainer_with_duplicated_sso_uuid() {
+        databaseHelper.addObject(PERSON_ANY1_TEST);
+        databaseHelper.addObject(MNTNER_TEST_MNTNER);
+
+        final String mntner =
+                "mntner:        TESTING-MNT\n" +
+                        "descr:         description\n" +
+                        "admin-c:       TP1-TEST\n" +
+                        "upd-to:        noreply@ripe.net\n" +
+                        "auth:          MD5-PW $1$7jwEckGy$EjyaikWbwDB2I4nzM0Fgr1 # pass %95{word}?\n" +
+                        "auth:          SSO person@net.net\n" +
+                        "auth:          SSO 906635c2-0405-429a-800b-0602bd716124\n" +       // SSO UUID for person@net.net, should throw a warning
+                        "mnt-by:        TESTING-MNT\n" +
+                        "source:        TEST";
+
+        databaseHelper.addObject(mntner);
+
+        final String response = RestTest.target(getPort(), "whois/syncupdates/test?" +
+                        "DATA=" + SyncUpdateUtils.encode(mntner + "\npassword: pass %95{word}?\n"))
+                .request()
+                .get(String.class);
+
+        assertThat(response, not(containsString("Create SUCCEEDED: [mntner] TESTING-MNT")));
+        assertThat(response, containsString("***Error:   Syntax error in SSO 906635c2-0405-429a-800b-0602bd716124"));
+        assertThat(response, containsString("" +
+                "***Warning: Duplicate sso authentication\n" +
+                "            'person@net.net=906635c2-0405-429a-800b-0602bd716124'."));
+    }
+
     @Test
     public void create_person_with_changed_attributes() {
         databaseHelper.addObject(PERSON_ANY1_TEST);
