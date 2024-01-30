@@ -101,7 +101,6 @@ import static net.ripe.db.whois.common.rpsl.AttributeType.REMARKS;
 import static net.ripe.db.whois.common.rpsl.AttributeType.ROLE;
 import static net.ripe.db.whois.common.rpsl.AttributeType.TECH_C;
 import static net.ripe.db.whois.common.rpsl.AttributeType.ZONE_C;
-import static net.ripe.db.whois.common.rpsl.ObjectType.DOMAIN;
 import static net.ripe.db.whois.common.rpsl.ObjectType.INET6NUM;
 
 @Component
@@ -152,14 +151,27 @@ class RdapObjectMapper {
     public Object mapSearch(final String requestUrl, final List<RpslObject> objects, final int maxResultSize) {
         final SearchResult searchResult = new SearchResult();
         for (final RpslObject object : objects) {
-            if (object.getType() == DOMAIN) {
-                final Domain domain = (Domain) getRdapObject(requestUrl, object, null);
-                mapRedactions(domain);
-                searchResult.addDomainSearchResult(domain);
-            } else {
-                final Entity entity = (Entity) getRdapObject(requestUrl, object, null);
-                mapRedactions(entity);
-                searchResult.addEntitySearchResult(entity);
+            switch (object.getType()){
+                case DOMAIN -> {
+                    final Domain domain = (Domain) getRdapObject(requestUrl, object, null);
+                    mapRedactions(domain);
+                    searchResult.addDomainSearchResult(domain);
+                }
+                case INET6NUM, INETNUM -> {
+                    final Ip ip = (Ip) getRdapObject(requestUrl, object, null);
+                    mapRedactions(ip);
+                    searchResult.addIpSearchResult(ip);
+                }
+                case AUT_NUM -> {
+                    final Autnum autnum = (Autnum) getRdapObject(requestUrl, object, null);
+                    mapRedactions(autnum);
+                    searchResult.addAutnumSearchResult(autnum);
+                }
+                default -> {
+                    final Entity entity = (Entity) getRdapObject(requestUrl, object, null);
+                    mapRedactions(entity);
+                    searchResult.addEntitySearchResult(entity);
+                }
             }
         }
 

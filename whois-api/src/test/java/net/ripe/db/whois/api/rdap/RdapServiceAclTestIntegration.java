@@ -65,6 +65,21 @@ class RdapServiceAclTestIntegration extends AbstractRdapIntegrationTest {
             "last-modified:  2001-02-04T17:00:00Z\n" +
             "source:    TEST\n");
 
+    private static final RpslObject TEST_ORGANISATION = RpslObject.parse(
+            "organisation:  ORG-TO1-TEST\n" +
+                    "org-name:      Test organisation\n" +
+                    "org-type:      OTHER\n" +
+                    "descr:         Test\n" +
+                    "address:       Amsterdam\n" +
+                    "e-mail:        org@ripe.net\n" +
+                    "phone:         +01-000-000-000\n" +
+                    "fax-no:        +01-000-000-000\n" +
+                    "admin-c:       TP1-TEST\n" +
+                    "mnt-by:        OWNER-MNT\n" +
+                    "created:         2022-08-14T11:48:28Z\n" +
+                    "last-modified:   2022-10-25T12:22:39Z\n" +
+                    "source:        TEST");
+
     @Autowired
     private IpResourceConfiguration ipResourceConfiguration;
     @Autowired
@@ -76,6 +91,7 @@ class RdapServiceAclTestIntegration extends AbstractRdapIntegrationTest {
         databaseHelper.addObject(OWNER_MNT);
         databaseHelper.addObject(PAULETH_PALTHEN);
         databaseHelper.updateObject(TEST_PERSON);
+        databaseHelper.addObject(TEST_ORGANISATION);
     }
 
     @Test
@@ -110,7 +126,6 @@ class RdapServiceAclTestIntegration extends AbstractRdapIntegrationTest {
         assertThat(testPersonalObjectAccounting.getQueriedPersonalObjects(InetAddress.getByName(LOCALHOST)), is(1));
     }
 
-    // TODO: [ES] mntner e-mail is not filtered and mntner is not counted in ACL
     @Test
     public void lookup_mntner_acl_not_counted() throws Exception {
         final Entity entity = createResource("entity/OWNER-MNT")
@@ -118,6 +133,15 @@ class RdapServiceAclTestIntegration extends AbstractRdapIntegrationTest {
                 .get(Entity.class);
 
         assertThat(((ArrayList)entity.getVCardArray().get(1)).get(2).toString(), is("[kind, {}, text, individual]"));
+        assertThat(testPersonalObjectAccounting.getQueriedPersonalObjects(InetAddress.getByName(LOCALHOST)), is(0));
+    }
+
+    @Test
+    public void lookup_organisation_acl_no_counted() throws Exception {
+        createResource("entity/ORG-TO1-TEST")
+                .request(MediaType.APPLICATION_JSON_TYPE)
+                .get(Entity.class);
+
         assertThat(testPersonalObjectAccounting.getQueriedPersonalObjects(InetAddress.getByName(LOCALHOST)), is(0));
     }
 }

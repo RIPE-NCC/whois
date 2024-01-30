@@ -1,7 +1,14 @@
 package net.ripe.db.whois.common.sso;
 
 import com.fasterxml.jackson.databind.DeserializationFeature;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.SerializationFeature;
+import com.fasterxml.jackson.databind.introspect.AnnotationIntrospectorPair;
+import com.fasterxml.jackson.databind.introspect.JacksonAnnotationIntrospector;
+import com.fasterxml.jackson.databind.json.JsonMapper;
+import com.fasterxml.jackson.databind.type.TypeFactory;
 import com.fasterxml.jackson.jakarta.rs.json.JacksonJsonProvider;
+import com.fasterxml.jackson.module.jakarta.xmlbind.JakartaXmlBindAnnotationIntrospector;
 import jakarta.ws.rs.BadRequestException;
 import jakarta.ws.rs.ForbiddenException;
 import jakarta.ws.rs.NotFoundException;
@@ -10,6 +17,7 @@ import jakarta.ws.rs.WebApplicationException;
 import jakarta.ws.rs.client.Client;
 import jakarta.ws.rs.client.ClientBuilder;
 import jakarta.ws.rs.core.MediaType;
+import net.ripe.db.whois.common.sso.domain.HistoricalUserResponse;
 import net.ripe.db.whois.common.sso.domain.MemberContactsResponse;
 import net.ripe.db.whois.common.sso.domain.ValidateTokenResponse;
 import org.apache.commons.lang.StringUtils;
@@ -41,6 +49,8 @@ public class AuthServiceClient {
     private static final String ORGANISATION_MEMBERS_PATH = "/members";
     private static final String USER_SEARCH_PATH = "/accounts/";
 
+    private static final String HISTORICAL_USER_SEARCH_PATH = "/history/user";
+
     private static final String CONTACT_PATH = "/contacts";
     private static final String EMAIL_PATH = "/email";
     private static final String VALIDATE_TOKEN_PERMISSION = "portal";
@@ -59,9 +69,18 @@ public class AuthServiceClient {
         this.restUrl = restUrl;
         this.apiKey = apiKey;
 
+        final ObjectMapper objectMapper = JsonMapper.builder()
+            .enable(SerializationFeature.INDENT_OUTPUT)
+            .build();
+        objectMapper.setAnnotationIntrospector(
+                new AnnotationIntrospectorPair(
+                        new JacksonAnnotationIntrospector(),
+                        new JakartaXmlBindAnnotationIntrospector(TypeFactory.defaultInstance())));
+
         final JacksonJsonProvider jsonProvider = (new JacksonJsonProvider())
                 .configure(DeserializationFeature.UNWRAP_ROOT_VALUE, false)
                 .configure(DeserializationFeature.ACCEPT_SINGLE_VALUE_AS_ARRAY, true);
+        jsonProvider.setMapper(objectMapper);
         this.client = (ClientBuilder.newBuilder()
                 .register(jsonProvider))
                 .property(ClientProperties.CONNECT_TIMEOUT, CLIENT_CONNECT_TIMEOUT)
@@ -70,11 +89,11 @@ public class AuthServiceClient {
     }
 
     @Nullable
-    @Cacheable(cacheNames="ssoValidateToken", key="#authToken")
+    @Cacheable(cacheNames="ssoValidateToken", key="#authToken", condition="#authToken!=null")
     public ValidateTokenResponse validateToken(final String authToken) {
         if (StringUtils.isEmpty(authToken)) {
             LOGGER.debug("No crowdToken was supplied");
-            throw new AuthServiceClientException(BAD_REQUEST.getStatusCode(), "Invalid token.");
+            throw new AuthServiceClientException(BAD_REQUEST.getStatusCode(), "No Token.");
         }
 
         try {
@@ -107,11 +126,11 @@ public class AuthServiceClient {
             null);
     }
 
-    @Cacheable(cacheNames="ssoUuid", key="#username")
+    @Cacheable(cacheNames="ssoUuid", key="#username", condition="#username!=null")
     public String getUuid(final String username) {
         if (StringUtils.isEmpty(username)) {
             LOGGER.debug("No username was supplied");
-            throw new AuthServiceClientException(BAD_REQUEST.getStatusCode(), "Invalid username.");
+            throw new AuthServiceClientException(BAD_REQUEST.getStatusCode(), "No username.");
         }
 
         try {
@@ -136,11 +155,11 @@ public class AuthServiceClient {
         }
     }
 
-    @Cacheable(cacheNames="ssoUserDetails", key="#uuid")
+    @Cacheable(cacheNames="ssoUserDetails", key="#uuid", condition="#uuid!=null")
     public ValidateTokenResponse getUserDetails(final String uuid) {
         if (StringUtils.isEmpty(uuid)) {
             LOGGER.debug("No uuid was supplied");
-            throw new AuthServiceClientException(BAD_REQUEST.getStatusCode(),"Invalid uuid.");
+            throw new AuthServiceClientException(BAD_REQUEST.getStatusCode(),"No UUID.");
         }
 
         try {
@@ -153,6 +172,32 @@ public class AuthServiceClient {
         } catch (BadRequestException e) {
             LOGGER.debug("Failed to get details for uuid {} (token is invalid)", uuid);
             throw new AuthServiceClientException(UNAUTHORIZED.getStatusCode(), "Invalid token.");
+        } catch (WebApplicationException e) {
+            LOGGER.debug("Failed to get details for uuid {} due to {}:{}\n\tResponse: {}", uuid, e.getClass().getName(), e.getMessage(), e.getResponse().readEntity(String.class));
+            throw new AuthServiceClientException(INTERNAL_SERVER_ERROR.getStatusCode(), "Internal server error");
+        } catch (ProcessingException e) {
+            LOGGER.debug("Failed to get details for uuid {} due to {}:{}", uuid, e.getClass().getName(), e.getMessage());
+            throw new AuthServiceClientException(INTERNAL_SERVER_ERROR.getStatusCode(), "Internal server error");
+        }
+    }
+
+    @Cacheable(cacheNames="ssoHistoricalUserDetails", key="#uuid", condition="#uuid!=null")
+    public HistoricalUserResponse getHistoricalUserDetails(final String uuid) {
+        if (StringUtils.isEmpty(uuid)) {
+            LOGGER.debug("No uuid was supplied");
+            throw new AuthServiceClientException(BAD_REQUEST.getStatusCode(),"No UUID.");
+        }
+
+        try {
+            return client.target(restUrl)
+                    .path(HISTORICAL_USER_SEARCH_PATH)
+                    .path(uuid)
+                    .request(MediaType.APPLICATION_JSON_TYPE)
+                    .header("X-API_KEY", apiKey)
+                    .get(HistoricalUserResponse.class);
+        } catch (BadRequestException e) {
+            LOGGER.debug("Failed to get details for uuid {} (Invalid UUID)", uuid);
+            throw new AuthServiceClientException(UNAUTHORIZED.getStatusCode(), "Invalid UUID.");
         } catch (WebApplicationException e) {
             LOGGER.debug("Failed to get details for uuid {} due to {}:{}\n\tResponse: {}", uuid, e.getClass().getName(), e.getMessage(), e.getResponse().readEntity(String.class));
             throw new AuthServiceClientException(INTERNAL_SERVER_ERROR.getStatusCode(), "Internal server error");
