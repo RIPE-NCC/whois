@@ -303,11 +303,11 @@ public class JettyBootstrap implements ApplicationService {
 
         if (this.clientCertEnabled) {
             // enable required client certificates
-            //sslContextFactory.setNeedClientAuth(true); // The server requires client to provide a valid certificate
+            sslContextFactory.setNeedClientAuth(true); // The server requires client to provide a valid certificate
             // during SSL handshake
-            sslContextFactory.setWantClientAuth(true);
-            sslContextFactory.setValidateCerts(false); // The server will validate the certificate against a truststore
-            sslContextFactory.setTrustAll(true);
+            //sslContextFactory.setWantClientAuth(true);
+            sslContextFactory.setValidateCerts(true); // The server will validate the certificate against a truststore
+            sslContextFactory.setTrustAll(false);
         }
 
         // Exclude weak / insecure ciphers
