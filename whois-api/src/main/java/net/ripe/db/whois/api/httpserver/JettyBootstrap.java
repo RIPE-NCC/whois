@@ -302,7 +302,7 @@ public class JettyBootstrap implements ApplicationService {
         sslContextFactory.setCipherComparator(HTTP2Cipher.COMPARATOR);
 
         if (this.clientCertEnabled) {
-            sslContextFactory.setWantClientAuth(true);
+            sslContextFactory.setNeedClientAuth(true);
             sslContextFactory.setValidateCerts(false);
             sslContextFactory.setTrustAll(true);
         }
