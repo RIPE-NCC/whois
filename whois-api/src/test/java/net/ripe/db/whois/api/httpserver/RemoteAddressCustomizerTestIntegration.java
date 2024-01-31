@@ -48,4 +48,26 @@ public class RemoteAddressCustomizerTestIntegration extends AbstractIntegrationT
 
         assertThat(index, containsString("From-Host: 74.125.136.99"));
     }
+
+    @Test
+    public void help_forward_client_ip_flag_trusted_ip() {
+
+        final String index = RestTest.target(getPort(), "whois/syncupdates/TEST?HELP=yes&clientIp=10.0.0.1")
+                .request()
+                .header(HttpHeaders.X_FORWARDED_FOR, "193.0.20.1")
+                .header(HttpHeaders.X_FORWARDED_FOR, "74.125.136.99")
+                .get(String.class);
+
+        assertThat(index, containsString("From-Host: 10.0.0.1"));
+    }
+
+    @Test
+    public void help_client_ip_flag_trusted_ip() {
+        final String index = RestTest.target(getPort(), "whois/syncupdates/TEST?HELP=yes&clientIp=10.0.0.1")
+                .request()
+                .get(String.class);
+
+        assertThat(index, containsString("From-Host: 10.0.0.1"));
+    }
+
 }
