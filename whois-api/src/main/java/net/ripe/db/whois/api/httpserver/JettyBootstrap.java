@@ -223,7 +223,7 @@ public class JettyBootstrap implements ApplicationService {
         final HttpConfiguration httpConfiguration = new HttpConfiguration();
         if (isHttpProxy()) {
             // client address is set in X-Forwarded-For header by HTTP proxy
-            httpConfiguration.addCustomizer(new RemoteAddressCustomizer());
+            httpConfiguration.addCustomizer(new RemoteAddressCustomizer(trustedIpRanges));
             // request protocol is set in X-Forwarded-Proto header by HTTP proxy
             httpConfiguration.addCustomizer(new ProtocolCustomizer());
         }
