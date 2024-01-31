@@ -302,7 +302,7 @@ public class JettyBootstrap implements ApplicationService {
         sslContextFactory.setCipherComparator(HTTP2Cipher.COMPARATOR);
 
         if (this.clientCertEnabled) {
-            sslContextFactory.setNeedClientAuth(true);
+            sslContextFactory.setWantClientAuth(true);
             sslContextFactory.setValidateCerts(false);
             sslContextFactory.setTrustAll(true);
         }
@@ -335,7 +335,7 @@ public class JettyBootstrap implements ApplicationService {
         sslConnector.setPort(port);
         return sslConnector;
     }
-    
+
     @Scheduled(fixedDelay = 60 * 60 * 1_000L)
     private void reloadSecureContextOnKeyChange() {
         final String keystore = whoisKeystore.getKeystore();
