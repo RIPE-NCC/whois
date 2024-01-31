@@ -302,12 +302,9 @@ public class JettyBootstrap implements ApplicationService {
         sslContextFactory.setCipherComparator(HTTP2Cipher.COMPARATOR);
 
         if (this.clientCertEnabled) {
-            // enable required client certificates
-            sslContextFactory.setNeedClientAuth(true); // The server requires client to provide a valid certificate
-            // during SSL handshake
-            //sslContextFactory.setWantClientAuth(true);
-            sslContextFactory.setValidateCerts(true); // The server will validate the certificate against a truststore
-            sslContextFactory.setTrustAll(false);
+            sslContextFactory.setNeedClientAuth(true);
+            sslContextFactory.setValidateCerts(false);
+            sslContextFactory.setTrustAll(true);
         }
 
         // Exclude weak / insecure ciphers
@@ -338,21 +335,7 @@ public class JettyBootstrap implements ApplicationService {
         sslConnector.setPort(port);
         return sslConnector;
     }
-
-   /* private void configureClientCertificateAuth(final SslContextFactory.Server sslContextFactory){
-        if (this.clientCertEnabled) {
-            // enable required client certificates
-            sslContextFactory.setNeedClientAuth(true); // The server requires client to provide a valid certificate  during SSL handshake
-            sslContextFactory.setValidateCerts(true); // The server will validate the certificate against a truststore
-            sslContextFactory.setTrustAll(false);
-        } else {
-            // enable optional client certificates
-            sslContextFactory.setWantClientAuth(true); //handshake can occur even if the client doesn't provide a certificate
-            sslContextFactory.setValidateCerts(false);
-            sslContextFactory.setTrustAll(true);
-        }
-    }*/
-
+    
     @Scheduled(fixedDelay = 60 * 60 * 1_000L)
     private void reloadSecureContextOnKeyChange() {
         final String keystore = whoisKeystore.getKeystore();
