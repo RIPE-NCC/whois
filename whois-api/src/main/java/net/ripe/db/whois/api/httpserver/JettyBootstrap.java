@@ -190,11 +190,11 @@ public class JettyBootstrap implements ApplicationService {
         server.setConnectors(new Connector[]{createConnector(server)});
 
         if (this.securePort >= 0) {
-             server.addConnector(createSecureConnector(server, this.securePort));
+             server.addConnector(createSecureConnector(server, this.securePort, false));
         }
 
-        if (this.clientAuthPort >= 0) {
-            server.addConnector(createSecureConnector(server, this.clientAuthPort));
+        if (this.clientAuthPort >= 0 && this.clientCertEnabled) {
+            server.addConnector(createSecureConnector(server, this.clientAuthPort, true));
         }
 
         final WebAppContext context = new WebAppContext();
@@ -278,7 +278,7 @@ public class JettyBootstrap implements ApplicationService {
         return holder;
     }
 
-    private Connector createSecureConnector(final Server server, final int port) {
+    private Connector createSecureConnector(final Server server, final int port, final boolean isClientCertificate) {
         // allow (untrusted) self-signed certificates to connect
         final SslContextFactory.Server sslContextFactory = new SslContextFactory.Server() {
             @Override
@@ -301,12 +301,10 @@ public class JettyBootstrap implements ApplicationService {
         sslContextFactory.setKeyStorePassword(whoisKeystore.getPassword());
         sslContextFactory.setCipherComparator(HTTP2Cipher.COMPARATOR);
 
-        if (this.clientCertEnabled) {
-            sslContextFactory.setNeedClientAuth(true);
-            sslContextFactory.setValidateCerts(false);
-            sslContextFactory.setTrustAll(true);
-        }
-
+        sslContextFactory.setNeedClientAuth(isClientCertificate);
+        sslContextFactory.setValidateCerts(false);
+        sslContextFactory.setTrustAll(true);
+        
         // Exclude weak / insecure ciphers
         // TODO CBC became weak, we need to skip them in the future https://support.kemptechnologies.com/hc/en-us/articles/9338043775757-CBC-ciphers-marked-as-weak-by-SSL-labs
         // Check client compatability first
