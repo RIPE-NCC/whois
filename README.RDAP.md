@@ -44,17 +44,17 @@ For example: https://rdap.db.ripe.net/entity/KR4422-RIPE
 
 Related Contact information is Filtered
 ---------------------------------------
-All contact entities ("technical","administrative" etc.) have filtered contact information, i.e. "e-mail"
-value is not included. Contact entities do not count towards the daily query limit
+All related entities ("technical","administrative" etc.) have filtered contact information, i.e. "e-mail"
+value is not included. Related entities do not count towards the daily query limit
 https://www.ripe.net/manage-ips-and-asns/db/support/documentation/ripe-database-acceptable-use-policy.
 This was done to avoid blocking clients for inadvertently querying excessively for personal data.
 
-For entity requests "e-mail" is enabled and the clients requesting this service need to comply with the daily limit
-according to the Acceptable User Policy (AUP): https://www.ripe.net/manage-ips-and-asns/db/support/documentation/ripe-database-acceptable-use-policy.
-So this is the way to get the "e-mail" of the contact entities.
+For entity responses, the contact information is not filtered, i.e. the "e-mail" attribute is included.
+Clients making entity requests must comply with the daily limit specified in the
+[Acceptable Use Policy (AUP)](https://www.ripe.net/manage-ips-and-asns/db/support/documentation/ripe-database-acceptable-use-policy).
 
-For the rest of the requests either "e-mail" is filtered. Abuse contact is always returned, and
-attributes related to whois update notification ("notify", "ref-nfy", "upd-to", "mnt-nfy") are filtered
+For non-entity requests, "e-mail" addresses are filtered, except for the abuse contact which is always returned.
+Attributes related to whois update notification ("notify", "ref-nfy", "upd-to", "mnt-nfy") are filtered
 because they are not a general contact email.
 
 Abuse Contact information
