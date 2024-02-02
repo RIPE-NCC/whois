@@ -5,6 +5,7 @@ import jakarta.ws.rs.ForbiddenException;
 import jakarta.ws.rs.core.HttpHeaders;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
+import net.ripe.db.whois.api.AbstractIntegrationTest;
 import net.ripe.db.whois.api.RestTest;
 import net.ripe.db.whois.api.rdap.domain.Entity;
 import net.ripe.db.whois.api.rest.domain.WhoisResources;
@@ -38,7 +39,7 @@ import static org.hamcrest.Matchers.is;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 @Tag("IntegrationTest")
-public class RewriteEngineTestIntegration extends AbstractHttpsIntegrationTest {
+public class RewriteEngineTestIntegration extends AbstractIntegrationTest {
 
     @BeforeAll
     public static void enableRewriteEngine() {
