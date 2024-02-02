@@ -2,6 +2,14 @@ RIPE NCC RDAP Implementation
 -----------------------------
 Read more about the RDAP specification in the RFC documents on the IETF site: https://datatracker.ietf.org/wg/weirds/documents/
 
+Entity Object Types
+-----------------------------------------------------
+Entity RDAP object can be either a PERSON, ROLE, MNTNER or ORGANISATION RPSL object.
+
+Entity object class represents individual persons, informal groups of people, organisations and related information.
+
+Refer to [rfc9083](https://datatracker.ietf.org/doc/rfc9083/) Section 5.1, "The Entity Object Class"
+
 Multiple country attributes are not returned
 --------------------------------------------
 inetnum and inet6num objects can contain multiple country attributes, but RDAP schema only allows a single value.
@@ -44,22 +52,23 @@ For example: https://rdap.db.ripe.net/entity/KR4422-RIPE
 
 Related Contact information is Filtered
 ---------------------------------------
-All contact entities ("technical","administrative" etc.) have filtered contact information, i.e. "e-mail"
-and "notify" values are not included. Contact entities do not count towards the daily query limit
-https://www.ripe.net/manage-ips-and-asns/db/support/documentation/ripe-database-acceptable-use-policy.
+All related entities (such as a contact or registrant) have filtered contact information, i.e. the "e-mail" attribute
+value is not included. Filtered information does not count towards the daily query limit according to the
+[Acceptable Use Policy (AUP)](https://www.ripe.net/manage-ips-and-asns/db/support/documentation/ripe-database-acceptable-use-policy).
 This was done to avoid blocking clients for inadvertently querying excessively for personal data.
 
-For entity request "e-mail" will be enabled and the clients requesting those service will need to comply with the daily limit
-according to the Acceptable User Policy (AUP): https://www.ripe.net/manage-ips-and-asns/db/support/documentation/ripe-database-acceptable-use-policy.
+For entity responses, the contact information is not filtered, i.e. the "e-mail" attribute is included.
+Clients making entity requests must comply with the daily limit specified in the
+[Acceptable Use Policy (AUP)](https://www.ripe.net/manage-ips-and-asns/db/support/documentation/ripe-database-acceptable-use-policy).
 
-For the rest of request either "e-mail" is filtered. Abuse contact is always returned, and
-attributes related to whois update notification ("notify", "ref-nfy", "upd-to", "mnt-nfy") are filtered
+For non-entity requests, e-mail addresses are filtered, except for the abuse contact which is always returned.
+Attributes related to whois update notification ("notify", "ref-nfy", "upd-to", "mnt-nfy") are filtered
 because they are not a general contact email.
 
 Abuse Contact information
 --------------------------
 Abuse contact information is not filtered because it is not considered personal information. However, this attribute's
-`type` does not conform to the to the [RDAP spec](https://bitbucket.org/nroecg/nro-rdap-profile/raw/v1/nro-rdap-profile.txt)
+`type` does not conform to the [RDAP spec](https://bitbucket.org/nroecg/nro-rdap-profile/raw/v1/nro-rdap-profile.txt)
 section 5.1.1, is not "home" or "work" as the RFC specifies. The `type` of this attribute is "abuse". In this
 paragraph `type` is considered as an element of the Jcard.
 For example:
@@ -107,11 +116,3 @@ then a 404 is returned. An object with "administrative" status is never returned
 Currently, IANA allocations are not present in the RIPE database, but just out-of-region placeholders.
 
 Refer to [NRO RDAP](https://bitbucket.org/nroecg/nro-rdap-profile/raw/v1/nro-rdap-profile.txt) Profile section 4.5. "Status"
-
-Entity Object Types
------------------------------------------------------
-Entity RDAP object can be either a PERSON, ROLE, MNTNER or ORGANISATION RPSL object.
-
-Entity object class represents individual persons, informal groups of people, organisations and related information.
-
-Refer to [rfc9083](https://datatracker.ietf.org/doc/rfc9083/) Section 5.1, "The Entity Object Class"
