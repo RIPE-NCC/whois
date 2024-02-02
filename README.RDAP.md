@@ -2,6 +2,12 @@ RIPE NCC RDAP Implementation
 -----------------------------
 Read more about the RDAP specification in the RFC documents on the IETF site: https://datatracker.ietf.org/wg/weirds/documents/
 
+Entity Object Types
+-----------------------------------------------------
+Entity RDAP object can be either a PERSON, ROLE, MNTNER or ORGANISATION RPSL object.
+Entity object class represents individual persons, informal groups of people, organisations and related information.
+Refer to [rfc9083](https://datatracker.ietf.org/doc/rfc9083/) Section 5.1, "The Entity Object Class"
+
 Multiple country attributes are not returned
 --------------------------------------------
 inetnum and inet6num objects can contain multiple country attributes, but RDAP schema only allows a single value.
@@ -45,7 +51,7 @@ For example: https://rdap.db.ripe.net/entity/KR4422-RIPE
 Related Contact information is Filtered
 ---------------------------------------
 All related entities ("technical","administrative" etc.) have filtered contact information, i.e. "e-mail"
-value is not included. Related entities do not count towards the daily query limit
+value is not included. Therefore, related entities do not count towards the daily query limit
 https://www.ripe.net/manage-ips-and-asns/db/support/documentation/ripe-database-acceptable-use-policy.
 This was done to avoid blocking clients for inadvertently querying excessively for personal data.
 
@@ -108,11 +114,3 @@ then a 404 is returned. An object with "administrative" status is never returned
 Currently, IANA allocations are not present in the RIPE database, but just out-of-region placeholders.
 
 Refer to [NRO RDAP](https://bitbucket.org/nroecg/nro-rdap-profile/raw/v1/nro-rdap-profile.txt) Profile section 4.5. "Status"
-
-Entity Object Types
------------------------------------------------------
-Entity RDAP object can be either a PERSON, ROLE, MNTNER or ORGANISATION RPSL object.
-
-Entity object class represents individual persons, informal groups of people, organisations and related information.
-
-Refer to [rfc9083](https://datatracker.ietf.org/doc/rfc9083/) Section 5.1, "The Entity Object Class"
