@@ -5,7 +5,9 @@ Read more about the RDAP specification in the RFC documents on the IETF site: ht
 Entity Object Types
 -----------------------------------------------------
 Entity RDAP object can be either a PERSON, ROLE, MNTNER or ORGANISATION RPSL object.
+
 Entity object class represents individual persons, informal groups of people, organisations and related information.
+
 Refer to [rfc9083](https://datatracker.ietf.org/doc/rfc9083/) Section 5.1, "The Entity Object Class"
 
 Multiple country attributes are not returned
@@ -50,16 +52,16 @@ For example: https://rdap.db.ripe.net/entity/KR4422-RIPE
 
 Related Contact information is Filtered
 ---------------------------------------
-All related entities ("technical","administrative" etc.) have filtered contact information, i.e. "e-mail"
-value is not included. Therefore, related entities do not count towards the daily query limit
-https://www.ripe.net/manage-ips-and-asns/db/support/documentation/ripe-database-acceptable-use-policy.
+All related entities (such as a contact or registrant) have filtered contact information, i.e. the "e-mail" attribute
+value is not included. Filtered information does not count towards the daily query limit according to the
+[Acceptable Use Policy (AUP)](https://www.ripe.net/manage-ips-and-asns/db/support/documentation/ripe-database-acceptable-use-policy).
 This was done to avoid blocking clients for inadvertently querying excessively for personal data.
 
 For entity responses, the contact information is not filtered, i.e. the "e-mail" attribute is included.
 Clients making entity requests must comply with the daily limit specified in the
 [Acceptable Use Policy (AUP)](https://www.ripe.net/manage-ips-and-asns/db/support/documentation/ripe-database-acceptable-use-policy).
 
-For non-entity requests, "e-mail" addresses are filtered, except for the abuse contact which is always returned.
+For non-entity requests, e-mail addresses are filtered, except for the abuse contact which is always returned.
 Attributes related to whois update notification ("notify", "ref-nfy", "upd-to", "mnt-nfy") are filtered
 because they are not a general contact email.
 
