@@ -1,5 +1,6 @@
 package net.ripe.db.whois.api.httpserver;
 
+import org.apache.commons.lang.StringUtils;
 import org.eclipse.jetty.http.HttpMethod;
 import org.eclipse.jetty.http.HttpScheme;
 import org.eclipse.jetty.http.HttpStatus;
@@ -27,27 +28,34 @@ public class RewriteEngine {
     private final String source;
     private final String nonAuthSource;
 
-    private final String clientAuthHost;
+    private String clientAuthHost;
+
+    private final boolean clientCertEnabled;
 
     @Autowired
-    public RewriteEngine(final @Value("${api.rest.baseurl}") String baseUrl,
-                         final @Value("${whois.source}") String source,
-                         final @Value("${whois.nonauth.source}") String nonAuthSource,
-                         final @Value("${api.client.auth.baseurl}") String clientAuthBaseUrl) {
+    public RewriteEngine(@Value("${api.rest.baseurl}") final String baseUrl,
+                         @Value("${whois.source}") final String source,
+                         @Value("${whois.nonauth.source}") final String nonAuthSource,
+                         @Value("${api.client.auth.baseurl:}") final String clientAuthBaseUrl,
+                         @Value("${client.auth.enabled:false}") final boolean clientCertEnabled) {
         this.source = source;
         this.nonAuthSource = nonAuthSource;
 
         URI restBaseUri = URI.create(baseUrl);
         restVirtualHost = restBaseUri.getHost();
 
-        URI clientAuthBaseUri = URI.create(clientAuthBaseUrl);
-        clientAuthHost = clientAuthBaseUri.getHost();
+        this.clientCertEnabled = clientCertEnabled;
+
+        if (this.clientCertEnabled && StringUtils.isNotBlank(clientAuthBaseUrl)) {
+            URI clientAuthBaseUri = URI.create(clientAuthBaseUrl);
+            clientAuthHost = clientAuthBaseUri.getHost();
+            LOGGER.info("Client Auth virtual host: {}", clientAuthHost);
+        }
 
         syncupdatesVirtualHost = restVirtualHost.replace("rest", "syncupdates");
         rdapVirtualHost = restVirtualHost.replace("rest", "rdap");
 
         LOGGER.info("REST virtual host: {}", restVirtualHost);
-        LOGGER.info("Client Auth virtual host: {}", clientAuthHost);
         LOGGER.info("Syncupdates virtual host: {}", syncupdatesVirtualHost);
         LOGGER.info("RDAP virtual host: {}", rdapVirtualHost);
     }
@@ -63,11 +71,13 @@ public class RewriteEngine {
         rewriteHandler.addRule(restVirtualHostRule);
         restRedirectRules(restVirtualHostRule);
 
-        // Client Auth
-        VirtualHostRuleContainer clientAuthVirtualHostRule = new VirtualHostRuleContainer();
-        clientAuthVirtualHostRule.addVirtualHost(clientAuthHost);
-        rewriteHandler.addRule(clientAuthVirtualHostRule);
-        restRedirectRules(clientAuthVirtualHostRule);
+        if (this.clientCertEnabled) {
+            // Client Auth
+            VirtualHostRuleContainer clientAuthVirtualHostRule = new VirtualHostRuleContainer();
+            clientAuthVirtualHostRule.addVirtualHost(clientAuthHost);
+            rewriteHandler.addRule(clientAuthVirtualHostRule);
+            restRedirectRules(clientAuthVirtualHostRule);
+        }
 
         // rdap
         VirtualHostRuleContainer rdapVirtualHostRule = new VirtualHostRuleContainer();

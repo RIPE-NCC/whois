@@ -106,7 +106,7 @@ public class JettyBootstrap implements ApplicationService {
     private int port;
     private final int idleTimeout;
 
-    private final int clientAuthPort;
+    private int clientAuthPort;
 
     private final boolean clientCertEnabled;
 
@@ -163,6 +163,10 @@ public class JettyBootstrap implements ApplicationService {
 
     public int getSecurePort() {
         return this.securePort;
+    }
+
+    public int getClientAuthPort(){
+        return this.clientAuthPort;
     }
 
     public Server getServer() {
@@ -420,11 +424,18 @@ public class JettyBootstrap implements ApplicationService {
     private void updatePorts() {
         for (Connector connector : this.server.getConnectors()) {
             final int localPort = ((NetworkConnector) connector).getLocalPort();
-            if (connector.getProtocols().contains("ssl")) {
-                this.securePort = localPort;
-            } else {
+            if(!connector.getProtocols().contains("ssl")) {
                 this.port = localPort;
+                continue;
             }
+
+            if (this.clientCertEnabled) {
+                this.clientAuthPort = localPort;
+                continue;
+            }
+
+            this.securePort = localPort;
+
         }
     }
 

@@ -23,7 +23,7 @@ public abstract class AbstractHttpsIntegrationTest extends AbstractIntegrationTe
     }
 
     public int getSecurePort() {
-        return jettyBootstrap.getSecurePort();
+        return jettyBootstrap.getClientAuthPort();
     }
 
 }
