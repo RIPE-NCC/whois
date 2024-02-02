@@ -305,9 +305,12 @@ public class JettyBootstrap implements ApplicationService {
         sslContextFactory.setKeyStorePassword(whoisKeystore.getPassword());
         sslContextFactory.setCipherComparator(HTTP2Cipher.COMPARATOR);
 
-        sslContextFactory.setNeedClientAuth(isClientCertificate);
-        sslContextFactory.setValidateCerts(false);
-        sslContextFactory.setTrustAll(true);
+        if (isClientCertificate) {
+            // accept self-signed client certificates for authentication
+            sslContextFactory.setNeedClientAuth(true);
+            sslContextFactory.setValidateCerts(false);
+            sslContextFactory.setTrustAll(true);
+        }
         
         // Exclude weak / insecure ciphers
         // TODO CBC became weak, we need to skip them in the future https://support.kemptechnologies.com/hc/en-us/articles/9338043775757-CBC-ciphers-marked-as-weak-by-SSL-labs
