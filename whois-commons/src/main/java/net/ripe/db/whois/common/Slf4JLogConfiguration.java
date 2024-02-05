@@ -3,6 +3,7 @@ package net.ripe.db.whois.common;
 
 import io.netty.util.internal.logging.InternalLoggerFactory;
 import io.netty.util.internal.logging.Slf4JLoggerFactory;
+import org.slf4j.LoggerFactory;
 import org.slf4j.bridge.SLF4JBridgeHandler;
 
 import java.io.IOException;
@@ -21,27 +22,22 @@ public final class Slf4JLogConfiguration {
         SLF4JBridgeHandler.removeHandlersForRootLogger();
         SLF4JBridgeHandler.install();
         LogManager.getLogManager().reset();
-        final Logger globalLogger = Logger.getLogger("global");
-        globalLogger.setLevel(Level.INFO);
-        System.setErr(new PrintStream(new LogOutputStream(globalLogger)));
-        System.setOut(new PrintStream(new LogOutputStream(globalLogger)));
+        Logger.getLogger("global").setLevel(Level.WARNING);
         InternalLoggerFactory.setDefaultFactory(Slf4JLoggerFactory.INSTANCE);
+        System.setErr(new PrintStream(new Console()));
+        System.setOut(new PrintStream(new Console()));
     }
 
-    private static class LogOutputStream extends OutputStream {
+    private static class Console extends OutputStream {
 
-        private final Logger logger;
-        private final StringBuilder builder;
+        private static final org.slf4j.Logger LOGGER = LoggerFactory.getLogger(Console.class);
 
-        public LogOutputStream(final Logger logger) {
-            this.logger = logger;
-            this.builder = new StringBuilder();
-        }
+        private final StringBuilder builder = new StringBuilder();
 
         @Override
         public void write(int b) throws IOException {
             if (b == '\n' || b == '\r') {
-                logger.log(Level.INFO, builder.toString());
+                LOGGER.info(builder.toString());
                 builder.setLength(0);
             } else {
                 builder.append((char)b);
