@@ -14,6 +14,9 @@ import java.util.logging.LogManager;
 import java.util.logging.Logger;
 
 public final class Slf4JLogConfiguration {
+
+    private static final org.slf4j.Logger LOGGER = LoggerFactory.getLogger(Slf4JLogConfiguration.class);
+
     private Slf4JLogConfiguration() {
         // do not instantiate
     }
@@ -24,8 +27,12 @@ public final class Slf4JLogConfiguration {
         LogManager.getLogManager().reset();
         Logger.getLogger("global").setLevel(Level.WARNING);
         InternalLoggerFactory.setDefaultFactory(Slf4JLoggerFactory.INSTANCE);
-        System.setErr(new PrintStream(new Console()));
-        System.setOut(new PrintStream(new Console()));
+        try {
+            System.setErr(new PrintStream(new Console()));
+            System.setOut(new PrintStream(new Console()));
+        } catch (Exception e) {
+            LOGGER.error("Couldn't redirect system output", e);
+        }
     }
 
     private static class Console extends OutputStream {
@@ -36,11 +43,12 @@ public final class Slf4JLogConfiguration {
 
         @Override
         public void write(int b) throws IOException {
-            if (b == '\n' || b == '\r') {
+            final char c = (char)b;
+            if (c == '\n' || c == '\r') {
                 LOGGER.info(builder.toString());
                 builder.setLength(0);
             } else {
-                builder.append((char)b);
+                builder.append(c);
             }
         }
     }
