@@ -73,7 +73,6 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import static net.ripe.db.whois.api.rdap.RdapConformance.GEO_FEED_1;
-import static net.ripe.db.whois.api.rdap.RedactionObjectMapper.RDAP_VCARD_REDACTED_ATTRIBUTES;
 import static net.ripe.db.whois.api.rdap.RedactionObjectMapper.mapRedactions;
 import static net.ripe.db.whois.api.rdap.domain.Status.ACTIVE;
 import static net.ripe.db.whois.api.rdap.domain.Status.RESERVED;
@@ -86,6 +85,7 @@ import static net.ripe.db.whois.common.rpsl.AttributeType.ADMIN_C;
 import static net.ripe.db.whois.common.rpsl.AttributeType.COUNTRY;
 import static net.ripe.db.whois.common.rpsl.AttributeType.DESCR;
 import static net.ripe.db.whois.common.rpsl.AttributeType.DS_RDATA;
+import static net.ripe.db.whois.common.rpsl.AttributeType.E_MAIL;
 import static net.ripe.db.whois.common.rpsl.AttributeType.FAX_NO;
 import static net.ripe.db.whois.common.rpsl.AttributeType.GEOFEED;
 import static net.ripe.db.whois.common.rpsl.AttributeType.GEOLOC;
@@ -214,7 +214,7 @@ class RdapObjectMapper {
         final List<RpslObjectInfo> topLevelInet6nums = new TopLevelFilter<Ipv4Resource>(inet6numResult).getTopLevelValues();
 
         final RdapObject organisation = getRdapObject(requestUrl, organisationObject, null);
-        final List<Ip> networks = mapNetworks(requestUrl, topLevelInetnums, topLevelInet6nums, maxResultSize, organisation);
+        final List<Ip> networks = mapNetworks(requestUrl, topLevelInetnums, topLevelInet6nums, maxResultSize);
 
         if ((topLevelInetnums.size() + topLevelInet6nums.size()) > maxResultSize) {
             final Notice outOfLimitNotice = new Notice();
@@ -261,8 +261,7 @@ class RdapObjectMapper {
                 .collect(Collectors.toList());
     }
 
-    private List<Ip> mapNetworks(final String requestUrl, final List<RpslObjectInfo> inetnums, final List<RpslObjectInfo> inet6nums,
-                final int maxResultSize, final RdapObject organisation) {
+    private List<Ip> mapNetworks(final String requestUrl, final List<RpslObjectInfo> inetnums, final List<RpslObjectInfo> inet6nums, final int maxResultSize) {
         return Stream.concat(inet6nums.stream(), inetnums.stream())
                 .limit(maxResultSize)
                 .map(this::getRpslObject)
@@ -306,8 +305,7 @@ class RdapObjectMapper {
             if (abuseContact.isSuspect() && abuseContact.getOrgId() != null) {
                 rdapResponse.getRemarks().add(createRemark(rpslObject.getKey(), abuseContact));
             }
-
-            rdapResponse.getEntitySearchResults().add(createEntity(abuseContact.getAbuseRole(), Role.ABUSE, requestUrl));
+            rdapResponse.getEntitySearchResults().add(createEntity(abuseContact.getAbuseRole(), Role.ABUSE, requestUrl, true));
         }
 
         if (hasDescriptionsOrRemarks(rpslObject)) {
@@ -516,7 +514,7 @@ class RdapObjectMapper {
                 entity.setHandle(value.toString());
                 entity.getRoles().add(CONTACT_ATTRIBUTE_TO_ROLE_NAME.get(rpslAttribute.getType()));
 
-                mapVcard(value, rpslAttribute.getType(), entity);
+                mapContactEntityVCard(value, rpslAttribute.getType(), entity);
                 mapEntityLinks(entity, requestUrl, value);
 
                 contactsEntities.put(value, entity);
@@ -525,13 +523,13 @@ class RdapObjectMapper {
         rdapObject.getEntitySearchResults().addAll(contactsEntities.values());
     }
 
-    private void mapVcard(final CIString attributeValue, final AttributeType type, final Entity entity) {
+    private void mapContactEntityVCard(final CIString attributeValue, final AttributeType type, final Entity entity) {
         final RpslObject referencedRpslObject = getRpslObjectByAttributeType(attributeValue, type);
         if (referencedRpslObject == null) {
             return;
         }
 
-        createVCard(entity, referencedRpslObject);
+        createVCard(entity, referencedRpslObject, true);
     }
 
     private RpslObject getRpslObjectByAttributeType(final CIString attributeValue, final AttributeType type) {
@@ -545,11 +543,11 @@ class RdapObjectMapper {
     }
 
     private Entity createEntity(final RpslObject rpslObject, final String requestUrl) {
-        // top-level entity has no role
-        return createEntity(rpslObject, null, requestUrl);
+        // top-level entity has no role and has unfiltered information
+        return createEntity(rpslObject, null, requestUrl, false);
     }
 
-    private Entity createEntity(final RpslObject rpslObject, @Nullable final Role role, final String requestUrl) {
+    private Entity createEntity(final RpslObject rpslObject, @Nullable final Role role, final String requestUrl, final boolean filtered) {
         final Entity entity = new Entity();
         entity.setHandle(rpslObject.getKey().toString());
         if (role != null) {
@@ -561,7 +559,7 @@ class RdapObjectMapper {
             entity.setLang(language);
         }
 
-        createVCard(entity, rpslObject);
+        createVCard(entity, rpslObject, filtered);
         this.mapContactEntities(entity, rpslObject, requestUrl);
 
         return entity;
@@ -660,7 +658,7 @@ class RdapObjectMapper {
         return domain;
     }
 
-    private static void createVCard(final Entity entity, final RpslObject rpslObject) {
+    private static void createVCard(final Entity entity, final RpslObject rpslObject, final boolean filtered) {
         final VCardBuilder builder = new VCardBuilder();
         builder.addVersion();
 
@@ -680,8 +678,11 @@ class RdapObjectMapper {
                 .addOrg(rpslObject.getValuesForAttribute(ORG))
                 .addGeo(rpslObject.getValuesForAttribute(GEOLOC));
 
-        RDAP_VCARD_REDACTED_ATTRIBUTES.forEach(attributeType -> entity.getRedactedRpslAttrs()
-                .addAll(rpslObject.findAttributes(attributeType)));
+        if (!filtered){
+            builder.addEmail(rpslObject.getValuesForAttribute(E_MAIL));
+        } else {
+            entity.getRedactedRpslAttrs().addAll(rpslObject.findAttributes(E_MAIL));
+        }
 
         entity.setVCardArray(builder.build());
     }
