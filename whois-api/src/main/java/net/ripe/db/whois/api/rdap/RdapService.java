@@ -374,8 +374,7 @@ public class RdapService {
                 .build();
     }
 
-    private Response getDomainResponse(final HttpServletRequest request, final Stream<RpslObject> domainResult,
-                                       final Stream<RpslObject> inetnumResult) {
+    private Response getDomainResponse(final HttpServletRequest request, final Stream<RpslObject> domainResult, final Stream<RpslObject> inetnumResult) {
         final Iterator<RpslObject> domainIterator = domainResult.iterator();
         final Iterator<RpslObject> inetnumIterator = inetnumResult.iterator();
         if (!domainIterator.hasNext()) {
@@ -389,14 +388,12 @@ public class RdapService {
                     HttpStatus.INTERNAL_SERVER_ERROR_500);
         }
         return Response.ok(
-                        rdapObjectMapper.mapDomainEntity(
-                                getRequestUrl(request),
-                                domainObject, inetnumObject))
+                rdapObjectMapper.mapDomainEntity(getRequestUrl(request), domainObject, inetnumObject))
                 .header(CONTENT_TYPE, CONTENT_TYPE_RDAP_JSON)
                 .build();
     }
 
-    private Response getResponse(HttpServletRequest request, Iterable<RpslObject> result) {
+    private Response getResponse(final HttpServletRequest request, final Iterable<RpslObject> result) {
         Iterator<RpslObject> rpslIterator = result.iterator();
 
         if (!rpslIterator.hasNext()) {

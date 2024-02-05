@@ -15,10 +15,6 @@ import java.util.stream.Collectors;
 
 public class RedactionObjectMapper {
 
-    final static List<AttributeType> RDAP_VCARD_REDACTED_ATTRIBUTES = List.of(
-            AttributeType.NOTIFY,
-            AttributeType.E_MAIL);
-
     public static void mapRedactions(final RdapObject rdapObject) {
         addRedaction(rdapObject, rdapObject.getRedactedRpslAttrs(), rdapObject.getEntitySearchResults(), "$");
 
@@ -55,9 +51,6 @@ public class RedactionObjectMapper {
             final String values = String.join(", ", value);
 
             switch (key) {
-                case NOTIFY -> redactions.add(Redaction.getRedactionByRemoval("Updates notification e-mail information",
-                        String.format("%s.vcardArray[1][?(@[0]=='%s')]", prefix, attributeName),
-                        "Personal data"));
                 case E_MAIL -> redactions.add(Redaction.getRedactionByRemoval("Personal e-mail information",
                         String.format("%s.vcardArray[1][?(@[0]=='%s')]", prefix, attributeName),
                         "Personal data"));
