@@ -26,7 +26,7 @@ public class RemoteAddrCustomizerNonTrustedTestIntegration extends AbstractInteg
     }
 
     @Test
-    public void help_client_ip_flag_trusted_ip() {
+    public void help_client_ip_flag_non_trusted_ip() {
         final String index = RestTest.target(getPort(), "whois/syncupdates/TEST?HELP=yes&clientIp=10.0.0.1")
                 .request()
                 .header(HttpHeaders.X_FORWARDED_FOR, "74.125.136.99")

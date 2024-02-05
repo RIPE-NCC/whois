@@ -14,7 +14,7 @@ import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.MatcherAssert.assertThat;
 
 @Tag("IntegrationTest")
-public class RemoteAddressCustomizerTestIntegration extends AbstractIntegrationTest {
+public class RemoteAddressHttpCustomizerTestIntegration extends AbstractIntegrationTest {
     @Autowired IpRanges ipRanges;
 
     @Test
