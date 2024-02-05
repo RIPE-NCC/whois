@@ -34,6 +34,7 @@ public class VCardBuilder {
     private static final String PARAMETER_KEY = "type";
     private static final Map ABUSE_MAP = ImmutableMap.of(PARAMETER_KEY,"abuse");
     private static final Map PHONE_MAP = ImmutableMap.of(PARAMETER_KEY, "voice");
+    private static final Map EMAIL_MAP = ImmutableMap.of(PARAMETER_KEY,"email");
     private static final Map FAX_MAP = ImmutableMap.of(PARAMETER_KEY, "fax");
     private static final Map EMPTY_MAP = ImmutableMap.of();
 
@@ -43,6 +44,10 @@ public class VCardBuilder {
             properties.add(new VCardProperty(ADDRESS, ImmutableMap.of(label,NEWLINE_JOINER.join(addresses)), TEXT, nCopies(7, ""))); //VCard format 7 empty elements for text
         }
         return this;
+    }
+
+    public void addEmail(final Set<CIString> emails) {
+        emails.forEach( email -> addProperty(EMAIL, EMAIL_MAP, TEXT, email));
     }
 
     public VCardBuilder addAbuseMailBox(final CIString abuseMail) {
