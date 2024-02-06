@@ -12,7 +12,7 @@ public class RemoteAddressHttpsCustomizer extends RemoteAddressCustomizer {
     }
 
     @Override
-    String customizeRemoteAddress(final Request request) {
+    String getRemoteAddrForScheme(final Request request) {
         return request.getRemoteAddr();
     }
 }
