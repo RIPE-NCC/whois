@@ -33,7 +33,7 @@ public class RemoteAddressHttpCustomizer extends RemoteAddressCustomizer {
     }
 
     @Override
-    String customizeRemoteAddress(final Request request) {
+    String getRemoteAddrForScheme(final Request request) {
         final Enumeration<String> headers = request.getHeaders(HttpHeaders.X_FORWARDED_FOR);
 
         if (headers == null || !headers.hasMoreElements()) {

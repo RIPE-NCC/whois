@@ -8,7 +8,6 @@ import org.eclipse.jetty.server.Connector;
 import org.eclipse.jetty.server.HttpConfiguration;
 import org.eclipse.jetty.server.Request;
 
-import javax.annotation.Nullable;
 import java.net.InetSocketAddress;
 import java.util.Arrays;
 import java.util.Set;
@@ -28,22 +27,23 @@ public abstract class RemoteAddressCustomizer implements HttpConfiguration.Custo
 
     @Override
     public void customize(final Connector connector, final HttpConfiguration httpConfiguration, final Request request) {
-        request.setRemoteAddr(InetSocketAddress.createUnresolved(getRemoteAddress(request), request.getRemotePort()));
+
+        final String remoteAddress = getRemoteAddrForTrustedSource(request, getRemoteAddrForScheme(request));
+        request.setRemoteAddr(InetSocketAddress.createUnresolved(remoteAddress, request.getRemotePort()));
     }
 
-    @Nullable
-    private String getRemoteAddress(final Request request) {
-        final Interval ipResource = IpInterval.asIpInterval(InetAddresses.forString(request.getRemoteAddr()));
+    private String getRemoteAddrForTrustedSource(final Request request, final String resourceAddr) {
+        final Interval ipResource = IpInterval.asIpInterval(InetAddresses.forString(resourceAddr));
 
         final String clientIp = request.getParameterMap().containsKey(QUERY_PARAM_CLIENT_IP) ? request.getParameter(QUERY_PARAM_CLIENT_IP) : null;
         if(isTrusted(ipResource, trusted) && StringUtils.isNotEmpty(clientIp)) {
             return clientIp;
         }
 
-        return customizeRemoteAddress(request);
+        return resourceAddr;
     }
 
-    abstract String customizeRemoteAddress(final Request request);
+    abstract String getRemoteAddrForScheme(final Request request);
 
     private Set<Interval> getIntervals(final String[] trusted) {
         return Arrays.stream(trusted).map(IpInterval::parse).collect(Collectors.toSet());
