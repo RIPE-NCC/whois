@@ -1,6 +1,6 @@
 package net.ripe.db.whois.api.httpserver;
 
-import jakarta.ws.rs.BadRequestException;
+import jakarta.ws.rs.ProcessingException;
 import jakarta.ws.rs.core.MediaType;
 import net.ripe.db.whois.api.SecureRestTest;
 import org.junit.jupiter.api.Tag;
@@ -16,7 +16,7 @@ public class ClientCertificateServiceTestIntegration extends AbstractClientCerti
 
     @Test
     public void client_certificate() {
-        final String response = SecureRestTest.target(getClientSSLContext(), getSecurePort(), "whois/client")
+        final String response = SecureRestTest.target(getClientSSLContext(), getClientCertificatePort(), "whois/client")
             .request()
             .get(String.class);
 
@@ -28,13 +28,13 @@ public class ClientCertificateServiceTestIntegration extends AbstractClientCerti
     @Test
     public void no_client_certificate() {
         try {
-            SecureRestTest.target(getSecurePort(), "whois/client")
+            SecureRestTest.target(getClientCertificatePort(), "whois/client")
                 .request()
                 .accept(MediaType.TEXT_PLAIN)
                 .get(String.class);
             fail();
-        } catch (BadRequestException e) {
-            assertThat(e.getResponse().readEntity(String.class), containsString("Bad Request"));
+        } catch (ProcessingException e) {
+            assertThat(e.getMessage(), containsString("javax.net.ssl.SSLHandshakeException: Received fatal alert: bad_certificate"));
         }
     }
 

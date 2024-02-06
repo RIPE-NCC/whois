@@ -1,5 +1,6 @@
 package net.ripe.db.whois.api.httpserver;
 
+import org.apache.commons.lang.StringUtils;
 import org.eclipse.jetty.http.HttpMethod;
 import org.eclipse.jetty.http.HttpScheme;
 import org.eclipse.jetty.http.HttpStatus;
@@ -27,14 +28,30 @@ public class RewriteEngine {
     private final String source;
     private final String nonAuthSource;
 
+    private String clientAuthHost;
+
+    private final boolean clientCertEnabled;
+
     @Autowired
-    public RewriteEngine(final @Value("${api.rest.baseurl}") String baseUrl,
-                         final @Value("${whois.source}") String source,
-                         final @Value("${whois.nonauth.source}") String nonAuthSource) {
+    public RewriteEngine(@Value("${api.rest.baseurl}") final String baseUrl,
+                         @Value("${whois.source}") final String source,
+                         @Value("${whois.nonauth.source}") final String nonAuthSource,
+                         @Value("${api.client.auth.baseurl:}") final String clientAuthBaseUrl,
+                         @Value("${client.auth.enabled:false}") final boolean clientCertEnabled) {
         this.source = source;
         this.nonAuthSource = nonAuthSource;
-        URI uri = URI.create(baseUrl);
-        restVirtualHost = uri.getHost();
+
+        URI restBaseUri = URI.create(baseUrl);
+        restVirtualHost = restBaseUri.getHost();
+
+        this.clientCertEnabled = clientCertEnabled;
+
+        if (this.clientCertEnabled && StringUtils.isNotBlank(clientAuthBaseUrl)) {
+            URI clientAuthBaseUri = URI.create(clientAuthBaseUrl);
+            clientAuthHost = clientAuthBaseUri.getHost();
+            LOGGER.info("Client Auth virtual host: {}", clientAuthHost);
+        }
+
         syncupdatesVirtualHost = restVirtualHost.replace("rest", "syncupdates");
         rdapVirtualHost = restVirtualHost.replace("rest", "rdap");
 
@@ -53,6 +70,14 @@ public class RewriteEngine {
         restVirtualHostRule.addVirtualHost(restVirtualHost);
         rewriteHandler.addRule(restVirtualHostRule);
         restRedirectRules(restVirtualHostRule);
+
+        if (this.clientCertEnabled) {
+            // Client Auth
+            VirtualHostRuleContainer clientAuthVirtualHostRule = new VirtualHostRuleContainer();
+            clientAuthVirtualHostRule.addVirtualHost(clientAuthHost);
+            rewriteHandler.addRule(clientAuthVirtualHostRule);
+            restRedirectRules(clientAuthVirtualHostRule);
+        }
 
         // rdap
         VirtualHostRuleContainer rdapVirtualHostRule = new VirtualHostRuleContainer();

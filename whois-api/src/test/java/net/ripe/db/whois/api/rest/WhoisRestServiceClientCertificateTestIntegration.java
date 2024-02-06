@@ -1,6 +1,7 @@
 package net.ripe.db.whois.api.rest;
 
 import jakarta.ws.rs.NotAuthorizedException;
+import jakarta.ws.rs.ProcessingException;
 import jakarta.ws.rs.client.Entity;
 import jakarta.ws.rs.core.MediaType;
 import net.ripe.db.whois.api.RestTest;
@@ -129,7 +130,7 @@ public class WhoisRestServiceClientCertificateTestIntegration extends AbstractCl
              "source: TEST");
 
         try {
-            SecureRestTest.target(getClientSSLContext(), getSecurePort(), "whois/test/person/TP1-TEST")
+            SecureRestTest.target(getClientSSLContext(), getClientCertificatePort(), "whois/test/person/TP1-TEST")
                 .request()
                 .put(Entity.entity(map(updatedPerson), MediaType.APPLICATION_XML), WhoisResources.class);
             fail();
@@ -159,7 +160,7 @@ public class WhoisRestServiceClientCertificateTestIntegration extends AbstractCl
         databaseHelper.updateObject(updatedMntner);
 
         try {
-            SecureRestTest.target(getClientSSLContext(), getSecurePort(), "whois/test/person/TP1-TEST")
+            SecureRestTest.target(getClientSSLContext(), getClientCertificatePort(), "whois/test/person/TP1-TEST")
                 .request()
                 .put(Entity.entity(map(updatedPerson), MediaType.APPLICATION_XML), WhoisResources.class);
             fail();
@@ -190,7 +191,7 @@ public class WhoisRestServiceClientCertificateTestIntegration extends AbstractCl
         databaseHelper.updateObject(updatedMntner);
 
         // connect with mntner's client cert for authentication
-        final WhoisResources whoisResources = SecureRestTest.target(getClientSSLContext(), getSecurePort(), "whois/test/person/TP1-TEST")
+        final WhoisResources whoisResources = SecureRestTest.target(getClientSSLContext(), getClientCertificatePort(), "whois/test/person/TP1-TEST")
                 .request()
                 .put(Entity.entity(map(updatedPerson), MediaType.APPLICATION_XML), WhoisResources.class);
 
@@ -222,16 +223,12 @@ public class WhoisRestServiceClientCertificateTestIntegration extends AbstractCl
         databaseHelper.updateObject(updatedMntner);
 
         try {
-            SecureRestTest.target(sslContext, getSecurePort(), "whois/test/person/TP1-TEST")
+            SecureRestTest.target(sslContext, getClientCertificatePort(), "whois/test/person/TP1-TEST")
                     .request()
                     .put(Entity.entity(map(updatedPerson), MediaType.APPLICATION_XML), WhoisResources.class);
             fail();
-        } catch (NotAuthorizedException e) {
-            final WhoisResources whoisResources = e.getResponse().readEntity(WhoisResources.class);
-            RestTest.assertErrorCount(whoisResources, 1);
-            RestTest.assertErrorMessage(whoisResources, 0, "Error",
-                "Authorisation for [%s] %s failed\nusing \"%s:\"\n" +
-                 "not authenticated by: %s", "person", "TP1-TEST", "mnt-by", "OWNER-MNT");
+        } catch (ProcessingException e) {
+            assertThat(e.getMessage(), containsString("javax.net.ssl.SSLHandshakeException: Received fatal alert: bad_certificate"));
         }
     }
 
@@ -255,7 +252,7 @@ public class WhoisRestServiceClientCertificateTestIntegration extends AbstractCl
         final RpslObject updatedRoute6 = new RpslObjectBuilder(route6).append(new RpslAttribute(AttributeType.REMARKS, "updated")).get();
 
         // connect with mntner's client cert for authentication
-        final WhoisResources whoisResources = SecureRestTest.target(getClientSSLContext(), getSecurePort(), "whois/test/route6/2001::/32AS12726")
+        final WhoisResources whoisResources = SecureRestTest.target(getClientSSLContext(), getClientCertificatePort(), "whois/test/route6/2001::/32AS12726")
                 .request()
                 .put(Entity.entity(map(updatedRoute6), MediaType.APPLICATION_XML), WhoisResources.class);
 
