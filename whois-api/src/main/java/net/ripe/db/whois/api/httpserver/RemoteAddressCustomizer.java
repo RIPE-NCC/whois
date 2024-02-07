@@ -32,7 +32,8 @@ public abstract class RemoteAddressCustomizer implements HttpConfiguration.Custo
         request.setRemoteAddr(InetSocketAddress.createUnresolved(remoteAddress, request.getRemotePort()));
     }
 
-    private String getRemoteAddrForTrustedSource(final Request request, final String resourceAddr) {
+    private String getRemoteAddrForTrustedSource(final Request request, final String address) {
+        final String resourceAddr = (address.startsWith("[") && address.endsWith("]")) ? address.substring(1, address.length() - 1) : address;
         final Interval ipResource = IpInterval.asIpInterval(InetAddresses.forString(resourceAddr));
 
         final String clientIp = request.getParameterMap().containsKey(QUERY_PARAM_CLIENT_IP) ? request.getParameter(QUERY_PARAM_CLIENT_IP) : null;
