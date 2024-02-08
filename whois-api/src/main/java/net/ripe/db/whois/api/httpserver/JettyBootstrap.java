@@ -328,6 +328,8 @@ public class JettyBootstrap implements ApplicationService {
             LOGGER.warn("SNI host check is OFF");   // normally off for testing on localhost
             secureRequestCustomizer.setSniHostCheck(false);
         }
+
+        httpsConfiguration.addCustomizer(new RemoteAddressHttpsCustomizer(trustedIpRanges));
         httpsConfiguration.addCustomizer(secureRequestCustomizer);
 
         httpsConfiguration.setIdleTimeout(idleTimeout * 1000L);
