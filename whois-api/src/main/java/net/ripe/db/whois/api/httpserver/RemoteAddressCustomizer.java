@@ -10,6 +10,7 @@ import org.eclipse.jetty.server.Request;
 
 import java.net.InetSocketAddress;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -47,7 +48,7 @@ public abstract class RemoteAddressCustomizer implements HttpConfiguration.Custo
     abstract String getRemoteAddrForScheme(final Request request);
 
     private Set<Interval> getIntervals(final String[] trusted) {
-        return Arrays.stream(trusted).map(IpInterval::parse).collect(Collectors.toSet());
+        return Arrays.stream(trusted).filter(StringUtils::isNotEmpty).map(IpInterval::parse).collect(Collectors.toSet());
     }
 
     private boolean isTrusted(final Interval ipResource, final Set<Interval> ipRanges) {
