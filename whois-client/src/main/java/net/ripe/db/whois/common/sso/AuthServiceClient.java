@@ -62,6 +62,8 @@ public class AuthServiceClient {
     private final String restUrl;
     private final String apiKey;
 
+    private static final String API_KEY = "ncc-internal-api-key";
+
     @Autowired
     public AuthServiceClient(
             @Value("${authorisation.service.api.url:}") final String restUrl,
@@ -101,7 +103,7 @@ public class AuthServiceClient {
                     .path(VALIDATE_PATH)
                     .queryParam("permission", VALIDATE_TOKEN_PERMISSION)
                     .request(MediaType.APPLICATION_JSON_TYPE)
-                    .header("X-API_KEY", apiKey)
+                    .header(API_KEY, apiKey)
                     .header("Authorization", String.format("Bearer %s", authToken))
                     .get(ValidateTokenResponse.class);
         } catch (NotFoundException e) {
@@ -139,7 +141,7 @@ public class AuthServiceClient {
                     .path(EMAIL_PATH)
                     .path(username)
                     .request(MediaType.APPLICATION_JSON_TYPE)
-                    .header("X-API_KEY", apiKey)
+                    .header(API_KEY, apiKey)
                     .get(ValidateTokenResponse.class);
             return response.response.content.id;
 
@@ -167,7 +169,7 @@ public class AuthServiceClient {
                     .path(USER_SEARCH_PATH)
                     .path(uuid)
                     .request(MediaType.APPLICATION_JSON_TYPE)
-                    .header("X-API_KEY", apiKey)
+                    .header(API_KEY, apiKey)
                     .get(ValidateTokenResponse.class);
         } catch (BadRequestException e) {
             LOGGER.debug("Failed to get details for uuid {} (token is invalid)", uuid);
@@ -193,7 +195,7 @@ public class AuthServiceClient {
                     .path(HISTORICAL_USER_SEARCH_PATH)
                     .path(uuid)
                     .request(MediaType.APPLICATION_JSON_TYPE)
-                    .header("X-API_KEY", apiKey)
+                    .header(API_KEY, apiKey)
                     .get(HistoricalUserResponse.class);
         } catch (BadRequestException e) {
             LOGGER.debug("Failed to get details for uuid {} (Invalid UUID)", uuid);
@@ -223,7 +225,7 @@ public class AuthServiceClient {
                         .path(String.valueOf(membershipId))
                         .path(CONTACT_PATH)
                         .request(MediaType.APPLICATION_JSON_TYPE)
-                        .header("X-API_KEY", apiKey)
+                        .header(API_KEY, apiKey)
                         .get(MemberContactsResponse.class);
 
                 return response.response.results.stream()
