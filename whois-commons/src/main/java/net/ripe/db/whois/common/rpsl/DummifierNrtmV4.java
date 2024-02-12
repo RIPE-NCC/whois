@@ -11,7 +11,7 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 
-@Component
+@Component("dummifierNrtmV4")
 public class DummifierNrtmV4 extends DummifierNrtm {
 
     static final Map<AttributeType, String> DUMMIFICATION_REPLACEMENTS = Maps.newEnumMap(AttributeType.class);
