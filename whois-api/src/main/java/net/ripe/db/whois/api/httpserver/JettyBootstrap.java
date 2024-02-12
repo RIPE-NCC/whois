@@ -226,19 +226,6 @@ public class JettyBootstrap implements ApplicationService {
         return server;
     }
 
-    /*private Server setConnectors() {
-        final Server server = new Server();
-        server.setConnectors(new Connector[]{createConnector(server)});
-
-        if (!isHttpProxy()) {
-            server.addConnector(createSecureConnector(server, this.securePort, false));
-            if (isClientAuthEnabled()) {
-                server.addConnector(createSecureConnector(server, this.clientAuthPort, true));
-            }
-        }
-        return server;
-    }*/
-
     private void setConnectors(final Server server) {
         final HttpConfiguration httpConfiguration = new HttpConfiguration();
         if (isHttpProxy()){
