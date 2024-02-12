@@ -1,8 +1,7 @@
 package net.ripe.db.whois.api.log;
 
 import com.google.common.net.HttpHeaders;
-import net.ripe.db.whois.api.AbstractIntegrationTest;
-import net.ripe.db.whois.api.RestTest;
+import net.ripe.db.whois.api.SecureRestTest;
 import net.ripe.db.whois.api.httpserver.AbstractHttpsIntegrationTest;
 import net.ripe.db.whois.api.rest.domain.WhoisResources;
 import net.ripe.db.whois.common.rpsl.RpslObject;
@@ -21,9 +20,7 @@ import org.junit.jupiter.api.Test;
 
 import java.io.StringWriter;
 
-import static org.hamcrest.CoreMatchers.not;
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.startsWith;
 
 @Tag("IntegrationTest")
@@ -62,7 +59,7 @@ public class JettyRequestLogHttpsTestIntegration extends AbstractHttpsIntegratio
 
     @Test
     public void log_request_client_ip_trusted_source() {
-        RestTest.target(getPort(), "whois/test/person/TP1-TEST?clientIp=10.20.30.40")
+        SecureRestTest.target(getSecurePort(), "whois/test/person/TP1-TEST?clientIp=10.20.30.40")
                 .request()
                 .get(WhoisResources.class);
 
@@ -71,7 +68,7 @@ public class JettyRequestLogHttpsTestIntegration extends AbstractHttpsIntegratio
 
     @Test
     public void log_request_client_ip_trusted_source_ignore_x_forwarded() {
-        RestTest.target(getPort(), "whois/test/person/TP1-TEST?clientIp=10.20.30.40")
+        SecureRestTest.target(getSecurePort(), "whois/test/person/TP1-TEST?clientIp=10.20.30.40")
                 .request()
                 .header(HttpHeaders.X_FORWARDED_FOR, "193.0.20.1")
                 .header(HttpHeaders.X_FORWARDED_FOR, "74.125.136.99")

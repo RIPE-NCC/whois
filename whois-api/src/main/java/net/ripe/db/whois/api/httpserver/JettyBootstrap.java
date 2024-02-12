@@ -110,6 +110,10 @@ public class JettyBootstrap implements ApplicationService {
 
     private final boolean clientCertEnabled;
 
+    private final boolean xForwardedForHTTP;
+
+    private final boolean xForwardedForHTTPS;
+
     @Autowired
     public JettyBootstrap(final RemoteAddressFilter remoteAddressFilter,
                           final ExtensionOverridesAcceptHeaderFilter extensionOverridesAcceptHeaderFilter,
@@ -124,7 +128,9 @@ public class JettyBootstrap implements ApplicationService {
                           @Value("${port.api:0}") final int port,
                           @Value("${port.api.secure:-1}") final int securePort,
                           @Value("${port.client.auth:-1}") final int clientAuthPort,
-                          @Value("${client.auth.enabled:false}") final boolean clientCertEnabled
+                          @Value("${client.auth.enabled:false}") final boolean clientCertEnabled,
+                          @Value("${http.x_forwarded_for:false}") final boolean xForwardedForHTTP,
+                          @Value("${https.x_forwarded_for:false}") final boolean xForwardedForHTTPS
                         ) throws MalformedObjectNameException {
         this.remoteAddressFilter = remoteAddressFilter;
         this.extensionOverridesAcceptHeaderFilter = extensionOverridesAcceptHeaderFilter;
@@ -143,6 +149,8 @@ public class JettyBootstrap implements ApplicationService {
         this.server = null;
         this.clientAuthPort = clientAuthPort;
         this.clientCertEnabled = clientCertEnabled;
+        this.xForwardedForHTTP = xForwardedForHTTP;
+        this.xForwardedForHTTPS = xForwardedForHTTPS;
     }
 
     @Override
@@ -238,11 +246,11 @@ public class JettyBootstrap implements ApplicationService {
         final HttpConfiguration httpConfiguration = new HttpConfiguration();
         if (isHttpProxy()) {
             // client address is set in X-Forwarded-For header by HTTP proxy
-            httpConfiguration.addCustomizer(new RemoteAddressHttpCustomizer(trustedIpRanges));
+            httpConfiguration.addCustomizer(new RemoteAddressCustomizer(trustedIpRanges, xForwardedForHTTP));
             // request protocol is set in X-Forwarded-Proto header by HTTP proxy
             httpConfiguration.addCustomizer(new ProtocolCustomizer());
         } else {
-            httpConfiguration.addCustomizer(new RemoteAddressHttpsCustomizer(trustedIpRanges));
+            httpConfiguration.addCustomizer(new RemoteAddressCustomizer(trustedIpRanges, xForwardedForHTTPS));
         }
 
         httpConfiguration.setIdleTimeout(idleTimeout * 1000L);
@@ -329,7 +337,7 @@ public class JettyBootstrap implements ApplicationService {
             secureRequestCustomizer.setSniHostCheck(false);
         }
 
-        httpsConfiguration.addCustomizer(new RemoteAddressHttpsCustomizer(trustedIpRanges));
+        httpsConfiguration.addCustomizer(new RemoteAddressCustomizer(trustedIpRanges, xForwardedForHTTPS));
         httpsConfiguration.addCustomizer(secureRequestCustomizer);
 
         httpsConfiguration.setIdleTimeout(idleTimeout * 1000L);
