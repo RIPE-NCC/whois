@@ -36,7 +36,7 @@ public class ClientCertificateCredentialValidator implements CredentialValidator
     public ClientCertificateCredentialValidator(final RpslObjectDao rpslObjectDao,
                                                 final DateTimeProvider dateTimeProvider,
                                                 final LoggerContext loggerContext,
-                                                final @Value("${client.auth.enabled:false}") boolean enabled) {
+                                                final @Value("${https.x_forwarded_for:false}") boolean enabled) {
         this.rpslObjectDao = rpslObjectDao;
         this.dateTimeProvider = dateTimeProvider;
         this.loggerContext = loggerContext;

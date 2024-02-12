@@ -110,6 +110,8 @@ public class JettyBootstrap implements ApplicationService {
 
     private final boolean xForwardedForHTTPS;
 
+    private final boolean xForwardedForHTTP;
+
     @Autowired
     public JettyBootstrap(final RemoteAddressFilter remoteAddressFilter,
                           final ExtensionOverridesAcceptHeaderFilter extensionOverridesAcceptHeaderFilter,
@@ -124,6 +126,7 @@ public class JettyBootstrap implements ApplicationService {
                           @Value("${port.api:0}") final int port,
                           @Value("${port.api.secure:-1}") final int securePort,
                           @Value("${port.client.auth:-1}") final int clientAuthPort,
+                          @Value("${http.x_forwarded_for:true}") final boolean xForwardedForHTTP,
                           @Value("${https.x_forwarded_for:false}") final boolean xForwardedForHTTPS
                         ) throws MalformedObjectNameException {
         this.remoteAddressFilter = remoteAddressFilter;
@@ -142,6 +145,7 @@ public class JettyBootstrap implements ApplicationService {
         this.port = port;
         this.server = null;
         this.clientAuthPort = clientAuthPort;
+        this.xForwardedForHTTP = xForwardedForHTTP;
         this.xForwardedForHTTPS = xForwardedForHTTPS;
     }
 
@@ -189,8 +193,6 @@ public class JettyBootstrap implements ApplicationService {
     server = new Server(threadPool);
       */
     private Server createServer() {
-
-
         final WebAppContext context = new WebAppContext();
         context.setContextPath("/");
         context.setResourceBase("src/main/webapp");
@@ -226,9 +228,10 @@ public class JettyBootstrap implements ApplicationService {
         return server;
     }
 
+
     private void setConnectors(final Server server) {
         final HttpConfiguration httpConfiguration = new HttpConfiguration();
-        if (isHttpProxy()){
+        if (this.xForwardedForHTTP && !this.xForwardedForHTTPS){
             // client address is set in X-Forwarded-For header by HTTP proxy
             httpConfiguration.addCustomizer(new RemoteAddressCustomizer(trustedIpRanges, true));
             // request protocol is set in X-Forwarded-Proto header by HTTP proxy
@@ -239,11 +242,8 @@ public class JettyBootstrap implements ApplicationService {
             server.setConnectors(new Connector[]{createConnector(server, httpConfiguration)});
 
             server.addConnector(createSecureConnector(server, this.securePort, false));
-            if (isClientAuthEnabled()) {
-                server.addConnector(createSecureConnector(server, this.clientAuthPort, true));
-            }
+            server.addConnector(createSecureConnector(server, this.clientAuthPort, true));
         }
-
     }
 
     private Connector createConnector(final Server server, final HttpConfiguration httpConfiguration) {
@@ -439,7 +439,7 @@ public class JettyBootstrap implements ApplicationService {
                 continue;
             }
 
-            if (isClientAuthEnabled()) {
+            if (clientAuthPort >= 0) {
                 this.clientAuthPort = localPort;
                 continue;
             }
@@ -450,18 +450,10 @@ public class JettyBootstrap implements ApplicationService {
     }
 
     private void logJettyStarted() {
-        if (this.securePort > 0) {
+        if (this.xForwardedForHTTPS) {
             LOGGER.info("Jetty started on HTTP port {} HTTPS port {}", this.port, this.securePort);
         } else {
             LOGGER.info("Jetty started on HTTP port {} (NO HTTPS)", this.port);
         }
-    }
-
-    private boolean isClientAuthEnabled(){
-        return clientAuthPort >= 0;
-    }
-    private boolean isHttpProxy() {
-        // if we are not handling HTTPS then assume a loadbalancer is proxying requests
-        return securePort < 0;
     }
 }
