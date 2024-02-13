@@ -45,9 +45,11 @@ public class RemoteAddressCustomizer implements HttpConfiguration.Customizer {
         final String resourceAddr = (address.startsWith("[") && address.endsWith("]")) ? address.substring(1, address.length() - 1) : address;
         final Interval ipResource = IpInterval.asIpInterval(InetAddresses.forString(resourceAddr));
 
-        final String clientIp = request.getParameterMap().containsKey(QUERY_PARAM_CLIENT_IP) ? request.getParameter(QUERY_PARAM_CLIENT_IP) : null;
-        if(isTrusted(ipResource, trusted) && StringUtils.isNotEmpty(clientIp)) {
-            return clientIp;
+        if (request.getQueryParameters() != null){
+            final String clientIp = request.getQueryParameters().containsKey(QUERY_PARAM_CLIENT_IP) ? request.getParameter(QUERY_PARAM_CLIENT_IP) : null;
+            if (StringUtils.isNotEmpty(clientIp) && isTrusted(ipResource, trusted)) {
+                return clientIp;
+            }
         }
 
         return resourceAddr;
