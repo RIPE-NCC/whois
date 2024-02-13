@@ -462,7 +462,7 @@ public class JettyBootstrap implements ApplicationService {
         return securePort >= 0;
     }
     private void logJettyStarted() {
-        if (this.xForwardedForHTTPS) {
+        if (isHttpsEnabled()) {
             LOGGER.info("Jetty started on HTTP port {} HTTPS port {}", this.port, this.securePort);
         } else {
             LOGGER.info("Jetty started on HTTP port {} (NO HTTPS)", this.port);
