@@ -91,7 +91,7 @@ public class AuthServiceClient {
     }
 
     @Nullable
-    @Cacheable(cacheNames="ssoValidateToken", key="#authToken", condition="#authToken!=null")
+    @Cacheable(cacheNames="ssoValidateToken")
     public ValidateTokenResponse validateToken(final String authToken) {
         if (StringUtils.isEmpty(authToken)) {
             LOGGER.debug("No crowdToken was supplied");
@@ -128,7 +128,7 @@ public class AuthServiceClient {
             null);
     }
 
-    @Cacheable(cacheNames="ssoUuid", key="#username", condition="#username!=null")
+    @Cacheable(cacheNames="ssoUuid")
     public String getUuid(final String username) {
         if (StringUtils.isEmpty(username)) {
             LOGGER.debug("No username was supplied");
@@ -157,7 +157,7 @@ public class AuthServiceClient {
         }
     }
 
-    @Cacheable(cacheNames="ssoUserDetails", key="#uuid", condition="#uuid!=null")
+    @Cacheable(cacheNames="ssoUserDetails")
     public ValidateTokenResponse getUserDetails(final String uuid) {
         if (StringUtils.isEmpty(uuid)) {
             LOGGER.debug("No uuid was supplied");
@@ -183,7 +183,7 @@ public class AuthServiceClient {
         }
     }
 
-    @Cacheable(cacheNames="ssoHistoricalUserDetails", key="#uuid", condition="#uuid!=null")
+    @Cacheable(cacheNames="ssoHistoricalUserDetails")
     public HistoricalUserResponse getHistoricalUserDetails(final String uuid) {
         if (StringUtils.isEmpty(uuid)) {
             LOGGER.debug("No uuid was supplied");
