@@ -250,6 +250,17 @@ public class RewriteEngineTestIntegration extends AbstractIntegrationTest {
         assertThat(response.getStatus(), is(HttpStatus.OK_200));
     }
 
+    @Test
+    public void whois_ripe_net() {
+        Response response = RestTest.target(getPort(), "/some-value")
+                .request()
+                .header(HttpHeaders.HOST, "whois.ripe.net")
+                .get();
+
+        assertThat(response.getStatus(), is(HttpStatus.MOVED_PERMANENTLY_301));
+        assertThat(response.getLocation(), is(URI.create("https://apps.db.ripe.net/db-web-ui/query")));
+    }
+
     // helper methods
 
     private String getHost(final String url) {
