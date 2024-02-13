@@ -230,17 +230,23 @@ public class JettyBootstrap implements ApplicationService {
 
 
     private void setConnectors(final Server server) {
+        if (!this.xForwardedForHTTP && !this.xForwardedForHTTPS) {
+            throw new IllegalStateException("Either http.x_forwarded_for and https.x_forwarded_for are false, so no connector can be created");
+        }
+
         final HttpConfiguration httpConfiguration = new HttpConfiguration();
-        if (this.xForwardedForHTTP && !this.xForwardedForHTTPS){
+        if (this.xForwardedForHTTP) {
             // client address is set in X-Forwarded-For header by HTTP proxy
             httpConfiguration.addCustomizer(new RemoteAddressCustomizer(trustedIpRanges, true));
             // request protocol is set in X-Forwarded-Proto header by HTTP proxy
             httpConfiguration.addCustomizer(new ProtocolCustomizer());
             server.setConnectors(new Connector[]{createConnector(server, httpConfiguration)});
         } else {
-            httpConfiguration.addCustomizer(new RemoteAddressCustomizer(trustedIpRanges, xForwardedForHTTPS));
+            httpConfiguration.addCustomizer(new RemoteAddressCustomizer(trustedIpRanges, false));
             server.setConnectors(new Connector[]{createConnector(server, httpConfiguration)});
+        }
 
+        if (this.xForwardedForHTTPS){
             server.addConnector(createSecureConnector(server, this.securePort, false));
             server.addConnector(createSecureConnector(server, this.clientAuthPort, true));
         }
