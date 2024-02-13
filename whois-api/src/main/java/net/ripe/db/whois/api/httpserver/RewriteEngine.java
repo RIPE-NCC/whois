@@ -30,21 +30,16 @@ public class RewriteEngine {
 
     private String clientAuthHost;
 
-    private final boolean httpsForwardedProtoEnabled;
-
     @Autowired
     public RewriteEngine(@Value("${api.rest.baseurl}") final String baseUrl,
                          @Value("${whois.source}") final String source,
                          @Value("${whois.nonauth.source}") final String nonAuthSource,
-                         @Value("${api.client.auth.baseurl:}") final String clientAuthBaseUrl,
-                         @Value("${https.x_forwarded_for:false}") final boolean httpsForwardedProtoEnabled) {
+                         @Value("${api.client.auth.baseurl:}") final String clientAuthBaseUrl) {
         this.source = source;
         this.nonAuthSource = nonAuthSource;
 
         URI restBaseUri = URI.create(baseUrl);
         restVirtualHost = restBaseUri.getHost();
-
-        this.httpsForwardedProtoEnabled = httpsForwardedProtoEnabled;
 
         if (StringUtils.isNotBlank(clientAuthBaseUrl)) {
             URI clientAuthBaseUri = URI.create(clientAuthBaseUrl);
@@ -71,7 +66,7 @@ public class RewriteEngine {
         rewriteHandler.addRule(restVirtualHostRule);
         restRedirectRules(restVirtualHostRule);
 
-        if (this.httpsForwardedProtoEnabled) {
+        if (StringUtils.isNotBlank(clientAuthHost)) {
             // Client Auth
             VirtualHostRuleContainer clientAuthVirtualHostRule = new VirtualHostRuleContainer();
             clientAuthVirtualHostRule.addVirtualHost(clientAuthHost);

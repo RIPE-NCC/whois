@@ -230,10 +230,6 @@ public class JettyBootstrap implements ApplicationService {
 
 
     private void setConnectors(final Server server) {
-        if (!this.xForwardedForHTTP && !this.xForwardedForHTTPS) {
-            throw new IllegalStateException("Either http.x_forwarded_for and https.x_forwarded_for are false, so no connector can be created");
-        }
-
         final HttpConfiguration httpConfiguration = new HttpConfiguration();
         if (this.xForwardedForHTTP) {
             // client address is set in X-Forwarded-For header by HTTP proxy
@@ -246,9 +242,11 @@ public class JettyBootstrap implements ApplicationService {
             server.setConnectors(new Connector[]{createConnector(server, httpConfiguration)});
         }
 
-        if (this.xForwardedForHTTPS){
+        if (isHttpsEnabled()){
             server.addConnector(createSecureConnector(server, this.securePort, false));
-            server.addConnector(createSecureConnector(server, this.clientAuthPort, true));
+            if (isClientAuthCert()) {
+                server.addConnector(createSecureConnector(server, this.clientAuthPort, true));
+            }
         }
     }
 
@@ -455,6 +453,13 @@ public class JettyBootstrap implements ApplicationService {
         }
     }
 
+    private boolean isClientAuthCert(){
+        return clientAuthPort >= 0;
+    }
+
+    private boolean isHttpsEnabled(){
+        return securePort >= 0;
+    }
     private void logJettyStarted() {
         if (this.xForwardedForHTTPS) {
             LOGGER.info("Jetty started on HTTP port {} HTTPS port {}", this.port, this.securePort);
