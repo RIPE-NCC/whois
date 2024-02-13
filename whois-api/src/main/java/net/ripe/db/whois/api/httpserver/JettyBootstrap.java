@@ -443,13 +443,14 @@ public class JettyBootstrap implements ApplicationService {
                 continue;
             }
 
-            if (clientAuthPort == 0) {
-                this.clientAuthPort = localPort;
+            if (securePort == 0){
+                this.securePort = localPort;
                 continue;
             }
 
-            this.securePort = localPort;
-
+            if (clientAuthPort == 0) {
+                this.clientAuthPort = localPort;
+            }
         }
     }
 
