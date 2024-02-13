@@ -13,7 +13,7 @@ public abstract class AbstractHttpsIntegrationTest extends AbstractIntegrationTe
         System.setProperty("http.sni.host.check", "false");
         System.setProperty("whois.certificates", certificatePrivateKeyPair.getCertificateFilename());
         System.setProperty("whois.private.keys", certificatePrivateKeyPair.getPrivateKeyFilename());
-        System.setProperty("https.x_forwarded_for", "true");
+        System.setProperty("https.x_forwarded_for", "false");
     }
 
     @AfterAll
