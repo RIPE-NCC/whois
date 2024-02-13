@@ -322,7 +322,7 @@ public final class UpdateMessages {
     }
 
     public static Message createFirstPersonMntnerForOrganisation() {
-        return new Message(Type.INFO, "To create the first person/mntner pair of objects for an organisation see https://apps.db.ripe.net/startup/");
+        return new Message(Type.INFO, "To create the first person/mntner pair of objects for an organisation see https://apps.db.ripe.net/db-web-ui/webupdates/create/RIPE/person/self");
     }
 
     public static Message maintainerNotFound(final CharSequence maintainer) {
