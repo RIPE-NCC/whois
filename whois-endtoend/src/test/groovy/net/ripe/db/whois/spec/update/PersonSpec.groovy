@@ -1047,7 +1047,7 @@ class PersonSpec extends BaseQueryUpdateSpec  {
                 "Error:   Authorisation for \\[person\\] FP1-TEST failed\n\\s+using \"mnt-by:\"\n\\s+no valid maintainer found"
 
         ack.infoMessagesFor("Create", "[person] FP1-TEST   First Person") ==
-                ["To create the first person/mntner pair of objects for an organisation see https://apps.db.ripe.net/startup/"]
+                ["To create the first person/mntner pair of objects for an organisation see https://apps.db.ripe.net/db-web-ui/webupdates/create/RIPE/person/self"]
 
         ack.objErrorContains("Create", "FAILED", "person", "FP1-TEST   First Person", "Unknown object referenced non-exist-mnt")
 
