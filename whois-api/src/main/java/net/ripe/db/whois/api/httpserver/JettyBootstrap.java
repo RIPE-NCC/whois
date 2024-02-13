@@ -454,7 +454,7 @@ public class JettyBootstrap implements ApplicationService {
         }
     }
 
-    private boolean isClientAuthCert(){
+    public boolean isClientAuthCert(){
         return clientAuthPort >= 0;
     }
 
