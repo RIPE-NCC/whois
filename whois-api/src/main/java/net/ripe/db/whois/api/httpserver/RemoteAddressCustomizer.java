@@ -8,6 +8,7 @@ import com.google.common.net.InetAddresses;
 import net.ripe.db.whois.common.ip.Interval;
 import net.ripe.db.whois.common.ip.IpInterval;
 import org.apache.commons.lang.StringUtils;
+import org.eclipse.jetty.http.BadMessageException;
 import org.eclipse.jetty.server.Connector;
 import org.eclipse.jetty.server.HttpConfiguration;
 import org.eclipse.jetty.server.Request;
@@ -45,11 +46,14 @@ public class RemoteAddressCustomizer implements HttpConfiguration.Customizer {
         final String resourceAddr = (address.startsWith("[") && address.endsWith("]")) ? address.substring(1, address.length() - 1) : address;
         final Interval ipResource = IpInterval.asIpInterval(InetAddresses.forString(resourceAddr));
 
-        if (request.getQueryParameters() != null){
-            final String clientIp = request.getQueryParameters().containsKey(QUERY_PARAM_CLIENT_IP) ? request.getParameter(QUERY_PARAM_CLIENT_IP) : null;
+        try {
+            final String clientIp = request.getParameterMap().containsKey(QUERY_PARAM_CLIENT_IP) ? request.getParameter(QUERY_PARAM_CLIENT_IP) : null;
             if (StringUtils.isNotEmpty(clientIp) && isTrusted(ipResource, trusted)) {
                 return clientIp;
             }
+        } catch (BadMessageException ex){
+            //parameters that can not be parsed will be handled later
+            return resourceAddr;
         }
 
         return resourceAddr;
