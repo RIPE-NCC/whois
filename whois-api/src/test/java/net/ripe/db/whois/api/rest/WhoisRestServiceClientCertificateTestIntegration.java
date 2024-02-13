@@ -110,7 +110,7 @@ public class WhoisRestServiceClientCertificateTestIntegration extends AbstractCl
         final RpslObject updatedMntner = addAttribute(OWNER_MNT, AttributeType.AUTH, keycertObject.getKey());
         databaseHelper.updateObject(updatedMntner);
 
-        final WhoisResources whoisResources = RestTest.target(getPort(), "whois/test/person/TP1-TEST?password=test")
+        final WhoisResources whoisResources = SecureRestTest.target(getClientSSLContext(),getClientCertificatePort(),"whois/test/person/TP1-TEST?password=test")
             .request()
             .put(Entity.entity(map(updatedPerson), MediaType.APPLICATION_XML), WhoisResources.class);
 
