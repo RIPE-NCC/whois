@@ -66,7 +66,7 @@ public class RewriteEngine {
         rewriteHandler.setRewritePathInfo(true);
 
         // rest
-        VirtualHostRuleContainer restVirtualHostRule = new VirtualHostRuleContainer();
+        final VirtualHostRuleContainer restVirtualHostRule = new VirtualHostRuleContainer();
         restVirtualHostRule.addVirtualHost(restVirtualHost);
         rewriteHandler.addRule(restVirtualHostRule);
         restRedirectRules(restVirtualHostRule);
@@ -80,24 +80,24 @@ public class RewriteEngine {
         }
 
         // rdap
-        VirtualHostRuleContainer rdapVirtualHostRule = new VirtualHostRuleContainer();
+        final VirtualHostRuleContainer rdapVirtualHostRule = new VirtualHostRuleContainer();
         rdapVirtualHostRule.addVirtualHost(rdapVirtualHost);
         rewriteHandler.addRule(rdapVirtualHostRule);
 
-        RewriteRegexRule rdapRule = new RewriteRegexRule("/(.+)", "/rdap/$1");
+        final RewriteRegexRule rdapRule = new RewriteRegexRule("/(.+)", "/rdap/$1");
         rdapRule.setTerminating(true);
         rdapVirtualHostRule.addRule(rdapRule);
 
         // syncupdates
-        VirtualHostRuleContainer syncupdatesVirtualHostRule = new VirtualHostRuleContainer();
+        final VirtualHostRuleContainer syncupdatesVirtualHostRule = new VirtualHostRuleContainer();
         syncupdatesVirtualHostRule.addVirtualHost(syncupdatesVirtualHost);
         rewriteHandler.addRule(syncupdatesVirtualHostRule);
 
-        RewriteRegexRule syncupdatesEmptyQueryStringRule = new RewriteRegexRule(
+        final RewriteRegexRule syncupdatesEmptyQueryStringRule = new RewriteRegexRule(
             "/$",
             String.format("/whois/syncupdates/%s/?HELP=yes", source)
         );
-        RewriteRegexRule syncupdatesRule = new RewriteRegexRule(
+        final RewriteRegexRule syncupdatesRule = new RewriteRegexRule(
             "/(.*)",
             String.format("/whois/syncupdates/%s/$1", source)
         );
@@ -106,6 +106,14 @@ public class RewriteEngine {
         syncupdatesRule.setTerminating(true);
         syncupdatesVirtualHostRule.addRule(syncupdatesEmptyQueryStringRule);
         syncupdatesVirtualHostRule.addRule(syncupdatesRule);
+
+        // whois
+        final VirtualHostRuleContainer whoisVirtualHostRule = new VirtualHostRuleContainer();
+        whoisVirtualHostRule.addVirtualHost("whois.ripe.net");
+        final RedirectRegexRule whoisRule = new RedirectRegexRule(".*", "https://apps.db.ripe.net/db-web-ui/query");
+        whoisRule.setStatusCode(HttpStatus.MOVED_PERMANENTLY_301);
+        whoisVirtualHostRule.addRule(whoisRule);
+        rewriteHandler.addRule(whoisVirtualHostRule);
 
         return rewriteHandler;
     }
