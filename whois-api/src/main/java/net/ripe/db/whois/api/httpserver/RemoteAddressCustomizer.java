@@ -13,6 +13,7 @@ import org.eclipse.jetty.server.Connector;
 import org.eclipse.jetty.server.HttpConfiguration;
 import org.eclipse.jetty.server.Request;
 
+import javax.annotation.Nullable;
 import java.net.InetSocketAddress;
 import java.util.Arrays;
 import java.util.Enumeration;
@@ -28,38 +29,46 @@ public class RemoteAddressCustomizer implements HttpConfiguration.Customizer {
     public static final String QUERY_PARAM_CLIENT_IP = "clientIp";
     private final Set<Interval> trusted;
 
+    // if client address is set in X-Forwarded-For header by HTTP proxy
     private final boolean usingForwardedForHeader;
 
-    public RemoteAddressCustomizer(final String trustedIpRanges, final boolean xforwardedFor) {
+    public RemoteAddressCustomizer(final String trustedIpRanges, final boolean xForwardedFor) {
         this.trusted = getIntervals(trustedIpRanges.split(","));
-        this.usingForwardedForHeader = xforwardedFor;
+        this.usingForwardedForHeader = xForwardedFor;
     }
 
     @Override
     public void customize(final Connector connector, final HttpConfiguration httpConfiguration, final Request request) {
+        String remoteAddress = formaliseAddress(getRemoteAddrFromRequest(request));
 
-        final String remoteAddress = getRemoteAddrForTrustedSource(request, getRemoteAddrForScheme(request));
+        if (isTrusted(remoteAddress)){
+            String clientIp = getClientIp(request);
+            if (clientIp != null){
+                remoteAddress = clientIp;
+            }
+        }
         request.setRemoteAddr(InetSocketAddress.createUnresolved(remoteAddress, request.getRemotePort()));
     }
 
-    private String getRemoteAddrForTrustedSource(final Request request, final String address) {
-        final String resourceAddr = (address.startsWith("[") && address.endsWith("]")) ? address.substring(1, address.length() - 1) : address;
-        final Interval ipResource = IpInterval.asIpInterval(InetAddresses.forString(resourceAddr));
-
+    @Nullable
+    private String getClientIp(final Request request){
         try {
-            final String clientIp = request.getParameterMap().containsKey(QUERY_PARAM_CLIENT_IP) ? request.getParameter(QUERY_PARAM_CLIENT_IP) : null;
-            if (StringUtils.isNotEmpty(clientIp) && isTrusted(ipResource, trusted)) {
+            final String clientIp = request.getParameter(QUERY_PARAM_CLIENT_IP);
+            if (StringUtils.isNotEmpty(clientIp)) {
                 return clientIp;
             }
         } catch (BadMessageException ex){
-            //parameters that can not be parsed will be handled later
-            return resourceAddr;
+            //ignore
         }
-
-        return resourceAddr;
+        return null;
     }
 
-    private String getRemoteAddrForScheme(final Request request){
+    private String formaliseAddress(final String address){
+        return (address.startsWith("[") && address.endsWith("]")) ? address.substring(1, address.length() - 1) :
+                address;
+    }
+
+    private String getRemoteAddrFromRequest(final Request request){
         if (usingForwardedForHeader){
             final Enumeration<String> headers = request.getHeaders(HttpHeaders.X_FORWARDED_FOR);
 
@@ -73,17 +82,26 @@ public class RemoteAddressCustomizer implements HttpConfiguration.Customizer {
             }
 
             return Iterables.getLast(COMMA_SPLITTER.split(header));
-        } else {
-            return request.getRemoteAddr();
         }
 
+        return request.getRemoteAddr();
+    }
+
+
+    private boolean isTrusted(final String remoteAddress){
+        return isTrusted(getInterval(remoteAddress));
+    }
+
+    private boolean isTrusted(final Interval ipResource) {
+        return trusted.stream().anyMatch(ipRange -> ipRange.getClass().equals(ipResource.getClass()) && ipRange.contains(ipResource));
+    }
+    private Interval getInterval(final String address){
+        return IpInterval.asIpInterval(InetAddresses.forString(address));
     }
 
     private Set<Interval> getIntervals(final String[] trusted) {
         return Arrays.stream(trusted).filter(StringUtils::isNotEmpty).map(IpInterval::parse).collect(Collectors.toSet());
     }
 
-    private boolean isTrusted(final Interval ipResource, final Set<Interval> ipRanges) {
-        return ipRanges.stream().anyMatch(ipRange -> ipRange.getClass().equals(ipResource.getClass()) && ipRange.contains(ipResource));
-    }
+
 }
