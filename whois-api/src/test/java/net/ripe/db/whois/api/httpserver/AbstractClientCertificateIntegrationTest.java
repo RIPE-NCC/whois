@@ -46,13 +46,11 @@ public class AbstractClientCertificateIntegrationTest extends AbstractHttpsInteg
 
     @BeforeAll
     public static void enableClientAuth() {
-        System.setProperty("client.auth.enabled", "true");
         System.setProperty("port.client.auth", "0");
     }
 
     @AfterAll
     public static void disableClientAuth() {
-        System.clearProperty("client.auth.enabled");
         System.clearProperty("port.client.auth");
     }
 

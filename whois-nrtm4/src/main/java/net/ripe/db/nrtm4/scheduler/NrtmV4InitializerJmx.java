@@ -7,6 +7,7 @@ import net.ripe.db.whois.common.jmx.JmxBase;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Conditional;
 import org.springframework.jmx.export.annotation.ManagedOperation;
 import org.springframework.jmx.export.annotation.ManagedOperationParameter;
@@ -30,7 +31,7 @@ public class NrtmV4InitializerJmx extends JmxBase {
 
 
     @Autowired
-    public NrtmV4InitializerJmx(final DateTimeProvider dateTimeProvider, final TaskScheduler taskScheduler, final SnapshotFileScheduledTask snapshotFileScheduledTask, final UpdateNrtmFileRepository nrtmFileRepository) {
+    public NrtmV4InitializerJmx(final DateTimeProvider dateTimeProvider, @Qualifier("taskScheduler") final TaskScheduler taskScheduler, final SnapshotFileScheduledTask snapshotFileScheduledTask, final UpdateNrtmFileRepository nrtmFileRepository) {
         super(LOGGER);
         this.taskScheduler = taskScheduler;
         this.nrtmFileRepository = nrtmFileRepository;

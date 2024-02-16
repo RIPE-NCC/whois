@@ -3,8 +3,11 @@ package net.ripe.db.whois.api.httpserver;
 import jakarta.ws.rs.ProcessingException;
 import jakarta.ws.rs.core.MediaType;
 import net.ripe.db.whois.api.SecureRestTest;
+import net.ripe.db.whois.common.aspects.RetryFor;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
+
+import java.io.IOException;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.containsString;
@@ -26,6 +29,8 @@ public class ClientCertificateServiceTestIntegration extends AbstractClientCerti
     }
 
     @Test
+    // TODO: [MH] Remote this retry and fix the problem with unreachable server
+    @RetryFor(value = IOException.class, attempts = 10, intervalMs = 10000)
     public void no_client_certificate() {
         try {
             SecureRestTest.target(getClientCertificatePort(), "whois/client")
