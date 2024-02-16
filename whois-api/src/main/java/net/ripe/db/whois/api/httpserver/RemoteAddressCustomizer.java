@@ -15,10 +15,9 @@ import org.eclipse.jetty.server.Request;
 
 import javax.annotation.Nullable;
 import java.net.InetSocketAddress;
-import java.util.Arrays;
 import java.util.Enumeration;
+import java.util.HashSet;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 /**
  * When HTTP requests via trusted source use clientIp query paramater as remote Address if set
@@ -33,13 +32,13 @@ public class RemoteAddressCustomizer implements HttpConfiguration.Customizer {
     private final boolean usingForwardedForHeader;
 
     public RemoteAddressCustomizer(final String trustedIpRanges, final boolean xForwardedFor) {
-        this.trusted = getIntervals(trustedIpRanges.split(","));
+        this.trusted = getIntervals(COMMA_SPLITTER.split(trustedIpRanges));
         this.usingForwardedForHeader = xForwardedFor;
     }
 
     @Override
     public void customize(final Connector connector, final HttpConfiguration httpConfiguration, final Request request) {
-        String remoteAddress = formaliseAddress(getRemoteAddrFromRequest(request));
+        String remoteAddress = stripSquareBrackets(getRemoteAddrFromRequest(request));
 
         if (isTrusted(remoteAddress)){
             String clientIp = getClientIp(request);
@@ -63,7 +62,7 @@ public class RemoteAddressCustomizer implements HttpConfiguration.Customizer {
         return null;
     }
 
-    private String formaliseAddress(final String address){
+    private String stripSquareBrackets(final String address){
         return (address.startsWith("[") && address.endsWith("]")) ? address.substring(1, address.length() - 1) :
                 address;
     }
@@ -99,8 +98,16 @@ public class RemoteAddressCustomizer implements HttpConfiguration.Customizer {
         return IpInterval.asIpInterval(InetAddresses.forString(address));
     }
 
-    private Set<Interval> getIntervals(final String[] trusted) {
-        return Arrays.stream(trusted).filter(StringUtils::isNotEmpty).map(IpInterval::parse).collect(Collectors.toSet());
+    private Set<Interval> getIntervals(final Iterable<String> trusted) {
+        final Set<Interval> intervals = new HashSet<>();
+
+        for (final String ip : trusted) {
+            if (StringUtils.isNotEmpty(ip)) {
+                intervals.add(IpInterval.parse(ip));
+            }
+        }
+
+        return intervals;
     }
 
 
