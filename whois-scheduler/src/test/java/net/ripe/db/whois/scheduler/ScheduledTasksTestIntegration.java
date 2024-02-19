@@ -32,7 +32,7 @@ public class ScheduledTasksTestIntegration extends AbstractSchedulerIntegrationT
             @Override
             public Boolean call() {
                 try {
-                    verify(jdbcIpAccessControlListDao, atLeastOnce()).loadIpLimit();
+                    verify(jdbcIpAccessControlListDao, atLeastOnce()).loadIpLimits();
                     verify(jdbcIpAccessControlListDao, atLeastOnce()).loadIpProxy();
                     verify(jdbcIpAccessControlListDao, atLeastOnce()).loadIpDenied();
                     verify(ipTreeCacheManager, atLeastOnce()).update(any(SourceConfiguration.class));

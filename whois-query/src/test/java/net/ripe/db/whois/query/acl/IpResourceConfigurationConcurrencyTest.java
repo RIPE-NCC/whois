@@ -33,7 +33,7 @@ public class IpResourceConfigurationConcurrencyTest {
 
     @BeforeEach
     public void setup() {
-        when(loader.loadIpLimit()).thenReturn(Collections.<IpResourceEntry<Integer>>emptyList());
+        when(loader.loadIpLimits()).thenReturn(Collections.<IpResourceEntry<Integer>>emptyList());
         when(loader.loadIpProxy()).thenReturn(Collections.<IpResourceEntry<Boolean>>emptyList());
         when(loader.loadIpDenied()).thenReturn(Collections.<IpResourceEntry<Boolean>>emptyList());
 

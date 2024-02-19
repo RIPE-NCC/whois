@@ -30,7 +30,7 @@ public class IpResourceConfigurationTest {
 
     @BeforeEach
     public void setup() throws UnknownHostException {
-        when(loader.loadIpLimit()).thenReturn(Collections.<IpResourceEntry<Integer>>emptyList());
+        when(loader.loadIpLimits()).thenReturn(Collections.<IpResourceEntry<Integer>>emptyList());
         when(loader.loadIpProxy()).thenReturn(Collections.<IpResourceEntry<Boolean>>emptyList());
         when(loader.loadIpDenied()).thenReturn(Collections.<IpResourceEntry<Boolean>>emptyList());
 
@@ -49,7 +49,7 @@ public class IpResourceConfigurationTest {
     public void test_limit_specified() throws Exception {
         final IpResourceEntry<Integer> entry = new IpResourceEntry<>(IpInterval.asIpInterval(inetAddress), 1000);
         final List<IpResourceEntry<Integer>> entries = Arrays.asList(entry);
-        when(loader.loadIpLimit()).thenReturn(entries);
+        when(loader.loadIpLimits()).thenReturn(entries);
 
         subject.reload();
 
