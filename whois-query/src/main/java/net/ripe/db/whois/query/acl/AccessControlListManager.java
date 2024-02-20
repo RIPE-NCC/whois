@@ -133,7 +133,7 @@ public class AccessControlListManager {
                 return userSession.getUsername();
             }
         } catch (AuthServiceClientException e) {
-            LOGGER.warn("Cannot translate ssoToken, will account by remoteAddr due to {}", e.getMessage());
+            LOGGER.warn("Cannot translate ssoToken, will account by remoteAddr due to {}: {}", e.getClass().getName(), e.getMessage());
         }
 
         return null;
@@ -166,7 +166,7 @@ public class AccessControlListManager {
             final int queried = personalObjectAccounting.getQueriedPersonalObjects(userName);
             final int personalDataLimit = getPersonalDataLimit();
 
-            LOGGER.info("personal data limit is :" + personalDataLimit);
+            LOGGER.debug("personal data limit for {} is {}", userName, personalDataLimit);
             return personalDataLimit - queried;
         }
 
