@@ -1,5 +1,19 @@
 # next
 
+# 1.110
+
+[rdap] Add geofeed (#1366)
+[rdap] Improve RDAP documentation (#1373, #1388)
+[rdap] Implement RDAP RIR Search - Basic Search Features (#1379)
+[rdap] Enable e-mail in Top level Vcard of entity request for RDAP (#1384)
+[rdap] Put geofeed as a link to conform with RFC draft v1 (#1374)
+[api] Create secure connector for Client Certificate (#1390)
+[api] Use client ip flag as remote address from trusted source (#1391)
+[api] Redirect HTTP(S) requests to whois.ripe.net to the DB web application query page (#1396)
+[api] Elasticsearch refreshed after update/create (#1367)
+[api] Document maximum prefix of assignment-size of inet6num (#1375)
+
+
 # 1.109.1
 
 [rdap] Organisation RDAP Object is Assumed to be an IP on Country Attribute (#1362)
