@@ -168,3 +168,18 @@ CREATE TABLE `environment` (
    `name` varchar(8) NOT NULL,
    PRIMARY KEY (`name`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+
+DROP TABLE IF EXISTS `in_progress_mail`;
+CREATE TABLE `in_progress_mail` (
+   `messageId` varchar(8) NOT NULL,
+   `e_mail` varchar(80) NOT NULL,
+   `last_update` datetime NOT NULL,
+   PRIMARY KEY (`messageId`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+
+DROP TABLE IF EXISTS `bounced_email_address`;
+CREATE TABLE `bounced_email_address` (
+   `e_mail` varchar(80) NOT NULL,
+   `last_update` datetime NOT NULL,
+   PRIMARY KEY (`e_mail`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;

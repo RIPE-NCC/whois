@@ -2,6 +2,7 @@ package net.ripe.db.whois.update.mail;
 
 import jakarta.mail.SendFailedException;
 import jakarta.mail.internet.MimeMessage;
+import net.ripe.db.whois.common.dao.BouncedMailDao;
 import net.ripe.db.whois.update.log.LoggerContext;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -30,6 +31,8 @@ public class MailGatewaySmtpTest {
     @Mock LoggerContext loggerContext;
     @Mock MailConfiguration mailConfiguration;
     @Mock JavaMailSender mailSender;
+
+    @Mock BouncedMailDao bouncedMailDao;
     @InjectMocks private MailGatewaySmtp subject;
 
     @BeforeEach
@@ -89,7 +92,7 @@ public class MailGatewaySmtpTest {
     @Test
     public void checkRecipientAddressesArePunycoded() throws Exception {
         MailSenderStub mailSenderStub = new MailSenderStub();
-        MailGatewaySmtp mailGatewaySmtp = new MailGatewaySmtp(loggerContext, mailConfiguration, mailSenderStub);
+        MailGatewaySmtp mailGatewaySmtp = new MailGatewaySmtp(loggerContext, mailConfiguration, mailSenderStub, bouncedMailDao);
         ReflectionTestUtils.setField(mailGatewaySmtp, "outgoingMailEnabled", true);
 
         when(mailConfiguration.getFrom()).thenReturn("from@from.to");
