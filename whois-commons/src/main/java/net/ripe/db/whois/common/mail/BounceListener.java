@@ -31,7 +31,8 @@ public class BounceListener {
 
     public void createListener(final JavaMailSender mailSender, final String from){
         try {
-            final Transport transport = ((JavaMailSenderImpl) mailSender).getSession().getTransport();
+
+            final Transport transport = ((JavaMailSenderImpl)mailSender).getSession().getTransport();
             transport.addTransportListener(new TransportListener() {
 
                 @Override
@@ -84,7 +85,7 @@ public class BounceListener {
 
     public void generateMessageId(final MimeMessage mimeMessage, final String to) {
         try {
-            final String uniqueId = "<" + System.currentTimeMillis() + "." + Math.random() + ">";
+            final String uniqueId = "<" + System.currentTimeMillis() + "." + Math.random() + "@ripe.net>";
             mimeMessage.addHeader(MESSAGE_ID_HEADER, uniqueId);
 
             //TODO: [MH] Check if we really need to keep track of the ongoing messages?

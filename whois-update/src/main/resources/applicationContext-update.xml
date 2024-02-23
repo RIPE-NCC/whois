@@ -11,7 +11,7 @@
 
     <context:component-scan base-package="net.ripe.db.whois.update"/>
 
-    <beans profile="DEPLOYED">
+    <beans>
         <bean id="mailSender" class="org.springframework.mail.javamail.JavaMailSenderImpl" primary="true">
             <property name="host" value="${mail.smtp.host}"/>
             <property name="port" value="${mail.smtp.port:25}"/>

@@ -27,7 +27,6 @@ public class MailGatewaySmtp implements MailGateway {
     private static final Pattern INVALID_EMAIL_PATTERN = Pattern.compile("(?i)((?:auto|test)\\-dbm@ripe\\.net)");
     private static final Logger LOGGER = LoggerFactory.getLogger(MailGatewaySmtp.class);
 
-    private static final String MESSAGE_ID_HEADER = "Message-ID";
     private final LoggerContext loggerContext;
     private final MailConfiguration mailConfiguration;
     private final JavaMailSender mailSender;

@@ -3,6 +3,7 @@ package net.ripe.db.whois.common.dao;
 import io.netty.util.internal.StringUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Repository;
@@ -34,24 +35,32 @@ public class BouncedMailDao {
     }
 
     public Boolean isBouncedEmail(final String email){
-        return internalsTemplate.queryForObject("SELECT e_mail from bounced_email_address where e_mail = ?",
-                new RowMapper<>() {
-                    @Override
-                    public Boolean mapRow(ResultSet rs, int rowNum) throws SQLException {
-                        return !StringUtil.isNullOrEmpty(rs.getString(1));
-                    }
-                },
-                email);
+        try {
+            return internalsTemplate.queryForObject("SELECT e_mail from bounced_email_address where e_mail = ?",
+                    new RowMapper<>() {
+                        @Override
+                        public Boolean mapRow(ResultSet rs, int rowNum) throws SQLException {
+                            return !StringUtil.isNullOrEmpty(rs.getString(1));
+                        }
+                    },
+                    email);
+        } catch (EmptyResultDataAccessException ex){
+            return false;
+        }
     }
     public Boolean onGoingMessageExist(final String uuid){
-        return internalsTemplate.queryForObject("SELECT messageId from in_progress_mail where messageId = ?",
-                new RowMapper<>() {
-                    @Override
-                    public Boolean mapRow(ResultSet rs, int rowNum) throws SQLException {
-                        return !StringUtil.isNullOrEmpty(rs.getString(1));
-                    }
-                },
-                uuid);
+        try {
+            return internalsTemplate.queryForObject("SELECT messageId from in_progress_mail where messageId = ?",
+                    new RowMapper<>() {
+                        @Override
+                        public Boolean mapRow(ResultSet rs, int rowNum) throws SQLException {
+                            return !StringUtil.isNullOrEmpty(rs.getString(1));
+                        }
+                    },
+                    uuid);
+        } catch (EmptyResultDataAccessException ex){
+            return false;
+        }
     }
 
     public void deleteOnGoingMessage(final String uuid){
