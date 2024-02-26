@@ -169,8 +169,10 @@ CREATE TABLE `environment` (
    PRIMARY KEY (`name`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
-DROP TABLE IF EXISTS `in_progress_mail`;
-CREATE TABLE `in_progress_mail` (
+// TODO: keep synchronised with patch internals-1.111.sql
+
+DROP TABLE IF EXISTS `in_progress_message`;
+CREATE TABLE `in_progress_message` (
    `messageId` varchar(80) NOT NULL,
    `email` varchar(80) NOT NULL,
    `last_update` datetime NOT NULL,

@@ -27,7 +27,7 @@ public class BouncedMailDao {
     }
 
     public void saveOnGoingMessageId(final String uuid, final String email){
-        internalsMasterTemplate.update("INSERT INTO in_progress_mail (messageId, email, last_update) VALUES (?, ?, ?)", uuid, email, LocalDateTime.now());
+        internalsMasterTemplate.update("INSERT INTO in_progress_message (messageId, email, last_update) VALUES (?, ?, ?)", uuid, email, LocalDateTime.now());
     }
 
     public void createBouncedEmail(final String email){
@@ -51,7 +51,7 @@ public class BouncedMailDao {
     }
     public Boolean onGoingMessageExist(final String uuid){
         try {
-            return internalsTemplate.queryForObject("SELECT messageId from in_progress_mail where messageId = ?",
+            return internalsTemplate.queryForObject("SELECT messageId from in_progress_message where messageId = ?",
                     new RowMapper<>() {
                         @Override
                         public Boolean mapRow(ResultSet rs, int rowNum) throws SQLException {
@@ -66,6 +66,6 @@ public class BouncedMailDao {
     }
 
     public void deleteOnGoingMessage(final String uuid){
-        internalsMasterTemplate.update("DELETE FROM in_progress_mail WHERE messageId = ?", uuid);
+        internalsMasterTemplate.update("DELETE FROM in_progress_message WHERE messageId = ?", uuid);
     }
 }
