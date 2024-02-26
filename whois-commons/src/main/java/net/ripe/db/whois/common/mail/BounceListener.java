@@ -3,7 +3,6 @@ package net.ripe.db.whois.common.mail;
 import jakarta.mail.Address;
 import jakarta.mail.MessagingException;
 import jakarta.mail.NoSuchProviderException;
-import jakarta.mail.Transport;
 import jakarta.mail.event.TransportEvent;
 import jakarta.mail.event.TransportListener;
 import jakarta.mail.internet.MimeMessage;
@@ -31,9 +30,7 @@ public class BounceListener {
 
     public void createListener(final JavaMailSender mailSender, final String from){
         try {
-
-            final Transport transport = ((JavaMailSenderImpl)mailSender).getSession().getTransport();
-            transport.addTransportListener(new TransportListener() {
+            ((JavaMailSenderImpl) mailSender).getSession().getTransport().addTransportListener(new TransportListener() {
 
                 @Override
                 public void messageDelivered(TransportEvent transportEvent) {
@@ -83,16 +80,8 @@ public class BounceListener {
         return bouncedMailDao.isBouncedEmail(to);
     }
 
-    public void generateMessageId(final MimeMessage mimeMessage, final String to) {
-        try {
-            final String uniqueId = "<" + System.currentTimeMillis() + "." + Math.random() + "@ripe.net>";
-            mimeMessage.addHeader(MESSAGE_ID_HEADER, uniqueId);
-
-            //TODO: [MH] Check if we really need to keep track of the ongoing messages?
-            bouncedMailDao.createOnGoingMessageId(uniqueId, to);
-        } catch (MessagingException ex){
-            LOGGER.error("failing generating message Id");
-        }
+    public void saveMessageId(final String uniqueId, final String to) {
+        bouncedMailDao.saveOnGoingMessageId(uniqueId, to);
     }
 
     private void cleanOnGoingMessage(final MimeMessage message) throws MessagingException {

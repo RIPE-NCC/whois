@@ -26,7 +26,7 @@ public class BouncedMailDao {
         this.internalsTemplate = new JdbcTemplate(internalsDatasource);
     }
 
-    public void createOnGoingMessageId(final String uuid, final String email){
+    public void saveOnGoingMessageId(final String uuid, final String email){
         internalsMasterTemplate.update("INSERT INTO in_progress_mail (messageId, e_mail, last_update) VALUES (?, ?, ?)", uuid, email, LocalDateTime.now());
     }
 

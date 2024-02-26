@@ -1,10 +1,14 @@
 package net.ripe.db.whois.update.mail;
 
+import jakarta.mail.Address;
+import jakarta.mail.MessagingException;
+import jakarta.mail.internet.MimeMessage;
 import net.ripe.db.whois.common.Message;
 import net.ripe.db.whois.common.Messages;
 import net.ripe.db.whois.common.PunycodeConversion;
 import net.ripe.db.whois.common.aspects.RetryFor;
 import net.ripe.db.whois.common.mail.BounceListener;
+import net.ripe.db.whois.common.mail.CustomJavaMailSender;
 import net.ripe.db.whois.update.domain.ResponseMessage;
 import net.ripe.db.whois.update.log.LoggerContext;
 import org.apache.commons.lang.StringUtils;
@@ -27,9 +31,10 @@ public class MailGatewaySmtp implements MailGateway {
     private static final Pattern INVALID_EMAIL_PATTERN = Pattern.compile("(?i)((?:auto|test)\\-dbm@ripe\\.net)");
     private static final Logger LOGGER = LoggerFactory.getLogger(MailGatewaySmtp.class);
 
+    private static final String MESSAGE_ID_HEADER = "Message-ID";
     private final LoggerContext loggerContext;
     private final MailConfiguration mailConfiguration;
-    private final JavaMailSender mailSender;
+    private final CustomJavaMailSender mailSender;
 
     private final BounceListener bouncedListener;
 
@@ -39,14 +44,17 @@ public class MailGatewaySmtp implements MailGateway {
     @Value("${mail.smtp.retrySending:true}")
     private boolean retrySending;
 
+
     @Autowired
     public MailGatewaySmtp(final LoggerContext loggerContext, final MailConfiguration mailConfiguration,
                            final JavaMailSender mailSender, final BounceListener bouncedListener) {
         this.loggerContext = loggerContext;
         this.mailConfiguration = mailConfiguration;
-        this.mailSender = mailSender;
+        this.mailSender = new CustomJavaMailSender(mailSender);
         this.bouncedListener = bouncedListener;
-        setupMailListener();
+
+        setupBeforeSendListener();
+        setupReturnMailListener();
     }
 
     @Override
@@ -115,8 +123,6 @@ public class MailGatewaySmtp implements MailGateway {
                 mimeMessage.addHeader("Precedence", "bulk");
                 mimeMessage.addHeader("Auto-Submitted", "auto-generated");
 
-                bouncedListener.generateMessageId(mimeMessage, to);
-
                 loggerContext.log("msg-out.txt", new MailMessageLogCallback(mimeMessage));
             });
         } catch (MailSendException e) {
@@ -131,7 +137,36 @@ public class MailGatewaySmtp implements MailGateway {
         }
     }
 
-    private void setupMailListener(){
+    private void setupBeforeSendListener() {
+        this.mailSender.addEmailSendListener(new CustomJavaMailSender.EmailSendListener() {
+            @Override
+            public void beforeSend(MimeMessage message) {
+                try {
+                    bouncedListener.saveMessageId(getMessageIdFromHeader(message), getClientAddress(message));
+                } catch (MessagingException e) {
+                    LOGGER.error("Error processing not delivered message");
+                }
+            }
+        });
+    }
+
+    private void setupReturnMailListener(){
         this.bouncedListener.createListener(this.mailSender, this.mailConfiguration.getFrom());
+    }
+
+    private String getMessageIdFromHeader(final MimeMessage message) throws MessagingException {
+        final String[] messageIds = message.getHeader(MESSAGE_ID_HEADER);
+        if (messageIds.length > 1){
+            LOGGER.error("This is a single mail sender service, this shouldn't happen");
+        }
+        return messageIds[0];
+    }
+
+    private String getClientAddress(final MimeMessage mimeMessage) throws MessagingException {
+        final Address[] addresses = mimeMessage.getRecipients(jakarta.mail.Message.RecipientType.TO);
+        if (addresses == null || addresses.length == 0) {
+            return "";
+        }
+        return addresses[0].toString(); // Assuming there's only one address
     }
 }

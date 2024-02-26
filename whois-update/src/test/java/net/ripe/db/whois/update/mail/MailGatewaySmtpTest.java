@@ -32,7 +32,8 @@ public class MailGatewaySmtpTest {
     @Mock MailConfiguration mailConfiguration;
     @Mock JavaMailSender mailSender;
 
-    @Mock BounceListener bounceListener;
+    @Mock
+    BounceListener bounceListener;
     @InjectMocks private MailGatewaySmtp subject;
 
     @BeforeEach
@@ -92,7 +93,8 @@ public class MailGatewaySmtpTest {
     @Test
     public void checkRecipientAddressesArePunycoded() throws Exception {
         MailSenderStub mailSenderStub = new MailSenderStub();
-        MailGatewaySmtp mailGatewaySmtp = new MailGatewaySmtp(loggerContext, mailConfiguration, mailSenderStub, bounceListener);
+        MailGatewaySmtp mailGatewaySmtp = new MailGatewaySmtp(loggerContext, mailConfiguration, mailSenderStub,
+                bounceListener);
         ReflectionTestUtils.setField(mailGatewaySmtp, "outgoingMailEnabled", true);
 
         when(mailConfiguration.getFrom()).thenReturn("from@from.to");
