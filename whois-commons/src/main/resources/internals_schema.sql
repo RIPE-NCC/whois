@@ -175,7 +175,7 @@ CREATE TABLE `environment` (
 
 DROP TABLE IF EXISTS `in_progress_message`;
 CREATE TABLE `in_progress_message` (
-   `messageId` varchar(80) NOT NULL,
+   `message_id` varchar(80) NOT NULL,
    `email` varchar(80) NOT NULL,
    `last_update` datetime NOT NULL,
    PRIMARY KEY (`messageId`)
