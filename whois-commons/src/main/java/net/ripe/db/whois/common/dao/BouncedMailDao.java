@@ -40,6 +40,7 @@ public class BouncedMailDao {
                     new RowMapper<>() {
                         @Override
                         public Boolean mapRow(ResultSet rs, int rowNum) throws SQLException {
+                            // TODO: if not email then there aren't any rows, instead check for resultset.next() == false
                             return !StringUtil.isNullOrEmpty(rs.getString(1));
                         }
                     },
@@ -54,6 +55,7 @@ public class BouncedMailDao {
                     new RowMapper<>() {
                         @Override
                         public Boolean mapRow(ResultSet rs, int rowNum) throws SQLException {
+                            // TODO: check rs.next() first
                             return !StringUtil.isNullOrEmpty(rs.getString(1));
                         }
                     },
