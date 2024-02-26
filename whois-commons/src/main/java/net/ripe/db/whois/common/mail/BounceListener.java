@@ -36,7 +36,7 @@ public class BounceListener {
                 public void messageDelivered(TransportEvent transportEvent) {
                     try {
                         final MimeMessage message = (MimeMessage) transportEvent.getMessage();
-                        cleanOnGoingMessage(message);
+                        cleanOnGoingMessageId(message);
                     } catch (MessagingException e) {
                         LOGGER.error("Error processing delivered message");
                     }
@@ -55,7 +55,7 @@ public class BounceListener {
                             bouncedMailDao.createBouncedEmail(bouncedEmail);
                             LOGGER.info("Bounced mail for {}", bouncedEmail);
                         }
-                        cleanOnGoingMessage(message);
+                        cleanOnGoingMessageId(message);
                     } catch (MessagingException e) {
                         LOGGER.error("Error processing not delivered message");
                     }
@@ -65,7 +65,7 @@ public class BounceListener {
                 public void messagePartiallyDelivered(TransportEvent transportEvent) {
                     try {
                         final MimeMessage message = (MimeMessage) transportEvent.getMessage();
-                        cleanOnGoingMessage(message);
+                        cleanOnGoingMessageId(message);
                     } catch (MessagingException e) {
                         LOGGER.error("Error processing partial delivered message");
                     }
@@ -84,7 +84,7 @@ public class BounceListener {
         bouncedMailDao.saveOnGoingMessageId(uniqueId, to);
     }
 
-    private void cleanOnGoingMessage(final MimeMessage message) throws MessagingException {
+    private void cleanOnGoingMessageId(final MimeMessage message) throws MessagingException {
         final String[] messageIds = message.getHeader(MESSAGE_ID_HEADER);
         if (messageIds.length > 1){
             LOGGER.error("This is a single mail sender service, this shouldn't happen");
