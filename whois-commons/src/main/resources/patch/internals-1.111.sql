@@ -10,7 +10,7 @@ CREATE TABLE `in_progress_message` (
      `message_id` varchar(80) NOT NULL,
      `email` varchar(80) NOT NULL,
      `last_update` datetime NOT NULL,
-     PRIMARY KEY (`messageId`)
+     PRIMARY KEY (`message_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
 
