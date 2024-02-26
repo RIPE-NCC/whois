@@ -34,6 +34,7 @@ public class BouncedMailDao {
         internalsMasterTemplate.update("INSERT INTO undeliverable_email (email, last_update) VALUES (?, ?)", email, LocalDateTime.now());
     }
 
+    // TODO: make sure email address is normalised (i.e. user@host and nothing else)
     public Boolean isBouncedEmail(final String email){
         try {
             return internalsTemplate.queryForObject("SELECT email from undeliverable_email where email = ?",
@@ -49,6 +50,7 @@ public class BouncedMailDao {
             return false;
         }
     }
+
     public Boolean onGoingMessageExist(final String messageId){
         try {
             return internalsTemplate.queryForObject("SELECT message_id from in_progress_message where message_id = ?",
