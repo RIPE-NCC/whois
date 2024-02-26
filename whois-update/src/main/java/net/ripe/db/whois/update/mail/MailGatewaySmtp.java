@@ -8,7 +8,6 @@ import net.ripe.db.whois.common.Messages;
 import net.ripe.db.whois.common.PunycodeConversion;
 import net.ripe.db.whois.common.aspects.RetryFor;
 import net.ripe.db.whois.common.mail.BounceListener;
-import net.ripe.db.whois.common.mail.CustomJavaMailSender;
 import net.ripe.db.whois.update.domain.ResponseMessage;
 import net.ripe.db.whois.update.log.LoggerContext;
 import org.apache.commons.lang.StringUtils;
@@ -34,7 +33,7 @@ public class MailGatewaySmtp implements MailGateway {
     private static final String MESSAGE_ID_HEADER = "Message-ID";
     private final LoggerContext loggerContext;
     private final MailConfiguration mailConfiguration;
-    private final CustomJavaMailSender mailSender;
+    private final JavaMailSender mailSender;
 
     private final BounceListener bouncedListener;
 
@@ -50,11 +49,11 @@ public class MailGatewaySmtp implements MailGateway {
                            final JavaMailSender mailSender, final BounceListener bouncedListener) {
         this.loggerContext = loggerContext;
         this.mailConfiguration = mailConfiguration;
-        this.mailSender = new CustomJavaMailSender(mailSender);
+        this.mailSender = mailSender;
         this.bouncedListener = bouncedListener;
 
-        setupBeforeSendListener();
-        setupReturnMailListener();
+        //setupBeforeSendListener();
+        //setupReturnMailListener();
     }
 
     @Override
@@ -137,7 +136,7 @@ public class MailGatewaySmtp implements MailGateway {
         }
     }
 
-    private void setupBeforeSendListener() {
+    /*private void setupBeforeSendListener() {
         this.mailSender.addEmailSendListener(new CustomJavaMailSender.EmailSendListener() {
             @Override
             public void beforeSend(MimeMessage message) {
@@ -148,7 +147,7 @@ public class MailGatewaySmtp implements MailGateway {
                 }
             }
         });
-    }
+    }*/
 
     private void setupReturnMailListener(){
         this.bouncedListener.createListener(this.mailSender, this.mailConfiguration.getFrom());
