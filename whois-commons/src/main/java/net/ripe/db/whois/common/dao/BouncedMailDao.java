@@ -49,7 +49,7 @@ public class BouncedMailDao {
             return false;
         }
     }
-    public Boolean onGoingMessageExist(final String uuid){
+    public Boolean onGoingMessageExist(final String messageId){
         try {
             return internalsTemplate.queryForObject("SELECT message_id from in_progress_message where message_id = ?",
                     new RowMapper<>() {
@@ -59,13 +59,29 @@ public class BouncedMailDao {
                             return !StringUtil.isNullOrEmpty(rs.getString(1));
                         }
                     },
-                    uuid);
+                    messageId);
         } catch (EmptyResultDataAccessException ex){
             return false;
         }
     }
 
-    public void deleteOnGoingMessage(final String uuid){
-        internalsMasterTemplate.update("DELETE FROM in_progress_message WHERE messageId = ?", uuid);
+    public String getEmailByMessageId(final String messageId){
+        try{
+            return internalsTemplate.queryForObject("SELECT email from in_progress_message where message_id = ?",
+                    new RowMapper<>() {
+                        @Override
+                        public String mapRow(ResultSet rs, int rowNum) throws SQLException {
+                            // TODO: check rs.next() first
+                            return rs.getString(1);
+                        }
+                    },
+                    messageId);
+        } catch (EmptyResultDataAccessException ex){
+            return null;
+        }
+    }
+
+    public void deleteOnGoingMessage(final String messageId){
+        internalsMasterTemplate.update("DELETE FROM in_progress_message WHERE messageId = ?", messageId);
     }
 }
