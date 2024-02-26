@@ -27,16 +27,16 @@ public class BouncedMailDao {
     }
 
     public void saveOnGoingMessageId(final String uuid, final String email){
-        internalsMasterTemplate.update("INSERT INTO in_progress_mail (messageId, e_mail, last_update) VALUES (?, ?, ?)", uuid, email, LocalDateTime.now());
+        internalsMasterTemplate.update("INSERT INTO in_progress_mail (messageId, email, last_update) VALUES (?, ?, ?)", uuid, email, LocalDateTime.now());
     }
 
     public void createBouncedEmail(final String email){
-        internalsMasterTemplate.update("INSERT INTO bounced_email_address (e_mail, last_update) VALUES (?, ?)", email, LocalDateTime.now());
+        internalsMasterTemplate.update("INSERT INTO bounced_email_address (email, last_update) VALUES (?, ?)", email, LocalDateTime.now());
     }
 
     public Boolean isBouncedEmail(final String email){
         try {
-            return internalsTemplate.queryForObject("SELECT e_mail from bounced_email_address where e_mail = ?",
+            return internalsTemplate.queryForObject("SELECT email from bounced_email_address where email = ?",
                     new RowMapper<>() {
                         @Override
                         public Boolean mapRow(ResultSet rs, int rowNum) throws SQLException {
