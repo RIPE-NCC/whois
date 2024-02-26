@@ -1,4 +1,6 @@
-// TODO: keep synchronised with internals_schema.sql
+--
+-- TODO: keep synchronised with internals_schema.sql
+--
 
 DROP TABLE IF EXISTS `bounced_mail`;
 DROP TABLE IF EXISTS `undeliverable_email`;
