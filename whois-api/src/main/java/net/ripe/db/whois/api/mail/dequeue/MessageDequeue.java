@@ -187,6 +187,8 @@ public class MessageDequeue implements ApplicationService {
     private void handleMessage(final String messageId) {
         final MimeMessage message = mailMessageDao.getMessage(messageId);
 
+        // TODO check bounced responses here
+
         try {
             loggerContext.init(getMessageIdLocalPart(message));
             try {
