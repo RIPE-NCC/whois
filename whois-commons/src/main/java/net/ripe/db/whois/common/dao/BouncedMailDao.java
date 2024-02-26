@@ -31,12 +31,12 @@ public class BouncedMailDao {
     }
 
     public void createBouncedEmail(final String email){
-        internalsMasterTemplate.update("INSERT INTO bounced_email_address (email, last_update) VALUES (?, ?)", email, LocalDateTime.now());
+        internalsMasterTemplate.update("INSERT INTO undeliverable_email (email, last_update) VALUES (?, ?)", email, LocalDateTime.now());
     }
 
     public Boolean isBouncedEmail(final String email){
         try {
-            return internalsTemplate.queryForObject("SELECT email from bounced_email_address where email = ?",
+            return internalsTemplate.queryForObject("SELECT email from undeliverable_email where email = ?",
                     new RowMapper<>() {
                         @Override
                         public Boolean mapRow(ResultSet rs, int rowNum) throws SQLException {

@@ -177,8 +177,8 @@ CREATE TABLE `in_progress_mail` (
    PRIMARY KEY (`messageId`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
-DROP TABLE IF EXISTS `bounced_email_address`;
-CREATE TABLE `bounced_email_address` (
+DROP TABLE IF EXISTS `undeliverable_email`;
+CREATE TABLE `undeliverable_email` (
    `email` varchar(80) NOT NULL,
    `last_update` datetime NOT NULL,
    PRIMARY KEY (`e_mail`)

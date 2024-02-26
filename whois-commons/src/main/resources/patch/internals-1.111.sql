@@ -10,7 +10,7 @@ CREATE TABLE `in_progress_mail` (
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
 
-CREATE TABLE `bounced_email_address` (
+CREATE TABLE `undeliverable_email` (
      `email` varchar(80) NOT NULL,
      `last_update` datetime NOT NULL,
      PRIMARY KEY (`email`)
