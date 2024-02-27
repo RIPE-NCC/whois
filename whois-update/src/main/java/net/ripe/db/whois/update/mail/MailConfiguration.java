@@ -48,6 +48,10 @@ public class MailConfiguration {
         properties.put("mail.smtp.host", smtpHost);
         properties.put("mail.smtp.port", smtpPort);
 
+        // TODO: [ES] enable Delivery Status Notifications so we get failure responses
+        // properties.put("mail.smtp.dsn.notify", "TODO");
+        // properties.put("mail.smtp.dsn.ret", "TODO");
+
         session = Session.getInstance(properties);
         session.setDebug(debug);
     }
