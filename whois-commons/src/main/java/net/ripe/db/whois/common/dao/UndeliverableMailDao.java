@@ -15,14 +15,14 @@ import java.sql.SQLException;
 import java.time.LocalDateTime;
 
 @Repository
-public class BouncedMailDao {
+public class UndeliverableMailDao {
 
     private final JdbcTemplate internalsMasterTemplate;
 
     private final JdbcTemplate internalsTemplate;
 
     @Autowired
-    public BouncedMailDao(@Qualifier("internalsDataSource") final DataSource internalsMasterDatasource, @Qualifier("internalsSlaveDataSource") final DataSource internalsDatasource) {
+    public UndeliverableMailDao(@Qualifier("internalsDataSource") final DataSource internalsMasterDatasource, @Qualifier("internalsSlaveDataSource") final DataSource internalsDatasource) {
         this.internalsMasterTemplate = new JdbcTemplate(internalsMasterDatasource);
         this.internalsTemplate = new JdbcTemplate(internalsDatasource);
     }
@@ -31,12 +31,12 @@ public class BouncedMailDao {
         internalsMasterTemplate.update("INSERT INTO in_progress_message (message_id, email, last_update) VALUES (?, ?, ?)", uuid, email, LocalDateTime.now());
     }
 
-    public void createBouncedEmail(final String email){
+    public void createUndeliverableEmail(final String email){
         internalsMasterTemplate.update("INSERT INTO undeliverable_email (email, last_update) VALUES (?, ?)", email, LocalDateTime.now());
     }
 
     // TODO: make sure email address is normalised (i.e. user@host and nothing else)
-    public Boolean isBouncedEmail(final String email){
+    public Boolean isUndeliverableEmail(final String email){
         try {
             return internalsTemplate.queryForObject("SELECT email from undeliverable_email where email = ?",
                     new RowMapper<>() {
