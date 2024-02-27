@@ -11,7 +11,6 @@ import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
-import java.io.ByteArrayInputStream;
 import java.util.Properties;
 
 import static org.hamcrest.CoreMatchers.containsString;
@@ -82,54 +81,11 @@ public class MailBounceTestIntegration extends AbstractIntegrationTest {
 
         // TODO: generate bounce reply to Whois for notify-dummy-role@ripe.net
 
-        // TODO: original message-id is *not* in the reply
-        final MimeMessage bounceMessage = new MimeMessage(SESSION, new ByteArrayInputStream((
-                "Return-path: <>\n" +
-                "Envelope-to: auto-dbm@ripe.net\n" +
-                "Delivery-date: Tue, 16 Feb 2016 10:18:49 +0100\n" +
-                "Received: by bogus.localdomain (sSMTP sendmail emulation); Fri, 24 Aug 2012 11:52:53 -0400\n" +
-                "Message-Id: <e39bf6$om6or1@s4de8nsazdfe010.ripe.net>\n" +
-                "Date: 16 Feb 2016 10:17:29 +0100\n" +
-                "To: auto-dbm@ripe.net\n" +
-                "From: \"Mail Delivery System\" <MAILER-DAEMON@bogus.localdomain>\n" +
-                "Subject: Delivery Status Notification (Failure)\n" +
-                "MIME-Version: 1.0\n" +
-                "Content-Type: multipart/report; report-type=delivery-status; boundary=\"nOsDR.5Az+QGeGV.2E/OdDVjIfq.2DVyKAZ\"\n" +
-                "Delivered-To: auto-dbm@ripe.net\n" +
-                "\n" +
-                "--nOsDR.5Az+QGeGV.2E/OdDVjIfq.2DVyKAZ\n" +
-                "content-type: text/plain;\n" +
-                "    charset=\"us-ascii\"\n" +
-                "Content-Transfer-Encoding: quoted-printable\n" +
-                "\n" +
-                "The following message to <notify-dummy-role@ripe.net> was undeliverable.\n" +
-                "The reason for the problem:\n" +
-                "5.3.0 - Other mail system problem 554-'Too many hops'\n" +
-                "\n" +
-                "--nOsDR.5Az+QGeGV.2E/OdDVjIfq.2DVyKAZ\n" +
-                "content-type: message/delivery-status\n" +
-                "\n" +
-                "Reporting-MTA: dns; s4de8nsazdfe010.bogus.localdomain\n" +
-                "\n" +
-                "Final-Recipient: rfc822;notify-dummy-role@ripe.net\n" +
-                "Action: failed\n" +
-                "Status: 5.0.0 (permanent failure)\n" +
-                "Remote-MTA: dns; [1.2.3.44]\n" +
-                "Diagnostic-Code: smtp; 5.3.0 - Other mail system problem 554-'Too many hops' (delivery attempts: 0)\n" +
-                "\n" +
-                "--nOsDR.5Az+QGeGV.2E/OdDVjIfq.2DVyKAZ\n" +
-                "content-type: message/rfc822\n" +
-                "\n" +
-                "--nOsDR.5Az+QGeGV.2E/OdDVjIfq.2DVyKAZ--\n" +
-                "\n" +
-                "\n").getBytes()));
-
-
-        mailUpdatesTestSupport.insert(bounceMessage);
-
-        // TODO: poll undeliverable table as update is asynchronous
-        // check that address gets marked as undeliverable
-        assertThat(isUndeliverableAddress("notify-dummy-role@ripe.net"), is(false));
+//        mailUpdatesTestSupport.insert(bounceMessage);
+//
+//        // TODO: poll undeliverable table as update is asynchronous
+//        // check that address gets marked as undeliverable
+//        assertThat(isUndeliverableAddress("notify-dummy-role@ripe.net"), is(false));
     }
 
     @Test
@@ -169,6 +125,9 @@ public class MailBounceTestIntegration extends AbstractIntegrationTest {
 
         // TODO: Also test that email is *not* sent to that undeliverable address, even if the format is different (e.g. user@HOST.org)
     }
+
+    // TODO: test permanent failure without original message-id
+    // permanentFailureWithoutMessageId.mail
 
     // helper methods
 
