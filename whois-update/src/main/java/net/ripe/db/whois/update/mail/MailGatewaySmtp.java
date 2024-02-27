@@ -1,5 +1,7 @@
 package net.ripe.db.whois.update.mail;
 
+import jakarta.mail.MessagingException;
+import jakarta.mail.internet.MimeMessage;
 import net.ripe.db.whois.common.Message;
 import net.ripe.db.whois.common.Messages;
 import net.ripe.db.whois.common.PunycodeConversion;
@@ -93,8 +95,7 @@ public class MailGatewaySmtp implements MailGateway {
                 message.setSubject(subject);
                 message.setText(text);
 
-                mimeMessage.addHeader("Precedence", "bulk");
-                mimeMessage.addHeader("Auto-Submitted", "auto-generated");
+                setHeaders(mimeMessage, mimeMessage.getMessageID());
 
                 loggerContext.log("msg-out.txt", new MailMessageLogCallback(mimeMessage));
             });
@@ -107,5 +108,12 @@ public class MailGatewaySmtp implements MailGateway {
                 loggerContext.log(new Message(Messages.Type.ERROR, "Not retrying sending mail to %s with subject %s", to, subject));
             }
         }
+    }
+
+    private void setHeaders(final MimeMessage mimeMessage, final String messageId) throws MessagingException {
+        mimeMessage.addHeader("Precedence", "bulk");
+        mimeMessage.addHeader("Auto-Submitted", "auto-generated");
+        mimeMessage.addHeader("List-Unsubscribe", "https://apps.db.ripe.net/db-web-ui/unsubscribe/" + messageId);
+        mimeMessage.addHeader("List-Unsubscribe-Post", "List-Unsubscribe=One-Click");
     }
 }
