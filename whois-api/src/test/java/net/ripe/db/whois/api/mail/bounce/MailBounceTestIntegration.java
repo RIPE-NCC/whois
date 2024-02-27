@@ -82,12 +82,13 @@ public class MailBounceTestIntegration extends AbstractIntegrationTest {
 
         // TODO: generate bounce reply to Whois for notify-dummy-role@ripe.net
 
-        final MimeMessage bounceMessage = new MimeMessage(SESSION, new ByteArrayInputStream(String.format(
+        // TODO: original message-id is *not* in the reply
+        final MimeMessage bounceMessage = new MimeMessage(SESSION, new ByteArrayInputStream((
                 "Return-path: <>\n" +
                 "Envelope-to: auto-dbm@ripe.net\n" +
                 "Delivery-date: Tue, 16 Feb 2016 10:18:49 +0100\n" +
                 "Received: by bogus.localdomain (sSMTP sendmail emulation); Fri, 24 Aug 2012 11:52:53 -0400\n" +
-                "Message-Id: %s\n" +      // TODO: does the failure reply have the same message-id as the outgoing message?
+                "Message-Id: <e39bf6$om6or1@s4de8nsazdfe010.ripe.net>\n" +
                 "Date: 16 Feb 2016 10:17:29 +0100\n" +
                 "To: auto-dbm@ripe.net\n" +
                 "From: \"Mail Delivery System\" <MAILER-DAEMON@bogus.localdomain>\n" +
@@ -121,13 +122,12 @@ public class MailBounceTestIntegration extends AbstractIntegrationTest {
                 "\n" +
                 "--nOsDR.5Az+QGeGV.2E/OdDVjIfq.2DVyKAZ--\n" +
                 "\n" +
-                "\n", notifyMessageId).getBytes()));
+                "\n").getBytes()));
 
 
         mailUpdatesTestSupport.insert(bounceMessage);
 
         // TODO: poll undeliverable table as update is asynchronous
-
         // check that address gets marked as undeliverable
         assertThat(isUndeliverableAddress("notify-dummy-role@ripe.net"), is(false));
     }
@@ -152,15 +152,22 @@ public class MailBounceTestIntegration extends AbstractIntegrationTest {
         final MimeMessage acknowledgement = mailSenderStub.getMessage(from);
         assertThat(acknowledgement.getContent().toString(), containsString("Create SUCCEEDED: [role] DR1-TEST   dummy role"));
 
-        // test that no mail is sent to nonexistant@ripe.net
+        // test that no notification mail is sent to nonexistant@ripe.net
         assertThat(mailSenderStub.anyMoreMessages(), is(false));
     }
 
     @Test
     public void delayed_delivery_is_not_permanent_undeliverable() throws Exception {
 
-        // TODO: make sure that a delayed delivery message doesn't cause the address to be marked as undeliverable
+        // TODO: make sure that a *delayed* delivery message doesn't cause the address to be marked as undeliverable
 
+    }
+
+    @Test
+    public void full_email_address_is_normalised() {
+        // TODO: expect address to be normalised in undeliverable table if undeliverable, e.g. "First Last <USER@host.org>" is stored as "user@host.org"
+
+        // TODO: Also test that email is *not* sent to that undeliverable address, even if the format is different (e.g. user@HOST.org)
     }
 
     // helper methods
