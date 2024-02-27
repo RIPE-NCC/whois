@@ -67,6 +67,7 @@ public class BouncedMailDao {
         }
     }
 
+    @Nullable
     public String getEmailByMessageId(final String messageId){
         try{
             return internalsTemplate.queryForObject("SELECT email from in_progress_message where message_id = ?",
