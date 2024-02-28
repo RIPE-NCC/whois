@@ -13,7 +13,6 @@ import org.awaitility.Awaitility;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.annotation.Profile;
-import org.springframework.mail.javamail.JavaMailSenderImpl;
 import org.springframework.mail.javamail.MimeMessagePreparator;
 import org.springframework.stereotype.Component;
 
@@ -27,7 +26,7 @@ import java.util.concurrent.TimeUnit;
 
 @Profile({WhoisProfile.TEST})
 @Component
-public class MailSenderStub extends JavaMailSenderImpl implements Stub {
+public class MailSenderStub extends MailSenderBase implements Stub {
     private static final Logger LOGGER = LoggerFactory.getLogger(MailSenderStub.class);
 
     private static final Session SESSION = Session.getInstance(new Properties());

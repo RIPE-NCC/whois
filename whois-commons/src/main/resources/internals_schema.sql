@@ -173,8 +173,8 @@ CREATE TABLE `environment` (
 -- TODO: keep synchronised with patch internals-1.111.sql
 --
 
-DROP TABLE IF EXISTS `in_progress_message`;
-CREATE TABLE `in_progress_message` (
+DROP TABLE IF EXISTS `outgoing_message`;
+CREATE TABLE `outgoing_message` (
    `message_id` varchar(80) NOT NULL,
    `email` varchar(80) NOT NULL,
    `last_update` datetime NOT NULL,

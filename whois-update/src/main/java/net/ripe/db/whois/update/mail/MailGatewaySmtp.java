@@ -1,9 +1,12 @@
 package net.ripe.db.whois.update.mail;
 
+import jakarta.mail.MessagingException;
+import jakarta.mail.internet.MimeMessage;
 import net.ripe.db.whois.common.Message;
 import net.ripe.db.whois.common.Messages;
 import net.ripe.db.whois.common.PunycodeConversion;
 import net.ripe.db.whois.common.aspects.RetryFor;
+import net.ripe.db.whois.common.dao.UndeliverableMailDao;
 import net.ripe.db.whois.update.domain.ResponseMessage;
 import net.ripe.db.whois.update.log.LoggerContext;
 import org.apache.commons.lang.StringUtils;
@@ -36,11 +39,15 @@ public class MailGatewaySmtp implements MailGateway {
     @Value("${mail.smtp.retrySending:true}")
     private boolean retrySending;
 
+    private final UndeliverableMailDao undeliverableMailDao;
+
     @Autowired
-    public MailGatewaySmtp(final LoggerContext loggerContext, final MailConfiguration mailConfiguration, final JavaMailSender mailSender) {
+    public MailGatewaySmtp(final LoggerContext loggerContext, final MailConfiguration mailConfiguration,
+                           final JavaMailSender mailSender, final UndeliverableMailDao undeliverableMailDao) {
         this.loggerContext = loggerContext;
         this.mailConfiguration = mailConfiguration;
         this.mailSender = mailSender;
+        this.undeliverableMailDao = undeliverableMailDao;
     }
 
     @Override
@@ -93,8 +100,7 @@ public class MailGatewaySmtp implements MailGateway {
                 message.setSubject(subject);
                 message.setText(text);
 
-                mimeMessage.addHeader("Precedence", "bulk");
-                mimeMessage.addHeader("Auto-Submitted", "auto-generated");
+                setHeaders(mimeMessage, createMessageId(to));
 
                 loggerContext.log("msg-out.txt", new MailMessageLogCallback(mimeMessage));
             });
@@ -107,5 +113,18 @@ public class MailGatewaySmtp implements MailGateway {
                 loggerContext.log(new Message(Messages.Type.ERROR, "Not retrying sending mail to %s with subject %s", to, subject));
             }
         }
+    }
+
+    private String createMessageId(final String toEmail){
+        // Generate a unique Message-ID
+        final String messageId = "<" + System.currentTimeMillis() + "." + Math.random() + "@ripe.com>";
+        undeliverableMailDao.saveOutGoingMessageId(messageId, toEmail);
+        return messageId;
+    }
+
+    private void setHeaders(final MimeMessage mimeMessage, final String messageId) throws MessagingException {
+        mimeMessage.addHeader("Precedence", "bulk");
+        mimeMessage.addHeader("Auto-Submitted", "auto-generated");
+        mimeMessage.addHeader("Message-Id", messageId);
     }
 }

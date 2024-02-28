@@ -27,8 +27,8 @@ public class UndeliverableMailDao {
         this.internalsTemplate = new JdbcTemplate(internalsDatasource);
     }
 
-    public void saveOnGoingMessageId(final String uuid, final String email){
-        internalsMasterTemplate.update("INSERT INTO in_progress_message (message_id, email, last_update) VALUES (?, ?, ?)", uuid, email, LocalDateTime.now());
+    public void saveOutGoingMessageId(final String uuid, final String email){
+        internalsMasterTemplate.update("INSERT INTO outgoing_message (message_id, email, last_update) VALUES (?, ?, ?)", uuid, email, LocalDateTime.now());
     }
 
     public void createUndeliverableEmail(final String email){
@@ -52,9 +52,9 @@ public class UndeliverableMailDao {
         }
     }
 
-    public Boolean onGoingMessageExist(final String messageId){
+    public Boolean outGoingMessageExist(final String messageId){
         try {
-            return internalsTemplate.queryForObject("SELECT message_id from in_progress_message where message_id = ?",
+            return internalsTemplate.queryForObject("SELECT message_id from outgoing_message where message_id = ?",
                     new RowMapper<>() {
                         @Override
                         public Boolean mapRow(ResultSet rs, int rowNum) throws SQLException {
@@ -71,7 +71,7 @@ public class UndeliverableMailDao {
     @Nullable
     public String getEmailByMessageId(final String messageId){
         try{
-            return internalsTemplate.queryForObject("SELECT email from in_progress_message where message_id = ?",
+            return internalsTemplate.queryForObject("SELECT email from outgoing_message where message_id = ?",
                     new RowMapper<>() {
                         @Override
                         public String mapRow(ResultSet rs, int rowNum) throws SQLException {
@@ -85,7 +85,7 @@ public class UndeliverableMailDao {
         }
     }
 
-    public void deleteOnGoingMessage(final String messageId){
-        internalsMasterTemplate.update("DELETE FROM in_progress_message WHERE messageId = ?", messageId);
+    public void deleteOutGoingMessage(final String messageId){
+        internalsMasterTemplate.update("DELETE FROM outgoing_message WHERE messageId = ?", messageId);
     }
 }
