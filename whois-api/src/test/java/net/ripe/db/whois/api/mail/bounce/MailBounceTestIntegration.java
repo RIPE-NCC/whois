@@ -4,6 +4,7 @@ import jakarta.mail.internet.MimeMessage;
 import net.ripe.db.whois.api.AbstractIntegrationTest;
 import net.ripe.db.whois.api.MailUpdatesTestSupport;
 import net.ripe.db.whois.api.MimeMessageProvider;
+import net.ripe.db.whois.common.dao.jdbc.DatabaseHelper;
 import net.ripe.db.whois.update.mail.MailSenderStub;
 import org.awaitility.Awaitility;
 import org.hamcrest.Matchers;
@@ -84,7 +85,34 @@ public class MailBounceTestIntegration extends AbstractIntegrationTest {
     }
 
     @Test
-    public void dont_send_mail_to_undeliverable_address() throws Exception {
+    public void do_send_notification_mail_to_deliverable_address() throws Exception {
+        final String role =
+                "role:        dummy role\n" +
+                "address:       Singel 258\n" +
+                "e-mail:        dummyrole@ripe.net\n" +
+                "phone:         +31 6 12345678\n" +
+                "notify:        Non Existant <nonexistant@ripe.net>\n" +
+                "nic-hdl:       DR1-TEST\n" +
+                "mnt-by:        OWNER-MNT\n" +
+                "source:        TEST\n";
+
+        // send message to mailupdates
+        final String from = insertIncomingMessage("NEW", role + "\npassword: test\n");
+
+        // read reply from mailupdates
+        final MimeMessage acknowledgement = mailSenderStub.getMessage(from);
+        assertThat(acknowledgement.getContent().toString(), containsString("Create SUCCEEDED: [role] DR1-TEST   dummy role"));
+
+        DatabaseHelper.dumpSchema(internalsTemplate.getDataSource());   // TODO
+
+        // make sure that normalised email address is stored in outgoing messages table
+        assertThat(getOutgoingMessageId("nonexistant@ripe.net"), is("X"));
+
+        // TODO: test that notification mail message is sent to nonexistant@ripe.net
+    }
+
+    @Test
+    public void dont_send_notification_mail_to_undeliverable_address() throws Exception {
         final String role =
                 "role:        dummy role\n" +
                 "address:       Singel 258\n" +
@@ -98,8 +126,10 @@ public class MailBounceTestIntegration extends AbstractIntegrationTest {
         // mark address as undeliverable
         insertUndeliverableAddress("nonexistant@ripe.net");
 
-        // send message and read reply
+        // send message to mailupdates
         final String from = insertIncomingMessage("NEW", role + "\npassword: test\n");
+
+        // read reply from mailupdates
         final MimeMessage acknowledgement = mailSenderStub.getMessage(from);
         assertThat(acknowledgement.getContent().toString(), containsString("Create SUCCEEDED: [role] DR1-TEST   dummy role"));
 
@@ -107,10 +137,11 @@ public class MailBounceTestIntegration extends AbstractIntegrationTest {
         assertThat(mailSenderStub.anyMoreMessages(), is(false));
     }
 
+
     @Test
     public void delayed_delivery_is_not_permanently_undeliverable() {
         // insert delayed response
-        insertOutgoingMessage("XXXXXXXX-734E-496B-AD3F-84D3425A7F27", "enduser@host.org");
+        insertOutgoingMessageId("XXXXXXXX-734E-496B-AD3F-84D3425A7F27", "enduser@host.org");
         final MimeMessage message = MimeMessageProvider.getUpdateMessage("messageDelayedRfc822Headers.mail");
         insertIncomingMessage(message);
 
@@ -131,6 +162,13 @@ public class MailBounceTestIntegration extends AbstractIntegrationTest {
     // TODO: test permanent failure without original message-id
     // permanentFailureWithoutMessageId.mail
 
+    // TODO: test permanent failure with message/rfc822 part
+    // permanentFailureMessageRfc822.mail
+
+    // TODO: test permanent failure with text/rfc822-headers part
+    // permanentFailureRfc822Headers.mail
+
+
     // helper methods
 
     private void insertUndeliverableAddress(final String emailAddress) {
@@ -144,9 +182,14 @@ public class MailBounceTestIntegration extends AbstractIntegrationTest {
 
     // TODO: extend MailSenderStub to also update outgoing_message table ?
 
-    private void insertOutgoingMessage(final String messageId, final String emailAddress) {
+    private void insertOutgoingMessageId(final String messageId, final String emailAddress) {
         databaseHelper.getInternalsTemplate().update(
                 "INSERT INTO outgoing_message (message_id, email) VALUES (?, ?)", messageId, emailAddress);
+    }
+
+    private String getOutgoingMessageId(final String emailAddress) {
+        return databaseHelper.getInternalsTemplate().queryForObject(
+                "SELECT message_id FROM outgoing_message WHERE email = ?", String.class, emailAddress);
     }
 
     private void insertIncomingMessage(final MimeMessage message) {
