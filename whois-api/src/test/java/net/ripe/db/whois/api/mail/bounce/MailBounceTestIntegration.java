@@ -76,8 +76,8 @@ public class MailBounceTestIntegration extends AbstractIntegrationTest {
         assertThat(notifyMessageId, Matchers.is(not(nullValue())));
 
         // TODO: generate bounce reply to Whois for notify-dummy-role@ripe.net. That address should be marked as undeliverable
-
-//        mailUpdatesTestSupport.insert(bounceMessage);
+        // TODO: Add the messageId of permanentFailureMessageRfc822 in ongoing message exist
+        mailUpdatesTestSupport.insert(MimeMessageProvider.getUpdateMessage("permanentFailureMessageRfc822.mail"));
 //
 //        // TODO: poll undeliverable table as update is asynchronous
 //        // check that address gets marked as undeliverable

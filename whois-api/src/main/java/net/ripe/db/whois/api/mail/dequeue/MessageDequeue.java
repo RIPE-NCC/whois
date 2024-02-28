@@ -10,6 +10,7 @@ import net.ripe.db.whois.common.ApplicationService;
 import net.ripe.db.whois.common.DateTimeProvider;
 import net.ripe.db.whois.common.MaintenanceMode;
 import net.ripe.db.whois.common.Messages;
+import net.ripe.db.whois.common.mail.BounceEmailsDetector;
 import net.ripe.db.whois.update.domain.DequeueStatus;
 import net.ripe.db.whois.update.domain.Update;
 import net.ripe.db.whois.update.domain.UpdateContext;
@@ -63,6 +64,8 @@ public class MessageDequeue implements ApplicationService {
     @Value("${mail.dequeue.interval:1000}")
     private int intervalMs;
 
+    private final BounceEmailsDetector bounceEmailsDetector;
+
     @Autowired
     public MessageDequeue(final MaintenanceMode maintenanceMode,
                           final MailGateway mailGateway,
@@ -72,7 +75,8 @@ public class MessageDequeue implements ApplicationService {
                           final UpdatesParser updatesParser,
                           final UpdateRequestHandler messageHandler,
                           final LoggerContext loggerContext,
-                          final DateTimeProvider dateTimeProvider) {
+                          final DateTimeProvider dateTimeProvider,
+                          final BounceEmailsDetector bounceEmailsDetector) {
         this.maintenanceMode = maintenanceMode;
         this.mailGateway = mailGateway;
         this.mailMessageDao = mailMessageDao;
@@ -82,6 +86,7 @@ public class MessageDequeue implements ApplicationService {
         this.messageHandler = messageHandler;
         this.loggerContext = loggerContext;
         this.dateTimeProvider = dateTimeProvider;
+        this.bounceEmailsDetector = bounceEmailsDetector;
     }
 
 
@@ -186,8 +191,7 @@ public class MessageDequeue implements ApplicationService {
 
     private void handleMessage(final String messageId) {
         final MimeMessage message = mailMessageDao.getMessage(messageId);
-
-        // TODO check bounced responses here
+        bounceEmailsDetector.checkMailBounced(message);
 
         try {
             loggerContext.init(getMessageIdLocalPart(message));

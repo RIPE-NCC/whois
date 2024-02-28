@@ -118,6 +118,7 @@ public class MailGatewaySmtp implements MailGateway {
     private String createMessageId(final String toEmail){
         // Generate a unique Message-ID
         final String messageId = "<" + System.currentTimeMillis() + "." + Math.random() + "@ripe.com>";
+        //TODO Review toEmail normalised
         undeliverableMailDao.saveOutGoingMessageId(messageId, toEmail);
         return messageId;
     }
