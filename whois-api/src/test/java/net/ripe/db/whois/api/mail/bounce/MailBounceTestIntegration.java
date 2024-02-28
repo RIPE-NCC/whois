@@ -1,17 +1,18 @@
 package net.ripe.db.whois.api.mail.bounce;
 
-import jakarta.mail.Session;
 import jakarta.mail.internet.MimeMessage;
 import net.ripe.db.whois.api.AbstractIntegrationTest;
 import net.ripe.db.whois.api.MailUpdatesTestSupport;
+import net.ripe.db.whois.api.MimeMessageProvider;
 import net.ripe.db.whois.update.mail.MailSenderStub;
+import org.awaitility.Awaitility;
 import org.hamcrest.Matchers;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
-import java.util.Properties;
+import java.util.concurrent.TimeUnit;
 
 import static org.hamcrest.CoreMatchers.containsString;
 import static org.hamcrest.CoreMatchers.is;
@@ -22,13 +23,10 @@ import static org.hamcrest.Matchers.nullValue;
 @Tag("IntegrationTest")
 public class MailBounceTestIntegration extends AbstractIntegrationTest {
 
-    private static final Session SESSION = Session.getInstance(new Properties());
-
     @Autowired
     private MailSenderStub mailSenderStub;
     @Autowired
     private MailUpdatesTestSupport mailUpdatesTestSupport;
-
 
     @BeforeEach
     public void setup() {
@@ -54,9 +52,6 @@ public class MailBounceTestIntegration extends AbstractIntegrationTest {
                 "source:        TEST");
     }
 
-
-    // TODO: generate bounce reply to mailupdate. That address should be marked as undeliverable
-
     @Test
     public void bouncing_mail_causes_address_to_be_marked_as_undeliverable() throws Exception {
         final String role =
@@ -70,7 +65,7 @@ public class MailBounceTestIntegration extends AbstractIntegrationTest {
                 "source:        TEST\n";
 
         // send message and read reply
-        final String from = mailUpdatesTestSupport.insert("NEW", role + "\npassword: test\n");
+        final String from = insertIncomingMessage("NEW", role + "\npassword: test\n");
         final MimeMessage acknowledgement = mailSenderStub.getMessage(from);
         assertThat(acknowledgement.getContent().toString(), containsString("Create SUCCEEDED: [role] DR1-TEST   dummy role"));
 
@@ -79,7 +74,7 @@ public class MailBounceTestIntegration extends AbstractIntegrationTest {
         final String notifyMessageId = notify.getHeader("Message-ID", "\n");
         assertThat(notifyMessageId, Matchers.is(not(nullValue())));
 
-        // TODO: generate bounce reply to Whois for notify-dummy-role@ripe.net
+        // TODO: generate bounce reply to Whois for notify-dummy-role@ripe.net. That address should be marked as undeliverable
 
 //        mailUpdatesTestSupport.insert(bounceMessage);
 //
@@ -101,10 +96,10 @@ public class MailBounceTestIntegration extends AbstractIntegrationTest {
                 "source:        TEST\n";
 
         // mark address as undeliverable
-        setUndeliverableAddress("nonexistant@ripe.net");
+        insertUndeliverableAddress("nonexistant@ripe.net");
 
         // send message and read reply
-        final String from = mailUpdatesTestSupport.insert("NEW", role + "\npassword: test\n");
+        final String from = insertIncomingMessage("NEW", role + "\npassword: test\n");
         final MimeMessage acknowledgement = mailSenderStub.getMessage(from);
         assertThat(acknowledgement.getContent().toString(), containsString("Create SUCCEEDED: [role] DR1-TEST   dummy role"));
 
@@ -113,10 +108,17 @@ public class MailBounceTestIntegration extends AbstractIntegrationTest {
     }
 
     @Test
-    public void delayed_delivery_is_not_permanent_undeliverable() throws Exception {
+    public void delayed_delivery_is_not_permanently_undeliverable() {
+        // insert delayed response
+        insertOutgoingMessage("XXXXXXXX-734E-496B-AD3F-84D3425A7F27", "enduser@host.org");
+        final MimeMessage message = MimeMessageProvider.getUpdateMessage("messageDelayedRfc822Headers.mail");
+        insertIncomingMessage(message);
 
-        // TODO: make sure that a *delayed* delivery message doesn't cause the address to be marked as undeliverable
+        // wait for incoming message to be processed
+        Awaitility.waitAtMost(10L, TimeUnit.SECONDS).until(() -> (! anyIncomingMessages()));
 
+        // delayed message has been processed but address is not set to undeliverable
+        assertThat(isUndeliverableAddress("enduser@host.org"), is(false));
     }
 
     @Test
@@ -131,13 +133,32 @@ public class MailBounceTestIntegration extends AbstractIntegrationTest {
 
     // helper methods
 
-    private void setUndeliverableAddress(final String emailAddress) {
+    private void insertUndeliverableAddress(final String emailAddress) {
         databaseHelper.getInternalsTemplate().update(
-                "INSERT INTO undeliverable_email (email, last_update) VALUES (?, now())", emailAddress);
+                "INSERT INTO undeliverable_email (email) VALUES (?)", emailAddress);
     }
 
     private boolean isUndeliverableAddress(final String emailAddress) {
-        return Boolean.TRUE.equals(databaseHelper.getInternalsTemplate().queryForObject("SELECT email FROM undeliverable_email WHERE email = ?", (rs, rowNum) -> rs.next(), emailAddress));
+        return Boolean.TRUE.equals(databaseHelper.getInternalsTemplate().query("SELECT email FROM undeliverable_email WHERE email = ?", (rs, rowNum) -> rs.next(), emailAddress));
+    }
+
+    // TODO: extend MailSenderStub to also update outgoing_message table ?
+
+    private void insertOutgoingMessage(final String messageId, final String emailAddress) {
+        databaseHelper.getInternalsTemplate().update(
+                "INSERT INTO outgoing_message (message_id, email) VALUES (?, ?)", messageId, emailAddress);
+    }
+
+    private void insertIncomingMessage(final MimeMessage message) {
+        mailUpdatesTestSupport.insert(message);
+    }
+
+    private String insertIncomingMessage(final String subject, final String body) {
+        return mailUpdatesTestSupport.insert(subject, body);
+    }
+
+    private boolean anyIncomingMessages() {
+        return Boolean.TRUE.equals(databaseHelper.getMailupdatesTemplate().query("SELECT message FROM mailupdates", (rs, rowNum) -> rs.next()));
     }
 
 }
