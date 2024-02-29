@@ -79,8 +79,8 @@ public class MailBounceTestIntegration extends AbstractIntegrationTest {
         final MimeMessage message = MimeMessageProvider.getUpdateMessage("permanentFailureMessageRfc822.mail");
         insertIncomingMessage(message);
 
-        // wait for incoming message to be processed
         Awaitility.waitAtMost(10L, TimeUnit.SECONDS).until(() -> (! anyIncomingMessages()));
+        // wait for incoming message to be processed
 
         assertThat(isUndeliverableAddress("notify-dummy-role@ripe.net"), is(true));
     }
@@ -178,7 +178,8 @@ public class MailBounceTestIntegration extends AbstractIntegrationTest {
     }
 
     private boolean isUndeliverableAddress(final String emailAddress) {
-        return Boolean.TRUE.equals(databaseHelper.getInternalsTemplate().query("SELECT email FROM undeliverable_email WHERE email = ?", (rs, rowNum) -> rs.next(), emailAddress));
+        return databaseHelper.getInternalsTemplate().query("SELECT count(email) FROM undeliverable_email WHERE email= ?",
+                (rs, rowNum) -> rs.getInt(1), emailAddress).size() == 1;
     }
 
     // TODO: extend MailSenderStub to also update outgoing_message table ?
@@ -204,5 +205,5 @@ public class MailBounceTestIntegration extends AbstractIntegrationTest {
     private boolean anyIncomingMessages() {
         return Boolean.TRUE.equals(databaseHelper.getMailupdatesTemplate().query("SELECT message FROM mailupdates", (rs, rowNum) -> rs.next()));
     }
-    
+
 }

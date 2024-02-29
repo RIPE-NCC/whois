@@ -52,22 +52,6 @@ public class UndeliverableMailDao {
         }
     }
 
-    public Boolean outGoingMessageExist(final String messageId){
-        try {
-            return internalsTemplate.queryForObject("SELECT message_id from outgoing_message where message_id = ?",
-                    new RowMapper<>() {
-                        @Override
-                        public Boolean mapRow(ResultSet rs, int rowNum) throws SQLException {
-                            // TODO: check rs.next() first
-                            return !StringUtil.isNullOrEmpty(rs.getString(1));
-                        }
-                    },
-                    messageId);
-        } catch (EmptyResultDataAccessException ex){
-            return false;
-        }
-    }
-
     @Nullable
     public String getEmailByMessageId(final String messageId){
         try{
@@ -85,7 +69,4 @@ public class UndeliverableMailDao {
         }
     }
 
-    public void deleteOutGoingMessage(final String messageId){
-        internalsMasterTemplate.update("DELETE FROM outgoing_message WHERE messageId = ?", messageId);
-    }
 }

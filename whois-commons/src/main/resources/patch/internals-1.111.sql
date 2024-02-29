@@ -2,7 +2,7 @@
 -- TODO: keep synchronised with internals_schema.sql
 --
 
-DROP TABLE IF EXISTS `bounced_mail`;
+DROP TABLE IF EXISTS `outgoing_message`;
 DROP TABLE IF EXISTS `undeliverable_email`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
