@@ -75,13 +75,14 @@ public class MailBounceTestIntegration extends AbstractIntegrationTest {
         final String notifyMessageId = notify.getHeader("Message-ID", "\n");
         assertThat(notifyMessageId, Matchers.is(not(nullValue())));
 
-        // TODO: generate bounce reply to Whois for notify-dummy-role@ripe.net. That address should be marked as undeliverable
-        // TODO: Add the messageId of permanentFailureMessageRfc822 in ongoing message exist
-        mailUpdatesTestSupport.insert(MimeMessageProvider.getUpdateMessage("permanentFailureMessageRfc822.mail"));
-//
-//        // TODO: poll undeliverable table as update is asynchronous
-//        // check that address gets marked as undeliverable
-//        assertThat(isUndeliverableAddress("notify-dummy-role@ripe.net"), is(false));
+        insertOutgoingMessageId("XXXXXXXX-5AE3-4C58-8E3F-860327BA955D@ripe.net", "notify-dummy-role@ripe.net");
+        final MimeMessage message = MimeMessageProvider.getUpdateMessage("permanentFailureMessageRfc822.mail");
+        insertIncomingMessage(message);
+
+        // wait for incoming message to be processed
+        Awaitility.waitAtMost(10L, TimeUnit.SECONDS).until(() -> (! anyIncomingMessages()));
+
+        assertThat(isUndeliverableAddress("notify-dummy-role@ripe.net"), is(true));
     }
 
     @Test
@@ -203,5 +204,5 @@ public class MailBounceTestIntegration extends AbstractIntegrationTest {
     private boolean anyIncomingMessages() {
         return Boolean.TRUE.equals(databaseHelper.getMailupdatesTemplate().query("SELECT message FROM mailupdates", (rs, rowNum) -> rs.next()));
     }
-
+    
 }

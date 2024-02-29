@@ -1,5 +1,6 @@
 package net.ripe.db.whois.common.mail;
 
+import io.netty.util.internal.StringUtil;
 import jakarta.mail.MessagingException;
 import jakarta.mail.Multipart;
 import jakarta.mail.Part;
@@ -43,15 +44,17 @@ public class BounceEmailsDetector {
             return;
         }
 
-        if (!undeliverableMailDao.outGoingMessageExist(messageRelevantInformation.getMessageId())){
-            return;
-        }
-
         if (messageRelevantInformation.getReturnPath() != null && !hasSenderAsReturnPath(messageRelevantInformation)){
             return;
         }
 
-        undeliverableMailDao.createUndeliverableEmail(messageRelevantInformation.getTo());
+        final String email = undeliverableMailDao.getEmailByMessageId(messageRelevantInformation.getMessageId());
+
+        if (StringUtil.isNullOrEmpty(email)){
+            return;
+        }
+
+        undeliverableMailDao.createUndeliverableEmail(email);
     }
 
     private boolean isUndeliveredReport(final MimeMessage message){
@@ -95,7 +98,6 @@ public class BounceEmailsDetector {
                             final String[] splitLine = line.split(BODY_DELIMITED, 2);
                             switch (splitLine[0]) {
                                 case "Message-Id" -> messageInfo.setMessageId(splitLine[1].trim());
-                                case "To" -> messageInfo.setTo(splitLine[1].trim());
                                 case "From" -> messageInfo.setFrom(splitLine[1].trim());
                                 case "Return-path" -> messageInfo.setReturnPath(splitLine[1].trim());
                                 case "Action" -> messageInfo.setAction(splitLine[1].trim());
@@ -118,9 +120,9 @@ public class BounceEmailsDetector {
 
             if (part.isMimeType("multipart/*")){
                 final Multipart multipart = (Multipart) part.getContent();
-                //TODO: we must securify this, the user can send a message with a million of secureParts. We need to
+                //TODO: we must securify this, the user can send a message with a million of multiParts. We need to
                 // check what is the maximum parts that we can get in a normal message and return null in case
-                // getCount() is higher that this value
+                // getCount() is higher that this value -> There is no fixed limit defined in the MIME specification (RFC 2046)
                 for (int multiPartPosition = 0; multiPartPosition < multipart.getCount(); multiPartPosition++){
                     fillWithRelevantParts(multipart.getBodyPart(multiPartPosition), mimeParts);
                     if (mimeParts.size() == 2){
@@ -139,9 +141,6 @@ public class BounceEmailsDetector {
 
     private static class MessageInfo {
         private String messageId;
-
-        private String to;
-
         private String from;
 
         private String returnPath;
@@ -152,10 +151,6 @@ public class BounceEmailsDetector {
 
         public String getAction() {
             return action;
-        }
-
-        public String getTo() {
-            return to;
         }
 
         public String getFrom() {
@@ -170,15 +165,11 @@ public class BounceEmailsDetector {
         }
 
         public void setMessageId(String messageId) {
-            this.messageId = messageId;
-        }
-
-        public void setTo(String to) {
-            this.to = to;
+            this.messageId = MailUtil.extractContentBetweenAngleBrackets(messageId);
         }
 
         public void setFrom(String from) {
-            this.from = MailUtil.normaliseEmail(from);
+            this.from = MailUtil.extractContentBetweenAngleBrackets(from);
         }
 
         public void setReturnPath(String returnPath) {
@@ -190,7 +181,7 @@ public class BounceEmailsDetector {
         }
 
         public boolean isInvalidMessage(){
-            return this.messageId == null || this.to == null || this.from == null || this.action == null;
+            return this.messageId == null || this.from == null || this.action == null;
         }
     }
 }
