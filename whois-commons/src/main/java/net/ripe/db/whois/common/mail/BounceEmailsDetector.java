@@ -70,7 +70,8 @@ public class BounceEmailsDetector {
     }
 
     private boolean hasSenderAsReturnPath(final MessageInfo messageRelevantInformation){
-        return messageRelevantInformation.getFrom().equals(messageRelevantInformation.getReturnPath());
+        return MailUtil.extractContentBetweenAngleBrackets(messageRelevantInformation.getFrom())
+                .equals(MailUtil.extractContentBetweenAngleBrackets(messageRelevantInformation.getReturnPath()));
     }
 
     private static class MessageInformationExtractor {

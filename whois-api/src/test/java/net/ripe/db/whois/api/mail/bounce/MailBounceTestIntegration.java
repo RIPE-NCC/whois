@@ -1,10 +1,12 @@
 package net.ripe.db.whois.api.mail.bounce;
 
+import jakarta.mail.MessagingException;
 import jakarta.mail.internet.MimeMessage;
 import net.ripe.db.whois.api.AbstractIntegrationTest;
 import net.ripe.db.whois.api.MailUpdatesTestSupport;
 import net.ripe.db.whois.api.MimeMessageProvider;
 import net.ripe.db.whois.common.dao.jdbc.DatabaseHelper;
+import net.ripe.db.whois.update.mail.MailGatewaySmtp;
 import net.ripe.db.whois.update.mail.MailSenderStub;
 import org.awaitility.Awaitility;
 import org.hamcrest.Matchers;
@@ -13,6 +15,7 @@ import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
+import java.io.IOException;
 import java.util.concurrent.TimeUnit;
 
 import static org.hamcrest.CoreMatchers.containsString;
@@ -28,6 +31,9 @@ public class MailBounceTestIntegration extends AbstractIntegrationTest {
     private MailSenderStub mailSenderStub;
     @Autowired
     private MailUpdatesTestSupport mailUpdatesTestSupport;
+
+    @Autowired
+    private MailGatewaySmtp mailGatewaySmtp;
 
     @BeforeEach
     public void setup() {
@@ -106,9 +112,10 @@ public class MailBounceTestIntegration extends AbstractIntegrationTest {
         DatabaseHelper.dumpSchema(internalsTemplate.getDataSource());   // TODO
 
         // make sure that normalised email address is stored in outgoing messages table
-        assertThat(getOutgoingMessageId("nonexistant@ripe.net"), is("X"));
+        assertThat(countOutgoingForAddress("nonexistant@ripe.net"), is(1));
 
-        // TODO: test that notification mail message is sent to nonexistant@ripe.net
+        // test that there is a notification mail sent to nonexistant@ripe.net
+        assertThat(mailSenderStub.anyMoreMessages(), is(true));
     }
 
     @Test
@@ -153,20 +160,71 @@ public class MailBounceTestIntegration extends AbstractIntegrationTest {
     }
 
     @Test
-    public void full_email_address_is_normalised() {
-        // TODO: expect address to be normalised in undeliverable table if undeliverable, e.g. "First Last <USER@host.org>" is stored as "user@host.org"
+    public void full_email_address_is_normalised() throws MessagingException, IOException {
+        final String role =
+                "role:        dummy role\n" +
+                        "address:       Singel 258\n" +
+                        "e-mail:        dummyrole@ripe.net\n" +
+                        "phone:         +31 6 12345678\n" +
+                        "notify:        Non Existant <nonexistant@ripe.net>\n" +
+                        "nic-hdl:       DR1-TEST\n" +
+                        "mnt-by:        OWNER-MNT\n" +
+                        "source:        TEST\n";
 
-        // TODO: Also test that email is *not* sent to that undeliverable address, even if the format is different (e.g. user@HOST.org)
+        // send message to mailupdates
+        final String from = insertIncomingMessage("NEW", role + "\npassword: test\n");
+
+        final MimeMessage acknowledgement = mailSenderStub.getMessage(from);
+        assertThat(acknowledgement.getContent().toString(), containsString("Create SUCCEEDED: [role] DR1-TEST   dummy role"));
+
+        // make sure that normalised email address is stored in outgoing messages table
+        assertThat(countOutgoingForAddress("nonexistant@ripe.net"), is(1));
+
+        //Match the message Id with the message Id of the bounced email
+        updateOutgoingMessageIdForEmail("XXXXXXXX-5AE3-4C58-8E3F-860327BA955D@ripe.net", "nonexistant@ripe.net");
+
+        final MimeMessage message = MimeMessageProvider.getUpdateMessage("permanentFailureMessageRfc822.mail");
+        insertIncomingMessage(message);
+
+        // make sure that normalised email address is stored in undelivered messages table
+        Awaitility.waitAtMost(10L, TimeUnit.SECONDS).until(() -> (isUndeliverableAddress("nonexistant@ripe.net")));
+
+        //Clean previous messages from mailsender
+        mailSenderStub.reset();
+
+        //Create an email to nonexistant@ripe.net
+        mailGatewaySmtp.sendEmail("nonEXISTANT@ripe.net", "subject", "test", "email.org");
+
+        // test that no notification mail is sent to nonexistant@ripe.net
+        assertThat(mailSenderStub.anyMoreMessages(), is(false));
     }
 
-    // TODO: test permanent failure without original message-id
-    // permanentFailureWithoutMessageId.mail
 
-    // TODO: test permanent failure with message/rfc822 part
-    // permanentFailureMessageRfc822.mail
+    @Test
+    public void invalid_email_do_not_causes_address_to_be_marked_as_undeliverable() {
+        final MimeMessage message = MimeMessageProvider.getUpdateMessage("permanentFailureWithoutMessageId.mail");
+        insertIncomingMessage(message);
 
-    // TODO: test permanent failure with text/rfc822-headers part
-    // permanentFailureRfc822Headers.mail
+        // wait for incoming message to be processed
+        Awaitility.waitAtMost(10L, TimeUnit.SECONDS).until(() -> (! anyIncomingMessages()));
+
+        assertThat(countUndeliverableAddresses(), is(0));
+    }
+
+
+    @Test
+    public void bouncing_headers_causes_address_to_be_marked_as_undeliverable() {
+        insertOutgoingMessageId("XXXXXXXX-2BCC-4B29-9D86-3B8C68DD835D@ripe.net", "notify-dummy-role@ripe.net");
+        final MimeMessage message = MimeMessageProvider.getUpdateMessage("permanentFailureRfc822Headers.mail");
+        insertIncomingMessage(message);
+
+        // Wait for address to be marked as undeliverable
+        Awaitility.waitAtMost(10L, TimeUnit.SECONDS).until(() -> (isUndeliverableAddress("notify-dummy-role@ripe.net")));
+    }
+
+
+    // TODO: test that acknowledgement email (i.e. the reply to an incoming message) *is* sent to unsubscribed address
+
 
 
     // helper methods
@@ -177,20 +235,25 @@ public class MailBounceTestIntegration extends AbstractIntegrationTest {
     }
 
     private boolean isUndeliverableAddress(final String emailAddress) {
-        return databaseHelper.getInternalsTemplate().query("SELECT count(email) FROM undeliverable_email WHERE email= ?",
-                (rs, rowNum) -> rs.getInt(1), emailAddress).size() == 1;
+        return databaseHelper.getInternalsTemplate().queryForObject("SELECT count(email) FROM undeliverable_email WHERE email= ?",
+                (rs, rowNum) -> rs.getInt(1), emailAddress) == 1;
     }
 
-    // TODO: extend MailSenderStub to also update outgoing_message table ?
 
     private void insertOutgoingMessageId(final String messageId, final String emailAddress) {
         databaseHelper.getInternalsTemplate().update(
                 "INSERT INTO outgoing_message (message_id, email) VALUES (?, ?)", messageId, emailAddress);
     }
 
-    private String getOutgoingMessageId(final String emailAddress) {
-        return databaseHelper.getInternalsTemplate().queryForObject(
-                "SELECT message_id FROM outgoing_message WHERE email = ?", String.class, emailAddress);
+    private int countUndeliverableAddresses(){
+        return databaseHelper.getInternalsTemplate().queryForObject("SELECT count(email) FROM undeliverable_email", Integer.class);
+    }
+    private int countOutgoingForAddress(final String emailAddress) {
+        return databaseHelper.getInternalsTemplate().queryForObject("SELECT count(message_id) FROM outgoing_message WHERE email = ?", Integer.class, emailAddress);
+    }
+
+    private void updateOutgoingMessageIdForEmail(final String messageId, final String email){
+        databaseHelper.getInternalsTemplate().update("UPDATE outgoing_message SET message_id = ? WHERE email = ?", messageId, email);
     }
 
     private void insertIncomingMessage(final MimeMessage message) {
