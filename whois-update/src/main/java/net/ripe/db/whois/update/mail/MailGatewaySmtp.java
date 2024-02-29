@@ -43,13 +43,17 @@ public class MailGatewaySmtp implements MailGateway {
 
     private final UndeliverableMailDao undeliverableMailDao;
 
+    private final String bouncesHandlerAddress;
+
     @Autowired
     public MailGatewaySmtp(final LoggerContext loggerContext, final MailConfiguration mailConfiguration,
-                           final JavaMailSender mailSender, final UndeliverableMailDao undeliverableMailDao) {
+                           final JavaMailSender mailSender, final UndeliverableMailDao undeliverableMailDao,
+                           @Value("${bounce.handler.address:}") final String bouncesHandlerAddress) {
         this.loggerContext = loggerContext;
         this.mailConfiguration = mailConfiguration;
         this.mailSender = mailSender;
         this.undeliverableMailDao = undeliverableMailDao;
+        this.bouncesHandlerAddress = bouncesHandlerAddress;
     }
 
     @Override
@@ -137,7 +141,7 @@ public class MailGatewaySmtp implements MailGateway {
     private String createMessageId(final String toEmail){
         final String messageId = String.format("%s@ripe.net", UUID.randomUUID());
         undeliverableMailDao.saveOutGoingMessageId(messageId, MailUtil.extractContentBetweenAngleBrackets(toEmail));
-        return messageId;
+        return String.format("<%s>", messageId);
     }
 
     private void setHeaders(final MimeMessage mimeMessage, final String messageId) throws MessagingException {
@@ -146,6 +150,6 @@ public class MailGatewaySmtp implements MailGateway {
         mimeMessage.addHeader("Message-Id", messageId);
         mimeMessage.addHeader("List-Unsubscribe", "https://apps.db.ripe.net/db-web-ui/unsubscribe/" + messageId);
         mimeMessage.addHeader("List-Unsubscribe-Post", "List-Unsubscribe=One-Click");
-        //envelope the address that we are using to receive messages auto-dbm@ripe.net
+        mimeMessage.addHeader("Envelope-From", String.format("<%s>", bouncesHandlerAddress));
     }
 }

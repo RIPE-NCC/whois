@@ -8,6 +8,8 @@ import jakarta.mail.internet.MimeMessage;
 import jakarta.mail.internet.MimePart;
 import net.ripe.db.whois.common.dao.UndeliverableMailDao;
 import org.apache.commons.compress.utils.Lists;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -20,6 +22,7 @@ import java.util.List;
 @Component
 public class BounceEmailsDetector {
 
+    private final static Logger LOGGER = LoggerFactory.getLogger(BounceEmailsDetector.class);
     private final UndeliverableMailDao undeliverableMailDao;
 
     private static final String ERROR_REPORT_HEADER_VALUE = "multipart/report; report-type=delivery-status;";
@@ -44,6 +47,7 @@ public class BounceEmailsDetector {
             return;
         }
 
+        LOGGER.info("Return path value is " + messageRelevantInformation.getReturnPath());
         if (messageRelevantInformation.getReturnPath() != null && !hasSenderAsReturnPath(messageRelevantInformation)){
             return;
         }
