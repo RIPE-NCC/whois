@@ -178,8 +178,7 @@ public class BounceEmailsDetector {
         }
 
         public void setFrom(String from) {
-            //TODO format from, get the email between <>
-            this.from = from;
+            this.from = MailUtil.normaliseEmail(from);
         }
 
         public void setReturnPath(String returnPath) {

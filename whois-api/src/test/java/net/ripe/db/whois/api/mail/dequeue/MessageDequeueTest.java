@@ -10,6 +10,7 @@ import net.ripe.db.whois.api.mail.MailMessage;
 import net.ripe.db.whois.api.mail.dao.MailMessageDao;
 import net.ripe.db.whois.common.DateTimeProvider;
 import net.ripe.db.whois.common.MaintenanceMode;
+import net.ripe.db.whois.common.mail.BounceEmailsDetector;
 import net.ripe.db.whois.update.domain.DequeueStatus;
 import net.ripe.db.whois.update.domain.Keyword;
 import net.ripe.db.whois.update.domain.UpdateContext;
@@ -69,6 +70,8 @@ public class MessageDequeueTest {
     @Mock LoggerContext loggerContext;
     @Mock UpdateLog updateLog;
     @Mock DateTimeProvider dateTimeProvider;
+
+    @Mock BounceEmailsDetector bounceEmailsDetector;
     @InjectMocks MessageDequeue subject;
 
     @BeforeEach

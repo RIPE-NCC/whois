@@ -7,6 +7,7 @@ import net.ripe.db.whois.common.Messages;
 import net.ripe.db.whois.common.PunycodeConversion;
 import net.ripe.db.whois.common.aspects.RetryFor;
 import net.ripe.db.whois.common.dao.UndeliverableMailDao;
+import net.ripe.db.whois.common.mail.MailUtil;
 import net.ripe.db.whois.update.domain.ResponseMessage;
 import net.ripe.db.whois.update.log.LoggerContext;
 import org.apache.commons.lang.StringUtils;
@@ -116,10 +117,8 @@ public class MailGatewaySmtp implements MailGateway {
     }
 
     private String createMessageId(final String toEmail){
-        // Generate a unique Message-ID
         final String messageId = "<" + System.currentTimeMillis() + "." + Math.random() + "@ripe.com>";
-        //TODO Review toEmail normalised
-        undeliverableMailDao.saveOutGoingMessageId(messageId, toEmail);
+        undeliverableMailDao.saveOutGoingMessageId(messageId, MailUtil.normaliseEmail(toEmail));
         return messageId;
     }
 
