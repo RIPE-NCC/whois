@@ -65,24 +65,23 @@ public class MailBounceTestIntegration extends AbstractIntegrationTest {
                 "mnt-by:        OWNER-MNT\n" +
                 "source:        TEST\n";
 
-        // send message and read reply
+        // send message and read acknowledgement reply
         final String from = insertIncomingMessage("NEW", role + "\npassword: test\n");
         final MimeMessage acknowledgement = mailSenderStub.getMessage(from);
         assertThat(acknowledgement.getContent().toString(), containsString("Create SUCCEEDED: [role] DR1-TEST   dummy role"));
 
-        // Outgoing mail to notify-dummy-role@ripe.net
+        // Outgoing notification email to notify-dummy-role@ripe.net
         final MimeMessage notify = mailSenderStub.getMessage("notify-dummy-role@ripe.net");
         final String notifyMessageId = notify.getHeader("Message-ID", "\n");
         assertThat(notifyMessageId, Matchers.is(not(nullValue())));
 
+        // Generate failure response for notification
         insertOutgoingMessageId("XXXXXXXX-5AE3-4C58-8E3F-860327BA955D@ripe.net", "notify-dummy-role@ripe.net");
         final MimeMessage message = MimeMessageProvider.getUpdateMessage("permanentFailureMessageRfc822.mail");
         insertIncomingMessage(message);
 
-        Awaitility.waitAtMost(10L, TimeUnit.SECONDS).until(() -> (! anyIncomingMessages()));
-        // wait for incoming message to be processed
-
-        assertThat(isUndeliverableAddress("notify-dummy-role@ripe.net"), is(true));
+        // Wait for address to be marked as undeliverable
+        Awaitility.waitAtMost(10L, TimeUnit.SECONDS).until(() -> (isUndeliverableAddress("notify-dummy-role@ripe.net")));
     }
 
     @Test

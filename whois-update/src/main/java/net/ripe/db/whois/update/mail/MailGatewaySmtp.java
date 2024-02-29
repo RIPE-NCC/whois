@@ -22,6 +22,7 @@ import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.Nullable;
+import java.util.UUID;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -72,6 +73,8 @@ public class MailGatewaySmtp implements MailGateway {
 
                 return;
             }
+
+            //TODO acknowledgment should be sent even if the user is unsubscribe
             if (undeliverableMailDao.isUndeliverableEmail(MailUtil.extractContentBetweenAngleBrackets(to))){
                 LOGGER.debug("" +
                         "Email appears in undeliverable list\n" +
@@ -122,6 +125,7 @@ public class MailGatewaySmtp implements MailGateway {
         } catch (MailSendException e) {
             loggerContext.log(new Message(Messages.Type.ERROR, "Caught %s: %s", e.getClass().getName(), e.getMessage()));
             LOGGER.error(String.format("Unable to send mail message to: %s", to), e);
+            //TODO acknoledgement should be sent even if the user is unsubscribe
             if (retrySending && !undeliverableMailDao.isUndeliverableEmail(MailUtil.extractContentBetweenAngleBrackets(to))) {
                 throw e;
             } else {
@@ -131,7 +135,7 @@ public class MailGatewaySmtp implements MailGateway {
     }
 
     private String createMessageId(final String toEmail){
-        final String messageId = System.currentTimeMillis() + "." + Math.random() + "@ripe.com";
+        final String messageId = String.format("%s@ripe.net", UUID.randomUUID());
         undeliverableMailDao.saveOutGoingMessageId(messageId, MailUtil.extractContentBetweenAngleBrackets(toEmail));
         return messageId;
     }
@@ -140,5 +144,6 @@ public class MailGatewaySmtp implements MailGateway {
         mimeMessage.addHeader("Precedence", "bulk");
         mimeMessage.addHeader("Auto-Submitted", "auto-generated");
         mimeMessage.addHeader("Message-Id", messageId);
+        //envelope the address that we are using to receive messages auto-dbm@ripe.net
     }
 }
