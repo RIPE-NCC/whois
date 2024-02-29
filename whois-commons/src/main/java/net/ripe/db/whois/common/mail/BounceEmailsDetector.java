@@ -47,7 +47,7 @@ public class BounceEmailsDetector {
             return;
         }
 
-        LOGGER.info("Return path value is " + messageRelevantInformation.getReturnPath());
+        LOGGER.info("Return path value is {}", messageRelevantInformation.getReturnPath());
         if (messageRelevantInformation.getReturnPath() != null && !hasSenderAsReturnPath(messageRelevantInformation)){
             return;
         }

@@ -91,7 +91,7 @@ public class MailGatewaySmtpTest {
     @Test
     public void checkRecipientAddressesArePunycoded() throws Exception {
         MailSenderStub mailSenderStub = new MailSenderStub();
-        MailGatewaySmtp mailGatewaySmtp = new MailGatewaySmtp(loggerContext, mailConfiguration, mailSenderStub, undeliverableMailDao, "bounce-handler@ripe.net");
+        MailGatewaySmtp mailGatewaySmtp = new MailGatewaySmtp(loggerContext, mailConfiguration, mailSenderStub, undeliverableMailDao);
         ReflectionTestUtils.setField(mailGatewaySmtp, "outgoingMailEnabled", true);
 
         when(mailConfiguration.getFrom()).thenReturn("from@from.to");

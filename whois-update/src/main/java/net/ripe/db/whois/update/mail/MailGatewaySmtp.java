@@ -43,17 +43,14 @@ public class MailGatewaySmtp implements MailGateway {
 
     private final UndeliverableMailDao undeliverableMailDao;
 
-    private final String bouncesHandlerAddress;
 
     @Autowired
     public MailGatewaySmtp(final LoggerContext loggerContext, final MailConfiguration mailConfiguration,
-                           final JavaMailSender mailSender, final UndeliverableMailDao undeliverableMailDao,
-                           @Value("${bounce.handler.address:}") final String bouncesHandlerAddress) {
+                           final JavaMailSender mailSender, final UndeliverableMailDao undeliverableMailDao) {
         this.loggerContext = loggerContext;
         this.mailConfiguration = mailConfiguration;
         this.mailSender = mailSender;
         this.undeliverableMailDao = undeliverableMailDao;
-        this.bouncesHandlerAddress = bouncesHandlerAddress;
     }
 
     @Override
@@ -150,6 +147,5 @@ public class MailGatewaySmtp implements MailGateway {
         mimeMessage.addHeader("Message-Id", messageId);
         mimeMessage.addHeader("List-Unsubscribe", "https://apps.db.ripe.net/db-web-ui/unsubscribe/" + messageId);
         mimeMessage.addHeader("List-Unsubscribe-Post", "List-Unsubscribe=One-Click");
-        mimeMessage.addHeader("Envelope-From", String.format("<%s>", bouncesHandlerAddress));
     }
 }
