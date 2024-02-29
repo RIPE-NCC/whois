@@ -6,7 +6,6 @@ import net.ripe.db.whois.api.AbstractIntegrationTest;
 import net.ripe.db.whois.api.MailUpdatesTestSupport;
 import net.ripe.db.whois.api.MimeMessageProvider;
 import net.ripe.db.whois.common.dao.jdbc.DatabaseHelper;
-import net.ripe.db.whois.update.mail.MailGatewaySmtp;
 import net.ripe.db.whois.update.mail.MailSenderStub;
 import org.awaitility.Awaitility;
 import org.hamcrest.Matchers;
@@ -32,8 +31,6 @@ public class MailBounceTestIntegration extends AbstractIntegrationTest {
     @Autowired
     private MailUpdatesTestSupport mailUpdatesTestSupport;
 
-    @Autowired
-    private MailGatewaySmtp mailGatewaySmtp;
 
     @BeforeEach
     public void setup() {
@@ -171,6 +168,16 @@ public class MailBounceTestIntegration extends AbstractIntegrationTest {
                         "mnt-by:        OWNER-MNT\n" +
                         "source:        TEST\n";
 
+        final String dr2role =
+                "role:        dummy role1\n" +
+                        "address:       Singel test 258\n" +
+                        "e-mail:        dummyrole@ripe.net\n" +
+                        "phone:         +31 6 12345678\n" +
+                        "notify:        Non Existant <nonEXISTANT@ripe.net>\n" +
+                        "nic-hdl:       DR2-TEST\n" +
+                        "mnt-by:        OWNER-MNT\n" +
+                        "source:        TEST\n";
+
         // send message to mailupdates
         final String from = insertIncomingMessage("NEW", role + "\npassword: test\n");
 
@@ -192,10 +199,12 @@ public class MailBounceTestIntegration extends AbstractIntegrationTest {
         //Clean previous messages from mailsender
         mailSenderStub.reset();
 
-        //Create an email to nonexistant@ripe.net
-        mailGatewaySmtp.sendEmail("nonEXISTANT@ripe.net", "subject", "test", "email.org");
+        // send message to mailupdates for undeliverabled address
+        final String secondCreation = insertIncomingMessage("NEW", dr2role + "\npassword: test\n");
+        final MimeMessage secondAcknowledgement = mailSenderStub.getMessage(secondCreation);
+        assertThat(secondAcknowledgement.getContent().toString(), containsString("Create SUCCEEDED: [role] DR2-TEST   dummy role"));
 
-        // test that no notification mail is sent to nonexistant@ripe.net
+        // test that no notification mail is sent to nonEXISTANT@ripe.net
         assertThat(mailSenderStub.anyMoreMessages(), is(false));
     }
 

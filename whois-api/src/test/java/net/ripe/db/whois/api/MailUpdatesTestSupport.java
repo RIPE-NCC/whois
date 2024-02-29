@@ -56,6 +56,7 @@ public class MailUpdatesTestSupport {
         }
     }
 
+
     private void addMessage(final String from, final String to, final String subject, final String body) throws MessagingException {
         LOGGER.info("Send email from address {} with subject {}", from, subject);
 
