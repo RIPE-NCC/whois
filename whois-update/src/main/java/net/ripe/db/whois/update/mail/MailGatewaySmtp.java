@@ -72,6 +72,20 @@ public class MailGatewaySmtp implements MailGateway {
 
                 return;
             }
+            if (undeliverableMailDao.isUndeliverableEmail(MailUtil.normaliseEmail(to))){
+                LOGGER.debug("" +
+                        "Email appears in undeliverable list\n" +
+                        "\n" +
+                        "to      : {}\n" +
+                        "reply-to : {}\n" +
+                        "subject : {}\n" +
+                        "\n" +
+                        "{}\n" +
+                        "\n" +
+                        "\n", to, replyTo, subject, text);
+
+                return;
+            }
 
         try {
             final Matcher matcher = INVALID_EMAIL_PATTERN.matcher(to);
@@ -108,7 +122,7 @@ public class MailGatewaySmtp implements MailGateway {
         } catch (MailSendException e) {
             loggerContext.log(new Message(Messages.Type.ERROR, "Caught %s: %s", e.getClass().getName(), e.getMessage()));
             LOGGER.error(String.format("Unable to send mail message to: %s", to), e);
-            if (retrySending) {
+            if (retrySending && !undeliverableMailDao.isUndeliverableEmail(MailUtil.normaliseEmail(to))) {
                 throw e;
             } else {
                 loggerContext.log(new Message(Messages.Type.ERROR, "Not retrying sending mail to %s with subject %s", to, subject));
