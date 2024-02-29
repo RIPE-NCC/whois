@@ -144,6 +144,8 @@ public class MailGatewaySmtp implements MailGateway {
         mimeMessage.addHeader("Precedence", "bulk");
         mimeMessage.addHeader("Auto-Submitted", "auto-generated");
         mimeMessage.addHeader("Message-Id", messageId);
+        mimeMessage.addHeader("List-Unsubscribe", "https://apps.db.ripe.net/db-web-ui/unsubscribe/" + messageId);
+        mimeMessage.addHeader("List-Unsubscribe-Post", "List-Unsubscribe=One-Click");
         //envelope the address that we are using to receive messages auto-dbm@ripe.net
     }
 }
