@@ -12,6 +12,9 @@ import net.ripe.db.whois.api.mail.BouncedMessage;
 import org.eclipse.angus.mail.dsn.DeliveryStatus;
 import org.eclipse.angus.mail.dsn.MultipartReport;
 import org.eclipse.angus.mail.dsn.Report;
+import org.elasticsearch.common.Strings;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.Nullable;
@@ -22,9 +25,16 @@ public class BouncedMessageParser {
 
     private static final ContentType MULTIPART_REPORT = contentType("multipart/report");
 
+    private final boolean enabled;
+
+    @Autowired
+    public BouncedMessageParser(@Value("${mail.smtp.from:}") final String smtpFrom) {
+        this.enabled = Strings.hasLength(smtpFrom);
+    }
+
     @Nullable
     public BouncedMessage parse(final MimeMessage message) throws MessagingException, IOException {
-        if (isMultipartReport(message)) {
+        if (enabled && isMultipartReport(message)) {
             final MultipartReport multipartReport = multipartReport(message.getContent());
             if (isReportDeliveryStatus(multipartReport)) {
                 final DeliveryStatus deliveryStatus = deliveryStatus(message);

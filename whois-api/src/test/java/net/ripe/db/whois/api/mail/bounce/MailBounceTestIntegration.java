@@ -8,6 +8,8 @@ import net.ripe.db.whois.api.MimeMessageProvider;
 import net.ripe.db.whois.update.mail.MailSenderStub;
 import org.awaitility.Awaitility;
 import org.hamcrest.Matchers;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
@@ -30,6 +32,17 @@ public class MailBounceTestIntegration extends AbstractIntegrationTest {
     @Autowired
     private MailUpdatesTestSupport mailUpdatesTestSupport;
 
+    @BeforeAll
+    public static void setSmtpFrom() {
+        // Email address to use for SMTP MAIL command. This sets the envelope return address.
+        // Ref. https://javaee.github.io/javamail/docs/api/com/sun/mail/smtp/package-summary.html
+        System.setProperty("mail.smtp.from", "bounce-handler@ripe.net");
+    }
+
+    @AfterAll
+    public static void clearSmtpFrom() {
+        System.clearProperty("mail.smtp.from");
+    }
 
     @BeforeEach
     public void setup() {

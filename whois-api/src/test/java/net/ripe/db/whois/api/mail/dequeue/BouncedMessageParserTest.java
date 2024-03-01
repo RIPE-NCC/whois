@@ -2,9 +2,9 @@ package net.ripe.db.whois.api.mail.dequeue;
 
 import net.ripe.db.whois.api.MimeMessageProvider;
 import net.ripe.db.whois.api.mail.BouncedMessage;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.InjectMocks;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import static org.hamcrest.CoreMatchers.is;
@@ -15,7 +15,12 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 @ExtendWith(MockitoExtension.class)
 public class BouncedMessageParserTest {
 
-    @InjectMocks BouncedMessageParser subject;
+    private BouncedMessageParser subject;
+
+    @BeforeEach
+    public void setup() {
+        this.subject = new BouncedMessageParser("bounce-handler@ripe.net");
+    }
 
     @Test
     public void parse_permanent_delivery_failure_message_rfc822() throws Exception {
