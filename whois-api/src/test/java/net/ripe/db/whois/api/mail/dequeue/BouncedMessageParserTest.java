@@ -39,7 +39,7 @@ public class BouncedMessageParserTest {
             subject.parse(MimeMessageProvider.getUpdateMessage("permanentFailureWithoutMessageId.mail"));
         });
 
-        assertThat(e.getMessage(), is("No header Message-Id"));
+        assertThat(e.getMessage(), is("No Message-Id header"));
     }
 
     @Test

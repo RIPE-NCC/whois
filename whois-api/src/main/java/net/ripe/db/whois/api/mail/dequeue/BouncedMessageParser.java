@@ -1,10 +1,8 @@
 package net.ripe.db.whois.api.mail.dequeue;
 
-import jakarta.mail.BodyPart;
-import jakarta.mail.Header;
+import jakarta.mail.Address;
 import jakarta.mail.MessagingException;
 import jakarta.mail.Part;
-import jakarta.mail.Session;
 import jakarta.mail.internet.AddressException;
 import jakarta.mail.internet.ContentType;
 import jakarta.mail.internet.InternetAddress;
@@ -18,17 +16,11 @@ import org.springframework.stereotype.Component;
 
 import javax.annotation.Nullable;
 import java.io.IOException;
-import java.util.Enumeration;
-import java.util.Properties;
 
 @Component
 public class BouncedMessageParser {
 
-    private static final Session SESSION = Session.getInstance(new Properties());
-
     private static final ContentType MULTIPART_REPORT = contentType("multipart/report");
-    private static final ContentType MESSAGE_RFC822 = contentType("message/rfc822");
-    private static final ContentType RFC822_HEADERS = contentType("text/rfc822-headers");
 
     @Nullable
     public BouncedMessage parse(final MimeMessage message) throws MessagingException, IOException {
@@ -37,21 +29,23 @@ public class BouncedMessageParser {
             if (isReportDeliveryStatus(multipartReport)) {
                 final DeliveryStatus deliveryStatus = deliveryStatus(message);
                 if (isFailed(deliveryStatus)) {
-                    for (int i=0; i < multipartReport.getCount(); i++) {
-                        final BodyPart part = multipartReport.getBodyPart(i);
-                        final ContentType partContentType = contentType(part.getContentType());
-                        if ((MESSAGE_RFC822.match(partContentType) || RFC822_HEADERS.match(partContentType))) {
-                            final MimeMessage partBody = new MimeMessage(SESSION, part.getInputStream());
-                            final String messageId = getAddress(getHeaderValue(partBody.getAllHeaders(), "Message-Id"));
-                            final String to = getAddress(getHeaderValue(partBody.getAllHeaders(), "To"));
-                            return new BouncedMessage(to, messageId);
-                        }
-                    }
+                    final MimeMessage returnedMessage = multipartReport.getReturnedMessage();
+                    final String messageId = getMessageId(returnedMessage.getMessageID());
+                    final String recipient = getFirstAddress(returnedMessage.getAllRecipients());
+                    return new BouncedMessage(recipient, messageId);
                 }
             }
         }
 
         return null;
+    }
+
+    @Nullable
+    private String getFirstAddress(final Address[] addresses) {
+        if (addresses == null || addresses.length == 0) {
+            throw new IllegalStateException("No address");
+        }
+        return addresses[0].toString();
     }
 
     private boolean isMultipartReport(final MimeMessage message) throws MessagingException {
@@ -95,14 +89,11 @@ public class BouncedMessageParser {
         return (values != null && values.length > 0) ? values[0] : null;
     }
 
-    private String getHeaderValue(final Enumeration<Header> headers, final String name) {
-        while (headers.hasMoreElements()) {
-            final Header header = headers.nextElement();
-            if (name.equals(header.getName())) {
-                return header.getValue();
-            }
+    private final String getMessageId(final String messageId) {
+        if (messageId == null) {
+            throw new IllegalStateException("No Message-Id header");
         }
-        throw new IllegalStateException("No header " + name);
+        return getAddress(messageId);
     }
 
     private final String getAddress(final String address) {
