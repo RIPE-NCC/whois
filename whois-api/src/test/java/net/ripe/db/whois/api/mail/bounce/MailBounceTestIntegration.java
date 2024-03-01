@@ -5,7 +5,6 @@ import jakarta.mail.internet.MimeMessage;
 import net.ripe.db.whois.api.AbstractIntegrationTest;
 import net.ripe.db.whois.api.MailUpdatesTestSupport;
 import net.ripe.db.whois.api.MimeMessageProvider;
-import net.ripe.db.whois.common.dao.jdbc.DatabaseHelper;
 import net.ripe.db.whois.update.mail.MailSenderStub;
 import org.awaitility.Awaitility;
 import org.hamcrest.Matchers;
@@ -105,8 +104,6 @@ public class MailBounceTestIntegration extends AbstractIntegrationTest {
         // read reply from mailupdates
         final MimeMessage acknowledgement = mailSenderStub.getMessage(from);
         assertThat(acknowledgement.getContent().toString(), containsString("Create SUCCEEDED: [role] DR1-TEST   dummy role"));
-
-        DatabaseHelper.dumpSchema(internalsTemplate.getDataSource());   // TODO
 
         // make sure that normalised email address is stored in outgoing messages table
         assertThat(countOutgoingForAddress("nonexistant@ripe.net"), is(1));
@@ -239,30 +236,30 @@ public class MailBounceTestIntegration extends AbstractIntegrationTest {
     // helper methods
 
     private void insertUndeliverableAddress(final String emailAddress) {
-        databaseHelper.getInternalsTemplate().update(
+        internalsTemplate.update(
                 "INSERT INTO undeliverable_email (email) VALUES (?)", emailAddress);
     }
 
     private boolean isUndeliverableAddress(final String emailAddress) {
-        return databaseHelper.getInternalsTemplate().queryForObject("SELECT count(email) FROM undeliverable_email WHERE email= ?",
+        return internalsTemplate.queryForObject("SELECT count(email) FROM undeliverable_email WHERE email= ?",
                 (rs, rowNum) -> rs.getInt(1), emailAddress) == 1;
     }
 
 
     private void insertOutgoingMessageId(final String messageId, final String emailAddress) {
-        databaseHelper.getInternalsTemplate().update(
+        internalsTemplate.update(
                 "INSERT INTO outgoing_message (message_id, email) VALUES (?, ?)", messageId, emailAddress);
     }
 
     private int countUndeliverableAddresses(){
-        return databaseHelper.getInternalsTemplate().queryForObject("SELECT count(email) FROM undeliverable_email", Integer.class);
+        return internalsTemplate.queryForObject("SELECT count(email) FROM undeliverable_email", Integer.class);
     }
     private int countOutgoingForAddress(final String emailAddress) {
-        return databaseHelper.getInternalsTemplate().queryForObject("SELECT count(message_id) FROM outgoing_message WHERE email = ?", Integer.class, emailAddress);
+        return internalsTemplate.queryForObject("SELECT count(message_id) FROM outgoing_message WHERE email = ?", Integer.class, emailAddress);
     }
 
     private void updateOutgoingMessageIdForEmail(final String messageId, final String email){
-        databaseHelper.getInternalsTemplate().update("UPDATE outgoing_message SET message_id = ? WHERE email = ?", messageId, email);
+        internalsTemplate.update("UPDATE outgoing_message SET message_id = ? WHERE email = ?", messageId, email);
     }
 
     private void insertIncomingMessage(final MimeMessage message) {
