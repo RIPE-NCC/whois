@@ -249,6 +249,8 @@ public class MessageParser {
 
                 return new String(ByteStreams.toByteArray(rawInputStream), getCharset(contentType));
             }
+        } catch (Exception e) {
+            LOGGER.error("Unexpected", e);
         }
 
         throw new ParseException("No content");

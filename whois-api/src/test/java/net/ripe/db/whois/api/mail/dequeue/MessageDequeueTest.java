@@ -10,7 +10,8 @@ import net.ripe.db.whois.api.mail.MailMessage;
 import net.ripe.db.whois.api.mail.dao.MailMessageDao;
 import net.ripe.db.whois.common.DateTimeProvider;
 import net.ripe.db.whois.common.MaintenanceMode;
-import net.ripe.db.whois.common.mail.BounceEmailsDetector;
+import net.ripe.db.whois.common.dao.OutgoingMessageDao;
+import net.ripe.db.whois.common.dao.UndeliverableMailDao;
 import net.ripe.db.whois.update.domain.DequeueStatus;
 import net.ripe.db.whois.update.domain.Keyword;
 import net.ripe.db.whois.update.domain.UpdateContext;
@@ -65,13 +66,15 @@ public class MessageDequeueTest {
     @Mock MailMessageDao mailMessageDao;
     @Mock MessageFilter messageFilter;
     @Mock MessageParser messageParser;
+    @Mock BouncedMessageParser bouncedMessageParser;
     @Mock UpdatesParser updatesParser;
     @Mock UpdateRequestHandler messageHandler;
     @Mock LoggerContext loggerContext;
     @Mock UpdateLog updateLog;
     @Mock DateTimeProvider dateTimeProvider;
+    @Mock UndeliverableMailDao undeliverableMailDao;
+    @Mock OutgoingMessageDao outgoingMessageDao;
 
-    @Mock BounceEmailsDetector bounceEmailsDetector;
     @InjectMocks MessageDequeue subject;
 
     @BeforeEach
@@ -80,6 +83,7 @@ public class MessageDequeueTest {
         ReflectionTestUtils.setField(subject, "intervalMs", 1);
         lenient().when(maintenanceMode.allowUpdate()).thenReturn(true);
         lenient().when(dateTimeProvider.getCurrentZonedDateTime()).thenReturn(ZonedDateTime.now(ZoneOffset.UTC));
+        lenient().when(bouncedMessageParser.parse(any(MimeMessage.class))).thenReturn(null);
     }
 
     @AfterEach

@@ -1,6 +1,8 @@
 package net.ripe.db.whois.update.mail;
 
 import jakarta.mail.MessagingException;
+import jakarta.mail.internet.AddressException;
+import jakarta.mail.internet.InternetAddress;
 import jakarta.mail.internet.MimeMessage;
 import net.ripe.db.whois.common.Message;
 import net.ripe.db.whois.common.Messages;
@@ -8,7 +10,6 @@ import net.ripe.db.whois.common.PunycodeConversion;
 import net.ripe.db.whois.common.aspects.RetryFor;
 import net.ripe.db.whois.common.dao.OutgoingMessageDao;
 import net.ripe.db.whois.common.dao.UndeliverableMailDao;
-import net.ripe.db.whois.common.mail.MailUtil;
 import net.ripe.db.whois.update.domain.ResponseMessage;
 import net.ripe.db.whois.update.log.LoggerContext;
 import org.apache.commons.lang.StringUtils;
@@ -81,7 +82,7 @@ public class MailGatewaySmtp implements MailGateway {
             }
 
             //TODO acknowledgment should be sent even if the user is unsubscribe
-            if (undeliverableMailDao.isUndeliverable(MailUtil.extractContentBetweenAngleBrackets(to))) {
+            if (undeliverableMailDao.isUndeliverable(extractContentBetweenAngleBrackets(to))) {
                 LOGGER.debug("" +
                         "Email appears in undeliverable list\n" +
                         "\n" +
@@ -132,7 +133,7 @@ public class MailGatewaySmtp implements MailGateway {
             loggerContext.log(new Message(Messages.Type.ERROR, "Caught %s: %s", e.getClass().getName(), e.getMessage()));
             LOGGER.error(String.format("Unable to send mail message to: %s", to), e);
             //TODO acknowledgment should be sent even if the user is unsubscribe
-            if (retrySending && !undeliverableMailDao.isUndeliverable(MailUtil.extractContentBetweenAngleBrackets(to))) {
+            if (retrySending && !undeliverableMailDao.isUndeliverable(extractContentBetweenAngleBrackets(to))) {
                 throw e;
             } else {
                 loggerContext.log(new Message(Messages.Type.ERROR, "Not retrying sending mail to %s with subject %s", to, subject));
@@ -142,7 +143,7 @@ public class MailGatewaySmtp implements MailGateway {
 
     private String createMessageId(final String toEmail){
         final String messageId = String.format("%s@ripe.net", UUID.randomUUID());
-        outgoingMessageDao.saveOutGoingMessageId(messageId, MailUtil.extractContentBetweenAngleBrackets(toEmail));
+        outgoingMessageDao.saveOutGoingMessageId(messageId, extractContentBetweenAngleBrackets(toEmail));
         return String.format("<%s>", messageId);
     }
 
@@ -152,5 +153,13 @@ public class MailGatewaySmtp implements MailGateway {
         mimeMessage.addHeader("Message-Id", messageId);
         mimeMessage.addHeader("List-Unsubscribe", "https://apps.db.ripe.net/db-web-ui/unsubscribe/" + messageId);
         mimeMessage.addHeader("List-Unsubscribe-Post", "List-Unsubscribe=One-Click");
+    }
+
+    private String extractContentBetweenAngleBrackets(final String content) {
+        try {
+            return new InternetAddress(content).getAddress();
+        } catch (AddressException e) {
+            return content;
+        }
     }
 }
