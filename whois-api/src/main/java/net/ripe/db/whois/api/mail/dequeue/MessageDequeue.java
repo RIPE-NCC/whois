@@ -200,7 +200,6 @@ public class MessageDequeue implements ApplicationService {
     private void handleMessage(final String messageId) {
         final MimeMessage message = mailMessageDao.getMessage(messageId);
 
-        // TODO: make this feature configurable
         try {
             final BouncedMessage bouncedMessage = bouncedMessageParser.parse(message);
             if (bouncedMessage != null) {
@@ -272,17 +271,15 @@ public class MessageDequeue implements ApplicationService {
     }
 
     private void markUndeliverable(final BouncedMessage bouncedMessage) {
-        if (bouncedMessage.getMessageId() != null) {
-            final String email = outgoingMessageDao.getEmail(bouncedMessage.getMessageId());
-            if (Strings.isNullOrEmpty(email)) {
-                LOGGER.warn("Couldn't find outgoing message matching {}", bouncedMessage.getMessageId());
-                return;
-            }
-            if (!email.equalsIgnoreCase(bouncedMessage.getEmailAddress())) {
-                LOGGER.warn("Email {} in outgoing message doesn't match '{}' in failure response", email, bouncedMessage.getEmailAddress());
-            }
-            undeliverableMailDao.createUndeliverableEmail(email);
+        final String email = outgoingMessageDao.getEmail(bouncedMessage.getMessageId());
+        if (Strings.isNullOrEmpty(email)) {
+            LOGGER.warn("Couldn't find outgoing message matching {}", bouncedMessage.getMessageId());
+            return;
         }
+        if (!email.equalsIgnoreCase(bouncedMessage.getEmailAddress())) {
+            LOGGER.warn("Email {} in outgoing message doesn't match '{}' in failure response", email, bouncedMessage.getEmailAddress());
+        }
+        undeliverableMailDao.createUndeliverableEmail(email);
     }
 
 
