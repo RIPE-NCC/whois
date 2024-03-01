@@ -39,7 +39,7 @@ public class MailGatewaySmtp implements MailGateway {
     private final UndeliverableMailDao undeliverableMailDao;
     private final OutgoingMessageDao outgoingMessageDao;
 
-    @Value("${mail.smtp.enabled}")
+    @Value("${mail.smtp.enabled:true}")
     private boolean outgoingMailEnabled;
 
     @Value("${mail.smtp.retrySending:true}")
