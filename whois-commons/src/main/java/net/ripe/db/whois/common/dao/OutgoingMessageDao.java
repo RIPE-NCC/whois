@@ -2,17 +2,14 @@ package net.ripe.db.whois.common.dao;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.PreparedStatementCallback;
-import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Repository;
 
 import javax.annotation.Nullable;
 import javax.sql.DataSource;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
-import java.sql.SQLException;
 import java.sql.Statement;
 import java.time.LocalDateTime;
 
@@ -50,20 +47,16 @@ public class OutgoingMessageDao {
     }
 
     @Nullable
-    public String getEmailByMessageId(final String messageId){
-        try{
-            return jdbcTemplate.queryForObject("SELECT email from outgoing_message where message_id = ?",
-                    new RowMapper<>() {
-                        @Override
-                        public String mapRow(ResultSet rs, int rowNum) throws SQLException {
-                            // TODO: check rs.next() first
-                            return rs.getString(1);
-                        }
-                    },
-                    messageId);
-        } catch (EmptyResultDataAccessException ex){
-            return null;
-        }
+    public String getEmail(final String messageId) {
+        return jdbcTemplate.query(
+            "SELECT email from outgoing_message where message_id = ?",
+            new Object[] { messageId },
+            (ResultSet resultSet) -> {
+                if (resultSet.next()) {
+                    return resultSet.getString(1);
+                }
+                return null;
+            });
     }
 
 }

@@ -56,7 +56,7 @@ public class BounceEmailsDetector {
             return;
         }
 
-        final String email = outgoingMessageDao.getEmailByMessageId(messageRelevantInformation.getMessageId());
+        final String email = outgoingMessageDao.getEmail(messageRelevantInformation.getMessageId());
         if (StringUtil.isNullOrEmpty(email)){
             return;
         }

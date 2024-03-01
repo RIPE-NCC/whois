@@ -81,7 +81,7 @@ public class MailGatewaySmtp implements MailGateway {
             }
 
             //TODO acknowledgment should be sent even if the user is unsubscribe
-            if (undeliverableMailDao.isUndeliverableEmail(MailUtil.extractContentBetweenAngleBrackets(to))) {
+            if (undeliverableMailDao.isUndeliverable(MailUtil.extractContentBetweenAngleBrackets(to))) {
                 LOGGER.debug("" +
                         "Email appears in undeliverable list\n" +
                         "\n" +
@@ -132,7 +132,7 @@ public class MailGatewaySmtp implements MailGateway {
             loggerContext.log(new Message(Messages.Type.ERROR, "Caught %s: %s", e.getClass().getName(), e.getMessage()));
             LOGGER.error(String.format("Unable to send mail message to: %s", to), e);
             //TODO acknowledgment should be sent even if the user is unsubscribe
-            if (retrySending && !undeliverableMailDao.isUndeliverableEmail(MailUtil.extractContentBetweenAngleBrackets(to))) {
+            if (retrySending && !undeliverableMailDao.isUndeliverable(MailUtil.extractContentBetweenAngleBrackets(to))) {
                 throw e;
             } else {
                 loggerContext.log(new Message(Messages.Type.ERROR, "Not retrying sending mail to %s with subject %s", to, subject));
