@@ -135,6 +135,17 @@
             <artifactId>jaxb-runtime</artifactId>
         </dependency>
 
+        <!-- Jakarta Mail -->
+        <dependency>
+            <groupId>org.eclipse.angus</groupId>
+            <artifactId>jakarta.mail</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.eclipse.angus</groupId>
+            <artifactId>dsn</artifactId>
+        </dependency>
+
+
         <!-- Solr -->
         <dependency>
             <groupId>org.apache.solr</groupId>

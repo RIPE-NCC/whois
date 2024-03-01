@@ -1,16 +1,19 @@
 package net.ripe.db.whois.api.mail.dequeue;
 
+import com.google.common.base.Strings;
 import jakarta.mail.Message;
 import jakarta.mail.MessagingException;
 import jakarta.mail.internet.MimeMessage;
 import net.ripe.db.whois.api.UpdatesParser;
+import net.ripe.db.whois.api.mail.BouncedMessage;
 import net.ripe.db.whois.api.mail.MailMessage;
 import net.ripe.db.whois.api.mail.dao.MailMessageDao;
 import net.ripe.db.whois.common.ApplicationService;
 import net.ripe.db.whois.common.DateTimeProvider;
 import net.ripe.db.whois.common.MaintenanceMode;
 import net.ripe.db.whois.common.Messages;
-import net.ripe.db.whois.common.mail.BounceEmailsDetector;
+import net.ripe.db.whois.common.dao.OutgoingMessageDao;
+import net.ripe.db.whois.common.dao.UndeliverableMailDao;
 import net.ripe.db.whois.update.domain.DequeueStatus;
 import net.ripe.db.whois.update.domain.Update;
 import net.ripe.db.whois.update.domain.UpdateContext;
@@ -48,10 +51,13 @@ public class MessageDequeue implements ApplicationService {
     private final MailMessageDao mailMessageDao;
     private final MessageFilter messageFilter;
     private final MessageParser messageParser;
+    private final BouncedMessageParser bouncedMessageParser;
     private final UpdatesParser updatesParser;
     private final UpdateRequestHandler messageHandler;
     private final LoggerContext loggerContext;
     private final DateTimeProvider dateTimeProvider;
+    private final UndeliverableMailDao undeliverableMailDao;
+    private final OutgoingMessageDao outgoingMessageDao;
 
     private final AtomicInteger freeThreads = new AtomicInteger();
 
@@ -64,29 +70,31 @@ public class MessageDequeue implements ApplicationService {
     @Value("${mail.dequeue.interval:1000}")
     private int intervalMs;
 
-    private final BounceEmailsDetector bounceEmailsDetector;
-
     @Autowired
     public MessageDequeue(final MaintenanceMode maintenanceMode,
                           final MailGateway mailGateway,
                           final MailMessageDao mailMessageDao,
                           final MessageFilter messageFilter,
                           final MessageParser messageParser,
+                          final BouncedMessageParser bouncedMessageParser,
                           final UpdatesParser updatesParser,
                           final UpdateRequestHandler messageHandler,
                           final LoggerContext loggerContext,
                           final DateTimeProvider dateTimeProvider,
-                          final BounceEmailsDetector bounceEmailsDetector) {
+                          final UndeliverableMailDao undeliverableMailDao,
+                          final OutgoingMessageDao outgoingMessageDao) {
         this.maintenanceMode = maintenanceMode;
         this.mailGateway = mailGateway;
         this.mailMessageDao = mailMessageDao;
         this.messageFilter = messageFilter;
         this.messageParser = messageParser;
+        this.bouncedMessageParser = bouncedMessageParser;
         this.updatesParser = updatesParser;
         this.messageHandler = messageHandler;
         this.loggerContext = loggerContext;
         this.dateTimeProvider = dateTimeProvider;
-        this.bounceEmailsDetector = bounceEmailsDetector;
+        this.undeliverableMailDao = undeliverableMailDao;
+        this.outgoingMessageDao = outgoingMessageDao;
     }
 
 
@@ -191,7 +199,18 @@ public class MessageDequeue implements ApplicationService {
 
     private void handleMessage(final String messageId) {
         final MimeMessage message = mailMessageDao.getMessage(messageId);
-        bounceEmailsDetector.checkMailBounced(message);
+
+        // TODO: make this feature configurable
+        try {
+            final BouncedMessage bouncedMessage = bouncedMessageParser.parse(message);
+            if (bouncedMessage != null) {
+                markUndeliverable(bouncedMessage);
+                return;
+            }
+        } catch (Exception e) {
+            LOGGER.error("Bounce message", e);
+            return;
+        }
 
         try {
             loggerContext.init(getMessageIdLocalPart(message));
@@ -251,4 +270,20 @@ public class MessageDequeue implements ApplicationService {
         final UpdateResponse response = messageHandler.handle(updateRequest, updateContext);
         mailGateway.sendEmail(mailMessage.getReplyToEmail(), response.getStatus() + ": " + mailMessage.getSubject(), response.getResponse(), null);
     }
+
+    private void markUndeliverable(final BouncedMessage bouncedMessage) {
+        if (bouncedMessage.getMessageId() != null) {
+            final String email = outgoingMessageDao.getEmail(bouncedMessage.getMessageId());
+            if (Strings.isNullOrEmpty(email)) {
+                LOGGER.warn("Couldn't find outgoing message matching {}", bouncedMessage.getMessageId());
+                return;
+            }
+            if (!email.equalsIgnoreCase(bouncedMessage.getEmailAddress())) {
+                LOGGER.warn("Email {} in outgoing message doesn't match '{}' in failure response", email, bouncedMessage.getEmailAddress());
+            }
+            undeliverableMailDao.createUndeliverableEmail(email);
+        }
+    }
+
+
 }

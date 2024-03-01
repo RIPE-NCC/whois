@@ -356,6 +356,11 @@
                 <artifactId>jakarta.mail</artifactId>
                 <version>${mail.version}</version>
             </dependency>
+            <dependency>
+                <groupId>org.eclipse.angus</groupId>
+                <artifactId>dsn</artifactId>
+                <version>${mail.version}</version>
+            </dependency>
 
             <!-- Hazelcast -->
             <dependency>
