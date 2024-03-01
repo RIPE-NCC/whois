@@ -1,12 +1,15 @@
 package net.ripe.db.whois.update.mail;
 
 import jakarta.mail.SendFailedException;
+import jakarta.mail.Session;
 import jakarta.mail.internet.MimeMessage;
 import net.ripe.db.whois.common.dao.UndeliverableMailDao;
 import net.ripe.db.whois.update.log.LoggerContext;
+import org.eclipse.angus.mail.smtp.SMTPMessage;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
@@ -16,10 +19,11 @@ import org.springframework.mail.javamail.MimeMessagePreparator;
 import org.springframework.test.util.ReflectionTestUtils;
 
 import java.lang.reflect.Field;
+import java.util.Properties;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.instanceOf;
-import static org.hamcrest.core.Is.is;
+import static org.hamcrest.Matchers.is;
 import static org.junit.jupiter.api.Assertions.fail;
 import static org.mockito.Mockito.any;
 import static org.mockito.Mockito.verify;
@@ -28,6 +32,9 @@ import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
 public class MailGatewaySmtpTest {
+
+    private static final Session SESSION = Session.getInstance(new Properties());
+
     @Mock LoggerContext loggerContext;
     @Mock MailConfiguration mailConfiguration;
     @Mock JavaMailSender mailSender;
@@ -90,17 +97,18 @@ public class MailGatewaySmtpTest {
 
     @Test
     public void checkRecipientAddressesArePunycoded() throws Exception {
-        MailSenderStub mailSenderStub = new MailSenderStub();
-        MailGatewaySmtp mailGatewaySmtp = new MailGatewaySmtp(loggerContext, mailConfiguration, mailSenderStub, undeliverableMailDao);
-        ReflectionTestUtils.setField(mailGatewaySmtp, "outgoingMailEnabled", true);
-
         when(mailConfiguration.getFrom()).thenReturn("from@from.to");
 
-        mailGatewaySmtp.sendEmail("to@to.to", "subject", "test", "email@Åidn.org");
+        subject.sendEmail("to@to.to", "subject", "test", "email@Åidn.org");
 
-        final MimeMessage message = mailSenderStub.getMessage("to@to.to");
-        assertThat(message.getReplyTo()[0].toString(), is("email@xn--idn-tla.org"));
+        ArgumentCaptor<MimeMessagePreparator> argument = ArgumentCaptor.forClass(MimeMessagePreparator.class);
+        verify(mailSender).send(argument.capture());
+        final MimeMessage mimeMessage = new SMTPMessage(SESSION);
+        argument.getValue().prepare(mimeMessage);
+        assertThat(mimeMessage.getHeader("Reply-To", null), is("email@xn--idn-tla.org"));
     }
+
+    // helper methods
 
     private void setExpectReplyToField(final String replyToAddress) {
         Mockito.doAnswer(invocation -> {
