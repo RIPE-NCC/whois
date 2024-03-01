@@ -181,6 +181,8 @@ CREATE TABLE `outgoing_message` (
    PRIMARY KEY (`message_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
+CREATE INDEX outgoing_message_email_i ON outgoing_message(email);
+
 DROP TABLE IF EXISTS `undeliverable_email`;
 CREATE TABLE `undeliverable_email` (
    `email` varchar(80) NOT NULL,
