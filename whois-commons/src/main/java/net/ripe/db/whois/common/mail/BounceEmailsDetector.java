@@ -14,6 +14,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import javax.annotation.Nullable;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -24,8 +25,6 @@ import java.util.List;
 public class BounceEmailsDetector {
 
     private final static Logger LOGGER = LoggerFactory.getLogger(BounceEmailsDetector.class);
-
-    private static final String ERROR_REPORT_HEADER_VALUE = "multipart/report; report-type=delivery-status;";
 
     private final UndeliverableMailDao undeliverableMailDao;
     private final OutgoingMessageDao outgoingMessageDao;
@@ -66,7 +65,12 @@ public class BounceEmailsDetector {
 
     private boolean isUndeliveredReport(final MimeMessage message) {
         try {
-            return message.getHeader("Content-Type", null).contains(ERROR_REPORT_HEADER_VALUE);
+            final String[] header = message.getHeader("Content-Type");
+            return (header != null &&
+                header.length == 1 &&
+                header[0] != null &&
+                header[0].contains("multipart/report;") &&
+                header[0].contains("report-type=delivery-status;"));
         } catch (MessagingException ex){
             return false;
         }
@@ -81,6 +85,7 @@ public class BounceEmailsDetector {
 
         private static final String BODY_DELIMITED = ":";
 
+        @Nullable
         protected static MessageInfo parse(final MimeMessage mimeMessage) {
             try{
                 final List<MimePart> relevantParts = Lists.newArrayList();
