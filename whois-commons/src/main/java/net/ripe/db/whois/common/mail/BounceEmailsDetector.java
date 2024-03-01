@@ -6,6 +6,7 @@ import jakarta.mail.Multipart;
 import jakarta.mail.Part;
 import jakarta.mail.internet.MimeMessage;
 import jakarta.mail.internet.MimePart;
+import net.ripe.db.whois.common.dao.OutgoingMessageDao;
 import net.ripe.db.whois.common.dao.UndeliverableMailDao;
 import org.apache.commons.compress.utils.Lists;
 import org.slf4j.Logger;
@@ -23,37 +24,39 @@ import java.util.List;
 public class BounceEmailsDetector {
 
     private final static Logger LOGGER = LoggerFactory.getLogger(BounceEmailsDetector.class);
-    private final UndeliverableMailDao undeliverableMailDao;
 
     private static final String ERROR_REPORT_HEADER_VALUE = "multipart/report; report-type=delivery-status;";
 
+    private final UndeliverableMailDao undeliverableMailDao;
+    private final OutgoingMessageDao outgoingMessageDao;
 
     @Autowired
-    public BounceEmailsDetector(final UndeliverableMailDao undeliverableMailDao){
+    public BounceEmailsDetector(
+            final UndeliverableMailDao undeliverableMailDao,
+            final OutgoingMessageDao outgoingMessageDao) {
         this.undeliverableMailDao = undeliverableMailDao;
+        this.outgoingMessageDao = outgoingMessageDao;
     }
 
-    public void checkMailBounced(final MimeMessage message){
-        if (!isUndeliveredReport(message)){
+    public void checkMailBounced(final MimeMessage message) {
+        if (!isUndeliveredReport(message)) {
             return;
         }
 
         final MessageInfo messageRelevantInformation = MessageInformationExtractor.parse(message);
-        if (messageRelevantInformation == null || messageRelevantInformation.isInvalidMessage()){
+        if (messageRelevantInformation == null || messageRelevantInformation.isInvalidMessage()) {
             return;
         }
 
-        if (!"failed".equals(messageRelevantInformation.getAction())){
+        if (!"failed".equals(messageRelevantInformation.getAction())) {
             return;
         }
 
-        LOGGER.info("Return path value is {}", messageRelevantInformation.getReturnPath());
-        if (messageRelevantInformation.getReturnPath() != null && !hasSenderAsReturnPath(messageRelevantInformation)){
+        if (messageRelevantInformation.getReturnPath() != null && !hasSenderAsReturnPath(messageRelevantInformation)) {
             return;
         }
 
-        final String email = undeliverableMailDao.getEmailByMessageId(messageRelevantInformation.getMessageId());
-
+        final String email = outgoingMessageDao.getEmailByMessageId(messageRelevantInformation.getMessageId());
         if (StringUtil.isNullOrEmpty(email)){
             return;
         }
@@ -61,7 +64,7 @@ public class BounceEmailsDetector {
         undeliverableMailDao.createUndeliverableEmail(email);
     }
 
-    private boolean isUndeliveredReport(final MimeMessage message){
+    private boolean isUndeliveredReport(final MimeMessage message) {
         try {
             return message.getHeader("Content-Type", null).contains(ERROR_REPORT_HEADER_VALUE);
         } catch (MessagingException ex){
@@ -69,7 +72,7 @@ public class BounceEmailsDetector {
         }
     }
 
-    private boolean hasSenderAsReturnPath(final MessageInfo messageRelevantInformation){
+    private boolean hasSenderAsReturnPath(final MessageInfo messageRelevantInformation) {
         return MailUtil.extractContentBetweenAngleBrackets(messageRelevantInformation.getFrom())
                 .equals(MailUtil.extractContentBetweenAngleBrackets(messageRelevantInformation.getReturnPath()));
     }
@@ -78,7 +81,7 @@ public class BounceEmailsDetector {
 
         private static final String BODY_DELIMITED = ":";
 
-        protected static MessageInfo parse(final MimeMessage mimeMessage){
+        protected static MessageInfo parse(final MimeMessage mimeMessage) {
             try{
                 final List<MimePart> relevantParts = Lists.newArrayList();
                 fillWithRelevantParts(mimeMessage, relevantParts);
@@ -86,14 +89,13 @@ public class BounceEmailsDetector {
                     return null;
                 }
                 return extractInformationFromParts(relevantParts);
-            } catch (MessagingException | IOException ex){
+            } catch (MessagingException | IOException ex) {
                 //TODO: create a warn
                 return null;
             }
         }
 
-        private static MessageInfo extractInformationFromParts(final List<MimePart> mimePart) throws MessagingException,
-                IOException {
+        private static MessageInfo extractInformationFromParts(final List<MimePart> mimePart) throws MessagingException, IOException {
             final MessageInfo messageInfo = new MessageInfo();
             for (final MimePart part: mimePart) {
                 try (BufferedReader reader = new BufferedReader(new InputStreamReader(part.getInputStream(), StandardCharsets.UTF_8))) {
@@ -147,12 +149,8 @@ public class BounceEmailsDetector {
     private static class MessageInfo {
         private String messageId;
         private String from;
-
         private String returnPath;
-
         private String action;
-
-        public MessageInfo(){}
 
         public String getAction() {
             return action;
@@ -169,24 +167,24 @@ public class BounceEmailsDetector {
             return messageId;
         }
 
-        public void setMessageId(String messageId) {
+        public void setMessageId(final String messageId) {
             this.messageId = MailUtil.extractContentBetweenAngleBrackets(messageId);
         }
 
-        public void setFrom(String from) {
+        public void setFrom(final String from) {
             this.from = MailUtil.extractContentBetweenAngleBrackets(from);
         }
 
-        public void setReturnPath(String returnPath) {
+        public void setReturnPath(final String returnPath) {
             this.returnPath = returnPath;
         }
 
-        public void setAction(String action) {
+        public void setAction(final String action) {
             this.action = action;
         }
 
         public boolean isInvalidMessage(){
-            return this.messageId == null || this.from == null || this.action == null;
+            return this.messageId == null || this.from == null || this.action == null;      // TODO: returnPath null ?
         }
     }
 }

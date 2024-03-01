@@ -6,6 +6,7 @@ import net.ripe.db.whois.common.Message;
 import net.ripe.db.whois.common.Messages;
 import net.ripe.db.whois.common.PunycodeConversion;
 import net.ripe.db.whois.common.aspects.RetryFor;
+import net.ripe.db.whois.common.dao.OutgoingMessageDao;
 import net.ripe.db.whois.common.dao.UndeliverableMailDao;
 import net.ripe.db.whois.common.mail.MailUtil;
 import net.ripe.db.whois.update.domain.ResponseMessage;
@@ -34,6 +35,8 @@ public class MailGatewaySmtp implements MailGateway {
     private final LoggerContext loggerContext;
     private final MailConfiguration mailConfiguration;
     private final JavaMailSender mailSender;
+    private final UndeliverableMailDao undeliverableMailDao;
+    private final OutgoingMessageDao outgoingMessageDao;
 
     @Value("${mail.smtp.enabled}")
     private boolean outgoingMailEnabled;
@@ -41,16 +44,18 @@ public class MailGatewaySmtp implements MailGateway {
     @Value("${mail.smtp.retrySending:true}")
     private boolean retrySending;
 
-    private final UndeliverableMailDao undeliverableMailDao;
-
-
     @Autowired
-    public MailGatewaySmtp(final LoggerContext loggerContext, final MailConfiguration mailConfiguration,
-                           final JavaMailSender mailSender, final UndeliverableMailDao undeliverableMailDao) {
+    public MailGatewaySmtp(
+            final LoggerContext loggerContext,
+            final MailConfiguration mailConfiguration,
+            final JavaMailSender mailSender,
+            final UndeliverableMailDao undeliverableMailDao,
+            final OutgoingMessageDao outgoingMessageDao) {
         this.loggerContext = loggerContext;
         this.mailConfiguration = mailConfiguration;
         this.mailSender = mailSender;
         this.undeliverableMailDao = undeliverableMailDao;
+        this.outgoingMessageDao = outgoingMessageDao;
     }
 
     @Override
@@ -76,7 +81,7 @@ public class MailGatewaySmtp implements MailGateway {
             }
 
             //TODO acknowledgment should be sent even if the user is unsubscribe
-            if (undeliverableMailDao.isUndeliverableEmail(MailUtil.extractContentBetweenAngleBrackets(to))){
+            if (undeliverableMailDao.isUndeliverableEmail(MailUtil.extractContentBetweenAngleBrackets(to))) {
                 LOGGER.debug("" +
                         "Email appears in undeliverable list\n" +
                         "\n" +
@@ -137,7 +142,7 @@ public class MailGatewaySmtp implements MailGateway {
 
     private String createMessageId(final String toEmail){
         final String messageId = String.format("%s@ripe.net", UUID.randomUUID());
-        undeliverableMailDao.saveOutGoingMessageId(messageId, MailUtil.extractContentBetweenAngleBrackets(toEmail));
+        outgoingMessageDao.saveOutGoingMessageId(messageId, MailUtil.extractContentBetweenAngleBrackets(toEmail));
         return String.format("<%s>", messageId);
     }
 

@@ -3,6 +3,7 @@ package net.ripe.db.whois.update.mail;
 import jakarta.mail.SendFailedException;
 import jakarta.mail.Session;
 import jakarta.mail.internet.MimeMessage;
+import net.ripe.db.whois.common.dao.OutgoingMessageDao;
 import net.ripe.db.whois.common.dao.UndeliverableMailDao;
 import net.ripe.db.whois.update.log.LoggerContext;
 import org.eclipse.angus.mail.smtp.SMTPMessage;
@@ -39,6 +40,7 @@ public class MailGatewaySmtpTest {
     @Mock MailConfiguration mailConfiguration;
     @Mock JavaMailSender mailSender;
     @Mock UndeliverableMailDao undeliverableMailDao;
+    @Mock OutgoingMessageDao outgoingMessageDao;
     @InjectMocks private MailGatewaySmtp subject;
 
     @BeforeEach
