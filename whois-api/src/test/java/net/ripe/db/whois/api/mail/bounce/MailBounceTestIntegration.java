@@ -274,7 +274,7 @@ public class MailBounceTestIntegration extends AbstractIntegrationTest {
     }
 
     private boolean anyIncomingMessages() {
-        return Boolean.TRUE.equals(databaseHelper.getMailupdatesTemplate().query("SELECT message FROM mailupdates", (rs, rowNum) -> rs.next()));
+        return Boolean.TRUE.equals(mailupdatesTemplate.query("SELECT message FROM mailupdates", (rs, rowNum) -> rs.next()));
     }
 
 }
