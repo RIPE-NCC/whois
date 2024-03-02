@@ -114,13 +114,13 @@ public class MailGatewaySmtp implements MailGateway {
         try {
             mailSender.send(mimeMessage -> {
                 final String punyCodedTo = PunycodeConversion.toAscii(to);
-                final String puncyCodedReplyTo = !StringUtils.isEmpty(replyTo)? PunycodeConversion.toAscii(replyTo) : "";
+                final String punyCodedReplyTo = !StringUtils.isEmpty(replyTo)? PunycodeConversion.toAscii(replyTo) : "";
 
                 final MimeMessageHelper message = new MimeMessageHelper(mimeMessage, MimeMessageHelper.MULTIPART_MODE_NO, "UTF-8");
                 message.setFrom(mailConfiguration.getFrom());
                 message.setTo(punyCodedTo);
-                if (!StringUtils.isEmpty(puncyCodedReplyTo)) {
-                    message.setReplyTo(puncyCodedReplyTo);
+                if (!StringUtils.isEmpty(punyCodedReplyTo)) {
+                    message.setReplyTo(punyCodedReplyTo);
                 }
                 message.setSubject(subject);
                 message.setText(text);
@@ -144,14 +144,14 @@ public class MailGatewaySmtp implements MailGateway {
     private String createMessageId(final String toEmail){
         final String messageId = String.format("%s@ripe.net", UUID.randomUUID());
         outgoingMessageDao.saveOutGoingMessageId(messageId, extractContentBetweenAngleBrackets(toEmail));
-        return String.format("<%s>", messageId);
+        return messageId;
     }
 
     private void setHeaders(final MimeMessage mimeMessage, final String messageId) throws MessagingException {
         mimeMessage.addHeader("Precedence", "bulk");
         mimeMessage.addHeader("Auto-Submitted", "auto-generated");
-        mimeMessage.addHeader("Message-Id", messageId);
-        mimeMessage.addHeader("List-Unsubscribe", "https://apps.db.ripe.net/db-web-ui/unsubscribe/" + messageId);
+        mimeMessage.addHeader("Message-Id", String.format("<%s>", messageId));
+        mimeMessage.addHeader("List-Unsubscribe", String.format("<https://apps.db.ripe.net/db-web-ui/unsubscribe/%s>", messageId));
         mimeMessage.addHeader("List-Unsubscribe-Post", "List-Unsubscribe=One-Click");
     }
 
