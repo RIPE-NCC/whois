@@ -2,14 +2,10 @@ package net.ripe.db.whois.api.mail.dequeue;
 
 import jakarta.mail.MessagingException;
 import jakarta.mail.internet.MimeMessage;
-import net.ripe.db.whois.api.AbstractIntegrationTest;
-import net.ripe.db.whois.api.MailUpdatesTestSupport;
 import net.ripe.db.whois.api.MimeMessageProvider;
 import net.ripe.db.whois.update.mail.MailSenderStub;
 import org.awaitility.Awaitility;
 import org.hamcrest.Matchers;
-import org.junit.jupiter.api.AfterAll;
-import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
@@ -25,24 +21,10 @@ import static org.hamcrest.Matchers.not;
 import static org.hamcrest.Matchers.nullValue;
 
 @Tag("IntegrationTest")
-public class MailBounceTestIntegration extends AbstractIntegrationTest {
+public class BounceMailBounceTestIntegration extends AbstractBounceMailMessageIntegrationTest {
 
     @Autowired
     private MailSenderStub mailSenderStub;
-    @Autowired
-    private MailUpdatesTestSupport mailUpdatesTestSupport;
-
-    @BeforeAll
-    public static void setSmtpFrom() {
-        // Email address to use for SMTP MAIL command. This sets the envelope return address.
-        // Ref. https://javaee.github.io/javamail/docs/api/com/sun/mail/smtp/package-summary.html
-        System.setProperty("mail.smtp.from", "bounce-handler@ripe.net");
-    }
-
-    @AfterAll
-    public static void clearSmtpFrom() {
-        System.clearProperty("mail.smtp.from");
-    }
 
     @BeforeEach
     public void setup() {
@@ -243,48 +225,4 @@ public class MailBounceTestIntegration extends AbstractIntegrationTest {
 
 
     // TODO: test that acknowledgement email (i.e. the reply to an incoming message) *is* sent to unsubscribed address
-
-
-
-    // helper methods
-
-    private void insertUndeliverableAddress(final String emailAddress) {
-        internalsTemplate.update(
-                "INSERT INTO undeliverable_email (email) VALUES (?)", emailAddress);
-    }
-
-    private boolean isUndeliverableAddress(final String emailAddress) {
-        return internalsTemplate.queryForObject("SELECT count(email) FROM undeliverable_email WHERE email= ?",
-                (rs, rowNum) -> rs.getInt(1), emailAddress) == 1;
-    }
-
-
-    private void insertOutgoingMessageId(final String messageId, final String emailAddress) {
-        internalsTemplate.update(
-                "INSERT INTO outgoing_message (message_id, email) VALUES (?, ?)", messageId, emailAddress);
-    }
-
-    private int countUndeliverableAddresses(){
-        return internalsTemplate.queryForObject("SELECT count(email) FROM undeliverable_email", Integer.class);
-    }
-    private int countOutgoingForAddress(final String emailAddress) {
-        return internalsTemplate.queryForObject("SELECT count(message_id) FROM outgoing_message WHERE email = ?", Integer.class, emailAddress);
-    }
-
-    private void updateOutgoingMessageIdForEmail(final String messageId, final String email){
-        internalsTemplate.update("UPDATE outgoing_message SET message_id = ? WHERE email = ?", messageId, email);
-    }
-
-    private void insertIncomingMessage(final MimeMessage message) {
-        mailUpdatesTestSupport.insert(message);
-    }
-
-    private String insertIncomingMessage(final String subject, final String body) {
-        return mailUpdatesTestSupport.insert(subject, body);
-    }
-
-    private boolean anyIncomingMessages() {
-        return Boolean.TRUE.equals(mailupdatesTemplate.query("SELECT message FROM mailupdates", (rs, rowNum) -> rs.next()));
-    }
-
 }

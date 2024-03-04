@@ -2,12 +2,8 @@ package net.ripe.db.whois.api.mail.dequeue;
 
 import jakarta.mail.MessagingException;
 import jakarta.mail.internet.MimeMessage;
-import net.ripe.db.whois.api.AbstractIntegrationTest;
-import net.ripe.db.whois.api.MailUpdatesTestSupport;
 import net.ripe.db.whois.api.MimeMessageProvider;
 import net.ripe.db.whois.update.mail.MailSenderStub;
-import org.junit.jupiter.api.AfterAll;
-import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
@@ -20,32 +16,12 @@ import static org.hamcrest.MatcherAssert.assertThat;
 
 
 @Tag("IntegrationTest")
-public class BouncedMessageServiceTestIntegration extends AbstractIntegrationTest {
+public class BouncedMessageServiceTestIntegrationBounce extends AbstractBounceMailMessageIntegrationTest {
     @Autowired
     private MailSenderStub mailSenderStub;
-    @Autowired
-    private MailUpdatesTestSupport mailUpdatesTestSupport;
 
     @Autowired
     private BouncedMessageService bouncedMessageService;
-
-    private static final String BOUNCED_MAIL_RECIPIENT = "nonexistant@host.org";
-
-    @BeforeAll
-    public static void setSmtpFrom() {
-        // Email address to use for SMTP MAIL command. This sets the envelope return address.
-        // Ref. https://javaee.github.io/javamail/docs/api/com/sun/mail/smtp/package-summary.html
-        System.setProperty("mail.smtp.from", "bounce-handler@ripe.net");
-        System.setProperty("mail.smtp.dsn.notify", "SUCCESS,FAILURE,DELAY"); // Action supported types
-        System.setProperty("mail.smtp.dsn.ret", "HDRS"); // Return the message headers in the DSN (Delivery Message Notification)
-    }
-
-    @AfterAll
-    public static void clearSmtpFrom() {
-        System.clearProperty("mail.smtp.from");
-        System.clearProperty("mail.smtp.dsn.notify");
-        System.clearProperty("mail.smtp.dsn.ret");
-    }
 
     @BeforeEach
     public void setup() {
@@ -101,19 +77,5 @@ public class BouncedMessageServiceTestIntegration extends AbstractIntegrationTes
 
         assertThat(bouncedMessageService.isBouncedMessage(message), is(true));
         assertThat(isUndeliverableAddress(BOUNCED_MAIL_RECIPIENT), is(true));
-    }
-
-    private String insertIncomingMessage(final String subject, final String body) {
-        return mailUpdatesTestSupport.insert(subject, body);
-    }
-
-    private void insertOutgoingMessageId(final String messageId, final String emailAddress) {
-        internalsTemplate.update(
-                "INSERT INTO outgoing_message (message_id, email) VALUES (?, ?)", messageId, emailAddress);
-    }
-
-    private boolean isUndeliverableAddress(final String emailAddress) {
-        return internalsTemplate.queryForObject("SELECT count(email) FROM undeliverable_email WHERE email= ?",
-                (rs, rowNum) -> rs.getInt(1), emailAddress) == 1;
     }
 }
