@@ -41,6 +41,7 @@ public class BouncedMessageParser {
                 if (isFailed(deliveryStatus)) {
                     final MimeMessage returnedMessage = multipartReport.getReturnedMessage();
                     final String messageId = getMessageId(returnedMessage.getMessageID());
+                    // TODO: double check we have the right recipient (This is the TO: header)
                     final String recipient = getFirstAddress(returnedMessage.getAllRecipients());
                     return new BouncedMessage(recipient, messageId);
                 }
@@ -99,14 +100,14 @@ public class BouncedMessageParser {
         return (values != null && values.length > 0) ? values[0] : null;
     }
 
-    private final String getMessageId(final String messageId) {
+    private static String getMessageId(final String messageId) {
         if (messageId == null) {
             throw new IllegalStateException("No Message-Id header");
         }
         return getAddress(messageId);
     }
 
-    private final String getAddress(final String address) {
+    private static String getAddress(final String address) {
         if (address == null) {
             throw new IllegalStateException("No address");
         }

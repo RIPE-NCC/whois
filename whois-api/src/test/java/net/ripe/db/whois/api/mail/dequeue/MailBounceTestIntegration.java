@@ -1,4 +1,4 @@
-package net.ripe.db.whois.api.mail.bounce;
+package net.ripe.db.whois.api.mail.dequeue;
 
 import jakarta.mail.MessagingException;
 import jakarta.mail.internet.MimeMessage;
