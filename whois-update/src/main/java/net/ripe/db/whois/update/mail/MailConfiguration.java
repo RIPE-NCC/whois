@@ -28,10 +28,10 @@ public class MailConfiguration {
     @Value("${mail.smtp.from:}")
     private String bounceAddr;
 
-    @Value("${mail.smtp.dsn.notify:}")
+    @Value("${mail.smtp.dsn.notify:SUCCESS,FAILURE,DELAY}")
     private String notify;
 
-    @Value("${mail.smtp.dsn.ret:}")
+    @Value("${mail.smtp.dsn.ret:HDRS}")
     private String ret;
 
     @Autowired
