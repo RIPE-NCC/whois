@@ -5,7 +5,6 @@ import jakarta.mail.Session;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.beans.factory.config.PropertiesFactoryBean;
-import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Component;
 
 import java.io.IOException;
@@ -13,9 +12,6 @@ import java.util.Properties;
 
 @Component
 public class MailConfiguration {
-
-    @Autowired
-    private Environment env;
 
     @Value("${mail.smtp.host:localhost}")
     private String smtpHost;
