@@ -36,11 +36,15 @@ public class BouncedMessageServiceTestIntegration extends AbstractIntegrationTes
         // Email address to use for SMTP MAIL command. This sets the envelope return address.
         // Ref. https://javaee.github.io/javamail/docs/api/com/sun/mail/smtp/package-summary.html
         System.setProperty("mail.smtp.from", "bounce-handler@ripe.net");
+        System.setProperty("mail.smtp.dsn.notify", "SUCCESS,FAILURE,DELAY"); // Action supported types
+        System.setProperty("mail.smtp.dsn.ret", "HDRS"); // Return the message headers in the DSN (Delivery Message Notification)
     }
 
     @AfterAll
     public static void clearSmtpFrom() {
         System.clearProperty("mail.smtp.from");
+        System.clearProperty("mail.smtp.dsn.notify");
+        System.clearProperty("mail.smtp.dsn.ret");
     }
 
     @BeforeEach

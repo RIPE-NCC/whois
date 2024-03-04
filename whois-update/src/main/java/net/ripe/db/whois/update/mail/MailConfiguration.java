@@ -5,6 +5,7 @@ import jakarta.mail.Session;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.beans.factory.config.PropertiesFactoryBean;
+import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Component;
 
 import java.io.IOException;
@@ -12,6 +13,9 @@ import java.util.Properties;
 
 @Component
 public class MailConfiguration {
+
+    @Autowired
+    private Environment env;
 
     @Value("${mail.smtp.host:localhost}")
     private String smtpHost;
@@ -24,6 +28,15 @@ public class MailConfiguration {
 
     @Value("${mail.smtp.debug:false}")
     private boolean debug;
+
+    @Value("${mail.smtp.from:}")
+    private String bounceAddr;
+
+    @Value("${mail.smtp.dsn.notify:}")
+    private String notify;
+
+    @Value("${mail.smtp.dsn.ret:}")
+    private String ret;
 
     @Autowired
     private PropertiesFactoryBean javaMailProperties;
@@ -47,10 +60,9 @@ public class MailConfiguration {
 
         properties.put("mail.smtp.host", smtpHost);
         properties.put("mail.smtp.port", smtpPort);
-
-        // TODO: [ES] enable Delivery Status Notifications so we get failure responses
-        // properties.put("mail.smtp.dsn.notify", "TODO");
-        // properties.put("mail.smtp.dsn.ret", "TODO");
+        properties.put("mail.smtp.from", bounceAddr);
+        properties.put("mail.smtp.dsn.notify", notify);
+        properties.put("mail.smtp.dsn.ret", ret);
 
         session = Session.getInstance(properties);
         session.setDebug(debug);
