@@ -75,7 +75,7 @@ public class MailBounceTestIntegration extends AbstractIntegrationTest {
                 "address:       Singel 258\n" +
                 "e-mail:        dummyrole@ripe.net\n" +
                 "phone:         +31 6 12345678\n" +
-                "notify:        notify-dummy-role@ripe.net\n" +
+                "notify:        nonexistant@host.org\n" +
                 "nic-hdl:       DR1-TEST\n" +
                 "mnt-by:        OWNER-MNT\n" +
                 "source:        TEST\n";
@@ -86,17 +86,17 @@ public class MailBounceTestIntegration extends AbstractIntegrationTest {
         assertThat(acknowledgement.getContent().toString(), containsString("Create SUCCEEDED: [role] DR1-TEST   dummy role"));
 
         // Outgoing notification email to notify-dummy-role@ripe.net
-        final MimeMessage notify = mailSenderStub.getMessage("notify-dummy-role@ripe.net");
+        final MimeMessage notify = mailSenderStub.getMessage("nonexistant@host.org");
         final String notifyMessageId = notify.getHeader("Message-ID", "\n");
         assertThat(notifyMessageId, Matchers.is(not(nullValue())));
 
         // Generate failure response for notification
-        insertOutgoingMessageId("XXXXXXXX-5AE3-4C58-8E3F-860327BA955D@ripe.net", "notify-dummy-role@ripe.net");
+        insertOutgoingMessageId("XXXXXXXX-5AE3-4C58-8E3F-860327BA955D@ripe.net", "nonexistant@host.org");
         final MimeMessage message = MimeMessageProvider.getUpdateMessage("permanentFailureMessageRfc822.mail");
         insertIncomingMessage(message);
 
         // Wait for address to be marked as undeliverable
-        Awaitility.waitAtMost(10L, TimeUnit.SECONDS).until(() -> (isUndeliverableAddress("notify-dummy-role@ripe.net")));
+        Awaitility.waitAtMost(10L, TimeUnit.SECONDS).until(() -> (isUndeliverableAddress("nonexistant@host.org")));
     }
 
     @Test
@@ -173,7 +173,7 @@ public class MailBounceTestIntegration extends AbstractIntegrationTest {
                         "address:       Singel 258\n" +
                         "e-mail:        dummyrole@ripe.net\n" +
                         "phone:         +31 6 12345678\n" +
-                        "notify:        Non Existant <nonexistant@ripe.net>\n" +
+                        "notify:        Non Existant <nonexistant@host.org>\n" +
                         "nic-hdl:       DR1-TEST\n" +
                         "mnt-by:        OWNER-MNT\n" +
                         "source:        TEST\n";
@@ -183,7 +183,7 @@ public class MailBounceTestIntegration extends AbstractIntegrationTest {
                         "address:       Singel test 258\n" +
                         "e-mail:        dummyrole@ripe.net\n" +
                         "phone:         +31 6 12345678\n" +
-                        "notify:        Non Existant <nonEXISTANT@ripe.net>\n" +
+                        "notify:        Non Existant <nonEXISTANT@host.org>\n" +
                         "nic-hdl:       DR2-TEST\n" +
                         "mnt-by:        OWNER-MNT\n" +
                         "source:        TEST\n";
@@ -195,16 +195,16 @@ public class MailBounceTestIntegration extends AbstractIntegrationTest {
         assertThat(acknowledgement.getContent().toString(), containsString("Create SUCCEEDED: [role] DR1-TEST   dummy role"));
 
         // make sure that normalised email address is stored in outgoing messages table
-        assertThat(countOutgoingForAddress("nonexistant@ripe.net"), is(1));
+        assertThat(countOutgoingForAddress("nonexistant@host.org"), is(1));
 
         //Match the message Id with the message Id of the bounced email
-        updateOutgoingMessageIdForEmail("XXXXXXXX-5AE3-4C58-8E3F-860327BA955D@ripe.net", "nonexistant@ripe.net");
+        updateOutgoingMessageIdForEmail("XXXXXXXX-5AE3-4C58-8E3F-860327BA955D@ripe.net", "nonexistant@host.org");
 
         final MimeMessage message = MimeMessageProvider.getUpdateMessage("permanentFailureMessageRfc822.mail");
         insertIncomingMessage(message);
 
         // make sure that normalised email address is stored in undelivered messages table
-        Awaitility.waitAtMost(10L, TimeUnit.SECONDS).until(() -> (isUndeliverableAddress("nonexistant@ripe.net")));
+        Awaitility.waitAtMost(10L, TimeUnit.SECONDS).until(() -> (isUndeliverableAddress("nonexistant@host.org")));
 
         //Clean previous messages from mailsender
         mailSenderStub.reset();
@@ -233,12 +233,12 @@ public class MailBounceTestIntegration extends AbstractIntegrationTest {
 
     @Test
     public void bouncing_headers_causes_address_to_be_marked_as_undeliverable() {
-        insertOutgoingMessageId("XXXXXXXX-2BCC-4B29-9D86-3B8C68DD835D@ripe.net", "notify-dummy-role@ripe.net");
+        insertOutgoingMessageId("XXXXXXXX-2BCC-4B29-9D86-3B8C68DD835D@ripe.net", "nonexistant@ripe.net");
         final MimeMessage message = MimeMessageProvider.getUpdateMessage("permanentFailureRfc822Headers.mail");
         insertIncomingMessage(message);
 
         // Wait for address to be marked as undeliverable
-        Awaitility.waitAtMost(10L, TimeUnit.SECONDS).until(() -> (isUndeliverableAddress("notify-dummy-role@ripe.net")));
+        Awaitility.waitAtMost(10L, TimeUnit.SECONDS).until(() -> (isUndeliverableAddress("nonexistant@ripe.net")));
     }
 
 

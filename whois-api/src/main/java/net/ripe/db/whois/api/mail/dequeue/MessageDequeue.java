@@ -191,17 +191,17 @@ public class MessageDequeue implements ApplicationService {
         final MimeMessage message = mailMessageDao.getMessage(messageId);
 
         try {
-            if(!bouncedMessageService.isBouncedMessage(message)){
-                loggerContext.init(getMessageIdLocalPart(message));
-                try {
-                    handleMessageInContext(messageId, message);
-                } finally {
-                    loggerContext.remove();
-                }
+            if (bouncedMessageService.isBouncedMessage(message)){
+                return;
             }
-        } catch (MessagingException e) {
-            LOGGER.error("Handle message", e);
-        } catch (IOException e) {
+            loggerContext.init(getMessageIdLocalPart(message));
+            try {
+                handleMessageInContext(messageId, message);
+            } finally {
+                loggerContext.remove();
+            }
+
+        } catch (MessagingException | IOException e) {
             LOGGER.error("Handle message", e);
         }
     }
