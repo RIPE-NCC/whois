@@ -22,6 +22,8 @@ public class AbstractBounceMailMessageIntegrationTest extends AbstractIntegratio
         System.setProperty("mail.smtp.from", "bounce-handler@ripe.net");
         System.setProperty("mail.smtp.dsn.notify", "SUCCESS,FAILURE,DELAY"); // Action supported types
         System.setProperty("mail.smtp.dsn.ret", "HDRS"); // Return the message headers in the DSN (Delivery Message Notification)
+        System.setProperty("mail.smtp.enabled", "true"); // Return the message headers in the DSN (Delivery Message
+        // Notification)
     }
 
     @AfterAll

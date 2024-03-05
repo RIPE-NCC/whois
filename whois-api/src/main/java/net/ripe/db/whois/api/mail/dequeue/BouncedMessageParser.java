@@ -74,13 +74,13 @@ public class BouncedMessageParser {
     }
 
     private MimeReportInfo mimeReport(final Object content) throws MessagingException, IOException {
-        if (content instanceof final MimeMultipart mimeMultipart) {
-            return getReportMessageInformation(mimeMultipart);
-        }
         if (content instanceof final MultipartReport multipartReport) {
             return new MimeReportInfo(DELIVERY_STATUS.equalsIgnoreCase(multipartReport.getReport().getType()), multipartReport.getReturnedMessage());
         }
 
+        if (content instanceof final MimeMultipart mimeMultipart) {
+            return getReportMessageInformation(mimeMultipart);
+        }
 
         throw new MessagingException("Unexpected content was not multipart/report");
 
