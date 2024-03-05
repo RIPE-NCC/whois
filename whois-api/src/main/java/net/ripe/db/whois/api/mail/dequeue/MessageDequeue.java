@@ -193,6 +193,7 @@ public class MessageDequeue implements ApplicationService {
         try {
             LOGGER.info("checking bounce message?{}", messageId);
             if (bouncedMessageService.isBouncedMessage(message)){
+                mailMessageDao.deleteMessage(messageId);
                 return;
             }
             loggerContext.init(getMessageIdLocalPart(message));
