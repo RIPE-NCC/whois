@@ -152,7 +152,7 @@ public class MailGatewaySmtp implements MailGateway {
     private void setHeaders(final MimeMessage mimeMessage, final String messageId) throws MessagingException {
         mimeMessage.addHeader("Precedence", "bulk");
         mimeMessage.addHeader("Auto-Submitted", "auto-generated");
-        mimeMessage.addHeader("Message-Id", String.format("<%s>", messageId));
+        mimeMessage.addHeader("Message-ID", String.format("<%s>", messageId));
         mimeMessage.addHeader("List-Unsubscribe", String.format("<https://%s/db-web-ui/unsubscribe/%s>", webRestPath, messageId));
         mimeMessage.addHeader("List-Unsubscribe-Post", "List-Unsubscribe=One-Click");
     }
