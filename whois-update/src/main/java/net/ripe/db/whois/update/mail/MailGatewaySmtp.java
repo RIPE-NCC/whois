@@ -127,7 +127,7 @@ public class MailGatewaySmtp implements MailGateway {
                 message.setSubject(subject);
                 message.setText(text);
 
-                setHeaders(mimeMessage, createMessageId(to));
+                setHeaders(mimeMessage, createMessageId(mimeMessage, to));
 
                 loggerContext.log("msg-out.txt", new MailMessageLogCallback(mimeMessage));
             });
@@ -143,8 +143,8 @@ public class MailGatewaySmtp implements MailGateway {
         }
     }
 
-    private String createMessageId(final String toEmail) {
-        final String messageId = String.format("%s@ripe.net", UUID.randomUUID());
+    private String createMessageId(final MimeMessage mimeMessage, final String toEmail) throws MessagingException {
+        final String messageId = mimeMessage.getMessageID() != null ? mimeMessage.getMessageID() : String.format("<%s@ripe.net>", UUID.randomUUID());
         outgoingMessageDao.saveOutGoingMessageId(messageId, extractContentBetweenAngleBrackets(toEmail));
         return messageId;
     }
@@ -152,7 +152,7 @@ public class MailGatewaySmtp implements MailGateway {
     private void setHeaders(final MimeMessage mimeMessage, final String messageId) throws MessagingException {
         mimeMessage.addHeader("Precedence", "bulk");
         mimeMessage.addHeader("Auto-Submitted", "auto-generated");
-        mimeMessage.addHeader("Message-ID", String.format("<%s>", messageId));
+        mimeMessage.addHeader("Message-ID", messageId);
         mimeMessage.addHeader("List-Unsubscribe", String.format("<https://%s/db-web-ui/unsubscribe/%s>", webRestPath, messageId));
         mimeMessage.addHeader("List-Unsubscribe-Post", "List-Unsubscribe=One-Click");
     }
