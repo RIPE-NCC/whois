@@ -8,6 +8,7 @@ import jakarta.mail.internet.ContentType;
 import jakarta.mail.internet.InternetAddress;
 import jakarta.mail.internet.InternetHeaders;
 import jakarta.mail.internet.MimeMessage;
+import jakarta.mail.internet.MimeMultipart;
 import net.ripe.db.whois.api.mail.BouncedMessage;
 import org.eclipse.angus.mail.dsn.DeliveryStatus;
 import org.eclipse.angus.mail.dsn.MultipartReport;
@@ -75,7 +76,7 @@ public class BouncedMessageParser {
 
     private MultipartReport multipartReport(final Object content) throws MessagingException {
         LOGGER.info("Content type is {}", content.getClass().toString());
-        if (content instanceof MultipartReport) {
+        if (content instanceof MimeMultipart) {
             return (MultipartReport)content;
         } else {
             throw new MessagingException("Unexpected content was not multipart/report");
