@@ -127,7 +127,7 @@ public class MailGatewaySmtp implements MailGateway {
                 message.setSubject(subject);
                 message.setText(text);
 
-                setHeaders(mimeMessage, createMessageId(mimeMessage, to));
+                setHeaders(mimeMessage, createMessageId(to));
 
                 loggerContext.log("msg-out.txt", new MailMessageLogCallback(mimeMessage));
             });
