@@ -2,11 +2,9 @@ package net.ripe.db.whois.update.mail;
 
 import jakarta.mail.SendFailedException;
 import jakarta.mail.Session;
-import jakarta.mail.internet.MimeMessage;
 import net.ripe.db.whois.common.dao.OutgoingMessageDao;
 import net.ripe.db.whois.common.dao.UndeliverableMailDao;
 import net.ripe.db.whois.update.log.LoggerContext;
-import org.eclipse.angus.mail.smtp.SMTPMessage;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -105,7 +103,7 @@ public class MailGatewaySmtpTest {
 
         ArgumentCaptor<MimeMessagePreparator> argument = ArgumentCaptor.forClass(MimeMessagePreparator.class);
         verify(mailSender).send(argument.capture());
-        final MimeMessage mimeMessage = new SMTPMessage(SESSION);
+        final CustomMimeMessage mimeMessage = new CustomMimeMessage(SESSION);
         argument.getValue().prepare(mimeMessage);
         assertThat(mimeMessage.getHeader("Reply-To", null), is("email@xn--idn-tla.org"));
     }
