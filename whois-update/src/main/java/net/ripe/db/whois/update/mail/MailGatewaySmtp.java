@@ -3,7 +3,6 @@ package net.ripe.db.whois.update.mail;
 import jakarta.mail.MessagingException;
 import jakarta.mail.internet.AddressException;
 import jakarta.mail.internet.InternetAddress;
-import jakarta.mail.internet.MimeMessage;
 import net.ripe.db.whois.common.Message;
 import net.ripe.db.whois.common.Messages;
 import net.ripe.db.whois.common.PunycodeConversion;
@@ -24,7 +23,6 @@ import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.Nullable;
-import java.util.UUID;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -115,10 +113,11 @@ public class MailGatewaySmtp implements MailGateway {
     private void sendEmailAttempt(final String to, final String replyTo, final String subject, final String text) {
         try {
             mailSender.send(mimeMessage -> {
+                final CustomMimeMessage customMimeMessage = (CustomMimeMessage) mimeMessage;
                 final String punyCodedTo = PunycodeConversion.toAscii(to);
                 final String punyCodedReplyTo = !StringUtils.isEmpty(replyTo)? PunycodeConversion.toAscii(replyTo) : "";
 
-                final MimeMessageHelper message = new MimeMessageHelper(mimeMessage, MimeMessageHelper.MULTIPART_MODE_NO, "UTF-8");
+                final MimeMessageHelper message = new MimeMessageHelper(customMimeMessage, MimeMessageHelper.MULTIPART_MODE_NO, "UTF-8");
                 message.setFrom(mailConfiguration.getFrom());
                 message.setTo(punyCodedTo);
                 if (!StringUtils.isEmpty(punyCodedReplyTo)) {
@@ -127,9 +126,11 @@ public class MailGatewaySmtp implements MailGateway {
                 message.setSubject(subject);
                 message.setText(text);
 
-                setHeaders(mimeMessage, createMessageId(mimeMessage, to));
+                customMimeMessage.updateMessageID();
+                storeMessageId(customMimeMessage.getMessageID(), to);
+                setHeaders(customMimeMessage);
 
-                loggerContext.log("msg-out.txt", new MailMessageLogCallback(mimeMessage));
+                loggerContext.log("msg-out.txt", new MailMessageLogCallback(customMimeMessage));
             });
         } catch (MailSendException e) {
             loggerContext.log(new Message(Messages.Type.ERROR, "Caught %s: %s", e.getClass().getName(), e.getMessage()));
@@ -143,17 +144,14 @@ public class MailGatewaySmtp implements MailGateway {
         }
     }
 
-    private String createMessageId(final MimeMessage mimeMessage, final String toEmail) throws MessagingException {
-        final String messageId = mimeMessage.getMessageID() != null ? mimeMessage.getMessageID() : String.format("<%s@ripe.net>", UUID.randomUUID());
+    private void storeMessageId(final String messageId, final String toEmail) {
         outgoingMessageDao.saveOutGoingMessageId(messageId, extractContentBetweenAngleBrackets(toEmail));
-        return messageId;
     }
 
-    private void setHeaders(final MimeMessage mimeMessage, final String messageId) throws MessagingException {
+    private void setHeaders(final CustomMimeMessage mimeMessage) throws MessagingException {
         mimeMessage.addHeader("Precedence", "bulk");
         mimeMessage.addHeader("Auto-Submitted", "auto-generated");
-        mimeMessage.addHeader("Message-ID", messageId);
-        mimeMessage.addHeader("List-Unsubscribe", String.format("<https://%s/db-web-ui/unsubscribe/%s>", webRestPath, messageId));
+        mimeMessage.addHeader("List-Unsubscribe", String.format("<https://%s/db-web-ui/unsubscribe/%s>", webRestPath, mimeMessage.getMessageID()));
         mimeMessage.addHeader("List-Unsubscribe-Post", "List-Unsubscribe=One-Click");
     }
 
