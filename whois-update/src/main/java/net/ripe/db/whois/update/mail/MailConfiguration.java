@@ -5,25 +5,35 @@ import jakarta.mail.Session;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.beans.factory.config.PropertiesFactoryBean;
-import org.springframework.core.env.EnumerablePropertySource;
-import org.springframework.core.env.Environment;
-import org.springframework.core.env.MutablePropertySources;
-import org.springframework.core.env.StandardEnvironment;
 import org.springframework.stereotype.Component;
 
 import java.io.IOException;
-import java.util.Arrays;
 import java.util.Properties;
-import java.util.stream.StreamSupport;
 
 @Component
 public class MailConfiguration {
 
+    @Value("${mail.smtp.host:localhost}")
+    private String smtpHost;
+
+    @Value("${mail.smtp.port:25}")
+    private String smtpPort;
+
     @Value("${mail.from}")
     private String from;
 
-    @Autowired
-    private Environment evironment;
+    @Value("${mail.smtp.debug:false}")
+    private boolean debug;
+
+    @Value("${mail.smtp.from:}")
+    private String bounceAddr;
+
+    @Value("${mail.smtp.dsn.notify:FAILURE}")
+    private String notify;
+
+    @Value("${mail.smtp.dsn.ret:HDRS}")
+    private String ret;
+
     @Autowired
     private PropertiesFactoryBean javaMailProperties;
 
@@ -44,24 +54,14 @@ public class MailConfiguration {
             throw new IllegalStateException("Couldn't read JavaMailProperties");
         }
 
-        addSmtpProperties(properties);
+        properties.put("mail.smtp.host", smtpHost);
+        properties.put("mail.smtp.port", smtpPort);
+        properties.put("mail.smtp.from", bounceAddr);
+        properties.put("mail.smtp.dsn.notify", notify);
+        properties.put("mail.smtp.dsn.ret", ret);
 
         session = Session.getInstance(properties);
-    }
-
-    private void addSmtpProperties(Properties properties) {
-        final MutablePropertySources sources = ((StandardEnvironment) evironment).getPropertySources();
-        StreamSupport.stream(sources.spliterator(), false)
-                .filter(ps -> ps instanceof EnumerablePropertySource)
-                .map(ps -> ((EnumerablePropertySource) ps).getPropertyNames())
-                .flatMap(Arrays::stream)
-                .distinct()
-                .sorted()
-                .forEach(prop -> {
-                            if (prop.startsWith("mail.smtp")){
-                                properties.put(prop, evironment.getProperty(prop));
-                            }
-                        });
+        session.setDebug(debug);
     }
 
     public Session getSession() {

@@ -191,6 +191,7 @@ public class MessageDequeue implements ApplicationService {
         final MimeMessage message = mailMessageDao.getMessage(messageId);
 
         try {
+            LOGGER.info("checking bounce message?{}", messageId);
             if (bouncedMessageService.isBouncedMessage(message)){
                 return;
             }
