@@ -13,6 +13,8 @@ import org.eclipse.angus.mail.dsn.DeliveryStatus;
 import org.eclipse.angus.mail.dsn.MultipartReport;
 import org.eclipse.angus.mail.dsn.Report;
 import org.elasticsearch.common.Strings;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
@@ -22,6 +24,8 @@ import java.io.IOException;
 
 @Component
 public class BouncedMessageParser {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(BouncedMessageParser.class);
 
     private static final ContentType MULTIPART_REPORT = contentType("multipart/report");
 
@@ -70,6 +74,7 @@ public class BouncedMessageParser {
     }
 
     private MultipartReport multipartReport(final Object content) throws MessagingException {
+        LOGGER.info("Content type is {}", content.getClass().toString());
         if (content instanceof MultipartReport) {
             return (MultipartReport)content;
         } else {
