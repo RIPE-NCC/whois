@@ -143,8 +143,8 @@ public class MailGatewaySmtp implements MailGateway {
         }
     }
 
-    private String createMessageId(final MimeMessage mimeMessage, final String toEmail) throws MessagingException {
-        final String messageId = mimeMessage.getMessageID() != null ? mimeMessage.getMessageID() : String.format("%s@ripe.net", UUID.randomUUID());
+    private String createMessageId(final String toEmail) {
+        final String messageId = String.format("%s@ripe.net", UUID.randomUUID());
         outgoingMessageDao.saveOutGoingMessageId(messageId, extractContentBetweenAngleBrackets(toEmail));
         return messageId;
     }
