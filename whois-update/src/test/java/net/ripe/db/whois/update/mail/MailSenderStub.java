@@ -6,6 +6,7 @@ import jakarta.mail.Address;
 import jakarta.mail.Message;
 import jakarta.mail.MessagingException;
 import jakarta.mail.Session;
+import jakarta.mail.internet.MimeMessage;
 import net.ripe.db.whois.common.Stub;
 import net.ripe.db.whois.common.profiles.WhoisProfile;
 import org.awaitility.Awaitility;
@@ -30,7 +31,7 @@ public class MailSenderStub extends MailSenderBase implements Stub {
 
     private static final Session SESSION = Session.getInstance(new Properties());
 
-    private final Set<CustomMimeMessage> messages = Collections.synchronizedSet(Sets.newHashSet());
+    private final Set<MimeMessage> messages = Collections.synchronizedSet(Sets.newHashSet());
 
     @Override
     public void reset() {
@@ -40,7 +41,7 @@ public class MailSenderStub extends MailSenderBase implements Stub {
     @Override
     public void send(MimeMessagePreparator mimeMessagePreparator) {
         try {
-            final CustomMimeMessage mimeMessage = new CustomMimeMessage(SESSION);
+            final MimeMessage mimeMessage = new MimeMessage(SESSION);
             mimeMessagePreparator.prepare(mimeMessage);
             messages.add(mimeMessage);
         } catch (Exception e) {
@@ -48,16 +49,16 @@ public class MailSenderStub extends MailSenderBase implements Stub {
         }
     }
 
-    public CustomMimeMessage getMessage(final String to) throws MessagingException {
+    public MimeMessage getMessage(final String to) throws MessagingException {
         final GetResponse getResponse = new GetResponse(to);
 
         try {
             Awaitility.await().atMost(30L, TimeUnit.SECONDS).until(getResponse);
-            final CustomMimeMessage message = getResponse.getMessage();
+            final MimeMessage message = getResponse.getMessage();
             messages.remove(message);
             return message;
         } catch (Exception e) {
-            for (final CustomMimeMessage message : messages) {
+            for (final MimeMessage message : messages) {
                 LOGGER.warn("Got message for: {}", message.getRecipients(Message.RecipientType.TO)[0].toString());
             }
             throw new AssertionError("Unable to get message for: " + to, e);
@@ -66,7 +67,7 @@ public class MailSenderStub extends MailSenderBase implements Stub {
 
     private class GetResponse implements Callable<Boolean> {
         private final String to;
-        private CustomMimeMessage message;
+        private MimeMessage message;
 
         public GetResponse(final String to) {
             this.to = to;
@@ -75,7 +76,7 @@ public class MailSenderStub extends MailSenderBase implements Stub {
         @Override
         public Boolean call() throws Exception {
             synchronized (messages) {
-                for (CustomMimeMessage message : messages) {
+                for (MimeMessage message : messages) {
                     if (message.getRecipients(Message.RecipientType.TO)[0].toString().equalsIgnoreCase(to)) {
                         this.message = message;
                         return true;
@@ -86,7 +87,7 @@ public class MailSenderStub extends MailSenderBase implements Stub {
             return false;
         }
 
-        public CustomMimeMessage getMessage() {
+        public MimeMessage getMessage() {
             return message;
         }
 

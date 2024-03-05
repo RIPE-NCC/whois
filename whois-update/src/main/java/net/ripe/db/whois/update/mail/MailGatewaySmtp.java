@@ -3,6 +3,7 @@ package net.ripe.db.whois.update.mail;
 import jakarta.mail.MessagingException;
 import jakarta.mail.internet.AddressException;
 import jakarta.mail.internet.InternetAddress;
+import jakarta.mail.internet.MimeMessage;
 import net.ripe.db.whois.common.Message;
 import net.ripe.db.whois.common.Messages;
 import net.ripe.db.whois.common.PunycodeConversion;
@@ -11,7 +12,6 @@ import net.ripe.db.whois.common.dao.OutgoingMessageDao;
 import net.ripe.db.whois.common.dao.UndeliverableMailDao;
 import net.ripe.db.whois.update.domain.ResponseMessage;
 import net.ripe.db.whois.update.log.LoggerContext;
-import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,6 +21,7 @@ import org.springframework.mail.MailSendException;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.stereotype.Component;
+import org.springframework.util.StringUtils;
 
 import javax.annotation.Nullable;
 import java.util.regex.Matcher;
@@ -41,7 +42,6 @@ public class MailGatewaySmtp implements MailGateway {
     private String webRestPath;
     @Value("${mail.smtp.enabled:false}")
     private boolean outgoingMailEnabled;
-
     @Value("${mail.smtp.retrySending:true}")
     private boolean retrySending;
 
@@ -112,47 +112,43 @@ public class MailGatewaySmtp implements MailGateway {
     @RetryFor(value = MailSendException.class, attempts = 20, intervalMs = 10000)
     private void sendEmailAttempt(final String to, final String replyTo, final String subject, final String text) {
         try {
-            mailSender.send(mimeMessage -> {
-                final CustomMimeMessage customMimeMessage = (CustomMimeMessage) mimeMessage;
-                final String punyCodedTo = PunycodeConversion.toAscii(to);
-                final String punyCodedReplyTo = !StringUtils.isEmpty(replyTo)? PunycodeConversion.toAscii(replyTo) : "";
+            final MimeMessage mimeMessage = mailSender.createMimeMessage();
 
-                final MimeMessageHelper message = new MimeMessageHelper(customMimeMessage, MimeMessageHelper.MULTIPART_MODE_NO, "UTF-8");
-                message.setFrom(mailConfiguration.getFrom());
-                message.setTo(punyCodedTo);
-                if (!StringUtils.isEmpty(punyCodedReplyTo)) {
-                    message.setReplyTo(punyCodedReplyTo);
-                }
-                message.setSubject(subject);
-                message.setText(text);
+            mimeMessage.addHeader("Precedence", "bulk");
+            mimeMessage.addHeader("Auto-Submitted", "auto-generated");
+            mimeMessage.addHeader("List-Unsubscribe", String.format("<https://%s/db-web-ui/unsubscribe/%s>", webRestPath, mimeMessage.getMessageID()));
+            mimeMessage.addHeader("List-Unsubscribe-Post", "List-Unsubscribe=One-Click");
 
-                customMimeMessage.updateMessageID();
-                storeMessageId(customMimeMessage.getMessageID(), to);
-                setHeaders(customMimeMessage);
+            final MimeMessageHelper helper = new MimeMessageHelper(mimeMessage, MimeMessageHelper.MULTIPART_MODE_NO, "UTF-8");
 
-                loggerContext.log("msg-out.txt", new MailMessageLogCallback(customMimeMessage));
-            });
-        } catch (MailSendException e) {
+            helper.setFrom(mailConfiguration.getFrom());
+
+            final String punyCodedTo = PunycodeConversion.toAscii(to);
+            final String punyCodedReplyTo = ! StringUtils.isEmpty(replyTo) ? PunycodeConversion.toAscii(replyTo) : "";
+            helper.setTo(punyCodedTo);
+            if (! StringUtils.isEmpty(punyCodedReplyTo)) {
+                helper.setReplyTo(punyCodedReplyTo);
+            }
+            helper.setSubject(subject);
+            helper.setText(text);
+
+            loggerContext.log("msg-out.txt", new MailMessageLogCallback(mimeMessage));
+            mailSender.send(mimeMessage);
+
+            outgoingMessageDao.saveOutGoingMessageId(
+                extractContentBetweenAngleBrackets(mimeMessage.getMessageID()),
+                extractContentBetweenAngleBrackets(punyCodedTo));
+
+        } catch (MailSendException | MessagingException e) {
             loggerContext.log(new Message(Messages.Type.ERROR, "Caught %s: %s", e.getClass().getName(), e.getMessage()));
             LOGGER.error(String.format("Unable to send mail message to: %s", to), e);
             //TODO acknowledgment should be sent even if the user is unsubscribe
             if (retrySending && !undeliverableMailDao.isUndeliverable(extractContentBetweenAngleBrackets(to))) {
-                throw e;
+                throw new MailSendException("Caught " + e.getClass().getName(), e);
             } else {
                 loggerContext.log(new Message(Messages.Type.ERROR, "Not retrying sending mail to %s with subject %s", to, subject));
             }
         }
-    }
-
-    private void storeMessageId(final String messageId, final String toEmail) {
-        outgoingMessageDao.saveOutGoingMessageId(messageId, extractContentBetweenAngleBrackets(toEmail));
-    }
-
-    private void setHeaders(final CustomMimeMessage mimeMessage) throws MessagingException {
-        mimeMessage.addHeader("Precedence", "bulk");
-        mimeMessage.addHeader("Auto-Submitted", "auto-generated");
-        mimeMessage.addHeader("List-Unsubscribe", String.format("<https://%s/db-web-ui/unsubscribe/%s>", webRestPath, mimeMessage.getMessageID()));
-        mimeMessage.addHeader("List-Unsubscribe-Post", "List-Unsubscribe=One-Click");
     }
 
     private String extractContentBetweenAngleBrackets(final String content) {
