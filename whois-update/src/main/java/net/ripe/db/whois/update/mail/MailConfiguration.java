@@ -25,15 +25,6 @@ public class MailConfiguration {
     @Value("${mail.smtp.debug:false}")
     private boolean debug;
 
-    @Value("${mail.smtp.from:}")
-    private String bounceAddr;
-
-    @Value("${mail.smtp.dsn.notify:FAILURE}")
-    private String notify;
-
-    @Value("${mail.smtp.dsn.ret:HDRS}")
-    private String ret;
-
     @Autowired
     private PropertiesFactoryBean javaMailProperties;
 
@@ -56,9 +47,6 @@ public class MailConfiguration {
 
         properties.put("mail.smtp.host", smtpHost);
         properties.put("mail.smtp.port", smtpPort);
-        properties.put("mail.smtp.from", bounceAddr);
-        properties.put("mail.smtp.dsn.notify", notify);
-        properties.put("mail.smtp.dsn.ret", ret);
 
         session = Session.getInstance(properties);
         session.setDebug(debug);
