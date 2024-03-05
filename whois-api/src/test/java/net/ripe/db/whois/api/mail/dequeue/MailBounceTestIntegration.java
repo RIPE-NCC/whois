@@ -223,6 +223,15 @@ public class MailBounceTestIntegration extends AbstractBounceMailMessageIntegrat
         Awaitility.waitAtMost(10L, TimeUnit.SECONDS).until(() -> (isUndeliverableAddress("nonexistant@ripe.net")));
     }
 
+    @Test
+    public void real_failure_mail_causes_address_to_be_marked_as_undeliverable() {
+        insertOutgoingMessageId("796892877.6.1709643245290@gaolao.ripe.net", "testing4@ripe.net");
+        final MimeMessage message = MimeMessageProvider.getUpdateMessage("permanentFailureMessageRfc822Real.mail");
+        insertIncomingMessage(message);
+
+        // Wait for address to be marked as undeliverable
+        Awaitility.waitAtMost(10L, TimeUnit.SECONDS).until(() -> (isUndeliverableAddress("testing4@ripe.net")));
+    }
 
     // TODO: test that acknowledgement email (i.e. the reply to an incoming message) *is* sent to unsubscribed address
 }

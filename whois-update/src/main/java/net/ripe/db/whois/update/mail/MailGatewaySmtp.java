@@ -39,6 +39,8 @@ public class MailGatewaySmtp implements MailGateway {
     private final UndeliverableMailDao undeliverableMailDao;
     private final OutgoingMessageDao outgoingMessageDao;
 
+    @Value("${mail.app.path}")
+    private String webRestPath;
     @Value("${mail.smtp.enabled:false}")
     private boolean outgoingMailEnabled;
 
@@ -151,7 +153,7 @@ public class MailGatewaySmtp implements MailGateway {
         mimeMessage.addHeader("Precedence", "bulk");
         mimeMessage.addHeader("Auto-Submitted", "auto-generated");
         mimeMessage.addHeader("Message-Id", String.format("<%s>", messageId));
-        mimeMessage.addHeader("List-Unsubscribe", String.format("<https://apps.db.ripe.net/db-web-ui/unsubscribe/%s>", messageId));
+        mimeMessage.addHeader("List-Unsubscribe", String.format("<https://%s/db-web-ui/unsubscribe/%s>", webRestPath, messageId));
         mimeMessage.addHeader("List-Unsubscribe-Post", "List-Unsubscribe=One-Click");
     }
 
