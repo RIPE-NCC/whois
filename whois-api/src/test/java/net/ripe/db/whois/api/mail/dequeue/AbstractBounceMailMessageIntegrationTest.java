@@ -23,6 +23,7 @@ public class AbstractBounceMailMessageIntegrationTest extends AbstractIntegratio
         System.setProperty("mail.smtp.dsn.notify", "SUCCESS,FAILURE,DELAY"); // Action supported types
         System.setProperty("mail.smtp.dsn.ret", "HDRS"); // Return the message headers in the DSN (Delivery Message Notification)
         System.setProperty("mail.smtp.enabled", "true");
+        System.setProperty("mail.app.path", "localhost");
     }
 
     @AfterAll
@@ -31,6 +32,7 @@ public class AbstractBounceMailMessageIntegrationTest extends AbstractIntegratio
         System.clearProperty("mail.smtp.dsn.notify");
         System.clearProperty("mail.smtp.dsn.ret");
         System.clearProperty("mail.smtp.enabled");
+        System.clearProperty("mail.app.path");
     }
 
     @BeforeEach
