@@ -16,7 +16,7 @@ import static org.hamcrest.MatcherAssert.assertThat;
 
 
 @Tag("IntegrationTest")
-public class BouncedMessageServiceTestIntegrationBounce extends AbstractBounceMailMessageIntegrationTest {
+public class BouncedMessageServiceTestIntegration extends AbstractBounceMailMessageIntegrationTest {
     @Autowired
     private MailSenderStub mailSenderStub;
 
