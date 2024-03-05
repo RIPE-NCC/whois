@@ -14,6 +14,8 @@ import net.ripe.db.whois.api.mail.BouncedMessage;
 import org.eclipse.angus.mail.dsn.DeliveryStatus;
 import org.eclipse.angus.mail.dsn.MultipartReport;
 import org.elasticsearch.common.Strings;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
@@ -24,6 +26,7 @@ import java.io.IOException;
 @Component
 public class BouncedMessageParser {
 
+    private static final Logger LOGGER = LoggerFactory.getLogger(BouncedMessageParser.class);
     private static final ContentType MULTIPART_REPORT = contentType("multipart/report");
 
     private static final String DELIVERY_STATUS = "delivery-status";
@@ -42,6 +45,10 @@ public class BouncedMessageParser {
                 final DeliveryStatus deliveryStatus = deliveryStatus(message);
                 if (isFailed(deliveryStatus)) {
                     final MimeMessage returnedMessage = mimeReportInfo.getReportReturningMessage();
+                    if (returnedMessage == null){
+                        LOGGER.warn("Unable to parse the message");
+                        return null;
+                    }
                     final String messageId = getMessageId(returnedMessage.getMessageID());
                     // TODO: double check we have the right recipient (This is the TO: header)
                     final String recipient = getFirstAddress(returnedMessage.getAllRecipients());
@@ -67,12 +74,13 @@ public class BouncedMessageParser {
     }
 
     private MimeReportInfo mimeReport(final Object content) throws MessagingException, IOException {
-        if (content instanceof final MultipartReport multipartReport) {
-            return new MimeReportInfo(DELIVERY_STATUS.equalsIgnoreCase(multipartReport.getReport().getType()), multipartReport.getReturnedMessage());
-        }
         if (content instanceof final MimeMultipart mimeMultipart) {
             return getReportMessageInformation(mimeMultipart);
         }
+        if (content instanceof final MultipartReport multipartReport) {
+            return new MimeReportInfo(DELIVERY_STATUS.equalsIgnoreCase(multipartReport.getReport().getType()), multipartReport.getReturnedMessage());
+        }
+
 
         throw new MessagingException("Unexpected content was not multipart/report");
 
@@ -86,7 +94,7 @@ public class BouncedMessageParser {
             if (DELIVERY_STATUS.equalsIgnoreCase(contentType.getSubType())) {
                 mimeReportInfo.setMimeReportType(true);
             }
-            if ("rfc822".equalsIgnoreCase(contentType.getSubType())){
+            if (contentType.getSubType().toLowerCase().contains("rfc822")){
                 mimeReportInfo.setReportReturningMessage(new MimeMessage(null, bodyPart.getInputStream()));
             }
         }

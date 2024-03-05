@@ -252,8 +252,4 @@ public class MessageDequeue implements ApplicationService {
         final UpdateResponse response = messageHandler.handle(updateRequest, updateContext);
         mailGateway.sendEmail(mailMessage.getReplyToEmail(), response.getStatus() + ": " + mailMessage.getSubject(), response.getResponse(), null);
     }
-
-
-
-
 }
