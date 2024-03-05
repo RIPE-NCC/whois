@@ -39,6 +39,14 @@ public class BouncedMessageParserTest {
     }
 
     @Test
+    public void parse_permanent_delivery_failure_message_rfc822_headers_real() throws Exception {
+        final BouncedMessage bouncedMessage = subject.parse(MimeMessageProvider.getUpdateMessage("permanentFailureMessageRfc822Real.mail"));
+
+        assertThat(bouncedMessage.getMessageId(), is("796892877.6.1709643245290@gaolao.ripe.net"));
+        assertThat(bouncedMessage.getEmailAddress(), is("testing4@ripe.net"));
+    }
+
+    @Test
     public void parse_permanent_delivery_failure_without_message_id() {
         final IllegalStateException e = assertThrows(IllegalStateException.class, () -> {
             subject.parse(MimeMessageProvider.getUpdateMessage("permanentFailureWithoutMessageId.mail"));

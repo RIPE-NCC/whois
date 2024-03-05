@@ -1,5 +1,7 @@
 package net.ripe.db.whois.api.mail.dequeue;
 
+import com.google.common.io.Resources;
+import jakarta.activation.MailcapCommandMap;
 import jakarta.mail.Address;
 import jakarta.mail.MessagingException;
 import jakarta.mail.Part;
@@ -7,29 +9,37 @@ import jakarta.mail.internet.AddressException;
 import jakarta.mail.internet.ContentType;
 import jakarta.mail.internet.InternetAddress;
 import jakarta.mail.internet.InternetHeaders;
-import jakarta.mail.internet.MimeBodyPart;
 import jakarta.mail.internet.MimeMessage;
-import jakarta.mail.internet.MimeMultipart;
 import net.ripe.db.whois.api.mail.BouncedMessage;
 import org.eclipse.angus.mail.dsn.DeliveryStatus;
 import org.eclipse.angus.mail.dsn.MultipartReport;
+import org.eclipse.angus.mail.dsn.Report;
 import org.elasticsearch.common.Strings;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.Nullable;
 import java.io.IOException;
+import java.nio.charset.Charset;
 
 @Component
 public class BouncedMessageParser {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(BouncedMessageParser.class);
+    static {
+        try {
+            ((MailcapCommandMap) MailcapCommandMap.getDefaultCommandMap())
+                .addMailcap(
+                    Resources.toString(
+                        Resources.getResource("mailcap.dsn"),
+                        Charset.defaultCharset()));
+        } catch (IOException e) {
+            throw new IllegalStateException("Unable to initialise Jakarta Mail DSN content handlers", e);
+        }
+    }
+
     private static final ContentType MULTIPART_REPORT = contentType("multipart/report");
 
-    private static final String DELIVERY_STATUS = "delivery-status";
     private final boolean enabled;
 
     @Autowired
@@ -40,15 +50,11 @@ public class BouncedMessageParser {
     @Nullable
     public BouncedMessage parse(final MimeMessage message) throws MessagingException, IOException {
         if (enabled && isMultipartReport(message)) {
-            final MimeReportInfo mimeReportInfo = mimeReport(message.getContent());
-            if (mimeReportInfo.isReportDeliveryStatus()) {
+            final MultipartReport multipartReport = multipartReport(message.getContent());
+            if (isReportDeliveryStatus(multipartReport)) {
                 final DeliveryStatus deliveryStatus = deliveryStatus(message);
                 if (isFailed(deliveryStatus)) {
-                    final MimeMessage returnedMessage = mimeReportInfo.getReportReturningMessage();
-                    if (returnedMessage == null){
-                        LOGGER.warn("Unable to parse the message");
-                        return null;
-                    }
+                    final MimeMessage returnedMessage = multipartReport.getReturnedMessage();
                     final String messageId = getMessageId(returnedMessage.getMessageID());
                     // TODO: double check we have the right recipient (This is the TO: header)
                     final String recipient = getFirstAddress(returnedMessage.getAllRecipients());
@@ -73,32 +79,17 @@ public class BouncedMessageParser {
         return MULTIPART_REPORT.match(contentType);
     }
 
-    private MimeReportInfo mimeReport(final Object content) throws MessagingException, IOException {
-        if (content instanceof final MultipartReport multipartReport) {
-            return new MimeReportInfo(DELIVERY_STATUS.equalsIgnoreCase(multipartReport.getReport().getType()), multipartReport.getReturnedMessage());
-        }
-
-        if (content instanceof final MimeMultipart mimeMultipart) {
-            return getReportMessageInformation(mimeMultipart);
-        }
-
-        throw new MessagingException("Unexpected content was not multipart/report");
-
+    private boolean isReportDeliveryStatus(final MultipartReport multipartReport) throws MessagingException {
+        final Report report = multipartReport.getReport();
+        return ("delivery-status".equals(report.getType()));
     }
 
-    private static MimeReportInfo getReportMessageInformation(MimeMultipart mimeMultipart) throws MessagingException, IOException {
-        final MimeReportInfo mimeReportInfo = new MimeReportInfo();
-        for (int i = 0; i < mimeMultipart.getCount(); i++) {
-            final MimeBodyPart bodyPart = (MimeBodyPart) mimeMultipart.getBodyPart(i);
-            final ContentType contentType = new ContentType(bodyPart.getContentType());
-            if (DELIVERY_STATUS.equalsIgnoreCase(contentType.getSubType())) {
-                mimeReportInfo.setMimeReportType(true);
-            }
-            if (contentType.getSubType().toLowerCase().contains("rfc822")){
-                mimeReportInfo.setReportReturningMessage(new MimeMessage(null, bodyPart.getInputStream()));
-            }
+    private MultipartReport multipartReport(final Object content) throws MessagingException {
+        if (content instanceof MultipartReport) {
+            return (MultipartReport)content;
+        } else {
+            throw new MessagingException("Unexpected content was not multipart/report");
         }
-        return mimeReportInfo;
     }
 
     private DeliveryStatus deliveryStatus(final Part part) throws MessagingException {
