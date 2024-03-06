@@ -19,7 +19,7 @@ import org.springframework.test.util.ReflectionTestUtils;
 
 import java.util.Properties;
 
-import static org.junit.jupiter.api.Assertions.fail;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.any;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
@@ -62,8 +62,6 @@ public class MailGatewaySmtpTest {
 
     @Test
     public void send_invoked_only_once_on_permanent_negative_response() {
-        ReflectionTestUtils.setField(subject, "retrySending", true);
-
         Mockito.doAnswer(invocation -> {
             throw new MailSendException("550 rejected: mail rejected for policy reasons");
         }).when(mailSender).send(any(MimeMessage.class));
@@ -89,10 +87,21 @@ public class MailGatewaySmtpTest {
 
     @Test
     public void sendResponseAndCheckForEmptyReplyTo() {
+        /*
+            In case reply to is null, from address is set into the message
+         */
+        final String replyToAddress = "";
         when(mailSender.createMimeMessage()).thenReturn(new MimeMessage(SESSION));
         when(mailConfiguration.getFrom()).thenReturn("test@ripe.net");
 
-        subject.sendEmail("to", "subject", "test", "");
+        setExpectReplyToField(replyToAddress);
+
+        assertThrows(IllegalArgumentException.class, () -> {
+            subject.sendEmail("to", "subject", "test", replyToAddress);
+        });
+
+        setExpectReplyToField("test@ripe.net");
+        subject.sendEmail("to", "subject", "test", replyToAddress);
     }
 
     @Test
@@ -111,7 +120,7 @@ public class MailGatewaySmtpTest {
             final Address messageReplyToAddress = mimeMessage.getReplyTo()[0];
 
             if(!replyToAddress.equals(messageReplyToAddress.toString())) {
-                fail();
+                throw new IllegalArgumentException();
             }
 
             return null;

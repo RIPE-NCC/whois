@@ -33,7 +33,6 @@ public class BouncedMessageService {
 
     public boolean isBouncedMessage(final MimeMessage message) throws MessagingException, IOException {
         final BouncedMessage bouncedMessage = bouncedMessageParser.parse(message);
-        LOGGER.info("bounce message is null?{}", bouncedMessage != null);
         if (bouncedMessage != null) {
             markUndeliverable(bouncedMessage);
             return true;

@@ -24,7 +24,7 @@ public class CustomJavaMailSender extends JavaMailSenderImpl {
 
         public CustomMimeMessage(Session session) {
             super(session);
-            messageId = String.format("%s@ripe.net", UUID.randomUUID());
+            this.messageId = String.format("%s@ripe.net", UUID.randomUUID());
         }
 
         @Override

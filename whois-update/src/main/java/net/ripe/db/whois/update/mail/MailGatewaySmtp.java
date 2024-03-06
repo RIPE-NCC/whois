@@ -1,5 +1,6 @@
 package net.ripe.db.whois.update.mail;
 
+import com.google.common.base.Strings;
 import jakarta.mail.MessagingException;
 import jakarta.mail.internet.AddressException;
 import jakarta.mail.internet.InternetAddress;
@@ -21,7 +22,6 @@ import org.springframework.mail.MailSendException;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.stereotype.Component;
-import org.springframework.util.StringUtils;
 
 import javax.annotation.Nullable;
 import java.util.regex.Matcher;
@@ -112,36 +112,25 @@ public class MailGatewaySmtp implements MailGateway {
     @RetryFor(value = MailSendException.class, attempts = 20, intervalMs = 10000)
     private void sendEmailAttempt(final String to, final String replyTo, final String subject, final String text) {
         try {
-            LOGGER.info("Creating mimemessage");
             final MimeMessage mimeMessage = mailSender.createMimeMessage();
-
-            LOGGER.info("created mimemessage {}", mimeMessage.getClass().toString());
-            LOGGER.info("created mimemessage {}", mimeMessage.getMessageID());
-            
-            mimeMessage.addHeader("Precedence", "bulk");
-            mimeMessage.addHeader("Auto-Submitted", "auto-generated");
-            mimeMessage.addHeader("List-Unsubscribe", String.format("<https://%s/db-web-ui/unsubscribe/%s>", webRestPath, mimeMessage.getMessageID()));
-            mimeMessage.addHeader("List-Unsubscribe-Post", "List-Unsubscribe=One-Click");
+            setHeaders(mimeMessage);
 
             final MimeMessageHelper helper = new MimeMessageHelper(mimeMessage, MimeMessageHelper.MULTIPART_MODE_NO, "UTF-8");
-
             helper.setFrom(mailConfiguration.getFrom());
 
             final String punyCodedTo = PunycodeConversion.toAscii(to);
-            final String punyCodedReplyTo = ! StringUtils.isEmpty(replyTo) ? PunycodeConversion.toAscii(replyTo) : "";
             helper.setTo(punyCodedTo);
-            if (! StringUtils.isEmpty(punyCodedReplyTo)) {
-                helper.setReplyTo(punyCodedReplyTo);
+
+            if (!Strings.isNullOrEmpty(replyTo)){
+                helper.setReplyTo(PunycodeConversion.toAscii(replyTo));
             }
+
             helper.setSubject(subject);
             helper.setText(text);
 
             loggerContext.log("msg-out.txt", new MailMessageLogCallback(mimeMessage));
             mailSender.send(mimeMessage);
-
-            outgoingMessageDao.saveOutGoingMessageId(
-                extractContentBetweenAngleBrackets(mimeMessage.getMessageID()),
-                extractContentBetweenAngleBrackets(punyCodedTo));
+            storeAsOutGoingMessage(mimeMessage, punyCodedTo);
 
         } catch (MailSendException | MessagingException e) {
             loggerContext.log(new Message(Messages.Type.ERROR, "Caught %s: %s", e.getClass().getName(), e.getMessage()));
@@ -153,6 +142,19 @@ public class MailGatewaySmtp implements MailGateway {
                 loggerContext.log(new Message(Messages.Type.ERROR, "Not retrying sending mail to %s with subject %s", to, subject));
             }
         }
+    }
+
+    private void storeAsOutGoingMessage(MimeMessage mimeMessage, String punyCodedTo) throws MessagingException {
+        outgoingMessageDao.saveOutGoingMessageId(
+            extractContentBetweenAngleBrackets(mimeMessage.getMessageID()),
+            extractContentBetweenAngleBrackets(punyCodedTo));
+    }
+
+    private void setHeaders(MimeMessage mimeMessage) throws MessagingException {
+        mimeMessage.addHeader("Precedence", "bulk");
+        mimeMessage.addHeader("Auto-Submitted", "auto-generated");
+        mimeMessage.addHeader("List-Unsubscribe", String.format("<https://%s/db-web-ui/unsubscribe/%s>", webRestPath, mimeMessage.getMessageID()));
+        mimeMessage.addHeader("List-Unsubscribe-Post", "List-Unsubscribe=One-Click");
     }
 
     private String extractContentBetweenAngleBrackets(final String content) {
