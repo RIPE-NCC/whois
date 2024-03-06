@@ -1,5 +1,6 @@
 package net.ripe.db.whois.update.mail;
 
+import jakarta.mail.Address;
 import jakarta.mail.Session;
 import jakarta.mail.internet.MimeMessage;
 import net.ripe.db.whois.common.dao.OutgoingMessageDao;
@@ -18,6 +19,7 @@ import org.springframework.test.util.ReflectionTestUtils;
 
 import java.util.Properties;
 
+import static org.junit.jupiter.api.Assertions.fail;
 import static org.mockito.Mockito.any;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
@@ -78,6 +80,7 @@ public class MailGatewaySmtpTest {
     public void sendResponseAndCheckForReplyTo() {
         final String replyToAddress = "test@ripe.net";
 
+        setExpectReplyToField(replyToAddress);
         when(mailSender.createMimeMessage()).thenReturn(new MimeMessage(SESSION));
         when(mailConfiguration.getFrom()).thenReturn(replyToAddress);
 
@@ -93,19 +96,26 @@ public class MailGatewaySmtpTest {
     }
 
     @Test
-    public void checkRecipientAddressesArePunycoded() throws Exception {
-        // TODO: We are not longer using MimeMessagePreparator, so there is no way to get the message that the unit
-        //  test is sending
-        /*when(mailSender.createMimeMessage()).thenReturn(new MimeMessage(SESSION));
+    public void checkRecipientAddressesArePunycoded() {
+        when(mailSender.createMimeMessage()).thenReturn(new MimeMessage(SESSION));
         when(mailConfiguration.getFrom()).thenReturn("from@from.to");
 
-        subject.sendEmail("to@to.to", "subject", "test", "email@Åidn.org");
+        setExpectReplyToField("email@xn--idn-tla.org");
 
-        ArgumentCaptor<MimeMessagePreparator> argument = ArgumentCaptor.forClass(MimeMessagePreparator.class);
-        verify(mailSender).send(any(MimeMessage.class));
-        final MimeMessage mimeMessage = new SMTPMessage(SESSION);
-        argument.getValue().prepare(mimeMessage);
-        assertThat(mimeMessage.getHeader("Reply-To", null), is("email@xn--idn-tla.org"));*/
+        subject.sendEmail("to@to.to", "subject", "test", "email@Åidn.org");
+    }
+
+    private void setExpectReplyToField(final String replyToAddress) {
+        Mockito.doAnswer(invocation -> {
+            final MimeMessage mimeMessage = (MimeMessage)invocation.getArguments()[0];
+            final Address messageReplyToAddress = mimeMessage.getReplyTo()[0];
+
+            if(!replyToAddress.equals(messageReplyToAddress.toString())) {
+                fail();
+            }
+
+            return null;
+        }).when(mailSender).send(any(MimeMessage.class));
     }
 
 }
