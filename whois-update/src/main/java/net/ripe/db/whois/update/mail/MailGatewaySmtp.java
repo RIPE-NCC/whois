@@ -112,8 +112,12 @@ public class MailGatewaySmtp implements MailGateway {
     @RetryFor(value = MailSendException.class, attempts = 20, intervalMs = 10000)
     private void sendEmailAttempt(final String to, final String replyTo, final String subject, final String text) {
         try {
+            LOGGER.info("Creating mimemessage");
             final MimeMessage mimeMessage = mailSender.createMimeMessage();
 
+            LOGGER.info("created mimemessage {}", mimeMessage.getClass().toString());
+            LOGGER.info("created mimemessage {}", mimeMessage.getMessageID());
+            
             mimeMessage.addHeader("Precedence", "bulk");
             mimeMessage.addHeader("Auto-Submitted", "auto-generated");
             mimeMessage.addHeader("List-Unsubscribe", String.format("<https://%s/db-web-ui/unsubscribe/%s>", webRestPath, mimeMessage.getMessageID()));

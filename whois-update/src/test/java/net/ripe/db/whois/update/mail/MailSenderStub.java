@@ -49,6 +49,20 @@ public class MailSenderStub extends MailSenderBase implements Stub {
         }
     }
 
+    @Override
+    public void send(MimeMessage mimeMessage) {
+        try {
+            messages.add(mimeMessage);
+        } catch (Exception e) {
+            throw new RuntimeException("Send message", e);
+        }
+    }
+
+    @Override
+    public MimeMessage createMimeMessage() {
+        return new MimeMessage(SESSION);
+    }
+
     public MimeMessage getMessage(final String to) throws MessagingException {
         final GetResponse getResponse = new GetResponse(to);
 
