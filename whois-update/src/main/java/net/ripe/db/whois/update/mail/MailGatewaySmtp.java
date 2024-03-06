@@ -152,6 +152,10 @@ public class MailGatewaySmtp implements MailGateway {
     }
 
     private String extractContentBetweenAngleBrackets(final String content) {
+        if(content == null){
+            return null;
+        }
+
         try {
             return new InternetAddress(content).getAddress();
         } catch (AddressException e) {
