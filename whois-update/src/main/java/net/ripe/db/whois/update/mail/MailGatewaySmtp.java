@@ -157,6 +157,7 @@ public class MailGatewaySmtp implements MailGateway {
         }
 
         try {
+            //Message-ID is in address format rfc2822
             return new InternetAddress(content).getAddress();
         } catch (AddressException e) {
             return content;
