@@ -82,7 +82,7 @@ public class MailGatewaySmtp implements MailGateway {
             }
 
             //TODO acknowledgment should be sent even if the user is unsubscribe
-            if (undeliverableMailDao.isUndeliverable(extractContentBetweenAngleBrackets(to))) {
+            if (undeliverableMailDao.isUndeliverable(extractEmailBetweenAngleBrackets(to))) {
                 LOGGER.debug("" +
                         "Email appears in undeliverable list\n" +
                         "\n" +
@@ -136,7 +136,7 @@ public class MailGatewaySmtp implements MailGateway {
             loggerContext.log(new Message(Messages.Type.ERROR, "Caught %s: %s", e.getClass().getName(), e.getMessage()));
             LOGGER.error(String.format("Unable to send mail message to: %s", to), e);
             //TODO acknowledgment should be sent even if the user is unsubscribe
-            if (retrySending && !undeliverableMailDao.isUndeliverable(extractContentBetweenAngleBrackets(to))) {
+            if (retrySending && !undeliverableMailDao.isUndeliverable(extractEmailBetweenAngleBrackets(to))) {
                 throw new MailSendException("Caught " + e.getClass().getName(), e);
             } else {
                 loggerContext.log(new Message(Messages.Type.ERROR, "Not retrying sending mail to %s with subject %s", to, subject));
@@ -146,8 +146,8 @@ public class MailGatewaySmtp implements MailGateway {
 
     private void storeAsOutGoingMessage(MimeMessage mimeMessage, String punyCodedTo) throws MessagingException {
         outgoingMessageDao.saveOutGoingMessageId(
-            extractContentBetweenAngleBrackets(mimeMessage.getMessageID()),
-            extractContentBetweenAngleBrackets(punyCodedTo));
+            extractEmailBetweenAngleBrackets(mimeMessage.getMessageID()),
+            extractEmailBetweenAngleBrackets(punyCodedTo));
     }
 
     private void setHeaders(MimeMessage mimeMessage) throws MessagingException {
@@ -157,13 +157,13 @@ public class MailGatewaySmtp implements MailGateway {
         mimeMessage.addHeader("List-Unsubscribe-Post", "List-Unsubscribe=One-Click");
     }
 
-    private String extractContentBetweenAngleBrackets(final String content) {
+    private String extractEmailBetweenAngleBrackets(final String content) {
+        //Message-ID is in address format rfc2822
         if(content == null){
             return null;
         }
 
         try {
-            //Message-ID is in address format rfc2822
             return new InternetAddress(content).getAddress();
         } catch (AddressException e) {
             return content;
