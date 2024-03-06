@@ -3,7 +3,7 @@ package net.ripe.db.whois.api.mail.dequeue;
 import com.google.common.base.Strings;
 import jakarta.mail.MessagingException;
 import jakarta.mail.internet.MimeMessage;
-import net.ripe.db.whois.api.mail.BouncedMessage;
+import net.ripe.db.whois.api.mail.BouncedMessageInfo;
 import net.ripe.db.whois.common.dao.OutgoingMessageDao;
 import net.ripe.db.whois.common.dao.UndeliverableMailDao;
 import org.slf4j.Logger;
@@ -31,24 +31,19 @@ public class BouncedMessageService {
 
     }
 
-    public boolean isBouncedMessage(final MimeMessage message) throws MessagingException, IOException {
-        final BouncedMessage bouncedMessage = bouncedMessageParser.parse(message);
-        if (bouncedMessage != null) {
-            markUndeliverable(bouncedMessage);
-            return true;
-        }
-        return false;
+    public BouncedMessageInfo getBouncedMessageInfo(final MimeMessage message) throws MessagingException, IOException {
+        return bouncedMessageParser.parse(message);
     }
 
-    private void markUndeliverable(final BouncedMessage bouncedMessage) {
-        final String email = outgoingMessageDao.getEmail(bouncedMessage.getMessageId());
+    public void verifyAndSetAsUndeliverable(final BouncedMessageInfo bouncedMessage) {
+        final String email = outgoingMessageDao.getEmail(bouncedMessage.messageId());
         if (Strings.isNullOrEmpty(email)) {
-            LOGGER.warn("Couldn't find outgoing message matching {}", bouncedMessage.getMessageId());
+            LOGGER.warn("Couldn't find outgoing message matching {}", bouncedMessage.messageId());
             return;
         }
-        //TODO: Test case
-        if (!email.equalsIgnoreCase(bouncedMessage.getEmailAddress())) {
-            LOGGER.warn("Email {} in outgoing message doesn't match '{}' in failure response", email, bouncedMessage.getEmailAddress());
+
+        if (!email.equalsIgnoreCase(bouncedMessage.emailAddress())) {
+            LOGGER.warn("Email {} in outgoing message doesn't match '{}' in failure response", email, bouncedMessage.emailAddress());
             return;
         }
         undeliverableMailDao.createUndeliverableEmail(email);

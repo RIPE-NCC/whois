@@ -3,6 +3,7 @@ package net.ripe.db.whois.api.mail.dequeue;
 import jakarta.mail.MessagingException;
 import jakarta.mail.internet.MimeMessage;
 import net.ripe.db.whois.api.MimeMessageProvider;
+import net.ripe.db.whois.api.mail.BouncedMessageInfo;
 import net.ripe.db.whois.update.mail.MailSenderStub;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Tag;
@@ -12,6 +13,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import java.io.IOException;
 
 import static org.hamcrest.CoreMatchers.is;
+import static org.hamcrest.CoreMatchers.not;
+import static org.hamcrest.CoreMatchers.nullValue;
 import static org.hamcrest.MatcherAssert.assertThat;
 
 
@@ -57,8 +60,10 @@ public class BouncedMessageServiceTestIntegration extends AbstractBounceMailMess
         final MimeMessage acknowledgement = mailSenderStub.getMessage(from);
 
         insertOutgoingMessageId(acknowledgement.getMessageID(), "notify-dummy-role@ripe.net");
-        assertThat(bouncedMessageService.isBouncedMessage(acknowledgement), is(false));
-        assertThat(isUndeliverableAddress("notify-dummy-role@ripe.net"), is(false));
+        final BouncedMessageInfo bouncedMessageInfo = bouncedMessageService.getBouncedMessageInfo(acknowledgement);
+        assertThat(bouncedMessageInfo, is(nullValue()));
+        assertThat(isUndeliverableAddress("enduser@ripe.net"), is(false));
+
     }
 
     @Test
@@ -66,7 +71,10 @@ public class BouncedMessageServiceTestIntegration extends AbstractBounceMailMess
         insertOutgoingMessageId("XXXXXXXX-5AE3-4C58-8E3F-860327BA955D@ripe.net", "enduser@ripe.net");
         final MimeMessage message = MimeMessageProvider.getUpdateMessage("permanentFailureMessageRfc822.mail");
 
-        assertThat(bouncedMessageService.isBouncedMessage(message), is(true));
+        final BouncedMessageInfo bouncedMessageInfo = bouncedMessageService.getBouncedMessageInfo(message);
+        assertThat(bouncedMessageInfo, is(not(nullValue())));
+
+        bouncedMessageService.verifyAndSetAsUndeliverable(bouncedMessageInfo);
         assertThat(isUndeliverableAddress("enduser@ripe.net"), is(false));
     }
 
@@ -75,7 +83,10 @@ public class BouncedMessageServiceTestIntegration extends AbstractBounceMailMess
         insertOutgoingMessageId("XXXXXXXX-5AE3-4C58-8E3F-860327BA955D@ripe.net", BOUNCED_MAIL_RECIPIENT);
         final MimeMessage message = MimeMessageProvider.getUpdateMessage("permanentFailureMessageRfc822.mail");
 
-        assertThat(bouncedMessageService.isBouncedMessage(message), is(true));
+        final BouncedMessageInfo bouncedMessageInfo = bouncedMessageService.getBouncedMessageInfo(message);
+        assertThat(bouncedMessageInfo, is(not(nullValue())));
+
+        bouncedMessageService.verifyAndSetAsUndeliverable(bouncedMessageInfo);
         assertThat(isUndeliverableAddress(BOUNCED_MAIL_RECIPIENT), is(true));
     }
 }

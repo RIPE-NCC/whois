@@ -1,7 +1,7 @@
 package net.ripe.db.whois.api.mail.dequeue;
 
 import net.ripe.db.whois.api.MimeMessageProvider;
-import net.ripe.db.whois.api.mail.BouncedMessage;
+import net.ripe.db.whois.api.mail.BouncedMessageInfo;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -24,26 +24,26 @@ public class BouncedMessageParserTest {
 
     @Test
     public void parse_permanent_delivery_failure_message_rfc822() throws Exception {
-        final BouncedMessage bouncedMessage = subject.parse(MimeMessageProvider.getUpdateMessage("permanentFailureMessageRfc822.mail"));
+        final BouncedMessageInfo bouncedMessage = subject.parse(MimeMessageProvider.getUpdateMessage("permanentFailureMessageRfc822.mail"));
 
-        assertThat(bouncedMessage.getMessageId(), is("XXXXXXXX-5AE3-4C58-8E3F-860327BA955D@ripe.net"));
-        assertThat(bouncedMessage.getEmailAddress(), is("nonexistant@host.org"));
+        assertThat(bouncedMessage.messageId(), is("XXXXXXXX-5AE3-4C58-8E3F-860327BA955D@ripe.net"));
+        assertThat(bouncedMessage.emailAddress(), is("nonexistant@host.org"));
     }
 
     @Test
     public void parse_permanent_delivery_failure_rfc822_headers() throws Exception {
-        final BouncedMessage bouncedMessage = subject.parse(MimeMessageProvider.getUpdateMessage("permanentFailureRfc822Headers.mail"));
+        final BouncedMessageInfo bouncedMessage = subject.parse(MimeMessageProvider.getUpdateMessage("permanentFailureRfc822Headers.mail"));
 
-        assertThat(bouncedMessage.getMessageId(), is("XXXXXXXX-2BCC-4B29-9D86-3B8C68DD835D@ripe.net"));
-        assertThat(bouncedMessage.getEmailAddress(), is("nonexistant@ripe.net"));
+        assertThat(bouncedMessage.messageId(), is("XXXXXXXX-2BCC-4B29-9D86-3B8C68DD835D@ripe.net"));
+        assertThat(bouncedMessage.emailAddress(), is("nonexistant@ripe.net"));
     }
 
     @Test
     public void parse_permanent_delivery_failure_message_rfc822_headers_real() throws Exception {
-        final BouncedMessage bouncedMessage = subject.parse(MimeMessageProvider.getUpdateMessage("permanentFailureMessageRfc822Real.mail"));
+        final BouncedMessageInfo bouncedMessage = subject.parse(MimeMessageProvider.getUpdateMessage("permanentFailureMessageRfc822Real.mail"));
 
-        assertThat(bouncedMessage.getMessageId(), is("796892877.6.1709643245290@gaolao.ripe.net"));
-        assertThat(bouncedMessage.getEmailAddress(), is("testing4@ripe.net"));
+        assertThat(bouncedMessage.messageId(), is("796892877.6.1709643245290@gaolao.ripe.net"));
+        assertThat(bouncedMessage.emailAddress(), is("testing4@ripe.net"));
     }
 
     @Test

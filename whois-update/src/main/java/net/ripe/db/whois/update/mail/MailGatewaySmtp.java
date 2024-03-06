@@ -38,7 +38,7 @@ public class MailGatewaySmtp implements MailGateway {
     private final UndeliverableMailDao undeliverableMailDao;
     private final OutgoingMessageDao outgoingMessageDao;
 
-    @Value("${mail.app.path}")
+    @Value("${web.baseurl}")
     private String webRestPath;
     @Value("${mail.smtp.enabled:false}")
     private boolean outgoingMailEnabled;
@@ -153,7 +153,7 @@ public class MailGatewaySmtp implements MailGateway {
     private void setHeaders(MimeMessage mimeMessage) throws MessagingException {
         mimeMessage.addHeader("Precedence", "bulk");
         mimeMessage.addHeader("Auto-Submitted", "auto-generated");
-        mimeMessage.addHeader("List-Unsubscribe", String.format("<https://%s/db-web-ui/unsubscribe/%s>", webRestPath, mimeMessage.getMessageID()));
+        mimeMessage.addHeader("List-Unsubscribe", String.format("<%s/unsubscribe/%s>", webRestPath, mimeMessage.getMessageID()));
         mimeMessage.addHeader("List-Unsubscribe-Post", "List-Unsubscribe=One-Click");
     }
 

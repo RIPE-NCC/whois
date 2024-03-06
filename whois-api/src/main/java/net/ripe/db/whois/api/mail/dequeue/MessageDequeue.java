@@ -4,6 +4,7 @@ import jakarta.mail.Message;
 import jakarta.mail.MessagingException;
 import jakarta.mail.internet.MimeMessage;
 import net.ripe.db.whois.api.UpdatesParser;
+import net.ripe.db.whois.api.mail.BouncedMessageInfo;
 import net.ripe.db.whois.api.mail.MailMessage;
 import net.ripe.db.whois.api.mail.dao.MailMessageDao;
 import net.ripe.db.whois.common.ApplicationService;
@@ -191,7 +192,9 @@ public class MessageDequeue implements ApplicationService {
         final MimeMessage message = mailMessageDao.getMessage(messageId);
 
         try {
-            if (bouncedMessageService.isBouncedMessage(message)){
+            final BouncedMessageInfo bouncedMessageInfo = bouncedMessageService.getBouncedMessageInfo(message);
+            if (bouncedMessageInfo != null){
+                bouncedMessageService.verifyAndSetAsUndeliverable(bouncedMessageInfo);
                 mailMessageDao.deleteMessage(messageId);
                 return;
             }

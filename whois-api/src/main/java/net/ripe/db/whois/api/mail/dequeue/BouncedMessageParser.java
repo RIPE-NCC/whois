@@ -10,7 +10,7 @@ import jakarta.mail.internet.ContentType;
 import jakarta.mail.internet.InternetAddress;
 import jakarta.mail.internet.InternetHeaders;
 import jakarta.mail.internet.MimeMessage;
-import net.ripe.db.whois.api.mail.BouncedMessage;
+import net.ripe.db.whois.api.mail.BouncedMessageInfo;
 import org.eclipse.angus.mail.dsn.DeliveryStatus;
 import org.eclipse.angus.mail.dsn.MultipartReport;
 import org.eclipse.angus.mail.dsn.Report;
@@ -48,7 +48,7 @@ public class BouncedMessageParser {
     }
 
     @Nullable
-    public BouncedMessage parse(final MimeMessage message) throws MessagingException, IOException {
+    public BouncedMessageInfo parse(final MimeMessage message) throws MessagingException, IOException {
         if (enabled && isMultipartReport(message)) {
             final MultipartReport multipartReport = multipartReport(message.getContent());
             if (isReportDeliveryStatus(multipartReport)) {
@@ -58,7 +58,7 @@ public class BouncedMessageParser {
                     final String messageId = getMessageId(returnedMessage.getMessageID());
                     // TODO: double check we have the right recipient (This is the TO: header)
                     final String recipient = getFirstAddress(returnedMessage.getAllRecipients());
-                    return new BouncedMessage(recipient, messageId);
+                    return new BouncedMessageInfo(recipient, messageId);
                 }
             }
         }
