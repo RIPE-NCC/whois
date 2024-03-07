@@ -19,6 +19,7 @@
         </bean>
     </beans>
     <beans>
+        <!-- TODO: [ES] configure in Java component -->
         <!-- Ref. https://javaee.github.io/javamail/docs/api/com/sun/mail/smtp/package-summary.html -->
         <bean id="javaMailProperties" class="org.springframework.beans.factory.config.PropertiesFactoryBean">
             <property name="properties">

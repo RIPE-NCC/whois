@@ -15,7 +15,6 @@ import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.mail.MailSendException;
 import org.springframework.mail.javamail.JavaMailSender;
-import org.springframework.test.util.ReflectionTestUtils;
 
 import java.util.Properties;
 
@@ -39,7 +38,7 @@ public class MailGatewaySmtpTest {
 
     @BeforeEach
     public void setUp() throws Exception {
-        ReflectionTestUtils.setField(subject, "outgoingMailEnabled", true);
+        when(mailConfiguration.isEnabled()).thenReturn(true);
     }
 
     @Test
@@ -53,7 +52,7 @@ public class MailGatewaySmtpTest {
 
     @Test
     public void sendResponse_disabled() {
-        ReflectionTestUtils.setField(subject, "outgoingMailEnabled", false);
+        when(mailConfiguration.isEnabled()).thenReturn(false);
 
         subject.sendEmail("to", "subject", "test", "");
 

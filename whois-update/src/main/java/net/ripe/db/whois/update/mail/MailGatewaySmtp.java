@@ -29,8 +29,10 @@ import java.util.regex.Pattern;
 
 @Component
 public class MailGatewaySmtp implements MailGateway {
-    private static final Pattern INVALID_EMAIL_PATTERN = Pattern.compile("(?i)((?:auto|test)\\-dbm@ripe\\.net)");
+
     private static final Logger LOGGER = LoggerFactory.getLogger(MailGatewaySmtp.class);
+
+    private static final Pattern INVALID_EMAIL_PATTERN = Pattern.compile("(?i)((?:auto|test)\\-dbm@ripe\\.net)");
 
     private final LoggerContext loggerContext;
     private final MailConfiguration mailConfiguration;
@@ -40,10 +42,6 @@ public class MailGatewaySmtp implements MailGateway {
 
     @Value("${web.baseurl}")
     private String webRestPath;
-    @Value("${mail.smtp.enabled:false}")
-    private boolean outgoingMailEnabled;
-    @Value("${mail.smtp.retrySending:true}")
-    private boolean retrySending;
 
     @Autowired
     public MailGatewaySmtp(
@@ -66,7 +64,7 @@ public class MailGatewaySmtp implements MailGateway {
 
     @Override
     public void sendEmail(final String to, final String subject, final String text, @Nullable final String replyTo) {
-            if (!outgoingMailEnabled) {
+            if (! mailConfiguration.isEnabled()) {
                 LOGGER.debug("" +
                         "Outgoing mail disabled\n" +
                         "\n" +
@@ -136,7 +134,7 @@ public class MailGatewaySmtp implements MailGateway {
             loggerContext.log(new Message(Messages.Type.ERROR, "Caught %s: %s", e.getClass().getName(), e.getMessage()));
             LOGGER.error(String.format("Unable to send mail message to: %s", to), e);
             //TODO acknowledgment should be sent even if the user is unsubscribe
-            if (retrySending && !undeliverableMailDao.isUndeliverable(extractEmailBetweenAngleBrackets(to))) {
+            if (mailConfiguration.retrySending() && !undeliverableMailDao.isUndeliverable(extractEmailBetweenAngleBrackets(to))) {
                 throw new MailSendException("Caught " + e.getClass().getName(), e);
             } else {
                 loggerContext.log(new Message(Messages.Type.ERROR, "Not retrying sending mail to %s with subject %s", to, subject));
@@ -146,7 +144,7 @@ public class MailGatewaySmtp implements MailGateway {
 
     private void storeAsOutGoingMessage(MimeMessage mimeMessage, String punyCodedTo) throws MessagingException {
         outgoingMessageDao.saveOutGoingMessageId(
-            extractEmailBetweenAngleBrackets(mimeMessage.getMessageID()),
+            extractEmailBetweenAngleBrackets(mimeMessage.getMessageID()),   // Message-ID is in rfc2822 address format
             extractEmailBetweenAngleBrackets(punyCodedTo));
     }
 
@@ -157,9 +155,9 @@ public class MailGatewaySmtp implements MailGateway {
         mimeMessage.addHeader("List-Unsubscribe-Post", "List-Unsubscribe=One-Click");
     }
 
+    @Nullable
     private String extractEmailBetweenAngleBrackets(final String content) {
-        //Message-ID is in address format rfc2822
-        if(content == null){
+        if(content == null) {
             return null;
         }
 
