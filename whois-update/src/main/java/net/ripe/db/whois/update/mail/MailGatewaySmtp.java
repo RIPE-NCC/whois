@@ -151,8 +151,16 @@ public class MailGatewaySmtp implements MailGateway {
     private void setHeaders(MimeMessage mimeMessage) throws MessagingException {
         mimeMessage.addHeader("Precedence", "bulk");
         mimeMessage.addHeader("Auto-Submitted", "auto-generated");
-        mimeMessage.addHeader("List-Unsubscribe", String.format("<%s/unsubscribe/%s>", webRestPath, mimeMessage.getMessageID()));
-        mimeMessage.addHeader("List-Unsubscribe-Post", "List-Unsubscribe=One-Click");
+        if (!Strings.isNullOrEmpty(mailConfiguration.getSmtpFrom())) {
+            mimeMessage.addHeader("List-Unsubscribe",
+                String.format("<%s/unsubscribe/%s>, <mailto:%s?subject=Unsubscribe%20%s&body=%s>",
+                webRestPath,
+                mimeMessage.getMessageID(),
+                mailConfiguration.getSmtpFrom(),
+                mimeMessage.getMessageID(),
+                mimeMessage.getMessageID()));
+            mimeMessage.addHeader("List-Unsubscribe-Post", "List-Unsubscribe=One-Click");
+        }
     }
 
     @Nullable
