@@ -64,13 +64,13 @@ public class MessageDequeueTest {
     @Mock MailMessageDao mailMessageDao;
     @Mock MessageFilter messageFilter;
     @Mock MessageParser messageParser;
-    @Mock BouncedMessageParser bouncedMessageParser;
     @Mock UpdatesParser updatesParser;
     @Mock UpdateRequestHandler messageHandler;
     @Mock LoggerContext loggerContext;
     @Mock UpdateLog updateLog;
     @Mock DateTimeProvider dateTimeProvider;
     @Mock BouncedMessageService bouncedMessageService;
+    @Mock UnsubscribeMessageService unsubscribeMessageService;
 
     @InjectMocks MessageDequeue subject;
 
@@ -80,7 +80,8 @@ public class MessageDequeueTest {
         ReflectionTestUtils.setField(subject, "intervalMs", 1);
         lenient().when(maintenanceMode.allowUpdate()).thenReturn(true);
         lenient().when(dateTimeProvider.getCurrentZonedDateTime()).thenReturn(ZonedDateTime.now(ZoneOffset.UTC));
-        lenient().when(bouncedMessageParser.parse(any(MimeMessage.class))).thenReturn(null);
+        lenient().when(bouncedMessageService.getBouncedMessageInfo(any(MimeMessage.class))).thenReturn(null);
+        lenient().when(unsubscribeMessageService.getUnsubscribedMessageInfo(any(MimeMessage.class))).thenReturn(null);
     }
 
     @AfterEach
