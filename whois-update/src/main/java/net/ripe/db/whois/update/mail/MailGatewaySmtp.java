@@ -153,11 +153,10 @@ public class MailGatewaySmtp implements MailGateway {
         mimeMessage.addHeader("Auto-Submitted", "auto-generated");
         if (!Strings.isNullOrEmpty(mailConfiguration.getSmtpFrom())) {
             mimeMessage.addHeader("List-Unsubscribe",
-                String.format("<%s/unsubscribe/%s>, <mailto:%s?subject=Unsubscribe%%20%s&body=%s>",
+                String.format("<%s/unsubscribe/%s>, <mailto:%s?subject=Unsubscribe%%20%s>",
                 webRestPath,
                 mimeMessage.getMessageID(),
                 mailConfiguration.getSmtpFrom(),
-                mimeMessage.getMessageID(),
                 mimeMessage.getMessageID()));
             mimeMessage.addHeader("List-Unsubscribe-Post", "List-Unsubscribe=One-Click");
         }

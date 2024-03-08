@@ -3,7 +3,7 @@ package net.ripe.db.whois.api.mail.dequeue;
 import jakarta.mail.MessagingException;
 import jakarta.mail.internet.MimeMessage;
 import net.ripe.db.whois.api.MimeMessageProvider;
-import net.ripe.db.whois.api.mail.BouncedMessageInfo;
+import net.ripe.db.whois.api.mail.MessageInfo;
 import net.ripe.db.whois.update.mail.MailSenderStub;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Tag;
@@ -60,7 +60,7 @@ public class BouncedMessageServiceTestIntegration extends AbstractBounceMailMess
         final MimeMessage acknowledgement = mailSenderStub.getMessage(from);
 
         insertOutgoingMessageId(acknowledgement.getMessageID(), "notify-dummy-role@ripe.net");
-        final BouncedMessageInfo bouncedMessageInfo = bouncedMessageService.getBouncedMessageInfo(acknowledgement);
+        final MessageInfo bouncedMessageInfo = bouncedMessageService.getBouncedMessageInfo(acknowledgement);
         assertThat(bouncedMessageInfo, is(nullValue()));
         assertThat(isUndeliverableAddress("enduser@ripe.net"), is(false));
 
@@ -71,7 +71,7 @@ public class BouncedMessageServiceTestIntegration extends AbstractBounceMailMess
         insertOutgoingMessageId("XXXXXXXX-5AE3-4C58-8E3F-860327BA955D@ripe.net", "enduser@ripe.net");
         final MimeMessage message = MimeMessageProvider.getUpdateMessage("permanentFailureMessageRfc822.mail");
 
-        final BouncedMessageInfo bouncedMessageInfo = bouncedMessageService.getBouncedMessageInfo(message);
+        final MessageInfo bouncedMessageInfo = bouncedMessageService.getBouncedMessageInfo(message);
         assertThat(bouncedMessageInfo, is(not(nullValue())));
 
         bouncedMessageService.verifyAndSetAsUndeliverable(bouncedMessageInfo);
@@ -83,7 +83,7 @@ public class BouncedMessageServiceTestIntegration extends AbstractBounceMailMess
         insertOutgoingMessageId("XXXXXXXX-5AE3-4C58-8E3F-860327BA955D@ripe.net", BOUNCED_MAIL_RECIPIENT);
         final MimeMessage message = MimeMessageProvider.getUpdateMessage("permanentFailureMessageRfc822.mail");
 
-        final BouncedMessageInfo bouncedMessageInfo = bouncedMessageService.getBouncedMessageInfo(message);
+        final MessageInfo bouncedMessageInfo = bouncedMessageService.getBouncedMessageInfo(message);
         assertThat(bouncedMessageInfo, is(not(nullValue())));
 
         bouncedMessageService.verifyAndSetAsUndeliverable(bouncedMessageInfo);

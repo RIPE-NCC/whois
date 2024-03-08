@@ -4,7 +4,7 @@ import jakarta.mail.Message;
 import jakarta.mail.MessagingException;
 import jakarta.mail.internet.MimeMessage;
 import net.ripe.db.whois.api.UpdatesParser;
-import net.ripe.db.whois.api.mail.BouncedMessageInfo;
+import net.ripe.db.whois.api.mail.MessageInfo;
 import net.ripe.db.whois.api.mail.MailMessage;
 import net.ripe.db.whois.api.mail.dao.MailMessageDao;
 import net.ripe.db.whois.common.ApplicationService;
@@ -52,13 +52,14 @@ public class MessageDequeue implements ApplicationService {
     private final UpdateRequestHandler messageHandler;
     private final LoggerContext loggerContext;
     private final DateTimeProvider dateTimeProvider;
+    private final BouncedMessageService bouncedMessageService;
+    private final UnsubscribeMessageService unsubscribeMessageService;
 
     private final AtomicInteger freeThreads = new AtomicInteger();
 
     private ExecutorService handlerExecutor;
     private ScheduledExecutorService pollerExecutor;
 
-    private final BouncedMessageService bouncedMessageService;
     @Value("${mail.update.threads:2}")
     private int nrThreads;
 
@@ -75,7 +76,8 @@ public class MessageDequeue implements ApplicationService {
                           final UpdateRequestHandler messageHandler,
                           final LoggerContext loggerContext,
                           final DateTimeProvider dateTimeProvider,
-                          final BouncedMessageService bouncedMessageService) {
+                          final BouncedMessageService bouncedMessageService,
+                          final UnsubscribeMessageService unsubscribeMessageService) {
         this.maintenanceMode = maintenanceMode;
         this.mailGateway = mailGateway;
         this.mailMessageDao = mailMessageDao;
@@ -86,6 +88,7 @@ public class MessageDequeue implements ApplicationService {
         this.loggerContext = loggerContext;
         this.dateTimeProvider = dateTimeProvider;
         this.bouncedMessageService = bouncedMessageService;
+        this.unsubscribeMessageService = unsubscribeMessageService;
     }
 
 
@@ -192,12 +195,20 @@ public class MessageDequeue implements ApplicationService {
         final MimeMessage message = mailMessageDao.getMessage(messageId);
 
         try {
-            final BouncedMessageInfo bouncedMessageInfo = bouncedMessageService.getBouncedMessageInfo(message);
-            if (bouncedMessageInfo != null){
-                bouncedMessageService.verifyAndSetAsUndeliverable(bouncedMessageInfo);
+            final MessageInfo bouncedMessage = bouncedMessageService.getBouncedMessageInfo(message);
+            if (bouncedMessage != null) {
+                bouncedMessageService.verifyAndSetAsUndeliverable(bouncedMessage);
                 mailMessageDao.deleteMessage(messageId);
                 return;
             }
+
+            final MessageInfo unsubscribeMessage = unsubscribeMessageService.getUnsubscribedMessageInfo(message);
+            if (unsubscribeMessage != null) {
+                unsubscribeMessageService.verifyAndSetAsUnsubscribed(unsubscribeMessage);
+                mailMessageDao.deleteMessage(messageId);
+                return;
+            }
+
             loggerContext.init(getMessageIdLocalPart(message));
             try {
                 handleMessageInContext(messageId, message);
