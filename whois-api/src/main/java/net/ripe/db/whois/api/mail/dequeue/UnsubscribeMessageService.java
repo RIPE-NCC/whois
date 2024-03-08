@@ -51,6 +51,8 @@ public class UnsubscribeMessageService {
             LOGGER.warn("Email {} in outgoing message doesn't match '{}' in failure response", email, unsubscribedMessage.emailAddress());
             return;
         }
+
+        LOGGER.info("Unsubscribe message-id {} email {}", unsubscribedMessage.messageId(), unsubscribedMessage.emailAddress());
         undeliverableMailDao.createUndeliverableEmail(email);
     }
 

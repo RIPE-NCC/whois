@@ -45,6 +45,8 @@ public class BouncedMessageService {
             LOGGER.warn("Email {} in outgoing message doesn't match '{}' in failure response", email, bouncedMessage.emailAddress());
             return;
         }
+
+        LOGGER.info("Undeliverable message-id {} email {}", bouncedMessage.messageId(), bouncedMessage.emailAddress());
         undeliverableMailDao.createUndeliverableEmail(email);
     }
 
