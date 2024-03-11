@@ -1,8 +1,0 @@
-#
-# Jakarta Mail content-handlers
-# Copied from META-INF/mailcap in org.eclipse.angus:dsn dependency (otherwise mailcap is lost by maven-shade-plugin)
-#
-multipart/report;;      x-java-content-handler=org.eclipse.angus.mail.dsn.multipart_report
-message/delivery-status;; x-java-content-handler=org.eclipse.angus.mail.dsn.message_deliverystatus
-message/disposition-notification;; x-java-content-handler=org.eclipse.angus.mail.dsn.message_dispositionnotification
-text/rfc822-headers;;   x-java-content-handler=org.eclipse.angus.mail.dsn.text_rfc822headers

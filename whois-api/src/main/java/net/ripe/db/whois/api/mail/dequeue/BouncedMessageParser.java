@@ -1,7 +1,5 @@
 package net.ripe.db.whois.api.mail.dequeue;
 
-import com.google.common.io.Resources;
-import jakarta.activation.MailcapCommandMap;
 import jakarta.mail.Address;
 import jakarta.mail.MessagingException;
 import jakarta.mail.Part;
@@ -21,22 +19,9 @@ import org.springframework.stereotype.Component;
 
 import javax.annotation.Nullable;
 import java.io.IOException;
-import java.nio.charset.Charset;
 
 @Component
 public class BouncedMessageParser {
-
-    static {
-        try {
-            ((MailcapCommandMap) MailcapCommandMap.getDefaultCommandMap())
-                .addMailcap(
-                    Resources.toString(
-                        Resources.getResource("mailcap.dsn"),
-                        Charset.defaultCharset()));
-        } catch (IOException e) {
-            throw new IllegalStateException("Unable to initialise Jakarta Mail DSN content handlers", e);
-        }
-    }
 
     private static final ContentType MULTIPART_REPORT = contentType("multipart/report");
 
