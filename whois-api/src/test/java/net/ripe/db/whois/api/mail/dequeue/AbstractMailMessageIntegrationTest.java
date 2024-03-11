@@ -9,7 +9,7 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.springframework.beans.factory.annotation.Autowired;
 
-public class AbstractBounceMailMessageIntegrationTest extends AbstractIntegrationTest {
+public class AbstractMailMessageIntegrationTest extends AbstractIntegrationTest {
 
     @Autowired
     private MailUpdatesTestSupport mailUpdatesTestSupport;

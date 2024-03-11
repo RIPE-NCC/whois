@@ -19,7 +19,7 @@ import static org.hamcrest.MatcherAssert.assertThat;
 
 
 @Tag("IntegrationTest")
-public class MessageServiceTestIntegration extends AbstractBounceMailMessageIntegrationTest {
+public class MessageServiceTestIntegration extends AbstractMailMessageIntegrationTest {
     @Autowired
     private MailSenderStub mailSenderStub;
 

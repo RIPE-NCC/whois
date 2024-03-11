@@ -21,7 +21,7 @@ import static org.hamcrest.Matchers.not;
 import static org.hamcrest.Matchers.nullValue;
 
 @Tag("IntegrationTest")
-public class MailBounceTestIntegration extends AbstractBounceMailMessageIntegrationTest {
+public class MailBounceTestIntegration extends AbstractMailMessageIntegrationTest {
 
     @Autowired
     private MailSenderStub mailSenderStub;
