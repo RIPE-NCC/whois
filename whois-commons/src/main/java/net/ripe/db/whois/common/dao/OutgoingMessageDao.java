@@ -21,7 +21,8 @@ public class OutgoingMessageDao {
     }
 
     public void saveOutGoingMessageId(final String uuid, final String email){
-        jdbcTemplate.update("INSERT INTO outgoing_message (message_id, email, last_update) VALUES (?, ?, ?)", uuid, email, LocalDateTime.now());
+        jdbcTemplate.update("INSERT INTO outgoing_message (message_id, email, last_update) VALUES (?, ?, ?)", uuid,
+                email, LocalDateTime.now());
     }
 
     @Nullable
@@ -36,5 +37,4 @@ public class OutgoingMessageDao {
                 return null;
             });
     }
-
 }

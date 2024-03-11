@@ -52,7 +52,7 @@ public class MessageDequeue implements ApplicationService {
     private final UpdateRequestHandler messageHandler;
     private final LoggerContext loggerContext;
     private final DateTimeProvider dateTimeProvider;
-    private final UnsubscribeMessageService unsubscribeMessageService;
+    private final MessageService messageService;
 
     private final AtomicInteger freeThreads = new AtomicInteger();
 
@@ -75,7 +75,7 @@ public class MessageDequeue implements ApplicationService {
                           final UpdateRequestHandler messageHandler,
                           final LoggerContext loggerContext,
                           final DateTimeProvider dateTimeProvider,
-                          final UnsubscribeMessageService unsubscribeMessageService) {
+                          final MessageService messageService) {
         this.maintenanceMode = maintenanceMode;
         this.mailGateway = mailGateway;
         this.mailMessageDao = mailMessageDao;
@@ -85,7 +85,7 @@ public class MessageDequeue implements ApplicationService {
         this.messageHandler = messageHandler;
         this.loggerContext = loggerContext;
         this.dateTimeProvider = dateTimeProvider;
-        this.unsubscribeMessageService = unsubscribeMessageService;
+        this.messageService = messageService;
     }
 
 
@@ -192,16 +192,16 @@ public class MessageDequeue implements ApplicationService {
         final MimeMessage message = mailMessageDao.getMessage(messageId);
 
         try {
-            final MessageInfo bouncedMessage = unsubscribeMessageService.getBouncedMessageInfo(message);
+            final MessageInfo bouncedMessage = messageService.getBouncedMessageInfo(message);
             if (bouncedMessage != null) {
-                unsubscribeMessageService.verifyAndSetAsUndeliverable(bouncedMessage);
+                messageService.verifyAndSetAsUndeliverable(bouncedMessage);
                 mailMessageDao.deleteMessage(messageId);
                 return;
             }
 
-            final MessageInfo unsubscribeMessage = unsubscribeMessageService.getUnsubscribedMessageInfo(message);
+            final MessageInfo unsubscribeMessage = messageService.getUnsubscribedMessageInfo(message);
             if (unsubscribeMessage != null) {
-                unsubscribeMessageService.verifyAndSetAsUndeliverable(unsubscribeMessage);
+                messageService.verifyAndSetAsUnsubscribed(unsubscribeMessage);
                 mailMessageDao.deleteMessage(messageId);
                 return;
             }

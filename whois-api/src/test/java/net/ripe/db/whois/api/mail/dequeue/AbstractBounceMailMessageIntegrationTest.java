@@ -3,6 +3,7 @@ package net.ripe.db.whois.api.mail.dequeue;
 import jakarta.mail.internet.MimeMessage;
 import net.ripe.db.whois.api.AbstractIntegrationTest;
 import net.ripe.db.whois.api.MailUpdatesTestSupport;
+import net.ripe.db.whois.common.mail.EmailStatus;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
@@ -14,6 +15,9 @@ public class AbstractBounceMailMessageIntegrationTest extends AbstractIntegratio
     private MailUpdatesTestSupport mailUpdatesTestSupport;
 
     protected static final String BOUNCED_MAIL_RECIPIENT = "nonexistant@host.org";
+
+    protected static final String UNSUBSCRIBED_MAIL_RECIPIENT = "enduser@ripe.net";
+
 
     @BeforeAll
     public static void setSmtpFrom() {
@@ -65,18 +69,23 @@ public class AbstractBounceMailMessageIntegrationTest extends AbstractIntegratio
     }
 
     protected boolean isUndeliverableAddress(final String emailAddress) {
-        return internalsTemplate.queryForObject("SELECT count(email) FROM undeliverable_email WHERE email= ?",
-                (rs, rowNum) -> rs.getInt(1), emailAddress) == 1;
+        return internalsTemplate.queryForObject("SELECT count(email) FROM email_status WHERE email= ? and status=?",
+                (rs, rowNum) -> rs.getInt(1), emailAddress, EmailStatus.UNDELIVERABLE) == 1;
+    }
+
+    protected boolean isUnsubscribeAddress(final String emailAddress) {
+        return internalsTemplate.queryForObject("SELECT count(email) FROM email_status WHERE email= ? and status=?",
+                (rs, rowNum) -> rs.getInt(1), emailAddress, EmailStatus.UNSUBSCRIBE) == 1;
     }
 
     protected void insertUndeliverableAddress(final String emailAddress) {
         internalsTemplate.update(
-                "INSERT INTO undeliverable_email (email) VALUES (?)", emailAddress);
+                "INSERT INTO email_status (email, status) VALUES (?, ?)", emailAddress, EmailStatus.UNDELIVERABLE);
     }
 
 
     protected int countUndeliverableAddresses(){
-        return internalsTemplate.queryForObject("SELECT count(email) FROM undeliverable_email", Integer.class);
+        return internalsTemplate.queryForObject("SELECT count(email) FROM email_status", Integer.class);
     }
 
     protected int countOutgoingForAddress(final String emailAddress) {
