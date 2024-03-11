@@ -20,13 +20,13 @@ public class EmailStatusDao {
         this.jdbcTemplate = new JdbcTemplate(dataSource);
     }
 
-    public void createUndeliverableEmail(final String email, final EmailStatus emailStatus) {
+    public void createEmailStatus(final String email, final EmailStatus emailStatus) {
         jdbcTemplate.update("INSERT INTO email_status (email, status, last_update) VALUES (?, ?, ?)", email,
                 emailStatus,
                 LocalDateTime.now());
     }
 
-    public boolean isUndeliverable(final String emailAddress) {
+    public boolean canNotSendEmail(final String emailAddress) {
         return Boolean.TRUE.equals(jdbcTemplate.query(
                 "SELECT email from email_status where email = ?",
                 new Object[]{emailAddress},

@@ -80,7 +80,7 @@ public class MessageService {
     }
 
     public void storeEmailStatus(final String email, final EmailStatus emailStatus) {
-        emailStatusDao.createUndeliverableEmail(email, emailStatus);
+        emailStatusDao.createEmailStatus(email, emailStatus);
     }
 
 }
