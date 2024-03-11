@@ -19,12 +19,12 @@ import static org.hamcrest.MatcherAssert.assertThat;
 
 
 @Tag("IntegrationTest")
-public class UnsubscribeMessageServiceTestIntegration extends AbstractBounceMailMessageIntegrationTest {
+public class MessageServiceTestIntegration extends AbstractMailMessageIntegrationTest {
     @Autowired
     private MailSenderStub mailSenderStub;
 
     @Autowired
-    private UnsubscribeMessageService unsubscribeMessageService;
+    private MessageService messageService;
 
     @BeforeEach
     public void setup() {
@@ -60,7 +60,7 @@ public class UnsubscribeMessageServiceTestIntegration extends AbstractBounceMail
         final MimeMessage acknowledgement = mailSenderStub.getMessage(from);
 
         insertOutgoingMessageId(acknowledgement.getMessageID(), "notify-dummy-role@ripe.net");
-        final MessageInfo bouncedMessageInfo = unsubscribeMessageService.getBouncedMessageInfo(acknowledgement);
+        final MessageInfo bouncedMessageInfo = messageService.getBouncedMessageInfo(acknowledgement);
         assertThat(bouncedMessageInfo, is(nullValue()));
         assertThat(isUndeliverableAddress("enduser@ripe.net"), is(false));
 
@@ -71,10 +71,10 @@ public class UnsubscribeMessageServiceTestIntegration extends AbstractBounceMail
         insertOutgoingMessageId("XXXXXXXX-5AE3-4C58-8E3F-860327BA955D@ripe.net", "enduser@ripe.net");
         final MimeMessage message = MimeMessageProvider.getUpdateMessage("permanentFailureMessageRfc822.mail");
 
-        final MessageInfo bouncedMessageInfo = unsubscribeMessageService.getBouncedMessageInfo(message);
+        final MessageInfo bouncedMessageInfo = messageService.getBouncedMessageInfo(message);
         assertThat(bouncedMessageInfo, is(not(nullValue())));
 
-        unsubscribeMessageService.verifyAndSetAsUndeliverable(bouncedMessageInfo);
+        messageService.verifyAndSetAsUndeliverable(bouncedMessageInfo);
         assertThat(isUndeliverableAddress("enduser@ripe.net"), is(false));
     }
 
@@ -83,10 +83,25 @@ public class UnsubscribeMessageServiceTestIntegration extends AbstractBounceMail
         insertOutgoingMessageId("XXXXXXXX-5AE3-4C58-8E3F-860327BA955D@ripe.net", BOUNCED_MAIL_RECIPIENT);
         final MimeMessage message = MimeMessageProvider.getUpdateMessage("permanentFailureMessageRfc822.mail");
 
-        final MessageInfo bouncedMessageInfo = unsubscribeMessageService.getBouncedMessageInfo(message);
+        final MessageInfo bouncedMessageInfo = messageService.getBouncedMessageInfo(message);
         assertThat(bouncedMessageInfo, is(not(nullValue())));
 
-        unsubscribeMessageService.verifyAndSetAsUndeliverable(bouncedMessageInfo);
+        messageService.verifyAndSetAsUndeliverable(bouncedMessageInfo);
         assertThat(isUndeliverableAddress(BOUNCED_MAIL_RECIPIENT), is(true));
+    }
+
+    @Test
+    public void testUnsubscribedEmailFromCorrectEmail() throws MessagingException, IOException {
+        insertOutgoingMessageId("8b8ed6c0-f9cc-4a5f-afbb-fde079b94f44@ripe.net", UNSUBSCRIBED_MAIL_RECIPIENT);
+        final MimeMessage message = MimeMessageProvider.getUpdateMessage("unsubscribeAppleMail.mail");
+
+        final MessageInfo unsubscribedMessageInfo = messageService.getUnsubscribedMessageInfo(message);
+        final MessageInfo bouncedMessageInfo = messageService.getBouncedMessageInfo(message);
+        assertThat(bouncedMessageInfo, is(nullValue()));
+        assertThat(unsubscribedMessageInfo, is(not(nullValue())));
+
+        messageService.verifyAndSetAsUnsubscribed(unsubscribedMessageInfo);
+        assertThat(isUndeliverableAddress(UNSUBSCRIBED_MAIL_RECIPIENT), is(false));
+        assertThat(isUnsubscribeAddress(UNSUBSCRIBED_MAIL_RECIPIENT), is(true));
     }
 }

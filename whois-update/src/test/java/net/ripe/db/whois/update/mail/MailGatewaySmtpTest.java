@@ -3,8 +3,8 @@ package net.ripe.db.whois.update.mail;
 import jakarta.mail.Address;
 import jakarta.mail.Session;
 import jakarta.mail.internet.MimeMessage;
+import net.ripe.db.whois.common.dao.EmailStatusDao;
 import net.ripe.db.whois.common.dao.OutgoingMessageDao;
-import net.ripe.db.whois.common.dao.UndeliverableMailDao;
 import net.ripe.db.whois.update.log.LoggerContext;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -32,7 +32,8 @@ public class MailGatewaySmtpTest {
     @Mock LoggerContext loggerContext;
     @Mock MailConfiguration mailConfiguration;
     @Mock JavaMailSender mailSender;
-    @Mock UndeliverableMailDao undeliverableMailDao;
+    @Mock
+    EmailStatusDao emailStatusDao;
     @Mock OutgoingMessageDao outgoingMessageDao;
     @InjectMocks private MailGatewaySmtp subject;
 

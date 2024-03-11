@@ -9,8 +9,8 @@ import net.ripe.db.whois.common.Message;
 import net.ripe.db.whois.common.Messages;
 import net.ripe.db.whois.common.PunycodeConversion;
 import net.ripe.db.whois.common.aspects.RetryFor;
+import net.ripe.db.whois.common.dao.EmailStatusDao;
 import net.ripe.db.whois.common.dao.OutgoingMessageDao;
-import net.ripe.db.whois.common.dao.UndeliverableMailDao;
 import net.ripe.db.whois.update.domain.ResponseMessage;
 import net.ripe.db.whois.update.log.LoggerContext;
 import org.slf4j.Logger;
@@ -37,7 +37,7 @@ public class MailGatewaySmtp implements MailGateway {
     private final LoggerContext loggerContext;
     private final MailConfiguration mailConfiguration;
     private final JavaMailSender mailSender;
-    private final UndeliverableMailDao undeliverableMailDao;
+    private final EmailStatusDao emailStatusDao;
     private final OutgoingMessageDao outgoingMessageDao;
 
     @Value("${web.baseurl}")
@@ -48,12 +48,12 @@ public class MailGatewaySmtp implements MailGateway {
             final LoggerContext loggerContext,
             final MailConfiguration mailConfiguration,
             final JavaMailSender mailSender,
-            final UndeliverableMailDao undeliverableMailDao,
+            final EmailStatusDao emailStatusDao,
             final OutgoingMessageDao outgoingMessageDao) {
         this.loggerContext = loggerContext;
         this.mailConfiguration = mailConfiguration;
         this.mailSender = mailSender;
-        this.undeliverableMailDao = undeliverableMailDao;
+        this.emailStatusDao = emailStatusDao;
         this.outgoingMessageDao = outgoingMessageDao;
     }
 
@@ -78,9 +78,9 @@ public class MailGatewaySmtp implements MailGateway {
 
             return;
         }
-
+        
         //TODO acknowledgment should be sent even if the user is unsubscribe
-        if (undeliverableMailDao.isUndeliverable(extractEmailBetweenAngleBrackets(to))) {
+        if (emailStatusDao.canNotSendEmail(extractEmailBetweenAngleBrackets(to))) {
             LOGGER.debug("" +
                     "Email appears in undeliverable list\n" +
                     "\n" +
@@ -91,7 +91,6 @@ public class MailGatewaySmtp implements MailGateway {
                     "{}\n" +
                     "\n" +
                     "\n", to, replyTo, subject, text);
-
             return;
         }
 
@@ -138,7 +137,7 @@ public class MailGatewaySmtp implements MailGateway {
             loggerContext.log(new Message(Messages.Type.ERROR, "Caught %s: %s", e.getClass().getName(), e.getMessage()));
             LOGGER.error(String.format("Unable to send mail message to: %s", to), e);
             //TODO acknowledgment should be sent even if the user is unsubscribe
-            if (mailConfiguration.retrySending() && !undeliverableMailDao.isUndeliverable(extractEmailBetweenAngleBrackets(to))) {
+            if (mailConfiguration.retrySending() && !emailStatusDao.canNotSendEmail(extractEmailBetweenAngleBrackets(to))) {
                 throw new MailSendException("Caught " + e.getClass().getName(), e);
             } else {
                 loggerContext.log(new Message(Messages.Type.ERROR, "Not retrying sending mail to %s with subject %s", to, subject));
@@ -147,9 +146,8 @@ public class MailGatewaySmtp implements MailGateway {
     }
 
     private void storeAsOutGoingMessage(MimeMessage mimeMessage, String punyCodedTo) throws MessagingException {
-        outgoingMessageDao.saveOutGoingMessageId(
-            extractEmailBetweenAngleBrackets(mimeMessage.getMessageID()),   // Message-ID is in rfc2822 address format
-            extractEmailBetweenAngleBrackets(punyCodedTo));
+        outgoingMessageDao.saveOutGoingMessageId(extractEmailBetweenAngleBrackets(mimeMessage.getMessageID()),   //Message-ID is in rfc2822 address format
+                extractEmailBetweenAngleBrackets(punyCodedTo));
     }
 
     private void setHeaders(MimeMessage mimeMessage) throws MessagingException {
@@ -167,15 +165,15 @@ public class MailGatewaySmtp implements MailGateway {
     }
 
     @Nullable
-    private String extractEmailBetweenAngleBrackets(final String content) {
-        if(content == null) {
+    private String extractEmailBetweenAngleBrackets(final String email) {
+        if(email == null) {
             return null;
         }
 
         try {
-            return new InternetAddress(content).getAddress();
+            return new InternetAddress(email).getAddress();
         } catch (AddressException e) {
-            return content;
+            return email;
         }
     }
 }
