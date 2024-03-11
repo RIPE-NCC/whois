@@ -79,6 +79,9 @@ public class MailBounceTestIntegration extends AbstractBounceMailMessageIntegrat
 
         // Wait for address to be marked as undeliverable
         Awaitility.waitAtMost(10L, TimeUnit.SECONDS).until(() -> (isUndeliverableAddress("nonexistant@host.org")));
+
+        // Make sure that failure response message was deleted
+        assertThat(mailSenderStub.anyMoreMessages(), is(false));
     }
 
     @Test
@@ -146,6 +149,8 @@ public class MailBounceTestIntegration extends AbstractBounceMailMessageIntegrat
 
         // delayed message has been processed but address is not set to undeliverable
         assertThat(isUndeliverableAddress("enduser@host.org"), is(false));
+
+        // TODO: [ES] delayed message not deleted from mailupdates table
     }
 
     @Test
@@ -210,6 +215,9 @@ public class MailBounceTestIntegration extends AbstractBounceMailMessageIntegrat
         Awaitility.waitAtMost(10L, TimeUnit.SECONDS).until(() -> (! anyIncomingMessages()));
 
         assertThat(countUndeliverableAddresses(), is(0));
+
+        // Make sure that failure response message was deleted
+        assertThat(mailSenderStub.anyMoreMessages(), is(false));
     }
 
 
@@ -221,6 +229,9 @@ public class MailBounceTestIntegration extends AbstractBounceMailMessageIntegrat
 
         // Wait for address to be marked as undeliverable
         Awaitility.waitAtMost(10L, TimeUnit.SECONDS).until(() -> (isUndeliverableAddress("nonexistant@ripe.net")));
+
+        // Make sure that failure response message was deleted
+        assertThat(mailSenderStub.anyMoreMessages(), is(false));
     }
 
     @Test
@@ -231,6 +242,9 @@ public class MailBounceTestIntegration extends AbstractBounceMailMessageIntegrat
 
         // Wait for address to be marked as undeliverable
         Awaitility.waitAtMost(10L, TimeUnit.SECONDS).until(() -> (isUndeliverableAddress("testing4@ripe.net")));
+
+        // Make sure that failure response message was deleted
+        assertThat(mailSenderStub.anyMoreMessages(), is(false));
     }
 
     // TODO: test that acknowledgement email (i.e. the reply to an incoming message) *is* sent to unsubscribed address
