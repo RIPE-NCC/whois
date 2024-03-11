@@ -64,36 +64,36 @@ public class MailGatewaySmtp implements MailGateway {
 
     @Override
     public void sendEmail(final String to, final String subject, final String text, @Nullable final String replyTo) {
-            if (! mailConfiguration.isEnabled()) {
-                LOGGER.debug("" +
-                        "Outgoing mail disabled\n" +
-                        "\n" +
-                        "to      : {}\n" +
-                        "reply-to : {}\n" +
-                        "subject : {}\n" +
-                        "\n" +
-                        "{}\n" +
-                        "\n" +
-                        "\n", to, replyTo, subject, text);
+        if (! mailConfiguration.isEnabled()) {
+            LOGGER.debug("" +
+                    "Outgoing mail disabled\n" +
+                    "\n" +
+                    "to      : {}\n" +
+                    "reply-to : {}\n" +
+                    "subject : {}\n" +
+                    "\n" +
+                    "{}\n" +
+                    "\n" +
+                    "\n", to, replyTo, subject, text);
 
-                return;
-            }
+            return;
+        }
 
-            //TODO acknowledgment should be sent even if the user is unsubscribe
-            if (undeliverableMailDao.isUndeliverable(extractEmailBetweenAngleBrackets(to))) {
-                LOGGER.debug("" +
-                        "Email appears in undeliverable list\n" +
-                        "\n" +
-                        "to      : {}\n" +
-                        "reply-to : {}\n" +
-                        "subject : {}\n" +
-                        "\n" +
-                        "{}\n" +
-                        "\n" +
-                        "\n", to, replyTo, subject, text);
+        //TODO acknowledgment should be sent even if the user is unsubscribe
+        if (undeliverableMailDao.isUndeliverable(extractEmailBetweenAngleBrackets(to))) {
+            LOGGER.debug("" +
+                    "Email appears in undeliverable list\n" +
+                    "\n" +
+                    "to      : {}\n" +
+                    "reply-to : {}\n" +
+                    "subject : {}\n" +
+                    "\n" +
+                    "{}\n" +
+                    "\n" +
+                    "\n", to, replyTo, subject, text);
 
-                return;
-            }
+            return;
+        }
 
         try {
             final Matcher matcher = INVALID_EMAIL_PATTERN.matcher(to);
@@ -103,7 +103,11 @@ public class MailGatewaySmtp implements MailGateway {
 
             sendEmailAttempt(to, replyTo, subject, text);
         } catch (MailException e) {
+            LOGGER.error("Caught MailException", e);
             loggerContext.log(new Message(Messages.Type.ERROR, "Unable to send mail to %s with subject %s", to, subject), e);
+        } catch (Exception e) {
+            LOGGER.error("Caught", e);
+            throw e;
         }
     }
 
