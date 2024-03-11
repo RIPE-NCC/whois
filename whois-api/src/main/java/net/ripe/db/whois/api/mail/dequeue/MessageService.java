@@ -51,7 +51,7 @@ public class MessageService {
             return;
         }
 
-        LOGGER.debug("Unsubscribe message-id {} email {}", message.messageId(), message.emailAddress());
+        LOGGER.debug("Undeliverable message-id {} email {}", message.messageId(), message.emailAddress());
         this.storeEmailStatus(email, EmailStatus.UNDELIVERABLE);
     }
 
