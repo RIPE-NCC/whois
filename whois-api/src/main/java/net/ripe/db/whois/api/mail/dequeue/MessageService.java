@@ -52,7 +52,7 @@ public class MessageService {
         }
 
         LOGGER.debug("Undeliverable message-id {} email {}", message.messageId(), message.emailAddress());
-        this.storeEmailStatus(email, EmailStatus.UNDELIVERABLE);
+        emailStatusDao.createEmailStatus(email, EmailStatus.UNDELIVERABLE);
     }
 
     public void verifyAndSetAsUnsubscribed(final MessageInfo message){
@@ -63,7 +63,7 @@ public class MessageService {
         }
 
         LOGGER.debug("Unsubscribe message-id {} email {}", message.messageId(), message.emailAddress());
-        this.storeEmailStatus(email, EmailStatus.UNSUBSCRIBE);
+        emailStatusDao.createEmailStatus(email, EmailStatus.UNSUBSCRIBE);
     }
 
     private boolean isIncorrectMessage(final MessageInfo message, final String email){
@@ -77,10 +77,6 @@ public class MessageService {
             return true;
         }
         return false;
-    }
-
-    public void storeEmailStatus(final String email, final EmailStatus emailStatus) {
-        emailStatusDao.createEmailStatus(email, emailStatus);
     }
 
 }
