@@ -4,8 +4,8 @@ import jakarta.mail.Message;
 import jakarta.mail.MessagingException;
 import jakarta.mail.internet.MimeMessage;
 import net.ripe.db.whois.api.UpdatesParser;
-import net.ripe.db.whois.api.mail.MessageInfo;
 import net.ripe.db.whois.api.mail.MailMessage;
+import net.ripe.db.whois.api.mail.MessageInfo;
 import net.ripe.db.whois.api.mail.dao.MailMessageDao;
 import net.ripe.db.whois.common.ApplicationService;
 import net.ripe.db.whois.common.DateTimeProvider;
@@ -52,7 +52,6 @@ public class MessageDequeue implements ApplicationService {
     private final UpdateRequestHandler messageHandler;
     private final LoggerContext loggerContext;
     private final DateTimeProvider dateTimeProvider;
-    private final BouncedMessageService bouncedMessageService;
     private final UnsubscribeMessageService unsubscribeMessageService;
 
     private final AtomicInteger freeThreads = new AtomicInteger();
@@ -76,7 +75,6 @@ public class MessageDequeue implements ApplicationService {
                           final UpdateRequestHandler messageHandler,
                           final LoggerContext loggerContext,
                           final DateTimeProvider dateTimeProvider,
-                          final BouncedMessageService bouncedMessageService,
                           final UnsubscribeMessageService unsubscribeMessageService) {
         this.maintenanceMode = maintenanceMode;
         this.mailGateway = mailGateway;
@@ -87,7 +85,6 @@ public class MessageDequeue implements ApplicationService {
         this.messageHandler = messageHandler;
         this.loggerContext = loggerContext;
         this.dateTimeProvider = dateTimeProvider;
-        this.bouncedMessageService = bouncedMessageService;
         this.unsubscribeMessageService = unsubscribeMessageService;
     }
 
@@ -195,16 +192,16 @@ public class MessageDequeue implements ApplicationService {
         final MimeMessage message = mailMessageDao.getMessage(messageId);
 
         try {
-            final MessageInfo bouncedMessage = bouncedMessageService.getBouncedMessageInfo(message);
+            final MessageInfo bouncedMessage = unsubscribeMessageService.getBouncedMessageInfo(message);
             if (bouncedMessage != null) {
-                bouncedMessageService.verifyAndSetAsUndeliverable(bouncedMessage);
+                unsubscribeMessageService.verifyAndSetAsUndeliverable(bouncedMessage);
                 mailMessageDao.deleteMessage(messageId);
                 return;
             }
 
             final MessageInfo unsubscribeMessage = unsubscribeMessageService.getUnsubscribedMessageInfo(message);
             if (unsubscribeMessage != null) {
-                unsubscribeMessageService.verifyAndSetAsUnsubscribed(unsubscribeMessage);
+                unsubscribeMessageService.verifyAndSetAsUndeliverable(unsubscribeMessage);
                 mailMessageDao.deleteMessage(messageId);
                 return;
             }

@@ -14,7 +14,6 @@ import org.springframework.stereotype.Service;
 
 import java.io.IOException;
 
-// TODO: [ES] merge with BouncedMessageService? They are almost the same
 @Service
 public class UnsubscribeMessageService {
 
@@ -23,36 +22,41 @@ public class UnsubscribeMessageService {
     private final UnsubscribeMessageParser unsubscribeMessageParser;
     private final OutgoingMessageDao outgoingMessageDao;
     private final UndeliverableMailDao undeliverableMailDao;
-
+    private final BouncedMessageParser bouncedMessageParser;
 
     @Autowired
     public UnsubscribeMessageService(
             final UnsubscribeMessageParser unsubscribeMessageParser,
+            final BouncedMessageParser bouncedMessageParser,
             final OutgoingMessageDao outgoingMessageDao,
             final UndeliverableMailDao undeliverableMailDao) {
         this.unsubscribeMessageParser = unsubscribeMessageParser;
+        this.bouncedMessageParser = bouncedMessageParser;
         this.outgoingMessageDao = outgoingMessageDao;
         this.undeliverableMailDao = undeliverableMailDao;
     }
 
+    public MessageInfo getBouncedMessageInfo(final MimeMessage message) throws MessagingException, IOException {
+        return bouncedMessageParser.parse(message);
+    }
     public MessageInfo getUnsubscribedMessageInfo(final MimeMessage message) throws MessagingException, IOException {
         return unsubscribeMessageParser.parse(message);
     }
 
-    public void verifyAndSetAsUnsubscribed(final MessageInfo unsubscribedMessage) {
-        final String email = outgoingMessageDao.getEmail(unsubscribedMessage.messageId());
+    public void verifyAndSetAsUndeliverable(final MessageInfo message) {
+        final String email = outgoingMessageDao.getEmail(message.messageId());
 
         if (Strings.isNullOrEmpty(email)) {
-            LOGGER.warn("Couldn't find outgoing message matching {}", unsubscribedMessage.messageId());
+            LOGGER.warn("Couldn't find outgoing message matching {}", message.messageId());
             return;
         }
 
-        if (!email.equalsIgnoreCase(unsubscribedMessage.emailAddress())) {
-            LOGGER.warn("Email {} in outgoing message doesn't match '{}' in failure response", email, unsubscribedMessage.emailAddress());
+        if (!email.equalsIgnoreCase(message.emailAddress())) {
+            LOGGER.warn("Email {} in outgoing message doesn't match '{}' in failure response", email, message.emailAddress());
             return;
         }
 
-        LOGGER.info("Unsubscribe message-id {} email {}", unsubscribedMessage.messageId(), unsubscribedMessage.emailAddress());
+        LOGGER.debug("Unsubscribe message-id {} email {}", message.messageId(), message.emailAddress());
         undeliverableMailDao.createUndeliverableEmail(email);
     }
 
