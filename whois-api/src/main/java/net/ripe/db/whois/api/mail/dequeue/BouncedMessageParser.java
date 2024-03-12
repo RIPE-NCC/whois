@@ -41,7 +41,6 @@ public class BouncedMessageParser {
                 if (isFailed(deliveryStatus)) {
                     final MimeMessage returnedMessage = multipartReport.getReturnedMessage();
                     final String messageId = getMessageId(returnedMessage.getMessageID());
-                    // TODO: double check we have the right recipient (This is the TO: header)
                     final String recipient = getFirstAddress(returnedMessage.getAllRecipients());
                     return new MessageInfo(recipient, messageId);
                 }
