@@ -213,7 +213,7 @@ public class MessageDequeue implements ApplicationService {
                 loggerContext.remove();
             }
 
-        } catch (MessagingException | IOException e) {
+        } catch (Exception e) {
             LOGGER.error("Handle message", e);
         }
     }
