@@ -70,12 +70,12 @@ public class AbstractMailMessageIntegrationTest extends AbstractIntegrationTest 
 
     protected boolean isUndeliverableAddress(final String emailAddress) {
         return internalsTemplate.queryForObject("SELECT count(email) FROM email_status WHERE email= ? and status=?",
-                (rs, rowNum) -> rs.getInt(1), emailAddress, EmailStatus.UNDELIVERABLE) == 1;
+                (rs, rowNum) -> rs.getInt(1), emailAddress, EmailStatus.UNDELIVERABLE.name()) == 1;
     }
 
     protected boolean isUnsubscribeAddress(final String emailAddress) {
         return internalsTemplate.queryForObject("SELECT count(email) FROM email_status WHERE email= ? and status=?",
-                (rs, rowNum) -> rs.getInt(1), emailAddress, EmailStatus.UNSUBSCRIBE) == 1;
+                (rs, rowNum) -> rs.getInt(1), emailAddress, EmailStatus.UNSUBSCRIBE.name()) == 1;
     }
 
     protected void insertUndeliverableAddress(final String emailAddress) {

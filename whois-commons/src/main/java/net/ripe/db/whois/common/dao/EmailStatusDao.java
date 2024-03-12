@@ -22,7 +22,7 @@ public class EmailStatusDao {
 
     public void createEmailStatus(final String email, final EmailStatus emailStatus) {
         jdbcTemplate.update("INSERT INTO email_status (email, status, last_update) VALUES (?, ?, ?)", email,
-                emailStatus,
+                emailStatus.name(),
                 LocalDateTime.now());
     }
 
