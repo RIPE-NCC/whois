@@ -39,9 +39,7 @@ public class MailGatewaySmtp implements MailGateway {
     private final JavaMailSender mailSender;
     private final EmailStatusDao emailStatusDao;
     private final OutgoingMessageDao outgoingMessageDao;
-
-    @Value("${web.baseurl}")
-    private String webRestPath;
+    private final String webBaseUrl;
 
     @Autowired
     public MailGatewaySmtp(
@@ -49,12 +47,14 @@ public class MailGatewaySmtp implements MailGateway {
             final MailConfiguration mailConfiguration,
             final JavaMailSender mailSender,
             final EmailStatusDao emailStatusDao,
-            final OutgoingMessageDao outgoingMessageDao) {
+            final OutgoingMessageDao outgoingMessageDao,
+            @Value("${web.baseurl}") final String webBaseUrl) {
         this.loggerContext = loggerContext;
         this.mailConfiguration = mailConfiguration;
         this.mailSender = mailSender;
         this.emailStatusDao = emailStatusDao;
         this.outgoingMessageDao = outgoingMessageDao;
+        this.webBaseUrl = webBaseUrl;
     }
 
     @Override
@@ -155,8 +155,9 @@ public class MailGatewaySmtp implements MailGateway {
         mimeMessage.addHeader("Auto-Submitted", "auto-generated");
         if (!Strings.isNullOrEmpty(mailConfiguration.getSmtpFrom())) {
             mimeMessage.addHeader("List-Unsubscribe",
-                String.format("<%s/api/unsubscribe/%s>, <mailto:%s?subject=Unsubscribe%%20%s>",
-                webRestPath,
+                String.format("<%s%sapi/unsubscribe/%s>, <mailto:%s?subject=Unsubscribe%%20%s>",
+                webBaseUrl,
+                (webBaseUrl.endsWith("/") ? "" : "/"),
                 mimeMessage.getMessageID(),
                 mailConfiguration.getSmtpFrom(),
                 mimeMessage.getMessageID()));
@@ -176,4 +177,5 @@ public class MailGatewaySmtp implements MailGateway {
             return email;
         }
     }
+
 }
