@@ -115,6 +115,7 @@ public class DatabaseHelper implements EmbeddedValueResolverAware {
         internalsTemplate = new JdbcTemplate(internalsDataSource);
     }
 
+
     @Autowired(required = false)
     @Qualifier("nrtmMasterDataSource")
     public void setNrtmMasterDataSource(DataSource dataSource) {

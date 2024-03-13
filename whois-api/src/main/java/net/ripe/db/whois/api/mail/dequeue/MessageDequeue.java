@@ -5,6 +5,7 @@ import jakarta.mail.MessagingException;
 import jakarta.mail.internet.MimeMessage;
 import net.ripe.db.whois.api.UpdatesParser;
 import net.ripe.db.whois.api.mail.MailMessage;
+import net.ripe.db.whois.api.mail.MessageInfo;
 import net.ripe.db.whois.api.mail.dao.MailMessageDao;
 import net.ripe.db.whois.common.ApplicationService;
 import net.ripe.db.whois.common.DateTimeProvider;
@@ -51,6 +52,7 @@ public class MessageDequeue implements ApplicationService {
     private final UpdateRequestHandler messageHandler;
     private final LoggerContext loggerContext;
     private final DateTimeProvider dateTimeProvider;
+    private final MessageService messageService;
 
     private final AtomicInteger freeThreads = new AtomicInteger();
 
@@ -72,7 +74,8 @@ public class MessageDequeue implements ApplicationService {
                           final UpdatesParser updatesParser,
                           final UpdateRequestHandler messageHandler,
                           final LoggerContext loggerContext,
-                          final DateTimeProvider dateTimeProvider) {
+                          final DateTimeProvider dateTimeProvider,
+                          final MessageService messageService) {
         this.maintenanceMode = maintenanceMode;
         this.mailGateway = mailGateway;
         this.mailMessageDao = mailMessageDao;
@@ -82,6 +85,7 @@ public class MessageDequeue implements ApplicationService {
         this.messageHandler = messageHandler;
         this.loggerContext = loggerContext;
         this.dateTimeProvider = dateTimeProvider;
+        this.messageService = messageService;
     }
 
 
@@ -188,15 +192,28 @@ public class MessageDequeue implements ApplicationService {
         final MimeMessage message = mailMessageDao.getMessage(messageId);
 
         try {
+            final MessageInfo bouncedMessage = messageService.getBouncedMessageInfo(message);
+            if (bouncedMessage != null) {
+                messageService.verifyAndSetAsUndeliverable(bouncedMessage);
+                mailMessageDao.deleteMessage(messageId);
+                return;
+            }
+
+            final MessageInfo unsubscribeMessage = messageService.getUnsubscribedMessageInfo(message);
+            if (unsubscribeMessage != null) {
+                messageService.verifyAndSetAsUnsubscribed(unsubscribeMessage);
+                mailMessageDao.deleteMessage(messageId);
+                return;
+            }
+
             loggerContext.init(getMessageIdLocalPart(message));
             try {
                 handleMessageInContext(messageId, message);
             } finally {
                 loggerContext.remove();
             }
-        } catch (MessagingException e) {
-            LOGGER.error("Handle message", e);
-        } catch (IOException e) {
+
+        } catch (Exception e) {
             LOGGER.error("Handle message", e);
         }
     }

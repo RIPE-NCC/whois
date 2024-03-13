@@ -69,6 +69,7 @@ public class MessageDequeueTest {
     @Mock LoggerContext loggerContext;
     @Mock UpdateLog updateLog;
     @Mock DateTimeProvider dateTimeProvider;
+    @Mock MessageService messageService;
     @InjectMocks MessageDequeue subject;
 
     @BeforeEach
@@ -80,7 +81,7 @@ public class MessageDequeueTest {
     }
 
     @AfterEach
-    public void tearDown() throws Exception {
+    public void tearDown() {
         subject.stop(true);
     }
 
