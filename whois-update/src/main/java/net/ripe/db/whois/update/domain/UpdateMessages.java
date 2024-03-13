@@ -9,6 +9,7 @@ import net.ripe.db.whois.common.domain.CIString;
 import net.ripe.db.whois.common.ip.Interval;
 import net.ripe.db.whois.common.ip.IpInterval;
 import net.ripe.db.whois.common.ip.Ipv4Resource;
+import net.ripe.db.whois.common.mail.EmailStatus;
 import net.ripe.db.whois.common.rpsl.AttributeType;
 import net.ripe.db.whois.common.rpsl.ObjectType;
 import net.ripe.db.whois.common.rpsl.RpslAttribute;
@@ -616,8 +617,8 @@ public final class UpdateMessages {
         return new Message(Type.WARNING, "\"status:\" attribute cannot be removed");
     }
 
-    public static Message emailCanNotBeSent(final String email, final String emailStatus) {
-        return new Message(Type.WARNING, "Not sending notification to %s because it is %s.", email, emailStatus);
+    public static Message emailCanNotBeSent(final String email, final EmailStatus emailStatus) {
+        return new Message(Type.WARNING, "Not sending notification to %s because it is %s.", email, emailStatus.getValue());
     }
 
     public static Message sponsoringOrgChanged() {

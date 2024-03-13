@@ -120,7 +120,7 @@ public class UpdateNotifier {
             case SUCCESS:
                 if (updateContext.getAction(update) != Action.NOOP) {
                     addVersionId(update, updateContext);
-                    addNotificationsWithoutVersioning(notifications, update, updateContext, object);
+                    addNotificationForNtfyAttrs(notifications, update, updateContext, object);
                 }
                 break;
 
@@ -134,9 +134,8 @@ public class UpdateNotifier {
         }
     }
 
-
-    public void addNotificationsWithoutVersioning(final Map<CIString, Notification> notifications, final PreparedUpdate update,
-                                                  final UpdateContext updateContext, final RpslObject object) {
+    public void addNotificationForNtfyAttrs(final Map<CIString, Notification> notifications, final PreparedUpdate update,
+                                            final UpdateContext updateContext, final RpslObject object) {
         add(notifications, updateContext, update, Notification.Type.SUCCESS, Collections.singletonList(object), AttributeType.NOTIFY);
         add(notifications, updateContext, update, Notification.Type.SUCCESS, rpslObjectDao.getByKeys(ObjectType.MNTNER, object.getValuesForAttribute(AttributeType.MNT_BY)), AttributeType.MNT_NFY);
         add(notifications, updateContext, update, Notification.Type.SUCCESS_REFERENCE, rpslObjectDao.getByKeys(ObjectType.ORGANISATION, update.getDifferences(AttributeType.ORG)), AttributeType.REF_NFY);

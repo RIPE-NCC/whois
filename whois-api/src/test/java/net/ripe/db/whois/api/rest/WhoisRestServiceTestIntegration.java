@@ -5790,7 +5790,7 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
 
         RestTest.assertWarningCount(response, 1);
         RestTest.assertErrorMessage(response, 0, "Warning", "Not sending notification to %s because it is %s.",
-                unsubscribedEmail, EmailStatus.UNSUBSCRIBE.name());
+                unsubscribedEmail, EmailStatus.UNSUBSCRIBE.getValue());
     }
 
 
@@ -5817,7 +5817,7 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
 
         RestTest.assertWarningCount(response, 1);
         RestTest.assertErrorMessage(response, 0, "Warning", "Not sending notification to %s because it is %s.",
-                undeliverableEmail, EmailStatus.UNDELIVERABLE.name());
+                undeliverableEmail, EmailStatus.UNDELIVERABLE.getValue());
     }
 
     // helper methods

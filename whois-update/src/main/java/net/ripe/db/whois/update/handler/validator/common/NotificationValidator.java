@@ -6,6 +6,7 @@ import com.google.common.collect.Maps;
 import net.ripe.db.whois.common.Message;
 import net.ripe.db.whois.common.dao.EmailStatusDao;
 import net.ripe.db.whois.common.domain.CIString;
+import net.ripe.db.whois.common.mail.EmailStatus;
 import net.ripe.db.whois.common.rpsl.ObjectType;
 import net.ripe.db.whois.update.domain.Action;
 import net.ripe.db.whois.update.domain.Notification;
@@ -17,6 +18,7 @@ import net.ripe.db.whois.update.handler.validator.BusinessRuleValidator;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -41,19 +43,22 @@ public class NotificationValidator implements BusinessRuleValidator {
     @Override
     public List<Message> performValidation(final PreparedUpdate update, final UpdateContext updateContext) {
         final PreparedUpdate preparedUpdate = updateContext.getPreparedUpdate(update);
-        final Map<CIString, Notification> notifications = Maps.newHashMap();
-        if (preparedUpdate != null && !updateNotifier.notificationsDisabledByOverride(preparedUpdate)) {
-            updateNotifier.addNotificationsWithoutVersioning(notifications, preparedUpdate, updateContext, update.getReferenceObject());
+
+        if (preparedUpdate == null || updateNotifier.notificationsDisabledByOverride(preparedUpdate)) {
+            return Collections.EMPTY_LIST;
         }
+
+        final Map<CIString, Notification> notifications = Maps.newHashMap();
+
+        updateNotifier.addNotificationForNtfyAttrs(notifications, preparedUpdate, updateContext, update.getReferenceObject());
 
         final Set<String> emails = notifications.values().stream().map(Notification::getEmail).collect(Collectors.toSet());
 
-        final Map<String, String> emailStatus = emailStatusDao.getEmailStatus(emails);
+        final Map<String, EmailStatus> emailStatus = emailStatusDao.getEmailStatus(emails);
         final List<Message> messages = Lists.newArrayList();
 
-        for (final Map.Entry<String, String> emailStatusEntry : emailStatus.entrySet()) {
-            messages.add(UpdateMessages.emailCanNotBeSent(emailStatusEntry.getKey(), emailStatusEntry.getValue()));
-        }
+        emailStatus.forEach( (email, status) ->  messages.add(UpdateMessages.emailCanNotBeSent(email, status)));
+
         return messages;
     }
 
