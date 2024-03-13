@@ -1,6 +1,7 @@
 package net.ripe.db.whois.update.handler;
 
 import com.google.common.collect.Lists;
+import net.ripe.db.whois.common.dao.EmailStatusDao;
 import net.ripe.db.whois.common.dao.RpslObjectDao;
 import net.ripe.db.whois.common.rpsl.RpslObject;
 import net.ripe.db.whois.update.domain.Action;
@@ -15,9 +16,10 @@ import net.ripe.db.whois.update.domain.UpdateStatus;
 import net.ripe.db.whois.update.handler.response.ResponseFactory;
 import net.ripe.db.whois.update.mail.MailGateway;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
+
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import static org.mockito.ArgumentMatchers.any;
@@ -35,6 +37,8 @@ public class UpdateNotifierTest {
     @Mock Origin origin;
 
     @Mock RpslObjectDao rpslObjectDao;
+    @Mock
+    EmailStatusDao emailStatusDao;
     @Mock ResponseFactory responseFactory;
     @Mock MailGateway mailGateway;
     @Mock ResponseMessage responseMessage;
