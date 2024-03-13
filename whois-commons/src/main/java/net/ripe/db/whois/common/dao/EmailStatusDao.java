@@ -1,26 +1,30 @@
 package net.ripe.db.whois.common.dao;
 
+import com.google.common.collect.Maps;
 import net.ripe.db.whois.common.mail.EmailStatus;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.dao.DataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
-import org.springframework.jdbc.core.ResultSetExtractor;
+import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.stereotype.Repository;
 
 import javax.sql.DataSource;
 import java.sql.ResultSet;
-import java.sql.SQLException;
 import java.time.LocalDateTime;
+import java.util.Map;
+import java.util.Set;
 
 @Repository
 public class EmailStatusDao {
 
     private final JdbcTemplate jdbcTemplate;
 
+    private final NamedParameterJdbcTemplate namedParameterJdbcTemplate;
+
     @Autowired
     public EmailStatusDao(@Qualifier("internalsDataSource") final DataSource dataSource) {
         this.jdbcTemplate = new JdbcTemplate(dataSource);
+        this.namedParameterJdbcTemplate = new NamedParameterJdbcTemplate(jdbcTemplate);
     }
 
     public void createEmailStatus(final String email, final EmailStatus emailStatus) {
@@ -29,17 +33,17 @@ public class EmailStatusDao {
                 LocalDateTime.now());
     }
 
-    public String getEmailStatus(final String emailAddress) {
-        return jdbcTemplate.query("SELECT status from email_status where email = ?",
-                new ResultSetExtractor<String>() {
-                    @Override
-                    public String extractData(ResultSet rs) throws SQLException, DataAccessException {
-                        if (!rs.next()){
-                            return null;
-                        }
-                        return rs.getString(1);
-                    }
-                }, emailAddress);
+    public Map<String, String> getEmailStatus(final Set<String> emailAddresses) {
+        Map<String, String> results = Maps.newHashMap();
+
+        namedParameterJdbcTemplate.query(
+                "SELECT email, status from email_status where email in (:emails)",
+                Map.of("emails", emailAddresses),
+                resultSet -> {
+                    results.put(resultSet.getString(1), resultSet.getString(2));
+                });
+
+        return results;
     }
 
     public boolean canNotSendEmail(final String emailAddress) {

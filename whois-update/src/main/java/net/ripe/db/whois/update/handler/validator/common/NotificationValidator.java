@@ -19,6 +19,8 @@ import org.springframework.stereotype.Component;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 @Component
 public class NotificationValidator implements BusinessRuleValidator {
@@ -44,10 +46,13 @@ public class NotificationValidator implements BusinessRuleValidator {
             updateNotifier.addNotificationsWithoutVersioning(notifications, preparedUpdate, updateContext, update.getReferenceObject());
         }
 
+        final Set<String> emails = notifications.values().stream().map(Notification::getEmail).collect(Collectors.toSet());
+
+        final Map<String, String> emailStatus = emailStatusDao.getEmailStatus(emails);
         final List<Message> messages = Lists.newArrayList();
-        for (final Notification notification : notifications.values()) {
-            final String emailStatus = emailStatusDao.getEmailStatus(notification.getEmail());
-            messages.add(UpdateMessages.emailCanNotBeSent(notification.getEmail(), emailStatus));
+
+        for (final Map.Entry<String, String> emailStatusEntry : emailStatus.entrySet()) {
+            messages.add(UpdateMessages.emailCanNotBeSent(emailStatusEntry.getKey(), emailStatusEntry.getValue()));
         }
         return messages;
     }

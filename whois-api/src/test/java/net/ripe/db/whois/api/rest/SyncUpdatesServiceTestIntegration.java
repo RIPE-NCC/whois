@@ -75,6 +75,7 @@ public class SyncUpdatesServiceTestIntegration extends AbstractIntegrationTest {
             "phone:     +31-1234567890\n" +
             "e-mail:    noreply@ripe.net\n" +
             "notify:    test@ripe.net\n" +
+            "notify:    test1@ripe.net\n" +
             "mnt-by:    mntner-mnt\n" +
             "nic-hdl:   TP2-TEST\n" +
             "remarks:   remark\n" +
@@ -1206,7 +1207,7 @@ public class SyncUpdatesServiceTestIntegration extends AbstractIntegrationTest {
 
 
     @Test
-    public void unsubscribed_notify_user_gets_warn_when_updating() {
+    public void unsubscribed_and_undeliverable_notify_user_gets_warn_when_updating() {
         databaseHelper.addObject(PERSON_ANY1_TEST);
         databaseHelper.addObject(MNTNER_TEST_MNTNER);
         databaseHelper.addObject(NOTIFY_PERSON_TEST);
@@ -1218,12 +1219,14 @@ public class SyncUpdatesServiceTestIntegration extends AbstractIntegrationTest {
                 "phone:     +31-1234567890\n" +
                 "e-mail:    noreply@ripe.net\n" +
                 "notify:    test@ripe.net\n" +
+                "notify:    test1@ripe.net\n" +
                 "mnt-by:    mntner-mnt\n" +
                 "nic-hdl:   TP2-TEST\n" +
                 "remarks:   remark\n" +
                 "source:    TEST\n";
 
         emailStatusDao.createEmailStatus("test@ripe.net", EmailStatus.UNSUBSCRIBE);
+        emailStatusDao.createEmailStatus("test1@ripe.net", EmailStatus.UNDELIVERABLE);
 
         final String response = RestTest.target(getPort(),
                         "whois/syncupdates/test?" + "DATA=" + SyncUpdateUtils.encode(person + "\npassword: emptypassword"))
@@ -1233,7 +1236,10 @@ public class SyncUpdatesServiceTestIntegration extends AbstractIntegrationTest {
 
         assertThat(response, containsString("Modify SUCCEEDED: [person] TP2-TEST"));
         assertThat(response, containsString("***Warning: Not sending notification to test@ripe.net because it is UNSUBSCRIBE."));
+        assertThat(response, containsString("***Warning: Not sending notification to test1@ripe.net because it is\n" +
+                "            UNDELIVERABLE."));
     }
+
 
     // helper methods
 
