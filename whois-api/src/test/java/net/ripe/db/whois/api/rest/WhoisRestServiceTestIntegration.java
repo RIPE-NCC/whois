@@ -29,8 +29,10 @@ import net.ripe.db.whois.api.rest.mapper.WhoisObjectMapper;
 import net.ripe.db.whois.common.ApplicationVersion;
 import net.ripe.db.whois.common.MaintenanceMode;
 import net.ripe.db.whois.common.TestDateTimeProvider;
+import net.ripe.db.whois.common.dao.EmailStatusDao;
 import net.ripe.db.whois.common.domain.User;
 import net.ripe.db.whois.common.domain.io.Downloader;
+import net.ripe.db.whois.common.mail.EmailStatus;
 import net.ripe.db.whois.common.rpsl.AttributeType;
 import net.ripe.db.whois.common.rpsl.ObjectType;
 import net.ripe.db.whois.common.rpsl.PasswordHelper;
@@ -126,6 +128,17 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
             "remarks:   remark\n" +
             "source:    TEST\n");
 
+    private static final RpslObject NOTIFY_PERSON = RpslObject.parse("" +
+            "person:    Pauleth Palthen \n" +
+            "address:   Singel 258\n" +
+            "phone:     +31-1234567890\n" +
+            "e-mail:    noreply@ripe.net\n" +
+            "notify:    test@ripe.net\n" +
+            "mnt-by:    OWNER-MNT\n" +
+            "nic-hdl:   PP3-TEST\n" +
+            "remarks:   remark\n" +
+            "source:    TEST\n");
+
     private static final RpslObject OWNER_MNT = RpslObject.parse("" +
             "mntner:      OWNER-MNT\n" +
             "descr:       Owner Maintainer\n" +
@@ -196,11 +209,15 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
     @Autowired private MailSenderStub mailSenderStub;
     @Autowired private TestDateTimeProvider testDateTimeProvider;
     @Autowired private ApplicationVersion applicationVersion;
+
+    @Autowired private EmailStatusDao emailStatusDao;
+
     @BeforeEach
     public void setup() {
         databaseHelper.addObject("person: Test Person\nnic-hdl: TP1-TEST");
         databaseHelper.addObject("role: Test Role\nnic-hdl: TR1-TEST");
         databaseHelper.addObject(OWNER_MNT);
+        databaseHelper.addObject(NOTIFY_PERSON);
         databaseHelper.updateObject(TEST_PERSON);
         databaseHelper.updateObject(TEST_ROLE);
         maintenanceMode.set("FULL,FULL");
@@ -5748,6 +5765,59 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
 
         assertThat(response.getStatus(), is(Response.Status.OK.getStatusCode()));
 
+    }
+
+    @Test
+    public void unsubscribed_notify_user_gets_warn_when_updating() {
+        final String unsubscribedEmail = "test@ripe.net";
+
+        final RpslObject rpslObject = RpslObject.parse("" +
+                "person:    Pauleth Palthen \n" +
+                        "address:   Singel 258 test\n" +
+                        "phone:     +31-1234567890\n" +
+                        "e-mail:    noreply@ripe.net\n" +
+                        "notify:    test@ripe.net\n" +
+                        "mnt-by:    OWNER-MNT\n" +
+                        "nic-hdl:   PP3-TEST\n" +
+                        "remarks:   remark\n" +
+                        "source:    TEST\n");
+
+        emailStatusDao.createEmailStatus(unsubscribedEmail, EmailStatus.UNSUBSCRIBE);
+
+        final WhoisResources response = RestTest.target(getPort(), "whois/test/person/PP3-TEST?password=test")
+                .request(MediaType.APPLICATION_XML)
+                .put(Entity.entity(map(rpslObject), MediaType.APPLICATION_XML), WhoisResources.class);
+
+        RestTest.assertWarningCount(response, 1);
+        RestTest.assertErrorMessage(response, 0, "Warning", "Not sending notification to %s because it is %s.",
+                unsubscribedEmail, EmailStatus.UNSUBSCRIBE.name());
+    }
+
+
+    @Test
+    public void undeliverable_notify_user_gets_warn_when_updating() {
+        final String undeliverableEmail = "test@ripe.net";
+
+        final RpslObject rpslObject = RpslObject.parse("" +
+                "person:    Pauleth Palthen \n" +
+                "address:   Singel 258 test\n" +
+                "phone:     +31-1234567890\n" +
+                "e-mail:    noreply@ripe.net\n" +
+                "notify:    test@ripe.net\n" +
+                "mnt-by:    OWNER-MNT\n" +
+                "nic-hdl:   PP3-TEST\n" +
+                "remarks:   remark\n" +
+                "source:    TEST\n");
+
+        emailStatusDao.createEmailStatus(undeliverableEmail, EmailStatus.UNDELIVERABLE);
+
+        final WhoisResources response = RestTest.target(getPort(), "whois/test/person/PP3-TEST?password=test")
+                .request(MediaType.APPLICATION_XML)
+                .put(Entity.entity(map(rpslObject), MediaType.APPLICATION_XML), WhoisResources.class);
+
+        RestTest.assertWarningCount(response, 1);
+        RestTest.assertErrorMessage(response, 0, "Warning", "Not sending notification to %s because it is %s.",
+                undeliverableEmail, EmailStatus.UNDELIVERABLE.name());
     }
 
     // helper methods

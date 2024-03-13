@@ -5,6 +5,7 @@ import jakarta.mail.Session;
 import jakarta.mail.internet.MimeMessage;
 import net.ripe.db.whois.common.dao.EmailStatusDao;
 import net.ripe.db.whois.common.dao.OutgoingMessageDao;
+import net.ripe.db.whois.update.domain.UpdateContext;
 import net.ripe.db.whois.update.log.LoggerContext;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -29,6 +30,7 @@ public class MailGatewaySmtpTest {
 
     private static final Session SESSION = Session.getInstance(new Properties());
 
+    @Mock UpdateContext updateContext;
     @Mock LoggerContext loggerContext;
     @Mock MailConfiguration mailConfiguration;
     @Mock JavaMailSender mailSender;

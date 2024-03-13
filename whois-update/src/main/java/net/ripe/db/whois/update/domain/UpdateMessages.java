@@ -616,6 +616,10 @@ public final class UpdateMessages {
         return new Message(Type.WARNING, "\"status:\" attribute cannot be removed");
     }
 
+    public static Message emailCanNotBeSent(final String email, final String emailStatus) {
+        return new Message(Type.WARNING, "Not sending notification to %s because it is %s.", email, emailStatus);
+    }
+
     public static Message sponsoringOrgChanged() {
         return new Message(Type.ERROR, "The \"sponsoring-org\" attribute can only be changed by the RIPE NCC");
     }

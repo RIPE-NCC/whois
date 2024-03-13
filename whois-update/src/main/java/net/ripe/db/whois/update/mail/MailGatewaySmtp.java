@@ -78,7 +78,7 @@ public class MailGatewaySmtp implements MailGateway {
 
             return;
         }
-        
+
         //TODO acknowledgment should be sent even if the user is unsubscribe
         if (emailStatusDao.canNotSendEmail(extractEmailBetweenAngleBrackets(to))) {
             LOGGER.debug("" +
