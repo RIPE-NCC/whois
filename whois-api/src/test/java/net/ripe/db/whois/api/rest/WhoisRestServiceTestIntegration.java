@@ -5777,6 +5777,7 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
                         "phone:     +31-1234567890\n" +
                         "e-mail:    noreply@ripe.net\n" +
                         "notify:    test@ripe.net\n" +
+                        "notify:    test1@ripe.net\n" +
                         "mnt-by:    OWNER-MNT\n" +
                         "nic-hdl:   PP3-TEST\n" +
                         "remarks:   remark\n" +
@@ -5789,8 +5790,7 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
                 .put(Entity.entity(map(rpslObject), MediaType.APPLICATION_XML), WhoisResources.class);
 
         RestTest.assertWarningCount(response, 1);
-        RestTest.assertErrorMessage(response, 0, "Warning", "Not sending notification to %s because it is %s.",
-                unsubscribedEmail, EmailStatus.UNSUBSCRIBE.name());
+        RestTest.assertErrorMessage(response, 0, "Warning", "Email %s is %s.", unsubscribedEmail, EmailStatus.UNSUBSCRIBE.getValue());
     }
 
 
@@ -5816,8 +5816,7 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
                 .put(Entity.entity(map(rpslObject), MediaType.APPLICATION_XML), WhoisResources.class);
 
         RestTest.assertWarningCount(response, 1);
-        RestTest.assertErrorMessage(response, 0, "Warning", "Not sending notification to %s because it is %s.",
-                undeliverableEmail, EmailStatus.UNDELIVERABLE.name());
+        RestTest.assertErrorMessage(response, 0, "Warning", "Email %s is %s.", undeliverableEmail, EmailStatus.UNDELIVERABLE.getValue());
     }
 
     // helper methods

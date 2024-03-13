@@ -3,13 +3,14 @@ package net.ripe.db.whois.update.handler;
 import com.google.common.collect.Maps;
 import jakarta.mail.internet.AddressException;
 import jakarta.mail.internet.InternetAddress;
+import net.ripe.db.whois.common.dao.EmailStatusDao;
 import net.ripe.db.whois.common.dao.RpslObjectDao;
 import net.ripe.db.whois.common.dao.RpslObjectUpdateInfo;
 import net.ripe.db.whois.common.dao.VersionDao;
 import net.ripe.db.whois.common.dao.VersionLookupResult;
 import net.ripe.db.whois.common.dao.VersionVanishedException;
 import net.ripe.db.whois.common.domain.CIString;
-import net.ripe.db.whois.common.domain.Maintainers;
+import net.ripe.db.whois.common.mail.EmailStatus;
 import net.ripe.db.whois.common.rpsl.AttributeType;
 import net.ripe.db.whois.common.rpsl.ObjectType;
 import net.ripe.db.whois.common.rpsl.RpslObject;
@@ -20,6 +21,7 @@ import net.ripe.db.whois.update.domain.PreparedUpdate;
 import net.ripe.db.whois.update.domain.ResponseMessage;
 import net.ripe.db.whois.update.domain.Update;
 import net.ripe.db.whois.update.domain.UpdateContext;
+import net.ripe.db.whois.update.domain.UpdateMessages;
 import net.ripe.db.whois.update.domain.UpdateRequest;
 import net.ripe.db.whois.update.handler.response.ResponseFactory;
 import net.ripe.db.whois.update.mail.MailGateway;
@@ -30,6 +32,8 @@ import org.springframework.stereotype.Component;
 
 import java.util.Collections;
 import java.util.Map;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 @Component
 public class UpdateNotifier {
@@ -39,19 +43,19 @@ public class UpdateNotifier {
     private final ResponseFactory responseFactory;
     private final MailGateway mailGateway;
     private final VersionDao versionDao;
-    private final Maintainers maintainers;
+    private final EmailStatusDao emailStatusDao;
 
     @Autowired
     public UpdateNotifier(final RpslObjectDao rpslObjectDao,
                           final ResponseFactory responseFactory,
                           final MailGateway mailGateway,
                           final VersionDao versionDao,
-                          final Maintainers maintainers) {
+                          final EmailStatusDao emailStatusDao) {
         this.rpslObjectDao = rpslObjectDao;
         this.responseFactory = responseFactory;
         this.mailGateway = mailGateway;
         this.versionDao = versionDao;
-        this.maintainers = maintainers;
+        this.emailStatusDao = emailStatusDao;
     }
 
     public void sendNotifications(final UpdateRequest updateRequest, final UpdateContext updateContext) {
@@ -101,7 +105,7 @@ public class UpdateNotifier {
         }
     }
 
-    public boolean notificationsDisabledByOverride(final PreparedUpdate preparedUpdate) {
+    public static boolean notificationsDisabledByOverride(final PreparedUpdate preparedUpdate) {
         final OverrideOptions overrideOptions = preparedUpdate.getOverrideOptions();
         return overrideOptions.isNotifyOverride() && !overrideOptions.isNotify();
     }
@@ -120,7 +124,13 @@ public class UpdateNotifier {
             case SUCCESS:
                 if (updateContext.getAction(update) != Action.NOOP) {
                     addVersionId(update, updateContext);
-                    addNotificationsWithoutVersioning(notifications, update, updateContext, object);
+                    add(notifications, updateContext, update, Notification.Type.SUCCESS, Collections.singletonList(object), AttributeType.NOTIFY);
+                    add(notifications, updateContext, update, Notification.Type.SUCCESS, rpslObjectDao.getByKeys(ObjectType.MNTNER, object.getValuesForAttribute(AttributeType.MNT_BY)), AttributeType.MNT_NFY);
+                    add(notifications, updateContext, update, Notification.Type.SUCCESS_REFERENCE, rpslObjectDao.getByKeys(ObjectType.ORGANISATION, update.getDifferences(AttributeType.ORG)), AttributeType.REF_NFY);
+                    add(notifications, updateContext, update, Notification.Type.SUCCESS_REFERENCE, rpslObjectDao.getByKeys(ObjectType.IRT, update.getDifferences(AttributeType.MNT_IRT)), AttributeType.IRT_NFY);
+                    if (notifyOriginAutnum(update)) {
+                        add(notifications, updateContext, update, Notification.Type.SUCCESS_REFERENCE, rpslObjectDao.getByKeys(ObjectType.AUT_NUM, update.getDifferences(AttributeType.ORIGIN)), AttributeType.NOTIFY);
+                    }
                 }
                 break;
 
@@ -132,18 +142,18 @@ public class UpdateNotifier {
                 break;
 
         }
+
+        addWarningsForSkippedEmailNotifications(notifications, update, updateContext);
+
     }
 
+    private void addWarningsForSkippedEmailNotifications(Map<CIString, Notification> notifications, PreparedUpdate update, UpdateContext updateContext) {
+        final Set<String> emails = notifications.values().stream().map(Notification::getEmail).collect(Collectors.toSet());
+        final Map<String, EmailStatus> emailStatus = emailStatusDao.getEmailStatus(emails);
 
-    public void addNotificationsWithoutVersioning(final Map<CIString, Notification> notifications, final PreparedUpdate update,
-                                                  final UpdateContext updateContext, final RpslObject object) {
-        add(notifications, updateContext, update, Notification.Type.SUCCESS, Collections.singletonList(object), AttributeType.NOTIFY);
-        add(notifications, updateContext, update, Notification.Type.SUCCESS, rpslObjectDao.getByKeys(ObjectType.MNTNER, object.getValuesForAttribute(AttributeType.MNT_BY)), AttributeType.MNT_NFY);
-        add(notifications, updateContext, update, Notification.Type.SUCCESS_REFERENCE, rpslObjectDao.getByKeys(ObjectType.ORGANISATION, update.getDifferences(AttributeType.ORG)), AttributeType.REF_NFY);
-        add(notifications, updateContext, update, Notification.Type.SUCCESS_REFERENCE, rpslObjectDao.getByKeys(ObjectType.IRT, update.getDifferences(AttributeType.MNT_IRT)), AttributeType.IRT_NFY);
-        if (notifyOriginAutnum(update)) {
-            add(notifications, updateContext, update, Notification.Type.SUCCESS_REFERENCE, rpslObjectDao.getByKeys(ObjectType.AUT_NUM, update.getDifferences(AttributeType.ORIGIN)), AttributeType.NOTIFY);
-        }
+        emailStatus.forEach((email, status) ->
+                updateContext.addMessage(update, UpdateMessages.emailCanNotBeSent(email, status.getValue()))
+        );
     }
 
     private void add(final Map<CIString, Notification> notifications, final UpdateContext updateContext, final PreparedUpdate update, final Notification.Type type, final Iterable<RpslObject> objects, final AttributeType attributeType) {
