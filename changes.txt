@@ -1,5 +1,10 @@
 # next
 
+# 1.111
+
+[update] Don't send email to undeliverable addresses (#1404)
+[update] Add email unsubscribe support (#1404)
+
 # 1.110
 
 [rdap] Implemented RDAP Extension for Geofeed Data (draft-ietf-regext-rdap-geofeed-01) (#1366)
