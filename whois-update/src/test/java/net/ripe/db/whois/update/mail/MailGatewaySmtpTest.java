@@ -34,10 +34,9 @@ public class MailGatewaySmtpTest {
     @Mock LoggerContext loggerContext;
     @Mock MailConfiguration mailConfiguration;
     @Mock JavaMailSender mailSender;
-    @Mock
-    EmailStatusDao emailStatusDao;
+    @Mock EmailStatusDao emailStatusDao;
     @Mock OutgoingMessageDao outgoingMessageDao;
-    @InjectMocks private MailGatewaySmtp subject;
+    @InjectMocks MailGatewaySmtp subject;
 
     @BeforeEach
     public void setUp() throws Exception {

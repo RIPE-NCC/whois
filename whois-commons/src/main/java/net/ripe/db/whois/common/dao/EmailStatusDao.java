@@ -18,7 +18,6 @@ import java.util.Set;
 public class EmailStatusDao {
 
     private final JdbcTemplate jdbcTemplate;
-
     private final NamedParameterJdbcTemplate namedParameterJdbcTemplate;
 
     @Autowired
