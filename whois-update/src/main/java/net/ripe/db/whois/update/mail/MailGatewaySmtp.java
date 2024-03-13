@@ -78,7 +78,7 @@ public class MailGatewaySmtp implements MailGateway {
 
             return;
         }
-        
+
         //TODO acknowledgment should be sent even if the user is unsubscribe
         if (emailStatusDao.canNotSendEmail(extractEmailBetweenAngleBrackets(to))) {
             LOGGER.debug("" +
@@ -155,7 +155,7 @@ public class MailGatewaySmtp implements MailGateway {
         mimeMessage.addHeader("Auto-Submitted", "auto-generated");
         if (!Strings.isNullOrEmpty(mailConfiguration.getSmtpFrom())) {
             mimeMessage.addHeader("List-Unsubscribe",
-                String.format("<%s/unsubscribe/%s>, <mailto:%s?subject=Unsubscribe%%20%s>",
+                String.format("<%s/api/unsubscribe/%s>, <mailto:%s?subject=Unsubscribe%%20%s>",
                 webRestPath,
                 mimeMessage.getMessageID(),
                 mailConfiguration.getSmtpFrom(),
