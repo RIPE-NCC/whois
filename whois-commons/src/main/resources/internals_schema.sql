@@ -169,10 +169,6 @@ CREATE TABLE `environment` (
    PRIMARY KEY (`name`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
---
--- TODO: keep synchronised with patch internals-1.111.sql
---
-
 DROP TABLE IF EXISTS `outgoing_message`;
 CREATE TABLE `outgoing_message` (
    `message_id` varchar(80) NOT NULL,

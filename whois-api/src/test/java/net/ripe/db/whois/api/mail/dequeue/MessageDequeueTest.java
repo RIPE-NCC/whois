@@ -69,9 +69,7 @@ public class MessageDequeueTest {
     @Mock LoggerContext loggerContext;
     @Mock UpdateLog updateLog;
     @Mock DateTimeProvider dateTimeProvider;
-    @Mock
-    MessageService messageService;
-
+    @Mock MessageService messageService;
     @InjectMocks MessageDequeue subject;
 
     @BeforeEach
@@ -80,12 +78,10 @@ public class MessageDequeueTest {
         ReflectionTestUtils.setField(subject, "intervalMs", 1);
         lenient().when(maintenanceMode.allowUpdate()).thenReturn(true);
         lenient().when(dateTimeProvider.getCurrentZonedDateTime()).thenReturn(ZonedDateTime.now(ZoneOffset.UTC));
-        lenient().when(messageService.getBouncedMessageInfo(any(MimeMessage.class))).thenReturn(null);
-        lenient().when(messageService.getUnsubscribedMessageInfo(any(MimeMessage.class))).thenReturn(null);
     }
 
     @AfterEach
-    public void tearDown() throws Exception {
+    public void tearDown() {
         subject.stop(true);
     }
 

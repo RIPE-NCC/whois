@@ -31,7 +31,6 @@
         <dependency>
             <groupId>com.amazonaws.proprot</groupId>
             <artifactId>proprot</artifactId>
-            <version>1.0</version>
             <scope>test</scope>
         </dependency>
         <dependency>
@@ -39,7 +38,6 @@
             <artifactId>commons-io</artifactId>
             <scope>test</scope>
         </dependency>
-
 
     </dependencies>
     <build>
