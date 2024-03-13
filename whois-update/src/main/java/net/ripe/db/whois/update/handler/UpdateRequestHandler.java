@@ -104,9 +104,9 @@ public class UpdateRequestHandler {
 
                 // Create update response before sending notifications, so in case of an exception
                 // while creating the response we didn't send any notifications
-                updateNotifier.sendNotifications(updateRequest, updateContext);
                 updateResponse = createUpdateResponse(updateRequest, updateContext);
 
+                updateNotifier.sendNotifications(updateRequest, updateContext);
             }
 
             return updateResponse;

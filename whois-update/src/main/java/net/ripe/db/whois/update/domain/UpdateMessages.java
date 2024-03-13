@@ -617,7 +617,7 @@ public final class UpdateMessages {
     }
 
     public static Message emailCanNotBeSent(final String email, final String emailStatus) {
-        return new Message(Type.WARNING, "Email %s is %s.", email, emailStatus);
+        return new Message(Type.WARNING, "Not sending notification to %s because it is %s.", email, emailStatus);
     }
 
     public static Message sponsoringOrgChanged() {

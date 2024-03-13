@@ -1235,8 +1235,9 @@ public class SyncUpdatesServiceTestIntegration extends AbstractIntegrationTest {
                 .get(String.class);
 
         assertThat(response, containsString("Modify SUCCEEDED: [person] TP2-TEST"));
-        assertThat(response, containsString("***Warning: Email test@ripe.net is unsubscribe."));
-        assertThat(response, containsString("***Warning: Email test1@ripe.net is undeliverable"));
+        assertThat(response, containsString("***Warning: Not sending notification to test@ripe.net because it is UNSUBSCRIBE."));
+        assertThat(response, containsString("***Warning: Not sending notification to test1@ripe.net because it is\n" +
+                "            UNDELIVERABLE."));
     }
 
 

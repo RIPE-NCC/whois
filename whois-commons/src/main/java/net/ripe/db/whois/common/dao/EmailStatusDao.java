@@ -11,7 +11,6 @@ import org.springframework.stereotype.Repository;
 import javax.sql.DataSource;
 import java.sql.ResultSet;
 import java.time.LocalDateTime;
-import java.util.Collections;
 import java.util.Map;
 import java.util.Set;
 
@@ -33,20 +32,14 @@ public class EmailStatusDao {
                 LocalDateTime.now());
     }
 
-    public Map<String, EmailStatus> getEmailStatus(final Set<String> emailAddresses) {
-        if( emailAddresses.isEmpty()) {
-            return Collections.EMPTY_MAP;
-        }
-
-        final Map<String, EmailStatus> results = Maps.newHashMap();
+    public Map<String, String> getEmailStatus(final Set<String> emailAddresses) {
+        Map<String, String> results = Maps.newHashMap();
 
         namedParameterJdbcTemplate.query(
-                "SELECT email, status FROM email_status WHERE email IN (:emails)",
+                "SELECT email, status from email_status where email in (:emails)",
                 Map.of("emails", emailAddresses),
                 resultSet -> {
-                    final String email = resultSet.getString(1);
-                    final EmailStatus status = EmailStatus.valueOf(resultSet.getString(2));
-                    results.put(email,status);
+                    results.put(resultSet.getString(1), resultSet.getString(2));
                 });
 
         return results;
@@ -54,7 +47,7 @@ public class EmailStatusDao {
 
     public boolean canNotSendEmail(final String emailAddress) {
         return Boolean.TRUE.equals(jdbcTemplate.query(
-                "SELECT email FROM email_status WHERE email = ?",
+                "SELECT email from email_status where email = ?",
                 new Object[]{emailAddress},
                 ResultSet::next));
     }
