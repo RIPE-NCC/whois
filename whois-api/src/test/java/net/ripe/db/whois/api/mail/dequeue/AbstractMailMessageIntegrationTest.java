@@ -80,7 +80,7 @@ public class AbstractMailMessageIntegrationTest extends AbstractIntegrationTest 
 
     protected void insertUndeliverableAddress(final String emailAddress) {
         internalsTemplate.update(
-                "INSERT INTO email_status (email, status) VALUES (?, ?)", emailAddress, EmailStatus.UNDELIVERABLE);
+                "INSERT INTO email_status (email, status) VALUES (?, ?)", emailAddress, EmailStatus.UNDELIVERABLE.name());
     }
 
 

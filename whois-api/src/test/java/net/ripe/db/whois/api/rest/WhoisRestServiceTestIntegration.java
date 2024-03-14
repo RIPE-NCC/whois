@@ -217,7 +217,6 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
         databaseHelper.addObject("person: Test Person\nnic-hdl: TP1-TEST");
         databaseHelper.addObject("role: Test Role\nnic-hdl: TR1-TEST");
         databaseHelper.addObject(OWNER_MNT);
-        databaseHelper.addObject(NOTIFY_PERSON);
         databaseHelper.updateObject(TEST_PERSON);
         databaseHelper.updateObject(TEST_ROLE);
         maintenanceMode.set("FULL,FULL");
@@ -5769,6 +5768,7 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
 
     @Test
     public void unsubscribed_notify_user_gets_warn_when_updating() {
+        databaseHelper.addObject(NOTIFY_PERSON);
         final String unsubscribedEmail = "test@ripe.net";
 
         final RpslObject rpslObject = RpslObject.parse("" +
@@ -5796,6 +5796,7 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
 
     @Test
     public void undeliverable_notify_user_gets_warn_when_updating() {
+        databaseHelper.addObject(NOTIFY_PERSON);
         final String undeliverableEmail = "test@ripe.net";
 
         final RpslObject rpslObject = RpslObject.parse("" +
