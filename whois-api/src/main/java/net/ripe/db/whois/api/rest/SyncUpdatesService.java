@@ -192,7 +192,7 @@ public class SyncUpdatesService {
 
             final UpdateContext updateContext = new UpdateContext(loggerContext);
 
-            if( RestServiceHelper.isHttpProtocol(httpServletRequest) ){
+            if(RestServiceHelper.isHttpProtocol(httpServletRequest)){
                 updateContext.addGlobalMessage(UpdateMessages.httpSyncupdate());
             }
 

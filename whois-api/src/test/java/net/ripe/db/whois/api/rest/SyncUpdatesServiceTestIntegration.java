@@ -11,9 +11,11 @@ import jakarta.ws.rs.core.Response;
 import net.ripe.db.whois.api.AbstractIntegrationTest;
 import net.ripe.db.whois.api.RestTest;
 import net.ripe.db.whois.api.syncupdate.SyncUpdateUtils;
+import net.ripe.db.whois.common.dao.EmailStatusDao;
 import net.ripe.db.whois.common.domain.CIString;
 import net.ripe.db.whois.common.domain.IpRanges;
 import net.ripe.db.whois.common.domain.User;
+import net.ripe.db.whois.common.mail.EmailStatus;
 import net.ripe.db.whois.common.rpsl.AttributeType;
 import net.ripe.db.whois.common.rpsl.ObjectType;
 import net.ripe.db.whois.common.rpsl.RpslAttribute;
@@ -67,11 +69,26 @@ public class SyncUpdatesServiceTestIntegration extends AbstractIntegrationTest {
             "nic-hdl:       TP1-TEST\n" +
             "source:        TEST";
 
+    private static final String NOTIFY_PERSON_TEST = "" +
+            "person:    Pauleth Palthen \n" +
+            "address:   Singel 258\n" +
+            "phone:     +31-1234567890\n" +
+            "e-mail:    noreply@ripe.net\n" +
+            "notify:    test@ripe.net\n" +
+            "notify:    test1@ripe.net\n" +
+            "mnt-by:    mntner-mnt\n" +
+            "nic-hdl:   TP2-TEST\n" +
+            "remarks:   remark\n" +
+            "source:    TEST\n";
+
     @Autowired
     private MailSenderStub mailSender;
 
     @Autowired
     private IpRanges ipRanges;
+
+    @Autowired
+    private EmailStatusDao emailStatusDao;
 
     @Test
     public void get_empty_request() {
@@ -1187,6 +1204,42 @@ public class SyncUpdatesServiceTestIntegration extends AbstractIntegrationTest {
         assertThat(response, containsString("Create FAILED: [domain] e.0.0.0.a.1.ip6.arpa"));
         assertThat(response, containsString("***Error:   Error parsing response while performing DNS check"));
     }
+
+
+    @Test
+    public void unsubscribed_and_undeliverable_notify_user_gets_warn_when_updating() {
+        databaseHelper.addObject(PERSON_ANY1_TEST);
+        databaseHelper.addObject(MNTNER_TEST_MNTNER);
+        databaseHelper.addObject(NOTIFY_PERSON_TEST);
+
+        final String person = "" +
+                "person:    Pauleth Palthen \n" +
+                "address:   Singel 258 test\n" +
+                "remarks:   test\n" +
+                "phone:     +31-1234567890\n" +
+                "e-mail:    noreply@ripe.net\n" +
+                "notify:    test@ripe.net\n" +
+                "notify:    test1@ripe.net\n" +
+                "mnt-by:    mntner-mnt\n" +
+                "nic-hdl:   TP2-TEST\n" +
+                "remarks:   remark\n" +
+                "source:    TEST\n";
+
+        emailStatusDao.createEmailStatus("test@ripe.net", EmailStatus.UNSUBSCRIBE);
+        emailStatusDao.createEmailStatus("test1@ripe.net", EmailStatus.UNDELIVERABLE);
+
+        final String response = RestTest.target(getPort(),
+                        "whois/syncupdates/test?" + "DATA=" + SyncUpdateUtils.encode(person + "\npassword: emptypassword"))
+                .request()
+                .cookie("crowd.token_key", "valid-token")
+                .get(String.class);
+
+        assertThat(response, containsString("Modify SUCCEEDED: [person] TP2-TEST"));
+        assertThat(response, containsString("***Warning: Not sending notification to test@ripe.net because it is unsubscribe."));
+        assertThat(response, containsString("***Warning: Not sending notification to test1@ripe.net because it is\n" +
+                "            undeliverable."));
+    }
+
 
     // helper methods
 
