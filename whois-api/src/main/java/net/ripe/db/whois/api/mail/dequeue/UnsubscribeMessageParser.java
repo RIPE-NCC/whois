@@ -14,6 +14,7 @@ import org.springframework.stereotype.Component;
 
 import javax.annotation.Nullable;
 import java.io.IOException;
+import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -37,7 +38,7 @@ public class UnsubscribeMessageParser {
             final String messageId = getMessageIdFromSubject(message);
             final String from = getFrom(message);
             if ((messageId != null) && (from != null)) {
-                return new MessageInfo(from, messageId);
+                return new MessageInfo(List.of(from), messageId);
             }
         }
 

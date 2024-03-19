@@ -1,7 +1,6 @@
 package net.ripe.db.whois.api.mail.dequeue;
 
 
-import com.google.common.base.Strings;
 import jakarta.mail.MessagingException;
 import jakarta.mail.internet.MimeMessage;
 import net.ripe.db.whois.api.mail.MessageInfo;
@@ -14,6 +13,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
+import java.util.List;
 
 @Service
 public class MessageService {
@@ -45,35 +45,35 @@ public class MessageService {
     }
 
     public void verifyAndSetAsUndeliverable(final MessageInfo message){
-        final String email = outgoingMessageDao.getEmail(message.messageId());
+        final List<String> emails = outgoingMessageDao.getEmails(message.messageId());
 
-        if (isIncorrectMessage(message, email)){
+        if (isIncorrectMessage(message, emails)){
             return;
         }
 
-        LOGGER.debug("Undeliverable message-id {} email {}", message.messageId(), message.emailAddress());
-        emailStatusDao.createEmailStatus(email, EmailStatus.UNDELIVERABLE);
+        LOGGER.debug("Undeliverable message-id {} email {}", message.messageId(), message.emailAddresses());
+        emails.forEach(email -> emailStatusDao.createEmailStatus(email, EmailStatus.UNDELIVERABLE));
     }
 
     public void verifyAndSetAsUnsubscribed(final MessageInfo message){
-        final String email = outgoingMessageDao.getEmail(message.messageId());
+        final List<String> emails = outgoingMessageDao.getEmails(message.messageId());
 
-        if (isIncorrectMessage(message, email)){
+        if (isIncorrectMessage(message, emails)){
             return;
         }
 
-        LOGGER.debug("Unsubscribe message-id {} email {}", message.messageId(), message.emailAddress());
-        emailStatusDao.createEmailStatus(email, EmailStatus.UNSUBSCRIBE);
+        LOGGER.debug("Unsubscribe message-id {} email {}", message.messageId(), message.emailAddresses());
+        emails.forEach(email -> emailStatusDao.createEmailStatus(email, EmailStatus.UNSUBSCRIBE));
     }
 
-    private boolean isIncorrectMessage(final MessageInfo message, final String email){
-        if (Strings.isNullOrEmpty(email)) {
+    private boolean isIncorrectMessage(final MessageInfo message, final List<String> emails){
+        if (emails == null || emails.isEmpty()) {
             LOGGER.warn("Couldn't find outgoing message matching {}", message.messageId());
             return true;
         }
 
-        if (!email.equalsIgnoreCase(message.emailAddress())) {
-            LOGGER.warn("Email {} in outgoing message doesn't match '{}' in failure response", email, message.emailAddress());
+        if (!emails.containsAll(message.emailAddresses())) {
+            LOGGER.warn("Email {} in outgoing message doesn't match '{}' in failure response", emails, message.emailAddresses());
             return true;
         }
         return false;
