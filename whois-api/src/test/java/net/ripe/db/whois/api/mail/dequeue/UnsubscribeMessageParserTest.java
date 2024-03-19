@@ -23,7 +23,7 @@ class UnsubscribeMessageParserTest {
         final MessageInfo unsubscribedMessage = subject.parse(MimeMessageProvider.getUpdateMessage("unsubscribeAppleMail.mail"));
 
         assertThat(unsubscribedMessage.messageId(), is("8b8ed6c0-f9cc-4a5f-afbb-fde079b94f44@ripe.net"));
-        assertThat(unsubscribedMessage.emailAddress(), is("enduser@ripe.net"));
+        assertThat(unsubscribedMessage.emailAddresses(), is("enduser@ripe.net"));
     }
 
     @Test
@@ -31,7 +31,7 @@ class UnsubscribeMessageParserTest {
         final MessageInfo unsubscribedMessage = subject.parse(MimeMessageProvider.getUpdateMessage("unsubscribeGmail.mail"));
 
         assertThat(unsubscribedMessage.messageId(), is("8b8ed6c0-f9cc-4a5f-afbb-fde079b94f44@ripe.net"));
-        assertThat(unsubscribedMessage.emailAddress(), is("enduser@gmail.com"));
+        assertThat(unsubscribedMessage.emailAddresses(), is("enduser@gmail.com"));
     }
 
     @Test

@@ -24,6 +24,8 @@ import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.Nullable;
+import java.util.Arrays;
+import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -100,7 +102,7 @@ public class MailGatewaySmtp implements MailGateway {
                 throw new MailSendException("Refusing outgoing email: " + text);
             }
 
-            sendEmailAttempt(to, replyTo, subject, text);
+            sendEmailAttempt(Set.of(to), replyTo, subject, text, false);
         } catch (MailException e) {
             LOGGER.error("Caught MailException", e);
             loggerContext.log(new Message(Messages.Type.ERROR, "Unable to send mail to %s with subject %s", to, subject), e);
@@ -111,7 +113,7 @@ public class MailGatewaySmtp implements MailGateway {
     }
 
     @RetryFor(value = MailSendException.class, attempts = 20, intervalMs = 10000)
-    private void sendEmailAttempt(final String to, final String replyTo, final String subject, final String text) {
+    private void sendEmailAttempt(final Set<String> recipients, final String replyTo, final String subject, final String text, final boolean html) {
         try {
             final MimeMessage mimeMessage = mailSender.createMimeMessage();
             setHeaders(mimeMessage);
@@ -119,35 +121,43 @@ public class MailGatewaySmtp implements MailGateway {
             final MimeMessageHelper helper = new MimeMessageHelper(mimeMessage, MimeMessageHelper.MULTIPART_MODE_NO, "UTF-8");
             helper.setFrom(mailConfiguration.getFrom());
 
-            final String punyCodedTo = PunycodeConversion.toAscii(to);
-            helper.setTo(punyCodedTo);
+            final String[] recipientsPunycode = recipients.stream().map(PunycodeConversion::toAscii).distinct().toArray(String[]::new);
+            helper.setTo(recipientsPunycode);
 
             if (!Strings.isNullOrEmpty(replyTo)){
                 helper.setReplyTo(PunycodeConversion.toAscii(replyTo));
             }
 
             helper.setSubject(subject);
-            helper.setText(text);
+            helper.setText(text, html);
 
             loggerContext.log("msg-out.txt", new MailMessageLogCallback(mimeMessage));
             mailSender.send(mimeMessage);
-            storeAsOutGoingMessage(mimeMessage, punyCodedTo);
+
+            final String messageId = mimeMessage.getMessageID();
+            Arrays.stream(recipientsPunycode).forEach(punyCodeTo -> storeAsOutGoingMessage(messageId, punyCodeTo));
 
         } catch (MailSendException | MessagingException e) {
             loggerContext.log(new Message(Messages.Type.ERROR, "Caught %s: %s", e.getClass().getName(), e.getMessage()));
-            LOGGER.error(String.format("Unable to send mail message to: %s", to), e);
+            LOGGER.error(String.format("Unable to send mail message to: %s", recipients), e);
             //TODO acknowledgment should be sent even if the user is unsubscribe
-            if (mailConfiguration.retrySending() && !emailStatusDao.canNotSendEmail(extractEmailBetweenAngleBrackets(to))) {
+
+            // When any of them is undeliverable/unsubscribe then do not retry
+            if (mailConfiguration.retrySending() && recipients.stream().allMatch(this::checkIfCanSendEmail)) {
                 throw new MailSendException("Caught " + e.getClass().getName(), e);
             } else {
-                loggerContext.log(new Message(Messages.Type.ERROR, "Not retrying sending mail to %s with subject %s", to, subject));
+                loggerContext.log(new Message(Messages.Type.ERROR, "Not retrying sending mail to %s with subject %s", recipients, subject));
             }
         }
     }
 
-    private void storeAsOutGoingMessage(MimeMessage mimeMessage, String punyCodedTo) throws MessagingException {
-        outgoingMessageDao.saveOutGoingMessageId(extractEmailBetweenAngleBrackets(mimeMessage.getMessageID()),   //Message-ID is in rfc2822 address format
+    private void storeAsOutGoingMessage(final String mimeMessageId, final String punyCodedTo){
+        outgoingMessageDao.saveOutGoingMessageId(extractEmailBetweenAngleBrackets(mimeMessageId),   //Message-ID is in rfc2822 address format
                 extractEmailBetweenAngleBrackets(punyCodedTo));
+    }
+
+    private boolean checkIfCanSendEmail(final String email){
+        return !emailStatusDao.canNotSendEmail(extractEmailBetweenAngleBrackets(email));
     }
 
     private void setHeaders(MimeMessage mimeMessage) throws MessagingException {

@@ -1,8 +1,9 @@
 package net.ripe.db.whois.api.mail;
 
 import javax.annotation.Nullable;
+import java.util.List;
 
-public record MessageInfo(String emailAddress, String messageId) {
+public record MessageInfo(List<String> emailAddresses, String messageId) {
 
     @Override
     @Nullable
@@ -12,7 +13,7 @@ public record MessageInfo(String emailAddress, String messageId) {
 
     @Override
     @Nullable
-    public String emailAddress() {
-        return emailAddress;
+    public List<String> emailAddresses() {
+        return emailAddresses;
     }
 }

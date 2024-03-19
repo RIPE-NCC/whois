@@ -19,6 +19,8 @@ import org.springframework.stereotype.Component;
 
 import javax.annotation.Nullable;
 import java.io.IOException;
+import java.util.Arrays;
+import java.util.List;
 
 @Component
 public class BouncedMessageParser {
@@ -41,7 +43,7 @@ public class BouncedMessageParser {
                 if (isFailed(deliveryStatus)) {
                     final MimeMessage returnedMessage = multipartReport.getReturnedMessage();
                     final String messageId = getMessageId(returnedMessage.getMessageID());
-                    final String recipient = getFirstAddress(returnedMessage.getAllRecipients());
+                    final List<String> recipient = getAddresses(returnedMessage.getAllRecipients());
                     return new MessageInfo(recipient, messageId);
                 }
             }
@@ -50,12 +52,12 @@ public class BouncedMessageParser {
         return null;
     }
 
-    @Nullable
-    private String getFirstAddress(final Address[] addresses) {
+
+    private List<String> getAddresses(final Address[] addresses) {
         if (addresses == null || addresses.length == 0) {
             throw new IllegalStateException("No address");
         }
-        return addresses[0].toString();
+        return Arrays.stream(addresses).map(Address::toString).toList();
     }
 
     private boolean isMultipartReport(final MimeMessage message) throws MessagingException {

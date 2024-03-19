@@ -5,7 +5,7 @@ CREATE TABLE `outgoing_message` (
      `message_id` varchar(80) NOT NULL,
      `email` varchar(80) NOT NULL,
      `last_update` datetime DEFAULT now(),
-     PRIMARY KEY (`message_id`)
+     PRIMARY KEY (`message_id`, `email`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
 CREATE INDEX outgoing_message_email_i ON outgoing_message(email);
