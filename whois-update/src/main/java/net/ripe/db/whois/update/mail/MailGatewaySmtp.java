@@ -25,6 +25,7 @@ import org.springframework.stereotype.Component;
 
 import javax.annotation.Nullable;
 import java.util.Arrays;
+import java.util.List;
 import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -66,7 +67,7 @@ public class MailGatewaySmtp implements MailGateway {
 
     @Override
     public void sendEmail(final String to, final String subject, final String text, @Nullable final String replyTo) {
-        if (! mailConfiguration.isEnabled()) {
+        if (!mailConfiguration.isEnabled()) {
             LOGGER.debug("" +
                     "Outgoing mail disabled\n" +
                     "\n" +
@@ -84,7 +85,7 @@ public class MailGatewaySmtp implements MailGateway {
         //TODO acknowledgment should be sent even if the user is unsubscribe
         if (emailStatusDao.canNotSendEmail(extractEmailBetweenAngleBrackets(to))) {
             LOGGER.debug("" +
-                    "Email appears in undeliverable list\n" +
+                    "Email appears in undeliverable/unsubscribed list\n" +
                     "\n" +
                     "to      : {}\n" +
                     "reply-to : {}\n" +
@@ -111,6 +112,43 @@ public class MailGatewaySmtp implements MailGateway {
             throw e;
         }
     }
+
+    @Override
+    public void sendEmail(final Set<String> to, final String subject, final String text, final String replyTo, boolean html) {
+        if (!mailConfiguration.isEnabled()) {
+            LOGGER.debug("" +
+                    "Outgoing mail disabled\n" +
+                    "\n" +
+                    "to      : {}\n" +
+                    "reply-to : {}\n" +
+                    "subject : {}\n" +
+                    "\n" +
+                    "{}\n" +
+                    "\n" +
+                    "\n", to, replyTo, subject, text);
+
+            return;
+        }
+
+        final List<String> availableEmails = getWellFormattedDeliverableEmails(to, subject, text, replyTo);
+
+        if (availableEmails.isEmpty()){
+            LOGGER.debug("No available well formatted emails");
+            return;
+        }
+
+        try {
+            sendEmailAttempt(to, replyTo, subject, text, html);
+        } catch (MailException e) {
+            LOGGER.error("Caught MailException", e);
+            loggerContext.log(new Message(Messages.Type.ERROR, "Unable to send mail to %s with subject %s", to, subject), e);
+        } catch (Exception e) {
+            LOGGER.error("Caught", e);
+            throw e;
+        }
+
+    }
+
 
     @RetryFor(value = MailSendException.class, attempts = 20, intervalMs = 10000)
     private void sendEmailAttempt(final Set<String> recipients, final String replyTo, final String subject, final String text, final boolean html) {
@@ -140,10 +178,8 @@ public class MailGatewaySmtp implements MailGateway {
         } catch (MailSendException | MessagingException e) {
             loggerContext.log(new Message(Messages.Type.ERROR, "Caught %s: %s", e.getClass().getName(), e.getMessage()));
             LOGGER.error(String.format("Unable to send mail message to: %s", recipients), e);
-            //TODO acknowledgment should be sent even if the user is unsubscribe
 
-            // When any of them is undeliverable/unsubscribe then do not retry
-            if (mailConfiguration.retrySending() && recipients.stream().allMatch(this::checkIfCanSendEmail)) {
+            if (mailConfiguration.retrySending()) {
                 throw new MailSendException("Caught " + e.getClass().getName(), e);
             } else {
                 loggerContext.log(new Message(Messages.Type.ERROR, "Not retrying sending mail to %s with subject %s", recipients, subject));
@@ -151,13 +187,33 @@ public class MailGatewaySmtp implements MailGateway {
         }
     }
 
+    private List<String> getWellFormattedDeliverableEmails(final Set<String> to, final String subject, final String text, final String replyTo) {
+        return to.stream().filter(email -> {
+            if (emailStatusDao.canNotSendEmail(extractEmailBetweenAngleBrackets(email))){
+                LOGGER.debug("" +
+                        "Email appears in undeliverable/unsubscribed list\n" +
+                        "\n" +
+                        "to      : {}\n" +
+                        "reply-to : {}\n" +
+                        "subject : {}\n" +
+                        "\n" +
+                        "{}\n" +
+                        "\n" +
+                        "\n", email, replyTo, subject, text);
+                return false;
+            }
+            final Matcher matcher = INVALID_EMAIL_PATTERN.matcher(email);
+            if (matcher.find()){
+                LOGGER.error("Email with incorrect pattern");
+                return false;
+            }
+            return true;
+        }).toList();
+    }
+
     private void storeAsOutGoingMessage(final String mimeMessageId, final String punyCodedTo){
         outgoingMessageDao.saveOutGoingMessageId(extractEmailBetweenAngleBrackets(mimeMessageId),   //Message-ID is in rfc2822 address format
                 extractEmailBetweenAngleBrackets(punyCodedTo));
-    }
-
-    private boolean checkIfCanSendEmail(final String email){
-        return !emailStatusDao.canNotSendEmail(extractEmailBetweenAngleBrackets(email));
     }
 
     private void setHeaders(MimeMessage mimeMessage) throws MessagingException {
