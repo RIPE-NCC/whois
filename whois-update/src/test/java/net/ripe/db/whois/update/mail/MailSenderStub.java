@@ -21,6 +21,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Properties;
 import java.util.Set;
+import java.util.UUID;
 import java.util.concurrent.Callable;
 import java.util.concurrent.TimeUnit;
 
@@ -60,7 +61,14 @@ public class MailSenderStub extends MailSenderBase implements Stub {
 
     @Override
     public MimeMessage createMimeMessage() {
-        return new MimeMessage(SESSION);
+        final String messageId = String.format("%s@ripe.net", UUID.randomUUID());
+        final MimeMessage message = new MimeMessage(SESSION);
+        try {
+            message.setHeader("Message-ID", messageId);
+        } catch (MessagingException e) {
+            /* Do nothing */
+        }
+        return message;
     }
 
     public MimeMessage getMessage(final String to) throws MessagingException {
