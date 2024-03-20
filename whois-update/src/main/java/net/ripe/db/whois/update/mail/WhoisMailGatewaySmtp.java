@@ -16,6 +16,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.mail.MailException;
 import org.springframework.mail.MailSendException;
+import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.Nullable;
@@ -35,7 +36,7 @@ public class WhoisMailGatewaySmtp extends MailGatewaySmtp {
     public WhoisMailGatewaySmtp(
             final LoggerContext loggerContext,
             final MailConfiguration mailConfiguration,
-            final CustomJavaMailSender mailSender,
+            final JavaMailSender mailSender,
             final EmailStatusDao emailStatusDao,
             final OutgoingMessageDao outgoingMessageDao,
             @Value("${web.baseurl}") final String webBaseUrl) {
