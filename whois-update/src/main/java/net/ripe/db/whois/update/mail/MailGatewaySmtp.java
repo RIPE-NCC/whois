@@ -5,54 +5,37 @@ import jakarta.mail.MessagingException;
 import jakarta.mail.internet.AddressException;
 import jakarta.mail.internet.InternetAddress;
 import jakarta.mail.internet.MimeMessage;
-import net.ripe.db.whois.common.Message;
-import net.ripe.db.whois.common.Messages;
 import net.ripe.db.whois.common.PunycodeConversion;
-import net.ripe.db.whois.common.aspects.RetryFor;
 import net.ripe.db.whois.common.dao.EmailStatusDao;
 import net.ripe.db.whois.common.dao.OutgoingMessageDao;
 import net.ripe.db.whois.update.domain.ResponseMessage;
 import net.ripe.db.whois.update.log.LoggerContext;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.mail.MailException;
-import org.springframework.mail.MailSendException;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
-import org.springframework.stereotype.Component;
 
 import javax.annotation.Nullable;
 import java.util.Arrays;
-import java.util.List;
 import java.util.Set;
-import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-@Component
-public class MailGatewaySmtp implements MailGateway {
+public abstract class MailGatewaySmtp implements MailGateway {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(MailGatewaySmtp.class);
+    protected static final Pattern INVALID_EMAIL_PATTERN = Pattern.compile("(?i)((?:auto|test)\\-dbm@ripe\\.net)");
 
-    private static final Pattern INVALID_EMAIL_PATTERN = Pattern.compile("(?i)((?:auto|test)\\-dbm@ripe\\.net)");
+    protected final MailConfiguration mailConfiguration;
+    protected final JavaMailSender mailSender;
+    protected final EmailStatusDao emailStatusDao;
+    protected final OutgoingMessageDao outgoingMessageDao;
+    protected final String webBaseUrl;
 
-    private final LoggerContext loggerContext;
-    private final MailConfiguration mailConfiguration;
-    private final JavaMailSender mailSender;
-    private final EmailStatusDao emailStatusDao;
-    private final OutgoingMessageDao outgoingMessageDao;
-    private final String webBaseUrl;
 
-    @Autowired
     public MailGatewaySmtp(
-            final LoggerContext loggerContext,
             final MailConfiguration mailConfiguration,
             final JavaMailSender mailSender,
             final EmailStatusDao emailStatusDao,
             final OutgoingMessageDao outgoingMessageDao,
             @Value("${web.baseurl}") final String webBaseUrl) {
-        this.loggerContext = loggerContext;
         this.mailConfiguration = mailConfiguration;
         this.mailSender = mailSender;
         this.emailStatusDao = emailStatusDao;
@@ -61,154 +44,55 @@ public class MailGatewaySmtp implements MailGateway {
     }
 
     @Override
-    public void sendEmail(final String to, final ResponseMessage responseMessage) {
-        sendEmail(to, responseMessage.getSubject(), responseMessage.getMessage(), responseMessage.getReplyTo());
-    }
+    public abstract void sendEmail(final String to, final ResponseMessage responseMessage);
 
     @Override
-    public void sendEmail(final String to, final String subject, final String text, @Nullable final String replyTo) {
-        if (!mailConfiguration.isEnabled()) {
-            LOGGER.debug("" +
-                    "Outgoing mail disabled\n" +
-                    "\n" +
-                    "to      : {}\n" +
-                    "reply-to : {}\n" +
-                    "subject : {}\n" +
-                    "\n" +
-                    "{}\n" +
-                    "\n" +
-                    "\n", to, replyTo, subject, text);
-
-            return;
-        }
-
-        //TODO acknowledgment should be sent even if the user is unsubscribe
-        if (emailStatusDao.canNotSendEmail(extractEmailBetweenAngleBrackets(to))) {
-            LOGGER.debug("" +
-                    "Email appears in undeliverable/unsubscribed list\n" +
-                    "\n" +
-                    "to      : {}\n" +
-                    "reply-to : {}\n" +
-                    "subject : {}\n" +
-                    "\n" +
-                    "{}\n" +
-                    "\n" +
-                    "\n", to, replyTo, subject, text);
-            return;
-        }
-
-        try {
-            final Matcher matcher = INVALID_EMAIL_PATTERN.matcher(to);
-            if (matcher.find()) {
-                throw new MailSendException("Refusing outgoing email: " + text);
-            }
-
-            sendEmailAttempt(Set.of(to), replyTo, subject, text, false);
-        } catch (MailException e) {
-            LOGGER.error("Caught MailException", e);
-            loggerContext.log(new Message(Messages.Type.ERROR, "Unable to send mail to %s with subject %s", to, subject), e);
-        } catch (Exception e) {
-            LOGGER.error("Caught", e);
-            throw e;
-        }
-    }
+    public abstract void sendEmail(final String to, final String subject, final String text, @Nullable final String replyTo);
 
     @Override
-    public void sendEmail(final Set<String> to, final String subject, final String text, final String replyTo, boolean html) {
-        if (!mailConfiguration.isEnabled()) {
-            LOGGER.debug("" +
-                    "Outgoing mail disabled\n" +
-                    "\n" +
-                    "to      : {}\n" +
-                    "reply-to : {}\n" +
-                    "subject : {}\n" +
-                    "\n" +
-                    "{}\n" +
-                    "\n" +
-                    "\n", to, replyTo, subject, text);
+    public abstract void sendEmail(final Set<String> to, final String subject, final String text, final String replyTo, boolean html);
 
-            return;
-        }
+    protected abstract boolean canNotSendEmail(final String emailAddresses);
 
-        final List<String> availableEmails = getWellFormattedDeliverableEmails(to, subject, text, replyTo);
-
-        if (availableEmails.isEmpty()){
-            LOGGER.debug("No available well formatted emails");
-            return;
+    @Nullable
+    protected String extractEmailBetweenAngleBrackets(final String email) {
+        if(email == null) {
+            return null;
         }
 
         try {
-            sendEmailAttempt(to, replyTo, subject, text, html);
-        } catch (MailException e) {
-            LOGGER.error("Caught MailException", e);
-            loggerContext.log(new Message(Messages.Type.ERROR, "Unable to send mail to %s with subject %s", to, subject), e);
-        } catch (Exception e) {
-            LOGGER.error("Caught", e);
-            throw e;
+            return new InternetAddress(email).getAddress();
+        } catch (AddressException e) {
+            return email;
         }
-
     }
 
+    protected void sendEmailAttempt(final Set<String> recipients, final String replyTo, final String subject,
+                                    final String text, final boolean html, final LoggerContext loggerContext) throws MessagingException {
+        final MimeMessage mimeMessage = mailSender.createMimeMessage();
+        setHeaders(mimeMessage);
 
-    @RetryFor(value = MailSendException.class, attempts = 20, intervalMs = 10000)
-    private void sendEmailAttempt(final Set<String> recipients, final String replyTo, final String subject, final String text, final boolean html) {
-        try {
-            final MimeMessage mimeMessage = mailSender.createMimeMessage();
-            setHeaders(mimeMessage);
+        final MimeMessageHelper helper = new MimeMessageHelper(mimeMessage, MimeMessageHelper.MULTIPART_MODE_NO, "UTF-8");
+        helper.setFrom(mailConfiguration.getFrom());
 
-            final MimeMessageHelper helper = new MimeMessageHelper(mimeMessage, MimeMessageHelper.MULTIPART_MODE_NO, "UTF-8");
-            helper.setFrom(mailConfiguration.getFrom());
+        final String[] recipientsPunycode = recipients.stream().map(PunycodeConversion::toAscii).distinct().toArray(String[]::new);
+        helper.setTo(recipientsPunycode);
 
-            final String[] recipientsPunycode = recipients.stream().map(PunycodeConversion::toAscii).distinct().toArray(String[]::new);
-            helper.setTo(recipientsPunycode);
+        if (!Strings.isNullOrEmpty(replyTo)){
+            helper.setReplyTo(PunycodeConversion.toAscii(replyTo));
+        }
 
-            if (!Strings.isNullOrEmpty(replyTo)){
-                helper.setReplyTo(PunycodeConversion.toAscii(replyTo));
-            }
+        helper.setSubject(subject);
+        helper.setText(text, html);
 
-            helper.setSubject(subject);
-            helper.setText(text, html);
-
+        if (loggerContext != null) {
             loggerContext.log("msg-out.txt", new MailMessageLogCallback(mimeMessage));
-            mailSender.send(mimeMessage);
-
-            final String messageId = mimeMessage.getMessageID();
-            Arrays.stream(recipientsPunycode).forEach(punyCodeTo -> storeAsOutGoingMessage(messageId, punyCodeTo));
-
-        } catch (MailSendException | MessagingException e) {
-            loggerContext.log(new Message(Messages.Type.ERROR, "Caught %s: %s", e.getClass().getName(), e.getMessage()));
-            LOGGER.error(String.format("Unable to send mail message to: %s", recipients), e);
-
-            if (mailConfiguration.retrySending()) {
-                throw new MailSendException("Caught " + e.getClass().getName(), e);
-            } else {
-                loggerContext.log(new Message(Messages.Type.ERROR, "Not retrying sending mail to %s with subject %s", recipients, subject));
-            }
         }
-    }
 
-    private List<String> getWellFormattedDeliverableEmails(final Set<String> to, final String subject, final String text, final String replyTo) {
-        return to.stream().filter(email -> {
-            if (emailStatusDao.canNotSendEmail(extractEmailBetweenAngleBrackets(email))){
-                LOGGER.debug("" +
-                        "Email appears in undeliverable/unsubscribed list\n" +
-                        "\n" +
-                        "to      : {}\n" +
-                        "reply-to : {}\n" +
-                        "subject : {}\n" +
-                        "\n" +
-                        "{}\n" +
-                        "\n" +
-                        "\n", email, replyTo, subject, text);
-                return false;
-            }
-            final Matcher matcher = INVALID_EMAIL_PATTERN.matcher(email);
-            if (matcher.find()){
-                LOGGER.error("Email with incorrect pattern");
-                return false;
-            }
-            return true;
-        }).toList();
+        mailSender.send(mimeMessage);
+
+        final String messageId = mimeMessage.getMessageID();
+        Arrays.stream(recipientsPunycode).forEach(punyCodeTo -> storeAsOutGoingMessage(messageId, punyCodeTo));
     }
 
     private void storeAsOutGoingMessage(final String mimeMessageId, final String punyCodedTo){
@@ -230,18 +114,4 @@ public class MailGatewaySmtp implements MailGateway {
             mimeMessage.addHeader("List-Unsubscribe-Post", "List-Unsubscribe=One-Click");
         }
     }
-
-    @Nullable
-    private String extractEmailBetweenAngleBrackets(final String email) {
-        if(email == null) {
-            return null;
-        }
-
-        try {
-            return new InternetAddress(email).getAddress();
-        } catch (AddressException e) {
-            return email;
-        }
-    }
-
 }
