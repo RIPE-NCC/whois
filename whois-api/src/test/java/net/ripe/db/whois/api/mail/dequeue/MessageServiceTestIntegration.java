@@ -91,6 +91,21 @@ public class MessageServiceTestIntegration extends AbstractMailMessageIntegratio
     }
 
     @Test
+    public void testBouncedFailureRecipientFromCorrectEmail() throws MessagingException, IOException {
+        insertOutgoingMessageId("XXXXXXXX-5AE3-4C58-8E3F-860327BA955D@ripe.net", BOUNCED_MAIL_RECIPIENT);
+        insertOutgoingMessageId("XXXXXXXX-5AE3-4C58-8E3F-860327BA955D@ripe.net", ANOTHER_BOUNCED_MAIL_RECIPIENT);
+
+        final MimeMessage message = MimeMessageProvider.getUpdateMessage("permanentFailureMessagePartialReportWithMultipleRecipientsRfc822.mail");
+
+        final MessageInfo bouncedMessageInfo = messageService.getBouncedMessageInfo(message);
+        assertThat(bouncedMessageInfo, is(not(nullValue())));
+
+        messageService.verifyAndSetAsUndeliverable(bouncedMessageInfo);
+        assertThat(isUndeliverableAddress(BOUNCED_MAIL_RECIPIENT), is(true));
+        assertThat(isUndeliverableAddress(ANOTHER_BOUNCED_MAIL_RECIPIENT), is(false));
+    }
+
+    @Test
     public void testBouncedMultipleFailurePerRecipientFromCorrectEmail() throws MessagingException, IOException {
         insertOutgoingMessageId("XXXXXXXX-8553-47AB-A79B-A9896A2DFBAC@ripe.net", BOUNCED_MAIL_RECIPIENT);
         insertOutgoingMessageId("XXXXXXXX-8553-47AB-A79B-A9896A2DFBAC@ripe.net", ANOTHER_BOUNCED_MAIL_RECIPIENT);

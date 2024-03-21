@@ -52,7 +52,7 @@ public class MessageService {
         }
 
         LOGGER.debug("Undeliverable message-id {} email {}", message.messageId(), message.emailAddresses());
-        emails.forEach(email -> emailStatusDao.createEmailStatus(email, EmailStatus.UNDELIVERABLE));
+        message.emailAddresses().forEach(email -> emailStatusDao.createEmailStatus(email, EmailStatus.UNDELIVERABLE));
     }
 
     public void verifyAndSetAsUnsubscribed(final MessageInfo message){
@@ -67,6 +67,11 @@ public class MessageService {
     }
 
     private boolean isIncorrectMessage(final MessageInfo message, final List<String> emails){
+        if (message.messageId() == null || message.emailAddresses() == null || message.emailAddresses().isEmpty()){
+            LOGGER.warn("Incorrect message {}", message.messageId());
+            return true;
+        }
+
         if (emails == null || emails.isEmpty()) {
             LOGGER.warn("Couldn't find outgoing message matching {}", message.messageId());
             return true;
