@@ -16,6 +16,8 @@ public class AbstractMailMessageIntegrationTest extends AbstractIntegrationTest 
 
     protected static final String BOUNCED_MAIL_RECIPIENT = "nonexistant@host.org";
 
+    protected static final String ANOTHER_BOUNCED_MAIL_RECIPIENT = "nonexistant1@host.org";
+
     protected static final String UNSUBSCRIBED_MAIL_RECIPIENT = "enduser@ripe.net";
 
 

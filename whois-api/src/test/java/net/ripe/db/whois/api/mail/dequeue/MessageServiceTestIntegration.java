@@ -91,6 +91,22 @@ public class MessageServiceTestIntegration extends AbstractMailMessageIntegratio
     }
 
     @Test
+    public void testBouncedMultipleEmailFromCorrectEmail() throws MessagingException, IOException {
+        insertOutgoingMessageId("XXXXXXXX-5AE3-4C58-8E3F-860327BA955D@ripe.net", BOUNCED_MAIL_RECIPIENT);
+        insertOutgoingMessageId("XXXXXXXX-5AE3-4C58-8E3F-860327BA955D@ripe.net", ANOTHER_BOUNCED_MAIL_RECIPIENT);
+
+        final MimeMessage message = MimeMessageProvider.getUpdateMessage("permanentFailureMessageRfc822MultipleRecipients.mail");
+
+        final MessageInfo bouncedMessageInfo = messageService.getBouncedMessageInfo(message);
+        assertThat(bouncedMessageInfo, is(not(nullValue())));
+
+        messageService.verifyAndSetAsUndeliverable(bouncedMessageInfo);
+        assertThat(isUndeliverableAddress(BOUNCED_MAIL_RECIPIENT), is(true));
+        assertThat(isUndeliverableAddress(ANOTHER_BOUNCED_MAIL_RECIPIENT), is(true));
+    }
+
+
+    @Test
     public void testUnsubscribedEmailFromCorrectEmail() throws MessagingException, IOException {
         insertOutgoingMessageId("8b8ed6c0-f9cc-4a5f-afbb-fde079b94f44@ripe.net", UNSUBSCRIBED_MAIL_RECIPIENT);
         final MimeMessage message = MimeMessageProvider.getUpdateMessage("unsubscribeAppleMail.mail");
