@@ -98,7 +98,12 @@ public class WhoisMailGatewaySmtp extends MailGatewaySmtp {
     }
 
     @Override
-    public void sendEmail(final Set<String> to, final String subject, final String text, final String replyTo, final boolean html) {
+    public void sendHtmlEmail(Set<String> recipients, String subject, String text) {
+        throw new NotImplementedException("No implemented by whois, not multiple recipients are used in Whois messages");
+    }
+
+    @Override
+    public void sendEmail(Set<String> recipients, String subject, String text) {
         throw new NotImplementedException("No implemented by whois, not multiple recipients are used in Whois messages");
     }
 

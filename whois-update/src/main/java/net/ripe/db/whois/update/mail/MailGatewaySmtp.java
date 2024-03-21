@@ -8,7 +8,6 @@ import jakarta.mail.internet.MimeMessage;
 import net.ripe.db.whois.common.PunycodeConversion;
 import net.ripe.db.whois.common.dao.EmailStatusDao;
 import net.ripe.db.whois.common.dao.OutgoingMessageDao;
-import net.ripe.db.whois.update.domain.ResponseMessage;
 import net.ripe.db.whois.update.log.LoggerContext;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.mail.javamail.JavaMailSender;
@@ -42,15 +41,6 @@ public abstract class MailGatewaySmtp implements MailGateway {
         this.outgoingMessageDao = outgoingMessageDao;
         this.webBaseUrl = webBaseUrl;
     }
-
-    @Override
-    public abstract void sendEmail(final String to, final ResponseMessage responseMessage);
-
-    @Override
-    public abstract void sendEmail(final String to, final String subject, final String text, @Nullable final String replyTo);
-
-    @Override
-    public abstract void sendEmail(final Set<String> to, final String subject, final String text, final String replyTo, boolean html);
 
     protected abstract boolean canNotSendEmail(final String emailAddresses);
 
