@@ -1,6 +1,5 @@
 package net.ripe.db.whois.api.mail.dequeue;
 
-import jakarta.mail.Address;
 import jakarta.mail.MessagingException;
 import jakarta.mail.Part;
 import jakarta.mail.internet.AddressException;
@@ -9,6 +8,7 @@ import jakarta.mail.internet.InternetAddress;
 import jakarta.mail.internet.InternetHeaders;
 import jakarta.mail.internet.MimeMessage;
 import net.ripe.db.whois.api.mail.MessageInfo;
+import org.apache.commons.compress.utils.Lists;
 import org.eclipse.angus.mail.dsn.DeliveryStatus;
 import org.eclipse.angus.mail.dsn.MultipartReport;
 import org.eclipse.angus.mail.dsn.Report;
@@ -19,7 +19,6 @@ import org.springframework.stereotype.Component;
 
 import javax.annotation.Nullable;
 import java.io.IOException;
-import java.util.Arrays;
 import java.util.List;
 
 @Component
@@ -43,21 +42,13 @@ public class BouncedMessageParser {
                 if (isFailed(deliveryStatus)) {
                     final MimeMessage returnedMessage = multipartReport.getReturnedMessage();
                     final String messageId = getMessageId(returnedMessage.getMessageID());
-                    final List<String> recipient = getAddresses(returnedMessage.getAllRecipients());
+                    final List<String> recipient = extractRecipients(deliveryStatus);
                     return new MessageInfo(recipient, messageId);
                 }
             }
         }
 
         return null;
-    }
-
-
-    private List<String> getAddresses(final Address[] addresses) {
-        if (addresses == null || addresses.length == 0) {
-            throw new IllegalStateException("No address");
-        }
-        return Arrays.stream(addresses).map(Address::toString).toList();
     }
 
     private boolean isMultipartReport(final MimeMessage message) throws MessagingException {
@@ -84,6 +75,19 @@ public class BouncedMessageParser {
         } catch (MessagingException | IOException e) {
             throw new MessagingException("Unexpected error parsing message/delivery-status part", e);
         }
+    }
+
+    private List<String> extractRecipients(final DeliveryStatus deliveryStatus) {
+        final List<String> recipients = Lists.newArrayList();
+        for (int dsn = 0; dsn < deliveryStatus.getRecipientDSNCount(); dsn++) {
+            final String recipient = getHeaderValue(deliveryStatus.getRecipientDSN(dsn), "Final-Recipient");
+            if (recipient == null){
+                continue;
+            }
+            final String extractedAddress = recipient.substring("rfc822".length() + 1).trim();
+            recipients.add(extractedAddress);
+        }
+        return recipients;
     }
 
     private boolean isFailed(final DeliveryStatus deliveryStatus) {
