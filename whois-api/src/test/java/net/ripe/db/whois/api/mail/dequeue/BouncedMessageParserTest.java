@@ -10,6 +10,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.nullValue;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.containsInAnyOrder;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 @ExtendWith(MockitoExtension.class)
@@ -31,12 +32,21 @@ public class BouncedMessageParserTest {
     }
 
     @Test
+    public void parse_permanent_delivery_failure_multiple_recipients_rfc822() throws Exception {
+        final MessageInfo bouncedMessage = subject.parse(MimeMessageProvider.getUpdateMessage("permanentFailureMessageRfc822MultipleRecipients.mail"));
+
+        assertThat(bouncedMessage.messageId(), is("XXXXXXXX-5AE3-4C58-8E3F-860327BA955D@ripe.net"));
+        assertThat(bouncedMessage.emailAddresses(), containsInAnyOrder("nonexistant@host.org", "nonexistant1@host.org"));
+    }
+
+    @Test
     public void parse_permanent_delivery_failure_rfc822_headers() throws Exception {
         final MessageInfo bouncedMessage = subject.parse(MimeMessageProvider.getUpdateMessage("permanentFailureRfc822Headers.mail"));
 
         assertThat(bouncedMessage.messageId(), is("XXXXXXXX-2BCC-4B29-9D86-3B8C68DD835D@ripe.net"));
         assertThat(bouncedMessage.emailAddresses().get(0), is("nonexistant@ripe.net"));
     }
+
 
     @Test
     public void parse_permanent_delivery_failure_message_rfc822_headers_real() throws Exception {
