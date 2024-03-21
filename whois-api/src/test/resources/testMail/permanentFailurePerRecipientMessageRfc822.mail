@@ -16,7 +16,7 @@ X-Failed-Recipients: nonexistant@host.org,
 Auto-Submitted: auto-replied
 From: Mail Delivery System <Mailer-Daemon@ripe.net>
 To: test-dbm@ripe.net
-References: <532EE9FA-8553-47AB-A79B-A9896A2DFBAC@ripe.net>
+References: <XXXXXXXX-8553-47AB-A79B-A9896A2DFBAC@ripe.net>
 Content-Type: multipart/report; report-type=delivery-status; boundary=1711019223-eximdsn-199286037
 MIME-Version: 1.0
 Subject: Mail delivery failed: returning message to sender
@@ -86,7 +86,7 @@ Content-Type: text/plain;
 Content-Transfer-Encoding: 7bit
 Mime-Version: 1.0 (Mac OS X Mail 16.0 \(3774.500.171.1.1\))
 Subject: Test
-Message-Id: <532EE9FA-8553-47AB-A79B-A9896A2DFBAC@ripe.net>
+Message-Id: <XXXXXXXX-8553-47AB-A79B-A9896A2DFBAC@ripe.net>
 Date: Thu, 21 Mar 2024 12:06:53 +0100
 To: nonexistant@host.org,
  nonexistant1@host.org
