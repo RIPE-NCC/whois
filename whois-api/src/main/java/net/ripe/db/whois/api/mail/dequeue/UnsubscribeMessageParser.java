@@ -6,6 +6,7 @@ import jakarta.mail.internet.AddressException;
 import jakarta.mail.internet.ContentType;
 import jakarta.mail.internet.InternetAddress;
 import jakarta.mail.internet.MimeMessage;
+import jakarta.mail.internet.ParseException;
 import net.ripe.db.whois.api.mail.MessageInfo;
 import org.elasticsearch.common.Strings;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -13,7 +14,6 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.Nullable;
-import java.io.IOException;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -33,16 +33,20 @@ public class UnsubscribeMessageParser {
     }
 
     @Nullable
-    public MessageInfo parse(final MimeMessage message) throws MessagingException, IOException {
-        if (enabled && isTextPlain(message)) {
-            final String messageId = getMessageIdFromSubject(message);
-            final String from = getFrom(message);
-            if ((messageId != null) && (from != null)) {
-                return new MessageInfo(List.of(from), messageId);
+    public MessageInfo parse(final MimeMessage message) throws ParseException {
+        try {
+            if (enabled && isTextPlain(message)) {
+                final String messageId = getMessageIdFromSubject(message);
+                final String from = getFrom(message);
+                if ((messageId != null) && (from != null)) {
+                    return new MessageInfo(List.of(from), messageId);
+                }
             }
-        }
 
-        return null;
+            return null;
+        } catch (MessagingException ex){
+            throw new ParseException();
+        }
     }
 
     private boolean isTextPlain(final MimeMessage message) throws MessagingException {

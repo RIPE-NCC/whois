@@ -1,8 +1,8 @@
 package net.ripe.db.whois.api.mail.dequeue;
 
 
-import jakarta.mail.MessagingException;
 import jakarta.mail.internet.MimeMessage;
+import jakarta.mail.internet.ParseException;
 import net.ripe.db.whois.api.mail.MessageInfo;
 import net.ripe.db.whois.common.dao.EmailStatusDao;
 import net.ripe.db.whois.common.dao.OutgoingMessageDao;
@@ -12,7 +12,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.io.IOException;
 import java.util.List;
 
 @Service
@@ -37,10 +36,10 @@ public class MessageService {
         this.emailStatusDao = emailStatusDao;
     }
 
-    public MessageInfo getBouncedMessageInfo(final MimeMessage message) throws MessagingException, IOException {
+    public MessageInfo getBouncedMessageInfo(final MimeMessage message) throws ParseException {
         return bouncedMessageParser.parse(message);
     }
-    public MessageInfo getUnsubscribedMessageInfo(final MimeMessage message) throws MessagingException, IOException {
+    public MessageInfo getUnsubscribedMessageInfo(final MimeMessage message) throws ParseException{
         return unsubscribeMessageParser.parse(message);
     }
 

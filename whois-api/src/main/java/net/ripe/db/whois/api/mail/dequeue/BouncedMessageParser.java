@@ -7,6 +7,7 @@ import jakarta.mail.internet.ContentType;
 import jakarta.mail.internet.InternetAddress;
 import jakarta.mail.internet.InternetHeaders;
 import jakarta.mail.internet.MimeMessage;
+import jakarta.mail.internet.ParseException;
 import net.ripe.db.whois.api.mail.MessageInfo;
 import org.apache.commons.compress.utils.Lists;
 import org.eclipse.angus.mail.dsn.DeliveryStatus;
@@ -34,21 +35,24 @@ public class BouncedMessageParser {
     }
 
     @Nullable
-    public MessageInfo parse(final MimeMessage message) throws MessagingException, IOException {
-        if (enabled && isMultipartReport(message)) {
-            final MultipartReport multipartReport = multipartReport(message.getContent());
-            if (isReportDeliveryStatus(multipartReport)) {
-                final DeliveryStatus deliveryStatus = deliveryStatus(message);
-                if (isFailed(deliveryStatus)) {
-                    final MimeMessage returnedMessage = multipartReport.getReturnedMessage();
-                    final String messageId = getMessageId(returnedMessage.getMessageID());
-                    final List<String> recipient = extractRecipients(deliveryStatus);
-                    return new MessageInfo(recipient, messageId);
+    public MessageInfo parse(final MimeMessage message) throws ParseException {
+        try {
+            if (enabled && isMultipartReport(message)) {
+                final MultipartReport multipartReport = multipartReport(message.getContent());
+                if (isReportDeliveryStatus(multipartReport)) {
+                    final DeliveryStatus deliveryStatus = deliveryStatus(message);
+                    if (isFailed(deliveryStatus)) {
+                        final MimeMessage returnedMessage = multipartReport.getReturnedMessage();
+                        final String messageId = getMessageId(returnedMessage.getMessageID());
+                        final List<String> recipient = extractRecipients(deliveryStatus);
+                        return new MessageInfo(recipient, messageId);
+                    }
                 }
             }
+            return null;
+        } catch (MessagingException | IOException ex){
+            throw new ParseException();
         }
-
-        return null;
     }
 
     private boolean isMultipartReport(final MimeMessage message) throws MessagingException {
