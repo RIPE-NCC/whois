@@ -111,7 +111,7 @@ public class WhoisMailGatewaySmtp extends MailGatewaySmtp {
     @RetryFor(value = MailSendException.class, attempts = 20, intervalMs = 10000)
     private void sendEmailAttempt(final String recipient, final String replyTo, final String subject, final String text) {
         try {
-            sendEmailAttempt(Set.of(recipient), replyTo, subject, text, false, null);
+            sendEmailAttempt(Set.of(recipient), replyTo, subject, text, false, loggerContext);
         } catch (MailSendException | MessagingException e) {
             loggerContext.log(new Message(Messages.Type.ERROR, "Caught %s: %s", e.getClass().getName(), e.getMessage()));
             LOGGER.error(String.format("Unable to send mail message to: %s", recipient), e);
