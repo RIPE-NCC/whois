@@ -6,7 +6,6 @@ import jakarta.mail.internet.AddressException;
 import jakarta.mail.internet.ContentType;
 import jakarta.mail.internet.InternetAddress;
 import jakarta.mail.internet.MimeMessage;
-import jakarta.mail.internet.ParseException;
 import net.ripe.db.whois.api.mail.MessageInfo;
 import org.elasticsearch.common.Strings;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -33,20 +32,15 @@ public class UnsubscribeMessageParser {
     }
 
     @Nullable
-    public MessageInfo parse(final MimeMessage message) throws ParseException {
-        try {
-            if (enabled && isTextPlain(message)) {
-                final String messageId = getMessageIdFromSubject(message);
-                final String from = getFrom(message);
-                if ((messageId != null) && (from != null)) {
-                    return new MessageInfo(List.of(from), messageId);
-                }
+    public MessageInfo parse(final MimeMessage message) throws MessagingException {
+        if (enabled && isTextPlain(message)) {
+            final String messageId = getMessageIdFromSubject(message);
+            final String from = getFrom(message);
+            if ((messageId != null) && (from != null)) {
+                return new MessageInfo(List.of(from), messageId);
             }
-
-            return null;
-        } catch (MessagingException ex){
-            throw new ParseException();
         }
+        return null;
     }
 
     private boolean isTextPlain(final MimeMessage message) throws MessagingException {

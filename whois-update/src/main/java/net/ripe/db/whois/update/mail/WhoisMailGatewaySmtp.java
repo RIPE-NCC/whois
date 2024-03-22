@@ -1,6 +1,7 @@
 package net.ripe.db.whois.update.mail;
 
 import jakarta.mail.MessagingException;
+import jakarta.mail.internet.MimeMessage;
 import net.ripe.db.whois.common.Message;
 import net.ripe.db.whois.common.Messages;
 import net.ripe.db.whois.common.aspects.RetryFor;
@@ -9,7 +10,6 @@ import net.ripe.db.whois.common.dao.OutgoingMessageDao;
 import net.ripe.db.whois.common.mail.EmailStatus;
 import net.ripe.db.whois.update.domain.ResponseMessage;
 import net.ripe.db.whois.update.log.LoggerContext;
-import org.apache.commons.lang.NotImplementedException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -99,19 +99,20 @@ public class WhoisMailGatewaySmtp extends MailGatewaySmtp {
 
     @Override
     public void sendHtmlEmail(Set<String> recipients, String subject, String text) {
-        throw new NotImplementedException("No implemented by whois, not multiple recipients are used in Whois messages");
+        throw new UnsupportedOperationException("No implemented by whois, not multiple recipients are used in Whois messages");
     }
 
     @Override
     public void sendEmail(Set<String> recipients, String subject, String text) {
-        throw new NotImplementedException("No implemented by whois, not multiple recipients are used in Whois messages");
+        throw new UnsupportedOperationException("No implemented by whois, not multiple recipients are used in Whois messages");
     }
 
 
     @RetryFor(value = MailSendException.class, attempts = 20, intervalMs = 10000)
     private void sendEmailAttempt(final String recipient, final String replyTo, final String subject, final String text) {
         try {
-            sendEmailAttempt(Set.of(recipient), replyTo, subject, text, false, loggerContext);
+            final MimeMessage message = sendEmailAttempt(Set.of(recipient), replyTo, subject, text, false);
+            loggerContext.log("msg-out.txt", new MailMessageLogCallback(message));
         } catch (MailSendException | MessagingException e) {
             loggerContext.log(new Message(Messages.Type.ERROR, "Caught %s: %s", e.getClass().getName(), e.getMessage()));
             LOGGER.error(String.format("Unable to send mail message to: %s", recipient), e);

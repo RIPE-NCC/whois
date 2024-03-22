@@ -8,6 +8,7 @@ import org.junit.jupiter.api.Test;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.nullValue;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.containsInAnyOrder;
 
 class UnsubscribeMessageParserTest {
 
@@ -23,7 +24,7 @@ class UnsubscribeMessageParserTest {
         final MessageInfo unsubscribedMessage = subject.parse(MimeMessageProvider.getUpdateMessage("unsubscribeAppleMail.mail"));
 
         assertThat(unsubscribedMessage.messageId(), is("8b8ed6c0-f9cc-4a5f-afbb-fde079b94f44@ripe.net"));
-        assertThat(unsubscribedMessage.emailAddresses().get(0), is("enduser@ripe.net"));
+        assertThat(unsubscribedMessage.emailAddresses(), containsInAnyOrder("enduser@ripe.net"));
     }
 
     @Test
@@ -31,7 +32,7 @@ class UnsubscribeMessageParserTest {
         final MessageInfo unsubscribedMessage = subject.parse(MimeMessageProvider.getUpdateMessage("unsubscribeGmail.mail"));
 
         assertThat(unsubscribedMessage.messageId(), is("8b8ed6c0-f9cc-4a5f-afbb-fde079b94f44@ripe.net"));
-        assertThat(unsubscribedMessage.emailAddresses().get(0), is("enduser@gmail.com"));
+        assertThat(unsubscribedMessage.emailAddresses(), containsInAnyOrder("enduser@gmail.com"));
     }
 
     @Test

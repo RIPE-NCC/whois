@@ -1,8 +1,8 @@
 package net.ripe.db.whois.api.mail.dequeue;
 
 
+import jakarta.mail.MessagingException;
 import jakarta.mail.internet.MimeMessage;
-import jakarta.mail.internet.ParseException;
 import net.ripe.db.whois.api.mail.MessageInfo;
 import net.ripe.db.whois.common.dao.EmailStatusDao;
 import net.ripe.db.whois.common.dao.OutgoingMessageDao;
@@ -12,6 +12,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.io.IOException;
 import java.util.List;
 
 @Service
@@ -36,10 +37,10 @@ public class MessageService {
         this.emailStatusDao = emailStatusDao;
     }
 
-    public MessageInfo getBouncedMessageInfo(final MimeMessage message) throws ParseException {
+    public MessageInfo getBouncedMessageInfo(final MimeMessage message) throws MessagingException, IOException {
         return bouncedMessageParser.parse(message);
     }
-    public MessageInfo getUnsubscribedMessageInfo(final MimeMessage message) throws ParseException{
+    public MessageInfo getUnsubscribedMessageInfo(final MimeMessage message) throws MessagingException {
         return unsubscribeMessageParser.parse(message);
     }
 
@@ -76,11 +77,23 @@ public class MessageService {
             return true;
         }
 
-        if (!emails.containsAll(message.emailAddresses())) {
+        if (!containsAllCaseInsensitive(message.emailAddresses(), emails)) {
             LOGGER.warn("Email {} in outgoing message doesn't match '{}' in failure response", emails, message.emailAddresses());
             return true;
         }
         return false;
+    }
+
+    private boolean containsAllCaseInsensitive(final List<String> messageRecipients, final List<String> storedEmails){
+        final List<String> emailsInLowerCase = storedEmails
+                .stream()
+                .map(String::toLowerCase)
+                .toList();
+
+        return messageRecipients
+                .stream()
+                .map(String::toLowerCase)
+                .allMatch(emailsInLowerCase::contains);
     }
 
 }
