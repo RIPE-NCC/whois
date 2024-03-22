@@ -11,6 +11,7 @@ import com.fasterxml.jackson.jakarta.rs.json.JacksonJsonProvider;
 import com.fasterxml.jackson.module.jakarta.xmlbind.JakartaXmlBindAnnotationIntrospector;
 import jakarta.ws.rs.BadRequestException;
 import jakarta.ws.rs.ForbiddenException;
+import jakarta.ws.rs.NotAuthorizedException;
 import jakarta.ws.rs.NotFoundException;
 import jakarta.ws.rs.ProcessingException;
 import jakarta.ws.rs.WebApplicationException;
@@ -106,7 +107,7 @@ public class AuthServiceClient {
                     .header(API_KEY, apiKey)
                     .header("Authorization", String.format("Bearer %s", authToken))
                     .get(ValidateTokenResponse.class);
-        } catch (NotFoundException e) {
+        } catch (NotFoundException | NotAuthorizedException e) {
             LOGGER.debug("Failed to validate token {} due to {}:{}\n\tResponse: {}", authToken, e.getClass().getName(), e.getMessage(), e.getResponse().readEntity(String.class));
             throw new AuthServiceClientException(UNAUTHORIZED.getStatusCode(), "Invalid token.");
         } catch (WebApplicationException e) {
