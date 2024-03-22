@@ -3,7 +3,6 @@ package net.ripe.db.whois.api.mail.dequeue;
 import jakarta.mail.Message;
 import jakarta.mail.MessagingException;
 import jakarta.mail.internet.MimeMessage;
-import jakarta.mail.internet.ParseException;
 import net.ripe.db.whois.api.UpdatesParser;
 import net.ripe.db.whois.api.mail.MailMessage;
 import net.ripe.db.whois.api.mail.MessageInfo;
@@ -213,9 +212,6 @@ public class MessageDequeue implements ApplicationService {
             } finally {
                 loggerContext.remove();
             }
-
-        } catch (ParseException e){
-            LOGGER.error("Error parsing message ID: {}", messageId, e);
         } catch (Exception e) {
             LOGGER.error("Handle message", e);
         }

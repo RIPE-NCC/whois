@@ -7,13 +7,14 @@ import jakarta.mail.internet.ContentType;
 import jakarta.mail.internet.InternetAddress;
 import jakarta.mail.internet.InternetHeaders;
 import jakarta.mail.internet.MimeMessage;
-import jakarta.mail.internet.ParseException;
 import net.ripe.db.whois.api.mail.MessageInfo;
 import org.apache.commons.compress.utils.Lists;
 import org.eclipse.angus.mail.dsn.DeliveryStatus;
 import org.eclipse.angus.mail.dsn.MultipartReport;
 import org.eclipse.angus.mail.dsn.Report;
 import org.elasticsearch.common.Strings;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
@@ -21,13 +22,20 @@ import org.springframework.stereotype.Component;
 import javax.annotation.Nullable;
 import java.io.IOException;
 import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 @Component
 public class BouncedMessageParser {
 
+    private static final Logger LOGGER = LoggerFactory.getLogger(BouncedMessageParser.class);
+
     private static final ContentType MULTIPART_REPORT = contentType("multipart/report");
 
     private final boolean enabled;
+
+    static final Pattern FINAL_RECIPIENT_MATCHER = Pattern.compile("^rfc822.+@.+$");
+
 
     @Autowired
     public BouncedMessageParser(@Value("${mail.smtp.from:}") final String smtpFrom) {
@@ -35,24 +43,20 @@ public class BouncedMessageParser {
     }
 
     @Nullable
-    public MessageInfo parse(final MimeMessage message) throws ParseException {
-        try {
-            if (enabled && isMultipartReport(message)) {
-                final MultipartReport multipartReport = multipartReport(message.getContent());
-                if (isReportDeliveryStatus(multipartReport)) {
-                    final DeliveryStatus deliveryStatus = deliveryStatus(message);
-                    if (isFailed(deliveryStatus)) {
-                        final MimeMessage returnedMessage = multipartReport.getReturnedMessage();
-                        final String messageId = getMessageId(returnedMessage.getMessageID());
-                        final List<String> recipient = extractRecipients(deliveryStatus);
-                        return new MessageInfo(recipient, messageId);
-                    }
+    public MessageInfo parse(final MimeMessage message) throws MessagingException, IOException {
+        if (enabled && isMultipartReport(message)) {
+            final MultipartReport multipartReport = multipartReport(message.getContent());
+            if (isReportDeliveryStatus(multipartReport)) {
+                final DeliveryStatus deliveryStatus = deliveryStatus(message);
+                if (isFailed(deliveryStatus)) {
+                    final MimeMessage returnedMessage = multipartReport.getReturnedMessage();
+                    final String messageId = getMessageId(returnedMessage.getMessageID());
+                    final List<String> recipient = extractRecipients(deliveryStatus);
+                    return new MessageInfo(recipient, messageId);
                 }
             }
-            return null;
-        } catch (MessagingException | IOException ex){
-            throw new ParseException();
         }
+        return null;
     }
 
     private boolean isMultipartReport(final MimeMessage message) throws MessagingException {
@@ -88,8 +92,12 @@ public class BouncedMessageParser {
             if (recipient == null){
                 continue;
             }
-            final String extractedAddress = recipient.substring("rfc822".length() + 1).trim();
-            recipients.add(extractedAddress);
+            final Matcher finalRecipientMatcher = FINAL_RECIPIENT_MATCHER.matcher(recipient);
+            if (!finalRecipientMatcher.matches() || finalRecipientMatcher.groupCount() > 1){
+                LOGGER.error("Wrong formatted recipient {}", recipient);
+                continue;
+            }
+            recipients.add(finalRecipientMatcher.group(0));
         }
         return recipients;
     }

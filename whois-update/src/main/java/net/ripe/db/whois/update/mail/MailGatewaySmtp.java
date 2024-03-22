@@ -8,7 +8,6 @@ import jakarta.mail.internet.MimeMessage;
 import net.ripe.db.whois.common.PunycodeConversion;
 import net.ripe.db.whois.common.dao.EmailStatusDao;
 import net.ripe.db.whois.common.dao.OutgoingMessageDao;
-import net.ripe.db.whois.update.log.LoggerContext;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
@@ -57,8 +56,7 @@ public abstract class MailGatewaySmtp implements MailGateway {
         }
     }
 
-    protected void sendEmailAttempt(final Set<String> recipients, final String replyTo, final String subject,
-                                    final String text, final boolean html, final LoggerContext loggerContext) throws MessagingException {
+    protected MimeMessage sendEmailAttempt(final Set<String> recipients, final String replyTo, final String subject, final String text, final boolean html) throws MessagingException {
         final MimeMessage mimeMessage = mailSender.createMimeMessage();
         setHeaders(mimeMessage);
 
@@ -75,14 +73,11 @@ public abstract class MailGatewaySmtp implements MailGateway {
         helper.setSubject(subject);
         helper.setText(text, html);
 
-        if (loggerContext != null) {
-            loggerContext.log("msg-out.txt", new MailMessageLogCallback(mimeMessage));
-        }
-
         mailSender.send(mimeMessage);
 
         final String messageId = mimeMessage.getMessageID();
         Arrays.stream(recipientsPunycode).forEach(punyCodeTo -> storeAsOutGoingMessage(messageId, punyCodeTo));
+        return mimeMessage;
     }
 
     private void storeAsOutGoingMessage(final String mimeMessageId, final String punyCodedTo){

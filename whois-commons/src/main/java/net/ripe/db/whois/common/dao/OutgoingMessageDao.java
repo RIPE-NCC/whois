@@ -6,7 +6,6 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Repository;
 
-import javax.annotation.Nullable;
 import javax.sql.DataSource;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -28,7 +27,6 @@ public class OutgoingMessageDao {
                 email, LocalDateTime.now());
     }
 
-    @Nullable
     public List<String> getEmails(final String messageId) {
 
         return jdbcTemplate.query(
