@@ -91,7 +91,7 @@ public class AuthServiceClient {
     }
 
     @Nullable
-    @Cacheable(cacheNames="ssoValidateToken")
+    //@Cacheable(cacheNames="ssoValidateToken")
     public ValidateTokenResponse validateToken(final String authToken) {
         if (StringUtils.isEmpty(authToken)) {
             LOGGER.debug("No crowdToken was supplied");
