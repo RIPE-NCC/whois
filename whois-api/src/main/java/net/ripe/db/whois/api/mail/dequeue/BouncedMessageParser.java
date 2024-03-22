@@ -34,7 +34,7 @@ public class BouncedMessageParser {
 
     private final boolean enabled;
 
-    static final Pattern FINAL_RECIPIENT_MATCHER = Pattern.compile("^rfc822.+@.+$");
+    static final Pattern FINAL_RECIPIENT_MATCHER = Pattern.compile("^(rfc822;)(.+@.+$)");
 
 
     @Autowired
@@ -93,11 +93,11 @@ public class BouncedMessageParser {
                 continue;
             }
             final Matcher finalRecipientMatcher = FINAL_RECIPIENT_MATCHER.matcher(recipient);
-            if (!finalRecipientMatcher.matches() || finalRecipientMatcher.groupCount() > 1){
+            if (!finalRecipientMatcher.matches() || finalRecipientMatcher.groupCount() != 2){
                 LOGGER.error("Wrong formatted recipient {}", recipient);
                 continue;
             }
-            recipients.add(finalRecipientMatcher.group(0));
+            recipients.add(finalRecipientMatcher.group(2));
         }
         return recipients;
     }
