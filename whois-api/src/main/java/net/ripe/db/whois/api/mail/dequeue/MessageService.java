@@ -7,6 +7,7 @@ import net.ripe.db.whois.api.mail.MessageInfo;
 import net.ripe.db.whois.common.dao.EmailStatusDao;
 import net.ripe.db.whois.common.dao.OutgoingMessageDao;
 import net.ripe.db.whois.common.mail.EmailStatus;
+import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -51,7 +52,7 @@ public class MessageService {
             return;
         }
 
-        LOGGER.debug("Undeliverable message-id {} email {}", message.messageId(), message.emailAddresses());
+        LOGGER.debug("Undeliverable message-id {} email {}", message.messageId(), StringUtils.join(message.emailAddresses(), ", "));
         message.emailAddresses().forEach(email -> emailStatusDao.createEmailStatus(email, EmailStatus.UNDELIVERABLE));
     }
 
@@ -62,7 +63,7 @@ public class MessageService {
             return;
         }
 
-        LOGGER.debug("Unsubscribe message-id {} email {}", message.messageId(), message.emailAddresses());
+        LOGGER.debug("Unsubscribe message-id {} email {}", message.messageId(), StringUtils.join(message.emailAddresses(), ", "));
         emails.forEach(email -> emailStatusDao.createEmailStatus(email, EmailStatus.UNSUBSCRIBE));
     }
 
@@ -78,7 +79,7 @@ public class MessageService {
         }
 
         if (!containsAllCaseInsensitive(message.emailAddresses(), emails)) {
-            LOGGER.warn("Email {} in outgoing message doesn't match '{}' in failure response", emails, message.emailAddresses());
+            LOGGER.warn("Email {} in outgoing message doesn't match '{}' in failure response", emails, StringUtils.join(message.emailAddresses(), ", "));
             return true;
         }
         return false;
