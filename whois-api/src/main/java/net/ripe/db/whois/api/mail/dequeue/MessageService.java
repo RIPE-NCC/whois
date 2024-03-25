@@ -48,7 +48,7 @@ public class MessageService {
     public void verifyAndSetAsUndeliverable(final EmailMessageInfo message){
         final List<String> outgoingEmail = outgoingMessageDao.getEmails(message.messageId());
 
-        if (isNotValidMessage(message, outgoingEmail)){
+        if (!isValidMessage(message, outgoingEmail)){
             return;
         }
 
@@ -72,22 +72,22 @@ public class MessageService {
         emailStatusDao.createEmailStatus(unsubscribeRequestEmail, EmailStatus.UNSUBSCRIBE);
     }
 
-    private boolean isNotValidMessage(final EmailMessageInfo message, final List<String> outgoingEmail){
+    private boolean isValidMessage(final EmailMessageInfo message, final List<String> outgoingEmail){
         if (message.messageId() == null || message.emailAddresses() == null || message.emailAddresses().isEmpty()){
             LOGGER.warn("Incorrect message {}", message.messageId());
-            return true;
+            return false;
         }
 
         if (outgoingEmail == null || outgoingEmail.isEmpty()) {
             LOGGER.warn("Couldn't find outgoing message matching {}", message.messageId());
-            return true;
+            return false;
         }
 
         if (!containsAllCaseInsensitive(message.emailAddresses(), outgoingEmail)) {
             LOGGER.warn("Email {} in outgoing message doesn't match '{}' in failure response", outgoingEmail, StringUtils.join(message.emailAddresses(), ", "));
-            return true;
+            return false;
         }
-        return false;
+        return true;
     }
 
     private boolean containsAllCaseInsensitive(final List<String> messageRecipients, final List<String> storedEmails){
