@@ -57,19 +57,19 @@ public class MessageService {
     }
 
     public void verifyAndSetAsUnsubscribed(final EmailMessageInfo message){
-        if (message.emailAddresses() != null && message.emailAddresses().size() > 1){
-            LOGGER.error("This can not happen, unsubscribe with multiple recipients");
+        if (message.emailAddresses() != null && message.emailAddresses().size() == 1){
+            LOGGER.error("This can not happen, unsubscribe with multiple recipients. messageId: {}", message.messageId());
             return;
         }
 
-        final List<String> outgoingEmail = outgoingMessageDao.getEmails(message.messageId());
-
-        if (isNotValidMessage(message, outgoingEmail)){
+        final String unsubscribeRequestEmail = message.emailAddresses().get(0);
+        if (!outgoingMessageDao.isEmailExists(message.messageId(), unsubscribeRequestEmail)){
+            LOGGER.warn("Couldn't find outgoing message matching {}", message.messageId());
             return;
         }
 
-        LOGGER.debug("Unsubscribe message-id {} email {}", message.messageId(), message.emailAddresses().get(0));
-        emailStatusDao.createEmailStatus(message.emailAddresses().get(0), EmailStatus.UNSUBSCRIBE);
+        LOGGER.debug("Unsubscribe message-id {} email {}", message.messageId(), unsubscribeRequestEmail);
+        emailStatusDao.createEmailStatus(unsubscribeRequestEmail, EmailStatus.UNSUBSCRIBE);
     }
 
     private boolean isNotValidMessage(final EmailMessageInfo message, final List<String> outgoingEmail){
