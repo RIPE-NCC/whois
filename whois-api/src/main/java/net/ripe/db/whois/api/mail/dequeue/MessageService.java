@@ -57,7 +57,7 @@ public class MessageService {
     }
 
     public void verifyAndSetAsUnsubscribed(final EmailMessageInfo message){
-        if (message.emailAddresses() != null && message.emailAddresses().size() == 1){
+        if (message.emailAddresses() != null && message.emailAddresses().size() != 1){
             LOGGER.error("This can not happen, unsubscribe with multiple recipients. messageId: {}", message.messageId());
             return;
         }
