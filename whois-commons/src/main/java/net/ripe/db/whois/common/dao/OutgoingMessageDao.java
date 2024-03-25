@@ -3,12 +3,9 @@ package net.ripe.db.whois.common.dao;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.jdbc.core.JdbcTemplate;
-import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Repository;
 
 import javax.sql.DataSource;
-import java.sql.ResultSet;
-import java.sql.SQLException;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -29,13 +26,8 @@ public class OutgoingMessageDao {
 
     public List<String> getEmails(final String messageId) {
 
-        return jdbcTemplate.query(
+        return jdbcTemplate.queryForList(
                 "SELECT email from outgoing_message where message_id = ?",
-                new RowMapper<String>() {
-                    @Override
-                    public String mapRow(ResultSet rs, int rowNum) throws SQLException {
-                        return rs.getString(1);
-                    }
-                }, messageId);
+                String.class, messageId);
     }
 }
