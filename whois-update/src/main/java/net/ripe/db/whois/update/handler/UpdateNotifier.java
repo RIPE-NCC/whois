@@ -22,7 +22,7 @@ import net.ripe.db.whois.update.domain.Update;
 import net.ripe.db.whois.update.domain.UpdateContext;
 import net.ripe.db.whois.update.domain.UpdateRequest;
 import net.ripe.db.whois.update.handler.response.ResponseFactory;
-import net.ripe.db.whois.update.mail.MailGateway;
+import net.ripe.db.whois.update.mail.WhoisMailGatewaySmtp;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -37,14 +37,14 @@ public class UpdateNotifier {
 
     private final RpslObjectDao rpslObjectDao;
     private final ResponseFactory responseFactory;
-    private final MailGateway mailGateway;
+    private final WhoisMailGatewaySmtp mailGateway;
     private final VersionDao versionDao;
     private final Maintainers maintainers;
 
     @Autowired
     public UpdateNotifier(final RpslObjectDao rpslObjectDao,
                           final ResponseFactory responseFactory,
-                          final MailGateway mailGateway,
+                          final WhoisMailGatewaySmtp mailGateway,
                           final VersionDao versionDao,
                           final Maintainers maintainers) {
         this.rpslObjectDao = rpslObjectDao;

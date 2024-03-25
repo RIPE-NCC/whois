@@ -8,17 +8,22 @@ import jakarta.mail.internet.MimeMessage;
 import net.ripe.db.whois.common.PunycodeConversion;
 import net.ripe.db.whois.common.dao.EmailStatusDao;
 import net.ripe.db.whois.common.dao.OutgoingMessageDao;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
 
 import javax.annotation.Nullable;
 import java.util.Arrays;
+import java.util.List;
 import java.util.Set;
+import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-public abstract class MailGatewaySmtp implements MailGateway {
+public abstract class MailGatewaySmtp {
 
+    private static final Logger LOGGER = LoggerFactory.getLogger(MailGatewaySmtp.class);
     protected static final Pattern INVALID_EMAIL_PATTERN = Pattern.compile("(?i)((?:auto|test)\\-dbm@ripe\\.net)");
 
     protected final MailConfiguration mailConfiguration;
@@ -80,6 +85,31 @@ public abstract class MailGatewaySmtp implements MailGateway {
         return mimeMessage;
     }
 
+    protected boolean canSendEmail(final Set<String> to, final String replyTo, final String subject, final String text){
+        if (!mailConfiguration.isEnabled()) {
+            LOGGER.debug("" +
+                    "Outgoing mail disabled\n" +
+                    "\n" +
+                    "to      : {}\n" +
+                    "reply-to : {}\n" +
+                    "subject : {}\n" +
+                    "\n" +
+                    "{}\n" +
+                    "\n" +
+                    "\n", to, replyTo, subject, text);
+
+            return false;
+        }
+
+        final List<String> availableEmails = getWellFormattedDeliverableEmails(to, subject, text, replyTo);
+
+        if (availableEmails.isEmpty()){
+            LOGGER.debug("No available well formatted emails");
+            return false;
+        }
+        return true;
+    }
+
     private void storeAsOutGoingMessage(final String mimeMessageId, final String punyCodedTo){
         outgoingMessageDao.saveOutGoingMessageId(extractEmailBetweenAngleBrackets(mimeMessageId),   //Message-ID is in rfc2822 address format
                 extractEmailBetweenAngleBrackets(punyCodedTo));
@@ -98,5 +128,31 @@ public abstract class MailGatewaySmtp implements MailGateway {
                 mimeMessage.getMessageID()));
             mimeMessage.addHeader("List-Unsubscribe-Post", "List-Unsubscribe=One-Click");
         }
+    }
+
+    private List<String> getWellFormattedDeliverableEmails(final Set<String> to, final String subject,
+                                                           final String text, final String replyTo) {
+        return to.stream().filter(email -> {
+            //TODO acknowledgment should be sent even if the user is unsubscribe
+            if (canNotSendEmail(extractEmailBetweenAngleBrackets(email))){
+                LOGGER.debug("" +
+                        "Email appears in undeliverable/unsubscribed list\n" +
+                        "\n" +
+                        "to      : {}\n" +
+                        "reply-to : {}\n" +
+                        "subject : {}\n" +
+                        "\n" +
+                        "{}\n" +
+                        "\n" +
+                        "\n", email, replyTo, subject, text);
+                return false;
+            }
+            final Matcher matcher = INVALID_EMAIL_PATTERN.matcher(email);
+            if (matcher.find()){
+                LOGGER.error("Email with incorrect pattern");
+                return false;
+            }
+            return true;
+        }).toList();
     }
 }

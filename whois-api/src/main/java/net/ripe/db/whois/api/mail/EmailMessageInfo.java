@@ -3,7 +3,7 @@ package net.ripe.db.whois.api.mail;
 import javax.annotation.Nullable;
 import java.util.List;
 
-public record MessageInfo(List<String> emailAddresses, String messageId) {
+public record EmailMessageInfo(List<String> emailAddresses, String messageId) {
 
     @Override
     @Nullable

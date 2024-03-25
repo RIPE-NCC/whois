@@ -3,7 +3,7 @@ package net.ripe.db.whois.api.mail.dequeue;
 import jakarta.mail.MessagingException;
 import jakarta.mail.internet.MimeMessage;
 import net.ripe.db.whois.api.MimeMessageProvider;
-import net.ripe.db.whois.api.mail.MessageInfo;
+import net.ripe.db.whois.api.mail.EmailMessageInfo;
 import net.ripe.db.whois.update.mail.MailSenderStub;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Tag;
@@ -60,7 +60,7 @@ public class MessageServiceTestIntegration extends AbstractMailMessageIntegratio
         final MimeMessage acknowledgement = mailSenderStub.getMessage(from);
 
         insertOutgoingMessageId(acknowledgement.getMessageID(), "notify-dummy-role@ripe.net");
-        final MessageInfo bouncedMessageInfo = messageService.getBouncedMessageInfo(acknowledgement);
+        final EmailMessageInfo bouncedMessageInfo = messageService.getBouncedMessageInfo(acknowledgement);
         assertThat(bouncedMessageInfo, is(nullValue()));
         assertThat(isUndeliverableAddress("enduser@ripe.net"), is(false));
 
@@ -71,7 +71,7 @@ public class MessageServiceTestIntegration extends AbstractMailMessageIntegratio
         insertOutgoingMessageId("XXXXXXXX-5AE3-4C58-8E3F-860327BA955D@ripe.net", "enduser@ripe.net");
         final MimeMessage message = MimeMessageProvider.getUpdateMessage("permanentFailureMessageRfc822.mail");
 
-        final MessageInfo bouncedMessageInfo = messageService.getBouncedMessageInfo(message);
+        final EmailMessageInfo bouncedMessageInfo = messageService.getBouncedMessageInfo(message);
         assertThat(bouncedMessageInfo, is(not(nullValue())));
 
         messageService.verifyAndSetAsUndeliverable(bouncedMessageInfo);
@@ -83,7 +83,7 @@ public class MessageServiceTestIntegration extends AbstractMailMessageIntegratio
         insertOutgoingMessageId("XXXXXXXX-5AE3-4C58-8E3F-860327BA955D@ripe.net", BOUNCED_MAIL_RECIPIENT);
         final MimeMessage message = MimeMessageProvider.getUpdateMessage("permanentFailureMessageRfc822.mail");
 
-        final MessageInfo bouncedMessageInfo = messageService.getBouncedMessageInfo(message);
+        final EmailMessageInfo bouncedMessageInfo = messageService.getBouncedMessageInfo(message);
         assertThat(bouncedMessageInfo, is(not(nullValue())));
 
         messageService.verifyAndSetAsUndeliverable(bouncedMessageInfo);
@@ -97,7 +97,7 @@ public class MessageServiceTestIntegration extends AbstractMailMessageIntegratio
 
         final MimeMessage message = MimeMessageProvider.getUpdateMessage("permanentFailureMessagePartialReportWithMultipleRecipientsRfc822.mail");
 
-        final MessageInfo bouncedMessageInfo = messageService.getBouncedMessageInfo(message);
+        final EmailMessageInfo bouncedMessageInfo = messageService.getBouncedMessageInfo(message);
         assertThat(bouncedMessageInfo, is(not(nullValue())));
 
         messageService.verifyAndSetAsUndeliverable(bouncedMessageInfo);
@@ -112,7 +112,7 @@ public class MessageServiceTestIntegration extends AbstractMailMessageIntegratio
 
         final MimeMessage message = MimeMessageProvider.getUpdateMessage("permanentFailurePerRecipientMessageRfc822.mail");
 
-        final MessageInfo bouncedMessageInfo = messageService.getBouncedMessageInfo(message);
+        final EmailMessageInfo bouncedMessageInfo = messageService.getBouncedMessageInfo(message);
         assertThat(bouncedMessageInfo, is(not(nullValue())));
 
         messageService.verifyAndSetAsUndeliverable(bouncedMessageInfo);
@@ -125,8 +125,8 @@ public class MessageServiceTestIntegration extends AbstractMailMessageIntegratio
         insertOutgoingMessageId("8b8ed6c0-f9cc-4a5f-afbb-fde079b94f44@ripe.net", UNSUBSCRIBED_MAIL_RECIPIENT);
         final MimeMessage message = MimeMessageProvider.getUpdateMessage("unsubscribeAppleMail.mail");
 
-        final MessageInfo unsubscribedMessageInfo = messageService.getUnsubscribedMessageInfo(message);
-        final MessageInfo bouncedMessageInfo = messageService.getBouncedMessageInfo(message);
+        final EmailMessageInfo unsubscribedMessageInfo = messageService.getUnsubscribedMessageInfo(message);
+        final EmailMessageInfo bouncedMessageInfo = messageService.getBouncedMessageInfo(message);
         assertThat(bouncedMessageInfo, is(nullValue()));
         assertThat(unsubscribedMessageInfo, is(not(nullValue())));
 
