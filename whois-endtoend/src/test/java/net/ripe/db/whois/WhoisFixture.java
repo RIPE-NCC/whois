@@ -39,6 +39,7 @@ import net.ripe.db.whois.query.QueryServer;
 import net.ripe.db.whois.query.support.TestWhoisLog;
 import net.ripe.db.whois.update.dns.DnsGatewayStub;
 import net.ripe.db.whois.update.mail.MailSenderStub;
+import net.ripe.db.whois.update.mail.WhoisMailGatewaySmtp;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
@@ -67,7 +68,7 @@ public class WhoisFixture {
     protected RpslObjectUpdateDao rpslObjectUpdateDao;
     protected AuthoritativeResourceDao authoritativeResourceDao;
     protected AuthoritativeResourceData authoritativeResourceData;
-    protected MailGateway mailGateway;
+    protected WhoisMailGatewaySmtp mailGateway;
     protected MessageDequeue messageDequeue;
     protected DataSource whoisDataSource;
     protected DataSource internalsDataSource;
@@ -122,7 +123,7 @@ public class WhoisFixture {
         rpslObjectUpdateDao = applicationContext.getBean(RpslObjectUpdateDao.class);
         authoritativeResourceDao = applicationContext.getBean(AuthoritativeResourceDao.class);
         authoritativeResourceData = applicationContext.getBean(AuthoritativeResourceData.class);
-        mailGateway = applicationContext.getBean(MailGateway.class);
+        mailGateway = applicationContext.getBean(WhoisMailGatewaySmtp.class);
         whoisDataSource = applicationContext.getBean(SourceAwareDataSource.class);
         internalsDataSource = applicationContext.getBean("internalsDataSource", DataSource.class);
         sourceContext = applicationContext.getBean(SourceContext.class);
