@@ -3,7 +3,7 @@ package net.ripe.db.whois.api.mail.dequeue;
 
 import jakarta.mail.MessagingException;
 import jakarta.mail.internet.MimeMessage;
-import net.ripe.db.whois.api.mail.MessageInfo;
+import net.ripe.db.whois.api.mail.EmailMessageInfo;
 import net.ripe.db.whois.common.dao.EmailStatusDao;
 import net.ripe.db.whois.common.dao.OutgoingMessageDao;
 import net.ripe.db.whois.common.mail.EmailStatus;
@@ -38,17 +38,17 @@ public class MessageService {
         this.emailStatusDao = emailStatusDao;
     }
 
-    public MessageInfo getBouncedMessageInfo(final MimeMessage message) throws MessagingException, IOException {
+    public EmailMessageInfo getBouncedMessageInfo(final MimeMessage message) throws MessagingException, IOException {
         return bouncedMessageParser.parse(message);
     }
-    public MessageInfo getUnsubscribedMessageInfo(final MimeMessage message) throws MessagingException {
+    public EmailMessageInfo getUnsubscribedMessageInfo(final MimeMessage message) throws MessagingException {
         return unsubscribeMessageParser.parse(message);
     }
 
-    public void verifyAndSetAsUndeliverable(final MessageInfo message){
-        final List<String> emails = outgoingMessageDao.getEmails(message.messageId());
+    public void verifyAndSetAsUndeliverable(final EmailMessageInfo message){
+        final List<String> outgoingEmail = outgoingMessageDao.getEmails(message.messageId());
 
-        if (isIncorrectMessage(message, emails)){
+        if (isNotValidMessage(message, outgoingEmail)){
             return;
         }
 
@@ -56,30 +56,35 @@ public class MessageService {
         message.emailAddresses().forEach(email -> emailStatusDao.createEmailStatus(email, EmailStatus.UNDELIVERABLE));
     }
 
-    public void verifyAndSetAsUnsubscribed(final MessageInfo message){
-        final List<String> emails = outgoingMessageDao.getEmails(message.messageId());
-
-        if (isIncorrectMessage(message, emails)){
+    public void verifyAndSetAsUnsubscribed(final EmailMessageInfo message){
+        if (message.emailAddresses() != null && message.emailAddresses().size() > 1){
+            LOGGER.error("This can not happen, unsubscribe with multiple recipients");
             return;
         }
 
-        LOGGER.debug("Unsubscribe message-id {} email {}", message.messageId(), StringUtils.join(message.emailAddresses(), ", "));
-        emails.forEach(email -> emailStatusDao.createEmailStatus(email, EmailStatus.UNSUBSCRIBE));
+        final List<String> outgoingEmail = outgoingMessageDao.getEmails(message.messageId());
+
+        if (isNotValidMessage(message, outgoingEmail)){
+            return;
+        }
+
+        LOGGER.debug("Unsubscribe message-id {} email {}", message.messageId(), message.emailAddresses().get(0));
+        emailStatusDao.createEmailStatus(message.emailAddresses().get(0), EmailStatus.UNSUBSCRIBE);
     }
 
-    private boolean isIncorrectMessage(final MessageInfo message, final List<String> emails){
+    private boolean isNotValidMessage(final EmailMessageInfo message, final List<String> outgoingEmail){
         if (message.messageId() == null || message.emailAddresses() == null || message.emailAddresses().isEmpty()){
             LOGGER.warn("Incorrect message {}", message.messageId());
             return true;
         }
 
-        if (emails == null || emails.isEmpty()) {
+        if (outgoingEmail == null || outgoingEmail.isEmpty()) {
             LOGGER.warn("Couldn't find outgoing message matching {}", message.messageId());
             return true;
         }
 
-        if (!containsAllCaseInsensitive(message.emailAddresses(), emails)) {
-            LOGGER.warn("Email {} in outgoing message doesn't match '{}' in failure response", emails, StringUtils.join(message.emailAddresses(), ", "));
+        if (!containsAllCaseInsensitive(message.emailAddresses(), outgoingEmail)) {
+            LOGGER.warn("Email {} in outgoing message doesn't match '{}' in failure response", outgoingEmail, StringUtils.join(message.emailAddresses(), ", "));
             return true;
         }
         return false;

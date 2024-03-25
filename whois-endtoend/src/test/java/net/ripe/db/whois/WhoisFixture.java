@@ -38,7 +38,6 @@ import net.ripe.db.whois.db.WhoisServer;
 import net.ripe.db.whois.query.QueryServer;
 import net.ripe.db.whois.query.support.TestWhoisLog;
 import net.ripe.db.whois.update.dns.DnsGatewayStub;
-import net.ripe.db.whois.update.mail.MailGateway;
 import net.ripe.db.whois.update.mail.MailSenderStub;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

@@ -7,7 +7,7 @@ import jakarta.mail.internet.ContentType;
 import jakarta.mail.internet.InternetAddress;
 import jakarta.mail.internet.InternetHeaders;
 import jakarta.mail.internet.MimeMessage;
-import net.ripe.db.whois.api.mail.MessageInfo;
+import net.ripe.db.whois.api.mail.EmailMessageInfo;
 import org.apache.commons.compress.utils.Lists;
 import org.eclipse.angus.mail.dsn.DeliveryStatus;
 import org.eclipse.angus.mail.dsn.MultipartReport;
@@ -34,7 +34,7 @@ public class BouncedMessageParser {
 
     private final boolean enabled;
 
-    static final Pattern FINAL_RECIPIENT_MATCHER = Pattern.compile("^(rfc822;)(.+@.+$)");
+    private static final Pattern FINAL_RECIPIENT_MATCHER = Pattern.compile("^(rfc822;)(.+@.+$)");
 
 
     @Autowired
@@ -43,7 +43,7 @@ public class BouncedMessageParser {
     }
 
     @Nullable
-    public MessageInfo parse(final MimeMessage message) throws MessagingException, IOException {
+    public EmailMessageInfo parse(final MimeMessage message) throws MessagingException, IOException {
         if (enabled && isMultipartReport(message)) {
             final MultipartReport multipartReport = multipartReport(message.getContent());
             if (isReportDeliveryStatus(multipartReport)) {
@@ -52,7 +52,7 @@ public class BouncedMessageParser {
                     final MimeMessage returnedMessage = multipartReport.getReturnedMessage();
                     final String messageId = getMessageId(returnedMessage.getMessageID());
                     final List<String> recipient = extractRecipients(deliveryStatus);
-                    return new MessageInfo(recipient, messageId);
+                    return new EmailMessageInfo(recipient, messageId);
                 }
             }
         }

@@ -1,7 +1,7 @@
 package net.ripe.db.whois.api.mail.dequeue;
 
 import net.ripe.db.whois.api.MimeMessageProvider;
-import net.ripe.db.whois.api.mail.MessageInfo;
+import net.ripe.db.whois.api.mail.EmailMessageInfo;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -21,7 +21,7 @@ class UnsubscribeMessageParserTest {
 
     @Test
     public void unsubscribe_from_apple_mail() throws Exception {
-        final MessageInfo unsubscribedMessage = subject.parse(MimeMessageProvider.getUpdateMessage("unsubscribeAppleMail.mail"));
+        final EmailMessageInfo unsubscribedMessage = subject.parse(MimeMessageProvider.getUpdateMessage("unsubscribeAppleMail.mail"));
 
         assertThat(unsubscribedMessage.messageId(), is("8b8ed6c0-f9cc-4a5f-afbb-fde079b94f44@ripe.net"));
         assertThat(unsubscribedMessage.emailAddresses(), containsInAnyOrder("enduser@ripe.net"));
@@ -29,7 +29,7 @@ class UnsubscribeMessageParserTest {
 
     @Test
     public void unsubscribe_from_google_mail() throws Exception {
-        final MessageInfo unsubscribedMessage = subject.parse(MimeMessageProvider.getUpdateMessage("unsubscribeGmail.mail"));
+        final EmailMessageInfo unsubscribedMessage = subject.parse(MimeMessageProvider.getUpdateMessage("unsubscribeGmail.mail"));
 
         assertThat(unsubscribedMessage.messageId(), is("8b8ed6c0-f9cc-4a5f-afbb-fde079b94f44@ripe.net"));
         assertThat(unsubscribedMessage.emailAddresses(), containsInAnyOrder("enduser@gmail.com"));

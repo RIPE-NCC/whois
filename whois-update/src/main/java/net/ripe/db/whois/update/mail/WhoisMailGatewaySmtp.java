@@ -22,7 +22,6 @@ import org.springframework.stereotype.Component;
 import javax.annotation.Nullable;
 import java.util.Map;
 import java.util.Set;
-import java.util.regex.Matcher;
 
 @Component
 public class WhoisMailGatewaySmtp extends MailGatewaySmtp {
@@ -45,48 +44,20 @@ public class WhoisMailGatewaySmtp extends MailGatewaySmtp {
     }
 
     @Override
+    public boolean canNotSendEmail(final String emailAddresses) {
+        final Map<String, EmailStatus> emailStatus = emailStatusDao.getEmailStatus(Set.of(emailAddresses));
+        return !emailStatus.isEmpty();
+    }
+
     public void sendEmail(final String to, final ResponseMessage responseMessage) {
         sendEmail(to, responseMessage.getSubject(), responseMessage.getMessage(), responseMessage.getReplyTo());
     }
 
-    @Override
     public void sendEmail(final String to, final String subject, final String text, @Nullable final String replyTo) {
-        if (!mailConfiguration.isEnabled()) {
-            LOGGER.debug("" +
-                    "Outgoing mail disabled\n" +
-                    "\n" +
-                    "to      : {}\n" +
-                    "reply-to : {}\n" +
-                    "subject : {}\n" +
-                    "\n" +
-                    "{}\n" +
-                    "\n" +
-                    "\n", to, replyTo, subject, text);
-
-            return;
-        }
-
-        //TODO acknowledgment should be sent even if the user is unsubscribe
-        if (canNotSendEmail(extractEmailBetweenAngleBrackets(to))) {
-            LOGGER.debug("" +
-                    "Email appears in undeliverable/unsubscribed list\n" +
-                    "\n" +
-                    "to      : {}\n" +
-                    "reply-to : {}\n" +
-                    "subject : {}\n" +
-                    "\n" +
-                    "{}\n" +
-                    "\n" +
-                    "\n", to, replyTo, subject, text);
-            return;
-        }
-
         try {
-            final Matcher matcher = INVALID_EMAIL_PATTERN.matcher(to);
-            if (matcher.find()) {
-                throw new MailSendException("Refusing outgoing email: " + text);
+            if (!canSendEmail(Set.of(to), replyTo, subject, text)){
+                return;
             }
-
             sendEmailAttempt(to, replyTo, subject, text);
         } catch (MailException e) {
             LOGGER.error("Caught MailException", e);
@@ -96,18 +67,6 @@ public class WhoisMailGatewaySmtp extends MailGatewaySmtp {
             throw e;
         }
     }
-
-    @Override
-    public void sendHtmlEmail(Set<String> recipients, String subject, String text) {
-        throw new UnsupportedOperationException("No implemented by whois, not multiple recipients are used in Whois messages");
-    }
-
-    @Override
-    public void sendEmail(Set<String> recipients, String subject, String text) {
-        throw new UnsupportedOperationException("No implemented by whois, not multiple recipients are used in Whois messages");
-    }
-
-
     @RetryFor(value = MailSendException.class, attempts = 20, intervalMs = 10000)
     private void sendEmailAttempt(final String recipient, final String replyTo, final String subject, final String text) {
         try {
@@ -123,11 +82,5 @@ public class WhoisMailGatewaySmtp extends MailGatewaySmtp {
                 loggerContext.log(new Message(Messages.Type.ERROR, "Not retrying sending mail to %s with subject %s", recipient, subject));
             }
         }
-    }
-
-    @Override
-    public boolean canNotSendEmail(final String emailAddresses) {
-        final Map<String, EmailStatus> emailStatus = emailStatusDao.getEmailStatus(Set.of(emailAddresses));
-        return !emailStatus.isEmpty();
     }
 }
