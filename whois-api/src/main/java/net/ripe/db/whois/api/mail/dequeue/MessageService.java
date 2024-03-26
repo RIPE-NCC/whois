@@ -52,7 +52,7 @@ public class MessageService {
             return;
         }
 
-        LOGGER.info("Undeliverable message-id {} email {}", message.messageId(), StringUtils.join(message.emailAddresses(), ", "));
+        LOGGER.debug("Undeliverable message-id {} email {}", message.messageId(), StringUtils.join(message.emailAddresses(), ", "));
         message.emailAddresses().forEach(email -> emailStatusDao.createEmailStatus(email, EmailStatus.UNDELIVERABLE));
     }
 
@@ -74,18 +74,17 @@ public class MessageService {
 
     private boolean isValidMessage(final EmailMessageInfo message, final List<String> outgoingEmail){
         if (message.messageId() == null || message.emailAddresses() == null || message.emailAddresses().isEmpty()){
-            LOGGER.info("Incorrect message {}", message.messageId());
+            LOGGER.warn("Incorrect message {}", message.messageId());
             return false;
         }
 
         if (outgoingEmail == null || outgoingEmail.isEmpty()) {
-            LOGGER.info("Couldn't find outgoing message matching {}", message.messageId());
+            LOGGER.warn("Couldn't find outgoing message matching {}", message.messageId());
             return false;
         }
 
         if (!containsAllCaseInsensitive(message.emailAddresses(), outgoingEmail)) {
-            LOGGER.info("Email {} in outgoing message doesn't match '{}' in failure response", outgoingEmail,
-                    StringUtils.join(message.emailAddresses(), ", "));
+            LOGGER.warn("Email {} in outgoing message doesn't match '{}' in failure response", outgoingEmail, StringUtils.join(message.emailAddresses(), ", "));
             return false;
         }
         return true;

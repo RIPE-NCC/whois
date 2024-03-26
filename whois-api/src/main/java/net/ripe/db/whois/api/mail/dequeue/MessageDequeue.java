@@ -20,7 +20,6 @@ import net.ripe.db.whois.update.handler.UpdateRequestHandler;
 import net.ripe.db.whois.update.log.LoggerContext;
 import net.ripe.db.whois.update.mail.MailMessageLogCallback;
 import net.ripe.db.whois.update.mail.WhoisMailGatewaySmtp;
-import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -198,7 +197,6 @@ public class MessageDequeue implements ApplicationService {
             final EmailMessageInfo bouncedMessage = messageService.getBouncedMessageInfo(message);
             LOGGER.info("after bounced");
             if (bouncedMessage != null) {
-                LOGGER.info("emails " + StringUtils.join(bouncedMessage.emailAddresses(), ", "));
                 messageService.verifyAndSetAsUndeliverable(bouncedMessage);
                 mailMessageDao.deleteMessage(messageId);
                 return;
