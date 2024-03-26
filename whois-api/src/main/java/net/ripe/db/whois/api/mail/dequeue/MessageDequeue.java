@@ -189,13 +189,10 @@ public class MessageDequeue implements ApplicationService {
     }
 
     private void handleMessage(final String messageId) {
-        LOGGER.info("email message ID " + messageId);
         final MimeMessage message = mailMessageDao.getMessage(messageId);
 
         try {
-            LOGGER.info("checking bounced");
             final EmailMessageInfo bouncedMessage = messageService.getBouncedMessageInfo(message);
-            LOGGER.info("after bounced");
             if (bouncedMessage != null) {
                 messageService.verifyAndSetAsUndeliverable(bouncedMessage);
                 mailMessageDao.deleteMessage(messageId);
