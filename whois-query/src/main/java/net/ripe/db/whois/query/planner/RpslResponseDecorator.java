@@ -59,6 +59,9 @@ public class RpslResponseDecorator {
     private final ToShorthandFunction toShorthandFunction;
     private final ToKeysFunction toKeysFunction;
 
+    private final RoaInfoDecorator roaInfoDecorator;
+
+
     @Autowired
     public RpslResponseDecorator(final RpslObjectDao rpslObjectDao,
                                  final FilterPersonalDecorator filterPersonalDecorator,
@@ -69,6 +72,7 @@ public class RpslResponseDecorator {
                                  final AbuseCInfoDecorator abuseCInfoDecorator,
                                  final SsoTokenTranslator ssoTokenTranslator,
                                  final AuthServiceClient authServiceClient,
+                                 final RoaInfoDecorator roaInfoDecorator,
                                  final PrimaryObjectDecorator... decorators) {
         this.rpslObjectDao = rpslObjectDao;
         this.filterPersonalDecorator = filterPersonalDecorator;
@@ -84,6 +88,7 @@ public class RpslResponseDecorator {
         this.decorators = Sets.newHashSet(decorators);
         this.toShorthandFunction = new ToShorthandFunction();
         this.toKeysFunction = new ToKeysFunction();
+        this.roaInfoDecorator = roaInfoDecorator;
     }
 
     public Iterable<? extends ResponseObject> getResponse(final Query query, Iterable<? extends ResponseObject> result) {
@@ -101,6 +106,7 @@ public class RpslResponseDecorator {
 
         decoratedResult = applyOutputFilters(query, decoratedResult);
 
+        decoratedResult = roaInfoDecorator.decorate(query, decoratedResult);
         return decoratedResult;
     }
 

@@ -164,7 +164,13 @@ public enum QueryFlag {
     SHOW_VERSION(new Builder("show-version")
             .withSearchKey("<version-number>")
             .describedAs("Returns historical version of the object")
-            .requiresArgument(Integer.class));
+            .requiresArgument(Integer.class)),
+
+    /* -------------------------------------------------------------------------------------------------------------- */
+
+    ROA_VALIDATION(new Builder("roa-validation")
+            .describedAs("Validate route objects against rpki roas"));
+
 
 
     private static final class Builder {
@@ -257,8 +263,8 @@ public enum QueryFlag {
         return toString;
     }
 
-    private static Map<String, QueryFlag> VALID_LONG_FLAGS;
-    private static Map<String, QueryFlag> VALID_SHORT_FLAGS;
+    private static final Map<String, QueryFlag> VALID_LONG_FLAGS;
+    private static final Map<String, QueryFlag> VALID_SHORT_FLAGS;
 
     static {
         final ImmutableMap.Builder<String, QueryFlag> validLongFlags = ImmutableMap.builder();

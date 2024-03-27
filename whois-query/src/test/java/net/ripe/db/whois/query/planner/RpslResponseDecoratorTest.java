@@ -62,6 +62,8 @@ public class RpslResponseDecoratorTest {
     @Mock AuthServiceClient authServiceClient;
     @InjectMocks AbuseCInfoDecorator abuseCInfoDecorator;
 
+    @InjectMocks RoaInfoDecorator roaInfoDecorator;
+
     private RpslResponseDecorator subject;
 
     private final RpslObject ABUSE_ROLE = RpslObject.parse(
@@ -81,6 +83,7 @@ public class RpslResponseDecoratorTest {
                 abuseCInfoDecorator,
                 ssoTokenTranslator,
                 authServiceClient,
+                roaInfoDecorator,
                 decorator);
         lenient().when(sourceContext.getCurrentSource()).thenReturn(Source.slave("RIPE"));
         when(sourceContext.isAcl()).thenReturn(true);

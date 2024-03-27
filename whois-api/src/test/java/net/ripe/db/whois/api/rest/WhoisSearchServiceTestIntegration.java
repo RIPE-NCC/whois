@@ -1,6 +1,11 @@
 package net.ripe.db.whois.api.rest;
 
 import com.google.common.base.Strings;
+import com.google.common.collect.Lists;
+import jakarta.ws.rs.BadRequestException;
+import jakarta.ws.rs.NotFoundException;
+import jakarta.ws.rs.core.MediaType;
+import jakarta.ws.rs.core.Response;
 import net.ripe.db.whois.api.AbstractIntegrationTest;
 import net.ripe.db.whois.api.RestTest;
 import net.ripe.db.whois.api.rest.domain.Attribute;
@@ -24,6 +29,8 @@ import net.ripe.db.whois.query.QueryFlag;
 import net.ripe.db.whois.query.acl.AccessControlListManager;
 import net.ripe.db.whois.query.acl.AccountingIdentifier;
 import net.ripe.db.whois.query.acl.IpResourceConfiguration;
+import net.ripe.db.whois.query.rpki.DummyRpkiDataProvider;
+import net.ripe.db.whois.query.rpki.Roa;
 import net.ripe.db.whois.query.support.TestPersonalObjectAccounting;
 import org.glassfish.jersey.client.filter.EncodingFilter;
 import org.glassfish.jersey.message.DeflateEncoder;
@@ -34,10 +41,6 @@ import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
-import jakarta.ws.rs.BadRequestException;
-import jakarta.ws.rs.NotFoundException;
-import jakarta.ws.rs.core.MediaType;
-import jakarta.ws.rs.core.Response;
 import java.io.FileNotFoundException;
 import java.io.InputStream;
 import java.net.InetAddress;
@@ -45,6 +48,7 @@ import java.net.URL;
 import java.time.LocalDateTime;
 import java.util.List;
 
+import static net.ripe.db.whois.query.rpki.TrustAnchor.ARIN;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.Matchers.containsInAnyOrder;
@@ -71,6 +75,9 @@ public class WhoisSearchServiceTestIntegration extends AbstractIntegrationTest {
     private TestPersonalObjectAccounting testPersonalObjectAccounting;
     @Autowired
     private IpResourceConfiguration ipResourceConfiguration;
+
+    @Autowired
+    private DummyRpkiDataProvider rpkiDataProvider;
 
     public static final String TEST_PERSON_STRING = "" +
             "person:         Test Person\n" +
@@ -158,6 +165,12 @@ public class WhoisSearchServiceTestIntegration extends AbstractIntegrationTest {
         databaseHelper.updateObject(TEST_ROLE);
         maintenanceMode.set("FULL,FULL");
         testDateTimeProvider.setTime(LocalDateTime.parse("2001-02-04T17:00:00"));
+
+        rpkiDataProvider.setRoas(Lists.newArrayList(
+                new Roa(6505, 24, "206.48.0.0/16", ARIN),
+                new Roa(5511, 24, "206.48.0.0/16", ARIN),
+                new Roa(1964, 24, "206.48.0.0/16", ARIN)
+        ));
     }
 
     @AfterEach
@@ -1771,6 +1784,34 @@ public class WhoisSearchServiceTestIntegration extends AbstractIntegrationTest {
         assertThat(hasSourceTestNonAuth, is(true));
         boolean hasSourceTest = hasObjectWithSpecifiedSource(whoisResources.getWhoisObjects(), "TEST");
         assertThat(hasSourceTest, is(true));
+    }
+
+
+    @Test
+    public void search_route_roa_validation_enabled() {
+        databaseHelper.addObject(RpslObject.parse("" +
+                "route:           193.4.0.0/16\n" +
+                "descr:           Ripe test allocation\n" +
+                "origin:          AS102\n" +
+                "admin-c:         TP1-TEST\n" +
+                "mnt-by:          OWNER-MNT\n" +
+                "mnt-lower:       OWNER-MNT\n" +
+                "source:          TEST-NONAUTH\n"));
+        ipTreeUpdater.rebuild();
+
+        rpkiDataProvider.setRoas(Lists.newArrayList(
+                new Roa(6505, 16, "193.4.0.0/16", ARIN)
+        ));
+
+        final WhoisResources whoisResources = RestTest.target(getPort(), "whois/search?query-string=193.4.0.0/16AS102&flags=roa-validation")
+                .request(MediaType.APPLICATION_JSON)
+                .get(WhoisResources.class);
+
+        assertThat(whoisResources.getErrorMessages(), is(empty()));
+        assertThat(whoisResources.getWhoisObjects(), hasSize(1));
+
+        final List<Flag> flags = whoisResources.getParameters().getFlags().getFlags();
+        assertThat(flags, containsInAnyOrder(new Flag(QueryFlag.NO_REFERENCED), new Flag(QueryFlag.NO_FILTERING)));
     }
 
     @Test

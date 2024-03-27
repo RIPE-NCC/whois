@@ -1,6 +1,10 @@
 package net.ripe.db.whois.api.rest;
 
 import com.google.common.collect.Lists;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.ws.rs.WebApplicationException;
+import jakarta.ws.rs.core.Response;
+import jakarta.ws.rs.core.StreamingOutput;
 import net.ripe.db.whois.api.rest.client.StreamingException;
 import net.ripe.db.whois.api.rest.domain.Link;
 import net.ripe.db.whois.api.rest.domain.Parameters;
@@ -29,10 +33,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.Nullable;
-import jakarta.servlet.http.HttpServletRequest;
-import jakarta.ws.rs.WebApplicationException;
-import jakarta.ws.rs.core.Response;
-import jakarta.ws.rs.core.StreamingOutput;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.net.InetAddress;
@@ -146,7 +146,7 @@ public class RpslObjectStreamer {
                     streamRpslObject((RpslObject) responseObject);
                 } else if (responseObject instanceof MessageObject) {
                     final Message message = ((MessageObject) responseObject).getMessage();
-                    if (message != null && Messages.Type.INFO != message.getType()) {
+                    if (message != null && Messages.Type.ERROR == message.getType()) {
                         errors.add(message);
                     }
                 }
