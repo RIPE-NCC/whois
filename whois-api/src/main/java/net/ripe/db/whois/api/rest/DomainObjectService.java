@@ -162,9 +162,11 @@ public class DomainObjectService {
                 default:
                     if (updateContext.getMessages(update).contains(UpdateMessages.newKeywordAndObjectExists())) {
                         throw new UpdateFailedException(CONFLICT, resources);
-                    } else {
-                        throw new UpdateFailedException(BAD_REQUEST, resources);
                     }
+                    if (updateContext.getMessages(update).contains(UpdateMessages.dnsCheckTimeout())){
+                        throw new UpdateFailedException(INTERNAL_SERVER_ERROR, resources);
+                    }
+                    throw new UpdateFailedException(BAD_REQUEST, resources);
             }
         }
     }

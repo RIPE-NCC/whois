@@ -228,16 +228,16 @@ public class JdbcIpAccessControlListDaoIntegrationTest extends AbstractQueryDaoI
     }
 
     @Test
-    public void loadIpLimit() {
+    public void loadIpLimits() {
         List<IpResourceEntry<Integer>> result;
 
-        result = subject.loadIpLimit();
+        result = subject.loadIpLimits();
         assertThat(result, is(empty()));
 
         databaseHelper.insertAclIpLimit("128.0.0.1", 1, false);
         databaseHelper.insertAclIpLimit("128.0.0.2", 2, false);
 
-        result = subject.loadIpLimit();
+        result = subject.loadIpLimits();
         assertThat(result, hasSize(2));
         for (IpResourceEntry<Integer> entry : result) {
             final String ipInterval = entry.getIpInterval().toString();

@@ -5,6 +5,7 @@ import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
@@ -17,15 +18,17 @@ public class SSOResourceConfiguration {
 
     private static final int UPDATE_IN_SECONDS = 120;
 
-    private static final int DEFAULT_LIMIT = 5000;
-
     private final Loader loader;
+    private final int limit;
 
     private List<String> denied;
 
     @Autowired
-    public SSOResourceConfiguration(final Loader loader) {
+    public SSOResourceConfiguration(
+            final Loader loader,
+            @Value("${acl.limit:5000}") final int limit) {
         this.loader = loader;
+        this.limit = limit;
     }
 
     public boolean isDenied(final String ssoId) {
@@ -33,7 +36,7 @@ public class SSOResourceConfiguration {
     }
 
     public int getLimit() {
-        return DEFAULT_LIMIT;
+        return limit;
     }
 
     @PostConstruct

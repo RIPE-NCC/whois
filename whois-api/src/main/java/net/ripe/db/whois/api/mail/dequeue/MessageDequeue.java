@@ -4,6 +4,7 @@ import jakarta.mail.Message;
 import jakarta.mail.MessagingException;
 import jakarta.mail.internet.MimeMessage;
 import net.ripe.db.whois.api.UpdatesParser;
+import net.ripe.db.whois.api.mail.EmailMessageInfo;
 import net.ripe.db.whois.api.mail.MailMessage;
 import net.ripe.db.whois.api.mail.dao.MailMessageDao;
 import net.ripe.db.whois.common.ApplicationService;
@@ -17,8 +18,8 @@ import net.ripe.db.whois.update.domain.UpdateRequest;
 import net.ripe.db.whois.update.domain.UpdateResponse;
 import net.ripe.db.whois.update.handler.UpdateRequestHandler;
 import net.ripe.db.whois.update.log.LoggerContext;
-import net.ripe.db.whois.update.mail.MailGateway;
 import net.ripe.db.whois.update.mail.MailMessageLogCallback;
+import net.ripe.db.whois.update.mail.WhoisMailGatewaySmtp;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -43,7 +44,7 @@ public class MessageDequeue implements ApplicationService {
     private static final Pattern MESSAGE_ID_PATTERN = Pattern.compile("^<(.+?)(@.*)?>$");
 
     private final MaintenanceMode maintenanceMode;
-    private final MailGateway mailGateway;
+    private final WhoisMailGatewaySmtp mailGateway;
     private final MailMessageDao mailMessageDao;
     private final MessageFilter messageFilter;
     private final MessageParser messageParser;
@@ -51,6 +52,7 @@ public class MessageDequeue implements ApplicationService {
     private final UpdateRequestHandler messageHandler;
     private final LoggerContext loggerContext;
     private final DateTimeProvider dateTimeProvider;
+    private final MessageService messageService;
 
     private final AtomicInteger freeThreads = new AtomicInteger();
 
@@ -65,14 +67,15 @@ public class MessageDequeue implements ApplicationService {
 
     @Autowired
     public MessageDequeue(final MaintenanceMode maintenanceMode,
-                          final MailGateway mailGateway,
+                          final WhoisMailGatewaySmtp mailGateway,
                           final MailMessageDao mailMessageDao,
                           final MessageFilter messageFilter,
                           final MessageParser messageParser,
                           final UpdatesParser updatesParser,
                           final UpdateRequestHandler messageHandler,
                           final LoggerContext loggerContext,
-                          final DateTimeProvider dateTimeProvider) {
+                          final DateTimeProvider dateTimeProvider,
+                          final MessageService messageService) {
         this.maintenanceMode = maintenanceMode;
         this.mailGateway = mailGateway;
         this.mailMessageDao = mailMessageDao;
@@ -82,6 +85,7 @@ public class MessageDequeue implements ApplicationService {
         this.messageHandler = messageHandler;
         this.loggerContext = loggerContext;
         this.dateTimeProvider = dateTimeProvider;
+        this.messageService = messageService;
     }
 
 
@@ -188,15 +192,27 @@ public class MessageDequeue implements ApplicationService {
         final MimeMessage message = mailMessageDao.getMessage(messageId);
 
         try {
+            final EmailMessageInfo bouncedMessage = messageService.getBouncedMessageInfo(message);
+            if (bouncedMessage != null) {
+                messageService.verifyAndSetAsUndeliverable(bouncedMessage);
+                mailMessageDao.deleteMessage(messageId);
+                return;
+            }
+
+            final EmailMessageInfo unsubscribeMessage = messageService.getUnsubscribedMessageInfo(message);
+            if (unsubscribeMessage != null) {
+                messageService.verifyAndSetAsUnsubscribed(unsubscribeMessage);
+                mailMessageDao.deleteMessage(messageId);
+                return;
+            }
+
             loggerContext.init(getMessageIdLocalPart(message));
             try {
                 handleMessageInContext(messageId, message);
             } finally {
                 loggerContext.remove();
             }
-        } catch (MessagingException e) {
-            LOGGER.error("Handle message", e);
-        } catch (IOException e) {
+        } catch (Exception e) {
             LOGGER.error("Handle message", e);
         }
     }

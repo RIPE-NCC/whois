@@ -36,11 +36,11 @@ public class ClientCertificateCredentialValidator implements CredentialValidator
     public ClientCertificateCredentialValidator(final RpslObjectDao rpslObjectDao,
                                                 final DateTimeProvider dateTimeProvider,
                                                 final LoggerContext loggerContext,
-                                                final @Value("${client.cert.auth.enabled:false}") boolean enabled) {
+                                                @Value("${port.client.auth:-1}") final int clientAuthPort) {
         this.rpslObjectDao = rpslObjectDao;
         this.dateTimeProvider = dateTimeProvider;
         this.loggerContext = loggerContext;
-        this.enabled = enabled;
+        this.enabled = clientAuthPort >= 0;
 
         LOGGER.info("Client certificate authentication is {}abled", enabled? "en" : "dis");
     }

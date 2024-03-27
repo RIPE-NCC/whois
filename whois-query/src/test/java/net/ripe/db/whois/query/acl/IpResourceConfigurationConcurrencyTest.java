@@ -5,7 +5,6 @@ import net.ripe.db.whois.common.domain.IpResourceEntry;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
@@ -29,14 +28,16 @@ public class IpResourceConfigurationConcurrencyTest {
     private volatile boolean stop;
 
     @Mock private IpResourceConfiguration.Loader loader;
-    @InjectMocks private IpResourceConfiguration subject;
+
+    private IpResourceConfiguration subject;
 
     @BeforeEach
     public void setup() {
-        when(loader.loadIpLimit()).thenReturn(Collections.<IpResourceEntry<Integer>>emptyList());
+        when(loader.loadIpLimits()).thenReturn(Collections.<IpResourceEntry<Integer>>emptyList());
         when(loader.loadIpProxy()).thenReturn(Collections.<IpResourceEntry<Boolean>>emptyList());
         when(loader.loadIpDenied()).thenReturn(Collections.<IpResourceEntry<Boolean>>emptyList());
 
+        subject = new IpResourceConfiguration(loader, 5000);
         subject.reload();
     }
 

@@ -9,6 +9,7 @@ import net.ripe.db.whois.common.domain.CIString;
 import net.ripe.db.whois.common.ip.Interval;
 import net.ripe.db.whois.common.ip.IpInterval;
 import net.ripe.db.whois.common.ip.Ipv4Resource;
+import net.ripe.db.whois.common.mail.EmailStatus;
 import net.ripe.db.whois.common.rpsl.AttributeType;
 import net.ripe.db.whois.common.rpsl.ObjectType;
 import net.ripe.db.whois.common.rpsl.RpslAttribute;
@@ -322,7 +323,7 @@ public final class UpdateMessages {
     }
 
     public static Message createFirstPersonMntnerForOrganisation() {
-        return new Message(Type.INFO, "To create the first person/mntner pair of objects for an organisation see https://apps.db.ripe.net/startup/");
+        return new Message(Type.INFO, "To create the first person/mntner pair of objects for an organisation see\nhttps://apps.db.ripe.net/db-web-ui/webupdates/create/RIPE/person/self");
     }
 
     public static Message maintainerNotFound(final CharSequence maintainer) {
@@ -614,6 +615,10 @@ public final class UpdateMessages {
 
     public static Message statusCannotBeRemoved() {
         return new Message(Type.WARNING, "\"status:\" attribute cannot be removed");
+    }
+
+    public static Message emailCanNotBeSent(final String email, final EmailStatus emailStatus) {
+        return new Message(Type.WARNING, "Not sending notification to %s because it is %s.", email, emailStatus.getValue());
     }
 
     public static Message sponsoringOrgChanged() {

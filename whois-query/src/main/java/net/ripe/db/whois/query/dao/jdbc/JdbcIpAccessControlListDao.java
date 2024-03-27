@@ -129,7 +129,7 @@ public class JdbcIpAccessControlListDao implements IpAccessControlListDao {
     }
 
     @Override
-    public List<IpResourceEntry<Integer>> loadIpLimit() {
+    public List<IpResourceEntry<Integer>> loadIpLimits() {
         return jdbcTemplate.query("SELECT prefix, daily_limit FROM acl_limit", new DailyLimitMapperResultSetExtractor());
     }
 

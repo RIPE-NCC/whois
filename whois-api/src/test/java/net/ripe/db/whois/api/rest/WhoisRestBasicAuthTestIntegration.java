@@ -69,7 +69,7 @@ public class WhoisRestBasicAuthTestIntegration extends AbstractHttpsIntegrationT
             "mnt-by:      OWNER-MNT\n" +
             "source:      TEST");
 
-    private static String TEST_ROLE_STRING = "" +
+    private static final String TEST_ROLE_STRING = "" +
             "role:           Test Role\n" +
             "address:        Singel 258\n" +
             "phone:          +31 6 12345678\n" +

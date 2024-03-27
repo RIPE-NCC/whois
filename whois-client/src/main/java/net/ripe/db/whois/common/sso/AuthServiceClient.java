@@ -11,6 +11,7 @@ import com.fasterxml.jackson.jakarta.rs.json.JacksonJsonProvider;
 import com.fasterxml.jackson.module.jakarta.xmlbind.JakartaXmlBindAnnotationIntrospector;
 import jakarta.ws.rs.BadRequestException;
 import jakarta.ws.rs.ForbiddenException;
+import jakarta.ws.rs.NotAuthorizedException;
 import jakarta.ws.rs.NotFoundException;
 import jakarta.ws.rs.ProcessingException;
 import jakarta.ws.rs.WebApplicationException;
@@ -62,6 +63,8 @@ public class AuthServiceClient {
     private final String restUrl;
     private final String apiKey;
 
+    private static final String API_KEY = "ncc-internal-api-key";
+
     @Autowired
     public AuthServiceClient(
             @Value("${authorisation.service.api.url:}") final String restUrl,
@@ -89,11 +92,11 @@ public class AuthServiceClient {
     }
 
     @Nullable
-    @Cacheable(cacheNames="ssoValidateToken", key="#authToken")
+    @Cacheable(cacheNames="ssoValidateToken")
     public ValidateTokenResponse validateToken(final String authToken) {
         if (StringUtils.isEmpty(authToken)) {
             LOGGER.debug("No crowdToken was supplied");
-            throw new AuthServiceClientException(BAD_REQUEST.getStatusCode(), "No UUID.");
+            throw new AuthServiceClientException(BAD_REQUEST.getStatusCode(), "No Token.");
         }
 
         try {
@@ -101,10 +104,10 @@ public class AuthServiceClient {
                     .path(VALIDATE_PATH)
                     .queryParam("permission", VALIDATE_TOKEN_PERMISSION)
                     .request(MediaType.APPLICATION_JSON_TYPE)
-                    .header("X-API_KEY", apiKey)
+                    .header(API_KEY, apiKey)
                     .header("Authorization", String.format("Bearer %s", authToken))
                     .get(ValidateTokenResponse.class);
-        } catch (NotFoundException e) {
+        } catch (NotFoundException | NotAuthorizedException e) {
             LOGGER.debug("Failed to validate token {} due to {}:{}\n\tResponse: {}", authToken, e.getClass().getName(), e.getMessage(), e.getResponse().readEntity(String.class));
             throw new AuthServiceClientException(UNAUTHORIZED.getStatusCode(), "Invalid token.");
         } catch (WebApplicationException e) {
@@ -126,7 +129,7 @@ public class AuthServiceClient {
             null);
     }
 
-    @Cacheable(cacheNames="ssoUuid", key="#username")
+    @Cacheable(cacheNames="ssoUuid")
     public String getUuid(final String username) {
         if (StringUtils.isEmpty(username)) {
             LOGGER.debug("No username was supplied");
@@ -139,7 +142,7 @@ public class AuthServiceClient {
                     .path(EMAIL_PATH)
                     .path(username)
                     .request(MediaType.APPLICATION_JSON_TYPE)
-                    .header("X-API_KEY", apiKey)
+                    .header(API_KEY, apiKey)
                     .get(ValidateTokenResponse.class);
             return response.response.content.id;
 
@@ -155,7 +158,7 @@ public class AuthServiceClient {
         }
     }
 
-    @Cacheable(cacheNames="ssoUserDetails", key="#uuid")
+    @Cacheable(cacheNames="ssoUserDetails")
     public ValidateTokenResponse getUserDetails(final String uuid) {
         if (StringUtils.isEmpty(uuid)) {
             LOGGER.debug("No uuid was supplied");
@@ -167,7 +170,7 @@ public class AuthServiceClient {
                     .path(USER_SEARCH_PATH)
                     .path(uuid)
                     .request(MediaType.APPLICATION_JSON_TYPE)
-                    .header("X-API_KEY", apiKey)
+                    .header(API_KEY, apiKey)
                     .get(ValidateTokenResponse.class);
         } catch (BadRequestException e) {
             LOGGER.debug("Failed to get details for uuid {} (token is invalid)", uuid);
@@ -181,11 +184,11 @@ public class AuthServiceClient {
         }
     }
 
-    @Cacheable(cacheNames="ssoHistoricalUserDetails", key="#uuid")
+    @Cacheable(cacheNames="ssoHistoricalUserDetails")
     public HistoricalUserResponse getHistoricalUserDetails(final String uuid) {
         if (StringUtils.isEmpty(uuid)) {
             LOGGER.debug("No uuid was supplied");
-            throw new AuthServiceClientException(BAD_REQUEST.getStatusCode(),"Invalid uuid.");
+            throw new AuthServiceClientException(BAD_REQUEST.getStatusCode(),"No UUID.");
         }
 
         try {
@@ -193,7 +196,7 @@ public class AuthServiceClient {
                     .path(HISTORICAL_USER_SEARCH_PATH)
                     .path(uuid)
                     .request(MediaType.APPLICATION_JSON_TYPE)
-                    .header("X-API_KEY", apiKey)
+                    .header(API_KEY, apiKey)
                     .get(HistoricalUserResponse.class);
         } catch (BadRequestException e) {
             LOGGER.debug("Failed to get details for uuid {} (Invalid UUID)", uuid);
@@ -223,7 +226,7 @@ public class AuthServiceClient {
                         .path(String.valueOf(membershipId))
                         .path(CONTACT_PATH)
                         .request(MediaType.APPLICATION_JSON_TYPE)
-                        .header("X-API_KEY", apiKey)
+                        .header(API_KEY, apiKey)
                         .get(MemberContactsResponse.class);
 
                 return response.response.results.stream()

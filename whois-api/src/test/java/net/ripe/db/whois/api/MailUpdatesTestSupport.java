@@ -42,6 +42,10 @@ public class MailUpdatesTestSupport {
         }
     }
 
+    public void insert(final MimeMessage message) {
+        addMessage(message);
+    }
+
     public String insert(final String subject, final String body) {
         try {
             final String from = UUID.randomUUID() + "@ripe.net";
@@ -52,6 +56,7 @@ public class MailUpdatesTestSupport {
         }
     }
 
+
     private void addMessage(final String from, final String to, final String subject, final String body) throws MessagingException {
         LOGGER.info("Send email from address {} with subject {}", from, subject);
 
@@ -61,6 +66,10 @@ public class MailUpdatesTestSupport {
         message.setSubject(subject);
         message.setText(body);
 
+        addMessage(message);
+    }
+
+    private void addMessage(final MimeMessage message) {
         mailMessageDao.addMessage(message);
     }
 }
