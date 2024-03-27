@@ -54,7 +54,7 @@ CREATE TABLE `acl_sso_denied` (
                               `comment` text,
                               `denied_date` date NOT NULL DEFAULT '0000-00-00',
                               PRIMARY KEY (`sso_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -70,7 +70,7 @@ CREATE TABLE `acl_sso_event` (
                              `daily_limit` int(11) NOT NULL,
                              `event_type` varchar(20) NOT NULL,
                              PRIMARY KEY (`sso_id`,`event_time`)
-) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -130,7 +130,7 @@ CREATE TABLE `apikeys` (
   `apikey` varchar(128) NOT NULL,
   `uri_prefix` varchar(128) NOT NULL,
   `comment` varchar(255) NOT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --

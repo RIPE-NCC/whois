@@ -203,7 +203,7 @@ CREATE TABLE `status` (
   `object_type` tinyint(3) unsigned NOT NULL DEFAULT '0',
   PRIMARY KEY (`status`,`object_id`),
   KEY `object_id` (`object_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 --
 -- Table structure for table `filter_set`
@@ -981,7 +981,7 @@ DROP TABLE IF EXISTS `transfer_update_lock`;
 CREATE TABLE `transfer_update_lock` (
   `global_lock` int(11) NOT NULL,
   PRIMARY KEY (`global_lock`)
-) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
