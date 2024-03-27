@@ -8,9 +8,9 @@ import java.util.Optional;
 import static net.ripe.db.whois.query.rpki.ValidationStatus.INVALID;
 
 
-public class WhoisRoaNonAuthValidator extends RoaNonAuthValidator {
+public class WhoisRoaNonAuthChecker extends RoaNonAuthChecker {
 
-    public WhoisRoaNonAuthValidator(final RpkiService rpkiService) {
+    public WhoisRoaNonAuthChecker(final RpkiService rpkiService) {
         super(rpkiService);
     }
 

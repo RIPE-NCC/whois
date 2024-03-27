@@ -1788,7 +1788,7 @@ public class WhoisSearchServiceTestIntegration extends AbstractIntegrationTest {
 
 
     @Test
-    public void search_route_roa_validation_enabled() {
+    public void search_route_roa_validation_enabled_as_json() {
         databaseHelper.addObject(RpslObject.parse("" +
                 "route:           193.4.0.0/16\n" +
                 "descr:           Ripe test allocation\n" +
@@ -1803,15 +1803,78 @@ public class WhoisSearchServiceTestIntegration extends AbstractIntegrationTest {
                 new Roa(6505, 16, "193.4.0.0/16", ARIN)
         ));
 
-        final WhoisResources whoisResources = RestTest.target(getPort(), "whois/search?query-string=193.4.0.0/16AS102&flags=roa-validation")
-                .request(MediaType.APPLICATION_JSON)
+        final WhoisResources whoisResources = RestTest.target(getPort(), "whois/search.json?query-string=193.4.0.0/16AS102&flags=roa-validation&flags=no-referenced")
+                .request()
                 .get(WhoisResources.class);
 
-        assertThat(whoisResources.getErrorMessages(), is(empty()));
         assertThat(whoisResources.getWhoisObjects(), hasSize(1));
 
-        final List<Flag> flags = whoisResources.getParameters().getFlags().getFlags();
-        assertThat(flags, containsInAnyOrder(new Flag(QueryFlag.NO_REFERENCED), new Flag(QueryFlag.NO_FILTERING)));
+        assertThat(whoisResources.getWhoisObjects().get(0).getObjectInfoMessages(), hasSize(1));
+        assertThat(whoisResources.getWhoisObjects().get(0).getObjectInfoMessages().get(0), is("" +
+                "% Warning: this route object conflicts with an overlapping RPKI ROA with a different origin AS6505.\n" +
+                "% As a result an announcement for this prefix may be rejected by many autonomous systems. You should" +
+                " either remove this route: object or delete the ROA.\n"));
+    }
+
+    @Test
+    public void search_route_roa_validation_enabled_as_xml() {
+        databaseHelper.addObject(RpslObject.parse("" +
+                "route:           193.4.0.0/16\n" +
+                "descr:           Ripe test allocation\n" +
+                "origin:          AS102\n" +
+                "admin-c:         TP1-TEST\n" +
+                "mnt-by:          OWNER-MNT\n" +
+                "mnt-lower:       OWNER-MNT\n" +
+                "source:          TEST-NONAUTH\n"));
+        ipTreeUpdater.rebuild();
+
+        rpkiDataProvider.setRoas(Lists.newArrayList(
+                new Roa(6505, 16, "193.4.0.0/16", ARIN)
+        ));
+
+        final WhoisResources whoisResources = RestTest.target(getPort(), "whois/search.xml?query-string=193.4.0.0/16AS102&flags=roa-validation&flags=no-referenced")
+                .request()
+                .get(WhoisResources.class);
+
+        assertThat(whoisResources.getWhoisObjects(), hasSize(1));
+
+        assertThat(whoisResources.getWhoisObjects().get(0).getObjectInfoMessages(), hasSize(1));
+        assertThat(whoisResources.getWhoisObjects().get(0).getObjectInfoMessages().get(0), is("" +
+                "% Warning: this route object conflicts with an overlapping RPKI ROA with a different origin AS6505.\n" +
+                "% As a result an announcement for this prefix may be rejected by many autonomous systems. You should" +
+                " either remove this route: object or delete the ROA.\n"));
+    }
+
+    @Test
+    public void search_route_roa_validation_enabled_as_txt() {
+        databaseHelper.addObject(RpslObject.parse("" +
+                "route:           193.4.0.0/16\n" +
+                "descr:           Ripe test allocation\n" +
+                "origin:          AS102\n" +
+                "admin-c:         TP1-TEST\n" +
+                "mnt-by:          OWNER-MNT\n" +
+                "mnt-lower:       OWNER-MNT\n" +
+                "source:          TEST-NONAUTH\n"));
+        ipTreeUpdater.rebuild();
+
+        rpkiDataProvider.setRoas(Lists.newArrayList(
+                new Roa(6505, 16, "193.4.0.0/16", ARIN)
+        ));
+
+        final String whoisResources = RestTest.target(getPort(), "whois/search.txt?query-string=193.4.0.0/16AS102&flags=roa-validation&flags=no-referenced")
+                .request()
+                .get(String.class);
+
+        // txt must show just the war object - Jira DB-3867, no including comments
+        assertThat(whoisResources, is(""+
+                "route:          193.4.0.0/16\n" +
+                "descr:          Ripe test allocation\n" +
+                "origin:         AS102\n" +
+                "admin-c:        TP1-TEST\n" +
+                "mnt-by:         OWNER-MNT\n" +
+                "mnt-lower:      OWNER-MNT\n" +
+                "source:         TEST-NONAUTH\n" +
+                "\n"));
     }
 
     @Test

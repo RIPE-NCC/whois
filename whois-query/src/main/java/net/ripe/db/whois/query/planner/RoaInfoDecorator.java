@@ -11,7 +11,7 @@ import net.ripe.db.whois.query.query.Query;
 import net.ripe.db.whois.query.rpki.Roa;
 import net.ripe.db.whois.query.rpki.RpkiDataProvider;
 import net.ripe.db.whois.query.rpki.RpkiService;
-import net.ripe.db.whois.query.rpki.WhoisRoaNonAuthValidator;
+import net.ripe.db.whois.query.rpki.WhoisRoaNonAuthChecker;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
@@ -21,42 +21,41 @@ import java.util.Deque;
 @Component
 public class RoaInfoDecorator implements ResponseDecorator {
 
-    private final boolean isRoaValidator;
+    private final boolean isRoaChecker;
 
     private final RpkiDataProvider rpkiDataProvider;
 
     @Autowired
-    public RoaInfoDecorator(@Value("${roa.validator:false}") boolean isRoaValidator, final RpkiDataProvider dataProvider) {
-        this.isRoaValidator = isRoaValidator;
+    public RoaInfoDecorator(@Value("${roa.checker.available:false}") boolean isRoaChecker, final RpkiDataProvider dataProvider) {
+        this.isRoaChecker = isRoaChecker;
         this.rpkiDataProvider = dataProvider;
     }
 
 
     @Override
     public Iterable<? extends ResponseObject> decorate(Query query, Iterable<? extends ResponseObject> input) {
-        if (!isRoaValidator || !query.hasRoaValidationFlag()) {
+        if (!isRoaChecker || !query.hasRoaValidationFlag()) {
             return input;
         }
 
         return new IterableTransformer<ResponseObject>(input) {
             @Override
             public void apply(ResponseObject input, Deque<ResponseObject> result) {
-                if (!(input instanceof final RpslObject rpslObject)) {
-                    result.add(input);
-                    return;
+                if (canProceed(input)) {
+                    validateRoa((RpslObject) input, result);
                 }
-                if (!rpslObject.getType().equals(ObjectType.ROUTE) && !rpslObject.getType().equals(ObjectType.ROUTE6)){
-                    result.add(input);
-                    return;
-                }
-                validateRoa(rpslObject, result);
                 result.add(input);
             }
         };
     }
 
+    private boolean canProceed(final ResponseObject input){
+        return (input instanceof final RpslObject rpslObject) && (rpslObject.getType().equals(ObjectType.ROUTE)
+                || rpslObject.getType().equals(ObjectType.ROUTE6));
+    }
+
     private void validateRoa(final RpslObject rpslObject, final Deque<ResponseObject> result){
-        final Roa rpkiRoa = new WhoisRoaNonAuthValidator(new RpkiService(rpkiDataProvider)).validateAndGetInvalidRoa(rpslObject);
+        final Roa rpkiRoa = new WhoisRoaNonAuthChecker(new RpkiService(rpkiDataProvider)).validateAndGetInvalidRoa(rpslObject);
 
         if (rpkiRoa != null){
             result.add(new MessageObject(QueryMessages.roaRouteConflicts(rpkiRoa.getAsn())));

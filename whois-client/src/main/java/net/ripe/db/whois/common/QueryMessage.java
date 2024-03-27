@@ -19,6 +19,16 @@ public class QueryMessage extends Message {
         this.formattedText = formatMessage(text, args);
     }
 
+    public QueryMessage(final boolean isRestApiMessage, final Messages.Type type, final String text,
+                        final Object... args) {
+        this.type = type;
+        // TODO: [AH] Drop ending newlines in query messages from REST API for simplicity and consistency with update/rest/etc... messages
+        this.text = text + "\n";
+        this.args = args;
+        this.isRestApiMessage = isRestApiMessage;
+        this.formattedText = formatMessage(text, args);
+    }
+
     @Override
     protected String formatMessage(final String text, final Object[] args) {
         final String formattedMessage = super.formatMessage(text, args);
@@ -36,4 +46,5 @@ public class QueryMessage extends Message {
 
         return result.toString();
     }
+
 }

@@ -11,6 +11,7 @@ public class Message {
     protected String text;
     protected Object[] args;
     protected String formattedText;
+    protected boolean isRestApiMessage;
 
     protected Message() {}
 
@@ -19,6 +20,7 @@ public class Message {
         this.text = text;
         this.args = args;
         this.formattedText = formatMessage(text, args);
+        this.isRestApiMessage = false;
     }
 
     protected String formatMessage(final String text, final Object[] args) {
@@ -64,5 +66,9 @@ public class Message {
     @Nullable
     public Object[] getArgs() {
         return args;
+    }
+
+    public boolean isRestApiMessage() {
+        return isRestApiMessage;
     }
 }

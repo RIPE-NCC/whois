@@ -61,10 +61,11 @@ public final class QueryMessages {
     }
 
     public static Message roaRouteConflicts(final long asn){
-        return new QueryMessage(Type.WARNING, ""
+        return new QueryMessage(true, Type.INFO, ""
                 + "Warning: this route object conflicts with an overlapping RPKI ROA with a different origin AS%s."
                 + "\n"
-                + "As a result an announcement for this prefix may be rejected by many autonomous systems. You should either remove this route: object or delete the ROA.", asn);
+                + "As a result an announcement for this prefix may be rejected by many autonomous systems. You should" +
+                " either remove this route: object or delete the ROA.", asn);
     }
     public static Message unvalidatedAbuseCShown(final CharSequence key, final CharSequence value) {
         return new QueryMessage(Type.INFO, "Abuse contact for '%s' is '%s'", key, value);

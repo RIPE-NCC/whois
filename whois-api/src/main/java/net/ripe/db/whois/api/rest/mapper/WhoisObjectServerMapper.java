@@ -6,11 +6,12 @@ import net.ripe.db.whois.api.rest.domain.Parameters;
 import net.ripe.db.whois.api.rest.domain.WhoisObject;
 import net.ripe.db.whois.api.rest.domain.WhoisVersion;
 import net.ripe.db.whois.api.rest.search.AbuseContactSearch;
-import net.ripe.db.whois.common.search.ManagedAttributeSearch;
 import net.ripe.db.whois.api.rest.search.ResourceHolderSearch;
+import net.ripe.db.whois.common.Message;
 import net.ripe.db.whois.common.domain.serials.Operation;
 import net.ripe.db.whois.common.rpsl.RpslAttribute;
 import net.ripe.db.whois.common.rpsl.RpslObject;
+import net.ripe.db.whois.common.search.ManagedAttributeSearch;
 import net.ripe.db.whois.query.domain.DeletedVersionResponseObject;
 import net.ripe.db.whois.query.domain.VersionResponseObject;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -69,6 +70,14 @@ public class WhoisObjectServerMapper {
         if (Boolean.TRUE.equals(parameters.getAbuseContact())) {
             whoisObject.setAbuseContact(abuseContactSearch.findAbuseContact(rpslObject));
         }
+    }
+
+    public void mapObjectInfoMessages(final WhoisObject whoisObject, final List<Message> messages){
+        final List<String> formattedTextMessages = messages
+                .stream()
+                .filter(Message::isRestApiMessage)
+                .map(Message::getFormattedText).toList();
+        whoisObject.setObjectInfoMessages(formattedTextMessages);
     }
 
     public void mapManagedAttributes(final WhoisObject whoisObject, final Parameters parameters, final RpslObject rpslObject) {
