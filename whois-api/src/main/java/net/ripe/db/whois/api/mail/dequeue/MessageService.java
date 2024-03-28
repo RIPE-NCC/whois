@@ -11,6 +11,7 @@ import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DuplicateKeyException;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
@@ -53,7 +54,11 @@ public class MessageService {
         }
 
         LOGGER.debug("Undeliverable message-id {} email {}", message.messageId(), StringUtils.join(message.emailAddresses(), ", "));
-        message.emailAddresses().forEach(email -> emailStatusDao.createEmailStatus(email, EmailStatus.UNDELIVERABLE));
+        try {
+            message.emailAddresses().forEach(email -> emailStatusDao.createEmailStatus(email, EmailStatus.UNDELIVERABLE));
+        } catch (DuplicateKeyException ex) {
+            LOGGER.warn("Email already exist in EmailStatus table {}", StringUtils.join(message.emailAddresses(), ", "), ex);
+        }
     }
 
     public void verifyAndSetAsUnsubscribed(final EmailMessageInfo message){
