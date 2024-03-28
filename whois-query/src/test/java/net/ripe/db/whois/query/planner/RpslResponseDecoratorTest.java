@@ -62,7 +62,7 @@ public class RpslResponseDecoratorTest {
     @Mock AuthServiceClient authServiceClient;
     @InjectMocks AbuseCInfoDecorator abuseCInfoDecorator;
 
-    @InjectMocks RoaInfoDecorator roaInfoDecorator;
+    @Mock RoaInfoDecorator roaInfoDecorator;
 
     private RpslResponseDecorator subject;
 
@@ -90,7 +90,7 @@ public class RpslResponseDecoratorTest {
         lenient().when(sourceContext.isMain()).thenReturn(true);
         Fixture.mockRpslObjectDaoLoadingBehavior(rpslObjectDaoMock);
 
-        decoratorPassthrough(filterPersonalDecorator, filterPlaceholdersDecorator, dummifyDecorator);
+        decoratorPassthrough(filterPersonalDecorator, filterPlaceholdersDecorator, dummifyDecorator, roaInfoDecorator);
     }
 
     private static void decoratorPassthrough(ResponseDecorator... responseDecorator) {
