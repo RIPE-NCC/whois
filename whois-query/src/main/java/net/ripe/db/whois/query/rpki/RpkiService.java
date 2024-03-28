@@ -23,6 +23,10 @@ public class RpkiService {
     private final NestedIntervalMap<Ipv6Resource, Set<Roa>> ipv6Tree = new NestedIntervalMap<>();
 
     public RpkiService(final RpkiDataProvider rpkiDataProvider) {
+        if (rpkiDataProvider.loadRoas() == null){
+            LOGGER.error("Rpki roas are not loaded");
+            throw new IllegalStateException("Rpki roas are not loaded");
+        }
         final List<Roa> roas = rpkiDataProvider.loadRoas().stream()
                 .filter(roa -> roa.getTrustAnchor() != TrustAnchor.UNSUPPORTED)
                 .collect(Collectors.toList());

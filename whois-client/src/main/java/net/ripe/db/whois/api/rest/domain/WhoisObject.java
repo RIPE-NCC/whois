@@ -1,6 +1,7 @@
 package net.ripe.db.whois.api.rest.domain;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
+import com.google.common.collect.Lists;
 import jakarta.xml.bind.annotation.XmlAccessType;
 import jakarta.xml.bind.annotation.XmlAccessorType;
 import jakarta.xml.bind.annotation.XmlAttribute;
@@ -273,7 +274,7 @@ public class WhoisObject {
     }
 
     public List<String> getObjectInfoMessages() {
-        return objectInfoMessages;
+        return objectInfoMessages != null ? objectInfoMessages : Lists.newArrayList();
     }
 
     public Boolean isManaged() {

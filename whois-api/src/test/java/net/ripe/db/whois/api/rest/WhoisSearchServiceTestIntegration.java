@@ -1786,9 +1786,54 @@ public class WhoisSearchServiceTestIntegration extends AbstractIntegrationTest {
         assertThat(hasSourceTest, is(true));
     }
 
+    @Test
+    public void search_route_non_existing_roa_validation_enabled_as_json() {
+        databaseHelper.addObject(RpslObject.parse("" +
+                "route:           193.4.0.0/16\n" +
+                "descr:           Ripe test allocation\n" +
+                "origin:          AS102\n" +
+                "admin-c:         TP1-TEST\n" +
+                "mnt-by:          OWNER-MNT\n" +
+                "mnt-lower:       OWNER-MNT\n" +
+                "source:          TEST-NONAUTH\n"));
+        ipTreeUpdater.rebuild();
+
+        final WhoisResources whoisResources = RestTest.target(getPort(), "whois/search.json?query-string=193.4.0.0/16AS102&flags=roa-validation&flags=no-referenced")
+                .request()
+                .get(WhoisResources.class);
+
+        assertThat(whoisResources.getWhoisObjects(), hasSize(1));
+
+        assertThat(whoisResources.getWhoisObjects().get(0).getObjectInfoMessages(), is(empty()));
+    }
 
     @Test
     public void search_route_roa_validation_enabled_as_json() {
+        databaseHelper.addObject(RpslObject.parse("" +
+                "route:           193.4.0.0/16\n" +
+                "descr:           Ripe test allocation\n" +
+                "origin:          AS102\n" +
+                "admin-c:         TP1-TEST\n" +
+                "mnt-by:          OWNER-MNT\n" +
+                "mnt-lower:       OWNER-MNT\n" +
+                "source:          TEST-NONAUTH\n"));
+        ipTreeUpdater.rebuild();
+
+        rpkiDataProvider.setRoas(Lists.newArrayList(
+                new Roa(102, 16, "193.4.0.0/16", ARIN)
+        ));
+
+        final WhoisResources whoisResources = RestTest.target(getPort(), "whois/search.json?query-string=193.4.0.0/16AS102&flags=roa-validation&flags=no-referenced")
+                .request()
+                .get(WhoisResources.class);
+
+        assertThat(whoisResources.getWhoisObjects(), hasSize(1));
+
+        assertThat(whoisResources.getWhoisObjects().get(0).getObjectInfoMessages(), is(empty()));
+    }
+
+    @Test
+    public void search_route_roa_mismatch_validation_enabled_as_json() {
         databaseHelper.addObject(RpslObject.parse("" +
                 "route:           193.4.0.0/16\n" +
                 "descr:           Ripe test allocation\n" +
@@ -1817,7 +1862,7 @@ public class WhoisSearchServiceTestIntegration extends AbstractIntegrationTest {
     }
 
     @Test
-    public void search_route_roa_validation_enabled_as_xml() {
+    public void search_route_roa_mismatch_validation_enabled_as_xml() {
         databaseHelper.addObject(RpslObject.parse("" +
                 "route:           193.4.0.0/16\n" +
                 "descr:           Ripe test allocation\n" +
@@ -1846,7 +1891,7 @@ public class WhoisSearchServiceTestIntegration extends AbstractIntegrationTest {
     }
 
     @Test
-    public void search_route_roa_validation_enabled_as_txt() {
+    public void search_route_roa_mismatch_validation_enabled_as_txt() {
         databaseHelper.addObject(RpslObject.parse("" +
                 "route:           193.4.0.0/16\n" +
                 "descr:           Ripe test allocation\n" +
