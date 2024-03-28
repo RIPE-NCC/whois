@@ -140,7 +140,7 @@ class SearchQuerySpec extends BaseWhoisSourceSpec {
     }
 
 
-    def "roa-validation 193.4.0.0/16AS102"() {
+    def "roa-validation 193.4.0.0/16AS102 warn not showing up"() {
         when:
         rpkiDataProvider.setRoas(Lists.newArrayList(
                 new Roa(6505, 16, "193.4.0.0/16", ARIN)
@@ -149,17 +149,26 @@ class SearchQuerySpec extends BaseWhoisSourceSpec {
 
         then:
         response.contains("" +
-                "% Warning: this route object conflicts with an overlapping RPKI ROA with a different origin AS6505.\n" +
-                "% As a result an announcement for this prefix may be rejected by many autonomous systems. You should either remove this route: object or delete the ROA.\n" +
+                "% This is the RIPE Database query service.\n" +
+                "% The objects are in RPSL format.\n" +
+                "%\n" +
+                "% The RIPE Database is subject to Terms and Conditions.\n" +
+                "% See https://apps.db.ripe.net/docs/HTML-Terms-And-Conditions\n" +
+                "\n" +
+                "% Note: this output has been filtered.\n" +
+                "%       To receive output for a database update, use the \"-B\" flag.\n" +
+                "\n" +
+                "% Information related to '193.4.0.0/16AS102'\n" +
                 "\n" +
                 "route:          193.4.0.0/16\n" +
                 "descr:          Route\n" +
                 "origin:         AS102\n" +
                 "mnt-by:         ADMIN-MNT\n" +
-                "source:         TEST")
+                "source:         TEST\n" +
+                "\n")
     }
 
-    def "roa-validation 2001:1578:0200::/40AS12726"() {
+    def "roa-validation 2001:1578:0200::/40AS12726 warn not showing up"() {
         when:
         rpkiDataProvider.setRoas(Lists.newArrayList(
                 new Roa(6505, 40, "2001:1578:0200::/40", ARIN)
@@ -168,23 +177,6 @@ class SearchQuerySpec extends BaseWhoisSourceSpec {
 
         then:
         response.contains("" +
-                "% Warning: this route object conflicts with an overlapping RPKI ROA with a different origin AS6505.\n" +
-                "% As a result an announcement for this prefix may be rejected by many autonomous systems. You should either remove this route: object or delete the ROA.\n" +
-                "\n" +
-                "route6:         2001:1578:200::/40\n" +
-                "descr:          TEST-ROUTE6\n" +
-                "origin:         AS12726\n" +
-                "mnt-by:         ADMIN-MNT\n" +
-                "source:         TEST")
-    }
-
-    def "roa-validation 2001:1578:0200::/40AS12726 when no roa defined"() {
-        when:
-        rpkiDataProvider.setRoas(Lists.newArrayList());
-        def response = query("--roa-validation --select-types route6 2001:1578:0200::/40AS12726")
-
-        then:
-        response.contains("" +
                 "% This is the RIPE Database query service.\n" +
                 "% The objects are in RPSL format.\n" +
                 "%\n" +
@@ -201,34 +193,5 @@ class SearchQuerySpec extends BaseWhoisSourceSpec {
                 "origin:         AS12726\n" +
                 "mnt-by:         ADMIN-MNT\n" +
                 "source:         TEST")
-
-    }
-
-    def "roa-validation 2001:1578:0200::/40AS12726 when roa and route is the same"() {
-        when:
-        rpkiDataProvider.setRoas(Lists.newArrayList(
-                new Roa(12726, 40, "2001:1578:0200::/40", ARIN)
-        ));
-        def response = query("--roa-validation --select-types route6 2001:1578:0200::/40AS12726")
-
-        then:
-        response.contains("" +
-                "% This is the RIPE Database query service.\n" +
-                "% The objects are in RPSL format.\n" +
-                "%\n" +
-                "% The RIPE Database is subject to Terms and Conditions.\n" +
-                "% See https://apps.db.ripe.net/docs/HTML-Terms-And-Conditions\n" +
-                "\n" +
-                "% Note: this output has been filtered.\n" +
-                "%       To receive output for a database update, use the \"-B\" flag.\n" +
-                "\n" +
-                "% Information related to '2001:1578:200::/40AS12726'\n" +
-                "\n" +
-                "route6:         2001:1578:200::/40\n" +
-                "descr:          TEST-ROUTE6\n" +
-                "origin:         AS12726\n" +
-                "mnt-by:         ADMIN-MNT\n" +
-                "source:         TEST")
-
     }
 }

@@ -63,7 +63,7 @@ public class WhoisObject {
     @XmlAttribute
     private Integer version;
 
-    @XmlAttribute(name = "objectInfoMessages")
+    @XmlElement(name = "objectInfoMessages")
     @XmlJavaTypeAdapter(value = ValidListXmlAdapter.class)
     private List<String> objectInfoMessages;
 

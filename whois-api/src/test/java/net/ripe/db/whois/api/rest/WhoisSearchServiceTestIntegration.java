@@ -788,7 +788,7 @@ public class WhoisSearchServiceTestIntegration extends AbstractIntegrationTest {
                 .get(String.class);
 
         assertThat(whoisResources, containsString("<whois-resources xmlns:xlink=\"http://www.w3.org/1999/xlink\">"));
-        assertThat(whoisResources, containsString("<object type=\"aut-num\">"));
+        assertThat(whoisResources, containsString("<object type=\"aut-num\" objectInfoMessages=\"\">"));
         assertThat(whoisResources, containsString("<objects>"));
     }
 
@@ -1107,6 +1107,7 @@ public class WhoisSearchServiceTestIntegration extends AbstractIntegrationTest {
                 "        </attribute>\n" +
                 "        <attribute name=\"source\" value=\"TEST\"/>\n" +
                 "    </attributes>\n" +
+                "    <objectInfoMessages></objectInfoMessages>\n" +
                 "</object>\n" +
                 "<object type=\"person\">\n" +
                 "    <link xlink:type=\"locator\" xlink:href=\"http://rest-test.db.ripe.net/test/person/TP1-TEST\"/>\n" +
@@ -1124,6 +1125,7 @@ public class WhoisSearchServiceTestIntegration extends AbstractIntegrationTest {
                 "        </attribute>\n" +
                 "        <attribute name=\"source\" value=\"TEST\"/>\n" +
                 "    </attributes>\n" +
+                "    <objectInfoMessages></objectInfoMessages>\n" +
                 "</object>\n" +
                 "</objects>\n" +
                 "<terms-and-conditions xlink:type=\"locator\" xlink:href=\"https://apps.db.ripe.net/docs/HTML-Terms-And-Conditions\"/>\n" +
@@ -1888,6 +1890,79 @@ public class WhoisSearchServiceTestIntegration extends AbstractIntegrationTest {
                 "% Warning: this route object conflicts with an overlapping RPKI ROA with a different origin AS6505.\n" +
                 "% As a result an announcement for this prefix may be rejected by many autonomous systems. You should" +
                 " either remove this route: object or delete the ROA.\n"));
+    }
+
+    @Test
+    public void search_route_roa_mismatch_validation_enabled_as_xml_strings() {
+        databaseHelper.addObject(RpslObject.parse("" +
+                "route:           193.4.0.0/16\n" +
+                "descr:           Ripe test allocation\n" +
+                "origin:          AS102\n" +
+                "admin-c:         TP1-TEST\n" +
+                "mnt-by:          OWNER-MNT\n" +
+                "mnt-lower:       OWNER-MNT\n" +
+                "source:          TEST-NONAUTH\n"));
+        ipTreeUpdater.rebuild();
+
+        rpkiDataProvider.setRoas(Lists.newArrayList(
+                new Roa(6505, 16, "193.4.0.0/16", ARIN)
+        ));
+
+        final String whoisResources = RestTest.target(getPort(), "whois/search.xml?query-string=193.4.0" +
+                        ".0/16AS102&flags=roa-validation&flags=no-referenced")
+                .request()
+                .get(String.class);
+
+        assertThat(whoisResources, is("" +
+                "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" +
+                "<whois-resources xmlns:xlink=\"http://www.w3.org/1999/xlink\">\n" +
+                "<service name=\"search\"/>\n" +
+                "<parameters>\n" +
+                "    <inverse-lookup/>\n" +
+                "    <type-filters/>\n" +
+                "    <flags>\n" +
+                "        <flag value=\"no-referenced\"/>\n" +
+                "        <flag value=\"roa-validation\"/>\n" +
+                "    </flags>\n" +
+                "    <query-strings>\n" +
+                "        <query-string value=\"193.4.0.0/16AS102\"/>\n" +
+                "    </query-strings>\n" +
+                "    <sources/>\n" +
+                "</parameters>\n" +
+                "<objects>\n" +
+                "<object type=\"route\">\n" +
+                "    <link xlink:type=\"locator\" xlink:href=\"http://rest-test.db.ripe.net/test-nonauth/route/193.4.0.0/16AS102\"/>\n" +
+                "    <source id=\"test-nonauth\"/>\n" +
+                "    <primary-key>\n" +
+                "        <attribute name=\"route\" value=\"193.4.0.0/16\"/>\n" +
+                "        <attribute name=\"origin\" value=\"AS102\"/>\n" +
+                "    </primary-key>\n" +
+                "    <attributes>\n" +
+                "        <attribute name=\"route\" value=\"193.4.0.0/16\"/>\n" +
+                "        <attribute name=\"descr\" value=\"Ripe test allocation\"/>\n" +
+                "        <attribute name=\"origin\" value=\"AS102\"/>\n" +
+                "        <attribute name=\"admin-c\" value=\"TP1-TEST\" referenced-type=\"person\">\n" +
+                "            <link xlink:type=\"locator\" xlink:href=\"http://rest-test.db.ripe.net/test/person/TP1-TEST\"/>\n" +
+                "        </attribute>\n" +
+                "        <attribute name=\"mnt-by\" value=\"OWNER-MNT\" referenced-type=\"mntner\">\n" +
+                "            <link xlink:type=\"locator\" xlink:href=\"http://rest-test.db.ripe.net/test/mntner/OWNER-MNT\"/>\n" +
+                "        </attribute>\n" +
+                "        <attribute name=\"mnt-lower\" value=\"OWNER-MNT\" referenced-type=\"mntner\">\n" +
+                "            <link xlink:type=\"locator\" xlink:href=\"http://rest-test.db.ripe.net/test/mntner/OWNER-MNT\"/>\n" +
+                "        </attribute>\n" +
+                "        <attribute name=\"source\" value=\"TEST-NONAUTH\"/>\n" +
+                "    </attributes>\n" +
+                "    <objectInfoMessages>% Warning: this route object conflicts with an overlapping RPKI ROA with a different origin AS6505.\n" +
+                "% As a result an announcement for this prefix may be rejected by many autonomous systems. You should either remove this route: object or delete the ROA.\n" +
+                "</objectInfoMessages>\n" +
+                "</object>\n" +
+                "</objects>\n" +
+                "<terms-and-conditions xlink:type=\"locator\" xlink:href=\"https://apps.db.ripe.net/docs/HTML-Terms-And-Conditions\"/>\n" +
+                "<version " +
+                "version=\"" + applicationVersion.getVersion() + "\" " +
+                "timestamp=\"" + applicationVersion.getTimestamp() + "\" " +
+                "commit-id=\"" + applicationVersion.getCommitId() + "\"/>\n" +
+                "</whois-resources>\n"));
     }
 
     @Test
