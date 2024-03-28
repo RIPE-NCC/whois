@@ -195,17 +195,21 @@ public class MessageDequeue implements ApplicationService {
             final EmailMessageInfo bouncedMessage = messageService.getBouncedMessageInfo(message);
             if (bouncedMessage != null) {
                 messageService.verifyAndSetAsUndeliverable(bouncedMessage);
-                mailMessageDao.deleteMessage(messageId);
                 return;
             }
 
             final EmailMessageInfo unsubscribeMessage = messageService.getUnsubscribedMessageInfo(message);
             if (unsubscribeMessage != null) {
                 messageService.verifyAndSetAsUnsubscribed(unsubscribeMessage);
-                mailMessageDao.deleteMessage(messageId);
                 return;
             }
+        } catch (Exception e){
+            LOGGER.error("Error detecting bounce detection or unsubscribing", e);
+        } finally {
+            mailMessageDao.deleteMessage(messageId);
+        }
 
+        try {
             loggerContext.init(getMessageIdLocalPart(message));
             try {
                 handleMessageInContext(messageId, message);
