@@ -17,10 +17,10 @@ import static net.ripe.db.whois.query.rpki.ValidationStatus.INVALID;
 import static net.ripe.db.whois.query.rpki.ValidationStatus.NOT_FOUND;
 import static net.ripe.db.whois.query.rpki.ValidationStatus.VALID;
 
-public abstract class RoaNonAuthChecker {
+public abstract class RpkiRoaChecker {
     private final RpkiService rpkiService;
 
-    public RoaNonAuthChecker(final RpkiService rpkiService) {
+    public RpkiRoaChecker(final RpkiService rpkiService) {
         this.rpkiService = rpkiService;
     }
 

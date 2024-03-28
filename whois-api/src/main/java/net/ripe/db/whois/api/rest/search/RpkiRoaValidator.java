@@ -10,7 +10,7 @@ import net.ripe.db.whois.query.QueryMessages;
 import net.ripe.db.whois.query.rpki.Roa;
 import net.ripe.db.whois.query.rpki.RpkiDataProvider;
 import net.ripe.db.whois.query.rpki.RpkiService;
-import net.ripe.db.whois.query.rpki.WhoisRoaNonAuthChecker;
+import net.ripe.db.whois.query.rpki.WhoisRoaChecker;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
@@ -50,7 +50,7 @@ public class RpkiRoaValidator implements RestApiInfoMessageValidator {
     }
 
     private void validateRoa(final RpslObject rpslObject, final List<String> messages){
-        final Roa rpkiRoa = new WhoisRoaNonAuthChecker(new RpkiService(rpkiDataProvider)).validateAndGetInvalidRoa(rpslObject);
+        final Roa rpkiRoa = new WhoisRoaChecker(new RpkiService(rpkiDataProvider)).validateAndGetInvalidRoa(rpslObject);
 
         if (rpkiRoa != null){
             messages.add(QueryMessages.roaRouteConflicts(rpkiRoa.getAsn()).getFormattedText());

@@ -59,8 +59,6 @@ public class RpslResponseDecorator {
     private final ToShorthandFunction toShorthandFunction;
     private final ToKeysFunction toKeysFunction;
 
-
-
     @Autowired
     public RpslResponseDecorator(final RpslObjectDao rpslObjectDao,
                                  final FilterPersonalDecorator filterPersonalDecorator,
