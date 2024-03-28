@@ -62,8 +62,6 @@ public class RpslResponseDecoratorTest {
     @Mock AuthServiceClient authServiceClient;
     @InjectMocks AbuseCInfoDecorator abuseCInfoDecorator;
 
-    @Mock RoaInfoDecorator roaInfoDecorator;
-
     private RpslResponseDecorator subject;
 
     private final RpslObject ABUSE_ROLE = RpslObject.parse(
@@ -83,14 +81,13 @@ public class RpslResponseDecoratorTest {
                 abuseCInfoDecorator,
                 ssoTokenTranslator,
                 authServiceClient,
-                roaInfoDecorator,
                 decorator);
         lenient().when(sourceContext.getCurrentSource()).thenReturn(Source.slave("RIPE"));
         when(sourceContext.isAcl()).thenReturn(true);
         lenient().when(sourceContext.isMain()).thenReturn(true);
         Fixture.mockRpslObjectDaoLoadingBehavior(rpslObjectDaoMock);
 
-        decoratorPassthrough(filterPersonalDecorator, filterPlaceholdersDecorator, dummifyDecorator, roaInfoDecorator);
+        decoratorPassthrough(filterPersonalDecorator, filterPlaceholdersDecorator, dummifyDecorator);
     }
 
     private static void decoratorPassthrough(ResponseDecorator... responseDecorator) {
