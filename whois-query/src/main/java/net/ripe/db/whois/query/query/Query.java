@@ -397,8 +397,6 @@ public class Query {
         return queryParser.hasOnlyQueryFlag(QueryFlag.PERSISTENT_CONNECTION);
     }
 
-    public boolean hasRoaValidationFlag(){ return queryParser.hasOption(QueryFlag.ROA_VALIDATION); }
-
     public boolean isProxyValid() {
         if (!hasProxy()) {
             return true;

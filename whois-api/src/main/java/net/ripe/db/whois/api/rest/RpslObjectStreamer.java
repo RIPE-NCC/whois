@@ -135,8 +135,6 @@ public class RpslObjectStreamer {
 
             private final Queue<RpslObject> rpslObjectQueue = new ArrayDeque<>(1);
             private final List<Message> errors = Lists.newArrayList();
-
-            private final List<Message> objectInfoMessages = Lists.newArrayList();
             private final int offset = parameters.getOffset() != null ? parameters.getOffset() : 0;
             private final int limit = parameters.getLimit() != null ? parameters.getLimit() : Integer.MAX_VALUE;
             private int count = 0;
@@ -150,8 +148,6 @@ public class RpslObjectStreamer {
                     final Message message = ((MessageObject) responseObject).getMessage();
                     if (message != null && Messages.Type.INFO != message.getType()) {
                         errors.add(message);
-                    } else {
-                        objectInfoMessages.add(message);
                     }
                 }
             }
@@ -197,7 +193,7 @@ public class RpslObjectStreamer {
                 whoisObjectServerMapper.mapAbuseContact(whoisObject, parameters, rpslObject);
                 whoisObjectServerMapper.mapManagedAttributes(whoisObject, parameters, rpslObject);
                 whoisObjectServerMapper.mapResourceHolder(whoisObject, parameters, rpslObject);
-                whoisObjectServerMapper.mapObjectInfoMessages(whoisObject, objectInfoMessages);
+                whoisObjectServerMapper.mapObjectInfoMessages(whoisObject, parameters, rpslObject);
 
                 if (streamingMarshal instanceof StreamingMarshalTextPlain) {
                     streamingMarshal.writeArray(rpslObject);

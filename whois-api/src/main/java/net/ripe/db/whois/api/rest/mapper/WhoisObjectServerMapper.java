@@ -7,7 +7,7 @@ import net.ripe.db.whois.api.rest.domain.WhoisObject;
 import net.ripe.db.whois.api.rest.domain.WhoisVersion;
 import net.ripe.db.whois.api.rest.search.AbuseContactSearch;
 import net.ripe.db.whois.api.rest.search.ResourceHolderSearch;
-import net.ripe.db.whois.common.Message;
+import net.ripe.db.whois.api.rest.search.RestApiInfoMessageValidator;
 import net.ripe.db.whois.common.domain.serials.Operation;
 import net.ripe.db.whois.common.rpsl.RpslAttribute;
 import net.ripe.db.whois.common.rpsl.RpslObject;
@@ -29,16 +29,20 @@ public class WhoisObjectServerMapper {
     private final AbuseContactSearch abuseContactSearch;
     private final ManagedAttributeSearch managedAttributeSearch;
 
+    private final List<RestApiInfoMessageValidator> infoMessageValidators;
+
     @Autowired
     public WhoisObjectServerMapper(
             final WhoisObjectMapper whoisObjectMapper,
             final ResourceHolderSearch resourceHolderSearch,
             final AbuseContactSearch abuseContactSearch,
-            final ManagedAttributeSearch managedAttributeSearch) {
+            final ManagedAttributeSearch managedAttributeSearch,
+            final List<RestApiInfoMessageValidator> infoMessageValidators) {
         this.whoisObjectMapper = whoisObjectMapper;
         this.resourceHolderSearch = resourceHolderSearch;
         this.abuseContactSearch = abuseContactSearch;
         this.managedAttributeSearch = managedAttributeSearch;
+        this.infoMessageValidators = infoMessageValidators;
     }
 
     public List<WhoisVersion> mapVersions(final List<DeletedVersionResponseObject> deleted, final List<VersionResponseObject> versions) {
@@ -72,12 +76,10 @@ public class WhoisObjectServerMapper {
         }
     }
 
-    public void mapObjectInfoMessages(final WhoisObject whoisObject, final List<Message> messages){
-        final List<String> formattedTextMessages = messages
-                .stream()
-                .filter(Message::isRestApiMessage)
-                .map(Message::getFormattedText).toList();
-        whoisObject.setObjectInfoMessages(formattedTextMessages);
+    public void mapObjectInfoMessages(final WhoisObject whoisObject, final Parameters parameters, final RpslObject rpslObject){
+        final List<String> infoMessagesFormatted = Lists.newArrayList();
+        infoMessageValidators.forEach(infoMessageValidator -> infoMessageValidator.validate(rpslObject, parameters, infoMessagesFormatted));
+        whoisObject.setObjectInfoMessages(infoMessagesFormatted);
     }
 
     public void mapManagedAttributes(final WhoisObject whoisObject, final Parameters parameters, final RpslObject rpslObject) {
