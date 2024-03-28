@@ -36,6 +36,7 @@ import net.ripe.db.whois.common.support.TelnetWhoisClient;
 import net.ripe.db.whois.common.support.WhoisClientHandler;
 import net.ripe.db.whois.db.WhoisServer;
 import net.ripe.db.whois.query.QueryServer;
+import net.ripe.db.whois.query.rpki.DummyRpkiDataProvider;
 import net.ripe.db.whois.query.support.TestWhoisLog;
 import net.ripe.db.whois.update.dns.DnsGatewayStub;
 import net.ripe.db.whois.update.mail.MailSenderStub;
@@ -85,6 +86,8 @@ public class WhoisFixture {
     protected WhoisServer whoisServer;
     protected RestClient restClient;
     protected WhoisRestService whoisRestService;
+
+    protected DummyRpkiDataProvider rpkiDataProvider;
     protected TestWhoisLog testWhoisLog;
 
     static {
@@ -131,6 +134,7 @@ public class WhoisFixture {
         restClient = applicationContext.getBean(RestClient.class);
         whoisRestService = applicationContext.getBean(WhoisRestService.class);
         testWhoisLog = applicationContext.getBean(TestWhoisLog.class);
+        rpkiDataProvider = applicationContext.getBean(DummyRpkiDataProvider.class);
 
         databaseHelper.setup();
         whoisServer.start();
@@ -249,6 +253,9 @@ public class WhoisFixture {
         return databaseHelper;
     }
 
+    public DummyRpkiDataProvider getRpkiDataProvider(){
+        return rpkiDataProvider;
+    }
     public AuthoritativeResourceDao getAuthoritativeResourceDao() {
         return authoritativeResourceDao;
     }

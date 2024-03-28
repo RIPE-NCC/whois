@@ -1,13 +1,16 @@
 package net.ripe.db.whois.api.rest.domain;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
-
+import com.google.common.collect.Lists;
 import jakarta.xml.bind.annotation.XmlAccessType;
 import jakarta.xml.bind.annotation.XmlAccessorType;
 import jakarta.xml.bind.annotation.XmlAttribute;
 import jakarta.xml.bind.annotation.XmlElement;
 import jakarta.xml.bind.annotation.XmlRootElement;
 import jakarta.xml.bind.annotation.XmlType;
+import jakarta.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
+import net.ripe.db.whois.api.rest.mapper.ValidListXmlAdapter;
+
 import java.util.Collections;
 import java.util.List;
 
@@ -24,6 +27,7 @@ import static com.fasterxml.jackson.annotation.JsonInclude.Include.NON_EMPTY;
         "resourceHolder",
         "abuseContact",
         "managed",
+        "objectInfoMessages",
 })
 @JsonInclude(NON_EMPTY)
 @XmlRootElement(name = "object")
@@ -59,6 +63,10 @@ public class WhoisObject {
     @XmlAttribute
     private Integer version;
 
+    @XmlElement(name = "objectInfoMessages")
+    @XmlJavaTypeAdapter(value = ValidListXmlAdapter.class)
+    private List<String> objectInfoMessages;
+
     public WhoisObject() {
         // required no-arg constructor
     }
@@ -73,7 +81,8 @@ public class WhoisObject {
             final Integer version,
             final ResourceHolder resourceHolder,
             final AbuseContact abuseContact,
-            final Boolean managed) {
+            final Boolean managed,
+            final List<String> objectInfoMessages) {
         this.link = link;
         this.source = source;
         this.primaryKey = primaryKey;
@@ -84,7 +93,10 @@ public class WhoisObject {
         this.resourceHolder = resourceHolder;
         this.abuseContact = abuseContact;
         this.managed = managed;
+        this.objectInfoMessages = objectInfoMessages;
     }
+
+
 
     // builder
 
@@ -99,6 +111,8 @@ public class WhoisObject {
         private ResourceHolder resourceHolder;
         private AbuseContact abuseContact;
         private Boolean managed;
+
+        private List<String> objectInfoMessages;
 
         public Builder link(final Link link) {
             this.link = link;
@@ -160,6 +174,11 @@ public class WhoisObject {
             return this;
         }
 
+        public Builder objectInfoMessages(final List<String> objectInfoMessages) {
+            this.objectInfoMessages = objectInfoMessages;
+            return this;
+        }
+
         public WhoisObject build() {
             return new WhoisObject(
                     link,
@@ -171,7 +190,8 @@ public class WhoisObject {
                     version,
                     resourceHolder,
                     abuseContact,
-                    managed);
+                    managed,
+                    objectInfoMessages);
         }
     }
 
@@ -247,6 +267,14 @@ public class WhoisObject {
 
     public void setAbuseContact(final AbuseContact abuseContact) {
         this.abuseContact = abuseContact;
+    }
+
+    public void setObjectInfoMessages(List<String> objectInfoMessages) {
+        this.objectInfoMessages = objectInfoMessages;
+    }
+
+    public List<String> getObjectInfoMessages() {
+        return objectInfoMessages != null ? objectInfoMessages : Lists.newArrayList();
     }
 
     public Boolean isManaged() {

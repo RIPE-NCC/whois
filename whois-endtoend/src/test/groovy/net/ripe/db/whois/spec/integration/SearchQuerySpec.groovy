@@ -1,7 +1,10 @@
 package net.ripe.db.whois.spec.integration
 
-
+import com.google.common.collect.Lists
 import net.ripe.db.whois.common.source.Source
+import net.ripe.db.whois.query.rpki.Roa
+
+import static net.ripe.db.whois.query.rpki.TrustAnchor.ARIN
 
 @org.junit.jupiter.api.Tag("IntegrationTest")
 class SearchQuerySpec extends BaseWhoisSourceSpec {
@@ -47,6 +50,20 @@ class SearchQuerySpec extends BaseWhoisSourceSpec {
             mnt-ref:      UPD-MNT
             mnt-by:       UPD-MNT
             source:       TEST
+            """,
+                "ROUTE": """\
+            route:         193.4.0.0/16
+            descr:          Route
+            origin:         AS102
+            mnt-by:         ADMIN-MNT
+            source:         TEST
+            """,
+                "ROUTE6": """\
+            route6:          2001:1578:0200::/40
+            descr:           TEST-ROUTE6
+            origin:          AS12726
+            mnt-by:          ADMIN-MNT
+            source:          TEST
             """
         ]
     }
@@ -120,5 +137,61 @@ class SearchQuerySpec extends BaseWhoisSourceSpec {
                 "%ERROR:115: invalid search key\n" +
                 "%\n" +
                 "% Search key entered is not valid for the specified object type(s)")
+    }
+
+
+    def "roa-validation 193.4.0.0/16AS102 warn not showing up"() {
+        when:
+        rpkiDataProvider.setRoas(Lists.newArrayList(
+                new Roa(6505, 16, "193.4.0.0/16", ARIN)
+        ));
+        def response = query("--roa-validation --select-types route 193.4.0.0/16AS102")
+
+        then:
+        response.contains("" +
+                "% This is the RIPE Database query service.\n" +
+                "% The objects are in RPSL format.\n" +
+                "%\n" +
+                "% The RIPE Database is subject to Terms and Conditions.\n" +
+                "% See https://apps.db.ripe.net/docs/HTML-Terms-And-Conditions\n" +
+                "\n" +
+                "% Note: this output has been filtered.\n" +
+                "%       To receive output for a database update, use the \"-B\" flag.\n" +
+                "\n" +
+                "% Information related to '193.4.0.0/16AS102'\n" +
+                "\n" +
+                "route:          193.4.0.0/16\n" +
+                "descr:          Route\n" +
+                "origin:         AS102\n" +
+                "mnt-by:         ADMIN-MNT\n" +
+                "source:         TEST\n" +
+                "\n")
+    }
+
+    def "roa-validation 2001:1578:0200::/40AS12726 warn not showing up"() {
+        when:
+        rpkiDataProvider.setRoas(Lists.newArrayList(
+                new Roa(6505, 40, "2001:1578:0200::/40", ARIN)
+        ));
+        def response = query("--roa-validation --select-types route6 2001:1578:0200::/40AS12726")
+
+        then:
+        response.contains("" +
+                "% This is the RIPE Database query service.\n" +
+                "% The objects are in RPSL format.\n" +
+                "%\n" +
+                "% The RIPE Database is subject to Terms and Conditions.\n" +
+                "% See https://apps.db.ripe.net/docs/HTML-Terms-And-Conditions\n" +
+                "\n" +
+                "% Note: this output has been filtered.\n" +
+                "%       To receive output for a database update, use the \"-B\" flag.\n" +
+                "\n" +
+                "% Information related to '2001:1578:200::/40AS12726'\n" +
+                "\n" +
+                "route6:         2001:1578:200::/40\n" +
+                "descr:          TEST-ROUTE6\n" +
+                "origin:         AS12726\n" +
+                "mnt-by:         ADMIN-MNT\n" +
+                "source:         TEST")
     }
 }
