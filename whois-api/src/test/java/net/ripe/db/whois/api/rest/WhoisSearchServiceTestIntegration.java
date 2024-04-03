@@ -22,6 +22,7 @@ import net.ripe.db.whois.api.rest.domain.WhoisResources;
 import net.ripe.db.whois.common.ApplicationVersion;
 import net.ripe.db.whois.common.MaintenanceMode;
 import net.ripe.db.whois.common.TestDateTimeProvider;
+import net.ripe.db.whois.common.rpki.Roa;
 import net.ripe.db.whois.common.rpsl.AttributeType;
 import net.ripe.db.whois.common.rpsl.RpslObject;
 import net.ripe.db.whois.common.sso.AuthServiceClient;
@@ -30,7 +31,6 @@ import net.ripe.db.whois.query.acl.AccessControlListManager;
 import net.ripe.db.whois.query.acl.AccountingIdentifier;
 import net.ripe.db.whois.query.acl.IpResourceConfiguration;
 import net.ripe.db.whois.query.rpki.DummyRpkiDataProvider;
-import net.ripe.db.whois.query.rpki.Roa;
 import net.ripe.db.whois.query.support.TestPersonalObjectAccounting;
 import org.glassfish.jersey.client.filter.EncodingFilter;
 import org.glassfish.jersey.message.DeflateEncoder;
@@ -48,7 +48,7 @@ import java.net.URL;
 import java.time.LocalDateTime;
 import java.util.List;
 
-import static net.ripe.db.whois.query.rpki.TrustAnchor.ARIN;
+import static net.ripe.db.whois.common.rpki.TrustAnchor.ARIN;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.Matchers.containsInAnyOrder;
@@ -788,7 +788,7 @@ public class WhoisSearchServiceTestIntegration extends AbstractIntegrationTest {
                 .get(String.class);
 
         assertThat(whoisResources, containsString("<whois-resources xmlns:xlink=\"http://www.w3.org/1999/xlink\">"));
-        assertThat(whoisResources, containsString("<object type=\"aut-num\" objectInfoMessages=\"\">"));
+        assertThat(whoisResources, containsString("<object type=\"aut-num\">"));
         assertThat(whoisResources, containsString("<objects>"));
     }
 

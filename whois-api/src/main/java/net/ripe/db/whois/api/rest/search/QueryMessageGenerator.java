@@ -5,7 +5,7 @@ import net.ripe.db.whois.common.rpsl.RpslObject;
 
 import java.util.List;
 
-public interface RestApiInfoMessageValidator {
+public interface QueryMessageGenerator {
 
     void validate(final RpslObject rpslObject, final Parameters parameters, final List<String> messages);
 }

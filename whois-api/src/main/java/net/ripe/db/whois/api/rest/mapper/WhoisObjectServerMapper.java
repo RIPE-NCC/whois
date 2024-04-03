@@ -6,8 +6,8 @@ import net.ripe.db.whois.api.rest.domain.Parameters;
 import net.ripe.db.whois.api.rest.domain.WhoisObject;
 import net.ripe.db.whois.api.rest.domain.WhoisVersion;
 import net.ripe.db.whois.api.rest.search.AbuseContactSearch;
+import net.ripe.db.whois.api.rest.search.QueryMessageGenerator;
 import net.ripe.db.whois.api.rest.search.ResourceHolderSearch;
-import net.ripe.db.whois.api.rest.search.RestApiInfoMessageValidator;
 import net.ripe.db.whois.common.domain.serials.Operation;
 import net.ripe.db.whois.common.rpsl.RpslAttribute;
 import net.ripe.db.whois.common.rpsl.RpslObject;
@@ -29,7 +29,7 @@ public class WhoisObjectServerMapper {
     private final AbuseContactSearch abuseContactSearch;
     private final ManagedAttributeSearch managedAttributeSearch;
 
-    private final List<RestApiInfoMessageValidator> infoMessageValidators;
+    private final List<QueryMessageGenerator> infoMessageValidators;
 
     @Autowired
     public WhoisObjectServerMapper(
@@ -37,7 +37,7 @@ public class WhoisObjectServerMapper {
             final ResourceHolderSearch resourceHolderSearch,
             final AbuseContactSearch abuseContactSearch,
             final ManagedAttributeSearch managedAttributeSearch,
-            final List<RestApiInfoMessageValidator> infoMessageValidators) {
+            final List<QueryMessageGenerator> infoMessageValidators) {
         this.whoisObjectMapper = whoisObjectMapper;
         this.resourceHolderSearch = resourceHolderSearch;
         this.abuseContactSearch = abuseContactSearch;
