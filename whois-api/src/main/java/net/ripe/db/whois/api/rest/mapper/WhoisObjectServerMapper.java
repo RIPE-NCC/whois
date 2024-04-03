@@ -78,7 +78,7 @@ public class WhoisObjectServerMapper {
 
     public void mapObjectInfoMessages(final WhoisObject whoisObject, final Parameters parameters, final RpslObject rpslObject){
         final List<String> infoMessagesFormatted = Lists.newArrayList();
-        infoMessageValidators.forEach(infoMessageValidator -> infoMessageValidator.validate(rpslObject, parameters, infoMessagesFormatted));
+        infoMessageValidators.forEach(infoMessageValidator -> infoMessageValidator.generate(rpslObject, parameters, infoMessagesFormatted));
         whoisObject.setObjectInfoMessages(infoMessagesFormatted);
     }
 

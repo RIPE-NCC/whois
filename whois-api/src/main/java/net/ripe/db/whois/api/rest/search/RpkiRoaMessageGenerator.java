@@ -34,7 +34,7 @@ public class RpkiRoaMessageGenerator implements QueryMessageGenerator {
     }
 
     @Override
-    public void validate(final RpslObject rpslObject, final Parameters parameters, final List<String> messages) {
+    public void generate(final RpslObject rpslObject, final Parameters parameters, final List<String> messages) {
         if (!canProceed(rpslObject, parameters)){
             return;
         }

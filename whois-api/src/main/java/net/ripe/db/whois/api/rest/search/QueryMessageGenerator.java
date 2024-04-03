@@ -7,5 +7,5 @@ import java.util.List;
 
 public interface QueryMessageGenerator {
 
-    void validate(final RpslObject rpslObject, final Parameters parameters, final List<String> messages);
+    void generate(final RpslObject rpslObject, final Parameters parameters, final List<String> messages);
 }
