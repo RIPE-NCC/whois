@@ -64,7 +64,6 @@ public abstract class MailGatewaySmtp {
     protected MimeMessage sendEmailAttempt(final Set<String> recipients, final String replyTo, final String subject, final String text, final boolean html) throws MessagingException {
         final MimeMessage mimeMessage = mailSender.createMimeMessage();
         final MimeMessageHelper helper = new MimeMessageHelper(mimeMessage, MimeMessageHelper.MULTIPART_MODE_NO, "UTF-8");
-        helper.setFrom(mailConfiguration.getFrom());
 
         return sendEmailAttempt(helper, recipients, replyTo, subject, text, html);
     }
@@ -100,6 +99,7 @@ public abstract class MailGatewaySmtp {
 
     private MimeMessage setCommonConfigurationAndSend(final MimeMessageHelper helper, final Set<String> recipients, final String replyTo,
                                                       final String subject, final String text, final boolean html) throws MessagingException {
+        helper.setFrom(mailConfiguration.getFrom());
         final String[] recipientsPunycode = recipients.stream().map(PunycodeConversion::toAscii).distinct().toArray(String[]::new);
         helper.setTo(recipientsPunycode);
 
