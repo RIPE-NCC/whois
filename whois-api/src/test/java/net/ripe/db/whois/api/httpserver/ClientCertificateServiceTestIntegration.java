@@ -29,7 +29,7 @@ public class ClientCertificateServiceTestIntegration extends AbstractClientCerti
     }
 
     @Test
-    // TODO: [MH] Remote this retry and fix the problem with unreachable server
+    // TODO: [MH] Remove this retry and fix the problem with unreachable server
     @RetryFor(value = IOException.class, attempts = 10, intervalMs = 10000)
     public void no_client_certificate() {
         try {
