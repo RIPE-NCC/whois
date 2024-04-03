@@ -14,7 +14,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Component;
 
-import java.util.Collections;
+import javax.annotation.Nullable;
 import java.util.List;
 
 @Component
@@ -41,10 +41,11 @@ public class RoutinatorDataProvider implements RpkiDataProvider{
     }
 
     @Override
+    @Nullable
     public List<Roa> loadRoas() {
         if (Strings.isNullOrEmpty(rpkiBaseUrl)){
             LOGGER.error("rpki.base.url property is not set but client is being used");
-            return Collections.emptyList();
+            return null;
         }
 
         return this.client.target(rpkiBaseUrl)
