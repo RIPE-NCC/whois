@@ -6,6 +6,7 @@ import net.ripe.db.whois.common.rpki.RpkiDataProvider;
 import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Component;
 
+import java.util.Collections;
 import java.util.List;
 
 @Component
@@ -16,6 +17,9 @@ public class DummyRpkiDataProvider implements RpkiDataProvider {
 
     @Override
     public List<Roa> loadRoas() {
+        if (roas == null){
+            return Collections.emptyList();
+        }
         return roas;
     }
 
