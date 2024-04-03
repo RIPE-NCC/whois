@@ -63,26 +63,13 @@ public abstract class MailGatewaySmtp {
 
     protected MimeMessage sendEmailAttempt(final Set<String> recipients, final String replyTo, final String subject, final String text, final boolean html) throws MessagingException {
         final MimeMessage mimeMessage = mailSender.createMimeMessage();
-        setHeaders(mimeMessage);
-
         final MimeMessageHelper helper = new MimeMessageHelper(mimeMessage, MimeMessageHelper.MULTIPART_MODE_NO, "UTF-8");
-        helper.setFrom(mailConfiguration.getFrom());
 
-        final String[] recipientsPunycode = recipients.stream().map(PunycodeConversion::toAscii).distinct().toArray(String[]::new);
-        helper.setTo(recipientsPunycode);
+        return sendEmailAttempt(helper, recipients, replyTo, subject, text, html);
+    }
 
-        if (!Strings.isNullOrEmpty(replyTo)){
-            helper.setReplyTo(PunycodeConversion.toAscii(replyTo));
-        }
-
-        helper.setSubject(subject);
-        helper.setText(text, html);
-
-        mailSender.send(mimeMessage);
-
-        final String messageId = mimeMessage.getMessageID();
-        Arrays.stream(recipientsPunycode).forEach(punyCodeTo -> storeAsOutGoingMessage(messageId, punyCodeTo));
-        return mimeMessage;
+    protected MimeMessage sendEmailAttempt(final MimeMessageHelper helper, final Set<String> recipients, final String replyTo, final String subject, final String text, final boolean html) throws MessagingException {
+        return setCommonConfigurationAndSend(helper, recipients, replyTo, subject, text, html);
     }
 
     protected boolean canSendEmail(final Set<String> to, final String replyTo, final String subject, final String text){
@@ -110,24 +97,48 @@ public abstract class MailGatewaySmtp {
         return true;
     }
 
-    private void storeAsOutGoingMessage(final String mimeMessageId, final String punyCodedTo){
-        outgoingMessageDao.saveOutGoingMessageId(extractEmailBetweenAngleBrackets(mimeMessageId),   //Message-ID is in rfc2822 address format
-                extractEmailBetweenAngleBrackets(punyCodedTo));
+    private MimeMessage setCommonConfigurationAndSend(final MimeMessageHelper helper, final Set<String> recipients, final String replyTo,
+                                                      final String subject, final String text, final boolean html) throws MessagingException {
+        helper.setFrom(mailConfiguration.getFrom());
+        final String[] recipientsPunycode = recipients.stream().map(PunycodeConversion::toAscii).distinct().toArray(String[]::new);
+        helper.setTo(recipientsPunycode);
+
+        if (!Strings.isNullOrEmpty(replyTo)){
+            helper.setReplyTo(PunycodeConversion.toAscii(replyTo));
+        }
+
+        helper.setSubject(subject);
+        helper.setText(text, html);
+
+        final MimeMessage message = helper.getMimeMessage();
+        setHeaders(message);
+
+        mailSender.send(message);
+
+        persistOutGoingMessageInfo(message, recipientsPunycode);
+
+        return message;
     }
+
 
     private void setHeaders(MimeMessage mimeMessage) throws MessagingException {
         mimeMessage.addHeader("Precedence", "bulk");
         mimeMessage.addHeader("Auto-Submitted", "auto-generated");
         if (!Strings.isNullOrEmpty(mailConfiguration.getSmtpFrom())) {
             mimeMessage.addHeader("List-Unsubscribe",
-                String.format("<%s%sapi/unsubscribe/%s>, <mailto:%s?subject=Unsubscribe%%20%s>",
-                webBaseUrl,
-                (webBaseUrl.endsWith("/") ? "" : "/"),
-                mimeMessage.getMessageID(),
-                mailConfiguration.getSmtpFrom(),
-                mimeMessage.getMessageID()));
+                    String.format("<%s%sapi/unsubscribe/%s>, <mailto:%s?subject=Unsubscribe%%20%s>",
+                            webBaseUrl,
+                            (webBaseUrl.endsWith("/") ? "" : "/"),
+                            mimeMessage.getMessageID(),
+                            mailConfiguration.getSmtpFrom(),
+                            mimeMessage.getMessageID()));
             mimeMessage.addHeader("List-Unsubscribe-Post", "List-Unsubscribe=One-Click");
         }
+    }
+
+    private void storeAsOutGoingMessage(final String mimeMessageId, final String punyCodedTo){
+        outgoingMessageDao.saveOutGoingMessageId(extractEmailBetweenAngleBrackets(mimeMessageId),   //Message-ID is in rfc2822 address format
+                extractEmailBetweenAngleBrackets(punyCodedTo));
     }
 
     private List<String> getWellFormattedDeliverableEmails(final Set<String> to, final String subject,
@@ -154,5 +165,10 @@ public abstract class MailGatewaySmtp {
             }
             return true;
         }).toList();
+    }
+
+    private void persistOutGoingMessageInfo(final MimeMessage mimeMessage, final String[] recipientsPunycode) throws MessagingException {
+        final String messageId = mimeMessage.getMessageID();
+        Arrays.stream(recipientsPunycode).forEach(punyCodeTo -> storeAsOutGoingMessage(messageId, punyCodeTo));
     }
 }
