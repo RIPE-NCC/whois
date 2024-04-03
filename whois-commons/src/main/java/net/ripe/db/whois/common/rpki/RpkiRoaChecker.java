@@ -1,4 +1,5 @@
-package net.ripe.db.whois.query.rpki;
+package net.ripe.db.whois.common.rpki;
+
 import com.google.common.collect.Maps;
 import net.ripe.commons.ip.Asn;
 import net.ripe.db.whois.common.domain.CIString;
@@ -11,10 +12,10 @@ import net.ripe.db.whois.common.rpsl.RpslObject;
 import java.util.Map;
 import java.util.Set;
 
+import static net.ripe.db.whois.common.rpki.ValidationStatus.INVALID;
+import static net.ripe.db.whois.common.rpki.ValidationStatus.NOT_FOUND;
+import static net.ripe.db.whois.common.rpki.ValidationStatus.VALID;
 import static net.ripe.db.whois.common.rpsl.ObjectType.ROUTE;
-import static net.ripe.db.whois.query.rpki.ValidationStatus.INVALID;
-import static net.ripe.db.whois.query.rpki.ValidationStatus.NOT_FOUND;
-import static net.ripe.db.whois.query.rpki.ValidationStatus.VALID;
 
 public abstract class RpkiRoaChecker {
 

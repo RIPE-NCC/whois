@@ -1,4 +1,4 @@
-package net.ripe.db.whois.query.rpki;
+package net.ripe.db.whois.common.rpki;
 
 public enum ValidationStatus {
 

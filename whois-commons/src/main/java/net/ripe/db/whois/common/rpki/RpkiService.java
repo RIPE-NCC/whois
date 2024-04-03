@@ -1,4 +1,4 @@
-package net.ripe.db.whois.query.rpki;
+package net.ripe.db.whois.common.rpki;
 
 import com.google.common.collect.Sets;
 import net.ripe.db.whois.common.collect.CollectionHelper;
@@ -8,12 +8,14 @@ import net.ripe.db.whois.common.ip.Ipv4Resource;
 import net.ripe.db.whois.common.ip.Ipv6Resource;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Service;
 
 import java.util.Collection;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+@Service
 public class RpkiService {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(RpkiService.class);
@@ -22,11 +24,12 @@ public class RpkiService {
     private final NestedIntervalMap<Ipv6Resource, Set<Roa>> ipv6Tree = new NestedIntervalMap<>();
 
     public RpkiService(final RpkiDataProvider rpkiDataProvider) {
-        if (rpkiDataProvider.loadRoas() == null){
+        final List<Roa> loadedRoas = rpkiDataProvider.loadRoas();
+        if (loadedRoas == null){
             LOGGER.error("Rpki roas are not loaded");
             throw new IllegalStateException("Rpki roas are not loaded");
         }
-        final List<Roa> roas = rpkiDataProvider.loadRoas().stream()
+        final List<Roa> roas = loadedRoas.stream()
                 .filter(roa -> roa.getTrustAnchor() != TrustAnchor.UNSUPPORTED)
                 .collect(Collectors.toList());
 

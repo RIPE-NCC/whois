@@ -1,6 +1,10 @@
 package net.ripe.db.whois.query.rpki;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import net.ripe.db.whois.common.rpki.Roa;
+import net.ripe.db.whois.common.rpki.Roas;
+import net.ripe.db.whois.common.rpki.RpkiDataProvider;
+import net.ripe.db.whois.common.rpki.RpkiService;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;

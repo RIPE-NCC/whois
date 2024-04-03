@@ -1,13 +1,15 @@
-package net.ripe.db.whois.query.rpki;
+package net.ripe.db.whois.common.rpki;
 
 
 import net.ripe.db.whois.common.rpsl.RpslObject;
+import org.springframework.stereotype.Component;
 
 import java.util.Map;
 import java.util.Optional;
 
-import static net.ripe.db.whois.query.rpki.ValidationStatus.INVALID;
+import static net.ripe.db.whois.common.rpki.ValidationStatus.INVALID;
 
+@Component
 public class WhoisRoaChecker extends RpkiRoaChecker {
     public WhoisRoaChecker(final RpkiService rpkiService) {
         super(rpkiService);

@@ -1,6 +1,8 @@
 package net.ripe.db.whois.query.rpki;
 
 import net.ripe.db.whois.common.profiles.WhoisProfile;
+import net.ripe.db.whois.common.rpki.Roa;
+import net.ripe.db.whois.common.rpki.RpkiDataProvider;
 import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Component;
 
