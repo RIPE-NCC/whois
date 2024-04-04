@@ -1,10 +1,10 @@
 package net.ripe.db.whois.spec.integration
 
 import com.google.common.collect.Lists
+import net.ripe.db.whois.common.rpki.Roa
 import net.ripe.db.whois.common.source.Source
-import net.ripe.db.whois.query.rpki.Roa
 
-import static net.ripe.db.whois.query.rpki.TrustAnchor.ARIN
+import static net.ripe.db.whois.common.rpki.TrustAnchor.ARIN
 
 @org.junit.jupiter.api.Tag("IntegrationTest")
 class SearchQuerySpec extends BaseWhoisSourceSpec {
