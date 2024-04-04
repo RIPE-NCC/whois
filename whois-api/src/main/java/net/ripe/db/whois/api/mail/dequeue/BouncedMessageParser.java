@@ -34,7 +34,7 @@ public class BouncedMessageParser {
 
     private final boolean enabled;
 
-    private static final Pattern FINAL_RECIPIENT_MATCHER = Pattern.compile("^(rfc822;)(.+@.+$)");
+    private static final Pattern FINAL_RECIPIENT_MATCHER = Pattern.compile("(?i)^(rfc822;)(.+@.+$)");
 
 
     @Autowired
