@@ -1107,7 +1107,6 @@ public class WhoisSearchServiceTestIntegration extends AbstractIntegrationTest {
                 "        </attribute>\n" +
                 "        <attribute name=\"source\" value=\"TEST\"/>\n" +
                 "    </attributes>\n" +
-                "    <objectInfoMessages></objectInfoMessages>\n" +
                 "</object>\n" +
                 "<object type=\"person\">\n" +
                 "    <link xlink:type=\"locator\" xlink:href=\"http://rest-test.db.ripe.net/test/person/TP1-TEST\"/>\n" +
@@ -1125,7 +1124,6 @@ public class WhoisSearchServiceTestIntegration extends AbstractIntegrationTest {
                 "        </attribute>\n" +
                 "        <attribute name=\"source\" value=\"TEST\"/>\n" +
                 "    </attributes>\n" +
-                "    <objectInfoMessages></objectInfoMessages>\n" +
                 "</object>\n" +
                 "</objects>\n" +
                 "<terms-and-conditions xlink:type=\"locator\" xlink:href=\"https://apps.db.ripe.net/docs/HTML-Terms-And-Conditions\"/>\n" +
@@ -1806,7 +1804,7 @@ public class WhoisSearchServiceTestIntegration extends AbstractIntegrationTest {
 
         assertThat(whoisResources.getWhoisObjects(), hasSize(1));
 
-        assertThat(whoisResources.getWhoisObjects().get(0).getObjectInfoMessages(), is(empty()));
+        assertThat(whoisResources.getWhoisObjects().get(0).getInfoMessages().getMessages(), hasSize(0));
     }
 
     @Test
@@ -1831,7 +1829,7 @@ public class WhoisSearchServiceTestIntegration extends AbstractIntegrationTest {
 
         assertThat(whoisResources.getWhoisObjects(), hasSize(1));
 
-        assertThat(whoisResources.getWhoisObjects().get(0).getObjectInfoMessages(), is(empty()));
+        assertThat(whoisResources.getWhoisObjects().get(0).getInfoMessages().getMessages(), hasSize(0));
     }
 
     @Test
@@ -1856,11 +1854,10 @@ public class WhoisSearchServiceTestIntegration extends AbstractIntegrationTest {
 
         assertThat(whoisResources.getWhoisObjects(), hasSize(1));
 
-        assertThat(whoisResources.getWhoisObjects().get(0).getObjectInfoMessages(), hasSize(1));
-        assertThat(whoisResources.getWhoisObjects().get(0).getObjectInfoMessages().get(0), is("" +
-                "% Warning: this route object conflicts with an overlapping RPKI ROA with a different origin AS6505.\n" +
-                "% As a result an announcement for this prefix may be rejected by many autonomous systems. You should" +
-                " either remove this route: object or delete the ROA.\n"));
+        assertThat(whoisResources.getWhoisObjects().get(0).getInfoMessages().getMessages(), hasSize(1));
+        assertThat(whoisResources.getWhoisObjects().get(0).getInfoMessages().getMessages().get(0).getText(), is("" +
+                "Warning: this route object conflicts with an overlapping RPKI ROA with a different origin AS%s.\n" +
+                "As a result an announcement for this prefix may be rejected by many autonomous systems. You should either remove this route: object or delete the ROA.\n"));
     }
 
     @Test
@@ -1885,11 +1882,10 @@ public class WhoisSearchServiceTestIntegration extends AbstractIntegrationTest {
 
         assertThat(whoisResources.getWhoisObjects(), hasSize(1));
 
-        assertThat(whoisResources.getWhoisObjects().get(0).getObjectInfoMessages(), hasSize(1));
-        assertThat(whoisResources.getWhoisObjects().get(0).getObjectInfoMessages().get(0), is("" +
-                "% Warning: this route object conflicts with an overlapping RPKI ROA with a different origin AS6505.\n" +
-                "% As a result an announcement for this prefix may be rejected by many autonomous systems. You should" +
-                " either remove this route: object or delete the ROA.\n"));
+        assertThat(whoisResources.getWhoisObjects().get(0).getInfoMessages().getMessages(), hasSize(1));
+        assertThat(whoisResources.getWhoisObjects().get(0).getInfoMessages().getMessages().get(0).getText(), is("" +
+                "Warning: this route object conflicts with an overlapping RPKI ROA with a different origin AS%s.\n" +
+                "As a result an announcement for this prefix may be rejected by many autonomous systems. You should either remove this route: object or delete the ROA.\n"));
     }
 
     @Test
@@ -1952,9 +1948,11 @@ public class WhoisSearchServiceTestIntegration extends AbstractIntegrationTest {
                 "        </attribute>\n" +
                 "        <attribute name=\"source\" value=\"TEST-NONAUTH\"/>\n" +
                 "    </attributes>\n" +
-                "    <objectInfoMessages>% Warning: this route object conflicts with an overlapping RPKI ROA with a different origin AS6505.\n" +
-                "% As a result an announcement for this prefix may be rejected by many autonomous systems. You should either remove this route: object or delete the ROA.\n" +
-                "</objectInfoMessages>\n" +
+                "    <infoMessages>\n" +
+                "        <infoMessage severity=\"Info\" text=\"Warning: this route object conflicts with an overlapping RPKI ROA with a different origin AS%s.&#xA;As a result an announcement for this prefix may be rejected by many autonomous systems. You should either remove this route: object or delete the ROA.&#xA;\">\n" +
+                "            <args value=\"6505\"/>\n" +
+                "        </infoMessage>\n" +
+                "    </infoMessages>\n" +
                 "</object>\n" +
                 "</objects>\n" +
                 "<terms-and-conditions xlink:type=\"locator\" xlink:href=\"https://apps.db.ripe.net/docs/HTML-Terms-And-Conditions\"/>\n" +

@@ -1,15 +1,12 @@
 package net.ripe.db.whois.api.rest.domain;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
-import com.google.common.collect.Lists;
 import jakarta.xml.bind.annotation.XmlAccessType;
 import jakarta.xml.bind.annotation.XmlAccessorType;
 import jakarta.xml.bind.annotation.XmlAttribute;
 import jakarta.xml.bind.annotation.XmlElement;
 import jakarta.xml.bind.annotation.XmlRootElement;
 import jakarta.xml.bind.annotation.XmlType;
-import jakarta.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
-import net.ripe.db.whois.api.rest.mapper.ValidListXmlAdapter;
 
 import java.util.Collections;
 import java.util.List;
@@ -27,7 +24,7 @@ import static com.fasterxml.jackson.annotation.JsonInclude.Include.NON_EMPTY;
         "resourceHolder",
         "abuseContact",
         "managed",
-        "objectInfoMessages",
+        "infoMessages",
 })
 @JsonInclude(NON_EMPTY)
 @XmlRootElement(name = "object")
@@ -63,9 +60,8 @@ public class WhoisObject {
     @XmlAttribute
     private Integer version;
 
-    @XmlElement(name = "objectInfoMessages")
-    @XmlJavaTypeAdapter(value = ValidListXmlAdapter.class)
-    private List<String> objectInfoMessages;
+    @XmlElement(name = "infoMessages")
+    private InfoMessages infoMessages;
 
     public WhoisObject() {
         // required no-arg constructor
@@ -82,7 +78,7 @@ public class WhoisObject {
             final ResourceHolder resourceHolder,
             final AbuseContact abuseContact,
             final Boolean managed,
-            final List<String> objectInfoMessages) {
+            final InfoMessages infoMessages) {
         this.link = link;
         this.source = source;
         this.primaryKey = primaryKey;
@@ -93,7 +89,7 @@ public class WhoisObject {
         this.resourceHolder = resourceHolder;
         this.abuseContact = abuseContact;
         this.managed = managed;
-        this.objectInfoMessages = objectInfoMessages;
+        this.infoMessages = infoMessages;
     }
 
 
@@ -112,7 +108,7 @@ public class WhoisObject {
         private AbuseContact abuseContact;
         private Boolean managed;
 
-        private List<String> objectInfoMessages;
+        private InfoMessages infoMessages;
 
         public Builder link(final Link link) {
             this.link = link;
@@ -174,8 +170,8 @@ public class WhoisObject {
             return this;
         }
 
-        public Builder objectInfoMessages(final List<String> objectInfoMessages) {
-            this.objectInfoMessages = objectInfoMessages;
+        public Builder infoMessages(final InfoMessages infoMessages) {
+            this.infoMessages = infoMessages;
             return this;
         }
 
@@ -191,7 +187,7 @@ public class WhoisObject {
                     resourceHolder,
                     abuseContact,
                     managed,
-                    objectInfoMessages);
+                    infoMessages);
         }
     }
 
@@ -269,12 +265,12 @@ public class WhoisObject {
         this.abuseContact = abuseContact;
     }
 
-    public void setObjectInfoMessages(List<String> objectInfoMessages) {
-        this.objectInfoMessages = objectInfoMessages;
+    public void setInfoMessages(final InfoMessages infoMessages) {
+        this.infoMessages = infoMessages;
     }
 
-    public List<String> getObjectInfoMessages() {
-        return objectInfoMessages != null ? objectInfoMessages : Lists.newArrayList();
+    public InfoMessages getInfoMessages() {
+        return infoMessages != null ? infoMessages : new InfoMessages();
     }
 
     public Boolean isManaged() {

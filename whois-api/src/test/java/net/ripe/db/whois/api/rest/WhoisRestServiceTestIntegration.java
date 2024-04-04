@@ -1293,7 +1293,7 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
                 "        </attribute>\n" +
                 "        <attribute name=\"source\" value=\"TEST\" comment=\"Filtered\"/>\n" +
                 "    </attributes>\n" +
-                "    <objectInfoMessages></objectInfoMessages>\n" +
+                "    <infoMessages></infoMessages>\n" +
                 "</object>\n" +
                 "</objects>\n" +
                 "<terms-and-conditions xlink:type=\"locator\" xlink:href=\"https://apps.db.ripe.net/docs/HTML-Terms-And-Conditions\"/>\n" +
@@ -1584,7 +1584,7 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
                 "        <attribute name=\"remarks\" value=\"* http://www.ripe.net/whois\"/>\n" +
                 "        <attribute name=\"remarks\" value=\"****************************\"/>\n" +
                 "    </attributes>\n" +
-                "    <objectInfoMessages></objectInfoMessages>\n" +
+                "    <infoMessages></infoMessages>\n" +
                 "</object>\n" +
                 "</objects>\n" +
                 "<terms-and-conditions xlink:type=\"locator\" xlink:href=\"https://apps.db.ripe.net/docs/HTML-Terms-And-Conditions\"/>\n" +

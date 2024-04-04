@@ -169,6 +169,7 @@ public enum QueryFlag {
     /* -------------------------------------------------------------------------------------------------------------- */
 
     ROA_VALIDATION(new Builder("roa-validation")
+            .withSearchKey("<object-type>")
             .describedAs("Validate route objects against rpki roas"));
 
 

@@ -2,6 +2,7 @@ package net.ripe.db.whois.api.rest.mapper;
 
 import com.google.common.collect.Lists;
 import net.ripe.db.whois.api.rest.domain.Attribute;
+import net.ripe.db.whois.api.rest.domain.InfoMessages;
 import net.ripe.db.whois.api.rest.domain.Parameters;
 import net.ripe.db.whois.api.rest.domain.WhoisObject;
 import net.ripe.db.whois.api.rest.domain.WhoisVersion;
@@ -19,6 +20,7 @@ import org.springframework.stereotype.Component;
 
 import java.util.Iterator;
 import java.util.List;
+import java.util.Objects;
 
 import static net.ripe.db.whois.api.rest.RestServiceHelper.getServerAttributeMapper;
 
@@ -29,7 +31,7 @@ public class WhoisObjectServerMapper {
     private final AbuseContactSearch abuseContactSearch;
     private final ManagedAttributeSearch managedAttributeSearch;
 
-    private final List<QueryMessageGenerator> infoMessageValidators;
+    private final List<QueryMessageGenerator> infoMessageGenerator;
 
     @Autowired
     public WhoisObjectServerMapper(
@@ -37,12 +39,12 @@ public class WhoisObjectServerMapper {
             final ResourceHolderSearch resourceHolderSearch,
             final AbuseContactSearch abuseContactSearch,
             final ManagedAttributeSearch managedAttributeSearch,
-            final List<QueryMessageGenerator> infoMessageValidators) {
+            final List<QueryMessageGenerator> infoMessageGenerator) {
         this.whoisObjectMapper = whoisObjectMapper;
         this.resourceHolderSearch = resourceHolderSearch;
         this.abuseContactSearch = abuseContactSearch;
         this.managedAttributeSearch = managedAttributeSearch;
-        this.infoMessageValidators = infoMessageValidators;
+        this.infoMessageGenerator = infoMessageGenerator;
     }
 
     public List<WhoisVersion> mapVersions(final List<DeletedVersionResponseObject> deleted, final List<VersionResponseObject> versions) {
@@ -77,9 +79,14 @@ public class WhoisObjectServerMapper {
     }
 
     public void mapObjectInfoMessages(final WhoisObject whoisObject, final Parameters parameters, final RpslObject rpslObject){
-        final List<String> infoMessagesFormatted = Lists.newArrayList();
-        infoMessageValidators.forEach(infoMessageValidator -> infoMessageValidator.generate(rpslObject, parameters, infoMessagesFormatted));
-        whoisObject.setObjectInfoMessages(infoMessagesFormatted);
+        final InfoMessages infoMessagesFormatted = new InfoMessages(infoMessageGenerator
+                .stream()
+                .map(infoMessageGenerator -> infoMessageGenerator.generate(rpslObject, parameters))
+                .filter(Objects::nonNull)
+                .toList());
+        if (!infoMessagesFormatted.getMessages().isEmpty()){
+            whoisObject.setInfoMessages(infoMessagesFormatted);
+        }
     }
 
     public void mapManagedAttributes(final WhoisObject whoisObject, final Parameters parameters, final RpslObject rpslObject) {

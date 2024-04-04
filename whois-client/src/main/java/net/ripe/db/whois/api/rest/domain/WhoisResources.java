@@ -71,7 +71,7 @@ public class WhoisResources {
     }
 
     public List<ErrorMessage> getErrorMessages() {
-        return errorMessages != null ? errorMessages.getErrorMessages() : Collections.<ErrorMessage>emptyList();
+        return errorMessages != null ? errorMessages.getMessages() : Collections.<ErrorMessage>emptyList();
     }
 
     public Parameters getParameters() {
