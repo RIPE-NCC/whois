@@ -576,7 +576,7 @@ public class UpdatesParserTest {
     }
 
     @Test
-    @Timeout(value = 3000, unit = TimeUnit.MILLISECONDS)
+    @Timeout(value = 2000, unit = TimeUnit.MILLISECONDS)
     public void testPerformance() throws Exception {
         // Note: prevously, we had a regexp matcher that took unacceptable time to finish (>10 minutes).
         // Hint: don't try to match massive input with DOTALL and .*? - it will be too slow
