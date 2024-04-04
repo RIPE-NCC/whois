@@ -9,7 +9,6 @@ import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.stereotype.Repository;
 
 import javax.sql.DataSource;
-import java.sql.ResultSet;
 import java.time.LocalDateTime;
 import java.util.Collections;
 import java.util.Map;
@@ -50,12 +49,5 @@ public class EmailStatusDao {
                 });
 
         return results;
-    }
-
-    public boolean canNotSendEmail(final String emailAddress) {
-        return Boolean.TRUE.equals(jdbcTemplate.query(
-                "SELECT email from email_status where email = ?",
-                new Object[]{emailAddress},
-                ResultSet::next));
     }
 }

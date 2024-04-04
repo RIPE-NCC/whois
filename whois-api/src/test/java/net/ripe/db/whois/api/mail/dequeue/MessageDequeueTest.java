@@ -19,8 +19,8 @@ import net.ripe.db.whois.update.domain.UpdateStatus;
 import net.ripe.db.whois.update.handler.UpdateRequestHandler;
 import net.ripe.db.whois.update.log.LoggerContext;
 import net.ripe.db.whois.update.log.UpdateLog;
-import net.ripe.db.whois.update.mail.MailGateway;
 import net.ripe.db.whois.update.mail.MailMessageLogCallback;
+import net.ripe.db.whois.update.mail.WhoisMailGatewaySmtp;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -60,7 +60,7 @@ public class MessageDequeueTest {
     private static final Session SESSION = Session.getInstance(new Properties());
 
     @Mock MaintenanceMode maintenanceMode;
-    @Mock MailGateway mailGateway;
+    @Mock WhoisMailGatewaySmtp mailGateway;
     @Mock MailMessageDao mailMessageDao;
     @Mock MessageFilter messageFilter;
     @Mock MessageParser messageParser;

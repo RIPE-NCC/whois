@@ -1,19 +1,20 @@
 package net.ripe.db.whois.api.mail.dequeue;
 
 
-import com.google.common.base.Strings;
 import jakarta.mail.MessagingException;
 import jakarta.mail.internet.MimeMessage;
-import net.ripe.db.whois.api.mail.MessageInfo;
+import net.ripe.db.whois.api.mail.EmailMessageInfo;
 import net.ripe.db.whois.common.dao.EmailStatusDao;
 import net.ripe.db.whois.common.dao.OutgoingMessageDao;
 import net.ripe.db.whois.common.mail.EmailStatus;
+import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
+import java.util.List;
 
 @Service
 public class MessageService {
@@ -37,46 +38,68 @@ public class MessageService {
         this.emailStatusDao = emailStatusDao;
     }
 
-    public MessageInfo getBouncedMessageInfo(final MimeMessage message) throws MessagingException, IOException {
+    public EmailMessageInfo getBouncedMessageInfo(final MimeMessage message) throws MessagingException, IOException {
         return bouncedMessageParser.parse(message);
     }
-    public MessageInfo getUnsubscribedMessageInfo(final MimeMessage message) throws MessagingException, IOException {
+    public EmailMessageInfo getUnsubscribedMessageInfo(final MimeMessage message) throws MessagingException {
         return unsubscribeMessageParser.parse(message);
     }
 
-    public void verifyAndSetAsUndeliverable(final MessageInfo message){
-        final String email = outgoingMessageDao.getEmail(message.messageId());
+    public void verifyAndSetAsUndeliverable(final EmailMessageInfo message){
+        final List<String> outgoingEmail = outgoingMessageDao.getEmails(message.messageId());
 
-        if (isIncorrectMessage(message, email)){
+        if (!isValidMessage(message, outgoingEmail)){
             return;
         }
 
-        LOGGER.debug("Undeliverable message-id {} email {}", message.messageId(), message.emailAddress());
-        emailStatusDao.createEmailStatus(email, EmailStatus.UNDELIVERABLE);
+        LOGGER.debug("Undeliverable message-id {} email {}", message.messageId(), StringUtils.join(message.emailAddresses(), ", "));
+        message.emailAddresses().forEach(email -> emailStatusDao.createEmailStatus(email, EmailStatus.UNDELIVERABLE));
     }
 
-    public void verifyAndSetAsUnsubscribed(final MessageInfo message){
-        final String email = outgoingMessageDao.getEmail(message.messageId());
-
-        if (isIncorrectMessage(message, email)){
+    public void verifyAndSetAsUnsubscribed(final EmailMessageInfo message){
+        if (message.emailAddresses() != null && message.emailAddresses().size() != 1){
+            LOGGER.warn("This can not happen, unsubscribe with multiple recipients. messageId: {}", message.messageId());
             return;
         }
 
-        LOGGER.debug("Unsubscribe message-id {} email {}", message.messageId(), message.emailAddress());
-        emailStatusDao.createEmailStatus(email, EmailStatus.UNSUBSCRIBE);
-    }
-
-    private boolean isIncorrectMessage(final MessageInfo message, final String email){
-        if (Strings.isNullOrEmpty(email)) {
+        final String unsubscribeRequestEmail = message.emailAddresses().get(0);
+        if (!outgoingMessageDao.isEmailExists(message.messageId(), unsubscribeRequestEmail)){
             LOGGER.warn("Couldn't find outgoing message matching {}", message.messageId());
-            return true;
+            return;
         }
 
-        if (!email.equalsIgnoreCase(message.emailAddress())) {
-            LOGGER.warn("Email {} in outgoing message doesn't match '{}' in failure response", email, message.emailAddress());
-            return true;
+        LOGGER.debug("Unsubscribe message-id {} email {}", message.messageId(), unsubscribeRequestEmail);
+        emailStatusDao.createEmailStatus(unsubscribeRequestEmail, EmailStatus.UNSUBSCRIBE);
+    }
+
+    private boolean isValidMessage(final EmailMessageInfo message, final List<String> outgoingEmail){
+        if (message.messageId() == null || message.emailAddresses() == null || message.emailAddresses().isEmpty()){
+            LOGGER.warn("Incorrect message {}", message.messageId());
+            return false;
         }
-        return false;
+
+        if (outgoingEmail == null || outgoingEmail.isEmpty()) {
+            LOGGER.warn("Couldn't find outgoing message matching {}", message.messageId());
+            return false;
+        }
+
+        if (!containsAllCaseInsensitive(message.emailAddresses(), outgoingEmail)) {
+            LOGGER.warn("Email {} in outgoing message doesn't match '{}' in failure response", outgoingEmail, StringUtils.join(message.emailAddresses(), ", "));
+            return false;
+        }
+        return true;
+    }
+
+    private boolean containsAllCaseInsensitive(final List<String> messageRecipients, final List<String> storedEmails){
+        final List<String> emailsInLowerCase = storedEmails
+                .stream()
+                .map(String::toLowerCase)
+                .toList();
+
+        return messageRecipients
+                .stream()
+                .map(String::toLowerCase)
+                .allMatch(emailsInLowerCase::contains);
     }
 
 }
