@@ -382,6 +382,19 @@ public class NrtmClientServiceTestIntegration extends AbstractNrtmIntegrationTes
     }
 
     @Test
+    public void should_throw_exception_invalid_notification_filename()  {
+        final Response response = getResponseFromHttpsRequest("TEST/update-notification-file.aaaaa", MediaType.APPLICATION_OCTET_STREAM);
+        assertThat(response.getStatus(), is(400));
+        assertThat(response.readEntity(String.class), is("Invalid notification filename"));
+    }
+
+    public void should_throw_exception_invalid_notification_sig_filename()  {
+        final Response response = getResponseFromHttpsRequest("TEST/update-notification-file.aaaaa.sig", MediaType.APPLICATION_OCTET_STREAM);
+        assertThat(response.getStatus(), is(400));
+        assertThat(response.readEntity(String.class), is("Invalid notification filename"));
+    }
+
+    @Test
     public void should_throw_exception_invalid_source_filename_combo()  {
         final Response response = getResponseFromHttpsRequest("TEST/nrtm-snapshot.1.TEST-NONAUTH.4e9e8c4e4891411be.json" +
                 ".gz", MediaType.APPLICATION_OCTET_STREAM);
