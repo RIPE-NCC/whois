@@ -38,7 +38,7 @@ content-type: message/delivery-status
 
 Reporting-MTA: dns; abc1.host.org
 
-Final-Recipient: RFC822;nonexistant@host.org
+Final-Recipient: RFC822; nonexistant@host.org
 Action: failed
 Status: 5.0.0 (permanent failure)
 Remote-MTA: dns; [1.2.3.4]
