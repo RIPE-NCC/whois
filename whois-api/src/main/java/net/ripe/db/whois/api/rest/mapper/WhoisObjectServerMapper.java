@@ -31,7 +31,7 @@ public class WhoisObjectServerMapper {
     private final AbuseContactSearch abuseContactSearch;
     private final ManagedAttributeSearch managedAttributeSearch;
 
-    private final List<QueryMessageGenerator> objectMessageGenerator;
+    private final List<QueryMessageGenerator> queryMessageGenerators;
 
     @Autowired
     public WhoisObjectServerMapper(
@@ -39,12 +39,12 @@ public class WhoisObjectServerMapper {
             final ResourceHolderSearch resourceHolderSearch,
             final AbuseContactSearch abuseContactSearch,
             final ManagedAttributeSearch managedAttributeSearch,
-            final List<QueryMessageGenerator> objectMessageGenerator) {
+            final List<QueryMessageGenerator> queryMessageGenerators) {
         this.whoisObjectMapper = whoisObjectMapper;
         this.resourceHolderSearch = resourceHolderSearch;
         this.abuseContactSearch = abuseContactSearch;
         this.managedAttributeSearch = managedAttributeSearch;
-        this.objectMessageGenerator = objectMessageGenerator;
+        this.queryMessageGenerators = queryMessageGenerators;
     }
 
     public List<WhoisVersion> mapVersions(final List<DeletedVersionResponseObject> deleted, final List<VersionResponseObject> versions) {
@@ -79,7 +79,7 @@ public class WhoisObjectServerMapper {
     }
 
     public void mapObjectMessages(final WhoisObject whoisObject, final Parameters parameters, final RpslObject rpslObject){
-        final ObjectMessages objectMessagesFormatted = new ObjectMessages(objectMessageGenerator
+        final ObjectMessages objectMessagesFormatted = new ObjectMessages(queryMessageGenerators
                 .stream()
                 .map(objectMessageGenerator -> objectMessageGenerator.generate(rpslObject, parameters))
                 .filter(Objects::nonNull)
