@@ -27,8 +27,10 @@ public class RpkiService {
         final List<Roa> loadedRoas = rpkiDataProvider.loadRoas();
         if (loadedRoas == null){
             LOGGER.error("Rpki roas are not loaded");
-            throw new IllegalStateException("Rpki roas are not loaded");
+            return;
+            //throw new IllegalStateException("Rpki roas are not loaded");
         }
+
         final List<Roa> roas = loadedRoas.stream()
                 .filter(roa -> roa.getTrustAnchor() != TrustAnchor.UNSUPPORTED)
                 .collect(Collectors.toList());
