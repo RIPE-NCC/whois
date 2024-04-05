@@ -61,7 +61,7 @@ public final class QueryMessages {
     }
 
     public static Message roaRouteConflicts(final long asn){
-        return new QueryMessage(Type.INFO, ""
+        return new QueryMessage(Type.WARNING, ""
                 + "Warning: this route object conflicts with an overlapping RPKI ROA with a different origin AS%s."
                 + "\n"
                 + "As a result an announcement for this prefix may be rejected by many autonomous systems. You should" +

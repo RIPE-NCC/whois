@@ -24,7 +24,7 @@ import static com.fasterxml.jackson.annotation.JsonInclude.Include.NON_EMPTY;
         "resourceHolder",
         "abuseContact",
         "managed",
-        "infoMessages",
+        "objectMessages",
 })
 @JsonInclude(NON_EMPTY)
 @XmlRootElement(name = "object")
@@ -60,8 +60,8 @@ public class WhoisObject {
     @XmlAttribute
     private Integer version;
 
-    @XmlElement(name = "infoMessages")
-    private InfoMessages infoMessages;
+    @XmlElement(name = "objectMessages")
+    private ObjectMessages objectMessages;
 
     public WhoisObject() {
         // required no-arg constructor
@@ -78,7 +78,7 @@ public class WhoisObject {
             final ResourceHolder resourceHolder,
             final AbuseContact abuseContact,
             final Boolean managed,
-            final InfoMessages infoMessages) {
+            final ObjectMessages objectMessages) {
         this.link = link;
         this.source = source;
         this.primaryKey = primaryKey;
@@ -89,7 +89,7 @@ public class WhoisObject {
         this.resourceHolder = resourceHolder;
         this.abuseContact = abuseContact;
         this.managed = managed;
-        this.infoMessages = infoMessages;
+        this.objectMessages = objectMessages;
     }
 
 
@@ -108,7 +108,7 @@ public class WhoisObject {
         private AbuseContact abuseContact;
         private Boolean managed;
 
-        private InfoMessages infoMessages;
+        private ObjectMessages objectMessages;
 
         public Builder link(final Link link) {
             this.link = link;
@@ -170,8 +170,8 @@ public class WhoisObject {
             return this;
         }
 
-        public Builder infoMessages(final InfoMessages infoMessages) {
-            this.infoMessages = infoMessages;
+        public Builder objectMessages(final ObjectMessages objectMessages) {
+            this.objectMessages = objectMessages;
             return this;
         }
 
@@ -187,7 +187,7 @@ public class WhoisObject {
                     resourceHolder,
                     abuseContact,
                     managed,
-                    infoMessages);
+                    objectMessages);
         }
     }
 
@@ -265,12 +265,12 @@ public class WhoisObject {
         this.abuseContact = abuseContact;
     }
 
-    public void setInfoMessages(final InfoMessages infoMessages) {
-        this.infoMessages = infoMessages;
+    public void setObjectMessages(final ObjectMessages objectMessages) {
+        this.objectMessages = objectMessages;
     }
 
-    public InfoMessages getInfoMessages() {
-        return infoMessages != null ? infoMessages : new InfoMessages();
+    public ObjectMessages getObjectMessages() {
+        return objectMessages != null ? objectMessages : new ObjectMessages();
     }
 
     public Boolean isManaged() {

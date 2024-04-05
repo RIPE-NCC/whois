@@ -11,29 +11,29 @@ import java.util.List;
 
 import static com.fasterxml.jackson.annotation.JsonInclude.Include.NON_EMPTY;
 
-@XmlRootElement(name = "infoMessages")
+@XmlRootElement(name = "objectMessages")
 @XmlAccessorType(XmlAccessType.FIELD)
 @JsonInclude(NON_EMPTY)
-public class InfoMessages {
-    @XmlElement(name = "infoMessage")
-    protected List<InfoMessage> infoMessages;
-    public InfoMessages() {
+public class ObjectMessages {
+    @XmlElement(name = "objectMessage")
+    protected List<ObjectMessage> infoMessages;
+    public ObjectMessages() {
         infoMessages = Lists.newArrayList();
     }
 
-    public InfoMessages(final List<InfoMessage> infoMessages) {
+    public ObjectMessages(final List<ObjectMessage> infoMessages) {
         this.infoMessages = infoMessages;
     }
 
-    public void addMessage(final InfoMessage infoMessage){
+    public void addMessage(final ObjectMessage infoMessage){
         infoMessages.add(infoMessage);
     }
 
-    public void setMessages(final List<InfoMessage> infoMessages) {
+    public void setMessages(final List<ObjectMessage> infoMessages) {
         this.infoMessages = infoMessages;
     }
 
-    public List<InfoMessage> getMessages() {
+    public List<ObjectMessage> getMessages() {
         return infoMessages;
     }
 }

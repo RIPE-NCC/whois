@@ -11,7 +11,7 @@ import javax.annotation.Nullable;
 import java.util.List;
 import java.util.Objects;
 
-public abstract class WhoisResponseMessage implements Comparable<WhoisResponseMessage>{
+public abstract class WhoisMessage implements Comparable<WhoisMessage>{
 
     @XmlAttribute(required = true)
     protected String severity;          // TODO: severity should be enum
@@ -22,14 +22,14 @@ public abstract class WhoisResponseMessage implements Comparable<WhoisResponseMe
     @XmlElement
     protected List<Arg> args;
 
-    public WhoisResponseMessage(final String severity, final Attribute attribute, final String text, final List<Arg> args) {
+    public WhoisMessage(final String severity, final Attribute attribute, final String text, final List<Arg> args) {
         this.severity = severity;
         this.attribute = attribute;
         this.text = text;
         this.args = args;
     }
 
-    public WhoisResponseMessage(final Message message) {
+    public WhoisMessage(final Message message) {
         this.severity = message.getType().toString();
         this.attribute = null;
         this.text = message.getText();
@@ -39,12 +39,12 @@ public abstract class WhoisResponseMessage implements Comparable<WhoisResponseMe
         }
     }
 
-    public WhoisResponseMessage(final Message message, final RpslAttribute attribute) {
+    public WhoisMessage(final Message message, final RpslAttribute attribute) {
         this(message);
         this.attribute = new Attribute(attribute.getKey(), attribute.getValue());
     }
 
-    public WhoisResponseMessage() {
+    public WhoisMessage() {
         this.args = Lists.newArrayList();
     }
 
@@ -99,7 +99,7 @@ public abstract class WhoisResponseMessage implements Comparable<WhoisResponseMe
     }
 
     @Override
-    public int compareTo(final WhoisResponseMessage errorMessage) {
+    public int compareTo(final WhoisMessage errorMessage) {
         final Messages.Type thisType = Messages.Type.valueOf(severity.toUpperCase());
         final Messages.Type otherType = Messages.Type.valueOf(errorMessage.getSeverity().toUpperCase());
         return thisType.compareTo(otherType);

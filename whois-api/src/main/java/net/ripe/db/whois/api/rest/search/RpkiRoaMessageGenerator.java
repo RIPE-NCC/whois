@@ -3,8 +3,7 @@ package net.ripe.db.whois.api.rest.search;
 import com.google.common.collect.ImmutableList;
 import net.ripe.db.whois.api.rest.domain.Flag;
 import net.ripe.db.whois.api.rest.domain.Flags;
-import net.ripe.db.whois.api.rest.domain.InfoMessage;
-import net.ripe.db.whois.api.rest.domain.InfoMessages;
+import net.ripe.db.whois.api.rest.domain.ObjectMessage;
 import net.ripe.db.whois.api.rest.domain.Parameters;
 import net.ripe.db.whois.common.rpki.Roa;
 import net.ripe.db.whois.common.rpki.RpkiDataProvider;
@@ -34,29 +33,34 @@ public class RpkiRoaMessageGenerator implements QueryMessageGenerator {
     }
 
     @Override
-    public InfoMessage generate(final RpslObject rpslObject, final Parameters parameters) {
-        if (!canProceed(rpslObject, parameters)){
+    public ObjectMessage proceed(RpslObject rpslObject, Parameters parameters) {
+        if (!canProceed(parameters)){
             return null;
         }
         return validateRoa(rpslObject);
     }
 
-    private boolean canProceed(final RpslObject rpslObject, final Parameters parameters){
-        return isEnabled && hasRoaValidationFlag(parameters.getFlags()) && TYPES.contains(rpslObject.getType());
+    @Override
+    public ImmutableList<ObjectType> getTypes() {
+        return TYPES;
+    }
+
+    private boolean canProceed(final Parameters parameters){
+        return isEnabled && hasRoaValidationFlag(parameters.getFlags());
     }
 
     private boolean hasRoaValidationFlag(final Flags flags){
         return flags != null && flags.getFlags().contains(new Flag(ROA_VALIDATION));
     }
 
-    private InfoMessage validateRoa(final RpslObject rpslObject){
+    private ObjectMessage validateRoa(final RpslObject rpslObject){
         final Roa rpkiRoa = new WhoisRoaChecker(new RpkiService(rpkiDataProvider)).validateAndGetInvalidRoa(rpslObject);
 
         if (rpkiRoa == null) {
             return null;
         }
 
-        return new InfoMessage(QueryMessages.roaRouteConflicts(rpkiRoa.getAsn()));
+        return new ObjectMessage(QueryMessages.roaRouteConflicts(rpkiRoa.getAsn()));
 
     }
 }

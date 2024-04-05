@@ -14,7 +14,7 @@ import static com.fasterxml.jackson.annotation.JsonInclude.Include.NON_EMPTY;
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlRootElement(name = "errormessage")
 @JsonInclude(NON_EMPTY)
-public class ErrorMessage extends WhoisResponseMessage {
+public class ErrorMessage extends WhoisMessage {
 
     public ErrorMessage() {
         super();

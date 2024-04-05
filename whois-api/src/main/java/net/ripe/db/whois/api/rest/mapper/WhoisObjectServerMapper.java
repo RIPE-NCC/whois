@@ -2,7 +2,7 @@ package net.ripe.db.whois.api.rest.mapper;
 
 import com.google.common.collect.Lists;
 import net.ripe.db.whois.api.rest.domain.Attribute;
-import net.ripe.db.whois.api.rest.domain.InfoMessages;
+import net.ripe.db.whois.api.rest.domain.ObjectMessages;
 import net.ripe.db.whois.api.rest.domain.Parameters;
 import net.ripe.db.whois.api.rest.domain.WhoisObject;
 import net.ripe.db.whois.api.rest.domain.WhoisVersion;
@@ -79,13 +79,13 @@ public class WhoisObjectServerMapper {
     }
 
     public void mapObjectInfoMessages(final WhoisObject whoisObject, final Parameters parameters, final RpslObject rpslObject){
-        final InfoMessages infoMessagesFormatted = new InfoMessages(infoMessageGenerator
+        final ObjectMessages infoMessagesFormatted = new ObjectMessages(infoMessageGenerator
                 .stream()
                 .map(infoMessageGenerator -> infoMessageGenerator.generate(rpslObject, parameters))
                 .filter(Objects::nonNull)
                 .toList());
         if (!infoMessagesFormatted.getMessages().isEmpty()){
-            whoisObject.setInfoMessages(infoMessagesFormatted);
+            whoisObject.setObjectMessages(infoMessagesFormatted);
         }
     }
 
