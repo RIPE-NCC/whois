@@ -46,7 +46,21 @@ public abstract class MailGatewaySmtp {
         this.webBaseUrl = webBaseUrl;
     }
 
+
     protected abstract boolean canNotSendEmail(final String emailAddresses);
+
+    protected void sendEmail(final String to, final String replyTo, final String subject, final String text) {
+        sendEmail(Set.of(to), replyTo, subject, text);
+    }
+
+    protected void sendEmail(final Set<String> recipients, final String replyTo, final String subject, final String text) {
+        sendEmail(recipients, replyTo, subject, text, false);
+    }
+
+    protected void sendHtmlEmail(final Set<String> recipients, final String replyTo, final String subject, final String text) {
+        //Do not remove - used from internal
+        sendEmail(recipients, replyTo, subject, text, true);
+    }
 
     @Nullable
     protected String extractEmailBetweenAngleBrackets(final String email) {
@@ -66,6 +80,42 @@ public abstract class MailGatewaySmtp {
         final MimeMessageHelper helper = new MimeMessageHelper(mimeMessage, MimeMessageHelper.MULTIPART_MODE_NO, "UTF-8");
 
         return sendEmailAttempt(helper, recipients, replyTo, subject, text, html);
+    }
+
+    protected void sendAttachedEmail(final Set<String> to, final String subject, final String replyTo,
+                                     final String text, final List<MailAttachment> attachments, final boolean html) throws MessagingException {
+        //Do not remove - used from internal
+        if (!canSendEmail(to, replyTo, subject, text)){
+            return;
+        }
+
+        final MimeMessage mimeMessage = mailSender.createMimeMessage();
+
+        final MimeMessageHelper message;
+        if (attachments == null || attachments.isEmpty()) {
+            message = new MimeMessageHelper(mimeMessage, MimeMessageHelper.MULTIPART_MODE_NO, "UTF-8");
+        } else {
+            message = new MimeMessageHelper(mimeMessage, MimeMessageHelper.MULTIPART_MODE_MIXED, "UTF-8");
+            attachments.forEach(attachment -> {
+                try {
+                    message.addAttachment(attachment.getAttachmentFilename(), attachment.getInputStreamSource());
+                } catch (MessagingException e) {
+                    LOGGER.error("Unable to add attachment to email message to: {}", to, e);
+                }
+            });
+        }
+        sendEmailAttempt(message, to, replyTo, subject, text, html);
+    }
+
+    private void sendEmail(final Set<String> to, final String replyTo, final String subject, final String text, final boolean html) {
+        try {
+            if (!canSendEmail(to, replyTo, subject, text)){
+                return;
+            }
+            sendEmailAttempt(to, replyTo, subject, text, html);
+        } catch (MessagingException e) {
+            throw new IllegalStateException(e);
+        }
     }
 
     protected MimeMessage sendEmailAttempt(final MimeMessageHelper helper, final Set<String> recipients, final String replyTo, final String subject, final String text, final boolean html) throws MessagingException {
