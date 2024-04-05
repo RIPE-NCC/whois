@@ -384,14 +384,15 @@ public class NrtmClientServiceTestIntegration extends AbstractNrtmIntegrationTes
     @Test
     public void should_throw_exception_invalid_notification_filename()  {
         final Response response = getResponseFromHttpsRequest("TEST/update-notification-file.aaaaa", MediaType.APPLICATION_OCTET_STREAM);
-        assertThat(response.getStatus(), is(400));
-        assertThat(response.readEntity(String.class), is("Invalid notification filename"));
+        assertThat(response.getStatus(), is(404));
+        assertThat(response.readEntity(String.class), is("Notification file does not exists"));
     }
 
+    @Test
     public void should_throw_exception_invalid_notification_sig_filename()  {
         final Response response = getResponseFromHttpsRequest("TEST/update-notification-file.aaaaa.sig", MediaType.APPLICATION_OCTET_STREAM);
-        assertThat(response.getStatus(), is(400));
-        assertThat(response.readEntity(String.class), is("Invalid notification filename"));
+        assertThat(response.getStatus(), is(404));
+        assertThat(response.readEntity(String.class), is("Notification file does not exists"));
     }
 
     @Test

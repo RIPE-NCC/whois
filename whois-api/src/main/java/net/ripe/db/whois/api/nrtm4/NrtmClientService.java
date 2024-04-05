@@ -152,7 +152,7 @@ public class NrtmClientService {
 
         final String fileExtension = StringUtils.substringAfter(fileName, NrtmDocumentType.NOTIFICATION.getFileNamePrefix());
         if(!fileExtension.equals(".json.sig"))  {
-            throw new BadRequestException("Invalid notification filename");
+            throw new NotFoundException("Notification file does not exists");
         }
 
         return true;
