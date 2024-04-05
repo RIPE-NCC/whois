@@ -16,24 +16,24 @@ import static com.fasterxml.jackson.annotation.JsonInclude.Include.NON_EMPTY;
 @JsonInclude(NON_EMPTY)
 public class ObjectMessages {
     @XmlElement(name = "objectMessage")
-    protected List<ObjectMessage> infoMessages;
+    protected List<ObjectMessage> objectMessages;
     public ObjectMessages() {
-        infoMessages = Lists.newArrayList();
+        objectMessages = Lists.newArrayList();
     }
 
-    public ObjectMessages(final List<ObjectMessage> infoMessages) {
-        this.infoMessages = infoMessages;
+    public ObjectMessages(final List<ObjectMessage> objectMessages) {
+        this.objectMessages = objectMessages;
     }
 
-    public void addMessage(final ObjectMessage infoMessage){
-        infoMessages.add(infoMessage);
+    public void addMessage(final ObjectMessage objectMessage){
+        objectMessages.add(objectMessage);
     }
 
-    public void setMessages(final List<ObjectMessage> infoMessages) {
-        this.infoMessages = infoMessages;
+    public void setMessages(final List<ObjectMessage> objectMessages) {
+        this.objectMessages = objectMessages;
     }
 
     public List<ObjectMessage> getMessages() {
-        return infoMessages;
+        return objectMessages;
     }
 }

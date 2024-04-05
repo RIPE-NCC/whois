@@ -31,7 +31,7 @@ public class WhoisObjectServerMapper {
     private final AbuseContactSearch abuseContactSearch;
     private final ManagedAttributeSearch managedAttributeSearch;
 
-    private final List<QueryMessageGenerator> infoMessageGenerator;
+    private final List<QueryMessageGenerator> objectMessageGenerator;
 
     @Autowired
     public WhoisObjectServerMapper(
@@ -39,12 +39,12 @@ public class WhoisObjectServerMapper {
             final ResourceHolderSearch resourceHolderSearch,
             final AbuseContactSearch abuseContactSearch,
             final ManagedAttributeSearch managedAttributeSearch,
-            final List<QueryMessageGenerator> infoMessageGenerator) {
+            final List<QueryMessageGenerator> objectMessageGenerator) {
         this.whoisObjectMapper = whoisObjectMapper;
         this.resourceHolderSearch = resourceHolderSearch;
         this.abuseContactSearch = abuseContactSearch;
         this.managedAttributeSearch = managedAttributeSearch;
-        this.infoMessageGenerator = infoMessageGenerator;
+        this.objectMessageGenerator = objectMessageGenerator;
     }
 
     public List<WhoisVersion> mapVersions(final List<DeletedVersionResponseObject> deleted, final List<VersionResponseObject> versions) {
@@ -78,14 +78,14 @@ public class WhoisObjectServerMapper {
         }
     }
 
-    public void mapObjectInfoMessages(final WhoisObject whoisObject, final Parameters parameters, final RpslObject rpslObject){
-        final ObjectMessages infoMessagesFormatted = new ObjectMessages(infoMessageGenerator
+    public void mapObjectMessages(final WhoisObject whoisObject, final Parameters parameters, final RpslObject rpslObject){
+        final ObjectMessages objectMessagesFormatted = new ObjectMessages(objectMessageGenerator
                 .stream()
-                .map(infoMessageGenerator -> infoMessageGenerator.generate(rpslObject, parameters))
+                .map(objectMessageGenerator -> objectMessageGenerator.generate(rpslObject, parameters))
                 .filter(Objects::nonNull)
                 .toList());
-        if (!infoMessagesFormatted.getMessages().isEmpty()){
-            whoisObject.setObjectMessages(infoMessagesFormatted);
+        if (!objectMessagesFormatted.getMessages().isEmpty()){
+            whoisObject.setObjectMessages(objectMessagesFormatted);
         }
     }
 

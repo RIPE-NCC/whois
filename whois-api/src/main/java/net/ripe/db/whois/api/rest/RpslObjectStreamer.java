@@ -193,7 +193,7 @@ public class RpslObjectStreamer {
                 whoisObjectServerMapper.mapAbuseContact(whoisObject, parameters, rpslObject);
                 whoisObjectServerMapper.mapManagedAttributes(whoisObject, parameters, rpslObject);
                 whoisObjectServerMapper.mapResourceHolder(whoisObject, parameters, rpslObject);
-                whoisObjectServerMapper.mapObjectInfoMessages(whoisObject, parameters, rpslObject);
+                whoisObjectServerMapper.mapObjectMessages(whoisObject, parameters, rpslObject);
 
                 if (streamingMarshal instanceof StreamingMarshalTextPlain) {
                     streamingMarshal.writeArray(rpslObject);
