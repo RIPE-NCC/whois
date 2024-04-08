@@ -3,6 +3,7 @@ package net.ripe.db.whois.common.rpki;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.jakarta.rs.json.JacksonJsonProvider;
 import com.google.common.base.Strings;
+import com.google.common.collect.Lists;
 import jakarta.ws.rs.client.Client;
 import jakarta.ws.rs.client.ClientBuilder;
 import jakarta.ws.rs.core.MediaType;
@@ -45,7 +46,7 @@ public class RoutinatorDataProvider implements RpkiDataProvider{
     public List<Roa> loadRoas() {
         if (Strings.isNullOrEmpty(rpkiBaseUrl)){
             LOGGER.error("rpki.base.url property is not set but client is being used");
-            return null;
+            return Lists.newArrayList();
         }
 
         return this.client.target(rpkiBaseUrl)
