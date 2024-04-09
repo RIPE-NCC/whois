@@ -247,5 +247,20 @@ public class MailBounceTestIntegration extends AbstractMailMessageIntegrationTes
         assertThat(mailSenderStub.anyMoreMessages(), is(false));
     }
 
+    @Test
+    public void second_failure_mail_is_deleted() {
+        insertOutgoingMessageId("XXXXXXXX-5AE3-4C58-8E3F-860327BA955D@ripe.net", "nonexistant@host.org");
+        final MimeMessage firstNotification = MimeMessageProvider.getUpdateMessage("permanentFailureMessageRfc822.mail");
+        insertIncomingMessage(firstNotification);
+        insertOutgoingMessageId("XXXXXXXX-5AE3-4C58-8E3F-860327BA722A@ripe.net", "nonexistant@host.org");
+        final MimeMessage secondNotification = MimeMessageProvider.getUpdateMessage("permanentFailureMessageAnotherRfc822.mail");
+        insertIncomingMessage(secondNotification);
+
+        // Wait for address to be marked as undeliverable
+        Awaitility.waitAtMost(10L, TimeUnit.SECONDS).until(() -> (isUndeliverableAddress("nonexistant@host.org")));
+        // Make sure that failure response messages were deleted
+        Awaitility.waitAtMost(10L, TimeUnit.SECONDS).until(() -> (! anyIncomingMessages()));
+    }
+
     // TODO: test that acknowledgement email (i.e. the reply to an incoming message) *is* sent to unsubscribed address
 }
