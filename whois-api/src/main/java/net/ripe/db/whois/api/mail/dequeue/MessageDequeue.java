@@ -7,6 +7,7 @@ import net.ripe.db.whois.api.UpdatesParser;
 import net.ripe.db.whois.api.mail.EmailMessageInfo;
 import net.ripe.db.whois.api.mail.MailMessage;
 import net.ripe.db.whois.api.mail.dao.MailMessageDao;
+import net.ripe.db.whois.api.mail.exception.MailParsingException;
 import net.ripe.db.whois.common.ApplicationService;
 import net.ripe.db.whois.common.DateTimeProvider;
 import net.ripe.db.whois.common.MaintenanceMode;
@@ -195,18 +196,22 @@ public class MessageDequeue implements ApplicationService {
             final EmailMessageInfo bouncedMessage = messageService.getBouncedMessageInfo(message);
             if (bouncedMessage != null) {
                 messageService.verifyAndSetAsUndeliverable(bouncedMessage);
+                mailMessageDao.deleteMessage(messageId);
                 return;
             }
 
             final EmailMessageInfo unsubscribeMessage = messageService.getUnsubscribedMessageInfo(message);
             if (unsubscribeMessage != null) {
                 messageService.verifyAndSetAsUnsubscribed(unsubscribeMessage);
+                mailMessageDao.deleteMessage(messageId);
                 return;
             }
-        } catch (Exception e){
-            LOGGER.error("Error detecting bounce detection or unsubscribing", e);
-        } finally {
+        } catch (MailParsingException e){
+            LOGGER.error("Error detecting bounce detection or unsubscribing for messageId {}", messageId, e);
             mailMessageDao.deleteMessage(messageId);
+            return;
+        } catch (MessagingException ex) {
+            /* Do nothing, process the message as a normal message*/
         }
 
         try {

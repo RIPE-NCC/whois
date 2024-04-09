@@ -4,6 +4,7 @@ package net.ripe.db.whois.api.mail.dequeue;
 import jakarta.mail.MessagingException;
 import jakarta.mail.internet.MimeMessage;
 import net.ripe.db.whois.api.mail.EmailMessageInfo;
+import net.ripe.db.whois.api.mail.exception.MailParsingException;
 import net.ripe.db.whois.common.dao.EmailStatusDao;
 import net.ripe.db.whois.common.dao.OutgoingMessageDao;
 import net.ripe.db.whois.common.mail.EmailStatus;
@@ -38,10 +39,10 @@ public class MessageService {
         this.emailStatusDao = emailStatusDao;
     }
 
-    public EmailMessageInfo getBouncedMessageInfo(final MimeMessage message) throws MessagingException, IOException {
+    public EmailMessageInfo getBouncedMessageInfo(final MimeMessage message) throws MessagingException, MailParsingException {
         return bouncedMessageParser.parse(message);
     }
-    public EmailMessageInfo getUnsubscribedMessageInfo(final MimeMessage message) throws MessagingException {
+    public EmailMessageInfo getUnsubscribedMessageInfo(final MimeMessage message) throws MessagingException, MailParsingException {
         return unsubscribeMessageParser.parse(message);
     }
 
