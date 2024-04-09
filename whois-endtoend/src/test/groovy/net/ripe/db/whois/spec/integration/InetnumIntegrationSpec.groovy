@@ -1,6 +1,5 @@
 package net.ripe.db.whois.spec.integration
 
-import net.ripe.db.whois.common.dao.jdbc.DatabaseHelper
 import net.ripe.db.whois.spec.domain.SyncUpdate
 import org.junit.jupiter.api.Tag
 
@@ -598,8 +597,6 @@ class InetnumIntegrationSpec extends BaseWhoisSourceSpec {
 
   def "create status ALLOCATED PA no alloc maintainer"() {
       when:
-      whoisFixture.dumpSchema();
-
       def insertResponse = syncUpdate(new SyncUpdate(data: """\
             inetnum: 192.0.0.0 - 192.0.0.255
             netname: RIPE-NCC
