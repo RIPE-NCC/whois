@@ -27,7 +27,7 @@ public enum InetnumStatus implements InetStatus {
     ASSIGNED_ANYCAST("ASSIGNED ANYCAST", LIR, OTHER),
     LEGACY("LEGACY", LIR, OTHER);
 
-    private static final EnumSet<InetnumStatus> RS_MNTNER_STATUSES = EnumSet.of(ASSIGNED_ANYCAST, ALLOCATED_UNSPECIFIED);
+    private static final EnumSet<InetnumStatus> RS_MNTNER_STATUSES = EnumSet.of(ALLOCATED_PA, ASSIGNED_ANYCAST, ALLOCATED_UNSPECIFIED);
     private static final EnumSet<InetnumStatus> NEEDS_ORG_REFERENCE = EnumSet.of(ALLOCATED_PA, ALLOCATED_UNSPECIFIED);
     private static final EnumSet<InetnumStatus> NEEDS_PARENT_RS_MNTR = EnumSet.of(ALLOCATED_UNSPECIFIED);
 
