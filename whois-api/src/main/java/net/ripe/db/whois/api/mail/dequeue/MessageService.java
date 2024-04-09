@@ -54,11 +54,13 @@ public class MessageService {
         }
 
         LOGGER.debug("Undeliverable message-id {} email {}", message.messageId(), StringUtils.join(message.emailAddresses(), ", "));
-        try {
-            message.emailAddresses().forEach(email -> emailStatusDao.createEmailStatus(email, EmailStatus.UNDELIVERABLE));
-        } catch (DuplicateKeyException ex) {
-            LOGGER.warn("Email already exist in EmailStatus table {}", StringUtils.join(message.emailAddresses(), ", "), ex);
-        }
+        message.emailAddresses().forEach(emails -> {
+            try{
+                message.emailAddresses().forEach(email -> emailStatusDao.createEmailStatus(email, EmailStatus.UNDELIVERABLE));
+            } catch (DuplicateKeyException ex) {
+                LOGGER.debug("Email already exist in EmailStatus table {}", StringUtils.join(message.emailAddresses(), ", "), ex);
+            }
+        });
     }
 
     public void verifyAndSetAsUnsubscribed(final EmailMessageInfo message){
