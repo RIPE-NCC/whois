@@ -988,10 +988,8 @@
                         <exclude>${test.files.integration}</exclude>
                     </excludes>
                     <runOrder>random</runOrder>
-                    <parallel>true</parallel>
                     <forkCount>1C</forkCount>
                     <reuseForks>true</reuseForks>
-                    <useUnlimitedThreads>true</useUnlimitedThreads>
                     <excludedGroups>IntegrationTest,ManualTest,ElasticSearchTest</excludedGroups>
                     <systemPropertyVariables>
                         <hazelcast.version.check.enabled>false</hazelcast.version.check.enabled>
@@ -1015,10 +1013,9 @@
                         <exclude>${test.files.excludes}</exclude>
                     </excludes>
                     <excludedGroups>ManualTest</excludedGroups>
-                    <runOrder>random</runOrder>
-                    <parallel>true</parallel>
                     <forkCount>1C</forkCount>
                     <reuseForks>true</reuseForks>
+                    <runOrder>random</runOrder>
                     <testFailureIgnore>false</testFailureIgnore>
                 </configuration>
                 <executions>
