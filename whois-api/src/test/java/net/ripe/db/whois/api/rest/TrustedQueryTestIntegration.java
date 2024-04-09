@@ -86,18 +86,12 @@ public class TrustedQueryTestIntegration extends AbstractIntegrationTest {
     // inverse lookup on sponsoring org attribute
 
     @Test
-    public void inverse_lookup_sponsoring_org_from_untrusted_range_returns_empty() {
+    public void inverse_lookup_sponsoring_org_from_untrusted_range_succeeds() {
+        //allow non trusted to inverse query sponsoring-org DB-5228
         ipRanges.setTrusted("1/8");
 
-        try {
-            RestTest.target(getPort(), "whois/search?query-string=ORG-SPONSOR&inverse-attribute=sponsoring-org").request().get(String.class);
-            fail();
-        } catch (NotFoundException e) {
-            // TODO: this should be 400 bad request really
-            final String response = e.getResponse().readEntity(String.class);
-            assertThat(response, containsString("attribute is not searchable"));
-            assertThat(response, containsString("is not an inverse searchable attribute"));
-        }
+        final String response = RestTest.target(getPort(), "whois/search?query-string=ORG-SPONSOR&inverse-attribute=sponsoring-org").request().get(String.class);
+        assertThat(response, containsString("<attribute name=\"inetnum\" value=\"194.0.0.0 - 194.255.255.255\"/>"));
     }
 
     @Test
