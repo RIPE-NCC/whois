@@ -647,6 +647,7 @@ class InetnumIntegrationSpec extends BaseWhoisSourceSpec {
             tech-c: TEST-PN
             status: ALLOCATED PA
             mnt-by: TEST-MNT
+            mnt-by: RIPE-NCC-HM-MNT
             org: ORG-TOL1-TEST
             source: TEST
             password: update

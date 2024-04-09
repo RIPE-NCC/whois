@@ -18,7 +18,6 @@ import static net.ripe.db.whois.common.rpsl.attrs.OrgType.RIR;
 
 public enum InetnumStatus implements InetStatus {
 
-    //TODO: remove IANA from ALLOCATED PA
     ALLOCATED_PA("ALLOCATED PA", IANA, RIR, LIR),
     ALLOCATED_UNSPECIFIED("ALLOCATED UNSPECIFIED", IANA, RIR, LIR),
     LIR_PARTITIONED_PA("LIR-PARTITIONED PA", LIR, OTHER),
@@ -30,8 +29,7 @@ public enum InetnumStatus implements InetStatus {
     ASSIGNED_ANYCAST("ASSIGNED ANYCAST", LIR, OTHER),
     LEGACY("LEGACY", LIR, OTHER);
 
-    private static final EnumSet<InetnumStatus> RS_MNTNER_STATUSES = EnumSet.of(ALLOCATED_ASSIGNED_PA, ALLOCATED_PA, ASSIGNED_ANYCAST, ALLOCATED_UNSPECIFIED);
-    //TODO: Ask if it needs ORg Ref??
+    private static final EnumSet<InetnumStatus> RS_MNTNER_STATUSES = EnumSet.of(ALLOCATED_PA, ALLOCATED_ASSIGNED_PA, ASSIGNED_ANYCAST, ALLOCATED_UNSPECIFIED);
     private static final EnumSet<InetnumStatus> NEEDS_ORG_REFERENCE = EnumSet.of(ALLOCATED_PA, ALLOCATED_ASSIGNED_PA, ALLOCATED_UNSPECIFIED);
     private static final EnumSet<InetnumStatus> NEEDS_PARENT_RS_MNTR = EnumSet.of(ALLOCATED_UNSPECIFIED);
 
@@ -42,7 +40,7 @@ public enum InetnumStatus implements InetStatus {
         PARENT_STATUS.put(ALLOCATED_PA, EnumSet.of(ALLOCATED_UNSPECIFIED));
         PARENT_STATUS.put(ALLOCATED_ASSIGNED_PA, EnumSet.of(ALLOCATED_UNSPECIFIED));
         PARENT_STATUS.put(ALLOCATED_UNSPECIFIED, EnumSet.of(ALLOCATED_UNSPECIFIED));
-        PARENT_STATUS.put(LIR_PARTITIONED_PA, EnumSet.of(ALLOCATED_UNSPECIFIED, ALLOCATED_PA,  LIR_PARTITIONED_PA, SUB_ALLOCATED_PA));
+        PARENT_STATUS.put(LIR_PARTITIONED_PA, EnumSet.of(ALLOCATED_UNSPECIFIED, ALLOCATED_PA, LIR_PARTITIONED_PA, SUB_ALLOCATED_PA));
         PARENT_STATUS.put(SUB_ALLOCATED_PA, EnumSet.of(ALLOCATED_PA, LIR_PARTITIONED_PA, SUB_ALLOCATED_PA));
         PARENT_STATUS.put(ASSIGNED_PA, EnumSet.of(ALLOCATED_PA, LIR_PARTITIONED_PA, SUB_ALLOCATED_PA));
         PARENT_STATUS.put(ASSIGNED_ANYCAST, EnumSet.of(ALLOCATED_UNSPECIFIED));
@@ -97,7 +95,6 @@ public enum InetnumStatus implements InetStatus {
         return PARENT_STATUS.get(this).contains(parent);
     }
 
-    //TODO: check this logic
     @Override
     public boolean worksWithParentInHierarchy(final InetStatus parentInHierarchyMaintainedByRs, final boolean parentHasRsMntLower) {
         if (this == ASSIGNED_PA && parentInHierarchyMaintainedByRs == ALLOCATED_PA) {

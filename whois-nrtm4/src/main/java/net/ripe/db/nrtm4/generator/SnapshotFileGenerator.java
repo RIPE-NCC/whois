@@ -216,7 +216,7 @@ public class SnapshotFileGenerator {
                     LOGGER.info("Source {} snapshot file {}", source, fileName);
                     LOGGER.info("Calculated hash for {}", source);
                     updateNrtmFileRepository.saveSnapshotVersion(versionInfo.get(), fileName, calculateSha256(payload), payload);
-                    LOGGER.info("Wrote {} to DB {}", source);
+                    LOGGER.info("Wrote {} to DB", source);
                 } catch (final Throwable t) {
                     LOGGER.error("Unexpected throwable caught when inserting snapshot file", t);
                 }

@@ -25,16 +25,14 @@ public class RpkiService {
 
     public RpkiService(final RpkiDataProvider rpkiDataProvider) {
         final List<Roa> loadedRoas = rpkiDataProvider.loadRoas();
-        if (loadedRoas == null){
-            LOGGER.error("Rpki roas are not loaded");
-            throw new IllegalStateException("Rpki roas are not loaded");
-        }
-        final List<Roa> roas = loadedRoas.stream()
-                .filter(roa -> roa.getTrustAnchor() != TrustAnchor.UNSUPPORTED)
-                .collect(Collectors.toList());
+        if (loadedRoas != null && !loadedRoas.isEmpty()){
+            final List<Roa> roas = loadedRoas.stream()
+                    .filter(roa -> roa.getTrustAnchor() != TrustAnchor.UNSUPPORTED)
+                    .collect(Collectors.toList());
 
-        LOGGER.info("downloaded {} roas from rpki", roas.size());
-        buildTrees(roas, ipv4Tree, ipv6Tree);
+            LOGGER.info("downloaded {} roas from rpki", roas.size());
+            buildTrees(roas, ipv4Tree, ipv6Tree);
+        }
     }
 
     private void buildTrees(final List<Roa> roas,
