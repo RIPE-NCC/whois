@@ -55,7 +55,7 @@ public class MessageService {
 
         LOGGER.debug("Undeliverable message-id {} email {}", message.messageId(), StringUtils.join(message.emailAddresses(), ", "));
         message.emailAddresses().forEach(emails -> {
-            try{
+            try {
                 message.emailAddresses().forEach(email -> emailStatusDao.createEmailStatus(email, EmailStatus.UNDELIVERABLE));
             } catch (DuplicateKeyException ex) {
                 LOGGER.debug("Email already exist in EmailStatus table {}", StringUtils.join(message.emailAddresses(), ", "), ex);
