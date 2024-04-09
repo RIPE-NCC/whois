@@ -4,6 +4,7 @@ package net.ripe.db.whois.spec.update
 import net.ripe.db.whois.spec.BaseQueryUpdateSpec
 import net.ripe.db.whois.spec.domain.AckResponse
 import net.ripe.db.whois.spec.domain.Message
+import net.ripe.db.whois.spec.domain.SyncUpdate
 import spock.lang.Ignore
 
 @org.junit.jupiter.api.Tag("IntegrationTest")
@@ -371,6 +372,119 @@ class InetnumStatusChildSpec extends BaseQueryUpdateSpec {
         ack.errors.any { it.operation == "Create" && it.key == "[inetnum] 192.168.0.0 - 192.168.255.255" }
         ack.errorMessagesFor("Create", "[inetnum] 192.168.0.0 - 192.168.255.255") ==
                 ["inetnum parent has incorrect status: ALLOCATED PA"]
+
+        queryObjectNotFound("-rGBT inetnum 192.168.0.0 - 192.168.255.255", "inetnum", "192.168.0.0 - 192.168.255.255")
+    }
+
+    // Tests for parent ALLOCATED-ASSIGNED PA
+    def "create child LIR-PARTITIONED PA, parent status ALLOCATED-ASSIGNED PA"() {
+        given:
+        def insertResponse = syncUpdate(new SyncUpdate(data: """\
+                            inetnum:      192.168.0.0 - 192.169.255.255
+                            netname:      TEST-NET-NAME
+                            descr:        TEST network
+                            country:      NL
+                            org:          ORG-LIR1-TEST
+                            admin-c:      TP1-TEST
+                            tech-c:       TP1-TEST
+                            status:       ALLOCATED-ASSIGNED PA
+                            mnt-by:       RIPE-NCC-HM-MNT
+                            mnt-lower:    LIR-MNT
+                            mnt-lower:    LIR2-MNT
+                            source:       TEST
+                            password: hm
+                            password: owner3
+                            password: lir
+                        """.stripIndent(true)))
+        when:
+        insertResponse =~ /SUCCESS/
+
+        then:
+        def ack = syncUpdateWithResponse("""\
+                inetnum:      192.168.0.0 - 192.168.255.255
+                netname:      TEST-NET-NAME
+                descr:        TEST network
+                country:      NL
+                org:          ORG-LIR1-TEST
+                admin-c:      TP1-TEST
+                tech-c:       TP1-TEST
+                status:       LIR-PARTITIONED PA
+                mnt-by:       RIPE-NCC-HM-MNT
+                mnt-lower:    LIR-MNT
+                source:       TEST
+
+                password: hm
+                password: owner3
+                password: lir
+                """.stripIndent(true)
+        )
+
+        then:
+
+        ack.summary.nrFound == 1
+        ack.summary.assertSuccess(0, 0, 0, 0, 0)
+        ack.summary.assertErrors(1, 1, 0, 0)
+
+        ack.countErrorWarnInfo(1, 0, 0)
+        ack.errors.any { it.operation == "Create" && it.key == "[inetnum] 192.168.0.0 - 192.168.255.255" }
+        ack.errorMessagesFor("Create", "[inetnum] 192.168.0.0 - 192.168.255.255") ==
+                ["inetnum parent has incorrect status: ALLOCATED-ASSIGNED PA"]
+
+        queryObjectNotFound("-rGBT inetnum 192.168.0.0 - 192.168.255.255", "inetnum", "192.168.0.0 - 192.168.255.255")
+    }
+
+    def "create child SUB-ALLOCATED PA, parent status ALLOCATED-ASSIGNED PA"() {
+        given:
+        def insertResponse = syncUpdate(new SyncUpdate(data: """\
+                            inetnum:      192.168.0.0 - 192.169.255.255
+                            netname:      TEST-NET-NAME
+                            descr:        TEST network
+                            country:      NL
+                            org:          ORG-LIR1-TEST
+                            admin-c:      TP1-TEST
+                            tech-c:       TP1-TEST
+                            status:       ALLOCATED-ASSIGNED PA
+                            mnt-by:       RIPE-NCC-HM-MNT
+                            mnt-lower:    LIR-MNT
+                            mnt-lower:    LIR2-MNT
+                            source:       TEST
+                            password: hm
+                            password: owner3
+                            password: lir
+                        """.stripIndent(true)))
+        when:
+        insertResponse =~ /SUCCESS/
+
+        then:
+        def ack = syncUpdateWithResponse("""\
+                inetnum:      192.168.0.0 - 192.168.255.255
+                netname:      TEST-NET-NAME
+                descr:        TEST network
+                country:      NL
+                org:          ORG-LIR1-TEST
+                admin-c:      TP1-TEST
+                tech-c:       TP1-TEST
+                status:       SUB-ALLOCATED PA
+                mnt-by:       RIPE-NCC-HM-MNT
+                mnt-lower:    LIR-MNT
+                source:       TEST
+
+                password: hm
+                password: owner3
+                password: lir
+                """.stripIndent(true)
+        )
+
+        then:
+
+        ack.summary.nrFound == 1
+        ack.summary.assertSuccess(0, 0, 0, 0, 0)
+        ack.summary.assertErrors(1, 1, 0, 0)
+
+        ack.countErrorWarnInfo(1, 0, 0)
+        ack.errors.any { it.operation == "Create" && it.key == "[inetnum] 192.168.0.0 - 192.168.255.255" }
+        ack.errorMessagesFor("Create", "[inetnum] 192.168.0.0 - 192.168.255.255") ==
+                ["inetnum parent has incorrect status: ALLOCATED-ASSIGNED PA"]
 
         queryObjectNotFound("-rGBT inetnum 192.168.0.0 - 192.168.255.255", "inetnum", "192.168.0.0 - 192.168.255.255")
     }
@@ -788,6 +902,89 @@ class InetnumStatusChildSpec extends BaseQueryUpdateSpec {
         ack.successes.any { it.operation == "Create" && it.key == "[inetnum] 192.168.0.0 - 192.169.255.255" }
 
         queryObject("-rGBT inetnum 192.168.0.0 - 192.169.255.255", "inetnum", "192.168.0.0 - 192.169.255.255")
+    }
+
+    // Create child object with status ALLOCATED-ASSIGNED PA tests
+
+    def "create child ALLOCATED-ASSIGNED PA, parent status ALLOCATED UNSPECIFIED"() {
+        given:
+        syncUpdate(getTransient("ALLOC-UNS") + "password: owner3\npassword: hm")
+        queryObject("-r -T inetnum 192.0.0.0 - 192.255.255.255", "inetnum", "192.0.0.0 - 192.255.255.255")
+
+        expect:
+        queryObjectNotFound("-r -T inetnum 192.168.0.0 - 192.169.255.255", "inetnum", "192.168.0.0 - 192.169.255.255")
+
+        when:
+        def ack = syncUpdateWithResponse("""\
+                inetnum:      192.168.0.0 - 192.169.255.255
+                netname:      TEST-NET-NAME
+                descr:        TEST network
+                country:      NL
+                org:          ORG-LIR1-TEST
+                admin-c:      TP1-TEST
+                tech-c:       TP1-TEST
+                status:       ALLOCATED-ASSIGNED PA
+                mnt-by:       RIPE-NCC-HM-MNT
+                mnt-lower:    LIR-MNT
+                source:       TEST
+
+                password: hm
+                password: owner3
+                """.stripIndent(true)
+        )
+
+        then:
+
+        ack.summary.nrFound == 1
+        ack.summary.assertSuccess(1, 1, 0, 0, 0)
+        ack.summary.assertErrors(0, 0, 0, 0)
+
+        ack.countErrorWarnInfo(0, 0, 0)
+        ack.successes.any { it.operation == "Create" && it.key == "[inetnum] 192.168.0.0 - 192.169.255.255" }
+
+        queryObject("-rGBT inetnum 192.168.0.0 - 192.169.255.255", "inetnum", "192.168.0.0 - 192.169.255.255")
+    }
+
+    def "create child ALLOCATED-ASSIGNED PA, parent status ALLOCATED PA"() {
+        given:
+        syncUpdate(getTransient("ALLOC-PA") + "password: owner3\npassword: hm")
+        queryObject("-r -T inetnum 192.168.0.0 - 192.169.255.255", "inetnum", "192.168.0.0 - 192.169.255.255")
+
+        expect:
+        queryObjectNotFound("-r -T inetnum 192.168.0.0 - 192.168.255.255", "inetnum", "192.168.0.0 - 192.168.255.255")
+
+        when:
+        def ack = syncUpdateWithResponse("""\
+                inetnum:      192.168.0.0 - 192.168.255.255
+                netname:      TEST-NET-NAME
+                descr:        TEST network
+                country:      NL
+                org:          ORG-LIR1-TEST
+                admin-c:      TP1-TEST
+                tech-c:       TP1-TEST
+                status:       ALLOCATED-ASSIGNED PA
+                mnt-by:       RIPE-NCC-HM-MNT
+                mnt-lower:    LIR-MNT
+                source:       TEST
+
+                password: hm
+                password: owner3
+                password: lir
+                """.stripIndent(true)
+        )
+
+        then:
+
+        ack.summary.nrFound == 1
+        ack.summary.assertSuccess(0, 0, 0, 0, 0)
+        ack.summary.assertErrors(1, 1, 0, 0)
+
+        ack.countErrorWarnInfo(1, 0, 0)
+        ack.errors.any { it.operation == "Create" && it.key == "[inetnum] 192.168.0.0 - 192.168.255.255" }
+        ack.errorMessagesFor("Create", "[inetnum] 192.168.0.0 - 192.168.255.255") ==
+                ["inetnum parent has incorrect status: ALLOCATED PA"]
+
+        queryObjectNotFound("-rGBT inetnum 192.168.0.0 - 192.168.255.255", "inetnum", "192.168.0.0 - 192.168.255.255")
     }
 
     // Create child object with status ALLOCATED PA tests

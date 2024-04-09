@@ -538,44 +538,6 @@ class InetnumIntegrationSpec extends BaseWhoisSourceSpec {
         response =~ /Modify SUCCEEDED: \[inetnum\] 192.0.0.0 - 192.0.0.255/
     }
 
-    def "modify status ALLOCATED PA failed using user credentials, no RS maintainer"() {
-        given:
-        def insertResponse = syncUpdate(new SyncUpdate(data: """\
-                            inetnum: 192.0.0.0/24
-                            netname: RIPE-NCC
-                            descr: description
-                            country: DK
-                            admin-c: TEST-PN
-                            tech-c: TEST-PN
-                            status: ALLOCATED PA
-                            mnt-by: TEST-MNT
-                            org: ORG-TOL5-TEST
-                            source: TEST
-                            password: hm
-                            password: update
-                        """.stripIndent(true)))
-        when:
-        insertResponse =~ /SUCCESS/
-        then:
-        def response = syncUpdate new SyncUpdate(data: """\
-                    inetnum: 192.0.0.0/24
-                    netname: RIPE-NCC
-                    descr: description
-                    country: DK
-                    admin-c: TEST-PN
-                    tech-c: TEST-PN
-                    status: ALLOCATED-ASSIGNED PA
-                    mnt-by: TEST-MNT
-                    org: ORG-TOL5-TEST
-                    source: TEST
-                    password: update
-                """.stripIndent(true))
-        then:
-        response =~ /Modify FAILED: \[inetnum\] 192.0.0.0 - 192.0.0.255/
-        response.contains("***Error:   Status ALLOCATED-ASSIGNED PA can only be created by the database\n" +
-                "            administrator")
-    }
-
     def "handle failure of out-of-range CIDR notation"() {
         when:
         def response = syncUpdate(new SyncUpdate(data: """\
