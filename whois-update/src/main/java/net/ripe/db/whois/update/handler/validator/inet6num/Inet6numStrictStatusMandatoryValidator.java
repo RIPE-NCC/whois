@@ -88,7 +88,7 @@ public class Inet6numStrictStatusMandatoryValidator implements BusinessRuleValid
 
         return validationMessages;
     }
-    
+
     @SuppressWarnings("unchecked")
     private boolean allChildrenHaveCorrectStatus(final PreparedUpdate update, List<Message> validationMessages) {
         final RpslObject updatedObject = update.getUpdatedObject();
