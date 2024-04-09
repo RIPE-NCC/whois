@@ -1,6 +1,6 @@
 package net.ripe.db.whois.spec.integration
 
-
+import net.ripe.db.whois.common.dao.jdbc.DatabaseHelper
 import net.ripe.db.whois.spec.domain.SyncUpdate
 import org.junit.jupiter.api.Tag
 
@@ -373,6 +373,209 @@ class InetnumIntegrationSpec extends BaseWhoisSourceSpec {
       response =~ /\*\*\*Info:    Value 192.0.0.0\/24 converted to 192.0.0.0 - 192.0.0.255/
   }
 
+    def "create ALLOCATED ASSIGNED PA inetnum using RS credentials"() {
+        when:
+        def response = syncUpdate(new SyncUpdate(data: """\
+                    inetnum: 192.0.0.0/24
+                    netname: RIPE-NCC
+                    descr: description
+                    country: DK
+                    admin-c: TEST-PN
+                    tech-c: TEST-PN
+                    status: ALLOCATED-ASSIGNED PA
+                    mnt-by: RIPE-NCC-HM-MNT
+                    mnt-by: TEST-MNT
+                    org: ORG-TOL5-TEST
+                    source: TEST
+                    password: update
+                    password: hm
+                    """.stripIndent(true)))
+        then:
+        response =~ /Create SUCCEEDED: \[inetnum\] 192.0.0.0 - 192.0.0.255/
+        response =~ /\*\*\*Info:    Value 192.0.0.0\/24 converted to 192.0.0.0 - 192.0.0.255/
+    }
+
+    def "create ALLOCATED ASSIGNED PA inetnum using override credentials"() {
+        when:
+        def response = syncUpdate(new SyncUpdate(data: """\
+                    inetnum: 192.0.0.0/24
+                    netname: RIPE-NCC
+                    descr: description
+                    country: DK
+                    admin-c: TEST-PN
+                    tech-c: TEST-PN
+                    status: ALLOCATED-ASSIGNED PA
+                    mnt-by: RIPE-NCC-HM-MNT
+                    mnt-by: TEST-MNT
+                    org: ORG-TOL5-TEST
+                    source: TEST
+                    override:denis,override1
+                    """.stripIndent(true)))
+        then:
+        response =~ /Create SUCCEEDED: \[inetnum\] 192.0.0.0 - 192.0.0.255/
+        response =~ /\*\*\*Info:    Value 192.0.0.0\/24 converted to 192.0.0.0 - 192.0.0.255/
+    }
+
+    def "create ALLOCATED ASSIGNED PA inetnum failed without RS maintainer"() {
+        when:
+        def response = syncUpdate(new SyncUpdate(data: """\
+                    inetnum: 192.0.0.0/24
+                    netname: RIPE-NCC
+                    descr: description
+                    country: DK
+                    admin-c: TEST-PN
+                    tech-c: TEST-PN
+                    status: ALLOCATED-ASSIGNED PA
+                    mnt-by: TEST-MNT
+                    org: ORG-TOL5-TEST
+                    source: TEST
+                    password: update
+                    password: hm
+                    """.stripIndent(true)))
+        then:
+        response =~ /Create FAILED: \[inetnum\] 192.0.0.0 - 192.0.0.255/
+        response.contains("***Error:   Status ALLOCATED-ASSIGNED PA can only be created by the database\n" +
+                "            administrator")
+    }
+
+    def "create ALLOCATED ASSIGNED PA inetnum failed using user credentials"() {
+        when:
+        def response = syncUpdate(new SyncUpdate(data: """\
+                    inetnum: 192.0.0.0/24
+                    netname: RIPE-NCC
+                    descr: description
+                    country: DK
+                    admin-c: TEST-PN
+                    tech-c: TEST-PN
+                    status: ALLOCATED-ASSIGNED PA
+                    mnt-by: RIPE-NCC-HM-MNT
+                    mnt-by: TEST-MNT
+                    org: ORG-TOL5-TEST
+                    source: TEST
+                    password: update
+                    """.stripIndent(true)))
+        then:
+        response =~ /Create FAILED: \[inetnum\] 192.0.0.0 - 192.0.0.255/
+        response.contains("***Error:   Setting status ALLOCATED-ASSIGNED PA requires administrative\n" +
+                "            authorisation")
+    }
+
+    def "modify status ALLOCATED ASSIGNED PA status by using user credentials"() {
+        given:
+        def insertResponse = syncUpdate(new SyncUpdate(data: """\
+                            inetnum: 192.0.0.0/24
+                            netname: RIPE-NCC
+                            descr: description
+                            country: DK
+                            admin-c: TEST-PN
+                            tech-c: TEST-PN
+                            status: ALLOCATED-ASSIGNED PA
+                            mnt-by: RIPE-NCC-HM-MNT
+                            mnt-by: TEST-MNT
+                            org: ORG-TOL5-TEST
+                            source: TEST
+                            password: hm
+                            password: update
+                        """.stripIndent(true)))
+        when:
+        insertResponse =~ /SUCCESS/
+        then:
+        def response = syncUpdate new SyncUpdate(data: """\
+                    inetnum: 192.0.0.0/24
+                    netname: RIPE-NCC
+                    descr: description
+                    country: DK
+                    admin-c: TEST-PN
+                    tech-c: TEST-PN
+                    status: ALLOCATED PA
+                    mnt-by: RIPE-NCC-HM-MNT
+                    mnt-by: TEST-MNT
+                    org: ORG-TOL5-TEST
+                    source: TEST
+                    password: update
+                """.stripIndent(true))
+        then:
+        response =~ /SUCCESS/
+        response =~ /Modify SUCCEEDED: \[inetnum\] 192.0.0.0 - 192.0.0.255/
+    }
+
+    def "modify status ALLOCATED PA status by using user credentials"() {
+        given:
+        def insertResponse = syncUpdate(new SyncUpdate(data: """\
+                            inetnum: 192.0.0.0/24
+                            netname: RIPE-NCC
+                            descr: description
+                            country: DK
+                            admin-c: TEST-PN
+                            tech-c: TEST-PN
+                            status: ALLOCATED PA
+                            mnt-by: RIPE-NCC-HM-MNT
+                            mnt-by: TEST-MNT
+                            org: ORG-TOL5-TEST
+                            source: TEST
+                            password: hm
+                            password: update
+                        """.stripIndent(true)))
+        when:
+        insertResponse =~ /SUCCESS/
+        then:
+        def response = syncUpdate new SyncUpdate(data: """\
+                    inetnum: 192.0.0.0/24
+                    netname: RIPE-NCC
+                    descr: description
+                    country: DK
+                    admin-c: TEST-PN
+                    tech-c: TEST-PN
+                    status: ALLOCATED-ASSIGNED PA
+                    mnt-by: RIPE-NCC-HM-MNT
+                    mnt-by: TEST-MNT
+                    org: ORG-TOL5-TEST
+                    source: TEST
+                    password: update
+                """.stripIndent(true))
+        then:
+        response =~ /SUCCESS/
+        response =~ /Modify SUCCEEDED: \[inetnum\] 192.0.0.0 - 192.0.0.255/
+    }
+
+    def "modify status ALLOCATED PA failed using user credentials, no RS maintainer"() {
+        given:
+        def insertResponse = syncUpdate(new SyncUpdate(data: """\
+                            inetnum: 192.0.0.0/24
+                            netname: RIPE-NCC
+                            descr: description
+                            country: DK
+                            admin-c: TEST-PN
+                            tech-c: TEST-PN
+                            status: ALLOCATED PA
+                            mnt-by: TEST-MNT
+                            org: ORG-TOL5-TEST
+                            source: TEST
+                            password: hm
+                            password: update
+                        """.stripIndent(true)))
+        when:
+        insertResponse =~ /SUCCESS/
+        then:
+        def response = syncUpdate new SyncUpdate(data: """\
+                    inetnum: 192.0.0.0/24
+                    netname: RIPE-NCC
+                    descr: description
+                    country: DK
+                    admin-c: TEST-PN
+                    tech-c: TEST-PN
+                    status: ALLOCATED-ASSIGNED PA
+                    mnt-by: TEST-MNT
+                    org: ORG-TOL5-TEST
+                    source: TEST
+                    password: update
+                """.stripIndent(true))
+        then:
+        response =~ /Modify FAILED: \[inetnum\] 192.0.0.0 - 192.0.0.255/
+        response.contains("***Error:   Status ALLOCATED-ASSIGNED PA can only be created by the database\n" +
+                "            administrator")
+    }
+
     def "handle failure of out-of-range CIDR notation"() {
         when:
         def response = syncUpdate(new SyncUpdate(data: """\
@@ -432,7 +635,9 @@ class InetnumIntegrationSpec extends BaseWhoisSourceSpec {
   }
 
   def "create status ALLOCATED PA no alloc maintainer"() {
-    when:
+      when:
+      whoisFixture.dumpSchema();
+
       def insertResponse = syncUpdate(new SyncUpdate(data: """\
             inetnum: 192.0.0.0 - 192.0.0.255
             netname: RIPE-NCC
