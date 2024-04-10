@@ -99,6 +99,6 @@ public class AbstractMailMessageIntegrationTest extends AbstractIntegrationTest 
     }
 
     protected boolean anyIncomingMessages() {
-        return Boolean.TRUE.equals(mailupdatesTemplate.query("SELECT message FROM mailupdates", (rs, rowNum) -> rs.next()));
+        return mailupdatesTemplate.queryForObject("SELECT count(message) FROM mailupdates", Integer.class) > 0;
     }
 }
