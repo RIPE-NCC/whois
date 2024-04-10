@@ -30,11 +30,4 @@ public class OutgoingMessageDao {
                 "SELECT email from outgoing_message where message_id = ?",
                 String.class, messageId);
     }
-
-    public boolean isEmailExists(final String messageId, final String email){
-        return Boolean.TRUE.equals(jdbcTemplate.query("select email from outgoing_message where message_id = ? and email = ?",
-                ResultSet::next,
-                messageId, email));
-
-    }
 }
