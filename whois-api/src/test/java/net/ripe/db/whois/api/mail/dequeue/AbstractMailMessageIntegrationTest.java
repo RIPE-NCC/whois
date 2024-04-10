@@ -85,10 +85,6 @@ public class AbstractMailMessageIntegrationTest extends AbstractIntegrationTest 
                 "INSERT INTO email_status (email, status) VALUES (?, ?)", emailAddress, EmailStatus.UNDELIVERABLE.name());
     }
 
-    protected void insertUnsubscribedAddress(final String emailAddress) {
-        internalsTemplate.update(
-                "INSERT INTO email_status (email, status) VALUES (?, ?)", emailAddress, EmailStatus.UNSUBSCRIBE.name());
-    }
 
     protected int countUndeliverableAddresses(){
         return internalsTemplate.queryForObject("SELECT count(email) FROM email_status", Integer.class);
