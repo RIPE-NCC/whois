@@ -125,7 +125,7 @@ public class InetnumStrictStatusValidator implements BusinessRuleValidator {
         final InetnumStatus originalStatus = InetnumStatus.getStatusFor(update.getReferenceObject().getValueForAttribute(AttributeType.STATUS));
         final InetnumStatus updateStatus = InetnumStatus.getStatusFor(update.getUpdatedObject().getValueForAttribute(AttributeType.STATUS));
 
-        return InetnumStatusValidator.canChangeStatus(originalStatus, updateStatus);
+        return !InetnumStatusValidator.canChangeStatus(originalStatus, updateStatus);
     }
 
     @Override
