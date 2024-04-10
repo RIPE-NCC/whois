@@ -2,6 +2,7 @@ image: $CI_REGISTRY/swe-database-team/gitlab-ci/whois-build:21fc0efa
 
 variables:
   MAVEN_OPTS: "-Dmaven.repo.local=.m2/repository"
+  ES_JAVA_OPTS: '-Xms2g -Xmx2g'
   TZ: Europe/Amsterdam
   WS_MAVEN_AGGREGATEMODULES: "true"
   PROJECT_NAME: "whois"
@@ -97,7 +98,7 @@ whois-api:
     - *mariadb_service
     - name: docker.elastic.co/elasticsearch/elasticsearch:7.15.0
       alias: "elasticsearch"
-      command: [ "bin/elasticsearch", "-Expack.security.enabled=false", "-Ediscovery.type=single-node", "-Xms2g", "-Xmx2g" ]
+      command: [ "bin/elasticsearch", "-Expack.security.enabled=false", "-Ediscovery.type=single-node" ]
   script:
     - mvn $MAVEN_OPTS -Ddb.host=mariadb -Dtest.containers.disabled=true verify -PintegrationAll -pl whois-api
 
