@@ -9,7 +9,6 @@ import jakarta.mail.internet.InternetHeaders;
 import jakarta.mail.internet.MimeMessage;
 import net.ripe.db.whois.api.mail.EmailMessageInfo;
 import net.ripe.db.whois.api.mail.exception.MailParsingException;
-import net.ripe.db.whois.common.QueryMessage;
 import org.apache.commons.compress.utils.Lists;
 import org.eclipse.angus.mail.dsn.DeliveryStatus;
 import org.eclipse.angus.mail.dsn.MultipartReport;
