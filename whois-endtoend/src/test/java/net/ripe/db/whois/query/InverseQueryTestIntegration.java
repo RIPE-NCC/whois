@@ -243,6 +243,7 @@ public class InverseQueryTestIntegration extends AbstractQueryIntegrationTest {
         final String response = query("-i sponsoring-org ORG-SPONSOR");
 
         assertThat(response, containsString("ORG-SPONSOR"));
+        assertThat(response, containsString("aut-num:        AS102"));
     }
 
     private String query(final String query) {
