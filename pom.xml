@@ -25,7 +25,7 @@
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
 
         <!-- JAVA version -->
-        <java.version>17</java.version>
+        <java.version>21</java.version>
 
         <!-- dependencies -->
 
@@ -1028,10 +1028,9 @@
                 </executions>
             </plugin>
             <plugin>
-                <!-- Plugin forked from mojohaus project to add Java 11 support -->
-                <groupId>io.starter</groupId>
+                <groupId>org.codehaus.mojo</groupId>
                 <artifactId>aspectj-maven-plugin</artifactId>
-                <version>1.12.9</version>
+                <version>1.15.0</version>
                 <configuration>
                     <source>${java.version}</source>
                     <target>${java.version}</target>
