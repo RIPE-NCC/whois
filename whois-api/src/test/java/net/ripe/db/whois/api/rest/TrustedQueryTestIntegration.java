@@ -131,6 +131,16 @@ public class TrustedQueryTestIntegration extends AbstractIntegrationTest {
     }
 
     @Test
+    public void inverse_lookup_non_existing_email_from_trusted_range_fails() {
+        ipRanges.setTrusted("127/8","::1");
+        final NotFoundException notFoundException = assertThrows(NotFoundException.class, () -> {
+            RestTest.target(getPort(), "whois/search?query-string=noExisting@test.com&inverse-attribute=e-mail").request().get(String.class);
+        });
+        final String response = notFoundException.getResponse().readEntity(String.class);
+        assertThat(response, containsString("no entries found"));
+    }
+
+    @Test
     public void inverse_lookup_email_from_untrusted_range_fails() {
         ipRanges.setTrusted("::0");
         final NotFoundException notFoundException = assertThrows(NotFoundException.class, () -> {
