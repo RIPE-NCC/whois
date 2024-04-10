@@ -18,6 +18,7 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.fail;
 
 @Tag("IntegrationTest")
@@ -117,5 +118,27 @@ public class TrustedQueryTestIntegration extends AbstractIntegrationTest {
         } catch (BadRequestException e) {
             RestTest.assertOnlyErrorMessage(e, "Error", "Inverse search on 'auth' attribute is limited to 'key-cert' objects only\n");
         }
+    }
+
+    // inverse lookup on e-mail attribute
+
+    @Test
+    public void inverse_lookup_email_from_trusted_range_succeeds() {
+        ipRanges.setTrusted("127/8","::1");
+        final String response = RestTest.target(getPort(), "whois/search?query-string=org1@test.com&inverse-attribute=e-mail").request().get(String.class);
+        assertThat(response, containsString("<attribute name=\"organisation\" value=\"ORG-RIPE\"/>"));
+        assertThat(response, containsString("<attribute name=\"organisation\" value=\"ORG-SPONSOR\"/>"));
+    }
+
+    @Test
+    public void inverse_lookup_email_from_untrusted_range_fails() {
+        ipRanges.setTrusted("::0");
+        final NotFoundException notFoundException = assertThrows(NotFoundException.class, () -> {
+            RestTest.target(getPort(), "whois/search?query-string=org1@test.com&inverse-attribute=e-mail").request().get(String.class);
+        });
+
+        final String response = notFoundException.getResponse().readEntity(String.class);
+        assertThat(response, containsString("attribute is not searchable"));
+        assertThat(response, containsString("is not an inverse searchable attribute"));
     }
 }
