@@ -459,7 +459,7 @@ class InetnumIntegrationSpec extends BaseWhoisSourceSpec {
                 "            authorisation")
     }
 
-    def "modify status ALLOCATED ASSIGNED PA status by using user credentials"() {
+    def "modify status ALLOCATED ASSIGNED PA status to ALLOCATED PA by using user credentials"() {
         given:
         def insertResponse = syncUpdate(new SyncUpdate(data: """\
                             inetnum: 192.0.0.0/24
@@ -498,7 +498,7 @@ class InetnumIntegrationSpec extends BaseWhoisSourceSpec {
         response =~ /Modify SUCCEEDED: \[inetnum\] 192.0.0.0 - 192.0.0.255/
     }
 
-    def "modify status ALLOCATED PA status by using user credentials"() {
+    def "modify status ALLOCATED PA to ALLOCATED-ASSIGNED PA status by using user credentials"() {
         given:
         def insertResponse = syncUpdate(new SyncUpdate(data: """\
                             inetnum: 192.0.0.0/24
@@ -535,6 +535,86 @@ class InetnumIntegrationSpec extends BaseWhoisSourceSpec {
         then:
         response =~ /SUCCESS/
         response =~ /Modify SUCCEEDED: \[inetnum\] 192.0.0.0 - 192.0.0.255/
+    }
+
+    def "modify status ALLOCATED PA to ALLOCATED UNSPECIFIED status fails"() {
+        given:
+        def insertResponse = syncUpdate(new SyncUpdate(data: """\
+                            inetnum: 192.0.0.0/24
+                            netname: RIPE-NCC
+                            descr: description
+                            country: DK
+                            admin-c: TEST-PN
+                            tech-c: TEST-PN
+                            status: ALLOCATED PA
+                            mnt-by: RIPE-NCC-HM-MNT
+                            mnt-by: TEST-MNT
+                            org: ORG-TOL5-TEST
+                            source: TEST
+                            password: hm
+                            password: update
+                        """.stripIndent(true)))
+        when:
+        insertResponse =~ /SUCCESS/
+        then:
+        def response = syncUpdate new SyncUpdate(data: """\
+                    inetnum: 192.0.0.0/24
+                    netname: RIPE-NCC
+                    descr: description
+                    country: DK
+                    admin-c: TEST-PN
+                    tech-c: TEST-PN
+                    status: ALLOCATED UNSPECIFIED
+                    mnt-by: RIPE-NCC-HM-MNT
+                    mnt-by: TEST-MNT
+                    org: ORG-TOL5-TEST
+                    source: TEST
+                    password: update
+                """.stripIndent(true))
+        then:
+        response =~ /Modify FAILED: \[inetnum\] 192.0.0.0 - 192.0.0.255/
+        response =~ /\*\*\*Error:   status value cannot be changed, you must delete and re-create the
+            object/
+    }
+
+    def "modify status ALLOCATED ASSIGNED PA status to ALLOCATED UNSPECIFIED fails"() {
+        given:
+        def insertResponse = syncUpdate(new SyncUpdate(data: """\
+                            inetnum: 192.0.0.0/24
+                            netname: RIPE-NCC
+                            descr: description
+                            country: DK
+                            admin-c: TEST-PN
+                            tech-c: TEST-PN
+                            status: ALLOCATED-ASSIGNED PA
+                            mnt-by: RIPE-NCC-HM-MNT
+                            mnt-by: TEST-MNT
+                            org: ORG-TOL5-TEST
+                            source: TEST
+                            password: hm
+                            password: update
+                        """.stripIndent(true)))
+        when:
+        insertResponse =~ /SUCCESS/
+        then:
+        def response = syncUpdate new SyncUpdate(data: """\
+                    inetnum: 192.0.0.0/24
+                    netname: RIPE-NCC
+                    descr: description
+                    country: DK
+                    admin-c: TEST-PN
+                    tech-c: TEST-PN
+                    status: ALLOCATED UNSPECIFIED
+                    mnt-by: RIPE-NCC-HM-MNT
+                    mnt-by: TEST-MNT
+                    org: ORG-TOL5-TEST
+                    source: TEST
+                    password: update
+                """.stripIndent(true))
+        then:
+        response =~ /Modify FAILED: \[inetnum\] 192.0.0.0 - 192.0.0.255/
+        response =~ /\*\*\*Error:   status value cannot be changed, you must delete and re-create the
+            object/
     }
 
     def "handle failure of out-of-range CIDR notation"() {

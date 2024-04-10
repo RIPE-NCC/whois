@@ -24,7 +24,6 @@ import net.ripe.db.whois.update.handler.validator.BusinessRuleValidator;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import javax.annotation.CheckForNull;
 import java.util.Collections;
 import java.util.List;
 import java.util.Set;
@@ -62,7 +61,7 @@ public class InetnumStrictStatusValidator implements BusinessRuleValidator {
 
     @Override
     public List<Message> performValidation(final PreparedUpdate update, final UpdateContext updateContext) {
-        if(!canProceed(update)) {
+        if(canSkipValidation(update)) {
             return Collections.EMPTY_LIST;
         }
 
@@ -103,7 +102,7 @@ public class InetnumStrictStatusValidator implements BusinessRuleValidator {
                 validationMessages.add(UpdateMessages.statusRequiresAuthorization(update.getUpdatedObject().getValueForAttribute(STATUS).toString()));
                 return;
             }
-            if (!updateContext.getSubject(update).hasPrincipal(Principal.RS_MAINTAINER)) {
+            if (update.getAction() == CREATE && !updateContext.getSubject(update).hasPrincipal(Principal.RS_MAINTAINER)) {
                 validationMessages.add(UpdateMessages.authorisationRequiredForSetStatus(currentStatus.toString()));
             }
         }
@@ -117,15 +116,15 @@ public class InetnumStrictStatusValidator implements BusinessRuleValidator {
             }
     }
 
-    private boolean canProceed(final PreparedUpdate update) {
+    private boolean canSkipValidation(final PreparedUpdate update) {
         if(update.getAction() == CREATE) {
-            return true;
+            return false;
         }
 
         final InetnumStatus originalStatus = InetnumStatus.getStatusFor(update.getReferenceObject().getValueForAttribute(AttributeType.STATUS));
         final InetnumStatus updateStatus = InetnumStatus.getStatusFor(update.getUpdatedObject().getValueForAttribute(AttributeType.STATUS));
 
-        return !InetnumStatusValidator.canChangeStatus(originalStatus, updateStatus);
+        return (originalStatus == updateStatus) || !InetnumStatusValidator.canChangeStatus(originalStatus, updateStatus);
     }
 
     @Override
