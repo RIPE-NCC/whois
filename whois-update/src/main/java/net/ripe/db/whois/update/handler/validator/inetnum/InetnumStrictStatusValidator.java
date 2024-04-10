@@ -40,7 +40,7 @@ import static net.ripe.db.whois.update.domain.Action.MODIFY;
 @Component
 public class InetnumStrictStatusValidator implements BusinessRuleValidator {
 
-    private static final ImmutableList<Action> ACTIONS = ImmutableList.of(CREATE);
+    private static final ImmutableList<Action> ACTIONS = ImmutableList.of(CREAT, MODIFY);
     private static final ImmutableList<ObjectType> TYPES = ImmutableList.of(ObjectType.INETNUM);
 
     private final RpslObjectDao objectDao;
