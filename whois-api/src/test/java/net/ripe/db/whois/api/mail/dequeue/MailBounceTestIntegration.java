@@ -206,7 +206,6 @@ public class MailBounceTestIntegration extends AbstractMailMessageIntegrationTes
         assertThat(mailSenderStub.anyMoreMessages(), is(false));
     }
 
-    @Disabled("TODO: [ES] message gets stuck")
     @Test
     public void invalid_email_do_not_causes_address_to_be_marked_as_undeliverable() {
         final MimeMessage message = MimeMessageProvider.getUpdateMessage("permanentFailureWithoutMessageId.mail");

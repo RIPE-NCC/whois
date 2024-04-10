@@ -44,7 +44,7 @@ public class UnsubscribeMessageParser {
             if ((messageId != null) && (from != null)) {
                 return new EmailMessageInfo(List.of(from), messageId);
             }
-        } catch (MessagingException ex){
+        } catch (MessagingException | IllegalStateException ex){
             throw new MailParsingException("Error parsing text plain unsubscribe message");
         }
 

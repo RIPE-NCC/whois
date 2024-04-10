@@ -61,7 +61,7 @@ public class BouncedMessageParser {
                     return new EmailMessageInfo(recipient, messageId);
                 }
             }
-        } catch (MessagingException | IOException ex){
+        } catch (MessagingException | IOException | IllegalStateException ex){
             throw new MailParsingException("Error parsing multipart report");
         }
         throw new MailParsingException("MultiPart message without failure report");
