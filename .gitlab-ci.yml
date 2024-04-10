@@ -97,7 +97,7 @@ whois-api:
     - *mariadb_service
     - name: docker.elastic.co/elasticsearch/elasticsearch:7.15.0
       alias: "elasticsearch"
-      command: [ "bin/elasticsearch", "-Expack.security.enabled=false", "-Ediscovery.type=single-node" ]
+      command: [ "bin/elasticsearch", "-Expack.security.enabled=false", "-Ediscovery.type=single-node", "-Xms2g", "-Xmx2g" ]
   script:
     - mvn $MAVEN_OPTS -Ddb.host=mariadb -Dtest.containers.disabled=true verify -PintegrationAll -pl whois-api
 
