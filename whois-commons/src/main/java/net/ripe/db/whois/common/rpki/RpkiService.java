@@ -15,7 +15,6 @@ import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-@Service
 public class RpkiService {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(RpkiService.class);

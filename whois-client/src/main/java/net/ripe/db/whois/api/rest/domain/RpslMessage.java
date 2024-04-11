@@ -11,13 +11,13 @@ import static com.fasterxml.jackson.annotation.JsonInclude.Include.NON_EMPTY;
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlRootElement(name = "objectMessage")
 @JsonInclude(NON_EMPTY)
-public class ObjectMessage extends WhoisMessage {
+public class RpslMessage extends WhoisMessage {
 
-    public ObjectMessage(){
+    public RpslMessage(){
         super();
     }
 
-    public ObjectMessage(final Message message) {
+    public RpslMessage(final Message message) {
         super(message);
     }
 

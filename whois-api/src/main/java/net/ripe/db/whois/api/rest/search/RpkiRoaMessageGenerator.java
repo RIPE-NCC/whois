@@ -3,7 +3,7 @@ package net.ripe.db.whois.api.rest.search;
 import com.google.common.collect.ImmutableList;
 import net.ripe.db.whois.api.rest.domain.Flag;
 import net.ripe.db.whois.api.rest.domain.Flags;
-import net.ripe.db.whois.api.rest.domain.ObjectMessage;
+import net.ripe.db.whois.api.rest.domain.RpslMessage;
 import net.ripe.db.whois.api.rest.domain.Parameters;
 import net.ripe.db.whois.common.rpki.Roa;
 import net.ripe.db.whois.common.rpki.RpkiDataProvider;
@@ -19,7 +19,7 @@ import org.springframework.stereotype.Component;
 import static net.ripe.db.whois.query.QueryFlag.ROA_VALIDATION;
 
 @Component
-public class RpkiRoaMessageGenerator implements QueryMessageGenerator {
+public class RpkiRoaMessageGenerator implements RpslMessageGenerator {
 
     private static final ImmutableList<ObjectType> TYPES = ImmutableList.of(ObjectType.ROUTE, ObjectType.ROUTE6);
     private final boolean isEnabled;
@@ -33,7 +33,7 @@ public class RpkiRoaMessageGenerator implements QueryMessageGenerator {
     }
 
     @Override
-    public ObjectMessage proceed(RpslObject rpslObject, Parameters parameters) {
+    public RpslMessage proceed(RpslObject rpslObject, Parameters parameters) {
         if (!canProceed(parameters)){
             return null;
         }
@@ -53,14 +53,14 @@ public class RpkiRoaMessageGenerator implements QueryMessageGenerator {
         return flags != null && flags.getFlags().contains(new Flag(ROA_VALIDATION));
     }
 
-    private ObjectMessage validateRoa(final RpslObject rpslObject){
+    private RpslMessage validateRoa(final RpslObject rpslObject){
         final Roa rpkiRoa = new WhoisRoaChecker(new RpkiService(rpkiDataProvider)).validateAndGetInvalidRoa(rpslObject);
 
         if (rpkiRoa == null) {
             return null;
         }
 
-        return new ObjectMessage(QueryMessages.roaRouteConflicts(rpkiRoa.getAsn()));
+        return new RpslMessage(QueryMessages.roaRouteConflicts(rpkiRoa.getAsn()));
 
     }
 }
