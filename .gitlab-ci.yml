@@ -76,7 +76,7 @@ release:
     - mysql -uroot -proot -h mariadb -e "CREATE USER 'dbint'@'%' IDENTIFIED BY '';"
     - mysql -uroot -proot -h mariadb -e "GRANT ALL ON *.* TO 'dbint'@'%' WITH GRANT OPTION;"
     - mysql -uroot -proot -h mariadb -e "SET GLOBAL innodb_file_per_table = 0;"
-    - mysql -uroot -proot -h mariadb -e "SET GLOBAL innodb_buffer_pool_size = 2147483648;"
+    - mysql -uroot -proot -h mariadb -e "SET GLOBAL innodb_buffer_pool_size = 1073741824;"
     - mysql -uroot -proot -h mariadb -e "SET GLOBAL max_connections=10000;"
   services: &mariadb_service
     - mariadb:10.2
