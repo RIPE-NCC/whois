@@ -164,14 +164,7 @@ public enum QueryFlag {
     SHOW_VERSION(new Builder("show-version")
             .withSearchKey("<version-number>")
             .describedAs("Returns historical version of the object")
-            .requiresArgument(Integer.class)),
-
-    /* -------------------------------------------------------------------------------------------------------------- */
-
-    ROA_VALIDATION(new Builder("roa-validation")
-            .withSearchKey("<route-lookup>")
-            .describedAs("Validate route objects against rpki roas"));
-
+            .requiresArgument(Integer.class));
 
 
     private static final class Builder {

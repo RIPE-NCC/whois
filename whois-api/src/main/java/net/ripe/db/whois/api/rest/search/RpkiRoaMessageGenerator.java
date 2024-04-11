@@ -1,8 +1,6 @@
 package net.ripe.db.whois.api.rest.search;
 
 import com.google.common.collect.ImmutableList;
-import net.ripe.db.whois.api.rest.domain.Flag;
-import net.ripe.db.whois.api.rest.domain.Flags;
 import net.ripe.db.whois.api.rest.domain.RpslMessage;
 import net.ripe.db.whois.api.rest.domain.Parameters;
 import net.ripe.db.whois.common.rpki.Roa;
@@ -16,7 +14,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
-import static net.ripe.db.whois.query.QueryFlag.ROA_VALIDATION;
 
 @Component
 public class RpkiRoaMessageGenerator implements RpslMessageGenerator {
@@ -46,11 +43,7 @@ public class RpkiRoaMessageGenerator implements RpslMessageGenerator {
     }
 
     private boolean canProceed(final Parameters parameters){
-        return isEnabled && hasRoaValidationFlag(parameters.getFlags());
-    }
-
-    private boolean hasRoaValidationFlag(final Flags flags){
-        return flags != null && flags.getFlags().contains(new Flag(ROA_VALIDATION));
+        return isEnabled && parameters.getRoaCheck();
     }
 
     private RpslMessage validateRoa(final RpslObject rpslObject){

@@ -1841,7 +1841,7 @@ public class WhoisSearchServiceTestIntegration extends AbstractIntegrationTest {
                 "source:          TEST-NONAUTH\n"));
         ipTreeUpdater.rebuild();
 
-        final WhoisResources whoisResources = RestTest.target(getPort(), "whois/search.json?query-string=193.4.0.0/16AS102&flags=roa-validation&flags=no-referenced")
+        final WhoisResources whoisResources = RestTest.target(getPort(), "whois/search.json?query-string=193.4.0.0/16AS102&roa-check=true&flags=no-referenced")
                 .request()
                 .get(WhoisResources.class);
 
@@ -1866,7 +1866,7 @@ public class WhoisSearchServiceTestIntegration extends AbstractIntegrationTest {
                 new Roa(102, 16, "193.4.0.0/16", ARIN)
         ));
 
-        final WhoisResources whoisResources = RestTest.target(getPort(), "whois/search.json?query-string=193.4.0.0/16AS102&flags=roa-validation&flags=no-referenced")
+        final WhoisResources whoisResources = RestTest.target(getPort(), "whois/search.json?query-string=193.4.0.0/16AS102&roa-check=true&flags=no-referenced")
                 .request()
                 .get(WhoisResources.class);
 
@@ -1891,7 +1891,7 @@ public class WhoisSearchServiceTestIntegration extends AbstractIntegrationTest {
                 new Roa(6505, 16, "193.4.0.0/16", ARIN)
         ));
 
-        final WhoisResources whoisResources = RestTest.target(getPort(), "whois/search.json?query-string=193.4.0.0/16AS102&flags=roa-validation&flags=no-referenced")
+        final WhoisResources whoisResources = RestTest.target(getPort(), "whois/search.json?query-string=193.4.0.0/16AS102&roa-check=true&flags=no-referenced")
                 .request()
                 .get(WhoisResources.class);
 
@@ -1901,6 +1901,31 @@ public class WhoisSearchServiceTestIntegration extends AbstractIntegrationTest {
         assertThat(whoisResources.getWhoisObjects().get(0).getObjectMessages().getMessages().get(0).getText(), is("" +
                 "Warning: this route object conflicts with an overlapping RPKI ROA with a different origin AS%s.\n" +
                 "As a result an announcement for this prefix may be rejected by many autonomous systems. You should either remove this route: object or delete the ROA.\n"));
+    }
+
+    @Test
+    public void search_route_roa_mismatch_no_validation_enabled_as_json() {
+        databaseHelper.addObject(RpslObject.parse("" +
+                "route:           193.4.0.0/16\n" +
+                "descr:           Ripe test allocation\n" +
+                "origin:          AS102\n" +
+                "admin-c:         TP1-TEST\n" +
+                "mnt-by:          OWNER-MNT\n" +
+                "mnt-lower:       OWNER-MNT\n" +
+                "source:          TEST-NONAUTH\n"));
+        ipTreeUpdater.rebuild();
+
+        rpkiDataProvider.setRoas(Lists.newArrayList(
+                new Roa(6505, 16, "193.4.0.0/16", ARIN)
+        ));
+
+        final WhoisResources whoisResources = RestTest.target(getPort(), "whois/search.json?query-string=193.4.0.0/16AS102&roa-check=false&flags=no-referenced")
+                .request()
+                .get(WhoisResources.class);
+
+        assertThat(whoisResources.getWhoisObjects(), hasSize(1));
+
+        assertThat(whoisResources.getWhoisObjects().get(0).getObjectMessages().getMessages(), hasSize(0));
     }
 
     @Test
@@ -1919,7 +1944,7 @@ public class WhoisSearchServiceTestIntegration extends AbstractIntegrationTest {
                 new Roa(6505, 16, "193.4.0.0/16", ARIN)
         ));
 
-        final WhoisResources whoisResources = RestTest.target(getPort(), "whois/search.xml?query-string=193.4.0.0/16AS102&flags=roa-validation&flags=no-referenced")
+        final WhoisResources whoisResources = RestTest.target(getPort(), "whois/search.xml?query-string=193.4.0.0/16AS102&roa-check=true&flags=no-referenced")
                 .request()
                 .get(WhoisResources.class);
 
@@ -1947,8 +1972,7 @@ public class WhoisSearchServiceTestIntegration extends AbstractIntegrationTest {
                 new Roa(6505, 16, "193.4.0.0/16", ARIN)
         ));
 
-        final String whoisResources = RestTest.target(getPort(), "whois/search.xml?query-string=193.4.0" +
-                        ".0/16AS102&flags=roa-validation&flags=no-referenced")
+        final String whoisResources = RestTest.target(getPort(), "whois/search.xml?query-string=193.4.0.0/16AS102&roa-check=true&flags=no-referenced")
                 .request()
                 .get(String.class);
 
@@ -1961,7 +1985,6 @@ public class WhoisSearchServiceTestIntegration extends AbstractIntegrationTest {
                 "    <type-filters/>\n" +
                 "    <flags>\n" +
                 "        <flag value=\"no-referenced\"/>\n" +
-                "        <flag value=\"roa-validation\"/>\n" +
                 "    </flags>\n" +
                 "    <query-strings>\n" +
                 "        <query-string value=\"193.4.0.0/16AS102\"/>\n" +
@@ -2023,7 +2046,7 @@ public class WhoisSearchServiceTestIntegration extends AbstractIntegrationTest {
                 new Roa(6505, 16, "193.4.0.0/16", ARIN)
         ));
 
-        final String whoisResources = RestTest.target(getPort(), "whois/search.txt?query-string=193.4.0.0/16AS102&flags=roa-validation&flags=no-referenced")
+        final String whoisResources = RestTest.target(getPort(), "whois/search.txt?query-string=193.4.0.0/16AS102&roa-check=true&flags=no-referenced")
                 .request()
                 .get(String.class);
 
