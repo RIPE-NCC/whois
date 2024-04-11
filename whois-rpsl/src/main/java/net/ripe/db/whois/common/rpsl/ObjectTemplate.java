@@ -184,7 +184,7 @@ public final class ObjectTemplate implements Comparable<ObjectTemplate> {
                         new AttributeTemplate(MP_DEFAULT, OPTIONAL, MULTIPLE, USER_ORDER),
                         new AttributeTemplate(REMARKS, OPTIONAL, MULTIPLE),
                         new AttributeTemplate(ORG, OPTIONAL, SINGLE, INVERSE_KEY),
-                        new AttributeTemplate(SPONSORING_ORG, OPTIONAL, SINGLE),
+                        new AttributeTemplate(SPONSORING_ORG, OPTIONAL, SINGLE, INVERSE_KEY),
                         new AttributeTemplate(ADMIN_C, MANDATORY, MULTIPLE, INVERSE_KEY),
                         new AttributeTemplate(TECH_C, MANDATORY, MULTIPLE, INVERSE_KEY),
                         new AttributeTemplate(ABUSE_C, OPTIONAL, SINGLE, INVERSE_KEY),
@@ -256,7 +256,7 @@ public final class ObjectTemplate implements Comparable<ObjectTemplate> {
                         new AttributeTemplate(GEOLOC, OPTIONAL, SINGLE),
                         new AttributeTemplate(LANGUAGE, OPTIONAL, MULTIPLE),
                         new AttributeTemplate(ORG, OPTIONAL, SINGLE, INVERSE_KEY),
-                        new AttributeTemplate(SPONSORING_ORG, OPTIONAL, SINGLE),
+                        new AttributeTemplate(SPONSORING_ORG, OPTIONAL, SINGLE, INVERSE_KEY),
                         new AttributeTemplate(ADMIN_C, MANDATORY, MULTIPLE, INVERSE_KEY),
                         new AttributeTemplate(TECH_C, MANDATORY, MULTIPLE, INVERSE_KEY),
                         new AttributeTemplate(ABUSE_C, OPTIONAL, SINGLE, INVERSE_KEY),
@@ -282,7 +282,7 @@ public final class ObjectTemplate implements Comparable<ObjectTemplate> {
                         new AttributeTemplate(GEOLOC, OPTIONAL, SINGLE),
                         new AttributeTemplate(LANGUAGE, OPTIONAL, MULTIPLE),
                         new AttributeTemplate(ORG, OPTIONAL, SINGLE, INVERSE_KEY),
-                        new AttributeTemplate(SPONSORING_ORG, OPTIONAL, SINGLE),
+                        new AttributeTemplate(SPONSORING_ORG, OPTIONAL, SINGLE, INVERSE_KEY),
                         new AttributeTemplate(ADMIN_C, MANDATORY, MULTIPLE, INVERSE_KEY),
                         new AttributeTemplate(TECH_C, MANDATORY, MULTIPLE, INVERSE_KEY),
                         new AttributeTemplate(ABUSE_C, OPTIONAL, SINGLE, INVERSE_KEY),
@@ -543,7 +543,7 @@ public final class ObjectTemplate implements Comparable<ObjectTemplate> {
 
     @SuppressWarnings("unchecked")
     private class AttributeTypeComparator implements Comparator<RpslAttribute> {
-        private EnumMap<AttributeType, Integer> order = new EnumMap(AttributeType.class);
+        private final EnumMap<AttributeType, Integer> order = new EnumMap(AttributeType.class);
 
         public AttributeTypeComparator(final AttributeTemplate... attributeTemplates) {
             int i = 0;

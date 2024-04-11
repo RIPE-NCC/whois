@@ -143,7 +143,7 @@ public class ObjectTemplateTest {
                 "geoloc:         [optional]   [single]     [ ]\n" +
                 "language:       [optional]   [multiple]   [ ]\n" +
                 "org:            [optional]   [single]     [inverse key]\n" +
-                "sponsoring-org: [optional]   [single]     [ ]\n" +
+                "sponsoring-org: [optional]   [single]     [inverse key]\n" +
                 "admin-c:        [mandatory]  [multiple]   [inverse key]\n" +
                 "tech-c:         [mandatory]  [multiple]   [inverse key]\n" +
                 "abuse-c:        [optional]   [single]     [inverse key]\n" +
@@ -177,7 +177,7 @@ public class ObjectTemplateTest {
                 "geoloc:         [optional]   [single]     [ ]\n" +
                 "language:       [optional]   [multiple]   [ ]\n" +
                 "org:            [optional]   [single]     [inverse key]\n" +
-                "sponsoring-org: [optional]   [single]     [ ]\n" +
+                "sponsoring-org: [optional]   [single]     [inverse key]\n" +
                 "admin-c:        [mandatory]  [multiple]   [inverse key]\n" +
                 "tech-c:         [mandatory]  [multiple]   [inverse key]\n" +
                 "abuse-c:        [optional]   [single]     [inverse key]\n" +
