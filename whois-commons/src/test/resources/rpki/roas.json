@@ -21,6 +21,10 @@
     { "asn": "AS136400", "prefix": "103.86.126.0/24", "maxLength": 24, "ta": "apnic" },
     { "asn": "AS136255", "prefix": "2400:ac40:8b7::/48", "maxLength": 48, "ta": "apnic" },
     { "asn": "AS62217", "prefix": "91.220.127.0/24", "maxLength": 24, "ta": "ripe" },
-    { "asn": "AS7604", "prefix": "202.74.188.0/22", "maxLength": 22, "ta": "apnic" }
+    { "asn": "AS6505", "prefix": "206.48.0.0/16", "maxLength": 16, "ta": "arin" },
+    { "asn": "AS5511", "prefix": "206.48.0.0/16", "maxLength": 16, "ta": "arin" },
+    { "asn": "AS1964", "prefix": "206.48.0.0/16", "maxLength": 16, "ta": "arin" },
+    { "asn": "AS102", "prefix": "193.4.0.0/16", "maxLength": 16, "ta": "arin" },
+    { "asn": "AS6505", "prefix": "193.4.0.0/16", "maxLength": 16, "ta": "arin" }
   ]
 }
