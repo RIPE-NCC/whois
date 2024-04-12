@@ -48,7 +48,6 @@ import java.net.URL;
 import java.time.LocalDateTime;
 import java.util.List;
 
-import static net.ripe.db.whois.common.rpki.TrustAnchor.ARIN;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.Matchers.containsInAnyOrder;
@@ -165,12 +164,6 @@ public class WhoisSearchServiceTestIntegration extends AbstractIntegrationTest {
         databaseHelper.updateObject(TEST_ROLE);
         maintenanceMode.set("FULL,FULL");
         testDateTimeProvider.setTime(LocalDateTime.parse("2001-02-04T17:00:00"));
-
-        rpkiDataProvider.setRoas(Lists.newArrayList(
-                new Roa(6505, 24, "206.48.0.0/16", ARIN),
-                new Roa(5511, 24, "206.48.0.0/16", ARIN),
-                new Roa(1964, 24, "206.48.0.0/16", ARIN)
-        ));
     }
 
     @AfterEach
@@ -1832,7 +1825,7 @@ public class WhoisSearchServiceTestIntegration extends AbstractIntegrationTest {
     @Test
     public void search_route_non_existing_roa_validation_enabled_as_json() {
         databaseHelper.addObject(RpslObject.parse("" +
-                "route:           193.4.0.0/16\n" +
+                "route:           200.4.0.0/16\n" +
                 "descr:           Ripe test allocation\n" +
                 "origin:          AS102\n" +
                 "admin-c:         TP1-TEST\n" +
@@ -1841,7 +1834,7 @@ public class WhoisSearchServiceTestIntegration extends AbstractIntegrationTest {
                 "source:          TEST-NONAUTH\n"));
         ipTreeUpdater.rebuild();
 
-        final WhoisResources whoisResources = RestTest.target(getPort(), "whois/search.json?query-string=193.4.0.0/16AS102&roa-check=true&flags=no-referenced")
+        final WhoisResources whoisResources = RestTest.target(getPort(), "whois/search.json?query-string=200.4.0.0/16AS102&roa-check=true&flags=no-referenced")
                 .request()
                 .get(WhoisResources.class);
 
@@ -1853,7 +1846,7 @@ public class WhoisSearchServiceTestIntegration extends AbstractIntegrationTest {
     @Test
     public void search_route_roa_validation_enabled_as_json() {
         databaseHelper.addObject(RpslObject.parse("" +
-                "route:           193.4.0.0/16\n" +
+                "route:           200.4.0.0/16\n" +
                 "descr:           Ripe test allocation\n" +
                 "origin:          AS102\n" +
                 "admin-c:         TP1-TEST\n" +
@@ -1862,11 +1855,7 @@ public class WhoisSearchServiceTestIntegration extends AbstractIntegrationTest {
                 "source:          TEST-NONAUTH\n"));
         ipTreeUpdater.rebuild();
 
-        rpkiDataProvider.setRoas(Lists.newArrayList(
-                new Roa(102, 16, "193.4.0.0/16", ARIN)
-        ));
-
-        final WhoisResources whoisResources = RestTest.target(getPort(), "whois/search.json?query-string=193.4.0.0/16AS102&roa-check=true&flags=no-referenced")
+        final WhoisResources whoisResources = RestTest.target(getPort(), "whois/search.json?query-string=200.4.0.0/16AS102&roa-check=true&flags=no-referenced")
                 .request()
                 .get(WhoisResources.class);
 
@@ -1886,10 +1875,6 @@ public class WhoisSearchServiceTestIntegration extends AbstractIntegrationTest {
                 "mnt-lower:       OWNER-MNT\n" +
                 "source:          TEST-NONAUTH\n"));
         ipTreeUpdater.rebuild();
-
-        rpkiDataProvider.setRoas(Lists.newArrayList(
-                new Roa(6505, 16, "193.4.0.0/16", ARIN)
-        ));
 
         final WhoisResources whoisResources = RestTest.target(getPort(), "whois/search.json?query-string=193.4.0.0/16AS102&roa-check=true&flags=no-referenced")
                 .request()
@@ -1915,10 +1900,6 @@ public class WhoisSearchServiceTestIntegration extends AbstractIntegrationTest {
                 "source:          TEST-NONAUTH\n"));
         ipTreeUpdater.rebuild();
 
-        rpkiDataProvider.setRoas(Lists.newArrayList(
-                new Roa(6505, 16, "193.4.0.0/16", ARIN)
-        ));
-
         final WhoisResources whoisResources = RestTest.target(getPort(), "whois/search.json?query-string=193.4.0.0/16AS102&roa-check=false&flags=no-referenced")
                 .request()
                 .get(WhoisResources.class);
@@ -1939,10 +1920,6 @@ public class WhoisSearchServiceTestIntegration extends AbstractIntegrationTest {
                 "mnt-lower:       OWNER-MNT\n" +
                 "source:          TEST-NONAUTH\n"));
         ipTreeUpdater.rebuild();
-
-        rpkiDataProvider.setRoas(Lists.newArrayList(
-                new Roa(6505, 16, "193.4.0.0/16", ARIN)
-        ));
 
         final WhoisResources whoisResources = RestTest.target(getPort(), "whois/search.xml?query-string=193.4.0.0/16AS102&roa-check=true&flags=no-referenced")
                 .request()
@@ -1967,10 +1944,6 @@ public class WhoisSearchServiceTestIntegration extends AbstractIntegrationTest {
                 "mnt-lower:       OWNER-MNT\n" +
                 "source:          TEST-NONAUTH\n"));
         ipTreeUpdater.rebuild();
-
-        rpkiDataProvider.setRoas(Lists.newArrayList(
-                new Roa(6505, 16, "193.4.0.0/16", ARIN)
-        ));
 
         final String whoisResources = RestTest.target(getPort(), "whois/search.xml?query-string=193.4.0.0/16AS102&roa-check=true&flags=no-referenced")
                 .request()
@@ -2041,10 +2014,6 @@ public class WhoisSearchServiceTestIntegration extends AbstractIntegrationTest {
                 "mnt-lower:       OWNER-MNT\n" +
                 "source:          TEST-NONAUTH\n"));
         ipTreeUpdater.rebuild();
-
-        rpkiDataProvider.setRoas(Lists.newArrayList(
-                new Roa(6505, 16, "193.4.0.0/16", ARIN)
-        ));
 
         final String whoisResources = RestTest.target(getPort(), "whois/search.txt?query-string=193.4.0.0/16AS102&roa-check=true&flags=no-referenced")
                 .request()

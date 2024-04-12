@@ -9,6 +9,7 @@ import java.util.Optional;
 
 import static net.ripe.db.whois.common.rpki.ValidationStatus.INVALID;
 
+@Component
 public class WhoisRoaChecker extends RpkiRoaChecker {
     public WhoisRoaChecker(final RpkiService rpkiService) {
         super(rpkiService);

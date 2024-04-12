@@ -21,12 +21,12 @@ public class RpkiRoaMessageGenerator implements RpslMessageGenerator {
     private static final ImmutableList<ObjectType> TYPES = ImmutableList.of(ObjectType.ROUTE, ObjectType.ROUTE6);
     private final boolean isEnabled;
 
-    private final RpkiDataProvider rpkiDataProvider;
+    private final WhoisRoaChecker whoisRoaChecker;
 
     @Autowired
-    public RpkiRoaMessageGenerator(@Value("${roa.validator.available:false}") boolean isRoaChecker, final RpkiDataProvider dataProvider) {
+    public RpkiRoaMessageGenerator(@Value("${roa.validator.available:false}") boolean isRoaChecker, final WhoisRoaChecker whoisRoaChecker) {
         this.isEnabled = isRoaChecker;
-        this.rpkiDataProvider = dataProvider;
+        this.whoisRoaChecker = whoisRoaChecker;
     }
 
     @Override
@@ -47,7 +47,7 @@ public class RpkiRoaMessageGenerator implements RpslMessageGenerator {
     }
 
     private RpslMessage validateRoa(final RpslObject rpslObject){
-        final Roa rpkiRoa = new WhoisRoaChecker(new RpkiService(rpkiDataProvider)).validateAndGetInvalidRoa(rpslObject);
+        final Roa rpkiRoa = whoisRoaChecker.validateAndGetInvalidRoa(rpslObject);
 
         if (rpkiRoa == null) {
             return null;
