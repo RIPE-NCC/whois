@@ -57,6 +57,7 @@ public abstract class RpkiRoaChecker {
                 nonAuthAsn == roa.getAsn()?
                 VALID : INVALID;
         LOGGER.info("finish validation status {}", stopwatch);
+        return validationStatus;
     }
 
     private IpInterval<?> toIpInterval(final CIString prefix) {
