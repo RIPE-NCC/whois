@@ -528,6 +528,49 @@ public class WhoisSearchServiceTestIntegration extends AbstractIntegrationTest {
     }
 
     @Test
+    public void search_inverse_sponsoring_org() {
+        databaseHelper.addObject(RpslObject.parse("" +
+                "organisation: ORG-SPONSOR\n" +
+                "org-name:     Sponsoring Org Ltd\n" +
+                "org-type:     LIR\n" +
+                "descr:        test org\n" +
+                "address:      street 5\n" +
+                "e-mail:       org1@test.com\n" +
+                "mnt-ref:      OWNER-MNT\n" +
+                "mnt-by:       OWNER-MNT\n" +
+                "source:       TEST\n" +
+                ""));
+        databaseHelper.addObject("" +
+                "aut-num:        AS102\n" +
+                "as-name:        End-User-2\n" +
+                "descr:          description\n" +
+                "sponsoring-org: ORG-SPONSOR\n" +
+                "admin-c:        TP1-TEST\n" +
+                "tech-c:         TP1-TEST\n" +
+                "mnt-by:         OWNER-MNT\n" +
+                "source:         TEST\n");
+
+        final WhoisResources whoisResources = RestTest.target(getPort(), "whois/search?query-string=ORG-SPONSOR&inverse-attribute=sponsoring-org")
+                .request(MediaType.APPLICATION_XML)
+                .get(WhoisResources.class);
+
+        assertThat(whoisResources.getErrorMessages(), is(empty()));
+        assertThat(whoisResources.getWhoisObjects(), hasSize(2));
+        WhoisObject aut_num = whoisResources.getWhoisObjects().get(0);
+        assertThat(aut_num.getLink(), is(Link.create("http://rest-test.db.ripe.net/test/aut-num/AS102")));
+        assertThat(aut_num.getAttributes(), contains(
+                new Attribute("aut-num", "AS102"),
+                new Attribute("as-name", "End-User-2"),
+                new Attribute("descr", "description"),
+                new Attribute("sponsoring-org", "ORG-SPONSOR", null, "organisation", Link.create("http://rest-test.db.ripe.net/test/organisation/ORG-SPONSOR"), null),
+                new Attribute("admin-c", "TP1-TEST", null, "person", Link.create("http://rest-test.db.ripe.net/test/person/TP1-TEST"), null),
+                new Attribute("tech-c", "TP1-TEST", null, "person", Link.create("http://rest-test.db.ripe.net/test/person/TP1-TEST"), null),
+                new Attribute("mnt-by", "OWNER-MNT", null, "mntner", Link.create("http://rest-test.db.ripe.net/test/mntner/OWNER-MNT"), null),
+                new Attribute("source", "TEST")
+        ));
+    }
+
+    @Test
     public void search_invalid_query_flags() {
         try {
             RestTest.target(getPort(), "whois/search?query-string=denis+walker&flags=resource")

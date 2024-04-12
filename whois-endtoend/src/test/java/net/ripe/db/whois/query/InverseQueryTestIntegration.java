@@ -216,6 +216,36 @@ public class InverseQueryTestIntegration extends AbstractQueryIntegrationTest {
 
         assertThat(response, containsString("no entries found"));
     }
+
+    @Test
+    public void inverse_sponsoring_org_then_succeed() {
+        databaseHelper.addObject(RpslObject.parse("" +
+                "organisation: ORG-SPONSOR\n" +
+                "org-name:     Sponsoring Org Ltd\n" +
+                "org-type:     LIR\n" +
+                "descr:        test org\n" +
+                "address:      street 5\n" +
+                "e-mail:       org1@test.com\n" +
+                "mnt-ref:      OWNER-MNT\n" +
+                "mnt-by:       OWNER-MNT\n" +
+                "source:       TEST\n" +
+                ""));
+        databaseHelper.addObject("" +
+                "aut-num:        AS102\n" +
+                "as-name:        End-User-2\n" +
+                "descr:          description\n" +
+                "sponsoring-org: ORG-SPONSOR\n" +
+                "admin-c:        PP1-TEST\n" +
+                "tech-c:         PP1-TEST\n" +
+                "mnt-by:         OWNER-MNT\n" +
+                "source:         TEST\n");
+
+        final String response = query("-i sponsoring-org ORG-SPONSOR");
+
+        assertThat(response, containsString("ORG-SPONSOR"));
+        assertThat(response, containsString("aut-num:        AS102"));
+    }
+
     private String query(final String query) {
         return TelnetWhoisClient.queryLocalhost(QueryServer.port, query);
     }
