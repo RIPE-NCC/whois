@@ -792,6 +792,7 @@ class InetnumSpec extends BaseQueryUpdateSpec {
                 tech-c:       TP1-TEST
                 status:       ALLOCATED PA
                 mnt-by:       LIR-MNT
+                mnt-by:       RIPE-NCC-HM-MNT
                 mnt-lower:    LIR2-MNT
                 source:       TEST
 
@@ -4929,6 +4930,7 @@ class InetnumSpec extends BaseQueryUpdateSpec {
                 tech-c:       TP1-TEST
                 status:       ALLOCATED PA
                 mnt-by:       LIR-MNT
+                mnt-by:       RIPE-NCC-HM-MNT
                 source:       TEST
 
                 password: hm
@@ -4952,10 +4954,12 @@ class InetnumSpec extends BaseQueryUpdateSpec {
                 tech-c:       TP1-TEST
                 status:       ALLOCATED PA
                 mnt-by:       LIR-MNT
+                mnt-by:       RIPE-NCC-HM-MNT
                 source:       TEST
                 DELETE:       changing status
 
                 password: lir
+                password: hm
                 """.stripIndent(true)
         )
         then:

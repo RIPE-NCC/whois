@@ -15,7 +15,6 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.mail.MailSendException;
-import org.springframework.mail.javamail.JavaMailSender;
 
 import java.util.Properties;
 
@@ -33,10 +32,12 @@ public class MailGatewaySmtpTest {
     @Mock UpdateContext updateContext;
     @Mock LoggerContext loggerContext;
     @Mock MailConfiguration mailConfiguration;
-    @Mock JavaMailSender mailSender;
+    @Mock CustomJavaMailSender mailSender;
+
     @Mock EmailStatusDao emailStatusDao;
+
     @Mock OutgoingMessageDao outgoingMessageDao;
-    @InjectMocks MailGatewaySmtp subject;
+    @InjectMocks WhoisMailGatewaySmtp subject;
 
     @BeforeEach
     public void setUp() throws Exception {

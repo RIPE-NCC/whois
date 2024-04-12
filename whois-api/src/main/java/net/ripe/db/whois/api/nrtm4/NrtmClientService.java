@@ -19,6 +19,7 @@ import net.ripe.db.nrtm4.dao.NrtmSourceDao;
 import net.ripe.db.nrtm4.domain.NrtmDocumentType;
 import net.ripe.db.nrtm4.domain.NrtmSource;
 import net.ripe.db.nrtm4.util.NrtmFileUtil;
+import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
@@ -79,7 +80,7 @@ public class NrtmClientService {
             @PathParam("source") final String source,
             @PathParam("filename") final String fileName) {
 
-        if(fileName.startsWith(NrtmDocumentType.NOTIFICATION.getFileNamePrefix())) {
+        if(isNotificationFile(fileName)) {
             final String payload = updateNotificationFileSourceAwareDao.findLastNotification(getSource(source))
                     .orElseThrow(() -> new NotFoundException("update-notification-file.json does not exists for source " + source));
 
@@ -136,5 +137,24 @@ public class NrtmClientService {
         return Response.ok(payload)
                 .header(HttpHeaders.CONTENT_TYPE, "application/json-seq")
                 .build();
+    }
+
+    private boolean isNotificationFile(final String fileName) {
+
+        if(!fileName.startsWith(NrtmDocumentType.NOTIFICATION.getFileNamePrefix())) {
+            return false;
+        }
+
+        //ExtensionOverridesAcceptHeaderFilter removes .json
+        if(fileName.equals(NrtmDocumentType.NOTIFICATION.getFileNamePrefix())) {
+            return true;
+        }
+
+        final String fileExtension = StringUtils.substringAfter(fileName, NrtmDocumentType.NOTIFICATION.getFileNamePrefix());
+        if(!fileExtension.equals(".json.sig"))  {
+            throw new NotFoundException("Notification file does not exists");
+        }
+
+        return true;
     }
 }

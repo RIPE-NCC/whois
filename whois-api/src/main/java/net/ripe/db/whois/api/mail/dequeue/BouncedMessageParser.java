@@ -1,6 +1,5 @@
 package net.ripe.db.whois.api.mail.dequeue;
 
-import jakarta.mail.Address;
 import jakarta.mail.MessagingException;
 import jakarta.mail.Part;
 import jakarta.mail.internet.AddressException;
@@ -8,24 +7,35 @@ import jakarta.mail.internet.ContentType;
 import jakarta.mail.internet.InternetAddress;
 import jakarta.mail.internet.InternetHeaders;
 import jakarta.mail.internet.MimeMessage;
-import net.ripe.db.whois.api.mail.MessageInfo;
+import net.ripe.db.whois.api.mail.EmailMessageInfo;
+import org.apache.commons.compress.utils.Lists;
 import org.eclipse.angus.mail.dsn.DeliveryStatus;
 import org.eclipse.angus.mail.dsn.MultipartReport;
 import org.eclipse.angus.mail.dsn.Report;
 import org.elasticsearch.common.Strings;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.Nullable;
 import java.io.IOException;
+import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 @Component
 public class BouncedMessageParser {
 
+    private static final Logger LOGGER = LoggerFactory.getLogger(BouncedMessageParser.class);
+
     private static final ContentType MULTIPART_REPORT = contentType("multipart/report");
 
     private final boolean enabled;
+
+    private static final Pattern FINAL_RECIPIENT_MATCHER = Pattern.compile("(?i)^(rfc822;)\s?(.+@.+$)");
+
 
     @Autowired
     public BouncedMessageParser(@Value("${mail.smtp.from:}") final String smtpFrom) {
@@ -33,7 +43,7 @@ public class BouncedMessageParser {
     }
 
     @Nullable
-    public MessageInfo parse(final MimeMessage message) throws MessagingException, IOException {
+    public EmailMessageInfo parse(final MimeMessage message) throws MessagingException, IOException {
         if (enabled && isMultipartReport(message)) {
             final MultipartReport multipartReport = multipartReport(message.getContent());
             if (isReportDeliveryStatus(multipartReport)) {
@@ -41,21 +51,12 @@ public class BouncedMessageParser {
                 if (isFailed(deliveryStatus)) {
                     final MimeMessage returnedMessage = multipartReport.getReturnedMessage();
                     final String messageId = getMessageId(returnedMessage.getMessageID());
-                    final String recipient = getFirstAddress(returnedMessage.getAllRecipients());
-                    return new MessageInfo(recipient, messageId);
+                    final List<String> recipient = extractRecipients(deliveryStatus);
+                    return new EmailMessageInfo(recipient, messageId);
                 }
             }
         }
-
         return null;
-    }
-
-    @Nullable
-    private String getFirstAddress(final Address[] addresses) {
-        if (addresses == null || addresses.length == 0) {
-            throw new IllegalStateException("No address");
-        }
-        return addresses[0].toString();
     }
 
     private boolean isMultipartReport(final MimeMessage message) throws MessagingException {
@@ -82,6 +83,23 @@ public class BouncedMessageParser {
         } catch (MessagingException | IOException e) {
             throw new MessagingException("Unexpected error parsing message/delivery-status part", e);
         }
+    }
+
+    private List<String> extractRecipients(final DeliveryStatus deliveryStatus) {
+        final List<String> recipients = Lists.newArrayList();
+        for (int dsn = 0; dsn < deliveryStatus.getRecipientDSNCount(); dsn++) {
+            final String recipient = getHeaderValue(deliveryStatus.getRecipientDSN(dsn), "Final-Recipient");
+            if (recipient == null){
+                continue;
+            }
+            final Matcher finalRecipientMatcher = FINAL_RECIPIENT_MATCHER.matcher(recipient);
+            if (!finalRecipientMatcher.matches() || finalRecipientMatcher.groupCount() != 2){
+                LOGGER.error("Wrong formatted recipient {}", recipient);
+                continue;
+            }
+            recipients.add(finalRecipientMatcher.group(2));
+        }
+        return recipients;
     }
 
     private boolean isFailed(final DeliveryStatus deliveryStatus) {

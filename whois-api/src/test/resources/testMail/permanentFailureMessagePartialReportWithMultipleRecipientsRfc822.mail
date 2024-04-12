@@ -38,7 +38,7 @@ content-type: message/delivery-status
 
 Reporting-MTA: dns; abc1.host.org
 
-Final-Recipient: RFC822; nonexistant@host.org
+Final-Recipient: rfc822;nonexistant@host.org
 Action: failed
 Status: 5.0.0 (permanent failure)
 Remote-MTA: dns; [1.2.3.4]
@@ -67,7 +67,7 @@ Mime-Version: 1.0 (Mac OS X Mail 14.0 \(3654.80.0.2.43\))
 Subject: Test Message
 Message-Id: <XXXXXXXX-5AE3-4C58-8E3F-860327BA955D@ripe.net>
 Date: Fri, 23 Feb 2024 17:29:10 +0200
-To: nonexistant@host.org
+To: nonexistant@host.org, nonexistant1@host.org
 X-Mailer: Apple Mail (2.3654.80.0.2.43)
 Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: base64

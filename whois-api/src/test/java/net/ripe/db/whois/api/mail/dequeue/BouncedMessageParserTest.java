@@ -1,7 +1,7 @@
 package net.ripe.db.whois.api.mail.dequeue;
 
 import net.ripe.db.whois.api.MimeMessageProvider;
-import net.ripe.db.whois.api.mail.MessageInfo;
+import net.ripe.db.whois.api.mail.EmailMessageInfo;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -10,6 +10,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.nullValue;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.containsInAnyOrder;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 @ExtendWith(MockitoExtension.class)
@@ -24,26 +25,44 @@ public class BouncedMessageParserTest {
 
     @Test
     public void parse_permanent_delivery_failure_message_rfc822() throws Exception {
-        final MessageInfo bouncedMessage = subject.parse(MimeMessageProvider.getUpdateMessage("permanentFailureMessageRfc822.mail"));
+        final EmailMessageInfo bouncedMessage = subject.parse(MimeMessageProvider.getUpdateMessage("permanentFailureMessageRfc822.mail"));
 
         assertThat(bouncedMessage.messageId(), is("XXXXXXXX-5AE3-4C58-8E3F-860327BA955D@ripe.net"));
-        assertThat(bouncedMessage.emailAddress(), is("nonexistant@host.org"));
+        assertThat(bouncedMessage.emailAddresses(), containsInAnyOrder("nonexistant@host.org"));
+    }
+
+
+    @Test
+    public void parse_permanent_delivery_failure_multiple_recipients_rfc8221() throws Exception {
+        final EmailMessageInfo bouncedMessage = subject.parse(MimeMessageProvider.getUpdateMessage("permanentFailureMessagePartialReportWithMultipleRecipientsRfc822.mail"));
+
+        assertThat(bouncedMessage.messageId(), is("XXXXXXXX-5AE3-4C58-8E3F-860327BA955D@ripe.net"));
+        assertThat(bouncedMessage.emailAddresses(), containsInAnyOrder("nonexistant@host.org"));
+    }
+
+    @Test
+    public void parse_permanent_delivery_failure_multiple_recipients_rfc822() throws Exception {
+        final EmailMessageInfo bouncedMessage = subject.parse(MimeMessageProvider.getUpdateMessage("permanentFailurePerRecipientMessageRfc822.mail"));
+
+        assertThat(bouncedMessage.messageId(), is("XXXXXXXX-8553-47AB-A79B-A9896A2DFBAC@ripe.net"));
+        assertThat(bouncedMessage.emailAddresses(), containsInAnyOrder("nonexistant@host.org", "nonexistant1@host.org"));
     }
 
     @Test
     public void parse_permanent_delivery_failure_rfc822_headers() throws Exception {
-        final MessageInfo bouncedMessage = subject.parse(MimeMessageProvider.getUpdateMessage("permanentFailureRfc822Headers.mail"));
+        final EmailMessageInfo bouncedMessage = subject.parse(MimeMessageProvider.getUpdateMessage("permanentFailureRfc822Headers.mail"));
 
         assertThat(bouncedMessage.messageId(), is("XXXXXXXX-2BCC-4B29-9D86-3B8C68DD835D@ripe.net"));
-        assertThat(bouncedMessage.emailAddress(), is("nonexistant@ripe.net"));
+        assertThat(bouncedMessage.emailAddresses(), containsInAnyOrder("nonexistant@ripe.net"));
     }
+
 
     @Test
     public void parse_permanent_delivery_failure_message_rfc822_headers_real() throws Exception {
-        final MessageInfo bouncedMessage = subject.parse(MimeMessageProvider.getUpdateMessage("permanentFailureMessageRfc822Real.mail"));
+        final EmailMessageInfo bouncedMessage = subject.parse(MimeMessageProvider.getUpdateMessage("permanentFailureMessageRfc822Real.mail"));
 
         assertThat(bouncedMessage.messageId(), is("796892877.6.1709643245290@gaolao.ripe.net"));
-        assertThat(bouncedMessage.emailAddress(), is("testing4@ripe.net"));
+        assertThat(bouncedMessage.emailAddresses(), containsInAnyOrder("testing4@ripe.net"));
     }
 
     @Test

@@ -5,10 +5,9 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
 
-import javax.annotation.Nullable;
 import javax.sql.DataSource;
-import java.sql.ResultSet;
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Repository
 public class OutgoingMessageDao {
@@ -25,16 +24,9 @@ public class OutgoingMessageDao {
                 email, LocalDateTime.now());
     }
 
-    @Nullable
-    public String getEmail(final String messageId) {
-        return jdbcTemplate.query(
-            "SELECT email from outgoing_message where message_id = ?",
-            new Object[] { messageId },
-            (ResultSet resultSet) -> {
-                if (resultSet.next()) {
-                    return resultSet.getString(1);
-                }
-                return null;
-            });
+    public List<String> getEmails(final String messageId) {
+        return jdbcTemplate.queryForList(
+                "SELECT email from outgoing_message where message_id = ?",
+                String.class, messageId);
     }
 }

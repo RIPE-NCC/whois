@@ -217,10 +217,6 @@ public class JdbcIndexDao implements IndexDao {
            indexedAttributes.add(AttributeType.STATUS);
        }
 
-        if(objectTemplate.hasAttribute(AttributeType.SPONSORING_ORG)) {
-            indexedAttributes.add(AttributeType.SPONSORING_ORG);
-        }
-
         return indexedAttributes;
     }
 }
