@@ -40,6 +40,20 @@ class InetnumStatusChildSpec extends BaseQueryUpdateSpec {
                 mnt-lower:    LIR2-MNT
                 source:       TEST
                 """,
+            "ALLOC-ASSIGN-PA": """\
+                inetnum:      192.168.0.0 - 192.169.255.255
+                netname:      TEST-NET-NAME
+                descr:        TEST network
+                country:      NL
+                org:          ORG-LIR1-TEST
+                admin-c:      TP1-TEST
+                tech-c:       TP1-TEST
+                status:       ALLOCATED-ASSIGNED PA
+                mnt-by:       RIPE-NCC-HM-MNT
+                mnt-lower:    LIR-MNT
+                mnt-lower:    LIR2-MNT
+                source:       TEST
+                """,
             "ALLOC-PA2": """\
                 inetnum:      192.170.0.0 - 192.170.255.255
                 netname:      TEST-NET-NAME
@@ -962,7 +976,7 @@ class InetnumStatusChildSpec extends BaseQueryUpdateSpec {
                 org:          ORG-LIR1-TEST
                 admin-c:      TP1-TEST
                 tech-c:       TP1-TEST
-                status:       ALLOCATED-ASSIGNED PA
+                status:       ALLOCATED PA
                 mnt-by:       RIPE-NCC-HM-MNT
                 mnt-lower:    LIR-MNT
                 source:       TEST
@@ -983,6 +997,48 @@ class InetnumStatusChildSpec extends BaseQueryUpdateSpec {
         ack.errors.any { it.operation == "Create" && it.key == "[inetnum] 192.168.0.0 - 192.168.255.255" }
         ack.errorMessagesFor("Create", "[inetnum] 192.168.0.0 - 192.168.255.255") ==
                 ["inetnum parent has incorrect status: ALLOCATED PA"]
+
+        queryObjectNotFound("-rGBT inetnum 192.168.0.0 - 192.168.255.255", "inetnum", "192.168.0.0 - 192.168.255.255")
+    }
+
+    def "create child ASSIGNED PA, parent status ALLOCATED ASSIGNED PA"() {
+        given:
+        syncUpdate(getTransient("ALLOC-ASSIGN-PA") + "password: owner3\npassword: hm")
+        queryObject("-r -T inetnum 192.168.0.0 - 192.169.255.255", "inetnum", "192.168.0.0 - 192.169.255.255")
+
+        expect:
+        queryObjectNotFound("-r -T inetnum 192.168.0.0 - 192.168.255.255", "inetnum", "192.168.0.0 - 192.168.255.255")
+
+        when:
+        def ack = syncUpdateWithResponse("""\
+                inetnum:      192.168.0.0 - 192.168.255.255
+                netname:      TEST-NET-NAME
+                descr:        TEST network
+                country:      NL
+                org:          ORG-LIR1-TEST
+                admin-c:      TP1-TEST
+                tech-c:       TP1-TEST
+                status:       ASSIGNED PA
+                mnt-by:       RIPE-NCC-HM-MNT
+                mnt-lower:    LIR-MNT
+                source:       TEST
+
+                password: hm
+                password: owner3
+                password: lir
+                """.stripIndent(true)
+        )
+
+        then:
+
+        ack.summary.nrFound == 1
+        ack.summary.assertSuccess(0, 0, 0, 0, 0)
+        ack.summary.assertErrors(1, 1, 0, 0)
+
+        ack.countErrorWarnInfo(1, 0, 0)
+        ack.errors.any { it.operation == "Create" && it.key == "[inetnum] 192.168.0.0 - 192.168.255.255" }
+        ack.errorMessagesFor("Create", "[inetnum] 192.168.0.0 - 192.168.255.255") ==
+                ["inetnum parent has incorrect status: ALLOCATED-ASSIGNED PA"]
 
         queryObjectNotFound("-rGBT inetnum 192.168.0.0 - 192.168.255.255", "inetnum", "192.168.0.0 - 192.168.255.255")
     }
