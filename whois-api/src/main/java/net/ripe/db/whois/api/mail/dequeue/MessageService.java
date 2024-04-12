@@ -70,7 +70,9 @@ public class MessageService {
         }
 
         final String unsubscribeRequestEmail = message.emailAddresses().get(0);
-        if (!outgoingMessageDao.isEmailExists(message.messageId(), unsubscribeRequestEmail)){
+        final List<String> emails = outgoingMessageDao.getEmails(message.messageId());
+
+        if (emails.stream().noneMatch(email -> email.equalsIgnoreCase(unsubscribeRequestEmail))){
             LOGGER.warn("Couldn't find outgoing message matching {}", message.messageId());
             return;
         }
