@@ -8,6 +8,7 @@ import net.ripe.db.whois.common.ip.Ipv4Resource;
 import net.ripe.db.whois.common.ip.Ipv6Resource;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Service;
 
@@ -24,7 +25,15 @@ public class RpkiService {
     private final NestedIntervalMap<Ipv4Resource, Set<Roa>> ipv4Tree = new NestedIntervalMap<>();
     private final NestedIntervalMap<Ipv6Resource, Set<Roa>> ipv6Tree = new NestedIntervalMap<>();
 
+    private final RpkiDataProvider rpkiDataProvider;
+
     public RpkiService(final RpkiDataProvider rpkiDataProvider) {
+        this.rpkiDataProvider = rpkiDataProvider;
+        loadRoas();
+    }
+
+    @Scheduled(cron = "*/15 * * * *")
+    private void loadRoas() {
         final List<Roa> loadedRoas = rpkiDataProvider.loadRoas();
         if (loadedRoas != null && !loadedRoas.isEmpty()){
             final List<Roa> roas = loadedRoas.stream()
