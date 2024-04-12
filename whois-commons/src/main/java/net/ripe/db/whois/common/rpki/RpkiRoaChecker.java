@@ -1,5 +1,6 @@
 package net.ripe.db.whois.common.rpki;
 
+import com.google.common.base.Stopwatch;
 import com.google.common.collect.Maps;
 import net.ripe.commons.ip.Asn;
 import net.ripe.db.whois.common.domain.CIString;
@@ -8,6 +9,8 @@ import net.ripe.db.whois.common.ip.Ipv4Resource;
 import net.ripe.db.whois.common.ip.Ipv6Resource;
 import net.ripe.db.whois.common.rpsl.AttributeType;
 import net.ripe.db.whois.common.rpsl.RpslObject;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.Map;
 import java.util.Set;
@@ -19,6 +22,7 @@ import static net.ripe.db.whois.common.rpsl.ObjectType.ROUTE;
 
 public abstract class RpkiRoaChecker {
 
+    private final static Logger LOGGER = LoggerFactory.getLogger(RpkiRoaChecker.class);
     private final RpkiService rpkiService;
 
     public RpkiRoaChecker(final RpkiService rpkiService) {
@@ -26,11 +30,14 @@ public abstract class RpkiRoaChecker {
     }
 
     public Map<Roa, ValidationStatus> validateRoas(final RpslObject route) {
+        final Stopwatch stopwatch = Stopwatch.createStarted();
         final CIString routePrefix = route.getType() == ROUTE? route.getValueForAttribute(AttributeType.ROUTE) : route.getValueForAttribute(AttributeType.ROUTE6);
 
         Map<Roa, ValidationStatus> validationResult = Maps.newHashMap();
 
         final Set<Roa> roas = rpkiService.findRoas(routePrefix.toString());
+
+        LOGGER.info("finish finding roas at {}", stopwatch);
 
         final IpInterval<?> prefix = toIpInterval(routePrefix);
         if (!roas.isEmpty()) {
@@ -38,16 +45,18 @@ public abstract class RpkiRoaChecker {
         } else {
             validationResult.put(null, NOT_FOUND);
         }
-
+        LOGGER.info("finish validating ROAS at {}", stopwatch);
         return validationResult;
     }
 
     private ValidationStatus validate(final RpslObject route, final Roa roa, final IpInterval<?> prefix) {
+        final Stopwatch stopwatch = Stopwatch.createStarted();
         final long nonAuthAsn = Asn.parse(route.getValueForAttribute(AttributeType.ORIGIN).toString()).asBigInteger().longValue();
-        return prefix.getPrefixLength() <= roa.getMaxLength() &&
+        ValidationStatus validationStatus = prefix.getPrefixLength() <= roa.getMaxLength() &&
                 nonAuthAsn != 0 &&
                 nonAuthAsn == roa.getAsn()?
                 VALID : INVALID;
+        LOGGER.info("finish validation status {}", stopwatch);
     }
 
     private IpInterval<?> toIpInterval(final CIString prefix) {
