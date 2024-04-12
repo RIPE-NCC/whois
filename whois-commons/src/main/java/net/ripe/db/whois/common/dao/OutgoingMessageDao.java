@@ -6,7 +6,6 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
 
 import javax.sql.DataSource;
-import java.sql.ResultSet;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -29,12 +28,5 @@ public class OutgoingMessageDao {
         return jdbcTemplate.queryForList(
                 "SELECT email from outgoing_message where message_id = ?",
                 String.class, messageId);
-    }
-
-    public boolean isEmailExists(final String messageId, final String email){
-        return Boolean.TRUE.equals(jdbcTemplate.query("select email from outgoing_message where message_id = ? and email = ?",
-                ResultSet::next,
-                messageId, email));
-
     }
 }
