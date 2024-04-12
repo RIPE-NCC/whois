@@ -989,7 +989,7 @@
                     </excludes>
                     <runOrder>random</runOrder>
                     <parallel>true</parallel>
-                    <forkCount>8</forkCount>
+                    <forkCount>4</forkCount>
                     <reuseForks>true</reuseForks>
                     <threadCount>1</threadCount>
                     <perCoreThreadCount>true</perCoreThreadCount>
@@ -1018,7 +1018,7 @@
                     <excludedGroups>ManualTest</excludedGroups>
                     <!-- Ref. https://maven.apache.org/surefire/maven-failsafe-plugin/examples/fork-options-and-parallel-execution.html -->
                     <parallel>true</parallel>
-                    <forkCount>8</forkCount>
+                    <forkCount>4</forkCount>
                     <reuseForks>true</reuseForks>
                     <threadCount>1</threadCount>
                     <perCoreThreadCount>true</perCoreThreadCount>
