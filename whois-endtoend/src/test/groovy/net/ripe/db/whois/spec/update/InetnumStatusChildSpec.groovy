@@ -1456,7 +1456,7 @@ class InetnumStatusChildSpec extends BaseQueryUpdateSpec {
         ack.countErrorWarnInfo(1, 0, 0)
         ack.errors.any { it.operation == "Create" && it.key == "[inetnum] 192.168.0.0 - 192.169.255.255" }
         ack.errorMessagesFor("Create", "[inetnum] 192.168.0.0 - 192.169.255.255") ==
-                ["Referenced organisation has wrong \"org-type\". Allowed values are [IANA, RIR, LIR]"]
+                ["Referenced organisation has wrong \"org-type\". Allowed values are [RIR, LIR]"]
 
         queryObjectNotFound("-rGBT inetnum 192.168.0.0 - 192.169.255.255", "inetnum", "192.168.0.0 - 192.169.255.255")
     }
@@ -1536,7 +1536,7 @@ class InetnumStatusChildSpec extends BaseQueryUpdateSpec {
         ack.countErrorWarnInfo(1, 0, 0)
         ack.errors.any { it.operation == "Create" && it.key == "[inetnum] 192.168.0.0 - 192.169.255.255" }
         ack.errorMessagesFor("Create", "[inetnum] 192.168.0.0 - 192.169.255.255") ==
-                ["Referenced organisation has wrong \"org-type\". Allowed values are [IANA, RIR, LIR]"]
+                ["Referenced organisation has wrong \"org-type\". Allowed values are [RIR, LIR]"]
 
         queryObjectNotFound("-rGBT inetnum 192.168.0.0 - 192.169.255.255", "inetnum", "192.168.0.0 - 192.169.255.255")
     }
@@ -1571,13 +1571,15 @@ class InetnumStatusChildSpec extends BaseQueryUpdateSpec {
       then:
 
         ack.summary.nrFound == 1
-        ack.summary.assertSuccess(1, 1, 0, 0, 0)
-        ack.summary.assertErrors(0, 0, 0, 0)
+        ack.summary.assertSuccess(0, 0, 0, 0, 0)
+        ack.summary.assertErrors(1, 1, 0, 0)
 
-        ack.countErrorWarnInfo(0, 0, 0)
-        ack.successes.any { it.operation == "Create" && it.key == "[inetnum] 192.168.0.0 - 192.169.255.255" }
+        ack.countErrorWarnInfo(1, 0, 0)
+        ack.errors.any { it.operation == "Create" && it.key == "[inetnum] 192.168.0.0 - 192.169.255.255" }
+        ack.errorMessagesFor("Create", "[inetnum] 192.168.0.0 - 192.169.255.255") ==
+                ["Referenced organisation has wrong \"org-type\". Allowed values are [RIR, LIR]"]
 
-        queryObject("-rGBT inetnum 192.168.0.0 - 192.169.255.255", "inetnum", "192.168.0.0 - 192.169.255.255")
+        queryObjectNotFound("-rGBT inetnum 192.168.0.0 - 192.169.255.255", "inetnum", "192.168.0.0 - 192.169.255.255")
     }
 
     // Create child object with status SUB-ALLOCATED PA tests
