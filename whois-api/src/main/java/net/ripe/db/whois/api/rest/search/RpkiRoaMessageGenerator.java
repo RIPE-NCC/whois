@@ -53,7 +53,7 @@ public class RpkiRoaMessageGenerator implements RpslMessageGenerator {
             return null;
         }
 
-        return new RpslMessage(QueryMessages.roaRouteConflicts(rpkiRoa.getAsn()));
+        return new RpslMessage(QueryMessages.roaRouteConflicts(rpslObject.getType().getName(), rpkiRoa.getAsn()));
 
     }
 }
