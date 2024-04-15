@@ -750,7 +750,7 @@ class InetnumIntegrationSpec extends BaseWhoisSourceSpec {
     then:
       response =~ /FAIL/
       response =~ /Referenced organisation has wrong "org-type"/
-      response =~ /Allowed values are \[IANA, RIR, LIR\]/
+      response =~ /Allowed values are \[RIR, LIR\]/
   }
 
   def "modify status ALLOCATED PA has reference to non-RIR organisation with override"() {
