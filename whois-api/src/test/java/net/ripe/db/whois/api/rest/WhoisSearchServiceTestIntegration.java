@@ -1986,12 +1986,12 @@ public class WhoisSearchServiceTestIntegration extends AbstractIntegrationTest {
                 "        </attribute>\n" +
                 "        <attribute name=\"source\" value=\"TEST-NONAUTH\"/>\n" +
                 "    </attributes>\n" +
-                "    <objectMessages>\n" +
-                "        <objectMessage severity=\"Warning\" text=\"Warning: this route object conflicts with an " +
+                "    <objectmessages>\n" +
+                "        <objectmessage severity=\"Warning\" text=\"Warning: this route object conflicts with an " +
                 "overlapping RPKI ROA with a different origin AS%s.&#xA;As a result an announcement for this prefix may be rejected by many autonomous systems. You should either remove this route: object or delete the ROA.&#xA;\">\n" +
                 "            <args value=\"6505\"/>\n" +
-                "        </objectMessage>\n" +
-                "    </objectMessages>\n" +
+                "        </objectmessage>\n" +
+                "    </objectmessages>\n" +
                 "</object>\n" +
                 "</objects>\n" +
                 "<terms-and-conditions xlink:type=\"locator\" xlink:href=\"https://apps.db.ripe.net/docs/HTML-Terms-And-Conditions\"/>\n" +

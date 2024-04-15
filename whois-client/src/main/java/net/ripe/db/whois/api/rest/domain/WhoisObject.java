@@ -60,7 +60,7 @@ public class WhoisObject {
     @XmlAttribute
     private Integer version;
 
-    @XmlElement(name = "objectMessages")
+    @XmlElement(name = "objectmessages")
     private ObjectMessages objectMessages;
 
     public WhoisObject() {
