@@ -48,7 +48,7 @@ public class UnsubscribeMessageParser {
             throw new MailParsingException("Error parsing text plain unsubscribe message");
         }
 
-        throw new MailParsingException("text plain message without messageId or recipients");
+        return null;
     }
 
     private boolean isTextPlain(final MimeMessage message) throws MessagingException {
