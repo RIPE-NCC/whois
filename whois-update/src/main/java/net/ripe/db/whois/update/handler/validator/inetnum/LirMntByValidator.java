@@ -77,7 +77,9 @@ public class LirMntByValidator implements BusinessRuleValidator {
 
         // TODO - To make it consistent, we can check for RIPE-NCC-HM-MNT
         return InetnumStatus.ALLOCATED_PA.equals(status) ||
-                InetnumStatus.ALLOCATED_UNSPECIFIED.equals(status) || Inet6numStatus.ALLOCATED_BY_RIR.equals(status);
+                InetnumStatus.ALLOCATED_UNSPECIFIED.equals(status) ||
+                InetnumStatus.ALLOCATED_ASSIGNED_PA.equals(status) ||
+                Inet6numStatus.ALLOCATED_BY_RIR.equals(status);
     }
 
     @Override
