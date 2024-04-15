@@ -134,4 +134,19 @@ public class MessageServiceTestIntegration extends AbstractMailMessageIntegratio
         assertThat(isUndeliverableAddress(UNSUBSCRIBED_MAIL_RECIPIENT), is(false));
         assertThat(isUnsubscribeAddress(UNSUBSCRIBED_MAIL_RECIPIENT), is(true));
     }
+
+    @Test
+    public void testUnsubscribedEmailFromCorrectEmailIsCaseInsensitive() throws MessagingException, IOException {
+        insertOutgoingMessageId("8b8ed6c0-f9cc-4a5f-afbb-fde079b94f44@ripe.net", "EnDuseR@ripe.net");
+        final MimeMessage message = MimeMessageProvider.getUpdateMessage("unsubscribeAppleMail.mail");
+
+        final EmailMessageInfo unsubscribedMessageInfo = messageService.getUnsubscribedMessageInfo(message);
+        final EmailMessageInfo bouncedMessageInfo = messageService.getBouncedMessageInfo(message);
+        assertThat(bouncedMessageInfo, is(nullValue()));
+        assertThat(unsubscribedMessageInfo, is(not(nullValue())));
+
+        messageService.verifyAndSetAsUnsubscribed(unsubscribedMessageInfo);
+        assertThat(isUndeliverableAddress(UNSUBSCRIBED_MAIL_RECIPIENT), is(false));
+        assertThat(isUnsubscribeAddress(UNSUBSCRIBED_MAIL_RECIPIENT), is(true));
+    }
 }
