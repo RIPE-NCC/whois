@@ -138,6 +138,32 @@ public class MailBounceTestIntegration extends AbstractMailMessageIntegrationTes
     }
 
     @Test
+    public void dont_send_notification_mail_to_undeliverable_no_normalised_address() throws Exception {
+        final String role =
+                "role:        dummy role\n" +
+                        "address:       Singel 258\n" +
+                        "e-mail:        dummyrole@ripe.net\n" +
+                        "phone:         +31 6 12345678\n" +
+                        "notify:        nonexistant+comment1@ripe.net\n" +
+                        "nic-hdl:       DR1-TEST\n" +
+                        "mnt-by:        OWNER-MNT\n" +
+                        "source:        TEST\n";
+
+        // mark address as undeliverable
+        insertUndeliverableAddress("nonexistant@ripe.net");
+
+        // send message to mailupdates
+        final String from = insertIncomingMessage("NEW", role + "\npassword: test\n");
+
+        // read reply from mailupdates
+        final MimeMessage acknowledgement = mailSenderStub.getMessage(from);
+        assertThat(acknowledgement.getContent().toString(), containsString("Create SUCCEEDED: [role] DR1-TEST   dummy role"));
+
+        // test that no notification mail is sent to nonexistant@ripe.net
+        assertThat(mailSenderStub.anyMoreMessages(), is(false));
+    }
+
+    @Test
     public void dont_send_notification_mail_to_undeliverable_address_is_case_insensitive() throws Exception {
         final String role =
                 "role:        dummy role\n" +

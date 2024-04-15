@@ -69,10 +69,18 @@ public abstract class MailGatewaySmtp {
         }
 
         try {
-            return new InternetAddress(email).getAddress();
+            return normaliseToLocalPartEmail(email);
         } catch (AddressException e) {
+            LOGGER.error("Incorrect email {}", email);
             return email;
         }
+    }
+
+    private static String normaliseToLocalPartEmail(final String email) throws AddressException {
+        final InternetAddress internetAddress = new InternetAddress(email);
+        final String address = internetAddress.getAddress().split("\\+")[0];
+        final String domain = internetAddress.getAddress().split("@")[1];
+        return address + "@" + domain;
     }
 
     protected MimeMessage sendEmailAttempt(final Set<String> recipients, final String replyTo, final String subject, final String text, final boolean html) throws MessagingException {
