@@ -78,6 +78,7 @@ public abstract class MailGatewaySmtp {
 
     private static String normaliseLocalPartEmail(final String email) throws AddressException {
         final InternetAddress internetAddress = new InternetAddress(email);
+        internetAddress.validate();
         final String address = internetAddress.getAddress().split("\\+")[0];
         final String domain = internetAddress.getAddress().split("@")[1];
         return address + "@" + domain;
