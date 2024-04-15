@@ -18,7 +18,7 @@ import static net.ripe.db.whois.common.rpsl.attrs.OrgType.RIR;
 
 public enum InetnumStatus implements InetStatus {
 
-    ALLOCATED_PA("ALLOCATED PA", IANA, RIR, LIR),
+    ALLOCATED_PA("ALLOCATED PA", RIR, LIR),
     ALLOCATED_UNSPECIFIED("ALLOCATED UNSPECIFIED", IANA, RIR, LIR),
     LIR_PARTITIONED_PA("LIR-PARTITIONED PA", LIR, OTHER),
     SUB_ALLOCATED_PA("SUB-ALLOCATED PA", LIR, OTHER),
