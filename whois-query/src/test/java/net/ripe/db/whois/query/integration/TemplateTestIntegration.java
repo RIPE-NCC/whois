@@ -262,6 +262,7 @@ public class TemplateTestIntegration extends AbstractQueryIntegrationTest {
                 "     o ALLOCATED UNSPECIFIED\n" +
                 "     o LIR-PARTITIONED PA\n" +
                 "     o SUB-ALLOCATED PA\n" +
+                "     o ALLOCATED-ASSIGNED PA\n" +
                 "     o ASSIGNED PA\n" +
                 "     o ASSIGNED PI\n" +
                 "     o ASSIGNED ANYCAST\n" +

@@ -53,7 +53,7 @@ public class InetnumStatusTest {
     public void allowedOrgTypesChecks() {
         assertThat(ALLOCATED_PA.isValidOrgType(OrgType.LIR), is(true));
         assertThat(ALLOCATED_PA.isValidOrgType(OrgType.RIR), is(true));
-        assertThat(ALLOCATED_PA.isValidOrgType(OrgType.IANA), is(true));
+        assertThat(ALLOCATED_PA.isValidOrgType(OrgType.IANA), is(false));
         assertThat(ALLOCATED_PA.isValidOrgType(OrgType.DIRECT_ASSIGNMENT), is(false));
 
         assertThat(ALLOCATED_UNSPECIFIED.isValidOrgType(OrgType.LIR), is(true));
