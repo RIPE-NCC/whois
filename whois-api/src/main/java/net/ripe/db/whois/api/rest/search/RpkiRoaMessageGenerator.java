@@ -43,7 +43,7 @@ public class RpkiRoaMessageGenerator implements RpslMessageGenerator {
     }
 
     private boolean canProceed(final Parameters parameters){
-        return isEnabled && parameters.getRoaCheck();
+        return isEnabled && (parameters.getRoaCheck()!= null && parameters.getRoaCheck());
     }
 
     private RpslMessage validateRoa(final RpslObject rpslObject){
