@@ -13,6 +13,7 @@ import net.ripe.db.whois.common.iptree.Ipv4Tree;
 import net.ripe.db.whois.common.rpsl.RpslObject;
 import net.ripe.db.whois.update.authentication.Principal;
 import net.ripe.db.whois.update.authentication.Subject;
+import net.ripe.db.whois.update.domain.Action;
 import net.ripe.db.whois.update.domain.PreparedUpdate;
 import net.ripe.db.whois.update.domain.UpdateContext;
 import net.ripe.db.whois.update.domain.UpdateMessages;
@@ -48,6 +49,7 @@ public class InetnumStrictStatusValidatorTest {
     public void setup() {
         lenient().when(updateContext.getSubject(update)).thenReturn(authenticationSubject);
         lenient().when(maintainers.isRsMaintainer(ciSet("RIPE-NCC-HM-MNT"))).thenReturn(true);
+        lenient().when(update.getAction()).thenReturn(Action.CREATE);
     }
 
     @Test
