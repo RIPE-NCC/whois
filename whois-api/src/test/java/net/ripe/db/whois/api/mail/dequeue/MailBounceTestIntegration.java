@@ -192,7 +192,8 @@ public class MailBounceTestIntegration extends AbstractMailMessageIntegrationTes
         // delayed message has been processed but address is not set to undeliverable
         assertThat(isUndeliverableAddress("enduser@host.org"), is(false));
 
-        // TODO: [ES] delayed message not deleted from mailupdates table
+        // delayed message deleted from mailupdates table
+        assertThat(anyIncomingMessages(), is(false));
     }
 
     @Test
@@ -261,7 +262,6 @@ public class MailBounceTestIntegration extends AbstractMailMessageIntegrationTes
         // Make sure that failure response message was deleted
         assertThat(mailSenderStub.anyMoreMessages(), is(false));
     }
-
 
     @Test
     public void bouncing_headers_causes_address_to_be_marked_as_undeliverable() {
