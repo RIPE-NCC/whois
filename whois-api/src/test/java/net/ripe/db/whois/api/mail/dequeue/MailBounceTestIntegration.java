@@ -164,6 +164,22 @@ public class MailBounceTestIntegration extends AbstractMailMessageIntegrationTes
     }
 
     @Test
+    public void permanent_delivery_failure_to_one_recipient_multiple_final_recipients() {
+        insertOutgoingMessageId("XXXXXXXX-5AE3-4C58-8E3F-860327BA955D@ripe.net", "noc@host.org");
+        final MimeMessage message = MimeMessageProvider.getUpdateMessage("permanentFailureMessageRfc822Noc.mail");
+        insertIncomingMessage(message);
+
+        // wait for incoming message to be processed
+        Awaitility.waitAtMost(10L, TimeUnit.SECONDS).until(() -> (! anyIncomingMessages()));
+
+        // delayed message has been processed but address is not set to undeliverable
+        assertThat(isUndeliverableAddress("noc@host.org"), is(false));
+        assertThat(isUndeliverableAddress("First.Person@host.org"), is(false));
+        assertThat(isUndeliverableAddress("Second.Person@host.org"), is(false));
+
+    }
+
+    @Test
     public void delayed_delivery_is_not_permanently_undeliverable() {
         // insert delayed response
         insertOutgoingMessageId("XXXXXXXX-734E-496B-AD3F-84D3425A7F27", "enduser@host.org");
