@@ -240,7 +240,7 @@ public class MessageDequeue implements ApplicationService {
         return "No-Message-Id." + dateTimeProvider.getElapsedTime();
     }
 
-    private void handleMessageInContext(final String messageId, final MimeMessage message) throws MessagingException, IOException {
+    private void handleMessageInContext(final String messageId, final MimeMessage message) throws MessagingException {
         loggerContext.log("msg-in.txt", new MailMessageLogCallback(message));
         mailMessageDao.setStatus(messageId, DequeueStatus.LOGGED);
 

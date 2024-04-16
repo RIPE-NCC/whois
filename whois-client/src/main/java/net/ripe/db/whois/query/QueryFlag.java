@@ -257,8 +257,8 @@ public enum QueryFlag {
         return toString;
     }
 
-    private static Map<String, QueryFlag> VALID_LONG_FLAGS;
-    private static Map<String, QueryFlag> VALID_SHORT_FLAGS;
+    private static final Map<String, QueryFlag> VALID_LONG_FLAGS;
+    private static final Map<String, QueryFlag> VALID_SHORT_FLAGS;
 
     static {
         final ImmutableMap.Builder<String, QueryFlag> validLongFlags = ImmutableMap.builder();
