@@ -2,6 +2,7 @@ package net.ripe.db.whois.api.mail.dequeue;
 
 import net.ripe.db.whois.api.MimeMessageProvider;
 import net.ripe.db.whois.api.mail.EmailMessageInfo;
+import net.ripe.db.whois.api.mail.exception.MailParsingException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -67,16 +68,19 @@ public class BouncedMessageParserTest {
 
     @Test
     public void parse_permanent_delivery_failure_without_message_id() {
-        final IllegalStateException e = assertThrows(IllegalStateException.class, () -> {
+        final MailParsingException e = assertThrows(MailParsingException.class, () -> {
             subject.parse(MimeMessageProvider.getUpdateMessage("permanentFailureWithoutMessageId.mail"));
         });
 
-        assertThat(e.getMessage(), is("No Message-Id header"));
+        assertThat(e.getMessage(), is("Error parsing multipart report"));
     }
 
     @Test
-    public void parse_delayed_delivery() throws Exception {
-        assertThat(subject.parse(MimeMessageProvider.getUpdateMessage("messageDelayedRfc822Headers.mail")), is(nullValue()));
+    public void parse_delayed_delivery() {
+        final MailParsingException exception = assertThrows(MailParsingException.class, () -> {
+            subject.parse(MimeMessageProvider.getUpdateMessage("messageDelayedRfc822Headers.mail"));
+        });
+        assertThat(exception.getMessage(), is("MultiPart message without failure report"));
     }
 
     @Test
