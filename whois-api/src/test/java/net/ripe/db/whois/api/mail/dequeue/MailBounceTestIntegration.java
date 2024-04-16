@@ -7,7 +7,6 @@ import net.ripe.db.whois.update.mail.MailSenderStub;
 import org.awaitility.Awaitility;
 import org.hamcrest.Matchers;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -248,7 +247,6 @@ public class MailBounceTestIntegration extends AbstractMailMessageIntegrationTes
         assertThat(mailSenderStub.anyMoreMessages(), is(false));
     }
 
-    @Disabled("TODO: [ES] message gets stuck")
     @Test
     public void invalid_email_do_not_causes_address_to_be_marked_as_undeliverable() {
         final MimeMessage message = MimeMessageProvider.getUpdateMessage("permanentFailureWithoutMessageId.mail");

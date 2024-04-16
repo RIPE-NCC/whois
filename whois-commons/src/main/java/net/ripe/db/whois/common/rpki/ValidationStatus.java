@@ -4,5 +4,7 @@ public enum ValidationStatus {
 
     NOT_FOUND,
     VALID,
-    INVALID
+    INVALID,
+    INVALID_ORIGIN,
+    INVALID_PREFIX_LENGTH
 }

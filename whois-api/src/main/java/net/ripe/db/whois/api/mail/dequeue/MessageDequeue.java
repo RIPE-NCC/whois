@@ -7,6 +7,7 @@ import net.ripe.db.whois.api.UpdatesParser;
 import net.ripe.db.whois.api.mail.EmailMessageInfo;
 import net.ripe.db.whois.api.mail.MailMessage;
 import net.ripe.db.whois.api.mail.dao.MailMessageDao;
+import net.ripe.db.whois.api.mail.exception.MailParsingException;
 import net.ripe.db.whois.common.ApplicationService;
 import net.ripe.db.whois.common.DateTimeProvider;
 import net.ripe.db.whois.common.MaintenanceMode;
@@ -205,7 +206,15 @@ public class MessageDequeue implements ApplicationService {
                 mailMessageDao.deleteMessage(messageId);
                 return;
             }
+        } catch (MailParsingException e){
+            LOGGER.info("Error detecting bounce detection or unsubscribing for messageId {}", messageId, e);
+            mailMessageDao.deleteMessage(messageId);
+            return;
+        } catch (MessagingException ex) {
+            LOGGER.error("There was some kind of error processing the message {}", messageId, ex);
+        }
 
+        try {
             loggerContext.init(getMessageIdLocalPart(message));
             try {
                 handleMessageInContext(messageId, message);
@@ -231,7 +240,7 @@ public class MessageDequeue implements ApplicationService {
         return "No-Message-Id." + dateTimeProvider.getElapsedTime();
     }
 
-    private void handleMessageInContext(final String messageId, final MimeMessage message) throws MessagingException, IOException {
+    private void handleMessageInContext(final String messageId, final MimeMessage message) throws MessagingException {
         loggerContext.log("msg-in.txt", new MailMessageLogCallback(message));
         mailMessageDao.setStatus(messageId, DequeueStatus.LOGGED);
 

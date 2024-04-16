@@ -4,14 +4,12 @@ import jakarta.mail.MessagingException;
 import jakarta.mail.internet.MimeMessage;
 import net.ripe.db.whois.api.MimeMessageProvider;
 import net.ripe.db.whois.api.mail.EmailMessageInfo;
+import net.ripe.db.whois.api.mail.exception.MailParsingException;
 import net.ripe.db.whois.update.mail.MailSenderStub;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-
-import java.io.IOException;
-
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.not;
 import static org.hamcrest.CoreMatchers.nullValue;
@@ -44,7 +42,7 @@ public class MessageServiceTestIntegration extends AbstractMailMessageIntegratio
     }
 
     @Test
-    public void testNoBouncedEmailFromCorrectEmail() throws MessagingException, IOException {
+    public void testNoBouncedEmailFromCorrectEmail() throws MessagingException, MailParsingException {
         final String role =
                 "role:        dummy role\n" +
                         "address:       Singel 258\n" +
@@ -67,7 +65,7 @@ public class MessageServiceTestIntegration extends AbstractMailMessageIntegratio
     }
 
     @Test
-    public void testBouncedEmailFromIncorrectEmail() throws MessagingException, IOException {
+    public void testBouncedEmailFromIncorrectEmail() throws MessagingException, MailParsingException {
         insertOutgoingMessageId("XXXXXXXX-5AE3-4C58-8E3F-860327BA955D@ripe.net", "enduser@ripe.net");
         final MimeMessage message = MimeMessageProvider.getUpdateMessage("permanentFailureMessageRfc822.mail");
 
@@ -79,7 +77,7 @@ public class MessageServiceTestIntegration extends AbstractMailMessageIntegratio
     }
 
     @Test
-    public void testBouncedEmailFromCorrectEmail() throws MessagingException, IOException {
+    public void testBouncedEmailFromCorrectEmail() throws MessagingException, MailParsingException {
         insertOutgoingMessageId("XXXXXXXX-5AE3-4C58-8E3F-860327BA955D@ripe.net", BOUNCED_MAIL_RECIPIENT);
         final MimeMessage message = MimeMessageProvider.getUpdateMessage("permanentFailureMessageRfc822.mail");
 
@@ -91,7 +89,7 @@ public class MessageServiceTestIntegration extends AbstractMailMessageIntegratio
     }
 
     @Test
-    public void testBouncedFailureRecipientFromCorrectEmail() throws MessagingException, IOException {
+    public void testBouncedFailureRecipientFromCorrectEmail() throws MessagingException, MailParsingException {
         insertOutgoingMessageId("XXXXXXXX-5AE3-4C58-8E3F-860327BA955D@ripe.net", BOUNCED_MAIL_RECIPIENT);
         insertOutgoingMessageId("XXXXXXXX-5AE3-4C58-8E3F-860327BA955D@ripe.net", ANOTHER_BOUNCED_MAIL_RECIPIENT);
 
@@ -106,7 +104,7 @@ public class MessageServiceTestIntegration extends AbstractMailMessageIntegratio
     }
 
     @Test
-    public void testBouncedMultipleFailurePerRecipientFromCorrectEmail() throws MessagingException, IOException {
+    public void testBouncedMultipleFailurePerRecipientFromCorrectEmail() throws MessagingException, MailParsingException {
         insertOutgoingMessageId("XXXXXXXX-8553-47AB-A79B-A9896A2DFBAC@ripe.net", BOUNCED_MAIL_RECIPIENT);
         insertOutgoingMessageId("XXXXXXXX-8553-47AB-A79B-A9896A2DFBAC@ripe.net", ANOTHER_BOUNCED_MAIL_RECIPIENT);
 
@@ -121,7 +119,7 @@ public class MessageServiceTestIntegration extends AbstractMailMessageIntegratio
     }
 
     @Test
-    public void testUnsubscribedEmailFromCorrectEmail() throws MessagingException, IOException {
+    public void testUnsubscribedEmailFromCorrectEmail() throws MessagingException, MailParsingException {
         insertOutgoingMessageId("8b8ed6c0-f9cc-4a5f-afbb-fde079b94f44@ripe.net", UNSUBSCRIBED_MAIL_RECIPIENT);
         final MimeMessage message = MimeMessageProvider.getUpdateMessage("unsubscribeAppleMail.mail");
 
@@ -136,7 +134,7 @@ public class MessageServiceTestIntegration extends AbstractMailMessageIntegratio
     }
 
     @Test
-    public void testUnsubscribedEmailFromCorrectEmailIsCaseInsensitive() throws MessagingException, IOException {
+    public void testUnsubscribedEmailFromCorrectEmailIsCaseInsensitive() throws MessagingException, MailParsingException {
         insertOutgoingMessageId("8b8ed6c0-f9cc-4a5f-afbb-fde079b94f44@ripe.net", "EnDuseR@ripe.net");
         final MimeMessage message = MimeMessageProvider.getUpdateMessage("unsubscribeAppleMail.mail");
 
