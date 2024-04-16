@@ -1860,8 +1860,9 @@ public class WhoisSearchServiceTestIntegration extends AbstractIntegrationTest {
         assertThat(whoisResources.getWhoisObjects(), hasSize(1));
 
         assertThat(whoisResources.getWhoisObjects().get(0).getObjectMessages().getMessages().get(0).getText(), is("" +
-                "Warning: this %s object conflicts with an overlapping RPKI ROA with a different prefix length %s.\n" +
-                "As a result an announcement for this prefix may be rejected by many autonomous systems. You should either remove this route: object or delete the ROA.\n"));
+                "Warning: this %s object conflicts with an overlapping RPKI ROA with a less specific prefix %s.\n" +
+                "As a result an announcement for this prefix may be rejected by many autonomous systems. You should " +
+                "either remove this route: object or update or delete the ROA.\n"));
     }
 
     @Test
@@ -1906,7 +1907,8 @@ public class WhoisSearchServiceTestIntegration extends AbstractIntegrationTest {
         assertThat(whoisResources.getWhoisObjects().get(0).getObjectMessages().getMessages(), hasSize(1));
         assertThat(whoisResources.getWhoisObjects().get(0).getObjectMessages().getMessages().get(0).getText(), is("" +
                 "Warning: this %s object conflicts with an overlapping RPKI ROA with a different origin AS%s.\n" +
-                "As a result an announcement for this prefix may be rejected by many autonomous systems. You should either remove this route: object or delete the ROA.\n"));
+                "As a result an announcement for this prefix may be rejected by many autonomous systems. You should " +
+                "either remove this route: object or update or delete the ROA.\n"));
     }
 
     @Test
@@ -1930,7 +1932,8 @@ public class WhoisSearchServiceTestIntegration extends AbstractIntegrationTest {
         assertThat(whoisResources.getWhoisObjects().get(0).getObjectMessages().getMessages(), hasSize(1));
         assertThat(whoisResources.getWhoisObjects().get(0).getObjectMessages().getMessages().get(0).getText(), is("" +
                 "Warning: this %s object conflicts with an overlapping RPKI ROA with a different origin AS%s.\n" +
-                "As a result an announcement for this prefix may be rejected by many autonomous systems. You should either remove this route: object or delete the ROA.\n"));
+                "As a result an announcement for this prefix may be rejected by many autonomous systems. You should " +
+                "either remove this route: object or update or delete the ROA.\n"));
     }
 
     @Test
@@ -1975,7 +1978,8 @@ public class WhoisSearchServiceTestIntegration extends AbstractIntegrationTest {
         assertThat(whoisResources.getWhoisObjects().get(0).getObjectMessages().getMessages(), hasSize(1));
         assertThat(whoisResources.getWhoisObjects().get(0).getObjectMessages().getMessages().get(0).getText(), is("" +
                 "Warning: this %s object conflicts with an overlapping RPKI ROA with a different origin AS%s.\n" +
-                "As a result an announcement for this prefix may be rejected by many autonomous systems. You should either remove this route: object or delete the ROA.\n"));
+                "As a result an announcement for this prefix may be rejected by many autonomous systems. You should " +
+                "either remove this route: object or update or delete the ROA.\n"));
     }
 
     @Test
@@ -1998,8 +2002,9 @@ public class WhoisSearchServiceTestIntegration extends AbstractIntegrationTest {
 
         assertThat(whoisResources.getWhoisObjects().get(0).getObjectMessages().getMessages(), hasSize(1));
         assertThat(whoisResources.getWhoisObjects().get(0).getObjectMessages().getMessages().get(0).getText(), is("" +
-                "Warning: this %s object conflicts with an overlapping RPKI ROA with a different prefix length %s and different origin AS%s.\n" +
-                "As a result an announcement for this prefix may be rejected by many autonomous systems. You should either remove this route: object or delete the ROA.\n"));
+                "Warning: this %s object conflicts with an overlapping RPKI ROA with a less specific prefix %s and different origin AS%s.\n" +
+                "As a result an announcement for this prefix may be rejected by many autonomous systems. You should " +
+                "either remove this route: object or update or delete the ROA.\n"));
     }
 
     @Test
@@ -2058,8 +2063,8 @@ public class WhoisSearchServiceTestIntegration extends AbstractIntegrationTest {
                 "    </attributes>\n" +
                 "    <objectmessages>\n" +
                 "        <objectmessage severity=\"Warning\" text=\"Warning: this %s object conflicts with an " +
-                "overlapping RPKI ROA with a different prefix length %s.&#xA;As a result an announcement for this prefix may be" +
-                " rejected by many autonomous systems. You should either remove this route: object or delete the ROA.&#xA;\">\n" +
+                "overlapping RPKI ROA with a less specific prefix %s.&#xA;As a result an announcement for this prefix may be" +
+                " rejected by many autonomous systems. You should either remove this route: object or update or delete the ROA.&#xA;\">\n" +
                 "            <args value=\"route6\"/>\n" +
                 "            <args value=\"32\"/>\n" +
                 "        </objectmessage>\n" +
@@ -2129,7 +2134,8 @@ public class WhoisSearchServiceTestIntegration extends AbstractIntegrationTest {
                 "        <attribute name=\"source\" value=\"TEST-NONAUTH\"/>\n" +
                 "    </attributes>\n" +
                 "    <objectmessages>\n" +
-                "        <objectmessage severity=\"Warning\" text=\"Warning: this %s object conflicts with an overlapping RPKI ROA with a different prefix length %s and different origin AS%s.&#xA;As a result an announcement for this prefix may be rejected by many autonomous systems. You should either remove this route: object or delete the ROA.&#xA;\">\n" +
+                "        <objectmessage severity=\"Warning\" text=\"Warning: this %s object conflicts with an " +
+                "overlapping RPKI ROA with a less specific prefix %s and different origin AS%s.&#xA;As a result an announcement for this prefix may be rejected by many autonomous systems. You should either remove this route: object or update or delete the ROA.&#xA;\">\n" +
                 "            <args value=\"route6\"/>\n" +
                 "            <args value=\"32\"/>\n" +
                 "            <args value=\"52511\"/>\n" +
@@ -2265,7 +2271,8 @@ public class WhoisSearchServiceTestIntegration extends AbstractIntegrationTest {
                 "    </attributes>\n" +
                 "    <objectmessages>\n" +
                 "        <objectmessage severity=\"Warning\" text=\"Warning: this %s object conflicts with an " +
-                "overlapping RPKI ROA with a different origin AS%s.&#xA;As a result an announcement for this prefix may be rejected by many autonomous systems. You should either remove this route: object or delete the ROA.&#xA;\">\n" +
+                "overlapping RPKI ROA with a different origin AS%s.&#xA;As a result an announcement for this prefix " +
+                "may be rejected by many autonomous systems. You should either remove this route: object or update or delete the ROA.&#xA;\">\n" +
                 "            <args value=\"route6\"/>\n" +
                 "            <args value=\"52511\"/>\n" +
                 "        </objectmessage>\n" +
@@ -2336,7 +2343,8 @@ public class WhoisSearchServiceTestIntegration extends AbstractIntegrationTest {
                 "    </attributes>\n" +
                 "    <objectmessages>\n" +
                 "        <objectmessage severity=\"Warning\" text=\"Warning: this %s object conflicts with an " +
-                "overlapping RPKI ROA with a different origin AS%s.&#xA;As a result an announcement for this prefix may be rejected by many autonomous systems. You should either remove this route: object or delete the ROA.&#xA;\">\n" +
+                "overlapping RPKI ROA with a different origin AS%s.&#xA;As a result an announcement for this prefix " +
+                "may be rejected by many autonomous systems. You should either remove this route: object or update or delete the ROA.&#xA;\">\n" +
                 "            <args value=\"route\"/>\n" +
                 "            <args value=\"6505\"/>\n" +
                 "        </objectmessage>\n" +
