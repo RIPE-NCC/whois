@@ -7,8 +7,6 @@ import net.ripe.db.whois.common.domain.CIString;
 import net.ripe.db.whois.common.domain.Hosts;
 import org.apache.commons.lang.StringUtils;
 
-import java.net.InetAddress;
-
 import static net.ripe.db.whois.common.Messages.Type;
 
 public final class QueryMessages {
@@ -60,6 +58,30 @@ public final class QueryMessages {
     public static Message unvalidatedAbuseCShown(final CharSequence key, final CharSequence value, final CharSequence orgId) {
         return new QueryMessage(Type.INFO, "Abuse contact for '%s' is '%s'" +
                 "\nAbuse-mailbox validation failed. Please refer to %s for further information.", key, value, orgId);
+    }
+
+    public static Message roaRouteOriginConflicts(final String objectType, final long asn){
+        return new QueryMessage(Type.WARNING, ""
+                + "Warning: this %s object conflicts with an overlapping RPKI ROA with a different origin AS%s."
+                + "\n"
+                + "As a result an announcement for this prefix may be rejected by many autonomous systems. You should" +
+                " either remove this route: object or update or delete the ROA.", objectType, asn);
+    }
+
+    public static Message roaRoutePrefixLengthConflicts(final String objectType, final int prefix){
+        return new QueryMessage(Type.WARNING, ""
+                + "Warning: this %s object conflicts with an overlapping RPKI ROA with a less specific prefix %s."
+                + "\n"
+                + "As a result an announcement for this prefix may be rejected by many autonomous systems. You should" +
+                " either remove this route: object or update or delete the ROA.", objectType, prefix);
+    }
+
+    public static Message roaRouteConflicts(final String objectType, final int prefix, final long asn){
+        return new QueryMessage(Type.WARNING, ""
+                + "Warning: this %s object conflicts with an overlapping RPKI ROA with a less specific prefix %s and different origin AS%s."
+                + "\n"
+                + "As a result an announcement for this prefix may be rejected by many autonomous systems. You should" +
+                " either remove this route: object or update or delete the ROA.", objectType, prefix, asn);
     }
 
     public static Message unvalidatedAbuseCShown(final CharSequence key, final CharSequence value) {

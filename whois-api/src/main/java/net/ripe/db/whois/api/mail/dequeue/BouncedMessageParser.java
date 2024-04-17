@@ -8,6 +8,7 @@ import jakarta.mail.internet.InternetAddress;
 import jakarta.mail.internet.InternetHeaders;
 import jakarta.mail.internet.MimeMessage;
 import net.ripe.db.whois.api.mail.EmailMessageInfo;
+import net.ripe.db.whois.api.mail.exception.MailParsingException;
 import org.apache.commons.compress.utils.Lists;
 import org.eclipse.angus.mail.dsn.DeliveryStatus;
 import org.eclipse.angus.mail.dsn.MultipartReport;
@@ -43,8 +44,12 @@ public class BouncedMessageParser {
     }
 
     @Nullable
-    public EmailMessageInfo parse(final MimeMessage message) throws MessagingException, IOException {
-        if (enabled && isMultipartReport(message)) {
+    public EmailMessageInfo parse(final MimeMessage message) throws MessagingException, MailParsingException {
+        if (!enabled || !isMultipartReport(message) ){
+            return null;
+        }
+
+        try {
             final MultipartReport multipartReport = multipartReport(message.getContent());
             if (isReportDeliveryStatus(multipartReport)) {
                 final DeliveryStatus deliveryStatus = deliveryStatus(message);
@@ -55,8 +60,10 @@ public class BouncedMessageParser {
                     return new EmailMessageInfo(recipient, messageId);
                 }
             }
+        } catch (MessagingException | IOException | IllegalStateException ex){
+            throw new MailParsingException("Error parsing multipart report");
         }
-        return null;
+        throw new MailParsingException("MultiPart message without failure report");
     }
 
     private boolean isMultipartReport(final MimeMessage message) throws MessagingException {
