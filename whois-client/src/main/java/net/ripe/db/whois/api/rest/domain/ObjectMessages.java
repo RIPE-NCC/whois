@@ -15,7 +15,6 @@ import static com.fasterxml.jackson.annotation.JsonInclude.Include.NON_EMPTY;
 @XmlAccessorType(XmlAccessType.FIELD)
 @JsonInclude(NON_EMPTY)
 public class ObjectMessages {
-
     @XmlElement(name = "objectmessage")
     protected List<RpslMessage> objectMessages;
     public ObjectMessages() {

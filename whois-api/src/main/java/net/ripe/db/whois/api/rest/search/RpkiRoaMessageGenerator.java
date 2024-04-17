@@ -12,6 +12,7 @@ import net.ripe.db.whois.query.QueryMessages;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
+
 import java.util.Map;
 
 
