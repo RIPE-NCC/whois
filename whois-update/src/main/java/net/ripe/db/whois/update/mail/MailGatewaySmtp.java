@@ -14,6 +14,9 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
 
+import javax.activation.CommandInfo;
+import javax.activation.CommandMap;
+import javax.activation.MailcapCommandMap;
 import javax.annotation.Nullable;
 import java.util.Arrays;
 import java.util.List;
@@ -44,8 +47,40 @@ public abstract class MailGatewaySmtp {
         this.emailStatusDao = emailStatusDao;
         this.outgoingMessageDao = outgoingMessageDao;
         this.webBaseUrl = webBaseUrl;
+        addToCommandMap();
+        logCommandMap();
     }
 
+    private void addToCommandMap() {
+        // Mailcap in Jakarta DSN dependency overwrites default "/META-INF/mailcap" file for Jakarta Mail System when shaded
+        final MailcapCommandMap mailcapCommandMap = (MailcapCommandMap) CommandMap.getDefaultCommandMap();
+        mailcapCommandMap.addMailcap("text/plain;; x-java-content-handler=org.eclipse.angus.mail.handlers.text_plain");
+        mailcapCommandMap.addMailcap("text/html;; x-java-content-handler=org.eclipse.angus.mail.handlers.text_html");
+        mailcapCommandMap.addMailcap("text/xml;; x-java-content-handler=org.eclipse.angus.mail.handlers.text_xml");
+        mailcapCommandMap.addMailcap("multipart/*;; x-java-content-handler=org.eclipse.angus.mail.handlers.multipart_mixed; x-java-fallback-entry=true");
+        mailcapCommandMap.addMailcap("message/rfc822;; x-java-content-handler=org.eclipse.angus.mail.handlers.message_rfc822");
+    }
+
+    private void logCommandMap() {
+        final CommandMap defaultCommandMap = MailcapCommandMap.getDefaultCommandMap();
+        final String[] mimeTypes = defaultCommandMap.getMimeTypes();
+        if (mimeTypes == null || mimeTypes.length == 0) {
+            LOGGER.error("NO MIME TYPES");
+        } else {
+            LOGGER.info("{} MIME TYPES", mimeTypes.length);
+            for (String mimeType : mimeTypes) {
+                LOGGER.info("MIME TYPE {}", mimeType);
+                final CommandInfo[] allCommands = defaultCommandMap.getAllCommands(mimeType);
+                if (allCommands == null || allCommands.length == 0) {
+                    LOGGER.info("\tNO COMMANDS");
+                } else {
+                    for (CommandInfo allCommand : allCommands) {
+                        LOGGER.info("\tCommand {} {}", allCommand.getCommandName(), allCommand.getCommandClass());
+                    }
+                }
+            }
+        }
+    }
 
     protected abstract boolean canNotSendEmail(final String emailAddresses);
 
