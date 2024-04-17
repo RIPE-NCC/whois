@@ -23,8 +23,8 @@ public class RpkiService {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(RpkiService.class);
 
-    final IntervalMap<Ipv4Resource, Set<Roa>> ipv4Tree = SynchronizedIntervalMap.synchronizedMap(new NestedIntervalMap<Ipv4Resource, Set<Roa>>());
-    final IntervalMap<Ipv6Resource, Set<Roa>> ipv6Tree = SynchronizedIntervalMap.synchronizedMap(new NestedIntervalMap<Ipv6Resource, Set<Roa>>());
+    private IntervalMap<Ipv4Resource, Set<Roa>> ipv4Tree;
+    private IntervalMap<Ipv6Resource, Set<Roa>> ipv6Tree;
 
     private final RpkiDataProvider rpkiDataProvider;
 
@@ -41,8 +41,8 @@ public class RpkiService {
                     .filter(roa -> roa.getTrustAnchor() != TrustAnchor.UNSUPPORTED)
                     .collect(Collectors.toList());
 
-            ipv4Tree.clear();
-            ipv6Tree.clear();
+            ipv4Tree = SynchronizedIntervalMap.synchronizedMap(new NestedIntervalMap<Ipv4Resource, Set<Roa>>());
+            ipv6Tree = SynchronizedIntervalMap.synchronizedMap(new NestedIntervalMap<Ipv6Resource, Set<Roa>>());
 
             LOGGER.info("downloaded {} roas from rpki", roas.size());
             buildTrees(roas, ipv4Tree, ipv6Tree);
