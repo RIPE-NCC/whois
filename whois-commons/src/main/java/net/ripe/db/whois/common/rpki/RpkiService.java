@@ -33,7 +33,7 @@ public class RpkiService {
         loadRoas();
     }
 
-    @Scheduled(cron = "* /15 * * * *")
+    @Scheduled(cron = "* */15 * * * *")
     private void loadRoas() {
         final List<Roa> loadedRoas = rpkiDataProvider.loadRoas();
         if (loadedRoas != null && !loadedRoas.isEmpty()){
