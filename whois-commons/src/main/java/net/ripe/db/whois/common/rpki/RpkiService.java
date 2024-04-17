@@ -21,8 +21,8 @@ public class RpkiService {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(RpkiService.class);
 
-    private NestedIntervalMap<Ipv4Resource, Set<Roa>> ipv4Tree = new NestedIntervalMap<>();
-    private NestedIntervalMap<Ipv6Resource, Set<Roa>> ipv6Tree = new NestedIntervalMap<>();
+    private NestedIntervalMap<Ipv4Resource, Set<Roa>> ipv4Tree;
+    private NestedIntervalMap<Ipv6Resource, Set<Roa>> ipv6Tree;
 
     private final RpkiDataProvider rpkiDataProvider;
 
