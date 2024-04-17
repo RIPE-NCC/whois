@@ -2,10 +2,13 @@ package net.ripe.db.whois.common.rpki;
 
 import com.google.common.collect.Sets;
 import net.ripe.db.whois.common.collect.CollectionHelper;
+import net.ripe.db.whois.common.etree.IntervalMap;
 import net.ripe.db.whois.common.etree.NestedIntervalMap;
+import net.ripe.db.whois.common.etree.SynchronizedIntervalMap;
 import net.ripe.db.whois.common.ip.IpInterval;
 import net.ripe.db.whois.common.ip.Ipv4Resource;
 import net.ripe.db.whois.common.ip.Ipv6Resource;
+import net.ripe.db.whois.common.iptree.Ipv4Entry;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.scheduling.annotation.Scheduled;
@@ -21,8 +24,8 @@ public class RpkiService {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(RpkiService.class);
 
-    private final NestedIntervalMap<Ipv4Resource, Set<Roa>> ipv4Tree = new NestedIntervalMap<>();
-    private final NestedIntervalMap<Ipv6Resource, Set<Roa>> ipv6Tree = new NestedIntervalMap<>();
+    final IntervalMap<Ipv4Resource, Set<Roa>> ipv4Tree = SynchronizedIntervalMap.synchronizedMap(new NestedIntervalMap<Ipv4Resource, Set<Roa>>());
+    final IntervalMap<Ipv6Resource, Set<Roa>> ipv6Tree = SynchronizedIntervalMap.synchronizedMap(new NestedIntervalMap<Ipv6Resource, Set<Roa>>());
 
     private final RpkiDataProvider rpkiDataProvider;
 
@@ -31,7 +34,7 @@ public class RpkiService {
         loadRoas();
     }
 
-    @Scheduled(cron = "*/15 * * * *")
+    @Scheduled(cron = "* /15 * * * *")
     private void loadRoas() {
         final List<Roa> loadedRoas = rpkiDataProvider.loadRoas();
         if (loadedRoas != null && !loadedRoas.isEmpty()){
@@ -39,14 +42,17 @@ public class RpkiService {
                     .filter(roa -> roa.getTrustAnchor() != TrustAnchor.UNSUPPORTED)
                     .collect(Collectors.toList());
 
+            ipv4Tree.clear();
+            ipv6Tree.clear();
+
             LOGGER.info("downloaded {} roas from rpki", roas.size());
             buildTrees(roas, ipv4Tree, ipv6Tree);
         }
     }
 
     private void buildTrees(final List<Roa> roas,
-                            final NestedIntervalMap<Ipv4Resource, Set<Roa>> ipv4Tree,
-                            final NestedIntervalMap<Ipv6Resource, Set<Roa>> ipv6Tree) {
+                            final IntervalMap<Ipv4Resource, Set<Roa>> ipv4Tree,
+                            final IntervalMap<Ipv6Resource, Set<Roa>> ipv6Tree) {
         for (Roa roa : roas) {
             if (isIpv4(roa.getPrefix())) {
                 addRoaToTree(ipv4Tree, Ipv4Resource.parse(roa.getPrefix()), roa);
@@ -56,7 +62,7 @@ public class RpkiService {
         }
     }
 
-    private <T extends IpInterval<T>> void addRoaToTree(final NestedIntervalMap<T, Set<Roa>> tree,
+    private <T extends IpInterval<T>> void addRoaToTree(final IntervalMap<T, Set<Roa>> tree,
                                                         final T prefix,
                                                         final Roa roa) {
         Set<Roa> roas = CollectionHelper.uniqueResult(tree.findExact(prefix));
