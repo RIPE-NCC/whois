@@ -1985,7 +1985,7 @@ public class WhoisSearchServiceTestIntegration extends AbstractIntegrationTest {
     @Test
     public void search_route_roa_origin_and_prefix_length_mismatch_validation_enabled_as_xml() {
         databaseHelper.addObject(RpslObject.parse("" +
-                "route:           193.4.0.0/24\n" +
+                "route:           200.4.0.0/24\n" +
                 "descr:           Ripe test allocation\n" +
                 "origin:          AS102\n" +
                 "admin-c:         TP1-TEST\n" +
@@ -1994,7 +1994,7 @@ public class WhoisSearchServiceTestIntegration extends AbstractIntegrationTest {
                 "source:          TEST-NONAUTH\n"));
         ipTreeUpdater.rebuild();
 
-        final WhoisResources whoisResources = RestTest.target(getPort(), "whois/search.xml?query-string=193.4.0.0/24AS102&roa-check=true&flags=no-referenced")
+        final WhoisResources whoisResources = RestTest.target(getPort(), "whois/search.xml?query-string=200.4.0.0/24AS102&roa-check=true&flags=no-referenced")
                 .request()
                 .get(WhoisResources.class);
 
