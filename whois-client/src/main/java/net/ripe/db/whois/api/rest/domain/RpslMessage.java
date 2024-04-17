@@ -9,7 +9,7 @@ import net.ripe.db.whois.common.Message;
 import static com.fasterxml.jackson.annotation.JsonInclude.Include.NON_EMPTY;
 
 @XmlAccessorType(XmlAccessType.FIELD)
-@XmlRootElement(name = "objectMessage")
+@XmlRootElement(name = "objectmessage")
 @JsonInclude(NON_EMPTY)
 public class RpslMessage extends WhoisMessage {
 

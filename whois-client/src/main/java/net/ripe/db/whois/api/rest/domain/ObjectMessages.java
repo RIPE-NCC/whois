@@ -11,11 +11,12 @@ import java.util.List;
 
 import static com.fasterxml.jackson.annotation.JsonInclude.Include.NON_EMPTY;
 
-@XmlRootElement(name = "objectMessages")
+@XmlRootElement(name = "objectmessages")
 @XmlAccessorType(XmlAccessType.FIELD)
 @JsonInclude(NON_EMPTY)
 public class ObjectMessages {
-    @XmlElement(name = "objectMessage")
+
+    @XmlElement(name = "objectmessage")
     protected List<RpslMessage> objectMessages;
     public ObjectMessages() {
         objectMessages = Lists.newArrayList();

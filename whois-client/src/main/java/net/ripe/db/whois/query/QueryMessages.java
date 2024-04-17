@@ -60,13 +60,30 @@ public final class QueryMessages {
                 "\nAbuse-mailbox validation failed. Please refer to %s for further information.", key, value, orgId);
     }
 
-    public static Message roaRouteConflicts(final long asn){
+    public static Message roaRouteOriginConflicts(final String objectType, final long asn){
         return new QueryMessage(Type.WARNING, ""
-                + "Warning: this route object conflicts with an overlapping RPKI ROA with a different origin AS%s."
+                + "Warning: this %s object conflicts with an overlapping RPKI ROA with a different origin AS%s."
                 + "\n"
                 + "As a result an announcement for this prefix may be rejected by many autonomous systems. You should" +
-                " either remove this route: object or delete the ROA.", asn);
+                " either remove this route: object or update or delete the ROA.", objectType, asn);
     }
+
+    public static Message roaRoutePrefixLengthConflicts(final String objectType, final int prefix){
+        return new QueryMessage(Type.WARNING, ""
+                + "Warning: this %s object conflicts with an overlapping RPKI ROA with a less specific prefix %s."
+                + "\n"
+                + "As a result an announcement for this prefix may be rejected by many autonomous systems. You should" +
+                " either remove this route: object or update or delete the ROA.", objectType, prefix);
+    }
+
+    public static Message roaRouteConflicts(final String objectType, final int prefix, final long asn){
+        return new QueryMessage(Type.WARNING, ""
+                + "Warning: this %s object conflicts with an overlapping RPKI ROA with a less specific prefix %s and different origin AS%s."
+                + "\n"
+                + "As a result an announcement for this prefix may be rejected by many autonomous systems. You should" +
+                " either remove this route: object or update or delete the ROA.", objectType, prefix, asn);
+    }
+
     public static Message unvalidatedAbuseCShown(final CharSequence key, final CharSequence value) {
         return new QueryMessage(Type.INFO, "Abuse contact for '%s' is '%s'", key, value);
     }
