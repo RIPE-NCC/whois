@@ -10,9 +10,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
-
+import org.apache.commons.lang3.tuple.Pair;
 import java.util.Collection;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -39,29 +40,30 @@ public class RpkiService {
                     .filter(roa -> roa.getTrustAnchor() != TrustAnchor.UNSUPPORTED)
                     .collect(Collectors.toList());
 
-            ipv4Tree = new NestedIntervalMap<>();
-            ipv6Tree = new NestedIntervalMap<>();
-
             LOGGER.info("downloaded {} roas from rpki", roas.size());
-            buildTrees(roas, ipv4Tree, ipv6Tree);
+
+            final Pair<NestedIntervalMap<Ipv4Resource, Set<Roa>>, NestedIntervalMap<Ipv6Resource, Set<Roa>>> trees = buildTree(roas);
+            ipv4Tree = trees.getKey();
+            ipv6Tree = trees.getValue();
         }
     }
 
-    private void buildTrees(final List<Roa> roas,
-                            final NestedIntervalMap<Ipv4Resource, Set<Roa>> ipv4Tree,
-                            final NestedIntervalMap<Ipv6Resource, Set<Roa>> ipv6Tree) {
+    private Pair<NestedIntervalMap<Ipv4Resource, Set<Roa>>, NestedIntervalMap<Ipv6Resource, Set<Roa>>> buildTree(final List<Roa> roas) {
+        final NestedIntervalMap<Ipv4Resource, Set<Roa>> ipv4Tree = new NestedIntervalMap<>();
+        final NestedIntervalMap<Ipv6Resource, Set<Roa>> ipv6Tree = new NestedIntervalMap<>();
         for (Roa roa : roas) {
             if (isIpv4(roa.getPrefix())) {
-                addRoaToTree(ipv4Tree, Ipv4Resource.parse(roa.getPrefix()), roa);
+                addOrUpdateRoaToTree(ipv4Tree, Ipv4Resource.parse(roa.getPrefix()), roa);
             } else {
-                addRoaToTree(ipv6Tree, Ipv6Resource.parse(roa.getPrefix()), roa);
+                addOrUpdateRoaToTree(ipv6Tree, Ipv6Resource.parse(roa.getPrefix()), roa);
             }
         }
+        return Pair.of(ipv4Tree, ipv6Tree);
     }
 
-    private <T extends IpInterval<T>> void addRoaToTree(final NestedIntervalMap<T, Set<Roa>> tree,
-                                                        final T prefix,
-                                                        final Roa roa) {
+    private <T extends IpInterval<T>> void addOrUpdateRoaToTree(final NestedIntervalMap<T, Set<Roa>> tree,
+                                                                final T prefix,
+                                                                final Roa roa) {
         Set<Roa> roas = CollectionHelper.uniqueResult(tree.findExact(prefix));
         if (roas == null) {
             roas = Sets.newHashSet();
