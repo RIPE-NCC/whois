@@ -10,7 +10,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
-import org.apache.commons.lang3.tuple.Pair;
+
 import java.util.Collection;
 import java.util.List;
 import java.util.Set;
@@ -39,15 +39,12 @@ public class RpkiService {
                     .filter(roa -> roa.getTrustAnchor() != TrustAnchor.UNSUPPORTED)
                     .collect(Collectors.toList());
 
+            buildTrees(roas);
             LOGGER.info("downloaded {} roas from rpki", roas.size());
-
-            final Pair<NestedIntervalMap<Ipv4Resource, Set<Roa>>, NestedIntervalMap<Ipv6Resource, Set<Roa>>> trees = buildTree(roas);
-            ipv4Tree = trees.getKey();
-            ipv6Tree = trees.getValue();
         }
     }
 
-    private Pair<NestedIntervalMap<Ipv4Resource, Set<Roa>>, NestedIntervalMap<Ipv6Resource, Set<Roa>>> buildTree(final List<Roa> roas) {
+    private void buildTrees(final List<Roa> roas) {
         final NestedIntervalMap<Ipv4Resource, Set<Roa>> ipv4Tree = new NestedIntervalMap<>();
         final NestedIntervalMap<Ipv6Resource, Set<Roa>> ipv6Tree = new NestedIntervalMap<>();
         for (Roa roa : roas) {
@@ -57,7 +54,8 @@ public class RpkiService {
                 addRoaToTree(ipv6Tree, Ipv6Resource.parse(roa.getPrefix()), roa);
             }
         }
-        return Pair.of(ipv4Tree, ipv6Tree);
+        this.ipv4Tree = ipv4Tree;
+        this.ipv6Tree = ipv6Tree;
     }
 
     private <T extends IpInterval<T>> void addRoaToTree(final NestedIntervalMap<T, Set<Roa>> tree,
