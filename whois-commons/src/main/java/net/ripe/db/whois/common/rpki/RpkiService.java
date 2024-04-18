@@ -13,7 +13,6 @@ import org.springframework.stereotype.Service;
 import org.apache.commons.lang3.tuple.Pair;
 import java.util.Collection;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -53,17 +52,17 @@ public class RpkiService {
         final NestedIntervalMap<Ipv6Resource, Set<Roa>> ipv6Tree = new NestedIntervalMap<>();
         for (Roa roa : roas) {
             if (isIpv4(roa.getPrefix())) {
-                addOrUpdateRoaToTree(ipv4Tree, Ipv4Resource.parse(roa.getPrefix()), roa);
+                addRoaToTree(ipv4Tree, Ipv4Resource.parse(roa.getPrefix()), roa);
             } else {
-                addOrUpdateRoaToTree(ipv6Tree, Ipv6Resource.parse(roa.getPrefix()), roa);
+                addRoaToTree(ipv6Tree, Ipv6Resource.parse(roa.getPrefix()), roa);
             }
         }
         return Pair.of(ipv4Tree, ipv6Tree);
     }
 
-    private <T extends IpInterval<T>> void addOrUpdateRoaToTree(final NestedIntervalMap<T, Set<Roa>> tree,
-                                                                final T prefix,
-                                                                final Roa roa) {
+    private <T extends IpInterval<T>> void addRoaToTree(final NestedIntervalMap<T, Set<Roa>> tree,
+                                                        final T prefix,
+                                                        final Roa roa) {
         Set<Roa> roas = CollectionHelper.uniqueResult(tree.findExact(prefix));
         if (roas == null) {
             roas = Sets.newHashSet();
