@@ -60,20 +60,20 @@ public final class QueryMessages {
                 "\nAbuse-mailbox validation failed. Please refer to %s for further information.", key, value, orgId);
     }
 
-    public static Message roaRouteOriginConflicts(final String objectType, final long asn){
+    public static Message roaRouteOriginConflicts(final String objectType, final int prefix, final long asn){
         return new QueryMessage(Type.WARNING, ""
-                + "Warning: this %s object conflicts with an overlapping RPKI ROA with a different origin AS%s."
+                + "Warning: this %s object conflicts with an overlapping RPKI ROA with prefix %s but different origin AS%s."
                 + "\n"
                 + "As a result an announcement for this prefix may be rejected by many autonomous systems. You should" +
-                " either remove this route: object or update or delete the ROA.", objectType, asn);
+                " either remove this route: object or update or delete the ROA.", objectType, prefix, asn);
     }
 
-    public static Message roaRoutePrefixLengthConflicts(final String objectType, final int prefix){
+    public static Message roaRoutePrefixLengthConflicts(final String objectType, final int prefix, final long asn){
         return new QueryMessage(Type.WARNING, ""
-                + "Warning: this %s object conflicts with an overlapping RPKI ROA with a less specific prefix %s."
+                + "Warning: this %s object conflicts with an overlapping RPKI ROA with a less specific prefix %s but same origin AS%s."
                 + "\n"
                 + "As a result an announcement for this prefix may be rejected by many autonomous systems. You should" +
-                " either remove this route: object or update or delete the ROA.", objectType, prefix);
+                " either remove this route: object or update or delete the ROA.", objectType, prefix, asn);
     }
 
     public static Message roaRouteConflicts(final String objectType, final int prefix, final long asn){
