@@ -12,14 +12,22 @@ import io.netty.util.concurrent.DefaultEventExecutorGroup;
 import io.netty.util.concurrent.EventExecutorGroup;
 import net.ripe.db.whois.common.ApplicationVersion;
 import net.ripe.db.whois.common.pipeline.MaintenanceHandler;
+import net.ripe.db.whois.common.rpsl.RpslCharset;
+import net.ripe.db.whois.query.QueryFlag;
+import net.ripe.db.whois.query.QueryParser;
 import net.ripe.db.whois.query.handler.QueryHandler;
+import net.ripe.db.whois.query.query.Query;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
+import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
+import java.nio.charset.UnsupportedCharsetException;
+import java.util.Arrays;
+import java.util.Optional;
 import java.util.concurrent.TimeUnit;
 
 @Component
@@ -44,31 +52,33 @@ public class WhoisServerChannelInitializer extends ChannelInitializer<Channel> {
     private final ConnectionPerIpLimitHandler connectionPerIpLimitHandler;
     private final QueryChannelsRegistry queryChannelsRegistry;
     private final TermsAndConditionsHandler termsAndConditionsHandler;
-    private final WhoisEncoder whoisEncoder;
     private final QueryDecoder queryDecoder;
     private final QueryHandler queryHandler;
     private final ApplicationVersion applicationVersion;
     private final boolean proxyProtocolEnabled;
+
+    private final WhoisEncoder whoisEncoder;
+
 
     @Autowired
     public WhoisServerChannelInitializer(final MaintenanceHandler maintenanceHandler,
                                          final QueryChannelsRegistry queryChannelsRegistry,
                                          final TermsAndConditionsHandler termsAndConditionsHandler,
                                          final QueryDecoder queryDecoder,
-                                         final WhoisEncoder whoisEncoder,
                                          final ConnectionPerIpLimitHandler connectionPerIpLimitHandler,
                                          final QueryHandler queryHandler,
                                          final ApplicationVersion applicationVersion,
+                                         final WhoisEncoder whoisEncoder,
                                          final @Value("${proxy.protocol.enabled:false}") boolean proxyProtocolEnabled) {
         this.maintenanceHandler = maintenanceHandler;
         this.queryChannelsRegistry = queryChannelsRegistry;
         this.termsAndConditionsHandler = termsAndConditionsHandler;
         this.queryDecoder = queryDecoder;
-        this.whoisEncoder = whoisEncoder;
         this.connectionPerIpLimitHandler = connectionPerIpLimitHandler;
         this.queryHandler = queryHandler;
         this.applicationVersion = applicationVersion;
         this.proxyProtocolEnabled = proxyProtocolEnabled;
+        this.whoisEncoder = whoisEncoder;
 
         if (proxyProtocolEnabled) {
             LOGGER.info("Proxy protocol handler enabled");
@@ -95,14 +105,14 @@ public class WhoisServerChannelInitializer extends ChannelInitializer<Channel> {
         pipeline.addLast("delimiter", new DelimiterBasedFrameDecoder(1024, LINE_DELIMITER, INTERRUPT_DELIMITER));
 
         pipeline.addLast("string-decoder", stringDecoder);
-        pipeline.addLast(executorGroup, "whois-encoder", whoisEncoder);
 
         pipeline.addLast(executorGroup, "query-decoder", queryDecoder);
+        pipeline.addLast(executorGroup, "whois-encoder", whoisEncoder);
+
         pipeline.addLast(executorGroup, "connection-state", new ConnectionStateHandler());
 
         pipeline.addLast(executorGroup, "served-by", new ServedByHandler(applicationVersion.getVersion()));
         pipeline.addLast(executorGroup, "whois", new WhoisServerHandler(queryHandler));
         pipeline.addLast("exception", new ExceptionHandler());
     }
-
 }

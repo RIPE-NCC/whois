@@ -1,5 +1,6 @@
 package net.ripe.db.whois.query;
 
+import net.ripe.db.whois.api.rest.domain.WhoisObject;
 import net.ripe.db.whois.common.domain.IpRanges;
 import net.ripe.db.whois.common.rpsl.RpslObject;
 import net.ripe.db.whois.common.support.TelnetWhoisClient;
@@ -11,8 +12,15 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
 
+
+import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.containsString;
+import static org.hamcrest.Matchers.is;
 
 // TODO: [AH] this should be in whois-query; however, crowdserverdummy is tied to whois-api because of jetty references
 @Tag("IntegrationTest")
@@ -247,7 +255,7 @@ public class InverseQueryTestIntegration extends AbstractQueryIntegrationTest {
     }
 
     @Test
-    public void inverse_email_from_trusted_then_succeed() {
+    public void inverse_email_from_trusted_then_succeed()  {
         ipRanges.setTrusted("127/8", "::1");
 
         final String response = query("-Bi e-mail noreply@ripe.net");
@@ -255,6 +263,7 @@ public class InverseQueryTestIntegration extends AbstractQueryIntegrationTest {
         assertThat(response, containsString("noreply@ripe.net"));
         assertThat(response, containsString("person:         Pauleth Palthen"));
     }
+
 
     @Test
     public void inverse_email_from_untrusted_then_fail() {
@@ -266,7 +275,70 @@ public class InverseQueryTestIntegration extends AbstractQueryIntegrationTest {
         assertThat(response, containsString("is not an inverse searchable attribute"));
     }
 
+    @Test
+    public void inverse_email_UTF8_charset() {
+        databaseHelper.addObject(RpslObject.parse("" +
+                "mntner:      OWNER1-MNT\n" +
+                "descr:       Owner Maintainer\n" +
+                "admin-c:     PP1-TEST\n" +
+                "upd-to:      noreply@ripe.net\n" +
+                "auth:        MD5-PW $1$d9fKeTr2$Si7YudNf4rUGmR71n/cqk/ #test\n" +
+                "auth:        SSO person@net.net\n" +
+                "auth:        PGPKEY-A8D16B70\n" +
+                "mnt-by:      OWNER-MNT\n" +
+                "source:      TEST"));
+
+        final String rpslObject = "" +
+                "person:         Pauleth Palthen\n" +
+                "address:        Singel 258\n" +
+                "phone:          +31-1234567890\n" +
+                "remarks:        é, Ú, ß\n" +
+                "mnt-by:         OWNER1-MNT\n" +
+                "nic-hdl:        PP2-TEST\n" +
+                "remarks:        remark\n" +
+                "source:         TEST";
+
+        /*
+        * UTF-8: é(C3 89), Ú(C3 9A), ß(C3 9F)
+        * LATIN-1: é(E9), Ú(DA), ß(DF)
+        * */
+        databaseHelper.addObject(rpslObject);
+
+        Pattern pattern = Pattern.compile("remarks:\\s+(.*?)\\s*$", Pattern.MULTILINE);
+
+        /* Latin-1 encoding */
+        final String latin1Response = query("-Bi mnt-by OWNER1-MNT");
+        Matcher matcher = pattern.matcher(latin1Response);
+        if (matcher.find()){
+            assertThat(getCharsetValuesInHex("é, Ú, ß", StandardCharsets.ISO_8859_1),
+                    is(getCharsetValuesInHex(matcher.group(1), StandardCharsets.ISO_8859_1)));
+        }
+        //assertThat(latin1Response, containsString(rpslLatin1));
+
+        /* UTF-8 encoding */
+
+        final String utf8Response = query("-Z utf8 -Bi mnt-by OWNER1-MNT", StandardCharsets.UTF_8);
+        //assertThat(utf8Response, containsString(rpslUtf8));
+    }
+
+    private String getCharsetValuesInHex(final String values, final Charset charset){
+        byte[] utf8Bytes = String.valueOf(values).getBytes(charset);
+
+        // Convert the bytes to hexadecimal representation
+        StringBuilder hexBuilder = new StringBuilder();
+        for (byte b : utf8Bytes) {
+            hexBuilder.append(String.format("%02X", b));
+            hexBuilder.append(" ");
+        }
+        // Print the hexadecimal representation
+        return hexBuilder.toString().trim();
+    }
     private String query(final String query) {
         return TelnetWhoisClient.queryLocalhost(QueryServer.port, query);
+    }
+
+    private String query(final String query, final Charset charset) {
+        final TelnetWhoisClient telnetWhoisClient = new TelnetWhoisClient(QueryServer.port, charset);
+        return telnetWhoisClient.sendQuery(query);
     }
 }

@@ -1,6 +1,9 @@
 package net.ripe.db.whois.common.support;
 
 import net.ripe.db.whois.common.aspects.RetryFor;
+import net.ripe.db.whois.common.rpsl.RpslCharset;
+import net.ripe.db.whois.query.QueryFlag;
+import net.ripe.db.whois.query.QueryParser;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.util.FileCopyUtils;
@@ -14,6 +17,8 @@ import java.io.StringWriter;
 import java.net.Socket;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
+import java.nio.charset.UnsupportedCharsetException;
+import java.util.Arrays;
 import java.util.Optional;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Function;
@@ -25,52 +30,56 @@ public class TelnetWhoisClient {
     public static final String DEFAULT_HOST = "localhost";
     public static final Charset DEFAULT_CHARSET = StandardCharsets.ISO_8859_1;
     private static final int DEFAULT_TIMEOUT = (int)TimeUnit.MINUTES.toMillis(5);
-
     private final String host;
     private final int port;
 
+    private final Charset charset;
+
+
+    public TelnetWhoisClient(final String host) {
+        this(host, DEFAULT_PORT);
+    }
+
+    public TelnetWhoisClient(final int port) {
+        this(DEFAULT_HOST, port);
+    }
+
+    public TelnetWhoisClient(final String host, final int port) {
+        this(host, port, DEFAULT_CHARSET);
+    }
+
+    public TelnetWhoisClient(final int port, final Charset charset) {
+        this(DEFAULT_HOST, port, charset);
+    }
+
+    public TelnetWhoisClient(final String host, final int port, final Charset charset) {
+        this.port = port;
+        this.host = host;
+        this.charset = charset;
+    }
+
     public static String queryLocalhost(final int port, final String query) {
-        TelnetWhoisClient client = new TelnetWhoisClient("127.0.0.1", port);
+        TelnetWhoisClient client = new TelnetWhoisClient("127.0.0.1", port, DEFAULT_CHARSET);
         return client.sendQuery(query);
     }
 
     public static String queryLocalhost(final int port, final String query, final int timeoutMs) {
-        return new TelnetWhoisClient("127.0.0.1", port).sendQuery(query, DEFAULT_CHARSET, timeoutMs);
-    }
-
-    public TelnetWhoisClient(final String host) {
-        this.port = DEFAULT_PORT;
-        this.host = host;
-    }
-
-    public TelnetWhoisClient(final int port) {
-        this.port = port;
-        this.host = DEFAULT_HOST;
-    }
-
-    public TelnetWhoisClient(final String host, final int port) {
-        this.port = port;
-        this.host = host;
+        return new TelnetWhoisClient("127.0.0.1", port, DEFAULT_CHARSET).sendQuery(query, timeoutMs);
     }
 
     public String sendQuery(final String query) {
-        return sendQuery(query, DEFAULT_CHARSET);
-    }
-
-    public String sendQuery(final String query, final Charset charset) {
-        return sendQuery(query, charset, DEFAULT_TIMEOUT);
+        return sendQuery(query, DEFAULT_TIMEOUT);
     }
 
     /**
      * Sends query, reads server's reply using specified charset and socket timeout (SO_TIMEOUT), and returns it as a String.
      * @param query string to send to the server (without trailing <CR><LF>)
-     * @param charset charset to use when reading server's reply
      * @param timeoutMs timeout in milliseconds. 0 means never time out. Specify -1 to use system timeout.
      * @return
      */
     @Nullable
-    public String sendQuery(final String query, final Charset charset, final int timeoutMs) {
-        return sendQuery(query, passThroughFunction, charset, timeoutMs).orElse(null);
+    public String sendQuery(final String query, final int timeoutMs) {
+        return sendQuery(query, passThroughFunction, timeoutMs).orElse(null);
     }
 
     private final Function<BufferedReader, Optional<String>> passThroughFunction = new Function<BufferedReader, Optional<String>>() {
@@ -89,9 +98,9 @@ public class TelnetWhoisClient {
         }
     };
 
-    public Optional<String> sendQuery(final String query, final Function<BufferedReader, Optional<String>> function, final Charset charset, final int timeoutMs) {
+    public Optional<String> sendQuery(final String query, final Function<BufferedReader, Optional<String>> function, final int timeoutMs) {
         try {
-            return sendQueryWithRetry(query, function, charset, timeoutMs);
+            return sendQueryWithRetry(query, function, timeoutMs);
         } catch (IOException e) {
             final String message = String.format("Error querying for '%s' at '%s':%d %s", query, host, port, e.getMessage());
             throw new IllegalStateException(message, e);
@@ -99,7 +108,7 @@ public class TelnetWhoisClient {
     }
 
     @RetryFor(IOException.class)
-    private Optional<String> sendQueryWithRetry(final String query, final Function<BufferedReader, Optional<String>> function, final Charset charset, final int timeoutMs) throws IOException {
+    private Optional<String> sendQueryWithRetry(final String query, final Function<BufferedReader, Optional<String>> function, final int timeoutMs) throws IOException {
 
         try (final Socket socket = new Socket(host, port);
              final PrintWriter serverWriter = new PrintWriter(socket.getOutputStream(), true);
@@ -112,13 +121,4 @@ public class TelnetWhoisClient {
             return function.apply(serverReader);
         }
     }
-
-    public Optional<String> sendQuery(final String query, final Function<BufferedReader, Optional<String>> function, final Charset charset) {
-        return sendQuery(query, function, charset, DEFAULT_TIMEOUT);
-    }
-
-    public Optional<String> sendQuery(final String query, final Function<BufferedReader, Optional<String>> function) {
-        return sendQuery(query, function, DEFAULT_CHARSET);
-    }
-
 }

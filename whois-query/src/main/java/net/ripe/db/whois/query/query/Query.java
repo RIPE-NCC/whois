@@ -181,6 +181,10 @@ public class Query {
         return queryParser.hasOption(QueryFlag.ABUSE_CONTACT);
     }
 
+    public boolean isCharsetSpecified(){
+        return queryParser.hasOption(QueryFlag.CHARSET);
+    }
+
     public boolean isKeysOnly() {
         return queryParser.hasOption(QueryFlag.PRIMARY_KEYS);
     }
