@@ -113,7 +113,7 @@ public class TelnetWhoisClient {
         try (final Socket socket = new Socket(host, port);
              final PrintWriter serverWriter = new PrintWriter(socket.getOutputStream(), true);
              final BufferedReader serverReader =
-                     new BufferedReader(new InputStreamReader(socket.getInputStream(), StandardCharsets.ISO_8859_1))) {
+                     new BufferedReader(new InputStreamReader(socket.getInputStream(), charset))) {
 
             if (timeoutMs >= 0) socket.setSoTimeout(timeoutMs);
 

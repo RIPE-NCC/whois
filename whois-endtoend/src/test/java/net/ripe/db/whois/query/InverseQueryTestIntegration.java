@@ -304,21 +304,30 @@ public class InverseQueryTestIntegration extends AbstractQueryIntegrationTest {
         * */
         databaseHelper.addObject(rpslObject);
 
-        Pattern pattern = Pattern.compile("remarks:\\s+(.*?)\\s*$", Pattern.MULTILINE);
+        final Pattern pattern = Pattern.compile("remarks:\\s+(.*?)\\s*$", Pattern.MULTILINE);
+        final String latin1ExpectedResult = getCharsetValuesInHex("é, Ú, ß", StandardCharsets.ISO_8859_1);
+        final String utf8ExpectedResult = getCharsetValuesInHex("é, Ú, ß", StandardCharsets.UTF_8);
+
+        /* Default encoding */
+        final String defaultEncodingResponse = query("-Bi mnt-by OWNER1-MNT");
+        Matcher matcher = pattern.matcher(defaultEncodingResponse);
+        if (matcher.find()){
+            assertThat(latin1ExpectedResult, is(getCharsetValuesInHex(matcher.group(1), StandardCharsets.ISO_8859_1)));
+        }
 
         /* Latin-1 encoding */
-        final String latin1Response = query("-Bi mnt-by OWNER1-MNT");
-        Matcher matcher = pattern.matcher(latin1Response);
+        final String latin1Response = query("-Z latin1 -Bi mnt-by OWNER1-MNT");
+        matcher = pattern.matcher(latin1Response);
         if (matcher.find()){
-            assertThat(getCharsetValuesInHex("é, Ú, ß", StandardCharsets.ISO_8859_1),
-                    is(getCharsetValuesInHex(matcher.group(1), StandardCharsets.ISO_8859_1)));
+            assertThat(latin1ExpectedResult, is(getCharsetValuesInHex(matcher.group(1), StandardCharsets.ISO_8859_1)));
         }
-        //assertThat(latin1Response, containsString(rpslLatin1));
 
         /* UTF-8 encoding */
-
         final String utf8Response = query("-Z utf8 -Bi mnt-by OWNER1-MNT", StandardCharsets.UTF_8);
-        //assertThat(utf8Response, containsString(rpslUtf8));
+        matcher = pattern.matcher(utf8Response);
+        if (matcher.find()){
+            assertThat(utf8ExpectedResult, is(getCharsetValuesInHex(matcher.group(1), StandardCharsets.UTF_8)));
+        }
     }
 
     private String getCharsetValuesInHex(final String values, final Charset charset){
