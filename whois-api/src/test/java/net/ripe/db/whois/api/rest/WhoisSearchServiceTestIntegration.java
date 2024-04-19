@@ -2816,6 +2816,25 @@ public class WhoisSearchServiceTestIntegration extends AbstractIntegrationTest {
         assertThat(response.getWhoisObjects().get(3).getPrimaryKey().get(0).getValue(), is("TP1-TEST"));
     }
 
+
+    @Test
+    public void search_encoding_flag_error() {
+        databaseHelper.addObject("" +
+                "person:    Lo Person\n" +
+                "admin-c:   TP1-TEST\n" +
+                "tech-c:    TP1-TEST\n" +
+                "nic-hdl:   LP1-TEST\n" +
+                "mnt-by:    OWNER-MNT\n" +
+                "source:    TEST\n");
+
+        final BadRequestException badRequestException = assertThrows(BadRequestException.class, () -> {
+            RestTest.target(getPort(), "whois/search?query-string=LP1-TEST&flags=Z")
+                .request(MediaType.APPLICATION_XML_TYPE)
+                .get(WhoisResources.class);
+        });
+        final WhoisResources whoisResources = badRequestException.getResponse().readEntity(WhoisResources.class);
+        assertThat(whoisResources.getErrorMessages().get(0).toString(), is("Disallowed search flag 'charset'"));
+    }
     // helper methods
 
     private boolean hasObjectWithSpecifiedSource(List<WhoisObject> whoisObjects, String source) {
