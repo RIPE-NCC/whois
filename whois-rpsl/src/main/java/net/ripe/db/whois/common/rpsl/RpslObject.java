@@ -236,7 +236,7 @@ public class RpslObject implements Identifiable, ResponseObject {
 
     @Override
     public void writeTo(final OutputStream out) throws IOException {
-        writeTo(new OutputStreamWriter(out, StandardCharsets.UTF_8));
+        writeTo(new OutputStreamWriter(out, StandardCharsets.ISO_8859_1));
     }
 
     @Override
