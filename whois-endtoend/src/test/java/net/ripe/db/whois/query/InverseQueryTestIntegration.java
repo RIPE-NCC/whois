@@ -11,7 +11,6 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
 
-
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.util.regex.Matcher;
@@ -272,6 +271,23 @@ public class InverseQueryTestIntegration extends AbstractQueryIntegrationTest {
 
         assertThat(response, containsString("attribute is not searchable"));
         assertThat(response, containsString("is not an inverse searchable attribute"));
+    }
+
+   @Test
+    public void non_ascii_query() {
+        databaseHelper.addObject(
+            "person:    Tëst Pärsön\n" +
+            "address:   Singel 258\n" +
+            "phone:     +31-1234567890\n" +
+            "e-mail:    noreply@ripe.net\n" +
+            "mnt-by:    OWNER-MNT\n" +
+            "nic-hdl:   TP1-TEST\n" +
+            "remarks:   remark\n" +
+            "source:    TEST\n");
+
+        final String response = query("-Z utf8 Pärsön", StandardCharsets.UTF_8);
+
+        assertThat(response, containsString("Tëst Pärsön"));
     }
 
     @Test
