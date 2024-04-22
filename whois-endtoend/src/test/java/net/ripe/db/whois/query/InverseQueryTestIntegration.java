@@ -311,18 +311,21 @@ public class InverseQueryTestIntegration extends AbstractQueryIntegrationTest {
         Matcher matcher = pattern.matcher(defaultEncodingResponse);
         assertThat(matcher.find(), is(true));
         assertThat(latin1ExpectedResult, is(getCharsetValuesInHex(matcher.group(1), StandardCharsets.ISO_8859_1)));
+        assertThat("é, Ú, ß", is(matcher.group(1)));
 
         /* Latin-1 encoding */
         final String latin1Response = query("-Z latin1 -Bi mnt-by OWNER1-MNT");
         matcher = pattern.matcher(latin1Response);
         assertThat(matcher.find(), is(true));
         assertThat(latin1ExpectedResult, is(getCharsetValuesInHex(matcher.group(1), StandardCharsets.ISO_8859_1)));
+        assertThat("é, Ú, ß", is(matcher.group(1)));
 
         /* UTF-8 encoding */
         final String utf8Response = query("-Z utf8 -Bi mnt-by OWNER1-MNT", StandardCharsets.UTF_8);
         matcher = pattern.matcher(utf8Response);
         assertThat(matcher.find(), is(true));
         assertThat(utf8ExpectedResult, is(getCharsetValuesInHex(matcher.group(1), StandardCharsets.UTF_8)));
+        assertThat("é, Ú, ß", is(matcher.group(1)));
     }
 
     @Test
@@ -360,6 +363,83 @@ public class InverseQueryTestIntegration extends AbstractQueryIntegrationTest {
         Matcher matcher = pattern.matcher(usAsciiEncodingResponse);
         assertThat(matcher.find(), is(true));
         assertThat(usAsciiExpectedResult, is(getCharsetValuesInHex(matcher.group(1), StandardCharsets.US_ASCII)));
+        assertThat("?, ?, ?", is(matcher.group(1)));
+    }
+
+    @Test
+    public void inverse_email_latin2_charset() {
+        databaseHelper.addObject(RpslObject.parse("" +
+                "mntner:      OWNER1-MNT\n" +
+                "descr:       Owner Maintainer\n" +
+                "admin-c:     PP1-TEST\n" +
+                "upd-to:      noreply@ripe.net\n" +
+                "auth:        MD5-PW $1$d9fKeTr2$Si7YudNf4rUGmR71n/cqk/ #test\n" +
+                "auth:        SSO person@net.net\n" +
+                "auth:        PGPKEY-A8D16B70\n" +
+                "mnt-by:      OWNER-MNT\n" +
+                "source:      TEST"));
+
+        final String rpslObject = "" +
+                "person:         Pauleth Palthen\n" +
+                "address:        Singel 258\n" +
+                "phone:          +31-1234567890\n" +
+                "remarks:        é, Ú, ß\n" +
+                "mnt-by:         OWNER1-MNT\n" +
+                "nic-hdl:        PP2-TEST\n" +
+                "source:         TEST";
+
+        /*
+         * ASCII: é(E9), Ú(DA), ß(DF)
+         * */
+
+        databaseHelper.addObject(rpslObject);
+
+        final Pattern pattern = Pattern.compile("remarks:\s+(.*?)\s*\n");
+        final String latin2ExpectedResult = getCharsetValuesInHex("é, Ú, ß", Charset.forName("ISO-8859-2"));
+
+        final String latin2EncodingResponse = query("-Z ISO-8859-2 -Bi mnt-by OWNER1-MNT", Charset.forName("ISO-8859-2"));
+        Matcher matcher = pattern.matcher(latin2EncodingResponse);
+        assertThat(matcher.find(), is(true));
+        assertThat(latin2ExpectedResult, is(getCharsetValuesInHex(matcher.group(1), Charset.forName("ISO-8859-2"))));
+        assertThat("é, Ú, ß", is(matcher.group(1)));
+    }
+
+    @Test
+    public void inverse_email_cyrillic_charset() {
+        databaseHelper.addObject(RpslObject.parse("" +
+                "mntner:      OWNER1-MNT\n" +
+                "descr:       Owner Maintainer\n" +
+                "admin-c:     PP1-TEST\n" +
+                "upd-to:      noreply@ripe.net\n" +
+                "auth:        MD5-PW $1$d9fKeTr2$Si7YudNf4rUGmR71n/cqk/ #test\n" +
+                "auth:        SSO person@net.net\n" +
+                "auth:        PGPKEY-A8D16B70\n" +
+                "mnt-by:      OWNER-MNT\n" +
+                "source:      TEST"));
+
+        final String rpslObject = "" +
+                "person:         Pauleth Palthen\n" +
+                "address:        Singel 258\n" +
+                "phone:          +31-1234567890\n" +
+                "remarks:        A, B, Ѣ, H, O, Ꙋ\n" +
+                "mnt-by:         OWNER1-MNT\n" +
+                "nic-hdl:        PP2-TEST\n" +
+                "source:         TEST";
+
+        /*
+         * CP1251: A(41), B(42), Ѣ -> ?(3F), H(48), O(4F), Ꙋ -> ?(3F)
+         * */
+
+        databaseHelper.addObject(rpslObject);
+
+        final Pattern pattern = Pattern.compile("remarks:\s+(.*?)\s*\n");
+        final String cyrillicExpectedResult = getCharsetValuesInHex("A, B, Ѣ, H, O, Ꙋ", Charset.forName("CP1251"));
+
+        final String cyrillicEncodingResponse = query("-Z CP1251 -Bi mnt-by OWNER1-MNT", Charset.forName("CP1251"));
+        Matcher matcher = pattern.matcher(cyrillicEncodingResponse);
+        assertThat(matcher.find(), is(true));
+        assertThat(cyrillicExpectedResult, is(getCharsetValuesInHex(matcher.group(1), Charset.forName("CP1251"))));
+        assertThat("A, B, ?, H, O, ?", is(matcher.group(1)));
     }
 
     @Test
