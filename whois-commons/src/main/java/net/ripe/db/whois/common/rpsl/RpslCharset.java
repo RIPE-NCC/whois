@@ -13,16 +13,16 @@ import java.util.Optional;
 
 public enum RpslCharset {
 
-    LATIN1(StandardCharsets.ISO_8859_1, "LATIN1, LATIN-1"),
+    LATIN1(StandardCharsets.ISO_8859_1, "LATIN1, LATIN-1, ISO-8859-1"),
 
-    UTF8(StandardCharsets.UTF_8, "UTF8, UTF-8");
+    UTF8(StandardCharsets.UTF_8, "UTF_8");
 
     final Charset charset;
     final List<String> commonNames;
 
     RpslCharset(final Charset charset, final String commonNames){
         this.charset = charset;
-        final Splitter SAME_VALUES_SPLITTER = Splitter.on(",");
+        final Splitter SAME_VALUES_SPLITTER = Splitter.on(",").trimResults();
         this.commonNames = SAME_VALUES_SPLITTER.splitToList(commonNames);
     }
 

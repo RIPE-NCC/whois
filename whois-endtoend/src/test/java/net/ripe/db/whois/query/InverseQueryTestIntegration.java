@@ -314,7 +314,7 @@ public class InverseQueryTestIntegration extends AbstractQueryIntegrationTest {
         assertThat("é, Ú, ß", is(matcher.group(1)));
 
         /* Latin-1 encoding */
-        final String latin1Response = query("-Z latin1 -Bi mnt-by OWNER1-MNT");
+        final String latin1Response = query("-Z latin-1 -Bi mnt-by OWNER1-MNT");
         matcher = pattern.matcher(latin1Response);
         assertThat(matcher.find(), is(true));
         assertThat(latin1ExpectedResult, is(getCharsetValuesInHex(matcher.group(1), StandardCharsets.ISO_8859_1)));
