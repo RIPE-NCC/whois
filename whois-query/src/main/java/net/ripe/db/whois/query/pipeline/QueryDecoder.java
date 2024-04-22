@@ -4,7 +4,6 @@ import io.netty.channel.Channel;
 import io.netty.channel.ChannelHandler;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.MessageToMessageDecoder;
-import io.netty.util.AttributeKey;
 import net.ripe.db.whois.common.Message;
 import net.ripe.db.whois.common.rpsl.RpslCharset;
 import net.ripe.db.whois.query.QueryFlag;
@@ -71,7 +70,7 @@ public class QueryDecoder extends MessageToMessageDecoder<String> {
         try {
             return Charset.forName(queryCharset).name();
         } catch (UnsupportedCharsetException ex){
-            throw new IllegalArgumentException("Unsupported charset {}" + queryCharset);
+            throw new IllegalArgumentException("Unsupported charset", ex);
         }
     }
 }

@@ -1,6 +1,5 @@
 package net.ripe.db.whois.query;
 
-import net.ripe.db.whois.api.rest.domain.WhoisObject;
 import net.ripe.db.whois.common.domain.IpRanges;
 import net.ripe.db.whois.common.rpsl.RpslObject;
 import net.ripe.db.whois.common.support.TelnetWhoisClient;
@@ -276,7 +275,95 @@ public class InverseQueryTestIntegration extends AbstractQueryIntegrationTest {
     }
 
     @Test
-    public void inverse_email_UTF8_charset() {
+    public void inverse_email_charset() {
+        databaseHelper.addObject(RpslObject.parse("" +
+                "mntner:      OWNER1-MNT\n" +
+                "descr:       Owner Maintainer\n" +
+                "admin-c:     PP1-TEST\n" +
+                "upd-to:      noreply@ripe.net\n" +
+                "auth:        MD5-PW $1$d9fKeTr2$Si7YudNf4rUGmR71n/cqk/ #test\n" +
+                "auth:        SSO person@net.net\n" +
+                "auth:        PGPKEY-A8D16B70\n" +
+                "mnt-by:      OWNER-MNT\n" +
+                "source:      TEST"));
+
+        final String rpslObject = "" +
+                "person:         Pauleth Palthen\n" +
+                "address:        Singel 258\n" +
+                "phone:          +31-1234567890\n" +
+                "remarks:        é, Ú, ß\n" +
+                "mnt-by:         OWNER1-MNT\n" +
+                "nic-hdl:        PP2-TEST\n" +
+                "source:         TEST";
+
+        /*
+        * UTF-8: é(C3 89), Ú(C3 9A), ß(C3 9F)
+        * LATIN-1: é(E9), Ú(DA), ß(DF)
+        * */
+        databaseHelper.addObject(rpslObject);
+
+        final Pattern pattern = Pattern.compile("remarks:\s+(.*?)\s*\n");
+        final String latin1ExpectedResult = getCharsetValuesInHex("é, Ú, ß", StandardCharsets.ISO_8859_1);
+        final String utf8ExpectedResult = getCharsetValuesInHex("é, Ú, ß", StandardCharsets.UTF_8);
+
+        /* Default encoding */
+        final String defaultEncodingResponse = query("-Bi mnt-by OWNER1-MNT");
+        Matcher matcher = pattern.matcher(defaultEncodingResponse);
+        assertThat(matcher.find(), is(true));
+        assertThat(latin1ExpectedResult, is(getCharsetValuesInHex(matcher.group(1), StandardCharsets.ISO_8859_1)));
+
+        /* Latin-1 encoding */
+        final String latin1Response = query("-Z latin1 -Bi mnt-by OWNER1-MNT");
+        matcher = pattern.matcher(latin1Response);
+        assertThat(matcher.find(), is(true));
+        assertThat(latin1ExpectedResult, is(getCharsetValuesInHex(matcher.group(1), StandardCharsets.ISO_8859_1)));
+
+        /* UTF-8 encoding */
+        final String utf8Response = query("-Z utf8 -Bi mnt-by OWNER1-MNT", StandardCharsets.UTF_8);
+        matcher = pattern.matcher(utf8Response);
+        assertThat(matcher.find(), is(true));
+        assertThat(utf8ExpectedResult, is(getCharsetValuesInHex(matcher.group(1), StandardCharsets.UTF_8)));
+    }
+
+    @Test
+    public void inverse_email_java_recognised_charset() {
+        databaseHelper.addObject(RpslObject.parse("" +
+                "mntner:      OWNER1-MNT\n" +
+                "descr:       Owner Maintainer\n" +
+                "admin-c:     PP1-TEST\n" +
+                "upd-to:      noreply@ripe.net\n" +
+                "auth:        MD5-PW $1$d9fKeTr2$Si7YudNf4rUGmR71n/cqk/ #test\n" +
+                "auth:        SSO person@net.net\n" +
+                "auth:        PGPKEY-A8D16B70\n" +
+                "mnt-by:      OWNER-MNT\n" +
+                "source:      TEST"));
+
+        final String rpslObject = "" +
+                "person:         Pauleth Palthen\n" +
+                "address:        Singel 258\n" +
+                "phone:          +31-1234567890\n" +
+                "remarks:        é, Ú, ß\n" +
+                "mnt-by:         OWNER1-MNT\n" +
+                "nic-hdl:        PP2-TEST\n" +
+                "source:         TEST";
+
+        /*
+         * ASCII: é -> ?(3F), Ú -> ?(3F), ß -> ?(3F)
+         * */
+
+        databaseHelper.addObject(rpslObject);
+
+        final Pattern pattern = Pattern.compile("remarks:\s+(.*?)\s*\n");
+        final String usAsciiExpectedResult = getCharsetValuesInHex("é, Ú, ß", StandardCharsets.US_ASCII);
+
+        final String usAsciiEncodingResponse = query("-Z US-ASCII -Bi mnt-by OWNER1-MNT", StandardCharsets.US_ASCII);
+        Matcher matcher = pattern.matcher(usAsciiEncodingResponse);
+        assertThat(matcher.find(), is(true));
+        assertThat(usAsciiExpectedResult, is(getCharsetValuesInHex(matcher.group(1), StandardCharsets.US_ASCII)));
+    }
+
+    @Test
+    public void inverse_email_non_recognised_charset() {
         databaseHelper.addObject(RpslObject.parse("" +
                 "mntner:      OWNER1-MNT\n" +
                 "descr:       Owner Maintainer\n" +
@@ -297,47 +384,19 @@ public class InverseQueryTestIntegration extends AbstractQueryIntegrationTest {
                 "nic-hdl:        PP2-TEST\n" +
                 "remarks:        remark\n" +
                 "source:         TEST";
-
-        /*
-        * UTF-8: é(C3 89), Ú(C3 9A), ß(C3 9F)
-        * LATIN-1: é(E9), Ú(DA), ß(DF)
-        * */
+        
         databaseHelper.addObject(rpslObject);
 
-        final Pattern pattern = Pattern.compile("remarks:\\s+(.*?)\\s*$", Pattern.MULTILINE);
-        final String latin1ExpectedResult = getCharsetValuesInHex("é, Ú, ß", StandardCharsets.ISO_8859_1);
-        final String utf8ExpectedResult = getCharsetValuesInHex("é, Ú, ß", StandardCharsets.UTF_8);
-
-        /* Default encoding */
-        final String defaultEncodingResponse = query("-Bi mnt-by OWNER1-MNT");
-        Matcher matcher = pattern.matcher(defaultEncodingResponse);
-        if (matcher.find()){
-            assertThat(latin1ExpectedResult, is(getCharsetValuesInHex(matcher.group(1), StandardCharsets.ISO_8859_1)));
-        }
-
-        /* Latin-1 encoding */
-        final String latin1Response = query("-Z latin1 -Bi mnt-by OWNER1-MNT");
-        matcher = pattern.matcher(latin1Response);
-        if (matcher.find()){
-            assertThat(latin1ExpectedResult, is(getCharsetValuesInHex(matcher.group(1), StandardCharsets.ISO_8859_1)));
-        }
-
-        /* UTF-8 encoding */
-        final String utf8Response = query("-Z utf8 -Bi mnt-by OWNER1-MNT", StandardCharsets.UTF_8);
-        matcher = pattern.matcher(utf8Response);
-        if (matcher.find()){
-            assertThat(utf8ExpectedResult, is(getCharsetValuesInHex(matcher.group(1), StandardCharsets.UTF_8)));
-        }
+        assertThat(query("-Z nonExistCharset -Bi mnt-by OWNER1-MNT"), containsString("%ERROR:100: internal software error"));
     }
 
     private String getCharsetValuesInHex(final String values, final Charset charset){
-        byte[] utf8Bytes = String.valueOf(values).getBytes(charset);
+        byte[] charsetByte = String.valueOf(values).getBytes(charset);
 
         // Convert the bytes to hexadecimal representation
         StringBuilder hexBuilder = new StringBuilder();
-        for (byte b : utf8Bytes) {
+        for (byte b : charsetByte) {
             hexBuilder.append(String.format("%02X", b));
-            hexBuilder.append(" ");
         }
         // Print the hexadecimal representation
         return hexBuilder.toString().trim();

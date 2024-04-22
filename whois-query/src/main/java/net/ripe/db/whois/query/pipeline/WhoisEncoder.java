@@ -10,6 +10,7 @@ import io.netty.handler.codec.MessageToMessageEncoder;
 import io.netty.util.AttributeKey;
 import net.ripe.db.whois.common.Message;
 import net.ripe.db.whois.common.domain.ResponseObject;
+import net.ripe.db.whois.query.QueryFlag;
 import org.springframework.stereotype.Component;
 
 import java.io.IOException;
@@ -24,7 +25,7 @@ public class WhoisEncoder extends MessageToMessageEncoder<Object> {
     private static final int DEFAULT_BUFFER_SIZE = 1024;
     private static final byte[] OBJECT_TERMINATOR = {'\n'};
 
-    public static final AttributeKey<String> CHARSET_ATTRIBUTE = AttributeKey.valueOf("charset");
+    public static final AttributeKey<String> CHARSET_ATTRIBUTE = AttributeKey.valueOf(QueryFlag.CHARSET.getName());
 
     @Override
     protected void encode(final ChannelHandlerContext ctx, final Object msg, final List<Object> out) throws IOException {

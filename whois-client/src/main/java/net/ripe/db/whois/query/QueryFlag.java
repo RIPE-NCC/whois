@@ -166,8 +166,6 @@ public enum QueryFlag {
             .describedAs("Returns historical version of the object")
             .requiresArgument(Integer.class)),
 
-    /* -------------------------------------------------------------------------------------------------------------- */
-
     CHARSET(new Builder("Z", "charset")
             .describedAs("Specify the charset for the requested response. LATIN-1 is the default value.")
             .requiresArgument(String.class));
