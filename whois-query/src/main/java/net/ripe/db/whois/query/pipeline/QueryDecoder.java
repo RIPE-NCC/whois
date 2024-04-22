@@ -57,12 +57,16 @@ public class QueryDecoder extends MessageToMessageDecoder<String> {
         final String queryCharset = queryParser.getOptionValue(QueryFlag.CHARSET);
 
         try {
-            return Charset.forName(queryCharset).name();
+            return getCharsetForName(queryCharset).name();
         } catch (UnsupportedCharsetException ex){
-            if ("latin-1".equalsIgnoreCase(queryCharset)){
-                return StandardCharsets.ISO_8859_1.name();
-            }
             throw new IllegalArgumentException("Unsupported charset", ex);
         }
+    }
+
+    private static Charset getCharsetForName(final String charsetName) {
+        if ("latin-1".equalsIgnoreCase(charsetName)) {
+            return StandardCharsets.ISO_8859_1;
+        }
+        return Charset.forName(charsetName);
     }
 }
