@@ -1,9 +1,6 @@
 package net.ripe.db.whois.common.support;
 
 import net.ripe.db.whois.common.aspects.RetryFor;
-import net.ripe.db.whois.common.rpsl.RpslCharset;
-import net.ripe.db.whois.query.QueryFlag;
-import net.ripe.db.whois.query.QueryParser;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.util.FileCopyUtils;
@@ -17,8 +14,6 @@ import java.io.StringWriter;
 import java.net.Socket;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
-import java.nio.charset.UnsupportedCharsetException;
-import java.util.Arrays;
 import java.util.Optional;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Function;

@@ -5,7 +5,6 @@ import io.netty.channel.ChannelHandler;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.MessageToMessageDecoder;
 import net.ripe.db.whois.common.Message;
-import net.ripe.db.whois.common.rpsl.RpslCharset;
 import net.ripe.db.whois.query.QueryFlag;
 import net.ripe.db.whois.query.QueryParser;
 import net.ripe.db.whois.query.acl.AccessControlListManager;
@@ -17,9 +16,7 @@ import java.net.InetSocketAddress;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.nio.charset.UnsupportedCharsetException;
-import java.util.Arrays;
 import java.util.List;
-import java.util.Optional;
 
 import static net.ripe.db.whois.query.pipeline.WhoisEncoder.CHARSET_ATTRIBUTE;
 
@@ -59,17 +56,12 @@ public class QueryDecoder extends MessageToMessageDecoder<String> {
         final QueryParser queryParser = new QueryParser(query.toString());
         final String queryCharset = queryParser.getOptionValue(QueryFlag.CHARSET);
 
-        final Optional<RpslCharset> rpslCharset = Arrays.stream(RpslCharset.values())
-                .filter(charset -> charset.getCommonNames().contains(queryCharset.toUpperCase()))
-                .findFirst();
-
-        if (rpslCharset.isPresent()){
-            return rpslCharset.get().getCharset().name();
-        }
-
         try {
             return Charset.forName(queryCharset).name();
         } catch (UnsupportedCharsetException ex){
+            if ("latin-1".equalsIgnoreCase(queryCharset)){
+                return StandardCharsets.ISO_8859_1.name();
+            }
             throw new IllegalArgumentException("Unsupported charset", ex);
         }
     }

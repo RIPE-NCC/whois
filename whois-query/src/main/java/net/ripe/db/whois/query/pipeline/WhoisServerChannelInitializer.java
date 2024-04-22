@@ -12,22 +12,14 @@ import io.netty.util.concurrent.DefaultEventExecutorGroup;
 import io.netty.util.concurrent.EventExecutorGroup;
 import net.ripe.db.whois.common.ApplicationVersion;
 import net.ripe.db.whois.common.pipeline.MaintenanceHandler;
-import net.ripe.db.whois.common.rpsl.RpslCharset;
-import net.ripe.db.whois.query.QueryFlag;
-import net.ripe.db.whois.query.QueryParser;
 import net.ripe.db.whois.query.handler.QueryHandler;
-import net.ripe.db.whois.query.query.Query;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
-import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
-import java.nio.charset.UnsupportedCharsetException;
-import java.util.Arrays;
-import java.util.Optional;
 import java.util.concurrent.TimeUnit;
 
 @Component
