@@ -5,7 +5,6 @@ import io.netty.channel.ChannelHandler;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.MessageToMessageDecoder;
 import net.ripe.db.whois.common.Message;
-import net.ripe.db.whois.common.QueryMessage;
 import net.ripe.db.whois.query.QueryFlag;
 import net.ripe.db.whois.query.QueryMessages;
 import net.ripe.db.whois.query.QueryParser;

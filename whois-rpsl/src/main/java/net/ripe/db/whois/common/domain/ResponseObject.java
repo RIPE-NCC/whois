@@ -3,7 +3,6 @@ package net.ripe.db.whois.common.domain;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.nio.charset.Charset;
-import java.nio.charset.StandardCharsets;
 
 /**
  * An object that can be sent back to the client. Either a message (notice,
