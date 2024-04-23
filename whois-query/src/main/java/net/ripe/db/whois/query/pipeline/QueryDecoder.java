@@ -5,9 +5,13 @@ import io.netty.channel.ChannelHandler;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.MessageToMessageDecoder;
 import net.ripe.db.whois.common.Message;
+import net.ripe.db.whois.common.QueryMessage;
 import net.ripe.db.whois.query.QueryFlag;
+import net.ripe.db.whois.query.QueryMessages;
 import net.ripe.db.whois.query.QueryParser;
 import net.ripe.db.whois.query.acl.AccessControlListManager;
+import net.ripe.db.whois.query.domain.QueryCompletionInfo;
+import net.ripe.db.whois.query.domain.QueryException;
 import net.ripe.db.whois.query.query.Query;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -25,6 +29,8 @@ import static net.ripe.db.whois.query.pipeline.WhoisEncoder.CHARSET_ATTRIBUTE;
 public class QueryDecoder extends MessageToMessageDecoder<String> {
 
     private final AccessControlListManager accessControlListManager;
+
+    private static final Charset DEFAULT_CHARSET = StandardCharsets.ISO_8859_1;
 
     @Autowired
     public QueryDecoder(final AccessControlListManager accessControlListManager) {
@@ -50,7 +56,7 @@ public class QueryDecoder extends MessageToMessageDecoder<String> {
 
     private String getCharsetName(final Query query){
         if (!query.isCharsetSpecified()){
-            return StandardCharsets.ISO_8859_1.name();
+            return DEFAULT_CHARSET.name();
         }
 
         final QueryParser queryParser = new QueryParser(query.toString());
@@ -59,13 +65,13 @@ public class QueryDecoder extends MessageToMessageDecoder<String> {
         try {
             return getCharsetForName(queryCharset).name();
         } catch (UnsupportedCharsetException ex){
-            throw new IllegalArgumentException("Unsupported charset", ex);
+            throw new QueryException(QueryCompletionInfo.PARAMETER_ERROR, QueryMessages.invalidCharsetPassed(queryCharset));
         }
     }
 
     private static Charset getCharsetForName(final String charsetName) {
         if ("latin-1".equalsIgnoreCase(charsetName)) {
-            return StandardCharsets.ISO_8859_1;
+            return DEFAULT_CHARSET;
         }
         return Charset.forName(charsetName);
     }
