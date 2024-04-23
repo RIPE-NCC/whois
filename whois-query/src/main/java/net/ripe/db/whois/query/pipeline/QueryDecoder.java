@@ -17,7 +17,6 @@ import org.springframework.stereotype.Component;
 
 import java.net.InetSocketAddress;
 import java.nio.charset.Charset;
-import java.nio.charset.StandardCharsets;
 import java.nio.charset.UnsupportedCharsetException;
 import java.util.List;
 
@@ -29,7 +28,6 @@ public class QueryDecoder extends MessageToMessageDecoder<String> {
 
     private final AccessControlListManager accessControlListManager;
 
-    private static final Charset DEFAULT_CHARSET = StandardCharsets.ISO_8859_1;
 
     @Autowired
     public QueryDecoder(final AccessControlListManager accessControlListManager) {
@@ -55,22 +53,22 @@ public class QueryDecoder extends MessageToMessageDecoder<String> {
 
     private String getCharsetName(final Query query){
         if (!query.isCharsetSpecified()){
-            return DEFAULT_CHARSET.name();
+            return query.getDefaultCharset().name();
         }
 
         final QueryParser queryParser = new QueryParser(query.toString());
         final String queryCharset = queryParser.getOptionValue(QueryFlag.CHARSET);
 
         try {
-            return getCharsetForName(queryCharset).name();
+            return getCharsetForName(queryCharset, query).name();
         } catch (UnsupportedCharsetException ex){
             throw new QueryException(QueryCompletionInfo.PARAMETER_ERROR, QueryMessages.invalidCharsetPassed(queryCharset));
         }
     }
 
-    private static Charset getCharsetForName(final String charsetName) {
+    private static Charset getCharsetForName(final String charsetName, final Query query) {
         if ("latin-1".equalsIgnoreCase(charsetName)) {
-            return DEFAULT_CHARSET;
+            return query.getDefaultCharset();
         }
         return Charset.forName(charsetName);
     }

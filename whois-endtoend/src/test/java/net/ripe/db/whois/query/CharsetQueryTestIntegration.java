@@ -42,7 +42,7 @@ public class CharsetQueryTestIntegration extends AbstractQueryIntegrationTest {
             "source:      TEST");
 
     @BeforeEach
-    public void startupWhoisServer() throws Exception {
+    public void startupWhoisServer() {
         databaseHelper.addObjects(PAULETH_PALTHEN, OWNER_MNT);
 
         queryServer.start();
@@ -70,10 +70,6 @@ public class CharsetQueryTestIntegration extends AbstractQueryIntegrationTest {
                 "nic-hdl:        PP2-TEST\n" +
                 "source:         TEST";
 
-        /*
-         * UTF-8: é(C3 89), Ú(C3 9A), ß(C3 9F)
-         * LATIN-1: é(E9), Ú(DA), ß(DF)
-         * */
         databaseHelper.addObject(rpslObject);
 
         final Pattern pattern = Pattern.compile("remarks:\s+(.*?)\s*\n");
@@ -119,10 +115,6 @@ public class CharsetQueryTestIntegration extends AbstractQueryIntegrationTest {
                 "nic-hdl:        PP2-TEST\n" +
                 "source:         TEST";
 
-        /*
-         * ASCII: é -> ?(3F), Ú -> ?(3F), ß -> ?(3F)
-         * */
-
         databaseHelper.addObject(rpslObject);
 
         final Pattern pattern = Pattern.compile("remarks:\s+(.*?)\s*\n");
@@ -155,10 +147,6 @@ public class CharsetQueryTestIntegration extends AbstractQueryIntegrationTest {
                 "nic-hdl:        PP2-TEST\n" +
                 "source:         TEST";
 
-        /*
-         * ASCII: é(E9), Ú(DA), ß(DF)
-         * */
-
         databaseHelper.addObject(rpslObject);
 
         final Pattern pattern = Pattern.compile("remarks:\s+(.*?)\s*\n");
@@ -190,10 +178,6 @@ public class CharsetQueryTestIntegration extends AbstractQueryIntegrationTest {
                 "mnt-by:         OWNER1-MNT\n" +
                 "nic-hdl:        PP2-TEST\n" +
                 "source:         TEST";
-
-        /*
-         * CP1251: A(41), B(42), Ѣ -> ?(3F), H(48), O(4F), Ꙋ -> ?(3F)
-         * */
 
         databaseHelper.addObject(rpslObject);
 
