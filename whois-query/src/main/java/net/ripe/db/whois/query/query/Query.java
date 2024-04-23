@@ -40,8 +40,6 @@ public class Query {
     private static final EnumSet<ObjectType> DEFAULT_TYPES_LOOKUP_IN_BOTH_DIRECTIONS = EnumSet.of(ObjectType.INETNUM, ObjectType.INET6NUM, ObjectType.ROUTE, ObjectType.ROUTE6, ObjectType.DOMAIN);
     private static final EnumSet<ObjectType> DEFAULT_TYPES_ALL = EnumSet.allOf(ObjectType.class);
 
-    private static final Charset DEFAULT_CHARSET = StandardCharsets.ISO_8859_1;
-
     private static final List<QueryValidator> QUERY_VALIDATORS = Lists.newArrayList(
             new MatchOperationValidator(),
             new ProxyValidator(),
@@ -644,7 +642,7 @@ public class Query {
     }
 
     public Charset getDefaultCharset(){
-        return DEFAULT_CHARSET;
+        return StandardCharsets.ISO_8859_1;
     }
     public enum SystemInfoOption {
         VERSION, TYPES, SOURCES
