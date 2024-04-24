@@ -20,6 +20,9 @@ import net.ripe.db.whois.query.domain.QueryCompletionInfo;
 import net.ripe.db.whois.query.domain.QueryException;
 import org.apache.commons.lang.StringUtils;
 
+import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
+import java.nio.charset.UnsupportedCharsetException;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
@@ -179,6 +182,10 @@ public class Query {
 
     public boolean isBriefAbuseContact() {
         return queryParser.hasOption(QueryFlag.ABUSE_CONTACT);
+    }
+
+    public boolean isCharsetSpecified(){
+        return queryParser.hasOption(QueryFlag.CHARSET);
     }
 
     public boolean isKeysOnly() {
@@ -633,6 +640,31 @@ public class Query {
         public QueryFlag getQueryFlag() {
             return queryFlag;
         }
+    }
+
+    public String getCharsetName(){
+        if (!isCharsetSpecified()){
+            return getDefaultCharset().name();
+        }
+
+        final String queryCharset = queryParser.getOptionValue(QueryFlag.CHARSET);
+
+        try {
+            return getCharsetForName(queryCharset).name();
+        } catch (UnsupportedCharsetException ex){
+            throw new QueryException(QueryCompletionInfo.PARAMETER_ERROR, QueryMessages.invalidCharsetPassed(queryCharset));
+        }
+    }
+
+    private static Charset getCharsetForName(final String charsetName) {
+        if ("latin-1".equalsIgnoreCase(charsetName)) {
+            return getDefaultCharset();
+        }
+        return Charset.forName(charsetName);
+    }
+
+    private static Charset getDefaultCharset(){
+        return StandardCharsets.ISO_8859_1;
     }
 
     public enum SystemInfoOption {

@@ -42,6 +42,7 @@ import static net.ripe.db.whois.common.domain.CIString.ciString;
 import static net.ripe.db.whois.query.QueryFlag.ABUSE_CONTACT;
 import static net.ripe.db.whois.query.QueryFlag.ALL_SOURCES;
 import static net.ripe.db.whois.query.QueryFlag.BRIEF;
+import static net.ripe.db.whois.query.QueryFlag.CHARSET;
 import static net.ripe.db.whois.query.QueryFlag.CLIENT;
 import static net.ripe.db.whois.query.QueryFlag.DIFF_VERSIONS;
 import static net.ripe.db.whois.query.QueryFlag.LIST_SOURCES;
@@ -64,6 +65,7 @@ public class WhoisSearchService {
             // flags for port43 only
             VERSION,
             PERSISTENT_CONNECTION,
+            CHARSET,
 
             // port43 filter flags that make no sense in xml/json
             BRIEF,
