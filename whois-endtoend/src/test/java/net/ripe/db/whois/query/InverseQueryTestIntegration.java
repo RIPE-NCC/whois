@@ -2,7 +2,6 @@ package net.ripe.db.whois.query;
 
 import net.ripe.db.whois.common.domain.IpRanges;
 import net.ripe.db.whois.common.rpsl.RpslObject;
-import net.ripe.db.whois.common.support.TelnetWhoisClient;
 import net.ripe.db.whois.query.support.AbstractQueryIntegrationTest;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -10,7 +9,6 @@ import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
-
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.containsString;
 
@@ -247,7 +245,7 @@ public class InverseQueryTestIntegration extends AbstractQueryIntegrationTest {
     }
 
     @Test
-    public void inverse_email_from_trusted_then_succeed() {
+    public void inverse_email_from_trusted_then_succeed()  {
         ipRanges.setTrusted("127/8", "::1");
 
         final String response = query("-Bi e-mail noreply@ripe.net");
@@ -255,6 +253,7 @@ public class InverseQueryTestIntegration extends AbstractQueryIntegrationTest {
         assertThat(response, containsString("noreply@ripe.net"));
         assertThat(response, containsString("person:         Pauleth Palthen"));
     }
+
 
     @Test
     public void inverse_email_from_untrusted_then_fail() {
@@ -264,9 +263,5 @@ public class InverseQueryTestIntegration extends AbstractQueryIntegrationTest {
 
         assertThat(response, containsString("attribute is not searchable"));
         assertThat(response, containsString("is not an inverse searchable attribute"));
-    }
-
-    private String query(final String query) {
-        return TelnetWhoisClient.queryLocalhost(QueryServer.port, query);
     }
 }

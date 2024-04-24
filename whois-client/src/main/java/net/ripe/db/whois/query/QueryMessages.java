@@ -336,6 +336,10 @@ public final class QueryMessages {
                 + "An IP flag (-l, -L, -m, -M, -x, -d or -b) used without an IP key.");
     }
 
+    public static Message invalidCharsetPassed(final String charset){
+        return new QueryMessage(Type.ERROR, "Invalid character set %s", charset);
+    }
+
     // FIXME: [AH] this message should be '*HAS* invalid syntax'
     public static Message invalidSyntax(final CharSequence objectKey) {
         return new QueryMessage(Type.INFO, "'%s' invalid syntax", objectKey);

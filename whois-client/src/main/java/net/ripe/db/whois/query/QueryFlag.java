@@ -164,8 +164,11 @@ public enum QueryFlag {
     SHOW_VERSION(new Builder("show-version")
             .withSearchKey("<version-number>")
             .describedAs("Returns historical version of the object")
-            .requiresArgument(Integer.class));
+            .requiresArgument(Integer.class)),
 
+    CHARSET(new Builder("Z", "charset")
+            .describedAs("Specify the charset for the requested response. LATIN-1 is the default value.")
+            .requiresArgument(String.class));
 
     private static final class Builder {
         private List<String> flags = Collections.emptyList();
