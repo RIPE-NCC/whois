@@ -67,8 +67,7 @@
         <jaxb.impl.version>4.0.4</jaxb.impl.version>
         <jcache.version>1.1.1</jcache.version>
         <jersey.version>3.0.12</jersey.version>
-        <!-- TODO: [ES] Jetty 11.0.20 may cause Syncupdates POST issue -->
-        <jetty.version>11.0.17</jetty.version>
+        <jetty.version>11.0.20</jetty.version>
         <jflex.version>1.9.1</jflex.version>
         <jopt-simple.version>5.0.4</jopt-simple.version>
         <jsonassert.version>1.5.1</jsonassert.version>
