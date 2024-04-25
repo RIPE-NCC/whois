@@ -32,7 +32,7 @@ public class MntLowerAddedRemovedTest {
     @Mock private UpdateContext updateContext;
     @Mock private Subject authenticationSubject;
 
-    @InjectMocks private MntLowerAddedRemoved subject;
+    @InjectMocks private MntLowerAddedRemovedValidator subject;
 
     @BeforeEach
     public void setUp() throws Exception {

@@ -2397,4 +2397,92 @@ class InetnumIntegrationSpec extends BaseWhoisSourceSpec {
         response =~ /Create SUCCEEDED: \[inetnum\] 192.168.200.0 - 192.168.200.255/
     }
 
+
+    def "update, not more specific allowed status with mnt-lower attribute"() {
+        when:
+        def update = syncUpdate(new SyncUpdate(data: """\
+                                        inetnum: 193.0.0.0 - 193.0.0.255
+                                        netname: RIPE-NCC
+                                        descr: some descr
+                                        country: DK
+                                        admin-c: TEST-PN
+                                        tech-c: TEST-PN
+                                        status: ASSIGNED PI
+                                        org: ORG-TOL2-TEST
+                                        mnt-by: TEST-MNT
+                                        mnt-lower: TEST-MNT
+                                        source: TEST
+                                        password: update
+                                    """.stripIndent(true)))
+        then:
+        update =~ /FAIL/
+        update =~ /Error:   "mnt-lower:" attribute not allowed for resources with "ASSIGNED PI:"
+            status/
+    }
+
+    def "update, not more specific allowed status with mnt-lower attribute override"() {
+        when:
+        def update = syncUpdate(new SyncUpdate(data: """\
+                                        inetnum: 193.0.0.0 - 193.0.0.255
+                                        netname: RIPE-NCC
+                                        descr: some descr
+                                        country: DK
+                                        admin-c: TEST-PN
+                                        tech-c: TEST-PN
+                                        status: ASSIGNED PI
+                                        org: ORG-TOL2-TEST
+                                        mnt-by: TEST-MNT
+                                        mnt-lower: TEST-MNT
+                                        source: TEST
+                                        password: update
+                                        override: denis,override1
+                                    """.stripIndent(true)))
+        then:
+        update.contains("Modify SUCCEEDED: [inetnum] 193.0.0.0 - 193.0.0.255")
+        update.contains("Warning: \"mnt-lower:\" attribute not allowed for resources with \"ASSIGNED PI:\"\n            status");
+    }
+
+    def "create, not more specific allowed status with mnt-lower attribute"() {
+        when:
+        def insert = syncUpdate(new SyncUpdate(data: """\
+                                        inetnum:      192.168.200.0 - 192.168.200.255
+                                        netname: RIPE-NCC
+                                        descr: some descr
+                                        country: DK
+                                        admin-c: TEST-PN
+                                        tech-c: TEST-PN
+                                        status: ASSIGNED PI
+                                        org: ORG-TOL2-TEST
+                                        mnt-by: TEST-MNT
+                                        mnt-lower: TEST-MNT
+                                        source: TEST
+                                        password: update
+                                    """.stripIndent(true)))
+        then:
+        insert =~ /FAIL/
+        insert =~ /Error:   "mnt-lower:" attribute not allowed for resources with "ASSIGNED PI:"
+            status/
+    }
+
+    def "create, not more specific allowed status with mnt-lower attribute override"() {
+        when:
+        def insert = syncUpdate(new SyncUpdate(data: """\
+                                        inetnum:      192.168.200.0 - 192.168.200.255
+                                        netname: RIPE-NCC
+                                        descr: some descr
+                                        country: DK
+                                        admin-c: TEST-PN
+                                        tech-c: TEST-PN
+                                        status: ASSIGNED PI
+                                        org: ORG-TOL2-TEST
+                                        mnt-by: TEST-MNT
+                                        mnt-lower: TEST-MNT
+                                        source: TEST
+                                        override: denis,override1
+                                    """.stripIndent(true)))
+        then:
+        insert.contains("Create SUCCEEDED: [inetnum] 192.168.200.0 - 192.168.200.255")
+        insert.contains("Warning: \"mnt-lower:\" attribute not allowed for resources with \"ASSIGNED PI:\"\n            status");
+    }
+
 }
