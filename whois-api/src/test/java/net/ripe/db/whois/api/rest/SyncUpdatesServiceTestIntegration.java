@@ -163,6 +163,15 @@ public class SyncUpdatesServiceTestIntegration extends AbstractIntegrationTest {
     }
 
     @Test
+    public void help_and_data_parameters() {
+        String response = RestTest.target(getPort(), "whois/syncupdates/test?HELP=yes&DATA=data")
+                .request()
+                .get(String.class);
+
+        assertThat(response, containsString("You have requested Help information from the RIPE NCC Database"));
+    }
+
+    @Test
     public void diff_parameter_only() {
         try {
             RestTest.target(getPort(), "whois/syncupdates/test?DIFF=yes")
