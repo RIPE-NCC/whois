@@ -26,7 +26,6 @@ import net.ripe.db.whois.update.domain.UpdateMessages;
 import net.ripe.db.whois.update.mail.MailSenderStub;
 import org.eclipse.jetty.http.HttpStatus;
 import org.glassfish.jersey.media.multipart.FormDataMultiPart;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -130,10 +129,9 @@ public class SyncUpdatesServiceTestIntegration extends AbstractIntegrationTest {
         assertThat(response.getHeaderString(HttpHeaders.CONTENT_TYPE), is(MediaType.TEXT_PLAIN));
     }
 
-    @Disabled("TODO: [ES] post without content type returns internal server error")
     @Test
     public void post_without_content_type() throws Exception {
-        assertThat(postWithoutContentType(), not(containsString("Internal Server Error")));
+        assertThat(postWithoutContentType(), containsString("Bad Request"));
     }
 
     @Test
