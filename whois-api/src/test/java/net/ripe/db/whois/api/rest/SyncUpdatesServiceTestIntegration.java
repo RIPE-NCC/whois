@@ -92,14 +92,15 @@ public class SyncUpdatesServiceTestIntegration extends AbstractIntegrationTest {
 
     @Test
     public void get_empty_request() {
-        try {
-            RestTest.target(getPort(), "whois/syncupdates/test")
+        final Response response = RestTest.target(getPort(), "whois/syncupdates/test")
                     .request()
-                    .get(String.class);
-            fail();
-        } catch (BadRequestException e) {
-            // expected
-        }
+                    .get(Response.class);
+
+        final String responseBody = response.readEntity(String.class);
+        assertThat(responseBody, containsString("You have requested Help information from the RIPE NCC Database"));
+        assertThat(responseBody, containsString("From-Host: 127.0.0.1"));
+        assertThat(responseBody, containsString("Date/Time: "));
+        assertThat(responseBody, not(containsString("$")));
     }
 
     @Test
