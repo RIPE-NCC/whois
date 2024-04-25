@@ -116,7 +116,7 @@ public class InetnumStrictStatusValidator implements BusinessRuleValidator {
             }
     }
 
-    private boolean canSkipValidation(final PreparedUpdate update) {
+    protected static boolean canSkipValidation(final PreparedUpdate update) {
         if(update.getAction() == CREATE) {
             return false;
         }

@@ -16,8 +16,6 @@ import net.ripe.db.whois.common.rpsl.ObjectType;
 import net.ripe.db.whois.common.rpsl.RpslAttribute;
 import net.ripe.db.whois.common.rpsl.RpslObject;
 import net.ripe.db.whois.common.rpsl.attrs.InetnumStatus;
-import net.ripe.db.whois.update.authentication.Principal;
-import net.ripe.db.whois.update.authentication.Subject;
 import net.ripe.db.whois.update.domain.Action;
 import net.ripe.db.whois.update.domain.PreparedUpdate;
 import net.ripe.db.whois.update.domain.UpdateContext;
@@ -27,6 +25,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.CheckForNull;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -35,6 +34,8 @@ import static net.ripe.db.whois.common.Messages.Type.ERROR;
 import static net.ripe.db.whois.common.rpsl.AttributeType.STATUS;
 import static net.ripe.db.whois.common.rpsl.attrs.InetnumStatus.ASSIGNED_PI;
 import static net.ripe.db.whois.update.domain.Action.CREATE;
+import static net.ripe.db.whois.update.domain.Action.MODIFY;
+import static net.ripe.db.whois.update.handler.validator.inetnum.InetnumStrictStatusValidator.canSkipValidation;
 
 /**
  * Apply stricter status validation when creating an inetnum object.
@@ -42,7 +43,7 @@ import static net.ripe.db.whois.update.domain.Action.CREATE;
 @Component
 public class InetnumStrictStatusMandatoryValidator implements BusinessRuleValidator {
 
-    private static final ImmutableList<Action> ACTIONS = ImmutableList.of(CREATE);
+    private static final ImmutableList<Action> ACTIONS = ImmutableList.of(CREATE, MODIFY);
     private static final ImmutableList<ObjectType> TYPES = ImmutableList.of(ObjectType.INETNUM);
 
     private final RpslObjectDao objectDao;
@@ -64,6 +65,10 @@ public class InetnumStrictStatusMandatoryValidator implements BusinessRuleValida
 
     @Override
     public List<Message> performValidation(final PreparedUpdate update, final UpdateContext updateContext) {
+        if(canSkipValidation(update)) {
+            return Collections.EMPTY_LIST;
+        }
+
         return validateCreate(update, updateContext);
     }
 
@@ -121,10 +126,6 @@ public class InetnumStrictStatusMandatoryValidator implements BusinessRuleValida
         }
 
         return validationMessages;
-    }
-
-    private boolean authByRs(final Subject subject) {
-        return subject.hasPrincipal(Principal.RS_MAINTAINER);
     }
 
     private boolean checkAuthorizationForStatusInHierarchy(final PreparedUpdate update, final Ipv4Resource ipInterval) {
