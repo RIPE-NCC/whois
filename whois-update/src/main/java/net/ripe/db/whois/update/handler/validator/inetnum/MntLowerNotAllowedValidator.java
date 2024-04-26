@@ -20,8 +20,8 @@ import static net.ripe.db.whois.update.handler.validator.inetnum.InetStatusHelpe
 public class MntLowerNotAllowedValidator extends MntLowerValidator {
 
     private static final ImmutableList<Action> ACTIONS = ImmutableList.of(Action.CREATE, Action.MODIFY);
-    private static final List<InetnumStatus> VALIDATED_INETNUM_STATUSES = ImmutableList.of(InetnumStatus.ASSIGNED_PI);
-    private static final List<Inet6numStatus> VALIDATED_INET6NUM_STATUSES = ImmutableList.of(Inet6numStatus.ASSIGNED);
+    private static final List<InetnumStatus> VALIDATED_INETNUM_STATUSES = ImmutableList.of(InetnumStatus.ASSIGNED_PI, InetnumStatus.ASSIGNED_ANYCAST);
+    private static final List<Inet6numStatus> VALIDATED_INET6NUM_STATUSES = ImmutableList.of(Inet6numStatus.ASSIGNED_PI, Inet6numStatus.ASSIGNED, Inet6numStatus.ASSIGNED_ANYCAST);
 
     @Override
     protected List<Message> setMessage(final PreparedUpdate update) {
