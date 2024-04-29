@@ -26,7 +26,6 @@ import net.ripe.db.whois.update.domain.UpdateMessages;
 import net.ripe.db.whois.update.mail.MailSenderStub;
 import org.eclipse.jetty.http.HttpStatus;
 import org.glassfish.jersey.media.multipart.FormDataMultiPart;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -92,14 +91,15 @@ public class SyncUpdatesServiceTestIntegration extends AbstractIntegrationTest {
 
     @Test
     public void get_empty_request() {
-        try {
-            RestTest.target(getPort(), "whois/syncupdates/test")
+        final Response response = RestTest.target(getPort(), "whois/syncupdates/test")
                     .request()
-                    .get(String.class);
-            fail();
-        } catch (BadRequestException e) {
-            // expected
-        }
+                    .get(Response.class);
+
+        final String responseBody = response.readEntity(String.class);
+        assertThat(responseBody, containsString("You have requested Help information from the RIPE NCC Database"));
+        assertThat(responseBody, containsString("From-Host: 127.0.0.1"));
+        assertThat(responseBody, containsString("Date/Time: "));
+        assertThat(responseBody, not(containsString("$")));
     }
 
     @Test
@@ -129,10 +129,9 @@ public class SyncUpdatesServiceTestIntegration extends AbstractIntegrationTest {
         assertThat(response.getHeaderString(HttpHeaders.CONTENT_TYPE), is(MediaType.TEXT_PLAIN));
     }
 
-    @Disabled("TODO: [ES] post without content type returns internal server error")
     @Test
     public void post_without_content_type() throws Exception {
-        assertThat(postWithoutContentType(), not(containsString("Internal Server Error")));
+        assertThat(postWithoutContentType(), containsString("Bad Request"));
     }
 
     @Test
@@ -157,6 +156,15 @@ public class SyncUpdatesServiceTestIntegration extends AbstractIntegrationTest {
     @Test
     public void help_and_invalid_parameter() {
         String response = RestTest.target(getPort(), "whois/syncupdates/test?HELP=yes&INVALID=true")
+                .request()
+                .get(String.class);
+
+        assertThat(response, containsString("You have requested Help information from the RIPE NCC Database"));
+    }
+
+    @Test
+    public void help_and_data_parameters() {
+        String response = RestTest.target(getPort(), "whois/syncupdates/test?HELP=yes&DATA=data")
                 .request()
                 .get(String.class);
 
