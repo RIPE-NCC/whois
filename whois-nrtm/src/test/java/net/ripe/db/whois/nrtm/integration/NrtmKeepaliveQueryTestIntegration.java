@@ -34,7 +34,7 @@ public class NrtmKeepaliveQueryTestIntegration extends AbstractNrtmIntegrationBa
 
     @Test
     public void queryKeepaliveNoPreExistingObjects() {
-        final String response = TelnetWhoisClient.queryLocalhost(NrtmServer.getPort(), "-g TEST:3:1-2 -k", (updateInterval + 1) * 1000);
+        final String response = new TelnetWhoisClient(NrtmServer.getPort(), (updateInterval + 1) * 1000).sendQuery("-g TEST:3:1-2 -k");
 
         assertThat(response, containsString("%ERROR:401: invalid range"));
     }
@@ -96,7 +96,7 @@ public class NrtmKeepaliveQueryTestIntegration extends AbstractNrtmIntegrationBa
         databaseHelper.addObject("aut-num:AS6294967207\nsource:TEST-NONAUTH");
         databaseHelper.addObject("aut-num:AS7294967207\nsource:TEST-NONAUTH");
 
-        final String response = TelnetWhoisClient.queryLocalhost(NrtmServer.getPort(), "-g TEST-NONAUTH:3:1-LAST");
+        final String response = new TelnetWhoisClient(NrtmServer.getPort()).sendQuery("-g TEST-NONAUTH:3:1-LAST");
 
         assertThat(response, containsString("ADD 1"));
         assertThat(response, containsString("AS4294967207"));

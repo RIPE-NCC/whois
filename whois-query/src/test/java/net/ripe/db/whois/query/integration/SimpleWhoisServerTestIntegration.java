@@ -106,7 +106,7 @@ public class SimpleWhoisServerTestIntegration extends AbstractQueryIntegrationTe
 
     @Test
     public void end_of_transmission_success() {
-        final String response = TelnetWhoisClient.queryLocalhost(QueryServer.port, "10.0.0.0");
+        final String response = new TelnetWhoisClient(QueryServer.port).sendQuery("10.0.0.0");
 
         assertThat(response, endsWith("\n\n\n"));
         assertThat(response, not(endsWith("\n\n\n\n")));

@@ -42,6 +42,8 @@ public class GrsImporterJpirrTestIntegration extends AbstractSchedulerIntegratio
 
     private static final File tempDirectory = Files.createTempDir();
 
+    private TelnetWhoisClient telnetWhoisClient;
+
     @BeforeAll
     public static void setup_database() throws IOException {
         DatabaseHelper.addGrsDatabases("JPIRR-GRS");
@@ -73,7 +75,7 @@ public class GrsImporterJpirrTestIntegration extends AbstractSchedulerIntegratio
     }
 
     @AfterAll
-    public static void cleanup() throws Exception {
+    public static void cleanup(){
         FileHelper.delete(tempDirectory);
     }
 
@@ -85,6 +87,8 @@ public class GrsImporterJpirrTestIntegration extends AbstractSchedulerIntegratio
 
         grsImporter.setGrsImportEnabled(true);
         queryServer.start();
+
+        telnetWhoisClient = new TelnetWhoisClient(QueryServer.port);
     }
 
     @Test
@@ -104,8 +108,8 @@ public class GrsImporterJpirrTestIntegration extends AbstractSchedulerIntegratio
         }
     }
 
-    private String query(final String query) throws Exception {
-        return TelnetWhoisClient.queryLocalhost(QueryServer.port, query);
+    private String query(final String query) {
+        return telnetWhoisClient.sendQuery(query);
     }
 
     private static String getUrl(final File file) throws MalformedURLException {

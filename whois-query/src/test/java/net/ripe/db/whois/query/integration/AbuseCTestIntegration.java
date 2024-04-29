@@ -131,6 +131,8 @@ public class AbuseCTestIntegration extends AbstractQueryIntegrationTest {
     @Autowired
     private IpTreeUpdater ipTreeUpdater;
 
+    private TelnetWhoisClient telnetWhoisClient;
+
     @BeforeEach
     public void setup() throws Exception {
         for (String next : BASE_OBJECTS) {
@@ -138,6 +140,7 @@ public class AbuseCTestIntegration extends AbstractQueryIntegrationTest {
         }
         ipTreeUpdater.rebuild();
         queryServer.start();
+        telnetWhoisClient = new TelnetWhoisClient(QueryServer.port);
     }
 
     @AfterEach
@@ -147,14 +150,14 @@ public class AbuseCTestIntegration extends AbstractQueryIntegrationTest {
 
     @Test
     public void forwardLookupInetnum() {
-        final String response = TelnetWhoisClient.queryLocalhost(QueryServer.port, "173.0.0.0");
+        final String response = telnetWhoisClient.sendQuery("173.0.0.0");
 
         assertThat(response, containsString("% Abuse contact for '173.0.0.0 - 173.255.255.255' is 'abuse@ripe.net'"));
     }
 
     @Test
     public void simpleLookupInetnum() {
-        final String response = TelnetWhoisClient.queryLocalhost(QueryServer.port, "-rBGxTinetnum 173.0.0.0/8");
+        final String response = telnetWhoisClient.sendQuery("-rBGxTinetnum 173.0.0.0/8");
 
         assertThat(response, containsString("" +
                 "% Abuse contact for '173.0.0.0 - 173.255.255.255' is 'abuse@ripe.net'\n" +
@@ -164,7 +167,7 @@ public class AbuseCTestIntegration extends AbstractQueryIntegrationTest {
 
     @Test
     public void simpleLookupChildInetnum() {
-        final String response = TelnetWhoisClient.queryLocalhost(QueryServer.port, "193.0.0.0");
+        final String response = telnetWhoisClient.sendQuery("193.0.0.0");
 
         assertThat(response, containsString("" +
                 "% Abuse contact for '193.0.0.0 - 193.0.0.255' is 'shown@abuse.net'\n" +
@@ -174,7 +177,7 @@ public class AbuseCTestIntegration extends AbstractQueryIntegrationTest {
 
     @Test
     public void dashBGivesAbuseCMessage_hasContact() {
-        final String response = TelnetWhoisClient.queryLocalhost(QueryServer.port, "-b 173.0.0.5");
+        final String response = telnetWhoisClient.sendQuery("-b 173.0.0.5");
 
         assertThat(response, not(containsString("% Abuse contact for '173.0.0.0 - 173.255.255.255' is 'abuse@ripe.net'")));
         assertThat(response, containsString("" +
@@ -184,7 +187,7 @@ public class AbuseCTestIntegration extends AbstractQueryIntegrationTest {
 
     @Test
     public void abuseFinder_shouldPreferAbuseC_on_inetnum() {
-        final String response = TelnetWhoisClient.queryLocalhost(QueryServer.port, "19.0.0.5");
+        final String response = telnetWhoisClient.sendQuery("19.0.0.5");
 
         assertThat(response, containsString("% Abuse contact for '19.0.0.0 - 19.255.255.255' is 'more_abuse@ripe.net'"));
 //        assertThat(response, containsString("" +
@@ -194,7 +197,7 @@ public class AbuseCTestIntegration extends AbstractQueryIntegrationTest {
 
     @Test
     public void dashBGivesAbuseCMessage_hasNoContact() {
-        final String response = TelnetWhoisClient.queryLocalhost(QueryServer.port, "-b 18.0.0.0");
+        final String response = telnetWhoisClient.sendQuery("-b 18.0.0.0");
 
         assertThat(response, containsString("inetnum:        18.0.0.0 - 18.255.255.255"));
 
@@ -205,13 +208,13 @@ public class AbuseCTestIntegration extends AbstractQueryIntegrationTest {
 
     @Test
     public void rootObjectShowsNoMessage() {
-        final String response = TelnetWhoisClient.queryLocalhost(QueryServer.port, "0.0.0.5");
+        final String response = telnetWhoisClient.sendQuery("0.0.0.5");
         assertThat(response, not(containsString("Abuse")));
     }
 
     @Test
     public void autnum_hasNoContacts() {
-        final String response = TelnetWhoisClient.queryLocalhost(QueryServer.port, "AS102");
+        final String response = telnetWhoisClient.sendQuery("AS102");
         assertThat(response, containsString(
                 "% Information related to 'AS102'\n" +
                 "\n" +
@@ -223,19 +226,19 @@ public class AbuseCTestIntegration extends AbstractQueryIntegrationTest {
 
     @Test
     public void autnum_hasContacts() {
-        final String response = TelnetWhoisClient.queryLocalhost(QueryServer.port, "AS103");
+        final String response = telnetWhoisClient.sendQuery("AS103");
         assertThat(response, containsString("Abuse contact for 'AS103' is 'abuse@ripe.net'"));
     }
 
     @Test
     public void query_inverse_person() {
-        final String response = TelnetWhoisClient.queryLocalhost(QueryServer.port, "-i pn ABUSEC-ROLE-TEST");
+        final String response = telnetWhoisClient.sendQuery("-i pn ABUSEC-ROLE-TEST");
         assertThat(response, containsString("ORG-TEST-ABUSEC-ROLE"));
     }
 
     @Test
     public void brief_query_shows_abusemailbox_twice() {
-        final String briefResponse = TelnetWhoisClient.queryLocalhost(QueryServer.port, "-b 193.0.0.0");
+        final String briefResponse = telnetWhoisClient.sendQuery("-b 193.0.0.0");
         assertThat(briefResponse, not(containsString("notshown@abuse.net")));
     }
     @Test
@@ -247,7 +250,7 @@ public class AbuseCTestIntegration extends AbstractQueryIntegrationTest {
                 "status:        OTHER\n" +
                 "source:        NON-TEST"));
 
-        final String responseNoAbuseC = TelnetWhoisClient.queryLocalhost(QueryServer.port, "173.0.0.0");
+        final String responseNoAbuseC = telnetWhoisClient.sendQuery("173.0.0.0");
         assertThat(responseNoAbuseC, not(containsString("Abuse contact for '173.0.0.0 - 173.255.255.255' is 'abuse@ripe.net'")));
 
         databaseHelper.updateObject(RpslObject.parse( "inetnum:       173.0.0.0 - 173.255.255.255\n" +
@@ -256,7 +259,7 @@ public class AbuseCTestIntegration extends AbstractQueryIntegrationTest {
                 "status:        OTHER\n" +
                 "source:        TEST"));
 
-        final String response = TelnetWhoisClient.queryLocalhost(QueryServer.port, "173.0.0.0");
+        final String response = telnetWhoisClient.sendQuery("173.0.0.0");
         assertThat(response, containsString("% Abuse contact for '173.0.0.0 - 173.255.255.255' is 'abuse@ripe.net'"));
 
     }
@@ -270,7 +273,7 @@ public class AbuseCTestIntegration extends AbstractQueryIntegrationTest {
                 "status:        OTHER\n" +
                 "source:        TEST-NONAUTH"));
 
-        final String response = TelnetWhoisClient.queryLocalhost(QueryServer.port, "173.0.0.0");
+        final String response = telnetWhoisClient.sendQuery("173.0.0.0");
         assertThat(response, containsString("% Abuse contact for '173.0.0.0 - 173.255.255.255' is 'abuse@ripe.net'"));
 
         databaseHelper.updateObject(RpslObject.parse( "inetnum:       173.0.0.0 - 173.255.255.255\n" +
@@ -290,7 +293,7 @@ public class AbuseCTestIntegration extends AbstractQueryIntegrationTest {
                 "status:        OTHER\n" +
                 "source:        TEST-GRS"));
 
-        final String response = TelnetWhoisClient.queryLocalhost(QueryServer.port, "173.0.0.0");
+        final String response = telnetWhoisClient.sendQuery("173.0.0.0");
         assertThat(response, containsString("% Abuse contact for '173.0.0.0 - 173.255.255.255' is 'abuse@ripe.net'"));
 
         databaseHelper.updateObject(RpslObject.parse( "inetnum:       173.0.0.0 - 173.255.255.255\n" +

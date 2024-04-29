@@ -55,7 +55,7 @@ public class AutomaticBlockTestIntegration extends AbstractSchedulerIntegrationT
     }
 
     @Test
-    public void test_ban_and_unban() throws Exception {
+    public void test_ban_and_unban() {
         int currentDay = 0;
         for (int day = 1; day <= NR_DAYS_BEFORE_PERMANENT_BAN; day++) {
             testDateTimeProvider.setTime(LocalDateTime.now().plusDays(currentDay++));
@@ -90,14 +90,14 @@ public class AutomaticBlockTestIntegration extends AbstractSchedulerIntegrationT
         }
     }
 
-    private void queryAndCheckNotBanned(final String query, final String personOrRole) throws Exception {
+    private void queryAndCheckNotBanned(final String query, final String personOrRole) {
         final String result = query(query);
         assertThat(result, containsString(personOrRole));
         assertThat(result, not(containsString(QueryMessages.accessDeniedTemporarily(localHost.getHostAddress()).toString())));
         assertThat(result, not(containsString(QueryMessages.accessDeniedPermanently(localHost.getHostAddress()).toString())));
     }
 
-    private void queryAndCheckBanned(final Message messages) throws Exception {
+    private void queryAndCheckBanned(final Message messages) {
         final String result = query(personQuery);
         assertThat(result, not(containsString("person:         test person")));
         assertThat(result, containsString(messages.toString()));
@@ -109,7 +109,7 @@ public class AutomaticBlockTestIntegration extends AbstractSchedulerIntegrationT
         ipResourceConfiguration.reload();
     }
 
-    private String query(final String query) throws Exception {
-        return TelnetWhoisClient.queryLocalhost(QueryServer.port, query);
+    private String query(final String query) {
+        return new TelnetWhoisClient(QueryServer.port).sendQuery(query);
     }
 }

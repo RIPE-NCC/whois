@@ -14,9 +14,12 @@ import static org.hamcrest.Matchers.containsString;
 @Tag("IntegrationTest")
 public class NrtmTimestampsTestIntegration extends AbstractNrtmIntegrationBase {
 
+    private TelnetWhoisClient telnetWhoisClient;
+
     @BeforeEach
     public void before() {
         nrtmServer.start();
+        telnetWhoisClient = new TelnetWhoisClient(NrtmServer.getPort());
     }
 
     @AfterEach
@@ -33,7 +36,7 @@ public class NrtmTimestampsTestIntegration extends AbstractNrtmIntegrationBase {
                 "last-modified:  2001-02-04T17:00:00Z\n" +
                 "source:         TEST\n");
 
-        final String response = TelnetWhoisClient.queryLocalhost(NrtmServer.getPort(), "-g TEST:3:1-LAST");
+        final String response = telnetWhoisClient.sendQuery("-g TEST:3:1-LAST");
 
         assertThat(response, containsString("" +
                 "aut-num:        AS102\n" +
@@ -53,7 +56,7 @@ public class NrtmTimestampsTestIntegration extends AbstractNrtmIntegrationBase {
                 "last-modified:  2001-02-04T17:00:00Z\n" +
                 "source:         TEST\n");
 
-        final String response = TelnetWhoisClient.queryLocalhost(NrtmServer.getPort(), "-g TEST:3:1-LAST");
+        final String response = telnetWhoisClient.sendQuery("-g TEST:3:1-LAST");
 
         assertThat(response, containsString("" +
                 "organisation:   ORG1-TEST\n" +

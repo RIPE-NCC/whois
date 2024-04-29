@@ -16,6 +16,7 @@ import static org.hamcrest.Matchers.is;
 @Tag("IntegrationTest")
 public class RelatedToTestIntegration extends AbstractQueryIntegrationTest {
 
+    private TelnetWhoisClient telnetWhoisClient;
     @BeforeEach
     public void startupWhoisServer() throws Exception {
         databaseHelper.addObject(RpslObject.parse("mntner:RIPE-NCC-MNT\nnic-hdl:AP111-RIPE"));
@@ -32,6 +33,7 @@ public class RelatedToTestIntegration extends AbstractQueryIntegrationTest {
                 "source:       RIPE"));
 
         queryServer.start();
+        telnetWhoisClient = new TelnetWhoisClient(QueryServer.port);
     }
 
     @AfterEach
@@ -50,7 +52,7 @@ public class RelatedToTestIntegration extends AbstractQueryIntegrationTest {
     }
 
     private void references_self(final String query) {
-        final String response = TelnetWhoisClient.queryLocalhost(QueryServer.port, query);
+        final String response = telnetWhoisClient.sendQuery(query);
 
         final String check = "role:           Asia Pacific Network Information Centre\n";
         assertThat(response, containsString(check));

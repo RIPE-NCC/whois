@@ -77,7 +77,7 @@ public class NrtmRunner extends AbstractScenarioRunner {
     }
 
     private Integer getCurrentOffset() {
-        final String currentStatusResp = TelnetWhoisClient.queryLocalhost(NrtmServer.getPort(), "-q sources");
+        final String currentStatusResp = new TelnetWhoisClient(NrtmServer.getPort()).sendQuery("-q sources");
         for (String line : currentStatusResp.split("\n")) {
             if (line.startsWith("TEST:")) {
                 return Integer.parseInt(line.split("-")[1]);
@@ -93,8 +93,7 @@ public class NrtmRunner extends AbstractScenarioRunner {
         public AsyncNrtmClient(final int port, final String query, final int timeout) {
             task = new FutureTask<>(new Callable<String>() {
                 public String call() {
-                    String result = TelnetWhoisClient.queryLocalhost(port, query, timeout * 1000);
-                    return result;
+                    return new TelnetWhoisClient(port, timeout * 1000).sendQuery(query);
                 }
             });
         }

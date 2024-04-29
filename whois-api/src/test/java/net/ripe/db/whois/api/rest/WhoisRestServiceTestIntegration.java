@@ -289,7 +289,7 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
 
     @Test
     public void lookup_without_accepts_header() {
-        final String query = TelnetWhoisClient.queryLocalhost(getPort(), "GET /whois/test/mntner/owner-mnt HTTP/1.1\nHost: localhost\nConnection: close\n");
+        final String query = new TelnetWhoisClient(getPort()).sendQuery("GET /whois/test/mntner/owner-mnt HTTP/1.1\nHost: localhost\nConnection: close\n");
 
         assertThat(query, containsString("HTTP/1.1 200 OK"));
         assertThat(query, containsString("<whois-resources xmlns"));
@@ -5841,7 +5841,7 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
     }
 
     private String queryTelnet(final String query) {
-        return TelnetWhoisClient.queryLocalhost(QueryServer.port, query);
+        return new TelnetWhoisClient(QueryServer.port).sendQuery(query);
     }
 
     private static String gunzip(final byte[] bytes) {

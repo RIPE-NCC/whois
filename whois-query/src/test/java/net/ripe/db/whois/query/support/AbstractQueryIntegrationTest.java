@@ -49,11 +49,10 @@ public abstract class AbstractQueryIntegrationTest extends AbstractDaoIntegratio
     }
 
     protected String query(final String query) {
-        return TelnetWhoisClient.queryLocalhost(QueryServer.port, query);
+        return new TelnetWhoisClient(QueryServer.port).sendQuery(query);
     }
 
     protected String query(final String query, final Charset charset) {
-        final TelnetWhoisClient telnetWhoisClient = new TelnetWhoisClient(QueryServer.port, charset);
-        return telnetWhoisClient.sendQuery(query);
+        return new TelnetWhoisClient(QueryServer.port, charset).sendQuery(query);
     }
 }

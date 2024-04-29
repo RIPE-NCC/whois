@@ -265,7 +265,7 @@ public class WhoisFixture {
     }
 
     public String query(final String query) {
-        return TelnetWhoisClient.queryLocalhost(QueryServer.port, query);
+        return new TelnetWhoisClient(QueryServer.port).sendQuery(query);
     }
 
     public RpslObject restLookup(ObjectType objectType, String pkey, String... passwords) {

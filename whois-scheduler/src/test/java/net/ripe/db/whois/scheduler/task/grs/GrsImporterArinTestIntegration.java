@@ -43,6 +43,8 @@ public class GrsImporterArinTestIntegration extends AbstractSchedulerIntegration
     private static final File tempDirectory = Files.createTempDir();
     private static final String ZIP_ENTRY_FILENAME = "arin_db.txt";
 
+    private TelnetWhoisClient telnetWhoisClient;
+
     @BeforeAll
     public static void setup_database() throws IOException {
         DatabaseHelper.addGrsDatabases("ARIN-GRS");
@@ -101,6 +103,8 @@ public class GrsImporterArinTestIntegration extends AbstractSchedulerIntegration
 
         grsImporter.setGrsImportEnabled(true);
         queryServer.start();
+
+        telnetWhoisClient = new TelnetWhoisClient(QueryServer.port);
     }
 
     @Test
@@ -125,8 +129,8 @@ public class GrsImporterArinTestIntegration extends AbstractSchedulerIntegration
         }
     }
 
-    private String query(final String query) throws Exception {
-        return TelnetWhoisClient.queryLocalhost(QueryServer.port, query);
+    private String query(final String query) {
+        return telnetWhoisClient.sendQuery(query);
     }
 
     private static String getUrl(final File file) throws MalformedURLException {

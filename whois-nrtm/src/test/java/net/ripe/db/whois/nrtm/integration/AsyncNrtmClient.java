@@ -14,8 +14,7 @@ public class AsyncNrtmClient {
     public AsyncNrtmClient(final int port, final String query, final int timeout) {
         task = new FutureTask<>(new Callable<String>() {
             public String call() {
-                String result = TelnetWhoisClient.queryLocalhost(port, query, timeout * 1000);
-                return result;
+                return new TelnetWhoisClient(port, timeout * 1000).sendQuery(query);
             }
          });
     }

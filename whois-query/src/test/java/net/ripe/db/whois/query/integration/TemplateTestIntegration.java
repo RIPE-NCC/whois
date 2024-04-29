@@ -15,9 +15,12 @@ import static org.hamcrest.Matchers.containsString;
 @Tag("IntegrationTest")
 public class TemplateTestIntegration extends AbstractQueryIntegrationTest {
 
+    private TelnetWhoisClient telnetWhoisClient;
+    
     @BeforeEach
     public void startupWhoisServer() {
         queryServer.start();
+        telnetWhoisClient = new TelnetWhoisClient(QueryServer.port);
     }
 
     @AfterEach
@@ -27,7 +30,7 @@ public class TemplateTestIntegration extends AbstractQueryIntegrationTest {
 
     @Test
     public void check_template() {
-        final String response = TelnetWhoisClient.queryLocalhost(QueryServer.port, "-t route");
+        final String response = telnetWhoisClient.sendQuery("-t route");
         assertThat(response, containsString("" +
                 "% This is the RIPE Database query service.\n" +
                 "% The objects are in RPSL format.\n" +
@@ -62,7 +65,7 @@ public class TemplateTestIntegration extends AbstractQueryIntegrationTest {
 
     @Test
     public void check_verbose() {
-        final String response = TelnetWhoisClient.queryLocalhost(QueryServer.port, "-v route6");
+        final String response = telnetWhoisClient.sendQuery("-v route6");
         assertThat(response, containsString("" +
                 "% This is the RIPE Database query service.\n" +
                 "% The objects are in RPSL format.\n" +
@@ -117,7 +120,7 @@ public class TemplateTestIntegration extends AbstractQueryIntegrationTest {
 
     @Test
     public void verbose_description() {
-        final String response = TelnetWhoisClient.queryLocalhost(QueryServer.port, "-v inetnum");
+        final String response = telnetWhoisClient.sendQuery("-v inetnum");
         assertThat(response, containsString("" +
                 "The inetnum class:\n" +
                 "\n" +
@@ -413,7 +416,7 @@ public class TemplateTestIntegration extends AbstractQueryIntegrationTest {
 
     @Test
     public void verbose_description_autnum() {
-        final String response = TelnetWhoisClient.queryLocalhost(QueryServer.port, "-v aut-num");
+        final String response = telnetWhoisClient.sendQuery("-v aut-num");
         assertThat(response, containsString("" +
                 "The aut-num class:\n" +
                 "\n" +

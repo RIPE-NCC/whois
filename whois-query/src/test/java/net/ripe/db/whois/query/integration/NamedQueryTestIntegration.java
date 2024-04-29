@@ -17,6 +17,7 @@ import static org.hamcrest.Matchers.not;
 @Tag("IntegrationTest")
 public class NamedQueryTestIntegration extends AbstractQueryIntegrationTest {
 
+    private TelnetWhoisClient telnetWhoisClient;
     @BeforeEach
     public void startupWhoisServer() {
         databaseHelper.addObject("organisation:ORG-ZV1-RIPE");
@@ -24,6 +25,7 @@ public class NamedQueryTestIntegration extends AbstractQueryIntegrationTest {
         databaseHelper.addObject("person:ASAK\nnic-hdl:ASAK");
         databaseHelper.addObject("role:Alterna Intertrade RIPE team\nnic-hdl:AIRT");
         queryServer.start();
+        telnetWhoisClient = new TelnetWhoisClient(QueryServer.port);
     }
 
     @AfterEach
@@ -33,28 +35,28 @@ public class NamedQueryTestIntegration extends AbstractQueryIntegrationTest {
 
     @Test
     public void organisationQueryCaseInsensitive() throws Exception {
-        String response = TelnetWhoisClient.queryLocalhost(QueryServer.port, "-rT oa orG-Zv1-RipE");
+        String response = telnetWhoisClient.sendQuery("-rT oa orG-Zv1-RipE");
 
         assertThat(response, containsString("organisation:   ORG-ZV1-RIPE"));
     }
 
     @Test
     public void personQueryCaseInsensitive() throws Exception {
-        String response = TelnetWhoisClient.queryLocalhost(QueryServer.port, "-rT person dENIs WalKeR");
+        String response = telnetWhoisClient.sendQuery("-rT person dENIs WalKeR");
 
         assertThat(response, containsString("person:         Denis Walker"));
     }
 
     @Test
     public void roleQueryCaseInsensitive() throws Exception {
-        String response = TelnetWhoisClient.queryLocalhost(QueryServer.port, "-rT role AltERNa InterTRAde ripe TEaM");
+        String response = telnetWhoisClient.sendQuery("-rT role AltERNa InterTRAde ripe TEaM");
 
         assertThat(response, containsString("role:           Alterna Intertrade RIPE team"));
     }
 
     @Test
     public void findPersonByNicHdlNotFiltered() throws Exception {
-        String response = TelnetWhoisClient.queryLocalhost(QueryServer.port, "-r -B -T person DH3037-RIPE");
+        String response = telnetWhoisClient.sendQuery("-r -B -T person DH3037-RIPE");
 
         assertThat(response, containsString("Information related to 'DH3037-RIPE'"));
         assertThat(response, not(containsString("filtered")));
@@ -62,7 +64,7 @@ public class NamedQueryTestIntegration extends AbstractQueryIntegrationTest {
 
     @Test
     public void findPersonByNicHdlIsFiltered() throws Exception {
-        String response = TelnetWhoisClient.queryLocalhost(QueryServer.port, "-r -T person DH3037-RIPE");
+        String response = telnetWhoisClient.sendQuery("-r -T person DH3037-RIPE");
 
         assertThat(response, containsString("Information related to 'DH3037-RIPE'"));
         assertThat(response, containsString("filtered"));
@@ -70,7 +72,7 @@ public class NamedQueryTestIntegration extends AbstractQueryIntegrationTest {
 
     @Test
     public void findPersonNameMatchesNicHdl() throws Exception {
-        String response = TelnetWhoisClient.queryLocalhost(QueryServer.port, "-r -B -T person ASAK");
+        String response = telnetWhoisClient.sendQuery("-r -B -T person ASAK");
 
         assertThat(response, containsString("person:         ASAK"));
         assertThat(response, containsString("nic-hdl:        ASAK"));
@@ -80,7 +82,7 @@ public class NamedQueryTestIntegration extends AbstractQueryIntegrationTest {
 
     @Test
     public void tooManyArguments() {
-        final String response = TelnetWhoisClient.queryLocalhost(QueryServer.port, "-rT person " + Strings.repeat("arg ", 62));
+        final String response = telnetWhoisClient.sendQuery("-rT person " + Strings.repeat("arg ", 62));
 
         assertThat(response, containsString("" +
                 "% See https://apps.db.ripe.net/docs/HTML-Terms-And-Conditions\n" +
@@ -94,14 +96,14 @@ public class NamedQueryTestIntegration extends AbstractQueryIntegrationTest {
 
     @Test
     public void almostTooManyArguments() {
-        final String response = TelnetWhoisClient.queryLocalhost(QueryServer.port, "-rT person " + Strings.repeat("arg ", 60));
+        final String response = telnetWhoisClient.sendQuery("-rT person " + Strings.repeat("arg ", 60));
 
         assertThat(response, containsString("%ERROR:101: no entries found"));
     }
 
     @Test
     public void queryStringNormalised() {
-        final String response = TelnetWhoisClient.queryLocalhost(QueryServer.port, "\u200E2019 11:35] ok");
+        final String response = telnetWhoisClient.sendQuery("\u200E2019 11:35] ok");
         assertThat(response, containsString("% This query was converted into the ISO-8859-1 (Latin-1) character set."));
     }
 }

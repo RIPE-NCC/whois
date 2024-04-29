@@ -38,6 +38,8 @@ public class GrsImporterLacnicManualIntegrationTest extends AbstractSchedulerInt
     @Autowired AuthoritativeResourceData authoritativeResourceData;
     @Autowired DateTimeProvider dateTimeProvider;
 
+    private TelnetWhoisClient telnetWhoisClient;
+
     private static final File tempDirectory = Files.createTempDir();
 
     @BeforeAll
@@ -63,6 +65,8 @@ public class GrsImporterLacnicManualIntegrationTest extends AbstractSchedulerInt
         authoritativeResourceData.refreshGrsSources();
         grsImporter.setGrsImportEnabled(true);
         queryServer.start();
+
+        telnetWhoisClient = new TelnetWhoisClient(QueryServer.port);
     }
 
     @Test
@@ -89,6 +93,6 @@ public class GrsImporterLacnicManualIntegrationTest extends AbstractSchedulerInt
     }
 
     private String query(final String query) {
-        return TelnetWhoisClient.queryLocalhost(QueryServer.port, query);
+        return telnetWhoisClient.sendQuery(query);
     }
 }
