@@ -81,9 +81,10 @@ class NonAllocationAttributeValidationSpec extends BaseQueryUpdateSpec {
         ack.summary.nrFound == 1
         ack.summary.assertSuccess(0, 0, 0, 0, 0)
         ack.summary.assertErrors(1, 0, 1, 0)
-        ack.countErrorWarnInfo(1, 0, 0)
+        ack.countErrorWarnInfo(2, 0, 0)
         ack.errors.any { it.operation == "Modify" && it.key == "[inetnum] 192.168.1.0 - 192.168.1.255" }
         ack.errorMessagesFor("Modify", "[inetnum] 192.168.1.0 - 192.168.1.255") == [
+                "\"mnt-lower:\" attribute not allowed for resources with \"ASSIGNED PI:\" status",
                 "The \"sponsoring-org\" attribute can only be changed by the RIPE NCC"]
     }
 
@@ -108,7 +109,6 @@ class NonAllocationAttributeValidationSpec extends BaseQueryUpdateSpec {
                 status:       ASSIGNED PI
                 mnt-by:       RIPE-NCC-END-MNT
                 mnt-by:       LIR-MNT
-                mnt-lower:    LIR-MNT
                 source:       TEST
                 password: lir
                 """.stripIndent(true)
@@ -186,12 +186,14 @@ class NonAllocationAttributeValidationSpec extends BaseQueryUpdateSpec {
         )
 
         then:
-        ack.success
+        ack.failed
         ack.summary.nrFound == 1
-        ack.summary.assertSuccess(1, 0, 1, 0, 0)
-        ack.summary.assertErrors(0, 0, 0, 0)
-        ack.countErrorWarnInfo(0, 0, 0)
-        ack.successes.any { it.operation == "Modify" && it.key == "[inetnum] 192.168.1.0 - 192.168.1.255" }
+        ack.summary.assertSuccess(0, 0, 0, 0, 0)
+        ack.summary.assertErrors(1, 0, 1, 0)
+        ack.countErrorWarnInfo(1, 0, 0)
+        ack.errorMessagesFor("Modify", "[inetnum] 192.168.1.0 - 192.168.1.255") == [
+                "\"mnt-lower:\" attribute not allowed for resources with \"ASSIGNED PI:\" status"
+        ]
     }
 
     def "modify inetnum without ripe mnt, add mnt-lower by lir mntner"() {
@@ -220,12 +222,14 @@ class NonAllocationAttributeValidationSpec extends BaseQueryUpdateSpec {
         )
 
         then:
-        ack.success
+        ack.failed
         ack.summary.nrFound == 1
-        ack.summary.assertSuccess(1, 0, 1, 0, 0)
-        ack.summary.assertErrors(0, 0, 0, 0)
-        ack.countErrorWarnInfo(0, 0, 0)
-        ack.successes.any { it.operation == "Modify" && it.key == "[inetnum] 192.168.2.0 - 192.168.2.255" }
+        ack.summary.assertSuccess(0, 0, 0, 0, 0)
+        ack.summary.assertErrors(1, 0, 1, 0)
+        ack.countErrorWarnInfo(1, 0, 0)
+        ack.errorMessagesFor("Modify", "[inetnum] 192.168.2.0 - 192.168.2.255") == [
+                "\"mnt-lower:\" attribute not allowed for resources with \"ASSIGNED PI:\" status"
+        ]
     }
 
     //  MODIFY allocations attributes WITH OVERRIDE
@@ -263,7 +267,7 @@ class NonAllocationAttributeValidationSpec extends BaseQueryUpdateSpec {
         ack.summary.nrFound == 1
         ack.summary.assertSuccess(1, 0, 1, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
-        ack.countErrorWarnInfo(0, 2, 1)
+        ack.countErrorWarnInfo(0, 3, 1)
         ack.successes.any { it.operation == "Modify" && it.key == "[inetnum] 192.168.1.0 - 192.168.1.255" }
     }
 }
