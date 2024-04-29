@@ -65,7 +65,7 @@ public class TelnetWhoisClient {
     }
 
     public String sendQuery(final String query) {
-        return sendQuery(query, DEFAULT_TIMEOUT);
+        return sendQuery(query, timeout);
     }
 
     /**
