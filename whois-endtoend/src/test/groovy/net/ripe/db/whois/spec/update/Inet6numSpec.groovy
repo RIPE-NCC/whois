@@ -1564,13 +1564,15 @@ class Inet6numSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(0, 0, 0, 0, 0)
         ack.summary.assertErrors(2, 0, 2, 0)
 
-        ack.countErrorWarnInfo(2, 0, 0)
+        ack.countErrorWarnInfo(4, 0, 0)
         ack.errors.any { it.operation == "Modify" && it.key == "[inet6num] 2001:600::/32" }
         ack.errorMessagesFor("Modify", "[inet6num] 2001:600::/32") ==
-                ["status value cannot be changed, you must delete and re-create the object"]
+                ["status value cannot be changed, you must delete and re-create the object",
+                "\"mnt-lower:\" attribute not allowed for resources with \"ASSIGNED:\" status"]
         ack.errors.any { it.operation == "Modify" && it.key == "[inet6num] 2001:600::/30" }
         ack.errorMessagesFor("Modify", "[inet6num] 2001:600::/30") ==
-                ["status value cannot be changed, you must delete and re-create the object"]
+                ["status value cannot be changed, you must delete and re-create the object",
+                "\"mnt-lower:\" attribute not allowed for resources with \"ASSIGNED:\" status"]
 
         query_object_matches("-rGBT inet6num 2001:600::/32", "inet6num", "2001:600::/32", "AGGREGATED-BY-LIR")
         query_object_matches("-rGBT inet6num 2001:600::/30", "inet6num", "2001:600::/30", "ALLOCATED-BY-LIR")
@@ -1623,7 +1625,7 @@ class Inet6numSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(2, 0, 2, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
 
-        ack.countErrorWarnInfo(0, 2, 2)
+        ack.countErrorWarnInfo(0, 4, 2)
         ack.successes.any { it.operation == "Modify" && it.key == "[inet6num] 2001:600::/32" }
         ack.infoSuccessMessagesFor("Modify", "[inet6num] 2001:600::/32") == [
                 "Authorisation override used"]
