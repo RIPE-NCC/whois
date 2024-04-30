@@ -56,7 +56,6 @@ public class InetnumStrictStatusMandatoryValidatorTest {
     public void setup() {
         lenient().when(updateContext.getSubject(update)).thenReturn(authenticationSubject);
         lenient().when(maintainers.isRsMaintainer(ciSet("RIPE-NCC-HM-MNT"))).thenReturn(true);
-        lenient().when(update.getAction()).thenReturn(Action.CREATE);
     }
 
     @Test
