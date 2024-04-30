@@ -26,15 +26,15 @@ public abstract class MntLowerValidator implements BusinessRuleValidator {
             return Collections.emptyList();
         }
 
-        if (ObjectType.INETNUM.equals(update.getType()) && isInvalidInetnumStatus(update)) {
+        if (ObjectType.INETNUM.equals(update.getType()) && isValidatedInetnumStatus(update)) {
             return Collections.emptyList();
         }
 
-        if (ObjectType.INET6NUM.equals(update.getType()) && isInvalidInet6numStatus(update)) {
+        if (ObjectType.INET6NUM.equals(update.getType()) && isValidatedInet6numStatus(update)) {
             return Collections.emptyList();
         }
 
-        return setMessage(update);
+        return addErrorMessage(update);
     }
 
     @Override
@@ -46,9 +46,9 @@ public abstract class MntLowerValidator implements BusinessRuleValidator {
     public boolean isSkipForOverride() {
         return true;
     }
-    protected abstract List<Message> setMessage(final PreparedUpdate update);
+    protected abstract List<Message> addErrorMessage(final PreparedUpdate update);
 
-    protected abstract boolean isInvalidInetnumStatus(final PreparedUpdate update);
+    protected abstract boolean isValidatedInetnumStatus(final PreparedUpdate update);
 
-    protected abstract boolean isInvalidInet6numStatus(final PreparedUpdate update);
+    protected abstract boolean isValidatedInet6numStatus(final PreparedUpdate update);
 }

@@ -25,7 +25,7 @@ public class MntLowerAddedRemovedValidator extends MntLowerValidator {
     private static final List<InetnumStatus> VALIDATED_INETNUM_STATUSES = ImmutableList.of(InetnumStatus.ASSIGNED_ANYCAST);
     private static final List<Inet6numStatus> VALIDATED_INET6NUM_STATUSES = ImmutableList.of(Inet6numStatus.ASSIGNED_PI, Inet6numStatus.ASSIGNED_ANYCAST);
 
-    protected List<Message> setMessage(final PreparedUpdate update){
+    protected List<Message> addErrorMessage(final PreparedUpdate update){
         final Set<CIString> differences = update.getDifferences(AttributeType.MNT_LOWER);
         if (!differences.isEmpty()) {
             return List.of(UpdateMessages.authorisationRequiredForAttrChange(AttributeType.MNT_LOWER));
@@ -34,11 +34,11 @@ public class MntLowerAddedRemovedValidator extends MntLowerValidator {
         return Collections.emptyList();
     }
 
-    protected boolean isInvalidInetnumStatus(final PreparedUpdate update){
+    protected boolean isValidatedInetnumStatus(final PreparedUpdate update){
         return !VALIDATED_INETNUM_STATUSES.contains(getStatus(update));
     }
 
-    protected boolean isInvalidInet6numStatus(final PreparedUpdate update){
+    protected boolean isValidatedInet6numStatus(final PreparedUpdate update){
         return !VALIDATED_INET6NUM_STATUSES.contains(getStatus(update));
     }
 

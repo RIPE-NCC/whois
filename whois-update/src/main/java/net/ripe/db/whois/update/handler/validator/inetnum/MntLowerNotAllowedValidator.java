@@ -24,21 +24,21 @@ public class MntLowerNotAllowedValidator extends MntLowerValidator {
     private static final List<Inet6numStatus> VALIDATED_INET6NUM_STATUSES = ImmutableList.of(Inet6numStatus.ASSIGNED_PI, Inet6numStatus.ASSIGNED, Inet6numStatus.ASSIGNED_ANYCAST);
 
     @Override
-    protected List<Message> setMessage(final PreparedUpdate update) {
+    protected List<Message> addErrorMessage(final PreparedUpdate update) {
         final RpslObject rpslObject = update.getUpdatedObject();
         if (rpslObject != null && rpslObject.containsAttribute(AttributeType.MNT_LOWER)){
-            return List.of(UpdateMessages.mntLowerNotAllowedForNoChildStatus(AttributeType.MNT_LOWER, rpslObject.getValueForAttribute(AttributeType.STATUS)));
+            return List.of(UpdateMessages.attributeNotAllowedWithStatus(AttributeType.MNT_LOWER, rpslObject.getValueForAttribute(AttributeType.STATUS)));
         }
         return Collections.emptyList();
     }
 
     @Override
-    protected boolean isInvalidInetnumStatus(final PreparedUpdate update){
+    protected boolean isValidatedInetnumStatus(final PreparedUpdate update){
         return !VALIDATED_INETNUM_STATUSES.contains(getStatus(update));
     }
 
     @Override
-    protected boolean isInvalidInet6numStatus(final PreparedUpdate update){
+    protected boolean isValidatedInet6numStatus(final PreparedUpdate update){
         return !VALIDATED_INET6NUM_STATUSES.contains(getStatus(update));
     }
 

@@ -264,7 +264,7 @@ public final class UpdateMessages {
         return new Message(Type.ERROR, "Changing \"%s:\" value requires administrative authorisation", attributeType.getName());
     }
 
-    public static Message mntLowerNotAllowedForNoChildStatus(final AttributeType attributeType, final CIString statusValue) {
+    public static Message attributeNotAllowedWithStatus(final AttributeType attributeType, final CIString statusValue) {
         return new Message(Type.ERROR, "\"%s:\" attribute not allowed for resources with \"%s:\" status", attributeType.getName(), statusValue);
     }
 
