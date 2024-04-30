@@ -36,7 +36,7 @@ import static net.ripe.db.whois.update.domain.Action.MODIFY;
 import static net.ripe.db.whois.update.handler.validator.inetnum.InetnumStrictStatusValidator.canSkipValidation;
 
 /**
- * Apply stricter status validation when creating an inetnum object.
+ * Apply stricter status validation when modifying an inetnum object.
  */
 @Component
 public class InetnumModifyStrictStatusMandatoryValidator extends InetnumStrictStatusMandatoryValidator {
