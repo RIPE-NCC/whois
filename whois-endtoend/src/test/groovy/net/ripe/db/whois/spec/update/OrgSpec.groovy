@@ -2741,7 +2741,6 @@ class OrgSpec extends BaseQueryUpdateSpec {
                 status:       ASSIGNED PI
                 mnt-by:       RIPE-NCC-END-MNT
                 mnt-by:       LIR-MNT
-                mnt-lower:    LIR-MNT
                 source:       TEST
 
                 password:     lir
@@ -2784,7 +2783,6 @@ class OrgSpec extends BaseQueryUpdateSpec {
                 status:       ASSIGNED PI
                 mnt-by:       RIPE-NCC-END-MNT
                 mnt-by:       LIR-MNT
-                mnt-lower:    LIR-MNT
                 source:       TEST
                 override:   denis,override1
 

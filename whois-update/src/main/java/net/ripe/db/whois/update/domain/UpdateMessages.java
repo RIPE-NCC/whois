@@ -263,6 +263,11 @@ public final class UpdateMessages {
     public static Message authorisationRequiredForAttrChange(final AttributeType attributeType) {
         return new Message(Type.ERROR, "Changing \"%s:\" value requires administrative authorisation", attributeType.getName());
     }
+
+    public static Message attributeNotAllowedWithStatus(final AttributeType attributeType, final CIString statusValue) {
+        return new Message(Type.ERROR, "\"%s:\" attribute not allowed for resources with \"%s:\" status", attributeType.getName(), statusValue);
+    }
+
     public static Message canOnlyBeChangedByRipeNCC(final RpslAttribute attribute) {
         return new MessageWithAttribute(Type.ERROR, attribute,"Attribute \"%s:\" can only be changed by the RIPE NCC for this object.\n" +
                 "Please contact \"ncc@ripe.net\" to change it.", attribute.getType().getName());
