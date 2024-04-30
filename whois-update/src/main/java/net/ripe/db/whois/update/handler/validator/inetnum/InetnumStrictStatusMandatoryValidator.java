@@ -25,7 +25,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.CheckForNull;
-import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -34,8 +33,6 @@ import static net.ripe.db.whois.common.Messages.Type.ERROR;
 import static net.ripe.db.whois.common.rpsl.AttributeType.STATUS;
 import static net.ripe.db.whois.common.rpsl.attrs.InetnumStatus.ASSIGNED_PI;
 import static net.ripe.db.whois.update.domain.Action.CREATE;
-import static net.ripe.db.whois.update.domain.Action.MODIFY;
-import static net.ripe.db.whois.update.handler.validator.inetnum.InetnumStrictStatusValidator.canSkipValidation;
 
 /**
  * Apply stricter status validation when creating an inetnum object.
@@ -43,7 +40,7 @@ import static net.ripe.db.whois.update.handler.validator.inetnum.InetnumStrictSt
 @Component
 public class InetnumStrictStatusMandatoryValidator implements BusinessRuleValidator {
 
-    private static final ImmutableList<Action> ACTIONS = ImmutableList.of(CREATE, MODIFY);
+    private static final ImmutableList<Action> ACTIONS = ImmutableList.of(CREATE);
     private static final ImmutableList<ObjectType> TYPES = ImmutableList.of(ObjectType.INETNUM);
 
     private final RpslObjectDao objectDao;
@@ -65,10 +62,6 @@ public class InetnumStrictStatusMandatoryValidator implements BusinessRuleValida
 
     @Override
     public List<Message> performValidation(final PreparedUpdate update, final UpdateContext updateContext) {
-        if(canSkipValidation(update)) {
-            return Collections.EMPTY_LIST;
-        }
-
         return validateCreate(update, updateContext);
     }
 
@@ -77,7 +70,7 @@ public class InetnumStrictStatusMandatoryValidator implements BusinessRuleValida
     }
 
     @SuppressWarnings("unchecked")
-    private List<Message> validateStatusAgainstResourcesInTree(final PreparedUpdate update, final UpdateContext updateContext) {
+    protected List<Message> validateStatusAgainstResourcesInTree(final PreparedUpdate update, final UpdateContext updateContext) {
         final RpslObject updatedObject = update.getUpdatedObject();
         final Ipv4Resource ipInterval = Ipv4Resource.parse(updatedObject.getKey());
         final List<Message> validationMessages = Lists.newArrayList();

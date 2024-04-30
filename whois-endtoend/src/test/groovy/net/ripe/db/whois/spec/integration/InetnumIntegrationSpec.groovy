@@ -617,6 +617,47 @@ class InetnumIntegrationSpec extends BaseWhoisSourceSpec {
             object/
     }
 
+
+    def "modify status ALLOCATED ASSIGNED PA status to ASSIGNED PA fails"() {
+        given:
+        def insertResponse = syncUpdate(new SyncUpdate(data: """\
+                            inetnum: 192.0.0.0/24
+                            netname: RIPE-NCC
+                            descr: description
+                            country: DK
+                            admin-c: TEST-PN
+                            tech-c: TEST-PN
+                            status: ALLOCATED-ASSIGNED PA
+                            mnt-by: RIPE-NCC-HM-MNT
+                            mnt-by: TEST-MNT
+                            org: ORG-TOL5-TEST
+                            source: TEST
+                            password: hm
+                            password: update
+                        """.stripIndent(true)))
+        when:
+        insertResponse =~ /SUCCESS/
+        then:
+        def response = syncUpdate new SyncUpdate(data: """\
+                    inetnum: 192.0.0.0/24
+                    netname: RIPE-NCC
+                    descr: description
+                    country: DK
+                    admin-c: TEST-PN
+                    tech-c: TEST-PN
+                    status: ASSIGNED PA
+                    mnt-by: RIPE-NCC-HM-MNT
+                    mnt-by: TEST-MNT
+                    org: ORG-TOL5-TEST
+                    source: TEST
+                    password: update
+                """.stripIndent(true))
+        then:
+        response =~ /Modify FAILED: \[inetnum\] 192.0.0.0 - 192.0.0.255/
+        response =~ /\*\*\*Error:   status value cannot be changed, you must delete and re-create the
+            object/
+    }
+
     def "handle failure of out-of-range CIDR notation"() {
         when:
         def response = syncUpdate(new SyncUpdate(data: """\

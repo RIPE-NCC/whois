@@ -4183,4 +4183,178 @@ class InetnumStatusChildSpec extends BaseQueryUpdateSpec {
         ack.errorMessagesFor("Modify", "[inetnum] 192.168.0.0 - 192.169.255.255") ==
                 ["Status ALLOCATED-ASSIGNED PA not allowed when more specific object '192.168.200.0 - 192.168.200.127' has status ASSIGNED PA"]
     }
+
+    def "modify ALLOCATED PA to ALLOCATED-ASSIGNED PA, parent status ASSIGNED PA"() {
+        given:
+        syncUpdate(getTransient("ALLOC-UNS") + "password: owner3\npassword: hm")
+        queryObject("-r -T inetnum 192.0.0.0 - 192.255.255.255", "inetnum", "192.0.0.0 - 192.255.255.255")
+        dbfixture("""\
+                inetnum:      192.168.0.0 - 192.169.255.255
+                netname:      TEST-NET-NAME
+                descr:        TEST network
+                country:      NL
+                org:          ORG-HR1-TEST
+                admin-c:      TP1-TEST
+                tech-c:       TP1-TEST
+                status:       ALLOCATED PA
+                mnt-by:       RIPE-NCC-HM-MNT
+                mnt-lower:    LIR-MNT
+                source:       TEST
+                """.stripIndent(true))
+        expect:
+        queryObject("-r -T inetnum 192.168.0.0 - 192.169.255.255", "inetnum", "192.168.0.0 - 192.169.255.255")
+
+        when:
+        def response = syncUpdateWithResponse("""\
+                inetnum:      192.168.0.0 - 192.169.255.255
+                netname:      TEST-NET-NAME
+                descr:        TEST network
+                country:      NL
+                org:          ORG-HR1-TEST
+                admin-c:      TP1-TEST
+                tech-c:       TP1-TEST
+                status:       ALLOCATED-ASSIGNED PA
+                mnt-by:       RIPE-NCC-HM-MNT
+                mnt-lower:    LIR-MNT
+                source:       TEST
+
+                password: hm
+                """.stripIndent(true)
+        )
+
+        then:
+
+        response =~ /SUCCESS/
+        response =~ /Modify SUCCEEDED: \[inetnum\] 192.168.0.0 - 192.169.255.255/
+    }
+
+    def "modify ALLOCATED PA to ALLOCATED-ASSIGNED PA, parent status ASSIGNED PA, using override"() {
+        given:
+        syncUpdate(getTransient("ALLOC-UNS") + "password: owner3\npassword: hm")
+        queryObject("-r -T inetnum 192.0.0.0 - 192.255.255.255", "inetnum", "192.0.0.0 - 192.255.255.255")
+        dbfixture("""\
+                inetnum:      192.168.0.0 - 192.169.255.255
+                netname:      TEST-NET-NAME
+                descr:        TEST network
+                country:      NL
+                org:          ORG-HR1-TEST
+                admin-c:      TP1-TEST
+                tech-c:       TP1-TEST
+                status:       ALLOCATED PA
+                mnt-by:       RIPE-NCC-HM-MNT
+                mnt-lower:    LIR-MNT
+                source:       TEST
+                """.stripIndent(true))
+        expect:
+        queryObject("-r -T inetnum 192.168.0.0 - 192.169.255.255", "inetnum", "192.168.0.0 - 192.169.255.255")
+
+        when:
+        def response = syncUpdateWithResponse("""\
+                inetnum:      192.168.0.0 - 192.169.255.255
+                netname:      TEST-NET-NAME
+                descr:        TEST network
+                country:      NL
+                org:          ORG-HR1-TEST
+                admin-c:      TP1-TEST
+                tech-c:       TP1-TEST
+                status:       ALLOCATED-ASSIGNED PA
+                mnt-by:       RIPE-NCC-HM-MNT
+                mnt-lower:    LIR-MNT
+                source:       TEST
+                override: denis,override1
+                """.stripIndent(true)
+        )
+
+        then:
+
+        response =~ /SUCCESS/
+        response =~ /Modify SUCCEEDED: \[inetnum\] 192.168.0.0 - 192.169.255.255/
+    }
+
+    def "modify ALLOCATED-ASSIGNED PA to ALLOCATED PA, parent status ASSIGNED PA, using override"() {
+        given:
+        syncUpdate(getTransient("ALLOC-UNS") + "password: owner3\npassword: hm")
+        queryObject("-r -T inetnum 192.0.0.0 - 192.255.255.255", "inetnum", "192.0.0.0 - 192.255.255.255")
+        dbfixture("""\
+                inetnum:      192.168.0.0 - 192.169.255.255
+                netname:      TEST-NET-NAME
+                descr:        TEST network
+                country:      NL
+                org:          ORG-HR1-TEST
+                admin-c:      TP1-TEST
+                tech-c:       TP1-TEST
+                status:       ALLOCATED-ASSIGNED PA
+                mnt-by:       RIPE-NCC-HM-MNT
+                mnt-lower:    LIR-MNT
+                source:       TEST
+                """.stripIndent(true))
+        expect:
+        queryObject("-r -T inetnum 192.168.0.0 - 192.169.255.255", "inetnum", "192.168.0.0 - 192.169.255.255")
+
+        when:
+        def response = syncUpdateWithResponse("""\
+                inetnum:      192.168.0.0 - 192.169.255.255
+                netname:      TEST-NET-NAME
+                descr:        TEST network
+                country:      NL
+                org:          ORG-HR1-TEST
+                admin-c:      TP1-TEST
+                tech-c:       TP1-TEST
+                status:       ALLOCATED PA
+                mnt-by:       RIPE-NCC-HM-MNT
+                mnt-lower:    LIR-MNT
+                source:       TEST
+                override: denis,override1
+                """.stripIndent(true)
+        )
+
+        then:
+
+        response =~ /SUCCESS/
+        response =~ /Modify SUCCEEDED: \[inetnum\] 192.168.0.0 - 192.169.255.255/
+    }
+
+    def "modify ALLOCATED-ASSIGNED PA to ALLOCATED PA, parent status ASSIGNED PA"() {
+        given:
+        syncUpdate(getTransient("ALLOC-UNS") + "password: owner3\npassword: hm")
+        queryObject("-r -T inetnum 192.0.0.0 - 192.255.255.255", "inetnum", "192.0.0.0 - 192.255.255.255")
+        dbfixture("""\
+                inetnum:      192.168.0.0 - 192.169.255.255
+                netname:      TEST-NET-NAME
+                descr:        TEST network
+                country:      NL
+                org:          ORG-HR1-TEST
+                admin-c:      TP1-TEST
+                tech-c:       TP1-TEST
+                status:       ALLOCATED-ASSIGNED PA
+                mnt-by:       RIPE-NCC-HM-MNT
+                mnt-lower:    LIR-MNT
+                source:       TEST
+                """.stripIndent(true))
+        expect:
+        queryObject("-r -T inetnum 192.168.0.0 - 192.169.255.255", "inetnum", "192.168.0.0 - 192.169.255.255")
+
+        when:
+        def response = syncUpdateWithResponse("""\
+                inetnum:      192.168.0.0 - 192.169.255.255
+                netname:      TEST-NET-NAME
+                descr:        TEST network
+                country:      NL
+                org:          ORG-HR1-TEST
+                admin-c:      TP1-TEST
+                tech-c:       TP1-TEST
+                status:       ALLOCATED PA
+                mnt-by:       RIPE-NCC-HM-MNT
+                mnt-lower:    LIR-MNT
+                source:       TEST
+                
+                password: hm
+                """.stripIndent(true)
+        )
+
+        then:
+
+        response =~ /SUCCESS/
+        response =~ /Modify SUCCEEDED: \[inetnum\] 192.168.0.0 - 192.169.255.255/
+    }
 }
