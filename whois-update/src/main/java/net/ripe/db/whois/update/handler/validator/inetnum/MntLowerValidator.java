@@ -26,11 +26,11 @@ public abstract class MntLowerValidator implements BusinessRuleValidator {
             return Collections.emptyList();
         }
 
-        if (ObjectType.INETNUM.equals(update.getType()) && !isValidatedInetnumStatus(update)) {
+        if (ObjectType.INETNUM.equals(update.getType()) && isInvalidInetnumStatus(update)) {
             return Collections.emptyList();
         }
 
-        if (ObjectType.INET6NUM.equals(update.getType()) && !isValidatedInet6numStatus(update)) {
+        if (ObjectType.INET6NUM.equals(update.getType()) && isInvalidInet6numStatus(update)) {
             return Collections.emptyList();
         }
 
@@ -48,7 +48,7 @@ public abstract class MntLowerValidator implements BusinessRuleValidator {
     }
     protected abstract List<Message> addErrorMessage(final PreparedUpdate update);
 
-    protected abstract boolean isValidatedInetnumStatus(final PreparedUpdate update);
+    protected abstract boolean isInvalidInetnumStatus(final PreparedUpdate update);
 
-    protected abstract boolean isValidatedInet6numStatus(final PreparedUpdate update);
+    protected abstract boolean isInvalidInet6numStatus(final PreparedUpdate update);
 }
