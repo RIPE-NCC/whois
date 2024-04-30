@@ -28,29 +28,37 @@ public class TelnetWhoisClient {
     private final String host;
     private final int port;
 
+    private final int timeout;
+
     private final Charset charset;
 
 
     public TelnetWhoisClient(final String host) {
-        this(host, DEFAULT_PORT);
+        this(host, DEFAULT_PORT, DEFAULT_CHARSET, DEFAULT_TIMEOUT);
     }
 
     public TelnetWhoisClient(final int port) {
-        this(DEFAULT_HOST, port);
+        this(DEFAULT_HOST, port, DEFAULT_CHARSET, DEFAULT_TIMEOUT);
     }
 
     public TelnetWhoisClient(final String host, final int port) {
-        this(host, port, DEFAULT_CHARSET);
+        this(host, port, DEFAULT_CHARSET, DEFAULT_TIMEOUT);
     }
 
     public TelnetWhoisClient(final int port, final Charset charset) {
-        this(DEFAULT_HOST, port, charset);
+        this(DEFAULT_HOST, port, charset, DEFAULT_TIMEOUT);
     }
 
     public TelnetWhoisClient(final String host, final int port, final Charset charset) {
+        this(host, port, charset, DEFAULT_TIMEOUT);
+    }
+
+    public TelnetWhoisClient(final String host, final int port, final Charset charset, final int timeout) {
         this.port = port;
         this.host = host;
         this.charset = charset;
+        this.timeout = timeout;
+
     }
 
     public static String queryLocalhost(final int port, final String query) {
@@ -63,7 +71,7 @@ public class TelnetWhoisClient {
     }
 
     public String sendQuery(final String query) {
-        return sendQuery(query, DEFAULT_TIMEOUT);
+        return sendQuery(query, timeout);
     }
 
     /**
