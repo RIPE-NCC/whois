@@ -27,7 +27,7 @@ import static org.mockito.Mockito.when;
 
 
 @ExtendWith(MockitoExtension.class)
-public class MntLowerAddedRemovedTest {
+public class MntLowerAddedRemovedValidatorTest {
     @Mock private PreparedUpdate update;
     @Mock private UpdateContext updateContext;
     @Mock private Subject authenticationSubject;
