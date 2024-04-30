@@ -299,6 +299,50 @@ class InetnumStatusBetweenSpec extends BaseQueryUpdateSpec {
         queryObjectNotFound("-rGBT inetnum 192.100.0.0 - 192.200.255.255", "inetnum", "192.100.0.0 - 192.200.255.255")
     }
 
+    def "create between ALLOCATED UNSPECIFIED and ALLOCATED UNSPECIFIED, with status ALLOCATED-ASSIGNED PA"() {
+        given:
+        syncUpdate(getTransient("ALLOC-UNS") + "password: owner3\npassword: hm")
+        queryObject("-r -T inetnum 192.0.0.0 - 192.255.255.255", "inetnum", "192.0.0.0 - 192.255.255.255")
+        syncUpdate(getTransient("ALLOC-UNS2") + "password: owner3\npassword: hm")
+        queryObject("-r -T inetnum 192.168.0.0 - 192.169.255.255", "inetnum", "192.168.0.0 - 192.169.255.255")
+
+        expect:
+        queryObjectNotFound("-r -T inetnum 192.100.0.0 - 192.200.255.255", "inetnum", "192.100.0.0 - 192.200.255.255")
+
+        when:
+        def ack = syncUpdateWithResponse("""\
+                inetnum:      192.100.0.0 - 192.200.255.255
+                netname:      TEST-NET-NAME
+                descr:        TEST network
+                country:      NL
+                org:          ORG-LIR1-TEST
+                admin-c:      TP1-TEST
+                tech-c:       TP1-TEST
+                status:       ALLOCATED-ASSIGNED PA
+                mnt-by:       RIPE-NCC-HM-MNT
+                mnt-lower:    LIR-MNT
+                source:       TEST
+
+                password: hm
+                password: owner3
+                password: lir
+                """.stripIndent(true)
+        )
+
+        then:
+
+        ack.summary.nrFound == 1
+        ack.summary.assertSuccess(0, 0, 0, 0, 0)
+        ack.summary.assertErrors(1, 1, 0, 0)
+
+        ack.countErrorWarnInfo(1, 0, 0)
+        ack.errors.any { it.operation == "Create" && it.key == "[inetnum] 192.100.0.0 - 192.200.255.255" }
+        ack.errorMessagesFor("Create", "[inetnum] 192.100.0.0 - 192.200.255.255") ==
+                ["Status ALLOCATED-ASSIGNED PA not allowed when more specific object '192.168.0.0 - 192.169.255.255' has status ALLOCATED UNSPECIFIED"]
+
+        queryObjectNotFound("-rGBT inetnum 192.100.0.0 - 192.200.255.255", "inetnum", "192.100.0.0 - 192.200.255.255")
+    }
+
     def "create between ALLOCATED UNSPECIFIED and ALLOCATED UNSPECIFIED, with status LIR-PARTITIONED PA"() {
       given:
         syncUpdate(getTransient("ALLOC-UNS") + "password: owner3\npassword: hm")
@@ -645,6 +689,50 @@ class InetnumStatusBetweenSpec extends BaseQueryUpdateSpec {
         ack.errors.any { it.operation == "Create" && it.key == "[inetnum] 192.100.0.0 - 192.200.255.255" }
         ack.errorMessagesFor("Create", "[inetnum] 192.100.0.0 - 192.200.255.255") ==
                 ["Status ALLOCATED PA not allowed when more specific object '192.168.0.0 - 192.169.255.255' has status ALLOCATED PA"]
+
+        queryObjectNotFound("-rGBT inetnum 192.100.0.0 - 192.200.255.255", "inetnum", "192.100.0.0 - 192.200.255.255")
+    }
+
+    def "create between ALLOCATED UNSPECIFIED and ALLOCATED PA, with status ALLOCATED-ASSIGNED PA"() {
+        given:
+        syncUpdate(getTransient("ALLOC-UNS") + "password: owner3\npassword: hm")
+        queryObject("-r -T inetnum 192.0.0.0 - 192.255.255.255", "inetnum", "192.0.0.0 - 192.255.255.255")
+        syncUpdate(getTransient("ALLOC-PA") + "password: owner3\npassword: hm")
+        queryObject("-r -T inetnum 192.168.0.0 - 192.169.255.255", "inetnum", "192.168.0.0 - 192.169.255.255")
+
+        expect:
+        queryObjectNotFound("-r -T inetnum 192.100.0.0 - 192.200.255.255", "inetnum", "192.100.0.0 - 192.200.255.255")
+
+        when:
+        def ack = syncUpdateWithResponse("""\
+                inetnum:      192.100.0.0 - 192.200.255.255
+                netname:      TEST-NET-NAME
+                descr:        TEST network
+                country:      NL
+                org:          ORG-LIR1-TEST
+                admin-c:      TP1-TEST
+                tech-c:       TP1-TEST
+                status:       ALLOCATED-ASSIGNED PA
+                mnt-by:       RIPE-NCC-HM-MNT
+                mnt-lower:    LIR-MNT
+                source:       TEST
+
+                password: hm
+                password: owner3
+                password: lir
+                """.stripIndent(true)
+        )
+
+        then:
+
+        ack.summary.nrFound == 1
+        ack.summary.assertSuccess(0, 0, 0, 0, 0)
+        ack.summary.assertErrors(1, 1, 0, 0)
+
+        ack.countErrorWarnInfo(1, 0, 0)
+        ack.errors.any { it.operation == "Create" && it.key == "[inetnum] 192.100.0.0 - 192.200.255.255" }
+        ack.errorMessagesFor("Create", "[inetnum] 192.100.0.0 - 192.200.255.255") ==
+                ["Status ALLOCATED-ASSIGNED PA not allowed when more specific object '192.168.0.0 - 192.169.255.255' has status ALLOCATED PA"]
 
         queryObjectNotFound("-rGBT inetnum 192.100.0.0 - 192.200.255.255", "inetnum", "192.100.0.0 - 192.200.255.255")
     }
