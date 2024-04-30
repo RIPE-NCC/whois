@@ -98,8 +98,8 @@ public abstract class MailGatewaySmtp {
         return true;
     }
 
-    protected void sendAttachedEmail(final Set<String> to, final String subject, final String replyTo,
-                                     final String text, final List<MailAttachment> attachments, final boolean html) throws MessagingException {
+    protected void sendAttachedEmail(final Set<String> to, final String subject, final String replyTo, final String text, final List<MailAttachment> attachments,
+                                     final boolean html) throws MessagingException {
 
         //Do not remove - used from internal
         if (!canSendEmail(to, replyTo, subject, text)){
@@ -137,8 +137,8 @@ public abstract class MailGatewaySmtp {
         return sendAndPersist(messageHelper, recipientsPunycode);
     }
 
-    private MimeMessageHelper setCommonConfiguration(final MimeMessageHelper helper, final String[] recipientsPunycode, final String replyTo,
-                                               final String subject, final String text, final boolean html) throws MessagingException {
+    private MimeMessageHelper setCommonConfiguration(final MimeMessageHelper helper, final String[] recipientsPunycode, final String replyTo, final String subject, final String text,
+                                                     final boolean html) throws MessagingException {
         helper.setFrom(mailConfiguration.getFrom());
         helper.setTo(recipientsPunycode);
 
@@ -169,8 +169,7 @@ public abstract class MailGatewaySmtp {
         }
     }
 
-    private List<String> getWellFormattedDeliverableEmails(final Set<String> to, final String subject,
-                                                           final String text, final String replyTo) {
+    private List<String> getWellFormattedDeliverableEmails(final Set<String> to, final String subject, final String text, final String replyTo) {
         return to.stream().filter(email -> {
             //TODO acknowledgment should be sent even if the user is unsubscribe
             if (canNotSendEmail(extractEmailBetweenAngleBrackets(email))){
