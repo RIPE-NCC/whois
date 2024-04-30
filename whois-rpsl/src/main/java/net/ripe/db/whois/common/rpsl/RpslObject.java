@@ -17,6 +17,7 @@ import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.io.StringWriter;
 import java.io.Writer;
+import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 import java.util.Collection;
@@ -34,7 +35,7 @@ public class RpslObject implements Identifiable, ResponseObject {
 
     private Integer objectId;
 
-    private List<RpslAttribute> attributes;
+    private final List<RpslAttribute> attributes;
     private Map<AttributeType, List<RpslAttribute>> typeCache;
     private int hash;
 
@@ -236,6 +237,11 @@ public class RpslObject implements Identifiable, ResponseObject {
     @Override
     public void writeTo(final OutputStream out) throws IOException {
         writeTo(new OutputStreamWriter(out, StandardCharsets.ISO_8859_1));
+    }
+
+    @Override
+    public void writeTo(final OutputStream out, final Charset charset) throws IOException {
+        writeTo(new OutputStreamWriter(out, charset));
     }
 
     public void writeTo(final Writer writer) throws IOException {

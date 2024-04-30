@@ -8,6 +8,7 @@ import net.ripe.db.whois.common.ip.Ipv4Resource;
 import net.ripe.db.whois.common.ip.Ipv6Resource;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
 import java.util.Collection;
@@ -20,24 +21,32 @@ public class RpkiService {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(RpkiService.class);
 
-    private final NestedIntervalMap<Ipv4Resource, Set<Roa>> ipv4Tree = new NestedIntervalMap<>();
-    private final NestedIntervalMap<Ipv6Resource, Set<Roa>> ipv6Tree = new NestedIntervalMap<>();
+    private NestedIntervalMap<Ipv4Resource, Set<Roa>> ipv4Tree;
+    private NestedIntervalMap<Ipv6Resource, Set<Roa>> ipv6Tree;
+
+    private final RpkiDataProvider rpkiDataProvider;
 
     public RpkiService(final RpkiDataProvider rpkiDataProvider) {
+        this.rpkiDataProvider = rpkiDataProvider;
+        loadRoas();
+    }
+
+    @Scheduled(cron = "0 */15 * * * *")
+    private void loadRoas() {
         final List<Roa> loadedRoas = rpkiDataProvider.loadRoas();
         if (loadedRoas != null && !loadedRoas.isEmpty()){
             final List<Roa> roas = loadedRoas.stream()
                     .filter(roa -> roa.getTrustAnchor() != TrustAnchor.UNSUPPORTED)
                     .collect(Collectors.toList());
 
+            buildTrees(roas);
             LOGGER.info("downloaded {} roas from rpki", roas.size());
-            buildTrees(roas, ipv4Tree, ipv6Tree);
         }
     }
 
-    private void buildTrees(final List<Roa> roas,
-                            final NestedIntervalMap<Ipv4Resource, Set<Roa>> ipv4Tree,
-                            final NestedIntervalMap<Ipv6Resource, Set<Roa>> ipv6Tree) {
+    private void buildTrees(final List<Roa> roas) {
+        final NestedIntervalMap<Ipv4Resource, Set<Roa>> ipv4Tree = new NestedIntervalMap<>();
+        final NestedIntervalMap<Ipv6Resource, Set<Roa>> ipv6Tree = new NestedIntervalMap<>();
         for (Roa roa : roas) {
             if (isIpv4(roa.getPrefix())) {
                 addRoaToTree(ipv4Tree, Ipv4Resource.parse(roa.getPrefix()), roa);
@@ -45,6 +54,8 @@ public class RpkiService {
                 addRoaToTree(ipv6Tree, Ipv6Resource.parse(roa.getPrefix()), roa);
             }
         }
+        this.ipv4Tree = ipv4Tree;
+        this.ipv6Tree = ipv6Tree;
     }
 
     private <T extends IpInterval<T>> void addRoaToTree(final NestedIntervalMap<T, Set<Roa>> tree,

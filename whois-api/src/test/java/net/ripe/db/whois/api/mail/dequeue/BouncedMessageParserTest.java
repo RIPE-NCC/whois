@@ -2,6 +2,7 @@ package net.ripe.db.whois.api.mail.dequeue;
 
 import net.ripe.db.whois.api.MimeMessageProvider;
 import net.ripe.db.whois.api.mail.EmailMessageInfo;
+import net.ripe.db.whois.api.mail.exception.MailParsingException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -31,7 +32,6 @@ public class BouncedMessageParserTest {
         assertThat(bouncedMessage.emailAddresses(), containsInAnyOrder("nonexistant@host.org"));
     }
 
-
     @Test
     public void parse_permanent_delivery_failure_multiple_recipients_rfc8221() throws Exception {
         final EmailMessageInfo bouncedMessage = subject.parse(MimeMessageProvider.getUpdateMessage("permanentFailureMessagePartialReportWithMultipleRecipientsRfc822.mail"));
@@ -49,13 +49,20 @@ public class BouncedMessageParserTest {
     }
 
     @Test
+    public void parse_permanent_delivery_failure_to_one_recipient_multiple_final_recipients() throws Exception {
+        final EmailMessageInfo bouncedMessage = subject.parse(MimeMessageProvider.getUpdateMessage("permanentFailureMessageRfc822Noc.mail"));
+
+        assertThat(bouncedMessage.messageId(), is("XXXXXXXX-5AE3-4C58-8E3F-860327BA955D@ripe.net"));
+        assertThat(bouncedMessage.emailAddresses(), containsInAnyOrder("First.Person@host.org", "Second.Person@host.org"));
+    }
+
+    @Test
     public void parse_permanent_delivery_failure_rfc822_headers() throws Exception {
         final EmailMessageInfo bouncedMessage = subject.parse(MimeMessageProvider.getUpdateMessage("permanentFailureRfc822Headers.mail"));
 
         assertThat(bouncedMessage.messageId(), is("XXXXXXXX-2BCC-4B29-9D86-3B8C68DD835D@ripe.net"));
         assertThat(bouncedMessage.emailAddresses(), containsInAnyOrder("nonexistant@ripe.net"));
     }
-
 
     @Test
     public void parse_permanent_delivery_failure_message_rfc822_headers_real() throws Exception {
@@ -67,16 +74,19 @@ public class BouncedMessageParserTest {
 
     @Test
     public void parse_permanent_delivery_failure_without_message_id() {
-        final IllegalStateException e = assertThrows(IllegalStateException.class, () -> {
+        final MailParsingException e = assertThrows(MailParsingException.class, () -> {
             subject.parse(MimeMessageProvider.getUpdateMessage("permanentFailureWithoutMessageId.mail"));
         });
 
-        assertThat(e.getMessage(), is("No Message-Id header"));
+        assertThat(e.getMessage(), is("Error parsing multipart report"));
     }
 
     @Test
-    public void parse_delayed_delivery() throws Exception {
-        assertThat(subject.parse(MimeMessageProvider.getUpdateMessage("messageDelayedRfc822Headers.mail")), is(nullValue()));
+    public void parse_delayed_delivery() {
+        final MailParsingException exception = assertThrows(MailParsingException.class, () -> {
+            subject.parse(MimeMessageProvider.getUpdateMessage("messageDelayedRfc822Headers.mail"));
+        });
+        assertThat(exception.getMessage(), is("MultiPart message without failure report"));
     }
 
     @Test

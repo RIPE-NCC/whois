@@ -56,7 +56,8 @@ public class WhoisSearchServiceTest {
                         null,
                         null,
                         null,
-                        null);
+                        null,
+                        false);
                 fail("Disallowed option " + disallowedFlag + " did not throw error");
             } catch (WebApplicationException e) {
                 assertThat(((WhoisResources)e.getResponse().getEntity()).getErrorMessages().get(0).getText(), is("Disallowed search flag '%s'"));

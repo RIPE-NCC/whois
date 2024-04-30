@@ -1846,7 +1846,6 @@ class Inet6numStatusChildSpec extends BaseQueryUpdateSpec {
                 admin-c:      TP1-TEST
                 tech-c:       TP1-TEST
                 mnt-by:       LIR-MNT
-                mnt-lower:    liR-MNT
                 status:       ASSIGNED
                 assignment-size: 48
                 source:       TEST
@@ -2389,7 +2388,6 @@ class Inet6numStatusChildSpec extends BaseQueryUpdateSpec {
                 admin-c:      TP1-TEST
                 tech-c:       TP1-TEST
                 mnt-by:       LIR-MNT
-                mnt-lower:    liR-MNT
                 status:       ASSIGNED
                 source:       TEST
 
@@ -2445,7 +2443,6 @@ class Inet6numStatusChildSpec extends BaseQueryUpdateSpec {
                 admin-c:      TP1-TEST
                 tech-c:       TP1-TEST
                 mnt-by:       LIR-MNT
-                mnt-lower:    liR-MNT
                 status:       ASSIGNED
                 source:       TEST
 
@@ -2504,7 +2501,6 @@ class Inet6numStatusChildSpec extends BaseQueryUpdateSpec {
                 admin-c:      TP1-TEST
                 tech-c:       TP1-TEST
                 mnt-by:       LIR-MNT
-                mnt-lower:    liR-MNT
                 status:       ASSIGNED
                 source:       TEST
 
@@ -2515,7 +2511,6 @@ class Inet6numStatusChildSpec extends BaseQueryUpdateSpec {
                 admin-c:      TP1-TEST
                 tech-c:       TP1-TEST
                 mnt-by:       LIR-MNT
-                mnt-lower:    liR-MNT
                 status:       ASSIGNED
                 source:       TEST
 
@@ -2588,7 +2583,6 @@ class Inet6numStatusChildSpec extends BaseQueryUpdateSpec {
                 admin-c:      TP1-TEST
                 tech-c:       TP1-TEST
                 mnt-by:       LIR-MNT
-                mnt-lower:    liR-MNT
                 status:       ASSIGNED
                 source:       TEST
 
@@ -2647,7 +2641,6 @@ class Inet6numStatusChildSpec extends BaseQueryUpdateSpec {
                 admin-c:      TP1-TEST
                 tech-c:       TP1-TEST
                 mnt-by:       LIR-MNT
-                mnt-lower:    liR-MNT
                 status:       ASSIGNED
                 source:       TEST
 
@@ -2704,7 +2697,6 @@ class Inet6numStatusChildSpec extends BaseQueryUpdateSpec {
                 admin-c:      TP1-TEST
                 tech-c:       TP1-TEST
                 mnt-by:       LIR-MNT
-                mnt-lower:    liR-MNT
                 status:       ASSIGNED
                 source:       TEST
 
@@ -2715,7 +2707,6 @@ class Inet6numStatusChildSpec extends BaseQueryUpdateSpec {
                 admin-c:      TP1-TEST
                 tech-c:       TP1-TEST
                 mnt-by:       LIR-MNT
-                mnt-lower:    liR-MNT
                 status:       ASSIGNED
                 source:       TEST
 
@@ -2774,7 +2765,6 @@ class Inet6numStatusChildSpec extends BaseQueryUpdateSpec {
                 admin-c:      TP1-TEST
                 tech-c:       TP1-TEST
                 mnt-by:       LIR-MNT
-                mnt-lower:    liR-MNT
                 status:       ASSIGNED
                 source:       TEST
 
@@ -2857,7 +2847,6 @@ class Inet6numStatusChildSpec extends BaseQueryUpdateSpec {
                 admin-c:      TP1-TEST
                 tech-c:       TP1-TEST
                 mnt-by:       LIR-MNT
-                mnt-lower:    liR-MNT
                 status:       ASSIGNED
                 source:       TEST
 
@@ -3120,7 +3109,6 @@ class Inet6numStatusChildSpec extends BaseQueryUpdateSpec {
                 admin-c:      TP1-TEST
                 tech-c:       TP1-TEST
                 mnt-by:       LIR-MNT
-                mnt-lower:    liR-MNT
                 status:       ASSIGNED
                 source:       TEST
 
@@ -3361,7 +3349,6 @@ class Inet6numStatusChildSpec extends BaseQueryUpdateSpec {
                 admin-c:      TP1-TEST
                 tech-c:       TP1-TEST
                 mnt-by:       LIR-MNT
-                mnt-lower:    liR-MNT
                 status:       ASSIGNED
                 source:       TEST
 
@@ -3372,7 +3359,6 @@ class Inet6numStatusChildSpec extends BaseQueryUpdateSpec {
                 admin-c:      TP1-TEST
                 tech-c:       TP1-TEST
                 mnt-by:       LIR-MNT
-                mnt-lower:    liR-MNT
                 status:       ASSIGNED
                 source:       TEST
 
@@ -3383,7 +3369,6 @@ class Inet6numStatusChildSpec extends BaseQueryUpdateSpec {
                 admin-c:      TP1-TEST
                 tech-c:       TP1-TEST
                 mnt-by:       LIR-MNT
-                mnt-lower:    liR-MNT
                 status:       ASSIGNED
                 source:       TEST
 

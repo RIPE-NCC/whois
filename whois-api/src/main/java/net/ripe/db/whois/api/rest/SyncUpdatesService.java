@@ -102,7 +102,7 @@ public class SyncUpdatesService {
         final Request request = new Request.RequestBuilder()
                 .setData(decode(data, getCharset(contentType)))
                 .setNew(nnew)
-                .setHelp(help)
+                .setHelp(getHelp(help, data))
                 .setRedirect(redirect)
                 .setDiff(diff)
                 .setRemoteAddress(httpServletRequest.getRemoteAddr())
@@ -129,7 +129,7 @@ public class SyncUpdatesService {
         final Request request = new Request.RequestBuilder()
                 .setData(data)
                 .setNew(nnew)
-                .setHelp(help)
+                .setHelp(getHelp(help, data))
                 .setRedirect(redirect)
                 .setDiff(diff)
                 .setRemoteAddress(httpServletRequest.getRemoteAddr())
@@ -156,7 +156,7 @@ public class SyncUpdatesService {
         final Request request = new Request.RequestBuilder()
                 .setData(data)
                 .setNew(nnew)
-                .setHelp(help)
+                .setHelp(getHelp(help, data))
                 .setRedirect(redirect)
                 .setDiff(diff)
                 .setRemoteAddress(httpServletRequest.getRemoteAddr())
@@ -164,6 +164,16 @@ public class SyncUpdatesService {
                 .setSsoToken(crowdTokenKey)
                 .build();
         return doSyncUpdate(httpServletRequest, request, getCharset(contentType));
+    }
+
+    @Nullable
+    private String getHelp(final String help, final String data) {
+        if (StringUtils.isEmpty(data)) {
+            // default to help
+            return "yes";
+        } else {
+            return help;
+        }
     }
 
     private Response doSyncUpdate(final HttpServletRequest httpServletRequest, final Request request, final Charset charset) {

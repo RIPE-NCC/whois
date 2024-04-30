@@ -4,6 +4,7 @@ import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Sets;
 import com.google.common.net.InetAddresses;
 import jakarta.ws.rs.CookieParam;
+import jakarta.ws.rs.DefaultValue;
 import net.ripe.db.whois.api.QueryBuilder;
 import net.ripe.db.whois.api.rest.domain.Flags;
 import net.ripe.db.whois.api.rest.domain.InverseAttributes;
@@ -41,6 +42,7 @@ import static net.ripe.db.whois.common.domain.CIString.ciString;
 import static net.ripe.db.whois.query.QueryFlag.ABUSE_CONTACT;
 import static net.ripe.db.whois.query.QueryFlag.ALL_SOURCES;
 import static net.ripe.db.whois.query.QueryFlag.BRIEF;
+import static net.ripe.db.whois.query.QueryFlag.CHARSET;
 import static net.ripe.db.whois.query.QueryFlag.CLIENT;
 import static net.ripe.db.whois.query.QueryFlag.DIFF_VERSIONS;
 import static net.ripe.db.whois.query.QueryFlag.LIST_SOURCES;
@@ -63,6 +65,7 @@ public class WhoisSearchService {
             // flags for port43 only
             VERSION,
             PERSISTENT_CONNECTION,
+            CHARSET,
 
             // port43 filter flags that make no sense in xml/json
             BRIEF,
@@ -136,7 +139,8 @@ public class WhoisSearchService {
             @QueryParam("resource-holder") final String resourceHolder,
             @QueryParam("abuse-contact") final String abuseContact,
             @QueryParam("limit") final Integer limit,
-            @QueryParam("offset") final Integer offset) {
+            @QueryParam("offset") final Integer offset,
+            @QueryParam("roa-check") @DefaultValue("false") final Boolean roaCheck) {
 
         validateSources(request, sources);
         validateSearchKey(request, searchKey);
@@ -169,6 +173,7 @@ public class WhoisSearchService {
                 .managedAttributes(isQueryParamSet(managedAttributes))
                 .resourceHolder(isQueryParamSet(resourceHolder))
                 .abuseContact(isQueryParamSet(abuseContact))
+                .roaCheck(roaCheck)
                 .limit(limit)
                 .offset(offset)
                 .unformatted(isQueryParamSet(unformatted))
