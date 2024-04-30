@@ -39,7 +39,7 @@ import static net.ripe.db.whois.update.domain.Action.MODIFY;
 @Component
 public class InetnumStrictStatusValidator implements BusinessRuleValidator {
 
-    private static final ImmutableList<Action> ACTIONS = ImmutableList.of(CREATE, MODIFY);
+    private static final ImmutableList<Action> ACTIONS = ImmutableList.of(CREATE);
     private static final ImmutableList<ObjectType> TYPES = ImmutableList.of(ObjectType.INETNUM);
 
     private final RpslObjectDao objectDao;
@@ -61,10 +61,6 @@ public class InetnumStrictStatusValidator implements BusinessRuleValidator {
 
     @Override
     public List<Message> performValidation(final PreparedUpdate update, final UpdateContext updateContext) {
-        if(canSkipValidation(update)) {
-            return Collections.EMPTY_LIST;
-        }
-
         return validateCreate(update, updateContext);
     }
 
@@ -73,7 +69,7 @@ public class InetnumStrictStatusValidator implements BusinessRuleValidator {
     }
 
     @SuppressWarnings("unchecked")
-    private List<Message> validateStatusAgainstResourcesInTree(final PreparedUpdate update, final UpdateContext updateContext) {
+    protected List<Message> validateStatusAgainstResourcesInTree(final PreparedUpdate update, final UpdateContext updateContext) {
         final RpslObject updatedObject = update.getUpdatedObject();
         final Ipv4Resource ipInterval = Ipv4Resource.parse(updatedObject.getKey());
         final List<Message> validationMessages = Lists.newArrayList();
@@ -114,17 +110,6 @@ public class InetnumStrictStatusValidator implements BusinessRuleValidator {
                     (!authByRs(updateContext.getSubject(update)))) {
                 validationMessages.add(UpdateMessages.inetnumStatusLegacy());
             }
-    }
-
-    private boolean canSkipValidation(final PreparedUpdate update) {
-        if(update.getAction() == CREATE) {
-            return false;
-        }
-
-        final InetnumStatus originalStatus = InetnumStatus.getStatusFor(update.getReferenceObject().getValueForAttribute(AttributeType.STATUS));
-        final InetnumStatus updateStatus = InetnumStatus.getStatusFor(update.getUpdatedObject().getValueForAttribute(AttributeType.STATUS));
-
-        return (originalStatus == updateStatus) || !InetnumStatusValidator.canChangeStatus(originalStatus, updateStatus);
     }
 
     @Override

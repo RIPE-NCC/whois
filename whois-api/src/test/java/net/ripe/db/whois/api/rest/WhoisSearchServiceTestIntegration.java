@@ -1860,7 +1860,7 @@ public class WhoisSearchServiceTestIntegration extends AbstractIntegrationTest {
         assertThat(whoisResources.getWhoisObjects(), hasSize(1));
 
         assertThat(whoisResources.getWhoisObjects().get(0).getObjectMessages().getMessages().get(0).getText(), is("" +
-                "Warning: this %s object conflicts with an overlapping RPKI ROA with a less specific prefix %s.\n" +
+                "Warning: this %s object conflicts with an overlapping RPKI ROA with a less specific prefix %s but same origin AS%s.\n" +
                 "As a result an announcement for this prefix may be rejected by many autonomous systems. You should " +
                 "either remove this route: object or update or delete the ROA.\n"));
     }
@@ -1906,7 +1906,7 @@ public class WhoisSearchServiceTestIntegration extends AbstractIntegrationTest {
 
         assertThat(whoisResources.getWhoisObjects().get(0).getObjectMessages().getMessages(), hasSize(1));
         assertThat(whoisResources.getWhoisObjects().get(0).getObjectMessages().getMessages().get(0).getText(), is("" +
-                "Warning: this %s object conflicts with an overlapping RPKI ROA with a different origin AS%s.\n" +
+                "Warning: this %s object conflicts with an overlapping RPKI ROA with prefix %s but different origin AS%s.\n" +
                 "As a result an announcement for this prefix may be rejected by many autonomous systems. You should " +
                 "either remove this route: object or update or delete the ROA.\n"));
     }
@@ -1931,7 +1931,7 @@ public class WhoisSearchServiceTestIntegration extends AbstractIntegrationTest {
 
         assertThat(whoisResources.getWhoisObjects().get(0).getObjectMessages().getMessages(), hasSize(1));
         assertThat(whoisResources.getWhoisObjects().get(0).getObjectMessages().getMessages().get(0).getText(), is("" +
-                "Warning: this %s object conflicts with an overlapping RPKI ROA with a different origin AS%s.\n" +
+                "Warning: this %s object conflicts with an overlapping RPKI ROA with prefix %s but different origin AS%s.\n" +
                 "As a result an announcement for this prefix may be rejected by many autonomous systems. You should " +
                 "either remove this route: object or update or delete the ROA.\n"));
     }
@@ -1977,7 +1977,7 @@ public class WhoisSearchServiceTestIntegration extends AbstractIntegrationTest {
 
         assertThat(whoisResources.getWhoisObjects().get(0).getObjectMessages().getMessages(), hasSize(1));
         assertThat(whoisResources.getWhoisObjects().get(0).getObjectMessages().getMessages().get(0).getText(), is("" +
-                "Warning: this %s object conflicts with an overlapping RPKI ROA with a different origin AS%s.\n" +
+                "Warning: this %s object conflicts with an overlapping RPKI ROA with prefix %s but different origin AS%s.\n" +
                 "As a result an announcement for this prefix may be rejected by many autonomous systems. You should " +
                 "either remove this route: object or update or delete the ROA.\n"));
     }
@@ -1985,7 +1985,7 @@ public class WhoisSearchServiceTestIntegration extends AbstractIntegrationTest {
     @Test
     public void search_route_roa_origin_and_prefix_length_mismatch_validation_enabled_as_xml() {
         databaseHelper.addObject(RpslObject.parse("" +
-                "route:           193.4.0.0/24\n" +
+                "route:           200.4.0.0/24\n" +
                 "descr:           Ripe test allocation\n" +
                 "origin:          AS102\n" +
                 "admin-c:         TP1-TEST\n" +
@@ -1994,7 +1994,7 @@ public class WhoisSearchServiceTestIntegration extends AbstractIntegrationTest {
                 "source:          TEST-NONAUTH\n"));
         ipTreeUpdater.rebuild();
 
-        final WhoisResources whoisResources = RestTest.target(getPort(), "whois/search.xml?query-string=193.4.0.0/24AS102&roa-check=true&flags=no-referenced")
+        final WhoisResources whoisResources = RestTest.target(getPort(), "whois/search.xml?query-string=200.4.0.0/24AS102&roa-check=true&flags=no-referenced")
                 .request()
                 .get(WhoisResources.class);
 
@@ -2063,10 +2063,11 @@ public class WhoisSearchServiceTestIntegration extends AbstractIntegrationTest {
                 "    </attributes>\n" +
                 "    <objectmessages>\n" +
                 "        <objectmessage severity=\"Warning\" text=\"Warning: this %s object conflicts with an " +
-                "overlapping RPKI ROA with a less specific prefix %s.&#xA;As a result an announcement for this prefix may be" +
+                "overlapping RPKI ROA with a less specific prefix %s but same origin AS%s.&#xA;As a result an announcement for this prefix may be" +
                 " rejected by many autonomous systems. You should either remove this route: object or update or delete the ROA.&#xA;\">\n" +
                 "            <args value=\"route6\"/>\n" +
                 "            <args value=\"32\"/>\n" +
+                "            <args value=\"52511\"/>\n" +
                 "        </objectmessage>\n" +
                 "    </objectmessages>\n" +
                 "</object>\n" +
@@ -2271,9 +2272,10 @@ public class WhoisSearchServiceTestIntegration extends AbstractIntegrationTest {
                 "    </attributes>\n" +
                 "    <objectmessages>\n" +
                 "        <objectmessage severity=\"Warning\" text=\"Warning: this %s object conflicts with an " +
-                "overlapping RPKI ROA with a different origin AS%s.&#xA;As a result an announcement for this prefix " +
+                "overlapping RPKI ROA with prefix %s but different origin AS%s.&#xA;As a result an announcement for this prefix " +
                 "may be rejected by many autonomous systems. You should either remove this route: object or update or delete the ROA.&#xA;\">\n" +
                 "            <args value=\"route6\"/>\n" +
+                "            <args value=\"32\"/>\n" +
                 "            <args value=\"52511\"/>\n" +
                 "        </objectmessage>\n" +
                 "    </objectmessages>\n" +
@@ -2343,9 +2345,10 @@ public class WhoisSearchServiceTestIntegration extends AbstractIntegrationTest {
                 "    </attributes>\n" +
                 "    <objectmessages>\n" +
                 "        <objectmessage severity=\"Warning\" text=\"Warning: this %s object conflicts with an " +
-                "overlapping RPKI ROA with a different origin AS%s.&#xA;As a result an announcement for this prefix " +
+                "overlapping RPKI ROA with prefix %s but different origin AS%s.&#xA;As a result an announcement for this prefix " +
                 "may be rejected by many autonomous systems. You should either remove this route: object or update or delete the ROA.&#xA;\">\n" +
                 "            <args value=\"route\"/>\n" +
+                "            <args value=\"16\"/>\n" +
                 "            <args value=\"6505\"/>\n" +
                 "        </objectmessage>\n" +
                 "    </objectmessages>\n" +
@@ -2813,6 +2816,25 @@ public class WhoisSearchServiceTestIntegration extends AbstractIntegrationTest {
         assertThat(response.getWhoisObjects().get(3).getPrimaryKey().get(0).getValue(), is("TP1-TEST"));
     }
 
+
+    @Test
+    public void search_encoding_flag_error() {
+        databaseHelper.addObject("" +
+                "person:    Lo Person\n" +
+                "admin-c:   TP1-TEST\n" +
+                "tech-c:    TP1-TEST\n" +
+                "nic-hdl:   LP1-TEST\n" +
+                "mnt-by:    OWNER-MNT\n" +
+                "source:    TEST\n");
+
+        final BadRequestException badRequestException = assertThrows(BadRequestException.class, () -> {
+            RestTest.target(getPort(), "whois/search?query-string=LP1-TEST&flags=Z")
+                .request(MediaType.APPLICATION_XML_TYPE)
+                .get(WhoisResources.class);
+        });
+        final WhoisResources whoisResources = badRequestException.getResponse().readEntity(WhoisResources.class);
+        assertThat(whoisResources.getErrorMessages().get(0).toString(), is("Disallowed search flag 'charset'"));
+    }
     // helper methods
 
     private boolean hasObjectWithSpecifiedSource(List<WhoisObject> whoisObjects, String source) {

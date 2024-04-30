@@ -1537,7 +1537,6 @@ class Inet6numSpec extends BaseQueryUpdateSpec {
                 admin-c:      TP1-TEST
                 tech-c:       TP1-TEST
                 mnt-by:       lir-MNT
-                mnt-lower:    LiR-MNT
                 status:       ASSIGNED
                 source:       TEST
 
@@ -1549,7 +1548,6 @@ class Inet6numSpec extends BaseQueryUpdateSpec {
                 admin-c:      TP1-TEST
                 tech-c:       TP1-TEST
                 mnt-by:       lir-MNT
-                mnt-lower:    LiR-MNT
                 status:       ASSIGNED
                 source:       TEST
 
@@ -1595,7 +1593,6 @@ class Inet6numSpec extends BaseQueryUpdateSpec {
                 admin-c:      TP1-TEST
                 tech-c:       TP1-TEST
                 mnt-by:       lir-MNT
-                mnt-lower:    LiR-MNT
                 status:       ASSIGNED
                 source:       TEST
                 override:  denis,override1
@@ -1608,7 +1605,6 @@ class Inet6numSpec extends BaseQueryUpdateSpec {
                 admin-c:      TP1-TEST
                 tech-c:       TP1-TEST
                 mnt-by:       lir-MNT
-                mnt-lower:    LiR-MNT
                 status:       ASSIGNED PI
                 source:       TEST
                 override:  denis,override1
@@ -1623,7 +1619,7 @@ class Inet6numSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(2, 0, 2, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
 
-        ack.countErrorWarnInfo(0, 2, 2)
+        ack.countErrorWarnInfo(0, 3, 2)
         ack.successes.any { it.operation == "Modify" && it.key == "[inet6num] 2001:600::/32" }
         ack.infoSuccessMessagesFor("Modify", "[inet6num] 2001:600::/32") == [
                 "Authorisation override used"]
@@ -1681,7 +1677,6 @@ class Inet6numSpec extends BaseQueryUpdateSpec {
                 admin-c:      TP1-TEST
                 tech-c:       TP1-TEST
                 mnt-by:       ripe-ncc-hm-MNT
-                mnt-lower:    LiR-MNT
                 status:       ASSIGNED PI
                 source:       TEST
 
