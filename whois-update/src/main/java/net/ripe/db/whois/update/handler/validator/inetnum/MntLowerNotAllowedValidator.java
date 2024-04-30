@@ -34,12 +34,12 @@ public class MntLowerNotAllowedValidator extends MntLowerValidator {
 
     @Override
     protected boolean isValidatedInetnumStatus(final PreparedUpdate update){
-        return !VALIDATED_INETNUM_STATUSES.contains(getStatus(update));
+        return VALIDATED_INETNUM_STATUSES.contains(getStatus(update));
     }
 
     @Override
     protected boolean isValidatedInet6numStatus(final PreparedUpdate update){
-        return !VALIDATED_INET6NUM_STATUSES.contains(getStatus(update));
+        return VALIDATED_INET6NUM_STATUSES.contains(getStatus(update));
     }
 
     @Override

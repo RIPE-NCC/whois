@@ -26,11 +26,11 @@ public abstract class MntLowerValidator implements BusinessRuleValidator {
             return Collections.emptyList();
         }
 
-        if (ObjectType.INETNUM.equals(update.getType()) && isValidatedInetnumStatus(update)) {
+        if (ObjectType.INETNUM.equals(update.getType()) && !isValidatedInetnumStatus(update)) {
             return Collections.emptyList();
         }
 
-        if (ObjectType.INET6NUM.equals(update.getType()) && isValidatedInet6numStatus(update)) {
+        if (ObjectType.INET6NUM.equals(update.getType()) && !isValidatedInet6numStatus(update)) {
             return Collections.emptyList();
         }
 

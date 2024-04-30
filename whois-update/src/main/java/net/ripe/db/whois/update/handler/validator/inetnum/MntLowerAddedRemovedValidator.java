@@ -35,11 +35,11 @@ public class MntLowerAddedRemovedValidator extends MntLowerValidator {
     }
 
     protected boolean isValidatedInetnumStatus(final PreparedUpdate update){
-        return !VALIDATED_INETNUM_STATUSES.contains(getStatus(update));
+        return VALIDATED_INETNUM_STATUSES.contains(getStatus(update));
     }
 
     protected boolean isValidatedInet6numStatus(final PreparedUpdate update){
-        return !VALIDATED_INET6NUM_STATUSES.contains(getStatus(update));
+        return VALIDATED_INET6NUM_STATUSES.contains(getStatus(update));
     }
 
     @Override
