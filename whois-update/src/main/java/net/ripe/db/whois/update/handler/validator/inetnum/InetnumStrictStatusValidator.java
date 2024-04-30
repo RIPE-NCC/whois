@@ -112,17 +112,6 @@ public class InetnumStrictStatusValidator implements BusinessRuleValidator {
             }
     }
 
-    protected static boolean canSkipValidation(final PreparedUpdate update) {
-        if(update.getAction() == CREATE) {
-            return false;
-        }
-
-        final InetnumStatus originalStatus = InetnumStatus.getStatusFor(update.getReferenceObject().getValueForAttribute(AttributeType.STATUS));
-        final InetnumStatus updateStatus = InetnumStatus.getStatusFor(update.getUpdatedObject().getValueForAttribute(AttributeType.STATUS));
-
-        return (originalStatus == updateStatus) || !InetnumStatusValidator.canChangeStatus(originalStatus, updateStatus);
-    }
-
     @Override
     public boolean isSkipForOverride() {
         return true;
