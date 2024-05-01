@@ -32,6 +32,7 @@ public class DummyRpkiDataProvider implements RpkiDataProvider {
     public void loadCustomRoas(final List<Roa> roas){
         if (loadedRoas == null || loadedRoas.isEmpty()){
             this.loadedRoas = roas;
+            return;
         }
         loadedRoas.addAll(roas);
     }
