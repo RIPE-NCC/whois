@@ -17,7 +17,7 @@ public class DummyRpkiDataProvider implements RpkiDataProvider {
 
     @Override
     public List<Roa> loadRoas() {
-        if (!loadedRoas.isEmpty()){
+        if (loadedRoas!= null && !loadedRoas.isEmpty()){
             return loadedRoas;
         }
 
@@ -30,7 +30,7 @@ public class DummyRpkiDataProvider implements RpkiDataProvider {
     }
 
     public void loadCustomRoas(final List<Roa> roas){
-        if (loadedRoas.isEmpty()){
+        if (loadedRoas == null || loadedRoas.isEmpty()){
             this.loadedRoas = roas;
         }
         loadedRoas.addAll(roas);
