@@ -7,14 +7,18 @@ import net.ripe.db.whois.changedphase3.util.Context;
 import net.ripe.db.whois.common.MaintenanceMode;
 import net.ripe.db.whois.common.rpsl.RpslObject;
 import net.ripe.db.whois.nrtm.NrtmServer;
+import net.ripe.db.whois.query.QueryServer;
 import net.ripe.db.whois.scheduler.task.export.DatabaseTextExport;
 import net.ripe.db.whois.update.mail.MailSenderStub;
+import org.awaitility.Awaitility;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Tag;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
+
+import java.util.concurrent.TimeUnit;
 
 @Tag("IntegrationTest")
 @ContextConfiguration(locations = {"classpath:applicationContext-endtoend-test.xml"})
@@ -53,6 +57,11 @@ public abstract class AbstractChangedPhase3IntegrationTest extends AbstractInteg
     @BeforeAll
     public static void afterClass() {
         System.clearProperty("nrtm.enabled");
+    }
+
+    @BeforeEach
+    public void waitForQueryServer() {
+        Awaitility.waitAtMost(5L, TimeUnit.SECONDS).until(() -> QueryServer.port > 0);
     }
 
     @BeforeEach
