@@ -54,6 +54,9 @@ public class TelnetWhoisClient {
     }
 
     public TelnetWhoisClient(final String host, final int port, final Charset charset, final int timeout) {
+        if (port == 0) {
+            throw new IllegalStateException("Invalid port 0");
+        }
         this.port = port;
         this.host = host;
         this.charset = charset;
@@ -112,7 +115,10 @@ public class TelnetWhoisClient {
 
     @RetryFor(IOException.class)
     private Optional<String> sendQueryWithRetry(final String query, final Function<BufferedReader, Optional<String>> function, final int timeoutMs) throws IOException {
-
+        if (port < 1) {
+            final String message = String.format("Illegal port %s:%d", host, port);
+            throw new IllegalStateException(message);
+        }
         try (final Socket socket = new Socket(host, port);
              final PrintWriter serverWriter = new PrintWriter(socket.getOutputStream(), true);
              final BufferedReader serverReader =

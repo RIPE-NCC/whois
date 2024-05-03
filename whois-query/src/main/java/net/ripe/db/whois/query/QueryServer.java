@@ -67,6 +67,10 @@ public final class QueryServer implements ApplicationService {
         }
     }
 
+    public int getPort() {
+        return port;
+    }
+
     @Override
     public void stop(final boolean force) {
         workerGroup.shutdownGracefully();
