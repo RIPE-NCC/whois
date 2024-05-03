@@ -5,6 +5,7 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
+import org.springframework.test.annotation.DirtiesContext;
 
 import static net.ripe.db.whois.changedphase3.util.Scenario.Builder.given;
 import static net.ripe.db.whois.changedphase3.util.Scenario.Method.CREATE;
@@ -30,6 +31,7 @@ import static net.ripe.db.whois.changedphase3.util.Scenario.Result.SUCCESS;
 
 @Disabled("TODO: [ES] disable until tests fixed")
 @Tag("IntegrationTest")
+@DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_EACH_TEST_METHOD)
 public class ChangedIntermediateModeTestIntegration extends AbstractChangedPhase3IntegrationTest {
 
     @BeforeAll
