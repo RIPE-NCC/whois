@@ -3,6 +3,7 @@ package net.ripe.db.whois.changedphase3.util;
 import net.ripe.db.whois.common.rpsl.RpslObject;
 import net.ripe.db.whois.common.support.TelnetWhoisClient;
 import net.ripe.db.whois.nrtm.NrtmServer;
+import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.concurrent.Callable;
 import java.util.concurrent.Executor;
@@ -48,7 +49,7 @@ public class NrtmRunner extends AbstractScenarioRunner {
             context.getNrtmServer().start();
 
             String nrtmCommand = String.format("-g TEST:3:%d-LAST -k", getCurrentOffset());
-            AsyncNrtmClient client = new AsyncNrtmClient(NrtmServer.getPort(), nrtmCommand, 2);
+            AsyncNrtmClient client = new AsyncNrtmClient(context.getNrtmServer().getPort(), nrtmCommand, 2);
             client.start();
 
             // Perform a create, modify or delete action
@@ -77,7 +78,7 @@ public class NrtmRunner extends AbstractScenarioRunner {
     }
 
     private Integer getCurrentOffset() {
-        final String currentStatusResp = TelnetWhoisClient.queryLocalhost(NrtmServer.getPort(), "-q sources");
+        final String currentStatusResp = TelnetWhoisClient.queryLocalhost(context.getNrtmServer().getPort(), "-q sources");
         for (String line : currentStatusResp.split("\n")) {
             if (line.startsWith("TEST:")) {
                 return Integer.parseInt(line.split("-")[1]);

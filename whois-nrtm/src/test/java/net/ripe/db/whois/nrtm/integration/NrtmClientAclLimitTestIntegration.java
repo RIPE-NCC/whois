@@ -60,7 +60,7 @@ public class NrtmClientAclLimitTestIntegration extends AbstractNrtmIntegrationBa
 
         System.setProperty("nrtm.import.1-GRS.source", "TEST");
         System.setProperty("nrtm.import.1-GRS.host", "localhost");
-        System.setProperty("nrtm.import.1-GRS.port", Integer.toString(NrtmServer.getPort()));
+        System.setProperty("nrtm.import.1-GRS.port", Integer.toString(nrtmServer.getPort()));
     }
 
     @AfterEach

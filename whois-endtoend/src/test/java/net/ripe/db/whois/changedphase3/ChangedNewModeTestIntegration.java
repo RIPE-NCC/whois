@@ -29,7 +29,6 @@ import static net.ripe.db.whois.changedphase3.util.Scenario.Req.WITH_CHANGED;
 import static net.ripe.db.whois.changedphase3.util.Scenario.Result.FAILURE;
 import static net.ripe.db.whois.changedphase3.util.Scenario.Result.SUCCESS;
 
-@Disabled("TODO: [ES] disable until tests fixed")
 @Tag("IntegrationTest")
 public class ChangedNewModeTestIntegration extends AbstractChangedPhase3IntegrationTest {
 
