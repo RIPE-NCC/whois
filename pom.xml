@@ -1019,7 +1019,7 @@
                     <excludedGroups>ManualTest</excludedGroups>
                     <!-- Ref. https://maven.apache.org/surefire/maven-failsafe-plugin/examples/fork-options-and-parallel-execution.html -->
                     <parallel>true</parallel>
-                    <forkCount>4</forkCount>
+                    <forkCount>1C</forkCount>
                     <reuseForks>true</reuseForks>
                     <threadCount>1</threadCount>
                     <perCoreThreadCount>true</perCoreThreadCount>
