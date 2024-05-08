@@ -16,16 +16,23 @@ public class DummyRpkiDataProvider implements RpkiDataProvider {
 
     @Override
     public List<Roa> loadRoas() {
-        try {
-            setRoas(new ObjectMapper().readValue(getClass().getResourceAsStream("/rpki/roas.json"), Roas.class).getRoas());
-        } catch (IOException e){
-            throw new IllegalStateException(e);
+        if (roas == null || roas.isEmpty()) {
+            try {
+                loadRoas(new ObjectMapper().readValue(getClass().getResourceAsStream("/rpki/roas.json"), Roas.class).getRoas());
+            } catch (IOException e){
+                throw new IllegalStateException(e);
+            }
         }
+
         return roas;
     }
 
-    public void setRoas(final List<Roa> roas) {
-        this.roas = roas;
+    public List<Roa> loadRoas(final List<Roa> roas) {
+        if (this.roas == null || this.roas.isEmpty()) {
+            this.roas = roas;
+        }
+        this.roas.addAll(roas);
+        return this.roas;
     }
 
 }
