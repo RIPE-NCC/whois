@@ -162,7 +162,7 @@ public abstract class MailGatewaySmtp {
         helper.setSubject(subject);
         helper.setText(text, html);
 
-        setHeaders(helper);
+        setHeaders(helper.getMimeMessage());
         return helper;
     }
 
@@ -173,18 +173,18 @@ public abstract class MailGatewaySmtp {
         return message;
     }
 
-    private void setHeaders(final MimeMessageHelper mimeMessageHelper) throws MessagingException {
-        mimeMessageHelper.getMimeMessage().addHeader("Precedence", "bulk");
-        mimeMessageHelper.getMimeMessage().addHeader("Auto-Submitted", "auto-generated");
+    private void setHeaders(final MimeMessage mimeMessage) throws MessagingException {
+        mimeMessage.addHeader("Precedence", "bulk");
+        mimeMessage.addHeader("Auto-Submitted", "auto-generated");
         if (!Strings.isNullOrEmpty(mailConfiguration.getSmtpFrom())) {
-            mimeMessageHelper.getMimeMessage().addHeader("List-Unsubscribe",
+            mimeMessage.addHeader("List-Unsubscribe",
                     String.format("<%s%sapi/unsubscribe/%s>, <mailto:%s?subject=Unsubscribe%%20%s>",
                             webBaseUrl,
                             (webBaseUrl.endsWith("/") ? "" : "/"),
-                            mimeMessageHelper.getMimeMessage().getMessageID(),
+                            mimeMessage.getMessageID(),
                             mailConfiguration.getSmtpFrom(),
-                            mimeMessageHelper.getMimeMessage().getMessageID()));
-            mimeMessageHelper.getMimeMessage().addHeader("List-Unsubscribe-Post", "List-Unsubscribe=One-Click");
+                            mimeMessage.getMessageID()));
+            mimeMessage.addHeader("List-Unsubscribe-Post", "List-Unsubscribe=One-Click");
         }
     }
 
