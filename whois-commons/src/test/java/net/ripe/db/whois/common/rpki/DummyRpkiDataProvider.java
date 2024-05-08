@@ -6,21 +6,32 @@ import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Component;
 
 import java.io.IOException;
-import java.util.Collections;
 import java.util.List;
 
 @Component
 @Profile({WhoisProfile.TEST})
 public class DummyRpkiDataProvider implements RpkiDataProvider {
 
+    private List<Roa> loadedRoas = null;
+
     @Override
     public List<Roa> loadRoas() {
-        try {
-            return new ObjectMapper().readValue(getClass().getResourceAsStream("/rpki/roas.json"), Roas.class).getRoas();
-        } catch (IOException ex){
-            /* Do Nothing*/
+        if (loadedRoas != null) {
+            return loadedRoas;
         }
-        return Collections.emptyList();
+
+        try {
+            return loadRoas(new ObjectMapper().readValue(getClass().getResourceAsStream("/rpki/roas.json"), Roas.class).getRoas());
+        } catch (IOException e){
+            throw new IllegalStateException(e);
+        }
+    }
+
+    public List<Roa> loadRoas(final List<Roa> roas) {
+        if (loadedRoas == null) {
+            loadedRoas = roas;
+        }
+        return loadedRoas;
     }
 
 }
