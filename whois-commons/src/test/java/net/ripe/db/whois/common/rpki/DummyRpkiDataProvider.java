@@ -36,5 +36,4 @@ public class DummyRpkiDataProvider implements RpkiDataProvider {
         }
         loadedRoas.addAll(roas);
     }
-
 }
