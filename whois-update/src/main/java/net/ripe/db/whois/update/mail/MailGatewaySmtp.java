@@ -82,8 +82,7 @@ public abstract class MailGatewaySmtp {
         return sendEmailAttempt(helper, recipients, replyTo, subject, text, html);
     }
 
-    protected void sendAttachedEmail(final Set<String> to, final String subject, final String replyTo, final String text, final List<MailAttachment> attachments,
-                                     final boolean html) throws MessagingException {
+    protected void sendAttachedEmail(final Set<String> to, final String subject, final String replyTo, final String text, final List<MailAttachment> attachments, final boolean html) throws MessagingException {
 
         //Do not remove - used from internal
         if (!canSendEmail(to, replyTo, subject, text)){
@@ -95,9 +94,7 @@ public abstract class MailGatewaySmtp {
         } else {
             final MimeMessage mimeMessage = mailSender.createMimeMessage();
 
-            final String[] recipientsPunycode = to.stream().map(PunycodeConversion::toAscii).distinct().toArray(String[]::new);
-            final MimeMessageHelper messageHelper = setCommonConfiguration(new MimeMessageHelper(mimeMessage, MimeMessageHelper.MULTIPART_MODE_MIXED, "UTF-8"),
-                    recipientsPunycode, replyTo, subject, text, html);
+            final MimeMessageHelper messageHelper = setCommonConfiguration(new MimeMessageHelper(mimeMessage, MimeMessageHelper.MULTIPART_MODE_MIXED, "UTF-8"), to, replyTo, subject, text, html);
 
             attachments.forEach(attachment -> {
                 try {
@@ -107,7 +104,7 @@ public abstract class MailGatewaySmtp {
                 }
             });
 
-            sendAndPersist(messageHelper, recipientsPunycode);
+            sendAndPersist(messageHelper, to);
         }
     }
 
@@ -123,10 +120,8 @@ public abstract class MailGatewaySmtp {
     }
 
     protected MimeMessage sendEmailAttempt(final MimeMessageHelper helper, final Set<String> recipients, final String replyTo, final String subject, final String text, final boolean html) throws MessagingException {
-        final String[] recipientsPunycode = recipients.stream().map(PunycodeConversion::toAscii).distinct().toArray(String[]::new);
-        final MimeMessageHelper messageHelper = setCommonConfiguration(helper,
-                recipientsPunycode, replyTo, subject, text, html);
-         return sendAndPersist(messageHelper, recipientsPunycode);
+         final MimeMessageHelper messageHelper = setCommonConfiguration(helper, recipients, replyTo, subject, text, html);
+         return sendAndPersist(messageHelper, recipients);
     }
 
     protected boolean canSendEmail(final Set<String> to, final String replyTo, final String subject, final String text){
@@ -154,9 +149,9 @@ public abstract class MailGatewaySmtp {
         return true;
     }
 
-    private MimeMessageHelper setCommonConfiguration(final MimeMessageHelper helper, final String[] recipientsPunycode, final String replyTo, final String subject, final String text,
-                                                     final boolean html) throws MessagingException {
+    private MimeMessageHelper setCommonConfiguration(final MimeMessageHelper helper, final Set<String> recipients, final String replyTo, final String subject, final String text, final boolean html) throws MessagingException {
         helper.setFrom(mailConfiguration.getFrom());
+        final String[] recipientsPunycode = recipients.stream().map(PunycodeConversion::toAscii).distinct().toArray(String[]::new);
         helper.setTo(recipientsPunycode);
 
         if (!Strings.isNullOrEmpty(replyTo)){
@@ -170,9 +165,10 @@ public abstract class MailGatewaySmtp {
         return helper;
     }
 
-    private MimeMessage sendAndPersist(final MimeMessageHelper messageHelper, final String[] recipientsPunycode) throws MessagingException {
+    private MimeMessage sendAndPersist(final MimeMessageHelper messageHelper, final Set<String> recipients) throws MessagingException {
         final MimeMessage message = messageHelper.getMimeMessage();
         mailSender.send(message);
+        final String[] recipientsPunycode = recipients.stream().map(PunycodeConversion::toAscii).distinct().toArray(String[]::new);
         persistOutGoingMessageInfo(message, recipientsPunycode);
         return message;
     }
