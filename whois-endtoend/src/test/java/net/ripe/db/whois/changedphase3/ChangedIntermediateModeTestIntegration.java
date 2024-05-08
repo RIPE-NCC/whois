@@ -31,7 +31,6 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.equalTo;
 
-@Disabled("TODO: [ES] disable until tests fixed")
 @Tag("IntegrationTest")
 public class ChangedIntermediateModeTestIntegration extends AbstractChangedPhase3IntegrationTest {
 
