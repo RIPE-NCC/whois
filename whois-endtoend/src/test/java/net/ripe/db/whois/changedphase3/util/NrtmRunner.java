@@ -46,7 +46,7 @@ public class NrtmRunner extends AbstractScenarioRunner {
         try {
             verifyPreCondition(scenario);
 
-            context.getNrtmServer().start();
+            //context.getNrtmServer().start();
 
             String nrtmCommand = String.format("-g TEST:3:%d-LAST -k", getCurrentOffset());
             AsyncNrtmClient client = new AsyncNrtmClient(context.getNrtmServer().getPort(), nrtmCommand, 2);
@@ -73,7 +73,7 @@ public class NrtmRunner extends AbstractScenarioRunner {
             }
 
         } finally {
-            context.getNrtmServer().stop(true);
+           // context.getNrtmServer().stop(true);
         }
     }
 
