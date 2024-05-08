@@ -93,25 +93,25 @@ public abstract class MailGatewaySmtp {
             return;
         }
 
-        if (attachments == null || attachments.isEmpty()){
+        if (attachments == null || attachments.isEmpty()) {
             sendEmailAttempt(to, subject, replyTo, text, html);
+        } else {
+            final MimeMessage mimeMessage = mailSender.createMimeMessage();
+
+            final String[] recipientsPunycode = to.stream().map(PunycodeConversion::toAscii).distinct().toArray(String[]::new);
+            final MimeMessageHelper messageHelper = setCommonConfiguration(new MimeMessageHelper(mimeMessage, MimeMessageHelper.MULTIPART_MODE_MIXED, "UTF-8"),
+                    recipientsPunycode, replyTo, subject, text, html);
+
+            attachments.forEach(attachment -> {
+                try {
+                    messageHelper.addAttachment(attachment.getAttachmentFilename(), attachment.getInputStreamSource());
+                } catch (MessagingException e) {
+                    LOGGER.error("Unable to add attachment to email message to: {}", to, e);
+                }
+            });
+
+            sendAndPersist(messageHelper, recipientsPunycode);
         }
-
-        final MimeMessage mimeMessage = mailSender.createMimeMessage();
-
-        final String[] recipientsPunycode = to.stream().map(PunycodeConversion::toAscii).distinct().toArray(String[]::new);
-        final MimeMessageHelper messageHelper = setCommonConfiguration(new MimeMessageHelper(mimeMessage, MimeMessageHelper.MULTIPART_MODE_MIXED, "UTF-8"),
-                recipientsPunycode, replyTo, subject, text, html);
-
-        attachments.forEach(attachment -> {
-            try {
-                messageHelper.addAttachment(attachment.getAttachmentFilename(), attachment.getInputStreamSource());
-            } catch (MessagingException e) {
-                LOGGER.error("Unable to add attachment to email message to: {}", to, e);
-            }
-        });
-
-        sendAndPersist(messageHelper, recipientsPunycode);
     }
 
     private void sendEmail(final Set<String> to, final String replyTo, final String subject, final String text, final boolean html) {
