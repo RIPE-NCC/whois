@@ -12,26 +12,20 @@ import java.util.List;
 @Profile({WhoisProfile.TEST})
 public class DummyRpkiDataProvider implements RpkiDataProvider {
 
-    private List<Roa> loadedRoas = null;
+    private List<Roa> roas;
 
     @Override
     public List<Roa> loadRoas() {
-        if (loadedRoas != null) {
-            return loadedRoas;
-        }
-
         try {
-            return loadRoas(new ObjectMapper().readValue(getClass().getResourceAsStream("/rpki/roas.json"), Roas.class).getRoas());
+            setRoas(new ObjectMapper().readValue(getClass().getResourceAsStream("/rpki/roas.json"), Roas.class).getRoas());
         } catch (IOException e){
             throw new IllegalStateException(e);
         }
+        return roas;
     }
 
-    public List<Roa> loadRoas(final List<Roa> roas) {
-        if (loadedRoas == null) {
-            loadedRoas = roas;
-        }
-        return loadedRoas;
+    public void setRoas(final List<Roa> roas) {
+        this.roas = roas;
     }
 
 }
