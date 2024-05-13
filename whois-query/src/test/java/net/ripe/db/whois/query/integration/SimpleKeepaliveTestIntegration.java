@@ -59,7 +59,7 @@ public class SimpleKeepaliveTestIntegration extends AbstractQueryIntegrationTest
 
     @Test
     public void kFlagShouldKeepTheConnectionOpenUntilTheSecondKWithoutArguments() throws Exception {
-        final WhoisClientHandler client = NettyWhoisClientFactory.newLocalClient(QueryServer.port);
+        final WhoisClientHandler client = NettyWhoisClientFactory.newLocalClient(queryServer.getPort());
 
         ChannelFuture channelFuture = client.connectAndWait();
 
@@ -77,7 +77,7 @@ public class SimpleKeepaliveTestIntegration extends AbstractQueryIntegrationTest
 
     @Test
     public void readTimeoutShouldPrintErrorMessage() throws Exception {
-        final WhoisClientHandler client = NettyWhoisClientFactory.newLocalClient(QueryServer.port);
+        final WhoisClientHandler client = NettyWhoisClientFactory.newLocalClient(queryServer.getPort());
 
         ChannelFuture channelFuture = client.connectAndWait();
 
@@ -93,7 +93,7 @@ public class SimpleKeepaliveTestIntegration extends AbstractQueryIntegrationTest
 
     @Test
     public void kFlagShouldKeepTheConnectionOpenAfterSupportedQuery() throws Exception {
-        final WhoisClientHandler client = NettyWhoisClientFactory.newLocalClient(QueryServer.port);
+        final WhoisClientHandler client = NettyWhoisClientFactory.newLocalClient(queryServer.getPort());
 
         ChannelFuture channelFuture = client.connectAndWait();
         channelFuture.sync();

@@ -42,7 +42,7 @@ public abstract class RpkiRoaChecker {
         return validationResult;
     }
 
-    private ValidationStatus validate(final RpslObject route, final Roa roa, final IpInterval<?> prefix) {
+    protected ValidationStatus validate(final RpslObject route, final Roa roa, final IpInterval<?> prefix) {
         final long nonAuthAsn = Asn.parse(route.getValueForAttribute(AttributeType.ORIGIN).toString()).asBigInteger().longValue();
         return prefix.getPrefixLength() <= roa.getMaxLength() &&
                 nonAuthAsn != 0 &&

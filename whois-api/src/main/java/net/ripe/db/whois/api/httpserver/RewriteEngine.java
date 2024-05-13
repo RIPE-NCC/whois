@@ -78,7 +78,6 @@ public class RewriteEngine {
         final VirtualHostRuleContainer rdapVirtualHostRule = new VirtualHostRuleContainer();
         rdapVirtualHostRule.addVirtualHost(rdapVirtualHost);
         rewriteHandler.addRule(rdapVirtualHostRule);
-
         final RewriteRegexRule rdapRule = new RewriteRegexRule("/(.+)", "/rdap/$1");
         rdapRule.setTerminating(true);
         rdapVirtualHostRule.addRule(rdapRule);
@@ -87,19 +86,11 @@ public class RewriteEngine {
         final VirtualHostRuleContainer syncupdatesVirtualHostRule = new VirtualHostRuleContainer();
         syncupdatesVirtualHostRule.addVirtualHost(syncupdatesVirtualHost);
         rewriteHandler.addRule(syncupdatesVirtualHostRule);
-
-        final RewriteRegexRule syncupdatesEmptyQueryStringRule = new RewriteRegexRule(
-            "/$",
-            String.format("/whois/syncupdates/%s/?HELP=yes", source)
-        );
         final RewriteRegexRule syncupdatesRule = new RewriteRegexRule(
             "/(.*)",
             String.format("/whois/syncupdates/%s/$1", source)
         );
-
-        syncupdatesEmptyQueryStringRule.setTerminating(true);
         syncupdatesRule.setTerminating(true);
-        syncupdatesVirtualHostRule.addRule(syncupdatesEmptyQueryStringRule);
         syncupdatesVirtualHostRule.addRule(syncupdatesRule);
 
         // whois

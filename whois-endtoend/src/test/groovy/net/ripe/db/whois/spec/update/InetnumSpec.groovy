@@ -123,6 +123,19 @@ class InetnumSpec extends BaseQueryUpdateSpec {
                 mnt-lower:    LIR-MNT
                 source:       TEST
                 """,
+                "ALLOC-ASSIGN-PA": """\
+                inetnum:      192.168.0.0 - 192.169.255.255
+                netname:      TEST-NET-NAME
+                descr:        TEST network
+                country:      NL
+                org:          ORG-LIR1-TEST
+                admin-c:      TP1-TEST
+                tech-c:       TP1-TEST
+                status:       ALLOCATED-ASSIGNED PA
+                mnt-by:       RIPE-NCC-HM-MNT
+                mnt-lower:    LIR-MNT
+                source:       TEST
+                """,
                 "P-NO-LOW": """\
                 inetnum:      192.168.128.0 - 192.168.255.255
                 netname:      TEST-NET-NAME
@@ -792,6 +805,7 @@ class InetnumSpec extends BaseQueryUpdateSpec {
                 tech-c:       TP1-TEST
                 status:       ALLOCATED PA
                 mnt-by:       LIR-MNT
+                mnt-by:       RIPE-NCC-HM-MNT
                 mnt-lower:    LIR2-MNT
                 source:       TEST
 
@@ -5043,6 +5057,119 @@ class InetnumSpec extends BaseQueryUpdateSpec {
                 "Authorisation override used"]
 
         queryObjectNotFound("-rGBT inetnum 192.168.0.0 - 192.169.255.255", "inetnum", "192.168.0.0 - 192.169.255.255")
+    }
+
+    def "delete ALLOCATED-ASSIGNED PA, override"() {
+        given:
+        syncUpdate(getTransient("ALLOC-ASSIGN-PA") + "override:  denis,override1")
+        queryObject("-r -T inetnum 192.168.0.0 - 192.169.255.255", "inetnum", "192.168.0.0 - 192.169.255.255")
+
+        when:
+        def message = syncUpdate("""\
+                inetnum:      192.168.0.0 - 192.169.255.255
+                netname:      TEST-NET-NAME
+                descr:        TEST network
+                country:      NL
+                org:          ORG-LIR1-TEST
+                admin-c:      TP1-TEST
+                tech-c:       TP1-TEST
+                status:       ALLOCATED-ASSIGNED PA
+                mnt-by:       RIPE-NCC-HM-MNT
+                mnt-lower:    LIR-MNT
+                source:       TEST
+                delete:  test override
+                override:  denis,override1
+
+                """.stripIndent(true)
+        )
+
+        then:
+        def ack = new AckResponse("", message)
+
+        ack.summary.nrFound == 1
+        ack.summary.assertSuccess(1, 0, 0, 1, 0)
+        ack.summary.assertErrors(0, 0, 0, 0)
+
+        ack.countErrorWarnInfo(0, 1, 1)
+        ack.successes.any { it.operation == "Delete" && it.key == "[inetnum] 192.168.0.0 - 192.169.255.255" }
+        ack.infoSuccessMessagesFor("Delete", "[inetnum] 192.168.0.0 - 192.169.255.255") == [
+                "Authorisation override used"]
+
+        queryObjectNotFound("-rGBT inetnum 192.168.0.0 - 192.169.255.255", "inetnum", "192.168.0.0 - 192.169.255.255")
+    }
+
+    def "delete ALLOCATED-ASSIGNED PA, rs"() {
+        given:
+        syncUpdate(getTransient("ALLOC-ASSIGN-PA") + "override:  denis,override1")
+        queryObject("-r -T inetnum 192.168.0.0 - 192.169.255.255", "inetnum", "192.168.0.0 - 192.169.255.255")
+
+        when:
+        def message = syncUpdate("""\
+                inetnum:      192.168.0.0 - 192.169.255.255
+                netname:      TEST-NET-NAME
+                descr:        TEST network
+                country:      NL
+                org:          ORG-LIR1-TEST
+                admin-c:      TP1-TEST
+                tech-c:       TP1-TEST
+                status:       ALLOCATED-ASSIGNED PA
+                mnt-by:       RIPE-NCC-HM-MNT
+                mnt-lower:    LIR-MNT
+                source:       TEST
+                delete:  test rs
+                password:  hm
+
+                """.stripIndent(true)
+        )
+
+        then:
+        def ack = new AckResponse("", message)
+
+        ack.summary.nrFound == 1
+        ack.summary.assertSuccess(1, 0, 0, 1, 0)
+        ack.summary.assertErrors(0, 0, 0, 0)
+
+        ack.successes.any { it.operation == "Delete" && it.key == "[inetnum] 192.168.0.0 - 192.169.255.255" }
+
+        queryObjectNotFound("-rGBT inetnum 192.168.0.0 - 192.169.255.255", "inetnum", "192.168.0.0 - 192.169.255.255")
+    }
+
+    def "delete ALLOCATED-ASSIGNED PA, user"() {
+        given:
+        syncUpdate(getTransient("ALLOC-ASSIGN-PA") + "override:  denis,override1")
+        queryObject("-r -T inetnum 192.168.0.0 - 192.169.255.255", "inetnum", "192.168.0.0 - 192.169.255.255")
+
+        when:
+        def message = syncUpdate("""\
+                inetnum:      192.168.0.0 - 192.169.255.255
+                netname:      TEST-NET-NAME
+                descr:        TEST network
+                country:      NL
+                org:          ORG-LIR1-TEST
+                admin-c:      TP1-TEST
+                tech-c:       TP1-TEST
+                status:       ALLOCATED-ASSIGNED PA
+                mnt-by:       RIPE-NCC-HM-MNT
+                mnt-lower:    LIR-MNT
+                source:       TEST
+                delete:  test user
+                password: lir
+
+                """.stripIndent(true)
+        )
+
+        then:
+        def ack = new AckResponse("", message)
+
+        ack.summary.nrFound == 1
+        ack.summary.assertSuccess(0, 0, 0, 0, 0)
+        ack.summary.assertErrors(1, 0, 0, 1)
+
+        ack.countErrorWarnInfo(1, 0, 0)
+        ack.errors.any { it.operation == "Delete" && it.key == "[inetnum] 192.168.0.0 - 192.169.255.255" }
+        ack.errorMessagesFor("Delete", "[inetnum] 192.168.0.0 - 192.169.255.255") ==
+                ["Deleting this object requires administrative authorisation"]
+
     }
 
     def "modify assignment, joint RS & user mnt-by, remove RS mntner, user auth"() {

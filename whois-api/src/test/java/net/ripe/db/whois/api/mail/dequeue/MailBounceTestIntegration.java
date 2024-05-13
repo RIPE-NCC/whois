@@ -7,7 +7,6 @@ import net.ripe.db.whois.update.mail.MailSenderStub;
 import org.awaitility.Awaitility;
 import org.hamcrest.Matchers;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -137,6 +136,47 @@ public class MailBounceTestIntegration extends AbstractMailMessageIntegrationTes
         assertThat(mailSenderStub.anyMoreMessages(), is(false));
     }
 
+    @Test
+    public void dont_send_notification_mail_to_undeliverable_address_is_case_insensitive() throws Exception {
+        final String role =
+                "role:        dummy role\n" +
+                        "address:       Singel 258\n" +
+                        "e-mail:        dummyrole@ripe.net\n" +
+                        "phone:         +31 6 12345678\n" +
+                        "notify:        nonexistant@ripe.net\n" +
+                        "nic-hdl:       DR1-TEST\n" +
+                        "mnt-by:        OWNER-MNT\n" +
+                        "source:        TEST\n";
+
+        // mark address as undeliverable
+        insertUndeliverableAddress("NonEXISTanT@ripe.net");
+
+        // send message to mailupdates
+        final String from = insertIncomingMessage("NEW", role + "\npassword: test\n");
+
+        // read reply from mailupdates
+        final MimeMessage acknowledgement = mailSenderStub.getMessage(from);
+        assertThat(acknowledgement.getContent().toString(), containsString("Create SUCCEEDED: [role] DR1-TEST   dummy role"));
+
+        // test that no notification mail is sent to nonexistant@ripe.net
+        assertThat(mailSenderStub.anyMoreMessages(), is(false));
+    }
+
+    @Test
+    public void permanent_delivery_failure_to_one_recipient_multiple_final_recipients() {
+        insertOutgoingMessageId("XXXXXXXX-5AE3-4C58-8E3F-860327BA955D@ripe.net", "noc@host.org");
+        final MimeMessage message = MimeMessageProvider.getUpdateMessage("permanentFailureMessageRfc822Noc.mail");
+        insertIncomingMessage(message);
+
+        // wait for incoming message to be processed
+        Awaitility.waitAtMost(10L, TimeUnit.SECONDS).until(() -> (! anyIncomingMessages()));
+
+        // delayed message has been processed but address is not set to undeliverable
+        assertThat(isUndeliverableAddress("noc@host.org"), is(false));
+        assertThat(isUndeliverableAddress("First.Person@host.org"), is(false));
+        assertThat(isUndeliverableAddress("Second.Person@host.org"), is(false));
+
+    }
 
     @Test
     public void delayed_delivery_is_not_permanently_undeliverable() {
@@ -151,7 +191,8 @@ public class MailBounceTestIntegration extends AbstractMailMessageIntegrationTes
         // delayed message has been processed but address is not set to undeliverable
         assertThat(isUndeliverableAddress("enduser@host.org"), is(false));
 
-        // TODO: [ES] delayed message not deleted from mailupdates table
+        // delayed message deleted from mailupdates table
+        assertThat(anyIncomingMessages(), is(false));
     }
 
     @Test
@@ -206,7 +247,6 @@ public class MailBounceTestIntegration extends AbstractMailMessageIntegrationTes
         assertThat(mailSenderStub.anyMoreMessages(), is(false));
     }
 
-    @Disabled("TODO: [ES] message gets stuck")
     @Test
     public void invalid_email_do_not_causes_address_to_be_marked_as_undeliverable() {
         final MimeMessage message = MimeMessageProvider.getUpdateMessage("permanentFailureWithoutMessageId.mail");
@@ -220,7 +260,6 @@ public class MailBounceTestIntegration extends AbstractMailMessageIntegrationTes
         // Make sure that failure response message was deleted
         assertThat(mailSenderStub.anyMoreMessages(), is(false));
     }
-
 
     @Test
     public void bouncing_headers_causes_address_to_be_marked_as_undeliverable() {
