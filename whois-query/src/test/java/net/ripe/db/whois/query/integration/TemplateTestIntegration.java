@@ -27,7 +27,7 @@ public class TemplateTestIntegration extends AbstractQueryIntegrationTest {
 
     @Test
     public void check_template() {
-        final String response = TelnetWhoisClient.queryLocalhost(QueryServer.port, "-t route");
+        final String response = TelnetWhoisClient.queryLocalhost(queryServer.getPort(), "-t route");
         assertThat(response, containsString("" +
                 "% This is the RIPE Database query service.\n" +
                 "% The objects are in RPSL format.\n" +
@@ -62,7 +62,7 @@ public class TemplateTestIntegration extends AbstractQueryIntegrationTest {
 
     @Test
     public void check_verbose() {
-        final String response = TelnetWhoisClient.queryLocalhost(QueryServer.port, "-v route6");
+        final String response = TelnetWhoisClient.queryLocalhost(queryServer.getPort(), "-v route6");
         assertThat(response, containsString("" +
                 "% This is the RIPE Database query service.\n" +
                 "% The objects are in RPSL format.\n" +
@@ -117,7 +117,7 @@ public class TemplateTestIntegration extends AbstractQueryIntegrationTest {
 
     @Test
     public void verbose_description() {
-        final String response = TelnetWhoisClient.queryLocalhost(QueryServer.port, "-v inetnum");
+        final String response = TelnetWhoisClient.queryLocalhost(queryServer.getPort(), "-v inetnum");
         assertThat(response, containsString("" +
                 "The inetnum class:\n" +
                 "\n" +
@@ -413,7 +413,7 @@ public class TemplateTestIntegration extends AbstractQueryIntegrationTest {
 
     @Test
     public void verbose_description_autnum() {
-        final String response = TelnetWhoisClient.queryLocalhost(QueryServer.port, "-v aut-num");
+        final String response = TelnetWhoisClient.queryLocalhost(queryServer.getPort(), "-v aut-num");
         assertThat(response, containsString("" +
                 "The aut-num class:\n" +
                 "\n" +

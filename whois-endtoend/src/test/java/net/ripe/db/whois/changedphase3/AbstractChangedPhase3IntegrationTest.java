@@ -7,6 +7,7 @@ import net.ripe.db.whois.changedphase3.util.Context;
 import net.ripe.db.whois.common.MaintenanceMode;
 import net.ripe.db.whois.common.rpsl.RpslObject;
 import net.ripe.db.whois.nrtm.NrtmServer;
+import net.ripe.db.whois.query.QueryServer;
 import net.ripe.db.whois.scheduler.task.export.DatabaseTextExport;
 import net.ripe.db.whois.update.mail.MailSenderStub;
 import org.junit.jupiter.api.AfterEach;
@@ -43,6 +44,8 @@ public abstract class AbstractChangedPhase3IntegrationTest extends AbstractInteg
     @Autowired private MailUpdatesTestSupport mailUpdatesTestSupport;
     @Autowired private MailSenderStub mailSenderStub;
     @Autowired private NrtmServer nrtmServer;
+    @Autowired private QueryServer queryServer;
+
     @Autowired private DatabaseTextExport databaseTextExport;
 
     @BeforeAll
@@ -62,7 +65,7 @@ public abstract class AbstractChangedPhase3IntegrationTest extends AbstractInteg
         databaseHelper.updateObject(TEST_PERSON);
         maintenanceMode.set("FULL,FULL");
         context = new Context(getPort(), getPort(), whoisObjectMapper, mailUpdatesTestSupport, mailSenderStub,
-                nrtmServer, databaseHelper, databaseTextExport);
+               queryServer, nrtmServer, databaseHelper, databaseTextExport);
     }
 
     @AfterEach
