@@ -89,6 +89,6 @@ public class GrsImporterLacnicManualIntegrationTest extends AbstractSchedulerInt
     }
 
     private String query(final String query) {
-        return TelnetWhoisClient.queryLocalhost(QueryServer.port, query);
+        return TelnetWhoisClient.queryLocalhost(queryServer.getPort(), query);
     }
 }
