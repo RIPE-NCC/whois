@@ -2,6 +2,21 @@
 
 # 1.112
 
+[all] NWI-4: Add ALLOCATED-ASSIGNED PA inetnum status (#1432)
+[query] Set Charset Flag (#1450)
+[update] Don't allow "mnt-lower" on assignments (#1452)
+[api] Fixed Syncupdates HELP Bug (#1453)
+[rdap] RDAP Link Title is a String not List<String> (#1445)
+[mail] Remove Message If Bounce Detection Or Unsubscribe Fails (#1418)
+[mail] Handle Multiple Delivery Status Notification Failure Responses for the Same Email Address (#1417)
+[mail] Final-Recipient: RFC822 is case insensitive (#1423)
+[mail] Refactor Mail Sender to allow multiple recipients (#1411)
+[all] Route ROA checker (#1416)
+[all] Schedule ROA load each 15 minutes (#1444)
+[query] Allow inverse query for e-mail from trusted addresses (#1435)
+[query] Allow inverse query for sponsoring-org from all addresses (#1431)
+[nrtm] Return 404 on invalid NRTMv4 notification file path (#1422)
+
 # 1.111
 
 [update] Don't send email to undeliverable addresses (#1404)
