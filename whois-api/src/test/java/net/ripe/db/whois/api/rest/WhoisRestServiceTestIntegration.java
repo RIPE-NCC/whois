@@ -99,6 +99,8 @@ import static org.junit.jupiter.api.Assertions.fail;
 @Tag("IntegrationTest")
 public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
 
+    @Autowired QueryServer queryServer;
+
     public static final String TEST_PERSON_STRING = "" +
             "person:         Test Person\n" +
             "address:        Singel 258\n" +
@@ -5841,7 +5843,7 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
     }
 
     private String queryTelnet(final String query) {
-        return TelnetWhoisClient.queryLocalhost(QueryServer.port, query);
+        return TelnetWhoisClient.queryLocalhost(queryServer.getPort(), query);
     }
 
     private static String gunzip(final byte[] bytes) {

@@ -45,6 +45,9 @@ public class WhoisRestServiceIpAclTestIntegration extends AbstractIntegrationTes
     @Autowired
     private SSOResourceConfiguration ssoResourceConfiguration;
 
+    @Autowired
+    QueryServer queryServer;
+
     @BeforeAll
     public static void setProperties() {
         System.setProperty("personal.accounting.by.sso", "false");
@@ -210,10 +213,10 @@ public class WhoisRestServiceIpAclTestIntegration extends AbstractIntegrationTes
 
         accessControlListManager.accountPersonalObjects(accountingIdentifier, accessControlListManager.getPersonalObjects(accountingIdentifier) + 1);
 
-        assertThat(TelnetWhoisClient.queryLocalhost(QueryServer.port, "--diff-versions 1 TP1-TEST"),
+        assertThat(TelnetWhoisClient.queryLocalhost(queryServer.getPort(), "--diff-versions 1 TP1-TEST"),
                     containsString(" Access from your host has been temporarily denied."));
 
-        assertThat( TelnetWhoisClient.queryLocalhost(QueryServer.port, "--show-version 1 TP1-TEST"),
+        assertThat( TelnetWhoisClient.queryLocalhost(queryServer.getPort(), "--show-version 1 TP1-TEST"),
                     containsString(" Access from your host has been temporarily denied."));
     }
 

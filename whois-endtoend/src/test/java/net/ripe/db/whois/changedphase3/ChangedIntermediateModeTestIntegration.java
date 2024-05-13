@@ -27,8 +27,10 @@ import static net.ripe.db.whois.changedphase3.util.Scenario.Req.NOT_APPLIC__;
 import static net.ripe.db.whois.changedphase3.util.Scenario.Req.NO_CHANGED__;
 import static net.ripe.db.whois.changedphase3.util.Scenario.Req.WITH_CHANGED;
 import static net.ripe.db.whois.changedphase3.util.Scenario.Result.SUCCESS;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.containsString;
+import static org.hamcrest.Matchers.equalTo;
 
-@Disabled("TODO: [ES] disable until tests fixed")
 @Tag("IntegrationTest")
 public class ChangedIntermediateModeTestIntegration extends AbstractChangedPhase3IntegrationTest {
 
