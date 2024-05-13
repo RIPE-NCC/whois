@@ -75,11 +75,19 @@ public abstract class MailGatewaySmtp {
         }
     }
 
-    protected MimeMessage sendEmailAttempt(final Set<String> recipients, final String replyTo, final String subject, final String text, final boolean html) throws MessagingException {
+    protected MimeMessage sendEmailAttempt(final Set<String> to, final String replyTo, final String subject, final String text) throws MessagingException {
         final MimeMessage mimeMessage = mailSender.createMimeMessage();
         final MimeMessageHelper helper = new MimeMessageHelper(mimeMessage, MimeMessageHelper.MULTIPART_MODE_NO, "UTF-8");
 
-        return sendEmailAttempt(helper, recipients, replyTo, subject, text, html);
+        final String[] recipientsPunycode = to.stream().map(PunycodeConversion::toAscii).distinct().toArray(String[]::new);
+        return sendEmailAttempt(helper, recipientsPunycode, replyTo, subject, text, false);
+    }
+
+    protected void sendEmailAttempt(final String[] recipientsPunycode, final String replyTo, final String subject, final String text, final boolean html) throws MessagingException {
+        final MimeMessage mimeMessage = mailSender.createMimeMessage();
+        final MimeMessageHelper helper = new MimeMessageHelper(mimeMessage, MimeMessageHelper.MULTIPART_MODE_NO, "UTF-8");
+
+        sendEmailAttempt(helper, recipientsPunycode, replyTo, subject, text, html);
     }
 
     protected void sendAttachedEmail(final Set<String> to, final String subject, final String replyTo, final String text, final List<MailAttachment> attachments, final boolean html) throws MessagingException {
@@ -89,12 +97,14 @@ public abstract class MailGatewaySmtp {
             return;
         }
 
+        final String[] recipientsPunycode = to.stream().map(PunycodeConversion::toAscii).distinct().toArray(String[]::new);
+
         if (attachments == null || attachments.isEmpty()) {
-            sendEmailAttempt(to, subject, replyTo, text, html);
+            sendEmailAttempt(recipientsPunycode, subject, replyTo, text, html);
         } else {
             final MimeMessage mimeMessage = mailSender.createMimeMessage();
 
-            final MimeMessageHelper messageHelper = setCommonConfiguration(new MimeMessageHelper(mimeMessage, MimeMessageHelper.MULTIPART_MODE_MIXED, "UTF-8"), to, replyTo, subject, text, html);
+            final MimeMessageHelper messageHelper = setCommonConfiguration(new MimeMessageHelper(mimeMessage, MimeMessageHelper.MULTIPART_MODE_MIXED, "UTF-8"), recipientsPunycode, replyTo, subject, text, html);
 
             attachments.forEach(attachment -> {
                 try {
@@ -104,7 +114,7 @@ public abstract class MailGatewaySmtp {
                 }
             });
 
-            sendAndPersist(messageHelper, to);
+            sendAndPersist(messageHelper, recipientsPunycode);
         }
     }
 
@@ -113,15 +123,16 @@ public abstract class MailGatewaySmtp {
             if (!canSendEmail(to, replyTo, subject, text)){
                 return;
             }
-            sendEmailAttempt(to, replyTo, subject, text, html);
+            final String[] recipientsPunycode = to.stream().map(PunycodeConversion::toAscii).distinct().toArray(String[]::new);
+            sendEmailAttempt(recipientsPunycode, replyTo, subject, text, html);
         } catch (MessagingException e) {
             throw new IllegalStateException(e);
         }
     }
 
-    protected MimeMessage sendEmailAttempt(final MimeMessageHelper helper, final Set<String> recipients, final String replyTo, final String subject, final String text, final boolean html) throws MessagingException {
-         final MimeMessageHelper messageHelper = setCommonConfiguration(helper, recipients, replyTo, subject, text, html);
-         return sendAndPersist(messageHelper, recipients);
+    protected MimeMessage sendEmailAttempt(final MimeMessageHelper helper, final String[] recipientsPunycode, final String replyTo, final String subject, final String text, final boolean html) throws MessagingException {
+         final MimeMessageHelper messageHelper = setCommonConfiguration(helper, recipientsPunycode, replyTo, subject, text, html);
+         return sendAndPersist(messageHelper, recipientsPunycode);
     }
 
     protected boolean canSendEmail(final Set<String> to, final String replyTo, final String subject, final String text){
@@ -149,9 +160,8 @@ public abstract class MailGatewaySmtp {
         return true;
     }
 
-    private MimeMessageHelper setCommonConfiguration(final MimeMessageHelper helper, final Set<String> recipients, final String replyTo, final String subject, final String text, final boolean html) throws MessagingException {
+    private MimeMessageHelper setCommonConfiguration(final MimeMessageHelper helper, final String[] recipientsPunycode, final String replyTo, final String subject, final String text, final boolean html) throws MessagingException {
         helper.setFrom(mailConfiguration.getFrom());
-        final String[] recipientsPunycode = recipients.stream().map(PunycodeConversion::toAscii).distinct().toArray(String[]::new);
         helper.setTo(recipientsPunycode);
 
         if (!Strings.isNullOrEmpty(replyTo)){
@@ -165,10 +175,9 @@ public abstract class MailGatewaySmtp {
         return helper;
     }
 
-    private MimeMessage sendAndPersist(final MimeMessageHelper messageHelper, final Set<String> recipients) throws MessagingException {
+    private MimeMessage sendAndPersist(final MimeMessageHelper messageHelper, final String[] recipientsPunycode) throws MessagingException {
         final MimeMessage message = messageHelper.getMimeMessage();
         mailSender.send(message);
-        final String[] recipientsPunycode = recipients.stream().map(PunycodeConversion::toAscii).distinct().toArray(String[]::new);
         persistOutGoingMessageInfo(message, recipientsPunycode);
         return message;
     }
