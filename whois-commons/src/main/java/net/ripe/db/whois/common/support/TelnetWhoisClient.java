@@ -41,7 +41,7 @@ public class TelnetWhoisClient {
         this(DEFAULT_HOST, port, DEFAULT_CHARSET, DEFAULT_TIMEOUT);
     }
 
-    public TelnetWhoisClient(final   String host, final int port) {
+    public TelnetWhoisClient(final String host, final int port) {
         this(host, port, DEFAULT_CHARSET, DEFAULT_TIMEOUT);
     }
 
@@ -62,12 +62,12 @@ public class TelnetWhoisClient {
     }
 
     public static String queryLocalhost(final int port, final String query) {
-        TelnetWhoisClient client = new TelnetWhoisClient(DEFAULT_HOST, port, DEFAULT_CHARSET);
+        TelnetWhoisClient client = new TelnetWhoisClient("127.0.0.1", port, DEFAULT_CHARSET);
         return client.sendQuery(query);
     }
 
     public static String queryLocalhost(final int port, final String query, final int timeoutMs) {
-        return new TelnetWhoisClient(DEFAULT_HOST, port, DEFAULT_CHARSET).sendQuery(query, timeoutMs);
+        return new TelnetWhoisClient("127.0.0.1", port, DEFAULT_CHARSET).sendQuery(query, timeoutMs);
     }
 
     public String sendQuery(final String query) {
