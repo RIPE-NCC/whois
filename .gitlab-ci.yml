@@ -82,7 +82,7 @@ release:
     - mariadb:10.2
 
 
-whois-groovy:
+whois-endtoend:
   <<:
     - *it_env
     - *mariadb_configuration
