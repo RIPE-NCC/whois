@@ -1,8 +1,12 @@
 package net.ripe.db.whois.update.mail;
 
+import com.google.common.collect.Lists;
+import com.google.common.collect.Sets;
 import jakarta.mail.Address;
+import jakarta.mail.MessagingException;
 import jakarta.mail.Session;
 import jakarta.mail.internet.MimeMessage;
+import jakarta.mail.internet.MimeMultipart;
 import net.ripe.db.whois.common.dao.EmailStatusDao;
 import net.ripe.db.whois.common.dao.OutgoingMessageDao;
 import net.ripe.db.whois.update.domain.UpdateContext;
@@ -14,12 +18,17 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.core.io.ByteArrayResource;
 import org.springframework.mail.MailSendException;
 
+import java.io.IOException;
 import java.util.Properties;
 
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.is;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.any;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
@@ -33,9 +42,7 @@ public class MailGatewaySmtpTest {
     @Mock LoggerContext loggerContext;
     @Mock MailConfiguration mailConfiguration;
     @Mock CustomJavaMailSender mailSender;
-
     @Mock EmailStatusDao emailStatusDao;
-
     @Mock OutgoingMessageDao outgoingMessageDao;
     @InjectMocks WhoisMailGatewaySmtp subject;
 
@@ -81,6 +88,7 @@ public class MailGatewaySmtpTest {
         final String replyToAddress = "test@ripe.net";
 
         setExpectReplyToField(replyToAddress);
+
         when(mailSender.createMimeMessage()).thenReturn(new MimeMessage(SESSION));
         when(mailConfiguration.getFrom()).thenReturn(replyToAddress);
 
@@ -115,6 +123,27 @@ public class MailGatewaySmtpTest {
 
         subject.sendEmail("to@to.to", "subject", "test", "email@Åidn.org");
     }
+
+    @Test
+    public void attachmentAddedAfterMessageBody() throws MessagingException, IOException {
+        final MimeMessage mimeMessage = new MimeMessage(SESSION);
+        when(mailSender.createMimeMessage()).thenReturn(mimeMessage);
+        when(mailConfiguration.getFrom()).thenReturn("from@from.to");
+
+        final MailAttachment attachment = mock(MailAttachment.class);
+        when(attachment.getAttachmentFilename()).thenReturn("test.txt");
+        when(attachment.getInputStreamSource()).thenReturn(new ByteArrayResource("attachment".getBytes()));
+
+        subject.sendAttachedEmail(Sets.newHashSet("to"), "subject", "noreply@ripe.net", "test", Lists.newArrayList(attachment), false);
+
+        final MimeMultipart mimeMultipart = (MimeMultipart) mimeMessage.getDataHandler().getContent();
+        assertThat(mimeMultipart.getCount(), is(2));
+        assertThat(mimeMultipart.getBodyPart(0).getContent(), is("test"));
+        assertThat(mimeMultipart.getBodyPart(1).getContent(), is("attachment"));
+    }
+
+
+    // helper methods
 
     private void setExpectReplyToField(final String replyToAddress) {
         Mockito.doAnswer(invocation -> {
