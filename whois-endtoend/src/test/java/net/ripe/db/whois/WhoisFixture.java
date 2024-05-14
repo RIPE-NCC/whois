@@ -96,7 +96,6 @@ public class WhoisFixture {
         System.setProperty("application.version", "0.1-ENDTOEND");
         System.setProperty("mail.update.threads", "2");
         System.setProperty("mail.dequeue.interval", "10");
-        System.setProperty("nrtm.enabled", "false");
         System.setProperty("grs.sources", "TEST-GRS");
         System.setProperty("feature.toggle.changed.attr.available", "true");
         System.setProperty("ipranges.bogons", "192.0.2.0/24,2001:2::/48");

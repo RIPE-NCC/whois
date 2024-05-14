@@ -23,8 +23,8 @@ public class NrtmServer implements ApplicationService {
 
     public static final int NRTM_VERSION = 3;
 
-    @Value("${nrtm.enabled:true}") private boolean nrtmEnabled;
-    @Value("${port.nrtm:0}") private int nrtmPort;
+    private final boolean nrtmEnabled;
+    private final int nrtmPort;
 
     private final NrtmChannelsRegistry nrtmChannelsRegistry;
     private final NrtmServerChannelInitializer nrtmServerChannelInitializer;
@@ -38,11 +38,16 @@ public class NrtmServer implements ApplicationService {
 
     @Autowired
     public NrtmServer(final NrtmChannelsRegistry nrtmChannelsRegistry,
+                      @Value("${nrtm.enabled:true}") final boolean nrtmEnabled,
+                      @Value("${port.nrtm:0}") final int nrtmPort,
                       final NrtmServerChannelInitializer nrtmServerChannelInitializer,
                       final MaintenanceMode maintenanceMode) {
         this.nrtmChannelsRegistry = nrtmChannelsRegistry;
         this.nrtmServerChannelInitializer = nrtmServerChannelInitializer;
         this.maintenanceMode = maintenanceMode;
+        this.nrtmPort = nrtmPort;
+        this.nrtmEnabled = nrtmEnabled;
+
     }
 
     @Override
