@@ -2,6 +2,7 @@ package net.ripe.db.whois.common.rpki;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import net.ripe.db.whois.common.profiles.WhoisProfile;
+import org.apache.commons.compress.utils.Lists;
 import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Component;
 
@@ -13,14 +14,24 @@ import java.util.List;
 @Profile({WhoisProfile.TEST})
 public class DummyRpkiDataProvider implements RpkiDataProvider {
 
+    private List<Roa> loadedRoas = Lists.newArrayList();
+
     @Override
     public List<Roa> loadRoas() {
+        if (!loadedRoas.isEmpty()){
+            return loadedRoas;
+        }
+
         try {
             return new ObjectMapper().readValue(getClass().getResourceAsStream("/rpki/roas.json"), Roas.class).getRoas();
         } catch (IOException ex){
             /* Do Nothing*/
         }
         return Collections.emptyList();
+    }
+
+    public void loadRoas(final List<Roa> roas){
+        this.loadedRoas = roas;
     }
 
 }
