@@ -33,7 +33,7 @@ public class NrtmServer implements ApplicationService {
     private NioEventLoopGroup bossGroup;
     private NioEventLoopGroup workerGroup;
 
-    private static int port;
+    private int port;
 
 
     @Autowired
@@ -95,7 +95,7 @@ public class NrtmServer implements ApplicationService {
         }
     }
 
-    public static int getPort() {
+    public int getPort() {
         return port;
     }
 }

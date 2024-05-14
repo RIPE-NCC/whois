@@ -110,6 +110,6 @@ public class AutomaticBlockTestIntegration extends AbstractSchedulerIntegrationT
     }
 
     private String query(final String query) throws Exception {
-        return TelnetWhoisClient.queryLocalhost(QueryServer.port, query);
+        return TelnetWhoisClient.queryLocalhost(queryServer.getPort(), query);
     }
 }
