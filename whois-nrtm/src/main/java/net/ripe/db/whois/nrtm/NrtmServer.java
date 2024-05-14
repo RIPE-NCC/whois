@@ -47,10 +47,10 @@ public class NrtmServer implements ApplicationService {
 
     @Override
     public void start() {
-        /*if (!nrtmEnabled) {
+        if (!nrtmEnabled) {
             LOGGER.warn("NRTM not enabled");
             return;
-        }*/
+        }
 
         serverChannel = bootstrapChannel(nrtmServerChannelInitializer, nrtmPort);
         port = ((InetSocketAddress) serverChannel.localAddress()).getPort();
