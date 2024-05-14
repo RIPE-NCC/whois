@@ -71,6 +71,5 @@ public abstract class AbstractChangedPhase3IntegrationTest extends AbstractInteg
 
     @AfterEach
     public void teardown() {
-        context = null;
     }
 }
