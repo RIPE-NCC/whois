@@ -14,24 +14,23 @@ import java.util.List;
 @Profile({WhoisProfile.TEST})
 public class DummyRpkiDataProvider implements RpkiDataProvider {
 
-    private List<Roa> loadedRoas = Lists.newArrayList();
+    private List<Roa> loadedRoas = loadFromResource();
 
     @Override
     public List<Roa> loadRoas() {
-        if (!loadedRoas.isEmpty()){
-            return loadedRoas;
-        }
-
-        try {
-            return new ObjectMapper().readValue(getClass().getResourceAsStream("/rpki/roas.json"), Roas.class).getRoas();
-        } catch (IOException ex){
-            /* Do Nothing*/
-        }
-        return Collections.emptyList();
+        return loadedRoas;
     }
 
     public void loadRoas(final List<Roa> roas){
         this.loadedRoas = roas;
+    }
+
+    private static List<Roa> loadFromResource(){
+        try {
+            return new ObjectMapper().readValue(DummyRpkiDataProvider.class.getResourceAsStream("/rpki/roas.json"), Roas.class).getRoas();
+        } catch (IOException ex){
+            throw new IllegalStateException(ex);
+        }
     }
 
 }
