@@ -70,7 +70,7 @@ public class WhoisMailGatewaySmtp extends MailGatewaySmtp {
     @RetryFor(value = MailSendException.class, attempts = 20, intervalMs = 10000)
     private void sendEmailAttempt(final String recipient, final String replyTo, final String subject, final String text) {
         try {
-            final MimeMessage message = sendEmailAttempt(Set.of(recipient), replyTo, subject, text, false);
+            final MimeMessage message = sendEmailAttempt(Set.of(recipient), replyTo, subject, text);
             loggerContext.log("msg-out.txt", new MailMessageLogCallback(message));
         } catch (MailSendException | MessagingException e) {
             loggerContext.log(new Message(Messages.Type.ERROR, "Caught %s: %s", e.getClass().getName(), e.getMessage()));

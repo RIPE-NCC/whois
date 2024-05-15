@@ -10,6 +10,7 @@ import net.ripe.db.whois.nrtm.NrtmServer;
 import net.ripe.db.whois.query.QueryServer;
 import net.ripe.db.whois.scheduler.task.export.DatabaseTextExport;
 import net.ripe.db.whois.update.mail.MailSenderStub;
+import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
@@ -53,7 +54,7 @@ public abstract class AbstractChangedPhase3IntegrationTest extends AbstractInteg
         System.setProperty("nrtm.enabled", "true");
     }
 
-    @BeforeAll
+    @AfterAll
     public static void afterClass() {
         System.clearProperty("nrtm.enabled");
     }
