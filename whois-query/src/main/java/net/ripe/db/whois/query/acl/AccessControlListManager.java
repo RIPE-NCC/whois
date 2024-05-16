@@ -133,7 +133,7 @@ public class AccessControlListManager {
                 return userSession.getUsername();
             }
         } catch (AuthServiceClientException e) {
-            LOGGER.warn("Cannot translate ssoToken, will account by remoteAddr due to {}: {}", e.getClass().getName(), e.getMessage());
+            LOGGER.info("Cannot translate ssoToken, will account by remoteAddr due to {}: {}", e.getClass().getName(), e.getMessage());
         }
 
         return null;
