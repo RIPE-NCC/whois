@@ -1,4 +1,4 @@
-package net.ripe.db.whois.update.handler.validator.inetnum;
+package net.ripe.db.whois.update.handler.validator.inet6num;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
@@ -20,6 +20,7 @@ import net.ripe.db.whois.update.domain.PreparedUpdate;
 import net.ripe.db.whois.update.domain.UpdateContext;
 import net.ripe.db.whois.update.domain.UpdateMessages;
 import net.ripe.db.whois.update.handler.validator.BusinessRuleValidator;
+import net.ripe.db.whois.update.handler.validator.inetnum.InetStatusHelper;
 import org.apache.commons.lang.Validate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -30,7 +31,7 @@ import static net.ripe.db.whois.common.rpsl.attrs.Inet6numStatus.AGGREGATED_BY_L
 import static net.ripe.db.whois.update.domain.Action.CREATE;
 
 @Component
-public class AggregatedByLirStatusValidator implements BusinessRuleValidator {
+public class Inet6numAggregatedByLirStatusValidator implements BusinessRuleValidator {
 
     private static final ImmutableList<Action> ACTIONS = ImmutableList.of(CREATE, Action.MODIFY);
     private static final ImmutableList<ObjectType> TYPES = ImmutableList.of(ObjectType.INET6NUM);
@@ -42,7 +43,7 @@ public class AggregatedByLirStatusValidator implements BusinessRuleValidator {
     private final RpslObjectDao rpslObjectDao;
 
     @Autowired
-    public AggregatedByLirStatusValidator(final Ipv6Tree ipv6Tree, final RpslObjectDao rpslObjectDao) {
+    public Inet6numAggregatedByLirStatusValidator(final Ipv6Tree ipv6Tree, final RpslObjectDao rpslObjectDao) {
         this.ipv6Tree = ipv6Tree;
         this.rpslObjectDao = rpslObjectDao;
     }
