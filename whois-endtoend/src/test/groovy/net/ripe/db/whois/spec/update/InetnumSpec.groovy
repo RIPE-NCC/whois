@@ -331,6 +331,19 @@ class InetnumSpec extends BaseQueryUpdateSpec {
                 mnt-lower:    LIR-MNT
                 source:       TEST
                 """,
+                "AGGREGATED-LIR": """\
+                inetnum:      192.168.0.255 - 192.168.255.255
+                netname:      TEST-NET-NAME
+                descr:        TEST network
+                country:      NL
+                org:          ORG-LIR1-TEST
+                admin-c:      TP1-TEST
+                tech-c:       TP1-TEST
+                status:       AGGREGATED-BY-LIR
+                mnt-by:       lir-MNT
+                mnt-lower:    LIR-MNT
+                source:       TEST
+                """,
                 "LEGACY-USER-ONLY": """\
                 inetnum:      192.168.0.0 - 192.168.255.255
                 netname:      RIPE-NET1
@@ -4013,8 +4026,13 @@ class InetnumSpec extends BaseQueryUpdateSpec {
       then:
         def ack = ackFor message
 
-        ack.summary.nrFound == 1
-        ack.summary.assertSuccess(1, 1, 0, 0, 0)
+          ack.summary.nrFound == 1
+          ack.summary.assertSuccess(1, 1, 0, 0, 0)
+          ack.summary.assertErrors(0, 0, 0, 0)
+
+          ack.successes.any { it.operation == "Create" && it.key == "[inetnum] 192.168.0.255 - 192.168.255.255" }
+
+          queryObject("-rGBT inetnum 192.168.0.255 - 192.168.255.255", "inetnum", "192.168.0.255 - 192.168.255.255")
 
     }
 
@@ -4053,6 +4071,11 @@ class InetnumSpec extends BaseQueryUpdateSpec {
 
         ack.summary.nrFound == 1
         ack.summary.assertSuccess(1, 1, 0, 0, 0)
+        ack.summary.assertErrors(0, 0, 0, 0)
+
+        ack.successes.any { it.operation == "Create" && it.key == "[inetnum] 192.168.0.255 - 192.168.255.255" }
+
+        queryObject("-rGBT inetnum 192.168.0.255 - 192.168.255.255", "inetnum", "192.168.0.255 - 192.168.255.255")
 
     }
 
@@ -4103,6 +4126,111 @@ class InetnumSpec extends BaseQueryUpdateSpec {
 
     }
 
+    def "modify inetnum with  status AGGREGATED-BY-LIR, add assignment-size fails"() {
+        given:
+        syncUpdate(getTransient("ALLOC-PA") + "password: owner3\npassword: hm")
+        queryObject("-r -T inetnum 192.168.0.0 - 192.169.255.255", "inetnum", "192.168.0.0 - 192.169.255.255")
+
+        syncUpdate(getTransient("AGGREGATED-LIR") + "password: owner3\npassword: lir")
+        queryObject("-r -T inetnum 192.168.0.255 - 192.168.255.255", "inetnum", "192.168.0.255 - 192.168.255.255")
+
+        when:
+        def message = send new Message(
+                subject: "",
+                body: """\
+                inetnum:      192.168.0.255 - 192.168.255.255
+                netname:      TEST-NET-NAME
+                descr:        TEST network
+                country:      NL
+                org:          ORG-LIR1-TEST
+                admin-c:      TP1-TEST
+                tech-c:       TP1-TEST
+                status:       AGGREGATED-BY-LIR
+                assignment-size: 32
+                mnt-by:       lir-MNT
+                mnt-lower:    LIR-MNT
+                source:       TEST
+
+                password: owner3
+                password: lir
+                """.stripIndent(true)
+        )
+
+        then:
+        def ack = ackFor message
+
+        ack.summary.nrFound == 1
+        ack.summary.assertSuccess(0, 0, 0, 0, 0)
+        ack.summary.assertErrors(1, 0, 1, 0)
+
+        ack.countErrorWarnInfo(1, 0, 0)
+        ack.errors.any { it.operation == "Modify" && it.key == "[inetnum] 192.168.0.255 - 192.168.255.255" }
+        ack.errorMessagesFor("Modify", "[inetnum] 192.168.0.255 - 192.168.255.255") ==
+                ["\"assignment-size:\" value cannot be changed"]
+
+    }
+
+    def "modify inetnum with  status AGGREGATED-BY-LIR, can not change assignment-size"() {
+        given:
+        syncUpdate(getTransient("ALLOC-PA") + "password: owner3\npassword: hm")
+        queryObject("-r -T inetnum 192.168.0.0 - 192.169.255.255", "inetnum", "192.168.0.0 - 192.169.255.255")
+
+
+        def child = syncUpdate(new SyncUpdate(data: """\
+                                        inetnum:      192.168.0.255 - 192.168.255.255
+                                        netname:      TEST-NET-NAME
+                                        descr:        TEST network
+                                        country:      NL
+                                        org:          ORG-LIR1-TEST
+                                        admin-c:      TP1-TEST
+                                        tech-c:       TP1-TEST
+                                        status:       AGGREGATED-BY-LIR
+                                        assignment-size: 32
+                                        mnt-by:       lir-MNT
+                                        mnt-lower:    LIR-MNT
+                                        source:       TEST
+                        
+                                        password: owner3
+                                        password: lir
+                                    """.stripIndent(true)))
+
+        expect:
+        child =~ /SUCCESS/
+
+        when:
+        def message = send new Message(
+                subject: "",
+                body: """\
+                inetnum:      192.168.0.255 - 192.168.255.255
+                netname:      TEST-NET-NAME
+                descr:        TEST network
+                country:      NL
+                org:          ORG-LIR1-TEST
+                admin-c:      TP1-TEST
+                tech-c:       TP1-TEST
+                status:       AGGREGATED-BY-LIR
+                assignment-size: 28
+                mnt-by:       lir-MNT
+                mnt-lower:    LIR-MNT
+                source:       TEST
+
+                password: owner3
+                password: lir
+                """.stripIndent(true)
+        )
+
+        then:
+        def ack = ackFor message
+
+        ack.summary.nrFound == 1
+        ack.summary.assertSuccess(0, 0, 0, 0, 0)
+        ack.summary.assertErrors(1, 0, 1, 0)
+
+        ack.countErrorWarnInfo(1, 0, 0)
+        ack.errors.any { it.operation == "Modify" && it.key == "[inetnum] 192.168.0.255 - 192.168.255.255" }
+        ack.errorMessagesFor("Modify", "[inetnum] 192.168.0.255 - 192.168.255.255") ==
+                ["\"assignment-size:\" value cannot be changed"]
+    }
 
     def "create ASSIGNED PA, invalid range, reversed"() {
       given:
