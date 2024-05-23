@@ -95,7 +95,7 @@ public abstract class AggregatedByLirStatusValidator<K extends IpInterval<K>, V 
 
         final InetStatus parentStatus = InetStatusHelper.getStatus(parent);
 
-        if (AGGREGATED_BY_LIR.toString().equals(parentStatus.toString())) {
+        if (AGGREGATED_BY_LIR.toString().equals(parentStatus.toString()) && parent.containsAttribute(AttributeType.ASSIGNMENT_SIZE)) {
             final int parentAssignmentSize = parent.getValueForAttribute(AttributeType.ASSIGNMENT_SIZE).toInt();
             final int prefixLength = ipResource.getPrefixLength();
             if (prefixLength != parentAssignmentSize) {

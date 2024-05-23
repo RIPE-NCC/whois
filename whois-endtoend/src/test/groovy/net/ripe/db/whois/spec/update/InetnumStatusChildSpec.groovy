@@ -390,6 +390,200 @@ class InetnumStatusChildSpec extends BaseQueryUpdateSpec {
         queryObjectNotFound("-rGBT inetnum 192.168.0.0 - 192.168.255.255", "inetnum", "192.168.0.0 - 192.168.255.255")
     }
 
+    //Tests for AGGREGATED-BY-LIR
+
+    def "create child AGGREGATED-BY-LIR, parent status ALLOCATED PA"() {
+        given:
+        syncUpdate(getTransient("ALLOC-PA") + "password: owner3\npassword: hm")
+        queryObject("-r -T inetnum 192.168.0.0 - 192.169.255.255", "inetnum", "192.168.0.0 - 192.169.255.255")
+
+        expect:
+        queryObjectNotFound("-r -T inetnum 192.168.0.0 - 192.168.255.255", "inetnum", "192.168.0.0 - 192.168.255.255")
+
+        when:
+        def ack = syncUpdateWithResponse("""\
+                inetnum:      192.168.0.0 - 192.168.255.255
+                netname:      TEST-NET-NAME
+                descr:        TEST network
+                country:      NL
+                org:          ORG-LIR1-TEST
+                admin-c:      TP1-TEST
+                tech-c:       TP1-TEST
+                status:       AGGREGATED-BY-LIR
+                mnt-by:       RIPE-NCC-HM-MNT
+                mnt-lower:    LIR-MNT
+                source:       TEST
+
+                password: hm
+                password: owner3
+                password: lir
+                """.stripIndent(true)
+        )
+
+        then:
+
+        ack.summary.nrFound == 1
+        ack.summary.assertSuccess(1, 1, 0, 0, 0)
+        ack.summary.assertErrors(0, 0, 0, 0)
+
+        ack.successes.any { it.operation == "Create" && it.key == "[inetnum] 192.168.0.0 - 192.168.255.255" }
+
+        queryObject("-rGBT inetnum 192.168.0.0 - 192.168.255.255", "inetnum", "192.168.0.0 - 192.168.255.255")
+    }
+
+    def "create child AGGREGATED-BY-LIR, parent status SUB_ALLOCATED_PA"() {
+        given:
+        syncUpdate(getTransient("ALLOC-PA") + "password: owner3\npassword: hm")
+        queryObject("-r -T inetnum 192.168.0.0 - 192.169.255.255", "inetnum", "192.168.0.0 - 192.169.255.255")
+        syncUpdate(getTransient("SUB-ALLOC-PA") + "password: lir\npassword: owner3")
+        queryObject("-r -T inetnum 192.168.128.0 - 192.168.255.255", "inetnum", "192.168.128.0 - 192.168.255.255")
+
+        expect:
+        queryObjectNotFound("-r -T inetnum 192.168.200.0 - 192.168.200.255", "inetnum", "192.168.200.0 - 192.168.200.255")
+
+        when:
+        def ack = syncUpdateWithResponse("""\
+                inetnum:      192.168.200.0 - 192.168.200.255
+                netname:      TEST-NET-NAME
+                descr:        TEST network
+                country:      NL
+                org:          ORG-LIR1-TEST
+                admin-c:      TP1-TEST
+                tech-c:       TP1-TEST
+                status:       AGGREGATED-BY-LIR
+                mnt-by:       RIPE-NCC-HM-MNT
+                mnt-lower:    LIR-MNT
+                source:       TEST
+
+                password: hm
+                password: owner3
+                password: sub
+                """.stripIndent(true)
+        )
+
+        then:
+
+        ack.summary.nrFound == 1
+        ack.summary.assertSuccess(1, 1, 0, 0, 0)
+        ack.summary.assertErrors(0, 0, 0, 0)
+
+        ack.successes.any { it.operation == "Create" && it.key == "[inetnum] 192.168.200.0 - 192.168.200.255" }
+
+        queryObject("-rGBT inetnum 192.168.200.0 - 192.168.200.255", "inetnum", "192.168.200.0 - 192.168.200.255")
+    }
+
+    def "create child AGGREGATED-BY-LIR, parent status LIR_PARTITIONED_PA"() {
+        given:
+        syncUpdate(getTransient("ALLOC-PA") + "password: owner3\npassword: hm")
+        queryObject("-r -T inetnum 192.168.0.0 - 192.169.255.255", "inetnum", "192.168.0.0 - 192.169.255.255")
+
+        def child = syncUpdate(new SyncUpdate(data: """\
+                                        inetnum:      192.168.128.0 - 192.168.255.255
+                                        netname:      TEST-NET-NAME
+                                        descr:        TEST network
+                                        country:      NL
+                                        org:          ORG-SUB1-TEST
+                                        admin-c:      TP1-TEST
+                                        tech-c:       TP1-TEST
+                                        status:       LIR-PARTITIONED PA
+                                        mnt-by:       LIR-MNT
+                                        mnt-lower:    SUB-MNT
+                                        source:       TEST
+                        
+                                        password: owner3
+                                        password: lir
+                                    """.stripIndent(true)))
+
+        expect:
+        child =~ /SUCCESS/
+
+        when:
+        def ack = syncUpdateWithResponse("""\
+                inetnum:      192.168.200.0 - 192.168.200.255
+                netname:      TEST-NET-NAME
+                descr:        TEST network
+                country:      NL
+                org:          ORG-LIR1-TEST
+                admin-c:      TP1-TEST
+                tech-c:       TP1-TEST
+                status:       AGGREGATED-BY-LIR
+                mnt-by:       RIPE-NCC-HM-MNT
+                mnt-lower:    LIR-MNT
+                source:       TEST
+
+                password: hm
+                password: owner3
+                password: sub
+                """.stripIndent(true)
+        )
+
+        then:
+
+        ack.summary.nrFound == 1
+        ack.summary.assertSuccess(1, 1, 0, 0, 0)
+        ack.summary.assertErrors(0, 0, 0, 0)
+
+        ack.successes.any { it.operation == "Create" && it.key == "[inetnum] 192.168.200.0 - 192.168.200.255" }
+
+        queryObject("-rGBT inetnum 192.168.200.0 - 192.168.200.255", "inetnum", "192.168.200.0 - 192.168.200.255")
+    }
+
+    def "create child AGGREGATED-BY-LIR, parent status AGGREGATED-BY-LIR"() {
+        given:
+        syncUpdate(getTransient("ALLOC-PA") + "password: owner3\npassword: hm")
+        queryObject("-r -T inetnum 192.168.0.0 - 192.169.255.255", "inetnum", "192.168.0.0 - 192.169.255.255")
+
+        def child = syncUpdate(new SyncUpdate(data: """\
+                                        inetnum:      192.168.128.0 - 192.168.255.255
+                                        netname:      TEST-NET-NAME
+                                        descr:        TEST network
+                                        country:      NL
+                                        org:          ORG-SUB1-TEST
+                                        admin-c:      TP1-TEST
+                                        tech-c:       TP1-TEST
+                                        status:       AGGREGATED-BY-LIR
+                                        mnt-by:       LIR-MNT
+                                        mnt-lower:    SUB-MNT
+                                        source:       TEST
+                        
+                                        password: owner3
+                                        password: lir
+                                    """.stripIndent(true)))
+
+        expect:
+        child =~ /SUCCESS/
+
+        when:
+        def ack = syncUpdateWithResponse("""\
+                inetnum:      192.168.200.0 - 192.168.200.255
+                netname:      TEST-NET-NAME
+                descr:        TEST network
+                country:      NL
+                org:          ORG-LIR1-TEST
+                admin-c:      TP1-TEST
+                tech-c:       TP1-TEST
+                status:       AGGREGATED-BY-LIR
+                mnt-by:       RIPE-NCC-HM-MNT
+                mnt-lower:    LIR-MNT
+                source:       TEST
+
+                password: hm
+                password: owner3
+                password: sub
+                """.stripIndent(true)
+        )
+
+        then:
+
+        ack.summary.nrFound == 1
+        ack.summary.assertSuccess(1, 1, 0, 0, 0)
+        ack.summary.assertErrors(0, 0, 0, 0)
+
+        ack.successes.any { it.operation == "Create" && it.key == "[inetnum] 192.168.200.0 - 192.168.200.255" }
+
+        queryObject("-rGBT inetnum 192.168.200.0 - 192.168.200.255", "inetnum", "192.168.200.0 - 192.168.200.255")
+    }
+
     // Tests for parent ALLOCATED-ASSIGNED PA
     def "create child LIR-PARTITIONED PA, parent status ALLOCATED-ASSIGNED PA"() {
         given:
