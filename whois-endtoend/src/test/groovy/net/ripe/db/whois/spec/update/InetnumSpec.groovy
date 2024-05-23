@@ -3981,7 +3981,7 @@ class InetnumSpec extends BaseQueryUpdateSpec {
         queryObjectNotFound("-rGBT inetnum 192.168.0.255 - 192.168.255.255", "inetnum", "192.168.0.255 - 192.168.255.255")
     }
 
-    def "create with IPv6 status"() {
+    def "create inetnum with  status AGGREGATED-BY-LIR, assignment-size optional"() {
       given:
         syncUpdate(getTransient("ALLOC-PA") + "password: owner3\npassword: hm")
         queryObject("-r -T inetnum 192.168.0.0 - 192.169.255.255", "inetnum", "192.168.0.0 - 192.169.255.255")
@@ -4014,16 +4014,95 @@ class InetnumSpec extends BaseQueryUpdateSpec {
         def ack = ackFor message
 
         ack.summary.nrFound == 1
+        ack.summary.assertSuccess(1, 1, 0, 0, 0)
+
+    }
+
+    def "create inetnum with  status AGGREGATED-BY-LIR, with assignment-size"() {
+        given:
+        syncUpdate(getTransient("ALLOC-PA") + "password: owner3\npassword: hm")
+        queryObject("-r -T inetnum 192.168.0.0 - 192.169.255.255", "inetnum", "192.168.0.0 - 192.169.255.255")
+
+        expect:
+        queryObjectNotFound("-r -T inetnum 192.168.0.255 - 192.168.255.255", "inetnum", "192.168.0.255 - 192.168.255.255")
+
+        when:
+        def message = send new Message(
+                subject: "",
+                body: """\
+                inetnum:      192.168.0.255 - 192.168.255.255
+                netname:      TEST-NET-NAME
+                descr:        TEST network
+                country:      NL
+                org:          ORG-LIR1-TEST
+                admin-c:      TP1-TEST
+                tech-c:       TP1-TEST
+                status:       AGGREGATED-BY-LIR
+                assignment-size: 32
+                mnt-by:       lir-MNT
+                mnt-lower:    LIR-MNT
+                source:       TEST
+
+                password: owner3
+                password: lir
+                """.stripIndent(true)
+        )
+
+        then:
+        def ack = ackFor message
+
+        ack.summary.nrFound == 1
+        ack.summary.assertSuccess(1, 1, 0, 0, 0)
+
+    }
+
+    def "create inetnum with  status AGGREGATED-BY-LIR, with incorrect assignment-size"() {
+        given:
+        syncUpdate(getTransient("ALLOC-PA") + "password: owner3\npassword: hm")
+        queryObject("-r -T inetnum 192.168.0.0 - 192.169.255.255", "inetnum", "192.168.0.0 - 192.169.255.255")
+
+        expect:
+        queryObjectNotFound("-r -T inetnum 192.168.0.255 - 192.168.255.255", "inetnum", "192.168.0.255 - 192.168.255.255")
+
+        when:
+        def message = send new Message(
+                subject: "",
+                body: """\
+                inetnum:      192.168.0.255 - 192.168.255.255
+                netname:      TEST-NET-NAME
+                descr:        TEST network
+                country:      NL
+                org:          ORG-LIR1-TEST
+                admin-c:      TP1-TEST
+                tech-c:       TP1-TEST
+                status:       AGGREGATED-BY-LIR
+                assignment-size: 40
+                mnt-by:       lir-MNT
+                mnt-lower:    LIR-MNT
+                source:       TEST
+
+                password: owner3
+                password: lir
+                """.stripIndent(true)
+        )
+
+        then:
+        def ack = ackFor message
+
+
+        ack.summary.nrFound == 1
         ack.summary.assertSuccess(0, 0, 0, 0, 0)
         ack.summary.assertErrors(1, 1, 0, 0)
 
         ack.countErrorWarnInfo(1, 0, 0)
         ack.errors.any { it.operation == "Create" && it.key == "[inetnum] 192.168.0.255 - 192.168.255.255" }
         ack.errorMessagesFor("Create", "[inetnum] 192.168.0.255 - 192.168.255.255") ==
-                ["Syntax error in AGGREGATED-BY-LIR"]
+                ["\"assignment-size:\" value must not be greater than the maximum prefix size 32"]
 
         queryObjectNotFound("-rGBT inetnum 192.168.0.255 - 192.168.255.255", "inetnum", "192.168.0.255 - 192.168.255.255")
+
     }
+
 
     def "create ASSIGNED PA, invalid range, reversed"() {
       given:

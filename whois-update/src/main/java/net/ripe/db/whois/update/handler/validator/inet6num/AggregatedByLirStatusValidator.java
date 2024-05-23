@@ -55,7 +55,7 @@ public abstract class AggregatedByLirStatusValidator<K extends IpInterval<K>, V 
         final List<Message> messages = Lists.newArrayList();
 
         final InetStatus status = InetStatusHelper.getStatus(object);
-        if (AGGREGATED_BY_LIR == status) {
+        if (AGGREGATED_BY_LIR.toString().equals(status.toString())) {
             validateRequiredAssignmentSize(object, resource, messages);
             validTotalNrAggregatedByLirInHierarchy(resource, messages);
         } else {
@@ -95,7 +95,7 @@ public abstract class AggregatedByLirStatusValidator<K extends IpInterval<K>, V 
 
         final InetStatus parentStatus = InetStatusHelper.getStatus(parent);
 
-        if (AGGREGATED_BY_LIR == parentStatus) {
+        if (AGGREGATED_BY_LIR.toString().equals(parentStatus.toString())) {
             final int parentAssignmentSize = parent.getValueForAttribute(AttributeType.ASSIGNMENT_SIZE).toInt();
             final int prefixLength = ipResource.getPrefixLength();
             if (prefixLength != parentAssignmentSize) {
@@ -132,15 +132,15 @@ public abstract class AggregatedByLirStatusValidator<K extends IpInterval<K>, V 
     private boolean isAggregatedByLir(final V entry) {
         final RpslObject object = rpslObjectDao.getById(entry.getObjectId());
         final InetStatus status = InetStatusHelper.getStatus(object);
-        return AGGREGATED_BY_LIR == status;
+        return AGGREGATED_BY_LIR.toString().equals(status.toString());
     }
 
     private  List<Message> validateModify(final PreparedUpdate update) {
         final List<Message> customValidationMessages = Lists.newArrayList();
 
-        final InetStatus inet6numStatus = InetStatusHelper.getStatus(update.getUpdatedObject());
+        final InetStatus status = InetStatusHelper.getStatus(update.getUpdatedObject());
         if (assignmentSizeHasChanged(update)) {
-            if(AGGREGATED_BY_LIR == inet6numStatus) {
+            if(AGGREGATED_BY_LIR.toString().equals(status.toString())) {
                 customValidationMessages.add(UpdateMessages.cantChangeAssignmentSize());
             } else {
                 addMessagesForAttributeAssignmentSizeNotAllowed(update.getUpdatedObject(), customValidationMessages);

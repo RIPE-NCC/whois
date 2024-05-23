@@ -124,7 +124,7 @@ public enum AttributeType implements Documented {
 
     ASSIGNMENT_SIZE(new Builder("assignment-size", "ae")
             .doc("Specifies the size of blocks assigned to end users from this aggregated inet(6)num assignment.\n" +
-                    "The maximum assignment size for inetnum is  32 and for ine6num is 128")
+                    "The maximum assignment size for inetnum is 32 and for inet6num is 128")
             .syntax(NUMBER_SYNTAX)),
 
     AS_BLOCK(new Builder("as-block", "ak")
