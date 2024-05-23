@@ -737,9 +737,292 @@ class InetnumStatusChildSpec extends BaseQueryUpdateSpec {
 
         queryObjectNotFound("-rGBT inetnum 192.168.0.0 - 192.169.255.255", "inetnum", "192.168.200.0 - 192.168.200.255")
     }
-    
 
-    // Tests for parent ALLOCATED-ASSIGNED PA
+    def "create child AGGREGATED-BY-LIR then create grand-child ASSIGNED PA with different size"() {
+        given:
+        syncUpdate(getTransient("ALLOC-PA") + "password: owner3\npassword: hm")
+        queryObject("-r -T inetnum 192.168.0.0 - 192.169.255.255", "inetnum", "192.168.0.0 - 192.169.255.255")
+
+        when:
+        def message = send new Message(
+                subject: "",
+                body: """\
+                inetnum:      192.168.128.0 - 192.168.255.255
+                netname:      TEST-NET-NAME
+                descr:        TEST network
+                country:      NL
+                org:          ORG-SUB1-TEST
+                admin-c:      TP1-TEST
+                tech-c:       TP1-TEST
+                status:       AGGREGATED-BY-LIR
+                assignment-size: 22
+                mnt-by:       LIR-MNT
+                mnt-lower:    SUB-MNT
+                source:       TEST
+
+                inetnum:      192.168.200.0 - 192.168.200.255
+                netname:      TEST-NET-NAME
+                descr:        TEST network
+                country:      NL
+                org:          ORG-LIR1-TEST
+                admin-c:      TP1-TEST
+                tech-c:       TP1-TEST
+                status:       ASSIGNED PA
+                mnt-by:       LIR-MNT
+                mnt-lower:    LIR-MNT
+                source:       TEST
+
+                password: owner3
+                password: sub
+                password: lir
+                """.stripIndent(true)
+        )
+
+        then:
+        def ack = ackFor message
+
+        ack.summary.nrFound == 2
+        ack.summary.assertSuccess(1, 1, 0, 0, 0)
+        ack.summary.assertErrors(1, 1, 0, 0)
+
+        ack.countErrorWarnInfo(1, 0, 0)
+        ack.errors.any { it.operation == "Create" && it.key == "[inetnum] 192.168.200.0 - 192.168.200.255" }
+        ack.successes.any { it.operation == "Create" && it.key == "[inetnum] 192.168.128.0 - 192.168.255.255" }
+        ack.errorMessagesFor("Create", "[inetnum] 192.168.200.0 - 192.168.200.255") ==
+                ["Prefix length for 192.168.200.0/24 must be 22"]
+
+        queryObject("-rGBT inetnum 192.168.128.0 - 192.168.255.255", "inetnum", "192.168.128.0 - 192.168.255.255")
+        queryObjectNotFound("-rGBT inetnum 192.168.200.0 - 192.168.200.255", "inetnum", "192.168.200.0 - 192.168.200.255")
+    }
+
+    def "create child AGGREGATED-BY-LIR then create grand-child ASSIGNED PA with correct size"() {
+        given:
+        syncUpdate(getTransient("ALLOC-PA") + "password: owner3\npassword: hm")
+        queryObject("-r -T inetnum 192.168.0.0 - 192.169.255.255", "inetnum", "192.168.0.0 - 192.169.255.255")
+
+        when:
+        def message = send new Message(
+                subject: "",
+                body: """\
+                inetnum:      192.168.128.0 - 192.168.255.255
+                netname:      TEST-NET-NAME
+                descr:        TEST network
+                country:      NL
+                org:          ORG-SUB1-TEST
+                admin-c:      TP1-TEST
+                tech-c:       TP1-TEST
+                status:       AGGREGATED-BY-LIR
+                assignment-size: 24
+                mnt-by:       LIR-MNT
+                mnt-lower:    SUB-MNT
+                source:       TEST
+
+                inetnum:      192.168.200.0 - 192.168.200.255
+                netname:      TEST-NET-NAME
+                descr:        TEST network
+                country:      NL
+                org:          ORG-LIR1-TEST
+                admin-c:      TP1-TEST
+                tech-c:       TP1-TEST
+                status:       ASSIGNED PA
+                mnt-by:       LIR-MNT
+                mnt-lower:    LIR-MNT
+                source:       TEST
+
+                password: owner3
+                password: sub
+                password: lir
+                """.stripIndent(true)
+        )
+
+        then:
+        def ack = ackFor message
+
+        ack.summary.nrFound == 2
+        ack.summary.assertSuccess(2, 2, 0, 0, 0)
+        ack.summary.assertErrors(0, 0, 0, 0)
+
+        queryObject("-rGBT inetnum 192.168.128.0 - 192.168.255.255", "inetnum", "192.168.128.0 - 192.168.255.255")
+        queryObject("-rGBT inetnum 192.168.200.0 - 192.168.200.255", "inetnum", "192.168.200.0 - 192.168.200.255")
+    }
+
+    def "create 3 levels AGGREGATED-BY-LIR, adding at end"() {
+        given:
+        def child = syncUpdate(new SyncUpdate(data: """\
+                                        inetnum:      192.0.0.0 - 192.255.255.255
+                                        netname:      TEST-NET-NAME
+                                        descr:        TEST network
+                                        country:      NL
+                                        org:          ORG-HR1-TEST
+                                        admin-c:      TP1-TEST
+                                        tech-c:       TP1-TEST
+                                        status:       ALLOCATED PA
+                                        mnt-by:       RIPE-NCC-HM-MNT
+                                        mnt-lower:    RIPE-NCC-HM-MNT
+                                        source:       TEST
+                                        
+                                        inetnum:      192.168.0.0 - 192.169.255.255
+                                        netname:      TEST-NET-NAME
+                                        descr:        TEST network
+                                        country:      NL
+                                        org:          ORG-SUB1-TEST
+                                        admin-c:      TP1-TEST
+                                        tech-c:       TP1-TEST
+                                        status:       AGGREGATED-BY-LIR
+                                        mnt-by:       LIR-MNT
+                                        mnt-lower:    SUB-MNT
+                                        source:       TEST
+                        
+                                        password: owner3
+                                        password: hm
+                                        password: lir
+                                    """.stripIndent(true)))
+
+        expect:
+        child =~ /SUCCESS/
+
+        when:
+        def message = send new Message(
+                subject: "",
+                body: """\
+                inetnum:      192.168.128.0 - 192.168.255.255
+                netname:      TEST-NET-NAME
+                descr:        TEST network
+                country:      NL
+                org:          ORG-SUB1-TEST
+                admin-c:      TP1-TEST
+                tech-c:       TP1-TEST
+                status:       AGGREGATED-BY-LIR
+                assignment-size: 24
+                mnt-by:       LIR-MNT
+                mnt-lower:    SUB-MNT
+                source:       TEST
+
+                inetnum:      192.168.200.0 - 192.168.200.255
+                netname:      TEST-NET-NAME
+                descr:        TEST network
+                country:      NL
+                org:          ORG-LIR1-TEST
+                admin-c:      TP1-TEST
+                tech-c:       TP1-TEST
+                status:       AGGREGATED-BY-LIR
+                mnt-by:       LIR-MNT
+                mnt-lower:    LIR-MNT
+                source:       TEST
+
+                password: owner3
+                password: sub
+                password: lir
+                """.stripIndent(true)
+        )
+
+        then:
+        def ack = ackFor message
+
+        ack.summary.nrFound == 2
+        ack.summary.assertSuccess(1, 1, 0, 0, 0)
+        ack.summary.assertErrors(1, 1, 0, 0)
+
+        ack.countErrorWarnInfo(1, 0, 0)
+        ack.errors.any { it.operation == "Create" && it.key == "[inetnum] 192.168.200.0 - 192.168.200.255" }
+        ack.successes.any { it.operation == "Create" && it.key == "[inetnum] 192.168.128.0 - 192.168.255.255" }
+        ack.errorMessagesFor("Create", "[inetnum] 192.168.200.0 - 192.168.200.255") ==
+                ["Only two levels of hierarchy allowed with status AGGREGATED-BY-LIR"]
+
+        queryObject("-rGBT inetnum 192.168.128.0 - 192.168.255.255", "inetnum", "192.168.128.0 - 192.168.255.255")
+        queryObjectNotFound("-rGBT inetnum 192.168.200.0 - 192.168.200.255", "inetnum", "192.168.200.0 - 192.168.200.255")
+    }
+
+    def "create 3 levels AGGREGATED-BY-LIR, adding at start"() {
+        given:
+        def child = syncUpdate(new SyncUpdate(data: """\
+                                        inetnum:      192.0.0.0 - 192.255.255.255
+                                        netname:      TEST-NET-NAME
+                                        descr:        TEST network
+                                        country:      NL
+                                        org:          ORG-HR1-TEST
+                                        admin-c:      TP1-TEST
+                                        tech-c:       TP1-TEST
+                                        status:       ALLOCATED PA
+                                        mnt-by:       LIR-MNT
+                                        mnt-by:       RIPE-NCC-HM-MNT
+                                        source:       TEST
+                                       
+                                        password: owner3
+                                        password: hm
+                                        password: lir
+                                    """.stripIndent(true)))
+
+        expect:
+        child =~ /SUCCESS/
+
+        when:
+        def message = send new Message(
+                subject: "",
+                body: """\
+                inetnum:      192.168.128.0 - 192.168.255.255
+                netname:      TEST-NET-NAME
+                descr:        TEST network
+                country:      NL
+                org:          ORG-SUB1-TEST
+                admin-c:      TP1-TEST
+                tech-c:       TP1-TEST
+                status:       AGGREGATED-BY-LIR
+                assignment-size: 24
+                mnt-by:       LIR-MNT
+                mnt-lower:    LIR-MNT
+                source:       TEST
+
+                inetnum:      192.168.200.0 - 192.168.200.255
+                netname:      TEST-NET-NAME
+                descr:        TEST network
+                country:      NL
+                org:          ORG-LIR1-TEST
+                admin-c:      TP1-TEST
+                tech-c:       TP1-TEST
+                status:       AGGREGATED-BY-LIR
+                mnt-by:       LIR-MNT
+                mnt-lower:    LIR-MNT
+                source:       TEST
+
+ 
+                inetnum:      192.168.0.0 - 192.169.255.255
+                netname:      TEST-NET-NAME
+                descr:        TEST network
+                country:      NL
+                org:          ORG-SUB1-TEST
+                admin-c:      TP1-TEST
+                tech-c:       TP1-TEST
+                status:       AGGREGATED-BY-LIR
+                mnt-by:       LIR-MNT
+                mnt-lower:    LIR-MNT
+                source:       TEST
+                        
+                password: owner3
+                password: sub
+                password: lir
+                """.stripIndent(true)
+        )
+
+        then:
+        def ack = ackFor message
+
+        ack.summary.nrFound == 3
+        ack.summary.assertSuccess(2, 2, 0, 0, 0)
+        ack.summary.assertErrors(1, 1, 0, 0)
+
+        ack.countErrorWarnInfo(1, 0, 0)
+        ack.errors.any { it.operation == "Create" && it.key == "[inetnum] 192.168.0.0 - 192.169.255.255" }
+        ack.successes.any { it.operation == "Create" && it.key == "[inetnum] 192.168.200.0 - 192.168.200.255" }
+        ack.successes.any { it.operation == "Create" && it.key == "[inetnum] 192.168.128.0 - 192.168.255.255" }
+        ack.errorMessagesFor("Create", "[inetnum] 192.168.0.0 - 192.169.255.255") ==
+                ["Only two levels of hierarchy allowed with status AGGREGATED-BY-LIR"]
+
+        queryObject("-rGBT inetnum 192.168.128.0 - 192.168.255.255", "inetnum", "192.168.128.0 - 192.168.255.255")
+        queryObjectNotFound("-rGBT inetnum 192.168.0.0 - 192.169.255.255", "inetnum", "192.168.0.0 - 192.169.255.255")
+    }
+
+        // Tests for parent ALLOCATED-ASSIGNED PA
     def "create child LIR-PARTITIONED PA, parent status ALLOCATED-ASSIGNED PA"() {
         given:
         def insertResponse = syncUpdate(new SyncUpdate(data: """\
