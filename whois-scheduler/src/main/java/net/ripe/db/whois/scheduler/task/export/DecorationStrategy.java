@@ -35,10 +35,11 @@ public interface DecorationStrategy {
         public RpslObject decorate(final RpslObject object) {
             //Here PERSON and ROLE with abuseMailBox objects will be ignored for VERSION 3
             if (dummifier.isAllowed(VERSION, object)) {
-                if (object.getKey().equals(DummifierNrtm.getPlaceholderRoleObject().getKey())){
+                final RpslObject rpslObject = dummifier.dummify(VERSION, object);
+                if (rpslObject.getType().equals(ObjectType.ROLE) && rpslObject.getKey().equals(DummifierNrtm.getPlaceholderRoleObject().getKey())){
                     rolePlaceHolderCreated = true;
                 }
-                return dummifier.dummify(VERSION, object);
+                return rpslObject;
             }
 
             final ObjectType objectType = object.getType();
