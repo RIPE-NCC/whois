@@ -52,7 +52,6 @@ public class DecorationStrategyTest {
     }
 
     @Test
-    @Disabled
     public void decorate_dummify_not_allowed() {
         DecorationStrategy subject = new DecorationStrategy.DummifySplitFiles(dummifier);
         Mockito.when(dummifier.isAllowed(3, object)).thenReturn(false);
