@@ -5,9 +5,6 @@ import net.ripe.db.whois.common.rpsl.DummifierNrtm;
 import net.ripe.db.whois.common.rpsl.ObjectType;
 import net.ripe.db.whois.common.rpsl.RpslObject;
 import net.ripe.db.whois.common.rpsl.transform.FilterChangedFunction;
-import net.ripe.db.whois.scheduler.task.autnum.LegacyAutnumReloadTask;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import javax.annotation.CheckForNull;
 import java.util.Set;
@@ -25,8 +22,6 @@ public interface DecorationStrategy {
         private final DummifierNrtm dummifier;
         private final Set<ObjectType> writtenPlaceHolders = Sets.newHashSet();
 
-        private boolean rolePlaceHolderCreated = false;
-
         public DummifySplitFiles(final DummifierNrtm dummifier) {
             this.dummifier = dummifier;
         }
@@ -34,12 +29,8 @@ public interface DecorationStrategy {
         @Override
         public RpslObject decorate(final RpslObject object) {
             //Here PERSON and ROLE with abuseMailBox objects will be ignored for VERSION 3
-            if (dummifier.isAllowed(VERSION, object)) {
-                final RpslObject rpslObject = dummifier.dummify(VERSION, object);
-                if (rpslObject.getType().equals(ObjectType.ROLE) && rpslObject.getKey().equals(DummifierNrtm.getPlaceholderRoleObject().getKey())){
-                    rolePlaceHolderCreated = true;
-                }
-                return rpslObject;
+            if (dummifier.isAllowed(VERSION, object) && !hasRolePlaceHolderKey(object)) {
+                return dummifier.dummify(VERSION, object);
             }
 
             final ObjectType objectType = object.getType();
@@ -49,12 +40,16 @@ public interface DecorationStrategy {
                 if (objectType.equals(ObjectType.PERSON)) {
                     return DummifierNrtm.getPlaceholderPersonObject();
                 }
-                if (objectType.equals(ObjectType.ROLE) && !rolePlaceHolderCreated) {
+                if (objectType.equals(ObjectType.ROLE)) {
                     return DummifierNrtm.getPlaceholderRoleObject();
                 }
             }
             return null;
         }
+    }
+
+    private static boolean hasRolePlaceHolderKey(RpslObject object) {
+        return object.getType().equals(ObjectType.ROLE) && object.getKey().equals(DummifierNrtm.getPlaceholderRoleObject().getKey());
     }
 
     @CheckForNull
