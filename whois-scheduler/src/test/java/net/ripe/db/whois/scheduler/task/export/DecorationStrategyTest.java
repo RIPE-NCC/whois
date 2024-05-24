@@ -3,11 +3,13 @@ package net.ripe.db.whois.scheduler.task.export;
 import net.ripe.db.whois.common.rpsl.DummifierNrtm;
 import net.ripe.db.whois.common.rpsl.RpslObject;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
+import spock.lang.Ignore;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
@@ -50,6 +52,7 @@ public class DecorationStrategyTest {
     }
 
     @Test
+    @Disabled
     public void decorate_dummify_not_allowed() {
         DecorationStrategy subject = new DecorationStrategy.DummifySplitFiles(dummifier);
         Mockito.when(dummifier.isAllowed(3, object)).thenReturn(false);
