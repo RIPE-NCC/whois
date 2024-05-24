@@ -25,8 +25,6 @@ public interface DecorationStrategy {
         private final DummifierNrtm dummifier;
         private final Set<ObjectType> writtenPlaceHolders = Sets.newHashSet();
 
-        private final static Logger LOGGER = LoggerFactory.getLogger(DummifySplitFiles.class);
-
         public DummifySplitFiles(final DummifierNrtm dummifier) {
             this.dummifier = dummifier;
         }
@@ -38,12 +36,16 @@ public interface DecorationStrategy {
             }
 
             final ObjectType objectType = object.getType();
+
+            //Just PERSON and ROLE objects
             if (writtenPlaceHolders.add(objectType)) {
                 if (objectType.equals(ObjectType.PERSON)) {
                     return DummifierNrtm.getPlaceholderPersonObject();
                 }
+                if (objectType.equals(ObjectType.ROLE)) {
+                    return DummifierNrtm.getPlaceholderRoleObject();
+                }
             }
-
             return null;
         }
     }

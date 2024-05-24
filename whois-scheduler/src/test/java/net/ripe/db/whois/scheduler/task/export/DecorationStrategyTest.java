@@ -53,17 +53,21 @@ public class DecorationStrategyTest {
 
     @Test
     public void decorate_dummify_not_allowed() {
-        DecorationStrategy subject = new DecorationStrategy.DummifySplitFiles(dummifier);
-        Mockito.when(dummifier.isAllowed(3, object)).thenReturn(false);
+       final RpslObject personObject = RpslObject.parse("" +
+                "person: Ninja Person\n" +
+                "nic-hdl: NI124-RIPE\n");
 
-        final RpslObject decorated = subject.decorate(object);
+        DecorationStrategy subject = new DecorationStrategy.DummifySplitFiles(dummifier);
+        Mockito.when(dummifier.isAllowed(3, personObject)).thenReturn(false);
+
+        final RpslObject decorated = subject.decorate(personObject);
         assertThat(decorated, is(DummifierNrtm.getPlaceholderPersonObject()));
 
-        final RpslObject decoratedSecond = subject.decorate(object);
+        final RpslObject decoratedSecond = subject.decorate(personObject);
         assertThat(decoratedSecond, is(nullValue()));
 
-        verify(dummifier, Mockito.times(2)).isAllowed(3, object);
-        verify(dummifier, never()).dummify(3, object);
+        verify(dummifier, Mockito.times(2)).isAllowed(3, personObject);
+        verify(dummifier, never()).dummify(3, personObject);
     }
 
 }
