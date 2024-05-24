@@ -31,6 +31,7 @@ public interface DecorationStrategy {
 
         @Override
         public RpslObject decorate(final RpslObject object) {
+            //Here PERSON and ROLE objects will be ignored for VERSION 3
             if (dummifier.isAllowed(VERSION, object)) {
                 return dummifier.dummify(VERSION, object);
             }
