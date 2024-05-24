@@ -25,25 +25,30 @@ public interface DecorationStrategy {
         private final DummifierNrtm dummifier;
         private final Set<ObjectType> writtenPlaceHolders = Sets.newHashSet();
 
+        private boolean rolePlaceHolderCreated = false;
+
         public DummifySplitFiles(final DummifierNrtm dummifier) {
             this.dummifier = dummifier;
         }
 
         @Override
         public RpslObject decorate(final RpslObject object) {
-            //Here PERSON and ROLE objects will be ignored for VERSION 3
+            //Here PERSON and ROLE with abuseMailBox objects will be ignored for VERSION 3
             if (dummifier.isAllowed(VERSION, object)) {
+                if (object.getKey().equals(DummifierNrtm.getPlaceholderRoleObject().getKey())){
+                    rolePlaceHolderCreated = true;
+                }
                 return dummifier.dummify(VERSION, object);
             }
 
             final ObjectType objectType = object.getType();
 
-            //Just PERSON and ROLE objects
+            //Just PERSON and ROLE without abuseMailbox objects
             if (writtenPlaceHolders.add(objectType)) {
                 if (objectType.equals(ObjectType.PERSON)) {
                     return DummifierNrtm.getPlaceholderPersonObject();
                 }
-                if (objectType.equals(ObjectType.ROLE)) {
+                if (objectType.equals(ObjectType.ROLE) && !rolePlaceHolderCreated) {
                     return DummifierNrtm.getPlaceholderRoleObject();
                 }
             }
