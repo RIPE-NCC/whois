@@ -5,6 +5,9 @@ import net.ripe.db.whois.common.rpsl.DummifierNrtm;
 import net.ripe.db.whois.common.rpsl.ObjectType;
 import net.ripe.db.whois.common.rpsl.RpslObject;
 import net.ripe.db.whois.common.rpsl.transform.FilterChangedFunction;
+import net.ripe.db.whois.scheduler.task.autnum.LegacyAutnumReloadTask;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.annotation.CheckForNull;
 import java.util.Set;
@@ -22,6 +25,8 @@ public interface DecorationStrategy {
         private final DummifierNrtm dummifier;
         private final Set<ObjectType> writtenPlaceHolders = Sets.newHashSet();
 
+        private final static Logger LOGGER = LoggerFactory.getLogger(DummifySplitFiles.class);
+
         public DummifySplitFiles(final DummifierNrtm dummifier) {
             this.dummifier = dummifier;
         }
@@ -32,10 +37,13 @@ public interface DecorationStrategy {
                 return dummifier.dummify(VERSION, object);
             }
 
-            /*final ObjectType objectType = object.getType();
+            final ObjectType objectType = object.getType();
             if (writtenPlaceHolders.add(objectType)) {
-                return DummifierNrtm.getPlaceholderPersonObject();
-            }*/
+                LOGGER.info("Object type added to placeHolders " + objectType);
+                if(!objectType.equals(ObjectType.ROLE)) {
+                    return DummifierNrtm.getPlaceholderPersonObject();
+                }
+            }
 
             return null;
         }
