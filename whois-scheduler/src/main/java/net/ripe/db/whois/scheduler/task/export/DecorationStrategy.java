@@ -32,10 +32,10 @@ public interface DecorationStrategy {
                 return dummifier.dummify(VERSION, object);
             }
 
-            final ObjectType objectType = object.getType();
+            /*final ObjectType objectType = object.getType();
             if (writtenPlaceHolders.add(objectType)) {
                 return DummifierNrtm.getPlaceholderPersonObject();
-            }
+            }*/
 
             return null;
         }
