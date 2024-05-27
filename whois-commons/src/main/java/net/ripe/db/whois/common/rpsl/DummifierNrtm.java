@@ -119,6 +119,7 @@ public class DummifierNrtm implements Dummifier {
     }
 
     public boolean isAllowed(final int version, final RpslObject rpslObject) {
+        //Here PERSON and ROLE without abuseMailBox objects will be not allowed for VERSION 3
         return version <= 2 || !usePlaceHolder(rpslObject);
     }
 

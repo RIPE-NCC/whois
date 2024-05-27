@@ -28,8 +28,7 @@ public interface DecorationStrategy {
 
         @Override
         public RpslObject decorate(final RpslObject object) {
-            //Here PERSON and ROLE with abuseMailBox objects will be ignored for VERSION 3
-            if (dummifier.isAllowed(VERSION, object) && !hasRolePlaceHolderKey(object)) {
+            if (dummifier.isAllowed(VERSION, object) && !isPlaceHolder(object)) {
                 return dummifier.dummify(VERSION, object);
             }
 
@@ -48,7 +47,7 @@ public interface DecorationStrategy {
         }
     }
 
-    private static boolean hasRolePlaceHolderKey(RpslObject object) {
+    private static boolean isPlaceHolder(RpslObject object) {
         return object.getType().equals(ObjectType.ROLE) && object.getKey().equals(DummifierNrtm.getPlaceholderRoleObject().getKey());
     }
 
