@@ -50,7 +50,7 @@ public class DecorationStrategyTest {
     }
 
     @Test
-    public void decorate_mntner_dummify_not_allowed() {
+    public void decorate_mntner_dummify_allowed() {
         DecorationStrategy subject = new DecorationStrategy.DummifySplitFiles(dummifier);
         Mockito.when(dummifier.isAllowed(3, object)).thenReturn(true);
 
@@ -106,7 +106,7 @@ public class DecorationStrategyTest {
     }
 
     @Test
-    public void decorate_role_abuse_mailbox_dummify_not_allowed() {
+    public void decorate_role_abuse_mailbox_dummify_allowed() {
         final RpslObject roleObject = RpslObject.parse("" +
                 "role: Ninja Role\n" +
                 "abuse-mailbox:  bitbucket@ripe.net\n" +
