@@ -40,16 +40,6 @@ public class WhoisRoaChecker extends RpkiRoaChecker {
         return roaStatusMap.get();
     }
 
-    private Predicate<Map.Entry<Roa, ValidationStatus>> getValidOrNotFoundRoas() {
-        return entry -> NOT_FOUND.equals(entry.getValue()) || VALID.equals(entry.getValue());
-    }
-
-    private Stream<Map.Entry<Roa, ValidationStatus>> getInvalidRoas(Map<Roa, ValidationStatus> roasStatus) {
-        return roasStatus.entrySet()
-                .stream()
-                .filter(other -> INVALID.equals(other.getValue()) || INVALID_PREFIX_LENGTH.equals(other.getValue()) || INVALID_ORIGIN.equals(other.getValue()));
-    }
-
     @Override
     protected ValidationStatus validate(final RpslObject route, final Roa roa, final IpInterval<?> prefix) {
         final List<ValidationStatus> invalidStatus = Lists.newArrayList();
@@ -66,5 +56,15 @@ public class WhoisRoaChecker extends RpkiRoaChecker {
             return VALID;
         }
         return invalidStatus.size() == 1 ? invalidStatus.get(0) : INVALID;
+    }
+
+    private Predicate<Map.Entry<Roa, ValidationStatus>> getValidOrNotFoundRoas() {
+        return entry -> NOT_FOUND.equals(entry.getValue()) || VALID.equals(entry.getValue());
+    }
+
+    private Stream<Map.Entry<Roa, ValidationStatus>> getInvalidRoas(Map<Roa, ValidationStatus> roasStatus) {
+        return roasStatus.entrySet()
+                .stream()
+                .filter(other -> INVALID.equals(other.getValue()) || INVALID_PREFIX_LENGTH.equals(other.getValue()) || INVALID_ORIGIN.equals(other.getValue()));
     }
 }
