@@ -11,10 +11,13 @@ import org.springframework.stereotype.Component;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.function.Predicate;
+import java.util.stream.Stream;
 
 import static net.ripe.db.whois.common.rpki.ValidationStatus.INVALID;
 import static net.ripe.db.whois.common.rpki.ValidationStatus.INVALID_ORIGIN;
 import static net.ripe.db.whois.common.rpki.ValidationStatus.INVALID_PREFIX_LENGTH;
+import static net.ripe.db.whois.common.rpki.ValidationStatus.NOT_FOUND;
 import static net.ripe.db.whois.common.rpki.ValidationStatus.VALID;
 
 @Component
@@ -24,17 +27,29 @@ public class WhoisRoaChecker extends RpkiRoaChecker {
     }
 
     public Map.Entry<Roa, ValidationStatus> validateAndGetInvalidRoa(final RpslObject route){
-        final Optional<Map.Entry<Roa, ValidationStatus>> roaStatusMap = validateRoas(route)
+        final Map<Roa, ValidationStatus> roasStatus = validateRoas(route);
+        final Optional<Map.Entry<Roa, ValidationStatus>> roaStatusMap = roasStatus
                 .entrySet()
                 .stream()
-                .filter(entry -> INVALID.equals(entry.getValue()) || INVALID_PREFIX_LENGTH.equals(entry.getValue()) || INVALID_ORIGIN.equals(entry.getValue()))
-                .findFirst();
+                .filter(getValidOrNotFoundRoas()).findFirst()
+                .or(() -> getInvalidRoas(roasStatus).findFirst());
 
         if (roaStatusMap.isEmpty()){
             return null;
         }
         return roaStatusMap.get();
     }
+
+    private Predicate<Map.Entry<Roa, ValidationStatus>> getValidOrNotFoundRoas() {
+        return entry -> NOT_FOUND.equals(entry.getValue()) || VALID.equals(entry.getValue());
+    }
+
+    private Stream<Map.Entry<Roa, ValidationStatus>> getInvalidRoas(Map<Roa, ValidationStatus> roasStatus) {
+        return roasStatus.entrySet()
+                .stream()
+                .filter(other -> INVALID.equals(other.getValue()) || INVALID_PREFIX_LENGTH.equals(other.getValue()) || INVALID_ORIGIN.equals(other.getValue()));
+    }
+
     @Override
     protected ValidationStatus validate(final RpslObject route, final Roa roa, final IpInterval<?> prefix) {
         final List<ValidationStatus> invalidStatus = Lists.newArrayList();
@@ -43,7 +58,7 @@ public class WhoisRoaChecker extends RpkiRoaChecker {
             invalidStatus.add(INVALID_PREFIX_LENGTH);
         }
 
-        if (nonAuthAsn != 0 && nonAuthAsn != roa.getAsn()){
+        if (nonAuthAsn == 0 || nonAuthAsn != roa.getAsn()){
             invalidStatus.add(INVALID_ORIGIN);
         }
 
