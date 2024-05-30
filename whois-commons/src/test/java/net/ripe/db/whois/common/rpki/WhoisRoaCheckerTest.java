@@ -2,7 +2,6 @@ package net.ripe.db.whois.common.rpki;
 
 import com.google.common.collect.Sets;
 import net.ripe.db.whois.common.rpsl.RpslObject;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
