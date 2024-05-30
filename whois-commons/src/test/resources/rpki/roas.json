@@ -26,6 +26,8 @@
     { "asn": "AS1964", "prefix": "206.48.0.0/16", "maxLength": 16, "ta": "arin" },
     { "asn": "AS6505", "prefix": "193.4.0.0/16", "maxLength": 16, "ta": "arin" },
     { "asn": "AS7505", "prefix": "200.4.0.0/23", "maxLength": 23, "ta": "arin" },
-    { "asn": "AS6505", "prefix": "176.223.250.0/23", "maxLength": 23, "ta": "ripe" }
+    { "asn": "AS6505", "prefix": "176.223.250.0/23", "maxLength": 23, "ta": "ripe" },
+    { "asn": "AS44546", "prefix": "92.38.0.0/17", "maxLength": 24, "ta": "arin" },
+    { "asn": "AS61979", "prefix": "92.38.44.0/22", "maxLength": 24, "ta": "ripe" }
   ]
 }
