@@ -119,9 +119,7 @@ public class WhoisRoaCheckerTest {
     }
 
     @Test
-    @Disabled
-    public void overlap_invalid_invalid_roa_then_valid() {
-        //TODO: Should we return multiple issues, first ROA doesn't match  origin, and second doesn't match the prefix
+    public void overlap_two_invalid_roas_then_invalid() {
         final Roa nonMatchingRoa = new Roa("AS44546", 24, "92.38.0.0/17", "ripe");
         final Roa matchingRoa = new Roa("AS61979", 8, "92.38.44.0/22", "ripe");
         when(rpkiService.findRoas(eq("92.38.45.0/24"))).thenReturn(Sets.newHashSet(nonMatchingRoa, matchingRoa));
@@ -129,6 +127,6 @@ public class WhoisRoaCheckerTest {
                 "route: 92.38.45.0/24\n" +
                         "origin: AS61979"
         ));
-        assertThat(result.getValue(), is(ValidationStatus.INVALID_PREFIX_LENGTH));
+        assertThat(result.getValue(), is(ValidationStatus.INVALID_ORIGIN));
     }
 }

@@ -65,6 +65,7 @@ public class WhoisRoaChecker extends RpkiRoaChecker {
     private Stream<Map.Entry<Roa, ValidationStatus>> getInvalidRoas(Map<Roa, ValidationStatus> roasStatus) {
         return roasStatus.entrySet()
                 .stream()
-                .filter(other -> INVALID.equals(other.getValue()) || INVALID_PREFIX_LENGTH.equals(other.getValue()) || INVALID_ORIGIN.equals(other.getValue()));
+                .filter(other -> INVALID.equals(other.getValue()) || INVALID_PREFIX_LENGTH.equals(other.getValue()) || INVALID_ORIGIN.equals(other.getValue()))
+                .sorted((o1, o2) -> o1.getKey().getPrefix().compareTo(o2.getKey().getPrefix()));
     }
 }
