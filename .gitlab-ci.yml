@@ -1,4 +1,4 @@
-image: $CI_REGISTRY/swe-database-team/gitlab-ci/whois-build:21fc0efa
+image: $CI_REGISTRY/swe-database-team/gitlab-ci/whois-build:9704969e
 
 variables:
   MAVEN_OPTS: "-Dmaven.repo.local=.m2/repository"
