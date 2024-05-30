@@ -926,6 +926,8 @@
                         <arg>-Xlint:-processing</arg>
                     	<arg>--add-modules</arg>
                     	<arg>java.sql,java.xml</arg>
+                        <!-- explicitly enable annotation processing. -->
+                        <arg>-proc:full</arg>
                     </compilerArgs>
                     <showWarnings>true</showWarnings>
                     <showDeprecation>true</showDeprecation>
