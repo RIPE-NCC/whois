@@ -123,8 +123,8 @@ public enum AttributeType implements Documented {
             .syntax(ALIAS_SYNTAX)),
 
     ASSIGNMENT_SIZE(new Builder("assignment-size", "ae")
-            .doc("Specifies the size of blocks assigned to end users from this aggregated inet6num assignment.\n" +
-                    "The maximum assignment size is 128")
+            .doc("Specifies the size of blocks assigned to end users from this aggregated inet(6)num assignment.\n" +
+                    "The maximum assignment size for inetnum is 32 and for inet6num is 128")
             .syntax(NUMBER_SYNTAX)),
 
     AS_BLOCK(new Builder("as-block", "ak")

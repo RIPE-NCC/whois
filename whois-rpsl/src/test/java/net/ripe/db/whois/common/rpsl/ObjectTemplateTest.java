@@ -148,6 +148,7 @@ public class ObjectTemplateTest {
                 "tech-c:         [mandatory]  [multiple]   [inverse key]\n" +
                 "abuse-c:        [optional]   [single]     [inverse key]\n" +
                 "status:         [mandatory]  [single]     [ ]\n" +
+                "assignment-size:[optional]   [single]     [ ]\n" +
                 "remarks:        [optional]   [multiple]   [ ]\n" +
                 "notify:         [optional]   [multiple]   [inverse key]\n" +
                 "mnt-by:         [mandatory]  [multiple]   [inverse key]\n" +
@@ -182,6 +183,7 @@ public class ObjectTemplateTest {
                 "tech-c:         [mandatory]  [multiple]   [inverse key]\n" +
                 "abuse-c:        [optional]   [single]     [inverse key]\n" +
                 "status:         [mandatory]  [single]     [ ]\n" +
+                "assignment-size:[optional]   [single]     [ ]\n" +
                 "remarks:        [optional]   [multiple]   [ ]\n" +
                 "notify:         [optional]   [multiple]   [inverse key]\n" +
                 "mnt-by:         [mandatory]  [multiple]   [inverse key]\n" +
