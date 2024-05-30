@@ -15,6 +15,7 @@ import net.ripe.db.whois.update.domain.Action;
 import net.ripe.db.whois.update.domain.PreparedUpdate;
 import net.ripe.db.whois.update.domain.UpdateContext;
 import net.ripe.db.whois.update.domain.UpdateMessages;
+import net.ripe.db.whois.update.handler.validator.inet6num.Inet6numAggregatedByLirStatusValidator;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -33,13 +34,14 @@ import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
-public class AggregatedByLirStatusValidatorTest {
+public class Inet6numAggregatedByLirStatusValidatorTest {
     @Mock UpdateContext updateContext;
     @Mock PreparedUpdate update;
 
     @Mock Ipv6Tree ipv6Tree;
     @Mock RpslObjectDao rpslObjectDao;
-    @InjectMocks AggregatedByLirStatusValidator subject;
+    @InjectMocks
+    Inet6numAggregatedByLirStatusValidator subject;
 
     @BeforeEach
     public void setUp() throws Exception {

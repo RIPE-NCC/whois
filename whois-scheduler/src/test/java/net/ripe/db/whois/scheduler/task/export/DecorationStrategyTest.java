@@ -50,18 +50,84 @@ public class DecorationStrategyTest {
     }
 
     @Test
-    public void decorate_dummify_not_allowed() {
+    public void decorate_mntner_dummify_allowed() {
         DecorationStrategy subject = new DecorationStrategy.DummifySplitFiles(dummifier);
-        Mockito.when(dummifier.isAllowed(3, object)).thenReturn(false);
+        Mockito.when(dummifier.isAllowed(3, object)).thenReturn(true);
+
+        final RpslObject dummified = RpslObject.parse("mntner: DEV-MNT");
+        Mockito.when(dummifier.dummify(3, object)).thenReturn(dummified);
 
         final RpslObject decorated = subject.decorate(object);
-        assertThat(decorated, is(DummifierNrtm.getPlaceholderPersonObject()));
+        assertThat(decorated, is(dummified));
 
         final RpslObject decoratedSecond = subject.decorate(object);
-        assertThat(decoratedSecond, is(nullValue()));
+        assertThat(decoratedSecond, is(dummified));
 
         verify(dummifier, Mockito.times(2)).isAllowed(3, object);
-        verify(dummifier, never()).dummify(3, object);
+        verify(dummifier, Mockito.times(2)).dummify(3, object);
+    }
+
+    @Test
+    public void decorate_person_dummify_not_allowed() {
+        final RpslObject personObject = RpslObject.parse("" +
+                "person: Ninja Person\n" +
+                "nic-hdl: NI124-RIPE\n");
+
+        DecorationStrategy subject = new DecorationStrategy.DummifySplitFiles(dummifier);
+        Mockito.when(dummifier.isAllowed(3, personObject)).thenReturn(false);
+
+        final RpslObject decorated = subject.decorate(personObject);
+        assertThat(decorated, is(DummifierNrtm.getPlaceholderPersonObject()));
+
+        final RpslObject decoratedSecond = subject.decorate(personObject);
+        assertThat(decoratedSecond, is(nullValue()));
+
+        verify(dummifier, Mockito.times(2)).isAllowed(3, personObject);
+        verify(dummifier, never()).dummify(3, personObject);
+    }
+
+    @Test
+    public void decorate_role_no_abuse_mailbox_dummify_not_allowed() {
+        final RpslObject roleObject = RpslObject.parse("" +
+                "role: Ninja Role\n" +
+                "nic-hdl: NI124-RIPE\n");
+
+        DecorationStrategy subject = new DecorationStrategy.DummifySplitFiles(dummifier);
+        Mockito.when(dummifier.isAllowed(3, roleObject)).thenReturn(false);
+
+        final RpslObject decorated = subject.decorate(roleObject);
+        assertThat(decorated, is(DummifierNrtm.getPlaceholderRoleObject()));
+
+        final RpslObject decoratedSecond = subject.decorate(roleObject);
+        assertThat(decoratedSecond, is(nullValue()));
+
+        verify(dummifier, Mockito.times(2)).isAllowed(3, roleObject);
+        verify(dummifier, never()).dummify(3, roleObject);
+    }
+
+    @Test
+    public void decorate_role_abuse_mailbox_dummify_allowed() {
+        final RpslObject roleObject = RpslObject.parse("" +
+                "role: Ninja Role\n" +
+                "abuse-mailbox:  bitbucket@ripe.net\n" +
+                "nic-hdl: NI124-RIPE\n");
+
+        DecorationStrategy subject = new DecorationStrategy.DummifySplitFiles(dummifier);
+        Mockito.when(dummifier.isAllowed(3, roleObject)).thenReturn(true);
+
+        final RpslObject dummified = RpslObject.parse("" +
+                "role: Ninja Role\n" +
+                "nic-hdl: NI124-RIPE\n");
+        Mockito.when(dummifier.dummify(3, roleObject)).thenReturn(dummified);
+
+        final RpslObject decorated = subject.decorate(roleObject);
+        assertThat(decorated, is(dummified));
+
+        final RpslObject decoratedSecond = subject.decorate(roleObject);
+        assertThat(decoratedSecond, is(dummified));
+
+        verify(dummifier, Mockito.times(2)).isAllowed(3, roleObject);
+        verify(dummifier, Mockito.times(2)).dummify(3, roleObject);
     }
 
 }
