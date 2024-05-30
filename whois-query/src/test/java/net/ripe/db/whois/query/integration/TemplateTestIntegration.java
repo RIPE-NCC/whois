@@ -137,6 +137,7 @@ public class TemplateTestIntegration extends AbstractQueryIntegrationTest {
                 "tech-c:         [mandatory]  [multiple]   [inverse key]\n" +
                 "abuse-c:        [optional]   [single]     [inverse key]\n" +
                 "status:         [mandatory]  [single]     [ ]\n" +
+                "assignment-size:[optional]   [single]     [ ]\n" +
                 "remarks:        [optional]   [multiple]   [ ]\n" +
                 "notify:         [optional]   [multiple]   [inverse key]\n" +
                 "mnt-by:         [mandatory]  [multiple]   [inverse key]\n" +
@@ -262,11 +263,19 @@ public class TemplateTestIntegration extends AbstractQueryIntegrationTest {
                 "     o ALLOCATED UNSPECIFIED\n" +
                 "     o LIR-PARTITIONED PA\n" +
                 "     o SUB-ALLOCATED PA\n" +
+                "     o AGGREGATED-BY-LIR\n" +
                 "     o ALLOCATED-ASSIGNED PA\n" +
                 "     o ASSIGNED PA\n" +
                 "     o ASSIGNED PI\n" +
                 "     o ASSIGNED ANYCAST\n" +
                 "     o LEGACY\n" +
+                "\n" +
+                "assignment-size\n" +
+                "\n" +
+                "   Specifies the size of blocks assigned to end users from this aggregated inet(6)num assignment.\n" +
+                "   The maximum assignment size for inetnum is 32 and for inet6num is 128\n" +
+                "\n" +
+                "     Specifies a numeric value.\n" +
                 "\n" +
                 "remarks\n" +
                 "\n" +
