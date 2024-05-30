@@ -43,12 +43,12 @@ public class WhoisRoaChecker extends RpkiRoaChecker {
     @Override
     protected ValidationStatus validate(final RpslObject route, final Roa roa, final IpInterval<?> prefix) {
         final List<ValidationStatus> invalidStatus = Lists.newArrayList();
-        final long nonAuthAsn = Asn.parse(route.getValueForAttribute(AttributeType.ORIGIN).toString()).asBigInteger().longValue();
+        final long routeAsn = Asn.parse(route.getValueForAttribute(AttributeType.ORIGIN).toString()).asBigInteger().longValue();
         if (prefix.getPrefixLength() > roa.getMaxLength()){
             invalidStatus.add(INVALID_PREFIX_LENGTH);
         }
 
-        if (nonAuthAsn == 0 || nonAuthAsn != roa.getAsn()){
+        if (routeAsn == 0 || routeAsn != roa.getAsn()){
             invalidStatus.add(INVALID_ORIGIN);
         }
 
