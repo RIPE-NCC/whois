@@ -2,8 +2,9 @@ package net.ripe.db.whois.spec.update.lireditable
 
 
 import net.ripe.db.whois.spec.BaseQueryUpdateSpec
+import org.junit.jupiter.api.Tag
 
-@org.junit.jupiter.api.Tag("IntegrationTest")
+@Tag("IntegrationTest")
 class BaseLirEditableAttributes extends BaseQueryUpdateSpec {
 
     def createMandatory(String type,

@@ -1,8 +1,9 @@
 package net.ripe.db.whois.spec.update.lireditable
 
+import org.junit.jupiter.api.Tag
 
 
-@org.junit.jupiter.api.Tag("IntegrationTest")
+@Tag("IntegrationTest")
 class LirEditableInetnumAssignedPiAttributeValidationSpec extends BaseLirEditableAttributeValidation {
 
     // data for tests
