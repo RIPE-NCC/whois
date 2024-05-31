@@ -92,7 +92,7 @@ public class WhoisRoaCheckerTest {
                 "route: 10.0.0.0/16\n" +
                         "origin: AS2"
         ));
-        assertThat(result.getValue(), is(ValidationStatus.INVALID));
+        assertThat(result.getValue(), is(ValidationStatus.INVALID_PREFIX_AND_ORIGIN));
     }
 
     @Test

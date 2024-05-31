@@ -6,5 +6,6 @@ public enum ValidationStatus {
     VALID,
     INVALID,
     INVALID_ORIGIN,
-    INVALID_PREFIX_LENGTH
+    INVALID_PREFIX_LENGTH,
+    INVALID_PREFIX_AND_ORIGIN
 }

@@ -16,6 +16,7 @@ import java.util.stream.Stream;
 
 import static net.ripe.db.whois.common.rpki.ValidationStatus.INVALID;
 import static net.ripe.db.whois.common.rpki.ValidationStatus.INVALID_ORIGIN;
+import static net.ripe.db.whois.common.rpki.ValidationStatus.INVALID_PREFIX_AND_ORIGIN;
 import static net.ripe.db.whois.common.rpki.ValidationStatus.INVALID_PREFIX_LENGTH;
 import static net.ripe.db.whois.common.rpki.ValidationStatus.NOT_FOUND;
 import static net.ripe.db.whois.common.rpki.ValidationStatus.VALID;
@@ -55,7 +56,7 @@ public class WhoisRoaChecker extends RpkiRoaChecker {
         if (invalidStatus.isEmpty()){
             return VALID;
         }
-        return invalidStatus.size() == 1 ? invalidStatus.get(0) : INVALID;
+        return invalidStatus.size() == 1 ? invalidStatus.get(0) : INVALID_PREFIX_AND_ORIGIN;
     }
 
     private Predicate<Map.Entry<Roa, ValidationStatus>> getValidOrNotFoundRoas() {
@@ -65,7 +66,7 @@ public class WhoisRoaChecker extends RpkiRoaChecker {
     private Stream<Map.Entry<Roa, ValidationStatus>> getInvalidRoas(Map<Roa, ValidationStatus> roasStatus) {
         return roasStatus.entrySet()
                 .stream()
-                .filter(other -> INVALID.equals(other.getValue()) || INVALID_PREFIX_LENGTH.equals(other.getValue()) || INVALID_ORIGIN.equals(other.getValue()))
+                .filter(other -> INVALID_PREFIX_AND_ORIGIN.equals(other.getValue()) || INVALID_PREFIX_LENGTH.equals(other.getValue()) || INVALID_ORIGIN.equals(other.getValue()))
                 .sorted((o1, o2) -> o1.getKey().getPrefix().compareTo(o2.getKey().getPrefix()));
     }
 }
