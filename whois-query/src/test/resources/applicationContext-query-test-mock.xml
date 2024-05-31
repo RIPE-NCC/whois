@@ -11,15 +11,15 @@
                 classpath:whois.properties"
             system-properties-mode="OVERRIDE"/>
 
-    <bean id="queryHandler" class="net.ripe.db.whois.query.support.MockFactoryBean">
+    <bean id="queryHandler" class="net.ripe.db.whois.query.support.MockFactoryBean" primary="true">
         <constructor-arg name="mock" value="net.ripe.db.whois.query.handler.QueryHandler" />
     </bean>
 
-    <bean id="accessControlListManager" class="net.ripe.db.whois.query.support.MockFactoryBean">
+    <bean id="accessControlListManager" class="net.ripe.db.whois.query.support.MockFactoryBean" primary="true">
         <constructor-arg name="mock" value="net.ripe.db.whois.query.acl.AccessControlListManager" />
     </bean>
 
-    <bean id="queryChannelsRegistry" class="net.ripe.db.whois.query.support.SpyFactoryBean">
+    <bean id="queryChannelsRegistry" class="net.ripe.db.whois.query.support.SpyFactoryBean" primary="true">
         <constructor-arg name="spy" value="net.ripe.db.whois.query.pipeline.QueryChannelsRegistry" />
     </bean>
 
