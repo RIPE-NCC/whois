@@ -13,6 +13,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
+import javax.annotation.Nullable;
 import java.util.Map;
 
 
@@ -47,6 +48,7 @@ public class RpkiRoaMessageGenerator implements RpslMessageGenerator {
         return isEnabled && (parameters.getRoaCheck()!= null && parameters.getRoaCheck());
     }
 
+    @Nullable
     private RpslMessage validateRoa(final RpslObject rpslObject){
         final Map.Entry<Roa, ValidationStatus> invalidRpkiRoa = whoisRoaChecker.validateAndGetInvalidRoa(rpslObject);
 
@@ -57,7 +59,8 @@ public class RpkiRoaMessageGenerator implements RpslMessageGenerator {
         return switch (invalidRpkiRoa.getValue()) {
             case INVALID_ORIGIN -> new RpslMessage(QueryMessages.roaRouteOriginConflicts(rpslObject.getType().getName(), invalidRpkiRoa.getKey().getMaxLength(), invalidRpkiRoa.getKey().getAsn()));
             case INVALID_PREFIX_LENGTH -> new RpslMessage(QueryMessages.roaRoutePrefixLengthConflicts(rpslObject.getType().getName(), invalidRpkiRoa.getKey().getMaxLength(), invalidRpkiRoa.getKey().getAsn()));
-            default -> new RpslMessage(QueryMessages.roaRouteConflicts(rpslObject.getType().getName(), invalidRpkiRoa.getKey().getMaxLength(), invalidRpkiRoa.getKey().getAsn()));
+            case INVALID_PREFIX_AND_ORIGIN -> new RpslMessage(QueryMessages.roaRouteConflicts(rpslObject.getType().getName(), invalidRpkiRoa.getKey().getMaxLength(), invalidRpkiRoa.getKey().getAsn()));
+            default -> null;
         };
     }
 }
