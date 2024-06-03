@@ -17,11 +17,11 @@ import static net.ripe.db.whois.common.rpki.ValidationStatus.NOT_FOUND;
 import static net.ripe.db.whois.common.rpki.ValidationStatus.VALID;
 import static net.ripe.db.whois.common.rpsl.ObjectType.ROUTE;
 
-public abstract class RpkiRoaChecker {
+public abstract class AbstractRpkiRoaChecker {
 
     private final RpkiService rpkiService;
 
-    public RpkiRoaChecker(final RpkiService rpkiService) {
+    public AbstractRpkiRoaChecker(final RpkiService rpkiService) {
         this.rpkiService = rpkiService;
     }
 

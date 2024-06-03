@@ -2008,6 +2008,27 @@ public class WhoisSearchServiceTestIntegration extends AbstractIntegrationTest {
     }
 
     @Test
+    public void search_route_one_invalid_one_valid_roas_makes_it_valid() {
+        databaseHelper.addObject(RpslObject.parse("" +
+                "route:           92.38.45.0/24\n" +
+                "descr:           Ripe test allocation\n" +
+                "origin:          AS61979\n" +
+                "admin-c:         TP1-TEST\n" +
+                "mnt-by:          OWNER-MNT\n" +
+                "mnt-lower:       OWNER-MNT\n" +
+                "source:          TEST-NONAUTH\n"));
+        ipTreeUpdater.rebuild();
+
+        final WhoisResources whoisResources = RestTest.target(getPort(), "whois/search.xml?query-string=92.38.45.0/24AS61979&roa-check=true&flags=no-referenced")
+                .request()
+                .get(WhoisResources.class);
+
+        assertThat(whoisResources.getWhoisObjects(), hasSize(1));
+
+        assertThat(whoisResources.getWhoisObjects().get(0).getObjectMessages().getMessages(), hasSize(0));
+    }
+
+    @Test
     public void search_route6_roa_mismatch_less_specific_as_xml_strings() {
         databaseHelper.addObject(RpslObject.parse("" +
                 "route6:          2803:8240::/33\n" +
