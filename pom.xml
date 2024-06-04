@@ -25,11 +25,11 @@
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
 
         <!-- JAVA version -->
-        <java.version>17</java.version>
+        <java.version>21</java.version>
 
         <!-- dependencies -->
 
-        <aspectj.version>1.9.21.1</aspectj.version>
+        <aspectj.version>1.9.22.1</aspectj.version>
         <awaitility.version>4.2.0</awaitility.version>
 
         <bouncycastle.version>1.77</bouncycastle.version>
@@ -80,7 +80,7 @@
         <mail.version>2.0.3</mail.version>
         <!-- TODO: update mariadb to 3.x -->
         <mariadb-java-client.version>2.7.12</mariadb-java-client.version>
-        <mockito.version>3.12.4</mockito.version>
+        <mockito.version>5.12.0</mockito.version>
 
         <netty.version>4.1.107.Final</netty.version>
 
@@ -89,10 +89,10 @@
         <proprot.version>1.0</proprot.version>
 
         <sentry.version>6.26.0</sentry.version>
-        <shedlock.version>4.46.0</shedlock.version>
+        <shedlock.version>5.13.0</shedlock.version>
         <slf4j.version>2.0.12</slf4j.version>
         <solrj.version>1.4.1</solrj.version>
-        <spring.version>6.1.4</spring.version>
+        <spring.version>6.1.8</spring.version>
         <spock.version>2.3-groovy-3.0</spock.version>
         <stax-utils.version>20070216</stax-utils.version>
 
@@ -818,7 +818,7 @@
             <plugin>
                 <groupId>org.jacoco</groupId>
                 <artifactId>jacoco-maven-plugin</artifactId>
-                <version>0.8.8</version>
+                <version>0.8.12</version>
                 <executions>
                     <execution>
                         <id>before-unit-test-execution</id>
@@ -926,6 +926,8 @@
                         <arg>-Xlint:-processing</arg>
                     	<arg>--add-modules</arg>
                     	<arg>java.sql,java.xml</arg>
+                        <!-- explicitly enable annotation processing. -->
+                        <arg>-proc:full</arg>
                     </compilerArgs>
                     <showWarnings>true</showWarnings>
                     <showDeprecation>true</showDeprecation>
@@ -1036,10 +1038,9 @@
                 </executions>
             </plugin>
             <plugin>
-                <!-- Plugin forked from mojohaus project to add Java 11 support -->
-                <groupId>io.starter</groupId>
+                <groupId>org.codehaus.mojo</groupId>
                 <artifactId>aspectj-maven-plugin</artifactId>
-                <version>1.12.9</version>
+                <version>1.15.0</version>
                 <configuration>
                     <source>${java.version}</source>
                     <target>${java.version}</target>
