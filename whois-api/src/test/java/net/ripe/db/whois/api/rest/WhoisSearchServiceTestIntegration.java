@@ -1860,9 +1860,9 @@ public class WhoisSearchServiceTestIntegration extends AbstractIntegrationTest {
         assertThat(whoisResources.getWhoisObjects(), hasSize(1));
 
         assertThat(whoisResources.getWhoisObjects().get(0).getObjectMessages().getMessages().get(0).getText(), is("" +
-                "Warning: this %s object conflicts with an overlapping RPKI ROA with a less specific prefix %s but same origin AS%s.\n" +
-                "As a result an announcement for this prefix may be rejected by many autonomous systems. You should " +
-                "either remove this route: object or update or delete the ROA.\n"));
+                "Warning: this %s object conflicts with an RPKI ROA with a less specific prefix /%s but same origin AS%s.\n" +
+                "As a result, many autonomous systems may reject a BGP announcement even if it matches the ROUTE object. " +
+                "You should consider either removing this ROUTE object or updating/deleting the RPKI ROA.\n"));
     }
 
     @Test
@@ -1906,9 +1906,9 @@ public class WhoisSearchServiceTestIntegration extends AbstractIntegrationTest {
 
         assertThat(whoisResources.getWhoisObjects().get(0).getObjectMessages().getMessages(), hasSize(1));
         assertThat(whoisResources.getWhoisObjects().get(0).getObjectMessages().getMessages().get(0).getText(), is("" +
-                "Warning: this %s object conflicts with an overlapping RPKI ROA with prefix %s but different origin AS%s.\n" +
-                "As a result an announcement for this prefix may be rejected by many autonomous systems. You should " +
-                "either remove this route: object or update or delete the ROA.\n"));
+                "Warning: this %s object conflicts with an RPKI ROA with prefix /%s but a different origin AS%s.\n" +
+                "As a result, many autonomous systems may reject a BGP announcement even if it matches the ROUTE object. " +
+                "You should consider either removing this ROUTE object or updating/deleting the RPKI ROA.\n"));
     }
 
     @Test
@@ -1931,9 +1931,9 @@ public class WhoisSearchServiceTestIntegration extends AbstractIntegrationTest {
 
         assertThat(whoisResources.getWhoisObjects().get(0).getObjectMessages().getMessages(), hasSize(1));
         assertThat(whoisResources.getWhoisObjects().get(0).getObjectMessages().getMessages().get(0).getText(), is("" +
-                "Warning: this %s object conflicts with an overlapping RPKI ROA with prefix %s but different origin AS%s.\n" +
-                "As a result an announcement for this prefix may be rejected by many autonomous systems. You should " +
-                "either remove this route: object or update or delete the ROA.\n"));
+                "Warning: this %s object conflicts with an RPKI ROA with prefix /%s but a different origin AS%s.\n" +
+                "As a result, many autonomous systems may reject a BGP announcement even if it matches the ROUTE object. " +
+                "You should consider either removing this ROUTE object or updating/deleting the RPKI ROA.\n"));
     }
 
     @Test
@@ -1977,9 +1977,9 @@ public class WhoisSearchServiceTestIntegration extends AbstractIntegrationTest {
 
         assertThat(whoisResources.getWhoisObjects().get(0).getObjectMessages().getMessages(), hasSize(1));
         assertThat(whoisResources.getWhoisObjects().get(0).getObjectMessages().getMessages().get(0).getText(), is("" +
-                "Warning: this %s object conflicts with an overlapping RPKI ROA with prefix %s but different origin AS%s.\n" +
-                "As a result an announcement for this prefix may be rejected by many autonomous systems. You should " +
-                "either remove this route: object or update or delete the ROA.\n"));
+                "Warning: this %s object conflicts with an RPKI ROA with prefix /%s but a different origin AS%s.\n" +
+                "As a result, many autonomous systems may reject a BGP announcement even if it matches the ROUTE object. " +
+                "You should consider either removing this ROUTE object or updating/deleting the RPKI ROA.\n"));
     }
 
     @Test
@@ -2002,9 +2002,9 @@ public class WhoisSearchServiceTestIntegration extends AbstractIntegrationTest {
 
         assertThat(whoisResources.getWhoisObjects().get(0).getObjectMessages().getMessages(), hasSize(1));
         assertThat(whoisResources.getWhoisObjects().get(0).getObjectMessages().getMessages().get(0).getText(), is("" +
-                "Warning: this %s object conflicts with an overlapping RPKI ROA with a less specific prefix %s and different origin AS%s.\n" +
-                "As a result an announcement for this prefix may be rejected by many autonomous systems. You should " +
-                "either remove this route: object or update or delete the ROA.\n"));
+                "Warning: this %s object conflicts with an RPKI ROA with a less specific prefix /%s and a different origin AS%s.\n" +
+                "As a result, many autonomous systems may reject an announcement even if it matches the ROUTE object. " +
+                "You should consider either removing this ROUTE object or updating/deleting the RPKI ROA.\n"));
     }
 
     @Test
@@ -2083,10 +2083,8 @@ public class WhoisSearchServiceTestIntegration extends AbstractIntegrationTest {
                 "        <attribute name=\"source\" value=\"TEST-NONAUTH\"/>\n" +
                 "    </attributes>\n" +
                 "    <objectmessages>\n" +
-                "        <objectmessage severity=\"Warning\" text=\"Warning: this %s object conflicts with an " +
-                "overlapping RPKI ROA with a less specific prefix %s but same origin AS%s.&#xA;As a result an announcement for this prefix may be" +
-                " rejected by many autonomous systems. You should either remove this route: object or update or delete the ROA.&#xA;\">\n" +
-                "            <args value=\"route6\"/>\n" +
+                "        <objectmessage severity=\"Warning\" text=\"Warning: this %s object conflicts with an RPKI ROA with a less specific prefix /%s but same origin AS%s.&#xA;As a result, many autonomous systems may reject a BGP announcement even if it matches the ROUTE object. You should consider either removing this ROUTE object or updating/deleting the RPKI ROA.&#xA;\">\n" +
+                "            <args value=\"ROUTE6\"/>\n" +
                 "            <args value=\"32\"/>\n" +
                 "            <args value=\"52511\"/>\n" +
                 "        </objectmessage>\n" +
@@ -2094,10 +2092,7 @@ public class WhoisSearchServiceTestIntegration extends AbstractIntegrationTest {
                 "</object>\n" +
                 "</objects>\n" +
                 "<terms-and-conditions xlink:type=\"locator\" xlink:href=\"https://apps.db.ripe.net/docs/HTML-Terms-And-Conditions\"/>\n" +
-                "<version " +
-                "version=\"" + applicationVersion.getVersion() + "\" " +
-                "timestamp=\"" + applicationVersion.getTimestamp() + "\" " +
-                "commit-id=\"" + applicationVersion.getCommitId() + "\"/>\n" +
+                "<version version=\"0.1-TEST\" timestamp=\"20240610-1352\" commit-id=\"0\"/>\n" +
                 "</whois-resources>\n"));
     }
 
@@ -2156,9 +2151,8 @@ public class WhoisSearchServiceTestIntegration extends AbstractIntegrationTest {
                 "        <attribute name=\"source\" value=\"TEST-NONAUTH\"/>\n" +
                 "    </attributes>\n" +
                 "    <objectmessages>\n" +
-                "        <objectmessage severity=\"Warning\" text=\"Warning: this %s object conflicts with an " +
-                "overlapping RPKI ROA with a less specific prefix %s and different origin AS%s.&#xA;As a result an announcement for this prefix may be rejected by many autonomous systems. You should either remove this route: object or update or delete the ROA.&#xA;\">\n" +
-                "            <args value=\"route6\"/>\n" +
+                "        <objectmessage severity=\"Warning\" text=\"Warning: this %s object conflicts with an RPKI ROA with a less specific prefix /%s and a different origin AS%s.&#xA;As a result, many autonomous systems may reject an announcement even if it matches the ROUTE object. You should consider either removing this ROUTE object or updating/deleting the RPKI ROA.&#xA;\">\n" +
+                "            <args value=\"ROUTE6\"/>\n" +
                 "            <args value=\"32\"/>\n" +
                 "            <args value=\"52511\"/>\n" +
                 "        </objectmessage>\n" +
@@ -2292,10 +2286,8 @@ public class WhoisSearchServiceTestIntegration extends AbstractIntegrationTest {
                 "        <attribute name=\"source\" value=\"TEST-NONAUTH\"/>\n" +
                 "    </attributes>\n" +
                 "    <objectmessages>\n" +
-                "        <objectmessage severity=\"Warning\" text=\"Warning: this %s object conflicts with an " +
-                "overlapping RPKI ROA with prefix %s but different origin AS%s.&#xA;As a result an announcement for this prefix " +
-                "may be rejected by many autonomous systems. You should either remove this route: object or update or delete the ROA.&#xA;\">\n" +
-                "            <args value=\"route6\"/>\n" +
+                "        <objectmessage severity=\"Warning\" text=\"Warning: this %s object conflicts with an RPKI ROA with prefix /%s but a different origin AS%s.&#xA;As a result, many autonomous systems may reject a BGP announcement even if it matches the ROUTE object. You should consider either removing this ROUTE object or updating/deleting the RPKI ROA.&#xA;\">\n" +
+                "            <args value=\"ROUTE6\"/>\n" +
                 "            <args value=\"32\"/>\n" +
                 "            <args value=\"52511\"/>\n" +
                 "        </objectmessage>\n" +
@@ -2365,10 +2357,8 @@ public class WhoisSearchServiceTestIntegration extends AbstractIntegrationTest {
                 "        <attribute name=\"source\" value=\"TEST-NONAUTH\"/>\n" +
                 "    </attributes>\n" +
                 "    <objectmessages>\n" +
-                "        <objectmessage severity=\"Warning\" text=\"Warning: this %s object conflicts with an " +
-                "overlapping RPKI ROA with prefix %s but different origin AS%s.&#xA;As a result an announcement for this prefix " +
-                "may be rejected by many autonomous systems. You should either remove this route: object or update or delete the ROA.&#xA;\">\n" +
-                "            <args value=\"route\"/>\n" +
+                "        <objectmessage severity=\"Warning\" text=\"Warning: this %s object conflicts with an RPKI ROA with prefix /%s but a different origin AS%s.&#xA;As a result, many autonomous systems may reject a BGP announcement even if it matches the ROUTE object. You should consider either removing this ROUTE object or updating/deleting the RPKI ROA.&#xA;\">\n" +
+                "            <args value=\"ROUTE\"/>\n" +
                 "            <args value=\"16\"/>\n" +
                 "            <args value=\"6505\"/>\n" +
                 "        </objectmessage>\n" +

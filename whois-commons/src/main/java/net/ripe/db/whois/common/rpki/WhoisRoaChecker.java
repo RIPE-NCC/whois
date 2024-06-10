@@ -22,6 +22,7 @@ import static net.ripe.db.whois.common.rpki.ValidationStatus.VALID;
 
 @Component
 public class WhoisRoaChecker extends AbstractRpkiRoaChecker {
+
     public WhoisRoaChecker(final RpkiService rpkiService) {
         super(rpkiService);
     }
@@ -30,16 +31,12 @@ public class WhoisRoaChecker extends AbstractRpkiRoaChecker {
         /* This method prioritize VALID roas over INVALID roas. So in case of overlap the VALID ROA will se used.
          This is a common behaviour related to roas */
         final Map<Roa, ValidationStatus> roasStatus = validateRoas(route);
-        final Optional<Map.Entry<Roa, ValidationStatus>> roaStatusMap = roasStatus
+        return roasStatus
                 .entrySet()
                 .stream()
                 .filter(getValidOrNotFoundRoas()).findFirst()
-                .or(() -> getInvalidRoas(roasStatus).findFirst());
-
-        if (roaStatusMap.isEmpty()){
-            return null;
-        }
-        return roaStatusMap.get();
+                .or(() -> getInvalidRoas(roasStatus).findFirst())
+                .orElse(null);
     }
 
     @Override
@@ -57,7 +54,7 @@ public class WhoisRoaChecker extends AbstractRpkiRoaChecker {
         if (invalidStatus.isEmpty()){
             return VALID;
         }
-        return invalidStatus.size() == 1 ? invalidStatus.get(0) : INVALID_PREFIX_AND_ORIGIN;
+        return invalidStatus.size() == 1 ? invalidStatus.getFirst() : INVALID_PREFIX_AND_ORIGIN;
     }
 
     private Predicate<Map.Entry<Roa, ValidationStatus>> getValidOrNotFoundRoas() {
