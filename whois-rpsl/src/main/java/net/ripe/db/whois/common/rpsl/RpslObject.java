@@ -15,6 +15,8 @@ import javax.annotation.concurrent.Immutable;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
+import java.io.Serial;
+import java.io.Serializable;
 import java.io.StringWriter;
 import java.io.Writer;
 import java.nio.charset.Charset;
@@ -28,7 +30,11 @@ import java.util.Map;
 import java.util.Set;
 
 @Immutable
-public class RpslObject implements Identifiable, ResponseObject {
+public class RpslObject implements Identifiable, ResponseObject, Serializable {
+
+    @Serial
+    private static final long serialVersionUID = 1L;
+
     private final ObjectType type;
     private final RpslAttribute typeAttribute;
     private final CIString key;

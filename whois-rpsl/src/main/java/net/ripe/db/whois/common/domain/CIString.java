@@ -7,12 +7,18 @@ import org.apache.commons.lang.StringUtils;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import javax.annotation.concurrent.Immutable;
+import java.io.Serial;
+import java.io.Serializable;
 import java.util.Arrays;
 import java.util.Objects;
 import java.util.Set;
 
 @Immutable
-public final class CIString implements Comparable<CIString>, CharSequence {
+public final class CIString implements Comparable<CIString>, CharSequence, Serializable {
+
+    @Serial
+    private static final long serialVersionUID = 1L;
+
     private final String value;
     private final String lcValue;
 
