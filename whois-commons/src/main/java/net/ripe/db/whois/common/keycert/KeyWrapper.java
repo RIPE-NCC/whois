@@ -1,4 +1,4 @@
-package net.ripe.db.whois.update.keycert;
+package net.ripe.db.whois.common.keycert;
 
 import java.util.List;
 

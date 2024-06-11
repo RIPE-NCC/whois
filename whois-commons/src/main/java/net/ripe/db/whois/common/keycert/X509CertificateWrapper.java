@@ -1,4 +1,4 @@
-package net.ripe.db.whois.update.keycert;
+package net.ripe.db.whois.common.keycert;
 
 
 import com.google.common.collect.Lists;
@@ -67,7 +67,7 @@ public final class X509CertificateWrapper implements KeyWrapper {
         return new X509CertificateWrapper(result);
     }
 
-    static boolean looksLikeX509Key(final RpslObject rpslObject) {
+    public static boolean looksLikeX509Key(final RpslObject rpslObject) {
         final String pgpKey = RpslObjectFilter.getCertificateFromKeyCert(rpslObject);
         return pgpKey.contains(X509_HEADER) && pgpKey.contains(X509_FOOTER);
     }

@@ -5,6 +5,7 @@ import com.google.common.collect.Lists;
 import net.ripe.db.whois.common.DateTimeProvider;
 import net.ripe.db.whois.common.DateUtil;
 import net.ripe.db.whois.common.Latin1Conversion;
+import net.ripe.db.whois.common.keycert.KeyWrapper;
 import net.ripe.db.whois.common.rpsl.RpslObject;
 import net.ripe.db.whois.common.rpsl.RpslObjectFilter;
 import org.bouncycastle.bcpg.ArmoredInputStream;
@@ -133,7 +134,7 @@ public class PgpPublicKeyWrapper implements KeyWrapper {
         return false;
     }
 
-    static boolean looksLikePgpKey(final RpslObject rpslObject) {
+    public static boolean looksLikePgpKey(final RpslObject rpslObject) {
         final String pgpKey = RpslObjectFilter.getCertificateFromKeyCert(rpslObject);
         return pgpKey.indexOf(PGP_HEADER) != -1 && pgpKey.indexOf(PGP_FOOTER) != -1;
     }

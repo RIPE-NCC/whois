@@ -2,6 +2,7 @@
 package net.ripe.db.whois.query.planner;
 
 import com.google.common.collect.Lists;
+import net.ripe.db.whois.common.DateTimeProvider;
 import net.ripe.db.whois.common.dao.RpslObjectDao;
 import net.ripe.db.whois.common.dao.RpslObjectInfo;
 import net.ripe.db.whois.common.domain.ResponseObject;
@@ -60,8 +61,10 @@ public class RpslResponseDecoratorTest {
     @Mock FilterPlaceholdersDecorator filterPlaceholdersDecorator;
     @Mock SsoTokenTranslator ssoTokenTranslator;
     @Mock AuthServiceClient authServiceClient;
+    @Mock DateTimeProvider dateTimeProvider;
     @InjectMocks AbuseCInfoDecorator abuseCInfoDecorator;
 
+    private int clientAuthPort = 0;
     private RpslResponseDecorator subject;
 
     private final RpslObject ABUSE_ROLE = RpslObject.parse(
@@ -81,6 +84,8 @@ public class RpslResponseDecoratorTest {
                 abuseCInfoDecorator,
                 ssoTokenTranslator,
                 authServiceClient,
+                dateTimeProvider,
+                clientAuthPort,
                 decorator);
         lenient().when(sourceContext.getCurrentSource()).thenReturn(Source.slave("RIPE"));
         when(sourceContext.isAcl()).thenReturn(true);

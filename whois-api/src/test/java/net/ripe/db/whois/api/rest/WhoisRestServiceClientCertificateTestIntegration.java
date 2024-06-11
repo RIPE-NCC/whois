@@ -265,6 +265,21 @@ public class WhoisRestServiceClientCertificateTestIntegration extends AbstractCl
         assertThat(databaseHelper.lookupObject(ObjectType.ROUTE6, "2001::/32AS12726").containsAttribute(AttributeType.REMARKS), is(true));
     }
 
+    @Test
+    public void lookup_person_correct_client_cert_and_unfiltered_param_is_fully_unfiltered() {
+        final RpslObject keycertObject = createKeycertObject(getClientCertificate(), "OWNER-MNT");
+        databaseHelper.addObject(keycertObject);
+        final RpslObject updatedMntner = addAttribute(OWNER_MNT, AttributeType.AUTH, keycertObject.getKey());
+        databaseHelper.updateObject(updatedMntner);
+
+        final WhoisResources whoisResources = SecureRestTest.target(getClientSSLContext(),getClientCertificatePort(), "whois/test/mntner/OWNER-MNT?unfiltered")
+                .request()
+                .get(WhoisResources.class);
+
+        assertThat(whoisResources.getWhoisObjects(), hasSize(1));
+        assertThat(whoisResources.getWhoisObjects().get(0).getAttributes().get(3).getValue(), containsString("updated"));
+    }
+
     // helper methods
 
     private WhoisResources map(final RpslObject rpslObject) {
