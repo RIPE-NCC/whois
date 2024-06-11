@@ -15,6 +15,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Profile;
 
+import java.util.Arrays;
 import java.util.List;
 
 import static net.ripe.db.whois.common.hazelcast.HazelcastInstanceManager.getGenericConfig;
@@ -30,8 +31,10 @@ public class TestCacheManagerProvider {
     @Profile(WhoisProfile.TEST)
     public HazelcastInstance hazelcastInstance() {
         if (this.hazelcastInstance == null) {
-            final Config config = getGenericConfig(5701, "localhost");
+            final Config config = getGenericConfig();
             config.getNetworkConfig().setPortAutoIncrement(true);
+            config.getNetworkConfig().getJoin().getMulticastConfig().setEnabled(false);
+            config.getNetworkConfig().getJoin().getTcpIpConfig().setMembers(Arrays.asList("127.0.0.1"));
 
             this.hazelcastInstance = getHazelcastInstance(config);
         }

@@ -45,7 +45,11 @@ public class HazelcastInstanceManager {
         if (this.hazelcastInstance == null) {
             LOGGER.info("Creating hazelcast instance with Ripe deployed profile");
 
-            final Config config = getGenericConfig(this.port, this.interfaces);
+            final Config config = getGenericConfig();
+
+            config.getNetworkConfig().setPort(port).setPortAutoIncrement(false);
+            config.getNetworkConfig().getJoin().getTcpIpConfig().setMembers(Arrays.asList(interfaces.split(","))).setEnabled(true);
+
             this.hazelcastInstance = getHazelcastInstance(config);
 
             LOGGER.info("Created hazelcast instance");
@@ -75,7 +79,7 @@ public class HazelcastInstanceManager {
         return new HazelcastCacheManager(hazelcastInstance());
     }
 
-    public static Config getGenericConfig(final int port, final String interfaces) {
+    public static Config getGenericConfig() {
         final Config config = new Config();
         config.getNetworkConfig().getJoin().getMulticastConfig().setEnabled(false);
 
@@ -93,8 +97,6 @@ public class HazelcastInstanceManager {
         config.setProperty("hazelcast.prefer.ipv4.stack", "false");
 
         config.getNetworkConfig().getJoin().getAwsConfig().setEnabled(false);
-        config.getNetworkConfig().setPort(port).setPortAutoIncrement(false);
-        config.getNetworkConfig().getJoin().getTcpIpConfig().setMembers(Arrays.asList(interfaces.split(","))).setEnabled(true);
 
         final EvictionConfig evictionConfig = new EvictionConfig()
                 .setSize(10_000)
