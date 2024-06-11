@@ -1,6 +1,11 @@
 package net.ripe.db.whois.common;
 
 import com.google.common.collect.Lists;
+import com.hazelcast.config.Config;
+import com.hazelcast.core.Hazelcast;
+import com.hazelcast.core.HazelcastInstance;
+import com.hazelcast.spring.cache.HazelcastCacheManager;
+import net.ripe.db.whois.common.hazelcast.HazelcastMemberShipListener;
 import net.ripe.db.whois.common.profiles.WhoisProfile;
 import org.springframework.cache.Cache;
 import org.springframework.cache.CacheManager;
@@ -12,26 +17,45 @@ import org.springframework.context.annotation.Profile;
 
 import java.util.List;
 
+import static net.ripe.db.whois.common.hazelcast.HazelcastInstanceManager.getGenericConfig;
+
 @Profile({WhoisProfile.TEST})
 @Configuration
 public class TestCacheManagerProvider {
 
     private CacheManager cacheManager = null;
+    private HazelcastInstance hazelcastInstance = null;
+
+    @Bean
+    @Profile(WhoisProfile.TEST)
+    public HazelcastInstance hazelcastInstance() {
+        if (this.hazelcastInstance == null) {
+            final Config config = getGenericConfig(5701, "localhost");
+            config.getNetworkConfig().setPortAutoIncrement(true);
+
+            this.hazelcastInstance = getHazelcastInstance(config);
+        }
+
+        return this.hazelcastInstance;
+    }
 
     @Bean(name = "cacheManager")
+    @Profile(WhoisProfile.TEST)
     public CacheManager cacheManagerInstance() {
         if (this.cacheManager == null) {
-            final SimpleCacheManager simpleCacheManager = new SimpleCacheManager();
-            final List<Cache> caches = Lists.newArrayList();
-            caches.add(new ConcurrentMapCache("ssoUuid"));
-            caches.add(new ConcurrentMapCache("ssoUserDetails"));
-            caches.add(new ConcurrentMapCache("ssoValidateToken"));
-            caches.add(new ConcurrentMapCache("ssoHistoricalUserDetails"));
-            simpleCacheManager.setCaches(caches);
-            this.cacheManager = simpleCacheManager;
+            this.cacheManager = getCacheManagerInstance();
         }
 
         return this.cacheManager;
     }
 
+    private HazelcastInstance getHazelcastInstance(final Config config) {
+        final HazelcastInstance instance = Hazelcast.newHazelcastInstance(config);
+        instance.getCluster().addMembershipListener(new HazelcastMemberShipListener());
+        return instance;
+    }
+
+    private CacheManager getCacheManagerInstance() {
+        return new HazelcastCacheManager(hazelcastInstance());
+    }
 }
