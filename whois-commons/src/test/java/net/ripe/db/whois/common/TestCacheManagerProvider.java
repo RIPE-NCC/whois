@@ -5,6 +5,7 @@ import com.hazelcast.config.Config;
 import com.hazelcast.core.Hazelcast;
 import com.hazelcast.core.HazelcastInstance;
 import com.hazelcast.spring.cache.HazelcastCacheManager;
+import jakarta.annotation.PreDestroy;
 import net.ripe.db.whois.common.hazelcast.HazelcastMemberShipListener;
 import net.ripe.db.whois.common.profiles.WhoisProfile;
 import org.springframework.cache.Cache;
@@ -60,5 +61,12 @@ public class TestCacheManagerProvider {
 
     private CacheManager getCacheManagerInstance() {
         return new HazelcastCacheManager(hazelcastInstance());
+    }
+
+    @PreDestroy
+    public void shutDownHazelcast() {
+        if (this.hazelcastInstance != null) {
+            this.hazelcastInstance.shutdown();
+        }
     }
 }
