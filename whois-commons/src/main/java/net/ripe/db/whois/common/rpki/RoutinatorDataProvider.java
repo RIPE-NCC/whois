@@ -56,8 +56,8 @@ public class RoutinatorDataProvider implements RpkiDataProvider{
                     .request(MediaType.APPLICATION_JSON_TYPE)
                     .get(Roas.class)
                     .getRoas();
-        } catch (ClientErrorException ex){
-            LOGGER.error("RPKI service returned an error, so the ROAs are not updated");
+        } catch (Exception ex){
+            LOGGER.error("RPKI service returned an error, so the ROAs are not updated", ex);
             return Lists.newArrayList();
         }
     }
