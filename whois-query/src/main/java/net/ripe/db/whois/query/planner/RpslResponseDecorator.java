@@ -2,7 +2,6 @@ package net.ripe.db.whois.query.planner;
 
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Sets;
-import net.ripe.db.whois.common.DateTimeProvider;
 import net.ripe.db.whois.common.clientauthcertificates.ClientAuthCertificate;
 import net.ripe.db.whois.common.collect.IterableTransformer;
 import net.ripe.db.whois.common.dao.RpslObjectDao;
@@ -23,7 +22,6 @@ import net.ripe.db.whois.query.executor.decorators.FilterPlaceholdersDecorator;
 import net.ripe.db.whois.query.query.Query;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import org.springframework.util.CollectionUtils;
 
@@ -165,7 +163,7 @@ public class RpslResponseDecorator {
         final List<X509CertificateWrapper> certificates = query.getCertificates();
 
         final FilterAuthFunction filterAuthFunction =
-                (CollectionUtils.isEmpty(passwords) && StringUtils.isBlank(ssoToken) && (certificates == null || certificates.isEmpty()))?
+                (CollectionUtils.isEmpty(passwords) && StringUtils.isBlank(ssoToken) && hasCertificates(certificates))?
                         FILTER_AUTH_FUNCTION :
                         new FilterAuthFunction(passwords, ssoToken, ssoTokenTranslator, authServiceClient,
                                 rpslObjectDao, certificates, clientAuthCertificate);
@@ -177,6 +175,10 @@ public class RpslResponseDecorator {
 
             return input;
         });
+    }
+
+    private static boolean hasCertificates(List<X509CertificateWrapper> certificates) {
+        return certificates == null || certificates.isEmpty();
     }
 
     private Iterable<? extends ResponseObject> filterEmail(final Query query, final Iterable<? extends ResponseObject> groupedObjects) {

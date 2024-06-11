@@ -1,6 +1,5 @@
 package net.ripe.db.whois.common.rpsl.transform;
 
-import net.ripe.db.whois.common.DateTimeProvider;
 import net.ripe.db.whois.common.clientauthcertificates.ClientAuthCertificate;
 import net.ripe.db.whois.common.dao.RpslObjectDao;
 import net.ripe.db.whois.common.rpsl.RpslObject;
