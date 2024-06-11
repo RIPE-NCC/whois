@@ -5,9 +5,10 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 import net.ripe.db.whois.common.DateTimeProvider;
+import net.ripe.db.whois.common.clientauthcertificates.ClientAuthCertificate;
 import net.ripe.db.whois.common.dao.RpslObjectDao;
 import net.ripe.db.whois.common.domain.CIString;
-import net.ripe.db.whois.common.keycert.X509CertificateWrapper;
+import net.ripe.db.whois.common.clientauthcertificates.X509CertificateWrapper;
 import net.ripe.db.whois.common.rpsl.AttributeType;
 import net.ripe.db.whois.common.rpsl.ObjectType;
 import net.ripe.db.whois.common.rpsl.PasswordHelper;
@@ -20,7 +21,6 @@ import net.ripe.db.whois.common.sso.AuthServiceClientException;
 import net.ripe.db.whois.common.sso.SsoTokenTranslator;
 import net.ripe.db.whois.common.sso.UserSession;
 import org.apache.commons.lang.StringUtils;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.util.CollectionUtils;
 
 import javax.annotation.Nonnull;
@@ -49,8 +49,7 @@ public class FilterAuthFunction implements FilterFunction {
     private SsoTokenTranslator ssoTokenTranslator;
     private AuthServiceClient authServiceClient;
     private List<X509CertificateWrapper> certificates;
-    private DateTimeProvider dateTimeProvider;
-    private boolean clientAuthEnabled;
+    private ClientAuthCertificate clientAuthCertificate;
 
     public FilterAuthFunction(final List<String> passwords,
                               final String token,
@@ -58,16 +57,14 @@ public class FilterAuthFunction implements FilterFunction {
                               final AuthServiceClient authServiceClient,
                               final RpslObjectDao rpslObjectDao,
                               final List<X509CertificateWrapper> certificates,
-                              final DateTimeProvider dateTimeProvider,
-                              final boolean clientAuthEnabled) {
+                              final ClientAuthCertificate clientAuthCertificate) {
         this.token = token;
         this.passwords = passwords;
         this.ssoTokenTranslator = ssoTokenTranslator;
         this.authServiceClient = authServiceClient;
         this.rpslObjectDao = rpslObjectDao;
         this.certificates = certificates;
-        this.dateTimeProvider = dateTimeProvider;
-        this.clientAuthEnabled = clientAuthEnabled;
+        this.clientAuthCertificate = clientAuthCertificate;
     }
 
     public FilterAuthFunction() {
@@ -161,37 +158,11 @@ public class FilterAuthFunction implements FilterFunction {
     }
 
     private boolean clientCertAuthentication(final List<RpslAttribute> authAttributes){
-        if (CollectionUtils.isEmpty(certificates) || !clientAuthEnabled) {
+        if (CollectionUtils.isEmpty(certificates) || !clientAuthCertificate.isEnabled()) {
             return false;
         }
 
-        for (RpslAttribute authAttribute : authAttributes) {
-            CIString key = authAttribute.getCleanValue();
-            if (key.startsWith("x509")) {
-                final RpslObject object = rpslObjectDao.getByKey(ObjectType.KEY_CERT, key);
-                final X509CertificateWrapper x509CertificateWrapper = X509CertificateWrapper.parse(object);
-                if (x509CertificateWrapper == null) {
-                    continue;
-                }
-
-                if (x509CertificateWrapper.isExpired(dateTimeProvider)) {
-                    continue;
-                }
-
-                if (x509CertificateWrapper.isNotYetValid(dateTimeProvider)) {
-                    continue;
-                }
-
-                boolean isAuthCertificateAuthenticated = certificates.stream()
-                        .map(X509CertificateWrapper::getCertificate)
-                        .anyMatch(userCertificate -> userCertificate.equals(x509CertificateWrapper.getCertificate()));
-                if (isAuthCertificateAuthenticated){
-                    return true;
-                }
-            }
-        }
-        return false;
-
+        return clientAuthCertificate.existValidCertificate(authAttributes, certificates);
     }
 
     private boolean passwordAuthentication(final List<RpslAttribute> authAttributes) {

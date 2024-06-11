@@ -12,7 +12,7 @@ import net.ripe.db.whois.update.domain.Update;
 import net.ripe.db.whois.update.domain.UpdateContext;
 import net.ripe.db.whois.update.keycert.KeyWrapperFactory;
 import net.ripe.db.whois.update.keycert.PgpPublicKeyWrapper;
-import net.ripe.db.whois.common.keycert.X509CertificateWrapper;
+import net.ripe.db.whois.common.clientauthcertificates.X509CertificateWrapper;
 import org.junit.jupiter.api.Test;
 
 import org.mockito.InjectMocks;

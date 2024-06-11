@@ -1,7 +1,7 @@
 package net.ripe.db.whois.update.keycert;
 
 import net.ripe.db.whois.common.DateTimeProvider;
-import net.ripe.db.whois.common.keycert.X509CertificateWrapper;
+import net.ripe.db.whois.common.clientauthcertificates.X509CertificateWrapper;
 import org.bouncycastle.x509.util.StreamParsingException;
 import org.junit.jupiter.api.Test;
 

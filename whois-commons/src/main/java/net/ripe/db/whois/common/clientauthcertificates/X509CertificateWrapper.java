@@ -1,4 +1,4 @@
-package net.ripe.db.whois.common.keycert;
+package net.ripe.db.whois.common.clientauthcertificates;
 
 
 import com.google.common.collect.Lists;

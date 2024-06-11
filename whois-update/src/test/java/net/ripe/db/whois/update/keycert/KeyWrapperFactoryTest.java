@@ -1,7 +1,7 @@
 package net.ripe.db.whois.update.keycert;
 
-import net.ripe.db.whois.common.keycert.KeyWrapper;
-import net.ripe.db.whois.common.keycert.X509CertificateWrapper;
+import net.ripe.db.whois.common.clientauthcertificates.KeyWrapper;
+import net.ripe.db.whois.common.clientauthcertificates.X509CertificateWrapper;
 import net.ripe.db.whois.common.rpsl.RpslObject;
 import net.ripe.db.whois.update.domain.UpdateContainer;
 import net.ripe.db.whois.update.domain.UpdateContext;
