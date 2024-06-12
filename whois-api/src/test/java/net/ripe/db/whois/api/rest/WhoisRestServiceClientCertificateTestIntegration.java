@@ -270,7 +270,7 @@ public class WhoisRestServiceClientCertificateTestIntegration extends AbstractCl
     }
 
     @Test
-    public void lookup_person_incorrect_client_cert_and_unfiltered_param_is_partially_unfiltered() {
+    public void lookup_mntner_incorrect_client_cert_and_unfiltered_param_is_partially_unfiltered() {
         final RpslObject keycertObject = createKeycertObject(new CertificatePrivateKeyPair().getCertificate(), "OWNER-MNT");
         databaseHelper.addObject(keycertObject);
         final RpslObject updatedMntner = addAttribute(OWNER_MNT, AttributeType.AUTH, keycertObject.getKey());
@@ -296,7 +296,7 @@ public class WhoisRestServiceClientCertificateTestIntegration extends AbstractCl
     }
 
     @Test
-    public void lookup_person_correct_client_cert_and_unfiltered_param_is_fully_unfiltered() {
+    public void lookup_mntner_correct_client_cert_and_unfiltered_param_is_fully_unfiltered() {
         final RpslObject keycertObject = createKeycertObject(getClientCertificate(), "OWNER-MNT");
         databaseHelper.addObject(keycertObject);
         final RpslObject updatedMntner = addAttribute(OWNER_MNT, AttributeType.AUTH, keycertObject.getKey());

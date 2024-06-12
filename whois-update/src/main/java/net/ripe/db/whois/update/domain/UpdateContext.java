@@ -14,7 +14,7 @@ import net.ripe.db.whois.common.sso.UserSession;
 import net.ripe.db.whois.update.authentication.Subject;
 import net.ripe.db.whois.update.dns.DnsCheckRequest;
 import net.ripe.db.whois.update.dns.DnsCheckResponse;
-import net.ripe.db.whois.common.clientauthcertificates.X509CertificateWrapper;
+import net.ripe.db.whois.common.x509.X509CertificateWrapper;
 import net.ripe.db.whois.update.log.LoggerContext;
 
 import javax.annotation.CheckForNull;

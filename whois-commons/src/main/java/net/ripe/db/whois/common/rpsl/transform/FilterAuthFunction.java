@@ -4,10 +4,10 @@ import com.google.common.base.Splitter;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
-import net.ripe.db.whois.common.clientauthcertificates.ClientAuthCertificate;
+import net.ripe.db.whois.common.x509.ClientAuthCertificateValidator;
 import net.ripe.db.whois.common.dao.RpslObjectDao;
 import net.ripe.db.whois.common.domain.CIString;
-import net.ripe.db.whois.common.clientauthcertificates.X509CertificateWrapper;
+import net.ripe.db.whois.common.x509.X509CertificateWrapper;
 import net.ripe.db.whois.common.rpsl.AttributeType;
 import net.ripe.db.whois.common.rpsl.ObjectType;
 import net.ripe.db.whois.common.rpsl.PasswordHelper;
@@ -48,7 +48,7 @@ public class FilterAuthFunction implements FilterFunction {
     private SsoTokenTranslator ssoTokenTranslator;
     private AuthServiceClient authServiceClient;
     private List<X509CertificateWrapper> certificates;
-    private ClientAuthCertificate clientAuthCertificate;
+    private ClientAuthCertificateValidator clientAuthCertificateValidator;
 
     public FilterAuthFunction(final List<String> passwords,
                               final String token,
@@ -56,14 +56,14 @@ public class FilterAuthFunction implements FilterFunction {
                               final AuthServiceClient authServiceClient,
                               final RpslObjectDao rpslObjectDao,
                               final List<X509CertificateWrapper> certificates,
-                              final ClientAuthCertificate clientAuthCertificate) {
+                              final ClientAuthCertificateValidator clientAuthCertificateValidator) {
         this.token = token;
         this.passwords = passwords;
         this.ssoTokenTranslator = ssoTokenTranslator;
         this.authServiceClient = authServiceClient;
         this.rpslObjectDao = rpslObjectDao;
         this.certificates = certificates;
-        this.clientAuthCertificate = clientAuthCertificate;
+        this.clientAuthCertificateValidator = clientAuthCertificateValidator;
     }
 
     public FilterAuthFunction() {
@@ -157,11 +157,11 @@ public class FilterAuthFunction implements FilterFunction {
     }
 
     private boolean clientCertAuthentication(final List<RpslAttribute> authAttributes){
-        if (CollectionUtils.isEmpty(certificates) || !clientAuthCertificate.isEnabled()) {
+        if (CollectionUtils.isEmpty(certificates) || !clientAuthCertificateValidator.isEnabled()) {
             return false;
         }
 
-        return clientAuthCertificate.existValidCertificate(authAttributes, certificates);
+        return clientAuthCertificateValidator.existValidCertificate(authAttributes, certificates);
     }
 
     private boolean passwordAuthentication(final List<RpslAttribute> authAttributes) {

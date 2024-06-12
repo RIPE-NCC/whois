@@ -1,8 +1,7 @@
-package net.ripe.db.whois.common.clientauthcertificates;
+package net.ripe.db.whois.common.x509;
 
 import net.ripe.db.whois.common.DateTimeProvider;
 import net.ripe.db.whois.common.dao.RpslObjectDao;
-import net.ripe.db.whois.common.dao.jdbc.JdbcRpslObjectSlaveDao;
 import net.ripe.db.whois.common.domain.CIString;
 import net.ripe.db.whois.common.rpsl.ObjectType;
 import net.ripe.db.whois.common.rpsl.RpslAttribute;
@@ -14,7 +13,7 @@ import org.springframework.stereotype.Component;
 import java.util.List;
 
 @Component
-public class ClientAuthCertificate {
+public class ClientAuthCertificateValidator {
 
     private final DateTimeProvider dateTimeProvider;
 
@@ -22,9 +21,9 @@ public class ClientAuthCertificate {
 
     private final RpslObjectDao rpslObjectDao;
 
-    public ClientAuthCertificate(@Qualifier("jdbcRpslObjectSlaveDao") final RpslObjectDao rpslObjectDao,
-                                final DateTimeProvider dateTimeProvider,
-                                 @Value("${port.client.auth:-1}") final int clientAuthPort) {
+    public ClientAuthCertificateValidator(@Qualifier("jdbcRpslObjectSlaveDao") final RpslObjectDao rpslObjectDao,
+                                          final DateTimeProvider dateTimeProvider,
+                                          @Value("${port.client.auth:-1}") final int clientAuthPort) {
         this.rpslObjectDao = rpslObjectDao;
         this.dateTimeProvider = dateTimeProvider;
         this.clientAuthEnabled = clientAuthPort >= 0;

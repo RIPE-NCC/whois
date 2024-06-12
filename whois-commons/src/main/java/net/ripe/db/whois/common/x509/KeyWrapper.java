@@ -1,4 +1,4 @@
-package net.ripe.db.whois.common.clientauthcertificates;
+package net.ripe.db.whois.common.x509;
 
 import java.util.List;
 

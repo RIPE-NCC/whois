@@ -1,7 +1,6 @@
-package net.ripe.db.whois.update.keycert;
+package net.ripe.db.whois.common.x509;
 
 import net.ripe.db.whois.common.DateTimeProvider;
-import net.ripe.db.whois.common.clientauthcertificates.X509CertificateWrapper;
 import net.ripe.db.whois.common.rpsl.RpslObject;
 import org.apache.commons.io.IOUtils;
 import org.junit.jupiter.api.BeforeEach;

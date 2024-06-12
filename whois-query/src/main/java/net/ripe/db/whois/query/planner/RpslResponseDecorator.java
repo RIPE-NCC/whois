@@ -2,11 +2,11 @@ package net.ripe.db.whois.query.planner;
 
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Sets;
-import net.ripe.db.whois.common.clientauthcertificates.ClientAuthCertificate;
+import net.ripe.db.whois.common.x509.ClientAuthCertificateValidator;
 import net.ripe.db.whois.common.collect.IterableTransformer;
 import net.ripe.db.whois.common.dao.RpslObjectDao;
 import net.ripe.db.whois.common.domain.ResponseObject;
-import net.ripe.db.whois.common.clientauthcertificates.X509CertificateWrapper;
+import net.ripe.db.whois.common.x509.X509CertificateWrapper;
 import net.ripe.db.whois.common.rpsl.RpslObject;
 import net.ripe.db.whois.common.rpsl.transform.FilterAuthFunction;
 import net.ripe.db.whois.common.rpsl.transform.FilterChangedFunction;
@@ -60,7 +60,7 @@ public class RpslResponseDecorator {
     private final AuthServiceClient authServiceClient;
     private final ToShorthandFunction toShorthandFunction;
     private final ToKeysFunction toKeysFunction;
-    private final ClientAuthCertificate clientAuthCertificate;
+    private final ClientAuthCertificateValidator clientAuthCertificateValidator;
 
     @Autowired
     public RpslResponseDecorator(final RpslObjectDao rpslObjectDao,
@@ -72,7 +72,7 @@ public class RpslResponseDecorator {
                                  final AbuseCInfoDecorator abuseCInfoDecorator,
                                  final SsoTokenTranslator ssoTokenTranslator,
                                  final AuthServiceClient authServiceClient,
-                                 final ClientAuthCertificate clientAuthCertificate,
+                                 final ClientAuthCertificateValidator clientAuthCertificateValidator,
                                  final PrimaryObjectDecorator... decorators) {
         this.rpslObjectDao = rpslObjectDao;
         this.filterPersonalDecorator = filterPersonalDecorator;
@@ -88,7 +88,7 @@ public class RpslResponseDecorator {
         this.decorators = Sets.newHashSet(decorators);
         this.toShorthandFunction = new ToShorthandFunction();
         this.toKeysFunction = new ToKeysFunction();
-        this.clientAuthCertificate = clientAuthCertificate;
+        this.clientAuthCertificateValidator = clientAuthCertificateValidator;
     }
 
     public Iterable<? extends ResponseObject> getResponse(final Query query, Iterable<? extends ResponseObject> result) {
@@ -163,10 +163,10 @@ public class RpslResponseDecorator {
         final List<X509CertificateWrapper> certificates = query.getCertificates();
 
         final FilterAuthFunction filterAuthFunction =
-                (CollectionUtils.isEmpty(passwords) && StringUtils.isBlank(ssoToken) && hasCertificates(certificates))?
+                (CollectionUtils.isEmpty(passwords) && StringUtils.isBlank(ssoToken) && hasNotCertificates(certificates))?
                         FILTER_AUTH_FUNCTION :
                         new FilterAuthFunction(passwords, ssoToken, ssoTokenTranslator, authServiceClient,
-                                rpslObjectDao, certificates, clientAuthCertificate);
+                                rpslObjectDao, certificates, clientAuthCertificateValidator);
 
         return Iterables.transform(objects, input -> {
             if (input instanceof RpslObject) {
@@ -177,7 +177,7 @@ public class RpslResponseDecorator {
         });
     }
 
-    private static boolean hasCertificates(List<X509CertificateWrapper> certificates) {
+    private static boolean hasNotCertificates(final List<X509CertificateWrapper> certificates) {
         return certificates == null || certificates.isEmpty();
     }
 

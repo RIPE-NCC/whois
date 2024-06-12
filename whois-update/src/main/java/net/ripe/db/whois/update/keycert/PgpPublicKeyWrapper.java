@@ -5,7 +5,7 @@ import com.google.common.collect.Lists;
 import net.ripe.db.whois.common.DateTimeProvider;
 import net.ripe.db.whois.common.DateUtil;
 import net.ripe.db.whois.common.Latin1Conversion;
-import net.ripe.db.whois.common.clientauthcertificates.KeyWrapper;
+import net.ripe.db.whois.common.x509.KeyWrapper;
 import net.ripe.db.whois.common.rpsl.RpslObject;
 import net.ripe.db.whois.common.rpsl.RpslObjectFilter;
 import org.bouncycastle.bcpg.ArmoredInputStream;

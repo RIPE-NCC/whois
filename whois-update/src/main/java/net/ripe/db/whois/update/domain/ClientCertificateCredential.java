@@ -1,6 +1,6 @@
 package net.ripe.db.whois.update.domain;
 
-import net.ripe.db.whois.common.clientauthcertificates.X509CertificateWrapper;
+import net.ripe.db.whois.common.x509.X509CertificateWrapper;
 
 import java.security.cert.X509Certificate;
 import java.util.Objects;
