@@ -57,9 +57,9 @@ public class RpkiRoaMessageGenerator implements RpslMessageGenerator {
         }
 
         return switch (invalidRpkiRoa.getValue()) {
-            case INVALID_ORIGIN -> new RpslMessage(QueryMessages.roaRouteOriginConflicts(rpslObject.getType().getName().toUpperCase(), invalidRpkiRoa.getKey().getMaxLength(), invalidRpkiRoa.getKey().getAsn()));
-            case INVALID_PREFIX_LENGTH -> new RpslMessage(QueryMessages.roaRoutePrefixLengthConflicts(rpslObject.getType().getName().toUpperCase(), invalidRpkiRoa.getKey().getMaxLength(), invalidRpkiRoa.getKey().getAsn()));
-            case INVALID_PREFIX_AND_ORIGIN -> new RpslMessage(QueryMessages.roaRouteConflicts(rpslObject.getType().getName().toUpperCase(), invalidRpkiRoa.getKey().getMaxLength(), invalidRpkiRoa.getKey().getAsn()));
+            case INVALID_ORIGIN -> new RpslMessage(QueryMessages.roaRouteOriginConflicts(rpslObject.getType().getName().toUpperCase(), invalidRpkiRoa.getKey().getPrefix(), invalidRpkiRoa.getKey().getMaxLength(), invalidRpkiRoa.getKey().getAsn()));
+            case INVALID_PREFIX_LENGTH -> new RpslMessage(QueryMessages.roaRoutePrefixLengthConflicts(rpslObject.getType().getName().toUpperCase(), invalidRpkiRoa.getKey().getPrefix(), invalidRpkiRoa.getKey().getMaxLength(), invalidRpkiRoa.getKey().getAsn()));
+            case INVALID_PREFIX_AND_ORIGIN -> new RpslMessage(QueryMessages.roaRouteConflicts(rpslObject.getType().getName().toUpperCase(), invalidRpkiRoa.getKey().getPrefix(), invalidRpkiRoa.getKey().getMaxLength(), invalidRpkiRoa.getKey().getAsn()));
             default -> null;
         };
     }

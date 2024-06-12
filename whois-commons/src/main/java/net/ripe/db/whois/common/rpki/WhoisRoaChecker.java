@@ -8,6 +8,7 @@ import net.ripe.db.whois.common.rpsl.RpslObject;
 import org.apache.commons.compress.utils.Lists;
 import org.springframework.stereotype.Component;
 
+import javax.annotation.Nullable;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -27,6 +28,7 @@ public class WhoisRoaChecker extends AbstractRpkiRoaChecker {
         super(rpkiService);
     }
 
+    @Nullable
     public Map.Entry<Roa, ValidationStatus> validateAndGetInvalidRoa(final RpslObject route){
         /* This method prioritize VALID roas over INVALID roas. So in case of overlap the VALID ROA will se used.
          This is a common behaviour related to roas */

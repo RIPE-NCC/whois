@@ -60,28 +60,28 @@ public final class QueryMessages {
                 "\nAbuse-mailbox validation failed. Please refer to %s for further information.", key, value, orgId);
     }
 
-    public static Message roaRouteOriginConflicts(final String objectType, final int prefix, final long asn){
+    public static Message roaRouteOriginConflicts(final String objectType, final String prefix, final int maxLength, final long asn){
         return new QueryMessage(Type.WARNING, ""
-                + "Warning: this %s object conflicts with an RPKI ROA with prefix /%s but a different origin AS%s."
+                + "Warning: this %s object conflicts with an RPKI ROA with a prefix %s and a maximum length /%s but a different origin AS%s."
                 + "\n"
                 + "As a result, many autonomous systems may reject a BGP announcement even if it matches the ROUTE object. "
-                + "You should consider either removing this ROUTE object or updating/deleting the RPKI ROA.", objectType, prefix, asn);
+                + "You should consider either removing this ROUTE object or updating/deleting the RPKI ROA.", objectType, prefix, maxLength, asn);
     }
 
-    public static Message roaRoutePrefixLengthConflicts(final String objectType, final int prefix, final long asn){
+    public static Message roaRoutePrefixLengthConflicts(final String objectType, final String prefix, final int prefixLength, final long asn){
         return new QueryMessage(Type.WARNING, ""
-                + "Warning: this %s object conflicts with an RPKI ROA with a less specific prefix /%s but same origin AS%s."
+                + "Warning: this %s object conflicts with an RPKI ROA with a prefix %s and a less specific maximum length /%s but same origin AS%s."
                 + "\n"
                 + "As a result, many autonomous systems may reject a BGP announcement even if it matches the ROUTE object. "
-                + "You should consider either removing this ROUTE object or updating/deleting the RPKI ROA.", objectType, prefix, asn);
+                + "You should consider either removing this ROUTE object or updating/deleting the RPKI ROA.", objectType, prefix, prefixLength, asn);
     }
 
-    public static Message roaRouteConflicts(final String objectType, final int prefix, final long asn){
+    public static Message roaRouteConflicts(final String objectType, final String prefix, final int prefixLength, final long asn){
         return new QueryMessage(Type.WARNING, ""
-                + "Warning: this %s object conflicts with an RPKI ROA with a less specific prefix /%s and a different origin AS%s."
+                + "Warning: this %s object conflicts with an RPKI ROA with a prefix %s and a less specific maximum length /%s and a different origin AS%s."
                 + "\n"
                 + "As a result, many autonomous systems may reject an announcement even if it matches the ROUTE object. "
-                + "You should consider either removing this ROUTE object or updating/deleting the RPKI ROA.", objectType, prefix, asn);
+                + "You should consider either removing this ROUTE object or updating/deleting the RPKI ROA.", objectType, prefix, prefixLength, asn);
     }
 
     public static Message unvalidatedAbuseCShown(final CharSequence key, final CharSequence value) {
