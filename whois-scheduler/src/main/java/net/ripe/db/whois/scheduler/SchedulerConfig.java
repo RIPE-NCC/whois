@@ -8,7 +8,6 @@ import org.springframework.context.annotation.AdviceMode;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.EnableAspectJAutoProxy;
 import org.springframework.context.annotation.ImportResource;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.scheduling.TaskScheduler;
@@ -18,9 +17,9 @@ import org.springframework.scheduling.concurrent.ThreadPoolTaskScheduler;
 import javax.sql.DataSource;
 
 @Configuration
-@EnableAspectJAutoProxy(proxyTargetClass = true)
+// @EnableAspectJAutoProxy(proxyTargetClass = true)
 @EnableScheduling
-@EnableSchedulerLock(defaultLockAtMostFor="23h")
+@EnableSchedulerLock(defaultLockAtMostFor="23h", mode=AdviceMode.ASPECTJ)
 @ImportResource(value = "classpath:applicationContext-api.xml")
 @ComponentScan(basePackages="net.ripe.db.whois.scheduler")
 public class SchedulerConfig {
