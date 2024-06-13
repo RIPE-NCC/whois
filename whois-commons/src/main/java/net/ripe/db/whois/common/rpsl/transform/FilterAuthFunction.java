@@ -157,10 +157,6 @@ public class FilterAuthFunction implements FilterFunction {
     }
 
     private boolean clientCertAuthentication(final List<RpslAttribute> authAttributes){
-        if (CollectionUtils.isEmpty(certificates) || !clientAuthCertificateValidator.isEnabled()) {
-            return false;
-        }
-
         return clientAuthCertificateValidator.existValidCertificate(authAttributes, certificates);
     }
 
