@@ -57,7 +57,8 @@ public class WhoisRoaCheckerTest {
 
     @Test
     public void more_specific_roa_prefix_lower_length_invalid() {
-        when(rpkiService.findRoas(eq("10.0.0.0/16"))).thenReturn(Sets.newHashSet(new Roa("AS1", 8, "10.0.0.0/8", "ripe")));
+        when(rpkiService.findRoas(eq("10.0.0.0/16"))).thenReturn(Sets.newHashSet(new Roa("AS1", 8, "10.0.0.0/32",
+                "ripe")));
         final Map.Entry<Roa, ValidationStatus> result = whoisRoaChecker.validateAndGetInvalidRoa(RpslObject.parse(
                 "route: 10.0.0.0/16\n" +
                         "origin: AS1"
