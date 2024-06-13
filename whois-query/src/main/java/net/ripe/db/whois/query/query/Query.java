@@ -9,6 +9,7 @@ import net.ripe.db.whois.common.Message;
 import net.ripe.db.whois.common.Messages;
 import net.ripe.db.whois.common.domain.CIString;
 import net.ripe.db.whois.common.ip.IpInterval;
+import net.ripe.db.whois.common.x509.X509CertificateWrapper;
 import net.ripe.db.whois.common.rpsl.AttributeType;
 import net.ripe.db.whois.common.rpsl.ObjectTemplate;
 import net.ripe.db.whois.common.rpsl.ObjectType;
@@ -67,6 +68,8 @@ public class Query {
     private final boolean trusted;
     // TODO: [AH] we should use -x flag for direct match for all object types instead of this hack
     private boolean matchPrimaryKeyOnly;
+
+    private List<X509CertificateWrapper> certificates;
 
     private Query(final String query, final Origin origin, final boolean trusted) {
         try {
@@ -129,10 +132,11 @@ public class Query {
     }
 
 
-    public static Query parse(final String args, final String ssoToken, final List<String> passwords, final boolean trusted) {
+    public static Query parse(final String args, final String ssoToken, final List<String> passwords, final boolean trusted, final List<X509CertificateWrapper> certificates) {
         final Query query = parse(args, Origin.REST, trusted);
         query.ssoToken = ssoToken;
         query.passwords = passwords;
+        query.certificates = certificates;
         return query;
     }
 
@@ -142,6 +146,10 @@ public class Query {
 
     public String getSsoToken() {
         return ssoToken;
+    }
+
+    public List<X509CertificateWrapper> getCertificates() {
+        return certificates;
     }
 
     public boolean isTrusted() {
