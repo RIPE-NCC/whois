@@ -1,4 +1,4 @@
-package net.ripe.db.whois.update.keycert;
+package net.ripe.db.whois.common.x509;
 
 import net.ripe.db.whois.common.DateTimeProvider;
 import net.ripe.db.whois.common.rpsl.RpslObject;

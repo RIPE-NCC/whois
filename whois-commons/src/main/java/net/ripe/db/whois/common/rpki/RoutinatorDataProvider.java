@@ -50,15 +50,11 @@ public class RoutinatorDataProvider implements RpkiDataProvider{
             return Lists.newArrayList();
         }
 
-        try {
-            return this.client.target(rpkiBaseUrl)
+        return this.client.target(rpkiBaseUrl)
                     .path("json")
                     .request(MediaType.APPLICATION_JSON_TYPE)
                     .get(Roas.class)
                     .getRoas();
-        } catch (ClientErrorException ex){
-            LOGGER.error("RPKI service returned an error, so the ROAs are not updated");
-            return Lists.newArrayList();
-        }
+
     }
 }
