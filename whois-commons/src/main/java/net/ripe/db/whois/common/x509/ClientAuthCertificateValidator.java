@@ -9,6 +9,7 @@ import net.ripe.db.whois.common.rpsl.RpslObject;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
+import org.springframework.util.CollectionUtils;
 
 import java.util.List;
 
@@ -29,11 +30,11 @@ public class ClientAuthCertificateValidator {
         this.clientAuthEnabled = clientAuthPort >= 0;
     }
 
-    public boolean isEnabled(){
-        return clientAuthEnabled;
-    }
-
     public boolean existValidCertificate(final List<RpslAttribute> authAttributes, final List<X509CertificateWrapper> certificates){
+        if (CollectionUtils.isEmpty(certificates) || !this.isEnabled()) {
+            return false;
+        }
+
         for (RpslAttribute authAttribute : authAttributes) {
             CIString key = authAttribute.getCleanValue();
             if (key.startsWith("x509")) {
@@ -57,5 +58,9 @@ public class ClientAuthCertificateValidator {
             }
         }
         return false;
+    }
+
+    private boolean isEnabled(){
+        return clientAuthEnabled;
     }
 }
