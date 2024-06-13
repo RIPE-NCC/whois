@@ -9,7 +9,7 @@ import net.ripe.db.whois.update.domain.PreparedUpdate;
 import net.ripe.db.whois.update.domain.UpdateContext;
 import net.ripe.db.whois.update.domain.UpdateMessages;
 import net.ripe.db.whois.update.domain.X509Credential;
-import net.ripe.db.whois.update.keycert.X509CertificateWrapper;
+import net.ripe.db.whois.common.x509.X509CertificateWrapper;
 import net.ripe.db.whois.update.log.LoggerContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -74,6 +74,8 @@ public class ClientCertificateCredentialValidator implements CredentialValidator
     }
 
     private boolean verifyClientCertificate(final PreparedUpdate update, final UpdateContext updateContext, final ClientCertificateCredential offeredCredential, final X509Credential knownCredential) {
+        // TODO: [MH] Consider to use ClientAuthCertificate from commons module, some validations for update and get
+        //  is used here
         final String keyId = knownCredential.getKeyId();
         final X509CertificateWrapper x509CertificateWrapper = getKeyWrapper(update, updateContext, keyId);
         if (x509CertificateWrapper == null) {
