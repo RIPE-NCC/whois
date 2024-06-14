@@ -18,6 +18,7 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
+import java.util.Base64;
 import java.util.UUID;
 
 import static net.ripe.db.whois.query.support.PatternMatcher.matchesPattern;
@@ -192,7 +193,7 @@ public class UpdateNotificationFileGenerationTestIntegration extends AbstractNrt
         final UpdateNotificationFile testIteration = getNotificationFileBySource("TEST");
         final UpdateNotificationFile testNonAuthIteration = getNotificationFileBySource("TEST-NONAUTH");
 
-        final String nextKey = ByteArrayUtil.byteArrayToHexString(nrtmKeyPairService.getNextkeyPairRecord().publicKey());
+        final String nextKey = Base64.getEncoder().encodeToString(nrtmKeyPairService.getNextkeyPairRecord().publicKey());
         assertThat(testIteration.getSource().getName(), is("TEST"));
         assertThat(testIteration.getNextSigningKey(), is(nextKey));
 

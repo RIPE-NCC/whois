@@ -23,6 +23,7 @@ import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
+import java.util.Base64;
 import java.util.List;
 import java.util.Optional;
 
@@ -162,7 +163,8 @@ public class UpdateNotificationFileGenerator {
             final UpdateNotificationFile notification = new UpdateNotificationFile(
                     fileVersion,
                     new VersionDateTime(createdTimestamp).toString(),
-                    nrtmKeyPairService.getNextkeyPairRecord() != null ? ByteArrayUtil.byteArrayToHexString(nrtmKeyPairService.getNextkeyPairRecord().publicKey()) : null,
+                    nrtmKeyPairService.getNextkeyPairRecord() != null ?
+                            Base64.getEncoder().encodeToString(nrtmKeyPairService.getNextkeyPairRecord().publicKey()) : null,
                     getPublishableFile(snapshotFile.versionInfo(), snapshotFile.snapshotFile().name(), snapshotFile.snapshotFile().hash()),
                     getPublishableFile(deltaFiles)
             );
