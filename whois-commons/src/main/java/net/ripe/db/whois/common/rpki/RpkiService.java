@@ -6,8 +6,10 @@ import net.ripe.db.whois.common.etree.NestedIntervalMap;
 import net.ripe.db.whois.common.ip.IpInterval;
 import net.ripe.db.whois.common.ip.Ipv4Resource;
 import net.ripe.db.whois.common.ip.Ipv6Resource;
+import net.ripe.db.whois.common.profiles.WhoisProfile;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.context.annotation.Profile;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
@@ -17,6 +19,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 @Service
+@Profile({WhoisProfile.DEPLOYED})
 public class RpkiService {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(RpkiService.class);
