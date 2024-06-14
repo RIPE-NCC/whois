@@ -11,6 +11,7 @@ import org.bouncycastle.crypto.signers.Ed25519Signer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.security.PublicKey;
 import java.security.SecureRandom;
 import java.util.Base64;
 

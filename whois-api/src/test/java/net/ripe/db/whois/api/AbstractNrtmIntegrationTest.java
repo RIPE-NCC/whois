@@ -7,6 +7,7 @@ import jakarta.ws.rs.client.WebTarget;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 import net.ripe.db.nrtm4.generator.DeltaFileGenerator;
+import net.ripe.db.nrtm4.generator.NrtmKeyPairService;
 import net.ripe.db.nrtm4.generator.SnapshotFileGenerator;
 import net.ripe.db.nrtm4.generator.UpdateNotificationFileGenerator;
 import net.ripe.db.nrtm4.dao.NrtmKeyConfigDao;
@@ -15,6 +16,7 @@ import net.ripe.db.nrtm4.domain.NrtmDocumentType;
 import net.ripe.db.nrtm4.domain.NrtmSource;
 import net.ripe.db.nrtm4.domain.UpdateNotificationFile;
 import net.ripe.db.nrtm4.domain.NrtmVersionRecord;
+import net.ripe.db.nrtm4.scheduler.NrtmKeyRolloverScheduledTask;
 import net.ripe.db.nrtm4.util.NrtmFileUtil;
 import net.ripe.db.whois.common.domain.CIString;
 import net.ripe.db.whois.common.rpsl.RpslObject;
@@ -39,6 +41,9 @@ public abstract class AbstractNrtmIntegrationTest extends AbstractIntegrationTes
     protected UpdateNotificationFileGenerator updateNotificationFileGenerator;
 
     @Autowired
+    protected NrtmKeyRolloverScheduledTask nrtmKeyRolloverScheduledTask;
+
+    @Autowired
     protected SnapshotFileGenerator snapshotFileGenerator;
 
     @Autowired
@@ -47,6 +52,8 @@ public abstract class AbstractNrtmIntegrationTest extends AbstractIntegrationTes
     @Autowired
     protected DeltaFileGenerator deltaFileGenerator;
 
+    @Autowired
+    protected NrtmKeyPairService nrtmKeyPairService;
 
     @BeforeEach
     public void setup() {

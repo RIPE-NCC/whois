@@ -13,6 +13,7 @@ import net.ripe.db.nrtm4.domain.NrtmVersionInfo;
 import net.ripe.db.nrtm4.domain.UpdateNotificationFile;
 import net.ripe.db.nrtm4.domain.SnapshotFileVersionInfo;
 import net.ripe.db.nrtm4.source.NrtmSourceContext;
+import net.ripe.db.nrtm4.util.ByteArrayUtil;
 import net.ripe.db.whois.common.DateTimeProvider;
 import net.ripe.db.whois.common.dao.VersionDateTime;
 import org.slf4j.Logger;
@@ -38,6 +39,7 @@ public class UpdateNotificationFileGenerator {
     private final NrtmVersionInfoDao nrtmVersionInfoDao;
     private final SnapshotFileDao snapshotFileDao;
     private final NrtmSourceDao nrtmSourceDao;
+    private final NrtmKeyPairService nrtmKeyPairService;
 
     public UpdateNotificationFileGenerator(
         @Value("${nrtm.baseUrl}") final String baseUrl,
@@ -45,6 +47,7 @@ public class UpdateNotificationFileGenerator {
         final DeltaFileDao deltaFileDao,
         final UpdateNotificationFileDao updateNotificationFileDao,
         final NrtmVersionInfoDao nrtmVersionInfoDao,
+        final NrtmKeyPairService nrtmKeyPairService,
         final NrtmSourceDao nrtmSourceDao,
         final SnapshotFileDao snapshotFileDao
     ) {
@@ -55,6 +58,7 @@ public class UpdateNotificationFileGenerator {
         this.nrtmVersionInfoDao = nrtmVersionInfoDao;
         this.snapshotFileDao = snapshotFileDao;
         this.nrtmSourceDao = nrtmSourceDao;
+        this.nrtmKeyPairService = nrtmKeyPairService;
     }
 
     public void generateFile() {
@@ -158,7 +162,7 @@ public class UpdateNotificationFileGenerator {
             final UpdateNotificationFile notification = new UpdateNotificationFile(
                     fileVersion,
                     new VersionDateTime(createdTimestamp).toString(),
-                    null,
+                    nrtmKeyPairService.getNextkeyPairRecord() != null ? ByteArrayUtil.byteArrayToHexString(nrtmKeyPairService.getNextkeyPairRecord().publicKey()) : null,
                     getPublishableFile(snapshotFile.versionInfo(), snapshotFile.snapshotFile().name(), snapshotFile.snapshotFile().hash()),
                     getPublishableFile(deltaFiles)
             );

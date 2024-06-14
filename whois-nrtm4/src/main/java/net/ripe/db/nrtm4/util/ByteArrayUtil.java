@@ -13,5 +13,4 @@ public class ByteArrayUtil {
         }
         return hexString.toString();
     }
-
 }
