@@ -56,7 +56,7 @@ public class WhoisRoaChecker extends AbstractRpkiRoaChecker {
         if (invalidStatus.isEmpty()){
             return VALID;
         }
-        return invalidStatus.size() == 1 ? invalidStatus.get(0) : INVALID_PREFIX_AND_ORIGIN;
+        return invalidStatus.size() == 1 ? invalidStatus.getFirst() : INVALID_PREFIX_AND_ORIGIN;
     }
 
     private Predicate<Map.Entry<Roa, ValidationStatus>> getValidOrNotFoundRoas() {
