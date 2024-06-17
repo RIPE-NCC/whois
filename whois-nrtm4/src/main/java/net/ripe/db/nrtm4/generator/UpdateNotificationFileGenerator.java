@@ -15,6 +15,7 @@ import net.ripe.db.nrtm4.domain.UpdateNotificationFile;
 import net.ripe.db.nrtm4.domain.SnapshotFileVersionInfo;
 import net.ripe.db.nrtm4.source.NrtmSourceContext;
 import net.ripe.db.nrtm4.util.ByteArrayUtil;
+import net.ripe.db.nrtm4.util.Ed25519Util;
 import net.ripe.db.whois.common.DateTimeProvider;
 import net.ripe.db.whois.common.dao.VersionDateTime;
 import org.slf4j.Logger;
@@ -167,8 +168,7 @@ public class UpdateNotificationFileGenerator {
             final UpdateNotificationFile notification = new UpdateNotificationFile(
                     fileVersion,
                     new VersionDateTime(createdTimestamp).toString(),
-                    nextKey != null ?
-                            Base64.getEncoder().encodeToString(nextKey.publicKey()) : null,
+                    Ed25519Util.encodePublicKey(nextKey),
                     getPublishableFile(snapshotFile.versionInfo(), snapshotFile.snapshotFile().name(), snapshotFile.snapshotFile().hash()),
                     getPublishableFile(deltaFiles)
             );

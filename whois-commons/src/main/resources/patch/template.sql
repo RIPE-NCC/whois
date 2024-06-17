@@ -1,7 +1,6 @@
 --
 -- Description:       < TODO: add a description of what the patch does >
 --
---
 -- Issue:             < TODO: add GitHub issue # >
 --
 -- Release Version:   < TODO: version >
