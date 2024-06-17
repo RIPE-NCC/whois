@@ -8,6 +8,7 @@ import net.ripe.db.nrtm4.dao.SnapshotFileDao;
 import net.ripe.db.nrtm4.dao.NrtmSourceDao;
 import net.ripe.db.nrtm4.domain.DeltaFileVersionInfo;
 import net.ripe.db.nrtm4.domain.NotificationFile;
+import net.ripe.db.nrtm4.domain.NrtmKeyRecord;
 import net.ripe.db.nrtm4.domain.NrtmSource;
 import net.ripe.db.nrtm4.domain.NrtmVersionInfo;
 import net.ripe.db.nrtm4.domain.UpdateNotificationFile;
@@ -83,7 +84,10 @@ public class UpdateNotificationFileGenerator {
 
           final List<DeltaFileVersionInfo> deltaFiles = deltaFileDao.getAllDeltasForSourceSince(nrtmSource, oneDayAgo);
           final NrtmVersionInfo fileVersion = getVersion(deltaFiles, snapshotFile.get());
-          final String json = getPayload(snapshotFile.get(), deltaFiles, fileVersion, createdTimestamp);
+
+          final NrtmKeyRecord nextKey =  nrtmKeyPairService.generateOrRotateNextKey();
+
+           final String json = getPayload(snapshotFile.get(), deltaFiles, fileVersion, nextKey, createdTimestamp);
 
           saveNotificationFile(createdTimestamp, notificationFile, fileVersion, json);
        }
@@ -158,13 +162,13 @@ public class UpdateNotificationFileGenerator {
         return String.format("%s/%s/%s", baseUrl, source, fileName);
     }
 
-    private String getPayload(final SnapshotFileVersionInfo snapshotFile, final List<DeltaFileVersionInfo> deltaFiles, final NrtmVersionInfo fileVersion, final long createdTimestamp) {
+    private String getPayload(final SnapshotFileVersionInfo snapshotFile, final List<DeltaFileVersionInfo> deltaFiles, final NrtmVersionInfo fileVersion, final NrtmKeyRecord nextKey, final long createdTimestamp) {
         try {
             final UpdateNotificationFile notification = new UpdateNotificationFile(
                     fileVersion,
                     new VersionDateTime(createdTimestamp).toString(),
-                    nrtmKeyPairService.getNextkeyPairRecord() != null ?
-                            Base64.getEncoder().encodeToString(nrtmKeyPairService.getNextkeyPairRecord().publicKey()) : null,
+                    nextKey != null ?
+                            Base64.getEncoder().encodeToString(nextKey.publicKey()) : null,
                     getPublishableFile(snapshotFile.versionInfo(), snapshotFile.snapshotFile().name(), snapshotFile.snapshotFile().hash()),
                     getPublishableFile(deltaFiles)
             );

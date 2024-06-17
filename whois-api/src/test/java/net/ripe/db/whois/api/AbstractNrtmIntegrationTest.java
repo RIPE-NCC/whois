@@ -16,7 +16,6 @@ import net.ripe.db.nrtm4.domain.NrtmDocumentType;
 import net.ripe.db.nrtm4.domain.NrtmSource;
 import net.ripe.db.nrtm4.domain.UpdateNotificationFile;
 import net.ripe.db.nrtm4.domain.NrtmVersionRecord;
-import net.ripe.db.nrtm4.scheduler.NrtmKeyRolloverScheduledTask;
 import net.ripe.db.nrtm4.util.NrtmFileUtil;
 import net.ripe.db.whois.common.domain.CIString;
 import net.ripe.db.whois.common.rpsl.RpslObject;
@@ -39,9 +38,6 @@ public abstract class AbstractNrtmIntegrationTest extends AbstractIntegrationTes
 
     @Autowired
     protected UpdateNotificationFileGenerator updateNotificationFileGenerator;
-
-    @Autowired
-    protected NrtmKeyRolloverScheduledTask nrtmKeyRolloverScheduledTask;
 
     @Autowired
     protected SnapshotFileGenerator snapshotFileGenerator;

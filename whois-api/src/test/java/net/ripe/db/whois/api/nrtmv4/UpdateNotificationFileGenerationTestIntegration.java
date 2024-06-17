@@ -166,7 +166,6 @@ public class UpdateNotificationFileGenerationTestIntegration extends AbstractNrt
 
         setTime(LocalDateTime.now().plusYears(1).minusDays(9));
 
-        nrtmKeyRolloverScheduledTask.run();
         updateNotificationFileGenerator.generateFile();
 
         final UpdateNotificationFile testIteration = getNotificationFileBySource("TEST");
@@ -187,13 +186,12 @@ public class UpdateNotificationFileGenerationTestIntegration extends AbstractNrt
 
         setTime(LocalDateTime.now().plusYears(1).minusDays(7));
 
-        nrtmKeyRolloverScheduledTask.run();
         updateNotificationFileGenerator.generateFile();
 
         final UpdateNotificationFile testIteration = getNotificationFileBySource("TEST");
         final UpdateNotificationFile testNonAuthIteration = getNotificationFileBySource("TEST-NONAUTH");
 
-        final String nextKey = Base64.getEncoder().encodeToString(nrtmKeyPairService.getNextkeyPairRecord().publicKey());
+        final String nextKey = Base64.getEncoder().encodeToString(nrtmKeyPairService.generateOrRotateNextKey().publicKey());
         assertThat(testIteration.getSource().getName(), is("TEST"));
         assertThat(testIteration.getNextSigningKey(), is(nextKey));
 
@@ -208,23 +206,23 @@ public class UpdateNotificationFileGenerationTestIntegration extends AbstractNrt
         setTime(LocalDateTime.now());
 
         snapshotFileGenerator.createSnapshot();
-        assertThat(nrtmKeyPairService.getNextkeyPairRecord(), is(nullValue()));
+        assertThat(nrtmKeyPairService.generateOrRotateNextKey(), is(nullValue()));
 
         //New signing next key when expiry is smaller than 7 days
         setTime(LocalDateTime.now().plusYears(1).minusDays(7));
 
-        nrtmKeyRolloverScheduledTask.run();
+        updateNotificationFileGenerator.generateFile();
 
-        final String nextKey = ByteArrayUtil.byteArrayToHexString(nrtmKeyPairService.getNextkeyPairRecord().publicKey());
-        assertThat(nrtmKeyPairService.getNextkeyPairRecord(), is(not(nullValue())));
+        final String nextKey = ByteArrayUtil.byteArrayToHexString(nrtmKeyPairService.generateOrRotateNextKey().publicKey());
+        assertThat(nrtmKeyPairService.generateOrRotateNextKey(), is(not(nullValue())));
 
         //New signing next key will be the active key now and no next signing key
         setTime(LocalDateTime.now().plusYears(1));
-        nrtmKeyRolloverScheduledTask.run();
+        updateNotificationFileGenerator.generateFile();
 
         final String newCurrentKey = ByteArrayUtil.byteArrayToHexString(nrtmKeyConfigDao.getActivePublicKey());
         assertThat(nextKey, is(newCurrentKey));
-        assertThat(nrtmKeyPairService.getNextkeyPairRecord(), is(nullValue()));
+        assertThat(nrtmKeyPairService.generateOrRotateNextKey(), is(nullValue()));
     }
 
     @Test
@@ -242,7 +240,7 @@ public class UpdateNotificationFileGenerationTestIntegration extends AbstractNrt
         nrtmKeyPairService.generateKeyRecord(false);
 
         final NrtmKeyRecord expectedNextKey = nrtmKeyConfigDao.getAllKeyPair().stream().filter( nrtmKeyRecord -> nrtmKeyRecord.isActive() == false && nrtmKeyRecord.id() != oldestKey.id()).findFirst().get();
-        assertThat(expectedNextKey.id(), is(nrtmKeyPairService.getNextkeyPairRecord().id()));
+        assertThat(expectedNextKey.id(), is(nrtmKeyPairService.generateOrRotateNextKey().id()));
     }
 
     @Test
