@@ -233,11 +233,12 @@ public class UpdateNotificationFileGenerationTestIntegration extends AbstractNrt
         final NrtmKeyRecord oldestKey = nrtmKeyConfigDao.getAllKeyPair().get(0);
         System.out.println(DatatypeConverter.printHexBinary(oldestKey.publicKey()));
 
-        setTime(LocalDateTime.now().plusYears(1));
         nrtmKeyPairService.generateKeyRecord(true);
 
         setTime(LocalDateTime.now().plusYears(1).plusMonths(10));
         nrtmKeyPairService.generateKeyRecord(false);
+
+        setTime(LocalDateTime.now().plusYears(1).minusDays(7));
 
         final NrtmKeyRecord expectedNextKey = nrtmKeyConfigDao.getAllKeyPair().stream().filter( nrtmKeyRecord -> nrtmKeyRecord.isActive() == false && nrtmKeyRecord.id() != oldestKey.id()).findFirst().get();
         assertThat(expectedNextKey.id(), is(nrtmKeyPairService.generateOrRotateNextKey().id()));
