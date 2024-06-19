@@ -86,7 +86,7 @@ public class AuthServiceClientTestIntegration extends AbstractIntegrationTest {
     public void get_historical_event_date_time() {
         final HistoricalUserResponse historicalUserDetails = authServiceClient.getHistoricalUserDetails(UUID);
 
-        assertThat(historicalUserDetails.response.results.get(0).eventDateTime, is(LocalDateTime.of(2015, 5, 8, 12, 32, 0)));
+        assertThat(historicalUserDetails.response.results.get(0).eventDateTime, is(LocalDateTime.of(2015, 5, 8, 12, 32, 1, 984_000_000)));
     }
 
 

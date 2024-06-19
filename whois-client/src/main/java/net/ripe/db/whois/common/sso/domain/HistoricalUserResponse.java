@@ -68,7 +68,7 @@ public class HistoricalUserResponse implements Serializable {
 
     public static class DateTimeAdapter extends XmlAdapter<String, LocalDateTime> {
 
-        private static final DateTimeFormatter DATE_TIME_FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
+        private static final DateTimeFormatter DATE_TIME_FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'");
 
         @Override
         public LocalDateTime unmarshal(final String v) {
