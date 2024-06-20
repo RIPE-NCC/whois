@@ -7,6 +7,7 @@ import jakarta.ws.rs.client.WebTarget;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 import net.ripe.db.nrtm4.generator.DeltaFileGenerator;
+import net.ripe.db.nrtm4.generator.NrtmKeyPairService;
 import net.ripe.db.nrtm4.generator.SnapshotFileGenerator;
 import net.ripe.db.nrtm4.generator.UpdateNotificationFileGenerator;
 import net.ripe.db.nrtm4.dao.NrtmKeyConfigDao;
@@ -47,6 +48,8 @@ public abstract class AbstractNrtmIntegrationTest extends AbstractIntegrationTes
     @Autowired
     protected DeltaFileGenerator deltaFileGenerator;
 
+    @Autowired
+    protected NrtmKeyPairService nrtmKeyPairService;
 
     @BeforeEach
     public void setup() {

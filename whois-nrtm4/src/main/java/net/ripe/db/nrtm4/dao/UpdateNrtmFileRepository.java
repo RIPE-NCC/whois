@@ -4,6 +4,8 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import net.ripe.db.nrtm4.domain.DeltaFileRecord;
 import net.ripe.db.nrtm4.domain.DeltaFile;
 import net.ripe.db.nrtm4.domain.NrtmDocumentType;
+import net.ripe.db.nrtm4.domain.NrtmFileRecord;
+import net.ripe.db.nrtm4.domain.NrtmKeyRecord;
 import net.ripe.db.nrtm4.domain.NrtmSource;
 import net.ripe.db.nrtm4.domain.NrtmVersionInfo;
 import net.ripe.db.nrtm4.domain.NrtmVersionRecord;
@@ -65,6 +67,15 @@ public class UpdateNrtmFileRepository {
         saveSnapshot(snapshotFile, payload);
         LOGGER.info("Created {} snapshot version {}", version.source().getName(), version.version());
     }
+
+    public void rotateKey(final NrtmKeyRecord newActiveKey, final NrtmKeyRecord oldActiveKey) throws JsonProcessingException {
+
+        jdbcTemplate.update("UPDATE key_pair SET isActive = ? where id = ?", false, oldActiveKey.id());
+        jdbcTemplate.update("UPDATE key_pair SET isActive = ? where id = ?", true, newActiveKey.id());
+
+        LOGGER.info("Key rotated successsfully");
+    }
+
 
     private DeltaFile getDeltaFile(final NrtmVersionInfo newVersion, final List<DeltaFileRecord> deltas) throws JsonProcessingException {
 

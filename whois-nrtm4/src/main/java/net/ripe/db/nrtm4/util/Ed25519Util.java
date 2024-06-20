@@ -1,5 +1,6 @@
 package net.ripe.db.nrtm4.util;
 
+import net.ripe.db.nrtm4.domain.NrtmKeyRecord;
 import org.bouncycastle.crypto.AsymmetricCipherKeyPair;
 import org.bouncycastle.crypto.CryptoException;
 import org.bouncycastle.crypto.Signer;
@@ -42,5 +43,19 @@ public class Ed25519Util {
         verifier.init(false, new Ed25519PublicKeyParameters(publicKey, 0));
         verifier.update(contents, 0, contents.length);
         return verifier.verifySignature(Base64.getDecoder().decode(signature));
+    }
+
+    public static String encodePublicKey(final NrtmKeyRecord keyRecord) {
+
+        if(keyRecord == null || keyRecord.publicKey() == null) {
+            return null;
+        }
+
+        try {
+            return Base64.getEncoder().encodeToString(keyRecord.publicKey());
+        } catch(Exception ex) {
+            LOGGER.error("Failed to encode the key");
+            return null;
+        }
     }
 }
