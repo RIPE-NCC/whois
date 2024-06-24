@@ -729,4 +729,9 @@ public final class UpdateMessages {
         return new Message(Type.ERROR, "Prefix length must be /16 for IPv4 or /32 for IPv6 if ns.ripe.net is used as " +
                 "a nameserver.");
     }
+
+    public static Message tooManyReferences() {
+        return new Message(Type.ERROR, "Too many references");
+    }
+
 }
