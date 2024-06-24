@@ -1,5 +1,9 @@
 # next
 
+# 1.112.1
+
+[update] validate max references (#1486)
+
 # 1.112
 
 [all] NWI-4: Add ALLOCATED-ASSIGNED PA inetnum status (#1432)
