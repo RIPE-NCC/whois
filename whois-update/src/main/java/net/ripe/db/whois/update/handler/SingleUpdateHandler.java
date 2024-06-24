@@ -234,7 +234,7 @@ public class SingleUpdateHandler {
     private int countReferences(final RpslObject updatedObject) {
         int references = 0;
         for (RpslAttribute attribute : updatedObject.getAttributes()) {
-            if (attribute.getType().isReference()) {
+            if ((attribute.getType() != null) && attribute.getType().isReference()) {
                 references++;
             }
         }
