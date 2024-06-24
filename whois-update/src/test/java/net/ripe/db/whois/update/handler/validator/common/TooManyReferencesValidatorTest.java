@@ -71,4 +71,14 @@ public class TooManyReferencesValidatorTest {
         verify(updateContext).addMessage(eq(update), eq(new Message(Messages.Type.WARNING, UpdateMessages.tooManyReferences().getText())));
     }
 
+    @Test
+    public void tooManyReferencesWithCheckDisabled() {
+        when(update.getUpdatedObject()).thenReturn(RpslObject.parse("mntner: TEST-MNT\nmnt-by: TEST-MNT\nmnt-by: TEST-MNT\nsource: TEST"));
+
+        (new TooManyReferencesValidator(0)).validate(update, updateContext);
+
+        verifyNoMoreInteractions(updateContext);
+    }
+
+
 }

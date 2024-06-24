@@ -26,7 +26,7 @@ public class TooManyReferencesValidator implements BusinessRuleValidator {
     private final int maximumReferences;
 
     @Autowired
-    public TooManyReferencesValidator(@Value("${max.references:100:}")  final int maximumReferences) {
+    public TooManyReferencesValidator(@Value("${max.references:100}")  final int maximumReferences) {
         this.maximumReferences = maximumReferences;
     }
 
@@ -44,6 +44,10 @@ public class TooManyReferencesValidator implements BusinessRuleValidator {
     public List<Message> performValidation(final PreparedUpdate update, final UpdateContext updateContext) {
         final List<Message> messages = Lists.newArrayList();
         final RpslObject updatedObject = update.getUpdatedObject();
+
+        if (maximumReferences == 0) {
+            return messages;
+        }
 
         int references = 0;
         for (RpslAttribute attribute : updatedObject.getAttributes()) {
