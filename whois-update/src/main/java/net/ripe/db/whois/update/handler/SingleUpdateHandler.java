@@ -38,7 +38,6 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.util.List;
 
-
 @Component
 public class SingleUpdateHandler {
     private final AttributeSanitizer attributeSanitizer;
@@ -50,6 +49,8 @@ public class SingleUpdateHandler {
     private final UpdateObjectHandler updateObjectHandler;
     private final IpTreeUpdater ipTreeUpdater;
     private final SsoTranslator ssoTranslator;
+
+    // TODO: [ES] make these fields final and assign in the constructor
 
     @Value("#{T(net.ripe.db.whois.common.domain.CIString).ciString('${whois.source}')}")
     private CIString source;
