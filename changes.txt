@@ -1,11 +1,19 @@
 # next
 
-#1.113
+# 1.113.1
+
+[update] validate max references (#1486)
+
+# 1.113
 
 [all] Inetnum AGGREGATED-BY-LIR status (#1467)
 [api] Enable Client Auth Certificate for Lookup (#1475)
 [api] ROA Overlapping INVALID ROA and VALID ROA fix (#1470)
 [all] Java 21 Support (#1440)
+
+# 1.112.1
+
+[update] validate max references (#1486)
 
 # 1.112
 
