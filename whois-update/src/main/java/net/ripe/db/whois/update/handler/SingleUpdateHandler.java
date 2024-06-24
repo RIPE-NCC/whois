@@ -8,6 +8,7 @@ import net.ripe.db.whois.common.rpsl.AttributeSanitizer;
 import net.ripe.db.whois.common.rpsl.ObjectMessages;
 import net.ripe.db.whois.common.rpsl.ObjectTemplate;
 import net.ripe.db.whois.common.rpsl.ObjectType;
+import net.ripe.db.whois.common.rpsl.RpslAttribute;
 import net.ripe.db.whois.common.rpsl.RpslObject;
 import net.ripe.db.whois.common.rpsl.RpslObjectFilter;
 import net.ripe.db.whois.update.authentication.Authenticator;
@@ -55,6 +56,9 @@ public class SingleUpdateHandler {
 
     @Value("#{T(net.ripe.db.whois.common.domain.CIString).ciString('${whois.nonauth.source}')}")
     private CIString nonAuthSource;
+
+    @Value("${max.references:0}")
+    private int maxReferences;
 
     @Autowired
     public SingleUpdateHandler(final List<AttributeGenerator> attributeGenerators,
@@ -201,6 +205,10 @@ public class SingleUpdateHandler {
             updateContext.addMessage(update, UpdateMessages.filteredNotAllowed());
         }
 
+        if (maxReferences > 0 && countReferences(updatedObject) > maxReferences) {
+            updateContext.addMessage(update, UpdateMessages.tooManyReferences());
+        }
+
         if (Operation.DELETE.equals(update.getOperation())) {
             if (Keyword.NEW.equals(keyword)) {
                 updateContext.addMessage(update, UpdateMessages.operationNotAllowedForKeyword(keyword, update.getOperation()));
@@ -220,6 +228,16 @@ public class SingleUpdateHandler {
         }
 
         return updatedObject;
+    }
+
+    private int countReferences(final RpslObject updatedObject) {
+        int references = 0;
+        for (RpslAttribute attribute : updatedObject.getAttributes()) {
+            if (attribute.getType().isReference()) {
+                references++;
+            }
+        }
+        return references;
     }
 
     private Action getAction(@Nullable final RpslObject originalObject,
