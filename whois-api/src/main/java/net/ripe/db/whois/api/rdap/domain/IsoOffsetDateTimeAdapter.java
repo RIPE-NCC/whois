@@ -5,7 +5,7 @@ import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 
-public class DateTimeAdapter extends XmlAdapter<String, LocalDateTime> {
+public class IsoOffsetDateTimeAdapter extends XmlAdapter<String, LocalDateTime> {
 
     @Override
     public LocalDateTime unmarshal(final String v) {
