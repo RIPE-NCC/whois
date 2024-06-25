@@ -15,6 +15,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.cache.annotation.EnableCaching;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.AdviceMode;
+import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.aspectj.EnableSpringConfigured;
 import org.springframework.context.event.ContextClosedEvent;
 import org.springframework.context.event.ContextStoppedEvent;
@@ -23,6 +24,7 @@ import org.springframework.context.support.ClassPathXmlApplicationContext;
 import org.springframework.core.env.EnumerablePropertySource;
 import org.springframework.core.env.MutablePropertySources;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.EnableTransactionManagement;
 
 import java.io.Closeable;
 import java.security.Security;
@@ -32,7 +34,9 @@ import java.util.List;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.StreamSupport;
 
+@Configuration
 @EnableSpringConfigured
+@EnableTransactionManagement(mode = AdviceMode.ASPECTJ)
 @EnableCaching(mode = AdviceMode.ASPECTJ)
 @Component
 public class WhoisServer {
