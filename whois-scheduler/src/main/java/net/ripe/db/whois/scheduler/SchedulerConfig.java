@@ -17,7 +17,6 @@ import org.springframework.scheduling.concurrent.ThreadPoolTaskScheduler;
 import javax.sql.DataSource;
 
 @Configuration
-// @EnableAspectJAutoProxy(proxyTargetClass = true)
 @EnableScheduling
 @EnableSchedulerLock(defaultLockAtMostFor="23h", mode=AdviceMode.ASPECTJ)
 @ImportResource(value = "classpath:applicationContext-api.xml")

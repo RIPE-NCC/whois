@@ -16,6 +16,7 @@ import org.springframework.cache.annotation.EnableCaching;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.AdviceMode;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.EnableAspectJAutoProxy;
 import org.springframework.context.annotation.aspectj.EnableSpringConfigured;
 import org.springframework.context.event.ContextClosedEvent;
 import org.springframework.context.event.ContextStoppedEvent;
@@ -38,6 +39,7 @@ import java.util.stream.StreamSupport;
 @EnableSpringConfigured
 @EnableTransactionManagement(mode = AdviceMode.ASPECTJ)
 @EnableCaching(mode = AdviceMode.ASPECTJ)
+@EnableAspectJAutoProxy(proxyTargetClass = true)
 @Component
 public class WhoisServer {
     private static final Logger LOGGER = LoggerFactory.getLogger(WhoisServer.class);
