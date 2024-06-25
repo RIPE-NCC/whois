@@ -15,6 +15,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.cache.annotation.EnableCaching;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.AdviceMode;
+import org.springframework.context.annotation.aspectj.EnableSpringConfigured;
 import org.springframework.context.event.ContextClosedEvent;
 import org.springframework.context.event.ContextStoppedEvent;
 import org.springframework.context.event.EventListener;
@@ -31,6 +32,7 @@ import java.util.List;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.StreamSupport;
 
+@EnableSpringConfigured
 @EnableCaching(mode = AdviceMode.ASPECTJ)
 @Component
 public class WhoisServer {
