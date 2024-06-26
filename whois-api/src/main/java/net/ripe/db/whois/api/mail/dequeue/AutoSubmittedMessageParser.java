@@ -36,7 +36,7 @@ public class AutoSubmittedMessageParser {
 
         final String autoSubmitted = getHeader(message, "Auto-Submitted");
         if (autoSubmitted != null) {
-            if (autoSubmitted.contains("auto-generated") || autoSubmitted.contains("auto-submitted")) {
+            if (autoSubmitted.contains("auto-generated") || autoSubmitted.contains("auto-replied")) {
                 return new EmailMessageInfo(Collections.emptyList(), null);
             } else {
                 LOGGER.info("Unexpected Auto-Submitted value {}", autoSubmitted);
