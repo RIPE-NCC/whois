@@ -1,5 +1,9 @@
 # next
 
+# 1.113.2
+
+[update] Handle Multipart/mixed Bounces and Auto-submitted Messages (#1490)
+
 # 1.113.1
 
 [update] validate max references (#1486)
