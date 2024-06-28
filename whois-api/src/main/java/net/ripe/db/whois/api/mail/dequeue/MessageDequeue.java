@@ -28,7 +28,6 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.dao.DataAccessException;
 import org.springframework.stereotype.Component;
 
-import java.io.IOException;
 import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -206,6 +205,13 @@ public class MessageDequeue implements ApplicationService {
                 mailMessageDao.deleteMessage(messageId);
                 return;
             }
+
+            final EmailMessageInfo automatedFailureMessage = messageService.getAutomatedFailureMessageInfo(message);
+            if (automatedFailureMessage != null) {
+                // TODO: verify and set as undeliverable
+                mailMessageDao.deleteMessage(messageId);
+            }
+
         } catch (MailParsingException e){
             LOGGER.info("Error detecting bounce detection or unsubscribing for messageId {}", messageId, e);
             mailMessageDao.deleteMessage(messageId);

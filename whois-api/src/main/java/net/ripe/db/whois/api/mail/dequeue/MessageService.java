@@ -15,6 +15,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DuplicateKeyException;
 import org.springframework.stereotype.Service;
 
+import javax.annotation.Nullable;
 import java.util.List;
 
 @Service
@@ -22,6 +23,7 @@ public class MessageService {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(MessageService.class);
 
+    private final AutoSubmittedMessageParser autoSubmittedMessageParser;
     private final UnsubscribeMessageParser unsubscribeMessageParser;
     private final OutgoingMessageDao outgoingMessageDao;
     private final EmailStatusDao emailStatusDao;
@@ -29,27 +31,37 @@ public class MessageService {
 
     @Autowired
     public MessageService(
+            final AutoSubmittedMessageParser autoSubmittedMessageParser,
             final UnsubscribeMessageParser unsubscribeMessageParser,
             final BouncedMessageParser bouncedMessageParser,
             final OutgoingMessageDao outgoingMessageDao,
             final EmailStatusDao emailStatusDao) {
+        this.autoSubmittedMessageParser = autoSubmittedMessageParser;
         this.unsubscribeMessageParser = unsubscribeMessageParser;
         this.bouncedMessageParser = bouncedMessageParser;
         this.outgoingMessageDao = outgoingMessageDao;
         this.emailStatusDao = emailStatusDao;
     }
 
+    @Nullable
     public EmailMessageInfo getBouncedMessageInfo(final MimeMessage message) throws MessagingException, MailParsingException {
         return bouncedMessageParser.parse(message);
     }
+
+    @Nullable
     public EmailMessageInfo getUnsubscribedMessageInfo(final MimeMessage message) throws MessagingException, MailParsingException {
         return unsubscribeMessageParser.parse(message);
     }
 
-    public void verifyAndSetAsUndeliverable(final EmailMessageInfo message){
+    @Nullable
+    public EmailMessageInfo getAutomatedFailureMessageInfo(final MimeMessage message) throws MessagingException, MailParsingException {
+        return autoSubmittedMessageParser.parse(message);
+    }
+
+    public void verifyAndSetAsUndeliverable(final EmailMessageInfo message) {
         final List<String> outgoingEmail = outgoingMessageDao.getEmails(message.messageId());
 
-        if (!isValidMessage(message, outgoingEmail)){
+        if (!isValidMessage(message, outgoingEmail)) {
             return;
         }
 
@@ -63,8 +75,8 @@ public class MessageService {
         });
     }
 
-    public void verifyAndSetAsUnsubscribed(final EmailMessageInfo message){
-        if (message.emailAddresses() != null && message.emailAddresses().size() != 1){
+    public void verifyAndSetAsUnsubscribed(final EmailMessageInfo message) {
+        if (message.emailAddresses() != null && message.emailAddresses().size() != 1) {
             LOGGER.warn("This can not happen, unsubscribe with multiple recipients. messageId: {}", message.messageId());
             return;
         }
@@ -72,7 +84,7 @@ public class MessageService {
         final String unsubscribeRequestEmail = message.emailAddresses().get(0);
         final List<String> emails = outgoingMessageDao.getEmails(message.messageId());
 
-        if (emails.stream().noneMatch(email -> email.equalsIgnoreCase(unsubscribeRequestEmail))){
+        if (emails.stream().noneMatch(email -> email.equalsIgnoreCase(unsubscribeRequestEmail))) {
             LOGGER.warn("Couldn't find outgoing message matching {}", message.messageId());
             return;
         }
@@ -81,8 +93,8 @@ public class MessageService {
         emailStatusDao.createEmailStatus(unsubscribeRequestEmail, EmailStatus.UNSUBSCRIBE);
     }
 
-    private boolean isValidMessage(final EmailMessageInfo message, final List<String> outgoingEmail){
-        if (message.messageId() == null || message.emailAddresses() == null || message.emailAddresses().isEmpty()){
+    private boolean isValidMessage(final EmailMessageInfo message, final List<String> outgoingEmail) {
+        if (message.messageId() == null || message.emailAddresses() == null || message.emailAddresses().isEmpty()) {
             LOGGER.warn("Incorrect message {}", message.messageId());
             return false;
         }
@@ -99,7 +111,7 @@ public class MessageService {
         return true;
     }
 
-    private boolean containsAllCaseInsensitive(final List<String> messageRecipients, final List<String> storedEmails){
+    private boolean containsAllCaseInsensitive(final List<String> messageRecipients, final List<String> storedEmails) {
         final List<String> emailsInLowerCase = storedEmails
                 .stream()
                 .map(String::toLowerCase)

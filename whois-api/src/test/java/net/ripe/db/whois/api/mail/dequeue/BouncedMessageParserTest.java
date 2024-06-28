@@ -25,6 +25,21 @@ public class BouncedMessageParserTest {
     }
 
     @Test
+    public void parse_permanent_delivery_failure_multipart_mixed_rfc822() throws Exception {
+        final EmailMessageInfo bouncedMessage = subject.parse(MimeMessageProvider.getUpdateMessage("permanentFailureMessageMultipartMixedRfc822.mail"));
+
+        assertThat(bouncedMessage.messageId(), is("XXXXXXXX-64b6-476a-9670-13576e4223c8@ripe.net"));
+        assertThat(bouncedMessage.emailAddresses(), containsInAnyOrder("lir@example.com"));
+    }
+
+    @Test
+    public void parse_multipart_mixed_unsigned() throws Exception {
+        final EmailMessageInfo bouncedMessage = subject.parse(MimeMessageProvider.getUpdateMessage("multipartMixedUnsigned.mail"));
+
+        assertThat(bouncedMessage, is(nullValue()));
+    }
+
+    @Test
     public void parse_permanent_delivery_failure_message_rfc822() throws Exception {
         final EmailMessageInfo bouncedMessage = subject.parse(MimeMessageProvider.getUpdateMessage("permanentFailureMessageRfc822.mail"));
 
