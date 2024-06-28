@@ -52,6 +52,8 @@ public class BouncedMessageParser {
             return null;
         }
 
+        // TODO: refactor to remove duplicate code
+
         if (isMultipartReport(message)) {
             try {
                 final MultipartReport multipartReport = multipartReport(message.getContent());
@@ -87,6 +89,7 @@ public class BouncedMessageParser {
                 LOGGER.error(String.format("%s: %s", ex.getClass().getName(), ex.getMessage()), ex);
                 throw new MailParsingException("Error parsing multipart report");
             }
+            // do not throw an exception, as whois updates can be multipart/mixed
         }
 
         // fall through: message is not bounced message
