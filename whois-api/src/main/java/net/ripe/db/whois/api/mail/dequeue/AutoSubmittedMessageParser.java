@@ -14,8 +14,8 @@ import org.springframework.stereotype.Component;
 import javax.annotation.Nullable;
 import java.util.Collections;
 
-// Detect automated responses and mark them for deletion. Do not try to parse them as Whois updates.
-// TODO: attempt to find the outgoing message-id and failed recipient if possible
+// Detect automated responses and mark them for deletion. Do not try to parse them as Whois updates (for now).
+// TODO: attempt to find the outgoing message-id and failed recipient if possible by parsing the plaintext body
 @Component
 public class AutoSubmittedMessageParser {
 
@@ -25,7 +25,7 @@ public class AutoSubmittedMessageParser {
 
     @Autowired
     public AutoSubmittedMessageParser(@Value("${mail.smtp.from:}") final String smtpFrom) {
-        this.enabled = ! Strings.isNullOrEmpty(smtpFrom);
+        this.enabled = !Strings.isNullOrEmpty(smtpFrom);
     }
 
     @Nullable
