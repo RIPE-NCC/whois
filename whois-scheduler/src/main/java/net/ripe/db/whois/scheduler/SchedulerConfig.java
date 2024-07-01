@@ -20,7 +20,7 @@ import javax.sql.DataSource;
 @Configuration
 @EnableAspectJAutoProxy(proxyTargetClass = true)
 @EnableScheduling
-@EnableSchedulerLock(defaultLockAtMostFor="23h")
+@EnableSchedulerLock(defaultLockAtMostFor="23h", mode=AdviceMode.ASPECTJ)
 @ImportResource(value = "classpath:applicationContext-api.xml")
 @ComponentScan(basePackages="net.ripe.db.whois.scheduler")
 public class SchedulerConfig {
