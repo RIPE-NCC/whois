@@ -68,14 +68,15 @@ public class UpdateNrtmFileRepository {
         LOGGER.info("Created {} snapshot version {}", version.source().getName(), version.version());
     }
 
-    public void rotateKey(final NrtmKeyRecord newActiveKey, final NrtmKeyRecord oldActiveKey) throws JsonProcessingException {
+    public void rotateKey(final NrtmKeyRecord newActiveKey, final NrtmKeyRecord oldActiveKey) {
 
-        jdbcTemplate.update("UPDATE key_pair SET isActive = ? where id = ?", false, oldActiveKey.id());
-        jdbcTemplate.update("UPDATE key_pair SET isActive = ? where id = ?", true, newActiveKey.id());
+        jdbcTemplate.update("UPDATE key_pair k1 JOIN key_pair k2 " +
+                                 "SET k1.is_active = 1, k2.is_active = 0 " +
+                                 "WHERE k1.id = ? AND k2.id=?",
+                newActiveKey.id(), oldActiveKey.id());
 
-        LOGGER.info("Key rotated successsfully");
+        LOGGER.info("Key rotated successfully");
     }
-
 
     private DeltaFile getDeltaFile(final NrtmVersionInfo newVersion, final List<DeltaFileRecord> deltas) throws JsonProcessingException {
 

@@ -12,6 +12,7 @@ import org.bouncycastle.crypto.signers.Ed25519Signer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.annotation.Nullable;
 import java.security.SecureRandom;
 import java.util.Base64;
 
@@ -45,6 +46,7 @@ public class Ed25519Util {
         return verifier.verifySignature(Base64.getDecoder().decode(signature));
     }
 
+    @Nullable
     public static String encodePublicKey(final NrtmKeyRecord keyRecord) {
 
         if(keyRecord == null || keyRecord.publicKey() == null) {

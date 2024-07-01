@@ -86,9 +86,9 @@ public class UpdateNotificationFileGenerator {
           final List<DeltaFileVersionInfo> deltaFiles = deltaFileDao.getAllDeltasForSourceSince(nrtmSource, oneDayAgo);
           final NrtmVersionInfo fileVersion = getVersion(deltaFiles, snapshotFile.get());
 
-          final NrtmKeyRecord nextKey =  nrtmKeyPairService.generateOrRotateNextKey();
+          final NrtmKeyRecord nextKey =  nrtmKeyPairService.getNextkeyPair();
 
-           final String json = getPayload(snapshotFile.get(), deltaFiles, fileVersion, nextKey, createdTimestamp);
+          final String json = getPayload(snapshotFile.get(), deltaFiles, fileVersion, nextKey, createdTimestamp);
 
           saveNotificationFile(createdTimestamp, notificationFile, fileVersion, json);
        }
