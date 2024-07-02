@@ -46,47 +46,9 @@ public class HazelcastInstanceManager {
             LOGGER.info("Creating hazelcast instance with Ripe deployed profile");
 
             final Config config = getGenericConfig();
-            //We define ipv6 addresses
-            config.setProperty("hazelcast.prefer.ipv4.stack", "false");
 
-            config.getNetworkConfig().getJoin().getAwsConfig().setEnabled(false);
             config.getNetworkConfig().setPort(port).setPortAutoIncrement(false);
             config.getNetworkConfig().getJoin().getTcpIpConfig().setMembers(Arrays.asList(interfaces.split(","))).setEnabled(true);
-
-            final EvictionConfig evictionConfig = new EvictionConfig()
-                .setSize(10_000)
-                .setMaxSizePolicy(MaxSizePolicy.PER_NODE)
-                .setEvictionPolicy(EvictionPolicy.LRU);
-
-            // Configure Hazelcast maps: https://docs.hazelcast.com/imdg/4.2/data-structures/map
-
-            // @Cacheable(cacheNames="ssoValidateToken", key="#authToken")
-            config.addMapConfig(new MapConfig()
-                    .setName("ssoValidateToken")
-                    .setStatisticsEnabled(true)
-                    .setEvictionConfig(evictionConfig)
-                    .setTimeToLiveSeconds(60));
-
-            // @Cacheable(cacheNames="ssoUuid", key="#username")
-            config.addMapConfig(new MapConfig()
-                    .setName("ssoUuid")
-                    .setStatisticsEnabled(true)
-                    .setEvictionConfig(evictionConfig)
-                    .setTimeToLiveSeconds(60));
-
-            // @Cacheable(cacheNames="ssoUserDetails", key="#uuid")
-            config.addMapConfig(new MapConfig()
-                    .setName("ssoUserDetails")
-                    .setStatisticsEnabled(true)
-                    .setEvictionConfig(evictionConfig)
-                    .setTimeToLiveSeconds(60));
-
-            // @Cacheable(cacheNames="ssoHistoricalUserDetails", key="#uuid")
-            config.addMapConfig(new MapConfig()
-                    .setName("ssoHistoricalUserDetails")
-                    .setStatisticsEnabled(true)
-                    .setEvictionConfig(evictionConfig)
-                    .setTimeToLiveSeconds(60));
 
             this.hazelcastInstance = getHazelcastInstance(config);
 
@@ -117,7 +79,7 @@ public class HazelcastInstanceManager {
         return new HazelcastCacheManager(hazelcastInstance());
     }
 
-    private Config getGenericConfig() {
+    public static Config getGenericConfig() {
         final Config config = new Config();
         config.getNetworkConfig().getJoin().getMulticastConfig().setEnabled(false);
 
@@ -131,6 +93,45 @@ public class HazelcastInstanceManager {
                 .setProperty("hazelcast.graceful.shutdown.max.wait","60");
 
         config.getCPSubsystemConfig().setPersistenceEnabled(false);
+
+        config.setProperty("hazelcast.prefer.ipv4.stack", "false");
+
+        config.getNetworkConfig().getJoin().getAwsConfig().setEnabled(false);
+
+        final EvictionConfig evictionConfig = new EvictionConfig()
+                .setSize(10_000)
+                .setMaxSizePolicy(MaxSizePolicy.PER_NODE)
+                .setEvictionPolicy(EvictionPolicy.LRU);
+
+        // Configure Hazelcast maps: https://docs.hazelcast.com/imdg/4.2/data-structures/map
+
+        // @Cacheable(cacheNames="ssoValidateToken", key="#authToken")
+        config.addMapConfig(new MapConfig()
+                .setName("ssoValidateToken")
+                .setStatisticsEnabled(true)
+                .setEvictionConfig(evictionConfig)
+                .setTimeToLiveSeconds(60));
+
+        // @Cacheable(cacheNames="ssoUuid", key="#username")
+        config.addMapConfig(new MapConfig()
+                .setName("ssoUuid")
+                .setStatisticsEnabled(true)
+                .setEvictionConfig(evictionConfig)
+                .setTimeToLiveSeconds(60));
+
+        // @Cacheable(cacheNames="ssoUserDetails", key="#uuid")
+        config.addMapConfig(new MapConfig()
+                .setName("ssoUserDetails")
+                .setStatisticsEnabled(true)
+                .setEvictionConfig(evictionConfig)
+                .setTimeToLiveSeconds(60));
+
+        // @Cacheable(cacheNames="ssoHistoricalUserDetails", key="#uuid")
+        config.addMapConfig(new MapConfig()
+                .setName("ssoHistoricalUserDetails")
+                .setStatisticsEnabled(true)
+                .setEvictionConfig(evictionConfig)
+                .setTimeToLiveSeconds(60));
 
         return config;
     }
