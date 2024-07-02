@@ -199,6 +199,10 @@ public interface AttributeParser<T> {
                 final String address = parsed[0].getAddress();
                 final String localPart = address.substring(0, address.indexOf('@'));
 
+                if (address.length() > 80){
+                    throw new AttributeParseException("Illegal address length, maximum supported length is 80 (%s)", s);
+                }
+
                 if (!StandardCharsets.US_ASCII.newEncoder().canEncode(localPart)) {
                     throw new AttributeParseException("Address contains non ASCII characters (%s)", s);
                 }
