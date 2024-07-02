@@ -69,6 +69,7 @@ public class UpdateNrtmFileRepository {
     }
 
     public void rotateKey(final NrtmKeyRecord newActiveKey, final NrtmKeyRecord oldActiveKey) {
+        LOGGER.warn("NRTMv4 rotating the key");
 
         jdbcTemplate.update("UPDATE key_pair k1 JOIN key_pair k2 " +
                                  "SET k1.is_active = 1, k2.is_active = 0 " +

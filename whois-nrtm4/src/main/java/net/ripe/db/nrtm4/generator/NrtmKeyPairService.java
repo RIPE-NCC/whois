@@ -17,7 +17,6 @@ import javax.annotation.Nullable;
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Service
 public class NrtmKeyPairService {
@@ -60,7 +59,7 @@ public class NrtmKeyPairService {
     public NrtmKeyRecord getNextkeyPair() {
         final NrtmKeyRecord currentActiveKey = nrtmKeyConfigDao.getActiveKeyPair();
 
-        final List<NrtmKeyRecord> nextKey = nrtmKeyConfigDao.getAllKeyPair().stream().filter(keyRecord -> keyRecord.expires() > currentActiveKey.expires()).collect(Collectors.toList());
+        final List<NrtmKeyRecord> nextKey = nrtmKeyConfigDao.getAllKeyPair().stream().filter(keyRecord -> keyRecord.expires() > currentActiveKey.expires()).toList();
         if(nextKey.isEmpty()) {
             return null;
         }
@@ -91,8 +90,6 @@ public class NrtmKeyPairService {
 
             if(currentActiveKey.expires() <=  currentDateTime.toEpochSecond(ZoneOffset.UTC)) {
                 LOGGER.warn("NRTMv4 rotating the key");
-
-                //Needs to happen in a transaction
                 updateNrtmFileRepository.rotateKey(nextKey, currentActiveKey);
             }
 
@@ -101,4 +98,31 @@ public class NrtmKeyPairService {
         }
     }
 
+    public void deleteAndGenerateNewActiveKey() {
+        final NrtmKeyRecord currentNextKey = getNextkeyPair();
+        if(currentNextKey != null) {
+          nrtmKeyConfigDao.deleteKeyPair(currentNextKey);
+        }
+
+        nrtmKeyConfigDao.makeCurrentActiveKeyAsInActive();
+
+        generateActiveKeyPair();
+    }
+
+    public void forceRotateKey() {
+        try {
+            final NrtmKeyRecord currentActiveKey = nrtmKeyConfigDao.getActiveKeyPair();
+
+            NrtmKeyRecord nextKey = getNextkeyPair();
+            if(nextKey == null) {
+               LOGGER.info("Generating next Key pair");
+               generateKeyRecord(false);
+               nextKey = getNextkeyPair();
+            }
+
+            updateNrtmFileRepository.rotateKey(nextKey, currentActiveKey);
+        } catch (final Exception e) {
+            LOGGER.error("NRTMv4 key rotation failed", e);
+        }
+    }
 }

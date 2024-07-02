@@ -2,14 +2,12 @@ package net.ripe.db.nrtm4.dao;
 
 import jakarta.ws.rs.InternalServerErrorException;
 import net.ripe.db.nrtm4.domain.NrtmKeyRecord;
-import net.ripe.db.whois.common.DateTimeProvider;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
 
 import javax.sql.DataSource;
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Repository
 public class NrtmKeyConfigDao {
@@ -37,6 +35,14 @@ public class NrtmKeyConfigDao {
         """;
 
         writeTemplate.update(sql,nrtmKeyRecord.privateKey(), nrtmKeyRecord.publicKey(), nrtmKeyRecord.createdTimestamp(), nrtmKeyRecord.expires(), nrtmKeyRecord.isActive());
+    }
+
+    public void deleteKeyPair(final NrtmKeyRecord nrtmKeyRecord) {
+        writeTemplate.update("DELETE FROM key_pair WHERE id = ?", nrtmKeyRecord.id());
+    }
+
+    public void makeCurrentActiveKeyAsInActive() {
+        writeTemplate.update("UPDATE key_pair SET is_active = false WHERE is_active = true");
     }
 
     public NrtmKeyRecord getActiveKeyPair() {
