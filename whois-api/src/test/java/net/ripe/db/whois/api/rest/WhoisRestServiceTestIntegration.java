@@ -5823,6 +5823,31 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
                 undeliverableEmail, EmailStatus.UNDELIVERABLE.getValue());
     }
 
+
+    @Test
+    public void create_too_big_address_then_error() {
+        final RpslObject PAULETH_PALTHEN_LONG_EMAIL = RpslObject.parse("" +
+                "person:    Pauleth Palthen\n" +
+                "address:   Singel 258\n" +
+                "phone:     +31-1234567890\n" +
+                "e-mail:    G=noreply/S=noreply/O=noreplynoreplynorepl/P=AA/A=ripe.net/C=SP/@noreply.ripe.net\n" +
+                "mnt-by:    OWNER-MNT\n" +
+                "nic-hdl:   PP1-TEST\n" +
+                "remarks:   remark\n" +
+                "source:    TEST\n");
+
+        final BadRequestException badRequestException = assertThrows(BadRequestException.class, () -> {
+            RestTest.target(getPort(), "whois/test/person?password=test")
+                    .request()
+                    .post(Entity.entity(map(PAULETH_PALTHEN_LONG_EMAIL), MediaType.APPLICATION_JSON_TYPE), WhoisResources.class);
+        });
+
+        assertThat(badRequestException.getMessage(), is("HTTP 400 Bad Request"));
+        final WhoisResources whoisResources = RestTest.mapClientException(badRequestException);
+        RestTest.assertErrorCount(whoisResources, 1);
+        RestTest.assertErrorMessage(whoisResources, 0, "Error", "Syntax error in %s", "G=noreply/S=noreply/O=noreplynoreplynorepl/P=AA/A=ripe.net/C=SP/@noreply.ripe.net");
+    }
+
     // helper methods
 
     private String encode(final String input) {
