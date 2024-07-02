@@ -210,6 +210,7 @@ public class MessageDequeue implements ApplicationService {
             if (automatedFailureMessage != null) {
                 // TODO: verify and set as undeliverable
                 mailMessageDao.deleteMessage(messageId);
+                return;
             }
 
         } catch (MailParsingException e){
