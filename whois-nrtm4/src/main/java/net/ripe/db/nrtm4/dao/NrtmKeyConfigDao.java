@@ -23,16 +23,16 @@ public class NrtmKeyConfigDao {
     }
 
     public byte[] getActivePrivateKey() {
-        return readTemplate.queryForObject("SELECT private_key FROM key_pair where isActive=true", (rs, rowNum) -> rs.getBytes(1));
+        return readTemplate.queryForObject("SELECT private_key FROM key_pair where is_active= true", (rs, rowNum) -> rs.getBytes(1));
     }
 
     public byte[] getActivePublicKey() {
-        return readTemplate.queryForObject("SELECT public_key FROM key_pair where isActive=true", (rs, rowNum) -> rs.getBytes(1));
+        return readTemplate.queryForObject("SELECT public_key FROM key_pair where is_active= true", (rs, rowNum) -> rs.getBytes(1));
     }
 
     public void saveKeyPair(final NrtmKeyRecord nrtmKeyRecord) {
         final String sql = """
-        INSERT INTO key_pair (private_key, public_key, created, expires, isActive)
+        INSERT INTO key_pair (private_key, public_key, created, expires, is_active)
         VALUES (?, ?, ?, ?, ?)
         """;
 
@@ -41,7 +41,7 @@ public class NrtmKeyConfigDao {
 
     public NrtmKeyRecord getActiveKeyPair() {
         return readTemplate.queryForObject(
-                    "SELECT id, private_key, public_key, isActive, created, expires FROM key_pair WHERE isActive = true",
+                    "SELECT id, private_key, public_key, is_active, created, expires FROM key_pair WHERE is_active = true",
                     (rs, rn) -> new NrtmKeyRecord(rs.getLong(1),
                                                   rs.getBytes(2),
                                                   rs.getBytes(3),
@@ -53,7 +53,7 @@ public class NrtmKeyConfigDao {
 
     public List<NrtmKeyRecord> getAllKeyPair() {
         return readTemplate.query(
-                "SELECT id, private_key, public_key, isActive, created, expires FROM key_pair",
+                "SELECT id, private_key, public_key, is_active, created, expires FROM key_pair",
                 (rs, rn) -> new NrtmKeyRecord(rs.getLong(1),
                         rs.getBytes(2),
                         rs.getBytes(3),
@@ -64,7 +64,7 @@ public class NrtmKeyConfigDao {
     }
 
     public boolean isActiveKeyPairExists() {
-        final int count = writeTemplate.queryForObject("SELECT count(*) FROM key_pair WHERE isActive=true", Integer.class);
+        final int count = writeTemplate.queryForObject("SELECT count(*) FROM key_pair WHERE is_active=true", Integer.class);
         if(count > 1) {
             throw new InternalServerErrorException("More than one active key pair exists");
         }
