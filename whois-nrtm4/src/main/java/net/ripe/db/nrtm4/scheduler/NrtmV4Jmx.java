@@ -18,7 +18,6 @@ import org.springframework.scheduling.TaskScheduler;
 import org.springframework.scheduling.support.ScheduledMethodRunnable;
 import org.springframework.stereotype.Component;
 
-
 @Component
 @Conditional(Nrtmv4Condition.class)
 @ManagedResource(objectName = "net.ripe.db.nrtm4:name=NrtmV4", description = "Initialize snapshot file")
@@ -28,11 +27,7 @@ public class NrtmV4Jmx extends JmxBase {
     private final TaskScheduler taskScheduler;
     private final UpdateNrtmFileRepository nrtmFileRepository;
     private final NrtmKeyPairService nrtmKeyPairService;
-
-
-
     private final DateTimeProvider dateTimeProvider;
-
 
     @Autowired
     public NrtmV4Jmx(final DateTimeProvider dateTimeProvider, @Qualifier("taskScheduler") final TaskScheduler taskScheduler, final SnapshotFileScheduledTask snapshotFileScheduledTask, final NrtmKeyPairService nrtmKeyPairService, final UpdateNrtmFileRepository nrtmFileRepository) {
@@ -84,7 +79,7 @@ public class NrtmV4Jmx extends JmxBase {
             @ManagedOperationParameter(name = "comment", description = "Comment for invoking the operation")
     })
     public String deleteAndGenerateNewActiveKey(final String comment) {
-        return invokeOperation("Force rotate key", comment, () -> {
+        return invokeOperation("Generate new active key", comment, () -> {
             try {
                 nrtmKeyPairService.deleteAndGenerateNewActiveKey();
             } catch (Exception ex) {
