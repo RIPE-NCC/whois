@@ -9,9 +9,9 @@ import java.time.ZonedDateTime;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 
-class IsoDateTimeAdapterTest {
+class EventDateTimeAdapterTest {
 
-    private final IsoNanoDateTimeAdapter subject = new IsoNanoDateTimeAdapter();
+    private final EventDateTimeAdapter subject = new EventDateTimeAdapter();
 
     @Test
     public void unmarshal() {

@@ -6,7 +6,7 @@ import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 
-public class IsoNanoDateTimeAdapter extends XmlAdapter<String, LocalDateTime> {
+public class EventDateTimeAdapter extends XmlAdapter<String, LocalDateTime> {
 
     private static final DateTimeFormatter DATE_TIME_FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss.n'Z'");
 
