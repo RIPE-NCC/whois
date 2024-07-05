@@ -11,7 +11,7 @@ import static org.hamcrest.Matchers.is;
 
 class IsoDateTimeAdapterTest {
 
-    private final IsoDateTimeAdapter subject = new IsoDateTimeAdapter();
+    private final IsoNanoDateTimeAdapter subject = new IsoNanoDateTimeAdapter();
 
     @Test
     public void unmarshal() {

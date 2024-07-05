@@ -40,7 +40,7 @@ public class HistoricalUserResponse implements Serializable {
         @Serial
         private static final long serialVersionUID = 1L;
         @XmlElement(required = true)
-        @XmlJavaTypeAdapter(IsoDateTimeAdapter.class)
+        @XmlJavaTypeAdapter(IsoNanoDateTimeAdapter.class)
         public LocalDateTime eventDateTime;
         @XmlElement(required = true)
         public String action;
