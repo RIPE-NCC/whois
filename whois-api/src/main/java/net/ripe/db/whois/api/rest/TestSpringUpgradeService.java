@@ -31,6 +31,7 @@ import net.ripe.db.whois.common.domain.ResponseObject;
 import net.ripe.db.whois.common.rpsl.AttributeSyntax;
 import net.ripe.db.whois.common.rpsl.ObjectType;
 import net.ripe.db.whois.common.rpsl.RpslObject;
+import net.ripe.db.whois.common.sso.domain.ValidateTokenResponse;
 import net.ripe.db.whois.query.QueryFlag;
 import net.ripe.db.whois.query.acl.AccessControlListManager;
 import net.ripe.db.whois.query.handler.QueryHandler;
@@ -43,6 +44,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.stereotype.Component;
@@ -84,7 +86,7 @@ public class TestSpringUpgradeService {
 
         LOGGER.info("value of retry count is {}", retryCount.get());
 
-        return Response.ok("Retry working ").build();
+        return Response.ok("Retry working fine").build();
     }
 
     @GET
@@ -106,6 +108,25 @@ public class TestSpringUpgradeService {
         }
 
         return Response.ok("Transactional annotation working").build();
+    }
+
+    @GET
+    @Path("/cacheTest")
+    @Produces({MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON})
+    public Response cacheTest() {
+
+        AtomicInteger cacheCount = new AtomicInteger(0);
+
+        testCache("testName", cacheCount);
+        testCache("testName", cacheCount);
+        testCache("testName", cacheCount);
+        testCache("testName", cacheCount);
+
+        if(cacheCount.get() != 1) {
+            return Response.status(Response.Status.BAD_REQUEST.getStatusCode(), "Caching is not working , count is {}" + cacheCount.get()).build();
+        }
+
+        return Response.ok("Caching works").build();
     }
 
     @RetryFor(attempts = 5, value = IllegalArgumentException.class)
@@ -142,5 +163,10 @@ public class TestSpringUpgradeService {
         final long expires = dateTimeProvider.getCurrentDateTime().plusYears(1).toEpochSecond(ZoneOffset.UTC);
         jdbcTemplate.update(sql, id, privateKey, publicKey, createdTimestamp, expires);
     }
-
+    @Cacheable(cacheNames="ssoUuid", key ="#userName")
+    public String testCache(final String userName, AtomicInteger cacheCount) {
+        LOGGER.info("Testing caching iside function");
+        cacheCount.incrementAndGet();
+        return "testCache";
+    }
 }
