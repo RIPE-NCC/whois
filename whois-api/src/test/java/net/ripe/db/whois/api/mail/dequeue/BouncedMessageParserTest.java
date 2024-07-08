@@ -89,7 +89,7 @@ public class BouncedMessageParserTest {
 
     @Test
     public void parse_permanent_delivery_failure_to_a_too_long_recipient_then_recipient_ignored() throws Exception {
-        final EmailMessageInfo bouncedMessage = subject.parse(MimeMessageProvider.getUpdateMessage("permanentFailureMessageRfc822TooBigAddress.mail"));
+        final EmailMessageInfo bouncedMessage = subject.parse(MimeMessageProvider.getUpdateMessage("permanentFailureMessageRfc822TooLongAddress.mail"));
 
         assertThat(bouncedMessage.messageId(), is("XXXXXXXX-5AE3-4C58-8E3F-860327BA955D@ripe.net"));
         assertThat(bouncedMessage.emailAddresses(), containsInAnyOrder("First.Person@host.org"));
