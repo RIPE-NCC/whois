@@ -84,7 +84,7 @@ public class NrtmClientService {
             final String payload = updateNotificationFileSourceAwareDao.findLastNotification(getSource(source))
                     .orElseThrow(() -> new NotFoundException("update-notification-file.json does not exists for source " + source));
 
-            return fileName.endsWith(".sig") ?  getResponse(signWithEd25519(payload.getBytes(), nrtmKeyConfigDao.getPrivateKey()))
+            return fileName.endsWith(".sig") ?  getResponse(signWithEd25519(payload.getBytes(), nrtmKeyConfigDao.getActivePrivateKey()))
                                               : getResponse(payload);
         }
 
