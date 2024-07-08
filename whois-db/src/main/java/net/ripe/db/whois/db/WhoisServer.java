@@ -39,7 +39,7 @@ import java.util.stream.StreamSupport;
 @EnableSpringConfigured
 @EnableTransactionManagement(mode = AdviceMode.ASPECTJ)
 @EnableCaching(mode = AdviceMode.ASPECTJ)
-@EnableAspectJAutoProxy(proxyTargetClass = true)
+//@EnableAspectJAutoProxy(proxyTargetClass = true)
 @Component
 public class WhoisServer {
     private static final Logger LOGGER = LoggerFactory.getLogger(WhoisServer.class);
