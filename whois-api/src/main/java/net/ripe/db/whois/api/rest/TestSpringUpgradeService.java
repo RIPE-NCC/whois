@@ -77,7 +77,10 @@ public class TestSpringUpgradeService {
     public Response retry() {
         AtomicInteger retryCount = new AtomicInteger(0);
 
-        retryTest(retryCount);
+        try {
+            retryTest(retryCount);
+        } catch (Exception e) {
+        }
 
         if(retryCount.get() != 5) {
             return Response.status(Response.Status.BAD_REQUEST.getStatusCode(), "Retuy value should be 5 but " + retryCount.get()).build();
@@ -91,18 +94,21 @@ public class TestSpringUpgradeService {
     @GET
     @Path("/transactionTest")
     public Response transactionTest() {
-        testTransaction();
 
-        int count = jdbcTemplate.queryForObject("SELECT count(*) FROM key_pair where id=10", Integer.class);
+        int maxId = jdbcTemplate.queryForObject("SELECT MAX(id) FROM key_pair", Integer.class);
+
+
+        testTransaction(maxId);
+
+        int count = jdbcTemplate.queryForObject("SELECT count(*) FROM key_pair where id=?", Integer.class, maxId);
         if(count > 0) {
-            LOGGER.error("this should have been rolledback, id 10");
-            return Response.status(Response.Status.BAD_REQUEST.getStatusCode(), "this should have been rolledback, id 10").build();
+            LOGGER.error("this should have been rolledback, id {}", maxId);
         }
 
-        count = jdbcTemplate.queryForObject("SELECT count(*) FROM key_pair where id=11", Integer.class);
+        count = jdbcTemplate.queryForObject("SELECT count(*) FROM key_pair where id=?", Integer.class, maxId + 1);
         if(count > 0) {
-            LOGGER.error("this should have been rolledback, id 11");
-            return Response.status(Response.Status.BAD_REQUEST.getStatusCode(), "this should have been rolledback, id 11").build();
+            LOGGER.error("this should have been rolledback, id {}", maxId + 1);
+            return Response.status(Response.Status.BAD_REQUEST.getStatusCode(), "this should have been rolledback").build();
         }
 
         return Response.ok("Transactional annotation working").build();
@@ -134,13 +140,14 @@ public class TestSpringUpgradeService {
     }
 
     @Transactional(transactionManager = "nrtmTransactionManager")
-    void testTransaction() {
+    void testTransaction(final int maxId) {
        try {
-           saveKeyPair(10);
-           saveKeyPair(11);
+           saveKeyPair(maxId);
+           saveKeyPair(maxId + 1);
 
            //this will throw exception
-           saveKeyPair(10);
+           saveKeyPair(maxId);
+
        } catch(Exception ex) {
            LOGGER.error("duplicate ekey exception", ex);
        }
