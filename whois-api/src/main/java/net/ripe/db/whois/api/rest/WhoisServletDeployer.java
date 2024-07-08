@@ -42,6 +42,7 @@ public class WhoisServletDeployer implements ServletDeployer {
     private final WhoisMetadata whoisMetadata;
     private final GeolocationService geolocationService;
     private final AbuseContactService abuseContactService;
+    private final TestSpringUpgradeService testSpringUpgradeService;
     private final AutocompleteService autocompleteService;
     private final ReferencesService referencesService;
     private final DefaultExceptionMapper defaultExceptionMapper;
@@ -61,6 +62,7 @@ public class WhoisServletDeployer implements ServletDeployer {
                                 final WhoisMetadata whoisMetadata,
                                 final GeolocationService geolocationService,
                                 final AbuseContactService abuseContactService,
+                                final TestSpringUpgradeService testSpringUpgradeService,
                                 final AutocompleteService autocompleteService,
                                 final ReferencesService referencesService,
                                 final DefaultExceptionMapper defaultExceptionMapper,
@@ -78,6 +80,7 @@ public class WhoisServletDeployer implements ServletDeployer {
         this.whoisMetadata = whoisMetadata;
         this.geolocationService = geolocationService;
         this.abuseContactService = abuseContactService;
+        this.testSpringUpgradeService = testSpringUpgradeService;
         this.autocompleteService = autocompleteService;
         this.referencesService = referencesService;
         this.defaultExceptionMapper = defaultExceptionMapper;
@@ -106,6 +109,7 @@ public class WhoisServletDeployer implements ServletDeployer {
         resourceConfig.register(whoisMetadata);
         resourceConfig.register(geolocationService);
         resourceConfig.register(abuseContactService);
+        resourceConfig.register(testSpringUpgradeService);
         resourceConfig.register(autocompleteService);
         resourceConfig.register(referencesService);
         resourceConfig.register(defaultExceptionMapper);

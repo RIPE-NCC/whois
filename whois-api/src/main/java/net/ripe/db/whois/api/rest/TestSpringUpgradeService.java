@@ -74,7 +74,6 @@ public class TestSpringUpgradeService {
     //TODO [TP]: in case abuse contact is empty we should return 404 instead of 200 + empty string!
     @GET
     @Path("/retryTest")
-    @Produces({MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON})
     public Response retry() {
         AtomicInteger retryCount = new AtomicInteger(0);
 
@@ -91,7 +90,6 @@ public class TestSpringUpgradeService {
 
     @GET
     @Path("/transactionTest")
-    @Produces({MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON})
     public Response transactionTest() {
         testTransaction();
 
@@ -112,7 +110,6 @@ public class TestSpringUpgradeService {
 
     @GET
     @Path("/cacheTest")
-    @Produces({MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON})
     public Response cacheTest() {
 
         AtomicInteger cacheCount = new AtomicInteger(0);
