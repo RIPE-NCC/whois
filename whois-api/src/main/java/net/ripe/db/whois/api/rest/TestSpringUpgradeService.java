@@ -165,8 +165,8 @@ public class TestSpringUpgradeService {
     }
     @Cacheable(cacheNames="ssoUuid", key ="#userName")
     public String testCache(final String userName, AtomicInteger cacheCount) {
-        LOGGER.info("Testing caching iside function");
+        LOGGER.info("Testing caching iside function", userName);
         cacheCount.incrementAndGet();
-        return "testCache";
+        return userName;
     }
 }
