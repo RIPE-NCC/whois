@@ -167,7 +167,7 @@ public class TestSpringUpgradeService {
         final long expires = dateTimeProvider.getCurrentDateTime().plusYears(1).toEpochSecond(ZoneOffset.UTC);
         jdbcTemplate.update(sql, id, privateKey, publicKey, createdTimestamp, expires);
     }
-    @Cacheable(cacheNames="ssoUuid", key ="#userName")
+    @Cacheable(cacheNames="ssoUuid", key ="#p0")
     public String testCache(final String userName, AtomicInteger cacheCount) {
         LOGGER.info("Testing caching iside function", userName);
         cacheCount.incrementAndGet();
