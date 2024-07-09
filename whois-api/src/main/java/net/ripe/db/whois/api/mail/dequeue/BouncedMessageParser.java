@@ -11,6 +11,8 @@ import jakarta.mail.internet.MimeMessage;
 import jakarta.mail.internet.MimeMultipart;
 import net.ripe.db.whois.api.mail.EmailMessageInfo;
 import net.ripe.db.whois.api.mail.exception.MailParsingException;
+import net.ripe.db.whois.common.rpsl.AttributeParser;
+import net.ripe.db.whois.common.rpsl.attrs.AttributeParseException;
 import org.apache.commons.compress.utils.Lists;
 import org.eclipse.angus.mail.dsn.DeliveryStatus;
 import org.eclipse.angus.mail.dsn.MultipartReport;
@@ -40,6 +42,7 @@ public class BouncedMessageParser {
 
     private static final Pattern FINAL_RECIPIENT_MATCHER = Pattern.compile("(?i)^(rfc822;)\s?(.+@.+$)");
 
+    private static final AttributeParser.EmailParser EMAIL_PARSER = new AttributeParser.EmailParser();
 
     @Autowired
     public BouncedMessageParser(@Value("${mail.smtp.from:}") final String smtpFrom) {
@@ -183,9 +186,21 @@ public class BouncedMessageParser {
                 LOGGER.error("Wrong formatted recipient {}", recipient);
                 continue;
             }
-            recipients.add(finalRecipientMatcher.group(2));
+            final String email = finalRecipientMatcher.group(2);
+            if (isValidEmail(email)) {
+                recipients.add(email);
+            }
         }
         return recipients;
+    }
+
+    private boolean isValidEmail(final String email){
+        try {
+            EMAIL_PARSER.parse(email);
+            return true;
+        } catch (AttributeParseException ex){
+            return false;
+        }
     }
 
     private boolean isFailed(final DeliveryStatus deliveryStatus) {
