@@ -25,6 +25,21 @@ public class BouncedMessageParserTest {
     }
 
     @Test
+    public void parse_permanent_delivery_failure_multipart_mixed_rfc822() throws Exception {
+        final EmailMessageInfo bouncedMessage = subject.parse(MimeMessageProvider.getUpdateMessage("permanentFailureMessageMultipartMixedRfc822.mail"));
+
+        assertThat(bouncedMessage.messageId(), is("XXXXXXXX-64b6-476a-9670-13576e4223c8@ripe.net"));
+        assertThat(bouncedMessage.emailAddresses(), containsInAnyOrder("lir@example.com"));
+    }
+
+    @Test
+    public void parse_multipart_mixed_unsigned() throws Exception {
+        final EmailMessageInfo bouncedMessage = subject.parse(MimeMessageProvider.getUpdateMessage("multipartMixedUnsigned.mail"));
+
+        assertThat(bouncedMessage, is(nullValue()));
+    }
+
+    @Test
     public void parse_permanent_delivery_failure_message_rfc822() throws Exception {
         final EmailMessageInfo bouncedMessage = subject.parse(MimeMessageProvider.getUpdateMessage("permanentFailureMessageRfc822.mail"));
 
@@ -70,6 +85,14 @@ public class BouncedMessageParserTest {
 
         assertThat(bouncedMessage.messageId(), is("796892877.6.1709643245290@gaolao.ripe.net"));
         assertThat(bouncedMessage.emailAddresses(), containsInAnyOrder("testing4@ripe.net"));
+    }
+
+    @Test
+    public void parse_permanent_delivery_failure_to_a_too_long_recipient_then_recipient_ignored() throws Exception {
+        final EmailMessageInfo bouncedMessage = subject.parse(MimeMessageProvider.getUpdateMessage("permanentFailureMessageRfc822TooLongAddress.mail"));
+
+        assertThat(bouncedMessage.messageId(), is("XXXXXXXX-5AE3-4C58-8E3F-860327BA955D@ripe.net"));
+        assertThat(bouncedMessage.emailAddresses(), containsInAnyOrder("First.Person@host.org"));
     }
 
     @Test
