@@ -180,6 +180,8 @@ public interface AttributeParser<T> {
 
     final class EmailParser implements AttributeParser<InternetAddress> {
 
+        private static final int MAXIMUM_LENGTH = 80;
+
         @Override
         public InternetAddress parse(final String s) {
             final InternetAddress[] parsed;
@@ -198,6 +200,11 @@ public interface AttributeParser<T> {
 
                 final String address = parsed[0].getAddress();
                 final String localPart = address.substring(0, address.indexOf('@'));
+
+                if (address.length() > MAXIMUM_LENGTH){
+                    throw new AttributeParseException(String.format("Illegal address length, maximum supported length is %d",
+                            MAXIMUM_LENGTH), s);
+                }
 
                 if (!StandardCharsets.US_ASCII.newEncoder().canEncode(localPart)) {
                     throw new AttributeParseException("Address contains non ASCII characters (%s)", s);
