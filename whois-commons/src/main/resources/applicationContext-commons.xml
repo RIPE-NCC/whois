@@ -37,6 +37,7 @@
         <property name="preferredTestQuery" value="SELECT 1"/>
         <property name="idleConnectionTestPeriod" value="15"/>
     	<property name="connectionCustomizerClassName" value="net.ripe.db.whois.common.jdbc.WhoisConnectorCustomizer"/>
+    	<property name="connectionTesterClassName" value="com.mchange.v2.c3p0.impl.DefaultConnectionTester"/>
     </bean>
 
     <bean id="aclDataSource" parent="abstractDataSource">
