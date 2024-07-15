@@ -90,7 +90,9 @@ public class JettyBootstrap implements ApplicationService {
             "SSLv3"
     };
 
-    private final ObjectName dosFilterMBeanName;
+    private final ObjectName dosLookUpFilterMBeanName;
+
+    private final ObjectName dosUpdateFilterMBeanName;
 
     private final RemoteAddressFilter remoteAddressFilter;
     private final ExtensionOverridesAcceptHeaderFilter extensionOverridesAcceptHeaderFilter;
@@ -112,6 +114,8 @@ public class JettyBootstrap implements ApplicationService {
 
     private final boolean xForwardedForHttp;
 
+    private final String dosUpdatesMax;
+
     @Autowired
     public JettyBootstrap(final RemoteAddressFilter remoteAddressFilter,
                           final ExtensionOverridesAcceptHeaderFilter extensionOverridesAcceptHeaderFilter,
@@ -122,6 +126,7 @@ public class JettyBootstrap implements ApplicationService {
                           @Value("${http.idle.timeout.sec:60}") final int idleTimeout,
                           @Value("${http.sni.host.check:true}") final boolean sniHostCheck,
                           @Value("${dos.filter.enabled:false}") final boolean dosFilterEnabled,
+                          @Value("${dos.filter.max.updates:10}") final String dosUpdatesMax,
                           @Value("${rewrite.engine.enabled:false}") final boolean rewriteEngineEnabled,
                           @Value("${port.api:0}") final int port,
                           @Value("${port.api.secure:-1}") final int securePort,
@@ -137,8 +142,10 @@ public class JettyBootstrap implements ApplicationService {
         this.trustedIpRanges = trustedIpRanges;
         this.rewriteEngineEnabled = rewriteEngineEnabled;
         LOGGER.info("Rewrite engine is {}abled", rewriteEngineEnabled ? "en" : "dis");
-        this.dosFilterMBeanName = ObjectName.getInstance("net.ripe.db.whois:name=DosFilter");
+        this.dosLookUpFilterMBeanName = ObjectName.getInstance("net.ripe.db.whois:name=DosFilter");
+        this.dosUpdateFilterMBeanName = ObjectName.getInstance("net.ripe.db.whois:name=DosUpdateFilter");
         this.dosFilterEnabled = dosFilterEnabled;
+        this.dosUpdatesMax = dosUpdatesMax;
         this.sniHostCheck = sniHostCheck;
         this.idleTimeout = idleTimeout;
         this.securePort = securePort;
@@ -201,7 +208,7 @@ public class JettyBootstrap implements ApplicationService {
         context.addFilter(PushCacheFilter.class, "/*", EnumSet.of(DispatcherType.REQUEST));
 
         try {
-            context.addFilter(createDosFilter(), "/*", EnumSet.allOf(DispatcherType.class));
+            createDosFilter(context);
         } catch (JmxException | JMException e) {
             throw new IllegalStateException("Error creating DOS Filter", e);
         }
@@ -258,33 +265,51 @@ public class JettyBootstrap implements ApplicationService {
 
     /**
      * Use the DoSFilter from Jetty for rate limiting: https://www.eclipse.org/jetty/documentation/current/dos-filter.html.
-     * See {@link WhoisDoSFilter} for the customisations added.
-     * @return the rate limiting filter
+     * See {@link DoSLookUpFilter} or {@link DoSUpdateFilter} for the customisations added.
      * @throws JmxException if anything goes wrong JMX wise
      * @throws JMException if anything goes wrong JMX wise
      */
-    private FilterHolder createDosFilter() throws JmxException, JMException {
-        WhoisDoSFilter dosFilter = new WhoisDoSFilter();
-        FilterHolder holder = new FilterHolder(dosFilter);
-        holder.setName("DoSFilter");
-
+    private void createDosFilter(final WebAppContext context) throws JmxException, JMException {
         if (!dosFilterEnabled) {
             LOGGER.info("DoSFilter is *not* enabled");
+            return;
         }
+
+        final FilterHolder lookUpDoSFilter = createDosFilter("DoSLookUpFilter", "50", new DoSLookUpFilter());
+        lookUpDoSFilter.setInitParameter("maxRequestMs", "" + 10 * 60 * 1_000); // high default, 10 minutes
+
+        final FilterHolder updateDoSFilter = createDosFilter("DoSUpdateFilter", dosUpdatesMax, new DoSUpdateFilter());
+        updateDoSFilter.setInitParameter("maxRequestMs", "" + Integer.parseInt(dosUpdatesMax) * 1_000);
+
+        if (!ManagementFactory.getPlatformMBeanServer().isRegistered(dosLookUpFilterMBeanName)) {
+            ManagementFactory.getPlatformMBeanServer().registerMBean(new ObjectMBean(lookUpDoSFilter), dosLookUpFilterMBeanName);
+        }
+
+        if (!ManagementFactory.getPlatformMBeanServer().isRegistered(dosUpdateFilterMBeanName)) {
+            ManagementFactory.getPlatformMBeanServer().registerMBean(new ObjectMBean(updateDoSFilter), dosUpdateFilterMBeanName);
+        }
+
+        context.addFilter(lookUpDoSFilter, "/*", EnumSet.allOf(DispatcherType.class));
+        context.addFilter(updateDoSFilter, "/*", EnumSet.allOf(DispatcherType.class));
+    }
+
+    private FilterHolder createDosFilter(final String dosFilterName, final String maxPerRequests, final WhoisDoSFilter whoisDoSFilter) throws JmxException {
+        FilterHolder holder = new FilterHolder(whoisDoSFilter);
+        holder.setName(dosFilterName);
+
+        holder.setInitParameter("maxRequestsPerSec", maxPerRequests);
+        setCommonDoSFilterConfiguration(holder);
+
+        return holder;
+    }
+
+    private void setCommonDoSFilterConfiguration(final FilterHolder holder) {
         holder.setInitParameter("enabled", Boolean.toString(dosFilterEnabled));
-        holder.setInitParameter("maxRequestsPerSec", "50");
-        holder.setInitParameter("maxRequestMs", "" + 10 * 60 * 1_000); // high default, 10 minutes
         holder.setInitParameter("delayMs", "-1"); // reject requests over threshold
         holder.setInitParameter("remotePort", "false");
         holder.setInitParameter("trackSessions", "false");
         holder.setInitParameter("insertHeaders", "false");
         holder.setInitParameter("ipWhitelist", trustedIpRanges);
-
-        if (!ManagementFactory.getPlatformMBeanServer().isRegistered(dosFilterMBeanName)) {
-            ManagementFactory.getPlatformMBeanServer().registerMBean(new ObjectMBean(dosFilter), dosFilterMBeanName);
-        }
-
-        return holder;
     }
 
     private Connector createSecureConnector(final Server server, final int port, final boolean isClientCertificate) {
@@ -392,8 +417,8 @@ public class JettyBootstrap implements ApplicationService {
         LOGGER.info("Shutdown Jetty");
         new Thread(() -> {
             try {
-                if (ManagementFactory.getPlatformMBeanServer().isRegistered(dosFilterMBeanName)) {
-                    ManagementFactory.getPlatformMBeanServer().unregisterMBean(dosFilterMBeanName);
+                if (ManagementFactory.getPlatformMBeanServer().isRegistered(dosLookUpFilterMBeanName)) {
+                    ManagementFactory.getPlatformMBeanServer().unregisterMBean(dosLookUpFilterMBeanName);
                 }
                 server.stop();
             } catch (Exception e) {

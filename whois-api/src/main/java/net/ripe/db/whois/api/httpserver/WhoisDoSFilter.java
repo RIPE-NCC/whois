@@ -21,7 +21,7 @@ import static org.slf4j.LoggerFactory.getLogger;
  */
 public class WhoisDoSFilter extends DoSFilter {
 
-    private static final Logger LOGGER = getLogger(WhoisDoSFilter.class);
+    private static final Logger LOGGER = getLogger(DoSLookUpFilter.class);
 
     private static final Joiner COMMA_JOINER = Joiner.on(',');
 
@@ -81,9 +81,9 @@ public class WhoisDoSFilter extends DoSFilter {
     public void setWhitelist(final String commaSeparatedList) {
         clearWhitelist();
         for (String address : StringUtil.csvSplit(commaSeparatedList)) {
-            addWhitelistAddress(address, false);
+            addWhitelistAddressWithoutLog(address);
         }
-        LOGGER.info("DoSFilter IP whitelist: {}", getWhitelist());
+        logWhiteList();
     }
 
     /**
@@ -108,20 +108,16 @@ public class WhoisDoSFilter extends DoSFilter {
     @Override
     @ManagedOperation("adds an IP address that will not be rate limited")
     public boolean addWhitelistAddress(@Name("address") final String address) {
-        return addWhitelistAddress(address, true);
+        logWhiteList();
+        return addWhitelistAddressWithoutLog(address);
     }
 
-    private boolean addWhitelistAddress(final String address, final boolean log) {
-        boolean result;
+    private boolean addWhitelistAddressWithoutLog(final String address) {
         if (address.contains(".")) {
-            result = ipv4whitelist.add(Ipv4Resource.parse(address));
+            return ipv4whitelist.add(Ipv4Resource.parse(address));
         } else {
-            result = ipv6whitelist.add(Ipv6Resource.parse(address));
+            return ipv6whitelist.add(Ipv6Resource.parse(address));
         }
-        if (log) {
-            LOGGER.info("DoSFilter IP whitelist: {}", getWhitelist());
-        }
-        return result;
     }
 
     /**
@@ -134,14 +130,15 @@ public class WhoisDoSFilter extends DoSFilter {
     @Override
     @ManagedOperation("removes an IP address that will not be rate limited")
     public boolean removeWhitelistAddress(@Name("address") final String address) {
-        boolean result;
+        logWhiteList();
         if (address.contains(".")) {
-            result = ipv4whitelist.remove(Ipv4Resource.parse(address));
+            return ipv4whitelist.remove(Ipv4Resource.parse(address));
         } else {
-            result = ipv6whitelist.remove(Ipv6Resource.parse(address));
+            return ipv6whitelist.remove(Ipv6Resource.parse(address));
         }
-        LOGGER.info("DoSFilter IP whitelist: {}", getWhitelist());
-        return result;
     }
 
+    private void logWhiteList() {
+        LOGGER.info("DoSFilter IP whitelist: {}", getWhitelist());
+    }
 }
