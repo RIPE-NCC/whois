@@ -275,11 +275,10 @@ public class JettyBootstrap implements ApplicationService {
             return;
         }
 
-        final FilterHolder lookUpDoSFilter = createDosFilter("DoSLookUpFilter", "50", new DoSLookUpFilter());
-        lookUpDoSFilter.setInitParameter("maxRequestMs", "" + 10 * 60 * 1_000); // high default, 10 minutes
+        final String maxRequestPerMsLookUp = "" + 10 * 60 * 1_000; // high default, 10 minutes
+        final FilterHolder lookUpDoSFilter = createDosFilter("DoSLookUpFilter", "50", maxRequestPerMsLookUp, new DoSLookUpFilter());
 
-        final FilterHolder updateDoSFilter = createDosFilter("DoSUpdateFilter", dosUpdatesMax, new DoSUpdateFilter());
-        updateDoSFilter.setInitParameter("maxRequestMs", "" + Integer.parseInt(dosUpdatesMax) * 1_000);
+        final FilterHolder updateDoSFilter = createDosFilter("DoSUpdateFilter", dosUpdatesMax, "" + Integer.parseInt(dosUpdatesMax) * 1_000, new DoSUpdateFilter());
 
         if (!ManagementFactory.getPlatformMBeanServer().isRegistered(dosLookUpFilterMBeanName)) {
             ManagementFactory.getPlatformMBeanServer().registerMBean(new ObjectMBean(lookUpDoSFilter), dosLookUpFilterMBeanName);
@@ -293,11 +292,12 @@ public class JettyBootstrap implements ApplicationService {
         context.addFilter(updateDoSFilter, "/*", EnumSet.allOf(DispatcherType.class));
     }
 
-    private FilterHolder createDosFilter(final String dosFilterName, final String maxPerRequests, final WhoisDoSFilter whoisDoSFilter) throws JmxException {
+    private FilterHolder createDosFilter(final String dosFilterName, final String maxRequestsPerSecond, final String maxRequestsPerMs, final WhoisDoSFilter whoisDoSFilter) throws JmxException {
         FilterHolder holder = new FilterHolder(whoisDoSFilter);
         holder.setName(dosFilterName);
 
-        holder.setInitParameter("maxRequestsPerSec", maxPerRequests);
+        holder.setInitParameter("maxRequestMs", maxRequestsPerMs);
+        holder.setInitParameter("maxRequestsPerSec", maxRequestsPerSecond);
         setCommonDoSFilterConfiguration(holder);
 
         return holder;
