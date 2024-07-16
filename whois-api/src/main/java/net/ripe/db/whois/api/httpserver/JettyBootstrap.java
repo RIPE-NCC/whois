@@ -280,26 +280,6 @@ public class JettyBootstrap implements ApplicationService {
         context.addFilter(updateDoSFilterHolder, "/*", EnumSet.allOf(DispatcherType.class));
     }
 
-    private FilterHolder createDosFilter(final String dosFilterName, final String maxRequestsPerSecond, final String maxRequestsPerMs, final WhoisDoSFilter whoisDoSFilter) throws JmxException {
-        FilterHolder holder = new FilterHolder(whoisDoSFilter);
-        holder.setName(dosFilterName);
-
-        holder.setInitParameter("maxRequestMs", maxRequestsPerMs);
-        holder.setInitParameter("maxRequestsPerSec", maxRequestsPerSecond);
-        setCommonDoSFilterConfiguration(holder);
-
-        return holder;
-    }
-
-    private void setCommonDoSFilterConfiguration(final FilterHolder holder) {
-        holder.setInitParameter("enabled", Boolean.toString(dosFilterEnabled));
-        holder.setInitParameter("delayMs", "-1"); // reject requests over threshold
-        holder.setInitParameter("remotePort", "false");
-        holder.setInitParameter("trackSessions", "false");
-        holder.setInitParameter("insertHeaders", "false");
-        holder.setInitParameter("ipWhitelist", trustedIpRanges);
-    }
-
     private Connector createSecureConnector(final Server server, final int port, final boolean isClientCertificate) {
         // allow (untrusted) self-signed certificates to connect
         final SslContextFactory.Server sslContextFactory = new SslContextFactory.Server() {
