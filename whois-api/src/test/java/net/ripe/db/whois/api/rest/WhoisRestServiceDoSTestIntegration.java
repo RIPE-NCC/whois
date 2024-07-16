@@ -46,6 +46,16 @@ public class WhoisRestServiceDoSTestIntegration extends AbstractIntegrationTest 
             "mnt-by:      OWNER-MNT\n" +
             "source:      TEST");
 
+    private static final Integer PENULTIMATE_OK_UPDATE_POSITION = 8;
+
+    private static final Integer PENULTIMATE_OK_LOOKUP_POSITION = 48;
+
+    private static final Integer MAXIMUM_UPDATE_REQUESTS_ALLOWED_PER_SECOND = 10;
+
+    private static final Integer MAXIMUM_LOOKUP_REQUESTS_ALLOWED_PER_SECOND = 50;
+
+    private static final Integer SECONDS_NEEDED_TO_FREE_IP = 1;
+
     @BeforeAll
     public static void beforeClass() {
         System.setProperty("dos.filter.enabled", "true");
@@ -58,61 +68,51 @@ public class WhoisRestServiceDoSTestIntegration extends AbstractIntegrationTest 
         testDateTimeProvider.setTime(LocalDateTime.parse("2001-02-04T17:00:00"));
     }
 
-    // LookUps
+    // lookup
     @Test
-    public void multiple_lookUps_per_second_then_429_too_many_requests() throws InterruptedException {
+    public void multiple_lookup_per_second_then_429_too_many_requests() throws InterruptedException {
         final Response response = RestTest.target(getPort(), "whois/test/mntner/OWNER-MNT?clientIp=10.20.30.40")
                 .request()
                 .get();
         assertThat(HttpStatus.OK_200, is(response.getStatus()));
 
         final Invocation.Builder lookupRequest = RestTest.target(getPort(), "whois/test/mntner/OWNER-MNT?clientIp=10.20.30.40").request();
-        final List<Integer> statuses = Lists.newArrayList();
-        for (int i = 0; i < 50; i++) {
-            statuses.add(lookupRequest.get().getStatus());
-        }
 
-        assertThat(HttpStatus.OK_200, is(statuses.get(48)));
-        assertThat(HttpStatus.TOO_MANY_REQUESTS_429, is(statuses.getLast()));
+        // Simulate a DoS attack by sending many GET requests in a short time
+        final List<Integer> responsesCodes = IntStream.range(0, MAXIMUM_LOOKUP_REQUESTS_ALLOWED_PER_SECOND)
+                .mapToObj(lookupCount -> lookupRequest.get())
+                .map(Response::getStatus)
+                .toList();
 
-        TimeUnit.SECONDS.sleep(1); // Free the IP after one second
+        assertThat(HttpStatus.OK_200, is(responsesCodes.get(PENULTIMATE_OK_LOOKUP_POSITION)));
+        assertThat(HttpStatus.TOO_MANY_REQUESTS_429, is(responsesCodes.getLast()));
+
+        TimeUnit.SECONDS.sleep(SECONDS_NEEDED_TO_FREE_IP); // Free the IP after one second
 
         //After a second, the user can perform more requests
         assertThat(HttpStatus.OK_200, is(lookupRequest.get().getStatus()));
     }
 
     @Test
-    public void multiple_async_lookUps_per_second_then_429_too_many_requests() throws InterruptedException {
-        final Response response = RestTest.target(getPort(), "whois/test/mntner/OWNER-MNT?clientIp=10.20.30.40")
+    public void multiple_async_lookup_per_second_then_429_too_many_requests() throws InterruptedException {
+        final Response creation = RestTest.target(getPort(), "whois/test/mntner/OWNER-MNT?clientIp=10.20.30.40")
                 .request()
                 .get();
-        assertThat(HttpStatus.OK_200, is(response.getStatus()));
+        assertThat(HttpStatus.OK_200, is(creation.getStatus()));
 
-        final AsyncInvoker lookupRequest = RestTest.target(getPort(), "whois/test/mntner/OWNER-MNT?clientIp=10.20.30.40").request().async();
+        final Invocation.Builder lookupRequest = RestTest.target(getPort(), "whois/test/mntner/OWNER-MNT?clientIp=10.20.30.40").request();
 
-        // Simulate a DoS attack by sending many POST requests in a short time asynchronously
-        final List<CompletableFuture<Response>> futures = IntStream.range(0, 50)
-                .mapToObj(i -> sendAsyncGet(lookupRequest))
+        // Simulate a DoS attack by sending many GET requests in a short time asynchronously
+        final List<Integer> responsesCodes = IntStream.range(0, MAXIMUM_LOOKUP_REQUESTS_ALLOWED_PER_SECOND)
+                .parallel()
+                .mapToObj(lookupCount -> lookupRequest.get())
+                .map(Response::getStatus)
                 .toList();
 
-        // Wait for all requests to complete
-        final CompletableFuture<Void> allOf = CompletableFuture.allOf(futures.toArray(new CompletableFuture[0]));
-        allOf.join();
+        final List<Integer> tooManyRequestStatuses = responsesCodes.stream().filter(status -> HttpStatus.TOO_MANY_REQUESTS_429 == status).toList();
+        assertThat(tooManyRequestStatuses.size(), is(1));
 
-        // Collect status
-        final List<Integer> statuses = futures.stream()
-                .map(future -> {
-                    try {
-                        return future.get().getStatus();
-                    } catch (Exception e) {
-                        return null;
-                    }
-                })
-                .toList();
-        final List<Integer> manyRequestStatuses = statuses.stream().filter(status -> HttpStatus.TOO_MANY_REQUESTS_429 == status).toList();
-        assertThat(manyRequestStatuses.size(), is(1));
-
-        TimeUnit.SECONDS.sleep(1); // Free the IP after one second
+        TimeUnit.SECONDS.sleep(SECONDS_NEEDED_TO_FREE_IP); // Free the IP after one second
 
         //After a second, the user can perform more requests
         final Response unLockedResponse = RestTest.target(getPort(), "whois/test/mntner/OWNER-MNT?clientIp=10.20.30.40")
@@ -123,19 +123,22 @@ public class WhoisRestServiceDoSTestIntegration extends AbstractIntegrationTest 
     }
 
     @Test
-    public void multiple_lookUps_per_second_but_white_list_IP_then_200() {
+    public void multiple_lookup_per_second_but_white_list_IP_then_200() {
         final Response response = RestTest.target(getPort(), "whois/test/mntner/OWNER-MNT")
                 .request()
                 .get();
         assertThat(HttpStatus.OK_200, is(response.getStatus()));
 
         final Invocation.Builder lookupRequest = RestTest.target(getPort(), "whois/test/mntner/OWNER-MNT").request();
-        final List<Integer> statuses = Lists.newArrayList();
-        for (int i = 0; i < 50; i++) {
-            statuses.add(lookupRequest.get().getStatus());
-        }
 
-        assertThat(HttpStatus.OK_200, is(statuses.getLast()));
+        // Simulate a DoS attack by sending many GET requests in a short time
+        final List<Integer> responsesCodes = IntStream.range(0, MAXIMUM_LOOKUP_REQUESTS_ALLOWED_PER_SECOND)
+                .parallel()
+                .mapToObj(lookupCount -> lookupRequest.get())
+                .map(Response::getStatus)
+                .toList();
+
+        assertThat(HttpStatus.OK_200, is(responsesCodes.getLast()));
     }
 
     // Updates
@@ -157,15 +160,17 @@ public class WhoisRestServiceDoSTestIntegration extends AbstractIntegrationTest 
         assertThat(HttpStatus.OK_200, is(response.getStatus()));
 
         final Invocation.Builder updateRequest = RestTest.target(getPort(), "whois/test/person/PP1-TEST?clientIp=10.20.30.40&password=test").request();
-        final List<Integer> statuses = Lists.newArrayList();
-        for (int i = 0; i < 10; i++) {
-            statuses.add(updateRequest.put(Entity.entity(map(person), MediaType.APPLICATION_XML)).getStatus());
-        }
 
-        assertThat(HttpStatus.OK_200, is(statuses.get(8)));
-        assertThat(HttpStatus.TOO_MANY_REQUESTS_429, is(statuses.getLast()));
+        // Simulate a DoS attack by sending many PUT requests in a short time
+        final List<Integer> responsesCodes = IntStream.range(0, MAXIMUM_UPDATE_REQUESTS_ALLOWED_PER_SECOND)
+                .mapToObj(updateCount -> updateRequest.put(Entity.entity(map(person), MediaType.APPLICATION_XML)))
+                .map(Response::getStatus)
+                .toList();
 
-        TimeUnit.SECONDS.sleep(1); // Free the IP after one second
+        assertThat(HttpStatus.OK_200, is(responsesCodes.get(PENULTIMATE_OK_UPDATE_POSITION)));
+        assertThat(HttpStatus.TOO_MANY_REQUESTS_429, is(responsesCodes.getLast()));
+
+        TimeUnit.SECONDS.sleep(SECONDS_NEEDED_TO_FREE_IP); // Free the IP after one second
 
         //After a second, the user can perform more requests
         final Response unLockedResponse = updateRequest.put(Entity.entity(map(person), MediaType.APPLICATION_XML));
@@ -189,31 +194,19 @@ public class WhoisRestServiceDoSTestIntegration extends AbstractIntegrationTest 
                 .post(Entity.entity(map(person), MediaType.APPLICATION_XML));
         assertThat(HttpStatus.OK_200, is(response.getStatus()));
 
-        final AsyncInvoker updateRequest = RestTest.target(getPort(), "whois/test/person/PP1-TEST?clientIp=10.20.30.40&password=test").request().async();
+        final Invocation.Builder updateRequest = RestTest.target(getPort(), "whois/test/person/PP1-TEST?clientIp=10.20.30.40&password=test").request();
 
-        // Simulate a DoS attack by sending many POST requests in a short time asynchronously
-        final List<CompletableFuture<Response>> futures = IntStream.range(0, 10)
-                .mapToObj(i -> sendAsyncPost(updateRequest, person))
+        // Simulate a DoS attack by sending many PUT requests in a short time asynchronously
+        final List<Integer> responsesCodes = IntStream.range(0, MAXIMUM_UPDATE_REQUESTS_ALLOWED_PER_SECOND)
+                .parallel()
+                .mapToObj(updateCount -> updateRequest.put(Entity.entity(map(person), MediaType.APPLICATION_XML)))
+                .map(Response::getStatus)
                 .toList();
 
-        // Wait for all requests to complete
-        final CompletableFuture<Void> allOf = CompletableFuture.allOf(futures.toArray(new CompletableFuture[0]));
-        allOf.join();
+        final List<Integer> tooManyRequestStatuses = responsesCodes.stream().filter(status -> HttpStatus.TOO_MANY_REQUESTS_429 == status).toList();
+        assertThat(tooManyRequestStatuses.size(), is(1));
 
-        // Collect status
-        final List<Integer> statuses = futures.stream()
-                .map(future -> {
-                    try {
-                        return future.get().getStatus();
-                    } catch (Exception e) {
-                        return null;
-                    }
-                })
-                .toList();
-        final List<Integer> manyRequestStatuses = statuses.stream().filter(status -> HttpStatus.TOO_MANY_REQUESTS_429 == status).toList();
-        assertThat(manyRequestStatuses.size(), is(1));
-
-        TimeUnit.SECONDS.sleep(1); // Free the IP after one second
+        TimeUnit.SECONDS.sleep(SECONDS_NEEDED_TO_FREE_IP); // Free the IP after one second
 
         //After a second, the user can perform more requests
         final Response unLockedResponse = RestTest.target(getPort(), "whois/test/person/PP1-TEST?clientIp=10.20.30.40&password=test")
@@ -241,49 +234,19 @@ public class WhoisRestServiceDoSTestIntegration extends AbstractIntegrationTest 
         assertThat(HttpStatus.OK_200, is(response.getStatus()));
 
         final Invocation.Builder updateRequest = RestTest.target(getPort(), "whois/test/person/PP1-TEST?password=test").request();
-        final List<Integer> statuses = Lists.newArrayList();
-        for (int i = 0; i < 10; i++) {
-            statuses.add(updateRequest.put(Entity.entity(map(person), MediaType.APPLICATION_XML)).getStatus());
-        }
 
-        assertThat(HttpStatus.OK_200, is(statuses.getLast()));
+        // Simulate a DoS attack by sending many PUT requests in a short time
+        final List<Integer> responsesCodes = IntStream.range(0, MAXIMUM_UPDATE_REQUESTS_ALLOWED_PER_SECOND)
+                .mapToObj(updateCount -> updateRequest.put(Entity.entity(map(person), MediaType.APPLICATION_XML)))
+                .map(Response::getStatus)
+                .toList();
+
+        assertThat(HttpStatus.OK_200, is(responsesCodes.getLast()));
     }
 
+    
     //Helper methods
-
     private WhoisResources map(final RpslObject ... rpslObjects) {
         return whoisObjectMapper.mapRpslObjects(FormattedClientAttributeMapper.class, rpslObjects);
-    }
-
-    private CompletableFuture<Response> sendAsyncPost(final AsyncInvoker asyncInvoker, final RpslObject rpslObject) {
-        CompletableFuture<Response> future = new CompletableFuture<>();
-        asyncInvoker.put(Entity.entity(map(rpslObject), MediaType.APPLICATION_XML), new jakarta.ws.rs.client.InvocationCallback<Response>() {
-            @Override
-            public void completed(Response response) {
-                future.complete(response);
-            }
-
-            @Override
-            public void failed(Throwable throwable) {
-                future.completeExceptionally(throwable);
-            }
-        });
-        return future;
-    }
-
-    private CompletableFuture<Response> sendAsyncGet(final AsyncInvoker asyncInvoker) {
-        CompletableFuture<Response> future = new CompletableFuture<>();
-        asyncInvoker.get(new jakarta.ws.rs.client.InvocationCallback<Response>() {
-            @Override
-            public void completed(Response response) {
-                future.complete(response);
-            }
-
-            @Override
-            public void failed(Throwable throwable) {
-                future.completeExceptionally(throwable);
-            }
-        });
-        return future;
     }
 }
