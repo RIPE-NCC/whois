@@ -2,6 +2,9 @@ package net.ripe.db.whois.api.httpserver;
 
 import io.netty.handler.ssl.util.TrustManagerFactoryWrapper;
 import jakarta.servlet.DispatcherType;
+import net.ripe.db.whois.api.httpserver.dos.LookupDoSFilterHolder;
+import net.ripe.db.whois.api.httpserver.dos.UpdateDoSFilterHolder;
+import net.ripe.db.whois.api.httpserver.dos.WhoisDoSFilter;
 import net.ripe.db.whois.common.ApplicationService;
 import net.ripe.db.whois.common.aspects.RetryFor;
 import org.eclipse.jetty.alpn.server.ALPNServerConnectionFactory;
@@ -90,9 +93,6 @@ public class JettyBootstrap implements ApplicationService {
             "SSLv3"
     };
 
-    private final ObjectName dosLookUpFilterMBeanName;
-
-    private final ObjectName dosUpdateFilterMBeanName;
 
     private final RemoteAddressFilter remoteAddressFilter;
     private final ExtensionOverridesAcceptHeaderFilter extensionOverridesAcceptHeaderFilter;
@@ -114,7 +114,8 @@ public class JettyBootstrap implements ApplicationService {
 
     private final boolean xForwardedForHttp;
 
-    private final String dosUpdatesMax;
+    private final LookupDoSFilterHolder lookUpDoSFilterHolder;
+    private final UpdateDoSFilterHolder updateDoSFilterHolder;
 
     @Autowired
     public JettyBootstrap(final RemoteAddressFilter remoteAddressFilter,
@@ -122,11 +123,12 @@ public class JettyBootstrap implements ApplicationService {
                           final List<ServletDeployer> servletDeployers,
                           final RewriteEngine rewriteEngine,
                           final WhoisKeystore whoisKeystore,
+                          final LookupDoSFilterHolder lookUpDoSFilterHolder,
+                          final UpdateDoSFilterHolder updateDoSFilterHolder,
                           @Value("${ipranges.trusted}") final String trustedIpRanges,
                           @Value("${http.idle.timeout.sec:60}") final int idleTimeout,
                           @Value("${http.sni.host.check:true}") final boolean sniHostCheck,
                           @Value("${dos.filter.enabled:false}") final boolean dosFilterEnabled,
-                          @Value("${dos.filter.max.updates:10}") final String dosUpdatesMax,
                           @Value("${rewrite.engine.enabled:false}") final boolean rewriteEngineEnabled,
                           @Value("${port.api:0}") final int port,
                           @Value("${port.api.secure:-1}") final int securePort,
@@ -142,10 +144,7 @@ public class JettyBootstrap implements ApplicationService {
         this.trustedIpRanges = trustedIpRanges;
         this.rewriteEngineEnabled = rewriteEngineEnabled;
         LOGGER.info("Rewrite engine is {}abled", rewriteEngineEnabled ? "en" : "dis");
-        this.dosLookUpFilterMBeanName = ObjectName.getInstance("net.ripe.db.whois:name=DosFilter");
-        this.dosUpdateFilterMBeanName = ObjectName.getInstance("net.ripe.db.whois:name=DosUpdateFilter");
         this.dosFilterEnabled = dosFilterEnabled;
-        this.dosUpdatesMax = dosUpdatesMax;
         this.sniHostCheck = sniHostCheck;
         this.idleTimeout = idleTimeout;
         this.securePort = securePort;
@@ -154,6 +153,8 @@ public class JettyBootstrap implements ApplicationService {
         this.clientAuthPort = clientAuthPort;
         this.xForwardedForHttp = xForwardedForHttp;
         this.xForwardedForHttps = xForwardedForHttps;
+        this.lookUpDoSFilterHolder = lookUpDoSFilterHolder;
+        this.updateDoSFilterHolder = updateDoSFilterHolder;
     }
 
     @Override
@@ -265,7 +266,7 @@ public class JettyBootstrap implements ApplicationService {
 
     /**
      * Use the DoSFilter from Jetty for rate limiting: https://www.eclipse.org/jetty/documentation/current/dos-filter.html.
-     * See {@link DoSLookUpFilter} or {@link DoSUpdateFilter} for the customisations added.
+     * See {@link WhoisDoSFilter} or {@link WhoisDoSFilter} for the customisations added.
      * @throws JmxException if anything goes wrong JMX wise
      * @throws JMException if anything goes wrong JMX wise
      */
@@ -275,21 +276,8 @@ public class JettyBootstrap implements ApplicationService {
             return;
         }
 
-        final String maxRequestPerMsLookUp = "" + 10 * 60 * 1_000; // high default, 10 minutes
-        final FilterHolder lookUpDoSFilter = createDosFilter("DoSLookUpFilter", "50", maxRequestPerMsLookUp, new DoSLookUpFilter());
-
-        final FilterHolder updateDoSFilter = createDosFilter("DoSUpdateFilter", dosUpdatesMax, "" + Integer.parseInt(dosUpdatesMax) * 1_000, new DoSUpdateFilter());
-
-        if (!ManagementFactory.getPlatformMBeanServer().isRegistered(dosLookUpFilterMBeanName)) {
-            ManagementFactory.getPlatformMBeanServer().registerMBean(new ObjectMBean(lookUpDoSFilter), dosLookUpFilterMBeanName);
-        }
-
-        if (!ManagementFactory.getPlatformMBeanServer().isRegistered(dosUpdateFilterMBeanName)) {
-            ManagementFactory.getPlatformMBeanServer().registerMBean(new ObjectMBean(updateDoSFilter), dosUpdateFilterMBeanName);
-        }
-
-        context.addFilter(lookUpDoSFilter, "/*", EnumSet.allOf(DispatcherType.class));
-        context.addFilter(updateDoSFilter, "/*", EnumSet.allOf(DispatcherType.class));
+        context.addFilter(lookUpDoSFilterHolder, "/*", EnumSet.allOf(DispatcherType.class));
+        context.addFilter(updateDoSFilterHolder, "/*", EnumSet.allOf(DispatcherType.class));
     }
 
     private FilterHolder createDosFilter(final String dosFilterName, final String maxRequestsPerSecond, final String maxRequestsPerMs, final WhoisDoSFilter whoisDoSFilter) throws JmxException {
@@ -417,9 +405,6 @@ public class JettyBootstrap implements ApplicationService {
         LOGGER.info("Shutdown Jetty");
         new Thread(() -> {
             try {
-                if (ManagementFactory.getPlatformMBeanServer().isRegistered(dosLookUpFilterMBeanName)) {
-                    ManagementFactory.getPlatformMBeanServer().unregisterMBean(dosLookUpFilterMBeanName);
-                }
                 server.stop();
             } catch (Exception e) {
                 LOGGER.error("Stopping server", e);

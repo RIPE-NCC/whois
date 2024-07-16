@@ -1,4 +1,4 @@
-package net.ripe.db.whois.api.httpserver;
+package net.ripe.db.whois.api.httpserver.dos;
 
 import com.google.common.base.Joiner;
 import net.ripe.db.whois.common.ip.Ipv4Resource;
@@ -21,7 +21,7 @@ import static org.slf4j.LoggerFactory.getLogger;
  */
 public class WhoisDoSFilter extends DoSFilter {
 
-    private static final Logger LOGGER = getLogger(DoSLookUpFilter.class);
+    private static final Logger LOGGER = getLogger(WhoisDoSFilter.class);
 
     private static final Joiner COMMA_JOINER = Joiner.on(',');
 

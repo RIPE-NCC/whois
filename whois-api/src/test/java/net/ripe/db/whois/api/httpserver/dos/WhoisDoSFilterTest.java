@@ -1,4 +1,4 @@
-package net.ripe.db.whois.api.httpserver;
+package net.ripe.db.whois.api.httpserver.dos;
 
 import org.junit.jupiter.api.Test;
 
@@ -8,11 +8,11 @@ import static org.hamcrest.Matchers.is;
 
 public class WhoisDoSFilterTest {
 
-    private DoSLookUpFilter subject;
+    private WhoisDoSFilter subject;
 
     @Test
     public void testWhitelist() {
-        subject = new DoSLookUpFilter();
+        subject = new WhoisDoSFilter();
         subject.setWhitelist("127.0.0.1,::1,193.0.0.0 - 193.0.23.255,2001:67c:2e8::/48,10.0.0.0 - 10.255.255.255");
 
         assertThat(subject.checkWhitelist("193.0.20.230"), is(true));

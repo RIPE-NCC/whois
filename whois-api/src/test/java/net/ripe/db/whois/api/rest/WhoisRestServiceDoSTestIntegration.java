@@ -1,6 +1,5 @@
 package net.ripe.db.whois.api.rest;
 
-import jakarta.ws.rs.client.AsyncInvoker;
 import jakarta.ws.rs.client.Entity;
 import jakarta.ws.rs.client.Invocation;
 
@@ -12,7 +11,6 @@ import net.ripe.db.whois.api.rest.domain.WhoisResources;
 import net.ripe.db.whois.api.rest.mapper.FormattedClientAttributeMapper;
 import net.ripe.db.whois.api.rest.mapper.WhoisObjectMapper;
 import net.ripe.db.whois.common.rpsl.RpslObject;
-import org.apache.commons.compress.utils.Lists;
 import org.eclipse.jetty.http.HttpStatus;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
@@ -22,7 +20,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.IntStream;
 
@@ -244,7 +241,7 @@ public class WhoisRestServiceDoSTestIntegration extends AbstractIntegrationTest 
         assertThat(HttpStatus.OK_200, is(responsesCodes.getLast()));
     }
 
-    
+
     //Helper methods
     private WhoisResources map(final RpslObject ... rpslObjects) {
         return whoisObjectMapper.mapRpslObjects(FormattedClientAttributeMapper.class, rpslObjects);
