@@ -11,7 +11,6 @@ import net.ripe.db.whois.api.RestTest;
 import net.ripe.db.whois.api.rest.domain.WhoisResources;
 import net.ripe.db.whois.api.rest.mapper.FormattedClientAttributeMapper;
 import net.ripe.db.whois.api.rest.mapper.WhoisObjectMapper;
-import net.ripe.db.whois.common.MaintenanceMode;
 import net.ripe.db.whois.common.rpsl.RpslObject;
 import org.apache.commons.compress.utils.Lists;
 import org.eclipse.jetty.http.HttpStatus;
@@ -110,8 +109,8 @@ public class WhoisRestServiceDoSTestIntegration extends AbstractIntegrationTest 
                     }
                 })
                 .toList();
-        assertThat(HttpStatus.OK_200, is(statuses.get(48)));
-        assertThat(HttpStatus.TOO_MANY_REQUESTS_429, is(statuses.getLast()));
+        final List<Integer> manyRequestStatuses = statuses.stream().filter(status -> HttpStatus.TOO_MANY_REQUESTS_429 == status).toList();
+        assertThat(manyRequestStatuses.size(), is(1));
 
         TimeUnit.SECONDS.sleep(1); // Free the IP after one second
 
@@ -211,8 +210,8 @@ public class WhoisRestServiceDoSTestIntegration extends AbstractIntegrationTest 
                     }
                 })
                 .toList();
-        assertThat(HttpStatus.OK_200, is(statuses.get(8)));
-        assertThat(HttpStatus.TOO_MANY_REQUESTS_429, is(statuses.getLast()));
+        final List<Integer> manyRequestStatuses = statuses.stream().filter(status -> HttpStatus.TOO_MANY_REQUESTS_429 == status).toList();
+        assertThat(manyRequestStatuses.size(), is(1));
 
         TimeUnit.SECONDS.sleep(1); // Free the IP after one second
 
