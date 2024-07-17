@@ -4,10 +4,8 @@ import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import net.ripe.db.whois.api.conditional.DoSFilterCondition;
 import org.eclipse.jetty.servlet.FilterHolder;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.context.annotation.Conditional;
 import org.springframework.stereotype.Component;
 
 import java.io.IOException;
@@ -15,7 +13,6 @@ import java.io.IOException;
 import static jakarta.ws.rs.HttpMethod.GET;
 
 @Component
-@Conditional(DoSFilterCondition.class)
 public class LookupDoSFilterHolder extends FilterHolder {
 
     private static final String MAX_REQUEST_PER_SECOND = "50";

@@ -40,7 +40,6 @@ import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
 import javax.management.JMException;
-import javax.management.MalformedObjectNameException;
 import javax.net.ssl.TrustManager;
 import javax.net.ssl.TrustManagerFactory;
 import java.security.KeyStore;
@@ -132,7 +131,7 @@ public class JettyBootstrap implements ApplicationService {
                           @Value("${port.client.auth:-1}") final int clientAuthPort,
                           @Value("${http.x_forwarded_for:true}") final boolean xForwardedForHttp,
                           @Value("${https.x_forwarded_for:true}") final boolean xForwardedForHttps
-                        ) throws MalformedObjectNameException {
+                        )  {
         this.remoteAddressFilter = remoteAddressFilter;
         this.extensionOverridesAcceptHeaderFilter = extensionOverridesAcceptHeaderFilter;
         this.servletDeployers = servletDeployers;
