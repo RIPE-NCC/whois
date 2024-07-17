@@ -19,8 +19,8 @@ public class LookupDoSFilterHolder extends AbstractDoSFilterHolder {
 
     public LookupDoSFilterHolder(@Value("${dos.filter.enabled:false}") final boolean dosFilterEnabled,
                                  @Value("${ipranges.trusted}") final String trustedIpRanges) {
-
         super(dosFilterEnabled, trustedIpRanges);
+        
         this.setFilter(generateWhoisDoSLookupFilter());
         this.setName("LookupDoSFilter");
         this.setInitParameter("maxRequestMs", MAX_REQUEST_PER_MS);
