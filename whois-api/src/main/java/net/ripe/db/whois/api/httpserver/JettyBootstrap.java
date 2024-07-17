@@ -97,7 +97,6 @@ public class JettyBootstrap implements ApplicationService {
     private final WhoisKeystore whoisKeystore;
     private final String trustedIpRanges;
     private final boolean rewriteEngineEnabled;
-    private final boolean dosFilterEnabled;
     private final boolean sniHostCheck;
     private Server server;
     private int securePort;
@@ -124,7 +123,6 @@ public class JettyBootstrap implements ApplicationService {
                           @Value("${ipranges.trusted}") final String trustedIpRanges,
                           @Value("${http.idle.timeout.sec:60}") final int idleTimeout,
                           @Value("${http.sni.host.check:true}") final boolean sniHostCheck,
-                          @Value("${dos.filter.enabled:false}") final boolean dosFilterEnabled,
                           @Value("${rewrite.engine.enabled:false}") final boolean rewriteEngineEnabled,
                           @Value("${port.api:0}") final int port,
                           @Value("${port.api.secure:-1}") final int securePort,
@@ -140,7 +138,6 @@ public class JettyBootstrap implements ApplicationService {
         this.trustedIpRanges = trustedIpRanges;
         this.rewriteEngineEnabled = rewriteEngineEnabled;
         LOGGER.info("Rewrite engine is {}abled", rewriteEngineEnabled ? "en" : "dis");
-        this.dosFilterEnabled = dosFilterEnabled;
         this.sniHostCheck = sniHostCheck;
         this.idleTimeout = idleTimeout;
         this.securePort = securePort;
@@ -267,11 +264,6 @@ public class JettyBootstrap implements ApplicationService {
      * @throws JMException if anything goes wrong JMX wise
      */
     private void createDosFilter(final WebAppContext context) throws JmxException, JMException {
-        if (!dosFilterEnabled) {
-            LOGGER.info("DoSFilter is *not* enabled");
-            return;
-        }
-
         context.addFilter(lookUpDoSFilterHolder, "/*", EnumSet.allOf(DispatcherType.class));
         context.addFilter(updateDoSFilterHolder, "/*", EnumSet.allOf(DispatcherType.class));
     }

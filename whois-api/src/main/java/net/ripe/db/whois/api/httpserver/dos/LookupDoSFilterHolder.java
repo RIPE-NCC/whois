@@ -4,7 +4,6 @@ import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import org.eclipse.jetty.servlet.FilterHolder;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
@@ -13,22 +12,19 @@ import java.io.IOException;
 import static jakarta.ws.rs.HttpMethod.GET;
 
 @Component
-public class LookupDoSFilterHolder extends FilterHolder {
+public class LookupDoSFilterHolder extends AbstractDoSFilterHolder {
 
     private static final String MAX_REQUEST_PER_SECOND = "50";
     private static final String MAX_REQUEST_PER_MS = "" + 10 * 60 * 1_000; // high default, 10 minutes
 
-    public LookupDoSFilterHolder(@Value("${ipranges.trusted}") final String trustedIpRanges) {
+    public LookupDoSFilterHolder(@Value("${dos.filter.enabled:false}") final boolean dosFilterEnabled,
+                                 @Value("${ipranges.trusted}") final String trustedIpRanges) {
+
+        super(dosFilterEnabled, trustedIpRanges);
         this.setFilter(generateWhoisDoSLookupFilter());
         this.setName("LookupDoSFilter");
         this.setInitParameter("maxRequestMs", MAX_REQUEST_PER_MS);
         this.setInitParameter("maxRequestsPerSec", MAX_REQUEST_PER_SECOND);
-        this.setInitParameter("enabled", "true");
-        this.setInitParameter("delayMs", "-1"); // reject requests over threshold
-        this.setInitParameter("remotePort", "false");
-        this.setInitParameter("trackSessions", "false");
-        this.setInitParameter("insertHeaders", "false");
-        this.setInitParameter("ipWhitelist", trustedIpRanges);
     }
 
     private WhoisDoSFilter generateWhoisDoSLookupFilter(){

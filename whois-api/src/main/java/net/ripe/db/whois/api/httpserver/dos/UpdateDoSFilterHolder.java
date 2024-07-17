@@ -13,21 +13,18 @@ import java.io.IOException;
 import static jakarta.ws.rs.HttpMethod.GET;
 
 @Component
-public class UpdateDoSFilterHolder extends FilterHolder {
+public class UpdateDoSFilterHolder extends AbstractDoSFilterHolder {
 
-    public UpdateDoSFilterHolder(@Value("${ipranges.trusted}") final String trustedIpRanges,
+    public UpdateDoSFilterHolder(@Value("${dos.filter.enabled:false}") final boolean dosFilterEnabled,
+                                 @Value("${ipranges.trusted}") final String trustedIpRanges,
                                  @Value("${dos.filter.max.updates:10}") final String dosUpdatesMaxSecs) {
+        super(dosFilterEnabled, trustedIpRanges);
+
         final String maxRequestPerMs = "" + 10 * Integer.parseInt(dosUpdatesMaxSecs) * 1_000;
         this.setFilter(generateWhoisDoSUpdateFilter());
         this.setName("UpdateDoSFilter");
         this.setInitParameter("maxRequestMs", maxRequestPerMs);
         this.setInitParameter("maxRequestsPerSec", dosUpdatesMaxSecs);
-        this.setInitParameter("enabled", "true");
-        this.setInitParameter("delayMs", "-1"); // reject requests over threshold
-        this.setInitParameter("remotePort", "false");
-        this.setInitParameter("trackSessions", "false");
-        this.setInitParameter("insertHeaders", "false");
-        this.setInitParameter("ipWhitelist", trustedIpRanges);
     }
 
     private WhoisDoSFilter generateWhoisDoSUpdateFilter(){
