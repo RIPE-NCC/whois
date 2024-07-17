@@ -18,6 +18,7 @@ import net.ripe.db.nrtm4.dao.SnapshotFileSourceAwareDao;
 import net.ripe.db.nrtm4.dao.NrtmSourceDao;
 import net.ripe.db.nrtm4.domain.NrtmDocumentType;
 import net.ripe.db.nrtm4.domain.NrtmSource;
+import net.ripe.db.nrtm4.generator.JWSKeyPairService;
 import net.ripe.db.nrtm4.util.NrtmFileUtil;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -39,6 +40,8 @@ public class NrtmClientService {
     private final NrtmSourceDao nrtmSourceDao;
     private final NrtmKeyConfigDao nrtmKeyConfigDao;
     final String nrtmUrl;
+    final JWSKeyPairService jwsKeyPairService;
+
 
     @Autowired
     public NrtmClientService(@Value("${nrtm.baseUrl:}") final String nrtmUrl,
@@ -46,6 +49,7 @@ public class NrtmClientService {
                              final UpdateNotificationFileSourceAwareDao updateNotificationFileSourceAwareDao,
                              final SnapshotFileSourceAwareDao snapshotFileSourceAwareDao,
                              final NrtmKeyConfigDao nrtmKeyConfigDao,
+                             final JWSKeyPairService jwsKeyPairService,
                              final DeltaFileSourceAwareDao deltaFileSourceAwareDao) {
         this.snapshotFileSourceAwareDao = snapshotFileSourceAwareDao;
         this.deltaFileSourceAwareDao = deltaFileSourceAwareDao;
@@ -53,6 +57,7 @@ public class NrtmClientService {
         this.nrtmSourceDao = nrtmSourceDao;
         this.nrtmKeyConfigDao = nrtmKeyConfigDao;
         this.nrtmUrl = nrtmUrl;
+        this.jwsKeyPairService = jwsKeyPairService;
     }
 
     @GET
@@ -79,6 +84,13 @@ public class NrtmClientService {
             @Context final HttpServletRequest httpServletRequest,
             @PathParam("source") final String source,
             @PathParam("filename") final String fileName) {
+
+        if(fileName.contains("jws")) {
+            final String payload = updateNotificationFileSourceAwareDao.findLastNotification(getSource(source))
+                    .orElseThrow(() -> new NotFoundException("update-notification-file.json does not exists for source " + source));
+
+            return getResponse(jwsKeyPairService.getJWSSignedPayload(payload));
+        }
 
         if(isNotificationFile(fileName)) {
             final String payload = updateNotificationFileSourceAwareDao.findLastNotification(getSource(source))

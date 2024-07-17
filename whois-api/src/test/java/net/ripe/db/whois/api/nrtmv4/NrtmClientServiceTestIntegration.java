@@ -1,15 +1,21 @@
 package net.ripe.db.whois.api.nrtmv4;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.google.common.collect.Lists;
 import com.google.common.net.HttpHeaders;
+import com.nimbusds.jose.JOSEException;
+import com.nimbusds.jose.JWSObject;
+import com.nimbusds.jose.JWSVerifier;
+import com.nimbusds.jose.crypto.Ed25519Verifier;
 import jakarta.ws.rs.InternalServerErrorException;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 import net.ripe.db.nrtm4.domain.NrtmKeyRecord;
 import net.ripe.db.nrtm4.generator.DeltaFileGenerator;
+import net.ripe.db.nrtm4.generator.JWSKeyPairService;
 import net.ripe.db.nrtm4.generator.SnapshotFileGenerator;
 import net.ripe.db.nrtm4.dao.DeltaFileDao;
 import net.ripe.db.nrtm4.dao.NrtmKeyConfigDao;
@@ -44,6 +50,7 @@ import org.springframework.test.annotation.DirtiesContext;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
+import java.text.ParseException;
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
 import java.util.List;
@@ -54,6 +61,7 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.containsInAnyOrder;
 import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.is;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 @Tag("IntegrationTest")
 @DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_EACH_TEST_METHOD)
@@ -74,6 +82,10 @@ public class NrtmClientServiceTestIntegration extends AbstractNrtmIntegrationTes
 
     @Autowired
     NrtmSourceDao nrtmSourceDao;
+
+    @Autowired
+    JWSKeyPairService jwsKeyPairService;
+
 
     @Autowired
     SnapshotFileGenerator snapshotFileGenerator;
@@ -288,6 +300,20 @@ public class NrtmClientServiceTestIntegration extends AbstractNrtmIntegrationTes
         final String signature = response.readEntity(String.class);
 
         assertThat(Ed25519Util.verifySignature(signature, nrtmKeyConfigDao.getActivePublicKey(), notificationFile.getBytes()), is(Boolean.TRUE));
+    }
+
+    @Test
+    public void should_get_jws_signature_file() throws JOSEException, ParseException {
+        insertUpdateNotificationFile();
+
+        final String notificationFile = getResponseFromHttpsRequest("TEST/update-notification-file-jws.json", MediaType.APPLICATION_JSON).readEntity(String.class);
+
+        final JWSObject jwsObjectParsed = JWSObject.parse(notificationFile);
+
+        JWSVerifier verifier = new Ed25519Verifier(jwsKeyPairService.getPublicJwk());
+        assertTrue(jwsObjectParsed.verify(verifier));
+
+        assertThat(jwsObjectParsed.getPayload().toString(), containsString("https://nrtm.ripe.net//4e0c9366-0eb2-42be-bc20-f66d11791d49/nrtm-snapshot.1.RIPE.abb5672a6f3f533ce8caf76b0a3fe995.json.gz"));
     }
 
     @Test
