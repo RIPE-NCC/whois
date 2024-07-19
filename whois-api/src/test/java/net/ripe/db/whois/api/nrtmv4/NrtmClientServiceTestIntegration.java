@@ -9,6 +9,7 @@ import com.google.common.net.HttpHeaders;
 import com.nimbusds.jose.JOSEException;
 import com.nimbusds.jose.JWSObject;
 import com.nimbusds.jose.JWSVerifier;
+import com.nimbusds.jose.crypto.ECDSAVerifier;
 import com.nimbusds.jose.crypto.Ed25519Verifier;
 import jakarta.ws.rs.InternalServerErrorException;
 import jakarta.ws.rs.core.MediaType;
@@ -228,18 +229,20 @@ public class NrtmClientServiceTestIntegration extends AbstractNrtmIntegrationTes
     }
 
     @Test
-    public void should_get_snapshot_file() throws IOException, JSONException {
+    public void should_get_snapshot_file() throws IOException, JSONException, ParseException, JOSEException {
 
         snapshotFileGenerator.createSnapshot();
 
         Optional<SnapshotFile> fileOptional = snapshotFileDao.getLastSnapshot(nrtmSourceDao.getWhoisSource().get());
 
-        final Response response = getResponseFromHttpsRequest("TEST/" + fileOptional.get().name(), MediaType.APPLICATION_OCTET_STREAM);
+        final String response = getResponseFromHttpsRequest("TEST/" + fileOptional.get().name(), MediaType.APPLICATION_OCTET_STREAM).readEntity(String.class);
 
-        assertThat(response.getStatus(), is(200));
-        assertThat(response.getHeaderString(HttpHeaders.CACHE_CONTROL), is("public, max-age=604800"));
+        final JWSObject jwsObjectParsed = JWSObject.parse(response);
 
-        final String[] records = StringUtils.split(decompress(response.readEntity(byte[].class)), NrtmFileUtil.RECORD_SEPERATOR);
+        JWSVerifier verifier = new ECDSAVerifier(jwsKeyPairService.getPublicJwk());
+        assertTrue(jwsObjectParsed.verify(verifier));
+
+        final String[] records = StringUtils.split(decompress(jwsObjectParsed.getPayload().toBytes()), NrtmFileUtil.RECORD_SEPERATOR);
 
         assertNrtmFileInfo(records[0], "snapshot", 1, "TEST");
 
@@ -310,7 +313,7 @@ public class NrtmClientServiceTestIntegration extends AbstractNrtmIntegrationTes
 
         final JWSObject jwsObjectParsed = JWSObject.parse(notificationFile);
 
-        JWSVerifier verifier = new Ed25519Verifier(jwsKeyPairService.getPublicJwk());
+        JWSVerifier verifier = new ECDSAVerifier(jwsKeyPairService.getPublicJwk());
         assertTrue(jwsObjectParsed.verify(verifier));
 
         assertThat(jwsObjectParsed.getPayload().toString(), containsString("https://nrtm.ripe.net//4e0c9366-0eb2-42be-bc20-f66d11791d49/nrtm-snapshot.1.RIPE.abb5672a6f3f533ce8caf76b0a3fe995.json.gz"));

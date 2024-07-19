@@ -130,8 +130,9 @@ public class NrtmClientService {
         //ExtensionOverridesAcceptHeaderFilter removes file extension
         return filename.endsWith(".json") ? filename : String.join("", filename, ".json");
     }
+
     private Response getResponse(final byte[] payload,  final String hash, final String filename) {
-        return Response.ok(new ByteArrayInputStream(payload))
+        return Response.ok(jwsKeyPairService.getJWSSignedPayload(payload))
                 .header(HttpHeaders.CONTENT_LENGTH, payload.length)
                 .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=" + filename)
                 .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_OCTET_STREAM)
