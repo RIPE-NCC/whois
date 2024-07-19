@@ -133,10 +133,10 @@ public class NrtmClientService {
 
     private Response getResponse(final byte[] payload,  final String hash, final String filename) {
         return Response.ok(jwsKeyPairService.getJWSSignedPayload(payload))
-                .header(HttpHeaders.CONTENT_LENGTH, payload.length)
-                .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=" + filename)
-                .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_OCTET_STREAM)
-                .header(HttpHeaders.ETAG, hash)
+               // .header(HttpHeaders.CONTENT_LENGTH, payload.length)
+               // .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=" + filename)
+                .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON)
+              //  .header(HttpHeaders.ETAG, hash)
                 .build();
     }
 

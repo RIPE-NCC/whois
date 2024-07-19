@@ -62,7 +62,7 @@ public class JWSKeyPairService {
 
             // Creates the JWS object with payload
             JWSObject jwsObject = new JWSObject(
-                    new JWSHeader.Builder(JWSAlgorithm.ES256)  //.base64URLEncodePayload(true)
+                    new JWSHeader.Builder(JWSAlgorithm.ES256)
                             .build(),
                     new Payload(payload));
 
