@@ -4,7 +4,6 @@ import io.netty.handler.ssl.util.TrustManagerFactoryWrapper;
 import jakarta.servlet.DispatcherType;
 import net.ripe.db.whois.api.httpserver.dos.LookupDoSFilterHolder;
 import net.ripe.db.whois.api.httpserver.dos.UpdateDoSFilterHolder;
-import net.ripe.db.whois.api.httpserver.dos.WhoisDoSFilter;
 import net.ripe.db.whois.common.ApplicationService;
 import net.ripe.db.whois.common.aspects.RetryFor;
 import org.eclipse.jetty.alpn.server.ALPNServerConnectionFactory;
@@ -259,7 +258,7 @@ public class JettyBootstrap implements ApplicationService {
 
     /**
      * Use the DoSFilter from Jetty for rate limiting: https://www.eclipse.org/jetty/documentation/current/dos-filter.html.
-     * See {@link WhoisDoSFilter} or {@link WhoisDoSFilter} for the customisations added.
+     * See {@link WhoisSingletonDoSFilter} or {@link WhoisSingletonDoSFilter} for the customisations added.
      * @throws JmxException if anything goes wrong JMX wise
      * @throws JMException if anything goes wrong JMX wise
      */

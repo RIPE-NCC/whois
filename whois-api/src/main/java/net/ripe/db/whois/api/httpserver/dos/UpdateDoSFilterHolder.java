@@ -18,10 +18,6 @@ public class UpdateDoSFilterHolder extends AbstractDoSFilterHolder {
         super(dosFilterEnabled, trustedIpRanges);
 
         this.dosUpdatesMaxSecs = dosUpdatesMaxSecs;
-        this.setFilter(generateWhoisDoSFilter());
-        this.setName(getFilerName());
-        this.setInitParameter("maxRequestMs", getMaxRequestPerms());
-        this.setInitParameter("maxRequestsPerSec", getMaxRequestPerSec());
     }
 
     @Override

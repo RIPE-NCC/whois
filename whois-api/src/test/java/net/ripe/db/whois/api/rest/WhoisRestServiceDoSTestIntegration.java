@@ -27,7 +27,6 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
-import static net.ripe.db.whois.api.httpserver.dos.LookupDoSFilterHolder.MAX_REQUEST_PER_SECOND;
 import static org.eclipse.jetty.http.HttpStatus.TOO_MANY_REQUESTS_429;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -41,6 +40,9 @@ public class WhoisRestServiceDoSTestIntegration extends AbstractIntegrationTest 
 
     @Value("${dos.filter.max.updates:10}")
     private String dosUpdatesMaxSecs;
+
+    @Value("${dos.filter.max.query:50}")
+    private String dosQueryMaxSecs;
 
     private static final RpslObject OWNER_MNT = RpslObject.parse("" +
             "mntner:      OWNER-MNT\n" +
@@ -80,7 +82,7 @@ public class WhoisRestServiceDoSTestIntegration extends AbstractIntegrationTest 
         final Invocation.Builder lookupRequest = RestTest.target(getPort(), "whois/test/mntner/OWNER-MNT?clientIp=10.20.30.40").request();
 
         // Simulate a DoS attack by sending many GET requests in a short time
-        final Map<Integer, Integer> responsesCodesCount = IntStream.range(0, Integer.parseInt(MAX_REQUEST_PER_SECOND))
+        final Map<Integer, Integer> responsesCodesCount = IntStream.range(0, Integer.parseInt(dosQueryMaxSecs))
                 .mapToObj(lookupCount -> lookupRequest.get())
                 .map(Response::getStatus)
                 .collect(Collectors.groupingBy(
@@ -91,7 +93,7 @@ public class WhoisRestServiceDoSTestIntegration extends AbstractIntegrationTest 
                         )));
 
         assertThat(responsesCodesCount.size(), is(2)); //Two different status codes
-        assert200RequestAmount(responsesCodesCount.get(HttpStatus.OK_200), Integer.parseInt(MAX_REQUEST_PER_SECOND) - 1);
+        assert200RequestAmount(responsesCodesCount.get(HttpStatus.OK_200), Integer.parseInt(dosQueryMaxSecs) - 1);
         assert429RequestAmount(responsesCodesCount.get(TOO_MANY_REQUESTS_429), 1);
 
         TimeUnit.SECONDS.sleep(SECONDS_NEEDED_TO_FREE_IP); // Free the IP after one second
@@ -114,7 +116,7 @@ public class WhoisRestServiceDoSTestIntegration extends AbstractIntegrationTest 
         final Invocation.Builder lookupRequest = RestTest.target(getPort(), "whois/test/mntner/OWNER-MNT?clientIp=10.20.30.40").request();
 
         // Simulate a DoS attack by sending many GET requests in a short time asynchronously
-        final Map<Integer, Integer> responsesCodesCount = IntStream.range(0, Integer.parseInt(MAX_REQUEST_PER_SECOND))
+        final Map<Integer, Integer> responsesCodesCount = IntStream.range(0, Integer.parseInt(dosQueryMaxSecs))
                 .parallel()
                 .mapToObj(lookupCount -> lookupRequest.get())
                 .map(Response::getStatus)
@@ -126,7 +128,7 @@ public class WhoisRestServiceDoSTestIntegration extends AbstractIntegrationTest 
                         )));
 
         assertThat(responsesCodesCount.size(), is(2)); //Two different status codes
-        assert200RequestAmount(responsesCodesCount.get(HttpStatus.OK_200), Integer.parseInt(MAX_REQUEST_PER_SECOND) - 1);
+        assert200RequestAmount(responsesCodesCount.get(HttpStatus.OK_200), Integer.parseInt(dosQueryMaxSecs) - 1);
         assert429RequestAmount(responsesCodesCount.get(TOO_MANY_REQUESTS_429), 1);
 
         TimeUnit.SECONDS.sleep(SECONDS_NEEDED_TO_FREE_IP); // Free the IP after one second
@@ -149,7 +151,7 @@ public class WhoisRestServiceDoSTestIntegration extends AbstractIntegrationTest 
         final Invocation.Builder lookupRequest = RestTest.target(getPort(), "whois/test/mntner/OWNER-MNT").request();
 
         // Simulate a DoS attack by sending many GET requests in a short time
-        final Map<Integer, Integer> responsesCodesCount = IntStream.range(0, Integer.parseInt(MAX_REQUEST_PER_SECOND))
+        final Map<Integer, Integer> responsesCodesCount = IntStream.range(0, Integer.parseInt(dosQueryMaxSecs))
                 .parallel()
                 .mapToObj(lookupCount -> lookupRequest.get())
                 .map(Response::getStatus)
@@ -161,7 +163,7 @@ public class WhoisRestServiceDoSTestIntegration extends AbstractIntegrationTest 
                         )));
 
         assertThat(responsesCodesCount.size(), is(1));
-        assert200RequestAmount(responsesCodesCount.get(HttpStatus.OK_200), Integer.parseInt(MAX_REQUEST_PER_SECOND));
+        assert200RequestAmount(responsesCodesCount.get(HttpStatus.OK_200), Integer.parseInt(dosQueryMaxSecs));
     }
 
     // Updates
