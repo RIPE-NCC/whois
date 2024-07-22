@@ -18,6 +18,9 @@ public class UpdateDoSFilterHolder extends AbstractDoSFilterHolder {
         super(dosFilterEnabled, trustedIpRanges);
 
         this.dosUpdatesMaxSecs = dosUpdatesMaxSecs;
+        this.setInitParameter("maxRequestMs", getMaxRequestPerms());
+        this.setInitParameter("maxRequestsPerSec", getMaxRequestPerSec());
+
     }
 
     @Override
@@ -30,13 +33,11 @@ public class UpdateDoSFilterHolder extends AbstractDoSFilterHolder {
         return "UpdateDoSFilter";
     }
 
-    @Override
-    protected String getMaxRequestPerms() {
+    private String getMaxRequestPerms() {
         return "" + 10 * Integer.parseInt(dosUpdatesMaxSecs) * 1_000;
     }
 
-    @Override
-    protected String getMaxRequestPerSec() {
+    private String getMaxRequestPerSec() {
         return dosUpdatesMaxSecs;
     }
 }

@@ -47,8 +47,6 @@ public abstract class AbstractDoSFilterHolder extends FilterHolder {
 
         this.setFilter(doSFilter);
         this.setName(getFilerName());
-        this.setInitParameter("maxRequestMs", getMaxRequestPerms());
-        this.setInitParameter("maxRequestsPerSec", getMaxRequestPerSec());
         this.setInitParameter("enabled", String.valueOf(dosFilterEnabled));
         this.setInitParameter("delayMs", "-1"); // reject requests over threshold
         this.setInitParameter("remotePort", "false");
@@ -61,10 +59,6 @@ public abstract class AbstractDoSFilterHolder extends FilterHolder {
     protected abstract boolean isAllowedMethod(final HttpServletRequest request);
 
     protected abstract String getFilerName();
-
-    protected abstract String getMaxRequestPerms();
-
-    protected abstract String getMaxRequestPerSec();
 
     private static void createJmxBean(DoSFilter doSFilter) {
         try {

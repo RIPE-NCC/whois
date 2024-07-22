@@ -18,7 +18,10 @@ public class LookupDoSFilterHolder extends AbstractDoSFilterHolder {
                                  @Value("${ipranges.trusted}") final String trustedIpRanges,
                                  @Value("${dos.filter.max.query:50}") final String dosQueriesMaxSecs) {
         super(dosFilterEnabled, trustedIpRanges);
+
         this.dosQueriesMaxSecs = dosQueriesMaxSecs;
+        this.setInitParameter("maxRequestMs", getMaxRequestPerms());
+        this.setInitParameter("maxRequestsPerSec", getMaxRequestPerSec());
     }
 
     @Override
@@ -31,13 +34,13 @@ public class LookupDoSFilterHolder extends AbstractDoSFilterHolder {
         return "LookupDoSFilter";
     }
 
-    @Override
-    protected String getMaxRequestPerms() {
+
+    private String getMaxRequestPerms() {
         return MAX_REQUEST_PER_MS;
     }
 
-    @Override
-    protected String getMaxRequestPerSec() {
+
+    private String getMaxRequestPerSec() {
         return dosQueriesMaxSecs;
     }
 }
