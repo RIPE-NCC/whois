@@ -11,18 +11,16 @@ import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 
-public class AbstractDoSFilterHolder extends FilterHolder {
+public abstract class AbstractDoSFilterHolder extends FilterHolder {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(AbstractDoSFilterHolder.class);
 
     AbstractDoSFilterHolder(final boolean dosFilterEnabled, final String trustedIpRanges){
         if (!dosFilterEnabled) {
             LOGGER.info("DoSFilter is *not* enabled");
-            this.setFilter(generateBasicFilter());
-            return;
         }
 
-        this.setInitParameter("enabled", "true");
+        this.setInitParameter("enabled", String.valueOf(dosFilterEnabled));
         this.setInitParameter("delayMs", "-1"); // reject requests over threshold
         this.setInitParameter("remotePort", "false");
         this.setInitParameter("trackSessions", "false");
@@ -30,10 +28,22 @@ public class AbstractDoSFilterHolder extends FilterHolder {
         this.setInitParameter("ipWhitelist", trustedIpRanges);
     }
 
-    private Filter generateBasicFilter(){
+    protected abstract boolean isAllowedMethod(final HttpServletRequest request);
+
+    protected abstract String getFilerName();
+
+    protected abstract String getMaxRequestPerms();
+
+    protected abstract String getMaxRequestPerSec();
+
+    protected WhoisDoSFilter generateWhoisDoSFilter(){
         return new WhoisDoSFilter(){
             @Override
             public void doFilter(final HttpServletRequest request, final HttpServletResponse response, final FilterChain chain) throws IOException, ServletException {
+                if (isAllowedMethod(request)){
+                    chain.doFilter(request, response);
+                    return;
+                }
                 super.doFilter(request, response, chain);
             }
         };
