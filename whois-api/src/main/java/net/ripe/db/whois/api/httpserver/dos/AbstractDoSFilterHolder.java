@@ -13,6 +13,9 @@ public abstract class AbstractDoSFilterHolder extends FilterHolder {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(AbstractDoSFilterHolder.class);
 
+    // 10 minutes until we consider the request is a violation and drop it
+    private static final String MAX_REQUEST_PER_MS = "" + 10 * 60 * 1_000;
+
     AbstractDoSFilterHolder(final boolean dosFilterEnabled, final String trustedIpRanges) {
         if (!dosFilterEnabled) {
             LOGGER.info("DoSFilter is *not* enabled");
@@ -26,8 +29,8 @@ public abstract class AbstractDoSFilterHolder extends FilterHolder {
         this.setInitParameter("trackSessions", "false");
         this.setInitParameter("insertHeaders", "false");
         this.setInitParameter("ipWhitelist", trustedIpRanges);
+        this.setInitParameter("maxRequestMs", getMaxRequestPerms());
     }
-
 
     protected abstract boolean isAllowedMethod(final HttpServletRequest request);
 
@@ -44,5 +47,9 @@ public abstract class AbstractDoSFilterHolder extends FilterHolder {
                 chain.doFilter(request, response);
             }
         };
+    }
+
+    protected String getMaxRequestPerms() {
+        return MAX_REQUEST_PER_MS;
     }
 }

@@ -4,8 +4,6 @@ import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
-
-import static jakarta.ws.rs.HttpMethod.GET;
 import static jakarta.ws.rs.HttpMethod.POST;
 import static jakarta.ws.rs.HttpMethod.PUT;
 
@@ -20,9 +18,7 @@ public class UpdateDoSFilterHolder extends AbstractDoSFilterHolder {
         super(dosFilterEnabled, trustedIpRanges);
 
         this.dosUpdatesMaxSecs = dosUpdatesMaxSecs;
-        this.setInitParameter("maxRequestMs", getMaxRequestPerms());
         this.setInitParameter("maxRequestsPerSec", getMaxRequestPerSec());
-
     }
 
     @Override
@@ -33,10 +29,6 @@ public class UpdateDoSFilterHolder extends AbstractDoSFilterHolder {
     @Override
     protected String getFilerName() {
         return "UpdateDoSFilter";
-    }
-
-    private String getMaxRequestPerms() {
-        return "" + 10 * Integer.parseInt(dosUpdatesMaxSecs) * 1_000;
     }
 
     private String getMaxRequestPerSec() {

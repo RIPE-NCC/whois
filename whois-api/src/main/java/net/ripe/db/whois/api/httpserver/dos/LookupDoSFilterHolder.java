@@ -20,7 +20,6 @@ public class LookupDoSFilterHolder extends AbstractDoSFilterHolder {
         super(dosFilterEnabled, trustedIpRanges);
 
         this.dosQueriesMaxSecs = dosQueriesMaxSecs;
-        this.setInitParameter("maxRequestMs", getMaxRequestPerms());
         this.setInitParameter("maxRequestsPerSec", getMaxRequestPerSec());
     }
 
@@ -33,12 +32,6 @@ public class LookupDoSFilterHolder extends AbstractDoSFilterHolder {
     protected String getFilerName() {
         return "LookupDoSFilter";
     }
-
-
-    private String getMaxRequestPerms() {
-        return MAX_REQUEST_PER_MS;
-    }
-
 
     private String getMaxRequestPerSec() {
         return dosQueriesMaxSecs;
