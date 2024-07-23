@@ -258,7 +258,7 @@ public class JettyBootstrap implements ApplicationService {
 
     /**
      * Use the DoSFilter from Jetty for rate limiting: https://www.eclipse.org/jetty/documentation/current/dos-filter.html.
-     * See {@link WhoisSingletonDoSFilter} or {@link WhoisSingletonDoSFilter} for the customisations added.
+     * See {@link UpdateDoSFilterHolder} or {@link LookupDoSFilterHolder} for the customisations added.
      * @throws JmxException if anything goes wrong JMX wise
      * @throws JMException if anything goes wrong JMX wise
      */
