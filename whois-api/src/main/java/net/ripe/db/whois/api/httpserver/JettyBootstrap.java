@@ -253,6 +253,7 @@ public class JettyBootstrap implements ApplicationService {
     /**
      * Use the DoSFilter from Jetty for rate limiting: https://www.eclipse.org/jetty/documentation/current/dos-filter.html.
      * See {@link WhoisDoSFilter} for the customisations added.
+     * @return the rate limiting filter
      */
     private FilterHolder createDosFilter(final String filterName, final String maxRequestsPerSec) {
         final WhoisDoSFilter dosFilter = new WhoisDoSFilter(filterName);
