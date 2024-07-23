@@ -12,7 +12,7 @@ public class WhoisDoSFilterTest {
 
     @Test
     public void testWhitelist() {
-        subject = new WhoisDoSFilter();
+        subject = new WhoisDoSFilter("");
         subject.setWhitelist("127.0.0.1,::1,193.0.0.0 - 193.0.23.255,2001:67c:2e8::/48,10.0.0.0 - 10.255.255.255");
 
         assertThat(subject.checkWhitelist("193.0.20.230"), is(true));
