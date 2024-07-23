@@ -2,8 +2,6 @@ package net.ripe.db.whois.api.httpserver;
 
 import io.netty.handler.ssl.util.TrustManagerFactoryWrapper;
 import jakarta.servlet.DispatcherType;
-import net.ripe.db.whois.api.httpserver.dos.LookupDoSFilterHolder;
-import net.ripe.db.whois.api.httpserver.dos.UpdateDoSFilterHolder;
 import net.ripe.db.whois.common.ApplicationService;
 import net.ripe.db.whois.common.aspects.RetryFor;
 import org.eclipse.jetty.alpn.server.ALPNServerConnectionFactory;
@@ -106,8 +104,9 @@ public class JettyBootstrap implements ApplicationService {
 
     private final boolean xForwardedForHttp;
 
-    private final LookupDoSFilterHolder lookUpDoSFilterHolder;
-    private final UpdateDoSFilterHolder updateDoSFilterHolder;
+    private final boolean dosFilterEnabled;
+    private final String dosUpdatesMaxSecs;
+    private final String dosQueryMaxSecs;
 
     @Autowired
     public JettyBootstrap(final RemoteAddressFilter remoteAddressFilter,
@@ -115,8 +114,6 @@ public class JettyBootstrap implements ApplicationService {
                           final List<ServletDeployer> servletDeployers,
                           final RewriteEngine rewriteEngine,
                           final WhoisKeystore whoisKeystore,
-                          final LookupDoSFilterHolder lookUpDoSFilterHolder,
-                          final UpdateDoSFilterHolder updateDoSFilterHolder,
                           @Value("${ipranges.trusted}") final String trustedIpRanges,
                           @Value("${http.idle.timeout.sec:60}") final int idleTimeout,
                           @Value("${http.sni.host.check:true}") final boolean sniHostCheck,
@@ -125,7 +122,10 @@ public class JettyBootstrap implements ApplicationService {
                           @Value("${port.api.secure:-1}") final int securePort,
                           @Value("${port.client.auth:-1}") final int clientAuthPort,
                           @Value("${http.x_forwarded_for:true}") final boolean xForwardedForHttp,
-                          @Value("${https.x_forwarded_for:true}") final boolean xForwardedForHttps
+                          @Value("${https.x_forwarded_for:true}") final boolean xForwardedForHttps,
+                          @Value("${dos.filter.enabled:false}") final boolean dosFilterEnabled,
+                          @Value("${dos.filter.max.updates:10}") final String dosUpdatesMaxSecs,
+                          @Value("${dos.filter.max.query:50}") final String dosQueriesMaxSecs
                         )  {
         this.remoteAddressFilter = remoteAddressFilter;
         this.extensionOverridesAcceptHeaderFilter = extensionOverridesAcceptHeaderFilter;
@@ -143,8 +143,9 @@ public class JettyBootstrap implements ApplicationService {
         this.clientAuthPort = clientAuthPort;
         this.xForwardedForHttp = xForwardedForHttp;
         this.xForwardedForHttps = xForwardedForHttps;
-        this.lookUpDoSFilterHolder = lookUpDoSFilterHolder;
-        this.updateDoSFilterHolder = updateDoSFilterHolder;
+        this.dosFilterEnabled = dosFilterEnabled;
+        this.dosUpdatesMaxSecs = dosUpdatesMaxSecs;
+        this.dosQueryMaxSecs = dosQueriesMaxSecs;
     }
 
     @Override
@@ -198,7 +199,8 @@ public class JettyBootstrap implements ApplicationService {
         context.addFilter(new FilterHolder(extensionOverridesAcceptHeaderFilter), "/*", EnumSet.allOf(DispatcherType.class));
         context.addFilter(PushCacheFilter.class, "/*", EnumSet.of(DispatcherType.REQUEST));
 
-        createDosFilter(context);
+        context.addFilter(createDosFilter("lookupFilter", dosQueryMaxSecs), "/*", EnumSet.allOf(DispatcherType.class));
+        context.addFilter(createDosFilter("updateFilter", dosUpdatesMaxSecs), "/*", EnumSet.allOf(DispatcherType.class));
 
         final HandlerList handlers = new HandlerList();
         handlers.setHandlers(new Handler[] { context });
@@ -248,15 +250,29 @@ public class JettyBootstrap implements ApplicationService {
         return connector;
     }
 
-
-
     /**
      * Use the DoSFilter from Jetty for rate limiting: https://www.eclipse.org/jetty/documentation/current/dos-filter.html.
-     * See {@link UpdateDoSFilterHolder} or {@link LookupDoSFilterHolder} for the customisations added.
+     * See {@link WhoisDoSFilter} for the customisations added.
      */
-    private void createDosFilter(final WebAppContext context) {
-        context.addFilter(lookUpDoSFilterHolder, "/*", EnumSet.allOf(DispatcherType.class));
-        context.addFilter(updateDoSFilterHolder, "/*", EnumSet.allOf(DispatcherType.class));
+    private FilterHolder createDosFilter(final String filterName, final String maxRequestsPerSec) {
+        final WhoisDoSFilter dosFilter = new WhoisDoSFilter(filterName);
+        FilterHolder holder = new FilterHolder(dosFilter);
+        holder.setName(filterName);
+
+        if (!dosFilterEnabled) {
+            LOGGER.info("DoSFilter is *not* enabled");
+        }
+        holder.setInitParameter("enabled", Boolean.toString(dosFilterEnabled));
+        holder.setInitParameter("maxRequestsPerSec", maxRequestsPerSec);
+        holder.setInitParameter("maxRequestMs", "" + 10 * 60 * 1_000); // 10 minutes until we consider the request is a violation and drop it
+        holder.setInitParameter("delayMs", "-1"); // reject requests over threshold
+        holder.setInitParameter("remotePort", "false");
+        holder.setInitParameter("trackSessions", "false");
+        holder.setInitParameter("insertHeaders", "false");
+        holder.setInitParameter("ipWhitelist", trustedIpRanges);
+
+
+        return holder;
     }
 
     private Connector createSecureConnector(final Server server, final int port, final boolean isClientCertificate) {

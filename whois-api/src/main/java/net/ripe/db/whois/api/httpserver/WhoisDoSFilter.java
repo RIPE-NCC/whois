@@ -1,6 +1,10 @@
-package net.ripe.db.whois.api.httpserver.dos;
+package net.ripe.db.whois.api.httpserver;
 
 import com.google.common.base.Joiner;
+import jakarta.servlet.FilterChain;
+import jakarta.servlet.ServletException;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import net.ripe.db.whois.common.ip.Ipv4Resource;
 import net.ripe.db.whois.common.ip.Ipv6Resource;
 import org.eclipse.jetty.servlets.DoSFilter;
@@ -10,6 +14,7 @@ import org.eclipse.jetty.util.annotation.ManagedOperation;
 import org.eclipse.jetty.util.annotation.Name;
 import org.slf4j.Logger;
 
+import java.io.IOException;
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
 
@@ -27,6 +32,21 @@ public class WhoisDoSFilter extends DoSFilter {
 
     private final List<Ipv4Resource> ipv4whitelist = new CopyOnWriteArrayList<>();
     private final List<Ipv6Resource> ipv6whitelist = new CopyOnWriteArrayList<>();
+
+    private final String filterName;
+
+    public WhoisDoSFilter(final String filterName){
+        this.filterName = filterName;
+    }
+
+    @Override
+    public void doFilter(final HttpServletRequest request, final HttpServletResponse response, final FilterChain chain) throws IOException, ServletException {
+        if (canProceed(request)){
+            super.doFilter(request, response, chain);
+            return;
+        }
+        chain.doFilter(request, response);
+    }
 
     @Override
     protected boolean checkWhitelist(final String candidate) {
@@ -131,5 +151,21 @@ public class WhoisDoSFilter extends DoSFilter {
 
     private void logWhiteList() {
         LOGGER.info("DoSFilter IP whitelist: {}", getWhitelist());
+    }
+
+    private boolean canProceed(final HttpServletRequest request) {
+        if (request == null) {
+            return  false;
+        }
+
+        if (filterName.equalsIgnoreCase("lookupFilter")) {
+            return request.getMethod().equalsIgnoreCase("GET");
+        }
+
+        if (filterName.equalsIgnoreCase("updateFilter")) {
+            return !request.getMethod().equalsIgnoreCase("GET");
+        }
+
+        return false;
     }
 }
