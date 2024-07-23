@@ -10,15 +10,11 @@ import static jakarta.ws.rs.HttpMethod.PUT;
 @Component
 public class UpdateDoSFilterHolder extends AbstractDoSFilterHolder {
 
-    private final String dosUpdatesMaxSecs;
 
     public UpdateDoSFilterHolder(@Value("${dos.filter.enabled:false}") final boolean dosFilterEnabled,
                                  @Value("${ipranges.trusted}") final String trustedIpRanges,
                                  @Value("${dos.filter.max.updates:10}") final String dosUpdatesMaxSecs) {
-        super(dosFilterEnabled, trustedIpRanges);
-
-        this.dosUpdatesMaxSecs = dosUpdatesMaxSecs;
-        this.setInitParameter("maxRequestsPerSec", getMaxRequestPerSec());
+        super(dosFilterEnabled, trustedIpRanges, dosUpdatesMaxSecs);
     }
 
     @Override
@@ -29,9 +25,5 @@ public class UpdateDoSFilterHolder extends AbstractDoSFilterHolder {
     @Override
     protected String getFilerName() {
         return "UpdateDoSFilter";
-    }
-
-    private String getMaxRequestPerSec() {
-        return dosUpdatesMaxSecs;
     }
 }
