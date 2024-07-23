@@ -34,11 +34,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.jmx.JmxException;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
-import javax.management.JMException;
 import javax.net.ssl.TrustManager;
 import javax.net.ssl.TrustManagerFactory;
 import java.security.KeyStore;
@@ -200,11 +198,7 @@ public class JettyBootstrap implements ApplicationService {
         context.addFilter(new FilterHolder(extensionOverridesAcceptHeaderFilter), "/*", EnumSet.allOf(DispatcherType.class));
         context.addFilter(PushCacheFilter.class, "/*", EnumSet.of(DispatcherType.REQUEST));
 
-        try {
-            createDosFilter(context);
-        } catch (JmxException | JMException e) {
-            throw new IllegalStateException("Error creating DOS Filter", e);
-        }
+        createDosFilter(context);
 
         final HandlerList handlers = new HandlerList();
         handlers.setHandlers(new Handler[] { context });
@@ -259,10 +253,8 @@ public class JettyBootstrap implements ApplicationService {
     /**
      * Use the DoSFilter from Jetty for rate limiting: https://www.eclipse.org/jetty/documentation/current/dos-filter.html.
      * See {@link UpdateDoSFilterHolder} or {@link LookupDoSFilterHolder} for the customisations added.
-     * @throws JmxException if anything goes wrong JMX wise
-     * @throws JMException if anything goes wrong JMX wise
      */
-    private void createDosFilter(final WebAppContext context) throws JmxException, JMException {
+    private void createDosFilter(final WebAppContext context) {
         context.addFilter(lookUpDoSFilterHolder, "/*", EnumSet.allOf(DispatcherType.class));
         context.addFilter(updateDoSFilterHolder, "/*", EnumSet.allOf(DispatcherType.class));
     }
