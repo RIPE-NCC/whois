@@ -23,7 +23,7 @@ public abstract class AbstractDoSFilterHolder extends FilterHolder {
 
         this.setFilter(generateWhoisDoSFilter());
         this.setName(getFilerName());
-        this.setInitParameter("enabled", String.valueOf(dosFilterEnabled));
+        this.setInitParameter("enabled", Boolean.toString(dosFilterEnabled));
         this.setInitParameter("delayMs", "-1"); // reject requests over threshold
         this.setInitParameter("remotePort", "false");
         this.setInitParameter("trackSessions", "false");
