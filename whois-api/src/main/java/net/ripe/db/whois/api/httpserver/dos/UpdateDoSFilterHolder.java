@@ -6,6 +6,8 @@ import org.springframework.stereotype.Component;
 
 
 import static jakarta.ws.rs.HttpMethod.GET;
+import static jakarta.ws.rs.HttpMethod.POST;
+import static jakarta.ws.rs.HttpMethod.PUT;
 
 @Component
 public class UpdateDoSFilterHolder extends AbstractDoSFilterHolder {
@@ -25,7 +27,7 @@ public class UpdateDoSFilterHolder extends AbstractDoSFilterHolder {
 
     @Override
     protected boolean isAllowedMethod(final HttpServletRequest request) {
-        return request == null || GET.equalsIgnoreCase(request.getMethod());
+        return request != null && (POST.equalsIgnoreCase(request.getMethod()) || PUT.equalsIgnoreCase(request.getMethod()));
     }
 
     @Override

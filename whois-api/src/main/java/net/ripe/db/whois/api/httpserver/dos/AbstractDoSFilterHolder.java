@@ -38,10 +38,10 @@ public abstract class AbstractDoSFilterHolder extends FilterHolder {
             @Override
             public void doFilter(final HttpServletRequest request, final HttpServletResponse response, final FilterChain chain) throws IOException, ServletException {
                 if (isAllowedMethod(request)){
-                    chain.doFilter(request, response);
+                    super.doFilter(request, response, chain);
                     return;
                 }
-                super.doFilter(request, response, chain);
+                chain.doFilter(request, response);
             }
         };
     }

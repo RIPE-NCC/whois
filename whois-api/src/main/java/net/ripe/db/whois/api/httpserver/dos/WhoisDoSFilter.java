@@ -123,12 +123,10 @@ public class WhoisDoSFilter extends DoSFilter {
      */
     @Override
     public boolean removeWhitelistAddress(@Name("address") final String address) {
+        final boolean isRemoved = address.contains(".") ? ipv4whitelist.remove(Ipv4Resource.parse(address)) :
+                ipv6whitelist.remove(Ipv6Resource.parse(address));
         logWhiteList();
-        if (address.contains(".")) {
-            return ipv4whitelist.remove(Ipv4Resource.parse(address));
-        } else {
-            return ipv6whitelist.remove(Ipv6Resource.parse(address));
-        }
+        return isRemoved;
     }
 
     private void logWhiteList() {

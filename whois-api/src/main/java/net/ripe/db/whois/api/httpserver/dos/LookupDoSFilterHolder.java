@@ -26,7 +26,7 @@ public class LookupDoSFilterHolder extends AbstractDoSFilterHolder {
 
     @Override
     protected boolean isAllowedMethod(HttpServletRequest request) {
-        return request == null || !GET.equalsIgnoreCase(request.getMethod());
+        return request != null && GET.equalsIgnoreCase(request.getMethod());
     }
 
     @Override
