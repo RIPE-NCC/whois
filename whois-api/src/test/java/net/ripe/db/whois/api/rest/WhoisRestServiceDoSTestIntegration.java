@@ -91,8 +91,8 @@ public class WhoisRestServiceDoSTestIntegration extends AbstractIntegrationTest 
                         )));
 
         assertThat(responsesCodesCount.size(), is(2)); //Two different status codes
-        assert200RequestAmount(responsesCodesCount.get(HttpStatus.OK_200), Integer.parseInt(dosQueryMaxSecs) - 1);
-        assert429RequestAmount(responsesCodesCount.get(TOO_MANY_REQUESTS_429), 1);
+        assertThat(responsesCodesCount.get(HttpStatus.OK_200), is (Integer.parseInt(dosQueryMaxSecs) - 1));
+        assertThat(responsesCodesCount.get(TOO_MANY_REQUESTS_429), is (1));
 
         TimeUnit.SECONDS.sleep(SECONDS_NEEDED_TO_FREE_IP); // Free the IP after one second
 
@@ -126,8 +126,8 @@ public class WhoisRestServiceDoSTestIntegration extends AbstractIntegrationTest 
                         )));
 
         assertThat(responsesCodesCount.size(), is(2)); //Two different status codes
-        assert200RequestAmount(responsesCodesCount.get(HttpStatus.OK_200), Integer.parseInt(dosQueryMaxSecs) - 1);
-        assert429RequestAmount(responsesCodesCount.get(TOO_MANY_REQUESTS_429), 1);
+        assertThat(responsesCodesCount.get(HttpStatus.OK_200), is(Integer.parseInt(dosQueryMaxSecs) - 1));
+        assertThat(responsesCodesCount.get(TOO_MANY_REQUESTS_429), is (1));
 
         TimeUnit.SECONDS.sleep(SECONDS_NEEDED_TO_FREE_IP); // Free the IP after one second
 
@@ -161,7 +161,7 @@ public class WhoisRestServiceDoSTestIntegration extends AbstractIntegrationTest 
                         )));
 
         assertThat(responsesCodesCount.size(), is(1));
-        assert200RequestAmount(responsesCodesCount.get(HttpStatus.OK_200), Integer.parseInt(dosQueryMaxSecs));
+        assertThat(responsesCodesCount.get(HttpStatus.OK_200), is (Integer.parseInt(dosQueryMaxSecs)));
     }
 
     // Updates
@@ -196,8 +196,8 @@ public class WhoisRestServiceDoSTestIntegration extends AbstractIntegrationTest 
                         )));
 
         assertThat(responsesCodesCount.size(), is(2));
-        assert200RequestAmount(responsesCodesCount.get(HttpStatus.OK_200), Integer.parseInt(dosUpdatesMaxSecs) - 1);
-        assert429RequestAmount(responsesCodesCount.get(TOO_MANY_REQUESTS_429), 1);
+        assertThat(responsesCodesCount.get(HttpStatus.OK_200), is (Integer.parseInt(dosUpdatesMaxSecs) - 1));
+        assertThat(responsesCodesCount.get(TOO_MANY_REQUESTS_429), is (1));
 
         TimeUnit.SECONDS.sleep(SECONDS_NEEDED_TO_FREE_IP); // Free the IP after one second
 
@@ -238,8 +238,8 @@ public class WhoisRestServiceDoSTestIntegration extends AbstractIntegrationTest 
                         )));
 
         assertThat(responsesCodesCount.size(), is(2));
-        assert200RequestAmount(responsesCodesCount.get(HttpStatus.OK_200), Integer.parseInt(dosUpdatesMaxSecs) - 1);
-        assert429RequestAmount(responsesCodesCount.get(TOO_MANY_REQUESTS_429), 1);
+        assertThat(responsesCodesCount.get(HttpStatus.OK_200), is (Integer.parseInt(dosUpdatesMaxSecs) - 1));
+        assertThat(responsesCodesCount.get(TOO_MANY_REQUESTS_429), is (1));
 
         TimeUnit.SECONDS.sleep(SECONDS_NEEDED_TO_FREE_IP); // Free the IP after one second
 
@@ -282,20 +282,12 @@ public class WhoisRestServiceDoSTestIntegration extends AbstractIntegrationTest 
                         )));
 
         assertThat(responsesCodesCount.size(), is(1));
-        assert200RequestAmount(responsesCodesCount.get(HttpStatus.OK_200), Integer.parseInt(dosUpdatesMaxSecs));
+        assertThat(responsesCodesCount.get(HttpStatus.OK_200), is(Integer.parseInt(dosUpdatesMaxSecs)));
     }
 
 
     //Helper methods
     private WhoisResources map(final RpslObject ... rpslObjects) {
         return whoisObjectMapper.mapRpslObjects(FormattedClientAttributeMapper.class, rpslObjects);
-    }
-
-    private void assert200RequestAmount(final int expectedAmount, final int finalAmount){
-        assertThat(expectedAmount, is(finalAmount));
-    }
-
-    private void assert429RequestAmount(final int expectedAmount, final int finalAmount){
-        assertThat(expectedAmount, is(finalAmount));
     }
 }
