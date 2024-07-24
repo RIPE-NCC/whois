@@ -10,6 +10,7 @@ import org.eclipse.jetty.http.UriCompliance;
 import org.eclipse.jetty.http2.HTTP2Cipher;
 import org.eclipse.jetty.http2.server.HTTP2CServerConnectionFactory;
 import org.eclipse.jetty.http2.server.HTTP2ServerConnectionFactory;
+import org.eclipse.jetty.jmx.ObjectMBean;
 import org.eclipse.jetty.rewrite.handler.RewriteHandler;
 import org.eclipse.jetty.server.ConnectionFactory;
 import org.eclipse.jetty.server.Connector;
@@ -32,11 +33,19 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.jmx.JmxException;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
+import javax.management.InstanceAlreadyExistsException;
+import javax.management.JMException;
+import javax.management.MBeanRegistrationException;
+import javax.management.MalformedObjectNameException;
+import javax.management.NotCompliantMBeanException;
+import javax.management.ObjectName;
 import javax.net.ssl.TrustManager;
 import javax.net.ssl.TrustManagerFactory;
+import java.lang.management.ManagementFactory;
 import java.security.KeyStore;
 import java.security.cert.CRL;
 import java.time.ZoneOffset;
@@ -108,6 +117,12 @@ public class JettyBootstrap implements ApplicationService {
     private final String dosUpdatesMaxSecs;
     private final String dosQueryMaxSecs;
 
+    private final ObjectName dosFilterMBeanName;
+
+    private final String untrustedIpRanges;
+
+    public static final String BLACK_LIST_JMX_NAME = "net.ripe.db.whois:name=BlackListFilter";
+
     @Autowired
     public JettyBootstrap(final RemoteAddressFilter remoteAddressFilter,
                           final ExtensionOverridesAcceptHeaderFilter extensionOverridesAcceptHeaderFilter,
@@ -125,8 +140,9 @@ public class JettyBootstrap implements ApplicationService {
                           @Value("${https.x_forwarded_for:true}") final boolean xForwardedForHttps,
                           @Value("${dos.filter.enabled:false}") final boolean dosFilterEnabled,
                           @Value("${dos.filter.max.updates:10}") final String dosUpdatesMaxSecs,
-                          @Value("${dos.filter.max.query:50}") final String dosQueriesMaxSecs
-                        )  {
+                          @Value("${dos.filter.max.query:50}") final String dosQueriesMaxSecs,
+                          @Value("${ipranges.untrusted}") final String untrustedIpRanges
+                        ) throws MalformedObjectNameException {
         this.remoteAddressFilter = remoteAddressFilter;
         this.extensionOverridesAcceptHeaderFilter = extensionOverridesAcceptHeaderFilter;
         this.servletDeployers = servletDeployers;
@@ -146,6 +162,8 @@ public class JettyBootstrap implements ApplicationService {
         this.dosFilterEnabled = dosFilterEnabled;
         this.dosUpdatesMaxSecs = dosUpdatesMaxSecs;
         this.dosQueryMaxSecs = dosQueriesMaxSecs;
+        this.untrustedIpRanges = untrustedIpRanges;
+        this.dosFilterMBeanName = ObjectName.getInstance(BLACK_LIST_JMX_NAME);
     }
 
     @Override
@@ -199,6 +217,12 @@ public class JettyBootstrap implements ApplicationService {
         context.addFilter(new FilterHolder(extensionOverridesAcceptHeaderFilter), "/*", EnumSet.allOf(DispatcherType.class));
         context.addFilter(PushCacheFilter.class, "/*", EnumSet.of(DispatcherType.REQUEST));
 
+        try {
+            context.addFilter(createBlackListJmxFilter(), "/*", EnumSet.allOf(DispatcherType.class));
+        } catch (JmxException | JMException e) {
+            throw new IllegalStateException("Error creating DOS Filter", e);
+        }
+
         context.addFilter(createDosFilter("lookupFilter", dosQueryMaxSecs), "/*", EnumSet.allOf(DispatcherType.class));
         context.addFilter(createDosFilter("updateFilter", dosUpdatesMaxSecs), "/*", EnumSet.allOf(DispatcherType.class));
 
@@ -250,6 +274,15 @@ public class JettyBootstrap implements ApplicationService {
         return connector;
     }
 
+    private FilterHolder createBlackListJmxFilter() throws JmxException, JMException {
+        final WhoisBlackListFilter whoisBlackListFilter = new WhoisBlackListFilter(untrustedIpRanges);
+
+        if (!ManagementFactory.getPlatformMBeanServer().isRegistered(dosFilterMBeanName)) {
+            ManagementFactory.getPlatformMBeanServer().registerMBean(new ObjectMBean(whoisBlackListFilter), dosFilterMBeanName);
+        }
+
+        return new FilterHolder(whoisBlackListFilter);
+    }
     /**
      * Use the DoSFilter from Jetty for rate limiting: https://www.eclipse.org/jetty/documentation/current/dos-filter.html.
      * See {@link WhoisDoSFilter} for the customisations added.
@@ -271,7 +304,6 @@ public class JettyBootstrap implements ApplicationService {
         holder.setInitParameter("trackSessions", "false");
         holder.setInitParameter("insertHeaders", "false");
         holder.setInitParameter("ipWhitelist", trustedIpRanges);
-
 
         return holder;
     }
@@ -381,6 +413,9 @@ public class JettyBootstrap implements ApplicationService {
         LOGGER.info("Shutdown Jetty");
         new Thread(() -> {
             try {
+                if (ManagementFactory.getPlatformMBeanServer().isRegistered(dosFilterMBeanName)) {
+                    ManagementFactory.getPlatformMBeanServer().unregisterMBean(dosFilterMBeanName);
+                }
                 server.stop();
             } catch (Exception e) {
                 LOGGER.error("Stopping server", e);

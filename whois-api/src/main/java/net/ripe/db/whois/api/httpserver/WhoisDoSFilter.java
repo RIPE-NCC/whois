@@ -9,8 +9,6 @@ import net.ripe.db.whois.common.ip.Ipv4Resource;
 import net.ripe.db.whois.common.ip.Ipv6Resource;
 import org.eclipse.jetty.servlets.DoSFilter;
 import org.eclipse.jetty.util.StringUtil;
-import org.eclipse.jetty.util.annotation.ManagedAttribute;
-import org.eclipse.jetty.util.annotation.ManagedOperation;
 import org.eclipse.jetty.util.annotation.Name;
 import org.slf4j.Logger;
 
@@ -81,7 +79,6 @@ public class WhoisDoSFilter extends DoSFilter {
      * @return comma-separated whitelist
      */
     @Override
-    @ManagedAttribute("list of IPs that will not be rate limited")
     public String getWhitelist() {
         StringBuilder result = new StringBuilder();
 
@@ -110,7 +107,6 @@ public class WhoisDoSFilter extends DoSFilter {
      * Clears the list of whitelisted IP addresses
      */
     @Override
-    @ManagedOperation("clears the list of IP addresses that will not be rate limited")
     public void clearWhitelist() {
         ipv4whitelist.clear();
         ipv6whitelist.clear();
