@@ -199,8 +199,12 @@ public class JettyBootstrap implements ApplicationService {
         context.addFilter(new FilterHolder(extensionOverridesAcceptHeaderFilter), "/*", EnumSet.allOf(DispatcherType.class));
         context.addFilter(PushCacheFilter.class, "/*", EnumSet.of(DispatcherType.REQUEST));
 
-        context.addFilter(createDosFilter("lookupFilter", dosQueryMaxSecs), "/*", EnumSet.allOf(DispatcherType.class));
-        context.addFilter(createDosFilter("updateFilter", dosUpdatesMaxSecs), "/*", EnumSet.allOf(DispatcherType.class));
+        if (!dosFilterEnabled) {
+            LOGGER.info("DoSFilter is *not* enabled");
+        } else {
+            context.addFilter(createDosFilter(new WhoisQueryDoSFilter(), dosQueryMaxSecs), "/*", EnumSet.allOf(DispatcherType.class));
+            context.addFilter(createDosFilter(new WhoisUpdateDoSFilter(), dosUpdatesMaxSecs), "/*", EnumSet.allOf(DispatcherType.class));
+        }
 
         final HandlerList handlers = new HandlerList();
         handlers.setHandlers(new Handler[] { context });
@@ -255,14 +259,9 @@ public class JettyBootstrap implements ApplicationService {
      * See {@link WhoisDoSFilter} for the customisations added.
      * @return the rate limiting filter
      */
-    private FilterHolder createDosFilter(final String filterName, final String maxRequestsPerSec) {
-        final WhoisDoSFilter dosFilter = new WhoisDoSFilter(filterName);
-        FilterHolder holder = new FilterHolder(dosFilter);
-        holder.setName(filterName);
-
-        if (!dosFilterEnabled) {
-            LOGGER.info("DoSFilter is *not* enabled");
-        }
+    private FilterHolder createDosFilter(final WhoisDoSFilter whoisDoSFilter, final String maxRequestsPerSec) {
+        FilterHolder holder = new FilterHolder(whoisDoSFilter);
+        holder.setName(whoisDoSFilter.getClass().getSimpleName());
         holder.setInitParameter("enabled", Boolean.toString(dosFilterEnabled));
         holder.setInitParameter("maxRequestsPerSec", maxRequestsPerSec);
         holder.setInitParameter("maxRequestMs", "" + 10 * 60 * 1_000); // 10 minutes until we consider the request is a violation and drop it
@@ -271,8 +270,6 @@ public class JettyBootstrap implements ApplicationService {
         holder.setInitParameter("trackSessions", "false");
         holder.setInitParameter("insertHeaders", "false");
         holder.setInitParameter("ipWhitelist", trustedIpRanges);
-
-
         return holder;
     }
 
@@ -305,7 +302,7 @@ public class JettyBootstrap implements ApplicationService {
             sslContextFactory.setValidateCerts(false);
             sslContextFactory.setTrustAll(true);
         }
-        
+
         // Exclude weak / insecure ciphers
         // TODO CBC became weak, we need to skip them in the future https://support.kemptechnologies.com/hc/en-us/articles/9338043775757-CBC-ciphers-marked-as-weak-by-SSL-labs
         // Check client compatability first
