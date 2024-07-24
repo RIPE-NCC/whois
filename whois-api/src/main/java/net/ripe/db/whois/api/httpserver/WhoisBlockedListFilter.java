@@ -24,19 +24,19 @@ import java.util.concurrent.CopyOnWriteArrayList;
 
 import static org.slf4j.LoggerFactory.getLogger;
 
-public class WhoisBlackListFilter implements Filter {
+public class WhoisBlockedListFilter implements Filter {
 
     private static final Logger LOGGER = getLogger(WhoisDoSFilter.class);
 
     private static final Joiner COMMA_JOINER = Joiner.on(',');
 
-    private final List<Ipv4Resource> ipv4blacklist = new CopyOnWriteArrayList<>();
+    private final List<Ipv4Resource> ipv4blockedlist = new CopyOnWriteArrayList<>();
 
-    private final List<Ipv6Resource> ipv6blacklist = new CopyOnWriteArrayList<>();
+    private final List<Ipv6Resource> ipv6blockedlist = new CopyOnWriteArrayList<>();
 
-    public WhoisBlackListFilter(final String commaSeparatedList){
+    public WhoisBlockedListFilter(final String commaSeparatedList){
         for (final String address : StringUtil.csvSplit(commaSeparatedList)) {
-            addBlackListAddress(address);
+            addBlockedListAddress(address);
         }
     }
 
@@ -48,7 +48,7 @@ public class WhoisBlackListFilter implements Filter {
         final HttpServletRequest httpRequest = (HttpServletRequest) servletRequest;
         final HttpServletResponse httpResponse = (HttpServletResponse) servletResponse;
 
-        if (isBlackIp(httpRequest.getRemoteAddr())){
+        if (isBlockedIp(httpRequest.getRemoteAddr())){
             httpResponse.setStatus(HttpStatus.TOO_MANY_REQUESTS_429);
             httpResponse.getWriter().write("You have been permanently blocked. Please contact support");
             return;
@@ -59,53 +59,60 @@ public class WhoisBlackListFilter implements Filter {
 
     @Override
     public void destroy() {
-        ipv4blacklist.clear();
-        ipv6blacklist.clear();
-        LOGGER.info("Blacklisted IPs have been removed");
+        ipv4blockedlist.clear();
+        ipv6blockedlist.clear();
+        LOGGER.info("Blocked listed IPs have been removed");
     }
 
-    @ManagedOperation("adds an IP address to black list")
-    public void addBlackListAddress(@Name("address") final String address) {
+    @ManagedOperation("adds an IP address to blocked list")
+    public void addBlockedListAddress(@Name("address") final String address) {
         if (address.contains(".")) {
-            ipv4blacklist.add(Ipv4Resource.parse(address));
+            ipv4blockedlist.add(Ipv4Resource.parse(address));
         } else {
-            ipv6blacklist.add(Ipv6Resource.parse(address));
+            ipv6blockedlist.add(Ipv6Resource.parse(address));
         }
-        LOGGER.info("Ipaddress {} added to black list", address);
+        LOGGER.info("Ipaddress {} added to blocked list", address);
     }
 
-    @ManagedOperation("Remove an IP address to black list")
-    public void removeBlacklistAddress(@Name("address") final String address) {
+    @ManagedOperation("Remove an IP address to blocked list")
+    public void removeBlockedListAddress(@Name("address") final String address) {
         if (address.contains(".")){
-            ipv4blacklist.remove(Ipv4Resource.parse(address));
+            ipv4blockedlist.remove(Ipv4Resource.parse(address));
         } else {
-            ipv6blacklist.remove(Ipv6Resource.parse(address));
+            ipv6blockedlist.remove(Ipv6Resource.parse(address));
         }
-        LOGGER.info("Ipaddress {} removed from black list", address);
+        LOGGER.info("Ipaddress {} removed from blocked list", address);
     }
 
-    @ManagedOperation("Retrieve black list")
+    @ManagedOperation("Retrieve blocked list")
     public void getWhitelist() {
         StringBuilder result = new StringBuilder();
 
-        COMMA_JOINER.appendTo(result, ipv4blacklist);
+        COMMA_JOINER.appendTo(result, ipv4blockedlist);
         result.append(',');
-        COMMA_JOINER.appendTo(result, ipv6blacklist);
+        COMMA_JOINER.appendTo(result, ipv6blockedlist);
 
-        LOGGER.info("The blacklist contains next IPs {}", result);
+        LOGGER.info("The blocked list contains next IPs {}", result);
     }
 
-    private IpInterval<?> getIntervalOfIpAddress(final String address){
-        if (address.contains(".")){
-            return Ipv4Resource.parse(address);
+    private boolean isBlockedIp(final String candidate) {
+        // TODO: Duplicated in WhoisDoSFilter, maybe put this into a utils or into a interface with a default method
+        if (candidate.contains(".")) {
+            final Ipv4Resource address = Ipv4Resource.parse(candidate);
+            for (Ipv4Resource entry : ipv4blockedlist) {
+                if (entry.contains(address)) {
+                    return true;
+                }
+            }
         } else {
-            return Ipv6Resource.parse(address);
+            final Ipv6Resource address = Ipv6Resource.parse(candidate);
+            for (Ipv6Resource entry : ipv6blockedlist) {
+                if (entry.contains(address)) {
+                    return true;
+                }
+            }
         }
-    }
 
-    private boolean isBlackIp(final String remoteIp) {
-        final IpInterval<?> addressInterval = getIntervalOfIpAddress(remoteIp);
-        return addressInterval instanceof Ipv4Resource && ipv4blacklist.contains(addressInterval) ||
-                addressInterval instanceof Ipv6Resource && ipv6blacklist.contains(addressInterval);
+        return false;
     }
 }
