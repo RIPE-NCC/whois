@@ -5,7 +5,7 @@ import net.ripe.db.whois.common.rpsl.RpslObject;
 import net.ripe.db.whois.common.rpsl.RpslObjectBuilder;
 import net.ripe.db.whois.update.domain.Update;
 import net.ripe.db.whois.update.domain.UpdateContext;
-import net.ripe.db.whois.update.keycert.KeyWrapper;
+import net.ripe.db.whois.common.x509.KeyWrapper;
 import net.ripe.db.whois.update.keycert.KeyWrapperFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;

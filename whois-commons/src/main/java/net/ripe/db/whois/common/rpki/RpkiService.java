@@ -32,8 +32,15 @@ public class RpkiService {
     }
 
     @Scheduled(cron = "0 */15 * * * *")
-    private void loadRoas() {
-        final List<Roa> loadedRoas = rpkiDataProvider.loadRoas();
+    public void loadRoas() {
+        final List<Roa> loadedRoas;
+        try {
+            loadedRoas = rpkiDataProvider.loadRoas();
+        } catch (Exception ex){
+            LOGGER.error("RPKI service returned an error, so the ROAs are not updated", ex);
+            return;
+        }
+
         if (loadedRoas != null && !loadedRoas.isEmpty()){
             final List<Roa> roas = loadedRoas.stream()
                     .filter(roa -> roa.getTrustAnchor() != TrustAnchor.UNSUPPORTED)

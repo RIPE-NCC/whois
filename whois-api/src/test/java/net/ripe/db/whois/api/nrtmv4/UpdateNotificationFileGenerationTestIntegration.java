@@ -2,8 +2,11 @@ package net.ripe.db.whois.api.nrtmv4;
 
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
+import jakarta.xml.bind.DatatypeConverter;
 import net.ripe.db.nrtm4.domain.NrtmDocumentType;
+import net.ripe.db.nrtm4.domain.NrtmKeyRecord;
 import net.ripe.db.nrtm4.domain.UpdateNotificationFile;
+import net.ripe.db.nrtm4.util.ByteArrayUtil;
 import net.ripe.db.whois.api.AbstractNrtmIntegrationTest;
 import net.ripe.db.whois.common.rpsl.RpslObject;
 import org.junit.jupiter.api.Tag;
@@ -14,6 +17,8 @@ import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.time.LocalDateTime;
+import java.time.ZoneOffset;
+import java.util.Base64;
 import java.util.UUID;
 
 import static net.ripe.db.whois.query.support.PatternMatcher.matchesPattern;
@@ -21,6 +26,7 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.not;
+import static org.hamcrest.Matchers.nullValue;
 
 @Tag("IntegrationTest")
 @DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_EACH_TEST_METHOD)
@@ -145,11 +151,12 @@ public class UpdateNotificationFileGenerationTestIntegration extends AbstractNrt
 
         assertThat(testIteration.getSource().getName(), is("TEST"));
         assertThat(testNonAuthIteration.getSource().getName(), is("TEST-NONAUTH"));
+        assertThat(testNonAuthIteration.getNextSigningKey(), is(nullValue()));
+        assertThat(testIteration.getNextSigningKey(), is(nullValue()));
 
         assertThat(testIteration.getSessionID(), is(not(testNonAuthIteration.getSessionID())));
 
     }
-
     @Test
     public void should_contain_snapshot_delta_url(){
         final RpslObject rpslObject = RpslObject.parse("" +

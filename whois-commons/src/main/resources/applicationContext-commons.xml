@@ -3,7 +3,7 @@
        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
        xmlns:tx="http://www.springframework.org/schema/tx"
        xmlns:context="http://www.springframework.org/schema/context"
-       xmlns:cache="http://www.springframework.org/schema/cache" xmlns:aop="http://www.springframework.org/schema/aop"
+       xmlns:cache="http://www.springframework.org/schema/cache"
        xsi:schemaLocation="http://www.springframework.org/schema/beans
                            http://www.springframework.org/schema/beans/spring-beans.xsd
                            http://www.springframework.org/schema/tx
@@ -11,7 +11,7 @@
                            http://www.springframework.org/schema/context
                            http://www.springframework.org/schema/context/spring-context.xsd
                            http://www.springframework.org/schema/cache
-                           http://www.springframework.org/schema/cache/spring-cache.xsd http://www.springframework.org/schema/aop https://www.springframework.org/schema/aop/spring-aop.xsd">
+                           http://www.springframework.org/schema/cache/spring-cache.xsd">
 
     <!-- TODO: this is loaded many many times on context init, which slows down startup process -->
     <!-- @Transactional CAN be used on private methods with mode="aspectj". However, annotations on interfaces will NOT work! -->
@@ -21,7 +21,7 @@
     <context:component-scan base-package="net.ripe.db.whois.common"/>
 
     <context:annotation-config/>
-    <cache:annotation-driven mode="aspectj"/>
+    <cache:annotation-driven/>
 
 <!--    <aop:aspectj-autoproxy proxy-target-class="true"/>-->
 
@@ -37,6 +37,7 @@
         <property name="preferredTestQuery" value="SELECT 1"/>
         <property name="idleConnectionTestPeriod" value="15"/>
     	<property name="connectionCustomizerClassName" value="net.ripe.db.whois.common.jdbc.WhoisConnectorCustomizer"/>
+    	<property name="connectionTesterClassName" value="com.mchange.v2.c3p0.impl.DefaultConnectionTester"/>
     </bean>
 
     <bean id="aclDataSource" parent="abstractDataSource">
