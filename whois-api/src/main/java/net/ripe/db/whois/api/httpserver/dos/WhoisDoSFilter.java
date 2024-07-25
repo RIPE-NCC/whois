@@ -1,10 +1,11 @@
-package net.ripe.db.whois.api.httpserver;
+package net.ripe.db.whois.api.httpserver.dos;
 
 import com.google.common.base.Joiner;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import net.ripe.db.whois.common.ip.IpInterval;
 import net.ripe.db.whois.common.ip.Ipv4Resource;
 import net.ripe.db.whois.common.ip.Ipv6Resource;
 import org.eclipse.jetty.servlets.DoSFilter;
@@ -18,25 +19,22 @@ import java.io.IOException;
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
 
-import static org.slf4j.LoggerFactory.getLogger;
-
 /**
  * Extends the {@link DoSFilter} from Jetty for support of IP ranges and better support for CIDR ranges using our
  * own {@link net.ripe.db.whois.common.ip.IpInterval} classes. (
  */
-public class WhoisDoSFilter extends DoSFilter {
-
-    private static final Logger LOGGER = getLogger(WhoisDoSFilter.class);
+public abstract class WhoisDoSFilter extends DoSFilter {
 
     private static final Joiner COMMA_JOINER = Joiner.on(',');
 
     private final List<Ipv4Resource> ipv4whitelist = new CopyOnWriteArrayList<>();
     private final List<Ipv6Resource> ipv6whitelist = new CopyOnWriteArrayList<>();
+    private final Logger logger;
+    private final String limit;
 
-    private final String filterName;
-
-    public WhoisDoSFilter(final String filterName){
-        this.filterName = filterName;
+    public WhoisDoSFilter(final Logger logger, final String limit) {
+        this.logger = logger;
+        this.limit = limit;
     }
 
     @Override
@@ -50,23 +48,27 @@ public class WhoisDoSFilter extends DoSFilter {
 
     @Override
     protected boolean checkWhitelist(final String candidate) {
-        if (candidate.contains(".")) {
-            final Ipv4Resource address = Ipv4Resource.parse(candidate);
-            for (Ipv4Resource entry : ipv4whitelist) {
-                if (entry.contains(address)) {
-                    return true;
+        final IpInterval<?> parsed = IpInterval.parse(candidate);
+        return switch (parsed) {
+            case Ipv4Resource ipv4Resource -> {
+                for (Ipv4Resource entry : ipv4whitelist) {
+                    if (entry.contains(ipv4Resource)) {
+                        yield true;
+                    }
                 }
+                yield false;
             }
-        } else {
-            final Ipv6Resource address = Ipv6Resource.parse(candidate);
-            for (Ipv6Resource entry : ipv6whitelist) {
-                if (entry.contains(address)) {
-                    return true;
+            case Ipv6Resource ipv6Resource -> {
+                for (Ipv6Resource entry : ipv6whitelist) {
+                    if (entry.contains(ipv6Resource)) {
+                        yield true;
+                    }
                 }
+                yield false;
             }
-        }
+            default -> false;
+        };
 
-        return false;
     }
 
     @Override
@@ -83,12 +85,10 @@ public class WhoisDoSFilter extends DoSFilter {
     @Override
     @ManagedAttribute("list of IPs that will not be rate limited")
     public String getWhitelist() {
-        StringBuilder result = new StringBuilder();
-
+        final StringBuilder result = new StringBuilder();
         COMMA_JOINER.appendTo(result, ipv4whitelist);
         result.append(',');
         COMMA_JOINER.appendTo(result, ipv6whitelist);
-
         return result.toString();
     }
 
@@ -114,7 +114,7 @@ public class WhoisDoSFilter extends DoSFilter {
     public void clearWhitelist() {
         ipv4whitelist.clear();
         ipv6whitelist.clear();
-        LOGGER.info("DoSFilter IP whitelist cleared");
+        logger.info("DoSFilter IP whitelist cleared");
     }
 
     /**
@@ -150,22 +150,12 @@ public class WhoisDoSFilter extends DoSFilter {
     }
 
     private void logWhiteList() {
-        LOGGER.info("DoSFilter IP whitelist: {}", getWhitelist());
+        logger.info("DoSFilter IP whitelist: {}", getWhitelist());
     }
 
-    private boolean canProceed(final HttpServletRequest request) {
-        if (request == null) {
-            return  false;
-        }
+    protected abstract boolean canProceed(final HttpServletRequest request);
 
-        if (filterName.equalsIgnoreCase("lookupFilter")) {
-            return request.getMethod().equalsIgnoreCase("GET");
-        }
-
-        if (filterName.equalsIgnoreCase("updateFilter")) {
-            return !request.getMethod().equalsIgnoreCase("GET");
-        }
-
-        return false;
-    }
+    public String getLimit(){
+        return limit;
+    };
 }
