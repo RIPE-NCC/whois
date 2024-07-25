@@ -14,7 +14,7 @@ public class WhoisUpdateDoSFilter extends WhoisDoSFilter {
 
     private final String maxRequestPerSec;
 
-    public WhoisUpdateDoSFilter(@Value("${dos.filter.max.query:10}") final String dosUpdatesMaxSecs) {
+    public WhoisUpdateDoSFilter(@Value("${dos.filter.max.update:10}") final String dosUpdatesMaxSecs) {
         super(LOGGER);
         this.maxRequestPerSec = dosUpdatesMaxSecs;
     }
