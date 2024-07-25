@@ -11,12 +11,9 @@ import org.springframework.stereotype.Component;
 public class WhoisUpdateDoSFilter extends WhoisDoSFilter {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(WhoisUpdateDoSFilter.class);
-
-    private final String maxRequestPerSec;
-
+    
     public WhoisUpdateDoSFilter(@Value("${dos.filter.max.update:10}") final String dosUpdatesMaxSecs) {
-        super(LOGGER);
-        this.maxRequestPerSec = dosUpdatesMaxSecs;
+        super(LOGGER, dosUpdatesMaxSecs);
     }
 
     protected final boolean canProceed(final HttpServletRequest request) {
@@ -25,9 +22,5 @@ public class WhoisUpdateDoSFilter extends WhoisDoSFilter {
         } else {
             return !request.getMethod().equalsIgnoreCase(HttpMethod.GET);
         }
-    }
-
-    public final String getLimit() {
-        return maxRequestPerSec;
     }
 }

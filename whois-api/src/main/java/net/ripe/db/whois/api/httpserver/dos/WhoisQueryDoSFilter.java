@@ -12,11 +12,8 @@ public class WhoisQueryDoSFilter extends WhoisDoSFilter {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(WhoisQueryDoSFilter.class);
 
-    private final String maxRequestPerSec;
-
     public WhoisQueryDoSFilter(@Value("${dos.filter.max.query:50}") final String dosQueriesMaxSecs) {
-        super(LOGGER);
-        this.maxRequestPerSec = dosQueriesMaxSecs;
+        super(LOGGER, dosQueriesMaxSecs);
     }
 
     protected final boolean canProceed(final HttpServletRequest request) {
@@ -25,10 +22,6 @@ public class WhoisQueryDoSFilter extends WhoisDoSFilter {
         } else {
             return request.getMethod().equalsIgnoreCase(HttpMethod.GET);
         }
-    }
-
-    public final String getLimit() {
-        return maxRequestPerSec;
     }
 
 }

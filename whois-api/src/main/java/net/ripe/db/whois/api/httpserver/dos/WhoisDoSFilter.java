@@ -30,9 +30,11 @@ public abstract class WhoisDoSFilter extends DoSFilter {
     private final List<Ipv4Resource> ipv4whitelist = new CopyOnWriteArrayList<>();
     private final List<Ipv6Resource> ipv6whitelist = new CopyOnWriteArrayList<>();
     private final Logger logger;
+    private final String limit;
 
-    public WhoisDoSFilter(final Logger logger) {
+    public WhoisDoSFilter(final Logger logger, final String limit) {
         this.logger = logger;
+        this.limit = limit;
     }
 
     @Override
@@ -153,5 +155,7 @@ public abstract class WhoisDoSFilter extends DoSFilter {
 
     protected abstract boolean canProceed(final HttpServletRequest request);
 
-    public abstract String getLimit();
+    public String getLimit(){
+        return limit;
+    };
 }
