@@ -1,4 +1,4 @@
-package net.ripe.db.whois.api.httpserver;
+package net.ripe.db.whois.api.httpserver.dos;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -13,7 +13,7 @@ public class WhoisQueryDoSFilterTest {
 
     @BeforeEach
     public void setUp() {
-        this.subject = new WhoisQueryDoSFilter();
+        this.subject = new WhoisQueryDoSFilter("50");
     }
 
     @Test

@@ -2,6 +2,9 @@ package net.ripe.db.whois.api.httpserver;
 
 import io.netty.handler.ssl.util.TrustManagerFactoryWrapper;
 import jakarta.servlet.DispatcherType;
+import net.ripe.db.whois.api.httpserver.dos.WhoisDoSFilter;
+import net.ripe.db.whois.api.httpserver.dos.WhoisQueryDoSFilter;
+import net.ripe.db.whois.api.httpserver.dos.WhoisUpdateDoSFilter;
 import net.ripe.db.whois.common.ApplicationService;
 import net.ripe.db.whois.common.aspects.RetryFor;
 import org.eclipse.jetty.alpn.server.ALPNServerConnectionFactory;
@@ -105,8 +108,10 @@ public class JettyBootstrap implements ApplicationService {
     private final boolean xForwardedForHttp;
 
     private final boolean dosFilterEnabled;
-    private final String dosUpdatesMaxSecs;
-    private final String dosQueryMaxSecs;
+
+    private final WhoisQueryDoSFilter whoisQueryDoSFilter;
+
+    private final WhoisUpdateDoSFilter whoisUpdateDoSFilter;
 
     @Autowired
     public JettyBootstrap(final RemoteAddressFilter remoteAddressFilter,
@@ -114,6 +119,8 @@ public class JettyBootstrap implements ApplicationService {
                           final List<ServletDeployer> servletDeployers,
                           final RewriteEngine rewriteEngine,
                           final WhoisKeystore whoisKeystore,
+                          final WhoisQueryDoSFilter whoisQueryDoSFilter,
+                          final WhoisUpdateDoSFilter whoisUpdateDoSFilter,
                           @Value("${ipranges.trusted}") final String trustedIpRanges,
                           @Value("${http.idle.timeout.sec:60}") final int idleTimeout,
                           @Value("${http.sni.host.check:true}") final boolean sniHostCheck,
@@ -123,9 +130,7 @@ public class JettyBootstrap implements ApplicationService {
                           @Value("${port.client.auth:-1}") final int clientAuthPort,
                           @Value("${http.x_forwarded_for:true}") final boolean xForwardedForHttp,
                           @Value("${https.x_forwarded_for:true}") final boolean xForwardedForHttps,
-                          @Value("${dos.filter.enabled:false}") final boolean dosFilterEnabled,
-                          @Value("${dos.filter.max.updates:10}") final String dosUpdatesMaxSecs,
-                          @Value("${dos.filter.max.query:50}") final String dosQueriesMaxSecs
+                          @Value("${dos.filter.enabled:false}") final boolean dosFilterEnabled
                         )  {
         this.remoteAddressFilter = remoteAddressFilter;
         this.extensionOverridesAcceptHeaderFilter = extensionOverridesAcceptHeaderFilter;
@@ -144,8 +149,8 @@ public class JettyBootstrap implements ApplicationService {
         this.xForwardedForHttp = xForwardedForHttp;
         this.xForwardedForHttps = xForwardedForHttps;
         this.dosFilterEnabled = dosFilterEnabled;
-        this.dosUpdatesMaxSecs = dosUpdatesMaxSecs;
-        this.dosQueryMaxSecs = dosQueriesMaxSecs;
+        this.whoisQueryDoSFilter = whoisQueryDoSFilter;
+        this.whoisUpdateDoSFilter = whoisUpdateDoSFilter;
     }
 
     @Override
@@ -202,8 +207,8 @@ public class JettyBootstrap implements ApplicationService {
         if (!dosFilterEnabled) {
             LOGGER.info("DoSFilter is *not* enabled");
         } else {
-            context.addFilter(createDosFilter(new WhoisQueryDoSFilter(), dosQueryMaxSecs), "/*", EnumSet.allOf(DispatcherType.class));
-            context.addFilter(createDosFilter(new WhoisUpdateDoSFilter(), dosUpdatesMaxSecs), "/*", EnumSet.allOf(DispatcherType.class));
+            context.addFilter(createDosFilter(whoisQueryDoSFilter), "/*", EnumSet.allOf(DispatcherType.class));
+            context.addFilter(createDosFilter(whoisUpdateDoSFilter), "/*", EnumSet.allOf(DispatcherType.class));
         }
 
         final HandlerList handlers = new HandlerList();
@@ -259,11 +264,11 @@ public class JettyBootstrap implements ApplicationService {
      * See {@link WhoisDoSFilter} for the customisations added.
      * @return the rate limiting filter
      */
-    private FilterHolder createDosFilter(final WhoisDoSFilter whoisDoSFilter, final String maxRequestsPerSec) {
+    private FilterHolder createDosFilter(final WhoisDoSFilter whoisDoSFilter) {
         FilterHolder holder = new FilterHolder(whoisDoSFilter);
         holder.setName(whoisDoSFilter.getClass().getSimpleName());
-        holder.setInitParameter("enabled", Boolean.toString(dosFilterEnabled));
-        holder.setInitParameter("maxRequestsPerSec", maxRequestsPerSec);
+        holder.setInitParameter("enabled", "true");
+        holder.setInitParameter("maxRequestsPerSec", whoisDoSFilter.getLimit());
         holder.setInitParameter("maxRequestMs", "" + 10 * 60 * 1_000); // 10 minutes until we consider the request is a violation and drop it
         holder.setInitParameter("delayMs", "-1"); // reject requests over threshold
         holder.setInitParameter("remotePort", "false");

@@ -1,4 +1,4 @@
-package net.ripe.db.whois.api.httpserver;
+package net.ripe.db.whois.api.httpserver.dos;
 
 import com.google.common.base.Joiner;
 import jakarta.servlet.FilterChain;
@@ -152,4 +152,6 @@ public abstract class WhoisDoSFilter extends DoSFilter {
     }
 
     protected abstract boolean canProceed(final HttpServletRequest request);
+
+    public abstract String getLimit();
 }
