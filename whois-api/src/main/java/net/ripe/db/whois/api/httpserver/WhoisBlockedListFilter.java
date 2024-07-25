@@ -19,8 +19,8 @@ import org.eclipse.jetty.util.annotation.Name;
 import org.slf4j.Logger;
 
 import java.io.IOException;
-import java.util.List;
-import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.Set;
+import java.util.concurrent.CopyOnWriteArraySet;
 
 import static org.slf4j.LoggerFactory.getLogger;
 
@@ -30,9 +30,9 @@ public class WhoisBlockedListFilter implements Filter {
 
     private static final Joiner COMMA_JOINER = Joiner.on(',');
 
-    private final List<Ipv4Resource> ipv4blockedlist = new CopyOnWriteArrayList<>();
+    private final Set<Ipv4Resource> ipv4blockedSet = new CopyOnWriteArraySet<>();
 
-    private final List<Ipv6Resource> ipv6blockedlist = new CopyOnWriteArrayList<>();
+    private final Set<Ipv6Resource> ipv6blockedSet = new CopyOnWriteArraySet<>();
 
     public WhoisBlockedListFilter(final String commaSeparatedList){
         for (final String address : StringUtil.csvSplit(commaSeparatedList)) {
@@ -59,17 +59,17 @@ public class WhoisBlockedListFilter implements Filter {
 
     @Override
     public void destroy() {
-        ipv4blockedlist.clear();
-        ipv6blockedlist.clear();
+        ipv4blockedSet.clear();
+        ipv6blockedSet.clear();
         LOGGER.info("Blocked listed IPs have been removed");
     }
 
     @ManagedOperation("adds an IP address to blocked list")
     public String addBlockedListAddress(@Name("address") final String address) {
         if (address.contains(".")) {
-            ipv4blockedlist.add(Ipv4Resource.parse(address));
+            ipv4blockedSet.add(Ipv4Resource.parse(address));
         } else {
-            ipv6blockedlist.add(Ipv6Resource.parse(address));
+            ipv6blockedSet.add(Ipv6Resource.parse(address));
         }
         LOGGER.info("Ipaddress {} added to blocked list", address);
         return String.format("Ipaddress %s added to blocked list", address);
@@ -78,9 +78,9 @@ public class WhoisBlockedListFilter implements Filter {
     @ManagedOperation("Remove an IP address to blocked list")
     public String removeBlockedListAddress(@Name("address") final String address) {
         if (address.contains(".")){
-            ipv4blockedlist.remove(Ipv4Resource.parse(address));
+            ipv4blockedSet.remove(Ipv4Resource.parse(address));
         } else {
-            ipv6blockedlist.remove(Ipv6Resource.parse(address));
+            ipv6blockedSet.remove(Ipv6Resource.parse(address));
         }
         LOGGER.info("Ipaddress {} removed from blocked list", address);
         return String.format("Ipaddress %s removed from blocked list", address);
@@ -89,10 +89,12 @@ public class WhoisBlockedListFilter implements Filter {
     @ManagedOperation("Retrieve blocked list")
     public String getWhitelist() {
         StringBuilder result = new StringBuilder();
+        COMMA_JOINER.appendTo(result, ipv4blockedSet);
 
-        COMMA_JOINER.appendTo(result, ipv4blockedlist);
-        result.append(',');
-        COMMA_JOINER.appendTo(result, ipv6blockedlist);
+        if (!ipv6blockedSet.isEmpty()){
+            result.append(',');
+            COMMA_JOINER.appendTo(result, ipv6blockedSet);
+        }
 
         LOGGER.info("The blocked list contains next IPs {}", result);
         return String.format("The blocked list contains next IPs %s", result);
@@ -103,7 +105,7 @@ public class WhoisBlockedListFilter implements Filter {
         final IpInterval<?> parsed = IpInterval.parse(candidate);
         return switch (parsed) {
             case Ipv4Resource ipv4Resource -> {
-                for (Ipv4Resource entry : ipv4blockedlist) {
+                for (Ipv4Resource entry : ipv4blockedSet) {
                     if (entry.contains(ipv4Resource)) {
                         yield true;
                     }
@@ -111,7 +113,7 @@ public class WhoisBlockedListFilter implements Filter {
                 yield false;
             }
             case Ipv6Resource ipv6Resource -> {
-                for (Ipv6Resource entry : ipv6blockedlist) {
+                for (Ipv6Resource entry : ipv6blockedSet) {
                     if (entry.contains(ipv6Resource)) {
                         yield true;
                     }
