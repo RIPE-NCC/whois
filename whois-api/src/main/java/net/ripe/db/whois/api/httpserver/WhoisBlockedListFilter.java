@@ -97,22 +97,25 @@ public class WhoisBlockedListFilter implements Filter {
 
     private boolean isBlockedIp(final String candidate) {
         // TODO: Duplicated in WhoisDoSFilter, maybe put this into a utils or into a interface with a default method
-        if (candidate.contains(".")) {
-            final Ipv4Resource address = Ipv4Resource.parse(candidate);
-            for (Ipv4Resource entry : ipv4blockedlist) {
-                if (entry.contains(address)) {
-                    return true;
+        final IpInterval<?> parsed = IpInterval.parse(candidate);
+        return switch (parsed) {
+            case Ipv4Resource ipv4Resource -> {
+                for (Ipv4Resource entry : ipv4blockedlist) {
+                    if (entry.contains(ipv4Resource)) {
+                        yield true;
+                    }
                 }
+                yield false;
             }
-        } else {
-            final Ipv6Resource address = Ipv6Resource.parse(candidate);
-            for (Ipv6Resource entry : ipv6blockedlist) {
-                if (entry.contains(address)) {
-                    return true;
+            case Ipv6Resource ipv6Resource -> {
+                for (Ipv6Resource entry : ipv6blockedlist) {
+                    if (entry.contains(ipv6Resource)) {
+                        yield true;
+                    }
                 }
+                yield false;
             }
-        }
-
-        return false;
+            default -> false;
+        };
     }
 }
