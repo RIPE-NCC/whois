@@ -26,7 +26,7 @@ import static org.slf4j.LoggerFactory.getLogger;
 
 public class WhoisBlockedListFilter implements Filter {
 
-    private static final Logger LOGGER = getLogger(WhoisDoSFilter.class);
+    private static final Logger LOGGER = getLogger(WhoisBlockedListFilter.class);
 
     private static final Joiner COMMA_JOINER = Joiner.on(',');
 
