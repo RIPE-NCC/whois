@@ -65,27 +65,29 @@ public class WhoisBlockedListFilter implements Filter {
     }
 
     @ManagedOperation("adds an IP address to blocked list")
-    public void addBlockedListAddress(@Name("address") final String address) {
+    public String addBlockedListAddress(@Name("address") final String address) {
         if (address.contains(".")) {
             ipv4blockedlist.add(Ipv4Resource.parse(address));
         } else {
             ipv6blockedlist.add(Ipv6Resource.parse(address));
         }
         LOGGER.info("Ipaddress {} added to blocked list", address);
+        return String.format("Ipaddress %s added to blocked list", address);
     }
 
     @ManagedOperation("Remove an IP address to blocked list")
-    public void removeBlockedListAddress(@Name("address") final String address) {
+    public String removeBlockedListAddress(@Name("address") final String address) {
         if (address.contains(".")){
             ipv4blockedlist.remove(Ipv4Resource.parse(address));
         } else {
             ipv6blockedlist.remove(Ipv6Resource.parse(address));
         }
         LOGGER.info("Ipaddress {} removed from blocked list", address);
+        return String.format("Ipaddress %s removed from blocked list", address);
     }
 
     @ManagedOperation("Retrieve blocked list")
-    public void getWhitelist() {
+    public String getWhitelist() {
         StringBuilder result = new StringBuilder();
 
         COMMA_JOINER.appendTo(result, ipv4blockedlist);
@@ -93,6 +95,7 @@ public class WhoisBlockedListFilter implements Filter {
         COMMA_JOINER.appendTo(result, ipv6blockedlist);
 
         LOGGER.info("The blocked list contains next IPs {}", result);
+        return String.format("The blocked list contains next IPs %s", result);
     }
 
     private boolean isBlockedIp(final String candidate) {
