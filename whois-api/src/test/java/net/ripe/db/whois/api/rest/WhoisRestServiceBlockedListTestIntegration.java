@@ -5,7 +5,6 @@ import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 import net.ripe.db.whois.api.AbstractIntegrationTest;
 import net.ripe.db.whois.api.RestTest;
-import net.ripe.db.whois.api.httpserver.WhoisBlockedListFilter;
 import net.ripe.db.whois.api.rest.domain.WhoisResources;
 import net.ripe.db.whois.api.rest.mapper.FormattedClientAttributeMapper;
 import net.ripe.db.whois.api.rest.mapper.WhoisObjectMapper;
@@ -75,18 +74,6 @@ public class WhoisRestServiceBlockedListTestIntegration extends AbstractIntegrat
 
         mBeanServer = ManagementFactory.getPlatformMBeanServer();
         mBeanName = new ObjectName(BLOCK_LIST_JMX_NAME);
-
-        // Ensure the MBean is registered
-        if (!mBeanServer.isRegistered(mBeanName)) {
-            try {
-                MBeanServer mbs = ManagementFactory.getPlatformMBeanServer();
-                ObjectName name = new ObjectName(BLOCK_LIST_JMX_NAME);
-                WhoisBlockedListFilter mbean = new WhoisBlockedListFilter(unsupportedIps);
-                mbs.registerMBean(mbean, name);
-            } catch (Exception e) {
-                //Do Nothing
-            }
-        }
     }
 
     @AfterAll
@@ -98,10 +85,10 @@ public class WhoisRestServiceBlockedListTestIntegration extends AbstractIntegrat
         databaseHelper.addObject(OWNER_MNT);
     }
 
+
     /*
         Lookup
      */
-
     @Test
     public void add_blocked_ipv4_get_request_then_429_too_many_requests() throws Exception {
         // Add IP to blocked list
