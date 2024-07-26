@@ -11,7 +11,6 @@ import jakarta.servlet.ServletRequest;
 import jakarta.servlet.ServletResponse;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import net.ripe.db.whois.api.httpserver.JettyBootstrap;
 import net.ripe.db.whois.common.ip.IpInterval;
 import net.ripe.db.whois.common.ip.Ipv4Resource;
 import net.ripe.db.whois.common.ip.Ipv6Resource;
@@ -19,13 +18,11 @@ import org.eclipse.jetty.http.HttpStatus;
 import org.eclipse.jetty.util.StringUtil;
 import org.eclipse.jetty.util.annotation.ManagedOperation;
 import org.slf4j.Logger;
-import org.springframework.jmx.export.annotation.ManagedResource;
 
 import java.io.IOException;
 
 import static org.slf4j.LoggerFactory.getLogger;
 
-@ManagedResource(objectName = JettyBootstrap.BLOCK_LIST_JMX_NAME)
 public class WhoisHazelcastManagerFilter implements WhoisHazelcastManagerFilterMBean, Filter {
     private static final Logger LOGGER = getLogger(WhoisHazelcastManagerFilter.class);
 
