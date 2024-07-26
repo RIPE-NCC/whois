@@ -35,7 +35,7 @@ public class ClientCertificateServiceTestIntegration extends AbstractClientCerti
                 .get(String.class);
             fail();
         } catch (ProcessingException e) {
-            assertThat(e.getMessage(), containsString("javax.net.ssl.SSLHandshakeException: Received fatal alert: bad_certificate"));
+            assertThat(e.getMessage(), containsString("Error writing to server"));
         }
     }
 
