@@ -4,7 +4,6 @@ package net.ripe.db.whois.api;
 import com.hazelcast.config.Config;
 import com.hazelcast.core.Hazelcast;
 import com.hazelcast.core.HazelcastInstance;
-import io.netty.bootstrap.ServerBootstrap;
 import net.ripe.db.whois.common.profiles.WhoisProfile;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
