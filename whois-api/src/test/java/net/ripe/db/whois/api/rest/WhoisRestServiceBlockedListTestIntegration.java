@@ -8,6 +8,7 @@ import net.ripe.db.whois.api.RestTest;
 import net.ripe.db.whois.api.rest.domain.WhoisResources;
 import net.ripe.db.whois.api.rest.mapper.FormattedClientAttributeMapper;
 import net.ripe.db.whois.api.rest.mapper.WhoisObjectMapper;
+import net.ripe.db.whois.common.hazelcast.HazelcastBlackListJmx;
 import net.ripe.db.whois.common.rpsl.RpslObject;
 import org.eclipse.jetty.http.HttpStatus;
 import org.junit.jupiter.api.AfterAll;
@@ -16,25 +17,20 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.test.annotation.DirtiesContext;
 
-import javax.management.MBeanServer;
-import javax.management.MalformedObjectNameException;
-import javax.management.ObjectName;
-import java.lang.management.ManagementFactory;
-
-import static net.ripe.db.whois.api.httpserver.JettyBootstrap.BLOCK_LIST_JMX_NAME;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 
 @Tag("IntegrationTest")
+@DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_EACH_TEST_METHOD)
 public class WhoisRestServiceBlockedListTestIntegration extends AbstractIntegrationTest {
 
     @Autowired
     private WhoisObjectMapper whoisObjectMapper;
 
-    private static MBeanServer mBeanServer;
-
-    private static ObjectName mBeanName;
+    @Autowired
+    private HazelcastBlackListJmx hazelcastBlackListJmx;
 
     private static final RpslObject OWNER_MNT = RpslObject.parse("" +
             "mntner:      OWNER-MNT\n" +
@@ -67,13 +63,8 @@ public class WhoisRestServiceBlockedListTestIntegration extends AbstractIntegrat
             "source:    TEST\n");
 
     @BeforeAll
-    public static void beforeClass() throws MalformedObjectNameException {
-        final String unsupportedIps = "193.0.0.0 - 193.0.23.255, 2001:67c:2e8::/48";
-
-        System.setProperty("ipranges.untrusted", unsupportedIps);
-
-        mBeanServer = ManagementFactory.getPlatformMBeanServer();
-        mBeanName = new ObjectName(BLOCK_LIST_JMX_NAME);
+    public static void beforeClass() {
+        System.setProperty("ipranges.untrusted", "193.0.0.0 - 193.0.23.255, 2001:67c:2e8::/48");
     }
 
     @AfterAll
@@ -90,9 +81,9 @@ public class WhoisRestServiceBlockedListTestIntegration extends AbstractIntegrat
         Lookup
      */
     @Test
-    public void add_blocked_ipv4_get_request_then_429_too_many_requests() throws Exception {
+    public void add_blocked_ipv4_get_request_then_429_too_many_requests(){
         // Add IP to blocked list
-        mBeanServer.invoke(mBeanName, "addBlockedListAddress", new Object[]{"8.8.8.8"}, new String[]{String.class.getName()});
+        hazelcastBlackListJmx.addBlockedListAddress("8.8.8.8");
 
         final Response response = RestTest.target(getPort(), "whois/test/mntner/OWNER-MNT?clientIp=8.8.8.8")
                 .request()
@@ -103,9 +94,9 @@ public class WhoisRestServiceBlockedListTestIntegration extends AbstractIntegrat
     }
 
     @Test
-    public void add_blocked_ipv6_get_request_then_429_too_many_requests() throws Exception {
+    public void add_blocked_ipv6_get_request_then_429_too_many_requests(){
         // Add IP to blocked list
-        mBeanServer.invoke(mBeanName, "addBlockedListAddress", new Object[]{"2001:fff:001::/48"}, new String[]{String.class.getName()});
+        hazelcastBlackListJmx.addBlockedListAddress("2001:fff:001::/48");
 
         final Response response = RestTest.target(getPort(), "whois/test/mntner/OWNER-MNT?clientIp=2001:fff:001::")
                 .request()
@@ -116,7 +107,7 @@ public class WhoisRestServiceBlockedListTestIntegration extends AbstractIntegrat
     }
 
     @Test
-    public void remove_blocked_ipv4_get_request_then_200() throws Exception {
+    public void remove_blocked_ipv4_get_request_then_200() {
         final String reformedClientRequest = "whois/test/mntner/OWNER-MNT?clientIp=193.0.0.1";
 
         final Response errorResponse = RestTest.target(getPort(), reformedClientRequest)
@@ -127,7 +118,7 @@ public class WhoisRestServiceBlockedListTestIntegration extends AbstractIntegrat
         assertThat(errorResponse.readEntity(String.class), is("You have been permanently blocked. Please contact support"));
 
         // Remove IP from blocked list
-        mBeanServer.invoke(mBeanName, "removeBlockedListAddress", new Object[]{"193.0.0.0 - 193.0.23.255"}, new String[]{String.class.getName()});
+        hazelcastBlackListJmx.removeBlockedListAddress("193.0.0.0 - 193.0.23.255");
 
         final Response response = RestTest.target(getPort(), reformedClientRequest)
                 .request()
@@ -137,7 +128,7 @@ public class WhoisRestServiceBlockedListTestIntegration extends AbstractIntegrat
     }
 
     @Test
-    public void remove_blocked_ipv6_get_request_then_200() throws Exception {
+    public void remove_blocked_ipv6_get_request_then_200() {
         final String reformedClientRequest = "whois/test/mntner/OWNER-MNT?clientIp=2001:67c:2e8::";
 
         final Response errorResponse = RestTest.target(getPort(), reformedClientRequest)
@@ -148,7 +139,7 @@ public class WhoisRestServiceBlockedListTestIntegration extends AbstractIntegrat
         assertThat(errorResponse.readEntity(String.class), is("You have been permanently blocked. Please contact support"));
 
         // Remove IP from blocked list
-        mBeanServer.invoke(mBeanName, "removeBlockedListAddress", new Object[]{"2001:67c:2e8::/48"}, new String[]{String.class.getName()});
+        hazelcastBlackListJmx.removeBlockedListAddress("2001:67c:2e8::/48");
 
         final Response response = RestTest.target(getPort(), reformedClientRequest)
                 .request()
@@ -162,9 +153,9 @@ public class WhoisRestServiceBlockedListTestIntegration extends AbstractIntegrat
         Post
      */
      @Test
-     public void add_blocked_ipv4_post_request_then_429_too_many_requests() throws Exception {
+     public void add_blocked_ipv4_post_request_then_429_too_many_requests() {
          // Add IP to blocked list
-         mBeanServer.invoke(mBeanName, "addBlockedListAddress", new Object[]{"8.8.8.8"}, new String[]{String.class.getName()});
+         hazelcastBlackListJmx.addBlockedListAddress("8.8.8.8");
 
          final Response response = RestTest.target(getPort(), "whois/test/person?clientIp=8.8.8.8&password=test")
                  .request()
@@ -175,9 +166,9 @@ public class WhoisRestServiceBlockedListTestIntegration extends AbstractIntegrat
      }
 
     @Test
-    public void add_blocked_ipv6_post_request_then_429_too_many_requests() throws Exception {
+    public void add_blocked_ipv6_post_request_then_429_too_many_requests() {
         // Add IP to blocked list
-        mBeanServer.invoke(mBeanName, "addBlockedListAddress", new Object[]{"2001:fff:001::/48"}, new String[]{String.class.getName()});
+        hazelcastBlackListJmx.addBlockedListAddress("2001:fff:001::/48");
 
         final Response response = RestTest.target(getPort(), "whois/test/person?clientIp=2001:fff:001::&password=test")
                 .request()
@@ -188,7 +179,7 @@ public class WhoisRestServiceBlockedListTestIntegration extends AbstractIntegrat
     }
 
     @Test
-    public void remove_blocked_ipv4_post_request_then_200() throws Exception {
+    public void remove_blocked_ipv4_post_request_then_200() {
         final String reformedClientRequest = "whois/test/person?clientIp=193.0.0.1&password=test";
 
         final Response errorResponse = RestTest.target(getPort(), reformedClientRequest)
@@ -199,7 +190,7 @@ public class WhoisRestServiceBlockedListTestIntegration extends AbstractIntegrat
         assertThat(errorResponse.readEntity(String.class), is("You have been permanently blocked. Please contact support"));
 
         // Remove IP from blocked list
-        mBeanServer.invoke(mBeanName, "removeBlockedListAddress", new Object[]{"193.0.0.0 - 193.0.23.255"}, new String[]{String.class.getName()});
+        hazelcastBlackListJmx.removeBlockedListAddress("193.0.0.0 - 193.0.23.255");
 
         final Response response = RestTest.target(getPort(), reformedClientRequest)
                 .request()
@@ -209,7 +200,7 @@ public class WhoisRestServiceBlockedListTestIntegration extends AbstractIntegrat
     }
 
     @Test
-    public void remove_blocked_ipv6_post_request_then_200() throws Exception {
+    public void remove_blocked_ipv6_post_request_then_200() {
         final String reformedClientRequest = "whois/test/person?clientIp=2001:67c:2e8::&password=test";
 
         final Response errorResponse = RestTest.target(getPort(), reformedClientRequest)
@@ -220,7 +211,7 @@ public class WhoisRestServiceBlockedListTestIntegration extends AbstractIntegrat
         assertThat(errorResponse.readEntity(String.class), is("You have been permanently blocked. Please contact support"));
 
         // Remove IP from blocked list
-        mBeanServer.invoke(mBeanName, "removeBlockedListAddress", new Object[]{"2001:67c:2e8::/48"}, new String[]{String.class.getName()});
+        hazelcastBlackListJmx.removeBlockedListAddress("2001:67c:2e8::/48");
 
         final Response response = RestTest.target(getPort(), reformedClientRequest)
                 .request()
@@ -234,11 +225,11 @@ public class WhoisRestServiceBlockedListTestIntegration extends AbstractIntegrat
        Update
     */
     @Test
-    public void add_blocked_ipv4_put_request_then_429_too_many_requests() throws Exception {
+    public void add_blocked_ipv4_put_request_then_429_too_many_requests() {
         databaseHelper.addObject(PERSON_OBJECT);
 
         // Add IP to blocked list
-        mBeanServer.invoke(mBeanName, "addBlockedListAddress", new Object[]{"8.8.8.8"}, new String[]{String.class.getName()});
+        hazelcastBlackListJmx.addBlockedListAddress("8.8.8.8");
 
         final Response response = RestTest.target(getPort(), "whois/test/person/PP1-TEST?clientIp=8.8.8.8&password=test")
                 .request()
@@ -249,11 +240,11 @@ public class WhoisRestServiceBlockedListTestIntegration extends AbstractIntegrat
     }
 
     @Test
-    public void add_blocked_ipv6_put_request_then_429_too_many_requests() throws Exception {
+    public void add_blocked_ipv6_put_request_then_429_too_many_requests() {
         databaseHelper.addObject(PERSON_OBJECT);
 
         // Add IP to blocked list
-        mBeanServer.invoke(mBeanName, "addBlockedListAddress", new Object[]{"2001:fff:001::/48"}, new String[]{String.class.getName()});
+        hazelcastBlackListJmx.addBlockedListAddress("2001:fff:001::/48");
 
         final Response response = RestTest.target(getPort(), "whois/test/person/PP1-TEST?clientIp=2001:fff:001::&password=test")
                 .request()
@@ -264,7 +255,7 @@ public class WhoisRestServiceBlockedListTestIntegration extends AbstractIntegrat
     }
 
     @Test
-    public void remove_blocked_ipv4_put_request_then_200() throws Exception {
+    public void remove_blocked_ipv4_put_request_then_200() {
         databaseHelper.addObject(PERSON_OBJECT);
 
         final String reformedClientRequest = "whois/test/person/PP1-TEST?clientIp=193.0.0.1&password=test";
@@ -277,7 +268,7 @@ public class WhoisRestServiceBlockedListTestIntegration extends AbstractIntegrat
         assertThat(errorResponse.readEntity(String.class), is("You have been permanently blocked. Please contact support"));
 
         // Remove IP from blocked list
-        mBeanServer.invoke(mBeanName, "removeBlockedListAddress", new Object[]{"193.0.0.0 - 193.0.23.255"}, new String[]{String.class.getName()});
+        hazelcastBlackListJmx.removeBlockedListAddress("193.0.0.0 - 193.0.23.255");
 
         final Response response = RestTest.target(getPort(), reformedClientRequest)
                 .request()
@@ -287,7 +278,7 @@ public class WhoisRestServiceBlockedListTestIntegration extends AbstractIntegrat
     }
 
     @Test
-    public void remove_blocked_ipv6_put_request_then_200() throws Exception {
+    public void remove_blocked_ipv6_put_request_then_200() {
         databaseHelper.addObject(PERSON_OBJECT);
 
         final String reformedClientRequest = "whois/test/person/PP1-TEST?clientIp=2001:67c:2e8::&password=test";
@@ -300,7 +291,7 @@ public class WhoisRestServiceBlockedListTestIntegration extends AbstractIntegrat
         assertThat(errorResponse.readEntity(String.class), is("You have been permanently blocked. Please contact support"));
 
         // Remove IP from blocked list
-        mBeanServer.invoke(mBeanName, "removeBlockedListAddress", new Object[]{"2001:67c:2e8::/48"}, new String[]{String.class.getName()});
+        hazelcastBlackListJmx.removeBlockedListAddress("2001:67c:2e8::/48");
 
         final Response response = RestTest.target(getPort(), reformedClientRequest)
                 .request()
@@ -314,11 +305,11 @@ public class WhoisRestServiceBlockedListTestIntegration extends AbstractIntegrat
         Delete
     */
     @Test
-    public void add_blocked_ipv4_delete_request_then_429_too_many_requests() throws Exception {
+    public void add_blocked_ipv4_delete_request_then_429_too_many_requests() {
         databaseHelper.addObject(PERSON_OBJECT);
 
         // Add IP to blocked list
-        mBeanServer.invoke(mBeanName, "addBlockedListAddress", new Object[]{"8.8.8.8"}, new String[]{String.class.getName()});
+        hazelcastBlackListJmx.addBlockedListAddress("8.8.8.8");
 
         final Response response = RestTest.target(getPort(), "whois/test/person/PP1-TEST?clientIp=8.8.8.8&password=test")
                 .request()
@@ -329,11 +320,11 @@ public class WhoisRestServiceBlockedListTestIntegration extends AbstractIntegrat
     }
 
     @Test
-    public void add_blocked_ipv6_delete_request_then_429_too_many_requests() throws Exception {
+    public void add_blocked_ipv6_delete_request_then_429_too_many_requests() {
         databaseHelper.addObject(PERSON_OBJECT);
 
         // Add IP to blocked list
-        mBeanServer.invoke(mBeanName, "addBlockedListAddress", new Object[]{"2001:fff:001::/48"}, new String[]{String.class.getName()});
+        hazelcastBlackListJmx.addBlockedListAddress("2001:fff:001::/48");
 
         final Response response = RestTest.target(getPort(), "whois/test/person/PP1-TEST?clientIp=2001:fff:001::&password=test")
                 .request()
@@ -344,7 +335,7 @@ public class WhoisRestServiceBlockedListTestIntegration extends AbstractIntegrat
     }
 
     @Test
-    public void remove_blocked_ipv4_delete_request_then_200() throws Exception {
+    public void remove_blocked_ipv4_delete_request_then_200() {
         databaseHelper.addObject(PERSON_OBJECT);
 
         final String reformedClientRequest = "whois/test/person/PP1-TEST?clientIp=193.0.0.1&password=test";
@@ -357,7 +348,7 @@ public class WhoisRestServiceBlockedListTestIntegration extends AbstractIntegrat
         assertThat(errorResponse.readEntity(String.class), is("You have been permanently blocked. Please contact support"));
 
         // Remove IP from blocked list
-        mBeanServer.invoke(mBeanName, "removeBlockedListAddress", new Object[]{"193.0.0.0 - 193.0.23.255"}, new String[]{String.class.getName()});
+        hazelcastBlackListJmx.removeBlockedListAddress("193.0.0.0 - 193.0.23.255");
 
         final Response response = RestTest.target(getPort(), reformedClientRequest)
                 .request()
@@ -367,7 +358,7 @@ public class WhoisRestServiceBlockedListTestIntegration extends AbstractIntegrat
     }
 
     @Test
-    public void remove_blocked_ipv6_delete_request_then_200() throws Exception {
+    public void remove_blocked_ipv6_delete_request_then_200() {
         databaseHelper.addObject(PERSON_OBJECT);
 
         final String reformedClientRequest = "whois/test/person/PP1-TEST?clientIp=2001:67c:2e8::&password=test";
@@ -380,7 +371,7 @@ public class WhoisRestServiceBlockedListTestIntegration extends AbstractIntegrat
         assertThat(errorResponse.readEntity(String.class), is("You have been permanently blocked. Please contact support"));
 
         // Remove IP from blocked list
-        mBeanServer.invoke(mBeanName, "removeBlockedListAddress", new Object[]{"2001:67c:2e8::/48"}, new String[]{String.class.getName()});
+        hazelcastBlackListJmx.removeBlockedListAddress("2001:67c:2e8::/48");
 
         final Response response = RestTest.target(getPort(), reformedClientRequest)
                 .request()

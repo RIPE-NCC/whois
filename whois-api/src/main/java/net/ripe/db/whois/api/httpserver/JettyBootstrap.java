@@ -1,12 +1,11 @@
 package net.ripe.db.whois.api.httpserver;
 
-import com.hazelcast.core.HazelcastInstance;
 import io.netty.handler.ssl.util.TrustManagerFactoryWrapper;
 import jakarta.servlet.DispatcherType;
 import net.ripe.db.whois.api.httpserver.dos.WhoisDoSFilter;
 import net.ripe.db.whois.api.httpserver.dos.WhoisQueryDoSFilter;
 import net.ripe.db.whois.api.httpserver.dos.WhoisUpdateDoSFilter;
-import net.ripe.db.whois.api.httpserver.hazelcast.WhoisHazelcastManagerFilter;
+import net.ripe.db.whois.api.httpserver.dos.BlockListFilter;
 import net.ripe.db.whois.common.ApplicationService;
 import net.ripe.db.whois.common.aspects.RetryFor;
 import org.eclipse.jetty.alpn.server.ALPNServerConnectionFactory;
@@ -37,13 +36,10 @@ import org.eclipse.jetty.webapp.WebAppContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.jmx.JmxException;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
-import javax.management.JMException;
 import javax.management.MalformedObjectNameException;
 import javax.management.ObjectName;
 import javax.net.ssl.TrustManager;
@@ -122,13 +118,8 @@ public class JettyBootstrap implements ApplicationService {
 
     private final WhoisUpdateDoSFilter whoisUpdateDoSFilter;
 
-    private final ObjectName dosFilterMBeanName;
+    private final BlockListFilter blockListFilter;
 
-    private final String untrustedIpRanges;
-
-    public static final String BLOCK_LIST_JMX_NAME = "net.ripe.db.whois:name=BlockedListFilter";
-
-    private final HazelcastInstance hazelcastInstance;
 
     @Autowired
     public JettyBootstrap(final RemoteAddressFilter remoteAddressFilter,
@@ -148,9 +139,8 @@ public class JettyBootstrap implements ApplicationService {
                           @Value("${http.x_forwarded_for:true}") final boolean xForwardedForHttp,
                           @Value("${https.x_forwarded_for:true}") final boolean xForwardedForHttps,
                           @Value("${dos.filter.enabled:false}") final boolean dosFilterEnabled,
-                          @Value("${ipranges.untrusted:}") final String untrustedIpRanges,
-                          @Qualifier("hazelcastInstance") final HazelcastInstance instance
-                        ) throws MalformedObjectNameException {
+                          final BlockListFilter blockListFilter
+                        ) {
         this.remoteAddressFilter = remoteAddressFilter;
         this.extensionOverridesAcceptHeaderFilter = extensionOverridesAcceptHeaderFilter;
         this.servletDeployers = servletDeployers;
@@ -168,11 +158,9 @@ public class JettyBootstrap implements ApplicationService {
         this.xForwardedForHttp = xForwardedForHttp;
         this.xForwardedForHttps = xForwardedForHttps;
         this.dosFilterEnabled = dosFilterEnabled;
-        this.untrustedIpRanges = untrustedIpRanges;
-        this.dosFilterMBeanName = ObjectName.getInstance(BLOCK_LIST_JMX_NAME);
         this.whoisQueryDoSFilter = whoisQueryDoSFilter;
         this.whoisUpdateDoSFilter = whoisUpdateDoSFilter;
-        this.hazelcastInstance = instance;
+        this.blockListFilter = blockListFilter;
     }
 
     @Override
@@ -226,11 +214,8 @@ public class JettyBootstrap implements ApplicationService {
         context.addFilter(new FilterHolder(extensionOverridesAcceptHeaderFilter), "/*", EnumSet.allOf(DispatcherType.class));
         context.addFilter(PushCacheFilter.class, "/*", EnumSet.of(DispatcherType.REQUEST));
 
-        try {
-            context.addFilter(createBlockedListJmxFilter(), "/*", EnumSet.allOf(DispatcherType.class));
-        } catch (JmxException | JMException e) {
-            throw new IllegalStateException("Error creating DOS Filter", e);
-        }
+        context.addFilter(new FilterHolder(blockListFilter), "/*", EnumSet.allOf(DispatcherType.class));
+
 
         if (!dosFilterEnabled) {
             LOGGER.info("DoSFilter is *not* enabled");
@@ -287,15 +272,6 @@ public class JettyBootstrap implements ApplicationService {
         return connector;
     }
 
-    private FilterHolder createBlockedListJmxFilter() throws JmxException, JMException {
-        final WhoisHazelcastManagerFilter whoisHazelcastManagerFilter = new WhoisHazelcastManagerFilter(hazelcastInstance, untrustedIpRanges);
-
-        if (!ManagementFactory.getPlatformMBeanServer().isRegistered(dosFilterMBeanName)) {
-            ManagementFactory.getPlatformMBeanServer().registerMBean(new ObjectMBean(whoisHazelcastManagerFilter), dosFilterMBeanName);
-        }
-
-        return new FilterHolder(whoisHazelcastManagerFilter);
-    }
     /**
      * Use the DoSFilter from Jetty for rate limiting: https://www.eclipse.org/jetty/documentation/current/dos-filter.html.
      * See {@link WhoisDoSFilter} for the customisations added.
@@ -421,9 +397,6 @@ public class JettyBootstrap implements ApplicationService {
         LOGGER.info("Shutdown Jetty");
         new Thread(() -> {
             try {
-                if (ManagementFactory.getPlatformMBeanServer().isRegistered(dosFilterMBeanName)) {
-                    ManagementFactory.getPlatformMBeanServer().unregisterMBean(dosFilterMBeanName);
-                }
                 server.stop();
             } catch (Exception e) {
                 LOGGER.error("Stopping server", e);
