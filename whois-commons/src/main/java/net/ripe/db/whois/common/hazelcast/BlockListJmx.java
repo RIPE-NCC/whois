@@ -8,7 +8,6 @@ import net.ripe.db.whois.common.ip.Ipv6Resource;
 import net.ripe.db.whois.common.jmx.JmxBase;
 import org.slf4j.Logger;
 import org.eclipse.jetty.util.StringUtil;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.jmx.export.annotation.ManagedOperation;
 import org.springframework.jmx.export.annotation.ManagedOperationParameter;
@@ -20,9 +19,9 @@ import static org.slf4j.LoggerFactory.getLogger;
 
 @Component
 @ManagedResource(objectName = JmxBase.OBJECT_NAME_BASE + "BlockedList", description = "Whois black list")
-public class HazelcastBlackListJmx extends JmxBase {
+public class BlockListJmx extends JmxBase {
 
-    private static final Logger LOGGER = getLogger(HazelcastBlackListJmx.class);
+    private static final Logger LOGGER = getLogger(BlockListJmx.class);
 
     private static final Joiner COMMA_JOINER = Joiner.on(',');
 
@@ -30,7 +29,7 @@ public class HazelcastBlackListJmx extends JmxBase {
     private final ISet<Ipv6Resource> ipv6blockedSet;
     private final HazelcastInstance hazelcastInstance;
 
-    public HazelcastBlackListJmx(final HazelcastInstance hazelcastInstance, @Value("${ipranges.untrusted:}") final String untrustedIpRanges) {
+    public BlockListJmx(final HazelcastInstance hazelcastInstance, @Value("${ipranges.untrusted:}") final String untrustedIpRanges) {
         super(LOGGER);
         this.hazelcastInstance = hazelcastInstance;
         ipv4blockedSet = hazelcastInstance.getSet("ipv4blockedSet");

@@ -8,7 +8,7 @@ import jakarta.servlet.ServletRequest;
 import jakarta.servlet.ServletResponse;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import net.ripe.db.whois.common.hazelcast.HazelcastBlackListJmx;
+import net.ripe.db.whois.common.hazelcast.BlockListJmx;
 import net.ripe.db.whois.common.ip.IpInterval;
 import net.ripe.db.whois.common.ip.Ipv4Resource;
 import net.ripe.db.whois.common.ip.Ipv6Resource;
@@ -21,10 +21,10 @@ import java.io.IOException;
 @Component
 public class BlockListFilter implements Filter {
 
-    private final HazelcastBlackListJmx hazelcastBlackListJmx;
+    private final BlockListJmx blockListJmx;
 
-    public BlockListFilter(final HazelcastBlackListJmx hazelcastBlackListJmx){
-        this.hazelcastBlackListJmx = hazelcastBlackListJmx;
+    public BlockListFilter(final BlockListJmx blockListJmx){
+        this.blockListJmx = blockListJmx;
     }
 
     @Override
@@ -54,7 +54,7 @@ public class BlockListFilter implements Filter {
         final IpInterval<?> parsed = IpInterval.parse(candidate);
         return switch (parsed) {
             case Ipv4Resource ipv4Resource -> {
-                for (Ipv4Resource entry : hazelcastBlackListJmx.getIpv4blockedSet()) {
+                for (Ipv4Resource entry : blockListJmx.getIpv4blockedSet()) {
                     if (entry.contains(ipv4Resource)) {
                         yield true;
                     }
@@ -62,7 +62,7 @@ public class BlockListFilter implements Filter {
                 yield false;
             }
             case Ipv6Resource ipv6Resource -> {
-                for (Ipv6Resource entry : hazelcastBlackListJmx.getIpv6blockedSet()) {
+                for (Ipv6Resource entry : blockListJmx.getIpv6blockedSet()) {
                     if (entry.contains(ipv6Resource)) {
                         yield true;
                     }

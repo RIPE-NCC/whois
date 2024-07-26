@@ -8,7 +8,7 @@ import net.ripe.db.whois.api.RestTest;
 import net.ripe.db.whois.api.rest.domain.WhoisResources;
 import net.ripe.db.whois.api.rest.mapper.FormattedClientAttributeMapper;
 import net.ripe.db.whois.api.rest.mapper.WhoisObjectMapper;
-import net.ripe.db.whois.common.hazelcast.HazelcastBlackListJmx;
+import net.ripe.db.whois.common.hazelcast.BlockListJmx;
 import net.ripe.db.whois.common.rpsl.RpslObject;
 import org.eclipse.jetty.http.HttpStatus;
 import org.junit.jupiter.api.AfterAll;
@@ -30,7 +30,7 @@ public class WhoisRestServiceBlockedListTestIntegration extends AbstractIntegrat
     private WhoisObjectMapper whoisObjectMapper;
 
     @Autowired
-    private HazelcastBlackListJmx hazelcastBlackListJmx;
+    private BlockListJmx blockListJmx;
 
     private static final RpslObject OWNER_MNT = RpslObject.parse("" +
             "mntner:      OWNER-MNT\n" +
@@ -83,7 +83,7 @@ public class WhoisRestServiceBlockedListTestIntegration extends AbstractIntegrat
     @Test
     public void add_blocked_ipv4_get_request_then_429_too_many_requests(){
         // Add IP to blocked list
-        hazelcastBlackListJmx.addBlockedListAddress("8.8.8.8");
+        blockListJmx.addBlockedListAddress("8.8.8.8");
 
         final Response response = RestTest.target(getPort(), "whois/test/mntner/OWNER-MNT?clientIp=8.8.8.8")
                 .request()
@@ -96,7 +96,7 @@ public class WhoisRestServiceBlockedListTestIntegration extends AbstractIntegrat
     @Test
     public void add_blocked_ipv6_get_request_then_429_too_many_requests(){
         // Add IP to blocked list
-        hazelcastBlackListJmx.addBlockedListAddress("2001:fff:001::/48");
+        blockListJmx.addBlockedListAddress("2001:fff:001::/48");
 
         final Response response = RestTest.target(getPort(), "whois/test/mntner/OWNER-MNT?clientIp=2001:fff:001::")
                 .request()
@@ -118,7 +118,7 @@ public class WhoisRestServiceBlockedListTestIntegration extends AbstractIntegrat
         assertThat(errorResponse.readEntity(String.class), is("You have been permanently blocked. Please contact support"));
 
         // Remove IP from blocked list
-        hazelcastBlackListJmx.removeBlockedListAddress("193.0.0.0 - 193.0.23.255");
+        blockListJmx.removeBlockedListAddress("193.0.0.0 - 193.0.23.255");
 
         final Response response = RestTest.target(getPort(), reformedClientRequest)
                 .request()
@@ -139,7 +139,7 @@ public class WhoisRestServiceBlockedListTestIntegration extends AbstractIntegrat
         assertThat(errorResponse.readEntity(String.class), is("You have been permanently blocked. Please contact support"));
 
         // Remove IP from blocked list
-        hazelcastBlackListJmx.removeBlockedListAddress("2001:67c:2e8::/48");
+        blockListJmx.removeBlockedListAddress("2001:67c:2e8::/48");
 
         final Response response = RestTest.target(getPort(), reformedClientRequest)
                 .request()
@@ -155,7 +155,7 @@ public class WhoisRestServiceBlockedListTestIntegration extends AbstractIntegrat
      @Test
      public void add_blocked_ipv4_post_request_then_429_too_many_requests() {
          // Add IP to blocked list
-         hazelcastBlackListJmx.addBlockedListAddress("8.8.8.8");
+         blockListJmx.addBlockedListAddress("8.8.8.8");
 
          final Response response = RestTest.target(getPort(), "whois/test/person?clientIp=8.8.8.8&password=test")
                  .request()
@@ -168,7 +168,7 @@ public class WhoisRestServiceBlockedListTestIntegration extends AbstractIntegrat
     @Test
     public void add_blocked_ipv6_post_request_then_429_too_many_requests() {
         // Add IP to blocked list
-        hazelcastBlackListJmx.addBlockedListAddress("2001:fff:001::/48");
+        blockListJmx.addBlockedListAddress("2001:fff:001::/48");
 
         final Response response = RestTest.target(getPort(), "whois/test/person?clientIp=2001:fff:001::&password=test")
                 .request()
@@ -190,7 +190,7 @@ public class WhoisRestServiceBlockedListTestIntegration extends AbstractIntegrat
         assertThat(errorResponse.readEntity(String.class), is("You have been permanently blocked. Please contact support"));
 
         // Remove IP from blocked list
-        hazelcastBlackListJmx.removeBlockedListAddress("193.0.0.0 - 193.0.23.255");
+        blockListJmx.removeBlockedListAddress("193.0.0.0 - 193.0.23.255");
 
         final Response response = RestTest.target(getPort(), reformedClientRequest)
                 .request()
@@ -211,7 +211,7 @@ public class WhoisRestServiceBlockedListTestIntegration extends AbstractIntegrat
         assertThat(errorResponse.readEntity(String.class), is("You have been permanently blocked. Please contact support"));
 
         // Remove IP from blocked list
-        hazelcastBlackListJmx.removeBlockedListAddress("2001:67c:2e8::/48");
+        blockListJmx.removeBlockedListAddress("2001:67c:2e8::/48");
 
         final Response response = RestTest.target(getPort(), reformedClientRequest)
                 .request()
@@ -229,7 +229,7 @@ public class WhoisRestServiceBlockedListTestIntegration extends AbstractIntegrat
         databaseHelper.addObject(PERSON_OBJECT);
 
         // Add IP to blocked list
-        hazelcastBlackListJmx.addBlockedListAddress("8.8.8.8");
+        blockListJmx.addBlockedListAddress("8.8.8.8");
 
         final Response response = RestTest.target(getPort(), "whois/test/person/PP1-TEST?clientIp=8.8.8.8&password=test")
                 .request()
@@ -244,7 +244,7 @@ public class WhoisRestServiceBlockedListTestIntegration extends AbstractIntegrat
         databaseHelper.addObject(PERSON_OBJECT);
 
         // Add IP to blocked list
-        hazelcastBlackListJmx.addBlockedListAddress("2001:fff:001::/48");
+        blockListJmx.addBlockedListAddress("2001:fff:001::/48");
 
         final Response response = RestTest.target(getPort(), "whois/test/person/PP1-TEST?clientIp=2001:fff:001::&password=test")
                 .request()
@@ -268,7 +268,7 @@ public class WhoisRestServiceBlockedListTestIntegration extends AbstractIntegrat
         assertThat(errorResponse.readEntity(String.class), is("You have been permanently blocked. Please contact support"));
 
         // Remove IP from blocked list
-        hazelcastBlackListJmx.removeBlockedListAddress("193.0.0.0 - 193.0.23.255");
+        blockListJmx.removeBlockedListAddress("193.0.0.0 - 193.0.23.255");
 
         final Response response = RestTest.target(getPort(), reformedClientRequest)
                 .request()
@@ -291,7 +291,7 @@ public class WhoisRestServiceBlockedListTestIntegration extends AbstractIntegrat
         assertThat(errorResponse.readEntity(String.class), is("You have been permanently blocked. Please contact support"));
 
         // Remove IP from blocked list
-        hazelcastBlackListJmx.removeBlockedListAddress("2001:67c:2e8::/48");
+        blockListJmx.removeBlockedListAddress("2001:67c:2e8::/48");
 
         final Response response = RestTest.target(getPort(), reformedClientRequest)
                 .request()
@@ -309,7 +309,7 @@ public class WhoisRestServiceBlockedListTestIntegration extends AbstractIntegrat
         databaseHelper.addObject(PERSON_OBJECT);
 
         // Add IP to blocked list
-        hazelcastBlackListJmx.addBlockedListAddress("8.8.8.8");
+        blockListJmx.addBlockedListAddress("8.8.8.8");
 
         final Response response = RestTest.target(getPort(), "whois/test/person/PP1-TEST?clientIp=8.8.8.8&password=test")
                 .request()
@@ -324,7 +324,7 @@ public class WhoisRestServiceBlockedListTestIntegration extends AbstractIntegrat
         databaseHelper.addObject(PERSON_OBJECT);
 
         // Add IP to blocked list
-        hazelcastBlackListJmx.addBlockedListAddress("2001:fff:001::/48");
+        blockListJmx.addBlockedListAddress("2001:fff:001::/48");
 
         final Response response = RestTest.target(getPort(), "whois/test/person/PP1-TEST?clientIp=2001:fff:001::&password=test")
                 .request()
@@ -348,7 +348,7 @@ public class WhoisRestServiceBlockedListTestIntegration extends AbstractIntegrat
         assertThat(errorResponse.readEntity(String.class), is("You have been permanently blocked. Please contact support"));
 
         // Remove IP from blocked list
-        hazelcastBlackListJmx.removeBlockedListAddress("193.0.0.0 - 193.0.23.255");
+        blockListJmx.removeBlockedListAddress("193.0.0.0 - 193.0.23.255");
 
         final Response response = RestTest.target(getPort(), reformedClientRequest)
                 .request()
@@ -371,7 +371,7 @@ public class WhoisRestServiceBlockedListTestIntegration extends AbstractIntegrat
         assertThat(errorResponse.readEntity(String.class), is("You have been permanently blocked. Please contact support"));
 
         // Remove IP from blocked list
-        hazelcastBlackListJmx.removeBlockedListAddress("2001:67c:2e8::/48");
+        blockListJmx.removeBlockedListAddress("2001:67c:2e8::/48");
 
         final Response response = RestTest.target(getPort(), reformedClientRequest)
                 .request()
