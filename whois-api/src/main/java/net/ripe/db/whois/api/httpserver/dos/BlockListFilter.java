@@ -9,9 +9,6 @@ import jakarta.servlet.ServletResponse;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import net.ripe.db.whois.common.hazelcast.BlockListJmx;
-import net.ripe.db.whois.common.ip.IpInterval;
-import net.ripe.db.whois.common.ip.Ipv4Resource;
-import net.ripe.db.whois.common.ip.Ipv6Resource;
 import org.eclipse.jetty.http.HttpStatus;
 import org.springframework.stereotype.Component;
 
@@ -50,26 +47,6 @@ public class BlockListFilter implements Filter {
     }
 
     private boolean isBlockedIp(final String candidate) {
-        // TODO: Duplicated in WhoisDoSFilter, maybe put this into a utils or into a interface with a default method
-        final IpInterval<?> parsed = IpInterval.parse(candidate);
-        return switch (parsed) {
-            case Ipv4Resource ipv4Resource -> {
-                for (Ipv4Resource entry : blockListJmx.getIpv4blockedSet()) {
-                    if (entry.contains(ipv4Resource)) {
-                        yield true;
-                    }
-                }
-                yield false;
-            }
-            case Ipv6Resource ipv6Resource -> {
-                for (Ipv6Resource entry : blockListJmx.getIpv6blockedSet()) {
-                    if (entry.contains(ipv6Resource)) {
-                        yield true;
-                    }
-                }
-                yield false;
-            }
-            default -> false;
-        };
+        return IpUtil.isExistingIp(candidate, blockListJmx.getIpv4blockedSet(), blockListJmx.getIpv6blockedSet());
     }
 }
