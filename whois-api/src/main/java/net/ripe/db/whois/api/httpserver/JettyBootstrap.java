@@ -5,7 +5,7 @@ import jakarta.servlet.DispatcherType;
 import net.ripe.db.whois.api.httpserver.dos.WhoisDoSFilter;
 import net.ripe.db.whois.api.httpserver.dos.WhoisQueryDoSFilter;
 import net.ripe.db.whois.api.httpserver.dos.WhoisUpdateDoSFilter;
-import net.ripe.db.whois.api.httpserver.dos.BlockListFilter;
+import net.ripe.db.whois.api.httpserver.dos.IpBlockListFilter;
 import net.ripe.db.whois.common.ApplicationService;
 import net.ripe.db.whois.common.aspects.RetryFor;
 import org.eclipse.jetty.alpn.server.ALPNServerConnectionFactory;
@@ -114,7 +114,7 @@ public class JettyBootstrap implements ApplicationService {
 
     private final WhoisUpdateDoSFilter whoisUpdateDoSFilter;
 
-    private final BlockListFilter blockListFilter;
+    private final IpBlockListFilter ipBlockListFilter;
 
 
     @Autowired
@@ -135,7 +135,7 @@ public class JettyBootstrap implements ApplicationService {
                           @Value("${http.x_forwarded_for:true}") final boolean xForwardedForHttp,
                           @Value("${https.x_forwarded_for:true}") final boolean xForwardedForHttps,
                           @Value("${dos.filter.enabled:false}") final boolean dosFilterEnabled,
-                          final BlockListFilter blockListFilter
+                          final IpBlockListFilter ipBlockListFilter
                         ) {
         this.remoteAddressFilter = remoteAddressFilter;
         this.extensionOverridesAcceptHeaderFilter = extensionOverridesAcceptHeaderFilter;
@@ -156,7 +156,7 @@ public class JettyBootstrap implements ApplicationService {
         this.dosFilterEnabled = dosFilterEnabled;
         this.whoisQueryDoSFilter = whoisQueryDoSFilter;
         this.whoisUpdateDoSFilter = whoisUpdateDoSFilter;
-        this.blockListFilter = blockListFilter;
+        this.ipBlockListFilter = ipBlockListFilter;
     }
 
     @Override
@@ -210,7 +210,7 @@ public class JettyBootstrap implements ApplicationService {
         context.addFilter(new FilterHolder(extensionOverridesAcceptHeaderFilter), "/*", EnumSet.allOf(DispatcherType.class));
         context.addFilter(PushCacheFilter.class, "/*", EnumSet.of(DispatcherType.REQUEST));
 
-        context.addFilter(new FilterHolder(blockListFilter), "/*", EnumSet.allOf(DispatcherType.class));
+        context.addFilter(new FilterHolder(ipBlockListFilter), "/*", EnumSet.allOf(DispatcherType.class));
 
 
         if (!dosFilterEnabled) {

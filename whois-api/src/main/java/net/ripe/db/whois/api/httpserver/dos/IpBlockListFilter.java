@@ -18,11 +18,11 @@ import java.io.IOException;
 
 
 @Component
-public class BlockListFilter implements Filter {
+public class IpBlockListFilter implements Filter {
 
     private final HazelcastBlockedIps hazelcastBlockedIps;
 
-    public BlockListFilter(final HazelcastBlockedIps hazelcastBlockedIps){
+    public IpBlockListFilter(final HazelcastBlockedIps hazelcastBlockedIps){
         this.hazelcastBlockedIps = hazelcastBlockedIps;
     }
 
