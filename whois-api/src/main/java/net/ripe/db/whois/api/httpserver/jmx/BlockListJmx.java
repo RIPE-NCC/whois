@@ -44,6 +44,6 @@ public class BlockListJmx extends JmxBase {
 
     @ManagedOperation(description = "Retrieve blocked list")
     public String getBlockedList() {
-        return hazelcastBlockedIps.getBlockedList();
+        return String.format("The blocked list contains next IPs %s", hazelcastBlockedIps.getBlockedList());
     }
 }

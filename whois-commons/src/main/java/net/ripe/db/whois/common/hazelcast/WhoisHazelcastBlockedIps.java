@@ -10,8 +10,6 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Component;
 
-import java.util.List;
-import java.util.stream.Stream;
 
 import static org.slf4j.LoggerFactory.getLogger;
 
@@ -53,7 +51,7 @@ public class WhoisHazelcastBlockedIps implements HazelcastBlockedIps{
         COMMA_JOINER.appendTo(result, ipBlockedSet);
 
         LOGGER.info("The blocked list contains next IPs {}", result);
-        return String.format("The blocked list contains next IPs %s", result);
+        return result.toString();
     }
 
     @Override

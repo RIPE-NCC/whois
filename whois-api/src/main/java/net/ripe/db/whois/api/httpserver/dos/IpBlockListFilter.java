@@ -9,9 +9,12 @@ import jakarta.servlet.ServletRequest;
 import jakarta.servlet.ServletResponse;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import net.ripe.db.whois.common.Latin1Conversion;
 import net.ripe.db.whois.common.hazelcast.HazelcastBlockedIps;
 import net.ripe.db.whois.common.ip.IpInterval;
 import org.eclipse.jetty.http.HttpStatus;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
 import java.io.IOException;
@@ -19,6 +22,8 @@ import java.io.IOException;
 
 @Component
 public class IpBlockListFilter implements Filter {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(IpBlockListFilter.class);
 
     private final HazelcastBlockedIps hazelcastBlockedIps;
 
@@ -50,7 +55,12 @@ public class IpBlockListFilter implements Filter {
 
     private boolean isBlockedIp(final String candidate) {
         final IpInterval<?> parsed = IpInterval.asIpInterval(InetAddresses.forString(candidate));
-        return hazelcastBlockedIps.getIpBlockedSet().stream()
-                .anyMatch(ipRange -> ipRange.getClass().equals(parsed.getClass()) && ipRange.contains(parsed));
+        try {
+            return hazelcastBlockedIps.getIpBlockedSet().stream()
+                    .anyMatch(ipRange -> ipRange.getClass().equals(parsed.getClass()) && ipRange.contains(parsed));
+        } catch (Exception ex){
+            LOGGER.error("Hazelcast blocked ip interval error", ex);
+        }
+        return false;
     }
 }
