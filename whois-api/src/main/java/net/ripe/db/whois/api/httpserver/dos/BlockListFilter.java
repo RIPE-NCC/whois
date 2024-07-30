@@ -1,5 +1,6 @@
 package net.ripe.db.whois.api.httpserver.dos;
 
+import com.google.common.net.InetAddresses;
 import jakarta.servlet.Filter;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.FilterConfig;
@@ -8,7 +9,8 @@ import jakarta.servlet.ServletRequest;
 import jakarta.servlet.ServletResponse;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import net.ripe.db.whois.common.hazelcast.BlockListJmx;
+import net.ripe.db.whois.common.hazelcast.HazelcastBlockList;
+import net.ripe.db.whois.common.ip.IpInterval;
 import org.eclipse.jetty.http.HttpStatus;
 import org.springframework.stereotype.Component;
 
@@ -18,10 +20,10 @@ import java.io.IOException;
 @Component
 public class BlockListFilter implements Filter {
 
-    private final BlockListJmx blockListJmx;
+    private final HazelcastBlockList hazelcastBlockList;
 
-    public BlockListFilter(final BlockListJmx blockListJmx){
-        this.blockListJmx = blockListJmx;
+    public BlockListFilter(final HazelcastBlockList hazelcastBlockList){
+        this.hazelcastBlockList = hazelcastBlockList;
     }
 
     @Override
@@ -47,6 +49,8 @@ public class BlockListFilter implements Filter {
     }
 
     private boolean isBlockedIp(final String candidate) {
-        return IpUtil.isExistingIp(candidate, blockListJmx.getIpv4blockedSet(), blockListJmx.getIpv6blockedSet());
+        final IpInterval<?> parsed = IpInterval.asIpInterval(InetAddresses.forString(candidate));
+        return hazelcastBlockList.getIpBlockedSet().stream()
+                .anyMatch(ipRange -> ipRange.getClass().equals(parsed.getClass()) && ipRange.contains(parsed));
     }
 }

@@ -8,7 +8,7 @@ import net.ripe.db.whois.api.RestTest;
 import net.ripe.db.whois.api.rest.domain.WhoisResources;
 import net.ripe.db.whois.api.rest.mapper.FormattedClientAttributeMapper;
 import net.ripe.db.whois.api.rest.mapper.WhoisObjectMapper;
-import net.ripe.db.whois.common.hazelcast.BlockListJmx;
+import net.ripe.db.whois.api.httpserver.jmx.BlockListJmx;
 import net.ripe.db.whois.common.rpsl.RpslObject;
 import org.eclipse.jetty.http.HttpStatus;
 import org.junit.jupiter.api.AfterAll;
@@ -64,11 +64,11 @@ public class WhoisRestServiceBlockedListTestIntegration extends AbstractIntegrat
 
     @BeforeAll
     public static void beforeClass() {
-        System.setProperty("ipranges.untrusted", "193.0.0.0 - 193.0.23.255, 2001:67c:2e8::/48");
+        System.setProperty("ipranges.blocked.list", "193.0.0.0 - 193.0.23.255, 2001:67c:2e8::/48");
     }
 
     @AfterAll
-    public static void clear(){ System.clearProperty("ipranges.untrusted"); }
+    public static void clear(){ System.clearProperty("ipranges.blocked.list"); }
 
     @BeforeEach
     public void setup() {
