@@ -3,7 +3,6 @@ package net.ripe.db.whois.common.hazelcast;
 import com.google.common.base.Joiner;
 import net.ripe.db.whois.common.ip.IpInterval;
 import net.ripe.db.whois.common.profiles.WhoisProfile;
-import org.eclipse.jetty.util.StringUtil;
 import org.mockito.internal.util.collections.Sets;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Profile;
@@ -22,9 +21,7 @@ public class TestHazelcastBlockedIps implements HazelcastBlockedIps {
     public TestHazelcastBlockedIps(@Value("${ipranges.blocked.list:}") final String blockedListIps) {
         ipBlockedSet = Sets.newSet();
 
-        for (final String address : StringUtil.csvSplit(blockedListIps)) {
-            addBlockedListAddress(address);
-        }
+        ipBlockedSet.addAll(getBlockedIntervals(blockedListIps));
     }
 
     @Override

@@ -5,11 +5,13 @@ import com.hazelcast.collection.ISet;
 import com.hazelcast.core.HazelcastInstance;
 import net.ripe.db.whois.common.ip.IpInterval;
 import net.ripe.db.whois.common.profiles.WhoisProfile;
-import org.eclipse.jetty.util.StringUtil;
 import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Component;
+
+import java.util.List;
+import java.util.stream.Stream;
 
 import static org.slf4j.LoggerFactory.getLogger;
 
@@ -27,13 +29,11 @@ public class WhoisHazelcastBlockedIps implements HazelcastBlockedIps{
                                     @Value("${ipranges.blocked.list:}") final String blockedListIps) {
 
         ipBlockedSet = hazelcastInstance.getSet("ipBlockedSet");
-
-        for (final String address : StringUtil.csvSplit(blockedListIps)) {
-            addBlockedListAddress(address);
-        }
+        ipBlockedSet.addAll(getBlockedIntervals(blockedListIps));
 
         LOGGER.info("hazelcast instances {} members: {} " , hazelcastInstance.getName() , hazelcastInstance.getCluster().getMembers());
     }
+
 
     @Override
     public void addBlockedListAddress(final String address) {
@@ -60,5 +60,4 @@ public class WhoisHazelcastBlockedIps implements HazelcastBlockedIps{
     public ISet<IpInterval> getIpBlockedSet() {
         return ipBlockedSet;
     }
-
 }
