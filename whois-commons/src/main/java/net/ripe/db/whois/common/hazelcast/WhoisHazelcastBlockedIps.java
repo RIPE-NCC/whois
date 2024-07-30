@@ -4,24 +4,27 @@ import com.google.common.base.Joiner;
 import com.hazelcast.collection.ISet;
 import com.hazelcast.core.HazelcastInstance;
 import net.ripe.db.whois.common.ip.IpInterval;
+import net.ripe.db.whois.common.profiles.WhoisProfile;
 import org.eclipse.jetty.util.StringUtil;
 import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Component;
 
 import static org.slf4j.LoggerFactory.getLogger;
 
 @Component
-public class HazelcastBlockList {
+@Profile({WhoisProfile.DEPLOYED})
+public class WhoisHazelcastBlockedIps implements HazelcastBlockedIps{
 
-    private static final Logger LOGGER = getLogger(HazelcastBlockList.class);
+    private static final Logger LOGGER = getLogger(WhoisHazelcastBlockedIps.class);
 
     private static final Joiner COMMA_JOINER = Joiner.on(',');
 
     private final ISet<IpInterval> ipBlockedSet;
 
-    public HazelcastBlockList(final HazelcastInstance hazelcastInstance,
-                        @Value("${ipranges.blocked.list:}") final String blockedListIps) {
+    public WhoisHazelcastBlockedIps(final HazelcastInstance hazelcastInstance,
+                                    @Value("${ipranges.blocked.list:}") final String blockedListIps) {
 
         ipBlockedSet = hazelcastInstance.getSet("ipBlockedSet");
 
@@ -32,16 +35,19 @@ public class HazelcastBlockList {
         LOGGER.info("hazelcast instances {} members: {} " , hazelcastInstance.getName() , hazelcastInstance.getCluster().getMembers());
     }
 
+    @Override
     public void addBlockedListAddress(final String address) {
         ipBlockedSet.add(IpInterval.parse(address));
         LOGGER.info("Ipaddress {} added to blocked list", address);
     }
 
+    @Override
     public void removeBlockedListAddress(String address) {
         ipBlockedSet.remove(IpInterval.parse(address));
         LOGGER.info("Ipaddress {} removed from blocked list", address);
     }
 
+    @Override
     public String getBlockedList() {
         StringBuilder result = new StringBuilder();
         COMMA_JOINER.appendTo(result, ipBlockedSet);
@@ -50,6 +56,7 @@ public class HazelcastBlockList {
         return String.format("The blocked list contains next IPs %s", result);
     }
 
+    @Override
     public ISet<IpInterval> getIpBlockedSet() {
         return ipBlockedSet;
     }

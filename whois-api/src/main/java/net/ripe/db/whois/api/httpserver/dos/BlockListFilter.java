@@ -9,7 +9,8 @@ import jakarta.servlet.ServletRequest;
 import jakarta.servlet.ServletResponse;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import net.ripe.db.whois.common.hazelcast.HazelcastBlockList;
+import net.ripe.db.whois.common.hazelcast.HazelcastBlockedIps;
+import net.ripe.db.whois.common.hazelcast.WhoisHazelcastBlockedIps;
 import net.ripe.db.whois.common.ip.IpInterval;
 import org.eclipse.jetty.http.HttpStatus;
 import org.springframework.stereotype.Component;
@@ -20,10 +21,10 @@ import java.io.IOException;
 @Component
 public class BlockListFilter implements Filter {
 
-    private final HazelcastBlockList hazelcastBlockList;
+    private final HazelcastBlockedIps hazelcastBlockedIps;
 
-    public BlockListFilter(final HazelcastBlockList hazelcastBlockList){
-        this.hazelcastBlockList = hazelcastBlockList;
+    public BlockListFilter(final HazelcastBlockedIps hazelcastBlockedIps){
+        this.hazelcastBlockedIps = hazelcastBlockedIps;
     }
 
     @Override
@@ -50,7 +51,7 @@ public class BlockListFilter implements Filter {
 
     private boolean isBlockedIp(final String candidate) {
         final IpInterval<?> parsed = IpInterval.asIpInterval(InetAddresses.forString(candidate));
-        return hazelcastBlockList.getIpBlockedSet().stream()
+        return hazelcastBlockedIps.getIpBlockedSet().stream()
                 .anyMatch(ipRange -> ipRange.getClass().equals(parsed.getClass()) && ipRange.contains(parsed));
     }
 }

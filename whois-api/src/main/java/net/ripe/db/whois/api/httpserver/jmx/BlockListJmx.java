@@ -1,6 +1,6 @@
 package net.ripe.db.whois.api.httpserver.jmx;
 
-import net.ripe.db.whois.common.hazelcast.HazelcastBlockList;
+import net.ripe.db.whois.common.hazelcast.HazelcastBlockedIps;
 import net.ripe.db.whois.common.jmx.JmxBase;
 import org.slf4j.Logger;
 import org.springframework.jmx.export.annotation.ManagedOperation;
@@ -17,11 +17,11 @@ public class BlockListJmx extends JmxBase {
 
     private static final Logger LOGGER = getLogger(BlockListJmx.class);
 
-    private final HazelcastBlockList hazelcastBlockList;
+    private final HazelcastBlockedIps hazelcastBlockedIps;
 
-    public BlockListJmx(final HazelcastBlockList hazelcastBlockList) {
+    public BlockListJmx(final HazelcastBlockedIps hazelcastBlockedIps) {
         super(LOGGER);
-        this.hazelcastBlockList = hazelcastBlockList;
+        this.hazelcastBlockedIps = hazelcastBlockedIps;
     }
 
     @ManagedOperation(description = "adds an IP address to blocked list")
@@ -29,7 +29,7 @@ public class BlockListJmx extends JmxBase {
             @ManagedOperationParameter(name = "address", description = "address to block"),
     })
     public String addBlockedListAddress(final String address) {
-        hazelcastBlockList.addBlockedListAddress(address);
+        hazelcastBlockedIps.addBlockedListAddress(address);
         return String.format("Ipaddress %s added to blocked list", address);
     }
 
@@ -38,12 +38,12 @@ public class BlockListJmx extends JmxBase {
             @ManagedOperationParameter(name = "address", description = "address to remove"),
     })
     public String removeBlockedListAddress(String address) {
-        hazelcastBlockList.removeBlockedListAddress(address);
+        hazelcastBlockedIps.removeBlockedListAddress(address);
         return String.format("Ipaddress %s removed from blocked list", address);
     }
 
     @ManagedOperation(description = "Retrieve blocked list")
     public String getBlockedList() {
-        return hazelcastBlockList.getBlockedList();
+        return hazelcastBlockedIps.getBlockedList();
     }
 }
