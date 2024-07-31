@@ -9,7 +9,6 @@ import jakarta.servlet.ServletRequest;
 import jakarta.servlet.ServletResponse;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import net.ripe.db.whois.common.Latin1Conversion;
 import net.ripe.db.whois.common.hazelcast.HazelcastBlockedIps;
 import net.ripe.db.whois.common.ip.IpInterval;
 import org.eclipse.jetty.http.HttpStatus;
