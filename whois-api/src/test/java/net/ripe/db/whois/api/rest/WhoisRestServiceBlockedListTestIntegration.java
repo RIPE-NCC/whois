@@ -345,8 +345,7 @@ public class WhoisRestServiceBlockedListTestIntegration extends AbstractIntegrat
                 .delete();
 
         assertThat(HttpStatus.TOO_MANY_REQUESTS_429, is(response.getStatus()));
-        final String responseBody = response.readEntity(String.class);
-        assertThat(responseBody, containsString("Your account has been permanently blocked due to suspected abusive behavior. " +
+        assertThat(response.readEntity(String.class), containsString("Your account has been permanently blocked due to suspected abusive behavior. " +
                     "Please contact support for further assistance"));
     }
 
