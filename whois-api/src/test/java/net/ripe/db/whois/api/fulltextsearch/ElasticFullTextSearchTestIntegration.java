@@ -11,9 +11,9 @@ import net.ripe.db.whois.api.elasticsearch.AbstractElasticSearchIntegrationTest;
 import net.ripe.db.whois.common.ip.IpInterval;
 import net.ripe.db.whois.common.rpsl.RpslObject;
 import net.ripe.db.whois.common.sso.AuthServiceClient;
+import net.ripe.db.whois.query.acl.HazelcastPersonalObjectAccounting;
 import net.ripe.db.whois.query.acl.IpResourceConfiguration;
 import net.ripe.db.whois.query.dao.jdbc.JdbcIpAccessControlListDao;
-import net.ripe.db.whois.query.support.TestPersonalObjectAccounting;
 import org.apache.solr.client.solrj.impl.XMLResponseParser;
 import org.apache.solr.client.solrj.response.FacetField;
 import org.apache.solr.client.solrj.response.QueryResponse;
@@ -60,7 +60,8 @@ public class ElasticFullTextSearchTestIntegration extends AbstractElasticSearchI
     public static final String VALID_TOKEN = "valid-token";
 
 
-    @Autowired TestPersonalObjectAccounting testPersonalObjectAccounting;
+    @Autowired
+    HazelcastPersonalObjectAccounting hazelcastPersonalObjectAccounting;
     @Autowired
     JdbcIpAccessControlListDao jdbcIpAccessControlListDao;
     @Autowired IpResourceConfiguration ipResourceConfiguration;
@@ -87,7 +88,7 @@ public class ElasticFullTextSearchTestIntegration extends AbstractElasticSearchI
     public void setUp() throws IOException {
        rebuildIndex();
 
-        testPersonalObjectAccounting.resetAccounting();
+        hazelcastPersonalObjectAccounting.resetAccounting();
     }
 
     @Override
@@ -987,7 +988,7 @@ public class ElasticFullTextSearchTestIntegration extends AbstractElasticSearchI
 
     @Test
     public void temporary_block() {
-        testPersonalObjectAccounting.accountPersonalObject(Inet4Address.getLoopbackAddress(), 5001);
+        hazelcastPersonalObjectAccounting.accountPersonalObject(Inet4Address.getLoopbackAddress(), 5001);
 
         databaseHelper.addObject(RpslObject.parse(
                 "person: John McDonald\n" +
@@ -1055,7 +1056,7 @@ public class ElasticFullTextSearchTestIntegration extends AbstractElasticSearchI
 
     @Test
     public void too_many_personal_object_temporary_block() {
-        testPersonalObjectAccounting.accountPersonalObject(Inet4Address.getLoopbackAddress(), 5000);
+        hazelcastPersonalObjectAccounting.accountPersonalObject(Inet4Address.getLoopbackAddress(), 5000);
 
         databaseHelper.addObject(RpslObject.parse(
                 "person: John McDonald\n" +
@@ -1073,7 +1074,7 @@ public class ElasticFullTextSearchTestIntegration extends AbstractElasticSearchI
 
     @Test
     public void too_many_personal_object_temporary_block_sso() {
-        testPersonalObjectAccounting.accountPersonalObject(VALID_TOKEN_USER_NAME, 5000);
+        hazelcastPersonalObjectAccounting.accountPersonalObject(VALID_TOKEN_USER_NAME, 5000);
 
         databaseHelper.addObject(RpslObject.parse(
                 "person: John McDonald\n" +
@@ -1095,7 +1096,7 @@ public class ElasticFullTextSearchTestIntegration extends AbstractElasticSearchI
 
     @Test
     public void should_account_for_personal_objects() {
-        testPersonalObjectAccounting.accountPersonalObject(Inet4Address.getLoopbackAddress(), 1);
+        hazelcastPersonalObjectAccounting.accountPersonalObject(Inet4Address.getLoopbackAddress(), 1);
 
         databaseHelper.addObject(RpslObject.parse(
                 "person: John McDonald\n" +
@@ -1105,14 +1106,14 @@ public class ElasticFullTextSearchTestIntegration extends AbstractElasticSearchI
 
         query("q=john%20mcdonald");
 
-        int totalCount = testPersonalObjectAccounting.getQueriedPersonalObjects(Inet4Address.getLoopbackAddress());
+        int totalCount = hazelcastPersonalObjectAccounting.getQueriedPersonalObjects(Inet4Address.getLoopbackAddress());
         assertThat(totalCount, is(2));
     }
 
     @Test
     public void should_account_for_personal_objects_using_sso() {
-        testPersonalObjectAccounting.accountPersonalObject(Inet4Address.getLoopbackAddress(), 1);
-        testPersonalObjectAccounting.accountPersonalObject(VALID_TOKEN_USER_NAME, 1);
+        hazelcastPersonalObjectAccounting.accountPersonalObject(Inet4Address.getLoopbackAddress(), 1);
+        hazelcastPersonalObjectAccounting.accountPersonalObject(VALID_TOKEN_USER_NAME, 1);
 
         databaseHelper.addObject(RpslObject.parse(
                 "person: John McDonald\n" +
@@ -1125,8 +1126,8 @@ public class ElasticFullTextSearchTestIntegration extends AbstractElasticSearchI
                 .cookie(AuthServiceClient.TOKEN_KEY, VALID_TOKEN)
                 .get(String.class);
 
-        int totalCountIp = testPersonalObjectAccounting.getQueriedPersonalObjects(Inet4Address.getLoopbackAddress());
-        int totalCountSSO = testPersonalObjectAccounting.getQueriedPersonalObjects(VALID_TOKEN_USER_NAME);
+        int totalCountIp = hazelcastPersonalObjectAccounting.getQueriedPersonalObjects(Inet4Address.getLoopbackAddress());
+        int totalCountSSO = hazelcastPersonalObjectAccounting.getQueriedPersonalObjects(VALID_TOKEN_USER_NAME);
         assertThat(totalCountIp, is(1)) ;
         assertThat(totalCountSSO, is(2));
     }

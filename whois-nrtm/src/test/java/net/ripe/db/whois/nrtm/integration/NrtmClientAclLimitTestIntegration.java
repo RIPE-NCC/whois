@@ -4,12 +4,11 @@ package net.ripe.db.whois.nrtm.integration;
 import net.ripe.db.whois.common.dao.jdbc.DatabaseHelper;
 import net.ripe.db.whois.common.rpsl.ObjectType;
 import net.ripe.db.whois.common.rpsl.RpslObject;
-import net.ripe.db.whois.nrtm.NrtmServer;
 import net.ripe.db.whois.nrtm.client.NrtmImporter;
 import net.ripe.db.whois.query.acl.AccessControlListManager;
 import net.ripe.db.whois.query.acl.AccountingIdentifier;
+import net.ripe.db.whois.query.acl.HazelcastPersonalObjectAccounting;
 import net.ripe.db.whois.query.acl.IpResourceConfiguration;
-import net.ripe.db.whois.query.support.TestPersonalObjectAccounting;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
@@ -39,7 +38,7 @@ public class NrtmClientAclLimitTestIntegration extends AbstractNrtmIntegrationBa
     @Autowired
     private IpResourceConfiguration ipResourceConfiguration;
     @Autowired
-    private TestPersonalObjectAccounting testPersonalObjectAccounting;
+    private HazelcastPersonalObjectAccounting hazelcastPersonalObjectAccounting;
 
     @BeforeAll
     public static void beforeClass() {
@@ -54,7 +53,7 @@ public class NrtmClientAclLimitTestIntegration extends AbstractNrtmIntegrationBa
     public void before() throws InterruptedException {
         databaseHelper.addObject(mntner);
         ipResourceConfiguration.reload();
-        testPersonalObjectAccounting.resetAccounting();
+        hazelcastPersonalObjectAccounting.resetAccounting();
 
         nrtmServer.start();
 

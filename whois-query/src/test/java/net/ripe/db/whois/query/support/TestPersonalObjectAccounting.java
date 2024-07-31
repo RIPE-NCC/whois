@@ -1,3 +1,4 @@
+/*
 package net.ripe.db.whois.query.support;
 
 import net.ripe.db.whois.common.profiles.WhoisProfile;
@@ -51,3 +52,4 @@ public class TestPersonalObjectAccounting implements PersonalObjectAccounting {
         ssoQueriedPersonalObjects = new HashMap<>();
     }
 }
+*/

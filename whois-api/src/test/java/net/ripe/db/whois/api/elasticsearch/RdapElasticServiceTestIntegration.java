@@ -24,8 +24,8 @@ import net.ripe.db.whois.api.rest.client.RestClientUtils;
 import net.ripe.db.whois.common.rpsl.RpslObject;
 import net.ripe.db.whois.query.acl.AccessControlListManager;
 import net.ripe.db.whois.query.acl.AccountingIdentifier;
+import net.ripe.db.whois.query.acl.HazelcastPersonalObjectAccounting;
 import net.ripe.db.whois.query.acl.IpResourceConfiguration;
-import net.ripe.db.whois.query.support.TestPersonalObjectAccounting;
 import org.eclipse.jetty.http.HttpStatus;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
@@ -68,7 +68,7 @@ public class RdapElasticServiceTestIntegration extends AbstractElasticSearchInte
     @Autowired
     private IpResourceConfiguration ipResourceConfiguration;
     @Autowired
-    private TestPersonalObjectAccounting testPersonalObjectAccounting;
+    private HazelcastPersonalObjectAccounting hazelcastPersonalObjectAccounting;
 
     @BeforeAll
     public static void setUpProperties() {
@@ -674,7 +674,7 @@ public class RdapElasticServiceTestIntegration extends AbstractElasticSearchInte
         } finally {
             databaseHelper.unbanIp(LOCALHOST_WITH_PREFIX);
             ipResourceConfiguration.reload();
-            testPersonalObjectAccounting.resetAccounting();
+            hazelcastPersonalObjectAccounting.resetAccounting();
         }
     }
 
@@ -694,7 +694,7 @@ public class RdapElasticServiceTestIntegration extends AbstractElasticSearchInte
 
         } finally {
             ipResourceConfiguration.reload();
-            testPersonalObjectAccounting.resetAccounting();
+            hazelcastPersonalObjectAccounting.resetAccounting();
         }
     }
 

@@ -13,7 +13,6 @@ import org.springframework.stereotype.Component;
 import java.net.InetAddress;
 import java.util.concurrent.TimeUnit;
 
-@DeployedProfile
 @Primary
 @Component
 public class HazelcastPersonalObjectAccounting implements PersonalObjectAccounting {

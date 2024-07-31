@@ -7,9 +7,8 @@ import com.amazonaws.proprot.ProxyProtocolSpec.Command;
 import com.amazonaws.proprot.ProxyProtocolSpec.TransportProtocol;
 import com.google.common.collect.Lists;
 import net.ripe.db.whois.common.rpsl.RpslObject;
-import net.ripe.db.whois.query.QueryServer;
+import net.ripe.db.whois.query.acl.HazelcastPersonalObjectAccounting;
 import net.ripe.db.whois.query.support.AbstractQueryIntegrationTest;
-import net.ripe.db.whois.query.support.TestPersonalObjectAccounting;
 import org.apache.commons.io.IOUtils;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.AfterEach;
@@ -38,7 +37,7 @@ import static org.hamcrest.MatcherAssert.assertThat;
 public class WhoisProxyProtocolTestIntegration extends AbstractQueryIntegrationTest {
 
     @Autowired
-    TestPersonalObjectAccounting testPersonalObjectAccounting;
+    HazelcastPersonalObjectAccounting hazelcastPersonalObjectAccounting;
 
     @BeforeAll
     public static void setSpringProfile() {
@@ -54,7 +53,7 @@ public class WhoisProxyProtocolTestIntegration extends AbstractQueryIntegrationT
     public void startupWhoisServer() {
         databaseHelper.clearAclLimits();
         ipResourceConfiguration.reload();
-        testPersonalObjectAccounting.resetAccounting();
+        hazelcastPersonalObjectAccounting.resetAccounting();
 
         final RpslObject person = RpslObject.parse("person: ADM-TEST\naddress: address\nphone: +312342343\nmnt-by:RIPE-NCC-HM-MNT\nadmin-c: ADM-TEST\nnic-hdl: ADM-TEST\nsource: TEST");
         final RpslObject mntner = RpslObject.parse("mntner: RIPE-NCC-HM-MNT\nmnt-by: RIPE-NCC-HM-MNT\ndescr: description\nadmin-c: ADM-TEST\nsource: TEST");
@@ -74,7 +73,7 @@ public class WhoisProxyProtocolTestIntegration extends AbstractQueryIntegrationT
         InetAddress clientIp = InetAddress.getByName("12.34.56.78");
 
         send(clientIp, "ADM-TEST");
-        assertThat(testPersonalObjectAccounting.getQueriedPersonalObjects(clientIp), is(1));
+        assertThat(hazelcastPersonalObjectAccounting.getQueriedPersonalObjects(clientIp), is(1));
     }
 
     @Test
@@ -82,7 +81,7 @@ public class WhoisProxyProtocolTestIntegration extends AbstractQueryIntegrationT
         InetAddress clientIp = InetAddress.getByName("ee80:aa00:bb00:cc00::");
 
         send(clientIp, "ADM-TEST");
-        assertThat(testPersonalObjectAccounting.getQueriedPersonalObjects(clientIp), is(1));
+        assertThat(hazelcastPersonalObjectAccounting.getQueriedPersonalObjects(clientIp), is(1));
     }
 
     private String send(final InetAddress clientIp, final String query) {

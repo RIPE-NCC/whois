@@ -6,8 +6,8 @@ import net.ripe.db.whois.api.rdap.domain.Autnum;
 import net.ripe.db.whois.api.rdap.domain.Entity;
 import net.ripe.db.whois.api.rdap.domain.Ip;
 import net.ripe.db.whois.common.rpsl.RpslObject;
+import net.ripe.db.whois.query.acl.HazelcastPersonalObjectAccounting;
 import net.ripe.db.whois.query.acl.IpResourceConfiguration;
-import net.ripe.db.whois.query.support.TestPersonalObjectAccounting;
 import org.eclipse.jetty.http.HttpStatus;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Tag;
@@ -124,7 +124,7 @@ class RdapServiceAclTestIntegration extends AbstractRdapIntegrationTest {
     @Autowired
     private IpResourceConfiguration ipResourceConfiguration;
     @Autowired
-    private TestPersonalObjectAccounting testPersonalObjectAccounting;
+    private HazelcastPersonalObjectAccounting hazelcastPersonalObjectAccounting;
 
     @BeforeEach
     public void setup() {
@@ -157,7 +157,7 @@ class RdapServiceAclTestIntegration extends AbstractRdapIntegrationTest {
         } finally {
             databaseHelper.unbanIp(LOCALHOST_WITH_PREFIX);
             ipResourceConfiguration.reload();
-            testPersonalObjectAccounting.resetAccounting();
+            hazelcastPersonalObjectAccounting.resetAccounting();
         }
     }
 
@@ -167,7 +167,7 @@ class RdapServiceAclTestIntegration extends AbstractRdapIntegrationTest {
             .request(MediaType.APPLICATION_JSON_TYPE)
             .get(Entity.class);
 
-        assertThat(testPersonalObjectAccounting.getQueriedPersonalObjects(InetAddress.getByName(LOCALHOST)), is(1));
+        assertThat(hazelcastPersonalObjectAccounting.getQueriedPersonalObjects(InetAddress.getByName(LOCALHOST)), is(1));
     }
 
     @Test
@@ -177,7 +177,7 @@ class RdapServiceAclTestIntegration extends AbstractRdapIntegrationTest {
                 .get(Entity.class);
 
         assertThat(((ArrayList)entity.getVCardArray().get(1)).get(2).toString(), is("[kind, {}, text, individual]"));
-        assertThat(testPersonalObjectAccounting.getQueriedPersonalObjects(InetAddress.getByName(LOCALHOST)), is(0));
+        assertThat(hazelcastPersonalObjectAccounting.getQueriedPersonalObjects(InetAddress.getByName(LOCALHOST)), is(0));
     }
 
     @Test
@@ -186,7 +186,7 @@ class RdapServiceAclTestIntegration extends AbstractRdapIntegrationTest {
                 .request(MediaType.APPLICATION_JSON_TYPE)
                 .get(Entity.class);
 
-        assertThat(testPersonalObjectAccounting.getQueriedPersonalObjects(InetAddress.getByName(LOCALHOST)), is(0));
+        assertThat(hazelcastPersonalObjectAccounting.getQueriedPersonalObjects(InetAddress.getByName(LOCALHOST)), is(0));
     }
     @Test
     public void lookup_inetnum_filtered_emails_acl_not_counted() throws Exception {
@@ -247,7 +247,7 @@ class RdapServiceAclTestIntegration extends AbstractRdapIntegrationTest {
         assertEmailRedactionForEntities(entity, entity.getEntitySearchResults(), "$", "ROLE-TEST");
         assertEmailRedactionForEntities(entity, entity.getEntitySearchResults(), "$", "TP1-TEST");
 
-        assertThat(testPersonalObjectAccounting.getQueriedPersonalObjects(InetAddress.getByName(LOCALHOST)), is(0));
+        assertThat(hazelcastPersonalObjectAccounting.getQueriedPersonalObjects(InetAddress.getByName(LOCALHOST)), is(0));
     }
 
     @Test
@@ -310,7 +310,7 @@ class RdapServiceAclTestIntegration extends AbstractRdapIntegrationTest {
         assertEmailRedactionForEntities(entity, entity.getEntitySearchResults(), "$", "ROLE-TEST");
         assertEmailRedactionForEntities(entity, entity.getEntitySearchResults(), "$", "TP1-TEST");
 
-        assertThat(testPersonalObjectAccounting.getQueriedPersonalObjects(InetAddress.getByName(LOCALHOST)), is(0));
+        assertThat(hazelcastPersonalObjectAccounting.getQueriedPersonalObjects(InetAddress.getByName(LOCALHOST)), is(0));
     }
 
     @Test
@@ -372,7 +372,7 @@ class RdapServiceAclTestIntegration extends AbstractRdapIntegrationTest {
         assertEmailRedactionForEntities(entity, entity.getEntitySearchResults(), "$", "ROLE-TEST");
         assertEmailRedactionForEntities(entity, entity.getEntitySearchResults(), "$", "TP1-TEST");
 
-        assertThat(testPersonalObjectAccounting.getQueriedPersonalObjects(InetAddress.getByName(LOCALHOST)), is(0));
+        assertThat(hazelcastPersonalObjectAccounting.getQueriedPersonalObjects(InetAddress.getByName(LOCALHOST)), is(0));
     }
 
     @Test
@@ -400,6 +400,6 @@ class RdapServiceAclTestIntegration extends AbstractRdapIntegrationTest {
 
         assertEmailRedactionForEntities(entity, entity.getEntitySearchResults(), "$", "OWNER-MNT");
 
-        assertThat(testPersonalObjectAccounting.getQueriedPersonalObjects(InetAddress.getByName(LOCALHOST)), is(1));
+        assertThat(hazelcastPersonalObjectAccounting.getQueriedPersonalObjects(InetAddress.getByName(LOCALHOST)), is(1));
     }
 }

@@ -2,9 +2,8 @@ package net.ripe.db.whois.nrtm.integration;
 
 
 import net.ripe.db.whois.common.support.TelnetWhoisClient;
-import net.ripe.db.whois.nrtm.NrtmServer;
+import net.ripe.db.whois.query.acl.HazelcastPersonalObjectAccounting;
 import net.ripe.db.whois.query.acl.IpResourceConfiguration;
-import net.ripe.db.whois.query.support.TestPersonalObjectAccounting;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Tag;
@@ -20,7 +19,7 @@ public class NrtmQueryTestIntegration extends AbstractNrtmIntegrationBase {
     @Autowired
     private IpResourceConfiguration ipResourceConfiguration;
     @Autowired
-    private TestPersonalObjectAccounting testPersonalObjectAccounting;
+    private HazelcastPersonalObjectAccounting hazelcastPersonalObjectAccounting;
 
     @BeforeEach
     public void before() throws InterruptedException {
@@ -105,7 +104,7 @@ public class NrtmQueryTestIntegration extends AbstractNrtmIntegrationBase {
         } finally {
             databaseHelper.unbanIp("127.0.0.1/32");
             ipResourceConfiguration.reload();
-            testPersonalObjectAccounting.resetAccounting();
+            hazelcastPersonalObjectAccounting.resetAccounting();
         }
     }
 

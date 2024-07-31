@@ -12,7 +12,6 @@
     <import resource="applicationContext-nrtm.xml"/>
 
     <context:component-scan base-package="net.ripe.db.whois.query.support">
-            <context:include-filter type="assignable" expression="net.ripe.db.whois.query.support.TestPersonalObjectAccounting"/>
     </context:component-scan>
 
 

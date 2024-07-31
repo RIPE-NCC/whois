@@ -10,9 +10,9 @@ import net.ripe.db.whois.common.support.TelnetWhoisClient;
 import net.ripe.db.whois.query.QueryServer;
 import net.ripe.db.whois.query.acl.AccessControlListManager;
 import net.ripe.db.whois.query.acl.AccountingIdentifier;
+import net.ripe.db.whois.query.acl.HazelcastPersonalObjectAccounting;
 import net.ripe.db.whois.query.acl.IpResourceConfiguration;
 import net.ripe.db.whois.query.acl.SSOResourceConfiguration;
-import net.ripe.db.whois.query.support.TestPersonalObjectAccounting;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
@@ -39,7 +39,7 @@ public class WhoisRestServiceIpAclTestIntegration extends AbstractIntegrationTes
     @Autowired
     private AccessControlListManager accessControlListManager;
     @Autowired
-    private TestPersonalObjectAccounting testPersonalObjectAccounting;
+    private HazelcastPersonalObjectAccounting hazelcastPersonalObjectAccounting;
     @Autowired
     private IpResourceConfiguration ipResourceConfiguration;
     @Autowired
@@ -73,7 +73,7 @@ public class WhoisRestServiceIpAclTestIntegration extends AbstractIntegrationTes
 
         ipResourceConfiguration.reload();
         ssoResourceConfiguration.reload();
-        testPersonalObjectAccounting.resetAccounting();
+        hazelcastPersonalObjectAccounting.resetAccounting();
     }
 
     @Test
@@ -229,8 +229,8 @@ public class WhoisRestServiceIpAclTestIntegration extends AbstractIntegrationTes
                         "e-mail:   test@ripe.net\n" +
                         "source:    TEST");
 
-        final int queriedByIP = testPersonalObjectAccounting.getQueriedPersonalObjects(localhost);
-        final int queriedBySSO = testPersonalObjectAccounting.getQueriedPersonalObjects(VALID_TOKEN_USER_NAME);
+        final int queriedByIP = hazelcastPersonalObjectAccounting.getQueriedPersonalObjects(localhost);
+        final int queriedBySSO = hazelcastPersonalObjectAccounting.getQueriedPersonalObjects(VALID_TOKEN_USER_NAME);
 
         final WhoisResources whoisResources =  RestTest.target(getPort(), "whois/test/person/TP2-TEST")
                 .request()
@@ -242,10 +242,10 @@ public class WhoisRestServiceIpAclTestIntegration extends AbstractIntegrationTes
                         .anyMatch( (attribute)-> attribute.getName().equals(AttributeType.E_MAIL)),
                 is(false));
 
-        final int accountedByIp = testPersonalObjectAccounting.getQueriedPersonalObjects(localhost);
+        final int accountedByIp = hazelcastPersonalObjectAccounting.getQueriedPersonalObjects(localhost);
         assertThat(accountedByIp, is(queriedByIP+1));
 
-        final int accountedBySSO = testPersonalObjectAccounting.getQueriedPersonalObjects(VALID_TOKEN_USER_NAME);
+        final int accountedBySSO = hazelcastPersonalObjectAccounting.getQueriedPersonalObjects(VALID_TOKEN_USER_NAME);
         assertThat(accountedBySSO, is(queriedBySSO));
     }
 
@@ -272,7 +272,7 @@ public class WhoisRestServiceIpAclTestIntegration extends AbstractIntegrationTes
                 .request()
                 .get(WhoisResources.class);
 
-        final int accountedByIp = testPersonalObjectAccounting.getQueriedPersonalObjects(localhost);
+        final int accountedByIp = hazelcastPersonalObjectAccounting.getQueriedPersonalObjects(localhost);
         assertThat(accountedByIp, is(0));
     }
 }

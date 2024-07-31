@@ -1,6 +1,5 @@
 package net.ripe.db.whois.common;
 
-import com.google.common.collect.Lists;
 import com.hazelcast.config.Config;
 import com.hazelcast.core.Hazelcast;
 import com.hazelcast.core.HazelcastInstance;
@@ -8,17 +7,12 @@ import com.hazelcast.spring.cache.HazelcastCacheManager;
 import jakarta.annotation.PreDestroy;
 import net.ripe.db.whois.common.hazelcast.HazelcastMemberShipListener;
 import net.ripe.db.whois.common.profiles.WhoisProfile;
-import org.springframework.cache.Cache;
 import org.springframework.cache.CacheManager;
-import org.springframework.cache.concurrent.ConcurrentMapCache;
-import org.springframework.cache.support.SimpleCacheManager;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Profile;
 
 import java.util.Arrays;
-import java.util.List;
-
 import static net.ripe.db.whois.common.hazelcast.HazelcastInstanceManager.getGenericConfig;
 
 @Profile({WhoisProfile.TEST})
@@ -33,7 +27,7 @@ public class TestCacheManagerProvider {
     public HazelcastInstance hazelcastInstance() {
         if (this.hazelcastInstance == null) {
             final Config config = getGenericConfig();
-            config.getNetworkConfig().setPortAutoIncrement(true);
+            config.getNetworkConfig().setPort(0);
             config.getNetworkConfig().getJoin().getMulticastConfig().setEnabled(false);
             config.getNetworkConfig().getJoin().getTcpIpConfig().setMembers(Arrays.asList("127.0.0.1"));
 

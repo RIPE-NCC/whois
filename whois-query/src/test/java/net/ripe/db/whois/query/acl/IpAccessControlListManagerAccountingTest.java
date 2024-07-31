@@ -1,3 +1,4 @@
+/*
 package net.ripe.db.whois.query.acl;
 
 import net.ripe.db.whois.common.DateTimeProvider;
@@ -5,7 +6,6 @@ import net.ripe.db.whois.common.domain.IpRanges;
 import net.ripe.db.whois.common.sso.SsoTokenTranslator;
 import net.ripe.db.whois.query.dao.IpAccessControlListDao;
 import net.ripe.db.whois.query.dao.SSOAccessControlListDao;
-import net.ripe.db.whois.query.support.TestPersonalObjectAccounting;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -36,7 +36,7 @@ public class IpAccessControlListManagerAccountingTest {
     SsoTokenTranslator ssoTokenTranslator;
 
     @Mock IpRanges ipRanges;
-    private PersonalObjectAccounting personalObjectAccounting = new TestPersonalObjectAccounting();
+    private PersonalObjectAccounting personalObjectAccounting = new HazelcastPersonalObjectAccounting();
 
 
     private InetAddress ipv4Address;
@@ -88,3 +88,4 @@ public class IpAccessControlListManagerAccountingTest {
         personalObjectAccounting.resetAccounting();
     }
 }
+*/

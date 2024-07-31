@@ -1,19 +1,16 @@
 package net.ripe.db.whois.api.rest;
 
 import jakarta.ws.rs.ClientErrorException;
-import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 import net.ripe.db.whois.api.AbstractIntegrationTest;
 import net.ripe.db.whois.api.RestTest;
 import net.ripe.db.whois.api.rest.domain.WhoisResources;
 import net.ripe.db.whois.common.rpsl.AttributeType;
-import net.ripe.db.whois.common.support.TelnetWhoisClient;
-import net.ripe.db.whois.query.QueryServer;
 import net.ripe.db.whois.query.acl.AccessControlListManager;
 import net.ripe.db.whois.query.acl.AccountingIdentifier;
+import net.ripe.db.whois.query.acl.HazelcastPersonalObjectAccounting;
 import net.ripe.db.whois.query.acl.IpResourceConfiguration;
 import net.ripe.db.whois.query.acl.SSOResourceConfiguration;
-import net.ripe.db.whois.query.support.TestPersonalObjectAccounting;
 import org.eclipse.jetty.http.HttpStatus;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -25,7 +22,6 @@ import java.net.InetAddress;
 
 import static net.ripe.db.whois.api.RestTest.assertOnlyErrorMessage;
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.is;
 import static org.junit.jupiter.api.Assertions.fail;
 
@@ -44,7 +40,7 @@ public class WhoisRestServiceSSOAclTestIntegration extends AbstractIntegrationTe
     @Autowired
     private SSOResourceConfiguration ssoResourceConfiguration;
     @Autowired
-    private TestPersonalObjectAccounting testPersonalObjectAccounting;
+    private HazelcastPersonalObjectAccounting hazelcastPersonalObjectAccounting;
 
     @BeforeEach
     public void setup() {
@@ -64,7 +60,7 @@ public class WhoisRestServiceSSOAclTestIntegration extends AbstractIntegrationTe
 
         ipResourceConfiguration.reload();
         ssoResourceConfiguration.reload();
-        testPersonalObjectAccounting.resetAccounting();
+        hazelcastPersonalObjectAccounting.resetAccounting();
     }
 
     @Test
@@ -128,8 +124,8 @@ public class WhoisRestServiceSSOAclTestIntegration extends AbstractIntegrationTe
                         "e-mail:   test@ripe.net\n" +
                         "source:    TEST");
 
-        final int queriedByIP = testPersonalObjectAccounting.getQueriedPersonalObjects(localhost);
-        final int queriedBySSO = testPersonalObjectAccounting.getQueriedPersonalObjects(VALID_TOKEN_USER_NAME);
+        final int queriedByIP = hazelcastPersonalObjectAccounting.getQueriedPersonalObjects(localhost);
+        final int queriedBySSO = hazelcastPersonalObjectAccounting.getQueriedPersonalObjects(VALID_TOKEN_USER_NAME);
 
         final WhoisResources whoisResources =  RestTest.target(getPort(), "whois/test/person/TP2-TEST")
                     .request()
@@ -141,10 +137,10 @@ public class WhoisRestServiceSSOAclTestIntegration extends AbstractIntegrationTe
                             .anyMatch( (attribute)-> attribute.getName().equals(AttributeType.E_MAIL)),
                     is(false));
 
-        final int accountedByIp = testPersonalObjectAccounting.getQueriedPersonalObjects(localhost);
+        final int accountedByIp = hazelcastPersonalObjectAccounting.getQueriedPersonalObjects(localhost);
         assertThat(accountedByIp, is(queriedByIP));
 
-        final int accountedBySSO = testPersonalObjectAccounting.getQueriedPersonalObjects(VALID_TOKEN_USER_NAME);
+        final int accountedBySSO = hazelcastPersonalObjectAccounting.getQueriedPersonalObjects(VALID_TOKEN_USER_NAME);
         assertThat(accountedBySSO, is(queriedBySSO + 1));
     }
 

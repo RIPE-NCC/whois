@@ -28,8 +28,8 @@ import net.ripe.db.whois.common.sso.AuthServiceClient;
 import net.ripe.db.whois.query.QueryFlag;
 import net.ripe.db.whois.query.acl.AccessControlListManager;
 import net.ripe.db.whois.query.acl.AccountingIdentifier;
+import net.ripe.db.whois.query.acl.HazelcastPersonalObjectAccounting;
 import net.ripe.db.whois.query.acl.IpResourceConfiguration;
-import net.ripe.db.whois.query.support.TestPersonalObjectAccounting;
 import org.glassfish.jersey.client.filter.EncodingFilter;
 import org.glassfish.jersey.message.DeflateEncoder;
 import org.glassfish.jersey.message.GZipEncoder;
@@ -69,7 +69,7 @@ public class WhoisSearchServiceTestIntegration extends AbstractIntegrationTest {
     @Autowired
     private AccessControlListManager accessControlListManager;
     @Autowired
-    private TestPersonalObjectAccounting testPersonalObjectAccounting;
+    private HazelcastPersonalObjectAccounting hazelcastPersonalObjectAccounting;
     @Autowired
     private IpResourceConfiguration ipResourceConfiguration;
 
@@ -169,7 +169,7 @@ public class WhoisSearchServiceTestIntegration extends AbstractIntegrationTest {
         databaseHelper.getAclTemplate().update("DELETE FROM acl_denied");
         databaseHelper.getAclTemplate().update("DELETE FROM acl_event");
         databaseHelper.getAclTemplate().update("DELETE FROM acl_proxy");
-        testPersonalObjectAccounting.resetAccounting();
+        hazelcastPersonalObjectAccounting.resetAccounting();
         ipResourceConfiguration.reload();
     }
 
@@ -2675,8 +2675,8 @@ public class WhoisSearchServiceTestIntegration extends AbstractIntegrationTest {
                 "mnt-by:    OWNER-MNT\n" +
                 "source:    TEST\n");
 
-        final int countBeforeQueryIp = testPersonalObjectAccounting.getQueriedPersonalObjects(localhost);
-        final int countBeforeQuesrySSO = testPersonalObjectAccounting.getQueriedPersonalObjects(VALID_TOKEN_USER_NAME);
+        final int countBeforeQueryIp = hazelcastPersonalObjectAccounting.getQueriedPersonalObjects(localhost);
+        final int countBeforeQuesrySSO = hazelcastPersonalObjectAccounting.getQueriedPersonalObjects(VALID_TOKEN_USER_NAME);
 
         final WhoisResources whoisResources = RestTest.target(getPort(), "whois/search?query-string=LP1-TEST&source=TEST&flags=no-filtering&flags=rB&client=testId")
                 .request(MediaType.APPLICATION_XML)
@@ -2687,8 +2687,8 @@ public class WhoisSearchServiceTestIntegration extends AbstractIntegrationTest {
         assertThat(whoisResources.getWhoisObjects(), hasSize(1));
 
         //ACL is accounted for as there is no proxy ip specified
-        final int countAfterQueryIp = testPersonalObjectAccounting.getQueriedPersonalObjects(localhost);
-        final int countAfterQuerySSO = testPersonalObjectAccounting.getQueriedPersonalObjects(VALID_TOKEN_USER_NAME);
+        final int countAfterQueryIp = hazelcastPersonalObjectAccounting.getQueriedPersonalObjects(localhost);
+        final int countAfterQuerySSO = hazelcastPersonalObjectAccounting.getQueriedPersonalObjects(VALID_TOKEN_USER_NAME);
         assertThat(countAfterQueryIp, is(countBeforeQueryIp));
         assertThat(countAfterQuerySSO, is(countBeforeQuesrySSO + 1));
 
