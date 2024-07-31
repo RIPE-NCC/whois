@@ -28,8 +28,6 @@ public class WhoisHazelcastBlockedIps implements HazelcastBlockedIps{
 
         ipBlockedSet = hazelcastInstance.getSet("ipBlockedSet");
         ipBlockedSet.addAll(getBlockedIntervals(blockedListIps));
-
-        LOGGER.info("hazelcast instances {} members: {} " , hazelcastInstance.getName() , hazelcastInstance.getCluster().getMembers());
     }
 
 

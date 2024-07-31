@@ -12,13 +12,13 @@ import java.util.Set;
 
 @Component
 @Profile({WhoisProfile.TEST})
-public class TestHazelcastBlockedIps implements HazelcastBlockedIps {
+public class TestBlockedIps implements HazelcastBlockedIps {
 
     private static final Joiner COMMA_JOINER = Joiner.on(',');
 
     private final Set<IpInterval> ipBlockedSet;
 
-    public TestHazelcastBlockedIps(@Value("${ipranges.blocked.list:}") final String blockedListIps) {
+    public TestBlockedIps(@Value("${ipranges.blocked.list:}") final String blockedListIps) {
         ipBlockedSet = Sets.newSet();
 
         ipBlockedSet.addAll(getBlockedIntervals(blockedListIps));
