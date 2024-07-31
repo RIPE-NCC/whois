@@ -5,7 +5,6 @@ import jakarta.servlet.DispatcherType;
 import net.ripe.db.whois.api.httpserver.dos.WhoisDoSFilter;
 import net.ripe.db.whois.api.httpserver.dos.WhoisQueryDoSFilter;
 import net.ripe.db.whois.api.httpserver.dos.WhoisUpdateDoSFilter;
-import net.ripe.db.whois.api.httpserver.dos.IpBlockListFilter;
 import net.ripe.db.whois.common.ApplicationService;
 import net.ripe.db.whois.common.aspects.RetryFor;
 import org.eclipse.jetty.alpn.server.ALPNServerConnectionFactory;

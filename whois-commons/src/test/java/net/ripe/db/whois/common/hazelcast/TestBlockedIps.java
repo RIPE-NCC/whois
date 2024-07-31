@@ -12,7 +12,7 @@ import java.util.Set;
 
 @Component
 @Profile({WhoisProfile.TEST})
-public class TestBlockedIps implements HazelcastBlockedIps {
+public class TestBlockedIps implements BlockedIps {
 
     private static final Joiner COMMA_JOINER = Joiner.on(',');
 

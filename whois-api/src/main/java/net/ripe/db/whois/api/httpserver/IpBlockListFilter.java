@@ -1,4 +1,4 @@
-package net.ripe.db.whois.api.httpserver.dos;
+package net.ripe.db.whois.api.httpserver;
 
 import com.google.common.net.InetAddresses;
 import jakarta.servlet.Filter;
@@ -9,7 +9,7 @@ import jakarta.servlet.ServletRequest;
 import jakarta.servlet.ServletResponse;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import net.ripe.db.whois.common.hazelcast.HazelcastBlockedIps;
+import net.ripe.db.whois.common.hazelcast.BlockedIps;
 import net.ripe.db.whois.common.ip.IpInterval;
 import org.eclipse.jetty.http.HttpStatus;
 import org.slf4j.Logger;
@@ -24,10 +24,10 @@ public class IpBlockListFilter implements Filter {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(IpBlockListFilter.class);
 
-    private final HazelcastBlockedIps hazelcastBlockedIps;
+    private final BlockedIps blockedIps;
 
-    public IpBlockListFilter(final HazelcastBlockedIps hazelcastBlockedIps){
-        this.hazelcastBlockedIps = hazelcastBlockedIps;
+    public IpBlockListFilter(final BlockedIps blockedIps){
+        this.blockedIps = blockedIps;
     }
 
     @Override
@@ -36,11 +36,13 @@ public class IpBlockListFilter implements Filter {
     @Override
     public void doFilter(final ServletRequest servletRequest, final ServletResponse servletResponse, final FilterChain filterChain) throws IOException, ServletException {
         final HttpServletRequest httpRequest = (HttpServletRequest) servletRequest;
-        final HttpServletResponse httpResponse = (HttpServletResponse) servletResponse;
 
         if (isBlockedIp(httpRequest.getRemoteAddr())){
+
+            final HttpServletResponse httpResponse = (HttpServletResponse) servletResponse;
             httpResponse.setStatus(HttpStatus.TOO_MANY_REQUESTS_429);
-            httpResponse.getWriter().write("You have been permanently blocked. Please contact support");
+            httpResponse.getWriter().write("Your account has been permanently blocked due to suspected abusive " +
+                    "behavior. Please contact support for further assistance.");
             return;
         }
 
@@ -55,10 +57,10 @@ public class IpBlockListFilter implements Filter {
     private boolean isBlockedIp(final String candidate) {
         final IpInterval<?> parsed = IpInterval.asIpInterval(InetAddresses.forString(candidate));
         try {
-            return hazelcastBlockedIps.getIpBlockedSet().stream()
+            return blockedIps.getIpBlockedSet().stream()
                     .anyMatch(ipRange -> ipRange.getClass().equals(parsed.getClass()) && ipRange.contains(parsed));
         } catch (Exception ex){
-            LOGGER.error("Hazelcast blocked ip interval error", ex);
+            LOGGER.error("Failed to check if remote address is in block list due to", ex);
         }
         return false;
     }

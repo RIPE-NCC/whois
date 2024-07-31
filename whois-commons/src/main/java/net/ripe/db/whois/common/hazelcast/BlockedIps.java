@@ -4,12 +4,11 @@ import io.netty.util.internal.StringUtil;
 import net.ripe.db.whois.common.ip.IpInterval;
 import org.apache.commons.compress.utils.Lists;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Stream;
 
-public interface HazelcastBlockedIps {
+public interface BlockedIps {
 
     void addBlockedListAddress(final String address);
 

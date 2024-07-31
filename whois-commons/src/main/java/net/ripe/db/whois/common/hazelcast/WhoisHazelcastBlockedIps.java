@@ -5,6 +5,7 @@ import com.hazelcast.collection.ISet;
 import com.hazelcast.core.HazelcastInstance;
 import net.ripe.db.whois.common.ip.IpInterval;
 import net.ripe.db.whois.common.profiles.WhoisProfile;
+import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Profile;
@@ -15,7 +16,7 @@ import static org.slf4j.LoggerFactory.getLogger;
 
 @Component
 @Profile({WhoisProfile.DEPLOYED})
-public class WhoisHazelcastBlockedIps implements HazelcastBlockedIps{
+public class WhoisHazelcastBlockedIps implements BlockedIps {
 
     private static final Logger LOGGER = getLogger(WhoisHazelcastBlockedIps.class);
 
@@ -45,11 +46,7 @@ public class WhoisHazelcastBlockedIps implements HazelcastBlockedIps{
 
     @Override
     public String getBlockedList() {
-        StringBuilder result = new StringBuilder();
-        COMMA_JOINER.appendTo(result, ipBlockedSet);
-
-        LOGGER.info("The blocked list contains next IPs {}", result);
-        return result.toString();
+        return StringUtils.join(ipBlockedSet, ',');
     }
 
     @Override
