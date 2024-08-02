@@ -16,9 +16,7 @@ import net.ripe.db.whois.api.rest.mapper.WhoisObjectMapper;
 import net.ripe.db.whois.common.TestDateTimeProvider;
 import net.ripe.db.whois.common.rpsl.RpslObject;
 import org.eclipse.jetty.http.HttpStatus;
-import org.junit.Ignore;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -218,19 +216,6 @@ public class WhoisRestBasicAuthTestIntegration extends AbstractHttpsIntegrationT
                     .request()
                     .header(HttpHeaders.AUTHORIZATION, getBasicAuthenticationHeader("test", "test"))
                     .post(Entity.entity(map(PAULETH_PALTHEN), MediaType.APPLICATION_XML), Response.class);
-
-        assertThat(response.getStatus(), is(HttpStatus.UPGRADE_REQUIRED_426));
-        assertThat(response.readEntity(String.class), containsString("HTTPS required for Basic authorization"));
-    }
-
-    @Test
-    @Disabled("PUT and DELETE fail when using sendError()")
-    public void update_failed_with_basic_auth_no_https_no_catching_correct_message() {
-
-        final Response response =  RestTest.target(getPort(), "whois/test/person")
-                .request()
-                .header(HttpHeaders.AUTHORIZATION, getBasicAuthenticationHeader("test", "test"))
-                .put(Entity.entity(map(PAULETH_PALTHEN), MediaType.APPLICATION_XML), Response.class);
 
         assertThat(response.getStatus(), is(HttpStatus.UPGRADE_REQUIRED_426));
         assertThat(response.readEntity(String.class), containsString("HTTPS required for Basic authorization"));

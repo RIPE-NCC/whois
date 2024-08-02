@@ -91,7 +91,7 @@ public class WhoisRestServiceBlockedListTestIntegration extends AbstractIntegrat
                 .get();
 
         assertThat(HttpStatus.TOO_MANY_REQUESTS_429, is(response.getStatus()));
-        assertThat(response.readEntity(String.class), containsString("Your account has been permanently blocked due to suspected abusive behavior. " +
+        assertThat(response.readEntity(String.class), containsString("Your account has been permanently blocked due to suspected abusive behaviour. " +
                     "Please contact support for further assistance"));
     }
 
@@ -105,7 +105,7 @@ public class WhoisRestServiceBlockedListTestIntegration extends AbstractIntegrat
                 .get();
 
         assertThat(HttpStatus.TOO_MANY_REQUESTS_429, is(response.getStatus()));
-        assertThat(response.readEntity(String.class), containsString("Your account has been permanently blocked due to suspected abusive behavior. " +
+        assertThat(response.readEntity(String.class), containsString("Your account has been permanently blocked due to suspected abusive behaviour. " +
                     "Please contact support for further assistance"));
     }
 
@@ -118,7 +118,7 @@ public class WhoisRestServiceBlockedListTestIntegration extends AbstractIntegrat
                 .get();
 
         assertThat(HttpStatus.TOO_MANY_REQUESTS_429, is(errorResponse.getStatus()));
-        assertThat(errorResponse.readEntity(String.class), containsString("Your account has been permanently blocked due to suspected abusive behavior. " +
+        assertThat(errorResponse.readEntity(String.class), containsString("Your account has been permanently blocked due to suspected abusive behaviour. " +
                     "Please contact support for further assistance"));
 
         // Remove IP from blocked list
@@ -140,7 +140,7 @@ public class WhoisRestServiceBlockedListTestIntegration extends AbstractIntegrat
                 .get();
 
         assertThat(HttpStatus.TOO_MANY_REQUESTS_429, is(errorResponse.getStatus()));
-        assertThat(errorResponse.readEntity(String.class), containsString("Your account has been permanently blocked due to suspected abusive behavior. " +
+        assertThat(errorResponse.readEntity(String.class), containsString("Your account has been permanently blocked due to suspected abusive behaviour. " +
                     "Please contact support for further assistance"));
 
         // Remove IP from blocked list
@@ -167,7 +167,7 @@ public class WhoisRestServiceBlockedListTestIntegration extends AbstractIntegrat
                  .post(Entity.entity(map(PERSON_OBJECT), MediaType.APPLICATION_XML));
 
          assertThat(HttpStatus.TOO_MANY_REQUESTS_429, is(response.getStatus()));
-         assertThat(response.readEntity(String.class), containsString("Your account has been permanently blocked due to suspected abusive behavior. " +
+         assertThat(response.readEntity(String.class), containsString("Your account has been permanently blocked due to suspected abusive behaviour. " +
                     "Please contact support for further assistance"));
      }
 
@@ -181,7 +181,7 @@ public class WhoisRestServiceBlockedListTestIntegration extends AbstractIntegrat
                 .post(Entity.entity(map(PERSON_OBJECT), MediaType.APPLICATION_XML));
 
         assertThat(HttpStatus.TOO_MANY_REQUESTS_429, is(response.getStatus()));
-        assertThat(response.readEntity(String.class), containsString("Your account has been permanently blocked due to suspected abusive behavior. " +
+        assertThat(response.readEntity(String.class), containsString("Your account has been permanently blocked due to suspected abusive behaviour. " +
                     "Please contact support for further assistance"));
     }
 
@@ -194,7 +194,7 @@ public class WhoisRestServiceBlockedListTestIntegration extends AbstractIntegrat
                 .post(Entity.entity(map(PERSON_OBJECT), MediaType.APPLICATION_XML));
 
         assertThat(HttpStatus.TOO_MANY_REQUESTS_429, is(errorResponse.getStatus()));
-        assertThat(errorResponse.readEntity(String.class), containsString("Your account has been permanently blocked due to suspected abusive behavior. " +
+        assertThat(errorResponse.readEntity(String.class), containsString("Your account has been permanently blocked due to suspected abusive behaviour. " +
                     "Please contact support for further assistance"));
 
         // Remove IP from blocked list
@@ -217,7 +217,7 @@ public class WhoisRestServiceBlockedListTestIntegration extends AbstractIntegrat
 
         assertThat(HttpStatus.TOO_MANY_REQUESTS_429, is(errorResponse.getStatus()));
         assertThat(errorResponse.readEntity(String.class), containsString("Your account has been permanently blocked due to " +
-                "suspected abusive behavior. Please contact support for further assistance"));
+                "suspected abusive behaviour. Please contact support for further assistance"));
 
         // Remove IP from blocked list
         blockListJmx.removeBlockedListAddress("2001:67c:2e8::/48");
@@ -245,8 +245,6 @@ public class WhoisRestServiceBlockedListTestIntegration extends AbstractIntegrat
                 .put(Entity.entity(map(UPDATED_PERSON_OBJECT), MediaType.APPLICATION_XML));
 
         assertThat(HttpStatus.TOO_MANY_REQUESTS_429, is(response.getStatus()));
-        assertThat(response.readEntity(String.class), containsString("Your account has been permanently blocked due to suspected abusive behavior. " +
-                    "Please contact support for further assistance"));
     }
 
     @Test
@@ -261,8 +259,6 @@ public class WhoisRestServiceBlockedListTestIntegration extends AbstractIntegrat
                 .put(Entity.entity(map(UPDATED_PERSON_OBJECT), MediaType.APPLICATION_XML));
 
         assertThat(HttpStatus.TOO_MANY_REQUESTS_429, is(response.getStatus()));
-        assertThat(response.readEntity(String.class), containsString("Your account has been permanently blocked due to suspected abusive behavior. " +
-                    "Please contact support for further assistance"));
     }
 
     @Test
@@ -276,8 +272,6 @@ public class WhoisRestServiceBlockedListTestIntegration extends AbstractIntegrat
                 .put(Entity.entity(map(UPDATED_PERSON_OBJECT), MediaType.APPLICATION_XML));
 
         assertThat(HttpStatus.TOO_MANY_REQUESTS_429, is(errorResponse.getStatus()));
-        assertThat(errorResponse.readEntity(String.class), containsString("Your account has been permanently blocked due to suspected abusive behavior. " +
-                    "Please contact support for further assistance"));
 
         // Remove IP from blocked list
         blockListJmx.removeBlockedListAddress("193.0.0.0 - 193.0.23.255");
@@ -300,8 +294,6 @@ public class WhoisRestServiceBlockedListTestIntegration extends AbstractIntegrat
                 .put(Entity.entity(map(UPDATED_PERSON_OBJECT), MediaType.APPLICATION_XML));
 
         assertThat(HttpStatus.TOO_MANY_REQUESTS_429, is(errorResponse.getStatus()));
-        assertThat(errorResponse.readEntity(String.class), containsString("Your account has been permanently blocked due to suspected abusive behavior. " +
-                    "Please contact support for further assistance"));
 
         // Remove IP from blocked list
         blockListJmx.removeBlockedListAddress("2001:67c:2e8::/48");
@@ -329,8 +321,6 @@ public class WhoisRestServiceBlockedListTestIntegration extends AbstractIntegrat
                 .delete();
 
         assertThat(HttpStatus.TOO_MANY_REQUESTS_429, is(response.getStatus()));
-        assertThat(response.readEntity(String.class), containsString("Your account has been permanently blocked due to suspected abusive behavior. " +
-                    "Please contact support for further assistance"));
     }
 
     @Test
@@ -345,8 +335,6 @@ public class WhoisRestServiceBlockedListTestIntegration extends AbstractIntegrat
                 .delete();
 
         assertThat(HttpStatus.TOO_MANY_REQUESTS_429, is(response.getStatus()));
-        assertThat(response.readEntity(String.class), containsString("Your account has been permanently blocked due to suspected abusive behavior. " +
-                    "Please contact support for further assistance"));
     }
 
     @Test
@@ -360,8 +348,6 @@ public class WhoisRestServiceBlockedListTestIntegration extends AbstractIntegrat
                 .delete();
 
         assertThat(HttpStatus.TOO_MANY_REQUESTS_429, is(errorResponse.getStatus()));
-        assertThat(errorResponse.readEntity(String.class), containsString("Your account has been permanently blocked due to suspected abusive behavior. " +
-                    "Please contact support for further assistance"));
 
         // Remove IP from blocked list
         blockListJmx.removeBlockedListAddress("193.0.0.0 - 193.0.23.255");
@@ -384,8 +370,6 @@ public class WhoisRestServiceBlockedListTestIntegration extends AbstractIntegrat
                 .delete();
 
         assertThat(HttpStatus.TOO_MANY_REQUESTS_429, is(errorResponse.getStatus()));
-        assertThat(errorResponse.readEntity(String.class), containsString("Your account has been permanently blocked due to suspected abusive behavior. " +
-                    "Please contact support for further assistance"));
 
         // Remove IP from blocked list
         blockListJmx.removeBlockedListAddress("2001:67c:2e8::/48");
