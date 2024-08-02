@@ -39,8 +39,9 @@ public class IpBlockListFilter implements Filter {
 
         if (isBlockedIp(httpRequest.getRemoteAddr())){
             final HttpServletResponse httpResponse = (HttpServletResponse) servletResponse;
-            httpResponse.sendError(HttpStatus.TOO_MANY_REQUESTS_429, "Your account has been permanently blocked due to suspected abusive " +
-                    "behaviour. Please contact support for further assistance.");
+            final String message = String.format("Your host %s has been permanently blocked due to suspected abusive " +
+                    "behaviour. Please contact support for further assistance.", httpRequest.getRemoteAddr());
+            httpResponse.sendError(HttpStatus.TOO_MANY_REQUESTS_429, message);
             return;
         }
 

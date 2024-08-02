@@ -91,8 +91,8 @@ public class WhoisRestServiceBlockedListTestIntegration extends AbstractIntegrat
                 .get();
 
         assertThat(HttpStatus.TOO_MANY_REQUESTS_429, is(response.getStatus()));
-        assertThat(response.readEntity(String.class), containsString("Your account has been permanently blocked due to suspected abusive behaviour. " +
-                    "Please contact support for further assistance"));
+        assertThat(response.readEntity(String.class), containsString("Your host 8.8.8.8 has been permanently blocked " +
+                "due to suspected abusive behaviour. Please contact support for further assistance."));
     }
 
     @Test
@@ -105,8 +105,8 @@ public class WhoisRestServiceBlockedListTestIntegration extends AbstractIntegrat
                 .get();
 
         assertThat(HttpStatus.TOO_MANY_REQUESTS_429, is(response.getStatus()));
-        assertThat(response.readEntity(String.class), containsString("Your account has been permanently blocked due to suspected abusive behaviour. " +
-                    "Please contact support for further assistance"));
+        assertThat(response.readEntity(String.class), containsString("Your host 2001:fff:001:: has been permanently " +
+                "blocked due to suspected abusive behaviour. Please contact support for further assistance."));
     }
 
     @Test
@@ -118,8 +118,8 @@ public class WhoisRestServiceBlockedListTestIntegration extends AbstractIntegrat
                 .get();
 
         assertThat(HttpStatus.TOO_MANY_REQUESTS_429, is(errorResponse.getStatus()));
-        assertThat(errorResponse.readEntity(String.class), containsString("Your account has been permanently blocked due to suspected abusive behaviour. " +
-                    "Please contact support for further assistance"));
+        assertThat(errorResponse.readEntity(String.class), containsString("Your host 193.0.0.1 has been permanently " +
+                "blocked due to suspected abusive behaviour. Please contact support for further assistance."));
 
         // Remove IP from blocked list
         blockListJmx.removeBlockedListAddress("193.0.0.0 - 193.0.23.255");
@@ -140,8 +140,8 @@ public class WhoisRestServiceBlockedListTestIntegration extends AbstractIntegrat
                 .get();
 
         assertThat(HttpStatus.TOO_MANY_REQUESTS_429, is(errorResponse.getStatus()));
-        assertThat(errorResponse.readEntity(String.class), containsString("Your account has been permanently blocked due to suspected abusive behaviour. " +
-                    "Please contact support for further assistance"));
+        assertThat(errorResponse.readEntity(String.class), containsString("Your host 2001:67c:2e8:: has been " +
+                "permanently blocked due to suspected abusive behaviour. Please contact support for further assistance."));
 
         // Remove IP from blocked list
         blockListJmx.removeBlockedListAddress("2001:67c:2e8::/48");
@@ -167,8 +167,8 @@ public class WhoisRestServiceBlockedListTestIntegration extends AbstractIntegrat
                  .post(Entity.entity(map(PERSON_OBJECT), MediaType.APPLICATION_XML));
 
          assertThat(HttpStatus.TOO_MANY_REQUESTS_429, is(response.getStatus()));
-         assertThat(response.readEntity(String.class), containsString("Your account has been permanently blocked due to suspected abusive behaviour. " +
-                    "Please contact support for further assistance"));
+         assertThat(response.readEntity(String.class), containsString("Your host 8.8.8.8 has been permanently blocked" +
+                 " due to suspected abusive behaviour. Please contact support for further assistance."));
      }
 
     @Test
@@ -181,8 +181,8 @@ public class WhoisRestServiceBlockedListTestIntegration extends AbstractIntegrat
                 .post(Entity.entity(map(PERSON_OBJECT), MediaType.APPLICATION_XML));
 
         assertThat(HttpStatus.TOO_MANY_REQUESTS_429, is(response.getStatus()));
-        assertThat(response.readEntity(String.class), containsString("Your account has been permanently blocked due to suspected abusive behaviour. " +
-                    "Please contact support for further assistance"));
+        assertThat(response.readEntity(String.class), containsString("Your host 2001:fff:001:: has been permanently " +
+                "blocked due to suspected abusive behaviour. Please contact support for further assistance."));
     }
 
     @Test
@@ -194,8 +194,8 @@ public class WhoisRestServiceBlockedListTestIntegration extends AbstractIntegrat
                 .post(Entity.entity(map(PERSON_OBJECT), MediaType.APPLICATION_XML));
 
         assertThat(HttpStatus.TOO_MANY_REQUESTS_429, is(errorResponse.getStatus()));
-        assertThat(errorResponse.readEntity(String.class), containsString("Your account has been permanently blocked due to suspected abusive behaviour. " +
-                    "Please contact support for further assistance"));
+        assertThat(errorResponse.readEntity(String.class), containsString("Your host 193.0.0.1 has been permanently " +
+                "blocked due to suspected abusive behaviour. Please contact support for further assistance."));
 
         // Remove IP from blocked list
         blockListJmx.removeBlockedListAddress("193.0.0.0 - 193.0.23.255");
@@ -216,8 +216,8 @@ public class WhoisRestServiceBlockedListTestIntegration extends AbstractIntegrat
                 .post(Entity.entity(map(PERSON_OBJECT), MediaType.APPLICATION_XML));
 
         assertThat(HttpStatus.TOO_MANY_REQUESTS_429, is(errorResponse.getStatus()));
-        assertThat(errorResponse.readEntity(String.class), containsString("Your account has been permanently blocked due to " +
-                "suspected abusive behaviour. Please contact support for further assistance"));
+        assertThat(errorResponse.readEntity(String.class), containsString("Your host 2001:67c:2e8:: has been " +
+                "permanently blocked due to suspected abusive behaviour. Please contact support for further assistance."));
 
         // Remove IP from blocked list
         blockListJmx.removeBlockedListAddress("2001:67c:2e8::/48");
