@@ -3,14 +3,18 @@ package net.ripe.db.whois.common.transaction;
 import net.ripe.db.whois.common.source.SourceAwareDataSource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.context.annotation.AdviceMode;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Primary;
 import org.springframework.jdbc.datasource.DataSourceTransactionManager;
 import org.springframework.transaction.TransactionManager;
+import org.springframework.transaction.annotation.EnableTransactionManagement;
 
 import javax.sql.DataSource;
 
 @Configuration
+@EnableTransactionManagement(mode = AdviceMode.ASPECTJ)
 public class TransactionConfiguration {
 
     public static final String  ACL_UPDATE_TRANSACTION_MANAGER = "acl-update-transaction-manager";
@@ -27,6 +31,7 @@ public class TransactionConfiguration {
     public static final String NRTM_READONLY_TRANSACTION = "nrtm-readonly-transaction-manager";
 
     @Bean
+    @Primary
     public TransactionManager transactionManager(@Autowired SourceAwareDataSource sourceAwareDataSource) {
         return new DataSourceTransactionManager(sourceAwareDataSource);
     }
