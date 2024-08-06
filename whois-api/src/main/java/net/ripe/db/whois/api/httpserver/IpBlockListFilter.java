@@ -39,15 +39,7 @@ public class IpBlockListFilter implements Filter {
         final HttpServletRequest httpRequest = (HttpServletRequest) servletRequest;
 
         if (isBlockedIp(httpRequest.getRemoteAddr())){
-            final HttpServletResponse httpResponse = (HttpServletResponse) servletResponse;
-
-            final String message = String.format("Your host %s has been permanently blocked due to suspected abusive " +
-                    "behaviour. Please contact support for further assistance.", httpRequest.getRemoteAddr());
-            httpResponse.setStatus(HttpStatus.TOO_MANY_REQUESTS_429);
-            try (PrintWriter writer = httpResponse.getWriter()) {
-                writer.write(message);
-                writer.flush();
-            }
+            sendError((HttpServletResponse) servletResponse, httpRequest);
             return;
         }
 
@@ -68,5 +60,15 @@ public class IpBlockListFilter implements Filter {
             LOGGER.error("Failed to check if remote address is in block list due to", ex);
         }
         return false;
+    }
+
+    private static void sendError(final HttpServletResponse httpResponse, final HttpServletRequest httpRequest) throws IOException {
+        final String message = String.format("Your host %s has been permanently blocked due to suspected abusive " +
+                "behaviour. Please contact support for further assistance.", httpRequest.getRemoteAddr());
+        httpResponse.setStatus(HttpStatus.TOO_MANY_REQUESTS_429);
+        try (PrintWriter writer = httpResponse.getWriter()) {
+            writer.write(message);
+            writer.flush();
+        }
     }
 }
