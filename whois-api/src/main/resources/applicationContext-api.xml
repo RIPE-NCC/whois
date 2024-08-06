@@ -12,7 +12,8 @@
 
     <import resource="applicationContext-query.xml"/>
     <import resource="applicationContext-update.xml"/>
-    <import resource="applicationContext-nrtm4.xml"/>
+    <bean class="net.ripe.db.nrtm4.Nrtmv4Config" />
+
     <context:component-scan base-package="net.ripe.db.whois.api"/>
 
     <oxm:jaxb2-marshaller id="marshaller">
