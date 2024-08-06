@@ -52,6 +52,8 @@ public class WhoisServletDeployer implements ServletDeployer {
     private final HealthCheckService healthCheckService;
     private final ClientCertificateService clientCertificateService;
     private final HttpsBasicAuthCustomizer httpsBasicAuthCustomizer;
+    private final TestTransaction testTransaction;
+
 
     @Autowired
     public WhoisServletDeployer(final WhoisRestService whoisRestService,
@@ -59,6 +61,7 @@ public class WhoisServletDeployer implements ServletDeployer {
                                 final WhoisVersionService whoisVersionService,
                                 final SyncUpdatesService syncUpdatesService,
                                 final WhoisMetadata whoisMetadata,
+                                final TestTransaction testTransaction,
                                 final GeolocationService geolocationService,
                                 final AbuseContactService abuseContactService,
                                 final AutocompleteService autocompleteService,
@@ -86,6 +89,7 @@ public class WhoisServletDeployer implements ServletDeployer {
         this.fullTextSearch = fullTextSearch;
         this.batchUpdatesService = batchUpdatesService;
         this.healthCheckService = healthCheckService;
+        this.testTransaction = testTransaction;
         this.clientCertificateService = clientCertificateService;
         this.httpsBasicAuthCustomizer = httpsBasicAuthCustomizer;
     }
@@ -104,6 +108,7 @@ public class WhoisServletDeployer implements ServletDeployer {
         resourceConfig.register(whoisVersionService);
         resourceConfig.register(syncUpdatesService);
         resourceConfig.register(whoisMetadata);
+        resourceConfig.register(testTransaction);
         resourceConfig.register(geolocationService);
         resourceConfig.register(abuseContactService);
         resourceConfig.register(autocompleteService);

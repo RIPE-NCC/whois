@@ -314,6 +314,15 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
     }
 
     @Test
+    public void test_transaction() {
+        final Response whoisResources = RestTest.target(getPort(), "whois/test-upgrade/transactionNrtmv4")
+                .request()
+                .get(Response.class);
+
+        assertThat(whoisResources.getStatus(), is("200"));
+    }
+
+    @Test
     public void lookup_inet6num_without_prefix_length() throws InterruptedException {
         databaseHelper.addObject(
                 "inet6num:       2001:2002:2003::/48\n" +
