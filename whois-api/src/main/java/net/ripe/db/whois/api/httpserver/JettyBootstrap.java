@@ -113,6 +113,9 @@ public class JettyBootstrap implements ApplicationService {
 
     private final WhoisUpdateDoSFilter whoisUpdateDoSFilter;
 
+    private final IpBlockListFilter ipBlockListFilter;
+
+
     @Autowired
     public JettyBootstrap(final RemoteAddressFilter remoteAddressFilter,
                           final ExtensionOverridesAcceptHeaderFilter extensionOverridesAcceptHeaderFilter,
@@ -130,8 +133,9 @@ public class JettyBootstrap implements ApplicationService {
                           @Value("${port.client.auth:-1}") final int clientAuthPort,
                           @Value("${http.x_forwarded_for:true}") final boolean xForwardedForHttp,
                           @Value("${https.x_forwarded_for:true}") final boolean xForwardedForHttps,
-                          @Value("${dos.filter.enabled:false}") final boolean dosFilterEnabled
-                        )  {
+                          @Value("${dos.filter.enabled:false}") final boolean dosFilterEnabled,
+                          final IpBlockListFilter ipBlockListFilter
+                        ) {
         this.remoteAddressFilter = remoteAddressFilter;
         this.extensionOverridesAcceptHeaderFilter = extensionOverridesAcceptHeaderFilter;
         this.servletDeployers = servletDeployers;
@@ -151,6 +155,7 @@ public class JettyBootstrap implements ApplicationService {
         this.dosFilterEnabled = dosFilterEnabled;
         this.whoisQueryDoSFilter = whoisQueryDoSFilter;
         this.whoisUpdateDoSFilter = whoisUpdateDoSFilter;
+        this.ipBlockListFilter = ipBlockListFilter;
     }
 
     @Override
@@ -203,6 +208,9 @@ public class JettyBootstrap implements ApplicationService {
         context.addFilter(new FilterHolder(remoteAddressFilter), "/*", EnumSet.allOf(DispatcherType.class));
         context.addFilter(new FilterHolder(extensionOverridesAcceptHeaderFilter), "/*", EnumSet.allOf(DispatcherType.class));
         context.addFilter(PushCacheFilter.class, "/*", EnumSet.of(DispatcherType.REQUEST));
+
+        context.addFilter(new FilterHolder(ipBlockListFilter), "/*", EnumSet.allOf(DispatcherType.class));
+
 
         if (!dosFilterEnabled) {
             LOGGER.info("DoSFilter is *not* enabled");
@@ -275,6 +283,7 @@ public class JettyBootstrap implements ApplicationService {
         holder.setInitParameter("trackSessions", "false");
         holder.setInitParameter("insertHeaders", "false");
         holder.setInitParameter("ipWhitelist", trustedIpRanges);
+
         return holder;
     }
 

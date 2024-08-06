@@ -5,19 +5,17 @@ import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import net.ripe.db.whois.common.ip.IpInterval;
 import net.ripe.db.whois.common.ip.Ipv4Resource;
 import net.ripe.db.whois.common.ip.Ipv6Resource;
 import org.eclipse.jetty.servlets.DoSFilter;
 import org.eclipse.jetty.util.StringUtil;
-import org.eclipse.jetty.util.annotation.ManagedAttribute;
-import org.eclipse.jetty.util.annotation.ManagedOperation;
 import org.eclipse.jetty.util.annotation.Name;
 import org.slf4j.Logger;
+import net.ripe.db.whois.common.ip.IpInterval;
 
 import java.io.IOException;
-import java.util.List;
-import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.Set;
+import java.util.concurrent.CopyOnWriteArraySet;
 
 /**
  * Extends the {@link DoSFilter} from Jetty for support of IP ranges and better support for CIDR ranges using our
@@ -27,8 +25,8 @@ public abstract class WhoisDoSFilter extends DoSFilter {
 
     private static final Joiner COMMA_JOINER = Joiner.on(',');
 
-    private final List<Ipv4Resource> ipv4whitelist = new CopyOnWriteArrayList<>();
-    private final List<Ipv6Resource> ipv6whitelist = new CopyOnWriteArrayList<>();
+    private final Set<Ipv4Resource> ipv4whitelist = new CopyOnWriteArraySet<>();
+    private final Set<Ipv6Resource> ipv6whitelist = new CopyOnWriteArraySet<>();
     private final Logger logger;
     private final String limit;
 
@@ -83,7 +81,6 @@ public abstract class WhoisDoSFilter extends DoSFilter {
      * @return comma-separated whitelist
      */
     @Override
-    @ManagedAttribute("list of IPs that will not be rate limited")
     public String getWhitelist() {
         final StringBuilder result = new StringBuilder();
         COMMA_JOINER.appendTo(result, ipv4whitelist);
@@ -110,7 +107,6 @@ public abstract class WhoisDoSFilter extends DoSFilter {
      * Clears the list of whitelisted IP addresses
      */
     @Override
-    @ManagedOperation("clears the list of IP addresses that will not be rate limited")
     public void clearWhitelist() {
         ipv4whitelist.clear();
         ipv6whitelist.clear();
