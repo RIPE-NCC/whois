@@ -182,12 +182,14 @@ public class WhoisRestServiceDoSTestIntegration extends AbstractIntegrationTest 
                 .post(Entity.entity(map(person), MediaType.APPLICATION_XML));
         assertThat(HttpStatus.OK_200, is(response.getStatus()));
 
-        final Invocation.Builder updateRequest = RestTest.target(getPort(), "whois/test/person/PP1-TEST?clientIp=10.20.30.40&password=test").request();
-
         // Simulate a DoS attack by sending many PUT requests in a short time
         final Map<Integer, Integer> responsesCodesCount = IntStream.range(0, Integer.parseInt(dosUpdatesMaxSecs))
-                .mapToObj(updateCount -> updateRequest.put(Entity.entity(map(person), MediaType.APPLICATION_XML)))
-                .map(Response::getStatus)
+                .mapToObj(updateCount -> {
+                    final Invocation.Builder updateRequest = RestTest.target(getPort(), "whois/test/person/PP1-TEST?clientIp=10.20.30.40&password=test")
+                            .request(MediaType.APPLICATION_XML);
+
+                    return updateRequest.put(Entity.entity(map(person), MediaType.APPLICATION_XML)).getStatus();
+                })
                 .collect(Collectors.groupingBy(
                         Function.identity(),
                         Collectors.collectingAndThen(
@@ -202,7 +204,9 @@ public class WhoisRestServiceDoSTestIntegration extends AbstractIntegrationTest 
         TimeUnit.SECONDS.sleep(SECONDS_NEEDED_TO_FREE_IP); // Free the IP after one second
 
         //After a second, the user can perform more requests
-        final Response unLockedResponse = updateRequest.put(Entity.entity(map(person), MediaType.APPLICATION_XML));
+        final Response unLockedResponse = RestTest.target(getPort(), "whois/test/person/PP1-TEST?clientIp=10.20.30.40&password=test")
+                .request(MediaType.APPLICATION_XML)
+                .put(Entity.entity(map(person), MediaType.APPLICATION_XML));
         assertThat(HttpStatus.OK_200, is(unLockedResponse.getStatus()));
     }
 
@@ -223,13 +227,15 @@ public class WhoisRestServiceDoSTestIntegration extends AbstractIntegrationTest 
                 .post(Entity.entity(map(person), MediaType.APPLICATION_XML));
         assertThat(HttpStatus.OK_200, is(response.getStatus()));
 
-        final Invocation.Builder updateRequest = RestTest.target(getPort(), "whois/test/person/PP1-TEST?clientIp=10.20.30.40&password=test").request();
-
         // Simulate a DoS attack by sending many PUT requests in a short time asynchronously
         final Map<Integer, Integer> responsesCodesCount = IntStream.range(0, Integer.parseInt(dosUpdatesMaxSecs))
                 .parallel()
-                .mapToObj(updateCount -> updateRequest.put(Entity.entity(map(person), MediaType.APPLICATION_XML)))
-                .map(Response::getStatus)
+                .mapToObj(updateCount -> {
+                    final Invocation.Builder updateRequest = RestTest.target(getPort(), "whois/test/person/PP1-TEST?clientIp=10.20.30.40&password=test")
+                            .request(MediaType.APPLICATION_XML);
+
+                    return updateRequest.put(Entity.entity(map(person), MediaType.APPLICATION_XML)).getStatus();
+                })
                 .collect(Collectors.groupingBy(
                         Function.identity(),
                         Collectors.collectingAndThen(
@@ -268,12 +274,15 @@ public class WhoisRestServiceDoSTestIntegration extends AbstractIntegrationTest 
                 .post(Entity.entity(map(person), MediaType.APPLICATION_XML));
         assertThat(HttpStatus.OK_200, is(response.getStatus()));
 
-        final Invocation.Builder updateRequest = RestTest.target(getPort(), "whois/test/person/PP1-TEST?password=test").request();
 
         // Simulate a DoS attack by sending many PUT requests in a short time
         final Map<Integer, Integer> responsesCodesCount = IntStream.range(0, Integer.parseInt(dosUpdatesMaxSecs))
-                .mapToObj(updateCount -> updateRequest.put(Entity.entity(map(person), MediaType.APPLICATION_XML)))
-                .map(Response::getStatus)
+                .mapToObj(updateCount -> {
+                    final Invocation.Builder updateRequest = RestTest.target(getPort(), "whois/test/person/PP1-TEST?password=test")
+                            .request(MediaType.APPLICATION_XML);
+
+                    return updateRequest.put(Entity.entity(map(person), MediaType.APPLICATION_XML)).getStatus();
+                })
                 .collect(Collectors.groupingBy(
                         Function.identity(),
                         Collectors.collectingAndThen(
