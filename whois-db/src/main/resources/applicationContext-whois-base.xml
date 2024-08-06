@@ -15,7 +15,8 @@
 
     <import resource="applicationContext-nrtm.xml"/>
 
-    <bean class="net.ripe.db.nrtm4.NrtmV4Config" />
+    <bean class="net.ripe.db.nrtm4.Nrtmv4Config" />
+
     <bean class="net.ripe.db.whois.scheduler.SchedulerConfig" />
 
 </beans>
