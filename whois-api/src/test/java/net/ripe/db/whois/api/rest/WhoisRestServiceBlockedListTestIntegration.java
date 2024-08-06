@@ -83,29 +83,41 @@ public class WhoisRestServiceBlockedListTestIntegration extends AbstractIntegrat
      */
     @Test
     public void add_blocked_ipv4_get_request_then_429_too_many_requests(){
-        // Add IP to blocked list
-        blockListJmx.addBlockedListAddress("8.8.8.8");
-
         final Response response = RestTest.target(getPort(), "whois/test/mntner/OWNER-MNT?clientIp=8.8.8.8")
                 .request()
                 .get();
 
-        assertThat(HttpStatus.TOO_MANY_REQUESTS_429, is(response.getStatus()));
-        assertThat(response.readEntity(String.class), containsString("Your host 8.8.8.8 has been permanently blocked " +
+        assertThat(HttpStatus.OK_200, is(response.getStatus()));
+
+        // Add IP to blocked list
+        blockListJmx.addBlockedListAddress("8.8.8.8");
+
+        final Response errorResponse = RestTest.target(getPort(), "whois/test/mntner/OWNER-MNT?clientIp=8.8.8.8")
+                .request()
+                .get();
+
+        assertThat(HttpStatus.TOO_MANY_REQUESTS_429, is(errorResponse.getStatus()));
+        assertThat(errorResponse.readEntity(String.class), containsString("Your host 8.8.8.8 has been permanently blocked " +
                 "due to suspected abusive behaviour. Please contact support for further assistance."));
     }
 
     @Test
     public void add_blocked_ipv6_get_request_then_429_too_many_requests(){
-        // Add IP to blocked list
-        blockListJmx.addBlockedListAddress("2001:fff:001::/48");
-
         final Response response = RestTest.target(getPort(), "whois/test/mntner/OWNER-MNT?clientIp=2001:fff:001::")
                 .request()
                 .get();
 
-        assertThat(HttpStatus.TOO_MANY_REQUESTS_429, is(response.getStatus()));
-        assertThat(response.readEntity(String.class), containsString("Your host 2001:fff:001:: has been permanently " +
+        assertThat(HttpStatus.OK_200, is(response.getStatus()));
+
+        // Add IP to blocked list
+        blockListJmx.addBlockedListAddress("2001:fff:001::/48");
+
+        final Response errorResponse = RestTest.target(getPort(), "whois/test/mntner/OWNER-MNT?clientIp=2001:fff:001::")
+                .request()
+                .get();
+
+        assertThat(HttpStatus.TOO_MANY_REQUESTS_429, is(errorResponse.getStatus()));
+        assertThat(errorResponse.readEntity(String.class), containsString("Your host 2001:fff:001:: has been permanently " +
                 "blocked due to suspected abusive behaviour. Please contact support for further assistance."));
     }
 
@@ -159,29 +171,41 @@ public class WhoisRestServiceBlockedListTestIntegration extends AbstractIntegrat
      */
      @Test
      public void add_blocked_ipv4_post_request_then_429_too_many_requests() {
-         // Add IP to blocked list
-         blockListJmx.addBlockedListAddress("8.8.8.8");
-
          final Response response = RestTest.target(getPort(), "whois/test/person?clientIp=8.8.8.8&password=test")
                  .request()
                  .post(Entity.entity(map(PERSON_OBJECT), MediaType.APPLICATION_XML));
 
-         assertThat(HttpStatus.TOO_MANY_REQUESTS_429, is(response.getStatus()));
-         assertThat(response.readEntity(String.class), containsString("Your host 8.8.8.8 has been permanently blocked" +
+         assertThat(HttpStatus.OK_200, is(response.getStatus()));
+
+         // Add IP to blocked list
+         blockListJmx.addBlockedListAddress("8.8.8.8");
+
+         final Response errorResponse = RestTest.target(getPort(), "whois/test/person?clientIp=8.8.8.8&password=test")
+                 .request()
+                 .post(Entity.entity(map(PERSON_OBJECT), MediaType.APPLICATION_XML));
+
+         assertThat(HttpStatus.TOO_MANY_REQUESTS_429, is(errorResponse.getStatus()));
+         assertThat(errorResponse.readEntity(String.class), containsString("Your host 8.8.8.8 has been permanently blocked" +
                  " due to suspected abusive behaviour. Please contact support for further assistance."));
      }
 
     @Test
     public void add_blocked_ipv6_post_request_then_429_too_many_requests() {
-        // Add IP to blocked list
-        blockListJmx.addBlockedListAddress("2001:fff:001::/48");
-
         final Response response = RestTest.target(getPort(), "whois/test/person?clientIp=2001:fff:001::&password=test")
                 .request()
                 .post(Entity.entity(map(PERSON_OBJECT), MediaType.APPLICATION_XML));
 
-        assertThat(HttpStatus.TOO_MANY_REQUESTS_429, is(response.getStatus()));
-        assertThat(response.readEntity(String.class), containsString("Your host 2001:fff:001:: has been permanently " +
+        assertThat(HttpStatus.OK_200, is(response.getStatus()));
+
+        // Add IP to blocked list
+        blockListJmx.addBlockedListAddress("2001:fff:001::/48");
+
+        final Response errorResponse = RestTest.target(getPort(), "whois/test/person?clientIp=2001:fff:001::&password=test")
+                .request()
+                .post(Entity.entity(map(PERSON_OBJECT), MediaType.APPLICATION_XML));
+
+        assertThat(HttpStatus.TOO_MANY_REQUESTS_429, is(errorResponse.getStatus()));
+        assertThat(errorResponse.readEntity(String.class), containsString("Your host 2001:fff:001:: has been permanently " +
                 "blocked due to suspected abusive behaviour. Please contact support for further assistance."));
     }
 
@@ -237,31 +261,42 @@ public class WhoisRestServiceBlockedListTestIntegration extends AbstractIntegrat
     public void add_blocked_ipv4_put_request_then_429_too_many_requests() {
         databaseHelper.addObject(PERSON_OBJECT);
 
-        // Add IP to blocked list
-        blockListJmx.addBlockedListAddress("8.8.8.8");
-
         final Response response = RestTest.target(getPort(), "whois/test/person/PP1-TEST?clientIp=8.8.8.8&password=test")
                 .request()
                 .put(Entity.entity(map(UPDATED_PERSON_OBJECT), MediaType.APPLICATION_XML));
 
-        assertThat(HttpStatus.TOO_MANY_REQUESTS_429, is(response.getStatus()));
-        assertThat(response.readEntity(String.class), containsString("Your host 8.8.8.8 has been permanently " +
+        assertThat(HttpStatus.OK_200, is(response.getStatus()));
+
+        // Add IP to blocked list
+        blockListJmx.addBlockedListAddress("8.8.8.8");
+
+        final Response errorResponse = RestTest.target(getPort(), "whois/test/person/PP1-TEST?clientIp=8.8.8.8&password=test")
+                .request()
+                .put(Entity.entity(map(UPDATED_PERSON_OBJECT), MediaType.APPLICATION_XML));
+
+        assertThat(HttpStatus.TOO_MANY_REQUESTS_429, is(errorResponse.getStatus()));
+        assertThat(errorResponse.readEntity(String.class), containsString("Your host 8.8.8.8 has been permanently " +
                 "blocked due to suspected abusive behaviour. Please contact support for further assistance."));
     }
 
     @Test
     public void add_blocked_ipv6_put_request_then_429_too_many_requests() {
         databaseHelper.addObject(PERSON_OBJECT);
-
-        // Add IP to blocked list
-        blockListJmx.addBlockedListAddress("2001:fff:001::/48");
-
         final Response response = RestTest.target(getPort(), "whois/test/person/PP1-TEST?clientIp=2001:fff:001::&password=test")
                 .request()
                 .put(Entity.entity(map(UPDATED_PERSON_OBJECT), MediaType.APPLICATION_XML));
 
-        assertThat(HttpStatus.TOO_MANY_REQUESTS_429, is(response.getStatus()));
-        assertThat(response.readEntity(String.class), containsString("Your host 2001:fff:001:: has been permanently " +
+        assertThat(HttpStatus.OK_200, is(response.getStatus()));
+
+        // Add IP to blocked list
+        blockListJmx.addBlockedListAddress("2001:fff:001::/48");
+
+        final Response errorResponse = RestTest.target(getPort(), "whois/test/person/PP1-TEST?clientIp=2001:fff:001::&password=test")
+                .request()
+                .put(Entity.entity(map(UPDATED_PERSON_OBJECT), MediaType.APPLICATION_XML));
+
+        assertThat(HttpStatus.TOO_MANY_REQUESTS_429, is(errorResponse.getStatus()));
+        assertThat(errorResponse.readEntity(String.class), containsString("Your host 2001:fff:001:: has been permanently " +
                 "blocked due to suspected abusive behaviour. Please contact support for further assistance."));
     }
 
@@ -320,16 +355,23 @@ public class WhoisRestServiceBlockedListTestIntegration extends AbstractIntegrat
    @Test
     public void add_blocked_ipv4_delete_request_then_429_too_many_requests() {
         databaseHelper.addObject(PERSON_OBJECT);
+       final Response response = RestTest.target(getPort(), "whois/test/person/PP1-TEST?clientIp=8.8.8.8&password=test")
+               .request()
+               .delete();
+
+       assertThat(HttpStatus.OK_200, is(response.getStatus()));
+
+       databaseHelper.addObject(PERSON_OBJECT);
 
         // Add IP to blocked list
         blockListJmx.addBlockedListAddress("8.8.8.8");
 
-        final Response response = RestTest.target(getPort(), "whois/test/person/PP1-TEST?clientIp=8.8.8.8&password=test")
+        final Response errorMessage = RestTest.target(getPort(), "whois/test/person/PP1-TEST?clientIp=8.8.8.8&password=test")
                 .request()
                 .delete();
 
-        assertThat(HttpStatus.TOO_MANY_REQUESTS_429, is(response.getStatus()));
-        assertThat(response.readEntity(String.class), containsString("Your host 8.8.8.8 has been permanently " +
+        assertThat(HttpStatus.TOO_MANY_REQUESTS_429, is(errorMessage.getStatus()));
+        assertThat(errorMessage.readEntity(String.class), containsString("Your host 8.8.8.8 has been permanently " +
                 "blocked due to suspected abusive behaviour. Please contact support for further assistance."));
     }
 
@@ -337,15 +379,23 @@ public class WhoisRestServiceBlockedListTestIntegration extends AbstractIntegrat
     public void add_blocked_ipv6_delete_request_then_429_too_many_requests() {
         databaseHelper.addObject(PERSON_OBJECT);
 
-        // Add IP to blocked list
-        blockListJmx.addBlockedListAddress("2001:fff:001::/48");
-
         final Response response = RestTest.target(getPort(), "whois/test/person/PP1-TEST?clientIp=2001:fff:001::&password=test")
                 .request()
                 .delete();
 
-        assertThat(HttpStatus.TOO_MANY_REQUESTS_429, is(response.getStatus()));
-        assertThat(response.readEntity(String.class), containsString("Your host 2001:fff:001:: has been permanently " +
+        assertThat(HttpStatus.OK_200, is(response.getStatus()));
+
+        databaseHelper.addObject(PERSON_OBJECT);
+
+        // Add IP to blocked list
+        blockListJmx.addBlockedListAddress("2001:fff:001::/48");
+
+        final Response errorResponse = RestTest.target(getPort(), "whois/test/person/PP1-TEST?clientIp=2001:fff:001::&password=test")
+                .request()
+                .delete();
+
+        assertThat(HttpStatus.TOO_MANY_REQUESTS_429, is(errorResponse.getStatus()));
+        assertThat(errorResponse.readEntity(String.class), containsString("Your host 2001:fff:001:: has been permanently " +
                 "blocked due to suspected abusive behaviour. Please contact support for further assistance."));
     }
 

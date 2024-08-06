@@ -1,6 +1,6 @@
 package net.ripe.db.whois.api.httpserver.jmx;
 
-import net.ripe.db.whois.common.hazelcast.BlockedIps;
+import net.ripe.db.whois.common.hazelcast.IpBlockManager;
 import net.ripe.db.whois.common.jmx.JmxBase;
 import org.slf4j.Logger;
 import org.springframework.jmx.export.annotation.ManagedOperation;
@@ -17,11 +17,11 @@ public class BlockListJmx extends JmxBase {
 
     private static final Logger LOGGER = getLogger(BlockListJmx.class);
 
-    private final BlockedIps blockedIps;
+    private final IpBlockManager ipBlockManager;
 
-    public BlockListJmx(final BlockedIps blockedIps) {
+    public BlockListJmx(final IpBlockManager ipBlockManager) {
         super(LOGGER);
-        this.blockedIps = blockedIps;
+        this.ipBlockManager = ipBlockManager;
     }
 
     @ManagedOperation(description = "adds an IP address to blocked list")
@@ -29,7 +29,7 @@ public class BlockListJmx extends JmxBase {
             @ManagedOperationParameter(name = "address", description = "address to block"),
     })
     public String addBlockedListAddress(final String address) {
-        blockedIps.addBlockedListAddress(address);
+        ipBlockManager.addBlockedListAddress(address);
         return String.format("Ipaddress %s added to blocked list", address);
     }
 
@@ -38,12 +38,12 @@ public class BlockListJmx extends JmxBase {
             @ManagedOperationParameter(name = "address", description = "address to remove"),
     })
     public String removeBlockedListAddress(String address) {
-        blockedIps.removeBlockedListAddress(address);
+        ipBlockManager.removeBlockedListAddress(address);
         return String.format("Ipaddress %s removed from blocked list", address);
     }
 
     @ManagedOperation(description = "Retrieve blocked IP list")
     public String getBlockedList() {
-        return String.format("%s IPs are blocked", blockedIps.getBlockedList());
+        return String.format("%s IPs are blocked", ipBlockManager.getBlockedList());
     }
 }

@@ -12,13 +12,13 @@ import java.util.Set;
 
 @Component
 @Profile({WhoisProfile.TEST})
-public class TestBlockedIps implements BlockedIps {
+public class TestIpBlockManager implements IpBlockManager {
 
     private static final Joiner COMMA_JOINER = Joiner.on(',');
 
     private final Set<IpInterval> ipBlockedSet;
 
-    public TestBlockedIps(@Value("${ipranges.blocked.list:}") final String blockedListIps) {
+    public TestIpBlockManager(@Value("${ipranges.blocked.list:}") final String blockedListIps) {
         ipBlockedSet = Sets.newSet();
 
         ipBlockedSet.addAll(getBlockedIntervals(blockedListIps));

@@ -215,7 +215,7 @@ public class WhoisRestBasicAuthTestIntegration extends AbstractHttpsIntegrationT
         final Response response =  RestTest.target(getPort(), "whois/test/person")
                     .request()
                     .header(HttpHeaders.AUTHORIZATION, getBasicAuthenticationHeader("test", "test"))
-                    .put(Entity.entity(map(PAULETH_PALTHEN), MediaType.APPLICATION_XML), Response.class);
+                    .post(Entity.entity(map(PAULETH_PALTHEN), MediaType.APPLICATION_XML), Response.class);
 
         assertThat(response.getStatus(), is(HttpStatus.UPGRADE_REQUIRED_426));
         assertThat(response.readEntity(String.class), containsString("HTTPS required for Basic authorization"));

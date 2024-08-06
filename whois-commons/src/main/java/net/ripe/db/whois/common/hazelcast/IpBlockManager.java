@@ -8,7 +8,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.stream.Stream;
 
-public interface BlockedIps {
+public interface IpBlockManager {
 
     void addBlockedListAddress(final String address);
 

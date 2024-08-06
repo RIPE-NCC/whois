@@ -1,6 +1,5 @@
 package net.ripe.db.whois.common.hazelcast;
 
-import com.google.common.base.Joiner;
 import com.hazelcast.collection.ISet;
 import com.hazelcast.core.HazelcastInstance;
 import net.ripe.db.whois.common.ip.IpInterval;
@@ -16,16 +15,14 @@ import static org.slf4j.LoggerFactory.getLogger;
 
 @Component
 @Profile({WhoisProfile.DEPLOYED})
-public class WhoisHazelcastBlockedIps implements BlockedIps {
+public class HazelcastIpBlockManager implements IpBlockManager {
 
-    private static final Logger LOGGER = getLogger(WhoisHazelcastBlockedIps.class);
-
-    private static final Joiner COMMA_JOINER = Joiner.on(',');
+    private static final Logger LOGGER = getLogger(HazelcastIpBlockManager.class);
 
     private final ISet<IpInterval> ipBlockedSet;
 
-    public WhoisHazelcastBlockedIps(final HazelcastInstance hazelcastInstance,
-                                    @Value("${ipranges.blocked.list:}") final String blockedListIps) {
+    public HazelcastIpBlockManager(final HazelcastInstance hazelcastInstance,
+                                   @Value("${ipranges.blocked.list:}") final String blockedListIps) {
 
         ipBlockedSet = hazelcastInstance.getSet("ipBlockedSet");
         ipBlockedSet.addAll(getBlockedIntervals(blockedListIps));
