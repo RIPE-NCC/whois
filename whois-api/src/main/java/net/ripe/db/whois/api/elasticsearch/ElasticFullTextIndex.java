@@ -6,6 +6,7 @@ import net.javacrumbs.shedlock.spring.annotation.SchedulerLock;
 import net.ripe.db.whois.common.dao.jdbc.JdbcRpslObjectOperations;
 import net.ripe.db.whois.common.domain.serials.SerialEntry;
 import net.ripe.db.whois.common.rpsl.RpslObject;
+import net.ripe.db.whois.common.transaction.TransactionConfiguration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -66,7 +67,7 @@ public class ElasticFullTextIndex {
         LOGGER.info("Completed updating Elasticsearch indexes");
     }
 
-    @Transactional(isolation = Isolation.REPEATABLE_READ, propagation = Propagation.REQUIRES_NEW)
+    @Transactional(transactionManager = TransactionConfiguration.WHOIS_READONLY_TRANSACTION , isolation = Isolation.REPEATABLE_READ, propagation = Propagation.REQUIRES_NEW)
     public void update() throws IOException {
         if (shouldRebuild()) {
             LOGGER.error("ES indexes needs to be rebuild");
