@@ -63,6 +63,7 @@ public class IpBlockListFilter implements Filter {
     }
 
     private static void sendError(final HttpServletResponse httpResponse, final HttpServletRequest httpRequest) throws IOException {
+        //TODO: refactor using Response.writeError() when upgrading to Jetty 12 https://jetty.org/docs/jetty/12/programming-guide/migration/11-to-12.html
         final String message = String.format("Your host %s has been permanently blocked due to suspected abusive " +
                 "behaviour. Please contact support for further assistance.", httpRequest.getRemoteAddr());
         httpResponse.setStatus(HttpStatus.TOO_MANY_REQUESTS_429);
