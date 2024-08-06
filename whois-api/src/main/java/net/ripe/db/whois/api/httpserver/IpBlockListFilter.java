@@ -67,9 +67,6 @@ public class IpBlockListFilter implements Filter {
         final String message = String.format("Your host %s has been permanently blocked due to suspected abusive " +
                 "behaviour. Please contact support for further assistance.", httpRequest.getRemoteAddr());
         httpResponse.setStatus(HttpStatus.TOO_MANY_REQUESTS_429);
-        try (PrintWriter writer = httpResponse.getWriter()) {
-            writer.write(message);
-            writer.flush();
-        }
+        httpResponse.getWriter().write(message);
     }
 }
