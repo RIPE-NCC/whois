@@ -1,0 +1,82 @@
+package net.ripe.db.whois.common.source;
+
+import com.mchange.v2.c3p0.ComboPooledDataSource;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.DependsOn;
+
+import javax.sql.DataSource;
+import java.beans.PropertyVetoException;
+import java.util.Properties;
+
+@Configuration
+public class DataSourceConfigurations {
+
+    private static final String DRIVER_CLASS_NAME = "org.mariadb.jdbc.Driver";
+
+    @Bean
+    public DataSource aclDataSource(@Value("${acl.database.url}") final String jdbcUrl, @Value("${acl.database.username}") final String jdbcUser, @Value("${acl.database.password}") final String jdbcPass) throws PropertyVetoException {
+        return createDataSource(DRIVER_CLASS_NAME, jdbcUrl, jdbcUser, jdbcPass);
+    }
+
+    @Bean
+    public DataSource mailupdatesDataSource(@Value("${mailupdates.database.url}") final String jdbcUrl, @Value("${mailupdates.database.username}") final String jdbcUser, @Value("${mailupdates.database.password}") final String jdbcPass) throws PropertyVetoException {
+        return createDataSource(DRIVER_CLASS_NAME, jdbcUrl, jdbcUser, jdbcPass);
+    }
+
+    @Bean
+    public DataSource internalsDataSource(@Value("${internals.database.url}") final String jdbcUrl, @Value("${internals.database.username}") final String jdbcUser, @Value("${internals.database.password}") final String jdbcPass) throws PropertyVetoException {
+        return createDataSource(DRIVER_CLASS_NAME, jdbcUrl, jdbcUser, jdbcPass);
+    }
+
+    @Bean
+    public DataSource internalsSlaveDataSource(@Value("${internals.slave.database.url}") final String jdbcUrl, @Value("${internals.slave.database.username}") final String jdbcUser, @Value("${internals.slave.database.password}") final String jdbcPass) throws PropertyVetoException {
+        return createDataSource(DRIVER_CLASS_NAME, jdbcUrl, jdbcUser, jdbcPass);
+    }
+
+    @Bean
+    @DependsOn("loggingDriver")
+    public DataSource whoisMasterDataSource(@Value("${whois.db.master.driver}") final String jdbcDriver, @Value("${whois.db.master.url}") final String jdbcUrl, @Value("${whois.db.master.username}") final String jdbcUser, @Value("${whois.db.master.password}") final String jdbcPass) throws PropertyVetoException {
+        return createDataSource(jdbcDriver, jdbcUrl, jdbcUser, jdbcPass);
+    }
+
+    @Bean
+    public ComboPooledDataSource whoisSlaveDataSource(@Value("${whois.db.slave.url}") final String jdbcUrl, @Value("${whois.db.slave.username}") final String jdbcUser, @Value("${whois.db.slave.password}") final String jdbcPass) throws PropertyVetoException {
+       return createDataSource(DRIVER_CLASS_NAME, jdbcUrl, jdbcUser, jdbcPass);
+   }
+
+    @Bean
+    public ComboPooledDataSource nrtmMasterDataSource(@Value("${nrtm.database.url}") final String jdbcUrl, @Value("${nrtm.database.username}") final String jdbcUser, @Value("${nrtm.database.password}") final String jdbcPass) throws PropertyVetoException {
+        return createDataSource(DRIVER_CLASS_NAME, jdbcUrl, jdbcUser, jdbcPass);
+    }
+
+    @Bean
+    public ComboPooledDataSource nrtmSlaveDataSource(@Value("${nrtm.slave.database.url}") final String jdbcUrl, @Value("${nrtm.slave.database.username}") final String jdbcUser, @Value("${nrtm.slave.database.password}") final String jdbcPass) throws PropertyVetoException {
+        return createDataSource(DRIVER_CLASS_NAME, jdbcUrl, jdbcUser, jdbcPass);
+    }
+
+    private ComboPooledDataSource createDataSource(final String jdbcDriver, final String jdbcUrl, final String jdbcUser, final String jdbcPass) throws PropertyVetoException {
+        final ComboPooledDataSource source = new ComboPooledDataSource();
+
+        source.setProperties(getSourceProperties(jdbcDriver));
+        source.setJdbcUrl(jdbcUrl);
+        source.setUser(jdbcUser);
+        source.setPassword(jdbcPass);
+        return source;
+    }
+
+    private Properties getSourceProperties(final String jdbcDriver) {
+        final Properties props = new Properties();
+        props.setProperty("driverClass", jdbcDriver);
+        props.setProperty("minPoolSize", "0");
+        props.setProperty("maxPoolSize", "100");
+        props.setProperty("maxIdleTime", "7200");
+        props.setProperty("preferredTestQuery", "SELECT 1");
+        props.setProperty("idleConnectionTestPeriod", "15");
+        props.setProperty("connectionTesterClassName", "com.mchange.v2.c3p0.impl.DefaultConnectionTester");
+        props.setProperty("connectionCustomizerClassName", "net.ripe.db.whois.common.jdbc.WhoisConnectorCustomizer");
+
+        return props;
+    }
+}

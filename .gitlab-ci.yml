@@ -96,7 +96,7 @@ whois-api:
     - *mariadb_configuration
   services:
     - *mariadb_service
-    - name: docker.elastic.co/elasticsearch/elasticsearch:7.15.0
+    - name: docker.elastic.co/elasticsearch/elasticsearch:7.15.2
       alias: "elasticsearch"
       command: [ "bin/elasticsearch", "-Expack.security.enabled=false", "-Ediscovery.type=single-node" ]
   script:

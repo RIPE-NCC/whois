@@ -2,6 +2,9 @@ package net.ripe.db.whois.api.httpserver;
 
 import io.netty.handler.ssl.util.TrustManagerFactoryWrapper;
 import jakarta.servlet.DispatcherType;
+import net.ripe.db.whois.api.httpserver.dos.WhoisDoSFilter;
+import net.ripe.db.whois.api.httpserver.dos.WhoisQueryDoSFilter;
+import net.ripe.db.whois.api.httpserver.dos.WhoisUpdateDoSFilter;
 import net.ripe.db.whois.common.ApplicationService;
 import net.ripe.db.whois.common.aspects.RetryFor;
 import org.eclipse.jetty.alpn.server.ALPNServerConnectionFactory;
@@ -105,8 +108,13 @@ public class JettyBootstrap implements ApplicationService {
     private final boolean xForwardedForHttp;
 
     private final boolean dosFilterEnabled;
-    private final String dosUpdatesMaxSecs;
-    private final String dosQueryMaxSecs;
+
+    private final WhoisQueryDoSFilter whoisQueryDoSFilter;
+
+    private final WhoisUpdateDoSFilter whoisUpdateDoSFilter;
+
+    private final IpBlockListFilter ipBlockListFilter;
+
 
     @Autowired
     public JettyBootstrap(final RemoteAddressFilter remoteAddressFilter,
@@ -114,6 +122,8 @@ public class JettyBootstrap implements ApplicationService {
                           final List<ServletDeployer> servletDeployers,
                           final RewriteEngine rewriteEngine,
                           final WhoisKeystore whoisKeystore,
+                          final WhoisQueryDoSFilter whoisQueryDoSFilter,
+                          final WhoisUpdateDoSFilter whoisUpdateDoSFilter,
                           @Value("${ipranges.trusted}") final String trustedIpRanges,
                           @Value("${http.idle.timeout.sec:60}") final int idleTimeout,
                           @Value("${http.sni.host.check:true}") final boolean sniHostCheck,
@@ -124,9 +134,8 @@ public class JettyBootstrap implements ApplicationService {
                           @Value("${http.x_forwarded_for:true}") final boolean xForwardedForHttp,
                           @Value("${https.x_forwarded_for:true}") final boolean xForwardedForHttps,
                           @Value("${dos.filter.enabled:false}") final boolean dosFilterEnabled,
-                          @Value("${dos.filter.max.updates:10}") final String dosUpdatesMaxSecs,
-                          @Value("${dos.filter.max.query:50}") final String dosQueriesMaxSecs
-                        )  {
+                          final IpBlockListFilter ipBlockListFilter
+                        ) {
         this.remoteAddressFilter = remoteAddressFilter;
         this.extensionOverridesAcceptHeaderFilter = extensionOverridesAcceptHeaderFilter;
         this.servletDeployers = servletDeployers;
@@ -144,8 +153,9 @@ public class JettyBootstrap implements ApplicationService {
         this.xForwardedForHttp = xForwardedForHttp;
         this.xForwardedForHttps = xForwardedForHttps;
         this.dosFilterEnabled = dosFilterEnabled;
-        this.dosUpdatesMaxSecs = dosUpdatesMaxSecs;
-        this.dosQueryMaxSecs = dosQueriesMaxSecs;
+        this.whoisQueryDoSFilter = whoisQueryDoSFilter;
+        this.whoisUpdateDoSFilter = whoisUpdateDoSFilter;
+        this.ipBlockListFilter = ipBlockListFilter;
     }
 
     @Override
@@ -199,8 +209,15 @@ public class JettyBootstrap implements ApplicationService {
         context.addFilter(new FilterHolder(extensionOverridesAcceptHeaderFilter), "/*", EnumSet.allOf(DispatcherType.class));
         context.addFilter(PushCacheFilter.class, "/*", EnumSet.of(DispatcherType.REQUEST));
 
-        context.addFilter(createDosFilter("lookupFilter", dosQueryMaxSecs), "/*", EnumSet.allOf(DispatcherType.class));
-        context.addFilter(createDosFilter("updateFilter", dosUpdatesMaxSecs), "/*", EnumSet.allOf(DispatcherType.class));
+        context.addFilter(new FilterHolder(ipBlockListFilter), "/*", EnumSet.allOf(DispatcherType.class));
+
+
+        if (!dosFilterEnabled) {
+            LOGGER.info("DoSFilter is *not* enabled");
+        } else {
+            context.addFilter(createDosFilter(whoisQueryDoSFilter), "/*", EnumSet.allOf(DispatcherType.class));
+            context.addFilter(createDosFilter(whoisUpdateDoSFilter), "/*", EnumSet.allOf(DispatcherType.class));
+        }
 
         final HandlerList handlers = new HandlerList();
         handlers.setHandlers(new Handler[] { context });
@@ -255,23 +272,17 @@ public class JettyBootstrap implements ApplicationService {
      * See {@link WhoisDoSFilter} for the customisations added.
      * @return the rate limiting filter
      */
-    private FilterHolder createDosFilter(final String filterName, final String maxRequestsPerSec) {
-        final WhoisDoSFilter dosFilter = new WhoisDoSFilter(filterName);
-        FilterHolder holder = new FilterHolder(dosFilter);
-        holder.setName(filterName);
-
-        if (!dosFilterEnabled) {
-            LOGGER.info("DoSFilter is *not* enabled");
-        }
-        holder.setInitParameter("enabled", Boolean.toString(dosFilterEnabled));
-        holder.setInitParameter("maxRequestsPerSec", maxRequestsPerSec);
+    private FilterHolder createDosFilter(final WhoisDoSFilter whoisDoSFilter) {
+        FilterHolder holder = new FilterHolder(whoisDoSFilter);
+        holder.setName(whoisDoSFilter.getClass().getSimpleName());
+        holder.setInitParameter("enabled", "true");
+        holder.setInitParameter("maxRequestsPerSec", whoisDoSFilter.getLimit());
         holder.setInitParameter("maxRequestMs", "" + 10 * 60 * 1_000); // 10 minutes until we consider the request is a violation and drop it
         holder.setInitParameter("delayMs", "-1"); // reject requests over threshold
         holder.setInitParameter("remotePort", "false");
         holder.setInitParameter("trackSessions", "false");
         holder.setInitParameter("insertHeaders", "false");
         holder.setInitParameter("ipWhitelist", trustedIpRanges);
-
 
         return holder;
     }
@@ -305,7 +316,7 @@ public class JettyBootstrap implements ApplicationService {
             sslContextFactory.setValidateCerts(false);
             sslContextFactory.setTrustAll(true);
         }
-        
+
         // Exclude weak / insecure ciphers
         // TODO CBC became weak, we need to skip them in the future https://support.kemptechnologies.com/hc/en-us/articles/9338043775757-CBC-ciphers-marked-as-weak-by-SSL-labs
         // Check client compatability first

@@ -13,6 +13,7 @@ import net.ripe.db.nrtm4.domain.SnapshotFile;
 import net.ripe.db.nrtm4.util.NrtmFileUtil;
 import net.ripe.db.whois.common.DateTimeProvider;
 import net.ripe.db.whois.common.dao.jdbc.JdbcRpslObjectOperations;
+import net.ripe.db.whois.common.transaction.TransactionConfiguration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -31,7 +32,7 @@ import java.util.List;
 import java.util.Map;
 
 @Repository
-@Transactional(transactionManager = "nrtmTransactionManager")
+@Transactional(transactionManager = TransactionConfiguration.NRTM_UPDATE_TRANSACTION)
 public class UpdateNrtmFileRepository {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(UpdateNrtmFileRepository.class);

@@ -37,8 +37,6 @@ import java.util.stream.StreamSupport;
 
 @Configuration
 @EnableSpringConfigured
-@EnableTransactionManagement(mode = AdviceMode.ASPECTJ)
-@EnableCaching(mode = AdviceMode.ASPECTJ)
 //@EnableAspectJAutoProxy(proxyTargetClass = true)
 @Component
 public class WhoisServer {
