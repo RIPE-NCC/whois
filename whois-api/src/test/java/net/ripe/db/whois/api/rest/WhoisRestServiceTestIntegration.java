@@ -5908,8 +5908,8 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
 
     // helper methods
 
-    private static void assertAsSetMember(final Attribute member, final String attributeExpectedValue) {
-        assertThat(member.getName(), is(attributeExpectedValue));
+    private static void assertAsSetMember(final Attribute member, final String attributeExpectedType) {
+        assertThat(member.getName(), is(attributeExpectedType));
         assertThat(member.getReferencedType(), is("route-set"));
         assertThat(member.getLink().getHref(), is("http://rest-test.db.ripe.net/test/route-set/" + member.getValue()));
     }
