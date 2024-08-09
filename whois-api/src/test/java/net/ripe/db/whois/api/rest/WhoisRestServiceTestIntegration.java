@@ -5848,7 +5848,71 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
         RestTest.assertErrorMessage(whoisResources, 0, "Error", "Syntax error in %s", "G=noreply/S=noreply/O=noreplynoreplynorepl/P=AA/A=ripe.net/C=SP/@noreply.ripe.net");
     }
 
+    @Test
+    public void mp_memebers_should_have_referenced_link_when_as_set() {
+        databaseHelper.addObject(
+                """
+                route-set:    AS7775535:RS-CUSTOMERS:AS94967295
+                descr:        test route-set
+                tech-c:       TP1-TEST
+                admin-c:      TP1-TEST
+                mnt-by:       OWNER-MNT
+                mnt-lower:    OWNER-MNT
+                source:  TEST
+                """
+        );
+
+        databaseHelper.addObject(
+                """
+                route-set:    AS1234:RS-CUSTOMERS:AS1234
+                descr:        test route-set
+                tech-c:       TP1-TEST
+                admin-c:      TP1-TEST
+                mnt-by:       OWNER-MNT
+                mnt-lower:    OWNER-MNT
+                source:  TEST
+                """
+        );
+
+
+        databaseHelper.addObject(RpslObject.parse(
+                """
+                route-set:    RS-CUSTOMERS
+                descr:        test route-set
+                members:      AS7775535:RS-CUSTOMERS:AS94967295
+                mp-members:   AS1234:RS-CUSTOMERS:AS1234
+                tech-c:       TP1-TEST
+                admin-c:      TP1-TEST
+                mnt-by:       OWNER-MNT
+                mnt-lower:    OWNER-MNT
+                source:  TEST
+                """));
+
+        final WhoisResources response = RestTest.target(getPort(), "whois/test/route-set/RS-CUSTOMERS?password=test")
+                    .request()
+                    .get(WhoisResources.class);
+
+        final List<Attribute> memberAttributes = response.getWhoisObjects().get(0)
+                .getAttributes().stream()
+                .filter(attribute -> attribute.getName().equals("members") || attribute.getName().equals("mp-members"))
+                .toList();
+
+        assertThat(memberAttributes.size(), is(2));
+
+        assertAsSetMember(memberAttributes.get(0), "members");
+        assertAsSetMember(memberAttributes.get(1), "mp-members");
+
+    }
+
+
+
     // helper methods
+
+    private static void assertAsSetMember(final Attribute member, final String attributeExpectedValue) {
+        assertThat(member.getName(), is(attributeExpectedValue));
+        assertThat(member.getReferencedType(), is("route-set"));
+        assertThat(member.getLink().getHref(), is("http://rest-test.db.ripe.net/test/route-set/" + member.getValue()));
+    }
 
     private String encode(final String input) {
         // do not interpret template parameters
