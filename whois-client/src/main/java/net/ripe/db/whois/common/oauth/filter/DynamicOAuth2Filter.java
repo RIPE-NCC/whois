@@ -13,14 +13,11 @@ import jakarta.ws.rs.client.Entity;
 import jakarta.ws.rs.core.GenericType;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
-import org.springframework.security.oauth2.core.endpoint.OAuth2AccessTokenResponse;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.oauth2.core.endpoint.OAuth2AccessTokenResponse;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.oauth2.client.OAuth2AuthorizeRequest;
 import org.springframework.security.oauth2.client.OAuth2AuthorizedClient;
 import org.springframework.security.oauth2.client.OAuth2AuthorizedClientManager;
@@ -30,7 +27,14 @@ import org.springframework.security.oauth2.client.registration.ClientRegistratio
 import org.springframework.security.oauth2.client.registration.InMemoryClientRegistrationRepository;
 import org.springframework.security.oauth2.core.AuthorizationGrantType;
 import org.springframework.web.filter.OncePerRequestFilter;
+import org.springframework.web.reactive.function.BodyInserters;
+import org.springframework.web.reactive.function.client.WebClient;
+import org.springframework.web.util.UriComponentsBuilder;
+
 import java.io.IOException;
+import java.net.URI;
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Enumeration;
@@ -42,6 +46,13 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+
+// We need to define ClientRegistration. This holds information such as client ID, client secret, authorization URI,
+// token URI, and scopes. This is per request, because each user as his own grants and identification
+
+// THis configuration is crucial because it defines how the application interacts with the OAuth2 provider, including
+// where to send the authorisation request, how to obtain tokens...etc
+//THis is used for retrieving an access token from the OAuth2 provider. Then we put this token as a bearer token
 public class DynamicOAuth2Filter extends OncePerRequestFilter {
 
     private final InMemoryClientRegistrationRepository clientRegistrationRepository;
@@ -50,20 +61,19 @@ public class DynamicOAuth2Filter extends OncePerRequestFilter {
 
     private final String keyClockApi;
 
-    private Client client;
-
-    private final ObjectMapper objectMapper;
+    //private final ObjectMapper objectMapper;
+    //private final Client client;
 
     private static final DefaultClientCredentialsTokenResponseClient CLIENT_CREDENTIALS_TOKEN_RESPONSE_CLIENT =
             new DefaultClientCredentialsTokenResponseClient();
 
-    public DynamicOAuth2Filter(final Client client, final String keyClockApi,
+    public DynamicOAuth2Filter(final String keyClockApi,
                                final OAuth2AuthorizedClientManager oauth2AuthorizedClientManager, final InMemoryClientRegistrationRepository clientRegistrationRepository) {
         this.oauth2AuthorizedClientManager = oauth2AuthorizedClientManager;
         this.clientRegistrationRepository = clientRegistrationRepository;
         this.keyClockApi = keyClockApi;
-        this.client = client;
-        this.objectMapper = new ObjectMapper();
+        //this.client = client;
+        //this.objectMapper = new ObjectMapper();
     }
 
     @Override
@@ -85,15 +95,25 @@ public class DynamicOAuth2Filter extends OncePerRequestFilter {
                 .principal("api-key-gateway")
                 .build();
         OAuth2AuthorizedClient oauth2AuthorizedClient = oauth2AuthorizedClientManager.authorize(oauth2AuthorizeRequest);
-        List<KeycloakUserRepresentation> keycloakUsersResponse = client.target(keyClockApi)
+
+        WebClient webClient = WebClient.create();
+        ResponseEntity<List<KeycloakUserRepresentation>> keycloakUsersResponse = webClient
+                .get()
+                .uri(buildSafeUri(keyClockApi, username))
+                .headers(headers -> headers.setBearerAuth(Objects.requireNonNull(oauth2AuthorizedClient).getAccessToken().getTokenValue()))
+                .retrieve()
+                .toEntity(new ParameterizedTypeReference<List<KeycloakUserRepresentation>>() {})
+                .block();
+
+        /*List<KeycloakUserRepresentation> keycloakUsersResponse = client.target(keyClockApi)
                 .queryParam("username", username)
                 .queryParam("exact", true)
                 .request(MediaType.APPLICATION_JSON_TYPE)
                 .header("", Objects.requireNonNull(oauth2AuthorizedClient).getAccessToken().getTokenValue())
                 .get()
-                .readEntity(new GenericType<>() {});
+                .readEntity(new GenericType<>() {});*/
 
-        KeycloakUserRepresentation keycloakUserRepresentation = Objects.requireNonNull(Objects.requireNonNull(keycloakUsersResponse)).getFirst();
+        KeycloakUserRepresentation keycloakUserRepresentation = Objects.requireNonNull(Objects.requireNonNull(keycloakUsersResponse).getBody()).getFirst();
         if (!keycloakUserRepresentation.enabled()) {
             filterChain.doFilter(request, response);
             return;
@@ -119,25 +139,56 @@ public class DynamicOAuth2Filter extends OncePerRequestFilter {
         OAuth2AccessTokenResponse clientCredentialsGrantResponse =
                 CLIENT_CREDENTIALS_TOKEN_RESPONSE_CLIENT.getTokenResponse(clientCredentialsGrantRequest);
 
-        JsonNode requestBody = buildRequestBody(
+        /*JsonNode requestBody = buildRequestBody(
                 clientCredentialsGrantResponse, originalOAuth2ClientRegistration, userId, application, scope
-        );
+        );*/
 
-        Response tokenExchangeResponse =
-                client.target(customOAuth2ClientRegistration.getProviderDetails().getTokenUri())
-                .request()
-                .post(Entity.json(requestBody));
+        JsonNode tokenExchangeResponse = webClient
+                .post()
+                .uri(customOAuth2ClientRegistration.getProviderDetails().getTokenUri())
+                .body(BodyInserters
+                        .fromFormData("grant_type", AuthorizationGrantType.TOKEN_EXCHANGE.getValue())
+                        .with("requested_token_type", "urn:ietf:params:oauth:token-type:access_token")
+                        .with("subject_token", clientCredentialsGrantResponse.getAccessToken().getTokenValue())
+                        .with("client_id", originalOAuth2ClientRegistration.getClientId())
+                        .with("client_secret", originalOAuth2ClientRegistration.getClientSecret())
+                        .with("requested_subject", userId)
+                        .with("audience", application)
+                        .with("scope", String.join(" ", scope)))
+                .retrieve()
+                .bodyToMono(JsonNode.class)
+                .block();
 
-        JsonNode jsonNode = objectMapper.readTree(tokenExchangeResponse.readEntity(String.class));
+        /*client.target(customOAuth2ClientRegistration.getProviderDetails().getTokenUri())
+        .request()
+        .post(Entity.json(requestBody));
+
+        JsonNode jsonNode = objectMapper.readTree(tokenExchangeResponse.readEntity(String.class));*/
 
 
         CustomHttpServletRequestHeadersWrapper modifiedServerRequest = new CustomHttpServletRequestHeadersWrapper(request)
-                .addHeader("Authorisation", Objects.requireNonNull(jsonNode).get("access_token").asText());
+                .addHeader("Authorisation", Objects.requireNonNull(tokenExchangeResponse).get("access_token").asText());
 
         filterChain.doFilter(modifiedServerRequest, response);
     }
 
-    public JsonNode buildRequestBody(OAuth2AccessTokenResponse clientCredentialsGrantResponse,
+    //Create safe uri to avoid CVE-2024-22243 vulnerability that avoids introducing vulnerabilities
+    private URI buildSafeUri(String keyClockApi, String username) {
+        // Encode the username to ensure it's safely included in the URI
+        String encodedUsername = URLEncoder.encode(username, StandardCharsets.UTF_8);
+
+        // Build the URI with encoded parameters
+        URI uri = UriComponentsBuilder.fromHttpUrl(keyClockApi)
+                .queryParam("username", encodedUsername)
+                .queryParam("exact", true)
+                .build()
+                .encode() // Ensures the entire URI is safely encoded
+                .toUri();
+
+        return uri;
+    }
+
+    /*public JsonNode buildRequestBody(OAuth2AccessTokenResponse clientCredentialsGrantResponse,
                                      ClientRegistration originalOAuth2ClientRegistration,
                                      String userId, String application, Set<String> scope) {
         // Create an ObjectNode to represent the JSON object
@@ -153,7 +204,7 @@ public class DynamicOAuth2Filter extends OncePerRequestFilter {
         requestBody.put("scope", String.join(" ", scope));
 
         return requestBody;
-    }
+    }*/
 
 
     private static Stream<String> extractAuthorityValues(Collection<GrantedAuthority> authorities, AuthorityPrefix authorityPrefix) {
