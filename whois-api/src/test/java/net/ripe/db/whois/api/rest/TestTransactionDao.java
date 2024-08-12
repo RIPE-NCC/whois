@@ -8,7 +8,7 @@ import net.ripe.db.whois.common.dao.jdbc.DatabaseHelper;
 import net.ripe.db.whois.common.dao.jdbc.JdbcRpslObjectDao;
 import net.ripe.db.whois.common.domain.BlockEvent;
 import net.ripe.db.whois.common.mail.EmailStatus;
-import net.ripe.db.whois.common.transaction.TransactionConfiguration;
+import net.ripe.db.whois.common.TransactionConfiguration;
 import org.jetbrains.annotations.Nullable;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
