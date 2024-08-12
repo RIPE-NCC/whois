@@ -101,6 +101,7 @@
         <validation.version>3.0.2</validation.version>
         <velocity.version>2.3</velocity.version>
 
+        <oauth.version>6.3.1</oauth.version>
         <whois.main>OVERRIDE</whois.main>
     </properties>
 
@@ -296,6 +297,42 @@
                 <groupId>org.springframework</groupId>
                 <artifactId>spring-tx</artifactId>
                 <version>${spring.version}</version>
+            </dependency>
+
+
+            <!-- Spring Security -->
+            <dependency>
+                <groupId>org.springframework.security</groupId>
+                <artifactId>spring-security-core</artifactId>
+                <version>6.3.1</version> <!-- Use the latest stable version -->
+            </dependency>
+
+            <!-- Spring Security Config -->
+            <dependency>
+                <groupId>org.springframework.security</groupId>
+                <artifactId>spring-security-config</artifactId>
+                <version>6.3.1</version>
+            </dependency>
+
+            <!-- Spring Security OAuth2 Client -->
+            <dependency>
+                <groupId>org.springframework.security</groupId>
+                <artifactId>spring-security-oauth2-client</artifactId>
+                <version>6.3.1</version>
+            </dependency>
+
+            <!-- Spring Security OAuth2 Core -->
+            <dependency>
+                <groupId>org.springframework.security</groupId>
+                <artifactId>spring-security-oauth2-core</artifactId>
+                <version>6.3.1</version>
+            </dependency>
+
+            <!-- Spring Security OAuth2 Resource Server -->
+            <dependency>
+                <groupId>org.springframework.security</groupId>
+                <artifactId>spring-security-oauth2-resource-server</artifactId>
+                <version>6.3.1</version>
             </dependency>
 
             <!-- -->
