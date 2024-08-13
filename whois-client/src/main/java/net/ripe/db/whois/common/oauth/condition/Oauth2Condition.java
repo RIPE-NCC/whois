@@ -7,6 +7,6 @@ import org.springframework.core.type.AnnotatedTypeMetadata;
 public class Oauth2Condition implements Condition {
     @Override
     public boolean matches(ConditionContext context, AnnotatedTypeMetadata metadata) {
-        return context.getEnvironment().containsProperty("key.cloack.api") || context.getEnvironment().containsProperty("api.key.gateway");
+        return context.getEnvironment().containsProperty("key.cloack.api") && context.getEnvironment().containsProperty("api.key.gateway");
     }
 }
