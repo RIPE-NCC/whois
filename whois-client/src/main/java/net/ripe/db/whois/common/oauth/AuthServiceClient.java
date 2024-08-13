@@ -1,6 +1,5 @@
 package net.ripe.db.whois.common.oauth;
 
-import com.google.common.collect.Lists;
 import net.ripe.db.whois.common.oauth.condition.Oauth2Condition;
 import org.springframework.context.annotation.Conditional;
 import org.springframework.core.ParameterizedTypeReference;
@@ -35,12 +34,7 @@ public class AuthServiceClient {
 
     }
 
-    public List<ApiKey> validateJwtToken(final String jwtToken){
-        if (StringUtils.isEmpty(jwtToken)) {
-            LOGGER.debug("No ApiKey was supplied");
-            throw new AuthServiceClientException(BAD_REQUEST.getStatusCode(), "No ApiKey supplied.");
-        }
-
+    public List<ApiKey> validateJwtToken(){
         List<ApiKey> apiKeys;
 
         try {
