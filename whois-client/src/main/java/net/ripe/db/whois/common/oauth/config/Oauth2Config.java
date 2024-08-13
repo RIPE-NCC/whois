@@ -12,31 +12,26 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.oauth2.client.OAuth2AuthorizedClientManager;
 import org.springframework.security.oauth2.client.registration.InMemoryClientRegistrationRepository;
-import org.springframework.security.oauth2.client.web.reactive.function.client.ServletOAuth2AuthorizedClientExchangeFilterFunction;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
-import org.springframework.web.reactive.function.client.WebClient;
 
 
 @Configuration
 @EnableWebSecurity
 @Conditional(Oauth2Condition.class)
-public class WebSecurityConfig {
+public class Oauth2Config {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(WebSecurityConfig.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(Oauth2Config.class);
 
     private final OAuth2AuthorizedClientManager oauth2AuthorizedClientManager;
 
     private final String keyCloackApi;
 
-    private final String apiKeyGateway;
 
-    WebSecurityConfig(@Value("${key.cloack.api}") final String keyCloackApi,
-                      @Value("${api.key.gateway}") final String apiKeyGateway,
-                      OAuth2AuthorizedClientManager oauth2AuthorizedClientManager){
+    Oauth2Config(@Value("${key.cloack.api}") final String keyCloackApi,
+                 OAuth2AuthorizedClientManager oauth2AuthorizedClientManager){
         this.oauth2AuthorizedClientManager = oauth2AuthorizedClientManager;
         this.keyCloackApi = keyCloackApi;
-        this.apiKeyGateway = apiKeyGateway;
     }
 
     @Bean
@@ -49,19 +44,6 @@ public class WebSecurityConfig {
                         clientRegistrationRepository()), UsernamePasswordAuthenticationFilter.class);
 
         return http.build();
-    }
-
-    @Bean
-    // This will include the access-token that we are including in the DynamicOAuth2Filter
-    public WebClient apiKeyGatewayWebClient(OAuth2AuthorizedClientManager authorizedClientManager) {
-        ServletOAuth2AuthorizedClientExchangeFilterFunction oauth2FilterFunction =
-                new ServletOAuth2AuthorizedClientExchangeFilterFunction(authorizedClientManager);
-        oauth2FilterFunction.setDefaultOAuth2AuthorizedClient(true);
-        oauth2FilterFunction.setDefaultClientRegistrationId("api-key-gateway");
-        return WebClient.builder()
-                .baseUrl(apiKeyGateway)
-                .apply(oauth2FilterFunction.oauth2Configuration()) //WebClient Is necessary for applying out2filterFunctions
-                .build();
     }
 
     @Bean
