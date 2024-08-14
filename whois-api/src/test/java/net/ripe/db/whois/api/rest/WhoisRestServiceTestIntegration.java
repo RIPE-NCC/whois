@@ -5892,7 +5892,7 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
                     .request()
                     .get(WhoisResources.class);
 
-        final List<Attribute> memberAttributes = response.getWhoisObjects().get(0)
+        final List<Attribute> memberAttributes = response.getWhoisObjects().getFirst()
                 .getAttributes().stream()
                 .filter(attribute -> attribute.getName().equals("members") || attribute.getName().equals("mp-members"))
                 .toList();
