@@ -10,6 +10,11 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+
+import java.io.IOException;
+
+import static net.ripe.db.whois.query.support.PatternMatcher.matchesPattern;
+import static org.hamcrest.CoreMatchers.containsString;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.not;
 import static org.hamcrest.CoreMatchers.nullValue;
@@ -23,6 +28,14 @@ public class MessageServiceTestIntegration extends AbstractMailMessageIntegratio
 
     @Autowired
     private MessageService messageService;
+
+    final static String PASSWORD_WARN =
+            """
+            Warning: Password authentication will be removed from Mailupdates in a future
+                        Whois release as the mail message may have been sent insecurely.
+                        Please switch to PGP signing for authentication or use a different
+                        update method such as the REST API or Syncupdates.
+            """;
 
     @BeforeEach
     public void setup() {
@@ -63,6 +76,81 @@ public class MessageServiceTestIntegration extends AbstractMailMessageIntegratio
         assertThat(isUndeliverableAddress("enduser@ripe.net"), is(false));
 
     }
+
+    @Test
+    public void test_upd_single_object_with_password_then_warn() throws MessagingException, IOException {
+        final String incomingMessage = """
+                role:        dummy role
+                address:       Singel 258
+                e-mail:        dummyrole@ripe.net
+                phone:         +31 6 12345678
+                notify:        notify-dummy-role@ripe.net
+                nic-hdl:       DR1-TEST
+                mnt-by:        OWNER-MNT
+                source:        TEST
+                password: test
+                """;
+
+
+        // send message and read acknowledgement reply
+        final String from = insertIncomingMessage("NEW", incomingMessage);
+        final String acknowledgement = mailSenderStub.getMessage(from).getContent().toString();
+        assertThat(acknowledgement, containsString(PASSWORD_WARN));
+    }
+
+
+    @Test
+    public void test_upd_multiple_objects_without_password_then_no_warn() throws MessagingException, IOException {
+        final String incomingMessage = """
+                mntner:        OWNER1-MNT
+                descr:         Owner Maintainer
+                admin-c:       TP1-TEST
+                upd-to:        upd-to@ripe.net
+                notify:        notify@ripe.net
+                auth:          MD5-PW $1$d9fKeTr2$Si7YudNf4rUGmR71n/cqk/ #test
+                mnt-by:        OWNER1-MNT
+                source:        TEST
+                """;
+
+
+        // send message and read acknowledgement reply
+        final String from = insertIncomingMessage("NEW", incomingMessage);
+        final String acknowledgement = mailSenderStub.getMessage(from).getContent().toString();
+
+        assertThat(acknowledgement, not(containsString(PASSWORD_WARN)));
+    }
+
+    @Test
+    public void test_upd_multiple_objects_with_without_password_then_warn() throws MessagingException, IOException {
+        final String incomingMessage = """
+                mntner:        OWNER1-MNT
+                descr:         Owner Maintainer
+                admin-c:       TP1-TEST
+                upd-to:        upd-to@ripe.net
+                notify:        notify@ripe.net
+                auth:          MD5-PW $1$d9fKeTr2$Si7YudNf4rUGmR71n/cqk/ #test
+                mnt-by:        OWNER1-MNT
+                source:        TEST
+                
+                role:        dummy role
+                address:       Singel 258
+                e-mail:        dummyrole@ripe.net
+                phone:         +31 6 12345678
+                notify:        notify-dummy-role@ripe.net
+                nic-hdl:       DR1-TEST
+                mnt-by:        OWNER1-MNT
+                source:        TEST
+                password: test
+                """;
+
+
+        // send message and read acknowledgement reply
+        final String from = insertIncomingMessage("NEW", incomingMessage);
+        final String acknowledgement = mailSenderStub.getMessage(from).getContent().toString();
+
+        assertThat(acknowledgement, containsString(PASSWORD_WARN));
+    }
+
 
     @Test
     public void testBouncedEmailFromIncorrectEmail() throws MessagingException, MailParsingException {
@@ -147,4 +235,5 @@ public class MessageServiceTestIntegration extends AbstractMailMessageIntegratio
         assertThat(isUndeliverableAddress(UNSUBSCRIBED_MAIL_RECIPIENT), is(false));
         assertThat(isUnsubscribeAddress(UNSUBSCRIBED_MAIL_RECIPIENT), is(true));
     }
+
 }
