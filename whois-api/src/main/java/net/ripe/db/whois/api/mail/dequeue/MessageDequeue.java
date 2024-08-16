@@ -12,7 +12,6 @@ import net.ripe.db.whois.common.ApplicationService;
 import net.ripe.db.whois.common.DateTimeProvider;
 import net.ripe.db.whois.common.MaintenanceMode;
 import net.ripe.db.whois.common.Messages;
-import net.ripe.db.whois.common.rpsl.AttributeType;
 import net.ripe.db.whois.update.domain.DequeueStatus;
 import net.ripe.db.whois.update.domain.PasswordCredential;
 import net.ripe.db.whois.update.domain.Update;
