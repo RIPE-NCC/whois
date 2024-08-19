@@ -40,6 +40,6 @@ public class SyncUpdatesServiceHttpsTestIntegration extends AbstractIntegrationT
         assertThat(response, containsString("Create SUCCEEDED: [mntner] mntner"));
         assertThat(response, containsString(
             "This Syncupdates request used insecure HTTP, which will be removed\n" +
-                    "            in a future release. Please switch to HTTPS."));
+            "            in a future release. Please switch to HTTPS."));
     }
 }
