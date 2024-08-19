@@ -100,7 +100,7 @@ public class MessageServiceTestIntegration extends AbstractMailMessageIntegratio
 
 
     @Test
-    public void test_upd_single_objects_without_password_then_no_warn() throws MessagingException, IOException {
+    public void test_upd_single_object_without_password_then_no_warn() throws MessagingException, IOException {
         final String incomingMessage = """
                 mntner:        OWNER1-MNT
                 descr:         Owner Maintainer
