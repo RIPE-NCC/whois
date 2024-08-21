@@ -9,7 +9,7 @@
             location="classpath:whois.version.properties,classpath:whois.properties"
             system-properties-mode="OVERRIDE"/>
 
-    <import resource="applicationContext-nrtm.xml"/>
+    <bean class="net.ripe.db.whois.nrtm.WhoisNrtmConfig" />
 
     <context:component-scan base-package="net.ripe.db.whois.query.support">
             <context:include-filter type="assignable" expression="net.ripe.db.whois.query.support.TestPersonalObjectAccounting"/>
