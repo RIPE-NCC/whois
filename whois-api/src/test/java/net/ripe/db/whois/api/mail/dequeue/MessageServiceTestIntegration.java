@@ -5,6 +5,7 @@ import jakarta.mail.internet.MimeMessage;
 import net.ripe.db.whois.api.MimeMessageProvider;
 import net.ripe.db.whois.api.mail.EmailMessageInfo;
 import net.ripe.db.whois.api.mail.exception.MailParsingException;
+import net.ripe.db.whois.update.domain.UpdateMessages;
 import net.ripe.db.whois.update.mail.MailSenderStub;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Tag;
@@ -27,14 +28,6 @@ public class MessageServiceTestIntegration extends AbstractMailMessageIntegratio
 
     @Autowired
     private MessageService messageService;
-
-    final static String PASSWORD_WARN =
-            """
-            Warning: Password authentication will be removed from Mailupdates in a future
-                        Whois release as the mail message may have been sent insecurely.
-                        Please switch to PGP signing for authentication or use a different
-                        update method such as the REST API or Syncupdates.
-            """;
 
     @BeforeEach
     public void setup() {
@@ -94,7 +87,7 @@ public class MessageServiceTestIntegration extends AbstractMailMessageIntegratio
         // send message and read acknowledgement reply
         final String from = insertIncomingMessage("NEW", incomingMessage);
         final String acknowledgement = mailSenderStub.getMessage(from).getContent().toString();
-        assertThat(acknowledgement, containsString(PASSWORD_WARN));
+        assertThat(acknowledgement, containsString(UpdateMessages.passwordInMailUpdate().toString()));
     }
 
 
@@ -116,7 +109,7 @@ public class MessageServiceTestIntegration extends AbstractMailMessageIntegratio
         final String from = insertIncomingMessage("NEW", incomingMessage);
         final String acknowledgement = mailSenderStub.getMessage(from).getContent().toString();
 
-        assertThat(acknowledgement, not(containsString(PASSWORD_WARN)));
+        assertThat(acknowledgement, not(containsString(UpdateMessages.passwordInMailUpdate().toString())));
     }
 
     @Test
@@ -147,7 +140,59 @@ public class MessageServiceTestIntegration extends AbstractMailMessageIntegratio
         final String from = insertIncomingMessage("NEW", incomingMessage);
         final String acknowledgement = mailSenderStub.getMessage(from).getContent().toString();
 
-        assertThat(acknowledgement, containsString(PASSWORD_WARN));
+        assertThat(acknowledgement, containsString(UpdateMessages.passwordInMailUpdate().toString()));
+    }
+
+    @Test
+    public void test_upd_multiple_objects_with_password_then_warn() throws MessagingException, IOException {
+        final String incomingMessage = """
+                mntner:        OWNER1-MNT
+                descr:         Owner Maintainer
+                admin-c:       TP1-TEST
+                upd-to:        upd-to@ripe.net
+                notify:        notify@ripe.net
+                auth:          MD5-PW $1$d9fKeTr2$Si7YudNf4rUGmR71n/cqk/ #test
+                mnt-by:        OWNER1-MNT
+                source:        TEST
+                
+                role:        dummy role
+                address:       Singel 258
+                e-mail:        dummyrole@ripe.net
+                phone:         +31 6 12345678
+                notify:        notify-dummy-role@ripe.net
+                nic-hdl:       DR1-TEST
+                mnt-by:        OWNER1-MNT
+                source:        TEST
+                password: test
+                
+                role:        dummy role 1
+                address:       Singel 258
+                e-mail:        dummyrole@ripe.net
+                phone:         +31 6 12345678
+                notify:        notify-dummy-role@ripe.net
+                nic-hdl:       DR2-TEST
+                mnt-by:        OWNER1-MNT
+                source:        TEST
+                password: test
+                """;
+
+        final String expectedGlobalWarn = """
+                DETAILED EXPLANATION:
+
+                ***Warning: Password authentication will be removed from Mailupdates in a future
+                            Whois release as the mail message may have been sent insecurely.
+                            Please switch to PGP signing for authentication or use a different
+                            update method such as the REST API or Syncupdates."
+                
+                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+                """;
+
+        // send message and read acknowledgement reply
+        final String from = insertIncomingMessage("NEW", incomingMessage);
+        final String acknowledgement = mailSenderStub.getMessage(from).getContent().toString();
+
+
+        assertThat(acknowledgement, containsString(expectedGlobalWarn));
     }
 
 
