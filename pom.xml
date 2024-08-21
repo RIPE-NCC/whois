@@ -39,7 +39,7 @@
         <!-- TODO: update to commons-collections4 -->
         <commons-collections.version>3.2.2</commons-collections.version>
         <commons-compress.version>1.26.1</commons-compress.version>
-        <commons-email.version>1.6.0</commons-email.version>
+        <commons-email.version>2.0.0-M1</commons-email.version>
         <commons-io.version>2.15.1</commons-io.version>
         <!-- equivalent to https://github.com/jgonian/commons-ip-math/ release 1.23 -->
         <commons-ip-math.version>1.23</commons-ip-math.version>
@@ -447,15 +447,8 @@
             </dependency>
             <dependency>
                 <groupId>org.apache.commons</groupId>
-                <artifactId>commons-email</artifactId>
+                <artifactId>commons-email2-jakarta</artifactId>
                 <version>${commons-email.version}</version>
-                <!-- TODO: [ES] commons-email has not switched to Jakarta -->
-                <exclusions>
-                    <exclusion>
-                        <artifactId>javax.mail</artifactId>
-                        <groupId>com.sun.mail</groupId>
-                    </exclusion>
-                </exclusions>
             </dependency>
             <dependency>
                 <groupId>org.apache.velocity</groupId>

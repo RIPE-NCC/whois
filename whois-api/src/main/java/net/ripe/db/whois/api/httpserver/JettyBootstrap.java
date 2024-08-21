@@ -28,7 +28,6 @@ import org.eclipse.jetty.server.ServerConnector;
 import org.eclipse.jetty.server.SslConnectionFactory;
 import org.eclipse.jetty.server.handler.HandlerList;
 import org.eclipse.jetty.servlet.FilterHolder;
-import org.eclipse.jetty.servlets.PushCacheFilter;
 import org.eclipse.jetty.util.ssl.SslContextFactory;
 import org.eclipse.jetty.webapp.WebAppContext;
 import org.slf4j.Logger;
@@ -207,10 +206,7 @@ public class JettyBootstrap implements ApplicationService {
         context.setResourceBase("src/main/webapp");
         context.addFilter(new FilterHolder(remoteAddressFilter), "/*", EnumSet.allOf(DispatcherType.class));
         context.addFilter(new FilterHolder(extensionOverridesAcceptHeaderFilter), "/*", EnumSet.allOf(DispatcherType.class));
-        context.addFilter(PushCacheFilter.class, "/*", EnumSet.of(DispatcherType.REQUEST));
-
         context.addFilter(new FilterHolder(ipBlockListFilter), "/*", EnumSet.allOf(DispatcherType.class));
-
 
         if (!dosFilterEnabled) {
             LOGGER.info("DoSFilter is *not* enabled");
