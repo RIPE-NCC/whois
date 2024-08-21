@@ -29,6 +29,13 @@ public class MessageServiceTestIntegration extends AbstractMailMessageIntegratio
     @Autowired
     private MessageService messageService;
 
+    private static String FORMATTED_PASSWORD_WARN = """
+            ***Warning: Password authentication will be removed from Mailupdates in a future
+                        Whois release as the mail message may have been sent insecurely.
+                        Please switch to PGP signing for authentication or use a different
+                        update method such as the REST API or Syncupdates.
+            """;
+
     @BeforeEach
     public void setup() {
         databaseHelper.addObject(
@@ -87,7 +94,7 @@ public class MessageServiceTestIntegration extends AbstractMailMessageIntegratio
         // send message and read acknowledgement reply
         final String from = insertIncomingMessage("NEW", incomingMessage);
         final String acknowledgement = mailSenderStub.getMessage(from).getContent().toString();
-        assertThat(acknowledgement, containsString(UpdateMessages.passwordInMailUpdate().toString()));
+        assertThat(acknowledgement, containsString(FORMATTED_PASSWORD_WARN));
     }
 
 
@@ -109,7 +116,7 @@ public class MessageServiceTestIntegration extends AbstractMailMessageIntegratio
         final String from = insertIncomingMessage("NEW", incomingMessage);
         final String acknowledgement = mailSenderStub.getMessage(from).getContent().toString();
 
-        assertThat(acknowledgement, not(containsString(UpdateMessages.passwordInMailUpdate().toString())));
+        assertThat(acknowledgement, not(containsString(FORMATTED_PASSWORD_WARN)));
     }
 
     @Test
@@ -140,7 +147,7 @@ public class MessageServiceTestIntegration extends AbstractMailMessageIntegratio
         final String from = insertIncomingMessage("NEW", incomingMessage);
         final String acknowledgement = mailSenderStub.getMessage(from).getContent().toString();
 
-        assertThat(acknowledgement, containsString(UpdateMessages.passwordInMailUpdate().toString()));
+        assertThat(acknowledgement, containsString(FORMATTED_PASSWORD_WARN));
     }
 
     @Test
@@ -178,12 +185,10 @@ public class MessageServiceTestIntegration extends AbstractMailMessageIntegratio
 
         final String expectedGlobalWarn = """
                 DETAILED EXPLANATION:
-
                 ***Warning: Password authentication will be removed from Mailupdates in a future
                             Whois release as the mail message may have been sent insecurely.
                             Please switch to PGP signing for authentication or use a different
-                            update method such as the REST API or Syncupdates."
-                
+                            update method such as the REST API or Syncupdates.
                 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
                 """;
 
