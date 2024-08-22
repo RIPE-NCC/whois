@@ -1,5 +1,3 @@
-Thu May  8 19:29:08 2003 MAIL UPDATE <<<
-
 From chris@nettools.conxion.net Thu May  8 16:54:39 2003
 Received: from postman.ripe.net (postman.ripe.net [193.0.0.199])
 	by apple.ripe.net (8.11.6+Sun/8.10.2) with ESMTP id h48Esdq12013
@@ -19,7 +17,7 @@ Date: Thu, 8 May 2003 10:54:35 -0400 (EDT)
 From: Chris Nolan <chris@conxion.net>
 Message-Id: <200305081454.KAA08602@nettools.conxion.net>
 To: auto-dbm@ripe.net, chris@conxion.net
-Content-Type: text
+Content-Type: text/plain; charset="utf-8"
 X-RIPE-Spam-Level:
 X-RIPE-Signature: 7484757fd6bba9f3298b5ee35de44364
 
