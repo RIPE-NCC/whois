@@ -228,7 +228,7 @@ public class MessageParser {
 
     private static void handleInvalidTypes(Part part) throws MessagingException {
         if ("text".equals(part.getContentType())){
-            part.setHeader("Content-Type", "text/plain; charset=UTF-8");
+            part.setHeader("Content-Type", "text/plain;");
         }
     }
 
