@@ -809,7 +809,6 @@ public class MessageParserTest {
         final MailMessage mailMessage = subject.parse(MimeMessageProvider.getUpdateMessage("testParseFailure.mail"), updateContext);
 
         assertThat(mailMessage.getUpdateMessage(), is(not(emptyString())));
-        System.out.printf(mailMessage.getUpdateMessage());
     }
 
 }
