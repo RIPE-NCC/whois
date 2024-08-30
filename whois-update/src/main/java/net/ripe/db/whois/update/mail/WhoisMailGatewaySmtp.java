@@ -7,7 +7,7 @@ import net.ripe.db.whois.common.Messages;
 import net.ripe.db.whois.common.aspects.RetryFor;
 import net.ripe.db.whois.common.dao.EmailStatusDao;
 import net.ripe.db.whois.common.dao.OutgoingMessageDao;
-import net.ripe.db.whois.common.mail.EmailStatus;
+import net.ripe.db.whois.common.mail.EmailStatusType;
 import net.ripe.db.whois.update.domain.ResponseMessage;
 import net.ripe.db.whois.update.log.LoggerContext;
 import org.slf4j.Logger;
@@ -45,7 +45,7 @@ public class WhoisMailGatewaySmtp extends MailGatewaySmtp {
 
     @Override
     public boolean canNotSendEmail(final String emailAddresses) {
-        final Map<String, EmailStatus> emailStatus = emailStatusDao.getEmailStatus(Set.of(emailAddresses));
+        final Map<String, EmailStatusType> emailStatus = emailStatusDao.getEmailStatusMap(Set.of(emailAddresses));
         return !emailStatus.isEmpty();
     }
 

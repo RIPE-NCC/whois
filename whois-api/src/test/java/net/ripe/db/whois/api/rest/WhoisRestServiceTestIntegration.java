@@ -32,7 +32,7 @@ import net.ripe.db.whois.common.TestDateTimeProvider;
 import net.ripe.db.whois.common.dao.EmailStatusDao;
 import net.ripe.db.whois.common.domain.User;
 import net.ripe.db.whois.common.domain.io.Downloader;
-import net.ripe.db.whois.common.mail.EmailStatus;
+import net.ripe.db.whois.common.mail.EmailStatusType;
 import net.ripe.db.whois.common.rpsl.AttributeType;
 import net.ripe.db.whois.common.rpsl.ObjectType;
 import net.ripe.db.whois.common.rpsl.PasswordHelper;
@@ -5784,7 +5784,7 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
                         "remarks:   remark\n" +
                         "source:    TEST\n");
 
-        emailStatusDao.createEmailStatus(unsubscribedEmail, EmailStatus.UNSUBSCRIBE);
+        emailStatusDao.createEmailStatus(unsubscribedEmail, EmailStatusType.UNSUBSCRIBE);
 
         final WhoisResources response = RestTest.target(getPort(), "whois/test/person/PP3-TEST?password=test")
                 .request(MediaType.APPLICATION_XML)
@@ -5792,7 +5792,7 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
 
         RestTest.assertWarningCount(response, 1);
         RestTest.assertErrorMessage(response, 0, "Warning", "Not sending notification to %s because it is %s.",
-                unsubscribedEmail, EmailStatus.UNSUBSCRIBE.getValue());
+                unsubscribedEmail, EmailStatusType.UNSUBSCRIBE.getValue());
     }
 
 
@@ -5812,7 +5812,7 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
                 "remarks:   remark\n" +
                 "source:    TEST\n");
 
-        emailStatusDao.createEmailStatus(undeliverableEmail, EmailStatus.UNDELIVERABLE);
+        emailStatusDao.createEmailStatus(undeliverableEmail, EmailStatusType.UNDELIVERABLE);
 
         final WhoisResources response = RestTest.target(getPort(), "whois/test/person/PP3-TEST?password=test")
                 .request(MediaType.APPLICATION_XML)
@@ -5820,7 +5820,7 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
 
         RestTest.assertWarningCount(response, 1);
         RestTest.assertErrorMessage(response, 0, "Warning", "Not sending notification to %s because it is %s.",
-                undeliverableEmail, EmailStatus.UNDELIVERABLE.getValue());
+                undeliverableEmail, EmailStatusType.UNDELIVERABLE.getValue());
     }
 
 

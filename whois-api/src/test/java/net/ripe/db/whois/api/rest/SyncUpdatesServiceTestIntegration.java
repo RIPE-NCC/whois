@@ -15,7 +15,7 @@ import net.ripe.db.whois.common.dao.EmailStatusDao;
 import net.ripe.db.whois.common.domain.CIString;
 import net.ripe.db.whois.common.domain.IpRanges;
 import net.ripe.db.whois.common.domain.User;
-import net.ripe.db.whois.common.mail.EmailStatus;
+import net.ripe.db.whois.common.mail.EmailStatusType;
 import net.ripe.db.whois.common.rpsl.AttributeType;
 import net.ripe.db.whois.common.rpsl.ObjectType;
 import net.ripe.db.whois.common.rpsl.RpslAttribute;
@@ -1233,8 +1233,8 @@ public class SyncUpdatesServiceTestIntegration extends AbstractIntegrationTest {
                 "remarks:   remark\n" +
                 "source:    TEST\n";
 
-        emailStatusDao.createEmailStatus("test@ripe.net", EmailStatus.UNSUBSCRIBE);
-        emailStatusDao.createEmailStatus("test1@ripe.net", EmailStatus.UNDELIVERABLE);
+        emailStatusDao.createEmailStatus("test@ripe.net", EmailStatusType.UNSUBSCRIBE);
+        emailStatusDao.createEmailStatus("test1@ripe.net", EmailStatusType.UNDELIVERABLE);
 
         final String response = RestTest.target(getPort(),
                         "whois/syncupdates/test?" + "DATA=" + SyncUpdateUtils.encode(person + "\npassword: emptypassword"))

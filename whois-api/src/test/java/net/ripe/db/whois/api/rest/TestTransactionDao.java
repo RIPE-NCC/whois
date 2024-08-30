@@ -7,7 +7,7 @@ import net.ripe.db.whois.common.dao.EmailStatusDao;
 import net.ripe.db.whois.common.dao.jdbc.DatabaseHelper;
 import net.ripe.db.whois.common.dao.jdbc.JdbcRpslObjectDao;
 import net.ripe.db.whois.common.domain.BlockEvent;
-import net.ripe.db.whois.common.mail.EmailStatus;
+import net.ripe.db.whois.common.mail.EmailStatusType;
 import net.ripe.db.whois.common.TransactionConfiguration;
 import org.jetbrains.annotations.Nullable;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -72,8 +72,8 @@ public class TestTransactionDao {
 
     @Transactional(transactionManager = TransactionConfiguration.INTERNALS_UPDATE_TRANSACTION)
     public void testTransactionInternals(final String email) {
-        emailStatusDao.createEmailStatus(email, EmailStatus.UNDELIVERABLE);
-        assertThat(emailStatusDao.getEmailStatus(Collections.singleton(email)).containsKey(email), is(true));
+        emailStatusDao.createEmailStatus(email, EmailStatusType.UNDELIVERABLE);
+        assertThat(emailStatusDao.getEmailStatusMap(Collections.singleton(email)).containsKey(email), is(true));
 
         throw new RuntimeException("This should rollback");
     }
