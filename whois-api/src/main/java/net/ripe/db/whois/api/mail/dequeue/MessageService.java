@@ -85,7 +85,7 @@ public class MessageService {
         final List<String> emails = outgoingMessageDao.getEmails(message.messageId());
 
         if (emails.stream().noneMatch(email -> email.equalsIgnoreCase(unsubscribeRequestEmail))) {
-            LOGGER.warn("Couldn't find outgoing message matching {}", message.messageId());
+            LOGGER.debug("Couldn't find outgoing message matching {}", message.messageId());
             return;
         }
 
@@ -100,7 +100,7 @@ public class MessageService {
         }
 
         if (outgoingEmail == null || outgoingEmail.isEmpty()) {
-            LOGGER.warn("Couldn't find outgoing message matching {}", message.messageId());
+            LOGGER.debug("Couldn't find outgoing message matching {}", message.messageId());
             return false;
         }
 
