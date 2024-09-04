@@ -138,7 +138,7 @@ public class ResponseFactoryTest {
                 "\n" +
                 "\n" +
                 "The RIPE Database is subject to Terms and Conditions:\n" +
-                "https://apps.db.ripe.net/docs/HTML-Terms-And-Conditions\n" +
+                "https://docs.db.ripe.net/terms-conditions.html\n" +
                 "\n" +
                 "For assistance or clarification please contact:\n" +
                 "RIPE Database Administration <ripe-dbm@ripe.net>\n"));
@@ -198,7 +198,7 @@ public class ResponseFactoryTest {
                 "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n" +
                 "\n" +
                 "The RIPE Database is subject to Terms and Conditions:\n" +
-                "https://apps.db.ripe.net/docs/HTML-Terms-And-Conditions\n" +
+                "https://docs.db.ripe.net/terms-conditions.html\n" +
                 "\n" +
                 "For assistance or clarification please contact:\n" +
                 "RIPE Database Administration <ripe-dbm@ripe.net>\n\n"));
@@ -256,7 +256,7 @@ public class ResponseFactoryTest {
                 "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n" +
                 "\n" +
                 "The RIPE Database is subject to Terms and Conditions:\n" +
-                "https://apps.db.ripe.net/docs/HTML-Terms-And-Conditions\n" +
+                "https://docs.db.ripe.net/terms-conditions.html\n" +
                 "\n" +
                 "For assistance or clarification please contact:\n" +
                 "RIPE Database Administration <ripe-dbm@ripe.net>\n"));
@@ -328,7 +328,7 @@ public class ResponseFactoryTest {
                 "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n" +
                 "\n" +
                 "The RIPE Database is subject to Terms and Conditions:\n" +
-                "https://apps.db.ripe.net/docs/HTML-Terms-And-Conditions\n" +
+                "https://docs.db.ripe.net/terms-conditions.html\n" +
                 "\n" +
                 "For assistance or clarification please contact:\n" +
                 "RIPE Database Administration <ripe-dbm@ripe.net>\n"));
@@ -361,7 +361,7 @@ public class ResponseFactoryTest {
                 "ftp://ftp.ripe.net/rfc/rfc4012.txt\n" +
                 "\n" +
                 "The RIPE Database is subject to Terms and Conditions:\n" +
-                "https://apps.db.ripe.net/docs/HTML-Terms-And-Conditions\n" +
+                "https://docs.db.ripe.net/terms-conditions.html\n" +
                 "\n" +
                 "For assistance or clarification please contact:\n" +
                 "RIPE Database Administration <ripe-dbm@ripe.net>\n"));
@@ -607,7 +607,7 @@ public class ResponseFactoryTest {
 
         assertThat(message, containsString("" +
                 "The RIPE Database is subject to Terms and Conditions:\n" +
-                "https://apps.db.ripe.net/docs/HTML-Terms-And-Conditions\n" +
+                "https://docs.db.ripe.net/terms-conditions.html\n" +
                 "\n" +
                 "For assistance or clarification please visit https://www.ripe.net/s/notify."));
     }
@@ -615,7 +615,7 @@ public class ResponseFactoryTest {
     private void assertVersion(final String response) {
         assertThat(response, stringMatchesRegexp("(?is).*" +
                 "The RIPE Database is subject to Terms and Conditions:\n" +
-                "https://apps.db.ripe.net/docs/HTML-Terms-And-Conditions\n" +
+                "https://docs.db.ripe.net/terms-conditions.html\n" +
                 "\n" +
                 "For assistance or clarification please contact:\n" +
                 "RIPE Database Administration <ripe-dbm@ripe.net>\n" +

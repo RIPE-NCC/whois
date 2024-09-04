@@ -83,7 +83,7 @@ public class NamedQueryTestIntegration extends AbstractQueryIntegrationTest {
         final String response = TelnetWhoisClient.queryLocalhost(queryServer.getPort(), "-rT person " + Strings.repeat("arg ", 62));
 
         assertThat(response, containsString("" +
-                "% See https://apps.db.ripe.net/docs/HTML-Terms-And-Conditions\n" +
+                "% See https://docs.db.ripe.net/terms-conditions.html\n" +
                 "\n" +
                 "%ERROR:118: too many arguments supplied\n" +
                 "%\n" +
