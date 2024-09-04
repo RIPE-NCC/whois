@@ -1,5 +1,20 @@
 # next
 
+# 1.114
+
+[nrtm] NRTMv4 Key Rotation (#1484)
+[update] Return an error if an email address is longer than 80 characters (#1492)
+[update] DoS Filter for Update Requests (#1495)
+[update] Block IP Filter (#1498)
+[update] Use transaction manager per datasource (#1501)
+[update] "text" Content Type processed as "text/plain" for Mail Messages (#1515)
+[update] Add Warning When Password Authentication is used in Mailupdates (#1511)
+[query] Mp-member Attribute is clickable (#1506)
+
+# 1.113.2
+
+[update] Handle multipart/mixed Bounces and Auto-submitted Messages (#1490)
+
 # 1.113.1
 
 [update] validate max references (#1486)
