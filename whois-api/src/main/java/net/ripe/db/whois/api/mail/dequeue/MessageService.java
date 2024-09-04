@@ -7,7 +7,7 @@ import net.ripe.db.whois.api.mail.EmailMessageInfo;
 import net.ripe.db.whois.api.mail.exception.MailParsingException;
 import net.ripe.db.whois.common.dao.EmailStatusDao;
 import net.ripe.db.whois.common.dao.OutgoingMessageDao;
-import net.ripe.db.whois.common.mail.EmailStatus;
+import net.ripe.db.whois.common.mail.EmailStatusType;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -68,7 +68,7 @@ public class MessageService {
         LOGGER.debug("Undeliverable message-id {} email {}", message.messageId(), StringUtils.join(message.emailAddresses(), ", "));
         message.emailAddresses().forEach(email -> {
             try {
-                emailStatusDao.createEmailStatus(email, EmailStatus.UNDELIVERABLE);
+                emailStatusDao.createEmailStatus(email, EmailStatusType.UNDELIVERABLE);
             } catch (DuplicateKeyException ex) {
                 LOGGER.debug("Email already exist in EmailStatus table {}", StringUtils.join(message.emailAddresses(), ", "), ex);
             }
@@ -90,7 +90,7 @@ public class MessageService {
         }
 
         LOGGER.debug("Unsubscribe message-id {} email {}", message.messageId(), unsubscribeRequestEmail);
-        emailStatusDao.createEmailStatus(unsubscribeRequestEmail, EmailStatus.UNSUBSCRIBE);
+        emailStatusDao.createEmailStatus(unsubscribeRequestEmail, EmailStatusType.UNSUBSCRIBE);
     }
 
     private boolean isValidMessage(final EmailMessageInfo message, final List<String> outgoingEmail) {

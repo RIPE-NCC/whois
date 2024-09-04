@@ -64,7 +64,7 @@ public class TransactionalTestIntegration extends AbstractIntegrationTest {
             testTransactionDao.testTransactionInternals(email);
         } catch (Exception e) {}
 
-        assertThat(emailStatusDao.getEmailStatus(Collections.singleton(email)).containsKey(email), is(false));
+        assertThat(emailStatusDao.getEmailStatusMap(Collections.singleton(email)).containsKey(email), is(false));
     }
 
     @Test
