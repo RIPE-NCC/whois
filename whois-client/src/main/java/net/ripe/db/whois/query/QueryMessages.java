@@ -22,7 +22,7 @@ public final class QueryMessages {
                 + "% The objects are in RPSL format.\n"
                 + "%\n"
                 + "% The RIPE Database is subject to Terms and Conditions.\n"
-                + "% See https://apps.db.ripe.net/docs/HTML-Terms-And-Conditions\n");
+                + "% See https://docs.db.ripe.net/terms-conditions.html\n");
     }
 
     // solely used by port43 pipeline handler
@@ -39,7 +39,7 @@ public final class QueryMessages {
                 "# The contents of this file are subject to \n" +
                 "# RIPE Database Terms and Conditions\n" +
                 "#\n" +
-                "# https://apps.db.ripe.net/docs/HTML-Terms-And-Conditions\n" +
+                "# https://docs.db.ripe.net/terms-conditions.html\n" +
                 "#\n");
     }
 
@@ -287,7 +287,7 @@ public final class QueryMessages {
                 + "Sorry, access from your host has been permanently\n"
                 + "denied because of a repeated excessive querying.\n"
                 + "For more information, see\n"
-                + "https://apps.db.ripe.net/docs/FAQ/#why-did-i-receive-an-error-201-access-denied",
+                + "https://docs.db.ripe.net/FAQ/#why-did-i-receive-an-error-201-access-denied",
                 accountingId);
     }
 
@@ -298,7 +298,7 @@ public final class QueryMessages {
                 + "Queries from your IP address have passed the daily limit of controlled objects.\n"
                 + "Access from your host has been temporarily denied.\n"
                 + "For more information, see\n"
-                + "https://apps.db.ripe.net/docs/FAQ/#why-did-i-receive-an-error-201-access-denied",
+                + "https://docs.db.ripe.net/FAQ/#why-did-i-receive-an-error-201-access-denied",
                 accountingId);
     }
 

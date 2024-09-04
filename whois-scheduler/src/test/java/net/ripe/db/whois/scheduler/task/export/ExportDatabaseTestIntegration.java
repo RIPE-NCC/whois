@@ -292,7 +292,7 @@ public class ExportDatabaseTestIntegration extends AbstractSchedulerIntegrationT
                     "# The contents of this file are subject to \n" +
                     "# RIPE Database Terms and Conditions\n" +
                     "#\n" +
-                    "# https://apps.db.ripe.net/docs/HTML-Terms-And-Conditions\n" +
+                    "# https://docs.db.ripe.net/terms-conditions.html\n" +
                     "#"));
         }
 
