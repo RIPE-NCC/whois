@@ -150,7 +150,7 @@ public class RewriteEngine {
         // Slash
         virtualHost.addRule(new RedirectRegexRule(
         "^/$",
-        "https://apps.db.ripe.net/docs/RIPE-Database-Structure/REST-API-Data-model/#whoisresources"
+        "https://docs.db.ripe.net/RIPE-Database-Structure/REST-API-Data-model/#whoisresources"
         ));
 
         // catch-all fallthrough; return 400
