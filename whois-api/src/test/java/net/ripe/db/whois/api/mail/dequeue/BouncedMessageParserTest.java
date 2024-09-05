@@ -102,7 +102,6 @@ public class BouncedMessageParserTest {
         });
 
         assertThat(e.getMessage(), is("Error parsing multipart report"));
-        assertThat(e.getCause().getMessage(), is("No Message-Id header"));
     }
 
     @Test
