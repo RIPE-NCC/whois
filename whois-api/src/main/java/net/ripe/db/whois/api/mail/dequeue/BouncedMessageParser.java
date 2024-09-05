@@ -70,7 +70,7 @@ public class BouncedMessageParser {
                     }
                 }
             } catch (MessagingException | IOException | IllegalStateException ex){
-                throw new MailParsingException("Error parsing multipart report");
+                throw new MailParsingException("Error parsing multipart report", ex);
             }
             // multipart report can *only* be a failure
             throw new MailParsingException("MultiPart message without failure report");
@@ -89,8 +89,7 @@ public class BouncedMessageParser {
                     }
                 }
             } catch (MessagingException | IOException | IllegalStateException ex) {
-                LOGGER.error(String.format("%s: %s", ex.getClass().getName(), ex.getMessage()), ex);
-                throw new MailParsingException("Error parsing multipart report");
+                throw new MailParsingException("Error parsing multipart report", ex);
             }
             // do not throw an exception, as whois updates can be multipart/mixed
         }
