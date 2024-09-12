@@ -40,6 +40,7 @@ import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.not;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.fail;
 
 @Tag("IntegrationTest")
 public class RewriteEngineTestIntegration extends AbstractIntegrationTest {
@@ -140,6 +141,20 @@ public class RewriteEngineTestIntegration extends AbstractIntegrationTest {
                 .put(entity(whoisObjectMapper.mapRpslObjects(FormattedClientAttributeMapper.class, updated), MediaType.APPLICATION_XML), WhoisResources.class);
 
         assertThat(databaseHelper.lookupObject(PERSON, updated.getKey().toString()).containsAttribute(AttributeType.REMARKS), is(true));
+    }
+
+    @Test
+    public void domain_object_creation_over_https() {
+        try {
+            RestTest.target(getPort(), "domain-objects/test")
+                    .request()
+                    .header(HttpHeaders.HOST, getHost(restApiBaseUrl))
+                    .header(HttpHeader.X_FORWARDED_PROTO.toString(), HttpScheme.HTTPS)
+                    .post(entity("{}", MediaType.APPLICATION_JSON), WhoisResources.class);
+            fail();
+        } catch (BadRequestException e) {
+            assertThat(e.getResponse().readEntity(String.class), containsString("WhoisResources is mandatory"));
+        }
     }
 
     @Test
