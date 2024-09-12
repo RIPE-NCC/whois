@@ -11,7 +11,8 @@ CREATE TABLE `authoritative_resource` (
 
 DROP TABLE IF EXISTS `version`;
 CREATE TABLE `version` (
-  `version` varchar(80) DEFAULT NULL
+  `version` varchar(80) DEFAULT NULL,
+   PRIMARY KEY (`version`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
 DROP TABLE IF EXISTS `legacy_autnums`;
