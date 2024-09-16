@@ -122,7 +122,7 @@ class ChangedDeprecatedSpec extends BaseQueryUpdateSpec  {
 
         then:
         mailVerifyCreateSuccess(PERSON_WITHOUT_CHANGED,response)
-        mailVerifyHasNoWarnings(response)
+        mailVerifyHasWarnings(response, 1)
         verifyExistsAndEquals(PERSON_WITHOUT_CHANGED)
     }
 
@@ -400,7 +400,7 @@ class ChangedDeprecatedSpec extends BaseQueryUpdateSpec  {
 
         then:
         mailVerifyModifySuccess(PERSON_WITHOUT_CHANGED_ADJUSTED,response)
-        mailVerifyHasNoWarnings(response)
+        mailVerifyHasWarnings(response, 1)
         verifyExistsAndEquals(PERSON_WITHOUT_CHANGED_ADJUSTED)
     }
 
@@ -447,7 +447,7 @@ class ChangedDeprecatedSpec extends BaseQueryUpdateSpec  {
 
         then:
         mailVerifyDeleteSuccess(PERSON_WITH_CHANGED,response)
-        mailVerifyHasNoWarnings(response)
+        mailVerifyHasWarnings(response, 1)
         doesNotExist(PERSON_WITH_CHANGED)
     }
 
@@ -584,7 +584,7 @@ class ChangedDeprecatedSpec extends BaseQueryUpdateSpec  {
 
         then:
         mailVerifyDeleteSuccess(PERSON_WITHOUT_CHANGED,response)
-        mailVerifyHasNoWarnings(response)
+        mailVerifyHasWarnings(response, 1)
         doesNotExist(PERSON_WITHOUT_CHANGED)
     }
 
@@ -852,6 +852,12 @@ class ChangedDeprecatedSpec extends BaseQueryUpdateSpec  {
     def mailVerifyHasNoWarnings(final AckResponse response ) {
         def warnings = response.allWarnings
         assert warnings.isEmpty()
+        return true
+    }
+
+    def mailVerifyHasWarnings(final AckResponse response, final int number ) {
+        def warnings = response.allWarnings
+        assert warnings.size() == number
         return true
     }
 

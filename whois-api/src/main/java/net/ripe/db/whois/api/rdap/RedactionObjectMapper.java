@@ -1,60 +1,71 @@
 package net.ripe.db.whois.api.rdap;
 
-import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 import net.ripe.db.whois.api.rdap.domain.Entity;
 import net.ripe.db.whois.api.rdap.domain.RdapObject;
 import net.ripe.db.whois.api.rdap.domain.Redaction;
+import net.ripe.db.whois.common.domain.CIString;
 import net.ripe.db.whois.common.rpsl.AttributeType;
+import net.ripe.db.whois.common.rpsl.RpslAttribute;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 public class RedactionObjectMapper {
 
-    public static final List<AttributeType> REDACTED_PERSONAL_ATTR = Lists.newArrayList(AttributeType.NOTIFY,
-            AttributeType.E_MAIL);
     public static void mapRedactions(final RdapObject rdapObject) {
-
-        addEntityRedaction(rdapObject);
+        addRedaction(rdapObject, rdapObject.getRedactedRpslAttrs(), rdapObject.getEntitySearchResults(), "$");
 
         if(rdapObject.getNetwork() != null) {
-            addEntitiesRedaction(rdapObject, rdapObject.getNetwork().getEntitySearchResults(), "$.network");
+            addRedaction(rdapObject, rdapObject.getNetwork().getRedactedRpslAttrs(), rdapObject.getNetwork().getEntitySearchResults(), "$.network");
         }
 
-        rdapObject.getNetworks().forEach( ip -> {
-            addEntitiesRedaction(rdapObject, ip.getEntitySearchResults(), String.format("$.networks[?(@.handle=='%s')]", ip.getHandle()));
-        });
+        rdapObject.getNetworks().forEach( ip -> addRedaction(rdapObject, ip.getRedactedRpslAttrs(),
+                ip.getEntitySearchResults(), String.format("$.networks[?(@.handle=='%s')]", ip.getHandle())));
 
-        rdapObject.getAutnums().forEach( autnum -> {
-            addEntitiesRedaction(rdapObject, autnum.getEntitySearchResults(), String.format("$.autnums[?(@.handle=='%s')]", autnum.getHandle()));
-        });
-
-        addEntitiesRedaction(rdapObject, rdapObject.getEntitySearchResults(), "$");
+        rdapObject.getAutnums().forEach( autnum -> addEntitiesRedaction(rdapObject, autnum.getEntitySearchResults(),
+                String.format("$.autnums[?(@.handle=='%s')]", autnum.getHandle())));
     }
 
-    private static void addEntityRedaction(final RdapObject rdapObject) {
-        if(rdapObject instanceof Entity) {
-            rdapObject.getRedacted().addAll(getPersonalRedaction( ((Entity) rdapObject).getvCardRedactedAttr(), "$"));
-        }
+    private static void addRedaction(final RdapObject rdapObject, final List<RpslAttribute> redactedAttributes,
+                                     final List<Entity> entities, final String prefix) {
+        rdapObject.getRedacted().addAll(getRedactions(redactedAttributes, prefix));
+        addEntitiesRedaction(rdapObject, entities, prefix);
     }
 
     private static void addEntitiesRedaction(final RdapObject rdapObject, final List<Entity> entities, final String prefix) {
-        entities.forEach( entity -> {
-            rdapObject.getRedacted().addAll(getPersonalRedaction(entity.getvCardRedactedAttr(), String.format("%s.entities[?(@.handle=='%s')]", prefix, entity.getHandle())));
-        });
+        entities.forEach(entity -> rdapObject.getRedacted().addAll(getRedactions(entity.getRedactedRpslAttrs(),
+                String.format("%s.entities[?(@.handle=='%s')]", prefix, entity.getHandle()))));
     }
 
-    private static Set<Redaction> getPersonalRedaction(final List<AttributeType> attributeTypes, final String prefix){
+    private static Set<Redaction> getRedactions(final List<RpslAttribute> rpslAttributes, final String prefix) {
         final Set<Redaction> redactions = Sets.newHashSet();
-        attributeTypes.forEach(attributeType -> {
-            switch(attributeType){
-                case NOTIFY -> redactions.add(new Redaction("Updates notification e-mail information", String.format("%s.vcardArray[1][?(@[0]=='%s')]", prefix, attributeType.getName()),
+
+        final Map<AttributeType, List<CIString>> attributeTypeByValues =  rpslAttributes.stream()
+                .collect(Collectors.groupingBy(RpslAttribute::getType, Collectors.mapping(RpslAttribute::getCleanValue, Collectors.toList())));
+
+        attributeTypeByValues.forEach((key, value) -> {
+            final String attributeName = key.getName();
+            final String values = String.join(", ", value);
+
+            switch (key) {
+                case E_MAIL -> redactions.add(Redaction.getRedactionByRemoval("Personal e-mail information",
+                        String.format("%s.vcardArray[1][?(@[0]=='%s')]", prefix, attributeName),
                         "Personal data"));
-                case E_MAIL -> redactions.add(new Redaction("Personal e-mail information", String.format("%s.vcardArray[1][?(@[0]=='%s')]", prefix, attributeType.getName()),
-                        "Personal data"));
+                case COUNTRY ->
+                        redactions.add(Redaction.getRedactionByPartialValue(String.format("Multiple %s attributes found", attributeName),
+                                String.format("%s.%s", prefix, attributeName),
+                                String.format("There are multiple %s attributes %s found, but only the first %s %s returned.", attributeName, values, attributeName, value.get(0))));
+                case LANGUAGE -> {
+                        redactions.add(Redaction.getRedactionByPartialValue(String.format("Multiple %s attributes found", attributeName),
+                                String.format("%s.lang", prefix),
+                                String.format("There are multiple %s attributes %s found, but only the first %s %s returned.", attributeName, values, attributeName, value.get(0))));
+                }
             }
         });
+
         return redactions;
     }
 }

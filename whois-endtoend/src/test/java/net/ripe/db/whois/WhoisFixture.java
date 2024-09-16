@@ -27,6 +27,7 @@ import net.ripe.db.whois.common.domain.User;
 import net.ripe.db.whois.common.grs.AuthoritativeResourceData;
 import net.ripe.db.whois.common.iptree.IpTreeUpdater;
 import net.ripe.db.whois.common.profiles.WhoisProfile;
+import net.ripe.db.whois.common.rpki.DummyRpkiDataProvider;
 import net.ripe.db.whois.common.rpsl.ObjectType;
 import net.ripe.db.whois.common.rpsl.RpslObject;
 import net.ripe.db.whois.common.source.SourceAwareDataSource;
@@ -38,8 +39,8 @@ import net.ripe.db.whois.db.WhoisServer;
 import net.ripe.db.whois.query.QueryServer;
 import net.ripe.db.whois.query.support.TestWhoisLog;
 import net.ripe.db.whois.update.dns.DnsGatewayStub;
-import net.ripe.db.whois.update.mail.MailGateway;
 import net.ripe.db.whois.update.mail.MailSenderStub;
+import net.ripe.db.whois.update.mail.WhoisMailGatewaySmtp;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
@@ -68,7 +69,7 @@ public class WhoisFixture {
     protected RpslObjectUpdateDao rpslObjectUpdateDao;
     protected AuthoritativeResourceDao authoritativeResourceDao;
     protected AuthoritativeResourceData authoritativeResourceData;
-    protected MailGateway mailGateway;
+    protected WhoisMailGatewaySmtp mailGateway;
     protected MessageDequeue messageDequeue;
     protected DataSource whoisDataSource;
     protected DataSource internalsDataSource;
@@ -83,8 +84,11 @@ public class WhoisFixture {
     protected SourceContext sourceContext;
     protected IndexDao indexDao;
     protected WhoisServer whoisServer;
+    protected QueryServer queryServer;
     protected RestClient restClient;
     protected WhoisRestService whoisRestService;
+
+    protected DummyRpkiDataProvider rpkiDataProvider;
     protected TestWhoisLog testWhoisLog;
 
     static {
@@ -92,7 +96,6 @@ public class WhoisFixture {
         System.setProperty("application.version", "0.1-ENDTOEND");
         System.setProperty("mail.update.threads", "2");
         System.setProperty("mail.dequeue.interval", "10");
-        System.setProperty("nrtm.enabled", "false");
         System.setProperty("grs.sources", "TEST-GRS");
         System.setProperty("feature.toggle.changed.attr.available", "true");
         System.setProperty("ipranges.bogons", "192.0.2.0/24,2001:2::/48");
@@ -123,7 +126,7 @@ public class WhoisFixture {
         rpslObjectUpdateDao = applicationContext.getBean(RpslObjectUpdateDao.class);
         authoritativeResourceDao = applicationContext.getBean(AuthoritativeResourceDao.class);
         authoritativeResourceData = applicationContext.getBean(AuthoritativeResourceData.class);
-        mailGateway = applicationContext.getBean(MailGateway.class);
+        mailGateway = applicationContext.getBean(WhoisMailGatewaySmtp.class);
         whoisDataSource = applicationContext.getBean(SourceAwareDataSource.class);
         internalsDataSource = applicationContext.getBean("internalsDataSource", DataSource.class);
         sourceContext = applicationContext.getBean(SourceContext.class);
@@ -131,10 +134,12 @@ public class WhoisFixture {
         restClient = applicationContext.getBean(RestClient.class);
         whoisRestService = applicationContext.getBean(WhoisRestService.class);
         testWhoisLog = applicationContext.getBean(TestWhoisLog.class);
+        rpkiDataProvider = applicationContext.getBean(DummyRpkiDataProvider.class);
 
         databaseHelper.setup();
         whoisServer.start();
 
+        queryServer = applicationContext.getBean(QueryServer.class);
 
         ReflectionTestUtils.setField(restClient, "restApiUrl", String.format("http://localhost:%s/whois", jettyBootstrap.getPort()));
         ReflectionTestUtils.setField(whoisRestService, "baseUrl", String.format("http://localhost:%d/whois", jettyBootstrap.getPort()));
@@ -249,6 +254,9 @@ public class WhoisFixture {
         return databaseHelper;
     }
 
+    public DummyRpkiDataProvider getRpkiDataProvider(){
+        return rpkiDataProvider;
+    }
     public AuthoritativeResourceDao getAuthoritativeResourceDao() {
         return authoritativeResourceDao;
     }
@@ -258,7 +266,7 @@ public class WhoisFixture {
     }
 
     public String query(final String query) {
-        return TelnetWhoisClient.queryLocalhost(QueryServer.port, query);
+        return TelnetWhoisClient.queryLocalhost(queryServer.getPort(), query);
     }
 
     public RpslObject restLookup(ObjectType objectType, String pkey, String... passwords) {
@@ -305,8 +313,8 @@ public class WhoisFixture {
     }
 
     public List<String> queryPersistent(final List<String> queries) throws Exception {
-        final String END_OF_HEADER = "% See https://apps.db.ripe.net/docs/HTML-Terms-And-Conditions\n\n";
-        final WhoisClientHandler client = NettyWhoisClientFactory.newLocalClient(QueryServer.port);
+        final String END_OF_HEADER = "% See https://docs.db.ripe.net/terms-conditions.html\n\n";
+        final WhoisClientHandler client = NettyWhoisClientFactory.newLocalClient(queryServer.getPort());
 
         List<String> responses = new ArrayList<>();
 

@@ -23,3 +23,5 @@ INSERT INTO authoritative_resource (source, resource) VALUES ('test', '0.0.0.0/0
 INSERT INTO legacy_autnums (autnum) VALUES ('103');
 INSERT INTO legacy_autnums (autnum) VALUES ('12666');
 INSERT INTO legacy_autnums (autnum) VALUES ('12668');
+
+INSERT INTO transfer_update_lock VALUES (0);

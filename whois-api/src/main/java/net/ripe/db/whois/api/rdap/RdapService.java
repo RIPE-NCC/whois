@@ -174,7 +174,45 @@ public class RdapService {
             return handleSearch(new String[]{"organisation", "nic-hdl"}, handle, request);
         }
 
-        throw new RdapException("400 Bad Request", "The server is not able to process the request", HttpStatus.BAD_REQUEST_400);
+        throw new RdapException("400 Bad Request", "Either fn or handle is a required parameter, but never both", HttpStatus.BAD_REQUEST_400);
+    }
+
+    @GET
+    @Produces({MediaType.APPLICATION_JSON, CONTENT_TYPE_RDAP_JSON})
+    @Path("/ips")
+    public Response searchIps(
+            @Context final HttpServletRequest request,
+            @QueryParam("name") final String name,
+            @QueryParam("handle") final String handle) {
+
+        LOGGER.debug("Request: {}", RestServiceHelper.getRequestURI(request));
+
+        if (name != null && handle == null || name == null && handle != null) {
+            return handleSearch(new String[]{"netname"}, name != null ? name : handle, request);
+        }
+
+        throw new RdapException("400 Bad Request", "Either name or handle is a required parameter, but never both", HttpStatus.BAD_REQUEST_400);
+    }
+
+    @GET
+    @Produces({MediaType.APPLICATION_JSON, CONTENT_TYPE_RDAP_JSON})
+    @Path("/autnums")
+    public Response searchAutnums(
+            @Context final HttpServletRequest request,
+            @QueryParam("name") final String name,
+            @QueryParam("handle") final String handle) {
+
+        LOGGER.debug("Request: {}", RestServiceHelper.getRequestURI(request));
+
+        if (name != null && handle == null) {
+            return handleSearch(new String[]{"as-name"}, name, request);
+        }
+
+        if (name == null && handle != null) {
+            return handleSearch(new String[]{"aut-num"}, handle, request);
+        }
+
+        throw new RdapException("400 Bad Request", "Either name or handle is a required parameter, but never both", HttpStatus.BAD_REQUEST_400);
     }
 
     @GET
@@ -273,16 +311,13 @@ public class RdapService {
     protected Response lookupForOrganisation(final HttpServletRequest request, final String key) {
         final List<RpslObject> organisationResult = rdapQueryHandler.handleQueryStream(getQueryObject(Set.of(ORGANISATION), key), request).toList();
 
-        final RpslObject organisation;
-        switch (organisationResult.size()) {
-            case 0:
-                throw new RdapException("404 Not Found", "Requested organisation not found: " + key, HttpStatus.NOT_FOUND_404);
-            case 1:
-                organisation = organisationResult.get(0);
-                break;
-            default:
-                throw new RdapException("500 Internal Error", "Unexpected result size: " + organisationResult.size(), HttpStatus.INTERNAL_SERVER_ERROR_500);
-        }
+        final RpslObject organisation = switch (organisationResult.size()) {
+            case 0 ->
+                    throw new RdapException("404 Not Found", "Requested organisation not found: " + key, HttpStatus.NOT_FOUND_404);
+            case 1 -> organisationResult.get(0);
+            default ->
+                    throw new RdapException("500 Internal Error", "Unexpected result size: " + organisationResult.size(), HttpStatus.INTERNAL_SERVER_ERROR_500);
+        };
 
         final Set<RpslObjectInfo> references = getReferences(organisation);
 
@@ -339,8 +374,7 @@ public class RdapService {
                 .build();
     }
 
-    private Response getDomainResponse(final HttpServletRequest request, final Stream<RpslObject> domainResult,
-                                       final Stream<RpslObject> inetnumResult) {
+    private Response getDomainResponse(final HttpServletRequest request, final Stream<RpslObject> domainResult, final Stream<RpslObject> inetnumResult) {
         final Iterator<RpslObject> domainIterator = domainResult.iterator();
         final Iterator<RpslObject> inetnumIterator = inetnumResult.iterator();
         if (!domainIterator.hasNext()) {
@@ -354,14 +388,12 @@ public class RdapService {
                     HttpStatus.INTERNAL_SERVER_ERROR_500);
         }
         return Response.ok(
-                        rdapObjectMapper.mapDomainEntity(
-                                getRequestUrl(request),
-                                domainObject, inetnumObject))
+                rdapObjectMapper.mapDomainEntity(getRequestUrl(request), domainObject, inetnumObject))
                 .header(CONTENT_TYPE, CONTENT_TYPE_RDAP_JSON)
                 .build();
     }
 
-    private Response getResponse(HttpServletRequest request, Iterable<RpslObject> result) {
+    private Response getResponse(final HttpServletRequest request, final Iterable<RpslObject> result) {
         Iterator<RpslObject> rpslIterator = result.iterator();
 
         if (!rpslIterator.hasNext()) {
@@ -393,7 +425,7 @@ public class RdapService {
         try {
             uri = delegatedStatsService.getUriForRedirect(requestPath, query);
         } catch (WebApplicationException e) {
-            LOGGER.error(e.getMessage(), e);
+            LOGGER.debug(e.getMessage(), e);
             throw new RdapException("404 Not found", "Redirect URI not found", HttpStatus.NOT_FOUND_404);
         }
 
@@ -405,7 +437,7 @@ public class RdapService {
         try {
             uri = delegatedStatsService.getUriForRedirect(requestPath, objectType, searchValue);
         } catch (WebApplicationException e) {
-            LOGGER.error(e.getMessage(), e);
+            LOGGER.debug(e.getMessage(), e);
             throw new RdapException("404 Not found", "Redirect URI not found", HttpStatus.NOT_FOUND_404);
         }
 
@@ -420,7 +452,7 @@ public class RdapService {
                         getReverseObjectType(domain),
                         domain.getReverseIp().toString());
         } catch (WebApplicationException e) {
-            LOGGER.error(e.getMessage(), e);
+            LOGGER.debug(e.getMessage(), e);
             throw new RdapException("404 Not found", "Redirect URI not found", HttpStatus.NOT_FOUND_404);
         }
 

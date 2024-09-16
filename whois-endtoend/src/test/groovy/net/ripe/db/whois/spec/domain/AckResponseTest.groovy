@@ -75,7 +75,7 @@ Create SUCCEEDED: [mntner] MOD2-MNT
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 The RIPE Database is subject to Terms and Conditions:
-https://apps.db.ripe.net/docs/HTML-Terms-And-Conditions
+https://docs.db.ripe.net/terms-conditions.html
 
 For assistance or clarification please contact:
 RIPE Database Administration <ripe-dbm@ripe.net>

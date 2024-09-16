@@ -23,8 +23,10 @@ import net.ripe.db.whois.api.rdap.domain.SearchResult;
 import net.ripe.db.whois.api.rest.client.RestClientUtils;
 import net.ripe.db.whois.common.rpsl.RpslObject;
 import net.ripe.db.whois.query.acl.AccessControlListManager;
+import net.ripe.db.whois.query.acl.AccountingIdentifier;
 import net.ripe.db.whois.query.acl.IpResourceConfiguration;
 import net.ripe.db.whois.query.support.TestPersonalObjectAccounting;
+import org.eclipse.jetty.http.HttpStatus;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
@@ -62,7 +64,7 @@ public class RdapElasticServiceTestIntegration extends AbstractElasticSearchInte
     private static final String LOCALHOST = "127.0.0.1";
 
     @Autowired
-    private AccessControlListManager accessControlListManager;
+    private AccessControlListManager ipAccessControlListManager;
     @Autowired
     private IpResourceConfiguration ipResourceConfiguration;
     @Autowired
@@ -190,7 +192,7 @@ public class RdapElasticServiceTestIntegration extends AbstractElasticSearchInte
                 "source:        TEST");
         databaseHelper.addObject("" +
                 "inetnum:        0.0.0.0 - 255.255.255.255\n" +
-                "netname:        IANA-BLK\n" +
+                "netname:        IANA-BLK-IPV4\n" +
                 "descr:          The whole IPv4 address space\n" +
                 "country:        NL\n" +
                 "tech-c:         TP1-TEST\n" +
@@ -202,7 +204,7 @@ public class RdapElasticServiceTestIntegration extends AbstractElasticSearchInte
                 "source:         TEST");
         databaseHelper.addObject("" +
                 "inet6num:       ::/0\n" +
-                "netname:        IANA-BLK\n" +
+                "netname:        IANA-BLK-IPV6\n" +
                 "descr:          The whole IPv6 address space\n" +
                 "country:        NL\n" +
                 "tech-c:         TP1-TEST\n" +
@@ -212,6 +214,7 @@ public class RdapElasticServiceTestIntegration extends AbstractElasticSearchInte
                 "created:         2022-08-14T11:48:28Z\n" +
                 "last-modified:   2022-10-25T12:22:39Z\n" +
                 "source:         TEST");
+
         ipTreeUpdater.rebuild();
 
         rebuildIndex();
@@ -583,7 +586,7 @@ public class RdapElasticServiceTestIntegration extends AbstractElasticSearchInte
         });
         assertErrorStatus(badRequestException, 400);
         assertErrorTitle(badRequestException, "400 Bad Request");
-        assertErrorDescription(badRequestException, "The server is not able to process the request");
+        assertErrorDescription(badRequestException, "Either fn or handle is a required parameter, but never both");
     }
 
     @Test
@@ -595,7 +598,7 @@ public class RdapElasticServiceTestIntegration extends AbstractElasticSearchInte
         });
         assertErrorStatus(badRequestException, 400);
         assertErrorTitle(badRequestException, "400 Bad Request");
-        assertErrorDescription(badRequestException, "The server is not able to process the request");
+        assertErrorDescription(badRequestException, "Either fn or handle is a required parameter, but never both");
     }
 
     @Test
@@ -666,10 +669,10 @@ public class RdapElasticServiceTestIntegration extends AbstractElasticSearchInte
                 assertErrorTitleContains(e, "429 Too Many Requests");
                 assertErrorDescription(e,"%ERROR:201: access denied for 127.0.0.1\n%\n% Sorry, access from your host " +
                         "has been permanently\n% denied because of a repeated excessive querying.\n% For more " +
-                        "information, see\n% https://apps.db.ripe.net/docs/FAQ/#why-did-i-receive-an-error-201-access-denied\n");
+                        "information, see\n% https://docs.db.ripe.net/FAQ/#why-did-i-receive-an-error-201-access-denied\n");
             }
         } finally {
-            databaseHelper.unban(LOCALHOST_WITH_PREFIX);
+            databaseHelper.unbanIp(LOCALHOST_WITH_PREFIX);
             ipResourceConfiguration.reload();
             testPersonalObjectAccounting.resetAccounting();
         }
@@ -678,14 +681,15 @@ public class RdapElasticServiceTestIntegration extends AbstractElasticSearchInte
     @Test
     public void lookup_person_acl_counted() throws Exception {
         final InetAddress localhost = InetAddress.getByName(LOCALHOST);
+        final AccountingIdentifier accountingIdentifier = new AccountingIdentifier(localhost, null);
         try {
-            final int limit = accessControlListManager.getPersonalObjects(localhost);
+            final int limit = ipAccessControlListManager.getPersonalObjects(accountingIdentifier);
 
             createResource("entities?handle=PP1-TEST")
                     .request(MediaType.APPLICATION_JSON_TYPE)
                     .get(SearchResult.class);
 
-            final int remaining = accessControlListManager.getPersonalObjects(localhost);
+            final int remaining = ipAccessControlListManager.getPersonalObjects(accountingIdentifier);
             assertThat(remaining, is(limit-1));
 
         } finally {
@@ -694,23 +698,168 @@ public class RdapElasticServiceTestIntegration extends AbstractElasticSearchInte
         }
     }
 
-    private void assertCommon(RdapObject object) {
-        assertThat(object.getPort43(), is("whois.ripe.net"));
-        assertThat(object.getRdapConformance(), hasSize(4));
-        assertThat(object.getRdapConformance(), containsInAnyOrder("rdap_level_0", "cidr0", "nro_rdap_profile_0",
-                "redacted"));
+
+    // search - ips
+
+    @Test
+    public void search_ips_inetnum_by_handle() {
+        final SearchResult response = createResource("ips?handle=IANA-BLK-IPV4")
+                .request(MediaType.APPLICATION_JSON_TYPE)
+                .get(SearchResult.class);
+
+        assertThat(response.getIpSearchResults().size(), is(1));
+        assertThat(response.getIpSearchResults().get(0).getName(), equalTo("IANA-BLK-IPV4"));
     }
 
-    private void assertTnCNotice(final Notice notice, final String value) {
-        assertThat(notice.getTitle(), is("Terms and Conditions"));
-        assertThat(notice.getDescription(), contains("This is the RIPE Database query service. The objects are in RDAP format."));
-        assertThat(notice.getLinks().get(0).getHref(), is("https://apps.db.ripe.net/docs/HTML-Terms-And-Conditions"));
+    @Test
+    public void search_ips_inetnum_by_name() {
+        final SearchResult response = createResource("ips?name=IANA-*-IPV4")
+                .request(MediaType.APPLICATION_JSON_TYPE)
+                .get(SearchResult.class);
 
-        assertThat(notice.getLinks().get(0).getRel(), is("terms-of-service"));
-        assertThat(notice.getLinks().get(0).getHref(), is("https://apps.db.ripe.net/docs/HTML-Terms-And-Conditions"));
-        assertThat(notice.getLinks().get(0).getType(), is("application/pdf"));
-        assertThat(notice.getLinks().get(0).getValue(), is(value));
+        assertThat(response.getIpSearchResults().size(), is(1));
+        assertThat(response.getIpSearchResults().get(0).getName(), equalTo("IANA-BLK-IPV4"));
     }
+
+    @Test
+    public void search_ips_inet6num_by_handle() {
+        final SearchResult response = createResource("ips?handle=IANA-BLK-IPV6")
+                .request(MediaType.APPLICATION_JSON_TYPE)
+                .get(SearchResult.class);
+
+        assertThat(response.getIpSearchResults().size(), is(1));
+        assertThat(response.getIpSearchResults().get(0).getName(), equalTo("IANA-BLK-IPV6"));
+    }
+
+    @Test
+    public void search_ips_inet6num_by_name() {
+        final SearchResult response = createResource("ips?name=IANA-*-IPV6")
+                .request(MediaType.APPLICATION_JSON_TYPE)
+                .get(SearchResult.class);
+
+        assertThat(response.getIpSearchResults().get(0).getName(), equalTo("IANA-BLK-IPV6"));
+    }
+
+    @Test
+    public void search_ips_with_empty_parameter_then_error() {
+        final BadRequestException badRequestException = assertThrows(BadRequestException.class, () -> {
+            createResource("ips?name=")
+                    .request(MediaType.APPLICATION_JSON_TYPE)
+                    .get(SearchResult.class);
+        });
+        assertErrorStatus(badRequestException, HttpStatus.BAD_REQUEST_400);
+        assertErrorTitle(badRequestException, "400 Bad Request");
+        assertErrorDescription(badRequestException, "Empty search term");
+    }
+
+    @Test
+    public void search_ips_without_parameters_then_error() {
+        final BadRequestException badRequestException = assertThrows(BadRequestException.class, () -> {
+            createResource("ips")
+                    .request(MediaType.APPLICATION_JSON_TYPE)
+                    .get(SearchResult.class);
+        });
+        assertErrorStatus(badRequestException, HttpStatus.BAD_REQUEST_400);
+        assertErrorTitle(badRequestException, "400 Bad Request");
+        assertErrorDescription(badRequestException, "Either name or handle is a required parameter, but never both");
+    }
+
+    @Test
+    public void search_ips_with_both_parameters_then_error() {
+        final BadRequestException badRequestException = assertThrows(BadRequestException.class, () -> {
+            createResource("ips?name=IANA-*-IPV6&handle=IANA-BLK-IPV4")
+                    .request(MediaType.APPLICATION_JSON_TYPE)
+                    .get(SearchResult.class);
+        });
+        assertErrorStatus(badRequestException, HttpStatus.BAD_REQUEST_400);
+        assertErrorTitle(badRequestException, "400 Bad Request");
+        assertErrorDescription(badRequestException, "Either name or handle is a required parameter, but never both");
+    }
+
+    @Test
+    public void search_non_existing_ip_then_error() {
+        final NotFoundException notFoundException = assertThrows(NotFoundException.class, () -> {
+            createResource("ips?handle=NOT_FOUND")
+                    .request(MediaType.APPLICATION_JSON_TYPE)
+                    .get(SearchResult.class);
+        });
+        assertErrorStatus(notFoundException, HttpStatus.NOT_FOUND_404);
+        assertErrorTitle(notFoundException, "404 Not Found");
+        assertErrorDescription(notFoundException, "Requested object not found: NOT_FOUND");
+    }
+
+
+    // search - autnums
+
+    @Test
+    public void search_autnums_by_name() {
+        final SearchResult response = createResource("autnums?name=AS-TEST")
+                .request(MediaType.APPLICATION_JSON_TYPE)
+                .get(SearchResult.class);
+
+        assertThat(response.getAutnumSearchResults().size(), is(1));
+        assertThat(response.getAutnumSearchResults().get(0).getName(), equalTo("AS-TEST"));
+    }
+
+    @Test
+    public void search_autnums_by_handle() {
+        final SearchResult response = createResource("autnums?handle=AS102")
+                .request(MediaType.APPLICATION_JSON_TYPE)
+                .get(SearchResult.class);
+
+        assertThat(response.getAutnumSearchResults().size(), is(1));
+        assertThat(response.getAutnumSearchResults().get(0).getHandle(), equalTo("AS102"));
+    }
+
+    @Test
+    public void search_autnums_with_empty_parameter_then_error() {
+        final BadRequestException badRequestException = assertThrows(BadRequestException.class, () -> {
+            createResource("autnums?name=")
+                    .request(MediaType.APPLICATION_JSON_TYPE)
+                    .get(SearchResult.class);
+        });
+        assertErrorStatus(badRequestException, HttpStatus.BAD_REQUEST_400);
+        assertErrorTitle(badRequestException, "400 Bad Request");
+        assertErrorDescription(badRequestException, "Empty search term");
+    }
+
+    @Test
+    public void search_autnums_without_parameters_then_error() {
+        final BadRequestException badRequestException = assertThrows(BadRequestException.class, () -> {
+            createResource("autnums")
+                    .request(MediaType.APPLICATION_JSON_TYPE)
+                    .get(SearchResult.class);
+        });
+        assertErrorStatus(badRequestException, HttpStatus.BAD_REQUEST_400);
+        assertErrorTitle(badRequestException, "400 Bad Request");
+        assertErrorDescription(badRequestException, "Either name or handle is a required parameter, but never both");
+    }
+
+    @Test
+    public void search_autnums_with_both_parameters_then_error() {
+        final BadRequestException badRequestException = assertThrows(BadRequestException.class, () -> {
+            createResource("autnums?name=AS1026&handle=AS102")
+                    .request(MediaType.APPLICATION_JSON_TYPE)
+                    .get(SearchResult.class);
+        });
+        assertErrorStatus(badRequestException, HttpStatus.BAD_REQUEST_400);
+        assertErrorTitle(badRequestException, "400 Bad Request");
+        assertErrorDescription(badRequestException, "Either name or handle is a required parameter, but never both");
+    }
+
+
+    @Test
+    public void search_non_existing_autnum_then_error() {
+        final NotFoundException notFoundException = assertThrows(NotFoundException.class, () -> {
+            createResource("autnums?handle=NOT_FOUND")
+                    .request(MediaType.APPLICATION_JSON_TYPE)
+                    .get(SearchResult.class);
+        });
+        assertErrorStatus(notFoundException, HttpStatus.NOT_FOUND_404);
+        assertErrorTitle(notFoundException, "404 Not Found");
+        assertErrorDescription(notFoundException, "Requested object not found: NOT_FOUND");
+    }
+
 
     // Test redactions
 
@@ -726,8 +875,7 @@ public class RdapElasticServiceTestIntegration extends AbstractElasticSearchInte
                 .map(RdapObject::getRedacted)
                 .flatMap(Collection::stream)
                 .map(Redaction::getPrePath)
-                .collect(Collectors.toList()), contains("$.vcardArray[1][?(@[0]=='notify')]", "$.vcardArray[1][?" +
-                "(@[0]=='e-mail')]", "$.entities[?(@.handle=='PP1-TEST')].vcardArray[1][?(@[0]=='e-mail')]"));
+                .collect(Collectors.toList()), containsInAnyOrder("$.entities[?(@.handle=='PP1-TEST')].vcardArray[1][?(@[0]=='e-mail')]"));
 
         assertThat(result.getRdapConformance(), containsInAnyOrder("cidr0", "rdap_level_0", "nro_rdap_profile_0", "redacted"));
     }
@@ -769,5 +917,23 @@ public class RdapElasticServiceTestIntegration extends AbstractElasticSearchInte
     protected void assertErrorDescriptionContains(final WebApplicationException exception, final String description) {
         final Entity entity = exception.getResponse().readEntity(Entity.class);
         assertThat(entity.getDescription().get(0), containsString(description));
+    }
+
+    private void assertCommon(RdapObject object) {
+        assertThat(object.getPort43(), is("whois.ripe.net"));
+        assertThat(object.getRdapConformance(), hasSize(4));
+        assertThat(object.getRdapConformance(), containsInAnyOrder("rdap_level_0", "cidr0", "nro_rdap_profile_0",
+                "redacted"));
+    }
+
+    private void assertTnCNotice(final Notice notice, final String value) {
+        assertThat(notice.getTitle(), is("Terms and Conditions"));
+        assertThat(notice.getDescription(), contains("This is the RIPE Database query service. The objects are in RDAP format."));
+        assertThat(notice.getLinks().get(0).getHref(), is("https://docs.db.ripe.net/terms-conditions.html"));
+
+        assertThat(notice.getLinks().get(0).getRel(), is("terms-of-service"));
+        assertThat(notice.getLinks().get(0).getHref(), is("https://docs.db.ripe.net/terms-conditions.html"));
+        assertThat(notice.getLinks().get(0).getType(), is("application/pdf"));
+        assertThat(notice.getLinks().get(0).getValue(), is(value));
     }
 }

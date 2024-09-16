@@ -33,7 +33,7 @@ public class QueryMessagesTest {
 
     @Test
     public void headerShouldContainLinkToTermsAndConditions() {
-        assertThat(QueryMessages.termsAndConditions().toString(), containsString("https://apps.db.ripe.net/docs/HTML-Terms-And-Conditions"));
+        assertThat(QueryMessages.termsAndConditions().toString(), containsString("https://docs.db.ripe.net/terms-conditions.html"));
     }
 
     @Test
@@ -64,12 +64,12 @@ public class QueryMessagesTest {
 
     @Test
     public void accessDeniedPermanentlyShouldContainErrorCode() throws UnknownHostException {
-        assertThat(QueryMessages.accessDeniedPermanently(InetAddress.getLocalHost()).toString(), containsString("%ERROR:201:"));
+        assertThat(QueryMessages.accessDeniedPermanently(InetAddress.getLocalHost().getHostAddress()).toString(), containsString("%ERROR:201:"));
     }
 
     @Test
     public void accessDeniedTemporarilyMessageShouldContainErrorCode() throws UnknownHostException {
-        assertThat(QueryMessages.accessDeniedTemporarily(InetAddress.getLocalHost()).toString(), containsString("%ERROR:201:"));
+        assertThat(QueryMessages.accessDeniedTemporarily(InetAddress.getLocalHost().getHostAddress()).toString(), containsString("%ERROR:201:"));
     }
 
     @Test

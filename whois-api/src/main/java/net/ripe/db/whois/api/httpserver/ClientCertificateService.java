@@ -6,7 +6,7 @@ import jakarta.ws.rs.GET;
 import jakarta.ws.rs.Path;
 import jakarta.ws.rs.core.Context;
 import jakarta.ws.rs.core.Response;
-import net.ripe.db.whois.update.keycert.X509CertificateWrapper;
+import net.ripe.db.whois.common.x509.X509CertificateWrapper;
 import org.springframework.stereotype.Component;
 
 import java.security.cert.X509Certificate;
@@ -16,7 +16,7 @@ import static org.eclipse.jetty.server.SecureRequestCustomizer.JAKARTA_SERVLET_R
 /**
  * Return TLS client certificate information to the client.
  */
-@Component      // TODO: [ES] remove redundant ClientCertificateController from whois-internal
+@Component
 @Path("/client")
 public class ClientCertificateService {
 

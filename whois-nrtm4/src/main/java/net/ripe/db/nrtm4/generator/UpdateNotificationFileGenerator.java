@@ -8,11 +8,14 @@ import net.ripe.db.nrtm4.dao.SnapshotFileDao;
 import net.ripe.db.nrtm4.dao.NrtmSourceDao;
 import net.ripe.db.nrtm4.domain.DeltaFileVersionInfo;
 import net.ripe.db.nrtm4.domain.NotificationFile;
+import net.ripe.db.nrtm4.domain.NrtmKeyRecord;
 import net.ripe.db.nrtm4.domain.NrtmSource;
 import net.ripe.db.nrtm4.domain.NrtmVersionInfo;
 import net.ripe.db.nrtm4.domain.UpdateNotificationFile;
 import net.ripe.db.nrtm4.domain.SnapshotFileVersionInfo;
 import net.ripe.db.nrtm4.source.NrtmSourceContext;
+import net.ripe.db.nrtm4.util.ByteArrayUtil;
+import net.ripe.db.nrtm4.util.Ed25519Util;
 import net.ripe.db.whois.common.DateTimeProvider;
 import net.ripe.db.whois.common.dao.VersionDateTime;
 import org.slf4j.Logger;
@@ -22,6 +25,7 @@ import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
+import java.util.Base64;
 import java.util.List;
 import java.util.Optional;
 
@@ -38,6 +42,7 @@ public class UpdateNotificationFileGenerator {
     private final NrtmVersionInfoDao nrtmVersionInfoDao;
     private final SnapshotFileDao snapshotFileDao;
     private final NrtmSourceDao nrtmSourceDao;
+    private final NrtmKeyPairService nrtmKeyPairService;
 
     public UpdateNotificationFileGenerator(
         @Value("${nrtm.baseUrl}") final String baseUrl,
@@ -45,6 +50,7 @@ public class UpdateNotificationFileGenerator {
         final DeltaFileDao deltaFileDao,
         final UpdateNotificationFileDao updateNotificationFileDao,
         final NrtmVersionInfoDao nrtmVersionInfoDao,
+        final NrtmKeyPairService nrtmKeyPairService,
         final NrtmSourceDao nrtmSourceDao,
         final SnapshotFileDao snapshotFileDao
     ) {
@@ -55,6 +61,7 @@ public class UpdateNotificationFileGenerator {
         this.nrtmVersionInfoDao = nrtmVersionInfoDao;
         this.snapshotFileDao = snapshotFileDao;
         this.nrtmSourceDao = nrtmSourceDao;
+        this.nrtmKeyPairService = nrtmKeyPairService;
     }
 
     public void generateFile() {
@@ -78,7 +85,10 @@ public class UpdateNotificationFileGenerator {
 
           final List<DeltaFileVersionInfo> deltaFiles = deltaFileDao.getAllDeltasForSourceSince(nrtmSource, oneDayAgo);
           final NrtmVersionInfo fileVersion = getVersion(deltaFiles, snapshotFile.get());
-          final String json = getPayload(snapshotFile.get(), deltaFiles, fileVersion, createdTimestamp);
+
+          final NrtmKeyRecord nextKey =  nrtmKeyPairService.getNextkeyPair();
+
+          final String json = getPayload(snapshotFile.get(), deltaFiles, fileVersion, nextKey, createdTimestamp);
 
           saveNotificationFile(createdTimestamp, notificationFile, fileVersion, json);
        }
@@ -153,12 +163,12 @@ public class UpdateNotificationFileGenerator {
         return String.format("%s/%s/%s", baseUrl, source, fileName);
     }
 
-    private String getPayload(final SnapshotFileVersionInfo snapshotFile, final List<DeltaFileVersionInfo> deltaFiles, final NrtmVersionInfo fileVersion, final long createdTimestamp) {
+    private String getPayload(final SnapshotFileVersionInfo snapshotFile, final List<DeltaFileVersionInfo> deltaFiles, final NrtmVersionInfo fileVersion, final NrtmKeyRecord nextKey, final long createdTimestamp) {
         try {
             final UpdateNotificationFile notification = new UpdateNotificationFile(
                     fileVersion,
                     new VersionDateTime(createdTimestamp).toString(),
-                    null,
+                    Ed25519Util.encodePublicKey(nextKey),
                     getPublishableFile(snapshotFile.versionInfo(), snapshotFile.snapshotFile().name(), snapshotFile.snapshotFile().hash()),
                     getPublishableFile(deltaFiles)
             );

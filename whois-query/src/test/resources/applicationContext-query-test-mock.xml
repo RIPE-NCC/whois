@@ -11,17 +11,16 @@
                 classpath:whois.properties"
             system-properties-mode="OVERRIDE"/>
 
-    <bean id="queryHandler" class="org.mockito.Mockito" factory-method="mock" primary="true">
-        <constructor-arg value="net.ripe.db.whois.query.handler.QueryHandler"/>
+    <bean id="queryHandler" class="net.ripe.db.whois.query.support.MockFactoryBean" primary="true">
+        <constructor-arg name="mock" value="net.ripe.db.whois.query.handler.QueryHandler" />
     </bean>
 
-    <bean id="accessControlListManager" class="org.mockito.Mockito" factory-method="mock" primary="true">
-        <constructor-arg value="net.ripe.db.whois.query.acl.AccessControlListManager"/>
+    <bean id="accessControlListManager" class="net.ripe.db.whois.query.support.MockFactoryBean" primary="true">
+        <constructor-arg name="mock" value="net.ripe.db.whois.query.acl.AccessControlListManager" />
     </bean>
 
-    <bean id="queryChannelsRegistryBean" class="net.ripe.db.whois.query.pipeline.QueryChannelsRegistry"/>
-    <bean id="queryChannelsRegistry" class="org.mockito.Mockito" factory-method="spy" primary="true">
-        <constructor-arg ref="queryChannelsRegistryBean"/>
+    <bean id="queryChannelsRegistry" class="net.ripe.db.whois.query.support.SpyFactoryBean" primary="true">
+        <constructor-arg name="spy" value="net.ripe.db.whois.query.pipeline.QueryChannelsRegistry" />
     </bean>
 
 

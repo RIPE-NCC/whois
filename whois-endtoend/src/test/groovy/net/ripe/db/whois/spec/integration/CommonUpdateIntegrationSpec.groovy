@@ -258,4 +258,40 @@ class CommonUpdateIntegrationSpec extends BaseWhoisSourceSpec {
         then:
         response =~ /Cannot submit filtered whois output for updates/
     }
+
+    def "too many references"() {
+        when:
+        def response = syncUpdate new SyncUpdate(data: """
+mntner:      OWNER-MNT
+descr:       used to maintain other MNTNERs
+admin-c:     TP1-TEST
+auth:        MD5-PW \$1\$fyALLXZB\$V5Cht4.DAIM3vi64EpC0w/  #owner
+""" +
+"mnt-by:      OWNER-MNT\n".repeat(101) +
+"""upd-to:      dbtest@ripe.net
+source:      TEST
+password:    owner
+""")
+        then:
+        response =~ /Too many references/
+    }
+
+    def "too many references and incorrect password"() {
+        when:
+        def response = syncUpdate new SyncUpdate(data: """
+mntner:      OWNER-MNT
+descr:       used to maintain other MNTNERs
+admin-c:     TP1-TEST
+auth:        MD5-PW \$1\$fyALLXZB\$V5Cht4.DAIM3vi64EpC0w/  #owner
+""" +
+"mnt-by:      OWNER-MNT\n".repeat(101) +
+"""upd-to:      dbtest@ripe.net
+source:      TEST
+password:    invalid
+""")
+        then:
+       response =~ /Too many references/
+       !(response =~ /Authorisation for \[mntner\] OWNER-MNT failed/)
+    }
+
 }

@@ -16,7 +16,12 @@ import static org.hamcrest.Matchers.not;
 import static org.junit.jupiter.api.Assertions.fail;
 
 public class ExportRunner extends AbstractScenarioRunner {
-    private static final String EXPORT_DIR = "var" + System.getProperty("jvmId") + "/export";
+
+    private static final String EXPORT_DIR;
+    static {
+        final String jvmId = System.getProperty("jvmId");
+        EXPORT_DIR = "var" + (jvmId != null ? jvmId : "") + "/export";
+    }
 
     public ExportRunner(final Context context) {
         super(context);
@@ -56,7 +61,6 @@ public class ExportRunner extends AbstractScenarioRunner {
     }
 
     private void prepareFromDump(final Scenario scenario, final Updater updater) {
-
         try {
             verifyPreCondition(scenario);
 
@@ -67,10 +71,9 @@ public class ExportRunner extends AbstractScenarioRunner {
 
             context.getDatabaseTextExport().run();
 
-            String dumpFile = readFile(EXPORT_DIR + "/dbase/ripe.db.gz");
-            String splitFile = readFile(EXPORT_DIR + "/dbase/split/ripe.db.mntner.gz");
-
-            String internalFile = readFile(EXPORT_DIR + "/internal/split/ripe.db.mntner.gz");
+            final String dumpFile = readFile(EXPORT_DIR + "/public/test.db.gz");
+            final String splitFile = readFile(EXPORT_DIR + "/public/split/test.db.mntner.gz");
+            final String internalFile = readFile(EXPORT_DIR + "/internal/split/test.db.mntner.gz");
 
             if (scenario.getPostCond() == Scenario.ObjectStatus.OBJ_EXISTS_WITH_CHANGED) {
                 assertThat(dumpFile, containsString("TESTING-MNT"));
@@ -99,7 +102,7 @@ public class ExportRunner extends AbstractScenarioRunner {
             }
 
         } catch (IOException exc) {
-            System.err.println("Error reading splitfile:" +exc.toString());
+            System.err.println("Error reading splitfile: " +exc.getClass().getName() + ": " + exc.getMessage());
             fail();
         } finally {
             context.getNrtmServer().stop(true);
@@ -122,24 +125,14 @@ public class ExportRunner extends AbstractScenarioRunner {
     }
 
     private String readFile(final String filename) throws IOException {
-        BufferedReader in = null;
-        try {
-            in = new BufferedReader(new InputStreamReader(
-                    new GZIPInputStream(new FileInputStream(filename))));
-
-            StringBuffer sb = new StringBuffer();
-
+        try (final BufferedReader in = new BufferedReader(new InputStreamReader(
+                    new GZIPInputStream(new FileInputStream(filename))))) {
+            final StringBuilder sb = new StringBuilder();
             String chunk;
             while ((chunk = in.readLine()) != null) {
                 sb.append(chunk);
             }
             return sb.toString();
-        } finally {
-            if (in != null) {
-                try {
-                    in.close();
-                } catch( IOException exc) {}
-            }
         }
     }
 

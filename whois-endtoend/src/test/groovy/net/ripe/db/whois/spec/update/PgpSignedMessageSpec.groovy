@@ -131,7 +131,7 @@ class PgpSignedMessageSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(1, 1, 0, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
 
-        ack.countErrorWarnInfo(0, 0, 0)
+        ack.countErrorWarnInfo(0, 1, 0)
         ack.successes.any { it.operation == "Create" && it.key == "[mntner] TST-NEW-MNT" }
 
         queryObject("-rBT mntner TST-NEW-MNT", "mntner", "TST-NEW-MNT")
@@ -164,7 +164,7 @@ class PgpSignedMessageSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(0, 0, 0, 0, 0)
         ack.summary.assertErrors(1, 1, 0, 0)
 
-        ack.countErrorWarnInfo(1, 0, 0)
+        ack.countErrorWarnInfo(1, 1, 0)
         ack.errors.any { it.operation == "Create" && it.key == "[mntner] TST-NEW-MNT" }
         ack.errorMessagesFor("Create", "[mntner] TST-NEW-MNT") == ["Unknown object referenced PGPKEY-EBEEB05E"]
         queryObjectNotFound("-rBT mntner TST-NEW-MNT", "mntner", "TST-NEW-MNT")
@@ -287,7 +287,7 @@ class PgpSignedMessageSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(1, 0, 1, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
 
-        ack.countErrorWarnInfo(0, 0, 0)
+        ack.countErrorWarnInfo(0, 1, 0)
         ack.successes.any { it.operation == "Modify" && it.key == "[mntner] TST-NEW-MNT" }
 
         queryObject("-rBT mntner TST-NEW-MNT", "mntner", "TST-NEW-MNT")
@@ -325,7 +325,7 @@ class PgpSignedMessageSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(1, 1, 0, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
 
-        ack.countErrorWarnInfo(0, 0, 0)
+        ack.countErrorWarnInfo(0, 1, 0)
         ack.successes.any { it.operation == "Create" && it.key == "[mntner] TST-NEW-MNT" }
 
         queryObject("-rBT mntner TST-NEW-MNT", "mntner", "TST-NEW-MNT")
@@ -918,7 +918,7 @@ class PgpSignedMessageSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(0, 0, 0, 0, 0)
         ack.summary.assertErrors(1, 1, 0, 0)
 
-        ack.countErrorWarnInfo(1, 0, 0)
+        ack.countErrorWarnInfo(1, 1, 0)
         ack.errors.any { it.operation == "Create" && it.key == "[key-cert] PGPKEY-459F13C1" }
         ack.errorMessagesFor("Create", "[key-cert] PGPKEY-459F13C1") == ["The supplied object has multiple keys"]
         queryObjectNotFound("-rBT key-cert PGPKEY-459F13C1", "key-cert", "PGPKEY-459F13C1")

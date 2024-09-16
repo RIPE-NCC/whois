@@ -56,7 +56,10 @@ public class ElasticFulltextSearch extends FulltextSearch {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(ElasticFulltextSearch.class);
 
-    public static final TermsAggregationBuilder AGGREGATION_BUILDER = AggregationBuilders.terms("types-count").field("object-type.raw");
+    public static final TermsAggregationBuilder AGGREGATION_BUILDER = AggregationBuilders
+            .terms("types-count")
+            .field("object-type.raw")
+            .size(ObjectType.values().length);
     public static final List<SortBuilder<?>> SORT_BUILDERS = Arrays.asList(SortBuilders.scoreSort(), SortBuilders.fieldSort("lookup-key.raw").unmappedType("keyword"));
     private final AccessControlListManager accessControlListManager;
     private final ElasticIndexService elasticIndexService;
@@ -84,7 +87,7 @@ public class ElasticFulltextSearch extends FulltextSearch {
     }
 
     @Override
-    public SearchResponse performSearch(final SearchRequest searchRequest, final String remoteAddr) throws IOException {
+    public SearchResponse performSearch(final SearchRequest searchRequest, final String ssoToken, final String remoteAddr) throws IOException {
         final Stopwatch stopwatch = Stopwatch.createStarted();
 
         if (searchRequest.getRows() > maxResultSize) {
@@ -95,7 +98,7 @@ public class ElasticFulltextSearch extends FulltextSearch {
             throw new IllegalArgumentException("Exceeded maximum " + MAX_ROW_LIMIT_SIZE + " documents");
         }
 
-        return new ElasticSearchAccountingCallback<SearchResponse>(accessControlListManager, remoteAddr, source) {
+        return new ElasticSearchAccountingCallback<SearchResponse>(accessControlListManager, remoteAddr, ssoToken, source) {
 
             @Override
             protected SearchResponse doSearch() throws IOException {

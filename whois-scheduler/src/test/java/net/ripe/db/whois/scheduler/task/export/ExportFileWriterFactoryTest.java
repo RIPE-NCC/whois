@@ -38,12 +38,12 @@ public class ExportFileWriterFactoryTest {
 
     @BeforeEach
     public void setup() {
-        subject = new ExportFileWriterFactory(dummifierNrtm, "internal", "dbase", "test", "test-nonauth");
+        subject = new ExportFileWriterFactory(dummifierNrtm, "internal", "public", "TEST", "TEST-NONAUTH");
     }
 
     @Test
     public void createExportFileWriters_existing_dir() throws IOException {
-        Files.createDirectories(folder.resolve("dbase"));
+        Files.createDirectories(folder.resolve("public"));
 
         assertThrows(IllegalStateException.class, () -> {
             subject.createExportFileWriters(folder.toFile(), LAST_SERIAL);
@@ -59,8 +59,7 @@ public class ExportFileWriterFactoryTest {
         assertThat(files, not(nullValue()));
         assertThat(files.length, is(2));
 
-        assertThat(Arrays.stream(files).map(File::getAbsolutePath).toList(), containsInAnyOrder(endsWith("internal"),
-                endsWith("dbase")));
+        assertThat(Arrays.stream(files).map(File::getAbsolutePath).toList(), containsInAnyOrder(endsWith("internal"), endsWith("public")));
     }
 
 
@@ -89,7 +88,7 @@ public class ExportFileWriterFactoryTest {
     public void isLastSerialFile_created() throws IOException {
         subject.createExportFileWriters(folder.toFile(), LAST_SERIAL);
 
-        final File currentSerialFile = new File(folder.toFile(), "dbase/RIPE.CURRENTSERIAL");
+        final File currentSerialFile = new File(folder.toFile(), "public/TEST.CURRENTSERIAL");
         assertThat(currentSerialFile.exists(), is(true));
 
         final String savedSerial = new String(FileCopyUtils.copyToByteArray(currentSerialFile), StandardCharsets.ISO_8859_1);

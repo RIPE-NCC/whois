@@ -2,9 +2,11 @@ package net.ripe.db.whois.query.planner;
 
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Sets;
+import net.ripe.db.whois.common.x509.ClientAuthCertificateValidator;
 import net.ripe.db.whois.common.collect.IterableTransformer;
 import net.ripe.db.whois.common.dao.RpslObjectDao;
 import net.ripe.db.whois.common.domain.ResponseObject;
+import net.ripe.db.whois.common.x509.X509CertificateWrapper;
 import net.ripe.db.whois.common.rpsl.RpslObject;
 import net.ripe.db.whois.common.rpsl.transform.FilterAuthFunction;
 import net.ripe.db.whois.common.rpsl.transform.FilterChangedFunction;
@@ -58,6 +60,7 @@ public class RpslResponseDecorator {
     private final AuthServiceClient authServiceClient;
     private final ToShorthandFunction toShorthandFunction;
     private final ToKeysFunction toKeysFunction;
+    private final ClientAuthCertificateValidator clientAuthCertificateValidator;
 
     @Autowired
     public RpslResponseDecorator(final RpslObjectDao rpslObjectDao,
@@ -69,6 +72,7 @@ public class RpslResponseDecorator {
                                  final AbuseCInfoDecorator abuseCInfoDecorator,
                                  final SsoTokenTranslator ssoTokenTranslator,
                                  final AuthServiceClient authServiceClient,
+                                 final ClientAuthCertificateValidator clientAuthCertificateValidator,
                                  final PrimaryObjectDecorator... decorators) {
         this.rpslObjectDao = rpslObjectDao;
         this.filterPersonalDecorator = filterPersonalDecorator;
@@ -84,6 +88,7 @@ public class RpslResponseDecorator {
         this.decorators = Sets.newHashSet(decorators);
         this.toShorthandFunction = new ToShorthandFunction();
         this.toKeysFunction = new ToKeysFunction();
+        this.clientAuthCertificateValidator = clientAuthCertificateValidator;
     }
 
     public Iterable<? extends ResponseObject> getResponse(final Query query, Iterable<? extends ResponseObject> result) {
@@ -155,11 +160,13 @@ public class RpslResponseDecorator {
     private Iterable<? extends ResponseObject> filterAuth(Query query, final Iterable<? extends ResponseObject> objects) {
         List<String> passwords = query.getPasswords();
         final String ssoToken = query.getSsoToken();
+        final List<X509CertificateWrapper> certificates = query.getCertificates();
 
         final FilterAuthFunction filterAuthFunction =
-                (CollectionUtils.isEmpty(passwords) && StringUtils.isBlank(ssoToken)) ?
+                (CollectionUtils.isEmpty(passwords) && StringUtils.isBlank(ssoToken) && hasNotCertificates(certificates))?
                         FILTER_AUTH_FUNCTION :
-                        new FilterAuthFunction(passwords, ssoToken, ssoTokenTranslator, authServiceClient, rpslObjectDao);
+                        new FilterAuthFunction(passwords, ssoToken, ssoTokenTranslator, authServiceClient,
+                                rpslObjectDao, certificates, clientAuthCertificateValidator);
 
         return Iterables.transform(objects, input -> {
             if (input instanceof RpslObject) {
@@ -168,6 +175,10 @@ public class RpslResponseDecorator {
 
             return input;
         });
+    }
+
+    private static boolean hasNotCertificates(final List<X509CertificateWrapper> certificates) {
+        return certificates == null || certificates.isEmpty();
     }
 
     private Iterable<? extends ResponseObject> filterEmail(final Query query, final Iterable<? extends ResponseObject> groupedObjects) {

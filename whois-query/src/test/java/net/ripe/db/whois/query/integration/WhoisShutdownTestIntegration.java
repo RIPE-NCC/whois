@@ -38,7 +38,7 @@ public class WhoisShutdownTestIntegration extends AbstractQueryIntegrationTest {
 
     @Test
     public void shouldShutdownWithOpenClientConnection() throws Exception {
-        final Socket socket = new Socket(HOST, QueryServer.port);
+        final Socket socket = new Socket(HOST, queryServer.getPort());
         try {
             assertThat(socket.isConnected(), is(true)); // server connection
             assertThat(socket.getInputStream().read(), is(not(-1))); // header from server

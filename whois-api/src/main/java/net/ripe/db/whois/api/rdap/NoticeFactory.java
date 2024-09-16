@@ -41,6 +41,7 @@ class NoticeFactory {
                 this.noticePropertyValues.getInaccuracyNoticeLinkRel(),
                 this.noticePropertyValues.getInaccuracyNoticeLinkHref(),
                 null,
+                null,
                 MediaType.TEXT_HTML
         ));
         notices.add(inaccuracyNotice);
@@ -62,6 +63,7 @@ class NoticeFactory {
                 selfLink,
                 this.noticePropertyValues.getTncLinkrel(),
                 this.noticePropertyValues.getLinkHref(),
+                null,
                 null,
                 this.noticePropertyValues.getLinkType()));
         return tnc;

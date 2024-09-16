@@ -18,6 +18,7 @@ import net.ripe.db.whois.update.domain.Update;
 import net.ripe.db.whois.update.domain.UpdateContext;
 import net.ripe.db.whois.update.domain.UpdateMessages;
 import net.ripe.db.whois.update.keycert.PgpSignedMessage;
+import net.ripe.db.whois.common.x509.X509CertificateWrapper;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -62,12 +63,15 @@ public class UpdatesParser {
             baseCredentials.add(SsoCredential.createOfferedCredential(updateContext.getUserSession()));
         }
 
-        updateContext.getClientCertificate().ifPresent(x509 -> baseCredentials.add(ClientCertificateCredential.createOfferedCredential(x509)));
+        if (updateContext.getClientCertificates() != null) {
+            for (X509CertificateWrapper clientCertificate : updateContext.getClientCertificates()) {
+                baseCredentials.add(ClientCertificateCredential.createOfferedCredential(clientCertificate));
+            }
+        }
 
         final List<Paragraph> paragraphs = Lists.newArrayList();
 
         int offset = 0;
-
         while (offset < content.length()) {
             final Matcher signedMessageMatcher = PgpSignedMessage.SIGNED_MESSAGE_PATTERN.matcher(content).region(offset, content.length());
             if (signedMessageMatcher.find(offset)) {

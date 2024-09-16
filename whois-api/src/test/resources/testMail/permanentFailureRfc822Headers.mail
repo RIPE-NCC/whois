@@ -1,0 +1,62 @@
+Return-path: <>
+Envelope-to: test-dbm@ripe.net
+Delivery-date: Mon, 26 Feb 2024 17:24:34 +0000
+Received: from exim by imapserver.ripe.net with local (Exim 4.96.2)
+	id xxxxxx-00GLCZ-23
+	for test-dbm@ripe.net;
+	Mon, 26 Feb 2024 17:24:34 +0000
+X-Failed-Recipients: nonexistant@ripe.net
+Auto-Submitted: auto-replied
+From: Mail Delivery System <Mailer-Daemon@ripe.net>
+To: test-dbm@ripe.net
+References: <XXXXXXXX-2BCC-4B29-9D86-3B8C68DD835D@ripe.net>
+Content-Type: multipart/report; report-type=delivery-status; boundary=1708968274-eximdsn-1662678444
+MIME-Version: 1.0
+Subject: Mail delivery failed: returning message to sender
+Message-Id: <Exxxxxx-00GLCZ-23@imapserver.ripe.net>
+Date: Mon, 26 Feb 2024 17:24:34 +0000
+Delivered-To: test-dbm@ripe.net
+
+--1708968274-eximdsn-1662678444
+Content-type: text/plain; charset=us-ascii
+
+This message was created automatically by mail delivery software.
+
+A message that you sent could not be delivered to one or more of its
+recipients. This is a permanent error. The following address(es) failed:
+
+  nonexistant@ripe.net
+    Unknown user
+
+--1708968274-eximdsn-1662678444
+Content-type: message/delivery-status
+
+Reporting-MTA: dns; imapserver.ripe.net
+
+Action: failed
+Final-Recipient: rfc822;nonexistant@ripe.net
+Status: 5.0.0
+
+--1708968274-eximdsn-1662678444
+Content-type: text/rfc822-headers
+
+Return-path: <test-dbm@ripe.net>
+Received: from whois.ipv6.ripe.net ([2001:67c:2e8::1234] helo=smtpclient.apple)
+	by imapserver.ripe.net with esmtps  (TLS1.2) tls TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384
+	(Exim 4.96.2)
+	(envelope-from <test-dbm@ripe.net>)
+	id xxxxxx-00GLCW-1u
+	for nonexistant@ripe.net;
+	Mon, 26 Feb 2024 17:24:34 +0000
+From: Test DBM <test-dbm@ripe.net>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Mime-Version: 1.0 (Mac OS X Mail 16.0 \(3774.400.31\))
+Subject: Test
+Message-Id: <XXXXXXXX-2BCC-4B29-9D86-3B8C68DD835D@ripe.net>
+Date: Mon, 26 Feb 2024 18:24:24 +0100
+To: nonexistant@ripe.net
+X-Mailer: Apple Mail (2.3774.400.31)
+
+
+--1708968274-eximdsn-1662678444--

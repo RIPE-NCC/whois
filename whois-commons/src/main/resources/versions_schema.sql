@@ -13,7 +13,7 @@ CREATE TABLE `object_version` (
   KEY `from_timestamp` (`from_timestamp`),
   KEY `to_timestamp` (`to_timestamp`),
   KEY `revision` (`revision`)
-) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 DROP TABLE  IF EXISTS `object_reference`;
 CREATE TABLE `object_reference` (
@@ -26,10 +26,10 @@ CREATE TABLE `object_reference` (
   KEY `to_version` (`to_version`),
   CONSTRAINT FOREIGN KEY (`from_version`) REFERENCES `object_version` (`id`),
   CONSTRAINT FOREIGN KEY (`to_version`) REFERENCES `object_version` (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 DROP TABLE IF EXISTS `serials`;
 CREATE TABLE `serials` (
   `serial_id` int(11) NOT NULL,
   PRIMARY KEY (`serial_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;

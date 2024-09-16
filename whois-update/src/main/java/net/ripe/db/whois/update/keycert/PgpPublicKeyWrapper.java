@@ -5,6 +5,7 @@ import com.google.common.collect.Lists;
 import net.ripe.db.whois.common.DateTimeProvider;
 import net.ripe.db.whois.common.DateUtil;
 import net.ripe.db.whois.common.Latin1Conversion;
+import net.ripe.db.whois.common.x509.KeyWrapper;
 import net.ripe.db.whois.common.rpsl.RpslObject;
 import net.ripe.db.whois.common.rpsl.RpslObjectFilter;
 import org.bouncycastle.bcpg.ArmoredInputStream;
@@ -133,7 +134,7 @@ public class PgpPublicKeyWrapper implements KeyWrapper {
         return false;
     }
 
-    static boolean looksLikePgpKey(final RpslObject rpslObject) {
+    public static boolean looksLikePgpKey(final RpslObject rpslObject) {
         final String pgpKey = RpslObjectFilter.getCertificateFromKeyCert(rpslObject);
         return pgpKey.indexOf(PGP_HEADER) != -1 && pgpKey.indexOf(PGP_FOOTER) != -1;
     }
@@ -153,12 +154,29 @@ public class PgpPublicKeyWrapper implements KeyWrapper {
 
     @Override
     public List<String> getOwners() {
+        return Lists.newArrayList(filterRevokedUserIds(transformUserIdsToLatin1()));
+    }
+
+    private Iterator<String> transformUserIdsToLatin1() {
         try {
-            return Lists.newArrayList(Iterators.transform(masterKey.getUserIDs(), Latin1Conversion::convertString));
+            return Iterators.transform(masterKey.getUserIDs(), Latin1Conversion::convertString);
         } catch (IllegalArgumentException e) {
             // Invalid UTF-8 input
-            return Lists.newArrayList(Iterators.transform(masterKey.getRawUserIDs(), bytes -> Latin1Conversion.convertString(new String(bytes))));
+            return Iterators.transform(masterKey.getRawUserIDs(), bytes -> Latin1Conversion.convertString(new String(bytes)));
         }
+    }
+
+    private Iterator<String> filterRevokedUserIds(final Iterator<String> userIds) {
+        return Iterators.filter(userIds, userId -> {
+                    final Iterator<PGPSignature> signatures = masterKey.getSignaturesForID(userId);
+                    while ((signatures != null) && signatures.hasNext()) {
+                        if (signatures.next().getSignatureType() == PGPSignature.CERTIFICATION_REVOCATION) {
+                            // remove revoked user id
+                            return false;
+                        }
+                    }
+                    return true;
+                });
     }
 
     @Override

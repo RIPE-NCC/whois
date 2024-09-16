@@ -9,6 +9,7 @@ import net.ripe.db.whois.common.domain.CIString;
 import net.ripe.db.whois.common.ip.Interval;
 import net.ripe.db.whois.common.ip.IpInterval;
 import net.ripe.db.whois.common.ip.Ipv4Resource;
+import net.ripe.db.whois.common.mail.EmailStatusType;
 import net.ripe.db.whois.common.rpsl.AttributeType;
 import net.ripe.db.whois.common.rpsl.ObjectType;
 import net.ripe.db.whois.common.rpsl.RpslAttribute;
@@ -84,7 +85,12 @@ public final class UpdateMessages {
     }
 
     public static Message httpSyncupdate(){
-        return new Message(Type.WARNING, "This Syncupdates request used insecure HTTP, which may be removed in a future release. Please switch to HTTPS.");
+        return new Message(Type.WARNING, "This Syncupdates request used insecure HTTP, which will be removed in a future release. Please switch to HTTPS.");
+    }
+
+    public static Message passwordInMailUpdate(){
+        return new Message(Type.WARNING, "Password authentication will be removed from Mailupdates in a future Whois " +
+                "release as the mail message may have been sent insecurely. Please switch to PGP signing for authentication or use a different update method such as the REST API or Syncupdates.");
     }
 
     public static Message invalidReference(final ObjectType objectType, final CharSequence key) {
@@ -262,6 +268,11 @@ public final class UpdateMessages {
     public static Message authorisationRequiredForAttrChange(final AttributeType attributeType) {
         return new Message(Type.ERROR, "Changing \"%s:\" value requires administrative authorisation", attributeType.getName());
     }
+
+    public static Message attributeNotAllowedWithStatus(final AttributeType attributeType, final CIString statusValue) {
+        return new Message(Type.ERROR, "\"%s:\" attribute not allowed for resources with \"%s:\" status", attributeType.getName(), statusValue);
+    }
+
     public static Message canOnlyBeChangedByRipeNCC(final RpslAttribute attribute) {
         return new MessageWithAttribute(Type.ERROR, attribute,"Attribute \"%s:\" can only be changed by the RIPE NCC for this object.\n" +
                 "Please contact \"ncc@ripe.net\" to change it.", attribute.getType().getName());
@@ -322,7 +333,7 @@ public final class UpdateMessages {
     }
 
     public static Message createFirstPersonMntnerForOrganisation() {
-        return new Message(Type.INFO, "To create the first person/mntner pair of objects for an organisation see https://apps.db.ripe.net/startup/");
+        return new Message(Type.INFO, "To create the first person/mntner pair of objects for an organisation see\nhttps://apps.db.ripe.net/db-web-ui/webupdates/create/RIPE/person/self");
     }
 
     public static Message maintainerNotFound(final CharSequence maintainer) {
@@ -616,6 +627,10 @@ public final class UpdateMessages {
         return new Message(Type.WARNING, "\"status:\" attribute cannot be removed");
     }
 
+    public static Message emailCanNotBeSent(final String email, final EmailStatusType emailStatus) {
+        return new Message(Type.WARNING, "Not sending notification to %s because it is %s.", email, emailStatus.getValue());
+    }
+
     public static Message sponsoringOrgChanged() {
         return new Message(Type.ERROR, "The \"sponsoring-org\" attribute can only be changed by the RIPE NCC");
     }
@@ -719,4 +734,9 @@ public final class UpdateMessages {
         return new Message(Type.ERROR, "Prefix length must be /16 for IPv4 or /32 for IPv6 if ns.ripe.net is used as " +
                 "a nameserver.");
     }
+
+    public static Message tooManyReferences() {
+        return new Message(Type.ERROR, "Too many references");
+    }
+
 }
