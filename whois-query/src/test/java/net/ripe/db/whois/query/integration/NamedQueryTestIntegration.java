@@ -33,28 +33,28 @@ public class NamedQueryTestIntegration extends AbstractQueryIntegrationTest {
 
     @Test
     public void organisationQueryCaseInsensitive() throws Exception {
-        String response = TelnetWhoisClient.queryLocalhost(QueryServer.port, "-rT oa orG-Zv1-RipE");
+        String response = TelnetWhoisClient.queryLocalhost(queryServer.getPort(), "-rT oa orG-Zv1-RipE");
 
         assertThat(response, containsString("organisation:   ORG-ZV1-RIPE"));
     }
 
     @Test
     public void personQueryCaseInsensitive() throws Exception {
-        String response = TelnetWhoisClient.queryLocalhost(QueryServer.port, "-rT person dENIs WalKeR");
+        String response = TelnetWhoisClient.queryLocalhost(queryServer.getPort(), "-rT person dENIs WalKeR");
 
         assertThat(response, containsString("person:         Denis Walker"));
     }
 
     @Test
     public void roleQueryCaseInsensitive() throws Exception {
-        String response = TelnetWhoisClient.queryLocalhost(QueryServer.port, "-rT role AltERNa InterTRAde ripe TEaM");
+        String response = TelnetWhoisClient.queryLocalhost(queryServer.getPort(), "-rT role AltERNa InterTRAde ripe TEaM");
 
         assertThat(response, containsString("role:           Alterna Intertrade RIPE team"));
     }
 
     @Test
     public void findPersonByNicHdlNotFiltered() throws Exception {
-        String response = TelnetWhoisClient.queryLocalhost(QueryServer.port, "-r -B -T person DH3037-RIPE");
+        String response = TelnetWhoisClient.queryLocalhost(queryServer.getPort(), "-r -B -T person DH3037-RIPE");
 
         assertThat(response, containsString("Information related to 'DH3037-RIPE'"));
         assertThat(response, not(containsString("filtered")));
@@ -62,7 +62,7 @@ public class NamedQueryTestIntegration extends AbstractQueryIntegrationTest {
 
     @Test
     public void findPersonByNicHdlIsFiltered() throws Exception {
-        String response = TelnetWhoisClient.queryLocalhost(QueryServer.port, "-r -T person DH3037-RIPE");
+        String response = TelnetWhoisClient.queryLocalhost(queryServer.getPort(), "-r -T person DH3037-RIPE");
 
         assertThat(response, containsString("Information related to 'DH3037-RIPE'"));
         assertThat(response, containsString("filtered"));
@@ -70,7 +70,7 @@ public class NamedQueryTestIntegration extends AbstractQueryIntegrationTest {
 
     @Test
     public void findPersonNameMatchesNicHdl() throws Exception {
-        String response = TelnetWhoisClient.queryLocalhost(QueryServer.port, "-r -B -T person ASAK");
+        String response = TelnetWhoisClient.queryLocalhost(queryServer.getPort(), "-r -B -T person ASAK");
 
         assertThat(response, containsString("person:         ASAK"));
         assertThat(response, containsString("nic-hdl:        ASAK"));
@@ -80,10 +80,10 @@ public class NamedQueryTestIntegration extends AbstractQueryIntegrationTest {
 
     @Test
     public void tooManyArguments() {
-        final String response = TelnetWhoisClient.queryLocalhost(QueryServer.port, "-rT person " + Strings.repeat("arg ", 62));
+        final String response = TelnetWhoisClient.queryLocalhost(queryServer.getPort(), "-rT person " + Strings.repeat("arg ", 62));
 
         assertThat(response, containsString("" +
-                "% See http://www.ripe.net/db/support/db-terms-conditions.pdf\n" +
+                "% See https://docs.db.ripe.net/terms-conditions.html\n" +
                 "\n" +
                 "%ERROR:118: too many arguments supplied\n" +
                 "%\n" +
@@ -94,14 +94,14 @@ public class NamedQueryTestIntegration extends AbstractQueryIntegrationTest {
 
     @Test
     public void almostTooManyArguments() {
-        final String response = TelnetWhoisClient.queryLocalhost(QueryServer.port, "-rT person " + Strings.repeat("arg ", 60));
+        final String response = TelnetWhoisClient.queryLocalhost(queryServer.getPort(), "-rT person " + Strings.repeat("arg ", 60));
 
         assertThat(response, containsString("%ERROR:101: no entries found"));
     }
 
     @Test
     public void queryStringNormalised() {
-        final String response = TelnetWhoisClient.queryLocalhost(QueryServer.port, "\u200E2019 11:35] ok");
+        final String response = TelnetWhoisClient.queryLocalhost(queryServer.getPort(), "\u200E2019 11:35] ok");
         assertThat(response, containsString("% This query was converted into the ISO-8859-1 (Latin-1) character set."));
     }
 }

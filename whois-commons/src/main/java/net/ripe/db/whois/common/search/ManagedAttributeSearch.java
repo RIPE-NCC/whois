@@ -34,7 +34,7 @@ public class ManagedAttributeSearch {
     private static final ImmutableSet<AttributeType> AUT_NUM_ATTRIBUTES = Sets.immutableEnumSet(AttributeType.AUT_NUM, AttributeType.ORG, AttributeType.SPONSORING_ORG, AttributeType.STATUS, AttributeType.SOURCE);
 
     private static final ImmutableSet<InetnumStatus> INETNUM_ASSIGNMENT_STATUSES = Sets.immutableEnumSet(InetnumStatus.ASSIGNED_PI, InetnumStatus.ASSIGNED_ANYCAST);
-    private static final ImmutableSet<InetnumStatus> INETNUM_ALLOCATION_STATUSES = Sets.immutableEnumSet(InetnumStatus.ALLOCATED_PA, InetnumStatus.ALLOCATED_UNSPECIFIED);
+    private static final ImmutableSet<InetnumStatus> INETNUM_ALLOCATION_STATUSES = Sets.immutableEnumSet(InetnumStatus.ALLOCATED_PA, InetnumStatus.ALLOCATED_ASSIGNED_PA, InetnumStatus.ALLOCATED_UNSPECIFIED);
     private static final ImmutableSet<InetnumStatus> INETNUM_LEGACY_STATUSES = Sets.immutableEnumSet(InetnumStatus.LEGACY);
     private static final ImmutableSet<Inet6numStatus> INET6NUM_ALLOCATION_STATUSES = Sets.immutableEnumSet(Inet6numStatus.ALLOCATED_BY_RIR);
     private static final ImmutableSet<Inet6numStatus> INET6NUM_ASSIGNMENT_STATUSES = Sets.immutableEnumSet(Inet6numStatus.ASSIGNED_PI, Inet6numStatus.ASSIGNED_ANYCAST);

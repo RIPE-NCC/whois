@@ -3,12 +3,10 @@ package net.ripe.db.whois.scheduler;
 
 import net.ripe.db.whois.common.iptree.IpTreeCacheManager;
 import net.ripe.db.whois.common.source.SourceConfiguration;
-import net.ripe.db.whois.query.dao.AccessControlListDao;
+import net.ripe.db.whois.query.dao.IpAccessControlListDao;
 import org.awaitility.Awaitility;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
-import org.kubek2k.springockito.annotations.ReplaceWithMock;
-import org.kubek2k.springockito.annotations.SpringockitoContextLoader;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.ContextConfiguration;
@@ -22,11 +20,11 @@ import static org.mockito.Mockito.atLeastOnce;
 import static org.mockito.Mockito.verify;
 
 @DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_EACH_TEST_METHOD)
-@ContextConfiguration(loader = SpringockitoContextLoader.class, locations = {"classpath:applicationContext-scheduler-test.xml"}, inheritLocations = false)
+@ContextConfiguration(locations = {"classpath:applicationContext-scheduler-test.xml", "classpath:applicationContext-scheduler-test-mock.xml"}, inheritLocations = false)
 @Tag("IntegrationTest")
 public class ScheduledTasksTestIntegration extends AbstractSchedulerIntegrationTest {
-    @ReplaceWithMock @Autowired private AccessControlListDao jdbcAccessControlListDao;
-    @ReplaceWithMock @Autowired private IpTreeCacheManager ipTreeCacheManager;
+    @Autowired private IpAccessControlListDao jdbcIpAccessControlListDao;
+    @Autowired private IpTreeCacheManager ipTreeCacheManager;
 
     @Test
     public void testIpResourceConfiguration() throws Exception {
@@ -34,9 +32,9 @@ public class ScheduledTasksTestIntegration extends AbstractSchedulerIntegrationT
             @Override
             public Boolean call() {
                 try {
-                    verify(jdbcAccessControlListDao, atLeastOnce()).loadIpLimit();
-                    verify(jdbcAccessControlListDao, atLeastOnce()).loadIpProxy();
-                    verify(jdbcAccessControlListDao, atLeastOnce()).loadIpDenied();
+                    verify(jdbcIpAccessControlListDao, atLeastOnce()).loadIpLimits();
+                    verify(jdbcIpAccessControlListDao, atLeastOnce()).loadIpProxy();
+                    verify(jdbcIpAccessControlListDao, atLeastOnce()).loadIpDenied();
                     verify(ipTreeCacheManager, atLeastOnce()).update(any(SourceConfiguration.class));
 
                     return true;

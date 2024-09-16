@@ -2,11 +2,11 @@ package net.ripe.db.whois.api.rest.domain;
 
 
 import com.google.common.collect.Lists;
+import jakarta.xml.bind.annotation.XmlAccessType;
+import jakarta.xml.bind.annotation.XmlAccessorType;
+import jakarta.xml.bind.annotation.XmlElement;
+import jakarta.xml.bind.annotation.XmlRootElement;
 
-import javax.xml.bind.annotation.XmlAccessType;
-import javax.xml.bind.annotation.XmlAccessorType;
-import javax.xml.bind.annotation.XmlElement;
-import javax.xml.bind.annotation.XmlRootElement;
 import java.util.List;
 
 @XmlRootElement(name = "errormessages")
@@ -14,7 +14,7 @@ import java.util.List;
 public class ErrorMessages {
 
     @XmlElement(name = "errormessage")
-    private List<ErrorMessage> errorMessages;
+    private final List<ErrorMessage> errorMessages;
 
     public ErrorMessages(final List<ErrorMessage> errorMessages) {
         this.errorMessages = errorMessages;

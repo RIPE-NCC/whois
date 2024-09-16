@@ -78,7 +78,7 @@ abstract class GrsSource implements InitializingBean {
 
         StringBuilder lineBuilder = new StringBuilder();
         for (String line = reader.readLine(); line != null; line = reader.readLine()) {
-            if (line.length() == 0) {
+            if (line.isEmpty()) {
                 lineBuilder = addLine(lines, lineBuilder);
                 handleLines(lineHandler, lines);
                 lines = Lists.newArrayList();
@@ -106,7 +106,7 @@ abstract class GrsSource implements InitializingBean {
             try {
                 lineHandler.handleLines(lines);
             } catch (RuntimeException e) {
-                logger.warn("Unexpected error handling lines starting with {}: {}", lines.isEmpty() ? "" : lines.get(0), e.getMessage(), e);
+                logger.info("Unexpected error handling lines starting with {}: {}", lines.isEmpty() ? "" : lines.get(0), e.getMessage(), e);
             }
         }
     }

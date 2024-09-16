@@ -8,6 +8,7 @@ import net.ripe.db.whois.common.rpsl.AttributeSanitizer;
 import net.ripe.db.whois.common.rpsl.ObjectMessages;
 import net.ripe.db.whois.common.rpsl.ObjectTemplate;
 import net.ripe.db.whois.common.rpsl.ObjectType;
+import net.ripe.db.whois.common.rpsl.RpslAttribute;
 import net.ripe.db.whois.common.rpsl.RpslObject;
 import net.ripe.db.whois.common.rpsl.RpslObjectFilter;
 import net.ripe.db.whois.update.authentication.Authenticator;
@@ -37,7 +38,6 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.util.List;
 
-
 @Component
 public class SingleUpdateHandler {
     private final AttributeSanitizer attributeSanitizer;
@@ -50,11 +50,16 @@ public class SingleUpdateHandler {
     private final IpTreeUpdater ipTreeUpdater;
     private final SsoTranslator ssoTranslator;
 
+    // TODO: [ES] make these fields final and assign in the constructor
+
     @Value("#{T(net.ripe.db.whois.common.domain.CIString).ciString('${whois.source}')}")
     private CIString source;
 
     @Value("#{T(net.ripe.db.whois.common.domain.CIString).ciString('${whois.nonauth.source}')}")
     private CIString nonAuthSource;
+
+    @Value("${max.references:0}")
+    private int maxReferences;
 
     @Autowired
     public SingleUpdateHandler(final List<AttributeGenerator> attributeGenerators,
@@ -103,6 +108,10 @@ public class SingleUpdateHandler {
 
         if (action == Action.DELETE && originalObject == null) {
             updateContext.addMessage(update, UpdateMessages.objectNotFound(update.getSubmittedObject().getFormattedKey()));
+        }
+
+        if(updateContext.hasDNSCheckFailed(update)) {
+            throw new DnsCheckFailedException();
         }
 
         // up to this point, updatedObject could have structural+syntax errors (unknown attributes, etc...), bail out if so
@@ -197,6 +206,10 @@ public class SingleUpdateHandler {
             updateContext.addMessage(update, UpdateMessages.filteredNotAllowed());
         }
 
+        if (maxReferences > 0 && countReferences(updatedObject) > maxReferences) {
+            updateContext.addMessage(update, UpdateMessages.tooManyReferences());
+        }
+
         if (Operation.DELETE.equals(update.getOperation())) {
             if (Keyword.NEW.equals(keyword)) {
                 updateContext.addMessage(update, UpdateMessages.operationNotAllowedForKeyword(keyword, update.getOperation()));
@@ -216,6 +229,16 @@ public class SingleUpdateHandler {
         }
 
         return updatedObject;
+    }
+
+    private int countReferences(final RpslObject updatedObject) {
+        int references = 0;
+        for (RpslAttribute attribute : updatedObject.getAttributes()) {
+            if ((attribute.getType() != null) && attribute.getType().isReference()) {
+                references++;
+            }
+        }
+        return references;
     }
 
     private Action getAction(@Nullable final RpslObject originalObject,

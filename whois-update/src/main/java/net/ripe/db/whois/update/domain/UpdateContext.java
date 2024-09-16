@@ -14,13 +14,13 @@ import net.ripe.db.whois.common.sso.UserSession;
 import net.ripe.db.whois.update.authentication.Subject;
 import net.ripe.db.whois.update.dns.DnsCheckRequest;
 import net.ripe.db.whois.update.dns.DnsCheckResponse;
-import net.ripe.db.whois.update.keycert.X509CertificateWrapper;
+import net.ripe.db.whois.common.x509.X509CertificateWrapper;
 import net.ripe.db.whois.update.log.LoggerContext;
 
 import javax.annotation.CheckForNull;
+import javax.annotation.Nullable;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -33,15 +33,14 @@ public class UpdateContext {
     private final Map<Update, CIString> placeHolderForUpdate = Maps.newHashMap();
     private final Map<CIString, GeneratedKey> generatedKeys = Maps.newHashMap();
     private final Map<Update, Context> contexts = Maps.newLinkedHashMap();
-    private final Map<DnsCheckRequest, DnsCheckResponse> dnsCheckResponses = Maps.newHashMap();
+    private final Map<Update, DnsCheckResponse> dnsCheckResponses = Maps.newHashMap();
     private final Map<String, String> ssoTranslation = Maps.newHashMap();
     private final LoggerContext loggerContext;
-
+    private UserSession userSession;
+    private List<X509CertificateWrapper> clientCertificates;
     private int nrSinceRestart;
     private boolean dryRun;
     private boolean batchUpdate;
-    private UserSession userSession;
-    private Optional<X509CertificateWrapper> clientCertificate;
 
     public UpdateContext(final LoggerContext loggerContext) {
         this.loggerContext = loggerContext;
@@ -71,7 +70,7 @@ public class UpdateContext {
     }
 
     public void addDnsCheckResponse(final DnsCheckRequest request, final DnsCheckResponse response) {
-        final DnsCheckResponse previous = dnsCheckResponses.put(request, response);
+        final DnsCheckResponse previous = dnsCheckResponses.put(request.getUpdate(), response);
         if (previous != null) {
             throw new IllegalStateException("Existing response for request: " + request);
         }
@@ -99,8 +98,16 @@ public class UpdateContext {
     }
 
     @CheckForNull
-    public DnsCheckResponse getCachedDnsCheckResponse(final DnsCheckRequest dnsCheckRequest) {
-        return dnsCheckResponses.get(dnsCheckRequest);
+    public DnsCheckResponse getCachedDnsCheckResponse(final Update update) {
+        return dnsCheckResponses.get(update);
+    }
+
+    @CheckForNull
+    public boolean hasDNSCheckFailed(final Update update) {
+        if(!dnsCheckResponses.containsKey(update)) {
+            return false;
+        }
+        return dnsCheckResponses.get(update).getMessages().stream().anyMatch(message -> message.getType() == Messages.Type.ERROR);
     }
 
     public void addMessage(final UpdateContainer updateContainer, final Message message) {
@@ -319,12 +326,13 @@ public class UpdateContext {
         return userSession;
     }
 
-    public void setClientCertificate(final Optional<X509CertificateWrapper> clientCertificate) {
-        this.clientCertificate = clientCertificate;
+    public void setClientCertificates(final List<X509CertificateWrapper> certificates) {
+        this.clientCertificates = certificates;
     }
 
-    public Optional<X509CertificateWrapper> getClientCertificate() {
-        return clientCertificate;
+    @Nullable
+    public List<X509CertificateWrapper> getClientCertificates() {
+        return this.clientCertificates;
     }
 
     public void log(final Message message) {

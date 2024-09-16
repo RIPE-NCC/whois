@@ -19,7 +19,7 @@ public abstract class FulltextSearch {
 
     }
 
-    abstract SearchResponse performSearch(final SearchRequest searchRequest, final String remoteAddr) throws IOException;
+    abstract SearchResponse performSearch(final SearchRequest searchRequest, final String ssoToken, final String remoteAddr) throws IOException;
 
 
     protected SearchResponse.Lst getResponseHeader(final SearchRequest searchRequest, final long elapsedTime) {
@@ -53,7 +53,7 @@ public abstract class FulltextSearch {
 
         return result;
     }
-
+    
     protected String escape(final String value) {
         return value.replaceAll("[/]", "\\\\/");
     }

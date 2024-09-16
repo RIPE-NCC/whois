@@ -9,6 +9,7 @@ import net.ripe.db.whois.common.Message;
 import net.ripe.db.whois.common.Messages;
 import net.ripe.db.whois.common.domain.CIString;
 import net.ripe.db.whois.common.ip.IpInterval;
+import net.ripe.db.whois.common.x509.X509CertificateWrapper;
 import net.ripe.db.whois.common.rpsl.AttributeType;
 import net.ripe.db.whois.common.rpsl.ObjectTemplate;
 import net.ripe.db.whois.common.rpsl.ObjectType;
@@ -20,6 +21,9 @@ import net.ripe.db.whois.query.domain.QueryCompletionInfo;
 import net.ripe.db.whois.query.domain.QueryException;
 import org.apache.commons.lang.StringUtils;
 
+import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
+import java.nio.charset.UnsupportedCharsetException;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
@@ -60,10 +64,12 @@ public class Query {
     // TODO: [AH] these fields should be part of QueryContext, not Query
     private List<String> passwords;
     private String ssoToken;
-    private Origin origin;
-    private boolean trusted;
+    private final Origin origin;
+    private final boolean trusted;
     // TODO: [AH] we should use -x flag for direct match for all object types instead of this hack
     private boolean matchPrimaryKeyOnly;
+
+    private List<X509CertificateWrapper> certificates;
 
     private Query(final String query, final Origin origin, final boolean trusted) {
         try {
@@ -105,10 +111,32 @@ public class Query {
         }
     }
 
-    public static Query parse(final String args, final String ssoToken, final List<String> passwords, final boolean trusted) {
+    public static Query parse(final String args, final String ssoToken, final Origin origin, final boolean trusted) {
+        try {
+            final Query query = new Query(args.trim(), origin, trusted);
+            query.ssoToken = ssoToken;
+
+            for (final QueryValidator queryValidator : QUERY_VALIDATORS) {
+                queryValidator.validate(query, query.messages);
+            }
+
+            final Collection<Message> errors = query.messages.getMessages(Messages.Type.ERROR);
+            if (!errors.isEmpty()) {
+                throw new QueryException(QueryCompletionInfo.PARAMETER_ERROR, errors);
+            }
+
+            return query;
+        } catch (OptionException e) {
+            throw new QueryException(QueryCompletionInfo.PARAMETER_ERROR, QueryMessages.malformedQuery());
+        }
+    }
+
+
+    public static Query parse(final String args, final String ssoToken, final List<String> passwords, final boolean trusted, final List<X509CertificateWrapper> certificates) {
         final Query query = parse(args, Origin.REST, trusted);
         query.ssoToken = ssoToken;
         query.passwords = passwords;
+        query.certificates = certificates;
         return query;
     }
 
@@ -118,6 +146,10 @@ public class Query {
 
     public String getSsoToken() {
         return ssoToken;
+    }
+
+    public List<X509CertificateWrapper> getCertificates() {
+        return certificates;
     }
 
     public boolean isTrusted() {
@@ -158,6 +190,10 @@ public class Query {
 
     public boolean isBriefAbuseContact() {
         return queryParser.hasOption(QueryFlag.ABUSE_CONTACT);
+    }
+
+    public boolean isCharsetSpecified(){
+        return queryParser.hasOption(QueryFlag.CHARSET);
     }
 
     public boolean isKeysOnly() {
@@ -612,6 +648,31 @@ public class Query {
         public QueryFlag getQueryFlag() {
             return queryFlag;
         }
+    }
+
+    public String getCharsetName(){
+        if (!isCharsetSpecified()){
+            return getDefaultCharset().name();
+        }
+
+        final String queryCharset = queryParser.getOptionValue(QueryFlag.CHARSET);
+
+        try {
+            return getCharsetForName(queryCharset).name();
+        } catch (UnsupportedCharsetException ex){
+            throw new QueryException(QueryCompletionInfo.PARAMETER_ERROR, QueryMessages.invalidCharsetPassed(queryCharset));
+        }
+    }
+
+    private static Charset getCharsetForName(final String charsetName) {
+        if ("latin-1".equalsIgnoreCase(charsetName)) {
+            return getDefaultCharset();
+        }
+        return Charset.forName(charsetName);
+    }
+
+    private static Charset getDefaultCharset(){
+        return StandardCharsets.ISO_8859_1;
     }
 
     public enum SystemInfoOption {

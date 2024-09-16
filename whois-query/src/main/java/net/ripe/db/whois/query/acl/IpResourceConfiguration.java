@@ -6,10 +6,11 @@ import net.ripe.db.whois.common.ip.IpInterval;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
-import javax.annotation.PostConstruct;
+import jakarta.annotation.PostConstruct;
 import java.net.InetAddress;
 import java.util.List;
 
@@ -20,18 +21,20 @@ public class IpResourceConfiguration {
 
     private static final int TREE_UPDATE_IN_SECONDS = 120;
 
-    private static final int DEFAULT_LIMIT = 5000;
-
     private final Loader loader;
+    private final int limit;
 
     private IpResourceTree<Boolean> denied;
     private IpResourceTree<Boolean> proxy;
-    private IpResourceTree<Integer> limit;
+    private IpResourceTree<Integer> limits;
     private IpResourceTree<Boolean> unlimitedConnections;
 
     @Autowired
-    public IpResourceConfiguration(final Loader loader) {
+    public IpResourceConfiguration(
+            final Loader loader,
+            @Value("${acl.limit:5000}") final int limit) {
         this.loader = loader;
+        this.limit = limit;
     }
 
     public boolean isDenied(final InetAddress address) {
@@ -55,13 +58,13 @@ public class IpResourceConfiguration {
     }
 
     public int getLimit(final InetAddress address) {
-        final Integer result = limit.getValue(IpInterval.asIpInterval(address));
-        return result == null ? DEFAULT_LIMIT : result;
+        final Integer result = limits.getValue(IpInterval.asIpInterval(address));
+        return result == null ? limit : result;
     }
 
     public int getLimit(final IpInterval address) {
-        final Integer result = limit.getValue(address);
-        return result == null ? DEFAULT_LIMIT : result;
+        final Integer result = limits.getValue(address);
+        return result == null ? limit : result;
     }
 
     public boolean isUnlimitedConnections(final InetAddress address) {
@@ -80,7 +83,7 @@ public class IpResourceConfiguration {
         try {
             denied = refreshEntries(loader.loadIpDenied());
             proxy = refreshEntries(loader.loadIpProxy());
-            limit = refreshEntries(loader.loadIpLimit());
+            limits = refreshEntries(loader.loadIpLimits());
             unlimitedConnections = refreshEntries(loader.loadUnlimitedConnections());
         } catch (RuntimeException e) {
             LOGGER.warn("Refresh failed due to {}: {}", e.getClass().getName(), e.getMessage());
@@ -114,7 +117,7 @@ public class IpResourceConfiguration {
         /**
          * @return All IP limit entries.
          */
-        List<IpResourceEntry<Integer>> loadIpLimit();
+        List<IpResourceEntry<Integer>> loadIpLimits();
 
         /**
          * @return All IP unlimited connections.

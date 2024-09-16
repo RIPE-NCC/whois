@@ -550,6 +550,7 @@ class BasicFixtures {
                 organisation:    ORG-HR1-TEST
                 org-type:        LIR
                 org-name:        Regional Internet Registry
+                country:         NL
                 address:         RIPE NCC
                 e-mail:          dbtest@ripe.net
                 ref-nfy:         dbtest-org@ripe.net

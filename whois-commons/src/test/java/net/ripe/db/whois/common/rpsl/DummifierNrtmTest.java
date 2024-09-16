@@ -46,6 +46,7 @@ public class DummifierNrtmTest {
                 assertThat(subject.dummify(1, object), is(DummifierNrtm.getPlaceholderPersonObject()));
                 assertThat(subject.dummify(2, object), is(DummifierNrtm.getPlaceholderPersonObject()));
             }
+
         }
     }
 
@@ -152,6 +153,7 @@ public class DummifierNrtmTest {
                         "last-modified:  2001-02-04T17:00:00Z\n" +
                         "abuse-c:        FOO\n" +
                         "address:        Dummy address for FOO\n" +
+                        "country:        FOO\n" +
                         "e-mail:         unread@ripe.net\n" +
                         "mnt-by:         FOO\n" +
                         "mnt-ref:        FOO\n" +
@@ -182,7 +184,6 @@ public class DummifierNrtmTest {
                 "mntner:         FOO\n" +
                 "created:        2001-02-04T17:00:00Z\n" +
                 "last-modified:  2001-02-04T17:00:00Z\n" +
-                "abuse-c:        FOO\n" +
                 "admin-c:        DUMY-RIPE\n" +
                 "auth:           MD5-PW $1$SaltSalt$DummifiedMD5HashValue.   # Real value hidden for security\n" +
                 "mnt-by:         FOO\n" +

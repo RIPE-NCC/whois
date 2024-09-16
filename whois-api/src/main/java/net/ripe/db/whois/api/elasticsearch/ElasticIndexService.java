@@ -3,11 +3,12 @@ package net.ripe.db.whois.api.elasticsearch;
 import com.google.common.base.CharMatcher;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
-import net.ripe.db.whois.api.fulltextsearch.FullTextIndex;
+import jakarta.annotation.PreDestroy;
 import net.ripe.db.whois.common.rpsl.AttributeType;
 import net.ripe.db.whois.common.rpsl.ObjectTemplate;
 import net.ripe.db.whois.common.rpsl.RpslAttribute;
 import net.ripe.db.whois.common.rpsl.RpslObject;
+import org.elasticsearch.action.admin.indices.refresh.RefreshRequest;
 import org.elasticsearch.action.delete.DeleteRequest;
 import org.elasticsearch.action.get.GetRequest;
 import org.elasticsearch.action.get.GetResponse;
@@ -18,17 +19,15 @@ import org.elasticsearch.client.RestHighLevelClient;
 import org.elasticsearch.client.core.CountRequest;
 import org.elasticsearch.client.core.CountResponse;
 import org.elasticsearch.client.indices.GetIndexRequest;
-import org.elasticsearch.common.xcontent.XContentBuilder;
-import org.elasticsearch.common.xcontent.XContentFactory;
+import org.elasticsearch.xcontent.XContentBuilder;
+import org.elasticsearch.xcontent.XContentFactory;
 import org.elasticsearch.index.query.QueryBuilders;
 import org.elasticsearch.index.reindex.DeleteByQueryRequest;
-import org.elasticsearch.search.builder.SearchSourceBuilder;
 import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
-import javax.annotation.PreDestroy;
 import java.io.IOException;
 import java.util.List;
 import java.util.Set;
@@ -37,10 +36,18 @@ import static org.slf4j.LoggerFactory.getLogger;
 
 @Component
 public class ElasticIndexService {
+
+    public static final String OBJECT_TYPE_FIELD_NAME = "object-type";
+
+    public static final String PRIMARY_KEY_FIELD_NAME = "primary-key";
+
+    public static final String LOOKUP_KEY_FIELD_NAME = "lookup-key";
     private static final Logger LOGGER = getLogger(ElasticIndexService.class);
 
-    private static final Set<AttributeType> SKIPPED_ATTRIBUTES = Sets.newEnumSet(Sets.newHashSet(AttributeType.CERTIF, AttributeType.CHANGED, AttributeType.SOURCE), AttributeType.class);
-    private static final Set<AttributeType> FILTERED_ATTRIBUTES = Sets.newEnumSet(Sets.newHashSet(AttributeType.AUTH), AttributeType.class);
+    public static final Set<AttributeType> SKIPPED_ATTRIBUTES = Sets.newEnumSet(Sets.newHashSet(AttributeType.CERTIF,
+            AttributeType.CHANGED, AttributeType.SOURCE), AttributeType.class);
+    public static final Set<AttributeType> FILTERED_ATTRIBUTES = Sets.newEnumSet(Sets.newHashSet(AttributeType.AUTH),
+            AttributeType.class);
 
     private static final String SERIAL_DOC_ID = "1";
     public static final String SERIAL = "serial";
@@ -85,7 +92,7 @@ public class ElasticIndexService {
         return true;
     }
 
-    protected void addEntry(final RpslObject rpslObject) throws IOException {
+    protected void createOrUpdateEntry(final RpslObject rpslObject) throws IOException {
         if (!isElasticRunning()) {
             return;
         }
@@ -124,14 +131,22 @@ public class ElasticIndexService {
         client.deleteByQuery(request, RequestOptions.DEFAULT);
     }
 
+    protected void refreshIndex(){
+        try {
+            client.indices().refresh(new RefreshRequest(whoisAliasIndex), RequestOptions.DEFAULT);
+        } catch (IOException ex){
+            LOGGER.error("Failed to refresh ES index {}: {}", whoisAliasIndex, ex);
+        }
+    }
+
     protected long getWhoisDocCount() throws IOException {
         if (!isElasticRunning()) {
             throw new IllegalStateException("ES is not running");
         }
 
         final CountRequest countRequest = new CountRequest(whoisAliasIndex);
-        final SearchSourceBuilder searchSourceBuilder = new SearchSourceBuilder();
-        searchSourceBuilder.query(QueryBuilders.matchAllQuery());
+        countRequest.query(QueryBuilders.matchAllQuery());
+
         final CountResponse countResponse = client.count(countRequest, RequestOptions.DEFAULT);
         return countResponse.getCount();
     }
@@ -216,8 +231,8 @@ public class ElasticIndexService {
             }
         }
 
-        builder.field(FullTextIndex.LOOKUP_KEY_FIELD_NAME, rpslObject.getKey().toString());
-        builder.field(FullTextIndex.OBJECT_TYPE_FIELD_NAME, filterRpslObject.getType().getName());
+        builder.field(LOOKUP_KEY_FIELD_NAME, rpslObject.getKey().toString());
+        builder.field(OBJECT_TYPE_FIELD_NAME, filterRpslObject.getType().getName());
 
         return builder.endObject();
     }

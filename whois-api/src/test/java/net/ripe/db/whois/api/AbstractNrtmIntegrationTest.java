@@ -2,17 +2,37 @@ package net.ripe.db.whois.api;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import net.ripe.db.nrtm4.DeltaFileGenerator;
-import net.ripe.db.nrtm4.SnapshotFileGenerator;
-import net.ripe.db.nrtm4.UpdateNotificationFileGenerator;
-import net.ripe.db.nrtm4.domain.PublishableDeltaFile;
-import net.ripe.db.nrtm4.domain.PublishableNotificationFile;
+import com.google.common.collect.Lists;
+import jakarta.ws.rs.client.WebTarget;
+import jakarta.ws.rs.core.MediaType;
+import jakarta.ws.rs.core.Response;
+import net.ripe.db.nrtm4.generator.DeltaFileGenerator;
+import net.ripe.db.nrtm4.generator.NrtmKeyPairService;
+import net.ripe.db.nrtm4.generator.SnapshotFileGenerator;
+import net.ripe.db.nrtm4.generator.UpdateNotificationFileGenerator;
+import net.ripe.db.nrtm4.dao.NrtmKeyConfigDao;
+import net.ripe.db.nrtm4.domain.DeltaFileRecord;
+import net.ripe.db.nrtm4.domain.NrtmDocumentType;
+import net.ripe.db.nrtm4.domain.NrtmSource;
+import net.ripe.db.nrtm4.domain.UpdateNotificationFile;
+import net.ripe.db.nrtm4.domain.NrtmVersionRecord;
+import net.ripe.db.nrtm4.util.NrtmFileUtil;
+import net.ripe.db.whois.common.domain.CIString;
+import net.ripe.db.whois.common.rpsl.RpslObject;
+import org.apache.commons.lang3.StringUtils;
+import org.eclipse.jetty.http.HttpHeader;
+import org.eclipse.jetty.http.HttpScheme;
+import org.jetbrains.annotations.NotNull;
+import org.json.JSONException;
+import org.json.JSONObject;
 import org.junit.jupiter.api.BeforeEach;
 import org.springframework.beans.factory.annotation.Autowired;
 
-import javax.ws.rs.client.WebTarget;
-import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.Response;
+import javax.annotation.Nullable;
+import java.util.List;
+
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.is;
 
 public abstract class AbstractNrtmIntegrationTest extends AbstractIntegrationTest{
 
@@ -23,8 +43,13 @@ public abstract class AbstractNrtmIntegrationTest extends AbstractIntegrationTes
     protected SnapshotFileGenerator snapshotFileGenerator;
 
     @Autowired
+    protected NrtmKeyConfigDao nrtmKeyConfigDao;
+
+    @Autowired
     protected DeltaFileGenerator deltaFileGenerator;
 
+    @Autowired
+    protected NrtmKeyPairService nrtmKeyPairService;
 
     @BeforeEach
     public void setup() {
@@ -175,37 +200,31 @@ public abstract class AbstractNrtmIntegrationTest extends AbstractIntegrationTes
         return RestTest.target(getPort(), String.format("nrtmv4/%s", path));
     }
 
-    protected PublishableNotificationFile getNotificationFileBySource(final String sourceName) {
-        return createResource(sourceName + "/update-notification-file.json")
-                .request(MediaType.APPLICATION_JSON)
-                .get(PublishableNotificationFile.class);
+    protected UpdateNotificationFile getNotificationFileBySource(final String sourceName) {
+        return getResponseFromHttpsRequest(sourceName + "/update-notification-file.json", MediaType.APPLICATION_JSON).readEntity(UpdateNotificationFile.class);
     }
 
-    protected String getSnapshotNameFromUpdateNotification(final PublishableNotificationFile notificationFile) {
+    protected String getSnapshotNameFromUpdateNotification(final UpdateNotificationFile notificationFile) {
         return notificationFile.getSnapshot().getUrl().split("/")[4];
     }
 
     protected Response getSnapshotFromUpdateNotificationBySource(final String sourceName) throws JsonProcessingException {
-        final Response updateNotificationResponse = createResource(sourceName + "/update-notification-file.json")
-                .request(MediaType.APPLICATION_JSON)
-                .get(Response.class);
-        final PublishableNotificationFile notificationFile = new ObjectMapper().readValue(updateNotificationResponse.readEntity(String.class),
-                PublishableNotificationFile.class);
-        return createResource(sourceName + "/" + getSnapshotNameFromUpdateNotification(notificationFile))
-                .request(MediaType.APPLICATION_JSON)
-                .get(Response.class);
+        final Response updateNotificationResponse = getResponseFromHttpsRequest(sourceName + "/update-notification-file.json", MediaType.APPLICATION_JSON);
+        final UpdateNotificationFile notificationFile = new ObjectMapper().readValue(updateNotificationResponse.readEntity(String.class),
+                UpdateNotificationFile.class);
+        return getResponseFromHttpsRequest(sourceName + "/" + getSnapshotNameFromUpdateNotification(notificationFile)
+                , MediaType.APPLICATION_JSON);
     }
 
-    protected PublishableDeltaFile getDeltasFromUpdateNotificationBySource(final String sourceName, final int deltaPosition) {
-        final PublishableNotificationFile updateNotificationResponse = createResource(sourceName + "/update-notification-file.json")
-                .request(MediaType.APPLICATION_JSON)
-                .get(PublishableNotificationFile.class);
-        return createResource(sourceName + "/" + getDeltaNameFromUpdateNotification(updateNotificationResponse, deltaPosition))
-                .request(MediaType.APPLICATION_JSON)
-                .get(PublishableDeltaFile.class);
+    protected String[] getDeltasFromUpdateNotificationBySource(final String sourceName, final int deltaPosition) {
+        final UpdateNotificationFile updateNotificationResponse = getResponseFromHttpsRequest(sourceName +
+                "/update-notification-file.json", MediaType.APPLICATION_JSON).readEntity(UpdateNotificationFile.class);
+
+        final String response = getResponseFromHttpsRequest(sourceName + "/" + getDeltaNameFromUpdateNotification(updateNotificationResponse, deltaPosition), "application/json-seq").readEntity(String.class);
+        return StringUtils.split( response, NrtmFileUtil.RECORD_SEPERATOR);
     }
 
-    protected String getDeltaNameFromUpdateNotification(final PublishableNotificationFile notificationFile, final int deltaPosition) {
+    protected String getDeltaNameFromUpdateNotification(final UpdateNotificationFile notificationFile, final int deltaPosition) {
         return notificationFile.getDeltas().get(deltaPosition).getUrl().split("/")[4];
     }
 
@@ -213,4 +232,55 @@ public abstract class AbstractNrtmIntegrationTest extends AbstractIntegrationTes
         databaseHelper.getNrtmTemplate().update("INSERT INTO source (id, name) VALUES (?,?)", 1, "TEST");
         databaseHelper.getNrtmTemplate().update("INSERT INTO source (id, name) VALUES (?,?)", 2, "TEST-NONAUTH");
     }
+
+    protected void generateDeltas(final List<RpslObject> updatedObject){
+        for (final RpslObject rpslObject : updatedObject) {
+            databaseHelper.updateObject(rpslObject);
+        }
+        deltaFileGenerator.createDeltas();
+    }
+
+    protected Response getResponseFromHttpsRequest(@Nullable final String path, final String mediaType) {
+        return getWebTarget(path).request(mediaType).header(HttpHeader.X_FORWARDED_PROTO.asString(), HttpScheme.HTTPS.asString()).get(Response.class);
+    }
+
+    protected Response getResponseFromHttpRequest(@Nullable final String path) {
+        return getWebTarget(path).request(MediaType.APPLICATION_JSON).header(HttpHeader.X_FORWARDED_PROTO.asString(), HttpScheme.HTTP.asString()).get(Response.class);
+    }
+
+    protected WebTarget getWebTarget(String path) {
+        WebTarget webTarget = RestTest.target(getPort(), "nrtmv4/");
+        if(path != null){
+            webTarget = RestTest.target(getPort(), String.format("nrtmv4/%s", path));
+        }
+        return webTarget;
+    }
+
+    @NotNull
+    protected static List<DeltaFileRecord> getDeltaChanges(final String[] records) throws JsonProcessingException {
+        final List<DeltaFileRecord> deltaFileRecords = Lists.newArrayList();
+
+        for (int i = 1; i < records.length; i++) {
+            deltaFileRecords.add(new ObjectMapper().readValue(records[i].toString(), DeltaFileRecord.class));
+        }
+        return deltaFileRecords;
+    }
+
+    protected static void assertNrtmFileInfo(final String nrtmInfo, final String type, final int version, final String source) throws JSONException {
+        final JSONObject jsonObject = new JSONObject(nrtmInfo);
+        assertThat(jsonObject.getInt("nrtm_version"), is(4));
+        assertThat(jsonObject.getString("type"), is(type));
+        assertThat(jsonObject.getString("source"), is(source));
+        assertThat(jsonObject.getInt("version"), is(version));
+    }
+
+    protected static NrtmVersionRecord getNrtmVersionInfo(final String nrtmInfo) throws JSONException {
+        final JSONObject jsonObject = new JSONObject(nrtmInfo);
+
+        return new NrtmVersionRecord(new NrtmSource(1, CIString.ciString(jsonObject.getString("source"))),
+                jsonObject.getString("session_id"),
+                jsonObject.getLong("version"),
+                NrtmDocumentType.getDocumentType(jsonObject.getString("type")));
+    }
+
 }

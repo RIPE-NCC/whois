@@ -40,7 +40,7 @@ class GrsSourceImporter {
     private final AttributeSanitizer sanitizer;
     private final SourceContext sourceContext;
 
-    private Path downloadDir;
+    private final Path downloadDir;
 
     private static final FilterChangedFunction FILTER_CHANGED_FUNCTION = new FilterChangedFunction();
 
@@ -82,7 +82,7 @@ class GrsSourceImporter {
             private int nrIgnored;
 
             private Set<Integer> currentObjectIds;
-            private Set<Integer> incompletelyIndexedObjectIds = Sets.newHashSet();
+            private final Set<Integer> incompletelyIndexedObjectIds = Sets.newHashSet();
 
             @Override
             public void run() {
@@ -147,7 +147,7 @@ class GrsSourceImporter {
                             final RpslAttribute typeAttribute = cleanObject.getTypeAttribute();
                             typeAttribute.validateSyntax(cleanObject.getType(), messages);
                             if (messages.hasErrors()) {
-                                logger.debug("Errors for object with key {}: {}", typeAttribute, messages);
+                                logger.info("Errors for object with key {}: {}", typeAttribute, messages);
                                 nrIgnored++;
                             } else if (authoritativeData.isMaintainedInRirSpace(cleanObject)) {
                                 createOrUpdate(cleanObject);
@@ -187,10 +187,12 @@ class GrsSourceImporter {
 
                         if (grsObjectInfo == null) {
                             if (type == ObjectType.PERSON && grsSource.getDao().find(pkey, ObjectType.ROLE) != null) {
+                                logger.info("Errors for object with key {}: There is already an existing ROLE object with same pkey", pkey);
                                 return;
                             }
 
                             if (type == ObjectType.ROLE && grsSource.getDao().find(pkey, ObjectType.PERSON) != null) {
+                                logger.info("Errors for object with key {}: There is already an existing PERSON object with same pkey", pkey);
                                 return;
                             }
 

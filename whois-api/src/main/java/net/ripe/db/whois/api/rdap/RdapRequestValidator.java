@@ -32,20 +32,24 @@ public class RdapRequestValidator {
         try {
             Domain.parse(key);
         } catch (AttributeParseException e) {
-            throw new RdapException("400 Not Found", "RIPE NCC does not support forward domain queries.",
+            throw new RdapException("400 Bad Request", "RIPE NCC does not support forward domain queries.",
                     HttpStatus.BAD_REQUEST_400);
         }
     }
 
     public void validateIp(final String rawUri, final String key) {
-        try {
-            IpInterval.parse(key);
-        } catch (IllegalArgumentException e) {
-            throw new RdapException("Invalid syntax.", e.getMessage(), HttpStatus.BAD_REQUEST_400);
+        if (isEmpty(key)) {
+            throw new RdapException("400 Bad Request", "empty lookup term", HttpStatus.BAD_REQUEST_400);
         }
 
         if (rawUri.contains("//")) {
-            throw new RdapException("Invalid syntax.", "Uri contains //", HttpStatus.BAD_REQUEST_400);
+            throw new RdapException("400 Bad Request", "Ambiguous URI empty segment", HttpStatus.BAD_REQUEST_400);
+        }
+
+        try {
+            IpInterval.parse(key);
+        } catch (IllegalArgumentException e) {
+            throw new RdapException("400 Bad Request", e.getMessage(), HttpStatus.BAD_REQUEST_400);
         }
     }
 
@@ -53,18 +57,20 @@ public class RdapRequestValidator {
         try {
             AutNum.parse(key);
         } catch (AttributeParseException e) {
-            throw new RdapException("Invalid syntax.", e.getMessage(), HttpStatus.BAD_REQUEST_400);
+            throw new RdapException("400 Bad Request", e.getMessage(), HttpStatus.BAD_REQUEST_400);
         }
     }
 
     public void validateEntity(final String key) {
         if (key.toUpperCase().startsWith("ORG-")) {
             if (!AttributeType.ORGANISATION.isValidValue(ORGANISATION, key)) {
-                throw new RdapException("400 Bad Request", "Bad organisation or mntner syntax: " + key, HttpStatus.BAD_REQUEST_400);
+                throw new RdapException("400 Bad Request", "Bad organisation or mntner syntax: " + key,
+                        HttpStatus.BAD_REQUEST_400);
             }
         } else {
             if (!AttributeType.MNTNER.isValidValue(MNTNER, key)) {
-                throw new RdapException("400 Bad Request", "Bad organisation or mntner syntax: " + key, HttpStatus.BAD_REQUEST_400);
+                throw new RdapException("400 Bad Request", "Bad organisation or mntner syntax: " + key,
+                        HttpStatus.BAD_REQUEST_400);
             }
         }
     }

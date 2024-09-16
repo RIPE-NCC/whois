@@ -1,19 +1,24 @@
 package net.ripe.db.whois.api.nrtmv4;
 
+import jakarta.ws.rs.core.MediaType;
+import jakarta.ws.rs.core.Response;
+import jakarta.xml.bind.DatatypeConverter;
 import net.ripe.db.nrtm4.domain.NrtmDocumentType;
-import net.ripe.db.nrtm4.domain.PublishableNotificationFile;
+import net.ripe.db.nrtm4.domain.NrtmKeyRecord;
+import net.ripe.db.nrtm4.domain.UpdateNotificationFile;
+import net.ripe.db.nrtm4.util.ByteArrayUtil;
 import net.ripe.db.whois.api.AbstractNrtmIntegrationTest;
 import net.ripe.db.whois.common.rpsl.RpslObject;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.springframework.test.annotation.DirtiesContext;
 
-import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.Response;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.time.LocalDateTime;
+import java.time.ZoneOffset;
+import java.util.Base64;
 import java.util.UUID;
 
 import static net.ripe.db.whois.query.support.PatternMatcher.matchesPattern;
@@ -21,6 +26,7 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.not;
+import static org.hamcrest.Matchers.nullValue;
 
 @Tag("IntegrationTest")
 @DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_EACH_TEST_METHOD)
@@ -31,9 +37,8 @@ public class UpdateNotificationFileGenerationTestIntegration extends AbstractNrt
         createNrtmSource();
         updateNotificationFileGenerator.generateFile();
 
-        final Response response = createResource("TEST/update-notification-file.json")
-                .request(MediaType.APPLICATION_JSON)
-                .get(Response.class);
+        final Response response = getResponseFromHttpsRequest("TEST/update-notification-file.json",
+                MediaType.APPLICATION_JSON);
 
         assertThat(response.getStatus(), is(404));
     }
@@ -45,13 +50,13 @@ public class UpdateNotificationFileGenerationTestIntegration extends AbstractNrt
 
         updateNotificationFileGenerator.generateFile();
 
-        final PublishableNotificationFile firsIteration = getNotificationFileBySource("TEST");
+        final UpdateNotificationFile firsIteration = getNotificationFileBySource("TEST");
 
         setTime(LocalDateTime.now());
 
         updateNotificationFileGenerator.generateFile();
 
-        final PublishableNotificationFile secondIteration = getNotificationFileBySource("TEST");
+        final UpdateNotificationFile secondIteration = getNotificationFileBySource("TEST");
 
         assertThat(firsIteration.getTimestamp(), is(secondIteration.getTimestamp()));
     }
@@ -63,14 +68,14 @@ public class UpdateNotificationFileGenerationTestIntegration extends AbstractNrt
 
         updateNotificationFileGenerator.generateFile();
 
-        final PublishableNotificationFile firsIteration = getNotificationFileBySource("TEST");
+        final UpdateNotificationFile firsIteration = getNotificationFileBySource("TEST");
 
         final LocalDateTime timeNow = LocalDateTime.now();
         setTime(timeNow);
 
         updateNotificationFileGenerator.generateFile();
 
-        final PublishableNotificationFile secondIteration = getNotificationFileBySource("TEST");
+        final UpdateNotificationFile secondIteration = getNotificationFileBySource("TEST");
 
         assertThat(firsIteration.getTimestamp(), not(secondIteration.getTimestamp()));
     }
@@ -94,7 +99,7 @@ public class UpdateNotificationFileGenerationTestIntegration extends AbstractNrt
         snapshotFileGenerator.createSnapshot();
         updateNotificationFileGenerator.generateFile();
 
-        final PublishableNotificationFile firstIteration = getNotificationFileBySource("TEST");
+        final UpdateNotificationFile firstIteration = getNotificationFileBySource("TEST");
 
 
         assertThat(firstIteration.getSnapshot().getVersion(), is(1L));
@@ -108,7 +113,7 @@ public class UpdateNotificationFileGenerationTestIntegration extends AbstractNrt
         snapshotFileGenerator.createSnapshot();
         updateNotificationFileGenerator.generateFile();
 
-        final PublishableNotificationFile secondIteration = getNotificationFileBySource("TEST");
+        final UpdateNotificationFile secondIteration = getNotificationFileBySource("TEST");
 
 
         assertThat(secondIteration.getSnapshot().getVersion(), is(2L));
@@ -122,7 +127,7 @@ public class UpdateNotificationFileGenerationTestIntegration extends AbstractNrt
         deltaFileGenerator.createDeltas();
         updateNotificationFileGenerator.generateFile();
 
-        final PublishableNotificationFile thirdIteration = getNotificationFileBySource("TEST");
+        final UpdateNotificationFile thirdIteration = getNotificationFileBySource("TEST");
 
         assertThat(thirdIteration.getSnapshot().getVersion(), is(2L));
         assertThat(thirdIteration.getDeltas().size(), is(2));
@@ -140,17 +145,18 @@ public class UpdateNotificationFileGenerationTestIntegration extends AbstractNrt
         snapshotFileGenerator.createSnapshot();
         updateNotificationFileGenerator.generateFile();
 
-        final PublishableNotificationFile testIteration = getNotificationFileBySource("TEST");
+        final UpdateNotificationFile testIteration = getNotificationFileBySource("TEST");
 
-        final PublishableNotificationFile testNonAuthIteration = getNotificationFileBySource("TEST-NONAUTH");
+        final UpdateNotificationFile testNonAuthIteration = getNotificationFileBySource("TEST-NONAUTH");
 
         assertThat(testIteration.getSource().getName(), is("TEST"));
         assertThat(testNonAuthIteration.getSource().getName(), is("TEST-NONAUTH"));
+        assertThat(testNonAuthIteration.getNextSigningKey(), is(nullValue()));
+        assertThat(testIteration.getNextSigningKey(), is(nullValue()));
 
         assertThat(testIteration.getSessionID(), is(not(testNonAuthIteration.getSessionID())));
 
     }
-
     @Test
     public void should_contain_snapshot_delta_url(){
         final RpslObject rpslObject = RpslObject.parse("" +
@@ -173,7 +179,7 @@ public class UpdateNotificationFileGenerationTestIntegration extends AbstractNrt
         snapshotFileGenerator.createSnapshot();
         updateNotificationFileGenerator.generateFile();
 
-        final PublishableNotificationFile firstIteration = getNotificationFileBySource("TEST");
+        final UpdateNotificationFile firstIteration = getNotificationFileBySource("TEST");
 
         assertThat(firstIteration.getDeltas().size(), is(1));
         assertThat(firstIteration.getDeltas().get(0).getUrl(), containsString("https"));
@@ -185,7 +191,7 @@ public class UpdateNotificationFileGenerationTestIntegration extends AbstractNrt
         snapshotFileGenerator.createSnapshot();
         updateNotificationFileGenerator.generateFile();
 
-        final PublishableNotificationFile firstIteration = getNotificationFileBySource("TEST");
+        final UpdateNotificationFile firstIteration = getNotificationFileBySource("TEST");
 
         assertThat(firstIteration.getType(), is(NrtmDocumentType.NOTIFICATION));
         assertThat(firstIteration.getNrtmVersion(), is(4));
@@ -196,7 +202,7 @@ public class UpdateNotificationFileGenerationTestIntegration extends AbstractNrt
         snapshotFileGenerator.createSnapshot();
         updateNotificationFileGenerator.generateFile();
 
-        final PublishableNotificationFile firstIteration = getNotificationFileBySource("TEST");
+        final UpdateNotificationFile firstIteration = getNotificationFileBySource("TEST");
 
         assertThat(isValidDateFormat(firstIteration.getTimestamp()), is(true));
     }
@@ -206,7 +212,7 @@ public class UpdateNotificationFileGenerationTestIntegration extends AbstractNrt
         snapshotFileGenerator.createSnapshot();
         updateNotificationFileGenerator.generateFile();
 
-        final PublishableNotificationFile firstIteration = getNotificationFileBySource("TEST");
+        final UpdateNotificationFile firstIteration = getNotificationFileBySource("TEST");
 
         assertThat(isValidSessionFormat(firstIteration.getSessionID()), is(true));
     }
@@ -233,7 +239,7 @@ public class UpdateNotificationFileGenerationTestIntegration extends AbstractNrt
         deltaFileGenerator.createDeltas();
         updateNotificationFileGenerator.generateFile();
 
-        final PublishableNotificationFile firstIteration = getNotificationFileBySource("TEST");
+        final UpdateNotificationFile firstIteration = getNotificationFileBySource("TEST");
 
         assertThat(firstIteration.getSnapshot().getHash(), matchesPattern("^[0-9a-fA-F]{64}$"));
         assertThat(firstIteration.getDeltas().get(0).getHash(), matchesPattern("^[0-9a-fA-F]{64}$"));
@@ -241,9 +247,8 @@ public class UpdateNotificationFileGenerationTestIntegration extends AbstractNrt
 
     @Test
     public void should_throw_exception_invalid_source_notification_file()  {
-        final Response response = createResource("TEST/update-notification-file.json")
-                .request(MediaType.APPLICATION_JSON)
-                .get(Response.class);
+        final Response response = getResponseFromHttpsRequest("TEST/update-notification-file.json",
+                MediaType.APPLICATION_JSON);
         assertThat(response.getStatus(), is(400));
         assertThat(response.readEntity(String.class), is("Invalid source"));
     }
@@ -251,9 +256,8 @@ public class UpdateNotificationFileGenerationTestIntegration extends AbstractNrt
     @Test
     public void should_throw_exception_notification_file_not_found() {
         createNrtmSource();
-        final Response response = createResource("TEST/update-notification-file.json")
-                .request(MediaType.APPLICATION_JSON)
-                .get(Response.class);
+        final Response response = getResponseFromHttpsRequest("TEST/update-notification-file.json",
+                MediaType.APPLICATION_JSON);
 
         assertThat(response.getStatus(), is(404));
         assertThat(response.readEntity(String.class), is("update-notification-file.json does not exists for source TEST"));

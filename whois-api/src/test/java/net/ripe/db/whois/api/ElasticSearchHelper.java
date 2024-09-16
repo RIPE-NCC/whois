@@ -1,5 +1,6 @@
 package net.ripe.db.whois.api;
 
+import net.ripe.db.whois.api.elasticsearch.ElasticSearchConfigurations;
 import net.ripe.db.whois.common.dao.jdbc.DatabaseHelper;
 import net.ripe.db.whois.common.rpsl.AttributeSyntax;
 import net.ripe.db.whois.common.rpsl.AttributeType;
@@ -9,8 +10,8 @@ import org.elasticsearch.client.RequestOptions;
 import org.elasticsearch.client.RestClient;
 import org.elasticsearch.client.RestHighLevelClient;
 import org.elasticsearch.client.indices.CreateIndexRequest;
-import org.elasticsearch.common.xcontent.XContentBuilder;
-import org.elasticsearch.common.xcontent.XContentFactory;
+import org.elasticsearch.xcontent.XContentBuilder;
+import org.elasticsearch.xcontent.XContentFactory;
 import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -38,8 +39,8 @@ public class ElasticSearchHelper {
             }
 
             CreateIndexRequest whoisRequest = new CreateIndexRequest(indexName);
-            whoisRequest.settings(getSettings());
-            whoisRequest.mapping(getMappings());
+            whoisRequest.settings(ElasticSearchConfigurations.getSettings(hostname.split(",").length));
+            whoisRequest.mapping(ElasticSearchConfigurations.getMappings());
 
             esClient.indices().create(whoisRequest, RequestOptions.DEFAULT);
 
@@ -81,94 +82,5 @@ public class ElasticSearchHelper {
             LOGGER.warn("ElasticSearch is not running");
             return false;
         }
-    }
-
-    private XContentBuilder getSettings() throws IOException {
-
-        final XContentBuilder indexSettings =  XContentFactory.jsonBuilder();
-        indexSettings.startObject()
-                .startObject("analysis")
-                     .startObject("analyzer")
-                         .startObject("fulltext_analyzer")
-                            .field("tokenizer", "whitespace")
-                            .field("filter", new String[]{"my_word_delimiter_graph", "lowercase", "asciifolding", "english_stop" })
-                         .endObject()
-                        .startObject("my_email_analyzer")
-                            .field("type", "custom")
-                            .field("tokenizer", "uax_url_email")
-                            .field("filter", new String[]{"my_word_email_delimiter_graph", "lowercase", "english_stop"})
-                        .endObject()
-                     .endObject()
-                    .startObject("filter")
-                        .startObject("english_stop")
-                            .field("type", "stop")
-                            .field("stopwords", "_english_")
-                        .endObject()
-                        .startObject("my_word_delimiter_graph")
-                            .field("type", "word_delimiter_graph")
-                            .field("generate_word_parts", true)
-                            .field("catenate_words", true)
-                            .field("catenate_numbers", true)
-                            .field("preserve_original", true)
-                            .field("split_on_case_change", true)
-                        .endObject()
-                        .startObject("my_word_email_delimiter_graph")
-                            .field("type", "word_delimiter_graph")
-                            .field("preserve_original", true)
-                            .field("split_on_case_change", false)
-                        .endObject()
-                    .endObject()
-                .endObject().endObject();
-
-        return indexSettings;
-    }
-
-    private XContentBuilder getMappings() throws IOException {
-        final XContentBuilder mappings = XContentFactory.jsonBuilder().startObject();
-
-         mappings.startArray("dynamic_templates").startObject()
-                    .startObject("default_mapping")
-                       .field("match_mapping_type", "string")
-                       .startObject("mapping")
-                         .field("type", "text")
-                         .startObject("fields")
-                             .startObject("custom")
-                                 .field("type", "text")
-                                 .field("analyzer", "fulltext_analyzer")
-                                 .field("search_analyzer", "standard")
-                             .endObject()
-                             .startObject("raw")
-                                .field("type", "keyword")
-                             .endObject()
-                         .endObject()
-                      .endObject()
-                    .endObject().endObject()
-                 .endArray();
-
-         mappings.startObject("properties");
-         for(AttributeType type : AttributeType.values()) {
-             if(type.getSyntax() == AttributeSyntax.EMAIL_SYNTAX) {
-                 mappings.startObject(type.getName())
-                             .field("type", "text")
-                             .startObject("fields")
-                                 .startObject("custom")
-                                    .field("type", "text")
-                                    .field("analyzer", "my_email_analyzer")
-                                 .endObject()
-                             .endObject()
-                         .endObject();
-             }
-         }
-
-        mappings.startObject("object-type")
-                    .field("type", "text")
-                    .startObject("fields")
-                        .startObject("raw")
-                             .field("type", "keyword")
-                        .endObject()
-                    .endObject()
-                .endObject();
-
-        return mappings.endObject().endObject();
     }
 }

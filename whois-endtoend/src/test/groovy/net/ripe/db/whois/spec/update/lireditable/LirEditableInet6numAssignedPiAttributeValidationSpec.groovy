@@ -1,8 +1,9 @@
 package net.ripe.db.whois.spec.update.lireditable
 
+import org.junit.jupiter.api.Tag
 
 
-@org.junit.jupiter.api.Tag("IntegrationTest")
+@Tag("IntegrationTest")
 class LirEditableInet6numAssignedPiAttributeValidationSpec extends BaseLirEditableAttributeValidation {
 
     // data for tests
@@ -134,12 +135,13 @@ class LirEditableInet6numAssignedPiAttributeValidationSpec extends BaseLirEditab
         )
 
         then:
-        ack.success
+        ack.failed
         ack.summary.nrFound == 1
-        ack.summary.assertSuccess(1, 0, 1, 0, 0)
-        ack.summary.assertErrors(0, 0, 0, 0)
-        ack.countErrorWarnInfo(0, 0, 0)
-        ack.successes.any { it.operation == "Modify" && it.key == "[${resourceType}] ${resourceValue}" }
+        ack.summary.assertSuccess(0, 0, 0, 0, 0)
+        ack.summary.assertErrors(1, 0, 1, 0)
+        ack.countErrorWarnInfo(1, 0, 0)
+        ack.errorMessagesFor("Modify", "[${resourceType}] ${resourceValue}") ==
+                ["\"mnt-lower:\" attribute not allowed for resources with \"ASSIGNED PI:\" status"]
     }
 
     def "modify resource, cannot change ripe-ncc mntner (mnt-routes) by lir"() {
@@ -176,10 +178,11 @@ class LirEditableInet6numAssignedPiAttributeValidationSpec extends BaseLirEditab
         ack.summary.nrFound == 1
         ack.summary.assertSuccess(0, 0, 0, 0, 0)
         ack.summary.assertErrors(1, 0, 1, 0)
-        ack.countErrorWarnInfo(1, 0, 0)
+        ack.countErrorWarnInfo(2, 0, 0)
         ack.errors.any { it.operation == "Modify" && it.key == "[${resourceType}] ${resourceValue}" }
         ack.errorMessagesFor("Modify", "[${resourceType}] ${resourceValue}") == [
-                "You cannot add or remove a RIPE NCC maintainer"
+                "You cannot add or remove a RIPE NCC maintainer",
+                "\"mnt-lower:\" attribute not allowed for resources with \"ASSIGNED PI:\" status"
         ]
     }
 
@@ -218,10 +221,11 @@ class LirEditableInet6numAssignedPiAttributeValidationSpec extends BaseLirEditab
         ack.summary.nrFound == 1
         ack.summary.assertSuccess(0, 0, 0, 0, 0)
         ack.summary.assertErrors(1, 0, 1, 0)
-        ack.countErrorWarnInfo(1, 0, 0)
+        ack.countErrorWarnInfo(2, 0, 0)
         ack.errors.any { it.operation == "Modify" && it.key == "[${resourceType}] ${resourceValue}" }
         ack.errorMessagesFor("Modify", "[${resourceType}] ${resourceValue}") == [
-                "You cannot add or remove a RIPE NCC maintainer"
+                "You cannot add or remove a RIPE NCC maintainer",
+                "\"mnt-lower:\" attribute not allowed for resources with \"ASSIGNED PI:\" status"
         ]
     }
 
@@ -262,10 +266,11 @@ class LirEditableInet6numAssignedPiAttributeValidationSpec extends BaseLirEditab
         ack.summary.nrFound == 1
         ack.summary.assertSuccess(0, 0, 0, 0, 0)
         ack.summary.assertErrors(1, 0, 1, 0)
-        ack.countErrorWarnInfo(1, 0, 0)
+        ack.countErrorWarnInfo(2, 0, 0)
         ack.errors.any { it.operation == "Modify" && it.key == "[${resourceType}] ${resourceValue}" }
         ack.errorMessagesFor("Modify", "[${resourceType}] ${resourceValue}") == [
-                "You cannot add or remove a RIPE NCC maintainer"
+                "You cannot add or remove a RIPE NCC maintainer",
+                "\"mnt-lower:\" attribute not allowed for resources with \"ASSIGNED PI:\" status"
         ]
     }
 
@@ -303,10 +308,11 @@ class LirEditableInet6numAssignedPiAttributeValidationSpec extends BaseLirEditab
         ack.summary.nrFound == 1
         ack.summary.assertSuccess(0, 0, 0, 0, 0)
         ack.summary.assertErrors(1, 0, 1, 0)
-        ack.countErrorWarnInfo(1, 0, 0)
+        ack.countErrorWarnInfo(2, 0, 0)
         ack.errors.any { it.operation == "Modify" && it.key == "[${resourceType}] ${resourceValue}" }
         ack.errorMessagesFor("Modify", "[${resourceType}] ${resourceValue}") == [
-                "You cannot add or remove a RIPE NCC maintainer"
+                "You cannot add or remove a RIPE NCC maintainer",
+                "\"mnt-lower:\" attribute not allowed for resources with \"ASSIGNED PI:\" status"
         ]
     }
 
@@ -345,10 +351,11 @@ class LirEditableInet6numAssignedPiAttributeValidationSpec extends BaseLirEditab
         ack.summary.nrFound == 1
         ack.summary.assertSuccess(0, 0, 0, 0, 0)
         ack.summary.assertErrors(1, 0, 1, 0)
-        ack.countErrorWarnInfo(1, 0, 0)
+        ack.countErrorWarnInfo(2, 0, 0)
         ack.errors.any { it.operation == "Modify" && it.key == "[${resourceType}] ${resourceValue}" }
         ack.errorMessagesFor("Modify", "[${resourceType}] ${resourceValue}") == [
-                "You cannot add or remove a RIPE NCC maintainer"
+                "You cannot add or remove a RIPE NCC maintainer",
+                "\"mnt-lower:\" attribute not allowed for resources with \"ASSIGNED PI:\" status"
         ]
     }
 
@@ -389,10 +396,11 @@ class LirEditableInet6numAssignedPiAttributeValidationSpec extends BaseLirEditab
         ack.summary.nrFound == 1
         ack.summary.assertSuccess(0, 0, 0, 0, 0)
         ack.summary.assertErrors(1, 0, 1, 0)
-        ack.countErrorWarnInfo(1, 0, 0)
+        ack.countErrorWarnInfo(2, 0, 0)
         ack.errors.any { it.operation == "Modify" && it.key == "[${resourceType}] ${resourceValue}" }
         ack.errorMessagesFor("Modify", "[${resourceType}] ${resourceValue}") == [
-                "You cannot add or remove a RIPE NCC maintainer"
+                "You cannot add or remove a RIPE NCC maintainer",
+                "\"mnt-lower:\" attribute not allowed for resources with \"ASSIGNED PI:\" status"
         ]
     }
 
@@ -463,10 +471,11 @@ class LirEditableInet6numAssignedPiAttributeValidationSpec extends BaseLirEditab
         ack.summary.nrFound == 1
         ack.summary.assertSuccess(0, 0, 0, 0, 0)
         ack.summary.assertErrors(1, 0, 1, 0)
-        ack.countErrorWarnInfo(1, 0, 0)
+        ack.countErrorWarnInfo(2, 0, 0)
         ack.errors.any { it.operation == "Modify" && it.key == "[${resourceType}] ${resourceValue}" }
         ack.errorMessagesFor("Modify", "[${resourceType}] ${resourceValue}") == [
-                "Changing \"mnt-lower:\" value requires administrative authorisation"
+                "Changing \"mnt-lower:\" value requires administrative authorisation",
+                "\"mnt-lower:\" attribute not allowed for resources with \"ASSIGNED PI:\" status"
         ]
     }
 
@@ -514,10 +523,11 @@ class LirEditableInet6numAssignedPiAttributeValidationSpec extends BaseLirEditab
         ack.summary.nrFound == 1
         ack.summary.assertSuccess(0, 0, 0, 0, 0)
         ack.summary.assertErrors(1, 0, 1, 0)
-        ack.countErrorWarnInfo(1, 0, 0)
+        ack.countErrorWarnInfo(2, 0, 0)
         ack.errors.any { it.operation == "Modify" && it.key == "[${resourceType}] ${resourceValue}" }
         ack.errorMessagesFor("Modify", "[${resourceType}] ${resourceValue}") == [
-                "Changing \"mnt-lower:\" value requires administrative authorisation"
+                "Changing \"mnt-lower:\" value requires administrative authorisation",
+                "\"mnt-lower:\" attribute not allowed for resources with \"ASSIGNED PI:\" status"
         ]
     }
 
@@ -625,11 +635,12 @@ class LirEditableInet6numAssignedPiAttributeValidationSpec extends BaseLirEditab
         ack.summary.nrFound == 1
         ack.summary.assertSuccess(0, 0, 0, 0, 0)
         ack.summary.assertErrors(1, 0, 1, 0)
-        ack.countErrorWarnInfo(2, 0, 0)
+        ack.countErrorWarnInfo(3, 0, 0)
         ack.errors.any { it.operation == "Modify" && it.key == "[${resourceType}] ${resourceValue}" }
         ack.errorMessagesFor("Modify", "[${resourceType}] ${resourceValue}") == [
                 "You cannot add or remove a RIPE NCC maintainer",
-                "Changing \"mnt-lower:\" value requires administrative authorisation"
+                "Changing \"mnt-lower:\" value requires administrative authorisation",
+                "\"mnt-lower:\" attribute not allowed for resources with \"ASSIGNED PI:\" status"
         ]
     }
 
@@ -668,11 +679,12 @@ class LirEditableInet6numAssignedPiAttributeValidationSpec extends BaseLirEditab
         ack.summary.nrFound == 1
         ack.summary.assertSuccess(0, 0, 0, 0, 0)
         ack.summary.assertErrors(1, 0, 1, 0)
-        ack.countErrorWarnInfo(2, 0, 0)
+        ack.countErrorWarnInfo(3, 0, 0)
         ack.errors.any { it.operation == "Modify" && it.key == "[${resourceType}] ${resourceValue}" }
         ack.errorMessagesFor("Modify", "[${resourceType}] ${resourceValue}") == [
                 "You cannot add or remove a RIPE NCC maintainer",
-                "Changing \"mnt-lower:\" value requires administrative authorisation"
+                "Changing \"mnt-lower:\" value requires administrative authorisation",
+                "\"mnt-lower:\" attribute not allowed for resources with \"ASSIGNED PI:\" status"
         ]
     }
 
@@ -713,11 +725,12 @@ class LirEditableInet6numAssignedPiAttributeValidationSpec extends BaseLirEditab
         ack.summary.nrFound == 1
         ack.summary.assertSuccess(0, 0, 0, 0, 0)
         ack.summary.assertErrors(1, 0, 1, 0)
-        ack.countErrorWarnInfo(2, 0, 0)
+        ack.countErrorWarnInfo(3, 0, 0)
         ack.errors.any { it.operation == "Modify" && it.key == "[${resourceType}] ${resourceValue}" }
         ack.errorMessagesFor("Modify", "[${resourceType}] ${resourceValue}") == [
                 "You cannot add or remove a RIPE NCC maintainer",
-                "Changing \"mnt-lower:\" value requires administrative authorisation"
+                "Changing \"mnt-lower:\" value requires administrative authorisation",
+                "\"mnt-lower:\" attribute not allowed for resources with \"ASSIGNED PI:\" status"
         ]
     }
 
@@ -758,12 +771,15 @@ class LirEditableInet6numAssignedPiAttributeValidationSpec extends BaseLirEditab
         )
 
         then:
-        ack.success
+        ack.failed
         ack.summary.nrFound == 1
-        ack.summary.assertSuccess(1, 0, 1, 0, 0)
-        ack.summary.assertErrors(0, 0, 0, 0)
-        ack.countErrorWarnInfo(0, 0, 0)
-        ack.successes.any { it.operation == "Modify" && it.key == "[${resourceType}] ${resourceValue}" }
+        ack.summary.assertSuccess(0, 0, 0, 0, 0)
+        ack.summary.assertErrors(1, 0, 1, 0)
+        ack.countErrorWarnInfo(1, 0, 0)
+        ack.errors.any { it.operation == "Modify" && it.key == "[${resourceType}] ${resourceValue}" }
+        ack.errorMessagesFor("Modify", "[${resourceType}] ${resourceValue}") == [
+                "\"mnt-lower:\" attribute not allowed for resources with \"ASSIGNED PI:\" status"
+        ]
     }
 
     def "modify resource, cannot delete (org) lir-unlocked attributes by lir"() {

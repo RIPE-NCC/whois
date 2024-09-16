@@ -1,6 +1,5 @@
 package net.ripe.db.whois.scheduler.task.export;
 
-import net.ripe.db.whois.common.rpsl.DummifierCurrent;
 import net.ripe.db.whois.common.rpsl.DummifierNrtm;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -15,14 +14,16 @@ import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.Arrays;
 import java.util.List;
 
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.containsInAnyOrder;
+import static org.hamcrest.Matchers.endsWith;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.not;
 import static org.hamcrest.Matchers.nullValue;
 import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.junit.jupiter.api.Assertions.fail;
 
 @ExtendWith(MockitoExtension.class)
 public class ExportFileWriterFactoryTest {
@@ -33,17 +34,16 @@ public class ExportFileWriterFactoryTest {
 
     @Mock
     DummifierNrtm dummifierNrtm;
-    @Mock DummifierCurrent dummifierCurrent;
     ExportFileWriterFactory subject;
 
     @BeforeEach
     public void setup() {
-        subject = new ExportFileWriterFactory(dummifierNrtm, dummifierCurrent, "internal", "dbase_new", "dbase", "test", "test-nonauth");
+        subject = new ExportFileWriterFactory(dummifierNrtm, "internal", "public", "TEST", "TEST-NONAUTH");
     }
 
     @Test
     public void createExportFileWriters_existing_dir() throws IOException {
-        Files.createDirectories(folder.resolve("dbase"));
+        Files.createDirectories(folder.resolve("public"));
 
         assertThrows(IllegalStateException.class, () -> {
             subject.createExportFileWriters(folder.toFile(), LAST_SERIAL);
@@ -57,16 +57,11 @@ public class ExportFileWriterFactoryTest {
 
         final File[] files = folder.toFile().listFiles();
         assertThat(files, not(nullValue()));
-        assertThat(files.length, is(3));
+        assertThat(files.length, is(2));
 
-        for (final File file : files) {
-            if (! (file.getAbsolutePath().endsWith("internal")
-                    || file.getAbsolutePath().endsWith("dbase")
-                    || file.getAbsolutePath().endsWith("dbase_new"))) {
-                fail("Unexpected folder: " + file.getAbsolutePath());
-            }
-        }
+        assertThat(Arrays.stream(files).map(File::getAbsolutePath).toList(), containsInAnyOrder(endsWith("internal"), endsWith("public")));
     }
+
 
     @Test
     public void isExportDir_home() {
@@ -93,14 +88,11 @@ public class ExportFileWriterFactoryTest {
     public void isLastSerialFile_created() throws IOException {
         subject.createExportFileWriters(folder.toFile(), LAST_SERIAL);
 
-        final File currentSerialFile = new File(folder.toFile(), "dbase/RIPE.CURRENTSERIAL");
+        final File currentSerialFile = new File(folder.toFile(), "public/TEST.CURRENTSERIAL");
         assertThat(currentSerialFile.exists(), is(true));
 
         final String savedSerial = new String(FileCopyUtils.copyToByteArray(currentSerialFile), StandardCharsets.ISO_8859_1);
         assertThat(savedSerial, is(String.valueOf(LAST_SERIAL)));
-
-        final File newSerialFile = new File(folder.toFile(), "dbase_new/RIPE.CURRENTSERIAL");
-        assertThat(newSerialFile.exists(), is(true));
 
         final String newSavedSerial = new String(FileCopyUtils.copyToByteArray(currentSerialFile), StandardCharsets.ISO_8859_1);
         assertThat(newSavedSerial, is(String.valueOf(LAST_SERIAL)));
