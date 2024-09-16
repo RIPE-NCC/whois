@@ -2,7 +2,6 @@ package net.ripe.db.whois.db;
 
 import net.ripe.db.whois.api.AbstractIntegrationTest;
 import net.ripe.db.whois.common.DateTimeProvider;
-import net.ripe.db.whois.common.IntegrationTest;
 import net.ripe.db.whois.common.TestDateTimeProvider;
 import net.ripe.db.whois.common.dao.RpslObjectUpdateInfo;
 import net.ripe.db.whois.common.dao.jdbc.IndexDao;
@@ -15,10 +14,10 @@ import net.ripe.db.whois.common.support.database.diff.Database;
 import net.ripe.db.whois.common.support.database.diff.DatabaseDiff;
 import net.ripe.db.whois.common.support.database.diff.Row;
 import net.ripe.db.whois.common.support.database.diff.Table;
-import org.junit.Before;
-import org.junit.Ignore;
-import org.junit.Test;
-import org.junit.experimental.categories.Category;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Tag;
+import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -30,14 +29,15 @@ import java.util.List;
 import java.util.Map;
 
 import static net.ripe.db.whois.common.support.database.diff.Rows.with;
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertNotNull;
-import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.not;
+import static org.hamcrest.Matchers.nullValue;
 
 
-@Ignore("[ES] TODO fix integration build [SB] build hangs when this integration test runs, we'll have to figure out why")
-@Category(IntegrationTest.class)
+@Disabled("[ES] TODO fix integration build [SB] build hangs when this integration test runs, we'll have to figure out why")
+@Tag("IntegrationTest")
 @ContextConfiguration(locations = {"classpath:applicationContext-whois-test.xml"})
 public class RebuildIndexTestIntegration extends AbstractIntegrationTest {
 
@@ -46,7 +46,7 @@ public class RebuildIndexTestIntegration extends AbstractIntegrationTest {
     TestDateTimeProvider dateTimeProvider;
 
 
-    @Before
+    @BeforeEach
     public void setup() {
         databaseHelper.addObject(RpslObject.parse("" +
                 "person:    Test Person\n" +
@@ -610,7 +610,7 @@ public class RebuildIndexTestIntegration extends AbstractIntegrationTest {
         indexDao.rebuild();
 
         List<Map<String, Object>> result = whoisTemplate.queryForList("select status, object_type from status");
-        assertThat(result.size(), is(1));
+        assertThat(result, hasSize(1));
         assertThat(result.get(0).get("status"), is("ASSIGNED PI"));
     }
 
@@ -1837,7 +1837,7 @@ public class RebuildIndexTestIntegration extends AbstractIntegrationTest {
 
         final DatabaseDiff diff = rebuild();
 
-        assertNotNull(diff.getToDatabase().getTable("person_role").get(with("nic_hdl", "HIA1-AFRINIC")));
+        assertThat(diff.getToDatabase().getTable("person_role").get(with("nic_hdl", "HIA1-AFRINIC")), not(nullValue()));
     }
 
     @Test
@@ -1855,7 +1855,7 @@ public class RebuildIndexTestIntegration extends AbstractIntegrationTest {
 
         final DatabaseDiff diff = rebuild();
 
-        assertNotNull(diff.getToDatabase().getTable("domain").get(with("domain", "169.236.109.IN-ADDR.ARPA")));
+        assertThat(diff.getToDatabase().getTable("domain").get(with("domain", "169.236.109.IN-ADDR.ARPA")), not(nullValue()));
     }
 
     /*
@@ -1867,7 +1867,7 @@ public class RebuildIndexTestIntegration extends AbstractIntegrationTest {
     tech_c:
      {object_id=6, pe_ro_id=5, object_type=9}
      */
-    @Ignore("TODO: [ES] references to syntactically incorrect values are removed by rebuild")
+    @Disabled("TODO: [ES] references to syntactically incorrect values are removed by rebuild")
     @Test
     public void invalid_nic_hdl() {
         databaseHelper.addObject(

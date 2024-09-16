@@ -1,12 +1,12 @@
 package net.ripe.db.whois.spec.integration
 
 import net.ripe.db.whois.common.ClockDateTimeProvider
-import net.ripe.db.whois.common.IntegrationTest
+
 import net.ripe.db.whois.common.rpsl.RpslObject
 
 import static net.ripe.db.whois.common.dao.jdbc.JdbcRpslObjectOperations.insertIntoLastAndUpdateSerials
 
-@org.junit.experimental.categories.Category(IntegrationTest.class)
+@org.junit.jupiter.api.Tag("IntegrationTest")
 class RebuildIndexIntegrationSpec extends BaseWhoisSourceSpec {
 
     @Override
@@ -119,7 +119,7 @@ class RebuildIndexIntegrationSpec extends BaseWhoisSourceSpec {
             nic-hdl: NP-RIPE
             mnt-by:  TST-MNT
             source:  TEST
-            """.stripIndent()))
+            """.stripIndent(true)))
 
       whoisFixture.rebuildIndexes()
 
@@ -140,7 +140,7 @@ class RebuildIndexIntegrationSpec extends BaseWhoisSourceSpec {
                 status:     OTHER
                 mnt-by:     TST-MNT
                 source:     TEST
-                """.stripIndent()))
+                """.stripIndent(true)))
           insertIntoLastAndUpdateSerials(new ClockDateTimeProvider(), whoisFixture.databaseHelper.whoisTemplate, RpslObject.parse("""\
                 inet6num:   2001:0100:0000::/24
                 netname:    RIPE-NCC
@@ -151,7 +151,7 @@ class RebuildIndexIntegrationSpec extends BaseWhoisSourceSpec {
                 status:     OTHER
                 mnt-by:     TST-MNT
                 source:     TEST
-                """.stripIndent()))
+                """.stripIndent(true)))
           insertIntoLastAndUpdateSerials(new ClockDateTimeProvider(), whoisFixture.databaseHelper.whoisTemplate, RpslObject.parse("""\
                 aut-num:    AS123
                 as-name:    TST-AS
@@ -159,21 +159,21 @@ class RebuildIndexIntegrationSpec extends BaseWhoisSourceSpec {
                 org:        ORG-TOL1-TEST
                 mnt-by:     TST-MNT
                 source:     TEST
-                """.stripIndent()))
+                """.stripIndent(true)))
           insertIntoLastAndUpdateSerials(new ClockDateTimeProvider(), whoisFixture.databaseHelper.whoisTemplate, RpslObject.parse("""\
                 route:      10.01.2.0/24
                 descr:      Test route
                 origin:     AS123
                 mnt-by:     TST-MNT
                 source:     TEST
-                """.stripIndent()))
+                """.stripIndent(true)))
           insertIntoLastAndUpdateSerials(new ClockDateTimeProvider(), whoisFixture.databaseHelper.whoisTemplate, RpslObject.parse("""\
                 route6:     2001:0100::/24
                 descr:      TEST
                 origin:     AS123
                 mnt-by:     TST-MNT
                 source:     TEST
-                """.stripIndent()))
+                """.stripIndent(true)))
           insertIntoLastAndUpdateSerials(new ClockDateTimeProvider(), whoisFixture.databaseHelper.whoisTemplate, RpslObject.parse("""\
                 domain:     0.0.10.in-addr.arpa.
                 descr:      Test domain
@@ -184,7 +184,7 @@ class RebuildIndexIntegrationSpec extends BaseWhoisSourceSpec {
                 nserver:    ns.bar.net
                 mnt-by:     TST-MNT
                 source:     TEST
-                """.stripIndent()))
+                """.stripIndent(true)))
           insertIntoLastAndUpdateSerials(new ClockDateTimeProvider(), whoisFixture.databaseHelper.whoisTemplate, RpslObject.parse("""\
                 inet-rtr:   test.ripe.net.
                 descr:      description
@@ -194,7 +194,7 @@ class RebuildIndexIntegrationSpec extends BaseWhoisSourceSpec {
                 tech-c:     TEST-RIPE
                 mnt-by:     TST-MNT
                 source:     TEST
-                """.stripIndent()))
+                """.stripIndent(true)))
 
       when:
         whoisFixture.rebuildIndexes()

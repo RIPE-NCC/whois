@@ -1,14 +1,13 @@
 package net.ripe.db.whois.query;
 
 import net.ripe.db.whois.common.IllegalArgumentExceptionMessage;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.not;
-import static org.junit.Assert.assertFalse;
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
+import static org.hamcrest.Matchers.nullValue;
+import static org.junit.jupiter.api.Assertions.fail;
 
 public class QueryParserTest {
     private QueryParser subject;
@@ -27,17 +26,17 @@ public class QueryParserTest {
     public void equals_hashcode() {
         parse("-Tperson Truus");
 
-        assertTrue(subject.equals(subject));
+        assertThat(subject, is(subject));
         assertThat(subject.hashCode(), is(subject.hashCode()));
-        assertFalse(subject.equals(null));
-        assertFalse(subject.equals(2L));
+        assertThat(subject, is(not(nullValue())));
+        assertThat(subject, not(2L));
 
         QueryParser differentQuery = parseWithNewline("-Tperson joost");
-        assertFalse(subject.equals(differentQuery));
+        assertThat(subject, is(not(differentQuery)));
         assertThat(subject.hashCode(), not(is(differentQuery.hashCode())));
 
         QueryParser sameQuery = parseWithNewline("-Tperson Truus");
-        assertTrue(subject.equals(sameQuery));
+        assertThat(subject, is(sameQuery));
         assertThat(subject.hashCode(), is(sameQuery.hashCode()));
     }
 

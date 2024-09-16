@@ -4,11 +4,12 @@ import net.ripe.db.whois.common.DateTimeProvider;
 import net.ripe.db.whois.common.rpsl.RpslObject;
 import org.bouncycastle.openpgp.PGPPublicKey;
 import org.hamcrest.Matchers;
-import org.junit.Ignore;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
+
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
@@ -17,7 +18,7 @@ import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.core.Is.is;
 import static org.hamcrest.MatcherAssert.assertThat;
 
-@RunWith(MockitoJUnitRunner.class)
+@ExtendWith(MockitoExtension.class)
 public class PgpSignedMessageTest {
 
     @Mock
@@ -618,7 +619,7 @@ public class PgpSignedMessageTest {
         assertThat(pgpSignedMessage.verify(getPublicKey_704E0D52()), is(true));
     }
 
-    @Ignore("TODO: [ES] headers in signature block should not be required")
+    @Disabled("TODO: [ES] headers in signature block should not be required")
     @Test
     public void headers_in_signature_are_mandatory() {
         final PgpSignedMessage signedMessage = PgpSignedMessage.parse(

@@ -11,25 +11,26 @@ import net.ripe.db.whois.update.domain.Update;
 import net.ripe.db.whois.update.domain.UpdateContext;
 import net.ripe.db.whois.update.handler.validator.BusinessRuleValidator;
 import net.ripe.db.whois.update.sso.SsoTranslator;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.invocation.InvocationOnMock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 import org.mockito.stubbing.Answer;
 import org.springframework.transaction.annotation.Transactional;
 
 import static org.mockito.Mockito.any;
 import static org.mockito.Mockito.anyInt;
 import static org.mockito.Mockito.eq;
+import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 @Transactional
-@RunWith(MockitoJUnitRunner.class)
+@ExtendWith(MockitoExtension.class)
 public class UpdateObjectHandlerImplTest {
 
     @Mock UpdateContext updateContext;
@@ -37,15 +38,15 @@ public class UpdateObjectHandlerImplTest {
     @Mock SsoTranslator ssoTranslator;
     private UpdateObjectHandler subject;
 
-    @Before
+    @BeforeEach
     public void setUp() throws Exception {
-        when(ssoTranslator.translateFromCacheAuthToUsername(any(UpdateContext.class), any(RpslObject.class))).thenAnswer(new Answer<Object>() {
+        lenient().when(ssoTranslator.translateFromCacheAuthToUsername(any(UpdateContext.class), any(RpslObject.class))).thenAnswer(new Answer<Object>() {
             @Override
             public Object answer(InvocationOnMock invocation) throws Throwable {
                 return invocation.getArguments()[1];
             }
         });
-        when(ssoTranslator.translateFromCacheAuthToUuid(any(UpdateContext.class), any(RpslObject.class))).thenAnswer(new Answer<Object>() {
+        lenient().when(ssoTranslator.translateFromCacheAuthToUuid(any(UpdateContext.class), any(RpslObject.class))).thenAnswer(new Answer<Object>() {
             @Override
             public Object answer(InvocationOnMock invocation) throws Throwable {
                 return invocation.getArguments()[1];
@@ -77,9 +78,10 @@ public class UpdateObjectHandlerImplTest {
         verify(rpslObjectUpdateDao, never()).createObject(mntner);
     }
 
+    @Test
     public void update_success() {
-        final RpslObject mntner = RpslObject.parse("mntner: MNTY");
-        final RpslObject mntner2 = RpslObject.parse("mntner: MNT2");
+        final RpslObject mntner = RpslObject.parse(1, "mntner: MNTY");
+        final RpslObject mntner2 = RpslObject.parse(2, "mntner: MNT2");
         final PreparedUpdate update = update(mntner, mntner2, Operation.UNSPECIFIED, Action.MODIFY);
         when(updateContext.hasErrors(update)).thenReturn(false);
 

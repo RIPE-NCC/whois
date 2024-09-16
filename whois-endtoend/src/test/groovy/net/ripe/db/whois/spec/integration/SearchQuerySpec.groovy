@@ -1,9 +1,8 @@
 package net.ripe.db.whois.spec.integration
 
-import net.ripe.db.whois.common.IntegrationTest
 import net.ripe.db.whois.common.source.Source
 
-@org.junit.experimental.categories.Category(IntegrationTest.class)
+@org.junit.jupiter.api.Tag("IntegrationTest")
 class SearchQuerySpec extends BaseWhoisSourceSpec {
     @Override
     Map<String, String> getFixtures() {
@@ -47,6 +46,20 @@ class SearchQuerySpec extends BaseWhoisSourceSpec {
             mnt-ref:      UPD-MNT
             mnt-by:       UPD-MNT
             source:       TEST
+            """,
+                "ROUTE": """\
+            route:         193.4.0.0/16
+            descr:          Route
+            origin:         AS102
+            mnt-by:         ADMIN-MNT
+            source:         TEST
+            """,
+                "ROUTE6": """\
+            route6:          2001:1578:0200::/40
+            descr:           TEST-ROUTE6
+            origin:          AS12726
+            mnt-by:          ADMIN-MNT
+            source:          TEST
             """
         ]
     }

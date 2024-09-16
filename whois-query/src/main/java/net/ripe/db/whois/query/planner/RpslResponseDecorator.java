@@ -2,22 +2,23 @@ package net.ripe.db.whois.query.planner;
 
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Sets;
+import net.ripe.db.whois.common.x509.ClientAuthCertificateValidator;
 import net.ripe.db.whois.common.collect.IterableTransformer;
 import net.ripe.db.whois.common.dao.RpslObjectDao;
 import net.ripe.db.whois.common.domain.ResponseObject;
+import net.ripe.db.whois.common.x509.X509CertificateWrapper;
 import net.ripe.db.whois.common.rpsl.RpslObject;
 import net.ripe.db.whois.common.rpsl.transform.FilterAuthFunction;
 import net.ripe.db.whois.common.rpsl.transform.FilterChangedFunction;
 import net.ripe.db.whois.common.rpsl.transform.FilterEmailFunction;
 import net.ripe.db.whois.common.source.SourceContext;
-import net.ripe.db.whois.common.sso.CrowdClient;
+import net.ripe.db.whois.common.sso.AuthServiceClient;
 import net.ripe.db.whois.common.sso.SsoTokenTranslator;
 import net.ripe.db.whois.query.QueryMessages;
 import net.ripe.db.whois.query.domain.MessageObject;
 import net.ripe.db.whois.query.executor.decorators.DummifyDecorator;
 import net.ripe.db.whois.query.executor.decorators.FilterPersonalDecorator;
 import net.ripe.db.whois.query.executor.decorators.FilterPlaceholdersDecorator;
-import net.ripe.db.whois.query.executor.decorators.FilterTagsDecorator;
 import net.ripe.db.whois.query.query.Query;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -52,14 +53,14 @@ public class RpslResponseDecorator {
     private final BriefAbuseCFunction briefAbuseCFunction;
     private final SyntaxFilterFunction validSyntaxFilterFunction;
     private final SyntaxFilterFunction invalidSyntaxFilterFunction;
-    private final FilterTagsDecorator filterTagsDecorator;
     private final FilterPlaceholdersDecorator filterPlaceholdersDecorator;
     private final AbuseCInfoDecorator abuseCInfoDecorator;
     private final Set<PrimaryObjectDecorator> decorators;
     private final SsoTokenTranslator ssoTokenTranslator;
-    private final CrowdClient crowdClient;
+    private final AuthServiceClient authServiceClient;
     private final ToShorthandFunction toShorthandFunction;
     private final ToKeysFunction toKeysFunction;
+    private final ClientAuthCertificateValidator clientAuthCertificateValidator;
 
     @Autowired
     public RpslResponseDecorator(final RpslObjectDao rpslObjectDao,
@@ -67,11 +68,11 @@ public class RpslResponseDecorator {
                                  final DummifyDecorator dummifyDecorator,
                                  final SourceContext sourceContext,
                                  final AbuseCFinder abuseCFinder,
-                                 final FilterTagsDecorator filterTagsDecorator,
                                  final FilterPlaceholdersDecorator filterPlaceholdersDecorator,
                                  final AbuseCInfoDecorator abuseCInfoDecorator,
                                  final SsoTokenTranslator ssoTokenTranslator,
-                                 final CrowdClient crowdClient,
+                                 final AuthServiceClient authServiceClient,
+                                 final ClientAuthCertificateValidator clientAuthCertificateValidator,
                                  final PrimaryObjectDecorator... decorators) {
         this.rpslObjectDao = rpslObjectDao;
         this.filterPersonalDecorator = filterPersonalDecorator;
@@ -79,15 +80,15 @@ public class RpslResponseDecorator {
         this.sourceContext = sourceContext;
         this.abuseCInfoDecorator = abuseCInfoDecorator;
         this.ssoTokenTranslator = ssoTokenTranslator;
-        this.crowdClient = crowdClient;
+        this.authServiceClient = authServiceClient;
         this.validSyntaxFilterFunction = new SyntaxFilterFunction(true);
         this.invalidSyntaxFilterFunction = new SyntaxFilterFunction(false);
-        this.filterTagsDecorator = filterTagsDecorator;
         this.filterPlaceholdersDecorator = filterPlaceholdersDecorator;
         this.briefAbuseCFunction = new BriefAbuseCFunction(abuseCFinder);
         this.decorators = Sets.newHashSet(decorators);
         this.toShorthandFunction = new ToShorthandFunction();
         this.toKeysFunction = new ToKeysFunction();
+        this.clientAuthCertificateValidator = clientAuthCertificateValidator;
     }
 
     public Iterable<? extends ResponseObject> getResponse(final Query query, Iterable<? extends ResponseObject> result) {
@@ -95,7 +96,6 @@ public class RpslResponseDecorator {
         decoratedResult = dummifyDecorator.decorate(query, decoratedResult);
 
         decoratedResult = groupRelatedObjects(query, decoratedResult);
-        decoratedResult = filterTagsDecorator.decorate(query, decoratedResult);
         decoratedResult = filterPersonalDecorator.decorate(query, decoratedResult);
         decoratedResult = abuseCInfoDecorator.decorate(query, decoratedResult);
 
@@ -160,11 +160,13 @@ public class RpslResponseDecorator {
     private Iterable<? extends ResponseObject> filterAuth(Query query, final Iterable<? extends ResponseObject> objects) {
         List<String> passwords = query.getPasswords();
         final String ssoToken = query.getSsoToken();
+        final List<X509CertificateWrapper> certificates = query.getCertificates();
 
         final FilterAuthFunction filterAuthFunction =
-                (CollectionUtils.isEmpty(passwords) && StringUtils.isBlank(ssoToken)) ?
+                (CollectionUtils.isEmpty(passwords) && StringUtils.isBlank(ssoToken) && hasNotCertificates(certificates))?
                         FILTER_AUTH_FUNCTION :
-                        new FilterAuthFunction(passwords, ssoToken, ssoTokenTranslator, crowdClient, rpslObjectDao);
+                        new FilterAuthFunction(passwords, ssoToken, ssoTokenTranslator, authServiceClient,
+                                rpslObjectDao, certificates, clientAuthCertificateValidator);
 
         return Iterables.transform(objects, input -> {
             if (input instanceof RpslObject) {
@@ -173,6 +175,10 @@ public class RpslResponseDecorator {
 
             return input;
         });
+    }
+
+    private static boolean hasNotCertificates(final List<X509CertificateWrapper> certificates) {
+        return certificates == null || certificates.isEmpty();
     }
 
     private Iterable<? extends ResponseObject> filterEmail(final Query query, final Iterable<? extends ResponseObject> groupedObjects) {

@@ -1,13 +1,12 @@
 package net.ripe.db.whois.query.acl;
 
-import net.ripe.db.whois.common.ip.IpInterval;
 import net.ripe.db.whois.common.domain.IpResourceEntry;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.InjectMocks;
+import net.ripe.db.whois.common.ip.IpInterval;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.net.InetAddress;
 import java.net.UnknownHostException;
@@ -15,26 +14,27 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
-import static org.hamcrest.Matchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.is;
 import static org.mockito.Mockito.when;
 
-@RunWith(MockitoJUnitRunner.class)
+@ExtendWith(MockitoExtension.class)
 public class IpResourceConfigurationTest {
 
     @Mock private IpResourceConfiguration.Loader loader;
-    @InjectMocks private IpResourceConfiguration subject;
+    private IpResourceConfiguration subject;
 
     private InetAddress inetAddress;
 
-    @Before
+    @BeforeEach
     public void setup() throws UnknownHostException {
-        when(loader.loadIpLimit()).thenReturn(Collections.<IpResourceEntry<Integer>>emptyList());
+        when(loader.loadIpLimits()).thenReturn(Collections.<IpResourceEntry<Integer>>emptyList());
         when(loader.loadIpProxy()).thenReturn(Collections.<IpResourceEntry<Boolean>>emptyList());
         when(loader.loadIpDenied()).thenReturn(Collections.<IpResourceEntry<Boolean>>emptyList());
 
         inetAddress = InetAddress.getByName("128.0.0.1");
 
+        subject = new IpResourceConfiguration(loader, 5000);
         subject.reload();
     }
 
@@ -48,7 +48,7 @@ public class IpResourceConfigurationTest {
     public void test_limit_specified() throws Exception {
         final IpResourceEntry<Integer> entry = new IpResourceEntry<>(IpInterval.asIpInterval(inetAddress), 1000);
         final List<IpResourceEntry<Integer>> entries = Arrays.asList(entry);
-        when(loader.loadIpLimit()).thenReturn(entries);
+        when(loader.loadIpLimits()).thenReturn(entries);
 
         subject.reload();
 

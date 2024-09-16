@@ -1,13 +1,14 @@
 package net.ripe.db.whois.query.executor;
 
 import net.ripe.db.whois.common.Message;
-import net.ripe.db.whois.query.domain.MessageObject;
 import net.ripe.db.whois.query.QueryMessages;
-import org.junit.Test;
+import net.ripe.db.whois.query.domain.MessageObject;
+import org.junit.jupiter.api.Test;
 
-import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertFalse;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.equalTo;
+import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.not;
 
 public class MessageObjectTest {
 
@@ -20,9 +21,9 @@ public class MessageObjectTest {
 
         assertThat("self", subject, is(subject));
         assertThat("same", subject, is(same));
-        assertFalse("null", subject.equals(null));
-        assertFalse("type", subject.equals(1));
-        assertFalse("other", subject.equals(other));
+        assertThat(subject, not(equalTo(null)));
+        assertThat( subject, not(equalTo(1)));  // type
+        assertThat(subject, not(equalTo(other)));   // other
 
         final Message message = QueryMessages.timeout();
         assertThat("fromMessage", new MessageObject(message), is(new MessageObject(message)));

@@ -48,7 +48,8 @@ import java.util.Set;
 class RpslObjectSearcher {
     private static final Logger LOGGER = LoggerFactory.getLogger(RpslObjectSearcher.class);
     private static final Set<AttributeType> INVERSE_ATTRIBUTE_TYPES = EnumSet.noneOf(AttributeType.class);
-    private static final Set<AttributeType> INVERSE_ATTRIBUTE_TYPES_OVERRIDE = EnumSet.of(AttributeType.SPONSORING_ORG);
+
+    private static final Set<AttributeType> INVERSE_ATTRIBUTE_TYPES_OVERRIDE = EnumSet.of(AttributeType.E_MAIL);
 
     static {
         for (final ObjectType objectType : ObjectType.values()) {

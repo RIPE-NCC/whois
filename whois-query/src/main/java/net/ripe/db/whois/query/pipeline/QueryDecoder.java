@@ -13,6 +13,8 @@ import org.springframework.stereotype.Component;
 import java.net.InetSocketAddress;
 import java.util.List;
 
+import static net.ripe.db.whois.query.pipeline.WhoisEncoder.CHARSET_ATTRIBUTE;
+
 @Component
 @ChannelHandler.Sharable
 public class QueryDecoder extends MessageToMessageDecoder<String> {
@@ -28,6 +30,7 @@ public class QueryDecoder extends MessageToMessageDecoder<String> {
     protected void decode(ChannelHandlerContext ctx, String msg, List<Object> list) {
         Channel channel = ctx.channel();
         final Query query = Query.parse(msg, Query.Origin.LEGACY, isTrusted(channel));
+        ctx.channel().attr(CHARSET_ATTRIBUTE).set(query.getCharsetName());
 
         for (final Message warning : query.getWarnings()) {
             channel.write(warning);

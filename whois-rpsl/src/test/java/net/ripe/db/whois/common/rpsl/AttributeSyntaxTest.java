@@ -1,6 +1,6 @@
 package net.ripe.db.whois.common.rpsl;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -123,12 +123,16 @@ public class AttributeSyntaxTest {
         verifySuccess(ObjectType.MNTNER, AttributeType.AUTH, "SSO test2-+._sso@ripe.net");
         verifySuccess(ObjectType.MNTNER, AttributeType.AUTH, "SSO P'O@ripe.net");
         verifySuccess(ObjectType.MNTNER, AttributeType.AUTH, "SSO P-L@ripe.net");
+        verifySuccess(ObjectType.MNTNER, AttributeType.AUTH, "SSO P&L@ripe.net");
+        verifySuccess(ObjectType.MNTNER, AttributeType.AUTH, "SSO a@b");
 
         verifyFailure(ObjectType.MNTNER, AttributeType.AUTH, "x509-ab./");
         verifyFailure(ObjectType.MNTNER, AttributeType.AUTH, "x509-ab./");
         verifyFailure(ObjectType.MNTNER, AttributeType.AUTH, "pgpkey-ghij./12");
         verifyFailure(ObjectType.MNTNER, AttributeType.AUTH, "SSO tes,,,.....");
         verifyFailure(ObjectType.MNTNER, AttributeType.AUTH, "SSO ");
+        verifyFailure(ObjectType.MNTNER, AttributeType.AUTH, "SSO a");
+        verifyFailure(ObjectType.MNTNER, AttributeType.AUTH, "SSO a@");
 
         verifyFailure(ObjectType.MNTNER, AttributeType.AUTH, "md5-pw bcdefghijklmnopqrstuvwx");
         verifyFailure(ObjectType.MNTNER, AttributeType.AUTH, "md5-pw $1$abcdefghi$bcdefghijklmnopqrstuvwx");
@@ -235,12 +239,13 @@ public class AttributeSyntaxTest {
         verifyFailure(ObjectType.PERSON, AttributeType.E_MAIL, "user@host.org 20180529");
         verifyFailure(ObjectType.PERSON, AttributeType.E_MAIL, "a.a.a");
         verifyFailure(ObjectType.PERSON, AttributeType.E_MAIL, "user");
+        verifyFailure(ObjectType.PERSON, AttributeType.E_MAIL, "0@2.45678901234567890123456789012345678901234567890123456789012345678901234567890"); //To large email
 
         verifySuccess(ObjectType.PERSON, AttributeType.E_MAIL, "a@a");
         verifySuccess(ObjectType.PERSON, AttributeType.E_MAIL, "user@host.org");
         verifySuccess(ObjectType.PERSON, AttributeType.E_MAIL, "Any User <user@host.org>");
         verifySuccess(ObjectType.PERSON, AttributeType.E_MAIL, "a@a.a");
-        verifySuccess(ObjectType.PERSON, AttributeType.E_MAIL, "0@2.45678901234567890123456789012345678901234567890123456789012345678901234567890");
+        verifySuccess(ObjectType.PERSON, AttributeType.E_MAIL, "0@2.4567890123456789012345678901234567890123456789012345678901234567890123456789");
         verifySuccess(ObjectType.PERSON, AttributeType.E_MAIL, "test@ümlaut.email");
     }
 
@@ -358,6 +363,20 @@ public class AttributeSyntaxTest {
         verifyFailure(ObjectType.FILTER_SET, AttributeType.FILTER, "{ 999/8^+ }");
         verifyFailure(ObjectType.FILTER_SET, AttributeType.FILTER, "invalid");
         verifyFailure(ObjectType.FILTER_SET, AttributeType.FILTER, "{ 192.168.0/16^+, 10/8^+ }");
+    }
+
+    @Test
+    public void geoFeed() {
+        verifyFailure(ObjectType.INETNUM,  AttributeType.GEOFEED, "random text");
+        verifyFailure(ObjectType.INETNUM,  AttributeType.GEOFEED, "http://unsafe.url.com");
+        verifyFailure(ObjectType.INETNUM,  AttributeType.GEOFEED, "https://.com");
+        verifyFailure(ObjectType.INETNUM,  AttributeType.GEOFEED, "ftp://::::@example.com");
+        verifyFailure(ObjectType.INETNUM,  AttributeType.GEOFEED, "https://localhost");
+        verifyFailure(ObjectType.INETNUM,  AttributeType.GEOFEED, "https://not an url");
+        verifyFailure(ObjectType.INETNUM,  AttributeType.GEOFEED, "https://notanurl");
+        verifyFailure(ObjectType.INETNUM,  AttributeType.GEOFEED, "");
+
+        verifySuccess(ObjectType.INETNUM,  AttributeType.GEOFEED, "https://safe.url.com");
     }
 
     @Test
@@ -1002,7 +1021,6 @@ public class AttributeSyntaxTest {
         verifySuccess(ObjectType.ORGANISATION, AttributeType.ORG_TYPE, "RIR");
         verifySuccess(ObjectType.ORGANISATION, AttributeType.ORG_TYPE, "NIR");
         verifySuccess(ObjectType.ORGANISATION, AttributeType.ORG_TYPE, "LIR");
-        verifySuccess(ObjectType.ORGANISATION, AttributeType.ORG_TYPE, "WHITEPAGES");
         verifySuccess(ObjectType.ORGANISATION, AttributeType.ORG_TYPE, "DIRECT_ASSIGNMENT");
         verifySuccess(ObjectType.ORGANISATION, AttributeType.ORG_TYPE, "OTHER");
 
@@ -1015,7 +1033,6 @@ public class AttributeSyntaxTest {
                 "o 'RIR' for Regional Internet Registries\n" +
                 "o 'NIR' for National Internet Registries (there are no NIRs in the RIPE NCC service region)\n" +
                 "o 'LIR' for Local Internet Registries\n" +
-                "o 'WHITEPAGES' for special links to industry people\n" +
                 "o 'DIRECT_ASSIGNMENT' for direct contract with RIPE NCC\n" +
                 "o 'OTHER' for all other organisations.\n\n"));
     }
@@ -1253,7 +1270,7 @@ public class AttributeSyntaxTest {
         verifyFailure(ObjectType.INETNUM, AttributeType.STATUS, "ASSIGNED");
         verifySuccess(ObjectType.INETNUM, AttributeType.STATUS, "ASSIGNED ANYCAST");
 
-        verifyFailure(ObjectType.INETNUM, AttributeType.STATUS, "AGGREGATED-BY-LIR");
+        verifySuccess(ObjectType.INETNUM, AttributeType.STATUS, "AGGREGATED-BY-LIR");
         verifySuccess(ObjectType.INET6NUM, AttributeType.STATUS, "AGGREGATED-BY-LIR");
 
         verifyFailure(ObjectType.INET6NUM, AttributeType.STATUS, "ALLOCATED PI");

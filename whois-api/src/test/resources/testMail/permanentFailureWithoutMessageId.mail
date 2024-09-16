@@ -1,0 +1,37 @@
+Return-path: <>
+Envelope-to: auto-dbm@ripe.net
+Delivery-date: Tue, 16 Feb 2016 10:18:49 +0100
+Received: by bogus.localdomain (sSMTP sendmail emulation); Fri, 24 Aug 2012 11:52:53 -0400
+Message-Id: <e39bf6$om6or1@s4de8nsazdfe010.ripe.net>
+Date: 16 Feb 2016 10:17:29 +0100
+To: auto-dbm@ripe.net
+From: "Mail Delivery System" <MAILER-DAEMON@bogus.localdomain>
+Subject: Delivery Status Notification (Failure)
+MIME-Version: 1.0
+Content-Type: multipart/report; report-type=delivery-status; boundary="nOsDR.5Az+QGeGV.2E/OdDVjIfq.2DVyKAZ"
+Delivered-To: auto-dbm@ripe.net
+
+--nOsDR.5Az+QGeGV.2E/OdDVjIfq.2DVyKAZ
+content-type: text/plain;
+    charset="us-ascii"
+Content-Transfer-Encoding: quoted-printable
+
+The following message to <notify-dummy-role@ripe.net> was undeliverable.
+The reason for the problem:
+5.3.0 - Other mail system problem 554-'Too many hops'
+
+--nOsDR.5Az+QGeGV.2E/OdDVjIfq.2DVyKAZ
+content-type: message/delivery-status
+
+Reporting-MTA: dns; s4de8nsazdfe010.bogus.localdomain
+
+Final-Recipient: rfc822;notify-dummy-role@ripe.net
+Action: failed
+Status: 5.0.0 (permanent failure)
+Remote-MTA: dns; [1.2.3.44]
+Diagnostic-Code: smtp; 5.3.0 - Other mail system problem 554-'Too many hops' (delivery attempts: 0)
+
+--nOsDR.5Az+QGeGV.2E/OdDVjIfq.2DVyKAZ
+content-type: message/rfc822
+
+--nOsDR.5Az+QGeGV.2E/OdDVjIfq.2DVyKAZ--

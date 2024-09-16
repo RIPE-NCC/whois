@@ -50,6 +50,8 @@ public abstract class ZonemasterResponse {
         private String message;
         private int code;
 
+        private String data;
+
         public String getMessage() {
             return message;
         }
@@ -58,11 +60,15 @@ public abstract class ZonemasterResponse {
             return code;
         }
 
+        public String getData() {
+            return data;
+        }
         @Override
         public String toString() {
             return MoreObjects.toStringHelper(this)
                     .add("message", message)
                     .add("code", code)
+                    .add("data", data)
                     .toString();
         }
     }

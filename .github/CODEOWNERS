@@ -1,0 +1,9 @@
+# The CODEOWNERS file defines individuals or teams that are responsible for code in a repository.
+#
+# Anyone in CODEOWNERS will be added to new Pull Requests.
+#
+# Ref. https://docs.github.com/en/repositories/managing-your-repositorys-settings-and-features/customizing-your-repository/about-code-owners
+#
+
+# add members of the private database team as reviewers
+*	@eshryane @fmurodov @isvonja @maggarwal13 @MiguelAHM

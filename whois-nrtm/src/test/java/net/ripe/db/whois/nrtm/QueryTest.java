@@ -1,55 +1,67 @@
 package net.ripe.db.whois.nrtm;
 
 import joptsimple.OptionException;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertFalse;
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.fail;
 
 public class QueryTest {
 
     public static final String SOURCE = "RIPE";
     public static final String NONAUTH_SOURCE = "RIPE-NONAUTH";
 
-    @Test(expected = NullPointerException.class)
+    @Test
     public void null_argument() {
-        new Query(SOURCE, null);
+        assertThrows(NullPointerException.class, () -> {
+            new Query(SOURCE, null);
+        });
+
     }
 
-    @Test(expected = NrtmException.class)
+    @Test
     public void empty() {
-        new Query(SOURCE, "");
+        assertThrows(NrtmException.class, () -> {
+            new Query(SOURCE, "");
+        });
     }
 
-    @Test(expected = NrtmException.class)
+    @Test
     public void all_args() {
-        new Query(SOURCE, "-q -g -k");
+        assertThrows(NrtmException.class, () -> {
+            new Query(SOURCE, "-q -g -k");
+        });
     }
 
-    @Test(expected = NrtmException.class)
+    @Test
     public void flag_k_no_flag_g() {
-        new Query(SOURCE, "-k");
+        assertThrows(NrtmException.class, () -> {
+            new Query(SOURCE, "-k");
+        });
     }
 
-    @Test(expected = OptionException.class)
+    @Test
     public void flag_q_no_arg() {
-        new Query(SOURCE, "-q");
+        assertThrows(OptionException.class, () -> {
+            new Query(SOURCE, "-q");
+        });
     }
 
-    @Test(expected = NrtmException.class)
+    @Test
     public void flag_q_unknown() {
-        new Query(SOURCE, "-q foo");
+        assertThrows(NrtmException.class, () -> {
+            new Query(SOURCE, "-q foo");
+        });
     }
 
     @Test
     public void flag_q_source() {
         Query subject = new Query(SOURCE, "-q SouRCEs");
 
-        assertTrue(subject.isInfoQuery());
+        assertThat(subject.isInfoQuery(), is(true));
         assertThat(subject.getQueryOption(), is(Query.QueryArgument.SOURCES));
     }
 
@@ -57,7 +69,7 @@ public class QueryTest {
     public void flag_q_version() {
         Query subject = new Query(SOURCE, "-q veRsION");
 
-        assertTrue(subject.isInfoQuery());
+        assertThat(subject.isInfoQuery(), is(true));
         assertThat(subject.getQueryOption(), is(Query.QueryArgument.VERSION));
     }
 
@@ -135,8 +147,8 @@ public class QueryTest {
     public void flag_g_ok() {
         Query subject = new Query(SOURCE, "-g RIPE:3:0-" + Integer.MAX_VALUE);
 
-        assertTrue(subject.isMirrorQuery());
-        assertFalse(subject.isKeepalive());
+        assertThat(subject.isMirrorQuery(), is(true));
+        assertThat(subject.isKeepalive(), is(false));
 
         assertThat(subject.getSerialBegin(), is(0));
         assertThat(subject.getSerialEnd(), is(Integer.MAX_VALUE));
@@ -146,15 +158,15 @@ public class QueryTest {
     public void flag_g_ok_with_flag_k() {
         Query subject = new Query(SOURCE, "-k -g RIPE:3:0-" + Integer.MAX_VALUE);
 
-        assertTrue(subject.isMirrorQuery());
-        assertTrue(subject.isKeepalive());
+        assertThat(subject.isMirrorQuery(), is(true));
+        assertThat(subject.isKeepalive(), is(true));
     }
 
     @Test
     public void flag_g_end_is_LAST() {
         Query subject = new Query(SOURCE, "-g RIPE:3:0-LaSt");
 
-        assertTrue(subject.isMirrorQuery());
+        assertThat(subject.isMirrorQuery(), is(true));
 
         assertThat(subject.getSerialBegin(), is(0));
         assertThat(subject.getSerialEnd(), is(-1));

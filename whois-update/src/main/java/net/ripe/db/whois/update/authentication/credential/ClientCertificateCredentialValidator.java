@@ -9,7 +9,7 @@ import net.ripe.db.whois.update.domain.PreparedUpdate;
 import net.ripe.db.whois.update.domain.UpdateContext;
 import net.ripe.db.whois.update.domain.UpdateMessages;
 import net.ripe.db.whois.update.domain.X509Credential;
-import net.ripe.db.whois.update.keycert.X509CertificateWrapper;
+import net.ripe.db.whois.common.x509.X509CertificateWrapper;
 import net.ripe.db.whois.update.log.LoggerContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -36,11 +36,11 @@ public class ClientCertificateCredentialValidator implements CredentialValidator
     public ClientCertificateCredentialValidator(final RpslObjectDao rpslObjectDao,
                                                 final DateTimeProvider dateTimeProvider,
                                                 final LoggerContext loggerContext,
-                                                final @Value("${client.cert.auth.enabled:false}") boolean enabled) {
+                                                @Value("${port.client.auth:-1}") final int clientAuthPort) {
         this.rpslObjectDao = rpslObjectDao;
         this.dateTimeProvider = dateTimeProvider;
         this.loggerContext = loggerContext;
-        this.enabled = enabled;
+        this.enabled = clientAuthPort >= 0;
 
         LOGGER.info("Client certificate authentication is {}abled", enabled? "en" : "dis");
     }
@@ -74,6 +74,8 @@ public class ClientCertificateCredentialValidator implements CredentialValidator
     }
 
     private boolean verifyClientCertificate(final PreparedUpdate update, final UpdateContext updateContext, final ClientCertificateCredential offeredCredential, final X509Credential knownCredential) {
+        // TODO: [MH] Consider to use ClientAuthCertificate from commons module, some validations for update and get
+        //  is used here
         final String keyId = knownCredential.getKeyId();
         final X509CertificateWrapper x509CertificateWrapper = getKeyWrapper(update, updateContext, keyId);
         if (x509CertificateWrapper == null) {
@@ -90,7 +92,7 @@ public class ClientCertificateCredentialValidator implements CredentialValidator
             return false;
         }
 
-        return x509CertificateWrapper.getFingerprint().equals(offeredCredential.getFingerprint());
+        return x509CertificateWrapper.getCertificate().equals(offeredCredential.getCertificate());
     }
 
     @CheckForNull

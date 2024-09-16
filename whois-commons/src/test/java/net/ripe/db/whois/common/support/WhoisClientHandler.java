@@ -1,7 +1,6 @@
 package net.ripe.db.whois.common.support;
 
 import com.google.common.net.InetAddresses;
-import org.awaitility.Awaitility;
 import io.netty.bootstrap.Bootstrap;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
@@ -9,8 +8,8 @@ import io.netty.channel.Channel;
 import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInboundHandlerAdapter;
+import org.awaitility.Awaitility;
 import org.hamcrest.Matcher;
-import org.junit.Assert;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -19,8 +18,10 @@ import java.nio.charset.StandardCharsets;
 import java.util.concurrent.Callable;
 import java.util.concurrent.TimeUnit;
 
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.endsWith;
+import static org.hamcrest.Matchers.is;
 
 public class WhoisClientHandler extends ChannelInboundHandlerAdapter {
     private static final Logger LOGGER = LoggerFactory.getLogger(WhoisClientHandler.class);
@@ -81,7 +82,7 @@ public class WhoisClientHandler extends ChannelInboundHandlerAdapter {
     }
 
     public ChannelFuture sendLine(String query) throws InterruptedException {
-        Assert.assertTrue(success);
+        assertThat(success, is(true));
 
         // Ensures the channelActive has been fired and channel set before continuing with test
         Awaitility.waitAtMost(10L, TimeUnit.SECONDS).until(() -> (channel != null));

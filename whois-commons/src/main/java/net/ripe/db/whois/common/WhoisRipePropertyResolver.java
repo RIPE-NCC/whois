@@ -16,10 +16,10 @@ import java.net.UnknownHostException;
 
 @Configuration
 @PropertySources({
-        @PropertySource(value = "classpath:version.properties", ignoreResourceNotFound = true),
+        @PropertySource(value = "classpath:whois.version.properties", ignoreResourceNotFound = true),
         @PropertySource(value = "file:${whois.config}", ignoreResourceNotFound = true),
 })
-@Profile({WhoisProfile.RIPE_DEPLOYED, WhoisProfile.TEST})
+@Profile({WhoisProfile.DEPLOYED, WhoisProfile.TEST})
 public class WhoisRipePropertyResolver {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(WhoisRipePropertyResolver.class);

@@ -1,11 +1,14 @@
 package net.ripe.db.whois.spec.update
 
-import net.ripe.db.whois.common.IntegrationTest
+import jakarta.ws.rs.core.MultivaluedHashMap
+import jakarta.ws.rs.core.MultivaluedMap
 import net.ripe.db.whois.spec.BaseQueryUpdateSpec
 import net.ripe.db.whois.spec.domain.AckResponse
 import net.ripe.db.whois.spec.domain.Message
+import org.eclipse.jetty.http.HttpHeader
+import org.eclipse.jetty.http.HttpScheme
 
-@org.junit.experimental.categories.Category(IntegrationTest.class)
+@org.junit.jupiter.api.Tag("IntegrationTest")
 class RoleSpec extends BaseQueryUpdateSpec {
 
     @Override
@@ -102,7 +105,7 @@ class RoleSpec extends BaseQueryUpdateSpec {
                 delete:  testing
 
                 password: owner
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:
@@ -113,7 +116,7 @@ class RoleSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(0, 0, 0, 0, 0)
         ack.summary.assertErrors(1, 0, 0, 1)
 
-        ack.countErrorWarnInfo(1, 0, 0)
+        ack.countErrorWarnInfo(1, 1, 0)
         ack.errors.any { it.operation == "Delete" && it.key == "[role] FR1-TEST   First Role" }
         ack.errorMessagesFor("Delete", "[role] FR1-TEST   First Role") == [
                 "Object [role] FR1-TEST First Role does not exist in the database"]
@@ -143,7 +146,7 @@ class RoleSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(1, 0, 0, 1, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
 
-        ack.countErrorWarnInfo(0, 0, 0)
+        ack.countErrorWarnInfo(0, 1, 0)
         ack.successes.any { it.operation == "Delete" && it.key == "[role] FR1-TEST   First Role" }
 
         queryObjectNotFound("-rBGT role FR1-TEST", "role", "FR1-TEST")
@@ -172,7 +175,7 @@ class RoleSpec extends BaseQueryUpdateSpec {
                 source:  TEST
 
                 password: owner
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:
@@ -183,7 +186,7 @@ class RoleSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(1, 0, 1, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
 
-        ack.countErrorWarnInfo(0, 0, 0)
+        ack.countErrorWarnInfo(0, 1, 0)
         ack.successes.any { it.operation == "Modify" && it.key == "[role] FR1-TEST   First Role" }
 
         query_object_matches("-rBT role FR1-TEST", "role", "First Role", "mnt-by:\\s*OWNER-MNT")
@@ -212,7 +215,7 @@ class RoleSpec extends BaseQueryUpdateSpec {
                 source:  TEST
 
                 password: owner
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:
@@ -223,7 +226,7 @@ class RoleSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(1, 0, 1, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
 
-        ack.countErrorWarnInfo(0, 0, 0)
+        ack.countErrorWarnInfo(0, 1, 0)
         ack.successes.any { it.operation == "Modify" && it.key == "[role] FR1-TEST   Second Role" }
 
         queryObject("-rBT role FR1-TEST", "role", "Second Role")
@@ -251,7 +254,7 @@ class RoleSpec extends BaseQueryUpdateSpec {
                 source:  TEST
 
                 password: owner
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:
@@ -262,7 +265,7 @@ class RoleSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(0, 0, 0, 0, 0)
         ack.summary.assertErrors(1, 1, 0, 0)
 
-        ack.countErrorWarnInfo(1, 0, 0)
+        ack.countErrorWarnInfo(1, 1, 0)
         ack.errors.any { it.operation == "Create" && it.key == "[person] FR1-TEST   First Person" }
         ack.errorMessagesFor("Create", "[person] FR1-TEST   First Person") ==
                 ["The nic-hdl \"FR1-TEST\" is not available"]
@@ -295,7 +298,7 @@ class RoleSpec extends BaseQueryUpdateSpec {
                 source:  TEST
 
                 password: owner
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:
@@ -306,7 +309,7 @@ class RoleSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(0, 0, 0, 0, 0)
         ack.summary.assertErrors(1, 1, 0, 0)
 
-        ack.countErrorWarnInfo(1, 0, 0)
+        ack.countErrorWarnInfo(1, 1, 0)
         ack.errors.any { it.operation == "Create" && it.key == "[role] FR1-TEST   First Role" }
         ack.errorMessagesFor("Create", "[role] FR1-TEST   First Role") ==
                 ["The nic-hdl \"FR1-TEST\" is not available"]
@@ -342,7 +345,7 @@ class RoleSpec extends BaseQueryUpdateSpec {
                 source:  TEST
 
                 password: owner
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:
@@ -353,7 +356,7 @@ class RoleSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(1, 0, 1, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
 
-        ack.countErrorWarnInfo(0, 2, 0)
+        ack.countErrorWarnInfo(0, 3, 0)
         ack.successes.any { it.operation == "Modify" && it.key == "[role] FR1-TEST   First Role" }
         ack.warningSuccessMessagesFor("Modify", "[role] FR1-TEST   First Role") == [
                 "Referenced person object NMP1-TEST from mntner: NO-MB-PN-MNT is missing mandatory attribute \"mnt-by:\"",
@@ -389,7 +392,7 @@ class RoleSpec extends BaseQueryUpdateSpec {
                 source:  TEST
 
                 password: owner
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:
@@ -400,7 +403,7 @@ class RoleSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(1, 1, 0, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
 
-        ack.countErrorWarnInfo(0, 2, 0)
+        ack.countErrorWarnInfo(0, 3, 0)
         ack.successes.any { it.operation == "Create" && it.key == "[role] FR1-TEST   First Role" }
         ack.warningSuccessMessagesFor("Create", "[role] FR1-TEST   First Role") == [
                 "Referenced person object NMP1-TEST from mntner: NO-MB-PN-MNT is missing mandatory attribute \"mnt-by:\"",
@@ -430,7 +433,7 @@ class RoleSpec extends BaseQueryUpdateSpec {
                 source:  TEST
 
                 password: owner
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:
@@ -441,7 +444,7 @@ class RoleSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(1, 1, 0, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
 
-        ack.countErrorWarnInfo(0, 0, 0)
+        ack.countErrorWarnInfo(0, 1, 0)
         ack.successes.any { it.operation == "Create" && it.key == "[role] FR1-TEST   First Role" }
 
         queryObject("-rBT role FR1-TEST", "role", "First Role")
@@ -491,7 +494,7 @@ class RoleSpec extends BaseQueryUpdateSpec {
                 notify:  dbtest2-nfy@ripe.net
 
                 password: owner3
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:
@@ -502,7 +505,7 @@ class RoleSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(1, 1, 0, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
 
-        ack.countErrorWarnInfo(0, 1, 0)
+        ack.countErrorWarnInfo(0, 2, 0)
         ack.warningSuccessMessagesFor("Create", "[role] FR1-TEST   First Role") == [
                 "There are no limits on queries for ROLE objects containing \"abuse-mailbox:\""]
         ack.successes.any { it.operation == "Create" && it.key == "[role] FR1-TEST   First Role" }
@@ -530,7 +533,7 @@ class RoleSpec extends BaseQueryUpdateSpec {
                 source:  TEST
 
                 password: owner
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:
@@ -540,7 +543,7 @@ class RoleSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(0, 0, 0, 0, 0)
         ack.summary.assertErrors(1, 1, 0, 0)
 
-        ack.countErrorWarnInfo(2, 0, 0)
+        ack.countErrorWarnInfo(2, 1, 0)
         ack.errors.any { it.operation == "Create" && it.key == "[role] FR1-TEST   First Role" }
         ack.errorMessagesFor("Create", "[role] FR1-TEST   First Role") ==
                 ["Self reference is not allowed for attribute type \"admin-c\"",
@@ -576,7 +579,7 @@ class RoleSpec extends BaseQueryUpdateSpec {
                 source:  TEST
 
                 password: owner
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:
@@ -587,7 +590,7 @@ class RoleSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(1, 0, 1, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
 
-        ack.countErrorWarnInfo(0, 0, 0)
+        ack.countErrorWarnInfo(0, 1, 0)
         ack.successes.any { it.operation == "Modify" && it.key == "[role] FR1-TEST   First Role" }
 
         queryObject("-rBT role FR1-TEST", "role", "First Role")
@@ -614,7 +617,7 @@ class RoleSpec extends BaseQueryUpdateSpec {
                 source:  TEST
 
                 password: owner
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:
@@ -625,7 +628,7 @@ class RoleSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(0, 0, 0, 0, 0)
         ack.summary.assertErrors(1, 1, 0, 0)
 
-        ack.countErrorWarnInfo(2, 0, 0)
+        ack.countErrorWarnInfo(2, 1, 0)
         ack.errors.any { it.operation == "Create" && it.key == "[role] FR1-TEST   First Role" }
         ack.errorMessagesFor("Create", "[role] FR1-TEST   First Role") ==
                 ["Unknown object referenced XX1-TEST",
@@ -654,7 +657,7 @@ class RoleSpec extends BaseQueryUpdateSpec {
                 source:  TEST
 
                 password: owner
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:
@@ -664,7 +667,7 @@ class RoleSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(1, 1, 0, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
 
-        ack.countErrorWarnInfo(0, 0, 0)
+        ack.countErrorWarnInfo(0, 1, 0)
         ack.successes.any { it.operation == "Create" && it.key == "[role] FR1-TEST   First Role" }
 
         query_object_not_matches("-rBT role FR1-TEST", "role", "First Role", "admin-c:")
@@ -690,7 +693,7 @@ class RoleSpec extends BaseQueryUpdateSpec {
                 source:        TEST
 
                 password: owner
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:
@@ -705,6 +708,48 @@ class RoleSpec extends BaseQueryUpdateSpec {
         ack.warningSuccessMessagesFor("Create", "[role] FR1-TEST   Abuse Role") ==
                 ["Value changed due to conversion of IDN email address(es) into Punycode",
                  "There are no limits on queries for ROLE objects containing \"abuse-mailbox:\""]
+
+        query_object_matches("-T role FR1-TEST", "role", "Abuse Role", "email@xn--zrich-kva.example")
+    }
+
+    def "Abuse-mailbox with Umlaut IDN Converted to Punycode using HTTP"() {
+        given:
+
+        expect:
+        queryObjectNotFound("-r -T role FR1-TEST", "role", "Abuse Role")
+
+        when:
+        MultivaluedMap<String, String> headers = new MultivaluedHashMap<>();
+        headers.add(HttpHeader.X_FORWARDED_PROTO.toString(), HttpScheme.HTTP.toString())
+        def message = syncUpdate("""
+                role:          Abuse Role
+                address:       St James Street
+                address:       Burnley
+                address:       UK
+                e-mail:        dbtest@ripe.net
+                abuse-mailbox: email@zürich.example
+                nic-hdl:       FR1-TEST
+                mnt-by:        owner-mnt
+                source:        TEST
+
+                password: owner
+                """.stripIndent(true), null, false, headers
+        )
+
+        then:
+        def ack = new AckResponse("", message)
+
+        ack.summary.nrFound == 1
+        ack.summary.assertSuccess(1, 1, 0, 0, 0)
+        ack.summary.assertErrors(0, 0, 0, 0)
+
+        ack.countErrorWarnInfo(0, 2, 0)
+        ack.successes.any { it.operation == "Create" && it.key == "[role] FR1-TEST   Abuse Role" }
+
+        ack.contents.contains("***Warning: Value changed due to conversion of IDN email address(es) into\n" +
+                "            Punycode")
+        ack.contents.contains("***Warning: There are no limits on queries for ROLE objects containing\n" +
+                "            \"abuse-mailbox:\"")
 
         query_object_matches("-T role FR1-TEST", "role", "Abuse Role", "email@xn--zrich-kva.example")
     }
@@ -728,9 +773,9 @@ class RoleSpec extends BaseQueryUpdateSpec {
                 source:        TEST
 
                 password: owner
-                """.stripIndent(),
+                """.stripIndent(true),
             "UTF-8",
-            false
+            false, null
         )
 
         then:
@@ -768,7 +813,7 @@ class RoleSpec extends BaseQueryUpdateSpec {
                 source:        TEST
 
                 password: owner
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:
@@ -803,7 +848,7 @@ class RoleSpec extends BaseQueryUpdateSpec {
                 source:        TEST
 
                 password: owner
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:
@@ -840,7 +885,7 @@ class RoleSpec extends BaseQueryUpdateSpec {
                 source:  TEST
 
                 password: owner
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:
@@ -903,7 +948,7 @@ class RoleSpec extends BaseQueryUpdateSpec {
                 source:  TEST
 
                 password: owner
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:
@@ -968,7 +1013,7 @@ class RoleSpec extends BaseQueryUpdateSpec {
                 source:  TEST
 
                 password: owner
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:
@@ -1036,7 +1081,7 @@ class RoleSpec extends BaseQueryUpdateSpec {
                 source:  TEST
 
                 password: owner
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:

@@ -12,43 +12,44 @@ import net.ripe.db.whois.query.domain.QueryException;
 import net.ripe.db.whois.query.planner.RpslResponseDecorator;
 import net.ripe.db.whois.query.query.Query;
 import org.hamcrest.Matchers;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.invocation.InvocationOnMock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 import org.mockito.stubbing.Answer;
 
 import java.util.Collections;
 
 import static net.ripe.db.whois.common.domain.CIString.ciSet;
 import static net.ripe.db.whois.common.domain.CIString.ciString;
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.any;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.eq;
+import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-@RunWith(MockitoJUnitRunner.class)
+@ExtendWith(MockitoExtension.class)
 public class SearchQueryExecutorTest {
     @Mock SourceContext sourceContext;
     @Mock RpslObjectSearcher rpslObjectSearcher;
     @Mock RpslResponseDecorator rpslResponseDecorator;
     @InjectMocks SearchQueryExecutor subject;
 
-    @Before
+    @BeforeEach
     public void setUp() throws Exception {
-        when(rpslObjectSearcher.search(any(Query.class), any(SourceContext.class))).thenReturn((Iterable)Collections.emptyList());
-        when(rpslResponseDecorator.getResponse(any(Query.class), any(Iterable.class))).thenAnswer(new Answer<Object>() {
+        lenient().when(rpslObjectSearcher.search(any(Query.class), any(SourceContext.class))).thenReturn((Iterable)Collections.emptyList());
+        lenient().when(rpslResponseDecorator.getResponse(any(Query.class), any(Iterable.class))).thenAnswer(new Answer<Object>() {
             @Override
             public Object answer(InvocationOnMock invocationOnMock) throws Throwable {
                 return invocationOnMock.getArguments()[1];
@@ -59,13 +60,16 @@ public class SearchQueryExecutorTest {
     @Test
     public void all_attributes_handled() {
         for (final AttributeType attributeType : AttributeType.values()) {
-            assertTrue(subject.supports(Query.parse("-i " + attributeType.getName() + " query")));
+            assertThat(subject.supports(Query.parse("-i " + attributeType.getName() + " query")), is(true));
         }
     }
 
-    @Test(expected = QueryException.class)
+    @Test
     public void test_supports_no_attributes() {
-        assertThat(subject.supports(Query.parse("-i")), is(false));
+        assertThrows(QueryException.class, () -> {
+            assertThat(subject.supports(Query.parse("-i")), is(false));
+        });
+
     }
 
     @Test
@@ -187,7 +191,7 @@ public class SearchQueryExecutorTest {
 
     @Test
     public void query_no_source_specified() {
-        when(sourceContext.getWhoisSlaveSource()).thenReturn(Source.slave("RIPE"));
+        when(sourceContext.getSlaveSource()).thenReturn(Source.slave("RIPE"));
 
         final Query query = Query.parse("10.0.0.0");
         final CaptureResponseHandler responseHandler = new CaptureResponseHandler();
@@ -213,7 +217,7 @@ public class SearchQueryExecutorTest {
     @Test
     public void query_additional_sources() {
         when(sourceContext.getAdditionalSourceNames()).thenReturn(ciSet("APNIC-GRS", "ARIN-GRS"));
-        when(sourceContext.getWhoisSlaveSource()).thenReturn(Source.slave("RIPE"));
+        when(sourceContext.getSlaveSource()).thenReturn(Source.slave("RIPE"));
 
         final Query query = Query.parse("10.0.0.0");
         final CaptureResponseHandler responseHandler = new CaptureResponseHandler();

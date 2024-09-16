@@ -4,7 +4,6 @@ import net.ripe.db.whois.api.AbstractIntegrationTest;
 import net.ripe.db.whois.api.rest.client.RestClient;
 import net.ripe.db.whois.api.rest.client.RestClientException;
 import net.ripe.db.whois.api.rest.domain.AbuseContact;
-import net.ripe.db.whois.common.IntegrationTest;
 import net.ripe.db.whois.common.domain.User;
 import net.ripe.db.whois.common.rpsl.AttributeType;
 import net.ripe.db.whois.common.rpsl.ObjectType;
@@ -13,14 +12,14 @@ import net.ripe.db.whois.common.rpsl.RpslObject;
 import net.ripe.db.whois.common.rpsl.RpslObjectBuilder;
 import net.ripe.db.whois.query.QueryFlag;
 import org.eclipse.jetty.http.HttpStatus;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.experimental.categories.Category;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Tag;
+import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.test.util.ReflectionTestUtils;
 
-import javax.ws.rs.core.Cookie;
+import jakarta.ws.rs.core.Cookie;
 import java.time.LocalDateTime;
 import java.util.Collection;
 import java.util.Iterator;
@@ -36,11 +35,9 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
+import static org.junit.jupiter.api.Assertions.fail;
 
-@Category(IntegrationTest.class)
+@Tag("IntegrationTest")
 public class RestClientTestIntegration extends AbstractIntegrationTest {
 
     private static final RpslObject OWNER_MNT = RpslObject.parse("" +
@@ -91,7 +88,7 @@ public class RestClientTestIntegration extends AbstractIntegrationTest {
     @Autowired
     WhoisRestService whoisRestService;
 
-    @Before
+    @BeforeEach
     public void setup() throws Exception {
         testDateTimeProvider.setTime(LocalDateTime.parse("2001-02-04T17:00:00"));
         databaseHelper.addObjects(OWNER_MNT, TEST_PERSON);
@@ -125,9 +122,9 @@ public class RestClientTestIntegration extends AbstractIntegrationTest {
                 .search();
 
         final Iterator<RpslObject> iterator = result.iterator();
-        assertTrue(iterator.hasNext());
+        assertThat(iterator.hasNext(), is(true));
         final RpslObject rpslObject = iterator.next();
-        assertFalse(iterator.hasNext());
+        assertThat(iterator.hasNext(), is(false));
         assertThat(rpslObject.getKey().toUpperCase(), is("AS102"));
     }
 
@@ -209,7 +206,7 @@ public class RestClientTestIntegration extends AbstractIntegrationTest {
                 .lookup(ObjectType.MNTNER, "SSO-MNT");
 
         assertThat(object.findAttributes(AttributeType.AUTH),
-                hasItems(new RpslAttribute(AttributeType.AUTH, "MD5-PW $1$d9fKeTr2$Si7YudNf4rUGmR71n/cqk/"),
+                hasItems(new RpslAttribute(AttributeType.AUTH, "MD5-PW $1$d9fKeTr2$Si7YudNf4rUGmR71n/cqk/ # test"),
                         new RpslAttribute(AttributeType.AUTH, "SSO random@ripe.net")));
     }
 

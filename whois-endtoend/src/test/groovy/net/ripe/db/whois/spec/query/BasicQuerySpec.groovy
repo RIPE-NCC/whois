@@ -1,8 +1,8 @@
 package net.ripe.db.whois.spec.query
-import net.ripe.db.whois.common.IntegrationTest
+
 import net.ripe.db.whois.spec.BaseQueryUpdateSpec
 
-@org.junit.experimental.categories.Category(IntegrationTest.class)
+@org.junit.jupiter.api.Tag("IntegrationTest")
 class BasicQuerySpec extends BaseQueryUpdateSpec {
 
     @Override
@@ -768,6 +768,7 @@ class BasicQuerySpec extends BaseQueryUpdateSpec {
                 "remarks:        [optional]   [multiple]   [ ]\n" +
                 "notify:         [optional]   [multiple]   [inverse key]\n" +
                 "mnt-by:         [mandatory]  [multiple]   [inverse key]\n" +
+                "mnt-ref:        [optional]   [multiple]   [inverse key]\n" +
                 "created:        [generated]  [single]     [ ]\n" +
                 "last-modified:  [generated]  [single]     [ ]\n" +
                 "source:         [mandatory]  [single]     [ ]")

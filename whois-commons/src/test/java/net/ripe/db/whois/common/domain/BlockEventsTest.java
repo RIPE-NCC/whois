@@ -1,7 +1,7 @@
 package net.ripe.db.whois.common.domain;
 
 import com.google.common.collect.Lists;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoField;
@@ -9,8 +9,9 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
-import static org.hamcrest.Matchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.is;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 public class BlockEventsTest {
 
@@ -23,10 +24,12 @@ public class BlockEventsTest {
         assertThat(blockEvents.getTemporaryBlockCount(), is(0));
     }
 
-    @Test(expected = NullPointerException.class)
+    @Test
     public void test_events_null() {
-        final BlockEvents blockEvents = new BlockEvents(prefix, null);
-        blockEvents.getTemporaryBlockCount();
+        assertThrows(NullPointerException.class, () -> {
+            final BlockEvents blockEvents = new BlockEvents(prefix, null);
+            blockEvents.getTemporaryBlockCount();
+        });
     }
 
     @Test

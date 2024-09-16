@@ -1,6 +1,6 @@
 package net.ripe.db.whois.common.dao.jdbc;
 
-import net.ripe.db.whois.common.IntegrationTest;
+
 import net.ripe.db.whois.common.dao.RpslObjectDao;
 import net.ripe.db.whois.common.dao.RpslObjectInfo;
 import net.ripe.db.whois.common.domain.CIString;
@@ -8,10 +8,10 @@ import net.ripe.db.whois.common.rpsl.ObjectType;
 import net.ripe.db.whois.common.rpsl.RpslObject;
 import net.ripe.db.whois.common.source.Source;
 import net.ripe.db.whois.common.support.AbstractDaoIntegrationTest;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.experimental.categories.Category;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Tag;
+import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.dao.EmptyResultDataAccessException;
@@ -21,24 +21,24 @@ import java.util.Collections;
 import java.util.List;
 
 import static net.ripe.db.whois.common.domain.CIString.ciSet;
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.nullValue;
-import static org.junit.Assert.assertNull;
-import static org.hamcrest.MatcherAssert.assertThat;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
-@Category(IntegrationTest.class)
+@Tag("IntegrationTest")
 public class JdbcRpslObjectDaoIntegrationTest extends AbstractDaoIntegrationTest {
     @Autowired RpslObjectDao subject;
     @Value("${whois.source}") protected String source;
 
-    @Before
+    @BeforeEach
     public void setup() {
         sourceContext.setCurrent(Source.slave(source));
     }
 
-    @After
+    @AfterEach
     public void cleanup() {
         sourceContext.removeCurrentSource();
     }
@@ -97,17 +97,17 @@ public class JdbcRpslObjectDaoIntegrationTest extends AbstractDaoIntegrationTest
     public void outOfRangeUsingRangeQuery() {
         databaseHelper.addObject("as-block:AS31066 - AS31244");
 
-        assertNull(subject.findAsBlock(31066, 31299));
+        assertThat(subject.findAsBlock(31066, 31299), is(nullValue()));
     }
 
     @Test
     public void nonexistentUsingSingleAsBlockQuery() {
-        assertNull(subject.findAsBlock(1, 1));
+        assertThat(subject.findAsBlock(1, 1), is(nullValue()));
     }
 
     @Test
     public void nonexistentUsingAsBlockQuery() {
-        assertNull(subject.findAsBlock(0, 1));
+        assertThat(subject.findAsBlock(0, 1), is(nullValue()));
     }
 
     /*
@@ -124,9 +124,11 @@ public class JdbcRpslObjectDaoIntegrationTest extends AbstractDaoIntegrationTest
         assertThat(result.getKey().toString(), is("DEV-IRT"));
     }
 
-    @Test(expected = EmptyResultDataAccessException.class)
+    @Test
      public void nonexistentIrtLookup() {
-        subject.getByKey(ObjectType.IRT, "nonexistent");
+        assertThrows(EmptyResultDataAccessException.class, () -> {
+            subject.getByKey(ObjectType.IRT, "nonexistent");
+        });
     }
 
     @Test
@@ -158,9 +160,11 @@ public class JdbcRpslObjectDaoIntegrationTest extends AbstractDaoIntegrationTest
         assertThat(result.getKey().toString(), is("DEV-MNT"));
     }
 
-    @Test(expected = EmptyResultDataAccessException.class)
+    @Test
     public void nonexistentMaintainerLookup() {
-        subject.getByKey(ObjectType.MNTNER, "nonexistent");
+        assertThrows(EmptyResultDataAccessException.class, () -> {
+            subject.getByKey(ObjectType.MNTNER, "nonexistent");
+        });
     }
 
     /*
@@ -176,9 +180,11 @@ public class JdbcRpslObjectDaoIntegrationTest extends AbstractDaoIntegrationTest
         assertThat(result.getKey().toString(), is("FORM-SONNET-INDONESIAN"));
     }
 
-    @Test(expected = EmptyResultDataAccessException.class)
+    @Test
     public void nonexistentPoeticFormLookup() {
-        subject.getByKey(ObjectType.POETIC_FORM, "nonexistent");
+        assertThrows(EmptyResultDataAccessException.class, () -> {
+            subject.getByKey(ObjectType.POETIC_FORM, "nonexistent");
+        });
     }
 
     /*
@@ -194,9 +200,11 @@ public class JdbcRpslObjectDaoIntegrationTest extends AbstractDaoIntegrationTest
         assertThat(result.getKey().toString(), is("POEM-MELAYU"));
     }
 
-    @Test(expected = EmptyResultDataAccessException.class)
+    @Test
     public void nonexistentPoemLookup() {
-        subject.getByKey(ObjectType.POEM, "nonexistent");
+        assertThrows(EmptyResultDataAccessException.class, () -> {
+            subject.getByKey(ObjectType.POEM, "nonexistent");
+        });
     }
 
     /*
@@ -212,9 +220,11 @@ public class JdbcRpslObjectDaoIntegrationTest extends AbstractDaoIntegrationTest
         assertThat(result.getKey().toString(), is("PGPKEY-7FDA55DE"));
     }
 
-    @Test(expected = EmptyResultDataAccessException.class)
+    @Test
     public void nonexistentKeyCertLookup() {
-        subject.getByKey(ObjectType.KEY_CERT, "nonexistent");
+        assertThrows(EmptyResultDataAccessException.class, () -> {
+            subject.getByKey(ObjectType.KEY_CERT, "nonexistent");
+        });
     }
 
     /*
@@ -230,9 +240,11 @@ public class JdbcRpslObjectDaoIntegrationTest extends AbstractDaoIntegrationTest
         assertThat(result.getKey().toString(), is("AS57875"));
     }
 
-    @Test(expected = EmptyResultDataAccessException.class)
+    @Test
     public void nonexistentAutNumQuery() {
-        subject.getByKey(ObjectType.AUT_NUM, "nonexistent");
+        assertThrows(EmptyResultDataAccessException.class, () -> {
+            subject.getByKey(ObjectType.AUT_NUM, "nonexistent");
+        });
     }
 
     /*
@@ -287,9 +299,11 @@ public class JdbcRpslObjectDaoIntegrationTest extends AbstractDaoIntegrationTest
         assertThat(result.getKey().toString(), is("Amsterdam.ripe.net"));
     }
 
-    @Test(expected = EmptyResultDataAccessException.class)
+    @Test
     public void nonexistentInetRtrQuery() {
-        subject.getByKey(ObjectType.INET_RTR, "nonexistent");
+        assertThrows(EmptyResultDataAccessException.class, () -> {
+            subject.getByKey(ObjectType.INET_RTR, "nonexistent");
+        });
     }
 
     /*
@@ -318,15 +332,19 @@ public class JdbcRpslObjectDaoIntegrationTest extends AbstractDaoIntegrationTest
         assertThat(result.getKey().toString(), is("RS-TWN-AMS-RIPE"));
     }
 
-    @Test(expected = EmptyResultDataAccessException.class)
+    @Test
     public void nonexistentRoleQuery() {
-        subject.getByKey(ObjectType.ROLE, "nonexistent");
+        assertThrows(EmptyResultDataAccessException.class, () -> {
+            subject.getByKey(ObjectType.ROLE, "nonexistent");
+        });
     }
 
-    @Test(expected = EmptyResultDataAccessException.class)
+    @Test
     public void test_get_unknown_object() {
-        int objectId = -1;
-        subject.getById(objectId);
+        assertThrows(EmptyResultDataAccessException.class, () -> {
+            int objectId = -1;
+            subject.getById(objectId);
+        });
     }
 
     @Test

@@ -2,10 +2,10 @@ package net.ripe.db.whois.common.rpsl;
 
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -15,19 +15,20 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.not;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.fail;
 
-@RunWith(MockitoJUnitRunner.class)
+@ExtendWith(MockitoExtension.class)
 public class DummifierNrtmTest {
 
     @InjectMocks
     DummifierNrtm subject;
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test
     public void null_type() {
-        subject.dummify(3, RpslObject.parse("FOOO:BAR\n"));
+        assertThrows(IllegalArgumentException.class, () -> {
+            subject.dummify(3, RpslObject.parse("FOOO:BAR\n"));
+        });
     }
 
     @Test
@@ -35,16 +36,17 @@ public class DummifierNrtmTest {
         for (ObjectType objectType : DummifierNrtm.SKIPPED_OBJECT_TYPES) {
             RpslObject object = createObject(objectType, "YAY", new RpslAttribute(AttributeType.REMARKS, "Remark!"), new RpslAttribute(AttributeType.SOURCE, "TEST"));
 
-            assertTrue(subject.isAllowed(1, object));
-            assertTrue(subject.isAllowed(2, object));
+            assertThat(subject.isAllowed(1, object), is(true));
+            assertThat(subject.isAllowed(2, object), is(true));
 
             if (objectType.equals(ObjectType.ROLE)) {
-                assertEquals(subject.dummify(1, object), DummifierNrtm.getPlaceholderRoleObject());
-                assertEquals(subject.dummify(2, object), DummifierNrtm.getPlaceholderRoleObject());
+                assertThat(subject.dummify(1, object), is(DummifierNrtm.getPlaceholderRoleObject()));
+                assertThat(subject.dummify(2, object), is(DummifierNrtm.getPlaceholderRoleObject()));
             } else {
-                assertEquals(subject.dummify(1, object), DummifierNrtm.getPlaceholderPersonObject());
-                assertEquals(subject.dummify(2, object), DummifierNrtm.getPlaceholderPersonObject());
+                assertThat(subject.dummify(1, object), is(DummifierNrtm.getPlaceholderPersonObject()));
+                assertThat(subject.dummify(2, object), is(DummifierNrtm.getPlaceholderPersonObject()));
             }
+
         }
     }
 
@@ -151,6 +153,7 @@ public class DummifierNrtmTest {
                         "last-modified:  2001-02-04T17:00:00Z\n" +
                         "abuse-c:        FOO\n" +
                         "address:        Dummy address for FOO\n" +
+                        "country:        FOO\n" +
                         "e-mail:         unread@ripe.net\n" +
                         "mnt-by:         FOO\n" +
                         "mnt-ref:        FOO\n" +
@@ -181,7 +184,6 @@ public class DummifierNrtmTest {
                 "mntner:         FOO\n" +
                 "created:        2001-02-04T17:00:00Z\n" +
                 "last-modified:  2001-02-04T17:00:00Z\n" +
-                "abuse-c:        FOO\n" +
                 "admin-c:        DUMY-RIPE\n" +
                 "auth:           MD5-PW $1$SaltSalt$DummifiedMD5HashValue.   # Real value hidden for security\n" +
                 "mnt-by:         FOO\n" +
@@ -326,7 +328,7 @@ public class DummifierNrtmTest {
 
         final RpslObject dummified = subject.dummify(3, mntner);
 
-        assertThat(dummified.findAttribute(AttributeType.AUTH), is(new RpslAttribute("auth", "MD5-PW $1$SaltSalt$DummifiedMD5HashValue.")));
+        assertThat(dummified.findAttribute(AttributeType.AUTH), is(new RpslAttribute("auth", "MD5-PW $1$SaltSalt$DummifiedMD5HashValue.   # Real value hidden for security")));
         assertThat(dummified.getValueForAttribute(AttributeType.CREATED).toString(), is("2001-02-04T17:00:00Z"));
         assertThat(dummified.getValueForAttribute(AttributeType.LAST_MODIFIED).toString(), is("2001-02-04T17:00:00Z"));
     }

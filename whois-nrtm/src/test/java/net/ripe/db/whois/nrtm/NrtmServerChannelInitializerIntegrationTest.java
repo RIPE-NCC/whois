@@ -3,10 +3,9 @@ package net.ripe.db.whois.nrtm;
 import io.netty.channel.ChannelHandler;
 import io.netty.channel.ChannelPipeline;
 import io.netty.channel.embedded.EmbeddedChannel;
-import net.ripe.db.whois.common.IntegrationTest;
 import net.ripe.db.whois.nrtm.integration.AbstractNrtmIntegrationBase;
-import org.junit.Test;
-import org.junit.experimental.categories.Category;
+import org.junit.jupiter.api.Tag;
+import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.annotation.AnnotationUtils;
 import org.springframework.util.ReflectionUtils;
@@ -17,11 +16,11 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.is;
+import static org.junit.jupiter.api.Assertions.fail;
 
-@Category(IntegrationTest.class)
+@Tag("IntegrationTest")
 public class NrtmServerChannelInitializerIntegrationTest extends AbstractNrtmIntegrationBase {
     @Autowired private NrtmServerChannelInitializer nrtmServerPipelineFactory;
     @Autowired private List<ChannelHandler> channelHandlers;
@@ -50,9 +49,9 @@ public class NrtmServerChannelInitializerIntegrationTest extends AbstractNrtmInt
             final ChannelHandler.Sharable annotation = AnnotationUtils.findAnnotation(channelHandler.getClass(), ChannelHandler.Sharable.class);
             final boolean handlerIsShared = pipeline2.get(channelHandler.getClass()) == channelHandler;
             if (annotation == null) {
-                assertFalse("Handler is not sharable, but reused: " + channelHandler, handlerIsShared);
+                assertThat(handlerIsShared, is(false)); // "Handler is not sharable, but reused: " + channelHandler);
             } else {
-                assertTrue("Handler is sharable, but not reused: " + channelHandler, handlerIsShared);
+                assertThat(handlerIsShared, is(true));  //"Handler is sharable, but not reused: " + channelHandler);
             }
 
             if (channelHandler.getClass().getName().contains("ripe")) {

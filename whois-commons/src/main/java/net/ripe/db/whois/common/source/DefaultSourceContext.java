@@ -12,10 +12,11 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.annotation.Primary;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.CheckForNull;
-import javax.annotation.PreDestroy;
+import jakarta.annotation.PreDestroy;
 import javax.sql.DataSource;
 import java.sql.SQLException;
 import java.util.Collection;
@@ -27,6 +28,7 @@ import static net.ripe.db.whois.common.domain.CIString.ciSet;
 import static net.ripe.db.whois.common.domain.CIString.ciString;
 
 @Component
+@Primary
 public class DefaultSourceContext implements SourceContext {
     private static final Logger LOGGER = LoggerFactory.getLogger(DefaultSourceContext.class);
     private static final Splitter COMMA_SPLITTER = Splitter.on(',').omitEmptyStrings();
@@ -212,11 +214,11 @@ public class DefaultSourceContext implements SourceContext {
         }
     }
 
-    public Source getWhoisSlaveSource() {
+    public Source getSlaveSource() {
         return mainSlaveSource;
     }
 
-    public Source getWhoisMasterSource() {
+    public Source getMasterSource() {
         return mainMasterSource;
     }
     public Source getNonauthSource() {

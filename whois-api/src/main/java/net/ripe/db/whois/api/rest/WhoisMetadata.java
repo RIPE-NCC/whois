@@ -9,6 +9,7 @@ import net.ripe.db.whois.api.rest.domain.Template;
 import net.ripe.db.whois.api.rest.domain.TemplateAttribute;
 import net.ripe.db.whois.api.rest.domain.TemplateResources;
 import net.ripe.db.whois.api.rest.domain.WhoisResources;
+import net.ripe.db.whois.api.rest.marshal.StreamingHelper;
 import net.ripe.db.whois.common.domain.CIString;
 import net.ripe.db.whois.common.rpsl.AttributeTemplate;
 import net.ripe.db.whois.common.rpsl.ObjectTemplate;
@@ -17,17 +18,17 @@ import net.ripe.db.whois.common.source.SourceContext;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import javax.ws.rs.GET;
-import javax.ws.rs.Path;
-import javax.ws.rs.PathParam;
-import javax.ws.rs.Produces;
-import javax.ws.rs.WebApplicationException;
-import javax.ws.rs.core.Context;
-import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.Response;
-import javax.ws.rs.core.StreamingOutput;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
+import jakarta.ws.rs.GET;
+import jakarta.ws.rs.Path;
+import jakarta.ws.rs.PathParam;
+import jakarta.ws.rs.Produces;
+import jakarta.ws.rs.WebApplicationException;
+import jakarta.ws.rs.core.Context;
+import jakarta.ws.rs.core.MediaType;
+import jakarta.ws.rs.core.Response;
+import jakarta.ws.rs.core.StreamingOutput;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.util.ArrayList;
@@ -43,7 +44,6 @@ public class WhoisMetadata {
     private final List<Source> SOURCES;
 
     private final Map<String, Template> ATTRIBUTE_TEMPLATES;
-
     @Autowired
     public WhoisMetadata(final SourceContext sourceContext) {
         SOURCES = new ArrayList<>();

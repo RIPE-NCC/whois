@@ -2,7 +2,6 @@ package net.ripe.db.whois.scheduler.task.grs;
 
 import com.google.common.io.Files;
 import net.ripe.db.whois.common.DateTimeProvider;
-import net.ripe.db.whois.common.IntegrationTest;
 import net.ripe.db.whois.common.dao.jdbc.DatabaseHelper;
 import net.ripe.db.whois.common.grs.AuthoritativeResourceData;
 import net.ripe.db.whois.common.grs.AuthoritativeResourceImportTask;
@@ -11,11 +10,11 @@ import net.ripe.db.whois.common.support.FileHelper;
 import net.ripe.db.whois.common.support.TelnetWhoisClient;
 import net.ripe.db.whois.query.QueryServer;
 import net.ripe.db.whois.scheduler.AbstractSchedulerIntegrationTest;
-import org.junit.AfterClass;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Test;
-import org.junit.experimental.categories.Category;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Tag;
+import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.annotation.DirtiesContext;
 
@@ -26,11 +25,11 @@ import java.util.List;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.not;
-import static org.hamcrest.MatcherAssert.assertThat;
 
-@Category(IntegrationTest.class)
+@Tag("IntegrationTest")
 @DirtiesContext
 public class GrsImporterArinTestIntegration extends AbstractSchedulerIntegrationTest {
 
@@ -44,7 +43,7 @@ public class GrsImporterArinTestIntegration extends AbstractSchedulerIntegration
     private static final File tempDirectory = Files.createTempDir();
     private static final String ZIP_ENTRY_FILENAME = "arin_db.txt";
 
-    @BeforeClass
+    @BeforeAll
     public static void setup_database() throws IOException {
         DatabaseHelper.addGrsDatabases("ARIN-GRS");
 
@@ -89,12 +88,12 @@ public class GrsImporterArinTestIntegration extends AbstractSchedulerIntegration
         System.setProperty("dir.grs.import.download", getPath(tempDirectory));
     }
 
-    @AfterClass
+    @AfterAll
     public static void cleanup() throws Exception {
         FileHelper.delete(tempDirectory);
     }
 
-    @Before
+    @BeforeEach
     public void setUp() throws Exception {
         // initialize authoritativeresource
         authoritativeResourceImportTask.run();
@@ -127,7 +126,7 @@ public class GrsImporterArinTestIntegration extends AbstractSchedulerIntegration
     }
 
     private String query(final String query) throws Exception {
-        return TelnetWhoisClient.queryLocalhost(QueryServer.port, query);
+        return TelnetWhoisClient.queryLocalhost(queryServer.getPort(), query);
     }
 
     private static String getUrl(final File file) throws MalformedURLException {

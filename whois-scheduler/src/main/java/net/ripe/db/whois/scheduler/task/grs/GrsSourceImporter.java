@@ -38,10 +38,9 @@ class GrsSourceImporter {
     private static final int LOG_EVERY_NR_HANDLED = 100000;
 
     private final AttributeSanitizer sanitizer;
-    private final ResourceTagger resourceTagger;
     private final SourceContext sourceContext;
 
-    private Path downloadDir;
+    private final Path downloadDir;
 
     private static final FilterChangedFunction FILTER_CHANGED_FUNCTION = new FilterChangedFunction();
 
@@ -49,12 +48,10 @@ class GrsSourceImporter {
     public GrsSourceImporter(
             @Value("${dir.grs.import.download}") final String downloadDir,
             final AttributeSanitizer sanitizer,
-            final ResourceTagger resourceTagger,
             final SourceContext sourceContext) {
         this.sourceContext = sourceContext;
         this.downloadDir = Paths.get(downloadDir);
         this.sanitizer = sanitizer;
-        this.resourceTagger = resourceTagger;
 
         try {
             Files.createDirectories(this.downloadDir);
@@ -71,8 +68,6 @@ class GrsSourceImporter {
         } else {
             acquireAndUpdateGrsData(grsSource, rebuild, authoritativeResource);
         }
-
-        resourceTagger.tagObjects(grsSource);
     }
 
     private void acquireAndUpdateGrsData(final GrsSource grsSource, final boolean rebuild, final AuthoritativeResource authoritativeData) {
@@ -87,7 +82,7 @@ class GrsSourceImporter {
             private int nrIgnored;
 
             private Set<Integer> currentObjectIds;
-            private Set<Integer> incompletelyIndexedObjectIds = Sets.newHashSet();
+            private final Set<Integer> incompletelyIndexedObjectIds = Sets.newHashSet();
 
             @Override
             public void run() {
@@ -152,7 +147,7 @@ class GrsSourceImporter {
                             final RpslAttribute typeAttribute = cleanObject.getTypeAttribute();
                             typeAttribute.validateSyntax(cleanObject.getType(), messages);
                             if (messages.hasErrors()) {
-                                logger.debug("Errors for object with key {}: {}", typeAttribute, messages);
+                                logger.info("Errors for object with key {}: {}", typeAttribute, messages);
                                 nrIgnored++;
                             } else if (authoritativeData.isMaintainedInRirSpace(cleanObject)) {
                                 createOrUpdate(cleanObject);
@@ -192,10 +187,12 @@ class GrsSourceImporter {
 
                         if (grsObjectInfo == null) {
                             if (type == ObjectType.PERSON && grsSource.getDao().find(pkey, ObjectType.ROLE) != null) {
+                                logger.info("Errors for object with key {}: There is already an existing ROLE object with same pkey", pkey);
                                 return;
                             }
 
                             if (type == ObjectType.ROLE && grsSource.getDao().find(pkey, ObjectType.PERSON) != null) {
+                                logger.info("Errors for object with key {}: There is already an existing PERSON object with same pkey", pkey);
                                 return;
                             }
 

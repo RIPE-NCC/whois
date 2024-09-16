@@ -1,9 +1,10 @@
 package net.ripe.db.whois.common.rpsl;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
-import static org.hamcrest.Matchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.is;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 public class AttributeTypeTest {
     @Test
@@ -22,9 +23,11 @@ public class AttributeTypeTest {
         }
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test
     public void getByName_throws_on_unknown() {
-        AttributeType.getByName("BOOOYAKAAAA!!!");
+        assertThrows(IllegalArgumentException.class, () -> {
+            AttributeType.getByName("BOOOYAKAAAA!!!");
+        });
     }
 
     @Test

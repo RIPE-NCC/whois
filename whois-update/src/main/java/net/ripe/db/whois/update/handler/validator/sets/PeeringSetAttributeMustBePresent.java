@@ -2,6 +2,7 @@ package net.ripe.db.whois.update.handler.validator.sets;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
+import net.ripe.db.whois.common.Message;
 import net.ripe.db.whois.common.rpsl.AttributeType;
 import net.ripe.db.whois.common.rpsl.ObjectType;
 import net.ripe.db.whois.common.rpsl.RpslAttribute;
@@ -33,7 +34,7 @@ public class PeeringSetAttributeMustBePresent implements BusinessRuleValidator {
     }
 
     @Override
-    public void validate(final PreparedUpdate update, final UpdateContext updateContext) {
+    public List<Message> performValidation(final PreparedUpdate update, final UpdateContext updateContext) {
         final RpslObject updatedObject = update.getUpdatedObject();
         final ObjectType objectType = update.getType();
         final List<AttributeType> attributeTypes = attributeMap.get(objectType);
@@ -43,13 +44,16 @@ public class PeeringSetAttributeMustBePresent implements BusinessRuleValidator {
         final AttributeType complexAttribute = attributeTypes.get(1);
         final List<RpslAttribute> extendedAttributes = updatedObject.findAttributes(complexAttribute);
 
+        final List<Message> messages = Lists.newArrayList();
         if (simpleAttributes.isEmpty() && extendedAttributes.isEmpty()) {
-            updateContext.addMessage(update, UpdateMessages.neitherSimpleOrComplex(objectType, simpleAttribute.getName(), complexAttribute.getName()));
+            messages.add(UpdateMessages.neitherSimpleOrComplex(objectType, simpleAttribute.getName(), complexAttribute.getName()));
         }
 
         if (!simpleAttributes.isEmpty() && !extendedAttributes.isEmpty()) {
-            updateContext.addMessage(update, UpdateMessages.eitherSimpleOrComplex(objectType, simpleAttribute.getName(), complexAttribute.getName()));
+            messages.add(UpdateMessages.eitherSimpleOrComplex(objectType, simpleAttribute.getName(), complexAttribute.getName()));
         }
+
+        return messages;
     }
 
     @Override

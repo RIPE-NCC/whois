@@ -4,8 +4,10 @@ import com.google.common.base.Splitter;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
+import net.ripe.db.whois.common.x509.ClientAuthCertificateValidator;
 import net.ripe.db.whois.common.dao.RpslObjectDao;
 import net.ripe.db.whois.common.domain.CIString;
+import net.ripe.db.whois.common.x509.X509CertificateWrapper;
 import net.ripe.db.whois.common.rpsl.AttributeType;
 import net.ripe.db.whois.common.rpsl.ObjectType;
 import net.ripe.db.whois.common.rpsl.PasswordHelper;
@@ -13,8 +15,8 @@ import net.ripe.db.whois.common.rpsl.RpslAttribute;
 import net.ripe.db.whois.common.rpsl.RpslObject;
 import net.ripe.db.whois.common.rpsl.RpslObjectBuilder;
 import net.ripe.db.whois.common.rpsl.RpslObjectFilter;
-import net.ripe.db.whois.common.sso.CrowdClient;
-import net.ripe.db.whois.common.sso.CrowdClientException;
+import net.ripe.db.whois.common.sso.AuthServiceClient;
+import net.ripe.db.whois.common.sso.AuthServiceClientException;
 import net.ripe.db.whois.common.sso.SsoTokenTranslator;
 import net.ripe.db.whois.common.sso.UserSession;
 import org.apache.commons.lang.StringUtils;
@@ -44,18 +46,24 @@ public class FilterAuthFunction implements FilterFunction {
     private String token = null;
     private RpslObjectDao rpslObjectDao = null;
     private SsoTokenTranslator ssoTokenTranslator;
-    private CrowdClient crowdClient;
+    private AuthServiceClient authServiceClient;
+    private List<X509CertificateWrapper> certificates;
+    private ClientAuthCertificateValidator clientAuthCertificateValidator;
 
     public FilterAuthFunction(final List<String> passwords,
                               final String token,
                               final SsoTokenTranslator ssoTokenTranslator,
-                              final CrowdClient crowdClient,
-                              final RpslObjectDao rpslObjectDao) {
+                              final AuthServiceClient authServiceClient,
+                              final RpslObjectDao rpslObjectDao,
+                              final List<X509CertificateWrapper> certificates,
+                              final ClientAuthCertificateValidator clientAuthCertificateValidator) {
         this.token = token;
         this.passwords = passwords;
         this.ssoTokenTranslator = ssoTokenTranslator;
-        this.crowdClient = crowdClient;
+        this.authServiceClient = authServiceClient;
         this.rpslObjectDao = rpslObjectDao;
+        this.certificates = certificates;
+        this.clientAuthCertificateValidator = clientAuthCertificateValidator;
     }
 
     public FilterAuthFunction() {
@@ -77,7 +85,7 @@ public class FilterAuthFunction implements FilterFunction {
 
             if (authenticated) {
                 if (passwordType.equals("SSO")) {
-                    final String username = crowdClient.getUsername(authIterator.next());
+                    final String username = authServiceClient.getUsername(authIterator.next());
                     replace.put(authAttribute, new RpslAttribute(AttributeType.AUTH, "SSO " + username));
                 }
             } else {
@@ -98,14 +106,14 @@ public class FilterAuthFunction implements FilterFunction {
     }
 
     private boolean isMntnerAuthenticated(final RpslObject rpslObject) {
-        if (CollectionUtils.isEmpty(passwords) && StringUtils.isBlank(token)) {
+        if (CollectionUtils.isEmpty(passwords) && StringUtils.isBlank(token) && (certificates == null || certificates.isEmpty())) {
             return false;
         }
 
         final List<RpslAttribute> extendedAuthAttributes = Lists.newArrayList(rpslObject.findAttributes(AttributeType.AUTH));
         extendedAuthAttributes.addAll(getMntByAuthAttributes(rpslObject));
 
-        return passwordAuthentication(extendedAuthAttributes) || ssoAuthentication(extendedAuthAttributes);
+        return passwordAuthentication(extendedAuthAttributes) || ssoAuthentication(extendedAuthAttributes) || clientCertAuthentication(extendedAuthAttributes);
     }
 
     private Set<RpslAttribute> getMntByAuthAttributes(final RpslObject rpslObject) {
@@ -139,13 +147,17 @@ public class FilterAuthFunction implements FilterFunction {
                     if (userSession != null && userSession.getUuid().equals(matcher.group(1))) {
                         return true;
                     }
-                } catch (CrowdClientException e) {
+                } catch (AuthServiceClientException e) {
                     return false;
                 }
             }
         }
 
         return false;
+    }
+
+    private boolean clientCertAuthentication(final List<RpslAttribute> authAttributes){
+        return clientAuthCertificateValidator.existValidCertificate(authAttributes, certificates);
     }
 
     private boolean passwordAuthentication(final List<RpslAttribute> authAttributes) {

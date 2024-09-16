@@ -6,25 +6,24 @@ import net.ripe.db.whois.common.Messages;
 import net.ripe.db.whois.common.domain.CIString;
 import net.ripe.db.whois.common.rpsl.RpslObject;
 import net.ripe.db.whois.update.log.LoggerContext;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.Collections;
 import java.util.List;
 
 import static net.ripe.db.whois.common.domain.CIString.ciString;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.nullValue;
 import static org.hamcrest.collection.IsCollectionWithSize.hasSize;
 import static org.hamcrest.collection.IsIterableContainingInOrder.contains;
 import static org.hamcrest.core.Is.is;
-import static org.junit.Assert.assertNull;
-import static org.hamcrest.MatcherAssert.assertThat;
 import static org.mockito.Mockito.when;
 
-@RunWith(MockitoJUnitRunner.class)
+@ExtendWith(MockitoExtension.class)
 public class UpdateContextTest {
     private static final String MAINTAINER = "" +
             "mntner:          DEV-MNT\n" +
@@ -41,11 +40,6 @@ public class UpdateContextTest {
     @Mock Update update;
     @Mock LoggerContext loggerContext;
     @InjectMocks UpdateContext subject;
-
-    @Before
-    public void setUp() throws Exception {
-        when(update.getUpdate()).thenReturn(update);
-    }
 
     @Test
     public void no_warnings() {
@@ -136,10 +130,11 @@ public class UpdateContextTest {
 
     @Test
     public void generated_nic_handle() {
+        when(update.getUpdate()).thenReturn(update);
         final AutoKey nicHandle = NicHandle.parse("DW1-RIPE", ciString("RIPE"), Collections.<CIString>emptySet());
 
         subject.addGeneratedKey(update, ciString("AUTO-1"), new GeneratedKey(RpslObject.parse(MAINTAINER), nicHandle));
         assertThat(subject.getGeneratedKey(ciString("auto-1")).getAutoKey(), is(nicHandle));
-        assertNull(subject.getGeneratedKey(ciString("AUTO-2")));
+        assertThat(subject.getGeneratedKey(ciString("AUTO-2")), is(nullValue()));
     }
 }

@@ -1,9 +1,9 @@
 package net.ripe.db.whois.spec.integration
 
-import net.ripe.db.whois.common.IntegrationTest
+
 import net.ripe.db.whois.spec.domain.SyncUpdate
 
-@org.junit.experimental.categories.Category(IntegrationTest.class)
+@org.junit.jupiter.api.Tag("IntegrationTest")
 class DomainIntegrationSpec extends BaseWhoisSourceSpec {
 
     @Override
@@ -173,7 +173,7 @@ class DomainIntegrationSpec extends BaseWhoisSourceSpec {
                 mnt-by:          TEST-MNT
                 source:          TEST
                 password:        update
-                """.stripIndent())
+                """.stripIndent(true))
 
       then:
         insertResponse.contains("***Error:   Creating enum domain requires administrative authorisation")
@@ -192,7 +192,7 @@ class DomainIntegrationSpec extends BaseWhoisSourceSpec {
                 mnt-by:          RIPE-NCC-MNT
                 source:          TEST
                 password:        update
-                """.stripIndent())
+                """.stripIndent(true))
 
       then:
         insertResponse.contains("Create SUCCEEDED: [domain] 2.1.2.1.5.5.5.2.0.2.1.e164.arpa")
@@ -212,7 +212,7 @@ class DomainIntegrationSpec extends BaseWhoisSourceSpec {
                 mnt-by:          TEST-MNT
                 source:          TEST
                 password:        update
-                """.stripIndent())
+                """.stripIndent(true))
 
       then:
         insertResponse.contains("Create SUCCEEDED: [domain] 0.0.193.in-addr.arpa")
@@ -232,7 +232,7 @@ class DomainIntegrationSpec extends BaseWhoisSourceSpec {
                 mnt-by:          TEST-MNT
                 source:          TEST
                 password:        update
-                """.stripIndent())
+                """.stripIndent(true))
 
       then:
         insertResponse.contains("Create SUCCEEDED: [domain] 0.0.193.in-addr.arpa")
@@ -252,7 +252,7 @@ class DomainIntegrationSpec extends BaseWhoisSourceSpec {
                 mnt-by:          TEST-MNT
                 source:          TEST
                 password:        update
-                """.stripIndent())
+                """.stripIndent(true))
 
       then:
         insertResponse.contains("" +
@@ -276,7 +276,7 @@ class DomainIntegrationSpec extends BaseWhoisSourceSpec {
                 mnt-by:          TEST-MNT
                 source:          TEST
                 password:        update
-                """.stripIndent())
+                """.stripIndent(true))
 
       then:
         insertResponse.contains("Create SUCCEEDED: [domain] 0.0.193.in-addr.arpa")
@@ -293,7 +293,7 @@ class DomainIntegrationSpec extends BaseWhoisSourceSpec {
                 mnt-by:          TEST-MNT
                 source:          TEST
                 password:        update
-                """.stripIndent())
+                """.stripIndent(true))
 
       then:
         parentInsertResponse.contains("***Error:   Existing more specific domain object found 193.0.0.0/24")
@@ -312,7 +312,7 @@ class DomainIntegrationSpec extends BaseWhoisSourceSpec {
                 mnt-by:          TEST-MNT
                 source:          TEST
                 password:        update
-                """.stripIndent())
+                """.stripIndent(true))
 
       then:
         insertResponse.contains("Create SUCCEEDED: [domain] 0.0.193.in-addr.arpa")
@@ -336,7 +336,7 @@ class DomainIntegrationSpec extends BaseWhoisSourceSpec {
                 mnt-by:          TEST-MNT
                 source:          TEST
                 password:        update
-                """.stripIndent())
+                """.stripIndent(true))
 
       then:
         insertResponse.contains("Create FAILED: [domain] 0.0.193.in-addr.arpa")
@@ -357,7 +357,7 @@ class DomainIntegrationSpec extends BaseWhoisSourceSpec {
                 mnt-by:          TEST-MNT
                 source:          TEST
                 override:        denis,override1
-                """.stripIndent())
+                """.stripIndent(true))
 
       then:
         insertResponse.contains("Create SUCCEEDED: [domain] 0.0.0.e164.arpa")
@@ -378,7 +378,7 @@ class DomainIntegrationSpec extends BaseWhoisSourceSpec {
                 mnt-by:          TEST-MNT
                 source:          TEST
                 password:        update
-                """.stripIndent())
+                """.stripIndent(true))
 
       then:
         insertResponse.contains("Modify SUCCEEDED: [domain] 0.0.0.e164.arpa")
@@ -397,7 +397,7 @@ class DomainIntegrationSpec extends BaseWhoisSourceSpec {
                 mnt-by:          TEST-MNT
                 source:          TEST
                 override:        denis,override1
-                """.stripIndent())
+                """.stripIndent(true))
 
       then:
         insertResponse.contains("***Error:   Glue record is mandatory if hostname ends with 0.0.0.e164.arpa")
@@ -416,7 +416,7 @@ class DomainIntegrationSpec extends BaseWhoisSourceSpec {
                 mnt-by:          TEST-MNT
                 source:          TEST
                 override:        denis,override1
-                """.stripIndent())
+                """.stripIndent(true))
 
       then:
         insertResponse.contains("***Error:   Enum domain has invalid glue 10.0.0.0/32")
@@ -436,7 +436,7 @@ class DomainIntegrationSpec extends BaseWhoisSourceSpec {
                 mnt-by:          TEST-MNT
                 source:          TEST
                 password:        update
-                """.stripIndent())
+                """.stripIndent(true))
 
       then:
         insertResponse.contains("Create SUCCEEDED: [domain] 0.0.193.in-addr.arpa")
@@ -454,7 +454,7 @@ class DomainIntegrationSpec extends BaseWhoisSourceSpec {
                 mnt-by:          TEST-MNT
                 source:          TEST
                 password:        update
-                """.stripIndent())
+                """.stripIndent(true))
 
       then:
         updateResponse.contains("Modify SUCCEEDED: [domain] 0.0.193.in-addr.arpa")
@@ -478,7 +478,7 @@ class DomainIntegrationSpec extends BaseWhoisSourceSpec {
                 mnt-by:          TEST-MNT
                 source:          TEST
                 password:        update
-                """.stripIndent())
+                """.stripIndent(true))
       then:
         insertResponse.contains("Create SUCCEEDED: [domain] 0.0.193.in-addr.arpa")
       when:
@@ -493,7 +493,7 @@ class DomainIntegrationSpec extends BaseWhoisSourceSpec {
                 mnt-by:          TEST-MNT
                 source:          TEST
                 password:        update
-                """.stripIndent())
+                """.stripIndent(true))
       then:
         updateResponse.contains("Modify SUCCEEDED: [domain] 0.0.193.in-addr.arpa")
         updateResponse.contains("***Info:    Value 0.0.193.in-addr.arpa. converted to 0.0.193.in-addr.arpa")
@@ -512,7 +512,7 @@ class DomainIntegrationSpec extends BaseWhoisSourceSpec {
                 mnt-by:          TEST-MNT
                 source:          TEST
                 password:        update
-                """.stripIndent())
+                """.stripIndent(true))
 
       then:
         insertResponse.contains("Create SUCCEEDED: [domain] 0.0.193.in-addr.arpa")
@@ -530,7 +530,7 @@ class DomainIntegrationSpec extends BaseWhoisSourceSpec {
                 mnt-by:          TEST-MNT
                 source:          TEST
                 password:        update
-                """.stripIndent())
+                """.stripIndent(true))
 
       then:
         updateResponse.contains("Create FAILED: [domain] 0-127.0.0.193.in-addr.arpa")
@@ -552,7 +552,7 @@ class DomainIntegrationSpec extends BaseWhoisSourceSpec {
                 mnt-by:          TEST-MNT
                 source:          TEST
                 password:        update
-                """.stripIndent())
+                """.stripIndent(true))
 
       then:
         insertResponse.contains("Create SUCCEEDED: [domain] 0.0.193.in-addr.arpa")
@@ -571,7 +571,7 @@ class DomainIntegrationSpec extends BaseWhoisSourceSpec {
                 source:          TEST
                 password:        update
                 delete:          reason
-                """.stripIndent())
+                """.stripIndent(true))
 
       then:
         updateResponse.contains("Delete SUCCEEDED: [domain] 0.0.193.in-addr.arpa")
@@ -603,7 +603,7 @@ class DomainIntegrationSpec extends BaseWhoisSourceSpec {
                 source:          TEST
 
                 password:        update
-                """.stripIndent())
+                """.stripIndent(true))
 
       then:
         insertResponse.contains("Create SUCCEEDED: [domain] 0.0.193.in-addr.arpa")
@@ -635,7 +635,7 @@ class DomainIntegrationSpec extends BaseWhoisSourceSpec {
                 source:          TEST
 
                 password:        update
-                """.stripIndent())
+                """.stripIndent(true))
 
       then:
         insertResponse.contains("Create SUCCEEDED: [domain] 0.0.193.in-addr.arpa")
@@ -785,7 +785,7 @@ class DomainIntegrationSpec extends BaseWhoisSourceSpec {
                 source:          TEST
 
                 password:        update
-                """.stripIndent())
+                """.stripIndent(true))
 
         then:
         insertResponse.contains("Create SUCCEEDED: [domain] 0.0.193.in-addr.arpa")
@@ -838,7 +838,7 @@ class DomainIntegrationSpec extends BaseWhoisSourceSpec {
                 source:          TEST
 
                 password:        update
-                """.stripIndent())
+                """.stripIndent(true))
 
       then:
         insertResponse.contains("Create SUCCEEDED: [person] SP1-TEST   Some person")
@@ -859,7 +859,7 @@ class DomainIntegrationSpec extends BaseWhoisSourceSpec {
                 mnt-by:          TEST-MNT
                 source:          TEST
                 override:        denis,override1
-                """.stripIndent())
+                """.stripIndent(true))
 
       then:
         insertResponse.contains("Create SUCCEEDED: [domain] 0.0.193.in-addr.arpa")
@@ -877,7 +877,7 @@ class DomainIntegrationSpec extends BaseWhoisSourceSpec {
                 auth:           MD5-PW \$1\$5aMDZg3w\$zL59TnpAszf6Ft.zs148X0 # update2
                 source:         TEST
                 password:       update2
-            """.stripIndent())
+            """.stripIndent(true))
       then:
         mntnerResponse.contains("Create SUCCEEDED: [mntner] DMN-MNT")
 
@@ -894,7 +894,7 @@ class DomainIntegrationSpec extends BaseWhoisSourceSpec {
                 mnt-domains: DMN-MNT
                 source: TEST
                 password: update
-                """.stripIndent())
+                """.stripIndent(true))
       then:
         inetnumResponse.contains("Modify SUCCEEDED: [inetnum] 193.0.0.0 - 193.0.0.255")
 
@@ -911,7 +911,7 @@ class DomainIntegrationSpec extends BaseWhoisSourceSpec {
                 source:          TEST
                 password:        update
                 password:        update2
-                """.stripIndent())
+                """.stripIndent(true))
 
       then:
         insertResponse.contains("Create SUCCEEDED: [domain] 0.0.193.in-addr.arpa")
@@ -930,7 +930,7 @@ class DomainIntegrationSpec extends BaseWhoisSourceSpec {
                 source:          TEST
                 password:        update2
                 delete:          reason
-                """.stripIndent())
+                """.stripIndent(true))
 
       then:
         updateResponse.contains("Delete SUCCEEDED: [domain] 0.0.193.in-addr.arpa")

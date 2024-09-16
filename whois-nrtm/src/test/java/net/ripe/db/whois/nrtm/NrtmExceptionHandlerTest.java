@@ -5,13 +5,14 @@ import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelFutureListener;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelId;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+
 import org.mockito.Answers;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.net.InetSocketAddress;
 
@@ -20,7 +21,7 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-@RunWith(MockitoJUnitRunner.class)
+@ExtendWith(MockitoExtension.class)
 public class NrtmExceptionHandlerTest {
 
     @Mock(answer = Answers.RETURNS_DEEP_STUBS) private Channel channelMock;
@@ -31,7 +32,7 @@ public class NrtmExceptionHandlerTest {
 
     private static final String QUERY = "query";
 
-    @Before
+    @BeforeEach
     public void setup() {
         when(channelHandlerContextMock.channel()).thenReturn(channelMock);
         when(channelMock.remoteAddress()).thenReturn(new InetSocketAddress(0));

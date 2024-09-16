@@ -2,6 +2,11 @@ package net.ripe.db.whois.update.mail;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
+import jakarta.mail.Address;
+import jakarta.mail.Message;
+import jakarta.mail.MessagingException;
+import jakarta.mail.Session;
+import jakarta.mail.internet.MimeMessage;
 import net.ripe.db.whois.common.Stub;
 import net.ripe.db.whois.common.profiles.WhoisProfile;
 import org.awaitility.Awaitility;
@@ -11,15 +16,12 @@ import org.springframework.context.annotation.Profile;
 import org.springframework.mail.javamail.MimeMessagePreparator;
 import org.springframework.stereotype.Component;
 
-import javax.mail.Address;
-import javax.mail.Message;
-import javax.mail.MessagingException;
-import javax.mail.Session;
-import javax.mail.internet.MimeMessage;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.Properties;
 import java.util.Set;
+import java.util.UUID;
 import java.util.concurrent.Callable;
 import java.util.concurrent.TimeUnit;
 
@@ -28,7 +30,9 @@ import java.util.concurrent.TimeUnit;
 public class MailSenderStub extends MailSenderBase implements Stub {
     private static final Logger LOGGER = LoggerFactory.getLogger(MailSenderStub.class);
 
-    private final Set<MimeMessage> messages = Collections.synchronizedSet(Sets.<MimeMessage>newHashSet());
+    private static final Session SESSION = Session.getInstance(new Properties());
+
+    private final Set<MimeMessage> messages = Collections.synchronizedSet(Sets.newHashSet());
 
     @Override
     public void reset() {
@@ -38,13 +42,33 @@ public class MailSenderStub extends MailSenderBase implements Stub {
     @Override
     public void send(MimeMessagePreparator mimeMessagePreparator) {
         try {
-            final MimeMessage mimeMessage = new MimeMessage((Session) null);
+            final MimeMessage mimeMessage = new MimeMessage(SESSION);
             mimeMessagePreparator.prepare(mimeMessage);
-//            LOGGER.info("Send message: {}\n\n{}\n\n", EnumerationUtils.toList(mimeMessage.getAllHeaderLines()), mimeMessage.getContent());
             messages.add(mimeMessage);
         } catch (Exception e) {
             throw new RuntimeException("Send message", e);
         }
+    }
+
+    @Override
+    public void send(MimeMessage mimeMessage) {
+        try {
+            messages.add(mimeMessage);
+        } catch (Exception e) {
+            throw new RuntimeException("Send message", e);
+        }
+    }
+
+    @Override
+    public MimeMessage createMimeMessage() {
+        final String messageId = String.format("%s@ripe.net", UUID.randomUUID());
+        final MimeMessage message = new MimeMessage(SESSION);
+        try {
+            message.setHeader("Message-ID", messageId);
+        } catch (MessagingException e) {
+            /* Do nothing */
+        }
+        return message;
     }
 
     public MimeMessage getMessage(final String to) throws MessagingException {

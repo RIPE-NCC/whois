@@ -1,6 +1,6 @@
 package net.ripe.db.whois.nrtm.integration;
 
-import net.ripe.db.whois.common.IntegrationTest;
+
 import net.ripe.db.whois.common.dao.jdbc.DatabaseHelper;
 import net.ripe.db.whois.common.rpsl.ObjectType;
 import net.ripe.db.whois.common.rpsl.RpslObject;
@@ -9,12 +9,11 @@ import net.ripe.db.whois.common.source.SourceContext;
 import net.ripe.db.whois.nrtm.NrtmServer;
 import net.ripe.db.whois.nrtm.client.NrtmImporter;
 import org.awaitility.Awaitility;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Ignore;
-import org.junit.Test;
-import org.junit.experimental.categories.Category;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Tag;
+import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.EmptyResultDataAccessException;
 
@@ -22,7 +21,7 @@ import java.util.concurrent.Callable;
 
 import static org.hamcrest.Matchers.is;
 
-@Category(IntegrationTest.class)
+@Tag("IntegrationTest")
 public class NrtmClientMultipleSourcesTestIntegration extends AbstractNrtmIntegrationBase {
 
     private static final RpslObject MNTNER = RpslObject.parse("" +
@@ -32,7 +31,7 @@ public class NrtmClientMultipleSourcesTestIntegration extends AbstractNrtmIntegr
     @Autowired protected NrtmImporter nrtmImporter;
     @Autowired protected SourceContext sourceContext;
 
-    @BeforeClass
+    @BeforeAll
     public static void beforeClass() {
         DatabaseHelper.addGrsDatabases("1-GRS", "2-GRS", "3-GRS");
         System.setProperty("nrtm.update.interval", "1");
@@ -41,7 +40,7 @@ public class NrtmClientMultipleSourcesTestIntegration extends AbstractNrtmIntegr
         System.setProperty("nrtm.import.enabled", "true");
     }
 
-    @Before
+    @BeforeEach
     public void before() {
         databaseHelper.addObject(MNTNER);
         databaseHelper.addObjectToSource("1-GRS", MNTNER);
@@ -50,17 +49,17 @@ public class NrtmClientMultipleSourcesTestIntegration extends AbstractNrtmIntegr
         nrtmServer.start();
         System.setProperty("nrtm.import.1-GRS.source", "TEST");
         System.setProperty("nrtm.import.1-GRS.host", "localhost");
-        System.setProperty("nrtm.import.1-GRS.port", Integer.toString(NrtmServer.getPort()));
+        System.setProperty("nrtm.import.1-GRS.port", Integer.toString(nrtmServer.getPort()));
         System.setProperty("nrtm.import.2-GRS.source", "TEST");
         System.setProperty("nrtm.import.2-GRS.host", "localhost");
-        System.setProperty("nrtm.import.2-GRS.port", Integer.toString(NrtmServer.getPort()));
+        System.setProperty("nrtm.import.2-GRS.port", Integer.toString(nrtmServer.getPort()));
         System.setProperty("nrtm.import.3-GRS.source", "TEST");
         System.setProperty("nrtm.import.3-GRS.host", "localhost");
-        System.setProperty("nrtm.import.3-GRS.port", Integer.toString(NrtmServer.getPort()));
+        System.setProperty("nrtm.import.3-GRS.port", Integer.toString(nrtmServer.getPort()));
         nrtmImporter.start();
     }
 
-    @After
+    @AfterEach
     public void after() {
         nrtmImporter.stop(true);
         nrtmServer.stop(true);

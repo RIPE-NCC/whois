@@ -1,18 +1,20 @@
 package net.ripe.db.whois.update.keycert;
 
 import net.ripe.db.whois.common.DateTimeProvider;
+import net.ripe.db.whois.common.x509.X509CertificateWrapper;
 import org.bouncycastle.x509.util.StreamParsingException;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Test;
+
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.security.cert.X509Certificate;
 
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
 
-@RunWith(MockitoJUnitRunner.class)
+@ExtendWith(MockitoExtension.class)
 public class X509SignedMessageTest {
 
     @Mock

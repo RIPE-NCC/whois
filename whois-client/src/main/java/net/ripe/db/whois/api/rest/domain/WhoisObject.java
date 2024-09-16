@@ -1,13 +1,13 @@
 package net.ripe.db.whois.api.rest.domain;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
+import jakarta.xml.bind.annotation.XmlAccessType;
+import jakarta.xml.bind.annotation.XmlAccessorType;
+import jakarta.xml.bind.annotation.XmlAttribute;
+import jakarta.xml.bind.annotation.XmlElement;
+import jakarta.xml.bind.annotation.XmlRootElement;
+import jakarta.xml.bind.annotation.XmlType;
 
-import javax.xml.bind.annotation.XmlAccessType;
-import javax.xml.bind.annotation.XmlAccessorType;
-import javax.xml.bind.annotation.XmlAttribute;
-import javax.xml.bind.annotation.XmlElement;
-import javax.xml.bind.annotation.XmlRootElement;
-import javax.xml.bind.annotation.XmlType;
 import java.util.Collections;
 import java.util.List;
 
@@ -21,10 +21,10 @@ import static com.fasterxml.jackson.annotation.JsonInclude.Include.NON_EMPTY;
         "source",
         "primaryKey",
         "attributes",
-        "tags",
         "resourceHolder",
         "abuseContact",
         "managed",
+        "objectMessages",
 })
 @JsonInclude(NON_EMPTY)
 @XmlRootElement(name = "object")
@@ -41,9 +41,6 @@ public class WhoisObject {
 
     @XmlElement(name = "attributes", required = true)
     private Attributes attributes;
-
-    @XmlElement
-    private WhoisTags tags;
 
     @XmlElement(name = "resource-holder")
     private ResourceHolder resourceHolder;
@@ -63,6 +60,9 @@ public class WhoisObject {
     @XmlAttribute
     private Integer version;
 
+    @XmlElement(name = "objectmessages")
+    private ObjectMessages objectMessages;
+
     public WhoisObject() {
         // required no-arg constructor
     }
@@ -72,25 +72,27 @@ public class WhoisObject {
             final Source source,
             final PrimaryKey primaryKey,
             final Attributes attributes,
-            final WhoisTags tags,
             final String type,
             final Action action,
             final Integer version,
             final ResourceHolder resourceHolder,
             final AbuseContact abuseContact,
-            final Boolean managed) {
+            final Boolean managed,
+            final ObjectMessages objectMessages) {
         this.link = link;
         this.source = source;
         this.primaryKey = primaryKey;
         this.attributes = attributes;
-        this.tags = tags;
         this.type = type;
         this.action = action;
         this.version = version;
         this.resourceHolder = resourceHolder;
         this.abuseContact = abuseContact;
         this.managed = managed;
+        this.objectMessages = objectMessages;
     }
+
+
 
     // builder
 
@@ -99,13 +101,14 @@ public class WhoisObject {
         private Source source;
         private PrimaryKey primaryKey;
         private Attributes attributes;
-        private WhoisTags tags;
         private String type;
         private Action action;
         private Integer version;
         private ResourceHolder resourceHolder;
         private AbuseContact abuseContact;
         private Boolean managed;
+
+        private ObjectMessages objectMessages;
 
         public Builder link(final Link link) {
             this.link = link;
@@ -134,11 +137,6 @@ public class WhoisObject {
 
         public Builder attributes(final List<Attribute> attributes) {
             this.attributes = new Attributes(attributes);
-            return this;
-        }
-
-        public Builder tags(final WhoisTags tags) {
-            this.tags = tags;
             return this;
         }
 
@@ -172,19 +170,24 @@ public class WhoisObject {
             return this;
         }
 
+        public Builder objectMessages(final ObjectMessages objectMessages) {
+            this.objectMessages = objectMessages;
+            return this;
+        }
+
         public WhoisObject build() {
             return new WhoisObject(
                     link,
                     source,
                     primaryKey,
                     attributes,
-                    tags,
                     type,
                     action,
                     version,
                     resourceHolder,
                     abuseContact,
-                    managed);
+                    managed,
+                    objectMessages);
         }
     }
 
@@ -246,14 +249,6 @@ public class WhoisObject {
         this.version = version;
     }
 
-    public List<WhoisTag> getTags() {
-        return tags != null ? tags.getTags() : Collections.<WhoisTag>emptyList();
-    }
-
-    public void setTags(final List<WhoisTag> tags) {
-        this.tags = new WhoisTags(tags);
-    }
-
     public ResourceHolder getResourceHolder() {
         return resourceHolder;
     }
@@ -268,6 +263,14 @@ public class WhoisObject {
 
     public void setAbuseContact(final AbuseContact abuseContact) {
         this.abuseContact = abuseContact;
+    }
+
+    public void setObjectMessages(final ObjectMessages objectMessages) {
+        this.objectMessages = objectMessages;
+    }
+
+    public ObjectMessages getObjectMessages() {
+        return objectMessages != null ? objectMessages : new ObjectMessages();
     }
 
     public Boolean isManaged() {

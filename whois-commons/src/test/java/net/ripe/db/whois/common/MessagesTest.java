@@ -1,11 +1,12 @@
 package net.ripe.db.whois.common;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.Matchers.hasSize;
-import static org.junit.Assert.assertNotNull;
-import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.not;
+import static org.hamcrest.Matchers.nullValue;
 
 public class MessagesTest {
     @Test
@@ -84,7 +85,7 @@ public class MessagesTest {
     @Test
     public void type() {
         for (final Messages.Type type : Messages.Type.values()) {
-            assertNotNull(type.toString());
+            assertThat(type.toString(), not(nullValue()));
         }
     }
 }

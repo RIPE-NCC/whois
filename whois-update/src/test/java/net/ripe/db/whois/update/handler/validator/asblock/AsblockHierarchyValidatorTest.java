@@ -9,21 +9,21 @@ import net.ripe.db.whois.update.domain.Action;
 import net.ripe.db.whois.update.domain.PreparedUpdate;
 import net.ripe.db.whois.update.domain.UpdateContext;
 import net.ripe.db.whois.update.domain.UpdateMessages;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 
-import static org.hamcrest.collection.IsIterableContainingInAnyOrder.containsInAnyOrder;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.collection.IsIterableContainingInAnyOrder.containsInAnyOrder;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 
-@RunWith(MockitoJUnitRunner.class)
+@ExtendWith(MockitoExtension.class)
 
 public class AsblockHierarchyValidatorTest {
 
@@ -49,10 +49,9 @@ public class AsblockHierarchyValidatorTest {
     @Test
     public void validate_asBlock_Parent_exists() {
         when(update.getUpdatedObject()).thenReturn(RpslObject.parse("as-block: AS10 - AS20"));
-        when(updateContext.getSubject(update)).thenReturn(subjectObject);
         when(rpslObjectDao.findAsBlockIntersections(10L, 20L)).thenReturn(Lists.newArrayList(RpslObject.parse("as-block: AS1 - AS30")));
 
-        subject.validate(update, updateContext);
+       subject.validate(update, updateContext);
 
         verify(updateContext, times(1)).addMessage(update, UpdateMessages.asblockParentAlreadyExists());
     }
@@ -60,43 +59,35 @@ public class AsblockHierarchyValidatorTest {
     @Test
     public void validate_asBlock_intersects() {
         when(update.getUpdatedObject()).thenReturn(RpslObject.parse("as-block: AS10 - AS20"));
-        when(updateContext.getSubject(update)).thenReturn(subjectObject);
         when(rpslObjectDao.findAsBlockIntersections(10L, 20L)).thenReturn(Lists.newArrayList(RpslObject.parse("as-block: AS15 - AS30")));
 
-        subject.validate(update, updateContext);
+       subject.validate(update, updateContext);
 
         verify(updateContext, times(1)).addMessage(update, UpdateMessages.intersectingAsblockAlreadyExists());
     }
 
     @Test
     public void validate_asBlock_child_exists() {
-        when(updateContext.getSubject(update)).thenReturn(subjectObject);
         when(update.getUpdatedObject()).thenReturn(RpslObject.parse("as-block: AS10 - AS15"));
-        when(rpslObjectDao.findAsBlock(1L, 20L)).thenReturn(RpslObject.parse("as-block: AS10 - AS15"));
-
-        subject.validate(update, updateContext);
+       subject.validate(update, updateContext);
 
         verify(updateContext, never()).addMessage(update, UpdateMessages.asblockChildAlreadyExists());
     }
 
     @Test
     public void validate_asBlock_intersects_on_boundaries() {
-        when(updateContext.getSubject(update)).thenReturn(subjectObject);
         when(update.getUpdatedObject()).thenReturn(RpslObject.parse("as-block: AS10 - AS15"));
-        when(rpslObjectDao.findAsBlock(10L, 20L)).thenReturn(RpslObject.parse("as-block: AS10 - AS15"));
 
-        subject.validate(update, updateContext);
+       subject.validate(update, updateContext);
 
         verify(updateContext, never()).addMessage(update, UpdateMessages.intersectingAsblockAlreadyExists());
     }
 
     @Test
     public void validate_already_exists() {
-        when(updateContext.getSubject(update)).thenReturn(subjectObject);
         when(update.getUpdatedObject()).thenReturn(RpslObject.parse("as-block: AS10 - AS15"));
-        when(rpslObjectDao.findAsBlock(10L, 15L)).thenReturn(RpslObject.parse("as-block: AS10 - AS15"));
 
-        subject.validate(update, updateContext);
+       subject.validate(update, updateContext);
 
         verify(updateContext, never()).addMessage(update, UpdateMessages.asblockAlreadyExists());
     }

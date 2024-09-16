@@ -11,8 +11,8 @@ public interface SourceContext extends BasicSourceContext {
 
     CIString getAlias(CIString source);
     void setCurrentSourceToWhoisMaster();
-    Source getWhoisSlaveSource();
-    Source getWhoisMasterSource();
+    Source getSlaveSource();
+    Source getMasterSource();
     Source getNonauthSource();
 
     void setCurrent(Source source);

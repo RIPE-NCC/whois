@@ -1,10 +1,10 @@
 package net.ripe.db.whois.spec.query
 
-import net.ripe.db.whois.common.IntegrationTest
+
 import net.ripe.db.whois.query.QueryMessages
 import net.ripe.db.whois.spec.BaseQueryUpdateSpec
 
-@org.junit.experimental.categories.Category(IntegrationTest.class)
+@org.junit.jupiter.api.Tag("IntegrationTest")
 class HelpSpec extends BaseQueryUpdateSpec {
 
     def header = """\
@@ -12,7 +12,7 @@ class HelpSpec extends BaseQueryUpdateSpec {
 % The objects are in RPSL format.
 %
 % The RIPE Database is subject to Terms and Conditions.
-% See http://www.ripe.net/db/support/db-terms-conditions.pdf
+% See https://docs.db.ripe.net/terms-conditions.html
 
 """
 

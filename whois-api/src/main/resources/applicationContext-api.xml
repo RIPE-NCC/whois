@@ -10,8 +10,10 @@
                         http://www.springframework.org/schema/oxm
                         http://www.springframework.org/schema/oxm/spring-oxm.xsd">
 
-    <import resource="applicationContext-query.xml"/>
+    <bean class="net.ripe.db.whois.query.WhoisQueryConfig" />
     <import resource="applicationContext-update.xml"/>
+    <bean class="net.ripe.db.nrtm4.Nrtmv4Config" />
+
     <context:component-scan base-package="net.ripe.db.whois.api"/>
 
     <oxm:jaxb2-marshaller id="marshaller">

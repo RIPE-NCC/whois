@@ -1,9 +1,12 @@
 package net.ripe.db.whois.common;
 
+import net.ripe.db.whois.common.domain.CIString;
+
 import java.time.Instant;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
+import java.time.ZonedDateTime;
 import java.util.Date;
 
 /**
@@ -37,6 +40,10 @@ public final class DateUtil {
         return Instant.ofEpochMilli(date.getTime())
                         .atZone(ZoneOffset.systemDefault())
                         .toLocalDateTime();
+    }
+
+    public static LocalDateTime fromString(final CIString date) {
+        return ZonedDateTime.parse(date).toLocalDateTime();
     }
 }
 

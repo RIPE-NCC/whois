@@ -1,21 +1,20 @@
 package net.ripe.db.whois.update.domain;
 
-import net.ripe.db.whois.update.keycert.X509CertificateWrapper;
+import net.ripe.db.whois.common.x509.X509CertificateWrapper;
 
 import java.security.cert.X509Certificate;
 import java.util.Objects;
 
 public class ClientCertificateCredential implements Credential {
 
-    private final X509Certificate x509Certificate;
-    private final String fingerprint;
+    private final X509CertificateWrapper x509CertificateWrapper;
+
 
     public ClientCertificateCredential(final X509CertificateWrapper x509CertificateWrapper) {
-        this.x509Certificate = x509CertificateWrapper.getCertificate();
-        this.fingerprint = x509CertificateWrapper.getFingerprint();
+        this.x509CertificateWrapper = x509CertificateWrapper;
     }
 
-    public static Credential createOfferedCredential(X509CertificateWrapper x509CertificateWrapper) {
+    public static Credential createOfferedCredential(final X509CertificateWrapper x509CertificateWrapper) {
         return new ClientCertificateCredential(x509CertificateWrapper);
     }
 
@@ -26,12 +25,12 @@ public class ClientCertificateCredential implements Credential {
 
         final ClientCertificateCredential that = (ClientCertificateCredential) o;
 
-        return Objects.equals(x509Certificate, that.x509Certificate);
+        return Objects.equals(this.x509CertificateWrapper.getCertificate(), that.getCertificate());
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(x509Certificate);
+        return Objects.hash(this.x509CertificateWrapper.getCertificate());
     }
 
     @Override
@@ -40,7 +39,11 @@ public class ClientCertificateCredential implements Credential {
     }
 
     public String getFingerprint() {
-        return fingerprint;
+        return this.x509CertificateWrapper.getFingerprint();
+    }
+
+    public X509Certificate getCertificate() {
+        return this.x509CertificateWrapper.getCertificate();
     }
 
 }

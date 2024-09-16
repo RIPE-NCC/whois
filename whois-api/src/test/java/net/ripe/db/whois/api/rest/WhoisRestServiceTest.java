@@ -1,35 +1,25 @@
 package net.ripe.db.whois.api.rest;
 
-import com.google.common.collect.Lists;
-import net.ripe.db.whois.api.rest.domain.ErrorMessage;
-import net.ripe.db.whois.api.rest.domain.WhoisResources;
-import net.ripe.db.whois.common.Message;
-import net.ripe.db.whois.common.Messages;
-import net.ripe.db.whois.common.domain.CIString;
 import net.ripe.db.whois.common.source.Source;
-import net.ripe.db.whois.common.source.SourceContext;
 import net.ripe.db.whois.update.domain.UpdateContext;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
-
-import javax.servlet.http.HttpServletRequest;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
 
-@RunWith(MockitoJUnitRunner.class)
+@ExtendWith(MockitoExtension.class)
 public class WhoisRestServiceTest {
 
     @Mock UpdateContext updateContext;
     @InjectMocks WhoisRestService subject;
     Source source;
 
-    @Before
+    @BeforeEach
     public void setup() {
         source = Source.slave("TEST");
     }

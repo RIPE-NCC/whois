@@ -85,21 +85,6 @@ public enum QueryFlag {
 
     NO_VALID_SYNTAX(new Builder("no-valid-syntax")
             .describedAs("Returns only syntactically incorrect objects")),
-    /* -------------------------------------------------------------------------------------------------------------- */
-
-    NO_TAG_INFO(new Builder("no-tag-info")
-            .describedAs("Switches off tagging information.")),
-
-    SHOW_TAG_INFO(new Builder("show-tag-info")
-            .describedAs("Switches on tagging information.")),
-
-    FILTER_TAG_INCLUDE(new Builder("filter-tag-include")
-            .describedAs("Show only objects with given tag(s)")
-            .requiresArgument(String.class)),
-
-    FILTER_TAG_EXCLUDE(new Builder("filter-tag-exclude")
-            .describedAs("Do not show objects with given tag(s)")
-            .requiresArgument(String.class)),
 
     /* -------------------------------------------------------------------------------------------------------------- */
 
@@ -179,8 +164,11 @@ public enum QueryFlag {
     SHOW_VERSION(new Builder("show-version")
             .withSearchKey("<version-number>")
             .describedAs("Returns historical version of the object")
-            .requiresArgument(Integer.class));
+            .requiresArgument(Integer.class)),
 
+    CHARSET(new Builder("Z", "charset")
+            .describedAs("Specify the charset for the requested response. LATIN-1 is the default value.")
+            .requiresArgument(String.class));
 
     private static final class Builder {
         private List<String> flags = Collections.emptyList();
@@ -272,8 +260,8 @@ public enum QueryFlag {
         return toString;
     }
 
-    private static Map<String, QueryFlag> VALID_LONG_FLAGS;
-    private static Map<String, QueryFlag> VALID_SHORT_FLAGS;
+    private static final Map<String, QueryFlag> VALID_LONG_FLAGS;
+    private static final Map<String, QueryFlag> VALID_SHORT_FLAGS;
 
     static {
         final ImmutableMap.Builder<String, QueryFlag> validLongFlags = ImmutableMap.builder();

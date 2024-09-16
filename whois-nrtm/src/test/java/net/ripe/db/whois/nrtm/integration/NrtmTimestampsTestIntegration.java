@@ -1,25 +1,25 @@
 package net.ripe.db.whois.nrtm.integration;
 
-import net.ripe.db.whois.common.IntegrationTest;
+
 import net.ripe.db.whois.common.support.TelnetWhoisClient;
 import net.ripe.db.whois.nrtm.NrtmServer;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.experimental.categories.Category;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Tag;
+import org.junit.jupiter.api.Test;
 
-import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.containsString;
 
-@Category(IntegrationTest.class)
+@Tag("IntegrationTest")
 public class NrtmTimestampsTestIntegration extends AbstractNrtmIntegrationBase {
 
-    @Before
+    @BeforeEach
     public void before() {
         nrtmServer.start();
     }
 
-    @After
+    @AfterEach
     public void after() {
         nrtmServer.stop(true);
     }
@@ -33,7 +33,7 @@ public class NrtmTimestampsTestIntegration extends AbstractNrtmIntegrationBase {
                 "last-modified:  2001-02-04T17:00:00Z\n" +
                 "source:         TEST\n");
 
-        final String response = TelnetWhoisClient.queryLocalhost(NrtmServer.getPort(), "-g TEST:3:1-LAST");
+        final String response = TelnetWhoisClient.queryLocalhost(nrtmServer.getPort(), "-g TEST:3:1-LAST");
 
         assertThat(response, containsString("" +
                 "aut-num:        AS102\n" +
@@ -53,7 +53,7 @@ public class NrtmTimestampsTestIntegration extends AbstractNrtmIntegrationBase {
                 "last-modified:  2001-02-04T17:00:00Z\n" +
                 "source:         TEST\n");
 
-        final String response = TelnetWhoisClient.queryLocalhost(NrtmServer.getPort(), "-g TEST:3:1-LAST");
+        final String response = TelnetWhoisClient.queryLocalhost(nrtmServer.getPort(), "-g TEST:3:1-LAST");
 
         assertThat(response, containsString("" +
                 "organisation:   ORG1-TEST\n" +

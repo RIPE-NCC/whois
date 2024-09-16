@@ -1,9 +1,9 @@
 package net.ripe.db.whois.spec.query
 
-import net.ripe.db.whois.common.IntegrationTest
+
 import net.ripe.db.whois.spec.BaseQueryUpdateSpec
 
-@org.junit.experimental.categories.Category(IntegrationTest.class)
+@org.junit.jupiter.api.Tag("IntegrationTest")
 class AbuseQuerySpec extends BaseQueryUpdateSpec {
     @Override
     Map<String, String> getTransients() {
@@ -150,7 +150,7 @@ class AbuseQuerySpec extends BaseQueryUpdateSpec {
                 """,
                 "ASS-END-NO-A-ORG": """\
                 inetnum:      192.168.200.0 - 192.168.200.255
-                org:          ORG-OR1-TEST
+                org:          ORG-OFA10-TEST
                 netname:      RIPE-NET1
                 descr:        /24 assigned
                 country:      NL
@@ -302,7 +302,7 @@ class AbuseQuerySpec extends BaseQueryUpdateSpec {
                 source:       TEST
 
                 password: hm
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -340,7 +340,7 @@ class AbuseQuerySpec extends BaseQueryUpdateSpec {
                 source:       TEST
 
                 password: hm
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -385,7 +385,7 @@ class AbuseQuerySpec extends BaseQueryUpdateSpec {
                 source:       TEST
 
                 password: hm
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -430,7 +430,7 @@ class AbuseQuerySpec extends BaseQueryUpdateSpec {
 
                 password: hm
                 password: irt
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -497,7 +497,7 @@ class AbuseQuerySpec extends BaseQueryUpdateSpec {
         // "ALLOC-PA-A"
         query_object_matches("-rBG -T inetnum 192.168.0.0 - 192.169.255.255", "inetnum", "192.168.0.0 - 192.169.255.255", "ORG-LIRA-TEST")
         // "ASS-END-NO-A-ORG"
-        query_object_matches("-rBG -T inetnum 192.168.200.0 - 192.168.200.255", "inetnum", "192.168.200.0 - 192.168.200.255", "ORG-OR1-TEST")
+        query_object_matches("-rBG -T inetnum 192.168.200.0 - 192.168.200.255", "inetnum", "192.168.200.0 - 192.168.200.255", "ORG-OFA10-TEST")
         // ORGANISATION with abuse-c
         query_object_matches("-rBG -T organisation ORG-LIRA-TEST", "organisation", "ORG-LIRA-TEST", "abuse-c")
 
@@ -520,7 +520,7 @@ class AbuseQuerySpec extends BaseQueryUpdateSpec {
         // "SUB-ALLOC-PART-PA"
         query_object_matches("-rBG -T inetnum 192.168.128.0 - 192.168.255.255", "inetnum", "192.168.128.0 - 192.168.255.255", "ORG-LIR2-TEST")
         // "ASS-END-NO-A-ORG"
-        query_object_matches("-rBG -T inetnum 192.168.200.0 - 192.168.200.255", "inetnum", "192.168.200.0 - 192.168.200.255", "ORG-OR1-TEST")
+        query_object_matches("-rBG -T inetnum 192.168.200.0 - 192.168.200.255", "inetnum", "192.168.200.0 - 192.168.200.255", "ORG-OFA10-TEST")
         // ORGANISATION with abuse-c
         query_object_matches("-rBG -T organisation ORG-LIRA-TEST", "organisation", "ORG-LIRA-TEST", "abuse-c")
 
@@ -543,7 +543,7 @@ class AbuseQuerySpec extends BaseQueryUpdateSpec {
         // "SUB-ALLOC-PART-PA"
         query_object_matches("-rBG -T inetnum 192.168.128.0 - 192.168.255.255", "inetnum", "192.168.128.0 - 192.168.255.255", "ORG-LIR2-TEST")
         // "ASS-END-NO-A-ORG"
-        query_object_matches("-rBG -T inetnum 192.168.200.0 - 192.168.200.255", "inetnum", "192.168.200.0 - 192.168.200.255", "ORG-OR1-TEST")
+        query_object_matches("-rBG -T inetnum 192.168.200.0 - 192.168.200.255", "inetnum", "192.168.200.0 - 192.168.200.255", "ORG-OFA10-TEST")
         // ORGANISATION with abuse-c
         query_object_matches("-rBG -T organisation ORG-LIRA-TEST", "organisation", "ORG-LIRA-TEST", "abuse-c")
 
@@ -566,7 +566,7 @@ class AbuseQuerySpec extends BaseQueryUpdateSpec {
         // "SUB-ALLOC-PART-PA"
         query_object_matches("-rBG -T inetnum 192.168.128.0 - 192.168.255.255", "inetnum", "192.168.128.0 - 192.168.255.255", "ORG-LIR2-TEST")
         // "ASS-END-NO-A-ORG"
-        query_object_matches("-rBG -T inetnum 192.168.200.0 - 192.168.200.255", "inetnum", "192.168.200.0 - 192.168.200.255", "ORG-OR1-TEST")
+        query_object_matches("-rBG -T inetnum 192.168.200.0 - 192.168.200.255", "inetnum", "192.168.200.0 - 192.168.200.255", "ORG-OFA10-TEST")
         // ORGANISATION with abuse-c
         query_object_matches("-rBG -T organisation ORG-LIRA-TEST", "organisation", "ORG-LIRA-TEST", "abuse-c")
 

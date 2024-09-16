@@ -1,19 +1,25 @@
 package net.ripe.db.whois.api.rdap.domain;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.google.common.collect.Lists;
+import jakarta.xml.bind.annotation.XmlAccessType;
+import jakarta.xml.bind.annotation.XmlAccessorType;
+import jakarta.xml.bind.annotation.XmlElement;
+import jakarta.xml.bind.annotation.XmlRootElement;
+import jakarta.xml.bind.annotation.XmlSeeAlso;
+import jakarta.xml.bind.annotation.XmlTransient;
+import jakarta.xml.bind.annotation.XmlType;
+import net.ripe.db.whois.common.rpsl.RpslAttribute;
 
-import javax.xml.bind.annotation.XmlAccessType;
-import javax.xml.bind.annotation.XmlAccessorType;
-import javax.xml.bind.annotation.XmlElement;
-import javax.xml.bind.annotation.XmlRootElement;
-import javax.xml.bind.annotation.XmlSeeAlso;
-import javax.xml.bind.annotation.XmlType;
 import java.io.Serializable;
 import java.util.List;
 
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(name = "rdapObject", propOrder = {
+    "networks",
+    "network",
+    "autnums",
     "status",
     "entities",
     "remarks",
@@ -34,6 +40,11 @@ import java.util.List;
 @XmlRootElement
 @JsonInclude(JsonInclude.Include.NON_EMPTY)
 public class RdapObject implements Serializable {
+
+    protected List<Ip> networks;
+
+    protected Ip network;
+    protected List<Autnum> autnums;
     protected List<Object> status;
     protected List<Entity> entities;
     protected List<Remark> remarks;
@@ -52,11 +63,25 @@ public class RdapObject implements Serializable {
     @XmlElement(name = "description")
     protected List<String> errorDescription;
 
+    @XmlTransient
+    @JsonIgnore
+    private List<RpslAttribute> redactedRpslAttrs;
+
+    protected List<Redaction> redacted;
+
     public List<Object> getStatus() {
         if (status == null) {
             status = Lists.newArrayList();
         }
         return this.status;
+    }
+
+    public List<RpslAttribute> getRedactedRpslAttrs() {
+        if(this.redactedRpslAttrs == null) {
+            this.redactedRpslAttrs = Lists.newArrayList();
+        }
+
+        return redactedRpslAttrs;
     }
 
     public List<Entity> getEntitySearchResults() {
@@ -91,10 +116,38 @@ public class RdapObject implements Serializable {
         return lang;
     }
 
+    public List<Ip> getNetworks() {
+        if (networks == null) {
+            networks = Lists.newArrayList();
+        }
+        return networks;
+    }
+
+    public Ip getNetwork() {
+        return network;
+    }
+
+    public List<Autnum> getAutnums() {
+        if (autnums == null) {
+            autnums = Lists.newArrayList();
+        }
+        return autnums;
+    }
+
+    public List<Redaction> getRedacted() {
+        if (redacted == null) {
+            redacted = Lists.newArrayList();
+        }
+        return redacted;
+    }
+
     public void setLang(final String value) {
         this.lang = value;
     }
 
+    public void setStatus(List<Object> status) {
+        this.status = status;
+    }
     public List<String> getRdapConformance() {
         if (rdapConformance == null) {
             rdapConformance = Lists.newArrayList();
@@ -150,5 +203,17 @@ public class RdapObject implements Serializable {
 
     public void setObjectClassName(final String value) {
         this.objectClassName = value;
+    }
+
+    public void setAutnums(final List<Autnum> autnums){
+        this.autnums = autnums;
+    }
+
+    public void setNetworks(final List<Ip> networks) {
+        this.networks = networks;
+    }
+
+    public void setNetwork(final Ip network) {
+        this.network = network;
     }
 }

@@ -1,19 +1,20 @@
 package net.ripe.db.whois.common.rpsl;
 
 import net.ripe.db.whois.common.Message;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import java.util.Collection;
 import java.util.List;
 import java.util.Set;
 
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.junit.Assert.fail;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.fail;
 
 public class ObjectTemplateTest {
     private static final String MAINTAINER_OBJECT_STRING = "" +
@@ -32,14 +33,16 @@ public class ObjectTemplateTest {
 
     private ObjectTemplate subject;
 
-    @Before
+    @BeforeEach
     public void setUp() throws Exception {
         subject = ObjectTemplate.getTemplate(ObjectType.MNTNER);
     }
 
-    @Test(expected = IllegalStateException.class)
+    @Test
     public void getObjectSpec_null() {
-        ObjectTemplate.getTemplate(null);
+        assertThrows(IllegalStateException.class, () -> {
+            ObjectTemplate.getTemplate(null);
+        });
     }
 
     @Test
@@ -58,7 +61,7 @@ public class ObjectTemplateTest {
     public void getMultipleAttributes(){
         final ObjectTemplate template = ObjectTemplate.getTemplate(ObjectType.AS_BLOCK);
         Set<AttributeType> multipleAttributes = template.getMultipleAttributes();
-        assertThat(multipleAttributes.size(), is(6));
+        assertThat(multipleAttributes, hasSize(6));
     }
 
   @Test
@@ -136,14 +139,16 @@ public class ObjectTemplateTest {
                 "netname:        [mandatory]  [single]     [lookup key]\n" +
                 "descr:          [optional]   [multiple]   [ ]\n" +
                 "country:        [mandatory]  [multiple]   [ ]\n" +
+                "geofeed:        [optional]   [single]     [ ]\n" +
                 "geoloc:         [optional]   [single]     [ ]\n" +
                 "language:       [optional]   [multiple]   [ ]\n" +
                 "org:            [optional]   [single]     [inverse key]\n" +
-                "sponsoring-org: [optional]   [single]     [ ]\n" +
+                "sponsoring-org: [optional]   [single]     [inverse key]\n" +
                 "admin-c:        [mandatory]  [multiple]   [inverse key]\n" +
                 "tech-c:         [mandatory]  [multiple]   [inverse key]\n" +
                 "abuse-c:        [optional]   [single]     [inverse key]\n" +
                 "status:         [mandatory]  [single]     [ ]\n" +
+                "assignment-size:[optional]   [single]     [ ]\n" +
                 "remarks:        [optional]   [multiple]   [ ]\n" +
                 "notify:         [optional]   [multiple]   [inverse key]\n" +
                 "mnt-by:         [mandatory]  [multiple]   [inverse key]\n" +
@@ -169,14 +174,16 @@ public class ObjectTemplateTest {
                 "netname:        [mandatory]  [single]     [lookup key]\n" +
                 "descr:          [optional]   [multiple]   [ ]\n" +
                 "country:        [mandatory]  [multiple]   [ ]\n" +
+                "geofeed:        [optional]   [single]     [ ]\n" +
                 "geoloc:         [optional]   [single]     [ ]\n" +
                 "language:       [optional]   [multiple]   [ ]\n" +
                 "org:            [optional]   [single]     [inverse key]\n" +
-                "sponsoring-org: [optional]   [single]     [ ]\n" +
+                "sponsoring-org: [optional]   [single]     [inverse key]\n" +
                 "admin-c:        [mandatory]  [multiple]   [inverse key]\n" +
                 "tech-c:         [mandatory]  [multiple]   [inverse key]\n" +
                 "abuse-c:        [optional]   [single]     [inverse key]\n" +
                 "status:         [mandatory]  [single]     [ ]\n" +
+                "assignment-size:[optional]   [single]     [ ]\n" +
                 "remarks:        [optional]   [multiple]   [ ]\n" +
                 "notify:         [optional]   [multiple]   [inverse key]\n" +
                 "mnt-by:         [mandatory]  [multiple]   [inverse key]\n" +

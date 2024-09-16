@@ -2,20 +2,21 @@ package net.ripe.db.whois.query.pipeline;
 
 import io.netty.channel.Channel;
 import net.ripe.db.whois.query.domain.QueryCompletionInfo;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.Mockito;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 
-import static org.hamcrest.Matchers.containsString;
-import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNull;
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.junit.Assert.assertTrue;
+import static org.hamcrest.Matchers.containsString;
+import static org.hamcrest.Matchers.equalTo;
+import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.not;
+import static org.hamcrest.Matchers.notNullValue;
+import static org.hamcrest.Matchers.nullValue;
 
-@RunWith(MockitoJUnitRunner.class)
+@ExtendWith(MockitoExtension.class)
 public class QueryCompletedEventTest {
     @Mock private Channel channel;
 
@@ -28,7 +29,7 @@ public class QueryCompletedEventTest {
         assertThat(subject.getChannel(), is(channel));
         assertThat(subject.getFuture().channel(), is(channel));
         assertThat(subject.isForceClose(), is(false));
-        assertNull(subject.getCompletionInfo());
+        assertThat(subject.getCompletionInfo(), is(nullValue()));
         assertThat(subject.toString(), containsString("null"));
     }
 
@@ -58,30 +59,30 @@ public class QueryCompletedEventTest {
         final QueryCompletionInfo completionInfo = QueryCompletionInfo.EXCEPTION;
         subject = new QueryCompletedEvent(channel, completionInfo);
 
-        assertFalse(subject.equals(null));
-        assertFalse(subject.equals(""));
-        assertTrue(subject.equals(subject));
+        assertThat(subject, is(notNullValue()));
+        assertThat(subject, not(is("")));
+        assertThat(subject, equalTo(subject));
 
         final QueryCompletedEvent queryCompletedEvent = new QueryCompletedEvent(channel, completionInfo);
-        assertTrue(subject.equals(queryCompletedEvent));
+        assertThat(subject, equalTo(queryCompletedEvent));
         assertThat(subject.hashCode(), is(queryCompletedEvent.hashCode()));
 
-        assertFalse(subject.equals(new QueryCompletedEvent(Mockito.mock(Channel.class), completionInfo)));
-        assertFalse(subject.equals(new QueryCompletedEvent(channel, QueryCompletionInfo.PARAMETER_ERROR)));
+        assertThat(subject, not(equalTo(new QueryCompletedEvent(Mockito.mock(Channel.class), completionInfo))));
+        assertThat(subject, not(equalTo(new QueryCompletedEvent(channel, QueryCompletionInfo.PARAMETER_ERROR))));
     }
 
     @Test
     public void equals_no_completionInfo() {
         subject = new QueryCompletedEvent(channel);
 
-        assertFalse(subject.equals(null));
-        assertFalse(subject.equals(""));
-        assertTrue(subject.equals(subject));
+        assertThat(subject, is(notNullValue()));
+        assertThat(subject, not(is("")));
+        assertThat(subject, equalTo(subject));
 
         final QueryCompletedEvent queryCompletedEvent = new QueryCompletedEvent(channel);
-        assertTrue(subject.equals(queryCompletedEvent));
+        assertThat(subject, equalTo(queryCompletedEvent));
         assertThat(subject.hashCode(), is(queryCompletedEvent.hashCode()));
 
-        assertFalse(subject.equals(new QueryCompletedEvent(Mockito.mock(Channel.class))));
+        assertThat(subject, not(equalTo(new QueryCompletedEvent(Mockito.mock(Channel.class)))));
     }
 }

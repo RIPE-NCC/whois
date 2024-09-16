@@ -1,35 +1,33 @@
 package net.ripe.db.whois.query.integration;
 
-import net.ripe.db.whois.common.IntegrationTest;
 import net.ripe.db.whois.common.dao.RpslObjectUpdateInfo;
+import net.ripe.db.whois.common.dao.VersionDateTime;
 import net.ripe.db.whois.common.rpsl.RpslObject;
 import net.ripe.db.whois.common.rpsl.transform.FilterAuthFunction;
 import net.ripe.db.whois.common.rpsl.transform.FilterEmailFunction;
 import net.ripe.db.whois.common.support.TelnetWhoisClient;
 import net.ripe.db.whois.query.QueryMessages;
 import net.ripe.db.whois.query.QueryServer;
-import net.ripe.db.whois.common.dao.VersionDateTime;
 import net.ripe.db.whois.query.support.AbstractQueryIntegrationTest;
 import org.hamcrest.BaseMatcher;
 import org.hamcrest.Description;
-import org.hamcrest.Factory;
 import org.hamcrest.Matcher;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.experimental.categories.Category;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Tag;
+import org.junit.jupiter.api.Test;
 
 import static net.ripe.db.whois.common.dao.jdbc.JdbcRpslObjectOperations.loadScripts;
 import static net.ripe.db.whois.query.integration.VersionTestIntegration.VersionMatcher.containsFilteredVersion;
 import static net.ripe.db.whois.query.support.PatternMatcher.matchesPattern;
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.not;
-import static org.hamcrest.MatcherAssert.assertThat;
 
-@Category(IntegrationTest.class)
+@Tag("IntegrationTest")
 public class VersionTestIntegration extends AbstractQueryIntegrationTest {
 
-    @Before
+    @BeforeEach
     public void startup() {
         loadScripts(databaseHelper.getWhoisTemplate(), "broken.sql");
 
@@ -38,7 +36,7 @@ public class VersionTestIntegration extends AbstractQueryIntegrationTest {
         queryServer.start();
     }
 
-    @After
+    @AfterEach
     public void teardown() {
         queryServer.stop(true);
     }
@@ -49,25 +47,25 @@ public class VersionTestIntegration extends AbstractQueryIntegrationTest {
 
     @Test
     public void noObject() {
-        final String response = stripHeader(TelnetWhoisClient.queryLocalhost(QueryServer.port, "--list-versions AS-FOO"));
+        final String response = stripHeader(TelnetWhoisClient.queryLocalhost(queryServer.getPort(), "--list-versions AS-FOO"));
         assertThat(response, containsString(QueryMessages.noResults("TEST").toString()));
     }
 
     @Test
     public void noHistory() {
-        final String response = stripHeader(TelnetWhoisClient.queryLocalhost(QueryServer.port, "--list-versions AS-TEST"));
+        final String response = stripHeader(TelnetWhoisClient.queryLocalhost(queryServer.getPort(), "--list-versions AS-TEST"));
         assertThat(response, matchesPattern("1\\s+" + historyTimestampToString(1032338056) + "\\s+ADD/UPD"));
     }
 
     @Test
     public void noHistoryOnDeletedObject() {
-        final String response = stripHeader(TelnetWhoisClient.queryLocalhost(QueryServer.port, "--list-versions test.sk"));
+        final String response = stripHeader(TelnetWhoisClient.queryLocalhost(queryServer.getPort(), "--list-versions test.sk"));
         assertThat(response, matchesPattern("This object was deleted on " + historyTimestampToString(1060699626)));
     }
 
     @Test
     public void simpleHistory() {
-        final String response = stripHeader(TelnetWhoisClient.queryLocalhost(QueryServer.port, "--list-versions AS20507"));
+        final String response = stripHeader(TelnetWhoisClient.queryLocalhost(queryServer.getPort(), "--list-versions AS20507"));
         assertThat(response, matchesPattern("1\\s+" + historyTimestampToString(1032341936) + "\\s+ADD/UPD"));
         assertThat(response, matchesPattern("2\\s+" + historyTimestampToString(1032857323) + "\\s+ADD/UPD"));
         assertThat(response, matchesPattern("4\\s+" + historyTimestampToString(1034685022) + "\\s+ADD/UPD\n\n"));
@@ -75,7 +73,7 @@ public class VersionTestIntegration extends AbstractQueryIntegrationTest {
 
     @Test
     public void longHistory() {
-        final String response = stripHeader(TelnetWhoisClient.queryLocalhost(QueryServer.port, "--list-versions AS20507"));
+        final String response = stripHeader(TelnetWhoisClient.queryLocalhost(queryServer.getPort(), "--list-versions AS20507"));
 
         String[] lines = new String[]{
                 "1\\s+" + historyTimestampToString(1032341936) + "\\s+ADD/UPD",
@@ -91,7 +89,7 @@ public class VersionTestIntegration extends AbstractQueryIntegrationTest {
 
     @Test
     public void personTest() {
-        final String response = stripHeader(TelnetWhoisClient.queryLocalhost(QueryServer.port, "--list-versions TU1-TEST"));
+        final String response = stripHeader(TelnetWhoisClient.queryLocalhost(queryServer.getPort(), "--list-versions TU1-TEST"));
         assertThat(response, containsString(QueryMessages.versionPersonRole("PERSON", "TU1-TEST").toString()));
     }
 
@@ -99,13 +97,13 @@ public class VersionTestIntegration extends AbstractQueryIntegrationTest {
     public void roleTest() {
         databaseHelper.addObject(RpslObject.parse("role: Some User\nnic-hdl: SU1-TEST\nsource: TEST"));
 
-        final String response = stripHeader(TelnetWhoisClient.queryLocalhost(QueryServer.port, "--list-versions SU1-TEST"));
+        final String response = stripHeader(TelnetWhoisClient.queryLocalhost(queryServer.getPort(), "--list-versions SU1-TEST"));
         assertThat(response, containsString(QueryMessages.versionPersonRole("ROLE", "SU1-TEST").toString()));
     }
 
     @Test
     public void getObjects() {
-        String response = stripHeader(TelnetWhoisClient.queryLocalhost(QueryServer.port, "--show-version 1 AS20507"));
+        String response = stripHeader(TelnetWhoisClient.queryLocalhost(queryServer.getPort(), "--show-version 1 AS20507"));
         assertThat(response, containsFilteredVersion(
                 RpslObject.parse("" +
                         "aut-num: AS20507\n" +
@@ -114,7 +112,7 @@ public class VersionTestIntegration extends AbstractQueryIntegrationTest {
                         "source:  RIPE")));
 
 
-        response = stripHeader(TelnetWhoisClient.queryLocalhost(QueryServer.port, "--show-version 2 AS20507"));
+        response = stripHeader(TelnetWhoisClient.queryLocalhost(queryServer.getPort(), "--show-version 2 AS20507"));
         assertThat(response, containsFilteredVersion(
                 RpslObject.parse("" +
                         "aut-num: AS20507\n" +
@@ -122,7 +120,7 @@ public class VersionTestIntegration extends AbstractQueryIntegrationTest {
                         "descr:   sequence 82\n" +
                         "source:  RIPE")));
 
-        response = stripHeader(TelnetWhoisClient.queryLocalhost(QueryServer.port, "--show-version 3 AS20507"));
+        response = stripHeader(TelnetWhoisClient.queryLocalhost(queryServer.getPort(), "--show-version 3 AS20507"));
         assertThat(response, containsFilteredVersion(
                 RpslObject.parse("" +
                         "aut-num: AS20507\n" +
@@ -131,7 +129,7 @@ public class VersionTestIntegration extends AbstractQueryIntegrationTest {
                         "source:  RIPE")));
         assertThat(response, not(containsString("(current version)")));
 
-        response = stripHeader(TelnetWhoisClient.queryLocalhost(QueryServer.port, "--show-version 4 AS20507"));
+        response = stripHeader(TelnetWhoisClient.queryLocalhost(queryServer.getPort(), "--show-version 4 AS20507"));
         assertThat(response, containsFilteredVersion(
                 RpslObject.parse("" +
                         "aut-num: AS20507\n" +
@@ -140,7 +138,7 @@ public class VersionTestIntegration extends AbstractQueryIntegrationTest {
                         "source:  RIPE")));
         assertThat(response, containsString("(current version)"));
 
-        response = stripHeader(TelnetWhoisClient.queryLocalhost(QueryServer.port, "--show-version 140 AS20507"));
+        response = stripHeader(TelnetWhoisClient.queryLocalhost(queryServer.getPort(), "--show-version 140 AS20507"));
         assertThat(response, containsString(QueryMessages.versionOutOfRange(4).toString()));
     }
 
@@ -153,24 +151,24 @@ public class VersionTestIntegration extends AbstractQueryIntegrationTest {
                 "source:  RIPE");
         databaseHelper.addObject(object);
 
-        String response = stripHeader(TelnetWhoisClient.queryLocalhost(QueryServer.port, "--show-version 1 MAINT-ME"));
+        String response = stripHeader(TelnetWhoisClient.queryLocalhost(queryServer.getPort(), "--show-version 1 MAINT-ME"));
         System.out.println(response);
         assertThat(response, containsFilteredVersion(object));
 
-        response = stripHeader(TelnetWhoisClient.queryLocalhost(QueryServer.port, "--show-version 1 -B MAINT-ME"));
+        response = stripHeader(TelnetWhoisClient.queryLocalhost(queryServer.getPort(), "--show-version 1 -B MAINT-ME"));
         assertThat(response, containsString("%ERROR:109: invalid combination of flags passed"));
         assertThat(response, containsString("% The flags \"--show-version\" and \"-B, --no-filtering\" cannot be used together."));
     }
 
     @Test
     public void listVersions_to_suppress_filtered_warning() {
-        final String result = TelnetWhoisClient.queryLocalhost(QueryServer.port, "--list-versions AS-TEST");
+        final String result = TelnetWhoisClient.queryLocalhost(queryServer.getPort(), "--list-versions AS-TEST");
         assertThat(result, not(containsString("Note: this output has been filtered")));
     }
 
     @Test
     public void showVersion_bizarreVersionNumber() {
-        final String response = stripHeader(TelnetWhoisClient.queryLocalhost(QueryServer.port, "--show-version 1.5 MAINT-ME"));
+        final String response = stripHeader(TelnetWhoisClient.queryLocalhost(queryServer.getPort(), "--show-version 1.5 MAINT-ME"));
 
         assertThat(response, not(containsString("Only one version flag (--version) allowed")));
     }
@@ -180,7 +178,7 @@ public class VersionTestIntegration extends AbstractQueryIntegrationTest {
         databaseHelper.addObject(RpslObject.parse("mntner: TEST-DBM"));
         databaseHelper.deleteObject(RpslObject.parse("mntner: TEST-DBM"));
 
-        final String response = stripHeader(TelnetWhoisClient.queryLocalhost(QueryServer.port, "--show-version 1 TEST-DBM"));
+        final String response = stripHeader(TelnetWhoisClient.queryLocalhost(queryServer.getPort(), "--show-version 1 TEST-DBM"));
 
         assertThat(response, containsString("This object was deleted on"));
     }
@@ -191,7 +189,7 @@ public class VersionTestIntegration extends AbstractQueryIntegrationTest {
                 "inetnum: 192.168.0.0 - 192.168.255.255\n" +
                 "netname: TEST");
 
-        final String response = stripHeader(TelnetWhoisClient.queryLocalhost(QueryServer.port, "--list-versions 192.168.0.0-192.168.255.255"));
+        final String response = stripHeader(TelnetWhoisClient.queryLocalhost(queryServer.getPort(), "--list-versions 192.168.0.0-192.168.255.255"));
         assertThat(response, containsString("Version history for INETNUM object \"192.168.0.0 - 192.168.255.255\""));
         assertThat(response, containsString("ADD/UPD"));
     }
@@ -202,7 +200,7 @@ public class VersionTestIntegration extends AbstractQueryIntegrationTest {
         rpslObjectUpdateDao.deleteObject(createdObjectInfo.getObjectId(), createdObjectInfo.getKey());
         rpslObjectUpdateDao.undeleteObject(createdObjectInfo.getObjectId());
 
-        final String response = stripHeader(TelnetWhoisClient.queryLocalhost(QueryServer.port, "--list-versions TEST-DBM"));
+        final String response = stripHeader(TelnetWhoisClient.queryLocalhost(queryServer.getPort(), "--list-versions TEST-DBM"));
         assertThat(response, containsString("This object was deleted on"));
         assertThat(response, containsString("ADD/UPD"));
     }
@@ -213,7 +211,7 @@ public class VersionTestIntegration extends AbstractQueryIntegrationTest {
         rpslObjectUpdateDao.deleteObject(createdObjectInfo.getObjectId(), createdObjectInfo.getKey());
         rpslObjectUpdateDao.undeleteObject(createdObjectInfo.getObjectId());
 
-        final String response = stripHeader(TelnetWhoisClient.queryLocalhost(QueryServer.port, "--show-version 1 TEST-DBM"));
+        final String response = stripHeader(TelnetWhoisClient.queryLocalhost(queryServer.getPort(), "--show-version 1 TEST-DBM"));
         assertThat(response, not(containsString("This object was deleted on")));
         assertThat(response, containsString("mntner:         TEST-DBM"));
     }
@@ -227,7 +225,7 @@ public class VersionTestIntegration extends AbstractQueryIntegrationTest {
                 "last-modified: 2015-02-02T11:12:13Z\n" +
                 "source: TEST");
 
-        final String response = stripHeader(TelnetWhoisClient.queryLocalhost(QueryServer.port, "--show-version 1 TO1-TEST"));
+        final String response = stripHeader(TelnetWhoisClient.queryLocalhost(queryServer.getPort(), "--show-version 1 TO1-TEST"));
         assertThat(response, containsString("created:        2015-02-02T11:12:13Z"));
         assertThat(response, containsString("last-modified:  2015-02-02T11:12:13Z"));
     }
@@ -249,7 +247,6 @@ public class VersionTestIntegration extends AbstractQueryIntegrationTest {
             description.appendText("Version object: ").appendValue(expected);
         }
 
-        @Factory
         public static Matcher<String> containsFilteredVersion(final RpslObject object) {
             return new VersionMatcher(makeMatcherString(object, true));
         }

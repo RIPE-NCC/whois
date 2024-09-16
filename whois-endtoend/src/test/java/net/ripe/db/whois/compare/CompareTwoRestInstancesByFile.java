@@ -1,17 +1,16 @@
 package net.ripe.db.whois.compare;
 
-import net.ripe.db.whois.common.ManualTest;
 import net.ripe.db.whois.compare.common.ComparisonExecutorConfig;
+import net.ripe.db.whois.compare.common.ComparisonRunnerFactory;
 import net.ripe.db.whois.compare.common.TargetInterface;
 import net.ripe.db.whois.compare.rest.RestQueryReader;
-import net.ripe.db.whois.compare.common.ComparisonRunnerFactory;
 import org.apache.commons.io.FileUtils;
-import org.junit.Test;
-import org.junit.experimental.categories.Category;
+import org.junit.jupiter.api.Tag;
+import org.junit.jupiter.api.Test;
 
 import java.io.File;
 
-@Category(ManualTest.class)
+@Tag("ManualTest")
 public class CompareTwoRestInstancesByFile {
 
     @Test

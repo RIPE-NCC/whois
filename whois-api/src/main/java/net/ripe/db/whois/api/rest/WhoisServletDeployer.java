@@ -1,11 +1,22 @@
 package net.ripe.db.whois.api.rest;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
-import com.fasterxml.jackson.jaxrs.json.JacksonJaxbJsonProvider;
+import com.fasterxml.jackson.databind.introspect.AnnotationIntrospectorPair;
+import com.fasterxml.jackson.databind.introspect.JacksonAnnotationIntrospector;
+import com.fasterxml.jackson.databind.json.JsonMapper;
+import com.fasterxml.jackson.databind.type.TypeFactory;
+import com.fasterxml.jackson.jakarta.rs.json.JacksonJsonProvider;
+import com.fasterxml.jackson.module.jakarta.xmlbind.JakartaXmlBindAnnotationIntrospector;
+import jakarta.servlet.DispatcherType;
+import jakarta.ws.rs.ext.MessageBodyWriter;
 import net.ripe.db.whois.api.autocomplete.AutocompleteService;
-import net.ripe.db.whois.api.fulltextsearch.FullTextSearch;
+import net.ripe.db.whois.api.fulltextsearch.FullTextSearchService;
+import net.ripe.db.whois.api.healthcheck.HealthCheckService;
+import net.ripe.db.whois.api.httpserver.ClientCertificateService;
 import net.ripe.db.whois.api.httpserver.DefaultExceptionMapper;
 import net.ripe.db.whois.api.httpserver.ServletDeployer;
+import net.ripe.db.whois.api.rest.domain.WhoisResources;
 import org.eclipse.jetty.servlet.FilterHolder;
 import org.eclipse.jetty.servlet.ServletHolder;
 import org.eclipse.jetty.webapp.WebAppContext;
@@ -19,7 +30,6 @@ import org.glassfish.jersey.servlet.ServletContainer;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import javax.servlet.DispatcherType;
 import java.util.EnumSet;
 
 @Component
@@ -37,9 +47,11 @@ public class WhoisServletDeployer implements ServletDeployer {
     private final DefaultExceptionMapper defaultExceptionMapper;
     private final MaintenanceModeFilter maintenanceModeFilter;
     private final DomainObjectService domainObjectService;
-    private final FullTextSearch fullTextSearch;
+    private final FullTextSearchService fullTextSearch;
     private final BatchUpdatesService batchUpdatesService;
     private final HealthCheckService healthCheckService;
+    private final ClientCertificateService clientCertificateService;
+    private final HttpsBasicAuthCustomizer httpsBasicAuthCustomizer;
 
     @Autowired
     public WhoisServletDeployer(final WhoisRestService whoisRestService,
@@ -54,9 +66,11 @@ public class WhoisServletDeployer implements ServletDeployer {
                                 final DefaultExceptionMapper defaultExceptionMapper,
                                 final MaintenanceModeFilter maintenanceModeFilter,
                                 final DomainObjectService domainObjectService,
-                                final FullTextSearch fullTextSearch,
+                                final FullTextSearchService fullTextSearch,
                                 final BatchUpdatesService batchUpdatesService,
-                                final HealthCheckService healthCheckService) {
+                                final HealthCheckService healthCheckService,
+                                final HttpsBasicAuthCustomizer httpsBasicAuthCustomizer,
+                                final ClientCertificateService clientCertificateService) {
         this.whoisRestService = whoisRestService;
         this.whoisSearchService = whoisSearchService;
         this.whoisVersionService = whoisVersionService;
@@ -72,11 +86,14 @@ public class WhoisServletDeployer implements ServletDeployer {
         this.fullTextSearch = fullTextSearch;
         this.batchUpdatesService = batchUpdatesService;
         this.healthCheckService = healthCheckService;
+        this.clientCertificateService = clientCertificateService;
+        this.httpsBasicAuthCustomizer = httpsBasicAuthCustomizer;
     }
 
     @Override
     public void deploy(WebAppContext context) {
         context.addFilter(new FilterHolder(maintenanceModeFilter), "/whois/*", EnumSet.allOf(DispatcherType.class));
+        context.addFilter(new FilterHolder(httpsBasicAuthCustomizer), "/whois/*", EnumSet.allOf(DispatcherType.class));
 
         final ResourceConfig resourceConfig = new ResourceConfig();
         EncodingFilter.enableFor(resourceConfig, GZipEncoder.class);
@@ -96,12 +113,26 @@ public class WhoisServletDeployer implements ServletDeployer {
         resourceConfig.register(fullTextSearch);
         resourceConfig.register(batchUpdatesService);
         resourceConfig.register(healthCheckService);
+        resourceConfig.register(clientCertificateService);
         resourceConfig.register(new CacheControlFilter());
+        resourceConfig.register(new HttpBasicAuthResponseFilter());
 
-        final JacksonJaxbJsonProvider jaxbJsonProvider = new JacksonJaxbJsonProvider();
+        final ObjectMapper objectMapper = JsonMapper.builder()
+            .enable(SerializationFeature.INDENT_OUTPUT)
+            .build();
+        objectMapper.setAnnotationIntrospector(
+                new AnnotationIntrospectorPair(
+                        new JacksonAnnotationIntrospector(),
+                        new JakartaXmlBindAnnotationIntrospector(TypeFactory.defaultInstance())));
+
+        final JacksonJsonProvider jaxbJsonProvider = new JacksonJsonProvider();
         jaxbJsonProvider.configure(SerializationFeature.INDENT_OUTPUT, true);
         jaxbJsonProvider.configure(SerializationFeature.WRAP_ROOT_VALUE, false);
+        jaxbJsonProvider.setMapper(objectMapper);
         resourceConfig.register(jaxbJsonProvider);
+
+        final MessageBodyWriter<WhoisResources> customMessageBodyWriter = new WhoisResourcesPlainTextWriter();
+        resourceConfig.register(customMessageBodyWriter);
 
         resourceConfig.register(new JaxbMessagingBinder());
 

@@ -1,15 +1,14 @@
 package net.ripe.db.whois.common.rpsl;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import static org.hamcrest.CoreMatchers.not;
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.nullValue;
-import static org.junit.Assert.assertFalse;
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.junit.Assert.fail;
+import static org.junit.jupiter.api.Assertions.fail;
 
 public class RpslAttributeTest {
     private RpslAttribute subject;
@@ -122,14 +121,14 @@ public class RpslAttributeTest {
     @Test
     public void equals_Integer() {
         subject = new RpslAttribute("remarks", "The quick brown fox.");
-        assertFalse(subject.equals(1));
+        assertThat(subject, not(equalTo(1)));
     }
 
     @Test
     public void equals_null() {
         subject = new RpslAttribute("remarks", "The quick brown fox.");
         assertThat(subject, not(is(nullValue())));
-        assertFalse(subject.equals(null));
+        assertThat(subject, not(equalTo(null)));
 
     }
 

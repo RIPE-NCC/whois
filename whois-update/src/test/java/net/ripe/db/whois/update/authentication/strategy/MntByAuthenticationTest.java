@@ -15,12 +15,11 @@ import net.ripe.db.whois.update.domain.PreparedUpdate;
 import net.ripe.db.whois.update.domain.UpdateContext;
 import net.ripe.db.whois.update.domain.UpdateMessages;
 import net.ripe.db.whois.update.sso.SsoTranslator;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -30,15 +29,17 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.core.Is.is;
-import static org.junit.Assert.fail;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.fail;
 import static org.mockito.ArgumentMatchers.anyCollection;
 import static org.mockito.ArgumentMatchers.argThat;
 import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
 
-@RunWith(MockitoJUnitRunner.class)
+@ExtendWith(MockitoExtension.class)
 public class MntByAuthenticationTest {
     @Mock PreparedUpdate update;
     @Mock UpdateContext updateContext;
@@ -50,11 +51,6 @@ public class MntByAuthenticationTest {
     @Mock SsoTranslator ssoTranslator;
 
     @InjectMocks MntByAuthentication subject;
-
-    @Before
-    public void setUp() throws Exception {
-        when(maintainers.isRsMaintainer(ciSet("RS-MNT"))).thenReturn(true);
-    }
 
     @Test
     public void supports_every_object_with_a_mntby_attribute() {
@@ -72,7 +68,6 @@ public class MntByAuthenticationTest {
         final RpslObject org = RpslObject.parse("organisation: ORG1\nmnt-by: TEST-MNT");
         when(update.getReferenceObject()).thenReturn(org);
         when(update.getType()).thenReturn(ObjectType.ORGANISATION);
-        when(update.getUpdatedObject()).thenReturn(RpslObject.parse("organisation: ORG1\nmnt-by: TEST-MNT\nnotify: TEST-MNT"));
         final RpslObject maintainer = RpslObject.parse("mntner: TEST-MNT");
         final ArrayList<RpslObject> candidates = Lists.newArrayList(maintainer);
         when(rpslObjectDao.getByKeys(ObjectType.MNTNER, org.getValuesForAttribute(AttributeType.MNT_BY))).thenReturn(candidates);
@@ -81,29 +76,30 @@ public class MntByAuthenticationTest {
 
         final List<RpslObject> result = subject.authenticate(update, updateContext);
 
-        assertThat(result.size(), is(1));
+        assertThat(result, hasSize(1));
         assertThat(result.get(0), is(maintainer));
 
         verifyNoMoreInteractions(updateContext);
         verifyNoMoreInteractions(maintainers);
     }
 
-    @Test(expected = AuthenticationFailedException.class)
+    @Test
     public void authenticate_fails() {
-        final RpslObject person = RpslObject.parse("person: Some One\nnic-hdl: TEST-NIC\nmnt-by: TEST-MNT");
-        when(update.getAction()).thenReturn(Action.MODIFY);
-        when(update.getReferenceObject()).thenReturn(person);
-        when(update.getType()).thenReturn(person.getType());
-        when(update.getUpdatedObject()).thenReturn(person);
-        final RpslObject maintainer = RpslObject.parse("mntner: TEST-MNT");
-        final ArrayList<RpslObject> candidates = Lists.newArrayList(maintainer);
-        when(rpslObjectDao.getByKeys(ObjectType.MNTNER, person.getValuesForAttribute(AttributeType.MNT_BY))).thenReturn(candidates);
-        when(credentialValidators.authenticate(update, updateContext, candidates, MntByAuthentication.class)).thenReturn(Lists.newArrayList());
+        assertThrows(AuthenticationFailedException.class, () -> {
+            final RpslObject person = RpslObject.parse("person: Some One\nnic-hdl: TEST-NIC\nmnt-by: TEST-MNT");
+            when(update.getAction()).thenReturn(Action.MODIFY);
+            when(update.getReferenceObject()).thenReturn(person);
+            when(update.getType()).thenReturn(person.getType());
+            final RpslObject maintainer = RpslObject.parse("mntner: TEST-MNT");
+            final ArrayList<RpslObject> candidates = Lists.newArrayList(maintainer);
+            when(rpslObjectDao.getByKeys(ObjectType.MNTNER, person.getValuesForAttribute(AttributeType.MNT_BY))).thenReturn(candidates);
+            when(credentialValidators.authenticate(update, updateContext, candidates, MntByAuthentication.class)).thenReturn(Lists.newArrayList());
 
-        subject.authenticate(update, updateContext);
+            subject.authenticate(update, updateContext);
 
-        verify(maintainers).isRsMaintainer(ciSet("RS-MNT"));
-        verifyNoMoreInteractions(maintainers);
+            verify(maintainers).isRsMaintainer(ciSet("RS-MNT"));
+            verifyNoMoreInteractions(maintainers);
+        });
     }
 
     @Test
@@ -112,7 +108,6 @@ public class MntByAuthenticationTest {
 
         when(update.getType()).thenReturn(mntner.getType());
         when(update.getReferenceObject()).thenReturn(mntner);
-        when(update.getUpdatedObject()).thenReturn(mntner);
         when(update.getAction()).thenReturn(Action.CREATE);
 
         final ArrayList<RpslObject> candidates = Lists.newArrayList(mntner);
@@ -124,7 +119,7 @@ public class MntByAuthenticationTest {
 
         final List<RpslObject> result = subject.authenticate(update, updateContext);
 
-        assertThat(result.size(), is(1));
+        assertThat(result, hasSize(1));
         assertThat(result.get(0), is(mntner));
 
         verifyNoMoreInteractions(updateContext);
@@ -161,8 +156,6 @@ public class MntByAuthenticationTest {
 
         when(update.getAction()).thenReturn(Action.DELETE);
         when(update.getReferenceObject()).thenReturn(original);
-        when(update.getUpdatedObject()).thenReturn(updated);
-        when(update.getType()).thenReturn(ObjectType.PERSON);
 
         verifyNoMoreInteractions(rpslObjectDao, credentialValidators);
 
@@ -202,6 +195,8 @@ public class MntByAuthenticationTest {
 
     @Test
     public void authenticate_mnt_by_fails_delete_parent_has_rs_fails_authentication() {
+        lenient().when(maintainers.isRsMaintainer(ciSet("RS-MNT"))).thenReturn(true);
+
         final RpslObject inetnum = RpslObject.parse("" +
                 "inetnum:  193.0.0.0\n" +
                 "mnt-by:   DEV1-MNT\n");
@@ -225,7 +220,7 @@ public class MntByAuthenticationTest {
         when(rpslObjectDao.getById(1)).thenReturn(ipObject);
 
         final ArrayList<RpslObject> parentCandidates = Lists.newArrayList(RpslObject.parse("mntner: RS-MNT"));
-        when(rpslObjectDao.getByKeys(ObjectType.MNTNER, ciSet("RS-MNT"))).thenReturn(parentCandidates);
+        lenient().when(rpslObjectDao.getByKeys(ObjectType.MNTNER, ciSet("RS-MNT"))).thenReturn(parentCandidates);
 
         try {
             subject.authenticate(update, updateContext);
@@ -244,6 +239,8 @@ public class MntByAuthenticationTest {
 
     @Test
     public void authenticate_mnt_by_fails_delete_parent_has_rs_success() {
+        lenient().when(maintainers.isRsMaintainer(ciSet("RS-MNT"))).thenReturn(true);
+
         final RpslObject inetnum = RpslObject.parse("" +
                 "inetnum:  193.0.0.0\n" +
                 "mnt-by:   DEV1-MNT\n");
@@ -267,7 +264,7 @@ public class MntByAuthenticationTest {
         when(rpslObjectDao.getById(1)).thenReturn(ipObject);
 
         final List<RpslObject> parentCandidates = Lists.newArrayList(RpslObject.parse("mntner: RS-MNT"));
-        when(rpslObjectDao.getByKeys(ObjectType.MNTNER, ciSet("RS-MNT"))).thenReturn(parentCandidates);
+        lenient().when(rpslObjectDao.getByKeys(ObjectType.MNTNER, ciSet("RS-MNT"))).thenReturn(parentCandidates);
         when(credentialValidators.authenticate(
                 eq(update),
                 eq(updateContext),

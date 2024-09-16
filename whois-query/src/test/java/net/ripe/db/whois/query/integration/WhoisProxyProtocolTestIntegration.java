@@ -6,18 +6,17 @@ import com.amazonaws.proprot.ProxyProtocolSpec.AddressFamily;
 import com.amazonaws.proprot.ProxyProtocolSpec.Command;
 import com.amazonaws.proprot.ProxyProtocolSpec.TransportProtocol;
 import com.google.common.collect.Lists;
-import net.ripe.db.whois.common.IntegrationTest;
 import net.ripe.db.whois.common.rpsl.RpslObject;
 import net.ripe.db.whois.query.QueryServer;
 import net.ripe.db.whois.query.support.AbstractQueryIntegrationTest;
 import net.ripe.db.whois.query.support.TestPersonalObjectAccounting;
 import org.apache.commons.io.IOUtils;
-import org.junit.After;
-import org.junit.AfterClass;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Test;
-import org.junit.experimental.categories.Category;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Tag;
+import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import java.io.ByteArrayOutputStream;
@@ -35,23 +34,23 @@ import java.nio.charset.StandardCharsets;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
 
-@Category(IntegrationTest.class)
+@Tag("IntegrationTest")
 public class WhoisProxyProtocolTestIntegration extends AbstractQueryIntegrationTest {
 
     @Autowired
     TestPersonalObjectAccounting testPersonalObjectAccounting;
 
-    @BeforeClass
+    @BeforeAll
     public static void setSpringProfile() {
         System.setProperty("proxy.protocol.enabled", "true");
     }
 
-    @AfterClass
+    @AfterAll
     public static void resetSpringProfile() {
         System.clearProperty("proxy.protocol.enabled");
     }
 
-    @Before
+    @BeforeEach
     public void startupWhoisServer() {
         databaseHelper.clearAclLimits();
         ipResourceConfiguration.reload();
@@ -65,7 +64,7 @@ public class WhoisProxyProtocolTestIntegration extends AbstractQueryIntegrationT
         queryServer.start();
     }
 
-    @After
+    @AfterEach
     public void shutdownWhoisServer() {
         queryServer.stop(true);
     }
@@ -87,7 +86,7 @@ public class WhoisProxyProtocolTestIntegration extends AbstractQueryIntegrationT
     }
 
     private String send(final InetAddress clientIp, final String query) {
-        try (final Socket socket = new Socket("localhost", QueryServer.port);
+        try (final Socket socket = new Socket("localhost", queryServer.getPort());
              final OutputStream out = socket.getOutputStream();
              final InputStream in = socket.getInputStream()) {
 

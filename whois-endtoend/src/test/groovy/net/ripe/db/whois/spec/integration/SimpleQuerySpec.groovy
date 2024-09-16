@@ -1,8 +1,8 @@
 package net.ripe.db.whois.spec.integration
 
-import net.ripe.db.whois.common.IntegrationTest
 
-@org.junit.experimental.categories.Category(IntegrationTest.class)
+
+@org.junit.jupiter.api.Tag("IntegrationTest")
 class SimpleQuerySpec extends BaseWhoisSourceSpec {
     @Override
     Map<String, String> getFixtures() {
@@ -109,7 +109,7 @@ class SimpleQuerySpec extends BaseWhoisSourceSpec {
             notify:         notify@ripe.net
             mnt-by:         TST-MNT
             source:         TEST
-            """.stripIndent()
+            """.stripIndent(true)
 
         response.contains(expectedResult)
     }

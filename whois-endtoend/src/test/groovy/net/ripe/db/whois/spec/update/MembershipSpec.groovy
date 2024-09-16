@@ -1,10 +1,10 @@
 package net.ripe.db.whois.spec.update
 
-import net.ripe.db.whois.common.IntegrationTest
+
 import net.ripe.db.whois.spec.BaseQueryUpdateSpec
 import net.ripe.db.whois.spec.domain.Message
 
-@org.junit.experimental.categories.Category(IntegrationTest.class)
+@org.junit.jupiter.api.Tag("IntegrationTest")
 class MembershipSpec extends BaseQueryUpdateSpec {
 
     @Override
@@ -199,7 +199,7 @@ class MembershipSpec extends BaseQueryUpdateSpec {
                 password: lir
                 password: locked
                 password: owner3
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -240,7 +240,7 @@ class MembershipSpec extends BaseQueryUpdateSpec {
                 password: hm
                 password: locked
                 password: owner3
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -281,7 +281,7 @@ class MembershipSpec extends BaseQueryUpdateSpec {
                 password: lir
                 password: locked
                 password: owner3
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -325,7 +325,7 @@ class MembershipSpec extends BaseQueryUpdateSpec {
                 password: lir3
                 password: locked
                 password: owner3
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:
@@ -365,7 +365,7 @@ class MembershipSpec extends BaseQueryUpdateSpec {
                 source:         TEST
 
                 password: hm
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -411,7 +411,7 @@ class MembershipSpec extends BaseQueryUpdateSpec {
                 source:  TEST
 
                 password: owner2
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -422,7 +422,7 @@ class MembershipSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(1, 0, 1, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
 
-        ack.countErrorWarnInfo(0, 0, 0)
+        ack.countErrorWarnInfo(0, 1, 0)
         ack.successes.any {it.operation == "Modify" && it.key == "[as-set] AS-TEST"}
 
         query_object_not_matches("-r -T as-set AS-TEST", "as-set", "AS-TEST", "mbrs-by-ref:\\s*LIR-MNT")
@@ -462,7 +462,7 @@ class MembershipSpec extends BaseQueryUpdateSpec {
                 delete:       testing
 
                 password: owner2
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -472,7 +472,7 @@ class MembershipSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(1, 0, 1, 0, 0)
         ack.summary.assertErrors(1, 0, 0, 1)
 
-        ack.countErrorWarnInfo(1, 0, 0)
+        ack.countErrorWarnInfo(1, 1, 0)
         ack.successes.any {it.operation == "Modify" && it.key == "[as-set] AS-TEST"}
         ack.errors.any {it.operation == "Delete" && it.key == "[as-set] AS-TEST"}
         ack.errorMessagesFor("Delete", "[as-set] AS-TEST") == [
@@ -521,7 +521,7 @@ class MembershipSpec extends BaseQueryUpdateSpec {
 
                 password: owner2
                 password: lir
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -531,7 +531,7 @@ class MembershipSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(1, 0, 1, 0, 0)
         ack.summary.assertErrors(1, 0, 1, 0)
 
-        ack.countErrorWarnInfo(1, 3, 0)
+        ack.countErrorWarnInfo(1, 4, 0)
         ack.successes.any {it.operation == "Modify" && it.key == "[as-set] AS-TEST"}
         ack.errors.any {it.operation == "Modify" && it.key == "[aut-num] AS352"}
         ack.errorMessagesFor("Modify", "[aut-num] AS352") == [
@@ -584,7 +584,7 @@ class MembershipSpec extends BaseQueryUpdateSpec {
 
                 password: owner2
                 password: lir
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -595,7 +595,7 @@ class MembershipSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(2, 0, 2, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
 
-        ack.countErrorWarnInfo(0, 3, 0)
+        ack.countErrorWarnInfo(0, 4, 0)
         ack.successes.any {it.operation == "Modify" && it.key == "[as-set] AS-TEST"}
         ack.successes.any {it.operation == "Modify" && it.key == "[aut-num] AS352"}
         ack.warningSuccessMessagesFor("Modify", "[aut-num] AS352") ==
@@ -655,7 +655,7 @@ class MembershipSpec extends BaseQueryUpdateSpec {
 
                 password: owner2
                 password: lir
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -666,7 +666,7 @@ class MembershipSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(3, 0, 2, 1, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
 
-        ack.countErrorWarnInfo(0, 3, 0)
+        ack.countErrorWarnInfo(0, 4, 0)
         ack.successes.any {it.operation == "Modify" && it.key == "[as-set] AS-TEST"}
         ack.successes.any {it.operation == "Modify" && it.key == "[aut-num] AS352"}
         ack.successes.any {it.operation == "Delete" && it.key == "[as-set] AS-TEST"}
@@ -703,7 +703,7 @@ class MembershipSpec extends BaseQueryUpdateSpec {
                 source:         TEST
 
                 password: owner
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -714,7 +714,7 @@ class MembershipSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(0, 0, 0, 0, 0)
         ack.summary.assertErrors(1, 0, 1, 0)
 
-        ack.countErrorWarnInfo(1, 0, 0)
+        ack.countErrorWarnInfo(1, 1, 0)
         ack.errors.any {it.operation == "Modify" && it.key == "[aut-num] AS123"}
         ack.errorMessagesFor("Modify", "[aut-num] AS123") == [
                 "Unknown object referenced AS-TEST"
@@ -746,7 +746,7 @@ class MembershipSpec extends BaseQueryUpdateSpec {
                 delete:      testing
 
                 password: ref
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -757,7 +757,7 @@ class MembershipSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(0, 0, 0, 0, 0)
         ack.summary.assertErrors(1, 0, 0, 1)
 
-        ack.countErrorWarnInfo(1, 0, 0)
+        ack.countErrorWarnInfo(1, 1, 0)
         ack.errors.any {it.operation == "Delete" && it.key == "[mntner] REF-MNT"}
         ack.errorMessagesFor("Delete", "[mntner] REF-MNT") == [
                 "Object [mntner] REF-MNT is referenced from other objects"]
@@ -789,7 +789,7 @@ class MembershipSpec extends BaseQueryUpdateSpec {
                 delete:      testing
 
                 password: owner2
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -800,7 +800,7 @@ class MembershipSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(0, 0, 0, 0, 0)
         ack.summary.assertErrors(1, 0, 0, 1)
 
-        ack.countErrorWarnInfo(1, 0, 0)
+        ack.countErrorWarnInfo(1, 1, 0)
         ack.errors.any {it.operation == "Delete" && it.key == "[as-set] AS-TEST"}
         ack.errorMessagesFor("Delete", "[as-set] AS-TEST") == [
                 "Object [as-set] AS-TEST is referenced from other objects"]
@@ -809,24 +809,25 @@ class MembershipSpec extends BaseQueryUpdateSpec {
     }
 
     def "create as-set obj, mbrs-by-ref ANY"() {
-      expect:
+       given:
+         dbfixture(getTransient("ASN123"))
+       expect:
         queryObjectNotFound("-r -T as-set AS-TEST", "as-set", "AS-TEST")
-
       when:
         def message = send new Message(
                 subject: "",
                 body: """\
-                as-set:       AS-TEST
+                as-set:       AS123:AS-TEST
                 descr:        test as-set
                 tech-c:       TP1-TEST
                 admin-c:      TP1-TEST
-                mnt-by:       OWNER2-MNT
+                mnt-by:       OWNER-MNT
                 mnt-lower:    LIR2-MNT
                 mbrs-by-ref:  ANY
                 source:  TEST
 
-                password: owner2
-                """.stripIndent()
+                password: owner
+                """.stripIndent(true)
         )
 
       then:
@@ -837,10 +838,10 @@ class MembershipSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(1, 1, 0, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
 
-        ack.countErrorWarnInfo(0, 0, 0)
-        ack.successes.any {it.operation == "Create" && it.key == "[as-set] AS-TEST"}
+        ack.countErrorWarnInfo(0, 1, 0)
+        ack.successes.any {it.operation == "Create" && it.key == "[as-set] AS123:AS-TEST"}
 
-        query_object_matches("-r -T as-set AS-TEST", "as-set", "AS-TEST", "mbrs-by-ref:\\s*ANY")
+        query_object_matches("-r -T as-set AS123:AS-TEST", "as-set", "AS123:AS-TEST", "mbrs-by-ref:\\s*ANY")
     }
 
     def "create aut-num obj, member-of existing set, mbrs-by-ref ANY"() {
@@ -869,7 +870,7 @@ class MembershipSpec extends BaseQueryUpdateSpec {
                 password: lir
                 password: locked
                 password: owner3
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -924,7 +925,7 @@ class MembershipSpec extends BaseQueryUpdateSpec {
 
                 password: owner2
                 password: lir
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -935,7 +936,7 @@ class MembershipSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(2, 0, 2, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
 
-        ack.countErrorWarnInfo(0, 3, 0)
+        ack.countErrorWarnInfo(0, 4, 0)
         ack.successes.any {it.operation == "Modify" && it.key == "[as-set] AS-TEST"}
         ack.successes.any {it.operation == "Modify" && it.key == "[aut-num] AS352"}
         ack.warningSuccessMessagesFor("Modify", "[aut-num] AS352") ==
@@ -978,7 +979,7 @@ class MembershipSpec extends BaseQueryUpdateSpec {
                 password: lir
                 password: locked
                 password: owner3
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -1038,7 +1039,7 @@ class MembershipSpec extends BaseQueryUpdateSpec {
 
                 password: owner2
                 password: lir
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -1049,7 +1050,7 @@ class MembershipSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(1, 0, 1, 0, 0)
         ack.summary.assertErrors(1, 0, 1, 0)
 
-        ack.countErrorWarnInfo(1, 3, 0)
+        ack.countErrorWarnInfo(1, 4, 0)
         ack.successes.any {it.operation == "Modify" && it.key == "[as-set] AS-TEST"}
         ack.errors.any {it.operation == "Modify" && it.key == "[aut-num] AS1309"}
         ack.errorMessagesFor("Modify", "[aut-num] AS1309") == [
@@ -1102,7 +1103,7 @@ class MembershipSpec extends BaseQueryUpdateSpec {
                 password: lir3
                 password: owner3
                 password: locked
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -1151,7 +1152,7 @@ class MembershipSpec extends BaseQueryUpdateSpec {
                 password: lir
                 password: locked
                 password: owner3
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -1169,24 +1170,26 @@ class MembershipSpec extends BaseQueryUpdateSpec {
     }
 
     def "create as-set obj, mbrs-by-ref non existent mntner"() {
+      given:
+        dbfixture(getTransient("ASN123"))
       expect:
-        queryObjectNotFound("-r -T as-set AS-TEST", "as-set", "AS-TEST")
+        queryObjectNotFound("-r -T as-set AS123:AS-TEST", "as-set", "AS123:AS-TEST")
 
       when:
         def message = send new Message(
                 subject: "",
                 body: """\
-                as-set:       AS-TEST
+                as-set:       AS123:AS-TEST
                 descr:        test as-set
                 tech-c:       TP1-TEST
                 admin-c:      TP1-TEST
-                mnt-by:       OWNER2-MNT
+                mnt-by:       OWNER-MNT
                 mnt-lower:    LIR2-MNT
                 mbrs-by-ref:  aardvark-mnt
                 source:  TEST
 
-                password: owner2
-                """.stripIndent()
+                password: owner
+                """.stripIndent(true)
         )
 
       then:
@@ -1197,16 +1200,19 @@ class MembershipSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(0, 0, 0, 0, 0)
         ack.summary.assertErrors(1, 1, 0, 0)
 
-        ack.countErrorWarnInfo(1, 0, 0)
-        ack.errors.any {it.operation == "Create" && it.key == "[as-set] AS-TEST"}
-        ack.errorMessagesFor("Create", "[as-set] AS-TEST") == [
+        ack.countErrorWarnInfo(1, 1, 0)
+        ack.errors.any {it.operation == "Create" && it.key == "[as-set] AS123:AS-TEST"}
+        ack.errorMessagesFor("Create", "[as-set] AS123:AS-TEST") == [
                 "Unknown object referenced aardvark-mnt"]
 
-        queryObjectNotFound("-r -T as-set AS-TEST", "as-set", "AS-TEST")
+        queryObjectNotFound("-r -T as-set AS123:AS-TEST", "as-set", "AS123:AS-TEST")
     }
 
     def "create as-set object with non existent 16 & 32 bit members"() {
-      expect:
+        given:
+        dbfixture(getTransient("ASN123"))
+
+        expect:
         queryObjectNotFound("-r -T as-set AS-TEST", "as-set", "AS-TEST")
         queryObjectNotFound("-r -T aut-num AS1", "aut-num", "AS1")
         queryObjectNotFound("-r -T aut-num AS94967295", "aut-num", "AS94967295")
@@ -1215,18 +1221,18 @@ class MembershipSpec extends BaseQueryUpdateSpec {
         def message = send new Message(
                 subject: "",
                 body: """\
-                as-set:       AS-TEST
+                as-set:       AS123:AS-TEST
                 descr:        test as-set
                 members:      AS1, AS2, AS3, AS4
                 members:      AS65536, AS7775535, AS94967295
                 tech-c:       TP1-TEST
                 admin-c:      TP1-TEST
-                mnt-by:       LIR-MNT
-                mnt-lower:    LIR-MNT
+                mnt-by:       OWNER-MNT
+                mnt-lower:    OWNER-MNT
                 source:  TEST
 
-                password: lir
-                """.stripIndent()
+                password: owner
+                """.stripIndent(true)
         )
 
       then:
@@ -1237,10 +1243,10 @@ class MembershipSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(1, 1, 0, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
 
-        ack.countErrorWarnInfo(0, 0, 0)
-        ack.successes.any {it.operation == "Create" && it.key == "[as-set] AS-TEST"}
+        ack.countErrorWarnInfo(0, 1, 0)
+        ack.successes.any {it.operation == "Create" && it.key == "[as-set] AS123:AS-TEST"}
 
-        queryObject("-rBT as-set As-TEst", "as-set", "AS-TEST")
+        queryObject("-rBT as-set AS123:As-TEst", "as-set", "AS123:AS-TEST")
     }
 
     def "create as-set object with existing & non existing 16 & 32 bit members"() {
@@ -1249,7 +1255,7 @@ class MembershipSpec extends BaseQueryUpdateSpec {
         dbfixture(getTransient("ASN94967295"))
 
       expect:
-        queryObjectNotFound("-r -T as-set AS-TEST", "as-set", "AS-TEST")
+        queryObjectNotFound("-r -T as-set AS123:AS-TEST", "as-set", "AS123:AS-TEST")
         queryObjectNotFound("-r -T aut-num AS1", "aut-num", "AS1")
         queryObjectNotFound("-r -T aut-num AS7775535", "aut-num", "AS7775535")
         queryObject("-r -T aut-num AS123", "aut-num", "AS123")
@@ -1261,7 +1267,7 @@ class MembershipSpec extends BaseQueryUpdateSpec {
         def message = send new Message(
                 subject: "",
                 body: """\
-                as-set:       AS-TEST
+                as-set:       AS123:AS-TEST
                 descr:        test as-set
                 members:      AS1, AS2, AS3, AS4
                 members:      AS65536, AS7775535, AS94967295
@@ -1272,7 +1278,8 @@ class MembershipSpec extends BaseQueryUpdateSpec {
                 source:  TEST
 
                 password: lir
-                """.stripIndent()
+                password: owner
+                """.stripIndent(true)
         )
 
       then:
@@ -1283,10 +1290,10 @@ class MembershipSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(1, 1, 0, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
 
-        ack.countErrorWarnInfo(0, 0, 0)
-        ack.successes.any {it.operation == "Create" && it.key == "[as-set] AS-TEST"}
+        ack.countErrorWarnInfo(0, 1, 0)
+        ack.successes.any {it.operation == "Create" && it.key == "[as-set] AS123:AS-TEST"}
 
-        queryObject("-rBT as-set As-TEst", "as-set", "AS-TEST")
+        queryObject("-rBT as-set AS123:As-TEst", "as-set", "AS123:AS-TEST")
     }
 
     def "delete as-set object with existing & non existing 16 & 32 bit members"() {
@@ -1320,7 +1327,7 @@ class MembershipSpec extends BaseQueryUpdateSpec {
                 delete:       testing members
 
                 password: owner2
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -1331,7 +1338,7 @@ class MembershipSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(1, 0, 0, 1, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
 
-        ack.countErrorWarnInfo(0, 0, 0)
+        ack.countErrorWarnInfo(0, 1, 0)
         ack.successes.any {it.operation == "Delete" && it.key == "[as-set] AS-TEST"}
 
         queryObjectNotFound("-rBT as-set As-TEst", "as-set", "AS-TEST")
@@ -1368,7 +1375,7 @@ class MembershipSpec extends BaseQueryUpdateSpec {
                 delete:       testing members
 
                 password: owner
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -1379,7 +1386,7 @@ class MembershipSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(1, 0, 0, 1, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
 
-        ack.countErrorWarnInfo(0, 0, 0)
+        ack.countErrorWarnInfo(0, 1, 0)
         ack.successes.any {it.operation == "Delete" && it.key == "[aut-num] AS123"}
 
         queryObjectNotFound("-rBT aut-num AS123", "aut-num", "AS123")
@@ -1417,7 +1424,7 @@ class MembershipSpec extends BaseQueryUpdateSpec {
                 password: owner
                 password: owner3
                 password: locked
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -1476,7 +1483,7 @@ class MembershipSpec extends BaseQueryUpdateSpec {
 
                 password: owner2
                 password: owner
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -1487,7 +1494,7 @@ class MembershipSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(2, 0, 2, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
 
-        ack.countErrorWarnInfo(0, 0, 0)
+        ack.countErrorWarnInfo(0, 1, 0)
         ack.successes.any {it.operation == "Modify" && it.key == "[as-set] AS-TEST"}
         ack.successes.any {it.operation == "Modify" && it.key == "[aut-num] AS123"}
 
@@ -1551,7 +1558,7 @@ class MembershipSpec extends BaseQueryUpdateSpec {
 
                 password: owner2
                 password: owner
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -1562,7 +1569,7 @@ class MembershipSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(2, 0, 2, 0, 0)
         ack.summary.assertErrors(1, 0, 0, 1)
 
-        ack.countErrorWarnInfo(1, 0, 0)
+        ack.countErrorWarnInfo(1, 1, 0)
         ack.successes.any {it.operation == "Modify" && it.key == "[as-set] AS-TEST"}
         ack.successes.any {it.operation == "Modify" && it.key == "[aut-num] AS123"}
         ack.errors.any {it.operation == "Delete" && it.key == "[as-set] AS-TEST"}

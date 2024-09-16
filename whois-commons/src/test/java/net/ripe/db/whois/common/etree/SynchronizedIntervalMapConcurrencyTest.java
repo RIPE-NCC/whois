@@ -3,7 +3,7 @@ package net.ripe.db.whois.common.etree;
 import com.google.common.base.Stopwatch;
 import net.ripe.db.whois.common.ip.Ipv4Resource;
 import net.ripe.db.whois.common.iptree.Ipv4Entry;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -13,9 +13,10 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 
-import static org.hamcrest.Matchers.contains;
-import static org.junit.Assert.assertEquals;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.contains;
+import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.nullValue;
 
 public class SynchronizedIntervalMapConcurrencyTest {
     private final IntervalMap<Ipv4Resource, Ipv4Entry> subject = SynchronizedIntervalMap.synchronizedMap(new NestedIntervalMap<Ipv4Resource, Ipv4Entry>());
@@ -46,7 +47,7 @@ public class SynchronizedIntervalMapConcurrencyTest {
             executor.shutdown();
         }
         for (Future<Exception> f : result) {
-            assertEquals(null, f.get());
+            assertThat(f.get(), is(nullValue()));
         }
     }
 
