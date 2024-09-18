@@ -53,6 +53,10 @@ public class HazelcastIpBlockManager implements IpBlockManager {
 
     @Override
     public boolean isBlockedIp(final InetAddress candidate) {
+        if(candidate == null) {
+            return false;
+        }
+
         final IpInterval<?> parsed = IpInterval.asIpInterval(candidate);
         try {
             return getIpBlockedSet().stream()
