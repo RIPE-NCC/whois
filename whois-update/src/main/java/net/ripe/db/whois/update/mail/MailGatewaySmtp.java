@@ -63,7 +63,7 @@ public abstract class MailGatewaySmtp {
     }
 
     @Nullable
-    protected String extractEmailBetweenAngleBrackets(final String email) {
+    protected static String extractEmailBetweenAngleBrackets(final String email) {
         if(email == null) {
             return null;
         }
@@ -190,15 +190,16 @@ public abstract class MailGatewaySmtp {
                     String.format("<%s%sapi/unsubscribe/%s>, <mailto:%s?subject=Unsubscribe%%20%s>",
                             webBaseUrl,
                             (webBaseUrl.endsWith("/") ? "" : "/"),
-                            mimeMessage.getMessageID(),
+                            extractEmailBetweenAngleBrackets(mimeMessage.getMessageID()),
                             mailConfiguration.getSmtpFrom(),
-                            mimeMessage.getMessageID()));
+                            extractEmailBetweenAngleBrackets(mimeMessage.getMessageID())));
             mimeMessage.addHeader("List-Unsubscribe-Post", "List-Unsubscribe=One-Click");
         }
     }
 
     private void storeAsOutGoingMessage(final String mimeMessageId, final String punyCodedTo){
-        outgoingMessageDao.saveOutGoingMessageId(extractEmailBetweenAngleBrackets(mimeMessageId),   //Message-ID is in rfc2822 address format
+        outgoingMessageDao.saveOutGoingMessageId(
+                extractEmailBetweenAngleBrackets(mimeMessageId),   //Message-ID is in rfc2822 address format
                 extractEmailBetweenAngleBrackets(punyCodedTo));
     }
 
@@ -229,6 +230,6 @@ public abstract class MailGatewaySmtp {
 
     private void persistOutGoingMessageInfo(final MimeMessage mimeMessage, final String[] recipientsPunycode) throws MessagingException {
         final String messageId = mimeMessage.getMessageID();
-        Arrays.stream(recipientsPunycode).forEach(punyCodeTo -> storeAsOutGoingMessage(messageId, punyCodeTo));
+        Arrays.stream(recipientsPunycode).forEach(punyCodeTo -> storeAsOutGoingMessage(extractEmailBetweenAngleBrackets(messageId), punyCodeTo));
     }
 }
