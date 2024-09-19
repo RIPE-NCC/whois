@@ -1846,7 +1846,6 @@ class Inet6numStatusChildSpec extends BaseQueryUpdateSpec {
                 admin-c:      TP1-TEST
                 tech-c:       TP1-TEST
                 mnt-by:       LIR-MNT
-                mnt-lower:    liR-MNT
                 status:       ASSIGNED
                 assignment-size: 48
                 source:       TEST
@@ -1863,7 +1862,7 @@ class Inet6numStatusChildSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(0, 0, 0, 0, 0)
         ack.summary.assertErrors(1, 1, 0, 0)
 
-        ack.countErrorWarnInfo(1, 0, 0)
+        ack.countErrorWarnInfo(1, 1, 0)
         ack.errors.any { it.operation == "Create" && it.key == "[inet6num] 2001:600::/32" }
         ack.errorMessagesFor("Create", "[inet6num] 2001:600::/32") ==
                 ["\"assignment-size:\" attribute only allowed with status AGGREGATED-BY-LIR"]
@@ -1909,7 +1908,7 @@ class Inet6numStatusChildSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(0, 0, 0, 0, 0)
         ack.summary.assertErrors(1, 1, 0, 0)
 
-        ack.countErrorWarnInfo(1, 0, 0)
+        ack.countErrorWarnInfo(1, 1, 0)
         ack.errors.any { it.operation == "Create" && it.key == "[inet6num] 2001:600::/56" }
         ack.errorMessagesFor("Create", "[inet6num] 2001:600::/56") ==
                 ["\"assignment-size:\" value must be greater than prefix size 56"]
@@ -1955,7 +1954,7 @@ class Inet6numStatusChildSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(0, 0, 0, 0, 0)
         ack.summary.assertErrors(1, 1, 0, 0)
 
-        ack.countErrorWarnInfo(1, 0, 0)
+        ack.countErrorWarnInfo(1, 1, 0)
         ack.errors.any { it.operation == "Create" && it.key == "[inet6num] 2001:600::/48" }
         ack.errorMessagesFor("Create", "[inet6num] 2001:600::/48") ==
                 ["\"assignment-size:\" value must be greater than prefix size 48"]
@@ -2187,7 +2186,7 @@ class Inet6numStatusChildSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(0, 0, 0, 0, 0)
         ack.summary.assertErrors(1, 1, 0, 0)
 
-        ack.countErrorWarnInfo(1, 0, 0)
+        ack.countErrorWarnInfo(1, 1, 0)
         ack.errors.any { it.operation == "Create" && it.key == "[inet6num] 2001:600::/32" }
         ack.errorMessagesFor("Create", "[inet6num] 2001:600::/32") ==
                 ["Syntax error in large"]
@@ -2245,7 +2244,7 @@ class Inet6numStatusChildSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(1, 1, 0, 0, 0)
         ack.summary.assertErrors(1, 0, 1, 0)
 
-        ack.countErrorWarnInfo(1, 0, 0)
+        ack.countErrorWarnInfo(1, 1, 0)
         ack.successes.any { it.operation == "Create" && it.key == "[inet6num] 2001:600::/32" }
         ack.errors.any { it.operation == "Modify" && it.key == "[inet6num] 2001:600::/32" }
         ack.errorMessagesFor("Modify", "[inet6num] 2001:600::/32") ==
@@ -2304,7 +2303,7 @@ class Inet6numStatusChildSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(2, 2, 0, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
 
-        ack.countErrorWarnInfo(0, 0, 0)
+        ack.countErrorWarnInfo(0, 1, 0)
         ack.successes.any { it.operation == "Create" && it.key == "[inet6num] 2001:600::/32" }
         ack.successes.any { it.operation == "Create" && it.key == "[inet6num] 2001:600::/48" }
 
@@ -2362,7 +2361,7 @@ class Inet6numStatusChildSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(2, 2, 0, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
 
-        ack.countErrorWarnInfo(0, 0, 0)
+        ack.countErrorWarnInfo(0, 1, 0)
         ack.successes.any { it.operation == "Create" && it.key == "[inet6num] 2001:600::/32" }
         ack.successes.any { it.operation == "Create" && it.key == "[inet6num] 2001:600::/48" }
 
@@ -2389,7 +2388,6 @@ class Inet6numStatusChildSpec extends BaseQueryUpdateSpec {
                 admin-c:      TP1-TEST
                 tech-c:       TP1-TEST
                 mnt-by:       LIR-MNT
-                mnt-lower:    liR-MNT
                 status:       ASSIGNED
                 source:       TEST
 
@@ -2445,7 +2443,6 @@ class Inet6numStatusChildSpec extends BaseQueryUpdateSpec {
                 admin-c:      TP1-TEST
                 tech-c:       TP1-TEST
                 mnt-by:       LIR-MNT
-                mnt-lower:    liR-MNT
                 status:       ASSIGNED
                 source:       TEST
 
@@ -2473,7 +2470,7 @@ class Inet6numStatusChildSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(1, 1, 0, 0, 0)
         ack.summary.assertErrors(1, 1, 0, 0)
 
-        ack.countErrorWarnInfo(1, 0, 0)
+        ack.countErrorWarnInfo(1, 1, 0)
         ack.successes.any { it.operation == "Create" && it.key == "[inet6num] 2001:600::/48" }
         ack.errors.any { it.operation == "Create" && it.key == "[inet6num] 2001:600::/32" }
         ack.errorMessagesFor("Create", "[inet6num] 2001:600::/32") ==
@@ -2504,7 +2501,6 @@ class Inet6numStatusChildSpec extends BaseQueryUpdateSpec {
                 admin-c:      TP1-TEST
                 tech-c:       TP1-TEST
                 mnt-by:       LIR-MNT
-                mnt-lower:    liR-MNT
                 status:       ASSIGNED
                 source:       TEST
 
@@ -2515,7 +2511,6 @@ class Inet6numStatusChildSpec extends BaseQueryUpdateSpec {
                 admin-c:      TP1-TEST
                 tech-c:       TP1-TEST
                 mnt-by:       LIR-MNT
-                mnt-lower:    liR-MNT
                 status:       ASSIGNED
                 source:       TEST
 
@@ -2543,7 +2538,7 @@ class Inet6numStatusChildSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(2, 2, 0, 0, 0)
         ack.summary.assertErrors(1, 1, 0, 0)
 
-        ack.countErrorWarnInfo(1, 0, 0)
+        ack.countErrorWarnInfo(1, 1, 0)
         ack.successes.any { it.operation == "Create" && it.key == "[inet6num] 2001:600::/48" }
         ack.successes.any { it.operation == "Create" && it.key == "[inet6num] 2001:600:1::/64" }
         ack.errors.any { it.operation == "Create" && it.key == "[inet6num] 2001:600::/32" }
@@ -2588,7 +2583,6 @@ class Inet6numStatusChildSpec extends BaseQueryUpdateSpec {
                 admin-c:      TP1-TEST
                 tech-c:       TP1-TEST
                 mnt-by:       LIR-MNT
-                mnt-lower:    liR-MNT
                 status:       ASSIGNED
                 source:       TEST
 
@@ -2604,7 +2598,7 @@ class Inet6numStatusChildSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(1, 1, 0, 0, 0)
         ack.summary.assertErrors(1, 1, 0, 0)
 
-        ack.countErrorWarnInfo(1, 0, 0)
+        ack.countErrorWarnInfo(1, 1, 0)
         ack.errors.any { it.operation == "Create" && it.key == "[inet6num] 2001:600::/48" }
         ack.successes.any { it.operation == "Create" && it.key == "[inet6num] 2001:600::/32" }
         ack.errorMessagesFor("Create", "[inet6num] 2001:600::/48") ==
@@ -2647,7 +2641,6 @@ class Inet6numStatusChildSpec extends BaseQueryUpdateSpec {
                 admin-c:      TP1-TEST
                 tech-c:       TP1-TEST
                 mnt-by:       LIR-MNT
-                mnt-lower:    liR-MNT
                 status:       ASSIGNED
                 source:       TEST
 
@@ -2663,7 +2656,7 @@ class Inet6numStatusChildSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(2, 2, 0, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
 
-        ack.countErrorWarnInfo(0, 0, 0)
+        ack.countErrorWarnInfo(0, 1, 0)
         ack.successes.any { it.operation == "Create" && it.key == "[inet6num] 2001:600::/32" }
         ack.successes.any { it.operation == "Create" && it.key == "[inet6num] 2001:600::/56" }
 
@@ -2704,7 +2697,6 @@ class Inet6numStatusChildSpec extends BaseQueryUpdateSpec {
                 admin-c:      TP1-TEST
                 tech-c:       TP1-TEST
                 mnt-by:       LIR-MNT
-                mnt-lower:    liR-MNT
                 status:       ASSIGNED
                 source:       TEST
 
@@ -2715,7 +2707,6 @@ class Inet6numStatusChildSpec extends BaseQueryUpdateSpec {
                 admin-c:      TP1-TEST
                 tech-c:       TP1-TEST
                 mnt-by:       LIR-MNT
-                mnt-lower:    liR-MNT
                 status:       ASSIGNED
                 source:       TEST
 
@@ -2731,7 +2722,7 @@ class Inet6numStatusChildSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(3, 3, 0, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
 
-        ack.countErrorWarnInfo(0, 0, 0)
+        ack.countErrorWarnInfo(0, 1, 0)
         ack.successes.any { it.operation == "Create" && it.key == "[inet6num] 2001:600::/32" }
         ack.successes.any { it.operation == "Create" && it.key == "[inet6num] 2001:600::/56" }
         ack.successes.any { it.operation == "Create" && it.key == "[inet6num] 2001:600:0:100::/56" }
@@ -2774,7 +2765,6 @@ class Inet6numStatusChildSpec extends BaseQueryUpdateSpec {
                 admin-c:      TP1-TEST
                 tech-c:       TP1-TEST
                 mnt-by:       LIR-MNT
-                mnt-lower:    liR-MNT
                 status:       ASSIGNED
                 source:       TEST
 
@@ -2802,7 +2792,7 @@ class Inet6numStatusChildSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(3, 3, 0, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
 
-        ack.countErrorWarnInfo(0, 0, 0)
+        ack.countErrorWarnInfo(0, 1, 0)
         ack.successes.any { it.operation == "Create" && it.key == "[inet6num] 2001:600::/32" }
         ack.successes.any { it.operation == "Create" && it.key == "[inet6num] 2001:600::/48" }
         ack.successes.any { it.operation == "Create" && it.key == "[inet6num] 2001:600:1::/48" }
@@ -2857,7 +2847,6 @@ class Inet6numStatusChildSpec extends BaseQueryUpdateSpec {
                 admin-c:      TP1-TEST
                 tech-c:       TP1-TEST
                 mnt-by:       LIR-MNT
-                mnt-lower:    liR-MNT
                 status:       ASSIGNED
                 source:       TEST
 
@@ -2873,7 +2862,7 @@ class Inet6numStatusChildSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(3, 3, 0, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
 
-        ack.countErrorWarnInfo(0, 0, 0)
+        ack.countErrorWarnInfo(0, 1, 0)
         ack.successes.any { it.operation == "Create" && it.key == "[inet6num] 2001:600::/32" }
         ack.successes.any { it.operation == "Create" && it.key == "[inet6num] 2001:600::/48" }
         ack.successes.any { it.operation == "Create" && it.key == "[inet6num] 2001:600:1::/48" }
@@ -2933,7 +2922,7 @@ class Inet6numStatusChildSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(1, 1, 0, 0, 0)
         ack.summary.assertErrors(1, 1, 0, 0)
 
-        ack.countErrorWarnInfo(1, 0, 0)
+        ack.countErrorWarnInfo(1, 1, 0)
         ack.successes.any { it.operation == "Create" && it.key == "[inet6num] 2001:600::/32" }
         ack.errors.any { it.operation == "Create" && it.key == "[inet6num] 2001:600:1::/56" }
         ack.errorMessagesFor("Create", "[inet6num] 2001:600:1::/56") ==
@@ -2993,7 +2982,7 @@ class Inet6numStatusChildSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(1, 1, 0, 0, 0)
         ack.summary.assertErrors(1, 1, 0, 0)
 
-        ack.countErrorWarnInfo(1, 0, 0)
+        ack.countErrorWarnInfo(1, 1, 0)
         ack.errors.any { it.operation == "Create" && it.key == "[inet6num] 2001:600::/32" }
         ack.successes.any { it.operation == "Create" && it.key == "[inet6num] 2001:600:1::/56" }
         ack.errorMessagesFor("Create", "[inet6num] 2001:600::/32") ==
@@ -3066,7 +3055,7 @@ class Inet6numStatusChildSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(3, 2, 0, 1, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
 
-        ack.countErrorWarnInfo(0, 0, 0)
+        ack.countErrorWarnInfo(0, 1, 0)
         ack.successes.any { it.operation == "Create" && it.key == "[inet6num] 2001:600::/32" }
         ack.successes.any { it.operation == "Create" && it.key == "[inet6num] 2001:600::/48" }
         ack.successes.any { it.operation == "Delete" && it.key == "[inet6num] 2001:600::/32" }
@@ -3120,7 +3109,6 @@ class Inet6numStatusChildSpec extends BaseQueryUpdateSpec {
                 admin-c:      TP1-TEST
                 tech-c:       TP1-TEST
                 mnt-by:       LIR-MNT
-                mnt-lower:    liR-MNT
                 status:       ASSIGNED
                 source:       TEST
 
@@ -3149,7 +3137,7 @@ class Inet6numStatusChildSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(4, 3, 0, 1, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
 
-        ack.countErrorWarnInfo(0, 0, 0)
+        ack.countErrorWarnInfo(0, 1, 0)
         ack.successes.any { it.operation == "Create" && it.key == "[inet6num] 2001:600::/32" }
         ack.successes.any { it.operation == "Create" && it.key == "[inet6num] 2001:600::/48" }
         ack.successes.any { it.operation == "Create" && it.key == "[inet6num] 2001:600::/56" }
@@ -3222,7 +3210,7 @@ class Inet6numStatusChildSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(3, 3, 0, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
 
-        ack.countErrorWarnInfo(0, 0, 0)
+        ack.countErrorWarnInfo(0, 1, 0)
         ack.successes.any { it.operation == "Create" && it.key == "[inet6num] 2001:600::/32" }
         ack.successes.any { it.operation == "Create" && it.key == "[inet6num] 2001:600::/48" }
         ack.successes.any { it.operation == "Create" && it.key == "[inet6num] 2001:600:1::/48" }
@@ -3294,7 +3282,7 @@ class Inet6numStatusChildSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(3, 3, 0, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
 
-        ack.countErrorWarnInfo(0, 0, 0)
+        ack.countErrorWarnInfo(0, 1, 0)
         ack.successes.any { it.operation == "Create" && it.key == "[inet6num] 2001:600::/32" }
         ack.successes.any { it.operation == "Create" && it.key == "[inet6num] 2001:600::/48" }
         ack.successes.any { it.operation == "Create" && it.key == "[inet6num] 2001:600:1::/48" }
@@ -3361,7 +3349,6 @@ class Inet6numStatusChildSpec extends BaseQueryUpdateSpec {
                 admin-c:      TP1-TEST
                 tech-c:       TP1-TEST
                 mnt-by:       LIR-MNT
-                mnt-lower:    liR-MNT
                 status:       ASSIGNED
                 source:       TEST
 
@@ -3372,7 +3359,6 @@ class Inet6numStatusChildSpec extends BaseQueryUpdateSpec {
                 admin-c:      TP1-TEST
                 tech-c:       TP1-TEST
                 mnt-by:       LIR-MNT
-                mnt-lower:    liR-MNT
                 status:       ASSIGNED
                 source:       TEST
 
@@ -3383,7 +3369,6 @@ class Inet6numStatusChildSpec extends BaseQueryUpdateSpec {
                 admin-c:      TP1-TEST
                 tech-c:       TP1-TEST
                 mnt-by:       LIR-MNT
-                mnt-lower:    liR-MNT
                 status:       ASSIGNED
                 source:       TEST
 
@@ -3399,7 +3384,7 @@ class Inet6numStatusChildSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(6, 6, 0, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
 
-        ack.countErrorWarnInfo(0, 0, 0)
+        ack.countErrorWarnInfo(0, 1, 0)
         ack.successes.any { it.operation == "Create" && it.key == "[inet6num] 2001:600::/32" }
         ack.successes.any { it.operation == "Create" && it.key == "[inet6num] 2001:600::/48" }
         ack.successes.any { it.operation == "Create" && it.key == "[inet6num] 2001:600:1::/48" }
@@ -3477,7 +3462,7 @@ class Inet6numStatusChildSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(2, 2, 0, 0, 0)
         ack.summary.assertErrors(1, 1, 0, 0)
 
-        ack.countErrorWarnInfo(1, 0, 0)
+        ack.countErrorWarnInfo(1, 1, 0)
         ack.successes.any { it.operation == "Create" && it.key == "[inet6num] 2001:600::/32" }
         ack.successes.any { it.operation == "Create" && it.key == "[inet6num] 2001:600::/48" }
         ack.errors.any { it.operation == "Create" && it.key == "[inet6num] 2001:600::/56" }
@@ -3551,7 +3536,7 @@ class Inet6numStatusChildSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(2, 2, 0, 0, 0)
         ack.summary.assertErrors(1, 1, 0, 0)
 
-        ack.countErrorWarnInfo(1, 0, 0)
+        ack.countErrorWarnInfo(1, 1, 0)
         ack.successes.any { it.operation == "Create" && it.key == "[inet6num] 2001:600::/48" }
         ack.successes.any { it.operation == "Create" && it.key == "[inet6num] 2001:600::/56" }
         ack.errors.any { it.operation == "Create" && it.key == "[inet6num] 2001:600::/32" }

@@ -46,6 +46,7 @@ public class DummifierNrtmTest {
                 assertThat(subject.dummify(1, object), is(DummifierNrtm.getPlaceholderPersonObject()));
                 assertThat(subject.dummify(2, object), is(DummifierNrtm.getPlaceholderPersonObject()));
             }
+
         }
     }
 

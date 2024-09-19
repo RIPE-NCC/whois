@@ -13,8 +13,8 @@ import org.mockito.Mock;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import javax.servlet.http.HttpServletRequest;
-import javax.ws.rs.WebApplicationException;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.ws.rs.WebApplicationException;
 import java.util.Collections;
 import java.util.List;
 
@@ -44,6 +44,7 @@ public class WhoisSearchServiceTest {
             try {
                 subject.search(
                         request,
+                        null,
                         Sets.newHashSet("TEST"),
                         "AARDVARK-MNT",
                         Collections.EMPTY_SET,
@@ -55,7 +56,8 @@ public class WhoisSearchServiceTest {
                         null,
                         null,
                         null,
-                        null);
+                        null,
+                        false);
                 fail("Disallowed option " + disallowedFlag + " did not throw error");
             } catch (WebApplicationException e) {
                 assertThat(((WhoisResources)e.getResponse().getEntity()).getErrorMessages().get(0).getText(), is("Disallowed search flag '%s'"));

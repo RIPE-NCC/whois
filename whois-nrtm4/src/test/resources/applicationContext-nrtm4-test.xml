@@ -9,7 +9,7 @@
                            http://www.springframework.org/schema/context
                            http://www.springframework.org/schema/context/spring-context.xsd">
 
-    <import resource="applicationContext-nrtm4.xml"/>
+    <bean class="net.ripe.db.nrtm4.Nrtmv4Config" />
 
     <context:property-placeholder
             location="classpath:whois.version.properties,classpath:whois.properties"

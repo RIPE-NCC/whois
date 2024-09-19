@@ -3,6 +3,8 @@ package net.ripe.db.whois.common.rpsl;
 import com.google.common.base.Splitter;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
+import jakarta.mail.internet.AddressException;
+import jakarta.mail.internet.InternetAddress;
 import net.ripe.db.whois.common.rpsl.transform.FilterChangedFunction;
 import org.apache.commons.lang.Validate;
 import org.slf4j.Logger;
@@ -61,21 +63,19 @@ public class DummifierRC implements Dummifier {
 
             attributes.set(i, replacement);
 
-            final AttributeType attributeType = replacement.getType();
-
             try {
                 if (!(objectType == ObjectType.ROLE && rpslObject.containsAttribute(ABUSE_MAILBOX))) {
-                    replacement = replacePerson(attributeType, replacement);
-                    replacement = replaceAuth(attributeType, replacement);
-                    replacement = replacePhoneFax(attributeType, replacement);
+                    replacement = replacePerson(replacement);
+                    replacement = replaceAuth(replacement);
+                    replacement = replacePhoneFax(replacement);
 
-                    if (attributeType == ADDRESS) {
+                    if (replacement.getType() == ADDRESS) {
                         lastAddressLine = replacement;
                         lastAddressLineIndex = i;
                         replacement = new RpslAttribute(ADDRESS, "***");
                     }
                 }
-                replacement = replaceEmail(attributeType, replacement);
+                replacement = replaceEmail(replacement);
 
                 attributes.set(i, replacement);
             } catch (RuntimeException e) {
@@ -123,8 +123,8 @@ public class DummifierRC implements Dummifier {
         return new RpslAttribute(AttributeType.OWNER, "***");
     }
 
-    private RpslAttribute replacePhoneFax(final AttributeType attributeType, final RpslAttribute attribute) {
-        if (PHONE_FAX_ATTRIBUTES.contains(attributeType)) {
+    private RpslAttribute replacePhoneFax(final RpslAttribute attribute) {
+        if (PHONE_FAX_ATTRIBUTES.contains(attribute.getType())) {
             char[] phone = attribute.getCleanValue().toString().toCharArray();
 
             for (int i = phone.length / 2; i < phone.length; i++) {
@@ -133,23 +133,31 @@ public class DummifierRC implements Dummifier {
                 }
             }
 
-            return new RpslAttribute(attributeType, new String(phone));
+            return new RpslAttribute(attribute.getType(), new String(phone));
         }
         return attribute;
     }
 
-    private RpslAttribute replaceEmail(final AttributeType attributeType, final RpslAttribute attribute) {
-        if (EMAIL_ATTRIBUTES.contains(attributeType)) {
-            Iterator it = EMAIL_SPLITTER.split(attribute.getCleanValue().toString()).iterator();
+    private RpslAttribute replaceEmail(final RpslAttribute attribute) {
+        if (EMAIL_ATTRIBUTES.contains(attribute.getType())) {
+            final InternetAddress internetAddress;
+            try {
+                internetAddress = new InternetAddress(attribute.getCleanValue().toString(), false);
+            } catch (final AddressException e) {
+                LOGGER.debug("{} is an invalid email address", attribute.getCleanValue());
+                return new RpslAttribute(attribute.getType(), "***");
+            }
+
+            final Iterator it = EMAIL_SPLITTER.split(internetAddress.getAddress()).iterator();
             it.next();
-            return new RpslAttribute(attributeType, "***@" + it.next());
+            return new RpslAttribute(attribute.getType(), "***@" + it.next());
         }
         return attribute;
     }
 
     // TODO: [AH] we should relay on a single implementation of Authentication Filter; this method duplicates FilterAuthFunction
-    private RpslAttribute replaceAuth(final AttributeType attributeType, final RpslAttribute attribute) {
-        if (attributeType != AUTH) {
+    private RpslAttribute replaceAuth(final RpslAttribute attribute) {
+        if (attribute.getType() != AUTH) {
             return attribute;
         }
 
@@ -161,9 +169,9 @@ public class DummifierRC implements Dummifier {
         return attribute;
     }
 
-    private RpslAttribute replacePerson(final AttributeType attributeType, final RpslAttribute attribute) {
-        if (attributeType == PERSON) {
-            return new RpslAttribute(attributeType, PERSON_REPLACEMENT);
+    private RpslAttribute replacePerson(final RpslAttribute attribute) {
+        if (attribute.getType() == PERSON) {
+            return new RpslAttribute(attribute.getType(), PERSON_REPLACEMENT);
         }
         return attribute;
     }

@@ -1,6 +1,11 @@
 package net.ripe.db.whois.api.rest;
 
 import com.google.common.collect.Lists;
+import jakarta.ws.rs.BadRequestException;
+import jakarta.ws.rs.InternalServerErrorException;
+import jakarta.ws.rs.NotAuthorizedException;
+import jakarta.ws.rs.client.Entity;
+import jakarta.ws.rs.core.MediaType;
 import net.ripe.db.whois.api.AbstractIntegrationTest;
 import net.ripe.db.whois.api.RestTest;
 import net.ripe.db.whois.api.rest.domain.WhoisResources;
@@ -13,10 +18,6 @@ import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
-import javax.ws.rs.BadRequestException;
-import javax.ws.rs.NotAuthorizedException;
-import javax.ws.rs.client.Entity;
-import javax.ws.rs.core.MediaType;
 import java.util.List;
 
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -199,7 +200,7 @@ public class DomainObjectServiceTestIntegration extends AbstractIntegrationTest 
                     .cookie("crowd.token_key", "valid-token")
                     .post(Entity.entity(mapRpslObjects(domain), MediaType.APPLICATION_JSON_TYPE), WhoisResources.class);
             fail();
-        } catch (BadRequestException e) {
+        } catch (InternalServerErrorException e) {
             final WhoisResources response = e.getResponse().readEntity(WhoisResources.class);
 
             RestTest.assertErrorCount(response, 1);

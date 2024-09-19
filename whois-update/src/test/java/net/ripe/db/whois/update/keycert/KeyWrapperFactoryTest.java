@@ -1,5 +1,7 @@
 package net.ripe.db.whois.update.keycert;
 
+import net.ripe.db.whois.common.x509.KeyWrapper;
+import net.ripe.db.whois.common.x509.X509CertificateWrapper;
 import net.ripe.db.whois.common.rpsl.RpslObject;
 import net.ripe.db.whois.update.domain.UpdateContainer;
 import net.ripe.db.whois.update.domain.UpdateContext;
@@ -19,7 +21,8 @@ public class KeyWrapperFactoryTest {
     @Mock UpdateContainer updateContainer;
     @Mock UpdateContext updateContext;
 
-    @InjectMocks KeyWrapperFactory subject;
+    @InjectMocks
+    KeyWrapperFactory subject;
 
     @Test
     public void createKeyWrapper_invalid_pgp_key() {

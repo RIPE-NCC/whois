@@ -26,6 +26,7 @@ import org.elasticsearch.search.aggregations.bucket.terms.Terms;
 import org.elasticsearch.search.aggregations.bucket.terms.TermsAggregationBuilder;
 import org.elasticsearch.search.builder.SearchSourceBuilder;
 import org.elasticsearch.search.fetch.subphase.highlight.HighlightBuilder;
+import org.elasticsearch.search.fetch.subphase.highlight.HighlightField;
 import org.elasticsearch.search.sort.SortBuilder;
 import org.elasticsearch.search.sort.SortBuilders;
 import org.slf4j.Logger;
@@ -42,6 +43,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
+import java.util.function.Function;
+import java.util.stream.Collector;
 import java.util.stream.Collectors;
 
 import static net.ripe.db.whois.api.elasticsearch.ElasticIndexService.LOOKUP_KEY_FIELD_NAME;
@@ -53,7 +56,10 @@ public class ElasticFulltextSearch extends FulltextSearch {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(ElasticFulltextSearch.class);
 
-    public static final TermsAggregationBuilder AGGREGATION_BUILDER = AggregationBuilders.terms("types-count").field("object-type.raw");
+    public static final TermsAggregationBuilder AGGREGATION_BUILDER = AggregationBuilders
+            .terms("types-count")
+            .field("object-type.raw")
+            .size(ObjectType.values().length);
     public static final List<SortBuilder<?>> SORT_BUILDERS = Arrays.asList(SortBuilders.scoreSort(), SortBuilders.fieldSort("lookup-key.raw").unmappedType("keyword"));
     private final AccessControlListManager accessControlListManager;
     private final ElasticIndexService elasticIndexService;
@@ -81,7 +87,7 @@ public class ElasticFulltextSearch extends FulltextSearch {
     }
 
     @Override
-    public SearchResponse performSearch(final SearchRequest searchRequest, final String remoteAddr) throws IOException {
+    public SearchResponse performSearch(final SearchRequest searchRequest, final String ssoToken, final String remoteAddr) throws IOException {
         final Stopwatch stopwatch = Stopwatch.createStarted();
 
         if (searchRequest.getRows() > maxResultSize) {
@@ -92,7 +98,7 @@ public class ElasticFulltextSearch extends FulltextSearch {
             throw new IllegalArgumentException("Exceeded maximum " + MAX_ROW_LIMIT_SIZE + " documents");
         }
 
-        return new ElasticSearchAccountingCallback<SearchResponse>(accessControlListManager, remoteAddr, source) {
+        return new ElasticSearchAccountingCallback<SearchResponse>(accessControlListManager, remoteAddr, ssoToken, source) {
 
             @Override
             protected SearchResponse doSearch() throws IOException {
@@ -230,31 +236,32 @@ public class ElasticFulltextSearch extends FulltextSearch {
     }
 
     private QueryStringQueryBuilder getQueryBuilder(final String query) {
-        return QueryBuilders.queryStringQuery(escape(query)).type(MultiMatchQueryBuilder.Type.PHRASE_PREFIX);
+        return QueryBuilders.queryStringQuery(escape(query)).type(MultiMatchQueryBuilder.Type.PHRASE);
     }
 
     private SearchResponse.Lst createHighlights(final SearchHit hit) {
         final SearchResponse.Lst documentLst = new SearchResponse.Lst(hit.getId());
         final List<SearchResponse.Arr> documentArrs = Lists.newArrayList();
 
-        hit.getHighlightFields().forEach((attribute, highlightField) -> {
-            if("lookup-key".equals(attribute) || "lookup-key.custom".equals(attribute)){
+        hit.getHighlightFields().values().stream().collect(getHighlightsCollector()).forEach((attribute, highlightField) -> {
+            if("lookup-key".equals(attribute)){
                 return;
             }
-            if(attribute.contains(".custom")) {
-                final SearchResponse.Arr arr = new SearchResponse.Arr(StringUtils.substringBefore(highlightField.name(), ".custom"));
-                arr.setStr(new SearchResponse.Str(null, StringUtils.join(highlightField.getFragments(), ",")));
-                documentArrs.add(arr);
 
-                //Somehow if searched term contains "." highlight field custom has no vlue for it.
-            } else if(!hit.getHighlightFields().containsKey(attribute + ".custom"))  {
-                final SearchResponse.Arr arr = new SearchResponse.Arr(highlightField.name());
-                arr.setStr(new SearchResponse.Str(null, StringUtils.join(highlightField.getFragments(), ",")));
-                documentArrs.add(arr);
-            }
+            final SearchResponse.Arr arr = new SearchResponse.Arr(attribute);
+            arr.setStr(new SearchResponse.Str(null, StringUtils.join(highlightField.getFragments(), ",")));
+            documentArrs.add(arr);
         });
+
         documentLst.setArrs(documentArrs);
         return documentLst;
+    }
+
+    private static Collector<HighlightField, ?, Map<String, HighlightField>> getHighlightsCollector() {
+        return Collectors.toMap(highlightField -> highlightField.name().contains(".custom") ?
+                        StringUtils.substringBefore(highlightField.name(), ".custom") :
+                        StringUtils.substringBefore(highlightField.name(), ".raw"), Function.identity(),
+                (existing, replacement) -> existing);
     }
 
     private SearchResponse.Lst getCountByType(final Terms facets) {

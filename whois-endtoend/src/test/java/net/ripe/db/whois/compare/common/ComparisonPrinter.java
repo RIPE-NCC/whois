@@ -33,10 +33,7 @@ public class ComparisonPrinter {
     }
 
     private static void writeObjects(final String query, final File file, final List<ResponseObject> result) throws IOException {
-        BufferedOutputStream os = null;
-
-        try {
-            os = new BufferedOutputStream(new FileOutputStream(file));
+        try (BufferedOutputStream os = new BufferedOutputStream(new FileOutputStream(file));) {
             os.write(query.getBytes(StandardCharsets.UTF_8));
             os.write("\n\n".getBytes(StandardCharsets.UTF_8));
 
@@ -44,20 +41,12 @@ public class ComparisonPrinter {
                 responseObject.writeTo(os);
                 os.write("\n".getBytes(StandardCharsets.UTF_8));
             }
-        } finally {
-            if (os != null) {
-                os.close();
-            }
         }
     }
 
     private static void writeDeltas(final String query, final File file, final List<Delta> deltas) throws IOException {
         LOGGER.info("Creating {}", file.getAbsolutePath());
-
-        BufferedOutputStream os = null;
-
-        try {
-            os = new BufferedOutputStream(new FileOutputStream(file));
+        try (final BufferedOutputStream os = new BufferedOutputStream(new FileOutputStream(file))) {
             os.write(query.getBytes(StandardCharsets.UTF_8));
             os.write("\n\n".getBytes(StandardCharsets.UTF_8));
 
@@ -75,10 +64,6 @@ public class ComparisonPrinter {
                         revised.size(),
                         revised.getLines()
                 ).getBytes(StandardCharsets.UTF_8));
-            }
-        } finally {
-            if (os != null) {
-                os.close();
             }
         }
     }

@@ -239,12 +239,13 @@ public class AttributeSyntaxTest {
         verifyFailure(ObjectType.PERSON, AttributeType.E_MAIL, "user@host.org 20180529");
         verifyFailure(ObjectType.PERSON, AttributeType.E_MAIL, "a.a.a");
         verifyFailure(ObjectType.PERSON, AttributeType.E_MAIL, "user");
+        verifyFailure(ObjectType.PERSON, AttributeType.E_MAIL, "0@2.45678901234567890123456789012345678901234567890123456789012345678901234567890"); //To large email
 
         verifySuccess(ObjectType.PERSON, AttributeType.E_MAIL, "a@a");
         verifySuccess(ObjectType.PERSON, AttributeType.E_MAIL, "user@host.org");
         verifySuccess(ObjectType.PERSON, AttributeType.E_MAIL, "Any User <user@host.org>");
         verifySuccess(ObjectType.PERSON, AttributeType.E_MAIL, "a@a.a");
-        verifySuccess(ObjectType.PERSON, AttributeType.E_MAIL, "0@2.45678901234567890123456789012345678901234567890123456789012345678901234567890");
+        verifySuccess(ObjectType.PERSON, AttributeType.E_MAIL, "0@2.4567890123456789012345678901234567890123456789012345678901234567890123456789");
         verifySuccess(ObjectType.PERSON, AttributeType.E_MAIL, "test@ümlaut.email");
     }
 
@@ -1269,7 +1270,7 @@ public class AttributeSyntaxTest {
         verifyFailure(ObjectType.INETNUM, AttributeType.STATUS, "ASSIGNED");
         verifySuccess(ObjectType.INETNUM, AttributeType.STATUS, "ASSIGNED ANYCAST");
 
-        verifyFailure(ObjectType.INETNUM, AttributeType.STATUS, "AGGREGATED-BY-LIR");
+        verifySuccess(ObjectType.INETNUM, AttributeType.STATUS, "AGGREGATED-BY-LIR");
         verifySuccess(ObjectType.INET6NUM, AttributeType.STATUS, "AGGREGATED-BY-LIR");
 
         verifyFailure(ObjectType.INET6NUM, AttributeType.STATUS, "ALLOCATED PI");

@@ -1,5 +1,100 @@
 # next
 
+# 1.114
+
+[nrtm] NRTMv4 Key Rotation (#1484)
+[update] Return an error if an email address is longer than 80 characters (#1492)
+[update] DoS Filter for Update Requests (#1495)
+[update] Block IP Filter (#1498)
+[update] Use transaction manager per datasource (#1501)
+[update] "text" Content Type processed as "text/plain" for Mail Messages (#1515)
+[update] Add Warning When Password Authentication is used in Mailupdates (#1511)
+[query] Mp-member Attribute is clickable (#1506)
+
+# 1.113.2
+
+[update] Handle multipart/mixed Bounces and Auto-submitted Messages (#1490)
+
+# 1.113.1
+
+[update] validate max references (#1486)
+
+# 1.113
+
+[all] Inetnum AGGREGATED-BY-LIR status (#1467)
+[api] Enable Client Auth Certificate for Lookup (#1475)
+[api] ROA Overlapping INVALID ROA and VALID ROA fix (#1470)
+[all] Java 21 Support (#1440)
+
+# 1.112.1
+
+[update] validate max references (#1486)
+
+# 1.112
+
+[all] NWI-4: Add ALLOCATED-ASSIGNED PA inetnum status (#1432)
+[query] Set Charset Flag (#1450)
+[update] Don't allow "mnt-lower" on assignments (#1452)
+[api] Fixed Syncupdates HELP Bug (#1453)
+[rdap] RDAP Link Title is a String not List<String> (#1445)
+[mail] Remove Message If Bounce Detection Or Unsubscribe Fails (#1418)
+[mail] Handle Multiple Delivery Status Notification Failure Responses for the Same Email Address (#1417)
+[mail] Final-Recipient: RFC822 is case insensitive (#1423)
+[mail] Refactor Mail Sender to allow multiple recipients (#1411)
+[all] Route ROA checker (#1416)
+[all] Schedule ROA load each 15 minutes (#1444)
+[query] Allow inverse query for e-mail from trusted addresses (#1435)
+[query] Allow inverse query for sponsoring-org from all addresses (#1431)
+[nrtm] Return 404 on invalid NRTMv4 notification file path (#1422)
+
+# 1.111
+
+[update] Don't send email to undeliverable addresses (#1404)
+[update] Add email unsubscribe support (#1404)
+
+# 1.110
+
+[rdap] Implemented RDAP Extension for Geofeed Data (draft-ietf-regext-rdap-geofeed-01) (#1366)
+[rdap] Improve RDAP documentation (#1373, #1388)
+[rdap] Implement RDAP RIR Search - Basic Search Features (#1379)
+[rdap] Enable e-mail in RDAP entity responses (in top level vcard) (#1384)
+[rdap] Add geofeed as a link to conform with v1 draft (#1374)
+[api] Separate secure connector for Client Certificate authentication (#1390)
+[api] Use clientip flag as remote address from trusted source (#1391)
+[api] Redirect HTTP(S) requests to whois.ripe.net to the DB web application query page (#1396)
+[api] Elasticsearch refreshed after update/create (#1367)
+[api] Document inet6num assignment-size maximum prefix (#1375)
+[all] Daily limit is configurable (#1401)
+
+# 1.109.1
+
+[rdap] Organisation RDAP Object is Assumed to be an IP on Country Attribute (#1362)
+
+# 1.109
+
+[rdap] Rdap redaction (#1317)
+[rdap] Removed organisation "e-mail" from RDAP and added to redactions (#1333)
+[update] Removed geofeed prefix validation (#1326)
+[api] Added HTTPS Support to Whois Backend (#1329)
+[api] Support HTTP Basic authentication (#1342)
+[api] Support HTTPS Client Certificate Authentication (#1343)
+[nrtm] Initialize nrtm from command-line (JMX) (#1310)
+[nrtm] Use parallel stream to generate NRTMv4 snapshots (#1309)
+[all] Include AS-SET in NONAUTH dump (#1352)
+
+# 1.108
+
+[nrtm] Use base64 instead of Hex (#1302)
+[nrtm] JSON Text Sequences (#1304)
+[rdap] Add multi mnt-by error (#1301)
+[rdap] Add remarks (#1278)
+[update] Warn when http (#1292)
+[api] Remove Lucene support (#1285)
+[api] Elasticsearch do not rebuild from scratch (#1294)
+[api] Elasticsearch use phrase without prefix due to bug (#1298)
+[api] Elasticsearch scape colons (#1299)
+[all] Jakarta / EE9 (#744)
+
 # 1.107
 
 [nrtm] NWI-14 add mnt-ref to additional object types (#1243)

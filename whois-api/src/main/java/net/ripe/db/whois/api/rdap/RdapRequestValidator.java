@@ -38,14 +38,18 @@ public class RdapRequestValidator {
     }
 
     public void validateIp(final String rawUri, final String key) {
+        if (isEmpty(key)) {
+            throw new RdapException("400 Bad Request", "empty lookup term", HttpStatus.BAD_REQUEST_400);
+        }
+
+        if (rawUri.contains("//")) {
+            throw new RdapException("400 Bad Request", "Ambiguous URI empty segment", HttpStatus.BAD_REQUEST_400);
+        }
+
         try {
             IpInterval.parse(key);
         } catch (IllegalArgumentException e) {
             throw new RdapException("400 Bad Request", e.getMessage(), HttpStatus.BAD_REQUEST_400);
-        }
-
-        if (rawUri.contains("//")) {
-            throw new RdapException("400 Bad Request", "Uri contains //", HttpStatus.BAD_REQUEST_400);
         }
     }
 

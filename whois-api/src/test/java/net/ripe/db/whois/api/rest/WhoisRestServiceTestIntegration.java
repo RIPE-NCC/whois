@@ -2,6 +2,19 @@ package net.ripe.db.whois.api.rest;
 
 import com.google.common.base.Strings;
 import com.google.common.io.ByteStreams;
+import jakarta.ws.rs.BadRequestException;
+import jakarta.ws.rs.ClientErrorException;
+import jakarta.ws.rs.HttpMethod;
+import jakarta.ws.rs.InternalServerErrorException;
+import jakarta.ws.rs.NotAllowedException;
+import jakarta.ws.rs.NotAuthorizedException;
+import jakarta.ws.rs.NotFoundException;
+import jakarta.ws.rs.ServiceUnavailableException;
+import jakarta.ws.rs.client.Entity;
+import jakarta.ws.rs.core.HttpHeaders;
+import jakarta.ws.rs.core.MediaType;
+import jakarta.ws.rs.core.Response;
+import jakarta.ws.rs.core.Variant;
 import net.ripe.db.whois.api.AbstractIntegrationTest;
 import net.ripe.db.whois.api.RestTest;
 import net.ripe.db.whois.api.rest.domain.Attribute;
@@ -16,8 +29,10 @@ import net.ripe.db.whois.api.rest.mapper.WhoisObjectMapper;
 import net.ripe.db.whois.common.ApplicationVersion;
 import net.ripe.db.whois.common.MaintenanceMode;
 import net.ripe.db.whois.common.TestDateTimeProvider;
+import net.ripe.db.whois.common.dao.EmailStatusDao;
 import net.ripe.db.whois.common.domain.User;
 import net.ripe.db.whois.common.domain.io.Downloader;
+import net.ripe.db.whois.common.mail.EmailStatusType;
 import net.ripe.db.whois.common.rpsl.AttributeType;
 import net.ripe.db.whois.common.rpsl.ObjectType;
 import net.ripe.db.whois.common.rpsl.PasswordHelper;
@@ -42,19 +57,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.dao.EmptyResultDataAccessException;
 
-import javax.ws.rs.BadRequestException;
-import javax.ws.rs.ClientErrorException;
-import javax.ws.rs.HttpMethod;
-import javax.ws.rs.InternalServerErrorException;
-import javax.ws.rs.NotAllowedException;
-import javax.ws.rs.NotAuthorizedException;
-import javax.ws.rs.NotFoundException;
-import javax.ws.rs.ServiceUnavailableException;
-import javax.ws.rs.client.Entity;
-import javax.ws.rs.core.HttpHeaders;
-import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.Response;
-import javax.ws.rs.core.Variant;
 import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.FileInputStream;
@@ -97,6 +99,8 @@ import static org.junit.jupiter.api.Assertions.fail;
 @Tag("IntegrationTest")
 public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
 
+    @Autowired QueryServer queryServer;
+
     public static final String TEST_PERSON_STRING = "" +
             "person:         Test Person\n" +
             "address:        Singel 258\n" +
@@ -123,6 +127,17 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
             "e-mail:    noreply@ripe.net\n" +
             "mnt-by:    OWNER-MNT\n" +
             "nic-hdl:   PP2-TEST\n" +
+            "remarks:   remark\n" +
+            "source:    TEST\n");
+
+    private static final RpslObject NOTIFY_PERSON = RpslObject.parse("" +
+            "person:    Pauleth Palthen \n" +
+            "address:   Singel 258\n" +
+            "phone:     +31-1234567890\n" +
+            "e-mail:    noreply@ripe.net\n" +
+            "notify:    test@ripe.net\n" +
+            "mnt-by:    OWNER-MNT\n" +
+            "nic-hdl:   PP3-TEST\n" +
             "remarks:   remark\n" +
             "source:    TEST\n");
 
@@ -164,7 +179,7 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
             "upd-to:         noreply@ripe.net\n" +
             "source:         TEST");
 
-    private static String TEST_ROLE_STRING = "" +
+    private static final String TEST_ROLE_STRING = "" +
             "role:           Test Role\n" +
             "address:        Singel 258\n" +
             "phone:          +31 6 12345678\n" +
@@ -196,6 +211,9 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
     @Autowired private MailSenderStub mailSenderStub;
     @Autowired private TestDateTimeProvider testDateTimeProvider;
     @Autowired private ApplicationVersion applicationVersion;
+
+    @Autowired private EmailStatusDao emailStatusDao;
+
     @BeforeEach
     public void setup() {
         databaseHelper.addObject("person: Test Person\nnic-hdl: TP1-TEST");
@@ -704,7 +722,7 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
                     "\n" +
                     "No entries found in source %%s.\n" +
                     "[TEST]\n" +
-                    "https://apps.db.ripe.net/docs/HTML-Terms-And-Conditions", getPort())));
+                    "https://docs.db.ripe.net/terms-conditions.html", getPort())));
         }
     }
 
@@ -723,7 +741,7 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
                     "\n" +
                     "No entries found in source %%s.\n" +
                     "[TEST]\n" +
-                    "https://apps.db.ripe.net/docs/HTML-Terms-And-Conditions", getPort())));
+                    "https://docs.db.ripe.net/terms-conditions.html", getPort())));
         }
     }
 
@@ -738,7 +756,7 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
             final String response = e.getResponse().readEntity(String.class);
             assertThat(response, is("Severity: Error\n" +
                     "Text: Invalid source 'oez'\n" +
-                    "locator: https://apps.db.ripe.net/docs/HTML-Terms-And-Conditions"));
+                    "locator: https://docs.db.ripe.net/terms-conditions.html"));
         }
     }
 
@@ -753,7 +771,7 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
             final String response = e.getResponse().readEntity(String.class);
             assertThat(response, is("Severity: Error\n" +
                     "Text: Invalid object type: org\n" +
-                    "locator: https://apps.db.ripe.net/docs/HTML-Terms-And-Conditions"));
+                    "locator: https://docs.db.ripe.net/terms-conditions.html"));
         }
     }
 
@@ -822,7 +840,7 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
         assertThat(whoisResources, containsString("" +
                 "\"terms-and-conditions\" : {\n" +
                 "\"type\" : \"locator\",\n" +
-                "\"href\" : \"https://apps.db.ripe.net/docs/HTML-Terms-And-Conditions\"\n" +
+                "\"href\" : \"https://docs.db.ripe.net/terms-conditions.html\"\n" +
                 "}"));
     }
 
@@ -1279,7 +1297,7 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
                 "    </attributes>\n" +
                 "</object>\n" +
                 "</objects>\n" +
-                "<terms-and-conditions xlink:type=\"locator\" xlink:href=\"https://apps.db.ripe.net/docs/HTML-Terms-And-Conditions\"/>\n" +
+                "<terms-and-conditions xlink:type=\"locator\" xlink:href=\"https://docs.db.ripe.net/terms-conditions.html\"/>\n" +
                 "<version " +
                 "version=\"" + applicationVersion.getVersion() + "\" " +
                 "timestamp=\"" + applicationVersion.getTimestamp() + "\" " +
@@ -1359,7 +1377,7 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
                         "},\n" +
                         "\"terms-and-conditions\" : {\n" +
                         "\"type\" : \"locator\",\n" +
-                        "\"href\" : \"https://apps.db.ripe.net/docs/HTML-Terms-And-Conditions\"\n" +
+                        "\"href\" : \"https://docs.db.ripe.net/terms-conditions.html\"\n" +
                         "},\n" +
                         "\"version\" : {\n" +
                         "\"version\" : \"" + applicationVersion.getVersion() + "\",\n" +
@@ -1421,7 +1439,7 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
                 "},\n" +
                 "\"terms-and-conditions\" : {\n" +
                 "\"type\" : \"locator\",\n" +
-                "\"href\" : \"https://apps.db.ripe.net/docs/HTML-Terms-And-Conditions\"\n" +
+                "\"href\" : \"https://docs.db.ripe.net/terms-conditions.html\"\n" +
                 "},\n" +
                 "\"version\" : {\n" +
                 "\"version\" : \"" + applicationVersion.getVersion() + "\",\n" +
@@ -1515,7 +1533,7 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
                 "},\n" +
                 "\"terms-and-conditions\" : {\n" +
                 "\"type\" : \"locator\",\n" +
-                "\"href\" : \"https://apps.db.ripe.net/docs/HTML-Terms-And-Conditions\"\n" +
+                "\"href\" : \"https://docs.db.ripe.net/terms-conditions.html\"\n" +
                 "},\n" +
                 "\"version\" : {\n" +
                 "\"version\" : \"" + applicationVersion.getVersion() + "\",\n" +
@@ -1569,7 +1587,7 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
                 "    </attributes>\n" +
                 "</object>\n" +
                 "</objects>\n" +
-                "<terms-and-conditions xlink:type=\"locator\" xlink:href=\"https://apps.db.ripe.net/docs/HTML-Terms-And-Conditions\"/>\n" +
+                "<terms-and-conditions xlink:type=\"locator\" xlink:href=\"https://docs.db.ripe.net/terms-conditions.html\"/>\n" +
                 "<version " +
                 "version=\"" + applicationVersion.getVersion() + "\" " +
                 "timestamp=\"" + applicationVersion.getTimestamp() + "\" " +
@@ -2581,7 +2599,7 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
                     "  },\n" +
                     "  \"terms-and-conditions\" : {\n" +
                     "    \"type\" : \"locator\",\n" +
-                    "    \"href\" : \"https://apps.db.ripe.net/docs/HTML-Terms-And-Conditions\"\n" +
+                    "    \"href\" : \"https://docs.db.ripe.net/terms-conditions.html\"\n" +
                     "  }\n" +
                     "}"));
         }
@@ -2934,7 +2952,7 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
                 "            </attributes>\n" +
                 "        </object>\n" +
                 "    </objects>\n" +
-                "    <terms-and-conditions xlink:type=\"locator\" xlink:href=\"https://apps.db.ripe.net/docs/HTML-Terms-And-Conditions\"/>\n" +
+                "    <terms-and-conditions xlink:type=\"locator\" xlink:href=\"https://docs.db.ripe.net/terms-conditions.html\"/>\n" +
                 "</whois-resources>", getPort())));
     }
 
@@ -3045,7 +3063,7 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
                 "  },\n" +
                 "  \"terms-and-conditions\" : {\n" +
                 "    \"type\" : \"locator\",\n" +
-                "    \"href\" : \"https://apps.db.ripe.net/docs/HTML-Terms-And-Conditions\"\n" +
+                "    \"href\" : \"https://docs.db.ripe.net/terms-conditions.html\"\n" +
                 "  }\n" +
                 "}", getPort())));
     }
@@ -4323,7 +4341,7 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
                 "  },\n" +
                 "  \"terms-and-conditions\" : {\n" +
                 "    \"type\" : \"locator\",\n" +
-                "    \"href\" : \"https://apps.db.ripe.net/docs/HTML-Terms-And-Conditions\"\n" +
+                "    \"href\" : \"https://docs.db.ripe.net/terms-conditions.html\"\n" +
                 "  }\n" +
                 "}", getPort())));
     }
@@ -5750,7 +5768,151 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
 
     }
 
+    @Test
+    public void unsubscribed_notify_user_gets_warn_when_updating() {
+        databaseHelper.addObject(NOTIFY_PERSON);
+        final String unsubscribedEmail = "test@ripe.net";
+
+        final RpslObject rpslObject = RpslObject.parse("" +
+                "person:    Pauleth Palthen \n" +
+                        "address:   Singel 258 test\n" +
+                        "phone:     +31-1234567890\n" +
+                        "e-mail:    noreply@ripe.net\n" +
+                        "notify:    test@ripe.net\n" +
+                        "mnt-by:    OWNER-MNT\n" +
+                        "nic-hdl:   PP3-TEST\n" +
+                        "remarks:   remark\n" +
+                        "source:    TEST\n");
+
+        emailStatusDao.createEmailStatus(unsubscribedEmail, EmailStatusType.UNSUBSCRIBE);
+
+        final WhoisResources response = RestTest.target(getPort(), "whois/test/person/PP3-TEST?password=test")
+                .request(MediaType.APPLICATION_XML)
+                .put(Entity.entity(map(rpslObject), MediaType.APPLICATION_XML), WhoisResources.class);
+
+        RestTest.assertWarningCount(response, 1);
+        RestTest.assertErrorMessage(response, 0, "Warning", "Not sending notification to %s because it is %s.",
+                unsubscribedEmail, EmailStatusType.UNSUBSCRIBE.getValue());
+    }
+
+
+    @Test
+    public void undeliverable_notify_user_gets_warn_when_updating() {
+        databaseHelper.addObject(NOTIFY_PERSON);
+        final String undeliverableEmail = "test@ripe.net";
+
+        final RpslObject rpslObject = RpslObject.parse("" +
+                "person:    Pauleth Palthen \n" +
+                "address:   Singel 258 test\n" +
+                "phone:     +31-1234567890\n" +
+                "e-mail:    noreply@ripe.net\n" +
+                "notify:    test@ripe.net\n" +
+                "mnt-by:    OWNER-MNT\n" +
+                "nic-hdl:   PP3-TEST\n" +
+                "remarks:   remark\n" +
+                "source:    TEST\n");
+
+        emailStatusDao.createEmailStatus(undeliverableEmail, EmailStatusType.UNDELIVERABLE);
+
+        final WhoisResources response = RestTest.target(getPort(), "whois/test/person/PP3-TEST?password=test")
+                .request(MediaType.APPLICATION_XML)
+                .put(Entity.entity(map(rpslObject), MediaType.APPLICATION_XML), WhoisResources.class);
+
+        RestTest.assertWarningCount(response, 1);
+        RestTest.assertErrorMessage(response, 0, "Warning", "Not sending notification to %s because it is %s.",
+                undeliverableEmail, EmailStatusType.UNDELIVERABLE.getValue());
+    }
+
+
+    @Test
+    public void create_too_big_address_then_error() {
+        final RpslObject PAULETH_PALTHEN_LONG_EMAIL = RpslObject.parse("" +
+                "person:    Pauleth Palthen\n" +
+                "address:   Singel 258\n" +
+                "phone:     +31-1234567890\n" +
+                "e-mail:    G=noreply/S=noreply/O=noreplynoreplynorepl/P=AA/A=ripe.net/C=SP/@noreply.ripe.net\n" +
+                "mnt-by:    OWNER-MNT\n" +
+                "nic-hdl:   PP1-TEST\n" +
+                "remarks:   remark\n" +
+                "source:    TEST\n");
+
+        final BadRequestException badRequestException = assertThrows(BadRequestException.class, () -> {
+            RestTest.target(getPort(), "whois/test/person?password=test")
+                    .request()
+                    .post(Entity.entity(map(PAULETH_PALTHEN_LONG_EMAIL), MediaType.APPLICATION_JSON_TYPE), WhoisResources.class);
+        });
+
+        assertThat(badRequestException.getMessage(), is("HTTP 400 Bad Request"));
+        final WhoisResources whoisResources = RestTest.mapClientException(badRequestException);
+        RestTest.assertErrorCount(whoisResources, 1);
+        RestTest.assertErrorMessage(whoisResources, 0, "Error", "Syntax error in %s", "G=noreply/S=noreply/O=noreplynoreplynorepl/P=AA/A=ripe.net/C=SP/@noreply.ripe.net");
+    }
+
+    @Test
+    public void mp_memebers_should_have_referenced_link_when_as_set() {
+        databaseHelper.addObject(
+                """
+                route-set:    AS7775535:RS-CUSTOMERS:AS94967295
+                descr:        test route-set
+                tech-c:       TP1-TEST
+                admin-c:      TP1-TEST
+                mnt-by:       OWNER-MNT
+                mnt-lower:    OWNER-MNT
+                source:  TEST
+                """
+        );
+
+        databaseHelper.addObject(
+                """
+                route-set:    AS1234:RS-CUSTOMERS:AS1234
+                descr:        test route-set
+                tech-c:       TP1-TEST
+                admin-c:      TP1-TEST
+                mnt-by:       OWNER-MNT
+                mnt-lower:    OWNER-MNT
+                source:  TEST
+                """
+        );
+
+
+        databaseHelper.addObject(RpslObject.parse(
+                """
+                route-set:    RS-CUSTOMERS
+                descr:        test route-set
+                members:      AS7775535:RS-CUSTOMERS:AS94967295
+                mp-members:   AS1234:RS-CUSTOMERS:AS1234
+                tech-c:       TP1-TEST
+                admin-c:      TP1-TEST
+                mnt-by:       OWNER-MNT
+                mnt-lower:    OWNER-MNT
+                source:  TEST
+                """));
+
+        final WhoisResources response = RestTest.target(getPort(), "whois/test/route-set/RS-CUSTOMERS?password=test")
+                    .request()
+                    .get(WhoisResources.class);
+
+        final List<Attribute> memberAttributes = response.getWhoisObjects().getFirst()
+                .getAttributes().stream()
+                .filter(attribute -> attribute.getName().equals("members") || attribute.getName().equals("mp-members"))
+                .toList();
+
+        assertThat(memberAttributes.size(), is(2));
+
+        assertAsSetMember(memberAttributes.get(0), "members");
+        assertAsSetMember(memberAttributes.get(1), "mp-members");
+
+    }
+
+
+
     // helper methods
+
+    private static void assertAsSetMember(final Attribute member, final String attributeExpectedType) {
+        assertThat(member.getName(), is(attributeExpectedType));
+        assertThat(member.getReferencedType(), is("route-set"));
+        assertThat(member.getLink().getHref(), is("http://rest-test.db.ripe.net/test/route-set/" + member.getValue()));
+    }
 
     private String encode(final String input) {
         // do not interpret template parameters
@@ -5770,7 +5932,7 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
     }
 
     private String queryTelnet(final String query) {
-        return TelnetWhoisClient.queryLocalhost(QueryServer.port, query);
+        return TelnetWhoisClient.queryLocalhost(queryServer.getPort(), query);
     }
 
     private static String gunzip(final byte[] bytes) {

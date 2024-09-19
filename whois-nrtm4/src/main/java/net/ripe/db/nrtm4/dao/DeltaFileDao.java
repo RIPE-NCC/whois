@@ -40,7 +40,7 @@ public class DeltaFileDao {
             NrtmVersionInfoDao.rowMapperWithOffset.apply(5).mapRow(rs, rowNum)
         );
 
-    public DeltaFileDao(@Qualifier("nrtmDataSource") final DataSource dataSource) {
+    public DeltaFileDao(@Qualifier("nrtmMasterDataSource") final DataSource dataSource) {
         this.jdbcTemplate = new JdbcTemplate(dataSource);
     }
 

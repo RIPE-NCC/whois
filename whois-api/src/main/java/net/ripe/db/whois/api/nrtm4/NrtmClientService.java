@@ -1,6 +1,16 @@
 package net.ripe.db.whois.api.nrtm4;
 
 import com.google.common.net.HttpHeaders;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.ws.rs.BadRequestException;
+import jakarta.ws.rs.GET;
+import jakarta.ws.rs.NotFoundException;
+import jakarta.ws.rs.Path;
+import jakarta.ws.rs.PathParam;
+import jakarta.ws.rs.Produces;
+import jakarta.ws.rs.core.Context;
+import jakarta.ws.rs.core.MediaType;
+import jakarta.ws.rs.core.Response;
 import net.ripe.db.nrtm4.dao.DeltaFileSourceAwareDao;
 import net.ripe.db.nrtm4.dao.NrtmKeyConfigDao;
 import net.ripe.db.nrtm4.dao.UpdateNotificationFileSourceAwareDao;
@@ -9,22 +19,14 @@ import net.ripe.db.nrtm4.dao.NrtmSourceDao;
 import net.ripe.db.nrtm4.domain.NrtmDocumentType;
 import net.ripe.db.nrtm4.domain.NrtmSource;
 import net.ripe.db.nrtm4.util.NrtmFileUtil;
-import static net.ripe.db.nrtm4.util.Ed25519Util.signWithEd25519;
+import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
-import javax.servlet.http.HttpServletRequest;
-import javax.ws.rs.BadRequestException;
-import javax.ws.rs.GET;
-import javax.ws.rs.NotFoundException;
-import javax.ws.rs.Path;
-import javax.ws.rs.PathParam;
-import javax.ws.rs.Produces;
-import javax.ws.rs.core.Context;
-import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.Response;
 import java.io.ByteArrayInputStream;
+
+import static net.ripe.db.nrtm4.util.Ed25519Util.signWithEd25519;
 
 @Component
 @Path("/")
@@ -78,11 +80,11 @@ public class NrtmClientService {
             @PathParam("source") final String source,
             @PathParam("filename") final String fileName) {
 
-        if(fileName.startsWith(NrtmDocumentType.NOTIFICATION.getFileNamePrefix())) {
+        if(isNotificationFile(fileName)) {
             final String payload = updateNotificationFileSourceAwareDao.findLastNotification(getSource(source))
                     .orElseThrow(() -> new NotFoundException("update-notification-file.json does not exists for source " + source));
 
-            return fileName.endsWith(".sig") ?  getResponse(signWithEd25519(payload.getBytes(), nrtmKeyConfigDao.getPrivateKey()))
+            return fileName.endsWith(".sig") ?  getResponse(signWithEd25519(payload.getBytes(), nrtmKeyConfigDao.getActivePrivateKey()))
                                               : getResponse(payload);
         }
 
@@ -95,7 +97,7 @@ public class NrtmClientService {
 
         if(fileName.startsWith(NrtmDocumentType.DELTA.getFileNamePrefix())) {
             return deltaFileSourceAwareDao.getByFileName(filenameWithExt(fileName))
-                    .map( delta -> getResponse(delta.payload()))
+                    .map( delta -> getResponseForDelta(delta.payload()))
                     .orElseThrow(() -> new NotFoundException("Requested Delta file does not exists"));
         }
 
@@ -129,5 +131,30 @@ public class NrtmClientService {
         return Response.ok(payload)
                 .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON)
                 .build();
+    }
+
+    private Response getResponseForDelta(final String payload) {
+        return Response.ok(payload)
+                .header(HttpHeaders.CONTENT_TYPE, "application/json-seq")
+                .build();
+    }
+
+    private boolean isNotificationFile(final String fileName) {
+
+        if(!fileName.startsWith(NrtmDocumentType.NOTIFICATION.getFileNamePrefix())) {
+            return false;
+        }
+
+        //ExtensionOverridesAcceptHeaderFilter removes .json
+        if(fileName.equals(NrtmDocumentType.NOTIFICATION.getFileNamePrefix())) {
+            return true;
+        }
+
+        final String fileExtension = StringUtils.substringAfter(fileName, NrtmDocumentType.NOTIFICATION.getFileNamePrefix());
+        if(!fileExtension.equals(".json.sig"))  {
+            throw new NotFoundException("Notification file does not exists");
+        }
+
+        return true;
     }
 }

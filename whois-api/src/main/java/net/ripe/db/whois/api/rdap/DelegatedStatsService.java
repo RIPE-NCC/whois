@@ -4,12 +4,16 @@ package net.ripe.db.whois.api.rdap;
 import com.google.common.base.Splitter;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
+import jakarta.annotation.PostConstruct;
+import jakarta.ws.rs.WebApplicationException;
+import jakarta.ws.rs.core.Response;
 import net.ripe.db.whois.common.domain.CIString;
 import net.ripe.db.whois.common.grs.AuthoritativeResource;
 import net.ripe.db.whois.common.grs.AuthoritativeResourceData;
 import net.ripe.db.whois.common.rpsl.ObjectType;
 import net.ripe.db.whois.query.query.Query;
 import org.apache.commons.lang.StringUtils;
+import org.eclipse.jetty.http.HttpStatus;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,9 +23,6 @@ import org.springframework.stereotype.Component;
 import org.springframework.util.StringValueResolver;
 
 import javax.annotation.Nullable;
-import javax.annotation.PostConstruct;
-import javax.ws.rs.WebApplicationException;
-import javax.ws.rs.core.Response;
 import java.net.URI;
 import java.util.Map;
 import java.util.Optional;
@@ -83,7 +84,11 @@ public class DelegatedStatsService implements EmbeddedValueResolverAware {
                     final String basePath = entry.getValue();
                     LOGGER.debug("Redirecting {} to {}", requestPath, sourceName);
                     // TODO: don't include local path prefix (lookup from base context and replace)
-                    return URI.create(String.format("%s%s", basePath, requestPath.replaceFirst("/rdap", "")));
+                    try {
+                        return URI.create(String.format("%s%s", basePath, requestPath.replaceFirst("/rdap", "")));
+                    } catch (IllegalArgumentException ex){
+                        throw new RdapException("400 Bad Request", "Wrong URL format", HttpStatus.BAD_REQUEST_400);
+                    }
                 }
             }
         }

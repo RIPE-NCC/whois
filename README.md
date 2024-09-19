@@ -17,14 +17,14 @@ Running Whois Locally For Development
 
 You can run a standalone Whois server locally. Dependencies must be configured in a local properties file.
 
-More information [here](https://apps.db.ripe.net/docs/)
+More information [here](https://docs.db.ripe.net/)
 
 ### Running within an IDE
 
-See [Running whois from within Intellij](https://apps.db.ripe.net/docs/18.Installation-and-Development/03-Building-whois.html#running-whois-from-within-intellij) for instructions.
+See [Running whois from within Intellij](https://docs.db.ripe.net/Installation-and-Development/Building-whois/#running-whois-from-within-intellij) for instructions.
 
 ### Running outside an IDE
-- See [Installation instructions](https://apps.db.ripe.net/docs/18.Installation-and-Development/06-Installation-instructions.html#installation-instructions).
+- See [Installation instructions](https://docs.db.ripe.net/Installation-and-Development/Installation-instructions/).
 
 Git
 ---
@@ -57,6 +57,8 @@ You can configure Ajc in the Preferences as follows:
 
 * First install the AspectJ plugin provided by JetBrains from the IDE plugin repository
 * Go to Build, Execution, Deployment -> Compiler -> Java Compiler
-* Choose "Use Compiler: Ajc"
-* Configure Path to aspectjtools.jar, e.g. ~/.m2/repository/org/aspectj/aspectjtools/1.9.8/aspectjtools-1.9.7.jar
-* Press "Test" to confirm it's working.
+  * Choose "Use Compiler: Ajc"
+  * Configure Path to aspectjtools.jar, e.g. ~/.m2/repository/org/aspectj/aspectjtools/1.9.8/aspectjtools-1.9.7.jar
+  * Press "Test" to confirm it's working.
+* Go to Build, Execution, Deployment -> Build Tools -> Maven -> Importing
+  * Uncheck "Detect compiler automatically" (otherwise IntelliJ will revert from Ajc to JavaC)

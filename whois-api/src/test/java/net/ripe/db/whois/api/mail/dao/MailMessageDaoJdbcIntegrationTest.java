@@ -1,5 +1,7 @@
 package net.ripe.db.whois.api.mail.dao;
 
+import jakarta.mail.Session;
+import jakarta.mail.internet.MimeMessage;
 import net.ripe.db.whois.api.AbstractIntegrationTest;
 import net.ripe.db.whois.api.MimeMessageProvider;
 import net.ripe.db.whois.api.mail.dequeue.MessageDequeue;
@@ -10,11 +12,10 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.util.FileCopyUtils;
 
-import javax.mail.Session;
-import javax.mail.internet.MimeMessage;
 import java.io.InputStreamReader;
 import java.util.List;
 import java.util.Map;
+import java.util.Properties;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.hasSize;
@@ -23,8 +24,12 @@ import static org.hamcrest.Matchers.not;
 import static org.hamcrest.Matchers.nullValue;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
+
 @Tag("IntegrationTest")
 public class MailMessageDaoJdbcIntegrationTest extends AbstractIntegrationTest {
+
+    private static final Session SESSION = Session.getInstance(new Properties());
+
     private MailMessageDao subject;
     @Autowired private MessageDequeue messageDequeue;
 
@@ -37,7 +42,7 @@ public class MailMessageDaoJdbcIntegrationTest extends AbstractIntegrationTest {
     @Test
     public void addMessage_invalid() {
         assertThrows(IllegalArgumentException.class, () -> {
-            subject.addMessage(new MimeMessage((Session) null));
+            subject.addMessage(new MimeMessage(SESSION));
 
             assertThat(getAllMessages(), hasSize(0));
         });
@@ -144,6 +149,6 @@ public class MailMessageDaoJdbcIntegrationTest extends AbstractIntegrationTest {
     }
 
     private List<Map<String, Object>> getAllMessages() {
-        return databaseHelper.getMailupdatesTemplate().queryForList("select * from mailupdates");
+        return mailupdatesTemplate.queryForList("select * from mailupdates");
     }
 }

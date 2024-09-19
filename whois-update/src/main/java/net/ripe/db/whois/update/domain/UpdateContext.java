@@ -14,13 +14,13 @@ import net.ripe.db.whois.common.sso.UserSession;
 import net.ripe.db.whois.update.authentication.Subject;
 import net.ripe.db.whois.update.dns.DnsCheckRequest;
 import net.ripe.db.whois.update.dns.DnsCheckResponse;
-import net.ripe.db.whois.update.keycert.X509CertificateWrapper;
+import net.ripe.db.whois.common.x509.X509CertificateWrapper;
 import net.ripe.db.whois.update.log.LoggerContext;
 
 import javax.annotation.CheckForNull;
+import javax.annotation.Nullable;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -36,12 +36,11 @@ public class UpdateContext {
     private final Map<Update, DnsCheckResponse> dnsCheckResponses = Maps.newHashMap();
     private final Map<String, String> ssoTranslation = Maps.newHashMap();
     private final LoggerContext loggerContext;
-
+    private UserSession userSession;
+    private List<X509CertificateWrapper> clientCertificates;
     private int nrSinceRestart;
     private boolean dryRun;
     private boolean batchUpdate;
-    private UserSession userSession;
-    private Optional<X509CertificateWrapper> clientCertificate;
 
     public UpdateContext(final LoggerContext loggerContext) {
         this.loggerContext = loggerContext;
@@ -108,7 +107,7 @@ public class UpdateContext {
         if(!dnsCheckResponses.containsKey(update)) {
             return false;
         }
-        return dnsCheckResponses.get(update).getMessages().stream().filter( message -> message.getType() == Messages.Type.ERROR).findAny().isPresent();
+        return dnsCheckResponses.get(update).getMessages().stream().anyMatch(message -> message.getType() == Messages.Type.ERROR);
     }
 
     public void addMessage(final UpdateContainer updateContainer, final Message message) {
@@ -327,12 +326,13 @@ public class UpdateContext {
         return userSession;
     }
 
-    public void setClientCertificate(final Optional<X509CertificateWrapper> clientCertificate) {
-        this.clientCertificate = clientCertificate;
+    public void setClientCertificates(final List<X509CertificateWrapper> certificates) {
+        this.clientCertificates = certificates;
     }
 
-    public Optional<X509CertificateWrapper> getClientCertificate() {
-        return clientCertificate;
+    @Nullable
+    public List<X509CertificateWrapper> getClientCertificates() {
+        return this.clientCertificates;
     }
 
     public void log(final Message message) {

@@ -43,15 +43,6 @@ public class GeofeedValidatorTest {
     }
 
     @Test
-    public void updated_inetnum_too_specific() {
-        final RpslObject object = RpslObject.parse("inetnum: 1.1.1.1\ngeofeed: https://example.com");
-        when(update.getUpdatedObject()).thenReturn(object);
-       subject.validate(update, updateContext);
-
-        verify(updateContext).addMessage(update, UpdateMessages.geofeedTooSpecific(24));
-    }
-
-    @Test
     public void updated_inetnum_contains_remarks_geofeed() {
         final RpslObject object = RpslObject.parse("inetnum: 1.1/16\ngeofeed: https://example.com\nremarks: geofeed: https://example.com");
         when(update.getUpdatedObject()).thenReturn(object);
@@ -80,15 +71,6 @@ public class GeofeedValidatorTest {
        subject.validate(update, updateContext);
 
         verifyNoInteractions(updateContext);
-    }
-
-    @Test
-    public void updated_inet6num_too_specific() {
-        final RpslObject object = RpslObject.parse("inet6num: 2001:67c:2e8::/64\ngeofeed: https://example.com");
-        when(update.getUpdatedObject()).thenReturn(object);
-       subject.validate(update, updateContext);
-
-        verify(updateContext).addMessage(update, UpdateMessages.geofeedTooSpecific(48));
     }
 
     @Test

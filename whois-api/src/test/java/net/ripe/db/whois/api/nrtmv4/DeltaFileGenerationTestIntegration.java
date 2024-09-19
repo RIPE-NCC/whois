@@ -1,22 +1,25 @@
 package net.ripe.db.whois.api.nrtmv4;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.google.common.collect.Lists;
-import net.ripe.db.nrtm4.domain.DeltaChange;
-import net.ripe.db.nrtm4.domain.NrtmDocumentType;
-import net.ripe.db.nrtm4.domain.PublishableDeltaFile;
-import net.ripe.db.nrtm4.domain.PublishableNotificationFile;
+import jakarta.ws.rs.core.MediaType;
+import jakarta.ws.rs.core.Response;
+import net.ripe.db.nrtm4.domain.DeltaFileRecord;
+import net.ripe.db.nrtm4.domain.UpdateNotificationFile;
+import net.ripe.db.nrtm4.domain.NrtmVersionRecord;
 import net.ripe.db.whois.api.AbstractNrtmIntegrationTest;
 import net.ripe.db.whois.common.rpsl.DummifierNrtmV4;
 import net.ripe.db.whois.common.rpsl.RpslObject;
+import org.json.JSONException;
+import org.json.JSONObject;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.annotation.DirtiesContext;
 
-import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.Response;
 import java.time.LocalDateTime;
 import java.util.Collections;
+import java.util.List;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
@@ -31,7 +34,7 @@ public class DeltaFileGenerationTestIntegration extends AbstractNrtmIntegrationT
     DummifierNrtmV4 dummifierNrtmV4;
 
     @Test
-    public void should_get_delta_file() {
+    public void should_get_delta_file() throws JSONException, JsonProcessingException {
         snapshotFileGenerator.createSnapshot();
         updateNotificationFileGenerator.generateFile();
 
@@ -51,21 +54,22 @@ public class DeltaFileGenerationTestIntegration extends AbstractNrtmIntegrationT
         generateDeltas(Collections.singletonList(updatedObject));
         updateNotificationFileGenerator.generateFile();
 
-        final PublishableDeltaFile testDelta= getDeltasFromUpdateNotificationBySource("TEST", 0);
-        assertThat(testDelta.getNrtmVersion(), is(4));
-        assertThat(testDelta.getVersion(), is(2L));
-        assertThat(testDelta.getChanges().size(), is(1));
+        final String[] records = getDeltasFromUpdateNotificationBySource("TEST", 0);
+        assertNrtmFileInfo(records[0], "delta", 2, "TEST");
 
-        assertThat(testDelta.getChanges().get(0).getAction().toLowerCaseName(), is("add_modify"));
-        assertThat(testDelta.getChanges().get(0).getObject().toString(), is(dummifierNrtmV4.dummify(updatedObject).toString()));
+        final List<DeltaFileRecord> deltaFileRecords = getDeltaChanges(records);
+
+        assertThat(deltaFileRecords.size(), is(1));
+        assertThat(deltaFileRecords.get(0).getAction(), is(DeltaFileRecord.Action.ADD_MODIFY));
+        assertThat(deltaFileRecords.get(0).getObject().toString(), is(dummifierNrtmV4.dummify(updatedObject).toString()));
     }
 
     @Test
-    public void should_get_delta_file_sequence_versions() {
+    public void should_get_delta_file_sequence_versions() throws JSONException {
         snapshotFileGenerator.createSnapshot();
         updateNotificationFileGenerator.generateFile();
 
-        final PublishableNotificationFile publishableNotificationFile = getNotificationFileBySource("TEST");
+        final UpdateNotificationFile updateNotificationFile = getNotificationFileBySource("TEST");
         final RpslObject updatedObject = RpslObject.parse("" +
                 "inet6num:       ::/0\n" +
                 "netname:        IANA-BLK\n" +
@@ -82,17 +86,16 @@ public class DeltaFileGenerationTestIntegration extends AbstractNrtmIntegrationT
         generateDeltas(Collections.singletonList(updatedObject));
         updateNotificationFileGenerator.generateFile();
 
-        final PublishableDeltaFile firstIterationDelta = getDeltasFromUpdateNotificationBySource("TEST", 0);
+        final String[] firstIterationDelta = getDeltasFromUpdateNotificationBySource("TEST", 0);
 
         generateDeltas(Collections.singletonList(updatedObject));
         updateNotificationFileGenerator.generateFile();
 
-        final PublishableDeltaFile secondIterationDelta = getDeltasFromUpdateNotificationBySource("TEST", 1);
+        final String[] secondIterationDelta = getDeltasFromUpdateNotificationBySource("TEST", 1);
 
-        assertThat(publishableNotificationFile.getSnapshot().getVersion(), is(1L));
-        assertThat(firstIterationDelta.getVersion(), is(2L));
-        assertThat(secondIterationDelta.getVersion(), is(3L));
-
+        assertThat(updateNotificationFile.getSnapshot().getVersion(), is(1L));
+        assertNrtmFileInfo(firstIterationDelta[0], "delta", 2, "TEST");
+        assertNrtmFileInfo(secondIterationDelta[0], "delta", 3, "TEST");
     }
 
     @Test
@@ -114,14 +117,14 @@ public class DeltaFileGenerationTestIntegration extends AbstractNrtmIntegrationT
                 "source:         TEST")));
 
         updateNotificationFileGenerator.generateFile();
-        final PublishableNotificationFile firsIteration = getNotificationFileBySource("TEST");
+        final UpdateNotificationFile firsIteration = getNotificationFileBySource("TEST");
         assertThat(firsIteration.getDeltas().get(0).getUrl(), is(notNullValue()));
         assertThat(firsIteration.getSessionID(), is(notNullValue()));
         assertThat(firsIteration.getDeltas().get(0).getVersion(), is(notNullValue()));
         assertThat(firsIteration.getDeltas().get(0).getHash(), is(notNullValue()));
     }
     @Test
-    public void delta_should_have_same_version_different_session_per_source() {
+    public void delta_should_have_same_version_different_session_per_source() throws JSONException {
         snapshotFileGenerator.createSnapshot();
         updateNotificationFileGenerator.generateFile();
 
@@ -148,20 +151,17 @@ public class DeltaFileGenerationTestIntegration extends AbstractNrtmIntegrationT
                 "last-modified:   2019-02-28T10:14:46Z\n" +
                 "source:        TEST-NONAUTH")));
         updateNotificationFileGenerator.generateFile();
-        final PublishableDeltaFile testDelta = getDeltasFromUpdateNotificationBySource("TEST", 0);
-        final PublishableDeltaFile nonAuthDelta = getDeltasFromUpdateNotificationBySource("TEST-NONAUTH", 0);
+        final String[] testDelta = getDeltasFromUpdateNotificationBySource("TEST", 0);
+        final String[] nonAuthDelta = getDeltasFromUpdateNotificationBySource("TEST-NONAUTH", 0);
 
-        assertThat(testDelta.getType(), is(NrtmDocumentType.DELTA));
-        assertThat(nonAuthDelta.getType(), is(NrtmDocumentType.DELTA));
-        assertThat(testDelta.getVersion(), is(nonAuthDelta.getVersion()));
-        assertThat(testDelta.getSource().getName(), is("TEST"));
-        assertThat(nonAuthDelta.getSource().getName(), is("TEST-NONAUTH"));
-        assertThat(testDelta.getSessionID(), is(not(nonAuthDelta.getSessionID())));
+        assertNrtmFileInfo(testDelta[0], "delta", 2, "TEST");
+        assertNrtmFileInfo(nonAuthDelta[0], "delta", 2, "TEST-NONAUTH");
 
+        assertThat(getNrtmVersionInfo(testDelta[0]).getSessionID(), is(not(getNrtmVersionInfo(nonAuthDelta[0]).getSessionID())));
     }
 
     @Test
-    public void should_get_delta_file_correct_order() {
+    public void should_get_delta_file_correct_order() throws JSONException, JsonProcessingException {
         snapshotFileGenerator.createSnapshot();
         updateNotificationFileGenerator.generateFile();
 
@@ -184,23 +184,23 @@ public class DeltaFileGenerationTestIntegration extends AbstractNrtmIntegrationT
         snapshotFileGenerator.createSnapshot();
         updateNotificationFileGenerator.generateFile();
 
-        final PublishableDeltaFile testDelta = getDeltasFromUpdateNotificationBySource("TEST", 0);
+        final String[] testDelta = getDeltasFromUpdateNotificationBySource("TEST", 0);
 
-        assertThat(testDelta.getChanges().size(), is(2));
-        assertThat(testDelta.getVersion(), is(2L));
+        final List<DeltaFileRecord> deltaFileRecords = getDeltaChanges(testDelta);
 
-        final DeltaChange updateChange = testDelta.getChanges().get(0);
-        assertThat(updateChange.getAction().toLowerCaseName(), is("add_modify"));
-        assertThat(updateChange.getObject().toString(), is(dummifierNrtmV4.dummify(updatedObject).toString()));
+        assertThat(deltaFileRecords.size(), is(2));
+        assertNrtmFileInfo(testDelta[0], "delta", 2, "TEST");
 
-        final DeltaChange deleteChange = testDelta.getChanges().get(1);
-        assertThat(deleteChange.getAction().toLowerCaseName(), is("delete"));
-        assertThat(deleteChange.getObjectType().toString(), is("INET6NUM"));
-        assertThat(deleteChange.getPrimaryKey(), is("::/0"));
+        assertThat(deltaFileRecords.get(0).getAction().toLowerCaseName(), is("add_modify"));
+        assertThat(deltaFileRecords.get(0).getObject().toString(), is(dummifierNrtmV4.dummify(updatedObject).toString()));
+
+        assertThat(deltaFileRecords.get(1).getAction().toLowerCaseName(), is("delete"));
+        assertThat(deltaFileRecords.get(1).getObjectType().toString(), is("INET6NUM"));
+        assertThat(deltaFileRecords.get(1).getPrimaryKey(), is("::/0"));
     }
 
     @Test
-    public void multiple_delta_should_has_same_session_different_version() {
+    public void multiple_delta_should_has_same_session_different_version() throws JSONException {
         snapshotFileGenerator.createSnapshot();
         updateNotificationFileGenerator.generateFile();
         generateDeltas(Collections.singletonList(RpslObject.parse("" +
@@ -216,7 +216,7 @@ public class DeltaFileGenerationTestIntegration extends AbstractNrtmIntegrationT
                 "last-modified:   2022-10-25T12:22:39Z\n" +
                 "source:         TEST")));
         updateNotificationFileGenerator.generateFile();
-        final PublishableDeltaFile firstDelta = getDeltasFromUpdateNotificationBySource("TEST", 0);
+        final String[] firstDelta = getDeltasFromUpdateNotificationBySource("TEST", 0);
         generateDeltas(Collections.singletonList(RpslObject.parse("" +
                 "inet6num:       ::/0\n" +
                 "netname:        IANA-BLK\n" +
@@ -230,13 +230,13 @@ public class DeltaFileGenerationTestIntegration extends AbstractNrtmIntegrationT
                 "last-modified:   2022-10-25T12:22:39Z\n" +
                 "source:         TEST")));
         updateNotificationFileGenerator.generateFile();
-        final PublishableDeltaFile secondDelta = getDeltasFromUpdateNotificationBySource("TEST", 1);
-        assertThat(firstDelta.getVersion(), is(not(secondDelta.getVersion())));
-        assertThat(firstDelta.getSessionID(), is(secondDelta.getSessionID()));
+        final String[] secondDelta = getDeltasFromUpdateNotificationBySource("TEST", 1);
+        assertThat(getNrtmVersionInfo(firstDelta[0]).getVersion(), is(not(getNrtmVersionInfo(secondDelta[0]).getVersion())));
+        assertThat(getNrtmVersionInfo(firstDelta[0]).getSessionID(), is(getNrtmVersionInfo(secondDelta[0]).getSessionID()));
     }
 
     @Test
-    public void delta_should_have_same_session_source_than_update_notification()  {
+    public void delta_should_have_same_session_source_than_update_notification() throws JSONException {
         snapshotFileGenerator.createSnapshot();
         updateNotificationFileGenerator.generateFile();
         generateDeltas(Collections.singletonList(RpslObject.parse("" +
@@ -252,17 +252,17 @@ public class DeltaFileGenerationTestIntegration extends AbstractNrtmIntegrationT
                 "last-modified:   2022-10-25T12:22:39Z\n" +
                 "source:         TEST")));
         updateNotificationFileGenerator.generateFile();
-        final PublishableNotificationFile testUpdateNotification = getNotificationFileBySource("TEST");
-        final PublishableDeltaFile testDelta = getDeltasFromUpdateNotificationBySource("TEST", 0);
+        final UpdateNotificationFile testUpdateNotification = getNotificationFileBySource("TEST");
+        final String[] testDelta = getDeltasFromUpdateNotificationBySource("TEST", 0);
 
-        assertThat(testDelta.getType(), is(NrtmDocumentType.DELTA));
-        assertThat(testDelta.getVersion(), is(testUpdateNotification.getVersion()));
-        assertThat(testDelta.getSource().getName(), is(testUpdateNotification.getSource().getName()));
-        assertThat(testDelta.getSessionID(), is(testUpdateNotification.getSessionID()));
+        final NrtmVersionRecord nrtmVersionFile = getNrtmVersionInfo(testDelta[0]);
+        assertThat(nrtmVersionFile.getVersion(), is(testUpdateNotification.getVersion()));
+        assertThat(nrtmVersionFile.getSource().getName(), is(testUpdateNotification.getSource().getName()));
+        assertThat(nrtmVersionFile.getSessionID(), is(testUpdateNotification.getSessionID()));
     }
 
     @Test
-    public void snapshot_should_match_last_delta_version(){
+    public void snapshot_should_match_last_delta_version() throws JSONException {
         final RpslObject updatedObject = RpslObject.parse("" +
                 "inet6num:       ::/0\n" +
                 "netname:        IANA-BLK\n" +
@@ -286,10 +286,11 @@ public class DeltaFileGenerationTestIntegration extends AbstractNrtmIntegrationT
 
 
         updateNotificationFileGenerator.generateFile();
-        final PublishableNotificationFile testUpdateNotification = getNotificationFileBySource("TEST");
-        final PublishableDeltaFile testDelta = getDeltasFromUpdateNotificationBySource("TEST", 2);
+        final UpdateNotificationFile testUpdateNotification = getNotificationFileBySource("TEST");
+        final String[] testDelta = getDeltasFromUpdateNotificationBySource("TEST", 2);
 
-        assertThat(testUpdateNotification.getSnapshot().getVersion(), is(testDelta.getVersion()));
+        assertThat(testUpdateNotification.getSnapshot().getVersion(), is(new JSONObject(testDelta[0]).getLong("version")));
+
     }
 
     @Test
@@ -330,7 +331,7 @@ public class DeltaFileGenerationTestIntegration extends AbstractNrtmIntegrationT
 
         updateNotificationFileGenerator.generateFile();
 
-        final PublishableNotificationFile publishableFile = getNotificationFileBySource("TEST-NONAUTH");
+        final UpdateNotificationFile publishableFile = getNotificationFileBySource("TEST-NONAUTH");
         assertThat(publishableFile.getDeltas().size(), is(1));
         assertThat(publishableFile.getDeltas().get(0).getVersion(), is(2L));
 
@@ -364,7 +365,7 @@ public class DeltaFileGenerationTestIntegration extends AbstractNrtmIntegrationT
 
         updateNotificationFileGenerator.generateFile();
 
-        final PublishableNotificationFile firstIteration = getNotificationFileBySource("TEST-NONAUTH");
+        final UpdateNotificationFile firstIteration = getNotificationFileBySource("TEST-NONAUTH");
         assertThat(firstIteration.getDeltas().size(), is(1));
         assertThat(firstIteration.getDeltas().get(0).getVersion(), is(3L));
         assertThat(publishableFile.getSnapshot().getVersion(), is(not(firstIteration.getSnapshot().getVersion())));

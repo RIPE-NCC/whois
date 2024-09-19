@@ -8,7 +8,7 @@ import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.databind.introspect.AnnotationIntrospectorPair;
 import com.fasterxml.jackson.databind.introspect.JacksonAnnotationIntrospector;
 import com.fasterxml.jackson.databind.type.TypeFactory;
-import com.fasterxml.jackson.module.jaxb.JaxbAnnotationIntrospector;
+import com.fasterxml.jackson.module.jakarta.xmlbind.JakartaXmlBindAnnotationIntrospector;
 import net.ripe.db.whois.api.rest.client.StreamingException;
 
 import java.io.IOException;
@@ -25,7 +25,7 @@ public class StreamingMarshalJson implements StreamingMarshal {
 
         objectMapper.setAnnotationIntrospector(new AnnotationIntrospectorPair(
                 new JacksonAnnotationIntrospector(),
-                new JaxbAnnotationIntrospector(TypeFactory.defaultInstance())));
+                new JakartaXmlBindAnnotationIntrospector(TypeFactory.defaultInstance())));
 
         jsonFactory = objectMapper.getFactory();
     }

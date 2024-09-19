@@ -2,6 +2,8 @@ package net.ripe.db.whois.common.grs;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import jakarta.ws.rs.client.Client;
+import jakarta.ws.rs.core.HttpHeaders;
 import net.ripe.commons.ip.Asn;
 import net.ripe.commons.ip.AsnRange;
 import net.ripe.commons.ip.Ipv4;
@@ -11,8 +13,6 @@ import net.ripe.commons.ip.Ipv6Range;
 import net.ripe.commons.ip.SortedRangeSet;
 import org.slf4j.Logger;
 
-import javax.ws.rs.client.Client;
-import javax.ws.rs.core.HttpHeaders;
 import java.io.IOException;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionException;
@@ -87,7 +87,7 @@ public class RsngAuthoritativeResourceWorker {
                 .queryParam("page-number", "1")
                 .request()
                 .header(HttpHeaders.ACCEPT, "application/json")
-                .header("X-API_KEY", apiKey)
+                .header("ncc-internal-api-key", apiKey)
                 .get(String.class);
     }
 }
