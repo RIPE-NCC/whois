@@ -1,16 +1,12 @@
 package net.ripe.db.whois.api.fulltextsearch;
 
-import com.google.common.base.CharMatcher;
 import com.google.common.base.Stopwatch;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
-import com.google.common.collect.Sets;
-import net.ripe.db.whois.api.elasticsearch.ElasticSearchInstance;
+import net.ripe.db.whois.api.elasticsearch.ElasticIndexMetadata;
+import net.ripe.db.whois.api.elasticsearch.ElasticIndexService;
 import net.ripe.db.whois.common.dao.jdbc.JdbcRpslObjectOperations;
 import net.ripe.db.whois.common.domain.CIString;
-import net.ripe.db.whois.common.rpsl.AttributeType;
-import net.ripe.db.whois.common.rpsl.ObjectTemplate;
-import net.ripe.db.whois.common.rpsl.RpslAttribute;
 import net.ripe.db.whois.common.rpsl.RpslObject;
 import org.elasticsearch.action.admin.indices.alias.IndicesAliasesRequest;
 import org.elasticsearch.action.admin.indices.delete.DeleteIndexRequest;
@@ -19,10 +15,8 @@ import org.elasticsearch.action.bulk.BulkItemResponse;
 import org.elasticsearch.action.bulk.BulkRequest;
 import org.elasticsearch.action.bulk.BulkResponse;
 import org.elasticsearch.action.index.IndexRequest;
-import org.elasticsearch.action.update.UpdateRequest;
 import org.elasticsearch.client.RequestOptions;
 import org.elasticsearch.client.RestHighLevelClient;
-import org.elasticsearch.client.core.CountRequest;
 import org.elasticsearch.client.indices.CreateIndexRequest;
 import org.elasticsearch.client.indices.GetIndexRequest;
 import org.elasticsearch.client.indices.GetIndexResponse;
@@ -43,7 +37,6 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.Timer;
 import java.util.TimerTask;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -59,38 +52,37 @@ public class ElasticFullTextRebuild {
 
     private static final DateTimeFormatter DATE_TIME_FORMATTER = DateTimeFormatter.ofPattern("yyyyMMdd-HHmmss");
 
-    private final ElasticSearchInstance elasticSearchInstance;
-    private static final Set<AttributeType> SKIPPED_ATTRIBUTES = Sets.newEnumSet(Sets.newHashSet(AttributeType.CERTIF, AttributeType.CHANGED, AttributeType.SOURCE), AttributeType.class);
-    private static final Set<AttributeType> FILTERED_ATTRIBUTES = Sets.newEnumSet(Sets.newHashSet(AttributeType.AUTH), AttributeType.class);
+    private final ElasticIndexService elasticIndexService;
 
     private static final int BATCH_SIZE = 100;
     private final JdbcTemplate jdbcTemplate;
     private final NamedParameterJdbcTemplate namedParameterJdbcTemplate;
     private final String source;
+    private final List<String> elasticHosts;
 
     @Autowired
-    public ElasticFullTextRebuild(final ElasticSearchInstance elasticSearchInstance,
+    public ElasticFullTextRebuild(final ElasticIndexService elasticIndexService,
+                                  @Value("#{'${elastic.host:}'.split(',')}") final List<String> elasticHosts,
                                   @Qualifier("whoisSlaveDataSource") final DataSource dataSource,
                                   @Value("${whois.source}") final String source) {
-        this.elasticSearchInstance = elasticSearchInstance;
+        this.elasticIndexService = elasticIndexService;
         this.jdbcTemplate = new JdbcTemplate(dataSource);
         this.source = source;
+        this.elasticHosts = elasticHosts;
         this.namedParameterJdbcTemplate = new NamedParameterJdbcTemplate(jdbcTemplate);
     }
 
-    public void rebuild() {
-
+    public void run() throws IOException {
         LOGGER.info("Source is  {}", source);
 
         final Stopwatch stopwatch = Stopwatch.createStarted();
-        final RestHighLevelClient client = elasticSearchInstance.getClient();
-
+        final RestHighLevelClient client = elasticIndexService.getClient();
 
         final String indexName = "whois-" + DATE_TIME_FORMATTER.format(LocalDateTime.now());
 
         LOGGER.info("Start building index {}", indexName);
 
-        createIndex(client, indexName, elasticHosts);
+        createIndex(indexName);
 
         final int maxSerial = JdbcRpslObjectOperations.getSerials(jdbcTemplate).getEnd();
         LOGGER.info("Indexing upto serial number {}", maxSerial);
@@ -112,7 +104,7 @@ public class ElasticFullTextRebuild {
                 try {
                     bulkRequest.add(new IndexRequest(indexName)
                             .id(String.valueOf(rpslObject.getObjectId()))
-                            .source(json(rpslObject))
+                            .source(elasticIndexService.json(rpslObject))
                     );
                 } catch (final Exception ioe) {
                     failedToParse.add(rpslObject.getKey());
@@ -127,29 +119,17 @@ public class ElasticFullTextRebuild {
         timer.cancel();
 
         LOGGER.info("Total objects processed {}", totalProcessed.get());
-        LOGGER.info("Total objects indexed {}", getWhoisDocCount(indexName, client));
+        LOGGER.info("Total objects indexed {}", elasticIndexService.getWhoisDocCount(indexName));
 
         LOGGER.warn("This many {} Objects failed to indexed, these are {}", failedToIndexed.size(), failedToIndexed);
         LOGGER.warn("This many {} Objects failed to parsed, these are {}", failedToParse.size(), failedToParse);
 
-        setNewIndexAsWhoisAlias(client, indexName);
-        updateMetadata(source, client, maxSerial, elasticHosts);
+        setNewIndexAsWhoisAlias(indexName);
+        updateMetadata(maxSerial);
 
-        deleteOldIndexes(client, indexName);
+        deleteOldIndexes(indexName);
 
         LOGGER.info("ES indexing complete {}", stopwatch);
-
-    }
-
-    private void updateMetadata(final String source, final RestHighLevelClient client, final int maxSerial, final String[] elasticHosts) {
-        LOGGER.info("Setting metadata Index");
-
-        try {
-            updateMetadata(client, maxSerial, source, elasticHosts.length);
-        } catch (final Exception ioe) {
-            LOGGER.info("Caught {} on {}: {}", ioe.getClass(), ioe.getMessage());
-            throw new RuntimeException("Failed to set default metadata index", ioe);
-        }
     }
 
     private static void performBulkIndexing(final RestHighLevelClient client, final List<Integer> failedToIndexed, final BulkRequest bulkRequest) {
@@ -165,15 +145,15 @@ public class ElasticFullTextRebuild {
         }
     }
 
-    private void createIndex(final RestHighLevelClient client, final String indexName, final String[] elasticHosts) throws IOException {
+    private void createIndex(final String indexName) throws IOException {
         final CreateIndexRequest request = new CreateIndexRequest(indexName);
-        request.settings(getSettings(elasticHosts.length));
+        request.settings(getSettings(elasticHosts.size()));
         request.mapping(getMappings());
 
-        client.indices().create(request, RequestOptions.DEFAULT);
+        elasticIndexService.getClient().indices().create(request, RequestOptions.DEFAULT);
     }
 
-    private static void setNewIndexAsWhoisAlias(final RestHighLevelClient client, final String indexName) {
+    private void setNewIndexAsWhoisAlias(final String indexName) {
         LOGGER.info("Setting index {} as default whois index", indexName);
 
         // swap whois alias to newly built index so it becomes the default
@@ -181,22 +161,22 @@ public class ElasticFullTextRebuild {
         final IndicesAliasesRequest.AliasActions addIndexAction =
                 new IndicesAliasesRequest.AliasActions(IndicesAliasesRequest.AliasActions.Type.ADD)
                         .index(indexName)
-                        .alias("whois");
+                        .alias(elasticIndexService.getWhoisAliasIndex());
         aliasRequest.addAliasAction(addIndexAction);
 
         try {
-            client.indices().updateAliases(aliasRequest, RequestOptions.DEFAULT);
+            elasticIndexService.getClient().indices().updateAliases(aliasRequest, RequestOptions.DEFAULT);
         } catch (final IOException ioe) {
             LOGGER.warn("Failed to set {} as default index", indexName);
         }
     }
 
-    private void deleteOldIndexes(final RestHighLevelClient client, final String currentIndex) {
+    private void deleteOldIndexes(final String currentIndex) {
         LOGGER.info("Deleting existing indexes");
 
         try {
             final GetIndexRequest request = new GetIndexRequest("*");
-            final GetIndexResponse response = client.indices().get(request, RequestOptions.DEFAULT);
+            final GetIndexResponse response = elasticIndexService.getClient().indices().get(request, RequestOptions.DEFAULT);
 
 
             for (final String index : response.getIndices()) {
@@ -205,106 +185,42 @@ public class ElasticFullTextRebuild {
                 }
 
                 LOGGER.info("Deleting existing index:" + index);
-                deleteIndex(client, index);
+                deleteIndex(index);
             }
         } catch (final Exception ex) {
         }
     }
 
-    private void deleteIndex(final RestHighLevelClient client, final String indexName) {
+    private void deleteIndex(final String indexName) {
         try {
-            client.indices().delete(new DeleteIndexRequest(indexName), RequestOptions.DEFAULT);
+            elasticIndexService.getClient().indices().delete(new DeleteIndexRequest(indexName), RequestOptions.DEFAULT);
         } catch (final Exception ex) {
             LOGGER.warn("{} Index deleting failed , still continuing {}", indexName, ex.getCause());
         }
     }
 
-    public void updateMetadata(final  RestHighLevelClient client, final int maxSerial, final String source, final int nodes) throws IOException {
-        final UpdateRequest updateRequest = new UpdateRequest("metadata", "1");
-
-        final XContentBuilder builder = XContentFactory.jsonBuilder()
-                .startObject()
-                .field("serial", maxSerial)
-                .field("source", source)
-                .endObject();
-
-        final UpdateRequest request = updateRequest.doc(builder).upsert(builder);
-
-        client.update(request, RequestOptions.DEFAULT);
-
-        final UpdateSettingsRequest settingRequest = new UpdateSettingsRequest("metadata");
-
-        final Map<String, Object> map = new HashMap<>();
-        map.put("index.number_of_replicas", nodes-1);
-        map.put("index.auto_expand_replicas", false);
-        settingRequest.settings(map);
-
-        client.indices().putSettings(settingRequest, RequestOptions.DEFAULT);
+    private void updateMetadata(final int maxSerial) {
 
         LOGGER.info("Setting metadata Index");
-    }
 
-    private XContentBuilder json(final RpslObject rpslObject) throws IOException {
-        final XContentBuilder builder = XContentFactory.jsonBuilder().startObject();
+        try {
+            elasticIndexService.updateMetadata(new ElasticIndexMetadata(maxSerial, source));
 
-        final RpslObject filterRpslObject = filterRpslObject(rpslObject);
-        final ObjectTemplate template = ObjectTemplate.getTemplate(filterRpslObject.getType());
+            final UpdateSettingsRequest settingRequest = new UpdateSettingsRequest("metadata");
 
-        for (final AttributeType attributeType : template.getAllAttributes()) {
-            if(filterRpslObject.containsAttribute(attributeType)) {
-                if (template.getMultipleAttributes().contains(attributeType)) {
-                    builder.array(
-                            attributeType.getName(),
-                            filterRpslObject.findAttributes(attributeType).stream().map((attribute) -> attribute.getValue().trim()).toArray(String[]::new)
-                    );
-                } else {
-                    builder.field(attributeType.getName(), filterRpslObject.findAttribute(attributeType).getValue().trim());
-                }
-            }
+            final Map<String, Object> map = new HashMap<>();
+            map.put("index.number_of_replicas", elasticHosts.size() - 1);
+            map.put("index.auto_expand_replicas", false);
+            settingRequest.settings(map);
+
+            elasticIndexService.getClient().indices().putSettings(settingRequest, RequestOptions.DEFAULT);
+
+            LOGGER.info("Setting metadata Index Done");
+
+        } catch (final Exception ioe) {
+            LOGGER.info("Caught {} on {}: {}", ioe.getClass(), ioe.getMessage());
+            throw new RuntimeException("Failed to set default metadata index", ioe);
         }
-
-        builder.field("lookup-key", rpslObject.getKey().toString());
-        builder.field("object-type", filterRpslObject.getType().getName());
-
-        return builder.endObject();
-    }
-
-    public RpslObject filterRpslObject(final RpslObject rpslObject) {
-        final List<RpslAttribute> attributes = Lists.newArrayList();
-
-        for (final RpslAttribute attribute : rpslObject.getAttributes()) {
-            if (SKIPPED_ATTRIBUTES.contains(attribute.getType())) {
-                continue;
-            }
-            attributes.add(new RpslAttribute(attribute.getKey(), filterRpslAttribute(attribute.getType(), attribute.getValue())));
-        }
-        return new RpslObject(rpslObject.getObjectId(), attributes);
-    }
-
-    public String filterRpslAttribute(final AttributeType attributeType, final String attributeValue) {
-
-        if (FILTERED_ATTRIBUTES.contains(attributeType)) {
-            return sanitise(filterAttribute(attributeValue.trim()));
-        }
-
-        return sanitise(attributeValue.trim());
-    }
-
-    private String filterAttribute(final String value) {
-        if (value.toLowerCase().startsWith("md5-pw")) {
-            return "MD5-PW";
-        }
-
-        if (value.toLowerCase().startsWith("sso")) {
-            return "SSO";
-        }
-
-        return value;
-    }
-
-    private static String sanitise(final String value) {
-        // TODO: [ES] also strips newlines, attribute cannot be re-constructed later
-        return CharMatcher.javaIsoControl().removeFrom(value);
     }
 
     public List<RpslObject> getObjects(final List<Integer> objectIds) {
@@ -336,14 +252,4 @@ public class ElasticFullTextRebuild {
             }
         }, 0, 10000);
     }
-
-    protected long getWhoisDocCount(final String indexName, final RestHighLevelClient client) {
-        try {
-            return client.count(new CountRequest(indexName), RequestOptions.DEFAULT).getCount();
-        } catch (final IOException e) {
-            LOGGER.error("Failed to get the count of objects indexed");
-            return 0;
-        }
-    }
-
 }

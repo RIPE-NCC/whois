@@ -140,11 +140,15 @@ public class ElasticIndexService {
     }
 
     protected long getWhoisDocCount() throws IOException {
+        return getWhoisDocCount(whoisAliasIndex);
+    }
+
+    public long getWhoisDocCount(final String indexName) throws IOException {
         if (!isElasticRunning()) {
             throw new IllegalStateException("ES is not running");
         }
 
-        final CountRequest countRequest = new CountRequest(whoisAliasIndex);
+        final CountRequest countRequest = new CountRequest(indexName);
         countRequest.query(QueryBuilders.matchAllQuery());
 
         final CountResponse countResponse = client.count(countRequest, RequestOptions.DEFAULT);
@@ -167,7 +171,7 @@ public class ElasticIndexService {
             documentFields.getSource().get(SOURCE).toString());
     }
 
-    protected void updateMetadata(final ElasticIndexMetadata metadata) throws IOException {
+    public void updateMetadata(final ElasticIndexMetadata metadata) throws IOException {
         if (!isElasticRunning()) {
           return;
         }
@@ -212,7 +216,7 @@ public class ElasticIndexService {
         }
     }
 
-    private XContentBuilder json(final RpslObject rpslObject) throws IOException {
+    public XContentBuilder json(final RpslObject rpslObject) throws IOException {
         final XContentBuilder builder = XContentFactory.jsonBuilder().startObject();
 
         final RpslObject filterRpslObject = filterRpslObject(rpslObject);
