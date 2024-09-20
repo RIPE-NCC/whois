@@ -291,6 +291,12 @@ public final class QueryMessages {
                 accountingId);
     }
 
+    public static Message accessDeniedForAbuse(final String accountingId) {
+        return new QueryMessage(Type.ERROR, ""
+                + "Your host %s has been blocked. Please contact support <ripe-dbm@ripe.net> for further assistance.",
+                accountingId);
+    }
+
     public static Message accessDeniedTemporarily(final String accountingId) {
         return new QueryMessage(Type.ERROR, ""
                 + "ERROR:201: access denied for %s\n"
