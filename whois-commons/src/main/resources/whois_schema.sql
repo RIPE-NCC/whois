@@ -41,7 +41,7 @@ DROP TABLE IF EXISTS `abuse_mailbox`;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `abuse_mailbox` (
   `object_id` int(10) unsigned NOT NULL DEFAULT '0',
-  `abuse_mailbox` varchar(80) NOT NULL DEFAULT '',
+  `abuse_mailbox` varchar(320) NOT NULL DEFAULT '',
   `object_type` tinyint(3) unsigned NOT NULL DEFAULT '0',
   PRIMARY KEY (`abuse_mailbox`,`object_id`),
   KEY `abuse_mailbox_object_id_index` (`object_id`)
@@ -183,7 +183,7 @@ DROP TABLE IF EXISTS `e_mail`;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `e_mail` (
   `object_id` int(10) unsigned NOT NULL DEFAULT '0',
-  `e_mail` varchar(80) NOT NULL DEFAULT '',
+  `e_mail` varchar(320) NOT NULL DEFAULT '',
   `object_type` tinyint(3) unsigned NOT NULL DEFAULT '0',
   PRIMARY KEY (`e_mail`,`object_id`),
   KEY `object_id` (`object_id`)
@@ -399,7 +399,7 @@ DROP TABLE IF EXISTS `irt_nfy`;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `irt_nfy` (
   `object_id` int(10) unsigned NOT NULL DEFAULT '0',
-  `irt_nfy` varchar(80) NOT NULL DEFAULT '',
+  `irt_nfy` varchar(320) NOT NULL DEFAULT '',
   PRIMARY KEY (`irt_nfy`,`object_id`),
   KEY `object_id` (`object_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
@@ -550,7 +550,7 @@ DROP TABLE IF EXISTS `mnt_nfy`;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `mnt_nfy` (
   `object_id` int(10) unsigned NOT NULL DEFAULT '0',
-  `mnt_nfy` varchar(80) NOT NULL DEFAULT '',
+  `mnt_nfy` varchar(320) NOT NULL DEFAULT '',
   PRIMARY KEY (`mnt_nfy`,`object_id`),
   KEY `object_id` (`object_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
@@ -649,7 +649,7 @@ DROP TABLE IF EXISTS `notify`;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `notify` (
   `object_id` int(10) unsigned NOT NULL DEFAULT '0',
-  `notify` varchar(80) NOT NULL DEFAULT '',
+  `notify` varchar(320) NOT NULL DEFAULT '',
   `object_type` tinyint(3) unsigned NOT NULL DEFAULT '0',
   PRIMARY KEY (`notify`,`object_id`),
   KEY `object_id` (`object_id`)
@@ -823,7 +823,7 @@ DROP TABLE IF EXISTS `ref_nfy`;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `ref_nfy` (
   `object_id` int(10) unsigned NOT NULL DEFAULT '0',
-  `ref_nfy` varchar(80) NOT NULL DEFAULT '',
+  `ref_nfy` varchar(320) NOT NULL DEFAULT '',
   PRIMARY KEY (`ref_nfy`,`object_id`),
   KEY `object_id` (`object_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
@@ -956,7 +956,7 @@ DROP TABLE IF EXISTS `upd_to`;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `upd_to` (
   `object_id` int(10) unsigned NOT NULL DEFAULT '0',
-  `upd_to` varchar(80) NOT NULL DEFAULT '',
+  `upd_to` varchar(320) NOT NULL DEFAULT '',
   PRIMARY KEY (`upd_to`,`object_id`),
   KEY `object_id` (`object_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;

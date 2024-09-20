@@ -27,7 +27,7 @@ CREATE TABLE `email_links` (
   `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT,
   `hash` varchar(256) NOT NULL,
   `mntner` varchar(256) NOT NULL,
-  `email` varchar(256) NOT NULL,
+  `email` varchar(320) NOT NULL,
   `creation_date` int(10) unsigned NOT NULL DEFAULT '0',
   `expiry_date` int(10) unsigned NOT NULL DEFAULT '0',
   `created_by` varchar(256) DEFAULT NULL,
@@ -43,7 +43,7 @@ CREATE TABLE `forgot_password_audit_log` (
   `entry` varchar(256) NOT NULL,
   `address` varchar(256) NOT NULL,
   `mntner` varchar(256) DEFAULT NULL,
-  `email` varchar(256) DEFAULT NULL,
+  `email` varchar(320) DEFAULT NULL,
   `hash`  varchar(256) DEFAULT NULL,
   `user_sso_email`  varchar(256) DEFAULT NULL,
   PRIMARY KEY (`id`),
@@ -57,7 +57,7 @@ CREATE TABLE `default_maintainer_history` (
   `mntner` varchar(256) NOT NULL,
   `timestamp` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   `uuid` varchar(256) NOT NULL,
-  `email` varchar(256),
+  `email` varchar(320),
   `in_progress` tinyint(1) DEFAULT NULL,
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
@@ -68,7 +68,7 @@ CREATE TABLE `default_maintainer_sync_history` (
     `org` varchar(256) NOT NULL,
     `mntner` varchar(256) NOT NULL,
     `timestamp` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp(),
-    `email` varchar(256) NOT NULL,
+    `email` varchar(320) NOT NULL,
     `is_synchronised` tinyint(1) DEFAULT 0,PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
@@ -92,14 +92,14 @@ CREATE TABLE `default_maintainer_sync` (
     `org` varchar(256) NOT NULL,
     `mntner` varchar(256) NOT NULL,
     `timestamp` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp(),
-    `email` varchar(256) NOT NULL,
+    `email` varchar(320) NOT NULL,
     PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 DROP TABLE IF EXISTS `abuse_email`;
 CREATE TABLE `abuse_email` (
   `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT,
-  `address` varchar(256) NOT NULL,
+  `address` varchar(320) NOT NULL,
   `checked_at` datetime,
   `comment` varchar(256),
   `created_at` datetime NOT NULL,
@@ -173,7 +173,7 @@ CREATE TABLE `environment` (
 DROP TABLE IF EXISTS `outgoing_message`;
 CREATE TABLE `outgoing_message` (
    `message_id` varchar(80) NOT NULL,
-   `email` varchar(80) NOT NULL,
+   `email` varchar(320) NOT NULL,
    `last_update` datetime DEFAULT now(),
    PRIMARY KEY (`message_id`, `email`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
@@ -182,7 +182,7 @@ CREATE INDEX outgoing_message_email_i ON outgoing_message(email);
 
 DROP TABLE IF EXISTS `email_status`;
 CREATE TABLE `email_status` (
-   `email` varchar(80) NOT NULL,
+   `email` varchar(320) NOT NULL,
    `status` varchar(120) NOT NULL,
    `last_update` datetime DEFAULT now(),
    PRIMARY KEY (`email`)
