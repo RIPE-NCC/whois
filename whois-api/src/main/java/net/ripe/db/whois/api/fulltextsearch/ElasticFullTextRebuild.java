@@ -39,6 +39,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Timer;
 import java.util.TimerTask;
+import java.util.concurrent.ForkJoinPool;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 
@@ -105,7 +106,9 @@ public class ElasticFullTextRebuild {
         final List<Integer> failedToIndexed = Lists.newArrayList();
         final List<CIString> failedToParse = Lists.newArrayList();
 
-        objectIds.parallelStream().forEach(batchObjectIds -> {
+        final ForkJoinPool customThreadPool = new ForkJoinPool(4);
+        customThreadPool.submit(
+                () -> objectIds.parallelStream().forEach(batchObjectIds -> {
             final BulkRequest bulkRequest = new BulkRequest();
 
             final List<RpslObject> objects = getObjects(batchObjectIds);
@@ -117,13 +120,13 @@ public class ElasticFullTextRebuild {
                     );
                 } catch (final Exception ioe) {
                     failedToParse.add(rpslObject.getKey());
-                    LOGGER.error("Failed to parse rpslObject , skipping indexing {}: {}", rpslObject.getKey(), ioe);
+                    LOGGER.warn("Failed to parse rpslObject , skipping indexing {}: {}", rpslObject.getKey(), ioe);
                 }
             });
             totalProcessed.addAndGet(objects.size());
 
             performBulkIndexing(client, failedToIndexed, bulkRequest);
-        });
+        }));
 
         timer.cancel();
 

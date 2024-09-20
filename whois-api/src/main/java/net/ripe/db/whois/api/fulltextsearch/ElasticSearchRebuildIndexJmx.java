@@ -2,6 +2,7 @@ package net.ripe.db.whois.api.fulltextsearch;
 
 import net.ripe.db.whois.common.jmx.JmxBase;
 import org.slf4j.Logger;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jmx.export.annotation.ManagedOperation;
 import org.springframework.jmx.export.annotation.ManagedOperationParameter;
 import org.springframework.jmx.export.annotation.ManagedOperationParameters;
@@ -18,6 +19,7 @@ public class ElasticSearchRebuildIndexJmx extends JmxBase {
 
     private final ElasticFullTextRebuild elasticFullTextRebuild;
 
+    @Autowired
     public ElasticSearchRebuildIndexJmx(final ElasticFullTextRebuild elasticFullTextRebuild) {
         super(LOGGER);
         this.elasticFullTextRebuild = elasticFullTextRebuild;
