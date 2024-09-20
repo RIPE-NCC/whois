@@ -483,6 +483,32 @@ public class ResponseFactoryTest {
     }
 
     @Test
+    public void notification_success_with_effective_password_credentials() {
+
+        final RpslObject object1 = RpslObject.parse("mntner: DEV-ROOT1-MNT");
+        final Update update1 = new Update(new Paragraph(object1.toString()), Operation.UNSPECIFIED, Lists.newArrayList(), object1);
+        final PreparedUpdate create1 = new PreparedUpdate(update1, null, object1, Action.CREATE);
+        update1.setEffectiveCredential("MD5-PW", Update.EffectiveCredentialType.PASSWORD);
+
+        final Notification notification = new Notification("notify@me.com");
+        notification.add(Notification.Type.SUCCESS, create1, updateContext);
+
+        final ResponseMessage responseMessage = subject.createNotification(updateContext, origin, notification);
+
+        assertNotification(responseMessage);
+
+        assertThat(responseMessage.getMessage(), containsString("" +
+                "---\n" +
+                "OBJECT BELOW CREATED:\n" +
+                "\n" +
+                "mntner:         DEV-ROOT1-MNT\n" +
+                "\n" +
+                "Changed by password.\n" +
+                "\n" ));
+
+    }
+
+    @Test
     public void notification_success_filter_auth() {
         final RpslObject object = RpslObject.parse("" +
                 "mntner: DEV-MNT\n" +
