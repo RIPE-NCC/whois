@@ -47,7 +47,7 @@ class PasswordCredentialValidator implements CredentialValidator<PasswordCredent
                             update.getUpdate(),
                             getClass().getCanonicalName(),
                             String.format("Validated %s against known encrypted password: %s)", update.getFormattedKey(), knownPassword));
-                    update.getUpdate().setEffectiveCredential("MD5", Update.EffectiveCredentialType.MD5);
+                    update.getUpdate().setEffectiveCredential("MD5-PW", Update.EffectiveCredentialType.PASSWORD);
                     return true;
                 }
             } catch (IllegalArgumentException e) {

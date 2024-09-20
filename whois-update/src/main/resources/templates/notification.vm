@@ -78,7 +78,7 @@ $!update.reason
 Changed by SSO account: $update.preparedUpdate.update.effectiveCredential
 #end
 
-#if ($update.preparedUpdate.update.effectiveCredential && $update.preparedUpdate.update.effectiveCredentialType ==  'MD5')
+#if ($update.preparedUpdate.update.effectiveCredential && $update.preparedUpdate.update.effectiveCredentialType ==  'PASSWORD')
 Changed by password.
 #end
 
