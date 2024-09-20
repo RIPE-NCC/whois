@@ -46,7 +46,7 @@
         <!-- TODO: [ES] Validate.notNull() behaviour has changed in commons-lang3 (throws NullPointerException) -->
         <commons-lang.version>2.6</commons-lang.version>
         <commons-net.version>3.10.0</commons-net.version>
-        <commons-validator.version>1.8.0</commons-validator.version>
+        <commons-validator.version>1.9.0</commons-validator.version>
 
         <diffutils.version>1.3.0</diffutils.version>
 
