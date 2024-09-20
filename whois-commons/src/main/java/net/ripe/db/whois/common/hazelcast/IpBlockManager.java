@@ -28,4 +28,8 @@ public interface IpBlockManager {
     }
 
     boolean isBlockedIp(final InetAddress candidate);
+
+    default boolean isBlockedIp(final String candidate) {
+        return isBlockedIp(InetAddresses.forString(candidate));
+    }
 }

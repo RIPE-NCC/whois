@@ -19,7 +19,6 @@ import org.springframework.stereotype.Component;
 
 import java.io.IOException;
 
-
 @Component
 public class IpBlockListFilter implements Filter {
 
@@ -36,7 +35,7 @@ public class IpBlockListFilter implements Filter {
     public void doFilter(final ServletRequest servletRequest, final ServletResponse servletResponse, final FilterChain filterChain) throws IOException, ServletException {
         final HttpServletRequest httpRequest = (HttpServletRequest) servletRequest;
 
-        if (ipBlockManager.isBlockedIp(InetAddresses.forString(httpRequest.getRemoteAddr()))){
+        if (ipBlockManager.isBlockedIp(httpRequest.getRemoteAddr())){
             sendError((HttpServletResponse) servletResponse, httpRequest);
             return;
         }

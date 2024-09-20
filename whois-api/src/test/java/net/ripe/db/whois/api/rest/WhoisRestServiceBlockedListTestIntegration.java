@@ -11,6 +11,7 @@ import net.ripe.db.whois.api.rest.mapper.WhoisObjectMapper;
 import net.ripe.db.whois.api.httpserver.jmx.BlockListJmx;
 import net.ripe.db.whois.common.rpsl.RpslObject;
 import net.ripe.db.whois.common.support.TelnetWhoisClient;
+import net.ripe.db.whois.query.QueryMessages;
 import net.ripe.db.whois.query.QueryServer;
 import org.eclipse.jetty.http.HttpStatus;
 import org.junit.jupiter.api.AfterAll;
@@ -105,8 +106,7 @@ public class WhoisRestServiceBlockedListTestIntegration extends AbstractIntegrat
                 .get();
 
         assertThat(HttpStatus.TOO_MANY_REQUESTS_429, is(errorResponse.getStatus()));
-        assertThat(errorResponse.readEntity(String.class), containsString("Your host 8.8.8.8 has been permanently blocked " +
-                "due to suspected abusive behaviour. Please contact support for further assistance."));
+        assertThat(errorResponse.readEntity(String.class), containsString(QueryMessages.accessDeniedForAbuse("8.8.8.8").getFormattedText()));
     }
 
     @Test
@@ -125,7 +125,7 @@ public class WhoisRestServiceBlockedListTestIntegration extends AbstractIntegrat
         blockListJmx.addBlockedListAddress(LOCALHOST);
 
         assertThat(TelnetWhoisClient.queryLocalhost(queryServer.getPort(), "--diff-versions 1 TP1-TEST"),
-                containsString("Your host 127.0.0.1 has been permanently blocked due to suspected abusive behaviour. Please contact support for further assistance."));
+                containsString(QueryMessages.accessDeniedForAbuse(LOCALHOST).getFormattedText()));
 
         blockListJmx.removeBlockedListAddress(LOCALHOST);
         assertThat( TelnetWhoisClient.queryLocalhost(queryServer.getPort(), "--show-version 1 TP1-TEST"),
@@ -149,8 +149,7 @@ public class WhoisRestServiceBlockedListTestIntegration extends AbstractIntegrat
                 .get();
 
         assertThat(HttpStatus.TOO_MANY_REQUESTS_429, is(errorResponse.getStatus()));
-        assertThat(errorResponse.readEntity(String.class), containsString("Your host 2001:fff:001:: has been permanently " +
-                "blocked due to suspected abusive behaviour. Please contact support for further assistance."));
+        assertThat(errorResponse.readEntity(String.class), containsString(QueryMessages.accessDeniedForAbuse("2001:fff:001::").getFormattedText()));
     }
 
     @Test
@@ -162,8 +161,7 @@ public class WhoisRestServiceBlockedListTestIntegration extends AbstractIntegrat
                 .get();
 
         assertThat(HttpStatus.TOO_MANY_REQUESTS_429, is(errorResponse.getStatus()));
-        assertThat(errorResponse.readEntity(String.class), containsString("Your host 193.0.0.1 has been permanently " +
-                "blocked due to suspected abusive behaviour. Please contact support for further assistance."));
+        assertThat(errorResponse.readEntity(String.class), containsString(QueryMessages.accessDeniedForAbuse("193.0.0.1").getFormattedText()));
 
         // Remove IP from blocked list
         blockListJmx.removeBlockedListAddress("193.0.0.0 - 193.0.23.255");
@@ -184,8 +182,7 @@ public class WhoisRestServiceBlockedListTestIntegration extends AbstractIntegrat
                 .get();
 
         assertThat(HttpStatus.TOO_MANY_REQUESTS_429, is(errorResponse.getStatus()));
-        assertThat(errorResponse.readEntity(String.class), containsString("Your host 2001:67c:2e8:: has been " +
-                "permanently blocked due to suspected abusive behaviour. Please contact support for further assistance."));
+        assertThat(errorResponse.readEntity(String.class), containsString(QueryMessages.accessDeniedForAbuse("2001:67c:2e8::").getFormattedText()));
 
         // Remove IP from blocked list
         blockListJmx.removeBlockedListAddress("2001:67c:2e8::/48");
@@ -217,8 +214,7 @@ public class WhoisRestServiceBlockedListTestIntegration extends AbstractIntegrat
                  .post(Entity.entity(map(PERSON_OBJECT), MediaType.APPLICATION_XML));
 
          assertThat(HttpStatus.TOO_MANY_REQUESTS_429, is(errorResponse.getStatus()));
-         assertThat(errorResponse.readEntity(String.class), containsString("Your host 8.8.8.8 has been permanently blocked" +
-                 " due to suspected abusive behaviour. Please contact support for further assistance."));
+         assertThat(errorResponse.readEntity(String.class), containsString(QueryMessages.accessDeniedForAbuse("8.8.8.8").getFormattedText()));
      }
 
     @Test
@@ -237,8 +233,7 @@ public class WhoisRestServiceBlockedListTestIntegration extends AbstractIntegrat
                 .post(Entity.entity(map(PERSON_OBJECT), MediaType.APPLICATION_XML));
 
         assertThat(HttpStatus.TOO_MANY_REQUESTS_429, is(errorResponse.getStatus()));
-        assertThat(errorResponse.readEntity(String.class), containsString("Your host 2001:fff:001:: has been permanently " +
-                "blocked due to suspected abusive behaviour. Please contact support for further assistance."));
+        assertThat(errorResponse.readEntity(String.class), containsString(QueryMessages.accessDeniedForAbuse("2001:fff:001::").getFormattedText()));
     }
 
     @Test
@@ -250,8 +245,7 @@ public class WhoisRestServiceBlockedListTestIntegration extends AbstractIntegrat
                 .post(Entity.entity(map(PERSON_OBJECT), MediaType.APPLICATION_XML));
 
         assertThat(HttpStatus.TOO_MANY_REQUESTS_429, is(errorResponse.getStatus()));
-        assertThat(errorResponse.readEntity(String.class), containsString("Your host 193.0.0.1 has been permanently " +
-                "blocked due to suspected abusive behaviour. Please contact support for further assistance."));
+        assertThat(errorResponse.readEntity(String.class), containsString(QueryMessages.accessDeniedForAbuse("193.0.0.1").getFormattedText()));
 
         // Remove IP from blocked list
         blockListJmx.removeBlockedListAddress("193.0.0.0 - 193.0.23.255");
@@ -272,8 +266,7 @@ public class WhoisRestServiceBlockedListTestIntegration extends AbstractIntegrat
                 .post(Entity.entity(map(PERSON_OBJECT), MediaType.APPLICATION_XML));
 
         assertThat(HttpStatus.TOO_MANY_REQUESTS_429, is(errorResponse.getStatus()));
-        assertThat(errorResponse.readEntity(String.class), containsString("Your host 2001:67c:2e8:: has been " +
-                "permanently blocked due to suspected abusive behaviour. Please contact support for further assistance."));
+        assertThat(errorResponse.readEntity(String.class), containsString(QueryMessages.accessDeniedForAbuse("2001:67c:2e8::").getFormattedText()));
 
         // Remove IP from blocked list
         blockListJmx.removeBlockedListAddress("2001:67c:2e8::/48");
@@ -307,8 +300,7 @@ public class WhoisRestServiceBlockedListTestIntegration extends AbstractIntegrat
                 .put(Entity.entity(map(UPDATED_PERSON_OBJECT), MediaType.APPLICATION_XML));
 
         assertThat(HttpStatus.TOO_MANY_REQUESTS_429, is(errorResponse.getStatus()));
-        assertThat(errorResponse.readEntity(String.class), containsString("Your host 8.8.8.8 has been permanently " +
-                "blocked due to suspected abusive behaviour. Please contact support for further assistance."));
+        assertThat(errorResponse.readEntity(String.class), containsString(QueryMessages.accessDeniedForAbuse("8.8.8.8").getFormattedText()));
     }
 
     @Test
@@ -328,8 +320,7 @@ public class WhoisRestServiceBlockedListTestIntegration extends AbstractIntegrat
                 .put(Entity.entity(map(UPDATED_PERSON_OBJECT), MediaType.APPLICATION_XML));
 
         assertThat(HttpStatus.TOO_MANY_REQUESTS_429, is(errorResponse.getStatus()));
-        assertThat(errorResponse.readEntity(String.class), containsString("Your host 2001:fff:001:: has been permanently " +
-                "blocked due to suspected abusive behaviour. Please contact support for further assistance."));
+        assertThat(errorResponse.readEntity(String.class), containsString(QueryMessages.accessDeniedForAbuse("2001:fff:001::").getFormattedText()));
     }
 
     @Test
@@ -343,8 +334,7 @@ public class WhoisRestServiceBlockedListTestIntegration extends AbstractIntegrat
                 .put(Entity.entity(map(UPDATED_PERSON_OBJECT), MediaType.APPLICATION_XML));
 
         assertThat(HttpStatus.TOO_MANY_REQUESTS_429, is(errorResponse.getStatus()));
-        assertThat(errorResponse.readEntity(String.class), containsString("Your host 193.0.0.1 has been permanently " +
-                "blocked due to suspected abusive behaviour. Please contact support for further assistance."));
+        assertThat(errorResponse.readEntity(String.class), containsString(QueryMessages.accessDeniedForAbuse("193.0.0.1").getFormattedText()));
 
         // Remove IP from blocked list
         blockListJmx.removeBlockedListAddress("193.0.0.0 - 193.0.23.255");
@@ -367,8 +357,7 @@ public class WhoisRestServiceBlockedListTestIntegration extends AbstractIntegrat
                 .put(Entity.entity(map(UPDATED_PERSON_OBJECT), MediaType.APPLICATION_XML));
 
         assertThat(HttpStatus.TOO_MANY_REQUESTS_429, is(errorResponse.getStatus()));
-        assertThat(errorResponse.readEntity(String.class), containsString("Your host 2001:67c:2e8:: has been permanently " +
-                "blocked due to suspected abusive behaviour. Please contact support for further assistance."));
+        assertThat(errorResponse.readEntity(String.class), containsString(QueryMessages.accessDeniedForAbuse("2001:67c:2e8::").getFormattedText()));
 
         // Remove IP from blocked list
         blockListJmx.removeBlockedListAddress("2001:67c:2e8::/48");
@@ -403,8 +392,7 @@ public class WhoisRestServiceBlockedListTestIntegration extends AbstractIntegrat
                 .delete();
 
         assertThat(HttpStatus.TOO_MANY_REQUESTS_429, is(errorMessage.getStatus()));
-        assertThat(errorMessage.readEntity(String.class), containsString("Your host 8.8.8.8 has been permanently " +
-                "blocked due to suspected abusive behaviour. Please contact support for further assistance."));
+        assertThat(errorMessage.readEntity(String.class), containsString(QueryMessages.accessDeniedForAbuse("8.8.8.8").getFormattedText()));
     }
 
     @Test
@@ -427,8 +415,7 @@ public class WhoisRestServiceBlockedListTestIntegration extends AbstractIntegrat
                 .delete();
 
         assertThat(HttpStatus.TOO_MANY_REQUESTS_429, is(errorResponse.getStatus()));
-        assertThat(errorResponse.readEntity(String.class), containsString("Your host 2001:fff:001:: has been permanently " +
-                "blocked due to suspected abusive behaviour. Please contact support for further assistance."));
+        assertThat(errorResponse.readEntity(String.class), containsString(QueryMessages.accessDeniedForAbuse("2001:fff:001::").getFormattedText()));
     }
 
     @Test
@@ -442,8 +429,7 @@ public class WhoisRestServiceBlockedListTestIntegration extends AbstractIntegrat
                 .delete();
 
         assertThat(HttpStatus.TOO_MANY_REQUESTS_429, is(errorResponse.getStatus()));
-        assertThat(errorResponse.readEntity(String.class), containsString("Your host 193.0.0.1 has been permanently " +
-                "blocked due to suspected abusive behaviour. Please contact support for further assistance."));
+        assertThat(errorResponse.readEntity(String.class), containsString(QueryMessages.accessDeniedForAbuse("193.0.0.1").getFormattedText()));
 
         // Remove IP from blocked list
         blockListJmx.removeBlockedListAddress("193.0.0.0 - 193.0.23.255");
@@ -466,8 +452,7 @@ public class WhoisRestServiceBlockedListTestIntegration extends AbstractIntegrat
                 .delete();
 
         assertThat(HttpStatus.TOO_MANY_REQUESTS_429, is(errorResponse.getStatus()));
-        assertThat(errorResponse.readEntity(String.class), containsString("Your host 2001:67c:2e8:: has been permanently " +
-                "blocked due to suspected abusive behaviour. Please contact support for further assistance."));
+        assertThat(errorResponse.readEntity(String.class), containsString(QueryMessages.accessDeniedForAbuse("2001:67c:2e8::").getFormattedText()));
 
         // Remove IP from blocked list
         blockListJmx.removeBlockedListAddress("2001:67c:2e8::/48");

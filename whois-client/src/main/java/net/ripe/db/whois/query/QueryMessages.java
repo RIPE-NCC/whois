@@ -293,7 +293,7 @@ public final class QueryMessages {
 
     public static Message accessDeniedForAbuse(final String accountingId) {
         return new QueryMessage(Type.ERROR, ""
-                + "Your host %s has been permanently blocked due to suspected abusive behaviour. Please contact support for further assistance.",
+                + "Your host %s has been blocked. Please contact support <ripe-dbm@ripe.net> for further assistance.",
                 accountingId);
     }
 
