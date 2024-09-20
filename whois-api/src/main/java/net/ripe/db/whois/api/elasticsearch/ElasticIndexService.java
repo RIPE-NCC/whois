@@ -172,11 +172,19 @@ public class ElasticIndexService {
     }
 
     public void updateMetadata(final ElasticIndexMetadata metadata) throws IOException {
+        updateMetadata(metadata, metadataIndex);
+    }
+
+    public String getMetadataIndex() {
+        return metadataIndex;
+    }
+
+    public void updateMetadata(final ElasticIndexMetadata metadata, final String metadatIndexName) throws IOException {
         if (!isElasticRunning()) {
-          return;
+            return;
         }
 
-        final UpdateRequest updateRequest = new UpdateRequest(metadataIndex, SERIAL_DOC_ID);
+        final UpdateRequest updateRequest = new UpdateRequest(metadatIndexName, SERIAL_DOC_ID);
 
         final XContentBuilder builder = XContentFactory.jsonBuilder()
                 .startObject()

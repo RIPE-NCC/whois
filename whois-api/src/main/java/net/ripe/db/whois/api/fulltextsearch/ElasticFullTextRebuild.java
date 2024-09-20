@@ -74,11 +74,20 @@ public class ElasticFullTextRebuild {
 
     public void run() throws IOException {
         LOGGER.info("Source is  {}", source);
-
         final Stopwatch stopwatch = Stopwatch.createStarted();
-        final RestHighLevelClient client = elasticIndexService.getClient();
 
         final String indexName = "whois-" + DATE_TIME_FORMATTER.format(LocalDateTime.now());
+
+        rebuild(indexName, elasticIndexService.getMetadataIndex(), true);
+
+        deleteOldIndexes(indexName);
+
+        LOGGER.info("ES indexing complete {}", stopwatch);
+    }
+
+    public void rebuild(final String indexName, final String metadataName, final boolean shouldSetAlias) throws IOException {
+
+        final RestHighLevelClient client = elasticIndexService.getClient();
 
         LOGGER.info("Start building index {}", indexName);
 
@@ -124,12 +133,11 @@ public class ElasticFullTextRebuild {
         LOGGER.warn("This many {} Objects failed to indexed, these are {}", failedToIndexed.size(), failedToIndexed);
         LOGGER.warn("This many {} Objects failed to parsed, these are {}", failedToParse.size(), failedToParse);
 
-        setNewIndexAsWhoisAlias(indexName);
-        updateMetadata(maxSerial);
+        if(shouldSetAlias) {
+          setNewIndexAsWhoisAlias(indexName);
+        }
 
-        deleteOldIndexes(indexName);
-
-        LOGGER.info("ES indexing complete {}", stopwatch);
+        updateMetadata(maxSerial, metadataName);
     }
 
     private static void performBulkIndexing(final RestHighLevelClient client, final List<Integer> failedToIndexed, final BulkRequest bulkRequest) {
@@ -199,14 +207,14 @@ public class ElasticFullTextRebuild {
         }
     }
 
-    private void updateMetadata(final int maxSerial) {
+    private void updateMetadata(final int maxSerial, final String metadataName) {
 
         LOGGER.info("Setting metadata Index");
 
         try {
-            elasticIndexService.updateMetadata(new ElasticIndexMetadata(maxSerial, source));
+            elasticIndexService.updateMetadata(new ElasticIndexMetadata(maxSerial, source), metadataName);
 
-            final UpdateSettingsRequest settingRequest = new UpdateSettingsRequest("metadata");
+            final UpdateSettingsRequest settingRequest = new UpdateSettingsRequest(metadataName);
 
             final Map<String, Object> map = new HashMap<>();
             map.put("index.number_of_replicas", elasticHosts.size() - 1);

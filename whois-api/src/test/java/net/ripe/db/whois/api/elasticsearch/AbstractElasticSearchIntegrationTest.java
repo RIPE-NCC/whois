@@ -3,6 +3,7 @@ package net.ripe.db.whois.api.elasticsearch;
 import com.google.common.util.concurrent.Uninterruptibles;
 import net.ripe.db.whois.api.AbstractIntegrationTest;
 import net.ripe.db.whois.api.ElasticSearchHelper;
+import net.ripe.db.whois.api.fulltextsearch.ElasticFullTextRebuild;
 import net.ripe.db.whois.common.dao.jdbc.JdbcRpslObjectOperations;
 import net.ripe.db.whois.common.dao.jdbc.JdbcStreamingHelper;
 import net.ripe.db.whois.common.rpsl.RpslObject;
@@ -44,6 +45,10 @@ public abstract class AbstractElasticSearchIntegrationTest extends AbstractInteg
     @Autowired
     ElasticFullTextIndex elasticFullTextIndex;
 
+    @Autowired
+    ElasticFullTextRebuild elasticFullTextRebuild;
+
+
     @BeforeAll
     public static void setUpElasticCluster() {
         if (StringUtils.isBlank(System.getProperty(ENV_DISABLE_TEST_CONTAINERS))) {
@@ -65,7 +70,6 @@ public abstract class AbstractElasticSearchIntegrationTest extends AbstractInteg
 
     @BeforeEach
     public void setUpIndexes() throws Exception {
-        elasticSearchHelper.setupElasticIndexes(getWhoisIndex(), getMetadataIndex());
         rebuildIndex();
     }
 
@@ -76,9 +80,10 @@ public abstract class AbstractElasticSearchIntegrationTest extends AbstractInteg
 
     public void rebuildIndex() {
         try {
-            this.doRebuild();
+            elasticSearchHelper.resetElasticIndexes(getWhoisIndex(), getMetadataIndex());
+            elasticFullTextRebuild.rebuild(getWhoisIndex(), getMetadataIndex(), false);
             Uninterruptibles.sleepUninterruptibly(1, TimeUnit.SECONDS);
-        } catch (IOException e) {
+        } catch (Exception e) {
             LOGGER.info("Failed to update the ES indexes {}", e.getMessage());
         }
     }
