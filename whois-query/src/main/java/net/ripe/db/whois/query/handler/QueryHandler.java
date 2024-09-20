@@ -57,8 +57,8 @@ public class QueryHandler {
             @Override
             public void run() {
                 try {
-                    if (ipBlockManager.isBlockedIp(accountingAddress)){
-                        throw new QueryException(QueryCompletionInfo.BLOCKED, QueryMessages.accessDeniedForAbuse(accountingAddress.getHostAddress()));
+                    if (ipBlockManager.isBlockedIp(remoteAddress)){
+                        throw new QueryException(QueryCompletionInfo.BLOCKED, QueryMessages.accessDeniedForAbuse(remoteAddress.getHostAddress()));
                     }
 
                     final QueryExecutor queryExecutor = getQueryExecutor();

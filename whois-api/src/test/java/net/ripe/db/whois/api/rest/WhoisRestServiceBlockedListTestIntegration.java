@@ -10,6 +10,8 @@ import net.ripe.db.whois.api.rest.mapper.FormattedClientAttributeMapper;
 import net.ripe.db.whois.api.rest.mapper.WhoisObjectMapper;
 import net.ripe.db.whois.api.httpserver.jmx.BlockListJmx;
 import net.ripe.db.whois.common.rpsl.RpslObject;
+import net.ripe.db.whois.common.support.TelnetWhoisClient;
+import net.ripe.db.whois.query.QueryServer;
 import org.eclipse.jetty.http.HttpStatus;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
@@ -32,6 +34,12 @@ public class WhoisRestServiceBlockedListTestIntegration extends AbstractIntegrat
 
     @Autowired
     private BlockListJmx blockListJmx;
+    private static final String LOCALHOST = "127.0.0.1";
+    private static final String LOCALHOST_WITH_PREFIX = "127.0.0.1/32";
+
+    @Autowired
+    QueryServer queryServer;
+
 
     private static final RpslObject OWNER_MNT = RpslObject.parse("" +
             "mntner:      OWNER-MNT\n" +
@@ -99,6 +107,30 @@ public class WhoisRestServiceBlockedListTestIntegration extends AbstractIntegrat
         assertThat(HttpStatus.TOO_MANY_REQUESTS_429, is(errorResponse.getStatus()));
         assertThat(errorResponse.readEntity(String.class), containsString("Your host 8.8.8.8 has been permanently blocked " +
                 "due to suspected abusive behaviour. Please contact support for further assistance."));
+    }
+
+    @Test
+    public void add_blocked_get_request_telnet(){
+
+        databaseHelper.updateObject("" +
+                "person:        Test Person1\n" +
+                "nic-hdl:       TP1-TEST\n" +
+                "created:         2011-07-28T00:35:42Z\n" +
+                "last-modified:   2019-02-28T10:14:46Z");
+
+        assertThat( TelnetWhoisClient.queryLocalhost(queryServer.getPort(), "--show-version 1 TP1-TEST"),
+                containsString("TP1-TEST"));
+
+        // Add IP to blocked list
+        blockListJmx.addBlockedListAddress(LOCALHOST);
+
+        assertThat(TelnetWhoisClient.queryLocalhost(queryServer.getPort(), "--diff-versions 1 TP1-TEST"),
+                containsString("Your host 127.0.0.1 has been permanently blocked due to suspected abusive behaviour. Please contact support for further assistance."));
+
+        blockListJmx.removeBlockedListAddress(LOCALHOST);
+        assertThat( TelnetWhoisClient.queryLocalhost(queryServer.getPort(), "--show-version 1 TP1-TEST"),
+                containsString("TP1-TEST"));
+
     }
 
     @Test
