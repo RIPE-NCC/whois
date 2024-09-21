@@ -198,20 +198,21 @@ public interface AttributeParser<T> {
 
             try {
                 parsed[0].validate();
-
-                final String address = parsed[0].getAddress();
-                final String localPart = address.substring(0, address.indexOf('@'));
-
-                if (address.length() > MAXIMUM_LENGTH) {
-                    throw new AttributeParseException(String.format("Address length %d is greater than the maximum supported length %d",
-                            address.length(), MAXIMUM_LENGTH), s);
-                }
-
-                if (!StandardCharsets.US_ASCII.newEncoder().canEncode(localPart)) {
-                    throw new AttributeParseException("Address contains non ASCII characters (%s)", s);
-                }
             } catch (AddressException e) {
                 throw new AttributeParseException(String.format("Invalid address (%s)", e.getMessage()), s);
+            }
+
+            final String address = parsed[0].getAddress();
+            final String localPart = address.substring(0, address.indexOf('@'));
+
+            if (address.length() > MAXIMUM_LENGTH) {
+                throw new AttributeParseException(String.format("Address length %d is greater than the maximum supported length %d",
+                        address.length(), MAXIMUM_LENGTH), s);
+            }
+
+            if (!StandardCharsets.US_ASCII.newEncoder().canEncode(localPart)) {
+                // only convert non-ASCII characters in domain part to punycode
+                throw new AttributeParseException("Address contains non ASCII characters (%s)", s);
             }
 
             return parsed[0];
