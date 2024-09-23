@@ -5830,7 +5830,11 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
                 "person:    Pauleth Palthen\n" +
                 "address:   Singel 258\n" +
                 "phone:     +31-1234567890\n" +
-                "e-mail:    G=noreply/S=noreply/O=noreplynoreplynorepl/P=AA/A=ripe.net/C=SP/@noreply.ripe.net\n" +
+                "e-mail:    G=noreply/S=noreply/O=noreplynoreplynoreplnoreplynoreplynoreplnoreplynoreplynorepl" +
+                    "noreplynoreplynoreplnoreplynoreplynoreplnoreplynoreplynoreplnoreplynoreplynoreplnoreply" +
+                    "noreplynoreplnoreplynoreplynoreplnoreplynoreplynoreplnoreplynoreplynoreplnoreplynoreply" +
+                    "noreplnoreplynoreplynoreplnoreplynoreplynoreplnoreplynoreplynorepl/P=AA/A=ripe.net/C=SP/" +
+                    "@noreply.ripe.net\n" +
                 "mnt-by:    OWNER-MNT\n" +
                 "nic-hdl:   PP1-TEST\n" +
                 "remarks:   remark\n" +
@@ -5845,7 +5849,12 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
         assertThat(badRequestException.getMessage(), is("HTTP 400 Bad Request"));
         final WhoisResources whoisResources = RestTest.mapClientException(badRequestException);
         RestTest.assertErrorCount(whoisResources, 1);
-        RestTest.assertErrorMessage(whoisResources, 0, "Error", "Syntax error in %s", "G=noreply/S=noreply/O=noreplynoreplynorepl/P=AA/A=ripe.net/C=SP/@noreply.ripe.net");
+        RestTest.assertErrorMessage(whoisResources, 0, "Error", "Syntax error in %s",
+                    "G=noreply/S=noreply/O=noreplynoreplynoreplnoreplynoreplynoreplnoreplynoreplynorepl" +
+                    "noreplynoreplynoreplnoreplynoreplynoreplnoreplynoreplynoreplnoreplynoreplynoreplnoreply" +
+                    "noreplynoreplnoreplynoreplynoreplnoreplynoreplynoreplnoreplynoreplynoreplnoreplynoreply" +
+                    "noreplnoreplynoreplynoreplnoreplynoreplynoreplnoreplynoreplynorepl/P=AA/A=ripe.net/C=SP/" +
+                    "@noreply.ripe.net");
     }
 
     @Test
