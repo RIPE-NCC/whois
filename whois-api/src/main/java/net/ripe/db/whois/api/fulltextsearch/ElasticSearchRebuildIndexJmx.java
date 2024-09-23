@@ -29,7 +29,7 @@ public class ElasticSearchRebuildIndexJmx extends JmxBase {
     @ManagedOperationParameters({
             @ManagedOperationParameter(name = "comment", description = "Comment for invoking the operation"),
     })
-    public String addBlockedListAddress(final String comment) {
+    public String runRebuildIndexes(final String comment) {
         return invokeOperation("rebuild ES indexes", comment, () -> {
             try {
                 elasticFullTextRebuild.run();
