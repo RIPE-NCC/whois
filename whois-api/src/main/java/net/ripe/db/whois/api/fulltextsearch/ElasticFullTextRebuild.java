@@ -39,7 +39,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.Timer;
 import java.util.TimerTask;
+import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ForkJoinPool;
+import java.util.concurrent.Future;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 
@@ -107,26 +109,36 @@ public class ElasticFullTextRebuild {
         final List<CIString> failedToParse = Lists.newArrayList();
 
         final ForkJoinPool customThreadPool = new ForkJoinPool(4);
-        customThreadPool.submit(
+
+        Future future = customThreadPool.submit(
                 () -> objectIds.parallelStream().forEach(batchObjectIds -> {
-            final BulkRequest bulkRequest = new BulkRequest();
+                    final BulkRequest bulkRequest = new BulkRequest();
 
-            final List<RpslObject> objects = getObjects(batchObjectIds);
-            objects.forEach(rpslObject -> {
-                try {
-                    bulkRequest.add(new IndexRequest(indexName)
-                            .id(String.valueOf(rpslObject.getObjectId()))
-                            .source(elasticIndexService.json(rpslObject))
-                    );
-                } catch (final Exception ioe) {
-                    failedToParse.add(rpslObject.getKey());
-                    LOGGER.warn("Failed to parse rpslObject , skipping indexing {}: {}", rpslObject.getKey(), ioe);
-                }
-            });
-            totalProcessed.addAndGet(objects.size());
+                    final List<RpslObject> objects = getObjects(batchObjectIds);
+                    objects.forEach(rpslObject -> {
+                        try {
+                            bulkRequest.add(new IndexRequest(indexName)
+                                    .id(String.valueOf(rpslObject.getObjectId()))
+                                    .source(elasticIndexService.json(rpslObject))
+                            );
+                        } catch (final Exception ioe) {
+                            failedToParse.add(rpslObject.getKey());
+                            LOGGER.warn("Failed to parse rpslObject , skipping indexing {}: {}", rpslObject.getKey(), ioe);
+                        }
+                    });
+                    totalProcessed.addAndGet(objects.size());
 
-            performBulkIndexing(client, failedToIndexed, bulkRequest);
-        }));
+                    performBulkIndexing(client, failedToIndexed, bulkRequest);
+                }));
+
+        try {
+            future.get();
+        } catch (InterruptedException | ExecutionException e) {
+            LOGGER.error("Error while rebuilding indexes, due to {}", e);
+            throw new RuntimeException(e);
+        } finally {
+            customThreadPool.shutdown();
+        }
 
         timer.cancel();
 
