@@ -2,6 +2,7 @@ package net.ripe.db.whois.scheduler.task.loader;
 
 import com.google.common.util.concurrent.Uninterruptibles;
 import net.javacrumbs.shedlock.spring.annotation.SchedulerLock;
+import net.ripe.db.whois.api.fulltextsearch.ElasticFullTextRebuild;
 import net.ripe.db.whois.common.iptree.IpTreeUpdater;
 import net.ripe.db.whois.common.scheduler.DailyScheduledTask;
 import net.ripe.db.whois.common.source.SourceContext;
@@ -22,16 +23,19 @@ public class Bootstrap implements DailyScheduledTask {
     private final LoaderRisky loaderRisky;
     private final LoaderSafe loaderSafe;
     private final SourceContext sourceContext;
+    private final ElasticFullTextRebuild elasticFullTextRebuild;
 
     @Value("${bootstrap.dumpfile:}")
     private String[] dumpFileLocation;
 
     @Autowired
     public Bootstrap(final LoaderRisky loaderRisky, final LoaderSafe loaderSafe,
+                     final ElasticFullTextRebuild elasticFullTextRebuild,
                      final SourceContext sourceContext) {
         this.loaderRisky = loaderRisky;
         this.loaderSafe = loaderSafe;
         this.sourceContext = sourceContext;
+        this.elasticFullTextRebuild = elasticFullTextRebuild;
     }
 
     public void setDumpFileLocation(final String... testDumpFileLocation) {
@@ -50,10 +54,20 @@ public class Bootstrap implements DailyScheduledTask {
             // treeupdaters not recognising rebuild is needed
             Uninterruptibles.sleepUninterruptibly(IpTreeUpdater.TREE_UPDATE_IN_SECONDS, TimeUnit.SECONDS);
 
-            return loaderRisky.loadSplitFiles(dumpFileLocation);
+            final String result =  loaderRisky.loadSplitFiles(dumpFileLocation);
 
+            buildFullTextIndexes();
+            return result;
         } finally {
             sourceContext.removeCurrentSource();
+        }
+    }
+
+    private void buildFullTextIndexes() {
+        try {
+            elasticFullTextRebuild.run();
+        } catch (Exception e) {
+            LOGGER.error("Failed to rebuild ElasticFullTextRebuild ", e);
         }
     }
 
