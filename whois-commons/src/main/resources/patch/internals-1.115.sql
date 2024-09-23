@@ -14,6 +14,12 @@ ALTER TABLE outgoing_message MODIFY COLUMN email varchar(320) NOT NULL;
 ALTER TABLE email_status MODIFY COLUMN email varchar(320) NOT NULL;
 
 --
+-- We no longer need default maintainer history
+--
+DROP TABLE IF EXISTS `default_maintainer_history`;
+DROP TABLE IF EXISTS `default_maintainer_sync_history`;
+
+--
 -- Set version to Whois 1.115 release
 --
 
