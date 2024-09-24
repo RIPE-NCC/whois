@@ -6,7 +6,7 @@ import com.google.common.collect.Maps;
 import net.ripe.db.whois.common.Message;
 import net.ripe.db.whois.common.dao.EmailStatusDao;
 import net.ripe.db.whois.common.domain.CIString;
-import net.ripe.db.whois.common.mail.EmailStatus;
+import net.ripe.db.whois.common.mail.EmailStatusType;
 import net.ripe.db.whois.common.rpsl.ObjectType;
 import net.ripe.db.whois.update.domain.Action;
 import net.ripe.db.whois.update.domain.Notification;
@@ -54,7 +54,7 @@ public class NotificationValidator implements BusinessRuleValidator {
 
         final Set<String> emails = notifications.values().stream().map(Notification::getEmail).collect(Collectors.toSet());
 
-        final Map<String, EmailStatus> emailStatus = emailStatusDao.getEmailStatus(emails);
+        final Map<String, EmailStatusType> emailStatus = emailStatusDao.getEmailStatusMap(emails);
         final List<Message> messages = Lists.newArrayList();
 
         emailStatus.forEach( (email, status) ->  messages.add(UpdateMessages.emailCanNotBeSent(email, status)));

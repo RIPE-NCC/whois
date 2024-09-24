@@ -13,6 +13,7 @@ import java.util.UUID;
 @Profile({WhoisProfile.DEPLOYED})
 @Component
 public class CustomJavaMailSender extends JavaMailSenderImpl {
+
     @Override
     public MimeMessage createMimeMessage() {
         return new CustomMimeMessage(getSession());
@@ -22,14 +23,14 @@ public class CustomJavaMailSender extends JavaMailSenderImpl {
 
         private final String messageId;
 
-        public CustomMimeMessage(Session session) {
+        public CustomMimeMessage(final Session session) {
             super(session);
-            this.messageId = String.format("%s@ripe.net", UUID.randomUUID());
+            this.messageId = String.format("<%s@ripe.net>", UUID.randomUUID());
         }
 
         @Override
         protected void updateMessageID() throws MessagingException {
-            setHeader("Message-ID", "<" + messageId + ">");
+            setHeader("Message-ID", messageId);
         }
 
         @Override

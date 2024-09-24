@@ -216,7 +216,7 @@
             <plugin>
                 <groupId>org.apache.cxf</groupId>
                 <artifactId>cxf-xjc-plugin</artifactId>
-                <version>2.6.1</version>
+                <version>3.3.4</version>
                 <executions>
                     <execution>
                         <phase>none</phase>
@@ -224,7 +224,7 @@
                 </executions>
                 <configuration>
                     <extensions>
-                        <extension>org.apache.cxf.xjcplugins:cxf-xjc-dv:2.6.1</extension>
+                        <extension>org.apache.cxf.xjcplugins:cxf-xjc-dv:3.3.4</extension>
                     </extensions>
                     <sourceRoot>${project.build.sourceDirectory}</sourceRoot>
                     <xsdOptions>

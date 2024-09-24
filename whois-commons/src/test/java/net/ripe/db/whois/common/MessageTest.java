@@ -40,9 +40,9 @@ public class MessageTest {
 
     @Test
     public void with_marker_long() {
-        final Message subject = new Message(Messages.Type.ERROR, "% https://apps.db.ripe.net/docs/FAQ/#why-did-i-receive-an-error-201-access-denied\n");
+        final Message subject = new Message(Messages.Type.ERROR, "% https://docs.db.ripe.net/FAQ/#why-did-i-receive-an-error-201-access-denied\n");
 
-        assertThat(subject.toString(), is("% https://apps.db.ripe.net/docs/FAQ/#why-did-i-receive-an-error-201-access-denied\n"));
+        assertThat(subject.toString(), is("% https://docs.db.ripe.net/FAQ/#why-did-i-receive-an-error-201-access-denied\n"));
     }
 
     @Test

@@ -32,7 +32,7 @@ import net.ripe.db.whois.common.TestDateTimeProvider;
 import net.ripe.db.whois.common.dao.EmailStatusDao;
 import net.ripe.db.whois.common.domain.User;
 import net.ripe.db.whois.common.domain.io.Downloader;
-import net.ripe.db.whois.common.mail.EmailStatus;
+import net.ripe.db.whois.common.mail.EmailStatusType;
 import net.ripe.db.whois.common.rpsl.AttributeType;
 import net.ripe.db.whois.common.rpsl.ObjectType;
 import net.ripe.db.whois.common.rpsl.PasswordHelper;
@@ -722,7 +722,7 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
                     "\n" +
                     "No entries found in source %%s.\n" +
                     "[TEST]\n" +
-                    "https://apps.db.ripe.net/docs/HTML-Terms-And-Conditions", getPort())));
+                    "https://docs.db.ripe.net/terms-conditions.html", getPort())));
         }
     }
 
@@ -741,7 +741,7 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
                     "\n" +
                     "No entries found in source %%s.\n" +
                     "[TEST]\n" +
-                    "https://apps.db.ripe.net/docs/HTML-Terms-And-Conditions", getPort())));
+                    "https://docs.db.ripe.net/terms-conditions.html", getPort())));
         }
     }
 
@@ -756,7 +756,7 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
             final String response = e.getResponse().readEntity(String.class);
             assertThat(response, is("Severity: Error\n" +
                     "Text: Invalid source 'oez'\n" +
-                    "locator: https://apps.db.ripe.net/docs/HTML-Terms-And-Conditions"));
+                    "locator: https://docs.db.ripe.net/terms-conditions.html"));
         }
     }
 
@@ -771,7 +771,7 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
             final String response = e.getResponse().readEntity(String.class);
             assertThat(response, is("Severity: Error\n" +
                     "Text: Invalid object type: org\n" +
-                    "locator: https://apps.db.ripe.net/docs/HTML-Terms-And-Conditions"));
+                    "locator: https://docs.db.ripe.net/terms-conditions.html"));
         }
     }
 
@@ -840,7 +840,7 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
         assertThat(whoisResources, containsString("" +
                 "\"terms-and-conditions\" : {\n" +
                 "\"type\" : \"locator\",\n" +
-                "\"href\" : \"https://apps.db.ripe.net/docs/HTML-Terms-And-Conditions\"\n" +
+                "\"href\" : \"https://docs.db.ripe.net/terms-conditions.html\"\n" +
                 "}"));
     }
 
@@ -1297,7 +1297,7 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
                 "    </attributes>\n" +
                 "</object>\n" +
                 "</objects>\n" +
-                "<terms-and-conditions xlink:type=\"locator\" xlink:href=\"https://apps.db.ripe.net/docs/HTML-Terms-And-Conditions\"/>\n" +
+                "<terms-and-conditions xlink:type=\"locator\" xlink:href=\"https://docs.db.ripe.net/terms-conditions.html\"/>\n" +
                 "<version " +
                 "version=\"" + applicationVersion.getVersion() + "\" " +
                 "timestamp=\"" + applicationVersion.getTimestamp() + "\" " +
@@ -1377,7 +1377,7 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
                         "},\n" +
                         "\"terms-and-conditions\" : {\n" +
                         "\"type\" : \"locator\",\n" +
-                        "\"href\" : \"https://apps.db.ripe.net/docs/HTML-Terms-And-Conditions\"\n" +
+                        "\"href\" : \"https://docs.db.ripe.net/terms-conditions.html\"\n" +
                         "},\n" +
                         "\"version\" : {\n" +
                         "\"version\" : \"" + applicationVersion.getVersion() + "\",\n" +
@@ -1439,7 +1439,7 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
                 "},\n" +
                 "\"terms-and-conditions\" : {\n" +
                 "\"type\" : \"locator\",\n" +
-                "\"href\" : \"https://apps.db.ripe.net/docs/HTML-Terms-And-Conditions\"\n" +
+                "\"href\" : \"https://docs.db.ripe.net/terms-conditions.html\"\n" +
                 "},\n" +
                 "\"version\" : {\n" +
                 "\"version\" : \"" + applicationVersion.getVersion() + "\",\n" +
@@ -1533,7 +1533,7 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
                 "},\n" +
                 "\"terms-and-conditions\" : {\n" +
                 "\"type\" : \"locator\",\n" +
-                "\"href\" : \"https://apps.db.ripe.net/docs/HTML-Terms-And-Conditions\"\n" +
+                "\"href\" : \"https://docs.db.ripe.net/terms-conditions.html\"\n" +
                 "},\n" +
                 "\"version\" : {\n" +
                 "\"version\" : \"" + applicationVersion.getVersion() + "\",\n" +
@@ -1587,7 +1587,7 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
                 "    </attributes>\n" +
                 "</object>\n" +
                 "</objects>\n" +
-                "<terms-and-conditions xlink:type=\"locator\" xlink:href=\"https://apps.db.ripe.net/docs/HTML-Terms-And-Conditions\"/>\n" +
+                "<terms-and-conditions xlink:type=\"locator\" xlink:href=\"https://docs.db.ripe.net/terms-conditions.html\"/>\n" +
                 "<version " +
                 "version=\"" + applicationVersion.getVersion() + "\" " +
                 "timestamp=\"" + applicationVersion.getTimestamp() + "\" " +
@@ -2599,7 +2599,7 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
                     "  },\n" +
                     "  \"terms-and-conditions\" : {\n" +
                     "    \"type\" : \"locator\",\n" +
-                    "    \"href\" : \"https://apps.db.ripe.net/docs/HTML-Terms-And-Conditions\"\n" +
+                    "    \"href\" : \"https://docs.db.ripe.net/terms-conditions.html\"\n" +
                     "  }\n" +
                     "}"));
         }
@@ -2952,7 +2952,7 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
                 "            </attributes>\n" +
                 "        </object>\n" +
                 "    </objects>\n" +
-                "    <terms-and-conditions xlink:type=\"locator\" xlink:href=\"https://apps.db.ripe.net/docs/HTML-Terms-And-Conditions\"/>\n" +
+                "    <terms-and-conditions xlink:type=\"locator\" xlink:href=\"https://docs.db.ripe.net/terms-conditions.html\"/>\n" +
                 "</whois-resources>", getPort())));
     }
 
@@ -3063,7 +3063,7 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
                 "  },\n" +
                 "  \"terms-and-conditions\" : {\n" +
                 "    \"type\" : \"locator\",\n" +
-                "    \"href\" : \"https://apps.db.ripe.net/docs/HTML-Terms-And-Conditions\"\n" +
+                "    \"href\" : \"https://docs.db.ripe.net/terms-conditions.html\"\n" +
                 "  }\n" +
                 "}", getPort())));
     }
@@ -4341,7 +4341,7 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
                 "  },\n" +
                 "  \"terms-and-conditions\" : {\n" +
                 "    \"type\" : \"locator\",\n" +
-                "    \"href\" : \"https://apps.db.ripe.net/docs/HTML-Terms-And-Conditions\"\n" +
+                "    \"href\" : \"https://docs.db.ripe.net/terms-conditions.html\"\n" +
                 "  }\n" +
                 "}", getPort())));
     }
@@ -5784,7 +5784,7 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
                         "remarks:   remark\n" +
                         "source:    TEST\n");
 
-        emailStatusDao.createEmailStatus(unsubscribedEmail, EmailStatus.UNSUBSCRIBE);
+        emailStatusDao.createEmailStatus(unsubscribedEmail, EmailStatusType.UNSUBSCRIBE);
 
         final WhoisResources response = RestTest.target(getPort(), "whois/test/person/PP3-TEST?password=test")
                 .request(MediaType.APPLICATION_XML)
@@ -5792,7 +5792,7 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
 
         RestTest.assertWarningCount(response, 1);
         RestTest.assertErrorMessage(response, 0, "Warning", "Not sending notification to %s because it is %s.",
-                unsubscribedEmail, EmailStatus.UNSUBSCRIBE.getValue());
+                unsubscribedEmail, EmailStatusType.UNSUBSCRIBE.getValue());
     }
 
 
@@ -5812,7 +5812,7 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
                 "remarks:   remark\n" +
                 "source:    TEST\n");
 
-        emailStatusDao.createEmailStatus(undeliverableEmail, EmailStatus.UNDELIVERABLE);
+        emailStatusDao.createEmailStatus(undeliverableEmail, EmailStatusType.UNDELIVERABLE);
 
         final WhoisResources response = RestTest.target(getPort(), "whois/test/person/PP3-TEST?password=test")
                 .request(MediaType.APPLICATION_XML)
@@ -5820,7 +5820,7 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
 
         RestTest.assertWarningCount(response, 1);
         RestTest.assertErrorMessage(response, 0, "Warning", "Not sending notification to %s because it is %s.",
-                undeliverableEmail, EmailStatus.UNDELIVERABLE.getValue());
+                undeliverableEmail, EmailStatusType.UNDELIVERABLE.getValue());
     }
 
 
@@ -5830,7 +5830,11 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
                 "person:    Pauleth Palthen\n" +
                 "address:   Singel 258\n" +
                 "phone:     +31-1234567890\n" +
-                "e-mail:    G=noreply/S=noreply/O=noreplynoreplynorepl/P=AA/A=ripe.net/C=SP/@noreply.ripe.net\n" +
+                "e-mail:    G=noreply/S=noreply/O=noreplynoreplynoreplnoreplynoreplynoreplnoreplynoreplynorepl" +
+                    "noreplynoreplynoreplnoreplynoreplynoreplnoreplynoreplynoreplnoreplynoreplynoreplnoreply" +
+                    "noreplynoreplnoreplynoreplynoreplnoreplynoreplynoreplnoreplynoreplynoreplnoreplynoreply" +
+                    "noreplnoreplynoreplynoreplnoreplynoreplynoreplnoreplynoreplynorepl/P=AA/A=ripe.net/C=SP/" +
+                    "@noreply.ripe.net\n" +
                 "mnt-by:    OWNER-MNT\n" +
                 "nic-hdl:   PP1-TEST\n" +
                 "remarks:   remark\n" +
@@ -5845,10 +5849,79 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
         assertThat(badRequestException.getMessage(), is("HTTP 400 Bad Request"));
         final WhoisResources whoisResources = RestTest.mapClientException(badRequestException);
         RestTest.assertErrorCount(whoisResources, 1);
-        RestTest.assertErrorMessage(whoisResources, 0, "Error", "Syntax error in %s", "G=noreply/S=noreply/O=noreplynoreplynorepl/P=AA/A=ripe.net/C=SP/@noreply.ripe.net");
+        RestTest.assertErrorMessage(whoisResources, 0, "Error", "Syntax error in %s",
+                    "G=noreply/S=noreply/O=noreplynoreplynoreplnoreplynoreplynoreplnoreplynoreplynorepl" +
+                    "noreplynoreplynoreplnoreplynoreplynoreplnoreplynoreplynoreplnoreplynoreplynoreplnoreply" +
+                    "noreplynoreplnoreplynoreplynoreplnoreplynoreplynoreplnoreplynoreplynoreplnoreplynoreply" +
+                    "noreplnoreplynoreplynoreplnoreplynoreplynoreplnoreplynoreplynorepl/P=AA/A=ripe.net/C=SP/" +
+                    "@noreply.ripe.net");
     }
 
+    @Test
+    public void mp_memebers_should_have_referenced_link_when_as_set() {
+        databaseHelper.addObject(
+                """
+                route-set:    AS7775535:RS-CUSTOMERS:AS94967295
+                descr:        test route-set
+                tech-c:       TP1-TEST
+                admin-c:      TP1-TEST
+                mnt-by:       OWNER-MNT
+                mnt-lower:    OWNER-MNT
+                source:  TEST
+                """
+        );
+
+        databaseHelper.addObject(
+                """
+                route-set:    AS1234:RS-CUSTOMERS:AS1234
+                descr:        test route-set
+                tech-c:       TP1-TEST
+                admin-c:      TP1-TEST
+                mnt-by:       OWNER-MNT
+                mnt-lower:    OWNER-MNT
+                source:  TEST
+                """
+        );
+
+
+        databaseHelper.addObject(RpslObject.parse(
+                """
+                route-set:    RS-CUSTOMERS
+                descr:        test route-set
+                members:      AS7775535:RS-CUSTOMERS:AS94967295
+                mp-members:   AS1234:RS-CUSTOMERS:AS1234
+                tech-c:       TP1-TEST
+                admin-c:      TP1-TEST
+                mnt-by:       OWNER-MNT
+                mnt-lower:    OWNER-MNT
+                source:  TEST
+                """));
+
+        final WhoisResources response = RestTest.target(getPort(), "whois/test/route-set/RS-CUSTOMERS?password=test")
+                    .request()
+                    .get(WhoisResources.class);
+
+        final List<Attribute> memberAttributes = response.getWhoisObjects().getFirst()
+                .getAttributes().stream()
+                .filter(attribute -> attribute.getName().equals("members") || attribute.getName().equals("mp-members"))
+                .toList();
+
+        assertThat(memberAttributes.size(), is(2));
+
+        assertAsSetMember(memberAttributes.get(0), "members");
+        assertAsSetMember(memberAttributes.get(1), "mp-members");
+
+    }
+
+
+
     // helper methods
+
+    private static void assertAsSetMember(final Attribute member, final String attributeExpectedType) {
+        assertThat(member.getName(), is(attributeExpectedType));
+        assertThat(member.getReferencedType(), is("route-set"));
+        assertThat(member.getLink().getHref(), is("http://rest-test.db.ripe.net/test/route-set/" + member.getValue()));
+    }
 
     private String encode(final String input) {
         // do not interpret template parameters

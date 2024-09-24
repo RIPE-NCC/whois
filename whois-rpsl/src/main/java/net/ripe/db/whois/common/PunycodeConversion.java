@@ -1,6 +1,6 @@
 package net.ripe.db.whois.common;
 
-import org.apache.commons.mail.util.IDNEmailAddressConverter;
+import org.apache.commons.mail2.jakarta.util.IDNEmailAddressConverter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

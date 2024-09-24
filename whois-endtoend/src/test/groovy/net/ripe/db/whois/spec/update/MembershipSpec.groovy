@@ -422,7 +422,7 @@ class MembershipSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(1, 0, 1, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
 
-        ack.countErrorWarnInfo(0, 0, 0)
+        ack.countErrorWarnInfo(0, 1, 0)
         ack.successes.any {it.operation == "Modify" && it.key == "[as-set] AS-TEST"}
 
         query_object_not_matches("-r -T as-set AS-TEST", "as-set", "AS-TEST", "mbrs-by-ref:\\s*LIR-MNT")
@@ -472,7 +472,7 @@ class MembershipSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(1, 0, 1, 0, 0)
         ack.summary.assertErrors(1, 0, 0, 1)
 
-        ack.countErrorWarnInfo(1, 0, 0)
+        ack.countErrorWarnInfo(1, 1, 0)
         ack.successes.any {it.operation == "Modify" && it.key == "[as-set] AS-TEST"}
         ack.errors.any {it.operation == "Delete" && it.key == "[as-set] AS-TEST"}
         ack.errorMessagesFor("Delete", "[as-set] AS-TEST") == [
@@ -531,7 +531,7 @@ class MembershipSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(1, 0, 1, 0, 0)
         ack.summary.assertErrors(1, 0, 1, 0)
 
-        ack.countErrorWarnInfo(1, 3, 0)
+        ack.countErrorWarnInfo(1, 4, 0)
         ack.successes.any {it.operation == "Modify" && it.key == "[as-set] AS-TEST"}
         ack.errors.any {it.operation == "Modify" && it.key == "[aut-num] AS352"}
         ack.errorMessagesFor("Modify", "[aut-num] AS352") == [
@@ -595,7 +595,7 @@ class MembershipSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(2, 0, 2, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
 
-        ack.countErrorWarnInfo(0, 3, 0)
+        ack.countErrorWarnInfo(0, 4, 0)
         ack.successes.any {it.operation == "Modify" && it.key == "[as-set] AS-TEST"}
         ack.successes.any {it.operation == "Modify" && it.key == "[aut-num] AS352"}
         ack.warningSuccessMessagesFor("Modify", "[aut-num] AS352") ==
@@ -666,7 +666,7 @@ class MembershipSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(3, 0, 2, 1, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
 
-        ack.countErrorWarnInfo(0, 3, 0)
+        ack.countErrorWarnInfo(0, 4, 0)
         ack.successes.any {it.operation == "Modify" && it.key == "[as-set] AS-TEST"}
         ack.successes.any {it.operation == "Modify" && it.key == "[aut-num] AS352"}
         ack.successes.any {it.operation == "Delete" && it.key == "[as-set] AS-TEST"}
@@ -714,7 +714,7 @@ class MembershipSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(0, 0, 0, 0, 0)
         ack.summary.assertErrors(1, 0, 1, 0)
 
-        ack.countErrorWarnInfo(1, 0, 0)
+        ack.countErrorWarnInfo(1, 1, 0)
         ack.errors.any {it.operation == "Modify" && it.key == "[aut-num] AS123"}
         ack.errorMessagesFor("Modify", "[aut-num] AS123") == [
                 "Unknown object referenced AS-TEST"
@@ -757,7 +757,7 @@ class MembershipSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(0, 0, 0, 0, 0)
         ack.summary.assertErrors(1, 0, 0, 1)
 
-        ack.countErrorWarnInfo(1, 0, 0)
+        ack.countErrorWarnInfo(1, 1, 0)
         ack.errors.any {it.operation == "Delete" && it.key == "[mntner] REF-MNT"}
         ack.errorMessagesFor("Delete", "[mntner] REF-MNT") == [
                 "Object [mntner] REF-MNT is referenced from other objects"]
@@ -800,7 +800,7 @@ class MembershipSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(0, 0, 0, 0, 0)
         ack.summary.assertErrors(1, 0, 0, 1)
 
-        ack.countErrorWarnInfo(1, 0, 0)
+        ack.countErrorWarnInfo(1, 1, 0)
         ack.errors.any {it.operation == "Delete" && it.key == "[as-set] AS-TEST"}
         ack.errorMessagesFor("Delete", "[as-set] AS-TEST") == [
                 "Object [as-set] AS-TEST is referenced from other objects"]
@@ -838,7 +838,7 @@ class MembershipSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(1, 1, 0, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
 
-        ack.countErrorWarnInfo(0, 0, 0)
+        ack.countErrorWarnInfo(0, 1, 0)
         ack.successes.any {it.operation == "Create" && it.key == "[as-set] AS123:AS-TEST"}
 
         query_object_matches("-r -T as-set AS123:AS-TEST", "as-set", "AS123:AS-TEST", "mbrs-by-ref:\\s*ANY")
@@ -936,7 +936,7 @@ class MembershipSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(2, 0, 2, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
 
-        ack.countErrorWarnInfo(0, 3, 0)
+        ack.countErrorWarnInfo(0, 4, 0)
         ack.successes.any {it.operation == "Modify" && it.key == "[as-set] AS-TEST"}
         ack.successes.any {it.operation == "Modify" && it.key == "[aut-num] AS352"}
         ack.warningSuccessMessagesFor("Modify", "[aut-num] AS352") ==
@@ -1050,7 +1050,7 @@ class MembershipSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(1, 0, 1, 0, 0)
         ack.summary.assertErrors(1, 0, 1, 0)
 
-        ack.countErrorWarnInfo(1, 3, 0)
+        ack.countErrorWarnInfo(1, 4, 0)
         ack.successes.any {it.operation == "Modify" && it.key == "[as-set] AS-TEST"}
         ack.errors.any {it.operation == "Modify" && it.key == "[aut-num] AS1309"}
         ack.errorMessagesFor("Modify", "[aut-num] AS1309") == [
@@ -1200,7 +1200,7 @@ class MembershipSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(0, 0, 0, 0, 0)
         ack.summary.assertErrors(1, 1, 0, 0)
 
-        ack.countErrorWarnInfo(1, 0, 0)
+        ack.countErrorWarnInfo(1, 1, 0)
         ack.errors.any {it.operation == "Create" && it.key == "[as-set] AS123:AS-TEST"}
         ack.errorMessagesFor("Create", "[as-set] AS123:AS-TEST") == [
                 "Unknown object referenced aardvark-mnt"]
@@ -1243,7 +1243,7 @@ class MembershipSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(1, 1, 0, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
 
-        ack.countErrorWarnInfo(0, 0, 0)
+        ack.countErrorWarnInfo(0, 1, 0)
         ack.successes.any {it.operation == "Create" && it.key == "[as-set] AS123:AS-TEST"}
 
         queryObject("-rBT as-set AS123:As-TEst", "as-set", "AS123:AS-TEST")
@@ -1290,7 +1290,7 @@ class MembershipSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(1, 1, 0, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
 
-        ack.countErrorWarnInfo(0, 0, 0)
+        ack.countErrorWarnInfo(0, 1, 0)
         ack.successes.any {it.operation == "Create" && it.key == "[as-set] AS123:AS-TEST"}
 
         queryObject("-rBT as-set AS123:As-TEst", "as-set", "AS123:AS-TEST")
@@ -1338,7 +1338,7 @@ class MembershipSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(1, 0, 0, 1, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
 
-        ack.countErrorWarnInfo(0, 0, 0)
+        ack.countErrorWarnInfo(0, 1, 0)
         ack.successes.any {it.operation == "Delete" && it.key == "[as-set] AS-TEST"}
 
         queryObjectNotFound("-rBT as-set As-TEst", "as-set", "AS-TEST")
@@ -1386,7 +1386,7 @@ class MembershipSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(1, 0, 0, 1, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
 
-        ack.countErrorWarnInfo(0, 0, 0)
+        ack.countErrorWarnInfo(0, 1, 0)
         ack.successes.any {it.operation == "Delete" && it.key == "[aut-num] AS123"}
 
         queryObjectNotFound("-rBT aut-num AS123", "aut-num", "AS123")
@@ -1494,7 +1494,7 @@ class MembershipSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(2, 0, 2, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
 
-        ack.countErrorWarnInfo(0, 0, 0)
+        ack.countErrorWarnInfo(0, 1, 0)
         ack.successes.any {it.operation == "Modify" && it.key == "[as-set] AS-TEST"}
         ack.successes.any {it.operation == "Modify" && it.key == "[aut-num] AS123"}
 
@@ -1569,7 +1569,7 @@ class MembershipSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(2, 0, 2, 0, 0)
         ack.summary.assertErrors(1, 0, 0, 1)
 
-        ack.countErrorWarnInfo(1, 0, 0)
+        ack.countErrorWarnInfo(1, 1, 0)
         ack.successes.any {it.operation == "Modify" && it.key == "[as-set] AS-TEST"}
         ack.successes.any {it.operation == "Modify" && it.key == "[aut-num] AS123"}
         ack.errors.any {it.operation == "Delete" && it.key == "[as-set] AS-TEST"}

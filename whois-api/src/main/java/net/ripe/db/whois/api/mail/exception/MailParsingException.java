@@ -13,4 +13,9 @@ public class MailParsingException extends ParsingException {
         super(message);
     }
 
+    public MailParsingException(final String message, final Throwable cause) {
+        super(message);
+        super.initCause(cause);
+    }
+
 }

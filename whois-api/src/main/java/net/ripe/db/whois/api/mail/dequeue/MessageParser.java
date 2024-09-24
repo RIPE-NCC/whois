@@ -177,6 +177,7 @@ public class MessageParser {
     }
 
     private void parseContents(@Nonnull final MessageParts messageParts, @Nonnull final Part part, @Nullable final Part parentPart) throws MessagingException, IOException {
+        handleInvalidTypes(part);
         final ContentType contentType = new ContentType(part.getContentType());
         final Object content = getContent(part, contentType);
         final Charset charset = getCharset(contentType);
@@ -222,6 +223,12 @@ public class MessageParser {
                     parseContents(messageParts, bodyPart, part);
                 }
             }
+        }
+    }
+
+    private static void handleInvalidTypes(Part part) throws MessagingException {
+        if ("text".equals(part.getContentType())){
+            part.setHeader("Content-Type", "text/plain;");
         }
     }
 

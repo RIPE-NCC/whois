@@ -313,7 +313,7 @@ public class WhoisFixture {
     }
 
     public List<String> queryPersistent(final List<String> queries) throws Exception {
-        final String END_OF_HEADER = "% See https://apps.db.ripe.net/docs/HTML-Terms-And-Conditions\n\n";
+        final String END_OF_HEADER = "% See https://docs.db.ripe.net/terms-conditions.html\n\n";
         final WhoisClientHandler client = NettyWhoisClientFactory.newLocalClient(queryServer.getPort());
 
         List<String> responses = new ArrayList<>();

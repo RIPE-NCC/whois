@@ -1,4 +1,4 @@
-package net.ripe.db.whois.common.source;
+package net.ripe.db.whois.common;
 
 import com.mchange.v2.c3p0.ComboPooledDataSource;
 import org.springframework.beans.factory.annotation.Value;
@@ -8,7 +8,6 @@ import org.springframework.context.annotation.DependsOn;
 
 import javax.sql.DataSource;
 import java.beans.PropertyVetoException;
-import java.util.Properties;
 
 @Configuration
 public class DataSourceConfigurations {
@@ -59,24 +58,19 @@ public class DataSourceConfigurations {
     private ComboPooledDataSource createDataSource(final String jdbcDriver, final String jdbcUrl, final String jdbcUser, final String jdbcPass) throws PropertyVetoException {
         final ComboPooledDataSource source = new ComboPooledDataSource();
 
-        source.setProperties(getSourceProperties(jdbcDriver));
         source.setJdbcUrl(jdbcUrl);
         source.setUser(jdbcUser);
         source.setPassword(jdbcPass);
+        source.setDriverClass(jdbcDriver);
+
+        source.setMinPoolSize(0);
+        source.setMaxPoolSize(100);
+        source.setMaxIdleTime(7200);
+        source.setPreferredTestQuery("SELECT 1");
+        source.setIdleConnectionTestPeriod(15);
+        source.setConnectionCustomizerClassName("net.ripe.db.whois.common.jdbc.WhoisConnectorCustomizer");
+        source.setConnectionTesterClassName("com.mchange.v2.c3p0.impl.DefaultConnectionTester");
+
         return source;
-    }
-
-    private Properties getSourceProperties(final String jdbcDriver) {
-        final Properties props = new Properties();
-        props.setProperty("driverClass", jdbcDriver);
-        props.setProperty("minPoolSize", "0");
-        props.setProperty("maxPoolSize", "100");
-        props.setProperty("maxIdleTime", "7200");
-        props.setProperty("preferredTestQuery", "SELECT 1");
-        props.setProperty("idleConnectionTestPeriod", "15");
-        props.setProperty("connectionTesterClassName", "com.mchange.v2.c3p0.impl.DefaultConnectionTester");
-        props.setProperty("connectionCustomizerClassName", "net.ripe.db.whois.common.jdbc.WhoisConnectorCustomizer");
-
-        return props;
     }
 }

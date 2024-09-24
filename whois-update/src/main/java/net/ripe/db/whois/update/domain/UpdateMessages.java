@@ -9,7 +9,7 @@ import net.ripe.db.whois.common.domain.CIString;
 import net.ripe.db.whois.common.ip.Interval;
 import net.ripe.db.whois.common.ip.IpInterval;
 import net.ripe.db.whois.common.ip.Ipv4Resource;
-import net.ripe.db.whois.common.mail.EmailStatus;
+import net.ripe.db.whois.common.mail.EmailStatusType;
 import net.ripe.db.whois.common.rpsl.AttributeType;
 import net.ripe.db.whois.common.rpsl.ObjectType;
 import net.ripe.db.whois.common.rpsl.RpslAttribute;
@@ -85,7 +85,12 @@ public final class UpdateMessages {
     }
 
     public static Message httpSyncupdate(){
-        return new Message(Type.WARNING, "This Syncupdates request used insecure HTTP, which may be removed in a future release. Please switch to HTTPS.");
+        return new Message(Type.WARNING, "This Syncupdates request used insecure HTTP, which will be removed in a future release. Please switch to HTTPS.");
+    }
+
+    public static Message passwordInMailUpdate(){
+        return new Message(Type.WARNING, "Password authentication will be removed from Mailupdates in a future Whois " +
+                "release as the mail message may have been sent insecurely. Please switch to PGP signing for authentication or use a different update method such as the REST API or Syncupdates.");
     }
 
     public static Message invalidReference(final ObjectType objectType, final CharSequence key) {
@@ -622,7 +627,7 @@ public final class UpdateMessages {
         return new Message(Type.WARNING, "\"status:\" attribute cannot be removed");
     }
 
-    public static Message emailCanNotBeSent(final String email, final EmailStatus emailStatus) {
+    public static Message emailCanNotBeSent(final String email, final EmailStatusType emailStatus) {
         return new Message(Type.WARNING, "Not sending notification to %s because it is %s.", email, emailStatus.getValue());
     }
 

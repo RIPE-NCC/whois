@@ -3,6 +3,7 @@ package net.ripe.db.whois.query.handler;
 import com.google.common.collect.Sets;
 import com.google.common.net.InetAddresses;
 import net.ripe.db.whois.common.domain.ResponseObject;
+import net.ripe.db.whois.common.hazelcast.IpBlockManager;
 import net.ripe.db.whois.common.rpsl.RpslObject;
 import net.ripe.db.whois.common.source.Source;
 import net.ripe.db.whois.common.source.SourceContext;
@@ -52,6 +53,8 @@ public class QueryHandlerAclTest {
     @Mock
     AccessControlListManager accessControlListManager;
     @Mock SourceContext sourceContext;
+    @Mock
+    IpBlockManager ipBlockManager;
     @Mock QueryExecutor queryExecutor;
     QueryHandler subject;
 
@@ -64,7 +67,7 @@ public class QueryHandlerAclTest {
 
     @BeforeEach
     public void setUp() throws Exception {
-        subject = new QueryHandler(whoisLog, accessControlListManager, sourceContext, queryExecutor);
+        subject = new QueryHandler(whoisLog, accessControlListManager, ipBlockManager, sourceContext, queryExecutor);
         subject = spy(subject);
 
         accountingIdentifier = new AccountingIdentifier(remoteAddress, null);

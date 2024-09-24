@@ -1,7 +1,5 @@
-package net.ripe.db.whois.common.transaction;
+package net.ripe.db.whois.common;
 
-import net.ripe.db.whois.common.source.SourceAwareDataSource;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.AdviceMode;
 import org.springframework.context.annotation.Bean;
@@ -32,8 +30,8 @@ public class TransactionConfiguration {
 
     @Bean
     @Primary
-    public TransactionManager transactionManager(@Autowired SourceAwareDataSource sourceAwareDataSource) {
-        return new DataSourceTransactionManager(sourceAwareDataSource);
+    public TransactionManager transactionManager(@Qualifier("sourceAwareDataSource") final DataSource dataSource) {
+        return new DataSourceTransactionManager(dataSource);
     }
 
     @Bean(name = ACL_UPDATE_TRANSACTION_MANAGER)

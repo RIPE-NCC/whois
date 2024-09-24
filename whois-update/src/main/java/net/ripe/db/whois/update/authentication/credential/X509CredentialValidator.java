@@ -5,6 +5,7 @@ import net.ripe.db.whois.common.dao.RpslObjectDao;
 import net.ripe.db.whois.common.rpsl.ObjectType;
 import net.ripe.db.whois.common.rpsl.RpslObject;
 import net.ripe.db.whois.update.domain.PreparedUpdate;
+import net.ripe.db.whois.update.domain.Update;
 import net.ripe.db.whois.update.domain.UpdateContext;
 import net.ripe.db.whois.update.domain.UpdateMessages;
 import net.ripe.db.whois.update.domain.X509Credential;
@@ -46,6 +47,7 @@ public class X509CredentialValidator implements CredentialValidator<X509Credenti
         for (final X509Credential offeredCredential : offeredCredentials) {
             if (verifySignedMessage(update, updateContext, offeredCredential, knownCredential)) {
                 log(update, String.format("Successfully validated with keycert: %s", knownCredential.getKeyId()));
+                update.getUpdate().setEffectiveCredential(knownCredential.getKeyId(), Update.EffectiveCredentialType.X509);
                 return true;
             }
         }

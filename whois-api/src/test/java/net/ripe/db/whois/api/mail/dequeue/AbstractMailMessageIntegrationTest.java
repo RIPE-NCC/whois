@@ -3,7 +3,7 @@ package net.ripe.db.whois.api.mail.dequeue;
 import jakarta.mail.internet.MimeMessage;
 import net.ripe.db.whois.api.AbstractIntegrationTest;
 import net.ripe.db.whois.api.MailUpdatesTestSupport;
-import net.ripe.db.whois.common.mail.EmailStatus;
+import net.ripe.db.whois.common.mail.EmailStatusType;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
@@ -72,17 +72,17 @@ public class AbstractMailMessageIntegrationTest extends AbstractIntegrationTest 
 
     protected boolean isUndeliverableAddress(final String emailAddress) {
         return internalsTemplate.queryForObject("SELECT count(email) FROM email_status WHERE email= ? and status=?",
-                (rs, rowNum) -> rs.getInt(1), emailAddress, EmailStatus.UNDELIVERABLE.name()) == 1;
+                (rs, rowNum) -> rs.getInt(1), emailAddress, EmailStatusType.UNDELIVERABLE.name()) == 1;
     }
 
     protected boolean isUnsubscribeAddress(final String emailAddress) {
         return internalsTemplate.queryForObject("SELECT count(email) FROM email_status WHERE email= ? and status=?",
-                (rs, rowNum) -> rs.getInt(1), emailAddress, EmailStatus.UNSUBSCRIBE.name()) == 1;
+                (rs, rowNum) -> rs.getInt(1), emailAddress, EmailStatusType.UNSUBSCRIBE.name()) == 1;
     }
 
     protected void insertUndeliverableAddress(final String emailAddress) {
         internalsTemplate.update(
-                "INSERT INTO email_status (email, status) VALUES (?, ?)", emailAddress, EmailStatus.UNDELIVERABLE.name());
+                "INSERT INTO email_status (email, status) VALUES (?, ?)", emailAddress, EmailStatusType.UNDELIVERABLE.name());
     }
 
 

@@ -13,7 +13,7 @@
     <context:annotation-config />
     <context:component-scan base-package="net.ripe.db.whois.db"/>
 
-    <import resource="applicationContext-nrtm.xml"/>
+    <bean class="net.ripe.db.whois.nrtm.WhoisNrtmConfig" />
 
     <bean class="net.ripe.db.nrtm4.Nrtmv4Config" />
 

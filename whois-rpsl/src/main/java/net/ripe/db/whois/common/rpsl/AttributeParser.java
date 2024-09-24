@@ -180,7 +180,8 @@ public interface AttributeParser<T> {
 
     final class EmailParser implements AttributeParser<InternetAddress> {
 
-        private static final int MAXIMUM_LENGTH = 80;
+        // The maxmimum length of an email address according to RFC 5321 is (local-part = 64) + '@' + (domain = 255) octets
+        private static final int MAXIMUM_LENGTH = 320;
 
         @Override
         public InternetAddress parse(final String s) {
@@ -197,20 +198,21 @@ public interface AttributeParser<T> {
 
             try {
                 parsed[0].validate();
-
-                final String address = parsed[0].getAddress();
-                final String localPart = address.substring(0, address.indexOf('@'));
-
-                if (address.length() > MAXIMUM_LENGTH){
-                    throw new AttributeParseException(String.format("Illegal address length, maximum supported length is %d",
-                            MAXIMUM_LENGTH), s);
-                }
-
-                if (!StandardCharsets.US_ASCII.newEncoder().canEncode(localPart)) {
-                    throw new AttributeParseException("Address contains non ASCII characters (%s)", s);
-                }
             } catch (AddressException e) {
                 throw new AttributeParseException(String.format("Invalid address (%s)", e.getMessage()), s);
+            }
+
+            final String address = parsed[0].getAddress();
+            final String localPart = address.substring(0, address.indexOf('@'));
+
+            if (address.length() > MAXIMUM_LENGTH) {
+                throw new AttributeParseException(String.format("Address length %d is greater than the maximum supported length %d",
+                        address.length(), MAXIMUM_LENGTH), s);
+            }
+
+            if (!StandardCharsets.US_ASCII.newEncoder().canEncode(localPart)) {
+                // only convert non-ASCII characters in domain part to punycode
+                throw new AttributeParseException("Address contains non ASCII characters (%s)", s);
             }
 
             return parsed[0];

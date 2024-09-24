@@ -3159,10 +3159,10 @@ public class RdapServiceTestIntegration extends AbstractRdapIntegrationTest {
     private void assertTnCNotice(final Notice notice, final String value) {
         assertThat(notice.getTitle(), is("Terms and Conditions"));
         assertThat(notice.getDescription(), contains("This is the RIPE Database query service. The objects are in RDAP format."));
-        assertThat(notice.getLinks().get(0).getHref(), is("https://apps.db.ripe.net/docs/HTML-Terms-And-Conditions"));
+        assertThat(notice.getLinks().get(0).getHref(), is("https://docs.db.ripe.net/terms-conditions.html"));
 
         assertThat(notice.getLinks().get(0).getRel(), is("terms-of-service"));
-        assertThat(notice.getLinks().get(0).getHref(), is("https://apps.db.ripe.net/docs/HTML-Terms-And-Conditions"));
+        assertThat(notice.getLinks().get(0).getHref(), is("https://docs.db.ripe.net/terms-conditions.html"));
         assertThat(notice.getLinks().get(0).getType(), is("application/pdf"));
         assertThat(notice.getLinks().get(0).getValue(), is(value));
     }

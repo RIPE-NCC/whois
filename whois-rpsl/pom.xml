@@ -42,7 +42,7 @@
         </dependency>
         <dependency>
             <groupId>org.apache.commons</groupId>
-            <artifactId>commons-email</artifactId>
+            <artifactId>commons-email2-jakarta</artifactId>
         </dependency>
     </dependencies>
     <build>

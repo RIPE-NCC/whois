@@ -19,8 +19,8 @@ import org.elasticsearch.client.RestHighLevelClient;
 import org.elasticsearch.client.core.CountRequest;
 import org.elasticsearch.client.core.CountResponse;
 import org.elasticsearch.client.indices.GetIndexRequest;
-import org.elasticsearch.common.xcontent.XContentBuilder;
-import org.elasticsearch.common.xcontent.XContentFactory;
+import org.elasticsearch.xcontent.XContentBuilder;
+import org.elasticsearch.xcontent.XContentFactory;
 import org.elasticsearch.index.query.QueryBuilders;
 import org.elasticsearch.index.reindex.DeleteByQueryRequest;
 import org.slf4j.Logger;
@@ -140,11 +140,15 @@ public class ElasticIndexService {
     }
 
     protected long getWhoisDocCount() throws IOException {
+        return getWhoisDocCount(whoisAliasIndex);
+    }
+
+    public long getWhoisDocCount(final String indexName) throws IOException {
         if (!isElasticRunning()) {
             throw new IllegalStateException("ES is not running");
         }
 
-        final CountRequest countRequest = new CountRequest(whoisAliasIndex);
+        final CountRequest countRequest = new CountRequest(indexName);
         countRequest.query(QueryBuilders.matchAllQuery());
 
         final CountResponse countResponse = client.count(countRequest, RequestOptions.DEFAULT);
@@ -167,12 +171,20 @@ public class ElasticIndexService {
             documentFields.getSource().get(SOURCE).toString());
     }
 
-    protected void updateMetadata(final ElasticIndexMetadata metadata) throws IOException {
+    public void updateMetadata(final ElasticIndexMetadata metadata) throws IOException {
+        updateMetadata(metadata, metadataIndex);
+    }
+
+    public String getMetadataIndex() {
+        return metadataIndex;
+    }
+
+    public void updateMetadata(final ElasticIndexMetadata metadata, final String metadatIndexName) throws IOException {
         if (!isElasticRunning()) {
-          return;
+            return;
         }
 
-        final UpdateRequest updateRequest = new UpdateRequest(metadataIndex, SERIAL_DOC_ID);
+        final UpdateRequest updateRequest = new UpdateRequest(metadatIndexName, SERIAL_DOC_ID);
 
         final XContentBuilder builder = XContentFactory.jsonBuilder()
                 .startObject()
@@ -212,7 +224,7 @@ public class ElasticIndexService {
         }
     }
 
-    private XContentBuilder json(final RpslObject rpslObject) throws IOException {
+    public XContentBuilder json(final RpslObject rpslObject) throws IOException {
         final XContentBuilder builder = XContentFactory.jsonBuilder().startObject();
 
         final RpslObject filterRpslObject = filterRpslObject(rpslObject);

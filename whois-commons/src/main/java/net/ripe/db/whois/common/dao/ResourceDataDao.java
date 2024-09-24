@@ -9,7 +9,7 @@ import net.ripe.commons.ip.Ipv6Range;
 import net.ripe.commons.ip.SortedRangeSet;
 import net.ripe.db.whois.common.aspects.RetryFor;
 import net.ripe.db.whois.common.grs.AuthoritativeResource;
-import net.ripe.db.whois.common.transaction.TransactionConfiguration;
+import net.ripe.db.whois.common.TransactionConfiguration;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.dao.RecoverableDataAccessException;
