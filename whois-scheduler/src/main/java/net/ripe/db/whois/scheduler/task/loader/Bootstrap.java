@@ -2,6 +2,7 @@ package net.ripe.db.whois.scheduler.task.loader;
 
 import com.google.common.util.concurrent.Uninterruptibles;
 import net.javacrumbs.shedlock.spring.annotation.SchedulerLock;
+import net.ripe.db.nrtm4.scheduler.NrtmV4Jmx;
 import net.ripe.db.whois.api.fulltextsearch.ElasticFullTextRebuild;
 import net.ripe.db.whois.common.iptree.IpTreeUpdater;
 import net.ripe.db.whois.common.scheduler.DailyScheduledTask;
@@ -24,6 +25,7 @@ public class Bootstrap implements DailyScheduledTask {
     private final LoaderSafe loaderSafe;
     private final SourceContext sourceContext;
     private final ElasticFullTextRebuild elasticFullTextRebuild;
+    private final NrtmV4Jmx nrtmV4Jmx;
 
     @Value("${bootstrap.dumpfile:}")
     private String[] dumpFileLocation;
@@ -31,10 +33,12 @@ public class Bootstrap implements DailyScheduledTask {
     @Autowired
     public Bootstrap(final LoaderRisky loaderRisky, final LoaderSafe loaderSafe,
                      final ElasticFullTextRebuild elasticFullTextRebuild,
+                     final NrtmV4Jmx nrtmV4Jmx,
                      final SourceContext sourceContext) {
         this.loaderRisky = loaderRisky;
         this.loaderSafe = loaderSafe;
         this.sourceContext = sourceContext;
+        this.nrtmV4Jmx = nrtmV4Jmx;
         this.elasticFullTextRebuild = elasticFullTextRebuild;
     }
 
@@ -57,6 +61,8 @@ public class Bootstrap implements DailyScheduledTask {
             final String result =  loaderRisky.loadSplitFiles(dumpFileLocation);
 
             buildFullTextIndexes();
+            initializeNrtmv4();
+
             return result;
         } finally {
             sourceContext.removeCurrentSource();
@@ -68,6 +74,14 @@ public class Bootstrap implements DailyScheduledTask {
             elasticFullTextRebuild.run();
         } catch (Exception e) {
             LOGGER.error("Failed to rebuild ElasticFullTextRebuild ", e);
+        }
+    }
+
+    private void initializeNrtmv4() {
+        try {
+            nrtmV4Jmx.runInitializerTask("Bootstrap");
+        } catch (Exception e) {
+            LOGGER.error("Failed to initialize Nrtmv4 ", e);
         }
     }
 
