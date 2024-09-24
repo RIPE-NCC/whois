@@ -79,7 +79,6 @@ public class Bootstrap implements DailyScheduledTask {
 
     private void initializeNrtmv4() {
         if(nrtmV4Jmx == null) {
-            LOGGER.warn("Nrtmv4 is not enabled");
             return;
         }
 
