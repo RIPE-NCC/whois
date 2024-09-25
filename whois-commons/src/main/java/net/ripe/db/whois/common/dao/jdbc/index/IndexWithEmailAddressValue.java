@@ -5,13 +5,9 @@ import net.ripe.db.whois.common.rpsl.AttributeParser;
 import net.ripe.db.whois.common.rpsl.AttributeType;
 import net.ripe.db.whois.common.rpsl.RpslObject;
 import net.ripe.db.whois.common.rpsl.attrs.AttributeParseException;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.jdbc.core.JdbcTemplate;
 
 class IndexWithEmailAddressValue extends IndexWithValue {
-
-    private static final Logger LOGGER = LoggerFactory.getLogger(IndexWithEmailAddressValue.class);
 
     private static final AttributeParser.EmailParser EMAIL_PARSER = new AttributeParser.EmailParser();
 
@@ -24,11 +20,10 @@ class IndexWithEmailAddressValue extends IndexWithValue {
         return super.addToIndex(jdbcTemplate, objectInfo, object, normaliseEmailAddress(value));
     }
 
-    private String normaliseEmailAddress(final String emailAddress) {
+    protected static String normaliseEmailAddress(final String emailAddress) {
         try {
             return EMAIL_PARSER.parse(emailAddress).getAddress();
         } catch (AttributeParseException e) {
-            LOGGER.warn("Invalid email address: {}", emailAddress);
             return emailAddress;
         }
     }
