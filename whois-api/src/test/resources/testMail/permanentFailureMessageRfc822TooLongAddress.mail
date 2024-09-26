@@ -48,8 +48,8 @@ Remote-MTA: DNS; mx0.host.org
 Diagnostic-Code: SMTP; 550 5.7.1 This message is blocked due to security reason
 Last-Attempt-Date: Thu, 4 Apr 2024 09:26:40 +0300
 
-Original-Recipient: rfc822;G=noreply/S=noreply/O=noreplynoreplynorepl/P=AA/A=ripe.net/C=SP/@noreply.ripe.net
-Final-Recipient: RFC822; G=noreply/S=noreply/O=noreplynoreplynorepl/P=AA/A=ripe.net/C=SP/@noreply.ripe.net
+Original-Recipient: rfc822;G=noreply/S=noreply/O=noreplynoreplynoreplnoreplynoreplynoreplnoreplynoreplynoreplnoreplynoreplynoreplnoreplynoreplynoreplnoreplynoreplynoreplnoreplynoreplynoreplnoreplynoreplynoreplnoreplynoreplynoreplnoreplynoreplynoreplnoreplynoreplynoreplnoreplynoreplynoreplnoreplynoreplynoreplnoreplynoreplynoreplnoreplynoreplynorepl/P=AA/A=ripe.net/C=SP/@noreply.ripe.net
+Final-Recipient: RFC822; G=noreply/S=noreply/O=noreplynoreplynoreplnoreplynoreplynoreplnoreplynoreplynoreplnoreplynoreplynoreplnoreplynoreplynoreplnoreplynoreplynoreplnoreplynoreplynoreplnoreplynoreplynoreplnoreplynoreplynoreplnoreplynoreplynoreplnoreplynoreplynoreplnoreplynoreplynoreplnoreplynoreplynoreplnoreplynoreplynoreplnoreplynoreplynorepl/P=AA/A=ripe.net/C=SP/@noreply.ripe.net
 Action: failed
 Status: 5.7.1
 Remote-MTA: DNS; mx0.host.org
