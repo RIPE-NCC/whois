@@ -189,7 +189,12 @@ public class MailBounceTestIntegration extends AbstractMailMessageIntegrationTes
 
         // delayed message has been processed but address is not set to undeliverable
         assertThat(isUndeliverableAddress("noc@host.org"), is(false));
-        assertThat(isUndeliverableAddress("G=noreply/S=noreply/O=noreplynoreplynorepl/P=AA/A=ripe.net/C=SP/@noreply.ripe.net"), is(false));
+        assertThat(isUndeliverableAddress(
+            "G=noreply/S=noreply/O=noreplynoreplynoreplnoreplynoreplynoreplnoreply" +
+                "noreplynoreplnoreplynoreplynoreplnoreplynoreplynoreplnoreplynoreplynoreplnoreply" +
+                "noreplynoreplnoreplynoreplynoreplnoreplynoreplynoreplnoreplynoreplynoreplnoreply" +
+                "noreplynoreplnoreplynoreplynoreplnoreplynoreplynoreplnoreplynoreplynoreplnoreply" +
+                "noreplynorepl/P=AA/A=ripe.net/C=SP/@noreply.ripe.net"), is(false));
     }
 
 
