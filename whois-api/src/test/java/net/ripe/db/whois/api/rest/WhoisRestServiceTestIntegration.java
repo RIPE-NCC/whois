@@ -3244,6 +3244,36 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
         }
     }
 
+    @Disabled("TODO: [ES] testcase for multibyte UTF-8")
+    @Test
+    public void create_multibyte_utf8_character_is_substituted() {
+            RestTest.target(getPort(), "whois/test/person?password=test")
+                .request(MediaType.APPLICATION_JSON)
+                .post(Entity.entity("" +
+                    "{ \"objects\": {\n" +
+                    "   \"object\": [ {\n" +
+                    "    \"source\": { \"id\": \"RIPE\" }, \n" +
+                    "    \"attributes\": {\n" +
+                    "       \"attribute\": [\n" +
+                    "        { \"name\": \"person\", \"value\": \"Pauleth Palthen\" },\n" +
+                    "        { \"name\": \"address\", \"value\": \"Espa\u00C3\u00B1a\" },\n" +        // UTF-8 bytes 0xc383 and 0xc2b1
+                    "        { \"name\": \"phone\", \"value\": \"+31-2-1234567\" },\n" +
+                    "        { \"name\": \"e-mail\", \"value\": \"noreply@ripe.net\" },\n" +
+                    "        { \"name\": \"mnt-by\", \"value\": \"OWNER-MNT\" },\n" +
+                    "        { \"name\": \"nic-hdl\", \"value\": \"PP1-TEST\" },\n" +
+                    "        { \"name\": \"remarks\", \"value\": \"created\" },\n" +
+                    "        { \"name\": \"source\", \"value\": \"TEST\" }\n" +
+                    "        ] }\n" +
+                    "    }] \n" +
+                    "}}", new MediaType("application", "json", StandardCharsets.UTF_8.displayName())), String.class);
+
+        // 0x_C3_83C2_B1_ bytes in request but bytes 0xC3B1 ends up in the database
+        final String hexObject = whoisTemplate.queryForObject("SELECT hex(object) FROM last WHERE pkey = 'PP1-TEST'", String.class);
+        assertThat(hexObject, containsString("45737061C3B161"));    // Espa(0xC3B1)a
+
+        assertThat(queryTelnet("-r PP1-TEST"), containsString("España"));
+    }
+
     @Test
     public void create_dryRun() {
         final WhoisResources whoisResources = RestTest.target(getPort(), "whois/test/person?password=test&dry-run=true")
