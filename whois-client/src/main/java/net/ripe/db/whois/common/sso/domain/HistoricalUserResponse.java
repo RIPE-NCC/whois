@@ -5,7 +5,6 @@ import jakarta.xml.bind.annotation.XmlAccessType;
 import jakarta.xml.bind.annotation.XmlAccessorType;
 import jakarta.xml.bind.annotation.XmlElement;
 import jakarta.xml.bind.annotation.XmlRootElement;
-import jakarta.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 
 import java.io.Serial;
 import java.io.Serializable;
@@ -40,7 +39,6 @@ public class HistoricalUserResponse implements Serializable {
         @Serial
         private static final long serialVersionUID = 1L;
         @XmlElement(required = true)
-        @XmlJavaTypeAdapter(EventDateTimeAdapter.class)
         public LocalDateTime eventDateTime;
         @XmlElement(required = true)
         public String action;
