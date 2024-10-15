@@ -7,6 +7,7 @@ import com.fasterxml.jackson.databind.introspect.AnnotationIntrospectorPair;
 import com.fasterxml.jackson.databind.introspect.JacksonAnnotationIntrospector;
 import com.fasterxml.jackson.databind.json.JsonMapper;
 import com.fasterxml.jackson.databind.type.TypeFactory;
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import com.fasterxml.jackson.jakarta.rs.json.JacksonJsonProvider;
 import com.fasterxml.jackson.module.jakarta.xmlbind.JakartaXmlBindAnnotationIntrospector;
 import jakarta.ws.rs.BadRequestException;
@@ -79,7 +80,7 @@ public class AuthServiceClient {
                 new AnnotationIntrospectorPair(
                         new JacksonAnnotationIntrospector(),
                         new JakartaXmlBindAnnotationIntrospector(TypeFactory.defaultInstance())));
-
+        objectMapper.registerModule(new JavaTimeModule());
         final JacksonJsonProvider jsonProvider = (new JacksonJsonProvider())
                 .configure(DeserializationFeature.UNWRAP_ROOT_VALUE, false)
                 .configure(DeserializationFeature.ACCEPT_SINGLE_VALUE_AS_ARRAY, true);
