@@ -131,6 +131,7 @@
         <module>whois-db</module>
         <module>whois-endtoend</module>
         <module>whois-nrtm4</module>
+        <module>Whois-nrtm4-client</module>
     </modules>
 
     <dependencyManagement>
