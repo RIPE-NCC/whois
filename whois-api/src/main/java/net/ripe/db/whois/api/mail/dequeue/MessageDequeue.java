@@ -288,7 +288,7 @@ public class MessageDequeue implements ApplicationService {
         for (Update update : updates) {
             if (!update.getCredentials().ofType(PasswordCredential.class).isEmpty()){
                 updateContext.addGlobalMessage(passwdError ? UpdateMessages.passwordInMailUpdateError() :
-                        UpdateMessages.passwordInMailUpdate());
+                        UpdateMessages.passwordInMailUpdateWarn());
                 return;
             }
         }
