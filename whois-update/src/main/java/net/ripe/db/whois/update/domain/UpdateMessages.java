@@ -93,6 +93,11 @@ public final class UpdateMessages {
                 "release as the mail message may have been sent insecurely. Please switch to PGP signing for authentication or use a different update method such as the REST API or Syncupdates.");
     }
 
+    public static Message passwordInMailUpdateError(){
+        return new Message(Type.ERROR, "Password authentication is not allowed in Mailupdates, because your credentials " +
+                "may be compromised in transit. Please switch to PGP signed mailupdates or use a different update method such as the REST API or Syncupdates.");
+    }
+
     public static Message invalidReference(final ObjectType objectType, final CharSequence key) {
         return new Message(Type.ERROR, "Invalid reference to [%s] %s", objectType.getName(), key);
     }

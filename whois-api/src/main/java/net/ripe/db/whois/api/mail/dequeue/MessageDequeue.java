@@ -67,6 +67,9 @@ public class MessageDequeue implements ApplicationService {
     @Value("${mail.dequeue.interval:1000}")
     private int intervalMs;
 
+    @Value("${mailupdates.passwd.error:false}")
+    private boolean passwdError;
+
     @Autowired
     public MessageDequeue(final MaintenanceMode maintenanceMode,
                           final WhoisMailGatewaySmtp mailGateway,
@@ -281,10 +284,11 @@ public class MessageDequeue implements ApplicationService {
         mailGateway.sendEmail(mailMessage.getReplyToEmail(), response.getStatus() + ": " + mailMessage.getSubject(), response.getResponse(), null);
     }
 
-    private static void addWarnIfPasswordExists(final UpdateContext updateContext, final List<Update> updates) {
+    private void addWarnIfPasswordExists(final UpdateContext updateContext, final List<Update> updates) {
         for (Update update : updates) {
             if (!update.getCredentials().ofType(PasswordCredential.class).isEmpty()){
-                updateContext.addGlobalMessage(UpdateMessages.passwordInMailUpdate());
+                updateContext.addGlobalMessage(passwdError ? UpdateMessages.passwordInMailUpdateError() :
+                        UpdateMessages.passwordInMailUpdate());
                 return;
             }
         }
