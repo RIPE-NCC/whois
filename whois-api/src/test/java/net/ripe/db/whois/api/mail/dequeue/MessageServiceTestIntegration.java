@@ -7,10 +7,15 @@ import net.ripe.db.whois.api.mail.EmailMessageInfo;
 import net.ripe.db.whois.api.mail.exception.MailParsingException;
 import net.ripe.db.whois.update.domain.UpdateMessages;
 import net.ripe.db.whois.update.mail.MailSenderStub;
+import org.junit.Before;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.ConfigurableApplicationContext;
+import org.springframework.test.context.TestPropertySource;
 
 import java.io.IOException;
 
@@ -23,11 +28,13 @@ import static org.hamcrest.MatcherAssert.assertThat;
 
 @Tag("IntegrationTest")
 public class MessageServiceTestIntegration extends AbstractMailMessageIntegrationTest {
+
     @Autowired
     private MailSenderStub mailSenderStub;
 
     @Autowired
     private MessageService messageService;
+
 
     private static final String FORMATTED_PASSWORD_WARN = """
             ***Warning: Password authentication will be removed from Mailupdates in a future
@@ -36,22 +43,6 @@ public class MessageServiceTestIntegration extends AbstractMailMessageIntegratio
                         update method such as the REST API or Syncupdates.
             """;
 
-    @BeforeEach
-    public void setup() {
-        databaseHelper.addObject(
-                "person:        Test Person\n" +
-                        "nic-hdl:       TP1-TEST\n" +
-                        "source:        TEST");
-        databaseHelper.addObject(
-                "mntner:        OWNER-MNT\n" +
-                        "descr:         Owner Maintainer\n" +
-                        "admin-c:       TP1-TEST\n" +
-                        "upd-to:        upd-to@ripe.net\n" +
-                        "notify:        notify@ripe.net\n" +
-                        "auth:          MD5-PW $1$d9fKeTr2$Si7YudNf4rUGmR71n/cqk/ #test\n" +
-                        "mnt-by:        OWNER-MNT\n" +
-                        "source:        TEST");
-    }
 
     @Test
     public void testNoBouncedEmailFromCorrectEmail() throws MessagingException, MailParsingException {
@@ -96,7 +87,6 @@ public class MessageServiceTestIntegration extends AbstractMailMessageIntegratio
         final String acknowledgement = mailSenderStub.getMessage(from).getContent().toString();
         assertThat(acknowledgement, containsString(FORMATTED_PASSWORD_WARN));
     }
-
 
     @Test
     public void test_upd_single_object_without_password_then_no_warn() throws MessagingException, IOException {
