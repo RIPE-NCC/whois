@@ -2,6 +2,8 @@ package net.ripe.db.whois.common.dao;
 
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
+import jakarta.mail.MessagingException;
+import jakarta.mail.internet.MimeMessage;
 import net.ripe.db.whois.common.FormatHelper;
 import net.ripe.db.whois.common.domain.Timestamp;
 import net.ripe.db.whois.common.mail.EmailStatusType;
@@ -12,6 +14,8 @@ import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.stereotype.Repository;
 
 import javax.sql.DataSource;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Collections;
@@ -32,10 +36,10 @@ public class EmailStatusDao {
         this.namedParameterJdbcTemplate = new NamedParameterJdbcTemplate(jdbcTemplate);
     }
 
-    public void createEmailStatus(final String email, final EmailStatusType emailStatus, final byte[] message) {
+    public void createEmailStatus(final String email, final EmailStatusType emailStatus, final MimeMessage message) throws MessagingException, IOException {
         jdbcTemplate.update("INSERT INTO email_status (email, status, message, last_update) VALUES (?, ?, ?, ?)", email,
                 emailStatus.name(),
-                message,
+                getMimeMessageBytes(message),
                 LocalDateTime.now());
     }
 
@@ -76,5 +80,12 @@ public class EmailStatusDao {
                 });
 
         return results;
+    }
+
+
+    private static byte[] getMimeMessageBytes(final MimeMessage message) throws MessagingException, IOException {
+        final ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
+        message.writeTo(byteArrayOutputStream);
+        return byteArrayOutputStream.toByteArray();
     }
 }

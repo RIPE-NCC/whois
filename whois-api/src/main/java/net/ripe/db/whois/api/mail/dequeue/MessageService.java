@@ -16,6 +16,7 @@ import org.springframework.dao.DuplicateKeyException;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Nullable;
+import java.io.IOException;
 import java.util.List;
 
 @Service
@@ -58,7 +59,7 @@ public class MessageService {
         return autoSubmittedMessageParser.parse(message);
     }
 
-    public void verifyAndSetAsUndeliverable(final EmailMessageInfo messageInfo) {
+    public void verifyAndSetAsUndeliverable(final EmailMessageInfo messageInfo) throws MailParsingException {
         final List<String> outgoingEmail = outgoingMessageDao.getEmails(messageInfo.messageId());
 
         if (!isValidMessage(messageInfo, outgoingEmail)) {
@@ -66,16 +67,18 @@ public class MessageService {
         }
 
         LOGGER.debug("Undeliverable message-id {} email {}", messageInfo.messageId(), StringUtils.join(messageInfo.emailAddresses(), ", "));
-        messageInfo.emailAddresses().forEach(email -> {
+        for (String email : messageInfo.emailAddresses()) {
             try {
                 emailStatusDao.createEmailStatus(email, EmailStatusType.UNDELIVERABLE, messageInfo.message());
             } catch (DuplicateKeyException ex) {
                 LOGGER.debug("Email already exist in EmailStatus table {}", StringUtils.join(messageInfo.emailAddresses(), ", "), ex);
+            } catch (MessagingException | IOException e) {
+                throw new MailParsingException("Error parsing multipart report", e);
             }
-        });
+        }
     }
 
-    public void verifyAndSetAsUnsubscribed(final EmailMessageInfo message) {
+    public void verifyAndSetAsUnsubscribed(final EmailMessageInfo message) throws MailParsingException {
         if (message.emailAddresses() != null && message.emailAddresses().size() != 1) {
             LOGGER.warn("This can not happen, unsubscribe with multiple recipients. messageId: {}", message.messageId());
             return;
@@ -90,7 +93,12 @@ public class MessageService {
         }
 
         LOGGER.debug("Unsubscribe message-id {} email {}", message.messageId(), unsubscribeRequestEmail);
-        emailStatusDao.createEmailStatus(unsubscribeRequestEmail, EmailStatusType.UNSUBSCRIBE, null);
+
+        try {
+            emailStatusDao.createEmailStatus(unsubscribeRequestEmail, EmailStatusType.UNSUBSCRIBE, null);
+        } catch (MessagingException | IOException e) {
+            throw new MailParsingException("Error parsing the message", e);
+        }
     }
 
     private boolean isValidMessage(final EmailMessageInfo message, final List<String> outgoingEmail) {

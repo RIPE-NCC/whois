@@ -96,8 +96,7 @@ public class BouncedMessageParser {
                 final MimeMessage returnedMessage = getReturnedMessage(multipart);
                 final String messageId = getMessageId(returnedMessage.getMessageID());
                 final List<String> recipient = extractRecipients(deliveryStatus);
-                final byte[] bytesMimeMessage = getMimeMessageBytes(message);
-                return new EmailMessageInfo(recipient, messageId, bytesMimeMessage);
+                return new EmailMessageInfo(recipient, messageId, message);
             }
         }
         return null;
@@ -250,11 +249,4 @@ public class BouncedMessageParser {
             throw new IllegalStateException("Content-Type " + contentType, e);
         }
     }
-
-    private static byte[] getMimeMessageBytes(final MimeMessage message) throws MessagingException, IOException {
-        final ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
-        message.writeTo(byteArrayOutputStream);
-        return byteArrayOutputStream.toByteArray();
-    }
-
 }

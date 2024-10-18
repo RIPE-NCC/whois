@@ -1215,7 +1215,7 @@ public class SyncUpdatesServiceTestIntegration extends AbstractIntegrationTest {
 
 
     @Test
-    public void unsubscribed_and_undeliverable_notify_user_gets_warn_when_updating() {
+    public void unsubscribed_and_undeliverable_notify_user_gets_warn_when_updating() throws MessagingException, IOException {
         databaseHelper.addObject(PERSON_ANY1_TEST);
         databaseHelper.addObject(MNTNER_TEST_MNTNER);
         databaseHelper.addObject(NOTIFY_PERSON_TEST);
