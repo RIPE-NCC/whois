@@ -25,6 +25,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.Nullable;
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.util.List;
 import java.util.regex.Matcher;
@@ -60,14 +61,9 @@ public class BouncedMessageParser {
         if (isMultipartReport(message)) {
             try {
                 final MultipartReport multipartReport = multipartReport(message.getContent());
-                if (isReportDeliveryStatus(multipartReport)) {
-                    final DeliveryStatus deliveryStatus = deliveryStatus(message);
-                    if (isFailed(deliveryStatus)) {
-                        final MimeMessage returnedMessage = getReturnedMessage(multipartReport);
-                        final String messageId = getMessageId(returnedMessage.getMessageID());
-                        final List<String> recipient = extractRecipients(deliveryStatus);
-                        return new EmailMessageInfo(recipient, messageId);
-                    }
+                final EmailMessageInfo recipient = extractEmailMessageInfo(message, multipartReport);
+                if (recipient != null) {
+                    return recipient;
                 }
             } catch (MessagingException | IOException | IllegalStateException ex){
                 throw new MailParsingException("Error parsing multipart report", ex);
@@ -79,14 +75,9 @@ public class BouncedMessageParser {
         if (isMultipartMixed(message)) {
             try {
                 final MimeMultipart multipart = multipart(message.getContent());
-                if (isReportDeliveryStatus(multipart)) {
-                    final DeliveryStatus deliveryStatus = deliveryStatus(message);
-                    if (isFailed(deliveryStatus)) {
-                        final MimeMessage returnedMessage = getReturnedMessage(multipart);
-                        final String messageId = getMessageId(returnedMessage.getMessageID());
-                        final List<String> recipient = extractRecipients(deliveryStatus);
-                        return new EmailMessageInfo(recipient, messageId);
-                    }
+                final EmailMessageInfo recipient = extractEmailMessageInfo(message, multipart);
+                if (recipient != null) {
+                    return recipient;
                 }
             } catch (MessagingException | IOException | IllegalStateException ex) {
                 throw new MailParsingException("Error parsing multipart report", ex);
@@ -95,6 +86,19 @@ public class BouncedMessageParser {
         }
 
         // fall through: message is not bounced message
+        return null;
+    }
+
+    private EmailMessageInfo extractEmailMessageInfo(final MimeMessage message, final MimeMultipart multipart) throws MessagingException, IOException {
+        if (isReportDeliveryStatus(multipart)) {
+            final DeliveryStatus deliveryStatus = deliveryStatus(message);
+            if (isFailed(deliveryStatus)) {
+                final MimeMessage returnedMessage = getReturnedMessage(multipart);
+                final String messageId = getMessageId(returnedMessage.getMessageID());
+                final List<String> recipient = extractRecipients(deliveryStatus);
+                return new EmailMessageInfo(recipient, messageId, message);
+            }
+        }
         return null;
     }
 
@@ -245,5 +249,4 @@ public class BouncedMessageParser {
             throw new IllegalStateException("Content-Type " + contentType, e);
         }
     }
-
 }

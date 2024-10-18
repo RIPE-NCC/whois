@@ -2,6 +2,7 @@ package net.ripe.db.whois.api.rest;
 
 import com.google.common.base.Strings;
 import com.google.common.io.ByteStreams;
+import jakarta.mail.MessagingException;
 import jakarta.ws.rs.BadRequestException;
 import jakarta.ws.rs.ClientErrorException;
 import jakarta.ws.rs.HttpMethod;
@@ -5769,7 +5770,7 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
     }
 
     @Test
-    public void unsubscribed_notify_user_gets_warn_when_updating() {
+    public void unsubscribed_notify_user_gets_warn_when_updating() throws MessagingException, IOException {
         databaseHelper.addObject(NOTIFY_PERSON);
         final String unsubscribedEmail = "test@ripe.net";
 
@@ -5784,7 +5785,7 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
                         "remarks:   remark\n" +
                         "source:    TEST\n");
 
-        emailStatusDao.createEmailStatus(unsubscribedEmail, EmailStatusType.UNSUBSCRIBE);
+        emailStatusDao.createEmailStatus(unsubscribedEmail, EmailStatusType.UNSUBSCRIBE, null);
 
         final WhoisResources response = RestTest.target(getPort(), "whois/test/person/PP3-TEST?password=test")
                 .request(MediaType.APPLICATION_XML)
@@ -5797,7 +5798,7 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
 
 
     @Test
-    public void undeliverable_notify_user_gets_warn_when_updating() {
+    public void undeliverable_notify_user_gets_warn_when_updating() throws MessagingException, IOException {
         databaseHelper.addObject(NOTIFY_PERSON);
         final String undeliverableEmail = "test@ripe.net";
 
@@ -5812,7 +5813,7 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
                 "remarks:   remark\n" +
                 "source:    TEST\n");
 
-        emailStatusDao.createEmailStatus(undeliverableEmail, EmailStatusType.UNDELIVERABLE);
+        emailStatusDao.createEmailStatus(undeliverableEmail, EmailStatusType.UNDELIVERABLE, null);
 
         final WhoisResources response = RestTest.target(getPort(), "whois/test/person/PP3-TEST?password=test")
                 .request(MediaType.APPLICATION_XML)
