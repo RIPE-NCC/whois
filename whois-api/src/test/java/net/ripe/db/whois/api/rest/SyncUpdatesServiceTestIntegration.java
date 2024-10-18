@@ -1233,8 +1233,8 @@ public class SyncUpdatesServiceTestIntegration extends AbstractIntegrationTest {
                 "remarks:   remark\n" +
                 "source:    TEST\n";
 
-        emailStatusDao.createEmailStatus("test@ripe.net", EmailStatusType.UNSUBSCRIBE);
-        emailStatusDao.createEmailStatus("test1@ripe.net", EmailStatusType.UNDELIVERABLE);
+        emailStatusDao.createEmailStatus("test@ripe.net", EmailStatusType.UNSUBSCRIBE, null);
+        emailStatusDao.createEmailStatus("test1@ripe.net", EmailStatusType.UNDELIVERABLE, null);
 
         final String response = RestTest.target(getPort(),
                         "whois/syncupdates/test?" + "DATA=" + SyncUpdateUtils.encode(person + "\npassword: emptypassword"))

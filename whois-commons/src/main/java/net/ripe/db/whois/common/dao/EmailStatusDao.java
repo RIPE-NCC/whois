@@ -32,9 +32,10 @@ public class EmailStatusDao {
         this.namedParameterJdbcTemplate = new NamedParameterJdbcTemplate(jdbcTemplate);
     }
 
-    public void createEmailStatus(final String email, final EmailStatusType emailStatus) {
-        jdbcTemplate.update("INSERT INTO email_status (email, status, last_update) VALUES (?, ?, ?)", email,
+    public void createEmailStatus(final String email, final EmailStatusType emailStatus, final byte[] message) {
+        jdbcTemplate.update("INSERT INTO email_status (email, status, message, last_update) VALUES (?, ?, ?, ?)", email,
                 emailStatus.name(),
+                message,
                 LocalDateTime.now());
     }
 

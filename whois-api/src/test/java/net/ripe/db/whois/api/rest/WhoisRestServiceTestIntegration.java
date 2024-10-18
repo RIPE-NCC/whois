@@ -5784,7 +5784,7 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
                         "remarks:   remark\n" +
                         "source:    TEST\n");
 
-        emailStatusDao.createEmailStatus(unsubscribedEmail, EmailStatusType.UNSUBSCRIBE);
+        emailStatusDao.createEmailStatus(unsubscribedEmail, EmailStatusType.UNSUBSCRIBE, null);
 
         final WhoisResources response = RestTest.target(getPort(), "whois/test/person/PP3-TEST?password=test")
                 .request(MediaType.APPLICATION_XML)
@@ -5812,7 +5812,7 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
                 "remarks:   remark\n" +
                 "source:    TEST\n");
 
-        emailStatusDao.createEmailStatus(undeliverableEmail, EmailStatusType.UNDELIVERABLE);
+        emailStatusDao.createEmailStatus(undeliverableEmail, EmailStatusType.UNDELIVERABLE, null);
 
         final WhoisResources response = RestTest.target(getPort(), "whois/test/person/PP3-TEST?password=test")
                 .request(MediaType.APPLICATION_XML)

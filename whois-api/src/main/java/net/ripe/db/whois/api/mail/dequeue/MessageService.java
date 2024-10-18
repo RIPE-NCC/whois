@@ -58,19 +58,19 @@ public class MessageService {
         return autoSubmittedMessageParser.parse(message);
     }
 
-    public void verifyAndSetAsUndeliverable(final EmailMessageInfo message) {
-        final List<String> outgoingEmail = outgoingMessageDao.getEmails(message.messageId());
+    public void verifyAndSetAsUndeliverable(final EmailMessageInfo messageInfo) {
+        final List<String> outgoingEmail = outgoingMessageDao.getEmails(messageInfo.messageId());
 
-        if (!isValidMessage(message, outgoingEmail)) {
+        if (!isValidMessage(messageInfo, outgoingEmail)) {
             return;
         }
 
-        LOGGER.debug("Undeliverable message-id {} email {}", message.messageId(), StringUtils.join(message.emailAddresses(), ", "));
-        message.emailAddresses().forEach(email -> {
+        LOGGER.debug("Undeliverable message-id {} email {}", messageInfo.messageId(), StringUtils.join(messageInfo.emailAddresses(), ", "));
+        messageInfo.emailAddresses().forEach(email -> {
             try {
-                emailStatusDao.createEmailStatus(email, EmailStatusType.UNDELIVERABLE);
+                emailStatusDao.createEmailStatus(email, EmailStatusType.UNDELIVERABLE, messageInfo.message());
             } catch (DuplicateKeyException ex) {
-                LOGGER.debug("Email already exist in EmailStatus table {}", StringUtils.join(message.emailAddresses(), ", "), ex);
+                LOGGER.debug("Email already exist in EmailStatus table {}", StringUtils.join(messageInfo.emailAddresses(), ", "), ex);
             }
         });
     }
@@ -90,7 +90,7 @@ public class MessageService {
         }
 
         LOGGER.debug("Unsubscribe message-id {} email {}", message.messageId(), unsubscribeRequestEmail);
-        emailStatusDao.createEmailStatus(unsubscribeRequestEmail, EmailStatusType.UNSUBSCRIBE);
+        emailStatusDao.createEmailStatus(unsubscribeRequestEmail, EmailStatusType.UNSUBSCRIBE, null);
     }
 
     private boolean isValidMessage(final EmailMessageInfo message, final List<String> outgoingEmail) {
