@@ -1248,6 +1248,21 @@ public class SyncUpdatesServiceTestIntegration extends AbstractIntegrationTest {
                 "            undeliverable."));
     }
 
+    @Test
+    public void create_object_only_data_parameter_over_http() {
+        rpslObjectUpdateDao.createObject(RpslObject.parse(PERSON_ANY1_TEST));
+
+        final String response = RestTest.target(getPort(), "whois/syncupdates/test?" +
+                        "DATA=" + SyncUpdateUtils.encode(MNTNER_TEST_MNTNER + "\npassword: emptypassword"))
+                .request()
+                .get(String.class);
+
+        assertThat(response, containsString("Create SUCCEEDED: [mntner] mntner"));
+        assertThat(response, containsString(
+                "This Syncupdates request used insecure HTTP, which will be removed\n" +
+                        "            in a future release. Please switch to HTTPS."));
+    }
+
 
     // helper methods
 
