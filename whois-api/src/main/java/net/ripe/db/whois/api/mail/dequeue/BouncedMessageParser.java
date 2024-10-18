@@ -89,7 +89,7 @@ public class BouncedMessageParser {
         return null;
     }
 
-    private EmailMessageInfo extractEmailMessageInfo(MimeMessage message, MimeMultipart multipart) throws MessagingException, IOException {
+    private EmailMessageInfo extractEmailMessageInfo(final MimeMessage message, final MimeMultipart multipart) throws MessagingException, IOException {
         if (isReportDeliveryStatus(multipart)) {
             final DeliveryStatus deliveryStatus = deliveryStatus(message);
             if (isFailed(deliveryStatus)) {
@@ -252,7 +252,7 @@ public class BouncedMessageParser {
     }
 
     private static byte[] getMimeMessageBytes(final MimeMessage message) throws MessagingException, IOException {
-        ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
+        final ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
         message.writeTo(byteArrayOutputStream);
         return byteArrayOutputStream.toByteArray();
     }
