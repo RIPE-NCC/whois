@@ -9,7 +9,7 @@
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
-    <artifactId>Whois-nrtm4-client</artifactId>
+    <artifactId>whois-nrtm4-client</artifactId>
     <packaging>jar</packaging>
 
 

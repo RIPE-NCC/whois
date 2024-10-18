@@ -131,7 +131,7 @@
         <module>whois-db</module>
         <module>whois-endtoend</module>
         <module>whois-nrtm4</module>
-        <module>Whois-nrtm4-client</module>
+        <module>whois-nrtm4-client</module>
     </modules>
 
     <dependencyManagement>
@@ -205,6 +205,18 @@
             <dependency>
                 <groupId>net.ripe.db</groupId>
                 <artifactId>whois-nrtm4</artifactId>
+                <version>${project.version}</version>
+                <type>test-jar</type>
+                <scope>test</scope>
+            </dependency>
+            <dependency>
+                <groupId>net.ripe.db</groupId>
+                <artifactId>whois-nrtm4-client</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>net.ripe.db</groupId>
+                <artifactId>whois-nrtm4-client</artifactId>
                 <version>${project.version}</version>
                 <type>test-jar</type>
                 <scope>test</scope>
