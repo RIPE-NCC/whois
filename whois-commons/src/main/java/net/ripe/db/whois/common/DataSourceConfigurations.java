@@ -55,6 +55,20 @@ public class DataSourceConfigurations {
         return createDataSource(DRIVER_CLASS_NAME, jdbcUrl, jdbcUser, jdbcPass);
     }
 
+    @Bean
+    public ComboPooledDataSource nrtmClientMasterDataSource(@Value("${nrtm.client.database.url}") final String jdbcUrl,
+                                                            @Value("${nrtm.client.database.username}") final String jdbcUser,
+                                                            @Value("${nrtm.client.database.password}") final String jdbcPass) throws PropertyVetoException {
+        return createDataSource(DRIVER_CLASS_NAME, jdbcUrl, jdbcUser, jdbcPass);
+    }
+
+    @Bean
+    public ComboPooledDataSource nrtmClientSlaveDataSource(@Value("${nrtm.client.slave.database.url}") final String jdbcUrl,
+                                                           @Value("${nrtm.client.slave.database.username}") final String jdbcUser,
+                                                           @Value("${nrtm.client.slave.database.password}") final String jdbcPass) throws PropertyVetoException {
+        return createDataSource(DRIVER_CLASS_NAME, jdbcUrl, jdbcUser, jdbcPass);
+    }
+
     private ComboPooledDataSource createDataSource(final String jdbcDriver, final String jdbcUrl, final String jdbcUser, final String jdbcPass) throws PropertyVetoException {
         final ComboPooledDataSource source = new ComboPooledDataSource();
 

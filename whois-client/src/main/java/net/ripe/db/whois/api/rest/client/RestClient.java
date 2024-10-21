@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.jakarta.rs.json.JacksonJsonProvider;
 import jakarta.ws.rs.client.Client;
 import jakarta.ws.rs.client.ClientBuilder;
+import jakarta.ws.rs.client.WebTarget;
 import net.ripe.db.whois.api.rest.mapper.WhoisObjectMapper;
 import org.glassfish.jersey.client.ClientProperties;
 import org.glassfish.jersey.media.multipart.MultiPartFeature;
@@ -14,7 +15,7 @@ import org.springframework.stereotype.Component;
 @Component
 public class RestClient {
 
-    private Client client;
+    private static Client client;
     private String restApiUrl;
     private String sourceName;
     private WhoisObjectMapper whoisObjectMapper;
@@ -22,7 +23,11 @@ public class RestClient {
     // TODO: [ES] use autowired constructor, drop the setters
     // NB: this is also used from dbweb, with multiple environments represented by multiple RestClient beans, managed by AppConfig
     public RestClient() {
-        this.client = createClient();
+        client = createClient();
+    }
+
+    public static WebTarget target(final String basePath, final String source) {
+        return client.target(String.format("%s/%s", basePath, source));
     }
 
     public RestClient(final String restApiUrl, final String sourceName) {

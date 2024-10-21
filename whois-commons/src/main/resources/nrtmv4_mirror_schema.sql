@@ -17,7 +17,8 @@ CREATE TABLE `version`
   DEFAULT CHARSET = utf8mb4;
 
 DROP TABLE IF EXISTS `public_key`;
-DROP TABLE IF EXISTS `last_notification_info`;
+DROP TABLE IF EXISTS `last_mirror`;
+DROP TABLE IF EXISTS `last_mirror_info`;
 
 
 CREATE TABLE `public_key`
@@ -31,17 +32,32 @@ CREATE TABLE `public_key`
   DEFAULT CHARSET = utf8mb4;
 
 
-CREATE TABLE `last_update_info`
+CREATE TABLE `last_mirror`
+(
+    `object_id` int(10) unsigned NOT NULL AUTO_INCREMENT,
+    `sequence_id` int(10) unsigned NOT NULL DEFAULT '1',
+    `version_id` int unsigned NOT NULL,
+    `timestamp` int(10) unsigned NOT NULL DEFAULT '0',
+    `object_type` tinyint(3) unsigned NOT NULL DEFAULT '0',
+    `object` longblob NOT NULL,
+    `pkey` varchar(254) NOT NULL DEFAULT '',
+    PRIMARY KEY (`object_id`,`sequence_id`),
+    CONSTRAINT `last_mirror__version_id__fk` FOREIGN KEY (`version_id`) REFERENCES `version_info` (`id`)
+    KEY `last_pkey` (`pkey`),
+    KEY `object_type_index` (`object_type`)
+) ENGINE=InnoDB
+  DEFAULT CHARSET=utf8mb4;
+
+
+CREATE TABLE `version_info`
 (
     `id`             int unsigned    NOT NULL AUTO_INCREMENT,
+    `source`        varchar(40)  NOT NULL DEFAULT,
     `version`        int unsigned    NOT NULL,
-    `last_delta_version` int unsigned    NOT NULL,
     `session_id`     varchar(128)    NOT NULL,
-    `payload`    longblob     NOT NULL,
+    `type`           varchar(128)    NOT NULL,
     `created`        bigint unsigned NOT NULL,
-    UNIQUE KEY `last_notification_info__version__uk` (`version`),
-    UNIQUE KEY `last_notification_info__last_delta_version__uk` (`last_delta_version`),
-    UNIQUE KEY `last_notification_info__session_id__uk` (`session_id`),
-    PRIMARY KEY (`id`)
+    PRIMARY KEY (`id`),
+    UNIQUE KEY `version_info__session__source__version__type__uk` (`session_id`, `source`, `version`, `type`)
 ) ENGINE = InnoDB
   DEFAULT CHARSET = utf8mb4;
