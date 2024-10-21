@@ -18,7 +18,7 @@ public class UpdateNotificationFileReader {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(UpdateNotificationFileReader.class);
 
-    private final String baseUrl;
+    //private final String baseUrl;
 
     private final Nrtm4ClientMirrorRepository nrtm4ClientMirrorDao;
 
@@ -29,7 +29,7 @@ public class UpdateNotificationFileReader {
 
     public UpdateNotificationFileReader(@Value("${nrtm.baseUrl}") final String baseUrl,
                                         final Nrtm4ClientMirrorRepository nrtm4ClientMirrorDao) {
-        this.baseUrl = baseUrl;
+        //this.baseUrl = baseUrl;
         this.nrtm4ClientMirrorDao = nrtm4ClientMirrorDao;
     }
 
@@ -51,7 +51,7 @@ public class UpdateNotificationFileReader {
 
     private UpdateNotificationFile getNotificationFile(final String source){
 
-        return RestClient.target(baseUrl, source)
+        return RestClient.target("https://nrtm-prepdev.db.ripe.net/nrtmv4", source)
                 .path("update-notification-file.json")
                 .request(MediaType.APPLICATION_JSON_TYPE)
                 .get(UpdateNotificationFile.class);
