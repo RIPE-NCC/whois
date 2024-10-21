@@ -68,7 +68,7 @@ public class MessageDequeue implements ApplicationService {
     private int intervalMs;
 
     @Value("${mailupdates.passwd.error:false}")
-    private boolean passwdError;
+    private boolean errorIfPassword;
 
     @Autowired
     public MessageDequeue(final MaintenanceMode maintenanceMode,
@@ -287,7 +287,7 @@ public class MessageDequeue implements ApplicationService {
     private void validatePasswordCredentials(final UpdateContext updateContext, final List<Update> updates) {
         for (Update update : updates) {
             if (!update.getCredentials().ofType(PasswordCredential.class).isEmpty()){
-                updateContext.addGlobalMessage(passwdError ? UpdateMessages.passwordInMailUpdateError() :
+                updateContext.addGlobalMessage(errorIfPassword ? UpdateMessages.passwordInMailUpdateError() :
                         UpdateMessages.passwordInMailUpdateWarn());
                 return;
             }
