@@ -8,7 +8,7 @@ import org.springframework.core.type.AnnotatedTypeMetadata;
 
 public class Nrtmv4ClientCondition implements Condition {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(Nrtm4ClientSchedulerTask.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(Nrtmv4ClientCondition.class);
 
     @Override
     public boolean matches(ConditionContext context, AnnotatedTypeMetadata metadata) {
