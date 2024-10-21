@@ -17,7 +17,7 @@ import java.io.IOException;
 public class SyncUpdatesHttpSchemeFilter implements Filter {
 
     @Value("${syncupdates.http.error:false}")
-    private boolean passwdError;
+    private boolean httpError;
 
     @Override
     public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain) throws IOException, ServletException {
@@ -32,6 +32,6 @@ public class SyncUpdatesHttpSchemeFilter implements Filter {
     }
 
     private boolean sendError(final HttpServletRequest httpRequest) {
-        return RestServiceHelper.isHttpProtocol(httpRequest) && passwdError;
+        return RestServiceHelper.isHttpProtocol(httpRequest) && httpError;
     }
 }
