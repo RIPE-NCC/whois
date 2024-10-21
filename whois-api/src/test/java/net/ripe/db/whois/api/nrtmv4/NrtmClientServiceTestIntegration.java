@@ -283,6 +283,7 @@ public class NrtmClientServiceTestIntegration extends AbstractNrtmIntegrationTes
 
         assertThat(response.getStatus(), is(Response.Status.OK.getStatusCode()));
         assertThat(response.getHeaderString(HttpHeaders.CACHE_CONTROL), is("public, max-age=60"));
+        assertThat(response.getHeaderString(HttpHeaders.CONTENT_TYPE), is(MediaType.APPLICATION_JSON));
         assertThat(response.readEntity(String.class), containsString("\"source\":\"TEST\""));
 
         final Response responseNonAuth = getResponseFromHttpsRequest("TEST-NONAUTH/update-notification-file.json", MediaType.APPLICATION_JSON);
@@ -327,6 +328,7 @@ public class NrtmClientServiceTestIntegration extends AbstractNrtmIntegrationTes
 
         assertThat(response.getStatus(), is(Response.Status.OK.getStatusCode()));
         assertThat(response.getHeaderString(HttpHeaders.CACHE_CONTROL), is("public, max-age=60"));
+        assertThat(response.getHeaderString(HttpHeaders.CONTENT_TYPE), is("application/jose+json"));
 
         final JWSObject jwsObjectParsed = JWSObject.parse(response.readEntity(String.class));
         assertTrue(JWSUtil.verifySignature(jwsObjectParsed, nrtmKeyConfigDao.getActivePublicKey()));
