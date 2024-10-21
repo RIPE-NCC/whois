@@ -46,8 +46,8 @@ public class Nrtm4ClientMirrorRepository {
         final long now = JdbcRpslObjectOperations.now(dateTimeProvider);
         jdbcTemplate.update(connection -> {
                     final String sql = """
-                    INSERT INTO version_info (source, version, session_id, type, last_serial_id, created)
-                    VALUES (?, ?, ?, ?, ?, ?)
+                    INSERT INTO version_info (source, version, session_id, type, created)
+                    VALUES (?, ?, ?, ?, ?)
                     """;
                     final PreparedStatement pst = connection.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS);
                     pst.setString(1, source);
