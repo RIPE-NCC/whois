@@ -22,8 +22,9 @@ public class Nrtm4ClientSchedulerTask implements DailyScheduledTask {
 
     @Override
     @Scheduled(cron = "0 * * * * ?")
-    @SchedulerLock(name = "NrtmNotificationFileReaderTask")
+    @SchedulerLock(name = "Nrtm4ClientSchedulerTask")
     public void run() {
+        LOGGER.info("Started nrtmv4 client");
         try {
             updateNotificationFileGenerator.readFile();
         } catch (final Exception e) {
