@@ -23,12 +23,10 @@ public class Nrtm4ClientMirrorRepository {
     private static final Logger LOGGER = LoggerFactory.getLogger(Nrtm4ClientMirrorRepository.class);
     private final JdbcTemplate jdbcTemplate;
     private final DateTimeProvider dateTimeProvider;
-    private final NamedParameterJdbcTemplate namedParameterJdbcTemplate;
 
     public Nrtm4ClientMirrorRepository(@Qualifier("nrtmClientMasterDataSource") final DataSource dataSource, final DateTimeProvider dateTimeProvider) {
         this.jdbcTemplate = new JdbcTemplate(dataSource);
         this.dateTimeProvider = dateTimeProvider;
-        this.namedParameterJdbcTemplate = new NamedParameterJdbcTemplate(jdbcTemplate);
     }
 
     public NrtmVersionInfo saveUpdateNotificationFileVersion(final String source,
