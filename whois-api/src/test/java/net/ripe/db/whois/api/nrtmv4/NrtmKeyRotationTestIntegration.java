@@ -4,6 +4,7 @@ import jakarta.xml.bind.DatatypeConverter;
 import net.ripe.db.nrtm4.domain.NrtmKeyRecord;
 import net.ripe.db.nrtm4.domain.UpdateNotificationFile;
 import net.ripe.db.nrtm4.util.ByteArrayUtil;
+import net.ripe.db.nrtm4.util.JWSUtil;
 import net.ripe.db.whois.api.AbstractNrtmIntegrationTest;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
@@ -56,7 +57,7 @@ public class NrtmKeyRotationTestIntegration extends AbstractNrtmIntegrationTest 
         final UpdateNotificationFile testIteration = getNotificationFileBySource("TEST");
         final UpdateNotificationFile testNonAuthIteration = getNotificationFileBySource("TEST-NONAUTH");
 
-        final String nextKey = Base64.getEncoder().encodeToString(nrtmKeyPairService.getNextkeyPair().publicKey());
+        final String nextKey = JWSUtil.getPublicKey(nrtmKeyPairService.getNextkeyPair().publicKey());
         assertThat(testIteration.getSource().getName(), is("TEST"));
         assertThat(testIteration.getNextSigningKey(), is(nextKey));
 

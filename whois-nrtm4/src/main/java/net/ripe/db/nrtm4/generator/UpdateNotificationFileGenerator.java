@@ -13,9 +13,7 @@ import net.ripe.db.nrtm4.domain.NrtmSource;
 import net.ripe.db.nrtm4.domain.NrtmVersionInfo;
 import net.ripe.db.nrtm4.domain.UpdateNotificationFile;
 import net.ripe.db.nrtm4.domain.SnapshotFileVersionInfo;
-import net.ripe.db.nrtm4.source.NrtmSourceContext;
-import net.ripe.db.nrtm4.util.ByteArrayUtil;
-import net.ripe.db.nrtm4.util.Ed25519Util;
+import net.ripe.db.nrtm4.util.JWSUtil;
 import net.ripe.db.whois.common.DateTimeProvider;
 import net.ripe.db.whois.common.dao.VersionDateTime;
 import org.slf4j.Logger;
@@ -25,7 +23,6 @@ import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
-import java.util.Base64;
 import java.util.List;
 import java.util.Optional;
 
@@ -81,7 +78,7 @@ public class UpdateNotificationFileGenerator {
               continue;
           }
 
-           LOGGER.info("Last generated snapshot file version is : {}" , snapshotFile.get().versionInfo().version());
+          LOGGER.info("Last generated snapshot file version is : {}" , snapshotFile.get().versionInfo().version());
 
           final List<DeltaFileVersionInfo> deltaFiles = deltaFileDao.getAllDeltasForSourceSince(nrtmSource, oneDayAgo);
           final NrtmVersionInfo fileVersion = getVersion(deltaFiles, snapshotFile.get());
@@ -168,7 +165,7 @@ public class UpdateNotificationFileGenerator {
             final UpdateNotificationFile notification = new UpdateNotificationFile(
                     fileVersion,
                     new VersionDateTime(createdTimestamp).toString(),
-                    Ed25519Util.encodePublicKey(nextKey),
+                    nextKey != null ? JWSUtil.getPublicKey(nextKey.publicKey()) : null,
                     getPublishableFile(snapshotFile.versionInfo(), snapshotFile.snapshotFile().name(), snapshotFile.snapshotFile().hash()),
                     getPublishableFile(deltaFiles)
             );

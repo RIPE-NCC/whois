@@ -1,13 +1,13 @@
 package net.ripe.db.nrtm4.generator;
 
+import com.nimbusds.jose.JOSEException;
+import com.nimbusds.jose.jwk.Curve;
+import com.nimbusds.jose.jwk.ECKey;
+import com.nimbusds.jose.jwk.gen.ECKeyGenerator;
 import net.ripe.db.nrtm4.dao.NrtmKeyConfigDao;
 import net.ripe.db.nrtm4.dao.UpdateNrtmFileRepository;
 import net.ripe.db.nrtm4.domain.NrtmKeyRecord;
-import net.ripe.db.nrtm4.util.Ed25519Util;
 import net.ripe.db.whois.common.DateTimeProvider;
-import org.bouncycastle.crypto.AsymmetricCipherKeyPair;
-import org.bouncycastle.crypto.params.Ed25519PrivateKeyParameters;
-import org.bouncycastle.crypto.params.Ed25519PublicKeyParameters;
 import org.mariadb.jdbc.internal.logging.Logger;
 import org.mariadb.jdbc.internal.logging.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,12 +16,17 @@ import org.springframework.stereotype.Service;
 import javax.annotation.Nullable;
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
+import java.util.Base64;
 import java.util.List;
+import java.util.UUID;
 
 @Service
 public class NrtmKeyPairService {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(NrtmKeyPairService.class);
+    final String PEM_FORMAT_KEY = "-----BEGIN PUBLIC KEY-----\n%s\n-----END PUBLIC KEY-----";
+
+
     private final NrtmKeyConfigDao nrtmKeyConfigDao;
     private final DateTimeProvider dateTimeProvider;
     private final UpdateNrtmFileRepository updateNrtmFileRepository;
@@ -42,17 +47,25 @@ public class NrtmKeyPairService {
     }
 
     public NrtmKeyRecord generateKeyRecord(final boolean isActive) {
-        final AsymmetricCipherKeyPair asymmetricCipherKeyPair = Ed25519Util.generateEd25519KeyPair();
-        final byte[] privateKey =((Ed25519PrivateKeyParameters) asymmetricCipherKeyPair.getPrivate()).getEncoded();
-        final byte[] publicKey = ((Ed25519PublicKeyParameters) asymmetricCipherKeyPair.getPublic()).getEncoded();
+        try {
+            final ECKey ecJWK = new ECKeyGenerator(Curve.P_256).keyID(UUID.randomUUID().toString()).generate();
 
-        final long createdTimestamp = dateTimeProvider.getCurrentDateTime().toEpochSecond(ZoneOffset.UTC);
-        final long expires = dateTimeProvider.getCurrentDateTime().plusYears(1).toEpochSecond(ZoneOffset.UTC);
+            final byte[] privateKey = ecJWK.toJSONString().getBytes();
+            final byte[] publicKey = ecJWK.toECPublicKey().getEncoded();
 
-        final NrtmKeyRecord keyRecord = NrtmKeyRecord.of(privateKey, publicKey, isActive, createdTimestamp, expires );
-        nrtmKeyConfigDao.saveKeyPair(keyRecord);
+            byte[] publicKeyinPemBytes = String.format(PEM_FORMAT_KEY, new String(Base64.getEncoder().encode(publicKey))).getBytes();
 
-        return keyRecord;
+            final long createdTimestamp = dateTimeProvider.getCurrentDateTime().toEpochSecond(ZoneOffset.UTC);
+            final long expires = dateTimeProvider.getCurrentDateTime().plusYears(1).toEpochSecond(ZoneOffset.UTC);
+
+            final NrtmKeyRecord keyRecord = NrtmKeyRecord.of(privateKey, publicKeyinPemBytes, isActive, createdTimestamp, expires );
+            nrtmKeyConfigDao.saveKeyPair(keyRecord);
+
+            return keyRecord;
+
+        } catch (JOSEException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     @Nullable
