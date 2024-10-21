@@ -51,7 +51,7 @@ public class UpdateNotificationFileReader {
 
     private UpdateNotificationFile getNotificationFile(final String source){
 
-        return RestClient.target("https://nrtm-prepdev.db.ripe.net/nrtmv4", source)
+        return RestClient.target("https://nrtm-rc.db.ripe.net/nrtmv4", source)
                 .path("update-notification-file.json")
                 .request(MediaType.APPLICATION_JSON_TYPE)
                 .get(UpdateNotificationFile.class);
