@@ -37,6 +37,20 @@ CREATE TABLE `public_key`
   DEFAULT CHARSET = utf8mb4;
 
 
+CREATE TABLE `version_info`
+(
+    `id`             int unsigned    NOT NULL AUTO_INCREMENT,
+    `source`         varchar(40)     NOT NULL,
+    `version`        int unsigned    NOT NULL,
+    `session_id`     varchar(128)    NOT NULL,
+    `type`           varchar(128)    NOT NULL,
+    `created`        bigint unsigned NOT NULL,
+    PRIMARY KEY (`id`),
+    UNIQUE KEY `version_info__session__source__version__type__uk` (`session_id`, `source`, `version`, `type`)
+) ENGINE = InnoDB
+  DEFAULT CHARSET = utf8mb4;
+
+
 CREATE TABLE `last_mirror`
 (
     `object_id` int(10) unsigned NOT NULL AUTO_INCREMENT,
@@ -47,22 +61,8 @@ CREATE TABLE `last_mirror`
     `object` longblob NOT NULL,
     `pkey` varchar(254) NOT NULL DEFAULT '',
     PRIMARY KEY (`object_id`,`sequence_id`),
-    CONSTRAINT `last_mirror__version_id__fk` FOREIGN KEY (`version_id`) REFERENCES `version_info` (`id`)
+    CONSTRAINT `last_mirror__version_id__fk` FOREIGN KEY (`version_id`) REFERENCES `version_info` (`id`),
     KEY `last_pkey` (`pkey`),
     KEY `object_type_index` (`object_type`)
 ) ENGINE=InnoDB
   DEFAULT CHARSET=utf8mb4;
-
-
-CREATE TABLE `version_info`
-(
-    `id`             int unsigned    NOT NULL AUTO_INCREMENT,
-    `source`        varchar(40)  NOT NULL DEFAULT,
-    `version`        int unsigned    NOT NULL,
-    `session_id`     varchar(128)    NOT NULL,
-    `type`           varchar(128)    NOT NULL,
-    `created`        bigint unsigned NOT NULL,
-    PRIMARY KEY (`id`),
-    UNIQUE KEY `version_info__session__source__version__type__uk` (`session_id`, `source`, `version`, `type`)
-) ENGINE = InnoDB
-  DEFAULT CHARSET = utf8mb4;
