@@ -42,8 +42,8 @@ public class UpdateNotificationFileReader {
         LOGGER.info("Succeeded to read notification files from {}", notificationFilePerSource.keySet());
 
         //TODO: [MH] Review integrity of the data checking the signature using the public key
-        notificationFilePerSource.forEach((key, value) -> {
-            nrtm4ClientMirrorDao.saveUpdateNotificationFileVersion(key, value.getVersion(), value.getSessionID());
+        notificationFilePerSource.forEach((source, updateNotificationFile) -> {
+            nrtm4ClientMirrorDao.saveUpdateNotificationFileVersion(source, updateNotificationFile.getVersion(), updateNotificationFile.getSessionID());
         });
 
         //TODO: [MH] if last_mirror is empty, we need to store from scratch. Take snapshot the snapshot.
