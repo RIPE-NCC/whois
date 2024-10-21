@@ -1215,7 +1215,7 @@ public class SyncUpdatesServiceTestIntegration extends AbstractIntegrationTest {
 
 
     @Test
-    public void unsubscribed_and_undeliverable_notify_user_gets_warn_when_updating() throws MessagingException, IOException {
+    public void unsubscribed_and_undeliverable_notify_user_gets_warn_when_updating() {
         databaseHelper.addObject(PERSON_ANY1_TEST);
         databaseHelper.addObject(MNTNER_TEST_MNTNER);
         databaseHelper.addObject(NOTIFY_PERSON_TEST);
@@ -1233,8 +1233,8 @@ public class SyncUpdatesServiceTestIntegration extends AbstractIntegrationTest {
                 "remarks:   remark\n" +
                 "source:    TEST\n";
 
-        emailStatusDao.createEmailStatus("test@ripe.net", EmailStatusType.UNSUBSCRIBE, null);
-        emailStatusDao.createEmailStatus("test1@ripe.net", EmailStatusType.UNDELIVERABLE, null);
+        emailStatusDao.createEmailStatus("test@ripe.net", EmailStatusType.UNSUBSCRIBE);
+        emailStatusDao.createEmailStatus("test1@ripe.net", EmailStatusType.UNDELIVERABLE);
 
         final String response = RestTest.target(getPort(),
                         "whois/syncupdates/test?" + "DATA=" + SyncUpdateUtils.encode(person + "\npassword: emptypassword"))

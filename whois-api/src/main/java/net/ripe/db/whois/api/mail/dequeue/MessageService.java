@@ -79,7 +79,7 @@ public class MessageService {
         }
     }
 
-    public void verifyAndSetAsUnsubscribed(final EmailMessageInfo message) throws MailParsingException {
+    public void verifyAndSetAsUnsubscribed(final EmailMessageInfo message) {
         if (message.emailAddresses() != null && message.emailAddresses().size() != 1) {
             LOGGER.warn("This can not happen, unsubscribe with multiple recipients. messageId: {}", message.messageId());
             return;
@@ -94,12 +94,8 @@ public class MessageService {
         }
 
         LOGGER.debug("Unsubscribe message-id {} email {}", message.messageId(), unsubscribeRequestEmail);
+        emailStatusDao.createEmailStatus(unsubscribeRequestEmail, EmailStatusType.UNSUBSCRIBE);
 
-        try {
-            emailStatusDao.createEmailStatus(unsubscribeRequestEmail, EmailStatusType.UNSUBSCRIBE, null);
-        } catch (MessagingException | IOException e) {
-            throw new MailParsingException("Error parsing the message", e);
-        }
     }
 
     private boolean isValidMessage(final EmailMessageInfo message, final List<String> outgoingEmail) {

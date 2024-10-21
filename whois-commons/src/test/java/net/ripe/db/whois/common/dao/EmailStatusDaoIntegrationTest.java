@@ -21,8 +21,8 @@ public class EmailStatusDaoIntegrationTest extends AbstractDaoIntegrationTest {
     private EmailStatusDao emailStatusDao;
 
     @Test
-    public void add_undeliverable_then_undeliverable_created() throws MessagingException, IOException {
-        emailStatusDao.createEmailStatus("undeliverable@ripe.net", EmailStatusType.UNDELIVERABLE, null);
+    public void add_undeliverable_then_undeliverable_created() {
+        emailStatusDao.createEmailStatus("undeliverable@ripe.net", EmailStatusType.UNDELIVERABLE);
         final Set<EmailStatus> emailStatuses = emailStatusDao.getEmailStatus(Set.of("undeliverable@ripe.net"));
         assertThat(emailStatuses.size(), is(1));
     }

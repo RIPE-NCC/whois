@@ -5770,7 +5770,7 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
     }
 
     @Test
-    public void unsubscribed_notify_user_gets_warn_when_updating() throws MessagingException, IOException {
+    public void unsubscribed_notify_user_gets_warn_when_updating() {
         databaseHelper.addObject(NOTIFY_PERSON);
         final String unsubscribedEmail = "test@ripe.net";
 
@@ -5785,7 +5785,7 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
                         "remarks:   remark\n" +
                         "source:    TEST\n");
 
-        emailStatusDao.createEmailStatus(unsubscribedEmail, EmailStatusType.UNSUBSCRIBE, null);
+        emailStatusDao.createEmailStatus(unsubscribedEmail, EmailStatusType.UNSUBSCRIBE);
 
         final WhoisResources response = RestTest.target(getPort(), "whois/test/person/PP3-TEST?password=test")
                 .request(MediaType.APPLICATION_XML)
@@ -5798,7 +5798,7 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
 
 
     @Test
-    public void undeliverable_notify_user_gets_warn_when_updating() throws MessagingException, IOException {
+    public void undeliverable_notify_user_gets_warn_when_updating() {
         databaseHelper.addObject(NOTIFY_PERSON);
         final String undeliverableEmail = "test@ripe.net";
 
@@ -5813,7 +5813,7 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
                 "remarks:   remark\n" +
                 "source:    TEST\n");
 
-        emailStatusDao.createEmailStatus(undeliverableEmail, EmailStatusType.UNDELIVERABLE, null);
+        emailStatusDao.createEmailStatus(undeliverableEmail, EmailStatusType.UNDELIVERABLE);
 
         final WhoisResources response = RestTest.target(getPort(), "whois/test/person/PP3-TEST?password=test")
                 .request(MediaType.APPLICATION_XML)
