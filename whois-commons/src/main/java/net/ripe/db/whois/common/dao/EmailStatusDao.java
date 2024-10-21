@@ -43,6 +43,12 @@ public class EmailStatusDao {
                 LocalDateTime.now());
     }
 
+    public void createEmailStatus(final String email, final EmailStatusType emailStatus) {
+        jdbcTemplate.update("INSERT INTO email_status (email, status, last_update) VALUES (?, ?, ?)", email,
+                emailStatus.name(),
+                LocalDateTime.now());
+    }
+
     public Map<String, EmailStatusType> getEmailStatusMap(final Set<String> emailAddresses) {
         if( emailAddresses.isEmpty()) {
             return Collections.EMPTY_MAP;

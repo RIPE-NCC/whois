@@ -59,7 +59,7 @@ public class MessageService {
         return autoSubmittedMessageParser.parse(message);
     }
 
-    public void verifyAndSetAsUndeliverable(final EmailMessageInfo messageInfo) throws MailParsingException {
+    public void verifyAndSetAsUndeliverable(final EmailMessageInfo messageInfo) {
         final List<String> outgoingEmail = outgoingMessageDao.getEmails(messageInfo.messageId());
 
         if (!isValidMessage(messageInfo, outgoingEmail)) {
@@ -73,7 +73,8 @@ public class MessageService {
             } catch (DuplicateKeyException ex) {
                 LOGGER.debug("Email already exist in EmailStatus table {}", StringUtils.join(messageInfo.emailAddresses(), ", "), ex);
             } catch (MessagingException | IOException e) {
-                throw new MailParsingException("Error parsing multipart report", e);
+                LOGGER.error("Unable to transform the bounced message of {} into byte[]", email);
+                emailStatusDao.createEmailStatus(email, EmailStatusType.UNDELIVERABLE);
             }
         }
     }
