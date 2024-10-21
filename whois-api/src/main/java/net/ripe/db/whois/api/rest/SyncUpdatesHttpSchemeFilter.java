@@ -16,7 +16,7 @@ import java.io.IOException;
 @Component
 public class SyncUpdatesHttpSchemeFilter implements Filter {
 
-    @Value("${syncupdates.passwd.error:false}")
+    @Value("${syncupdates.http.error:false}")
     private boolean passwdError;
 
     @Override

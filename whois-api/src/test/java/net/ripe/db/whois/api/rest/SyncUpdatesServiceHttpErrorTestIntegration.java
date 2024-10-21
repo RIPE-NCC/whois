@@ -36,7 +36,7 @@ public class SyncUpdatesServiceHttpErrorTestIntegration extends AbstractIntegrat
 
     @BeforeAll
     public static void setup() {
-        System.setProperty("syncupdates.passwd.error", "true");
+        System.setProperty("syncupdates.http.error", "true");
     }
 
     @AfterAll
