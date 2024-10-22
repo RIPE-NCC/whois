@@ -43,6 +43,7 @@ public class UpdateNotificationFileReader {
 
         //TODO: [MH] Review integrity of the data checking the signature using the public key
         notificationFilePerSource.forEach((source, updateNotificationFile) -> {
+            LOGGER.info("The source is {}", source);
             nrtm4ClientMirrorDao.saveUpdateNotificationFileVersion(source, updateNotificationFile.getVersion(), updateNotificationFile.getSessionID());
         });
 
