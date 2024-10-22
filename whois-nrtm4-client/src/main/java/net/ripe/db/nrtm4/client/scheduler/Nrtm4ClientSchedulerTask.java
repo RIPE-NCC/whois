@@ -1,7 +1,7 @@
 package net.ripe.db.nrtm4.client.scheduler;
 
 import net.javacrumbs.shedlock.spring.annotation.SchedulerLock;
-import net.ripe.db.nrtm4.client.scheduler.reader.UpdateNotificationFileReader;
+import net.ripe.db.nrtm4.client.reader.UpdateNotificationFileReader;
 import net.ripe.db.whois.common.scheduler.DailyScheduledTask;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -21,8 +21,7 @@ public class Nrtm4ClientSchedulerTask implements DailyScheduledTask {
     }
 
     @Override
-    //@Scheduled(cron = "0 * * * * ?")
-    @Scheduled(fixedDelayString = "60000")
+    @Scheduled(cron = "0 * * * * ?")
     @SchedulerLock(name = "Nrtm4ClientSchedulerTask")
     public void run() {
         LOGGER.info("Started nrtmv4 client");
