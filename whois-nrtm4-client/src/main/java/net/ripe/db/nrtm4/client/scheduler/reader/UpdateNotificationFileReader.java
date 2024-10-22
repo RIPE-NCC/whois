@@ -1,12 +1,12 @@
 package net.ripe.db.nrtm4.client.scheduler.reader;
 
 import jakarta.ws.rs.core.MediaType;
+import net.ripe.db.nrtm4.client.scheduler.NrtmRestClient;
 import net.ripe.db.nrtm4.client.scheduler.UpdateNotificationFile;
 import net.ripe.db.nrtm4.client.scheduler.dao.Nrtm4ClientMirrorRepository;
 import net.ripe.db.whois.api.rest.client.RestClient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import java.util.Arrays;
@@ -18,7 +18,7 @@ public class UpdateNotificationFileReader {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(UpdateNotificationFileReader.class);
 
-    //private final String baseUrl;
+    private final NrtmRestClient nrtmRestClient;
 
     private final Nrtm4ClientMirrorRepository nrtm4ClientMirrorDao;
 
@@ -27,9 +27,9 @@ public class UpdateNotificationFileReader {
             "RIPE-NONAUTH"
     };
 
-    public UpdateNotificationFileReader(@Value("${nrtm.baseUrl}") final String baseUrl,
+    public UpdateNotificationFileReader(final NrtmRestClient nrtmRestClient,
                                         final Nrtm4ClientMirrorRepository nrtm4ClientMirrorDao) {
-        //this.baseUrl = baseUrl;
+        this.nrtmRestClient = nrtmRestClient;
         this.nrtm4ClientMirrorDao = nrtm4ClientMirrorDao;
     }
 
@@ -37,7 +37,7 @@ public class UpdateNotificationFileReader {
         final Map<String, UpdateNotificationFile> notificationFilePerSource = Arrays.stream(AVAILABLE_SOURCES).
                         collect(Collectors.toMap(
                                 string -> string,
-                                this::getNotificationFile
+                                nrtmRestClient::getNotificationFile
                         ));
         LOGGER.info("Succeeded to read notification files from {}", notificationFilePerSource.keySet());
 
@@ -47,13 +47,5 @@ public class UpdateNotificationFileReader {
         });
 
         //TODO: [MH] if last_mirror is empty, we need to store from scratch. Take snapshot the snapshot.
-    }
-
-    private UpdateNotificationFile getNotificationFile(final String source){
-
-        return RestClient.target("https://nrtm-rc.db.ripe.net/nrtmv4", source)
-                .path("update-notification-file.json")
-                .request(MediaType.APPLICATION_JSON_TYPE)
-                .get(UpdateNotificationFile.class);
     }
 }
