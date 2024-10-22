@@ -14,10 +14,10 @@ import org.springframework.stereotype.Component;
 public class Nrtm4ClientSchedulerTask implements DailyScheduledTask {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(Nrtm4ClientSchedulerTask.class);
-    private final UpdateNotificationFileReader updateNotificationFileGenerator;
+    private final UpdateNotificationFileReader updateNotificationFileReader;
 
-    Nrtm4ClientSchedulerTask(final UpdateNotificationFileReader updateNotificationFileGenerator) {
-        this.updateNotificationFileGenerator = updateNotificationFileGenerator;
+    Nrtm4ClientSchedulerTask(final UpdateNotificationFileReader updateNotificationFileReader) {
+        this.updateNotificationFileReader = updateNotificationFileReader;
     }
 
     @Override
@@ -26,7 +26,7 @@ public class Nrtm4ClientSchedulerTask implements DailyScheduledTask {
     public void run() {
         LOGGER.info("Started nrtmv4 client");
         try {
-            updateNotificationFileGenerator.readFile();
+            updateNotificationFileReader.readFile();
         } catch (final Exception e) {
             LOGGER.error("NRTM update notification file reader failed", e);
             throw new RuntimeException(e);
