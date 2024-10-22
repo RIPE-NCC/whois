@@ -55,6 +55,10 @@
         </dependency>
         <dependency>
             <groupId>net.ripe.db</groupId>
+            <artifactId>whois-nrtm4-client</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>net.ripe.db</groupId>
             <artifactId>whois-scheduler</artifactId>
             <exclusions>
                 <exclusion>
