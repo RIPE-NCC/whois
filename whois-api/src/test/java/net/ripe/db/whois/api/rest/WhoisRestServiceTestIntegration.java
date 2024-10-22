@@ -2,6 +2,7 @@ package net.ripe.db.whois.api.rest;
 
 import com.google.common.base.Strings;
 import com.google.common.io.ByteStreams;
+import jakarta.mail.MessagingException;
 import jakarta.ws.rs.BadRequestException;
 import jakarta.ws.rs.ClientErrorException;
 import jakarta.ws.rs.HttpMethod;
