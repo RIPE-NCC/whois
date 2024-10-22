@@ -21,7 +21,8 @@ public class Nrtm4ClientSchedulerTask implements DailyScheduledTask {
     }
 
     @Override
-    @Scheduled(cron = "0 * * * * ?")
+    //@Scheduled(cron = "0 * * * * ?")
+    @Scheduled(fixedDelayString = "60000")
     @SchedulerLock(name = "Nrtm4ClientSchedulerTask")
     public void run() {
         LOGGER.info("Started nrtmv4 client");
