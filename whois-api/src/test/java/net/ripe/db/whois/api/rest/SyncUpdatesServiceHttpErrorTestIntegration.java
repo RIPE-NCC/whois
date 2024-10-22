@@ -41,7 +41,7 @@ public class SyncUpdatesServiceHttpErrorTestIntegration extends AbstractIntegrat
 
     @AfterAll
     public static void teardown() {
-        System.clearProperty("syncupdates.passwd.error");
+        System.clearProperty("syncupdates.http.error");
     }
 
     @Test
