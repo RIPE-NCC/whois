@@ -15,7 +15,7 @@ import org.springframework.stereotype.Component;
 @Component
 public class RestClient {
 
-    private static Client client;
+    private Client client;
     private String restApiUrl;
     private String sourceName;
     private WhoisObjectMapper whoisObjectMapper;
@@ -23,11 +23,7 @@ public class RestClient {
     // TODO: [ES] use autowired constructor, drop the setters
     // NB: this is also used from dbweb, with multiple environments represented by multiple RestClient beans, managed by AppConfig
     public RestClient() {
-        client = createClient();
-    }
-
-    public static WebTarget target(final String basePath, final String source) {
-        return client.target(String.format("%s/%s", basePath, source));
+        this.client = createClient();
     }
 
     public RestClient(final String restApiUrl, final String sourceName) {
