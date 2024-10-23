@@ -1,5 +1,6 @@
 package net.ripe.db.whois.update.authentication.credential;
 
+import net.ripe.db.whois.common.apiKey.OAuthSession;
 import net.ripe.db.whois.common.rpsl.ObjectType;
 import net.ripe.db.whois.common.rpsl.RpslObject;
 import net.ripe.db.whois.update.domain.APIKeyCredential;
@@ -44,17 +45,19 @@ public class ApiKeyCredentialValidator implements CredentialValidator<APIKeyCred
 
         for (final APIKeyCredential offered : offeredCredentials) {
 
-            if(!offered.getOfferedOAuthSession().getScopes().isEmpty()) {
+            final OAuthSession oAuthSession = offered.getOfferedOAuthSession();
+
+            if(!oAuthSession.getScopes().isEmpty()) {
                 final ScopeFormatter scopeFormatter = new ScopeFormatter(offered.getOfferedOAuthSession().getScopes().getFirst());
                 if(!validateScope(maintainer, scopeFormatter)) {
                     continue;
                 }
             }
 
-            if (offered.getOfferedOAuthSession().getUuid().equals(knownCredential.getKnownUuid())) {
-                log(update, String.format("Validated %s with API KEY for user: %s.", update.getFormattedKey(), offered.getOfferedOAuthSession().getEmail()));
+            if (oAuthSession.getUuid().equals(knownCredential.getKnownUuid())) {
+                log(update, String.format("Validated %s with API KEY for user: %s with apiKey: %s.", update.getFormattedKey(), oAuthSession.getEmail(), oAuthSession.getAccessKey()));
 
-                update.getUpdate().setEffectiveCredential(offered.getOfferedOAuthSession().getEmail(), Update.EffectiveCredentialType.APIKEY);
+                update.getUpdate().setEffectiveCredential(oAuthSession.getAccessKey(), Update.EffectiveCredentialType.APIKEY);
                 return true;
             }
         }

@@ -12,18 +12,21 @@ public class OAuthSession {
 
     private final String email;
 
+    private final String accessKey;
+
     private final String uuid;
 
     private final LocalDateTime expirationDate;
 
     private final List<String> scopes;
 
-    public OAuthSession(String application, String email, String uuid, LocalDateTime expirationDate, List<String> scopes) {
+    public OAuthSession(final String application, final String accessKey, final String email, final String uuid, final LocalDateTime expirationDate, final List<String> scopes) {
         this.application = application;
         this.email = email;
         this.uuid = uuid;
         this.expirationDate = expirationDate;
         this.scopes = scopes;
+        this.accessKey = accessKey;
     }
 
     public String getApplication() {
@@ -42,6 +45,10 @@ public class OAuthSession {
         return expirationDate;
     }
 
+    public String getAccessKey() {
+        return accessKey;
+    }
+
     public List<String> getScopes() {
         return scopes;
     }
@@ -50,6 +57,7 @@ public class OAuthSession {
     public String toString() {
         return MoreObjects.toStringHelper(this)
                 .add("application", application)
+                .add("accessKey", accessKey)
                 .add("email", email)
                 .add("uuid", uuid)
                 .add("expirationDate", expirationDate.toString())
