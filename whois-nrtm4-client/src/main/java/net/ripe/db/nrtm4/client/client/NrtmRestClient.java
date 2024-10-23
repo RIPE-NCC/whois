@@ -1,5 +1,6 @@
 package net.ripe.db.nrtm4.client.client;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -54,12 +55,15 @@ public class NrtmRestClient {
         this.baseUrl = "https://nrtm-rc.db.ripe.net/nrtmv4/"; //use the baseUrl in the future
     }
 
-    public List<String> getNrtmAvailableSources(){
-        final JsonNode response = client.target(baseUrl)
+    public List<String> getNrtmAvailableSources() throws JsonProcessingException {
+        final String response = client.target(baseUrl)
                 .request(MediaType.APPLICATION_JSON_TYPE)
-                .get(JsonNode.class);
+                .get(String.class);
 
-        final JsonNode sourcesNode = response.get("sources");
+        ObjectMapper mapper = new ObjectMapper();
+        JsonNode jsonNode = mapper.readTree(response);
+
+        final JsonNode sourcesNode = jsonNode.get("sources");
         final List<String> sources = Lists.newArrayList();
         if (sourcesNode != null && sourcesNode.isArray()) {
             for (final JsonNode source : sourcesNode) {
