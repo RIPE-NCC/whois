@@ -5,7 +5,7 @@ import net.ripe.db.whois.common.apiKey.OAuthSession;
 
 public class BearerTokenExtractor {
 
-    public static OAuthSession extract(HttpServletRequest request) {
+    public static OAuthSession extract(final HttpServletRequest request) {
         return null;
     }
 }

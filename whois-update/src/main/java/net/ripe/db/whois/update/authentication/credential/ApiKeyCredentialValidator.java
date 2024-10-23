@@ -9,6 +9,7 @@ import net.ripe.db.whois.update.domain.Update;
 import net.ripe.db.whois.update.domain.UpdateContext;
 import net.ripe.db.whois.update.log.LoggerContext;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import java.util.Collection;
@@ -16,6 +17,9 @@ import java.util.Collection;
 @Component
 public class ApiKeyCredentialValidator implements CredentialValidator<APIKeyCredential, SsoCredential> {
     private final LoggerContext loggerContext;
+
+    @Value("${apikey.authenticate.enabled:false}")
+    private boolean enabled;
 
     @Autowired
     public ApiKeyCredentialValidator(final LoggerContext loggerContext) {
@@ -34,15 +38,17 @@ public class ApiKeyCredentialValidator implements CredentialValidator<APIKeyCred
 
     @Override
     public boolean hasValidCredential(final PreparedUpdate update, final UpdateContext updateContext, final Collection<APIKeyCredential> offeredCredentials, final SsoCredential knownCredential, final RpslObject maintainer) {
-        for (APIKeyCredential offered : offeredCredentials) {
+        if(!enabled) {
+            return false;
+        }
 
-            if(offered.getOfferedOAuthSession() == null || offered.getOfferedOAuthSession().getScopes().size() != 1) {
-                continue;
-            }
+        for (final APIKeyCredential offered : offeredCredentials) {
 
-            final ScopeFormatter scopeFormatter = new ScopeFormatter(offered.getOfferedOAuthSession().getScopes().getFirst());
-            if(!validateScope(maintainer, scopeFormatter)) {
-                continue;
+            if(!offered.getOfferedOAuthSession().getScopes().isEmpty()) {
+                final ScopeFormatter scopeFormatter = new ScopeFormatter(offered.getOfferedOAuthSession().getScopes().getFirst());
+                if(!validateScope(maintainer, scopeFormatter)) {
+                    continue;
+                }
             }
 
             if (offered.getOfferedOAuthSession().getUuid().equals(knownCredential.getKnownUuid())) {
