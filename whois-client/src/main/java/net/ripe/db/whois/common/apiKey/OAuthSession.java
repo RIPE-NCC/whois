@@ -3,7 +3,6 @@ package net.ripe.db.whois.common.apiKey;
 import com.google.common.base.MoreObjects;
 
 import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
 import java.util.List;
 
 public class OAuthSession {
