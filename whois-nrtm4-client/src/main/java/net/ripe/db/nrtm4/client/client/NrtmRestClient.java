@@ -79,6 +79,7 @@ public class NrtmRestClient {
             return sources;
         } catch (final Exception e) {
             LOGGER.error("Unable to get the available sources", e);
+            return Lists.newArrayList();
         }
     }
 
