@@ -8,7 +8,7 @@ import org.springframework.context.annotation.Configuration;
 import java.beans.PropertyVetoException;
 
 @Configuration
-public class DataSourceConfigurations {
+public class NrtmDataSourceConfigurations {
 
     private static final String DRIVER_CLASS_NAME = "org.mariadb.jdbc.Driver";
 
