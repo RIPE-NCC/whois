@@ -15,8 +15,11 @@ import com.fasterxml.jackson.module.jakarta.xmlbind.JakartaXmlBindAnnotationIntr
 import jakarta.ws.rs.client.Client;
 import jakarta.ws.rs.client.ClientBuilder;
 import jakarta.ws.rs.core.MediaType;
+import net.ripe.db.nrtm4.client.reader.UpdateNotificationFileReader;
 import org.apache.commons.compress.utils.Lists;
 import org.glassfish.jersey.client.ClientProperties;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
@@ -24,6 +27,8 @@ import java.util.List;
 
 @Component
 public class NrtmRestClient {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(NrtmRestClient.class);
 
     private final String baseUrl;
 
@@ -55,22 +60,26 @@ public class NrtmRestClient {
         this.baseUrl = "https://nrtm-rc.db.ripe.net/nrtmv4/"; //use the baseUrl in the future
     }
 
-    public List<String> getNrtmAvailableSources() throws JsonProcessingException {
-        final String response = client.target(baseUrl)
-                .request(MediaType.APPLICATION_JSON_TYPE)
-                .get(String.class);
+    public List<String> getNrtmAvailableSources(){
+        try {
+            final String response = client.target(baseUrl)
+                    .request(MediaType.APPLICATION_JSON_TYPE)
+                    .get(String.class);
 
-        ObjectMapper mapper = new ObjectMapper();
-        JsonNode jsonNode = mapper.readTree(response);
+            ObjectMapper mapper = new ObjectMapper();
+            JsonNode jsonNode = mapper.readTree(response);
 
-        final JsonNode sourcesNode = jsonNode.get("sources");
-        final List<String> sources = Lists.newArrayList();
-        if (sourcesNode != null && sourcesNode.isArray()) {
-            for (final JsonNode source : sourcesNode) {
-                sources.add(source.textValue());
+            final JsonNode sourcesNode = jsonNode.get("sources");
+            final List<String> sources = Lists.newArrayList();
+            if (sourcesNode != null && sourcesNode.isArray()) {
+                for (final JsonNode source : sourcesNode) {
+                    sources.add(source.textValue());
+                }
             }
+            return sources;
+        } catch (final Exception e) {
+            LOGGER.error("Unable to get the available sources", e);
         }
-        return sources;
     }
 
     public NrtmVersionResponse getNotificationFile(final String source){
