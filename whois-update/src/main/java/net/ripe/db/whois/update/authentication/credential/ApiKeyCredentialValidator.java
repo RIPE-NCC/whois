@@ -36,6 +36,10 @@ public class ApiKeyCredentialValidator implements CredentialValidator<APIKeyCred
     public boolean hasValidCredential(final PreparedUpdate update, final UpdateContext updateContext, final Collection<APIKeyCredential> offeredCredentials, final SsoCredential knownCredential, final RpslObject maintainer) {
         for (APIKeyCredential offered : offeredCredentials) {
 
+            if(offered.getOfferedOAuthSession() == null || offered.getOfferedOAuthSession().getScopes().size() != 1) {
+                continue;
+            }
+
             final ScopeFormatter scopeFormatter = new ScopeFormatter(offered.getOfferedOAuthSession().getScopes().getFirst());
             if(!validateScope(maintainer, scopeFormatter)) {
                 continue;
@@ -68,7 +72,7 @@ public class ApiKeyCredentialValidator implements CredentialValidator<APIKeyCred
         final String scopeKey;
 
         public ScopeFormatter(final String scope) {
-            final String[] parts = scope.split(".|\\:");
+            final String[] parts = scope.split(":|\\.");
             this.appName = parts[0];
             this.scopeType = parts[1];
             this.scopeKey = parts[2];
