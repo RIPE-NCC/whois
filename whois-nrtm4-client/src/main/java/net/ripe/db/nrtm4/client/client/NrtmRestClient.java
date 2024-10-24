@@ -60,7 +60,7 @@ public class NrtmRestClient {
                 .property(ClientProperties.CONNECT_TIMEOUT, CLIENT_CONNECT_TIMEOUT)
                 .property(ClientProperties.READ_TIMEOUT, CLIENT_READ_TIMEOUT)
                 .build();
-        this.baseUrl = "https://nrtm-rc.db.ripe.net/nrtmv4/"; //use the baseUrl in the future
+        this.baseUrl = "https://nrtm-rc.db.ripe.net/nrtmv4"; //use the baseUrl in the future
     }
 
     public List<String> getNrtmAvailableSources(){
