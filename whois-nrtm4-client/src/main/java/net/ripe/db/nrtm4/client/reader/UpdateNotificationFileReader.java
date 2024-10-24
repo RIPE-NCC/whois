@@ -8,6 +8,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
@@ -39,16 +40,17 @@ public class UpdateNotificationFileReader {
 
         //TODO: [MH] Review integrity of the data checking the signature using the public key
         notificationFilePerSource.forEach((source, updateNotificationFile) -> {
-            final NrtmVersionInfo nrtmVersionInfo = nrtm4ClientMirrorDao.getNrtmVersionInfo(source,
-                    updateNotificationFile.getVersion());
+            final List<NrtmVersionInfo> nrtmLastVersionList = nrtm4ClientMirrorDao.getNrtmLastVersionInfo(source);
+            final NrtmVersionInfo nrtmLastVersionInfo = nrtmLastVersionList.isEmpty() ?
+                    null : nrtmLastVersionList.getFirst();
 
-            if (nrtmVersionInfo != null && !nrtmVersionInfo.sessionID().equals(updateNotificationFile.getSessionID())){
+            if (nrtmLastVersionInfo != null && !nrtmLastVersionInfo.sessionID().equals(updateNotificationFile.getSessionID())){
                 LOGGER.info("Different session");
                 nrtm4ClientMirrorDao.truncateTables();
                 return;
             }
 
-            if (nrtmVersionInfo != null && nrtmVersionInfo.version().equals(updateNotificationFile.getVersion())){
+            if (nrtmLastVersionInfo != null && nrtmLastVersionInfo.version().equals(updateNotificationFile.getVersion())){
                 LOGGER.info("There is no new version associated with the source {}", source);
                 return;
             }

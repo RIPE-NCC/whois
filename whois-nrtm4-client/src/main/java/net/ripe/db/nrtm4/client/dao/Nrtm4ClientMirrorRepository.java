@@ -2,7 +2,6 @@ package net.ripe.db.nrtm4.client.dao;
 
 import net.ripe.db.whois.common.DateTimeProvider;
 import net.ripe.db.whois.common.dao.jdbc.JdbcRpslObjectOperations;
-import net.ripe.db.whois.common.domain.CIString;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
@@ -13,6 +12,7 @@ import javax.annotation.Nullable;
 import javax.sql.DataSource;
 import java.sql.PreparedStatement;
 import java.sql.Statement;
+import java.util.List;
 
 @Repository
 public class Nrtm4ClientMirrorRepository {
@@ -35,14 +35,13 @@ public class Nrtm4ClientMirrorRepository {
         saveVersionInfo(source, version, sessionID, "update-notification-file");
     }
 
-    @Nullable
-    public NrtmVersionInfo getNrtmVersionInfo(final String source, final Long version){
+    public List<NrtmVersionInfo> getNrtmLastVersionInfo(final String source){
         final String sql = """
-            SELECT id, source, version, session_id, type, created
+            SELECT id, source, MAX(version), session_id, type, created
             FROM version_info
             WHERE source = ? AND version = ?
             """;
-        return jdbcSlaveTemplate.queryForObject(sql,
+        return jdbcSlaveTemplate.query(sql,
                 (rs, rn) -> new NrtmVersionInfo(
                         rs.getLong(1),
                         rs.getString(2),
@@ -50,7 +49,7 @@ public class Nrtm4ClientMirrorRepository {
                         rs.getString(4),
                         rs.getString(5),
                         rs.getLong(6)
-                        ), source, version);
+                        ), source);
     }
 
     public void truncateTables(){
