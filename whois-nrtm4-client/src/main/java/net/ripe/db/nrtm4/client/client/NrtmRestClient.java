@@ -77,7 +77,7 @@ public class NrtmRestClient {
     }
 
     public NrtmVersionResponse getNotificationFile(final String source){
-        return client.target(String.format("baseUrl/%s", source))
+        return client.target(String.format("%s/%s", baseUrl, source))
                 .path("update-notification-file.json")
                 .request(MediaType.APPLICATION_JSON_TYPE)
                 .get(NrtmVersionResponse.class);
