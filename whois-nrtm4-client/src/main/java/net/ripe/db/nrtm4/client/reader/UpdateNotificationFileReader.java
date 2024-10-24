@@ -43,7 +43,8 @@ public class UpdateNotificationFileReader {
         //TODO: [MH] Review integrity of the data checking the signature using the public key
         notificationFilePerSource.forEach((source, updateNotificationFile) -> {
             final NrtmVersionInfo nrtmLastVersionInfo = nrtmLastVersionInfoPerSource
-                    .stream().filter(nrtmVersionInfo -> nrtmVersionInfo.source().equals(source))
+                    .stream()
+                    .filter(nrtmVersionInfo -> nrtmVersionInfo.source() != null && nrtmVersionInfo.source().equals(source))
                     .findFirst()
                     .orElse(null);
 
