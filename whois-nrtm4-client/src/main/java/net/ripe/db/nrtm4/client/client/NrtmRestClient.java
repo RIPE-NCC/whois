@@ -23,7 +23,10 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 @Component
 public class NrtmRestClient {
@@ -63,20 +66,10 @@ public class NrtmRestClient {
     public List<String> getNrtmAvailableSources(){
         try {
             final String response = client.target(baseUrl)
-                    .request(MediaType.APPLICATION_JSON_TYPE)
+                    .request(MediaType.TEXT_HTML_TYPE)
                     .get(String.class);
 
-            ObjectMapper mapper = new ObjectMapper();
-            JsonNode jsonNode = mapper.readTree(response);
-
-            final JsonNode sourcesNode = jsonNode.get("sources");
-            final List<String> sources = Lists.newArrayList();
-            if (sourcesNode != null && sourcesNode.isArray()) {
-                for (final JsonNode source : sourcesNode) {
-                    sources.add(source.textValue());
-                }
-            }
-            return sources;
+            return extractSources(response);
         } catch (final Exception e) {
             LOGGER.error("Unable to get the available sources", e);
             return Lists.newArrayList();
@@ -88,5 +81,20 @@ public class NrtmRestClient {
                 .path("update-notification-file.json")
                 .request(MediaType.APPLICATION_JSON_TYPE)
                 .get(NrtmVersionResponse.class);
+    }
+
+    private static List<String> extractSources(final String html) {
+        final List<String> sources = com.google.common.collect.Lists.newArrayList();
+
+        final String regex = "<a[^>]*>(.*?)</a>";
+        final Pattern pattern = Pattern.compile(regex);
+        final Matcher matcher = pattern.matcher(html);
+
+        while (matcher.find()) {
+            final String source = matcher.group(1).trim();
+            sources.add(source);
+        }
+
+        return sources;
     }
 }
