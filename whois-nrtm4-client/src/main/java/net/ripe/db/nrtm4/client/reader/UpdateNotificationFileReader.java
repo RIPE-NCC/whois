@@ -39,7 +39,8 @@ public class UpdateNotificationFileReader {
 
         //TODO: [MH] Review integrity of the data checking the signature using the public key
         notificationFilePerSource.forEach((source, updateNotificationFile) -> {
-            final NrtmVersionInfo nrtmVersionInfo = nrtm4ClientMirrorDao.getNrtmVersionInfo(source);
+            final NrtmVersionInfo nrtmVersionInfo = nrtm4ClientMirrorDao.getNrtmVersionInfo(source,
+                    updateNotificationFile.getVersion());
 
             if (nrtmVersionInfo != null && !nrtmVersionInfo.sessionID().equals(updateNotificationFile.getSessionID())){
                 LOGGER.info("Different session");

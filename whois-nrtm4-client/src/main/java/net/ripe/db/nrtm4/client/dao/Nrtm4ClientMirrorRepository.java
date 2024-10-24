@@ -2,6 +2,7 @@ package net.ripe.db.nrtm4.client.dao;
 
 import net.ripe.db.whois.common.DateTimeProvider;
 import net.ripe.db.whois.common.dao.jdbc.JdbcRpslObjectOperations;
+import net.ripe.db.whois.common.domain.CIString;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
@@ -21,7 +22,7 @@ public class Nrtm4ClientMirrorRepository {
     private final DateTimeProvider dateTimeProvider;
 
     public Nrtm4ClientMirrorRepository(@Qualifier("nrtmClientMasterDataSource") final DataSource masterDataSource,
-                                       @Qualifier("nrtmClientMasterDataSource") final DataSource slaveDataSource,
+                                       @Qualifier("nrtmClientSlaveDataSource") final DataSource slaveDataSource,
                                        final DateTimeProvider dateTimeProvider) {
         this.jdbcMasterTemplate = new JdbcTemplate(masterDataSource);
         this.jdbcSlaveTemplate = new JdbcTemplate(slaveDataSource);
@@ -35,13 +36,21 @@ public class Nrtm4ClientMirrorRepository {
     }
 
     @Nullable
-    public NrtmVersionInfo getNrtmVersionInfo(final String source){
+    public NrtmVersionInfo getNrtmVersionInfo(final String source, final Long version){
         final String sql = """
             SELECT id, source, version, session_id, type, created
             FROM version_info
-            WHERE source = ?
+            WHERE source = ? AND version = ?
             """;
-        return jdbcSlaveTemplate.queryForObject(sql, NrtmVersionInfo.class, source);
+        return jdbcSlaveTemplate.queryForObject(sql,
+                (rs, rn) -> new NrtmVersionInfo(
+                        rs.getLong(1),
+                        rs.getString(2),
+                        rs.getLong(3),
+                        rs.getString(4),
+                        rs.getString(5),
+                        rs.getLong(6)
+                        ), source, version);
     }
 
     public void truncateTables(){
