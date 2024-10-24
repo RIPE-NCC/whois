@@ -6,7 +6,6 @@ import net.ripe.db.nrtm4.client.client.NrtmVersionResponse;
 import net.ripe.db.nrtm4.client.dao.NrtmVersionInfo;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.dao.DuplicateKeyException;
 import org.springframework.stereotype.Service;
 
 import java.util.Map;
