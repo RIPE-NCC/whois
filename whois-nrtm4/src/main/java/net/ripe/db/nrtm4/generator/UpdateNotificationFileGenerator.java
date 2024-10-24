@@ -148,6 +148,7 @@ public class UpdateNotificationFileGenerator {
             return !Objects.equals(Ed25519Util.encodePublicKey(nextKey), payload.getNextSigningKey());
         } catch (final JsonProcessingException e) {
             LOGGER.warn("Current Notification file keys cannot be parsed");
+            //If we cannot parse UNF or key is not parsed we should generate UNF by default
             return true;
         }
     }
