@@ -147,8 +147,8 @@ public class UpdateNotificationFileGenerator {
             final UpdateNotificationFile payload = new ObjectMapper().readValue(notificationFile.payload(), UpdateNotificationFile.class);
             return !Objects.equals(Ed25519Util.encodePublicKey(nextKey), payload.getNextSigningKey());
         } catch (final JsonProcessingException e) {
-            LOGGER.warn("Current Notification file cannot be parsed");
-            throw new RuntimeException(e);
+            LOGGER.warn("Current Notification file keys cannot be parsed");
+            return true;
         }
     }
 
