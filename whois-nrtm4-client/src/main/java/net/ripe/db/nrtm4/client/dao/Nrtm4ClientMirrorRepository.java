@@ -35,7 +35,7 @@ public class Nrtm4ClientMirrorRepository {
         saveVersionInfo(source, version, sessionID, "update-notification-file");
     }
 
-    public List<NrtmVersionInfo> getNrtmLastVersionInfo(final String source){
+    public List<NrtmVersionInfo> getNrtmLastVersionInfo(){
         final String sql = """
             SELECT id, source, MAX(version), session_id, type, created
             FROM version_info
@@ -49,7 +49,7 @@ public class Nrtm4ClientMirrorRepository {
                         rs.getString(4),
                         rs.getString(5),
                         rs.getLong(6)
-                        ), source);
+                        ));
     }
 
     public void truncateTables(){

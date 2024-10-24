@@ -10,6 +10,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
@@ -37,12 +38,14 @@ public class UpdateNotificationFileReader {
                         nrtmRestClient::getNotificationFile
                 ));
         LOGGER.info("Succeeded to read notification files from {}", notificationFilePerSource.keySet());
+        final List<NrtmVersionInfo> nrtmLastVersionInfoPerSource = nrtm4ClientMirrorDao.getNrtmLastVersionInfo();
 
         //TODO: [MH] Review integrity of the data checking the signature using the public key
         notificationFilePerSource.forEach((source, updateNotificationFile) -> {
-            final List<NrtmVersionInfo> nrtmLastVersionList = nrtm4ClientMirrorDao.getNrtmLastVersionInfo(source);
-            final NrtmVersionInfo nrtmLastVersionInfo = nrtmLastVersionList.isEmpty() ?
-                    null : nrtmLastVersionList.getFirst();
+            final NrtmVersionInfo nrtmLastVersionInfo = nrtmLastVersionInfoPerSource
+                    .stream().filter(nrtmVersionInfo -> nrtmVersionInfo.source().equals(source))
+                    .findFirst()
+                    .orElse(null);
 
             if (nrtmLastVersionInfo != null && !nrtmLastVersionInfo.sessionID().equals(updateNotificationFile.getSessionID())){
                 LOGGER.info("Different session");
@@ -50,7 +53,8 @@ public class UpdateNotificationFileReader {
                 return;
             }
 
-            if (nrtmLastVersionInfo != null && nrtmLastVersionInfo.version().equals(updateNotificationFile.getVersion())){
+            if (nrtmLastVersionInfo != null && (nrtmLastVersionInfo.version().equals(updateNotificationFile.getVersion())
+                    || nrtmLastVersionInfo.version() > updateNotificationFile.getVersion())){
                 LOGGER.info("There is no new version associated with the source {}", source);
                 return;
             }
