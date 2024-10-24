@@ -1,14 +1,12 @@
 package net.ripe.db.whois.api.nrtm4;
 
 import com.google.common.net.HttpHeaders;
-import jakarta.servlet.http.HttpServletRequest;
 import jakarta.ws.rs.BadRequestException;
 import jakarta.ws.rs.GET;
 import jakarta.ws.rs.NotFoundException;
 import jakarta.ws.rs.Path;
 import jakarta.ws.rs.PathParam;
 import jakarta.ws.rs.Produces;
-import jakarta.ws.rs.core.Context;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 import net.ripe.db.nrtm4.dao.DeltaFileSourceAwareDao;
@@ -27,6 +25,7 @@ import org.springframework.stereotype.Component;
 import java.io.ByteArrayInputStream;
 
 import static net.ripe.db.nrtm4.util.Ed25519Util.signWithEd25519;
+import static net.ripe.db.nrtm4.util.JWSUtil.signWithJWS;
 
 @Component
 @Path("/")
@@ -75,17 +74,21 @@ public class NrtmClientService {
     @GET
     @Path("{source}/{filename}")
     @Produces({MediaType.APPLICATION_OCTET_STREAM, MediaType.APPLICATION_JSON})
-    public Response nrtmFiles(
-            @Context final HttpServletRequest httpServletRequest,
-            @PathParam("source") final String source,
+    public Response nrtmFiles(@PathParam("source") final String source,
             @PathParam("filename") final String fileName) {
 
         if(isNotificationFile(fileName)) {
-            final String payload = updateNotificationFileSourceAwareDao.findLastNotification(getSource(source))
-                    .orElseThrow(() -> new NotFoundException("update-notification-file.json does not exists for source " + source));
 
+            final String payload = updateNotificationFileSourceAwareDao.findLastNotification(getSource(source))
+                    .orElseThrow(() -> new NotFoundException("update-notification-file does not exists for source " + source));
+
+            if(fileName.endsWith(".jose")) {
+               return getResponseForJWS(signWithJWS(payload, nrtmKeyConfigDao.getActivePrivateKey()));
+            }
+
+            //TODO: remove once client is also shifted to JWS
             return fileName.endsWith(".sig") ?  getResponse(signWithEd25519(payload.getBytes(), nrtmKeyConfigDao.getActivePrivateKey()))
-                                              : getResponse(payload);
+                    : getResponse(payload);
         }
 
         validateSource(source, fileName);
@@ -133,6 +136,13 @@ public class NrtmClientService {
                 .build();
     }
 
+    private Response getResponseForJWS(final String payload) {
+        return Response.ok(payload)
+                .header(HttpHeaders.CONTENT_TYPE, "application/jose+json")
+                .build();
+    }
+
+
     private Response getResponseForDelta(final String payload) {
         return Response.ok(payload)
                 .header(HttpHeaders.CONTENT_TYPE, "application/json-seq")
@@ -151,7 +161,7 @@ public class NrtmClientService {
         }
 
         final String fileExtension = StringUtils.substringAfter(fileName, NrtmDocumentType.NOTIFICATION.getFileNamePrefix());
-        if(!fileExtension.equals(".json.sig"))  {
+        if(!fileExtension.equals(".json.sig") && !fileExtension.equals(".jose") )  {
             throw new NotFoundException("Notification file does not exists");
         }
 
