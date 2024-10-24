@@ -37,7 +37,7 @@ public class AutoSubmittedMessageParser {
         final String autoSubmitted = getHeader(message, "Auto-Submitted");
         if (autoSubmitted != null) {
             if (autoSubmitted.contains("auto-generated") || autoSubmitted.contains("auto-replied")) {
-                return new EmailMessageInfo(Collections.emptyList(), null);
+                return new EmailMessageInfo(Collections.emptyList(), null, null);
             } else {
                 LOGGER.info("Unexpected Auto-Submitted value {}", autoSubmitted);
             }
@@ -46,7 +46,7 @@ public class AutoSubmittedMessageParser {
         final String from = getHeader(message, "From");
         if (from != null) {
             if (from.toUpperCase().contains("MAILER-DAEMON")) {
-                return new EmailMessageInfo(Collections.emptyList(), null);
+                return new EmailMessageInfo(Collections.emptyList(), null, null);
             }
         }
 
