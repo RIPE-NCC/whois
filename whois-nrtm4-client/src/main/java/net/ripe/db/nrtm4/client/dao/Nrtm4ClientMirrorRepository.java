@@ -39,6 +39,7 @@ public class Nrtm4ClientMirrorRepository {
         final String sql = """
             SELECT id, source, MAX(version), session_id, type, created
             FROM version_info
+            GROUP BY source
             """;
         return jdbcSlaveTemplate.query(sql,
                 (rs, rn) -> new NrtmVersionInfo(
