@@ -125,7 +125,7 @@ public class PgpCredentialValidatorTest {
 
         when(rpslObjectDao.getByKey(ObjectType.KEY_CERT, KEYCERT_OBJECT.getKey().toString())).thenReturn(KEYCERT_OBJECT);
         when(preparedUpdate.getUpdate()).thenReturn(createUpdate());
-        assertThat(subject.hasValidCredential(preparedUpdate, updateContext, Sets.newHashSet(offeredCredential), knownCredential), is(true));
+        assertThat(subject.hasValidCredential(preparedUpdate, updateContext, Sets.newHashSet(offeredCredential), knownCredential, null), is(true));
         verify(loggerContext).logString(any(Update.class), anyString(), anyString());
     }
 
@@ -163,7 +163,7 @@ public class PgpCredentialValidatorTest {
 
         when(rpslObjectDao.getByKey(ObjectType.KEY_CERT, KEYCERT_OBJECT.getKey().toString())).thenReturn(KEYCERT_OBJECT);
         when(preparedUpdate.getUpdate()).thenReturn(createUpdate());
-        assertThat(subject.hasValidCredential(preparedUpdate, updateContext, Sets.newHashSet(offeredCredential), knownCredential), is(true));
+        assertThat(subject.hasValidCredential(preparedUpdate, updateContext, Sets.newHashSet(offeredCredential), knownCredential, null), is(true));
         verify(loggerContext).logString(any(Update.class), anyString(), anyString());
     }
 
@@ -207,7 +207,7 @@ public class PgpCredentialValidatorTest {
         when(preparedUpdate.getUpdate()).thenReturn(update);
         when(rpslObjectDao.getByKey(ObjectType.KEY_CERT, KEYCERT_OBJECT.getKey().toString())).thenReturn(KEYCERT_OBJECT);
 
-        subject.hasValidCredential(preparedUpdate, updateContext, Sets.newHashSet(offeredCredential), knownCredential);
+        subject.hasValidCredential(preparedUpdate, updateContext, Sets.newHashSet(offeredCredential), knownCredential, null);
 
         assertThat(update.getEffectiveCredential(), Is.is(knownCredential.getKeyId()));
         assertThat(update.getEffectiveCredentialType(), Is.is(Update.EffectiveCredentialType.PGP));
@@ -230,7 +230,7 @@ public class PgpCredentialValidatorTest {
 
         final PgpCredential knownCredential = PgpCredential.createKnownCredential("PGPKEY-5763950D");
         when(rpslObjectDao.getByKey(ObjectType.KEY_CERT, KEYCERT_OBJECT.getKey().toString())).thenReturn(KEYCERT_OBJECT);
-        assertThat(subject.hasValidCredential(preparedUpdate, updateContext, Sets.newHashSet(offeredCredential), knownCredential), is(false));
+        assertThat(subject.hasValidCredential(preparedUpdate, updateContext, Sets.newHashSet(offeredCredential), knownCredential, null), is(false));
     }
 
     @Test
@@ -267,7 +267,7 @@ public class PgpCredentialValidatorTest {
         final PgpCredential knownCredential = PgpCredential.createKnownCredential("PGPKEY-5763950D");
 
         when(rpslObjectDao.getByKey(ObjectType.KEY_CERT, KEYCERT_OBJECT.getKey().toString())).thenThrow(new EmptyResultDataAccessException(1));
-        assertThat(subject.hasValidCredential(preparedUpdate, updateContext, Sets.newHashSet(offeredCredential), knownCredential), is(false));
+        assertThat(subject.hasValidCredential(preparedUpdate, updateContext, Sets.newHashSet(offeredCredential), knownCredential, null), is(false));
     }
 
     @Test
@@ -305,7 +305,7 @@ public class PgpCredentialValidatorTest {
 
         final RpslObject emptyKeycertObject = new RpslObjectBuilder(KEYCERT_OBJECT).removeAttributeType(AttributeType.CERTIF).get();
         when(rpslObjectDao.getByKey(ObjectType.KEY_CERT, emptyKeycertObject.getKey().toString())).thenReturn(emptyKeycertObject);
-        assertThat(subject.hasValidCredential(preparedUpdate, updateContext, Sets.newHashSet(offeredCredential), knownCredential), is(false));
+        assertThat(subject.hasValidCredential(preparedUpdate, updateContext, Sets.newHashSet(offeredCredential), knownCredential, null), is(false));
     }
 
     @Test
@@ -379,7 +379,7 @@ public class PgpCredentialValidatorTest {
         final RpslObject keycertObject = RpslObject.parse("key-cert: PGPKEY-5763950D");
         when(rpslObjectDao.getByKey(ObjectType.KEY_CERT, keycertObject.getKey().toString())).thenReturn(keycertObject);
 
-        assertThat(subject.hasValidCredential(preparedUpdate, updateContext, Sets.newHashSet(offeredCredential), knownCredential), is(false));
+        assertThat(subject.hasValidCredential(preparedUpdate, updateContext, Sets.newHashSet(offeredCredential), knownCredential, null), is(false));
 
         verify(loggerContext).logString(any(Update.class), anyString(), anyString());
     }

@@ -43,7 +43,7 @@ public class X509CredentialValidator implements CredentialValidator<X509Credenti
     }
 
     @Override
-    public boolean hasValidCredential(final PreparedUpdate update, final UpdateContext updateContext, final Collection<X509Credential> offeredCredentials, final X509Credential knownCredential) {
+    public boolean hasValidCredential(final PreparedUpdate update, final UpdateContext updateContext, final Collection<X509Credential> offeredCredentials, final X509Credential knownCredential, final RpslObject maintainer) {
         for (final X509Credential offeredCredential : offeredCredentials) {
             if (verifySignedMessage(update, updateContext, offeredCredential, knownCredential)) {
                 log(update, String.format("Successfully validated with keycert: %s", knownCredential.getKeyId()));

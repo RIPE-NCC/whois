@@ -77,7 +77,7 @@ public class X509CredentialValidatorTest {
         when(knownCredential.getKeyId()).thenReturn("X509-1");
         when(offeredCredential.verify(any(X509Certificate.class))).thenReturn(true);
 
-        final boolean result = subject.hasValidCredential(preparedUpdate, updateContext, Sets.newHashSet(offeredCredential), knownCredential);
+        final boolean result = subject.hasValidCredential(preparedUpdate, updateContext, Sets.newHashSet(offeredCredential), knownCredential, null);
 
         assertThat(result, is(true));
     }
@@ -86,7 +86,7 @@ public class X509CredentialValidatorTest {
     public void authentication_keycert_not_found() {
         when(rpslObjectDao.getByKey(ObjectType.KEY_CERT, "X509-1")).thenThrow(new EmptyResultDataAccessException(1));
 
-        final boolean result = subject.hasValidCredential(preparedUpdate, updateContext, Sets.newHashSet(offeredCredential), knownCredential);
+        final boolean result = subject.hasValidCredential(preparedUpdate, updateContext, Sets.newHashSet(offeredCredential), knownCredential, null);
 
         assertThat(result, is(false));
     }
@@ -100,7 +100,7 @@ public class X509CredentialValidatorTest {
                         "mnt-by:         OWNER-MNT\n" +
                         "source:         TEST\n"));
 
-        final boolean result = subject.hasValidCredential(preparedUpdate, updateContext, Sets.newHashSet(offeredCredential), knownCredential);
+        final boolean result = subject.hasValidCredential(preparedUpdate, updateContext, Sets.newHashSet(offeredCredential), knownCredential, null);
 
         assertThat(result, is(false));
     }
@@ -148,7 +148,7 @@ public class X509CredentialValidatorTest {
                         "source:         TEST\n"));
         when(knownCredential.getKeyId()).thenReturn("X509-1");
 
-        final boolean result = subject.hasValidCredential(preparedUpdate, updateContext, Sets.newHashSet(offeredCredential), knownCredential);
+        final boolean result = subject.hasValidCredential(preparedUpdate, updateContext, Sets.newHashSet(offeredCredential), knownCredential, null);
 
         assertThat(result, is(false));
     }
