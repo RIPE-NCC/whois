@@ -3,7 +3,7 @@ package net.ripe.db.nrtm4.client.reader;
 import net.ripe.db.nrtm4.client.client.NrtmRestClient;
 import net.ripe.db.nrtm4.client.dao.Nrtm4ClientMirrorRepository;
 import net.ripe.db.nrtm4.client.client.NrtmVersionResponse;
-import net.ripe.db.nrtm4.client.dao.NrtmVersionInfo;
+import net.ripe.db.nrtm4.client.dao.NrtmClientVersionInfo;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
@@ -37,11 +37,11 @@ public class UpdateNotificationFileReader {
                         nrtmRestClient::getNotificationFile
                 ));
         LOGGER.info("Succeeded to read notification files from {}", notificationFilePerSource.keySet());
-        final List<NrtmVersionInfo> nrtmLastVersionInfoPerSource = nrtm4ClientMirrorDao.getNrtmLastVersionInfo();
+        final List<NrtmClientVersionInfo> nrtmLastVersionInfoPerSource = nrtm4ClientMirrorDao.getNrtmLastVersionInfo();
 
         //TODO: [MH] Review integrity of the data checking the signature using the public key
         notificationFilePerSource.forEach((source, updateNotificationFile) -> {
-            final NrtmVersionInfo nrtmLastVersionInfo = nrtmLastVersionInfoPerSource
+            final NrtmClientVersionInfo nrtmLastVersionInfo = nrtmLastVersionInfoPerSource
                     .stream()
                     .filter(nrtmVersionInfo -> nrtmVersionInfo.source() != null && nrtmVersionInfo.source().equals(source))
                     .findFirst()

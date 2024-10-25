@@ -8,7 +8,6 @@ import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.stereotype.Repository;
 
-import javax.annotation.Nullable;
 import javax.sql.DataSource;
 import java.sql.PreparedStatement;
 import java.sql.Statement;
@@ -35,14 +34,14 @@ public class Nrtm4ClientMirrorRepository {
         saveVersionInfo(source, version, sessionID, "update-notification-file");
     }
 
-    public List<NrtmVersionInfo> getNrtmLastVersionInfo(){
+    public List<NrtmClientVersionInfo> getNrtmLastVersionInfo(){
         final String sql = """
             SELECT id, source, MAX(version), session_id, type, created
             FROM version_info
             GROUP BY source
             """;
         return jdbcSlaveTemplate.query(sql,
-                (rs, rn) -> new NrtmVersionInfo(
+                (rs, rn) -> new NrtmClientVersionInfo(
                         rs.getLong(1),
                         rs.getString(2),
                         rs.getLong(3),
@@ -78,7 +77,7 @@ public class Nrtm4ClientMirrorRepository {
                     return pst;
                 }, keyHolder
         );
-        new NrtmVersionInfo(keyHolder.getKeyAs(Long.class), source, version, sessionID, type, now);
+        new NrtmClientVersionInfo(keyHolder.getKeyAs(Long.class), source, version, sessionID, type, now);
     }
 
 }

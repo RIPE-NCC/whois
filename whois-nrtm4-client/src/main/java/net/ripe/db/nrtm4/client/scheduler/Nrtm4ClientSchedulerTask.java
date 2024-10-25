@@ -10,7 +10,7 @@ import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
 @Component
-@Conditional(Nrtmv4ClientCondition.class)
+@Conditional(Nrtm4ClientCondition.class)
 public class Nrtm4ClientSchedulerTask implements DailyScheduledTask {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(Nrtm4ClientSchedulerTask.class);

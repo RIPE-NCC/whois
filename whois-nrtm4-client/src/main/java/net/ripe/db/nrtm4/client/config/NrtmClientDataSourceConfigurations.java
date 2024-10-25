@@ -1,8 +1,10 @@
 package net.ripe.db.nrtm4.client.config;
 
 import com.mchange.v2.c3p0.ComboPooledDataSource;
+import net.ripe.db.nrtm4.client.scheduler.Nrtm4ClientCondition;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Conditional;
 import org.springframework.context.annotation.Configuration;
 
 import java.beans.PropertyVetoException;
@@ -10,8 +12,9 @@ import java.beans.PropertyVetoException;
 import static net.ripe.db.whois.common.DataSourceConfigurations.DRIVER_CLASS_NAME;
 import static net.ripe.db.whois.common.DataSourceConfigurations.createDataSource;
 
+@Conditional(Nrtm4ClientCondition.class)
 @Configuration
-public class NrtmDataSourceConfigurations {
+public class NrtmClientDataSourceConfigurations {
 
     @Bean
     public ComboPooledDataSource nrtmClientMasterDataSource(@Value("${nrtm.client.database.url}") final String jdbcUrl,
