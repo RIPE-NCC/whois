@@ -73,7 +73,6 @@ public class UpdateNotificationFileReader {
     }
 
     private void initializeNRTMClient(){
-        nrtm4ClientMirrorDao.truncateTables();;
 
     }
 
