@@ -40,7 +40,7 @@
         <commons-collections.version>3.2.2</commons-collections.version>
         <commons-compress.version>1.26.1</commons-compress.version>
         <commons-email.version>2.0.0-M1</commons-email.version>
-        <commons-io.version>2.16.1</commons-io.version>
+        <commons-io.version>2.17.0</commons-io.version>
         <!-- equivalent to https://github.com/jgonian/commons-ip-math/ release 1.23 -->
         <commons-ip-math.version>1.23</commons-ip-math.version>
         <!-- TODO: [ES] Validate.notNull() behaviour has changed in commons-lang3 (throws NullPointerException) -->
