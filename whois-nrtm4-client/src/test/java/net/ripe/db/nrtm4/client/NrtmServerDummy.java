@@ -1,21 +1,15 @@
 package net.ripe.db.nrtm4.client;
 
-import com.google.common.collect.Maps;
-import io.netty.util.internal.StringUtil;
+import com.google.common.io.Resources;
 import jakarta.annotation.PostConstruct;
 import jakarta.annotation.PreDestroy;
-import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import jakarta.ws.rs.core.MediaType;
 import net.ripe.db.nrtm4.client.client.NrtmRestClient;
-import com.google.common.io.Resources;
 import net.ripe.db.whois.common.Stub;
 import net.ripe.db.whois.common.aspects.RetryFor;
 import net.ripe.db.whois.common.profiles.WhoisProfile;
-import net.ripe.db.whois.common.sso.UserSession;
 import org.apache.commons.compress.utils.Lists;
-import org.apache.commons.lang.StringUtils;
 import org.eclipse.jetty.server.NetworkConnector;
 import org.eclipse.jetty.server.Request;
 import org.eclipse.jetty.server.Server;
@@ -63,7 +57,7 @@ public class NrtmServerDummy implements Stub {
         }
 
         this.port = ((NetworkConnector)server.getConnectors()[0]).getLocalPort();
-        final String restUrl = String.format("http://localhost:%s/", getPort());
+        final String restUrl = String.format("http://localhost:%s/nrtmv4", getPort());
         LOGGER.info("NRTM Service dummy server restUrl: {}", restUrl);
         ReflectionTestUtils.setField(nrtmRestClient, "baseUrl", restUrl);
     }
@@ -94,7 +88,6 @@ public class NrtmServerDummy implements Stub {
                     response.setStatus(HttpServletResponse.SC_OK);
                     response.setContentType(((NrtmResponseMock)mock).mediaType);
                     response.getWriter().println(mock.response());
-                    response.getWriter().println(mock.response());
                 }
             }
         }
@@ -109,7 +102,7 @@ public class NrtmServerDummy implements Stub {
 
     private interface Mock {
 
-        String PATH = "net/ripe/db/nrtm4/client/";
+        String PATH = "mock/";
         boolean matches(final HttpServletRequest request);
 
         String response();
@@ -139,7 +132,7 @@ public class NrtmServerDummy implements Stub {
 
         @Override
         public boolean matches(final HttpServletRequest request) {
-            return request.getRequestURI().contains(fileType);
+            return request.getRequestURI().endsWith(fileType);
         }
     }
 }
