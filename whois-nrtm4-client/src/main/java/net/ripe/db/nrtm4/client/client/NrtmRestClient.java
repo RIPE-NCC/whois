@@ -13,12 +13,13 @@ import com.fasterxml.jackson.module.jakarta.xmlbind.JakartaXmlBindAnnotationIntr
 import jakarta.ws.rs.client.Client;
 import jakarta.ws.rs.client.ClientBuilder;
 import jakarta.ws.rs.core.MediaType;
+import net.ripe.db.nrtm4.client.scheduler.Nrtm4ClientCondition;
 import org.apache.commons.compress.utils.Lists;
 import org.glassfish.jersey.client.ClientProperties;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.context.annotation.DependsOn;
+import org.springframework.context.annotation.Conditional;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
@@ -26,7 +27,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 @Component
-@DependsOn("nrtmClientDataSourceConfigurations")
+@Conditional(Nrtm4ClientCondition.class)
 public class NrtmRestClient {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(NrtmRestClient.class);

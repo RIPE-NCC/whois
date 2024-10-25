@@ -5,12 +5,12 @@ import net.ripe.db.nrtm4.client.reader.UpdateNotificationFileReader;
 import net.ripe.db.whois.common.scheduler.DailyScheduledTask;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.context.annotation.DependsOn;
+import org.springframework.context.annotation.Conditional;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
 @Component
-@DependsOn("nrtmClientDataSourceConfigurations")
+@Conditional(Nrtm4ClientCondition.class)
 public class Nrtm4ClientSchedulerTask implements DailyScheduledTask {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(Nrtm4ClientSchedulerTask.class);

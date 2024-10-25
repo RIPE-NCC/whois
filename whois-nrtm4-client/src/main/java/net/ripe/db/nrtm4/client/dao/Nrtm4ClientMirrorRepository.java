@@ -1,9 +1,10 @@
 package net.ripe.db.nrtm4.client.dao;
 
+import net.ripe.db.nrtm4.client.scheduler.Nrtm4ClientCondition;
 import net.ripe.db.whois.common.DateTimeProvider;
 import net.ripe.db.whois.common.dao.jdbc.JdbcRpslObjectOperations;
 import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.context.annotation.DependsOn;
+import org.springframework.context.annotation.Conditional;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.KeyHolder;
@@ -15,7 +16,7 @@ import java.sql.Statement;
 import java.util.List;
 
 @Repository
-@DependsOn("nrtmClientDataSourceConfigurations")
+@Conditional(Nrtm4ClientCondition.class)
 public class Nrtm4ClientMirrorRepository {
 
     private final JdbcTemplate jdbcMasterTemplate;
