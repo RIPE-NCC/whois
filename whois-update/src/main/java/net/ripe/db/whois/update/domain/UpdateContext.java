@@ -333,7 +333,7 @@ public class UpdateContext {
         return userSession;
     }
 
-    public OAuthSession getoAuthSession() {
+    public OAuthSession getOAuthSession() {
         return oAuthSession;
     }
 

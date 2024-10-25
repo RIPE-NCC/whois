@@ -209,8 +209,8 @@ public class DomainObjectService {
             }
         }
 
-        if (updateContext.getoAuthSession() != null) {
-            credentials.add(APIKeyCredential.createOfferedCredential(updateContext.getoAuthSession()));
+        if (updateContext.getOAuthSession() != null) {
+            credentials.add(APIKeyCredential.createOfferedCredential(updateContext.getOAuthSession()));
         }
 
         return new Credentials(credentials);

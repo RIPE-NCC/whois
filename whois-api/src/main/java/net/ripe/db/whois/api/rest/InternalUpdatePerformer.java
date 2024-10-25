@@ -213,8 +213,8 @@ public class InternalUpdatePerformer {
             }
         }
 
-        if (updateContext.getoAuthSession() != null) {
-            credentials.add(APIKeyCredential.createOfferedCredential(updateContext.getoAuthSession()));
+        if (updateContext.getOAuthSession() != null) {
+            credentials.add(APIKeyCredential.createOfferedCredential(updateContext.getOAuthSession()));
         }
 
         return new Paragraph(rpslObject.toString(), new Credentials(credentials));
