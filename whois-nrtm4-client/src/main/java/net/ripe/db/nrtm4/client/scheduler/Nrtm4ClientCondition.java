@@ -6,9 +6,9 @@ import org.springframework.context.annotation.Condition;
 import org.springframework.context.annotation.ConditionContext;
 import org.springframework.core.type.AnnotatedTypeMetadata;
 
-public class Nrtmv4ClientCondition implements Condition {
+public class Nrtm4ClientCondition implements Condition {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(Nrtmv4ClientCondition.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(Nrtm4ClientCondition.class);
 
     @Override
     public boolean matches(ConditionContext context, AnnotatedTypeMetadata metadata) {
