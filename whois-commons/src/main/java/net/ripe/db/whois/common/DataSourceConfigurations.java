@@ -12,7 +12,7 @@ import java.beans.PropertyVetoException;
 @Configuration
 public class DataSourceConfigurations {
 
-    private static final String DRIVER_CLASS_NAME = "org.mariadb.jdbc.Driver";
+    public static final String DRIVER_CLASS_NAME = "org.mariadb.jdbc.Driver";
 
     @Bean
     public DataSource aclDataSource(@Value("${acl.database.url}") final String jdbcUrl, @Value("${acl.database.username}") final String jdbcUser, @Value("${acl.database.password}") final String jdbcPass) throws PropertyVetoException {
@@ -55,7 +55,7 @@ public class DataSourceConfigurations {
         return createDataSource(DRIVER_CLASS_NAME, jdbcUrl, jdbcUser, jdbcPass);
     }
 
-    private ComboPooledDataSource createDataSource(final String jdbcDriver, final String jdbcUrl, final String jdbcUser, final String jdbcPass) throws PropertyVetoException {
+    public static ComboPooledDataSource createDataSource(final String jdbcDriver, final String jdbcUrl, final String jdbcUser, final String jdbcPass) throws PropertyVetoException {
         final ComboPooledDataSource source = new ComboPooledDataSource();
 
         source.setJdbcUrl(jdbcUrl);
