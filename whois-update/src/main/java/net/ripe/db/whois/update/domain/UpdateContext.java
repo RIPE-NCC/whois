@@ -5,6 +5,7 @@ import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 import net.ripe.db.whois.common.Message;
 import net.ripe.db.whois.common.Messages;
+import net.ripe.db.whois.common.apiKey.OAuthSession;
 import net.ripe.db.whois.common.dao.RpslObjectUpdateInfo;
 import net.ripe.db.whois.common.domain.CIString;
 import net.ripe.db.whois.common.rpsl.ObjectMessages;
@@ -37,9 +38,11 @@ public class UpdateContext {
     private final Map<String, String> ssoTranslation = Maps.newHashMap();
     private final LoggerContext loggerContext;
     private UserSession userSession;
+    private OAuthSession oAuthSession;
     private List<X509CertificateWrapper> clientCertificates;
     private int nrSinceRestart;
     private boolean dryRun;
+
     private boolean batchUpdate;
 
     public UpdateContext(final LoggerContext loggerContext) {
@@ -322,8 +325,16 @@ public class UpdateContext {
         this.userSession = userSession;
     }
 
+    public void setOAuthSession(final OAuthSession oAuthSession) {
+        this.oAuthSession = oAuthSession;
+    }
+
     public UserSession getUserSession() {
         return userSession;
+    }
+
+    public OAuthSession getOAuthSession() {
+        return oAuthSession;
     }
 
     public void setClientCertificates(final List<X509CertificateWrapper> certificates) {

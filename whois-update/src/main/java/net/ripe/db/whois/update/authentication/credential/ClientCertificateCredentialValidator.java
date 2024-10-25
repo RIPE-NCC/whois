@@ -56,7 +56,7 @@ public class ClientCertificateCredentialValidator implements CredentialValidator
     }
 
     @Override
-    public boolean hasValidCredential(final PreparedUpdate update, final UpdateContext updateContext, final Collection<ClientCertificateCredential> offeredCredentials, final X509Credential knownCredential) {
+    public boolean hasValidCredential(final PreparedUpdate update, final UpdateContext updateContext, final Collection<ClientCertificateCredential> offeredCredentials, final X509Credential knownCredential, final RpslObject maintainer) {
         if (!enabled) {
             return false;
         }

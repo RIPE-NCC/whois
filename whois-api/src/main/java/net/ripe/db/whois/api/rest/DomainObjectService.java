@@ -24,6 +24,7 @@ import net.ripe.db.whois.api.rest.mapper.WhoisObjectMapper;
 import net.ripe.db.whois.common.rpsl.ObjectType;
 import net.ripe.db.whois.common.rpsl.RpslObject;
 import net.ripe.db.whois.common.sso.AuthServiceClient;
+import net.ripe.db.whois.update.domain.APIKeyCredential;
 import net.ripe.db.whois.update.domain.ClientCertificateCredential;
 import net.ripe.db.whois.update.domain.Credential;
 import net.ripe.db.whois.update.domain.Credentials;
@@ -206,6 +207,10 @@ public class DomainObjectService {
             for (X509CertificateWrapper clientCertificate : updateContext.getClientCertificates()) {
                 credentials.add(ClientCertificateCredential.createOfferedCredential(clientCertificate));
             }
+        }
+
+        if (updateContext.getOAuthSession() != null) {
+            credentials.add(APIKeyCredential.createOfferedCredential(updateContext.getOAuthSession()));
         }
 
         return new Credentials(credentials);
