@@ -29,7 +29,7 @@ public class UpdateNotificationFileReaderTestIntegration extends AbstractNrtmCli
         updateNotificationFileReader.readFile();
 
         final List<NrtmClientVersionInfo> versionInfosPerSource = nrtm4ClientMirrorRepository.getNrtmLastVersionInfo();
-        assertThat(versionInfosPerSource.getFirst().version(), is(1));
+        assertThat(versionInfosPerSource.getFirst().version(), is(1L));
     }
 
     @Test
