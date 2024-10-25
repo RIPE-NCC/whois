@@ -4,13 +4,13 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
-public class NrtmVersionResponse {
+public class UpdateNotificationFileResponse {
 
     @JsonProperty("session_id")
     private final String sessionID;
     private final long version;
 
-    public NrtmVersionResponse() {
+    public UpdateNotificationFileResponse() {
         this.sessionID = null;
         this.version = 0L;
     }

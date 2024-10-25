@@ -1,8 +1,6 @@
 package net.ripe.db.nrtm4.client.client;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.DeserializationFeature;
-import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.databind.introspect.AnnotationIntrospectorPair;
@@ -15,20 +13,21 @@ import com.fasterxml.jackson.module.jakarta.xmlbind.JakartaXmlBindAnnotationIntr
 import jakarta.ws.rs.client.Client;
 import jakarta.ws.rs.client.ClientBuilder;
 import jakarta.ws.rs.core.MediaType;
-import net.ripe.db.nrtm4.client.reader.UpdateNotificationFileReader;
+import net.ripe.db.nrtm4.client.scheduler.Nrtm4ClientCondition;
 import org.apache.commons.compress.utils.Lists;
 import org.glassfish.jersey.client.ClientProperties;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.annotation.Conditional;
 import org.springframework.stereotype.Component;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 @Component
+@Conditional(Nrtm4ClientCondition.class)
 public class NrtmRestClient {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(NrtmRestClient.class);
@@ -76,11 +75,11 @@ public class NrtmRestClient {
         }
     }
 
-    public NrtmVersionResponse getNotificationFile(final String source){
+    public UpdateNotificationFileResponse getNotificationFile(final String source){
         return client.target(String.format("%s/%s", baseUrl, source))
                 .path("update-notification-file.json")
                 .request(MediaType.APPLICATION_JSON_TYPE)
-                .get(NrtmVersionResponse.class);
+                .get(UpdateNotificationFileResponse.class);
     }
 
     private static List<String> extractSources(final String html) {

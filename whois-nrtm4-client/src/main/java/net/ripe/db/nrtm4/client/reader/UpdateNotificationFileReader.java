@@ -2,10 +2,12 @@ package net.ripe.db.nrtm4.client.reader;
 
 import net.ripe.db.nrtm4.client.client.NrtmRestClient;
 import net.ripe.db.nrtm4.client.dao.Nrtm4ClientMirrorRepository;
-import net.ripe.db.nrtm4.client.client.NrtmVersionResponse;
+import net.ripe.db.nrtm4.client.client.UpdateNotificationFileResponse;
 import net.ripe.db.nrtm4.client.dao.NrtmClientVersionInfo;
+import net.ripe.db.nrtm4.client.scheduler.Nrtm4ClientCondition;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.context.annotation.Conditional;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -13,6 +15,7 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 @Service
+@Conditional(Nrtm4ClientCondition.class)
 public class UpdateNotificationFileReader {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(UpdateNotificationFileReader.class);
@@ -29,7 +32,7 @@ public class UpdateNotificationFileReader {
     }
 
     public void readFile(){
-        final Map<String, NrtmVersionResponse> notificationFilePerSource =
+        final Map<String, UpdateNotificationFileResponse> notificationFilePerSource =
                 nrtmRestClient.getNrtmAvailableSources()
                 .stream()
                 .collect(Collectors.toMap(
