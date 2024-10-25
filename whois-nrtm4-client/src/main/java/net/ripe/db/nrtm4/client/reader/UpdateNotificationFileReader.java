@@ -54,9 +54,14 @@ public class UpdateNotificationFileReader {
                 return;
             }
 
-            if (nrtmLastVersionInfo != null && nrtmLastVersionInfo.version() >= updateNotificationFile.getVersion()){
-                LOGGER.info("There is no new version associated with the source {}", source);
+            if (nrtmLastVersionInfo != null && nrtmLastVersionInfo.version() > updateNotificationFile.getVersion()){
+                LOGGER.info("The local version cannot be higher than the update notification version {}", source);
                 initializeNRTMClient();
+                return;
+            }
+
+            if (nrtmLastVersionInfo != null && nrtmLastVersionInfo.version().equals(updateNotificationFile.getVersion())){
+                LOGGER.info("There is no new version associated with the source {}", source);
                 return;
             }
 
