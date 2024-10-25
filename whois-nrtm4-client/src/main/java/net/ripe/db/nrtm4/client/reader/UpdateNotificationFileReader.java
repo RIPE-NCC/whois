@@ -50,12 +50,13 @@ public class UpdateNotificationFileReader {
 
             if (nrtmLastVersionInfo != null && !nrtmLastVersionInfo.sessionID().equals(updateNotificationFile.getSessionID())){
                 LOGGER.info("Different session");
-                nrtm4ClientMirrorDao.truncateTables();
+                initializeNRTMClient();
                 return;
             }
 
             if (nrtmLastVersionInfo != null && nrtmLastVersionInfo.version() >= updateNotificationFile.getVersion()){
                 LOGGER.info("There is no new version associated with the source {}", source);
+                initializeNRTMClient();
                 return;
             }
 
@@ -64,6 +65,11 @@ public class UpdateNotificationFileReader {
         });
 
         //TODO: [MH] if last_mirror is empty, we need to store from scratch. Take snapshot the snapshot.
+    }
+
+    private void initializeNRTMClient(){
+        nrtm4ClientMirrorDao.truncateTables();;
+
     }
 
 }
