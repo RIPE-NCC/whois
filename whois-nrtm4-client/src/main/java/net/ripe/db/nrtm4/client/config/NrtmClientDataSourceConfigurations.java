@@ -14,7 +14,7 @@ import static net.ripe.db.whois.common.DataSourceConfigurations.createDataSource
 
 @Conditional(Nrtmv4ClientCondition.class)
 @Configuration
-public class NrtmDataSourceConfigurations {
+public class NrtmClientDataSourceConfigurations {
 
     @Bean
     public ComboPooledDataSource nrtmClientMasterDataSource(@Value("${nrtm.client.database.url}") final String jdbcUrl,
