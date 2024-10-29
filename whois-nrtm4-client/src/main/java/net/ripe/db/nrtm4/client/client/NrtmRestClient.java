@@ -107,9 +107,9 @@ public class NrtmRestClient {
             final int snapshotVersion = jsonObject.getInt("version");
             final String snapshotSessionId = jsonObject.getString("session_id");
 
-            final List<SnapshotClientFileRecord> rpslObjects = Lists.newArrayList();
+            final List<MirrorRpslObject> rpslObjects = Lists.newArrayList();
             for (int i = 1; i < records.length; i++) {
-                rpslObjects.add(new ObjectMapper().readValue(records[i], SnapshotClientFileRecord.class));
+                rpslObjects.add(new ObjectMapper().readValue(records[i], MirrorRpslObject.class));
             }
             return new SnapshotFileResponse(rpslObjects, snapshotVersion, snapshotSessionId);
         } catch (IOException | JSONException ex){

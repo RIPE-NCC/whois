@@ -79,7 +79,6 @@ public class UpdateNotificationFileProcessor {
                 LOGGER.info("There is no existing Snapshot for the source {}", source);
                 snapshotImporter.importSnapshot(source, updateNotificationFile);
             }
-
         });
     }
 

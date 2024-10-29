@@ -1,8 +1,8 @@
 package net.ripe.db.nrtm4.client.importer;
 
 import com.google.common.collect.Lists;
+import net.ripe.db.nrtm4.client.client.MirrorRpslObject;
 import net.ripe.db.nrtm4.client.client.NrtmRestClient;
-import net.ripe.db.nrtm4.client.client.SnapshotClientFileRecord;
 import net.ripe.db.nrtm4.client.client.SnapshotFileResponse;
 import net.ripe.db.nrtm4.client.client.UpdateNotificationFileResponse;
 import net.ripe.db.nrtm4.client.dao.Nrtm4ClientMirrorRepository;
@@ -62,7 +62,7 @@ public class SnapshotImporter {
         }
 
         final AtomicInteger noOfBatchesProcessed = new AtomicInteger(0);
-        final List<List<SnapshotClientFileRecord>> batches = Lists.partition(snapshotFileResponse.getObjects(), BATCH_SIZE);
+        final List<List<MirrorRpslObject>> batches = Lists.partition(snapshotFileResponse.getObjects(), BATCH_SIZE);
         final Timer timer = new Timer(true);
         printProgress(noOfBatchesProcessed, snapshotFileResponse.getObjects().size(), timer);
 
@@ -80,7 +80,7 @@ public class SnapshotImporter {
         } finally {
             timer.cancel();
         }
-
+        nrtm4ClientMirrorDao.saveSnapshotFileVersion(source, snapshotFileResponse.getVersion(), snapshotFileResponse.getSessionID());
     }
 
     private void printProgress(final AtomicInteger noOfBatchesProcessed, final int total, final Timer timer) {

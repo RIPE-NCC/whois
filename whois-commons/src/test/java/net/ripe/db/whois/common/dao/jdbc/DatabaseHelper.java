@@ -79,6 +79,7 @@ public class DatabaseHelper implements EmbeddedValueResolverAware {
     private JdbcTemplate mailupdatesTemplate;
     private JdbcTemplate internalsTemplate;
     private JdbcTemplate nrtmTemplate;
+    private JdbcTemplate nrtmClientTemplate;
     private SourceAwareDataSource sourceAwareDataSource;
 
     @Autowired ApplicationContext applicationContext;
@@ -120,6 +121,12 @@ public class DatabaseHelper implements EmbeddedValueResolverAware {
     @Qualifier("nrtmMasterDataSource")
     public void setNrtmMasterDataSource(DataSource dataSource) {
         nrtmTemplate = new JdbcTemplate(dataSource);
+    }
+
+    @Autowired(required = false)
+    @Qualifier("nrtmClientMasterDataSource")
+    public void setNrtmClientMasterDataSource(DataSource dataSource) {
+        nrtmClientTemplate = new JdbcTemplate(dataSource);
     }
 
     // TODO: [AH] autowire these fields once whois-internals has proper wiring set up
@@ -338,6 +345,8 @@ public class DatabaseHelper implements EmbeddedValueResolverAware {
     public JdbcTemplate getWhoisTemplate() {
         return new JdbcTemplate(sourceAwareDataSource);
     }
+
+    public JdbcTemplate getNrtmClientTemplate(){return nrtmClientTemplate; }
 
     public void setCurrentSource(final Source source) {
         sourceContext.setCurrent(source);

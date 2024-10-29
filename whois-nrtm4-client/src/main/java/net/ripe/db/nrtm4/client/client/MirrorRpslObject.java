@@ -3,16 +3,16 @@ package net.ripe.db.nrtm4.client.client;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import net.ripe.db.whois.common.rpsl.RpslObject;
 
-public class SnapshotClientFileRecord {
+public class MirrorRpslObject {
 
     @JsonDeserialize(using = RpslObjectDeserializer.class)
     private final RpslObject object;
 
-    private SnapshotClientFileRecord() {
+    private MirrorRpslObject() {
         object = null;
     }
 
-    public SnapshotClientFileRecord(final RpslObject rpslObject) {
+    public MirrorRpslObject(final RpslObject rpslObject) {
         this.object = rpslObject;
     }
 

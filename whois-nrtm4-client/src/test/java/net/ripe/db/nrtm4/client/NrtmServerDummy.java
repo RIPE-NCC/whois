@@ -164,7 +164,7 @@ public class NrtmServerDummy implements Stub {
             return request.getRequestURI().endsWith(fileType);
         }
     }
-    
+
     private static class NrtmCompressedResponseMock implements Mock {
         private final String fileType;
         private final String searchKey;

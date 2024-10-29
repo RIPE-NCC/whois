@@ -1,13 +1,20 @@
 package net.ripe.db.nrtm4.client;
 
+import net.ripe.db.nrtm4.client.client.MirrorRpslObject;
 import net.ripe.db.nrtm4.client.dao.Nrtm4ClientMirrorRepository;
+import net.ripe.db.nrtm4.client.dao.NrtmClientDocumentType;
+import net.ripe.db.nrtm4.client.dao.NrtmClientVersionInfo;
 import net.ripe.db.nrtm4.client.processor.UpdateNotificationFileProcessor;
 import net.ripe.db.whois.common.dao.jdbc.AbstractDatabaseHelperIntegrationTest;
+import net.ripe.db.whois.common.rpsl.RpslObject;
+import org.apache.commons.compress.utils.Lists;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
+
+import java.util.List;
 
 @ContextConfiguration(locations = {"classpath:applicationContext-nrtm4-client-test.xml"})
 public class AbstractNrtmClientIntegrationTest extends AbstractDatabaseHelperIntegrationTest {
@@ -33,5 +40,31 @@ public class AbstractNrtmClientIntegrationTest extends AbstractDatabaseHelperInt
         System.clearProperty("nrtm4.client.enabled");
     }
 
+    protected List<MirrorRpslObject> getMirrorRpslObject(){
+        final List<MirrorRpslObject> rpslObjects = Lists.newArrayList();
+        final String sql = """
+            SELECT object
+            FROM last_mirror
+            """;
+        return nrtmClientTemplate.query(sql,
+                (rs, rn) -> new MirrorRpslObject(RpslObject.parse(rs.getBytes(1))));
+    }
 
+    public List<NrtmClientVersionInfo> getNrtmLastSnapshotVersion(){
+        final String sql = """
+            SELECT id, source, MAX(version), session_id, type, created
+            FROM version_info
+            WHERE type = 'nrtm-snapshot'
+            GROUP BY source
+            """;
+        return nrtmClientTemplate.query(sql,
+                (rs, rn) -> new NrtmClientVersionInfo(
+                        rs.getLong(1),
+                        rs.getString(2),
+                        rs.getLong(3),
+                        rs.getString(4),
+                        NrtmClientDocumentType.fromValue(rs.getString(5)),
+                        rs.getLong(6)
+                ));
+    }
 }

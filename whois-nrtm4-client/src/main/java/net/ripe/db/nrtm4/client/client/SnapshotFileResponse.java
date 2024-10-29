@@ -11,7 +11,7 @@ import java.util.List;
 public class SnapshotFileResponse {
 
     @JsonDeserialize(using = RpslObjectDeserializer.class)
-    private final List<SnapshotClientFileRecord> objects;
+    private final List<MirrorRpslObject> objects;
 
     private final int version;
 
@@ -24,13 +24,13 @@ public class SnapshotFileResponse {
         sessionID = null;
     }
 
-    public SnapshotFileResponse(final List<SnapshotClientFileRecord> rpslObject, final int version, final String sessionID) {
+    public SnapshotFileResponse(final List<MirrorRpslObject> rpslObject, final int version, final String sessionID) {
         this.objects = rpslObject;
         this.version = version;
         this.sessionID = sessionID;
     }
 
-    public List<SnapshotClientFileRecord> getObjects() {
+    public List<MirrorRpslObject> getObjects() {
         return objects;
     }
 

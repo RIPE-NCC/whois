@@ -31,6 +31,7 @@ public abstract class AbstractDatabaseHelperIntegrationTest extends AbstractJUni
     protected JdbcTemplate whoisTemplate;
     protected JdbcTemplate internalsTemplate;
     protected JdbcTemplate mailupdatesTemplate;
+    protected JdbcTemplate nrtmClientTemplate;
     protected DatabaseHelper databaseHelper;
 
     private static byte[] propertyStore = null;
@@ -85,5 +86,6 @@ public abstract class AbstractDatabaseHelperIntegrationTest extends AbstractJUni
         this.whoisTemplate = databaseHelper.getWhoisTemplate();
         this.internalsTemplate = databaseHelper.getInternalsTemplate();
         this.mailupdatesTemplate = databaseHelper.getMailupdatesTemplate();
+        this.nrtmClientTemplate = databaseHelper.getNrtmClientTemplate();
     }
 }
