@@ -109,7 +109,7 @@ class RdapObjectMapper {
     private static final String TERMS_AND_CONDITIONS = "http://www.ripe.net/data-tools/support/documentation/terms";
 
     private static final String GEOFEED_CONTENT_TYPE = "application/geofeed+csv";
-    private static final Link COPYRIGHT_LINK = new Link(TERMS_AND_CONDITIONS, "copyright", TERMS_AND_CONDITIONS, null, null);
+    private static final Link COPYRIGHT_LINK = new Link(TERMS_AND_CONDITIONS, "copyright", TERMS_AND_CONDITIONS, null, null, null);
     private static final Logger LOGGER = LoggerFactory.getLogger(RdapObjectMapper.class);
 
     private final NoticeFactory noticeFactory;
@@ -328,7 +328,7 @@ class RdapObjectMapper {
 
     private void mapCommonLinks(final RdapObject rdapResponse, final String requestUrl) {
         if (requestUrl != null) {
-            rdapResponse.getLinks().add(new Link(requestUrl, "self", requestUrl, null, null));
+            rdapResponse.getLinks().add(new Link(requestUrl, "self", requestUrl, null, null, null));
         }
         rdapResponse.getLinks().add(COPYRIGHT_LINK);
     }
@@ -343,7 +343,7 @@ class RdapObjectMapper {
             }
             entity.getLinks().add(new Link(requestUrl, "self",
                     url.getProtocol() + "://" + url.getHost() + "/" + entity.getObjectClassName() + "/" + attributeValue,
-                    null, null));
+                    null, null, null));
         }
 
         entity.getLinks().add(COPYRIGHT_LINK);
@@ -712,7 +712,7 @@ class RdapObjectMapper {
         ip.getRdapConformance().add(GEO_FEED_1.getValue());
 
         if(rpslObject.containsAttribute(GEOFEED)) {
-            ip.getLinks().add(new Link(requestUrl, "geo", rpslObject.getValueForAttribute(GEOFEED).toString(), null, GEOFEED_CONTENT_TYPE));
+            ip.getLinks().add(new Link(requestUrl, "geo", rpslObject.getValueForAttribute(GEOFEED).toString(), null, null, GEOFEED_CONTENT_TYPE));
             return;
         }
 
@@ -724,7 +724,7 @@ class RdapObjectMapper {
                 LOGGER.warn("Seems like geo feed is not set properly for object {}", rpslObject.getKey());
                 return;
             }
-            ip.getLinks().add(new Link(requestUrl, "geo", geoFeed[1], null, GEOFEED_CONTENT_TYPE));
+            ip.getLinks().add(new Link(requestUrl, "geo", geoFeed[1], null, null, GEOFEED_CONTENT_TYPE));
         });
     }
 }

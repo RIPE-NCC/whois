@@ -69,6 +69,8 @@ public class SyncUpdatesServiceTest {
 
     @Test
     public void handle_no_parameters() {
+        when(messageHandler.handle(any(UpdateRequest.class), any(UpdateContext.class))).thenReturn(new UpdateResponse(UpdateStatus.SUCCESS, "OK"));
+
         final String data = null;
         final String help = null;
         final String nnew = null;
@@ -80,8 +82,8 @@ public class SyncUpdatesServiceTest {
 
         final Response response = subject.doGet(request, source, data, help, nnew, diff, redirect, contentType, ssoToken);
 
-        assertThat(response.getStatus(), is(HttpURLConnection.HTTP_BAD_REQUEST));
-        assertThat(response.getEntity().toString(), is("Invalid request"));
+        assertThat(response.getStatus(), is(HttpURLConnection.HTTP_OK));
+        assertThat(response.getEntity().toString(), is("OK"));
     }
 
     @Test

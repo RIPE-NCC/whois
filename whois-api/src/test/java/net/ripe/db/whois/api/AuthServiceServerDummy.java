@@ -134,7 +134,7 @@ public class AuthServiceServerDummy implements Stub {
                     "  \"response\": {\n" +
                     "    \"results\": [\n " +
                     "    {\n" +
-                    "      \"eventDateTime\": \"2015-05-08 12:32\",\n" +
+                    "      \"eventDateTime\": \"2015-05-08T12:32:01.275379Z\",\n" +
                     "      \"action\": \"EMAIL_CHANGE\",\n" +
                     "      \"uuid\": \"%s\",\n" +
                     "      \"actor\": \"%s\",\n" +

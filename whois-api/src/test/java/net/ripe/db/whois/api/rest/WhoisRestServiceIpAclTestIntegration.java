@@ -45,6 +45,9 @@ public class WhoisRestServiceIpAclTestIntegration extends AbstractIntegrationTes
     @Autowired
     private SSOResourceConfiguration ssoResourceConfiguration;
 
+    @Autowired
+    QueryServer queryServer;
+
     @BeforeAll
     public static void setProperties() {
         System.setProperty("personal.accounting.by.sso", "false");
@@ -90,7 +93,7 @@ public class WhoisRestServiceIpAclTestIntegration extends AbstractIntegrationTes
             fail();
         } catch (ClientErrorException e) {
             assertThat(e.getResponse().getStatus(), is(429));       // Too Many Requests
-            assertOnlyErrorMessage(e, "Error", "ERROR:201: access denied for %s\n\nSorry, access from your host has been permanently\ndenied because of a repeated excessive querying.\nFor more information, see\nhttps://apps.db.ripe.net/docs/FAQ/#why-did-i-receive-an-error-201-access-denied\n", "127.0.0.1");
+            assertOnlyErrorMessage(e, "Error", "ERROR:201: access denied for %s\n\nSorry, access from your host has been permanently\ndenied because of a repeated excessive querying.\nFor more information, see\nhttps://docs.db.ripe.net/FAQ/#why-did-i-receive-an-error-201-access-denied\n", "127.0.0.1");
         }
     }
 
@@ -182,7 +185,7 @@ public class WhoisRestServiceIpAclTestIntegration extends AbstractIntegrationTes
             fail();
         } catch (ClientErrorException e) {
             assertThat(e.getResponse().getStatus(), is(429));       // Too Many Requests
-            assertOnlyErrorMessage(e, "Error", "ERROR:201: access denied for %s\n\nSorry, access from your host has been permanently\ndenied because of a repeated excessive querying.\nFor more information, see\nhttps://apps.db.ripe.net/docs/FAQ/#why-did-i-receive-an-error-201-access-denied\n", "127.0.0.1");
+            assertOnlyErrorMessage(e, "Error", "ERROR:201: access denied for %s\n\nSorry, access from your host has been permanently\ndenied because of a repeated excessive querying.\nFor more information, see\nhttps://docs.db.ripe.net/FAQ/#why-did-i-receive-an-error-201-access-denied\n", "127.0.0.1");
         }
     }
 
@@ -210,10 +213,10 @@ public class WhoisRestServiceIpAclTestIntegration extends AbstractIntegrationTes
 
         accessControlListManager.accountPersonalObjects(accountingIdentifier, accessControlListManager.getPersonalObjects(accountingIdentifier) + 1);
 
-        assertThat(TelnetWhoisClient.queryLocalhost(QueryServer.port, "--diff-versions 1 TP1-TEST"),
+        assertThat(TelnetWhoisClient.queryLocalhost(queryServer.getPort(), "--diff-versions 1 TP1-TEST"),
                     containsString(" Access from your host has been temporarily denied."));
 
-        assertThat( TelnetWhoisClient.queryLocalhost(QueryServer.port, "--show-version 1 TP1-TEST"),
+        assertThat( TelnetWhoisClient.queryLocalhost(queryServer.getPort(), "--show-version 1 TP1-TEST"),
                     containsString(" Access from your host has been temporarily denied."));
     }
 

@@ -5,7 +5,6 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import net.ripe.db.nrtm4.GzipOutStreamWriter;
 import net.ripe.db.nrtm4.dao.UpdateNrtmFileRepository;
-import net.ripe.db.nrtm4.dao.NrtmKeyConfigDao;
 import net.ripe.db.nrtm4.dao.NrtmVersionInfoDao;
 import net.ripe.db.nrtm4.dao.NrtmSourceDao;
 import net.ripe.db.nrtm4.dao.WhoisObjectRepository;
@@ -16,16 +15,12 @@ import net.ripe.db.nrtm4.domain.NrtmVersionRecord;
 import net.ripe.db.nrtm4.domain.SnapshotFileRecord;
 import net.ripe.db.nrtm4.domain.SnapshotState;
 import net.ripe.db.nrtm4.domain.WhoisObjectData;
-import net.ripe.db.nrtm4.util.Ed25519Util;
 import net.ripe.db.nrtm4.util.NrtmFileUtil;
 import net.ripe.db.whois.common.DateTimeProvider;
 import net.ripe.db.whois.common.domain.CIString;
 import net.ripe.db.whois.common.rpsl.AttributeType;
 import net.ripe.db.whois.common.rpsl.DummifierNrtmV4;
 import net.ripe.db.whois.common.rpsl.RpslObject;
-import org.bouncycastle.crypto.AsymmetricCipherKeyPair;
-import org.bouncycastle.crypto.params.Ed25519PrivateKeyParameters;
-import org.bouncycastle.crypto.params.Ed25519PublicKeyParameters;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
@@ -55,7 +50,7 @@ public class SnapshotFileGenerator {
     private final NrtmSourceDao nrtmSourceDao;
     private final UpdateNrtmFileRepository updateNrtmFileRepository;
     private final DateTimeProvider dateTimeProvider;
-    private final NrtmKeyConfigDao nrtmKeyConfigDao;
+    private final NrtmKeyPairService nrtmKeyGenerator;
 
 
     public SnapshotFileGenerator(
@@ -64,7 +59,7 @@ public class SnapshotFileGenerator {
         final WhoisObjectRepository whoisObjectRepository,
         final UpdateNrtmFileRepository updateNrtmFileRepository,
         final DateTimeProvider dateTimeProvider,
-        final NrtmKeyConfigDao nrtmKeyConfigDao,
+        final NrtmKeyPairService nrtmKeyPairService,
         final NrtmSourceDao nrtmSourceDao
     ) {
         this.dummifierNrtmV4 = dummifierNrtmV4;
@@ -73,7 +68,7 @@ public class SnapshotFileGenerator {
         this.whoisObjectRepository = whoisObjectRepository;
         this.updateNrtmFileRepository = updateNrtmFileRepository;
         this.dateTimeProvider = dateTimeProvider;
-        this.nrtmKeyConfigDao = nrtmKeyConfigDao;
+        this.nrtmKeyGenerator = nrtmKeyPairService;
     }
 
     public void createSnapshot()  {
@@ -159,13 +154,7 @@ public class SnapshotFileGenerator {
             nrtmSourceDao.createSources();
         }
 
-        if(!nrtmKeyConfigDao.isKeyPairExists()) {
-            final AsymmetricCipherKeyPair asymmetricCipherKeyPair = Ed25519Util.generateEd25519KeyPair();
-            final byte[] privateKey =((Ed25519PrivateKeyParameters) asymmetricCipherKeyPair.getPrivate()).getEncoded();
-            final byte[] publicKey = ((Ed25519PublicKeyParameters) asymmetricCipherKeyPair.getPublic()).getEncoded();
-
-            nrtmKeyConfigDao.saveKeyPair(privateKey, publicKey);
-        }
+        nrtmKeyGenerator.generateActiveKeyPair();
     }
 
     private  NrtmVersionInfo getNewVersion(final NrtmSource source, final List<NrtmVersionInfo> sourceVersions, final int currentSerialId) {
@@ -216,7 +205,7 @@ public class SnapshotFileGenerator {
                     LOGGER.info("Source {} snapshot file {}", source, fileName);
                     LOGGER.info("Calculated hash for {}", source);
                     updateNrtmFileRepository.saveSnapshotVersion(versionInfo.get(), fileName, calculateSha256(payload), payload);
-                    LOGGER.info("Wrote {} to DB {}", source);
+                    LOGGER.info("Wrote {} to DB", source);
                 } catch (final Throwable t) {
                     LOGGER.error("Unexpected throwable caught when inserting snapshot file", t);
                 }

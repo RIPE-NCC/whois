@@ -27,17 +27,24 @@ public class NrtmExceptionHandler extends ChannelInboundHandlerAdapter {
             return;
         }
 
-        if (exception instanceof NrtmException) {
-            handleException(channel, exception.getMessage() + "\n\n");
-        } else if (exception instanceof IOException) {
-            LOGGER.debug("IO exception", exception);
-        } else {
-            LOGGER.error("Caught exception on channel id = {}, from = {}",
-                    channel.id().hashCode(),
-                    ChannelUtil.getRemoteAddress(channel),
-                    exception
-            );
-            handleException(channel, NrtmMessages.internalError());
+        switch (exception) {
+            case NrtmException nrtmException : {
+                handleException(channel, exception.getMessage() + "\n\n");
+                break;
+            }
+            case IOException ioException : {
+                LOGGER.debug("IO exception", ioException);
+                break;
+            }
+            case null :
+            default: {
+                LOGGER.info("Caught exception on channel id = {}, from = {}",
+                        channel.id().hashCode(),
+                        ChannelUtil.getRemoteAddress(channel),
+                        exception
+                );
+                handleException(channel, NrtmMessages.internalError());
+            }
         }
     }
 

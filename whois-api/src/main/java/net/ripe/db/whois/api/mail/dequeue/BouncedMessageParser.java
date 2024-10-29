@@ -1,5 +1,6 @@
 package net.ripe.db.whois.api.mail.dequeue;
 
+import jakarta.mail.BodyPart;
 import jakarta.mail.MessagingException;
 import jakarta.mail.Part;
 import jakarta.mail.internet.AddressException;
@@ -7,7 +8,11 @@ import jakarta.mail.internet.ContentType;
 import jakarta.mail.internet.InternetAddress;
 import jakarta.mail.internet.InternetHeaders;
 import jakarta.mail.internet.MimeMessage;
+import jakarta.mail.internet.MimeMultipart;
 import net.ripe.db.whois.api.mail.EmailMessageInfo;
+import net.ripe.db.whois.api.mail.exception.MailParsingException;
+import net.ripe.db.whois.common.rpsl.AttributeParser;
+import net.ripe.db.whois.common.rpsl.attrs.AttributeParseException;
 import org.apache.commons.compress.utils.Lists;
 import org.eclipse.angus.mail.dsn.DeliveryStatus;
 import org.eclipse.angus.mail.dsn.MultipartReport;
@@ -31,11 +36,13 @@ public class BouncedMessageParser {
     private static final Logger LOGGER = LoggerFactory.getLogger(BouncedMessageParser.class);
 
     private static final ContentType MULTIPART_REPORT = contentType("multipart/report");
+    private static final ContentType MULTIPART_MIXED = contentType("multipart/mixed");
 
     private final boolean enabled;
 
-    private static final Pattern FINAL_RECIPIENT_MATCHER = Pattern.compile("^(rfc822;)(.+@.+$)");
+    private static final Pattern FINAL_RECIPIENT_MATCHER = Pattern.compile("(?i)^(rfc822;)\s?(.+@.+$)");
 
+    private static final AttributeParser.EmailParser EMAIL_PARSER = new AttributeParser.EmailParser();
 
     @Autowired
     public BouncedMessageParser(@Value("${mail.smtp.from:}") final String smtpFrom) {
@@ -43,17 +50,52 @@ public class BouncedMessageParser {
     }
 
     @Nullable
-    public EmailMessageInfo parse(final MimeMessage message) throws MessagingException, IOException {
-        if (enabled && isMultipartReport(message)) {
-            final MultipartReport multipartReport = multipartReport(message.getContent());
-            if (isReportDeliveryStatus(multipartReport)) {
-                final DeliveryStatus deliveryStatus = deliveryStatus(message);
-                if (isFailed(deliveryStatus)) {
-                    final MimeMessage returnedMessage = multipartReport.getReturnedMessage();
-                    final String messageId = getMessageId(returnedMessage.getMessageID());
-                    final List<String> recipient = extractRecipients(deliveryStatus);
-                    return new EmailMessageInfo(recipient, messageId);
+    public EmailMessageInfo parse(final MimeMessage message) throws MessagingException, MailParsingException {
+        if (!enabled) {
+            return null;
+        }
+
+        // TODO: refactor to remove duplicate code
+
+        if (isMultipartReport(message)) {
+            try {
+                final MultipartReport multipartReport = multipartReport(message.getContent());
+                final EmailMessageInfo recipient = extractEmailMessageInfo(message, multipartReport);
+                if (recipient != null) {
+                    return recipient;
                 }
+            } catch (MessagingException | IOException | IllegalStateException ex){
+                throw new MailParsingException("Error parsing multipart report", ex);
+            }
+            // multipart report can *only* be a failure
+            throw new MailParsingException("MultiPart message without failure report");
+        }
+
+        if (isMultipartMixed(message)) {
+            try {
+                final MimeMultipart multipart = multipart(message.getContent());
+                final EmailMessageInfo recipient = extractEmailMessageInfo(message, multipart);
+                if (recipient != null) {
+                    return recipient;
+                }
+            } catch (MessagingException | IOException | IllegalStateException ex) {
+                throw new MailParsingException("Error parsing multipart report", ex);
+            }
+            // do not throw an exception, as whois updates can be multipart/mixed
+        }
+
+        // fall through: message is not bounced message
+        return null;
+    }
+
+    private EmailMessageInfo extractEmailMessageInfo(final MimeMessage message, final MimeMultipart multipart) throws MessagingException, IOException {
+        if (isReportDeliveryStatus(multipart)) {
+            final DeliveryStatus deliveryStatus = deliveryStatus(message);
+            if (isFailed(deliveryStatus)) {
+                final MimeMessage returnedMessage = getReturnedMessage(multipart);
+                final String messageId = getMessageId(returnedMessage.getMessageID());
+                final List<String> recipient = extractRecipients(deliveryStatus);
+                return new EmailMessageInfo(recipient, messageId, message);
             }
         }
         return null;
@@ -64,9 +106,50 @@ public class BouncedMessageParser {
         return MULTIPART_REPORT.match(contentType);
     }
 
-    private boolean isReportDeliveryStatus(final MultipartReport multipartReport) throws MessagingException {
-        final Report report = multipartReport.getReport();
-        return ("delivery-status".equals(report.getType()));
+    private boolean isMultipartMixed(final MimeMessage message) throws MessagingException {
+        final ContentType contentType = contentType(message.getContentType());
+        return MULTIPART_MIXED.match(contentType);
+    }
+
+    private boolean isReportDeliveryStatus(final MimeMultipart mimeMultipart) throws MessagingException {
+        final Report report = getReport(mimeMultipart);
+        return ((report != null) && "delivery-status".equals(report.getType()));
+    }
+
+    @Nullable
+    private Report getReport(final MimeMultipart mimeMultipart) throws MessagingException {
+        if (mimeMultipart.getCount() < 2) {
+            return null;
+        }
+        final BodyPart bodyPart = mimeMultipart.getBodyPart(1);
+        try {
+            final Object content = bodyPart.getContent();
+            if (!(content instanceof Report)) {
+                return null;
+            } else {
+                return (Report) content;
+            }
+        } catch (IOException ex) {
+            return null;
+        }
+    }
+
+    @Nullable
+    private MimeMessage getReturnedMessage(final MimeMultipart mimeMultipart) throws MessagingException {
+        if (mimeMultipart.getCount() < 3) {
+            return null;
+        }
+        final BodyPart bodyPart = mimeMultipart.getBodyPart(2);
+        if (!bodyPart.isMimeType("message/rfc822") &&
+                !bodyPart.isMimeType("text/rfc822-headers")) {
+            return null;
+        } else {
+            try {
+                return (MimeMessage) bodyPart.getContent();
+            } catch (IOException ex) {
+                return null;
+            }
+        }
     }
 
     private MultipartReport multipartReport(final Object content) throws MessagingException {
@@ -74,6 +157,14 @@ public class BouncedMessageParser {
             return (MultipartReport)content;
         } else {
             throw new MessagingException("Unexpected content was not multipart/report");
+        }
+    }
+
+    private MimeMultipart multipart(final Object content) throws MessagingException {
+        if (content instanceof MimeMultipart) {
+            return (MimeMultipart)content;
+        } else {
+            throw new MessagingException("Unexpected content was not multipart/mixed");
         }
     }
 
@@ -97,9 +188,21 @@ public class BouncedMessageParser {
                 LOGGER.error("Wrong formatted recipient {}", recipient);
                 continue;
             }
-            recipients.add(finalRecipientMatcher.group(2));
+            final String email = finalRecipientMatcher.group(2);
+            if (isValidEmail(email)) {
+                recipients.add(email);
+            }
         }
         return recipients;
+    }
+
+    private boolean isValidEmail(final String email){
+        try {
+            EMAIL_PARSER.parse(email);
+            return true;
+        } catch (AttributeParseException ex){
+            return false;
+        }
     }
 
     private boolean isFailed(final DeliveryStatus deliveryStatus) {
@@ -145,5 +248,4 @@ public class BouncedMessageParser {
             throw new IllegalStateException("Content-Type " + contentType, e);
         }
     }
-
 }

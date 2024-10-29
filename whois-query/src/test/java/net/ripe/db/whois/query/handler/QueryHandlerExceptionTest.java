@@ -2,6 +2,7 @@ package net.ripe.db.whois.query.handler;
 
 import com.google.common.net.InetAddresses;
 import net.ripe.db.whois.common.domain.ResponseObject;
+import net.ripe.db.whois.common.hazelcast.IpBlockManager;
 import net.ripe.db.whois.common.source.SourceContext;
 import net.ripe.db.whois.query.acl.AccessControlListManager;
 import net.ripe.db.whois.query.domain.QueryCompletionInfo;
@@ -34,6 +35,8 @@ public class QueryHandlerExceptionTest {
     AccessControlListManager accessControlListManager;
     @Mock SourceContext sourceContext;
     @Mock QueryExecutor queryExecutor;
+    @Mock
+    IpBlockManager ipBlockManager;
     QueryHandler subject;
 
     int contextId = 1;
@@ -42,7 +45,7 @@ public class QueryHandlerExceptionTest {
 
     @BeforeEach
     public void setUp() throws Exception {
-        subject = new QueryHandler(whoisLog, accessControlListManager, sourceContext, queryExecutor);
+        subject = new QueryHandler(whoisLog, accessControlListManager, ipBlockManager, sourceContext, queryExecutor);
     }
 
     @Test

@@ -9,7 +9,21 @@
 /*!40101 SET @OLD_SQL_MODE = @@SQL_MODE, SQL_MODE = 'NO_AUTO_VALUE_ON_ZERO' */;
 /*!40111 SET @OLD_SQL_NOTES = @@SQL_NOTES, SQL_NOTES = 0 */;
 
+DROP TABLE IF EXISTS `version`;
+CREATE TABLE `version`
+(
+    `version` varchar(80)
+) ENGINE = InnoDB
+  DEFAULT CHARSET = utf8mb4;
+
+DROP TABLE IF EXISTS `notification_file`;
+DROP TABLE IF EXISTS `delta_file`;
+DROP TABLE IF EXISTS `snapshot_file`;
+DROP TABLE IF EXISTS `snapshot_object`;
+DROP TABLE IF EXISTS `version_info`;
 DROP TABLE IF EXISTS `source`;
+DROP TABLE IF EXISTS `key_pair`;
+
 CREATE TABLE `source`
 (
     `id`   int unsigned NOT NULL AUTO_INCREMENT,
@@ -84,6 +98,7 @@ CREATE TABLE `key_pair`
     `public_key`  VARBINARY(3000) NOT NULL,
     `created`     bigint unsigned NOT NULL,
     `expires`     bigint unsigned NOT NULL,
+    `is_active`   bit(1) NOT NULL DEFAULT b'0',
     UNIQUE KEY `private_key_name_uk` (`private_key`),
     UNIQUE KEY `public_key_name_uk` (`public_key`),
     PRIMARY KEY (`id`)

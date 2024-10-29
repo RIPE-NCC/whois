@@ -93,7 +93,7 @@ public class AuthenticationModule {
 
             final Class<? extends Credential> credentialClass = credential.getClass();
             for (CredentialValidator credentialValidator : credentialValidatorMap.get(credentialClass)) {
-                if (credentialValidator.hasValidCredential(update, updateContext, offered.ofType(credentialValidator.getSupportedOfferedCredentialType()), credential)) {
+                if (credentialValidator.hasValidCredential(update, updateContext, offered.ofType(credentialValidator.getSupportedOfferedCredentialType()), credential, maintainer)) {
                     return true;
                 }
             }

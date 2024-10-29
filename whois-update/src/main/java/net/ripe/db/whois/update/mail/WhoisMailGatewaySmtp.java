@@ -7,7 +7,7 @@ import net.ripe.db.whois.common.Messages;
 import net.ripe.db.whois.common.aspects.RetryFor;
 import net.ripe.db.whois.common.dao.EmailStatusDao;
 import net.ripe.db.whois.common.dao.OutgoingMessageDao;
-import net.ripe.db.whois.common.mail.EmailStatus;
+import net.ripe.db.whois.common.mail.EmailStatusType;
 import net.ripe.db.whois.update.domain.ResponseMessage;
 import net.ripe.db.whois.update.log.LoggerContext;
 import org.slf4j.Logger;
@@ -45,7 +45,7 @@ public class WhoisMailGatewaySmtp extends MailGatewaySmtp {
 
     @Override
     public boolean canNotSendEmail(final String emailAddresses) {
-        final Map<String, EmailStatus> emailStatus = emailStatusDao.getEmailStatus(Set.of(emailAddresses));
+        final Map<String, EmailStatusType> emailStatus = emailStatusDao.getEmailStatusMap(Set.of(emailAddresses));
         return !emailStatus.isEmpty();
     }
 
@@ -70,7 +70,7 @@ public class WhoisMailGatewaySmtp extends MailGatewaySmtp {
     @RetryFor(value = MailSendException.class, attempts = 20, intervalMs = 10000)
     private void sendEmailAttempt(final String recipient, final String replyTo, final String subject, final String text) {
         try {
-            final MimeMessage message = sendEmailAttempt(Set.of(recipient), replyTo, subject, text, false);
+            final MimeMessage message = sendEmailAttempt(Set.of(recipient), replyTo, subject, text);
             loggerContext.log("msg-out.txt", new MailMessageLogCallback(message));
         } catch (MailSendException | MessagingException e) {
             loggerContext.log(new Message(Messages.Type.ERROR, "Caught %s: %s", e.getClass().getName(), e.getMessage()));

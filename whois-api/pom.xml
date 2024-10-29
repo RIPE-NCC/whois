@@ -45,6 +45,16 @@
             </exclusions>
         </dependency>
         <dependency>
+            <groupId>net.ripe.db</groupId>
+            <artifactId>whois-nrtm4-client</artifactId>
+            <exclusions>
+                <exclusion>
+                    <groupId>org.bouncycastle</groupId>
+                    <artifactId>bcprov-jdk15on</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+        <dependency>
             <groupId>commons-validator</groupId>
             <artifactId>commons-validator</artifactId>
         </dependency>
@@ -197,9 +207,9 @@
         </resources>
         <plugins>
             <plugin>
-                <groupId>io.starter</groupId>
+                <groupId>org.codehaus.mojo</groupId>
                 <artifactId>aspectj-maven-plugin</artifactId>
-                <version>1.12.9</version>
+                <version>1.15.0</version>
                 <configuration>
                     <aspectLibraries>
                         <aspectLibrary>
@@ -216,7 +226,7 @@
             <plugin>
                 <groupId>org.apache.cxf</groupId>
                 <artifactId>cxf-xjc-plugin</artifactId>
-                <version>2.6.1</version>
+                <version>3.3.4</version>
                 <executions>
                     <execution>
                         <phase>none</phase>
@@ -224,7 +234,7 @@
                 </executions>
                 <configuration>
                     <extensions>
-                        <extension>org.apache.cxf.xjcplugins:cxf-xjc-dv:2.6.1</extension>
+                        <extension>org.apache.cxf.xjcplugins:cxf-xjc-dv:3.3.4</extension>
                     </extensions>
                     <sourceRoot>${project.build.sourceDirectory}</sourceRoot>
                     <xsdOptions>

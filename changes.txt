@@ -1,6 +1,51 @@
 # next
 
+# 1.114
+
+[nrtm] NRTMv4 Key Rotation (#1484)
+[update] Return an error if an email address is longer than 80 characters (#1492)
+[update] DoS Filter for Update Requests (#1495)
+[update] Block IP Filter (#1498)
+[update] Use transaction manager per datasource (#1501)
+[update] "text" Content Type processed as "text/plain" for Mail Messages (#1515)
+[update] Add Warning When Password Authentication is used in Mailupdates (#1511)
+[query] Mp-member Attribute is clickable (#1506)
+
+# 1.113.2
+
+[update] Handle multipart/mixed Bounces and Auto-submitted Messages (#1490)
+
+# 1.113.1
+
+[update] validate max references (#1486)
+
+# 1.113
+
+[all] Inetnum AGGREGATED-BY-LIR status (#1467)
+[api] Enable Client Auth Certificate for Lookup (#1475)
+[api] ROA Overlapping INVALID ROA and VALID ROA fix (#1470)
+[all] Java 21 Support (#1440)
+
+# 1.112.1
+
+[update] validate max references (#1486)
+
 # 1.112
+
+[all] NWI-4: Add ALLOCATED-ASSIGNED PA inetnum status (#1432)
+[query] Set Charset Flag (#1450)
+[update] Don't allow "mnt-lower" on assignments (#1452)
+[api] Fixed Syncupdates HELP Bug (#1453)
+[rdap] RDAP Link Title is a String not List<String> (#1445)
+[mail] Remove Message If Bounce Detection Or Unsubscribe Fails (#1418)
+[mail] Handle Multiple Delivery Status Notification Failure Responses for the Same Email Address (#1417)
+[mail] Final-Recipient: RFC822 is case insensitive (#1423)
+[mail] Refactor Mail Sender to allow multiple recipients (#1411)
+[all] Route ROA checker (#1416)
+[all] Schedule ROA load each 15 minutes (#1444)
+[query] Allow inverse query for e-mail from trusted addresses (#1435)
+[query] Allow inverse query for sponsoring-org from all addresses (#1431)
+[nrtm] Return 404 on invalid NRTMv4 notification file path (#1422)
 
 # 1.111
 

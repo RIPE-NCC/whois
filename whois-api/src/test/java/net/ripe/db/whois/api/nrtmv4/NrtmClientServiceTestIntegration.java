@@ -8,6 +8,7 @@ import com.google.common.net.HttpHeaders;
 import jakarta.ws.rs.InternalServerErrorException;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
+import net.ripe.db.nrtm4.domain.NrtmKeyRecord;
 import net.ripe.db.nrtm4.generator.DeltaFileGenerator;
 import net.ripe.db.nrtm4.generator.SnapshotFileGenerator;
 import net.ripe.db.nrtm4.dao.DeltaFileDao;
@@ -286,7 +287,7 @@ public class NrtmClientServiceTestIntegration extends AbstractNrtmIntegrationTes
 
         final String signature = response.readEntity(String.class);
 
-        assertThat(Ed25519Util.verifySignature(signature, nrtmKeyConfigDao.getPublicKey(), notificationFile.getBytes()), is(Boolean.TRUE));
+        assertThat(Ed25519Util.verifySignature(signature, nrtmKeyConfigDao.getActivePublicKey(), notificationFile.getBytes()), is(Boolean.TRUE));
     }
 
     @Test
@@ -379,6 +380,20 @@ public class NrtmClientServiceTestIntegration extends AbstractNrtmIntegrationTes
                 ".4ef06e8c4e4891411be.json.gz", MediaType.APPLICATION_OCTET_STREAM);
         assertThat(response.getStatus(), is(404));
         assertThat(response.readEntity(String.class), is("Requested Snapshot file does not exists"));
+    }
+
+    @Test
+    public void should_throw_exception_invalid_notification_filename()  {
+        final Response response = getResponseFromHttpsRequest("TEST/update-notification-file.aaaaa", MediaType.APPLICATION_OCTET_STREAM);
+        assertThat(response.getStatus(), is(404));
+        assertThat(response.readEntity(String.class), is("Notification file does not exists"));
+    }
+
+    @Test
+    public void should_throw_exception_invalid_notification_sig_filename()  {
+        final Response response = getResponseFromHttpsRequest("TEST/update-notification-file.aaaaa.sig", MediaType.APPLICATION_OCTET_STREAM);
+        assertThat(response.getStatus(), is(404));
+        assertThat(response.readEntity(String.class), is("Notification file does not exists"));
     }
 
     @Test
@@ -483,6 +498,9 @@ public class NrtmClientServiceTestIntegration extends AbstractNrtmIntegrationTes
         final byte[] privateKey =((Ed25519PrivateKeyParameters) asymmetricCipherKeyPair.getPrivate()).getEncoded();
         final byte[] publicKey = ((Ed25519PublicKeyParameters) asymmetricCipherKeyPair.getPublic()).getEncoded();
 
-        nrtmKeyConfigDao.saveKeyPair(privateKey, publicKey);
+        final long createdTimestamp = dateTimeProvider.getCurrentDateTime().toEpochSecond(ZoneOffset.UTC);
+        final long expires = dateTimeProvider.getCurrentDateTime().plusYears(1).toEpochSecond(ZoneOffset.UTC);
+
+        nrtmKeyConfigDao.saveKeyPair(NrtmKeyRecord.of(privateKey, publicKey, true, createdTimestamp, expires));
     }
 }

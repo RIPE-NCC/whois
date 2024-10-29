@@ -25,32 +25,32 @@
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
 
         <!-- JAVA version -->
-        <java.version>17</java.version>
+        <java.version>21</java.version>
 
         <!-- dependencies -->
 
-        <aspectj.version>1.9.21.1</aspectj.version>
+        <aspectj.version>1.9.22.1</aspectj.version>
         <awaitility.version>4.2.0</awaitility.version>
 
-        <bouncycastle.version>1.77</bouncycastle.version>
+        <bouncycastle.version>1.78.1</bouncycastle.version>
 
         <c3po.version>0.10.0</c3po.version>
         <commons-codec.version>1.16.1</commons-codec.version>
         <!-- TODO: update to commons-collections4 -->
         <commons-collections.version>3.2.2</commons-collections.version>
         <commons-compress.version>1.26.1</commons-compress.version>
-        <commons-email.version>1.6.0</commons-email.version>
-        <commons-io.version>2.15.1</commons-io.version>
+        <commons-email.version>2.0.0-M1</commons-email.version>
+        <commons-io.version>2.16.1</commons-io.version>
         <!-- equivalent to https://github.com/jgonian/commons-ip-math/ release 1.23 -->
         <commons-ip-math.version>1.23</commons-ip-math.version>
         <!-- TODO: [ES] Validate.notNull() behaviour has changed in commons-lang3 (throws NullPointerException) -->
         <commons-lang.version>2.6</commons-lang.version>
         <commons-net.version>3.10.0</commons-net.version>
-        <commons-validator.version>1.8.0</commons-validator.version>
+        <commons-validator.version>1.9.0</commons-validator.version>
 
         <diffutils.version>1.3.0</diffutils.version>
 
-        <elasticsearch.version>7.15.0</elasticsearch.version>
+        <elasticsearch.version>7.16.3</elasticsearch.version>
         <ezvcard.version>0.12.1</ezvcard.version>
 
         <findbugs.version>3.0.2</findbugs.version>
@@ -62,25 +62,25 @@
         <hamcrest-json.version>0.2</hamcrest-json.version>
         <hazelcast.version>4.2.8</hazelcast.version>
 
-        <jackson.version>2.16.2</jackson.version>
+        <jackson.version>2.17.2</jackson.version>
         <jaxb.api.version>4.0.1</jaxb.api.version>
         <jaxb.impl.version>4.0.4</jaxb.impl.version>
         <jcache.version>1.1.1</jcache.version>
         <jersey.version>3.0.12</jersey.version>
-        <jetty.version>11.0.20</jetty.version>
+        <jetty.version>11.0.24</jetty.version>
         <jflex.version>1.9.1</jflex.version>
         <jopt-simple.version>5.0.4</jopt-simple.version>
         <jsonassert.version>1.5.1</jsonassert.version>
         <json-path.version>2.9.0</json-path.version>
         <jsoup.version>1.16.1</jsoup.version>
-        <junit.version>5.10.2</junit.version>
+        <junit.version>5.11.1</junit.version>
 
         <log4j.version>2.22.1</log4j.version>
 
         <mail.version>2.0.3</mail.version>
         <!-- TODO: update mariadb to 3.x -->
         <mariadb-java-client.version>2.7.12</mariadb-java-client.version>
-        <mockito.version>3.12.4</mockito.version>
+        <mockito.version>5.12.0</mockito.version>
 
         <netty.version>4.1.107.Final</netty.version>
 
@@ -89,10 +89,10 @@
         <proprot.version>1.0</proprot.version>
 
         <sentry.version>6.26.0</sentry.version>
-        <shedlock.version>4.46.0</shedlock.version>
-        <slf4j.version>2.0.12</slf4j.version>
+        <shedlock.version>5.13.0</shedlock.version>
+        <slf4j.version>2.0.16</slf4j.version>
         <solrj.version>1.4.1</solrj.version>
-        <spring.version>6.1.4</spring.version>
+        <spring.version>6.1.14</spring.version>
         <spock.version>2.3-groovy-3.0</spock.version>
         <stax-utils.version>20070216</stax-utils.version>
 
@@ -131,6 +131,7 @@
         <module>whois-db</module>
         <module>whois-endtoend</module>
         <module>whois-nrtm4</module>
+        <module>whois-nrtm4-client</module>
     </modules>
 
     <dependencyManagement>
@@ -204,6 +205,18 @@
             <dependency>
                 <groupId>net.ripe.db</groupId>
                 <artifactId>whois-nrtm4</artifactId>
+                <version>${project.version}</version>
+                <type>test-jar</type>
+                <scope>test</scope>
+            </dependency>
+            <dependency>
+                <groupId>net.ripe.db</groupId>
+                <artifactId>whois-nrtm4-client</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>net.ripe.db</groupId>
+                <artifactId>whois-nrtm4-client</artifactId>
                 <version>${project.version}</version>
                 <type>test-jar</type>
                 <scope>test</scope>
@@ -447,15 +460,8 @@
             </dependency>
             <dependency>
                 <groupId>org.apache.commons</groupId>
-                <artifactId>commons-email</artifactId>
+                <artifactId>commons-email2-jakarta</artifactId>
                 <version>${commons-email.version}</version>
-                <!-- TODO: [ES] commons-email has not switched to Jakarta -->
-                <exclusions>
-                    <exclusion>
-                        <artifactId>javax.mail</artifactId>
-                        <groupId>com.sun.mail</groupId>
-                    </exclusion>
-                </exclusions>
             </dependency>
             <dependency>
                 <groupId>org.apache.velocity</groupId>
@@ -818,7 +824,7 @@
             <plugin>
                 <groupId>org.jacoco</groupId>
                 <artifactId>jacoco-maven-plugin</artifactId>
-                <version>0.8.8</version>
+                <version>0.8.12</version>
                 <executions>
                     <execution>
                         <id>before-unit-test-execution</id>
@@ -897,7 +903,7 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-clean-plugin</artifactId>
-                <version>3.1.0</version>
+                <version>3.4.0</version>
                 <configuration>
                     <filesets>
                         <fileset>
@@ -918,13 +924,16 @@
                     <release>${java.version}</release>
                     <encoding>${project.build.sourceEncoding}</encoding>
                     <compilerArgs>
-                        <arg>-Xlint</arg>
+                        <arg>-Xlint:all</arg>
                         <arg>-Xlint:-unchecked</arg>
                         <arg>-Xlint:-rawtypes</arg>
                         <arg>-Xlint:-serial</arg>
                         <arg>-Xlint:-fallthrough</arg>
+                        <arg>-Xlint:-processing</arg>
                     	<arg>--add-modules</arg>
                     	<arg>java.sql,java.xml</arg>
+                        <!-- explicitly enable annotation processing. -->
+                        <arg>-proc:full</arg>
                     </compilerArgs>
                     <showWarnings>true</showWarnings>
                     <showDeprecation>true</showDeprecation>
@@ -941,7 +950,7 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-jar-plugin</artifactId>
-                <version>3.2.2</version>
+                <version>3.4.2</version>
                 <executions>
                     <execution>
                         <goals>
@@ -953,7 +962,7 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-source-plugin</artifactId>
-                <version>3.2.1</version>
+                <version>3.3.1</version>
                 <executions>
                     <execution>
                         <id>attach-sources</id>
@@ -966,7 +975,7 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-deploy-plugin</artifactId>
-                <version>2.8.2</version>
+                <version>3.1.3</version>
             </plugin>
             <plugin>
                 <groupId>org.codehaus.gmavenplus</groupId>
@@ -989,9 +998,10 @@
                     </excludes>
                     <runOrder>random</runOrder>
                     <parallel>true</parallel>
-                    <forkCount>1C</forkCount>
+                    <forkCount>4</forkCount>
                     <reuseForks>true</reuseForks>
-                    <useUnlimitedThreads>true</useUnlimitedThreads>
+                    <threadCount>1</threadCount>
+                    <perCoreThreadCount>true</perCoreThreadCount>
                     <excludedGroups>IntegrationTest,ManualTest,ElasticSearchTest</excludedGroups>
                     <systemPropertyVariables>
                         <hazelcast.version.check.enabled>false</hazelcast.version.check.enabled>
@@ -1015,10 +1025,13 @@
                         <exclude>${test.files.excludes}</exclude>
                     </excludes>
                     <excludedGroups>ManualTest</excludedGroups>
-                    <runOrder>random</runOrder>
+                    <!-- Ref. https://maven.apache.org/surefire/maven-failsafe-plugin/examples/fork-options-and-parallel-execution.html -->
                     <parallel>true</parallel>
-                    <forkCount>1C</forkCount>
+                    <forkCount>4</forkCount>
                     <reuseForks>true</reuseForks>
+                    <threadCount>1</threadCount>
+                    <perCoreThreadCount>true</perCoreThreadCount>
+                    <runOrder>random</runOrder>
                     <testFailureIgnore>false</testFailureIgnore>
                 </configuration>
                 <executions>
@@ -1031,10 +1044,9 @@
                 </executions>
             </plugin>
             <plugin>
-                <!-- Plugin forked from mojohaus project to add Java 11 support -->
-                <groupId>io.starter</groupId>
+                <groupId>org.codehaus.mojo</groupId>
                 <artifactId>aspectj-maven-plugin</artifactId>
-                <version>1.12.9</version>
+                <version>1.15.0</version>
                 <configuration>
                     <source>${java.version}</source>
                     <target>${java.version}</target>
@@ -1065,7 +1077,6 @@
                         <exclude>**/net/ripe/db/whois/common/Message.java</exclude>
                         <exclude>**/net/ripe/db/whois/common/Messages.java</exclude>
                     </excludes>
-
                     <Xlint>warning</Xlint>
                     <verbose>true</verbose>
                     <forceAjcCompile>true</forceAjcCompile>
@@ -1117,7 +1128,7 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-enforcer-plugin</artifactId>
-                <version>3.1.0</version>
+                <version>3.5.0</version>
                 <configuration>
                     <rules>
                         <dependencyConvergence/>
@@ -1145,7 +1156,7 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-dependency-plugin</artifactId>
-                <version>3.5.0</version>
+                <version>3.8.0</version>
             </plugin>
         </plugins>
     </build>
@@ -1249,7 +1260,7 @@
             <plugin>
                 <groupId>org.codehaus.mojo</groupId>
                 <artifactId>versions-maven-plugin</artifactId>
-                <version>2.8.1</version>
+                <version>2.17.1</version>
                 <reportSets>
                     <reportSet>
                         <reports>

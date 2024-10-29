@@ -28,17 +28,27 @@ public interface DecorationStrategy {
 
         @Override
         public RpslObject decorate(final RpslObject object) {
-            if (dummifier.isAllowed(VERSION, object)) {
+            if (dummifier.isAllowed(VERSION, object) && !isPlaceHolder(object)) {
                 return dummifier.dummify(VERSION, object);
             }
 
             final ObjectType objectType = object.getType();
-            if (writtenPlaceHolders.add(objectType)) {
-                return DummifierNrtm.getPlaceholderPersonObject();
-            }
 
+            //Just PERSON and ROLE without abuseMailbox objects
+            if (writtenPlaceHolders.add(objectType)) {
+                if (objectType.equals(ObjectType.PERSON)) {
+                    return DummifierNrtm.getPlaceholderPersonObject();
+                }
+                if (objectType.equals(ObjectType.ROLE)) {
+                    return DummifierNrtm.getPlaceholderRoleObject();
+                }
+            }
             return null;
         }
+    }
+
+    private static boolean isPlaceHolder(RpslObject object) {
+        return object.getType().equals(ObjectType.ROLE) && object.getKey().equals(DummifierNrtm.getPlaceholderRoleObject().getKey());
     }
 
     @CheckForNull

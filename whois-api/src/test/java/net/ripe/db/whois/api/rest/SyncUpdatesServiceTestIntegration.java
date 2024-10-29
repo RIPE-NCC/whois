@@ -15,7 +15,7 @@ import net.ripe.db.whois.common.dao.EmailStatusDao;
 import net.ripe.db.whois.common.domain.CIString;
 import net.ripe.db.whois.common.domain.IpRanges;
 import net.ripe.db.whois.common.domain.User;
-import net.ripe.db.whois.common.mail.EmailStatus;
+import net.ripe.db.whois.common.mail.EmailStatusType;
 import net.ripe.db.whois.common.rpsl.AttributeType;
 import net.ripe.db.whois.common.rpsl.ObjectType;
 import net.ripe.db.whois.common.rpsl.RpslAttribute;
@@ -26,7 +26,6 @@ import net.ripe.db.whois.update.domain.UpdateMessages;
 import net.ripe.db.whois.update.mail.MailSenderStub;
 import org.eclipse.jetty.http.HttpStatus;
 import org.glassfish.jersey.media.multipart.FormDataMultiPart;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -92,14 +91,15 @@ public class SyncUpdatesServiceTestIntegration extends AbstractIntegrationTest {
 
     @Test
     public void get_empty_request() {
-        try {
-            RestTest.target(getPort(), "whois/syncupdates/test")
+        final Response response = RestTest.target(getPort(), "whois/syncupdates/test")
                     .request()
-                    .get(String.class);
-            fail();
-        } catch (BadRequestException e) {
-            // expected
-        }
+                    .get(Response.class);
+
+        final String responseBody = response.readEntity(String.class);
+        assertThat(responseBody, containsString("You have requested Help information from the RIPE NCC Database"));
+        assertThat(responseBody, containsString("From-Host: 127.0.0.1"));
+        assertThat(responseBody, containsString("Date/Time: "));
+        assertThat(responseBody, not(containsString("$")));
     }
 
     @Test
@@ -129,10 +129,9 @@ public class SyncUpdatesServiceTestIntegration extends AbstractIntegrationTest {
         assertThat(response.getHeaderString(HttpHeaders.CONTENT_TYPE), is(MediaType.TEXT_PLAIN));
     }
 
-    @Disabled("TODO: [ES] post without content type returns internal server error")
     @Test
     public void post_without_content_type() throws Exception {
-        assertThat(postWithoutContentType(), not(containsString("Internal Server Error")));
+        assertThat(postWithoutContentType(), containsString("Bad Request"));
     }
 
     @Test
@@ -157,6 +156,15 @@ public class SyncUpdatesServiceTestIntegration extends AbstractIntegrationTest {
     @Test
     public void help_and_invalid_parameter() {
         String response = RestTest.target(getPort(), "whois/syncupdates/test?HELP=yes&INVALID=true")
+                .request()
+                .get(String.class);
+
+        assertThat(response, containsString("You have requested Help information from the RIPE NCC Database"));
+    }
+
+    @Test
+    public void help_and_data_parameters() {
+        String response = RestTest.target(getPort(), "whois/syncupdates/test?HELP=yes&DATA=data")
                 .request()
                 .get(String.class);
 
@@ -1227,8 +1235,8 @@ public class SyncUpdatesServiceTestIntegration extends AbstractIntegrationTest {
                 "remarks:   remark\n" +
                 "source:    TEST\n";
 
-        emailStatusDao.createEmailStatus("test@ripe.net", EmailStatus.UNSUBSCRIBE);
-        emailStatusDao.createEmailStatus("test1@ripe.net", EmailStatus.UNDELIVERABLE);
+        emailStatusDao.createEmailStatus("test@ripe.net", EmailStatusType.UNSUBSCRIBE);
+        emailStatusDao.createEmailStatus("test1@ripe.net", EmailStatusType.UNDELIVERABLE);
 
         final String response = RestTest.target(getPort(),
                         "whois/syncupdates/test?" + "DATA=" + SyncUpdateUtils.encode(person + "\npassword: emptypassword"))
@@ -1240,6 +1248,21 @@ public class SyncUpdatesServiceTestIntegration extends AbstractIntegrationTest {
         assertThat(response, containsString("***Warning: Not sending notification to test@ripe.net because it is unsubscribe."));
         assertThat(response, containsString("***Warning: Not sending notification to test1@ripe.net because it is\n" +
                 "            undeliverable."));
+    }
+
+    @Test
+    public void create_object_only_data_parameter_over_http() {
+        rpslObjectUpdateDao.createObject(RpslObject.parse(PERSON_ANY1_TEST));
+
+        final String response = RestTest.target(getPort(), "whois/syncupdates/test?" +
+                        "DATA=" + SyncUpdateUtils.encode(MNTNER_TEST_MNTNER + "\npassword: emptypassword"))
+                .request()
+                .get(String.class);
+
+        assertThat(response, containsString("Create SUCCEEDED: [mntner] mntner"));
+        assertThat(response, containsString(
+                "This Syncupdates request used insecure HTTP, which will be removed\n" +
+                        "            in a future release. Please switch to HTTPS."));
     }
 
 
