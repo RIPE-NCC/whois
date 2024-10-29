@@ -8,7 +8,6 @@ import net.ripe.db.whois.common.iptree.IpTreeUpdater;
 import net.ripe.db.whois.common.rpsl.RpslObject;
 import net.ripe.db.whois.common.support.TelnetWhoisClient;
 import net.ripe.db.whois.query.QueryMessages;
-import net.ripe.db.whois.query.QueryServer;
 import net.ripe.db.whois.query.support.AbstractQueryIntegrationTest;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.AfterEach;
@@ -510,7 +509,7 @@ public class SimpleTestIntegration extends AbstractQueryIntegrationTest {
                         "descr:          66121 Saarbrücken\n" +
                         "' USING utf8) WHERE pkey = '117.80.81.in-addr.arpa'");
 
-        final String response = TelnetWhoisClient.queryLocalhost(QueryServer.port, "117.80.81.in-addr.arpa");
+        final String response = TelnetWhoisClient.queryLocalhost(queryServer.getPort(), "117.80.81.in-addr.arpa");
 
         //  0x00FC is UTF-8 representation of u-umlaut (2 bytes)
         assertThat(response, containsString("Saarbr\u00FCcken"));
@@ -526,7 +525,7 @@ public class SimpleTestIntegration extends AbstractQueryIntegrationTest {
                         "descr:           66121 Saarbrücken" +
                         "' WHERE pkey = '117.80.81.in-addr.arpa'");
 
-        final String response = TelnetWhoisClient.queryLocalhost(QueryServer.port, "117.80.81.in-addr.arpa");
+        final String response = TelnetWhoisClient.queryLocalhost(queryServer.getPort(), "117.80.81.in-addr.arpa");
 
         assertThat(response, containsString("Saarbr\u00FCcken"));
     }
