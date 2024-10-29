@@ -3,21 +3,24 @@ package net.ripe.db.nrtm4.client.dao;
 import net.ripe.db.nrtm4.client.scheduler.Nrtm4ClientCondition;
 import net.ripe.db.whois.common.DateTimeProvider;
 import net.ripe.db.whois.common.dao.jdbc.JdbcRpslObjectOperations;
+import net.ripe.db.whois.common.rpsl.RpslObject;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Conditional;
 import org.springframework.jdbc.core.JdbcTemplate;
-import org.springframework.jdbc.support.GeneratedKeyHolder;
-import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.stereotype.Repository;
 
 import javax.sql.DataSource;
-import java.sql.PreparedStatement;
-import java.sql.Statement;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
 import java.util.List;
 
 @Repository
 @Conditional(Nrtm4ClientCondition.class)
 public class Nrtm4ClientMirrorRepository {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(Nrtm4ClientMirrorRepository.class);
 
     private final JdbcTemplate jdbcMasterTemplate;
     private final JdbcTemplate jdbcSlaveTemplate;
@@ -34,13 +37,20 @@ public class Nrtm4ClientMirrorRepository {
     public void saveUpdateNotificationFileVersion(final String source,
                                                   final long version,
                                                   final String sessionID){
-        saveVersionInfo(source, version, sessionID, "update-notification-file");
+        saveVersionInfo(source, version, sessionID, NrtmClientDocumentType.NOTIFICATION);
     }
 
-    public List<NrtmClientVersionInfo> getNrtmLastVersionInfo(){
+    public void saveSnapshotFileVersion(final String source,
+                                        final long version,
+                                        final String sessionID){
+        saveVersionInfo(source, version, sessionID, NrtmClientDocumentType.SNAPSHOT);
+    }
+
+    public List<NrtmClientVersionInfo> getNrtmLastVersionInfoForUpdateNotificationFile(){
         final String sql = """
             SELECT id, source, MAX(version), session_id, type, created
             FROM version_info
+            WHERE type = 'update-notification-file'
             GROUP BY source
             """;
         return jdbcSlaveTemplate.query(sql,
@@ -49,9 +59,22 @@ public class Nrtm4ClientMirrorRepository {
                         rs.getString(2),
                         rs.getLong(3),
                         rs.getString(4),
-                        rs.getString(5),
+                        NrtmClientDocumentType.fromValue(rs.getString(5)),
                         rs.getLong(6)
                         ));
+    }
+
+    public void persistRpslObject(final RpslObject rpslObject){
+        try {
+            final long now = JdbcRpslObjectOperations.now(dateTimeProvider);
+            jdbcMasterTemplate.update("INSERT INTO last_mirror (object, object_type, pkey, timestamp) VALUES (?, ?, ?, ?)",
+                    getRpslObjectBytes(rpslObject),
+                    rpslObject.getType().getName(),
+                    rpslObject.getKey().toString(),
+                    now);
+        } catch (IOException e) {
+            LOGGER.error("unable to get the bytes of the object {}", rpslObject.getKey(), e);
+        }
     }
 
     public void truncateTables(){
@@ -63,24 +86,20 @@ public class Nrtm4ClientMirrorRepository {
             final String source,
             final long version,
             final String sessionID,
-            final String type) {
-        final KeyHolder keyHolder = new GeneratedKeyHolder();
+            final NrtmClientDocumentType type) {
         final long now = JdbcRpslObjectOperations.now(dateTimeProvider);
-        jdbcMasterTemplate.update(connection -> {
-                    final String sql = """
-                    INSERT INTO version_info (source, version, session_id, type, created)
-                    VALUES (?, ?, ?, ?, ?)
-                    """;
-                    final PreparedStatement pst = connection.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS);
-                    pst.setString(1, source);
-                    pst.setLong(2, version);
-                    pst.setString(3, sessionID);
-                    pst.setString(4, type);
-                    pst.setLong(5, now);
-                    return pst;
-                }, keyHolder
-        );
-        new NrtmClientVersionInfo(keyHolder.getKeyAs(Long.class), source, version, sessionID, type, now);
+        jdbcMasterTemplate.update("INSERT INTO version_info (source, version, session_id, type, created) VALUES (?, ?, ?, ?, ?)",
+                source,
+                version,
+                sessionID,
+                type.getFileNamePrefix(),
+                now);
+    }
+
+    private static byte[] getRpslObjectBytes(final RpslObject rpslObject) throws IOException {
+        final ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
+        rpslObject.writeTo(byteArrayOutputStream);
+        return byteArrayOutputStream.toByteArray();
     }
 
 }

@@ -13,18 +13,28 @@ import com.fasterxml.jackson.module.jakarta.xmlbind.JakartaXmlBindAnnotationIntr
 import jakarta.ws.rs.client.Client;
 import jakarta.ws.rs.client.ClientBuilder;
 import jakarta.ws.rs.core.MediaType;
+import jakarta.ws.rs.core.Response;
 import net.ripe.db.nrtm4.client.scheduler.Nrtm4ClientCondition;
 import org.apache.commons.compress.utils.Lists;
+import org.apache.commons.lang.StringUtils;
+import org.eclipse.jetty.http.HttpHeader;
+import org.eclipse.jetty.http.HttpScheme;
 import org.glassfish.jersey.client.ClientProperties;
+import org.json.JSONException;
+import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Conditional;
 import org.springframework.stereotype.Component;
 
+import javax.annotation.Nullable;
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.zip.GZIPInputStream;
 
 @Component
 @Conditional(Nrtm4ClientCondition.class)
@@ -39,6 +49,8 @@ public class NrtmRestClient {
     private static final int CLIENT_READ_TIMEOUT = 60_000;
 
     private final Client client;
+
+    public static final String RECORD_SEPARATOR = "\u001E";
 
     public NrtmRestClient(@Value("${nrtm.baseUrl}") final String baseUrl) {
         final ObjectMapper objectMapper = JsonMapper.builder()
@@ -82,6 +94,59 @@ public class NrtmRestClient {
                 .get(UpdateNotificationFileResponse.class);
     }
 
+    @Nullable
+    public SnapshotFileResponse getSnapshotFile(final String url){
+        final Response response =  client.target(url)
+                .request(MediaType.APPLICATION_OCTET_STREAM)
+                .header(HttpHeader.X_FORWARDED_PROTO.asString(), HttpScheme.HTTPS.asString())
+                .get(Response.class);
+
+        try {
+            final String[] records = getSnapshotRecords(response.readEntity(byte[].class));
+            final JSONObject jsonObject = new JSONObject(records[0]);
+            final int snapshotVersion = jsonObject.getInt("version");
+            final String snapshotSessionId = jsonObject.getString("session_id");
+
+            final List<SnapshotClientFileRecord> rpslObjects = Lists.newArrayList();
+            for (int i = 1; i < records.length; i++) {
+                rpslObjects.add(new ObjectMapper().readValue(records[i], SnapshotClientFileRecord.class));
+            }
+            return new SnapshotFileResponse(rpslObjects, snapshotVersion, snapshotSessionId);
+        } catch (IOException | JSONException ex){
+            LOGGER.error("Unable to get the records from the snapshot", ex);
+            return null;
+        }
+        // return getResponseFromHttpsRequest(sourceName + "/" + getSnapshotNameFromUpdateNotification(notificationFile)
+        //                , MediaType.APPLICATION_JSON);
+//return notificationFile.getSnapshot().getUrl().split("/")[4];
+        //final String[] records = getSnapshotRecords(response.readEntity(byte[].class));
+
+        //assertNrtmFileInfo(records[0], "snapshot", 1, "TEST");
+        //        final JSONObject jsonObject = new JSONObject(nrtmInfo);
+        //        assertThat(jsonObject.getInt("nrtm_version"), is(4));
+        //        assertThat(jsonObject.getString("type"), is(type));
+        //        assertThat(jsonObject.getString("source"), is(source));
+        //        assertThat(jsonObject.getInt("version"), is(version));
+
+
+
+        //    public String[] getSnapshotRecords(byte[] compressed) throws IOException {
+        //        return StringUtils.split( decompress(compressed), NrtmFileUtil.RECORD_SEPERATOR);
+        //    }
+
+                /*
+                *
+                *     @NotNull
+    protected List<SnapshotFileRecord> getSnapshotRecords(final String[] records) throws JsonProcessingException {
+        final List<SnapshotFileRecord> snapshotRecords = Lists.newArrayList();
+
+        for (int i = 1; i < records.length; i++) {
+            snapshotRecords.add(new ObjectMapper().readValue(records[i].toString(), SnapshotFileRecord.class));
+        }
+        return snapshotRecords; */
+
+    }
+
     private static List<String> extractSources(final String html) {
         final List<String> sources = com.google.common.collect.Lists.newArrayList();
 
@@ -95,5 +160,24 @@ public class NrtmRestClient {
         }
 
         return sources;
+    }
+
+    private static String[] getSnapshotRecords(byte[] compressed) throws IOException {
+        return StringUtils.split(decompress(compressed), RECORD_SEPARATOR);
+    }
+
+    public static String decompress(final byte[] compressed) throws IOException {
+        final int BUFFER_SIZE = 32;
+        ByteArrayInputStream is = new ByteArrayInputStream(compressed);
+        GZIPInputStream gis = new GZIPInputStream(is, BUFFER_SIZE);
+        StringBuilder string = new StringBuilder();
+        byte[] data = new byte[BUFFER_SIZE];
+        int bytesRead;
+        while ((bytesRead = gis.read(data)) != -1) {
+            string.append(new String(data, 0, bytesRead));
+        }
+        gis.close();
+        is.close();
+        return string.toString();
     }
 }

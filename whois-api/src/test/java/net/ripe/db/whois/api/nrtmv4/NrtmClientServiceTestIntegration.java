@@ -1,25 +1,23 @@
 package net.ripe.db.whois.api.nrtmv4;
 
-import static org.junit.jupiter.api.Assertions.assertThrows;
-
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.google.common.collect.Lists;
 import com.google.common.net.HttpHeaders;
 import jakarta.ws.rs.InternalServerErrorException;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
-import net.ripe.db.nrtm4.domain.NrtmKeyRecord;
-import net.ripe.db.nrtm4.generator.DeltaFileGenerator;
-import net.ripe.db.nrtm4.generator.SnapshotFileGenerator;
 import net.ripe.db.nrtm4.dao.DeltaFileDao;
 import net.ripe.db.nrtm4.dao.NrtmKeyConfigDao;
+import net.ripe.db.nrtm4.dao.NrtmSourceDao;
 import net.ripe.db.nrtm4.dao.NrtmVersionInfoDao;
 import net.ripe.db.nrtm4.dao.SnapshotFileDao;
-import net.ripe.db.nrtm4.dao.NrtmSourceDao;
 import net.ripe.db.nrtm4.domain.DeltaFileRecord;
 import net.ripe.db.nrtm4.domain.DeltaFileVersionInfo;
+import net.ripe.db.nrtm4.domain.NrtmKeyRecord;
 import net.ripe.db.nrtm4.domain.NrtmVersionInfo;
 import net.ripe.db.nrtm4.domain.SnapshotFile;
+import net.ripe.db.nrtm4.generator.DeltaFileGenerator;
+import net.ripe.db.nrtm4.generator.SnapshotFileGenerator;
 import net.ripe.db.nrtm4.util.Ed25519Util;
 import net.ripe.db.nrtm4.util.NrtmFileUtil;
 import net.ripe.db.whois.api.AbstractNrtmIntegrationTest;
@@ -54,6 +52,7 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.containsInAnyOrder;
 import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.is;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 @Tag("IntegrationTest")
 @DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_EACH_TEST_METHOD)
@@ -83,13 +82,11 @@ public class NrtmClientServiceTestIntegration extends AbstractNrtmIntegrationTes
 
     @BeforeEach
     public void setup() {
-        databaseHelper.addObject("" +
-                "person:        Test Person\n" +
+        databaseHelper.addObject("person:        Test Person\n" +
                 "nic-hdl:       TP1-TEST\n" +
                 "created:         2011-07-28T00:35:42Z\n" +
                 "last-modified:   2019-02-28T10:14:46Z");
-        databaseHelper.addObject("" +
-                "mntner:        OWNER-MNT\n" +
+        databaseHelper.addObject("mntner:        OWNER-MNT\n" +
                 "descr:         Owner Maintainer\n" +
                 "admin-c:       TP1-TEST\n" +
                 "upd-to:        noreply@ripe.net\n" +
@@ -99,8 +96,7 @@ public class NrtmClientServiceTestIntegration extends AbstractNrtmIntegrationTes
                 "created:         2011-07-28T00:35:42Z\n" +
                 "last-modified:   2019-02-28T10:14:46Z\n" +
                 "source:        TEST");
-        databaseHelper.updateObject("" +
-                "person:        Test Person\n" +
+        databaseHelper.updateObject("person:        Test Person\n" +
                 "address:       Singel 258\n" +
                 "phone:         +31 6 12345678\n" +
                 "nic-hdl:       TP1-TEST\n" +
@@ -108,8 +104,7 @@ public class NrtmClientServiceTestIntegration extends AbstractNrtmIntegrationTes
                 "created:         2011-07-28T00:35:42Z\n" +
                 "last-modified:   2019-02-28T10:14:46Z\n" +
                 "source:        TEST");
-        databaseHelper.addObject("" +
-                "person:        Test Person2\n" +
+        databaseHelper.addObject("person:        Test Person2\n" +
                 "address:       Test Address\n" +
                 "phone:         +61-1234-1234\n" +
                 "e-mail:        noreply@ripe.net\n" +
@@ -118,8 +113,7 @@ public class NrtmClientServiceTestIntegration extends AbstractNrtmIntegrationTes
                 "created:         2011-07-28T00:35:42Z\n" +
                 "last-modified:   2019-02-28T10:14:46Z\n" +
                 "source:        TEST");
-        databaseHelper.addObject("" +
-                "person:        Pauleth Palthen\n" +
+        databaseHelper.addObject("person:        Pauleth Palthen\n" +
                 "address:       Singel 258\n" +
                 "phone:         +31-1234567890\n" +
                 "e-mail:        noreply@ripe.net\n" +
@@ -129,8 +123,7 @@ public class NrtmClientServiceTestIntegration extends AbstractNrtmIntegrationTes
                 "created:         2011-07-28T00:35:42Z\n" +
                 "last-modified:   2019-02-28T10:14:46Z\n" +
                 "source:        TEST");
-        databaseHelper.addObject("" +
-                "role:          First Role\n" +
+        databaseHelper.addObject("role:          First Role\n" +
                 "address:       Singel 258\n" +
                 "e-mail:        dbtest@ripe.net\n" +
                 "admin-c:       PP1-TEST\n" +
@@ -140,8 +133,7 @@ public class NrtmClientServiceTestIntegration extends AbstractNrtmIntegrationTes
                 "created:         2011-07-28T00:35:42Z\n" +
                 "last-modified:   2019-02-28T10:14:46Z\n" +
                 "source:        TEST");
-        databaseHelper.addObject("" +
-                "domain:        31.12.202.in-addr.arpa\n" +
+        databaseHelper.addObject("domain:        31.12.202.in-addr.arpa\n" +
                 "descr:         Test domain\n" +
                 "admin-c:       TP1-TEST\n" +
                 "tech-c:        TP1-TEST\n" +
@@ -156,8 +148,7 @@ public class NrtmClientServiceTestIntegration extends AbstractNrtmIntegrationTes
                 "created:         2011-07-28T00:35:42Z\n" +
                 "last-modified:   2019-02-28T10:14:46Z\n" +
                 "source:        TEST");
-        databaseHelper.addObject("" +
-                "aut-num:       AS102\n" +
+        databaseHelper.addObject("aut-num:       AS102\n" +
                 "as-name:       AS-TEST\n" +
                 "descr:         A single ASN\n" +
                 "admin-c:       TP1-TEST\n" +
@@ -166,8 +157,7 @@ public class NrtmClientServiceTestIntegration extends AbstractNrtmIntegrationTes
                 "created:       2011-07-28T00:35:42Z\n" +
                 "last-modified:   2019-02-28T10:14:46Z\n" +
                 "source:        TEST");
-        databaseHelper.addObject("" +
-                "organisation:  ORG-TEST1-TEST\n" +
+        databaseHelper.addObject("organisation:  ORG-TEST1-TEST\n" +
                 "org-name:      Test organisation\n" +
                 "org-type:      OTHER\n" +
                 "descr:         Drugs and gambling\n" +
@@ -181,16 +171,14 @@ public class NrtmClientServiceTestIntegration extends AbstractNrtmIntegrationTes
                 "created:         2022-08-14T11:48:28Z\n" +
                 "last-modified:   2022-10-25T12:22:39Z\n" +
                 "source:        TEST");
-        databaseHelper.addObject("" +
-                "as-block:       AS100 - AS200\n" +
+        databaseHelper.addObject("as-block:       AS100 - AS200\n" +
                 "descr:          ARIN ASN block\n" +
                 "org:            ORG-TEST1-TEST\n" +
                 "mnt-by:         OWNER-MNT\n" +
                 "created:         2022-08-14T11:48:28Z\n" +
                 "last-modified:   2022-10-25T12:22:39Z\n" +
                 "source:         TEST");
-        databaseHelper.addObject("" +
-                "inetnum:        0.0.0.0 - 255.255.255.255\n" +
+        databaseHelper.addObject("inetnum:        0.0.0.0 - 255.255.255.255\n" +
                 "netname:        IANA-BLK\n" +
                 "descr:          The whole IPv4 address space\n" +
                 "country:        NL\n" +
@@ -201,8 +189,7 @@ public class NrtmClientServiceTestIntegration extends AbstractNrtmIntegrationTes
                 "created:         2022-08-14T11:48:28Z\n" +
                 "last-modified:   2022-10-25T12:22:39Z\n" +
                 "source:         TEST");
-        databaseHelper.addObject("" +
-                "inet6num:       ::/0\n" +
+        databaseHelper.addObject("inet6num:       ::/0\n" +
                 "netname:        IANA-BLK\n" +
                 "descr:          The whole IPv6 address space\n" +
                 "country:        NL\n" +
@@ -227,14 +214,14 @@ public class NrtmClientServiceTestIntegration extends AbstractNrtmIntegrationTes
         assertThat(response.getStatus(), is(200));
         assertThat(response.getHeaderString(HttpHeaders.CACHE_CONTROL), is("public, max-age=604800"));
 
-        final String[] records = StringUtils.split(decompress(response.readEntity(byte[].class)), NrtmFileUtil.RECORD_SEPERATOR);
+        final String[] records = StringUtils.split(decompress(response.readEntity(byte[].class)), NrtmFileUtil.RECORD_SEPARATOR);
 
         assertNrtmFileInfo(records[0], "snapshot", 1, "TEST");
 
         final List<String> rpslKeys = Lists.newArrayList();
 
         for (int i = 1; i < records.length; i++) {
-            rpslKeys.add(RpslObject.parse(new JSONObject(records[i].toString()).getString("object")).getKey().toString());
+            rpslKeys.add(RpslObject.parse(new JSONObject(records[i]).getString("object")).getKey().toString());
         }
 
         assertThat(rpslKeys.size(), is(7));
@@ -330,8 +317,7 @@ public class NrtmClientServiceTestIntegration extends AbstractNrtmIntegrationTes
     @Test
     public void should_get_delta_file() throws JSONException, JsonProcessingException {
         snapshotFileGenerator.createSnapshot();
-        final RpslObject updatedObject = RpslObject.parse("" +
-                "inet6num:       ::/0\n" +
+        final RpslObject updatedObject = RpslObject.parse("inet6num:       ::/0\n" +
                 "netname:        IANA-BLK\n" +
                 "descr:          The whole IPv6 address space:Updated for test\n" +
                 "country:        NL\n" +
@@ -355,7 +341,7 @@ public class NrtmClientServiceTestIntegration extends AbstractNrtmIntegrationTes
         assertThat(response.getStatus(), is(Response.Status.OK.getStatusCode()));
         assertThat(response.getHeaderString(HttpHeaders.CACHE_CONTROL), is("public, max-age=604800"));
 
-        final String[] records = StringUtils.split(response.readEntity(String.class), NrtmFileUtil.RECORD_SEPERATOR);
+        final String[] records = StringUtils.split(response.readEntity(String.class), NrtmFileUtil.RECORD_SEPARATOR);
 
         assertNrtmFileInfo(records[0], "delta", 2, "TEST");
 
@@ -434,8 +420,7 @@ public class NrtmClientServiceTestIntegration extends AbstractNrtmIntegrationTes
     public void should_throw_426_delta_file_https_required() {
         snapshotFileGenerator.createSnapshot();
 
-        final RpslObject updatedObject = RpslObject.parse("" +
-                "inet6num:       ::/0\n" +
+        final RpslObject updatedObject = RpslObject.parse("inet6num:       ::/0\n" +
                 "netname:        IANA-BLK\n" +
                 "descr:          The whole IPv6 address space:Updated for test\n" +
                 "country:        NL\n" +

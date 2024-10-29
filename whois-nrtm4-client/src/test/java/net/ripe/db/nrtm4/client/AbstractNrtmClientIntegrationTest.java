@@ -1,7 +1,7 @@
 package net.ripe.db.nrtm4.client;
 
 import net.ripe.db.nrtm4.client.dao.Nrtm4ClientMirrorRepository;
-import net.ripe.db.nrtm4.client.reader.UpdateNotificationFileReader;
+import net.ripe.db.nrtm4.client.processor.UpdateNotificationFileProcessor;
 import net.ripe.db.whois.common.dao.jdbc.AbstractDatabaseHelperIntegrationTest;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
@@ -16,7 +16,7 @@ public class AbstractNrtmClientIntegrationTest extends AbstractDatabaseHelperInt
     protected Nrtm4ClientMirrorRepository nrtm4ClientMirrorRepository;
 
     @Autowired
-    protected UpdateNotificationFileReader updateNotificationFileReader;
+    protected UpdateNotificationFileProcessor updateNotificationFileProcessor;
 
     @BeforeEach
     public void restoreDatabase(){

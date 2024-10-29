@@ -6,16 +6,16 @@ import com.google.common.collect.Lists;
 import jakarta.ws.rs.client.WebTarget;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
-import net.ripe.db.nrtm4.generator.DeltaFileGenerator;
-import net.ripe.db.nrtm4.generator.NrtmKeyPairService;
-import net.ripe.db.nrtm4.generator.SnapshotFileGenerator;
-import net.ripe.db.nrtm4.generator.UpdateNotificationFileGenerator;
 import net.ripe.db.nrtm4.dao.NrtmKeyConfigDao;
 import net.ripe.db.nrtm4.domain.DeltaFileRecord;
 import net.ripe.db.nrtm4.domain.NrtmDocumentType;
 import net.ripe.db.nrtm4.domain.NrtmSource;
-import net.ripe.db.nrtm4.domain.UpdateNotificationFile;
 import net.ripe.db.nrtm4.domain.NrtmVersionRecord;
+import net.ripe.db.nrtm4.domain.UpdateNotificationFile;
+import net.ripe.db.nrtm4.generator.DeltaFileGenerator;
+import net.ripe.db.nrtm4.generator.NrtmKeyPairService;
+import net.ripe.db.nrtm4.generator.SnapshotFileGenerator;
+import net.ripe.db.nrtm4.generator.UpdateNotificationFileGenerator;
 import net.ripe.db.nrtm4.util.NrtmFileUtil;
 import net.ripe.db.whois.common.domain.CIString;
 import net.ripe.db.whois.common.rpsl.RpslObject;
@@ -53,13 +53,11 @@ public abstract class AbstractNrtmIntegrationTest extends AbstractIntegrationTes
 
     @BeforeEach
     public void setup() {
-        databaseHelper.addObject("" +
-                "person:        Test Person\n" +
+        databaseHelper.addObject("person:        Test Person\n" +
                 "nic-hdl:       TP1-TEST\n" +
                 "created:         2011-07-28T00:35:42Z\n" +
                 "last-modified:   2019-02-28T10:14:46Z");
-        databaseHelper.addObject("" +
-                "mntner:        OWNER-MNT\n" +
+        databaseHelper.addObject("mntner:        OWNER-MNT\n" +
                 "descr:         Owner Maintainer\n" +
                 "admin-c:       TP1-TEST\n" +
                 "upd-to:        noreply@ripe.net\n" +
@@ -69,8 +67,7 @@ public abstract class AbstractNrtmIntegrationTest extends AbstractIntegrationTes
                 "created:         2011-07-28T00:35:42Z\n" +
                 "last-modified:   2019-02-28T10:14:46Z\n" +
                 "source:        TEST");
-        databaseHelper.updateObject("" +
-                "person:        Test Person\n" +
+        databaseHelper.updateObject("person:        Test Person\n" +
                 "address:       Singel 258\n" +
                 "phone:         +31 6 12345678\n" +
                 "nic-hdl:       TP1-TEST\n" +
@@ -78,8 +75,7 @@ public abstract class AbstractNrtmIntegrationTest extends AbstractIntegrationTes
                 "created:         2011-07-28T00:35:42Z\n" +
                 "last-modified:   2019-02-28T10:14:46Z\n" +
                 "source:        TEST");
-        databaseHelper.addObject("" +
-                "person:        Test Person2\n" +
+        databaseHelper.addObject("person:        Test Person2\n" +
                 "address:       Test Address\n" +
                 "phone:         +61-1234-1234\n" +
                 "e-mail:        noreply@ripe.net\n" +
@@ -88,8 +84,7 @@ public abstract class AbstractNrtmIntegrationTest extends AbstractIntegrationTes
                 "created:         2011-07-28T00:35:42Z\n" +
                 "last-modified:   2019-02-28T10:14:46Z\n" +
                 "source:        TEST");
-        databaseHelper.addObject("" +
-                "person:        Pauleth Palthen\n" +
+        databaseHelper.addObject("person:        Pauleth Palthen\n" +
                 "address:       Singel 258\n" +
                 "phone:         +31-1234567890\n" +
                 "e-mail:        noreply@ripe.net\n" +
@@ -99,8 +94,7 @@ public abstract class AbstractNrtmIntegrationTest extends AbstractIntegrationTes
                 "created:         2011-07-28T00:35:42Z\n" +
                 "last-modified:   2019-02-28T10:14:46Z\n" +
                 "source:        TEST");
-        databaseHelper.addObject("" +
-                "role:          First Role\n" +
+        databaseHelper.addObject("role:          First Role\n" +
                 "address:       Singel 258\n" +
                 "e-mail:        dbtest@ripe.net\n" +
                 "admin-c:       PP1-TEST\n" +
@@ -110,8 +104,7 @@ public abstract class AbstractNrtmIntegrationTest extends AbstractIntegrationTes
                 "created:         2011-07-28T00:35:42Z\n" +
                 "last-modified:   2019-02-28T10:14:46Z\n" +
                 "source:        TEST");
-        databaseHelper.addObject("" +
-                "domain:        31.12.202.in-addr.arpa\n" +
+        databaseHelper.addObject("domain:        31.12.202.in-addr.arpa\n" +
                 "descr:         Test domain\n" +
                 "admin-c:       TP1-TEST\n" +
                 "tech-c:        TP1-TEST\n" +
@@ -126,8 +119,7 @@ public abstract class AbstractNrtmIntegrationTest extends AbstractIntegrationTes
                 "created:         2011-07-28T00:35:42Z\n" +
                 "last-modified:   2019-02-28T10:14:46Z\n" +
                 "source:        TEST");
-        databaseHelper.addObject("" +
-                "aut-num:       AS102\n" +
+        databaseHelper.addObject("aut-num:       AS102\n" +
                 "as-name:       AS-TEST\n" +
                 "descr:         A single ASN\n" +
                 "admin-c:       TP1-TEST\n" +
@@ -136,8 +128,7 @@ public abstract class AbstractNrtmIntegrationTest extends AbstractIntegrationTes
                 "created:       2011-07-28T00:35:42Z\n" +
                 "last-modified:   2019-02-28T10:14:46Z\n" +
                 "source:        TEST");
-        databaseHelper.addObject("" +
-                "organisation:  ORG-TEST1-TEST\n" +
+        databaseHelper.addObject("organisation:  ORG-TEST1-TEST\n" +
                 "org-name:      Test organisation\n" +
                 "org-type:      OTHER\n" +
                 "descr:         Drugs and gambling\n" +
@@ -151,16 +142,14 @@ public abstract class AbstractNrtmIntegrationTest extends AbstractIntegrationTes
                 "created:         2022-08-14T11:48:28Z\n" +
                 "last-modified:   2022-10-25T12:22:39Z\n" +
                 "source:        TEST");
-        databaseHelper.addObject("" +
-                "as-block:       AS100 - AS200\n" +
+        databaseHelper.addObject("as-block:       AS100 - AS200\n" +
                 "descr:          ARIN ASN block\n" +
                 "org:            ORG-TEST1-TEST\n" +
                 "mnt-by:         OWNER-MNT\n" +
                 "created:         2022-08-14T11:48:28Z\n" +
                 "last-modified:   2022-10-25T12:22:39Z\n" +
                 "source:         TEST");
-        databaseHelper.addObject("" +
-                "inetnum:        0.0.0.0 - 255.255.255.255\n" +
+        databaseHelper.addObject("inetnum:        0.0.0.0 - 255.255.255.255\n" +
                 "netname:        IANA-BLK\n" +
                 "descr:          The whole IPv4 address space\n" +
                 "country:        NL\n" +
@@ -171,8 +160,7 @@ public abstract class AbstractNrtmIntegrationTest extends AbstractIntegrationTes
                 "created:         2022-08-14T11:48:28Z\n" +
                 "last-modified:   2022-10-25T12:22:39Z\n" +
                 "source:         TEST");
-        databaseHelper.addObject("" +
-                "inet6num:       ::/0\n" +
+        databaseHelper.addObject("inet6num:       ::/0\n" +
                 "netname:        IANA-BLK\n" +
                 "descr:          The whole IPv6 address space\n" +
                 "country:        NL\n" +
@@ -183,8 +171,7 @@ public abstract class AbstractNrtmIntegrationTest extends AbstractIntegrationTes
                 "created:         2022-08-14T11:48:28Z\n" +
                 "last-modified:   2022-10-25T12:22:39Z\n" +
                 "source:         TEST");
-        databaseHelper.addObject("" +
-                "mntner:        NONAUTH-OWNER-MNT\n" +
+        databaseHelper.addObject("mntner:        NONAUTH-OWNER-MNT\n" +
                 "descr:         Non auth Owner Maintainer\n" +
                 "admin-c:       TP1-TEST\n" +
                 "upd-to:        noreply@ripe.net\n" +
@@ -221,7 +208,7 @@ public abstract class AbstractNrtmIntegrationTest extends AbstractIntegrationTes
                 "/update-notification-file.json", MediaType.APPLICATION_JSON).readEntity(UpdateNotificationFile.class);
 
         final String response = getResponseFromHttpsRequest(sourceName + "/" + getDeltaNameFromUpdateNotification(updateNotificationResponse, deltaPosition), "application/json-seq").readEntity(String.class);
-        return StringUtils.split( response, NrtmFileUtil.RECORD_SEPERATOR);
+        return StringUtils.split( response, NrtmFileUtil.RECORD_SEPARATOR);
     }
 
     protected String getDeltaNameFromUpdateNotification(final UpdateNotificationFile notificationFile, final int deltaPosition) {
@@ -261,7 +248,7 @@ public abstract class AbstractNrtmIntegrationTest extends AbstractIntegrationTes
         final List<DeltaFileRecord> deltaFileRecords = Lists.newArrayList();
 
         for (int i = 1; i < records.length; i++) {
-            deltaFileRecords.add(new ObjectMapper().readValue(records[i].toString(), DeltaFileRecord.class));
+            deltaFileRecords.add(new ObjectMapper().readValue(records[i], DeltaFileRecord.class));
         }
         return deltaFileRecords;
     }

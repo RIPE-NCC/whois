@@ -10,9 +10,9 @@ import net.ripe.db.nrtm4.dao.NrtmVersionInfoDao;
 import net.ripe.db.nrtm4.domain.DeltaFileRecord;
 import net.ripe.db.nrtm4.domain.NrtmDocumentType;
 import net.ripe.db.nrtm4.domain.NrtmVersionInfo;
-import net.ripe.db.nrtm4.domain.UpdateNotificationFile;
-import net.ripe.db.nrtm4.domain.SnapshotFileRecord;
 import net.ripe.db.nrtm4.domain.NrtmVersionRecord;
+import net.ripe.db.nrtm4.domain.SnapshotFileRecord;
+import net.ripe.db.nrtm4.domain.UpdateNotificationFile;
 import net.ripe.db.nrtm4.util.NrtmFileUtil;
 import net.ripe.db.whois.api.AbstractNrtmIntegrationTest;
 import net.ripe.db.whois.common.domain.CIString;
@@ -149,8 +149,7 @@ public class SnapshotFileGenerationTestIntegration extends AbstractNrtmIntegrati
         final NrtmVersionRecord firstSnapResponse = getNrtmVersionInfo(getSnapshotRecords("TEST")[0]);
         setTime(LocalDateTime.now().plusDays(1).withHour(23));
 
-        final RpslObject updatedObject = RpslObject.parse("" +
-                "inet6num:       ::/0\n" +
+        final RpslObject updatedObject = RpslObject.parse("inet6num:       ::/0\n" +
                 "netname:        IANA-BLK\n" +
                 "descr:          Test Object\n" +
                 "country:        NL\n" +
@@ -232,8 +231,7 @@ public class SnapshotFileGenerationTestIntegration extends AbstractNrtmIntegrati
 
     @Test
     public void snapshot_should_match_last_delta_version_while_creating_at_same_time() throws IOException, JSONException {
-        final RpslObject updatedObject = RpslObject.parse("" +
-                "inet6num:       ::/0\n" +
+        final RpslObject updatedObject = RpslObject.parse("inet6num:       ::/0\n" +
                 "netname:        IANA-BLK\n" +
                 "descr:          The whole IPv6 address space:Updated for thread\n" +
                 "country:        NL\n" +
@@ -245,8 +243,7 @@ public class SnapshotFileGenerationTestIntegration extends AbstractNrtmIntegrati
                 "last-modified:   2022-10-25T12:22:39Z\n" +
                 "source:         TEST");
 
-        final RpslObject ORG_TEST2 = RpslObject.parse("" +
-                "organisation:  ORG-TEST2-TEST\n" +
+        final RpslObject ORG_TEST2 = RpslObject.parse("organisation:  ORG-TEST2-TEST\n" +
                 "org-name:      Test2 organisation\n" +
                 "org-type:      OTHER\n" +
                 "descr:         Drugs and gambling\n" +
@@ -334,8 +331,7 @@ public class SnapshotFileGenerationTestIntegration extends AbstractNrtmIntegrati
         setTime(LocalDateTime.now().minusDays(2));
         snapshotFileGenerator.createSnapshot();
 
-        generateDeltas(Lists.newArrayList(RpslObject.parse("" +
-                "inet6num:       ::/0\n" +
+        generateDeltas(Lists.newArrayList(RpslObject.parse("inet6num:       ::/0\n" +
                 "netname:        IANA-BLK\n" +
                 "descr:          The whole IPv6 address space:Updated for tesint\n" +
                 "country:        AR\n" +
@@ -345,8 +341,7 @@ public class SnapshotFileGenerationTestIntegration extends AbstractNrtmIntegrati
                 "mnt-by:         OWNER-MNT\n" +
                 "created:         2022-08-14T11:48:28Z\n" +
                 "last-modified:   2022-10-25T12:22:39Z\n" +
-                "source:         TEST"), RpslObject.parse("" +
-                "mntner:        NONAUTH-OWNER-MNT\n" +
+                "source:         TEST"), RpslObject.parse("mntner:        NONAUTH-OWNER-MNT\n" +
                 "descr:         Non auth Owner Maintainer updated\n" +
                 "admin-c:       TP1-TEST\n" +
                 "upd-to:        noreply@ripe.net\n" +
@@ -371,8 +366,7 @@ public class SnapshotFileGenerationTestIntegration extends AbstractNrtmIntegrati
 
         setTime(LocalDateTime.now());
 
-        generateDeltas(Lists.newArrayList(RpslObject.parse("" +
-                "inet6num:       ::/0\n" +
+        generateDeltas(Lists.newArrayList(RpslObject.parse("inet6num:       ::/0\n" +
                 "netname:        IANA-BLK\n" +
                 "descr:          The whole IPv6 address space:Updated for test\n" +
                 "country:        NL\n" +
@@ -382,8 +376,7 @@ public class SnapshotFileGenerationTestIntegration extends AbstractNrtmIntegrati
                 "mnt-by:         OWNER-MNT\n" +
                 "created:         2022-08-14T11:48:28Z\n" +
                 "last-modified:   2022-10-25T12:22:39Z\n" +
-                "source:         TEST"), RpslObject.parse("" +
-                "mntner:        NONAUTH-OWNER-MNT\n" +
+                "source:         TEST"), RpslObject.parse("mntner:        NONAUTH-OWNER-MNT\n" +
                 "descr:         Non auth Owner Maintainer updated\n" +
                 "admin-c:       TP1-TEST\n" +
                 "upd-to:        noreply@ripe.net\n" +
@@ -433,7 +426,7 @@ public class SnapshotFileGenerationTestIntegration extends AbstractNrtmIntegrati
     }
 
     public String[] getSnapshotRecords(byte[] compressed) throws IOException {
-        return StringUtils.split( decompress(compressed), NrtmFileUtil.RECORD_SEPERATOR);
+        return StringUtils.split( decompress(compressed), NrtmFileUtil.RECORD_SEPARATOR);
     }
 
     private String[] getSnapshotRecords(final String source) throws IOException {
@@ -446,7 +439,7 @@ public class SnapshotFileGenerationTestIntegration extends AbstractNrtmIntegrati
         final List<SnapshotFileRecord> snapshotRecords = Lists.newArrayList();
 
         for (int i = 1; i < records.length; i++) {
-            snapshotRecords.add(new ObjectMapper().readValue(records[i].toString(), SnapshotFileRecord.class));
+            snapshotRecords.add(new ObjectMapper().readValue(records[i], SnapshotFileRecord.class));
         }
         return snapshotRecords;
     }
