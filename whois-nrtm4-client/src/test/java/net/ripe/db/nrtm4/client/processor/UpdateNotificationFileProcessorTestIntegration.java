@@ -46,7 +46,7 @@ public class UpdateNotificationFileProcessorTestIntegration extends AbstractNrtm
         assertThat(snapshotVersionPerSource.size(), is(2));
 
         assertSnapshotFirstVersion(snapshotVersionPerSource.getFirst(), "RIPE");
-        assertSnapshotFirstVersion(snapshotVersionPerSource.getFirst(), "RIPE-NONAUTH");
+        assertSnapshotFirstVersion(snapshotVersionPerSource.get(1), "RIPE-NONAUTH");
     }
 
     @Test
