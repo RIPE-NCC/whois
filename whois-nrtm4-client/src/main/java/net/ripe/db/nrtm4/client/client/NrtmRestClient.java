@@ -140,7 +140,7 @@ public class NrtmRestClient {
         return StringUtils.split(decompress(compressed), RECORD_SEPARATOR);
     }
 
-    public static String decompress(final byte[] compressed) throws IOException {
+    private static String decompress(final byte[] compressed) throws IOException {
         final int BUFFER_SIZE = 32;
         ByteArrayInputStream is = new ByteArrayInputStream(compressed);
         GZIPInputStream gis = new GZIPInputStream(is, BUFFER_SIZE);
