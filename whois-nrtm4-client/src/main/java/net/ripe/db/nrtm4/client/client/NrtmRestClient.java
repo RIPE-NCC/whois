@@ -31,6 +31,8 @@ import org.springframework.stereotype.Component;
 import javax.annotation.Nullable;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -71,7 +73,7 @@ public class NrtmRestClient {
                 .property(ClientProperties.CONNECT_TIMEOUT, CLIENT_CONNECT_TIMEOUT)
                 .property(ClientProperties.READ_TIMEOUT, CLIENT_READ_TIMEOUT)
                 .build();
-        this.baseUrl = "https://nrtm-rc.db.ripe.net/nrtmv4"; //use the baseUrl in the future
+        this.baseUrl = baseUrl;
     }
 
     public List<String> getNrtmAvailableSources(){
@@ -102,7 +104,8 @@ public class NrtmRestClient {
                 .get(Response.class);
 
         try {
-            final String[] records = getSnapshotRecords(response.readEntity(byte[].class));
+            final byte[] payload = response.readEntity(byte[].class);
+            final String[] records = getSnapshotRecords(payload);
             final JSONObject jsonObject = new JSONObject(records[0]);
             final int snapshotVersion = jsonObject.getInt("version");
             final String snapshotSessionId = jsonObject.getString("session_id");
@@ -111,40 +114,11 @@ public class NrtmRestClient {
             for (int i = 1; i < records.length; i++) {
                 rpslObjects.add(new ObjectMapper().readValue(records[i], MirrorRpslObject.class));
             }
-            return new SnapshotFileResponse(rpslObjects, snapshotVersion, snapshotSessionId);
+            return new SnapshotFileResponse(rpslObjects, snapshotVersion, snapshotSessionId, calculateSha256(payload));
         } catch (IOException | JSONException ex){
             LOGGER.error("Unable to get the records from the snapshot", ex);
             return null;
         }
-        // return getResponseFromHttpsRequest(sourceName + "/" + getSnapshotNameFromUpdateNotification(notificationFile)
-        //                , MediaType.APPLICATION_JSON);
-//return notificationFile.getSnapshot().getUrl().split("/")[4];
-        //final String[] records = getSnapshotRecords(response.readEntity(byte[].class));
-
-        //assertNrtmFileInfo(records[0], "snapshot", 1, "TEST");
-        //        final JSONObject jsonObject = new JSONObject(nrtmInfo);
-        //        assertThat(jsonObject.getInt("nrtm_version"), is(4));
-        //        assertThat(jsonObject.getString("type"), is(type));
-        //        assertThat(jsonObject.getString("source"), is(source));
-        //        assertThat(jsonObject.getInt("version"), is(version));
-
-
-
-        //    public String[] getSnapshotRecords(byte[] compressed) throws IOException {
-        //        return StringUtils.split( decompress(compressed), NrtmFileUtil.RECORD_SEPERATOR);
-        //    }
-
-                /*
-                *
-                *     @NotNull
-    protected List<SnapshotFileRecord> getSnapshotRecords(final String[] records) throws JsonProcessingException {
-        final List<SnapshotFileRecord> snapshotRecords = Lists.newArrayList();
-
-        for (int i = 1; i < records.length; i++) {
-            snapshotRecords.add(new ObjectMapper().readValue(records[i].toString(), SnapshotFileRecord.class));
-        }
-        return snapshotRecords; */
-
     }
 
     private static List<String> extractSources(final String html) {
@@ -179,5 +153,27 @@ public class NrtmRestClient {
         gis.close();
         is.close();
         return string.toString();
+    }
+
+    private static String calculateSha256(final byte[] bytes) {
+        try {
+            final MessageDigest digest = MessageDigest.getInstance("SHA-256");
+            final byte[] encodedSha256hex = digest.digest(bytes);
+            return byteArrayToHexString(encodedSha256hex);
+        } catch (final NoSuchAlgorithmException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    private static String byteArrayToHexString(final byte[] bytes) {
+        final StringBuilder hexString = new StringBuilder(2 * bytes.length);
+        for (final byte b : bytes) {
+            final String hex = Integer.toHexString(0xff & b);
+            if (hex.length() == 1) {
+                hexString.append('0');
+            }
+            hexString.append(hex);
+        }
+        return hexString.toString();
     }
 }

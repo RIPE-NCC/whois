@@ -63,7 +63,7 @@ public class UpdateNotificationFileProcessorTestIntegration extends AbstractNrtm
     }
 
     @Test
-    public void readUNFButDBInfoAheadThenReInitialize(){
+    public void process_UNF_but_DB_Ahead_Then_ReInitialize(){
         // TODO: [MH] Re-initialize
     }
 

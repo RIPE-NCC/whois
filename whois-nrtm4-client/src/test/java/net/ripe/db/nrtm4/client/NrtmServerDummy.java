@@ -199,7 +199,7 @@ public class NrtmServerDummy implements Stub {
               "snapshot": {
                 "version": 1,
                 "url": "http://localhost:%s/nrtmv4/RIPE/nrtm-snapshot.4.RIPE.4521174b-548f-4e51-98fc-dfd720011a0c.82542bd048e111fe57db404d08b6433e.json.gz",
-                "hash": "a15f097005d8082dae14fa28bdb25dc09e59243ef632bcadde44149ba34b373d"
+                "hash": "b293e92997d3be7a5156fdca832af378c3989b2cefa9e3e37caaeeba0ca971e9"
               },
               "deltas": [
                 {
@@ -225,7 +225,7 @@ public class NrtmServerDummy implements Stub {
               "snapshot": {
                 "version": 1,
                 "url": "http://localhost:%s/nrtmv4/RIPE-NONAUTH/nrtm-snapshot.1.RIPE-NONAUTH.6328095e-7d46-415b-9333-8f2ae274b7c8.f1195bb8a666fe7b97fa74009a70cefa.json.gz",
-                "hash": "e4fa2cc60156a0daace8b7179f68661b0ad765ce09a9ca4bdab0c978b13da973"
+                "hash": "69dd1a33e771c8c2d95ebe19ffc5643a7611dbb0ae1bf5c72b1eec5ac5b3d1f9"
               },
               "deltas": []
             }

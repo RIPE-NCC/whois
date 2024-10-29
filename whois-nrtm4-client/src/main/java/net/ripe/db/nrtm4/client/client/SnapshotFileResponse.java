@@ -18,16 +18,21 @@ public class SnapshotFileResponse {
     @JsonProperty("session_id")
     private final String sessionID;
 
+    private final String hash;
+
     private SnapshotFileResponse() {
         objects = Lists.newArrayList();
         version = 0;
         sessionID = null;
+        hash = null;
     }
 
-    public SnapshotFileResponse(final List<MirrorRpslObject> rpslObject, final int version, final String sessionID) {
+    public SnapshotFileResponse(final List<MirrorRpslObject> rpslObject, final int version, final String sessionID,
+                                final String hash) {
         this.objects = rpslObject;
         this.version = version;
         this.sessionID = sessionID;
+        this.hash = hash;
     }
 
     public List<MirrorRpslObject> getObjects() {
@@ -40,5 +45,9 @@ public class SnapshotFileResponse {
 
     public int getVersion() {
         return version;
+    }
+
+    public String getHash() {
+        return hash;
     }
 }

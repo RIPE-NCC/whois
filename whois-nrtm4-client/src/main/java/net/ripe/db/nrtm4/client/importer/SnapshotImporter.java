@@ -54,6 +54,12 @@ public class SnapshotImporter {
             LOGGER.error("This cannot happen. UNF has a non-existing snapshot");
             return;
         }
+
+        if (!snapshot.getHash().equals(snapshotFileResponse.getHash())){
+            LOGGER.error("Snapshot hash doesn't match, skipping import");
+            return;
+        }
+
         if (!snapshotFileResponse.getSessionID().equals(updateNotificationFile.getSessionID())){
             // TODO: [MH] if the service is wrong for any reason...we have here a non-ending loop, we need to
             //  call initialize X number of times and return error to avoid this situation?
