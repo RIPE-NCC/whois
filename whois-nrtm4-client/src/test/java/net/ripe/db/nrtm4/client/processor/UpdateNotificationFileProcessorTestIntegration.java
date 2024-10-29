@@ -9,6 +9,7 @@ import org.junit.jupiter.api.Test;
 import java.util.List;
 
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.empty;
 import static org.hamcrest.Matchers.is;
 
 @Tag("IntegrationTest")
@@ -53,13 +54,22 @@ public class UpdateNotificationFileProcessorTestIntegration extends AbstractNrtm
     public void second_UNF_then_no_new_snapshot(){
         updateNotificationFileProcessor.processFile();
 
-        final List<NrtmClientVersionInfo>  snapshotVersionPerSource = getNrtmLastSnapshotVersion();
+        final List<NrtmClientVersionInfo> snapshotVersionPerSource = getNrtmLastSnapshotVersion();
         assertSnapshotFirstVersion(snapshotVersionPerSource.getFirst(), "RIPE");
         assertSnapshotFirstVersion(snapshotVersionPerSource.get(1), "RIPE-NONAUTH");
 
         updateNotificationFileProcessor.processFile();
         assertSnapshotFirstVersion(snapshotVersionPerSource.getFirst(), "RIPE");
         assertSnapshotFirstVersion(snapshotVersionPerSource.get(1), "RIPE-NONAUTH");
+    }
+
+    @Test
+    public void UNF_with_different_hash_then_no_snapshot(){
+        nrtmServerDummy.setFakeHashMocks();
+        updateNotificationFileProcessor.processFile();
+
+        final List<NrtmClientVersionInfo> snapshotVersionPerSource = getNrtmLastSnapshotVersion();
+        assertThat(snapshotVersionPerSource, is(empty()));
     }
 
     @Test
