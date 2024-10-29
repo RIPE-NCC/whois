@@ -1,6 +1,6 @@
 package net.ripe.db.nrtm4.client.dao;
 
-import net.ripe.db.nrtm4.client.scheduler.Nrtm4ClientCondition;
+import net.ripe.db.nrtm4.client.condition.Nrtm4ClientCondition;
 import net.ripe.db.whois.common.DateTimeProvider;
 import net.ripe.db.whois.common.dao.jdbc.JdbcRpslObjectOperations;
 import net.ripe.db.whois.common.rpsl.RpslObject;

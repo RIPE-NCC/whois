@@ -1,7 +1,7 @@
 package net.ripe.db.nrtm4.client.config;
 
 import com.mchange.v2.c3p0.ComboPooledDataSource;
-import net.ripe.db.nrtm4.client.scheduler.Nrtm4ClientCondition;
+import net.ripe.db.nrtm4.client.condition.Nrtm4ClientCondition;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Conditional;

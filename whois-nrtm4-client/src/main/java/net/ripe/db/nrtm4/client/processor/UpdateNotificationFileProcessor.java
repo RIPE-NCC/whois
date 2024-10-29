@@ -2,10 +2,10 @@ package net.ripe.db.nrtm4.client.processor;
 
 import net.ripe.db.nrtm4.client.client.NrtmRestClient;
 import net.ripe.db.nrtm4.client.client.UpdateNotificationFileResponse;
+import net.ripe.db.nrtm4.client.condition.Nrtm4ClientCondition;
 import net.ripe.db.nrtm4.client.dao.Nrtm4ClientMirrorRepository;
 import net.ripe.db.nrtm4.client.dao.NrtmClientVersionInfo;
 import net.ripe.db.nrtm4.client.importer.SnapshotImporter;
-import net.ripe.db.nrtm4.client.scheduler.Nrtm4ClientCondition;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.annotation.Conditional;

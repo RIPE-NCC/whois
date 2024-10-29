@@ -142,6 +142,11 @@ public class NrtmServerDummy implements Stub {
         }
     }
 
+    public void resetDefaultMocks(){
+        mocks.clear();
+        initialiseMocks();
+    }
+
     public void setFakeHashMocks(){
         mocks.clear();
         mocks.add(new NrtmResponseMock("/nrtmv4", "nrtm-sources.html", "application/html"));
@@ -245,10 +250,10 @@ public class NrtmServerDummy implements Stub {
     }
 
     private String getUpdateNotificationFileRipeResponse(){
-        return String.format(unfRipeTemplate, port, "69dd1a33e771c8c2d95ebe19ffc5643a7611dbb0ae1bf5c72b1eec5ac5b3d1f9", port);
+        return String.format(unfRipeTemplate, port, "b293e92997d3be7a5156fdca832af378c3989b2cefa9e3e37caaeeba0ca971e9", port);
     }
 
     private String getUpdateNotificationFileNonAuthResponse(){
-        return String.format(unfRipeNonAuthTemplate, port, "b293e92997d3be7a5156fdca832af378c3989b2cefa9e3e37caaeeba0ca971e9");
+        return String.format(unfRipeNonAuthTemplate, port, "69dd1a33e771c8c2d95ebe19ffc5643a7611dbb0ae1bf5c72b1eec5ac5b3d1f9");
     }
 }

@@ -28,8 +28,9 @@ public class AbstractNrtmClientIntegrationTest extends AbstractDatabaseHelperInt
     protected NrtmServerDummy nrtmServerDummy;
 
     @BeforeEach
-    public void restoreDatabase(){
+    public void reset(){
         nrtm4ClientMirrorRepository.truncateTables();
+        nrtmServerDummy.resetDefaultMocks();
     }
 
     @BeforeAll

@@ -12,6 +12,10 @@
     <artifactId>whois-nrtm4-client</artifactId>
     <packaging>jar</packaging>
 
+    <properties>
+        <json.version>20180813</json.version>
+    </properties>
+
     <dependencies>
         <dependency>
             <groupId>org.mariadb.jdbc</groupId>
@@ -38,18 +42,19 @@
             <artifactId>bcprov-jdk18on</artifactId>
         </dependency>
 
-        <!-- test -->
+        <!-- Jackson JSONObject Library -->
+        <dependency>
+            <groupId>org.json</groupId>
+            <artifactId>json</artifactId>
+            <version>${json.version}</version>
+        </dependency>
 
+
+        <!-- test -->
         <dependency>
             <groupId>net.ripe.db</groupId>
             <artifactId>whois-commons</artifactId>
             <type>test-jar</type>
-        </dependency>
-        <dependency>
-            <groupId>com.vaadin.external.google</groupId>
-            <artifactId>android-json</artifactId>
-            <version>0.0.20131108.vaadin1</version>
-            <scope>compile</scope>
         </dependency>
     </dependencies>
 

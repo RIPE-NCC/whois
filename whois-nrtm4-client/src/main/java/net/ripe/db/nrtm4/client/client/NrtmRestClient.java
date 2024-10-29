@@ -14,7 +14,7 @@ import jakarta.ws.rs.client.Client;
 import jakarta.ws.rs.client.ClientBuilder;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
-import net.ripe.db.nrtm4.client.scheduler.Nrtm4ClientCondition;
+import net.ripe.db.nrtm4.client.condition.Nrtm4ClientCondition;
 import org.apache.commons.compress.utils.Lists;
 import org.apache.commons.lang.StringUtils;
 import org.eclipse.jetty.http.HttpHeader;
