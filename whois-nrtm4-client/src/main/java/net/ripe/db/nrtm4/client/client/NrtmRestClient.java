@@ -15,6 +15,7 @@ import jakarta.ws.rs.client.ClientBuilder;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 import net.ripe.db.nrtm4.client.condition.Nrtm4ClientCondition;
+import net.ripe.db.whois.api.rest.client.RestClientException;
 import org.apache.commons.compress.utils.Lists;
 import org.apache.commons.lang.StringUtils;
 import org.eclipse.jetty.http.HttpHeader;
@@ -83,7 +84,7 @@ public class NrtmRestClient {
                     .get(String.class);
 
             return extractSources(response);
-        } catch (final Exception e) {
+        } catch (final RestClientException e) {
             LOGGER.error("Unable to get the available sources", e);
             return Lists.newArrayList();
         }
@@ -98,12 +99,12 @@ public class NrtmRestClient {
 
     @Nullable
     public SnapshotFileResponse getSnapshotFile(final String url){
-        final Response response =  client.target(url)
-                .request(MediaType.APPLICATION_OCTET_STREAM)
-                .header(HttpHeader.X_FORWARDED_PROTO.asString(), HttpScheme.HTTPS.asString())
-                .get(Response.class);
-
         try {
+            final Response response =  client.target(url)
+                    .request(MediaType.APPLICATION_OCTET_STREAM)
+                    .header(HttpHeader.X_FORWARDED_PROTO.asString(), HttpScheme.HTTPS.asString())
+                    .get(Response.class);
+
             final byte[] payload = response.readEntity(byte[].class);
             final String[] records = getSnapshotRecords(payload);
             final JSONObject jsonObject = new JSONObject(records[0]);
@@ -115,7 +116,7 @@ public class NrtmRestClient {
                 rpslObjects.add(new ObjectMapper().readValue(records[i], MirrorRpslObject.class));
             }
             return new SnapshotFileResponse(rpslObjects, snapshotVersion, snapshotSessionId, calculateSha256(payload));
-        } catch (IOException | JSONException ex){
+        } catch (RestClientException | IOException | JSONException ex){
             LOGGER.error("Unable to get the records from the snapshot", ex);
             return null;
         }
