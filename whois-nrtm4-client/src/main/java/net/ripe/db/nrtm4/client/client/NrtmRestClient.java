@@ -15,13 +15,11 @@ import jakarta.ws.rs.client.ClientBuilder;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 import net.ripe.db.nrtm4.client.condition.Nrtm4ClientCondition;
-import net.ripe.db.whois.api.rest.client.RestClientException;
 import org.apache.commons.compress.utils.Lists;
 import org.apache.commons.lang.StringUtils;
 import org.eclipse.jetty.http.HttpHeader;
 import org.eclipse.jetty.http.HttpScheme;
 import org.glassfish.jersey.client.ClientProperties;
-import org.json.JSONException;
 import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -84,7 +82,7 @@ public class NrtmRestClient {
                     .get(String.class);
 
             return extractSources(response);
-        } catch (final RestClientException e) {
+        } catch (final Exception e) {
             LOGGER.error("Unable to get the available sources", e);
             return Lists.newArrayList();
         }
@@ -116,7 +114,7 @@ public class NrtmRestClient {
                 rpslObjects.add(new ObjectMapper().readValue(records[i], MirrorRpslObject.class));
             }
             return new SnapshotFileResponse(rpslObjects, snapshotVersion, snapshotSessionId, calculateSha256(payload));
-        } catch (RestClientException | IOException | JSONException ex){
+        } catch (Exception ex){
             LOGGER.error("Unable to get the records from the snapshot", ex);
             return null;
         }
