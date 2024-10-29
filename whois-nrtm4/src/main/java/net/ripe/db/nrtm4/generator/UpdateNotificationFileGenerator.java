@@ -142,7 +142,7 @@ public class UpdateNotificationFileGenerator {
     private static boolean hasNextKeyChanged(final NotificationFile notificationFile, final NrtmKeyRecord nextKey)  {
         try {
             final UpdateNotificationFile payload = new ObjectMapper().readValue(notificationFile.payload(), UpdateNotificationFile.class);
-            return !Objects.equals(Ed25519Util.encodePublicKey(nextKey), payload.getNextSigningKey());
+            return !Objects.equals(nextKey != null ? JWSUtil.getPublicKey(nextKey.publicKey()) : null, payload.getNextSigningKey());
         } catch (final JsonProcessingException e) {
             LOGGER.warn("Current Notification file keys cannot be parsed");
             //If we cannot parse UNF or key is not parsed we should generate UNF by default
