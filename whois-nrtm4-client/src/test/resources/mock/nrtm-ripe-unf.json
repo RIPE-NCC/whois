@@ -1,0 +1,20 @@
+{
+  "nrtm_version": 4,
+  "timestamp": "2024-10-25T00:07:00Z",
+  "type": "notification",
+  "source": "RIPE",
+  "session_id": "4521174b-548f-4e51-98fc-dfd720011a0c",
+  "version": 1,
+  "snapshot": {
+    "version": 1,
+    "url": "https://localhost/nrtmv4/RIPE/nrtm-snapshot.4.RIPE.4521174b-548f-4e51-98fc-dfd720011a0c.82542bd048e111fe57db404d08b6433e.json.gz",
+    "hash": "a15f097005d8082dae14fa28bdb25dc09e59243ef632bcadde44149ba34b373d"
+  },
+  "deltas": [
+    {
+      "version": 1,
+      "url": "https://localhost/nrtmv4/RIPE/nrtm-delta.4.RIPE.4521174b-548f-4e51-98fc-dfd720011a0c.e3be41ff312010046b67d099faa58f44.json",
+      "hash": "c50dd7554cb35ef5f2f45d7bfa09fc51033cbe1152d29b36cb1178319e22be3e"
+    }
+  ]
+}

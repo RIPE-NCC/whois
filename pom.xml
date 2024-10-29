@@ -92,7 +92,7 @@
         <shedlock.version>5.13.0</shedlock.version>
         <slf4j.version>2.0.16</slf4j.version>
         <solrj.version>1.4.1</solrj.version>
-        <spring.version>6.1.13</spring.version>
+        <spring.version>6.1.14</spring.version>
         <spock.version>2.3-groovy-3.0</spock.version>
         <stax-utils.version>20070216</stax-utils.version>
 
@@ -131,6 +131,7 @@
         <module>whois-db</module>
         <module>whois-endtoend</module>
         <module>whois-nrtm4</module>
+        <module>whois-nrtm4-client</module>
     </modules>
 
     <dependencyManagement>
@@ -204,6 +205,18 @@
             <dependency>
                 <groupId>net.ripe.db</groupId>
                 <artifactId>whois-nrtm4</artifactId>
+                <version>${project.version}</version>
+                <type>test-jar</type>
+                <scope>test</scope>
+            </dependency>
+            <dependency>
+                <groupId>net.ripe.db</groupId>
+                <artifactId>whois-nrtm4-client</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>net.ripe.db</groupId>
+                <artifactId>whois-nrtm4-client</artifactId>
                 <version>${project.version}</version>
                 <type>test-jar</type>
                 <scope>test</scope>
@@ -960,7 +973,7 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-source-plugin</artifactId>
-                <version>3.2.1</version>
+                <version>3.3.1</version>
                 <executions>
                     <execution>
                         <id>attach-sources</id>

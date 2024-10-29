@@ -48,7 +48,7 @@ public class PasswordCredentialValidatorTest {
     }
 
     private boolean authenticate(final String offered, final String known) {
-        return subject.hasValidCredential(preparedUpdate, updateContext, Collections.singleton(new PasswordCredential(offered)), new PasswordCredential(known));
+        return subject.hasValidCredential(preparedUpdate, updateContext, Collections.singleton(new PasswordCredential(offered)), new PasswordCredential(known), null);
     }
 
     @Test

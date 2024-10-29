@@ -1,5 +1,6 @@
 package net.ripe.db.nrtm4.generator;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import net.ripe.db.nrtm4.dao.DeltaFileDao;
 import net.ripe.db.nrtm4.dao.UpdateNotificationFileDao;
@@ -24,6 +25,7 @@ import org.springframework.stereotype.Service;
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 
 
@@ -72,8 +74,9 @@ public class UpdateNotificationFileGenerator {
 
           final Optional<NotificationFile> notificationFile = updateNotificationFileDao.findLastNotification(nrtmSource);
           final Optional<SnapshotFileVersionInfo> snapshotFile = snapshotFileDao.getLastSnapshotWithVersion(nrtmSource);
+          final NrtmKeyRecord nextKey =  nrtmKeyPairService.getNextkeyPair();
 
-          if( !canProceed(notificationFile, nrtmSource, oneDayAgo, snapshotFile)) {
+          if( !canProceed(notificationFile, nrtmSource, oneDayAgo, snapshotFile, nextKey)) {
               LOGGER.info("Skipping generation of update notification file for source {}", nrtmSource.getName());
               continue;
           }
@@ -83,7 +86,6 @@ public class UpdateNotificationFileGenerator {
           final List<DeltaFileVersionInfo> deltaFiles = deltaFileDao.getAllDeltasForSourceSince(nrtmSource, oneDayAgo);
           final NrtmVersionInfo fileVersion = getVersion(deltaFiles, snapshotFile.get());
 
-          final NrtmKeyRecord nextKey =  nrtmKeyPairService.getNextkeyPair();
 
           final String json = getPayload(snapshotFile.get(), deltaFiles, fileVersion, nextKey, createdTimestamp);
 
@@ -105,15 +107,18 @@ public class UpdateNotificationFileGenerator {
         updateNotificationFileDao.update(NotificationFile.of(notificationFile.get().id(), fileVersion.id(), createdTimestamp, json));
     }
 
-    private boolean canProceed(final Optional<NotificationFile> notificationFile, final NrtmSource sourceModel, final LocalDateTime oneDayAgo, final Optional<SnapshotFileVersionInfo> snapshotFile) {
-       if(snapshotFile.isEmpty()) {
+    private boolean canProceed(final Optional<NotificationFile> notificationFile, final NrtmSource sourceModel, final LocalDateTime oneDayAgo, final Optional<SnapshotFileVersionInfo> snapshotFile, final NrtmKeyRecord nextKey) {
+        if(snapshotFile.isEmpty()) {
            return false;
-       }
+        }
 
         if(notificationFile.isEmpty() ||
                 LocalDateTime.ofEpochSecond(notificationFile.get().created(), 0, ZoneOffset.UTC).isBefore(oneDayAgo)) {
             return true;
         }
+
+
+        if (hasNextKeyChanged(notificationFile.get(), nextKey)) return true;
 
         final NrtmVersionInfo lastVersion = nrtmVersionInfoDao.findLastVersion(sourceModel)
                                                         .orElseThrow( () -> new IllegalStateException("No version exists with id " + notificationFile.get().versionId()));
@@ -132,6 +137,17 @@ public class UpdateNotificationFileGenerator {
 
         return notificationVersion.version() < lastVersion.version() ||
                 notificationVersion.type() != lastVersion.type();
+    }
+
+    private static boolean hasNextKeyChanged(final NotificationFile notificationFile, final NrtmKeyRecord nextKey)  {
+        try {
+            final UpdateNotificationFile payload = new ObjectMapper().readValue(notificationFile.payload(), UpdateNotificationFile.class);
+            return !Objects.equals(Ed25519Util.encodePublicKey(nextKey), payload.getNextSigningKey());
+        } catch (final JsonProcessingException e) {
+            LOGGER.warn("Current Notification file keys cannot be parsed");
+            //If we cannot parse UNF or key is not parsed we should generate UNF by default
+            return true;
+        }
     }
 
     private NrtmVersionInfo getVersion(final List<DeltaFileVersionInfo> deltaFiles, final SnapshotFileVersionInfo snapshotFileWithVersion) {
