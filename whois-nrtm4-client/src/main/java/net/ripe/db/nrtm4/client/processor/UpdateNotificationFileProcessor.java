@@ -5,6 +5,7 @@ import net.ripe.db.nrtm4.client.client.UpdateNotificationFileResponse;
 import net.ripe.db.nrtm4.client.condition.Nrtm4ClientCondition;
 import net.ripe.db.nrtm4.client.dao.Nrtm4ClientMirrorRepository;
 import net.ripe.db.nrtm4.client.dao.NrtmClientVersionInfo;
+import net.ripe.db.nrtm4.client.importer.DeltaImporter;
 import net.ripe.db.nrtm4.client.importer.SnapshotImporter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -28,12 +29,16 @@ public class UpdateNotificationFileProcessor {
 
     private final SnapshotImporter snapshotImporter;
 
+    private final DeltaImporter deltaImporter;
+
     public UpdateNotificationFileProcessor(final NrtmRestClient nrtmRestClient,
                                            final Nrtm4ClientMirrorRepository nrtm4ClientMirrorDao,
-                                           final SnapshotImporter snapshotImporter) {
+                                           final SnapshotImporter snapshotImporter,
+                                           final DeltaImporter deltaImporter) {
         this.nrtmRestClient = nrtmRestClient;
         this.nrtm4ClientMirrorDao = nrtm4ClientMirrorDao;
         this.snapshotImporter = snapshotImporter;
+        this.deltaImporter = deltaImporter;
     }
 
     @Transactional(rollbackFor = Exception.class)
@@ -80,6 +85,8 @@ public class UpdateNotificationFileProcessor {
                 LOGGER.info("There is no existing Snapshot for the source {}", source);
                 snapshotImporter.importSnapshot(source, updateNotificationFile);
             }
+
+            deltaImporter.importDeltas(source, updateNotificationFile);
         });
     }
 

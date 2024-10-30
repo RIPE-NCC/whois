@@ -1,9 +1,9 @@
 package net.ripe.db.nrtm4.client.importer;
 
 import com.google.common.collect.Lists;
-import net.ripe.db.nrtm4.client.client.MirrorRpslObject;
+import net.ripe.db.nrtm4.client.client.MirrorObjectInfo;
+import net.ripe.db.nrtm4.client.client.NrtmClientFileResponse;
 import net.ripe.db.nrtm4.client.client.NrtmRestClient;
-import net.ripe.db.nrtm4.client.client.SnapshotFileResponse;
 import net.ripe.db.nrtm4.client.client.UpdateNotificationFileResponse;
 import net.ripe.db.nrtm4.client.condition.Nrtm4ClientCondition;
 import net.ripe.db.nrtm4.client.dao.Nrtm4ClientMirrorRepository;
@@ -49,7 +49,7 @@ public class SnapshotImporter {
             return;
         }
 
-        final SnapshotFileResponse snapshotFileResponse = nrtmRestClient.getSnapshotFile(snapshot.getUrl());
+        final NrtmClientFileResponse snapshotFileResponse = nrtmRestClient.getSnapshotFile(snapshot.getUrl());
         if (snapshotFileResponse == null){
             LOGGER.error("This cannot happen. UNF has a non-existing snapshot");
             return;
@@ -65,12 +65,13 @@ public class SnapshotImporter {
             //  call initialize X number of times and return error to avoid this situation?
             LOGGER.error("The session is not the same in the UNF and snapshot");
             //initializeNRTMClientForSource(source, updateNotificationFile);
+            return;
         }
 
         final AtomicInteger noOfBatchesProcessed = new AtomicInteger(0);
-        final List<List<MirrorRpslObject>> batches = Lists.partition(snapshotFileResponse.getObjects(), BATCH_SIZE);
+        final List<List<MirrorObjectInfo>> batches = Lists.partition(snapshotFileResponse.getObjectMirrorInfo(), BATCH_SIZE);
         final Timer timer = new Timer(true);
-        printProgress(noOfBatchesProcessed, snapshotFileResponse.getObjects().size(), timer);
+        printProgress(noOfBatchesProcessed, snapshotFileResponse.getObjectMirrorInfo().size(), timer);
 
         try {
             batches.parallelStream().forEach(objectBatch -> {

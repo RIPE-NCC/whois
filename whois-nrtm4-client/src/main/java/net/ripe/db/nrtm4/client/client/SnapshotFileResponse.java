@@ -9,7 +9,7 @@ import java.util.List;
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class SnapshotFileResponse {
 
-    private final List<MirrorRpslObject> objects;
+    private final List<MirrorDeltaInfo> objects;
 
     private final int version;
 
@@ -25,7 +25,7 @@ public class SnapshotFileResponse {
         hash = null;
     }
 
-    public SnapshotFileResponse(final List<MirrorRpslObject> rpslObject, final int version, final String sessionID,
+    public SnapshotFileResponse(final List<MirrorDeltaInfo> rpslObject, final int version, final String sessionID,
                                 final String hash) {
         this.objects = rpslObject;
         this.version = version;
@@ -33,7 +33,7 @@ public class SnapshotFileResponse {
         this.hash = hash;
     }
 
-    public List<MirrorRpslObject> getObjects() {
+    public List<MirrorDeltaInfo> getObjects() {
         return objects;
     }
 

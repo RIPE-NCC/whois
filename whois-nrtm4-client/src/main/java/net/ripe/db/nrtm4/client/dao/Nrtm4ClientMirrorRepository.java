@@ -8,9 +8,12 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Conditional;
+import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Repository;
 
+import javax.annotation.Nullable;
 import javax.sql.DataSource;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -46,6 +49,12 @@ public class Nrtm4ClientMirrorRepository {
         saveVersionInfo(source, version, sessionID, NrtmClientDocumentType.SNAPSHOT);
     }
 
+    public void saveDeltaFileVersion(final String source,
+                                        final long version,
+                                        final String sessionID){
+        saveVersionInfo(source, version, sessionID, NrtmClientDocumentType.DELTA);
+    }
+
     public List<NrtmClientVersionInfo> getNrtmLastVersionInfoForUpdateNotificationFile(){
         final String sql = """
             SELECT id, source, MAX(version), session_id, type, created
@@ -53,16 +62,26 @@ public class Nrtm4ClientMirrorRepository {
             WHERE type = 'update-notification-file'
             GROUP BY source
             """;
-        return jdbcSlaveTemplate.query(sql,
-                (rs, rn) -> new NrtmClientVersionInfo(
-                        rs.getLong(1),
-                        rs.getString(2),
-                        rs.getLong(3),
-                        rs.getString(4),
-                        NrtmClientDocumentType.fromValue(rs.getString(5)),
-                        rs.getLong(6)
-                        ));
+        return jdbcSlaveTemplate.query(sql, nrtmClientVersionRowMapper());
     }
+
+    @Nullable
+    public NrtmClientVersionInfo getNrtmLastVersionInfoForDeltasPerSource(final String source){
+        final String sql = """
+            SELECT id, source, MAX(version), session_id, type, created
+            FROM version_info
+            WHERE type = 'nrtm-delta'
+            AND source = ?
+            """;
+        try {
+            return jdbcMasterTemplate.queryForObject(sql,
+                    nrtmClientVersionRowMapper(),
+                    source);
+        } catch (EmptyResultDataAccessException e) {
+            return null;
+        }
+    }
+
 
     public void persistRpslObject(final RpslObject rpslObject){
         try {
@@ -75,6 +94,28 @@ public class Nrtm4ClientMirrorRepository {
         } catch (IOException e) {
             LOGGER.error("unable to get the bytes of the object {}", rpslObject.getKey(), e);
         }
+    }
+
+    public void updateMirroredObject(final RpslObject rpslObject, final Integer objectId){
+        // TODO: There can be two objects with same primaryKey, we don't have single identifier for it
+        jdbcMasterTemplate.update("UPDATE last SET object = ? WHERE object_id = ?", rpslObject, objectId);
+    }
+
+    @Nullable
+    public Integer getMirroredObjectId(final String primaryKey){
+        // TODO: There can be two objects with same primaryKey, we don't have single identifier for it
+        try {
+            return jdbcMasterTemplate.queryForObject("SELECT object_id FROM last_mirror WHERE pkey = ?",
+                    Integer.class,
+                    primaryKey);
+        } catch (EmptyResultDataAccessException e) {
+            return null;
+        }
+    }
+
+    public void removeMirroredObject(final String primaryKey){
+        // TODO: There can be two objects with same primaryKey, we don't have single identifier for it
+        jdbcMasterTemplate.update("DELETE FROM last_mirror WHERE pkey = ?", primaryKey);
     }
 
     public void truncateTables(){
@@ -100,6 +141,17 @@ public class Nrtm4ClientMirrorRepository {
         final ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
         rpslObject.writeTo(byteArrayOutputStream);
         return byteArrayOutputStream.toByteArray();
+    }
+
+    private static RowMapper<NrtmClientVersionInfo> nrtmClientVersionRowMapper() {
+        return (rs, rn) -> new NrtmClientVersionInfo(
+                rs.getLong(1),
+                rs.getString(2),
+                rs.getLong(3),
+                rs.getString(4),
+                NrtmClientDocumentType.fromValue(rs.getString(5)),
+                rs.getLong(6)
+        );
     }
 
 }

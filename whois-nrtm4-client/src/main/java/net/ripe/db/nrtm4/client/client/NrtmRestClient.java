@@ -1,5 +1,6 @@
 package net.ripe.db.nrtm4.client.client;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
@@ -15,6 +16,8 @@ import jakarta.ws.rs.client.ClientBuilder;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 import net.ripe.db.nrtm4.client.condition.Nrtm4ClientCondition;
+import net.ripe.db.whois.common.rpsl.ObjectType;
+import net.ripe.db.whois.common.rpsl.RpslObject;
 import org.apache.commons.compress.utils.Lists;
 import org.apache.commons.lang.StringUtils;
 import org.eclipse.jetty.http.HttpHeader;
@@ -30,6 +33,7 @@ import org.springframework.stereotype.Component;
 import javax.annotation.Nullable;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.List;
@@ -96,7 +100,7 @@ public class NrtmRestClient {
     }
 
     @Nullable
-    public SnapshotFileResponse getSnapshotFile(final String url){
+    public NrtmClientFileResponse getSnapshotFile(final String url){
         try {
             final Response response =  client.target(url)
                     .request(MediaType.APPLICATION_OCTET_STREAM)
@@ -105,20 +109,68 @@ public class NrtmRestClient {
 
             final byte[] payload = response.readEntity(byte[].class);
             final String[] records = getSnapshotRecords(payload);
-            final JSONObject jsonObject = new JSONObject(records[0]);
-            final int snapshotVersion = jsonObject.getInt("version");
-            final String snapshotSessionId = jsonObject.getString("session_id");
+            final Metadata metadata = getMetadata(records);
 
-            final List<MirrorRpslObject> rpslObjects = Lists.newArrayList();
-            for (int i = 1; i < records.length; i++) {
-                rpslObjects.add(new ObjectMapper().readValue(records[i], MirrorRpslObject.class));
-            }
-            return new SnapshotFileResponse(rpslObjects, snapshotVersion, snapshotSessionId, calculateSha256(payload));
+            return new NrtmClientFileResponse(getMirrorRpslObjects(records), metadata.version, metadata.sessionId, calculateSha256(payload));
         } catch (Exception ex){
             LOGGER.error("Unable to get the records from the snapshot", ex);
             return null;
         }
     }
+
+    @Nullable
+    public NrtmClientFileResponse getDeltaFiles(final String url){
+        try {
+            final Response response =  client.target(url)
+                    .request(MediaType.APPLICATION_JSON_TYPE)
+                    .get(Response.class);
+
+            final byte[] payload = response.readEntity(byte[].class);
+            final String[] records = StringUtils.split(new String(payload, StandardCharsets.UTF_8), RECORD_SEPARATOR);
+            final Metadata metadata = getMetadata(records);
+
+            return new NrtmClientFileResponse(getMirrorDeltaObjects(records), metadata.version, metadata.sessionId,
+                    calculateSha256(payload));
+        } catch (Exception ex){
+            LOGGER.error("Unable to get the records from the snapshot", ex);
+            return null;
+        }
+    }
+
+    private static List<MirrorObjectInfo> getMirrorDeltaObjects(final String[] records) throws JsonProcessingException {
+        final List<MirrorObjectInfo> mirrorDeltaInfos = Lists.newArrayList();
+        for (int i = 1; i < records.length; i++) {
+            final JSONObject jsonObject = new JSONObject(records[i]);
+            final String deltaAction = jsonObject.getString("action");
+            final String deltaObjectType = jsonObject.getString("object_class");
+            final String deltaPrimaryKey = jsonObject.getString("primary_key");
+            final String deltaUpdatedObject = jsonObject.getString("object");
+            final MirrorDeltaInfo mirrorDeltaInfo =
+                    new MirrorDeltaInfo(new ObjectMapper().readValue(deltaUpdatedObject, RpslObject.class),
+                            deltaAction,
+                            ObjectType.valueOf(deltaObjectType),
+                            deltaPrimaryKey);
+            mirrorDeltaInfos.add(mirrorDeltaInfo);
+        }
+        return mirrorDeltaInfos;
+    }
+
+    private static List<MirrorObjectInfo> getMirrorRpslObjects(final String[] records) throws JsonProcessingException {
+        final List<MirrorObjectInfo> mirrorObjectInfos = Lists.newArrayList();
+        for (int i = 1; i < records.length; i++) {
+            mirrorObjectInfos.add(new ObjectMapper().readValue(records[i], MirrorObjectInfo.class));
+        }
+        return mirrorObjectInfos;
+    }
+
+    private static Metadata getMetadata(String[] records) {
+        final JSONObject jsonObject = new JSONObject(records[0]);
+        final int deltatVersion = jsonObject.getInt("version");
+        final String deltaSessionId = jsonObject.getString("session_id");
+        return new Metadata(deltatVersion, deltaSessionId);
+    }
+
+    private record Metadata(int version, String sessionId) {}
 
     private static List<String> extractSources(final String html) {
         final List<String> sources = com.google.common.collect.Lists.newArrayList();

@@ -2,6 +2,7 @@ package net.ripe.db.nrtm4.client.dao;
 
 public enum NrtmClientDocumentType {
     SNAPSHOT("nrtm-snapshot"),
+    DELTA("nrtm-delta"),
     NOTIFICATION("update-notification-file");
 
     private final String fileNamePrefix;
