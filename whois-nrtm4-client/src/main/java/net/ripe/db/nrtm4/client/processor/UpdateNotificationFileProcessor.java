@@ -10,6 +10,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.annotation.Conditional;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Map;
@@ -35,7 +36,7 @@ public class UpdateNotificationFileProcessor {
         this.snapshotImporter = snapshotImporter;
     }
 
-    // TODO: Transaction needed, rollback if there is an issue somewhere to restore the database
+    @Transactional(rollbackFor = Exception.class)
     public void processFile(){
         final Map<String, UpdateNotificationFileResponse> notificationFilePerSource =
                 nrtmRestClient.getNrtmAvailableSources()
