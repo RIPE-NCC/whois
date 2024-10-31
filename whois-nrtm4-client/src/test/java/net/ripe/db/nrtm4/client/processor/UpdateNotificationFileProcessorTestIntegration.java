@@ -89,11 +89,11 @@ public class UpdateNotificationFileProcessorTestIntegration extends AbstractNrtm
         nrtmServerDummy.setSecondUNFMocks();
         updateNotificationFileProcessor.processFile();
         final RpslObject updatedroute = getMirrorRpslObjectByPkey("176.240.50.0/24AS47524");
-        final Integer updatedRoute6 = nrtm4ClientMirrorRepository.getMirroredObjectId("2001:490:c000::/35AS18666");
+        final Integer deletedRoute6 = nrtm4ClientMirrorRepository.getMirroredObjectId("2001:490:c000::/35AS18666");
         final Integer createdMntner = nrtm4ClientMirrorRepository.getMirroredObjectId("MHM-MNT");
 
         assertThat(createdMntner, is(not(nullValue())));
-        assertThat(updatedRoute6, is(nullValue()));
+        assertThat(deletedRoute6, is(nullValue()));
         assertThat(route, is(not(updatedroute)));
         assertThat(updatedroute.findAttribute(AttributeType.DESCR).getCleanValue(), is("SECOND DELTA DUMMY"));
     }
