@@ -62,7 +62,7 @@ public class DeltaImporter {
                 final MirrorDeltaInfo mirrorDeltaInfo = (MirrorDeltaInfo)deltaInfo;
 
                 if (mirrorDeltaInfo.getAction().equals(MirrorDeltaInfo.Action.ADD_MODIFY)){
-                    final Integer objectId = nrtm4ClientMirrorDao.getMirroredObjectId(mirrorDeltaInfo.getPrimaryKey());
+                    final Integer objectId = nrtm4ClientMirrorDao.getMirroredObjectId(mirrorDeltaInfo.getRpslObject().getKey().toString());
                     if (objectId == null) {
                         nrtm4ClientMirrorDao.persistRpslObject(mirrorDeltaInfo.getRpslObject());
                         return;

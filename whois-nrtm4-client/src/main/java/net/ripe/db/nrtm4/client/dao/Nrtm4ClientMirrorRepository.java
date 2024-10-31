@@ -97,8 +97,12 @@ public class Nrtm4ClientMirrorRepository {
     }
 
     public void updateMirroredObject(final RpslObject rpslObject, final Integer objectId){
-        // TODO: There can be two objects with same primaryKey, we don't have single identifier for it
-        jdbcMasterTemplate.update("UPDATE last SET object = ? WHERE object_id = ?", rpslObject, objectId);
+        try {
+            jdbcMasterTemplate.update("UPDATE last_mirror SET object = ? WHERE object_id = ?",
+                    getRpslObjectBytes(rpslObject), objectId);
+        } catch (IOException e) {
+            LOGGER.error("unable to get the bytes of the object {}", rpslObject.getKey(), e);
+        }
     }
 
     @Nullable

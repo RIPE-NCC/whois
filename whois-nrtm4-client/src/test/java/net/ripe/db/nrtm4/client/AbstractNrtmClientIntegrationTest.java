@@ -51,6 +51,17 @@ public class AbstractNrtmClientIntegrationTest extends AbstractDatabaseHelperInt
                 (rs, rn) -> RpslObject.parse(rs.getBytes(1)));
     }
 
+    protected RpslObject getMirrorRpslObjectByPkey(final String primaryKey){
+        final String sql = """
+            SELECT object
+            FROM last_mirror
+            WHERE pkey = ?
+            """;
+        return nrtmClientTemplate.queryForObject(sql,
+                (rs, rn) -> RpslObject.parse(rs.getBytes(1)),
+                primaryKey);
+    }
+
     protected List<NrtmClientVersionInfo> getNrtmLastSnapshotVersion(){
         final String sql = """
             SELECT id, source, MAX(version), session_id, type, created

@@ -2,6 +2,7 @@ package net.ripe.db.nrtm4.client.processor;
 
 import net.ripe.db.nrtm4.client.AbstractNrtmClientIntegrationTest;
 import net.ripe.db.nrtm4.client.dao.NrtmClientVersionInfo;
+import net.ripe.db.whois.common.rpsl.AttributeType;
 import net.ripe.db.whois.common.rpsl.RpslObject;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
@@ -11,6 +12,8 @@ import java.util.List;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.empty;
 import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.not;
+import static org.hamcrest.Matchers.nullValue;
 
 @Tag("IntegrationTest")
 public class UpdateNotificationFileProcessorTestIntegration extends AbstractNrtmClientIntegrationTest {
@@ -70,6 +73,29 @@ public class UpdateNotificationFileProcessorTestIntegration extends AbstractNrtm
 
         final List<NrtmClientVersionInfo> snapshotVersionPerSource = getNrtmLastSnapshotVersion();
         assertThat(snapshotVersionPerSource, is(empty()));
+    }
+
+    @Test
+    public void apply_deltas_then_last_mirror_updated(){
+        updateNotificationFileProcessor.processFile();
+        final RpslObject route = getMirrorRpslObjectByPkey("176.240.50.0/24AS47524");
+        final Integer route6 = nrtm4ClientMirrorRepository.getMirroredObjectId("2001:490:c000::/35AS18666");
+        final Integer mntner = nrtm4ClientMirrorRepository.getMirroredObjectId("MHM-MNT");
+
+        assertThat(route6, is(not(nullValue())));
+        assertThat(route.findAttribute(AttributeType.DESCR).getCleanValue(), is("Dummified"));
+        assertThat(mntner, is(nullValue()));
+
+        nrtmServerDummy.setSecondUNFMocks();
+        updateNotificationFileProcessor.processFile();
+        final RpslObject updatedroute = getMirrorRpslObjectByPkey("176.240.50.0/24AS47524");
+        final Integer updatedRoute6 = nrtm4ClientMirrorRepository.getMirroredObjectId("2001:490:c000::/35AS18666");
+        final Integer createdMntner = nrtm4ClientMirrorRepository.getMirroredObjectId("MHM-MNT");
+
+        assertThat(createdMntner, is(not(nullValue())));
+        assertThat(updatedRoute6, is(nullValue()));
+        assertThat(route, is(not(updatedroute)));
+        assertThat(updatedroute.findAttribute(AttributeType.DESCR).getCleanValue(), is("SECOND DELTA DUMMY"));
     }
 
     @Test

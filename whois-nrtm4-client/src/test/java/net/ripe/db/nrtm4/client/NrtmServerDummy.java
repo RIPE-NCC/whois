@@ -42,6 +42,18 @@ public class NrtmServerDummy implements Stub {
 
     private final List<Mock> mocks;
 
+    private static final String FIRST_RIPE_SNAPSHOT_HASH = "b293e92997d3be7a5156fdca832af378c3989b2cefa9e3e37caaeeba0ca971e9";
+
+    private static final String FIRST_NON_AUTH_SNAPSHOT_HASH = "148c3c411b8f044f5fc0ab201f6dd03e80c862e27ad1a63488aee337dc7eb4a2";
+
+    private static final String FIRST_RIPE_DELTA_HASH = "56a17bc2a45167ff0288f84ffd01f74d64dfb7eed40c021bda03087e03708648";
+
+    private static final String FIRST_NON_AUTH_DELTA_HASH = "bc5c8af6276593cfe930a150a839ac44ad0c8b773f42758e15d6e975fe16d91f";
+
+    private static final String SECOND_RIPE_DELTA_HASH = "cfa467aa74261a38d185d12c5548fd407faff3ddd6bdaacaf5ade029275b3aaf";
+
+    private static final String SECOND_NON_AUTH_DELTA_HASH = "b9c43e8381b6342d5fba0fa11a25182d56cfb27df1495b3b3270c1557dc074b1";
+
     final String unfRipeTemplate = """
                 {
                   "nrtm_version": 4,
@@ -49,7 +61,7 @@ public class NrtmServerDummy implements Stub {
                   "type": "notification",
                   "source": "RIPE",
                   "session_id": "4521174b-548f-4e51-98fc-dfd720011a0c",
-                  "version": 1,
+                  "version": %s,
                   "snapshot": {
                     "version": 1,
                     "url": "http://localhost:%s/nrtmv4/RIPE/nrtm-snapshot.1.RIPE.4521174b-548f-4e51-98fc-dfd720011a0c.82542bd048e111fe57db404d08b6433e.json.gz",
@@ -57,9 +69,9 @@ public class NrtmServerDummy implements Stub {
                   },
                   "deltas": [
                     {
-                      "version": 1,
-                      "url": "http://localhost:%s/nrtmv4/RIPE/nrtm-delta.1.RIPE.4521174b-548f-4e51-98fc-dfd720011a0c.e3be41ff312010046b67d099faa58f44.json",
-                      "hash": "b208777c9a9a41052595ba15187c2d98629f10b02c48d78da87d178a3caab8a8"
+                      "version": %s,
+                      "url": "http://localhost:%s/nrtmv4/RIPE/nrtm-delta.%s.RIPE.4521174b-548f-4e51-98fc-dfd720011a0c.e3be41ff312010046b67d099faa58f44.json",
+                      "hash": "%s"
                     }
                   ]
                 }
@@ -67,12 +79,12 @@ public class NrtmServerDummy implements Stub {
 
     final String unfRipeNonAuthTemplate = """
                 {
-                  "nrtm_version": 1,
+                  "nrtm_version": 4,
                   "timestamp": "2024-10-24T13:20:00Z",
                   "type": "notification",
                   "source": "RIPE-NONAUTH",
                   "session_id": "6328095e-7d46-415b-9333-8f2ae274b7c8",
-                  "version": 1,
+                  "version": %s,
                   "snapshot": {
                     "version": 1,
                     "url": "http://localhost:%s/nrtmv4/RIPE-NONAUTH/nrtm-snapshot.1.RIPE-NONAUTH.6328095e-7d46-415b-9333-8f2ae274b7c8.f1195bb8a666fe7b97fa74009a70cefa.json.gz",
@@ -80,9 +92,9 @@ public class NrtmServerDummy implements Stub {
                   },
                   "deltas": [
                     {
-                      "version": 1,
-                      "url": "http://localhost:%s/nrtmv4/RIPE-NONAUTH/nrtm-delta.1.RIPE-NONAUTH.4f3ff2a7-1877-4cab-82f4-1dd6425c4e7d.94b5a6cc54f258062c25d9bee224b5c.json",
-                      "hash": "864a44948b4cbefc9252c967653eb301e54f986103afd22e475e9aa44bd17f9f"
+                      "version": %s,
+                      "url": "http://localhost:%s/nrtmv4/RIPE-NONAUTH/nrtm-delta.%s.RIPE-NONAUTH.4f3ff2a7-1877-4cab-82f4-1dd6425c4e7d.94b5a6cc54f258062c25d9bee224b5c.json",
+                      "hash": "%s"
                     }
                   ]
                 }
@@ -155,18 +167,35 @@ public class NrtmServerDummy implements Stub {
 
     public void setFakeHashMocks(){
         mocks.clear();
-        commonMocks();
-        mocks.add(new NrtmResponseMock("/nrtmv4/RIPE-NONAUTH/update-notification-file.json", getFakeUpdateNotificationNonAuthResponse(), "application/json"));
-        mocks.add(new NrtmResponseMock("/nrtmv4/RIPE/update-notification-file.json", getFakeUpdateNotificationRipeResponse(), "application/json"));
+        initialMocks();
+        mocks.add(new NrtmResponseMock("/nrtmv4/RIPE-NONAUTH/update-notification-file.json",
+                getUpdateNotificationFileNonAuthResponse("fake_hash", FIRST_NON_AUTH_DELTA_HASH, "1"), "application/json"));
+        mocks.add(new NrtmResponseMock("/nrtmv4/RIPE/update-notification-file.json",
+                getUpdateNotificationFileRipeResponse("fake_hash", FIRST_RIPE_DELTA_HASH, "1"), "application/json"));
+    }
+
+    public void setSecondUNFMocks() {
+        mocks.clear();
+        mocks.add(new NrtmResponseMock("/nrtmv4", "nrtm-sources.html", "application/html"));
+        mocks.add(new NrtmResponseMock("/nrtmv4/RIPE-NONAUTH/update-notification-file.json",
+                getUpdateNotificationFileNonAuthResponse(FIRST_NON_AUTH_SNAPSHOT_HASH, SECOND_NON_AUTH_DELTA_HASH,"2"), "application/json"));
+        mocks.add(new NrtmResponseMock("/nrtmv4/RIPE/update-notification-file.json",
+                getUpdateNotificationFileRipeResponse(FIRST_RIPE_SNAPSHOT_HASH, SECOND_RIPE_DELTA_HASH,"2"), "application/json"));
+        mocks.add(new NrtmCompressedResponseMock("/nrtmv4/RIPE-NONAUTH/nrtm-snapshot.1.RIPE-NONAUTH.6328095e-7d46-415b-9333-8f2ae274b7c8.f1195bb8a666fe7b97fa74009a70cefa.json.gz", "nrtm-snapshot.1.RIPE-NONAUTH.json"));
+        mocks.add(new NrtmCompressedResponseMock("/nrtmv4/RIPE/nrtm-snapshot.1.RIPE.4521174b-548f-4e51-98fc-dfd720011a0c.82542bd048e111fe57db404d08b6433e.json.gz", "nrtm-snapshot.1.RIPE.json"));
+        mocks.add(new NrtmResponseMock("/nrtmv4/RIPE/nrtm-delta.2.RIPE.4521174b-548f-4e51-98fc-dfd720011a0c.e3be41ff312010046b67d099faa58f44.json", "nrtm-delta.2.RIPE.json", "application/json"));
+        mocks.add(new NrtmResponseMock("/nrtmv4/RIPE-NONAUTH/nrtm-delta.2.RIPE-NONAUTH.4f3ff2a7-1877-4cab-82f4-1dd6425c4e7d.94b5a6cc54f258062c25d9bee224b5c.json", "nrtm-delta.2.RIPE-NONAUTH.json", "application/json"));
     }
 
     private void initialiseMocks() {
-        commonMocks();
-        mocks.add(new NrtmResponseMock("/nrtmv4/RIPE-NONAUTH/update-notification-file.json", getUpdateNotificationFileNonAuthResponse(), "application/json"));
-        mocks.add(new NrtmResponseMock("/nrtmv4/RIPE/update-notification-file.json", getUpdateNotificationFileRipeResponse(), "application/json"));
+        initialMocks();
+        mocks.add(new NrtmResponseMock("/nrtmv4/RIPE-NONAUTH/update-notification-file.json",
+                getUpdateNotificationFileNonAuthResponse(FIRST_NON_AUTH_SNAPSHOT_HASH, FIRST_NON_AUTH_DELTA_HASH, "1"), "application/json"));
+        mocks.add(new NrtmResponseMock("/nrtmv4/RIPE/update-notification-file.json",
+                getUpdateNotificationFileRipeResponse(FIRST_RIPE_SNAPSHOT_HASH, FIRST_RIPE_DELTA_HASH, "1"), "application/json"));
     }
 
-    private void commonMocks(){
+    private void initialMocks(){
         mocks.add(new NrtmResponseMock("/nrtmv4", "nrtm-sources.html", "application/html"));
         mocks.add(new NrtmCompressedResponseMock("/nrtmv4/RIPE-NONAUTH/nrtm-snapshot.1.RIPE-NONAUTH.6328095e-7d46-415b-9333-8f2ae274b7c8.f1195bb8a666fe7b97fa74009a70cefa.json.gz", "nrtm-snapshot.1.RIPE-NONAUTH.json"));
         mocks.add(new NrtmCompressedResponseMock("/nrtmv4/RIPE/nrtm-snapshot.1.RIPE.4521174b-548f-4e51-98fc-dfd720011a0c.82542bd048e111fe57db404d08b6433e.json.gz", "nrtm-snapshot.1.RIPE.json"));
@@ -251,19 +280,11 @@ public class NrtmServerDummy implements Stub {
         }
     }
 
-    private String getFakeUpdateNotificationRipeResponse(){
-        return String.format(unfRipeTemplate, port, "fake_hash", port);
+    private String getUpdateNotificationFileRipeResponse(final String snapshotHash, final String deltaHash, final String version){
+        return String.format(unfRipeTemplate, version, port, snapshotHash, version, port, version, deltaHash);
     }
 
-    private String getFakeUpdateNotificationNonAuthResponse(){
-        return String.format(unfRipeNonAuthTemplate, port, "fake_hash", port);
-    }
-
-    private String getUpdateNotificationFileRipeResponse(){
-        return String.format(unfRipeTemplate, port, "b293e92997d3be7a5156fdca832af378c3989b2cefa9e3e37caaeeba0ca971e9", port);
-    }
-
-    private String getUpdateNotificationFileNonAuthResponse(){
-        return String.format(unfRipeNonAuthTemplate, port, "148c3c411b8f044f5fc0ab201f6dd03e80c862e27ad1a63488aee337dc7eb4a2", port);
+    private String getUpdateNotificationFileNonAuthResponse(final String snapshotHash, final String deltaHash, final String version){
+        return String.format(unfRipeNonAuthTemplate, version, port, snapshotHash, version, port, version, deltaHash);
     }
 }
