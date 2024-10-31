@@ -29,18 +29,18 @@ public class MirrorDeltaInfo extends MirrorObjectInfo {
 
     public MirrorDeltaInfo(final RpslObject rpslObject) {
         super(rpslObject);
-        this.objectType = rpslObject.getType();
-        this.primaryKey = rpslObject.getKey().toString();
+        this.objectType = null;
+        this.primaryKey = null;
         this.action = null;
     }
 
     public MirrorDeltaInfo(final RpslObject object,
                            final String action,
-                           final ObjectType objectType,
+                           final String objectType,
                            final String primaryKey) {
         super(object);
-        this.action = Action.valueOf(action);
-        this.objectType = objectType;
+        this.action = Action.valueOf(action.toUpperCase());
+        this.objectType = objectType != null ? ObjectType.valueOf(objectType) : null;
         this.primaryKey = primaryKey;
     }
 

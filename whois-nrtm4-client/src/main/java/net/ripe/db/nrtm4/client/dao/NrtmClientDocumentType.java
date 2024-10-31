@@ -1,5 +1,7 @@
 package net.ripe.db.nrtm4.client.dao;
 
+import io.netty.util.internal.StringUtil;
+
 public enum NrtmClientDocumentType {
     SNAPSHOT("nrtm-snapshot"),
     DELTA("nrtm-delta"),
@@ -16,6 +18,9 @@ public enum NrtmClientDocumentType {
     }
 
     public static NrtmClientDocumentType fromValue(String value) {
+        if (StringUtil.isNullOrEmpty(value)){
+            return null;
+        }
         for (NrtmClientDocumentType enumConstant : NrtmClientDocumentType.values()) {
             if (enumConstant.getFileNamePrefix().equals(value)) {
                 return enumConstant;

@@ -11,12 +11,12 @@ import com.fasterxml.jackson.databind.type.TypeFactory;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import com.fasterxml.jackson.jakarta.rs.json.JacksonJsonProvider;
 import com.fasterxml.jackson.module.jakarta.xmlbind.JakartaXmlBindAnnotationIntrospector;
+import io.netty.util.internal.StringUtil;
 import jakarta.ws.rs.client.Client;
 import jakarta.ws.rs.client.ClientBuilder;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 import net.ripe.db.nrtm4.client.condition.Nrtm4ClientCondition;
-import net.ripe.db.whois.common.rpsl.ObjectType;
 import net.ripe.db.whois.common.rpsl.RpslObject;
 import org.apache.commons.compress.utils.Lists;
 import org.apache.commons.lang.StringUtils;
@@ -142,13 +142,16 @@ public class NrtmRestClient {
         for (int i = 1; i < records.length; i++) {
             final JSONObject jsonObject = new JSONObject(records[i]);
             final String deltaAction = jsonObject.getString("action");
-            final String deltaObjectType = jsonObject.getString("object_class");
-            final String deltaPrimaryKey = jsonObject.getString("primary_key");
-            final String deltaUpdatedObject = jsonObject.getString("object");
+            final String deltaObjectType = jsonObject.optString("object_class", null);
+            final String deltaPrimaryKey = jsonObject.optString("primary_key", null);
+            final String deltaUpdatedObject = jsonObject.optString("object", null);
+            final RpslObject rpslObject = !StringUtil.isNullOrEmpty(deltaUpdatedObject) ?
+                    RpslObject.parse(deltaUpdatedObject) : null;
+
             final MirrorDeltaInfo mirrorDeltaInfo =
-                    new MirrorDeltaInfo(new ObjectMapper().readValue(deltaUpdatedObject, RpslObject.class),
+                    new MirrorDeltaInfo(rpslObject,
                             deltaAction,
-                            ObjectType.valueOf(deltaObjectType),
+                            deltaObjectType,
                             deltaPrimaryKey);
             mirrorDeltaInfos.add(mirrorDeltaInfo);
         }
@@ -158,7 +161,7 @@ public class NrtmRestClient {
     private static List<MirrorObjectInfo> getMirrorRpslObjects(final String[] records) throws JsonProcessingException {
         final List<MirrorObjectInfo> mirrorObjectInfos = Lists.newArrayList();
         for (int i = 1; i < records.length; i++) {
-            mirrorObjectInfos.add(new ObjectMapper().readValue(records[i], MirrorObjectInfo.class));
+            mirrorObjectInfos.add(new ObjectMapper().readValue(records[i], MirrorSnapshotInfo.class));
         }
         return mirrorObjectInfos;
     }

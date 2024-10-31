@@ -1,6 +1,5 @@
 package net.ripe.db.nrtm4.client;
 
-import net.ripe.db.nrtm4.client.client.MirrorDeltaInfo;
 import net.ripe.db.nrtm4.client.dao.Nrtm4ClientMirrorRepository;
 import net.ripe.db.nrtm4.client.dao.NrtmClientDocumentType;
 import net.ripe.db.nrtm4.client.dao.NrtmClientVersionInfo;
@@ -43,13 +42,13 @@ public class AbstractNrtmClientIntegrationTest extends AbstractDatabaseHelperInt
         System.clearProperty("nrtm4.client.enabled");
     }
 
-    protected List<MirrorDeltaInfo> getMirrorRpslObject(){
+    protected List<RpslObject> getMirrorRpslObject(){
         final String sql = """
             SELECT object
             FROM last_mirror
             """;
         return nrtmClientTemplate.query(sql,
-                (rs, rn) -> new MirrorDeltaInfo(RpslObject.parse(rs.getBytes(1))));
+                (rs, rn) -> RpslObject.parse(rs.getBytes(1)));
     }
 
     protected List<NrtmClientVersionInfo> getNrtmLastSnapshotVersion(){

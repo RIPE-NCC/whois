@@ -50,7 +50,7 @@ public class SnapshotImporter {
         }
 
         final NrtmClientFileResponse snapshotFileResponse = nrtmRestClient.getSnapshotFile(snapshot.getUrl());
-        if (snapshotFileResponse == null){
+        if (snapshotFileResponse == null || snapshotFileResponse.getObjectMirrorInfo() == null){
             LOGGER.error("This cannot happen. UNF has a non-existing snapshot");
             return;
         }
@@ -76,7 +76,7 @@ public class SnapshotImporter {
         try {
             batches.parallelStream().forEach(objectBatch -> {
                 objectBatch.forEach(objectRecord -> {
-                    nrtm4ClientMirrorDao.persistRpslObject(objectRecord.getObject());
+                    nrtm4ClientMirrorDao.persistRpslObject(objectRecord.getRpslObject());
                 });
                 noOfBatchesProcessed.incrementAndGet();
             });

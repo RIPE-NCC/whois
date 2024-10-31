@@ -52,14 +52,14 @@ public class NrtmServerDummy implements Stub {
                   "version": 1,
                   "snapshot": {
                     "version": 1,
-                    "url": "http://localhost:%s/nrtmv4/RIPE/nrtm-snapshot.4.RIPE.4521174b-548f-4e51-98fc-dfd720011a0c.82542bd048e111fe57db404d08b6433e.json.gz",
+                    "url": "http://localhost:%s/nrtmv4/RIPE/nrtm-snapshot.1.RIPE.4521174b-548f-4e51-98fc-dfd720011a0c.82542bd048e111fe57db404d08b6433e.json.gz",
                     "hash": "%s"
                   },
                   "deltas": [
                     {
                       "version": 1,
-                      "url": "http://localhost:%s/nrtmv4/RIPE/nrtm-delta.4.RIPE.4521174b-548f-4e51-98fc-dfd720011a0c.e3be41ff312010046b67d099faa58f44.json",
-                      "hash": "c50dd7554cb35ef5f2f45d7bfa09fc51033cbe1152d29b36cb1178319e22be3e"
+                      "url": "http://localhost:%s/nrtmv4/RIPE/nrtm-delta.1.RIPE.4521174b-548f-4e51-98fc-dfd720011a0c.e3be41ff312010046b67d099faa58f44.json",
+                      "hash": "b208777c9a9a41052595ba15187c2d98629f10b02c48d78da87d178a3caab8a8"
                     }
                   ]
                 }
@@ -78,7 +78,13 @@ public class NrtmServerDummy implements Stub {
                     "url": "http://localhost:%s/nrtmv4/RIPE-NONAUTH/nrtm-snapshot.1.RIPE-NONAUTH.6328095e-7d46-415b-9333-8f2ae274b7c8.f1195bb8a666fe7b97fa74009a70cefa.json.gz",
                     "hash": "%s"
                   },
-                  "deltas": []
+                  "deltas": [
+                    {
+                      "version": 1,
+                      "url": "http://localhost:%s/nrtmv4/RIPE-NONAUTH/nrtm-delta.1.RIPE-NONAUTH.4f3ff2a7-1877-4cab-82f4-1dd6425c4e7d.94b5a6cc54f258062c25d9bee224b5c.json",
+                      "hash": "864a44948b4cbefc9252c967653eb301e54f986103afd22e475e9aa44bd17f9f"
+                    }
+                  ]
                 }
                 """;
 
@@ -149,19 +155,23 @@ public class NrtmServerDummy implements Stub {
 
     public void setFakeHashMocks(){
         mocks.clear();
-        mocks.add(new NrtmResponseMock("/nrtmv4", "nrtm-sources.html", "application/html"));
+        commonMocks();
         mocks.add(new NrtmResponseMock("/nrtmv4/RIPE-NONAUTH/update-notification-file.json", getFakeUpdateNotificationNonAuthResponse(), "application/json"));
         mocks.add(new NrtmResponseMock("/nrtmv4/RIPE/update-notification-file.json", getFakeUpdateNotificationRipeResponse(), "application/json"));
-        mocks.add(new NrtmCompressedResponseMock("/nrtmv4/RIPE-NONAUTH/nrtm-snapshot.1.RIPE-NONAUTH.6328095e-7d46-415b-9333-8f2ae274b7c8.f1195bb8a666fe7b97fa74009a70cefa.json.gz", "nrtm-snapshot.1.RIPE-NONAUTH.json"));
-        mocks.add(new NrtmCompressedResponseMock("/nrtmv4/RIPE/nrtm-snapshot.4.RIPE.4521174b-548f-4e51-98fc-dfd720011a0c.82542bd048e111fe57db404d08b6433e.json.gz", "nrtm-snapshot.1.RIPE.json"));
     }
 
     private void initialiseMocks() {
-        mocks.add(new NrtmResponseMock("/nrtmv4", "nrtm-sources.html", "application/html"));
+        commonMocks();
         mocks.add(new NrtmResponseMock("/nrtmv4/RIPE-NONAUTH/update-notification-file.json", getUpdateNotificationFileNonAuthResponse(), "application/json"));
         mocks.add(new NrtmResponseMock("/nrtmv4/RIPE/update-notification-file.json", getUpdateNotificationFileRipeResponse(), "application/json"));
+    }
+
+    private void commonMocks(){
+        mocks.add(new NrtmResponseMock("/nrtmv4", "nrtm-sources.html", "application/html"));
         mocks.add(new NrtmCompressedResponseMock("/nrtmv4/RIPE-NONAUTH/nrtm-snapshot.1.RIPE-NONAUTH.6328095e-7d46-415b-9333-8f2ae274b7c8.f1195bb8a666fe7b97fa74009a70cefa.json.gz", "nrtm-snapshot.1.RIPE-NONAUTH.json"));
-        mocks.add(new NrtmCompressedResponseMock("/nrtmv4/RIPE/nrtm-snapshot.4.RIPE.4521174b-548f-4e51-98fc-dfd720011a0c.82542bd048e111fe57db404d08b6433e.json.gz", "nrtm-snapshot.1.RIPE.json"));
+        mocks.add(new NrtmCompressedResponseMock("/nrtmv4/RIPE/nrtm-snapshot.1.RIPE.4521174b-548f-4e51-98fc-dfd720011a0c.82542bd048e111fe57db404d08b6433e.json.gz", "nrtm-snapshot.1.RIPE.json"));
+        mocks.add(new NrtmResponseMock("/nrtmv4/RIPE-NONAUTH/nrtm-delta.1.RIPE-NONAUTH.4f3ff2a7-1877-4cab-82f4-1dd6425c4e7d.94b5a6cc54f258062c25d9bee224b5c.json", "nrtm-delta.1.RIPE-NONAUTH.json", "application/json"));
+        mocks.add(new NrtmResponseMock("/nrtmv4/RIPE/nrtm-delta.1.RIPE.4521174b-548f-4e51-98fc-dfd720011a0c.e3be41ff312010046b67d099faa58f44.json", "nrtm-delta.1.RIPE.json", "application/json"));
     }
 
 
@@ -246,7 +256,7 @@ public class NrtmServerDummy implements Stub {
     }
 
     private String getFakeUpdateNotificationNonAuthResponse(){
-        return String.format(unfRipeNonAuthTemplate, port, "fake_hash");
+        return String.format(unfRipeNonAuthTemplate, port, "fake_hash", port);
     }
 
     private String getUpdateNotificationFileRipeResponse(){
@@ -254,6 +264,6 @@ public class NrtmServerDummy implements Stub {
     }
 
     private String getUpdateNotificationFileNonAuthResponse(){
-        return String.format(unfRipeNonAuthTemplate, port, "69dd1a33e771c8c2d95ebe19ffc5643a7611dbb0ae1bf5c72b1eec5ac5b3d1f9");
+        return String.format(unfRipeNonAuthTemplate, port, "148c3c411b8f044f5fc0ab201f6dd03e80c862e27ad1a63488aee337dc7eb4a2", port);
     }
 }

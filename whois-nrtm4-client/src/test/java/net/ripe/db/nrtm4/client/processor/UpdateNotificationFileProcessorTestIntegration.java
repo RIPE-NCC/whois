@@ -1,8 +1,8 @@
 package net.ripe.db.nrtm4.client.processor;
 
 import net.ripe.db.nrtm4.client.AbstractNrtmClientIntegrationTest;
-import net.ripe.db.nrtm4.client.client.MirrorDeltaInfo;
 import net.ripe.db.nrtm4.client.dao.NrtmClientVersionInfo;
+import net.ripe.db.whois.common.rpsl.RpslObject;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 
@@ -41,7 +41,7 @@ public class UpdateNotificationFileProcessorTestIntegration extends AbstractNrtm
         final List<NrtmClientVersionInfo> versionInfosPerSource = nrtm4ClientMirrorRepository.getNrtmLastVersionInfoForUpdateNotificationFile();
         assertThat(versionInfosPerSource.size(), is(2));
 
-        final List<MirrorDeltaInfo> mirroredRpslObjects = getMirrorRpslObject();
+        final List<RpslObject> mirroredRpslObjects = getMirrorRpslObject();
         final List<NrtmClientVersionInfo> snapshotVersionPerSource = getNrtmLastSnapshotVersion();
         assertThat(mirroredRpslObjects.isEmpty(), is(false));
         assertThat(snapshotVersionPerSource.size(), is(2));

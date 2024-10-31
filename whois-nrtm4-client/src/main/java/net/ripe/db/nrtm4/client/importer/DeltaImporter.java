@@ -64,10 +64,10 @@ public class DeltaImporter {
                 if (mirrorDeltaInfo.getAction().equals(MirrorDeltaInfo.Action.ADD_MODIFY)){
                     final Integer objectId = nrtm4ClientMirrorDao.getMirroredObjectId(mirrorDeltaInfo.getPrimaryKey());
                     if (objectId == null) {
-                        nrtm4ClientMirrorDao.persistRpslObject(mirrorDeltaInfo.getObject());
+                        nrtm4ClientMirrorDao.persistRpslObject(mirrorDeltaInfo.getRpslObject());
                         return;
                     }
-                    nrtm4ClientMirrorDao.updateMirroredObject(mirrorDeltaInfo.getObject(), objectId);
+                    nrtm4ClientMirrorDao.updateMirroredObject(mirrorDeltaInfo.getRpslObject(), objectId);
                 } else {
                     nrtm4ClientMirrorDao.removeMirroredObject(mirrorDeltaInfo.getPrimaryKey());
                 }

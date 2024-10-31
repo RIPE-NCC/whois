@@ -1,7 +1,6 @@
 package net.ripe.db.nrtm4.client.client;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import com.fasterxml.jackson.annotation.JsonProperty;
 
 import javax.annotation.Nullable;
 import java.util.List;
@@ -10,7 +9,6 @@ import java.util.List;
 public class NrtmClientFileResponse {
 
     private final int version;
-    @JsonProperty("session_id")
     private final String sessionID;
     private final String hash;
     private final List<MirrorObjectInfo> objectMirrorInfo;
