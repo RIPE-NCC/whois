@@ -110,6 +110,7 @@ public class NrtmRestClient {
             final String snapshotSessionId = jsonObject.getString("session_id");
 
             final List<MirrorRpslObject> rpslObjects = Lists.newArrayList();
+            LOGGER.info("There are {} records in the snapshot", records.length);
             for (int i = 1; i < records.length; i++) {
                 rpslObjects.add(new ObjectMapper().readValue(records[i], MirrorRpslObject.class));
             }
