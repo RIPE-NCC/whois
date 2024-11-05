@@ -52,7 +52,7 @@ public class SnapshotImporter {
         final Stopwatch stopwatch = Stopwatch.createStarted();
         final SnapshotFileResponse snapshotFileResponse = nrtmRestClient.getSnapshotFile(snapshot.getUrl());
         stopwatch.stop();
-        LOGGER.info("loading snapshot took {} mins", stopwatch.elapsed().toMillis());
+        LOGGER.info("loading snapshot took {} ms", stopwatch.elapsed().toMillis());
 
         if (snapshotFileResponse == null){
             LOGGER.error("This cannot happen. UNF has a non-existing snapshot");
@@ -91,6 +91,7 @@ public class SnapshotImporter {
             timer.cancel();
         }
         nrtm4ClientMirrorDao.saveSnapshotFileVersion(source, snapshotFileResponse.getVersion(), snapshotFileResponse.getSessionID());
+        LOGGER.info("Snapshot loaded");
     }
 
     private void printProgress(final AtomicInteger noOfBatchesProcessed, final int total, final Timer timer) {
