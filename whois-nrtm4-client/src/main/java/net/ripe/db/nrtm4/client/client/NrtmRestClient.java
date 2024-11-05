@@ -99,20 +99,24 @@ public class NrtmRestClient {
 
     @Nullable
     public SnapshotFileResponse getSnapshotFile(final String url){
+        LOGGER.info("Getting snapshot file");
         try {
             final Response response =  client.target(url)
                     .request(MediaType.APPLICATION_OCTET_STREAM)
                     .header(HttpHeader.X_FORWARDED_PROTO.asString(), HttpScheme.HTTPS.asString())
                     .get(Response.class);
 
+            LOGGER.info("Response code: {}", response.getStatus());
+
             final byte[] payload = response.readEntity(byte[].class);
+            LOGGER.info("Payload");
             final String[] records = getSnapshotRecords(payload);
+            LOGGER.info("There are {} records in the snapshot", records.length);
             final JSONObject jsonObject = new JSONObject(records[0]);
             final int snapshotVersion = jsonObject.getInt("version");
             final String snapshotSessionId = jsonObject.getString("session_id");
 
             final List<MirrorRpslObject> rpslObjects = Lists.newArrayList();
-            LOGGER.info("There are {} records in the snapshot", records.length);
             for (int i = 1; i < records.length; i++) {
                 rpslObjects.add(new ObjectMapper().readValue(records[i], MirrorRpslObject.class));
             }
