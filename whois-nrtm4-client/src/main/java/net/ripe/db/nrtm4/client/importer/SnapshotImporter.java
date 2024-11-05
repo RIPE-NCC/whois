@@ -1,5 +1,6 @@
 package net.ripe.db.nrtm4.client.importer;
 
+import com.google.common.base.Stopwatch;
 import com.google.common.collect.Lists;
 import net.ripe.db.nrtm4.client.client.MirrorRpslObject;
 import net.ripe.db.nrtm4.client.client.NrtmRestClient;
@@ -48,8 +49,11 @@ public class SnapshotImporter {
             LOGGER.error("Snapshot cannot be null in the notification file");
             return;
         }
-
+        final Stopwatch stopwatch = Stopwatch.createStarted();
         final SnapshotFileResponse snapshotFileResponse = nrtmRestClient.getSnapshotFile(snapshot.getUrl());
+        stopwatch.stop();
+        LOGGER.info("loading snapshot took {} mins", stopwatch.elapsed().toMinutes());
+
         if (snapshotFileResponse == null){
             LOGGER.error("This cannot happen. UNF has a non-existing snapshot");
             return;
