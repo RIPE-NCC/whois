@@ -29,7 +29,9 @@ import org.springframework.stereotype.Component;
 
 import javax.annotation.Nullable;
 import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.List;
@@ -141,18 +143,17 @@ public class NrtmRestClient {
     }
 
     private static String decompress(final byte[] compressed) throws IOException {
-        final int BUFFER_SIZE = 32;
-        ByteArrayInputStream is = new ByteArrayInputStream(compressed);
-        GZIPInputStream gis = new GZIPInputStream(is, BUFFER_SIZE);
-        StringBuilder string = new StringBuilder();
-        byte[] data = new byte[BUFFER_SIZE];
-        int bytesRead;
-        while ((bytesRead = gis.read(data)) != -1) {
-            string.append(new String(data, 0, bytesRead));
+        final int BUFFER_SIZE = 4096;
+        try (ByteArrayInputStream is = new ByteArrayInputStream(compressed);
+            GZIPInputStream gis = new GZIPInputStream(is, BUFFER_SIZE);
+            ByteArrayOutputStream output = new ByteArrayOutputStream()) {
+            byte[] buffer = new byte[BUFFER_SIZE];
+            int bytesRead;
+            while ((bytesRead = gis.read(buffer)) != -1) {
+                output.write(buffer, 0, bytesRead);
+            }
+            return output.toString(StandardCharsets.UTF_8);
         }
-        gis.close();
-        is.close();
-        return string.toString();
     }
 
     private static String calculateSha256(final byte[] bytes) {
