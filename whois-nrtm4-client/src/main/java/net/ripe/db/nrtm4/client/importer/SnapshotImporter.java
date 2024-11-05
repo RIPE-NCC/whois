@@ -52,7 +52,7 @@ public class SnapshotImporter {
         final Stopwatch stopwatch = Stopwatch.createStarted();
         final SnapshotFileResponse snapshotFileResponse = nrtmRestClient.getSnapshotFile(snapshot.getUrl());
         stopwatch.stop();
-        LOGGER.info("loading snapshot took {} mins", stopwatch.elapsed().toMinutes());
+        LOGGER.info("loading snapshot took {} mins", stopwatch.elapsed().toMillis());
 
         if (snapshotFileResponse == null){
             LOGGER.error("This cannot happen. UNF has a non-existing snapshot");
