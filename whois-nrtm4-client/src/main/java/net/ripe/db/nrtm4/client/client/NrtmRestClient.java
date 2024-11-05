@@ -10,17 +10,16 @@ import com.fasterxml.jackson.databind.type.TypeFactory;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import com.fasterxml.jackson.jakarta.rs.json.JacksonJsonProvider;
 import com.fasterxml.jackson.module.jakarta.xmlbind.JakartaXmlBindAnnotationIntrospector;
+import com.google.common.base.Stopwatch;
 import jakarta.ws.rs.client.Client;
 import jakarta.ws.rs.client.ClientBuilder;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 import net.ripe.db.nrtm4.client.condition.Nrtm4ClientCondition;
 import org.apache.commons.compress.utils.Lists;
-import org.apache.commons.lang.StringUtils;
 import org.eclipse.jetty.http.HttpHeader;
 import org.eclipse.jetty.http.HttpScheme;
 import org.glassfish.jersey.client.ClientProperties;
-import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
@@ -28,16 +27,9 @@ import org.springframework.context.annotation.Conditional;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.Nullable;
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.nio.charset.StandardCharsets;
-import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import java.util.zip.GZIPInputStream;
 
 @Component
 @Conditional(Nrtm4ClientCondition.class)
@@ -52,8 +44,6 @@ public class NrtmRestClient {
     private static final int CLIENT_READ_TIMEOUT = 60_000;
 
     private final Client client;
-
-    public static final String RECORD_SEPARATOR = "\u001E";
 
     public NrtmRestClient(@Value("${nrtm.baseUrl}") final String baseUrl) {
         final ObjectMapper objectMapper = JsonMapper.builder()
@@ -98,29 +88,18 @@ public class NrtmRestClient {
     }
 
     @Nullable
-    public SnapshotFileResponse getSnapshotFile(final String url){
+    public byte[] getSnapshotFile(final String url){
         LOGGER.info("Getting snapshot file");
         try {
+            final Stopwatch stopwatch = Stopwatch.createUnstarted();
             final Response response =  client.target(url)
                     .request(MediaType.APPLICATION_OCTET_STREAM)
                     .header(HttpHeader.X_FORWARDED_PROTO.asString(), HttpScheme.HTTPS.asString())
                     .get(Response.class);
 
             LOGGER.info("Response code: {}", response.getStatus());
-
-            final byte[] payload = response.readEntity(byte[].class);
-            LOGGER.info("Payload");
-            final String[] records = getSnapshotRecords(payload);
-            LOGGER.info("There are {} records in the snapshot", records.length);
-            final JSONObject jsonObject = new JSONObject(records[0]);
-            final int snapshotVersion = jsonObject.getInt("version");
-            final String snapshotSessionId = jsonObject.getString("session_id");
-
-            final List<MirrorRpslObject> rpslObjects = Lists.newArrayList();
-            for (int i = 1; i < records.length; i++) {
-                rpslObjects.add(new ObjectMapper().readValue(records[i], MirrorRpslObject.class));
-            }
-            return new SnapshotFileResponse(rpslObjects, snapshotVersion, snapshotSessionId, calculateSha256(payload));
+            LOGGER.info("Loading snapshot file took {}", stopwatch.elapsed().toMillis());
+            return response.readEntity(byte[].class);
         } catch (Exception ex){
             LOGGER.error("Unable to get the records from the snapshot", ex);
             return null;
@@ -140,45 +119,5 @@ public class NrtmRestClient {
         }
 
         return sources;
-    }
-
-    private static String[] getSnapshotRecords(byte[] compressed) throws IOException {
-        return StringUtils.split(decompress(compressed), RECORD_SEPARATOR);
-    }
-
-    private static String decompress(final byte[] compressed) throws IOException {
-        final int BUFFER_SIZE = 4096;
-        try (ByteArrayInputStream is = new ByteArrayInputStream(compressed);
-            GZIPInputStream gis = new GZIPInputStream(is, BUFFER_SIZE);
-            ByteArrayOutputStream output = new ByteArrayOutputStream()) {
-            byte[] buffer = new byte[BUFFER_SIZE];
-            int bytesRead;
-            while ((bytesRead = gis.read(buffer)) != -1) {
-                output.write(buffer, 0, bytesRead);
-            }
-            return output.toString(StandardCharsets.UTF_8);
-        }
-    }
-
-    private static String calculateSha256(final byte[] bytes) {
-        try {
-            final MessageDigest digest = MessageDigest.getInstance("SHA-256");
-            final byte[] encodedSha256hex = digest.digest(bytes);
-            return byteArrayToHexString(encodedSha256hex);
-        } catch (final NoSuchAlgorithmException e) {
-            throw new RuntimeException(e);
-        }
-    }
-
-    private static String byteArrayToHexString(final byte[] bytes) {
-        final StringBuilder hexString = new StringBuilder(2 * bytes.length);
-        for (final byte b : bytes) {
-            final String hex = Integer.toHexString(0xff & b);
-            if (hex.length() == 1) {
-                hexString.append('0');
-            }
-            hexString.append(hex);
-        }
-        return hexString.toString();
     }
 }

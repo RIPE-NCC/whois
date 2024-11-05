@@ -1,26 +1,36 @@
 package net.ripe.db.nrtm4.client.importer;
 
-import com.google.common.base.Stopwatch;
-import com.google.common.collect.Lists;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import net.ripe.db.nrtm4.client.client.MirrorRpslObject;
 import net.ripe.db.nrtm4.client.client.NrtmRestClient;
-import net.ripe.db.nrtm4.client.client.SnapshotFileResponse;
 import net.ripe.db.nrtm4.client.client.UpdateNotificationFileResponse;
 import net.ripe.db.nrtm4.client.condition.Nrtm4ClientCondition;
 import net.ripe.db.nrtm4.client.dao.Nrtm4ClientMirrorRepository;
+import org.apache.commons.lang.StringUtils;
+import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.annotation.Conditional;
 import org.springframework.stereotype.Service;
 
-import java.util.List;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.nio.charset.StandardCharsets;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
+import java.util.Arrays;
 import java.util.Timer;
 import java.util.TimerTask;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.zip.GZIPInputStream;
 
 @Service
 @Conditional(Nrtm4ClientCondition.class)
 public class SnapshotImporter {
+
+    private final AtomicInteger processedCount = new AtomicInteger(0);
 
     private static final Logger LOGGER = LoggerFactory.getLogger(SnapshotImporter.class);
 
@@ -29,6 +39,8 @@ public class SnapshotImporter {
     private final Nrtm4ClientMirrorRepository nrtm4ClientMirrorDao;
 
     private static final int BATCH_SIZE = 100;
+
+    public static final String RECORD_SEPARATOR = "\u001E";
 
     public SnapshotImporter(final NrtmRestClient nrtmRestClient,
                                         final Nrtm4ClientMirrorRepository nrtm4ClientMirrorDao) {
@@ -49,58 +61,108 @@ public class SnapshotImporter {
             LOGGER.error("Snapshot cannot be null in the notification file");
             return;
         }
-        final Stopwatch stopwatch = Stopwatch.createStarted();
-        final SnapshotFileResponse snapshotFileResponse = nrtmRestClient.getSnapshotFile(snapshot.getUrl());
-        stopwatch.stop();
-        LOGGER.info("loading snapshot took {} ms", stopwatch.elapsed().toMillis());
 
-        if (snapshotFileResponse == null){
+        //TODO: [MH] new class that works in the middle of the clientRestService and the SnapshotImporter that
+        // parallelise the process
+        String[] snapshotRecords;
+        byte[] payload;
+        try {
+            payload = nrtmRestClient.getSnapshotFile(snapshot.getUrl());
+            snapshotRecords = getSnapshotRecords(payload);
+        } catch (IOException e){
+            LOGGER.error("No able to decompress snapshot", e);
+            return;
+        }
+
+        if (snapshotRecords == null){
             LOGGER.error("This cannot happen. UNF has a non-existing snapshot");
             return;
         }
 
-        if (!snapshot.getHash().equals(snapshotFileResponse.getHash())){
+        final JSONObject jsonObject = new JSONObject(snapshotRecords[0]);
+        final int snapshotVersion = jsonObject.getInt("version");
+        final String snapshotSessionId = jsonObject.getString("session_id");
+
+        if (!snapshot.getHash().equals(calculateSha256(payload))){
             LOGGER.error("Snapshot hash doesn't match, skipping import");
             return;
         }
 
-        if (!snapshotFileResponse.getSessionID().equals(updateNotificationFile.getSessionID())){
+        if (!snapshotSessionId.equals(updateNotificationFile.getSessionID())){
             // TODO: [MH] if the service is wrong for any reason...we have here a non-ending loop, we need to
             //  call initialize X number of times and return error to avoid this situation?
             LOGGER.error("The session is not the same in the UNF and snapshot");
             //initializeNRTMClientForSource(source, updateNotificationFile);
+            return;
         }
 
-        final AtomicInteger noOfBatchesProcessed = new AtomicInteger(0);
-        final List<List<MirrorRpslObject>> batches = Lists.partition(snapshotFileResponse.getObjects(), BATCH_SIZE);
-        final Timer timer = new Timer(true);
-        printProgress(noOfBatchesProcessed, snapshotFileResponse.getObjects().size(), timer);
-
-        try {
-            batches.parallelStream().forEach(objectBatch -> {
-                objectBatch.forEach(objectRecord -> {
-                    nrtm4ClientMirrorDao.persistRpslObject(objectRecord.getObject());
+        printProgress(new Timer());
+        Arrays.stream(snapshotRecords).skip(1)
+                .parallel()
+                .forEach(record -> {
+                    try {
+                        processObject(record);
+                        processedCount.incrementAndGet();
+                    } catch (JsonProcessingException e) {
+                        LOGGER.error("Unable to process record", e);
+                    }
                 });
-                noOfBatchesProcessed.incrementAndGet();
-            });
 
-        } catch (final Exception e) {
-            LOGGER.error("Error while writing snapshotfile", e);
-            throw new RuntimeException(e);
-        } finally {
-            timer.cancel();
-        }
-        nrtm4ClientMirrorDao.saveSnapshotFileVersion(source, snapshotFileResponse.getVersion(), snapshotFileResponse.getSessionID());
+        nrtm4ClientMirrorDao.saveSnapshotFileVersion(source, snapshotVersion, snapshotSessionId);
         LOGGER.info("Snapshot loaded");
     }
 
-    private void printProgress(final AtomicInteger noOfBatchesProcessed, final int total, final Timer timer) {
+    private void processObject(final String record) throws JsonProcessingException {
+        final MirrorRpslObject mirrorRpslObject = new ObjectMapper().readValue(record, MirrorRpslObject.class);
+        nrtm4ClientMirrorDao.persistRpslObject(mirrorRpslObject.getObject());
+    }
+
+    private void printProgress(final Timer timer) {
         timer.schedule(new TimerTask() {
             @Override
             public void run() {
-                final int done = noOfBatchesProcessed.get();
-                LOGGER.info("Processed {} objects out of {} ({}%).", (done * BATCH_SIZE), total, ((done * BATCH_SIZE) * 100/ total));
+                LOGGER.info("Records processed so far: {}", processedCount.get());
             }
         }, 0, 10000);
+    }
+
+    private static String[] getSnapshotRecords(byte[] compressed) throws IOException {
+        return StringUtils.split(decompress(compressed), RECORD_SEPARATOR);
+    }
+
+    private static String decompress(final byte[] compressed) throws IOException {
+        final int BUFFER_SIZE = 4096;
+        try (ByteArrayInputStream is = new ByteArrayInputStream(compressed);
+             GZIPInputStream gis = new GZIPInputStream(is, BUFFER_SIZE);
+             ByteArrayOutputStream output = new ByteArrayOutputStream()) {
+            byte[] buffer = new byte[BUFFER_SIZE];
+            int bytesRead;
+            while ((bytesRead = gis.read(buffer)) != -1) {
+                output.write(buffer, 0, bytesRead);
+            }
+            return output.toString(StandardCharsets.UTF_8);
+        }
+    }
+
+    private static String calculateSha256(final byte[] bytes) {
+        try {
+            final MessageDigest digest = MessageDigest.getInstance("SHA-256");
+            final byte[] encodedSha256hex = digest.digest(bytes);
+            return byteArrayToHexString(encodedSha256hex);
+        } catch (final NoSuchAlgorithmException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    private static String byteArrayToHexString(final byte[] bytes) {
+        final StringBuilder hexString = new StringBuilder(2 * bytes.length);
+        for (final byte b : bytes) {
+            final String hex = Integer.toHexString(0xff & b);
+            if (hex.length() == 1) {
+                hexString.append('0');
+            }
+            hexString.append(hex);
+        }
+        return hexString.toString();
     }
 }

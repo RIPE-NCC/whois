@@ -254,6 +254,6 @@ public class NrtmServerDummy implements Stub {
     }
 
     private String getUpdateNotificationFileNonAuthResponse(){
-        return String.format(unfRipeNonAuthTemplate, port, "69dd1a33e771c8c2d95ebe19ffc5643a7611dbb0ae1bf5c72b1eec5ac5b3d1f9");
+        return String.format(unfRipeNonAuthTemplate, port, "148c3c411b8f044f5fc0ab201f6dd03e80c862e27ad1a63488aee337dc7eb4a2");
     }
 }
