@@ -23,8 +23,12 @@ import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Timer;
 import java.util.TimerTask;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutionException;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Consumer;
 import java.util.zip.GZIPInputStream;
@@ -86,40 +90,42 @@ public class SnapshotImporter {
         final Timer timer = new Timer();
         printProgress(timer, processedCount);
 
-        try {
-            decompressAndProcessRecords(
-                    payload,
-                    firstRecord -> {
-                        final JSONObject jsonObject = new JSONObject(firstRecord);
-                        version.set(jsonObject.getInt("version"));
-                        sessionId[0] = jsonObject.getString("session_id");
-                        if (!sessionId[0].equals(updateNotificationFile.getSessionID())){
-                            // TODO: [MH] if the service is wrong for any reason...we have here a non-ending loop, we need to
-                            //  call initialize X number of times and return error to avoid this situation?
-                            LOGGER.error("The session is not the same in the UNF and snapshot");
-                            //initializeNRTMClientForSource(source, updateNotificationFile);
-                            throw new IllegalArgumentException("The session is not the same in the UNF and snapshot");
-                        }
-                        LOGGER.info("Processed first record");
-                    },
-                    remainingRecord -> {
-                        try {
-                            processObject(remainingRecord);
-                        } catch (JsonProcessingException e) {
-                            throw new RuntimeException(e);
-                        }
-                        processedCount.incrementAndGet();
-                    }
-            );
-        } catch (IOException e){
-            LOGGER.error("No able to decompress snapshot", e);
-            return;
-        }
 
-        timer.cancel();
+        final CompletableFuture<List<String>> future = decompressAndProcessRecords(
+            payload,
+            firstRecord -> {
+                final JSONObject jsonObject = new JSONObject(firstRecord);
+                version.set(jsonObject.getInt("version"));
+                sessionId[0] = jsonObject.getString("session_id");
+                if (!sessionId[0].equals(updateNotificationFile.getSessionID())){
+                    // TODO: [MH] if the service is wrong for any reason...we have here a non-ending loop, we need to
+                    //  call initialize X number of times and return error to avoid this situation?
+                    LOGGER.error("The session is not the same in the UNF and snapshot");
+                    //initializeNRTMClientForSource(source, updateNotificationFile);
+                    throw new IllegalArgumentException("The session is not the same in the UNF and snapshot");
+                }
+                LOGGER.info("Processed first record");
+            },
+            remainingRecord -> {
+                try {
+                    processObject(remainingRecord);
+                } catch (JsonProcessingException e) {
+                    throw new RuntimeException(e);
+                }
+                processedCount.incrementAndGet();
+            }
+        );
+
+        try {
+            final List<String> processedRecords = future.get();
+            timer.cancel();
+            stopwatch.stop();
+            LOGGER.info("Loading snapshot file took {} for source {} and added {} records", stopwatch.elapsed().toMillis(),
+                    source, processedRecords.size());
+        } catch(InterruptedException | ExecutionException ex){
+            LOGGER.error("Error when processing the future");
+        }
         nrtm4ClientMirrorDao.saveSnapshotFileVersion(source, version.get(), sessionId[0]);
-        stopwatch.stop();
-        LOGGER.info("Loading snapshot file took {} for source {}", stopwatch.elapsed().toMillis(), source);
         /*try {
             snapshotRecords = getSnapshotRecords(payload);
         } catch (IOException e){
@@ -202,45 +208,55 @@ public class SnapshotImporter {
         }
     }
 
-    public static void decompressAndProcessRecords(final byte[] compressed, Consumer<String> firstRecordProcessor, Consumer<String> remainingRecordProcessor) throws IOException {
-        try (ByteArrayInputStream byteArrayInputStream = new ByteArrayInputStream(compressed);
-             GZIPInputStream gzipInputStream = new GZIPInputStream(byteArrayInputStream, BUFFER_SIZE);
-             InputStreamReader reader = new InputStreamReader(gzipInputStream, StandardCharsets.UTF_8);
-             BufferedReader bufferedReader = new BufferedReader(reader)) {
+    public static CompletableFuture<List<String>> decompressAndProcessRecords(final byte[] compressed, Consumer<String> firstRecordProcessor, Consumer<String> remainingRecordProcessor){
+        return CompletableFuture.supplyAsync(() -> {
+            List<String> processedRecords = new ArrayList<>();
 
-            StringBuilder recordBuffer = new StringBuilder();
-            String line;
-            boolean isFirstRecord = true;
+            try (ByteArrayInputStream byteArrayInputStream = new ByteArrayInputStream(compressed);
+                 GZIPInputStream gzipInputStream = new GZIPInputStream(byteArrayInputStream, BUFFER_SIZE);
+                 InputStreamReader reader = new InputStreamReader(gzipInputStream, StandardCharsets.UTF_8);
+                 BufferedReader bufferedReader = new BufferedReader(reader)) {
 
-            while ((line = bufferedReader.readLine()) != null) {
-                recordBuffer.append(line);
+                StringBuilder recordBuffer = new StringBuilder();
+                String line;
+                boolean isFirstRecord = true;
 
-                int index;
-                while ((index = recordBuffer.indexOf("\u001E")) != -1) {
-                    String record = recordBuffer.substring(0, index).trim();
+                while ((line = bufferedReader.readLine()) != null) {
+                    recordBuffer.append(line);
 
-                    if (!record.isEmpty()) {  // Only process non-empty records
-                        if (isFirstRecord) {
-                            firstRecordProcessor.accept(record);  // Process the first record
-                            isFirstRecord = false;
-                        } else {
-                            remainingRecordProcessor.accept(record);  // Process remaining records
+                    int index;
+                    while ((index = recordBuffer.indexOf(RECORD_SEPARATOR)) != -1) {
+                        String record = recordBuffer.substring(0, index).trim();
+
+                        if (!record.isEmpty()) {  // Only process non-empty records
+                            if (isFirstRecord) {
+                                firstRecordProcessor.accept(record);  // Process the first record
+                                isFirstRecord = false;
+                            } else {
+                                remainingRecordProcessor.accept(record);  // Process remaining records
+                            }
+                            processedRecords.add(record);
                         }
+
+                        recordBuffer.delete(0, index + 1);  // Remove processed record from buffer
                     }
-
-                    recordBuffer.delete(0, index + 1);  // Remove processed record from buffer
                 }
-            }
 
-            // Handle any leftover data after the last "\u001E"
-            if (!recordBuffer.isEmpty()) {
-                if (isFirstRecord) {
-                    firstRecordProcessor.accept(recordBuffer.toString());
-                } else {
-                    remainingRecordProcessor.accept(recordBuffer.toString());
+                // Handle any leftover data after the last "\u001E"
+                if (!recordBuffer.isEmpty()) {
+                    if (isFirstRecord) {
+                        firstRecordProcessor.accept(recordBuffer.toString());
+                    } else {
+                        remainingRecordProcessor.accept(recordBuffer.toString());
+                    }
+                    processedRecords.add(recordBuffer.toString().trim());
                 }
+
+            } catch (IOException e) {
+                e.printStackTrace();
             }
-        }
+            return processedRecords;
+        });
     }
 
     private static String calculateSha256(final byte[] bytes) {
