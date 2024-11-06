@@ -23,12 +23,11 @@ import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Timer;
 import java.util.TimerTask;
-import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.ExecutionException;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Consumer;
 import java.util.zip.GZIPInputStream;
@@ -75,8 +74,6 @@ public class SnapshotImporter {
         //String[] snapshotRecords;
         final byte[] payload = nrtmRestClient.getSnapshotFile(snapshot.getUrl());
 
-
-
         if (!snapshot.getHash().equals(calculateSha256(payload))){
             LOGGER.error("Snapshot hash doesn't match, skipping import");
             return;
@@ -90,8 +87,7 @@ public class SnapshotImporter {
         final Timer timer = new Timer();
         printProgress(timer, processedCount);
 
-
-        final CompletableFuture<List<String>> future = decompressAndProcessRecords(
+        decompressAndProcessRecords(
             payload,
             firstRecord -> {
                 final JSONObject jsonObject = new JSONObject(firstRecord);
@@ -116,15 +112,11 @@ public class SnapshotImporter {
             }
         );
 
-        try {
-            final List<String> processedRecords = future.get();
-            timer.cancel();
-            stopwatch.stop();
-            LOGGER.info("Loading snapshot file took {} for source {} and added {} records", stopwatch.elapsed().toMillis(),
-                    source, processedRecords.size());
-        } catch(InterruptedException | ExecutionException ex){
-            LOGGER.error("Error when processing the future");
-        }
+
+        timer.cancel();
+        stopwatch.stop();
+        LOGGER.info("Loading snapshot file took {} for source {} and added", stopwatch.elapsed().toMillis(), source);
+
         nrtm4ClientMirrorDao.saveSnapshotFileVersion(source, version.get(), sessionId[0]);
         /*try {
             snapshotRecords = getSnapshotRecords(payload);
@@ -208,55 +200,45 @@ public class SnapshotImporter {
         }
     }
 
-    public static CompletableFuture<List<String>> decompressAndProcessRecords(final byte[] compressed, Consumer<String> firstRecordProcessor, Consumer<String> remainingRecordProcessor){
-        return CompletableFuture.supplyAsync(() -> {
-            List<String> processedRecords = new ArrayList<>();
+    public static void decompressAndProcessRecords(final byte[] compressed, Consumer<String> firstRecordProcessor,
+                                                Consumer<String> remainingRecordProcessor){
 
-            try (ByteArrayInputStream byteArrayInputStream = new ByteArrayInputStream(compressed);
-                 GZIPInputStream gzipInputStream = new GZIPInputStream(byteArrayInputStream, BUFFER_SIZE);
-                 InputStreamReader reader = new InputStreamReader(gzipInputStream, StandardCharsets.UTF_8);
-                 BufferedReader bufferedReader = new BufferedReader(reader)) {
+        final ExecutorService executorService = Executors.newFixedThreadPool(4);
+        try (ByteArrayInputStream byteArrayInputStream = new ByteArrayInputStream(compressed);
+             GZIPInputStream gzipInputStream = new GZIPInputStream(byteArrayInputStream, BUFFER_SIZE);
+             InputStreamReader reader = new InputStreamReader(gzipInputStream, StandardCharsets.UTF_8);
+             BufferedReader bufferedReader = new BufferedReader(reader)) {
 
-                StringBuilder recordBuffer = new StringBuilder();
-                String line;
-                boolean isFirstRecord = true;
+            String line;
+            boolean isFirstRecord = true;
 
-                while ((line = bufferedReader.readLine()) != null) {
-                    recordBuffer.append(line);
+            while ((line = bufferedReader.readLine()) != null) {
+                String record = line.trim(); //each line is one record
 
-                    int index;
-                    while ((index = recordBuffer.indexOf(RECORD_SEPARATOR)) != -1) {
-                        String record = recordBuffer.substring(0, index).trim();
-
-                        if (!record.isEmpty()) {  // Only process non-empty records
-                            if (isFirstRecord) {
-                                firstRecordProcessor.accept(record);  // Process the first record
-                                isFirstRecord = false;
-                            } else {
-                                remainingRecordProcessor.accept(record);  // Process remaining records
-                            }
-                            processedRecords.add(record);
-                        }
-
-                        recordBuffer.delete(0, index + 1);  // Remove processed record from buffer
-                    }
+                if (record.isEmpty()) {
+                    continue;
                 }
-
-                // Handle any leftover data after the last "\u001E"
-                if (!recordBuffer.isEmpty()) {
-                    if (isFirstRecord) {
-                        firstRecordProcessor.accept(recordBuffer.toString());
-                    } else {
-                        remainingRecordProcessor.accept(recordBuffer.toString());
-                    }
-                    processedRecords.add(recordBuffer.toString().trim());
+                if (isFirstRecord) {
+                    firstRecordProcessor.accept(record);  // Process the first record
+                    isFirstRecord = false;
+                } else {
+                    executorService.submit(() -> remainingRecordProcessor.accept(record));  // Process remaining records
                 }
-
-            } catch (IOException e) {
-                e.printStackTrace();
             }
-            return processedRecords;
-        });
+
+        } catch (IOException e) {
+            e.printStackTrace();
+        } finally {
+            executorService.shutdown();  // Properly shutdown the executor
+            try {
+                if (!executorService.awaitTermination(60, TimeUnit.SECONDS)) {
+                    executorService.shutdownNow();
+                }
+            } catch (InterruptedException e) {
+                executorService.shutdownNow();
+            }
+        }
+
     }
 
     private static String calculateSha256(final byte[] bytes) {
