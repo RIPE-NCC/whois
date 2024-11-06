@@ -23,11 +23,11 @@ import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+import java.util.Arrays;
 import java.util.Timer;
 import java.util.TimerTask;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Consumer;
 import java.util.zip.GZIPInputStream;
@@ -45,6 +45,8 @@ public class SnapshotImporter {
     public static final String RECORD_SEPARATOR = "\u001E";
 
     private static final char[] HEX_ARRAY = "0123456789abcdef".toCharArray();
+
+    private static final int BATCH_SIZE = 100;
 
     private static final int BUFFER_SIZE = 4096;
 
@@ -87,6 +89,7 @@ public class SnapshotImporter {
         final Timer timer = new Timer();
         printProgress(timer, processedCount);
 
+        final ExecutorService executorService = Executors.newFixedThreadPool(3);
         decompressAndProcessRecords(
             payload,
             firstRecord -> {
@@ -102,13 +105,17 @@ public class SnapshotImporter {
                 }
                 LOGGER.info("Processed first record");
             },
-            remainingRecord -> {
-                try {
-                    processObject(remainingRecord);
-                } catch (JsonProcessingException e) {
-                    throw new RuntimeException(e);
-                }
-                processedCount.incrementAndGet();
+            remainingRecords -> {
+                executorService.submit(() -> {
+                    for (String record : remainingRecords){
+                        try {
+                            processObject(record);
+                        } catch (JsonProcessingException e) {
+                            throw new RuntimeException(e);
+                        }
+                    }
+                });
+                processedCount.addAndGet(remainingRecords.length);
             }
         );
 
@@ -201,15 +208,15 @@ public class SnapshotImporter {
     }
 
     public static void decompressAndProcessRecords(final byte[] compressed, Consumer<String> firstRecordProcessor,
-                                                Consumer<String> remainingRecordProcessor){
-
-        final ExecutorService executorService = Executors.newFixedThreadPool(4);
+                                                Consumer<String[]> remainingRecordProcessor){
         try (ByteArrayInputStream byteArrayInputStream = new ByteArrayInputStream(compressed);
              GZIPInputStream gzipInputStream = new GZIPInputStream(byteArrayInputStream, BUFFER_SIZE);
              InputStreamReader reader = new InputStreamReader(gzipInputStream, StandardCharsets.UTF_8);
              BufferedReader bufferedReader = new BufferedReader(reader)) {
 
             String line;
+            String[] batch = new String[BATCH_SIZE];
+            int batchIndex = 0;
             boolean isFirstRecord = true;
 
             while ((line = bufferedReader.readLine()) != null) {
@@ -222,23 +229,21 @@ public class SnapshotImporter {
                     firstRecordProcessor.accept(record);  // Process the first record
                     isFirstRecord = false;
                 } else {
-                    executorService.submit(() -> remainingRecordProcessor.accept(record));  // Process remaining records
+                    batch[batchIndex++] = record;
+                    if (batchIndex == BATCH_SIZE) {
+                        remainingRecordProcessor.accept(batch);
+                        batch = new String[BATCH_SIZE];
+                        batchIndex = 0;
+                    }
                 }
+            }
+            if (batchIndex > 0) {
+                remainingRecordProcessor.accept(Arrays.copyOf(batch, batchIndex));
             }
 
         } catch (IOException e) {
             e.printStackTrace();
-        } finally {
-            executorService.shutdown();  // Properly shutdown the executor
-            try {
-                if (!executorService.awaitTermination(60, TimeUnit.SECONDS)) {
-                    executorService.shutdownNow();
-                }
-            } catch (InterruptedException e) {
-                executorService.shutdownNow();
-            }
         }
-
     }
 
     private static String calculateSha256(final byte[] bytes) {
