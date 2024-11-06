@@ -54,7 +54,7 @@ public class SnapshotImporter {
     }
 
     public void importSnapshot(final String source, final UpdateNotificationFileResponse updateNotificationFile){
-        final Stopwatch stopwatch = Stopwatch.createUnstarted();
+        final Stopwatch stopwatch = Stopwatch.createStarted();
         final UpdateNotificationFileResponse.NrtmFileLink snapshot = updateNotificationFile.getSnapshot();
 
         if (snapshot == null){
@@ -97,7 +97,8 @@ public class SnapshotImporter {
         }
 
         final AtomicInteger processedCount = new AtomicInteger(0);
-        printProgress(new Timer(), processedCount);
+        final Timer timer = new Timer();
+        printProgress(timer, processedCount);
         Arrays.stream(snapshotRecords).skip(1)
                 .parallel()
                 .forEach(record -> {
@@ -108,8 +109,9 @@ public class SnapshotImporter {
                         LOGGER.error("Unable to process record", e);
                     }
                 });
-
+        timer.cancel();
         nrtm4ClientMirrorDao.saveSnapshotFileVersion(source, snapshotVersion, snapshotSessionId);
+        stopwatch.stop();
         LOGGER.info("Loading snapshot file took {} for source {}", stopwatch.elapsed().toMillis(), source);
     }
 
