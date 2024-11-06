@@ -44,7 +44,7 @@ public class SnapshotImporter {
 
     private static final char[] HEX_ARRAY = "0123456789abcdef".toCharArray();
 
-    private static final int BATCH_SIZE = 100;
+    private static final int BATCH_SIZE = 1000;
 
     private static final int BUFFER_SIZE = 4096;
 
@@ -122,55 +122,6 @@ public class SnapshotImporter {
         LOGGER.info("Loading snapshot file took {} for source {} and added", stopwatch.elapsed().toMillis(), source);
 
         nrtm4ClientMirrorDao.saveSnapshotFileVersion(source, version.get(), sessionId[0]);
-        /*try {
-            snapshotRecords = getSnapshotRecords(payload);
-        } catch (IOException e){
-            LOGGER.error("No able to decompress snapshot", e);
-            return;
-        }
-        LOGGER.info("Step 2");
-
-        if (snapshotRecords == null){
-            LOGGER.error("This cannot happen. UNF has a non-existing snapshot");
-            return;
-        }
-
-        final JSONObject jsonObject = new JSONObject(snapshotRecords[0]);
-        final int snapshotVersion = jsonObject.getInt("version");
-        final String snapshotSessionId = jsonObject.getString("session_id");
-
-        LOGGER.info("Step 3");
-        if (!snapshot.getHash().equals(calculateSha256(payload))){
-            LOGGER.error("Snapshot hash doesn't match, skipping import");
-            return;
-        }
-
-        if (!snapshotSessionId.equals(updateNotificationFile.getSessionID())){
-            // TODO: [MH] if the service is wrong for any reason...we have here a non-ending loop, we need to
-            //  call initialize X number of times and return error to avoid this situation?
-            LOGGER.error("The session is not the same in the UNF and snapshot");
-            //initializeNRTMClientForSource(source, updateNotificationFile);
-            return;
-        }
-
-        LOGGER.info("Step 4");
-        final AtomicInteger processedCount = new AtomicInteger(0);
-        final Timer timer = new Timer();
-        printProgress(timer, processedCount);
-        Arrays.stream(snapshotRecords).skip(1)
-                .parallel()
-                .forEach(record -> {
-                    try {
-                        processObject(record);
-                        processedCount.incrementAndGet();
-                    } catch (JsonProcessingException e) {
-                        LOGGER.error("Unable to process record", e);
-                    }
-                });
-        timer.cancel();
-        nrtm4ClientMirrorDao.saveSnapshotFileVersion(source, snapshotVersion, snapshotSessionId);
-        stopwatch.stop();
-        LOGGER.info("Loading snapshot file took {} for source {}", stopwatch.elapsed().toMillis(), source);*/
     }
 
     private void processObject(final String record) throws JsonProcessingException {
