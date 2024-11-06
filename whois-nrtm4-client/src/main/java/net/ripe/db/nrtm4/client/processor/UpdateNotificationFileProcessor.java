@@ -74,11 +74,12 @@ public class UpdateNotificationFileProcessor {
                 return;
             }
 
+            nrtm4ClientMirrorDao.saveUpdateNotificationFileVersion(source, updateNotificationFile.getVersion(), updateNotificationFile.getSessionID());
+
             if (nrtmClientLastVersionInfo == null){
                 LOGGER.info("There is no existing Snapshot for the source {}", source);
                 snapshotImporter.importSnapshot(source, updateNotificationFile);
             }
-            nrtm4ClientMirrorDao.saveUpdateNotificationFileVersion(source, updateNotificationFile.getVersion(), updateNotificationFile.getSessionID());
         });
     }
 
