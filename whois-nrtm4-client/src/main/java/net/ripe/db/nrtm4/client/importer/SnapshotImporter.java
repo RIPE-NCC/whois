@@ -31,17 +31,15 @@ import java.util.zip.GZIPInputStream;
 @Conditional(Nrtm4ClientCondition.class)
 public class SnapshotImporter {
 
-    private final AtomicInteger processedCount = new AtomicInteger(0);
-
     private static final Logger LOGGER = LoggerFactory.getLogger(SnapshotImporter.class);
 
     private final NrtmRestClient nrtmRestClient;
 
     private final Nrtm4ClientMirrorRepository nrtm4ClientMirrorDao;
 
-    private static final int BATCH_SIZE = 100;
-
     public static final String RECORD_SEPARATOR = "\u001E";
+
+    private static final char[] HEX_ARRAY = "0123456789abcdef".toCharArray();
 
     public SnapshotImporter(final NrtmRestClient nrtmRestClient,
                                         final Nrtm4ClientMirrorRepository nrtm4ClientMirrorDao) {
@@ -98,7 +96,8 @@ public class SnapshotImporter {
             return;
         }
 
-        printProgress(new Timer());
+        final AtomicInteger processedCount = new AtomicInteger(0);
+        printProgress(new Timer(), processedCount);
         Arrays.stream(snapshotRecords).skip(1)
                 .parallel()
                 .forEach(record -> {
@@ -119,7 +118,7 @@ public class SnapshotImporter {
         nrtm4ClientMirrorDao.persistRpslObject(mirrorRpslObject.getObject());
     }
 
-    private void printProgress(final Timer timer) {
+    private void printProgress(final Timer timer, final AtomicInteger processedCount) {
         timer.schedule(new TimerTask() {
             @Override
             public void run() {
@@ -157,14 +156,12 @@ public class SnapshotImporter {
     }
 
     private static String byteArrayToHexString(final byte[] bytes) {
-        final StringBuilder hexString = new StringBuilder(2 * bytes.length);
-        for (final byte b : bytes) {
-            final String hex = Integer.toHexString(0xff & b);
-            if (hex.length() == 1) {
-                hexString.append('0');
-            }
-            hexString.append(hex);
+        char[] hexChars = new char[bytes.length * 2];
+        for (int i = 0; i < bytes.length; i++) {
+            int v = bytes[i] & 0xFF;
+            hexChars[i * 2] = HEX_ARRAY[v >>> 4];
+            hexChars[i * 2 + 1] = HEX_ARRAY[v & 0x0F];
         }
-        return hexString.toString();
+        return new String(hexChars);
     }
 }
