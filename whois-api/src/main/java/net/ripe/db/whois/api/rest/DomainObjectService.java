@@ -24,6 +24,7 @@ import net.ripe.db.whois.api.rest.mapper.WhoisObjectMapper;
 import net.ripe.db.whois.common.rpsl.ObjectType;
 import net.ripe.db.whois.common.rpsl.RpslObject;
 import net.ripe.db.whois.common.sso.AuthServiceClient;
+import net.ripe.db.whois.update.domain.APIKeyCredential;
 import net.ripe.db.whois.update.domain.ClientCertificateCredential;
 import net.ripe.db.whois.update.domain.Credential;
 import net.ripe.db.whois.update.domain.Credentials;
@@ -37,7 +38,7 @@ import net.ripe.db.whois.update.domain.Update;
 import net.ripe.db.whois.update.domain.UpdateContext;
 import net.ripe.db.whois.update.domain.UpdateMessages;
 import net.ripe.db.whois.update.domain.UpdateStatus;
-import net.ripe.db.whois.update.keycert.X509CertificateWrapper;
+import net.ripe.db.whois.common.x509.X509CertificateWrapper;
 import net.ripe.db.whois.update.log.LoggerContext;
 import org.eclipse.jetty.http.HttpStatus;
 import org.slf4j.Logger;
@@ -206,6 +207,10 @@ public class DomainObjectService {
             for (X509CertificateWrapper clientCertificate : updateContext.getClientCertificates()) {
                 credentials.add(ClientCertificateCredential.createOfferedCredential(clientCertificate));
             }
+        }
+
+        if (updateContext.getOAuthSession() != null) {
+            credentials.add(APIKeyCredential.createOfferedCredential(updateContext.getOAuthSession()));
         }
 
         return new Credentials(credentials);

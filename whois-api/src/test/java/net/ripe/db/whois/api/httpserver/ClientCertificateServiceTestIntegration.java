@@ -3,19 +3,17 @@ package net.ripe.db.whois.api.httpserver;
 import jakarta.ws.rs.ProcessingException;
 import jakarta.ws.rs.core.MediaType;
 import net.ripe.db.whois.api.SecureRestTest;
-import net.ripe.db.whois.common.aspects.RetryFor;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
-
-import java.io.IOException;
+import org.springframework.test.annotation.DirtiesContext;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.containsString;
 import static org.junit.jupiter.api.Assertions.fail;
 
 @Tag("IntegrationTest")
+@DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_EACH_TEST_METHOD)
 public class ClientCertificateServiceTestIntegration extends AbstractClientCertificateIntegrationTest {
-
 
     @Test
     public void client_certificate() {
@@ -29,9 +27,7 @@ public class ClientCertificateServiceTestIntegration extends AbstractClientCerti
     }
 
     @Test
-    // TODO: [MH] Remove this retry and fix the problem with unreachable server
-    @RetryFor(value = IOException.class, attempts = 10, intervalMs = 10000)
-    public void no_client_certificate() {
+    public void fail_on_no_client_certificate() {
         try {
             SecureRestTest.target(getClientCertificatePort(), "whois/client")
                 .request()

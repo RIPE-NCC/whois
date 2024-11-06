@@ -24,7 +24,7 @@ public class TelnetRunner extends AbstractScenarioRunner {
 
             verifyPreCondition(scenario);
 
-            final String result = TelnetWhoisClient.queryLocalhost(QueryServer.port, "-rB TESTING-MNT");
+            final String result = TelnetWhoisClient.queryLocalhost(context.getQueryServer().getPort(), "-rB TESTING-MNT");
 
             if (scenario.getPostCond() == Scenario.ObjectStatus.OBJ_EXISTS_WITH_CHANGED) {
                 assertThat(result, containsString("changed:        " + CHANGED_VALUE));
@@ -40,7 +40,7 @@ public class TelnetRunner extends AbstractScenarioRunner {
     @Override
     public void meta(final Scenario scenario) {
         try {
-            final String result = TelnetWhoisClient.queryLocalhost(QueryServer.port, "-t mntner");
+            final String result = TelnetWhoisClient.queryLocalhost(context.getQueryServer().getPort(), "-t mntner");
 
             if (scenario.getPreCond() == Scenario.ObjectStatus.OBJ_EXISTS_WITH_CHANGED) {
                 assertThat(result, containsString("changed:        [optional]   [multiple]   [ ]"));

@@ -103,6 +103,7 @@ public class JdbcIndexDao implements IndexDao {
         rebuildIndexes(objectIds, Phase.OTHER);
     }
 
+    // TODO: [MH] Transaction doesn't work for private method, review this
     @Transactional(isolation = Isolation.READ_COMMITTED, propagation = Propagation.REQUIRES_NEW)
     private void rebuildIndexes(final Iterable<Integer> objectIds, final Phase phase) {
         updateLockDao.setUpdateLock();
@@ -193,6 +194,7 @@ public class JdbcIndexDao implements IndexDao {
         }
     }
 
+    // TODO: [MH] Transaction doesn't work for private method, review this
     @Transactional(isolation = Isolation.READ_COMMITTED, propagation = Propagation.REQUIRES_NEW)
     private void deleteIndexForMissingObjects(final AttributeType attributeType) {
         updateLockDao.setUpdateLock();
@@ -216,10 +218,6 @@ public class JdbcIndexDao implements IndexDao {
        if(objectTemplate.hasAttribute(AttributeType.STATUS)) {
            indexedAttributes.add(AttributeType.STATUS);
        }
-
-        if(objectTemplate.hasAttribute(AttributeType.SPONSORING_ORG)) {
-            indexedAttributes.add(AttributeType.SPONSORING_ORG);
-        }
 
         return indexedAttributes;
     }

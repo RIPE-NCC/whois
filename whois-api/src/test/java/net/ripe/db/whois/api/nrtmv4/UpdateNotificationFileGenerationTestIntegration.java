@@ -2,8 +2,11 @@ package net.ripe.db.whois.api.nrtmv4;
 
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
+import jakarta.xml.bind.DatatypeConverter;
 import net.ripe.db.nrtm4.domain.NrtmDocumentType;
+import net.ripe.db.nrtm4.domain.NrtmKeyRecord;
 import net.ripe.db.nrtm4.domain.UpdateNotificationFile;
+import net.ripe.db.nrtm4.util.ByteArrayUtil;
 import net.ripe.db.whois.api.AbstractNrtmIntegrationTest;
 import net.ripe.db.whois.common.rpsl.RpslObject;
 import org.junit.jupiter.api.Tag;
@@ -14,6 +17,8 @@ import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.time.LocalDateTime;
+import java.time.ZoneOffset;
+import java.util.Base64;
 import java.util.UUID;
 
 import static net.ripe.db.whois.query.support.PatternMatcher.matchesPattern;
@@ -21,6 +26,8 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.not;
+import static org.hamcrest.Matchers.notNullValue;
+import static org.hamcrest.Matchers.nullValue;
 
 @Tag("IntegrationTest")
 @DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_EACH_TEST_METHOD)
@@ -29,6 +36,8 @@ public class UpdateNotificationFileGenerationTestIntegration extends AbstractNrt
     @Test
     public void should_do_nothing_if_no_snapshot_exists()  {
         createNrtmSource();
+        nrtmKeyPairService.generateActiveKeyPair();
+
         updateNotificationFileGenerator.generateFile();
 
         final Response response = getResponseFromHttpsRequest("TEST/update-notification-file.json",
@@ -53,6 +62,74 @@ public class UpdateNotificationFileGenerationTestIntegration extends AbstractNrt
         final UpdateNotificationFile secondIteration = getNotificationFileBySource("TEST");
 
         assertThat(firsIteration.getTimestamp(), is(secondIteration.getTimestamp()));
+    }
+
+    @Test
+    public void should_not_create_new_file_if_no_changes_in_and_next_key_same()  {
+        setTime(LocalDateTime.now().minusHours(1));
+        snapshotFileGenerator.createSnapshot();
+        nrtmKeyPairService.generateKeyRecord(false);
+
+        updateNotificationFileGenerator.generateFile();
+
+        final UpdateNotificationFile firsIteration = getNotificationFileBySource("TEST");
+
+        setTime(LocalDateTime.now());
+
+        updateNotificationFileGenerator.generateFile();
+
+        final UpdateNotificationFile secondIteration = getNotificationFileBySource("TEST");
+
+        assertThat(firsIteration.getTimestamp(), is(secondIteration.getTimestamp()));
+        assertThat(firsIteration.getNextSigningKey(), is(secondIteration.getNextSigningKey()));
+    }
+
+    @Test
+    public void should_create_new_file_if_next_key_available()  {
+        setTime(LocalDateTime.now().minusHours(1));
+        snapshotFileGenerator.createSnapshot();
+
+        updateNotificationFileGenerator.generateFile();
+
+        final UpdateNotificationFile firsIteration = getNotificationFileBySource("TEST");
+
+        setTime(LocalDateTime.now());
+
+        nrtmKeyPairService.generateKeyRecord(false);
+
+        updateNotificationFileGenerator.generateFile();
+
+        final UpdateNotificationFile secondIteration = getNotificationFileBySource("TEST");
+
+        assertThat(firsIteration.getTimestamp(), is(not(secondIteration.getTimestamp())));
+        assertThat(firsIteration.getVersion(), is(secondIteration.getVersion()));
+        assertThat(secondIteration.getNextSigningKey(), notNullValue());
+        assertThat(firsIteration.getNextSigningKey(), nullValue());
+    }
+
+    @Test
+    public void should_create_new_file_if_key_is_rotated()  {
+        setTime(LocalDateTime.now().minusHours(1));
+        snapshotFileGenerator.createSnapshot();
+
+        setTime(LocalDateTime.now().plusHours(1));
+
+        nrtmKeyPairService.generateKeyRecord(false);
+
+        updateNotificationFileGenerator.generateFile();
+
+        final UpdateNotificationFile firsIteration = getNotificationFileBySource("TEST");
+
+        nrtmKeyPairService.forceRotateKey();
+        setTime(LocalDateTime.now().plusHours(2));
+
+        updateNotificationFileGenerator.generateFile();
+        final UpdateNotificationFile secondIteration = getNotificationFileBySource("TEST");
+
+        assertThat(firsIteration.getTimestamp(), is(not(secondIteration.getTimestamp())));
+        assertThat(firsIteration.getVersion(), is(secondIteration.getVersion()));
+        assertThat(secondIteration.getNextSigningKey(), nullValue());
+        assertThat(firsIteration.getNextSigningKey(), notNullValue());
     }
 
     @Test
@@ -145,11 +222,12 @@ public class UpdateNotificationFileGenerationTestIntegration extends AbstractNrt
 
         assertThat(testIteration.getSource().getName(), is("TEST"));
         assertThat(testNonAuthIteration.getSource().getName(), is("TEST-NONAUTH"));
+        assertThat(testNonAuthIteration.getNextSigningKey(), is(nullValue()));
+        assertThat(testIteration.getNextSigningKey(), is(nullValue()));
 
         assertThat(testIteration.getSessionID(), is(not(testNonAuthIteration.getSessionID())));
 
     }
-
     @Test
     public void should_contain_snapshot_delta_url(){
         final RpslObject rpslObject = RpslObject.parse("" +

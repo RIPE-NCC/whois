@@ -80,7 +80,7 @@ public class WhoisRestServiceSSOAclTestIntegration extends AbstractIntegrationTe
             fail();
         } catch (ClientErrorException e) {
             assertThat(e.getResponse().getStatus(), is(429));       // Too Many Requests
-            assertOnlyErrorMessage(e, "Error", "ERROR:201: access denied for %s\n\nSorry, access from your host has been permanently\ndenied because of a repeated excessive querying.\nFor more information, see\nhttps://apps.db.ripe.net/docs/FAQ/#why-did-i-receive-an-error-201-access-denied\n", "person@net.net");
+            assertOnlyErrorMessage(e, "Error", "ERROR:201: access denied for %s\n\nSorry, access from your host has been permanently\ndenied because of a repeated excessive querying.\nFor more information, see\nhttps://docs.db.ripe.net/FAQ/#why-did-i-receive-an-error-201-access-denied\n", "person@net.net");
         }
     }
 
@@ -97,7 +97,7 @@ public class WhoisRestServiceSSOAclTestIntegration extends AbstractIntegrationTe
             fail();
         } catch (ClientErrorException e) {
             assertThat(e.getResponse().getStatus(), is(429));       // Too Many Requests
-            assertOnlyErrorMessage(e, "Error", "ERROR:201: access denied for %s\n\nSorry, access from your host has been permanently\ndenied because of a repeated excessive querying.\nFor more information, see\nhttps://apps.db.ripe.net/docs/FAQ/#why-did-i-receive-an-error-201-access-denied\n", "127.0.0.1");
+            assertOnlyErrorMessage(e, "Error", "ERROR:201: access denied for %s\n\nSorry, access from your host has been permanently\ndenied because of a repeated excessive querying.\nFor more information, see\nhttps://docs.db.ripe.net/FAQ/#why-did-i-receive-an-error-201-access-denied\n", "127.0.0.1");
         }
     }
 

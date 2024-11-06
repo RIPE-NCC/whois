@@ -9,6 +9,8 @@ import net.ripe.db.whois.api.SecureRestTest;
 import net.ripe.db.whois.api.httpserver.AbstractClientCertificateIntegrationTest;
 import net.ripe.db.whois.api.httpserver.CertificatePrivateKeyPair;
 import net.ripe.db.whois.api.httpserver.WhoisKeystore;
+import net.ripe.db.whois.api.rest.domain.Attribute;
+import net.ripe.db.whois.api.rest.domain.Link;
 import net.ripe.db.whois.api.rest.domain.WhoisObject;
 import net.ripe.db.whois.api.rest.domain.WhoisResources;
 import net.ripe.db.whois.api.rest.mapper.FormattedClientAttributeMapper;
@@ -32,7 +34,9 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.Matchers.containsString;
+import static org.hamcrest.Matchers.empty;
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
 import static org.junit.jupiter.api.Assertions.fail;
@@ -263,6 +267,58 @@ public class WhoisRestServiceClientCertificateTestIntegration extends AbstractCl
         assertThat(whoisResources.getWhoisObjects().get(0).getAttributes().get(6).getValue(), containsString("updated"));
 
         assertThat(databaseHelper.lookupObject(ObjectType.ROUTE6, "2001::/32AS12726").containsAttribute(AttributeType.REMARKS), is(true));
+    }
+
+    @Test
+    public void lookup_mntner_incorrect_client_cert_and_unfiltered_param_is_partially_unfiltered() {
+        final RpslObject keycertObject = createKeycertObject(new CertificatePrivateKeyPair().getCertificate(), "OWNER-MNT");
+        databaseHelper.addObject(keycertObject);
+        final RpslObject updatedMntner = addAttribute(OWNER_MNT, AttributeType.AUTH, keycertObject.getKey());
+        databaseHelper.updateObject(updatedMntner);
+
+        final WhoisResources whoisResources = SecureRestTest.target(getClientSSLContext(),getClientCertificatePort(), "whois/test/mntner/OWNER-MNT?unfiltered")
+                .request()
+                .get(WhoisResources.class);
+
+        assertThat(whoisResources.getErrorMessages(), is(empty()));
+        assertThat(whoisResources.getWhoisObjects(), hasSize(1));
+        final WhoisObject whoisObject = whoisResources.getWhoisObjects().get(0);
+        assertThat(whoisObject.getAttributes(), contains(
+                new Attribute("mntner", "OWNER-MNT"),
+                new Attribute("descr", "Owner Maintainer"),
+                new Attribute("admin-c", "TP1-TEST", null, "person", Link.create("http://rest-test.db.ripe.net/test/person/TP1-TEST"), null),
+                new Attribute("upd-to", "noreply@ripe.net", null, null, null, null),
+                new Attribute("auth", "MD5-PW", "Filtered", null, null, null),
+                new Attribute("auth", "SSO", "Filtered", null, null, null),
+                new Attribute("mnt-by", "OWNER-MNT", null, "mntner", Link.create("http://rest-test.db.ripe.net/test/mntner/OWNER-MNT"), null),
+                new Attribute("source", "TEST", "Filtered", null, null, null),
+                new Attribute("auth", keycertObject.getKey().toString(), null, "key-cert", Link.create("http://rest-test.db.ripe.net/test/key-cert/" + keycertObject.getKey()), null)));
+    }
+
+    @Test
+    public void lookup_mntner_correct_client_cert_and_unfiltered_param_is_fully_unfiltered() {
+        final RpslObject keycertObject = createKeycertObject(getClientCertificate(), "OWNER-MNT");
+        databaseHelper.addObject(keycertObject);
+        final RpslObject updatedMntner = addAttribute(OWNER_MNT, AttributeType.AUTH, keycertObject.getKey());
+        databaseHelper.updateObject(updatedMntner);
+
+        final WhoisResources whoisResources = SecureRestTest.target(getClientSSLContext(),getClientCertificatePort(), "whois/test/mntner/OWNER-MNT?unfiltered")
+                .request()
+                .get(WhoisResources.class);
+
+        assertThat(whoisResources.getErrorMessages(), is(empty()));
+        assertThat(whoisResources.getWhoisObjects(), hasSize(1));
+        final WhoisObject whoisObject = whoisResources.getWhoisObjects().get(0);
+        assertThat(whoisObject.getAttributes(), contains(
+                new Attribute("mntner", "OWNER-MNT"),
+                new Attribute("descr", "Owner Maintainer"),
+                new Attribute("admin-c", "TP1-TEST", null, "person", Link.create("http://rest-test.db.ripe.net/test/person/TP1-TEST"), null),
+                new Attribute("upd-to", "noreply@ripe.net", null, null, null, null),
+                new Attribute("auth", "MD5-PW $1$d9fKeTr2$Si7YudNf4rUGmR71n/cqk/", "test", null, null, null),
+                new Attribute("auth", "SSO person@net.net", null, null, null, null),
+                new Attribute("mnt-by", "OWNER-MNT", null, "mntner", Link.create("http://rest-test.db.ripe.net/test/mntner/OWNER-MNT"), null),
+                new Attribute("source", "TEST", null, null, null, null),
+                new Attribute("auth", keycertObject.getKey().toString(), null, "key-cert", Link.create("http://rest-test.db.ripe.net/test/key-cert/" + keycertObject.getKey()), null)));
     }
 
     // helper methods

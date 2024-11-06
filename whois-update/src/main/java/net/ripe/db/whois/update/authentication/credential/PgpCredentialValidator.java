@@ -47,7 +47,7 @@ class PgpCredentialValidator implements CredentialValidator<PgpCredential, PgpCr
     }
 
     @Override
-    public boolean hasValidCredential(final PreparedUpdate update, final UpdateContext updateContext, final Collection<PgpCredential> offeredCredentials, final PgpCredential knownCredential) {
+    public boolean hasValidCredential(final PreparedUpdate update, final UpdateContext updateContext, final Collection<PgpCredential> offeredCredentials, final PgpCredential knownCredential, final RpslObject maintainer) {
         for (final PgpCredential offeredCredential : offeredCredentials) {
             if (verifySignedMessage(update, updateContext, offeredCredential, knownCredential)) {
                 update.getUpdate().setEffectiveCredential(knownCredential.getKeyId(), Update.EffectiveCredentialType.PGP);

@@ -32,7 +32,7 @@ public class Link implements Serializable, Comparable<Link> {
     @XmlElement
     protected List<String> hreflang;
     @XmlElement
-    protected List<String> title;
+    protected String title;
     @XmlElement
     protected String media;
     @XmlElement
@@ -42,7 +42,7 @@ public class Link implements Serializable, Comparable<Link> {
         // required no-arg constructor
     }
 
-    public Link(final String value, final String rel, final String href, final String media, final String type) {
+    public Link(final String value, final String rel, final String href, final String title, final String media, final String type) {
 
         if (Strings.isNullOrEmpty(href)) {
             throw new IllegalArgumentException("link href is required");
@@ -55,10 +55,10 @@ public class Link implements Serializable, Comparable<Link> {
         this.value = value;
         this.rel = rel;
         this.href = href;
+        this.title = title;
         this.media = media;
         this.type = type;
     }
-
 
     public String getValue() {
         return value;
@@ -79,11 +79,8 @@ public class Link implements Serializable, Comparable<Link> {
         return this.hreflang;
     }
 
-    public List<String> getTitle() {
-        if (title == null) {
-            title = Lists.newArrayList();
-        }
-        return this.title;
+    public String getTitle() {
+        return title;
     }
 
     public String getMedia() {

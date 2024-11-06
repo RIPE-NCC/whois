@@ -17,6 +17,7 @@ import net.ripe.db.whois.common.rpsl.RpslAttribute;
 import net.ripe.db.whois.common.rpsl.RpslObject;
 import net.ripe.db.whois.common.sso.AuthServiceClientException;
 import net.ripe.db.whois.common.sso.SsoTokenTranslator;
+import net.ripe.db.whois.update.domain.APIKeyCredential;
 import net.ripe.db.whois.update.domain.Action;
 import net.ripe.db.whois.update.domain.ClientCertificateCredential;
 import net.ripe.db.whois.update.domain.Credential;
@@ -35,7 +36,7 @@ import net.ripe.db.whois.update.domain.UpdateMessages;
 import net.ripe.db.whois.update.domain.UpdateRequest;
 import net.ripe.db.whois.update.domain.UpdateStatus;
 import net.ripe.db.whois.update.handler.UpdateRequestHandler;
-import net.ripe.db.whois.update.keycert.X509CertificateWrapper;
+import net.ripe.db.whois.common.x509.X509CertificateWrapper;
 import net.ripe.db.whois.update.log.LogCallback;
 import net.ripe.db.whois.update.log.LoggerContext;
 import org.apache.commons.lang.StringUtils;
@@ -80,6 +81,7 @@ public class InternalUpdatePerformer {
         final UpdateContext updateContext = new UpdateContext(loggerContext);
         setSsoSessionToContext(updateContext, ssoToken);
         setClientCertificates(updateContext, request);
+        setOAuthSession(updateContext, request);
         return updateContext;
     }
 
@@ -211,6 +213,10 @@ public class InternalUpdatePerformer {
             }
         }
 
+        if (updateContext.getOAuthSession() != null) {
+            credentials.add(APIKeyCredential.createOfferedCredential(updateContext.getOAuthSession()));
+        }
+
         return new Paragraph(rpslObject.toString(), new Credentials(credentials));
     }
 
@@ -231,6 +237,10 @@ public class InternalUpdatePerformer {
                 updateContext.addGlobalMessage(RestMessages.ssoAuthIgnored());
             }
         }
+    }
+
+    private void setOAuthSession(final UpdateContext updateContext, final HttpServletRequest request) {
+        updateContext.setOAuthSession(BearerTokenExtractor.extract(request));
     }
 
     public void setClientCertificates(final UpdateContext updateContext, final HttpServletRequest request) {

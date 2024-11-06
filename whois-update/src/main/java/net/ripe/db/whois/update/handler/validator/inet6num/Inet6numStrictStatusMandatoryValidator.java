@@ -89,30 +89,6 @@ public class Inet6numStrictStatusMandatoryValidator implements BusinessRuleValid
         return validationMessages;
     }
 
-    private void checkAuthorisationForStatus(final PreparedUpdate update, final UpdateContext updateContext, final List<Message> validationMessages) {
-        final RpslObject updatedObject = update.getUpdatedObject();
-        final Set<CIString> mntBy = updatedObject.getValuesForAttribute(AttributeType.MNT_BY);
-
-        final Inet6numStatus currentStatus = Inet6numStatus.getStatusFor(updatedObject.getValueForAttribute(STATUS));
-        if (currentStatus.requiresAllocMaintainer()) {
-            if (!updateContext.getSubject(update).hasPrincipal(Principal.ALLOC_MAINTAINER)) {
-                validationMessages.add(UpdateMessages.statusRequiresAuthorization(currentStatus.toString()));
-                return;
-            }
-        }
-
-        if (currentStatus.requiresRsMaintainer()) {
-            final boolean missingRsMaintainer = !maintainers.isRsMaintainer(mntBy);
-            if (missingRsMaintainer) {
-                validationMessages.add(UpdateMessages.statusRequiresAuthorization(updatedObject.getValueForAttribute(STATUS).toString()));
-                return;
-            }
-            if (!updateContext.getSubject(update).hasPrincipal(Principal.RS_MAINTAINER)) {
-                validationMessages.add(UpdateMessages.authorisationRequiredForSetStatus(currentStatus.toString()));
-            }
-        }
-    }
-
     @SuppressWarnings("unchecked")
     private boolean allChildrenHaveCorrectStatus(final PreparedUpdate update, List<Message> validationMessages) {
         final RpslObject updatedObject = update.getUpdatedObject();

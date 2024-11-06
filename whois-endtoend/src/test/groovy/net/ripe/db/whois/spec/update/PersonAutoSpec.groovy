@@ -81,7 +81,7 @@ class PersonAutoSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(1, 1, 0, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
 
-        ack.countErrorWarnInfo(0, 2, 0)
+        ack.countErrorWarnInfo(0, 3, 0)
         ack.successes.any {it.operation == "Create" && it.key == "[person] FP1-TEST   First Person"}
         queryObject("-rBT person FP1-TEST", "person", "First Person")
     }
@@ -115,7 +115,7 @@ class PersonAutoSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(1, 1, 0, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
 
-        ack.countErrorWarnInfo(0, 2, 0)
+        ack.countErrorWarnInfo(0, 3, 0)
         ack.successes.any {it.operation == "Create" && it.key == "[person] ABC1-TEST   First Person"}
         queryObject("-rBT person ABC1-TEST", "person", "First Person")
     }
@@ -157,7 +157,7 @@ class PersonAutoSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(1, 1, 0, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
 
-        ack.countErrorWarnInfo(0, 2, 0)
+        ack.countErrorWarnInfo(0, 3, 0)
         ack.successes.any {it.operation == "Create" && it.key == "[person] ABC2-TEST   First Person"}
         queryObject("-rBT person ABC1-TEST", "person", "First Person")
         queryObject("-rBT person ABC2-TEST", "person", "First Person")
@@ -194,7 +194,7 @@ class PersonAutoSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(0, 0, 0, 0, 0)
         ack.summary.assertErrors(1, 1, 0, 0)
 
-        ack.countErrorWarnInfo(1, 2, 0)
+        ack.countErrorWarnInfo(1, 3, 0)
         ack.errors.any {it.operation == "Create" && it.key == "[person] auto-2A   First Person"}
         ack.errorMessagesFor("Create", "[person] auto-2A   First Person") ==
                 ["Syntax error in auto-2A"]
@@ -233,7 +233,7 @@ class PersonAutoSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(0, 0, 0, 0, 0)
         ack.summary.assertErrors(1, 1, 0, 0)
 
-        ack.countErrorWarnInfo(1, 2, 0)
+        ack.countErrorWarnInfo(1, 3, 0)
         ack.errors.any {it.operation == "Create" && it.key == "[person] auto-2ABCDE   First Person"}
         ack.errorMessagesFor("Create", "[person] auto-2ABCDE   First Person") ==
                 ["Syntax error in auto-2ABCDE"]
@@ -273,7 +273,7 @@ class PersonAutoSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(0, 0, 0, 0, 0)
         ack.summary.assertErrors(1, 1, 0, 0)
 
-        ack.countErrorWarnInfo(1, 2, 0)
+        ack.countErrorWarnInfo(1, 3, 0)
         ack.errors.any {it.operation == "Create" && it.key == "[person] auto-2ABC-NL   First Person"}
         ack.errorMessagesFor("Create", "[person] auto-2ABC-NL   First Person") ==
                 ["Syntax error in auto-2ABC-NL"]
@@ -314,7 +314,7 @@ class PersonAutoSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(0, 0, 0, 0, 0)
         ack.summary.assertErrors(1, 1, 0, 0)
 
-        ack.countErrorWarnInfo(2, 0, 0)
+        ack.countErrorWarnInfo(2, 1, 0)
         ack.errors.any {it.operation == "Create" && it.key == "[role] AUTO-1   First Role"}
         ack.errorMessagesFor("Create", "[role] AUTO-1   First Role") ==
                 ["Self reference is not allowed for attribute type \"admin-c\"",
@@ -356,7 +356,7 @@ class PersonAutoSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(0, 0, 0, 0, 0)
         ack.summary.assertErrors(1, 1, 0, 0)
 
-        ack.countErrorWarnInfo(2, 0, 0)
+        ack.countErrorWarnInfo(2, 1, 0)
         ack.errors.any {it.operation == "Create" && it.key == "[role] FR1-TEST   First Role"}
         ack.errorMessagesFor("Create", "[role] FR1-TEST   First Role") ==
                 ["Reference \"auto-1\" not found",
@@ -394,7 +394,7 @@ class PersonAutoSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(1, 1, 0, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
 
-        ack.countErrorWarnInfo(0, 0, 0)
+        ack.countErrorWarnInfo(0, 1, 0)
 
         queryObject("-rBT person FS1-TEST", "person", "First_ -Person Smith--")
     }
@@ -428,7 +428,7 @@ class PersonAutoSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(0, 0, 0, 0, 0)
         ack.summary.assertErrors(1, 1, 0, 0)
 
-        ack.countErrorWarnInfo(1, 0, 0)
+        ack.countErrorWarnInfo(1, 1, 0)
         ack.errorMessagesFor("Create", "[person] auto-1   First_ -Person _Smith--") ==
                 ["Syntax error in First_ -Person _Smith--"]
 

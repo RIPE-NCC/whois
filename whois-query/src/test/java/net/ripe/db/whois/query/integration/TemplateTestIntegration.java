@@ -27,13 +27,13 @@ public class TemplateTestIntegration extends AbstractQueryIntegrationTest {
 
     @Test
     public void check_template() {
-        final String response = TelnetWhoisClient.queryLocalhost(QueryServer.port, "-t route");
+        final String response = TelnetWhoisClient.queryLocalhost(queryServer.getPort(), "-t route");
         assertThat(response, containsString("" +
                 "% This is the RIPE Database query service.\n" +
                 "% The objects are in RPSL format.\n" +
                 "%\n" +
                 "% The RIPE Database is subject to Terms and Conditions.\n" +
-                "% See https://apps.db.ripe.net/docs/HTML-Terms-And-Conditions\n" +
+                "% See https://docs.db.ripe.net/terms-conditions.html\n" +
                 "\n" +
                 "route:          [mandatory]  [single]     [primary/lookup key]\n" +
                 "descr:          [optional]   [multiple]   [ ]\n" +
@@ -62,13 +62,13 @@ public class TemplateTestIntegration extends AbstractQueryIntegrationTest {
 
     @Test
     public void check_verbose() {
-        final String response = TelnetWhoisClient.queryLocalhost(QueryServer.port, "-v route6");
+        final String response = TelnetWhoisClient.queryLocalhost(queryServer.getPort(), "-v route6");
         assertThat(response, containsString("" +
                 "% This is the RIPE Database query service.\n" +
                 "% The objects are in RPSL format.\n" +
                 "%\n" +
                 "% The RIPE Database is subject to Terms and Conditions.\n" +
-                "% See https://apps.db.ripe.net/docs/HTML-Terms-And-Conditions\n" +
+                "% See https://docs.db.ripe.net/terms-conditions.html\n" +
                 "\n" +
                 "The route6 class:\n" +
                 "\n" +
@@ -117,7 +117,7 @@ public class TemplateTestIntegration extends AbstractQueryIntegrationTest {
 
     @Test
     public void verbose_description() {
-        final String response = TelnetWhoisClient.queryLocalhost(QueryServer.port, "-v inetnum");
+        final String response = TelnetWhoisClient.queryLocalhost(queryServer.getPort(), "-v inetnum");
         assertThat(response, containsString("" +
                 "The inetnum class:\n" +
                 "\n" +
@@ -132,11 +132,12 @@ public class TemplateTestIntegration extends AbstractQueryIntegrationTest {
                 "geoloc:         [optional]   [single]     [ ]\n" +
                 "language:       [optional]   [multiple]   [ ]\n" +
                 "org:            [optional]   [single]     [inverse key]\n" +
-                "sponsoring-org: [optional]   [single]     [ ]\n" +
+                "sponsoring-org: [optional]   [single]     [inverse key]\n" +
                 "admin-c:        [mandatory]  [multiple]   [inverse key]\n" +
                 "tech-c:         [mandatory]  [multiple]   [inverse key]\n" +
                 "abuse-c:        [optional]   [single]     [inverse key]\n" +
                 "status:         [mandatory]  [single]     [ ]\n" +
+                "assignment-size:[optional]   [single]     [ ]\n" +
                 "remarks:        [optional]   [multiple]   [ ]\n" +
                 "notify:         [optional]   [multiple]   [inverse key]\n" +
                 "mnt-by:         [mandatory]  [multiple]   [inverse key]\n" +
@@ -262,10 +263,19 @@ public class TemplateTestIntegration extends AbstractQueryIntegrationTest {
                 "     o ALLOCATED UNSPECIFIED\n" +
                 "     o LIR-PARTITIONED PA\n" +
                 "     o SUB-ALLOCATED PA\n" +
+                "     o AGGREGATED-BY-LIR\n" +
+                "     o ALLOCATED-ASSIGNED PA\n" +
                 "     o ASSIGNED PA\n" +
                 "     o ASSIGNED PI\n" +
                 "     o ASSIGNED ANYCAST\n" +
                 "     o LEGACY\n" +
+                "\n" +
+                "assignment-size\n" +
+                "\n" +
+                "   Specifies the size of blocks assigned to end users from this aggregated inet(6)num assignment.\n" +
+                "   The maximum assignment size for inetnum is 32 and for inet6num is 128\n" +
+                "\n" +
+                "     Specifies a numeric value.\n" +
                 "\n" +
                 "remarks\n" +
                 "\n" +
@@ -412,7 +422,7 @@ public class TemplateTestIntegration extends AbstractQueryIntegrationTest {
 
     @Test
     public void verbose_description_autnum() {
-        final String response = TelnetWhoisClient.queryLocalhost(QueryServer.port, "-v aut-num");
+        final String response = TelnetWhoisClient.queryLocalhost(queryServer.getPort(), "-v aut-num");
         assertThat(response, containsString("" +
                 "The aut-num class:\n" +
                 "\n" +
@@ -435,7 +445,7 @@ public class TemplateTestIntegration extends AbstractQueryIntegrationTest {
                 "mp-default:     [optional]   [multiple]   [ ]\n" +
                 "remarks:        [optional]   [multiple]   [ ]\n" +
                 "org:            [optional]   [single]     [inverse key]\n" +
-                "sponsoring-org: [optional]   [single]     [ ]\n" +
+                "sponsoring-org: [optional]   [single]     [inverse key]\n" +
                 "admin-c:        [mandatory]  [multiple]   [inverse key]\n" +
                 "tech-c:         [mandatory]  [multiple]   [inverse key]\n" +
                 "abuse-c:        [optional]   [single]     [inverse key]\n" +

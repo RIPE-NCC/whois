@@ -1,0 +1,89 @@
+Return-path: <>
+Envelope-to: test-dbm@ripe.net
+Delivery-date: Fri, 23 Feb 2024 17:29:29 +0200
+Received: from mahimahi.ripe.net ([193.0.19.1])
+	by allealle.ripe.net with esmtps  (TLS1.2) tls TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384
+	(Exim 4.94)
+	id xxxxxx-0004d4-OF
+	for test-dbm@ripe.net; Fri, 23 Feb 2024 17:29:29 +0200
+Received: from abc1.host.org ([68.232.147.154]:21686)
+	by mahimahi.ripe.net with esmtps  (TLS1.2) tls TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384
+	(Exim 4.94.2)
+	id xxxxxx-0009P6-50
+	for test-dbm@ripe.net; Fri, 23 Feb 2024 17:29:29 +0200
+Received: from localhost by abc1.host.org;
+  23 Feb 2024 11:29:19 -0400
+Message-Id: <xxxxxx$353m5e@abc1.host.org>
+Date: 23 Feb 2024 11:29:19 -0400
+To: test-dbm@ripe.net
+From: "Mail Delivery System" <noreply@ces.cisco.com>
+Subject: Delivery Status Notification (Failure)
+MIME-Version: 1.0
+Content-Type: multipart/report; report-type=delivery-status; boundary="6KTYe.5maleLdVv.5/WobWlHy4k.7vnm51B"
+Delivered-To: test-dbm@ripe.net
+
+--6KTYe.5maleLdVv.5/WobWlHy4k.7vnm51B
+content-type: text/plain;
+    charset="utf-8"
+Content-Transfer-Encoding: quoted-printable
+
+The following message to <nonexistant@host.org> was undeliverable.
+The reason for the problem:
+5.1.0 - Unknown address error 550-'5.4.1 Recipient address rejected: Access=
+ denied. AS(3333) [xxx.protection.outlook.com=
+]'
+
+--6KTYe.5maleLdVv.5/WobWlHy4k.7vnm51B
+Content-Type: message/delivery-status
+
+Reporting-MTA: dns; mx0.host.org
+Received-From-MTA: DNS; mx0.host.org
+Arrival-Date: Thu, 4 Apr 2024 09:26:37 +0300
+
+Original-Recipient: rfc822;noc@host.org
+Final-Recipient: RFC822; First.Person@host.org
+Action: failed
+Status: 5.7.1
+Remote-MTA: DNS; mx0.host.org
+Diagnostic-Code: SMTP; 550 5.7.1 This message is blocked due to security reason
+Last-Attempt-Date: Thu, 4 Apr 2024 09:26:40 +0300
+
+Original-Recipient: rfc822;G=noreply/S=noreply/O=noreplynoreplynoreplnoreplynoreplynoreplnoreplynoreplynoreplnoreplynoreplynoreplnoreplynoreplynoreplnoreplynoreplynoreplnoreplynoreplynoreplnoreplynoreplynoreplnoreplynoreplynoreplnoreplynoreplynoreplnoreplynoreplynoreplnoreplynoreplynoreplnoreplynoreplynoreplnoreplynoreplynoreplnoreplynoreplynorepl/P=AA/A=ripe.net/C=SP/@noreply.ripe.net
+Final-Recipient: RFC822; G=noreply/S=noreply/O=noreplynoreplynoreplnoreplynoreplynoreplnoreplynoreplynoreplnoreplynoreplynoreplnoreplynoreplynoreplnoreplynoreplynoreplnoreplynoreplynoreplnoreplynoreplynoreplnoreplynoreplynoreplnoreplynoreplynoreplnoreplynoreplynoreplnoreplynoreplynoreplnoreplynoreplynoreplnoreplynoreplynoreplnoreplynoreplynorepl/P=AA/A=ripe.net/C=SP/@noreply.ripe.net
+Action: failed
+Status: 5.7.1
+Remote-MTA: DNS; mx0.host.org
+Diagnostic-Code: SMTP; 550 5.7.1 This message is blocked due to security reason
+Last-Attempt-Date: Thu, 4 Apr 2024 09:26:40 +0300
+
+--6KTYe.5maleLdVv.5/WobWlHy4k.7vnm51B
+content-type: message/rfc822
+
+Received: from mahimahi.ripe.net ([193.0.19.1])
+  by abc1.host.org with ESMTP/TLS/ECDHE-RSA-AES128-GCM-SHA256; 23 Feb 2024 11:29:15 -0400
+Received: from allealle.ripe.net ([193.0.23.2]:38580)
+	by mahimahi.ripe.net with esmtps  (TLS1.2) tls TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384
+	(Exim 4.94.2)
+	(envelope-from <test-dbm@ripe.net>)
+	id xxxxxx-0009Oo-Ib
+	for nonexistant@host.org; Fri, 23 Feb 2024 17:29:13 +0200
+Received: from whois.ipv6.ripe.net ([2001:67c:2e8:9::1234] helo=smtpclient.apple)
+	by allealle.ripe.net with esmtps  (TLS1.2) tls TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384
+	(Exim 4.94)
+	(envelope-from <test-dbm@ripe.net>)
+	id xxxxxx-0004cV-FW
+	for nonexistant@host.org; Fri, 23 Feb 2024 17:29:13 +0200
+From: Test DBM <test-dbm@ripe.net>
+Reply-To: test-dbm@ripe.net
+Mime-Version: 1.0 (Mac OS X Mail 14.0 \(3654.80.0.2.43\))
+Subject: Test Message
+Message-Id: <XXXXXXXX-5AE3-4C58-8E3F-860327BA955D@ripe.net>
+Date: Fri, 23 Feb 2024 17:29:10 +0200
+To: noc@host.org
+X-Mailer: Apple Mail (2.3654.80.0.2.43)
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
+
+--6KTYe.5maleLdVv.5/WobWlHy4k.7vnm51B--
+
+

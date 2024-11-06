@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.jakarta.rs.json.JacksonJsonProvider;
 import com.google.common.base.Strings;
 import com.google.common.collect.Lists;
+import jakarta.ws.rs.ClientErrorException;
 import jakarta.ws.rs.client.Client;
 import jakarta.ws.rs.client.ClientBuilder;
 import jakarta.ws.rs.core.MediaType;
@@ -50,9 +51,10 @@ public class RoutinatorDataProvider implements RpkiDataProvider{
         }
 
         return this.client.target(rpkiBaseUrl)
-                .path("json")
-                .request(MediaType.APPLICATION_JSON_TYPE)
-                .get(Roas.class)
-                .getRoas();
+                    .path("json")
+                    .request(MediaType.APPLICATION_JSON_TYPE)
+                    .get(Roas.class)
+                    .getRoas();
+
     }
 }

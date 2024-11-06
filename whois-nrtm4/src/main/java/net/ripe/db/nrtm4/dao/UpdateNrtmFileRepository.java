@@ -4,6 +4,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import net.ripe.db.nrtm4.domain.DeltaFileRecord;
 import net.ripe.db.nrtm4.domain.DeltaFile;
 import net.ripe.db.nrtm4.domain.NrtmDocumentType;
+import net.ripe.db.nrtm4.domain.NrtmKeyRecord;
 import net.ripe.db.nrtm4.domain.NrtmSource;
 import net.ripe.db.nrtm4.domain.NrtmVersionInfo;
 import net.ripe.db.nrtm4.domain.NrtmVersionRecord;
@@ -11,6 +12,7 @@ import net.ripe.db.nrtm4.domain.SnapshotFile;
 import net.ripe.db.nrtm4.util.NrtmFileUtil;
 import net.ripe.db.whois.common.DateTimeProvider;
 import net.ripe.db.whois.common.dao.jdbc.JdbcRpslObjectOperations;
+import net.ripe.db.whois.common.TransactionConfiguration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -29,7 +31,7 @@ import java.util.List;
 import java.util.Map;
 
 @Repository
-@Transactional(transactionManager = "nrtmTransactionManager")
+@Transactional(transactionManager = TransactionConfiguration.NRTM_UPDATE_TRANSACTION)
 public class UpdateNrtmFileRepository {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(UpdateNrtmFileRepository.class);
@@ -64,6 +66,17 @@ public class UpdateNrtmFileRepository {
 
         saveSnapshot(snapshotFile, payload);
         LOGGER.info("Created {} snapshot version {}", version.source().getName(), version.version());
+    }
+
+    public void rotateKey(final NrtmKeyRecord newActiveKey, final NrtmKeyRecord oldActiveKey) {
+        LOGGER.warn("NRTMv4 rotating the key");
+
+        jdbcTemplate.update("UPDATE key_pair k1 JOIN key_pair k2 " +
+                                 "SET k1.is_active = 1, k2.is_active = 0 " +
+                                 "WHERE k1.id = ? AND k2.id=?",
+                newActiveKey.id(), oldActiveKey.id());
+
+        LOGGER.info("Key rotated successfully");
     }
 
     private DeltaFile getDeltaFile(final NrtmVersionInfo newVersion, final List<DeltaFileRecord> deltas) throws JsonProcessingException {

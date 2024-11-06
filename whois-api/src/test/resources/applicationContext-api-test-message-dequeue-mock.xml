@@ -10,8 +10,9 @@
             location="classpath:whois.version.properties,classpath:whois.properties"
             system-properties-mode="OVERRIDE"/>
 
-    <bean id="messageDequeue" class="org.mockito.Mockito" factory-method="mock" primary="true">
-        <constructor-arg value="net.ripe.db.whois.api.mail.dequeue.MessageDequeue"/>
+    <bean id="messageDequeue" class="net.ripe.db.whois.query.support.MockFactoryBean" primary="true">
+        <constructor-arg name="mock" value="net.ripe.db.whois.api.mail.dequeue.MessageDequeue" />
     </bean>
+
 
 </beans>

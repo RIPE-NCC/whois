@@ -1,6 +1,7 @@
 package net.ripe.db.nrtm4.scheduler;
 
 import net.ripe.db.nrtm4.dao.UpdateNrtmFileRepository;
+import net.ripe.db.nrtm4.generator.NrtmKeyPairService;
 import net.ripe.db.whois.common.DateTimeProvider;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -30,13 +31,15 @@ public class NrtmV4InitializerJmxTest {
     @Mock SnapshotFileScheduledTask snapshotFileScheduledTask;
     @Mock TaskScheduler taskScheduler;
     @Mock UpdateNrtmFileRepository nrtmFileRepository;
+    @Mock
+    NrtmKeyPairService nrtmKeyPairService;
 
     @Mock DateTimeProvider dateTimeProvider;
     @Captor
     ArgumentCaptor<ScheduledMethodRunnable> scheduleTaskCaptor;
 
     @InjectMocks
-    NrtmV4InitializerJmx subject;
+    NrtmV4Jmx subject;
 
     @Test
     public void shouldInitializeNrtmv4()  {
@@ -46,5 +49,19 @@ public class NrtmV4InitializerJmxTest {
         verify(nrtmFileRepository, times(1)).cleanupNrtmv4Database();
         verify(taskScheduler, times(1)).schedule(scheduleTaskCaptor.capture(), eq(LOCAL_DATE_TIME.atZone(ZoneOffset.UTC).toInstant()));
         assertThat(scheduleTaskCaptor.getValue().getTarget().getClass(), is(SnapshotFileScheduledTask.class));
+    }
+
+    @Test
+    public void shouldForceRotateKey()  {
+        subject.forceRotateKey("test");
+
+        verify(nrtmKeyPairService, times(1)).forceRotateKey();
+    }
+
+    @Test
+    public void shouldGenerateNewActiveKey()  {
+        subject.deleteAndGenerateNewActiveKey("test");
+
+        verify(nrtmKeyPairService, times(1)).deleteAndGenerateNewActiveKey();
     }
 }

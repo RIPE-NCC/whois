@@ -7,13 +7,16 @@ import net.ripe.db.whois.api.UpdatesParser;
 import net.ripe.db.whois.api.mail.EmailMessageInfo;
 import net.ripe.db.whois.api.mail.MailMessage;
 import net.ripe.db.whois.api.mail.dao.MailMessageDao;
+import net.ripe.db.whois.api.mail.exception.MailParsingException;
 import net.ripe.db.whois.common.ApplicationService;
 import net.ripe.db.whois.common.DateTimeProvider;
 import net.ripe.db.whois.common.MaintenanceMode;
 import net.ripe.db.whois.common.Messages;
 import net.ripe.db.whois.update.domain.DequeueStatus;
+import net.ripe.db.whois.update.domain.PasswordCredential;
 import net.ripe.db.whois.update.domain.Update;
 import net.ripe.db.whois.update.domain.UpdateContext;
+import net.ripe.db.whois.update.domain.UpdateMessages;
 import net.ripe.db.whois.update.domain.UpdateRequest;
 import net.ripe.db.whois.update.domain.UpdateResponse;
 import net.ripe.db.whois.update.handler.UpdateRequestHandler;
@@ -27,7 +30,6 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.dao.DataAccessException;
 import org.springframework.stereotype.Component;
 
-import java.io.IOException;
 import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -64,6 +66,9 @@ public class MessageDequeue implements ApplicationService {
 
     @Value("${mail.dequeue.interval:1000}")
     private int intervalMs;
+
+    @Value("${mailupdates.passwd.error:false}")
+    private boolean errorIfPassword;
 
     @Autowired
     public MessageDequeue(final MaintenanceMode maintenanceMode,
@@ -206,6 +211,22 @@ public class MessageDequeue implements ApplicationService {
                 return;
             }
 
+            final EmailMessageInfo automatedFailureMessage = messageService.getAutomatedFailureMessageInfo(message);
+            if (automatedFailureMessage != null) {
+                // TODO: verify and set as undeliverable
+                mailMessageDao.deleteMessage(messageId);
+                return;
+            }
+
+        } catch (MailParsingException e){
+            LOGGER.info("Error detecting bounce detection or unsubscribing for messageId {}", messageId, e);
+            mailMessageDao.deleteMessage(messageId);
+            return;
+        } catch (MessagingException ex) {
+            LOGGER.error("There was some kind of error processing the message {}", messageId, ex);
+        }
+
+        try {
             loggerContext.init(getMessageIdLocalPart(message));
             try {
                 handleMessageInContext(messageId, message);
@@ -231,7 +252,7 @@ public class MessageDequeue implements ApplicationService {
         return "No-Message-Id." + dateTimeProvider.getElapsedTime();
     }
 
-    private void handleMessageInContext(final String messageId, final MimeMessage message) throws MessagingException, IOException {
+    private void handleMessageInContext(final String messageId, final MimeMessage message) throws MessagingException {
         loggerContext.log("msg-in.txt", new MailMessageLogCallback(message));
         mailMessageDao.setStatus(messageId, DequeueStatus.LOGGED);
 
@@ -256,9 +277,20 @@ public class MessageDequeue implements ApplicationService {
 
     private void handleUpdates(final MailMessage mailMessage, final UpdateContext updateContext) {
         final List<Update> updates = updatesParser.parse(updateContext, mailMessage.getContentWithCredentials());
+        validatePasswordCredentials(updateContext, updates);
 
         final UpdateRequest updateRequest = new UpdateRequest(mailMessage, mailMessage.getKeyword(), updates);
         final UpdateResponse response = messageHandler.handle(updateRequest, updateContext);
         mailGateway.sendEmail(mailMessage.getReplyToEmail(), response.getStatus() + ": " + mailMessage.getSubject(), response.getResponse(), null);
+    }
+
+    private void validatePasswordCredentials(final UpdateContext updateContext, final List<Update> updates) {
+        for (Update update : updates) {
+            if (!update.getCredentials().ofType(PasswordCredential.class).isEmpty()){
+                updateContext.addGlobalMessage(errorIfPassword ? UpdateMessages.passwordInMailUpdateError() :
+                        UpdateMessages.passwordInMailUpdateWarn());
+                return;
+            }
+        }
     }
 }
