@@ -28,6 +28,7 @@ import java.util.Timer;
 import java.util.TimerTask;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Consumer;
 import java.util.zip.GZIPInputStream;
@@ -90,35 +91,47 @@ public class SnapshotImporter {
         printProgress(timer, processedCount);
 
         final ExecutorService executorService = Executors.newFixedThreadPool(2);
-        decompressAndProcessRecords(
-            payload,
-            firstRecord -> {
-                final JSONObject jsonObject = new JSONObject(firstRecord);
-                version.set(jsonObject.getInt("version"));
-                sessionId[0] = jsonObject.getString("session_id");
-                if (!sessionId[0].equals(updateNotificationFile.getSessionID())){
-                    // TODO: [MH] if the service is wrong for any reason...we have here a non-ending loop, we need to
-                    //  call initialize X number of times and return error to avoid this situation?
-                    LOGGER.error("The session is not the same in the UNF and snapshot");
-                    //initializeNRTMClientForSource(source, updateNotificationFile);
-                    throw new IllegalArgumentException("The session is not the same in the UNF and snapshot");
-                }
-                LOGGER.info("Processed first record");
-            },
-            remainingRecords -> {
-                executorService.submit(() -> {
-                    for (String record : remainingRecords){
-                        try {
-                            processObject(record);
-                        } catch (JsonProcessingException e) {
-                            throw new RuntimeException(e);
+        try {
+            decompressAndProcessRecords(
+                    payload,
+                    firstRecord -> {
+                        final JSONObject jsonObject = new JSONObject(firstRecord);
+                        version.set(jsonObject.getInt("version"));
+                        sessionId[0] = jsonObject.getString("session_id");
+                        if (!sessionId[0].equals(updateNotificationFile.getSessionID())) {
+                            // TODO: [MH] if the service is wrong for any reason...we have here a non-ending loop, we need to
+                            //  call initialize X number of times and return error to avoid this situation?
+                            LOGGER.error("The session is not the same in the UNF and snapshot");
+                            //initializeNRTMClientForSource(source, updateNotificationFile);
+                            throw new IllegalArgumentException("The session is not the same in the UNF and snapshot");
                         }
+                        LOGGER.info("Processed first record");
+                    },
+                    remainingRecords -> {
+                        executorService.submit(() -> {
+                            for (String record : remainingRecords) {
+                                try {
+                                    processObject(record);
+                                } catch (JsonProcessingException e) {
+                                    throw new RuntimeException(e);
+                                }
+                            }
+                        });
+                        processedCount.addAndGet(remainingRecords.length);
                     }
-                });
-                processedCount.addAndGet(remainingRecords.length);
-            }
-        );
+            );
+        } finally {
+            executorService.shutdown(); // Initiates a graceful shutdown
 
+            try {
+                if (!executorService.awaitTermination(60, TimeUnit.SECONDS)) {
+                    executorService.shutdownNow(); // Forces shutdown if not done within 60 seconds
+                }
+            } catch (InterruptedException e) {
+                executorService.shutdownNow(); // If interrupted, forces shutdown
+                Thread.currentThread().interrupt(); // Restore interrupt status
+            }
+        }
 
         timer.cancel();
         stopwatch.stop();
