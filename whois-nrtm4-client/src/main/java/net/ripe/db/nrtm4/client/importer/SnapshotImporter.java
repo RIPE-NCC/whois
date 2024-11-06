@@ -89,7 +89,7 @@ public class SnapshotImporter {
         final Timer timer = new Timer();
         printProgress(timer, processedCount);
 
-        final ExecutorService executorService = Executors.newFixedThreadPool(3);
+        final ExecutorService executorService = Executors.newFixedThreadPool(2);
         decompressAndProcessRecords(
             payload,
             firstRecord -> {
