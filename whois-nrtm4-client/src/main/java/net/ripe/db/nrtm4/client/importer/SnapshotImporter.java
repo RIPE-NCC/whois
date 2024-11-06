@@ -67,9 +67,9 @@ public class SnapshotImporter {
         //TODO: [MH] new class that works in the middle of the clientRestService and the SnapshotImporter that
         // parallelise the process
         String[] snapshotRecords;
-        byte[] payload;
+        final byte[] payload = nrtmRestClient.getSnapshotFile(snapshot.getUrl());
+
         try {
-            payload = nrtmRestClient.getSnapshotFile(snapshot.getUrl());
             snapshotRecords = getSnapshotRecords(payload);
         } catch (IOException e){
             LOGGER.error("No able to decompress snapshot", e);
@@ -135,8 +135,8 @@ public class SnapshotImporter {
     private static String decompress(final byte[] compressed) throws IOException {
         final int BUFFER_SIZE = 4096;
         try (ByteArrayInputStream is = new ByteArrayInputStream(compressed);
-             GZIPInputStream gis = new GZIPInputStream(is, BUFFER_SIZE);
-             ByteArrayOutputStream output = new ByteArrayOutputStream()) {
+         GZIPInputStream gis = new GZIPInputStream(is, BUFFER_SIZE);
+         ByteArrayOutputStream output = new ByteArrayOutputStream()) {
             byte[] buffer = new byte[BUFFER_SIZE];
             int bytesRead;
             while ((bytesRead = gis.read(buffer)) != -1) {
