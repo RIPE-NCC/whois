@@ -67,12 +67,14 @@ public class SnapshotImporter {
         String[] snapshotRecords;
         final byte[] payload = nrtmRestClient.getSnapshotFile(snapshot.getUrl());
 
+        LOGGER.info("Step 1");
         try {
             snapshotRecords = getSnapshotRecords(payload);
         } catch (IOException e){
             LOGGER.error("No able to decompress snapshot", e);
             return;
         }
+        LOGGER.info("Step 2");
 
         if (snapshotRecords == null){
             LOGGER.error("This cannot happen. UNF has a non-existing snapshot");
@@ -83,6 +85,7 @@ public class SnapshotImporter {
         final int snapshotVersion = jsonObject.getInt("version");
         final String snapshotSessionId = jsonObject.getString("session_id");
 
+        LOGGER.info("Step 3");
         if (!snapshot.getHash().equals(calculateSha256(payload))){
             LOGGER.error("Snapshot hash doesn't match, skipping import");
             return;
@@ -96,6 +99,7 @@ public class SnapshotImporter {
             return;
         }
 
+        LOGGER.info("Step 4");
         final AtomicInteger processedCount = new AtomicInteger(0);
         final Timer timer = new Timer();
         printProgress(timer, processedCount);
