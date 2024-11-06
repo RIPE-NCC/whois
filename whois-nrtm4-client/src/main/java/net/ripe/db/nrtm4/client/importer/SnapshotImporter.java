@@ -2,6 +2,7 @@ package net.ripe.db.nrtm4.client.importer;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.google.common.base.Stopwatch;
 import net.ripe.db.nrtm4.client.client.MirrorRpslObject;
 import net.ripe.db.nrtm4.client.client.NrtmRestClient;
 import net.ripe.db.nrtm4.client.client.UpdateNotificationFileResponse;
@@ -55,6 +56,7 @@ public class SnapshotImporter {
     }
 
     public void importSnapshot(final String source, final UpdateNotificationFileResponse updateNotificationFile){
+        final Stopwatch stopwatch = Stopwatch.createUnstarted();
         final UpdateNotificationFileResponse.NrtmFileLink snapshot = updateNotificationFile.getSnapshot();
 
         if (snapshot == null){
@@ -109,7 +111,7 @@ public class SnapshotImporter {
                 });
 
         nrtm4ClientMirrorDao.saveSnapshotFileVersion(source, snapshotVersion, snapshotSessionId);
-        LOGGER.info("Snapshot loaded");
+        LOGGER.info("Loading snapshot file took {} for source {}", stopwatch.elapsed().toMillis(), source);
     }
 
     private void processObject(final String record) throws JsonProcessingException {

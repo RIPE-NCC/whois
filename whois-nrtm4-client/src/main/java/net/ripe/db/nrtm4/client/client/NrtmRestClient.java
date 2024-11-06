@@ -10,7 +10,6 @@ import com.fasterxml.jackson.databind.type.TypeFactory;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import com.fasterxml.jackson.jakarta.rs.json.JacksonJsonProvider;
 import com.fasterxml.jackson.module.jakarta.xmlbind.JakartaXmlBindAnnotationIntrospector;
-import com.google.common.base.Stopwatch;
 import jakarta.ws.rs.client.Client;
 import jakarta.ws.rs.client.ClientBuilder;
 import jakarta.ws.rs.core.MediaType;
@@ -91,14 +90,12 @@ public class NrtmRestClient {
     public byte[] getSnapshotFile(final String url){
         LOGGER.info("Getting snapshot file");
         try {
-            final Stopwatch stopwatch = Stopwatch.createUnstarted();
             final Response response =  client.target(url)
                     .request(MediaType.APPLICATION_OCTET_STREAM)
                     .header(HttpHeader.X_FORWARDED_PROTO.asString(), HttpScheme.HTTPS.asString())
                     .get(Response.class);
 
             LOGGER.info("Response code: {}", response.getStatus());
-            LOGGER.info("Loading snapshot file took {}", stopwatch.elapsed().toMillis());
             return response.readEntity(byte[].class);
         } catch (Exception ex){
             LOGGER.error("Unable to get the records from the snapshot", ex);
