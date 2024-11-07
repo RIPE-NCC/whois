@@ -7,7 +7,8 @@ import net.ripe.db.nrtm4.client.client.MirrorRpslObject;
 import net.ripe.db.nrtm4.client.client.NrtmRestClient;
 import net.ripe.db.nrtm4.client.client.UpdateNotificationFileResponse;
 import net.ripe.db.nrtm4.client.condition.Nrtm4ClientCondition;
-import net.ripe.db.nrtm4.client.dao.Nrtm4ClientMirrorRepository;
+import net.ripe.db.nrtm4.client.dao.Nrtm4ClientInfoRepository;
+import net.ripe.db.nrtm4.client.dao.Nrtm4ClientRepository;
 import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -31,18 +32,26 @@ public class SnapshotImporter {
 
     private final NrtmRestClient nrtmRestClient;
 
-    private final Nrtm4ClientMirrorRepository nrtm4ClientMirrorDao;
+    private final Nrtm4ClientInfoRepository nrtm4ClientInfoMirrorDao;
+
+    private final Nrtm4ClientRepository nrtm4ClientRepository;
 
 
     public SnapshotImporter(final NrtmRestClient nrtmRestClient,
-                                        final Nrtm4ClientMirrorRepository nrtm4ClientMirrorDao) {
+                            final Nrtm4ClientInfoRepository nrtm4ClientInfoMirrorDao,
+                            final Nrtm4ClientRepository nrtm4ClientRepository) {
         this.nrtmRestClient = nrtmRestClient;
-        this.nrtm4ClientMirrorDao = nrtm4ClientMirrorDao;
+        this.nrtm4ClientInfoMirrorDao = nrtm4ClientInfoMirrorDao;
+        this.nrtm4ClientRepository  = nrtm4ClientRepository;
     }
 
-    public void initializeNRTMClientForSource(final String source, final UpdateNotificationFileResponse updateNotificationFile){
-        nrtm4ClientMirrorDao.truncateTables();
-        nrtm4ClientMirrorDao.saveUpdateNotificationFileVersion(source, updateNotificationFile.getVersion(), updateNotificationFile.getSessionID());
+    public void initializeNRTMClientForSource(final String source,
+                                              final UpdateNotificationFileResponse updateNotificationFile,
+                                              final String serviceName){
+        nrtm4ClientInfoMirrorDao.truncateTables();
+        nrtm4ClientRepository.truncateTables();
+        nrtm4ClientInfoMirrorDao.saveUpdateNotificationFileVersion(source, updateNotificationFile.getVersion(),
+                updateNotificationFile.getSessionID(), serviceName);
         importSnapshot(source, updateNotificationFile);
     }
 
@@ -79,7 +88,7 @@ public class SnapshotImporter {
 
     private void processObject(final String record) throws JsonProcessingException {
         final MirrorRpslObject mirrorRpslObject = new ObjectMapper().readValue(record, MirrorRpslObject.class);
-        nrtm4ClientMirrorDao.persistRpslObject(mirrorRpslObject.getObject());
+        nrtm4ClientRepository.persistRpslObject(mirrorRpslObject.getObject());
     }
 
     private void printProgress(final Timer timer, final AtomicInteger processedCount) {
@@ -124,6 +133,6 @@ public class SnapshotImporter {
             //initializeNRTMClientForSource(source, updateNotificationFile);
             throw new IllegalArgumentException("The session is not the same in the UNF and snapshot");
         }
-        nrtm4ClientMirrorDao.saveSnapshotFileVersion(source, version, sessionId);
+        nrtm4ClientInfoMirrorDao.saveSnapshotFileVersion(source, version, sessionId);
     }
 }
