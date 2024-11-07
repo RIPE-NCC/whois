@@ -34,7 +34,7 @@ public class ArinGrsSourceTest {
     @BeforeEach
     public void setUp() throws Exception {
         objectHandler = new CaptureInputObjectHandler();
-        subject = new ArinGrsSource("ARIN-GRS", sourceContext, dateTimeProvider, authoritativeResourceData, downloader, "", "arin_db.txt");
+        subject = new ArinGrsSource("ARIN-GRS", sourceContext, dateTimeProvider, authoritativeResourceData, downloader, "", "", "arin_db.txt");
     }
 
     @Test
