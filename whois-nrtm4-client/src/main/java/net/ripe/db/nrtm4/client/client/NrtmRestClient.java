@@ -88,14 +88,12 @@ public class NrtmRestClient {
 
     @Nullable
     public byte[] getSnapshotFile(final String url){
-        LOGGER.info("Getting snapshot file");
         try {
             final Response response =  client.target(url)
                     .request(MediaType.APPLICATION_OCTET_STREAM)
                     .header(HttpHeader.X_FORWARDED_PROTO.asString(), HttpScheme.HTTPS.asString())
                     .get(Response.class);
 
-            LOGGER.info("Response code: {}", response.getStatus());
             return response.readEntity(byte[].class);
         } catch (Exception ex){
             LOGGER.error("Unable to get the records from the snapshot", ex);

@@ -33,13 +33,6 @@ public class SnapshotImporter {
 
     private final Nrtm4ClientMirrorRepository nrtm4ClientMirrorDao;
 
-    public static final String RECORD_SEPARATOR = "\u001E";
-
-    private static final char[] HEX_ARRAY = "0123456789abcdef".toCharArray();
-
-    private static final int BATCH_SIZE = 1000;
-
-    private static final int BUFFER_SIZE = 4096;
 
     public SnapshotImporter(final NrtmRestClient nrtmRestClient,
                                         final Nrtm4ClientMirrorRepository nrtm4ClientMirrorDao) {
@@ -131,7 +124,6 @@ public class SnapshotImporter {
             //initializeNRTMClientForSource(source, updateNotificationFile);
             throw new IllegalArgumentException("The session is not the same in the UNF and snapshot");
         }
-        LOGGER.info("Processed first record");
         nrtm4ClientMirrorDao.saveSnapshotFileVersion(source, version, sessionId);
     }
 }
