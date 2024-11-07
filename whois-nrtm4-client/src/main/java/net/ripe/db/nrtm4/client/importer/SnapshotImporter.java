@@ -14,19 +14,12 @@ import org.slf4j.LoggerFactory;
 import org.springframework.context.annotation.Conditional;
 import org.springframework.stereotype.Service;
 
-import java.io.BufferedReader;
-import java.io.ByteArrayInputStream;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.Arrays;
 import java.util.Timer;
 import java.util.TimerTask;
 import java.util.concurrent.atomic.AtomicInteger;
-import java.util.function.Consumer;
-import java.util.zip.GZIPInputStream;
 
 import static org.apache.commons.codec.binary.Hex.encodeHexString;
 
@@ -69,9 +62,6 @@ public class SnapshotImporter {
             return;
         }
 
-        //TODO: [MH] new class that works in the middle of the clientRestService and the SnapshotImporter that
-        // parallelise the process
-        //String[] snapshotRecords;
         final byte[] payload = nrtmRestClient.getSnapshotFile(snapshot.getUrl());
 
         if (!snapshot.getHash().equals(calculateSha256(payload))){
@@ -79,49 +69,19 @@ public class SnapshotImporter {
             return;
         }
 
-        LOGGER.info("Step 1");
-
-        final var sessionId = new String[1];
-        final AtomicInteger version = new AtomicInteger();
         final AtomicInteger processedCount = new AtomicInteger(0);
         final Timer timer = new Timer();
         printProgress(timer, processedCount);
 
-
-        decompressAndProcessRecords(
+        GzipDecompressor.decompressRecords(
                 payload,
-                firstRecord -> {
-                    final JSONObject jsonObject = new JSONObject(firstRecord);
-                    version.set(jsonObject.getInt("version"));
-                    sessionId[0] = jsonObject.getString("session_id");
-                    if (!sessionId[0].equals(updateNotificationFile.getSessionID())) {
-                        // TODO: [MH] if the service is wrong for any reason...we have here a non-ending loop, we need to
-                        //  call initialize X number of times and return error to avoid this situation?
-                        LOGGER.error("The session is not the same in the UNF and snapshot");
-                        //initializeNRTMClientForSource(source, updateNotificationFile);
-                        throw new IllegalArgumentException("The session is not the same in the UNF and snapshot");
-                    }
-                    LOGGER.info("Processed first record");
-                },
-                remainingRecords -> {
-                    Arrays.stream(remainingRecords).parallel().forEach( record -> {
-                        try {
-                            processObject(record);
-                        } catch (JsonProcessingException e) {
-                            throw new RuntimeException(e);
-                        }
-                    });
-                    processedCount.addAndGet(remainingRecords.length);
-                }
+                firstRecord -> processMetadata(source, updateNotificationFile, firstRecord),
+                recordBatches -> persistBatches(recordBatches, processedCount)
         );
-
-
 
         timer.cancel();
         stopwatch.stop();
         LOGGER.info("Loading snapshot file took {} for source {} and added", stopwatch.elapsed().toMillis(), source);
-
-        nrtm4ClientMirrorDao.saveSnapshotFileVersion(source, version.get(), sessionId[0]);
     }
 
     private void processObject(final String record) throws JsonProcessingException {
@@ -138,46 +98,6 @@ public class SnapshotImporter {
         }, 0, 10000);
     }
 
-
-    public static void decompressAndProcessRecords(final byte[] compressed, Consumer<String> firstRecordProcessor,
-                                                Consumer<String[]> remainingRecordProcessor){
-        try (ByteArrayInputStream byteArrayInputStream = new ByteArrayInputStream(compressed);
-             GZIPInputStream gzipInputStream = new GZIPInputStream(byteArrayInputStream, BUFFER_SIZE);
-             InputStreamReader reader = new InputStreamReader(gzipInputStream, StandardCharsets.UTF_8);
-             BufferedReader bufferedReader = new BufferedReader(reader)) {
-
-            String line;
-            String[] batch = new String[BATCH_SIZE];
-            int batchIndex = 0;
-            boolean isFirstRecord = true;
-
-            while ((line = bufferedReader.readLine()) != null) {
-                String record = line.trim(); //each line is one record
-
-                if (record.isEmpty()) {
-                    continue;
-                }
-                if (isFirstRecord) {
-                    firstRecordProcessor.accept(record);  // Process the first record
-                    isFirstRecord = false;
-                } else {
-                    batch[batchIndex++] = record;
-                    if (batchIndex == BATCH_SIZE) {
-                        remainingRecordProcessor.accept(batch);
-                        batch = new String[BATCH_SIZE];
-                        batchIndex = 0;
-                    }
-                }
-            }
-            if (batchIndex > 0) {
-                remainingRecordProcessor.accept(Arrays.copyOf(batch, batchIndex));
-            }
-
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-    }
-
     private static String calculateSha256(final byte[] bytes) {
         try {
             final MessageDigest digest = MessageDigest.getInstance("SHA-256");
@@ -188,13 +108,30 @@ public class SnapshotImporter {
         }
     }
 
-    private static String byteArrayToHexString(final byte[] bytes) {
-        char[] hexChars = new char[bytes.length * 2];
-        for (int i = 0; i < bytes.length; i++) {
-            int v = bytes[i] & 0xFF;
-            hexChars[i * 2] = HEX_ARRAY[v >>> 4];
-            hexChars[i * 2 + 1] = HEX_ARRAY[v & 0x0F];
+    private void persistBatches(String[] remainingRecords, AtomicInteger processedCount) {
+        Arrays.stream(remainingRecords).parallel().forEach(record -> {
+            try {
+                processObject(record);
+            } catch (JsonProcessingException e) {
+                LOGGER.error("Unable to parse record {}", record, e);
+                throw new IllegalStateException(e);
+            }
+        });
+        processedCount.addAndGet(remainingRecords.length);
+    }
+
+    private void processMetadata(String source, UpdateNotificationFileResponse updateNotificationFile, String firstRecord) {
+        final JSONObject jsonObject = new JSONObject(firstRecord);
+        final int version = jsonObject.getInt("version");
+        final String sessionId = jsonObject.getString("session_id");
+        if (!sessionId.equals(updateNotificationFile.getSessionID())) {
+            // TODO: [MH] if the service is wrong for any reason...we have here a non-ending loop, we need to
+            //  call initialize X number of times and return error to avoid this situation?
+            LOGGER.error("The session is not the same in the UNF and snapshot");
+            //initializeNRTMClientForSource(source, updateNotificationFile);
+            throw new IllegalArgumentException("The session is not the same in the UNF and snapshot");
         }
-        return new String(hexChars);
+        LOGGER.info("Processed first record");
+        nrtm4ClientMirrorDao.saveSnapshotFileVersion(source, version, sessionId);
     }
 }
