@@ -54,7 +54,11 @@ abstract class GrsSource implements InitializingBean {
 
     abstract void acquireDump(Path path) throws IOException;
 
+    public void acquireIrrDump(Path path) throws IOException {};
+
     abstract void handleObjects(File file, ObjectHandler handler) throws IOException;
+
+    public void handleIrrObjects(File file, ObjectHandler handler) throws IOException {};
 
     public Logger getLogger() {
         return logger;
