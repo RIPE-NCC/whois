@@ -18,6 +18,7 @@ import net.ripe.db.whois.common.rpsl.RpslObject;
 import net.ripe.db.whois.common.rpsl.transform.FilterChangedFunction;
 import net.ripe.db.whois.common.source.SourceContext;
 import org.apache.commons.compress.compressors.gzip.GzipCompressorInputStream;
+import org.elasticsearch.common.Strings;
 import org.glassfish.jersey.client.ClientProperties;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
@@ -87,6 +88,9 @@ class LacnicGrsSource extends GrsSource {
 
     @Override
     public void acquireIrrDump(final Path path) throws IOException {
+        if (Strings.isNullOrEmpty(irrDownload)) {
+            return;
+        }
         downloader.downloadTo(logger, new URL(irrDownload), path);
     }
 
