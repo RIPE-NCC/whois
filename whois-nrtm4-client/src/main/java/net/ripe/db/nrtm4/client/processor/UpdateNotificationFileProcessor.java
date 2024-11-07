@@ -83,10 +83,10 @@ public class UpdateNotificationFileProcessor {
 
             if (nrtmClientLastVersionInfo == null){
                 LOGGER.info("There is no existing Snapshot for the source {}", source);
-                snapshotImporter.importSnapshot(source, updateNotificationFile);
+                snapshotImporter.doImport(source, updateNotificationFile);
             }
 
-            deltaImporter.importDeltas(source, updateNotificationFile);
+            deltaImporter.doImport(source, updateNotificationFile);
         });
     }
 

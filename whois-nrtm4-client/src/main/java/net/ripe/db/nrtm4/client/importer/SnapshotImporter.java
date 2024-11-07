@@ -1,25 +1,27 @@
 package net.ripe.db.nrtm4.client.importer;
 
-import com.google.common.collect.Lists;
-import net.ripe.db.nrtm4.client.client.MirrorObjectInfo;
-import net.ripe.db.nrtm4.client.client.NrtmClientFileResponse;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.google.common.base.Stopwatch;
+import net.ripe.db.nrtm4.client.client.MirrorSnapshotInfo;
 import net.ripe.db.nrtm4.client.client.NrtmRestClient;
 import net.ripe.db.nrtm4.client.client.UpdateNotificationFileResponse;
 import net.ripe.db.nrtm4.client.condition.Nrtm4ClientCondition;
 import net.ripe.db.nrtm4.client.dao.Nrtm4ClientMirrorRepository;
+import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.annotation.Conditional;
 import org.springframework.stereotype.Service;
 
-import java.util.List;
+import java.util.Arrays;
 import java.util.Timer;
 import java.util.TimerTask;
 import java.util.concurrent.atomic.AtomicInteger;
 
 @Service
 @Conditional(Nrtm4ClientCondition.class)
-public class SnapshotImporter {
+public class SnapshotImporter implements Importer{
 
     private static final Logger LOGGER = LoggerFactory.getLogger(SnapshotImporter.class);
 
@@ -27,7 +29,6 @@ public class SnapshotImporter {
 
     private final Nrtm4ClientMirrorRepository nrtm4ClientMirrorDao;
 
-    private static final int BATCH_SIZE = 100;
 
     public SnapshotImporter(final NrtmRestClient nrtmRestClient,
                                         final Nrtm4ClientMirrorRepository nrtm4ClientMirrorDao) {
@@ -38,10 +39,12 @@ public class SnapshotImporter {
     public void initializeNRTMClientForSource(final String source, final UpdateNotificationFileResponse updateNotificationFile){
         nrtm4ClientMirrorDao.truncateTables();
         nrtm4ClientMirrorDao.saveUpdateNotificationFileVersion(source, updateNotificationFile.getVersion(), updateNotificationFile.getSessionID());
-        importSnapshot(source, updateNotificationFile);
+        doImport(source, updateNotificationFile);
     }
 
-    public void importSnapshot(final String source, final UpdateNotificationFileResponse updateNotificationFile){
+    @Override
+    public void doImport(final String source, final UpdateNotificationFileResponse updateNotificationFile){
+        final Stopwatch stopwatch = Stopwatch.createStarted();
         final UpdateNotificationFileResponse.NrtmFileLink snapshot = updateNotificationFile.getSnapshot();
 
         if (snapshot == null){
@@ -49,54 +52,65 @@ public class SnapshotImporter {
             return;
         }
 
-        final NrtmClientFileResponse snapshotFileResponse = nrtmRestClient.getSnapshotFile(snapshot.getUrl());
-        if (snapshotFileResponse == null || snapshotFileResponse.getObjectMirrorInfo() == null){
-            LOGGER.error("This cannot happen. UNF has a non-existing snapshot");
-            return;
-        }
+        final byte[] payload = nrtmRestClient.getSnapshotFile(snapshot.getUrl());
 
-        if (!snapshot.getHash().equals(snapshotFileResponse.getHash())){
+        if (!snapshot.getHash().equals(calculateSha256(payload))){
             LOGGER.error("Snapshot hash doesn't match, skipping import");
             return;
         }
 
-        if (!snapshotFileResponse.getSessionID().equals(updateNotificationFile.getSessionID())){
+        final AtomicInteger processedCount = new AtomicInteger(0);
+        final Timer timer = new Timer();
+        printProgress(timer, processedCount);
+
+        GzipDecompressor.decompressRecords(
+                payload,
+                firstRecord -> processMetadata(source, updateNotificationFile, firstRecord),
+                recordBatches -> persistBatches(recordBatches, processedCount)
+        );
+
+        timer.cancel();
+        stopwatch.stop();
+        LOGGER.info("Loading snapshot file took {} for source {} and added", stopwatch.elapsed().toMillis(), source);
+    }
+
+    private void processObject(final String record) throws JsonProcessingException {
+        final MirrorSnapshotInfo mirrorSnapshotObject = new ObjectMapper().readValue(record, MirrorSnapshotInfo.class);
+        nrtm4ClientMirrorDao.persistRpslObject(mirrorSnapshotObject.getRpslObject());
+    }
+
+    private void printProgress(final Timer timer, final AtomicInteger processedCount) {
+        timer.schedule(new TimerTask() {
+            @Override
+            public void run() {
+                LOGGER.info("Records processed so far: {}", processedCount.get());
+            }
+        }, 0, 10000);
+    }
+
+    private void persistBatches(String[] remainingRecords, AtomicInteger processedCount) {
+        Arrays.stream(remainingRecords).parallel().forEach(record -> {
+            try {
+                processObject(record);
+            } catch (JsonProcessingException e) {
+                LOGGER.error("Unable to parse record {}", record, e);
+                throw new IllegalStateException(e);
+            }
+        });
+        processedCount.addAndGet(remainingRecords.length);
+    }
+
+    private void processMetadata(String source, UpdateNotificationFileResponse updateNotificationFile, String firstRecord) {
+        final JSONObject jsonObject = new JSONObject(firstRecord);
+        final int version = jsonObject.getInt("version");
+        final String sessionId = jsonObject.getString("session_id");
+        if (!sessionId.equals(updateNotificationFile.getSessionID())) {
             // TODO: [MH] if the service is wrong for any reason...we have here a non-ending loop, we need to
             //  call initialize X number of times and return error to avoid this situation?
             LOGGER.error("The session is not the same in the UNF and snapshot");
             //initializeNRTMClientForSource(source, updateNotificationFile);
-            return;
+            throw new IllegalArgumentException("The session is not the same in the UNF and snapshot");
         }
-
-        final AtomicInteger noOfBatchesProcessed = new AtomicInteger(0);
-        final List<List<MirrorObjectInfo>> batches = Lists.partition(snapshotFileResponse.getObjectMirrorInfo(), BATCH_SIZE);
-        final Timer timer = new Timer(true);
-        printProgress(noOfBatchesProcessed, snapshotFileResponse.getObjectMirrorInfo().size(), timer);
-
-        try {
-            batches.parallelStream().forEach(objectBatch -> {
-                objectBatch.forEach(objectRecord -> {
-                    nrtm4ClientMirrorDao.persistRpslObject(objectRecord.getRpslObject());
-                });
-                noOfBatchesProcessed.incrementAndGet();
-            });
-
-        } catch (final Exception e) {
-            LOGGER.error("Error while writing snapshotfile", e);
-            throw new RuntimeException(e);
-        } finally {
-            timer.cancel();
-        }
-        nrtm4ClientMirrorDao.saveSnapshotFileVersion(source, snapshotFileResponse.getVersion(), snapshotFileResponse.getSessionID());
-    }
-
-    private void printProgress(final AtomicInteger noOfBatchesProcessed, final int total, final Timer timer) {
-        timer.schedule(new TimerTask() {
-            @Override
-            public void run() {
-                final int done = noOfBatchesProcessed.get();
-                LOGGER.info("Processed {} objects out of {} ({}%).", (done * BATCH_SIZE), total, ((done * BATCH_SIZE) * 100/ total));
-            }
-        }, 0, 10000);
+        nrtm4ClientMirrorDao.saveSnapshotFileVersion(source, version, sessionId);
     }
 }
