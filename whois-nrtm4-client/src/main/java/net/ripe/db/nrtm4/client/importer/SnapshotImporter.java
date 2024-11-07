@@ -8,7 +8,6 @@ import net.ripe.db.nrtm4.client.client.NrtmRestClient;
 import net.ripe.db.nrtm4.client.client.UpdateNotificationFileResponse;
 import net.ripe.db.nrtm4.client.condition.Nrtm4ClientCondition;
 import net.ripe.db.nrtm4.client.dao.Nrtm4ClientMirrorRepository;
-import org.apache.commons.lang.StringUtils;
 import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -17,7 +16,6 @@ import org.springframework.stereotype.Service;
 
 import java.io.BufferedReader;
 import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
@@ -29,6 +27,8 @@ import java.util.TimerTask;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Consumer;
 import java.util.zip.GZIPInputStream;
+
+import static org.apache.commons.codec.binary.Hex.encodeHexString;
 
 @Service
 @Conditional(Nrtm4ClientCondition.class)
@@ -138,22 +138,6 @@ public class SnapshotImporter {
         }, 0, 10000);
     }
 
-    private static String[] getSnapshotRecords(byte[] compressed) throws IOException {
-        return StringUtils.split(decompress(compressed), RECORD_SEPARATOR);
-    }
-
-    private static String decompress(final byte[] compressed) throws IOException {
-        try (ByteArrayInputStream is = new ByteArrayInputStream(compressed);
-         GZIPInputStream gis = new GZIPInputStream(is, BUFFER_SIZE);
-         ByteArrayOutputStream output = new ByteArrayOutputStream()) {
-            byte[] buffer = new byte[BUFFER_SIZE];
-            int bytesRead;
-            while ((bytesRead = gis.read(buffer)) != -1) {
-                output.write(buffer, 0, bytesRead);
-            }
-            return output.toString(StandardCharsets.UTF_8);
-        }
-    }
 
     public static void decompressAndProcessRecords(final byte[] compressed, Consumer<String> firstRecordProcessor,
                                                 Consumer<String[]> remainingRecordProcessor){
@@ -198,7 +182,7 @@ public class SnapshotImporter {
         try {
             final MessageDigest digest = MessageDigest.getInstance("SHA-256");
             final byte[] encodedSha256hex = digest.digest(bytes);
-            return byteArrayToHexString(encodedSha256hex);
+            return encodeHexString(encodedSha256hex);
         } catch (final NoSuchAlgorithmException e) {
             throw new RuntimeException(e);
         }
