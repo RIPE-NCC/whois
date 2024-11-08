@@ -108,7 +108,7 @@ class GrsSourceImporter {
 
             final Path irrDump = downloadDir.resolve(String.format("%s-IRR-DMP", grsSource.getName().toUpperCase()));
             try {
-                grsSource.acquireIrrDump(dump);
+                grsSource.acquireIrrDump(irrDump);
             } catch (IOException e) {
                 throw new RuntimeException("Unable to acquire IRR dump", e);
             }
