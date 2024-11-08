@@ -2,7 +2,7 @@ package net.ripe.db.nrtm4.client.dao;
 
 import net.ripe.db.nrtm4.client.condition.Nrtm4ClientCondition;
 import net.ripe.db.whois.common.DateTimeProvider;
-import net.ripe.db.whois.common.dao.jdbc.JdbcRpslObjectOperations;
+import net.ripe.db.whois.common.dao.RpslObjectUpdateInfo;
 import net.ripe.db.whois.common.rpsl.RpslObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -12,8 +12,10 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
 
 import javax.sql.DataSource;
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
+import java.util.List;
+
+import static net.ripe.db.whois.common.dao.jdbc.JdbcRpslObjectOperations.insertIntoLastAndUpdateSerials;
+import static net.ripe.db.whois.common.dao.jdbc.JdbcRpslObjectOperations.insertIntoTablesIgnoreMissing;
 
 @Repository
 @Conditional(Nrtm4ClientCondition.class)
@@ -34,25 +36,28 @@ public class Nrtm4ClientRepository {
     }
 
     public void truncateTables(){
-        jdbcMasterTemplate.update("TRUNCATE last");
+        jdbcMasterTemplate.execute("SET FOREIGN_KEY_CHECKS = 0");
+
+        final String databaseName = jdbcSlaveTemplate.queryForObject("SELECT DATABASE()", String.class);
+
+        final List<String> tables = jdbcSlaveTemplate.queryForList(
+                "SELECT table_name FROM information_schema.tables WHERE table_schema = ?",
+                String.class,
+                databaseName
+        );
+
+        tables.forEach(table -> jdbcMasterTemplate.execute("TRUNCATE TABLE " + table));
+
+        jdbcMasterTemplate.execute("SET FOREIGN_KEY_CHECKS = 1");
+
     }
 
-    public void persistRpslObject(final RpslObject rpslObject){
-        try {
-            final long now = JdbcRpslObjectOperations.now(dateTimeProvider);
-            jdbcMasterTemplate.update("INSERT INTO last (object, object_type, pkey, timestamp) VALUES (?, ?, ?, ?)",
-                    getRpslObjectBytes(rpslObject),
-                    rpslObject.getType().getName(),
-                    rpslObject.getKey().toString(),
-                    now);
-        } catch (IOException e) {
-            LOGGER.error("unable to get the bytes of the object {}", rpslObject.getKey(), e);
-        }
+    public RpslObjectUpdateInfo persistRpslObject(final RpslObject rpslObject){
+        return insertIntoLastAndUpdateSerials(dateTimeProvider, jdbcMasterTemplate, rpslObject);
     }
 
-    private static byte[] getRpslObjectBytes(final RpslObject rpslObject) throws IOException {
-        final ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
-        rpslObject.writeTo(byteArrayOutputStream);
-        return byteArrayOutputStream.toByteArray();
+    public void createIndexes(final RpslObject rpslObject, final RpslObjectUpdateInfo rpslObjectUpdateInfo){
+        //Using IgnoreMissing because of the order, RpslObjects are not coming in order from NRTMv4
+        insertIntoTablesIgnoreMissing(jdbcMasterTemplate, rpslObjectUpdateInfo, rpslObject);
     }
 }

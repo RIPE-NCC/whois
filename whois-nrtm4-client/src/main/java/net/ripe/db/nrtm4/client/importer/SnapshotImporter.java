@@ -3,12 +3,15 @@ package net.ripe.db.nrtm4.client.importer;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.base.Stopwatch;
+import com.google.common.collect.Maps;
 import net.ripe.db.nrtm4.client.client.MirrorRpslObject;
 import net.ripe.db.nrtm4.client.client.NrtmRestClient;
 import net.ripe.db.nrtm4.client.client.UpdateNotificationFileResponse;
 import net.ripe.db.nrtm4.client.condition.Nrtm4ClientCondition;
 import net.ripe.db.nrtm4.client.dao.Nrtm4ClientInfoRepository;
 import net.ripe.db.nrtm4.client.dao.Nrtm4ClientRepository;
+import net.ripe.db.whois.common.dao.RpslObjectUpdateInfo;
+import net.ripe.db.whois.common.rpsl.RpslObject;
 import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -18,9 +21,12 @@ import org.springframework.stereotype.Service;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.Arrays;
+import java.util.Map;
 import java.util.Timer;
 import java.util.TimerTask;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.atomic.AtomicReference;
+import java.util.stream.Collectors;
 
 import static org.apache.commons.codec.binary.Hex.encodeHexString;
 
@@ -45,50 +51,64 @@ public class SnapshotImporter {
         this.nrtm4ClientRepository  = nrtm4ClientRepository;
     }
 
-    public void initializeNRTMClientForSource(final String source,
-                                              final UpdateNotificationFileResponse updateNotificationFile,
-                                              final String serviceName){
+    public void truncateTables(){
         nrtm4ClientInfoMirrorDao.truncateTables();
         nrtm4ClientRepository.truncateTables();
-        nrtm4ClientInfoMirrorDao.saveUpdateNotificationFileVersion(source, updateNotificationFile.getVersion(),
-                updateNotificationFile.getSessionID(), serviceName);
-        importSnapshot(source, updateNotificationFile);
     }
 
-    public void importSnapshot(final String source, final UpdateNotificationFileResponse updateNotificationFile){
+    public Map<RpslObject, RpslObjectUpdateInfo> importSnapshot(final String source, final UpdateNotificationFileResponse updateNotificationFile){
         final Stopwatch stopwatch = Stopwatch.createStarted();
         final UpdateNotificationFileResponse.NrtmFileLink snapshot = updateNotificationFile.getSnapshot();
 
         if (snapshot == null){
             LOGGER.error("Snapshot cannot be null in the notification file");
-            return;
+            return Maps.newHashMap();
         }
 
         final byte[] payload = nrtmRestClient.getSnapshotFile(snapshot.getUrl());
 
         if (!snapshot.getHash().equals(calculateSha256(payload))){
             LOGGER.error("Snapshot hash doesn't match, skipping import");
-            return;
+            return Maps.newHashMap();
         }
 
         final AtomicInteger processedCount = new AtomicInteger(0);
         final Timer timer = new Timer();
         printProgress(timer, processedCount);
 
+        final AtomicReference<Map<RpslObject, RpslObjectUpdateInfo>> persistedRpslObjects = new AtomicReference<>();
         GzipDecompressor.decompressRecords(
                 payload,
                 firstRecord -> processMetadata(source, updateNotificationFile, firstRecord),
-                recordBatches -> persistBatches(recordBatches, processedCount)
+                recordBatches -> {
+                    final Map<RpslObject, RpslObjectUpdateInfo> persistedRpslObject = persistBatches(recordBatches,
+                            processedCount);
+                    persistedRpslObjects.set(persistedRpslObject);
+                }
         );
 
         timer.cancel();
         stopwatch.stop();
         LOGGER.info("Loading snapshot file took {} for source {} and added", stopwatch.elapsed().toMillis(), source);
+        return persistedRpslObjects.get();
     }
 
-    private void processObject(final String record) throws JsonProcessingException {
+    public void createIndexes(final Map<RpslObject, RpslObjectUpdateInfo> persistedRpslObjects) {
+        persistedRpslObjects
+                .entrySet()
+                .stream()
+                .parallel()
+                .forEach(persistedObjectObject -> nrtm4ClientRepository.createIndexes(persistedObjectObject.getKey(),
+                        persistedObjectObject.getValue()));
+    }
+
+    public Map.Entry<RpslObject, RpslObjectUpdateInfo> persistDummyObject(){
+        return Map.entry(getPlaceholderPersonObject(), nrtm4ClientRepository.persistRpslObject(getPlaceholderPersonObject()));
+    }
+
+    public Map.Entry<RpslObject, RpslObjectUpdateInfo> processObject(final String record) throws JsonProcessingException {
         final MirrorRpslObject mirrorRpslObject = new ObjectMapper().readValue(record, MirrorRpslObject.class);
-        nrtm4ClientRepository.persistRpslObject(mirrorRpslObject.getObject());
+        return Map.entry(mirrorRpslObject.getObject(), nrtm4ClientRepository.persistRpslObject(mirrorRpslObject.getObject()));
     }
 
     private void printProgress(final Timer timer, final AtomicInteger processedCount) {
@@ -110,18 +130,46 @@ public class SnapshotImporter {
         }
     }
 
-    private void persistBatches(String[] remainingRecords, AtomicInteger processedCount) {
-        Arrays.stream(remainingRecords).parallel().forEach(record -> {
-            try {
-                processObject(record);
-            } catch (JsonProcessingException e) {
-                LOGGER.error("Unable to parse record {}", record, e);
-                throw new IllegalStateException(e);
-            }
-        });
-        processedCount.addAndGet(remainingRecords.length);
+    private Map<RpslObject, RpslObjectUpdateInfo> persistBatches(final String[] remainingRecords,
+                                                                 final AtomicInteger processedCount) {
+        // Duplicated object_id are created if parallelizing
+        return Arrays.stream(remainingRecords)
+                .map(record -> {
+                    try {
+                        return processObject(record);
+                    } catch (JsonProcessingException e) {
+                        LOGGER.error("Unable to parse record {}", record, e);
+                        throw new IllegalStateException(e);
+                    }
+                })
+                .peek(entry -> processedCount.incrementAndGet())
+                .collect(Collectors.toMap(
+                    Map.Entry::getKey,
+                    Map.Entry::getValue
+                ));
     }
 
+    public static RpslObject getPlaceholderPersonObject() {
+        return RpslObject.parse("" +
+                "person:         Placeholder Person Object\n" +
+                "address:        RIPE Network Coordination Centre\n" +
+                "address:        P.O. Box 10096\n" +
+                "address:        1001 EB Amsterdam\n" +
+                "address:        The Netherlands\n" +
+                "phone:          +31 20 535 4444\n" +
+                "nic-hdl:        DUMY-RIPE\n" +
+                "mnt-by:         RIPE-DBM-MNT\n" +
+                "remarks:        **********************************************************\n" +
+                "remarks:        * This is a placeholder object to protect personal data.\n" +
+                "remarks:        * To view the original object, please query the RIPE\n" +
+                "remarks:        * Database at:\n" +
+                "remarks:        * http://www.ripe.net/whois\n" +
+                "remarks:        **********************************************************\n" +
+                "created:        2009-07-24T17:00:00Z\n" +
+                "last-modified:  2009-07-24T17:00:00Z\n" +
+                "source:         RIPE"
+        );
+    }
     private void processMetadata(String source, UpdateNotificationFileResponse updateNotificationFile, String firstRecord) {
         final JSONObject jsonObject = new JSONObject(firstRecord);
         final int version = jsonObject.getInt("version");

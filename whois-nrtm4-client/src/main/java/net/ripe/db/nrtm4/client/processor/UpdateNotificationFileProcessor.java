@@ -6,13 +6,16 @@ import net.ripe.db.nrtm4.client.condition.Nrtm4ClientCondition;
 import net.ripe.db.nrtm4.client.dao.Nrtm4ClientInfoRepository;
 import net.ripe.db.nrtm4.client.dao.NrtmClientVersionInfo;
 import net.ripe.db.nrtm4.client.importer.SnapshotImporter;
+import net.ripe.db.whois.common.dao.RpslObjectUpdateInfo;
 import net.ripe.db.whois.common.domain.Hosts;
+import net.ripe.db.whois.common.rpsl.RpslObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.annotation.Conditional;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -53,8 +56,10 @@ public class UpdateNotificationFileProcessor {
 
         final String hostname = Hosts.getInstanceName();
 
+        final Map<RpslObject, RpslObjectUpdateInfo> persistedRpslObjects = new HashMap<>();
+
         notificationFilePerSource.forEach((source, updateNotificationFile) -> {
-            final NrtmClientVersionInfo nrtmClientLastVersionInfo = nrtmLastVersionInfoPerSource
+            NrtmClientVersionInfo nrtmClientLastVersionInfo = nrtmLastVersionInfoPerSource
                     .stream()
                     .filter(nrtmVersionInfo -> nrtmVersionInfo.source() != null && nrtmVersionInfo.source().equals(source))
                     .findFirst()
@@ -62,20 +67,20 @@ public class UpdateNotificationFileProcessor {
 
             if (nrtmClientLastVersionInfo != null && !nrtmClientLastVersionInfo.hostname().equals(hostname)){
                 LOGGER.info("Different host");
-                snapshotImporter.initializeNRTMClientForSource(source, updateNotificationFile, hostname);
-                return;
+                snapshotImporter.truncateTables();
+                nrtmClientLastVersionInfo = null;
             }
 
             if (nrtmClientLastVersionInfo != null && !nrtmClientLastVersionInfo.sessionID().equals(updateNotificationFile.getSessionID())){
                 LOGGER.info("Different session");
-                snapshotImporter.initializeNRTMClientForSource(source, updateNotificationFile, hostname);
-                return;
+                snapshotImporter.truncateTables();
+                nrtmClientLastVersionInfo = null;
             }
 
             if (nrtmClientLastVersionInfo != null && nrtmClientLastVersionInfo.version() > updateNotificationFile.getVersion()){
                 LOGGER.info("The local version cannot be higher than the update notification version {}", source);
-                snapshotImporter.initializeNRTMClientForSource(source, updateNotificationFile, hostname);
-                return;
+                snapshotImporter.truncateTables();
+                nrtmClientLastVersionInfo = null;
             }
 
             if (nrtmClientLastVersionInfo != null && nrtmClientLastVersionInfo.version().equals(updateNotificationFile.getVersion())){
@@ -88,9 +93,19 @@ public class UpdateNotificationFileProcessor {
 
             if (nrtmClientLastVersionInfo == null){
                 LOGGER.info("There is no existing Snapshot for the source {}", source);
-                snapshotImporter.importSnapshot(source, updateNotificationFile);
+                persistedRpslObjects.putAll(snapshotImporter.importSnapshot(source, updateNotificationFile));
             }
         });
+
+        if (!persistedRpslObjects.isEmpty()){
+            createIndexesAndDummyPerson(persistedRpslObjects);
+        }
+    }
+
+    private void createIndexesAndDummyPerson(final Map<RpslObject, RpslObjectUpdateInfo> persistedRpslObjects) {
+        final Map.Entry<RpslObject, RpslObjectUpdateInfo> persistDummyObject = snapshotImporter.persistDummyObject();
+        persistedRpslObjects.put(persistDummyObject.getKey(), persistDummyObject.getValue());
+        snapshotImporter.createIndexes(persistedRpslObjects);
     }
 
 }

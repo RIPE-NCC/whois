@@ -58,8 +58,8 @@ public class Nrtm4ClientInfoRepository {
                         rs.getLong(3),
                         rs.getString(4),
                         NrtmClientDocumentType.fromValue(rs.getString(5)),
-                        rs.getString(5),
-                        rs.getLong(6)
+                        rs.getString(6),
+                        rs.getLong(7)
                         ));
     }
 
@@ -74,11 +74,13 @@ public class Nrtm4ClientInfoRepository {
             final String serviceName,
             final NrtmClientDocumentType type) {
         final long now = JdbcRpslObjectOperations.now(dateTimeProvider);
-        jdbcMasterTemplate.update("INSERT INTO version_info (source, version, session_id, type, created) VALUES (?, ?, ?, ?, ?)",
+        jdbcMasterTemplate.update("INSERT INTO version_info (source, version, session_id, type, hostname, created) " +
+                        "VALUES (?, ?, ?, ?, ?, ?)",
                 source,
                 version,
                 sessionID,
                 type.getFileNamePrefix(),
+                serviceName,
                 now);
     }
 }
