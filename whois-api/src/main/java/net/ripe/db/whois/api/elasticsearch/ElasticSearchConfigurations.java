@@ -49,6 +49,9 @@ public class ElasticSearchConfigurations {
                         .field("split_on_case_change", false)
                     .endObject()
                 .endObject()
+                .startObject("persistent")
+                    .field("logger.deprecation", "ERROR")
+                .endObject()
         .endObject().endObject();
 
         return indexSettings;
