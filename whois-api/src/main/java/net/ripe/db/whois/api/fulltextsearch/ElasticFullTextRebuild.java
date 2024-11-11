@@ -64,17 +64,20 @@ public class ElasticFullTextRebuild {
     private final NamedParameterJdbcTemplate namedParameterJdbcTemplate;
     private final String source;
     private final List<String> elasticHosts;
+    private final String logLevel;
 
     @Autowired
     public ElasticFullTextRebuild(final ElasticIndexService elasticIndexService,
                                   @Value("#{'${elastic.host:}'.split(',')}") final List<String> elasticHosts,
                                   @Qualifier("whoisSlaveDataSource") final DataSource dataSource,
-                                  @Value("${whois.source}") final String source) {
+                                  @Value("${whois.source}") final String source,
+                                  @Value("${elastic.log.level:DEBUG}") final String logLevel) {
         this.elasticIndexService = elasticIndexService;
         this.jdbcTemplate = new JdbcTemplate(dataSource);
         this.source = source;
         this.elasticHosts = elasticHosts;
         this.namedParameterJdbcTemplate = new NamedParameterJdbcTemplate(jdbcTemplate);
+        this.logLevel = logLevel;
     }
 
     public void run() throws IOException {
@@ -179,7 +182,7 @@ public class ElasticFullTextRebuild {
 
         final ClusterUpdateSettingsRequest clusterUpdateSettingsRequest = new ClusterUpdateSettingsRequest();
         Settings persistentSettings = Settings.builder()
-                .put("logger.deprecation.level", "ERROR")
+                .put("logger.deprecation.level", logLevel)
                 .build();
         clusterUpdateSettingsRequest.persistentSettings(persistentSettings);
         elasticIndexService.getClient().cluster().putSettings(clusterUpdateSettingsRequest, RequestOptions.DEFAULT);
