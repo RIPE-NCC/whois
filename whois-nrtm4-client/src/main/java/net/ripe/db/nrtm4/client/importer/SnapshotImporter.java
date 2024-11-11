@@ -1,10 +1,8 @@
 package net.ripe.db.nrtm4.client.importer;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.base.Stopwatch;
 import com.google.common.collect.Maps;
-import net.ripe.db.nrtm4.client.client.MirrorRpslObject;
 import net.ripe.db.nrtm4.client.client.NrtmRestClient;
 import net.ripe.db.nrtm4.client.client.UpdateNotificationFileResponse;
 import net.ripe.db.nrtm4.client.condition.Nrtm4ClientCondition;
@@ -90,6 +88,7 @@ public class SnapshotImporter {
         timer.cancel();
         stopwatch.stop();
         LOGGER.info("Loading snapshot file took {} for source {} and added", stopwatch.elapsed().toMillis(), source);
+
         return persistedRpslObjects.get();
     }
 
@@ -104,11 +103,6 @@ public class SnapshotImporter {
 
     public Map.Entry<RpslObject, RpslObjectUpdateInfo> persistDummyObject(){
         return Map.entry(getPlaceholderPersonObject(), nrtm4ClientRepository.persistRpslObject(getPlaceholderPersonObject()));
-    }
-
-    public Map.Entry<RpslObject, RpslObjectUpdateInfo> processObject(final String record) throws JsonProcessingException {
-        final MirrorRpslObject mirrorRpslObject = new ObjectMapper().readValue(record, MirrorRpslObject.class);
-        return Map.entry(mirrorRpslObject.getObject(), nrtm4ClientRepository.persistRpslObject(mirrorRpslObject.getObject()));
     }
 
     private void printProgress(final Timer timer, final AtomicInteger processedCount) {
@@ -132,11 +126,11 @@ public class SnapshotImporter {
 
     private Map<RpslObject, RpslObjectUpdateInfo> persistBatches(final String[] remainingRecords,
                                                                  final AtomicInteger processedCount) {
-        // Duplicated object_id are created if parallelizing
         return Arrays.stream(remainingRecords)
+                .parallel()
                 .map(record -> {
                     try {
-                        return processObject(record);
+                        return nrtm4ClientRepository.processObject(record);
                     } catch (JsonProcessingException e) {
                         LOGGER.error("Unable to parse record {}", record, e);
                         throw new IllegalStateException(e);

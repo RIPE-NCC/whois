@@ -1,5 +1,8 @@
 package net.ripe.db.nrtm4.client.dao;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import net.ripe.db.nrtm4.client.client.MirrorRpslObject;
 import net.ripe.db.nrtm4.client.condition.Nrtm4ClientCondition;
 import net.ripe.db.whois.common.DateTimeProvider;
 import net.ripe.db.whois.common.dao.RpslObjectUpdateInfo;
@@ -10,9 +13,12 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Conditional;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
 
 import javax.sql.DataSource;
 import java.util.List;
+import java.util.Map;
 
 import static net.ripe.db.whois.common.dao.jdbc.JdbcRpslObjectOperations.insertIntoLastAndUpdateSerials;
 import static net.ripe.db.whois.common.dao.jdbc.JdbcRpslObjectOperations.insertIntoTablesIgnoreMissing;
@@ -59,5 +65,11 @@ public class Nrtm4ClientRepository {
     public void createIndexes(final RpslObject rpslObject, final RpslObjectUpdateInfo rpslObjectUpdateInfo){
         //Using IgnoreMissing because of the order, RpslObjects are not coming in order from NRTMv4
         insertIntoTablesIgnoreMissing(jdbcMasterTemplate, rpslObjectUpdateInfo, rpslObject);
+    }
+
+    @Transactional(propagation = Propagation.REQUIRES_NEW)
+    public Map.Entry<RpslObject, RpslObjectUpdateInfo> processObject(final String record) throws JsonProcessingException {
+        final MirrorRpslObject mirrorRpslObject = new ObjectMapper().readValue(record, MirrorRpslObject.class);
+        return Map.entry(mirrorRpslObject.getObject(), persistRpslObject(mirrorRpslObject.getObject()));
     }
 }
