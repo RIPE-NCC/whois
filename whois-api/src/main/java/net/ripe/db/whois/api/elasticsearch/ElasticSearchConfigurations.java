@@ -14,7 +14,7 @@ public class ElasticSearchConfigurations {
         final XContentBuilder indexSettings =  XContentFactory.jsonBuilder();
         indexSettings.startObject()
                 .startObject("index")
-                    .field("number_of_replicas", nodes == 1 ? 1 : nodes-1)
+                    .field("number_of_replicas", nodes-1)
                     .field("auto_expand_replicas", false)
                     .field("max_result_window", 100000)
                 .endObject()
