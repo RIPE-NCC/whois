@@ -13,9 +13,6 @@ public class ElasticSearchConfigurations {
 
         final XContentBuilder indexSettings =  XContentFactory.jsonBuilder();
         indexSettings.startObject()
-                .startObject("persistent")
-                    .field("logger.deprecation", "ERROR")
-                .endObject()
                 .startObject("index")
                     .field("number_of_replicas", nodes == 1 ? 1 : nodes-1)
                     .field("auto_expand_replicas", false)
