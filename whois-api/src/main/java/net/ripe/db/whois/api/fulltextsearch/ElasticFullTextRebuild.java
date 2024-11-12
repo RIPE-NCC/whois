@@ -8,7 +8,6 @@ import net.ripe.db.whois.api.elasticsearch.ElasticIndexService;
 import net.ripe.db.whois.common.dao.jdbc.JdbcRpslObjectOperations;
 import net.ripe.db.whois.common.domain.CIString;
 import net.ripe.db.whois.common.rpsl.RpslObject;
-import org.elasticsearch.action.admin.cluster.settings.ClusterUpdateSettingsRequest;
 import org.elasticsearch.action.admin.indices.alias.IndicesAliasesRequest;
 import org.elasticsearch.action.admin.indices.delete.DeleteIndexRequest;
 import org.elasticsearch.action.admin.indices.settings.put.UpdateSettingsRequest;
@@ -21,7 +20,6 @@ import org.elasticsearch.client.RestHighLevelClient;
 import org.elasticsearch.client.indices.CreateIndexRequest;
 import org.elasticsearch.client.indices.GetIndexRequest;
 import org.elasticsearch.client.indices.GetIndexResponse;
-import org.elasticsearch.common.settings.Settings;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -64,20 +62,17 @@ public class ElasticFullTextRebuild {
     private final NamedParameterJdbcTemplate namedParameterJdbcTemplate;
     private final String source;
     private final List<String> elasticHosts;
-    private final String logLevel;
 
     @Autowired
     public ElasticFullTextRebuild(final ElasticIndexService elasticIndexService,
                                   @Value("#{'${elastic.host:}'.split(',')}") final List<String> elasticHosts,
                                   @Qualifier("whoisSlaveDataSource") final DataSource dataSource,
-                                  @Value("${whois.source}") final String source,
-                                  @Value("${elastic.deprecation.log.level:DEBUG}") final String logLevel) {
+                                  @Value("${whois.source}") final String source) {
         this.elasticIndexService = elasticIndexService;
         this.jdbcTemplate = new JdbcTemplate(dataSource);
         this.source = source;
         this.elasticHosts = elasticHosts;
         this.namedParameterJdbcTemplate = new NamedParameterJdbcTemplate(jdbcTemplate);
-        this.logLevel = logLevel;
     }
 
     public void run() throws IOException {
@@ -179,13 +174,6 @@ public class ElasticFullTextRebuild {
         request.mapping(getMappings());
 
         elasticIndexService.getClient().indices().create(request, RequestOptions.DEFAULT);
-
-        final ClusterUpdateSettingsRequest clusterUpdateSettingsRequest = new ClusterUpdateSettingsRequest();
-        Settings persistentSettings = Settings.builder()
-                .put("logger.deprecation.level", logLevel)
-                .build();
-        clusterUpdateSettingsRequest.persistentSettings(persistentSettings);
-        elasticIndexService.getClient().cluster().putSettings(clusterUpdateSettingsRequest, RequestOptions.DEFAULT);
     }
 
     private void setNewIndexAsWhoisAlias(final String indexName) {
