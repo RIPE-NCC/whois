@@ -76,7 +76,8 @@ public class SnapshotImporter {
 
         timer.cancel();
         stopwatch.stop();
-        LOGGER.info("Loading snapshot file took {} for source {} and added", stopwatch.elapsed().toMillis(), source);
+        LOGGER.info("Loading snapshot file took {} for source {} and added {} records", stopwatch.elapsed().toMillis(),
+                source, processedCount);
     }
 
     private void processObject(final String record) throws JsonProcessingException {
