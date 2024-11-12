@@ -71,7 +71,7 @@ public class ElasticFullTextRebuild {
                                   @Value("#{'${elastic.host:}'.split(',')}") final List<String> elasticHosts,
                                   @Qualifier("whoisSlaveDataSource") final DataSource dataSource,
                                   @Value("${whois.source}") final String source,
-                                  @Value("${elastic.log.level:DEBUG}") final String logLevel) {
+                                  @Value("${elastic.deprecation.log.level:DEBUG}") final String logLevel) {
         this.elasticIndexService = elasticIndexService;
         this.jdbcTemplate = new JdbcTemplate(dataSource);
         this.source = source;
