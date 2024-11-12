@@ -41,9 +41,11 @@ public class SnapshotImporter {
     }
 
     public void initializeNRTMClientForSource(final String source, final UpdateNotificationFileResponse updateNotificationFile){
-        nrtm4ClientMirrorDao.truncateTables();
+        // TODO: Truncate tables and start snapshot from scratch
+        LOGGER.info("Should initialise snapshot");
+        /*nrtm4ClientMirrorDao.truncateTables();
         nrtm4ClientMirrorDao.saveUpdateNotificationFileVersion(source, updateNotificationFile.getVersion(), updateNotificationFile.getSessionID());
-        importSnapshot(source, updateNotificationFile);
+        importSnapshot(source, updateNotificationFile);*/
     }
 
     public void importSnapshot(final String source, final UpdateNotificationFileResponse updateNotificationFile){
