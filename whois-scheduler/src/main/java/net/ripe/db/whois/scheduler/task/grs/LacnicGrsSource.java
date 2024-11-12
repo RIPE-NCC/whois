@@ -48,10 +48,8 @@ class LacnicGrsSource extends GrsSource {
 
     private final String userId;
     private final String password;
-
     private final String irrDownload;
-
-    private Client client;
+    private final Client client;
 
     @Autowired
     LacnicGrsSource(
