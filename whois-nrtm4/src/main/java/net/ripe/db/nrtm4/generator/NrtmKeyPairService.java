@@ -2,8 +2,8 @@ package net.ripe.db.nrtm4.generator;
 
 import com.nimbusds.jose.JOSEException;
 import com.nimbusds.jose.jwk.Curve;
-import com.nimbusds.jose.jwk.ECKey;
-import com.nimbusds.jose.jwk.gen.ECKeyGenerator;
+import com.nimbusds.jose.jwk.OctetKeyPair;
+import com.nimbusds.jose.jwk.gen.OctetKeyPairGenerator;
 import net.ripe.db.nrtm4.dao.NrtmKeyConfigDao;
 import net.ripe.db.nrtm4.dao.UpdateNrtmFileRepository;
 import net.ripe.db.nrtm4.domain.NrtmKeyRecord;
@@ -24,7 +24,7 @@ import java.util.UUID;
 public class NrtmKeyPairService {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(NrtmKeyPairService.class);
-    final String PEM_FORMAT_KEY = "-----BEGIN PUBLIC KEY-----\n%s\n-----END PUBLIC KEY-----";
+    final String PEM_FORMAT_KEY = "-----BEGIN PUBLIC KEY-----" + System.lineSeparator() + "%s" + System.lineSeparator() + "-----END PUBLIC KEY-----";
 
 
     private final NrtmKeyConfigDao nrtmKeyConfigDao;
@@ -48,10 +48,10 @@ public class NrtmKeyPairService {
 
     public NrtmKeyRecord generateKeyRecord(final boolean isActive) {
         try {
-            final ECKey ecJWK = new ECKeyGenerator(Curve.P_256).keyID(UUID.randomUUID().toString()).generate();
+           final OctetKeyPair jwk = new OctetKeyPairGenerator(Curve.Ed25519).keyID(UUID.randomUUID().toString()).generate();
 
-            final byte[] privateKey = ecJWK.toJSONString().getBytes();
-            final byte[] publicKey = ecJWK.toECPublicKey().getEncoded();
+            final byte[] privateKey = jwk.toJSONString().getBytes();
+            final byte[] publicKey = jwk.toPublicJWK().toJSONString().getBytes();
 
             byte[] publicKeyinPemBytes = String.format(PEM_FORMAT_KEY, new String(Base64.getEncoder().encode(publicKey))).getBytes();
 

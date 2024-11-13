@@ -7,10 +7,11 @@ import com.nimbusds.jose.JWSObject;
 import com.nimbusds.jose.JWSSigner;
 import com.nimbusds.jose.JWSVerifier;
 import com.nimbusds.jose.Payload;
-import com.nimbusds.jose.crypto.ECDSASigner;
-import com.nimbusds.jose.crypto.ECDSAVerifier;
-import com.nimbusds.jose.jwk.ECKey;
+import com.nimbusds.jose.crypto.Ed25519Signer;
+import com.nimbusds.jose.crypto.Ed25519Verifier;
 import com.nimbusds.jose.jwk.JWK;
+import com.nimbusds.jose.jwk.OctetKeyPair;
+import org.apache.commons.codec.binary.Base64;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -21,11 +22,11 @@ public class JWSUtil {
 
     public static String signWithJWS(final String payload, final byte[] privateKey)  {
         try {
-            final ECKey ecJWK = ECKey.parse(new String(privateKey));
-            final JWSSigner signer = new ECDSASigner(ecJWK);
+            final OctetKeyPair jwk = OctetKeyPair.parse(new String(privateKey));
+            final JWSSigner signer = new Ed25519Signer(jwk);
 
             final JWSObject jwsObject = new JWSObject(
-                    new JWSHeader.Builder(JWSAlgorithm.ES256).keyID(ecJWK.getKeyID()).build(),
+                    new JWSHeader.Builder(JWSAlgorithm.Ed25519).keyID(jwk.getKeyID()).build(),
                     new Payload(payload));
 
             jwsObject.sign(signer);
@@ -40,17 +41,22 @@ public class JWSUtil {
     public static boolean verifySignature(final JWSObject jwsObjectParsed, final byte[] publicKey) {
 
         try {
-            final ECKey parsedFromPemPublicKey =  JWK.parseFromPEMEncodedObjects(getPublicKey(publicKey)).toECKey();
+            final String publicinPem = getPublicKeyinPemString(publicKey)
+                    .replace("-----BEGIN PUBLIC KEY-----", "")
+                    .replaceAll(System.lineSeparator(), "")
+                    .replace("-----END PUBLIC KEY-----", "");
 
-            final JWSVerifier verifier = new ECDSAVerifier(parsedFromPemPublicKey);
+            final OctetKeyPair parsedFromPemPublicKey =  JWK.parse(new String(Base64.decodeBase64(publicinPem))).toOctetKeyPair();
+
+            final JWSVerifier verifier = new Ed25519Verifier(parsedFromPemPublicKey);
             return jwsObjectParsed.verify(verifier);
-        } catch (JOSEException ex) {
+        } catch (JOSEException | ParseException ex) {
             LOGGER.error("failed to verify signature {}", ex.getMessage());
             throw new IllegalStateException("failed to sign contents of file");
         }
     }
 
-    public static String getPublicKey(final byte[] publicKey) {
+    public static String getPublicKeyinPemString(final byte[] publicKey) {
         return new String(publicKey);
     }
 }
