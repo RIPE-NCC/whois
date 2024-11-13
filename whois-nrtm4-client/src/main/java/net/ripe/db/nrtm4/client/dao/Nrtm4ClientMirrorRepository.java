@@ -3,6 +3,8 @@ package net.ripe.db.nrtm4.client.dao;
 import net.ripe.db.nrtm4.client.condition.Nrtm4ClientCondition;
 import net.ripe.db.whois.common.DateTimeProvider;
 import net.ripe.db.whois.common.dao.jdbc.JdbcRpslObjectOperations;
+import net.ripe.db.whois.common.dao.jdbc.domain.ObjectTypeIds;
+import net.ripe.db.whois.common.rpsl.ObjectType;
 import net.ripe.db.whois.common.rpsl.RpslObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -69,7 +71,7 @@ public class Nrtm4ClientMirrorRepository {
             final long now = JdbcRpslObjectOperations.now(dateTimeProvider);
             jdbcMasterTemplate.update("INSERT INTO last_mirror (object, object_type, pkey, timestamp) VALUES (?, ?, ?, ?)",
                     getRpslObjectBytes(rpslObject),
-                    rpslObject.getType().getName(),
+                    ObjectTypeIds.getId(rpslObject.getType()),
                     rpslObject.getKey().toString(),
                     now);
         } catch (IOException e) {

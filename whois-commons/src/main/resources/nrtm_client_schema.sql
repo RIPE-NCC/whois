@@ -59,7 +59,7 @@ CREATE TABLE `last_mirror`
     `object_id` int(10) unsigned NOT NULL AUTO_INCREMENT,
     `sequence_id` int(10) unsigned NOT NULL DEFAULT '1',
     `timestamp` int(10) unsigned NOT NULL DEFAULT '0',
-    `object_type` varchar(254) NOT NULL DEFAULT '0',
+    `object_type` tinyint(3) unsigned NOT NULL DEFAULT '0',
     `object` longblob NOT NULL,
     `pkey` varchar(254) NOT NULL DEFAULT '',
     PRIMARY KEY (`object_id`,`sequence_id`),
