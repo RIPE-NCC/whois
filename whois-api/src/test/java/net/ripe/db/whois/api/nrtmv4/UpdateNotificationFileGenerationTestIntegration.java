@@ -253,8 +253,8 @@ public class UpdateNotificationFileGenerationTestIntegration extends AbstractNrt
         final UpdateNotificationFile firstIteration = getNotificationFileBySource("TEST");
 
         assertThat(firstIteration.getDeltas().size(), is(1));
-        assertThat(firstIteration.getDeltas().get(0).getUrl(), containsString("https"));
-        assertThat(firstIteration.getSnapshot().getUrl(), containsString("https"));
+        assertThat(firstIteration.getDeltas().get(0).getUrl(), containsString("nrtm-delta"));
+        assertThat(firstIteration.getSnapshot().getUrl(), containsString("nrtm-snapshot"));
     }
 
     @Test
