@@ -11,12 +11,17 @@ import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.test.context.ContextConfiguration;
 
+import javax.sql.DataSource;
 import java.util.List;
 
 @ContextConfiguration(locations = {"classpath:applicationContext-nrtm4-client-test.xml"})
 public class AbstractNrtmClientIntegrationTest extends AbstractDatabaseHelperIntegrationTest {
+
+    protected JdbcTemplate nrtmClientTemplate;
 
     @Autowired
     protected Nrtm4ClientMirrorRepository nrtm4ClientMirrorRepository;
@@ -26,6 +31,13 @@ public class AbstractNrtmClientIntegrationTest extends AbstractDatabaseHelperInt
 
     @Autowired
     protected NrtmServerDummy nrtmServerDummy;
+
+
+    @Autowired(required = false)
+    @Qualifier("nrtmClientMasterDataSource")
+    public void setNrtmClientMasterDataSource(DataSource dataSource) {
+        nrtmClientTemplate = new JdbcTemplate(dataSource);
+    }
 
     @BeforeEach
     public void reset(){
