@@ -221,7 +221,7 @@ public abstract class AbstractNrtmIntegrationTest extends AbstractIntegrationTes
                 "/update-notification-file.json", MediaType.APPLICATION_JSON).readEntity(UpdateNotificationFile.class);
 
         final String response = getResponseFromHttpsRequest(sourceName + "/" + getDeltaNameFromUpdateNotification(updateNotificationResponse, deltaPosition), "application/json-seq").readEntity(String.class);
-        return StringUtils.split( response, NrtmFileUtil.RECORD_SEPARATOR);
+        return StringUtils.split( response, NrtmFileUtil.RECORD_SEPERATOR);
     }
 
     protected String getDeltaNameFromUpdateNotification(final UpdateNotificationFile notificationFile, final int deltaPosition) {
