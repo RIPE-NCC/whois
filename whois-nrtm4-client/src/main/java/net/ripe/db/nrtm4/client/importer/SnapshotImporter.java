@@ -10,6 +10,7 @@ import net.ripe.db.nrtm4.client.dao.Nrtm4ClientInfoRepository;
 import net.ripe.db.nrtm4.client.dao.Nrtm4ClientRepository;
 import net.ripe.db.whois.common.dao.RpslObjectUpdateInfo;
 import net.ripe.db.whois.common.rpsl.RpslObject;
+
 import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -167,6 +168,7 @@ public class SnapshotImporter {
                 "source:         RIPE"
         );
     }
+
     private void processMetadata(String source, UpdateNotificationFileResponse updateNotificationFile, String firstRecord) {
         final JSONObject jsonObject = new JSONObject(firstRecord);
         final int version = jsonObject.getInt("version");

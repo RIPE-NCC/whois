@@ -37,7 +37,6 @@ public class UpdateNotificationFileProcessorTestIntegration extends AbstractNrtm
     @Test
     public void first_UNF_then_snapshot_persisted(){
         updateNotificationFileProcessor.processFile();
-
         final List<NrtmClientVersionInfo> versionInfosPerSource = nrtm4ClientInfoRepository.getNrtmLastVersionInfoForUpdateNotificationFile();
         assertThat(versionInfosPerSource.size(), is(2));
 
