@@ -174,7 +174,7 @@ public class DatabaseHelper implements EmbeddedValueResolverAware {
         setupDatabase(jdbcTemplate, "internals.database", "INTERNALS", "internals_schema.sql", "internals_data.sql");
         setupDatabase(jdbcTemplate, "nrtm.database", "NRTM", "nrtm_schema.sql", "nrtm_data.sql");
         setupDatabase(jdbcTemplate, "nrtm.client.info.database", "NRTM_CLIENT", "nrtm_client_schema.sql", "nrtm_client_data.sql");
-        setupDatabase(jdbcTemplate, "nrtm.client.database", "NRTM_UPDATE", "nrtm_update_schema.sql", "nrtm_update_data.sql");
+        setupDatabase(jdbcTemplate, "nrtm.client.database", "NRTM_UPDATE", "whois_schema.sql", "whois_data.sql");
 
         final String masterUrl = String.format("jdbc:log:mariadb://%s/%s_WHOIS;driver=%s", DB_HOST, dbBaseName, JDBC_DRIVER);
         System.setProperty("whois.db.master.url", masterUrl);
