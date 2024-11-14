@@ -10,9 +10,9 @@ import net.ripe.db.nrtm4.dao.NrtmVersionInfoDao;
 import net.ripe.db.nrtm4.domain.DeltaFileRecord;
 import net.ripe.db.nrtm4.domain.NrtmDocumentType;
 import net.ripe.db.nrtm4.domain.NrtmVersionInfo;
-import net.ripe.db.nrtm4.domain.NrtmVersionRecord;
-import net.ripe.db.nrtm4.domain.SnapshotFileRecord;
 import net.ripe.db.nrtm4.domain.UpdateNotificationFile;
+import net.ripe.db.nrtm4.domain.SnapshotFileRecord;
+import net.ripe.db.nrtm4.domain.NrtmVersionRecord;
 import net.ripe.db.nrtm4.util.NrtmFileUtil;
 import net.ripe.db.whois.api.AbstractNrtmIntegrationTest;
 import net.ripe.db.whois.common.domain.CIString;
@@ -433,7 +433,7 @@ public class SnapshotFileGenerationTestIntegration extends AbstractNrtmIntegrati
     }
 
     public String[] getSnapshotRecords(byte[] compressed) throws IOException {
-        return StringUtils.split( decompress(compressed), NrtmFileUtil.RECORD_SEPARATOR);
+        return StringUtils.split( decompress(compressed), NrtmFileUtil.RECORD_SEPERATOR);
     }
 
     private String[] getSnapshotRecords(final String source) throws IOException {

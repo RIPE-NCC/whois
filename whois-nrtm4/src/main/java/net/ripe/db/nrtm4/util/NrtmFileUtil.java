@@ -16,7 +16,7 @@ import static net.ripe.db.nrtm4.util.ByteArrayUtil.byteArrayToHexString;
 public class NrtmFileUtil {
 
     private static final Random random = new Random();
-    public static final String RECORD_SEPARATOR = "\u001E";
+    public static final String RECORD_SEPERATOR = "\u001E";
 
     public static String newFileName(final NrtmVersionInfo file) {
         final String prefix = file.type().getFileNamePrefix();
@@ -53,7 +53,7 @@ public class NrtmFileUtil {
 
     public static StringBuilder convertToJSONTextSeq(final StringBuilder sb, final NrtmFileRecord record) throws JsonProcessingException {
         //TODO[MA]: Should be using a library right now only jq tool supports json-text-sequence
-        return sb.append(RECORD_SEPARATOR)
+        return sb.append(RECORD_SEPERATOR)
                 .append(new ObjectMapper().writeValueAsString(record))
                 .append("\n");
     }

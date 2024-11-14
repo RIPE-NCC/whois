@@ -12,12 +12,19 @@ import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.test.context.ContextConfiguration;
 
+import javax.sql.DataSource;
 import java.util.List;
 
 @ContextConfiguration(locations = {"classpath:applicationContext-nrtm4-client-test.xml"})
 public class AbstractNrtmClientIntegrationTest extends AbstractDatabaseHelperIntegrationTest {
+
+    protected JdbcTemplate nrtmClientTemplate;
+
+    protected JdbcTemplate nrtmClientInfoTemplate;
 
     @Autowired
     protected Nrtm4ClientInfoRepository nrtm4ClientInfoRepository;
@@ -30,6 +37,19 @@ public class AbstractNrtmClientIntegrationTest extends AbstractDatabaseHelperInt
 
     @Autowired
     protected NrtmServerDummy nrtmServerDummy;
+
+
+    @Autowired(required = false)
+    @Qualifier("nrtmClientMasterDataSource")
+    public void setNrtmClientMasterSource(DataSource dataSource) {
+        nrtmClientTemplate = new JdbcTemplate(dataSource);
+    }
+
+    @Autowired(required = false)
+    @Qualifier("nrtmClientMasterInfoSource")
+    public void setNrtmClientMasterInfoSource(DataSource dataSource) {
+        nrtmClientInfoTemplate = new JdbcTemplate(dataSource);
+    }
 
     @BeforeEach
     public void reset(){
@@ -61,7 +81,7 @@ public class AbstractNrtmClientIntegrationTest extends AbstractDatabaseHelperInt
         final String sql = """
             SELECT id, source, MAX(version), session_id, type, hostname, created
             FROM version_info
-            WHERE type = 'nrtm-snapshot'
+            WHERE type = ?
             GROUP BY source
             """;
         return nrtmClientInfoTemplate.query(sql,
@@ -73,6 +93,6 @@ public class AbstractNrtmClientIntegrationTest extends AbstractDatabaseHelperInt
                     NrtmClientDocumentType.fromValue(rs.getString(5)),
                     rs.getString(6),
                     rs.getLong(7)
-            ));
+            ), NrtmClientDocumentType.SNAPSHOT.getFileNamePrefix());
     }
 }

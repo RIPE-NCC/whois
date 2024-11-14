@@ -48,7 +48,7 @@ public class Nrtm4ClientInfoRepository {
         final String sql = """
             SELECT id, source, MAX(version), session_id, type, hostname, created
             FROM version_info
-            WHERE type = 'update-notification-file'
+            WHERE type = ?
             GROUP BY source
             """;
         return jdbcSlaveTemplate.query(sql,
@@ -60,7 +60,7 @@ public class Nrtm4ClientInfoRepository {
                         NrtmClientDocumentType.fromValue(rs.getString(5)),
                         rs.getString(6),
                         rs.getLong(7)
-                        ));
+                        ), NrtmClientDocumentType.NOTIFICATION.getFileNamePrefix());
     }
 
     public void truncateTables(){

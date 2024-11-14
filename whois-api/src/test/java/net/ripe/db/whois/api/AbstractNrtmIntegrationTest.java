@@ -6,16 +6,16 @@ import com.google.common.collect.Lists;
 import jakarta.ws.rs.client.WebTarget;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
-import net.ripe.db.nrtm4.dao.NrtmKeyConfigDao;
-import net.ripe.db.nrtm4.domain.DeltaFileRecord;
-import net.ripe.db.nrtm4.domain.NrtmDocumentType;
-import net.ripe.db.nrtm4.domain.NrtmSource;
-import net.ripe.db.nrtm4.domain.NrtmVersionRecord;
-import net.ripe.db.nrtm4.domain.UpdateNotificationFile;
 import net.ripe.db.nrtm4.generator.DeltaFileGenerator;
 import net.ripe.db.nrtm4.generator.NrtmKeyPairService;
 import net.ripe.db.nrtm4.generator.SnapshotFileGenerator;
 import net.ripe.db.nrtm4.generator.UpdateNotificationFileGenerator;
+import net.ripe.db.nrtm4.dao.NrtmKeyConfigDao;
+import net.ripe.db.nrtm4.domain.DeltaFileRecord;
+import net.ripe.db.nrtm4.domain.NrtmDocumentType;
+import net.ripe.db.nrtm4.domain.NrtmSource;
+import net.ripe.db.nrtm4.domain.UpdateNotificationFile;
+import net.ripe.db.nrtm4.domain.NrtmVersionRecord;
 import net.ripe.db.nrtm4.util.NrtmFileUtil;
 import net.ripe.db.whois.common.domain.CIString;
 import net.ripe.db.whois.common.rpsl.RpslObject;
@@ -205,7 +205,7 @@ public abstract class AbstractNrtmIntegrationTest extends AbstractIntegrationTes
     }
 
     protected String getSnapshotNameFromUpdateNotification(final UpdateNotificationFile notificationFile) {
-        return notificationFile.getSnapshot().getUrl().split("/")[4];
+        return notificationFile.getSnapshot().getUrl().split("/")[1];
     }
 
     protected Response getSnapshotFromUpdateNotificationBySource(final String sourceName) throws JsonProcessingException {
@@ -221,11 +221,11 @@ public abstract class AbstractNrtmIntegrationTest extends AbstractIntegrationTes
                 "/update-notification-file.json", MediaType.APPLICATION_JSON).readEntity(UpdateNotificationFile.class);
 
         final String response = getResponseFromHttpsRequest(sourceName + "/" + getDeltaNameFromUpdateNotification(updateNotificationResponse, deltaPosition), "application/json-seq").readEntity(String.class);
-        return StringUtils.split( response, NrtmFileUtil.RECORD_SEPARATOR);
+        return StringUtils.split( response, NrtmFileUtil.RECORD_SEPERATOR);
     }
 
     protected String getDeltaNameFromUpdateNotification(final UpdateNotificationFile notificationFile, final int deltaPosition) {
-        return notificationFile.getDeltas().get(deltaPosition).getUrl().split("/")[4];
+        return notificationFile.getDeltas().get(deltaPosition).getUrl().split("/")[1];
     }
 
     protected void createNrtmSource() {

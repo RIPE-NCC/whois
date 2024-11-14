@@ -87,7 +87,9 @@ public class SnapshotImporter {
 
         timer.cancel();
         stopwatch.stop();
-        LOGGER.info("Loading snapshot file took {} for source {} and added", stopwatch.elapsed().toMillis(), source);
+
+        LOGGER.info("Loading snapshot file took {} for source {} and added {} records", stopwatch.elapsed().toMillis(),
+                source, processedCount);
 
         return persistedRpslObjects.get();
     }
@@ -120,7 +122,8 @@ public class SnapshotImporter {
             final byte[] encodedSha256hex = digest.digest(bytes);
             return encodeHexString(encodedSha256hex);
         } catch (final NoSuchAlgorithmException e) {
-            throw new RuntimeException(e);
+            LOGGER.error("Unable to calculate the hash", e);
+            throw new IllegalStateException(e);
         }
     }
 
