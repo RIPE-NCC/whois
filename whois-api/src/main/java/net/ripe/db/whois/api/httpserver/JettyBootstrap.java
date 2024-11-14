@@ -54,7 +54,7 @@ public class JettyBootstrap implements ApplicationService {
 
     private static final String EXTENDED_RIPE_LOG_FORMAT =
         "%{client}a " +         // log client address
-        "%{host}i " +           // host
+        "%{server}a " +         // host
         "- " +                  // -
         "%u " +                 // URL path
         "%{dd/MMM/yyyy:HH:mm:ss Z|" + ZoneOffset.systemDefault().getId() + "}t " +  // timestamp

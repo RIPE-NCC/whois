@@ -13,10 +13,8 @@ public class Nrtm4ClientCondition implements Condition {
     @Override
     public boolean matches(ConditionContext context, AnnotatedTypeMetadata metadata) {
         if( !context.getEnvironment().containsProperty("nrtm4.client.enabled")) {
-            LOGGER.info("Nrtm4 client is not enabled");
             return false;
         }
-        LOGGER.info("Nrtm4 client is enabled {}", Boolean.parseBoolean(context.getEnvironment().getProperty("nrtm4.client.enabled")));
         return Boolean.parseBoolean(context.getEnvironment().getProperty("nrtm4.client.enabled"));
     }
 }
