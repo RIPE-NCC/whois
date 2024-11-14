@@ -100,7 +100,8 @@ public class SnapshotImporter {
             final byte[] encodedSha256hex = digest.digest(bytes);
             return encodeHexString(encodedSha256hex);
         } catch (final NoSuchAlgorithmException e) {
-            throw new RuntimeException(e);
+            LOGGER.error("Unable to calculate the hash", e);
+            throw new IllegalStateException(e);
         }
     }
 

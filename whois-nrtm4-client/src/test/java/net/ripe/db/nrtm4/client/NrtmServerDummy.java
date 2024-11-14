@@ -22,11 +22,14 @@ import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Component;
 import org.springframework.test.util.ReflectionTestUtils;
 
+import java.io.BufferedReader;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
+import java.util.stream.Collectors;
 import java.util.zip.GZIPOutputStream;
 
 @Profile({WhoisProfile.TEST})
@@ -37,6 +40,8 @@ public class NrtmServerDummy implements Stub {
 
     private Server server;
     private int port = 0;
+
+    public static final String RECORD_SEPARATOR = "\u001E";
 
     private final NrtmRestClient nrtmRestClient;
 
@@ -185,10 +190,26 @@ public class NrtmServerDummy implements Stub {
             }
         }
 
+        default String getResourceAsRecords(final String resource){
+            try (BufferedReader reader = new BufferedReader(new InputStreamReader(
+                    Resources.getResource(PATH + resource).openStream(), Charset.defaultCharset()))){
+
+                return reader.lines()
+                        .map(line -> RECORD_SEPARATOR + line)
+                        .collect(Collectors.joining("\n"));
+            } catch (IllegalArgumentException e) {
+                // resource doesn't exist (use resource as content)
+                throw new IllegalStateException(e);
+            } catch (IOException e) {
+                // error reading content from resource
+                throw new IllegalStateException(e);
+            }
+        }
+
         default ByteArrayOutputStream getCompressedResource(final String searchKey) {
             try {
                 // resource is in file
-                String jsonData = Resources.toString(Resources.getResource(PATH + searchKey), Charset.defaultCharset());
+                final String jsonData = getResourceAsRecords(searchKey);
                 try (ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
                      GZIPOutputStream gzipOutputStream = new GZIPOutputStream(byteArrayOutputStream)){
                     gzipOutputStream.write(jsonData.getBytes(StandardCharsets.UTF_8));

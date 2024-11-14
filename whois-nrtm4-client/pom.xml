@@ -42,7 +42,7 @@
             <artifactId>bcprov-jdk18on</artifactId>
         </dependency>
 
-        <!-- Jackson JSONObject Library -->
+        <!-- JSONObject Library -->
         <dependency>
             <groupId>org.json</groupId>
             <artifactId>json</artifactId>

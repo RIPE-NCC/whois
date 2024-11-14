@@ -13,6 +13,7 @@ import org.springframework.context.annotation.Conditional;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
 
+import javax.annotation.Nullable;
 import javax.sql.DataSource;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -52,7 +53,7 @@ public class Nrtm4ClientMirrorRepository {
         final String sql = """
             SELECT id, source, MAX(version), session_id, type, created
             FROM version_info
-            WHERE type = 'update-notification-file'
+            WHERE type = ?
             GROUP BY source
             """;
         return jdbcSlaveTemplate.query(sql,
@@ -63,20 +64,17 @@ public class Nrtm4ClientMirrorRepository {
                         rs.getString(4),
                         NrtmClientDocumentType.fromValue(rs.getString(5)),
                         rs.getLong(6)
-                        ));
+                        ), NrtmClientDocumentType.NOTIFICATION.getFileNamePrefix());
     }
 
     public void persistRpslObject(final RpslObject rpslObject){
-        try {
-            final long now = JdbcRpslObjectOperations.now(dateTimeProvider);
-            jdbcMasterTemplate.update("INSERT INTO last_mirror (object, object_type, pkey, timestamp) VALUES (?, ?, ?, ?)",
-                    getRpslObjectBytes(rpslObject),
-                    ObjectTypeIds.getId(rpslObject.getType()),
-                    rpslObject.getKey().toString(),
-                    now);
-        } catch (IOException e) {
-            LOGGER.error("unable to get the bytes of the object {}", rpslObject.getKey(), e);
-        }
+        final long now = JdbcRpslObjectOperations.now(dateTimeProvider);
+        final byte[] rpslObjectPayload = getRpslObjectBytes(rpslObject);
+        jdbcMasterTemplate.update("INSERT INTO last_mirror (object, object_type, pkey, timestamp) VALUES (?, ?, ?, ?)",
+                rpslObjectPayload,
+                ObjectTypeIds.getId(rpslObject.getType()),
+                rpslObject.getKey().toString(),
+                now);
     }
 
     public void truncateTables(){
@@ -98,10 +96,15 @@ public class Nrtm4ClientMirrorRepository {
                 now);
     }
 
-    private static byte[] getRpslObjectBytes(final RpslObject rpslObject) throws IOException {
-        final ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
-        rpslObject.writeTo(byteArrayOutputStream);
-        return byteArrayOutputStream.toByteArray();
+    private static byte[] getRpslObjectBytes(final RpslObject rpslObject){
+        try {
+            final ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
+            rpslObject.writeTo(byteArrayOutputStream);
+            return byteArrayOutputStream.toByteArray();
+        } catch (IOException e) {
+            LOGGER.error("unable to get the bytes of the object {}", rpslObject.getKey(), e);
+            throw new IllegalStateException();
+        }
     }
 
 }
