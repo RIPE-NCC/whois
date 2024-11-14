@@ -12,6 +12,10 @@
     <artifactId>whois-nrtm4-client</artifactId>
     <packaging>jar</packaging>
 
+    <properties>
+        <json.version>20180813</json.version>
+    </properties>
+
     <dependencies>
         <dependency>
             <groupId>org.mariadb.jdbc</groupId>
@@ -38,8 +42,15 @@
             <artifactId>bcprov-jdk18on</artifactId>
         </dependency>
 
-        <!-- test -->
+        <!-- JSONObject Library -->
+        <dependency>
+            <groupId>org.json</groupId>
+            <artifactId>json</artifactId>
+            <version>${json.version}</version>
+        </dependency>
 
+
+        <!-- test -->
         <dependency>
             <groupId>net.ripe.db</groupId>
             <artifactId>whois-commons</artifactId>

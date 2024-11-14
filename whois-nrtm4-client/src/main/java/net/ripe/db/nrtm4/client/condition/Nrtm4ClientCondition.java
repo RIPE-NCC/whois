@@ -1,4 +1,4 @@
-package net.ripe.db.nrtm4.client.scheduler;
+package net.ripe.db.nrtm4.client.condition;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
