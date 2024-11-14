@@ -13,8 +13,11 @@ import com.fasterxml.jackson.module.jakarta.xmlbind.JakartaXmlBindAnnotationIntr
 import jakarta.ws.rs.client.Client;
 import jakarta.ws.rs.client.ClientBuilder;
 import jakarta.ws.rs.core.MediaType;
-import net.ripe.db.nrtm4.client.scheduler.Nrtm4ClientCondition;
+import jakarta.ws.rs.core.Response;
+import net.ripe.db.nrtm4.client.condition.Nrtm4ClientCondition;
 import org.apache.commons.compress.utils.Lists;
+import org.eclipse.jetty.http.HttpHeader;
+import org.eclipse.jetty.http.HttpScheme;
 import org.glassfish.jersey.client.ClientProperties;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -22,6 +25,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Conditional;
 import org.springframework.stereotype.Component;
 
+import javax.annotation.Nullable;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -59,7 +63,7 @@ public class NrtmRestClient {
                 .property(ClientProperties.CONNECT_TIMEOUT, CLIENT_CONNECT_TIMEOUT)
                 .property(ClientProperties.READ_TIMEOUT, CLIENT_READ_TIMEOUT)
                 .build();
-        this.baseUrl = "https://nrtm-rc.db.ripe.net/nrtmv4"; //use the baseUrl in the future
+        this.baseUrl = baseUrl;
     }
 
     public List<String> getNrtmAvailableSources(){
@@ -80,6 +84,21 @@ public class NrtmRestClient {
                 .path("update-notification-file.json")
                 .request(MediaType.APPLICATION_JSON_TYPE)
                 .get(UpdateNotificationFileResponse.class);
+    }
+
+    @Nullable
+    public byte[] getSnapshotFile(final String url){
+        try {
+            final Response response =  client.target(url)
+                    .request(MediaType.APPLICATION_OCTET_STREAM)
+                    .header(HttpHeader.X_FORWARDED_PROTO.asString(), HttpScheme.HTTPS.asString())
+                    .get(Response.class);
+
+            return response.readEntity(byte[].class);
+        } catch (Exception ex){
+            LOGGER.error("Unable to get the records from the snapshot", ex);
+            return null;
+        }
     }
 
     private static List<String> extractSources(final String html) {
