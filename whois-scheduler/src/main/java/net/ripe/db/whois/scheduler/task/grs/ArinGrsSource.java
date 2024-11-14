@@ -15,7 +15,9 @@ import net.ripe.db.whois.common.rpsl.RpslAttribute;
 import net.ripe.db.whois.common.rpsl.RpslObject;
 import net.ripe.db.whois.common.rpsl.RpslObjectBuilder;
 import net.ripe.db.whois.common.source.SourceContext;
+import org.apache.commons.compress.compressors.gzip.GzipCompressorInputStream;
 import org.apache.commons.lang.StringUtils;
+import org.elasticsearch.common.Strings;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -25,7 +27,9 @@ import org.springframework.stereotype.Component;
 import javax.annotation.Nullable;
 import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
@@ -51,6 +55,7 @@ class ArinGrsSource extends GrsSource {
     private static final Pattern AS_NUMBER_RANGE = Pattern.compile("^(\\d+) [-] (\\d+)$");
 
     private final String download;
+    private final String irrDownload;
     private final String zipEntryName;
 
     @Autowired
@@ -61,10 +66,12 @@ class ArinGrsSource extends GrsSource {
             final AuthoritativeResourceData authoritativeResourceData,
             final Downloader downloader,
             @Value("${grs.import.arin.download:}") final String download,
+            @Value("${grs.import.arin.irr.download:}") final String irrDownload,
             @Value("${grs.import.arin.zipEntryName:}") final String zipEntryName) {
         super(source, sourceContext, dateTimeProvider, authoritativeResourceData, downloader);
 
         this.download = download;
+        this.irrDownload = irrDownload;
         this.zipEntryName = zipEntryName;
     }
 
@@ -74,8 +81,15 @@ class ArinGrsSource extends GrsSource {
     }
 
     @Override
-    public void handleObjects(final File file, final ObjectHandler handler) throws IOException {
+    public void acquireIrrDump(final Path path) throws IOException {
+        if (Strings.isNullOrEmpty(irrDownload)) {
+            return;
+        }
+        downloader.downloadTo(logger, new URL(irrDownload), path);
+    }
 
+    @Override
+    public void handleObjects(final File file, final ObjectHandler handler) throws IOException {
         try (ZipFile zipFile = new ZipFile(file, ZipFile.OPEN_READ)) {
             final ZipEntry zipEntry = zipFile.getEntry(zipEntryName);
             if (zipEntry == null) {
@@ -84,82 +98,100 @@ class ArinGrsSource extends GrsSource {
             }
 
             final BufferedReader reader = new BufferedReader(new InputStreamReader(zipFile.getInputStream(zipEntry), StandardCharsets.UTF_8));
-            handleLines(reader, new LineHandler() {
-                @Override
-                public void handleLines(final List<String> lines) {
-                    if (lines.isEmpty() || IGNORED_OBJECTS.contains(ciString(StringUtils.substringBefore(lines.get(0), ":")))) {
-                        logger.debug("Ignoring:\n\n{}\n", lines);
-                        return;
-                    }
-
-                    final RpslObjectBuilder rpslObjectBuilder = new RpslObjectBuilder(Joiner.on("").join(lines));
-                    for (RpslObject next : expand(rpslObjectBuilder.getAttributes())) {
-                        handler.handle(next);
-                    }
-                }
-
-                private List<RpslObject> expand(final List<RpslAttribute> attributes) {
-                    if (attributes.get(0).getKey().equals("ashandle")) {
-                        final String asnumber = findAttributeValue(attributes, "asnumber");
-                        if (asnumber != null) {
-                            final Matcher rangeMatcher = AS_NUMBER_RANGE.matcher(asnumber);
-                            if (rangeMatcher.find()) {
-                                final List<RpslObject> objects = Lists.newArrayList();
-                                int begin;
-                                int end;
-                                try {
-                                    begin = Integer.parseInt(rangeMatcher.group(1));
-                                    end = Integer.parseInt(rangeMatcher.group(2));
-                                } catch (NumberFormatException ex) {
-                                    LOGGER.info(String.format("%s is larger than 32 bit limit in RIPE Database", asnumber));
-                                    return Collections.emptyList();
-                                }
-
-                                for (int index = begin; index <= end; index++) {
-                                    attributes.set(0, new RpslAttribute(AttributeType.AUT_NUM, String.format("AS%d", index)));
-                                    objects.add(new RpslObject(transform(attributes)));
-                                }
-
-                                return objects;
-                            }
-                        }
-                    }
-
-                    return Lists.newArrayList(new RpslObject(transform(attributes)));
-                }
-
-                private List<RpslAttribute> transform(final List<RpslAttribute> attributes) {
-                    final List<RpslAttribute> newAttributes = Lists.newArrayList();
-                    for (RpslAttribute attribute : attributes) {
-                        final Function<RpslAttribute, RpslAttribute> transformFunction = TRANSFORM_FUNCTIONS.get(ciString(attribute.getKey()));
-                        if (transformFunction != null) {
-                            attribute = transformFunction.apply(attribute);
-                        }
-
-                        final AttributeType attributeType = attribute.getType();
-                        if (attributeType == null) {
-                        } else if (AttributeType.INETNUM.equals(attributeType) || AttributeType.INET6NUM.equals(attributeType)) {
-                            newAttributes.add(0, attribute);
-                        } else {
-                            newAttributes.add(attribute);
-                        }
-                    }
-
-                    return newAttributes;
-                }
-
-                @Nullable
-                private String findAttributeValue(final List<RpslAttribute> attributes, final String key) {
-                    for (RpslAttribute attribute : attributes) {
-                        if (attribute.getKey().equals(key)) {
-                            return attribute.getCleanValue().toString();
-                        }
-                    }
-                    return null;
-                }
-            });
+            handleLines(reader, new ArinLineHandler(handler));
         }
     }
+
+    @Override
+    public void handleIrrObjects(final File file, final ObjectHandler handler) throws IOException {
+        try (InputStream is = new GzipCompressorInputStream(new FileInputStream(file))) {
+            final BufferedReader reader = new BufferedReader(new InputStreamReader(is, StandardCharsets.ISO_8859_1));
+            handleLines(reader, new ArinLineHandler(handler));
+        }
+    }
+
+    private class ArinLineHandler implements LineHandler {
+
+        private final ObjectHandler objectHandler;
+
+        public ArinLineHandler(final ObjectHandler objectHandler) {
+            this.objectHandler = objectHandler;
+        }
+
+        @Override
+        public void handleLines(final List<String> lines) {
+            if (lines.isEmpty() || IGNORED_OBJECTS.contains(ciString(StringUtils.substringBefore(lines.get(0), ":")))) {
+                logger.debug("Ignoring:\n\n{}\n", lines);
+                return;
+            }
+
+            final RpslObjectBuilder rpslObjectBuilder = new RpslObjectBuilder(Joiner.on("").join(lines));
+            for (RpslObject next : expand(rpslObjectBuilder.getAttributes())) {
+                objectHandler.handle(next);
+            }
+        }
+
+        private List<RpslObject> expand(final List<RpslAttribute> attributes) {
+            if (attributes.get(0).getKey().equals("ashandle")) {
+                final String asnumber = findAttributeValue(attributes, "asnumber");
+                if (asnumber != null) {
+                    final Matcher rangeMatcher = AS_NUMBER_RANGE.matcher(asnumber);
+                    if (rangeMatcher.find()) {
+                        final List<RpslObject> objects = Lists.newArrayList();
+                        int begin;
+                        int end;
+                        try {
+                            begin = Integer.parseInt(rangeMatcher.group(1));
+                            end = Integer.parseInt(rangeMatcher.group(2));
+                        } catch (NumberFormatException ex) {
+                            LOGGER.info(String.format("%s is larger than 32 bit limit in RIPE Database", asnumber));
+                            return Collections.emptyList();
+                        }
+
+                        for (int index = begin; index <= end; index++) {
+                            attributes.set(0, new RpslAttribute(AttributeType.AUT_NUM, String.format("AS%d", index)));
+                            objects.add(new RpslObject(transform(attributes)));
+                        }
+
+                        return objects;
+                    }
+                }
+            }
+
+            return Lists.newArrayList(new RpslObject(transform(attributes)));
+        }
+
+        private List<RpslAttribute> transform(final List<RpslAttribute> attributes) {
+            final List<RpslAttribute> newAttributes = Lists.newArrayList();
+            for (RpslAttribute attribute : attributes) {
+                final Function<RpslAttribute, RpslAttribute> transformFunction = TRANSFORM_FUNCTIONS.get(ciString(attribute.getKey()));
+                if (transformFunction != null) {
+                    attribute = transformFunction.apply(attribute);
+                }
+
+                final AttributeType attributeType = attribute.getType();
+                if (attributeType == null) {
+                } else if (AttributeType.INETNUM.equals(attributeType) || AttributeType.INET6NUM.equals(attributeType)) {
+                    newAttributes.add(0, attribute);
+                } else {
+                    newAttributes.add(attribute);
+                }
+            }
+
+            return newAttributes;
+        }
+
+        @Nullable
+        private String findAttributeValue(final List<RpslAttribute> attributes, final String key) {
+            for (RpslAttribute attribute : attributes) {
+                if (attribute.getKey().equals(key)) {
+                    return attribute.getCleanValue().toString();
+                }
+            }
+            return null;
+        }
+    }
+
 
     private static final Set<CIString> IGNORED_OBJECTS = ciSet("OrgID", "POCHandle", "Updated");
 
