@@ -41,12 +41,7 @@ public class JWSUtil {
     public static boolean verifySignature(final JWSObject jwsObjectParsed, final byte[] publicKey) {
 
         try {
-            final String publicinPem = getPublicKeyinPemString(publicKey)
-                    .replace("-----BEGIN PUBLIC KEY-----", "")
-                    .replaceAll(System.lineSeparator(), "")
-                    .replace("-----END PUBLIC KEY-----", "");
-
-            final OctetKeyPair parsedFromPemPublicKey =  JWK.parse(new String(Base64.decodeBase64(publicinPem))).toOctetKeyPair();
+            final OctetKeyPair parsedFromPemPublicKey =  JWK.parse(new String(Base64.decodeBase64(getPublicKey(publicKey)))).toOctetKeyPair();
 
             final JWSVerifier verifier = new Ed25519Verifier(parsedFromPemPublicKey);
             return jwsObjectParsed.verify(verifier);
@@ -56,7 +51,7 @@ public class JWSUtil {
         }
     }
 
-    public static String getPublicKeyinPemString(final byte[] publicKey) {
+    public static String getPublicKey(final byte[] publicKey) {
         return new String(publicKey);
     }
 }

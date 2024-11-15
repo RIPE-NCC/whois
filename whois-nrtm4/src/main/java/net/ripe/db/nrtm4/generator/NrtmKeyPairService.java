@@ -53,12 +53,10 @@ public class NrtmKeyPairService {
             final byte[] privateKey = jwk.toJSONString().getBytes();
             final byte[] publicKey = jwk.toPublicJWK().toJSONString().getBytes();
 
-            byte[] publicKeyinPemBytes = String.format(PEM_FORMAT_KEY, new String(Base64.getEncoder().encode(publicKey))).getBytes();
-
             final long createdTimestamp = dateTimeProvider.getCurrentDateTime().toEpochSecond(ZoneOffset.UTC);
             final long expires = dateTimeProvider.getCurrentDateTime().plusYears(1).toEpochSecond(ZoneOffset.UTC);
 
-            final NrtmKeyRecord keyRecord = NrtmKeyRecord.of(privateKey, publicKeyinPemBytes, isActive, createdTimestamp, expires );
+            final NrtmKeyRecord keyRecord = NrtmKeyRecord.of(privateKey, publicKey, isActive, createdTimestamp, expires );
             nrtmKeyConfigDao.saveKeyPair(keyRecord);
 
             return keyRecord;
