@@ -41,9 +41,9 @@ public class JWSUtil {
     public static boolean verifySignature(final JWSObject jwsObjectParsed, final byte[] publicKey) {
 
         try {
-            final OctetKeyPair parsedFromPemPublicKey =  JWK.parse(new String(Base64.decodeBase64(getPublicKey(publicKey)))).toOctetKeyPair();
+            final OctetKeyPair parsedPublicKey =  OctetKeyPair.parse(getPublicKey(publicKey));
 
-            final JWSVerifier verifier = new Ed25519Verifier(parsedFromPemPublicKey);
+            final JWSVerifier verifier = new Ed25519Verifier(parsedPublicKey);
             return jwsObjectParsed.verify(verifier);
         } catch (JOSEException | ParseException ex) {
             LOGGER.error("failed to verify signature {}", ex.getMessage());
