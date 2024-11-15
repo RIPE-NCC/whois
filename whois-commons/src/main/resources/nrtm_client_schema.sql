@@ -17,7 +17,6 @@
 
 DROP TABLE IF EXISTS `version`;
 DROP TABLE IF EXISTS `public_key`;
-DROP TABLE IF EXISTS `last_mirror`;
 DROP TABLE IF EXISTS `version_info`;
 
 CREATE TABLE `version`
