@@ -3,6 +3,7 @@ package net.ripe.db.whois.api;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.Lists;
+import com.nimbusds.jose.JWSObject;
 import jakarta.ws.rs.client.WebTarget;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
@@ -29,6 +30,8 @@ import org.junit.jupiter.api.BeforeEach;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import javax.annotation.Nullable;
+import java.io.IOException;
+import java.text.ParseException;
 import java.util.List;
 
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -196,29 +199,29 @@ public abstract class AbstractNrtmIntegrationTest extends AbstractIntegrationTes
                 "source:        TEST-NONAUTH");
     }
 
-    protected WebTarget createResource(final String path) {
-        return RestTest.target(getPort(), String.format("nrtmv4/%s", path));
-    }
-
     protected UpdateNotificationFile getNotificationFileBySource(final String sourceName) {
-        return getResponseFromHttpsRequest(sourceName + "/update-notification-file.json", MediaType.APPLICATION_JSON).readEntity(UpdateNotificationFile.class);
+        try {
+            final Response response = getResponseFromHttpsRequest(sourceName + "/update-notification-file.jose", MediaType.APPLICATION_JSON);
+            final JWSObject jwsObjectParsed = JWSObject.parse(response.readEntity(String.class));
+
+            return new ObjectMapper().readValue(jwsObjectParsed.getPayload().toString(), UpdateNotificationFile.class);
+        } catch (IOException | ParseException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     protected String getSnapshotNameFromUpdateNotification(final UpdateNotificationFile notificationFile) {
         return notificationFile.getSnapshot().getUrl().split("/")[1];
     }
 
-    protected Response getSnapshotFromUpdateNotificationBySource(final String sourceName) throws JsonProcessingException {
-        final Response updateNotificationResponse = getResponseFromHttpsRequest(sourceName + "/update-notification-file.json", MediaType.APPLICATION_JSON);
-        final UpdateNotificationFile notificationFile = new ObjectMapper().readValue(updateNotificationResponse.readEntity(String.class),
-                UpdateNotificationFile.class);
+    protected Response getSnapshotFromUpdateNotificationBySource(final String sourceName)  {
+        final UpdateNotificationFile notificationFile = getNotificationFileBySource(sourceName);
         return getResponseFromHttpsRequest(sourceName + "/" + getSnapshotNameFromUpdateNotification(notificationFile)
                 , MediaType.APPLICATION_JSON);
     }
 
     protected String[] getDeltasFromUpdateNotificationBySource(final String sourceName, final int deltaPosition) {
-        final UpdateNotificationFile updateNotificationResponse = getResponseFromHttpsRequest(sourceName +
-                "/update-notification-file.json", MediaType.APPLICATION_JSON).readEntity(UpdateNotificationFile.class);
+        final UpdateNotificationFile updateNotificationResponse = getNotificationFileBySource(sourceName);
 
         final String response = getResponseFromHttpsRequest(sourceName + "/" + getDeltaNameFromUpdateNotification(updateNotificationResponse, deltaPosition), "application/json-seq").readEntity(String.class);
         return StringUtils.split( response, NrtmFileUtil.RECORD_SEPERATOR);

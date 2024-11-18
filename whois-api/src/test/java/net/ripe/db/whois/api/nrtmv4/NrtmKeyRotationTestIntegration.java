@@ -1,20 +1,21 @@
 package net.ripe.db.whois.api.nrtmv4;
 
-import jakarta.xml.bind.DatatypeConverter;
 import net.ripe.db.nrtm4.domain.NrtmKeyRecord;
 import net.ripe.db.nrtm4.domain.UpdateNotificationFile;
-import net.ripe.db.nrtm4.util.ByteArrayUtil;
+import net.ripe.db.nrtm4.util.JWSUtil;
 import net.ripe.db.whois.api.AbstractNrtmIntegrationTest;
+import org.hamcrest.Matchers;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.springframework.test.annotation.DirtiesContext;
 
 import java.time.LocalDateTime;
-import java.util.Base64;
 
 import static net.ripe.db.whois.query.support.PatternMatcher.matchesPattern;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.matchesRegex;
 import static org.hamcrest.Matchers.not;
 import static org.hamcrest.Matchers.nullValue;
 
@@ -56,7 +57,7 @@ public class NrtmKeyRotationTestIntegration extends AbstractNrtmIntegrationTest 
         final UpdateNotificationFile testIteration = getNotificationFileBySource("TEST");
         final UpdateNotificationFile testNonAuthIteration = getNotificationFileBySource("TEST-NONAUTH");
 
-        final String nextKey = Base64.getEncoder().encodeToString(nrtmKeyPairService.getNextkeyPair().publicKey());
+        final String nextKey = JWSUtil.getPublicKey(nrtmKeyPairService.getNextkeyPair().publicKey());
         assertThat(testIteration.getSource().getName(), is("TEST"));
         assertThat(testIteration.getNextSigningKey(), is(nextKey));
 
@@ -80,14 +81,14 @@ public class NrtmKeyRotationTestIntegration extends AbstractNrtmIntegrationTest 
 
         nrtmKeyPairService.generateOrRotateNextKey();
 
-        final String nextKey = ByteArrayUtil.byteArrayToHexString(nrtmKeyPairService.getNextkeyPair().publicKey());
+        final String nextKey = JWSUtil.getPublicKey(nrtmKeyPairService.getNextkeyPair().publicKey());
         assertThat(nrtmKeyPairService.getNextkeyPair(), is(not(nullValue())));
 
         //New signing next key will be the active key now and no next signing key
         setTime(LocalDateTime.now().plusYears(1));
         nrtmKeyPairService.generateOrRotateNextKey();
 
-        final String newCurrentKey = ByteArrayUtil.byteArrayToHexString(nrtmKeyConfigDao.getActivePublicKey());
+        final String newCurrentKey = JWSUtil.getPublicKey(nrtmKeyConfigDao.getActivePublicKey());
         assertThat(nextKey, is(newCurrentKey));
         assertThat(nrtmKeyPairService.getNextkeyPair(), is(nullValue()));
     }
@@ -110,11 +111,11 @@ public class NrtmKeyRotationTestIntegration extends AbstractNrtmIntegrationTest 
 
         assertThat(nrtmKeyPairService.getNextkeyPair(), is(not(nullValue())));
 
-        final String currentActiveKey = ByteArrayUtil.byteArrayToHexString(nrtmKeyConfigDao.getActivePublicKey());
+        final String currentActiveKey = JWSUtil.getPublicKey(nrtmKeyConfigDao.getActivePublicKey());
 
         nrtmKeyPairService.deleteAndGenerateNewActiveKey();
 
-        final String newActiveKey = ByteArrayUtil.byteArrayToHexString(nrtmKeyConfigDao.getActivePublicKey());
+        final String newActiveKey = JWSUtil.getPublicKey(nrtmKeyConfigDao.getActivePublicKey());
 
         assertThat(newActiveKey , is(not(currentActiveKey)));
         assertThat(nrtmKeyPairService.getNextkeyPair(), is(nullValue()));
@@ -139,12 +140,12 @@ public class NrtmKeyRotationTestIntegration extends AbstractNrtmIntegrationTest 
 
         assertThat(nrtmKeyPairService.getNextkeyPair(), is(not(nullValue())));
 
-        final String currentActiveKey = ByteArrayUtil.byteArrayToHexString(nrtmKeyConfigDao.getActivePublicKey());
-        final String nextKey = ByteArrayUtil.byteArrayToHexString(nrtmKeyPairService.getNextkeyPair().publicKey());
+        final String currentActiveKey = JWSUtil.getPublicKey(nrtmKeyConfigDao.getActivePublicKey());
+        final String nextKey = JWSUtil.getPublicKey(nrtmKeyPairService.getNextkeyPair().publicKey());
 
         nrtmKeyPairService.forceRotateKey();
 
-        final String newActiveKey = ByteArrayUtil.byteArrayToHexString(nrtmKeyConfigDao.getActivePublicKey());
+        final String newActiveKey = JWSUtil.getPublicKey(nrtmKeyConfigDao.getActivePublicKey());
 
         assertThat(newActiveKey , is(nextKey));
         assertThat(nrtmKeyPairService.getNextkeyPair(), is(nullValue()));
@@ -157,7 +158,6 @@ public class NrtmKeyRotationTestIntegration extends AbstractNrtmIntegrationTest 
         nrtmKeyPairService.generateKeyRecord(false);
 
         final NrtmKeyRecord oldestKey = nrtmKeyConfigDao.getAllKeyPair().get(0);
-        System.out.println(DatatypeConverter.printHexBinary(oldestKey.publicKey()));
 
         nrtmKeyPairService.generateKeyRecord(true);
 
