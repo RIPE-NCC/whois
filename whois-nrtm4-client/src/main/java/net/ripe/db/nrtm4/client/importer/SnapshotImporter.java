@@ -125,11 +125,23 @@ public class SnapshotImporter {
         try {
             final MessageDigest digest = MessageDigest.getInstance("SHA-256");
             final byte[] encodedSha256hex = digest.digest(bytes);
-            return encodeHexString(encodedSha256hex);
+            return byteArrayToHexString(encodedSha256hex);
         } catch (final NoSuchAlgorithmException e) {
             LOGGER.error("Unable to calculate the hash", e);
             throw new IllegalStateException(e);
         }
+    }
+
+    private static String byteArrayToHexString(final byte[] bytes) {
+        final StringBuilder hexString = new StringBuilder(2 * bytes.length);
+        for (final byte b : bytes) {
+            final String hex = Integer.toHexString(0xff & b);
+            if (hex.length() == 1) {
+                hexString.append('0');
+            }
+            hexString.append(hex);
+        }
+        return hexString.toString();
     }
 
     private void persistBatches(final String[] remainingRecords,
