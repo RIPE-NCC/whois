@@ -64,7 +64,7 @@ public class Nrtm4ClientInfoRepository {
     }
 
     public void truncateTables(){
-        jdbcMasterTemplate.update("TRUNCATE version_info");
+        jdbcMasterTemplate.update("TRUNCATE TABLE version_info");
     }
 
     private void saveVersionInfo(
