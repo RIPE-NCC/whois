@@ -49,6 +49,7 @@ public class SnapshotImporter {
     }
 
     public void truncateTables(){
+        //TODO: [MH] dbint not allowed to run truncate
         nrtm4ClientInfoMirrorDao.truncateTables();
         nrtm4ClientRepository.truncateTables();
     }
