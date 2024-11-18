@@ -211,7 +211,7 @@ public abstract class AbstractNrtmIntegrationTest extends AbstractIntegrationTes
     }
 
     protected String getSnapshotNameFromUpdateNotification(final UpdateNotificationFile notificationFile) {
-        return notificationFile.getSnapshot().getUrl().split("/")[4];
+        return notificationFile.getSnapshot().getUrl().split("/")[1];
     }
 
     protected Response getSnapshotFromUpdateNotificationBySource(final String sourceName)  {
@@ -228,7 +228,7 @@ public abstract class AbstractNrtmIntegrationTest extends AbstractIntegrationTes
     }
 
     protected String getDeltaNameFromUpdateNotification(final UpdateNotificationFile notificationFile, final int deltaPosition) {
-        return notificationFile.getDeltas().get(deltaPosition).getUrl().split("/")[4];
+        return notificationFile.getDeltas().get(deltaPosition).getUrl().split("/")[1];
     }
 
     protected void createNrtmSource() {

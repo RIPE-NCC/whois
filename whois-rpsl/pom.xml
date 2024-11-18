@@ -58,7 +58,7 @@
                     <dependency>
                         <groupId>de.jflex</groupId>
                         <artifactId>jflex</artifactId>
-                        <version>1.6.0</version>
+                        <version>1.9.1</version>
                     </dependency>
                 </dependencies>
                 <groupId>org.codehaus.mojo</groupId>
