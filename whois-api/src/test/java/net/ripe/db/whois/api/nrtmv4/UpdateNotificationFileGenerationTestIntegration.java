@@ -97,6 +97,7 @@ public class UpdateNotificationFileGenerationTestIntegration extends AbstractNrt
         setTime(LocalDateTime.now());
 
         nrtmKeyPairService.generateKeyRecord(false);
+        addPublicKeyinPemFormat(nrtmKeyPairService.getNextkeyPair().id());
 
         updateNotificationFileGenerator.generateFile();
 
@@ -116,6 +117,7 @@ public class UpdateNotificationFileGenerationTestIntegration extends AbstractNrt
         setTime(LocalDateTime.now().plusHours(1));
 
         nrtmKeyPairService.generateKeyRecord(false);
+        addPublicKeyinPemFormat(nrtmKeyPairService.getNextkeyPair().id());
 
         updateNotificationFileGenerator.generateFile();
 

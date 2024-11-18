@@ -16,7 +16,6 @@ import org.springframework.stereotype.Service;
 import javax.annotation.Nullable;
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
-import java.util.Base64;
 import java.util.List;
 import java.util.UUID;
 
@@ -24,8 +23,6 @@ import java.util.UUID;
 public class NrtmKeyPairService {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(NrtmKeyPairService.class);
-    final String PEM_FORMAT_KEY = "-----BEGIN PUBLIC KEY-----" + System.lineSeparator() + "%s" + System.lineSeparator() + "-----END PUBLIC KEY-----";
-
 
     private final NrtmKeyConfigDao nrtmKeyConfigDao;
     private final DateTimeProvider dateTimeProvider;

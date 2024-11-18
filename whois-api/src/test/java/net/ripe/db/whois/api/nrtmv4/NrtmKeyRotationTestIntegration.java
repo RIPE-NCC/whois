@@ -17,6 +17,7 @@ import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.matchesRegex;
 import static org.hamcrest.Matchers.not;
+import static org.hamcrest.Matchers.notNullValue;
 import static org.hamcrest.Matchers.nullValue;
 
 @Tag("IntegrationTest")
@@ -52,17 +53,41 @@ public class NrtmKeyRotationTestIntegration extends AbstractNrtmIntegrationTest 
         setTime(LocalDateTime.now().plusYears(1).minusDays(7));
 
         nrtmKeyPairService.generateOrRotateNextKey();
+        addPublicKeyinPemFormat(nrtmKeyPairService.getNextkeyPair().id());
         updateNotificationFileGenerator.generateFile();
 
         final UpdateNotificationFile testIteration = getNotificationFileBySource("TEST");
         final UpdateNotificationFile testNonAuthIteration = getNotificationFileBySource("TEST-NONAUTH");
 
-        final String nextKey = JWSUtil.getPublicKey(nrtmKeyPairService.getNextkeyPair().publicKey());
+
+        final String nextKey = nrtmKeyPairService.getNextkeyPair().pemFormat();
         assertThat(testIteration.getSource().getName(), is("TEST"));
         assertThat(testIteration.getNextSigningKey(), is(nextKey));
 
         assertThat(testNonAuthIteration.getSource().getName(), is("TEST-NONAUTH"));
         assertThat(testNonAuthIteration.getNextSigningKey(), is(nextKey));
+    }
+
+    @Test
+    public void should_not_add_next_signing_key_if_no_pem_format()  {
+        setTime(LocalDateTime.now().minusDays(1));
+
+        snapshotFileGenerator.createSnapshot();
+
+        setTime(LocalDateTime.now().plusYears(1).minusDays(7));
+
+        nrtmKeyPairService.generateOrRotateNextKey();
+        updateNotificationFileGenerator.generateFile();
+
+        final UpdateNotificationFile testIteration = getNotificationFileBySource("TEST");
+        final UpdateNotificationFile testNonAuthIteration = getNotificationFileBySource("TEST-NONAUTH");
+
+        assertThat(nrtmKeyPairService.getNextkeyPair().pemFormat(), is(nullValue()));
+        assertThat(testIteration.getSource().getName(), is("TEST"));
+        assertThat(testIteration.getNextSigningKey(), is(nullValue()));
+
+        assertThat(testNonAuthIteration.getSource().getName(), is("TEST-NONAUTH"));
+        assertThat(testNonAuthIteration.getNextSigningKey(), is(nullValue()));
     }
 
     @Test
