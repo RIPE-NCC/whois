@@ -55,6 +55,8 @@ public class UpdateNotificationFileProcessor {
 
         final String hostname = Hosts.getInstanceName();
 
+        final Map<RpslObject, RpslObjectUpdateInfo> persistedRpslObjects = new HashMap<>();
+
         notificationFilePerSource.forEach((source, updateNotificationFile) -> {
             NrtmClientVersionInfo nrtmClientLastVersionInfo = nrtmLastVersionInfoPerSource
                     .stream()
@@ -64,19 +66,20 @@ public class UpdateNotificationFileProcessor {
 
             if (nrtmClientLastVersionInfo != null && !nrtmClientLastVersionInfo.hostname().equals(hostname)){
                 LOGGER.info("Different host");
-                return;
+                snapshotImporter.truncateTables();
+                nrtmClientLastVersionInfo = null;
             }
 
             if (nrtmClientLastVersionInfo != null && !nrtmClientLastVersionInfo.sessionID().equals(updateNotificationFile.getSessionID())){
                 LOGGER.info("Different session");
                 snapshotImporter.truncateTables();
-                return;
+                nrtmClientLastVersionInfo = null;
             }
 
             if (nrtmClientLastVersionInfo != null && nrtmClientLastVersionInfo.version() > updateNotificationFile.getVersion()){
                 LOGGER.info("The local version cannot be higher than the update notification version {}", source);
                 snapshotImporter.truncateTables();
-                return;
+                nrtmClientLastVersionInfo = null;
             }
 
             if (nrtmClientLastVersionInfo != null && nrtmClientLastVersionInfo.version().equals(updateNotificationFile.getVersion())){
@@ -87,9 +90,30 @@ public class UpdateNotificationFileProcessor {
             nrtm4ClientMirrorDao.saveUpdateNotificationFileVersion(source, updateNotificationFile.getVersion(),
                     updateNotificationFile.getSessionID(), hostname);
 
-            snapshotImporter.importSnapshot(source, updateNotificationFile);
+            if (nrtmClientLastVersionInfo == null){
+                LOGGER.info("There is no existing Snapshot for the source {}", source);
+                persistedRpslObjects.putAll(snapshotImporter.importSnapshot(source, updateNotificationFile));
+            }
         });
+
+        createDummyPerson();
+        /*if (!persistedRpslObjects.isEmpty()){
+            createIndexesAndDummyPerson(persistedRpslObjects);
+        }*/
+
     }
 
+    private void createIndexesAndDummyPerson(final Map<RpslObject, RpslObjectUpdateInfo> persistedRpslObjects) {
+        final Map.Entry<RpslObject, RpslObjectUpdateInfo> persistDummyObject = snapshotImporter.persistDummyObjectIfNotExist();
+        persistedRpslObjects.put(persistDummyObject.getKey(), persistDummyObject.getValue());
+        snapshotImporter.createIndexes(persistedRpslObjects);
+    }
+
+    private void createDummyPerson() {
+        final Map.Entry<RpslObject, RpslObjectUpdateInfo> persistDummyObject = snapshotImporter.persistDummyObjectIfNotExist();
+        if (persistDummyObject != null){
+            snapshotImporter.createIndexes(persistDummyObject);
+        }
+    }
 
 }
