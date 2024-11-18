@@ -11,11 +11,13 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Conditional;
+import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
+import javax.annotation.Nullable;
 import javax.sql.DataSource;
 import java.util.List;
 import java.util.Map;
@@ -56,6 +58,18 @@ public class Nrtm4ClientRepository {
 
         jdbcMasterTemplate.execute("SET FOREIGN_KEY_CHECKS = 1");
 
+    }
+
+    @Nullable
+    public Integer getMirroredObjectId(final String primaryKey){
+        // TODO: There can be two objects with same primaryKey, we don't have single identifier for it
+        try {
+            return jdbcMasterTemplate.queryForObject("SELECT object_id FROM last WHERE pkey = ?",
+                    Integer.class,
+                    primaryKey);
+        } catch (EmptyResultDataAccessException e) {
+            return null;
+        }
     }
 
     public RpslObjectUpdateInfo persistRpslObject(final RpslObject rpslObject){

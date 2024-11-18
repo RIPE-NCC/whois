@@ -17,6 +17,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.context.annotation.Conditional;
 import org.springframework.stereotype.Service;
 
+import javax.annotation.Nullable;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.Arrays;
@@ -55,34 +56,31 @@ public class SnapshotImporter {
         nrtm4ClientRepository.truncateTables();
     }
 
-    public Map<RpslObject, RpslObjectUpdateInfo> importSnapshot(final String source, final UpdateNotificationFileResponse updateNotificationFile){
+    public void importSnapshot(final String source, final UpdateNotificationFileResponse updateNotificationFile){
         final Stopwatch stopwatch = Stopwatch.createStarted();
         final UpdateNotificationFileResponse.NrtmFileLink snapshot = updateNotificationFile.getSnapshot();
 
         if (snapshot == null){
             LOGGER.error("Snapshot cannot be null in the notification file");
-            return Maps.newHashMap();
+            return;
         }
 
         final byte[] payload = nrtmRestClient.getSnapshotFile(snapshot.getUrl());
 
         if (!snapshot.getHash().equals(calculateSha256(payload))){
             LOGGER.error("Snapshot hash doesn't match, skipping import");
-            return Maps.newHashMap();
+            return;
         }
 
         final AtomicInteger processedCount = new AtomicInteger(0);
         final Timer timer = new Timer();
         printProgress(timer, processedCount);
 
-        final AtomicReference<Map<RpslObject, RpslObjectUpdateInfo>> persistedRpslObjects = new AtomicReference<>();
         GzipDecompressor.decompressRecords(
                 payload,
                 firstRecord -> processMetadata(source, updateNotificationFile, firstRecord),
                 recordBatches -> {
-                    final Map<RpslObject, RpslObjectUpdateInfo> persistedRpslObject = persistBatches(recordBatches,
-                            processedCount);
-                    persistedRpslObjects.set(persistedRpslObject);
+                    persistBatches(recordBatches, processedCount);
                 }
         );
 
@@ -91,21 +89,20 @@ public class SnapshotImporter {
 
         LOGGER.info("Loading snapshot file took {} for source {} and added {} records", stopwatch.elapsed().toMillis(),
                 source, processedCount);
-
-        return persistedRpslObjects.get();
     }
 
-    public void createIndexes(final Map<RpslObject, RpslObjectUpdateInfo> persistedRpslObjects) {
-        persistedRpslObjects
-                .entrySet()
-                .stream()
-                .parallel()
-                .forEach(persistedObjectObject -> nrtm4ClientRepository.createIndexes(persistedObjectObject.getKey(),
-                        persistedObjectObject.getValue()));
+    public void createIndexes(final Map.Entry<RpslObject, RpslObjectUpdateInfo> persistedRpslObject) {
+        nrtm4ClientRepository.createIndexes(persistedRpslObject.getKey(), persistedRpslObject.getValue());
     }
 
-    public Map.Entry<RpslObject, RpslObjectUpdateInfo> persistDummyObject(){
-        return Map.entry(getPlaceholderPersonObject(), nrtm4ClientRepository.persistRpslObject(getPlaceholderPersonObject()));
+    @Nullable
+    public Map.Entry<RpslObject, RpslObjectUpdateInfo> persistDummyObjectIfNotExist(){
+        final RpslObject dummyObject = getPlaceholderPersonObject();
+        final Integer objectId = nrtm4ClientRepository.getMirroredObjectId(dummyObject.getKey().toString());
+        if (objectId == null){
+            return null;
+        }
+        return Map.entry(getPlaceholderPersonObject(), nrtm4ClientRepository.persistRpslObject(dummyObject));
     }
 
     private void printProgress(final Timer timer, final AtomicInteger processedCount) {
@@ -128,23 +125,20 @@ public class SnapshotImporter {
         }
     }
 
-    private Map<RpslObject, RpslObjectUpdateInfo> persistBatches(final String[] remainingRecords,
+    private void persistBatches(final String[] remainingRecords,
                                                                  final AtomicInteger processedCount) {
-        return Arrays.stream(remainingRecords)
+        Arrays.stream(remainingRecords)
                 .parallel()
-                .map(record -> {
+                .forEach(record -> {
                     try {
-                        return nrtm4ClientRepository.processObject(record);
+                        final Map.Entry<RpslObject, RpslObjectUpdateInfo> persistedRecord = nrtm4ClientRepository.processObject(record);
+                        createIndexes(persistedRecord);
+                        processedCount.incrementAndGet();
                     } catch (JsonProcessingException e) {
                         LOGGER.error("Unable to parse record {}", record, e);
                         throw new IllegalStateException(e);
                     }
-                })
-                .peek(entry -> processedCount.incrementAndGet())
-                .collect(Collectors.toMap(
-                    Map.Entry::getKey,
-                    Map.Entry::getValue
-                ));
+                });
     }
 
     public static RpslObject getPlaceholderPersonObject() {
