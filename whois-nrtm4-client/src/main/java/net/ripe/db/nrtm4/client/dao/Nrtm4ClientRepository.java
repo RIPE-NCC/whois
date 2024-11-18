@@ -54,7 +54,7 @@ public class Nrtm4ClientRepository {
                 databaseName
         );
 
-        tables.forEach(table -> jdbcMasterTemplate.execute("TRUNCATE TABLE " + table));
+        tables.forEach(table -> jdbcMasterTemplate.execute("DELETE FROM " + table));
 
         jdbcMasterTemplate.execute("SET FOREIGN_KEY_CHECKS = 1");
 
