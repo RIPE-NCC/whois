@@ -18,8 +18,6 @@ import org.eclipse.angus.mail.dsn.DeliveryStatus;
 import org.eclipse.angus.mail.dsn.MultipartReport;
 import org.eclipse.angus.mail.dsn.Report;
 import org.elasticsearch.common.Strings;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
@@ -33,14 +31,12 @@ import java.util.regex.Pattern;
 @Component
 public class BouncedMessageParser {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(BouncedMessageParser.class);
-
     private static final ContentType MULTIPART_REPORT = contentType("multipart/report");
     private static final ContentType MULTIPART_MIXED = contentType("multipart/mixed");
 
     private final boolean enabled;
 
-    private static final Pattern FINAL_RECIPIENT_MATCHER = Pattern.compile("(?i)^(rfc822;)\s?(.+@.+$)");
+    private static final Pattern RECIPIENT_MATCHER = Pattern.compile("(?i)^(rfc822;)\s?(.+@.+$)");
 
     private static final AttributeParser.EmailParser EMAIL_PARSER = new AttributeParser.EmailParser();
 
@@ -54,8 +50,6 @@ public class BouncedMessageParser {
         if (!enabled) {
             return null;
         }
-
-        // TODO: refactor to remove duplicate code
 
         if (isMultipartReport(message)) {
             try {
@@ -179,30 +173,36 @@ public class BouncedMessageParser {
     private List<String> extractRecipients(final DeliveryStatus deliveryStatus) {
         final List<String> recipients = Lists.newArrayList();
         for (int dsn = 0; dsn < deliveryStatus.getRecipientDSNCount(); dsn++) {
-            final String recipient = getHeaderValue(deliveryStatus.getRecipientDSN(dsn), "Final-Recipient");
-            if (recipient == null){
-                continue;
-            }
-            final Matcher finalRecipientMatcher = FINAL_RECIPIENT_MATCHER.matcher(recipient);
-            if (!finalRecipientMatcher.matches() || finalRecipientMatcher.groupCount() != 2){
-                LOGGER.error("Wrong formatted recipient {}", recipient);
-                continue;
-            }
-            final String email = finalRecipientMatcher.group(2);
-            if (isValidEmail(email)) {
-                recipients.add(email);
+            final String finalRecipient = parseRecipient(getHeaderValue(deliveryStatus.getRecipientDSN(dsn), "Final-Recipient"));
+            if (finalRecipient != null) {
+                recipients.add(finalRecipient);
+            } else {
+                final String originalRecipient = parseRecipient(getHeaderValue(deliveryStatus.getRecipientDSN(dsn), "Original-Recipient"));
+                if (originalRecipient != null) {
+                    recipients.add(originalRecipient);
+                }
             }
         }
         return recipients;
     }
 
-    private boolean isValidEmail(final String email){
-        try {
-            EMAIL_PARSER.parse(email);
-            return true;
-        } catch (AttributeParseException ex){
-            return false;
+    @Nullable
+    private String parseRecipient(final String recipient) {
+        if (recipient != null) {
+            final Matcher matcher = RECIPIENT_MATCHER.matcher(recipient);
+            if (matcher.matches() && matcher.groupCount() == 2) {
+                try {
+                    return normaliseEmail(matcher.group(2));
+                } catch (AttributeParseException e) {
+                    return null;
+                }
+            }
         }
+        return null;
+    }
+
+    private String normaliseEmail(final String email) {
+        return EMAIL_PARSER.parse(email).getAddress();
     }
 
     private boolean isFailed(final DeliveryStatus deliveryStatus) {
