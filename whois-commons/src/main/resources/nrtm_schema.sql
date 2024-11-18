@@ -92,6 +92,7 @@ CREATE TABLE `key_pair`
     `id`          int unsigned    NOT NULL AUTO_INCREMENT,
     `private_key` VARBINARY(3000) NOT NULL,
     `public_key`  VARBINARY(3000) NOT NULL,
+    `pem_format`  VARCHAR(255) NULL,
     `created`     bigint unsigned NOT NULL,
     `expires`     bigint unsigned NOT NULL,
     `is_active`   bit(1) NOT NULL DEFAULT b'0',

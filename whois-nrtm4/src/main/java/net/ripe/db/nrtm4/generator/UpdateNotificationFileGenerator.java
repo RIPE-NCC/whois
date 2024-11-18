@@ -142,7 +142,7 @@ public class UpdateNotificationFileGenerator {
     private static boolean hasNextKeyChanged(final NotificationFile notificationFile, final NrtmKeyRecord nextKey)  {
         try {
             final UpdateNotificationFile payload = new ObjectMapper().readValue(notificationFile.payload(), UpdateNotificationFile.class);
-            return !Objects.equals(nextKey != null ? JWSUtil.getPublicKey(nextKey.publicKey()) : null, payload.getNextSigningKey());
+            return !Objects.equals(getNextSigningKey(nextKey), payload.getNextSigningKey());
         } catch (final JsonProcessingException e) {
             LOGGER.warn("Current Notification file keys cannot be parsed");
             //If we cannot parse UNF or key is not parsed we should generate UNF by default
@@ -181,7 +181,7 @@ public class UpdateNotificationFileGenerator {
             final UpdateNotificationFile notification = new UpdateNotificationFile(
                     fileVersion,
                     new VersionDateTime(createdTimestamp).toString(),
-                    nextKey != null ? JWSUtil.getPublicKey(nextKey.publicKey()) : null,
+                    getNextSigningKey(nextKey),
                     getPublishableFile(snapshotFile.versionInfo(), snapshotFile.snapshotFile().name(), snapshotFile.snapshotFile().hash()),
                     getPublishableFile(deltaFiles)
             );
@@ -190,5 +190,17 @@ public class UpdateNotificationFileGenerator {
             LOGGER.error("NRTM file generation failed", e);
             return null;
         }
+    }
+
+    private static String getNextSigningKey(final NrtmKeyRecord nextKey) {
+        if(nextKey == null) {
+            return null;
+        }
+
+        if(nextKey.pemFormat() == null) {
+            LOGGER.error("Next key is available but its pem format is not");
+            return null;
+        }
+        return nextKey.pemFormat();
     }
 }
