@@ -64,17 +64,19 @@ public class UpdateNotificationFileProcessor {
 
             if (nrtmClientLastVersionInfo != null && !nrtmClientLastVersionInfo.hostname().equals(hostname)){
                 LOGGER.info("Different host");
-                //snapshotImporter.truncateTables();
+                return;
             }
 
             if (nrtmClientLastVersionInfo != null && !nrtmClientLastVersionInfo.sessionID().equals(updateNotificationFile.getSessionID())){
                 LOGGER.info("Different session");
                 snapshotImporter.truncateTables();
+                return;
             }
 
             if (nrtmClientLastVersionInfo != null && nrtmClientLastVersionInfo.version() > updateNotificationFile.getVersion()){
                 LOGGER.info("The local version cannot be higher than the update notification version {}", source);
                 snapshotImporter.truncateTables();
+                return;
             }
 
             if (nrtmClientLastVersionInfo != null && nrtmClientLastVersionInfo.version().equals(updateNotificationFile.getVersion())){
@@ -85,19 +87,9 @@ public class UpdateNotificationFileProcessor {
             nrtm4ClientMirrorDao.saveUpdateNotificationFileVersion(source, updateNotificationFile.getVersion(),
                     updateNotificationFile.getSessionID(), hostname);
 
-            if (nrtmClientLastVersionInfo == null){
-                LOGGER.info("There is no existing Snapshot for the source {}", source);
-                snapshotImporter.importSnapshot(source, updateNotificationFile);
-            }
+            snapshotImporter.importSnapshot(source, updateNotificationFile);
         });
-        createDummyPersonIfNoExist();
     }
 
-    private void createDummyPersonIfNoExist() {
-        final Map.Entry<RpslObject, RpslObjectUpdateInfo> persistDummyObject = snapshotImporter.persistDummyObjectIfNotExist();
-        if (persistDummyObject != null){
-            snapshotImporter.createIndexes(persistDummyObject);
-        }
-    }
 
 }

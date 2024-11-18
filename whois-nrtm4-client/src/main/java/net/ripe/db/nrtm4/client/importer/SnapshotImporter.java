@@ -82,6 +82,8 @@ public class SnapshotImporter {
                 }
         );
 
+        createDummyPersonIfNoExist();
+
         timer.cancel();
         stopwatch.stop();
 
@@ -91,6 +93,13 @@ public class SnapshotImporter {
 
     public void createIndexes(final Map.Entry<RpslObject, RpslObjectUpdateInfo> persistedRpslObject) {
         nrtm4ClientRepository.createIndexes(persistedRpslObject.getKey(), persistedRpslObject.getValue());
+    }
+
+    private void createDummyPersonIfNoExist() {
+        final Map.Entry<RpslObject, RpslObjectUpdateInfo> persistDummyObject = persistDummyObjectIfNotExist();
+        if (persistDummyObject != null){
+            createIndexes(persistDummyObject);
+        }
     }
 
     @Nullable
