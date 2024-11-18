@@ -64,9 +64,9 @@ public class SnapshotImporter {
         }
 
         final byte[] payload = nrtmRestClient.getSnapshotFile(snapshot.getUrl());
-
-        if (!snapshot.getHash().equals(calculateSha256(payload))){
-            LOGGER.error("Snapshot hash doesn't match, skipping import");
+        String payload1 = calculateSha256(payload);
+        if (!snapshot.getHash().equals(payload1)){
+            LOGGER.error("Snapshot hash {} doesn't match {}, skipping import", snapshot.getHash(), payload1);
             return;
         }
 
