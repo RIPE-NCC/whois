@@ -145,7 +145,7 @@ public class SnapshotImporter {
     }
 
     private void persistBatches(final String[] remainingRecords,
-                                                                 final AtomicInteger processedCount) {
+                                final AtomicInteger processedCount) {
         Arrays.stream(remainingRecords)
                 .parallel()
                 .forEach(record -> {
