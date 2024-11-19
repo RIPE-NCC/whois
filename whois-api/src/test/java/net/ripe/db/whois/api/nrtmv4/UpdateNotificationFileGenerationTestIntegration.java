@@ -1,12 +1,17 @@
 package net.ripe.db.whois.api.nrtmv4;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
+import jakarta.ws.rs.NotAllowedException;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 import net.ripe.db.nrtm4.domain.NrtmDocumentType;
 import net.ripe.db.nrtm4.domain.UpdateNotificationFile;
 import net.ripe.db.whois.api.AbstractNrtmIntegrationTest;
+import net.ripe.db.whois.api.rdap.domain.Entity;
 import net.ripe.db.whois.common.rpsl.RpslObject;
+import org.eclipse.jetty.http.HttpHeader;
+import org.eclipse.jetty.http.HttpScheme;
+import org.eclipse.jetty.http.HttpStatus;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.springframework.test.annotation.DirtiesContext;
@@ -24,6 +29,7 @@ import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.not;
 import static org.hamcrest.Matchers.notNullValue;
 import static org.hamcrest.Matchers.nullValue;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 @Tag("IntegrationTest")
 @DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_EACH_TEST_METHOD)
@@ -331,6 +337,18 @@ public class UpdateNotificationFileGenerationTestIntegration extends AbstractNrt
         assertThat(response.getStatus(), is(404));
         assertThat(response.readEntity(String.class), is("update-notification-file does not exists for source TEST"));
     }
+
+    @Test
+    public void should_throw_405_when_method_does_not_exist() {
+        final Response response = getWebTarget("?infvt=kefne")
+                    .request(MediaType.APPLICATION_JSON)
+                    .header(HttpHeader.X_FORWARDED_PROTO.asString(), HttpScheme.HTTPS.asString())
+                    .post(jakarta.ws.rs.client.Entity.entity("", MediaType.APPLICATION_JSON));
+
+        assertThat(response.getStatus(), is(HttpStatus.METHOD_NOT_ALLOWED_405));
+    }
+
+    /* Helper */
     private boolean isValidDateFormat(final String date){
         final DateFormat sdf = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'");
         sdf.setLenient(false);
