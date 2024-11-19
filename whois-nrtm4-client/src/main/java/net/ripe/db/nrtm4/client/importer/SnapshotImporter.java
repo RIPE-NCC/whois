@@ -119,18 +119,16 @@ public class SnapshotImporter {
 
     private void persistBatches(final String[] remainingRecords,
                                 final AtomicInteger processedCount) {
-        Arrays.stream(remainingRecords)
-                .parallel()
-                .forEach(record -> {
-                    try {
-                        final Map.Entry<RpslObject, RpslObjectUpdateInfo> persistedRecord = nrtm4ClientRepository.processObject(record);
-                        nrtm4ClientRepository.createIndexes(persistedRecord.getKey(), persistedRecord.getValue());
-                        processedCount.incrementAndGet();
-                    } catch (JsonProcessingException e) {
-                        LOGGER.error("Unable to parse record {}", record, e);
-                        throw new IllegalStateException(e);
-                    }
-                });
+        Arrays.stream(remainingRecords).parallel().forEach(record -> {
+            try {
+                final Map.Entry<RpslObject, RpslObjectUpdateInfo> persistedRecord = nrtm4ClientRepository.processObject(record);
+                nrtm4ClientRepository.createIndexes(persistedRecord.getKey(), persistedRecord.getValue());
+            } catch (JsonProcessingException e) {
+                LOGGER.error("Unable to parse record {}", record, e);
+                throw new IllegalStateException(e);
+            }
+        });
+        processedCount.addAndGet(remainingRecords.length);
     }
 
     public static RpslObject getPlaceholderPersonObject() {
