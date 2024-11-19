@@ -64,20 +64,19 @@ public class UpdateNotificationFileProcessor {
 
             if (nrtmClientLastVersionInfo != null && !nrtmClientLastVersionInfo.hostname().equals(hostname)){
                 LOGGER.info("Different host");
-                snapshotImporter.truncateTables();
-                nrtmClientLastVersionInfo = null;
+                return;
             }
 
             if (nrtmClientLastVersionInfo != null && !nrtmClientLastVersionInfo.sessionID().equals(updateNotificationFile.getSessionID())){
                 LOGGER.info("Different session");
                 snapshotImporter.truncateTables();
-                nrtmClientLastVersionInfo = null;
+                return;
             }
 
             if (nrtmClientLastVersionInfo != null && nrtmClientLastVersionInfo.version() > updateNotificationFile.getVersion()){
                 LOGGER.info("The local version cannot be higher than the update notification version {}", source);
                 snapshotImporter.truncateTables();
-                nrtmClientLastVersionInfo = null;
+                return;
             }
 
             if (nrtmClientLastVersionInfo != null && nrtmClientLastVersionInfo.version().equals(updateNotificationFile.getVersion())){

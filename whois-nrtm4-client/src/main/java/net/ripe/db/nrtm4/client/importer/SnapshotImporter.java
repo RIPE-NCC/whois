@@ -72,11 +72,15 @@ public class SnapshotImporter {
         final Timer timer = new Timer();
         printProgress(timer, processedCount);
 
-        GzipDecompressor.decompressRecords(
-                payload,
-                firstRecord -> processMetadata(source, updateNotificationFile, firstRecord),
-                recordBatches -> persistBatches(recordBatches, processedCount)
-        );
+        try {
+            GzipDecompressor.decompressRecords(
+                    payload,
+                    firstRecord -> processMetadata(source, updateNotificationFile, firstRecord),
+                    recordBatches -> persistBatches(recordBatches, processedCount)
+            );
+        } catch (IllegalArgumentException ex){
+            return;
+        }
 
         persistDummyObjectIfNotExist();
 
@@ -153,15 +157,14 @@ public class SnapshotImporter {
         );
     }
 
-    private void processMetadata(String source, UpdateNotificationFileResponse updateNotificationFile, String firstRecord) {
+    private void processMetadata(final String source, final UpdateNotificationFileResponse updateNotificationFile,
+                                 final String firstRecord) throws IllegalArgumentException {
         final JSONObject jsonObject = new JSONObject(firstRecord);
         final int version = jsonObject.getInt("version");
         final String sessionId = jsonObject.getString("session_id");
         if (!sessionId.equals(updateNotificationFile.getSessionID())) {
-            // TODO: [MH] if the service is wrong for any reason...we have here a non-ending loop, we need to
-            //  call initialize X number of times and return error to avoid this situation?
             LOGGER.error("The session is not the same in the UNF and snapshot");
-            //initializeNRTMClientForSource(source, updateNotificationFile);
+            truncateTables();
             throw new IllegalArgumentException("The session is not the same in the UNF and snapshot");
         }
         nrtm4ClientInfoMirrorDao.saveSnapshotFileVersion(source, version, sessionId);
