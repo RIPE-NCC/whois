@@ -16,7 +16,7 @@ public class GzipDecompressor {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(GzipDecompressor.class);
 
-    private static final int BATCH_SIZE = 10000;
+    private static final int BATCH_SIZE = 100000;
 
     private static final int BUFFER_SIZE = 4096;
 
