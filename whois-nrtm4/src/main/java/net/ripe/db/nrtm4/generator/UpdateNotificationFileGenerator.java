@@ -14,9 +14,7 @@ import net.ripe.db.nrtm4.domain.NrtmSource;
 import net.ripe.db.nrtm4.domain.NrtmVersionInfo;
 import net.ripe.db.nrtm4.domain.UpdateNotificationFile;
 import net.ripe.db.nrtm4.domain.SnapshotFileVersionInfo;
-import net.ripe.db.nrtm4.source.NrtmSourceContext;
-import net.ripe.db.nrtm4.util.ByteArrayUtil;
-import net.ripe.db.nrtm4.util.Ed25519Util;
+import net.ripe.db.nrtm4.util.JWSUtil;
 import net.ripe.db.whois.common.DateTimeProvider;
 import net.ripe.db.whois.common.dao.VersionDateTime;
 import org.slf4j.Logger;
@@ -26,7 +24,6 @@ import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
-import java.util.Base64;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
@@ -84,7 +81,7 @@ public class UpdateNotificationFileGenerator {
               continue;
           }
 
-           LOGGER.info("Last generated snapshot file version is : {}" , snapshotFile.get().versionInfo().version());
+          LOGGER.info("Last generated snapshot file version is : {}" , snapshotFile.get().versionInfo().version());
 
           final List<DeltaFileVersionInfo> deltaFiles = deltaFileDao.getAllDeltasForSourceSince(nrtmSource, oneDayAgo);
           final NrtmVersionInfo fileVersion = getVersion(deltaFiles, snapshotFile.get());
@@ -145,7 +142,7 @@ public class UpdateNotificationFileGenerator {
     private static boolean hasNextKeyChanged(final NotificationFile notificationFile, final NrtmKeyRecord nextKey)  {
         try {
             final UpdateNotificationFile payload = new ObjectMapper().readValue(notificationFile.payload(), UpdateNotificationFile.class);
-            return !Objects.equals(Ed25519Util.encodePublicKey(nextKey), payload.getNextSigningKey());
+            return !Objects.equals(getNextSigningKey(nextKey), payload.getNextSigningKey());
         } catch (final JsonProcessingException e) {
             LOGGER.warn("Current Notification file keys cannot be parsed");
             //If we cannot parse UNF or key is not parsed we should generate UNF by default
@@ -184,7 +181,7 @@ public class UpdateNotificationFileGenerator {
             final UpdateNotificationFile notification = new UpdateNotificationFile(
                     fileVersion,
                     new VersionDateTime(createdTimestamp).toString(),
-                    Ed25519Util.encodePublicKey(nextKey),
+                    getNextSigningKey(nextKey),
                     getPublishableFile(snapshotFile.versionInfo(), snapshotFile.snapshotFile().name(), snapshotFile.snapshotFile().hash()),
                     getPublishableFile(deltaFiles)
             );
@@ -193,5 +190,17 @@ public class UpdateNotificationFileGenerator {
             LOGGER.error("NRTM file generation failed", e);
             return null;
         }
+    }
+
+    private static String getNextSigningKey(final NrtmKeyRecord nextKey) {
+        if(nextKey == null) {
+            return null;
+        }
+
+        if(nextKey.pemFormat() == null) {
+            LOGGER.error("Next key is available but its pem format is not");
+            return null;
+        }
+        return nextKey.pemFormat();
     }
 }
