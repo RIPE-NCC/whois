@@ -2,6 +2,7 @@ package net.ripe.db.whois.api.nrtm4;
 
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.ws.rs.BadRequestException;
+import jakarta.ws.rs.NotAllowedException;
 import jakarta.ws.rs.NotFoundException;
 import jakarta.ws.rs.core.Response;
 import jakarta.ws.rs.ext.ExceptionMapper;
@@ -24,6 +25,10 @@ public class NrtmExceptionMapper implements ExceptionMapper<Exception> {
 
         if (exception instanceof NotFoundException) {
             return createErrorResponse(HttpServletResponse.SC_NOT_FOUND, exception.getMessage());
+        }
+
+        if (exception instanceof NotAllowedException) {
+            return createErrorResponse(HttpServletResponse.SC_METHOD_NOT_ALLOWED, exception.getMessage());
         }
 
         LOGGER.error("Unexpected", exception);
