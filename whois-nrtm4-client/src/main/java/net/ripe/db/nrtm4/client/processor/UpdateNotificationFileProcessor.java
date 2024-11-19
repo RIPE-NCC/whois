@@ -55,8 +55,6 @@ public class UpdateNotificationFileProcessor {
 
         final String hostname = Hosts.getInstanceName();
 
-        final Map<RpslObject, RpslObjectUpdateInfo> persistedRpslObjects = new HashMap<>();
-
         notificationFilePerSource.forEach((source, updateNotificationFile) -> {
             NrtmClientVersionInfo nrtmClientLastVersionInfo = nrtmLastVersionInfoPerSource
                     .stream()
@@ -92,28 +90,10 @@ public class UpdateNotificationFileProcessor {
 
             if (nrtmClientLastVersionInfo == null){
                 LOGGER.info("There is no existing Snapshot for the source {}", source);
-                persistedRpslObjects.putAll(snapshotImporter.importSnapshot(source, updateNotificationFile));
+                snapshotImporter.importSnapshot(source, updateNotificationFile);
             }
         });
 
-        createDummyPerson();
-        /*if (!persistedRpslObjects.isEmpty()){
-            createIndexesAndDummyPerson(persistedRpslObjects);
-        }*/
-
-    }
-
-    private void createIndexesAndDummyPerson(final Map<RpslObject, RpslObjectUpdateInfo> persistedRpslObjects) {
-        final Map.Entry<RpslObject, RpslObjectUpdateInfo> persistDummyObject = snapshotImporter.persistDummyObjectIfNotExist();
-        persistedRpslObjects.put(persistDummyObject.getKey(), persistDummyObject.getValue());
-        snapshotImporter.createIndexes(persistedRpslObjects);
-    }
-
-    private void createDummyPerson() {
-        final Map.Entry<RpslObject, RpslObjectUpdateInfo> persistDummyObject = snapshotImporter.persistDummyObjectIfNotExist();
-        if (persistDummyObject != null){
-            snapshotImporter.createIndexes(persistDummyObject);
-        }
     }
 
 }
