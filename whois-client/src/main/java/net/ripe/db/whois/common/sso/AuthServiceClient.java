@@ -23,7 +23,9 @@ import net.ripe.db.whois.common.sso.domain.HistoricalUserResponse;
 import net.ripe.db.whois.common.sso.domain.MemberContactsResponse;
 import net.ripe.db.whois.common.sso.domain.ValidateTokenResponse;
 import org.apache.commons.lang.StringUtils;
+import org.glassfish.jersey.client.ClientConfig;
 import org.glassfish.jersey.client.ClientProperties;
+import org.glassfish.jersey.jdk.connector.JdkConnectorProvider;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -85,7 +87,10 @@ public class AuthServiceClient {
                 .configure(DeserializationFeature.UNWRAP_ROOT_VALUE, false)
                 .configure(DeserializationFeature.ACCEPT_SINGLE_VALUE_AS_ARRAY, true);
         jsonProvider.setMapper(objectMapper);
+        final ClientConfig clientConfig = new ClientConfig();
+        clientConfig.connectorProvider(new JdkConnectorProvider());
         this.client = (ClientBuilder.newBuilder()
+                .withConfig(clientConfig)
                 .register(jsonProvider))
                 .property(ClientProperties.CONNECT_TIMEOUT, CLIENT_CONNECT_TIMEOUT)
                 .property(ClientProperties.READ_TIMEOUT, CLIENT_READ_TIMEOUT)
