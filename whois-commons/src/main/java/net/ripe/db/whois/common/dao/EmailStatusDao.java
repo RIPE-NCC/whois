@@ -88,6 +88,10 @@ public class EmailStatusDao {
         return results;
     }
 
+    public void deleteEmails(final Set<String> emailAddresses){
+        namedParameterJdbcTemplate.update("DELETE FROM email_status WHERE email in (:emails)",
+                Map.of("emails", emailAddresses));
+    }
 
     private static byte[] getMimeMessageBytes(final MimeMessage message) throws MessagingException, IOException {
         final ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
