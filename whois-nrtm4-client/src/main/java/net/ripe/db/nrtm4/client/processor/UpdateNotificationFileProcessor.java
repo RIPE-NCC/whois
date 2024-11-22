@@ -40,7 +40,7 @@ public class UpdateNotificationFileProcessor {
 
     private final SnapshotImporter snapshotImporter;
 
-    private final String PUBLIC_KEY_PATH = "public.key";
+    private final static String PUBLIC_KEY_PATH = "public.key";
 
     public UpdateNotificationFileProcessor(final NrtmRestClient nrtmRestClient,
                                            final Nrtm4ClientMirrorRepository nrtm4ClientMirrorDao,
@@ -138,7 +138,7 @@ public class UpdateNotificationFileProcessor {
         }
     }
 
-    private String readPublicKey() {
+    private static String readPublicKey() {
         try {
             try (InputStream inputStream = UpdateNotificationFileProcessor.class.getClassLoader().getResourceAsStream(PUBLIC_KEY_PATH)) {
                 if (inputStream == null) {
