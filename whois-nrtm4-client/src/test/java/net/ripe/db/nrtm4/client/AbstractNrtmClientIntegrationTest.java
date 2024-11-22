@@ -32,10 +32,6 @@ public class AbstractNrtmClientIntegrationTest extends AbstractDatabaseHelperInt
     @Autowired
     protected NrtmServerDummy nrtmServerDummy;
 
-    private static final String NRTM_PUBLIC_KEY = """
-            {"kty":"OKP","crv":"Ed25519","kid":"a9ddf4a5-0ca0-47b1-a80d-3c63fd5c19c5","x":"ry9yLgcy1eUNX1lDs852mmUXRoy4qZW1HSOu54qBCHI"}
-            """;
-
 
     @Autowired(required = false)
     @Qualifier("nrtmClientMasterDataSource")
@@ -52,14 +48,12 @@ public class AbstractNrtmClientIntegrationTest extends AbstractDatabaseHelperInt
     @BeforeAll
     public static void setUp(){
         System.setProperty("nrtm4.client.enabled", "true");
-        System.setProperty("nrtm.key", NRTM_PUBLIC_KEY);
 
     }
 
     @AfterAll
     public static void tearDown(){
         System.clearProperty("nrtm4.client.enabled");
-        System.clearProperty("nrtm.key");
     }
 
     protected List<MirrorRpslObject> getMirrorRpslObject(){

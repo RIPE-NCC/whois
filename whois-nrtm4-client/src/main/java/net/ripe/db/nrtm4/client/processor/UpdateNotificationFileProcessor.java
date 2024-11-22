@@ -15,12 +15,14 @@ import net.ripe.db.nrtm4.client.dao.NrtmClientVersionInfo;
 import net.ripe.db.nrtm4.client.importer.SnapshotImporter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Conditional;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.annotation.Nullable;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.InputStream;
 import java.text.ParseException;
 import java.util.List;
 import java.util.Map;
@@ -38,16 +40,14 @@ public class UpdateNotificationFileProcessor {
 
     private final SnapshotImporter snapshotImporter;
 
-    private final String publicKey;
+    private final String PUBLIC_KEY_PATH = "public.key";
 
     public UpdateNotificationFileProcessor(final NrtmRestClient nrtmRestClient,
                                            final Nrtm4ClientMirrorRepository nrtm4ClientMirrorDao,
-                                           final SnapshotImporter snapshotImporter,
-                                           @Value("${nrtm.key}") final String publicKey) {
+                                           final SnapshotImporter snapshotImporter) {
         this.nrtmRestClient = nrtmRestClient;
         this.nrtm4ClientMirrorDao = nrtm4ClientMirrorDao;
         this.snapshotImporter = snapshotImporter;
-        this.publicKey = publicKey;
     }
 
     @Transactional(rollbackFor = Exception.class)
@@ -128,13 +128,26 @@ public class UpdateNotificationFileProcessor {
 
     private boolean isCorrectSignature(final JWSObject jwsObjectParsed) {
         try {
-            final OctetKeyPair parsedPublicKey =  OctetKeyPair.parse(publicKey);
+            final OctetKeyPair parsedPublicKey =  OctetKeyPair.parse(readPublicKey());
 
             final JWSVerifier verifier = new Ed25519Verifier(parsedPublicKey);
             return jwsObjectParsed.verify(verifier);
         } catch (JOSEException | ParseException ex) {
             LOGGER.error("failed to verify signature {}", ex.getMessage());
             return false;
+        }
+    }
+
+    private String readPublicKey() {
+        try {
+            try (InputStream inputStream = UpdateNotificationFileProcessor.class.getClassLoader().getResourceAsStream(PUBLIC_KEY_PATH)) {
+                if (inputStream == null) {
+                    throw new FileNotFoundException("Public key file not found in resources: " + PUBLIC_KEY_PATH);
+                }
+                return new String(inputStream.readAllBytes());
+            }
+        } catch (IOException ex){
+            throw new IllegalStateException("Public key file not found in resources: " + PUBLIC_KEY_PATH);
         }
     }
 
