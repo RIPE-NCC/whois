@@ -73,6 +73,15 @@ public class UpdateNotificationFileProcessorTestIntegration extends AbstractNrtm
     }
 
     @Test
+    public void wrongly_signed_UNF_then_no_UNF_added(){
+        nrtmServerDummy.setWrongSignedUNF();
+        updateNotificationFileProcessor.processFile();
+
+        final List<NrtmClientVersionInfo> versionInfosPerSource = nrtm4ClientMirrorRepository.getNrtmLastVersionInfoForUpdateNotificationFile();
+        assertThat(versionInfosPerSource, is(empty()));
+    }
+
+    @Test
     public void process_UNF_but_DB_Ahead_Then_ReInitialize(){
         // TODO: [MH] Re-initialize
     }
