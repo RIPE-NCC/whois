@@ -10,10 +10,11 @@ import org.junit.jupiter.api.Test;
 import java.util.List;
 
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.empty;
 import static org.hamcrest.Matchers.is;
 
 @Tag("IntegrationTest")
-public class UNFProcessorWrongSignatureTestIntegration extends AbstractNrtmClientIntegrationTest {
+public class UNFProcessorWrongPublicKeyTestIntegration extends AbstractNrtmClientIntegrationTest {
 
     @BeforeAll
     public static void setUp(){
@@ -30,6 +31,6 @@ public class UNFProcessorWrongSignatureTestIntegration extends AbstractNrtmClien
         updateNotificationFileProcessor.processFile();
 
         final List<NrtmClientVersionInfo> versionInfosPerSource = nrtm4ClientMirrorRepository.getNrtmLastVersionInfoForUpdateNotificationFile();
-        assertThat(versionInfosPerSource.isEmpty(), is(true));
+        assertThat(versionInfosPerSource, is(empty()));
     }
 }

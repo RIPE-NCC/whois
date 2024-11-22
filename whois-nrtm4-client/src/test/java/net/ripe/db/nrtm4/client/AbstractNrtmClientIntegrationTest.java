@@ -33,7 +33,7 @@ public class AbstractNrtmClientIntegrationTest extends AbstractDatabaseHelperInt
     protected NrtmServerDummy nrtmServerDummy;
 
     private static final String NRTM_PUBLIC_KEY = """
-            {"kty":"OKP","crv":"Ed25519","kid":"35e18000-ce6a-4b72-b92c-d09fc6ec279d","x":"ZqHS2UmPulPoWlPIET-nSuXyEkb4N-LKiWZMSj8S2eU"}
+            {"kty":"OKP","crv":"Ed25519","kid":"a9ddf4a5-0ca0-47b1-a80d-3c63fd5c19c5","x":"ry9yLgcy1eUNX1lDs852mmUXRoy4qZW1HSOu54qBCHI"}
             """;
 
 
