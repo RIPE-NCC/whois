@@ -77,7 +77,7 @@ public class UpdateNotificationFileProcessor {
             }
 
             if (!isCorrectSignature(jwsObjectParsed)){
-                LOGGER.info("Update Notification File not corrected signed for {} source", source);
+                LOGGER.error("Update Notification File not corrected signed for {} source", source);
                 return;
             }
 
