@@ -96,7 +96,7 @@
         <spock.version>2.3-groovy-3.0</spock.version>
         <stax-utils.version>20070216</stax-utils.version>
 
-        <testcontainers.elasticsearch.version>1.16.2</testcontainers.elasticsearch.version>
+        <testcontainers.elasticsearch.version>1.20.4</testcontainers.elasticsearch.version>
 
         <validation.version>3.0.2</validation.version>
         <velocity.version>2.3</velocity.version>
