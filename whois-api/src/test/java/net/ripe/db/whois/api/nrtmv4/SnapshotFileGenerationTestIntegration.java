@@ -433,7 +433,7 @@ public class SnapshotFileGenerationTestIntegration extends AbstractNrtmIntegrati
     }
 
     public String[] getSnapshotRecords(byte[] compressed) throws IOException {
-        return StringUtils.split( decompress(compressed), NrtmFileUtil.RECORD_SEPARATOR);
+        return StringUtils.split( decompress(compressed), NrtmFileUtil.RECORD_SEPERATOR);
     }
 
     private String[] getSnapshotRecords(final String source) throws IOException {

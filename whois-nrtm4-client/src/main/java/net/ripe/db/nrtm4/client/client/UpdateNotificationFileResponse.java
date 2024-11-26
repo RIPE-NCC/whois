@@ -8,6 +8,9 @@ import javax.annotation.Nullable;
 import java.util.List;
 import java.util.Objects;
 
+import javax.annotation.Nullable;
+import java.util.Objects;
+
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class UpdateNotificationFileResponse {
 
@@ -16,6 +19,7 @@ public class UpdateNotificationFileResponse {
     private final long version;
     private final NrtmFileLink snapshot;
     private final List<NrtmFileLink> deltas;
+
 
     public UpdateNotificationFileResponse() {
         this.sessionID = null;

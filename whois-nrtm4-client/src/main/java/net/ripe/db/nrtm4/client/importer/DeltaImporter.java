@@ -5,7 +5,8 @@ import net.ripe.db.nrtm4.client.client.MirrorDeltaInfo;
 import net.ripe.db.nrtm4.client.client.NrtmRestClient;
 import net.ripe.db.nrtm4.client.client.UpdateNotificationFileResponse;
 import net.ripe.db.nrtm4.client.condition.Nrtm4ClientCondition;
-import net.ripe.db.nrtm4.client.dao.Nrtm4ClientMirrorRepository;
+import net.ripe.db.nrtm4.client.dao.Nrtm4ClientInfoRepository;
+import net.ripe.db.nrtm4.client.dao.Nrtm4ClientRepository;
 import net.ripe.db.nrtm4.client.dao.NrtmClientVersionInfo;
 import net.ripe.db.whois.common.rpsl.RpslObject;
 import org.apache.commons.compress.utils.Lists;
@@ -27,13 +28,18 @@ public class DeltaImporter implements Importer {
 
     private final NrtmRestClient nrtmRestClient;
 
-    private final Nrtm4ClientMirrorRepository nrtm4ClientMirrorDao;
+    private final Nrtm4ClientRepository nrtm4ClientRepository;
+
+    private final Nrtm4ClientInfoRepository nrtm4ClientInfoRepository;
 
     public static final String RECORD_SEPARATOR = "\u001E";
 
-    public DeltaImporter(final NrtmRestClient nrtmRestClient, final Nrtm4ClientMirrorRepository nrtm4ClientMirrorDao) {
+    public DeltaImporter(final NrtmRestClient nrtmRestClient,
+                         final Nrtm4ClientRepository nrtm4ClientRepository,
+                         final Nrtm4ClientInfoRepository nrtm4ClientInfoRepository) {
         this.nrtmRestClient = nrtmRestClient;
-        this.nrtm4ClientMirrorDao = nrtm4ClientMirrorDao;
+        this.nrtm4ClientRepository = nrtm4ClientRepository;
+        this.nrtm4ClientInfoRepository = nrtm4ClientInfoRepository;
     }
 
     @Override
@@ -74,23 +80,23 @@ public class DeltaImporter implements Importer {
 
             mirrorObjectInfos.forEach(deltaInfo -> {
                 if (deltaInfo.getAction().equals(MirrorDeltaInfo.Action.ADD_MODIFY)){
-                    final Integer objectId = nrtm4ClientMirrorDao.getMirroredObjectId(deltaInfo.getRpslObject().getKey().toString());
+                    final Integer objectId = nrtm4ClientRepository.getMirroredObjectId(deltaInfo.getRpslObject().getKey().toString());
                     if (objectId == null) {
-                        nrtm4ClientMirrorDao.persistRpslObject(deltaInfo.getRpslObject());
+                        nrtm4ClientRepository.persistRpslObject(deltaInfo.getRpslObject());
                         return;
                     }
-                    nrtm4ClientMirrorDao.updateMirroredObject(deltaInfo.getRpslObject(), objectId);
+                    nrtm4ClientRepository.updateMirroredObject(deltaInfo.getRpslObject(), objectId);
                 } else {
-                    nrtm4ClientMirrorDao.removeMirroredObject(deltaInfo.getPrimaryKey());
+                    nrtm4ClientRepository.removeMirroredObject(deltaInfo.getPrimaryKey());
                 }
             });
 
-            nrtm4ClientMirrorDao.saveDeltaFileVersion(source, metadata.version, metadata.sessionId());
+            nrtm4ClientInfoRepository.saveDeltaFileVersion(source, metadata.version, metadata.sessionId());
         });
     }
 
     private List<UpdateNotificationFileResponse.NrtmFileLink> getNewDeltas(String source, UpdateNotificationFileResponse updateNotificationFile) {
-        final NrtmClientVersionInfo nrtmClientVersionInfo = nrtm4ClientMirrorDao.getNrtmLastVersionInfoForDeltasPerSource(source);
+        final NrtmClientVersionInfo nrtmClientVersionInfo = nrtm4ClientInfoRepository.getNrtmLastVersionInfoForDeltasPerSource(source);
 
         if (nrtmClientVersionInfo == null){
             return updateNotificationFile.getDeltas();

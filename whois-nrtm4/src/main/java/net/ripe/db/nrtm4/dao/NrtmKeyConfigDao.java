@@ -47,25 +47,27 @@ public class NrtmKeyConfigDao {
 
     public NrtmKeyRecord getActiveKeyPair() {
         return readTemplate.queryForObject(
-                    "SELECT id, private_key, public_key, is_active, created, expires FROM key_pair WHERE is_active = true",
+                    "SELECT id, private_key, public_key, pem_format, is_active, created, expires FROM key_pair WHERE is_active = true",
                     (rs, rn) -> new NrtmKeyRecord(rs.getLong(1),
                                                   rs.getBytes(2),
                                                   rs.getBytes(3),
-                                                  rs.getBoolean(4),
-                                                  rs.getLong(5),
-                                                  rs.getLong(6))
+                                                  rs.getString(4),
+                                                  rs.getBoolean(5),
+                                                  rs.getLong(6),
+                                                  rs.getLong(7))
                     );
     }
 
     public List<NrtmKeyRecord> getAllKeyPair() {
         return readTemplate.query(
-                "SELECT id, private_key, public_key, is_active, created, expires FROM key_pair",
+                "SELECT id, private_key, public_key, pem_format, is_active, created, expires FROM key_pair",
                 (rs, rn) -> new NrtmKeyRecord(rs.getLong(1),
                         rs.getBytes(2),
                         rs.getBytes(3),
-                        rs.getBoolean(4),
-                        rs.getLong(5),
-                        rs.getLong(6))
+                        rs.getString(4),
+                        rs.getBoolean(5),
+                        rs.getLong(6),
+                        rs.getLong(7))
         );
     }
 

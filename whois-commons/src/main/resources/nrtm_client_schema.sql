@@ -15,12 +15,9 @@
 /*!40101 SET @OLD_SQL_MODE=@@SQL_MODE, SQL_MODE='NO_AUTO_VALUE_ON_ZERO' */;
 /*!40111 SET @OLD_SQL_NOTES=@@SQL_NOTES, SQL_NOTES=0 */;
 
-
 DROP TABLE IF EXISTS `version`;
 DROP TABLE IF EXISTS `public_key`;
-DROP TABLE IF EXISTS `last_mirror`;
 DROP TABLE IF EXISTS `version_info`;
-
 
 CREATE TABLE `version`
 (
@@ -47,23 +44,9 @@ CREATE TABLE `version_info`
     `version`        int unsigned    NOT NULL,
     `session_id`     varchar(128)    NOT NULL,
     `type`           varchar(128)    NOT NULL,
+    `hostname`   varchar(128),
     `created`        bigint unsigned NOT NULL,
     PRIMARY KEY (`id`),
     UNIQUE KEY `version_info__session__source__version__type__uk` (`session_id`, `source`, `version`, `type`)
 ) ENGINE = InnoDB
   DEFAULT CHARSET = utf8mb4;
-
-
-CREATE TABLE `last_mirror`
-(
-    `object_id` int(10) unsigned NOT NULL AUTO_INCREMENT,
-    `sequence_id` int(10) unsigned NOT NULL DEFAULT '1',
-    `timestamp` int(10) unsigned NOT NULL DEFAULT '0',
-    `object_type` varchar(254) NOT NULL DEFAULT '0',
-    `object` longblob NOT NULL,
-    `pkey` varchar(254) NOT NULL DEFAULT '',
-    PRIMARY KEY (`object_id`,`sequence_id`),
-    KEY `last_pkey` (`pkey`),
-    KEY `object_type_index` (`object_type`)
-) ENGINE=InnoDB
-  DEFAULT CHARSET=utf8mb4;

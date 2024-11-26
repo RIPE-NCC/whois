@@ -21,6 +21,7 @@ public enum NrtmClientDocumentType {
         if (StringUtil.isNullOrEmpty(value)){
             return null;
         }
+
         for (NrtmClientDocumentType enumConstant : NrtmClientDocumentType.values()) {
             if (enumConstant.getFileNamePrefix().equals(value)) {
                 return enumConstant;

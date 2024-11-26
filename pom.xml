@@ -40,7 +40,7 @@
         <commons-collections.version>3.2.2</commons-collections.version>
         <commons-compress.version>1.26.1</commons-compress.version>
         <commons-email.version>2.0.0-M1</commons-email.version>
-        <commons-io.version>2.16.1</commons-io.version>
+        <commons-io.version>2.17.0</commons-io.version>
         <!-- equivalent to https://github.com/jgonian/commons-ip-math/ release 1.23 -->
         <commons-ip-math.version>1.23</commons-ip-math.version>
         <!-- TODO: [ES] Validate.notNull() behaviour has changed in commons-lang3 (throws NullPointerException) -->
@@ -367,6 +367,17 @@
                 <groupId>io.netty</groupId>
                 <artifactId>netty-all</artifactId>
                 <version>${netty.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>com.nimbusds</groupId>
+                <artifactId>nimbus-jose-jwt</artifactId>
+                <version>9.40</version>
+            </dependency>
+            <dependency>
+                <groupId>com.google.crypto.tink</groupId>
+                <artifactId>tink</artifactId>
+                <version>1.13.0</version>
             </dependency>
 
             <!-- Jakarta Mail (formerly JavaMail) TODO: [ES] depend on angus-mail -->
@@ -986,7 +997,7 @@
                 <!-- RUN UNIT TESTS -->
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-surefire-plugin</artifactId>
-                <version>3.2.5</version>
+                <version>3.5.2</version>
                 <configuration>
                     <redirectTestOutputToFile>${test.redirectOutput}</redirectTestOutputToFile>
                     <argLine>-Xmx512m -DjvmId=${surefire.forkNumber} ${surefire.jacoco.args}</argLine>
@@ -1014,7 +1025,7 @@
                 <!-- RUN INTEGRATION TESTS -->
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-failsafe-plugin</artifactId>
-                <version>3.2.5</version>
+                <version>3.5.2</version>
                 <configuration>
                     <redirectTestOutputToFile>${test.redirectOutput}</redirectTestOutputToFile>
                     <argLine>-Xmx1024m -DjvmId=${surefire.forkNumber} --add-modules java.sql,java.xml ${failsafe.jacoco.args}</argLine>

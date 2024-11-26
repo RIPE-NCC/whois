@@ -42,13 +42,22 @@
             <artifactId>bcprov-jdk18on</artifactId>
         </dependency>
 
-        <!-- Jackson JSONObject Library -->
+        <!-- JSONObject Library -->
         <dependency>
             <groupId>org.json</groupId>
             <artifactId>json</artifactId>
             <version>${json.version}</version>
         </dependency>
 
+        <!-- Signature -->
+        <dependency>
+            <groupId>com.nimbusds</groupId>
+            <artifactId>nimbus-jose-jwt</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.google.crypto.tink</groupId>
+            <artifactId>tink</artifactId>
+        </dependency>
 
         <!-- test -->
         <dependency>
