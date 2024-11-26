@@ -115,7 +115,6 @@ public class DatabaseHelper implements EmbeddedValueResolverAware {
         internalsTemplate = new JdbcTemplate(internalsDataSource);
     }
 
-
     @Autowired(required = false)
     @Qualifier("nrtmMasterDataSource")
     public void setNrtmMasterDataSource(DataSource dataSource) {
@@ -174,7 +173,8 @@ public class DatabaseHelper implements EmbeddedValueResolverAware {
         setupDatabase(jdbcTemplate, "whois.db", "WHOIS", "whois_schema.sql", "whois_data.sql");
         setupDatabase(jdbcTemplate, "internals.database", "INTERNALS", "internals_schema.sql", "internals_data.sql");
         setupDatabase(jdbcTemplate, "nrtm.database", "NRTM", "nrtm_schema.sql", "nrtm_data.sql");
-        setupDatabase(jdbcTemplate, "nrtm.client.database", "NRTM_CLIENT", "nrtm_client_schema.sql", "nrtm_client_data.sql");
+        setupDatabase(jdbcTemplate, "nrtm.client.info.database", "NRTM_CLIENT", "nrtm_client_schema.sql", "nrtm_client_data.sql");
+        setupDatabase(jdbcTemplate, "nrtm.client.database", "NRTM_UPDATE", "whois_schema.sql", "whois_data.sql");
 
         final String masterUrl = String.format("jdbc:log:mariadb://%s/%s_WHOIS;driver=%s", DB_HOST, dbBaseName, JDBC_DRIVER);
         System.setProperty("whois.db.master.url", masterUrl);
@@ -190,7 +190,10 @@ public class DatabaseHelper implements EmbeddedValueResolverAware {
         final String nrtmSlaveUrl = String.format("jdbc:mariadb://%s/%s_NRTM", DB_HOST, dbBaseName);
         System.setProperty("nrtm.slave.database.url", nrtmSlaveUrl);
 
-        final String nrtmClientSlaveUrl = String.format("jdbc:mariadb://%s/%s_NRTM_CLIENT", DB_HOST, dbBaseName);
+        final String nrtmClientInfoSlaveUrl = String.format("jdbc:mariadb://%s/%s_NRTM_CLIENT", DB_HOST, dbBaseName);
+        System.setProperty("nrtm.client.info.slave.database.url", nrtmClientInfoSlaveUrl);
+
+        final String nrtmClientSlaveUrl = String.format("jdbc:mariadb://%s/%s_NRTM_UPDATE", DB_HOST, dbBaseName);
         System.setProperty("nrtm.client.slave.database.url", nrtmClientSlaveUrl);
 
         final String grsSlaveUrl = String.format("jdbc:mariadb://%s/%s", DB_HOST, dbBaseName);

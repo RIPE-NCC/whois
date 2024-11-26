@@ -19,26 +19,25 @@ public class UpdateNotificationFileProcessorTestIntegration extends AbstractNrtm
     public void process_UNF_Then_Version_Added() {
         updateNotificationFileProcessor.processFile();
 
-        final List<NrtmClientVersionInfo> versionInfosPerSource = nrtm4ClientMirrorRepository.getNrtmLastVersionInfoForUpdateNotificationFile();
+        final List<NrtmClientVersionInfo> versionInfosPerSource = nrtm4ClientInfoRepository.getNrtmLastVersionInfoForUpdateNotificationFile();
         assertThat(versionInfosPerSource.size(), is(2));
     }
 
     @Test
     public void process_UNF_when_already_Created_Same_Version_Then_Version_Not_Added(){
-        nrtm4ClientMirrorRepository.saveUpdateNotificationFileVersion("RIPE-NONAUTH", 1, "6328095e-7d46-415b-9333-8f2ae274b7c8");
-        nrtm4ClientMirrorRepository.saveUpdateNotificationFileVersion("RIPE", 1, "6328095e-7d46-415b-9333-8f2ae274b7c8");
+        nrtm4ClientInfoRepository.saveUpdateNotificationFileVersion("RIPE-NONAUTH", 1, "6328095e-7d46-415b-9333-8f2ae274b7c8", "localhost");
+        nrtm4ClientInfoRepository.saveUpdateNotificationFileVersion("RIPE", 1, "6328095e-7d46-415b-9333-8f2ae274b7c8", "localhost");
 
         updateNotificationFileProcessor.processFile();
 
-        final List<NrtmClientVersionInfo> versionInfosPerSource = nrtm4ClientMirrorRepository.getNrtmLastVersionInfoForUpdateNotificationFile();
+        final List<NrtmClientVersionInfo> versionInfosPerSource = nrtm4ClientInfoRepository.getNrtmLastVersionInfoForUpdateNotificationFile();
         assertThat(versionInfosPerSource.getFirst().version(), is(1L));
     }
 
     @Test
     public void first_UNF_then_snapshot_persisted(){
         updateNotificationFileProcessor.processFile();
-
-        final List<NrtmClientVersionInfo> versionInfosPerSource = nrtm4ClientMirrorRepository.getNrtmLastVersionInfoForUpdateNotificationFile();
+        final List<NrtmClientVersionInfo> versionInfosPerSource = nrtm4ClientInfoRepository.getNrtmLastVersionInfoForUpdateNotificationFile();
         assertThat(versionInfosPerSource.size(), is(2));
 
         final List<MirrorRpslObject> mirroredRpslObjects = getMirrorRpslObject();
@@ -77,7 +76,7 @@ public class UpdateNotificationFileProcessorTestIntegration extends AbstractNrtm
         nrtmServerDummy.setWrongSignedUNF();
         updateNotificationFileProcessor.processFile();
 
-        final List<NrtmClientVersionInfo> versionInfosPerSource = nrtm4ClientMirrorRepository.getNrtmLastVersionInfoForUpdateNotificationFile();
+        final List<NrtmClientVersionInfo> versionInfosPerSource = nrtm4ClientInfoRepository.getNrtmLastVersionInfoForUpdateNotificationFile();
         assertThat(versionInfosPerSource, is(empty()));
     }
 

@@ -10,9 +10,10 @@ import com.nimbusds.jose.jwk.OctetKeyPair;
 import net.ripe.db.nrtm4.client.client.NrtmRestClient;
 import net.ripe.db.nrtm4.client.client.UpdateNotificationFileResponse;
 import net.ripe.db.nrtm4.client.condition.Nrtm4ClientCondition;
-import net.ripe.db.nrtm4.client.dao.Nrtm4ClientMirrorRepository;
+import net.ripe.db.nrtm4.client.dao.Nrtm4ClientInfoRepository;
 import net.ripe.db.nrtm4.client.dao.NrtmClientVersionInfo;
 import net.ripe.db.nrtm4.client.importer.SnapshotImporter;
+import net.ripe.db.whois.common.domain.Hosts;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.annotation.Conditional;
@@ -36,14 +37,14 @@ public class UpdateNotificationFileProcessor {
 
     private final NrtmRestClient nrtmRestClient;
 
-    private final Nrtm4ClientMirrorRepository nrtm4ClientMirrorDao;
+    private final Nrtm4ClientInfoRepository nrtm4ClientMirrorDao;
 
     private final SnapshotImporter snapshotImporter;
 
     private final static String PUBLIC_KEY_PATH = "public.key";
 
     public UpdateNotificationFileProcessor(final NrtmRestClient nrtmRestClient,
-                                           final Nrtm4ClientMirrorRepository nrtm4ClientMirrorDao,
+                                           final Nrtm4ClientInfoRepository nrtm4ClientMirrorDao,
                                            final SnapshotImporter snapshotImporter) {
         this.nrtmRestClient = nrtmRestClient;
         this.nrtm4ClientMirrorDao = nrtm4ClientMirrorDao;
@@ -62,12 +63,18 @@ public class UpdateNotificationFileProcessor {
         LOGGER.info("Succeeded to read notification files from {}", notificationFilePerSource.keySet());
         final List<NrtmClientVersionInfo> nrtmLastVersionInfoPerSource = nrtm4ClientMirrorDao.getNrtmLastVersionInfoForUpdateNotificationFile();
 
+        final String hostname = Hosts.getInstanceName();
         notificationFilePerSource.forEach((source, updateNotificationSignature) -> {
             final NrtmClientVersionInfo nrtmClientLastVersionInfo = nrtmLastVersionInfoPerSource
                     .stream()
                     .filter(nrtmVersionInfo -> nrtmVersionInfo.source() != null && nrtmVersionInfo.source().equals(source))
                     .findFirst()
                     .orElse(null);
+
+            if (nrtmClientLastVersionInfo != null && !nrtmClientLastVersionInfo.hostname().equals(hostname)) {
+                LOGGER.error("Different host");
+                return;
+            }
 
             final JWSObject jwsObjectParsed;
             try {
@@ -89,13 +96,13 @@ public class UpdateNotificationFileProcessor {
 
             if (nrtmClientLastVersionInfo != null && !nrtmClientLastVersionInfo.sessionID().equals(updateNotificationFile.getSessionID())){
                 LOGGER.info("Different session");
-                snapshotImporter.initializeNRTMClientForSource(source, updateNotificationFile);
+                snapshotImporter.truncateTables();
                 return;
             }
 
             if (nrtmClientLastVersionInfo != null && nrtmClientLastVersionInfo.version() > updateNotificationFile.getVersion()){
                 LOGGER.info("The local version cannot be higher than the update notification version {}", source);
-                snapshotImporter.initializeNRTMClientForSource(source, updateNotificationFile);
+                snapshotImporter.truncateTables();
                 return;
             }
 
@@ -104,15 +111,16 @@ public class UpdateNotificationFileProcessor {
                 return;
             }
 
-            nrtm4ClientMirrorDao.saveUpdateNotificationFileVersion(source, updateNotificationFile.getVersion(), updateNotificationFile.getSessionID());
+            nrtm4ClientMirrorDao.saveUpdateNotificationFileVersion(source, updateNotificationFile.getVersion(),
+                    updateNotificationFile.getSessionID(), hostname);
 
             if (nrtmClientLastVersionInfo == null){
                 LOGGER.info("There is no existing Snapshot for the source {}", source);
                 snapshotImporter.importSnapshot(source, updateNotificationFile);
             }
         });
-    }
 
+    }
 
     @Nullable
     private UpdateNotificationFileResponse getUpdateNotificationFileResponse(final JWSObject jwsObjectParsed) {

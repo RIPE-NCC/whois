@@ -89,7 +89,8 @@ public class NrtmRestClient {
     @Nullable
     public byte[] getSnapshotFile(final String url){
         try {
-            final Response response = client.target(String.format("%s/%s", baseUrl, url))
+            final Response response = client.target(baseUrl)
+                    .path(url)
                     .request(MediaType.APPLICATION_OCTET_STREAM)
                     .header(HttpHeader.X_FORWARDED_PROTO.asString(), HttpScheme.HTTPS.asString())
                     .get(Response.class);

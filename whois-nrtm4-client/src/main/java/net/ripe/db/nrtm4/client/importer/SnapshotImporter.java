@@ -1,13 +1,15 @@
 package net.ripe.db.nrtm4.client.importer;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.base.Stopwatch;
-import net.ripe.db.nrtm4.client.client.MirrorRpslObject;
 import net.ripe.db.nrtm4.client.client.NrtmRestClient;
 import net.ripe.db.nrtm4.client.client.UpdateNotificationFileResponse;
 import net.ripe.db.nrtm4.client.condition.Nrtm4ClientCondition;
-import net.ripe.db.nrtm4.client.dao.Nrtm4ClientMirrorRepository;
+import net.ripe.db.nrtm4.client.dao.Nrtm4ClientInfoRepository;
+import net.ripe.db.nrtm4.client.dao.Nrtm4ClientRepository;
+import net.ripe.db.whois.common.dao.RpslObjectUpdateInfo;
+import net.ripe.db.whois.common.rpsl.RpslObject;
+
 import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -17,6 +19,7 @@ import org.springframework.stereotype.Service;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.Arrays;
+import java.util.Map;
 import java.util.Timer;
 import java.util.TimerTask;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -31,21 +34,22 @@ public class SnapshotImporter {
 
     private final NrtmRestClient nrtmRestClient;
 
-    private final Nrtm4ClientMirrorRepository nrtm4ClientMirrorDao;
+    private final Nrtm4ClientInfoRepository nrtm4ClientInfoMirrorDao;
+
+    private final Nrtm4ClientRepository nrtm4ClientRepository;
 
 
     public SnapshotImporter(final NrtmRestClient nrtmRestClient,
-                                        final Nrtm4ClientMirrorRepository nrtm4ClientMirrorDao) {
+                            final Nrtm4ClientInfoRepository nrtm4ClientInfoMirrorDao,
+                            final Nrtm4ClientRepository nrtm4ClientRepository) {
         this.nrtmRestClient = nrtmRestClient;
-        this.nrtm4ClientMirrorDao = nrtm4ClientMirrorDao;
+        this.nrtm4ClientInfoMirrorDao = nrtm4ClientInfoMirrorDao;
+        this.nrtm4ClientRepository  = nrtm4ClientRepository;
     }
 
-    public void initializeNRTMClientForSource(final String source, final UpdateNotificationFileResponse updateNotificationFile){
-        // TODO: Truncate tables and start snapshot from scratch
-        LOGGER.info("Should initialise snapshot");
-        /*nrtm4ClientMirrorDao.truncateTables();
-        nrtm4ClientMirrorDao.saveUpdateNotificationFileVersion(source, updateNotificationFile.getVersion(), updateNotificationFile.getSessionID());
-        importSnapshot(source, updateNotificationFile);*/
+    public void truncateTables(){
+        nrtm4ClientInfoMirrorDao.truncateTables();
+        nrtm4ClientRepository.truncateTables();
     }
 
     public void importSnapshot(final String source, final UpdateNotificationFileResponse updateNotificationFile){
@@ -68,21 +72,33 @@ public class SnapshotImporter {
         final Timer timer = new Timer();
         printProgress(timer, processedCount);
 
-        GzipDecompressor.decompressRecords(
-                payload,
-                firstRecord -> processMetadata(source, updateNotificationFile, firstRecord),
-                recordBatches -> persistBatches(recordBatches, processedCount)
-        );
+        try {
+            GzipDecompressor.decompressRecords(
+                    payload,
+                    firstRecord -> processMetadata(source, updateNotificationFile, firstRecord),
+                    recordBatches -> persistBatches(recordBatches, processedCount)
+            );
+        } catch (IllegalArgumentException ex){
+            return;
+        }
+
+        persistDummyObjectIfNotExist();
 
         timer.cancel();
         stopwatch.stop();
+
         LOGGER.info("Loading snapshot file took {} for source {} and added {} records", stopwatch.elapsed().toMillis(),
                 source, processedCount);
     }
 
-    private void processObject(final String record) throws JsonProcessingException {
-        final MirrorRpslObject mirrorRpslObject = new ObjectMapper().readValue(record, MirrorRpslObject.class);
-        nrtm4ClientMirrorDao.persistRpslObject(mirrorRpslObject.getObject());
+
+    public void persistDummyObjectIfNotExist(){
+        final RpslObject dummyObject = getPlaceholderPersonObject();
+        final Integer objectId = nrtm4ClientRepository.getMirroredObjectId(dummyObject.getKey().toString());
+        if (objectId != null){
+            return;
+        }
+        nrtm4ClientRepository.persistRpslObject(getPlaceholderPersonObject());
     }
 
     private void printProgress(final Timer timer, final AtomicInteger processedCount) {
@@ -105,29 +121,53 @@ public class SnapshotImporter {
         }
     }
 
-    private void persistBatches(String[] remainingRecords, AtomicInteger processedCount) {
+    private void persistBatches(final String[] remainingRecords,
+                                final AtomicInteger processedCount) {
         Arrays.stream(remainingRecords).parallel().forEach(record -> {
             try {
-                processObject(record);
+                final Map.Entry<RpslObject, RpslObjectUpdateInfo> persistedRecord = nrtm4ClientRepository.processObject(record);
+                nrtm4ClientRepository.createIndexes(persistedRecord.getKey(), persistedRecord.getValue());
+                processedCount.incrementAndGet();
             } catch (JsonProcessingException e) {
                 LOGGER.error("Unable to parse record {}", record, e);
                 throw new IllegalStateException(e);
             }
         });
-        processedCount.addAndGet(remainingRecords.length);
+
     }
 
-    private void processMetadata(String source, UpdateNotificationFileResponse updateNotificationFile, String firstRecord) {
+    public static RpslObject getPlaceholderPersonObject() {
+        return RpslObject.parse("" +
+                "person:         Placeholder Person Object\n" +
+                "address:        RIPE Network Coordination Centre\n" +
+                "address:        P.O. Box 10096\n" +
+                "address:        1001 EB Amsterdam\n" +
+                "address:        The Netherlands\n" +
+                "phone:          +31 20 535 4444\n" +
+                "nic-hdl:        DUMY-RIPE\n" +
+                "mnt-by:         RIPE-DBM-MNT\n" +
+                "remarks:        **********************************************************\n" +
+                "remarks:        * This is a placeholder object to protect personal data.\n" +
+                "remarks:        * To view the original object, please query the RIPE\n" +
+                "remarks:        * Database at:\n" +
+                "remarks:        * http://www.ripe.net/whois\n" +
+                "remarks:        **********************************************************\n" +
+                "created:        2009-07-24T17:00:00Z\n" +
+                "last-modified:  2009-07-24T17:00:00Z\n" +
+                "source:         RIPE"
+        );
+    }
+
+    private void processMetadata(final String source, final UpdateNotificationFileResponse updateNotificationFile,
+                                 final String firstRecord) throws IllegalArgumentException {
         final JSONObject jsonObject = new JSONObject(firstRecord);
         final int version = jsonObject.getInt("version");
         final String sessionId = jsonObject.getString("session_id");
         if (!sessionId.equals(updateNotificationFile.getSessionID())) {
-            // TODO: [MH] if the service is wrong for any reason...we have here a non-ending loop, we need to
-            //  call initialize X number of times and return error to avoid this situation?
             LOGGER.error("The session is not the same in the UNF and snapshot");
-            //initializeNRTMClientForSource(source, updateNotificationFile);
+            truncateTables();
             throw new IllegalArgumentException("The session is not the same in the UNF and snapshot");
         }
-        nrtm4ClientMirrorDao.saveSnapshotFileVersion(source, version, sessionId);
+        nrtm4ClientInfoMirrorDao.saveSnapshotFileVersion(source, version, sessionId);
     }
 }

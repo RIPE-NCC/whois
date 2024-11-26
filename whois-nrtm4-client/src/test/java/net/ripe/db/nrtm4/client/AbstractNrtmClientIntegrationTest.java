@@ -1,7 +1,8 @@
 package net.ripe.db.nrtm4.client;
 
 import net.ripe.db.nrtm4.client.client.MirrorRpslObject;
-import net.ripe.db.nrtm4.client.dao.Nrtm4ClientMirrorRepository;
+import net.ripe.db.nrtm4.client.dao.Nrtm4ClientInfoRepository;
+import net.ripe.db.nrtm4.client.dao.Nrtm4ClientRepository;
 import net.ripe.db.nrtm4.client.dao.NrtmClientDocumentType;
 import net.ripe.db.nrtm4.client.dao.NrtmClientVersionInfo;
 import net.ripe.db.nrtm4.client.processor.UpdateNotificationFileProcessor;
@@ -23,8 +24,13 @@ public class AbstractNrtmClientIntegrationTest extends AbstractDatabaseHelperInt
 
     protected JdbcTemplate nrtmClientTemplate;
 
+    protected JdbcTemplate nrtmClientInfoTemplate;
+
     @Autowired
-    protected Nrtm4ClientMirrorRepository nrtm4ClientMirrorRepository;
+    protected Nrtm4ClientInfoRepository nrtm4ClientInfoRepository;
+
+    @Autowired
+    protected Nrtm4ClientRepository nrtm4ClientRepository;
 
     @Autowired
     protected UpdateNotificationFileProcessor updateNotificationFileProcessor;
@@ -35,13 +41,20 @@ public class AbstractNrtmClientIntegrationTest extends AbstractDatabaseHelperInt
 
     @Autowired(required = false)
     @Qualifier("nrtmClientMasterDataSource")
-    public void setNrtmClientMasterDataSource(DataSource dataSource) {
+    public void setNrtmClientMasterSource(DataSource dataSource) {
         nrtmClientTemplate = new JdbcTemplate(dataSource);
+    }
+
+    @Autowired(required = false)
+    @Qualifier("nrtmClientMasterInfoSource")
+    public void setNrtmClientMasterInfoSource(DataSource dataSource) {
+        nrtmClientInfoTemplate = new JdbcTemplate(dataSource);
     }
 
     @BeforeEach
     public void reset(){
-        nrtm4ClientMirrorRepository.truncateTables();
+        nrtm4ClientInfoRepository.truncateTables();
+        nrtm4ClientRepository.truncateTables();
         nrtmServerDummy.resetDefaultMocks();
     }
 
@@ -59,7 +72,7 @@ public class AbstractNrtmClientIntegrationTest extends AbstractDatabaseHelperInt
     protected List<MirrorRpslObject> getMirrorRpslObject(){
         final String sql = """
             SELECT object
-            FROM last_mirror
+            FROM last
             """;
         return nrtmClientTemplate.query(sql,
                 (rs, rn) -> new MirrorRpslObject(RpslObject.parse(rs.getBytes(1))));
@@ -67,19 +80,20 @@ public class AbstractNrtmClientIntegrationTest extends AbstractDatabaseHelperInt
 
     protected List<NrtmClientVersionInfo> getNrtmLastSnapshotVersion(){
         final String sql = """
-            SELECT id, source, MAX(version), session_id, type, created
+            SELECT id, source, MAX(version), session_id, type, hostname, created
             FROM version_info
-            WHERE type = 'nrtm-snapshot'
+            WHERE type = ?
             GROUP BY source
             """;
-        return nrtmClientTemplate.query(sql,
+        return nrtmClientInfoTemplate.query(sql,
             (rs, rn) -> new NrtmClientVersionInfo(
                     rs.getLong(1),
                     rs.getString(2),
                     rs.getLong(3),
                     rs.getString(4),
                     NrtmClientDocumentType.fromValue(rs.getString(5)),
-                    rs.getLong(6)
-            ));
+                    rs.getString(6),
+                    rs.getLong(7)
+            ), NrtmClientDocumentType.SNAPSHOT.getFileNamePrefix());
     }
 }
