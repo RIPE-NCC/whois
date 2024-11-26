@@ -48,6 +48,7 @@ public class AbstractNrtmClientIntegrationTest extends AbstractDatabaseHelperInt
     @BeforeAll
     public static void setUp(){
         System.setProperty("nrtm4.client.enabled", "true");
+
     }
 
     @AfterAll
