@@ -79,17 +79,18 @@ public class NrtmRestClient {
         }
     }
 
-    public UpdateNotificationFileResponse getNotificationFile(final String source){
+    public String getNotificationFileSignature(final String source){
         return client.target(String.format("%s/%s", baseUrl, source))
-                .path("update-notification-file.json")
-                .request(MediaType.APPLICATION_JSON_TYPE)
-                .get(UpdateNotificationFileResponse.class);
+                .path("update-notification-file.jose")
+                .request("application/jose+json")
+                .get(String.class);
     }
 
     @Nullable
     public byte[] getSnapshotFile(final String url){
         try {
-            final Response response =  client.target(String.format("%s/%s", baseUrl, url))
+            final Response response = client.target(baseUrl)
+                    .path(url)
                     .request(MediaType.APPLICATION_OCTET_STREAM)
                     .header(HttpHeader.X_FORWARDED_PROTO.asString(), HttpScheme.HTTPS.asString())
                     .get(Response.class);
