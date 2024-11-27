@@ -1,6 +1,14 @@
 package net.ripe.db.nrtm4.client;
 
 import com.google.common.io.Resources;
+import com.nimbusds.jose.JOSEException;
+import com.nimbusds.jose.JWSAlgorithm;
+import com.nimbusds.jose.JWSHeader;
+import com.nimbusds.jose.JWSObject;
+import com.nimbusds.jose.JWSSigner;
+import com.nimbusds.jose.Payload;
+import com.nimbusds.jose.crypto.Ed25519Signer;
+import com.nimbusds.jose.jwk.OctetKeyPair;
 import jakarta.annotation.PostConstruct;
 import jakarta.annotation.PreDestroy;
 import jakarta.servlet.http.HttpServletRequest;
@@ -27,6 +35,7 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
+import java.text.ParseException;
 import java.util.List;
 import java.util.stream.Collectors;
 import java.util.zip.GZIPOutputStream;
@@ -177,18 +186,18 @@ public class NrtmServerDummy implements Stub {
         mocks.add(new NrtmResponseMock("/nrtmv4/RIPE-NONAUTH/update-notification-file.jose", "fake-nrtm-RIPE-NONAUTH-signature.jose", "application/jose+json"));
         mocks.add(new NrtmCompressedResponseMock("/nrtmv4/RIPE-NONAUTH/nrtm-snapshot.1.RIPE-NONAUTH.6328095e-7d46-415b-9333-8f2ae274b7c8.f1195bb8a666fe7b97fa74009a70cefa.json.gz", "nrtm-snapshot.1.RIPE-NONAUTH.json"));
         mocks.add(new NrtmCompressedResponseMock("/nrtmv4/RIPE/nrtm-snapshot.4.RIPE.4521174b-548f-4e51-98fc-dfd720011a0c.82542bd048e111fe57db404d08b6433e.json.gz", "nrtm-snapshot.1.RIPE.json"));
-        /*mocks.add(new NrtmResponseMock("/nrtmv4/RIPE-NONAUTH/update-notification-file.json",
-                getUpdateNotificationFileNonAuthResponse("fake_hash", FIRST_NON_AUTH_DELTA_HASH, "1"), "application/json"));
-        mocks.add(new NrtmResponseMock("/nrtmv4/RIPE/update-notification-file.json",
-                getUpdateNotificationFileRipeResponse("fake_hash", FIRST_RIPE_DELTA_HASH, "1"), "application/json"));*/
+        mocks.add(new NrtmResponseMock("/nrtmv4/RIPE/nrtm-delta.1.RIPE.4521174b-548f-4e51-98fc-dfd720011a0c.e3be41ff312010046b67d099faa58f44.json", "nrtm-delta.1.RIPE.json", "application/json"));
+        mocks.add(new NrtmResponseMock("/nrtmv4/RIPE-NONAUTH/nrtm-delta.1.RIPE-NONAUTH.4f3ff2a7-1877-4cab-82f4-1dd6425c4e7d.94b5a6cc54f258062c25d9bee224b5c.json", "nrtm-delta.1.RIPE-NONAUTH.json", "application/json"));
     }
 
     private void initialiseMocks() {
         mocks.add(new NrtmResponseMock("/nrtmv4", "nrtm-sources.html", "application/html"));
         mocks.add(new NrtmResponseMock("/nrtmv4/RIPE/update-notification-file.jose", "nrtm-RIPE-signature.jose", "application/jose+json"));
         mocks.add(new NrtmResponseMock("/nrtmv4/RIPE-NONAUTH/update-notification-file.jose", "nrtm-RIPE-NONAUTH-signature.jose", "application/jose+json"));
+        mocks.add(new NrtmResponseMock("/nrtmv4/RIPE/nrtm-delta.1.RIPE.4521174b-548f-4e51-98fc-dfd720011a0c.e3be41ff312010046b67d099faa58f44.json", "nrtm-delta.1.RIPE.json", "application/json"));
+        mocks.add(new NrtmResponseMock("/nrtmv4/RIPE-NONAUTH/nrtm-delta.1.RIPE-NONAUTH.4f3ff2a7-1877-4cab-82f4-1dd6425c4e7d.94b5a6cc54f258062c25d9bee224b5c.json", "nrtm-delta.1.RIPE-NONAUTH.json", "application/json"));
         mocks.add(new NrtmCompressedResponseMock("/nrtmv4/RIPE-NONAUTH/nrtm-snapshot.1.RIPE-NONAUTH.6328095e-7d46-415b-9333-8f2ae274b7c8.f1195bb8a666fe7b97fa74009a70cefa.json.gz", "nrtm-snapshot.1.RIPE-NONAUTH.json"));
-        mocks.add(new NrtmCompressedResponseMock("/nrtmv4/RIPE/nrtm-snapshot.4.RIPE.4521174b-548f-4e51-98fc-dfd720011a0c.82542bd048e111fe57db404d08b6433e.json.gz", "nrtm-snapshot.1.RIPE.json"));
+        mocks.add(new NrtmCompressedResponseMock("/nrtmv4/RIPE/nrtm-snapshot.1.RIPE.4521174b-548f-4e51-98fc-dfd720011a0c.82542bd048e111fe57db404d08b6433e.json.gz", "nrtm-snapshot.1.RIPE.json"));
     }
 
     public void setWrongSignedUNF(){
@@ -288,6 +297,25 @@ public class NrtmServerDummy implements Stub {
         @Override
         public Object response() {
             return response;
+        }
+    }
+
+    public static String signWithJWS(final String payload)  {
+        String PRIVATE_KEY = "{\"kty\":\"OKP\",\"d\":\"xzyMhzxbCpv-A1UDYMlGXdheAHDQuB-n5hV0I-J8PgQ\",\"crv\":\"Ed25519\",\"kid\":\"a9ddf4a5-0ca0-47b1-a80d-3c63fd5c19c5\",\"x\":\"ry9yLgcy1eUNX1lDs852mmUXRoy4qZW1HSOu54qBCHI\"}";
+        try {
+            final OctetKeyPair jwk = OctetKeyPair.parse(new String(PRIVATE_KEY.getBytes()));
+            final JWSSigner signer = new Ed25519Signer(jwk);
+
+            final JWSObject jwsObject = new JWSObject(
+                    new JWSHeader.Builder(JWSAlgorithm.Ed25519).keyID(jwk.getKeyID()).build(),
+                    new Payload(payload));
+
+            jwsObject.sign(signer);
+
+            return jwsObject.serialize();
+        } catch (ParseException | JOSEException ex) {
+            LOGGER.error("failed to sign payload {}", ex.getMessage());
+            throw new IllegalStateException("failed to sign contents of file");
         }
     }
 }

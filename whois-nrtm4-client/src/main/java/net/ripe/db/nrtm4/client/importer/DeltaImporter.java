@@ -54,7 +54,7 @@ public class DeltaImporter implements Importer {
         deltas.forEach(delta -> {
             final byte[] deltaFilePayload = nrtmRestClient.getDeltaFiles(delta.getUrl());
 
-            if (deltaFilePayload == null){
+            if (deltaFilePayload == null || deltaFilePayload.length == 0){
                 LOGGER.error("This cannot happen. UNF has a non-existing delta");
                 return;
             }
@@ -71,10 +71,7 @@ public class DeltaImporter implements Importer {
             }
 
             if (!metadata.sessionId().equals(updateNotificationFile.getSessionID())){
-                // TODO: [MH] if the service is wrong for any reason...we have here a non-ending loop, we need to
-                //  call initialize X number of times and return error to avoid this situation?
                 LOGGER.error("The session is not the same in the UNF and snapshot");
-                //initializeNRTMClientForSource(source, updateNotificationFile);
                 return;
             }
 
