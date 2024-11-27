@@ -92,12 +92,12 @@ public class Nrtm4ClientRepository {
 
     public void removeMirroredObject(final String primaryKey){
         // TODO: There can be two objects with same primaryKey, we don't have single identifier for it
-        jdbcMasterTemplate.update("DELETE FROM last_mirror WHERE pkey = ?", primaryKey);
+        jdbcMasterTemplate.update("DELETE FROM last WHERE pkey = ?", primaryKey);
     }
 
     public void updateMirroredObject(final RpslObject rpslObject, final Integer objectId){
         try {
-            jdbcMasterTemplate.update("UPDATE last_mirror SET object = ? WHERE object_id = ?",
+            jdbcMasterTemplate.update("UPDATE last SET object = ? WHERE object_id = ?",
                     getRpslObjectBytes(rpslObject), objectId);
         } catch (IOException e) {
             LOGGER.error("unable to get the bytes of the object {}", rpslObject.getKey(), e);

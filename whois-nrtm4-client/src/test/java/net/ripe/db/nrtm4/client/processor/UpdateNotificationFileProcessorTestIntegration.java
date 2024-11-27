@@ -4,17 +4,14 @@ import net.ripe.db.nrtm4.client.AbstractNrtmClientIntegrationTest;
 import net.ripe.db.nrtm4.client.dao.NrtmClientVersionInfo;
 import net.ripe.db.whois.common.rpsl.AttributeType;
 import net.ripe.db.whois.common.rpsl.RpslObject;
-
 import net.ripe.db.nrtm4.client.client.MirrorRpslObject;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
-
 import java.util.List;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.empty;
 import static org.hamcrest.Matchers.is;
-
 import static org.hamcrest.Matchers.not;
 import static org.hamcrest.Matchers.nullValue;
 
@@ -78,17 +75,18 @@ public class UpdateNotificationFileProcessorTestIntegration extends AbstractNrtm
     }
 
     @Test
-    public void apply_deltas_then_last_mirror_updated() {
+    public void apply_deltas_then_updated() {
         updateNotificationFileProcessor.processFile();
         final RpslObject route = getMirrorRpslObjectByPkey("176.240.50.0/24AS47524");
         final Integer route6 = nrtm4ClientRepository.getMirroredObjectId("2001:490:c000::/35AS18666");
         final Integer mntner = nrtm4ClientRepository.getMirroredObjectId("MHM-MNT");
 
         assertThat(route6, is(not(nullValue())));
+
         assertThat(route.findAttribute(AttributeType.DESCR).getCleanValue(), is("Dummified"));
         assertThat(mntner, is(nullValue()));
 
-        nrtmServerDummy.setSecondUNFMocks();
+        nrtmServerDummy.setSecondDeltasMocks();
         updateNotificationFileProcessor.processFile();
         final RpslObject updatedroute = getMirrorRpslObjectByPkey("176.240.50.0/24AS47524");
         final Integer deletedRoute6 = nrtm4ClientRepository.getMirroredObjectId("2001:490:c000::/35AS18666");
