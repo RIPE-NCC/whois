@@ -15,6 +15,7 @@ import jakarta.ws.rs.core.Context;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 import net.ripe.db.whois.api.rdap.domain.RdapRequestType;
+import net.ripe.db.whois.api.rdap.domain.RelationType;
 import net.ripe.db.whois.api.rest.RestServiceHelper;
 import net.ripe.db.whois.common.dao.RpslObjectInfo;
 import net.ripe.db.whois.common.dao.RpslObjectUpdateDao;
@@ -73,6 +74,7 @@ public class RdapService {
     private final RdapRequestValidator rdapRequestValidator;
     private final RpslObjectUpdateDao rpslObjectUpdateDao;
     private final SourceContext sourceContext;
+    private final RdapRelationService rdapRelationService;
 
     /**
      *
@@ -99,7 +101,8 @@ public class RdapService {
                        @Value("${rdap.public.baseUrl:}") final String baseUrl,
                        final RdapRequestValidator rdapRequestValidator,
                        @Value("${rdap.search.max.results:100}") final int maxResultSize,
-                       @Value("${rdap.entity.max.results:100}") final int maxEntityResultSize) {
+                       @Value("${rdap.entity.max.results:100}") final int maxEntityResultSize,
+                       final RdapRelationService rdapRelationService) {
         this.sourceContext = sourceContext;
         this.rdapQueryHandler = rdapQueryHandler;
         this.abuseCFinder = abuseCFinder;
@@ -112,6 +115,7 @@ public class RdapService {
         this.maxResultSize = maxResultSize;
         this.maxEntityResultSize = maxEntityResultSize;
         this.rpslObjectUpdateDao = rpslObjectUpdateDao;
+        this.rdapRelationService = rdapRelationService;
     }
 
     @GET
@@ -245,6 +249,52 @@ public class RdapService {
                 .build();
     }
 
+    @GET
+    @Produces({MediaType.APPLICATION_JSON, CONTENT_TYPE_RDAP_JSON})
+    @Path("/{objectType}/rirSearch1/{relation}/{key:.*}")
+    public Response relationSearch(
+            @Context final HttpServletRequest request,
+            @PathParam("objectType") RdapRequestType requestType,
+            @PathParam("relation") RelationType relationType,
+            @PathParam("key") final String key,
+            @QueryParam("status") final String status) {
+
+        if (status != null && (relationType.equals(RelationType.DOWN) || relationType.equals(RelationType.BOTTOM))){
+            throw new RdapException("501 Not Implemented", "Status is not implement in down and bottom relation", HttpStatus.NOT_IMPLEMENTED_501);
+        }
+
+        final Set<ObjectType> whoisObjectTypes = requestType.getWhoisObjectTypes(key);
+
+        switch (requestType) {
+            case AUTNUM -> {
+                String autnumKey = String.format("AS%s", key);
+                rdapRequestValidator.validateAutnum(autnumKey);
+                return lookupForAutNum(request, autnumKey);
+            }
+            case DOMAIN -> {
+                rdapRequestValidator.validateDomain(key);
+                final List<String> relatedPkeys = rdapRelationService.getDomainRelationPkeys(key, relationType);
+
+                final List<RpslObject> rpslObjects = relatedPkeys
+                        .stream()
+                        .flatMap(relatedPkey -> rdapQueryHandler.handleQueryStream(getQueryObject(ImmutableSet.of(DOMAIN), key), request))
+                        .toList();
+
+                return Response.ok(rdapObjectMapper.mapSearch(
+                                getRequestUrl(request),
+                                rpslObjects,
+                                maxResultSize))
+                        .header(CONTENT_TYPE, CONTENT_TYPE_RDAP_JSON)
+                        .build();
+            }
+            case IP -> {
+                rdapRequestValidator.validateIp(request.getRequestURI(), key);
+                return lookupWithRedirectUrl(request, whoisObjectTypes, key);
+            }
+            default -> throw new RdapException("400 Bad Request", "Invalid or unknown type" + requestType, HttpStatus.BAD_REQUEST_400);
+        }
+    }
+
     private Response lookupWithRedirectUrl(final HttpServletRequest request, final Set<ObjectType> objectTypes, final String key) {
         if (isRedirect(Iterables.getOnlyElement(objectTypes), key)) {
             return redirect(getRequestPath(request), getQueryObject(objectTypes, key));
@@ -300,7 +350,10 @@ public class RdapService {
         final Stream<RpslObject> inetnumResult =
                 rdapQueryHandler.handleQueryStream(getQueryObject(ImmutableSet.of(INETNUM, INET6NUM), domain.getReverseIp().toString()), request);
 
-        return getDomainResponse(request, domainResult, inetnumResult);
+        return Response.ok(
+                getDomainEntity(request, domainResult, inetnumResult))
+                .header(CONTENT_TYPE, CONTENT_TYPE_RDAP_JSON)
+                .build();
     }
 
     protected Response lookupObject(final HttpServletRequest request, final Set<ObjectType> objectTypes, final String key) {
@@ -374,7 +427,8 @@ public class RdapService {
                 .build();
     }
 
-    private Response getDomainResponse(final HttpServletRequest request, final Stream<RpslObject> domainResult, final Stream<RpslObject> inetnumResult) {
+    private Object getDomainEntity(final HttpServletRequest request, final Stream<RpslObject> domainResult,
+                              final Stream<RpslObject> inetnumResult) {
         final Iterator<RpslObject> domainIterator = domainResult.iterator();
         final Iterator<RpslObject> inetnumIterator = inetnumResult.iterator();
         if (!domainIterator.hasNext()) {
@@ -387,10 +441,7 @@ public class RdapService {
             throw new RdapException("500 Internal Error", "Unexpected result size: " + Iterators.size(domainIterator),
                     HttpStatus.INTERNAL_SERVER_ERROR_500);
         }
-        return Response.ok(
-                rdapObjectMapper.mapDomainEntity(getRequestUrl(request), domainObject, inetnumObject))
-                .header(CONTENT_TYPE, CONTENT_TYPE_RDAP_JSON)
-                .build();
+        return rdapObjectMapper.mapDomainEntity(getRequestUrl(request), domainObject, inetnumObject);
     }
 
     private Response getResponse(final HttpServletRequest request, final Iterable<RpslObject> result) {
