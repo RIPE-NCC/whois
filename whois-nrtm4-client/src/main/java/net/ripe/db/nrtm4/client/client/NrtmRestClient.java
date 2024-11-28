@@ -10,6 +10,7 @@ import com.fasterxml.jackson.databind.type.TypeFactory;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import com.fasterxml.jackson.jakarta.rs.json.JacksonJsonProvider;
 import com.fasterxml.jackson.module.jakarta.xmlbind.JakartaXmlBindAnnotationIntrospector;
+import com.google.common.net.HttpHeaders;
 import jakarta.ws.rs.client.Client;
 import jakarta.ws.rs.client.ClientBuilder;
 import jakarta.ws.rs.core.MediaType;
@@ -82,7 +83,8 @@ public class NrtmRestClient {
     public String getNotificationFileSignature(final String source){
         return client.target(String.format("%s/%s", baseUrl, source))
                 .path("update-notification-file.jose")
-                .request("application/jose+json")
+                .request()
+                .header(HttpHeaders.CONTENT_TYPE, "application/jose+json")
                 .get(String.class);
     }
 
