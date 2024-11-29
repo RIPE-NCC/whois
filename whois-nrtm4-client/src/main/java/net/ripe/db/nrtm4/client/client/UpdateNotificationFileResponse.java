@@ -8,9 +8,6 @@ import javax.annotation.Nullable;
 import java.util.List;
 import java.util.Objects;
 
-import javax.annotation.Nullable;
-import java.util.Objects;
-
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class UpdateNotificationFileResponse {
 
