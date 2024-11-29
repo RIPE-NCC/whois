@@ -331,10 +331,6 @@ public class WhoisRestService {
         return rpslObjectStreamer.handleQueryAndStreamResponse(query, request, InetAddresses.forString(request.getRemoteAddr()), parameters, null);
     }
 
-    private String getOAuthSession(final String oAuthSession) {
-        return null;
-    }
-
     private boolean requiresNonAuthRedirect(final String source, final String objectType, final String key) {
         if (sourceContext.getMasterSource().getName().equals(source)) {
             switch (ObjectType.getByName(objectType)) {
