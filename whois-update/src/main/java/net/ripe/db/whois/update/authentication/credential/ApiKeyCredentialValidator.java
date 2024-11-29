@@ -48,13 +48,13 @@ public class ApiKeyCredentialValidator implements CredentialValidator<APIKeyCred
             final OAuthSession oAuthSession = offered.getOfferedOAuthSession();
 
             if(!oAuthSession.getScopes().isEmpty()) {
-                final ScopeFormatter scopeFormatter = new ScopeFormatter(offered.getOfferedOAuthSession().getScopes().getFirst());
+                final OAuthSession.ScopeFormatter scopeFormatter = new OAuthSession.ScopeFormatter(offered.getOfferedOAuthSession().getScopes().getFirst());
                 if(!validateScope(maintainer, scopeFormatter)) {
                     continue;
                 }
             }
 
-            if (oAuthSession.getUuid().equals(knownCredential.getKnownUuid())) {
+            if (oAuthSession.getUuid() != null && oAuthSession.getUuid().equals(knownCredential.getKnownUuid())) {
                 log(update, String.format("Validated %s with API KEY for user: %s with apiKey: %s.", update.getFormattedKey(), oAuthSession.getEmail(), oAuthSession.getAccessKey()));
 
                 update.getUpdate().setEffectiveCredential(oAuthSession.getAccessKey(), Update.EffectiveCredentialType.APIKEY);
@@ -68,35 +68,9 @@ public class ApiKeyCredentialValidator implements CredentialValidator<APIKeyCred
         loggerContext.logString(update.getUpdate(), getClass().getCanonicalName(), message);
     }
 
-    private static boolean validateScope(final RpslObject maintainer, final ScopeFormatter scopeFormatter) {
+    private static boolean validateScope(final RpslObject maintainer, final OAuthSession.ScopeFormatter scopeFormatter) {
         return scopeFormatter.getAppName().equalsIgnoreCase("whois")
                 && scopeFormatter.getScopeType().equalsIgnoreCase(ObjectType.MNTNER.getName())
                 && scopeFormatter.getScopeKey().equalsIgnoreCase(maintainer.getKey().toString());
-    }
-
-    static class ScopeFormatter {
-
-        final String appName;
-        final String scopeType;
-        final String scopeKey;
-
-        public ScopeFormatter(final String scope) {
-            final String[] parts = scope.split(":|\\.");
-            this.appName = parts[0];
-            this.scopeType = parts[1];
-            this.scopeKey = parts[2];
-        }
-
-        public String getScopeType() {
-            return scopeType;
-        }
-
-        public String getScopeKey() {
-            return scopeKey;
-        }
-
-        public String getAppName() {
-            return appName;
-        }
     }
 }

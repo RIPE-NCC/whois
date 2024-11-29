@@ -63,4 +63,31 @@ public class OAuthSession {
                 .add("scopes", scopes)
                 .toString();
     }
+
+
+   public static class ScopeFormatter {
+
+        final String appName;
+        final String scopeType;
+        final String scopeKey;
+
+        public ScopeFormatter(final String scope) {
+            final String[] parts = scope.split(":|\\.");
+            this.appName = parts[0];
+            this.scopeType = parts[1];
+            this.scopeKey = parts[2];
+        }
+
+        public String getScopeType() {
+            return scopeType;
+        }
+
+        public String getScopeKey() {
+            return scopeKey;
+        }
+
+        public String getAppName() {
+            return appName;
+        }
+    }
 }
