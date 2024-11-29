@@ -81,7 +81,6 @@ public class InternalUpdatePerformer {
         final UpdateContext updateContext = new UpdateContext(loggerContext);
         setSsoSessionToContext(updateContext, ssoToken);
         setClientCertificates(updateContext, request);
-        setOAuthSession(updateContext, request);
         return updateContext;
     }
 
@@ -237,10 +236,6 @@ public class InternalUpdatePerformer {
                 updateContext.addGlobalMessage(RestMessages.ssoAuthIgnored());
             }
         }
-    }
-
-    private void setOAuthSession(final UpdateContext updateContext, final HttpServletRequest request) {
-        updateContext.setOAuthSession(BearerTokenExtractor.extract(request));
     }
 
     public void setClientCertificates(final UpdateContext updateContext, final HttpServletRequest request) {
