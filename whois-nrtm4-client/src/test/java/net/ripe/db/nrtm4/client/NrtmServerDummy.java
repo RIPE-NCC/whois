@@ -61,17 +61,17 @@ public class NrtmServerDummy implements Stub {
 
     private final static String RIPE_NONAUTH_SNAP_HASH = "148c3c411b8f044f5fc0ab201f6dd03e80c862e27ad1a63488aee337dc7eb4a2";
 
-    private final static String RIPE_SNAP_HASH = "8ae2dbce0c643368443f183bc93f09e6aff501795ea2e985de8f37f353c9e609";
+    private final static String RIPE_SNAP_HASH = "8aeb6b6c93fc51aeb868de2ebca3eed6c98559b438901bb80ddc24c47c8069dd";
 
     private final static Map<String, String> RIPE_NONAUTH_DELTA_HASH = ImmutableMap.of(
-            "1", "55f7107d10f5043ab0cae7769c1c9e146348419abdc047b1e239acc8ea757cd5",
+            "1", "d671895977aa9dd8ca2b7ba74cd96cd28a786b0e19b3db709c9c5a02a52466ef",
             "2", "c0916fbf16da2972de2a9e78a79fe5390b9139d570ca24f5e17d280ca96078e4",
             "fake", "fake_hash"
     );
 
     private final static Map<String, String> RIPE_DELTA_HASH = ImmutableMap.of(
-            "1", "3c9e3056df60f23c88abc5c947536b500468dd0dc133641a216dda9ee968bc4a",
-            "2", "cfa467aa74261a38d185d12c5548fd407faff3ddd6bdaacaf5ade029275b3aaf",
+            "1", "e9c948811a949935aafbb55fbf180421bdf23f9527f2342e58d69013475d1709",
+            "2", "60eaced7492f74e0e0b2009fd8354e0ddf66162276c22d56ea092f14fb5eddf6",
             "fake", "fake_hash"
     );
 

@@ -1,7 +1,9 @@
 package net.ripe.db.nrtm4.client.importer;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.base.Stopwatch;
+import net.ripe.db.nrtm4.client.client.MirrorSnapshotInfo;
 import net.ripe.db.nrtm4.client.client.NrtmRestClient;
 import net.ripe.db.nrtm4.client.client.UpdateNotificationFileResponse;
 import net.ripe.db.nrtm4.client.condition.Nrtm4ClientCondition;
@@ -96,7 +98,8 @@ public class SnapshotImporter implements Importer{
         if (rpslObjectUpdateInfo != null){
             return;
         }
-        nrtm4ClientRepository.persistRpslObject(dummyObject);
+        final RpslObjectUpdateInfo createdDummy = nrtm4ClientRepository.persistRpslObject(dummyObject);
+        nrtm4ClientRepository.createIndexes(dummyObject, createdDummy);
     }
 
     private void printProgress(final Timer timer, final AtomicInteger processedCount) {
@@ -112,7 +115,8 @@ public class SnapshotImporter implements Importer{
                                 final AtomicInteger processedCount) {
         Arrays.stream(remainingRecords).parallel().forEach(record -> {
             try {
-                final Map.Entry<RpslObject, RpslObjectUpdateInfo> persistedRecord = nrtm4ClientRepository.processObject(record);
+                final MirrorSnapshotInfo mirrorRpslObject = new ObjectMapper().readValue(record, MirrorSnapshotInfo.class);
+                final Map.Entry<RpslObject, RpslObjectUpdateInfo> persistedRecord = nrtm4ClientRepository.processSnapshotRecord(mirrorRpslObject);
                 nrtm4ClientRepository.createIndexes(persistedRecord.getKey(), persistedRecord.getValue());
                 processedCount.incrementAndGet();
             } catch (JsonProcessingException e) {

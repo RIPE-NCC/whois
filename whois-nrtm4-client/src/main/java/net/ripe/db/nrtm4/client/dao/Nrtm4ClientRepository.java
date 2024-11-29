@@ -2,7 +2,7 @@ package net.ripe.db.nrtm4.client.dao;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import net.ripe.db.nrtm4.client.client.MirrorRpslObject;
+import net.ripe.db.nrtm4.client.client.MirrorSnapshotInfo;
 import net.ripe.db.nrtm4.client.condition.Nrtm4ClientCondition;
 import net.ripe.db.whois.common.DateTimeProvider;
 import net.ripe.db.whois.common.dao.RpslObjectUpdateInfo;
@@ -96,9 +96,8 @@ public class Nrtm4ClientRepository {
     }
 
     @Transactional(propagation = Propagation.REQUIRES_NEW)
-    public Map.Entry<RpslObject, RpslObjectUpdateInfo> processObject(final String record) throws JsonProcessingException {
-        final MirrorRpslObject mirrorRpslObject = new ObjectMapper().readValue(record, MirrorRpslObject.class);
-        return Map.entry(mirrorRpslObject.getObject(), persistRpslObject(mirrorRpslObject.getObject()));
+    public Map.Entry<RpslObject, RpslObjectUpdateInfo> processSnapshotRecord(final MirrorSnapshotInfo mirrorSnapshotInfo) throws JsonProcessingException {
+        return Map.entry(mirrorSnapshotInfo.getRpslObject(), persistRpslObject(mirrorSnapshotInfo.getRpslObject()));
     }
 
     public void removeMirroredObjectAndUpdateSerials(final RpslObjectUpdateInfo rpslObjectInfo){
@@ -109,7 +108,7 @@ public class Nrtm4ClientRepository {
 
     public void updateMirroredObject(final RpslObject rpslObject, final RpslObjectUpdateInfo rpslObjectUpdateInfo){
         deleteFromTables(jdbcMasterTemplate, rpslObjectUpdateInfo);
-        insertIntoTablesIgnoreMissing(jdbcMasterTemplate, rpslObjectUpdateInfo, rpslObject);
+        insertIntoTables(jdbcMasterTemplate, rpslObjectUpdateInfo, rpslObject);
         copyToHistoryAndUpdateSerials(jdbcMasterTemplate, rpslObjectUpdateInfo);
         updateLastAndUpdateSerials(dateTimeProvider, jdbcMasterTemplate, rpslObjectUpdateInfo, rpslObject);
     }
