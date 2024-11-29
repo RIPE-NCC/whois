@@ -18,6 +18,7 @@ import net.ripe.db.whois.api.rest.mapper.WhoisObjectMapper;
 import net.ripe.db.whois.api.rest.marshal.StreamingHelper;
 import net.ripe.db.whois.common.Message;
 import net.ripe.db.whois.common.Messages;
+import net.ripe.db.whois.common.apiKey.OAuthSession;
 import net.ripe.db.whois.common.dao.RpslObjectDao;
 import net.ripe.db.whois.common.dao.RpslObjectInfo;
 import net.ripe.db.whois.common.dao.RpslObjectUpdateDao;
@@ -168,6 +169,7 @@ public class ReferencesService {
                 @PathParam("source") final String sourceParam,
                 @Context final HttpServletRequest request,
                 @QueryParam("password") final List<String> passwords,
+                final OAuthSession oAuthSession,
                 @CookieParam(AuthServiceClient.TOKEN_KEY) final String crowdTokenKey) {
 
         validateWhoisResources(whoisResources);
@@ -187,7 +189,7 @@ public class ReferencesService {
 
             validateObjectNotFound(whoisResources, mntner);
 
-            final WhoisResources updatedResources = performUpdates(request, actionRequests, passwords, crowdTokenKey, null, SsoAuthForm.ACCOUNT, null);
+            final WhoisResources updatedResources = performUpdates(request, actionRequests, passwords, oAuthSession, crowdTokenKey, null, SsoAuthForm.ACCOUNT, null);
             return createResponse(request, filterWhoisObjects(updatedResources), Response.Status.OK);
 
         } catch (WebApplicationException e) {
@@ -234,6 +236,7 @@ public class ReferencesService {
             final HttpServletRequest request,
             final List<ActionRequest> actionRequests,
             final List<String> passwords,
+            final OAuthSession oAuthSession,
             final String crowdTokenKey,
             final String override,
             final SsoAuthForm ssoAuthForm,
@@ -256,7 +259,7 @@ public class ReferencesService {
                 } else {
                     rpslObject = actionRequest.getRpslObject();
                 }
-                updates.add(updatePerformer.createUpdate(updateContext, rpslObject, passwords, deleteReason, override));
+                updates.add(updatePerformer.createUpdate(updateContext, rpslObject, passwords, oAuthSession, deleteReason, override));
             }
 
             final WhoisResources whoisResources = updatePerformer.performUpdates(updateContext, origin, updates, Keyword.NONE, request);
@@ -351,7 +354,7 @@ public class ReferencesService {
         validateSource(sourceParam);
 
         try {
-            final WhoisResources updatedResources = performUpdates(request, convertToActionRequests(whoisResources), Collections.emptyList(), "", override, SsoAuthForm.ACCOUNT, null);
+            final WhoisResources updatedResources = performUpdates(request, convertToActionRequests(whoisResources), Collections.emptyList(), null,"", override, SsoAuthForm.ACCOUNT, null);
             return createResponse(request, updatedResources, Response.Status.OK);
 
         } catch (WebApplicationException e) {
@@ -396,6 +399,7 @@ public class ReferencesService {
             @PathParam("key") final String keyParam,
             @QueryParam("reason") @DefaultValue("--") final String reason,
             @QueryParam("password") final List<String> passwords,
+            final OAuthSession oAuthSession,
             @QueryParam("override") final String override,
             @CookieParam(AuthServiceClient.TOKEN_KEY) final String crowdTokenKey) {
 
@@ -409,7 +413,7 @@ public class ReferencesService {
 
             if (references.isEmpty()) {
                 // delete the primary object directly
-                performUpdate(request, primaryObject, reason, passwords, crowdTokenKey);
+                performUpdate(request, primaryObject, reason, passwords, oAuthSession, crowdTokenKey);
                 return createResponse(request, primaryObject, Response.Status.OK);
             }
 
@@ -439,7 +443,7 @@ public class ReferencesService {
             actionRequests.add(new ActionRequest(tmpMntnerWithReplacements.rpslObject, Action.DELETE));
 
             // batch update
-            final WhoisResources whoisResources = performUpdates(request, actionRequests, passwords, crowdTokenKey, override, SsoAuthForm.UUID, reason);
+            final WhoisResources whoisResources = performUpdates(request, actionRequests, passwords, oAuthSession, crowdTokenKey, override, SsoAuthForm.UUID, reason);
 
             removeDuplicatesAndRestoreReplacedReferences(whoisResources, tmpMntnerWithReplacements);
 
@@ -492,6 +496,7 @@ public class ReferencesService {
                 final RpslObject rpslObject,
                 final String deleteReason,
                 final List<String> passwords,
+                final OAuthSession oAuthSession,
                 final String crowdTokenKey) {
         try {
             final Origin origin = updatePerformer.createOrigin(request);
@@ -502,7 +507,7 @@ public class ReferencesService {
             ssoTranslator.populateCacheAuthToUsername(updateContext, rpslObject);
             final RpslObject updatedRpslObject = ssoTranslator.translateFromCacheAuthToUsername(updateContext, rpslObject);
 
-            final Update update = updatePerformer.createUpdate(updateContext, updatedRpslObject, passwords, deleteReason, null);
+            final Update update = updatePerformer.createUpdate(updateContext, updatedRpslObject, passwords, oAuthSession, deleteReason, null);
 
             final Response response = updatePerformer.createResponse(
                     updateContext,

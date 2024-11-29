@@ -86,7 +86,7 @@ public class BatchUpdatesService {
             for (final ActionRequest actionRequest : actionRequests) {
                 final String deleteReason = Action.DELETE.equals(actionRequest.getAction()) ?
                         StringUtils.isBlank(reason)? DELETE_REASON : reason : null;
-                updates.add(updatePerformer.createUpdate(updateContext, actionRequest.getRpslObject(), Collections.emptyList() /* passwords */, deleteReason, override));
+                updates.add(updatePerformer.createUpdate(updateContext, actionRequest.getRpslObject(), Collections.emptyList() /* passwords */, null, deleteReason, override));
             }
 
             final WhoisResources updatedWhoisResources = updatePerformer.performUpdates(updateContext, origin, updates, Keyword.NONE, request);

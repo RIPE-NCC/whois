@@ -59,7 +59,7 @@ public class InternalUpdatePerformerTest {
                 "mnt-by: TEST-MNT\n" +
                 "source: TEST");
 
-        final Update update = subject.createUpdate(updateContextMock, object, Collections.EMPTY_LIST, "no reason", "override");
+        final Update update = subject.createUpdate(updateContextMock, object, Collections.EMPTY_LIST, null, "no reason", "override");
 
         assertThat(update.getCredentials().all(), contains((Credential) OverrideCredential.parse("override")));
         assertThat(update.getDeleteReasons(), contains("no reason"));
@@ -79,7 +79,7 @@ public class InternalUpdatePerformerTest {
                 "mnt-by: TEST-MNT\n" +
                 "source: TEST");
 
-        final Update update = subject.createUpdate(updateContextMock, object, Collections.singletonList("password"), null, "override");
+        final Update update = subject.createUpdate(updateContextMock, object, Collections.singletonList("password"), null, null, "override");
 
         assertThat(update.getCredentials().all(), containsInAnyOrder((Credential) OverrideCredential.parse("override"), (Credential) new PasswordCredential("password")));
         assertThat(update.getDeleteReasons(), is(nullValue()));
@@ -100,7 +100,7 @@ public class InternalUpdatePerformerTest {
                 "mnt-by: TEST-MNT\n" +
                 "source: TEST");
 
-        final Update update = subject.createUpdate(updateContextMock, object, Collections.singletonList("password"), "no reason", null);
+        final Update update = subject.createUpdate(updateContextMock, object, Collections.singletonList("password"), null, "no reason", null);
 
         assertThat(update.getCredentials().all(), contains((Credential) new PasswordCredential("password")));
         assertThat(update.getDeleteReasons(), contains("no reason"));
@@ -121,7 +121,7 @@ public class InternalUpdatePerformerTest {
                 "mnt-by: TEST-MNT\n" +
                 "source: TEST");
 
-        final Update update = subject.createUpdate(updateContextMock, object, Lists.newArrayList("password1", "password2"), null, null);
+        final Update update = subject.createUpdate(updateContextMock, object, Lists.newArrayList("password1", "password2"), null, null, null);
 
         assertThat(update.getCredentials().all(), containsInAnyOrder((Credential) new PasswordCredential("password1"), (Credential) new PasswordCredential("password2")));
         assertThat(update.getDeleteReasons(), is(nullValue()));

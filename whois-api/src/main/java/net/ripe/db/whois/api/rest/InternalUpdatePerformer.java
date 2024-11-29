@@ -12,6 +12,7 @@ import net.ripe.db.whois.api.rest.marshal.StreamingHelper;
 import net.ripe.db.whois.common.DateTimeProvider;
 import net.ripe.db.whois.common.Message;
 import net.ripe.db.whois.common.Messages;
+import net.ripe.db.whois.common.apiKey.OAuthSession;
 import net.ripe.db.whois.common.conversion.PasswordFilter;
 import net.ripe.db.whois.common.rpsl.RpslAttribute;
 import net.ripe.db.whois.common.rpsl.RpslObject;
@@ -81,7 +82,6 @@ public class InternalUpdatePerformer {
         final UpdateContext updateContext = new UpdateContext(loggerContext);
         setSsoSessionToContext(updateContext, ssoToken);
         setClientCertificates(updateContext, request);
-        setOAuthSession(updateContext, request);
         return updateContext;
     }
 
@@ -183,9 +183,9 @@ public class InternalUpdatePerformer {
         return whoisResources;
     }
 
-    public Update createUpdate(final UpdateContext updateContext, final RpslObject rpslObject, final List<String> passwords, final String deleteReason, final String override) {
+    public Update createUpdate(final UpdateContext updateContext, final RpslObject rpslObject, final List<String> passwords, final OAuthSession oAuthSession, final String deleteReason, final String override) {
         return UpdateCreator.createUpdate(
-                createParagraph(updateContext, rpslObject, passwords, override),
+                createParagraph(updateContext, rpslObject, passwords, oAuthSession, override),
                 deleteReason != null ? Operation.DELETE : Operation.UNSPECIFIED,
                 deleteReason != null ? Lists.newArrayList(deleteReason) : null,
                 rpslObject.toString(),
@@ -193,7 +193,7 @@ public class InternalUpdatePerformer {
         );
     }
 
-    private static Paragraph createParagraph(final UpdateContext updateContext, final RpslObject rpslObject, final List<String> passwords, final String override) {
+    private static Paragraph createParagraph(final UpdateContext updateContext, final RpslObject rpslObject, final List<String> passwords, final OAuthSession oAuthSession, final String override) {
         final Set<Credential> credentials = Sets.newHashSet();
         for (String password : passwords) {
             credentials.add(new PasswordCredential(password));
@@ -213,8 +213,8 @@ public class InternalUpdatePerformer {
             }
         }
 
-        if (updateContext.getOAuthSession() != null) {
-            credentials.add(APIKeyCredential.createOfferedCredential(updateContext.getOAuthSession()));
+        if (oAuthSession != null) {
+            credentials.add(APIKeyCredential.createOfferedCredential(oAuthSession));
         }
 
         return new Paragraph(rpslObject.toString(), new Credentials(credentials));
@@ -237,10 +237,6 @@ public class InternalUpdatePerformer {
                 updateContext.addGlobalMessage(RestMessages.ssoAuthIgnored());
             }
         }
-    }
-
-    private void setOAuthSession(final UpdateContext updateContext, final HttpServletRequest request) {
-        updateContext.setOAuthSession(BearerTokenExtractor.extract(request));
     }
 
     public void setClientCertificates(final UpdateContext updateContext, final HttpServletRequest request) {

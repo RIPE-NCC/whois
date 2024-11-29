@@ -5,6 +5,7 @@ import net.ripe.db.whois.api.QueryBuilder;
 import net.ripe.db.whois.api.rest.domain.Parameters;
 import net.ripe.db.whois.api.rest.domain.WhoisResources;
 import net.ripe.db.whois.api.rest.mapper.WhoisObjectMapper;
+import net.ripe.db.whois.common.apiKey.OAuthSession;
 import net.ripe.db.whois.common.dao.RpslObjectDao;
 import net.ripe.db.whois.common.grs.AuthoritativeResourceData;
 import net.ripe.db.whois.common.rpsl.ObjectType;
@@ -101,6 +102,7 @@ public class WhoisRestService {
             @PathParam("key") final String key,
             @QueryParam("reason") @DefaultValue("--") final String reason,
             @QueryParam("password") final List<String> passwords,
+            final OAuthSession oAuthSession,
             @CookieParam(AuthServiceClient.TOKEN_KEY) final String crowdTokenKey,
             @QueryParam("override") final String override,
             @QueryParam("dry-run") final String dryRun) {
@@ -127,7 +129,7 @@ public class WhoisRestService {
             ssoTranslator.populateCacheAuthToUsername(updateContext, originalObject);
             originalObject = ssoTranslator.translateFromCacheAuthToUsername(updateContext, originalObject);
 
-            final Update update = updatePerformer.createUpdate(updateContext, originalObject, passwords, reason, override);
+            final Update update = updatePerformer.createUpdate(updateContext, originalObject, passwords, oAuthSession, reason, override);
 
             return updatePerformer.createResponse(
                     updateContext,
@@ -159,6 +161,7 @@ public class WhoisRestService {
             @PathParam("objectType") final String objectType,
             @PathParam("key") final String key,
             @QueryParam("password") final List<String> passwords,
+            final OAuthSession oAuthSession,
             @CookieParam(AuthServiceClient.TOKEN_KEY) final String crowdTokenKey,
             @QueryParam("override") final String override,
             @QueryParam("dry-run") final String dryRun,
@@ -184,7 +187,7 @@ public class WhoisRestService {
             final RpslObject submittedObject = getSubmittedObject(request, resource, isQueryParamSet(unformatted));
             validateSubmittedUpdateObject(request, submittedObject, objectType, key);
 
-            final Update update = updatePerformer.createUpdate(updateContext, submittedObject, passwords, null, override);
+            final Update update = updatePerformer.createUpdate(updateContext, submittedObject, passwords, oAuthSession, null, override);
 
             return updatePerformer.createResponse(
                     updateContext,
@@ -214,6 +217,7 @@ public class WhoisRestService {
             @PathParam("source") final String source,
             @PathParam("objectType") final String objectType,
             @QueryParam("password") final List<String> passwords,
+            final OAuthSession oAuthSession,
             @CookieParam(AuthServiceClient.TOKEN_KEY) final String crowdTokenKey,
             @QueryParam("override") final String override,
             @QueryParam("dry-run") final String dryRun,
@@ -231,7 +235,7 @@ public class WhoisRestService {
             final RpslObject submittedObject = getSubmittedObject(request, resource, isQueryParamSet(unformatted));
             validateSubmittedCreateObject(request, submittedObject, objectType);
 
-            final Update update = updatePerformer.createUpdate(updateContext, submittedObject, passwords, null, override);
+            final Update update = updatePerformer.createUpdate(updateContext, submittedObject, passwords, oAuthSession, null, override);
 
             return updatePerformer.createResponse(
                     updateContext,
