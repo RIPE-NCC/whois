@@ -8,6 +8,7 @@ import net.ripe.db.nrtm4.client.condition.Nrtm4ClientCondition;
 import net.ripe.db.nrtm4.client.dao.Nrtm4ClientInfoRepository;
 import net.ripe.db.nrtm4.client.dao.Nrtm4ClientRepository;
 import net.ripe.db.nrtm4.client.dao.NrtmClientVersionInfo;
+import net.ripe.db.whois.common.dao.RpslObjectUpdateInfo;
 import net.ripe.db.whois.common.rpsl.RpslObject;
 import org.apache.commons.compress.utils.Lists;
 import org.apache.commons.lang.StringUtils;
@@ -31,6 +32,7 @@ public class DeltaImporter implements Importer {
     private final Nrtm4ClientRepository nrtm4ClientRepository;
 
     private final Nrtm4ClientInfoRepository nrtm4ClientInfoRepository;
+
 
     public static final String RECORD_SEPARATOR = "\u001E";
 
@@ -75,21 +77,56 @@ public class DeltaImporter implements Importer {
                 return;
             }
 
-            mirrorObjectInfos.forEach(deltaInfo -> {
-                if (deltaInfo.getAction().equals(MirrorDeltaInfo.Action.ADD_MODIFY)){
-                    final Integer objectId = nrtm4ClientRepository.getMirroredObjectId(deltaInfo.getRpslObject().getKey().toString());
-                    if (objectId == null) {
-                        nrtm4ClientRepository.persistRpslObject(deltaInfo.getRpslObject());
-                        return;
-                    }
-                    nrtm4ClientRepository.updateMirroredObject(deltaInfo.getRpslObject(), objectId);
-                } else {
-                    nrtm4ClientRepository.removeMirroredObject(deltaInfo.getPrimaryKey());
-                }
-            });
+            mirrorObjectInfos.forEach(this::applyDeltaRecord);
 
             nrtm4ClientInfoRepository.saveDeltaFileVersion(source, metadata.version, metadata.sessionId());
         });
+    }
+
+    private void applyDeltaRecord(final MirrorDeltaInfo deltaInfo){
+        if (deltaInfo.getAction().equals(MirrorDeltaInfo.Action.ADD_MODIFY)){
+
+            final RpslObjectUpdateInfo rpslObjectUpdateInfo = nrtm4ClientRepository
+                    .getMirroredObjectId(deltaInfo.getRpslObject().getType(), deltaInfo.getRpslObject().getKey().toString());
+            if (rpslObjectUpdateInfo == null) {
+                applyDeltaCreation(deltaInfo);
+                return;
+            }
+            applyDeltaUpdate(deltaInfo, rpslObjectUpdateInfo);
+        } else {
+            applyDeltaDeletion(deltaInfo);
+        }
+    }
+
+    private void applyDeltaCreation(final MirrorDeltaInfo deltaInfo) {
+        final RpslObjectUpdateInfo rpslObjectCretedInfo = nrtm4ClientRepository.persistRpslObject(deltaInfo.getRpslObject());
+        nrtm4ClientRepository.createIndexes(deltaInfo.getRpslObject(), rpslObjectCretedInfo);
+    }
+
+    private void applyDeltaDeletion(final MirrorDeltaInfo deltaInfo) {
+        final RpslObjectUpdateInfo rpslObjectUpdateInfo = nrtm4ClientRepository.getMirroredObjectId(deltaInfo.getObjectType(), deltaInfo.getPrimaryKey());
+
+        if (serialDoesNotExist(rpslObjectUpdateInfo)){
+            LOGGER.error("delta with pkey: {} not deleted because serial doesn't exist", deltaInfo.getPrimaryKey());
+            return;
+        }
+        nrtm4ClientRepository.removeMirroredObjectAndUpdateSerials(rpslObjectUpdateInfo);
+    }
+
+    private void applyDeltaUpdate(final MirrorDeltaInfo deltaInfo, final RpslObjectUpdateInfo rpslObjectUpdateInfo) {
+        if (serialDoesNotExist(rpslObjectUpdateInfo)) {
+            LOGGER.error("delta with pkey: {} not updated because serial doesn't exist", deltaInfo.getPrimaryKey());
+            return;
+        }
+        nrtm4ClientRepository.updateMirroredObject(deltaInfo.getRpslObject(), rpslObjectUpdateInfo);
+    }
+
+    private boolean serialDoesNotExist(final RpslObjectUpdateInfo rpslObjectUpdateInfo) {
+        if (rpslObjectUpdateInfo != null){
+            return nrtm4ClientRepository
+                    .getSerialByObjectId(rpslObjectUpdateInfo.getObjectId(), rpslObjectUpdateInfo.getSequenceId()) == null;
+        }
+        return false;
     }
 
     private List<UpdateNotificationFileResponse.NrtmFileLink> getNewDeltas(String source, UpdateNotificationFileResponse updateNotificationFile) {

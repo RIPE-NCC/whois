@@ -92,11 +92,11 @@ public class SnapshotImporter implements Importer{
 
     public void persistDummyObjectIfNotExist(){
         final RpslObject dummyObject = getPlaceholderPersonObject();
-        final Integer objectId = nrtm4ClientRepository.getMirroredObjectId(dummyObject.getKey().toString());
-        if (objectId != null){
+        final RpslObjectUpdateInfo rpslObjectUpdateInfo = nrtm4ClientRepository.getMirroredObjectId(dummyObject.getType(), dummyObject.getKey().toString());
+        if (rpslObjectUpdateInfo != null){
             return;
         }
-        nrtm4ClientRepository.persistRpslObject(getPlaceholderPersonObject());
+        nrtm4ClientRepository.persistRpslObject(dummyObject);
     }
 
     private void printProgress(final Timer timer, final AtomicInteger processedCount) {

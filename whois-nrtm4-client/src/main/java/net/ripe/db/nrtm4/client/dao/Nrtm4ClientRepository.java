@@ -6,6 +6,7 @@ import net.ripe.db.nrtm4.client.client.MirrorRpslObject;
 import net.ripe.db.nrtm4.client.condition.Nrtm4ClientCondition;
 import net.ripe.db.whois.common.DateTimeProvider;
 import net.ripe.db.whois.common.dao.RpslObjectUpdateInfo;
+import net.ripe.db.whois.common.rpsl.ObjectType;
 import net.ripe.db.whois.common.rpsl.RpslObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -19,13 +20,17 @@ import org.springframework.transaction.annotation.Transactional;
 
 import javax.annotation.Nullable;
 import javax.sql.DataSource;
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 
+import static net.ripe.db.whois.common.dao.jdbc.JdbcRpslObjectOperations.copyToHistoryAndUpdateSerials;
+import static net.ripe.db.whois.common.dao.jdbc.JdbcRpslObjectOperations.deleteFromLastAndUpdateSerials;
+import static net.ripe.db.whois.common.dao.jdbc.JdbcRpslObjectOperations.deleteFromTables;
 import static net.ripe.db.whois.common.dao.jdbc.JdbcRpslObjectOperations.insertIntoLastAndUpdateSerials;
+import static net.ripe.db.whois.common.dao.jdbc.JdbcRpslObjectOperations.insertIntoTables;
 import static net.ripe.db.whois.common.dao.jdbc.JdbcRpslObjectOperations.insertIntoTablesIgnoreMissing;
+import static net.ripe.db.whois.common.dao.jdbc.JdbcRpslObjectOperations.lookupRpslObjectUpdateInfo;
+import static net.ripe.db.whois.common.dao.jdbc.JdbcRpslObjectOperations.updateLastAndUpdateSerials;
 
 @Repository
 @Conditional(Nrtm4ClientCondition.class)
@@ -63,13 +68,20 @@ public class Nrtm4ClientRepository {
     }
 
     @Nullable
-    public Integer getMirroredObjectId(final String primaryKey){
-        // TODO: There can be two objects with same primaryKey, we don't have single identifier for it
+    public RpslObjectUpdateInfo getMirroredObjectId(final ObjectType type, final String primaryKey){
         try {
-            return jdbcMasterTemplate.queryForObject("SELECT object_id FROM last WHERE pkey = ?",
-                    Integer.class,
-                    primaryKey);
-        } catch (EmptyResultDataAccessException e) {
+            return lookupRpslObjectUpdateInfo(jdbcSlaveTemplate, type, primaryKey);
+        } catch (EmptyResultDataAccessException ex){
+            return null;
+        }
+    }
+
+    @Nullable
+    public Integer getSerialByObjectId(final int objectId, final int sequenceId) {
+        final String query = "SELECT serial_id FROM serials WHERE object_id = ? AND sequence_id = ?";
+        try {
+            return jdbcSlaveTemplate.queryForObject(query, Integer.class, objectId, sequenceId);
+        } catch (EmptyResultDataAccessException ex){
             return null;
         }
     }
@@ -89,24 +101,16 @@ public class Nrtm4ClientRepository {
         return Map.entry(mirrorRpslObject.getObject(), persistRpslObject(mirrorRpslObject.getObject()));
     }
 
-
-    public void removeMirroredObject(final String primaryKey){
-        // TODO: There can be two objects with same primaryKey, we don't have single identifier for it
-        jdbcMasterTemplate.update("DELETE FROM last WHERE pkey = ?", primaryKey);
+    public void removeMirroredObjectAndUpdateSerials(final RpslObjectUpdateInfo rpslObjectInfo){
+        deleteFromTables(jdbcMasterTemplate, rpslObjectInfo);
+        copyToHistoryAndUpdateSerials(jdbcMasterTemplate, rpslObjectInfo);
+        deleteFromLastAndUpdateSerials(dateTimeProvider, jdbcMasterTemplate, rpslObjectInfo);
     }
 
-    public void updateMirroredObject(final RpslObject rpslObject, final Integer objectId){
-        try {
-            jdbcMasterTemplate.update("UPDATE last SET object = ? WHERE object_id = ?",
-                    getRpslObjectBytes(rpslObject), objectId);
-        } catch (IOException e) {
-            LOGGER.error("unable to get the bytes of the object {}", rpslObject.getKey(), e);
-        }
-    }
-
-    private static byte[] getRpslObjectBytes(final RpslObject rpslObject) throws IOException {
-        final ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
-        rpslObject.writeTo(byteArrayOutputStream);
-        return byteArrayOutputStream.toByteArray();
+    public void updateMirroredObject(final RpslObject rpslObject, final RpslObjectUpdateInfo rpslObjectUpdateInfo){
+        deleteFromTables(jdbcMasterTemplate, rpslObjectUpdateInfo);
+        insertIntoTablesIgnoreMissing(jdbcMasterTemplate, rpslObjectUpdateInfo, rpslObject);
+        copyToHistoryAndUpdateSerials(jdbcMasterTemplate, rpslObjectUpdateInfo);
+        updateLastAndUpdateSerials(dateTimeProvider, jdbcMasterTemplate, rpslObjectUpdateInfo, rpslObject);
     }
 }

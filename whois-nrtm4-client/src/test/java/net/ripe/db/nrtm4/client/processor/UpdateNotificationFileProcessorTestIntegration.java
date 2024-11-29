@@ -78,22 +78,23 @@ public class UpdateNotificationFileProcessorTestIntegration extends AbstractNrtm
     public void apply_deltas_then_updated() {
         updateNotificationFileProcessor.processFile();
         final RpslObject route = getMirrorRpslObjectByPkey("176.240.50.0/24AS47524");
-        final Integer route6 = nrtm4ClientRepository.getMirroredObjectId("2001:490:c000::/35AS18666");
-        final Integer mntner = nrtm4ClientRepository.getMirroredObjectId("MHM-MNT");
+        final RpslObject route6 = getMirrorRpslObjectByPkey("2001:490:c000::/35AS18666");
+        final RpslObject mntner = getMirrorRpslObjectByPkey("MHM-MNT");
 
         assertThat(route6, is(not(nullValue())));
-
+        assertThat(route, is(not(nullValue())));
         assertThat(route.findAttribute(AttributeType.DESCR).getCleanValue(), is("Dummified"));
         assertThat(mntner, is(nullValue()));
 
         nrtmServerDummy.setSecondDeltasMocks();
         updateNotificationFileProcessor.processFile();
         final RpslObject updatedroute = getMirrorRpslObjectByPkey("176.240.50.0/24AS47524");
-        final Integer deletedRoute6 = nrtm4ClientRepository.getMirroredObjectId("2001:490:c000::/35AS18666");
-        final Integer createdMntner = nrtm4ClientRepository.getMirroredObjectId("MHM-MNT");
+        final RpslObject deletedRoute6 = getMirrorRpslObjectByPkey("2001:490:c000::/35AS18666");
+        final RpslObject createdMntner = getMirrorRpslObjectByPkey("MHM-MNT");
 
         assertThat(createdMntner, is(not(nullValue())));
         assertThat(deletedRoute6, is(nullValue()));
+        assertThat(updatedroute, is(not(nullValue())));
         assertThat(route, is(not(updatedroute)));
         assertThat(updatedroute.findAttribute(AttributeType.DESCR).getCleanValue(), is("SECOND DELTA DUMMY"));
     }

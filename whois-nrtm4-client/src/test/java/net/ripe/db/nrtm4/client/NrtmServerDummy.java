@@ -61,16 +61,18 @@ public class NrtmServerDummy implements Stub {
 
     private final static String RIPE_NONAUTH_SNAP_HASH = "148c3c411b8f044f5fc0ab201f6dd03e80c862e27ad1a63488aee337dc7eb4a2";
 
-    private final static String RIPE_SNAP_HASH = "b293e92997d3be7a5156fdca832af378c3989b2cefa9e3e37caaeeba0ca971e9";
+    private final static String RIPE_SNAP_HASH = "8ae2dbce0c643368443f183bc93f09e6aff501795ea2e985de8f37f353c9e609";
 
     private final static Map<String, String> RIPE_NONAUTH_DELTA_HASH = ImmutableMap.of(
             "1", "55f7107d10f5043ab0cae7769c1c9e146348419abdc047b1e239acc8ea757cd5",
-            "2", "c0916fbf16da2972de2a9e78a79fe5390b9139d570ca24f5e17d280ca96078e4"
+            "2", "c0916fbf16da2972de2a9e78a79fe5390b9139d570ca24f5e17d280ca96078e4",
+            "fake", "fake_hash"
     );
 
     private final static Map<String, String> RIPE_DELTA_HASH = ImmutableMap.of(
             "1", "3c9e3056df60f23c88abc5c947536b500468dd0dc133641a216dda9ee968bc4a",
-            "2", "cfa467aa74261a38d185d12c5548fd407faff3ddd6bdaacaf5ade029275b3aaf"
+            "2", "cfa467aa74261a38d185d12c5548fd407faff3ddd6bdaacaf5ade029275b3aaf",
+            "fake", "fake_hash"
     );
 
 
@@ -210,12 +212,8 @@ public class NrtmServerDummy implements Stub {
     public void setFakeHashMocks() {
         mocks.clear();
         mocks.add(new NrtmResponseMock("/nrtmv4", "nrtm-sources.html", "application/html"));
-        mocks.add(new NrtmSignedResponseMock("/nrtmv4/RIPE/update-notification-file.jose", getUpdateNotificationFileRIPE("1", "fake_hash", "1"), "application/jose+json"));
-        mocks.add(new NrtmSignedResponseMock("/nrtmv4/RIPE-NONAUTH/update-notification-file.jose", getUpdateNotificationFileRIPENonAuth("1", "fake_hash", "1"), "application/jose+json"));
-        mocks.add(new NrtmCompressedResponseMock("/nrtmv4/RIPE-NONAUTH/nrtm-snapshot.1.RIPE-NONAUTH.6328095e-7d46-415b-9333-8f2ae274b7c8.f1195bb8a666fe7b97fa74009a70cefa.json.gz", "nrtm-snapshot.1.RIPE-NONAUTH.json"));
-        mocks.add(new NrtmCompressedResponseMock("/nrtmv4/RIPE/nrtm-snapshot.4.RIPE.4521174b-548f-4e51-98fc-dfd720011a0c.82542bd048e111fe57db404d08b6433e.json.gz", "nrtm-snapshot.1.RIPE.json"));
-        mocks.add(new NrtmDeltaResponseMock("/nrtmv4/RIPE/nrtm-delta.1.RIPE.4521174b-548f-4e51-98fc-dfd720011a0c.e3be41ff312010046b67d099faa58f44.json", "nrtm-delta.1.RIPE.json", "application/json"));
-        mocks.add(new NrtmDeltaResponseMock("/nrtmv4/RIPE-NONAUTH/nrtm-delta.1.RIPE-NONAUTH.4f3ff2a7-1877-4cab-82f4-1dd6425c4e7d.94b5a6cc54f258062c25d9bee224b5c.json", "nrtm-delta.1.RIPE-NONAUTH.json", "application/json"));
+        mocks.add(new NrtmSignedResponseMock("/nrtmv4/RIPE/update-notification-file.jose", getUpdateNotificationFileRIPE("1", "fake_hash", "fake"), "application/jose+json"));
+        mocks.add(new NrtmSignedResponseMock("/nrtmv4/RIPE-NONAUTH/update-notification-file.jose", getUpdateNotificationFileRIPENonAuth("1", "fake_hash", "fake"), "application/jose+json"));
     }
 
     public void setWrongSignedUNF(){

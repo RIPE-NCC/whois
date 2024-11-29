@@ -13,9 +13,11 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.test.context.ContextConfiguration;
 
+import javax.annotation.Nullable;
 import javax.sql.DataSource;
 import java.util.List;
 
@@ -73,20 +75,27 @@ public class AbstractNrtmClientIntegrationTest extends AbstractDatabaseHelperInt
         final String sql = """
             SELECT object
             FROM last
+            WHERE sequence_id > 0
             """;
         return nrtmClientTemplate.query(sql,
                 (rs, rn) -> new MirrorRpslObject(RpslObject.parse(rs.getBytes(1))));
     }
 
+    @Nullable
     protected RpslObject getMirrorRpslObjectByPkey(final String primaryKey){
-        final String sql = """
-            SELECT object
-            FROM last
-            WHERE pkey = ?
-            """;
-        return nrtmClientTemplate.queryForObject(sql,
-                (rs, rn) -> RpslObject.parse(rs.getBytes(1)),
-                primaryKey);
+        try {
+                final String sql = """
+                    SELECT object
+                    FROM last
+                    WHERE pkey = ?
+                    AND sequence_id > 0
+                    """;
+                return nrtmClientTemplate.queryForObject(sql,
+                        (rs, rn) -> RpslObject.parse(rs.getBytes(1)),
+                        primaryKey);
+            } catch (EmptyResultDataAccessException ex){
+            return null;
+        }
     }
 
     protected List<NrtmClientVersionInfo> getNrtmLastSnapshotVersion(){
