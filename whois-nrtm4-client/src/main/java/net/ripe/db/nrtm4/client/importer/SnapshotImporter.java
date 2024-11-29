@@ -27,28 +27,19 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 @Service
 @Conditional(Nrtm4ClientCondition.class)
-public class SnapshotImporter implements Importer{
+public class SnapshotImporter extends AbstractImporter {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(SnapshotImporter.class);
 
     private final NrtmRestClient nrtmRestClient;
 
-    private final Nrtm4ClientInfoRepository nrtm4ClientInfoMirrorDao;
-
-    private final Nrtm4ClientRepository nrtm4ClientRepository;
-
 
     public SnapshotImporter(final NrtmRestClient nrtmRestClient,
                             final Nrtm4ClientInfoRepository nrtm4ClientInfoMirrorDao,
                             final Nrtm4ClientRepository nrtm4ClientRepository) {
+        super(nrtm4ClientInfoMirrorDao, nrtm4ClientRepository);
         this.nrtmRestClient = nrtmRestClient;
-        this.nrtm4ClientInfoMirrorDao = nrtm4ClientInfoMirrorDao;
-        this.nrtm4ClientRepository  = nrtm4ClientRepository;
-    }
 
-    public void truncateTables(){
-        nrtm4ClientInfoMirrorDao.truncateTables();
-        nrtm4ClientRepository.truncateTables();
     }
 
     @Override
@@ -150,6 +141,7 @@ public class SnapshotImporter implements Importer{
         );
     }
 
+
     private void processMetadata(final String source, final UpdateNotificationFileResponse updateNotificationFile,
                                  final String firstRecord) throws IllegalArgumentException {
         final JSONObject jsonObject = new JSONObject(firstRecord);
@@ -160,6 +152,6 @@ public class SnapshotImporter implements Importer{
             truncateTables();
             throw new IllegalArgumentException("The session is not the same in the UNF and snapshot");
         }
-        nrtm4ClientInfoMirrorDao.saveSnapshotFileVersion(source, version, sessionId);
+        nrtm4ClientInfoRepository.saveSnapshotFileVersion(source, version, sessionId);
     }
 }

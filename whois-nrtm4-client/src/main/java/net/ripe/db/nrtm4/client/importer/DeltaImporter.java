@@ -10,7 +10,6 @@ import net.ripe.db.nrtm4.client.dao.Nrtm4ClientRepository;
 import net.ripe.db.nrtm4.client.dao.NrtmClientVersionInfo;
 import net.ripe.db.whois.common.dao.RpslObjectUpdateInfo;
 import net.ripe.db.whois.common.rpsl.RpslObject;
-import org.apache.commons.compress.utils.Lists;
 import org.apache.commons.lang.StringUtils;
 import org.json.JSONObject;
 import org.slf4j.Logger;
@@ -18,30 +17,31 @@ import org.slf4j.LoggerFactory;
 import org.springframework.context.annotation.Conditional;
 import org.springframework.stereotype.Service;
 
+import java.io.BufferedReader;
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.nio.ByteBuffer;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
+import java.util.function.Consumer;
 
 @Service
 @Conditional(Nrtm4ClientCondition.class)
-public class DeltaImporter implements Importer {
+public class DeltaImporter extends AbstractImporter {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(DeltaImporter.class);
 
     private final NrtmRestClient nrtmRestClient;
-
-    private final Nrtm4ClientRepository nrtm4ClientRepository;
-
-    private final Nrtm4ClientInfoRepository nrtm4ClientInfoRepository;
-
 
     public static final String RECORD_SEPARATOR = "\u001E";
 
     public DeltaImporter(final NrtmRestClient nrtmRestClient,
                          final Nrtm4ClientRepository nrtm4ClientRepository,
                          final Nrtm4ClientInfoRepository nrtm4ClientInfoRepository) {
+        super(nrtm4ClientInfoRepository, nrtm4ClientRepository);
         this.nrtmRestClient = nrtmRestClient;
-        this.nrtm4ClientRepository = nrtm4ClientRepository;
-        this.nrtm4ClientInfoRepository = nrtm4ClientInfoRepository;
     }
 
     @Override
@@ -61,27 +61,45 @@ public class DeltaImporter implements Importer {
                 return;
             }
 
-            final String[] deltaFileResponse = StringUtils.split(new String(deltaFilePayload, StandardCharsets.UTF_8), RECORD_SEPARATOR);
-
-            final Metadata metadata = getMetadata(deltaFileResponse);
-
-            final List<MirrorDeltaInfo> mirrorObjectInfos = getMirrorDeltaObjects(deltaFileResponse);
-
             final String payloadHash = calculateSha256(deltaFilePayload);
             if (!delta.getHash().equals(payloadHash)){
                 LOGGER.error("Delta hash {} doesn't match the payload {}, skipping import", delta.getHash(), payloadHash);
                 return;
             }
 
-            if (!metadata.sessionId().equals(updateNotificationFile.getSessionID())){
-                LOGGER.error("The session {} is not the same in the UNF and snapshot {}", metadata.sessionId(), updateNotificationFile.getSessionID());
-                return;
-            }
+            processPayload(deltaFilePayload,
+                    firstRecord -> {
+                        final Metadata metadata = getMetadata(firstRecord);
+                        if (!metadata.sessionId().equals(updateNotificationFile.getSessionID())){
+                            LOGGER.error("The session {} is not the same in the UNF and snapshot {}", metadata.sessionId(), updateNotificationFile.getSessionID());
+                            truncateTables();
+                            throw new IllegalArgumentException("The session is not the same in the UNF and snapshot");
+                        }
+                        nrtm4ClientInfoRepository.saveDeltaFileVersion(source, metadata.version, metadata.sessionId());
+                    }
+                    );
 
-            mirrorObjectInfos.forEach(this::applyDeltaRecord);
-
-            nrtm4ClientInfoRepository.saveDeltaFileVersion(source, metadata.version, metadata.sessionId());
         });
+    }
+
+    private void processPayload(final byte[] deltaFilePayload, final Consumer<String> firstRecordProcessor) {
+        ByteBuffer buffer = ByteBuffer.wrap(deltaFilePayload);
+        InputStream inputStream = new ByteArrayInputStream(buffer.array(), buffer.position(), buffer.remaining());
+        try (BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream, StandardCharsets.UTF_8))) {
+            String record;
+            boolean isFirstRecord = true;
+            while ((record = reader.readLine()) != null) {
+                if (isFirstRecord){
+                    firstRecordProcessor.accept(record);
+                    isFirstRecord = false;
+                    continue;
+                }
+                processDeltaRecord(record);
+            }
+        } catch (IOException ex){
+            LOGGER.error("Unable to process deltas");
+            throw new IllegalStateException(ex);
+        }
     }
 
     private void applyDeltaRecord(final MirrorDeltaInfo deltaInfo){
@@ -144,29 +162,23 @@ public class DeltaImporter implements Importer {
     }
 
 
-    private static List<MirrorDeltaInfo> getMirrorDeltaObjects(final String[] records) {
-        final List<MirrorDeltaInfo> mirrorDeltaInfos = Lists.newArrayList();
-        for (int i = 1; i < records.length; i++) {
-            final JSONObject jsonObject = new JSONObject(records[i]);
-            final String deltaAction = jsonObject.getString("action");
-            final String deltaObjectType = jsonObject.optString("object_class", null);
-            final String deltaPrimaryKey = jsonObject.optString("primary_key", null);
-            final String deltaUpdatedObject = jsonObject.optString("object", null);
-            final RpslObject rpslObject = !StringUtil.isNullOrEmpty(deltaUpdatedObject) ?
-                    RpslObject.parse(deltaUpdatedObject) : null;
+    private void processDeltaRecord(final String records) {
+        final JSONObject jsonObject = new JSONObject(records);
+        final String deltaAction = jsonObject.getString("action");
+        final String deltaObjectType = jsonObject.optString("object_class", null);
+        final String deltaPrimaryKey = jsonObject.optString("primary_key", null);
+        final String deltaUpdatedObject = jsonObject.optString("object", null);
+        final RpslObject rpslObject = !StringUtil.isNullOrEmpty(deltaUpdatedObject) ?
+                RpslObject.parse(deltaUpdatedObject) : null;
 
-            final MirrorDeltaInfo mirrorDeltaInfo =
-                    new MirrorDeltaInfo(rpslObject,
-                            deltaAction,
-                            deltaObjectType,
-                            deltaPrimaryKey);
-            mirrorDeltaInfos.add(mirrorDeltaInfo);
-        }
-        return mirrorDeltaInfos;
+        applyDeltaRecord(new MirrorDeltaInfo(rpslObject,
+                        deltaAction,
+                        deltaObjectType,
+                        deltaPrimaryKey));
     }
 
-    private static Metadata getMetadata(String[] records) {
-        final JSONObject jsonObject = new JSONObject(records[0]);
+    private static Metadata getMetadata(final String records) {
+        final JSONObject jsonObject = new JSONObject(records);
         final int deltatVersion = jsonObject.getInt("version");
         final String deltaSessionId = jsonObject.getString("session_id");
         return new Metadata(deltatVersion, deltaSessionId);
