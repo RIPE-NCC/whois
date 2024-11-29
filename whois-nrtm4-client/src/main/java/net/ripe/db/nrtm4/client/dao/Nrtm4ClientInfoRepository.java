@@ -67,14 +67,13 @@ public class Nrtm4ClientInfoRepository {
 
     @Nullable
     public NrtmClientVersionInfo getNrtmLastVersionInfoForDeltasPerSource(final String source){
-        final String sql = """
-            SELECT id, source, MAX(version), session_id, type, hostname, created
-            FROM version_info
-            WHERE type = ?
-            AND source = ?
-            """;
         try {
-            return jdbcMasterTemplate.queryForObject(sql,
+            return jdbcMasterTemplate.queryForObject("""
+                    SELECT id, source, MAX(version), session_id, type, hostname, created
+                    FROM version_info
+                    WHERE type = ?
+                    AND source = ?
+                    """,
                     nrtmClientVersionRowMapper(),
                     NrtmClientDocumentType.DELTA.getFileNamePrefix(), source);
         } catch (EmptyResultDataAccessException e) {

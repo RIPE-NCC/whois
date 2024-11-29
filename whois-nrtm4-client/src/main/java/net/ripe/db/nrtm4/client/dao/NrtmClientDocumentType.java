@@ -2,6 +2,8 @@ package net.ripe.db.nrtm4.client.dao;
 
 import io.netty.util.internal.StringUtil;
 
+import javax.annotation.Nullable;
+
 public enum NrtmClientDocumentType {
     SNAPSHOT("nrtm-snapshot"),
     DELTA("nrtm-delta"),
@@ -17,6 +19,7 @@ public enum NrtmClientDocumentType {
         return fileNamePrefix;
     }
 
+    @Nullable
     public static NrtmClientDocumentType fromValue(String value) {
         if (StringUtil.isNullOrEmpty(value)){
             return null;

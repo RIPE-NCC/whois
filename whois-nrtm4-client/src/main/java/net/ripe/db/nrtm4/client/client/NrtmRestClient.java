@@ -105,7 +105,7 @@ public class NrtmRestClient {
     }
 
     @Nullable
-    public byte[] getDeltaFiles(final String url){
+    public byte[] getDeltaFile(final String url){
         try {
             final Response response = client.target(baseUrl)
                     .path(url)

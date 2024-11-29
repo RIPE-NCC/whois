@@ -54,7 +54,7 @@ public class DeltaImporter implements Importer {
         }
 
         deltas.forEach(delta -> {
-            final byte[] deltaFilePayload = nrtmRestClient.getDeltaFiles(delta.getUrl());
+            final byte[] deltaFilePayload = nrtmRestClient.getDeltaFile(delta.getUrl());
 
             if (deltaFilePayload == null || deltaFilePayload.length == 0){
                 LOGGER.error("This cannot happen. UNF has a non-existing delta");
@@ -67,13 +67,14 @@ public class DeltaImporter implements Importer {
 
             final List<MirrorDeltaInfo> mirrorObjectInfos = getMirrorDeltaObjects(deltaFileResponse);
 
-            if (!delta.getHash().equals(calculateSha256(deltaFilePayload))){
-                LOGGER.error("Snapshot hash doesn't match, skipping import");
+            final String payloadHash = calculateSha256(deltaFilePayload);
+            if (!delta.getHash().equals(payloadHash)){
+                LOGGER.error("Delta hash {} doesn't match the payload {}, skipping import", delta.getHash(), payloadHash);
                 return;
             }
 
             if (!metadata.sessionId().equals(updateNotificationFile.getSessionID())){
-                LOGGER.error("The session is not the same in the UNF and snapshot");
+                LOGGER.error("The session {} is not the same in the UNF and snapshot {}", metadata.sessionId(), updateNotificationFile.getSessionID());
                 return;
             }
 
@@ -106,7 +107,7 @@ public class DeltaImporter implements Importer {
     private void applyDeltaDeletion(final MirrorDeltaInfo deltaInfo) {
         final RpslObjectUpdateInfo rpslObjectUpdateInfo = nrtm4ClientRepository.getMirroredObjectId(deltaInfo.getObjectType(), deltaInfo.getPrimaryKey());
 
-        if (serialDoesNotExist(rpslObjectUpdateInfo)){
+        if (!serialExist(rpslObjectUpdateInfo)){
             LOGGER.error("delta with pkey: {} not deleted because serial doesn't exist", deltaInfo.getPrimaryKey());
             return;
         }
@@ -114,17 +115,17 @@ public class DeltaImporter implements Importer {
     }
 
     private void applyDeltaUpdate(final MirrorDeltaInfo deltaInfo, final RpslObjectUpdateInfo rpslObjectUpdateInfo) {
-        if (serialDoesNotExist(rpslObjectUpdateInfo)) {
+        if (!serialExist(rpslObjectUpdateInfo)) {
             LOGGER.error("delta with pkey: {} not updated because serial doesn't exist", deltaInfo.getPrimaryKey());
             return;
         }
         nrtm4ClientRepository.updateMirroredObject(deltaInfo.getRpslObject(), rpslObjectUpdateInfo);
     }
 
-    private boolean serialDoesNotExist(final RpslObjectUpdateInfo rpslObjectUpdateInfo) {
+    private boolean serialExist(final RpslObjectUpdateInfo rpslObjectUpdateInfo) {
         if (rpslObjectUpdateInfo != null){
             return nrtm4ClientRepository
-                    .getSerialByObjectId(rpslObjectUpdateInfo.getObjectId(), rpslObjectUpdateInfo.getSequenceId()) == null;
+                    .getSerialByObjectId(rpslObjectUpdateInfo.getObjectId(), rpslObjectUpdateInfo.getSequenceId()) != null;
         }
         return false;
     }

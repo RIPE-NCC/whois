@@ -17,7 +17,7 @@ public interface Importer {
             final byte[] encodedSha256hex = digest.digest(bytes);
             return encodeHexString(encodedSha256hex);
         } catch (final NoSuchAlgorithmException e) {
-            throw new RuntimeException(e);
+            throw new IllegalStateException(e);
         }
     }
 }

@@ -84,16 +84,16 @@ public class AbstractNrtmClientIntegrationTest extends AbstractDatabaseHelperInt
     @Nullable
     protected RpslObject getMirrorRpslObjectByPkey(final String primaryKey){
         try {
-                final String sql = """
-                    SELECT object
-                    FROM last
-                    WHERE pkey = ?
-                    AND sequence_id > 0
-                    """;
-                return nrtmClientTemplate.queryForObject(sql,
-                        (rs, rn) -> RpslObject.parse(rs.getBytes(1)),
-                        primaryKey);
-            } catch (EmptyResultDataAccessException ex){
+            final String sql = """
+                SELECT object
+                FROM last
+                WHERE pkey = ?
+                AND sequence_id > 0
+                """;
+            return nrtmClientTemplate.queryForObject(sql,
+                    (rs, rn) -> RpslObject.parse(rs.getBytes(1)),
+                    primaryKey);
+        } catch (EmptyResultDataAccessException ex){
             return null;
         }
     }

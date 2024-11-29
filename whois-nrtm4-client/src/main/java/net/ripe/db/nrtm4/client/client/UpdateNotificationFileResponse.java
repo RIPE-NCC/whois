@@ -2,8 +2,7 @@ package net.ripe.db.nrtm4.client.client;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import org.apache.commons.compress.utils.Lists;
-
+import com.google.common.collect.Lists;
 import javax.annotation.Nullable;
 import java.util.List;
 import java.util.Objects;
