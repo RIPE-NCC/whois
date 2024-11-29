@@ -68,7 +68,7 @@ public class WhoisRestService {
     private final LoggerContext loggerContext;
     private final AuthoritativeResourceData authoritativeResourceData;
     private final String baseUrl;
-    private final boolean apiKeyEnabled;
+    private final Boolean apiKeyEnabled;
 
     @Autowired
     public WhoisRestService(final RpslObjectDao rpslObjectDao,
@@ -80,7 +80,7 @@ public class WhoisRestService {
                             final SsoTranslator ssoTranslator,
                             final LoggerContext loggerContext,
                             final AuthoritativeResourceData authoritativeResourceData,
-                            @Value("${apikey.authenticate.enabled:false}") final boolean apiKeyEnabled,
+                            @Value("${apikey.authenticate.enabled:false}") final Boolean apiKeyEnabled,
                             @Value("${api.rest.baseurl}") final String baseUrl) {
         this.rpslObjectDao = rpslObjectDao;
         this.rpslObjectStreamer = rpslObjectStreamer;
