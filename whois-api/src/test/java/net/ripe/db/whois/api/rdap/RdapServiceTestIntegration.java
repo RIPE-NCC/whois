@@ -24,6 +24,7 @@ import net.ripe.db.whois.api.rdap.domain.RdapObject;
 import net.ripe.db.whois.api.rdap.domain.Redaction;
 import net.ripe.db.whois.api.rdap.domain.Remark;
 import net.ripe.db.whois.api.rdap.domain.Role;
+import net.ripe.db.whois.api.rdap.domain.SearchResult;
 import net.ripe.db.whois.common.rpsl.AttributeType;
 import net.ripe.db.whois.common.rpsl.RpslObject;
 import net.ripe.db.whois.query.support.TestWhoisLog;
@@ -3127,6 +3128,80 @@ public class RdapServiceTestIntegration extends AbstractRdapIntegrationTest {
         assertCopyrightLink(help.getLinks(), "https://rdap.db.ripe.net/help");
     }
 
+    /*RIR Search*/
+
+    @Test
+    public void get_bottom_then_most_specific(){
+        loadRelationTreeExample();
+
+        final SearchResult searchResult = createResource("ips/rirSearch1/bottom/192.0.2.0/24")
+                .request(MediaType.APPLICATION_JSON_TYPE)
+                .get(SearchResult.class);
+
+        final List<Ip> ipResults = searchResult.getIpSearchResults();
+        assertThat(ipResults.size(), is(3));
+        assertThat(ipResults.getFirst().getHandle(), is("192.0.2.0 - 192.0.2.0"));
+        assertThat(ipResults.get(1).getHandle(), is("192.0.2.128 - 192.0.2.191"));
+        assertThat(ipResults.get(2).getHandle(), is("192.0.2.192 - 192.0.2.255"));
+    }
+
+    @Test
+    public void get_up_then_parent(){
+        loadRelationTreeExample();
+
+        final SearchResult searchResult = createResource("ips/rirSearch1/up/192.0.2.0/28")
+                .request(MediaType.APPLICATION_JSON_TYPE)
+                .get(SearchResult.class);
+
+        final List<Ip> ipResults = searchResult.getIpSearchResults();
+        assertThat(ipResults.size(), is(1));
+        assertThat(ipResults.getFirst().getHandle(), is("192.0.2.0 - 192.0.2.127"));
+    }
+
+    @Test
+    public void get_top_then_less_specific_allocated_assigned_then_first_parent(){
+        loadRelationTreeExample();
+
+        final SearchResult searchResult = createResource("ips/rirSearch1/top/192.0.2.0/28")
+                .request(MediaType.APPLICATION_JSON_TYPE)
+                .get(SearchResult.class);
+
+        final List<Ip> ipResults = searchResult.getIpSearchResults();
+        assertThat(ipResults.size(), is(1));
+        assertThat(ipResults.getFirst().getHandle(), is("192.0.2.0 - 192.0.2.255"));
+    }
+
+    @Test
+    public void get_non_existing_top_then_less_specific_allocated_assigned_then_404(){
+        loadRelationTreeExample();
+
+        final NotFoundException notFoundException = assertThrows(NotFoundException.class, () -> {
+            createResource("ips/rirSearch1/top/192.0.2.0/24")
+                    .request(MediaType.APPLICATION_JSON_TYPE)
+                    .get(SearchResult.class);
+        });
+
+        assertErrorTitle(notFoundException, "404 Not Found");
+        assertErrorStatus(notFoundException, HttpStatus.NOT_FOUND_404);
+        assertErrorDescription(notFoundException, "No top level object has been found for 192.0.2.0/24");
+    }
+
+    @Test
+    public void get_most_specific_wrong_type_then_400(){
+
+        final BadRequestException badRequestException = assertThrows(BadRequestException.class, () -> {
+            createResource("ip/rirSearch1/bottom/192.0.2.0/24")
+                .request(MediaType.APPLICATION_JSON_TYPE)
+                .get(SearchResult.class);
+        });
+        assertErrorTitle(badRequestException, "400 Bad Request");
+        assertErrorStatus(badRequestException, HttpStatus.BAD_REQUEST_400);
+        assertErrorDescription(badRequestException, "Invalid or unknown type ip");
+    }
+
+
+    /* Helper methods*/
+
     private void assertCommon(RdapObject object) {
         assertThat(object.getPort43(), is("whois.ripe.net"));
         assertThat(object.getRdapConformance(), hasSize(4));
@@ -3209,4 +3284,121 @@ public class RdapServiceTestIntegration extends AbstractRdapIntegrationTest {
                 "source:        TEST");
     }
 
+    private void loadRelationTreeExample(){
+        /*
+                                   +--------------+
+                                   | 192.0.2.0/24 |
+                                   +--------------+
+                                      /        \
+                         +--------------+    +----------------+
+                         | 192.0.2.0/25 |    | 192.0.2.128/25 |
+                         +--------------+    +----------------+
+                            /                   /          \
+                +--------------+   +----------------+  +----------------+
+                | 192.0.2.0/28 |   | 192.0.2.128/26 |  | 192.0.2.192/26 |
+                +--------------+   +----------------+  +----------------+
+                   /
+            +--------------+
+            | 192.0.2.0/32 |
+            +--------------+
+        */
+
+        databaseHelper.addObject("" +
+                "inetnum:      192.0.2.0 - 192.0.2.255\n" + // /24
+                "netname:      TEST-NET-NAME\n" +
+                "descr:        TEST network\n" +
+                "country:      NL\n" +
+                "language:     en\n" +
+                "tech-c:       TP1-TEST\n" +
+                "status:       ALLOCATED PA\n" +
+                "mnt-by:       OWNER-MNT\n" +
+                "created:         2022-08-14T11:48:28Z\n" +
+                "last-modified:   2022-10-25T12:22:39Z\n" +
+                "source:       TEST");
+
+
+        // One branch
+        databaseHelper.addObject("" +
+                "inetnum:      192.0.2.0 - 192.0.2.127\n" + // /25
+                "netname:      TEST-NET-NAME\n" +
+                "descr:        TEST network\n" +
+                "country:      NL\n" +
+                "language:     en\n" +
+                "tech-c:       TP1-TEST\n" +
+                "status:       OTHER\n" +
+                "mnt-by:       OWNER-MNT\n" +
+                "created:         2022-08-14T11:48:28Z\n" +
+                "last-modified:   2022-10-25T12:22:39Z\n" +
+                "source:       TEST");
+
+
+        databaseHelper.addObject("" +
+                "inetnum:      192.0.2.0 - 192.0.2.15\n" + // /28
+                "netname:      TEST-NET-NAME\n" +
+                "descr:        TEST network\n" +
+                "country:      NL\n" +
+                "language:     en\n" +
+                "tech-c:       TP1-TEST\n" +
+                "status:       OTHER\n" +
+                "mnt-by:       OWNER-MNT\n" +
+                "created:         2022-08-14T11:48:28Z\n" +
+                "last-modified:   2022-10-25T12:22:39Z\n" +
+                "source:       TEST");
+
+        databaseHelper.addObject("" +
+                "inetnum:      192.0.2.0 - 192.0.2.0\n" + // /32
+                "netname:      TEST-NET-NAME\n" +
+                "descr:        TEST network\n" +
+                "country:      NL\n" +
+                "language:     en\n" +
+                "tech-c:       TP1-TEST\n" +
+                "status:       OTHER\n" +
+                "mnt-by:       OWNER-MNT\n" +
+                "created:         2022-08-14T11:48:28Z\n" +
+                "last-modified:   2022-10-25T12:22:39Z\n" +
+                "source:       TEST");
+
+        //Another branch
+
+        databaseHelper.addObject("" +
+                "inetnum:      192.0.2.128 - 192.0.2.255\n" + // /25
+                "netname:      TEST-NET-NAME\n" +
+                "descr:        TEST network\n" +
+                "country:      NL\n" +
+                "language:     en\n" +
+                "tech-c:       TP1-TEST\n" +
+                "status:       OTHER\n" +
+                "mnt-by:       OWNER-MNT\n" +
+                "created:         2022-08-14T11:48:28Z\n" +
+                "last-modified:   2022-10-25T12:22:39Z\n" +
+                "source:       TEST");
+
+        databaseHelper.addObject("" +
+                "inetnum:      192.0.2.128 - 192.0.2.191\n" + // /26
+                "netname:      TEST-NET-NAME\n" +
+                "descr:        TEST network\n" +
+                "country:      NL\n" +
+                "language:     en\n" +
+                "tech-c:       TP1-TEST\n" +
+                "status:       OTHER\n" +
+                "mnt-by:       OWNER-MNT\n" +
+                "created:         2022-08-14T11:48:28Z\n" +
+                "last-modified:   2022-10-25T12:22:39Z\n" +
+                "source:       TEST");
+
+        databaseHelper.addObject("" +
+                "inetnum:      192.0.2.192 - 192.0.2.255\n" + // /26
+                "netname:      TEST-NET-NAME\n" +
+                "descr:        TEST network\n" +
+                "country:      NL\n" +
+                "language:     en\n" +
+                "tech-c:       TP1-TEST\n" +
+                "status:       OTHER\n" +
+                "mnt-by:       OWNER-MNT\n" +
+                "created:         2022-08-14T11:48:28Z\n" +
+                "last-modified:   2022-10-25T12:22:39Z\n" +
+                "source:       TEST");
+
+        ipTreeUpdater.rebuild();
+    }
 }

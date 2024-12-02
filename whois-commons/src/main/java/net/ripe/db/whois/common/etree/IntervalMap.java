@@ -161,4 +161,20 @@ public interface IntervalMap<K extends Interval<?>, V> {
      *         intervals.
      */
     List<V> findExactAndAllMoreSpecific(K key);
+
+    /**
+     * Finds all values associated with intervals that contained within (more specific than)
+     * and whose prefix is higher, more specific
+     * <code>key</code>.
+     * <p/>
+     * <p/>
+     * The resulting values the most specific values associated with the
+     * <code>key</code>.
+     *
+     * @param key the key to find the exact and all levels more specific values
+     *            for
+     * @return the (possibly empty) list of values associated with the matching
+     *         intervals.
+     */
+    List<V> findMostSpecific(K key);
 }

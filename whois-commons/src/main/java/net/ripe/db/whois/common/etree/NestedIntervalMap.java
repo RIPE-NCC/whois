@@ -2,7 +2,10 @@ package net.ripe.db.whois.common.etree;
 
 import com.google.common.collect.Lists;
 import net.ripe.db.whois.common.collect.CollectionHelper;
+import net.ripe.db.whois.common.domain.IpRanges;
 import net.ripe.db.whois.common.ip.Interval;
+import net.ripe.db.whois.common.ip.IpInterval;
+import net.ripe.db.whois.common.rpsl.AttributeParser;
 import org.apache.commons.lang.Validate;
 
 import java.util.ArrayList;
@@ -119,6 +122,12 @@ public final class NestedIntervalMap<K extends Interval<K>, V> implements Interv
         return mapToValues(internalFindExactAndAllMoreSpecific(key));
     }
 
+    @Override
+    public List<V> findMostSpecific(K key) {
+        Validate.notNull(key);
+        return mapToValues(internalFindMostSpecific(key));
+    }
+
     /**
      * Clears all values from the map.
      */
@@ -224,6 +233,17 @@ public final class NestedIntervalMap<K extends Interval<K>, V> implements Interv
             container.getChildren().findFirstMoreSpecific(result, range);
         }
         return result;
+    }
+
+    private List<InternalNode<K, V>> internalFindMostSpecific(K range){
+        final List<InternalNode<K, V>> result = internalFindAllMoreSpecific(range);
+        if (result.isEmpty()){
+            return Lists.newArrayList();
+        }
+
+        return result.parallelStream()
+                .filter( kvInternalNode -> kvInternalNode.getChildren().isEmpty())
+                .toList();
     }
 
     private List<InternalNode<K, V>> internalFindAllMoreSpecific(K range) {
