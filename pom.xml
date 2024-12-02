@@ -369,16 +369,6 @@
                 <version>${netty.version}</version>
             </dependency>
 
-            <dependency>
-                <groupId>com.nimbusds</groupId>
-                <artifactId>nimbus-jose-jwt</artifactId>
-                <version>9.40</version>
-            </dependency>
-            <dependency>
-                <groupId>com.google.crypto.tink</groupId>
-                <artifactId>tink</artifactId>
-                <version>1.13.0</version>
-            </dependency>
 
             <!-- Jakarta Mail (formerly JavaMail) TODO: [ES] depend on angus-mail -->
             <dependency>
