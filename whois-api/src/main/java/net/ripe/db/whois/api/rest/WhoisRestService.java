@@ -68,6 +68,7 @@ public class WhoisRestService {
     private final LoggerContext loggerContext;
     private final AuthoritativeResourceData authoritativeResourceData;
     private final String baseUrl;
+    private final Boolean apiKeyEnabled;
 
     @Autowired
     public WhoisRestService(final RpslObjectDao rpslObjectDao,
@@ -79,6 +80,7 @@ public class WhoisRestService {
                             final SsoTranslator ssoTranslator,
                             final LoggerContext loggerContext,
                             final AuthoritativeResourceData authoritativeResourceData,
+                            @Value("${apikey.authenticate.enabled:false}") final Boolean apiKeyEnabled,
                             @Value("${api.rest.baseurl}") final String baseUrl) {
         this.rpslObjectDao = rpslObjectDao;
         this.rpslObjectStreamer = rpslObjectStreamer;
@@ -90,6 +92,7 @@ public class WhoisRestService {
         this.loggerContext = loggerContext;
         this.authoritativeResourceData = authoritativeResourceData;
         this.baseUrl = baseUrl;
+        this.apiKeyEnabled = apiKeyEnabled;
     }
 
     @DELETE
@@ -281,6 +284,7 @@ public class WhoisRestService {
             @PathParam("objectType") final String objectType,
             @PathParam("key") final String key,
             @QueryParam("password") final List<String> passwords,
+            final OAuthSession oAuthSession,
             @CookieParam(AuthServiceClient.TOKEN_KEY) final String crowdTokenKey,
             @QueryParam("unformatted") final String unformatted,
             @QueryParam("unfiltered") final String unfiltered,
@@ -308,7 +312,7 @@ public class WhoisRestService {
         final Query query;
         try {
             query =
-                    Query.parse(queryBuilder.build(key), crowdTokenKey, passwords, isTrusted(request), ClientCertificateExtractor.getClientCertificates(request)).setMatchPrimaryKeyOnly(true);
+                    Query.parse(queryBuilder.build(key), crowdTokenKey, passwords, isTrusted(request), ClientCertificateExtractor.getClientCertificates(request), apiKeyEnabled ? oAuthSession : null).setMatchPrimaryKeyOnly(true);
         } catch (QueryException e) {
             throw RestServiceHelper.createWebApplicationException(e, request);
         }

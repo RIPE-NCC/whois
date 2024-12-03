@@ -4,9 +4,12 @@ import com.google.common.base.Splitter;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
+import net.ripe.db.whois.common.apiKey.ApiKeyValidator;
+import net.ripe.db.whois.common.apiKey.OAuthSession;
 import net.ripe.db.whois.common.x509.ClientAuthCertificateValidator;
 import net.ripe.db.whois.common.dao.RpslObjectDao;
 import net.ripe.db.whois.common.domain.CIString;
+import net.ripe.db.whois.common.x509.X509CertificateWrapper;
 import net.ripe.db.whois.common.x509.X509CertificateWrapper;
 import net.ripe.db.whois.common.rpsl.AttributeType;
 import net.ripe.db.whois.common.rpsl.ObjectType;
@@ -24,6 +27,7 @@ import org.springframework.util.CollectionUtils;
 
 import javax.annotation.Nonnull;
 import javax.annotation.concurrent.ThreadSafe;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
@@ -31,6 +35,10 @@ import java.util.Map;
 import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
+
+import static net.ripe.db.whois.common.apiKey.ApiKeyValidator.hasValidApiKey;
+import static net.ripe.db.whois.common.apiKey.ApiKeyValidator.validateScope;
 
 /*
 password and cookie parameters are used in rest api lookup ONLY, so the port43 netty worker pool is not affected by any SSO
@@ -38,11 +46,12 @@ server timeouts or network hiccups. Jetty could suffer from that, though - AH
  */
 @ThreadSafe
 public class FilterAuthFunction implements FilterFunction {
-    private static final Pattern SSO_PATTERN = Pattern.compile("(?i)SSO (.*)");
+    public static final Pattern SSO_PATTERN = Pattern.compile("(?i)SSO (.*)");
     public static final Splitter SPACE_SPLITTER = Splitter.on(' ');
     public static final String FILTERED_APPENDIX = " # Filtered";
 
     private List<String> passwords = null;
+    private OAuthSession oAuthSession;
     private String token = null;
     private RpslObjectDao rpslObjectDao = null;
     private SsoTokenTranslator ssoTokenTranslator;
@@ -51,6 +60,7 @@ public class FilterAuthFunction implements FilterFunction {
     private ClientAuthCertificateValidator clientAuthCertificateValidator;
 
     public FilterAuthFunction(final List<String> passwords,
+                              final OAuthSession oAuthSession,
                               final String token,
                               final SsoTokenTranslator ssoTokenTranslator,
                               final AuthServiceClient authServiceClient,
@@ -64,6 +74,7 @@ public class FilterAuthFunction implements FilterFunction {
         this.rpslObjectDao = rpslObjectDao;
         this.certificates = certificates;
         this.clientAuthCertificateValidator = clientAuthCertificateValidator;
+        this.oAuthSession = oAuthSession;
     }
 
     public FilterAuthFunction() {
@@ -106,32 +117,38 @@ public class FilterAuthFunction implements FilterFunction {
     }
 
     private boolean isMntnerAuthenticated(final RpslObject rpslObject) {
-        if (CollectionUtils.isEmpty(passwords) && StringUtils.isBlank(token) && (certificates == null || certificates.isEmpty())) {
+        if (CollectionUtils.isEmpty(passwords) && StringUtils.isBlank(token) && (certificates == null || certificates.isEmpty()) && (oAuthSession == null || oAuthSession.getUuid() == null)) {
             return false;
         }
 
-        final List<RpslAttribute> extendedAuthAttributes = Lists.newArrayList(rpslObject.findAttributes(AttributeType.AUTH));
-        extendedAuthAttributes.addAll(getMntByAuthAttributes(rpslObject));
+        final List<RpslObject> maintainers = getMaintainers(rpslObject);
 
-        return passwordAuthentication(extendedAuthAttributes) || ssoAuthentication(extendedAuthAttributes) || clientCertAuthentication(extendedAuthAttributes);
+        final List<RpslAttribute> extendedAuthAttributes = Lists.newArrayList(rpslObject.findAttributes(AttributeType.AUTH));
+        extendedAuthAttributes.addAll(getMntByAuthAttributes(maintainers));
+
+        return passwordAuthentication(extendedAuthAttributes) || apiKeyAuthenticated(rpslObject, maintainers, extendedAuthAttributes) || ssoAuthentication(extendedAuthAttributes) || clientCertAuthentication(extendedAuthAttributes);
     }
 
-    private Set<RpslAttribute> getMntByAuthAttributes(final RpslObject rpslObject) {
-        final Set<CIString> maintainers = rpslObject.getValuesForAttribute(AttributeType.MNT_BY);
-        maintainers.remove(rpslObject.getKey());
-
-        if (maintainers.isEmpty()) {
-            return Collections.emptySet();
-        }
+    private Set<RpslAttribute> getMntByAuthAttributes(final List<RpslObject> maintainers) {
 
         final Set<RpslAttribute> auths = Sets.newHashSet();
-        final List<RpslObject> mntByMntners = rpslObjectDao.getByKeys(ObjectType.MNTNER, maintainers);
 
-        for (RpslObject mntner : mntByMntners) {
+        for (final RpslObject mntner : maintainers) {
             auths.addAll(mntner.findAttributes(AttributeType.AUTH));
         }
 
         return auths;
+    }
+
+    private List<RpslObject> getMaintainers(final RpslObject rpslObject) {
+        final Set<CIString> maintainers = rpslObject.getValuesForAttribute(AttributeType.MNT_BY);
+        maintainers.remove(rpslObject.getKey());
+
+        if (maintainers.isEmpty()) {
+            return new ArrayList<>();
+        }
+
+        return rpslObjectDao.getByKeys(ObjectType.MNTNER, maintainers);
     }
 
     private boolean ssoAuthentication(final List<RpslAttribute> authAttributes) {
@@ -165,11 +182,20 @@ public class FilterAuthFunction implements FilterFunction {
             return false;
         }
 
-        for (RpslAttribute authAttribute : authAttributes) {
+        for (final RpslAttribute authAttribute : authAttributes) {
             if (PasswordHelper.authenticateMd5Passwords(authAttribute.getCleanValue().toString(), passwords)) {
                 return true;
             }
         }
+
         return false;
+    }
+
+    private boolean apiKeyAuthenticated(final RpslObject rpslObject, final List<RpslObject> maintainers, final List<RpslAttribute> authAttributes) {
+        if(rpslObject.getType().equals(ObjectType.MNTNER)) {
+            maintainers.add(rpslObject);
+        }
+
+        return hasValidApiKey(oAuthSession, maintainers, authAttributes);
     }
 }
