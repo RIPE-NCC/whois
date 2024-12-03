@@ -7,7 +7,7 @@
 /*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */;
 /*!40101 SET @OLD_CHARACTER_SET_RESULTS=@@CHARACTER_SET_RESULTS */;
 /*!40101 SET @OLD_COLLATION_CONNECTION=@@COLLATION_CONNECTION */;
-/*!40101 SET NAMES utf8 */;
+/*!40101 SET NAMES utf8mb4 */;
 /*!40103 SET @OLD_TIME_ZONE=@@TIME_ZONE */;
 /*!40103 SET TIME_ZONE='+00:00' */;
 /*!40014 SET @OLD_UNIQUE_CHECKS=@@UNIQUE_CHECKS, UNIQUE_CHECKS=0 */;
@@ -21,7 +21,7 @@
 
 DROP TABLE IF EXISTS `abuse_c`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8 */;
+/*!40101 SET character_set_client = utf8mb4 */;
 CREATE TABLE `abuse_c` (
   `object_id` int(10) unsigned NOT NULL DEFAULT '0',
   `pe_ro_id` int(10) unsigned NOT NULL DEFAULT '0',
@@ -38,7 +38,7 @@ CREATE TABLE `abuse_c` (
 
 DROP TABLE IF EXISTS `abuse_mailbox`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8 */;
+/*!40101 SET character_set_client = utf8mb4 */;
 CREATE TABLE `abuse_mailbox` (
   `object_id` int(10) unsigned NOT NULL DEFAULT '0',
   `abuse_mailbox` varchar(320) NOT NULL,
@@ -54,7 +54,7 @@ CREATE TABLE `abuse_mailbox` (
 
 DROP TABLE IF EXISTS `admin_c`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8 */;
+/*!40101 SET character_set_client = utf8mb4 */;
 CREATE TABLE `admin_c` (
   `object_id` int(10) unsigned NOT NULL DEFAULT '0',
   `pe_ro_id` int(10) unsigned NOT NULL DEFAULT '0',
@@ -71,7 +71,7 @@ CREATE TABLE `admin_c` (
 
 DROP TABLE IF EXISTS `as_block`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8 */;
+/*!40101 SET character_set_client = utf8mb4 */;
 CREATE TABLE `as_block` (
   `object_id` int(10) unsigned NOT NULL DEFAULT '0',
   `begin_as` int(10) unsigned NOT NULL DEFAULT '0',
@@ -88,7 +88,7 @@ CREATE TABLE `as_block` (
 
 DROP TABLE IF EXISTS `as_set`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8 */;
+/*!40101 SET character_set_client = utf8mb4 */;
 CREATE TABLE `as_set` (
   `object_id` int(10) unsigned NOT NULL DEFAULT '0',
   `as_set` varchar(80) NOT NULL DEFAULT '',
@@ -103,7 +103,7 @@ CREATE TABLE `as_set` (
 
 DROP TABLE IF EXISTS `aut_num`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8 */;
+/*!40101 SET character_set_client = utf8mb4 */;
 CREATE TABLE `aut_num` (
   `object_id` int(10) unsigned NOT NULL DEFAULT '0',
   `aut_num` char(13) NOT NULL DEFAULT '',
@@ -118,7 +118,7 @@ CREATE TABLE `aut_num` (
 
 DROP TABLE IF EXISTS `auth`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8 */;
+/*!40101 SET character_set_client = utf8mb4 */;
 CREATE TABLE `auth` (
   `object_id` int(10) unsigned NOT NULL DEFAULT '0',
   `auth` varchar(90) NOT NULL DEFAULT '',
@@ -134,7 +134,7 @@ CREATE TABLE `auth` (
 
 DROP TABLE IF EXISTS `author`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8 */;
+/*!40101 SET character_set_client = utf8mb4 */;
 CREATE TABLE `author` (
   `object_id` int(10) unsigned NOT NULL DEFAULT '0',
   `pe_ro_id` int(10) unsigned NOT NULL DEFAULT '0',
@@ -151,7 +151,7 @@ CREATE TABLE `author` (
 
 DROP TABLE IF EXISTS `domain`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8 */;
+/*!40101 SET character_set_client = utf8mb4 */;
 CREATE TABLE `domain` (
   `object_id` int(10) unsigned NOT NULL DEFAULT '0',
   `domain` varchar(254) NOT NULL DEFAULT '',
@@ -166,7 +166,7 @@ CREATE TABLE `domain` (
 
 DROP TABLE IF EXISTS `ds_rdata`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8 */;
+/*!40101 SET character_set_client = utf8mb4 */;
 CREATE TABLE `ds_rdata` (
   `object_id` int(10) unsigned NOT NULL DEFAULT '0',
   `ds_rdata` varchar(128) NOT NULL DEFAULT '',
@@ -180,7 +180,7 @@ CREATE TABLE `ds_rdata` (
 
 DROP TABLE IF EXISTS `e_mail`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8 */;
+/*!40101 SET character_set_client = utf8mb4 */;
 CREATE TABLE `e_mail` (
   `object_id` int(10) unsigned NOT NULL DEFAULT '0',
   `e_mail` varchar(320) NOT NULL,
@@ -196,7 +196,7 @@ CREATE TABLE `e_mail` (
 
 DROP TABLE IF EXISTS `status`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8 */;
+/*!40101 SET character_set_client = utf8mb4 */;
 CREATE TABLE `status` (
   `object_id` int(10) unsigned NOT NULL DEFAULT '0',
   `status` varchar(80) NOT NULL DEFAULT '',
@@ -211,7 +211,7 @@ CREATE TABLE `status` (
 
 DROP TABLE IF EXISTS `filter_set`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8 */;
+/*!40101 SET character_set_client = utf8mb4 */;
 CREATE TABLE `filter_set` (
   `object_id` int(10) unsigned NOT NULL DEFAULT '0',
   `filter_set` varchar(80) NOT NULL DEFAULT '',
@@ -226,7 +226,7 @@ CREATE TABLE `filter_set` (
 
 DROP TABLE IF EXISTS `fingerpr`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8 */;
+/*!40101 SET character_set_client = utf8mb4 */;
 CREATE TABLE `fingerpr` (
   `object_id` int(10) unsigned NOT NULL DEFAULT '0',
   `fingerpr` varchar(80) NOT NULL DEFAULT '',
@@ -241,7 +241,7 @@ CREATE TABLE `fingerpr` (
 
 DROP TABLE IF EXISTS `form`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8 */;
+/*!40101 SET character_set_client = utf8mb4 */;
 CREATE TABLE `form` (
   `object_id` int(10) unsigned NOT NULL DEFAULT '0',
   `form_id` int(10) unsigned NOT NULL DEFAULT '0',
@@ -258,7 +258,7 @@ CREATE TABLE `form` (
 
 DROP TABLE IF EXISTS `history`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8 */;
+/*!40101 SET character_set_client = utf8mb4 */;
 CREATE TABLE `history` (
   `object_id` int(10) unsigned NOT NULL DEFAULT '0',
   `sequence_id` int(10) unsigned NOT NULL DEFAULT '0',
@@ -278,7 +278,7 @@ CREATE TABLE `history` (
 
 DROP TABLE IF EXISTS `ifaddr`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8 */;
+/*!40101 SET character_set_client = utf8mb4 */;
 CREATE TABLE `ifaddr` (
   `object_id` int(10) unsigned NOT NULL DEFAULT '0',
   `ifaddr` int(10) unsigned NOT NULL DEFAULT '0',
@@ -293,7 +293,7 @@ CREATE TABLE `ifaddr` (
 
 DROP TABLE IF EXISTS `inaddr_arpa`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8 */;
+/*!40101 SET character_set_client = utf8mb4 */;
 CREATE TABLE `inaddr_arpa` (
   `object_id` int(10) unsigned NOT NULL DEFAULT '0',
   `begin_in` int(10) unsigned NOT NULL DEFAULT '0',
@@ -308,7 +308,7 @@ CREATE TABLE `inaddr_arpa` (
 
 DROP TABLE IF EXISTS `inet6num`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8 */;
+/*!40101 SET character_set_client = utf8mb4 */;
 CREATE TABLE `inet6num` (
   `object_id` int(10) unsigned NOT NULL DEFAULT '0',
   `i6_msb` varchar(20) NOT NULL DEFAULT '',
@@ -328,7 +328,7 @@ CREATE TABLE `inet6num` (
 
 DROP TABLE IF EXISTS `inet_rtr`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8 */;
+/*!40101 SET character_set_client = utf8mb4 */;
 CREATE TABLE `inet_rtr` (
   `object_id` int(10) unsigned NOT NULL DEFAULT '0',
   `inet_rtr` varchar(254) NOT NULL DEFAULT '',
@@ -345,7 +345,7 @@ CREATE TABLE `inet_rtr` (
 
 DROP TABLE IF EXISTS `inetnum`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8 */;
+/*!40101 SET character_set_client = utf8mb4 */;
 CREATE TABLE `inetnum` (
   `object_id` int(10) unsigned NOT NULL DEFAULT '0',
   `begin_in` int(10) unsigned NOT NULL DEFAULT '0',
@@ -364,7 +364,7 @@ CREATE TABLE `inetnum` (
 
 DROP TABLE IF EXISTS `interface`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8 */;
+/*!40101 SET character_set_client = utf8mb4 */;
 CREATE TABLE `interface` (
   `object_id` int(10) unsigned NOT NULL DEFAULT '0',
   `interface_v6_msp` varchar(20) NOT NULL DEFAULT '',
@@ -381,7 +381,7 @@ CREATE TABLE `interface` (
 
 DROP TABLE IF EXISTS `irt`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8 */;
+/*!40101 SET character_set_client = utf8mb4 */;
 CREATE TABLE `irt` (
   `object_id` int(10) unsigned NOT NULL DEFAULT '0',
   `irt` varchar(80) NOT NULL DEFAULT '0',
@@ -396,7 +396,7 @@ CREATE TABLE `irt` (
 
 DROP TABLE IF EXISTS `irt_nfy`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8 */;
+/*!40101 SET character_set_client = utf8mb4 */;
 CREATE TABLE `irt_nfy` (
   `object_id` int(10) unsigned NOT NULL DEFAULT '0',
   `irt_nfy` varchar(320) NOT NULL,
@@ -411,7 +411,7 @@ CREATE TABLE `irt_nfy` (
 
 DROP TABLE IF EXISTS `key_cert`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8 */;
+/*!40101 SET character_set_client = utf8mb4 */;
 CREATE TABLE `key_cert` (
   `object_id` int(10) unsigned NOT NULL DEFAULT '0',
   `key_cert` varchar(32) NOT NULL DEFAULT '',
@@ -426,7 +426,7 @@ CREATE TABLE `key_cert` (
 
 DROP TABLE IF EXISTS `last`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8 */;
+/*!40101 SET character_set_client = utf8mb4 */;
 CREATE TABLE `last` (
   `object_id` int(10) unsigned NOT NULL AUTO_INCREMENT,
   `sequence_id` int(10) unsigned NOT NULL DEFAULT '1',
@@ -446,7 +446,7 @@ CREATE TABLE `last` (
 
 DROP TABLE IF EXISTS `mbrs_by_ref`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8 */;
+/*!40101 SET character_set_client = utf8mb4 */;
 CREATE TABLE `mbrs_by_ref` (
   `object_id` int(10) unsigned NOT NULL DEFAULT '0',
   `mnt_id` int(10) unsigned NOT NULL DEFAULT '0',
@@ -463,7 +463,7 @@ CREATE TABLE `mbrs_by_ref` (
 
 DROP TABLE IF EXISTS `member_of`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8 */;
+/*!40101 SET character_set_client = utf8mb4 */;
 CREATE TABLE `member_of` (
   `object_id` int(10) unsigned NOT NULL DEFAULT '0',
   `set_id` int(10) unsigned NOT NULL DEFAULT '0',
@@ -480,7 +480,7 @@ CREATE TABLE `member_of` (
 
 DROP TABLE IF EXISTS `mnt_by`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8 */;
+/*!40101 SET character_set_client = utf8mb4 */;
 CREATE TABLE `mnt_by` (
   `object_id` int(10) unsigned NOT NULL DEFAULT '0',
   `mnt_id` int(10) unsigned NOT NULL DEFAULT '0',
@@ -497,7 +497,7 @@ CREATE TABLE `mnt_by` (
 
 DROP TABLE IF EXISTS `mnt_domains`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8 */;
+/*!40101 SET character_set_client = utf8mb4 */;
 CREATE TABLE `mnt_domains` (
   `object_id` int(10) unsigned NOT NULL DEFAULT '0',
   `mnt_id` int(10) unsigned NOT NULL DEFAULT '0',
@@ -513,7 +513,7 @@ CREATE TABLE `mnt_domains` (
 
 DROP TABLE IF EXISTS `mnt_irt`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8 */;
+/*!40101 SET character_set_client = utf8mb4 */;
 CREATE TABLE `mnt_irt` (
   `object_id` int(10) unsigned NOT NULL DEFAULT '0',
   `irt_id` int(10) unsigned NOT NULL DEFAULT '0',
@@ -530,7 +530,7 @@ CREATE TABLE `mnt_irt` (
 
 DROP TABLE IF EXISTS `mnt_lower`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8 */;
+/*!40101 SET character_set_client = utf8mb4 */;
 CREATE TABLE `mnt_lower` (
   `object_id` int(10) unsigned NOT NULL DEFAULT '0',
   `mnt_id` int(10) unsigned NOT NULL DEFAULT '0',
@@ -547,7 +547,7 @@ CREATE TABLE `mnt_lower` (
 
 DROP TABLE IF EXISTS `mnt_nfy`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8 */;
+/*!40101 SET character_set_client = utf8mb4 */;
 CREATE TABLE `mnt_nfy` (
   `object_id` int(10) unsigned NOT NULL DEFAULT '0',
   `mnt_nfy` varchar(320) NOT NULL,
@@ -562,7 +562,7 @@ CREATE TABLE `mnt_nfy` (
 
 DROP TABLE IF EXISTS `mnt_ref`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8 */;
+/*!40101 SET character_set_client = utf8mb4 */;
 CREATE TABLE `mnt_ref` (
   `object_id` int(10) unsigned NOT NULL DEFAULT '0',
   `mnt_id` int(10) unsigned NOT NULL DEFAULT '0',
@@ -578,7 +578,7 @@ CREATE TABLE `mnt_ref` (
 
 DROP TABLE IF EXISTS `mnt_routes`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8 */;
+/*!40101 SET character_set_client = utf8mb4 */;
 CREATE TABLE `mnt_routes` (
   `object_id` int(10) unsigned NOT NULL DEFAULT '0',
   `mnt_id` int(10) unsigned NOT NULL DEFAULT '0',
@@ -595,7 +595,7 @@ CREATE TABLE `mnt_routes` (
 
 DROP TABLE IF EXISTS `mntner`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8 */;
+/*!40101 SET character_set_client = utf8mb4 */;
 CREATE TABLE `mntner` (
   `object_id` int(10) unsigned NOT NULL DEFAULT '0',
   `mntner` varchar(80) NOT NULL DEFAULT '',
@@ -610,7 +610,7 @@ CREATE TABLE `mntner` (
 
 DROP TABLE IF EXISTS `names`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8 */;
+/*!40101 SET character_set_client = utf8mb4 */;
 CREATE TABLE `names` (
   `object_id` int(10) unsigned NOT NULL DEFAULT '0',
   `name` varchar(64) NOT NULL DEFAULT '',
@@ -626,7 +626,7 @@ CREATE TABLE `names` (
 
 DROP TABLE IF EXISTS `nic_hdl`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8 */;
+/*!40101 SET character_set_client = utf8mb4 */;
 CREATE TABLE `nic_hdl` (
   `range_id` int(10) unsigned NOT NULL AUTO_INCREMENT,
   `range_start` int(10) unsigned NOT NULL DEFAULT '0',
@@ -646,7 +646,7 @@ CREATE TABLE `nic_hdl` (
 
 DROP TABLE IF EXISTS `notify`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8 */;
+/*!40101 SET character_set_client = utf8mb4 */;
 CREATE TABLE `notify` (
   `object_id` int(10) unsigned NOT NULL DEFAULT '0',
   `notify` varchar(320) NOT NULL,
@@ -662,7 +662,7 @@ CREATE TABLE `notify` (
 
 DROP TABLE IF EXISTS `nserver`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8 */;
+/*!40101 SET character_set_client = utf8mb4 */;
 CREATE TABLE `nserver` (
   `object_id` int(10) unsigned NOT NULL DEFAULT '0',
   `host` varchar(254) NOT NULL DEFAULT '',
@@ -677,7 +677,7 @@ CREATE TABLE `nserver` (
 
 DROP TABLE IF EXISTS `org`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8 */;
+/*!40101 SET character_set_client = utf8mb4 */;
 CREATE TABLE `org` (
   `object_id` int(10) unsigned NOT NULL DEFAULT '0',
   `org_id` int(10) unsigned NOT NULL DEFAULT '0',
@@ -693,7 +693,7 @@ CREATE TABLE `org` (
 
 DROP TABLE IF EXISTS `org_name`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8 */;
+/*!40101 SET character_set_client = utf8mb4 */;
 CREATE TABLE `org_name` (
   `object_id` int(10) unsigned NOT NULL DEFAULT '0',
   `name` varchar(64) NOT NULL DEFAULT '',
@@ -708,7 +708,7 @@ CREATE TABLE `org_name` (
 
 DROP TABLE IF EXISTS `organisation`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8 */;
+/*!40101 SET character_set_client = utf8mb4 */;
 CREATE TABLE `organisation` (
   `object_id` int(10) unsigned NOT NULL DEFAULT '0',
   `organisation` varchar(80) NOT NULL DEFAULT '',
@@ -723,7 +723,7 @@ CREATE TABLE `organisation` (
 
 DROP TABLE IF EXISTS `organisation_id`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8 */;
+/*!40101 SET character_set_client = utf8mb4 */;
 CREATE TABLE `organisation_id` (
   `range_id` int(10) unsigned NOT NULL AUTO_INCREMENT,
   `range_end` int(10) unsigned NOT NULL DEFAULT '0',
@@ -740,7 +740,7 @@ CREATE TABLE `organisation_id` (
 
 DROP TABLE IF EXISTS `peering_set`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8 */;
+/*!40101 SET character_set_client = utf8mb4 */;
 CREATE TABLE `peering_set` (
   `object_id` int(10) unsigned NOT NULL DEFAULT '0',
   `peering_set` varchar(80) NOT NULL DEFAULT '',
@@ -755,7 +755,7 @@ CREATE TABLE `peering_set` (
 
 DROP TABLE IF EXISTS `person_role`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8 */;
+/*!40101 SET character_set_client = utf8mb4 */;
 CREATE TABLE `person_role` (
   `object_id` int(10) unsigned NOT NULL DEFAULT '0',
   `nic_hdl` varchar(30) NOT NULL DEFAULT '',
@@ -772,7 +772,7 @@ CREATE TABLE `person_role` (
 
 DROP TABLE IF EXISTS `ping_hdl`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8 */;
+/*!40101 SET character_set_client = utf8mb4 */;
 CREATE TABLE `ping_hdl` (
   `object_id` int(10) unsigned NOT NULL DEFAULT '0',
   `pe_ro_id` int(10) unsigned NOT NULL DEFAULT '0',
@@ -789,7 +789,7 @@ CREATE TABLE `ping_hdl` (
 
 DROP TABLE IF EXISTS `poem`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8 */;
+/*!40101 SET character_set_client = utf8mb4 */;
 CREATE TABLE `poem` (
   `object_id` int(10) unsigned NOT NULL DEFAULT '0',
   `poem` varchar(80) NOT NULL DEFAULT '',
@@ -804,7 +804,7 @@ CREATE TABLE `poem` (
 
 DROP TABLE IF EXISTS `poetic_form`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8 */;
+/*!40101 SET character_set_client = utf8mb4 */;
 CREATE TABLE `poetic_form` (
   `object_id` int(10) unsigned NOT NULL DEFAULT '0',
   `poetic_form` varchar(80) NOT NULL DEFAULT '',
@@ -820,7 +820,7 @@ CREATE TABLE `poetic_form` (
 
 DROP TABLE IF EXISTS `ref_nfy`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8 */;
+/*!40101 SET character_set_client = utf8mb4 */;
 CREATE TABLE `ref_nfy` (
   `object_id` int(10) unsigned NOT NULL DEFAULT '0',
   `ref_nfy` varchar(320) NOT NULL,
@@ -835,7 +835,7 @@ CREATE TABLE `ref_nfy` (
 
 DROP TABLE IF EXISTS `route`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8 */;
+/*!40101 SET character_set_client = utf8mb4 */;
 CREATE TABLE `route` (
   `object_id` int(10) unsigned NOT NULL DEFAULT '0',
   `prefix` int(10) unsigned NOT NULL DEFAULT '0',
@@ -852,7 +852,7 @@ CREATE TABLE `route` (
 
 DROP TABLE IF EXISTS `route6`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8 */;
+/*!40101 SET character_set_client = utf8mb4 */;
 CREATE TABLE `route6` (
   `object_id` int(10) unsigned NOT NULL DEFAULT '0',
   `r6_msb` varchar(20) NOT NULL DEFAULT '',
@@ -872,7 +872,7 @@ CREATE TABLE `route6` (
 
 DROP TABLE IF EXISTS `route_set`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8 */;
+/*!40101 SET character_set_client = utf8mb4 */;
 CREATE TABLE `route_set` (
   `object_id` int(10) unsigned NOT NULL DEFAULT '0',
   `route_set` varchar(80) NOT NULL DEFAULT '',
@@ -887,7 +887,7 @@ CREATE TABLE `route_set` (
 
 DROP TABLE IF EXISTS `rtr_set`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8 */;
+/*!40101 SET character_set_client = utf8mb4 */;
 CREATE TABLE `rtr_set` (
   `object_id` int(10) unsigned NOT NULL DEFAULT '0',
   `rtr_set` varchar(80) NOT NULL DEFAULT '',
@@ -902,7 +902,7 @@ CREATE TABLE `rtr_set` (
 
 DROP TABLE IF EXISTS `serials`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8 */;
+/*!40101 SET character_set_client = utf8mb4 */;
 CREATE TABLE `serials` (
   `serial_id` int(11) NOT NULL AUTO_INCREMENT,
   `object_id` int(10) unsigned NOT NULL DEFAULT '0',
@@ -920,7 +920,7 @@ CREATE TABLE `serials` (
 
 DROP TABLE IF EXISTS `sponsoring_org`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8 */;
+/*!40101 SET character_set_client = utf8mb4 */;
 CREATE TABLE `sponsoring_org` (
   `object_id` int(10) unsigned NOT NULL DEFAULT '0',
   `org_id` int(10) unsigned NOT NULL DEFAULT '0',
@@ -936,7 +936,7 @@ CREATE TABLE `sponsoring_org` (
 
 DROP TABLE IF EXISTS `tech_c`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8 */;
+/*!40101 SET character_set_client = utf8mb4 */;
 CREATE TABLE `tech_c` (
   `object_id` int(10) unsigned NOT NULL DEFAULT '0',
   `pe_ro_id` int(10) unsigned NOT NULL DEFAULT '0',
@@ -953,7 +953,7 @@ CREATE TABLE `tech_c` (
 
 DROP TABLE IF EXISTS `upd_to`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8 */;
+/*!40101 SET character_set_client = utf8mb4 */;
 CREATE TABLE `upd_to` (
   `object_id` int(10) unsigned NOT NULL DEFAULT '0',
   `upd_to` varchar(320) NOT NULL,
@@ -968,7 +968,7 @@ CREATE TABLE `upd_to` (
 
 DROP TABLE IF EXISTS `update_lock`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8 */;
+/*!40101 SET character_set_client = utf8mb4 */;
 CREATE TABLE `update_lock` (
   `global_lock` int(11) NOT NULL,
   PRIMARY KEY (`global_lock`)
@@ -981,7 +981,7 @@ CREATE TABLE `update_lock` (
 
 DROP TABLE IF EXISTS `version`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8 */;
+/*!40101 SET character_set_client = utf8mb4 */;
 CREATE TABLE `version` (
   `version` varchar(80) DEFAULT NULL,
   PRIMARY KEY (`version`)
@@ -994,7 +994,7 @@ CREATE TABLE `version` (
 
 DROP TABLE IF EXISTS `x509`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8 */;
+/*!40101 SET character_set_client = utf8mb4 */;
 CREATE TABLE `x509` (
   `keycert_id` int(10) unsigned NOT NULL DEFAULT '0',
   PRIMARY KEY (`keycert_id`)
@@ -1007,7 +1007,7 @@ CREATE TABLE `x509` (
 
 DROP TABLE IF EXISTS `zone_c`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8 */;
+/*!40101 SET character_set_client = utf8mb4 */;
 CREATE TABLE `zone_c` (
   `object_id` int(10) unsigned NOT NULL DEFAULT '0',
   `pe_ro_id` int(10) unsigned NOT NULL DEFAULT '0',
@@ -1016,7 +1016,6 @@ CREATE TABLE `zone_c` (
   KEY `object_type` (`object_type`),
   KEY `object_id` (`object_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
-
 
 /*!40101 SET character_set_client = @saved_cs_client */;
 /*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;

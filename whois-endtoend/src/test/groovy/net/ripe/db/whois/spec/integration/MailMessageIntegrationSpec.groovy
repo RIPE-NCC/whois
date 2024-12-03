@@ -650,7 +650,7 @@ class MailMessageIntegrationSpec extends BaseWhoisSourceSpec {
         ack.contents =~ /\*\*\*Warning: All keywords were ignored/
     }
 
-    def "non latin-1 characters are substituted"() {
+    def "no conversion of non latin-1 address"() {
       when:
         def create = send "Date: Fri, 4 Jan 2013 15:29:59 +0100\n" +
                 "From: noreply@ripe.net\n" +
@@ -742,12 +742,9 @@ class MailMessageIntegrationSpec extends BaseWhoisSourceSpec {
         ack.success
         ack.summary.nrFound == 1
 
-        ack.countErrorWarnInfo(0, 2, 0)
-        ack.successes.any { it.operation == "Create" && it.key == "[person] FP1-TEST   First Person" }
-        ack.warningSuccessMessagesFor("Create", "[person] FP1-TEST   First Person") == [
-                "Invalid character(s) were substituted in attribute \"address\" value"]
-
-        queryMatches("-r FP1-TEST", "address:\\s+Test\\?\\?\\?\\? Address")
+      then:
+        def query = queryObject("-r FP1-TEST", "person", "First Person")
+        query =~ /address:        Тверская улица,москва/
     }
 
     def "latin-1 extended ASCII characters are preserved"() {
