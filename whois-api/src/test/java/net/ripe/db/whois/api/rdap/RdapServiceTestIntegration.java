@@ -173,7 +173,7 @@ public class RdapServiceTestIntegration extends AbstractRdapIntegrationTest {
                 "country:        NL\n" +
                 "tech-c:         TP1-TEST\n" +
                 "admin-c:        TP1-TEST\n" +
-                "status:         OTHER\n" +
+                "status:         ALLOCATED UNSPECIFIED\n" +
                 "mnt-by:         OWNER-MNT\n" +
                 "created:         2022-08-14T11:48:28Z\n" +
                 "last-modified:   2022-10-25T12:22:39Z\n" +
@@ -3130,24 +3130,10 @@ public class RdapServiceTestIntegration extends AbstractRdapIntegrationTest {
 
     /*RIR Search*/
 
-    @Test
-    public void get_bottom_then_most_specific(){
-        loadRelationTreeExample();
-
-        final SearchResult searchResult = createResource("ips/rirSearch1/bottom/192.0.2.0/24")
-                .request(MediaType.APPLICATION_JSON_TYPE)
-                .get(SearchResult.class);
-
-        final List<Ip> ipResults = searchResult.getIpSearchResults();
-        assertThat(ipResults.size(), is(3));
-        assertThat(ipResults.getFirst().getHandle(), is("192.0.2.0 - 192.0.2.0"));
-        assertThat(ipResults.get(1).getHandle(), is("192.0.2.128 - 192.0.2.191"));
-        assertThat(ipResults.get(2).getHandle(), is("192.0.2.192 - 192.0.2.255"));
-    }
 
     @Test
     public void get_up_then_parent(){
-        loadRelationTreeExample();
+        loadIpv4RelationTreeExample();
 
         final SearchResult searchResult = createResource("ips/rirSearch1/up/192.0.2.0/28")
                 .request(MediaType.APPLICATION_JSON_TYPE)
@@ -3155,12 +3141,27 @@ public class RdapServiceTestIntegration extends AbstractRdapIntegrationTest {
 
         final List<Ip> ipResults = searchResult.getIpSearchResults();
         assertThat(ipResults.size(), is(1));
-        assertThat(ipResults.getFirst().getHandle(), is("192.0.2.0 - 192.0.2.127"));
+        assertThat(ipResults.getFirst().getHandle(), is("192.0.2.0 - 192.0.2.127")); // /26
+    }
+
+    @Test
+    public void get_non_existing_up_then_404(){
+        loadIpv4RelationTreeExample();
+
+        final NotFoundException notFoundException = assertThrows(NotFoundException.class, () -> {
+            createResource("ips/rirSearch1/up/192.0.2.0/24")
+                    .request(MediaType.APPLICATION_JSON_TYPE)
+                    .get(SearchResult.class);
+        });
+
+        assertErrorTitle(notFoundException, "404 Not Found");
+        assertErrorStatus(notFoundException, HttpStatus.NOT_FOUND_404);
+        assertErrorDescription(notFoundException, "No up level object has been found for 192.0.2.0/24");
     }
 
     @Test
     public void get_top_then_less_specific_allocated_assigned_then_first_parent(){
-        loadRelationTreeExample();
+        loadIpv4RelationTreeExample();
 
         final SearchResult searchResult = createResource("ips/rirSearch1/top/192.0.2.0/28")
                 .request(MediaType.APPLICATION_JSON_TYPE)
@@ -3168,12 +3169,12 @@ public class RdapServiceTestIntegration extends AbstractRdapIntegrationTest {
 
         final List<Ip> ipResults = searchResult.getIpSearchResults();
         assertThat(ipResults.size(), is(1));
-        assertThat(ipResults.getFirst().getHandle(), is("192.0.2.0 - 192.0.2.255"));
+        assertThat(ipResults.getFirst().getHandle(), is("192.0.2.0 - 192.0.2.255")); // /24
     }
 
     @Test
     public void get_non_existing_top_then_less_specific_allocated_assigned_then_404(){
-        loadRelationTreeExample();
+        loadIpv4RelationTreeExample();
 
         final NotFoundException notFoundException = assertThrows(NotFoundException.class, () -> {
             createResource("ips/rirSearch1/top/192.0.2.0/24")
@@ -3184,6 +3185,35 @@ public class RdapServiceTestIntegration extends AbstractRdapIntegrationTest {
         assertErrorTitle(notFoundException, "404 Not Found");
         assertErrorStatus(notFoundException, HttpStatus.NOT_FOUND_404);
         assertErrorDescription(notFoundException, "No top level object has been found for 192.0.2.0/24");
+    }
+
+    @Test
+    public void get_bottom_then_most_specific(){
+        loadIpv4RelationTreeExample();
+
+        final SearchResult searchResult = createResource("ips/rirSearch1/bottom/192.0.2.0/24")
+                .request(MediaType.APPLICATION_JSON_TYPE)
+                .get(SearchResult.class);
+
+        final List<Ip> ipResults = searchResult.getIpSearchResults();
+        assertThat(ipResults.size(), is(5));
+        assertThat(ipResults.getFirst().getHandle(), is("192.0.2.0 - 192.0.2.0")); //32
+        assertThat(ipResults.get(1).getHandle(), is("192.0.2.0 - 192.0.2.15")); //28
+        assertThat(ipResults.get(2).getHandle(), is("192.0.2.0 - 192.0.2.127")); //25
+        assertThat(ipResults.get(3).getHandle(), is("192.0.2.128 - 192.0.2.191")); //26
+        assertThat(ipResults.get(4).getHandle(), is("192.0.2.192 - 192.0.2.255")); //26
+    }
+
+    @Test
+    public void get_no_more_specific_bottom_then_empty_response(){
+        loadIpv4RelationTreeExample();
+
+        final SearchResult searchResult = createResource("ips/rirSearch1/bottom/192.0.2.0/32")
+                .request(MediaType.APPLICATION_JSON_TYPE)
+                .get(SearchResult.class);
+
+        final List<Ip> ipResults = searchResult.getIpSearchResults();
+        assertThat(ipResults, is(nullValue()));
     }
 
     @Test
@@ -3199,6 +3229,31 @@ public class RdapServiceTestIntegration extends AbstractRdapIntegrationTest {
         assertErrorDescription(badRequestException, "Invalid or unknown type ip");
     }
 
+    @Test
+    public void get_down_then_immediate_child(){
+        loadIpv4RelationTreeExample();
+
+        final SearchResult searchResult = createResource("ips/rirSearch1/down/192.0.2.0/24")
+                .request(MediaType.APPLICATION_JSON_TYPE)
+                .get(SearchResult.class);
+
+        final List<Ip> ipResults = searchResult.getIpSearchResults();
+        assertThat(ipResults.size(), is(2));
+        assertThat(ipResults.getFirst().getHandle(), is("192.0.2.0 - 192.0.2.127"));
+        assertThat(ipResults.get(1).getHandle(), is("192.0.2.128 - 192.0.2.255"));
+    }
+
+    @Test
+    public void get_down_when_no_child_then_empty_response(){
+        loadIpv4RelationTreeExample();
+
+        final SearchResult searchResult = createResource("ips/rirSearch1/down/192.0.2.0/32")
+                .request(MediaType.APPLICATION_JSON_TYPE)
+                .get(SearchResult.class);
+
+        final List<Ip> ipResults = searchResult.getIpSearchResults();
+        assertThat(ipResults, is(nullValue()));
+    }
 
     /* Helper methods*/
 
@@ -3284,7 +3339,7 @@ public class RdapServiceTestIntegration extends AbstractRdapIntegrationTest {
                 "source:        TEST");
     }
 
-    private void loadRelationTreeExample(){
+    private void loadIpv4RelationTreeExample(){
         /*
                                    +--------------+
                                    | 192.0.2.0/24 |
@@ -3325,7 +3380,7 @@ public class RdapServiceTestIntegration extends AbstractRdapIntegrationTest {
                 "country:      NL\n" +
                 "language:     en\n" +
                 "tech-c:       TP1-TEST\n" +
-                "status:       OTHER\n" +
+                "status:       ALLOCATED PA\n" +
                 "mnt-by:       OWNER-MNT\n" +
                 "created:         2022-08-14T11:48:28Z\n" +
                 "last-modified:   2022-10-25T12:22:39Z\n" +
@@ -3339,7 +3394,7 @@ public class RdapServiceTestIntegration extends AbstractRdapIntegrationTest {
                 "country:      NL\n" +
                 "language:     en\n" +
                 "tech-c:       TP1-TEST\n" +
-                "status:       OTHER\n" +
+                "status:       ALLOCATED PA\n" +
                 "mnt-by:       OWNER-MNT\n" +
                 "created:         2022-08-14T11:48:28Z\n" +
                 "last-modified:   2022-10-25T12:22:39Z\n" +
@@ -3352,7 +3407,7 @@ public class RdapServiceTestIntegration extends AbstractRdapIntegrationTest {
                 "country:      NL\n" +
                 "language:     en\n" +
                 "tech-c:       TP1-TEST\n" +
-                "status:       OTHER\n" +
+                "status:       ASSIGNED PA\n" +
                 "mnt-by:       OWNER-MNT\n" +
                 "created:         2022-08-14T11:48:28Z\n" +
                 "last-modified:   2022-10-25T12:22:39Z\n" +
@@ -3367,7 +3422,7 @@ public class RdapServiceTestIntegration extends AbstractRdapIntegrationTest {
                 "country:      NL\n" +
                 "language:     en\n" +
                 "tech-c:       TP1-TEST\n" +
-                "status:       OTHER\n" +
+                "status:       ALLOCATED PA\n" +
                 "mnt-by:       OWNER-MNT\n" +
                 "created:         2022-08-14T11:48:28Z\n" +
                 "last-modified:   2022-10-25T12:22:39Z\n" +
@@ -3380,7 +3435,7 @@ public class RdapServiceTestIntegration extends AbstractRdapIntegrationTest {
                 "country:      NL\n" +
                 "language:     en\n" +
                 "tech-c:       TP1-TEST\n" +
-                "status:       OTHER\n" +
+                "status:       ALLOCATED PA\n" +
                 "mnt-by:       OWNER-MNT\n" +
                 "created:         2022-08-14T11:48:28Z\n" +
                 "last-modified:   2022-10-25T12:22:39Z\n" +
@@ -3393,7 +3448,7 @@ public class RdapServiceTestIntegration extends AbstractRdapIntegrationTest {
                 "country:      NL\n" +
                 "language:     en\n" +
                 "tech-c:       TP1-TEST\n" +
-                "status:       OTHER\n" +
+                "status:       ALLOCATED PA\n" +
                 "mnt-by:       OWNER-MNT\n" +
                 "created:         2022-08-14T11:48:28Z\n" +
                 "last-modified:   2022-10-25T12:22:39Z\n" +
