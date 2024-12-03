@@ -3,6 +3,7 @@ package net.ripe.db.whois.update.authentication.credential;
 import net.ripe.db.whois.common.apiKey.OAuthSession;
 import net.ripe.db.whois.common.rpsl.ObjectType;
 import net.ripe.db.whois.common.rpsl.RpslObject;
+import net.ripe.db.whois.common.rpsl.transform.FilterAuthFunction;
 import net.ripe.db.whois.update.domain.APIKeyCredential;
 import net.ripe.db.whois.update.domain.PreparedUpdate;
 import net.ripe.db.whois.update.domain.SsoCredential;
@@ -14,6 +15,9 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import java.util.Collection;
+import java.util.List;
+
+import static net.ripe.db.whois.common.apiKey.ApiKeyValidator.validateScope;
 
 @Component
 public class ApiKeyCredentialValidator implements CredentialValidator<APIKeyCredential, SsoCredential> {
@@ -46,12 +50,8 @@ public class ApiKeyCredentialValidator implements CredentialValidator<APIKeyCred
         for (final APIKeyCredential offered : offeredCredentials) {
 
             final OAuthSession oAuthSession = offered.getOfferedOAuthSession();
-
-            if(!oAuthSession.getScopes().isEmpty()) {
-                final OAuthSession.ScopeFormatter scopeFormatter = new OAuthSession.ScopeFormatter(offered.getOfferedOAuthSession().getScopes().getFirst());
-                if(!validateScope(maintainer, scopeFormatter)) {
-                    continue;
-                }
+            if(!validateScope(oAuthSession, List.of(maintainer))) {
+                continue;
             }
 
             if (oAuthSession.getUuid() != null && oAuthSession.getUuid().equals(knownCredential.getKnownUuid())) {
@@ -66,11 +66,5 @@ public class ApiKeyCredentialValidator implements CredentialValidator<APIKeyCred
 
     private void log(final PreparedUpdate update, final String message) {
         loggerContext.logString(update.getUpdate(), getClass().getCanonicalName(), message);
-    }
-
-    private static boolean validateScope(final RpslObject maintainer, final OAuthSession.ScopeFormatter scopeFormatter) {
-        return scopeFormatter.getAppName().equalsIgnoreCase("whois")
-                && scopeFormatter.getScopeType().equalsIgnoreCase(ObjectType.MNTNER.getName())
-                && scopeFormatter.getScopeKey().equalsIgnoreCase(maintainer.getKey().toString());
     }
 }

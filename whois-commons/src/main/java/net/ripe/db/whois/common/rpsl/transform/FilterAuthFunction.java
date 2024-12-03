@@ -4,6 +4,7 @@ import com.google.common.base.Splitter;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
+import net.ripe.db.whois.common.apiKey.ApiKeyValidator;
 import net.ripe.db.whois.common.apiKey.OAuthSession;
 import net.ripe.db.whois.common.x509.ClientAuthCertificateValidator;
 import net.ripe.db.whois.common.dao.RpslObjectDao;
@@ -35,13 +36,16 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
+import static net.ripe.db.whois.common.apiKey.ApiKeyValidator.hasValidApiKey;
+import static net.ripe.db.whois.common.apiKey.ApiKeyValidator.validateScope;
+
 /*
 password and cookie parameters are used in rest api lookup ONLY, so the port43 netty worker pool is not affected by any SSO
 server timeouts or network hiccups. Jetty could suffer from that, though - AH
  */
 @ThreadSafe
 public class FilterAuthFunction implements FilterFunction {
-    private static final Pattern SSO_PATTERN = Pattern.compile("(?i)SSO (.*)");
+    public static final Pattern SSO_PATTERN = Pattern.compile("(?i)SSO (.*)");
     public static final Splitter SPACE_SPLITTER = Splitter.on(' ');
     public static final String FILTERED_APPENDIX = " # Filtered";
 
@@ -177,50 +181,20 @@ public class FilterAuthFunction implements FilterFunction {
             return false;
         }
 
-        for (RpslAttribute authAttribute : authAttributes) {
+        for (final RpslAttribute authAttribute : authAttributes) {
             if (PasswordHelper.authenticateMd5Passwords(authAttribute.getCleanValue().toString(), passwords)) {
                 return true;
             }
         }
+
         return false;
     }
 
     private boolean apiKeyAuthenticated(final RpslObject rpslObject, final List<RpslObject> maintainers, final List<RpslAttribute> authAttributes) {
-        if(oAuthSession == null || oAuthSession.getUuid() == null) {
-            return false;
-        }
-
         if(rpslObject.getType().equals(ObjectType.MNTNER)) {
             maintainers.add(rpslObject);
         }
 
-        if(!oAuthSession.getScopes().isEmpty()) {
-            final OAuthSession.ScopeFormatter scopeFormatter = new OAuthSession.ScopeFormatter(oAuthSession.getScopes().getFirst());
-            if(!validateScope(maintainers, scopeFormatter)) {
-                return false;
-            }
-        }
-
-        for (final RpslAttribute attribute : authAttributes) {
-            final Matcher matcher = SSO_PATTERN.matcher(attribute.getCleanValue().toString());
-            if (matcher.matches()) {
-                try {
-                    if (oAuthSession.getUuid().equals(matcher.group(1))) {
-                        return true;
-                    }
-                } catch (AuthServiceClientException e) {
-                    return false;
-                }
-            }
-        }
-
-        return false;
+        return hasValidApiKey(oAuthSession, maintainers, authAttributes);
     }
-
-    private static boolean validateScope(final List<RpslObject> maintainers, final OAuthSession.ScopeFormatter scopeFormatter) {
-        return scopeFormatter.getAppName().equalsIgnoreCase("whois")
-                && scopeFormatter.getScopeType().equalsIgnoreCase(ObjectType.MNTNER.getName())
-                && maintainers.stream().anyMatch( maintainer -> scopeFormatter.getScopeKey().equalsIgnoreCase(maintainer.getKey().toString()));
-    }
-
 }
