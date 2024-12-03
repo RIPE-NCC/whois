@@ -27,6 +27,7 @@ import org.springframework.util.CollectionUtils;
 
 import javax.annotation.Nonnull;
 import javax.annotation.concurrent.ThreadSafe;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
@@ -144,7 +145,7 @@ public class FilterAuthFunction implements FilterFunction {
         maintainers.remove(rpslObject.getKey());
 
         if (maintainers.isEmpty()) {
-            return Collections.emptyList();
+            return new ArrayList<>();
         }
 
         return rpslObjectDao.getByKeys(ObjectType.MNTNER, maintainers);
