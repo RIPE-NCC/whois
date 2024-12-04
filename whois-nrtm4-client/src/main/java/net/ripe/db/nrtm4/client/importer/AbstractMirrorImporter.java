@@ -8,14 +8,14 @@ import java.security.NoSuchAlgorithmException;
 
 import static org.apache.commons.codec.binary.Hex.encodeHexString;
 
-public abstract class AbstractImporter implements Importer{
+public abstract class AbstractMirrorImporter implements MirrorImporter {
 
     final Nrtm4ClientInfoRepository nrtm4ClientInfoRepository;
 
     final Nrtm4ClientRepository nrtm4ClientRepository;
 
-    public AbstractImporter(final Nrtm4ClientInfoRepository nrtm4ClientInfoRepository,
-                            final Nrtm4ClientRepository nrtm4ClientRepository){
+    public AbstractMirrorImporter(final Nrtm4ClientInfoRepository nrtm4ClientInfoRepository,
+                                  final Nrtm4ClientRepository nrtm4ClientRepository){
         this.nrtm4ClientInfoRepository = nrtm4ClientInfoRepository;
         this.nrtm4ClientRepository = nrtm4ClientRepository;
     }

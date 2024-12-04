@@ -27,16 +27,16 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 @Service
 @Conditional(Nrtm4ClientCondition.class)
-public class SnapshotImporter extends AbstractImporter {
+public class SnapshotMirrorImporter extends AbstractMirrorImporter {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(SnapshotImporter.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(SnapshotMirrorImporter.class);
 
     private final NrtmRestClient nrtmRestClient;
 
 
-    public SnapshotImporter(final NrtmRestClient nrtmRestClient,
-                            final Nrtm4ClientInfoRepository nrtm4ClientInfoMirrorDao,
-                            final Nrtm4ClientRepository nrtm4ClientRepository) {
+    public SnapshotMirrorImporter(final NrtmRestClient nrtmRestClient,
+                                  final Nrtm4ClientInfoRepository nrtm4ClientInfoMirrorDao,
+                                  final Nrtm4ClientRepository nrtm4ClientRepository) {
         super(nrtm4ClientInfoMirrorDao, nrtm4ClientRepository);
         this.nrtmRestClient = nrtmRestClient;
 

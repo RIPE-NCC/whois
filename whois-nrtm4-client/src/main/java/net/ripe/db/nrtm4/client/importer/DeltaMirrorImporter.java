@@ -10,7 +10,6 @@ import net.ripe.db.nrtm4.client.dao.Nrtm4ClientRepository;
 import net.ripe.db.nrtm4.client.dao.NrtmClientVersionInfo;
 import net.ripe.db.whois.common.dao.RpslObjectUpdateInfo;
 import net.ripe.db.whois.common.rpsl.RpslObject;
-import org.apache.commons.lang.StringUtils;
 import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -29,17 +28,17 @@ import java.util.function.Consumer;
 
 @Service
 @Conditional(Nrtm4ClientCondition.class)
-public class DeltaImporter extends AbstractImporter {
+public class DeltaMirrorImporter extends AbstractMirrorImporter {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(DeltaImporter.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(DeltaMirrorImporter.class);
 
     private final NrtmRestClient nrtmRestClient;
 
     public static final String RECORD_SEPARATOR = "\u001E";
 
-    public DeltaImporter(final NrtmRestClient nrtmRestClient,
-                         final Nrtm4ClientRepository nrtm4ClientRepository,
-                         final Nrtm4ClientInfoRepository nrtm4ClientInfoRepository) {
+    public DeltaMirrorImporter(final NrtmRestClient nrtmRestClient,
+                               final Nrtm4ClientRepository nrtm4ClientRepository,
+                               final Nrtm4ClientInfoRepository nrtm4ClientInfoRepository) {
         super(nrtm4ClientInfoRepository, nrtm4ClientRepository);
         this.nrtmRestClient = nrtmRestClient;
     }

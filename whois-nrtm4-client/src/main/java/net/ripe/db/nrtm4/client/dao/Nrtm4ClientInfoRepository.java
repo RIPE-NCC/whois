@@ -3,8 +3,6 @@ package net.ripe.db.nrtm4.client.dao;
 import net.ripe.db.nrtm4.client.condition.Nrtm4ClientCondition;
 import net.ripe.db.whois.common.DateTimeProvider;
 import net.ripe.db.whois.common.dao.jdbc.JdbcRpslObjectOperations;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Conditional;
 import org.springframework.dao.EmptyResultDataAccessException;
@@ -19,8 +17,6 @@ import java.util.List;
 @Repository
 @Conditional(Nrtm4ClientCondition.class)
 public class Nrtm4ClientInfoRepository {
-
-    private static final Logger LOGGER = LoggerFactory.getLogger(Nrtm4ClientInfoRepository.class);
 
     private final JdbcTemplate jdbcMasterTemplate;
     private final JdbcTemplate jdbcSlaveTemplate;
