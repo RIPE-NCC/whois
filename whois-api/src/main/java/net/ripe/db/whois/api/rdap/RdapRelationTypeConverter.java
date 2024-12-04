@@ -3,7 +3,6 @@ package net.ripe.db.whois.api.rdap;
 import jakarta.ws.rs.ext.ParamConverter;
 import jakarta.ws.rs.ext.ParamConverterProvider;
 import jakarta.ws.rs.ext.Provider;
-import net.ripe.db.whois.api.rdap.domain.RdapRequestType;
 import net.ripe.db.whois.api.rdap.domain.RelationType;
 import org.springframework.stereotype.Component;
 

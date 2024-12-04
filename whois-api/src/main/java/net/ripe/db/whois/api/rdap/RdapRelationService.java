@@ -155,6 +155,7 @@ public class RdapRelationService {
     private boolean isOutOfRegionOrRoot(final IpEntry firstLessSpecific) {
         final RpslObject rpslObject = getResourceByKey(firstLessSpecific.getKey().toString());
         if (rpslObject == null) {
+            LOGGER.error("INET(6)NUM {} does not exist in RIPE Database ", firstLessSpecific.getKey().toString());
             return true;
         }
         final CIString status = rpslObject.getValueForAttribute(AttributeType.STATUS);
@@ -166,7 +167,6 @@ public class RdapRelationService {
     private RpslObject getResourceByKey(final String key){
         final RpslObject rpslObject = rpslObjectDao.getByKeyOrNull(ObjectType.INET6NUM, key);
         if (rpslObject == null){
-            LOGGER.error("INET(6)NUM {} does not exist in RIPE Database ", key);
             return rpslObjectDao.getByKeyOrNull(ObjectType.INETNUM, key);
         }
         return rpslObject;
