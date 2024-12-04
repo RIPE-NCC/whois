@@ -7,6 +7,7 @@ import joptsimple.OptionException;
 import net.ripe.db.whois.common.IllegalArgumentExceptionMessage;
 import net.ripe.db.whois.common.Message;
 import net.ripe.db.whois.common.Messages;
+import net.ripe.db.whois.common.apiKey.OAuthSession;
 import net.ripe.db.whois.common.domain.CIString;
 import net.ripe.db.whois.common.ip.IpInterval;
 import net.ripe.db.whois.common.x509.X509CertificateWrapper;
@@ -64,6 +65,7 @@ public class Query {
     // TODO: [AH] these fields should be part of QueryContext, not Query
     private List<String> passwords;
     private String ssoToken;
+    private OAuthSession oAuthSession;
     private final Origin origin;
     private final boolean trusted;
     // TODO: [AH] we should use -x flag for direct match for all object types instead of this hack
@@ -132,11 +134,12 @@ public class Query {
     }
 
 
-    public static Query parse(final String args, final String ssoToken, final List<String> passwords, final boolean trusted, final List<X509CertificateWrapper> certificates) {
+    public static Query parse(final String args, final String ssoToken, final List<String> passwords, final boolean trusted, final List<X509CertificateWrapper> certificates, final OAuthSession oAuthSession) {
         final Query query = parse(args, Origin.REST, trusted);
         query.ssoToken = ssoToken;
         query.passwords = passwords;
         query.certificates = certificates;
+        query.oAuthSession = oAuthSession;
         return query;
     }
 
@@ -146,6 +149,10 @@ public class Query {
 
     public String getSsoToken() {
         return ssoToken;
+    }
+
+    public OAuthSession getoAuthSession() {
+        return oAuthSession;
     }
 
     public List<X509CertificateWrapper> getCertificates() {

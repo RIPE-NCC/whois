@@ -2,6 +2,7 @@ package net.ripe.db.whois.query.planner;
 
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Sets;
+import net.ripe.db.whois.common.apiKey.OAuthSession;
 import net.ripe.db.whois.common.x509.ClientAuthCertificateValidator;
 import net.ripe.db.whois.common.collect.IterableTransformer;
 import net.ripe.db.whois.common.dao.RpslObjectDao;
@@ -160,12 +161,13 @@ public class RpslResponseDecorator {
     private Iterable<? extends ResponseObject> filterAuth(Query query, final Iterable<? extends ResponseObject> objects) {
         List<String> passwords = query.getPasswords();
         final String ssoToken = query.getSsoToken();
+        final OAuthSession oAuthSession = query.getoAuthSession();
         final List<X509CertificateWrapper> certificates = query.getCertificates();
 
         final FilterAuthFunction filterAuthFunction =
                 (CollectionUtils.isEmpty(passwords) && StringUtils.isBlank(ssoToken) && hasNotCertificates(certificates))?
                         FILTER_AUTH_FUNCTION :
-                        new FilterAuthFunction(passwords, ssoToken, ssoTokenTranslator, authServiceClient,
+                        new FilterAuthFunction(passwords, oAuthSession, ssoToken, ssoTokenTranslator, authServiceClient,
                                 rpslObjectDao, certificates, clientAuthCertificateValidator);
 
         return Iterables.transform(objects, input -> {
