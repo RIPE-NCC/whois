@@ -9,6 +9,7 @@ import net.ripe.db.nrtm4.client.processor.UpdateNotificationFileProcessor;
 import net.ripe.db.whois.common.dao.jdbc.AbstractDatabaseHelperIntegrationTest;
 import net.ripe.db.whois.common.rpsl.RpslObject;
 import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -63,12 +64,21 @@ public class AbstractNrtmClientIntegrationTest extends AbstractDatabaseHelperInt
     @BeforeAll
     public static void setUp(){
         System.setProperty("nrtm4.client.enabled", "true");
-
     }
 
     @AfterAll
     public static void tearDown(){
         System.clearProperty("nrtm4.client.enabled");
+    }
+
+    @BeforeEach
+    public void setUpLocalHost() {
+        System.setProperty("instance.name", "localhost");
+    }
+
+    @AfterEach
+    public void tearDownLocalHost() {
+        System.clearProperty("instance.name");
     }
 
     protected List<MirrorRpslObject> getMirrorRpslObject(){

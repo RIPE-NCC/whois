@@ -19,22 +19,51 @@ import static org.hamcrest.Matchers.nullValue;
 @Tag("IntegrationTest")
 public class UpdateNotificationFileProcessorTestIntegration extends AbstractNrtmClientIntegrationTest {
 
+
     @Test
-    public void process_UNF_Then_Version_Added() {
+    public void process_UNF_then_version_added() {
         updateNotificationFileProcessor.processFile();
         final List<NrtmClientVersionInfo> versionInfosPerSource = nrtm4ClientInfoRepository.getNrtmLastVersionInfoForUpdateNotificationFile();
         assertThat(versionInfosPerSource.size(), is(2));
     }
 
     @Test
-    public void process_UNF_when_already_Created_Same_Version_Then_Version_Not_Added(){
+    public void process_UNF_when_already_created_same_version_then_version_not_added(){
         nrtm4ClientInfoRepository.saveUpdateNotificationFileVersion("RIPE-NONAUTH", 1, "6328095e-7d46-415b-9333-8f2ae274b7c8", "localhost");
-        nrtm4ClientInfoRepository.saveUpdateNotificationFileVersion("RIPE", 1, "6328095e-7d46-415b-9333-8f2ae274b7c8", "localhost");
+        nrtm4ClientInfoRepository.saveUpdateNotificationFileVersion("RIPE", 1, "4521174b-548f-4e51-98fc-dfd720011a0c", "localhost");
 
         updateNotificationFileProcessor.processFile();
 
         final List<NrtmClientVersionInfo> versionInfosPerSource = nrtm4ClientInfoRepository.getNrtmLastVersionInfoForUpdateNotificationFile();
         assertThat(versionInfosPerSource.getFirst().version(), is(1L));
+    }
+
+    @Test
+    public void process_UNF_but_DB_ahead_then_reInitialize(){
+        nrtm4ClientInfoRepository.saveUpdateNotificationFileVersion("RIPE-NONAUTH", 2, "6328095e-7d46-415b-9333-8f2ae274b7c8", "localhost");
+        nrtm4ClientInfoRepository.saveUpdateNotificationFileVersion("RIPE", 2, "4521174b-548f-4e51-98fc-dfd720011a0c", "localhost");
+
+        final List<NrtmClientVersionInfo> versionBeforeCleanUp = nrtm4ClientInfoRepository.getNrtmLastVersionInfoForUpdateNotificationFile();
+        assertThat(versionBeforeCleanUp.getFirst().version(), is(2L));
+
+        updateNotificationFileProcessor.processFile();
+
+        final List<NrtmClientVersionInfo> versionInfosPerSource = nrtm4ClientInfoRepository.getNrtmLastVersionInfoForUpdateNotificationFile();
+        assertThat(versionInfosPerSource.isEmpty(), is(true));
+    }
+
+    @Test
+    public void process_UNF_but_different_session_id_then_reInitialize(){
+        nrtm4ClientInfoRepository.saveUpdateNotificationFileVersion("RIPE-NONAUTH", 1, "wrong", "localhost");
+        nrtm4ClientInfoRepository.saveUpdateNotificationFileVersion("RIPE", 1, "wrong", "localhost");
+
+        final List<NrtmClientVersionInfo> versionBeforeCleanUp = nrtm4ClientInfoRepository.getNrtmLastVersionInfoForUpdateNotificationFile();
+        assertThat(versionBeforeCleanUp.getFirst().version(), is(1L));
+
+        updateNotificationFileProcessor.processFile();
+
+        final List<NrtmClientVersionInfo> versionInfosPerSource = nrtm4ClientInfoRepository.getNrtmLastVersionInfoForUpdateNotificationFile();
+        assertThat(versionInfosPerSource.isEmpty(), is(true));
     }
 
     @Test
@@ -107,11 +136,6 @@ public class UpdateNotificationFileProcessorTestIntegration extends AbstractNrtm
 
         final List<NrtmClientVersionInfo> versionInfosPerSource = nrtm4ClientInfoRepository.getNrtmLastVersionInfoForUpdateNotificationFile();
         assertThat(versionInfosPerSource, is(empty()));
-    }
-
-    @Test
-    public void process_UNF_but_DB_Ahead_Then_ReInitialize(){
-        // TODO: [MH] Re-initialize
     }
 
     // Helper Methods
