@@ -519,14 +519,14 @@ public class RdapService {
                                                  final RelationType relationType, final String key) {
         final List<RpslObject> rpslObjects;
         switch (requestType) {
-            case AUTNUM -> throw new RdapException("400 Bad Request", "Relation queries not allowed for autnum", HttpStatus.BAD_REQUEST_400);
-            case DOMAIN -> {
+            case AUTNUMS -> throw new RdapException("400 Bad Request", "Relation queries not allowed for autnum", HttpStatus.BAD_REQUEST_400);
+            case DOMAINS -> {
                 rdapRequestValidator.validateDomain(key);
                 final List<String> relatedPkeys = rdapRelationService.getDomainRelationPkeys(key, relationType);
 
                 rpslObjects = relatedPkeys
                         .stream()
-                        .flatMap(relatedPkey -> rdapQueryHandler.handleQueryStream(getQueryObject(ImmutableSet.of(DOMAIN), key), request))
+                        .flatMap(relatedPkey -> rdapQueryHandler.handleQueryStream(getQueryObject(ImmutableSet.of(DOMAIN), relatedPkey), request))
                         .toList();
             }
             case IPS -> {

@@ -185,7 +185,7 @@ public class RdapServiceTestIntegration extends AbstractRdapIntegrationTest {
                 "country:        NL\n" +
                 "tech-c:         TP1-TEST\n" +
                 "admin-c:        TP1-TEST\n" +
-                "status:         OTHER\n" +
+                "status:         ALLOCATED-BY-RIR\n" +
                 "mnt-by:         OWNER-MNT\n" +
                 "created:         2022-08-14T11:48:28Z\n" +
                 "last-modified:   2022-10-25T12:22:39Z\n" +
@@ -3130,6 +3130,18 @@ public class RdapServiceTestIntegration extends AbstractRdapIntegrationTest {
 
     /*RIR Search*/
 
+    @Test
+    public void get_up_autnum_then_400(){
+        final BadRequestException badRequestException = assertThrows(BadRequestException.class, () -> {
+            createResource("autnums/rirSearch1/up/AS123")
+                    .request(MediaType.APPLICATION_JSON_TYPE)
+                    .get(SearchResult.class);
+        });
+
+        assertErrorTitle(badRequestException, "400 Bad Request");
+        assertErrorStatus(badRequestException, HttpStatus.BAD_REQUEST_400);
+        assertErrorDescription(badRequestException, "Relation queries not allowed for autnum");
+    }
 
     @Test
     public void get_up_then_parent(){
@@ -3142,6 +3154,49 @@ public class RdapServiceTestIntegration extends AbstractRdapIntegrationTest {
         final List<Ip> ipResults = searchResult.getIpSearchResults();
         assertThat(ipResults.size(), is(1));
         assertThat(ipResults.getFirst().getHandle(), is("192.0.2.0 - 192.0.2.127")); // /26
+    }
+
+    @Test
+    public void get_ipv6_up_then_parent(){
+        loadIpv6RelationTreeExample();
+
+        final SearchResult searchResult = createResource("ips/rirSearch1/up/2001:db8::/32")
+                .request(MediaType.APPLICATION_JSON_TYPE)
+                .get(SearchResult.class);
+
+        final List<Ip> ipResults = searchResult.getIpSearchResults();
+        assertThat(ipResults.size(), is(1));
+        assertThat(ipResults.getFirst().getHandle(), is("2001::/16"));
+    }
+
+    @Test
+    public void get_domain_up_then_parent(){
+        loadIpv4RelationTreeExample();
+        loadIpv4RelationDomainExample();
+
+        final SearchResult searchResult = createResource("domains/rirSearch1/up/1.2.0.192.in-addr.arpa")
+                .request(MediaType.APPLICATION_JSON_TYPE)
+                .get(SearchResult.class);
+
+        final List<Domain> domainResults = searchResult.getDomainSearchResults();
+        assertThat(domainResults.size(), is(1));
+        assertThat(domainResults.getFirst().getHandle(), is("2.0.192.in-addr.arpa"));
+    }
+
+    @Test
+    public void get_non_existing_domain_up_then_404(){
+        loadIpv4RelationTreeExample();
+        loadIpv4RelationDomainExample();
+
+        final NotFoundException notFoundException = assertThrows(NotFoundException.class, () -> {
+            createResource("domains/rirSearch1/up/0.192.in-addr.arpa")
+                    .request(MediaType.APPLICATION_JSON_TYPE)
+                    .get(SearchResult.class);
+        });
+
+        assertErrorTitle(notFoundException, "404 Not Found");
+        assertErrorStatus(notFoundException, HttpStatus.NOT_FOUND_404);
+        assertErrorDescription(notFoundException, "No up level object has been found for 192.0.0.0/16");
     }
 
     @Test
@@ -3160,7 +3215,7 @@ public class RdapServiceTestIntegration extends AbstractRdapIntegrationTest {
     }
 
     @Test
-    public void get_top_then_less_specific_allocated_assigned_then_first_parent(){
+    public void get_top_then_less_specific_allocated_assigned_first_parent(){
         loadIpv4RelationTreeExample();
 
         final SearchResult searchResult = createResource("ips/rirSearch1/top/192.0.2.0/28")
@@ -3173,7 +3228,50 @@ public class RdapServiceTestIntegration extends AbstractRdapIntegrationTest {
     }
 
     @Test
-    public void get_non_existing_top_then_less_specific_allocated_assigned_then_404(){
+    public void get_ipv6_top_then_less_specific_allocated_assigned_first_parent(){
+        loadIpv6RelationTreeExample();
+
+        final SearchResult searchResult = createResource("ips/rirSearch1/top/2001:db8::/32")
+                .request(MediaType.APPLICATION_JSON_TYPE)
+                .get(SearchResult.class);
+
+        final List<Ip> ipResults = searchResult.getIpSearchResults();
+        assertThat(ipResults.size(), is(1));
+        assertThat(ipResults.getFirst().getHandle(), is("2000::/3"));
+    }
+
+    @Test
+    public void get_domain_top_then_less_specific_allocated_assigned_first_parent(){
+        loadIpv4RelationTreeExample();
+        loadIpv4RelationDomainExample();
+
+        final SearchResult searchResult = createResource("domains/rirSearch1/top/1.2.0.192.in-addr.arpa")
+                .request(MediaType.APPLICATION_JSON_TYPE)
+                .get(SearchResult.class);
+
+        final List<Domain> domainResults = searchResult.getDomainSearchResults();
+        assertThat(domainResults.size(), is(1));
+        assertThat(domainResults.getFirst().getHandle(), is("0.192.in-addr.arpa"));
+    }
+
+    @Test
+    public void get_non_existing_domain_top_then_404(){
+        loadIpv4RelationTreeExample();
+        loadIpv4RelationDomainExample();
+
+        final NotFoundException notFoundException = assertThrows(NotFoundException.class, () -> {
+            createResource("domains/rirSearch1/top/0.192.in-addr.arpa")
+                    .request(MediaType.APPLICATION_JSON_TYPE)
+                    .get(SearchResult.class);
+        });
+
+        assertErrorTitle(notFoundException, "404 Not Found");
+        assertErrorStatus(notFoundException, HttpStatus.NOT_FOUND_404);
+        assertErrorDescription(notFoundException, "No top level object has been found for 192.0.0.0/16");
+    }
+
+    @Test
+    public void get_non_existing_top_then_404(){
         loadIpv4RelationTreeExample();
 
         final NotFoundException notFoundException = assertThrows(NotFoundException.class, () -> {
@@ -3188,7 +3286,7 @@ public class RdapServiceTestIntegration extends AbstractRdapIntegrationTest {
     }
 
     @Test
-    public void get_bottom_then_most_specific(){
+    public void get_bottom_then_bottom(){
         loadIpv4RelationTreeExample();
 
         final SearchResult searchResult = createResource("ips/rirSearch1/bottom/192.0.2.0/24")
@@ -3205,7 +3303,88 @@ public class RdapServiceTestIntegration extends AbstractRdapIntegrationTest {
     }
 
     @Test
-    public void get_no_more_specific_bottom_then_empty_response(){
+    public void get_bottom_ipv6_then_bottom(){
+        loadIpv6RelationTreeExample();
+
+        final SearchResult searchResult = createResource("ips/rirSearch1/bottom/2000::/3")
+                .request(MediaType.APPLICATION_JSON_TYPE)
+                .get(SearchResult.class);
+
+        final List<Ip> ipResults = searchResult.getIpSearchResults();
+        assertThat(ipResults.size(), is(6));
+        assertThat(ipResults.getFirst().getHandle(), is("2001::/16"));
+        assertThat(ipResults.get(1).getHandle(), is("2001::/23"));
+        assertThat(ipResults.get(2).getHandle(), is("2001:db8::/32"));
+        assertThat(ipResults.get(3).getHandle(), is("2400::/12"));
+        assertThat(ipResults.get(4).getHandle(), is("2600::/12"));
+        assertThat(ipResults.get(5).getHandle(), is("2800::/12"));
+    }
+
+    @Test
+    public void get_bottom_ipv6_cover_parent_then_bottom(){
+        loadIpv6RelationTreeExample();
+
+        final SearchResult searchResult = createResource("ips/rirSearch1/bottom/FC00::/7")
+                .request(MediaType.APPLICATION_JSON_TYPE)
+                .get(SearchResult.class);
+
+        final List<Ip> ipResults = searchResult.getIpSearchResults();
+        assertThat(ipResults.size(), is(2));
+        assertThat(ipResults.getFirst().getHandle(), is("FC00::/8"));
+        assertThat(ipResults.get(1).getHandle(), is("FD00::/8"));
+    }
+
+    @Test
+    public void get_bottom_from_root_parent_then_bottom(){
+        loadIpv6RelationTreeExample();
+
+        final SearchResult searchResult = createResource("ips/rirSearch1/bottom/::/0")
+                .request(MediaType.APPLICATION_JSON_TYPE)
+                .get(SearchResult.class);
+
+        final List<Ip> ipResults = searchResult.getIpSearchResults();
+        assertThat(ipResults.size(), is(9));
+        assertThat(ipResults.getFirst().getHandle(), is("2001::/16"));
+        assertThat(ipResults.get(1).getHandle(), is("2001::/23"));
+        assertThat(ipResults.get(2).getHandle(), is("2000::/3"));
+        assertThat(ipResults.get(3).getHandle(), is("2001:db8::/32"));
+        assertThat(ipResults.get(4).getHandle(), is("2400::/12"));
+        assertThat(ipResults.get(5).getHandle(), is("2600::/12"));
+        assertThat(ipResults.get(6).getHandle(), is("2800::/12"));
+        assertThat(ipResults.get(7).getHandle(), is("FC00::/8"));
+        assertThat(ipResults.get(8).getHandle(), is("FD00::/8"));
+    }
+
+    @Test
+    public void get_domain_bottom_then_bottom(){
+        loadIpv4RelationTreeExample();
+        loadIpv4RelationDomainExample();
+
+        final SearchResult searchResult = createResource("domains/rirSearch1/bottom/0.192.in-addr.arpa")
+                .request(MediaType.APPLICATION_JSON_TYPE)
+                .get(SearchResult.class);
+
+        final List<Domain> domainResults = searchResult.getDomainSearchResults();
+        assertThat(domainResults.size(), is(2));
+        assertThat(domainResults.getFirst().getHandle(), is("1.2.0.192.in-addr.arpa"));
+        assertThat(domainResults.get(1).getHandle(), is("2.0.192.in-addr.arpa"));
+    }
+
+    @Test
+    public void get_non_existing_domain_bottom_then_empty(){
+        loadIpv4RelationTreeExample();
+        loadIpv4RelationDomainExample();
+
+        final SearchResult searchResult = createResource("domains/rirSearch1/bottom/1.2.0.192.in-addr.arpa")
+                .request(MediaType.APPLICATION_JSON_TYPE)
+                .get(SearchResult.class);
+
+        final List<Domain> domainResults = searchResult.getDomainSearchResults();
+        assertThat(domainResults, is(nullValue()));
+    }
+
+    @Test
+    public void get_non_existing_bottom_then_empty_response(){
         loadIpv4RelationTreeExample();
 
         final SearchResult searchResult = createResource("ips/rirSearch1/bottom/192.0.2.0/32")
@@ -3217,7 +3396,7 @@ public class RdapServiceTestIntegration extends AbstractRdapIntegrationTest {
     }
 
     @Test
-    public void get_most_specific_wrong_type_then_400(){
+    public void get_bottom_wrong_type_then_400(){
 
         final BadRequestException badRequestException = assertThrows(BadRequestException.class, () -> {
             createResource("ip/rirSearch1/bottom/192.0.2.0/24")
@@ -3241,6 +3420,49 @@ public class RdapServiceTestIntegration extends AbstractRdapIntegrationTest {
         assertThat(ipResults.size(), is(2));
         assertThat(ipResults.getFirst().getHandle(), is("192.0.2.0 - 192.0.2.127"));
         assertThat(ipResults.get(1).getHandle(), is("192.0.2.128 - 192.0.2.255"));
+    }
+
+    @Test
+    public void get_down_ipv6_then_immediate_child(){
+        loadIpv6RelationTreeExample();
+
+        final SearchResult searchResult = createResource("ips/rirSearch1/down/2000::/3")
+                .request(MediaType.APPLICATION_JSON_TYPE)
+                .get(SearchResult.class);
+
+        final List<Ip> ipResults = searchResult.getIpSearchResults();
+        assertThat(ipResults.size(), is(4));
+        assertThat(ipResults.getFirst().getHandle(), is("2001::/16"));
+        assertThat(ipResults.get(1).getHandle(), is("2400::/12"));
+        assertThat(ipResults.get(2).getHandle(), is("2600::/12"));
+        assertThat(ipResults.get(3).getHandle(), is("2800::/12"));
+    }
+
+    @Test
+    public void get_down_domain_then_immediate_child(){
+        loadIpv4RelationTreeExample();
+        loadIpv4RelationDomainExample();
+
+        final SearchResult searchResult = createResource("domains/rirSearch1/down/0.192.in-addr.arpa")
+                .request(MediaType.APPLICATION_JSON_TYPE)
+                .get(SearchResult.class);
+
+        final List<Domain> domainResults = searchResult.getDomainSearchResults();
+        assertThat(domainResults.size(), is(1));
+        assertThat(domainResults.getFirst().getHandle(), is("2.0.192.in-addr.arpa"));
+    }
+
+    @Test
+    public void get_down_domain_no_child_then_empty_response(){
+        loadIpv4RelationTreeExample();
+        loadIpv4RelationDomainExample();
+
+        final SearchResult searchResult = createResource("domains/rirSearch1/down/1.2.0.192.in-addr.arpa")
+                .request(MediaType.APPLICATION_JSON_TYPE)
+                .get(SearchResult.class);
+
+        final List<Domain> domainResults = searchResult.getDomainSearchResults();
+        assertThat(domainResults, is(nullValue()));
     }
 
     @Test
@@ -3388,6 +3610,19 @@ public class RdapServiceTestIntegration extends AbstractRdapIntegrationTest {
 
 
         databaseHelper.addObject("" +
+                "inetnum:      192.0.2.0 - 192.0.2.0\n" + // /32
+                "netname:      TEST-NET-NAME\n" +
+                "descr:        TEST network\n" +
+                "country:      NL\n" +
+                "language:     en\n" +
+                "tech-c:       TP1-TEST\n" +
+                "status:       ASSIGNED PA\n" +
+                "mnt-by:       OWNER-MNT\n" +
+                "created:         2022-08-14T11:48:28Z\n" +
+                "last-modified:   2022-10-25T12:22:39Z\n" +
+                "source:       TEST");
+
+        databaseHelper.addObject("" +
                 "inetnum:      192.0.2.0 - 192.0.2.15\n" + // /28
                 "netname:      TEST-NET-NAME\n" +
                 "descr:        TEST network\n" +
@@ -3400,18 +3635,6 @@ public class RdapServiceTestIntegration extends AbstractRdapIntegrationTest {
                 "last-modified:   2022-10-25T12:22:39Z\n" +
                 "source:       TEST");
 
-        databaseHelper.addObject("" +
-                "inetnum:      192.0.2.0 - 192.0.2.0\n" + // /32
-                "netname:      TEST-NET-NAME\n" +
-                "descr:        TEST network\n" +
-                "country:      NL\n" +
-                "language:     en\n" +
-                "tech-c:       TP1-TEST\n" +
-                "status:       ASSIGNED PA\n" +
-                "mnt-by:       OWNER-MNT\n" +
-                "created:         2022-08-14T11:48:28Z\n" +
-                "last-modified:   2022-10-25T12:22:39Z\n" +
-                "source:       TEST");
 
         //Another branch
 
@@ -3453,6 +3676,234 @@ public class RdapServiceTestIntegration extends AbstractRdapIntegrationTest {
                 "created:         2022-08-14T11:48:28Z\n" +
                 "last-modified:   2022-10-25T12:22:39Z\n" +
                 "source:       TEST");
+
+        ipTreeUpdater.rebuild();
+    }
+
+
+    private void loadIpv4RelationDomainExample(){
+        databaseHelper.addObject("" +
+                "inetnum:      192.0.0.0 - 192.0.255.255\n" +
+                "netname:      TEST-NET-NAME\n" +
+                "descr:        TEST network\n" +
+                "country:      NL\n" +
+                "language:     en\n" +
+                "tech-c:       TP1-TEST\n" +
+                "status:       ALLOCATED PA\n" +
+                "mnt-by:       OWNER-MNT\n" +
+                "created:         2022-08-14T11:48:28Z\n" +
+                "last-modified:   2022-10-25T12:22:39Z\n" +
+                "source:       TEST");
+
+        databaseHelper.addObject("" +
+                "domain:        0.192.in-addr.arpa\n" +
+                "descr:         Test domain\n" +
+                "admin-c:       TP1-TEST\n" +
+                "tech-c:        TP1-TEST\n" +
+                "zone-c:        TP1-TEST\n" +
+                "notify:        notify@test.net.au\n" +
+                "nserver:       ns1.test.com.au 10.0.0.1\n" +
+                "nserver:       ns2.test.com.au 2001:10::2\n" +
+                "ds-rdata:      52151 1 1 13ee60f7499a70e5aadaf05828e7fc59e8e70bc1\n" +
+                "ds-rdata:      17881 5 1 2e58131e5fe28ec965a7b8e4efb52d0a028d7a78\n" +
+                "ds-rdata:      17881 5 2 8c6265733a73e5588bfac516a4fcfbe1103a544b95f254cb67a21e474079547e\n" +
+                "mnt-by:        OWNER-MNT\n" +
+                "created:       2011-07-28T00:35:42Z\n" +
+                "last-modified: 2019-02-28T10:14:46Z\n" +
+                "source:        TEST");
+
+        databaseHelper.addObject("" +
+                "domain:        2.0.192.in-addr.arpa\n" +
+                "descr:         Test domain\n" +
+                "admin-c:       TP1-TEST\n" +
+                "tech-c:        TP1-TEST\n" +
+                "zone-c:        TP1-TEST\n" +
+                "notify:        notify@test.net.au\n" +
+                "nserver:       ns1.test.com.au 10.0.0.1\n" +
+                "nserver:       ns2.test.com.au 2001:10::2\n" +
+                "ds-rdata:      52151 1 1 13ee60f7499a70e5aadaf05828e7fc59e8e70bc1\n" +
+                "ds-rdata:      17881 5 1 2e58131e5fe28ec965a7b8e4efb52d0a028d7a78\n" +
+                "ds-rdata:      17881 5 2 8c6265733a73e5588bfac516a4fcfbe1103a544b95f254cb67a21e474079547e\n" +
+                "mnt-by:        OWNER-MNT\n" +
+                "created:       2011-07-28T00:35:42Z\n" +
+                "last-modified: 2019-02-28T10:14:46Z\n" +
+                "source:        TEST");
+
+
+        databaseHelper.addObject("" +
+                "domain:        1.2.0.192.in-addr.arpa\n" +
+                "descr:         Test domain\n" +
+                "admin-c:       TP1-TEST\n" +
+                "tech-c:        TP1-TEST\n" +
+                "zone-c:        TP1-TEST\n" +
+                "notify:        notify@test.net.au\n" +
+                "nserver:       ns1.test.com.au 10.0.0.1\n" +
+                "nserver:       ns2.test.com.au 2001:10::2\n" +
+                "ds-rdata:      52151 1 1 13ee60f7499a70e5aadaf05828e7fc59e8e70bc1\n" +
+                "ds-rdata:      17881 5 1 2e58131e5fe28ec965a7b8e4efb52d0a028d7a78\n" +
+                "ds-rdata:      17881 5 2 8c6265733a73e5588bfac516a4fcfbe1103a544b95f254cb67a21e474079547e\n" +
+                "mnt-by:        OWNER-MNT\n" +
+                "created:       2011-07-28T00:35:42Z\n" +
+                "last-modified: 2019-02-28T10:14:46Z\n" +
+                "source:        TEST");
+
+        ipTreeUpdater.rebuild();
+    }
+
+    private void loadIpv6RelationTreeExample(){
+        /*
+                                        +--------------+
+                                        |      /0      |
+                                        +--------------+
+                  /                                                         \
+             +--------------+                                           +----------------+
+             |   FC00::/7   |                                           |   2000::/3     |
+             +--------------+                                           +----------------+
+                 /        \                                             /        |         |       \
+ +-----------------+   +-------------------+                    +------------+  +-----------+  +-----------+  +-----------+
+ |    FC00::/8     |   |    FD00::/8       |                    | 2001::/16  |  | 2400::/12 |  | 2600::/12 |  | 2800::/12 |
+ +-----------------+   +-------------------+                    +------------+  +-----------+  +-----------+  +-----------+
+                                                                    /    |
+                                                        +--------------+  +--------------+
+                                                        | 2001:db8::/32 |  | 2001::/23   |
+                                                        +--------------+  +--------------+
+        */
+
+        databaseHelper.addObject("" +
+                "inet6num:       2000::/3\n" +
+                "netname:        TEST\n" +
+                "descr:          The whole IPv6 address space\n" +
+                "country:        NL\n" +
+                "tech-c:         TP1-TEST\n" +
+                "admin-c:        TP1-TEST\n" +
+                "status:         ALLOCATED-BY-LIR\n" +
+                "mnt-by:         OWNER-MNT\n" +
+                "created:         2022-08-14T11:48:28Z\n" +
+                "last-modified:   2022-10-25T12:22:39Z\n" +
+                "source:         TEST");
+
+
+        // One branch
+        databaseHelper.addObject("" +
+                "inet6num:       2001::/16\n" +
+                "netname:        TEST\n" +
+                "descr:          The whole IPv6 address space\n" +
+                "country:        NL\n" +
+                "tech-c:         TP1-TEST\n" +
+                "admin-c:        TP1-TEST\n" +
+                "status:         ALLOCATED-BY-LIR\n" +
+                "mnt-by:         OWNER-MNT\n" +
+                "created:         2022-08-14T11:48:28Z\n" +
+                "last-modified:   2022-10-25T12:22:39Z\n" +
+                "source:         TEST");
+
+
+        databaseHelper.addObject("" +
+                "inet6num:       2001:db8::/32\n" +
+                "netname:        TEST\n" +
+                "descr:          The whole IPv6 address space\n" +
+                "country:        NL\n" +
+                "tech-c:         TP1-TEST\n" +
+                "admin-c:        TP1-TEST\n" +
+                "status:         ALLOCATED-BY-LIR\n" +
+                "mnt-by:         OWNER-MNT\n" +
+                "created:         2022-08-14T11:48:28Z\n" +
+                "last-modified:   2022-10-25T12:22:39Z\n" +
+                "source:         TEST");
+
+
+        databaseHelper.addObject("" +
+                "inet6num:       2001::/23\n" +
+                "netname:        TEST\n" +
+                "descr:          The whole IPv6 address space\n" +
+                "country:        NL\n" +
+                "tech-c:         TP1-TEST\n" +
+                "admin-c:        TP1-TEST\n" +
+                "status:         ALLOCATED-BY-LIR\n" +
+                "mnt-by:         OWNER-MNT\n" +
+                "created:         2022-08-14T11:48:28Z\n" +
+                "last-modified:   2022-10-25T12:22:39Z\n" +
+                "source:         TEST");
+
+
+        databaseHelper.addObject("" +
+                "inet6num:       2400::/12\n" +
+                "netname:        TEST\n" +
+                "descr:          The whole IPv6 address space\n" +
+                "country:        NL\n" +
+                "tech-c:         TP1-TEST\n" +
+                "admin-c:        TP1-TEST\n" +
+                "status:         ALLOCATED-BY-LIR\n" +
+                "mnt-by:         OWNER-MNT\n" +
+                "created:         2022-08-14T11:48:28Z\n" +
+                "last-modified:   2022-10-25T12:22:39Z\n" +
+                "source:         TEST");
+
+        databaseHelper.addObject("" +
+                "inet6num:       2600::/12\n" +
+                "netname:        TEST\n" +
+                "descr:          The whole IPv6 address space\n" +
+                "country:        NL\n" +
+                "tech-c:         TP1-TEST\n" +
+                "admin-c:        TP1-TEST\n" +
+                "status:         ALLOCATED-BY-LIR\n" +
+                "mnt-by:         OWNER-MNT\n" +
+                "created:         2022-08-14T11:48:28Z\n" +
+                "last-modified:   2022-10-25T12:22:39Z\n" +
+                "source:         TEST");
+
+        databaseHelper.addObject("" +
+                "inet6num:       2800::/12\n" +
+                "netname:        TEST\n" +
+                "descr:          The whole IPv6 address space\n" +
+                "country:        NL\n" +
+                "tech-c:         TP1-TEST\n" +
+                "admin-c:        TP1-TEST\n" +
+                "status:         ALLOCATED-BY-LIR\n" +
+                "mnt-by:         OWNER-MNT\n" +
+                "created:         2022-08-14T11:48:28Z\n" +
+                "last-modified:   2022-10-25T12:22:39Z\n" +
+                "source:         TEST");
+
+
+        databaseHelper.addObject("" +
+                "inet6num:       FC00::/7\n" +
+                "netname:        TEST\n" +
+                "descr:          The whole IPv6 address space\n" +
+                "country:        NL\n" +
+                "tech-c:         TP1-TEST\n" +
+                "admin-c:        TP1-TEST\n" +
+                "status:         ALLOCATED-BY-LIR\n" +
+                "mnt-by:         OWNER-MNT\n" +
+                "created:         2022-08-14T11:48:28Z\n" +
+                "last-modified:   2022-10-25T12:22:39Z\n" +
+                "source:         TEST");
+
+        databaseHelper.addObject("" +
+                "inet6num:       FC00::/8\n" +
+                "netname:        TEST\n" +
+                "descr:          The whole IPv6 address space\n" +
+                "country:        NL\n" +
+                "tech-c:         TP1-TEST\n" +
+                "admin-c:        TP1-TEST\n" +
+                "status:         ALLOCATED-BY-LIR\n" +
+                "mnt-by:         OWNER-MNT\n" +
+                "created:         2022-08-14T11:48:28Z\n" +
+                "last-modified:   2022-10-25T12:22:39Z\n" +
+                "source:         TEST");
+
+        databaseHelper.addObject("" +
+                "inet6num:       FD00::/8\n" +
+                "netname:        TEST\n" +
+                "descr:          The whole IPv6 address space\n" +
+                "country:        NL\n" +
+                "tech-c:         TP1-TEST\n" +
+                "admin-c:        TP1-TEST\n" +
+                "status:         ALLOCATED-BY-LIR\n" +
+                "mnt-by:         OWNER-MNT\n" +
+                "created:         2022-08-14T11:48:28Z\n" +
+                "last-modified:   2022-10-25T12:22:39Z\n" +
+                "source:         TEST");
 
         ipTreeUpdater.rebuild();
     }
