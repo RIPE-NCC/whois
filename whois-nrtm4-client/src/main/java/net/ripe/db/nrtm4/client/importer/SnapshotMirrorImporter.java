@@ -42,10 +42,11 @@ public class SnapshotMirrorImporter extends AbstractMirrorImporter {
 
     }
 
-    @Override
-    public void doImport(final String source, final UpdateNotificationFileResponse updateNotificationFile){
+    public void doImport(final String source,
+                         final String sessionId,
+                         final UpdateNotificationFileResponse.NrtmFileLink snapshot){
+
         final Stopwatch stopwatch = Stopwatch.createStarted();
-        final UpdateNotificationFileResponse.NrtmFileLink snapshot = updateNotificationFile.getSnapshot();
 
         if (snapshot == null){
             LOGGER.error("Snapshot cannot be null in the notification file");
@@ -67,7 +68,7 @@ public class SnapshotMirrorImporter extends AbstractMirrorImporter {
         try {
             GzipDecompressor.decompressRecords(
                     payload,
-                    firstRecord -> processMetadata(source, updateNotificationFile, firstRecord),
+                    firstRecord -> processMetadata(source, sessionId, firstRecord),
                     recordBatches -> persistBatches(recordBatches, processedCount)
             );
         } catch (IllegalArgumentException ex){
@@ -142,12 +143,12 @@ public class SnapshotMirrorImporter extends AbstractMirrorImporter {
     }
 
 
-    private void processMetadata(final String source, final UpdateNotificationFileResponse updateNotificationFile,
+    private void processMetadata(final String source, final String updateNotificationSessionId,
                                  final String firstRecord) throws IllegalArgumentException {
         final JSONObject jsonObject = new JSONObject(firstRecord);
         final int version = jsonObject.getInt("version");
         final String sessionId = jsonObject.getString("session_id");
-        if (!sessionId.equals(updateNotificationFile.getSessionID())) {
+        if (!sessionId.equals(updateNotificationSessionId)) {
             LOGGER.error("The session is not the same in the UNF and snapshot");
             truncateTables();
             throw new IllegalArgumentException("The session is not the same in the UNF and snapshot");
