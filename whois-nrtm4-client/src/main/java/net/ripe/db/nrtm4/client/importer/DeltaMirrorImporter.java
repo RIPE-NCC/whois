@@ -7,7 +7,6 @@ import net.ripe.db.nrtm4.client.client.UpdateNotificationFileResponse;
 import net.ripe.db.nrtm4.client.condition.Nrtm4ClientCondition;
 import net.ripe.db.nrtm4.client.dao.Nrtm4ClientInfoRepository;
 import net.ripe.db.nrtm4.client.dao.Nrtm4ClientRepository;
-import net.ripe.db.nrtm4.client.dao.NrtmClientVersionInfo;
 import net.ripe.db.whois.common.dao.RpslObjectUpdateInfo;
 import net.ripe.db.whois.common.rpsl.RpslObject;
 import org.json.JSONObject;
@@ -42,13 +41,13 @@ public class DeltaMirrorImporter extends AbstractMirrorImporter {
 
     public void doImport(final String source,
                          final String sessionId,
-                         final List<UpdateNotificationFileResponse.NrtmFileLink> deltas){
-        if (deltas.isEmpty()) {
+                         final List<UpdateNotificationFileResponse.NrtmFileLink> freshDeltas){
+        if (freshDeltas.isEmpty()) {
             LOGGER.info("No new deltas to be processed");
             return;
         }
 
-        deltas.forEach(delta -> {
+        freshDeltas.forEach(delta -> {
             final byte[] deltaFilePayload = nrtmRestClient.getDeltaFile(delta.getUrl());
 
             if (deltaFilePayload == null || deltaFilePayload.length == 0){
