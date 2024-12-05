@@ -1,17 +1,8 @@
 package net.ripe.db.nrtm4.client;
 
 import com.google.common.io.Resources;
-import com.nimbusds.jose.JOSEException;
-import com.nimbusds.jose.JWSAlgorithm;
-import com.nimbusds.jose.JWSHeader;
-import com.nimbusds.jose.JWSObject;
-import com.nimbusds.jose.JWSSigner;
-import com.nimbusds.jose.Payload;
-import com.nimbusds.jose.crypto.Ed25519Signer;
-import com.nimbusds.jose.jwk.OctetKeyPair;
 import jakarta.annotation.PostConstruct;
 import jakarta.annotation.PreDestroy;
-import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.ws.rs.core.MediaType;
 import net.ripe.db.nrtm4.client.client.NrtmRestClient;
@@ -19,10 +10,12 @@ import net.ripe.db.whois.common.Stub;
 import net.ripe.db.whois.common.aspects.RetryFor;
 import net.ripe.db.whois.common.profiles.WhoisProfile;
 import org.apache.commons.compress.utils.Lists;
+import org.eclipse.jetty.server.Handler;
 import org.eclipse.jetty.server.NetworkConnector;
 import org.eclipse.jetty.server.Request;
+import org.eclipse.jetty.server.Response;
 import org.eclipse.jetty.server.Server;
-import org.eclipse.jetty.server.handler.AbstractHandler;
+import org.eclipse.jetty.util.Callback;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -34,9 +27,8 @@ import java.io.BufferedReader;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.nio.ByteBuffer;
 import java.nio.charset.Charset;
-import java.nio.charset.StandardCharsets;
-import java.text.ParseException;
 import java.util.List;
 import java.util.stream.Collectors;
 import java.util.zip.GZIPOutputStream;
@@ -106,7 +98,7 @@ public class NrtmServerDummy implements Stub {
     @RetryFor(attempts = 5, value = Exception.class)
     public void start() {
         server = new Server(0);
-        server.setHandler(new NrtmTestHandler());
+        server.insertHandler(new NrtmTestHandler());
         try {
             server.start();
         } catch (Exception e) {
@@ -134,25 +126,24 @@ public class NrtmServerDummy implements Stub {
     }
 
 
-    private class NrtmTestHandler extends AbstractHandler {
-        @Override
-        public void handle(final String target, final Request baseRequest, final HttpServletRequest request, final HttpServletResponse response)
-                throws IOException {
-            response.setContentType("text/xml;charset=utf-8");
-            baseRequest.setHandled(true);
+    private class NrtmTestHandler extends Handler.Wrapper {
 
+        @Override
+        public boolean handle(Request request, Response response, Callback callback) throws Exception {
+            response.getHeaders().put("Content-Type", "text/xml;charset=utf-8");
             for (Mock mock : mocks) {
                 if (mock.matches(request)) {
                     response.setStatus(HttpServletResponse.SC_OK);
                     if (mock instanceof NrtmResponseMock) {
-                        response.setContentType(((NrtmResponseMock)mock).mediaType);
-                        response.getWriter().println(mock.response());
+                        response.getHeaders().put("Content-Type", ((NrtmResponseMock)mock).mediaType);
+                        response.write(true, mock.response(), null);
                     } else {
-                        response.setContentType(MediaType.APPLICATION_OCTET_STREAM);
-                        response.getOutputStream().write(((NrtmCompressedResponseMock)mock).response.toByteArray());
+                        response.getHeaders().put("Content-Type", MediaType.APPLICATION_OCTET_STREAM);
+                        response.write(true, mock.response(), null);
                     }
                 }
             }
+            return true;
         }
     }
 
@@ -190,30 +181,31 @@ public class NrtmServerDummy implements Stub {
     private interface Mock {
 
         String PATH = "mock/";
-        boolean matches(final HttpServletRequest request);
 
-        Object response();
+        boolean matches(final Request request);
 
-        default String getResource(final String resource) {
+        ByteBuffer response();
+
+        static ByteBuffer getResource(final String resource) {
             try {
                 // resource is in file
-                return Resources.toString(Resources.getResource(PATH + resource), Charset.defaultCharset());
+                return ByteBuffer.wrap(Resources.toByteArray(Resources.getResource(PATH + resource)));
             } catch (IllegalArgumentException e) {
                 // resource doesn't exist (use resource as content)
-                return resource;
+                return  ByteBuffer.wrap(resource.getBytes());
             } catch (IOException e) {
                 // error reading content from resource
                 throw new IllegalStateException(e);
             }
         }
 
-        default String getResourceAsRecords(final String resource){
+        static ByteBuffer getResourceAsRecords(final String resource) {
             try (BufferedReader reader = new BufferedReader(new InputStreamReader(
-                    Resources.getResource(PATH + resource).openStream(), Charset.defaultCharset()))){
-
-                return reader.lines()
+                    Resources.getResource(PATH + resource).openStream(), Charset.defaultCharset()))) {
+                return ByteBuffer.wrap(reader.lines()
                         .map(line -> RECORD_SEPARATOR + line)
-                        .collect(Collectors.joining("\n"));
+                        .collect(Collectors.joining("\n"))
+                        .getBytes());
             } catch (IllegalArgumentException e) {
                 // resource doesn't exist (use resource as content)
                 throw new IllegalStateException(e);
@@ -223,15 +215,14 @@ public class NrtmServerDummy implements Stub {
             }
         }
 
-        default ByteArrayOutputStream getCompressedResource(final String searchKey) {
+        static ByteBuffer getCompressedResource(final String searchKey) {
             try {
                 // resource is in file
-                final String jsonData = getResourceAsRecords(searchKey);
                 try (ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
-                     GZIPOutputStream gzipOutputStream = new GZIPOutputStream(byteArrayOutputStream)){
-                    gzipOutputStream.write(jsonData.getBytes(StandardCharsets.UTF_8));
+                     GZIPOutputStream gzipOutputStream = new GZIPOutputStream(byteArrayOutputStream)) {
+                    gzipOutputStream.write(getResourceAsRecords(searchKey).array());
                     gzipOutputStream.finish();
-                    return byteArrayOutputStream;
+                    return ByteBuffer.wrap(byteArrayOutputStream.toByteArray());
                 }
             } catch (IllegalArgumentException e) {
                 // resource doesn't exist (use resource as content)
@@ -243,38 +234,36 @@ public class NrtmServerDummy implements Stub {
         }
     }
 
-    private record NrtmResponseMock(String fileType, String response, String mediaType) implements Mock {
+    private record NrtmResponseMock(String fileType, ByteBuffer response, String mediaType) implements Mock {
 
         private NrtmResponseMock(final String fileType, final String response, final String mediaType) {
-            this.fileType = fileType;
-            this.response = getResource(response);
-            this.mediaType = mediaType;
+            this(fileType, Mock.getResource(response), mediaType);
         }
 
         @Override
-        public boolean matches(final HttpServletRequest request) {
-            return request.getRequestURI().endsWith(fileType);
+        public boolean matches(final Request request) {
+            return request.getHttpURI().toString().endsWith(fileType);
         }
     }
 
     private static class NrtmCompressedResponseMock implements Mock {
         private final String fileType;
         private final String searchKey;
-        private final ByteArrayOutputStream response;
+        private final ByteBuffer response;
 
         public NrtmCompressedResponseMock(final String fileType, final String searchKey) {
             this.fileType = fileType;
             this.searchKey = searchKey;
-            this.response = getCompressedResource(searchKey);
+            this.response = Mock.getCompressedResource(searchKey);
         }
 
         @Override
-        public boolean matches(HttpServletRequest request) {
-            return request.getRequestURI().endsWith(fileType);
+        public boolean matches(Request request) {
+            return request.getHttpURI().toString().endsWith(fileType);
         }
 
         @Override
-        public Object response() {
+        public ByteBuffer response() {
             return response;
         }
     }
