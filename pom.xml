@@ -1169,6 +1169,16 @@
                 <artifactId>maven-dependency-plugin</artifactId>
                 <version>3.8.0</version>
             </plugin>
+            <!-- Checking for new versions of dependencies: mvn versions:display-dependency-updates -->
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>versions-maven-plugin</artifactId>
+                <version>2.18.0</version>
+                <configuration>
+                    <ignoredVersions>.*[-_\.](alpha|Alpha|ALPHA|b|beta|Beta|BETA|rc|RC|M|EA)[-_\.]?[0-9]*</ignoredVersions>
+                </configuration>
+            </plugin>
+
         </plugins>
     </build>
 
@@ -1265,23 +1275,4 @@
             </build>
         </profile>
     </profiles>
-    <!-- Checking for new versions of dependencies: mvn versions:display-dependency-updates -->
-    <reporting>
-        <plugins>
-            <plugin>
-                <groupId>org.codehaus.mojo</groupId>
-                <artifactId>versions-maven-plugin</artifactId>
-                <version>2.17.1</version>
-                <reportSets>
-                    <reportSet>
-                        <reports>
-                            <report>dependency-updates-report</report>
-                            <report>plugin-updates-report</report>
-                            <report>property-updates-report</report>
-                        </reports>
-                    </reportSet>
-                </reportSets>
-            </plugin>
-        </plugins>
-    </reporting>
 </project>
