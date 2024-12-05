@@ -56,6 +56,7 @@ public class UpdateNotificationFileProcessor {
         this.deltaImporter = deltaImporter;
     }
 
+    @Transactional
     public void processFile(){
         final Map<String, String> notificationFilePerSource =
                 nrtmRestClient.getNrtmAvailableSources()
