@@ -2,8 +2,9 @@ package net.ripe.db.nrtm4.client.client;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
-
+import com.google.common.collect.Lists;
 import javax.annotation.Nullable;
+import java.util.List;
 import java.util.Objects;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
@@ -13,11 +14,14 @@ public class UpdateNotificationFileResponse {
     private final String sessionID;
     private final long version;
     private final NrtmFileLink snapshot;
+    private final List<NrtmFileLink> deltas;
+
 
     public UpdateNotificationFileResponse() {
         this.sessionID = null;
         this.version = 0L;
         this.snapshot = null;
+        this.deltas = Lists.newArrayList();
     }
 
     @Nullable
@@ -32,6 +36,10 @@ public class UpdateNotificationFileResponse {
     @Nullable
     public NrtmFileLink getSnapshot(){
         return snapshot;
+    }
+
+    public List<NrtmFileLink> getDeltas() {
+        return deltas;
     }
 
     public static class NrtmFileLink {
