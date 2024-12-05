@@ -8,7 +8,7 @@ import java.security.NoSuchAlgorithmException;
 
 import static org.apache.commons.codec.binary.Hex.encodeHexString;
 
-public abstract class AbstractMirrorImporter implements MirrorImporter {
+public abstract class AbstractMirrorImporter {
 
     final Nrtm4ClientInfoRepository nrtm4ClientInfoRepository;
 

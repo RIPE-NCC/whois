@@ -121,12 +121,27 @@ public class UpdateNotificationFileProcessor {
 
             if (nrtmClientLastVersionInfo == null){
                 LOGGER.info("There is no existing Snapshot for the source {}", source);
-                snapshotImporter.doImport(source, updateNotificationFile);
+                snapshotImporter.doImport(source, updateNotificationFile.getSessionID(), updateNotificationFile.getSnapshot());
             }
 
-            deltaImporter.doImport(source, updateNotificationFile);
+            final List<UpdateNotificationFileResponse.NrtmFileLink> newDeltas = getNewDeltasFromNotificationFile(source, updateNotificationFile);
+            deltaImporter.doImport(source, updateNotificationFile.getSessionID(), newDeltas);
         });
 
+    }
+
+    private List<UpdateNotificationFileResponse.NrtmFileLink> getNewDeltasFromNotificationFile(final String source,
+                                                                                               final UpdateNotificationFileResponse updateNotificationFile) {
+        final NrtmClientVersionInfo nrtmClientVersionInfo = nrtm4ClientMirrorDao.getNrtmLastVersionInfoForDeltasPerSource(source);
+
+        if (nrtmClientVersionInfo == null){
+            return updateNotificationFile.getDeltas();
+        }
+
+        return updateNotificationFile.getDeltas()
+                .stream()
+                .filter(delta -> delta.getVersion() > nrtmClientVersionInfo.version())
+                .toList();
     }
 
     @Nullable
