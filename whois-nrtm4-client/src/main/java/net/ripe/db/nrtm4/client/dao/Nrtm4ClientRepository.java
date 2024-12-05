@@ -3,6 +3,7 @@ package net.ripe.db.nrtm4.client.dao;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import net.ripe.db.nrtm4.client.client.MirrorSnapshotInfo;
 import net.ripe.db.nrtm4.client.condition.Nrtm4ClientCondition;
+import net.ripe.db.nrtm4.client.config.NrtmClientTransactionConfiguration;
 import net.ripe.db.whois.common.DateTimeProvider;
 import net.ripe.db.whois.common.dao.RpslObjectUpdateInfo;
 import net.ripe.db.whois.common.rpsl.ObjectType;
@@ -14,7 +15,6 @@ import org.springframework.context.annotation.Conditional;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
-import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.annotation.Nullable;
@@ -33,6 +33,7 @@ import static net.ripe.db.whois.common.dao.jdbc.JdbcRpslObjectOperations.updateL
 
 @Repository
 @Conditional(Nrtm4ClientCondition.class)
+@Transactional(transactionManager = NrtmClientTransactionConfiguration.NRTM_CLIENT_UPDATE_TRANSACTION)
 public class Nrtm4ClientRepository {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(Nrtm4ClientInfoRepository.class);
@@ -94,7 +95,6 @@ public class Nrtm4ClientRepository {
         insertIntoTablesIgnoreMissing(jdbcMasterTemplate, rpslObjectUpdateInfo, rpslObject);
     }
 
-    @Transactional(propagation = Propagation.REQUIRES_NEW)
     public Map.Entry<RpslObject, RpslObjectUpdateInfo> processSnapshotRecord(final MirrorSnapshotInfo mirrorSnapshotInfo) throws JsonProcessingException {
         return Map.entry(mirrorSnapshotInfo.getRpslObject(), persistRpslObject(mirrorSnapshotInfo.getRpslObject()));
     }

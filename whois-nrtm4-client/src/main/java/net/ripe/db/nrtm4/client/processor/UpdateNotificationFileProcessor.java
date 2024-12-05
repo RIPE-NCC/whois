@@ -56,7 +56,6 @@ public class UpdateNotificationFileProcessor {
         this.deltaImporter = deltaImporter;
     }
 
-    @Transactional(rollbackFor = Exception.class)
     public void processFile(){
         final Map<String, String> notificationFilePerSource =
                 nrtmRestClient.getNrtmAvailableSources()
