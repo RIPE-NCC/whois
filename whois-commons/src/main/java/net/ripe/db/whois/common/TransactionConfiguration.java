@@ -73,4 +73,5 @@ public class TransactionConfiguration {
     public TransactionManager transactionManagerNrtmReadOnly(@Qualifier("nrtmSlaveDataSource") final DataSource dataSource) {
         return new DataSourceTransactionManager(dataSource);
     }
+
 }
