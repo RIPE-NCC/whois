@@ -36,8 +36,6 @@ import static net.ripe.db.whois.common.dao.jdbc.JdbcRpslObjectOperations.updateL
 @Transactional(transactionManager = NrtmClientTransactionConfiguration.NRTM_CLIENT_UPDATE_TRANSACTION)
 public class Nrtm4ClientRepository {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(Nrtm4ClientInfoRepository.class);
-
     private final JdbcTemplate jdbcMasterTemplate;
     private final JdbcTemplate jdbcSlaveTemplate;
     private final DateTimeProvider dateTimeProvider;
