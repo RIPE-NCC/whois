@@ -72,7 +72,6 @@ public class DeltaMirrorImporter extends AbstractMirrorImporter {
         persistVersion(source, metadata.version, metadata.sessionId);
     }
 
-    @Transactional(transactionManager = NrtmClientTransactionConfiguration.NRTM_CLIENT_UPDATE_TRANSACTION)
     private Metadata persistDeltas(final byte[] deltaFilePayload, String sessionId) {
         ByteBuffer buffer = ByteBuffer.wrap(deltaFilePayload);
         InputStream inputStream = new ByteArrayInputStream(buffer.array(), buffer.position(), buffer.remaining());
@@ -102,13 +101,7 @@ public class DeltaMirrorImporter extends AbstractMirrorImporter {
     }
 
     private void persistVersion(final String source, final int version, final String sessionId) throws IllegalArgumentException {
-        try {
-            nrtm4ClientInfoRepository.saveDeltaFileVersion(source, version, sessionId);
-        } catch (Exception ex){
-            LOGGER.error("Error persisting snapshot", ex);
-            truncateTables();
-            throw ex;
-        }
+        nrtm4ClientInfoRepository.saveDeltaFileVersion(source, version, sessionId);
     }
 
     private void applyDeltaRecord(final MirrorDeltaInfo deltaInfo){

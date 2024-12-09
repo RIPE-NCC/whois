@@ -6,7 +6,6 @@ import net.ripe.db.nrtm4.client.client.MirrorSnapshotInfo;
 import net.ripe.db.nrtm4.client.client.NrtmRestClient;
 import net.ripe.db.nrtm4.client.client.UpdateNotificationFileResponse;
 import net.ripe.db.nrtm4.client.condition.Nrtm4ClientCondition;
-import net.ripe.db.nrtm4.client.config.NrtmClientTransactionConfiguration;
 import net.ripe.db.nrtm4.client.dao.Nrtm4ClientInfoRepository;
 import net.ripe.db.nrtm4.client.dao.Nrtm4ClientRepository;
 import net.ripe.db.whois.common.dao.RpslObjectUpdateInfo;
@@ -18,8 +17,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.annotation.Conditional;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Isolation;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Arrays;
 import java.util.Map;
@@ -99,16 +96,9 @@ public class SnapshotMirrorImporter extends AbstractMirrorImporter {
 
 
     final void persistVersion(final String source, final int version, final String sessionId) throws IllegalArgumentException {
-        try {
-            nrtm4ClientInfoRepository.saveSnapshotFileVersion(source, version, sessionId);
-        } catch (Exception ex){
-            LOGGER.error("Error persisting snapshot", ex);
-            truncateTables();
-            throw ex;
-        }
+        nrtm4ClientInfoRepository.saveSnapshotFileVersion(source, version, sessionId);
     }
 
-    @Transactional(transactionManager = NrtmClientTransactionConfiguration.NRTM_CLIENT_UPDATE_TRANSACTION, isolation = Isolation.READ_COMMITTED)
     private void persistDummyObjectIfNotExist(final String source){
         final RpslObject dummyObject = getPlaceholderPersonObject();
         if (!source.equals(dummyObject.getValueForAttribute(AttributeType.SOURCE).toString())){
@@ -141,7 +131,6 @@ public class SnapshotMirrorImporter extends AbstractMirrorImporter {
                 processedCount.incrementAndGet();
             } catch (Exception e) {
                 LOGGER.error("Unable to parse record {}", record, e);
-                truncateTables(); //Transactional does not work with parallel(), each record will have a different transaction
                 throw new IllegalStateException(e);
             }
         });
@@ -174,7 +163,6 @@ public class SnapshotMirrorImporter extends AbstractMirrorImporter {
         final String sessionId = jsonObject.getString("session_id");
         if (!sessionId.equals(updateNotificationSessionId)) {
             LOGGER.error("The session is not the same in the UNF and snapshot");
-            truncateTables();
             throw new IllegalArgumentException("The session is not the same in the UNF and snapshot");
         }
     }

@@ -116,6 +116,13 @@ public class UpdateNotificationFileProcessor {
                 return;
             }
 
+            importRecordsAndPersistVersion(source, nrtmClientLastVersionInfo, updateNotificationFile, hostname);
+        });
+    }
+
+    private void importRecordsAndPersistVersion(final String source, final NrtmClientVersionInfo nrtmClientLastVersionInfo,
+                                                final UpdateNotificationFileResponse updateNotificationFile, final String hostname) {
+        try {
             if (nrtmClientLastVersionInfo == null) {
                 LOGGER.info("There is no existing Snapshot for the source {}", source);
                 snapshotImporter.doImport(source, updateNotificationFile.getSessionID(), updateNotificationFile.getSnapshot());
@@ -123,20 +130,18 @@ public class UpdateNotificationFileProcessor {
 
             final List<UpdateNotificationFileResponse.NrtmFileLink> newDeltas = getNewDeltasFromNotificationFile(source, updateNotificationFile);
             deltaImporter.doImport(source, updateNotificationFile.getSessionID(), newDeltas);
-
             persistVersion(source, updateNotificationFile, hostname);
-        });
+        } catch (Exception ex) {
+            snapshotImporter.truncateTables();
+            LOGGER.error("There was an issue importing the records", ex);
+            throw ex;
+        }
     }
 
     private void persistVersion(final String source, final UpdateNotificationFileResponse updateNotificationFile,
                                 final String hostname){
-        try {
-            nrtm4ClientMirrorDao.saveUpdateNotificationFileVersion(source, updateNotificationFile.getVersion(),
-                    updateNotificationFile.getSessionID(), hostname);
-        } catch (Exception ex){
-            snapshotImporter.truncateTables();
-            LOGGER.error("There was an issue persisting the version of a new update notification file", ex);
-        }
+        nrtm4ClientMirrorDao.saveUpdateNotificationFileVersion(source, updateNotificationFile.getVersion(),
+                updateNotificationFile.getSessionID(), hostname);
     }
 
     private List<UpdateNotificationFileResponse.NrtmFileLink> getNewDeltasFromNotificationFile(final String source,
