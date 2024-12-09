@@ -66,7 +66,7 @@ public class Nrtm4ClientRepository {
     @Nullable
     public RpslObjectUpdateInfo getMirroredObjectId(final ObjectType type, final String primaryKey){
         try {
-            return lookupRpslObjectUpdateInfo(jdbcSlaveTemplate, type, primaryKey);
+            return lookupRpslObjectUpdateInfo(jdbcMasterTemplate, type, primaryKey);
         } catch (EmptyResultDataAccessException ex){
             return null;
         }

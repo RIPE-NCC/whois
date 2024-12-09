@@ -15,6 +15,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.annotation.Conditional;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.io.BufferedReader;
@@ -68,7 +69,12 @@ public class DeltaMirrorImporter extends AbstractMirrorImporter {
     }
 
     private void processPayload(final byte[] deltaFilePayload, final String sessionId, final String source) {
+        final Metadata metadata = persistDeltas(deltaFilePayload, sessionId);
+        persistVersion(source, metadata.version, metadata.sessionId);
+    }
 
+    @Transactional(transactionManager = NrtmClientTransactionConfiguration.NRTM_CLIENT_UPDATE_TRANSACTION, propagation = Propagation.REQUIRES_NEW)
+    private Metadata persistDeltas(final byte[] deltaFilePayload, String sessionId) {
         ByteBuffer buffer = ByteBuffer.wrap(deltaFilePayload);
         InputStream inputStream = new ByteArrayInputStream(buffer.array(), buffer.position(), buffer.remaining());
         Metadata metadata = null;
@@ -93,7 +99,7 @@ public class DeltaMirrorImporter extends AbstractMirrorImporter {
             LOGGER.error("Unable to process deltas");
             throw new IllegalStateException(ex);
         }
-        persistVersion(source, metadata.version, metadata.sessionId);
+        return metadata;
     }
 
     private void persistVersion(final String source, final int version, final String sessionId) throws IllegalArgumentException {
@@ -106,7 +112,6 @@ public class DeltaMirrorImporter extends AbstractMirrorImporter {
         }
     }
 
-    @Transactional(transactionManager = NrtmClientTransactionConfiguration.NRTM_CLIENT_UPDATE_TRANSACTION)
     private void applyDeltaRecord(final MirrorDeltaInfo deltaInfo){
         if (deltaInfo.getAction().equals(MirrorDeltaInfo.Action.ADD_MODIFY)){
 

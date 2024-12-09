@@ -20,6 +20,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.context.annotation.Conditional;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Isolation;
+import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Arrays;
@@ -65,11 +66,21 @@ public class SnapshotMirrorImporter extends AbstractMirrorImporter {
             return;
         }
 
+        AtomicInteger snapshotVersion = new AtomicInteger(0);
+
+        final int amount = persisSnapshot(source, payload, sessionId, snapshotVersion);
+        persistVersion(source, snapshotVersion.get(), sessionId);
+
+        stopwatch.stop();
+        LOGGER.info("Loading snapshot file took {} for source {} and added {} records", stopwatch.elapsed().toMillis(), source, amount);
+    }
+
+    @Transactional(transactionManager = NrtmClientTransactionConfiguration.NRTM_CLIENT_UPDATE_TRANSACTION, propagation = Propagation.REQUIRES_NEW, isolation = Isolation.READ_COMMITTED)
+    private int persisSnapshot(final String source, final byte[] payload, final String sessionId, final AtomicInteger snapshotVersion){
         final AtomicInteger processedCount = new AtomicInteger(0);
         final Timer timer = new Timer();
         printProgress(timer, processedCount);
 
-        AtomicInteger snapshotVersion = new AtomicInteger(0);
         try {
             GzipDecompressor.decompressRecords(
                     payload,
@@ -85,14 +96,11 @@ public class SnapshotMirrorImporter extends AbstractMirrorImporter {
         }
 
         persistDummyObjectIfNotExist(source);
-
         timer.cancel();
-        stopwatch.stop();
 
-        persistVersion(source, snapshotVersion.get(), sessionId);
-        LOGGER.info("Loading snapshot file took {} for source {} and added {} records", stopwatch.elapsed().toMillis(),
-                source, processedCount);
+        return processedCount.get();
     }
+
 
     final void persistVersion(final String source, final int version, final String sessionId) throws IllegalArgumentException {
         try {
@@ -104,7 +112,6 @@ public class SnapshotMirrorImporter extends AbstractMirrorImporter {
         }
     }
 
-    @Transactional(transactionManager = NrtmClientTransactionConfiguration.NRTM_CLIENT_UPDATE_TRANSACTION, isolation = Isolation.READ_COMMITTED)
     public void persistDummyObjectIfNotExist(final String source){
         final RpslObject dummyObject = getPlaceholderPersonObject();
         if (!source.equals(dummyObject.getValueForAttribute(AttributeType.SOURCE).toString())){
@@ -128,9 +135,7 @@ public class SnapshotMirrorImporter extends AbstractMirrorImporter {
         }, 0, 10000);
     }
 
-    @Transactional(transactionManager = NrtmClientTransactionConfiguration.NRTM_CLIENT_UPDATE_TRANSACTION)
-    private void persistBatches(final String[] remainingRecords,
-                                final AtomicInteger processedCount) {
+    private void persistBatches(final String[] remainingRecords, final AtomicInteger processedCount) {
         Arrays.stream(remainingRecords).parallel().forEach(record -> {
             try {
                 final MirrorSnapshotInfo mirrorRpslObject = new ObjectMapper().readValue(record, MirrorSnapshotInfo.class);
