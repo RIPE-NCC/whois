@@ -77,6 +77,7 @@ public class SnapshotMirrorImporter extends AbstractMirrorImporter {
 
     @Transactional(transactionManager = NrtmClientTransactionConfiguration.NRTM_CLIENT_UPDATE_TRANSACTION, propagation = Propagation.REQUIRES_NEW, isolation = Isolation.READ_COMMITTED)
     private int persisSnapshot(final String source, final byte[] payload, final String sessionId, final AtomicInteger snapshotVersion){
+        persistDummyObjectIfNotExist(source);
         final AtomicInteger processedCount = new AtomicInteger(0);
         final Timer timer = new Timer();
         printProgress(timer, processedCount);
@@ -95,9 +96,7 @@ public class SnapshotMirrorImporter extends AbstractMirrorImporter {
             throw ex;
         }
 
-        persistDummyObjectIfNotExist(source);
         timer.cancel();
-
         return processedCount.get();
     }
 
