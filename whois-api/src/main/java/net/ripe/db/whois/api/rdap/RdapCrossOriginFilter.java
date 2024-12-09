@@ -1,8 +1,6 @@
 package net.ripe.db.whois.api.rdap;
 
 import com.google.common.net.HttpHeaders;
-import org.eclipse.jetty.servlets.CrossOriginFilter;
-
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.ServletRequest;
@@ -10,6 +8,8 @@ import jakarta.servlet.ServletResponse;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.ws.rs.HttpMethod;
+import org.eclipse.jetty.ee10.servlets.CrossOriginFilter;
+
 import java.io.IOException;
 
 /**

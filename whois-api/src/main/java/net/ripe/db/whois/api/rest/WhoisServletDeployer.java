@@ -17,9 +17,10 @@ import net.ripe.db.whois.api.httpserver.ClientCertificateService;
 import net.ripe.db.whois.api.httpserver.DefaultExceptionMapper;
 import net.ripe.db.whois.api.httpserver.ServletDeployer;
 import net.ripe.db.whois.api.rest.domain.WhoisResources;
-import org.eclipse.jetty.servlet.FilterHolder;
-import org.eclipse.jetty.servlet.ServletHolder;
-import org.eclipse.jetty.webapp.WebAppContext;
+import org.eclipse.jetty.ee10.servlet.FilterHolder;
+import org.eclipse.jetty.ee10.servlet.ServletHolder;
+import org.eclipse.jetty.ee10.servlets.CrossOriginFilter;
+import org.eclipse.jetty.ee10.webapp.WebAppContext;
 import org.glassfish.jersey.jaxb.internal.JaxbMessagingBinder;
 import org.glassfish.jersey.media.multipart.MultiPartFeature;
 import org.glassfish.jersey.message.DeflateEncoder;
@@ -141,8 +142,8 @@ public class WhoisServletDeployer implements ServletDeployer {
         resourceConfig.register(new JaxbMessagingBinder());
 
         // only allow cross-origin requests from ripe.net
-        final FilterHolder crossOriginFilterHolder = context.addFilter(org.eclipse.jetty.servlets.CrossOriginFilter.class, "/whois/*", EnumSet.allOf(DispatcherType.class));
-        crossOriginFilterHolder.setInitParameter(org.eclipse.jetty.servlets.CrossOriginFilter.ALLOWED_ORIGINS_PARAM, "https?://*.ripe.net");
+        final FilterHolder crossOriginFilterHolder = context.addFilter(CrossOriginFilter.class, "/whois/*", EnumSet.allOf(DispatcherType.class));
+        crossOriginFilterHolder.setInitParameter(CrossOriginFilter.ALLOWED_ORIGINS_PARAM, "https?://*.ripe.net");
 
         context.addServlet(new ServletHolder("Whois REST API", new ServletContainer(resourceConfig)), "/whois/*");
     }

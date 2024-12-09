@@ -1,17 +1,17 @@
 package net.ripe.db.whois.api.rdap;
 
 import com.fasterxml.jackson.databind.SerializationFeature;
+import jakarta.servlet.DispatcherType;
 import net.ripe.db.whois.api.httpserver.ServletDeployer;
-import org.eclipse.jetty.servlet.FilterHolder;
-import org.eclipse.jetty.servlet.ServletHolder;
-import org.eclipse.jetty.servlets.CrossOriginFilter;
-import org.eclipse.jetty.webapp.WebAppContext;
+import org.eclipse.jetty.ee10.servlet.FilterHolder;
+import org.eclipse.jetty.ee10.servlet.ServletHolder;
+import org.eclipse.jetty.ee10.servlets.CrossOriginFilter;
+import org.eclipse.jetty.ee10.webapp.WebAppContext;
 import org.glassfish.jersey.server.ResourceConfig;
 import org.glassfish.jersey.servlet.ServletContainer;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import jakarta.servlet.DispatcherType;
 import java.util.EnumSet;
 
 @Component
