@@ -1180,12 +1180,19 @@
                 <version>3.8.0</version>
             </plugin>
             <!-- Checking for new versions of dependencies: mvn versions:display-dependency-updates -->
+            <!-- https://www.mojohaus.org/versions/versions-maven-plugin/index.html -->
             <plugin>
                 <groupId>org.codehaus.mojo</groupId>
                 <artifactId>versions-maven-plugin</artifactId>
                 <version>2.18.0</version>
                 <configuration>
+                    <!-- ignore non-release dependency versions -->
                     <ignoredVersions>.*[-_\.](alpha|Alpha|ALPHA|b|beta|Beta|BETA|rc|RC|M|EA)[-_\.]?[0-9]*</ignoredVersions>
+                    <!-- ignore JAX-RS API 4.0 for EE11 -->
+                    <!-- ignore Servlet API 6.1 for EE11 -->
+                    <!-- ignore DB SNAPSHOT dependencies -->
+                    <dependencyExcludes>jakarta.ws.rs:jakarta.ws.rs-api:*,net.ripe.db:*:*,jakarta.servlet:jakarta.servlet-api:*</dependencyExcludes>
+                    <dependencyManagementExcludes>jakarta.ws.rs:jakarta.ws.rs-api:*,net.ripe.db:*:*,jakarta.servlet:jakarta.servlet-api:*</dependencyManagementExcludes>
                 </configuration>
             </plugin>
 
