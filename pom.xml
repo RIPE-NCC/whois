@@ -63,10 +63,15 @@
         <hazelcast.version>4.2.8</hazelcast.version>
 
         <jackson.version>2.18.2</jackson.version>
+        <!-- Jakarta XML Binding (JAXB) API for EE10 https://jakarta.ee/specifications/xml-binding/4.0/ -->
         <jaxb.api.version>4.0.2</jaxb.api.version>
         <jaxb.impl.version>4.0.5</jaxb.impl.version>
+        <!-- Jakarta REST (JAX-RS) API for EE10 https://jakarta.ee/specifications/restful-ws/3.1/ -->
+        <jaxrs.api.version>3.1.0</jaxrs.api.version>
         <jcache.api.version>1.1.1</jcache.api.version>
+        <!-- Jersey Jakarta REST 3.1 for EE10 compatible https://projects.eclipse.org/projects/ee4j.jersey/releases/3.1.0 -->
         <jersey.version>3.1.9</jersey.version>
+        <!-- Jetty Server EE10 compatible https://jetty.org/docs/jetty/12/index.html -->
         <jetty.version>12.0.15</jetty.version>
         <jflex.version>1.9.1</jflex.version>
         <jopt-simple.version>5.0.4</jopt-simple.version>
@@ -89,6 +94,8 @@
         <proprot.version>1.0</proprot.version>
 
         <sentry.version>6.26.0</sentry.version>
+        <!-- Servlet API 6.0 for EE10 : https://jakarta.ee/specifications/servlet/6.0/ -->
+        <servlet.version>6.0.0</servlet.version>
         <shedlock.version>5.16.0</shedlock.version>
         <slf4j.version>2.0.16</slf4j.version>
         <solrj.version>1.4.1</solrj.version>
@@ -516,7 +523,7 @@
             <dependency>
                 <groupId>jakarta.servlet</groupId>
                 <artifactId>jakarta.servlet-api</artifactId>
-                <version>6.0.0</version>
+                <version>${servlet.version}</version>
                 <scope>provided</scope>
             </dependency>
 
@@ -557,7 +564,7 @@
             <dependency>
                 <groupId>jakarta.ws.rs</groupId>
                 <artifactId>jakarta.ws.rs-api</artifactId>
-                <version>3.1.0</version>
+                <version>${jaxrs.api.version}</version>
                 <scope>provided</scope>
             </dependency>
 
