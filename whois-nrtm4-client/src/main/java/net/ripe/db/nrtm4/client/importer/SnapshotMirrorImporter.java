@@ -1,6 +1,5 @@
 package net.ripe.db.nrtm4.client.importer;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.base.Stopwatch;
 import net.ripe.db.nrtm4.client.client.MirrorSnapshotInfo;
@@ -133,7 +132,6 @@ public class SnapshotMirrorImporter extends AbstractMirrorImporter {
         }, 0, 10000);
     }
 
-    @Transactional(transactionManager = NrtmClientTransactionConfiguration.NRTM_CLIENT_UPDATE_TRANSACTION)
     private void persistBatches(final String[] remainingRecords, final AtomicInteger processedCount) {
         Arrays.stream(remainingRecords).parallel().forEach(record -> {
             try {
@@ -141,8 +139,9 @@ public class SnapshotMirrorImporter extends AbstractMirrorImporter {
                 final Map.Entry<RpslObject, RpslObjectUpdateInfo> persistedRecord = nrtm4ClientRepository.processSnapshotRecord(mirrorRpslObject);
                 nrtm4ClientRepository.createIndexes(persistedRecord.getKey(), persistedRecord.getValue());
                 processedCount.incrementAndGet();
-            } catch (JsonProcessingException e) {
+            } catch (Exception e) {
                 LOGGER.error("Unable to parse record {}", record, e);
+                truncateTables(); //Transactional does not work with parallel(), each record will have a different transaction
                 throw new IllegalStateException(e);
             }
         });
