@@ -75,7 +75,7 @@ public class SnapshotMirrorImporter extends AbstractMirrorImporter {
         LOGGER.info("Loading snapshot file took {} for source {} and added {} records", stopwatch.elapsed().toMillis(), source, amount);
     }
 
-    @Transactional(transactionManager = NrtmClientTransactionConfiguration.NRTM_CLIENT_UPDATE_TRANSACTION, propagation = Propagation.REQUIRES_NEW, isolation = Isolation.READ_COMMITTED)
+    @Transactional(transactionManager = NrtmClientTransactionConfiguration.NRTM_CLIENT_UPDATE_TRANSACTION, isolation = Isolation.READ_COMMITTED)
     private int persisSnapshot(final String source, final byte[] payload, final String sessionId, final AtomicInteger snapshotVersion){
         persistDummyObjectIfNotExist(source);
         final AtomicInteger processedCount = new AtomicInteger(0);

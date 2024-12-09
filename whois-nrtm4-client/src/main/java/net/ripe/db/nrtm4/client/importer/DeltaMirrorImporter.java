@@ -73,7 +73,7 @@ public class DeltaMirrorImporter extends AbstractMirrorImporter {
         persistVersion(source, metadata.version, metadata.sessionId);
     }
 
-    @Transactional(transactionManager = NrtmClientTransactionConfiguration.NRTM_CLIENT_UPDATE_TRANSACTION, propagation = Propagation.REQUIRES_NEW)
+    @Transactional(transactionManager = NrtmClientTransactionConfiguration.NRTM_CLIENT_UPDATE_TRANSACTION)
     private Metadata persistDeltas(final byte[] deltaFilePayload, String sessionId) {
         ByteBuffer buffer = ByteBuffer.wrap(deltaFilePayload);
         InputStream inputStream = new ByteArrayInputStream(buffer.array(), buffer.position(), buffer.remaining());
