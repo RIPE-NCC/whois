@@ -7,6 +7,7 @@ import net.ripe.db.nrtm4.client.client.MirrorSnapshotInfo;
 import net.ripe.db.nrtm4.client.client.NrtmRestClient;
 import net.ripe.db.nrtm4.client.client.UpdateNotificationFileResponse;
 import net.ripe.db.nrtm4.client.condition.Nrtm4ClientCondition;
+import net.ripe.db.nrtm4.client.config.NrtmClientTransactionConfiguration;
 import net.ripe.db.nrtm4.client.dao.Nrtm4ClientInfoRepository;
 import net.ripe.db.nrtm4.client.dao.Nrtm4ClientRepository;
 import net.ripe.db.whois.common.dao.RpslObjectUpdateInfo;
@@ -17,6 +18,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.annotation.Conditional;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Isolation;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.transaction.support.TransactionSynchronizationManager;
 
 import java.util.Arrays;
 import java.util.Map;
@@ -84,8 +89,9 @@ public class SnapshotMirrorImporter extends AbstractMirrorImporter {
                 source, processedCount);
     }
 
-
+    @Transactional(transactionManager = NrtmClientTransactionConfiguration.NRTM_CLIENT_UPDATE_TRANSACTION, isolation = Isolation.READ_COMMITTED)
     public void persistDummyObjectIfNotExist(){
+        logTransactionStatus("persistDummyObjectIfNotExist");
         final RpslObject dummyObject = getPlaceholderPersonObject();
         final RpslObjectUpdateInfo rpslObjectUpdateInfo = nrtm4ClientRepository.getMirroredObjectId(dummyObject.getType(), dummyObject.getKey().toString());
         if (rpslObjectUpdateInfo != null){
@@ -93,6 +99,7 @@ public class SnapshotMirrorImporter extends AbstractMirrorImporter {
         }
         final RpslObjectUpdateInfo createdDummy = nrtm4ClientRepository.persistRpslObject(dummyObject);
         nrtm4ClientRepository.createIndexes(dummyObject, createdDummy);
+        logTransactionStatus("persistDummyObjectIfNotExist");
     }
 
     private void printProgress(final Timer timer, final AtomicInteger processedCount) {
@@ -104,8 +111,10 @@ public class SnapshotMirrorImporter extends AbstractMirrorImporter {
         }, 0, 10000);
     }
 
+    @Transactional(transactionManager = NrtmClientTransactionConfiguration.NRTM_CLIENT_UPDATE_TRANSACTION)
     private void persistBatches(final String[] remainingRecords,
                                 final AtomicInteger processedCount) {
+        logTransactionStatus("persistBatches");
         Arrays.stream(remainingRecords).parallel().forEach(record -> {
             try {
                 final MirrorSnapshotInfo mirrorRpslObject = new ObjectMapper().readValue(record, MirrorSnapshotInfo.class);
@@ -117,7 +126,17 @@ public class SnapshotMirrorImporter extends AbstractMirrorImporter {
                 throw new IllegalStateException(e);
             }
         });
+        logTransactionStatus("persistBatches");
 
+    }
+
+    private void logTransactionStatus(String methodName) {
+        boolean isTransactionActive = TransactionSynchronizationManager.isActualTransactionActive();
+        boolean isReadOnly = TransactionSynchronizationManager.isCurrentTransactionReadOnly();
+        String transactionName = TransactionSynchronizationManager.getCurrentTransactionName();
+
+        System.out.printf("Transaction status in %s - Active: %s, Read-only: %s, Name: %s%n",
+                methodName, isTransactionActive, isReadOnly, transactionName);
     }
 
     public static RpslObject getPlaceholderPersonObject() {
@@ -142,9 +161,10 @@ public class SnapshotMirrorImporter extends AbstractMirrorImporter {
         );
     }
 
-
+    @Transactional(transactionManager = NrtmClientTransactionConfiguration.NRTM_CLIENT_INFO_UPDATE_TRANSACTION)
     private void processMetadata(final String source, final String updateNotificationSessionId,
                                  final String firstRecord) throws IllegalArgumentException {
+        logTransactionStatus("processMetadata");
         final JSONObject jsonObject = new JSONObject(firstRecord);
         final int version = jsonObject.getInt("version");
         final String sessionId = jsonObject.getString("session_id");
@@ -154,5 +174,6 @@ public class SnapshotMirrorImporter extends AbstractMirrorImporter {
             throw new IllegalArgumentException("The session is not the same in the UNF and snapshot");
         }
         nrtm4ClientInfoRepository.saveSnapshotFileVersion(source, version, sessionId);
+        logTransactionStatus("processMetadata");
     }
 }

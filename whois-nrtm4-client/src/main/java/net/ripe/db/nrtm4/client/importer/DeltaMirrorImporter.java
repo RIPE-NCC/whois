@@ -5,6 +5,7 @@ import net.ripe.db.nrtm4.client.client.MirrorDeltaInfo;
 import net.ripe.db.nrtm4.client.client.NrtmRestClient;
 import net.ripe.db.nrtm4.client.client.UpdateNotificationFileResponse;
 import net.ripe.db.nrtm4.client.condition.Nrtm4ClientCondition;
+import net.ripe.db.nrtm4.client.config.NrtmClientTransactionConfiguration;
 import net.ripe.db.nrtm4.client.dao.Nrtm4ClientInfoRepository;
 import net.ripe.db.nrtm4.client.dao.Nrtm4ClientRepository;
 import net.ripe.db.nrtm4.client.dao.NrtmClientVersionInfo;
@@ -15,6 +16,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.annotation.Conditional;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.io.BufferedReader;
 import java.io.ByteArrayInputStream;
@@ -87,6 +90,7 @@ public class DeltaMirrorImporter extends AbstractMirrorImporter {
         }
     }
 
+    @Transactional(transactionManager = NrtmClientTransactionConfiguration.NRTM_CLIENT_UPDATE_TRANSACTION)
     private void applyDeltaRecord(final MirrorDeltaInfo deltaInfo){
         if (deltaInfo.getAction().equals(MirrorDeltaInfo.Action.ADD_MODIFY)){
 
@@ -162,6 +166,7 @@ public class DeltaMirrorImporter extends AbstractMirrorImporter {
                         deltaPrimaryKey));
     }
 
+    @Transactional(transactionManager = NrtmClientTransactionConfiguration.NRTM_CLIENT_INFO_UPDATE_TRANSACTION)
     private void processFirstDeltaRecord(final String firstRecord, final String sessionId, final String source){
         final Metadata metadata = getMetadata(firstRecord);
         if (!metadata.sessionId().equals(sessionId)){
