@@ -9,6 +9,7 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.jdbc.datasource.DataSourceTransactionManager;
 import org.springframework.transaction.PlatformTransactionManager;
 import org.springframework.transaction.TransactionDefinition;
+import org.springframework.transaction.TransactionManager;
 import org.springframework.transaction.TransactionStatus;
 import org.springframework.transaction.annotation.EnableTransactionManagement;
 
@@ -24,17 +25,17 @@ public class NrtmClientTransactionConfiguration {
     public static final String NRTM_CLIENT_INFO_UPDATE_TRANSACTION = "nrtm-client-update-info-transaction-manager";
 
     @Bean(name = NRTM_CLIENT_UPDATE_TRANSACTION)
-    public PlatformTransactionManager transactionManagerNrtmClientUpdate(@Qualifier("nrtmClientMasterDataSource") final DataSource masterDataSource) {
+    public TransactionManager transactionManagerNrtmClientUpdate(@Qualifier("nrtmClientMasterDataSource") final DataSource masterDataSource) {
         return new LoggingTransactionManager(new DataSourceTransactionManager(masterDataSource));
     }
 
     @Bean(name = NRTM_CLIENT_INFO_UPDATE_TRANSACTION)
-    public PlatformTransactionManager transactionManagerNrtmClientInfo(@Qualifier("nrtmClientMasterInfoSource") final DataSource masterDataSource) {
+    public TransactionManager transactionManagerNrtmClientInfo(@Qualifier("nrtmClientMasterInfoSource") final DataSource masterDataSource) {
         return new LoggingTransactionManager(new DataSourceTransactionManager(masterDataSource));
     }
 
 
-    class LoggingTransactionManager implements PlatformTransactionManager {
+    static class LoggingTransactionManager implements PlatformTransactionManager {
 
         private final PlatformTransactionManager delegate;
 
