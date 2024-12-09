@@ -45,6 +45,7 @@ public class UpdateNotificationFileProcessor {
 
     private final static String PUBLIC_KEY_PATH = "public.key";
 
+
     public UpdateNotificationFileProcessor(final NrtmRestClient nrtmRestClient,
                                            final Nrtm4ClientInfoRepository nrtm4ClientMirrorDao,
                                            final SnapshotMirrorImporter snapshotImporter,
@@ -115,9 +116,6 @@ public class UpdateNotificationFileProcessor {
                 return;
             }
 
-            nrtm4ClientMirrorDao.saveUpdateNotificationFileVersion(source, updateNotificationFile.getVersion(),
-                    updateNotificationFile.getSessionID(), hostname);
-
             if (nrtmClientLastVersionInfo == null) {
                 LOGGER.info("There is no existing Snapshot for the source {}", source);
                 snapshotImporter.doImport(source, updateNotificationFile.getSessionID(), updateNotificationFile.getSnapshot());
@@ -125,7 +123,20 @@ public class UpdateNotificationFileProcessor {
 
             final List<UpdateNotificationFileResponse.NrtmFileLink> newDeltas = getNewDeltasFromNotificationFile(source, updateNotificationFile);
             deltaImporter.doImport(source, updateNotificationFile.getSessionID(), newDeltas);
+
+            persistVersion(source, updateNotificationFile, hostname);
         });
+    }
+
+    private void persistVersion(final String source, final UpdateNotificationFileResponse updateNotificationFile,
+                                final String hostname){
+        try {
+            nrtm4ClientMirrorDao.saveUpdateNotificationFileVersion(source, updateNotificationFile.getVersion(),
+                    updateNotificationFile.getSessionID(), hostname);
+        } catch (Exception ex){
+            snapshotImporter.truncateTables();
+            LOGGER.error("There was an issue persisting the version of a new update notification file", ex);
+        }
     }
 
     private List<UpdateNotificationFileResponse.NrtmFileLink> getNewDeltasFromNotificationFile(final String source,

@@ -8,7 +8,6 @@ import net.ripe.db.nrtm4.client.condition.Nrtm4ClientCondition;
 import net.ripe.db.nrtm4.client.config.NrtmClientTransactionConfiguration;
 import net.ripe.db.nrtm4.client.dao.Nrtm4ClientInfoRepository;
 import net.ripe.db.nrtm4.client.dao.Nrtm4ClientRepository;
-import net.ripe.db.nrtm4.client.dao.NrtmClientVersionInfo;
 import net.ripe.db.whois.common.dao.RpslObjectUpdateInfo;
 import net.ripe.db.whois.common.rpsl.RpslObject;
 import org.json.JSONObject;
@@ -16,7 +15,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.annotation.Conditional;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.io.BufferedReader;
@@ -73,20 +71,38 @@ public class DeltaMirrorImporter extends AbstractMirrorImporter {
 
         ByteBuffer buffer = ByteBuffer.wrap(deltaFilePayload);
         InputStream inputStream = new ByteArrayInputStream(buffer.array(), buffer.position(), buffer.remaining());
+        Metadata metadata = null;
         try (BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream, StandardCharsets.UTF_8))) {
             String record;
             boolean isFirstRecord = true;
             while ((record = reader.readLine()) != null) {
                 if (isFirstRecord){
-                    processFirstDeltaRecord(record, sessionId, source);
+                    metadata = extractMetadata(record);
+                    validateSession(metadata.sessionId, sessionId);
                     isFirstRecord = false;
                     continue;
                 }
                 processDeltaRecord(record);
             }
+
+            if (metadata == null){
+                LOGGER.error("Metadata is missing in some delta");
+                throw new IllegalArgumentException("Metadata is missing in some delta");
+            }
         } catch (IOException ex){
             LOGGER.error("Unable to process deltas");
             throw new IllegalStateException(ex);
+        }
+        persistVersion(source, metadata.version, metadata.sessionId);
+    }
+
+    private void persistVersion(final String source, final int version, final String sessionId) throws IllegalArgumentException {
+        try {
+            nrtm4ClientInfoRepository.saveDeltaFileVersion(source, version, sessionId);
+        } catch (Exception ex){
+            LOGGER.error("Error persisting snapshot", ex);
+            truncateTables();
+            throw ex;
         }
     }
 
@@ -137,20 +153,6 @@ public class DeltaMirrorImporter extends AbstractMirrorImporter {
         return false;
     }
 
-    private List<UpdateNotificationFileResponse.NrtmFileLink> getNewDeltas(String source, UpdateNotificationFileResponse updateNotificationFile) {
-        final NrtmClientVersionInfo nrtmClientVersionInfo = nrtm4ClientInfoRepository.getNrtmLastVersionInfoForDeltasPerSource(source);
-
-        if (nrtmClientVersionInfo == null){
-            return updateNotificationFile.getDeltas();
-        }
-
-        return updateNotificationFile.getDeltas()
-                .stream()
-                .filter(delta -> delta.getVersion() > nrtmClientVersionInfo.version())
-                .toList();
-    }
-
-
     private void processDeltaRecord(final String records) {
         final JSONObject jsonObject = new JSONObject(records);
         final String deltaAction = jsonObject.getString("action");
@@ -166,15 +168,16 @@ public class DeltaMirrorImporter extends AbstractMirrorImporter {
                         deltaPrimaryKey));
     }
 
-    @Transactional(transactionManager = NrtmClientTransactionConfiguration.NRTM_CLIENT_INFO_UPDATE_TRANSACTION)
-    private void processFirstDeltaRecord(final String firstRecord, final String sessionId, final String source){
-        final Metadata metadata = getMetadata(firstRecord);
-        if (!metadata.sessionId().equals(sessionId)){
-            LOGGER.error("The session {} is not the same in the UNF and snapshot {}", metadata.sessionId(), sessionId);
+    private Metadata extractMetadata(final String firstRecord){
+        return getMetadata(firstRecord);
+    }
+
+    private void validateSession(final String metadataSessionId, final String sessionId) throws IllegalArgumentException{
+        if (!metadataSessionId.equals(sessionId)){
+            LOGGER.error("The session {} is not the same in the UNF and delta {}", metadataSessionId, sessionId);
             truncateTables();
-            throw new IllegalArgumentException("The session is not the same in the UNF and snapshot");
+            throw new IllegalArgumentException("The session is not the same in the UNF and delta");
         }
-        nrtm4ClientInfoRepository.saveDeltaFileVersion(source, metadata.version, metadata.sessionId());
     }
 
     private static Metadata getMetadata(final String records) {
