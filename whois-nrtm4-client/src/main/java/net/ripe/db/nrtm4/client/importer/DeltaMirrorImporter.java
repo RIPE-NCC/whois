@@ -15,6 +15,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.annotation.Conditional;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.io.BufferedReader;
@@ -72,6 +73,7 @@ public class DeltaMirrorImporter extends AbstractMirrorImporter {
         persistVersion(source, metadata.version, metadata.sessionId);
     }
 
+    @Transactional(transactionManager = NrtmClientTransactionConfiguration.NRTM_CLIENT_UPDATE_TRANSACTION)
     private Metadata persistDeltas(final byte[] deltaFilePayload, String sessionId) {
         ByteBuffer buffer = ByteBuffer.wrap(deltaFilePayload);
         InputStream inputStream = new ByteArrayInputStream(buffer.array(), buffer.position(), buffer.remaining());

@@ -116,21 +116,22 @@ public class UpdateNotificationFileProcessor {
                 return;
             }
 
-            importRecordsAndPersistVersion(source, nrtmClientLastVersionInfo, updateNotificationFile, hostname);
-        });
-    }
-
-    private void importRecordsAndPersistVersion(final String source, final NrtmClientVersionInfo nrtmClientLastVersionInfo,
-                                                final UpdateNotificationFileResponse updateNotificationFile, final String hostname) {
-        try {
-            if (nrtmClientLastVersionInfo == null) {
-                LOGGER.info("There is no existing Snapshot for the source {}", source);
-                snapshotImporter.doImport(source, updateNotificationFile.getSessionID(), updateNotificationFile.getSnapshot());
-            }
+            processSnapshot(source, nrtmClientLastVersionInfo, updateNotificationFile);
 
             final List<UpdateNotificationFileResponse.NrtmFileLink> newDeltas = getNewDeltasFromNotificationFile(source, updateNotificationFile);
             deltaImporter.doImport(source, updateNotificationFile.getSessionID(), newDeltas);
             persistVersion(source, updateNotificationFile, hostname);
+        });
+    }
+
+    private void processSnapshot(final String source, final NrtmClientVersionInfo nrtmClientLastVersionInfo, final UpdateNotificationFileResponse updateNotificationFile) {
+
+        if (nrtmClientLastVersionInfo != null){
+            return;
+        }
+        try {
+            LOGGER.info("There is no existing Snapshot for the source {}", source);
+            snapshotImporter.doImport(source, updateNotificationFile.getSessionID(), updateNotificationFile.getSnapshot());
         } catch (Exception ex) {
             snapshotImporter.truncateTables();
             LOGGER.error("There was an issue importing the records", ex);
