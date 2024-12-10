@@ -72,7 +72,7 @@ public class SnapshotMirrorImporter extends AbstractMirrorImporter {
 
         if (snapshot == null){
             LOGGER.error("Snapshot cannot be null in the notification file");
-            return;
+            throw new IllegalArgumentException("Snapshot link does not exist in the Update Notification File");
         }
 
         final byte[] payload = nrtmRestClient.getSnapshotFile(snapshot.getUrl());
@@ -87,13 +87,13 @@ public class SnapshotMirrorImporter extends AbstractMirrorImporter {
         final AtomicInteger processedCount = new AtomicInteger(0);
 
         persisSnapshot(source, payload, sessionId, snapshotVersion, processedCount);
-        persistVersion(source, snapshotVersion.get(), sessionId);
+        persistSnapshotVersion(source, snapshotVersion.get(), sessionId);
 
         stopwatch.stop();
         LOGGER.info("Loading snapshot file took {} for source {} and added {} records", stopwatch.elapsed().toMillis(), source, processedCount.get());
     }
 
-    private int persisSnapshot(final String source, final byte[] payload, final String sessionId,
+    private void persisSnapshot(final String source, final byte[] payload, final String sessionId,
                                final AtomicInteger snapshotVersion, final AtomicInteger processedCount){
         final Timer timer = new Timer();
         printProgress(timer, processedCount);
@@ -114,11 +114,10 @@ public class SnapshotMirrorImporter extends AbstractMirrorImporter {
 
         persistDummyObjectIfNotExist(source);
         timer.cancel();
-        return processedCount.get();
     }
 
 
-    final void persistVersion(final String source, final int version, final String sessionId) throws IllegalArgumentException {
+    final void persistSnapshotVersion(final String source, final int version, final String sessionId) throws IllegalArgumentException {
         nrtm4ClientInfoRepository.saveSnapshotFileVersion(source, version, sessionId);
     }
 

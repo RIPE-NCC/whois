@@ -123,7 +123,7 @@ public class UpdateNotificationFileProcessor {
 
                 final List<UpdateNotificationFileResponse.NrtmFileLink> newDeltas = getNewDeltasFromNotificationFile(source, updateNotificationFile);
                 deltaImporter.doImport(source, updateNotificationFile.getSessionID(), newDeltas);
-                persistVersion(source, updateNotificationFile, hostname);
+                persistUpdateFileVersion(source, updateNotificationFile, hostname);
             } catch (Exception ex){
                 LOGGER.error("Failed to mirror database, cleaning up the tables", ex);
                 snapshotImporter.truncateTables();
@@ -131,8 +131,8 @@ public class UpdateNotificationFileProcessor {
         });
     }
 
-    private void persistVersion(final String source, final UpdateNotificationFileResponse updateNotificationFile,
-                                final String hostname){
+    private void persistUpdateFileVersion(final String source, final UpdateNotificationFileResponse updateNotificationFile,
+                                          final String hostname){
         nrtm4ClientMirrorDao.saveUpdateNotificationFileVersion(source, updateNotificationFile.getVersion(),
                 updateNotificationFile.getSessionID(), hostname);
     }

@@ -69,7 +69,7 @@ public class DeltaMirrorImporter extends AbstractMirrorImporter {
 
     private void processPayload(final byte[] deltaFilePayload, final String sessionId, final String source) {
         final Metadata metadata = persistDeltas(deltaFilePayload, sessionId);
-        persistVersion(source, metadata.version, metadata.sessionId);
+        persistDeltaVersion(source, metadata.version, metadata.sessionId);
     }
 
     @Transactional(transactionManager = NrtmClientTransactionConfiguration.NRTM_CLIENT_UPDATE_TRANSACTION)
@@ -101,7 +101,7 @@ public class DeltaMirrorImporter extends AbstractMirrorImporter {
         return metadata;
     }
 
-    private void persistVersion(final String source, final int version, final String sessionId) throws IllegalArgumentException {
+    private void persistDeltaVersion(final String source, final int version, final String sessionId) throws IllegalArgumentException {
         nrtm4ClientInfoRepository.saveDeltaFileVersion(source, version, sessionId);
     }
 
