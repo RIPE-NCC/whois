@@ -10,9 +10,10 @@ import com.nimbusds.jose.jwk.OctetKeyPair;
 import net.ripe.db.nrtm4.client.client.NrtmRestClient;
 import net.ripe.db.nrtm4.client.client.UpdateNotificationFileResponse;
 import net.ripe.db.nrtm4.client.condition.Nrtm4ClientCondition;
-import net.ripe.db.nrtm4.client.dao.Nrtm4ClientInfoRepository;
 import net.ripe.db.nrtm4.client.dao.NrtmClientVersionInfo;
-import net.ripe.db.nrtm4.client.importer.SnapshotImporter;
+import net.ripe.db.nrtm4.client.importer.DeltaMirrorImporter;
+import net.ripe.db.nrtm4.client.importer.SnapshotMirrorImporter;
+import net.ripe.db.nrtm4.client.dao.Nrtm4ClientInfoRepository;
 import net.ripe.db.whois.common.domain.Hosts;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -37,18 +38,22 @@ public class UpdateNotificationFileProcessor {
 
     private final NrtmRestClient nrtmRestClient;
 
+    private final DeltaMirrorImporter deltaImporter;
+
     private final Nrtm4ClientInfoRepository nrtm4ClientMirrorDao;
 
-    private final SnapshotImporter snapshotImporter;
+    private final SnapshotMirrorImporter snapshotImporter;
 
     private final static String PUBLIC_KEY_PATH = "public.key";
 
     public UpdateNotificationFileProcessor(final NrtmRestClient nrtmRestClient,
                                            final Nrtm4ClientInfoRepository nrtm4ClientMirrorDao,
-                                           final SnapshotImporter snapshotImporter) {
+                                           final SnapshotMirrorImporter snapshotImporter,
+                                           final DeltaMirrorImporter deltaImporter) {
         this.nrtmRestClient = nrtmRestClient;
         this.nrtm4ClientMirrorDao = nrtm4ClientMirrorDao;
         this.snapshotImporter = snapshotImporter;
+        this.deltaImporter = deltaImporter;
     }
 
     @Transactional(rollbackFor = Exception.class)
@@ -116,10 +121,27 @@ public class UpdateNotificationFileProcessor {
 
             if (nrtmClientLastVersionInfo == null){
                 LOGGER.info("There is no existing Snapshot for the source {}", source);
-                snapshotImporter.importSnapshot(source, updateNotificationFile);
+                snapshotImporter.doImport(source, updateNotificationFile.getSessionID(), updateNotificationFile.getSnapshot());
             }
+
+            final List<UpdateNotificationFileResponse.NrtmFileLink> newDeltas = getNewDeltasFromNotificationFile(source, updateNotificationFile);
+            deltaImporter.doImport(source, updateNotificationFile.getSessionID(), newDeltas);
         });
 
+    }
+
+    private List<UpdateNotificationFileResponse.NrtmFileLink> getNewDeltasFromNotificationFile(final String source,
+                                                                                               final UpdateNotificationFileResponse updateNotificationFile) {
+        final NrtmClientVersionInfo nrtmClientVersionInfo = nrtm4ClientMirrorDao.getNrtmLastVersionInfoForDeltasPerSource(source);
+
+        if (nrtmClientVersionInfo == null){
+            return updateNotificationFile.getDeltas();
+        }
+
+        return updateNotificationFile.getDeltas()
+                .stream()
+                .filter(delta -> delta.getVersion() > nrtmClientVersionInfo.version())
+                .toList();
     }
 
     @Nullable

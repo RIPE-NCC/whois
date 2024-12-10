@@ -1,7 +1,9 @@
 package net.ripe.db.nrtm4.client.importer;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.base.Stopwatch;
+import net.ripe.db.nrtm4.client.client.MirrorSnapshotInfo;
 import net.ripe.db.nrtm4.client.client.NrtmRestClient;
 import net.ripe.db.nrtm4.client.client.UpdateNotificationFileResponse;
 import net.ripe.db.nrtm4.client.condition.Nrtm4ClientCondition;
@@ -16,45 +18,36 @@ import org.slf4j.LoggerFactory;
 import org.springframework.context.annotation.Conditional;
 import org.springframework.stereotype.Service;
 
-import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
 import java.util.Arrays;
 import java.util.Map;
 import java.util.Timer;
 import java.util.TimerTask;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import static org.apache.commons.codec.binary.Hex.encodeHexString;
 
 @Service
 @Conditional(Nrtm4ClientCondition.class)
-public class SnapshotImporter {
+public class SnapshotMirrorImporter extends AbstractMirrorImporter {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(SnapshotImporter.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(SnapshotMirrorImporter.class);
 
     private final NrtmRestClient nrtmRestClient;
 
-    private final Nrtm4ClientInfoRepository nrtm4ClientInfoMirrorDao;
 
-    private final Nrtm4ClientRepository nrtm4ClientRepository;
-
-
-    public SnapshotImporter(final NrtmRestClient nrtmRestClient,
-                            final Nrtm4ClientInfoRepository nrtm4ClientInfoMirrorDao,
-                            final Nrtm4ClientRepository nrtm4ClientRepository) {
+    public SnapshotMirrorImporter(final NrtmRestClient nrtmRestClient,
+                                  final Nrtm4ClientInfoRepository nrtm4ClientInfoMirrorDao,
+                                  final Nrtm4ClientRepository nrtm4ClientRepository) {
+        super(nrtm4ClientInfoMirrorDao, nrtm4ClientRepository);
         this.nrtmRestClient = nrtmRestClient;
-        this.nrtm4ClientInfoMirrorDao = nrtm4ClientInfoMirrorDao;
-        this.nrtm4ClientRepository  = nrtm4ClientRepository;
+
     }
 
-    public void truncateTables(){
-        nrtm4ClientInfoMirrorDao.truncateTables();
-        nrtm4ClientRepository.truncateTables();
-    }
 
-    public void importSnapshot(final String source, final UpdateNotificationFileResponse updateNotificationFile){
+    public void doImport(final String source,
+                         final String sessionId,
+                         final UpdateNotificationFileResponse.NrtmFileLink snapshot){
+
         final Stopwatch stopwatch = Stopwatch.createStarted();
-        final UpdateNotificationFileResponse.NrtmFileLink snapshot = updateNotificationFile.getSnapshot();
 
         if (snapshot == null){
             LOGGER.error("Snapshot cannot be null in the notification file");
@@ -63,8 +56,9 @@ public class SnapshotImporter {
 
         final byte[] payload = nrtmRestClient.getSnapshotFile(snapshot.getUrl());
 
+        final String payloadHash = calculateSha256(payload);
         if (!snapshot.getHash().equals(calculateSha256(payload))){
-            LOGGER.error("Snapshot hash doesn't match, skipping import");
+            LOGGER.error("Snapshot hash {} doesn't match the payload {}, skipping import", snapshot.getHash(), payloadHash);
             return;
         }
 
@@ -75,7 +69,7 @@ public class SnapshotImporter {
         try {
             GzipDecompressor.decompressRecords(
                     payload,
-                    firstRecord -> processMetadata(source, updateNotificationFile, firstRecord),
+                    firstRecord -> processMetadata(source, sessionId, firstRecord),
                     recordBatches -> persistBatches(recordBatches, processedCount)
             );
         } catch (IllegalArgumentException ex){
@@ -94,11 +88,12 @@ public class SnapshotImporter {
 
     public void persistDummyObjectIfNotExist(){
         final RpslObject dummyObject = getPlaceholderPersonObject();
-        final Integer objectId = nrtm4ClientRepository.getMirroredObjectId(dummyObject.getKey().toString());
-        if (objectId != null){
+        final RpslObjectUpdateInfo rpslObjectUpdateInfo = nrtm4ClientRepository.getMirroredObjectId(dummyObject.getType(), dummyObject.getKey().toString());
+        if (rpslObjectUpdateInfo != null){
             return;
         }
-        nrtm4ClientRepository.persistRpslObject(getPlaceholderPersonObject());
+        final RpslObjectUpdateInfo createdDummy = nrtm4ClientRepository.persistRpslObject(dummyObject);
+        nrtm4ClientRepository.createIndexes(dummyObject, createdDummy);
     }
 
     private void printProgress(final Timer timer, final AtomicInteger processedCount) {
@@ -110,22 +105,12 @@ public class SnapshotImporter {
         }, 0, 10000);
     }
 
-    private static String calculateSha256(final byte[] bytes) {
-        try {
-            final MessageDigest digest = MessageDigest.getInstance("SHA-256");
-            final byte[] encodedSha256hex = digest.digest(bytes);
-            return encodeHexString(encodedSha256hex);
-        } catch (final NoSuchAlgorithmException e) {
-            LOGGER.error("Unable to calculate the hash", e);
-            throw new IllegalStateException(e);
-        }
-    }
-
     private void persistBatches(final String[] remainingRecords,
                                 final AtomicInteger processedCount) {
         Arrays.stream(remainingRecords).parallel().forEach(record -> {
             try {
-                final Map.Entry<RpslObject, RpslObjectUpdateInfo> persistedRecord = nrtm4ClientRepository.processObject(record);
+                final MirrorSnapshotInfo mirrorRpslObject = new ObjectMapper().readValue(record, MirrorSnapshotInfo.class);
+                final Map.Entry<RpslObject, RpslObjectUpdateInfo> persistedRecord = nrtm4ClientRepository.processSnapshotRecord(mirrorRpslObject);
                 nrtm4ClientRepository.createIndexes(persistedRecord.getKey(), persistedRecord.getValue());
                 processedCount.incrementAndGet();
             } catch (JsonProcessingException e) {
@@ -158,16 +143,17 @@ public class SnapshotImporter {
         );
     }
 
-    private void processMetadata(final String source, final UpdateNotificationFileResponse updateNotificationFile,
+
+    private void processMetadata(final String source, final String updateNotificationSessionId,
                                  final String firstRecord) throws IllegalArgumentException {
         final JSONObject jsonObject = new JSONObject(firstRecord);
         final int version = jsonObject.getInt("version");
         final String sessionId = jsonObject.getString("session_id");
-        if (!sessionId.equals(updateNotificationFile.getSessionID())) {
+        if (!sessionId.equals(updateNotificationSessionId)) {
             LOGGER.error("The session is not the same in the UNF and snapshot");
             truncateTables();
             throw new IllegalArgumentException("The session is not the same in the UNF and snapshot");
         }
-        nrtm4ClientInfoMirrorDao.saveSnapshotFileVersion(source, version, sessionId);
+        nrtm4ClientInfoRepository.saveSnapshotFileVersion(source, version, sessionId);
     }
 }
