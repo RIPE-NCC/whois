@@ -125,18 +125,10 @@ public class UpdateNotificationFileProcessor {
     }
 
     private void processSnapshot(final String source, final NrtmClientVersionInfo nrtmClientLastVersionInfo, final UpdateNotificationFileResponse updateNotificationFile) {
-
         if (nrtmClientLastVersionInfo != null){
             return;
         }
-        try {
-            LOGGER.info("There is no existing Snapshot for the source {}", source);
-            snapshotImporter.doImport(source, updateNotificationFile.getSessionID(), updateNotificationFile.getSnapshot());
-        } catch (Exception ex) {
-            snapshotImporter.truncateTables();
-            LOGGER.error("There was an issue importing the records", ex);
-            throw ex;
-        }
+        snapshotImporter.doImport(source, updateNotificationFile.getSessionID(), updateNotificationFile.getSnapshot());
     }
 
     private void persistVersion(final String source, final UpdateNotificationFileResponse updateNotificationFile,

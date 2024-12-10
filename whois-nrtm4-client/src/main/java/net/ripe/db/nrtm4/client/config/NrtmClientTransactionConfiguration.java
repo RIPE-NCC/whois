@@ -7,7 +7,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Conditional;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.jdbc.datasource.DataSourceTransactionManager;
-import org.springframework.transaction.TransactionManager;
+import org.springframework.transaction.PlatformTransactionManager;
 import org.springframework.transaction.annotation.EnableTransactionManagement;
 
 import javax.sql.DataSource;
@@ -22,12 +22,12 @@ public class NrtmClientTransactionConfiguration {
     public static final String NRTM_CLIENT_INFO_TRANSACTION = "nrtm-client-info-transaction-manager";
 
     @Bean(name = NRTM_CLIENT_UPDATE_TRANSACTION)
-    public TransactionManager transactionManagerNrtmClientUpdate(@Qualifier("nrtmClientMasterDataSource") final DataSource masterDataSource) {
+    public PlatformTransactionManager transactionManagerNrtmClientUpdate(@Qualifier("nrtmClientMasterDataSource") final DataSource masterDataSource) {
         return new DataSourceTransactionManager(masterDataSource);
     }
 
     @Bean(name = NRTM_CLIENT_INFO_TRANSACTION)
-    public TransactionManager transactionManagerNrtmClientInfo(@Qualifier("nrtmClientMasterInfoSource") final DataSource masterDataSource) {
+    public PlatformTransactionManager transactionManagerNrtmClientInfo(@Qualifier("nrtmClientMasterInfoSource") final DataSource masterDataSource) {
         return new DataSourceTransactionManager(masterDataSource);
     }
 }

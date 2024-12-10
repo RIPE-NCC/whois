@@ -15,14 +15,21 @@ import net.ripe.db.whois.common.rpsl.RpslObject;
 import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Conditional;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.PlatformTransactionManager;
+import org.springframework.transaction.TransactionManager;
+import org.springframework.transaction.TransactionStatus;
+import org.springframework.transaction.support.DefaultTransactionDefinition;
 
 import java.util.Arrays;
 import java.util.Map;
 import java.util.Timer;
 import java.util.TimerTask;
 import java.util.concurrent.atomic.AtomicInteger;
+
+import static net.ripe.db.nrtm4.client.config.NrtmClientTransactionConfiguration.NRTM_CLIENT_UPDATE_TRANSACTION;
 
 
 @Service
@@ -33,13 +40,16 @@ public class SnapshotMirrorImporter extends AbstractMirrorImporter {
 
     private final NrtmRestClient nrtmRestClient;
 
+    private final PlatformTransactionManager nrtmClientUpdateTransaction;
+
 
     public SnapshotMirrorImporter(final NrtmRestClient nrtmRestClient,
                                   final Nrtm4ClientInfoRepository nrtm4ClientInfoMirrorDao,
-                                  final Nrtm4ClientRepository nrtm4ClientRepository) {
+                                  final Nrtm4ClientRepository nrtm4ClientRepository,
+                                  @Qualifier(NRTM_CLIENT_UPDATE_TRANSACTION) final PlatformTransactionManager transactionManagerNrtmClientUpdate) {
         super(nrtm4ClientInfoMirrorDao, nrtm4ClientRepository);
         this.nrtmRestClient = nrtmRestClient;
-
+        this.nrtmClientUpdateTransaction =  transactionManagerNrtmClientUpdate;
     }
 
     public void doImport(final String source,
@@ -61,7 +71,7 @@ public class SnapshotMirrorImporter extends AbstractMirrorImporter {
             return;
         }
 
-        AtomicInteger snapshotVersion = new AtomicInteger(0);
+        final AtomicInteger snapshotVersion = new AtomicInteger(0);
 
         final int amount = persisSnapshot(source, payload, sessionId, snapshotVersion);
         persistVersion(source, snapshotVersion.get(), sessionId);
@@ -71,12 +81,14 @@ public class SnapshotMirrorImporter extends AbstractMirrorImporter {
     }
 
     private int persisSnapshot(final String source, final byte[] payload, final String sessionId, final AtomicInteger snapshotVersion){
-        persistDummyObjectIfNotExist(source);
         final AtomicInteger processedCount = new AtomicInteger(0);
         final Timer timer = new Timer();
         printProgress(timer, processedCount);
 
+        //Transaction annotation does not work with any threaded processing methods
+        final TransactionStatus transactionStatus = nrtmClientUpdateTransaction.getTransaction(new DefaultTransactionDefinition());
         try {
+            persistDummyObjectIfNotExist(source);
             GzipDecompressor.decompressRecords(
                     payload,
                     firstRecord -> {
@@ -85,11 +97,13 @@ public class SnapshotMirrorImporter extends AbstractMirrorImporter {
                     },
                     recordBatches -> persistBatches(recordBatches, processedCount)
             );
-        } catch (IllegalArgumentException ex){
+        } catch (Exception ex){
             LOGGER.error("Error persisting snapshot", ex);
-            throw ex;
+            nrtmClientUpdateTransaction.rollback(transactionStatus);
+            throw new IllegalStateException(ex);
         }
 
+        nrtmClientUpdateTransaction.commit(transactionStatus);
         timer.cancel();
         return processedCount.get();
     }
@@ -130,7 +144,7 @@ public class SnapshotMirrorImporter extends AbstractMirrorImporter {
                 nrtm4ClientRepository.createIndexes(persistedRecord.getKey(), persistedRecord.getValue());
                 processedCount.incrementAndGet();
             } catch (Exception e) {
-                LOGGER.error("Unable to parse record {}", record, e);
+                LOGGER.error("Unable to process record {}", record, e);
                 throw new IllegalStateException(e);
             }
         });
