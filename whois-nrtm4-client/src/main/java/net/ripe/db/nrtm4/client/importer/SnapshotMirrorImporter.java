@@ -14,6 +14,7 @@ import net.ripe.db.whois.common.dao.RpslObjectUpdateInfo;
 import net.ripe.db.whois.common.rpsl.AttributeType;
 import net.ripe.db.whois.common.rpsl.RpslObject;
 
+import org.apache.commons.compress.utils.Lists;
 import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -31,8 +32,10 @@ import java.util.List;
 import java.util.Map;
 import java.util.Timer;
 import java.util.TimerTask;
+import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -155,14 +158,17 @@ public class SnapshotMirrorImporter extends AbstractMirrorImporter {
     private List<TransactionStatus> processBatchAndTransactions(final String[] remainingRecords, final AtomicInteger processedCount, final ExecutorService executor){
 
         //Transaction annotation does not work with any threaded processing methods
-        final List<TransactionStatus> transactionStatuses = new ArrayList<>();
+        final List<TransactionStatus> transactionStatuses = Lists.newArrayList();
+        final List<Future<?>> futures = Lists.newArrayList();
         try {
             Arrays.stream(remainingRecords)
                     .forEach(record -> {
                         final TransactionStatus transactionStatus = nrtmClientUpdateTransaction.getTransaction(new DefaultTransactionDefinition()); // create a transaction per record
-                        processRecord(executor, processedCount, record, transactionStatus); // process record
+                        futures.add(processRecord(executor, processedCount, record, transactionStatus)); // process record
                         transactionStatuses.add(transactionStatus); // keep the transaction in case there is an issue in another record in the batch
                     });
+
+            handleFuturesErrors(futures);
         } catch (Exception e){
             transactionStatuses.forEach(nrtmClientUpdateTransaction::rollback);
             throw new IllegalStateException("Unable to persist snapshot", e);
@@ -179,9 +185,24 @@ public class SnapshotMirrorImporter extends AbstractMirrorImporter {
         return transactionStatuses;
     }
 
-    private void processRecord(final ExecutorService executor, final AtomicInteger processedCount, final String record, final TransactionStatus transactionStatus){
-        try {
-            executor.submit(() -> {
+    private static void handleFuturesErrors(final List<Future<?>> futures) {
+        futures.forEach(future -> {
+            try {
+                future.get(); // Wait for the task to complete
+            } catch (ExecutionException e) {
+                LOGGER.error("Error during task execution", e);
+                throw new IllegalStateException("Transaction failed in batch processing", e);
+            } catch (InterruptedException e) {
+                Thread.currentThread().interrupt(); // Restore interrupted status
+                LOGGER.error("Batch processing interrupted", e);
+                throw new IllegalStateException("Batch processing was interrupted", e);
+            }
+        });
+    }
+
+    private Future<?> processRecord(final ExecutorService executor, final AtomicInteger processedCount, final String record, final TransactionStatus transactionStatus){
+
+        return executor.submit(() -> {
                 try {
                     final MirrorSnapshotInfo mirrorRpslObject = new ObjectMapper().readValue(record, MirrorSnapshotInfo.class);
                     final Map.Entry<RpslObject, RpslObjectUpdateInfo> persistedRecord = nrtm4ClientRepository.processSnapshotRecord(mirrorRpslObject);
@@ -193,11 +214,6 @@ public class SnapshotMirrorImporter extends AbstractMirrorImporter {
                     throw new IllegalStateException(e);
                 }
             });
-        } catch (Exception e) {
-            nrtmClientUpdateTransaction.rollback(transactionStatus);
-            LOGGER.error("Unable to process record {}", record, e);
-            throw new IllegalStateException(e);
-        }
     }
 
     public static RpslObject getPlaceholderPersonObject() {
