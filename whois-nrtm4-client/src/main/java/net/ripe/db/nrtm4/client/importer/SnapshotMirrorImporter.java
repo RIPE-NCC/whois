@@ -84,16 +84,17 @@ public class SnapshotMirrorImporter extends AbstractMirrorImporter {
         }
 
         final AtomicInteger snapshotVersion = new AtomicInteger(0);
+        final AtomicInteger processedCount = new AtomicInteger(0);
 
-        final int amount = persisSnapshotAndCount(source, payload, sessionId, snapshotVersion);
+        persisSnapshot(source, payload, sessionId, snapshotVersion, processedCount);
         persistVersion(source, snapshotVersion.get(), sessionId);
 
         stopwatch.stop();
-        LOGGER.info("Loading snapshot file took {} for source {} and added {} records", stopwatch.elapsed().toMillis(), source, amount);
+        LOGGER.info("Loading snapshot file took {} for source {} and added {} records", stopwatch.elapsed().toMillis(), source, processedCount.get());
     }
 
-    private int persisSnapshotAndCount(final String source, final byte[] payload, final String sessionId, final AtomicInteger snapshotVersion){
-        final AtomicInteger processedCount = new AtomicInteger(0);
+    private int persisSnapshot(final String source, final byte[] payload, final String sessionId,
+                               final AtomicInteger snapshotVersion, final AtomicInteger processedCount){
         final Timer timer = new Timer();
         printProgress(timer, processedCount);
 

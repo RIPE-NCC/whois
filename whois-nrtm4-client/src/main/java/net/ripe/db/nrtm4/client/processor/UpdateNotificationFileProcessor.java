@@ -117,7 +117,9 @@ public class UpdateNotificationFileProcessor {
             }
 
             try {
-                processSnapshot(source, nrtmClientLastVersionInfo, updateNotificationFile);
+                if (nrtmClientLastVersionInfo == null) {
+                    snapshotImporter.doImport(source, updateNotificationFile.getSessionID(), updateNotificationFile.getSnapshot());
+                }
 
                 final List<UpdateNotificationFileResponse.NrtmFileLink> newDeltas = getNewDeltasFromNotificationFile(source, updateNotificationFile);
                 deltaImporter.doImport(source, updateNotificationFile.getSessionID(), newDeltas);
@@ -127,13 +129,6 @@ public class UpdateNotificationFileProcessor {
                 snapshotImporter.truncateTables();
             }
         });
-    }
-
-    private void processSnapshot(final String source, final NrtmClientVersionInfo nrtmClientLastVersionInfo, final UpdateNotificationFileResponse updateNotificationFile) {
-        if (nrtmClientLastVersionInfo != null) {
-            return;
-        }
-        snapshotImporter.doImport(source, updateNotificationFile.getSessionID(), updateNotificationFile.getSnapshot());
     }
 
     private void persistVersion(final String source, final UpdateNotificationFileResponse updateNotificationFile,
