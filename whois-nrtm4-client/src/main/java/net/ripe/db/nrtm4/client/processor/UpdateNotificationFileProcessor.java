@@ -123,8 +123,8 @@ public class UpdateNotificationFileProcessor {
                 deltaImporter.doImport(source, updateNotificationFile.getSessionID(), newDeltas);
                 persistVersion(source, updateNotificationFile, hostname);
             } catch (Exception ex){
-                LOGGER.error("Failed to mirror database", ex);
-                snapshotImporter.truncateTables(); //clean up in case of error
+                LOGGER.error("Failed to mirror database, cleaning up the tables", ex);
+                snapshotImporter.truncateTables();
             }
         });
     }
