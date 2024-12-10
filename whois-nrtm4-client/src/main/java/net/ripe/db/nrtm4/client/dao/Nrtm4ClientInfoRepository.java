@@ -18,7 +18,7 @@ import java.util.List;
 
 @Repository
 @Conditional(Nrtm4ClientCondition.class)
-@Transactional(transactionManager = NrtmClientTransactionConfiguration.NRTM_CLIENT_INFO_UPDATE_TRANSACTION)
+@Transactional(transactionManager = NrtmClientTransactionConfiguration.NRTM_CLIENT_INFO_TRANSACTION)
 public class Nrtm4ClientInfoRepository {
 
     private final JdbcTemplate jdbcMasterTemplate;

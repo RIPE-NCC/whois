@@ -19,14 +19,14 @@ import javax.sql.DataSource;
 public class NrtmClientTransactionConfiguration {
 
     public static final String NRTM_CLIENT_UPDATE_TRANSACTION = "nrtm-client-update-transaction-manager";
-    public static final String NRTM_CLIENT_INFO_UPDATE_TRANSACTION = "nrtm-client-update-info-transaction-manager";
+    public static final String NRTM_CLIENT_INFO_TRANSACTION = "nrtm-client-info-transaction-manager";
 
     @Bean(name = NRTM_CLIENT_UPDATE_TRANSACTION)
     public TransactionManager transactionManagerNrtmClientUpdate(@Qualifier("nrtmClientMasterDataSource") final DataSource masterDataSource) {
         return new DataSourceTransactionManager(masterDataSource);
     }
 
-    @Bean(name = NRTM_CLIENT_INFO_UPDATE_TRANSACTION)
+    @Bean(name = NRTM_CLIENT_INFO_TRANSACTION)
     public TransactionManager transactionManagerNrtmClientInfo(@Qualifier("nrtmClientMasterInfoSource") final DataSource masterDataSource) {
         return new DataSourceTransactionManager(masterDataSource);
     }
