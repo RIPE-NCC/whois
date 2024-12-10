@@ -116,16 +116,21 @@ public class UpdateNotificationFileProcessor {
                 return;
             }
 
-            processSnapshot(source, nrtmClientLastVersionInfo, updateNotificationFile);
+            try {
+                processSnapshot(source, nrtmClientLastVersionInfo, updateNotificationFile);
 
-            final List<UpdateNotificationFileResponse.NrtmFileLink> newDeltas = getNewDeltasFromNotificationFile(source, updateNotificationFile);
-            deltaImporter.doImport(source, updateNotificationFile.getSessionID(), newDeltas);
-            persistVersion(source, updateNotificationFile, hostname);
+                final List<UpdateNotificationFileResponse.NrtmFileLink> newDeltas = getNewDeltasFromNotificationFile(source, updateNotificationFile);
+                deltaImporter.doImport(source, updateNotificationFile.getSessionID(), newDeltas);
+                persistVersion(source, updateNotificationFile, hostname);
+            } catch (Exception ex){
+                LOGGER.error("Failed to mirror database", ex);
+                snapshotImporter.truncateTables(); //clean up in case of error
+            }
         });
     }
 
     private void processSnapshot(final String source, final NrtmClientVersionInfo nrtmClientLastVersionInfo, final UpdateNotificationFileResponse updateNotificationFile) {
-        if (nrtmClientLastVersionInfo != null){
+        if (nrtmClientLastVersionInfo != null) {
             return;
         }
         snapshotImporter.doImport(source, updateNotificationFile.getSessionID(), updateNotificationFile.getSnapshot());

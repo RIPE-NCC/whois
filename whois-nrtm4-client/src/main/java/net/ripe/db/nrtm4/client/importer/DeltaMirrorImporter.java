@@ -173,7 +173,6 @@ public class DeltaMirrorImporter extends AbstractMirrorImporter {
     private void validateSession(final String metadataSessionId, final String sessionId) throws IllegalArgumentException{
         if (!metadataSessionId.equals(sessionId)){
             LOGGER.error("The session {} is not the same in the UNF and delta {}", metadataSessionId, sessionId);
-            truncateTables();
             throw new IllegalArgumentException("The session is not the same in the UNF and delta");
         }
     }
