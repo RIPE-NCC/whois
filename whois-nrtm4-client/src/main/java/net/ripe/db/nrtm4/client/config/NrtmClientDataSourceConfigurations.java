@@ -16,28 +16,28 @@ import static net.ripe.db.whois.common.DataSourceConfigurations.createDataSource
 @Configuration
 public class NrtmClientDataSourceConfigurations {
 
-    @Bean(name = "nrtmClientMasterInfoSource")
+    @Bean
     public ComboPooledDataSource nrtmClientMasterInfoSource(@Value("${nrtm.client.info.database.url}") final String jdbcUrl,
                                                             @Value("${nrtm.client.info.database.username}") final String jdbcUser,
                                                             @Value("${nrtm.client.info.database.password}") final String jdbcPass) throws PropertyVetoException {
         return createDataSource(DRIVER_CLASS_NAME, jdbcUrl, jdbcUser, jdbcPass);
     }
 
-    @Bean(name = "nrtmClientSlaveInfoSource")
+    @Bean
     public ComboPooledDataSource nrtmClientSlaveInfoSource(@Value("${nrtm.client.info.slave.database.url}") final String jdbcUrl,
                                                            @Value("${nrtm.client.info.slave.database.username}") final String jdbcUser,
                                                            @Value("${nrtm.client.info.slave.database.password}") final String jdbcPass) throws PropertyVetoException {
         return createDataSource(DRIVER_CLASS_NAME, jdbcUrl, jdbcUser, jdbcPass);
     }
 
-    @Bean(name = "nrtmClientMasterDataSource")
+    @Bean
     public ComboPooledDataSource nrtmClientMasterDataSource(@Value("${nrtm.client.database.url}") final String jdbcUrl,
                                                             @Value("${nrtm.client.database.username}") final String jdbcUser,
                                                             @Value("${nrtm.client.database.password}") final String jdbcPass) throws PropertyVetoException {
         return createDataSource(DRIVER_CLASS_NAME, jdbcUrl, jdbcUser, jdbcPass);
     }
 
-    @Bean(name = "nrtmClientSlaveDataSource")
+    @Bean
     public ComboPooledDataSource nrtmClientSlaveDataSource(@Value("${nrtm.client.slave.database.url}") final String jdbcUrl,
                                                            @Value("${nrtm.client.slave.database.username}") final String jdbcUser,
                                                            @Value("${nrtm.client.slave.database.password}") final String jdbcPass) throws PropertyVetoException {
