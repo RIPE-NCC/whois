@@ -25,7 +25,7 @@ public enum RdapRequestType {
 
     AUTNUMS {
         public Set<ObjectType> getWhoisObjectTypes(final String key) {
-            return ImmutableSet.of(AUT_NUM, AS_BLOCK);
+            return ImmutableSet.of(AUT_NUM);
         }
     },
 

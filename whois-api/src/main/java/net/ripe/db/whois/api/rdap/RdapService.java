@@ -5,6 +5,7 @@ import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Iterators;
 import jakarta.servlet.http.HttpServletRequest;
+import jakarta.ws.rs.DefaultValue;
 import jakarta.ws.rs.GET;
 import jakarta.ws.rs.Path;
 import jakarta.ws.rs.PathParam;
@@ -257,13 +258,18 @@ public class RdapService {
             @PathParam("objectType") RdapRequestType requestType,
             @PathParam("relation") RelationType relationType,
             @PathParam("key") final String key,
-            @QueryParam("status") final String status) {
+            @QueryParam("status") String status) {
 
         if (status != null && (relationType.equals(RelationType.DOWN) || relationType.equals(RelationType.BOTTOM))){
             throw new RdapException("501 Not Implemented", "Status is not implement in down and bottom relation", HttpStatus.NOT_IMPLEMENTED_501);
         }
 
-        final List<RpslObject> rpslObjects = handleRelationQuery(request, requestType, relationType, key, status);
+        final Set<ObjectType> objectTypes = requestType.getWhoisObjectTypes(key);
+        if (isRedirect(Iterables.getOnlyElement(objectTypes), key)) {
+            return redirect(getRequestPath(request), getQueryObject(objectTypes, key));
+        }
+
+        final List<RpslObject> rpslObjects = handleRelationQuery(request, requestType, relationType, key, status == null ? "inactive" : status);
 
         return Response.ok(rdapObjectMapper.mapSearch(
                         getRequestUrl(request),
