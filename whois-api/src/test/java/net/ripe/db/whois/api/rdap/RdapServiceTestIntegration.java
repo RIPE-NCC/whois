@@ -3158,6 +3158,19 @@ public class RdapServiceTestIntegration extends AbstractRdapIntegrationTest {
     }
 
     @Test
+    public void get_up_active_status_then_parent(){
+        loadIpv4RelationTreeExample();
+
+        final SearchResult searchResult = createResource("ips/rirSearch1/up/192.0.2.0/28?status=active")
+                .request(MediaType.APPLICATION_JSON_TYPE)
+                .get(SearchResult.class);
+
+        final List<Ip> ipResults = searchResult.getIpSearchResults();
+        assertThat(ipResults.size(), is(1));
+        assertThat(ipResults.getFirst().getHandle(), is("192.0.2.0 - 192.0.2.127")); // /26
+    }
+
+    @Test
     public void get_non_existing_up_then_404(){
         loadIpv4RelationTreeExample();
 
