@@ -126,9 +126,17 @@ public class UpdateNotificationFileProcessor {
                 persistUpdateFileVersion(source, updateNotificationFile, hostname);
             } catch (Exception ex){
                 LOGGER.error("Failed to mirror database, cleaning up the tables", ex);
-                snapshotImporter.truncateTables();
+                cleanUpTablesSafely();
             }
         });
+    }
+
+    private void cleanUpTablesSafely(){
+        try {
+            snapshotImporter.truncateTables();
+        } catch (Exception cleanupEx) {
+            LOGGER.error("Failed to clean up the tables during database mirroring failure", cleanupEx);
+        }
     }
 
     private void persistUpdateFileVersion(final String source, final UpdateNotificationFileResponse updateNotificationFile,
