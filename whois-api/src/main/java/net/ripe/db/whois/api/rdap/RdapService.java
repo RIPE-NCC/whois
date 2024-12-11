@@ -263,7 +263,7 @@ public class RdapService {
             throw new RdapException("501 Not Implemented", "Status is not implement in down and bottom relation", HttpStatus.NOT_IMPLEMENTED_501);
         }
 
-        final List<RpslObject> rpslObjects = handleRelationQuery(request, requestType, relationType, key);
+        final List<RpslObject> rpslObjects = handleRelationQuery(request, requestType, relationType, key, status);
 
         return Response.ok(rdapObjectMapper.mapSearch(
                         getRequestUrl(request),
@@ -516,13 +516,13 @@ public class RdapService {
     }
 
     private List<RpslObject> handleRelationQuery(final HttpServletRequest request, final RdapRequestType requestType,
-                                                 final RelationType relationType, final String key) {
+                                                 final RelationType relationType, final String key, final String status) {
         final List<RpslObject> rpslObjects;
         switch (requestType) {
             case AUTNUMS -> throw new RdapException("400 Bad Request", "Relation queries not allowed for autnum", HttpStatus.BAD_REQUEST_400);
             case DOMAINS -> {
                 rdapRequestValidator.validateDomain(key);
-                final List<String> relatedPkeys = rdapRelationService.getDomainRelationPkeys(key, relationType);
+                final List<String> relatedPkeys = rdapRelationService.getDomainRelationPkeys(key, relationType, status);
 
                 rpslObjects = relatedPkeys
                         .stream()
@@ -531,7 +531,7 @@ public class RdapService {
             }
             case IPS -> {
                 rdapRequestValidator.validateIp(request.getRequestURI(), key);
-                final List<String> relatedPkeys = rdapRelationService.getInetnumRelationPkeys(key, relationType);
+                final List<String> relatedPkeys = rdapRelationService.getInetnumRelationPkeys(key, relationType, status);
 
                 rpslObjects = relatedPkeys
                         .stream()

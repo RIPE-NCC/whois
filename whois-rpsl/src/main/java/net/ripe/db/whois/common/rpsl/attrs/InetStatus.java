@@ -17,5 +17,5 @@ public interface InetStatus {
 
     boolean worksWithParentInHierarchy(InetStatus parentInHierarchyMaintainedByRs, boolean parentHasRsMntLower);
 
-    boolean isOutOfRegionOrRoot();
+    boolean isAdministrativeResource();
 }

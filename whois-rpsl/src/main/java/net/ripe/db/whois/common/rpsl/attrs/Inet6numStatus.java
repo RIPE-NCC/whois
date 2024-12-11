@@ -81,7 +81,7 @@ public enum Inet6numStatus implements InetStatus {
     }
 
     @Override
-    public boolean isOutOfRegionOrRoot() {
+    public boolean isAdministrativeResource() {
         return this.equals(ALLOCATED_BY_RIR);
     }
 
