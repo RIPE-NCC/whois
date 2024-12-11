@@ -3130,6 +3130,7 @@ public class RdapServiceTestIntegration extends AbstractRdapIntegrationTest {
 
     /*RIR Search*/
 
+    //up
     @Test
     public void get_up_autnum_then_400(){
         final BadRequestException badRequestException = assertThrows(BadRequestException.class, () -> {
@@ -3157,6 +3158,50 @@ public class RdapServiceTestIntegration extends AbstractRdapIntegrationTest {
     }
 
     @Test
+    public void get_non_existing_up_then_404(){
+        loadIpv4RelationTreeExample();
+
+        final NotFoundException notFoundException = assertThrows(NotFoundException.class, () -> {
+            createResource("ips/rirSearch1/up/192.0.2.0/24")
+                    .request(MediaType.APPLICATION_JSON_TYPE)
+                    .get(SearchResult.class);
+        });
+
+        assertErrorTitle(notFoundException, "404 Not Found");
+        assertErrorStatus(notFoundException, HttpStatus.NOT_FOUND_404);
+        assertErrorDescription(notFoundException, "No up level object has been found for 192.0.2.0/24");
+    }
+
+
+    @Test
+    public void get_up_inactive_status_then_administrative_parent_not_found(){
+        loadIpv4RelationTreeExample();
+
+        final NotFoundException notFoundException = assertThrows(NotFoundException.class, () -> {
+            createResource("ips/rirSearch1/up/192.0.2.0/28?status=inactive")
+                    .request(MediaType.APPLICATION_JSON_TYPE)
+                    .get(SearchResult.class);
+        });
+
+        assertErrorTitle(notFoundException, "404 Not Found");
+        assertErrorStatus(notFoundException, HttpStatus.NOT_FOUND_404);
+        assertErrorDescription(notFoundException, "No up level object has been found for 192.0.2.0/28");
+    }
+
+    @Test
+    public void get_up_inactive_status_then_administrative_parent(){
+        loadIpv4RelationTreeExample();
+
+        final SearchResult searchResult = createResource("ips/rirSearch1/up/192.0.0.0/16?status=inactive")
+                    .request(MediaType.APPLICATION_JSON_TYPE)
+                    .get(SearchResult.class);
+
+        final List<Ip> ipResults = searchResult.getIpSearchResults();
+        assertThat(ipResults.size(), is(1));
+        assertThat(ipResults.getFirst().getHandle(), is("0.0.0.0 - 255.255.255.255"));
+    }
+
+    @Test
     public void get_ipv6_up_then_parent(){
         loadIpv6RelationTreeExample();
 
@@ -3170,6 +3215,35 @@ public class RdapServiceTestIntegration extends AbstractRdapIntegrationTest {
     }
 
     @Test
+    public void get_ipv6_up_inactive_then_parent_not_found(){
+        loadIpv6RelationTreeExample();
+
+        final NotFoundException notFoundException = assertThrows(NotFoundException.class, () -> {
+            createResource("ips/rirSearch1/up/2001:db8::/32?status=inactive")
+                    .request(MediaType.APPLICATION_JSON_TYPE)
+                    .get(SearchResult.class);
+        });
+
+        assertErrorTitle(notFoundException, "404 Not Found");
+        assertErrorStatus(notFoundException, HttpStatus.NOT_FOUND_404);
+        assertErrorDescription(notFoundException, "No up level object has been found for 2001:db8::/32");
+    }
+
+    @Test
+    public void get_ipv6_up_inactive_then_parent(){
+        loadIpv6RelationTreeExample();
+
+        final SearchResult searchResult = createResource("ips/rirSearch1/up/FC00::/7?status=inactive")
+                .request(MediaType.APPLICATION_JSON_TYPE)
+                .get(SearchResult.class);
+
+        final List<Ip> ipResults = searchResult.getIpSearchResults();
+        assertThat(ipResults.size(), is(1));
+        assertThat(ipResults.getFirst().getHandle(), is("::/0"));
+    }
+
+
+    @Test
     public void get_domain_up_then_parent(){
         loadIpv4RelationTreeExample();
         loadIpv4RelationDomainExample();
@@ -3181,6 +3255,23 @@ public class RdapServiceTestIntegration extends AbstractRdapIntegrationTest {
         final List<Domain> domainResults = searchResult.getDomainSearchResults();
         assertThat(domainResults.size(), is(1));
         assertThat(domainResults.getFirst().getHandle(), is("2.0.192.in-addr.arpa"));
+    }
+
+    @Test
+    public void get_domain_up_inactive_then_parent_not_found(){
+        loadIpv4RelationTreeExample();
+        loadIpv4RelationDomainExample();
+
+        final NotFoundException notFoundException = assertThrows(NotFoundException.class, () -> {
+            createResource("domains/rirSearch1/up/1.2.0.192.in-addr.arpa?status=inactive")
+                    .request(MediaType.APPLICATION_JSON_TYPE)
+                    .get(SearchResult.class);
+        });
+
+
+        assertErrorTitle(notFoundException, "404 Not Found");
+        assertErrorStatus(notFoundException, HttpStatus.NOT_FOUND_404);
+        assertErrorDescription(notFoundException, "No up level object has been found for 192.0.2.1/32");
     }
 
     @Test
@@ -3199,21 +3290,8 @@ public class RdapServiceTestIntegration extends AbstractRdapIntegrationTest {
         assertErrorDescription(notFoundException, "No up level object has been found for 192.0.0.0/16");
     }
 
-    @Test
-    public void get_non_existing_up_then_404(){
-        loadIpv4RelationTreeExample();
 
-        final NotFoundException notFoundException = assertThrows(NotFoundException.class, () -> {
-            createResource("ips/rirSearch1/up/192.0.2.0/24")
-                    .request(MediaType.APPLICATION_JSON_TYPE)
-                    .get(SearchResult.class);
-        });
-
-        assertErrorTitle(notFoundException, "404 Not Found");
-        assertErrorStatus(notFoundException, HttpStatus.NOT_FOUND_404);
-        assertErrorDescription(notFoundException, "No up level object has been found for 192.0.2.0/24");
-    }
-
+    // Top
     @Test
     public void get_top_then_less_specific_allocated_assigned_first_parent(){
         loadIpv4RelationTreeExample();
@@ -3271,6 +3349,34 @@ public class RdapServiceTestIntegration extends AbstractRdapIntegrationTest {
     }
 
     @Test
+    public void get_ipv6_top_not_found(){
+        loadIpv6RelationTreeExample();
+
+        final NotFoundException notFoundException = assertThrows(NotFoundException.class, () -> {
+            createResource("ips/rirSearch1/top/2000::/3")
+                    .request(MediaType.APPLICATION_JSON_TYPE)
+                    .get(SearchResult.class);
+        });
+
+        assertErrorTitle(notFoundException, "404 Not Found");
+        assertErrorStatus(notFoundException, HttpStatus.NOT_FOUND_404);
+        assertErrorDescription(notFoundException, "No top level object has been found for 2000::/3");
+    }
+
+    @Test
+    public void get_ipv6_inactive_then_top_found(){
+        loadIpv6RelationTreeExample();
+
+        final SearchResult searchResult = createResource("ips/rirSearch1/top/2000::/3?status=inactive")
+                .request(MediaType.APPLICATION_JSON_TYPE)
+                .get(SearchResult.class);
+
+        final List<Ip> ipResults = searchResult.getIpSearchResults();
+        assertThat(ipResults.size(), is(1));
+        assertThat(ipResults.getFirst().getHandle(), is("::/0"));
+    }
+
+    @Test
     public void get_non_existing_top_then_404(){
         loadIpv4RelationTreeExample();
 
@@ -3285,6 +3391,20 @@ public class RdapServiceTestIntegration extends AbstractRdapIntegrationTest {
         assertErrorDescription(notFoundException, "No top level object has been found for 192.0.2.0/24");
     }
 
+    @Test
+    public void get_inactive_top_then_parent(){
+        loadIpv4RelationTreeExample();
+
+        final SearchResult searchResult = createResource("ips/rirSearch1/top/192.0.2.0/24?status=inactive")
+                    .request(MediaType.APPLICATION_JSON_TYPE)
+                    .get(SearchResult.class);
+
+        final List<Ip> ipResults = searchResult.getIpSearchResults();
+        assertThat(ipResults.size(), is(1));
+        assertThat(ipResults.getFirst().getHandle(), is("0.0.0.0 - 255.255.255.255"));
+    }
+
+    // Bottom
     @Test
     public void get_bottom_then_bottom(){
         loadIpv4RelationTreeExample();
@@ -3409,6 +3529,20 @@ public class RdapServiceTestIntegration extends AbstractRdapIntegrationTest {
     }
 
     @Test
+    public void bottom_with_status_then_501(){
+
+        final ServerErrorException notImplementedException = assertThrows(ServerErrorException.class, () -> {
+            createResource("ip/rirSearch1/bottom/192.0.2.0/24?status=inactive")
+                    .request(MediaType.APPLICATION_JSON_TYPE)
+                    .get(SearchResult.class);
+        });
+        assertErrorTitle(notImplementedException, "501 Not Implemented");
+        assertErrorStatus(notImplementedException, HttpStatus.NOT_IMPLEMENTED_501);
+        assertErrorDescription(notImplementedException, "Status is not implement in down and bottom relation");
+    }
+
+    // Down
+    @Test
     public void get_down_then_immediate_child(){
         loadIpv4RelationTreeExample();
 
@@ -3475,6 +3609,19 @@ public class RdapServiceTestIntegration extends AbstractRdapIntegrationTest {
 
         final List<Ip> ipResults = searchResult.getIpSearchResults();
         assertThat(ipResults, is(nullValue()));
+    }
+
+    @Test
+    public void down_with_status_then_501(){
+
+        final ServerErrorException notImplementedException = assertThrows(ServerErrorException.class, () -> {
+            createResource("ip/rirSearch1/down/192.0.2.0/24?status=inactive")
+                    .request(MediaType.APPLICATION_JSON_TYPE)
+                    .get(SearchResult.class);
+        });
+        assertErrorTitle(notImplementedException, "501 Not Implemented");
+        assertErrorStatus(notImplementedException, HttpStatus.NOT_IMPLEMENTED_501);
+        assertErrorDescription(notImplementedException, "Status is not implement in down and bottom relation");
     }
 
     /* Helper methods*/
