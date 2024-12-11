@@ -135,7 +135,7 @@ public class UpdateNotificationFileProcessor {
         try {
             snapshotImporter.truncateTables();
         } catch (Exception cleanupEx) {
-            LOGGER.error("Failed to clean up the tables during database mirroring failure", cleanupEx);
+            LOGGER.error("Failed to clean up the tables during database mirroring failure, check if database is UP");
         }
     }
 
