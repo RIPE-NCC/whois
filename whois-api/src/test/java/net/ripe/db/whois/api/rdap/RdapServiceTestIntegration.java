@@ -3673,7 +3673,23 @@ public class RdapServiceTestIntegration extends AbstractRdapIntegrationTest {
     @Test
     public void use_relation_links_then_up_bottom_top_down(){
         loadIpv4RelationTreeExample();
-        final Ip ip = createResource("ip/192.0.2.0/24")
+
+        databaseHelper.addObject("" +
+                "inetnum:      192.0.0.0 - 192.0.255.255\n" +
+                "netname:      TEST-NET-NAME\n" +
+                "descr:        TEST network\n" +
+                "country:      NL\n" +
+                "language:     en\n" +
+                "tech-c:       TP1-TEST\n" +
+                "status:       ALLOCATED PA\n" +
+                "mnt-by:       OWNER-MNT\n" +
+                "created:         2022-08-14T11:48:28Z\n" +
+                "last-modified:   2022-10-25T12:22:39Z\n" +
+                "source:       TEST");
+
+        ipTreeUpdater.rebuild();
+
+        final Ip ip = createResource("ip/192.0.2.0/25")
                 .request(MediaType.APPLICATION_JSON_TYPE)
                 .get(Ip.class);
 
@@ -3691,7 +3707,18 @@ public class RdapServiceTestIntegration extends AbstractRdapIntegrationTest {
 
         assertErrorTitle(notFoundException, "404 Not Found");
         assertErrorStatus(notFoundException, HttpStatus.NOT_FOUND_404);
-        assertErrorDescription(notFoundException, "No top level object has been found for 192.0.2.0/24");
+        assertErrorDescription(notFoundException, "No top level object has been found for 192.0.2.0/25");
+
+
+        //TOP active
+        final SearchResult topSearchResult = createResource(relationCalls.get("TOP-ACTIVE"))
+                .request(MediaType.APPLICATION_JSON_TYPE)
+                .get(SearchResult.class);
+
+        final List<Ip> topIpResults = topSearchResult.getIpSearchResults();
+        assertThat(topIpResults.size(), is(1));
+        assertThat(topIpResults.getFirst().getHandle(), is("192.0.0.0 - 192.0.255.255")); //16
+
 
         //BOTTOM
         final SearchResult bottomSearchResult = createResource(relationCalls.get(RelationType.BOTTOM.name()))
@@ -3699,12 +3726,9 @@ public class RdapServiceTestIntegration extends AbstractRdapIntegrationTest {
                 .get(SearchResult.class);
 
         final List<Ip> bottomIpResults = bottomSearchResult.getIpSearchResults();
-        assertThat(bottomIpResults.size(), is(5));
+        assertThat(bottomIpResults.size(), is(2));
         assertThat(bottomIpResults.getFirst().getHandle(), is("192.0.2.0 - 192.0.2.0")); //32
         assertThat(bottomIpResults.get(1).getHandle(), is("192.0.2.0 - 192.0.2.15")); //28
-        assertThat(bottomIpResults.get(2).getHandle(), is("192.0.2.0 - 192.0.2.127")); //25
-        assertThat(bottomIpResults.get(3).getHandle(), is("192.0.2.128 - 192.0.2.191")); //26
-        assertThat(bottomIpResults.get(4).getHandle(), is("192.0.2.192 - 192.0.2.255")); //26
 
         //DOWN
         final SearchResult downSearchResult = createResource(relationCalls.get(RelationType.DOWN.name()))
@@ -3712,9 +3736,8 @@ public class RdapServiceTestIntegration extends AbstractRdapIntegrationTest {
                 .get(SearchResult.class);
 
         final List<Ip> downIpResults = downSearchResult.getIpSearchResults();
-        assertThat(downIpResults.size(), is(2));
-        assertThat(downIpResults.getFirst().getHandle(), is("192.0.2.0 - 192.0.2.127")); //25
-        assertThat(downIpResults.get(1).getHandle(), is("192.0.2.128 - 192.0.2.255")); //25
+        assertThat(downIpResults.size(), is(1));
+        assertThat(bottomIpResults.getFirst().getHandle(), is("192.0.2.0 - 192.0.2.0")); //32
 
         //UP
         // TODO: We do not support administrative resources, we return 404. Change this when we support them
@@ -3726,9 +3749,18 @@ public class RdapServiceTestIntegration extends AbstractRdapIntegrationTest {
 
         assertErrorTitle(notFoundException, "404 Not Found");
         assertErrorStatus(notFoundException, HttpStatus.NOT_FOUND_404);
-        assertErrorDescription(notFoundException, "No up level object has been found for 192.0.2.0/24");
+        assertErrorDescription(notFoundException, "No up level object has been found for 192.0.2.0/25");
 
+        //UP active
+        final SearchResult upSearchResult = createResource(relationCalls.get("UP-ACTIVE"))
+                .request(MediaType.APPLICATION_JSON_TYPE)
+                .get(SearchResult.class);
+
+        final List<Ip> upIpResults = upSearchResult.getIpSearchResults();
+        assertThat(upIpResults.size(), is(1));
+        assertThat(upIpResults.getFirst().getHandle(), is("192.0.2.0 - 192.0.2.255")); //24
     }
+
 
     /* Helper methods*/
 
