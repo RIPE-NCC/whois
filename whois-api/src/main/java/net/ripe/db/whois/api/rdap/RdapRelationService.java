@@ -1,6 +1,10 @@
 package net.ripe.db.whois.api.rdap;
 
 import com.google.common.collect.Sets;
+import net.ripe.db.whois.api.rdap.domain.Autnum;
+import net.ripe.db.whois.api.rdap.domain.Ip;
+import net.ripe.db.whois.api.rdap.domain.Link;
+import net.ripe.db.whois.api.rdap.domain.RdapObject;
 import net.ripe.db.whois.api.rdap.domain.RelationType;
 import net.ripe.db.whois.common.dao.RpslObjectDao;
 import net.ripe.db.whois.common.domain.CIString;
@@ -41,15 +45,18 @@ public class RdapRelationService {
     private final Ipv4DomainTree ipv4DomainTree;
     private final Ipv6DomainTree ipv6DomainTree;
     private final RpslObjectDao rpslObjectDao;
+    private final String rdapRirSearchSkeleton;
 
     public RdapRelationService(final Ipv4Tree ip4Tree, final Ipv6Tree ip6Tree,
                                final Ipv4DomainTree ipv4DomainTree, final Ipv6DomainTree ipv6DomainTree,
-                               final RpslObjectDao rpslObjectDao) {
+                               final RpslObjectDao rpslObjectDao,
+                               @Value("${rdap.public.baseUrl:}") final String baseUrl) {
         this.ip4Tree = ip4Tree;
         this.ip6Tree = ip6Tree;
         this.ipv4DomainTree = ipv4DomainTree;
         this.ipv6DomainTree = ipv6DomainTree;
         this.rpslObjectDao = rpslObjectDao;
+        this.rdapRirSearchSkeleton = baseUrl + "/%s/rirSearch1/%s/%s";
     }
 
     public List<String> getDomainRelationPkeys(final String pkey, final RelationType relationType, final String status){
@@ -67,6 +74,29 @@ public class RdapRelationService {
         final IpInterval ip = IpInterval.parse(pkey);
         final List<IpEntry> ipEntries = getIpEntries(getIpTree(ip), relationType, ip, status);
         return ipEntries.stream().map(ipEntry -> ipEntry.getKey().toString()).toList();
+    }
+
+    public void mapRelationLinks(final RdapObject rdapResponse, final String requestUrl){
+        if (requestUrl == null || requestUrl.contains("rirSearch1")){
+            return;
+        }
+        switch (rdapResponse){
+            case Ip ip -> mapCommonRelationLinks(rdapResponse, requestUrl, "ips", ip.getHandle());
+            case net.ripe.db.whois.api.rdap.domain.Domain domain -> mapCommonRelationLinks(rdapResponse, requestUrl, "domains", domain.getHandle());
+            case Autnum autnum -> mapCommonRelationLinks(rdapResponse, requestUrl, "autnums", autnum.getHandle());
+            default -> {}
+        }
+    }
+
+    private void mapCommonRelationLinks(final RdapObject rdapResponse, final String requestUrl, final String objectType, final String handle){
+        rdapResponse.getLinks().add(new Link(requestUrl, RelationType.UP.getValue(), String.format(rdapRirSearchSkeleton,
+                objectType, RelationType.UP.getValue(), handle), "application/rdap+json", null, null));
+        rdapResponse.getLinks().add(new Link(requestUrl, RelationType.DOWN.getValue(), String.format(rdapRirSearchSkeleton,
+                objectType, RelationType.DOWN.getValue(), handle), "application/rdap+json", null, null));
+        rdapResponse.getLinks().add(new Link(requestUrl, RelationType.TOP.getValue(), String.format(rdapRirSearchSkeleton,
+                objectType, RelationType.TOP.getValue(), handle), "application/rdap+json", null, null));
+        rdapResponse.getLinks().add(new Link(requestUrl, RelationType.BOTTOM.getValue(), String.format(rdapRirSearchSkeleton,
+                objectType, RelationType.BOTTOM.getValue(), handle), "application/rdap+json", null, null));
     }
 
     private List<IpEntry> getIpEntries(final IpTree ipTree, final RelationType relationType,

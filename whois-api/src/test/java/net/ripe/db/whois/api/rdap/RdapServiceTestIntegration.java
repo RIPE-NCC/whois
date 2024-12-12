@@ -22,6 +22,7 @@ import net.ripe.db.whois.api.rdap.domain.Nameserver;
 import net.ripe.db.whois.api.rdap.domain.Notice;
 import net.ripe.db.whois.api.rdap.domain.RdapObject;
 import net.ripe.db.whois.api.rdap.domain.Redaction;
+import net.ripe.db.whois.api.rdap.domain.RelationType;
 import net.ripe.db.whois.api.rdap.domain.Remark;
 import net.ripe.db.whois.api.rdap.domain.Role;
 import net.ripe.db.whois.api.rdap.domain.SearchResult;
@@ -33,12 +34,16 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.test.annotation.DirtiesContext;
 
 import java.time.LocalDateTime;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 import static net.ripe.db.whois.common.rpsl.AttributeType.COUNTRY;
 import static net.ripe.db.whois.common.rpsl.AttributeType.LANGUAGE;
@@ -64,6 +69,9 @@ public class RdapServiceTestIntegration extends AbstractRdapIntegrationTest {
 
     @Autowired
     TestWhoisLog queryLog;
+
+    @Value("${rdap.public.baseUrl:}")
+    private String rdapBaseUrl;
 
     @BeforeEach
     public void setup() {
@@ -250,7 +258,7 @@ public class RdapServiceTestIntegration extends AbstractRdapIntegrationTest {
         assertThat(notices.get(1).getDescription(), contains("Objects returned came from source", "TEST"));
         assertThat(notices.get(1).getLinks(), hasSize(0));
 
-        assertTnCNotice(notices.get(2), "https://rdap.db.ripe.net/ip/192.0.2.0/24");
+        assertTnCNotice(notices.get(6), "https://rdap.db.ripe.net/ip/192.0.2.0/24");
         assertCopyrightLink(ip.getLinks(), "https://rdap.db.ripe.net/ip/192.0.2.0/24");
     }
 
@@ -3655,7 +3663,7 @@ public class RdapServiceTestIntegration extends AbstractRdapIntegrationTest {
     public void down_with_status_then_501(){
 
         final ServerErrorException notImplementedException = assertThrows(ServerErrorException.class, () -> {
-            createResource("ip/rirSearch1/down/192.0.2.0/24?status=inactive")
+            createResource("ips/rirSearch1/down/192.0.2.0/24?status=inactive")
                     .request(MediaType.APPLICATION_JSON_TYPE)
                     .get(SearchResult.class);
         });
@@ -3664,7 +3672,88 @@ public class RdapServiceTestIntegration extends AbstractRdapIntegrationTest {
         assertErrorDescription(notImplementedException, "Status is not implement in down and bottom relation");
     }
 
+    // Links
+
+    @Test
+    public void use_relation_links_then_up_bottom_top_down(){
+        loadIpv4RelationTreeExample();
+        final Ip ip = createResource("ip/192.0.2.0/24")
+                .request(MediaType.APPLICATION_JSON_TYPE)
+                .get(Ip.class);
+
+        final Map<RelationType, String> relationCalls = getRelationCallsFromLinks(ip.getLinks());
+
+        assertThat(relationCalls.size(), is(4));
+
+        //TOP
+        // TODO: We do not support administrative resources, we return 404. Change this when we support them
+        NotFoundException notFoundException = assertThrows(NotFoundException.class, () -> {
+            createResource(relationCalls.get(RelationType.TOP))
+                    .request(MediaType.APPLICATION_JSON_TYPE)
+                    .get(SearchResult.class);
+        });
+
+        assertErrorTitle(notFoundException, "404 Not Found");
+        assertErrorStatus(notFoundException, HttpStatus.NOT_FOUND_404);
+        assertErrorDescription(notFoundException, "No top level object has been found for 192.0.2.0/24");
+
+        //BOTTOM
+        final SearchResult bottomSearchResult = createResource(relationCalls.get(RelationType.BOTTOM))
+                .request(MediaType.APPLICATION_JSON_TYPE)
+                .get(SearchResult.class);
+
+        final List<Ip> bottomIpResults = bottomSearchResult.getIpSearchResults();
+        assertThat(bottomIpResults.size(), is(5));
+        assertThat(bottomIpResults.getFirst().getHandle(), is("192.0.2.0 - 192.0.2.0")); //32
+        assertThat(bottomIpResults.get(1).getHandle(), is("192.0.2.0 - 192.0.2.15")); //28
+        assertThat(bottomIpResults.get(2).getHandle(), is("192.0.2.0 - 192.0.2.127")); //25
+        assertThat(bottomIpResults.get(3).getHandle(), is("192.0.2.128 - 192.0.2.191")); //26
+        assertThat(bottomIpResults.get(4).getHandle(), is("192.0.2.192 - 192.0.2.255")); //26
+
+        //DOWN
+        final SearchResult downSearchResult = createResource(relationCalls.get(RelationType.DOWN))
+                .request(MediaType.APPLICATION_JSON_TYPE)
+                .get(SearchResult.class);
+
+        final List<Ip> downIpResults = downSearchResult.getIpSearchResults();
+        assertThat(downIpResults.size(), is(2));
+        assertThat(downIpResults.getFirst().getHandle(), is("192.0.2.0 - 192.0.2.127")); //25
+        assertThat(downIpResults.get(1).getHandle(), is("192.0.2.128 - 192.0.2.255")); //25
+
+        //UP
+        // TODO: We do not support administrative resources, we return 404. Change this when we support them
+        notFoundException = assertThrows(NotFoundException.class, () -> {
+            createResource(relationCalls.get(RelationType.UP))
+                    .request(MediaType.APPLICATION_JSON_TYPE)
+                    .get(SearchResult.class);
+        });
+
+        assertErrorTitle(notFoundException, "404 Not Found");
+        assertErrorStatus(notFoundException, HttpStatus.NOT_FOUND_404);
+        assertErrorDescription(notFoundException, "No up level object has been found for 192.0.2.0/24");
+
+    }
+
     /* Helper methods*/
+
+    private Map<RelationType, String> getRelationCallsFromLinks(final List<Link> links){
+        return links.stream()
+                .filter(link -> {
+                    if (link.getRel() == null){
+                        return false;
+                    }
+                    try {
+                        RelationType.valueOf(link.getRel().toUpperCase());
+                        return true;
+                    } catch (IllegalArgumentException ex) {
+                        return false;
+                    }
+                })
+                .collect(Collectors.toMap(
+                        link -> RelationType.valueOf(link.getRel().toUpperCase()),
+                        link -> link.getHref().replace(rdapBaseUrl + "/", "")
+                ));
+    }
 
     private void assertCommon(RdapObject object) {
         assertThat(object.getPort43(), is("whois.ripe.net"));
@@ -3673,7 +3762,7 @@ public class RdapServiceTestIntegration extends AbstractRdapIntegrationTest {
     }
 
     private void assertGeoFeedLink(final List<Link> links, final String value) {
-        assertThat(links, hasSize(3));
+        assertThat(links, hasSize(7));
 
         final Optional<Link> geoFeedLink = links.stream().filter(link -> link.getRel().equals("geo")).findFirst();
         assertThat(geoFeedLink.isPresent(), is(true));
