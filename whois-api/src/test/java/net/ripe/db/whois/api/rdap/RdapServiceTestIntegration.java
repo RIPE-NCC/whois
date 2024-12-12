@@ -34,14 +34,13 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.test.annotation.DirtiesContext;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
@@ -69,9 +68,6 @@ public class RdapServiceTestIntegration extends AbstractRdapIntegrationTest {
 
     @Autowired
     TestWhoisLog queryLog;
-
-    @Value("${rdap.public.baseUrl:}")
-    private String rdapBaseUrl;
 
     @BeforeEach
     public void setup() {
@@ -258,8 +254,8 @@ public class RdapServiceTestIntegration extends AbstractRdapIntegrationTest {
         assertThat(notices.get(1).getDescription(), contains("Objects returned came from source", "TEST"));
         assertThat(notices.get(1).getLinks(), hasSize(0));
 
-        assertTnCNotice(notices.get(6), "https://rdap.db.ripe.net/ip/192.0.2.0/24");
-        assertCopyrightLink(ip.getLinks(), "https://rdap.db.ripe.net/ip/192.0.2.0/24");
+        assertTnCNotice(notices.get(2), "https://rdap.db.ripe.net/ip/192.0.2.0/24");
+        assertResourceCopyrightLink(ip.getLinks(), "https://rdap.db.ripe.net/ip/192.0.2.0/24");
     }
 
     @Test
@@ -868,7 +864,7 @@ public class RdapServiceTestIntegration extends AbstractRdapIntegrationTest {
         assertThat(notices.get(1).getTitle(), is("Source"));
 
         assertTnCNotice(notices.get(2), "https://rdap.db.ripe.net/ip/2001:2002:2003::/48");
-        assertCopyrightLink(ip.getLinks(), "https://rdap.db.ripe.net/ip/2001:2002:2003::/48");
+        assertResourceCopyrightLink(ip.getLinks(), "https://rdap.db.ripe.net/ip/2001:2002:2003::/48");
     }
 
     @Test
@@ -1657,7 +1653,7 @@ public class RdapServiceTestIntegration extends AbstractRdapIntegrationTest {
         assertThat(entities.get(1).getHandle(), is("TP1-TEST"));
         assertThat(entities.get(1).getRoles(), containsInAnyOrder(Role.ADMINISTRATIVE, Role.TECHNICAL));
 
-        assertCopyrightLink(autnum.getLinks(), "https://rdap.db.ripe.net/autnum/102");
+        assertResourceCopyrightLink(autnum.getLinks(), "https://rdap.db.ripe.net/autnum/102");
 
         final List<Notice> notices = autnum.getNotices();
         assertThat(notices, hasSize(4));
@@ -3681,14 +3677,14 @@ public class RdapServiceTestIntegration extends AbstractRdapIntegrationTest {
                 .request(MediaType.APPLICATION_JSON_TYPE)
                 .get(Ip.class);
 
-        final Map<RelationType, String> relationCalls = getRelationCallsFromLinks(ip.getLinks());
+        final Map<String, String> relationCalls = getRelationCallsFromLinks(ip.getLinks());
 
-        assertThat(relationCalls.size(), is(4));
+        assertThat(relationCalls.size(), is(6));
 
         //TOP
         // TODO: We do not support administrative resources, we return 404. Change this when we support them
         NotFoundException notFoundException = assertThrows(NotFoundException.class, () -> {
-            createResource(relationCalls.get(RelationType.TOP))
+            createResource(relationCalls.get(RelationType.TOP.name()))
                     .request(MediaType.APPLICATION_JSON_TYPE)
                     .get(SearchResult.class);
         });
@@ -3698,7 +3694,7 @@ public class RdapServiceTestIntegration extends AbstractRdapIntegrationTest {
         assertErrorDescription(notFoundException, "No top level object has been found for 192.0.2.0/24");
 
         //BOTTOM
-        final SearchResult bottomSearchResult = createResource(relationCalls.get(RelationType.BOTTOM))
+        final SearchResult bottomSearchResult = createResource(relationCalls.get(RelationType.BOTTOM.name()))
                 .request(MediaType.APPLICATION_JSON_TYPE)
                 .get(SearchResult.class);
 
@@ -3711,7 +3707,7 @@ public class RdapServiceTestIntegration extends AbstractRdapIntegrationTest {
         assertThat(bottomIpResults.get(4).getHandle(), is("192.0.2.192 - 192.0.2.255")); //26
 
         //DOWN
-        final SearchResult downSearchResult = createResource(relationCalls.get(RelationType.DOWN))
+        final SearchResult downSearchResult = createResource(relationCalls.get(RelationType.DOWN.name()))
                 .request(MediaType.APPLICATION_JSON_TYPE)
                 .get(SearchResult.class);
 
@@ -3723,7 +3719,7 @@ public class RdapServiceTestIntegration extends AbstractRdapIntegrationTest {
         //UP
         // TODO: We do not support administrative resources, we return 404. Change this when we support them
         notFoundException = assertThrows(NotFoundException.class, () -> {
-            createResource(relationCalls.get(RelationType.UP))
+            createResource(relationCalls.get(RelationType.UP.name()))
                     .request(MediaType.APPLICATION_JSON_TYPE)
                     .get(SearchResult.class);
         });
@@ -3736,25 +3732,6 @@ public class RdapServiceTestIntegration extends AbstractRdapIntegrationTest {
 
     /* Helper methods*/
 
-    private Map<RelationType, String> getRelationCallsFromLinks(final List<Link> links){
-        return links.stream()
-                .filter(link -> {
-                    if (link.getRel() == null){
-                        return false;
-                    }
-                    try {
-                        RelationType.valueOf(link.getRel().toUpperCase());
-                        return true;
-                    } catch (IllegalArgumentException ex) {
-                        return false;
-                    }
-                })
-                .collect(Collectors.toMap(
-                        link -> RelationType.valueOf(link.getRel().toUpperCase()),
-                        link -> link.getHref().replace(rdapBaseUrl + "/", "")
-                ));
-    }
-
     private void assertCommon(RdapObject object) {
         assertThat(object.getPort43(), is("whois.ripe.net"));
         assertThat(object.getRdapConformance(), hasSize(4));
@@ -3762,7 +3739,7 @@ public class RdapServiceTestIntegration extends AbstractRdapIntegrationTest {
     }
 
     private void assertGeoFeedLink(final List<Link> links, final String value) {
-        assertThat(links, hasSize(7));
+        assertThat(links, hasSize(9));
 
         final Optional<Link> geoFeedLink = links.stream().filter(link -> link.getRel().equals("geo")).findFirst();
         assertThat(geoFeedLink.isPresent(), is(true));
@@ -3771,8 +3748,18 @@ public class RdapServiceTestIntegration extends AbstractRdapIntegrationTest {
         assertThat(geoFeedLink.get().getType(), is("application/geofeed+csv"));
     }
 
+    private void assertResourceCopyrightLink(final List<Link> links, final String value) {
+        assertThat(links.size(), is(8));
+
+        final List<Link> copyrightLinks = links.stream()
+                .filter(link -> link.getRel().equals("copyright") || link.getRel().equals("self"))
+                .collect(Collectors.toCollection(ArrayList::new));
+
+        assertCopyrightLink(copyrightLinks, value);
+    }
+
     private void assertCopyrightLink(final List<Link> links, final String value) {
-        assertThat(links, hasSize(2));
+        assertThat(links.size(), is(2));
         Collections.sort(links);
 
         assertThat(links.get(0).getRel(), is("copyright"));

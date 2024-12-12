@@ -91,10 +91,19 @@ public class RdapRelationService {
     private void mapCommonRelationLinks(final RdapObject rdapResponse, final String requestUrl, final String objectType, final String handle){
         rdapResponse.getLinks().add(new Link(requestUrl, RelationType.UP.getValue(), String.format(rdapRirSearchSkeleton,
                 objectType, RelationType.UP.getValue(), handle), "application/rdap+json", null, null));
+
+        rdapResponse.getLinks().add(new Link(requestUrl, "up-active", String.format(rdapRirSearchSkeleton + "?status=active",
+                objectType, RelationType.UP.getValue(), handle), "application/rdap+json", null, null));
+
         rdapResponse.getLinks().add(new Link(requestUrl, RelationType.DOWN.getValue(), String.format(rdapRirSearchSkeleton,
                 objectType, RelationType.DOWN.getValue(), handle), "application/rdap+json", null, null));
+
         rdapResponse.getLinks().add(new Link(requestUrl, RelationType.TOP.getValue(), String.format(rdapRirSearchSkeleton,
                 objectType, RelationType.TOP.getValue(), handle), "application/rdap+json", null, null));
+
+        rdapResponse.getLinks().add(new Link(requestUrl, "top-active", String.format(rdapRirSearchSkeleton + "?status=active",
+                objectType, RelationType.TOP.getValue(), handle), "application/rdap+json", null, null));
+
         rdapResponse.getLinks().add(new Link(requestUrl, RelationType.BOTTOM.getValue(), String.format(rdapRirSearchSkeleton,
                 objectType, RelationType.BOTTOM.getValue(), handle), "application/rdap+json", null, null));
     }
