@@ -1,6 +1,8 @@
 package net.ripe.db.whois.api.rdap;
 
 import com.google.common.collect.Sets;
+import net.ripe.db.whois.api.rdap.domain.RdapObject;
+import net.ripe.db.whois.api.rdap.domain.RdapRequestType;
 import net.ripe.db.whois.api.rdap.domain.RelationType;
 import net.ripe.db.whois.common.dao.RpslObjectDao;
 import net.ripe.db.whois.common.domain.CIString;
@@ -66,6 +68,20 @@ public class RdapRelationService {
         final IpInterval ip = IpInterval.parse(pkey);
         final List<IpEntry> ipEntries = getIpEntries(getIpTree(ip), relationType, ip, status);
         return ipEntries.stream().map(ipEntry -> ipEntry.getKey().toString()).toList();
+    }
+
+    public void mapRelationConformance(final RdapObject rdapObject, final String requestUrl){
+        rdapObject.getRdapConformance().add(RdapConformance.RIR_SEARCH_1.getValue());
+        if (requestUrl == null) {
+            return;
+        }
+        if (requestUrl.contains(RdapRequestType.IPS.name().toLowerCase())){
+            rdapObject.getRdapConformance().addAll(List.of(RdapConformance.IPS.getValue(), RdapConformance.IP_SEARCH_RESULTS.getValue()));
+            return;
+        }
+        if (requestUrl.contains(RdapRequestType.AUTNUMS.name().toLowerCase())){
+            rdapObject.getRdapConformance().addAll(List.of(RdapConformance.AUTNUMS.getValue(), RdapConformance.AUTNUM_SEARCH_RESULTS.getValue()));
+        }
     }
 
     private List<IpEntry> getIpEntries(final IpTree ipTree, final RelationType relationType,
