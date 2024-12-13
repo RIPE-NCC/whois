@@ -13,6 +13,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.util.FileCopyUtils;
 
+import java.util.HashSet;
+import java.util.regex.MatchResult;
 import java.io.BufferedInputStream;
 import java.io.File;
 import java.io.FileInputStream;
@@ -20,7 +22,10 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.Reader;
 import java.nio.charset.StandardCharsets;
+import java.util.List;
 import java.util.Set;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import java.util.zip.GZIPInputStream;
 
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -106,6 +111,8 @@ public class ExportDatabaseTestIntegration extends AbstractSchedulerIntegrationT
 
         checkFile("public/TEST.CURRENTSERIAL", "120");
 
+        checkNotDuplicateNicHdl("public/test.db.gz");
+
         checkFile("public/test.db.gz",
                 "person:         Placeholder Person Object\n",
                 "mntner:         DEV-MNT0\n",
@@ -129,6 +136,7 @@ public class ExportDatabaseTestIntegration extends AbstractSchedulerIntegrationT
                         "remarks:        ****************************\n");
 
         checkFile("public/split/test.db.person.gz", "person:         Placeholder Person Object");
+        checkFile("public/split/test.db.role.gz", "role:           Placeholder Role Object");
 
         checkFile("public/split/test.db.mntner.gz",
                 "mntner:         DEV-MNT0\n",
@@ -245,7 +253,9 @@ public class ExportDatabaseTestIntegration extends AbstractSchedulerIntegrationT
             checkFile("internal/split/test.db." + objectType.getName() + ".gz");
         }
 
+        checkNotDuplicateNicHdl("public/test.db.gz");
         checkFile("public/split/test.db.person.gz", "person:         Placeholder Person Object");
+        checkFile("public/split/test.db.role.gz", "role:           Placeholder Role Object");
 
         checkFile("public/split/test.db.role.gz", "" +
                 "role:           Abuse role\n" +
@@ -270,7 +280,27 @@ public class ExportDatabaseTestIntegration extends AbstractSchedulerIntegrationT
                 "source:         TEST");
     }
 
+    private void checkNotDuplicateNicHdl(final String name) throws IOException {
+        final String contents = getContents(name);
+
+        final Pattern pattern = Pattern.compile("^nic-hdl: .*", Pattern.MULTILINE);
+        final Matcher matcher = pattern.matcher(contents);
+
+        final List<String> results = matcher.results()
+                .map(MatchResult::group)
+                .toList();
+        assertThat(results.size() == new HashSet<>(results).size(), is(true));
+    }
+
     private void checkFile(final String name, final String... expectedContents) throws IOException {
+        final String contents = getContents(name);
+
+        for (final String expectedContent : expectedContents) {
+            assertThat(contents, containsString(expectedContent));
+        }
+    }
+
+    private String getContents(String name) throws IOException {
         final File file = new File(exportDir, name);
 
         assertThat(file.exists(), is(true));
@@ -295,11 +325,9 @@ public class ExportDatabaseTestIntegration extends AbstractSchedulerIntegrationT
                     "# https://docs.db.ripe.net/terms-conditions.html\n" +
                     "#"));
         }
-
-        for (final String expectedContent : expectedContents) {
-            assertThat(contents, containsString(expectedContent));
-        }
+        return contents;
     }
+
 
     @Test
     public void export_mix_of_sources() throws IOException {
@@ -328,6 +356,36 @@ public class ExportDatabaseTestIntegration extends AbstractSchedulerIntegrationT
             }
         }
 
+        checkNotDuplicateNicHdl("public/test.db.gz");
+        checkFile("public/split/test.db.role.gz", "role:           Placeholder Role Object");
+        checkFile("public/split/test.db.aut-num.gz", "aut-num:        AS252");
+        checkFile("public/split/test-nonauth.db.aut-num.gz", "aut-num:        AS251");
+        checkFile("public/split/test-nonauth.db.as-set.gz", "as-set:         AS251:AS-ALL");
+    }
+
+
+    @Test
+    public void export_mix_of_sources_when_existing_dummy() throws IOException {
+        databaseHelper.addObject(RpslObject.parse("" +
+                "aut-num:        AS252\n" +
+                "source:         TEST"));
+        databaseHelper.addObject(RpslObject.parse("" +
+                "aut-num:        AS251\n" +
+                "source:         TEST-NONAUTH"));
+        databaseHelper.addObject(RpslObject.parse("" +
+                "as-set:         AS251:AS-ALL\n" +
+                "source:         TEST-NONAUTH"));
+        databaseHelper.addObject(RpslObject.parse("" +
+                "role:           ROLE Account of x.ORGanization\n" +
+                "nic-hdl:        ROLE-RIPE\n" +
+                "abuse-mailbox:   abuse@speednic.eu\n" +
+                "source:         TEST"));
+
+        sourceContext.removeCurrentSource();
+        rpslObjectsExporter.export();
+
+        checkNotDuplicateNicHdl("public/test.db.gz");
+        checkFile("public/split/test.db.role.gz", "role:           Placeholder Role Object");
         checkFile("public/split/test.db.aut-num.gz", "aut-num:        AS252");
         checkFile("public/split/test-nonauth.db.aut-num.gz", "aut-num:        AS251");
         checkFile("public/split/test-nonauth.db.as-set.gz", "as-set:         AS251:AS-ALL");

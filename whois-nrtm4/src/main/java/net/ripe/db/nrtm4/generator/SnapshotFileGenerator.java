@@ -19,10 +19,12 @@ import net.ripe.db.nrtm4.util.NrtmFileUtil;
 import net.ripe.db.whois.common.DateTimeProvider;
 import net.ripe.db.whois.common.domain.CIString;
 import net.ripe.db.whois.common.rpsl.AttributeType;
+import net.ripe.db.whois.common.rpsl.DummifierNrtm;
 import net.ripe.db.whois.common.rpsl.DummifierNrtmV4;
 import net.ripe.db.whois.common.rpsl.RpslObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import java.time.ZoneOffset;
@@ -38,6 +40,7 @@ import java.util.stream.Collectors;
 
 import static java.util.stream.Collectors.groupingBy;
 import static net.ripe.db.nrtm4.util.NrtmFileUtil.calculateSha256;
+import static net.ripe.db.whois.common.rpsl.DummifierNrtm.getPlaceholderPersonObject;
 
 @Service
 public class SnapshotFileGenerator {
@@ -51,6 +54,7 @@ public class SnapshotFileGenerator {
     private final UpdateNrtmFileRepository updateNrtmFileRepository;
     private final DateTimeProvider dateTimeProvider;
     private final NrtmKeyPairService nrtmKeyGenerator;
+    private final String whoisSource;
 
 
     public SnapshotFileGenerator(
@@ -60,7 +64,8 @@ public class SnapshotFileGenerator {
         final UpdateNrtmFileRepository updateNrtmFileRepository,
         final DateTimeProvider dateTimeProvider,
         final NrtmKeyPairService nrtmKeyPairService,
-        final NrtmSourceDao nrtmSourceDao
+        final NrtmSourceDao nrtmSourceDao,
+        @Value("${whois.source}") final String whoisSource
     ) {
         this.dummifierNrtmV4 = dummifierNrtmV4;
         this.nrtmVersionInfoDao = nrtmVersionInfoDao;
@@ -69,6 +74,7 @@ public class SnapshotFileGenerator {
         this.updateNrtmFileRepository = updateNrtmFileRepository;
         this.dateTimeProvider = dateTimeProvider;
         this.nrtmKeyGenerator = nrtmKeyPairService;
+        this.whoisSource = whoisSource;
     }
 
     public void createSnapshot()  {
@@ -119,11 +125,14 @@ public class SnapshotFileGenerator {
 
                 noOfBatchesProcessed.incrementAndGet();
                 return rpslObjects;
-            }).flatMap(Collection::stream).forEach(rpslObject -> {
+            })
+            .flatMap(Collection::stream).forEach(rpslObject -> {
                 if(sourceResources.containsKey(rpslObject.getValueForAttribute(AttributeType.SOURCE))) {
                     sourceResources.get(rpslObject.getValueForAttribute(AttributeType.SOURCE)).write(new SnapshotFileRecord(rpslObject));
                 }
             });
+
+            sourceResources.get(CIString.ciString(whoisSource)).write(new SnapshotFileRecord(getPlaceholderPersonObject()));
 
         } catch (final Exception e) {
             LOGGER.error("Error while writing snapshotfile", e);
