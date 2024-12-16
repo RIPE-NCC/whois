@@ -116,6 +116,9 @@ public class SnapshotFileGenerator {
                     try {
                         final RpslObject rpslObject = RpslObject.parse(object);
                         if (dummifierNrtmV4.isAllowed(rpslObject)) {
+                            if (dummifierNrtmV4.shouldCreatePlaceHolder(rpslObject)){
+                                rpslObjects.add(DummifierNrtm.getPlaceholderRoleObject(rpslObject.getValueForAttribute(AttributeType.SOURCE)));
+                            }
                             rpslObjects.add(dummifierNrtmV4.dummify(rpslObject));
                         }
                     } catch (final Exception e) {
@@ -131,8 +134,6 @@ public class SnapshotFileGenerator {
                     sourceResources.get(rpslObject.getValueForAttribute(AttributeType.SOURCE)).write(new SnapshotFileRecord(rpslObject));
                 }
             });
-
-            sourceResources.get(CIString.ciString(whoisSource)).write(new SnapshotFileRecord(getPlaceholderPersonObject()));
 
         } catch (final Exception e) {
             LOGGER.error("Error while writing snapshotfile", e);
