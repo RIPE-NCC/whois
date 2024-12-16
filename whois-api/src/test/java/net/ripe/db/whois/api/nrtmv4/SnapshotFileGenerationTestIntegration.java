@@ -113,6 +113,88 @@ public class SnapshotFileGenerationTestIntegration extends AbstractNrtmIntegrati
     }
 
     @Test
+    public void should_get_placeholder_when_role_abuse_object() throws IOException, JSONException {
+
+        databaseHelper.addObject("" +
+                "role:          Miguel Herran\n" +
+                "nic-hdl:       MH-RIPE\n" +
+                "abuse-mailbox: abuse@ripe.net\n" +
+                "e-mail:        test@ripe.net\n" +
+                "created:       2024-12-16T17:00:00Z\n" +
+                "last-modified: 2024-12-16T17:00:00Z\n" +
+                "source:        TEST");
+
+        databaseHelper.addObject("" +
+                "role:          Ed Shryane\n" +
+                "nic-hdl:       ES-RIPE\n" +
+                "abuse-mailbox: abuse@ripe.net\n" +
+                "e-mail:        test@ripe.net\n" +
+                "created:       2024-12-16T17:00:00Z\n" +
+                "last-modified: 2024-12-16T17:00:00Z\n" +
+                "source:        TEST");
+
+        snapshotFileGenerator.createSnapshot();
+        updateNotificationFileGenerator.generateFile();
+
+        final Response response = getSnapshotFromUpdateNotificationBySource("TEST");
+
+        assertThat(response.getStatus(), is(200));
+        assertThat(response.getHeaderString(HttpHeaders.CACHE_CONTROL), is("public, max-age=604800"));
+
+        final String[] records = getSnapshotRecords(response.readEntity(byte[].class));
+        assertNrtmFileInfo(records[0], "snapshot", 1, "TEST");
+
+        final List<SnapshotFileRecord> snapshotRecords = getSnapshotRecords(records);
+
+        assertThat(snapshotRecords.size(), is(10));
+        assertThat(snapshotRecords.stream().map( record -> record.getObject().getKey().toString()).collect(Collectors.toSet()), containsInAnyOrder("::/0",
+                "0.0.0.0 - 255.255.255.255",
+                "AS100 - AS200",
+                "AS102",
+                "31.12.202.in-addr.arpa",
+                "OWNER-MNT",
+                "ORG-TEST1-TEST",
+                "ES-RIPE",
+                "MH-RIPE",
+                "DUMY-RIPE"));
+    }
+
+
+    @Test
+    public void should_not_get_placeholder_when_role_not_abuse_object() throws IOException, JSONException {
+
+        databaseHelper.addObject("" +
+                "role:          Miguel Herran\n" +
+                "nic-hdl:       MH-RIPE\n" +
+                "e-mail:        test@ripe.net\n" +
+                "created:       2024-12-16T17:00:00Z\n" +
+                "last-modified: 2024-12-16T17:00:00Z\n" +
+                "source:        TEST");
+
+        snapshotFileGenerator.createSnapshot();
+        updateNotificationFileGenerator.generateFile();
+
+        final Response response = getSnapshotFromUpdateNotificationBySource("TEST");
+
+        assertThat(response.getStatus(), is(200));
+        assertThat(response.getHeaderString(HttpHeaders.CACHE_CONTROL), is("public, max-age=604800"));
+
+        final String[] records = getSnapshotRecords(response.readEntity(byte[].class));
+        assertNrtmFileInfo(records[0], "snapshot", 1, "TEST");
+
+        final List<SnapshotFileRecord> snapshotRecords = getSnapshotRecords(records);
+
+        assertThat(snapshotRecords.size(), is(7));
+        assertThat(snapshotRecords.stream().map( record -> record.getObject().getKey().toString()).collect(Collectors.toSet()), containsInAnyOrder("::/0",
+                "0.0.0.0 - 255.255.255.255",
+                "AS100 - AS200",
+                "AS102",
+                "31.12.202.in-addr.arpa",
+                "OWNER-MNT",
+                "ORG-TEST1-TEST"));
+    }
+
+    @Test
     public void should_get_snapshot_file_test_non_auth_source() throws IOException, JSONException {
         snapshotFileGenerator.createSnapshot();
         updateNotificationFileGenerator.generateFile();
