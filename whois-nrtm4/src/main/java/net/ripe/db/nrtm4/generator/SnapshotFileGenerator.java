@@ -112,7 +112,7 @@ public class SnapshotFileGenerator {
                         final RpslObject rpslObject = RpslObject.parse(object);
                         if (dummifierNrtmV4.isAllowed(rpslObject)) {
                             if (dummifierNrtmV4.shouldCreatePlaceHolder(rpslObject)){
-                                rpslObjects.add(DummifierNrtm.getPlaceholderRoleObject(rpslObject.getValueForAttribute(AttributeType.SOURCE)));
+                                rpslObjects.add(DummifierNrtm.getPlaceholderPersonObject(rpslObject.getValueForAttribute(AttributeType.SOURCE)));
                             }
                             rpslObjects.add(dummifierNrtmV4.dummify(rpslObject));
                         }

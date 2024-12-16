@@ -236,28 +236,25 @@ public class DummifierNrtm implements Dummifier {
         );
     }
 
-    public static RpslObject getPlaceholderRoleObject(final CIString source){
+    public static RpslObject getPlaceholderPersonObject(final CIString source){
         return RpslObject.parse(String.format("""
-                role:           Placeholder Role Object
-                address:        RIPE Network Coordination Centre
-                address:        P.O. Box 10096
-                address:        1001 EB Amsterdam
-                address:        The Netherlands
-                phone:          +31 20 535 4444
-                e-mail:         ripe-dbm@ripe.net
-                admin-c:        DUMY-RIPE
-                tech-c:         DUMY-RIPE
-                nic-hdl:        ROLE-RIPE
-                mnt-by:         RIPE-DBM-MNT
-                remarks:        **********************************************************
-                remarks:        * This is a placeholder object to protect personal data.
-                remarks:        * To view the original object, please query the RIPE
-                remarks:        * Database at:
-                remarks:        * http://www.ripe.net/whois
-                remarks:        **********************************************************
-                created:        2009-07-24T17:00:00Z
-                last-modified:  2009-07-24T17:00:00Z
-                source:         %s""", source));
+                        person:         Placeholder Person Object
+                        address:        RIPE Network Coordination Centre
+                        address:        P.O. Box 10096
+                        address:        1001 EB Amsterdam
+                        address:        The Netherlands
+                        phone:          +31 20 535 4444
+                        nic-hdl:        DUMY-RIPE
+                        mnt-by:         RIPE-DBM-MNT
+                        remarks:        **********************************************************
+                        remarks:        * This is a placeholder object to protect personal data.
+                        remarks:        * To view the original object, please query the RIPE
+                        remarks:        * Database at:
+                        remarks:        * http://www.ripe.net/whois
+                        remarks:        **********************************************************
+                        created:        2009-07-24T17:00:00Z
+                        last-modified:  2009-07-24T17:00:00Z
+                        source:         %s""", source));
     }
 
     public static RpslObject getPlaceholderRoleObject() {

@@ -156,7 +156,7 @@ public class SnapshotFileGenerationTestIntegration extends AbstractNrtmIntegrati
                 "ORG-TEST1-TEST",
                 "ES-RIPE",
                 "MH-RIPE",
-                "ROLE-RIPE"));
+                "DUMY-RIPE"));
     }
 
 
