@@ -215,25 +215,7 @@ public class DummifierNrtm implements Dummifier {
     }
 
     public static RpslObject getPlaceholderPersonObject() {
-        return RpslObject.parse("" +
-                        "person:         Placeholder Person Object\n" +
-                        "address:        RIPE Network Coordination Centre\n" +
-                        "address:        P.O. Box 10096\n" +
-                        "address:        1001 EB Amsterdam\n" +
-                        "address:        The Netherlands\n" +
-                        "phone:          +31 20 535 4444\n" +
-                        "nic-hdl:        DUMY-RIPE\n" +
-                        "mnt-by:         RIPE-DBM-MNT\n" +
-                        "remarks:        **********************************************************\n" +
-                        "remarks:        * This is a placeholder object to protect personal data.\n" +
-                        "remarks:        * To view the original object, please query the RIPE\n" +
-                        "remarks:        * Database at:\n" +
-                        "remarks:        * http://www.ripe.net/whois\n" +
-                        "remarks:        **********************************************************\n" +
-                        "created:        2009-07-24T17:00:00Z\n" +
-                        "last-modified:  2009-07-24T17:00:00Z\n" +
-                        "source:         RIPE"
-        );
+        return getPlaceholderPersonObject(CIString.ciString("RIPE"));
     }
 
     public static RpslObject getPlaceholderPersonObject(final CIString source){
