@@ -19,6 +19,7 @@ import net.ripe.db.nrtm4.util.NrtmFileUtil;
 import net.ripe.db.whois.common.DateTimeProvider;
 import net.ripe.db.whois.common.domain.CIString;
 import net.ripe.db.whois.common.rpsl.AttributeType;
+import net.ripe.db.whois.common.rpsl.DummifierNrtm;
 import net.ripe.db.whois.common.rpsl.DummifierNrtmV4;
 import net.ripe.db.whois.common.rpsl.RpslObject;
 import org.slf4j.Logger;
@@ -110,6 +111,9 @@ public class SnapshotFileGenerator {
                     try {
                         final RpslObject rpslObject = RpslObject.parse(object);
                         if (dummifierNrtmV4.isAllowed(rpslObject)) {
+                            if (dummifierNrtmV4.shouldCreatePlaceHolder(rpslObject)){
+                                rpslObjects.add(DummifierNrtm.getPlaceholderRoleObject(rpslObject.getValueForAttribute(AttributeType.SOURCE)));
+                            }
                             rpslObjects.add(dummifierNrtmV4.dummify(rpslObject));
                         }
                     } catch (final Exception e) {
