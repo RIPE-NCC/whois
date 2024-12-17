@@ -3130,6 +3130,20 @@ public class RdapServiceTestIntegration extends AbstractRdapIntegrationTest {
 
     /*RIR Search*/
 
+    @Test
+    public void get_invalid_relation_autnum_then_400(){
+        final BadRequestException badRequestException = assertThrows(BadRequestException.class, () -> {
+            createResource("autnums/rirSearch1/upper/AS123")
+                    .request(MediaType.APPLICATION_JSON_TYPE)
+                    .get(SearchResult.class);
+        });
+
+        assertErrorTitle(badRequestException, "400 Bad Request");
+        assertErrorStatus(badRequestException, HttpStatus.BAD_REQUEST_400);
+        assertErrorDescription(badRequestException, "unknown relation");
+    }
+
+
     //up
     @Test
     public void get_up_autnum_then_400(){
