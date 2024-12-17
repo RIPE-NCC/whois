@@ -19,7 +19,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.annotation.Conditional;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 import javax.annotation.Nullable;
 import java.io.FileNotFoundException;
@@ -46,6 +45,7 @@ public class UpdateNotificationFileProcessor {
 
     private final static String PUBLIC_KEY_PATH = "public.key";
 
+
     public UpdateNotificationFileProcessor(final NrtmRestClient nrtmRestClient,
                                            final Nrtm4ClientInfoRepository nrtm4ClientMirrorDao,
                                            final SnapshotMirrorImporter snapshotImporter,
@@ -56,7 +56,6 @@ public class UpdateNotificationFileProcessor {
         this.deltaImporter = deltaImporter;
     }
 
-    @Transactional(rollbackFor = Exception.class)
     public void processFile(){
         final Map<String, String> notificationFilePerSource =
                 nrtmRestClient.getNrtmAvailableSources()
@@ -69,6 +68,7 @@ public class UpdateNotificationFileProcessor {
         final List<NrtmClientVersionInfo> nrtmLastVersionInfoPerSource = nrtm4ClientMirrorDao.getNrtmLastVersionInfoForUpdateNotificationFile();
 
         final String hostname = Hosts.getInstanceName();
+
         notificationFilePerSource.forEach((source, updateNotificationSignature) -> {
             final NrtmClientVersionInfo nrtmClientLastVersionInfo = nrtmLastVersionInfoPerSource
                     .stream()
@@ -88,46 +88,61 @@ public class UpdateNotificationFileProcessor {
                 return;
             }
 
-            if (!isCorrectSignature(jwsObjectParsed)){
+            if (!isCorrectSignature(jwsObjectParsed)) {
                 LOGGER.error("Update Notification File not corrected signed for {} source", source);
                 return;
             }
 
             final UpdateNotificationFileResponse updateNotificationFile = getUpdateNotificationFileResponse(jwsObjectParsed);
 
-            if (updateNotificationFile == null){
+            if (updateNotificationFile == null) {
                 return;
             }
 
-            if (nrtmClientLastVersionInfo != null && !nrtmClientLastVersionInfo.sessionID().equals(updateNotificationFile.getSessionID())){
+            if (nrtmClientLastVersionInfo != null && !nrtmClientLastVersionInfo.sessionID().equals(updateNotificationFile.getSessionID())) {
                 LOGGER.info("Different session");
                 snapshotImporter.truncateTables();
                 return;
             }
 
-            if (nrtmClientLastVersionInfo != null && nrtmClientLastVersionInfo.version() > updateNotificationFile.getVersion()){
+            if (nrtmClientLastVersionInfo != null && nrtmClientLastVersionInfo.version() > updateNotificationFile.getVersion()) {
                 LOGGER.info("The local version cannot be higher than the update notification version {}", source);
                 snapshotImporter.truncateTables();
                 return;
             }
 
-            if (nrtmClientLastVersionInfo != null && nrtmClientLastVersionInfo.version().equals(updateNotificationFile.getVersion())){
+            if (nrtmClientLastVersionInfo != null && nrtmClientLastVersionInfo.version().equals(updateNotificationFile.getVersion())) {
                 LOGGER.info("There is no new version associated with the source {}", source);
                 return;
             }
 
-            nrtm4ClientMirrorDao.saveUpdateNotificationFileVersion(source, updateNotificationFile.getVersion(),
-                    updateNotificationFile.getSessionID(), hostname);
+            try {
+                if (nrtmClientLastVersionInfo == null) {
+                    snapshotImporter.doImport(source, updateNotificationFile.getSessionID(), updateNotificationFile.getSnapshot());
+                }
 
-            if (nrtmClientLastVersionInfo == null){
-                LOGGER.info("There is no existing Snapshot for the source {}", source);
-                snapshotImporter.doImport(source, updateNotificationFile.getSessionID(), updateNotificationFile.getSnapshot());
+                final List<UpdateNotificationFileResponse.NrtmFileLink> newDeltas = getNewDeltasFromNotificationFile(source, updateNotificationFile);
+                deltaImporter.doImport(source, updateNotificationFile.getSessionID(), newDeltas);
+                persistUpdateFileVersion(source, updateNotificationFile, hostname);
+            } catch (Exception ex){
+                LOGGER.error("Failed to mirror database, cleaning up the tables", ex);
+                cleanUpTablesSafely();
             }
-
-            final List<UpdateNotificationFileResponse.NrtmFileLink> newDeltas = getNewDeltasFromNotificationFile(source, updateNotificationFile);
-            deltaImporter.doImport(source, updateNotificationFile.getSessionID(), newDeltas);
         });
+    }
 
+    private void cleanUpTablesSafely(){
+        try {
+            snapshotImporter.truncateTables();
+        } catch (Exception cleanupEx) {
+            LOGGER.error("Failed to clean up the tables during database mirroring failure, check if database is UP");
+        }
+    }
+
+    private void persistUpdateFileVersion(final String source, final UpdateNotificationFileResponse updateNotificationFile,
+                                          final String hostname){
+        nrtm4ClientMirrorDao.saveUpdateNotificationFileVersion(source, updateNotificationFile.getVersion(),
+                updateNotificationFile.getSessionID(), hostname);
     }
 
     private List<UpdateNotificationFileResponse.NrtmFileLink> getNewDeltasFromNotificationFile(final String source,
