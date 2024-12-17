@@ -54,7 +54,8 @@ public class RdapElasticFullTextSearchService implements RdapFullTextSearch {
     }
 
     @Override
-    public List<RpslObject> performSearch(final String[] fields, final String term, final String clientIp, final Source source) throws IOException {
+    public List<RpslObject> performSearch(final String[] fields, final String term, final String clientIp,
+                                          final Source source, final boolean matchExact) throws IOException {
 
         try {
             return new ElasticSearchAccountingCallback<List<RpslObject>>(accessControlListManager,  clientIp, null, source) {
@@ -63,7 +64,7 @@ public class RdapElasticFullTextSearchService implements RdapFullTextSearch {
                 protected List<RpslObject> doSearch() throws IOException {
 
                     final SearchSourceBuilder sourceBuilder = new SearchSourceBuilder();
-                    sourceBuilder.query(getQueryBuilder(fields, term));
+                    sourceBuilder.query(getQueryBuilder(fields, term, matchExact));
                     sourceBuilder.size(maxResultSize);
                     sourceBuilder.sort(SORT_BUILDERS);
 
@@ -90,19 +91,34 @@ public class RdapElasticFullTextSearchService implements RdapFullTextSearch {
                     return results;
                 }
 
-                private QueryBuilder getQueryBuilder(final String[] fields, final String term) {
-                    if (term.indexOf('*') == -1 && term.indexOf('?') == -1) {
-                        final MultiMatchQueryBuilder multiMatchQuery = new MultiMatchQueryBuilder(term, fields)
-                                .type(MultiMatchQueryBuilder.Type.PHRASE_PREFIX)
-                                .operator(Operator.AND);
-                        return multiMatchQuery;
+                private QueryBuilder getQueryBuilder(final String[] fields, final String term, final boolean matchExact) {
+                    if (hasNotWildCard()) {
+                        return matchExact ? createExactMatchQuery() :
+                                new MultiMatchQueryBuilder(term, fields)
+                                        .type(MultiMatchQueryBuilder.Type.PHRASE_PREFIX)
+                                        .operator(Operator.AND);
                     }
+                    return createWildCardQuery();
+                }
 
-                    final BoolQueryBuilder wildCardBuilder = QueryBuilders.boolQuery();
+                private boolean hasNotWildCard(){
+                    return term.indexOf('*') == -1 && term.indexOf('?') == -1;
+                }
+
+                private BoolQueryBuilder createExactMatchQuery(){
+                    final BoolQueryBuilder rawSearchBuilder = QueryBuilders.boolQuery();
                     for (String field : fields) {
-                        wildCardBuilder.should(QueryBuilders.wildcardQuery(String.format("%s.raw", field), term));
+                        rawSearchBuilder.should(QueryBuilders.termQuery(String.format("%s.raw", field), term));
                     }
-                    return wildCardBuilder;
+                    return rawSearchBuilder;
+                }
+
+                private BoolQueryBuilder createWildCardQuery(){
+                    final BoolQueryBuilder wildCardSearchBuilder = QueryBuilders.boolQuery();
+                    for (String field : fields) {
+                        wildCardSearchBuilder.should(QueryBuilders.wildcardQuery(String.format("%s.raw", field), term));
+                    }
+                    return wildCardSearchBuilder;
                 }
             }.search();
         } catch (QueryException e){
