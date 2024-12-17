@@ -260,6 +260,9 @@ public class RdapService {
             @PathParam("key") final String key,
             @QueryParam("status") String status) {
 
+        //TODO: [MH] Status is being ignored until administrative resources are included in RDAP. If status is not
+        // given or status is inactive...include administrative resources in the output. However, if status is active
+        // return just non administrative resources, as we are doing now.
         if (status != null && (relationType.equals(RelationType.DOWN) || relationType.equals(RelationType.BOTTOM))){
             throw new RdapException("501 Not Implemented", "Status is not implement in down and bottom relation", HttpStatus.NOT_IMPLEMENTED_501);
         }
@@ -269,7 +272,7 @@ public class RdapService {
             return redirect(getRequestPath(request), getQueryObject(objectTypes, key));
         }
 
-        final List<RpslObject> rpslObjects = handleRelationQuery(request, requestType, relationType, key, status == null ? "inactive" : status);
+        final List<RpslObject> rpslObjects = handleRelationQuery(request, requestType, relationType, key);
 
         return Response.ok(rdapObjectMapper.mapSearch(
                         getRequestUrl(request),
@@ -522,13 +525,13 @@ public class RdapService {
     }
 
     private List<RpslObject> handleRelationQuery(final HttpServletRequest request, final RdapRequestType requestType,
-                                                 final RelationType relationType, final String key, final String status) {
+                                                 final RelationType relationType, final String key) {
         final List<RpslObject> rpslObjects;
         switch (requestType) {
             case AUTNUMS -> throw new RdapException("400 Bad Request", "Relation queries not allowed for autnum", HttpStatus.BAD_REQUEST_400);
             case DOMAINS -> {
                 rdapRequestValidator.validateDomain(key);
-                final List<String> relatedPkeys = rdapRelationService.getDomainRelationPkeys(key, relationType, status);
+                final List<String> relatedPkeys = rdapRelationService.getDomainRelationPkeys(key, relationType);
 
                 rpslObjects = relatedPkeys
                         .stream()
@@ -537,7 +540,7 @@ public class RdapService {
             }
             case IPS -> {
                 rdapRequestValidator.validateIp(request.getRequestURI(), key);
-                final List<String> relatedPkeys = rdapRelationService.getInetnumRelationPkeys(key, relationType, status);
+                final List<String> relatedPkeys = rdapRelationService.getInetnumRelationPkeys(key, relationType);
 
                 rpslObjects = relatedPkeys
                         .stream()

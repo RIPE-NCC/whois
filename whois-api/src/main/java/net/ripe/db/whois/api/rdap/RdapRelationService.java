@@ -51,10 +51,10 @@ public class RdapRelationService {
         this.rpslObjectDao = rpslObjectDao;
     }
 
-    public List<String> getDomainRelationPkeys(final String pkey, final RelationType relationType, final String status){
+    public List<String> getDomainRelationPkeys(final String pkey, final RelationType relationType){
         final Domain domain = Domain.parse(pkey);
         final IpInterval reverseIp = domain.getReverseIp();
-        final List<IpEntry> ipEntries = getIpEntries(getIpDomainTree(reverseIp), relationType, reverseIp, status);
+        final List<IpEntry> ipEntries = getIpEntries(getIpDomainTree(reverseIp), relationType, reverseIp);
 
         return ipEntries
                 .stream()
@@ -62,17 +62,17 @@ public class RdapRelationService {
                 .toList();
     }
 
-    public List<String> getInetnumRelationPkeys(final String pkey, final RelationType relationType, final String status){
+    public List<String> getInetnumRelationPkeys(final String pkey, final RelationType relationType){
         final IpInterval ip = IpInterval.parse(pkey);
-        final List<IpEntry> ipEntries = getIpEntries(getIpTree(ip), relationType, ip, status);
+        final List<IpEntry> ipEntries = getIpEntries(getIpTree(ip), relationType, ip);
         return ipEntries.stream().map(ipEntry -> ipEntry.getKey().toString()).toList();
     }
 
     private List<IpEntry> getIpEntries(final IpTree ipTree, final RelationType relationType,
-                                       final IpInterval reverseIp, final String status) {
+                                       final IpInterval reverseIp) {
         return switch (relationType) {
-            case UP -> List.of(searchFirstLessSpecificCoMntner(ipTree, reverseIp, status));
-            case TOP -> searchCoMntnerTopLevel(ipTree, reverseIp, status);
+            case UP -> List.of(searchFirstLessSpecificCoMntner(ipTree, reverseIp));
+            case TOP -> searchCoMntnerTopLevel(ipTree, reverseIp);
             case DOWN -> ipTree.findFirstMoreSpecific(reverseIp);
             case BOTTOM -> searchMostSpecificFillingOverlaps(ipTree, reverseIp);
         };
@@ -135,35 +135,31 @@ public class RdapRelationService {
         return ipTree.findFirstMoreSpecific(IpInterval.parse(parentList.getFirst().getKey().toString()));
     }
 
-    private IpEntry searchFirstLessSpecificCoMntner(final IpTree ipTree, final IpInterval reverseIp, final String status){
+    private IpEntry searchFirstLessSpecificCoMntner(final IpTree ipTree, final IpInterval reverseIp){
         final List<IpEntry> parentList = ipTree.findFirstLessSpecific(reverseIp);
-        if (parentList.isEmpty() || !isRequestedResource(parentList.getFirst(), status)){
+        if (parentList.isEmpty() || !resourceExist(parentList.getFirst())){
             throw new RdapException("404 Not Found", "No up level object has been found for " + reverseIp.toString(), HttpStatus.NOT_FOUND_404);
         }
         return parentList.getFirst();
     }
 
-    private List<IpEntry> searchCoMntnerTopLevel(final IpTree ipTree, final IpInterval reverseIp, final String status) {
+    private List<IpEntry> searchCoMntnerTopLevel(final IpTree ipTree, final IpInterval reverseIp) {
         for (final Object parentEntry : ipTree.findAllLessSpecific(reverseIp)) {
             final IpEntry ipEntry = (IpEntry) parentEntry;
-            if (isRequestedResource(ipEntry, status)){
+            if (resourceExist(ipEntry)){
                 return List.of(ipEntry);
             }
         }
         throw new RdapException("404 Not Found", "No top level object has been found for " + reverseIp.toString(), HttpStatus.NOT_FOUND_404);
     }
 
-    private boolean isRequestedResource(final IpEntry firstLessSpecific, final String status){
+    private boolean resourceExist(final IpEntry firstLessSpecific){
         final RpslObject rpslObject = getResourceByKey(firstLessSpecific.getKey().toString());
-        if (rpslObject == null) {
+        if (rpslObject == null || isAdministrativeResource(rpslObject)) {
             LOGGER.error("INET(6)NUM {} does not exist in RIPE Database ", firstLessSpecific.getKey().toString());
             return false;
         }
-
-        if (status.equals("inactive") && isAdministrativeResource(rpslObject)){
-            return false; // TODO: We do not support administrative resources so far. Return true once we start supporting them
-        }
-        return status.equals("active") && !isAdministrativeResource(rpslObject);
+        return true;
     }
 
     private boolean isAdministrativeResource(final RpslObject rpslObject) {
