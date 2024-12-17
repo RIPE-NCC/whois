@@ -89,14 +89,14 @@ public class SnapshotMirrorImporter extends AbstractMirrorImporter {
         final AtomicInteger snapshotVersion = new AtomicInteger(0);
         final AtomicInteger processedCount = new AtomicInteger(0);
 
-        persisSnapshot(source, payload, sessionId, snapshotVersion, processedCount);
+        persisSnapshot(payload, sessionId, snapshotVersion, processedCount);
         persistSnapshotVersion(source, snapshotVersion.get(), sessionId);
 
         stopwatch.stop();
         LOGGER.info("Loading snapshot file took {} for source {} and added {} records", stopwatch, source, processedCount.get());
     }
 
-    private void persisSnapshot(final String source, final byte[] payload, final String sessionId,
+    private void persisSnapshot(final byte[] payload, final String sessionId,
                                final AtomicInteger snapshotVersion, final AtomicInteger processedCount){
         final Timer timer = new Timer();
         printProgress(timer, processedCount);
@@ -115,28 +115,11 @@ public class SnapshotMirrorImporter extends AbstractMirrorImporter {
             throw new IllegalStateException(ex);
         }
 
-        persistDummyObjectIfNotExist(source);
         timer.cancel();
     }
 
-
     final void persistSnapshotVersion(final String source, final int version, final String sessionId) throws IllegalArgumentException {
         nrtm4ClientInfoRepository.saveSnapshotFileVersion(source, version, sessionId);
-    }
-
-    @Transactional(transactionManager = NrtmClientTransactionConfiguration.NRTM_CLIENT_UPDATE_TRANSACTION)
-    private void persistDummyObjectIfNotExist(final String source){
-        final RpslObject dummyObject = getPlaceholderPersonObject();
-        if (!source.equals(dummyObject.getValueForAttribute(AttributeType.SOURCE).toString())){
-            return;
-        }
-
-        final RpslObjectUpdateInfo rpslObjectUpdateInfo = nrtm4ClientRepository.getMirroredObjectId(dummyObject.getType(), dummyObject.getKey().toString());
-        if (rpslObjectUpdateInfo != null){
-            return;
-        }
-        final RpslObjectUpdateInfo createdDummy = nrtm4ClientRepository.persistRpslObject(dummyObject);
-        nrtm4ClientRepository.createIndexes(dummyObject, createdDummy);
     }
 
     private void printProgress(final Timer timer, final AtomicInteger processedCount) {
@@ -216,27 +199,6 @@ public class SnapshotMirrorImporter extends AbstractMirrorImporter {
             });
     }
 
-    public static RpslObject getPlaceholderPersonObject() {
-        return RpslObject.parse("" +
-                "person:         Placeholder Person Object\n" +
-                "address:        RIPE Network Coordination Centre\n" +
-                "address:        P.O. Box 10096\n" +
-                "address:        1001 EB Amsterdam\n" +
-                "address:        The Netherlands\n" +
-                "phone:          +31 20 535 4444\n" +
-                "nic-hdl:        DUMY-RIPE\n" +
-                "mnt-by:         RIPE-DBM-MNT\n" +
-                "remarks:        **********************************************************\n" +
-                "remarks:        * This is a placeholder object to protect personal data.\n" +
-                "remarks:        * To view the original object, please query the RIPE\n" +
-                "remarks:        * Database at:\n" +
-                "remarks:        * http://www.ripe.net/whois\n" +
-                "remarks:        **********************************************************\n" +
-                "created:        2009-07-24T17:00:00Z\n" +
-                "last-modified:  2009-07-24T17:00:00Z\n" +
-                "source:         RIPE"
-        );
-    }
 
     private void validateSession(final String updateNotificationSessionId, final String firstRecord) throws IllegalArgumentException{
         final JSONObject jsonObject = new JSONObject(firstRecord);

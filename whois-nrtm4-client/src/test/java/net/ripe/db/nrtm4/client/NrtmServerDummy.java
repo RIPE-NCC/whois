@@ -61,7 +61,7 @@ public class NrtmServerDummy implements Stub {
 
     private final static String RIPE_NONAUTH_SNAP_HASH = "148c3c411b8f044f5fc0ab201f6dd03e80c862e27ad1a63488aee337dc7eb4a2";
 
-    private final static String RIPE_SNAP_HASH = "8aeb6b6c93fc51aeb868de2ebca3eed6c98559b438901bb80ddc24c47c8069dd";
+    private final static String RIPE_SNAP_HASH = "7c9d1a1ebc73dc719e11c1046fae6598c35ae507a391d142beebe33865f077a0";
 
     private final static Map<String, String> RIPE_NONAUTH_DELTA_HASH = ImmutableMap.of(
             "1", "d671895977aa9dd8ca2b7ba74cd96cd28a786b0e19b3db709c9c5a02a52466ef",
