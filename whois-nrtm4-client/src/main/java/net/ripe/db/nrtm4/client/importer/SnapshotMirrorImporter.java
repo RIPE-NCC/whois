@@ -64,7 +64,7 @@ public class SnapshotMirrorImporter extends AbstractMirrorImporter {
         this.nrtmClientUpdateTransaction =  transactionManagerNrtmClientUpdate;
 
         final int numThreads = Runtime.getRuntime().availableProcessors();
-        this.numberOfThreads = (int)Math.ceil(numThreads/4.0);
+        this.numberOfThreads = Math.min(1, numThreads/4);
     }
 
     public void doImport(final String source,
@@ -93,7 +93,7 @@ public class SnapshotMirrorImporter extends AbstractMirrorImporter {
         persistSnapshotVersion(source, snapshotVersion.get(), sessionId);
 
         stopwatch.stop();
-        LOGGER.info("Loading snapshot file took {} for source {} and added {} records", stopwatch.elapsed().toMillis(), source, processedCount.get());
+        LOGGER.info("Loading snapshot file took {} for source {} and added {} records", stopwatch, source, processedCount.get());
     }
 
     private void persisSnapshot(final String source, final byte[] payload, final String sessionId,

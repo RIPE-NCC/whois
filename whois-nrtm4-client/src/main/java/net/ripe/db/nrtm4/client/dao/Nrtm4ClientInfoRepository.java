@@ -68,7 +68,7 @@ public class Nrtm4ClientInfoRepository {
     @Nullable
     public NrtmClientVersionInfo getNrtmLastVersionInfoForDeltasPerSource(final String source){
         try {
-            return jdbcSlaveTemplate.queryForObject("""
+            return jdbcMasterTemplate.queryForObject("""
                     SELECT id, source, MAX(version), session_id, type, hostname, created
                     FROM version_info
                     WHERE type = ?
