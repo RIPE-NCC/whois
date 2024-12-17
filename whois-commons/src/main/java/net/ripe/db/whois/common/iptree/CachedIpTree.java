@@ -59,4 +59,9 @@ public abstract class CachedIpTree<K extends IpInterval<K>, V extends IpEntry<K>
     public List<V> findAllMoreSpecific(final K key) {
         return getIntervalMap().findAllMoreSpecific(key);
     }
+
+    @Override
+    public List<V> findMostSpecific(final K key){
+        return getIntervalMap().findMostSpecific(key);
+    }
 }
