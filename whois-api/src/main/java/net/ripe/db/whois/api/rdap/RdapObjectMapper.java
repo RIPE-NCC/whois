@@ -125,6 +125,7 @@ class RdapObjectMapper {
             ZONE_C, Role.ZONE,
             ORG, Role.REGISTRANT,// TODO: [MA] both mnt_by and org have same role
             MNT_IRT, Role.ABUSE);
+    private final RdapRelationService rdapRelationService;
 
     @Autowired
     public RdapObjectMapper(
@@ -133,13 +134,14 @@ class RdapObjectMapper {
             final ReservedResources reservedResources,
             final Ipv4Tree ipv4Tree,
             final Ipv6Tree ipv6Tree,
-            @Value("${rdap.port43:}") final String port43) {
+            @Value("${rdap.port43:}") final String port43, RdapRelationService rdapRelationService) {
         this.noticeFactory = noticeFactory;
         this.rpslObjectDao = rpslObjectDao;
         this.ipv4Tree = ipv4Tree;
         this.ipv6Tree = ipv6Tree;
         this.port43 = port43;
         this.reservedResources = reservedResources;
+        this.rdapRelationService = rdapRelationService;
     }
 
     public Object map(final String requestUrl,
@@ -183,6 +185,7 @@ class RdapObjectMapper {
 
         final RdapObject rdapObject = mapCommonNoticesAndPort(searchResult, requestUrl);
         mapCommonLinks(rdapObject, requestUrl);
+        mapRelationConformances(rdapObject, requestUrl);
         return mapCommonConformances(rdapObject);
     }
 
@@ -198,6 +201,7 @@ class RdapObjectMapper {
         rdapObject.getLinks().add(COPYRIGHT_LINK);
 
         mapRedactions(rdapObject);
+        mapRelationConformances(rdapObject, requestUrl);
         return mapCommonConformances(rdapObject);
     }
 
@@ -323,6 +327,7 @@ class RdapObjectMapper {
         final RdapObject rdapObject = mapCommonNoticesAndPort(rdapResponse, requestUrl);
         mapCommonLinks(rdapObject, requestUrl);
         mapRedactions(rdapResponse);
+        mapRelationConformances(rdapObject, requestUrl);
         return mapCommonConformances(rdapObject);
     }
 
@@ -360,6 +365,10 @@ class RdapObjectMapper {
         rdapResponse.getRdapConformance().addAll(List.of(RdapConformance.CIDR_0.getValue(),
             RdapConformance.LEVEL_0.getValue(), RdapConformance.NRO_PROFILE_0.getValue(), RdapConformance.REDACTED.getValue()));
         return rdapResponse;
+    }
+
+    private void mapRelationConformances(final RdapObject rdapResponse, final String requestUrl) {
+        rdapRelationService.mapRelationConformance(rdapResponse, requestUrl);
     }
 
     private Ip createIp(final RpslObject rpslObject, final String requestUrl) {
