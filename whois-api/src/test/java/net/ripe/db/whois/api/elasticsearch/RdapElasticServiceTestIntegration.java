@@ -48,9 +48,11 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.Matchers.containsInAnyOrder;
 import static org.hamcrest.Matchers.containsString;
+import static org.hamcrest.Matchers.empty;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.nullValue;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.fail;
 
@@ -333,16 +335,13 @@ public class RdapElasticServiceTestIntegration extends AbstractElasticSearchInte
     // search - domain
 
     @Test
-    public void search_domain_not_found() {
-        final NotFoundException notFoundException = assertThrows(NotFoundException.class, () -> {
-            rebuildIndex();
-            createResource("domains?name=ripe.net")
-                    .request(MediaType.APPLICATION_JSON_TYPE)
-                    .get(Entity.class);
-        });
-        assertErrorStatus(notFoundException, 404);
-        assertErrorTitle(notFoundException, "404 Not Found");
-        assertErrorDescription(notFoundException, "Requested object not found: ripe.net");
+    public void search_domain_then_empty() {
+        rebuildIndex();
+        final SearchResult searchResult = createResource("domains?name=ripe.net")
+                .request(MediaType.APPLICATION_JSON_TYPE)
+                .get(SearchResult.class);
+
+        assertThat(searchResult.getDomainSearchResults(), is(nullValue()));
     }
 
     @Test
@@ -405,14 +404,12 @@ public class RdapElasticServiceTestIntegration extends AbstractElasticSearchInte
         rebuildIndex();
         databaseHelper.deleteObject(person);
 
-        final NotFoundException notFoundException = assertThrows(NotFoundException.class, () -> {
-            createResource("entities?fn=Lost%20Person")
-                    .request(MediaType.APPLICATION_JSON_TYPE)
-                    .get(SearchResult.class);
-        });
-        assertErrorStatus(notFoundException, 404);
-        assertErrorTitle(notFoundException, "404 Not Found");
-        assertErrorDescription(notFoundException, "Requested object not found: Lost Person");
+
+        final SearchResult searchResult = createResource("entities?fn=Lost%20Person")
+                .request(MediaType.APPLICATION_JSON_TYPE)
+                .get(SearchResult.class);
+
+        assertThat(searchResult.getEntitySearchResults(), is(nullValue()));
     }
 
     @Test
@@ -439,14 +436,11 @@ public class RdapElasticServiceTestIntegration extends AbstractElasticSearchInte
         databaseHelper.addObject("person: Tëst Person3\nnic-hdl: TP3-TEST\ncreated: 2022-08-14T11:48:28Z\nlast-modified:   2022-10-25T12:22:39Z\nsource: TEST");
         rebuildIndex();
 
-        final NotFoundException notFoundException = assertThrows(NotFoundException.class, () -> {
-            createResource("entities?fn=T%EBst%20Person3")
-                    .request(MediaType.APPLICATION_JSON_TYPE)
-                    .get(SearchResult.class);
-        });
-        assertErrorStatus(notFoundException, 404);
-        assertErrorTitle(notFoundException, "404 Not Found");
-        assertErrorDescriptionContains(notFoundException, "st Person3");
+        final SearchResult searchResult = createResource("entities?fn=T%EBst%20Person3")
+                .request(MediaType.APPLICATION_JSON_TYPE)
+                .get(SearchResult.class);
+
+        assertThat(searchResult.getEntitySearchResults(), is(nullValue()));
     }
 
     @Test
@@ -466,27 +460,22 @@ public class RdapElasticServiceTestIntegration extends AbstractElasticSearchInte
         databaseHelper.addObject("person: Tëst Person3\nnic-hdl: TP3-TEST\ncreated: 2022-08-14T11:48:28Z\nlast-modified:   2022-10-25T12:22:39Z\nsource: TEST");
         rebuildIndex();
 
-        final NotFoundException notFoundException = assertThrows(NotFoundException.class, () -> {
-            createResource("entities?fn=Test%20Person3")
-                    .request(MediaType.APPLICATION_JSON_TYPE)
-                    .get(SearchResult.class);
-        });
-        assertErrorStatus(notFoundException, 404);
-        assertErrorTitle(notFoundException, "404 Not Found");
-        assertErrorDescription(notFoundException, "Requested object not found: Test Person3");
+
+        final SearchResult searchResult = createResource("entities?fn=Test%20Person3")
+                .request(MediaType.APPLICATION_JSON_TYPE)
+                .get(SearchResult.class);
+
+        assertThat(searchResult.getEntitySearchResults(), is(nullValue()));
     }
 
     @Test
     public void search_entity_person_by_name_not_found() {
-        final NotFoundException notFoundException = assertThrows(NotFoundException.class, () -> {
-            rebuildIndex();
-            createResource("entities?fn=Santa%20Claus")
-                    .request(MediaType.APPLICATION_JSON_TYPE)
-                    .get(Entity.class);
-        });
-        assertErrorStatus(notFoundException, 404);
-        assertErrorTitle(notFoundException, "404 Not Found");
-        assertErrorDescription(notFoundException, "Requested object not found: Santa Claus");
+        rebuildIndex();
+        final SearchResult searchResult = createResource("entities?fn=Santa%20Claus")
+                .request(MediaType.APPLICATION_JSON_TYPE)
+                .get(SearchResult.class);
+
+        assertThat(searchResult.getEntitySearchResults(), is(nullValue()));
     }
 
     @Test
@@ -510,16 +499,13 @@ public class RdapElasticServiceTestIntegration extends AbstractElasticSearchInte
     }
 
     @Test
-    public void search_entity_person_by_handle_not_found() {
-        final NotFoundException notFoundException = assertThrows(NotFoundException.class, () -> {
-            createResource("entities?handle=XYZ-TEST")
-                    .request(MediaType.APPLICATION_JSON_TYPE)
-                    .get(Entity.class);
-            fail();
-        });
-        assertErrorStatus(notFoundException, 404);
-        assertErrorTitle(notFoundException, "404 Not Found");
-        assertErrorDescription(notFoundException, "Requested object not found: XYZ-TEST");
+    public void search_entity_person_by_handle_then_empty() {
+
+        final SearchResult searchResult = createResource("entities?handle=XYZ-TEST")
+                .request(MediaType.APPLICATION_JSON_TYPE)
+                .get(SearchResult.class);
+
+        assertThat(searchResult.getEntitySearchResults(), is(nullValue()));
     }
 
     // search - entities - role
@@ -703,13 +689,41 @@ public class RdapElasticServiceTestIntegration extends AbstractElasticSearchInte
 
     @Test
     public void search_ips_inetnum_by_handle() {
-        final SearchResult response = createResource("ips?handle=IANA-BLK-IPV4")
+        final SearchResult response = createResource("ips?handle=0.0.0.0%20-%20255.255.255.255")
                 .request(MediaType.APPLICATION_JSON_TYPE)
                 .get(SearchResult.class);
 
         assertThat(response.getIpSearchResults().size(), is(1));
-        assertThat(response.getIpSearchResults().get(0).getName(), equalTo("IANA-BLK-IPV4"));
+        assertThat(response.getIpSearchResults().getFirst().getHandle(), equalTo("0.0.0.0 - 255.255.255.255"));
     }
+
+    @Test
+    public void search_more_specific_inetnum_by_handle() {
+        databaseHelper.addObject("""
+                inetnum:        192.12.12.0 - 192.12.12.255
+                netname:        RIPE-BLK-IPV4
+                descr:          The whole IPv4 address space
+                country:        NL
+                tech-c:         TP1-TEST
+                admin-c:        TP1-TEST
+                status:         OTHER
+                mnt-by:         OWNER-MNT
+                created:         2022-08-14T11:48:28Z
+                last-modified:   2022-10-25T12:22:39Z
+                source:         TEST
+                """);
+
+        ipTreeUpdater.rebuild();
+        rebuildIndex();
+
+        final SearchResult response = createResource("ips?handle=192.12.12.0%20-%20192.12.12.255")
+                .request(MediaType.APPLICATION_JSON_TYPE)
+                .get(SearchResult.class);
+
+        assertThat(response.getIpSearchResults().size(), is(1));
+        assertThat(response.getIpSearchResults().getFirst().getHandle(), equalTo("192.12.12.0 - 192.12.12.255"));
+    }
+
 
     @Test
     public void search_ips_inetnum_by_name() {
@@ -718,17 +732,27 @@ public class RdapElasticServiceTestIntegration extends AbstractElasticSearchInte
                 .get(SearchResult.class);
 
         assertThat(response.getIpSearchResults().size(), is(1));
-        assertThat(response.getIpSearchResults().get(0).getName(), equalTo("IANA-BLK-IPV4"));
+        assertThat(response.getIpSearchResults().getFirst().getName(), equalTo("IANA-BLK-IPV4"));
     }
 
     @Test
-    public void search_ips_inet6num_by_handle() {
-        final SearchResult response = createResource("ips?handle=IANA-BLK-IPV6")
+    public void search_ips_inetnum_by_exact_name() {
+        final SearchResult response = createResource("ips?name=IANA-BLK-IPV4")
                 .request(MediaType.APPLICATION_JSON_TYPE)
                 .get(SearchResult.class);
 
         assertThat(response.getIpSearchResults().size(), is(1));
-        assertThat(response.getIpSearchResults().get(0).getName(), equalTo("IANA-BLK-IPV6"));
+        assertThat(response.getIpSearchResults().getFirst().getName(), equalTo("IANA-BLK-IPV4"));
+    }
+
+    @Test
+    public void search_ips_inet6num_by_handle() {
+        final SearchResult response = createResource("ips?handle=::/0")
+                .request(MediaType.APPLICATION_JSON_TYPE)
+                .get(SearchResult.class);
+
+        assertThat(response.getIpSearchResults().size(), is(1));
+        assertThat(response.getIpSearchResults().getFirst().getHandle(), equalTo("::/0"));
     }
 
     @Test
@@ -737,7 +761,7 @@ public class RdapElasticServiceTestIntegration extends AbstractElasticSearchInte
                 .request(MediaType.APPLICATION_JSON_TYPE)
                 .get(SearchResult.class);
 
-        assertThat(response.getIpSearchResults().get(0).getName(), equalTo("IANA-BLK-IPV6"));
+        assertThat(response.getIpSearchResults().getFirst().getName(), equalTo("IANA-BLK-IPV6"));
     }
 
     @Test
@@ -777,15 +801,57 @@ public class RdapElasticServiceTestIntegration extends AbstractElasticSearchInte
     }
 
     @Test
-    public void search_non_existing_ip_then_error() {
-        final NotFoundException notFoundException = assertThrows(NotFoundException.class, () -> {
-            createResource("ips?handle=NOT_FOUND")
+    public void search_non_existing_ip_then_empty() {
+        final SearchResult searchResult = createResource("ips?handle=NOT_FOUND")
+                .request(MediaType.APPLICATION_JSON_TYPE)
+                .get(SearchResult.class);
+
+        assertThat(searchResult.getIpSearchResults(), is(nullValue()));
+    }
+
+    @Test
+    public void search_non_full_existing_name_then_empty() {
+
+        final SearchResult searchResult = createResource("ips?name=IANA-BLK")
+                .request(MediaType.APPLICATION_JSON_TYPE)
+                .get(SearchResult.class);
+
+        assertThat(searchResult.getIpSearchResults(), is(nullValue()));
+    }
+
+    @Test
+    public void search_non_full_existing_inetnum_then_empty() {
+            final SearchResult searchResult =  createResource("ips?handle=0.0.0")
                     .request(MediaType.APPLICATION_JSON_TYPE)
                     .get(SearchResult.class);
-        });
-        assertErrorStatus(notFoundException, HttpStatus.NOT_FOUND_404);
-        assertErrorTitle(notFoundException, "404 Not Found");
-        assertErrorDescription(notFoundException, "Requested object not found: NOT_FOUND");
+
+        assertThat(searchResult.getIpSearchResults(), is(nullValue()));
+    }
+
+    @Test
+    public void search_not_full_more_specific_inetnum_then_empty() {
+        databaseHelper.addObject("""
+                inetnum:        192.12.12.0 - 192.12.12.255
+                netname:        RIPE-BLK-IPV4
+                descr:          The whole IPv4 address space
+                country:        NL
+                tech-c:         TP1-TEST
+                admin-c:        TP1-TEST
+                status:         OTHER
+                mnt-by:         OWNER-MNT
+                created:         2022-08-14T11:48:28Z
+                last-modified:   2022-10-25T12:22:39Z
+                source:         TEST
+                """);
+
+        ipTreeUpdater.rebuild();
+        rebuildIndex();
+
+        final SearchResult response = createResource("ips?handle=192.12.12.0%20-%20192.12.12")
+                .request(MediaType.APPLICATION_JSON_TYPE)
+                .get(SearchResult.class);
+
+        assertThat(response.getIpSearchResults(), is(nullValue()));
     }
 
 
@@ -798,7 +864,7 @@ public class RdapElasticServiceTestIntegration extends AbstractElasticSearchInte
                 .get(SearchResult.class);
 
         assertThat(response.getAutnumSearchResults().size(), is(1));
-        assertThat(response.getAutnumSearchResults().get(0).getName(), equalTo("AS-TEST"));
+        assertThat(response.getAutnumSearchResults().getFirst().getName(), equalTo("AS-TEST"));
     }
 
     @Test
@@ -808,7 +874,7 @@ public class RdapElasticServiceTestIntegration extends AbstractElasticSearchInte
                 .get(SearchResult.class);
 
         assertThat(response.getAutnumSearchResults().size(), is(1));
-        assertThat(response.getAutnumSearchResults().get(0).getHandle(), equalTo("AS102"));
+        assertThat(response.getAutnumSearchResults().getFirst().getHandle(), equalTo("AS102"));
     }
 
     @Test
@@ -849,17 +915,24 @@ public class RdapElasticServiceTestIntegration extends AbstractElasticSearchInte
 
 
     @Test
-    public void search_non_existing_autnum_then_error() {
-        final NotFoundException notFoundException = assertThrows(NotFoundException.class, () -> {
-            createResource("autnums?handle=NOT_FOUND")
-                    .request(MediaType.APPLICATION_JSON_TYPE)
-                    .get(SearchResult.class);
-        });
-        assertErrorStatus(notFoundException, HttpStatus.NOT_FOUND_404);
-        assertErrorTitle(notFoundException, "404 Not Found");
-        assertErrorDescription(notFoundException, "Requested object not found: NOT_FOUND");
+    public void search_non_existing_autnum_then_empty() {
+        final SearchResult searchResult = createResource("autnums?handle=NOT_FOUND")
+                .request(MediaType.APPLICATION_JSON_TYPE)
+                .get(SearchResult.class);
+
+        assertThat(searchResult.getAutnumSearchResults(), is(nullValue()));
     }
 
+
+    @Test
+    public void search_non_full_autnums_by_handle() {
+
+        final SearchResult searchResult = createResource("autnums?handle=AS10")
+                .request(MediaType.APPLICATION_JSON_TYPE)
+                .get(SearchResult.class);
+
+        assertThat(searchResult.getAutnumSearchResults(), is(nullValue()));
+    }
 
     // Test redactions
 
