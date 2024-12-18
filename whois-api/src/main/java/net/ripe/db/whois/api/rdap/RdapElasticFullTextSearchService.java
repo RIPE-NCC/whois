@@ -92,17 +92,18 @@ public class RdapElasticFullTextSearchService implements RdapFullTextSearch {
                 }
 
                 private QueryBuilder getQueryBuilder(final String[] fields, final String term, final boolean matchExact) {
-                    if (hasNotWildCard()) {
-                        return matchExact ? createExactMatchQuery() :
-                                new MultiMatchQueryBuilder(term, fields)
-                                        .type(MultiMatchQueryBuilder.Type.PHRASE_PREFIX)
-                                        .operator(Operator.AND);
+                    if (hasWildCard()) {
+                        return createWildCardQuery();
                     }
-                    return createWildCardQuery();
+
+                    return matchExact ? createExactMatchQuery() :
+                            new MultiMatchQueryBuilder(term, fields)
+                                    .type(MultiMatchQueryBuilder.Type.PHRASE_PREFIX)
+                                    .operator(Operator.AND);
                 }
 
-                private boolean hasNotWildCard(){
-                    return term.indexOf('*') == -1 && term.indexOf('?') == -1;
+                private boolean hasWildCard(){
+                    return term.indexOf('*') != -1 || term.indexOf('?') != -1;
                 }
 
                 private BoolQueryBuilder createExactMatchQuery(){
