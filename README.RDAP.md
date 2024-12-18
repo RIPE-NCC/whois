@@ -116,3 +116,8 @@ then a 404 is returned. An object with "administrative" status is never returned
 Currently, IANA allocations are not present in the RIPE database, but just out-of-region placeholders.
 
 Refer to [NRO RDAP](https://bitbucket.org/nroecg/nro-rdap-profile/raw/v1/nro-rdap-profile.txt) Profile section 4.5. "Status"
+
+Relation Searches doesn't consider the "status" query parameter
+-----------------------------------------------------------------
+This is related to the previous point. An object with "administrative" status is never returned.
+Therefore, only "active" (non-administrative) objects are taking into account when using relation searches.
