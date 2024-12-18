@@ -29,6 +29,9 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Set;
 
+import static net.ripe.db.whois.common.rpsl.attrs.Inet6numStatus.ALLOCATED_BY_RIR;
+import static net.ripe.db.whois.common.rpsl.attrs.InetnumStatus.ALLOCATED_UNSPECIFIED;
+
 
 @Service
 public class RdapRelationService {
@@ -65,14 +68,17 @@ public class RdapRelationService {
     public List<String> getInetnumRelationPkeys(final String pkey, final RelationType relationType){
         final IpInterval ip = IpInterval.parse(pkey);
         final List<IpEntry> ipEntries = getIpEntries(getIpTree(ip), relationType, ip);
-        return ipEntries.stream().map(ipEntry -> ipEntry.getKey().toString()).toList();
+        return ipEntries
+                .stream()
+                .map(ipEntry -> ipEntry.getKey().toString())
+                .toList();
     }
 
     private List<IpEntry> getIpEntries(final IpTree ipTree, final RelationType relationType,
                                        final IpInterval reverseIp) {
         return switch (relationType) {
-            case UP -> List.of(searchFirstLessSpecificCoMntner(ipTree, reverseIp));
-            case TOP -> searchCoMntnerTopLevel(ipTree, reverseIp);
+            case UP -> List.of(searchFirstLessSpecific(ipTree, reverseIp));
+            case TOP -> searchTopLevel(ipTree, reverseIp);
             case DOWN -> ipTree.findFirstMoreSpecific(reverseIp);
             case BOTTOM -> searchMostSpecificFillingOverlaps(ipTree, reverseIp);
         };
@@ -82,11 +88,7 @@ public class RdapRelationService {
         final List<IpEntry> mostSpecificValues = ipTree.findMostSpecific(reverseIp);
         final List<? extends IpInterval<?>> ipResources = mostSpecificValues.stream().map(ip -> IpInterval.parse(ip.getKey().toString())).toList();
         final Set<IpEntry> mostSpecificFillingOverlaps = Sets.newConcurrentHashSet();
-
-        for (int countIps = 0; countIps < mostSpecificValues.size(); countIps++){
-            final IpInterval firstResource = ipResources.get(countIps);
-            processChildren(ipTree, reverseIp, firstResource, mostSpecificFillingOverlaps);
-        }
+        ipResources.forEach(ipResource -> processChildren(ipTree, reverseIp, ipResource, mostSpecificFillingOverlaps));
         return mostSpecificFillingOverlaps.stream().toList();
     }
 
@@ -135,7 +137,7 @@ public class RdapRelationService {
         return ipTree.findFirstMoreSpecific(IpInterval.parse(parentList.getFirst().getKey().toString()));
     }
 
-    private IpEntry searchFirstLessSpecificCoMntner(final IpTree ipTree, final IpInterval reverseIp){
+    private IpEntry searchFirstLessSpecific(final IpTree ipTree, final IpInterval reverseIp){
         final List<IpEntry> parentList = ipTree.findFirstLessSpecific(reverseIp);
         if (parentList.isEmpty() || !resourceExist(parentList.getFirst())){
             throw new RdapException("404 Not Found", "No up level object has been found for " + reverseIp.toString(), HttpStatus.NOT_FOUND_404);
@@ -143,7 +145,7 @@ public class RdapRelationService {
         return parentList.getFirst();
     }
 
-    private List<IpEntry> searchCoMntnerTopLevel(final IpTree ipTree, final IpInterval reverseIp) {
+    private List<IpEntry> searchTopLevel(final IpTree ipTree, final IpInterval reverseIp) {
         for (final Object parentEntry : ipTree.findAllLessSpecific(reverseIp)) {
             final IpEntry ipEntry = (IpEntry) parentEntry;
             if (resourceExist(ipEntry)){
@@ -162,11 +164,12 @@ public class RdapRelationService {
         return true;
     }
 
-    private boolean isAdministrativeResource(final RpslObject rpslObject) {
+    private static boolean isAdministrativeResource(final RpslObject rpslObject) {
         final CIString statusAttributeValue = rpslObject.getValueForAttribute(AttributeType.STATUS);
-        return (rpslObject.getType().equals(ObjectType.INETNUM) && InetnumStatus.getStatusFor(statusAttributeValue).isAdministrativeResource())
-                || (rpslObject.getType().equals(ObjectType.INET6NUM) && Inet6numStatus.getStatusFor(statusAttributeValue).isAdministrativeResource());
+        return (rpslObject.getType().equals(ObjectType.INETNUM) && InetnumStatus.getStatusFor(statusAttributeValue).equals(ALLOCATED_UNSPECIFIED))
+                || (rpslObject.getType().equals(ObjectType.INET6NUM) && Inet6numStatus.getStatusFor(statusAttributeValue).equals(ALLOCATED_BY_RIR));
     }
+
 
     @Nullable
     private RpslObject getResourceByKey(final String key){
