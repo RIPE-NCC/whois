@@ -654,6 +654,23 @@ public class RdapElasticServiceTestIntegration extends AbstractElasticSearchInte
     }
 
     @Test
+    public void search_entity_handle_mntner_then_response() {
+
+        final SearchResult result = createResource("entities?handle=OWNER-MNT")
+                .request(MediaType.APPLICATION_JSON_TYPE)
+                .get(SearchResult.class);
+
+        assertThat(
+                result.getEntitySearchResults()
+                        .stream()
+                        .map(Entity::getHandle)
+                        .collect(Collectors.toList()),
+                containsInAnyOrder("OWNER-MNT"));
+        assertThat(result.getNotices(), hasSize(1));
+        assertThat(result.getNotices().getFirst().getTitle(), is("Terms and Conditions"));
+    }
+
+    @Test
     public void lookup_person_entity_acl_denied() {
         try {
             databaseHelper.insertAclIpDenied(LOCALHOST_WITH_PREFIX);
