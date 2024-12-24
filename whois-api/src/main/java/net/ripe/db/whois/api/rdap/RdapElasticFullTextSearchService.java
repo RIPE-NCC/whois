@@ -115,11 +115,11 @@ public class RdapElasticFullTextSearchService implements RdapFullTextSearch {
                 }
 
                 private BoolQueryBuilder createWildCardQuery(){
-                    final BoolQueryBuilder wildCardSearchBuilder = QueryBuilders.boolQuery();
+                    final BoolQueryBuilder wildCardBuilder = QueryBuilders.boolQuery();
                     for (String field : fields) {
-                        wildCardSearchBuilder.should(QueryBuilders.wildcardQuery(String.format("%s.lowercase", field), term));
+                        wildCardBuilder.should(QueryBuilders.wildcardQuery(String.format("%s.lowercase", field), term.toLowerCase()));
                     }
-                    return wildCardSearchBuilder;
+                    return wildCardBuilder;
                 }
             }.search();
         } catch (QueryException e){
