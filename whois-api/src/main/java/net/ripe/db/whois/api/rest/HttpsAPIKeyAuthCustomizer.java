@@ -39,13 +39,13 @@ public class HttpsAPIKeyAuthCustomizer implements Filter {
 
     @Override
     public void doFilter(final ServletRequest request, final ServletResponse response, final FilterChain chain) throws IOException, ServletException {
-        final HttpServletRequest httpRequest = (HttpServletRequest) request;
-        final String accessKey = ApiKeyUtils.getAccessKey(httpRequest.getHeader(HttpHeaders.AUTHORIZATION));
 
-        if(accessKey == null || !canProceed(httpRequest)) {
+        if(!canProceed(request)) {
             chain.doFilter(request, response);
             return;
         }
+
+        final HttpServletRequest httpRequest = (HttpServletRequest) request;
 
         if (RestServiceHelper.isHttpProtocol(httpRequest)){
             final HttpServletResponse httpResponse = (HttpServletResponse) response;
@@ -69,13 +69,13 @@ public class HttpsAPIKeyAuthCustomizer implements Filter {
         }
     }
 
-    private boolean canProceed(final HttpServletRequest request) {
-       if(!isEnabled) {
-           return false;
-       }
+    private boolean canProceed(final ServletRequest request) {
+        if(!isEnabled || !(request instanceof HttpServletRequest httpRequest)) {
+            return false;
+        }
 
        //TODO: Remove this logic when basic auth support is deprecated
-       return ApiKeyUtils.isAPIKeyRequest(getBasicAuthUsername(request));
+       return ApiKeyUtils.isAPIKeyRequest(httpRequest.getHeader(HttpHeaders.AUTHORIZATION));
     }
 
     @Override

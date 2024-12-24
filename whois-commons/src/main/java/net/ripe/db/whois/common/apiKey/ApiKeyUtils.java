@@ -59,7 +59,8 @@ public class ApiKeyUtils {
         return false;
     }
 
-    public static boolean isAPIKeyRequest(final String accessKey) {
+    public static boolean isAPIKeyRequest(final String authHeader) {
+        final String accessKey = getAccessKey(authHeader);
         return StringUtils.isAlphanumeric(accessKey) && (accessKey.length() == 24);
     }
 
