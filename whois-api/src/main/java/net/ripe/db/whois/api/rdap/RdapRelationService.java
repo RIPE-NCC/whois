@@ -70,7 +70,7 @@ public class RdapRelationService {
         return ipEntries.stream().map(ipEntry -> ipEntry.getKey().toString()).toList();
     }
 
-    public void mapRelationConformance(final RdapObject rdapObject, final String requestUrl){
+    public void includeRirSearchConformance(final RdapObject rdapObject, final String requestUrl){
         rdapObject.getRdapConformance().add(RdapConformance.RIR_SEARCH_1.getValue());
         if (requestUrl == null) {
             return;

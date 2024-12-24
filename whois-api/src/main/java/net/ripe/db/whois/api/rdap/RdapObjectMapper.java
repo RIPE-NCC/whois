@@ -185,7 +185,7 @@ class RdapObjectMapper {
 
         final RdapObject rdapObject = mapCommonNoticesAndPort(searchResult, requestUrl);
         mapCommonLinks(rdapObject, requestUrl);
-        mapRelationConformances(rdapObject, requestUrl);
+        includeRirSearchConformance(rdapObject, requestUrl);
         return mapCommonConformances(rdapObject);
     }
 
@@ -201,7 +201,7 @@ class RdapObjectMapper {
         rdapObject.getLinks().add(COPYRIGHT_LINK);
 
         mapRedactions(rdapObject);
-        mapRelationConformances(rdapObject, requestUrl);
+        includeRirSearchConformance(rdapObject, requestUrl);
         return mapCommonConformances(rdapObject);
     }
 
@@ -327,7 +327,7 @@ class RdapObjectMapper {
         final RdapObject rdapObject = mapCommonNoticesAndPort(rdapResponse, requestUrl);
         mapCommonLinks(rdapObject, requestUrl);
         mapRedactions(rdapResponse);
-        mapRelationConformances(rdapObject, requestUrl);
+        includeRirSearchConformance(rdapObject, requestUrl);
         return mapCommonConformances(rdapObject);
     }
 
@@ -367,8 +367,8 @@ class RdapObjectMapper {
         return rdapResponse;
     }
 
-    private void mapRelationConformances(final RdapObject rdapResponse, final String requestUrl) {
-        rdapRelationService.mapRelationConformance(rdapResponse, requestUrl);
+    private void includeRirSearchConformance(final RdapObject rdapResponse, final String requestUrl) {
+        rdapRelationService.includeRirSearchConformance(rdapResponse, requestUrl);
     }
 
     private Ip createIp(final RpslObject rpslObject, final String requestUrl) {
