@@ -131,7 +131,6 @@ public class InternalUpdatePerformer {
         return responseBuilder.entity(new StreamingResponse(request, whoisResources)).build();
     }
 
-
     private WhoisResources performUpdates(final HttpServletRequest request, final UpdateContext updateContext, final Collection<Update> updates) {
         final WhoisResources whoisResources = new WhoisResources();
 
@@ -240,7 +239,7 @@ public class InternalUpdatePerformer {
     }
 
     private void setOAuthSession(final UpdateContext updateContext, final HttpServletRequest request) {
-        updateContext.setOAuthSession(BearerTokenExtractor.extract(request));
+        updateContext.setOAuthSession(OAuthTokenExtractor.extract(request));
     }
 
     public void setClientCertificates(final UpdateContext updateContext, final HttpServletRequest request) {

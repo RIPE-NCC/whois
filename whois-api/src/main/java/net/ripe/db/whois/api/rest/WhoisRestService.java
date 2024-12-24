@@ -1,10 +1,12 @@
 package net.ripe.db.whois.api.rest;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.google.common.net.InetAddresses;
 import net.ripe.db.whois.api.QueryBuilder;
 import net.ripe.db.whois.api.rest.domain.Parameters;
 import net.ripe.db.whois.api.rest.domain.WhoisResources;
 import net.ripe.db.whois.api.rest.mapper.WhoisObjectMapper;
+import net.ripe.db.whois.common.apiKey.ApiKeyUtils;
 import net.ripe.db.whois.common.apiKey.OAuthSession;
 import net.ripe.db.whois.common.dao.RpslObjectDao;
 import net.ripe.db.whois.common.grs.AuthoritativeResourceData;
@@ -68,7 +70,6 @@ public class WhoisRestService {
     private final LoggerContext loggerContext;
     private final AuthoritativeResourceData authoritativeResourceData;
     private final String baseUrl;
-    private final Boolean apiKeyEnabled;
 
     @Autowired
     public WhoisRestService(final RpslObjectDao rpslObjectDao,
@@ -80,7 +81,6 @@ public class WhoisRestService {
                             final SsoTranslator ssoTranslator,
                             final LoggerContext loggerContext,
                             final AuthoritativeResourceData authoritativeResourceData,
-                            @Value("${apikey.authenticate.enabled:false}") final Boolean apiKeyEnabled,
                             @Value("${api.rest.baseurl}") final String baseUrl) {
         this.rpslObjectDao = rpslObjectDao;
         this.rpslObjectStreamer = rpslObjectStreamer;
@@ -92,7 +92,6 @@ public class WhoisRestService {
         this.loggerContext = loggerContext;
         this.authoritativeResourceData = authoritativeResourceData;
         this.baseUrl = baseUrl;
-        this.apiKeyEnabled = apiKeyEnabled;
     }
 
     @DELETE
@@ -281,11 +280,11 @@ public class WhoisRestService {
             @PathParam("objectType") final String objectType,
             @PathParam("key") final String key,
             @QueryParam("password") final List<String> passwords,
-            final OAuthSession oAuthSession,
             @CookieParam(AuthServiceClient.TOKEN_KEY) final String crowdTokenKey,
             @QueryParam("unformatted") final String unformatted,
             @QueryParam("unfiltered") final String unfiltered,
             @QueryParam("managed-attributes") final String managedAttributes,
+            @QueryParam(ApiKeyUtils.APIKEY_QUERY_PARAM) final String oAuthSession,
             @QueryParam("resource-holder") final String resourceHolder,
             @QueryParam("abuse-contact") final String abuseContact) {
 
@@ -309,9 +308,11 @@ public class WhoisRestService {
         final Query query;
         try {
             query =
-                    Query.parse(queryBuilder.build(key), crowdTokenKey, passwords, isTrusted(request), ClientCertificateExtractor.getClientCertificates(request), apiKeyEnabled ? oAuthSession : null).setMatchPrimaryKeyOnly(true);
+                    Query.parse(queryBuilder.build(key), crowdTokenKey, passwords, isTrusted(request), ClientCertificateExtractor.getClientCertificates(request), ApiKeyUtils.getOAuthSession(oAuthSession)).setMatchPrimaryKeyOnly(true);
         } catch (QueryException e) {
             throw RestServiceHelper.createWebApplicationException(e, request);
+        } catch (JsonProcessingException e) {
+            throw new RuntimeException(e);
         }
 
         if (requiresNonAuthRedirect(source, objectType, key)) {

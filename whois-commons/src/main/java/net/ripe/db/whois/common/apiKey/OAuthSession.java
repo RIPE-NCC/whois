@@ -1,11 +1,26 @@
 package net.ripe.db.whois.common.apiKey;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.google.common.base.MoreObjects;
+import jakarta.xml.bind.annotation.XmlAccessType;
+import jakarta.xml.bind.annotation.XmlAccessorType;
+import jakarta.xml.bind.annotation.XmlRootElement;
 
+import java.io.Serial;
+import java.io.Serializable;
 import java.time.LocalDateTime;
 import java.util.List;
 
-public class OAuthSession {
+
+@XmlAccessorType(XmlAccessType.FIELD)
+@XmlRootElement
+@JsonIgnoreProperties(ignoreUnknown = true)
+public class OAuthSession implements Serializable {
+
+    @Serial
+    private static final long serialVersionUID = 1L;
 
     private final String application;
 
@@ -15,9 +30,20 @@ public class OAuthSession {
 
     private final String uuid;
 
+    @JsonDeserialize(using = LocalDateTimeDeserializer.class)
+    @JsonSerialize(using = LocalDateTimeSerializer.class)
     private final LocalDateTime expirationDate;
 
     private final List<String> scopes;
+
+    public OAuthSession() {
+        this.application = null;
+        this.email = null;
+        this.accessKey = null;
+        this.uuid = null;
+        this.scopes = null;
+        this.expirationDate = null;
+    }
 
     public OAuthSession(final String application, final String accessKey, final String email, final String uuid, final LocalDateTime expirationDate, final List<String> scopes) {
         this.application = application;
@@ -26,6 +52,15 @@ public class OAuthSession {
         this.expirationDate = expirationDate;
         this.scopes = scopes;
         this.accessKey = accessKey;
+    }
+
+    public OAuthSession(final String accesKey) {
+        this.application = null;
+        this.email = null;
+        this.accessKey = accesKey;
+        this.uuid = null;
+        this.scopes = null;
+        this.expirationDate = null;
     }
 
     public String getApplication() {
@@ -59,11 +94,10 @@ public class OAuthSession {
                 .add("accessKey", accessKey)
                 .add("email", email)
                 .add("uuid", uuid)
-                .add("expirationDate", expirationDate.toString())
+                .add("expirationDate", expirationDate == null ? null : expirationDate.toString())
                 .add("scopes", scopes)
                 .toString();
     }
-
 
    public static class ScopeFormatter {
 
@@ -89,5 +123,9 @@ public class OAuthSession {
         public String getAppName() {
             return appName;
         }
+    }
+
+    public static OAuthSession from(final OAuthSession oAuthSession, final String accessKey) {
+        return new OAuthSession(oAuthSession.getApplication(), accessKey, oAuthSession.getEmail(), oAuthSession.getUuid(), oAuthSession.getExpirationDate(), oAuthSession.getScopes());
     }
 }
