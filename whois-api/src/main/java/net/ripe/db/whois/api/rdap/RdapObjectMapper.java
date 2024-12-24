@@ -22,6 +22,7 @@ import net.ripe.db.whois.api.rdap.domain.Link;
 import net.ripe.db.whois.api.rdap.domain.Nameserver;
 import net.ripe.db.whois.api.rdap.domain.Notice;
 import net.ripe.db.whois.api.rdap.domain.RdapObject;
+import net.ripe.db.whois.api.rdap.domain.RelationType;
 import net.ripe.db.whois.api.rdap.domain.Remark;
 import net.ripe.db.whois.api.rdap.domain.Role;
 import net.ripe.db.whois.api.rdap.domain.SearchResult;
@@ -118,6 +119,7 @@ class RdapObjectMapper {
     private final Ipv4Tree ipv4Tree;
     private final Ipv6Tree ipv6Tree;
     private final String port43;
+    private final RdapRelationService rdapRelationService;
     private static final Map<AttributeType, Role> CONTACT_ATTRIBUTE_TO_ROLE_NAME = Map.of(
             ADMIN_C, Role.ADMINISTRATIVE,
             TECH_C, Role.TECHNICAL,
@@ -133,13 +135,15 @@ class RdapObjectMapper {
             final ReservedResources reservedResources,
             final Ipv4Tree ipv4Tree,
             final Ipv6Tree ipv6Tree,
-            @Value("${rdap.port43:}") final String port43) {
+            @Value("${rdap.port43:}") final String port43,
+            final RdapRelationService rdapRelationService) {
         this.noticeFactory = noticeFactory;
         this.rpslObjectDao = rpslObjectDao;
         this.ipv4Tree = ipv4Tree;
         this.ipv6Tree = ipv6Tree;
         this.port43 = port43;
         this.reservedResources = reservedResources;
+        this.rdapRelationService = rdapRelationService;
     }
 
     public Object map(final String requestUrl,
@@ -155,16 +159,19 @@ class RdapObjectMapper {
                 case DOMAIN -> {
                     final Domain domain = (Domain) getRdapObject(requestUrl, object, null);
                     mapRedactions(domain);
+                    rdapRelationService.mapRelationLinks(domain, requestUrl);
                     searchResult.addDomainSearchResult(domain);
                 }
                 case INET6NUM, INETNUM -> {
                     final Ip ip = (Ip) getRdapObject(requestUrl, object, null);
                     mapRedactions(ip);
+                    rdapRelationService.mapRelationLinks(ip, requestUrl);
                     searchResult.addIpSearchResult(ip);
                 }
                 case AUT_NUM -> {
                     final Autnum autnum = (Autnum) getRdapObject(requestUrl, object, null);
                     mapRedactions(autnum);
+                    rdapRelationService.mapRelationLinks(autnum, requestUrl);
                     searchResult.addAutnumSearchResult(autnum);
                 }
                 default -> {
@@ -322,9 +329,11 @@ class RdapObjectMapper {
     private RdapObject mapCommons(final RdapObject rdapResponse, final String requestUrl) {
         final RdapObject rdapObject = mapCommonNoticesAndPort(rdapResponse, requestUrl);
         mapCommonLinks(rdapObject, requestUrl);
+        rdapRelationService.mapRelationLinks(rdapResponse, requestUrl);
         mapRedactions(rdapResponse);
         return mapCommonConformances(rdapObject);
     }
+
 
     private void mapCommonLinks(final RdapObject rdapResponse, final String requestUrl) {
         if (requestUrl != null) {
@@ -471,11 +480,11 @@ class RdapObjectMapper {
     private static Remark createRemark(final RpslObject rpslObject) {
         final List<String> descriptions = Lists.newArrayList();
 
-        for (final CIString description : rpslObject.getValuesForAttribute(AttributeType.DESCR)) {
+        for (final CIString description : rpslObject.getValuesForAttribute(DESCR)) {
             descriptions.add(description.toString());
         }
 
-        for (final CIString remark : rpslObject.getValuesForAttribute(AttributeType.REMARKS)) {
+        for (final CIString remark : rpslObject.getValuesForAttribute(REMARKS)) {
             descriptions.add(remark.toString());
         }
 
@@ -489,7 +498,7 @@ class RdapObjectMapper {
     }
 
     private static boolean hasDescriptionsOrRemarks(final RpslObject rpslObject) {
-        return !rpslObject.getValuesForAttribute(AttributeType.DESCR).isEmpty() || !rpslObject.getValuesForAttribute(AttributeType.REMARKS).isEmpty();
+        return !rpslObject.getValuesForAttribute(DESCR).isEmpty() || !rpslObject.getValuesForAttribute(REMARKS).isEmpty();
     }
 
     private static Event createEvent(final LocalDateTime lastChanged, final Action action) {
