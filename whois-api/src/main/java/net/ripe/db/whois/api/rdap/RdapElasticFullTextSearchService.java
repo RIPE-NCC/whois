@@ -92,15 +92,14 @@ public class RdapElasticFullTextSearchService implements RdapFullTextSearch {
 
                 private QueryBuilder getQueryBuilder(final String[] fields, final String term) {
                     if (term.indexOf('*') == -1 && term.indexOf('?') == -1) {
-                        final MultiMatchQueryBuilder multiMatchQuery = new MultiMatchQueryBuilder(term, fields)
+                        return new MultiMatchQueryBuilder(term, fields)
                                 .type(MultiMatchQueryBuilder.Type.PHRASE_PREFIX)
                                 .operator(Operator.AND);
-                        return multiMatchQuery;
                     }
 
                     final BoolQueryBuilder wildCardBuilder = QueryBuilders.boolQuery();
                     for (String field : fields) {
-                        wildCardBuilder.should(QueryBuilders.wildcardQuery(String.format("%s.raw", field), term));
+                        wildCardBuilder.should(QueryBuilders.wildcardQuery(String.format("%s.lowercase", field), term.toLowerCase()));
                     }
                     return wildCardBuilder;
                 }
