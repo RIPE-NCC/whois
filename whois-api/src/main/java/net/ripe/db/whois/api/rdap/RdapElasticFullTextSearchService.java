@@ -107,17 +107,17 @@ public class RdapElasticFullTextSearchService implements RdapFullTextSearch {
                 }
 
                 private BoolQueryBuilder createExactMatchQuery(){
-                    final BoolQueryBuilder rawSearchBuilder = QueryBuilders.boolQuery();
+                    final BoolQueryBuilder exactMatch = QueryBuilders.boolQuery();
                     for (String field : fields) {
-                        rawSearchBuilder.should(QueryBuilders.termQuery(String.format("%s.raw", field), term));
+                        exactMatch.should(QueryBuilders.termQuery(String.format("%s.lowercase", field), term.toLowerCase()));
                     }
-                    return rawSearchBuilder;
+                    return exactMatch;
                 }
 
                 private BoolQueryBuilder createWildCardQuery(){
                     final BoolQueryBuilder wildCardSearchBuilder = QueryBuilders.boolQuery();
                     for (String field : fields) {
-                        wildCardSearchBuilder.should(QueryBuilders.wildcardQuery(String.format("%s.raw", field), term));
+                        wildCardSearchBuilder.should(QueryBuilders.wildcardQuery(String.format("%s.lowercase", field), term));
                     }
                     return wildCardSearchBuilder;
                 }

@@ -685,6 +685,83 @@ public class RdapElasticServiceTestIntegration extends AbstractElasticSearchInte
     }
 
 
+    @Test
+    public void search_wildcard_is_case_insensitive() {
+        databaseHelper.addObject("""
+                person:         DIGITALOCEAN NOC
+                nic-hdl:        EH3832-RIPE
+                mnt-by:         OWNER-MNT
+                source:         TEST
+                created: 2022-08-14T11:48:28Z
+                last-modified:   2022-10-25T12:22:39Z
+                """);
+
+        databaseHelper.addObject("""
+                person:         DigitalOcean Inc
+                nic-hdl:        DI2361-RIPE
+                mnt-by:         OWNER-MNT
+                source:         TEST
+                created: 2022-08-14T11:48:28Z
+                last-modified:   2022-10-25T12:22:39Z
+                """);
+
+        databaseHelper.addObject("""
+                person:         DigitalOcean Inc
+                nic-hdl:        DI2362-RIPE
+                mnt-by:         OWNER-MNT
+                source:         TEST
+                created: 2022-08-14T11:48:28Z
+                last-modified:   2022-10-25T12:22:39Z
+                """);
+
+        databaseHelper.addObject("""
+                organisation:   ORG-DOI2-RIPE
+                org-name:       DigitalOcean, LLC
+                country:        US
+                org-type:       OTHER
+                mnt-by:         OWNER-MNT
+                abuse-c:        DI2362-RIPE
+                e-mail:         123@test.com
+                notify:         123@test.com
+                language:       EN
+                source:         TEST
+                created: 2022-08-14T11:48:28Z
+                last-modified:   2022-10-25T12:22:39Z
+                """);
+
+        databaseHelper.addObject("""
+                person:         DigitalOcean Network Operations
+                nic-hdl:        PT7353-RIPE
+                mnt-by:         OWNER-MNT
+                source:         TEST
+                created: 2022-08-14T11:48:28Z
+                last-modified:   2022-10-25T12:22:39Z
+                """);
+
+        rebuildIndex();
+
+
+        final SearchResult resultUppercase = createResource("entities?fn=DIGITALOCEAN*")
+                .request(MediaType.APPLICATION_JSON_TYPE)
+                .get(SearchResult.class);
+
+        final SearchResult resultLowercase = createResource("entities?fn=digitalocean*")
+                .request(MediaType.APPLICATION_JSON_TYPE)
+                .get(SearchResult.class);
+
+        final SearchResult resultMix = createResource("entities?fn=DigItAlocEan*")
+                .request(MediaType.APPLICATION_JSON_TYPE)
+                .get(SearchResult.class);
+
+        assertThat(resultUppercase.getEntitySearchResults().size(), is(5));
+        assertThat(resultLowercase.getEntitySearchResults().size(), is(5));
+        assertThat(resultMix.getEntitySearchResults().size(), is(5));
+
+        assertThat(resultUppercase.getEntitySearchResults(), is(resultLowercase.getEntitySearchResults()));
+        assertThat(resultLowercase.getEntitySearchResults(), is(resultMix.getEntitySearchResults()));
+    }
+
+
     // search - ips
 
     @Test
@@ -743,6 +820,27 @@ public class RdapElasticServiceTestIntegration extends AbstractElasticSearchInte
 
         assertThat(response.getIpSearchResults().size(), is(1));
         assertThat(response.getIpSearchResults().getFirst().getName(), equalTo("IANA-BLK-IPV4"));
+    }
+
+    @Test
+    public void search_ips_inetnum_by_exact_name_is_case_insensitive() {
+        final SearchResult uppercaseResponse = createResource("ips?name=IANA-BLK-IPV4")
+                .request(MediaType.APPLICATION_JSON_TYPE)
+                .get(SearchResult.class);
+
+        final SearchResult lowercaseResponse = createResource("ips?name=iana-blk-ipv4")
+                .request(MediaType.APPLICATION_JSON_TYPE)
+                .get(SearchResult.class);
+
+        final SearchResult mixedCaseResponse = createResource("ips?name=Iana-BLK-IPv4")
+                .request(MediaType.APPLICATION_JSON_TYPE)
+                .get(SearchResult.class);
+
+        assertThat(uppercaseResponse.getIpSearchResults().getFirst().getHandle(),
+                is(lowercaseResponse.getIpSearchResults().getFirst().getHandle()));
+
+        assertThat(lowercaseResponse.getIpSearchResults().getFirst().getHandle(),
+                is(mixedCaseResponse.getIpSearchResults().getFirst().getHandle()));
     }
 
     @Test
