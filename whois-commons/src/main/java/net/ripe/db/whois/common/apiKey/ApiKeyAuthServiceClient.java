@@ -95,12 +95,7 @@ public class ApiKeyAuthServiceClient {
 
     //TODO: ADD AccessKey
     private String getFailedOAuth(String accessKey) {
-        try {
-            return ApiKeyUtils.getOAuthSession(new OAuthSession(accessKey));
-        } catch (JsonProcessingException e) {
-            //TODO: handle it properly
-            throw new RuntimeException(e);
-        }
+        return ApiKeyUtils.getOAuthSession(new OAuthSession(accessKey));
     }
 
     //TODO Add access Key
@@ -108,11 +103,6 @@ public class ApiKeyAuthServiceClient {
         final String payload =  new String(Base64.getUrlDecoder().decode(response.split("\\.")[1]));
 
         //TODO: remove when accessKey is available from api registry call
-        try {
-            return ApiKeyUtils.getOAuthSession(OAuthSession.from(ApiKeyUtils.getOAuthSession(payload), accessKey));
-        } catch (JsonProcessingException e) {
-            //TODO: handle it properly
-            throw new RuntimeException(e);
-        }
+        return ApiKeyUtils.getOAuthSession(OAuthSession.from(ApiKeyUtils.getOAuthSession(payload), accessKey));
     }
 }

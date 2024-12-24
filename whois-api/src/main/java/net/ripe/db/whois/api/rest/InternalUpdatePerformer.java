@@ -12,6 +12,7 @@ import net.ripe.db.whois.api.rest.marshal.StreamingHelper;
 import net.ripe.db.whois.common.DateTimeProvider;
 import net.ripe.db.whois.common.Message;
 import net.ripe.db.whois.common.Messages;
+import net.ripe.db.whois.common.apiKey.OAuthSession;
 import net.ripe.db.whois.common.conversion.PasswordFilter;
 import net.ripe.db.whois.common.rpsl.RpslAttribute;
 import net.ripe.db.whois.common.rpsl.RpslObject;
@@ -76,12 +77,12 @@ public class InternalUpdatePerformer {
         this.ssoTokenTranslator = ssoTokenTranslator;
     }
 
-    public UpdateContext initContext(final Origin origin, final String ssoToken, final HttpServletRequest request) {
+    public UpdateContext initContext(final Origin origin, final String ssoToken, final OAuthSession oAuthSession, final HttpServletRequest request) {
         loggerContext.init(getRequestId(origin.getFrom()));
         final UpdateContext updateContext = new UpdateContext(loggerContext);
         setSsoSessionToContext(updateContext, ssoToken);
         setClientCertificates(updateContext, request);
-        setOAuthSession(updateContext, request);
+        setOAuthSession(updateContext, oAuthSession);
         return updateContext;
     }
 
@@ -238,8 +239,8 @@ public class InternalUpdatePerformer {
         }
     }
 
-    private void setOAuthSession(final UpdateContext updateContext, final HttpServletRequest request) {
-        updateContext.setOAuthSession(OAuthTokenExtractor.extract(request));
+    private void setOAuthSession(final UpdateContext updateContext, final OAuthSession oAuthSession) {
+        updateContext.setOAuthSession(oAuthSession);
     }
 
     public void setClientCertificates(final UpdateContext updateContext, final HttpServletRequest request) {

@@ -10,14 +10,17 @@ import net.ripe.db.whois.common.sso.AuthServiceClientException;
 import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
+import javax.annotation.Nullable;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.regex.Matcher;
 
-import static jakarta.ws.rs.core.SecurityContext.BASIC_AUTH;
-
 public class ApiKeyUtils {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(ApiKeyUtils.class);
 
     public static final String APIKEY_QUERY_PARAM = "oAuthSession";
     public static boolean validateScope(final OAuthSession oAuthSession, final List<RpslObject> maintainers) {
@@ -73,12 +76,25 @@ public class ApiKeyUtils {
         return usernameWithPassword.contains(":") ?  StringUtils.substringBefore(usernameWithPassword, ":") : null;
     }
 
-    public static OAuthSession getOAuthSession(final String payload) throws JsonProcessingException {
-        return new ObjectMapper().readValue(payload, OAuthSession.class);
+    @Nullable
+    public static OAuthSession getOAuthSession(final String payload) {
+        if(payload == null || payload.isEmpty()) {
+            return null;
+        }
+        try {
+            return new ObjectMapper().readValue(payload, OAuthSession.class);
+        } catch (JsonProcessingException e) {
+            LOGGER.error("Failed to serialize OAuthSession, this should never have happened", e);
+            return null;
+        }
     }
 
-    public static String getOAuthSession(final OAuthSession oAuthSession) throws JsonProcessingException {
-        return new ObjectMapper().writeValueAsString(oAuthSession);
+    public static String getOAuthSession(final OAuthSession oAuthSession) {
+        try {
+            return new ObjectMapper().writeValueAsString(oAuthSession);
+        } catch (JsonProcessingException e) {
+            LOGGER.error("Failed to serialize OAuthSession, this should never have happened", e);
+            return null;
+        }
     }
-
 }

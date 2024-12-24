@@ -1,6 +1,5 @@
 package net.ripe.db.whois.api.rest;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.google.common.net.InetAddresses;
 import net.ripe.db.whois.api.QueryBuilder;
 import net.ripe.db.whois.api.rest.domain.Parameters;
@@ -104,13 +103,14 @@ public class WhoisRestService {
             @PathParam("key") final String key,
             @QueryParam("reason") @DefaultValue("--") final String reason,
             @QueryParam("password") final List<String> passwords,
+            @QueryParam(ApiKeyUtils.APIKEY_QUERY_PARAM) final String oAuthSession,
             @CookieParam(AuthServiceClient.TOKEN_KEY) final String crowdTokenKey,
             @QueryParam("override") final String override,
             @QueryParam("dry-run") final String dryRun) {
 
         try {
             final Origin origin = updatePerformer.createOrigin(request);
-            final UpdateContext updateContext = updatePerformer.initContext(origin, crowdTokenKey, request);
+            final UpdateContext updateContext = updatePerformer.initContext(origin, crowdTokenKey, ApiKeyUtils.getOAuthSession(oAuthSession), request);
 
             if(requiresNonAuthRedirect(source, objectType, key)) {
                 return redirectNonAuthOrRequiresRipeRedirect(sourceContext.getNonauthSource().getName().toString(), objectType, key, request.getQueryString());
@@ -143,7 +143,7 @@ public class WhoisRestService {
                     update,
                     request);
 
-        } catch (Exception e) {
+        } catch(Exception e) {
             updatePerformer.logWarning(String.format("Caught %s for %s: %s", e.getClass().toString(), key, e.getMessage()));
             throw e;
         } finally {
@@ -162,6 +162,7 @@ public class WhoisRestService {
             @PathParam("objectType") final String objectType,
             @PathParam("key") final String key,
             @QueryParam("password") final List<String> passwords,
+            @QueryParam(ApiKeyUtils.APIKEY_QUERY_PARAM) final String oAuthSession,
             @CookieParam(AuthServiceClient.TOKEN_KEY) final String crowdTokenKey,
             @QueryParam("override") final String override,
             @QueryParam("dry-run") final String dryRun,
@@ -169,7 +170,7 @@ public class WhoisRestService {
 
         try {
             final Origin origin = updatePerformer.createOrigin(request);
-            final UpdateContext updateContext = updatePerformer.initContext(origin, crowdTokenKey, request);
+            final UpdateContext updateContext = updatePerformer.initContext(origin, crowdTokenKey, ApiKeyUtils.getOAuthSession(oAuthSession), request);
 
             if(requiresNonAuthRedirect(source, objectType, key)) {
                 return redirectNonAuthOrRequiresRipeRedirect(sourceContext.getNonauthSource().getName().toString(), objectType, key, request.getQueryString());
@@ -217,6 +218,7 @@ public class WhoisRestService {
             @PathParam("source") final String source,
             @PathParam("objectType") final String objectType,
             @QueryParam("password") final List<String> passwords,
+            @QueryParam(ApiKeyUtils.APIKEY_QUERY_PARAM) final String oAuthSession,
             @CookieParam(AuthServiceClient.TOKEN_KEY) final String crowdTokenKey,
             @QueryParam("override") final String override,
             @QueryParam("dry-run") final String dryRun,
@@ -224,7 +226,7 @@ public class WhoisRestService {
 
         try {
             final Origin origin = updatePerformer.createOrigin(request);
-            final UpdateContext updateContext = updatePerformer.initContext(origin, crowdTokenKey, request);
+            final UpdateContext updateContext = updatePerformer.initContext(origin, crowdTokenKey, ApiKeyUtils.getOAuthSession(oAuthSession), request);
 
             auditLogRequest(request);
 
@@ -311,8 +313,6 @@ public class WhoisRestService {
                     Query.parse(queryBuilder.build(key), crowdTokenKey, passwords, isTrusted(request), ClientCertificateExtractor.getClientCertificates(request), ApiKeyUtils.getOAuthSession(oAuthSession)).setMatchPrimaryKeyOnly(true);
         } catch (QueryException e) {
             throw RestServiceHelper.createWebApplicationException(e, request);
-        } catch (JsonProcessingException e) {
-            throw new RuntimeException(e);
         }
 
         if (requiresNonAuthRedirect(source, objectType, key)) {
