@@ -20,12 +20,17 @@ public class RdapServletDeployer implements ServletDeployer {
     private final RdapService rdapService;
     private final RdapExceptionMapper rdapExceptionMapper;
     private final RdapRequestTypeConverter rdapRequestTypeConverter;
+    private final RdapRelationTypeConverter rdapRelationTypeConverter;
 
     @Autowired
-    public RdapServletDeployer(final RdapService rdapService, final RdapExceptionMapper rdapExceptionMapper, final RdapRequestTypeConverter rdapRequestTypeConverter) {
+    public RdapServletDeployer(final RdapService rdapService,
+                               final RdapExceptionMapper rdapExceptionMapper,
+                               final RdapRequestTypeConverter rdapRequestTypeConverter,
+                               final RdapRelationTypeConverter rdapRelationTypeConverter) {
         this.rdapService = rdapService;
         this.rdapExceptionMapper = rdapExceptionMapper;
         this.rdapRequestTypeConverter = rdapRequestTypeConverter;
+        this.rdapRelationTypeConverter = rdapRelationTypeConverter;
     }
 
     @Override
@@ -43,6 +48,7 @@ public class RdapServletDeployer implements ServletDeployer {
         resourceConfig.register(rdapService);
         resourceConfig.register(rdapRequestTypeConverter);
         resourceConfig.register(rdapExceptionMapper);
+        resourceConfig.register(rdapRelationTypeConverter);
         resourceConfig.register(rdapJsonProvider);
         context.addServlet(new ServletHolder("Whois RDAP REST API", new ServletContainer(resourceConfig)), "/rdap/*");
     }
