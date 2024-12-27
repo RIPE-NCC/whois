@@ -25,8 +25,6 @@ import static jakarta.servlet.http.HttpServletRequest.BASIC_AUTH;
 @Component
 public class HttpsBasicAuthCustomizer implements Filter {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(HttpsBasicAuthCustomizer.class);
-
     @Override
     public void doFilter(final ServletRequest request, final ServletResponse response, final FilterChain chain) throws IOException, ServletException {
 
@@ -34,8 +32,6 @@ public class HttpsBasicAuthCustomizer implements Filter {
             chain.doFilter(request, response);
             return;
         }
-
-        LOGGER.info("can proceed for normal basic authentication");
 
         final HttpServletRequest httpRequest = (HttpServletRequest) request;
 
