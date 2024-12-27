@@ -75,7 +75,7 @@ public class ApiKeyAuthServiceClient {
 
     public String validateApiKey(final String basicHeader) {
         final String accessKey = ApiKeyUtils.getAccessKey(basicHeader);
-        LOGGER.info("requesting aurhenticator to send oauth token {}", accessKey);
+        LOGGER.info("requesting aurhenticator to send oauth token {}", basicHeader);
         try {
 
             final String response =  client.target(restUrl)
@@ -94,12 +94,10 @@ public class ApiKeyAuthServiceClient {
         }
     }
 
-    //TODO: ADD AccessKey
     private String getFailedOAuth(String accessKey) {
         return ApiKeyUtils.getOAuthSession(new OAuthSession(accessKey));
     }
 
-    //TODO Add access Key
     private String getOAuthSession(final String response, final String accessKey) {
         LOGGER.info("Recieved response from apikey authenticator {} with access key {}", response, accessKey);
         final String payload =  new String(Base64.getUrlDecoder().decode(response.split("\\.")[1]));
