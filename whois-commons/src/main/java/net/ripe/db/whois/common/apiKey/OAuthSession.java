@@ -30,10 +30,6 @@ public class OAuthSession implements Serializable {
 
     private final String uuid;
 
-    @JsonDeserialize(using = LocalDateTimeDeserializer.class)
-    @JsonSerialize(using = LocalDateTimeSerializer.class)
-    private final LocalDateTime expirationDate;
-
     private final List<String> scopes;
 
     public OAuthSession() {
@@ -42,14 +38,12 @@ public class OAuthSession implements Serializable {
         this.accessKey = null;
         this.uuid = null;
         this.scopes = null;
-        this.expirationDate = null;
     }
 
-    public OAuthSession(final String[] aud, final String accessKey, final String email, final String uuid, final LocalDateTime expirationDate, final List<String> scopes) {
+    public OAuthSession(final String[] aud, final String accessKey, final String email, final String uuid, final List<String> scopes) {
         this.aud = aud;
         this.email = email;
         this.uuid = uuid;
-        this.expirationDate = expirationDate;
         this.scopes = scopes;
         this.accessKey = accessKey;
     }
@@ -60,7 +54,6 @@ public class OAuthSession implements Serializable {
         this.accessKey = accesKey;
         this.uuid = null;
         this.scopes = null;
-        this.expirationDate = null;
     }
 
     public String[] getAud() {
@@ -73,10 +66,6 @@ public class OAuthSession implements Serializable {
 
     public String getUuid() {
         return uuid;
-    }
-
-    public LocalDateTime getExpirationDate() {
-        return expirationDate;
     }
 
     public String getAccessKey() {
@@ -94,7 +83,6 @@ public class OAuthSession implements Serializable {
                 .add("accessKey", accessKey)
                 .add("email", email)
                 .add("uuid", uuid)
-                .add("expirationDate", expirationDate == null ? null : expirationDate.toString())
                 .add("scopes", scopes)
                 .toString();
     }
@@ -126,6 +114,6 @@ public class OAuthSession implements Serializable {
     }
 
     public static OAuthSession from(final OAuthSession oAuthSession, final String accessKey) {
-        return new OAuthSession(oAuthSession.getAud(), accessKey, oAuthSession.getEmail(), oAuthSession.getUuid(), oAuthSession.getExpirationDate(), oAuthSession.getScopes());
+        return new OAuthSession(oAuthSession.getAud(), accessKey, oAuthSession.getEmail(), oAuthSession.getUuid(), oAuthSession.getScopes());
     }
 }

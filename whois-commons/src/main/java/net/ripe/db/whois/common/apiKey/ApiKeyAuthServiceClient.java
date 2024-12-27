@@ -83,9 +83,8 @@ public class ApiKeyAuthServiceClient {
 
     public String validateApiKey(final String basicHeader) {
         final String accessKey = ApiKeyUtils.getAccessKey(basicHeader);
-        LOGGER.info("requesting aurhenticator to send oauth token {}", basicHeader);
+        LOGGER.info("requesting authenticator to send oauth token {}", basicHeader);
         try {
-
             final String response =  client.target(restUrl)
                     .path(VALIDATE_PATH)
                     .request(MediaType.APPLICATION_JSON_TYPE)
