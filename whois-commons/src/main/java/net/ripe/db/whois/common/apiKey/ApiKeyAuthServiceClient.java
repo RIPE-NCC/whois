@@ -62,10 +62,18 @@ public class ApiKeyAuthServiceClient {
             @Value("${apiKey.key.registry:}")  final String restUrl) {
         this.restUrl = restUrl;
 
+        final ObjectMapper objectMapper = JsonMapper.builder()
+                .enable(SerializationFeature.INDENT_OUTPUT)
+                .build();
+        objectMapper.setAnnotationIntrospector(
+                new AnnotationIntrospectorPair(
+                        new JacksonAnnotationIntrospector(),
+                        new JakartaXmlBindAnnotationIntrospector(TypeFactory.defaultInstance())));
+        objectMapper.registerModule(new JavaTimeModule());
         final JacksonJsonProvider jsonProvider = (new JacksonJsonProvider())
                 .configure(DeserializationFeature.UNWRAP_ROOT_VALUE, false)
                 .configure(DeserializationFeature.ACCEPT_SINGLE_VALUE_AS_ARRAY, true);
-
+        jsonProvider.setMapper(objectMapper);
         this.client = (ClientBuilder.newBuilder()
                 .register(jsonProvider))
                 .property(ClientProperties.CONNECT_TIMEOUT, CLIENT_CONNECT_TIMEOUT)
