@@ -81,7 +81,7 @@ public class ApiKeyAuthServiceClient {
             final String response =  client.target(restUrl)
                     .path(VALIDATE_PATH)
                     .request(MediaType.APPLICATION_JSON_TYPE)
-                    .header(HttpHeaders.AUTHORIZATION, basicHeader)
+                    .header(HttpHeaders.AUTHORIZATION, "Basic " + StringUtils.substringAfter(basicHeader, "Basic "))
                     .get(String.class);
 
             return getOAuthSession(response, accessKey);
