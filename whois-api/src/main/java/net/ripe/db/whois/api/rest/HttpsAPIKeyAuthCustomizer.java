@@ -58,7 +58,7 @@ public class HttpsAPIKeyAuthCustomizer implements Filter {
             return;
         }
 
-        if(httpRequest.getQueryString().contains(ApiKeyUtils.APIKEY_QUERY_PARAM)) {
+        if(!StringUtils.isBlank(httpRequest.getQueryString()) && httpRequest.getQueryString().contains(ApiKeyUtils.APIKEY_QUERY_PARAM)) {
             final HttpServletResponse httpResponse = (HttpServletResponse) response;
             httpResponse.sendError(HttpStatus.BAD_REQUEST_400, "Bad Request");
             return;
