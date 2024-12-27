@@ -81,9 +81,10 @@ public class ApiKeyAuthServiceClient {
             final String response =  client.target(restUrl)
                     .path(VALIDATE_PATH)
                     .request(MediaType.APPLICATION_JSON_TYPE)
-                    .header(HttpHeaders.AUTHORIZATION, "Basic " + StringUtils.substringAfter(basicHeader, "Basic "))
+                    .header(HttpHeaders.AUTHORIZATION, basicHeader)
                     .get(String.class);
 
+            LOGGER.info("oauth token response {}", response);
             return getOAuthSession(response, accessKey);
         } catch (NotFoundException | NotAuthorizedException e) {
             LOGGER.info("Failed to validate apikey {} due to {}:{}\n\tResponse: {}", accessKey, e.getClass().getName(), e.getMessage(), e.getResponse().readEntity(String.class));
