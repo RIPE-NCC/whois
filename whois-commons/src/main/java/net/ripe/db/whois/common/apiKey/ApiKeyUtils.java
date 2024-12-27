@@ -17,6 +17,7 @@ import javax.annotation.Nullable;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.regex.Matcher;
+import java.util.stream.Collectors;
 
 public class ApiKeyUtils {
 
@@ -27,6 +28,8 @@ public class ApiKeyUtils {
         if(CollectionUtils.isEmpty(oAuthSession.getScopes())) {
             return true;
         }
+
+        LOGGER.info("Validating scope {} for  maintainers {}", oAuthSession.getScopes(), maintainers.stream().map( rpslObject -> rpslObject.getKey()).collect(Collectors.joining(",")));
 
         final OAuthSession.ScopeFormatter scopeFormatter = new OAuthSession.ScopeFormatter(oAuthSession.getScopes().getFirst());
         return scopeFormatter.getAppName().equalsIgnoreCase("whois")
@@ -39,15 +42,21 @@ public class ApiKeyUtils {
             return false;
         }
 
+        if(!oAuthSession.getAud()[1].equalsIgnoreCase("whois")) {
+            return false;
+        }
+
         if(!ApiKeyUtils.validateScope(oAuthSession, maintainers)) {
             return false;
         }
 
         for (final RpslAttribute attribute : authAttributes) {
+            LOGGER.info("Found an sso attribute: {} and oauth uuid is {}", attribute.getCleanValue().toString(), oAuthSession.getUuid());
             final Matcher matcher = FilterAuthFunction.SSO_PATTERN.matcher(attribute.getCleanValue().toString());
             if (matcher.matches()) {
                 try {
                     if (oAuthSession.getUuid().equals(matcher.group(1))) {
+                        LOGGER.info("Authenticated");
                         return true;
                     }
                 } catch (AuthServiceClientException e) {
@@ -83,6 +92,7 @@ public class ApiKeyUtils {
             return null;
         }
         try {
+            LOGGER.info("Got oAuth as query param " + payload);
             return new ObjectMapper().readValue(payload, OAuthSession.class);
         } catch (JsonProcessingException e) {
             LOGGER.error("Failed to serialize OAuthSession, this should never have happened", e);

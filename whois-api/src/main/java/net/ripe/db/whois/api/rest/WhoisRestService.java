@@ -110,6 +110,7 @@ public class WhoisRestService {
 
         try {
             final Origin origin = updatePerformer.createOrigin(request);
+
             final UpdateContext updateContext = updatePerformer.initContext(origin, crowdTokenKey, ApiKeyUtils.getOAuthSession(oAuthSession), request);
 
             if(requiresNonAuthRedirect(source, objectType, key)) {

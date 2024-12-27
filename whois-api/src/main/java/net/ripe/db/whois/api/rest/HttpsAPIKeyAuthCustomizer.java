@@ -15,6 +15,8 @@ import net.ripe.db.whois.common.apiKey.OAuthSession;
 import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.lang3.StringUtils;
 import org.eclipse.jetty.http.HttpStatus;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
@@ -26,6 +28,8 @@ import static jakarta.servlet.http.HttpServletRequest.BASIC_AUTH;
 
 @Component
 public class HttpsAPIKeyAuthCustomizer implements Filter {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(HttpsAPIKeyAuthCustomizer.class);
 
     final private boolean isEnabled;
     final ApiKeyAuthServiceClient apiKeyAuthServiceClient;
@@ -45,6 +49,7 @@ public class HttpsAPIKeyAuthCustomizer implements Filter {
             return;
         }
 
+        LOGGER.info("It is a api key request");
         final HttpServletRequest httpRequest = (HttpServletRequest) request;
 
         if (RestServiceHelper.isHttpProtocol(httpRequest)){

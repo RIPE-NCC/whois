@@ -22,7 +22,7 @@ public class OAuthSession implements Serializable {
     @Serial
     private static final long serialVersionUID = 1L;
 
-    private final String application;
+    private final String[] aud;
 
     private final String email;
 
@@ -37,7 +37,7 @@ public class OAuthSession implements Serializable {
     private final List<String> scopes;
 
     public OAuthSession() {
-        this.application = null;
+        this.aud = null;
         this.email = null;
         this.accessKey = null;
         this.uuid = null;
@@ -45,8 +45,8 @@ public class OAuthSession implements Serializable {
         this.expirationDate = null;
     }
 
-    public OAuthSession(final String application, final String accessKey, final String email, final String uuid, final LocalDateTime expirationDate, final List<String> scopes) {
-        this.application = application;
+    public OAuthSession(final String[] aud, final String accessKey, final String email, final String uuid, final LocalDateTime expirationDate, final List<String> scopes) {
+        this.aud = aud;
         this.email = email;
         this.uuid = uuid;
         this.expirationDate = expirationDate;
@@ -55,7 +55,7 @@ public class OAuthSession implements Serializable {
     }
 
     public OAuthSession(final String accesKey) {
-        this.application = null;
+        this.aud = null;
         this.email = null;
         this.accessKey = accesKey;
         this.uuid = null;
@@ -63,8 +63,8 @@ public class OAuthSession implements Serializable {
         this.expirationDate = null;
     }
 
-    public String getApplication() {
-        return application;
+    public String[] getAud() {
+        return aud;
     }
 
     public String getEmail() {
@@ -90,7 +90,7 @@ public class OAuthSession implements Serializable {
     @Override
     public String toString() {
         return MoreObjects.toStringHelper(this)
-                .add("application", application)
+                .add("aud", aud)
                 .add("accessKey", accessKey)
                 .add("email", email)
                 .add("uuid", uuid)
@@ -126,6 +126,6 @@ public class OAuthSession implements Serializable {
     }
 
     public static OAuthSession from(final OAuthSession oAuthSession, final String accessKey) {
-        return new OAuthSession(oAuthSession.getApplication(), accessKey, oAuthSession.getEmail(), oAuthSession.getUuid(), oAuthSession.getExpirationDate(), oAuthSession.getScopes());
+        return new OAuthSession(oAuthSession.getAud(), accessKey, oAuthSession.getEmail(), oAuthSession.getUuid(), oAuthSession.getExpirationDate(), oAuthSession.getScopes());
     }
 }
