@@ -29,11 +29,14 @@ public class ApiKeyUtils {
             return true;
         }
 
-        LOGGER.info("Validating scope {} for  maintainers {}", oAuthSession.getScope(), maintainers.stream().map(rpslObject -> rpslObject.getKey()).collect(Collectors.joining(",")));
-
         final OAuthSession.ScopeFormatter scopeFormatter = new OAuthSession.ScopeFormatter(oAuthSession.getScope());
-        return scopeFormatter.getAppName().equalsIgnoreCase("whois")
-                    && scopeFormatter.getScopeType().equalsIgnoreCase(ObjectType.MNTNER.getName())
+
+        if(StringUtils.isEmpty(scopeFormatter.getScopeKey()) || StringUtils.isEmpty(scopeFormatter.getScopeType()) || StringUtils.isEmpty(scopeFormatter.getAppName())) {
+            return true;
+        }
+
+        return "whois".equalsIgnoreCase(scopeFormatter.getAppName())
+                    && ObjectType.MNTNER.getName().equalsIgnoreCase(scopeFormatter.getScopeType())
                     && maintainers.stream().anyMatch( maintainer -> scopeFormatter.getScopeKey().equalsIgnoreCase(maintainer.getKey().toString()));
     }
 

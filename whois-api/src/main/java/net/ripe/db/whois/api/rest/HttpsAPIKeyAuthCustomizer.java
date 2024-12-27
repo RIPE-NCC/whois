@@ -49,7 +49,7 @@ public class HttpsAPIKeyAuthCustomizer implements Filter {
             return;
         }
 
-        LOGGER.info("It is a api key request");
+        LOGGER.debug("It is a api key request");
         final HttpServletRequest httpRequest = (HttpServletRequest) request;
 
         if (RestServiceHelper.isHttpProtocol(httpRequest)){
