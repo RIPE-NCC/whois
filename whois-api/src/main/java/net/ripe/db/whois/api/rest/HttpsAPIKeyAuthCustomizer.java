@@ -106,18 +106,4 @@ public class HttpsAPIKeyAuthCustomizer implements Filter {
             return modifiedQueryString.append(ApiKeyUtils.APIKEY_QUERY_PARAM).append("=").append(oAuthSession).toString();
         }
     }
-
-    private static String getBasicAuthUsername(final HttpServletRequest request){
-        final String authHeader = request.getHeader(HttpHeaders.AUTHORIZATION);
-        if(authHeader == null || !authHeader.startsWith("Basic ")) {
-            return null;
-        }
-
-        final String base64Credentials = authHeader.substring(BASIC_AUTH.length()).trim();
-        final byte[] credDecoded = new Base64().decode(base64Credentials);
-
-        final String usernameWithPassword = new String(credDecoded, StandardCharsets.ISO_8859_1);
-
-        return usernameWithPassword.contains(":") ?  StringUtils.substringBefore(usernameWithPassword, ":") : null;
-    }
 }

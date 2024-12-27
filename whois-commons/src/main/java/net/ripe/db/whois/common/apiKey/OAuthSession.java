@@ -1,8 +1,6 @@
 package net.ripe.db.whois.common.apiKey;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
-import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.google.common.base.MoreObjects;
 import jakarta.xml.bind.annotation.XmlAccessType;
 import jakarta.xml.bind.annotation.XmlAccessorType;
@@ -10,7 +8,6 @@ import jakarta.xml.bind.annotation.XmlRootElement;
 
 import java.io.Serial;
 import java.io.Serializable;
-import java.time.LocalDateTime;
 import java.util.List;
 
 
@@ -30,21 +27,21 @@ public class OAuthSession implements Serializable {
 
     private final String uuid;
 
-    private final List<String> scopes;
+    private final String scope;
 
     public OAuthSession() {
         this.aud = null;
         this.email = null;
         this.accessKey = null;
         this.uuid = null;
-        this.scopes = null;
+        this.scope = null;
     }
 
-    public OAuthSession(final String[] aud, final String accessKey, final String email, final String uuid, final List<String> scopes) {
+    public OAuthSession(final String[] aud, final String accessKey, final String email, final String uuid, final String scope) {
         this.aud = aud;
         this.email = email;
         this.uuid = uuid;
-        this.scopes = scopes;
+        this.scope = scope;
         this.accessKey = accessKey;
     }
 
@@ -53,7 +50,7 @@ public class OAuthSession implements Serializable {
         this.email = null;
         this.accessKey = accesKey;
         this.uuid = null;
-        this.scopes = null;
+        this.scope = null;
     }
 
     public String[] getAud() {
@@ -72,8 +69,8 @@ public class OAuthSession implements Serializable {
         return accessKey;
     }
 
-    public List<String> getScopes() {
-        return scopes;
+    public String getScope() {
+        return scope;
     }
 
     @Override
@@ -83,7 +80,7 @@ public class OAuthSession implements Serializable {
                 .add("accessKey", accessKey)
                 .add("email", email)
                 .add("uuid", uuid)
-                .add("scopes", scopes)
+                .add("scopes", scope)
                 .toString();
     }
 
@@ -114,6 +111,6 @@ public class OAuthSession implements Serializable {
     }
 
     public static OAuthSession from(final OAuthSession oAuthSession, final String accessKey) {
-        return new OAuthSession(oAuthSession.getAud(), accessKey, oAuthSession.getEmail(), oAuthSession.getUuid(), oAuthSession.getScopes());
+        return new OAuthSession(oAuthSession.getAud(), accessKey, oAuthSession.getEmail(), oAuthSession.getUuid(), oAuthSession.getScope());
     }
 }

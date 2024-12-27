@@ -83,7 +83,6 @@ public class ApiKeyAuthServiceClient {
 
     public String validateApiKey(final String basicHeader) {
         final String accessKey = ApiKeyUtils.getAccessKey(basicHeader);
-        LOGGER.info("requesting authenticator to send oauth token {}", basicHeader);
         try {
             final String response =  client.target(restUrl)
                     .path(VALIDATE_PATH)
@@ -91,7 +90,6 @@ public class ApiKeyAuthServiceClient {
                     .header(HttpHeaders.AUTHORIZATION, basicHeader)
                     .get(String.class);
 
-            LOGGER.info("oauth token response {}", response);
             return getOAuthSession(response, accessKey);
         } catch (NotFoundException | NotAuthorizedException e) {
             LOGGER.info("Failed to validate apikey {} due to {}:{}\n\tResponse: {}", accessKey, e.getClass().getName(), e.getMessage(), e.getResponse().readEntity(String.class));
@@ -107,7 +105,6 @@ public class ApiKeyAuthServiceClient {
     }
 
     private String getOAuthSession(final String response, final String accessKey) {
-        LOGGER.info("Recieved response from apikey authenticator {} with access key {}", response, accessKey);
         final String payload =  new String(Base64.getUrlDecoder().decode(response.split("\\.")[1]));
 
         //TODO: remove when accessKey is available from api registry call

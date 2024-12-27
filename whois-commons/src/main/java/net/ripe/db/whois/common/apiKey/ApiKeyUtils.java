@@ -25,13 +25,13 @@ public class ApiKeyUtils {
 
     public static final String APIKEY_QUERY_PARAM = "oAuthSession";
     public static boolean validateScope(final OAuthSession oAuthSession, final List<RpslObject> maintainers) {
-        if(CollectionUtils.isEmpty(oAuthSession.getScopes())) {
+        if(StringUtils.isEmpty(oAuthSession.getScope())) {
             return true;
         }
 
-        LOGGER.info("Validating scope {} for  maintainers {}", oAuthSession.getScopes(), maintainers.stream().map( rpslObject -> rpslObject.getKey()).collect(Collectors.joining(",")));
+        LOGGER.info("Validating scope {} for  maintainers {}", oAuthSession.getScope(), maintainers.stream().map(rpslObject -> rpslObject.getKey()).collect(Collectors.joining(",")));
 
-        final OAuthSession.ScopeFormatter scopeFormatter = new OAuthSession.ScopeFormatter(oAuthSession.getScopes().getFirst());
+        final OAuthSession.ScopeFormatter scopeFormatter = new OAuthSession.ScopeFormatter(oAuthSession.getScope());
         return scopeFormatter.getAppName().equalsIgnoreCase("whois")
                     && scopeFormatter.getScopeType().equalsIgnoreCase(ObjectType.MNTNER.getName())
                     && maintainers.stream().anyMatch( maintainer -> scopeFormatter.getScopeKey().equalsIgnoreCase(maintainer.getKey().toString()));
@@ -92,7 +92,6 @@ public class ApiKeyUtils {
             return null;
         }
         try {
-            LOGGER.info("Got oAuth as query param " + payload);
             return new ObjectMapper().readValue(payload, OAuthSession.class);
         } catch (JsonProcessingException e) {
             LOGGER.error("Failed to serialize OAuthSession, this should never have happened", e);
