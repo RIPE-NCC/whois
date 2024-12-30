@@ -39,7 +39,7 @@ public final class Ipv4Resource extends IpInterval<Ipv4Resource> implements Comp
     public static final Ipv4Resource MAX_RANGE = new Ipv4Resource(MINIMUM_NUMBER, MAXIMUM_NUMBER);
 
     private static final Splitter SPLIT_ON_DOT = Splitter.on('.');
-    private static final Pattern OCTET_PATTERN = Pattern.compile("^(?:[1-9][0-9]*|0)(?:-[1-9][0-9]*|0)*$");
+    private static final Pattern OCTET_PATTERN = Pattern.compile("^(?:[1-9][0-9]*|0)(?:-(?:[1-9][0-9]*|0))?$");
 
     private final int begin;
     private final int end;
