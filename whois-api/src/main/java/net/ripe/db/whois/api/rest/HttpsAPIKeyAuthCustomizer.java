@@ -11,8 +11,6 @@ import jakarta.servlet.http.HttpServletRequestWrapper;
 import jakarta.servlet.http.HttpServletResponse;
 import net.ripe.db.whois.common.apiKey.ApiKeyAuthServiceClient;
 import net.ripe.db.whois.common.apiKey.ApiKeyUtils;
-import net.ripe.db.whois.common.apiKey.OAuthSession;
-import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.lang3.StringUtils;
 import org.eclipse.jetty.http.HttpStatus;
 import org.slf4j.Logger;
@@ -22,9 +20,6 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import java.io.IOException;
-import java.nio.charset.StandardCharsets;
-
-import static jakarta.servlet.http.HttpServletRequest.BASIC_AUTH;
 
 @Component
 public class HttpsAPIKeyAuthCustomizer implements Filter {

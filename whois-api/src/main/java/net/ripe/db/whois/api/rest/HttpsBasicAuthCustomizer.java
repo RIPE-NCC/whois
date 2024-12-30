@@ -12,8 +12,6 @@ import jakarta.servlet.http.HttpServletResponse;
 import net.ripe.db.whois.common.apiKey.ApiKeyUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.eclipse.jetty.http.HttpStatus;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
 import java.io.IOException;
