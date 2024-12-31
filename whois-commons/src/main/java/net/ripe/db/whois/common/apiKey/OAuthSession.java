@@ -118,6 +118,10 @@ public class OAuthSession implements Serializable {
     }
 
     public static OAuthSession from(final OAuthSession oAuthSession, final String accessKey) {
+        if(oAuthSession == null) {
+            return new OAuthSession(accessKey);
+        }
+
         return new OAuthSession(oAuthSession.getAud(), accessKey, oAuthSession.getEmail(), oAuthSession.getUuid(), oAuthSession.getScope());
     }
 }

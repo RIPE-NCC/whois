@@ -77,12 +77,12 @@ public class InternalUpdatePerformer {
         this.ssoTokenTranslator = ssoTokenTranslator;
     }
 
-    public UpdateContext initContext(final Origin origin, final String ssoToken, final OAuthSession oAuthSession, final HttpServletRequest request) {
+    public UpdateContext initContext(final Origin origin, final String ssoToken, final String accessKey, final HttpServletRequest request) {
         loggerContext.init(getRequestId(origin.getFrom()));
         final UpdateContext updateContext = new UpdateContext(loggerContext);
         setSsoSessionToContext(updateContext, ssoToken);
         setClientCertificates(updateContext, request);
-        setOAuthSession(updateContext, oAuthSession);
+        setOAuthSession(updateContext, accessKey, request);
         return updateContext;
     }
 
@@ -239,8 +239,8 @@ public class InternalUpdatePerformer {
         }
     }
 
-    private void setOAuthSession(final UpdateContext updateContext, final OAuthSession oAuthSession) {
-        updateContext.setOAuthSession(oAuthSession);
+    private void setOAuthSession(final UpdateContext updateContext, final String accessKey, final HttpServletRequest request) {
+        updateContext.setOAuthSession(BearerTokenExtractor.extractBearerToken(request, accessKey));
     }
 
     public void setClientCertificates(final UpdateContext updateContext, final HttpServletRequest request) {

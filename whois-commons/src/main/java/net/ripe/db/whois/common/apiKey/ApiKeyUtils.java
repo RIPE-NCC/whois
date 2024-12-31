@@ -8,7 +8,6 @@ import net.ripe.db.whois.common.rpsl.RpslObject;
 import net.ripe.db.whois.common.rpsl.transform.FilterAuthFunction;
 import net.ripe.db.whois.common.sso.AuthServiceClientException;
 import org.apache.commons.codec.binary.Base64;
-import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -17,13 +16,12 @@ import javax.annotation.Nullable;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.regex.Matcher;
-import java.util.stream.Collectors;
 
 public class ApiKeyUtils {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(ApiKeyUtils.class);
 
-    public static final String APIKEY_QUERY_PARAM = "oAuthSession";
+    public static final String APIKEY_ACCESS_QUERY_PARAM = "accessKey";
     public static boolean validateScope(final OAuthSession oAuthSession, final List<RpslObject> maintainers) {
         if(StringUtils.isEmpty(oAuthSession.getScope())) {
             return true;
@@ -87,19 +85,6 @@ public class ApiKeyUtils {
         final String usernameWithPassword = new String(credDecoded, StandardCharsets.ISO_8859_1);
 
         return usernameWithPassword.contains(":") ?  StringUtils.substringBefore(usernameWithPassword, ":") : null;
-    }
-
-    @Nullable
-    public static OAuthSession getOAuthSession(final String payload) {
-        if(payload == null || payload.isEmpty()) {
-            return null;
-        }
-        try {
-            return new ObjectMapper().readValue(payload, OAuthSession.class);
-        } catch (JsonProcessingException e) {
-            LOGGER.error("Failed to serialize OAuthSession, this should never have happened", e);
-            return null;
-        }
     }
 
     public static String getOAuthSession(final OAuthSession oAuthSession) {

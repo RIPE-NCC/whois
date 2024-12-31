@@ -20,6 +20,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import java.io.IOException;
+import java.util.Objects;
 
 @Component
 public class HttpsAPIKeyAuthCustomizer implements Filter {
@@ -39,13 +40,24 @@ public class HttpsAPIKeyAuthCustomizer implements Filter {
     @Override
     public void doFilter(final ServletRequest request, final ServletResponse response, final FilterChain chain) throws IOException, ServletException {
 
-        if(!canProceed(request)) {
+        if( !(request instanceof HttpServletRequest)) {
+            chain.doFilter(request, response);
+        }
+
+        final HttpServletRequest httpRequest = (HttpServletRequest) request;
+
+        if(isvalidRequest(httpRequest)) {
+            final HttpServletResponse httpResponse = (HttpServletResponse) response;
+            httpResponse.sendError(HttpStatus.BAD_REQUEST_400, "Bad Request");
+            return;
+        }
+
+        if(!canProceed(httpRequest)) {
             chain.doFilter(request, response);
             return;
         }
 
         LOGGER.debug("It is a api key request");
-        final HttpServletRequest httpRequest = (HttpServletRequest) request;
 
         if (RestServiceHelper.isHttpProtocol(httpRequest)){
             final HttpServletResponse httpResponse = (HttpServletResponse) response;
@@ -53,15 +65,11 @@ public class HttpsAPIKeyAuthCustomizer implements Filter {
             return;
         }
 
-        if(!StringUtils.isBlank(httpRequest.getQueryString()) && httpRequest.getQueryString().contains(ApiKeyUtils.APIKEY_QUERY_PARAM)) {
-            final HttpServletResponse httpResponse = (HttpServletResponse) response;
-            httpResponse.sendError(HttpStatus.BAD_REQUEST_400, "Bad Request");
-            return;
-        }
-
         try {
-            final String oAuthSession = apiKeyAuthServiceClient.validateApiKey(httpRequest.getHeader(HttpHeaders.AUTHORIZATION));
-            chain.doFilter(new HttpApiAuthRequestWrapper((HttpServletRequest) request, oAuthSession), response);
+            final String accessKey = ApiKeyUtils.getAccessKey(httpRequest.getHeader(HttpHeaders.AUTHORIZATION));
+
+            final String bearerToken = apiKeyAuthServiceClient.validateApiKey(httpRequest.getHeader(HttpHeaders.AUTHORIZATION), accessKey);
+            chain.doFilter(new HttpApiAuthRequestWrapper((HttpServletRequest) request, accessKey, bearerToken), response);
 
         } catch (Exception ex) {
             final HttpServletResponse httpResponse = (HttpServletResponse) response;
@@ -69,8 +77,13 @@ public class HttpsAPIKeyAuthCustomizer implements Filter {
         }
     }
 
-    private boolean canProceed(final ServletRequest request) {
-        if(!isEnabled || !(request instanceof HttpServletRequest httpRequest)) {
+    private static boolean isvalidRequest(HttpServletRequest httpRequest) {
+        return (!StringUtils.isEmpty(httpRequest.getQueryString()) && httpRequest.getQueryString().contains(ApiKeyUtils.APIKEY_ACCESS_QUERY_PARAM)) ||
+                (httpRequest.getHeader(HttpHeaders.AUTHORIZATION) != null && httpRequest.getHeader(HttpHeaders.AUTHORIZATION).startsWith("Bearer"));
+    }
+
+    private boolean canProceed(final HttpServletRequest httpRequest) {
+        if(!isEnabled) {
             return false;
         }
 
@@ -85,11 +98,13 @@ public class HttpsAPIKeyAuthCustomizer implements Filter {
 
     private static final class HttpApiAuthRequestWrapper extends HttpServletRequestWrapper {
 
-        final private String oAuthSession;
+        final private String bearerToken;
+        final private String accessKey;
 
-        private HttpApiAuthRequestWrapper(final HttpServletRequest request, final String oAuthSession) {
+        private HttpApiAuthRequestWrapper(final HttpServletRequest request,  final String accessKey , final String bearerToken) {
             super(request);
-            this.oAuthSession = oAuthSession;
+            this.bearerToken = bearerToken;
+            this.accessKey = accessKey;
         }
 
         @Override
@@ -98,7 +113,16 @@ public class HttpsAPIKeyAuthCustomizer implements Filter {
                     new StringBuilder() :
                     new StringBuilder(super.getQueryString()).append("&");
 
-            return modifiedQueryString.append(ApiKeyUtils.APIKEY_QUERY_PARAM).append("=").append(oAuthSession).toString();
+            return modifiedQueryString.append(ApiKeyUtils.APIKEY_ACCESS_QUERY_PARAM).append("=").append(accessKey).toString();
+        }
+
+        @Override
+        public String getHeader(final String name) {
+            if(!Objects.equals(name, HttpHeaders.AUTHORIZATION)) {
+                return super.getHeader(name);
+            }
+
+            return "Bearer " +  bearerToken;
         }
     }
 }

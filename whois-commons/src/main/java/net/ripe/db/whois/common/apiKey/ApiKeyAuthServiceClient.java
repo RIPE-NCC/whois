@@ -62,33 +62,20 @@ public class ApiKeyAuthServiceClient {
                 .build();
     }
 
-    public String validateApiKey(final String basicHeader) {
-        final String accessKey = ApiKeyUtils.getAccessKey(basicHeader);
+    public String validateApiKey(final String basicHeader,  final String accessKey ) {
         try {
-            final String response =  client.target(restUrl)
+            return  client.target(restUrl)
                     .path(VALIDATE_PATH)
                     .request(MediaType.APPLICATION_JSON_TYPE)
                     .header(HttpHeaders.AUTHORIZATION, basicHeader)
                     .get(String.class);
 
-            return getOAuthSession(response, accessKey);
         } catch (NotFoundException | NotAuthorizedException e) {
             LOGGER.debug("Failed to validate apikey {} due to {}:{}\n\tResponse: {}", accessKey, e.getClass().getName(), e.getMessage(), e.getResponse().readEntity(String.class));
-            return getFailedOAuth(accessKey);
+            return null;
         } catch (Exception e) {
-            LOGGER.debug("Failed to validate token {} due to {}:{}", accessKey, e.getClass().getName(), e.getMessage());
-            return getFailedOAuth(accessKey);
+            LOGGER.error("Failed to validate apikey {} due to {}:{}", accessKey, e.getClass().getName(), e.getMessage());
+            return null;
         }
-    }
-
-    private String getFailedOAuth(String accessKey) {
-        return ApiKeyUtils.getOAuthSession(new OAuthSession(accessKey));
-    }
-
-    private String getOAuthSession(final String response, final String accessKey) {
-        final String payload =  new String(Base64.getUrlDecoder().decode(response.split("\\.")[1]));
-
-        //TODO: remove when accessKey is available from api registry call
-        return ApiKeyUtils.getOAuthSession(OAuthSession.from(ApiKeyUtils.getOAuthSession(payload), accessKey));
     }
 }
