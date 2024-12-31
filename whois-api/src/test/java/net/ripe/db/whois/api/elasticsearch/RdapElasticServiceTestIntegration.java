@@ -19,6 +19,7 @@ import net.ripe.db.whois.api.rdap.domain.Nameserver;
 import net.ripe.db.whois.api.rdap.domain.Notice;
 import net.ripe.db.whois.api.rdap.domain.RdapObject;
 import net.ripe.db.whois.api.rdap.domain.Redaction;
+import net.ripe.db.whois.api.rdap.domain.Role;
 import net.ripe.db.whois.api.rdap.domain.SearchResult;
 import net.ripe.db.whois.api.rest.client.RestClientUtils;
 import net.ripe.db.whois.common.rpsl.RpslObject;
@@ -666,8 +667,36 @@ public class RdapElasticServiceTestIntegration extends AbstractElasticSearchInte
                         .map(Entity::getHandle)
                         .collect(Collectors.toList()),
                 containsInAnyOrder("OWNER-MNT"));
+
         assertThat(result.getNotices(), hasSize(1));
         assertThat(result.getNotices().getFirst().getTitle(), is("Terms and Conditions"));
+
+        assertThat(result.getEntitySearchResults(), hasSize(1));
+
+        final Entity firstEntity = result.getEntitySearchResults().getFirst();
+        assertThat(firstEntity.getHandle(), is("OWNER-MNT"));
+        assertThat(firstEntity.getVCardArray().toString(), is("[vcard, [" +
+                "[version, {}, text, 4.0], [fn, {}, text, OWNER-MNT], [kind, {}, text, individual]]]"));
+
+        assertThat(result.getEntitySearchResults().getFirst().getEntitySearchResults(), hasSize(2));
+
+        //mnt-by OWNER-MNT
+        final Entity firstEntityMntBy = result.getEntitySearchResults().getFirst().getEntitySearchResults().getFirst();
+        assertThat(firstEntityMntBy.getHandle(), is("OWNER-MNT"));
+        assertThat(firstEntityMntBy.getVCardArray().toString(), is("[vcard, [" +
+                "[version, {}, text, 4.0], [fn, {}, text, OWNER-MNT], [kind, {}, text, individual]]]"));
+        assertThat(firstEntityMntBy.getRoles(), hasSize(1));
+        assertThat(firstEntityMntBy.getRoles().getFirst(), is(Role.REGISTRANT));
+
+
+        //admin-c TP1-TEST
+        final Entity secondEntityAdminC = result.getEntitySearchResults().getFirst().getEntitySearchResults().get(1);
+        assertThat(secondEntityAdminC.getHandle(), is("TP1-TEST"));
+        assertThat(secondEntityAdminC.getVCardArray().toString(), is("[vcard, [" +
+                "[version, {}, text, 4.0], [fn, {}, text, Test Person], [kind, {}, text, individual], " +
+                "[adr, {label=Singel 258}, text, [, , , , , , ]], [tel, {type=voice}, text, +31 6 12345678]]]"));
+        assertThat(secondEntityAdminC.getRoles(), hasSize(1));
+        assertThat(secondEntityAdminC.getRoles().getFirst(), is(Role.ADMINISTRATIVE));
     }
 
     @Test
