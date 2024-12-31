@@ -14,6 +14,7 @@ import org.slf4j.LoggerFactory;
 
 import javax.annotation.Nullable;
 import java.nio.charset.StandardCharsets;
+import java.util.Arrays;
 import java.util.List;
 import java.util.regex.Matcher;
 
@@ -43,7 +44,7 @@ public class ApiKeyUtils {
             return false;
         }
 
-        if(!oAuthSession.getAud()[1].equalsIgnoreCase("whois")) {
+        if(Arrays.stream(oAuthSession.getAud()).noneMatch(appName -> appName.equalsIgnoreCase("whois"))) {
             return false;
         }
 
@@ -52,12 +53,10 @@ public class ApiKeyUtils {
         }
 
         for (final RpslAttribute attribute : authAttributes) {
-            LOGGER.info("Found an sso attribute: {} and oauth uuid is {}", attribute.getCleanValue().toString(), oAuthSession.getUuid());
             final Matcher matcher = FilterAuthFunction.SSO_PATTERN.matcher(attribute.getCleanValue().toString());
             if (matcher.matches()) {
                 try {
                     if (oAuthSession.getUuid().equals(matcher.group(1))) {
-                        LOGGER.info("Authenticated");
                         return true;
                     }
                 } catch (AuthServiceClientException e) {
