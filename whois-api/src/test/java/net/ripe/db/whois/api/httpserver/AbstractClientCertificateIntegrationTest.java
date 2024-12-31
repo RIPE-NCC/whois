@@ -45,9 +45,7 @@ public class AbstractClientCertificateIntegrationTest extends AbstractHttpsInteg
     private static final AtomicInteger X509_KEYCERT_OFFSET = new AtomicInteger();
 
     @BeforeAll
-    public static void enableClientAuth() {
-        System.setProperty("port.client.auth", "0");
-    }
+    public static void enableClientAuth() {System.setProperty("port.client.auth", "0");}
 
     @AfterAll
     public static void disableClientAuth() {
@@ -67,6 +65,16 @@ public class AbstractClientCertificateIntegrationTest extends AbstractHttpsInteg
     // Use client certificate in SSL context
     protected static SSLContext createSSLContext() {
         return createSSLContext(CLIENT_KEYSTORE.getKeystore(), CLIENT_KEYSTORE.getPassword());
+    }
+
+    protected static SSLContext getDummySSLContext() throws NoSuchAlgorithmException {
+        try {
+            SSLContext sslContext = SSLContext.getInstance("TLS");
+            sslContext.init(null, new TrustManager[]{new DummyTrustManager()}, new SecureRandom());
+            return sslContext;
+        } catch (KeyManagementException e) {
+            throw new RuntimeException("Failed to initialize dummy SSLContext", e);
+        }
     }
 
     protected static SSLContext createSSLContext(final String keystoreFilename, final String keystorePassword) {
