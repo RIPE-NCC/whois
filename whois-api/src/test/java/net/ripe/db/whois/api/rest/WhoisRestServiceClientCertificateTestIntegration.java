@@ -16,7 +16,6 @@ import net.ripe.db.whois.api.rest.domain.WhoisResources;
 import net.ripe.db.whois.api.rest.mapper.FormattedClientAttributeMapper;
 import net.ripe.db.whois.api.rest.mapper.FormattedServerAttributeMapper;
 import net.ripe.db.whois.api.rest.mapper.WhoisObjectMapper;
-import net.ripe.db.whois.common.aspects.RetryFor;
 import net.ripe.db.whois.common.domain.CIString;
 import net.ripe.db.whois.common.rpsl.AttributeType;
 import net.ripe.db.whois.common.rpsl.ObjectType;
@@ -29,7 +28,6 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import javax.net.ssl.SSLContext;
-import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 
@@ -206,7 +204,6 @@ public class WhoisRestServiceClientCertificateTestIntegration extends AbstractCl
     }
 
     @Test
-    @RetryFor(value = IOException.class, attempts = 10, intervalMs = 10000)
     public void update_person_missing_private_key_unauthorised() throws Exception {
         // create certificate and don't use private key
         final CertificatePrivateKeyPair certificatePrivateKeyPair = new CertificatePrivateKeyPair();
@@ -223,6 +220,8 @@ public class WhoisRestServiceClientCertificateTestIntegration extends AbstractCl
              "mnt-by: OWNER-MNT\n" +
              "source: TEST");
 
+        sendUpdateRequest(updatedPerson);
+
         // generate client cert and add to mntner
         final RpslObject keycertObject = createKeycertObject(certificatePrivateKeyPair.getCertificate(), "OWNER-MNT");
         databaseHelper.addObject(keycertObject);
@@ -238,6 +237,7 @@ public class WhoisRestServiceClientCertificateTestIntegration extends AbstractCl
             assertThat(e.getMessage(), containsString("javax.net.ssl.SSLHandshakeException: Received fatal alert: bad_certificate"));
         }
     }
+
 
     @Test
     public void update_route6_with_client_cert_and_mntner_cert_successful() {
@@ -335,4 +335,13 @@ public class WhoisRestServiceClientCertificateTestIntegration extends AbstractCl
         return new RpslObjectBuilder(rpslObject).addAttributeAfter(new RpslAttribute(attributeType, attributeValue), AttributeType.SOURCE).get();
     }
 
+    private void sendUpdateRequest(final RpslObject updatedPerson) {
+        final RpslObject correctKeycertObject = createKeycertObject(getClientCertificate(), "OWNER-MNT");
+        databaseHelper.addObject(correctKeycertObject);
+        RpslObject updatedMntner = addAttribute(OWNER_MNT, AttributeType.AUTH, correctKeycertObject.getKey());
+        databaseHelper.updateObject(updatedMntner);
+        SecureRestTest.target(getClientSSLContext(), getClientCertificatePort(), "whois/test/person/TP1-TEST")
+                .request()
+                .put(Entity.entity(map(updatedPerson), MediaType.APPLICATION_XML), WhoisResources.class);
+    }
 }
