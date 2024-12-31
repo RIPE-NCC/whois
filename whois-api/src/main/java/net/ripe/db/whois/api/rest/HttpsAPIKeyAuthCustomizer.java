@@ -46,7 +46,7 @@ public class HttpsAPIKeyAuthCustomizer implements Filter {
 
         final HttpServletRequest httpRequest = (HttpServletRequest) request;
 
-        if(isvalidRequest(httpRequest)) {
+        if(isValidRequest(httpRequest)) {
             final HttpServletResponse httpResponse = (HttpServletResponse) response;
             httpResponse.sendError(HttpStatus.BAD_REQUEST_400, "Bad Request");
             return;
@@ -77,7 +77,7 @@ public class HttpsAPIKeyAuthCustomizer implements Filter {
         }
     }
 
-    private static boolean isvalidRequest(HttpServletRequest httpRequest) {
+    private static boolean isValidRequest(HttpServletRequest httpRequest) {
         return (!StringUtils.isEmpty(httpRequest.getQueryString()) && httpRequest.getQueryString().contains(ApiKeyUtils.APIKEY_ACCESS_QUERY_PARAM)) ||
                 (httpRequest.getHeader(HttpHeaders.AUTHORIZATION) != null && httpRequest.getHeader(HttpHeaders.AUTHORIZATION).startsWith("Bearer"));
     }

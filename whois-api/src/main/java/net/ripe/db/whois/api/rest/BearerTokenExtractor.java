@@ -24,7 +24,6 @@ public class BearerTokenExtractor   {
         return getOAuthSession(bearerToken, accessKey);
     }
 
-
     public static OAuthSession getOAuthSession(final String bearerToken, final String accessKey) {
         if(StringUtils.isEmpty(bearerToken)) {
             return new OAuthSession(accessKey);
