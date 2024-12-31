@@ -6,6 +6,7 @@ import net.ripe.db.whois.api.SecureRestTest;
 import net.ripe.db.whois.common.aspects.RetryFor;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
+import org.springframework.test.annotation.DirtiesContext;
 
 import java.io.IOException;
 
@@ -14,6 +15,7 @@ import static org.hamcrest.Matchers.containsString;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 @Tag("IntegrationTest")
+@DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_EACH_TEST_METHOD)
 public class ClientCertificateServiceTestIntegration extends AbstractClientCertificateIntegrationTest {
 
     @Test

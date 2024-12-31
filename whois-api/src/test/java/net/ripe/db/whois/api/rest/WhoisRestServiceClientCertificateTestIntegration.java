@@ -27,6 +27,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.test.annotation.DirtiesContext;
 
 import javax.net.ssl.SSLContext;
 import java.io.IOException;
@@ -42,6 +43,7 @@ import static org.hamcrest.Matchers.is;
 import static org.junit.jupiter.api.Assertions.fail;
 
 @Tag("IntegrationTest")
+@DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_EACH_TEST_METHOD)
 public class WhoisRestServiceClientCertificateTestIntegration extends AbstractClientCertificateIntegrationTest {
 
     private static final RpslObject OWNER_MNT = RpslObject.parse("" +
