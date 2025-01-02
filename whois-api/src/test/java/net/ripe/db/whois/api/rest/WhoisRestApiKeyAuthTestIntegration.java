@@ -29,6 +29,7 @@ import java.time.LocalDateTime;
 import static jakarta.ws.rs.core.Response.Status.OK;
 import static jakarta.ws.rs.core.Response.Status.UNAUTHORIZED;
 import static net.ripe.db.whois.api.ApiKeyAuthServerDummy.BASIC_AUTH_INVALID_API_KEY;
+import static net.ripe.db.whois.api.ApiKeyAuthServerDummy.BASIC_AUTH_INVALID_SIGNATURE_API_KEY;
 import static net.ripe.db.whois.api.ApiKeyAuthServerDummy.BASIC_AUTH_PERSON_NO_MNT;
 import static net.ripe.db.whois.api.ApiKeyAuthServerDummy.BASIC_AUTH_PERSON_OWNER_MNT;
 import static net.ripe.db.whois.api.ApiKeyAuthServerDummy.BASIC_AUTH_TEST_NO_MNT;
@@ -54,6 +55,14 @@ public class WhoisRestApiKeyAuthTestIntegration extends AbstractHttpsIntegration
             "mnt-by:         OWNER-MNT\n" +
             "source:         TEST\n";
 
+    public static final String TEST_ROLE_STRING = "" +
+            "role:          Test Role\n" +
+            "address:       Singel 258\n" +
+            "phone:         +31 6 12345678\n" +
+            "nic-hdl:       TR2-TEST\n" +
+            "mnt-by:        OWNER-MNT\n" +
+            "source:        TEST";
+
     public static final RpslObject TEST_PERSON = RpslObject.parse(TEST_PERSON_STRING);
     private static final RpslObject PAULETH_PALTHEN = RpslObject.parse("" +
             "person:    Pauleth Palthen\n" +
@@ -75,15 +84,6 @@ public class WhoisRestApiKeyAuthTestIntegration extends AbstractHttpsIntegration
             "mnt-by:      OWNER-MNT\n" +
             "source:      TEST");
 
-    private static final String TEST_ROLE_STRING = "" +
-            "role:           Test Role\n" +
-            "address:        Singel 258\n" +
-            "phone:          +31 6 12345678\n" +
-            "nic-hdl:        TR1-TEST\n" +
-            "admin-c:        TR1-TEST\n" +
-            "abuse-mailbox:  abuse@test.net\n" +
-            "mnt-by:         OWNER-MNT\n" +
-            "source:         TEST\n";
     private static final RpslObject TEST_ROLE = RpslObject.parse(TEST_ROLE_STRING);
 
     private static final RpslObject TEST_IRT = RpslObject.parse("" +
@@ -112,10 +112,10 @@ public class WhoisRestApiKeyAuthTestIntegration extends AbstractHttpsIntegration
     @BeforeEach
     public void setup() {
         databaseHelper.addObject("person: Test Person\nnic-hdl: TP1-TEST");
-        databaseHelper.addObject("role: Test Role\nnic-hdl: TR1-TEST");
+     //   databaseHelper.addObject("role: Test Role\nnic-hdl: TR1-TEST");
         databaseHelper.addObject(OWNER_MNT);
         databaseHelper.updateObject(TEST_PERSON);
-        databaseHelper.updateObject(TEST_ROLE);
+        databaseHelper.addObject(TEST_ROLE);
         databaseHelper.addObject(TEST_IRT);
         testDateTimeProvider.setTime(LocalDateTime.parse("2001-02-04T17:00:00"));
     }
@@ -274,14 +274,6 @@ public class WhoisRestApiKeyAuthTestIntegration extends AbstractHttpsIntegration
 
     @Test
     public void delete_object_with_apikey_no_mnt_with_sso() {
-        databaseHelper.addObject(
-                "role:          Test Role\n" +
-                        "address:       Singel 258\n" +
-                        "phone:         +31 6 12345678\n" +
-                        "nic-hdl:       TR2-TEST\n" +
-                        "mnt-by:        OWNER-MNT\n" +
-                        "source:        TEST");
-
         final Response whoisResources = SecureRestTest.target(getSecurePort(), "whois/references/TEST/role/TR2-TEST")
                 .request()
                 .header(HttpHeaders.AUTHORIZATION, getBasicAuthHeader(BASIC_AUTH_PERSON_NO_MNT))
@@ -292,14 +284,6 @@ public class WhoisRestApiKeyAuthTestIntegration extends AbstractHttpsIntegration
 
     @Test
     public void delete_object_with_apikey_with_mnt_with_sso() {
-        databaseHelper.addObject(
-                "role:          Test Role\n" +
-                        "address:       Singel 258\n" +
-                        "phone:         +31 6 12345678\n" +
-                        "nic-hdl:       TR2-TEST\n" +
-                        "mnt-by:        OWNER-MNT\n" +
-                        "source:        TEST");
-
         final Response whoisResources = SecureRestTest.target(getSecurePort(), "whois/references/TEST/role/TR2-TEST")
                 .request()
                 .header(HttpHeaders.AUTHORIZATION, getBasicAuthHeader(BASIC_AUTH_PERSON_OWNER_MNT))
@@ -310,13 +294,6 @@ public class WhoisRestApiKeyAuthTestIntegration extends AbstractHttpsIntegration
 
     @Test
     public void delete_object_with_invalid_apikey() {
-        databaseHelper.addObject(
-                "role:          Test Role\n" +
-                        "address:       Singel 258\n" +
-                        "phone:         +31 6 12345678\n" +
-                        "nic-hdl:       TR2-TEST\n" +
-                        "mnt-by:        OWNER-MNT\n" +
-                        "source:        TEST");
 
         final Response whoisResources = SecureRestTest.target(getSecurePort(), "whois/references/TEST/role/TR2-TEST")
                 .request()
@@ -327,14 +304,18 @@ public class WhoisRestApiKeyAuthTestIntegration extends AbstractHttpsIntegration
     }
 
     @Test
+    public void delete_object_with_valid_apikey_invalid_jwt_signature() {
+
+        final Response whoisResources = SecureRestTest.target(getSecurePort(), "whois/references/TEST/role/TR2-TEST")
+                .request()
+                .header(HttpHeaders.AUTHORIZATION, getBasicAuthHeader(BASIC_AUTH_INVALID_SIGNATURE_API_KEY))
+                .delete(Response.class);
+
+        assertThat(whoisResources.getStatus(), is(UNAUTHORIZED.getStatusCode()));
+    }
+
+    @Test
     public void delete_object_with_apikey_different_mnt_fails() {
-        databaseHelper.addObject(
-                "role:          Test Role\n" +
-                        "address:       Singel 258\n" +
-                        "phone:         +31 6 12345678\n" +
-                        "nic-hdl:       TR2-TEST\n" +
-                        "mnt-by:        OWNER-MNT\n" +
-                        "source:        TEST");
 
         final Response whoisResources = SecureRestTest.target(getSecurePort(), "whois/references/TEST/role/TR2-TEST")
                 .request()
@@ -357,13 +338,6 @@ public class WhoisRestApiKeyAuthTestIntegration extends AbstractHttpsIntegration
                 "mnt-by:      OWNER-MNT\n" +
                 "source:      TEST"));
 
-        databaseHelper.addObject(
-                "role:          Test Role\n" +
-                        "address:       Singel 258\n" +
-                        "phone:         +31 6 12345678\n" +
-                        "nic-hdl:       TR2-TEST\n" +
-                        "mnt-by:        OWNER-MNT\n" +
-                        "source:        TEST");
 
         final Response whoisResources = SecureRestTest.target(getSecurePort(), "whois/references/TEST/role/TR2-TEST")
                 .request()
@@ -384,14 +358,6 @@ public class WhoisRestApiKeyAuthTestIntegration extends AbstractHttpsIntegration
                 "auth:        SSO test@net.net\n" +
                 "mnt-by:      OWNER-MNT\n" +
                 "source:      TEST"));
-
-        databaseHelper.addObject(
-                "role:          Test Role\n" +
-                        "address:       Singel 258\n" +
-                        "phone:         +31 6 12345678\n" +
-                        "nic-hdl:       TR2-TEST\n" +
-                        "mnt-by:        OWNER-MNT\n" +
-                        "source:        TEST");
 
         final Response whoisResources = SecureRestTest.target(getSecurePort(), "whois/references/TEST/role/TR2-TEST")
                 .request()
@@ -416,6 +382,20 @@ public class WhoisRestApiKeyAuthTestIntegration extends AbstractHttpsIntegration
     }
 
     @Test
+    public void create_succeeds_with_apiKey_with_mnt_with_sso() {
+        final WhoisResources whoisResources = SecureRestTest.target(getSecurePort(), "whois/test/person")
+                .request()
+                .header(HttpHeaders.AUTHORIZATION, getBasicAuthHeader(BASIC_AUTH_PERSON_OWNER_MNT))
+                .post(Entity.entity(map(PAULETH_PALTHEN), MediaType.APPLICATION_XML), WhoisResources.class);
+
+        assertThat(whoisResources.getLink().getHref(), is(String.format("https://localhost:%s/test/person?accessKey=p6lRZgvOFIphjiGwtCGuLwqw",getSecurePort())));
+        assertThat(whoisResources.getErrorMessages(), is(empty()));
+        final WhoisObject object = whoisResources.getWhoisObjects().get(0);
+
+        assertPersonObject(whoisResources, object);
+    }
+
+    @Test
     public void create_succeeds_with_basic_auth_and_no_api_key() {
         final WhoisResources whoisResources = SecureRestTest.target(getSecurePort(), "whois/test/person?password=incorrect1&password=Incorrect2")
                 .request()
@@ -429,6 +409,35 @@ public class WhoisRestApiKeyAuthTestIntegration extends AbstractHttpsIntegration
         assertPersonObject(whoisResources, object);
     }
 
+    @Test
+    public void create_object_with_apikey_same_mnt_different_sso_fails() {
+        databaseHelper.updateObject(RpslObject.parse("" +
+                "mntner:      OWNER-MNT\n" +
+                "descr:       Owner Maintainer\n" +
+                "admin-c:     TP1-TEST\n" +
+                "upd-to:      noreply@ripe.net\n" +
+                "auth:        MD5-PW $1$d9fKeTr2$Si7YudNf4rUGmR71n/cqk/ #test\n" +
+                "auth:        SSO test@net.net\n" +
+                "mnt-by:      OWNER-MNT\n" +
+                "source:      TEST"));
+
+        final Response response = SecureRestTest.target(getSecurePort(), "whois/test/person")
+                .request()
+                .header(HttpHeaders.AUTHORIZATION, getBasicAuthHeader(BASIC_AUTH_PERSON_OWNER_MNT))
+                .post(Entity.entity(map(PAULETH_PALTHEN), MediaType.APPLICATION_XML), Response.class);
+
+        assertThat(response.getStatus(), is(UNAUTHORIZED.getStatusCode()));
+    }
+
+    @Test
+    public void create_object_with_apikey_differnt_mnt_fails() {
+        final Response response = SecureRestTest.target(getSecurePort(), "whois/test/person")
+                .request()
+                .header(HttpHeaders.AUTHORIZATION, getBasicAuthHeader(BASIC_AUTH_TEST_TEST_MNT))
+                .post(Entity.entity(map(PAULETH_PALTHEN), MediaType.APPLICATION_XML), Response.class);
+
+        assertThat(response.getStatus(), is(UNAUTHORIZED.getStatusCode()));
+    }
 
     private static void assertIrt(final WhoisObject whoisObject, final boolean isFIltered) {
         assertThat(whoisObject.getAttributes(), contains(

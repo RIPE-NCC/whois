@@ -9,6 +9,7 @@ import com.nimbusds.jose.JWSSigner;
 import com.nimbusds.jose.Payload;
 import com.nimbusds.jose.crypto.RSASSASigner;
 import com.nimbusds.jose.jwk.RSAKey;
+import com.nimbusds.jose.jwk.gen.RSAKeyGenerator;
 import com.nimbusds.jwt.JWTClaimsSet;
 import com.nimbusds.jwt.SignedJWT;
 import jakarta.annotation.PostConstruct;
@@ -52,6 +53,7 @@ public class ApiKeyAuthServerDummy implements Stub {
     public static final String BASIC_AUTH_PERSON_OWNER_MNT = "cDZsUlpndk9GSXBoamlHd3RDR3VMd3F3OjJDVEdQeDVhbFVFVzRwa1Rrd2FRdGRPNg==";
     public static final String BASIC_AUTH_TEST_TEST_MNT = "dDZsUlpndk9GSXBoamlHd3RDR3VMd3F3OjJDVEdQeDVhbFVFVzRwa1Rrd2FRdGRPNg==";
     public static final String BASIC_AUTH_INVALID_API_KEY = "aDZsUlpndk9GSXBoamlHd3RDR3VMd3F3OjJDVEdQeDVhbFVFVzRwa1Rrd2FRdGRPNg==";
+    public static final String BASIC_AUTH_INVALID_SIGNATURE_API_KEY = "TXp1ZzRxRVlpSTVET1dqOXI1Qkp1Y2k4OnZBdzgyRTFCMkZ2dFVyYjB0MDF0Ykt2cg==";
 
     private Server server;
     private int port = 0;
@@ -72,6 +74,7 @@ public class ApiKeyAuthServerDummy implements Stub {
             usermap.put(BASIC_AUTH_PERSON_NO_MNT, new OAuthSession(AUD, "l6lRZgvOFIphjiGwtCGuLwqw","person@net.net", "906635c2-0405-429a-800b-0602bd716124", null));
             usermap.put(BASIC_AUTH_PERSON_OWNER_MNT, new OAuthSession(AUD, "l6lRZgvOFIphjiGwtCGuLwqw","person@net.net", "906635c2-0405-429a-800b-0602bd716124", "whois.mntner:OWNER-MNT"));
             usermap.put(BASIC_AUTH_TEST_TEST_MNT, new OAuthSession(AUD, "hHZjAbXPtxGxUJCgdwv2ufhY","test@ripe.net", "8ffe29be-89ef-41c8-ba7f-0e1553a623e5", "whois.mntner:TEST-MNT"));
+            usermap.put(BASIC_AUTH_INVALID_SIGNATURE_API_KEY, new OAuthSession(AUD, "hHZjAbXPtxGxUJCgdwv2ufhY","invalid@ripe.net", "8ffe29be-89ef-41c8-ba7f-0e1553a623e5", "whois.mntner:TEST-MNT"));
         }
 
         @Override
@@ -87,21 +90,23 @@ public class ApiKeyAuthServerDummy implements Stub {
 
             final String userKey = StringUtils.substringAfter(request.getHeader("Authorization"), "Basic").trim();
 
-            final OAuthSession oAuthSession = usermap.get(userKey);
-            if (oAuthSession == null) {
-                response.sendError(HttpServletResponse.SC_UNAUTHORIZED);
-                return;
-            }
-
             response.setStatus(HttpServletResponse.SC_OK);
             response.setContentType("application/json");
-            response.getWriter().println(convertToJwt(oAuthSession));
+            response.getWriter().println(convertToJwt(userKey));
         }
 
-        private String convertToJwt(final OAuthSession oAuthSession) {
+        private String convertToJwt(final String userKey) {
+
+            final OAuthSession oAuthSession = usermap.get(userKey);
+            if (oAuthSession == null) {
+                return null;
+            }
 
             try {
-                final RSAKey privateKey = RSAKey.parse(new String(Files.readAllBytes(ResourceUtils.getFile("classpath:JWT_private.key").toPath())));
+                final RSAKey privateKey = userKey.equals(BASIC_AUTH_INVALID_SIGNATURE_API_KEY) ? new RSAKeyGenerator(2048)
+                        .keyID("123")
+                        .generate() :
+                        RSAKey.parse(new String(Files.readAllBytes(ResourceUtils.getFile("classpath:JWT_private.key").toPath())));
                 final JWSSigner signer = new RSASSASigner(privateKey);
 
                 JWSObject jwsObject = new JWSObject(
