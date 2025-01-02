@@ -2,6 +2,7 @@ package net.ripe.db.whois.api.rest;
 
 import com.google.common.net.InetAddresses;
 import net.ripe.db.whois.api.QueryBuilder;
+import net.ripe.db.whois.api.apiKey.BearerTokenExtractor;
 import net.ripe.db.whois.api.rest.domain.Parameters;
 import net.ripe.db.whois.api.rest.domain.WhoisResources;
 import net.ripe.db.whois.api.rest.mapper.WhoisObjectMapper;
@@ -67,6 +68,7 @@ public class WhoisRestService {
     private final SsoTranslator ssoTranslator;
     private final LoggerContext loggerContext;
     private final AuthoritativeResourceData authoritativeResourceData;
+    private final BearerTokenExtractor bearerTokenExtractor;
     private final String baseUrl;
 
     @Autowired
@@ -79,6 +81,7 @@ public class WhoisRestService {
                             final SsoTranslator ssoTranslator,
                             final LoggerContext loggerContext,
                             final AuthoritativeResourceData authoritativeResourceData,
+                            final BearerTokenExtractor bearerTokenExtractor,
                             @Value("${api.rest.baseurl}") final String baseUrl) {
         this.rpslObjectDao = rpslObjectDao;
         this.rpslObjectStreamer = rpslObjectStreamer;
@@ -89,6 +92,7 @@ public class WhoisRestService {
         this.ssoTranslator = ssoTranslator;
         this.loggerContext = loggerContext;
         this.authoritativeResourceData = authoritativeResourceData;
+        this.bearerTokenExtractor = bearerTokenExtractor;
         this.baseUrl = baseUrl;
     }
 
@@ -310,7 +314,7 @@ public class WhoisRestService {
         final Query query;
         try {
             query =
-                    Query.parse(queryBuilder.build(key), crowdTokenKey, passwords, isTrusted(request), ClientCertificateExtractor.getClientCertificates(request), BearerTokenExtractor.extractBearerToken(request, accessKey)).setMatchPrimaryKeyOnly(true);
+                    Query.parse(queryBuilder.build(key), crowdTokenKey, passwords, isTrusted(request), ClientCertificateExtractor.getClientCertificates(request), bearerTokenExtractor.extractBearerToken(request, accessKey)).setMatchPrimaryKeyOnly(true);
         } catch (QueryException e) {
             throw RestServiceHelper.createWebApplicationException(e, request);
         }

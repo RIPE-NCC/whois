@@ -3,6 +3,7 @@ package net.ripe.db.whois.api.rest;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 import net.ripe.db.whois.api.UpdateCreator;
+import net.ripe.db.whois.api.apiKey.BearerTokenExtractor;
 import net.ripe.db.whois.api.rest.domain.ErrorMessage;
 import net.ripe.db.whois.api.rest.domain.Link;
 import net.ripe.db.whois.api.rest.domain.WhoisObject;
@@ -12,7 +13,6 @@ import net.ripe.db.whois.api.rest.marshal.StreamingHelper;
 import net.ripe.db.whois.common.DateTimeProvider;
 import net.ripe.db.whois.common.Message;
 import net.ripe.db.whois.common.Messages;
-import net.ripe.db.whois.common.apiKey.OAuthSession;
 import net.ripe.db.whois.common.conversion.PasswordFilter;
 import net.ripe.db.whois.common.rpsl.RpslAttribute;
 import net.ripe.db.whois.common.rpsl.RpslObject;
@@ -64,17 +64,21 @@ public class InternalUpdatePerformer {
     private final WhoisObjectMapper whoisObjectMapper;
     private final LoggerContext loggerContext;
     private final SsoTokenTranslator ssoTokenTranslator;
+    private final BearerTokenExtractor bearerTokenExtractor;
+
     @Autowired
     public InternalUpdatePerformer(final UpdateRequestHandler updateRequestHandler,
                                    final DateTimeProvider dateTimeProvider,
                                    final WhoisObjectMapper whoisObjectMapper,
                                    final LoggerContext loggerContext,
+                                   final BearerTokenExtractor bearerTokenExtractor,
                                    final SsoTokenTranslator ssoTokenTranslator) {
         this.updateRequestHandler = updateRequestHandler;
         this.dateTimeProvider = dateTimeProvider;
         this.whoisObjectMapper = whoisObjectMapper;
         this.loggerContext = loggerContext;
         this.ssoTokenTranslator = ssoTokenTranslator;
+        this.bearerTokenExtractor = bearerTokenExtractor;
     }
 
     public UpdateContext initContext(final Origin origin, final String ssoToken, final String accessKey, final HttpServletRequest request) {
@@ -240,7 +244,7 @@ public class InternalUpdatePerformer {
     }
 
     private void setOAuthSession(final UpdateContext updateContext, final String accessKey, final HttpServletRequest request) {
-        updateContext.setOAuthSession(BearerTokenExtractor.extractBearerToken(request, accessKey));
+        updateContext.setOAuthSession(bearerTokenExtractor.extractBearerToken(request, accessKey));
     }
 
     public void setClientCertificates(final UpdateContext updateContext, final HttpServletRequest request) {

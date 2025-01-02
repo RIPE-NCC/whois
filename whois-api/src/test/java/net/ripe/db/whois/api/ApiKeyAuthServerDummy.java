@@ -1,6 +1,16 @@
 package net.ripe.db.whois.api;
 
 import com.google.common.collect.Maps;
+import com.nimbusds.jose.JOSEException;
+import com.nimbusds.jose.JWSAlgorithm;
+import com.nimbusds.jose.JWSHeader;
+import com.nimbusds.jose.JWSObject;
+import com.nimbusds.jose.JWSSigner;
+import com.nimbusds.jose.Payload;
+import com.nimbusds.jose.crypto.RSASSASigner;
+import com.nimbusds.jose.jwk.RSAKey;
+import com.nimbusds.jwt.JWTClaimsSet;
+import com.nimbusds.jwt.SignedJWT;
 import jakarta.annotation.PostConstruct;
 import jakarta.annotation.PreDestroy;
 import jakarta.servlet.ServletException;
@@ -23,9 +33,12 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Component;
 import org.springframework.test.util.ReflectionTestUtils;
+import org.springframework.util.ResourceUtils;
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.text.ParseException;
 import java.util.Base64;
 import java.util.Map;
 
@@ -85,11 +98,23 @@ public class ApiKeyAuthServerDummy implements Stub {
             response.getWriter().println(convertToJwt(oAuthSession));
         }
 
-        private String convertToJwt(OAuthSession oAuthSession) {
-           return StringUtils.joinWith(".",
-            "eyJhbGciOiJSUzI1NiIsInR5cCIgOiAiSldUIiwia2lkIiA6ICJuMzdXWllsaGYzLTUwVkVTVzl0YlowWFFCVXMxVlZZdzc5aEpkaFI4Q1ZJIn0",
-                   Base64.getEncoder().encodeToString(ApiKeyUtils.getOAuthSession(oAuthSession).getBytes(StandardCharsets.UTF_8)),
-                   "kKAyngAbKSeHzjxcNM0BuS4CRttdZYAk2GKXiI5IcqOXAlx66E_933Es_XBofeSkUiWzQM4v0mcdJr171bKbuFfpArjFnEWPXlcO9GAUTAJoO0spaxxP2KeWx3-cPdkaccJOnkyvTyb9ZzsNQX0qreLkeqiINc-FWU1qoNtZW7TolyQ_qstMNVTFcd2GO5Z0qEXySfnlRSjssnb78VhnDcijHGf_atTBhRkzLAg23-Z8HoeEfNkpJEFDMMhuGzRupE8_MA45ak-Cr7LMiFe4a_MNRGiet1OsN4rmIyTJwByx9akADyzLbPUHcbWE3gBJmsDR5mCajvXrnZBJYcGBiQ");
+        private String convertToJwt(final OAuthSession oAuthSession) {
+
+            try {
+                final RSAKey privateKey = RSAKey.parse(new String(Files.readAllBytes(ResourceUtils.getFile("classpath:JWT_private.key").toPath())));
+                final JWSSigner signer = new RSASSASigner(privateKey);
+
+                JWSObject jwsObject = new JWSObject(
+                        new JWSHeader.Builder(JWSAlgorithm.RS256).keyID(privateKey.getKeyID()).build(),
+                        new Payload(ApiKeyUtils.getOAuthSession(oAuthSession)));
+
+                jwsObject.sign(signer);
+
+                return jwsObject.serialize();
+
+            } catch (Exception e) {
+                throw new RuntimeException(e);
+            }
         }
     }
 

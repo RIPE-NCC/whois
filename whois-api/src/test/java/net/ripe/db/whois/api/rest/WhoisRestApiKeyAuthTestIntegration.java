@@ -17,6 +17,7 @@ import net.ripe.db.whois.common.apiKey.ApiKeyUtils;
 import net.ripe.db.whois.common.rpsl.RpslObject;
 import org.apache.commons.lang3.StringUtils;
 import org.eclipse.jetty.http.HttpStatus;
+import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Tag;
@@ -100,6 +101,12 @@ public class WhoisRestApiKeyAuthTestIntegration extends AbstractHttpsIntegration
     @BeforeAll
     public static void setupApiProperties() {
         System.setProperty("apikey.authenticate.enabled","true");
+    }
+
+    @AfterAll
+    public static void restApiProperties() {
+        System.clearProperty("apikey.authenticate.enabled");
+        System.clearProperty("apikey.public.key.url");
     }
 
     @BeforeEach
