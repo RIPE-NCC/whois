@@ -75,14 +75,14 @@ public class ApiPublicKeyLoader {
             return Collections.emptyList();
         }
 
-        LOGGER.info("Loading public key from {}", restUrl);
+        LOGGER.debug("Loading public key from {}", restUrl);
         try {
             return  getListOfKeys(client.target(restUrl)
                     .request(MediaType.APPLICATION_JSON_TYPE)
                     .get(String.class));
 
         } catch (Exception e) {
-            LOGGER.debug("Failed to load RSA public key  apikey due to {}:{}", e.getClass().getName(), e.getMessage());
+            LOGGER.error("Failed to load RSA public key  apikey due to {}:{}", e.getClass().getName(), e.getMessage());
             throw e;
         }
     }
