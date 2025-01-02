@@ -22,6 +22,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.Nullable;
@@ -66,7 +67,7 @@ public class ApiPublicKeyLoader {
     }
 
     //TODO[MA] : check if this is right way
-   // @Cacheable(cacheNames = "JWTpublicKeyDetails")
+    @Cacheable(cacheNames = "JWTpublicKeyDetails")
     @Nullable
     public List<RSAKey> loadPublicKey() throws ParseException {
         if(StringUtils.isEmpty(restUrl)) {
