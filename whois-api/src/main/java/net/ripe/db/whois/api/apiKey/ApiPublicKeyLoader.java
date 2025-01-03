@@ -66,9 +66,7 @@ public class ApiPublicKeyLoader {
                 .build();
     }
 
-    //TODO[MA] : check if this is right way
     @Cacheable(cacheNames = "JWTpublicKeyDetails")
-    @Nullable
     public List<RSAKey> loadPublicKey() throws ParseException {
         if(StringUtils.isEmpty(restUrl)) {
             LOGGER.warn("Skipping JWT verification as url is null");
@@ -92,9 +90,10 @@ public class ApiPublicKeyLoader {
             final Map<String, Object> content = JSONObjectUtils.parse(publicKeys);
             final List<RSAKey> rsaKeys = Lists.newArrayList();
 
-            for (final Map<String, Object> key : (List<Map<String, Object>>) content.get("keys")) {
+            for (final Map<String, Object> key : JSONObjectUtils.getJSONObjectArray(content, "keys")) {
                 rsaKeys.add(RSAKey.parse(key));
             }
+
             return rsaKeys;
         } catch ( Exception e ) {
             LOGGER.error("Failed to parse public key", e);

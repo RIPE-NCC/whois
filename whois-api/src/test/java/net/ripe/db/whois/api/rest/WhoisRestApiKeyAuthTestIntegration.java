@@ -14,7 +14,10 @@ import net.ripe.db.whois.api.rest.domain.WhoisResources;
 import net.ripe.db.whois.api.rest.mapper.FormattedClientAttributeMapper;
 import net.ripe.db.whois.api.rest.mapper.WhoisObjectMapper;
 import net.ripe.db.whois.common.apiKey.ApiKeyUtils;
+import net.ripe.db.whois.common.rpsl.AttributeType;
+import net.ripe.db.whois.common.rpsl.RpslAttribute;
 import net.ripe.db.whois.common.rpsl.RpslObject;
+import net.ripe.db.whois.common.rpsl.RpslObjectBuilder;
 import org.apache.commons.lang3.StringUtils;
 import org.eclipse.jetty.http.HttpStatus;
 import org.junit.jupiter.api.AfterAll;
@@ -26,6 +29,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 import java.time.LocalDateTime;
 
+import static jakarta.ws.rs.client.Entity.entity;
 import static jakarta.ws.rs.core.Response.Status.OK;
 import static jakarta.ws.rs.core.Response.Status.UNAUTHORIZED;
 import static net.ripe.db.whois.api.ApiKeyAuthServerDummy.BASIC_AUTH_INVALID_API_KEY;
@@ -35,6 +39,8 @@ import static net.ripe.db.whois.api.ApiKeyAuthServerDummy.BASIC_AUTH_PERSON_OWNE
 import static net.ripe.db.whois.api.ApiKeyAuthServerDummy.BASIC_AUTH_TEST_NO_MNT;
 import static net.ripe.db.whois.api.ApiKeyAuthServerDummy.BASIC_AUTH_TEST_TEST_MNT;
 import static net.ripe.db.whois.api.rest.WhoisRestBasicAuthTestIntegration.getBasicAuthenticationHeader;
+import static net.ripe.db.whois.common.rpsl.ObjectType.PERSON;
+import static net.ripe.db.whois.common.rpsl.ObjectType.ROLE;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.Matchers.containsInAnyOrder;
@@ -60,6 +66,7 @@ public class WhoisRestApiKeyAuthTestIntegration extends AbstractHttpsIntegration
             "address:       Singel 258\n" +
             "phone:         +31 6 12345678\n" +
             "nic-hdl:       TR2-TEST\n" +
+            "e-mail:        test123@ripe.net\n" +
             "mnt-by:        OWNER-MNT\n" +
             "source:        TEST";
 
@@ -437,6 +444,139 @@ public class WhoisRestApiKeyAuthTestIntegration extends AbstractHttpsIntegration
                 .post(Entity.entity(map(PAULETH_PALTHEN), MediaType.APPLICATION_XML), Response.class);
 
         assertThat(response.getStatus(), is(UNAUTHORIZED.getStatusCode()));
+    }
+
+    @Test
+    public void update_object_with_apikey_no_mnt_with_sso() {
+        final RpslObject updated = new RpslObjectBuilder(TEST_ROLE)
+                .addAttributeSorted(new RpslAttribute(AttributeType.REMARKS, "more_test"))
+                .get();
+
+        final WhoisResources whoisResources = SecureRestTest.target(getSecurePort(), "whois/TEST/role/TR2-TEST")
+                .request(MediaType.APPLICATION_XML)
+                .header(HttpHeaders.AUTHORIZATION, getBasicAuthHeader(BASIC_AUTH_PERSON_NO_MNT))
+                .put(Entity.entity(map(updated), MediaType.APPLICATION_XML), WhoisResources.class);
+
+        assertThat(whoisResources.getWhoisObjects().size(), is(1));
+        assertThat(databaseHelper.lookupObject(ROLE, updated.getKey().toString()).getValueForAttribute(AttributeType.REMARKS), is("more_test"));
+
+    }
+
+    @Test
+    public void update_object_with_apikey_with_mnt_with_sso() {
+        final RpslObject updated = new RpslObjectBuilder(TEST_ROLE)
+                .addAttributeSorted(new RpslAttribute(AttributeType.REMARKS, "more_test"))
+                .get();
+
+        final WhoisResources whoisResources = SecureRestTest.target(getSecurePort(), "whois/TEST/role/TR2-TEST")
+                .request(MediaType.APPLICATION_XML)
+                .header(HttpHeaders.AUTHORIZATION, getBasicAuthHeader(BASIC_AUTH_PERSON_OWNER_MNT))
+                .put(Entity.entity(map(updated), MediaType.APPLICATION_XML), WhoisResources.class);
+
+        assertThat(whoisResources.getWhoisObjects().size(), is(1));
+        assertThat(databaseHelper.lookupObject(ROLE, updated.getKey().toString()).getValueForAttribute(AttributeType.REMARKS), is("more_test"));
+    }
+
+    @Test
+    public void update_object_with_invalid_apikey() {
+
+        final RpslObject updated = new RpslObjectBuilder(TEST_ROLE)
+                .addAttributeSorted(new RpslAttribute(AttributeType.REMARKS, "more_test"))
+                .get();
+
+        final Response whoisResources = SecureRestTest.target(getSecurePort(), "whois/TEST/role/TR2-TEST")
+                .request(MediaType.APPLICATION_XML)
+                .header(HttpHeaders.AUTHORIZATION, getBasicAuthHeader(BASIC_AUTH_INVALID_API_KEY))
+                .put(Entity.entity(map(updated), MediaType.APPLICATION_XML), Response.class);
+
+        assertThat(whoisResources.getStatus(), is(UNAUTHORIZED.getStatusCode()));
+        assertThat(databaseHelper.lookupObject(ROLE, updated.getKey().toString()).getValueOrNullForAttribute(AttributeType.REMARKS), is(nullValue()));
+
+    }
+
+    @Test
+    public void update_object_with_valid_apikey_invalid_jwt_signature() {
+
+        final RpslObject updated = new RpslObjectBuilder(TEST_ROLE)
+                .addAttributeSorted(new RpslAttribute(AttributeType.REMARKS, "more_test"))
+                .get();
+
+        final Response whoisResources = SecureRestTest.target(getSecurePort(), "whois/TEST/role/TR2-TEST")
+                .request(MediaType.APPLICATION_XML)
+                .header(HttpHeaders.AUTHORIZATION, getBasicAuthHeader(BASIC_AUTH_INVALID_SIGNATURE_API_KEY))
+                .put(Entity.entity(map(updated), MediaType.APPLICATION_XML), Response.class);
+
+        assertThat(whoisResources.getStatus(), is(UNAUTHORIZED.getStatusCode()));
+        assertThat(databaseHelper.lookupObject(ROLE, updated.getKey().toString()).getValueOrNullForAttribute(AttributeType.REMARKS), is(nullValue()));
+    }
+
+    @Test
+    public void update_object_with_apikey_different_mnt_fails() {
+
+        final RpslObject updated = new RpslObjectBuilder(TEST_ROLE)
+                .addAttributeSorted(new RpslAttribute(AttributeType.REMARKS, "more_test"))
+                .get();
+
+        final Response whoisResources = SecureRestTest.target(getSecurePort(), "whois/TEST/role/TR2-TEST")
+                .request(MediaType.APPLICATION_XML)
+                .header(HttpHeaders.AUTHORIZATION, getBasicAuthHeader(BASIC_AUTH_TEST_TEST_MNT))
+                .put(Entity.entity(map(updated), MediaType.APPLICATION_XML), Response.class);
+
+        assertThat(whoisResources.getStatus(), is(UNAUTHORIZED.getStatusCode()));
+        assertThat(databaseHelper.lookupObject(ROLE, updated.getKey().toString()).getValueOrNullForAttribute(AttributeType.REMARKS), is(nullValue()));
+
+    }
+
+    @Test
+    public void update_object_with_apikey_different_mnt_same_sso_fails() {
+        databaseHelper.addObject(RpslObject.parse("" +
+                "mntner:      TEST-MNT\n" +
+                "descr:       Owner Maintainer\n" +
+                "admin-c:     TP1-TEST\n" +
+                "upd-to:      noreply@ripe.net\n" +
+                "auth:        MD5-PW $1$d9fKeTr2$Si7YudNf4rUGmR71n/cqk/ #test\n" +
+                "auth:        SSO test@net.net\n" +
+                "auth:        SSO person@net.net\n" +
+                "mnt-by:      OWNER-MNT\n" +
+                "source:      TEST"));
+
+
+        final RpslObject updated = new RpslObjectBuilder(TEST_ROLE)
+                .addAttributeSorted(new RpslAttribute(AttributeType.REMARKS, "more_test"))
+                .get();
+
+        final Response whoisResources = SecureRestTest.target(getSecurePort(), "whois/TEST/role/TR2-TEST")
+                .request(MediaType.APPLICATION_XML)
+                .header(HttpHeaders.AUTHORIZATION, getBasicAuthHeader(BASIC_AUTH_TEST_TEST_MNT))
+                .put(Entity.entity(map(updated), MediaType.APPLICATION_XML), Response.class);
+
+        assertThat(whoisResources.getStatus(), is(UNAUTHORIZED.getStatusCode()));
+        assertThat(databaseHelper.lookupObject(ROLE, updated.getKey().toString()).getValueOrNullForAttribute(AttributeType.REMARKS), is(nullValue()));
+    }
+
+    @Test
+    public void update_object_with_apikey_same_mnt_different_sso_fails() {
+        databaseHelper.updateObject(RpslObject.parse("" +
+                "mntner:      OWNER-MNT\n" +
+                "descr:       Owner Maintainer\n" +
+                "admin-c:     TP1-TEST\n" +
+                "upd-to:      noreply@ripe.net\n" +
+                "auth:        MD5-PW $1$d9fKeTr2$Si7YudNf4rUGmR71n/cqk/ #test\n" +
+                "auth:        SSO test@net.net\n" +
+                "mnt-by:      OWNER-MNT\n" +
+                "source:      TEST"));
+
+        final RpslObject updated = new RpslObjectBuilder(TEST_ROLE)
+                .addAttributeSorted(new RpslAttribute(AttributeType.REMARKS, "more_test"))
+                .get();
+
+        final Response whoisResources = SecureRestTest.target(getSecurePort(), "whois/TEST/role/TR2-TEST")
+                .request(MediaType.APPLICATION_XML)
+                .header(HttpHeaders.AUTHORIZATION, getBasicAuthHeader(BASIC_AUTH_TEST_TEST_MNT))
+                .put(Entity.entity(map(updated), MediaType.APPLICATION_XML), Response.class);
+
+        assertThat(whoisResources.getStatus(), is(UNAUTHORIZED.getStatusCode()));
+        assertThat(databaseHelper.lookupObject(ROLE, updated.getKey().toString()).getValueOrNullForAttribute(AttributeType.REMARKS), is(nullValue()));
     }
 
     private static void assertIrt(final WhoisObject whoisObject, final boolean isFIltered) {
