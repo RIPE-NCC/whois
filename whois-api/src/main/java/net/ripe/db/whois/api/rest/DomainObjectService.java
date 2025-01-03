@@ -21,6 +21,7 @@ import net.ripe.db.whois.api.rest.domain.WhoisObject;
 import net.ripe.db.whois.api.rest.domain.WhoisResources;
 import net.ripe.db.whois.api.rest.mapper.FormattedServerAttributeMapper;
 import net.ripe.db.whois.api.rest.mapper.WhoisObjectMapper;
+import net.ripe.db.whois.common.apiKey.ApiKeyUtils;
 import net.ripe.db.whois.common.rpsl.ObjectType;
 import net.ripe.db.whois.common.rpsl.RpslObject;
 import net.ripe.db.whois.common.sso.AuthServiceClient;
@@ -84,6 +85,7 @@ public class DomainObjectService {
             @Context final HttpServletRequest request,
             @PathParam("source") final String sourceParam,
             @QueryParam("password") final List<String> passwords,
+            @QueryParam(ApiKeyUtils.APIKEY_ACCESS_QUERY_PARAM) final String accessKey,
             @CookieParam(AuthServiceClient.TOKEN_KEY) final String crowdTokenKey) {
 
         if (resources == null || resources.getWhoisObjects().size() == 0) {
@@ -93,7 +95,7 @@ public class DomainObjectService {
         try {
             final Origin origin = updatePerformer.createOrigin(request);
 
-            final UpdateContext updateContext = updatePerformer.initContext(origin, crowdTokenKey, request);
+            final UpdateContext updateContext = updatePerformer.initContext(origin, crowdTokenKey, accessKey, request);
             updateContext.setBatchUpdate();
 
             auditlogRequest(request);

@@ -52,6 +52,7 @@ public class WhoisServletDeployer implements ServletDeployer {
     private final HealthCheckService healthCheckService;
     private final ClientCertificateService clientCertificateService;
     private final HttpsBasicAuthCustomizer httpsBasicAuthCustomizer;
+    private final HttpsAPIKeyAuthCustomizer httpsAPIKeyAuthCustomizer;
     private final SyncUpdatesHttpSchemeFilter syncUpdatesHttpSchemeFilter;
 
     @Autowired
@@ -71,6 +72,7 @@ public class WhoisServletDeployer implements ServletDeployer {
                                 final BatchUpdatesService batchUpdatesService,
                                 final HealthCheckService healthCheckService,
                                 final HttpsBasicAuthCustomizer httpsBasicAuthCustomizer,
+                                final HttpsAPIKeyAuthCustomizer httpsAPIKeyAuthCustomizer,
                                 final ClientCertificateService clientCertificateService,
                                 final SyncUpdatesHttpSchemeFilter syncUpdatesHttpSchemeFilter) {
         this.whoisRestService = whoisRestService;
@@ -90,12 +92,14 @@ public class WhoisServletDeployer implements ServletDeployer {
         this.healthCheckService = healthCheckService;
         this.clientCertificateService = clientCertificateService;
         this.httpsBasicAuthCustomizer = httpsBasicAuthCustomizer;
+        this.httpsAPIKeyAuthCustomizer = httpsAPIKeyAuthCustomizer;
         this.syncUpdatesHttpSchemeFilter = syncUpdatesHttpSchemeFilter;
     }
 
     @Override
     public void deploy(WebAppContext context) {
         context.addFilter(new FilterHolder(maintenanceModeFilter), "/whois/*", EnumSet.allOf(DispatcherType.class));
+        context.addFilter(new FilterHolder(httpsAPIKeyAuthCustomizer), "/whois/*", EnumSet.allOf(DispatcherType.class));
         context.addFilter(new FilterHolder(httpsBasicAuthCustomizer), "/whois/*", EnumSet.allOf(DispatcherType.class));
         context.addFilter(new FilterHolder(syncUpdatesHttpSchemeFilter), "/whois/syncupdates/*", EnumSet.allOf(DispatcherType.class));
 

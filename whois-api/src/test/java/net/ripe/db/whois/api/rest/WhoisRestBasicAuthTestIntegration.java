@@ -282,7 +282,7 @@ public class WhoisRestBasicAuthTestIntegration extends AbstractHttpsIntegrationT
         return whoisObjectMapper.mapRpslObjects(FormattedClientAttributeMapper.class, rpslObjects);
     }
 
-    private static String getBasicAuthenticationHeader(String username, String password) {
+    public static String getBasicAuthenticationHeader(String username, String password) {
         String valueToEncode = username + ":" + password;
         return "Basic " + Base64.getEncoder().encodeToString(valueToEncode.getBytes());
     }

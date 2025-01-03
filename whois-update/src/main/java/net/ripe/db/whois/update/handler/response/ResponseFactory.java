@@ -71,8 +71,7 @@ public class ResponseFactory {
     }
 
     public ResponseMessage createNotification(final UpdateContext updateContext, final Origin origin, final Notification notification) {
-        final String ssoUserEmail = updateContext.getUserSession() != null && !notification.isOverrideUsed()?
-                updateContext.getUserSession().getUsername() : "";
+        final String ssoUserEmail = getSsoUserEmail(updateContext, notification);
 
         final VelocityContext velocityContext = new VelocityContext();
 
@@ -89,6 +88,11 @@ public class ResponseFactory {
         }
 
         return new ResponseMessage(subject, createResponse(TEMPLATE_NOTIFICATION, updateContext, velocityContext, origin), ssoUserEmail);
+    }
+
+    private static String getSsoUserEmail(final UpdateContext updateContext, final Notification notification) {
+        return updateContext.getUserSession() != null && !notification.isOverrideUsed() ?
+                updateContext.getUserSession().getUsername() : "";
     }
 
     private String createResponse(final String templateName, final UpdateContext updateContext, final VelocityContext velocityContext, final Origin origin) {
