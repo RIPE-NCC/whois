@@ -1,5 +1,7 @@
 package net.ripe.db.whois.api.rest;
 
+import com.google.common.collect.Lists;
+import jakarta.ws.rs.NotAuthorizedException;
 import jakarta.ws.rs.client.Entity;
 import jakarta.ws.rs.core.HttpHeaders;
 import jakarta.ws.rs.core.MediaType;
@@ -28,6 +30,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 import static jakarta.ws.rs.client.Entity.entity;
 import static jakarta.ws.rs.core.Response.Status.OK;
@@ -48,7 +51,9 @@ import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.empty;
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.notNullValue;
 import static org.hamcrest.Matchers.nullValue;
+import static org.junit.jupiter.api.Assertions.fail;
 
 @Tag("IntegrationTest")
 public class WhoisRestApiKeyAuthTestIntegration extends AbstractHttpsIntegrationTest {
@@ -579,6 +584,77 @@ public class WhoisRestApiKeyAuthTestIntegration extends AbstractHttpsIntegration
         assertThat(databaseHelper.lookupObject(ROLE, updated.getKey().toString()).getValueOrNullForAttribute(AttributeType.REMARKS), is(nullValue()));
     }
 
+    @Test
+    public void create_multiple_domain_objects_with_api_key_success() {
+
+        databaseHelper.addObject("" +
+                "inet6num:      2a01:500::/22\n" +
+                "mnt-by:        OWNER-MNT\n" +
+                "mnt-domains:   OWNER-MNT\n" +
+                "source:        TEST");
+
+        final List<RpslObject> domains = Lists.newArrayList();
+
+        for (int i = 4; i < 8; i++) {
+            final RpslObject domain = RpslObject.parse(String.format("" +
+                    "domain:        %d.0.1.0.a.2.ip6.arpa\n" +
+                    "descr:         Reverse delegation for 2a01:500::/22\n" +
+                    "admin-c:       TP1-TEST\n" +
+                    "tech-c:        TP1-TEST\n" +
+                    "zone-c:        TP1-TEST\n" +
+                    "nserver:       ns1.example.com\n" +
+                    "nserver:       ns2.example.com\n" +
+                    "mnt-by:        OWNER-MNT\n" +
+                    "source:        TEST", i));
+
+            domains.add(domain);
+        }
+
+        final WhoisResources response = SecureRestTest.target(getSecurePort(), "whois/domain-objects/TEST")
+                .request()
+                .header(HttpHeaders.AUTHORIZATION, getBasicAuthHeader(BASIC_AUTH_PERSON_OWNER_MNT))
+                .post(Entity.entity(mapRpslObjects(domains.toArray(new RpslObject[0])), MediaType.APPLICATION_JSON_TYPE), WhoisResources.class);
+
+        RestTest.assertErrorCount(response, 0);
+        assertThat(response.getWhoisObjects(), hasSize(4));
+    }
+
+    @Test
+    public void create_multiple_domain_objects_with_api_key_no_sso_fails() {
+        databaseHelper.addObject("" +
+                "mntner:        TEST-MNT\n" +
+                "descr:         Test Maintainer\n" +
+                "admin-c:       TP1-TEST\n" +
+                "auth:          SSO person@ripe.net\n" +
+                "auth:          MD5-PW $1$d9fKeTr2$Si7YudNf4rUGmR71n/cqk/ #test\n" +
+                "mnt-by:        TEST-MNT\n" +
+                "source:        TEST");
+
+        databaseHelper.addObject("" +
+                "inet6num:      2a01:500::/22\n" +
+                "mnt-by:        TEST-MNT\n" +
+                "mnt-domains:   TEST-MNT\n" +
+                "source:        TEST");
+
+
+        final RpslObject domain = RpslObject.parse("" +
+                    "domain:        1.0.1.0.a.2.ip6.arpa\n" +
+                    "descr:         Reverse delegation for 2a01:500::/22\n" +
+                    "admin-c:       TP1-TEST\n" +
+                    "tech-c:        TP1-TEST\n" +
+                    "zone-c:        TP1-TEST\n" +
+                    "nserver:       ns1.example.com\n" +
+                    "nserver:       ns2.example.com\n" +
+                    "mnt-by:        TEST-MNT\n" +
+                    "source:        TEST");
+
+        final Response response = SecureRestTest.target(getSecurePort(), "whois/domain-objects/TEST")
+                    .request()
+                    .header(HttpHeaders.AUTHORIZATION, getBasicAuthHeader(BASIC_AUTH_TEST_TEST_MNT))
+                    .post(Entity.entity(mapRpslObjects(domain), MediaType.APPLICATION_JSON_TYPE), Response.class);
+        assertThat(response.getStatus(), is(UNAUTHORIZED.getStatusCode()));
+    }
+
     private static void assertIrt(final WhoisObject whoisObject, final boolean isFIltered) {
         assertThat(whoisObject.getAttributes(), contains(
                 new Attribute("irt", "irt-test"),
@@ -613,5 +689,9 @@ public class WhoisRestApiKeyAuthTestIntegration extends AbstractHttpsIntegration
                 new Attribute("source", "TEST")));
 
         assertThat(whoisResources.getTermsAndConditions().getHref(), is(WhoisResources.TERMS_AND_CONDITIONS));
+    }
+
+    private WhoisResources mapRpslObjects(final RpslObject... rpslObjects) {
+        return whoisObjectMapper.mapRpslObjects(FormattedClientAttributeMapper.class, rpslObjects);
     }
 }
