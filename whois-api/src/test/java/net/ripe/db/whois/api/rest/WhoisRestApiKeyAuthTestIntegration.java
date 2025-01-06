@@ -1,7 +1,7 @@
 package net.ripe.db.whois.api.rest;
 
 import com.google.common.collect.Lists;
-import jakarta.ws.rs.NotAuthorizedException;
+import jakarta.ws.rs.ClientErrorException;
 import jakarta.ws.rs.client.Entity;
 import jakarta.ws.rs.core.HttpHeaders;
 import jakarta.ws.rs.core.MediaType;
@@ -20,6 +20,11 @@ import net.ripe.db.whois.common.rpsl.AttributeType;
 import net.ripe.db.whois.common.rpsl.RpslAttribute;
 import net.ripe.db.whois.common.rpsl.RpslObject;
 import net.ripe.db.whois.common.rpsl.RpslObjectBuilder;
+import net.ripe.db.whois.query.acl.AccessControlListManager;
+import net.ripe.db.whois.query.acl.AccountingIdentifier;
+import net.ripe.db.whois.query.acl.IpResourceConfiguration;
+import net.ripe.db.whois.query.acl.SSOResourceConfiguration;
+import net.ripe.db.whois.query.support.TestPersonalObjectAccounting;
 import org.apache.commons.lang3.StringUtils;
 import org.eclipse.jetty.http.HttpStatus;
 import org.junit.jupiter.api.AfterAll;
@@ -29,6 +34,7 @@ import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
+import java.net.InetAddress;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -41,8 +47,8 @@ import static net.ripe.db.whois.api.ApiKeyAuthServerDummy.BASIC_AUTH_PERSON_NO_M
 import static net.ripe.db.whois.api.ApiKeyAuthServerDummy.BASIC_AUTH_PERSON_OWNER_MNT;
 import static net.ripe.db.whois.api.ApiKeyAuthServerDummy.BASIC_AUTH_TEST_NO_MNT;
 import static net.ripe.db.whois.api.ApiKeyAuthServerDummy.BASIC_AUTH_TEST_TEST_MNT;
+import static net.ripe.db.whois.api.ApiKeyAuthServerDummy.APIKEY_TO_OAUTHSESSION;
 import static net.ripe.db.whois.api.rest.WhoisRestBasicAuthTestIntegration.getBasicAuthenticationHeader;
-import static net.ripe.db.whois.common.rpsl.ObjectType.PERSON;
 import static net.ripe.db.whois.common.rpsl.ObjectType.ROLE;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.contains;
@@ -57,6 +63,9 @@ import static org.junit.jupiter.api.Assertions.fail;
 
 @Tag("IntegrationTest")
 public class WhoisRestApiKeyAuthTestIntegration extends AbstractHttpsIntegrationTest {
+
+    private static final String LOCALHOST = "127.0.0.1";
+    private static final String LOCALHOST_WITH_PREFIX = "127.0.0.1/32";
 
     public static final String TEST_PERSON_STRING = "" +
             "person:         Test Person\n" +
@@ -108,7 +117,16 @@ public class WhoisRestApiKeyAuthTestIntegration extends AbstractHttpsIntegration
             "mnt-by:       OWNER-MNT\n" +
             "source:       TEST\n");
 
-    @Autowired private WhoisObjectMapper whoisObjectMapper;
+    @Autowired
+    private WhoisObjectMapper whoisObjectMapper;
+    @Autowired
+    private IpResourceConfiguration ipResourceConfiguration;
+    @Autowired
+    private SSOResourceConfiguration ssoResourceConfiguration;
+    @Autowired
+    private TestPersonalObjectAccounting testPersonalObjectAccounting;
+    @Autowired
+    private AccessControlListManager accessControlListManager;
 
     @BeforeAll
     public static void setupApiProperties() {
@@ -653,6 +671,80 @@ public class WhoisRestApiKeyAuthTestIntegration extends AbstractHttpsIntegration
                     .header(HttpHeaders.AUTHORIZATION, getBasicAuthHeader(BASIC_AUTH_TEST_TEST_MNT))
                     .post(Entity.entity(mapRpslObjects(domain), MediaType.APPLICATION_JSON_TYPE), Response.class);
         assertThat(response.getStatus(), is(UNAUTHORIZED.getStatusCode()));
+    }
+
+    @Test
+    public void lookup_person_using_api_key_email_acl_blocked() throws Exception {
+        final InetAddress localhost = InetAddress.getByName(LOCALHOST);
+        final AccountingIdentifier accountingIdentifier = accessControlListManager.getAccountingIdentifier(localhost,  null, APIKEY_TO_OAUTHSESSION.get(BASIC_AUTH_PERSON_OWNER_MNT));
+
+        accessControlListManager.accountPersonalObjects(accountingIdentifier, accessControlListManager.getPersonalObjects(accountingIdentifier) + 1);
+
+        try {
+            SecureRestTest.target(getSecurePort(), "whois/test/person/TP1-TEST")
+                    .request()
+                    .header(HttpHeaders.AUTHORIZATION, getBasicAuthHeader(BASIC_AUTH_PERSON_OWNER_MNT))
+                    .get(String.class);
+            fail();
+        } catch (ClientErrorException e) {
+            assertThat(e.getResponse().getStatus(), is(429));       // Too Many Requests
+        }
+    }
+
+    @Test
+    public void lookup_person_using_apiKey_acl_counted_no_ip_counted() throws Exception {
+        final InetAddress localhost = InetAddress.getByName(LOCALHOST);
+        databaseHelper.addObject(
+                "person:    Test Person\n" +
+                        "nic-hdl:   TP2-TEST\n" +
+                        "e-mail:   test@ripe.net\n" +
+                        "source:    TEST");
+
+        final int queriedByIP = testPersonalObjectAccounting.getQueriedPersonalObjects(localhost);
+        final int queriedBySSO = testPersonalObjectAccounting.getQueriedPersonalObjects(APIKEY_TO_OAUTHSESSION.get(BASIC_AUTH_TEST_NO_MNT).getEmail());
+
+        final WhoisResources whoisResources =   SecureRestTest.target(getSecurePort(), "whois/test/person/TP2-TEST")
+                .request()
+                .header(HttpHeaders.AUTHORIZATION, getBasicAuthHeader(BASIC_AUTH_TEST_NO_MNT))
+                .get(WhoisResources.class);
+
+        assertThat(whoisResources.getWhoisObjects().get(0).getAttributes()
+                        .stream()
+                        .anyMatch( (attribute)-> attribute.getName().equals(AttributeType.E_MAIL)),
+                is(false));
+
+        final int accountedByIp = testPersonalObjectAccounting.getQueriedPersonalObjects(localhost);
+        assertThat(accountedByIp, is(queriedByIP));
+
+        final int accountedBySSO = testPersonalObjectAccounting.getQueriedPersonalObjects(APIKEY_TO_OAUTHSESSION.get(BASIC_AUTH_TEST_NO_MNT).getEmail());
+        assertThat(accountedBySSO, is(queriedBySSO + 1));
+    }
+
+    @Test
+    public void lookup_person_using_sso_no_acl_for_unlimited_remoteAddr() throws Exception {
+        final InetAddress localhost = InetAddress.getByName(LOCALHOST);
+        final AccountingIdentifier accountingIdentifier = accessControlListManager.getAccountingIdentifier(localhost, null, APIKEY_TO_OAUTHSESSION.get(BASIC_AUTH_TEST_NO_MNT));
+
+        databaseHelper.insertAclIpLimit(LOCALHOST_WITH_PREFIX, -1, true);
+        ipResourceConfiguration.reload();
+
+        databaseHelper.addObject(
+                "person:    Test Person\n" +
+                        "nic-hdl:   TP2-TEST\n" +
+                        "e-mail:   test@ripe.net\n" +
+                        "source:    TEST");
+
+        final int limit = accessControlListManager.getPersonalObjects(accountingIdentifier);
+
+        final Response response =   SecureRestTest.target(getSecurePort(), "whois/test/person/TP2-TEST")
+                .request()
+                .header(HttpHeaders.AUTHORIZATION, getBasicAuthHeader(BASIC_AUTH_TEST_NO_MNT))
+                .get(Response.class);
+
+        assertThat(response.getStatus(), is(HttpStatus.OK_200));
+
+        final int remaining = accessControlListManager.getPersonalObjects(accountingIdentifier);
+        assertThat(remaining, is(limit));
     }
 
     private static void assertIrt(final WhoisObject whoisObject, final boolean isFIltered) {
