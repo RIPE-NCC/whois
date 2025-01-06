@@ -97,6 +97,13 @@ public class HazelcastInstanceManager {
                     .setEvictionConfig(evictionConfig)
                     .setTimeToLiveSeconds(600));
 
+            config.addMapConfig(new MapConfig()
+                    .setName("apiKeyOAuth")
+                    .setStatisticsEnabled(true)
+                    .setEvictionConfig(evictionConfig)
+                    .setTimeToLiveSeconds(60));
+
+
             this.hazelcastInstance = getHazelcastInstance(config);
 
             LOGGER.info("Created hazelcast instance");
