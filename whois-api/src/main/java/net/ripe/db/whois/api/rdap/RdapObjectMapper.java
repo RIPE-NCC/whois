@@ -501,9 +501,7 @@ class RdapObjectMapper {
 
     private void mapContactEntities(final RdapObject rdapObject, final RpslObject rpslObject, final String requestUrl) {
         final Map<CIString, Entity> contactsEntities = Maps.newTreeMap();
-        final List<RpslAttribute> filteredAttributes = rpslObject.getAttributes()
-            .stream()
-            .filter( rpslAttribute -> CONTACT_ATTRIBUTE_TO_ROLE_NAME.containsKey(rpslAttribute.getType())).collect(Collectors.toList());
+        final List<RpslAttribute> filteredAttributes = rpslObject.getAttributes().stream().filter( rpslAttribute -> CONTACT_ATTRIBUTE_TO_ROLE_NAME.containsKey(rpslAttribute.getType())).collect(Collectors.toList());
 
         filteredAttributes.forEach( rpslAttribute -> {
             for (final CIString value : rpslAttribute.getCleanValues()) {
