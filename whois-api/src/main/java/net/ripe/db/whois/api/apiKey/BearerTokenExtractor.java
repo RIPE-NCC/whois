@@ -15,6 +15,8 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
+
+import javax.annotation.Nullable;
 import java.util.List;
 
 @Component
@@ -32,6 +34,7 @@ public class BearerTokenExtractor   {
         this.enabled = enabled;
     }
 
+    @Nullable
     public OAuthSession extractBearerToken(final HttpServletRequest request, final String accessKey) {
         if(!enabled || StringUtils.isEmpty(accessKey)) {
             return null;

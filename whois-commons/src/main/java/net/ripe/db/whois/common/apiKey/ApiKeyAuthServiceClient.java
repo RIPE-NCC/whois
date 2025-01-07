@@ -21,6 +21,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Component;
 
 import java.util.Base64;
@@ -62,6 +63,7 @@ public class ApiKeyAuthServiceClient {
                 .build();
     }
 
+    @Cacheable(cacheNames="apiKeyOAuth")
     public String validateApiKey(final String basicHeader,  final String accessKey ) {
         try {
             return  client.target(restUrl)
