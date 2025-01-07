@@ -9,6 +9,7 @@ import jakarta.servlet.ServletResponse;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletRequestWrapper;
 import jakarta.servlet.http.HttpServletResponse;
+import jakarta.ws.rs.core.UriBuilder;
 import net.ripe.db.whois.common.apiKey.ApiKeyAuthServiceClient;
 import net.ripe.db.whois.common.apiKey.ApiKeyUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -46,13 +47,13 @@ public class HttpsAPIKeyAuthCustomizer implements Filter {
 
         final HttpServletRequest httpRequest = (HttpServletRequest) request;
 
-        if(isValidRequest(httpRequest)) {
+        if(isNotValidRequest(httpRequest)) {
             final HttpServletResponse httpResponse = (HttpServletResponse) response;
             httpResponse.sendError(HttpStatus.BAD_REQUEST_400, "Bad Request");
             return;
         }
 
-        if(!canProceed(httpRequest)) {
+        if(!isAPIKeyRequest(httpRequest)) {
             chain.doFilter(request, response);
             return;
         }
@@ -77,12 +78,12 @@ public class HttpsAPIKeyAuthCustomizer implements Filter {
         }
     }
 
-    private static boolean isValidRequest(HttpServletRequest httpRequest) {
+    private static boolean isNotValidRequest(HttpServletRequest httpRequest) {
         return (!StringUtils.isEmpty(httpRequest.getQueryString()) && httpRequest.getQueryString().contains(ApiKeyUtils.APIKEY_ACCESS_QUERY_PARAM)) ||
                 (httpRequest.getHeader(HttpHeaders.AUTHORIZATION) != null && httpRequest.getHeader(HttpHeaders.AUTHORIZATION).startsWith("Bearer"));
     }
 
-    private boolean canProceed(final HttpServletRequest httpRequest) {
+    private boolean isAPIKeyRequest(final HttpServletRequest httpRequest) {
         if(!isEnabled) {
             return false;
         }
@@ -109,20 +110,19 @@ public class HttpsAPIKeyAuthCustomizer implements Filter {
 
         @Override
         public String getQueryString() {
-            final StringBuilder modifiedQueryString = (super.getQueryString() == null) ?
-                    new StringBuilder() :
-                    new StringBuilder(super.getQueryString()).append("&");
-
-            return modifiedQueryString.append(ApiKeyUtils.APIKEY_ACCESS_QUERY_PARAM).append("=").append(accessKey).toString();
+            final UriBuilder builder = UriBuilder.newInstance();
+            builder.replaceQuery(super.getQueryString());
+            builder.queryParam(ApiKeyUtils.APIKEY_ACCESS_QUERY_PARAM, accessKey);
+            return builder.build().getQuery();
         }
 
         @Override
         public String getHeader(final String name) {
-            if(!Objects.equals(name, HttpHeaders.AUTHORIZATION)) {
-                return super.getHeader(name);
+            if(Objects.equals(name, HttpHeaders.AUTHORIZATION)) {
+                return "Bearer " +  bearerToken;
             }
 
-            return "Bearer " +  bearerToken;
+            return super.getHeader(name);
         }
     }
 }
