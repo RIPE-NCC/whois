@@ -103,7 +103,6 @@ public class RdapElasticServiceTestIntegration extends AbstractElasticSearchInte
                 "upd-to:        noreply@ripe.net\n" +
                 "auth:          MD5-PW $1$d9fKeTr2$Si7YudNf4rUGmR71n/cqk/ #test\n" +
                 "mnt-by:        OWNER-MNT\n" +
-                "referral-by:   OWNER-MNT\n" +
                 "created:         2022-08-14T11:48:28Z\n" +
                 "last-modified:   2022-10-25T12:22:39Z\n" +
                 "source:        TEST");
