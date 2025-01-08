@@ -46,6 +46,36 @@ public class PasswordFilterTest {
     }
 
     @Test
+    public void testFilterBasicAuthHeaderInMessage() {
+        final String input = "" +
+                "Header: Authorization=Basic dDZsUlpndk9GSXBoamlHd3RDR3VMd3F3OjJDVEdQeDVhbFVFVzRwa1Rrd2FRdGRPNg==\n" +
+                "blue: asdfasdfasdf\n" +
+                "yellow%3A++asdfasdfasdf\n" +
+                "green: asdfasdfasdf # password: test\n" +
+                "purple: password\n" +
+                "password:   test1 \n" +
+                "password:test2\n" +
+                "password: test3\n" +
+                "password%3A++test4\n" +
+                "password%3A++test5\n" +
+                "delete: adsf\n";
+
+        assertThat(PasswordFilter.filterPasswordsInContents(input), containsString("" +
+                "Header: Authorization=Basic  FILTERED\n" +
+                "blue: asdfasdfasdf\n" +
+                "yellow%3A++asdfasdfasdf\n" +
+                "green: asdfasdfasdf # password: test\n" +
+                "purple: password\n" +
+                "password:FILTERED\n" +
+                "password:FILTERED\n" +
+                "password:FILTERED\n" +
+                "password%3AFILTERED\n" +
+                "password%3AFILTERED\n" +
+                "delete: adsf\n"));
+    }
+
+
+    @Test
     public void testFilterOverridePasswordsInMessage() {
         final String input = "" +
                 "red: adsfasdf\n" +
