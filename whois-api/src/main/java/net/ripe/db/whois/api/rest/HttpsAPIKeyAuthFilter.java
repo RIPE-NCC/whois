@@ -24,16 +24,16 @@ import java.io.IOException;
 import java.util.Objects;
 
 @Component
-public class HttpsAPIKeyAuthCustomizer implements Filter {
+public class HttpsAPIKeyAuthFilter implements Filter {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(HttpsAPIKeyAuthCustomizer.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(HttpsAPIKeyAuthFilter.class);
 
     final private boolean isEnabled;
     final ApiKeyAuthServiceClient apiKeyAuthServiceClient;
 
     @Autowired
-    public HttpsAPIKeyAuthCustomizer(@Value("${apikey.authenticate.enabled:false}") final boolean isEnabled,
-                                     final ApiKeyAuthServiceClient apiKeyAuthServiceClient) {
+    public HttpsAPIKeyAuthFilter(@Value("${apikey.authenticate.enabled:false}") final boolean isEnabled,
+                                 final ApiKeyAuthServiceClient apiKeyAuthServiceClient) {
         this.apiKeyAuthServiceClient = apiKeyAuthServiceClient;
         this.isEnabled = isEnabled;
     }

@@ -73,7 +73,7 @@ public class BearerTokenExtractor   {
             final List<RSAKey> rsaKeys = apiPublicKeyLoader.loadPublicKey();
 
             if(rsaKeys.isEmpty()) {
-              LOGGER.warn("Skipping JWT verification as url is null");
+              LOGGER.debug("RSA public key is not available");
               return true;
             }
 
