@@ -489,7 +489,7 @@ public class ResponseFactoryTest {
         final RpslObject object1 = RpslObject.parse("mntner: DEV-ROOT1-MNT");
         final Update update1 = new Update(new Paragraph(object1.toString()), Operation.UNSPECIFIED, Lists.<String>newArrayList(), object1);
         final PreparedUpdate create1 = new PreparedUpdate(update1, null, object1, Action.CREATE);
-        update1.setEffectiveCredential("test@ripe.net", Update.EffectiveCredentialType.APIKEY);
+        update1.setEffectiveCredential("test@ripe.net (f60ee0fc)", Update.EffectiveCredentialType.APIKEY);
 
 
         final Notification notification = new Notification("notify@me.com");
@@ -505,7 +505,7 @@ public class ResponseFactoryTest {
                 "\n" +
                 "mntner:         DEV-ROOT1-MNT\n" +
                 "\n" +
-                "Changed by API Key: test@ripe.net\n"+
+                "Changed by SSO account: test@ripe.net (f60ee0fc)\n"+
                 "\n" ));
 
     }
