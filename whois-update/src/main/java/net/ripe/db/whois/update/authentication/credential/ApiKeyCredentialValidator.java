@@ -1,9 +1,7 @@
 package net.ripe.db.whois.update.authentication.credential;
 
 import net.ripe.db.whois.common.apiKey.OAuthSession;
-import net.ripe.db.whois.common.rpsl.ObjectType;
 import net.ripe.db.whois.common.rpsl.RpslObject;
-import net.ripe.db.whois.common.rpsl.transform.FilterAuthFunction;
 import net.ripe.db.whois.update.domain.APIKeyCredential;
 import net.ripe.db.whois.update.domain.PreparedUpdate;
 import net.ripe.db.whois.update.domain.SsoCredential;
@@ -17,7 +15,7 @@ import org.springframework.stereotype.Component;
 import java.util.Collection;
 import java.util.List;
 
-import static net.ripe.db.whois.common.apiKey.ApiKeyValidator.validateScope;
+import static net.ripe.db.whois.common.apiKey.ApiKeyUtils.validateScope;
 
 @Component
 public class ApiKeyCredentialValidator implements CredentialValidator<APIKeyCredential, SsoCredential> {
@@ -57,7 +55,7 @@ public class ApiKeyCredentialValidator implements CredentialValidator<APIKeyCred
             if (oAuthSession.getUuid() != null && oAuthSession.getUuid().equals(knownCredential.getKnownUuid())) {
                 log(update, String.format("Validated %s with API KEY for user: %s with apiKey: %s.", update.getFormattedKey(), oAuthSession.getEmail(), oAuthSession.getAccessKey()));
 
-                update.getUpdate().setEffectiveCredential(oAuthSession.getAccessKey(), Update.EffectiveCredentialType.APIKEY);
+                update.getUpdate().setEffectiveCredential(String.format("%s (%s)", oAuthSession.getEmail(), oAuthSession.getAccessKey()), Update.EffectiveCredentialType.APIKEY);
                 return true;
             }
         }
