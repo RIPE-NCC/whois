@@ -119,7 +119,6 @@ class RdapObjectMapper {
     private final Ipv4Tree ipv4Tree;
     private final Ipv6Tree ipv6Tree;
     private final String port43;
-    private final RdapRelationService rdapRelationService;
     private static final Map<AttributeType, Role> CONTACT_ATTRIBUTE_TO_ROLE_NAME = Map.of(
             ADMIN_C, Role.ADMINISTRATIVE,
             TECH_C, Role.TECHNICAL,
@@ -127,6 +126,7 @@ class RdapObjectMapper {
             ZONE_C, Role.ZONE,
             ORG, Role.REGISTRANT,// TODO: [MA] both mnt_by and org have same role
             MNT_IRT, Role.ABUSE);
+    private final RdapRelationService rdapRelationService;
 
     @Autowired
     public RdapObjectMapper(
@@ -190,6 +190,7 @@ class RdapObjectMapper {
 
         final RdapObject rdapObject = mapCommonNoticesAndPort(searchResult, requestUrl);
         mapCommonLinks(rdapObject, requestUrl);
+        includeRirSearchConformance(rdapObject, requestUrl);
         return mapCommonConformances(rdapObject);
     }
 
@@ -205,6 +206,7 @@ class RdapObjectMapper {
         rdapObject.getLinks().add(COPYRIGHT_LINK);
 
         mapRedactions(rdapObject);
+        includeRirSearchConformance(rdapObject, requestUrl);
         return mapCommonConformances(rdapObject);
     }
 
@@ -331,6 +333,7 @@ class RdapObjectMapper {
         mapCommonLinks(rdapObject, requestUrl);
         rdapRelationService.mapRelationLinks(rdapResponse, requestUrl);
         mapRedactions(rdapResponse);
+        includeRirSearchConformance(rdapObject, requestUrl);
         return mapCommonConformances(rdapObject);
     }
 
@@ -369,6 +372,10 @@ class RdapObjectMapper {
         rdapResponse.getRdapConformance().addAll(List.of(RdapConformance.CIDR_0.getValue(),
             RdapConformance.LEVEL_0.getValue(), RdapConformance.NRO_PROFILE_0.getValue(), RdapConformance.REDACTED.getValue()));
         return rdapResponse;
+    }
+
+    private void includeRirSearchConformance(final RdapObject rdapResponse, final String requestUrl) {
+        rdapRelationService.includeRirSearchConformance(rdapResponse, requestUrl);
     }
 
     private Ip createIp(final RpslObject rpslObject, final String requestUrl) {
