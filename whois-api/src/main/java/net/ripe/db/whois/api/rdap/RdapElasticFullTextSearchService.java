@@ -54,7 +54,8 @@ public class RdapElasticFullTextSearchService implements RdapFullTextSearch {
     }
 
     @Override
-    public List<RpslObject> performSearch(final String[] fields, final String term, final String clientIp, final Source source) throws IOException {
+    public List<RpslObject> performSearch(final String[] fields, final String term, final String clientIp,
+                                          final Source source, final boolean matchExact) throws IOException {
 
         try {
             return new ElasticSearchAccountingCallback<List<RpslObject>>(accessControlListManager,  clientIp, null, source) {
@@ -63,7 +64,7 @@ public class RdapElasticFullTextSearchService implements RdapFullTextSearch {
                 protected List<RpslObject> doSearch() throws IOException {
 
                     final SearchSourceBuilder sourceBuilder = new SearchSourceBuilder();
-                    sourceBuilder.query(getQueryBuilder(fields, term));
+                    sourceBuilder.query(getQueryBuilder(fields, term, matchExact));
                     sourceBuilder.size(maxResultSize);
                     sourceBuilder.sort(SORT_BUILDERS);
 
@@ -90,13 +91,30 @@ public class RdapElasticFullTextSearchService implements RdapFullTextSearch {
                     return results;
                 }
 
-                private QueryBuilder getQueryBuilder(final String[] fields, final String term) {
-                    if (term.indexOf('*') == -1 && term.indexOf('?') == -1) {
-                        return new MultiMatchQueryBuilder(term, fields)
-                                .type(MultiMatchQueryBuilder.Type.PHRASE_PREFIX)
-                                .operator(Operator.AND);
+                private QueryBuilder getQueryBuilder(final String[] fields, final String term, final boolean matchExact) {
+                    if (hasWildCard()) {
+                        return createWildCardQuery();
                     }
 
+                    return matchExact ? createExactMatchQuery() :
+                            new MultiMatchQueryBuilder(term, fields)
+                                    .type(MultiMatchQueryBuilder.Type.PHRASE_PREFIX)
+                                    .operator(Operator.AND);
+                }
+
+                private boolean hasWildCard(){
+                    return term.indexOf('*') != -1 || term.indexOf('?') != -1;
+                }
+
+                private BoolQueryBuilder createExactMatchQuery(){
+                    final BoolQueryBuilder exactMatch = QueryBuilders.boolQuery();
+                    for (String field : fields) {
+                        exactMatch.should(QueryBuilders.termQuery(String.format("%s.lowercase", field), term.toLowerCase()));
+                    }
+                    return exactMatch;
+                }
+
+                private BoolQueryBuilder createWildCardQuery(){
                     final BoolQueryBuilder wildCardBuilder = QueryBuilders.boolQuery();
                     for (String field : fields) {
                         wildCardBuilder.should(QueryBuilders.wildcardQuery(String.format("%s.lowercase", field), term.toLowerCase()));

@@ -191,8 +191,12 @@ public class RdapService {
 
         LOGGER.debug("Request: {}", RestServiceHelper.getRequestURI(request));
 
-        if (name != null && handle == null || name == null && handle != null) {
-            return handleSearch(new String[]{"netname"}, name != null ? name : handle, request);
+        if (name != null && handle == null) {
+            return handleSearch(new String[]{"netname"}, name, request, true);
+        }
+
+        if (name == null && handle != null) {
+            return handleSearch(new String[]{"inetnum", "inet6num"}, handle, request, true);
         }
 
         throw new RdapException("400 Bad Request", "Either name or handle is a required parameter, but never both", HttpStatus.BAD_REQUEST_400);
@@ -209,11 +213,11 @@ public class RdapService {
         LOGGER.debug("Request: {}", RestServiceHelper.getRequestURI(request));
 
         if (name != null && handle == null) {
-            return handleSearch(new String[]{"as-name"}, name, request);
+            return handleSearch(new String[]{"as-name"}, name, request, true);
         }
 
         if (name == null && handle != null) {
-            return handleSearch(new String[]{"aut-num"}, handle, request);
+            return handleSearch(new String[]{"aut-num"}, handle, request, true);
         }
 
         throw new RdapException("400 Bad Request", "Either name or handle is a required parameter, but never both", HttpStatus.BAD_REQUEST_400);
@@ -549,6 +553,11 @@ public class RdapService {
     }
 
     private Response handleSearch(final String[] fields, final String term, final HttpServletRequest request) {
+        return handleSearch(fields, term, request, false);
+    }
+
+    private Response handleSearch(final String[] fields, final String term, final HttpServletRequest request,
+                                  final boolean matchExact) {
         LOGGER.debug("Search {} for {}", fields, term);
 
         if (StringUtils.isEmpty(term)) {
@@ -556,11 +565,8 @@ public class RdapService {
         }
 
         try {
-            final List<RpslObject> objects = rdapFullTextSearch.performSearch(fields, term, request.getRemoteAddr(), source);
-
-            if (objects.isEmpty()) {
-                throw new RdapException("404 Not Found", "Requested object not found: " + term, HttpStatus.NOT_FOUND_404);
-            }
+            final List<RpslObject> objects = rdapFullTextSearch.performSearch(fields, term, request.getRemoteAddr(),
+                    source, matchExact);
 
             return Response.ok(rdapObjectMapper.mapSearch(
                     getRequestUrl(request),
