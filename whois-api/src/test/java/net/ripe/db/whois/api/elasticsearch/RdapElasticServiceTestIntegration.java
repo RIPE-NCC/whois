@@ -726,7 +726,7 @@ public class RdapElasticServiceTestIntegration extends AbstractElasticSearchInte
     @Test
     public void lookup_person_acl_counted() throws Exception {
         final InetAddress localhost = InetAddress.getByName(LOCALHOST);
-        final AccountingIdentifier accountingIdentifier = new AccountingIdentifier(localhost, null);
+        final AccountingIdentifier accountingIdentifier = ipAccessControlListManager.getAccountingIdentifier(localhost, null, null);
         try {
             final int limit = ipAccessControlListManager.getPersonalObjects(accountingIdentifier);
 

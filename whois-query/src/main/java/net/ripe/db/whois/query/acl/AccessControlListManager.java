@@ -1,6 +1,7 @@
 package net.ripe.db.whois.query.acl;
 
 import net.ripe.db.whois.common.DateTimeProvider;
+import net.ripe.db.whois.common.apiKey.OAuthSession;
 import net.ripe.db.whois.common.domain.BlockEvent;
 import net.ripe.db.whois.common.domain.IpRanges;
 import net.ripe.db.whois.common.ip.IpInterval;
@@ -81,7 +82,7 @@ public class AccessControlListManager {
             throw new QueryException(QueryCompletionInfo.BLOCKED, QueryMessages.accessDeniedPermanently(accountingIdentifier.getRemoteAddress().getHostAddress()));
         }
 
-        final String username = getUserName(accountingIdentifier.getSsoToken());
+        final String username = accountingIdentifier.getUserName();
         if( ssoResourceConfiguration.isDenied(username)) {
             throw new QueryException(QueryCompletionInfo.BLOCKED, QueryMessages.accessDeniedPermanently(username));
         }
@@ -117,13 +118,21 @@ public class AccessControlListManager {
     }
 
     private PersonalAccountingManager getAccountingManager(final AccountingIdentifier accountingIdentifier) {
-       final String username =  getUserName(accountingIdentifier.getSsoToken());
+       final String username =  accountingIdentifier.getUserName();
 
        return username == null ? new RemoteAddrAccountingManager(accountingIdentifier.getRemoteAddress()) : new SSOAccountingManager(username);
     }
 
-    private String getUserName(final String ssoToken) {
-        if( !isSSOAccountingEnabled || StringUtils.isEmpty(ssoToken)) {
+    private String getUserName(final String ssoToken, final OAuthSession oAuthSession) {
+        if( !isSSOAccountingEnabled) {
+            return null;
+        }
+
+        if(oAuthSession != null && !StringUtils.isEmpty(oAuthSession.getEmail())) {
+            return oAuthSession.getEmail();
+        }
+
+        if(StringUtils.isEmpty(ssoToken)) {
             return null;
         }
 
@@ -265,5 +274,10 @@ public class AccessControlListManager {
         }
 
         return address;
+    }
+
+    public AccountingIdentifier getAccountingIdentifier(final InetAddress remoteAddress, final String ssoToken, final OAuthSession oAuthSession) {
+        final String userName = getUserName(ssoToken, oAuthSession);
+        return new AccountingIdentifier(remoteAddress, userName);
     }
 }
