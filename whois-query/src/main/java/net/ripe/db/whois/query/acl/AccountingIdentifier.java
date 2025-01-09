@@ -5,15 +5,15 @@ import java.net.InetAddress;
 public class AccountingIdentifier {
 
     final private InetAddress remoteAddress;
-    final private String ssoToken;
+    final private String userName;
 
-    public AccountingIdentifier(InetAddress remoteAddress, String ssoToken) {
+    public AccountingIdentifier(InetAddress remoteAddress, String userName) {
         this.remoteAddress = remoteAddress;
-        this.ssoToken = ssoToken;
+        this.userName = userName;
     }
 
-    public String getSsoToken() {
-        return ssoToken;
+    public String getUserName() {
+        return userName;
     }
 
     public InetAddress getRemoteAddress() {

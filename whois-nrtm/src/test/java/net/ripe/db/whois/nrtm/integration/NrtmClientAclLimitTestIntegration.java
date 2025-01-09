@@ -75,7 +75,7 @@ public class NrtmClientAclLimitTestIntegration extends AbstractNrtmIntegrationBa
     @Test
     public void acl_blocked() throws Exception {
         final InetAddress localhost = InetAddress.getByName(LOCALHOST);
-        final AccountingIdentifier accountingIdentifier = new AccountingIdentifier(localhost, null);
+        final AccountingIdentifier accountingIdentifier = accessControlListManager.getAccountingIdentifier(localhost, null, null);
 
         accessControlListManager.accountPersonalObjects(accountingIdentifier,accessControlListManager.getPersonalObjects(accountingIdentifier) + 1);
         nrtmImporter.start();

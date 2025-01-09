@@ -104,7 +104,7 @@ public class WhoisRestServiceSSOAclTestIntegration extends AbstractIntegrationTe
     @Test
     public void lookup_person_using_sso_acl_blocked() throws Exception {
         final InetAddress localhost = InetAddress.getByName(LOCALHOST);
-        final AccountingIdentifier accountingIdentifier = new AccountingIdentifier(localhost, VALID_TOKEN);
+        final AccountingIdentifier accountingIdentifier = accessControlListManager.getAccountingIdentifier(localhost, VALID_TOKEN, null);
 
         accessControlListManager.accountPersonalObjects(accountingIdentifier, accessControlListManager.getPersonalObjects(accountingIdentifier) + 1);
 
@@ -151,7 +151,7 @@ public class WhoisRestServiceSSOAclTestIntegration extends AbstractIntegrationTe
     @Test
     public void lookup_person_using_sso_no_acl_for_unlimited_remoteAddr() throws Exception {
         final InetAddress localhost = InetAddress.getByName(LOCALHOST);
-        final AccountingIdentifier accountingIdentifier = new AccountingIdentifier(localhost, VALID_TOKEN);
+        final AccountingIdentifier accountingIdentifier = accessControlListManager.getAccountingIdentifier(localhost, VALID_TOKEN, null);
 
         databaseHelper.insertAclIpLimit(LOCALHOST_WITH_PREFIX, -1, true);
         ipResourceConfiguration.reload();

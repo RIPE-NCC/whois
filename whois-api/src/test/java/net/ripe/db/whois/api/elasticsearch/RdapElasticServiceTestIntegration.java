@@ -19,6 +19,7 @@ import net.ripe.db.whois.api.rdap.domain.Nameserver;
 import net.ripe.db.whois.api.rdap.domain.Notice;
 import net.ripe.db.whois.api.rdap.domain.RdapObject;
 import net.ripe.db.whois.api.rdap.domain.Redaction;
+import net.ripe.db.whois.api.rdap.domain.Role;
 import net.ripe.db.whois.api.rdap.domain.SearchResult;
 import net.ripe.db.whois.api.rest.client.RestClientUtils;
 import net.ripe.db.whois.common.rpsl.RpslObject;
@@ -102,7 +103,6 @@ public class RdapElasticServiceTestIntegration extends AbstractElasticSearchInte
                 "upd-to:        noreply@ripe.net\n" +
                 "auth:          MD5-PW $1$d9fKeTr2$Si7YudNf4rUGmR71n/cqk/ #test\n" +
                 "mnt-by:        OWNER-MNT\n" +
-                "referral-by:   OWNER-MNT\n" +
                 "created:         2022-08-14T11:48:28Z\n" +
                 "last-modified:   2022-10-25T12:22:39Z\n" +
                 "source:        TEST");
@@ -654,6 +654,51 @@ public class RdapElasticServiceTestIntegration extends AbstractElasticSearchInte
     }
 
     @Test
+    public void search_entity_handle_mntner_then_response() {
+
+        final SearchResult result = createResource("entities?handle=OWNER-MNT")
+                .request(MediaType.APPLICATION_JSON_TYPE)
+                .get(SearchResult.class);
+
+        assertThat(
+                result.getEntitySearchResults()
+                        .stream()
+                        .map(Entity::getHandle)
+                        .collect(Collectors.toList()),
+                containsInAnyOrder("OWNER-MNT"));
+
+        assertThat(result.getNotices(), hasSize(1));
+        assertThat(result.getNotices().getFirst().getTitle(), is("Terms and Conditions"));
+
+        assertThat(result.getEntitySearchResults(), hasSize(1));
+
+        final Entity firstEntity = result.getEntitySearchResults().getFirst();
+        assertThat(firstEntity.getHandle(), is("OWNER-MNT"));
+        assertThat(firstEntity.getVCardArray().toString(), is("[vcard, [" +
+                "[version, {}, text, 4.0], [fn, {}, text, OWNER-MNT], [kind, {}, text, individual]]]"));
+
+        assertThat(result.getEntitySearchResults().getFirst().getEntitySearchResults(), hasSize(2));
+
+        //mnt-by OWNER-MNT
+        final Entity firstEntityMntBy = result.getEntitySearchResults().getFirst().getEntitySearchResults().getFirst();
+        assertThat(firstEntityMntBy.getHandle(), is("OWNER-MNT"));
+        assertThat(firstEntityMntBy.getVCardArray().toString(), is("[vcard, [" +
+                "[version, {}, text, 4.0], [fn, {}, text, OWNER-MNT], [kind, {}, text, individual]]]"));
+        assertThat(firstEntityMntBy.getRoles(), hasSize(1));
+        assertThat(firstEntityMntBy.getRoles().getFirst(), is(Role.REGISTRANT));
+
+
+        //admin-c TP1-TEST
+        final Entity secondEntityAdminC = result.getEntitySearchResults().getFirst().getEntitySearchResults().get(1);
+        assertThat(secondEntityAdminC.getHandle(), is("TP1-TEST"));
+        assertThat(secondEntityAdminC.getVCardArray().toString(), is("[vcard, [" +
+                "[version, {}, text, 4.0], [fn, {}, text, Test Person], [kind, {}, text, individual], " +
+                "[adr, {label=Singel 258}, text, [, , , , , , ]], [tel, {type=voice}, text, +31 6 12345678]]]"));
+        assertThat(secondEntityAdminC.getRoles(), hasSize(1));
+        assertThat(secondEntityAdminC.getRoles().getFirst(), is(Role.ADMINISTRATIVE));
+    }
+
+    @Test
     public void lookup_person_entity_acl_denied() {
         try {
             databaseHelper.insertAclIpDenied(LOCALHOST_WITH_PREFIX);
@@ -681,7 +726,7 @@ public class RdapElasticServiceTestIntegration extends AbstractElasticSearchInte
     @Test
     public void lookup_person_acl_counted() throws Exception {
         final InetAddress localhost = InetAddress.getByName(LOCALHOST);
-        final AccountingIdentifier accountingIdentifier = new AccountingIdentifier(localhost, null);
+        final AccountingIdentifier accountingIdentifier = ipAccessControlListManager.getAccountingIdentifier(localhost, null, null);
         try {
             final int limit = ipAccessControlListManager.getPersonalObjects(accountingIdentifier);
 

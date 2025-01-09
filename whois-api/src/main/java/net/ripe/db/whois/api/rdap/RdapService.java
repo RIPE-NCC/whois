@@ -176,7 +176,7 @@ public class RdapService {
         }
 
         if (name == null && handle != null) {
-            return handleSearch(new String[]{"organisation", "nic-hdl"}, handle, request);
+            return handleSearch(new String[]{"organisation", "nic-hdl", "mntner"}, handle, request);
         }
 
         throw new RdapException("400 Bad Request", "Either fn or handle is a required parameter, but never both", HttpStatus.BAD_REQUEST_400);
