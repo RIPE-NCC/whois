@@ -28,6 +28,7 @@ import net.ripe.db.whois.query.support.TestPersonalObjectAccounting;
 import org.apache.commons.lang3.StringUtils;
 import org.eclipse.jetty.http.HttpStatus;
 import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Tag;
@@ -38,16 +39,15 @@ import java.net.InetAddress;
 import java.time.LocalDateTime;
 import java.util.List;
 
-import static jakarta.ws.rs.client.Entity.entity;
 import static jakarta.ws.rs.core.Response.Status.OK;
 import static jakarta.ws.rs.core.Response.Status.UNAUTHORIZED;
+import static net.ripe.db.whois.api.ApiKeyAuthServerDummy.APIKEY_TO_OAUTHSESSION;
 import static net.ripe.db.whois.api.ApiKeyAuthServerDummy.BASIC_AUTH_INVALID_API_KEY;
 import static net.ripe.db.whois.api.ApiKeyAuthServerDummy.BASIC_AUTH_INVALID_SIGNATURE_API_KEY;
 import static net.ripe.db.whois.api.ApiKeyAuthServerDummy.BASIC_AUTH_PERSON_NO_MNT;
 import static net.ripe.db.whois.api.ApiKeyAuthServerDummy.BASIC_AUTH_PERSON_OWNER_MNT;
 import static net.ripe.db.whois.api.ApiKeyAuthServerDummy.BASIC_AUTH_TEST_NO_MNT;
 import static net.ripe.db.whois.api.ApiKeyAuthServerDummy.BASIC_AUTH_TEST_TEST_MNT;
-import static net.ripe.db.whois.api.ApiKeyAuthServerDummy.APIKEY_TO_OAUTHSESSION;
 import static net.ripe.db.whois.api.rest.WhoisRestBasicAuthTestIntegration.getBasicAuthenticationHeader;
 import static net.ripe.db.whois.common.rpsl.ObjectType.ROLE;
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -57,7 +57,6 @@ import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.empty;
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
-import static org.hamcrest.Matchers.notNullValue;
 import static org.hamcrest.Matchers.nullValue;
 import static org.junit.jupiter.api.Assertions.fail;
 
@@ -117,16 +116,16 @@ public class WhoisRestApiKeyAuthTestIntegration extends AbstractHttpsIntegration
             "mnt-by:       OWNER-MNT\n" +
             "source:       TEST\n");
 
+    @Autowired private WhoisObjectMapper whoisObjectMapper;
     @Autowired
-    private WhoisObjectMapper whoisObjectMapper;
+    private AccessControlListManager accessControlListManager;
     @Autowired
     private IpResourceConfiguration ipResourceConfiguration;
     @Autowired
     private SSOResourceConfiguration ssoResourceConfiguration;
     @Autowired
     private TestPersonalObjectAccounting testPersonalObjectAccounting;
-    @Autowired
-    private AccessControlListManager accessControlListManager;
+
 
     @BeforeAll
     public static void setupApiProperties() {
@@ -149,6 +148,16 @@ public class WhoisRestApiKeyAuthTestIntegration extends AbstractHttpsIntegration
         databaseHelper.addObject(TEST_IRT);
         testDateTimeProvider.setTime(LocalDateTime.parse("2001-02-04T17:00:00"));
     }
+
+    @AfterEach
+    public void reset() throws Exception {
+        databaseHelper.clearAclTables();
+
+        ipResourceConfiguration.reload();
+        ssoResourceConfiguration.reload();
+        testPersonalObjectAccounting.resetAccounting();
+    }
+
 
     @Test
     public void create_failed_with_basic_auth_api_key_no_https() {

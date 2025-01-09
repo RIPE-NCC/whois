@@ -1,6 +1,7 @@
 package net.ripe.db.whois.api.rest;
 
 import com.google.common.base.Strings;
+import com.google.common.net.InetAddresses;
 import jakarta.ws.rs.BadRequestException;
 import jakarta.ws.rs.NotFoundException;
 import jakarta.ws.rs.core.MediaType;
@@ -2714,7 +2715,7 @@ public class WhoisSearchServiceTestIntegration extends AbstractIntegrationTest {
         ipResourceConfiguration.reload();
 
         final AccountingIdentifier accountingIdentifier = accessControlListManager.getAccountingIdentifier(localhost, null, null);
-        final AccountingIdentifier accountingIdentifierProxy = accessControlListManager.getAccountingIdentifier(localhost, null, null);
+        final AccountingIdentifier accountingIdentifierProxy = accessControlListManager.getAccountingIdentifier(InetAddresses.forString("10.1.2.3"), null, null);
 
         final int limit = accessControlListManager.getPersonalObjects(accountingIdentifier);
         final int proxylLimit = accessControlListManager.getPersonalObjects( accountingIdentifierProxy);

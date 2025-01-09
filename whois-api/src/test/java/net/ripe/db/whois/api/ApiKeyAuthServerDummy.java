@@ -49,7 +49,7 @@ public class ApiKeyAuthServerDummy implements Stub {
     public static final String BASIC_AUTH_INVALID_API_KEY = "aDZsUlpndk9GSXBoamlHd3RDR3VMd3F3OjJDVEdQeDVhbFVFVzRwa1Rrd2FRdGRPNg==";
     public static final String BASIC_AUTH_INVALID_SIGNATURE_API_KEY = "TXp1ZzRxRVlpSTVET1dqOXI1Qkp1Y2k4OnZBdzgyRTFCMkZ2dFVyYjB0MDF0Ykt2cg==";
 
-    public static final Map<String, OAuthSession> APIKEY_TO_OAUTHSESSION = Maps.newHashMap();
+    public static final Map<String, OAuthSession> APIKEY_TO_OAUTHSESSION =  Maps.newHashMap();
 
     {
         APIKEY_TO_OAUTHSESSION.put(BASIC_AUTH_TEST_NO_MNT, new OAuthSession(AUD, "hHZjAbXPtxGxUJCgdwv2ufhY", "test@ripe.net", "8ffe29be-89ef-41c8-ba7f-0e1553a623e5", null));
@@ -58,7 +58,6 @@ public class ApiKeyAuthServerDummy implements Stub {
         APIKEY_TO_OAUTHSESSION.put(BASIC_AUTH_TEST_TEST_MNT, new OAuthSession(AUD, "hHZjAbXPtxGxUJCgdwv2ufhY","test@ripe.net", "8ffe29be-89ef-41c8-ba7f-0e1553a623e5", "whois.mntner:TEST-MNT"));
         APIKEY_TO_OAUTHSESSION.put(BASIC_AUTH_INVALID_SIGNATURE_API_KEY, new OAuthSession(AUD, "hHZjAbXPtxGxUJCgdwv2ufhY","invalid@ripe.net", "8ffe29be-89ef-41c8-ba7f-0e1553a623e5", "whois.mntner:TEST-MNT"));
     }
-
 
     private Server server;
     private int port = 0;

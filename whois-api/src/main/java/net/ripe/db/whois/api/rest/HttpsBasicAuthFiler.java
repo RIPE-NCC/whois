@@ -21,7 +21,7 @@ import org.apache.commons.codec.binary.Base64;
 import static jakarta.servlet.http.HttpServletRequest.BASIC_AUTH;
 
 @Component
-public class HttpsBasicAuthCustomizer implements Filter {
+public class HttpsBasicAuthFiler implements Filter {
 
     @Override
     public void doFilter(final ServletRequest request, final ServletResponse response, final FilterChain chain) throws IOException, ServletException {
