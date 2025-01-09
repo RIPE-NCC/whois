@@ -79,7 +79,7 @@ public class QueryHandler {
             }
 
             private AccountingIdentifier getAccountingIdentifier() {
-                return new AccountingIdentifier(accountingAddress, query.getSsoToken());
+                return accessControlListManager.getAccountingIdentifier(accountingAddress, query.getSsoToken(), query.getoAuthSession());
             }
 
             private QueryExecutor getQueryExecutor() {
@@ -94,7 +94,8 @@ public class QueryHandler {
 
             private void initAcl(final QueryExecutor queryExecutor) {
                 if (queryExecutor.isAclSupported()) {
-                    accessControlListManager.checkBlocked(new AccountingIdentifier(remoteAddress, query.getSsoToken()));
+                    final AccountingIdentifier accountingIdentifier = accessControlListManager.getAccountingIdentifier(remoteAddress, query.getSsoToken(), query.getoAuthSession());
+                    accessControlListManager.checkBlocked(accountingIdentifier);
 
                     if (query.hasProxyWithIp()) {
                         if (!accessControlListManager.isAllowedToProxy(remoteAddress)) {
@@ -102,7 +103,7 @@ public class QueryHandler {
                         }
 
                         accountingAddress = InetAddresses.forString(query.getProxyIp());
-                        accessControlListManager.checkBlocked(new AccountingIdentifier(accountingAddress, query.getSsoToken()));
+                        accessControlListManager.checkBlocked(accountingIdentifier);
                     } else {
                         accountingAddress = remoteAddress;
                     }
@@ -144,5 +145,4 @@ public class QueryHandler {
 
         }.run();
     }
-
 }
