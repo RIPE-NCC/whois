@@ -129,7 +129,6 @@ public class RestServiceHelper {
         return whoisResources;
     }
 
-
     public static List<ErrorMessage> createErrorMessages(final List<Message> messages) {
         final List<ErrorMessage> errorMessages = Lists.newArrayList();
 

@@ -165,7 +165,7 @@ public class RpslResponseDecorator {
         final List<X509CertificateWrapper> certificates = query.getCertificates();
 
         final FilterAuthFunction filterAuthFunction =
-                (CollectionUtils.isEmpty(passwords) && StringUtils.isBlank(ssoToken) && hasNotCertificates(certificates))?
+                (CollectionUtils.isEmpty(passwords) && StringUtils.isBlank(ssoToken) && hasNotCertificates(certificates) && oAuthSession == null)?
                         FILTER_AUTH_FUNCTION :
                         new FilterAuthFunction(passwords, oAuthSession, ssoToken, ssoTokenTranslator, authServiceClient,
                                 rpslObjectDao, certificates, clientAuthCertificateValidator);
