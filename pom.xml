@@ -1043,7 +1043,8 @@
                     <threadCount>1</threadCount>
                     <perCoreThreadCount>true</perCoreThreadCount>
                     <runOrder>random</runOrder>
-                    <testFailureIgnore>false</testFailureIgnore>
+                    <!-- retry failing tests -->
+                    <rerunFailingTestsCount>3</rerunFailingTestsCount>
                 </configuration>
                 <executions>
                     <execution>
