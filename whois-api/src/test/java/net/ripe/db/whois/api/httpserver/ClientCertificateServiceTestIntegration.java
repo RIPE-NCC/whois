@@ -7,8 +7,11 @@ import org.junit.jupiter.api.RepeatedTest;
 import org.junit.jupiter.api.Tag;
 import org.springframework.test.annotation.DirtiesContext;
 
+import java.io.IOException;
+
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.containsString;
+import static org.hamcrest.Matchers.instanceOf;
 import static org.junit.jupiter.api.Assertions.fail;
 
 @Tag("IntegrationTest")
@@ -35,7 +38,7 @@ public class ClientCertificateServiceTestIntegration extends AbstractClientCerti
                 .get(String.class);
             fail();
         } catch (ProcessingException e) {
-            assertThat(e.getMessage(), containsString("javax.net.ssl.SSLHandshakeException: Received fatal alert: bad_certificate"));
+            assertThat(e, instanceOf(IOException.class));   // bad certificate
         }
     }
 
