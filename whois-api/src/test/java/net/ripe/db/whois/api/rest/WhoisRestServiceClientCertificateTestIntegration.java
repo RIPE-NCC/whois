@@ -23,6 +23,7 @@ import net.ripe.db.whois.common.rpsl.RpslAttribute;
 import net.ripe.db.whois.common.rpsl.RpslObject;
 import net.ripe.db.whois.common.rpsl.RpslObjectBuilder;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.RepeatedTest;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -203,7 +204,7 @@ public class WhoisRestServiceClientCertificateTestIntegration extends AbstractCl
         assertThat(whoisResources.getWhoisObjects().get(0).getAttributes().get(3).getValue(), containsString("updated"));
     }
 
-    @Test
+    @RepeatedTest(value = 3, failureThreshold = 2)
     public void update_person_missing_private_key_unauthorised() throws Exception {
         // create certificate and don't use private key
         final CertificatePrivateKeyPair certificatePrivateKeyPair = new CertificatePrivateKeyPair();
