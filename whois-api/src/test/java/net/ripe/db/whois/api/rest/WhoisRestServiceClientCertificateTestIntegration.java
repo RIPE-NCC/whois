@@ -204,7 +204,7 @@ public class WhoisRestServiceClientCertificateTestIntegration extends AbstractCl
         assertThat(whoisResources.getWhoisObjects().get(0).getAttributes().get(3).getValue(), containsString("updated"));
     }
 
-    @RepeatedTest(value = 3, failureThreshold = 2)
+    @RepeatedTest(value = 5, failureThreshold = 4)
     public void update_person_missing_private_key_unauthorised() throws Exception {
         // create certificate and don't use private key
         final CertificatePrivateKeyPair certificatePrivateKeyPair = new CertificatePrivateKeyPair();

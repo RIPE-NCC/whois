@@ -15,7 +15,7 @@ import static org.junit.jupiter.api.Assertions.fail;
 @DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_EACH_TEST_METHOD)
 public class ClientCertificateServiceTestIntegration extends AbstractClientCertificateIntegrationTest {
 
-    @RepeatedTest(value = 3, failureThreshold = 2)
+    @RepeatedTest(value = 5, failureThreshold = 4)
     public void client_certificate() {
         final String response = SecureRestTest.target(getClientSSLContext(), getClientCertificatePort(), "whois/client")
             .request()
@@ -26,7 +26,7 @@ public class ClientCertificateServiceTestIntegration extends AbstractClientCerti
         assertThat(response, containsString("-----END CERTIFICATE-----"));
     }
 
-    @RepeatedTest(value = 3, failureThreshold = 2)
+    @RepeatedTest(value = 5, failureThreshold = 4)
     public void fail_on_no_client_certificate() {
         try {
             SecureRestTest.target(getClientCertificatePort(), "whois/client")
