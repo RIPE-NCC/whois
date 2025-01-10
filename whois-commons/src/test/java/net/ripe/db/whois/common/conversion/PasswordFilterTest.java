@@ -61,7 +61,7 @@ public class PasswordFilterTest {
                 "delete: adsf\n";
 
         assertThat(PasswordFilter.filterPasswordsInContents(input), containsString("" +
-                "Header: Authorization=Basic  FILTERED\n" +
+                "Header: Authorization=Basic FILTERED\n" +
                 "blue: asdfasdfasdf\n" +
                 "yellow%3A++asdfasdfasdf\n" +
                 "green: asdfasdfasdf # password: test\n" +

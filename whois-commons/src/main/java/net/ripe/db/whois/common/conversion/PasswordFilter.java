@@ -37,7 +37,7 @@ public class PasswordFilter {
     private static String replaceBasicAuthHeader(final Matcher matcher)  {
         final StringBuilder result = new StringBuilder();
         while (matcher.find()) {
-            matcher.appendReplacement(result, String.format("%s %s", StringUtils.substringBefore(matcher.group(0), matcher.group(1)),"FILTERED"));
+            matcher.appendReplacement(result, String.format("%s%s", StringUtils.substringBefore(matcher.group(0), matcher.group(1)),"FILTERED"));
         }
         matcher.appendTail(result);
         return result.toString();
