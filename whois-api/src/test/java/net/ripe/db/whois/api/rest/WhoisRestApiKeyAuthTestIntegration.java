@@ -174,7 +174,7 @@ public class WhoisRestApiKeyAuthTestIntegration extends AbstractHttpsIntegration
     @Test
     public void request_failed_with_basic_auth_api_key_illegal_query_param() {
 
-        final Response response =  SecureRestTest.target(getSecurePort(), "whois/test/person?" + ApiKeyUtils.APIKEY_ACCESS_QUERY_PARAM + "=test")
+        final Response response =  SecureRestTest.target(getSecurePort(), "whois/test/person?" + ApiKeyUtils.APIKEY_KEY_ID_QUERY_PARAM + "=test")
                 .request()
                 .header(HttpHeaders.AUTHORIZATION, getBasicAuthHeader(BASIC_AUTH_PERSON_NO_MNT))
                 .post(Entity.entity(map(PAULETH_PALTHEN), MediaType.APPLICATION_XML), Response.class);
@@ -185,7 +185,7 @@ public class WhoisRestApiKeyAuthTestIntegration extends AbstractHttpsIntegration
     @Test
     public void request_failed_with_basic_auth_api_key_illegal_bearer_header() {
 
-        final Response response =  SecureRestTest.target(getSecurePort(), "whois/test/person?" + ApiKeyUtils.APIKEY_ACCESS_QUERY_PARAM + "=test")
+        final Response response =  SecureRestTest.target(getSecurePort(), "whois/test/person?" + ApiKeyUtils.APIKEY_KEY_ID_QUERY_PARAM + "=test")
                 .request()
                 .header(HttpHeaders.AUTHORIZATION, "Bearer eFR0cm9lZUpWYWlmSWNQR1BZUW5kSmhnOmp5akhYR2g4WDFXRWZyc2M5SVJZcUVYbw==")
                 .post(Entity.entity(map(PAULETH_PALTHEN), MediaType.APPLICATION_XML), Response.class);
@@ -413,7 +413,7 @@ public class WhoisRestApiKeyAuthTestIntegration extends AbstractHttpsIntegration
                 .header(HttpHeaders.AUTHORIZATION, getBasicAuthHeader(BASIC_AUTH_PERSON_NO_MNT))
                 .post(Entity.entity(map(PAULETH_PALTHEN), MediaType.APPLICATION_XML), WhoisResources.class);
 
-        assertThat(whoisResources.getLink().getHref(), is(String.format("https://localhost:%s/test/person?accessKey=l6lRZgvOFIphjiGwtCGuLwqw",getSecurePort())));
+        assertThat(whoisResources.getLink().getHref(), is(String.format("https://localhost:%s/test/person?keyId=l6lRZgvOFIphjiGwtCGuLwqw",getSecurePort())));
         assertThat(whoisResources.getErrorMessages(), is(empty()));
         final WhoisObject object = whoisResources.getWhoisObjects().get(0);
 
@@ -427,7 +427,7 @@ public class WhoisRestApiKeyAuthTestIntegration extends AbstractHttpsIntegration
                 .header(HttpHeaders.AUTHORIZATION, getBasicAuthHeader(BASIC_AUTH_PERSON_OWNER_MNT))
                 .post(Entity.entity(map(PAULETH_PALTHEN), MediaType.APPLICATION_XML), WhoisResources.class);
 
-        assertThat(whoisResources.getLink().getHref(), is(String.format("https://localhost:%s/test/person?accessKey=p6lRZgvOFIphjiGwtCGuLwqw",getSecurePort())));
+        assertThat(whoisResources.getLink().getHref(), is(String.format("https://localhost:%s/test/person?keyId=p6lRZgvOFIphjiGwtCGuLwqw",getSecurePort())));
         assertThat(whoisResources.getErrorMessages(), is(empty()));
         final WhoisObject object = whoisResources.getWhoisObjects().get(0);
 

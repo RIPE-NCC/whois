@@ -12,7 +12,6 @@ import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.annotation.Nullable;
 import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 import java.util.List;
@@ -22,7 +21,7 @@ public class ApiKeyUtils {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(ApiKeyUtils.class);
 
-    public static final String APIKEY_ACCESS_QUERY_PARAM = "accessKey";
+    public static final String APIKEY_KEY_ID_QUERY_PARAM = "keyId";
     public static boolean validateScope(final OAuthSession oAuthSession, final List<RpslObject> maintainers) {
         if(StringUtils.isEmpty(oAuthSession.getScope())) {
             return true;
@@ -69,11 +68,11 @@ public class ApiKeyUtils {
     }
 
     public static boolean isAPIKeyRequest(final String authHeader) {
-        final String accessKey = getAccessKey(authHeader);
-        return StringUtils.isAlphanumeric(accessKey) && (accessKey.length() == 24);
+        final String apiKeyId = getApiKeyId(authHeader);
+        return StringUtils.isAlphanumeric(apiKeyId) && (apiKeyId.length() == 24);
     }
 
-    public static String getAccessKey(final String authHeader) {
+    public static String getApiKeyId(final String authHeader) {
         if(authHeader == null || !authHeader.startsWith("Basic ")) {
             return null;
         }
