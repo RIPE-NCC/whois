@@ -3154,7 +3154,7 @@ public class RdapServiceTestIntegration extends AbstractRdapIntegrationTest {
         });
 
         assertErrorTitle(notImplementedException, "501 Not Implemented");
-        assertErrorStatus(notImplementedException, HttpStatus.NOT_IMPLEMENTED_501);;
+        assertErrorStatus(notImplementedException, HttpStatus.NOT_IMPLEMENTED_501);
         assertErrorDescription(notImplementedException, "Relation queries not allowed for autnum");
     }
 
