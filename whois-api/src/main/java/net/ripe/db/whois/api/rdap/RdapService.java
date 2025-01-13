@@ -4,8 +4,8 @@ import com.google.common.base.Joiner;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Iterators;
+import io.netty.util.internal.StringUtil;
 import jakarta.servlet.http.HttpServletRequest;
-import jakarta.ws.rs.DefaultValue;
 import jakarta.ws.rs.GET;
 import jakarta.ws.rs.Path;
 import jakarta.ws.rs.PathParam;
@@ -263,7 +263,7 @@ public class RdapService {
         //TODO: [MH] Status is being ignored until administrative resources are included in RDAP. If status is not
         // given or status is inactive...include administrative resources in the output. However, if status is active
         // return just non administrative resources, as we are doing now.
-        if (status != null && (relationType.equals(RelationType.DOWN) || relationType.equals(RelationType.BOTTOM))){
+        if (!StringUtil.isNullOrEmpty(status) && (relationType.equals(RelationType.DOWN) || relationType.equals(RelationType.BOTTOM))){
             throw new RdapException("501 Not Implemented", "Status is not implement in down and bottom relation", HttpStatus.NOT_IMPLEMENTED_501);
         }
 
