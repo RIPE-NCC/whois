@@ -3601,17 +3601,13 @@ public class RdapServiceTestIntegration extends AbstractRdapIntegrationTest {
 
         assertThat(relationCalls.size(), is(6));
 
-        //TOP
-        // TODO: We do not support administrative resources, we return 404. Change this when we support them
-        NotFoundException notFoundException = assertThrows(NotFoundException.class, () -> {
-            createResource(relationCalls.get(RelationType.TOP.name()))
-                    .request(MediaType.APPLICATION_JSON_TYPE)
-                    .get(SearchResult.class);
-        });
+        //TOP (By default active)
+        final SearchResult searchResult = createResource(relationCalls.get(RelationType.TOP.name()))
+                .request(MediaType.APPLICATION_JSON_TYPE)
+                .get(SearchResult.class);
 
-        assertErrorTitle(notFoundException, "404 Not Found");
-        assertErrorStatus(notFoundException, HttpStatus.NOT_FOUND_404);
-        assertErrorDescription(notFoundException, "No top level object has been found for 192.0.2.0/25");
+        final List<Ip> ipResults = searchResult.getIpSearchResults();
+        assertThat(ipResults.getFirst().getHandle(), is("192.0.0.0 - 192.0.255.255")); //16
 
 
         //TOP active
@@ -3643,24 +3639,21 @@ public class RdapServiceTestIntegration extends AbstractRdapIntegrationTest {
         assertThat(downIpResults.size(), is(1));
         assertThat(bottomIpResults.getFirst().getHandle(), is("192.0.2.0 - 192.0.2.0")); //32
 
-        //UP
-        // TODO: We do not support administrative resources, we return 404. Change this when we support them
-        notFoundException = assertThrows(NotFoundException.class, () -> {
-            createResource(relationCalls.get(RelationType.UP.name()))
-                    .request(MediaType.APPLICATION_JSON_TYPE)
-                    .get(SearchResult.class);
-        });
-
-        assertErrorTitle(notFoundException, "404 Not Found");
-        assertErrorStatus(notFoundException, HttpStatus.NOT_FOUND_404);
-        assertErrorDescription(notFoundException, "No up level object has been found for 192.0.2.0/25");
-
-        //UP active
-        final SearchResult upSearchResult = createResource(relationCalls.get("UP-ACTIVE"))
+        //UP (by default active)
+        SearchResult upSearchResult = createResource(relationCalls.get(RelationType.UP.name()))
                 .request(MediaType.APPLICATION_JSON_TYPE)
                 .get(SearchResult.class);
 
-        final List<Ip> upIpResults = upSearchResult.getIpSearchResults();
+        List<Ip> upIpResults = upSearchResult.getIpSearchResults();
+        assertThat(upIpResults.size(), is(1));
+        assertThat(upIpResults.getFirst().getHandle(), is("192.0.2.0 - 192.0.2.255")); //24
+
+        //UP active
+        upSearchResult = createResource(relationCalls.get("UP-ACTIVE"))
+                .request(MediaType.APPLICATION_JSON_TYPE)
+                .get(SearchResult.class);
+
+        upIpResults = upSearchResult.getIpSearchResults();
         assertThat(upIpResults.size(), is(1));
         assertThat(upIpResults.getFirst().getHandle(), is("192.0.2.0 - 192.0.2.255")); //24
     }
