@@ -28,7 +28,6 @@ import org.springframework.stereotype.Service;
 import javax.annotation.Nullable;
 import java.util.List;
 import java.util.Objects;
-import java.util.Optional;
 import java.util.Set;
 
 import static net.ripe.db.whois.common.rpsl.attrs.Inet6numStatus.ALLOCATED_BY_RIR;
@@ -81,7 +80,7 @@ public class RdapRelationService {
                                        final IpInterval reverseIp) {
         return switch (relationType) {
             case UP -> List.of(searchFirstLessSpecific(ipTree, reverseIp));
-            case TOP -> searchTopLevel(ipTree, reverseIp);
+            case TOP -> searchTopLevelResource(ipTree, reverseIp);
             case DOWN -> ipTree.findFirstMoreSpecific(reverseIp);
             case BOTTOM -> searchMostSpecificFillingOverlaps(ipTree, reverseIp);
         };
@@ -142,36 +141,51 @@ public class RdapRelationService {
 
     private IpEntry searchFirstLessSpecific(final IpTree ipTree, final IpInterval reverseIp){
         final List<IpEntry> parentList = ipTree.findFirstLessSpecific(reverseIp);
-        if (parentList.isEmpty() || !resourceExist(parentList.getFirst())){
+        if (parentList.isEmpty() || !resourceExist(reverseIp, parentList.getFirst())){
             throw new RdapException("404 Not Found", "No up level object has been found for " + reverseIp.toString(), HttpStatus.NOT_FOUND_404);
         }
         return parentList.getFirst();
     }
 
-    private List<IpEntry> searchTopLevel(final IpTree ipTree, final IpInterval reverseIp) {
-        final Optional<IpEntry> optionalIpEntry = ipTree.findAllLessSpecific(reverseIp).stream()
-                .filter(entry -> resourceExist((IpEntry) entry))
-                .findAny();
+    private List<IpEntry> searchTopLevelResource(final IpTree ipTree, final IpInterval reverseIp){
+        IpEntry ipEntry;
+        try {
+            ipEntry = searchFirstLessSpecific(ipTree, reverseIp);
+        } catch (RdapException ex){
+            throw new RdapException("404 Not Found", "No top-level object has been found for " + reverseIp.toString(), HttpStatus.NOT_FOUND_404);
+        }
 
-        return List.of(optionalIpEntry.orElseThrow(() ->
-                new RdapException("404 Not Found", "No top-level object has been found for " + reverseIp.toString(), HttpStatus.NOT_FOUND_404)
-        ));
-
+        return List.of(loopUpLevels(ipTree, ipEntry));
     }
 
-    private boolean resourceExist(final IpEntry firstLessSpecific){
+    private IpEntry loopUpLevels(final IpTree ipTree, IpEntry reverseIp) {
+        try {
+            reverseIp = searchFirstLessSpecific(ipTree, (IpInterval) reverseIp.getKey());
+            loopUpLevels(ipTree, reverseIp);
+        } catch (RdapException ex){
+            /*
+            * Do Nothing, end of loop
+            * */
+        }
+        return reverseIp;
+    }
+
+    private boolean resourceExist(final IpInterval ip, final IpEntry firstLessSpecific){
+        final RpslObject children = getResourceByKey(ip.toString());
         final RpslObject rpslObject = getResourceByKey(firstLessSpecific.getKey().toString());
-        if (rpslObject == null || isAdministrativeResource(rpslObject)) {
+        if (rpslObject == null || isAdministrativeResource(children, rpslObject)) {
             LOGGER.debug("INET(6)NUM {} does not exist in RIPE Database ", firstLessSpecific.getKey().toString());
             return false;
         }
         return true;
     }
 
-    private static boolean isAdministrativeResource(final RpslObject rpslObject) {
+    private static boolean isAdministrativeResource(final RpslObject children, final RpslObject rpslObject) {
+        final CIString childrenStatus = children.getValueForAttribute(AttributeType.STATUS);
         final CIString statusAttributeValue = rpslObject.getValueForAttribute(AttributeType.STATUS);
         return (rpslObject.getType().equals(ObjectType.INETNUM) && InetnumStatus.getStatusFor(statusAttributeValue).equals(ALLOCATED_UNSPECIFIED))
-                || (rpslObject.getType().equals(ObjectType.INET6NUM) && Inet6numStatus.getStatusFor(statusAttributeValue).equals(ALLOCATED_BY_RIR));
+                || (rpslObject.getType().equals(ObjectType.INET6NUM) && !Inet6numStatus.getStatusFor(childrenStatus).isAssignment() &&
+                Inet6numStatus.getStatusFor(statusAttributeValue).equals(ALLOCATED_BY_RIR));
     }
 
 

@@ -3305,6 +3305,32 @@ public class RdapServiceTestIntegration extends AbstractRdapIntegrationTest {
         assertErrorDescription(notFoundException, "No top-level object has been found for 2000::/3");
     }
 
+    @Test
+    public void get_ipv6_top_found_if_assignment(){
+        loadIpv6RelationTreeExample();
+
+        databaseHelper.updateObject("" +
+                "inet6num:       2000::/3\n" +
+                "netname:        TEST\n" +
+                "descr:          The whole IPv6 address space\n" +
+                "country:        NL\n" +
+                "tech-c:         TP1-TEST\n" +
+                "admin-c:        TP1-TEST\n" +
+                "status:         ASSIGNED\n" +
+                "mnt-by:         OWNER-MNT\n" +
+                "created:         2022-08-14T11:48:28Z\n" +
+                "last-modified:   2022-10-25T12:22:39Z\n" +
+                "source:         TEST");
+
+        final SearchResult searchResult = createResource("ips/rirSearch1/top/2000::/3")
+                .request(MediaType.APPLICATION_JSON_TYPE)
+                .get(SearchResult.class);
+
+        final List<Ip> ipResults = searchResult.getIpSearchResults();
+        assertThat(ipResults.size(), is(1));
+        assertThat(ipResults.getFirst().getHandle(), is("::/0"));
+    }
+
 
     @Test
     public void get_non_existing_top_then_404(){
@@ -3749,6 +3775,19 @@ public class RdapServiceTestIntegration extends AbstractRdapIntegrationTest {
     private void loadIpv4RelationDomainExample(){
         databaseHelper.addObject("" +
                 "inetnum:      192.0.0.0 - 192.0.255.255\n" +
+                "netname:      TEST-NET-NAME\n" +
+                "descr:        TEST network\n" +
+                "country:      NL\n" +
+                "language:     en\n" +
+                "tech-c:       TP1-TEST\n" +
+                "status:       ALLOCATED PA\n" +
+                "mnt-by:       OWNER-MNT\n" +
+                "created:         2022-08-14T11:48:28Z\n" +
+                "last-modified:   2022-10-25T12:22:39Z\n" +
+                "source:       TEST");
+
+        databaseHelper.addObject("" +
+                "inetnum:      192.0.2.1 - 192.0.2.1\n" +
                 "netname:      TEST-NET-NAME\n" +
                 "descr:        TEST network\n" +
                 "country:      NL\n" +

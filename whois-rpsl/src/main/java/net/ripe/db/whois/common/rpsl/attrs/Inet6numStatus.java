@@ -99,4 +99,8 @@ public enum Inet6numStatus implements InetStatus {
     public String toString() {
         return literalStatus.toString();
     }
+
+    public boolean isAssignment(){
+        return this.equals(ASSIGNED) || this.equals(ASSIGNED_ANYCAST) || this.equals(ASSIGNED_PI);
+    }
 }
