@@ -108,11 +108,6 @@ public enum InetnumStatus implements InetStatus {
     }
 
     @Override
-    public boolean isAdministrativeResource() {
-        return this.equals(ALLOCATED_UNSPECIFIED);
-    }
-
-    @Override
     public boolean needsOrgReference() {
         return NEEDS_ORG_REFERENCE.contains(this);
     }
