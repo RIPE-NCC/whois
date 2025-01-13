@@ -256,14 +256,19 @@ public class RdapService {
     public Response relationSearch(
             @Context final HttpServletRequest request,
             @PathParam("objectType") RdapRequestType requestType,
-            @PathParam("relation") RelationType relationType,
+            @PathParam("relation") String relationType,
             @PathParam("key") final String key,
             @QueryParam("status") String status) {
 
+        final RelationType relation = RelationType.fromString(relationType);
         //TODO: [MH] Status is being ignored until administrative resources are included in RDAP. If status is not
         // given or status is inactive...include administrative resources in the output. However, if status is active
         // return just non administrative resources, as we are doing now.
-        if (!StringUtil.isNullOrEmpty(status) && (relationType.equals(RelationType.DOWN) || relationType.equals(RelationType.BOTTOM))){
+        if (!StringUtil.isNullOrEmpty(status) && status.equalsIgnoreCase("inactive")) {
+            throw new RdapException("501 Not Implemented", "Inactive status is not implemented", HttpStatus.NOT_IMPLEMENTED_501);
+        }
+
+        if (!StringUtil.isNullOrEmpty(status) && (relation.equals(RelationType.DOWN) || relation.equals(RelationType.BOTTOM))){
             throw new RdapException("501 Not Implemented", "Status is not implement in down and bottom relation", HttpStatus.NOT_IMPLEMENTED_501);
         }
 
@@ -272,7 +277,7 @@ public class RdapService {
             return redirect(getRequestPath(request), getQueryObject(objectTypes, key));
         }
 
-        final List<RpslObject> rpslObjects = handleRelationQuery(request, requestType, relationType, key);
+        final List<RpslObject> rpslObjects = handleRelationQuery(request, requestType, relation, key);
 
         return Response.ok(rdapObjectMapper.mapSearch(
                         getRequestUrl(request),
