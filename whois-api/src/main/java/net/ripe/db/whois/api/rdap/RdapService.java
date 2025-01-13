@@ -192,7 +192,7 @@ public class RdapService {
         }
 
         if (name == null && handle != null) {
-            return handleSearch(new String[]{"inetnum", "inet6num"}, handle, request, true);
+            return handleSearch(new String[]{"inetnum", "inet6num"}, IpInterval.parse(handle).asRange(), request, true);
         }
 
         throw new RdapException("400 Bad Request", "Either name or handle is a required parameter, but never both", HttpStatus.BAD_REQUEST_400);

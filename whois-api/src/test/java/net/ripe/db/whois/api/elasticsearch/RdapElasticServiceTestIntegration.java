@@ -49,7 +49,6 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.Matchers.containsInAnyOrder;
 import static org.hamcrest.Matchers.containsString;
-import static org.hamcrest.Matchers.empty;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
@@ -846,6 +845,32 @@ public class RdapElasticServiceTestIntegration extends AbstractElasticSearchInte
         assertThat(response.getIpSearchResults().getFirst().getHandle(), equalTo("192.12.12.0 - 192.12.12.255"));
     }
 
+    @Test
+    public void search_more_specific_inetnum_by_handle_prefix() {
+        databaseHelper.addObject("""
+                inetnum:        192.12.12.0 - 192.12.12.255
+                netname:        RIPE-BLK-IPV4
+                descr:          The whole IPv4 address space
+                country:        NL
+                tech-c:         TP1-TEST
+                admin-c:        TP1-TEST
+                status:         OTHER
+                mnt-by:         OWNER-MNT
+                created:         2022-08-14T11:48:28Z
+                last-modified:   2022-10-25T12:22:39Z
+                source:         TEST
+                """);
+
+        ipTreeUpdater.rebuild();
+        rebuildIndex();
+
+        final SearchResult response = createResource("ips?handle=192.12.12.0/24")
+                .request(MediaType.APPLICATION_JSON_TYPE)
+                .get(SearchResult.class);
+
+        assertThat(response.getIpSearchResults().size(), is(1));
+        assertThat(response.getIpSearchResults().getFirst().getHandle(), equalTo("192.12.12.0 - 192.12.12.255"));
+    }
 
     @Test
     public void search_ips_inetnum_by_name() {
@@ -996,6 +1021,7 @@ public class RdapElasticServiceTestIntegration extends AbstractElasticSearchInte
 
         assertThat(response.getIpSearchResults(), is(nullValue()));
     }
+
 
 
     // search - autnums

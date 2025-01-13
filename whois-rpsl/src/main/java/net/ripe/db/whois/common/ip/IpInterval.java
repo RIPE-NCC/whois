@@ -60,6 +60,13 @@ public abstract class IpInterval<K extends Interval<K>> implements Interval<K>, 
         return Ipv6Resource.parse(address);
     }
 
+    public String asRange(){
+        return beginAsInetAddress()
+                .getHostAddress()
+                .concat(" - ")
+                .concat(endAsInetAddress().getHostAddress());
+    }
+
     public abstract InetAddress beginAsInetAddress();
 
     public abstract InetAddress endAsInetAddress();
