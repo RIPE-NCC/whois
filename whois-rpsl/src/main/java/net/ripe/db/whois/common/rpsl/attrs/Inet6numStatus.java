@@ -81,11 +81,6 @@ public enum Inet6numStatus implements InetStatus {
     }
 
     @Override
-    public boolean isAdministrativeResource() {
-        return this.equals(ALLOCATED_BY_RIR);
-    }
-
-    @Override
     public boolean needsOrgReference() {
         return NEEDS_ORG_REFERENCE.contains(this);
     }
@@ -103,5 +98,9 @@ public enum Inet6numStatus implements InetStatus {
     @Override
     public String toString() {
         return literalStatus.toString();
+    }
+
+    public boolean isAssignment(){
+        return this.equals(ASSIGNED) || this.equals(ASSIGNED_ANYCAST) || this.equals(ASSIGNED_PI);
     }
 }
