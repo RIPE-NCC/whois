@@ -3146,16 +3146,16 @@ public class RdapServiceTestIntegration extends AbstractRdapIntegrationTest {
 
     //up
     @Test
-    public void get_up_autnum_then_400(){
-        final BadRequestException badRequestException = assertThrows(BadRequestException.class, () -> {
+    public void get_up_autnum_then_501(){
+        final ServerErrorException notImplementedException = assertThrows(ServerErrorException.class, () -> {
             createResource("autnums/rirSearch1/up/AS123")
                     .request(MediaType.APPLICATION_JSON_TYPE)
                     .get(SearchResult.class);
         });
 
-        assertErrorTitle(badRequestException, "400 Bad Request");
-        assertErrorStatus(badRequestException, HttpStatus.BAD_REQUEST_400);
-        assertErrorDescription(badRequestException, "Relation queries not allowed for autnum");
+        assertErrorTitle(notImplementedException, "501 Not Implemented");
+        assertErrorStatus(notImplementedException, HttpStatus.NOT_IMPLEMENTED_501);;
+        assertErrorDescription(notImplementedException, "Relation queries not allowed for autnum");
     }
 
     @Test

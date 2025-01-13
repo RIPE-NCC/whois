@@ -91,13 +91,13 @@ public class RdapRelationService {
         final List<IpEntry> mostSpecificValues = ipTree.findMostSpecific(reverseIp);
         final List<? extends IpInterval<?>> ipResources = mostSpecificValues.stream().map(ip -> IpInterval.parse(ip.getKey().toString())).toList();
         final Set<IpEntry> mostSpecificFillingOverlaps = Sets.newConcurrentHashSet();
-        ipResources.forEach(ipResource -> processChildren(ipTree, reverseIp, ipResource, mostSpecificFillingOverlaps));
+        ipResources.forEach(ipResource -> extractBottomMatches(ipTree, reverseIp, ipResource, mostSpecificFillingOverlaps));
         return mostSpecificFillingOverlaps.stream().toList();
     }
 
-    private void processChildren(final IpTree ipTree, final IpInterval reverseIp,
-                                        final IpInterval mostSpecificResource,
-                                        final Set<IpEntry> mostSpecificFillingOverlaps) {
+    private void extractBottomMatches(final IpTree ipTree, final IpInterval reverseIp,
+                                      final IpInterval mostSpecificResource,
+                                      final Set<IpEntry> mostSpecificFillingOverlaps) {
 
         final List<IpEntry> siblingsAndExact = findSiblingsAndExact(ipTree, mostSpecificResource);
 
@@ -115,7 +115,7 @@ public class RdapRelationService {
 
         if (!parentInterval.equals(reverseIp) &&
                 !childrenCoverParentRange(firstSibling, lastSibling, parentInterval)){
-            processChildren(ipTree, reverseIp, parentInterval, mostSpecificFillingOverlaps);
+            extractBottomMatches(ipTree, reverseIp, parentInterval, mostSpecificFillingOverlaps);
         }
     }
 
