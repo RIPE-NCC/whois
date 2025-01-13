@@ -1,5 +1,8 @@
 package net.ripe.db.whois.api.rdap.domain;
 
+import net.ripe.db.whois.api.rdap.RdapException;
+import org.eclipse.jetty.http.HttpStatus;
+
 public enum RelationType {
     UP("up"),
     TOP("top"),
@@ -22,6 +25,6 @@ public enum RelationType {
                 return type;
             }
         }
-        throw new IllegalArgumentException("No enum constant for value: " + value);
+        throw new RdapException("400 Bad Request", "Relation " + value + " doesn't exist", HttpStatus.BAD_REQUEST_400);
     }
 }

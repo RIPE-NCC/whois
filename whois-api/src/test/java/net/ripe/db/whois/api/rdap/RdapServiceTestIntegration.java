@@ -3140,7 +3140,7 @@ public class RdapServiceTestIntegration extends AbstractRdapIntegrationTest {
 
         assertErrorTitle(badRequestException, "400 Bad Request");
         assertErrorStatus(badRequestException, HttpStatus.BAD_REQUEST_400);
-        assertErrorDescription(badRequestException, "unknown relation");
+        assertErrorDescription(badRequestException, "Relation upper doesn't exist");
     }
 
 
@@ -3287,7 +3287,7 @@ public class RdapServiceTestIntegration extends AbstractRdapIntegrationTest {
 
         assertErrorTitle(notFoundException, "404 Not Found");
         assertErrorStatus(notFoundException, HttpStatus.NOT_FOUND_404);
-        assertErrorDescription(notFoundException, "No top level object has been found for 192.0.0.0/16");
+        assertErrorDescription(notFoundException, "No top-level object has been found for 192.0.0.0/16");
     }
 
     @Test
@@ -3302,7 +3302,7 @@ public class RdapServiceTestIntegration extends AbstractRdapIntegrationTest {
 
         assertErrorTitle(notFoundException, "404 Not Found");
         assertErrorStatus(notFoundException, HttpStatus.NOT_FOUND_404);
-        assertErrorDescription(notFoundException, "No top level object has been found for 2000::/3");
+        assertErrorDescription(notFoundException, "No top-level object has been found for 2000::/3");
     }
 
 
@@ -3318,7 +3318,7 @@ public class RdapServiceTestIntegration extends AbstractRdapIntegrationTest {
 
         assertErrorTitle(notFoundException, "404 Not Found");
         assertErrorStatus(notFoundException, HttpStatus.NOT_FOUND_404);
-        assertErrorDescription(notFoundException, "No top level object has been found for 192.0.2.0/24");
+        assertErrorDescription(notFoundException, "No top-level object has been found for 192.0.2.0/24");
     }
 
 
@@ -3450,7 +3450,7 @@ public class RdapServiceTestIntegration extends AbstractRdapIntegrationTest {
     public void bottom_with_status_then_501(){
 
         final ServerErrorException notImplementedException = assertThrows(ServerErrorException.class, () -> {
-            createResource("ip/rirSearch1/bottom/192.0.2.0/24?status=inactive")
+            createResource("ip/rirSearch1/bottom/192.0.2.0/24?status=active")
                     .request(MediaType.APPLICATION_JSON_TYPE)
                     .get(SearchResult.class);
         });
@@ -3539,7 +3539,7 @@ public class RdapServiceTestIntegration extends AbstractRdapIntegrationTest {
         });
         assertErrorTitle(notImplementedException, "501 Not Implemented");
         assertErrorStatus(notImplementedException, HttpStatus.NOT_IMPLEMENTED_501);
-        assertErrorDescription(notImplementedException, "Status is not implement in down and bottom relation");
+        assertErrorDescription(notImplementedException, "Inactive status is not implemented");
     }
 
     /* Helper methods*/

@@ -22,11 +22,13 @@ import net.ripe.db.whois.common.rpsl.attrs.InetnumStatus;
 import org.eclipse.jetty.http.HttpStatus;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Nullable;
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.Set;
 
 import static net.ripe.db.whois.common.rpsl.attrs.Inet6numStatus.ALLOCATED_BY_RIR;
@@ -44,6 +46,7 @@ public class RdapRelationService {
     private final Ipv6DomainTree ipv6DomainTree;
     private final RpslObjectDao rpslObjectDao;
 
+    @Autowired
     public RdapRelationService(final Ipv4Tree ip4Tree, final Ipv6Tree ip6Tree,
                                final Ipv4DomainTree ipv4DomainTree, final Ipv6DomainTree ipv6DomainTree,
                                final RpslObjectDao rpslObjectDao) {
@@ -92,7 +95,7 @@ public class RdapRelationService {
         return mostSpecificFillingOverlaps.stream().toList();
     }
 
-    private static void processChildren(final IpTree ipTree, final IpInterval reverseIp,
+    private void processChildren(final IpTree ipTree, final IpInterval reverseIp,
                                         final IpInterval mostSpecificResource,
                                         final Set<IpEntry> mostSpecificFillingOverlaps) {
 
@@ -146,19 +149,20 @@ public class RdapRelationService {
     }
 
     private List<IpEntry> searchTopLevel(final IpTree ipTree, final IpInterval reverseIp) {
-        for (final Object parentEntry : ipTree.findAllLessSpecific(reverseIp)) {
-            final IpEntry ipEntry = (IpEntry) parentEntry;
-            if (resourceExist(ipEntry)){
-                return List.of(ipEntry);
-            }
-        }
-        throw new RdapException("404 Not Found", "No top level object has been found for " + reverseIp.toString(), HttpStatus.NOT_FOUND_404);
+        final Optional<IpEntry> optionalIpEntry = ipTree.findAllLessSpecific(reverseIp).stream()
+                .filter(entry -> resourceExist((IpEntry) entry))
+                .findAny();
+
+        return List.of(optionalIpEntry.orElseThrow(() ->
+                new RdapException("404 Not Found", "No top-level object has been found for " + reverseIp.toString(), HttpStatus.NOT_FOUND_404)
+        ));
+
     }
 
     private boolean resourceExist(final IpEntry firstLessSpecific){
         final RpslObject rpslObject = getResourceByKey(firstLessSpecific.getKey().toString());
         if (rpslObject == null || isAdministrativeResource(rpslObject)) {
-            LOGGER.error("INET(6)NUM {} does not exist in RIPE Database ", firstLessSpecific.getKey().toString());
+            LOGGER.debug("INET(6)NUM {} does not exist in RIPE Database ", firstLessSpecific.getKey().toString());
             return false;
         }
         return true;
@@ -173,30 +177,23 @@ public class RdapRelationService {
 
     @Nullable
     private RpslObject getResourceByKey(final String key){
-        final RpslObject rpslObject = rpslObjectDao.getByKeyOrNull(ObjectType.INET6NUM, key);
-        if (rpslObject == null){
+        if (IpInterval.parse(key) instanceof Ipv4Resource){
             return rpslObjectDao.getByKeyOrNull(ObjectType.INETNUM, key);
         }
-        return rpslObject;
+        return rpslObjectDao.getByKeyOrNull(ObjectType.INET6NUM, key);
     }
 
     private IpTree getIpTree(final IpInterval reverseIp) {
         if (reverseIp instanceof Ipv4Resource) {
             return ip4Tree;
-        } else if (reverseIp instanceof Ipv6Resource) {
-            return ip6Tree;
         }
-
-        throw new IllegalArgumentException("Unexpected reverse ip: " + reverseIp);
+        return ip6Tree;
     }
 
     private IpTree getIpDomainTree(final IpInterval reverseIp) {
         if (reverseIp instanceof Ipv4Resource) {
             return ipv4DomainTree;
-        } else if (reverseIp instanceof Ipv6Resource) {
-            return ipv6DomainTree;
         }
-
-        throw new IllegalArgumentException("Unexpected reverse ip: " + reverseIp);
+        return ipv6DomainTree;
     }
 }
