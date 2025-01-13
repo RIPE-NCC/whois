@@ -533,7 +533,7 @@ public class RdapService {
                                                  final RelationType relationType, final String key) {
         final List<RpslObject> rpslObjects;
         switch (requestType) {
-            case AUTNUMS -> throw new RdapException("400 Bad Request", "Relation queries not allowed for autnum", HttpStatus.BAD_REQUEST_400);
+            case AUTNUMS -> throw new RdapException("501 Not Implemented", "Relation queries not allowed for autnum", HttpStatus.NOT_IMPLEMENTED_501);
             case DOMAINS -> {
                 rdapRequestValidator.validateDomain(key);
                 final List<String> relatedPkeys = rdapRelationService.getDomainRelationPkeys(key, relationType);
