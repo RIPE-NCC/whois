@@ -216,6 +216,44 @@ public class WhoisRestApiKeyAuthTestIntegration extends AbstractHttpsIntegration
     }
 
     @Test
+    public void create_mntner_only_data_parameter_with_apiKey() {
+        final String mntner =
+                "mntner:        SSO-MNT\n" +
+                        "descr:         description\n" +
+                        "admin-c:       TP1-TEST\n" +
+                        "upd-to:        noreply@ripe.net\n" +
+                        "auth:          SSO person@net.net\n" +
+                        "mnt-by:        SSO-MNT\n" +
+                        "source:        TEST";
+
+        final String response = SecureRestTest.target(getSecurePort(), "whois/syncupdates/test?" + "DATA=" + SyncUpdateUtils.encode(mntner))
+                .request()
+                .header(HttpHeaders.AUTHORIZATION, getBasicAuthHeader(BASIC_AUTH_PERSON_NO_MNT))
+                .get(String.class);
+
+        assertThat(response, containsString("Create SUCCEEDED: [mntner] SSO-MNT"));
+    }
+
+    @Test
+    public void create_mntner_only_data_parameter_with_apiKey_fails_no_sso() {
+        final String mntner =
+                "mntner:        SSO-MNT\n" +
+                        "descr:         description\n" +
+                        "admin-c:       TP1-TEST\n" +
+                        "upd-to:        noreply@ripe.net\n" +
+                        "auth:          SSO person@net.net\n" +
+                        "mnt-by:        SSO-MNT\n" +
+                        "source:        TEST";
+
+        final String response = SecureRestTest.target(getSecurePort(), "whois/syncupdates/test?" + "DATA=" + SyncUpdateUtils.encode(mntner))
+                .request()
+                .header(HttpHeaders.AUTHORIZATION, getBasicAuthHeader(BASIC_AUTH_TEST_TEST_MNT))
+                .get(String.class);
+
+        assertThat(response, containsString("Create FAILED: [mntner] SSO-MNT"));
+    }
+
+    @Test
     public void lookup_correct_api_key_with_sso_and_unfiltered() {
 
         final WhoisResources whoisResources = SecureRestTest.target(getSecurePort(), "whois/test/irt/irt-test?unfiltered")
