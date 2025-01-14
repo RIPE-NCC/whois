@@ -66,9 +66,10 @@ public class RdapRelationService {
     public List<String> getDomainRelationPkeys(final String pkey, final RelationType relationType){
         final Domain domain = Domain.parse(pkey);
         final IpInterval reverseIp = domain.getReverseIp();
-        final List<IpEntry> ipEntries = getIpEntries(getIpDomainTree(reverseIp), relationType, reverseIp);
+        final List<IpEntry> domainEntries = getEntries(getIpDomainTree(reverseIp), relationType, reverseIp);
 
-        return ipEntries
+        //TODO: [MH] This call should not be necessary, we should be able to get the reverseIp out of the IP
+        return domainEntries
                 .stream()
                 .map(ipEntry -> rpslObjectDao.getById(ipEntry.getObjectId()).getKey().toString())
                 .toList();
@@ -76,7 +77,7 @@ public class RdapRelationService {
 
     public List<String> getInetnumRelationPkeys(final String pkey, final RelationType relationType){
         final IpInterval ip = IpInterval.parse(pkey);
-        final List<IpEntry> ipEntries = getIpEntries(getIpTree(ip), relationType, ip);
+        final List<IpEntry> ipEntries = getEntries(getIpTree(ip), relationType, ip);
         return ipEntries
                 .stream()
                 .map(ipEntry -> ipEntry.getKey().toString())
@@ -129,8 +130,8 @@ public class RdapRelationService {
         }
     }
 
-    private List<IpEntry> getIpEntries(final IpTree ipTree, final RelationType relationType,
-                                       final IpInterval searchIp) {
+    private List<IpEntry> getEntries(final IpTree ipTree, final RelationType relationType,
+                                     final IpInterval searchIp) {
         return switch (relationType) {
             case UP -> List.of(searchFirstLessSpecific(ipTree, searchIp));
             case TOP -> List.of(searchTopLevelResource(ipTree, searchIp));
@@ -184,21 +185,19 @@ public class RdapRelationService {
 
     private IpEntry searchFirstLessSpecific(final IpTree ipTree, final IpInterval searchIp){
         final List<IpEntry> parentList = ipTree.findFirstLessSpecific(searchIp);
-        if (parentList.isEmpty() || !resourceExist(searchIp, parentList.getFirst())){
+        if (parentList.isEmpty() || !existAndNoAdministrative(searchIp, parentList.getFirst())){
             throw new RdapException("404 Not Found", "No up level object has been found for " + searchIp.toString(), HttpStatus.NOT_FOUND_404);
         }
         return parentList.getFirst();
     }
 
     private IpEntry searchTopLevelResource(final IpTree ipTree, final IpInterval searchIp){
-        IpEntry ipEntry;
         try {
-            ipEntry = searchFirstLessSpecific(ipTree, searchIp);
+            IpEntry ipEntry = searchFirstLessSpecific(ipTree, searchIp);
+            return loopUpLevels(ipTree, ipEntry);
         } catch (RdapException ex){
             throw new RdapException("404 Not Found", "No top-level object has been found for " + searchIp.toString(), HttpStatus.NOT_FOUND_404);
         }
-
-        return loopUpLevels(ipTree, ipEntry);
     }
 
     private IpEntry loopUpLevels(final IpTree ipTree, IpEntry searchIp) {
@@ -213,10 +212,10 @@ public class RdapRelationService {
         return searchIp;
     }
 
-    private boolean resourceExist(final IpInterval searchIp, final IpEntry firstLessSpecific){
+    private boolean existAndNoAdministrative(final IpInterval searchIp, final IpEntry firstLessSpecific){
         final RpslObject children = getResourceByKey(searchIp.toString());
         final RpslObject rpslObject = getResourceByKey(firstLessSpecific.getKey().toString());
-        if (rpslObject == null || isAdministrativeResource(children, rpslObject)) {
+        if (children == null || rpslObject == null || isAdministrativeResource(children, rpslObject)) {
             LOGGER.debug("INET(6)NUM {} does not exist in RIPE Database ", firstLessSpecific.getKey().toString());
             return false;
         }
