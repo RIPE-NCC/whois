@@ -137,14 +137,12 @@ public class RdapRelationService {
     }
 
     private IpEntry searchTopLevelResource(final IpTree ipTree, final IpInterval searchIp){
-        IpEntry ipEntry;
         try {
-            ipEntry = searchFirstLessSpecific(ipTree, searchIp);
+            IpEntry ipEntry = searchFirstLessSpecific(ipTree, searchIp);
+            return loopUpLevels(ipTree, ipEntry);
         } catch (RdapException ex){
             throw new RdapException("404 Not Found", "No top-level object has been found for " + searchIp.toString(), HttpStatus.NOT_FOUND_404);
         }
-
-        return loopUpLevels(ipTree, ipEntry);
     }
 
     private IpEntry loopUpLevels(final IpTree ipTree, IpEntry searchIp) {
@@ -162,7 +160,7 @@ public class RdapRelationService {
     private boolean existAndNoAdministrative(final IpInterval searchIp, final IpEntry firstLessSpecific){
         final RpslObject children = getResourceByKey(searchIp.toString());
         final RpslObject rpslObject = getResourceByKey(firstLessSpecific.getKey().toString());
-        if (rpslObject == null || isAdministrativeResource(children, rpslObject)) {
+        if (children == null || rpslObject == null || isAdministrativeResource(children, rpslObject)) {
             LOGGER.debug("INET(6)NUM {} does not exist in RIPE Database ", firstLessSpecific.getKey().toString());
             return false;
         }
