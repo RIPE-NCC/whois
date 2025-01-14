@@ -11,7 +11,6 @@ import net.ripe.db.whois.common.dao.RpslObjectDao;
 import net.ripe.db.whois.common.domain.CIString;
 import net.ripe.db.whois.common.ip.IpInterval;
 import net.ripe.db.whois.common.ip.Ipv4Resource;
-import net.ripe.db.whois.common.ip.Ipv6Resource;
 import net.ripe.db.whois.common.iptree.IpEntry;
 import net.ripe.db.whois.common.iptree.IpTree;
 import net.ripe.db.whois.common.iptree.Ipv4DomainTree;
@@ -33,7 +32,6 @@ import org.springframework.stereotype.Service;
 
 import javax.annotation.Nullable;
 import java.util.List;
-import java.util.Objects;
 import java.util.Set;
 
 import static net.ripe.db.whois.common.rpsl.attrs.Inet6numStatus.ALLOCATED_BY_RIR;
@@ -132,64 +130,51 @@ public class RdapRelationService {
     }
 
     private List<IpEntry> getIpEntries(final IpTree ipTree, final RelationType relationType,
-                                       final IpInterval ip) {
+                                       final IpInterval searchIp) {
         return switch (relationType) {
-            case UP -> List.of(searchFirstLessSpecific(ipTree, ip));
-            case TOP -> List.of(searchTopLevelResource(ipTree, ip));
-            case DOWN -> ipTree.findFirstMoreSpecific(ip);
-            case BOTTOM -> searchMostSpecificFillingOverlaps(ipTree, ip);
+            case UP -> List.of(searchFirstLessSpecific(ipTree, searchIp));
+            case TOP -> List.of(searchTopLevelResource(ipTree, searchIp));
+            case DOWN -> ipTree.findFirstMoreSpecific(searchIp);
+            case BOTTOM -> searchBottomResources(ipTree, searchIp);
         };
     }
 
-    private List<IpEntry> searchMostSpecificFillingOverlaps(final IpTree ipTree, final IpInterval searchIp){
+    private List<IpEntry> searchBottomResources(final IpTree ipTree, final IpInterval searchIp){
         final List<IpEntry> mostSpecificValues = ipTree.findMostSpecific(searchIp);
-        final List<? extends IpInterval<?>> mostSpecificIpIntervals = mostSpecificValues.stream().map(mostSpecificIp -> IpInterval.parse(mostSpecificIp.getKey().toString())).toList();
         final Set<IpEntry> mostSpecificFillingOverlaps = Sets.newConcurrentHashSet();
-        mostSpecificIpIntervals.forEach(ipResource -> extractBottomMatches(ipTree, searchIp, ipResource, mostSpecificFillingOverlaps));
+        mostSpecificValues.forEach(ipResource -> extractBottomMatches(ipTree, searchIp, ipResource, mostSpecificFillingOverlaps));
         return mostSpecificFillingOverlaps.stream().toList();
     }
 
-    private void extractBottomMatches(final IpTree ipTree,
-                                      final IpInterval searchIp,
-                                      final IpInterval mostSpecificResource,
+    private void extractBottomMatches(final IpTree ipTree, final IpInterval searchIp,
+                                      final IpEntry mostSpecificResource,
                                       final Set<IpEntry> mostSpecificFillingOverlaps) {
+        mostSpecificFillingOverlaps.add(mostSpecificResource);
 
-        final List<IpEntry> parentList = ipTree.findFirstLessSpecific(mostSpecificResource);
-        final List<IpEntry> siblingsAndExact = findSiblingsAndExact(ipTree, mostSpecificResource, parentList);
-
-        //Get IpEntry of the IpInterval
-        final IpEntry firstResourceIpEntry = siblingsAndExact.stream()
-                .filter(sibling -> sibling.getKey().toString().equals(mostSpecificResource.toString()))
-                .findFirst().orElse(null);
-
-        mostSpecificFillingOverlaps.add(firstResourceIpEntry);
+        final IpInterval mostSpecificInterval = IpInterval.parse(mostSpecificResource.getKey().toString());
+        final List<IpEntry> parentList = ipTree.findFirstLessSpecific(mostSpecificInterval);
+        final List<IpEntry> siblingsAndExact = findSiblingsAndExact(ipTree, mostSpecificInterval, parentList);
 
         final IpInterval firstSibling = (IpInterval)siblingsAndExact.getFirst().getKey();
         final IpInterval lastSibling = (IpInterval)siblingsAndExact.getLast().getKey();
-        final IpInterval parentInterval = (IpInterval) parentList.getFirst().getKey();
 
-        if (!parentInterval.equals(searchIp) // If the parent is already the search ip we stop
-                && !childrenCoverParentRange(firstSibling, lastSibling, parentInterval)){
-            extractBottomMatches(ipTree, searchIp, parentInterval, mostSpecificFillingOverlaps);
+        final IpEntry parent = parentList.getFirst();
+        final IpInterval parentInterval = (IpInterval) parent.getKey();
+
+        if (!parentInterval.equals(searchIp) && // If the parent is already the search ip we stop
+                !childrenCoverParentRange(firstSibling, lastSibling, parentInterval)){
+            extractBottomMatches(ipTree, searchIp, parent, mostSpecificFillingOverlaps);
         }
     }
 
     private static boolean childrenCoverParentRange(final IpInterval firstResource, final IpInterval lastResource, final IpInterval parent){
-        if (firstResource instanceof Ipv4Resource ipv4Resource){
-            final Ipv4Resource lastIpv4Resource = (Ipv4Resource)lastResource;
-            final Ipv4Resource parentIpv4Resource = (Ipv4Resource)parent;
-            return ipv4Resource.begin() == parentIpv4Resource.begin() && lastIpv4Resource.end() == parentIpv4Resource.end();
-        }
-
-        final Ipv6Resource ipv6Resource = (Ipv6Resource)firstResource;
-        final Ipv6Resource lastIpv6Resource = (Ipv6Resource)lastResource;
-        final Ipv6Resource parentIpv6Resource = (Ipv6Resource)parent;
-        return Objects.equals(ipv6Resource.begin(), parentIpv6Resource.begin()) && Objects.equals(lastIpv6Resource.end(), parentIpv6Resource.end());
+        return firstResource.beginAsInetAddress().equals(parent.beginAsInetAddress()) &&
+                lastResource.endAsInetAddress().equals(parent.endAsInetAddress());
     }
 
-    private static List<IpEntry> findSiblingsAndExact(final IpTree ipTree, final IpInterval mostSpecificResource, final List<IpEntry> parent) {
+    private static List<IpEntry> findSiblingsAndExact(final IpTree ipTree, final IpInterval parentResource, final List<IpEntry> parent) {
         if (parent.isEmpty()){
-            return ipTree.findExact(mostSpecificResource);
+            return ipTree.findExact(parentResource);
         }
         return ipTree.findFirstMoreSpecific(IpInterval.parse(parent.getFirst().getKey().toString()));
     }
