@@ -505,7 +505,7 @@ public class ResponseFactoryTest {
                 "\n" +
                 "mntner:         DEV-ROOT1-MNT\n" +
                 "\n" +
-                "Changed by SSO account: test@ripe.net (f60ee0fc)\n"+
+                "Changed by SSO account using API Key: test@ripe.net (f60ee0fc)\n"+
                 "\n" ));
 
     }
