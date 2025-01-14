@@ -78,7 +78,7 @@ public class RdapRelationService {
     private List<IpEntry> getEntries(final IpTree ipTree, final RelationType relationType,
                                      final IpInterval searchIp) {
         return switch (relationType) {
-            case UP -> List.of(searchFirstLessSpecific(ipTree, searchIp));
+            case UP -> List.of(searchUpResource(ipTree, searchIp));
             case TOP -> List.of(searchTopLevelResource(ipTree, searchIp));
             case DOWN -> ipTree.findFirstMoreSpecific(searchIp);
             case BOTTOM -> searchBottomResources(ipTree, searchIp);
@@ -128,7 +128,7 @@ public class RdapRelationService {
         return ipTree.findFirstMoreSpecific(IpInterval.parse(parent.getFirst().getKey().toString()));
     }
 
-    private IpEntry searchFirstLessSpecific(final IpTree ipTree, final IpInterval searchIp){
+    private IpEntry searchUpResource(final IpTree ipTree, final IpInterval searchIp){
         final List<IpEntry> parentList = ipTree.findFirstLessSpecific(searchIp);
         if (parentList.isEmpty() || !existAndNoAdministrative(searchIp, parentList.getFirst())){
             throw new RdapException("404 Not Found", "No up level object has been found for " + searchIp.toString(), HttpStatus.NOT_FOUND_404);
@@ -138,17 +138,17 @@ public class RdapRelationService {
 
     private IpEntry searchTopLevelResource(final IpTree ipTree, final IpInterval searchIp){
         try {
-            IpEntry ipEntry = searchFirstLessSpecific(ipTree, searchIp);
-            return loopUpLevels(ipTree, ipEntry);
+            IpEntry ipEntry = searchUpResource(ipTree, searchIp);
+            return searchTopRemainingResource(ipTree, ipEntry);
         } catch (RdapException ex){
             throw new RdapException("404 Not Found", "No top-level object has been found for " + searchIp.toString(), HttpStatus.NOT_FOUND_404);
         }
     }
 
-    private IpEntry loopUpLevels(final IpTree ipTree, IpEntry searchIp) {
+    private IpEntry searchTopRemainingResource(final IpTree ipTree, IpEntry searchIp) {
         try {
-            searchIp = searchFirstLessSpecific(ipTree, (IpInterval) searchIp.getKey());
-            loopUpLevels(ipTree, searchIp);
+            searchIp = searchUpResource(ipTree, (IpInterval) searchIp.getKey());
+            searchTopRemainingResource(ipTree, searchIp);
         } catch (RdapException ex){
             /*
             * Do Nothing, end of loop
