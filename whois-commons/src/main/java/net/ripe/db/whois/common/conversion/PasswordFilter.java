@@ -21,7 +21,7 @@ public class PasswordFilter {
 
     //from logsearch tweaked
     private static final Pattern PASSWORD_PATTERN_FOR_CONTENT = Pattern.compile("(?im)^(override|password)(:|%3A)\\s*(.+)\\s*$");
-    private static final Pattern BASIC_AUTH_HEADER_PATTERN_FOR_CONTENT = Pattern.compile("(?im)^Header: Authorization=Basic *([^ ]+) *$", Pattern.CASE_INSENSITIVE);
+    private static final Pattern BASIC_AUTH_HEADER_PATTERN_FOR_CONTENT = Pattern.compile("(?im)^(Header: Authorization=Basic)\\s*(.*)\\s*$", Pattern.CASE_INSENSITIVE);
 
     private static final Pattern URI_PASSWORD_PATTERN_PASSWORD_FOR_URL = Pattern.compile("(?<=)(password|override)(:|=|%3A)([^&^\\s]*)", Pattern.CASE_INSENSITIVE);
 
@@ -37,7 +37,7 @@ public class PasswordFilter {
     private static String replaceBasicAuthHeader(final Matcher matcher)  {
         final StringBuilder result = new StringBuilder();
         while (matcher.find()) {
-            matcher.appendReplacement(result, String.format("%s%s", StringUtils.substringBefore(matcher.group(0), matcher.group(1)),"FILTERED"));
+            matcher.appendReplacement(result, String.format("%s FILTERED", matcher.group(1)));
         }
         matcher.appendTail(result);
         return result.toString();
