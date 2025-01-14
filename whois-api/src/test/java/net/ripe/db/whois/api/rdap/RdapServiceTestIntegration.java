@@ -3294,6 +3294,20 @@ public class RdapServiceTestIntegration extends AbstractRdapIntegrationTest {
     public void get_ipv6_top_not_found(){
         loadIpv6RelationTreeExample();
 
+        //ALLOCATED-BY-RIR -> ALLOCATED-BY-RIR when the child and parent has this status, parent is administrative
+        databaseHelper.updateObject("" +
+                "inet6num:       2000::/3\n" +
+                "netname:        TEST\n" +
+                "descr:          The whole IPv6 address space\n" +
+                "country:        NL\n" +
+                "tech-c:         TP1-TEST\n" +
+                "admin-c:        TP1-TEST\n" +
+                "status:         ALLOCATED-BY-RIR\n" +
+                "mnt-by:         OWNER-MNT\n" +
+                "created:         2022-08-14T11:48:28Z\n" +
+                "last-modified:   2022-10-25T12:22:39Z\n" +
+                "source:         TEST");
+
         final NotFoundException notFoundException = assertThrows(NotFoundException.class, () -> {
             createResource("ips/rirSearch1/top/2000::/3")
                     .request(MediaType.APPLICATION_JSON_TYPE)

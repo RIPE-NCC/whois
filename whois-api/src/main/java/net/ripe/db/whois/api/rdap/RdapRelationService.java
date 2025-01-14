@@ -77,44 +77,40 @@ public class RdapRelationService {
     }
 
     private List<IpEntry> getIpEntries(final IpTree ipTree, final RelationType relationType,
-                                       final IpInterval reverseIp) {
+                                       final IpInterval searchIp) {
         return switch (relationType) {
-            case UP -> List.of(searchFirstLessSpecific(ipTree, reverseIp));
-            case TOP -> searchTopLevelResource(ipTree, reverseIp);
-            case DOWN -> ipTree.findFirstMoreSpecific(reverseIp);
-            case BOTTOM -> searchMostSpecificFillingOverlaps(ipTree, reverseIp);
+            case UP -> List.of(searchFirstLessSpecific(ipTree, searchIp));
+            case TOP -> List.of(searchTopLevelResource(ipTree, searchIp));
+            case DOWN -> ipTree.findFirstMoreSpecific(searchIp);
+            case BOTTOM -> searchBottomResources(ipTree, searchIp);
         };
     }
 
-    private List<IpEntry> searchMostSpecificFillingOverlaps(final IpTree ipTree, final IpInterval reverseIp){
-        final List<IpEntry> mostSpecificValues = ipTree.findMostSpecific(reverseIp);
-        final List<? extends IpInterval<?>> ipResources = mostSpecificValues.stream().map(ip -> IpInterval.parse(ip.getKey().toString())).toList();
+    private List<IpEntry> searchBottomResources(final IpTree ipTree, final IpInterval searchIp){
+        final List<IpEntry> mostSpecificValues = ipTree.findMostSpecific(searchIp);
         final Set<IpEntry> mostSpecificFillingOverlaps = Sets.newConcurrentHashSet();
-        ipResources.forEach(ipResource -> extractBottomMatches(ipTree, reverseIp, ipResource, mostSpecificFillingOverlaps));
+        mostSpecificValues.forEach(ipResource -> extractBottomMatches(ipTree, searchIp, ipResource, mostSpecificFillingOverlaps));
         return mostSpecificFillingOverlaps.stream().toList();
     }
 
-    private void extractBottomMatches(final IpTree ipTree, final IpInterval reverseIp,
-                                      final IpInterval mostSpecificResource,
+    private void extractBottomMatches(final IpTree ipTree, final IpInterval searchIp,
+                                      final IpEntry mostSpecificResource,
                                       final Set<IpEntry> mostSpecificFillingOverlaps) {
+        mostSpecificFillingOverlaps.add(mostSpecificResource);
 
-        final List<IpEntry> siblingsAndExact = findSiblingsAndExact(ipTree, mostSpecificResource);
-
-        final IpEntry firstResourceIpEntry = siblingsAndExact.stream()
-                .filter(sibling -> sibling.getKey().toString().equals(mostSpecificResource.toString()))
-                .findFirst().orElse(null);
-
-        mostSpecificFillingOverlaps.add(firstResourceIpEntry);
+        final IpInterval mostSpecificInterval = IpInterval.parse(mostSpecificResource.getKey().toString());
+        final List<IpEntry> parentList = ipTree.findFirstLessSpecific(mostSpecificInterval);
+        final List<IpEntry> siblingsAndExact = findSiblingsAndExact(ipTree, mostSpecificInterval, parentList);
 
         final IpInterval firstSibling = (IpInterval)siblingsAndExact.getFirst().getKey();
         final IpInterval lastSibling = (IpInterval)siblingsAndExact.getLast().getKey();
 
-        final IpEntry parent = (IpEntry) ipTree.findFirstLessSpecific(IpInterval.parse(mostSpecificResource.toString())).getFirst();
+        final IpEntry parent = parentList.getFirst();
         final IpInterval parentInterval = (IpInterval) parent.getKey();
 
-        if (!parentInterval.equals(reverseIp) &&
+        if (!parentInterval.equals(searchIp) && // If the parent is already the search ip we stop
                 !childrenCoverParentRange(firstSibling, lastSibling, parentInterval)){
-            extractBottomMatches(ipTree, reverseIp, parentInterval, mostSpecificFillingOverlaps);
+            extractBottomMatches(ipTree, searchIp, parent, mostSpecificFillingOverlaps);
         }
     }
 
@@ -131,47 +127,46 @@ public class RdapRelationService {
         return Objects.equals(ipv6Resource.begin(), parentIpv6Resource.begin()) && Objects.equals(lastIpv6Resource.end(), parentIpv6Resource.end());
     }
 
-    private static List<IpEntry> findSiblingsAndExact(final IpTree ipTree, final IpInterval parentResource) {
-        final List<IpEntry> parentList = ipTree.findFirstLessSpecific(parentResource);
-        if (parentList.isEmpty()){
+    private static List<IpEntry> findSiblingsAndExact(final IpTree ipTree, final IpInterval parentResource, final List<IpEntry> parent) {
+        if (parent.isEmpty()){
             return ipTree.findExact(parentResource);
         }
-        return ipTree.findFirstMoreSpecific(IpInterval.parse(parentList.getFirst().getKey().toString()));
+        return ipTree.findFirstMoreSpecific(IpInterval.parse(parent.getFirst().getKey().toString()));
     }
 
-    private IpEntry searchFirstLessSpecific(final IpTree ipTree, final IpInterval reverseIp){
-        final List<IpEntry> parentList = ipTree.findFirstLessSpecific(reverseIp);
-        if (parentList.isEmpty() || !resourceExist(reverseIp, parentList.getFirst())){
-            throw new RdapException("404 Not Found", "No up level object has been found for " + reverseIp.toString(), HttpStatus.NOT_FOUND_404);
+    private IpEntry searchFirstLessSpecific(final IpTree ipTree, final IpInterval searchIp){
+        final List<IpEntry> parentList = ipTree.findFirstLessSpecific(searchIp);
+        if (parentList.isEmpty() || !resourceExist(searchIp, parentList.getFirst())){
+            throw new RdapException("404 Not Found", "No up level object has been found for " + searchIp.toString(), HttpStatus.NOT_FOUND_404);
         }
         return parentList.getFirst();
     }
 
-    private List<IpEntry> searchTopLevelResource(final IpTree ipTree, final IpInterval reverseIp){
+    private IpEntry searchTopLevelResource(final IpTree ipTree, final IpInterval searchIp){
         IpEntry ipEntry;
         try {
-            ipEntry = searchFirstLessSpecific(ipTree, reverseIp);
+            ipEntry = searchFirstLessSpecific(ipTree, searchIp);
         } catch (RdapException ex){
-            throw new RdapException("404 Not Found", "No top-level object has been found for " + reverseIp.toString(), HttpStatus.NOT_FOUND_404);
+            throw new RdapException("404 Not Found", "No top-level object has been found for " + searchIp.toString(), HttpStatus.NOT_FOUND_404);
         }
 
-        return List.of(loopUpLevels(ipTree, ipEntry));
+        return loopUpLevels(ipTree, ipEntry);
     }
 
-    private IpEntry loopUpLevels(final IpTree ipTree, IpEntry reverseIp) {
+    private IpEntry loopUpLevels(final IpTree ipTree, IpEntry searchIp) {
         try {
-            reverseIp = searchFirstLessSpecific(ipTree, (IpInterval) reverseIp.getKey());
-            loopUpLevels(ipTree, reverseIp);
+            searchIp = searchFirstLessSpecific(ipTree, (IpInterval) searchIp.getKey());
+            loopUpLevels(ipTree, searchIp);
         } catch (RdapException ex){
             /*
             * Do Nothing, end of loop
             * */
         }
-        return reverseIp;
+        return searchIp;
     }
 
-    private boolean resourceExist(final IpInterval ip, final IpEntry firstLessSpecific){
-        final RpslObject children = getResourceByKey(ip.toString());
+    private boolean resourceExist(final IpInterval searchIp, final IpEntry firstLessSpecific){
+        final RpslObject children = getResourceByKey(searchIp.toString());
         final RpslObject rpslObject = getResourceByKey(firstLessSpecific.getKey().toString());
         if (rpslObject == null || isAdministrativeResource(children, rpslObject)) {
             LOGGER.debug("INET(6)NUM {} does not exist in RIPE Database ", firstLessSpecific.getKey().toString());
@@ -184,7 +179,7 @@ public class RdapRelationService {
         final CIString childrenStatus = children.getValueForAttribute(AttributeType.STATUS);
         final CIString statusAttributeValue = rpslObject.getValueForAttribute(AttributeType.STATUS);
         return (rpslObject.getType().equals(ObjectType.INETNUM) && InetnumStatus.getStatusFor(statusAttributeValue).equals(ALLOCATED_UNSPECIFIED))
-                || (rpslObject.getType().equals(ObjectType.INET6NUM) && !Inet6numStatus.getStatusFor(childrenStatus).isAssignment() &&
+                || (rpslObject.getType().equals(ObjectType.INET6NUM) && Inet6numStatus.getStatusFor(childrenStatus).equals(ALLOCATED_BY_RIR) &&
                 Inet6numStatus.getStatusFor(statusAttributeValue).equals(ALLOCATED_BY_RIR));
     }
 
@@ -197,8 +192,8 @@ public class RdapRelationService {
         return rpslObjectDao.getByKeyOrNull(ObjectType.INET6NUM, key);
     }
 
-    private IpTree getIpTree(final IpInterval reverseIp) {
-        if (reverseIp instanceof Ipv4Resource) {
+    private IpTree getIpTree(final IpInterval searchIp) {
+        if (searchIp instanceof Ipv4Resource) {
             return ip4Tree;
         }
         return ip6Tree;
