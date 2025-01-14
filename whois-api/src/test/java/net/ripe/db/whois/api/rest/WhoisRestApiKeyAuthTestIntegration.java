@@ -15,6 +15,7 @@ import net.ripe.db.whois.api.rest.domain.WhoisObject;
 import net.ripe.db.whois.api.rest.domain.WhoisResources;
 import net.ripe.db.whois.api.rest.mapper.FormattedClientAttributeMapper;
 import net.ripe.db.whois.api.rest.mapper.WhoisObjectMapper;
+import net.ripe.db.whois.api.syncupdate.SyncUpdateUtils;
 import net.ripe.db.whois.common.apiKey.ApiKeyUtils;
 import net.ripe.db.whois.common.rpsl.AttributeType;
 import net.ripe.db.whois.common.rpsl.RpslAttribute;
@@ -193,6 +194,26 @@ public class WhoisRestApiKeyAuthTestIntegration extends AbstractHttpsIntegration
         assertThat(response.getStatus(), is(HttpStatus.BAD_REQUEST_400));
     }
 
+    @Test
+    public void update_selfrefencing_maintainer_only_data_parameter_with_api_key() {
+        final String mntner =
+                "mntner:        SSO-MNT\n" +
+                        "descr:         description\n" +
+                        "admin-c:       TP1-TEST\n" +
+                        "upd-to:        noreply@ripe.net\n" +
+                        "auth:          SSO person@net.net\n" +
+                        "mnt-by:        SSO-MNT\n" +
+                        "source:        TEST";
+        databaseHelper.addObject(mntner);
+
+        final String response = SecureRestTest.target(getSecurePort(), "whois/syncupdates/test?" +
+                        "DATA=" + SyncUpdateUtils.encode(mntner + "\nremarks: updated"))
+                .request()
+                .header(HttpHeaders.AUTHORIZATION, getBasicAuthHeader(BASIC_AUTH_PERSON_NO_MNT))
+                .get(String.class);
+
+        assertThat(response, containsString("Modify SUCCEEDED: [mntner] SSO-MNT"));
+    }
 
     @Test
     public void lookup_correct_api_key_with_sso_and_unfiltered() {
@@ -772,7 +793,7 @@ public class WhoisRestApiKeyAuthTestIntegration extends AbstractHttpsIntegration
         return whoisObjectMapper.mapRpslObjects(FormattedClientAttributeMapper.class, rpslObjects);
     }
 
-    private static String getBasicAuthHeader(final String basicAuth) {
+    public static String getBasicAuthHeader(final String basicAuth) {
         return StringUtils.joinWith(" ","Basic ", basicAuth);
     }
 
