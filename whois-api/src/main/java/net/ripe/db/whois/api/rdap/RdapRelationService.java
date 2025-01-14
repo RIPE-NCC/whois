@@ -149,11 +149,17 @@ public class RdapRelationService {
     private void extractBottomMatches(final IpTree ipTree, final IpInterval searchIp,
                                       final IpEntry mostSpecificResource,
                                       final Set<IpEntry> mostSpecificFillingOverlaps) {
+
         mostSpecificFillingOverlaps.add(mostSpecificResource);
 
         final IpInterval mostSpecificInterval = IpInterval.parse(mostSpecificResource.getKey().toString());
         final List<IpEntry> parentList = ipTree.findFirstLessSpecific(mostSpecificInterval);
-        final List<IpEntry> siblingsAndExact = findSiblingsAndExact(ipTree, mostSpecificInterval, parentList);
+
+        if (parentList.isEmpty()){
+            return;
+        }
+
+        final List<IpEntry> siblingsAndExact = findSiblingsAndExact(ipTree, parentList);
 
         final IpInterval firstSibling = (IpInterval)siblingsAndExact.getFirst().getKey();
         final IpInterval lastSibling = (IpInterval)siblingsAndExact.getLast().getKey();
@@ -172,10 +178,7 @@ public class RdapRelationService {
                 lastResource.endAsInetAddress().equals(parent.endAsInetAddress());
     }
 
-    private static List<IpEntry> findSiblingsAndExact(final IpTree ipTree, final IpInterval parentResource, final List<IpEntry> parent) {
-        if (parent.isEmpty()){
-            return ipTree.findExact(parentResource);
-        }
+    private static List<IpEntry> findSiblingsAndExact(final IpTree ipTree, final List<IpEntry> parent) {
         return ipTree.findFirstMoreSpecific(IpInterval.parse(parent.getFirst().getKey().toString()));
     }
 
