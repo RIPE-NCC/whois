@@ -6,7 +6,6 @@ import net.ripe.db.whois.common.dao.RpslObjectDao;
 import net.ripe.db.whois.common.domain.CIString;
 import net.ripe.db.whois.common.ip.IpInterval;
 import net.ripe.db.whois.common.ip.Ipv4Resource;
-import net.ripe.db.whois.common.ip.Ipv6Resource;
 import net.ripe.db.whois.common.iptree.IpEntry;
 import net.ripe.db.whois.common.iptree.IpTree;
 import net.ripe.db.whois.common.iptree.Ipv4DomainTree;
@@ -27,7 +26,6 @@ import org.springframework.stereotype.Service;
 
 import javax.annotation.Nullable;
 import java.util.List;
-import java.util.Objects;
 import java.util.Set;
 
 import static net.ripe.db.whois.common.rpsl.attrs.Inet6numStatus.ALLOCATED_BY_RIR;
@@ -115,16 +113,8 @@ public class RdapRelationService {
     }
 
     private static boolean childrenCoverParentRange(final IpInterval firstResource, final IpInterval lastResource, final IpInterval parent){
-        if (firstResource instanceof Ipv4Resource ipv4Resource){
-            final Ipv4Resource lastIpv4Resource = (Ipv4Resource)lastResource;
-            final Ipv4Resource parentIpv4Resource = (Ipv4Resource)parent;
-            return ipv4Resource.begin() == parentIpv4Resource.begin() && lastIpv4Resource.end() == parentIpv4Resource.end();
-        }
-
-        final Ipv6Resource ipv6Resource = (Ipv6Resource)firstResource;
-        final Ipv6Resource lastIpv6Resource = (Ipv6Resource)lastResource;
-        final Ipv6Resource parentIpv6Resource = (Ipv6Resource)parent;
-        return Objects.equals(ipv6Resource.begin(), parentIpv6Resource.begin()) && Objects.equals(lastIpv6Resource.end(), parentIpv6Resource.end());
+        return firstResource.beginAsInetAddress().equals(parent.beginAsInetAddress()) &&
+                lastResource.endAsInetAddress().equals(parent.endAsInetAddress());
     }
 
     private static List<IpEntry> findSiblingsAndExact(final IpTree ipTree, final IpInterval parentResource, final List<IpEntry> parent) {
