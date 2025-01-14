@@ -10,7 +10,6 @@ import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 import net.ripe.db.whois.api.AbstractIntegrationTest;
 import net.ripe.db.whois.api.RestTest;
-import net.ripe.db.whois.api.SecureRestTest;
 import net.ripe.db.whois.api.syncupdate.SyncUpdateUtils;
 import net.ripe.db.whois.common.dao.EmailStatusDao;
 import net.ripe.db.whois.common.domain.CIString;
@@ -27,8 +26,6 @@ import net.ripe.db.whois.update.domain.UpdateMessages;
 import net.ripe.db.whois.update.mail.MailSenderStub;
 import org.eclipse.jetty.http.HttpStatus;
 import org.glassfish.jersey.media.multipart.FormDataMultiPart;
-import org.junit.jupiter.api.AfterAll;
-import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -42,8 +39,6 @@ import java.util.Arrays;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import static net.ripe.db.whois.api.ApiKeyAuthServerDummy.BASIC_AUTH_PERSON_NO_MNT;
-import static net.ripe.db.whois.api.rest.WhoisRestApiKeyAuthTestIntegration.getBasicAuthHeader;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.containsInAnyOrder;
 import static org.hamcrest.Matchers.containsString;
@@ -93,17 +88,6 @@ public class SyncUpdatesServiceTestIntegration extends AbstractIntegrationTest {
 
     @Autowired
     private EmailStatusDao emailStatusDao;
-
-    @BeforeAll
-    public static void setupApiProperties() {
-        System.setProperty("apikey.authenticate.enabled","true");
-    }
-
-    @AfterAll
-    public static void restApiProperties() {
-        System.clearProperty("apikey.authenticate.enabled");
-        System.clearProperty("apikey.public.key.url");
-    }
 
     @Test
     public void get_empty_request() {
@@ -611,7 +595,6 @@ public class SyncUpdatesServiceTestIntegration extends AbstractIntegrationTest {
 
         assertThat(response, containsString("Modify SUCCEEDED: [mntner] SSO-MNT"));
     }
-
 
     @Test
     public void create_maintainer_invalid_source_in_url() {
