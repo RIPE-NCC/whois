@@ -8,7 +8,6 @@ import jakarta.xml.bind.annotation.XmlRootElement;
 
 import java.io.Serial;
 import java.io.Serializable;
-import java.util.List;
 
 
 @XmlAccessorType(XmlAccessType.FIELD)
@@ -23,7 +22,7 @@ public class OAuthSession implements Serializable {
 
     private final String email;
 
-    private final String accessKey;
+    private final String keyId;
 
     private final String uuid;
 
@@ -32,23 +31,23 @@ public class OAuthSession implements Serializable {
     public OAuthSession() {
         this.aud = null;
         this.email = null;
-        this.accessKey = null;
+        this.keyId = null;
         this.uuid = null;
         this.scope = null;
     }
 
-    public OAuthSession(final String[] aud, final String accessKey, final String email, final String uuid, final String scope) {
+    public OAuthSession(final String[] aud, final String keyId, final String email, final String uuid, final String scope) {
         this.aud = aud;
         this.email = email;
         this.uuid = uuid;
         this.scope = scope;
-        this.accessKey = accessKey;
+        this.keyId = keyId;
     }
 
-    public OAuthSession(final String accesKey) {
+    public OAuthSession(final String keyId) {
         this.aud = null;
         this.email = null;
-        this.accessKey = accesKey;
+        this.keyId = keyId;
         this.uuid = null;
         this.scope = null;
     }
@@ -65,8 +64,8 @@ public class OAuthSession implements Serializable {
         return uuid;
     }
 
-    public String getAccessKey() {
-        return accessKey;
+    public String getKeyId() {
+        return keyId;
     }
 
     public String getScope() {
@@ -77,7 +76,7 @@ public class OAuthSession implements Serializable {
     public String toString() {
         return MoreObjects.toStringHelper(this)
                 .add("aud", aud)
-                .add("accessKey", accessKey)
+                .add("keyId", keyId)
                 .add("email", email)
                 .add("uuid", uuid)
                 .add("scopes", scope)
@@ -117,11 +116,11 @@ public class OAuthSession implements Serializable {
         }
     }
 
-    public static OAuthSession from(final OAuthSession oAuthSession, final String accessKey) {
+    public static OAuthSession from(final OAuthSession oAuthSession, final String keyId) {
         if(oAuthSession == null) {
-            return new OAuthSession(accessKey);
+            return new OAuthSession(keyId);
         }
 
-        return new OAuthSession(oAuthSession.getAud(), accessKey, oAuthSession.getEmail(), oAuthSession.getUuid(), oAuthSession.getScope());
+        return new OAuthSession(oAuthSession.getAud(), keyId, oAuthSession.getEmail(), oAuthSession.getUuid(), oAuthSession.getScope());
     }
 }

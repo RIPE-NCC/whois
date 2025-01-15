@@ -35,36 +35,36 @@ public class BearerTokenExtractor   {
     }
 
     @Nullable
-    public OAuthSession extractBearerToken(final HttpServletRequest request, final String accessKey) {
-        if(!enabled || StringUtils.isEmpty(accessKey)) {
+    public OAuthSession extractBearerToken(final HttpServletRequest request, final String apiKeyId) {
+        if(!enabled || StringUtils.isEmpty(apiKeyId)) {
             return null;
         }
 
         final String bearerToken = request.getHeader(HttpHeaders.AUTHORIZATION);
-        return getOAuthSession(bearerToken, accessKey);
+        return getOAuthSession(bearerToken, apiKeyId);
     }
 
-    private OAuthSession getOAuthSession(final String bearerToken, final String accessKey) {
+    private OAuthSession getOAuthSession(final String bearerToken, final String apiKeyId) {
         if(StringUtils.isEmpty(bearerToken)) {
-            return new OAuthSession(accessKey);
+            return new OAuthSession(apiKeyId);
         }
 
         try {
             final SignedJWT signedJWT = SignedJWT.parse(StringUtils.substringAfter(bearerToken, "Bearer "));
 
             if(!verifyJWTSignature(signedJWT)) {
-              LOGGER.debug("JWT signature verification failed for {}", accessKey);
-              return new OAuthSession(accessKey);
+              LOGGER.debug("JWT signature verification failed for {}", apiKeyId);
+              return new OAuthSession(apiKeyId);
             }
             
-            //TODO[MA]: remove when accessKey is available from api registry call
-            return OAuthSession.from(new ObjectMapper().readValue(signedJWT.getPayload().toString(), OAuthSession.class), accessKey);
+            //TODO[MA]: remove when apiKeyId is available from api registry call
+            return OAuthSession.from(new ObjectMapper().readValue(signedJWT.getPayload().toString(), OAuthSession.class), apiKeyId);
         } catch (JsonProcessingException e) {
             LOGGER.error("Failed to serialize OAuthSession, this should never have happened", e);
-            return  new OAuthSession(accessKey);
+            return  new OAuthSession(apiKeyId);
         } catch (Exception e) {
             LOGGER.error("Failed to read OAuthSession, this should never have happened", e);
-            return new OAuthSession(accessKey);
+            return new OAuthSession(apiKeyId);
         }
     }
 

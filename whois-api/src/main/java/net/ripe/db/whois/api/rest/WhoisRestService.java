@@ -106,7 +106,7 @@ public class WhoisRestService {
             @PathParam("key") final String key,
             @QueryParam("reason") @DefaultValue("--") final String reason,
             @QueryParam("password") final List<String> passwords,
-            @QueryParam(ApiKeyUtils.APIKEY_ACCESS_QUERY_PARAM) final String accessKey,
+            @QueryParam(ApiKeyUtils.APIKEY_KEY_ID_QUERY_PARAM) final String apiKeyId,
             @CookieParam(AuthServiceClient.TOKEN_KEY) final String crowdTokenKey,
             @QueryParam("override") final String override,
             @QueryParam("dry-run") final String dryRun) {
@@ -114,7 +114,7 @@ public class WhoisRestService {
         try {
             final Origin origin = updatePerformer.createOrigin(request);
 
-            final UpdateContext updateContext = updatePerformer.initContext(origin, crowdTokenKey, accessKey, request);
+            final UpdateContext updateContext = updatePerformer.initContext(origin, crowdTokenKey, apiKeyId, request);
 
             if(requiresNonAuthRedirect(source, objectType, key)) {
                 return redirectNonAuthOrRequiresRipeRedirect(sourceContext.getNonauthSource().getName().toString(), objectType, key, request.getQueryString());
@@ -166,7 +166,7 @@ public class WhoisRestService {
             @PathParam("objectType") final String objectType,
             @PathParam("key") final String key,
             @QueryParam("password") final List<String> passwords,
-            @QueryParam(ApiKeyUtils.APIKEY_ACCESS_QUERY_PARAM) final String accessKey,
+            @QueryParam(ApiKeyUtils.APIKEY_KEY_ID_QUERY_PARAM) final String apiKeyId,
             @CookieParam(AuthServiceClient.TOKEN_KEY) final String crowdTokenKey,
             @QueryParam("override") final String override,
             @QueryParam("dry-run") final String dryRun,
@@ -174,7 +174,7 @@ public class WhoisRestService {
 
         try {
             final Origin origin = updatePerformer.createOrigin(request);
-            final UpdateContext updateContext = updatePerformer.initContext(origin, crowdTokenKey, accessKey, request);
+            final UpdateContext updateContext = updatePerformer.initContext(origin, crowdTokenKey, apiKeyId, request);
 
             if(requiresNonAuthRedirect(source, objectType, key)) {
                 return redirectNonAuthOrRequiresRipeRedirect(sourceContext.getNonauthSource().getName().toString(), objectType, key, request.getQueryString());
@@ -222,7 +222,7 @@ public class WhoisRestService {
             @PathParam("source") final String source,
             @PathParam("objectType") final String objectType,
             @QueryParam("password") final List<String> passwords,
-            @QueryParam(ApiKeyUtils.APIKEY_ACCESS_QUERY_PARAM) final String accessKey,
+            @QueryParam(ApiKeyUtils.APIKEY_KEY_ID_QUERY_PARAM) final String apiKeyId,
             @CookieParam(AuthServiceClient.TOKEN_KEY) final String crowdTokenKey,
             @QueryParam("override") final String override,
             @QueryParam("dry-run") final String dryRun,
@@ -230,7 +230,7 @@ public class WhoisRestService {
 
         try {
             final Origin origin = updatePerformer.createOrigin(request);
-            final UpdateContext updateContext = updatePerformer.initContext(origin, crowdTokenKey, accessKey, request);
+            final UpdateContext updateContext = updatePerformer.initContext(origin, crowdTokenKey, apiKeyId, request);
 
             auditLogRequest(request);
 
@@ -290,7 +290,7 @@ public class WhoisRestService {
             @QueryParam("unformatted") final String unformatted,
             @QueryParam("unfiltered") final String unfiltered,
             @QueryParam("managed-attributes") final String managedAttributes,
-            @QueryParam(ApiKeyUtils.APIKEY_ACCESS_QUERY_PARAM) final String accessKey,
+            @QueryParam(ApiKeyUtils.APIKEY_KEY_ID_QUERY_PARAM) final String apiKeyId,
             @QueryParam("resource-holder") final String resourceHolder,
             @QueryParam("abuse-contact") final String abuseContact) {
 
@@ -314,7 +314,7 @@ public class WhoisRestService {
         final Query query;
         try {
             query =
-                    Query.parse(queryBuilder.build(key), crowdTokenKey, passwords, isTrusted(request), ClientCertificateExtractor.getClientCertificates(request), bearerTokenExtractor.extractBearerToken(request, accessKey)).setMatchPrimaryKeyOnly(true);
+                    Query.parse(queryBuilder.build(key), crowdTokenKey, passwords, isTrusted(request), ClientCertificateExtractor.getClientCertificates(request), bearerTokenExtractor.extractBearerToken(request, apiKeyId)).setMatchPrimaryKeyOnly(true);
         } catch (QueryException e) {
             throw RestServiceHelper.createWebApplicationException(e, request);
         }
