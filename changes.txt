@@ -1,5 +1,21 @@
 # next
 
+# 1.115
+
+[all] Apikey authentication (#1569, #1597, #1618, #1620, #1622, #1624, #1626, #1627)
+[nrtm] NRTMv4 client implementation (#1560, #1574, #1575, #1596, #1579, #1577, #1605, #1609, #1610, #1621)
+[nrtm] Use relative path in NRTM update notification file (#1583)
+[nrtm] Add JWS Support To Fix Race Condition in NRTMv4 (#1564, #1589)
+[rdap] Add MNTNER to RDAP Entities Search (#1612) 
+[query] Import ARIN and LACNIC IRR database dumps into mirror (#1428)
+[update] SyncUpdates will return an error in future if used over HTTP (#1561) 
+[update] MailUpdates will return an error in future if a password is used (#1559)
+[update] Include password authentication type in Whois Update notifications (#1541) 
+[update] Extend Maximum Length of an Email Address (#1545) 
+[query] Allow blocking by source address on Port 43 Queries (#1539)
+[update] Generate mail Message-ID including angle brackets. (#1534)
+[all] Change Database Schema from Latin1 to UTF8 (#1525) 
+
 # 1.114
 
 [nrtm] NRTMv4 Key Rotation (#1484)
