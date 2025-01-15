@@ -89,12 +89,12 @@ Changed by password.
 
 #if ($update.preparedUpdate.update.effectiveCredential && $update.preparedUpdate.update.effectiveCredentialType ==  'PGP')
 Changed by $update.preparedUpdate.update.effectiveCredential. You can find contact details for this key here:
-https://apps.db.ripe.net/search/lookup.html?source=ripe&key=$update.preparedUpdate.update.effectiveCredential&type=key-cert
+https://apps.db.ripe.net/db-web-ui/query?source=RIPE&searchtext=$update.preparedUpdate.update.effectiveCredential&types=key-cert
 #end
 
 #if ($update.preparedUpdate.update.effectiveCredential && $update.preparedUpdate.update.effectiveCredentialType ==  'X509')
 Changed by $update.preparedUpdate.update.effectiveCredential. You can find contact details for this key here:
-https://apps.db.ripe.net/search/lookup.html?source=ripe&key=$update.preparedUpdate.update.effectiveCredential&type=key-cert
+https://apps.db.ripe.net/db-web-ui/query?source=RIPE&searchtext=$update.preparedUpdate.update.effectiveCredential&types=key-cert
 #end
 
 #end
