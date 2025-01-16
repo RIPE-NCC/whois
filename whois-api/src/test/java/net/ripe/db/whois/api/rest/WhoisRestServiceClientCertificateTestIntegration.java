@@ -27,6 +27,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.test.annotation.DirtiesContext;
 
 import javax.net.ssl.SSLContext;
 import java.io.IOException;
@@ -42,6 +43,7 @@ import static org.hamcrest.Matchers.is;
 import static org.junit.jupiter.api.Assertions.fail;
 
 @Tag("IntegrationTest")
+@DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_EACH_TEST_METHOD)
 public class WhoisRestServiceClientCertificateTestIntegration extends AbstractClientCertificateIntegrationTest {
 
     private static final RpslObject OWNER_MNT = RpslObject.parse("" +
@@ -223,6 +225,8 @@ public class WhoisRestServiceClientCertificateTestIntegration extends AbstractCl
              "mnt-by: OWNER-MNT\n" +
              "source: TEST");
 
+        sendUpdateRequest(updatedPerson);
+
         // generate client cert and add to mntner
         final RpslObject keycertObject = createKeycertObject(certificatePrivateKeyPair.getCertificate(), "OWNER-MNT");
         databaseHelper.addObject(keycertObject);
@@ -238,6 +242,7 @@ public class WhoisRestServiceClientCertificateTestIntegration extends AbstractCl
             assertThat(e.getMessage(), containsString("javax.net.ssl.SSLHandshakeException: Received fatal alert: bad_certificate"));
         }
     }
+
 
     @Test
     public void update_route6_with_client_cert_and_mntner_cert_successful() {
@@ -335,4 +340,13 @@ public class WhoisRestServiceClientCertificateTestIntegration extends AbstractCl
         return new RpslObjectBuilder(rpslObject).addAttributeAfter(new RpslAttribute(attributeType, attributeValue), AttributeType.SOURCE).get();
     }
 
+    private void sendUpdateRequest(final RpslObject updatedPerson) {
+        final RpslObject correctKeycertObject = createKeycertObject(getClientCertificate(), "OWNER-MNT");
+        databaseHelper.addObject(correctKeycertObject);
+        RpslObject updatedMntner = addAttribute(OWNER_MNT, AttributeType.AUTH, correctKeycertObject.getKey());
+        databaseHelper.updateObject(updatedMntner);
+        SecureRestTest.target(getClientSSLContext(), getClientCertificatePort(), "whois/test/person/TP1-TEST")
+                .request()
+                .put(Entity.entity(map(updatedPerson), MediaType.APPLICATION_XML), WhoisResources.class);
+    }
 }
