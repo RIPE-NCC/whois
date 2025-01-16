@@ -1,6 +1,7 @@
 package net.ripe.db.whois.api.rdap;
 
 import com.fasterxml.jackson.databind.SerializationFeature;
+import jakarta.servlet.DispatcherType;
 import net.ripe.db.whois.api.httpserver.ServletDeployer;
 import org.eclipse.jetty.servlet.FilterHolder;
 import org.eclipse.jetty.servlet.ServletHolder;
@@ -11,7 +12,6 @@ import org.glassfish.jersey.servlet.ServletContainer;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import jakarta.servlet.DispatcherType;
 import java.util.EnumSet;
 
 @Component
@@ -22,7 +22,9 @@ public class RdapServletDeployer implements ServletDeployer {
     private final RdapRequestTypeConverter rdapRequestTypeConverter;
 
     @Autowired
-    public RdapServletDeployer(final RdapService rdapService, final RdapExceptionMapper rdapExceptionMapper, final RdapRequestTypeConverter rdapRequestTypeConverter) {
+    public RdapServletDeployer(final RdapService rdapService,
+                               final RdapExceptionMapper rdapExceptionMapper,
+                               final RdapRequestTypeConverter rdapRequestTypeConverter) {
         this.rdapService = rdapService;
         this.rdapExceptionMapper = rdapExceptionMapper;
         this.rdapRequestTypeConverter = rdapRequestTypeConverter;

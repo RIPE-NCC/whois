@@ -105,6 +105,13 @@ public final class SynchronizedIntervalMap<K extends Interval<K>, V> implements 
     }
 
     @Override
+    public List<V> findMostSpecific(K key) {
+        synchronized (mutex) {
+            return wrapped.findMostSpecific(key);
+        }
+    }
+
+    @Override
     public void clear() {
         synchronized (mutex) {
             wrapped.clear();
