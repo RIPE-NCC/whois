@@ -171,23 +171,14 @@ public class RdapRelationService {
 
     @Nullable
     private RpslObject getResourceByKey(final IpInterval keyInterval){
-        if (keyInterval instanceof Ipv4Resource){
-            return rpslObjectDao.getByKeyOrNull(ObjectType.INETNUM, keyInterval.toString());
-        }
-        return rpslObjectDao.getByKeyOrNull(ObjectType.INET6NUM, keyInterval.toString());
+        return rpslObjectDao.getByKeyOrNull(keyInterval instanceof Ipv4Resource ? ObjectType.INETNUM : ObjectType.INET6NUM, keyInterval.toString());
     }
 
     private IpTree getIpTree(final IpInterval searchIp) {
-        if (searchIp instanceof Ipv4Resource) {
-            return ip4Tree;
-        }
-        return ip6Tree;
+        return searchIp instanceof Ipv4Resource ? ip4Tree : ip6Tree;
     }
 
     private IpTree getIpDomainTree(final IpInterval reverseIp) {
-        if (reverseIp instanceof Ipv4Resource) {
-            return ipv4DomainTree;
-        }
-        return ipv6DomainTree;
+        return reverseIp instanceof Ipv4Resource ? ipv4DomainTree : ipv6DomainTree;
     }
 }
