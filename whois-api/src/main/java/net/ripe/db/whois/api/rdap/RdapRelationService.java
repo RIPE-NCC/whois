@@ -26,7 +26,6 @@ import org.springframework.stereotype.Service;
 
 import javax.annotation.Nullable;
 import java.util.List;
-import java.util.Objects;
 import java.util.Set;
 
 import static net.ripe.db.whois.common.rpsl.attrs.Inet6numStatus.ALLOCATED_BY_RIR;
@@ -140,11 +139,9 @@ public class RdapRelationService {
     private IpEntry searchTopLevelResource(final IpTree ipTree, final IpInterval searchIp){
         final List<IpEntry> lessAndExact = ipTree.findExactAndAllLessSpecific(searchIp);;
 
-        for (int countLessSpecific = 0; countLessSpecific < lessAndExact.size(); countLessSpecific++){
+        for (int countLessSpecific = 0; countLessSpecific < lessAndExact.size() - 1; countLessSpecific++){
             final IpEntry ipEntry = lessAndExact.get(countLessSpecific);
-            if (Objects.equals(ipEntry.getKey().toString(), searchIp.toString())){
-                break;
-            }
+
             final IpInterval childIpInterval = (IpInterval)lessAndExact.get(countLessSpecific+1).getKey();
             if (existAndNoAdministrative(childIpInterval, ipEntry)){
                 return ipEntry;
