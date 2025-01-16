@@ -41,6 +41,7 @@ import java.time.LocalDateTime;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
@@ -1001,6 +1002,19 @@ public class RdapElasticServiceTestIntegration extends AbstractElasticSearchInte
 
         assertThat(result.getRdapConformance(), containsInAnyOrder("cidr0", "rdap_level_0", "nro_rdap_profile_0", "redacted"));
     }
+
+    // Relation links
+    @Test
+    public void search_domain_then_domain_relations(){
+        final SearchResult response = createResource("domains?name=31.12.202.in-addr.arpa")
+                .request(MediaType.APPLICATION_JSON_TYPE)
+                .get(SearchResult.class);
+
+        assertThat(response.getDomainSearchResults().getFirst().getHandle(), equalTo("31.12.202.in-addr.arpa"));
+        final Map<String, String> relationLinks = getRelationCallsFromLinks(response.getDomainSearchResults().getFirst().getLinks());
+        assertThat(relationLinks.size(), is(6));
+    }
+
 
     // helper methods
 

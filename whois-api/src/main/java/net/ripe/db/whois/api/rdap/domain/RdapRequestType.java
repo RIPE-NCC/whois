@@ -23,13 +23,31 @@ public enum RdapRequestType {
         }
     },
 
+    AUTNUMS {
+        public Set<ObjectType> getWhoisObjectTypes(final String key) {
+            return ImmutableSet.of(AUT_NUM);
+        }
+    },
+
     DOMAIN {
         public Set<ObjectType> getWhoisObjectTypes(final String key) {
             return ImmutableSet.of(ObjectType.DOMAIN);
         }
     },
 
+    DOMAINS {
+        public Set<ObjectType> getWhoisObjectTypes(final String key) {
+            return ImmutableSet.of(ObjectType.DOMAIN);
+        }
+    },
+
     IP {
+        public Set<ObjectType> getWhoisObjectTypes(final String key) {
+            return key.contains(":") ? ImmutableSet.of(INET6NUM) : ImmutableSet.of(INETNUM);
+        }
+    },
+
+    IPS {
         public Set<ObjectType> getWhoisObjectTypes(final String key) {
             return key.contains(":") ? ImmutableSet.of(INET6NUM) : ImmutableSet.of(INETNUM);
         }
