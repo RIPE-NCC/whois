@@ -103,7 +103,7 @@ public class SyncUpdatesService {
             @QueryParam(Command.DIFF) final String diff,
             @QueryParam(Command.REDIRECT) final String redirect,
             @HeaderParam(HttpHeaders.CONTENT_TYPE) final String contentType,
-            @QueryParam(ApiKeyUtils.APIKEY_ACCESS_QUERY_PARAM) final String apiKeyId,
+            @QueryParam(ApiKeyUtils.APIKEY_KEY_ID_QUERY_PARAM) final String apiKeyId,
             @CookieParam(AuthServiceClient.TOKEN_KEY) final String crowdTokenKey) {
         final Request request = new Request.RequestBuilder()
                 .setData(decode(data, getCharset(contentType)))
@@ -132,7 +132,7 @@ public class SyncUpdatesService {
             @FormParam(Command.DIFF) final String diff,
             @FormParam(Command.REDIRECT) final String redirect,
             @HeaderParam(HttpHeaders.CONTENT_TYPE) final String contentType,
-            @QueryParam(ApiKeyUtils.APIKEY_ACCESS_QUERY_PARAM) final String apiKeyId,
+            @QueryParam(ApiKeyUtils.APIKEY_KEY_ID_QUERY_PARAM) final String apiKeyId,
             @CookieParam(AuthServiceClient.TOKEN_KEY) final String crowdTokenKey) {
         final Request request = new Request.RequestBuilder()
                 .setData(data)
@@ -160,7 +160,7 @@ public class SyncUpdatesService {
             @FormDataParam(Command.NEW) final String nnew,
             @FormDataParam(Command.DIFF) final String diff,
             @FormDataParam(Command.REDIRECT) final String redirect,
-            @QueryParam(ApiKeyUtils.APIKEY_ACCESS_QUERY_PARAM) final String apiKeyId,
+            @QueryParam(ApiKeyUtils.APIKEY_KEY_ID_QUERY_PARAM) final String apiKeyId,
             @HeaderParam(HttpHeaders.CONTENT_TYPE) final String contentType,
             @CookieParam(AuthServiceClient.TOKEN_KEY) final String crowdTokenKey) {
         final Request request = new Request.RequestBuilder()
