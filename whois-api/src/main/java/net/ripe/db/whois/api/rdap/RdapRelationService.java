@@ -137,51 +137,44 @@ public class RdapRelationService {
     }
 
     private IpEntry searchTopLevelResource(final IpTree ipTree, final IpInterval searchIp){
-        try {
-            IpEntry ipEntry = searchUpResource(ipTree, searchIp);
-            return searchTopRemainingResource(ipTree, ipEntry);
-        } catch (RdapException ex){
-            throw new RdapException("404 Not Found", "No top-level object has been found for " + searchIp.toString(), HttpStatus.NOT_FOUND_404);
-        }
-    }
+        final List<IpEntry> lessAndExact = ipTree.findExactAndAllLessSpecific(searchIp);
+        final List<IpEntry> less = ipTree.findAllLessSpecific(searchIp);
 
-    private IpEntry searchTopRemainingResource(final IpTree ipTree, IpEntry searchIp) {
-        try {
-            searchIp = searchUpResource(ipTree, (IpInterval) searchIp.getKey());
-            searchTopRemainingResource(ipTree, searchIp);
-        } catch (RdapException ex){
-            /*
-            * Do Nothing, end of loop
-            * */
+        for (int countLessSpecific = 0; countLessSpecific < less.size(); countLessSpecific++){
+            final IpEntry ipEntry = lessAndExact.get(countLessSpecific);
+            final IpInterval childIpInterval = (IpInterval)lessAndExact.get(countLessSpecific+1).getKey();
+            if (existAndNoAdministrative(childIpInterval, ipEntry)){
+                return ipEntry;
+            }
         }
-        return searchIp;
+        throw new RdapException("404 Not Found", "No top-level object has been found for " + searchIp.toString(), HttpStatus.NOT_FOUND_404);
     }
 
     private boolean existAndNoAdministrative(final IpInterval searchIp, final IpEntry firstLessSpecific){
-        final RpslObject children = getResourceByKey(searchIp.toString());
-        final RpslObject rpslObject = getResourceByKey(firstLessSpecific.getKey().toString());
-        if (children == null || rpslObject == null || isAdministrativeResource(children, rpslObject)) {
+        final RpslObject child = getResourceByKey(searchIp);
+        final RpslObject rpslObject = getResourceByKey((IpInterval) firstLessSpecific.getKey());
+        if (child == null || rpslObject == null || isAdministrativeResource(child, rpslObject)) {
             LOGGER.debug("INET(6)NUM {} does not exist in RIPE Database ", firstLessSpecific.getKey().toString());
             return false;
         }
         return true;
     }
 
-    private static boolean isAdministrativeResource(final RpslObject children, final RpslObject rpslObject) {
-        final CIString childrenStatus = children.getValueForAttribute(AttributeType.STATUS);
+    private static boolean isAdministrativeResource(final RpslObject child, final RpslObject rpslObject) {
+        final CIString childStatus = child.getValueForAttribute(AttributeType.STATUS);
         final CIString statusAttributeValue = rpslObject.getValueForAttribute(AttributeType.STATUS);
-        return (rpslObject.getType().equals(ObjectType.INETNUM) && InetnumStatus.getStatusFor(statusAttributeValue).equals(ALLOCATED_UNSPECIFIED))
-                || (rpslObject.getType().equals(ObjectType.INET6NUM) && Inet6numStatus.getStatusFor(childrenStatus).equals(ALLOCATED_BY_RIR) &&
-                Inet6numStatus.getStatusFor(statusAttributeValue).equals(ALLOCATED_BY_RIR));
+        return (rpslObject.getType() == ObjectType.INETNUM && InetnumStatus.getStatusFor(statusAttributeValue) == ALLOCATED_UNSPECIFIED)
+                || (rpslObject.getType() == ObjectType.INET6NUM) &&
+                Inet6numStatus.getStatusFor(childStatus) == ALLOCATED_BY_RIR && Inet6numStatus.getStatusFor(statusAttributeValue) == ALLOCATED_BY_RIR;
     }
 
 
     @Nullable
-    private RpslObject getResourceByKey(final String key){
-        if (IpInterval.parse(key) instanceof Ipv4Resource){
-            return rpslObjectDao.getByKeyOrNull(ObjectType.INETNUM, key);
+    private RpslObject getResourceByKey(final IpInterval keyInterval){
+        if (keyInterval instanceof Ipv4Resource){
+            return rpslObjectDao.getByKeyOrNull(ObjectType.INETNUM, keyInterval.toString());
         }
-        return rpslObjectDao.getByKeyOrNull(ObjectType.INET6NUM, key);
+        return rpslObjectDao.getByKeyOrNull(ObjectType.INET6NUM, keyInterval.toString());
     }
 
     private IpTree getIpTree(final IpInterval searchIp) {

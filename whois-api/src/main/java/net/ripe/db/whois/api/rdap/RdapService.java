@@ -264,7 +264,7 @@ public class RdapService {
         //TODO: [MH] Status is being ignored until administrative resources are included in RDAP. If status is not
         // given or status is inactive...include administrative resources in the output. However, if status is active
         // return just non administrative resources, as we are doing now.
-        if (!StringUtil.isNullOrEmpty(status) && status.equalsIgnoreCase("inactive")) {
+        if ("inactive".equalsIgnoreCase(status)) {
             throw new RdapException("501 Not Implemented", "Inactive status is not implemented", HttpStatus.NOT_IMPLEMENTED_501);
         }
 
