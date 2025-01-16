@@ -119,12 +119,12 @@ public class RdapRelationService {
         }
     }
 
-    private static boolean childrenCoverParentRange(final IpInterval firstResource, final IpInterval lastResource, final IpInterval parent){
+    private boolean childrenCoverParentRange(final IpInterval firstResource, final IpInterval lastResource, final IpInterval parent){
         return firstResource.beginAsInetAddress().equals(parent.beginAsInetAddress()) &&
                 lastResource.endAsInetAddress().equals(parent.endAsInetAddress());
     }
 
-    private static List<IpEntry> findSiblingsAndExact(final IpTree ipTree, final List<IpEntry> parent) {
+    private List<IpEntry> findSiblingsAndExact(final IpTree ipTree, final List<IpEntry> parent) {
         return ipTree.findFirstMoreSpecific(IpInterval.parse(parent.getFirst().getKey().toString()));
     }
 
@@ -160,7 +160,7 @@ public class RdapRelationService {
         return !isAdministrativeResource(child, rpslObject);
     }
 
-    private static boolean isAdministrativeResource(final RpslObject child, final RpslObject rpslObject) {
+    private boolean isAdministrativeResource(final RpslObject child, final RpslObject rpslObject) {
         final CIString childStatus = child.getValueForAttribute(AttributeType.STATUS);
         final CIString statusAttributeValue = rpslObject.getValueForAttribute(AttributeType.STATUS);
         return (rpslObject.getType() == ObjectType.INETNUM && InetnumStatus.getStatusFor(statusAttributeValue) == ALLOCATED_UNSPECIFIED)
