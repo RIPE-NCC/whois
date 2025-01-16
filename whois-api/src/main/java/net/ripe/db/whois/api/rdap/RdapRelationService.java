@@ -26,6 +26,7 @@ import org.springframework.stereotype.Service;
 
 import javax.annotation.Nullable;
 import java.util.List;
+import java.util.Objects;
 import java.util.Set;
 
 import static net.ripe.db.whois.common.rpsl.attrs.Inet6numStatus.ALLOCATED_BY_RIR;
@@ -137,11 +138,13 @@ public class RdapRelationService {
     }
 
     private IpEntry searchTopLevelResource(final IpTree ipTree, final IpInterval searchIp){
-        final List<IpEntry> lessAndExact = ipTree.findExactAndAllLessSpecific(searchIp);
-        final List<IpEntry> less = ipTree.findAllLessSpecific(searchIp);
+        final List<IpEntry> lessAndExact = ipTree.findExactAndAllLessSpecific(searchIp);;
 
-        for (int countLessSpecific = 0; countLessSpecific < less.size(); countLessSpecific++){
+        for (int countLessSpecific = 0; countLessSpecific < lessAndExact.size(); countLessSpecific++){
             final IpEntry ipEntry = lessAndExact.get(countLessSpecific);
+            if (Objects.equals(ipEntry.getKey().toString(), searchIp.toString())){
+                break;
+            }
             final IpInterval childIpInterval = (IpInterval)lessAndExact.get(countLessSpecific+1).getKey();
             if (existAndNoAdministrative(childIpInterval, ipEntry)){
                 return ipEntry;
@@ -153,11 +156,11 @@ public class RdapRelationService {
     private boolean existAndNoAdministrative(final IpInterval searchIp, final IpEntry firstLessSpecific){
         final RpslObject child = getResourceByKey(searchIp);
         final RpslObject rpslObject = getResourceByKey((IpInterval) firstLessSpecific.getKey());
-        if (child == null || rpslObject == null || isAdministrativeResource(child, rpslObject)) {
+        if (child == null || rpslObject == null) {
             LOGGER.debug("INET(6)NUM {} does not exist in RIPE Database ", firstLessSpecific.getKey().toString());
             return false;
         }
-        return true;
+        return !isAdministrativeResource(child, rpslObject);
     }
 
     private static boolean isAdministrativeResource(final RpslObject child, final RpslObject rpslObject) {
