@@ -54,7 +54,7 @@ public class RdapRelationService {
         this.rpslObjectDao = rpslObjectDao;
     }
 
-    public List<String> getDomainRelationPkeys(final String pkey, final RelationType relationType){
+    public List<String> getDomainsByRelationType(final String pkey, final RelationType relationType){
         final Domain domain = Domain.parse(pkey);
         final IpInterval reverseIp = domain.getReverseIp();
         final List<IpEntry> domainEntries = getEntries(getIpDomainTree(reverseIp), relationType, reverseIp);
@@ -87,7 +87,7 @@ public class RdapRelationService {
 
     private List<IpEntry> searchBottomResources(final IpTree ipTree, final IpInterval searchIp){
         final List<IpEntry> mostSpecificValues = ipTree.findMostSpecific(searchIp);
-        final Set<IpEntry> mostSpecificFillingOverlaps = Sets.newConcurrentHashSet();
+        final Set<IpEntry> mostSpecificFillingOverlaps = Sets.newHashSet();
         mostSpecificValues.forEach(ipResource -> extractBottomMatches(ipTree, searchIp, ipResource, mostSpecificFillingOverlaps));
         return mostSpecificFillingOverlaps.stream().toList();
     }

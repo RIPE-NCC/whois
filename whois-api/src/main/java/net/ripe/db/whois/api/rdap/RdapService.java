@@ -536,7 +536,7 @@ public class RdapService {
             case AUTNUMS -> throw new RdapException("501 Not Implemented", "Relation queries not allowed for autnum", HttpStatus.NOT_IMPLEMENTED_501);
             case DOMAINS -> {
                 rdapRequestValidator.validateDomain(key);
-                final List<String> relatedPkeys = rdapRelationService.getDomainRelationPkeys(key, relationType);
+                final List<String> relatedPkeys = rdapRelationService.getDomainsByRelationType(key, relationType);
 
                 rpslObjects = relatedPkeys
                         .stream()
