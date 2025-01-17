@@ -19,4 +19,6 @@ public interface IpTree<K extends IpInterval<K>, V extends NestedIntervalMap.Key
     List<V> findFirstMoreSpecific(K key);
 
     List<V> findAllMoreSpecific(K key);
+
+    List<V> findMostSpecific(K key);
 }
