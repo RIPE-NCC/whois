@@ -233,12 +233,7 @@ public final class NestedIntervalMap<K extends Interval<K>, V> implements Interv
     }
 
     private List<InternalNode<K, V>> internalFindMostSpecific(K range){
-        final List<InternalNode<K, V>> result = internalFindAllMoreSpecific(range);
-        if (result.isEmpty()){
-            return Lists.newArrayList();
-        }
-
-        return result.parallelStream()
+        return internalFindAllMoreSpecific(range).parallelStream()
                 .filter( kvInternalNode -> kvInternalNode.getChildren().isEmpty())
                 .toList();
     }

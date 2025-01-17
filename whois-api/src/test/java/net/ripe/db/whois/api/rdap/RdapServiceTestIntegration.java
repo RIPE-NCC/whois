@@ -3254,6 +3254,18 @@ public class RdapServiceTestIntegration extends AbstractRdapIntegrationTest {
     @Test
     public void get_ipv6_top_then_less_specific_allocated_assigned_first_parent(){
         loadIpv6RelationTreeExample();
+        databaseHelper.updateObject("" +
+                "inet6num:       2000::/3\n" +
+                "netname:        TEST\n" +
+                "descr:          The whole IPv6 address space\n" +
+                "country:        NL\n" +
+                "tech-c:         TP1-TEST\n" +
+                "admin-c:        TP1-TEST\n" +
+                "status:         ALLOCATED-BY-RIR\n" +
+                "mnt-by:         OWNER-MNT\n" +
+                "created:         2022-08-14T11:48:28Z\n" +
+                "last-modified:   2022-10-25T12:22:39Z\n" +
+                "source:         TEST");
 
         final SearchResult searchResult = createResource("ips/rirSearch1/top/2001:db8::/32")
                 .request(MediaType.APPLICATION_JSON_TYPE)
@@ -3297,6 +3309,20 @@ public class RdapServiceTestIntegration extends AbstractRdapIntegrationTest {
     @Test
     public void get_ipv6_top_not_found(){
         loadIpv6RelationTreeExample();
+
+        //ALLOCATED-BY-RIR -> ALLOCATED-BY-RIR when the child and parent has this status, parent is administrative
+        databaseHelper.updateObject("" +
+                "inet6num:       2000::/3\n" +
+                "netname:        TEST\n" +
+                "descr:          The whole IPv6 address space\n" +
+                "country:        NL\n" +
+                "tech-c:         TP1-TEST\n" +
+                "admin-c:        TP1-TEST\n" +
+                "status:         ALLOCATED-BY-RIR\n" +
+                "mnt-by:         OWNER-MNT\n" +
+                "created:         2022-08-14T11:48:28Z\n" +
+                "last-modified:   2022-10-25T12:22:39Z\n" +
+                "source:         TEST");
 
         final NotFoundException notFoundException = assertThrows(NotFoundException.class, () -> {
             createResource("ips/rirSearch1/top/2000::/3")
@@ -3563,7 +3589,7 @@ public class RdapServiceTestIntegration extends AbstractRdapIntegrationTest {
     public void down_with_status_then_501(){
 
         final ServerErrorException notImplementedException = assertThrows(ServerErrorException.class, () -> {
-            createResource("ips/rirSearch1/down/192.0.2.0/24?status=inactive")
+            createResource("ip/rirSearch1/down/192.0.2.0/24?status=inactive")
                     .request(MediaType.APPLICATION_JSON_TYPE)
                     .get(SearchResult.class);
         });
@@ -3571,7 +3597,6 @@ public class RdapServiceTestIntegration extends AbstractRdapIntegrationTest {
         assertErrorStatus(notImplementedException, HttpStatus.NOT_IMPLEMENTED_501);
         assertErrorDescription(notImplementedException, "Inactive status is not implemented");
     }
-
     // Links
 
     @Test
