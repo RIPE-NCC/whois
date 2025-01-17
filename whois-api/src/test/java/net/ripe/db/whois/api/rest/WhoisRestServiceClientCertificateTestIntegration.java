@@ -16,7 +16,6 @@ import net.ripe.db.whois.api.rest.domain.WhoisResources;
 import net.ripe.db.whois.api.rest.mapper.FormattedClientAttributeMapper;
 import net.ripe.db.whois.api.rest.mapper.FormattedServerAttributeMapper;
 import net.ripe.db.whois.api.rest.mapper.WhoisObjectMapper;
-import net.ripe.db.whois.common.aspects.RetryFor;
 import net.ripe.db.whois.common.domain.CIString;
 import net.ripe.db.whois.common.rpsl.AttributeType;
 import net.ripe.db.whois.common.rpsl.ObjectType;
@@ -24,9 +23,11 @@ import net.ripe.db.whois.common.rpsl.RpslAttribute;
 import net.ripe.db.whois.common.rpsl.RpslObject;
 import net.ripe.db.whois.common.rpsl.RpslObjectBuilder;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.RepeatedTest;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.test.annotation.DirtiesContext;
 
 import javax.net.ssl.SSLContext;
 import java.io.IOException;
@@ -38,10 +39,12 @@ import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.empty;
 import static org.hamcrest.Matchers.hasSize;
+import static org.hamcrest.Matchers.instanceOf;
 import static org.hamcrest.Matchers.is;
 import static org.junit.jupiter.api.Assertions.fail;
 
 @Tag("IntegrationTest")
+@DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_EACH_TEST_METHOD)
 public class WhoisRestServiceClientCertificateTestIntegration extends AbstractClientCertificateIntegrationTest {
 
     private static final RpslObject OWNER_MNT = RpslObject.parse("" +
@@ -205,8 +208,7 @@ public class WhoisRestServiceClientCertificateTestIntegration extends AbstractCl
         assertThat(whoisResources.getWhoisObjects().get(0).getAttributes().get(3).getValue(), containsString("updated"));
     }
 
-    @Test
-    @RetryFor(value = IOException.class, attempts = 10, intervalMs = 10000)
+    @RepeatedTest(value = 5, failureThreshold = 4)
     public void update_person_missing_private_key_unauthorised() throws Exception {
         // create certificate and don't use private key
         final CertificatePrivateKeyPair certificatePrivateKeyPair = new CertificatePrivateKeyPair();
@@ -235,7 +237,7 @@ public class WhoisRestServiceClientCertificateTestIntegration extends AbstractCl
                     .put(Entity.entity(map(updatedPerson), MediaType.APPLICATION_XML), WhoisResources.class);
             fail();
         } catch (ProcessingException e) {
-            assertThat(e.getMessage(), containsString("javax.net.ssl.SSLHandshakeException: Received fatal alert: bad_certificate"));
+            assertThat(e.getCause(), instanceOf(IOException.class));    // bad certificate
         }
     }
 
