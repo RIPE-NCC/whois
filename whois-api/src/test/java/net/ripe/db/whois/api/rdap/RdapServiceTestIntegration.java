@@ -22,6 +22,7 @@ import net.ripe.db.whois.api.rdap.domain.Nameserver;
 import net.ripe.db.whois.api.rdap.domain.Notice;
 import net.ripe.db.whois.api.rdap.domain.RdapObject;
 import net.ripe.db.whois.api.rdap.domain.Redaction;
+import net.ripe.db.whois.api.rdap.domain.RelationType;
 import net.ripe.db.whois.api.rdap.domain.Remark;
 import net.ripe.db.whois.api.rdap.domain.Role;
 import net.ripe.db.whois.api.rdap.domain.SearchResult;
@@ -36,9 +37,12 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.annotation.DirtiesContext;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 import static net.ripe.db.whois.common.rpsl.AttributeType.COUNTRY;
 import static net.ripe.db.whois.common.rpsl.AttributeType.LANGUAGE;
@@ -251,7 +255,7 @@ public class RdapServiceTestIntegration extends AbstractRdapIntegrationTest {
         assertThat(notices.get(1).getLinks(), hasSize(0));
 
         assertTnCNotice(notices.get(2), "https://rdap.db.ripe.net/ip/192.0.2.0/24");
-        assertCopyrightLink(ip.getLinks(), "https://rdap.db.ripe.net/ip/192.0.2.0/24");
+        assertResourceCopyrightLink(ip.getLinks(), "https://rdap.db.ripe.net/ip/192.0.2.0/24");
     }
 
     @Test
@@ -860,7 +864,7 @@ public class RdapServiceTestIntegration extends AbstractRdapIntegrationTest {
         assertThat(notices.get(1).getTitle(), is("Source"));
 
         assertTnCNotice(notices.get(2), "https://rdap.db.ripe.net/ip/2001:2002:2003::/48");
-        assertCopyrightLink(ip.getLinks(), "https://rdap.db.ripe.net/ip/2001:2002:2003::/48");
+        assertResourceCopyrightLink(ip.getLinks(), "https://rdap.db.ripe.net/ip/2001:2002:2003::/48");
     }
 
     @Test
@@ -1649,7 +1653,7 @@ public class RdapServiceTestIntegration extends AbstractRdapIntegrationTest {
         assertThat(entities.get(1).getHandle(), is("TP1-TEST"));
         assertThat(entities.get(1).getRoles(), containsInAnyOrder(Role.ADMINISTRATIVE, Role.TECHNICAL));
 
-        assertCopyrightLink(autnum.getLinks(), "https://rdap.db.ripe.net/autnum/102");
+        assertResourceCopyrightLink(autnum.getLinks(), "https://rdap.db.ripe.net/autnum/102");
 
         final List<Notice> notices = autnum.getNotices();
         assertThat(notices, hasSize(4));
@@ -3250,7 +3254,6 @@ public class RdapServiceTestIntegration extends AbstractRdapIntegrationTest {
     @Test
     public void get_ipv6_top_then_less_specific_allocated_assigned_first_parent(){
         loadIpv6RelationTreeExample();
-
         databaseHelper.updateObject("" +
                 "inet6num:       2000::/3\n" +
                 "netname:        TEST\n" +
@@ -3594,6 +3597,92 @@ public class RdapServiceTestIntegration extends AbstractRdapIntegrationTest {
         assertErrorStatus(notImplementedException, HttpStatus.NOT_IMPLEMENTED_501);
         assertErrorDescription(notImplementedException, "Inactive status is not implemented");
     }
+    // Links
+
+    @Test
+    public void use_relation_links_then_up_bottom_top_down(){
+        loadIpv4RelationTreeExample();
+
+        databaseHelper.addObject("" +
+                "inetnum:      192.0.0.0 - 192.0.255.255\n" +
+                "netname:      TEST-NET-NAME\n" +
+                "descr:        TEST network\n" +
+                "country:      NL\n" +
+                "language:     en\n" +
+                "tech-c:       TP1-TEST\n" +
+                "status:       ALLOCATED PA\n" +
+                "mnt-by:       OWNER-MNT\n" +
+                "created:         2022-08-14T11:48:28Z\n" +
+                "last-modified:   2022-10-25T12:22:39Z\n" +
+                "source:       TEST");
+
+        ipTreeUpdater.rebuild();
+
+        final Ip ip = createResource("ip/192.0.2.0/25")
+                .request(MediaType.APPLICATION_JSON_TYPE)
+                .get(Ip.class);
+
+        final Map<String, String> relationCalls = getRelationCallsFromLinks(ip.getLinks());
+
+        assertThat(relationCalls.size(), is(6));
+
+        //TOP (By default active)
+        final SearchResult searchResult = createResource(relationCalls.get(RelationType.TOP.name()))
+                .request(MediaType.APPLICATION_JSON_TYPE)
+                .get(SearchResult.class);
+
+        final List<Ip> ipResults = searchResult.getIpSearchResults();
+        assertThat(ipResults.getFirst().getHandle(), is("192.0.0.0 - 192.0.255.255")); //16
+
+
+        //TOP active
+        final SearchResult topSearchResult = createResource(relationCalls.get("TOP-ACTIVE"))
+                .request(MediaType.APPLICATION_JSON_TYPE)
+                .get(SearchResult.class);
+
+        final List<Ip> topIpResults = topSearchResult.getIpSearchResults();
+        assertThat(topIpResults.size(), is(1));
+        assertThat(topIpResults.getFirst().getHandle(), is("192.0.0.0 - 192.0.255.255")); //16
+
+
+        //BOTTOM
+        final SearchResult bottomSearchResult = createResource(relationCalls.get(RelationType.BOTTOM.name()))
+                .request(MediaType.APPLICATION_JSON_TYPE)
+                .get(SearchResult.class);
+
+        final List<Ip> bottomIpResults = bottomSearchResult.getIpSearchResults();
+        assertThat(bottomIpResults.size(), is(2));
+        assertThat(bottomIpResults.getFirst().getHandle(), is("192.0.2.0 - 192.0.2.0")); //32
+        assertThat(bottomIpResults.get(1).getHandle(), is("192.0.2.0 - 192.0.2.15")); //28
+
+        //DOWN
+        final SearchResult downSearchResult = createResource(relationCalls.get(RelationType.DOWN.name()))
+                .request(MediaType.APPLICATION_JSON_TYPE)
+                .get(SearchResult.class);
+
+        final List<Ip> downIpResults = downSearchResult.getIpSearchResults();
+        assertThat(downIpResults.size(), is(1));
+        assertThat(bottomIpResults.getFirst().getHandle(), is("192.0.2.0 - 192.0.2.0")); //32
+
+        //UP (by default active)
+        SearchResult upSearchResult = createResource(relationCalls.get(RelationType.UP.name()))
+                .request(MediaType.APPLICATION_JSON_TYPE)
+                .get(SearchResult.class);
+
+        List<Ip> upIpResults = upSearchResult.getIpSearchResults();
+        assertThat(upIpResults.size(), is(1));
+        assertThat(upIpResults.getFirst().getHandle(), is("192.0.2.0 - 192.0.2.255")); //24
+
+        //UP active
+        upSearchResult = createResource(relationCalls.get("UP-ACTIVE"))
+                .request(MediaType.APPLICATION_JSON_TYPE)
+                .get(SearchResult.class);
+
+        upIpResults = upSearchResult.getIpSearchResults();
+        assertThat(upIpResults.size(), is(1));
+        assertThat(upIpResults.getFirst().getHandle(), is("192.0.2.0 - 192.0.2.255")); //24
+    }
+
 
     /* Helper methods*/
 
@@ -3604,7 +3693,7 @@ public class RdapServiceTestIntegration extends AbstractRdapIntegrationTest {
     }
 
     private void assertGeoFeedLink(final List<Link> links, final String value) {
-        assertThat(links, hasSize(3));
+        assertThat(links, hasSize(9));
 
         final Optional<Link> geoFeedLink = links.stream().filter(link -> link.getRel().equals("geo")).findFirst();
         assertThat(geoFeedLink.isPresent(), is(true));
@@ -3613,8 +3702,18 @@ public class RdapServiceTestIntegration extends AbstractRdapIntegrationTest {
         assertThat(geoFeedLink.get().getType(), is("application/geofeed+csv"));
     }
 
+    private void assertResourceCopyrightLink(final List<Link> links, final String value) {
+        assertThat(links.size(), is(8));
+
+        final List<Link> copyrightLinks = links.stream()
+                .filter(link -> link.getRel().equals("copyright") || link.getRel().equals("self"))
+                .collect(Collectors.toCollection(ArrayList::new));
+
+        assertCopyrightLink(copyrightLinks, value);
+    }
+
     private void assertCopyrightLink(final List<Link> links, final String value) {
-        assertThat(links, hasSize(2));
+        assertThat(links.size(), is(2));
         Collections.sort(links);
 
         assertThat(links.get(0).getRel(), is("copyright"));
