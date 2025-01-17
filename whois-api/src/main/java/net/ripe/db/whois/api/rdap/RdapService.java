@@ -4,6 +4,7 @@ import com.google.common.base.Joiner;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Iterators;
+import io.netty.util.internal.StringUtil;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.ws.rs.GET;
 import jakarta.ws.rs.Path;
@@ -15,6 +16,7 @@ import jakarta.ws.rs.core.Context;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 import net.ripe.db.whois.api.rdap.domain.RdapRequestType;
+import net.ripe.db.whois.api.rdap.domain.RelationType;
 import net.ripe.db.whois.api.rest.RestServiceHelper;
 import net.ripe.db.whois.common.dao.RpslObjectInfo;
 import net.ripe.db.whois.common.dao.RpslObjectUpdateDao;
@@ -73,6 +75,7 @@ public class RdapService {
     private final RdapRequestValidator rdapRequestValidator;
     private final RpslObjectUpdateDao rpslObjectUpdateDao;
     private final SourceContext sourceContext;
+    private final RdapRelationService rdapRelationService;
 
     /**
      *
@@ -99,7 +102,8 @@ public class RdapService {
                        @Value("${rdap.public.baseUrl:}") final String baseUrl,
                        final RdapRequestValidator rdapRequestValidator,
                        @Value("${rdap.search.max.results:100}") final int maxResultSize,
-                       @Value("${rdap.entity.max.results:100}") final int maxEntityResultSize) {
+                       @Value("${rdap.entity.max.results:100}") final int maxEntityResultSize,
+                       final RdapRelationService rdapRelationService) {
         this.sourceContext = sourceContext;
         this.rdapQueryHandler = rdapQueryHandler;
         this.abuseCFinder = abuseCFinder;
@@ -112,6 +116,7 @@ public class RdapService {
         this.maxResultSize = maxResultSize;
         this.maxEntityResultSize = maxEntityResultSize;
         this.rpslObjectUpdateDao = rpslObjectUpdateDao;
+        this.rdapRelationService = rdapRelationService;
     }
 
     @GET
@@ -245,6 +250,43 @@ public class RdapService {
                 .build();
     }
 
+    @GET
+    @Produces({MediaType.APPLICATION_JSON, CONTENT_TYPE_RDAP_JSON})
+    @Path("/{objectType}/rirSearch1/{relation}/{key:.*}")
+    public Response relationSearch(
+            @Context final HttpServletRequest request,
+            @PathParam("objectType") RdapRequestType requestType,
+            @PathParam("relation") String relationType,
+            @PathParam("key") final String key,
+            @QueryParam("status") String status) {
+
+        final RelationType relation = RelationType.fromString(relationType);
+        //TODO: [MH] Status is being ignored until administrative resources are included in RDAP. If status is not
+        // given or status is inactive...include administrative resources in the output. However, if status is active
+        // return just non administrative resources, as we are doing now.
+        if ("inactive".equalsIgnoreCase(status)) {
+            throw new RdapException("501 Not Implemented", "Inactive status is not implemented", HttpStatus.NOT_IMPLEMENTED_501);
+        }
+
+        if (!StringUtil.isNullOrEmpty(status) && (relation.equals(RelationType.DOWN) || relation.equals(RelationType.BOTTOM))){
+            throw new RdapException("501 Not Implemented", "Status is not implement in down and bottom relation", HttpStatus.NOT_IMPLEMENTED_501);
+        }
+
+        final Set<ObjectType> objectTypes = requestType.getWhoisObjectTypes(key);
+        if (isRedirect(Iterables.getOnlyElement(objectTypes), key)) {
+            return redirect(getRequestPath(request), getQueryObject(objectTypes, key));
+        }
+
+        final List<RpslObject> rpslObjects = handleRelationQuery(request, requestType, relation, key);
+
+        return Response.ok(rdapObjectMapper.mapSearch(
+                        getRequestUrl(request),
+                        rpslObjects,
+                        maxResultSize))
+                .header(CONTENT_TYPE, CONTENT_TYPE_RDAP_JSON)
+                .build();
+    }
+
     private Response lookupWithRedirectUrl(final HttpServletRequest request, final Set<ObjectType> objectTypes, final String key) {
         if (isRedirect(Iterables.getOnlyElement(objectTypes), key)) {
             return redirect(getRequestPath(request), getQueryObject(objectTypes, key));
@@ -300,7 +342,10 @@ public class RdapService {
         final Stream<RpslObject> inetnumResult =
                 rdapQueryHandler.handleQueryStream(getQueryObject(ImmutableSet.of(INETNUM, INET6NUM), domain.getReverseIp().toString()), request);
 
-        return getDomainResponse(request, domainResult, inetnumResult);
+        return Response.ok(
+                getDomainEntity(request, domainResult, inetnumResult))
+                .header(CONTENT_TYPE, CONTENT_TYPE_RDAP_JSON)
+                .build();
     }
 
     protected Response lookupObject(final HttpServletRequest request, final Set<ObjectType> objectTypes, final String key) {
@@ -374,7 +419,8 @@ public class RdapService {
                 .build();
     }
 
-    private Response getDomainResponse(final HttpServletRequest request, final Stream<RpslObject> domainResult, final Stream<RpslObject> inetnumResult) {
+    private Object getDomainEntity(final HttpServletRequest request, final Stream<RpslObject> domainResult,
+                              final Stream<RpslObject> inetnumResult) {
         final Iterator<RpslObject> domainIterator = domainResult.iterator();
         final Iterator<RpslObject> inetnumIterator = inetnumResult.iterator();
         if (!domainIterator.hasNext()) {
@@ -387,10 +433,7 @@ public class RdapService {
             throw new RdapException("500 Internal Error", "Unexpected result size: " + Iterators.size(domainIterator),
                     HttpStatus.INTERNAL_SERVER_ERROR_500);
         }
-        return Response.ok(
-                rdapObjectMapper.mapDomainEntity(getRequestUrl(request), domainObject, inetnumObject))
-                .header(CONTENT_TYPE, CONTENT_TYPE_RDAP_JSON)
-                .build();
+        return rdapObjectMapper.mapDomainEntity(getRequestUrl(request), domainObject, inetnumObject);
     }
 
     private Response getResponse(final HttpServletRequest request, final Iterable<RpslObject> result) {
@@ -484,6 +527,34 @@ public class RdapService {
 
     private String objectTypesToString(final Collection<ObjectType> objectTypes) {
         return COMMA_JOINER.join(objectTypes.stream().map(ObjectType::getName).toList());
+    }
+
+    private List<RpslObject> handleRelationQuery(final HttpServletRequest request, final RdapRequestType requestType,
+                                                 final RelationType relationType, final String key) {
+        final List<RpslObject> rpslObjects;
+        switch (requestType) {
+            case AUTNUMS -> throw new RdapException("501 Not Implemented", "Relation queries not allowed for autnum", HttpStatus.NOT_IMPLEMENTED_501);
+            case DOMAINS -> {
+                rdapRequestValidator.validateDomain(key);
+                final List<String> relatedPkeys = rdapRelationService.getDomainsByRelationType(key, relationType);
+
+                rpslObjects = relatedPkeys
+                        .stream()
+                        .flatMap(relatedPkey -> rdapQueryHandler.handleQueryStream(getQueryObject(ImmutableSet.of(DOMAIN), relatedPkey), request))
+                        .toList();
+            }
+            case IPS -> {
+                rdapRequestValidator.validateIp(request.getRequestURI(), key);
+                final List<String> relatedPkeys = rdapRelationService.getInetnumRelationPkeys(key, relationType);
+
+                rpslObjects = relatedPkeys
+                        .stream()
+                        .flatMap(relatedPkey -> rdapQueryHandler.handleQueryStream(getQueryObject(ImmutableSet.of(INETNUM, INET6NUM), relatedPkey), request))
+                        .toList();
+            }
+            default -> throw new RdapException("400 Bad Request", "Invalid or unknown type " + requestType.toString().toLowerCase(), HttpStatus.BAD_REQUEST_400);
+        }
+        return rpslObjects;
     }
 
     private Response handleSearch(final String[] fields, final String term, final HttpServletRequest request) {
