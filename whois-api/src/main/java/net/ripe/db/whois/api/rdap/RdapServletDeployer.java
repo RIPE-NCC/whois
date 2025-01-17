@@ -1,6 +1,7 @@
 package net.ripe.db.whois.api.rdap;
 
 import com.fasterxml.jackson.databind.SerializationFeature;
+import jakarta.servlet.DispatcherType;
 import net.ripe.db.whois.api.httpserver.ServletDeployer;
 import org.eclipse.jetty.servlet.FilterHolder;
 import org.eclipse.jetty.servlet.ServletHolder;
@@ -11,7 +12,6 @@ import org.glassfish.jersey.servlet.ServletContainer;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import jakarta.servlet.DispatcherType;
 import java.util.EnumSet;
 
 @Component
@@ -20,17 +20,14 @@ public class RdapServletDeployer implements ServletDeployer {
     private final RdapService rdapService;
     private final RdapExceptionMapper rdapExceptionMapper;
     private final RdapRequestTypeConverter rdapRequestTypeConverter;
-    private final RdapRelationTypeConverter rdapRelationTypeConverter;
 
     @Autowired
     public RdapServletDeployer(final RdapService rdapService,
                                final RdapExceptionMapper rdapExceptionMapper,
-                               final RdapRequestTypeConverter rdapRequestTypeConverter,
-                               final RdapRelationTypeConverter rdapRelationTypeConverter) {
+                               final RdapRequestTypeConverter rdapRequestTypeConverter) {
         this.rdapService = rdapService;
         this.rdapExceptionMapper = rdapExceptionMapper;
         this.rdapRequestTypeConverter = rdapRequestTypeConverter;
-        this.rdapRelationTypeConverter = rdapRelationTypeConverter;
     }
 
     @Override
@@ -48,7 +45,6 @@ public class RdapServletDeployer implements ServletDeployer {
         resourceConfig.register(rdapService);
         resourceConfig.register(rdapRequestTypeConverter);
         resourceConfig.register(rdapExceptionMapper);
-        resourceConfig.register(rdapRelationTypeConverter);
         resourceConfig.register(rdapJsonProvider);
         context.addServlet(new ServletHolder("Whois RDAP REST API", new ServletContainer(resourceConfig)), "/rdap/*");
     }

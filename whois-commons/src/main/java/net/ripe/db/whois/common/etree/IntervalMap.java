@@ -164,7 +164,7 @@ public interface IntervalMap<K extends Interval<?>, V> {
 
     /**
      * Finds all values associated with intervals that are contained within (more specific than)
-     * and whose prefix is higher, more specific
+     * and whose prefix is most high
      * <code>key</code>.
      * <p/>
      * <p/>
