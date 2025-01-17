@@ -64,7 +64,7 @@ public class RdapRelationService {
     }
 
 
-    public List<String> getDomainsByRelationType (final String pkey, final RelationType relationType){
+    public List<String> getDomainsByRelationType(final String pkey, final RelationType relationType){
         final Domain domain = Domain.parse(pkey);
         final IpInterval reverseIp = domain.getReverseIp();
         final List<IpEntry> domainEntries = getEntries(getIpDomainTree(reverseIp), relationType, reverseIp);
