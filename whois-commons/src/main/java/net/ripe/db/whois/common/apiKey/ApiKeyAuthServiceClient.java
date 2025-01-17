@@ -64,7 +64,7 @@ public class ApiKeyAuthServiceClient {
     }
 
     @Cacheable(cacheNames="apiKeyOAuth")
-    public String validateApiKey(final String basicHeader,  final String accessKey ) {
+    public String validateApiKey(final String basicHeader,  final String apiKeyId ) {
         try {
             return  client.target(restUrl)
                     .path(VALIDATE_PATH)
@@ -73,10 +73,10 @@ public class ApiKeyAuthServiceClient {
                     .get(String.class);
 
         } catch (NotFoundException | NotAuthorizedException e) {
-            LOGGER.debug("Failed to validate apikey {} due to {}:{}\n\tResponse: {}", accessKey, e.getClass().getName(), e.getMessage(), e.getResponse().readEntity(String.class));
+            LOGGER.debug("Failed to validate apikey {} due to {}:{}\n\tResponse: {}", apiKeyId, e.getClass().getName(), e.getMessage(), e.getResponse().readEntity(String.class));
             return null;
         } catch (Exception e) {
-            LOGGER.error("Failed to validate apikey {} due to {}:{}", accessKey, e.getClass().getName(), e.getMessage());
+            LOGGER.error("Failed to validate apikey {} due to {}:{}", apiKeyId, e.getClass().getName(), e.getMessage());
             return null;
         }
     }

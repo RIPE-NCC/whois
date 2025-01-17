@@ -67,10 +67,10 @@ public class HttpsAPIKeyAuthCustomizer implements Filter {
         }
 
         try {
-            final String accessKey = ApiKeyUtils.getAccessKey(httpRequest.getHeader(HttpHeaders.AUTHORIZATION));
+            final String apiKeyId = ApiKeyUtils.getApiKeyId(httpRequest.getHeader(HttpHeaders.AUTHORIZATION));
 
-            final String bearerToken = apiKeyAuthServiceClient.validateApiKey(httpRequest.getHeader(HttpHeaders.AUTHORIZATION), accessKey);
-            chain.doFilter(new HttpApiAuthRequestWrapper((HttpServletRequest) request, accessKey, bearerToken), response);
+            final String bearerToken = apiKeyAuthServiceClient.validateApiKey(httpRequest.getHeader(HttpHeaders.AUTHORIZATION), apiKeyId);
+            chain.doFilter(new HttpApiAuthRequestWrapper((HttpServletRequest) request, apiKeyId, bearerToken), response);
 
         } catch (Exception ex) {
             final HttpServletResponse httpResponse = (HttpServletResponse) response;
@@ -79,7 +79,7 @@ public class HttpsAPIKeyAuthCustomizer implements Filter {
     }
 
     private static boolean isNotValidRequest(HttpServletRequest httpRequest) {
-        return (!StringUtils.isEmpty(httpRequest.getQueryString()) && httpRequest.getQueryString().contains(ApiKeyUtils.APIKEY_ACCESS_QUERY_PARAM)) ||
+        return (!StringUtils.isEmpty(httpRequest.getQueryString()) && httpRequest.getQueryString().contains(ApiKeyUtils.APIKEY_KEY_ID_QUERY_PARAM)) ||
                 (httpRequest.getHeader(HttpHeaders.AUTHORIZATION) != null && httpRequest.getHeader(HttpHeaders.AUTHORIZATION).startsWith("Bearer"));
     }
 
@@ -100,19 +100,19 @@ public class HttpsAPIKeyAuthCustomizer implements Filter {
     private static final class HttpApiAuthRequestWrapper extends HttpServletRequestWrapper {
 
         final private String bearerToken;
-        final private String accessKey;
+        final private String apiKeyId;
 
-        private HttpApiAuthRequestWrapper(final HttpServletRequest request,  final String accessKey , final String bearerToken) {
+        private HttpApiAuthRequestWrapper(final HttpServletRequest request, final String apiKeyId, final String bearerToken) {
             super(request);
             this.bearerToken = bearerToken;
-            this.accessKey = accessKey;
+            this.apiKeyId = apiKeyId;
         }
 
         @Override
         public String getQueryString() {
             final UriBuilder builder = UriBuilder.newInstance();
             builder.replaceQuery(super.getQueryString());
-            builder.queryParam(ApiKeyUtils.APIKEY_ACCESS_QUERY_PARAM, accessKey);
+            builder.queryParam(ApiKeyUtils.APIKEY_KEY_ID_QUERY_PARAM, apiKeyId);
             return builder.build().getQuery();
         }
 
