@@ -70,7 +70,6 @@ public class RdapRelationService {
 
 
     public void includeRirSearchConformance(final RdapObject rdapObject, final String requestUrl){
-        rdapObject.getRdapConformance().add(RdapConformance.RIR_SEARCH_1.getValue());
         if (requestUrl == null) {
             return;
         }

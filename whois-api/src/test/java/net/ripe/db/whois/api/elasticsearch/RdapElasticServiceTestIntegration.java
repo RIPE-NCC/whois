@@ -1000,7 +1000,7 @@ public class RdapElasticServiceTestIntegration extends AbstractElasticSearchInte
                 .collect(Collectors.toList()), containsInAnyOrder("$.entities[?(@.handle=='PP1-TEST')].vcardArray[1][?(@[0]=='e-mail')]"));
 
         assertThat(result.getRdapConformance(), containsInAnyOrder("cidr0", "rdap_level_0", "nro_rdap_profile_0",
-                "redacted", "rirSearch1"));
+                "redacted"));
     }
 
     // helper methods
@@ -1044,9 +1044,9 @@ public class RdapElasticServiceTestIntegration extends AbstractElasticSearchInte
 
     private void assertCommon(RdapObject object) {
         assertThat(object.getPort43(), is("whois.ripe.net"));
-        assertThat(object.getRdapConformance(), hasSize(5));
+        assertThat(object.getRdapConformance(), hasSize(4));
         assertThat(object.getRdapConformance(), containsInAnyOrder("rdap_level_0", "cidr0", "nro_rdap_profile_0",
-                "redacted", "rirSearch1"));
+                "redacted"));
     }
 
     private void assertTnCNotice(final Notice notice, final String value) {
