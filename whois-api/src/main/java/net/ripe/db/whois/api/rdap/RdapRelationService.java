@@ -1,6 +1,8 @@
 package net.ripe.db.whois.api.rdap;
 
 import com.google.common.collect.Sets;
+import net.ripe.db.whois.api.rdap.domain.RdapObject;
+import net.ripe.db.whois.api.rdap.domain.RdapRequestType;
 import net.ripe.db.whois.api.rdap.domain.RelationType;
 import net.ripe.db.whois.common.dao.RpslObjectDao;
 import net.ripe.db.whois.common.domain.CIString;
@@ -64,6 +66,21 @@ public class RdapRelationService {
                 .stream()
                 .map(ipEntry -> rpslObjectDao.getById(ipEntry.getObjectId()).getKey().toString())
                 .toList();
+    }
+
+
+    public void includeRirSearchConformance(final RdapObject rdapObject, final String requestUrl){
+        rdapObject.getRdapConformance().add(RdapConformance.RIR_SEARCH_1.getValue());
+        if (requestUrl == null) {
+            return;
+        }
+        if (requestUrl.contains(RdapRequestType.IPS.name().toLowerCase())){
+            rdapObject.getRdapConformance().addAll(List.of(RdapConformance.IPS.getValue(), RdapConformance.IP_SEARCH_RESULTS.getValue()));
+            return;
+        }
+        if (requestUrl.contains(RdapRequestType.AUTNUMS.name().toLowerCase())){
+            rdapObject.getRdapConformance().addAll(List.of(RdapConformance.AUTNUMS.getValue(), RdapConformance.AUTNUM_SEARCH_RESULTS.getValue()));
+        }
     }
 
     public List<String> getInetnumRelationPkeys(final String pkey, final RelationType relationType){
