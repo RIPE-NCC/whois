@@ -17,12 +17,12 @@ import java.util.EnumSet;
 @Component
 public class RdapServletDeployer implements ServletDeployer {
 
-    private final RdapController rdapController;
+    private final RdapService rdapController;
     private final RdapExceptionMapper rdapExceptionMapper;
     private final RdapRequestTypeConverter rdapRequestTypeConverter;
 
     @Autowired
-    public RdapServletDeployer(final RdapController rdapController,
+    public RdapServletDeployer(final RdapService rdapController,
                                final RdapExceptionMapper rdapExceptionMapper,
                                final RdapRequestTypeConverter rdapRequestTypeConverter) {
         this.rdapController = rdapController;
