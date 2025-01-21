@@ -36,8 +36,6 @@ import java.util.Set;
 
 import static net.ripe.db.whois.api.rdap.RdapService.COMMA_JOINER;
 import static net.ripe.db.whois.common.rpsl.ObjectType.DOMAIN;
-import static net.ripe.db.whois.common.rpsl.ObjectType.INET6NUM;
-import static net.ripe.db.whois.common.rpsl.ObjectType.INETNUM;
 import static net.ripe.db.whois.common.rpsl.attrs.Inet6numStatus.ALLOCATED_BY_RIR;
 import static net.ripe.db.whois.common.rpsl.attrs.InetnumStatus.ALLOCATED_UNSPECIFIED;
 
@@ -118,7 +116,7 @@ public class RdapRelationService {
 
                 rpslObjects = relatedPkeys
                         .stream()
-                        .flatMap(relatedPkey -> rdapQueryHandler.handleQueryStream(getQueryObject(ImmutableSet.of(INETNUM, INET6NUM), relatedPkey), request))
+                        .flatMap(relatedPkey -> rdapQueryHandler.handleQueryStream(getQueryObject(objectTypes, relatedPkey), request))
                         .toList();
 
             }
