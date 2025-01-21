@@ -17,7 +17,7 @@ import java.util.EnumSet;
 @Component
 public class RdapServletDeployer implements ServletDeployer {
 
-    private final RdapService rdapController;
+    private final RdapService rdapService;
     private final RdapExceptionMapper rdapExceptionMapper;
     private final RdapRequestTypeConverter rdapRequestTypeConverter;
 
@@ -25,7 +25,7 @@ public class RdapServletDeployer implements ServletDeployer {
     public RdapServletDeployer(final RdapService rdapController,
                                final RdapExceptionMapper rdapExceptionMapper,
                                final RdapRequestTypeConverter rdapRequestTypeConverter) {
-        this.rdapController = rdapController;
+        this.rdapService = rdapController;
         this.rdapExceptionMapper = rdapExceptionMapper;
         this.rdapRequestTypeConverter = rdapRequestTypeConverter;
     }
@@ -42,7 +42,7 @@ public class RdapServletDeployer implements ServletDeployer {
         crossOriginFilterHolder.setInitParameter(CrossOriginFilter.ALLOWED_METHODS_PARAM, "GET, OPTIONS");
 
         final ResourceConfig resourceConfig = new ResourceConfig();
-        resourceConfig.register(rdapController);
+        resourceConfig.register(rdapService);
         resourceConfig.register(rdapRequestTypeConverter);
         resourceConfig.register(rdapExceptionMapper);
         resourceConfig.register(rdapJsonProvider);
