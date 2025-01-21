@@ -60,7 +60,7 @@ import static org.junit.jupiter.api.Assertions.fail;
 
 @Tag("IntegrationTest")
 @DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_EACH_TEST_METHOD)
-public class RdapServiceTestIntegration extends AbstractRdapIntegrationTest {
+public class RdapControllerTestIntegration extends AbstractRdapIntegrationTest {
 
     @Autowired
     TestWhoisLog queryLog;
