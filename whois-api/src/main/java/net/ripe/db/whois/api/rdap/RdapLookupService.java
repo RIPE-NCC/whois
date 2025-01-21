@@ -97,11 +97,11 @@ public class RdapLookupService {
         }
     }
 
-    protected Object lookupForDomain(final HttpServletRequest request, final String key, final String reverseIp) {
+    protected Object lookupForDomain(final HttpServletRequest request, final String reverseIp, final String key) {
         final Stream<RpslObject> domainResult =
-                rdapQueryHandler.handleQueryStream(getQueryObject(ImmutableSet.of(DOMAIN), key), request);
+                rdapQueryHandler.handleQueryStream(getQueryObject(ImmutableSet.of(DOMAIN), reverseIp), request);
         final Stream<RpslObject> inetnumResult =
-                rdapQueryHandler.handleQueryStream(getQueryObject(ImmutableSet.of(INETNUM, INET6NUM), reverseIp), request);
+                rdapQueryHandler.handleQueryStream(getQueryObject(ImmutableSet.of(INETNUM, INET6NUM), key), request);
 
         return getDomainEntity(request, domainResult, inetnumResult);
     }
