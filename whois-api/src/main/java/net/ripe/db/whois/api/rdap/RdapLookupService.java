@@ -50,6 +50,17 @@ public class RdapLookupService {
 
     private final AbuseCFinder abuseCFinder;
 
+    /**
+     *
+     * @param baseUrl
+     * @param maxEntityResultSize: used for networks maximum retrieved objects, if we retrieve more objects than
+     *                           the maximum value we truncate the response and we add a notification in the response.
+     * @param rdapObjectMapper
+     * @param rdapQueryHandler
+     * @param sourceContext
+     * @param rpslObjectUpdateDao
+     * @param abuseCFinder
+     */
 
     @Autowired
     public RdapLookupService(@Value("${rdap.public.baseUrl:}") final String baseUrl,

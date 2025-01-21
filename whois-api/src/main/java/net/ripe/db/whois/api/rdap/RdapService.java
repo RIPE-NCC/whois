@@ -31,7 +31,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.stereotype.Controller;
+import org.springframework.stereotype.Component;
 
 import javax.annotation.Nullable;
 import java.io.IOException;
@@ -45,7 +45,7 @@ import static net.ripe.db.whois.common.rpsl.ObjectType.AUT_NUM;
 import static net.ripe.db.whois.common.rpsl.ObjectType.INET6NUM;
 import static net.ripe.db.whois.common.rpsl.ObjectType.INETNUM;
 
-@Controller
+@Component
 @Path("/")
 public class RdapService {
     private static final Logger LOGGER = LoggerFactory.getLogger(RdapService.class);
@@ -61,6 +61,17 @@ public class RdapService {
     private final int maxResultSize;
     private final RdapRelationService rdapRelationService;
 
+
+    /**
+     *
+     * @param rdapObjectMapper
+     * @param delegatedStatsService
+     * @param rdapFullTextSearch
+     * @param sourceContext
+     * @param baseUrl
+     * @param rdapRequestValidator
+     * @param maxResultSize: If the response is bigger than maxResultSize, we truncate the response and we add a notification
+     */
     @Autowired
     public RdapService(final RdapLookupService rdapService,
                        final RdapRequestValidator rdapRequestValidator,
