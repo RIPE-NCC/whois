@@ -84,41 +84,43 @@ public class RdapRelationService {
                                          final String requestUrl,
                                          final int maxResultSize) {
         final List<RpslObject> rpslObjects;
+        final boolean shouldReturnLookup = relationType.equals(RelationType.UP) || relationType.equals(RelationType.TOP);
         switch (requestType) {
             case AUTNUMS -> throw new RdapException("501 Not Implemented", "Relation queries not allowed for autnum", HttpStatus.NOT_IMPLEMENTED_501);
             case DOMAINS -> {
                 rdapRequestValidator.validateDomain(key);
                 final List<IpEntry> domainEntries = getDomainsEntriesByRelationType(key, relationType);
 
-                if (relationType.equals(RelationType.UP) || relationType.equals(RelationType.TOP)){
+                if (shouldReturnLookup){
                     final IpEntry ipEntry = domainEntries.getFirst();
                     final RpslObject domainObject = rpslObjectDao.getById(ipEntry.getObjectId());
                     return rdapLookupService.lookupForDomain(request, domainObject.getKey().toString(), ipEntry.getKey().toString());
-                } else {
-                    //TODO: [MH] This call should not be necessary, we should be able to get the reverseIp out of the IP
-                    final List<String> relatedPkeys = domainEntries
-                            .stream()
-                            .map(ipEntry -> rpslObjectDao.getById(ipEntry.getObjectId()).getKey().toString())
-                            .toList();
-
-                    rpslObjects = relatedPkeys
-                            .stream()
-                            .flatMap(relatedPkey -> rdapQueryHandler.handleQueryStream(getQueryObject(ImmutableSet.of(DOMAIN), relatedPkey), request))
-                            .toList();
                 }
+                //TODO: [MH] This call should not be necessary, we should be able to get the reverseIp out of the IP
+                final List<String> relatedPkeys = domainEntries
+                        .stream()
+                        .map(ipEntry -> rpslObjectDao.getById(ipEntry.getObjectId()).getKey().toString())
+                        .toList();
+
+                rpslObjects = relatedPkeys
+                        .stream()
+                        .flatMap(relatedPkey -> rdapQueryHandler.handleQueryStream(getQueryObject(ImmutableSet.of(DOMAIN), relatedPkey), request))
+                        .toList();
+
             }
             case IPS -> {
                 rdapRequestValidator.validateIp(request.getRequestURI(), key);
                 final List<String> relatedPkeys = getInetnumRelationPkeys(key, relationType);
 
-                if (relationType.equals(RelationType.UP) || relationType.equals(RelationType.TOP)){
+                if (shouldReturnLookup){
                     return rdapLookupService.lookupObject(request, objectTypes, relatedPkeys.getFirst());
-                } else {
-                    rpslObjects = relatedPkeys
-                            .stream()
-                            .flatMap(relatedPkey -> rdapQueryHandler.handleQueryStream(getQueryObject(ImmutableSet.of(INETNUM, INET6NUM), relatedPkey), request))
-                            .toList();
                 }
+
+                rpslObjects = relatedPkeys
+                        .stream()
+                        .flatMap(relatedPkey -> rdapQueryHandler.handleQueryStream(getQueryObject(ImmutableSet.of(INETNUM, INET6NUM), relatedPkey), request))
+                        .toList();
+
             }
             default -> throw new RdapException("400 Bad Request", "Invalid or unknown type " + requestType.toString().toLowerCase(), HttpStatus.BAD_REQUEST_400);
         }
