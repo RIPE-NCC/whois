@@ -19,20 +19,25 @@ import net.ripe.db.whois.api.rest.RestServiceHelper;
 import net.ripe.db.whois.common.domain.CIString;
 import net.ripe.db.whois.common.ip.Ipv4Resource;
 import net.ripe.db.whois.common.rpsl.ObjectType;
+import net.ripe.db.whois.common.rpsl.RpslObject;
 import net.ripe.db.whois.common.rpsl.attrs.Domain;
 import net.ripe.db.whois.common.source.Source;
 import net.ripe.db.whois.common.source.SourceContext;
 import net.ripe.db.whois.query.QueryFlag;
 import net.ripe.db.whois.query.query.Query;
+import org.apache.commons.lang.StringUtils;
 import org.eclipse.jetty.http.HttpStatus;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Controller;
 
 import javax.annotation.Nullable;
+import java.io.IOException;
 import java.net.URI;
 import java.util.Collection;
+import java.util.List;
 import java.util.Set;
 
 import static jakarta.ws.rs.core.HttpHeaders.CONTENT_TYPE;
@@ -49,17 +54,31 @@ public class RdapService {
     private final RdapRequestValidator rdapRequestValidator;
     private final DelegatedStatsService delegatedStatsService;
     private final Source source;
-    private static final Joiner COMMA_JOINER = Joiner.on(",");
+    public static final Joiner COMMA_JOINER = Joiner.on(",");
+    private final RdapObjectMapper rdapObjectMapper;
+    private final RdapFullTextSearch rdapFullTextSearch;
+    private final String baseUrl;
+    private final int maxResultSize;
+    private final RdapRelationService rdapRelationService;
 
     @Autowired
     public RdapService(final RdapLookupService rdapService,
                        final RdapRequestValidator rdapRequestValidator,
                        final DelegatedStatsService delegatedStatsService,
-                       final SourceContext sourceContext) {
+                       final RdapObjectMapper rdapObjectMapper,
+                       final RdapFullTextSearch rdapFullTextSearch,
+                       @Value("${rdap.public.baseUrl:}") final String baseUrl,
+                       @Value("${rdap.search.max.results:100}") final int maxResultSize,
+                       final SourceContext sourceContext, RdapRelationService rdapRelationService) {
         this.rdapService = rdapService;
         this.rdapRequestValidator = rdapRequestValidator;
         this.delegatedStatsService = delegatedStatsService;
+        this.rdapObjectMapper = rdapObjectMapper;
+        this.rdapFullTextSearch = rdapFullTextSearch;
         this.source = sourceContext.getCurrentSource();
+        this.baseUrl = baseUrl;
+        this.maxResultSize = maxResultSize;
+        this.rdapRelationService = rdapRelationService;
     }
 
     @GET
@@ -91,11 +110,11 @@ public class RdapService {
 
         Object object = null;
         if (name != null && handle == null) {
-            object = rdapService.handleSearch(new String[]{"person", "role", "org-name"}, name, request);
+            object = handleSearch(new String[]{"person", "role", "org-name"}, name, request);
         }
 
         if (name == null && handle != null) {
-            object = rdapService.handleSearch(new String[]{"organisation", "nic-hdl", "mntner"}, handle, request);
+            object = handleSearch(new String[]{"organisation", "nic-hdl", "mntner"}, handle, request);
         }
 
         if (object == null){
@@ -118,7 +137,7 @@ public class RdapService {
         LOGGER.debug("Request: {}", RestServiceHelper.getRequestURI(request));
 
         if (name != null && handle == null || name == null && handle != null) {
-            return Response.ok(rdapService.handleSearch(new String[]{"netname"}, name != null ? name : handle, request))
+            return Response.ok(handleSearch(new String[]{"netname"}, name != null ? name : handle, request))
                     .header(CONTENT_TYPE, CONTENT_TYPE_RDAP_JSON)
                     .build();
         }
@@ -138,11 +157,11 @@ public class RdapService {
 
         Object object = null;
         if (name != null && handle == null) {
-            object = rdapService.handleSearch(new String[]{"as-name"}, name, request);
+            object = handleSearch(new String[]{"as-name"}, name, request);
         }
 
         if (name == null && handle != null) {
-            object = rdapService.handleSearch(new String[]{"aut-num"}, handle, request);
+            object = handleSearch(new String[]{"aut-num"}, handle, request);
         }
 
         if (object == null){
@@ -173,7 +192,7 @@ public class RdapService {
 
         LOGGER.debug("Request: {}", RestServiceHelper.getRequestURI(request));
 
-        return Response.ok(rdapService.handleSearch(new String[]{"domain"}, name, request))
+        return Response.ok(handleSearch(new String[]{"domain"}, name, request))
                 .header(CONTENT_TYPE, CONTENT_TYPE_RDAP_JSON)
                 .build();
     }
@@ -182,7 +201,7 @@ public class RdapService {
     @Produces({MediaType.APPLICATION_JSON, CONTENT_TYPE_RDAP_JSON})
     @Path("/help")
     public Response help(@Context final HttpServletRequest request) {
-        return Response.ok(rdapService.mapHelp(request))
+        return Response.ok(rdapObjectMapper.mapHelp(getRequestUrl(request)))
                 .header(CONTENT_TYPE, CONTENT_TYPE_RDAP_JSON)
                 .build();
     }
@@ -214,12 +233,16 @@ public class RdapService {
             return redirect(getRequestPath(request), getQueryObject(objectTypes, key));
         }
 
+        final List<RpslObject> rpslObjects = rdapRelationService.handleRelationQuery(
+                request,
+                requestType, relation,
+                key);
+
         return Response.ok(
-                rdapService.handleRelationQuery(
-                        request,
-                        requestType,
-                        key,
-                        relation))
+                rdapObjectMapper.mapSearch(
+                        getRequestUrl(request),
+                        rpslObjects,
+                        maxResultSize))
                 .header(CONTENT_TYPE, CONTENT_TYPE_RDAP_JSON)
                 .build();
     }
@@ -347,4 +370,41 @@ public class RdapService {
         return builder.toString();
     }
 
+    private Object handleSearch(final String[] fields, final String term, final HttpServletRequest request) {
+        LOGGER.debug("Search {} for {}", fields, term);
+
+        if (StringUtils.isEmpty(term)) {
+            throw new RdapException("400 Bad Request", "Empty search term", HttpStatus.BAD_REQUEST_400);
+        }
+
+        try {
+            final List<RpslObject> objects = rdapFullTextSearch.performSearch(fields, term, request.getRemoteAddr(), source);
+
+            if (objects.isEmpty()) {
+                throw new RdapException("404 Not Found", "Requested object not found: " + term, HttpStatus.NOT_FOUND_404);
+            }
+
+            return rdapObjectMapper.mapSearch(
+                    getRequestUrl(request),
+                    objects,
+                    maxResultSize);
+        }
+        catch (IOException e) {
+            LOGGER.error(e.getMessage(), e);
+            throw new RdapException("500 Internal Error", "search failed", HttpStatus.INTERNAL_SERVER_ERROR_500);
+        }
+    }
+
+    private String getRequestUrl(final HttpServletRequest request) {
+        if (StringUtils.isNotEmpty(baseUrl)) {
+            // TODO: don't include local base URL (lookup from request context and replace)
+            return String.format("%s%s", baseUrl, getRequestPath(request).replaceFirst("/rdap", ""));
+        }
+        final StringBuffer buffer = request.getRequestURL();
+        if (request.getQueryString() != null) {
+            buffer.append('?');
+            buffer.append(request.getQueryString());
+        }
+        return buffer.toString();
+    }
 }

@@ -4,9 +4,6 @@ import com.google.common.base.Joiner;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Iterators;
 import jakarta.servlet.http.HttpServletRequest;
-import net.ripe.db.whois.api.rdap.domain.RdapObject;
-import net.ripe.db.whois.api.rdap.domain.RdapRequestType;
-import net.ripe.db.whois.api.rdap.domain.RelationType;
 import net.ripe.db.whois.common.dao.RpslObjectInfo;
 import net.ripe.db.whois.common.dao.RpslObjectUpdateDao;
 import net.ripe.db.whois.common.rpsl.ObjectType;
@@ -18,13 +15,10 @@ import net.ripe.db.whois.query.planner.AbuseCFinder;
 import net.ripe.db.whois.query.query.Query;
 import org.apache.commons.lang.StringUtils;
 import org.eclipse.jetty.http.HttpStatus;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
-import java.io.IOException;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
@@ -39,24 +33,14 @@ import static net.ripe.db.whois.common.rpsl.ObjectType.ORGANISATION;
 
 @Service
 public class RdapLookupService {
-    
-    private static final Logger LOGGER = LoggerFactory.getLogger(RdapLookupService.class);
 
     private static final Joiner COMMA_JOINER = Joiner.on(",");
 
-    private final RdapFullTextSearch rdapFullTextSearch;
-
     private final RdapObjectMapper rdapObjectMapper;
-
-    private final int maxResultSize;
 
     private final int maxEntityResultSize;
 
     private final String baseUrl;
-
-    private final RdapRequestValidator rdapRequestValidator;
-
-    private final RdapRelationService rdapRelationService;
 
     private final RdapQueryHandler rdapQueryHandler;
 
@@ -64,45 +48,25 @@ public class RdapLookupService {
 
     private final RpslObjectUpdateDao rpslObjectUpdateDao;
 
-    private final Source source;
-
     private final AbuseCFinder abuseCFinder;
 
 
-    /**
-     * @param maxResultSize: If the response is bigger than maxResultSize, we truncate the response and we add a notification
-     * @param maxEntityResultSize: used for networks maximum retrieved objects, if we retrieve more objects than
-     *                           the maximum value we truncate the response and we add a notification in the response.
-     */
     @Autowired
-    public RdapLookupService(final RdapFullTextSearch rdapFullTextSearch,
-                             final RdapObjectMapper rdapObjectMapper,
-                             @Value("${rdap.public.baseUrl:}") final String baseUrl,
-                             @Value("${rdap.search.max.results:100}") final int maxResultSize,
+    public RdapLookupService(@Value("${rdap.public.baseUrl:}") final String baseUrl,
                              @Value("${rdap.entity.max.results:100}") final int maxEntityResultSize,
-                             final RdapRequestValidator rdapRequestValidator,
-                             final RdapRelationService rdapRelationService,
+                             final RdapObjectMapper rdapObjectMapper,
                              final RdapQueryHandler rdapQueryHandler,
                              final SourceContext sourceContext,
                              final RpslObjectUpdateDao rpslObjectUpdateDao,
                              final AbuseCFinder abuseCFinder){
-        this.rdapFullTextSearch = rdapFullTextSearch;
         this.rdapObjectMapper = rdapObjectMapper;
-        this.maxResultSize = maxResultSize;
         this.maxEntityResultSize = maxEntityResultSize;
         this.baseUrl = baseUrl;
-        this.rdapRequestValidator = rdapRequestValidator;
-        this.rdapRelationService = rdapRelationService;
         this.rdapQueryHandler = rdapQueryHandler;
         this.sourceContext = sourceContext;
         this.rpslObjectUpdateDao = rpslObjectUpdateDao;
-        this.source = sourceContext.getCurrentSource();
         this.abuseCFinder = abuseCFinder;
 
-    }
-
-    protected RdapObject mapHelp(final HttpServletRequest request){
-        return rdapObjectMapper.mapHelp(getRequestUrl(request));
     }
 
     protected Object lookupObject(final HttpServletRequest request, final Set<ObjectType> objectTypes,
@@ -137,7 +101,7 @@ public class RdapLookupService {
         final RpslObject organisation = switch (organisationResult.size()) {
             case 0 ->
                     throw new RdapException("404 Not Found", "Requested organisation not found: " + key, HttpStatus.NOT_FOUND_404);
-            case 1 -> organisationResult.get(0);
+            case 1 -> organisationResult.getFirst();
             default ->
                     throw new RdapException("500 Internal Error", "Unexpected result size: " + organisationResult.size(), HttpStatus.INTERNAL_SERVER_ERROR_500);
         };
@@ -159,68 +123,6 @@ public class RdapLookupService {
         return getOrganisationRdapObject(request, organisation, autnumResult, inetnumResult, inet6numResult);
     }
 
-    private List<RpslObject> handleRelationQuery(final HttpServletRequest request, final RdapRequestType requestType,
-                                                final RelationType relationType, final String key) {
-        final List<RpslObject> rpslObjects;
-        switch (requestType) {
-            case AUTNUMS -> throw new RdapException("501 Not Implemented", "Relation queries not allowed for autnum", HttpStatus.NOT_IMPLEMENTED_501);
-            case DOMAINS -> {
-                rdapRequestValidator.validateDomain(key);
-                final List<String> relatedPkeys = rdapRelationService.getDomainsByRelationType(key, relationType);
-
-                rpslObjects = relatedPkeys
-                        .stream()
-                        .flatMap(relatedPkey -> rdapQueryHandler.handleQueryStream(getQueryObject(ImmutableSet.of(DOMAIN), relatedPkey), request))
-                        .toList();
-            }
-            case IPS -> {
-                rdapRequestValidator.validateIp(request.getRequestURI(), key);
-                final List<String> relatedPkeys = rdapRelationService.getInetnumRelationPkeys(key, relationType);
-
-                rpslObjects = relatedPkeys
-                        .stream()
-                        .flatMap(relatedPkey -> rdapQueryHandler.handleQueryStream(getQueryObject(ImmutableSet.of(INETNUM, INET6NUM), relatedPkey), request))
-                        .toList();
-            }
-            default -> throw new RdapException("400 Bad Request", "Invalid or unknown type " + requestType.toString().toLowerCase(), HttpStatus.BAD_REQUEST_400);
-        }
-        return rpslObjects;
-    }
-
-    protected Object handleRelationQuery(HttpServletRequest request, RdapRequestType requestType, String key, RelationType relation) {
-
-        final List<RpslObject> rpslObjects = handleRelationQuery(request, requestType, relation, key);
-
-        return rdapObjectMapper.mapSearch(
-                getRequestUrl(request),
-                rpslObjects,
-                maxResultSize);
-    }
-
-    protected Object handleSearch(final String[] fields, final String term, final HttpServletRequest request) {
-        LOGGER.debug("Search {} for {}", fields, term);
-
-        if (StringUtils.isEmpty(term)) {
-            throw new RdapException("400 Bad Request", "Empty search term", HttpStatus.BAD_REQUEST_400);
-        }
-
-        try {
-            final List<RpslObject> objects = rdapFullTextSearch.performSearch(fields, term, request.getRemoteAddr(), source);
-
-            if (objects.isEmpty()) {
-                throw new RdapException("404 Not Found", "Requested object not found: " + term, HttpStatus.NOT_FOUND_404);
-            }
-
-            return rdapObjectMapper.mapSearch(
-                    getRequestUrl(request),
-                    objects,
-                    maxResultSize);
-        }
-        catch (IOException e) {
-            LOGGER.error(e.getMessage(), e);
-            throw new RdapException("500 Internal Error", "search failed", HttpStatus.INTERNAL_SERVER_ERROR_500);
-        }
-    }
 
     private Set<RpslObjectInfo> getReferences(final RpslObject organisation) {
         final Source originalSource = sourceContext.getCurrentSource();
@@ -233,10 +135,10 @@ public class RdapLookupService {
     }
 
     private Object getOrganisationRdapObject(final HttpServletRequest request,
-                                               final RpslObject organisation,
-                                               final List<RpslObjectInfo> autnumResult,
-                                               final List<RpslObjectInfo> inetnumResult,
-                                               final List<RpslObjectInfo> inet6numResult) {
+                                             final RpslObject organisation,
+                                             final List<RpslObjectInfo> autnumResult,
+                                             final List<RpslObjectInfo> inetnumResult,
+                                             final List<RpslObjectInfo> inet6numResult) {
         return rdapObjectMapper.mapOrganisationEntity(
                 getRequestUrl(request),
                 organisation,
@@ -262,6 +164,7 @@ public class RdapLookupService {
         }
         return rdapObjectMapper.mapDomainEntity(getRequestUrl(request), domainObject, inetnumObject);
     }
+
 
     private Query getQueryObject(final Set<ObjectType> objectTypes, final String key) {
         return Query.parse(
