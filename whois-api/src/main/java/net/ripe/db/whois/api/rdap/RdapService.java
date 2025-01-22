@@ -147,13 +147,23 @@ public class RdapService {
 
         LOGGER.debug("Request: {}", RestServiceHelper.getRequestURI(request));
 
-        if (name != null && handle == null || name == null && handle != null) {
-            return Response.ok(handleSearch(new String[]{"netname"}, name != null ? name : handle, request))
-                    .header(CONTENT_TYPE, CONTENT_TYPE_RDAP_JSON)
-                    .build();
+        Object object = null;
+        if (name != null && handle == null) {
+            object = handleSearch(new String[]{"netname"}, name, request);
         }
 
-        throw new RdapException("400 Bad Request", "Either name or handle is a required parameter, but never both", HttpStatus.BAD_REQUEST_400);
+        if (name == null && handle != null) {
+            final Ipv4Resource ipv4Resource = Ipv4Resource.parseIPv4Resource(handle);
+            object = handleSearch(new String[]{"inetnum", "inet6num"}, ipv4Resource != null ? ipv4Resource.toRangeString() : handle, request);
+        }
+
+        if (object == null) {
+            throw new RdapException("400 Bad Request", "Either name or handle is a required parameter, but never both", HttpStatus.BAD_REQUEST_400);
+        }
+
+        return Response.ok(object)
+                .header(CONTENT_TYPE, CONTENT_TYPE_RDAP_JSON)
+                .build();
     }
 
     @GET
@@ -376,30 +386,7 @@ public class RdapService {
         return builder.toString();
     }
 
-    private Object handleSearch(final String[] fields, final String term, final HttpServletRequest request) {
-        LOGGER.debug("Search {} for {}", fields, term);
 
-        if (StringUtils.isEmpty(term)) {
-            throw new RdapException("400 Bad Request", "Empty search term", HttpStatus.BAD_REQUEST_400);
-        }
-
-        try {
-            final List<RpslObject> objects = rdapFullTextSearch.performSearch(fields, term, request.getRemoteAddr(), source);
-
-            if (objects.isEmpty()) {
-                throw new RdapException("404 Not Found", "Requested object not found: " + term, HttpStatus.NOT_FOUND_404);
-            }
-
-            return rdapObjectMapper.mapSearch(
-                    getRequestUrl(request),
-                    objects,
-                    maxResultSize);
-        }
-        catch (IOException e) {
-            LOGGER.error(e.getMessage(), e);
-            throw new RdapException("500 Internal Error", "search failed", HttpStatus.INTERNAL_SERVER_ERROR_500);
-        }
-    }
 
     private String getRequestUrl(final HttpServletRequest request) {
         if (StringUtils.isNotEmpty(baseUrl)) {
@@ -412,5 +399,27 @@ public class RdapService {
             buffer.append(request.getQueryString());
         }
         return buffer.toString();
+    }
+
+
+    private Object handleSearch(final String[] fields, final String term, final HttpServletRequest request) {
+        LOGGER.debug("Search {} for {}", fields, term);
+
+        if (StringUtils.isEmpty(term)) {
+            throw new RdapException("400 Bad Request", "Empty search term", HttpStatus.BAD_REQUEST_400);
+        }
+
+        try {
+            final List<RpslObject> objects = rdapFullTextSearch.performSearch(fields, term, request.getRemoteAddr(), source);
+
+            return rdapObjectMapper.mapSearch(
+                    getRequestUrl(request),
+                    objects,
+                    maxResultSize);
+        }
+        catch (IOException e) {
+            LOGGER.error(e.getMessage(), e);
+            throw new RdapException("500 Internal Error", "search failed", HttpStatus.INTERNAL_SERVER_ERROR_500);
+        }
     }
 }
