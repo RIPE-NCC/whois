@@ -538,7 +538,9 @@ public class RdapElasticServiceTestIntegration extends AbstractElasticSearchInte
                 .request(MediaType.APPLICATION_JSON_TYPE)
                 .get(SearchResult.class);
 
-        assertThat(response.getEntitySearchResults().get(0).getHandle(), equalTo("ORG-TEST1-TEST"));
+        assertThat(response.getEntitySearchResults().getFirst().getHandle(), equalTo("ORG-TEST1-TEST"));
+        assertThat(response.getRdapConformance(), containsInAnyOrder("rirSearch1",
+                "cidr0", "rdap_level_0", "nro_rdap_profile_0", "redacted"));
     }
 
     @Test
@@ -816,6 +818,8 @@ public class RdapElasticServiceTestIntegration extends AbstractElasticSearchInte
 
         assertThat(response.getIpSearchResults().size(), is(1));
         assertThat(response.getIpSearchResults().getFirst().getHandle(), equalTo("0.0.0.0 - 255.255.255.255"));
+        assertThat(response.getRdapConformance(), containsInAnyOrder("rirSearch1", "ips", "ipSearchResults",
+                "cidr0", "rdap_level_0", "nro_rdap_profile_0", "redacted"));
     }
 
     @Test
@@ -1034,6 +1038,8 @@ public class RdapElasticServiceTestIntegration extends AbstractElasticSearchInte
 
         assertThat(response.getAutnumSearchResults().size(), is(1));
         assertThat(response.getAutnumSearchResults().getFirst().getName(), equalTo("AS-TEST"));
+        assertThat(response.getRdapConformance(), containsInAnyOrder("rirSearch1", "autnums", "autnumSearchResults",
+                "cidr0", "rdap_level_0", "nro_rdap_profile_0", "redacted"));
     }
 
     @Test
