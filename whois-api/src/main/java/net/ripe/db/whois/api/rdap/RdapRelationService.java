@@ -139,8 +139,7 @@ public class RdapRelationService {
         return getEntries(getIpDomainTree(reverseIp), relationType, reverseIp);
     }
 
-
-    public List<String> getInetnumRelationPkeys(final String pkey, final RelationType relationType){
+    private List<String> getInetnumRelationPkeys(final String pkey, final RelationType relationType){
         final IpInterval ip = IpInterval.parse(pkey);
         final List<IpEntry> ipEntries = getEntries(getIpTree(ip), relationType, ip);
         return ipEntries
