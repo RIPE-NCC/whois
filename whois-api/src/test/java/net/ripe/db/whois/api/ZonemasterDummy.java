@@ -8,10 +8,13 @@ import net.ripe.db.whois.common.aspects.RetryFor;
 import net.ripe.db.whois.common.profiles.WhoisProfile;
 import net.ripe.db.whois.update.dns.zonemaster.ZonemasterRestClient;
 import net.ripe.db.whois.update.dns.zonemaster.domain.ZonemasterRequest;
+import org.eclipse.jetty.server.Handler;
 import org.eclipse.jetty.server.NetworkConnector;
 import org.eclipse.jetty.server.Request;
+import org.eclipse.jetty.server.Response;
 import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.server.handler.AbstractHandler;
+import org.eclipse.jetty.util.Callback;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -51,10 +54,10 @@ public class ZonemasterDummy implements Stub {
         this.zonemasterClient = zonemasterClient;
     }
 
-    private class ZonemasterHandler extends AbstractHandler {
+    private class ZonemasterHandler extends Handler.Abstract {
 
         @Override
-        public void handle(final String target, final Request baseRequest, final HttpServletRequest request, final HttpServletResponse response) throws IOException, ServletException {
+        public boolean handle(Request request, Response response, Callback callback) throws Exception {
             final String requestBody = getRequestBody(request);
             Map<String, Object> map = OBJECT_MAPPER.readValue(requestBody, Map.class);
 

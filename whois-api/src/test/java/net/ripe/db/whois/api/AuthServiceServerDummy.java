@@ -12,10 +12,9 @@ import net.ripe.db.whois.common.profiles.WhoisProfile;
 import net.ripe.db.whois.common.sso.AuthServiceClient;
 import net.ripe.db.whois.common.sso.UserSession;
 import org.apache.commons.lang.StringUtils;
+import org.eclipse.jetty.server.Handler;
 import org.eclipse.jetty.server.NetworkConnector;
-import org.eclipse.jetty.server.Request;
 import org.eclipse.jetty.server.Server;
-import org.eclipse.jetty.server.handler.AbstractHandler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -41,7 +40,7 @@ public class AuthServiceServerDummy implements Stub {
         this.authServiceClient = crowdClient;
     }
 
-    private class SSOTestHandler extends AbstractHandler {
+    private class SSOTestHandler extends Handler.Wrapper {
         final Map<String, SSOUser> usermap;
 
         {
@@ -82,8 +81,7 @@ public class AuthServiceServerDummy implements Stub {
         }
 
         @Override
-        public void handle(final String target, final Request baseRequest,
-                           final HttpServletRequest request, final HttpServletResponse response) throws IOException, ServletException {
+        public void handle(String target, org.eclipse.jetty.ee9.nested.Request baseRequest, HttpServletRequest request, HttpServletResponse response) throws IOException, ServletException {
             response.setContentType("text/xml;charset=utf-8");
             baseRequest.setHandled(true);
 
@@ -152,6 +150,7 @@ public class AuthServiceServerDummy implements Stub {
                     "  }\n" +
                     "}",  user.getUuid(), user.getEmail(), user.getEmail(), user.getEmail());
         }
+
     }
 
     @PostConstruct
