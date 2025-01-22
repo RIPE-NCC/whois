@@ -106,6 +106,23 @@ public class RdapLookupService {
         return getDomainEntity(request, domainResult, inetnumResult);
     }
 
+    protected Object getDomainEntity(final HttpServletRequest request, final Stream<RpslObject> domainResult,
+                                     final Stream<RpslObject> inetnumResult) {
+        final Iterator<RpslObject> domainIterator = domainResult.iterator();
+        final Iterator<RpslObject> inetnumIterator = inetnumResult.iterator();
+        if (!domainIterator.hasNext()) {
+            throw new RdapException("404 Not Found", "Requested object not found", HttpStatus.NOT_FOUND_404);
+        }
+        final RpslObject domainObject = domainIterator.next();
+        final RpslObject inetnumObject = inetnumIterator.hasNext() ? inetnumIterator.next() : null;
+
+        if (domainIterator.hasNext() || inetnumIterator.hasNext()) {
+            throw new RdapException("500 Internal Error", "Unexpected result size: " + Iterators.size(domainIterator),
+                    HttpStatus.INTERNAL_SERVER_ERROR_500);
+        }
+        return rdapObjectMapper.mapDomainEntity(getRequestUrl(request), domainObject, inetnumObject);
+    }
+
     protected Object lookupForOrganisation(final HttpServletRequest request, final String key) {
         final List<RpslObject> organisationResult = rdapQueryHandler.handleQueryStream(getQueryObject(Set.of(ORGANISATION), key), request).toList();
 
@@ -158,24 +175,6 @@ public class RdapLookupService {
                 inet6numResult,
                 maxEntityResultSize);
     }
-
-    private Object getDomainEntity(final HttpServletRequest request, final Stream<RpslObject> domainResult,
-                                   final Stream<RpslObject> inetnumResult) {
-        final Iterator<RpslObject> domainIterator = domainResult.iterator();
-        final Iterator<RpslObject> inetnumIterator = inetnumResult.iterator();
-        if (!domainIterator.hasNext()) {
-            throw new RdapException("404 Not Found", "Requested object not found", HttpStatus.NOT_FOUND_404);
-        }
-        final RpslObject domainObject = domainIterator.next();
-        final RpslObject inetnumObject = inetnumIterator.hasNext() ? inetnumIterator.next() : null;
-
-        if (domainIterator.hasNext() || inetnumIterator.hasNext()) {
-            throw new RdapException("500 Internal Error", "Unexpected result size: " + Iterators.size(domainIterator),
-                    HttpStatus.INTERNAL_SERVER_ERROR_500);
-        }
-        return rdapObjectMapper.mapDomainEntity(getRequestUrl(request), domainObject, inetnumObject);
-    }
-
 
     private Query getQueryObject(final Set<ObjectType> objectTypes, final String key) {
         return Query.parse(

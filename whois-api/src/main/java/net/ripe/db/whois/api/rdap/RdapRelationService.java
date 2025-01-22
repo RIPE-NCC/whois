@@ -33,9 +33,12 @@ import javax.annotation.Nullable;
 import java.util.Collection;
 import java.util.List;
 import java.util.Set;
+import java.util.stream.Stream;
 
 import static net.ripe.db.whois.api.rdap.RdapService.COMMA_JOINER;
 import static net.ripe.db.whois.common.rpsl.ObjectType.DOMAIN;
+import static net.ripe.db.whois.common.rpsl.ObjectType.INET6NUM;
+import static net.ripe.db.whois.common.rpsl.ObjectType.INETNUM;
 import static net.ripe.db.whois.common.rpsl.attrs.Inet6numStatus.ALLOCATED_BY_RIR;
 import static net.ripe.db.whois.common.rpsl.attrs.InetnumStatus.ALLOCATED_UNSPECIFIED;
 
@@ -92,7 +95,8 @@ public class RdapRelationService {
                 if (shouldReturnLookup){
                     final IpEntry ipEntry = domainEntries.getFirst();
                     final RpslObject domainObject = rpslObjectDao.getById(ipEntry.getObjectId());
-                    return rdapLookupService.lookupForDomain(request, domainObject.getKey().toString(), ipEntry.getKey().toString());
+                    final Stream<RpslObject> inetnumResult = rdapQueryHandler.handleQueryStream(getQueryObject(ImmutableSet.of(INETNUM, INET6NUM), ipEntry.getKey().toString()), request);
+                    return rdapLookupService.getDomainEntity(request, Stream.of(domainObject), inetnumResult);
                 }
                 //TODO: [MH] This call should not be necessary, we should be able to get the reverseIp out of the IP
                 final List<String> relatedPkeys = domainEntries
