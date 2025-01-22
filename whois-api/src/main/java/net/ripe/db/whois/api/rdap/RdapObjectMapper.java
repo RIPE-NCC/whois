@@ -22,6 +22,7 @@ import net.ripe.db.whois.api.rdap.domain.Link;
 import net.ripe.db.whois.api.rdap.domain.Nameserver;
 import net.ripe.db.whois.api.rdap.domain.Notice;
 import net.ripe.db.whois.api.rdap.domain.RdapObject;
+import net.ripe.db.whois.api.rdap.domain.RdapRequestType;
 import net.ripe.db.whois.api.rdap.domain.Remark;
 import net.ripe.db.whois.api.rdap.domain.Role;
 import net.ripe.db.whois.api.rdap.domain.SearchResult;
@@ -104,7 +105,7 @@ import static net.ripe.db.whois.common.rpsl.AttributeType.ZONE_C;
 import static net.ripe.db.whois.common.rpsl.ObjectType.INET6NUM;
 
 @Component
-class RdapObjectMapper {
+public class RdapObjectMapper {
 
     private static final String TERMS_AND_CONDITIONS = "http://www.ripe.net/data-tools/support/documentation/terms";
 
@@ -125,7 +126,6 @@ class RdapObjectMapper {
             ZONE_C, Role.ZONE,
             ORG, Role.REGISTRANT,// TODO: [MA] both mnt_by and org have same role
             MNT_IRT, Role.ABUSE);
-    private final RdapRelationService rdapRelationService;
 
     @Autowired
     public RdapObjectMapper(
@@ -134,14 +134,13 @@ class RdapObjectMapper {
             final ReservedResources reservedResources,
             final Ipv4Tree ipv4Tree,
             final Ipv6Tree ipv6Tree,
-            @Value("${rdap.port43:}") final String port43, RdapRelationService rdapRelationService) {
+            @Value("${rdap.port43:}") final String port43) {
         this.noticeFactory = noticeFactory;
         this.rpslObjectDao = rpslObjectDao;
         this.ipv4Tree = ipv4Tree;
         this.ipv6Tree = ipv6Tree;
         this.port43 = port43;
         this.reservedResources = reservedResources;
-        this.rdapRelationService = rdapRelationService;
     }
 
     public Object map(final String requestUrl,
@@ -201,7 +200,6 @@ class RdapObjectMapper {
         rdapObject.getLinks().add(COPYRIGHT_LINK);
 
         mapRedactions(rdapObject);
-        includeRirSearchConformance(rdapObject, requestUrl);
         return mapCommonConformances(rdapObject);
     }
 
@@ -327,7 +325,6 @@ class RdapObjectMapper {
         final RdapObject rdapObject = mapCommonNoticesAndPort(rdapResponse, requestUrl);
         mapCommonLinks(rdapObject, requestUrl);
         mapRedactions(rdapResponse);
-        includeRirSearchConformance(rdapObject, requestUrl);
         return mapCommonConformances(rdapObject);
     }
 
@@ -367,8 +364,19 @@ class RdapObjectMapper {
         return rdapResponse;
     }
 
-    private void includeRirSearchConformance(final RdapObject rdapResponse, final String requestUrl) {
-        rdapRelationService.includeRirSearchConformance(rdapResponse, requestUrl);
+
+    public void includeRirSearchConformance(final RdapObject rdapObject, final String requestUrl){
+        rdapObject.getRdapConformance().add(RdapConformance.RIR_SEARCH_1.getValue());
+        if (requestUrl == null) {
+            return;
+        }
+        if (requestUrl.contains(RdapRequestType.IPS.name().toLowerCase())){
+            rdapObject.getRdapConformance().addAll(List.of(RdapConformance.IPS.getValue(), RdapConformance.IP_SEARCH_RESULTS.getValue()));
+            return;
+        }
+        if (requestUrl.contains(RdapRequestType.AUTNUMS.name().toLowerCase())){
+            rdapObject.getRdapConformance().addAll(List.of(RdapConformance.AUTNUMS.getValue(), RdapConformance.AUTNUM_SEARCH_RESULTS.getValue()));
+        }
     }
 
     private Ip createIp(final RpslObject rpslObject, final String requestUrl) {
