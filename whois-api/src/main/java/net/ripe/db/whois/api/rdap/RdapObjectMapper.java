@@ -184,7 +184,7 @@ public class RdapObjectMapper {
 
         final RdapObject rdapObject = mapCommonNoticesAndPort(searchResult, requestUrl);
         mapCommonLinks(rdapObject, requestUrl);
-        includeRirSearchConformance(rdapObject, requestUrl);
+        includeRirSearchConformanceWhenSearch(rdapObject, requestUrl);
         return mapCommonConformances(rdapObject);
     }
 
@@ -318,6 +318,7 @@ public class RdapObjectMapper {
         rdapResponse.getEvents().add(createEvent(DateUtil.fromString(rpslObject.getValueForAttribute(AttributeType.LAST_MODIFIED)), Action.LAST_CHANGED));
 
         rdapResponse.getNotices().addAll(noticeFactory.generateNotices(requestUrl, rpslObject));
+        includeRirSearchConformanceWhenRirSearch(rdapResponse, requestUrl);
         return rdapResponse;
     }
 
@@ -364,18 +365,28 @@ public class RdapObjectMapper {
         return rdapResponse;
     }
 
-
-    public void includeRirSearchConformance(final RdapObject rdapObject, final String requestUrl){
+    public void includeRirSearchConformanceWhenRirSearch(final RdapObject rdapObject, final String requestUrl){
+        if (StringUtils.isEmpty(requestUrl) || !requestUrl.contains("rirSearch1")){
+            return;
+        }
         rdapObject.getRdapConformance().add(RdapConformance.RIR_SEARCH_1.getValue());
-        if (StringUtils.isEmpty(requestUrl)) {
-            return;
-        }
-        if (requestUrl.contains(RdapRequestType.IPS.name().toLowerCase())){
-            rdapObject.getRdapConformance().addAll(List.of(RdapConformance.IPS.getValue(), RdapConformance.IP_SEARCH_RESULTS.getValue()));
-            return;
-        }
-        if (requestUrl.contains(RdapRequestType.AUTNUMS.name().toLowerCase())){
-            rdapObject.getRdapConformance().addAll(List.of(RdapConformance.AUTNUMS.getValue(), RdapConformance.AUTNUM_SEARCH_RESULTS.getValue()));
+        includeIpAutnumConformance(rdapObject, requestUrl);
+    }
+
+    public void includeRirSearchConformanceWhenSearch(final RdapObject rdapObject, final String requestUrl){
+        rdapObject.getRdapConformance().add(RdapConformance.RIR_SEARCH_1.getValue());
+        includeIpAutnumConformance(rdapObject, requestUrl);
+    }
+
+    private static void includeIpAutnumConformance(final RdapObject rdapObject, final String requestUrl) {
+        if (!StringUtils.isEmpty(requestUrl)) {
+            if (requestUrl.contains(RdapRequestType.IPS.name().toLowerCase())) {
+                rdapObject.getRdapConformance().addAll(List.of(RdapConformance.IPS.getValue(), RdapConformance.IP_SEARCH_RESULTS.getValue()));
+                return;
+            }
+            if (requestUrl.contains(RdapRequestType.AUTNUMS.name().toLowerCase())) {
+                rdapObject.getRdapConformance().addAll(List.of(RdapConformance.AUTNUMS.getValue(), RdapConformance.AUTNUM_SEARCH_RESULTS.getValue()));
+            }
         }
     }
 

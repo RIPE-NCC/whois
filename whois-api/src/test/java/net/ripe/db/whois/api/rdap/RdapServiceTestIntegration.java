@@ -3172,7 +3172,9 @@ public class RdapServiceTestIntegration extends AbstractRdapIntegrationTest {
                 .get(Ip.class);
 
         assertThat(ip.getHandle(), is("192.0.2.0 - 192.0.2.127")); // /26
-        assertThat(ip.getRdapConformance(), containsInAnyOrder("geofeed1", "cidr0", "rdap_level_0", "nro_rdap_profile_0", "redacted"));
+        assertThat(ip.getRdapConformance(), containsInAnyOrder("ips", "ipSearchResults", "rirSearch1", "geofeed1",
+                "cidr0", "rdap_level_0",
+                "nro_rdap_profile_0", "redacted"));
     }
 
     @Test
@@ -3184,7 +3186,9 @@ public class RdapServiceTestIntegration extends AbstractRdapIntegrationTest {
                 .get(Ip.class);
 
         assertThat(ip.getHandle(), is("192.0.2.0 - 192.0.2.127")); // /26
-        assertThat(ip.getRdapConformance(), containsInAnyOrder("geofeed1", "cidr0", "rdap_level_0", "nro_rdap_profile_0", "redacted"));
+        assertThat(ip.getRdapConformance(), containsInAnyOrder("rirSearch1", "ips", "ipSearchResults", "geofeed1",
+                "cidr0", "rdap_level_0",
+                "nro_rdap_profile_0", "redacted"));
     }
 
     @Test
@@ -3212,7 +3216,8 @@ public class RdapServiceTestIntegration extends AbstractRdapIntegrationTest {
                 .get(Ip.class);
 
         assertThat(ip.getHandle(), is("2001::/16"));
-        assertThat(ip.getRdapConformance(), containsInAnyOrder("geofeed1", "cidr0", "rdap_level_0",
+        assertThat(ip.getRdapConformance(), containsInAnyOrder("rirSearch1", "ips", "ipSearchResults", "geofeed1",
+                "cidr0", "rdap_level_0",
                 "nro_rdap_profile_0", "redacted"));
     }
 
@@ -3227,7 +3232,8 @@ public class RdapServiceTestIntegration extends AbstractRdapIntegrationTest {
                 .get(Domain.class);
 
         assertThat(domain.getHandle(), is("2.0.192.in-addr.arpa"));
-        assertThat(domain.getRdapConformance(), containsInAnyOrder("cidr0", "rdap_level_0", "nro_rdap_profile_0", "redacted"));
+        assertThat(domain.getRdapConformance(), containsInAnyOrder("rirSearch1", "cidr0", "rdap_level_0",
+                "nro_rdap_profile_0", "redacted"));
     }
 
 
@@ -3258,7 +3264,7 @@ public class RdapServiceTestIntegration extends AbstractRdapIntegrationTest {
                 .get(Ip.class);
 
         assertThat(ip.getHandle(), is("192.0.2.0 - 192.0.2.255")); // /24
-        assertThat(ip.getRdapConformance(), containsInAnyOrder("geofeed1",
+        assertThat(ip.getRdapConformance(), containsInAnyOrder("ips", "ipSearchResults", "rirSearch1", "geofeed1",
                 "cidr0", "rdap_level_0", "nro_rdap_profile_0", "redacted"));
     }
 
@@ -3284,7 +3290,7 @@ public class RdapServiceTestIntegration extends AbstractRdapIntegrationTest {
                 .get(Ip.class);
 
         assertThat(ip.getHandle(), is("2000::/3"));
-        assertThat(ip.getRdapConformance(), containsInAnyOrder("geofeed1",
+        assertThat(ip.getRdapConformance(), containsInAnyOrder("rirSearch1", "ips", "ipSearchResults", "geofeed1",
                 "cidr0", "rdap_level_0", "nro_rdap_profile_0", "redacted"));
     }
 
@@ -3298,7 +3304,8 @@ public class RdapServiceTestIntegration extends AbstractRdapIntegrationTest {
                 .get(Domain.class);
 
         assertThat(domain.getHandle(), is("0.192.in-addr.arpa"));
-        assertThat(domain.getRdapConformance(), containsInAnyOrder("cidr0", "rdap_level_0", "nro_rdap_profile_0", "redacted"));
+        assertThat(domain.getRdapConformance(), containsInAnyOrder("rirSearch1", "cidr0", "rdap_level_0",
+                "nro_rdap_profile_0", "redacted"));
     }
 
     @Test
