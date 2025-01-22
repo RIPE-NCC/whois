@@ -254,16 +254,11 @@ public class RdapService {
             return redirect(getRequestPath(request), getQueryObject(objectTypes, key));
         }
 
-        final List<RpslObject> rpslObjects = rdapRelationService.handleRelationQuery(
-                request,
-                requestType, relation,
-                key);
-
         return Response.ok(
-                rdapObjectMapper.mapSearch(
-                        getRequestUrl(request),
-                        rpslObjects,
-                        maxResultSize))
+                rdapRelationService.handleRelationQuery(
+                        request, objectTypes,
+                        requestType, relation,
+                        key, getRequestUrl(request), maxResultSize))
                 .header(CONTENT_TYPE, CONTENT_TYPE_RDAP_JSON)
                 .build();
     }
