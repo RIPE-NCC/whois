@@ -22,6 +22,7 @@ import net.ripe.db.whois.api.rdap.domain.Link;
 import net.ripe.db.whois.api.rdap.domain.Nameserver;
 import net.ripe.db.whois.api.rdap.domain.Notice;
 import net.ripe.db.whois.api.rdap.domain.RdapObject;
+import net.ripe.db.whois.api.rdap.domain.RdapRequestType;
 import net.ripe.db.whois.api.rdap.domain.RelationType;
 import net.ripe.db.whois.api.rdap.domain.Remark;
 import net.ripe.db.whois.api.rdap.domain.Role;
@@ -112,6 +113,7 @@ public class RdapObjectMapper {
     private static final String GEOFEED_CONTENT_TYPE = "application/geofeed+csv";
     private static final Link COPYRIGHT_LINK = new Link(TERMS_AND_CONDITIONS, "copyright", TERMS_AND_CONDITIONS, null, null, null);
     private static final Logger LOGGER = LoggerFactory.getLogger(RdapObjectMapper.class);
+    private static final String APPLICATION_RDAP_JSON = "application/rdap+json";
 
     private final NoticeFactory noticeFactory;
     private final RpslObjectDao rpslObjectDao;
@@ -119,7 +121,7 @@ public class RdapObjectMapper {
     private final Ipv4Tree ipv4Tree;
     private final Ipv6Tree ipv6Tree;
     private final String port43;
-    private final RdapRelationService rdapRelationService;
+    private final String rdapRirSearchSkeleton;
     private static final Map<AttributeType, Role> CONTACT_ATTRIBUTE_TO_ROLE_NAME = Map.of(
             ADMIN_C, Role.ADMINISTRATIVE,
             TECH_C, Role.TECHNICAL,
@@ -136,14 +138,14 @@ public class RdapObjectMapper {
             final Ipv4Tree ipv4Tree,
             final Ipv6Tree ipv6Tree,
             @Value("${rdap.port43:}") final String port43,
-            final RdapRelationService rdapRelationService) {
+            @Value("${rdap.public.baseUrl:}") final String baseUrl) {
         this.noticeFactory = noticeFactory;
         this.rpslObjectDao = rpslObjectDao;
         this.ipv4Tree = ipv4Tree;
         this.ipv6Tree = ipv6Tree;
         this.port43 = port43;
         this.reservedResources = reservedResources;
-        this.rdapRelationService = rdapRelationService;
+        this.rdapRirSearchSkeleton = baseUrl + "/%s/rirSearch1/%s/%s";
     }
 
     public Object map(final String requestUrl,
@@ -159,19 +161,19 @@ public class RdapObjectMapper {
                 case DOMAIN -> {
                     final Domain domain = (Domain) getRdapObject(requestUrl, object, null);
                     mapRedactions(domain);
-                    mapRelationLinks(domain, requestUrl);
+                    mapCommonRelationLinks(domain, requestUrl);
                     searchResult.addDomainSearchResult(domain);
                 }
                 case INET6NUM, INETNUM -> {
                     final Ip ip = (Ip) getRdapObject(requestUrl, object, null);
                     mapRedactions(ip);
-                    mapRelationLinks(ip, requestUrl);
+                    mapCommonRelationLinks(ip, requestUrl);
                     searchResult.addIpSearchResult(ip);
                 }
                 case AUT_NUM -> {
                     final Autnum autnum = (Autnum) getRdapObject(requestUrl, object, null);
                     mapRedactions(autnum);
-                    mapRelationLinks(autnum, requestUrl);
+                    mapCommonRelationLinks(autnum, requestUrl);
                     searchResult.addAutnumSearchResult(autnum);
                 }
                 default -> {
@@ -190,6 +192,7 @@ public class RdapObjectMapper {
 
         final RdapObject rdapObject = mapCommonNoticesAndPort(searchResult, requestUrl);
         mapCommonLinks(rdapObject, requestUrl);
+        mapRirSearchConformanceWhenSearch(rdapObject, requestUrl);
         return mapCommonConformances(rdapObject);
     }
 
@@ -329,11 +332,17 @@ public class RdapObjectMapper {
     private RdapObject mapCommons(final RdapObject rdapResponse, final String requestUrl) {
         final RdapObject rdapObject = mapCommonNoticesAndPort(rdapResponse, requestUrl);
         mapCommonLinks(rdapObject, requestUrl);
-        mapRelationLinks(rdapResponse, requestUrl);
+        mapConformanceAndLinksForRelation(rdapResponse, rdapObject, requestUrl);
         mapRedactions(rdapResponse);
         return mapCommonConformances(rdapObject);
     }
 
+
+    private void mapConformanceAndLinksForRelation(final RdapObject rdapResponse, final RdapObject rdapObject,
+                                                   final String requestUrl){
+        mapCommonRelationLinks(rdapResponse, requestUrl);
+        mapRirSearchConformanceWhenLookup(rdapObject, requestUrl);
+    }
 
     private void mapCommonLinks(final RdapObject rdapResponse, final String requestUrl) {
         if (requestUrl != null) {
@@ -706,7 +715,7 @@ public class RdapObjectMapper {
 
     private static String getAndHandleMultipleAttributes(final RpslObject rpslObject, final AttributeType type, final RdapObject rdapObject) {
         final List<RpslAttribute> attributes =  rpslObject.findAttributes(type);
-        if(attributes.size() == 0) {
+        if(attributes.isEmpty()) {
             return null;
         }
 
@@ -737,36 +746,75 @@ public class RdapObjectMapper {
         });
     }
 
-    private void mapRelationLinks(final RdapObject rdapResponse, final String requestUrl){
-        if (requestUrl == null || requestUrl.contains("rirSearch1")){
+    private void mapRirSearchConformanceWhenLookup(final RdapObject rdapObject, final String requestUrl){
+        if (StringUtils.isEmpty(requestUrl)){
+            return;
+        }
+
+        if (requestUrl.contains("rirSearch1")){
+            // This could happen if relation type is up or top search, the object is returned like lookup
+            mapRirSearchConformanceWhenSearch(rdapObject, requestUrl);
+            return;
+        }
+
+        if (requestUrl.contains(RdapRequestType.IP.name().toLowerCase())) {
+            rdapObject.getRdapConformance().addAll(List.of(RdapConformance.RIR_SEARCH_1.getValue(), RdapConformance.IPS.getValue()));
+            return;
+        }
+        if (requestUrl.contains(RdapRequestType.AUTNUM.name().toLowerCase())) {
+            rdapObject.getRdapConformance().addAll(List.of(RdapConformance.RIR_SEARCH_1.getValue(),
+                    RdapConformance.AUTNUMS.getValue()));
+            return;
+        }
+        if (requestUrl.contains(RdapRequestType.DOMAIN.name().toLowerCase())){
+            rdapObject.getRdapConformance().add(RdapConformance.RIR_SEARCH_1.getValue());
+        }
+    }
+
+    private void mapRirSearchConformanceWhenSearch(final RdapObject rdapObject, final String requestUrl){
+        rdapObject.getRdapConformance().add(RdapConformance.RIR_SEARCH_1.getValue());
+        if (!StringUtils.isEmpty(requestUrl)) {
+            if (requestUrl.contains(RdapRequestType.IPS.name().toLowerCase())) {
+                rdapObject.getRdapConformance().addAll(List.of(RdapConformance.IPS.getValue(), RdapConformance.IP_SEARCH_RESULTS.getValue()));
+                return;
+            }
+            if (requestUrl.contains(RdapRequestType.AUTNUMS.name().toLowerCase())) {
+                rdapObject.getRdapConformance().addAll(List.of(RdapConformance.AUTNUMS.getValue(), RdapConformance.AUTNUM_SEARCH_RESULTS.getValue()));
+            }
+        };
+    }
+
+
+    private void mapCommonRelationLinks(final RdapObject rdapResponse, final String requestUrl){
+        if (StringUtils.isEmpty(requestUrl) || requestUrl.contains("rirSearch1")){
             return;
         }
         switch (rdapResponse){
-            case Ip ip -> mapCommonRelationLinks(rdapResponse, requestUrl, "ips", ip.getHandle());
-            case net.ripe.db.whois.api.rdap.domain.Domain domain -> mapCommonRelationLinks(rdapResponse, requestUrl, "domains", domain.getHandle());
-            case Autnum autnum -> mapCommonRelationLinks(rdapResponse, requestUrl, "autnums", autnum.getHandle());
+            case Ip ip -> mapCommonRelationLinks(rdapResponse, requestUrl, RdapRequestType.IPS.name().toLowerCase(), ip.getHandle());
+            case net.ripe.db.whois.api.rdap.domain.Domain domain -> mapCommonRelationLinks(rdapResponse, requestUrl, RdapRequestType.DOMAINS.name().toLowerCase(), domain.getHandle());
+            case Autnum autnum -> mapCommonRelationLinks(rdapResponse, requestUrl, RdapRequestType.AUTNUMS.name().toLowerCase(), autnum.getHandle());
             default -> {}
         }
     }
 
     private void mapCommonRelationLinks(final RdapObject rdapResponse, final String requestUrl, final String objectType, final String handle){
         rdapResponse.getLinks().add(new Link(requestUrl, RelationType.UP.getValue(), String.format(rdapRirSearchSkeleton,
-                objectType, RelationType.UP.getValue(), handle), "application/rdap+json", null, null));
+                objectType, RelationType.UP.getValue(), handle), APPLICATION_RDAP_JSON, null, null));
 
         rdapResponse.getLinks().add(new Link(requestUrl, "up-active", String.format(rdapRirSearchSkeleton + "?status=active",
-                objectType, RelationType.UP.getValue(), handle), "application/rdap+json", null, null));
+                objectType, RelationType.UP.getValue(), handle), APPLICATION_RDAP_JSON, null, null));
 
         rdapResponse.getLinks().add(new Link(requestUrl, RelationType.DOWN.getValue(), String.format(rdapRirSearchSkeleton,
-                objectType, RelationType.DOWN.getValue(), handle), "application/rdap+json", null, null));
+                objectType, RelationType.DOWN.getValue(), handle), APPLICATION_RDAP_JSON, null, null));
 
         rdapResponse.getLinks().add(new Link(requestUrl, RelationType.TOP.getValue(), String.format(rdapRirSearchSkeleton,
-                objectType, RelationType.TOP.getValue(), handle), "application/rdap+json", null, null));
+                objectType, RelationType.TOP.getValue(), handle), APPLICATION_RDAP_JSON, null, null));
 
         rdapResponse.getLinks().add(new Link(requestUrl, "top-active", String.format(rdapRirSearchSkeleton + "?status=active",
-                objectType, RelationType.TOP.getValue(), handle), "application/rdap+json", null, null));
+                objectType, RelationType.TOP.getValue(), handle), APPLICATION_RDAP_JSON, null, null));
 
         rdapResponse.getLinks().add(new Link(requestUrl, RelationType.BOTTOM.getValue(), String.format(rdapRirSearchSkeleton,
-                objectType, RelationType.BOTTOM.getValue(), handle), "application/rdap+json", null, null));
+                objectType, RelationType.BOTTOM.getValue(), handle), APPLICATION_RDAP_JSON, null, null));
     }
 
 }
