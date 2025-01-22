@@ -367,7 +367,7 @@ public class RdapObjectMapper {
 
     public void includeRirSearchConformance(final RdapObject rdapObject, final String requestUrl){
         rdapObject.getRdapConformance().add(RdapConformance.RIR_SEARCH_1.getValue());
-        if (requestUrl == null) {
+        if (StringUtils.isEmpty(requestUrl)) {
             return;
         }
         if (requestUrl.contains(RdapRequestType.IPS.name().toLowerCase())){
