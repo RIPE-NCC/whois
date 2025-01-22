@@ -9,6 +9,7 @@ import jakarta.servlet.ServletResponse;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletRequestWrapper;
 import jakarta.servlet.http.HttpServletResponse;
+import net.ripe.db.whois.common.apiKey.ApiKeyUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.eclipse.jetty.http.HttpStatus;
 import org.springframework.stereotype.Component;
@@ -20,7 +21,7 @@ import org.apache.commons.codec.binary.Base64;
 import static jakarta.servlet.http.HttpServletRequest.BASIC_AUTH;
 
 @Component
-public class HttpsBasicAuthCustomizer implements Filter {
+public class HttpsBasicAuthFiler implements Filter {
 
     @Override
     public void doFilter(final ServletRequest request, final ServletResponse response, final FilterChain chain) throws IOException, ServletException {
@@ -42,11 +43,12 @@ public class HttpsBasicAuthCustomizer implements Filter {
     }
 
     private boolean canProceed(final ServletRequest request) {
-       if(! (request instanceof HttpServletRequest)) {
+       if(! (request instanceof HttpServletRequest httpRequest)) {
            return false;
        }
 
-       return RestServiceHelper.isBasicAuth((HttpServletRequest) request);
+        return RestServiceHelper.isBasicAuth(httpRequest)
+               && !ApiKeyUtils.isAPIKeyRequest(httpRequest.getHeader(HttpHeaders.AUTHORIZATION));
     }
 
     @Override

@@ -1,35 +1,59 @@
 package net.ripe.db.whois.common.apiKey;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.google.common.base.MoreObjects;
+import jakarta.xml.bind.annotation.XmlAccessType;
+import jakarta.xml.bind.annotation.XmlAccessorType;
+import jakarta.xml.bind.annotation.XmlRootElement;
 
-import java.time.LocalDateTime;
-import java.util.List;
+import java.io.Serial;
+import java.io.Serializable;
 
-public class OAuthSession {
 
-    private final String application;
+@XmlAccessorType(XmlAccessType.FIELD)
+@XmlRootElement
+@JsonIgnoreProperties(ignoreUnknown = true)
+public class OAuthSession implements Serializable {
+
+    @Serial
+    private static final long serialVersionUID = 1L;
+
+    private final String[] aud;
 
     private final String email;
 
-    private final String accessKey;
+    private final String keyId;
 
     private final String uuid;
 
-    private final LocalDateTime expirationDate;
+    private final String scope;
 
-    private final List<String> scopes;
-
-    public OAuthSession(final String application, final String accessKey, final String email, final String uuid, final LocalDateTime expirationDate, final List<String> scopes) {
-        this.application = application;
-        this.email = email;
-        this.uuid = uuid;
-        this.expirationDate = expirationDate;
-        this.scopes = scopes;
-        this.accessKey = accessKey;
+    public OAuthSession() {
+        this.aud = null;
+        this.email = null;
+        this.keyId = null;
+        this.uuid = null;
+        this.scope = null;
     }
 
-    public String getApplication() {
-        return application;
+    public OAuthSession(final String[] aud, final String keyId, final String email, final String uuid, final String scope) {
+        this.aud = aud;
+        this.email = email;
+        this.uuid = uuid;
+        this.scope = scope;
+        this.keyId = keyId;
+    }
+
+    public OAuthSession(final String keyId) {
+        this.aud = null;
+        this.email = null;
+        this.keyId = keyId;
+        this.uuid = null;
+        this.scope = null;
+    }
+
+    public String[] getAud() {
+        return aud;
     }
 
     public String getEmail() {
@@ -40,30 +64,24 @@ public class OAuthSession {
         return uuid;
     }
 
-    public LocalDateTime getExpirationDate() {
-        return expirationDate;
+    public String getKeyId() {
+        return keyId;
     }
 
-    public String getAccessKey() {
-        return accessKey;
-    }
-
-    public List<String> getScopes() {
-        return scopes;
+    public String getScope() {
+        return scope;
     }
 
     @Override
     public String toString() {
         return MoreObjects.toStringHelper(this)
-                .add("application", application)
-                .add("accessKey", accessKey)
+                .add("aud", aud)
+                .add("keyId", keyId)
                 .add("email", email)
                 .add("uuid", uuid)
-                .add("expirationDate", expirationDate.toString())
-                .add("scopes", scopes)
+                .add("scopes", scope)
                 .toString();
     }
-
 
    public static class ScopeFormatter {
 
@@ -73,9 +91,16 @@ public class OAuthSession {
 
         public ScopeFormatter(final String scope) {
             final String[] parts = scope.split(":|\\.");
-            this.appName = parts[0];
-            this.scopeType = parts[1];
-            this.scopeKey = parts[2];
+
+            if(parts.length == 0 || parts.length < 2) {
+                this.appName = null;
+                this.scopeType = null;
+                this.scopeKey = null;
+            } else {
+                this.appName = parts[0];
+                this.scopeType = parts[1];
+                this.scopeKey = parts[2];
+            }
         }
 
         public String getScopeType() {
@@ -89,5 +114,13 @@ public class OAuthSession {
         public String getAppName() {
             return appName;
         }
+    }
+
+    public static OAuthSession from(final OAuthSession oAuthSession, final String keyId) {
+        if(oAuthSession == null) {
+            return new OAuthSession(keyId);
+        }
+
+        return new OAuthSession(oAuthSession.getAud(), keyId, oAuthSession.getEmail(), oAuthSession.getUuid(), oAuthSession.getScope());
     }
 }

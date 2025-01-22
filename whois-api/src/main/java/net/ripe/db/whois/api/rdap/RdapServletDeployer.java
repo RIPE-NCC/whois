@@ -22,7 +22,9 @@ public class RdapServletDeployer implements ServletDeployer {
     private final RdapRequestTypeConverter rdapRequestTypeConverter;
 
     @Autowired
-    public RdapServletDeployer(final RdapService rdapService, final RdapExceptionMapper rdapExceptionMapper, final RdapRequestTypeConverter rdapRequestTypeConverter) {
+    public RdapServletDeployer(final RdapService rdapService,
+                               final RdapExceptionMapper rdapExceptionMapper,
+                               final RdapRequestTypeConverter rdapRequestTypeConverter) {
         this.rdapService = rdapService;
         this.rdapExceptionMapper = rdapExceptionMapper;
         this.rdapRequestTypeConverter = rdapRequestTypeConverter;

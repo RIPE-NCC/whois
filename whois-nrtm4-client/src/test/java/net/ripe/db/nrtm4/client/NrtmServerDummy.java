@@ -1,6 +1,15 @@
 package net.ripe.db.nrtm4.client;
 
+import com.google.common.collect.ImmutableMap;
 import com.google.common.io.Resources;
+import com.nimbusds.jose.JOSEException;
+import com.nimbusds.jose.JWSAlgorithm;
+import com.nimbusds.jose.JWSHeader;
+import com.nimbusds.jose.JWSObject;
+import com.nimbusds.jose.JWSSigner;
+import com.nimbusds.jose.Payload;
+import com.nimbusds.jose.crypto.Ed25519Signer;
+import com.nimbusds.jose.jwk.OctetKeyPair;
 import jakarta.annotation.PostConstruct;
 import jakarta.annotation.PreDestroy;
 import jakarta.servlet.http.HttpServletResponse;
@@ -10,6 +19,7 @@ import net.ripe.db.whois.common.Stub;
 import net.ripe.db.whois.common.aspects.RetryFor;
 import net.ripe.db.whois.common.profiles.WhoisProfile;
 import org.apache.commons.compress.utils.Lists;
+import org.eclipse.jetty.http.HttpHeader;
 import org.eclipse.jetty.server.Handler;
 import org.eclipse.jetty.server.NetworkConnector;
 import org.eclipse.jetty.server.Request;
@@ -29,7 +39,9 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.nio.ByteBuffer;
 import java.nio.charset.Charset;
+import java.text.ParseException;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 import java.util.zip.GZIPOutputStream;
 
@@ -48,43 +60,68 @@ public class NrtmServerDummy implements Stub {
 
     private final List<Mock> mocks;
 
-    final String unfRipeTemplate = """
+    private final static String PRIVATE_KEY = "{\"kty\":\"OKP\",\"d\":\"xzyMhzxbCpv-A1UDYMlGXdheAHDQuB-n5hV0I-J8PgQ\",\"crv\":\"Ed25519\",\"kid\":\"a9ddf4a5-0ca0-47b1-a80d-3c63fd5c19c5\",\"x\":\"ry9yLgcy1eUNX1lDs852mmUXRoy4qZW1HSOu54qBCHI\"}";
+
+    private final static String RIPE_NONAUTH_SNAP_HASH = "148c3c411b8f044f5fc0ab201f6dd03e80c862e27ad1a63488aee337dc7eb4a2";
+
+    private final static String RIPE_SNAP_HASH = "7c9d1a1ebc73dc719e11c1046fae6598c35ae507a391d142beebe33865f077a0";
+
+    private final static Map<String, String> RIPE_NONAUTH_DELTA_HASH = ImmutableMap.of(
+            "1", "d671895977aa9dd8ca2b7ba74cd96cd28a786b0e19b3db709c9c5a02a52466ef",
+            "2", "c0916fbf16da2972de2a9e78a79fe5390b9139d570ca24f5e17d280ca96078e4",
+            "fake", "fake_hash"
+    );
+
+    private final static Map<String, String> RIPE_DELTA_HASH = ImmutableMap.of(
+            "1", "e9c948811a949935aafbb55fbf180421bdf23f9527f2342e58d69013475d1709",
+            "2", "60eaced7492f74e0e0b2009fd8354e0ddf66162276c22d56ea092f14fb5eddf6",
+            "fake", "fake_hash"
+    );
+
+
+   private  final static String UNF_RIPE_TEMPLATE = """
                 {
                   "nrtm_version": 4,
                   "timestamp": "2024-10-25T00:07:00Z",
                   "type": "notification",
                   "source": "RIPE",
                   "session_id": "4521174b-548f-4e51-98fc-dfd720011a0c",
-                  "version": 1,
+                  "version": %s,
                   "snapshot": {
                     "version": 1,
-                    "url": "RIPE/nrtm-snapshot.4.RIPE.4521174b-548f-4e51-98fc-dfd720011a0c.82542bd048e111fe57db404d08b6433e.json.gz",
+                    "url": "RIPE/nrtm-snapshot.1.RIPE.4521174b-548f-4e51-98fc-dfd720011a0c.82542bd048e111fe57db404d08b6433e.json.gz",
                     "hash": "%s"
                   },
                   "deltas": [
                     {
-                      "version": 1,
-                      "url": "RIPE/nrtm-delta.4.RIPE.4521174b-548f-4e51-98fc-dfd720011a0c.e3be41ff312010046b67d099faa58f44.json",
-                      "hash": "c50dd7554cb35ef5f2f45d7bfa09fc51033cbe1152d29b36cb1178319e22be3e"
+                      "version": %s,
+                      "url": "RIPE/nrtm-delta.%s.RIPE.4521174b-548f-4e51-98fc-dfd720011a0c.e3be41ff312010046b67d099faa58f44.json",
+                      "hash": "%s"
                     }
                   ]
                 }
                 """;
 
-    final String unfRipeNonAuthTemplate = """
+    private final static String UNF_RIPE_NONAUTH_TEMPLATE = """
                 {
-                  "nrtm_version": 1,
+                  "nrtm_version": 4,
                   "timestamp": "2024-10-24T13:20:00Z",
                   "type": "notification",
                   "source": "RIPE-NONAUTH",
                   "session_id": "6328095e-7d46-415b-9333-8f2ae274b7c8",
-                  "version": 1,
+                  "version": %s,
                   "snapshot": {
                     "version": 1,
                     "url": "RIPE-NONAUTH/nrtm-snapshot.1.RIPE-NONAUTH.6328095e-7d46-415b-9333-8f2ae274b7c8.f1195bb8a666fe7b97fa74009a70cefa.json.gz",
                     "hash": "%s"
                   },
-                  "deltas": []
+                  "deltas": [
+                    {
+                      "version": %s,
+                      "url": "RIPE-NONAUTH/nrtm-delta.%s.RIPE-NONAUTH.4f3ff2a7-1877-4cab-82f4-1dd6425c4e7d.94b5a6cc54f258062c25d9bee224b5c.json",
+                      "hash": "%s"
+                    }
+                  ]
                 }
                 """;
 
@@ -130,16 +167,29 @@ public class NrtmServerDummy implements Stub {
 
         @Override
         public boolean handle(Request request, Response response, Callback callback) throws Exception {
-            response.getHeaders().put("Content-Type", "text/xml;charset=utf-8");
+            response.getHeaders().put(HttpHeader.CONTENT_TYPE, "text/xml;charset=utf-8");
             for (Mock mock : mocks) {
                 if (mock.matches(request)) {
                     response.setStatus(HttpServletResponse.SC_OK);
-                    if (mock instanceof NrtmResponseMock) {
-                        response.getHeaders().put("Content-Type", ((NrtmResponseMock)mock).mediaType);
-                        response.write(true, mock.response(), null);
-                    } else {
-                        response.getHeaders().put("Content-Type", MediaType.APPLICATION_OCTET_STREAM);
-                        response.write(true, mock.response(), null);
+                    switch (mock) {
+                        //TODO: [MH] Combine this first three
+                        case NrtmResponseMock nrtmResponseMock -> {
+                            response.getHeaders().put(HttpHeader.CONTENT_TYPE, ((NrtmResponseMock)mock).mediaType);
+                            response.write(true, mock.response(), null);
+                        }
+                        case NrtmDeltaResponseMock nrtmDeltaResponseMock -> {
+                            response.getHeaders().put(HttpHeader.CONTENT_TYPE, nrtmDeltaResponseMock.mediaType);
+                            response.write(true, mock.response(), null);
+                        }
+                        case NrtmSignedResponseMock nrtmSignedResponseMock -> {
+                            response.getHeaders().put(HttpHeader.CONTENT_TYPE, nrtmSignedResponseMock.mediaType);
+                            response.write(true, mock.response(), null);
+                        }
+                        case NrtmCompressedResponseMock nrtmCompressedResponseMock -> {
+                            response.getHeaders().put(HttpHeader.CONTENT_TYPE, MediaType.APPLICATION_OCTET_STREAM);
+                            response.write(true, mock.response(), null);
+                        }
+                        default -> throw new IllegalStateException("Unexpected value: " + mock);
                     }
                 }
             }
@@ -152,13 +202,20 @@ public class NrtmServerDummy implements Stub {
         initialiseMocks();
     }
 
-    public void setFakeHashMocks(){
+    public void setSecondDeltasMocks() {
         mocks.clear();
         mocks.add(new NrtmResponseMock("/nrtmv4", "nrtm-sources.html", "application/html"));
-        mocks.add(new NrtmResponseMock("/nrtmv4/RIPE/update-notification-file.jose", "fake-nrtm-RIPE-signature.jose", "application/jose+json"));
-        mocks.add(new NrtmResponseMock("/nrtmv4/RIPE-NONAUTH/update-notification-file.jose", "fake-nrtm-RIPE-NONAUTH-signature.jose", "application/jose+json"));
-        mocks.add(new NrtmCompressedResponseMock("/nrtmv4/RIPE-NONAUTH/nrtm-snapshot.1.RIPE-NONAUTH.6328095e-7d46-415b-9333-8f2ae274b7c8.f1195bb8a666fe7b97fa74009a70cefa.json.gz", "nrtm-snapshot.1.RIPE-NONAUTH.json"));
-        mocks.add(new NrtmCompressedResponseMock("/nrtmv4/RIPE/nrtm-snapshot.4.RIPE.4521174b-548f-4e51-98fc-dfd720011a0c.82542bd048e111fe57db404d08b6433e.json.gz", "nrtm-snapshot.1.RIPE.json"));
+        mocks.add(new NrtmSignedResponseMock("/nrtmv4/RIPE/update-notification-file.jose", getUpdateNotificationFileRIPE("2", RIPE_SNAP_HASH, "2"), "application/jose+json"));
+        mocks.add(new NrtmSignedResponseMock("/nrtmv4/RIPE-NONAUTH/update-notification-file.jose", getUpdateNotificationFileRIPENonAuth("2", RIPE_NONAUTH_SNAP_HASH, "2"), "application/jose+json"));
+        mocks.add(new NrtmDeltaResponseMock("/nrtmv4/RIPE/nrtm-delta.2.RIPE.4521174b-548f-4e51-98fc-dfd720011a0c.e3be41ff312010046b67d099faa58f44.json", "nrtm-delta.2.RIPE.json", "application/json"));
+        mocks.add(new NrtmDeltaResponseMock("/nrtmv4/RIPE-NONAUTH/nrtm-delta.2.RIPE-NONAUTH.4f3ff2a7-1877-4cab-82f4-1dd6425c4e7d.94b5a6cc54f258062c25d9bee224b5c.json", "nrtm-delta.2.RIPE-NONAUTH.json", "application/json"));
+    }
+
+    public void setFakeHashMocks() {
+        mocks.clear();
+        mocks.add(new NrtmResponseMock("/nrtmv4", "nrtm-sources.html", "application/html"));
+        mocks.add(new NrtmSignedResponseMock("/nrtmv4/RIPE/update-notification-file.jose", getUpdateNotificationFileRIPE("1", "fake_hash", "fake"), "application/jose+json"));
+        mocks.add(new NrtmSignedResponseMock("/nrtmv4/RIPE-NONAUTH/update-notification-file.jose", getUpdateNotificationFileRIPENonAuth("1", "fake_hash", "fake"), "application/jose+json"));
     }
 
     public void setWrongSignedUNF(){
@@ -170,13 +227,13 @@ public class NrtmServerDummy implements Stub {
 
     private void initialiseMocks() {
         mocks.add(new NrtmResponseMock("/nrtmv4", "nrtm-sources.html", "application/html"));
-        mocks.add(new NrtmResponseMock("/nrtmv4/RIPE/update-notification-file.jose", "nrtm-RIPE-signature.jose", "application/jose+json"));
-        mocks.add(new NrtmResponseMock("/nrtmv4/RIPE-NONAUTH/update-notification-file.jose", "nrtm-RIPE-NONAUTH-signature.jose", "application/jose+json"));
+        mocks.add(new NrtmSignedResponseMock("/nrtmv4/RIPE/update-notification-file.jose", getUpdateNotificationFileRIPE("1", RIPE_SNAP_HASH, "1"), "application/jose+json"));
+        mocks.add(new NrtmSignedResponseMock("/nrtmv4/RIPE-NONAUTH/update-notification-file.jose", getUpdateNotificationFileRIPENonAuth("1", RIPE_NONAUTH_SNAP_HASH, "1"), "application/jose+json"));
         mocks.add(new NrtmCompressedResponseMock("/nrtmv4/RIPE-NONAUTH/nrtm-snapshot.1.RIPE-NONAUTH.6328095e-7d46-415b-9333-8f2ae274b7c8.f1195bb8a666fe7b97fa74009a70cefa.json.gz", "nrtm-snapshot.1.RIPE-NONAUTH.json"));
-        mocks.add(new NrtmCompressedResponseMock("/nrtmv4/RIPE/nrtm-snapshot.4.RIPE.4521174b-548f-4e51-98fc-dfd720011a0c.82542bd048e111fe57db404d08b6433e.json.gz", "nrtm-snapshot.1.RIPE.json"));
+        mocks.add(new NrtmCompressedResponseMock("/nrtmv4/RIPE/nrtm-snapshot.1.RIPE.4521174b-548f-4e51-98fc-dfd720011a0c.82542bd048e111fe57db404d08b6433e.json.gz", "nrtm-snapshot.1.RIPE.json"));
+        mocks.add(new NrtmDeltaResponseMock("/nrtmv4/RIPE/nrtm-delta.1.RIPE.4521174b-548f-4e51-98fc-dfd720011a0c.e3be41ff312010046b67d099faa58f44.json", "nrtm-delta.1.RIPE.json", "application/json"));
+        mocks.add(new NrtmDeltaResponseMock("/nrtmv4/RIPE-NONAUTH/nrtm-delta.1.RIPE-NONAUTH.4f3ff2a7-1877-4cab-82f4-1dd6425c4e7d.94b5a6cc54f258062c25d9bee224b5c.json", "nrtm-delta.1.RIPE-NONAUTH.json", "application/json"));
     }
-
-
 
     private interface Mock {
 
@@ -246,6 +303,30 @@ public class NrtmServerDummy implements Stub {
         }
     }
 
+    private record NrtmSignedResponseMock(String fileType, ByteBuffer response, String mediaType) implements Mock {
+
+        private NrtmSignedResponseMock(final String fileType, final String payload, final String mediaType) {
+            this(fileType, Mock.getResourceAsRecords(payload), mediaType);
+        }
+
+        @Override
+        public boolean matches(final Request request) {
+            return request.getHttpURI().toString().endsWith(fileType);
+        }
+    }
+
+    private record NrtmDeltaResponseMock(String fileType, ByteBuffer response, String mediaType) implements Mock {
+
+        private NrtmDeltaResponseMock(final String fileType, final String payload, final String mediaType) {
+            this(fileType, Mock.getResourceAsRecords(payload), mediaType);
+        }
+
+        @Override
+        public boolean matches(final Request request) {
+            return request.getHttpURI().toString().endsWith(fileType);
+        }
+    }
+
     private static class NrtmCompressedResponseMock implements Mock {
         private final String fileType;
         private final String searchKey;
@@ -258,7 +339,7 @@ public class NrtmServerDummy implements Stub {
         }
 
         @Override
-        public boolean matches(Request request) {
+        public boolean matches(final Request request) {
             return request.getHttpURI().toString().endsWith(fileType);
         }
 
@@ -266,5 +347,32 @@ public class NrtmServerDummy implements Stub {
         public ByteBuffer response() {
             return response;
         }
+    }
+
+    private static String signWithJWS(final String payload)  {
+
+        try {
+            final OctetKeyPair jwk = OctetKeyPair.parse(new String(PRIVATE_KEY.getBytes()));
+            final JWSSigner signer = new Ed25519Signer(jwk);
+
+            final JWSObject jwsObject = new JWSObject(
+                    new JWSHeader.Builder(JWSAlgorithm.Ed25519).keyID(jwk.getKeyID()).build(),
+                    new Payload(payload));
+
+            jwsObject.sign(signer);
+
+            return jwsObject.serialize();
+        } catch (ParseException | JOSEException ex) {
+            LOGGER.error("failed to sign payload {}", ex.getMessage());
+            throw new IllegalStateException("failed to sign contents of file");
+        }
+    }
+
+    private static ByteBuffer getUpdateNotificationFileRIPE(final String unfVersion, final String snapHast, final String deltaVersion){
+        return ByteBuffer.wrap(String.format(UNF_RIPE_TEMPLATE, unfVersion, snapHast, deltaVersion, deltaVersion, RIPE_DELTA_HASH.get(deltaVersion)).getBytes());
+    }
+
+    private static ByteBuffer getUpdateNotificationFileRIPENonAuth(final String unfVersion, final String snapHast, final String deltaVersion){
+        return ByteBuffer.wrap(String.format(UNF_RIPE_NONAUTH_TEMPLATE, unfVersion, snapHast, deltaVersion, deltaVersion, RIPE_NONAUTH_DELTA_HASH.get(deltaVersion)).getBytes());
     }
 }

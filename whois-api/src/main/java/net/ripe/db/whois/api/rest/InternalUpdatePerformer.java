@@ -3,6 +3,7 @@ package net.ripe.db.whois.api.rest;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 import net.ripe.db.whois.api.UpdateCreator;
+import net.ripe.db.whois.api.apiKey.BearerTokenExtractor;
 import net.ripe.db.whois.api.rest.domain.ErrorMessage;
 import net.ripe.db.whois.api.rest.domain.Link;
 import net.ripe.db.whois.api.rest.domain.WhoisObject;
@@ -63,25 +64,29 @@ public class InternalUpdatePerformer {
     private final WhoisObjectMapper whoisObjectMapper;
     private final LoggerContext loggerContext;
     private final SsoTokenTranslator ssoTokenTranslator;
+    private final BearerTokenExtractor bearerTokenExtractor;
+
     @Autowired
     public InternalUpdatePerformer(final UpdateRequestHandler updateRequestHandler,
                                    final DateTimeProvider dateTimeProvider,
                                    final WhoisObjectMapper whoisObjectMapper,
                                    final LoggerContext loggerContext,
+                                   final BearerTokenExtractor bearerTokenExtractor,
                                    final SsoTokenTranslator ssoTokenTranslator) {
         this.updateRequestHandler = updateRequestHandler;
         this.dateTimeProvider = dateTimeProvider;
         this.whoisObjectMapper = whoisObjectMapper;
         this.loggerContext = loggerContext;
         this.ssoTokenTranslator = ssoTokenTranslator;
+        this.bearerTokenExtractor = bearerTokenExtractor;
     }
 
-    public UpdateContext initContext(final Origin origin, final String ssoToken, final HttpServletRequest request) {
+    public UpdateContext initContext(final Origin origin, final String ssoToken, final String apiKeyId, final HttpServletRequest request) {
         loggerContext.init(getRequestId(origin.getFrom()));
         final UpdateContext updateContext = new UpdateContext(loggerContext);
         setSsoSessionToContext(updateContext, ssoToken);
         setClientCertificates(updateContext, request);
-        setOAuthSession(updateContext, request);
+        setOAuthSession(updateContext, apiKeyId, request);
         return updateContext;
     }
 
@@ -130,7 +135,6 @@ public class InternalUpdatePerformer {
 
         return responseBuilder.entity(new StreamingResponse(request, whoisResources)).build();
     }
-
 
     private WhoisResources performUpdates(final HttpServletRequest request, final UpdateContext updateContext, final Collection<Update> updates) {
         final WhoisResources whoisResources = new WhoisResources();
@@ -239,8 +243,8 @@ public class InternalUpdatePerformer {
         }
     }
 
-    private void setOAuthSession(final UpdateContext updateContext, final HttpServletRequest request) {
-        updateContext.setOAuthSession(BearerTokenExtractor.extract(request));
+    private void setOAuthSession(final UpdateContext updateContext, final String apiKeyId, final HttpServletRequest request) {
+        updateContext.setOAuthSession(bearerTokenExtractor.extractBearerToken(request, apiKeyId));
     }
 
     public void setClientCertificates(final UpdateContext updateContext, final HttpServletRequest request) {

@@ -100,7 +100,6 @@ public class NrtmClientServiceTestIntegration extends AbstractNrtmIntegrationTes
                 "upd-to:        noreply@ripe.net\n" +
                 "auth:          MD5-PW $1$d9fKeTr2$Si7YudNf4rUGmR71n/cqk/ #test\n" +
                 "mnt-by:        OWNER-MNT\n" +
-                "referral-by:   OWNER-MNT\n" +
                 "created:         2011-07-28T00:35:42Z\n" +
                 "last-modified:   2019-02-28T10:14:46Z\n" +
                 "source:        TEST");

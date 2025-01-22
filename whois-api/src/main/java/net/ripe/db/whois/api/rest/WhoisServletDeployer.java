@@ -52,7 +52,8 @@ public class WhoisServletDeployer implements ServletDeployer {
     private final BatchUpdatesService batchUpdatesService;
     private final HealthCheckService healthCheckService;
     private final ClientCertificateService clientCertificateService;
-    private final HttpsBasicAuthCustomizer httpsBasicAuthCustomizer;
+    private final HttpsBasicAuthFiler httpsBasicAuthFiler;
+    private final HttpsAPIKeyAuthFilter httpsAPIKeyAuthFilter;
     private final SyncUpdatesHttpSchemeFilter syncUpdatesHttpSchemeFilter;
 
     @Autowired
@@ -71,7 +72,8 @@ public class WhoisServletDeployer implements ServletDeployer {
                                 final FullTextSearchService fullTextSearch,
                                 final BatchUpdatesService batchUpdatesService,
                                 final HealthCheckService healthCheckService,
-                                final HttpsBasicAuthCustomizer httpsBasicAuthCustomizer,
+                                final HttpsBasicAuthFiler httpsBasicAuthFiler,
+                                final HttpsAPIKeyAuthFilter httpsAPIKeyAuthFilter,
                                 final ClientCertificateService clientCertificateService,
                                 final SyncUpdatesHttpSchemeFilter syncUpdatesHttpSchemeFilter) {
         this.whoisRestService = whoisRestService;
@@ -90,14 +92,16 @@ public class WhoisServletDeployer implements ServletDeployer {
         this.batchUpdatesService = batchUpdatesService;
         this.healthCheckService = healthCheckService;
         this.clientCertificateService = clientCertificateService;
-        this.httpsBasicAuthCustomizer = httpsBasicAuthCustomizer;
+        this.httpsBasicAuthFiler = httpsBasicAuthFiler;
+        this.httpsAPIKeyAuthFilter = httpsAPIKeyAuthFilter;
         this.syncUpdatesHttpSchemeFilter = syncUpdatesHttpSchemeFilter;
     }
 
     @Override
     public void deploy(WebAppContext context) {
         context.addFilter(new FilterHolder(maintenanceModeFilter), "/whois/*", EnumSet.allOf(DispatcherType.class));
-        context.addFilter(new FilterHolder(httpsBasicAuthCustomizer), "/whois/*", EnumSet.allOf(DispatcherType.class));
+        context.addFilter(new FilterHolder(httpsAPIKeyAuthFilter), "/whois/*", EnumSet.allOf(DispatcherType.class));
+        context.addFilter(new FilterHolder(httpsBasicAuthFiler), "/whois/*", EnumSet.allOf(DispatcherType.class));
         context.addFilter(new FilterHolder(syncUpdatesHttpSchemeFilter), "/whois/syncupdates/*", EnumSet.allOf(DispatcherType.class));
 
         final ResourceConfig resourceConfig = new ResourceConfig();
