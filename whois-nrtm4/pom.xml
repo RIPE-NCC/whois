@@ -42,6 +42,10 @@
             <artifactId>jetty-rewrite</artifactId>
         </dependency>
         <dependency>
+            <groupId>org.eclipse.jetty.ee9</groupId>
+            <artifactId>jetty-ee9-servlets</artifactId>
+        </dependency>
+        <dependency>
             <groupId>org.bouncycastle</groupId>
             <artifactId>bcprov-jdk18on</artifactId>
         </dependency>
