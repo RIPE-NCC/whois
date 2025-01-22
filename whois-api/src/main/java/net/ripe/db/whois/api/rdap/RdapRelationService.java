@@ -1,10 +1,9 @@
 package net.ripe.db.whois.api.rdap;
 
+import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Sets;
-import net.ripe.db.whois.api.rdap.domain.Autnum;
-import net.ripe.db.whois.api.rdap.domain.Ip;
-import net.ripe.db.whois.api.rdap.domain.Link;
-import net.ripe.db.whois.api.rdap.domain.RdapObject;
+import jakarta.servlet.http.HttpServletRequest;
+import net.ripe.db.whois.api.rdap.domain.RdapRequestType;
 import net.ripe.db.whois.api.rdap.domain.RelationType;
 import net.ripe.db.whois.common.dao.RpslObjectDao;
 import net.ripe.db.whois.common.domain.CIString;
@@ -22,17 +21,24 @@ import net.ripe.db.whois.common.rpsl.RpslObject;
 import net.ripe.db.whois.common.rpsl.attrs.Domain;
 import net.ripe.db.whois.common.rpsl.attrs.Inet6numStatus;
 import net.ripe.db.whois.common.rpsl.attrs.InetnumStatus;
+import net.ripe.db.whois.query.QueryFlag;
+import net.ripe.db.whois.query.query.Query;
 import org.eclipse.jetty.http.HttpStatus;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Nullable;
+import java.util.Collection;
 import java.util.List;
 import java.util.Set;
+import java.util.stream.Stream;
 
+import static net.ripe.db.whois.api.rdap.RdapService.COMMA_JOINER;
+import static net.ripe.db.whois.common.rpsl.ObjectType.DOMAIN;
+import static net.ripe.db.whois.common.rpsl.ObjectType.INET6NUM;
+import static net.ripe.db.whois.common.rpsl.ObjectType.INETNUM;
 import static net.ripe.db.whois.common.rpsl.attrs.Inet6numStatus.ALLOCATED_BY_RIR;
 import static net.ripe.db.whois.common.rpsl.attrs.InetnumStatus.ALLOCATED_UNSPECIFIED;
 
@@ -47,36 +53,93 @@ public class RdapRelationService {
     private final Ipv4DomainTree ipv4DomainTree;
     private final Ipv6DomainTree ipv6DomainTree;
     private final RpslObjectDao rpslObjectDao;
-    private final String rdapRirSearchSkeleton;
+    private final RdapRequestValidator rdapRequestValidator;
+    private final RdapQueryHandler rdapQueryHandler;
+    private final RdapObjectMapper rdapObjectMapper;
+    private final RdapLookupService rdapLookupService;
 
     @Autowired
-    public RdapRelationService(final Ipv4Tree ip4Tree, final Ipv6Tree ip6Tree,
-                               final Ipv4DomainTree ipv4DomainTree, final Ipv6DomainTree ipv6DomainTree,
+    public RdapRelationService(final Ipv4Tree ip4Tree,
+                               final Ipv6Tree ip6Tree,
+                               final Ipv4DomainTree ipv4DomainTree,
+                               final Ipv6DomainTree ipv6DomainTree,
                                final RpslObjectDao rpslObjectDao,
-                               @Value("${rdap.public.baseUrl:}") final String baseUrl) {
-
+                               final RdapRequestValidator rdapRequestValidator,
+                               final RdapQueryHandler rdapQueryHandler,
+                               final RdapObjectMapper rdapObjectMapper,
+                               final RdapLookupService rdapLookupService) {
         this.ip4Tree = ip4Tree;
         this.ip6Tree = ip6Tree;
         this.ipv4DomainTree = ipv4DomainTree;
         this.ipv6DomainTree = ipv6DomainTree;
         this.rpslObjectDao = rpslObjectDao;
-        this.rdapRirSearchSkeleton = baseUrl + "/%s/rirSearch1/%s/%s";
+        this.rdapRequestValidator = rdapRequestValidator;
+        this.rdapQueryHandler = rdapQueryHandler;
+        this.rdapObjectMapper = rdapObjectMapper;
+        this.rdapLookupService = rdapLookupService;
     }
 
+    protected Object handleRelationQuery(final HttpServletRequest request,
+                                         final Set<ObjectType> objectTypes, final RdapRequestType requestType,
+                                         final RelationType relationType, final String key,
+                                         final String requestUrl,
+                                         final int maxResultSize) {
+        final List<RpslObject> rpslObjects;
+        final boolean shouldReturnLookup = relationType.equals(RelationType.UP) || relationType.equals(RelationType.TOP);
+        switch (requestType) {
+            case AUTNUMS -> throw new RdapException("501 Not Implemented", "Relation queries not allowed for autnum", HttpStatus.NOT_IMPLEMENTED_501);
+            case DOMAINS -> {
+                rdapRequestValidator.validateDomain(key);
+                final List<IpEntry> domainEntries = getDomainsEntriesByRelationType(key, relationType);
 
-    public List<String> getDomainsByRelationType(final String pkey, final RelationType relationType){
+                if (shouldReturnLookup){
+                    final IpEntry ipEntry = domainEntries.getFirst();
+                    final RpslObject domainObject = rpslObjectDao.getById(ipEntry.getObjectId());
+                    final Stream<RpslObject> inetnumResult = rdapQueryHandler.handleQueryStream(getQueryObject(ImmutableSet.of(INETNUM, INET6NUM), ipEntry.getKey().toString()), request);
+                    return rdapLookupService.getDomainEntity(request, Stream.of(domainObject), inetnumResult);
+                }
+                //TODO: [MH] This call should not be necessary, we should be able to get the reverseIp out of the IP
+                final List<String> relatedPkeys = domainEntries
+                        .stream()
+                        .map(ipEntry -> rpslObjectDao.getById(ipEntry.getObjectId()).getKey().toString())
+                        .toList();
+
+                rpslObjects = relatedPkeys
+                        .stream()
+                        .flatMap(relatedPkey -> rdapQueryHandler.handleQueryStream(getQueryObject(ImmutableSet.of(DOMAIN), relatedPkey), request))
+                        .toList();
+
+            }
+            case IPS -> {
+                rdapRequestValidator.validateIp(request.getRequestURI(), key);
+                final List<String> relatedPkeys = getInetnumRelationPkeys(key, relationType);
+
+                if (shouldReturnLookup){
+                    return rdapLookupService.lookupObject(request, objectTypes, relatedPkeys.getFirst());
+                }
+
+                rpslObjects = relatedPkeys
+                        .stream()
+                        .flatMap(relatedPkey -> rdapQueryHandler.handleQueryStream(getQueryObject(objectTypes, relatedPkey), request))
+                        .toList();
+
+            }
+            default -> throw new RdapException("400 Bad Request", "Invalid or unknown type " + requestType.toString().toLowerCase(), HttpStatus.BAD_REQUEST_400);
+        }
+
+        return rdapObjectMapper.mapSearch(
+                requestUrl,
+                rpslObjects,
+                maxResultSize);
+    }
+
+    private List<IpEntry> getDomainsEntriesByRelationType(final String pkey, final RelationType relationType){
         final Domain domain = Domain.parse(pkey);
         final IpInterval reverseIp = domain.getReverseIp();
-        final List<IpEntry> domainEntries = getEntries(getIpDomainTree(reverseIp), relationType, reverseIp);
-
-        //TODO: [MH] This call should not be necessary, we should be able to get the reverseIp out of the IP
-        return domainEntries
-                .stream()
-                .map(ipEntry -> rpslObjectDao.getById(ipEntry.getObjectId()).getKey().toString())
-                .toList();
+        return getEntries(getIpDomainTree(reverseIp), relationType, reverseIp);
     }
 
-    public List<String> getInetnumRelationPkeys(final String pkey, final RelationType relationType){
+    private List<String> getInetnumRelationPkeys(final String pkey, final RelationType relationType){
         final IpInterval ip = IpInterval.parse(pkey);
         final List<IpEntry> ipEntries = getEntries(getIpTree(ip), relationType, ip);
         return ipEntries
@@ -84,39 +147,6 @@ public class RdapRelationService {
                 .map(ipEntry -> ipEntry.getKey().toString())
                 .toList();
     }
-
-    public void mapRelationLinks(final RdapObject rdapResponse, final String requestUrl){
-        if (requestUrl == null || requestUrl.contains("rirSearch1")){
-            return;
-        }
-        switch (rdapResponse){
-            case Ip ip -> mapCommonRelationLinks(rdapResponse, requestUrl, "ips", ip.getHandle());
-            case net.ripe.db.whois.api.rdap.domain.Domain domain -> mapCommonRelationLinks(rdapResponse, requestUrl, "domains", domain.getHandle());
-            case Autnum autnum -> mapCommonRelationLinks(rdapResponse, requestUrl, "autnums", autnum.getHandle());
-            default -> {}
-        }
-    }
-
-    private void mapCommonRelationLinks(final RdapObject rdapResponse, final String requestUrl, final String objectType, final String handle){
-        rdapResponse.getLinks().add(new Link(requestUrl, RelationType.UP.getValue(), String.format(rdapRirSearchSkeleton,
-                objectType, RelationType.UP.getValue(), handle), "application/rdap+json", null, null));
-
-        rdapResponse.getLinks().add(new Link(requestUrl, "up-active", String.format(rdapRirSearchSkeleton + "?status=active",
-                objectType, RelationType.UP.getValue(), handle), "application/rdap+json", null, null));
-
-        rdapResponse.getLinks().add(new Link(requestUrl, RelationType.DOWN.getValue(), String.format(rdapRirSearchSkeleton,
-                objectType, RelationType.DOWN.getValue(), handle), "application/rdap+json", null, null));
-
-        rdapResponse.getLinks().add(new Link(requestUrl, RelationType.TOP.getValue(), String.format(rdapRirSearchSkeleton,
-                objectType, RelationType.TOP.getValue(), handle), "application/rdap+json", null, null));
-
-        rdapResponse.getLinks().add(new Link(requestUrl, "top-active", String.format(rdapRirSearchSkeleton + "?status=active",
-                objectType, RelationType.TOP.getValue(), handle), "application/rdap+json", null, null));
-
-        rdapResponse.getLinks().add(new Link(requestUrl, RelationType.BOTTOM.getValue(), String.format(rdapRirSearchSkeleton,
-                objectType, RelationType.BOTTOM.getValue(), handle), "application/rdap+json", null, null));
-    }
-
 
     private List<IpEntry> getEntries(final IpTree ipTree, final RelationType relationType,
                                      final IpInterval searchIp) {
@@ -224,4 +254,21 @@ public class RdapRelationService {
     private IpTree getIpDomainTree(final IpInterval reverseIp) {
         return reverseIp instanceof Ipv4Resource ? ipv4DomainTree : ipv6DomainTree;
     }
+
+
+    private Query getQueryObject(final Set<ObjectType> objectTypes, final String key) {
+        return Query.parse(
+                String.format("%s %s %s %s %s %s",
+                        QueryFlag.NO_GROUPING.getLongFlag(),
+                        QueryFlag.NO_REFERENCED.getLongFlag(),
+                        QueryFlag.SELECT_TYPES.getLongFlag(),
+                        objectTypesToString(objectTypes),
+                        QueryFlag.NO_FILTERING.getLongFlag(),
+                        key));
+    }
+
+    private String objectTypesToString(final Collection<ObjectType> objectTypes) {
+        return COMMA_JOINER.join(objectTypes.stream().map(ObjectType::getName).toList());
+    }
+
 }

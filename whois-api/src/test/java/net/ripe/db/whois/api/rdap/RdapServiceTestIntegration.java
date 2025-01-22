@@ -3166,13 +3166,11 @@ public class RdapServiceTestIntegration extends AbstractRdapIntegrationTest {
     public void get_up_then_parent(){
         loadIpv4RelationTreeExample();
 
-        final SearchResult searchResult = createResource("ips/rirSearch1/up/192.0.2.0/28")
+        final Ip ip = createResource("ips/rirSearch1/up/192.0.2.0/28")
                 .request(MediaType.APPLICATION_JSON_TYPE)
-                .get(SearchResult.class);
+                .get(Ip.class);
 
-        final List<Ip> ipResults = searchResult.getIpSearchResults();
-        assertThat(ipResults.size(), is(1));
-        assertThat(ipResults.getFirst().getHandle(), is("192.0.2.0 - 192.0.2.127")); // /26
+        assertThat(ip.getHandle(), is("192.0.2.0 - 192.0.2.127")); // /26
     }
 
     @Test
@@ -3195,13 +3193,11 @@ public class RdapServiceTestIntegration extends AbstractRdapIntegrationTest {
     public void get_ipv6_up_then_parent(){
         loadIpv6RelationTreeExample();
 
-        final SearchResult searchResult = createResource("ips/rirSearch1/up/2001:db8::/32")
+        final Ip ip = createResource("ips/rirSearch1/up/2001:db8::/32")
                 .request(MediaType.APPLICATION_JSON_TYPE)
-                .get(SearchResult.class);
+                .get(Ip.class);
 
-        final List<Ip> ipResults = searchResult.getIpSearchResults();
-        assertThat(ipResults.size(), is(1));
-        assertThat(ipResults.getFirst().getHandle(), is("2001::/16"));
+        assertThat(ip.getHandle(), is("2001::/16"));
     }
 
 
@@ -3210,13 +3206,11 @@ public class RdapServiceTestIntegration extends AbstractRdapIntegrationTest {
         loadIpv4RelationTreeExample();
         loadIpv4RelationDomainExample();
 
-        final SearchResult searchResult = createResource("domains/rirSearch1/up/1.2.0.192.in-addr.arpa")
+        final Domain domain = createResource("domains/rirSearch1/up/1.2.0.192.in-addr.arpa")
                 .request(MediaType.APPLICATION_JSON_TYPE)
-                .get(SearchResult.class);
+                .get(Domain.class);
 
-        final List<Domain> domainResults = searchResult.getDomainSearchResults();
-        assertThat(domainResults.size(), is(1));
-        assertThat(domainResults.getFirst().getHandle(), is("2.0.192.in-addr.arpa"));
+        assertThat(domain.getHandle(), is("2.0.192.in-addr.arpa"));
     }
 
 
@@ -3242,13 +3236,11 @@ public class RdapServiceTestIntegration extends AbstractRdapIntegrationTest {
     public void get_top_then_less_specific_allocated_assigned_first_parent(){
         loadIpv4RelationTreeExample();
 
-        final SearchResult searchResult = createResource("ips/rirSearch1/top/192.0.2.0/28")
+        final Ip ip = createResource("ips/rirSearch1/top/192.0.2.0/28")
                 .request(MediaType.APPLICATION_JSON_TYPE)
-                .get(SearchResult.class);
+                .get(Ip.class);
 
-        final List<Ip> ipResults = searchResult.getIpSearchResults();
-        assertThat(ipResults.size(), is(1));
-        assertThat(ipResults.getFirst().getHandle(), is("192.0.2.0 - 192.0.2.255")); // /24
+        assertThat(ip.getHandle(), is("192.0.2.0 - 192.0.2.255")); // /24
     }
 
     @Test
@@ -3267,13 +3259,11 @@ public class RdapServiceTestIntegration extends AbstractRdapIntegrationTest {
                 "last-modified:   2022-10-25T12:22:39Z\n" +
                 "source:         TEST");
 
-        final SearchResult searchResult = createResource("ips/rirSearch1/top/2001:db8::/32")
+        final Ip ip = createResource("ips/rirSearch1/top/2001:db8::/32")
                 .request(MediaType.APPLICATION_JSON_TYPE)
-                .get(SearchResult.class);
+                .get(Ip.class);
 
-        final List<Ip> ipResults = searchResult.getIpSearchResults();
-        assertThat(ipResults.size(), is(1));
-        assertThat(ipResults.getFirst().getHandle(), is("2000::/3"));
+        assertThat(ip.getHandle(), is("2000::/3"));
     }
 
     @Test
@@ -3281,13 +3271,11 @@ public class RdapServiceTestIntegration extends AbstractRdapIntegrationTest {
         loadIpv4RelationTreeExample();
         loadIpv4RelationDomainExample();
 
-        final SearchResult searchResult = createResource("domains/rirSearch1/top/1.2.0.192.in-addr.arpa")
+        final Domain domain = createResource("domains/rirSearch1/top/1.2.0.192.in-addr.arpa")
                 .request(MediaType.APPLICATION_JSON_TYPE)
-                .get(SearchResult.class);
+                .get(Domain.class);
 
-        final List<Domain> domainResults = searchResult.getDomainSearchResults();
-        assertThat(domainResults.size(), is(1));
-        assertThat(domainResults.getFirst().getHandle(), is("0.192.in-addr.arpa"));
+        assertThat(domain.getHandle(), is("0.192.in-addr.arpa"));
     }
 
     @Test
@@ -3339,26 +3327,25 @@ public class RdapServiceTestIntegration extends AbstractRdapIntegrationTest {
     public void get_ipv6_top_found_if_assignment(){
         loadIpv6RelationTreeExample();
 
-        databaseHelper.updateObject("" +
-                "inet6num:       2000::/3\n" +
+        databaseHelper.addObject("" +
+                "inet6num:       2000::/2\n" +
                 "netname:        TEST\n" +
-                "descr:          The whole IPv6 address space\n" +
                 "country:        NL\n" +
                 "tech-c:         TP1-TEST\n" +
                 "admin-c:        TP1-TEST\n" +
-                "status:         ASSIGNED\n" +
+                "status:         ALLOCATED-BY-RIR\n" +
                 "mnt-by:         OWNER-MNT\n" +
                 "created:         2022-08-14T11:48:28Z\n" +
                 "last-modified:   2022-10-25T12:22:39Z\n" +
                 "source:         TEST");
 
-        final SearchResult searchResult = createResource("ips/rirSearch1/top/2000::/3")
-                .request(MediaType.APPLICATION_JSON_TYPE)
-                .get(SearchResult.class);
+        ipTreeUpdater.rebuild();
 
-        final List<Ip> ipResults = searchResult.getIpSearchResults();
-        assertThat(ipResults.size(), is(1));
-        assertThat(ipResults.getFirst().getHandle(), is("::/0"));
+        final Ip ip = createResource("ips/rirSearch1/top/2000::/3")
+                .request(MediaType.APPLICATION_JSON_TYPE)
+                .get(Ip.class);
+
+        assertThat(ip.getHandle(), is("2000::/2"));
     }
 
 
