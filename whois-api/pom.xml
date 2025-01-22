@@ -69,15 +69,15 @@
         </dependency>
         <dependency>
             <groupId>org.eclipse.jetty.http2</groupId>
-            <artifactId>http2-server</artifactId>
+            <artifactId>jetty-http2-server</artifactId>
         </dependency>
         <dependency>
             <groupId>org.eclipse.jetty.http2</groupId>
-            <artifactId>http2-common</artifactId>
+            <artifactId>jetty-http2-common</artifactId>
         </dependency>
         <dependency>
             <groupId>org.eclipse.jetty.http2</groupId>
-            <artifactId>http2-hpack</artifactId>
+            <artifactId>jetty-http2-hpack</artifactId>
         </dependency>
         <dependency>
             <groupId>org.eclipse.jetty</groupId>
