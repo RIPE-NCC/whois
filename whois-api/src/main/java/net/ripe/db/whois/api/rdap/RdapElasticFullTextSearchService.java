@@ -31,6 +31,8 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Set;
+import java.util.stream.Stream;
 
 @Component
 public class RdapElasticFullTextSearchService implements RdapFullTextSearch {
@@ -41,6 +43,7 @@ public class RdapElasticFullTextSearchService implements RdapFullTextSearch {
     private final RpslObjectDao objectDao;
     private final ElasticIndexService elasticIndexService;
     private final AccessControlListManager accessControlListManager;
+    private static final Set<String> EXACT_MATCH_SEARCH_FIELDS = Set.of("netname", "inetnum", "inet6num", "as-name", "aut-num");
 
     @Autowired
     public RdapElasticFullTextSearchService(@Qualifier("jdbcRpslObjectSlaveDao") final RpslObjectDao objectDao,
@@ -55,7 +58,7 @@ public class RdapElasticFullTextSearchService implements RdapFullTextSearch {
 
     @Override
     public List<RpslObject> performSearch(final String[] fields, final String term, final String clientIp,
-                                          final Source source, final boolean matchExact) throws IOException {
+                                          final Source source) throws IOException {
 
         try {
             return new ElasticSearchAccountingCallback<List<RpslObject>>(accessControlListManager,  clientIp, null, source) {
@@ -64,7 +67,7 @@ public class RdapElasticFullTextSearchService implements RdapFullTextSearch {
                 protected List<RpslObject> doSearch() throws IOException {
 
                     final SearchSourceBuilder sourceBuilder = new SearchSourceBuilder();
-                    sourceBuilder.query(getQueryBuilder(fields, term, matchExact));
+                    sourceBuilder.query(getQueryBuilder(fields, term));
                     sourceBuilder.size(maxResultSize);
                     sourceBuilder.sort(SORT_BUILDERS);
 
@@ -91,15 +94,19 @@ public class RdapElasticFullTextSearchService implements RdapFullTextSearch {
                     return results;
                 }
 
-                private QueryBuilder getQueryBuilder(final String[] fields, final String term, final boolean matchExact) {
+                private QueryBuilder getQueryBuilder(final String[] fields, final String term) {
                     if (hasWildCard()) {
                         return createWildCardQuery();
                     }
 
-                    return matchExact ? createExactMatchQuery() :
+                    return isExactMatchSearch() ? createExactMatchQuery() :
                             new MultiMatchQueryBuilder(term, fields)
                                     .type(MultiMatchQueryBuilder.Type.PHRASE_PREFIX)
                                     .operator(Operator.AND);
+                }
+
+                private boolean isExactMatchSearch(){
+                    return EXACT_MATCH_SEARCH_FIELDS.containsAll(Stream.of(fields).toList());
                 }
 
                 private boolean hasWildCard(){

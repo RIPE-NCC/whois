@@ -147,16 +147,23 @@ public class RdapService {
 
         LOGGER.debug("Request: {}", RestServiceHelper.getRequestURI(request));
 
+        Object object = null;
         if (name != null && handle == null) {
-            return handleSearch(new String[]{"netname"}, name, request, true);
+            object = handleSearch(new String[]{"netname"}, name, request);
         }
 
         if (name == null && handle != null) {
             final Ipv4Resource ipv4Resource = Ipv4Resource.parseIPv4Resource(handle);
-            return handleSearch(new String[]{"inetnum", "inet6num"}, ipv4Resource != null ? ipv4Resource.toRangeString() : handle, request, true);
+            object = handleSearch(new String[]{"inetnum", "inet6num"}, ipv4Resource != null ? ipv4Resource.toRangeString() : handle, request);
         }
 
-        throw new RdapException("400 Bad Request", "Either name or handle is a required parameter, but never both", HttpStatus.BAD_REQUEST_400);
+        if (object == null) {
+            throw new RdapException("400 Bad Request", "Either name or handle is a required parameter, but never both", HttpStatus.BAD_REQUEST_400);
+        }
+
+        return Response.ok(object)
+                .header(CONTENT_TYPE, CONTENT_TYPE_RDAP_JSON)
+                .build();
     }
 
     @GET
@@ -171,11 +178,11 @@ public class RdapService {
 
         Object object = null;
         if (name != null && handle == null) {
-            object = handleSearch(new String[]{"as-name"}, name, request, true);
+            object = handleSearch(new String[]{"as-name"}, name, request);
         }
 
         if (name == null && handle != null) {
-            object = handleSearch(new String[]{"aut-num"}, handle, request, true);
+            object = handleSearch(new String[]{"aut-num"}, handle, request);
         }
 
         if (object == null){
@@ -399,13 +406,8 @@ public class RdapService {
         return buffer.toString();
     }
 
-    private Response handleSearch(final String[] fields, final String term, final HttpServletRequest request) {
-        return handleSearch(fields, term, request, false);
-    }
 
-
-    private Response handleSearch(final String[] fields, final String term, final HttpServletRequest request,
-                                  final boolean matchExact) {
+    private Object handleSearch(final String[] fields, final String term, final HttpServletRequest request) {
         LOGGER.debug("Search {} for {}", fields, term);
 
         if (StringUtils.isEmpty(term)) {
@@ -413,15 +415,12 @@ public class RdapService {
         }
 
         try {
-            final List<RpslObject> objects = rdapFullTextSearch.performSearch(fields, term, request.getRemoteAddr(),
-                    source, matchExact);
+            final List<RpslObject> objects = rdapFullTextSearch.performSearch(fields, term, request.getRemoteAddr(), source);
 
-            return Response.ok(rdapObjectMapper.mapSearch(
+            return rdapObjectMapper.mapSearch(
                     getRequestUrl(request),
                     objects,
-                    maxResultSize))
-                    .header(CONTENT_TYPE, CONTENT_TYPE_RDAP_JSON)
-                    .build();
+                    maxResultSize);
         }
         catch (IOException e) {
             LOGGER.error(e.getMessage(), e);

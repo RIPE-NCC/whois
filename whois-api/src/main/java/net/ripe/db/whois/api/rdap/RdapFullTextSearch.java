@@ -9,5 +9,5 @@ import java.util.List;
 public interface RdapFullTextSearch {
 
     List<RpslObject> performSearch(final String[] fields, final String term, final String remoteAddr,
-                                   final Source source, final boolean matchExact) throws IOException;
+                                   final Source source) throws IOException;
 }
