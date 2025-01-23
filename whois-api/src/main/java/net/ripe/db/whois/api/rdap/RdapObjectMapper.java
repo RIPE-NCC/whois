@@ -158,14 +158,28 @@ public class RdapObjectMapper {
     public Object mapSearch(final String requestUrl, final List<RpslObject> objects, final int maxResultSize) {
         final SearchResult searchResult = new SearchResult();
         for (final RpslObject object : objects) {
-            final RdapObject rdapObject = getRdapObject(requestUrl, object, null);
             switch (object.getType()){
-                case DOMAIN -> searchResult.addDomainSearchResult((Domain) rdapObject);
-                case INET6NUM, INETNUM -> searchResult.addIpSearchResult((Ip) rdapObject);
-                case AUT_NUM -> searchResult.addAutnumSearchResult((Autnum) rdapObject);
-                default -> searchResult.addEntitySearchResult((Entity) rdapObject);
+                case DOMAIN -> {
+                    final Domain domain = (Domain) getRdapObject(requestUrl, object, null);
+                    mapRedactions(domain);
+                    searchResult.addDomainSearchResult(domain);
+                }
+                case INET6NUM, INETNUM -> {
+                    final Ip ip = (Ip) getRdapObject(requestUrl, object, null);
+                    mapRedactions(ip);
+                    searchResult.addIpSearchResult(ip);
+                }
+                case AUT_NUM -> {
+                    final Autnum autnum = (Autnum) getRdapObject(requestUrl, object, null);
+                    mapRedactions(autnum);
+                    searchResult.addAutnumSearchResult(autnum);
+                }
+                default -> {
+                    final Entity entity = (Entity) getRdapObject(requestUrl, object, null);
+                    mapRedactions(entity);
+                    searchResult.addEntitySearchResult(entity);
+                }
             }
-            mapRedactions(rdapObject);
         }
 
         if (objects.size() == maxResultSize) {
