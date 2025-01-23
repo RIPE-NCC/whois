@@ -732,27 +732,29 @@ public class RdapObjectMapper {
     }
 
     private void mapRirSearchConformanceWhenLookup(final RdapObject rdapObject, final String requestUrl){
-        if (StringUtils.isEmpty(requestUrl) || !requestUrl.contains("rirSearch1")){
+        if (StringUtils.isEmpty(requestUrl) || !requestUrl.contains(RdapConformance.RIR_SEARCH_1.getValue())){
             return;
         }
-        rdapObject.getRdapConformance().add(RdapConformance.RIR_SEARCH_1.getValue());
-        mapIpAutnumConformance(rdapObject, requestUrl);
+        mapRirSearchConformanceWhenSearch(rdapObject, requestUrl);
     }
 
     private void mapRirSearchConformanceWhenSearch(final RdapObject rdapObject, final String requestUrl){
-        rdapObject.getRdapConformance().add(RdapConformance.RIR_SEARCH_1.getValue());
-        mapIpAutnumConformance(rdapObject, requestUrl);
-    }
-
-    private static void mapIpAutnumConformance(final RdapObject rdapObject, final String requestUrl) {
         if (!StringUtils.isEmpty(requestUrl)) {
             if (requestUrl.contains(RdapRequestType.IPS.name().toLowerCase())) {
-                rdapObject.getRdapConformance().addAll(List.of(RdapConformance.IPS.getValue(), RdapConformance.IP_SEARCH_RESULTS.getValue()));
+                rdapObject.getRdapConformance().addAll(List.of(RdapConformance.RIR_SEARCH_1.getValue(),
+                        RdapConformance.IPS.getValue(), RdapConformance.IP_SEARCH_RESULTS.getValue()));
                 return;
             }
             if (requestUrl.contains(RdapRequestType.AUTNUMS.name().toLowerCase())) {
-                rdapObject.getRdapConformance().addAll(List.of(RdapConformance.AUTNUMS.getValue(), RdapConformance.AUTNUM_SEARCH_RESULTS.getValue()));
+                rdapObject.getRdapConformance().addAll(List.of(RdapConformance.RIR_SEARCH_1.getValue(),
+                        RdapConformance.AUTNUMS.getValue(), RdapConformance.AUTNUM_SEARCH_RESULTS.getValue()));
+                return;
+            }
+
+            if (requestUrl.contains(RdapRequestType.DOMAINS.name().toLowerCase())) {
+                rdapObject.getRdapConformance().add(RdapConformance.RIR_SEARCH_1.getValue());
             }
         }
     }
+
 }

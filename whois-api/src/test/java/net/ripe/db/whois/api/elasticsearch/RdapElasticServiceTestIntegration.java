@@ -539,8 +539,7 @@ public class RdapElasticServiceTestIntegration extends AbstractElasticSearchInte
                 .get(SearchResult.class);
 
         assertThat(response.getEntitySearchResults().getFirst().getHandle(), equalTo("ORG-TEST1-TEST"));
-        assertThat(response.getRdapConformance(), containsInAnyOrder("rirSearch1",
-                "cidr0", "rdap_level_0", "nro_rdap_profile_0", "redacted"));
+        assertThat(response.getRdapConformance(), containsInAnyOrder("cidr0", "rdap_level_0", "nro_rdap_profile_0", "redacted"));
     }
 
     @Test
@@ -1125,7 +1124,7 @@ public class RdapElasticServiceTestIntegration extends AbstractElasticSearchInte
                 .map(Redaction::getPrePath)
                 .collect(Collectors.toList()), containsInAnyOrder("$.entities[?(@.handle=='PP1-TEST')].vcardArray[1][?(@[0]=='e-mail')]"));
 
-        assertThat(result.getRdapConformance(), containsInAnyOrder("rirSearch1", "cidr0", "rdap_level_0",
+        assertThat(result.getRdapConformance(), containsInAnyOrder("cidr0", "rdap_level_0",
                 "nro_rdap_profile_0",
                 "redacted"));
     }
