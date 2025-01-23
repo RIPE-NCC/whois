@@ -503,10 +503,6 @@ public class RdapObjectMapper {
                QueryMessages.unvalidatedAbuseCShown(key, abuseContact.getAbuseMailbox(), abuseContact.getOrgId()).toString().replaceAll("% ", "")));
     }
 
-    private static boolean hasDescriptionsOrRemarks(final RpslObject rpslObject) {
-        return !rpslObject.getValuesForAttribute(DESCR).isEmpty() || !rpslObject.getValuesForAttribute(REMARKS).isEmpty();
-    }
-
     private static Event createEvent(final LocalDateTime lastChanged, final Action action) {
         final Event lastChangedEvent = new Event();
         lastChangedEvent.setEventAction(action);
