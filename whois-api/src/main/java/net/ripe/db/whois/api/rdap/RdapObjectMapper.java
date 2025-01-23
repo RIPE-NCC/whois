@@ -734,39 +734,31 @@ public class RdapObjectMapper {
             return;
         }
 
-        final List<String> pathSegments = Stream.of(requestUrl.split(PATH_DELIMITER)).toList();
-        if (pathSegments.contains(RdapConformance.RIR_SEARCH_1.getValue())){
-            // This could happen if relation type is up or top search, the object is returned like lookup
+        if (requestUrl.contains(RdapConformance.RIR_SEARCH_1.getValue())){
+            // This could happen if relation type is up or top search, the object is returned like a lookup
             mapRirSearchConformanceWhenSearch(rdapObject, requestUrl);
             return;
         }
 
-        if (pathSegments.contains(RdapRequestType.IP.name().toLowerCase())) {
-            rdapObject.getRdapConformance().addAll(List.of(RdapConformance.RIR_SEARCH_1.getValue(), RdapConformance.IPS.getValue()));
-            return;
-        }
-        if (pathSegments.contains(RdapRequestType.AUTNUM.name().toLowerCase())) {
-            rdapObject.getRdapConformance().addAll(List.of(RdapConformance.RIR_SEARCH_1.getValue(),
-                    RdapConformance.AUTNUMS.getValue()));
-            return;
-        }
-        if (pathSegments.contains(RdapRequestType.DOMAIN.name().toLowerCase())){
-            rdapObject.getRdapConformance().add(RdapConformance.RIR_SEARCH_1.getValue());
+        switch (rdapObject) {
+            case Ip ip -> ip.getRdapConformance().addAll(List.of(RdapConformance.RIR_SEARCH_1.getValue(), RdapConformance.IPS.getValue()));
+            case Autnum autnum -> autnum.getRdapConformance().addAll(List.of(RdapConformance.RIR_SEARCH_1.getValue(), RdapConformance.AUTNUMS.getValue()));
+            case Domain domain -> domain.getRdapConformance().add(RdapConformance.RIR_SEARCH_1.getValue());
+            default -> {}
         }
     }
 
     private void mapRirSearchConformanceWhenSearch(final RdapObject rdapObject, final String requestUrl){
         rdapObject.getRdapConformance().add(RdapConformance.RIR_SEARCH_1.getValue());
         if (!StringUtils.isEmpty(requestUrl)) {
-            final List<String> pathSegments = Stream.of(requestUrl.split(PATH_DELIMITER)).toList();
-            if (pathSegments.contains(RdapRequestType.IPS.name().toLowerCase())) {
+            if (requestUrl.contains(RdapRequestType.IPS.name().toLowerCase())) {
                 rdapObject.getRdapConformance().addAll(List.of(RdapConformance.IPS.getValue(), RdapConformance.IP_SEARCH_RESULTS.getValue()));
                 return;
             }
-            if (pathSegments.contains(RdapRequestType.AUTNUMS.name().toLowerCase())) {
+            if (requestUrl.contains(RdapRequestType.AUTNUMS.name().toLowerCase())) {
                 rdapObject.getRdapConformance().addAll(List.of(RdapConformance.AUTNUMS.getValue(), RdapConformance.AUTNUM_SEARCH_RESULTS.getValue()));
             }
-        };
+        }
     }
 
 
