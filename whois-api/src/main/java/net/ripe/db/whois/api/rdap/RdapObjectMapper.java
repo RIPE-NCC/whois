@@ -768,6 +768,7 @@ public class RdapObjectMapper {
             if (requestUrl.contains(RdapRequestType.AUTNUMS.name().toLowerCase())) {
                 rdapObject.getRdapConformance().addAll(List.of(RdapConformance.RIR_SEARCH_1.getValue(),
                         RdapConformance.AUTNUMS.getValue(), RdapConformance.AUTNUM_SEARCH_RESULTS.getValue()));
+                return;
             }
             if (requestUrl.contains(RdapRequestType.DOMAINS.name().toLowerCase())){
                 rdapObject.getRdapConformance().add(RdapConformance.RIR_SEARCH_1.getValue());

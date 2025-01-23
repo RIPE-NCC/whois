@@ -1354,8 +1354,8 @@ public class RdapServiceTestIntegration extends AbstractRdapIntegrationTest {
         final List<Link> links = domain.getLinks();
         assertThat(links, hasSize(7));
         assertRelationLinks(links);
-        assertThat(links.get(0).getRel(), is("copyright"));
-        assertThat(links.get(0).getHref(), is("http://www.ripe.net/data-tools/support/documentation/terms"));
+        assertThat(links.getLast().getRel(), is("copyright"));
+        assertThat(links.getLast().getHref(), is("http://www.ripe.net/data-tools/support/documentation/terms"));
     }
 
     @Test
@@ -1406,8 +1406,8 @@ public class RdapServiceTestIntegration extends AbstractRdapIntegrationTest {
         final List<Link> links = domain.getLinks();
         assertThat(links, hasSize(7));
         assertRelationLinks(links);
-        assertThat(links.get(0).getRel(), is("copyright"));
-        assertThat(links.get(0).getHref(), is("http://www.ripe.net/data-tools/support/documentation/terms"));
+        assertThat(links.getLast().getRel(), is("copyright"));
+        assertThat(links.getLast().getHref(), is("http://www.ripe.net/data-tools/support/documentation/terms"));
     }
 
     @Test
@@ -1457,8 +1457,8 @@ public class RdapServiceTestIntegration extends AbstractRdapIntegrationTest {
 
         final List<Link> links = domain.getLinks();
         assertThat(links, hasSize(7));
-        assertThat(links.get(0).getRel(), is("copyright"));
-        assertThat(links.get(0).getHref(), is("http://www.ripe.net/data-tools/support/documentation/terms"));
+        assertThat(links.getLast().getRel(), is("copyright"));
+        assertThat(links.getLast().getHref(), is("http://www.ripe.net/data-tools/support/documentation/terms"));
     }
 
     @Test
@@ -1509,8 +1509,8 @@ public class RdapServiceTestIntegration extends AbstractRdapIntegrationTest {
         assertThat(links, hasSize(7));
         assertRelationLinks(links);
 
-        assertThat(links.get(0).getRel(), is("copyright"));
-        assertThat(links.get(0).getHref(), is("http://www.ripe.net/data-tools/support/documentation/terms"));
+        assertThat(links.getLast().getRel(), is("copyright"));
+        assertThat(links.getLast().getHref(), is("http://www.ripe.net/data-tools/support/documentation/terms"));
     }
 
     @Test
@@ -1528,8 +1528,8 @@ public class RdapServiceTestIntegration extends AbstractRdapIntegrationTest {
         final List<Link> links = domain.getLinks();
         assertThat(links, hasSize(7));
         assertRelationLinks(links);
-        assertThat(links.get(0).getRel(), is("copyright"));
-        assertThat(links.get(0).getHref(), is("http://www.ripe.net/data-tools/support/documentation/terms"));
+        assertThat(links.getLast().getRel(), is("copyright"));
+        assertThat(links.getLast().getHref(), is("http://www.ripe.net/data-tools/support/documentation/terms"));
     }
 
     @Test
@@ -1710,15 +1710,7 @@ public class RdapServiceTestIntegration extends AbstractRdapIntegrationTest {
         assertThat(response.getMediaType(), is(new MediaType("application", "rdap+json")));
         final String entity = response.readEntity(String.class);
         assertThat(entity, containsString("\"handle\" : \"AS102\""));
-        assertThat(entity, containsString("  \"links\" : [ {\n" +
-                "    \"value\" : \"https://rdap.db.ripe.net/autnum/102\",\n" +
-                "    \"rel\" : \"self\",\n" +
-                "    \"href\" : \"https://rdap.db.ripe.net/autnum/102\"\n" +
-                "  }, {\n" +
-                "    \"value\" : \"http://www.ripe.net/data-tools/support/documentation/terms\",\n" +
-                "    \"rel\" : \"copyright\",\n" +
-                "    \"href\" : \"http://www.ripe.net/data-tools/support/documentation/terms\"\n" +
-                "  }, {\n" +
+        assertThat(entity, containsString("\"links\" : [ {\n" +
                 "    \"value\" : \"https://rdap.db.ripe.net/autnum/102\",\n" +
                 "    \"rel\" : \"up\",\n" +
                 "    \"href\" : \"https://rdap.db.ripe.net/autnums/rirSearch1/up/AS102\",\n" +
@@ -1748,7 +1740,15 @@ public class RdapServiceTestIntegration extends AbstractRdapIntegrationTest {
                 "    \"rel\" : \"bottom\",\n" +
                 "    \"href\" : \"https://rdap.db.ripe.net/autnums/rirSearch1/bottom/AS102\",\n" +
                 "    \"title\" : \"application/rdap+json\"\n" +
-                "  }"));
+                "  }, {\n" +
+                "    \"value\" : \"https://rdap.db.ripe.net/autnum/102\",\n" +
+                "    \"rel\" : \"self\",\n" +
+                "    \"href\" : \"https://rdap.db.ripe.net/autnum/102\"\n" +
+                "  }, {\n" +
+                "    \"value\" : \"http://www.ripe.net/data-tools/support/documentation/terms\",\n" +
+                "    \"rel\" : \"copyright\",\n" +
+                "    \"href\" : \"http://www.ripe.net/data-tools/support/documentation/terms\"\n" +
+                "  } ]"));
         assertThat(entity, containsString("[ \"nro_rdap_profile_asn_flat_0\", \"rirSearch1\", " +
                 "\"autnums\", \"cidr0\", \"rdap_level_0\", \"nro_rdap_profile_0\", \"redacted\" ]"));
     }
@@ -1763,15 +1763,7 @@ public class RdapServiceTestIntegration extends AbstractRdapIntegrationTest {
         final String entity = response.readEntity(String.class);
         assertThat(entity, containsString("\"handle\" : \"AS102\""));
         assertThat(entity,
-                containsString("  \"links\" : [ {\n" +
-                        "    \"value\" : \"https://rdap.db.ripe.net/autnum/102\",\n" +
-                        "    \"rel\" : \"self\",\n" +
-                        "    \"href\" : \"https://rdap.db.ripe.net/autnum/102\"\n" +
-                        "  }, {\n" +
-                        "    \"value\" : \"http://www.ripe.net/data-tools/support/documentation/terms\",\n" +
-                        "    \"rel\" : \"copyright\",\n" +
-                        "    \"href\" : \"http://www.ripe.net/data-tools/support/documentation/terms\"\n" +
-                        "  }, {\n" +
+                containsString("\"links\" : [ {\n" +
                         "    \"value\" : \"https://rdap.db.ripe.net/autnum/102\",\n" +
                         "    \"rel\" : \"up\",\n" +
                         "    \"href\" : \"https://rdap.db.ripe.net/autnums/rirSearch1/up/AS102\",\n" +
@@ -1801,7 +1793,15 @@ public class RdapServiceTestIntegration extends AbstractRdapIntegrationTest {
                         "    \"rel\" : \"bottom\",\n" +
                         "    \"href\" : \"https://rdap.db.ripe.net/autnums/rirSearch1/bottom/AS102\",\n" +
                         "    \"title\" : \"application/rdap+json\"\n" +
-                        "  }"));
+                        "  }, {\n" +
+                        "    \"value\" : \"https://rdap.db.ripe.net/autnum/102\",\n" +
+                        "    \"rel\" : \"self\",\n" +
+                        "    \"href\" : \"https://rdap.db.ripe.net/autnum/102\"\n" +
+                        "  }, {\n" +
+                        "    \"value\" : \"http://www.ripe.net/data-tools/support/documentation/terms\",\n" +
+                        "    \"rel\" : \"copyright\",\n" +
+                        "    \"href\" : \"http://www.ripe.net/data-tools/support/documentation/terms\"\n" +
+                        "  } ]"));
         assertThat(entity,
                 containsString("[ \"nro_rdap_profile_asn_flat_0\", \"rirSearch1\", \"autnums\", " +
                         "\"cidr0\", \"rdap_level_0\", \"nro_rdap_profile_0\", \"redacted\" ]"));
