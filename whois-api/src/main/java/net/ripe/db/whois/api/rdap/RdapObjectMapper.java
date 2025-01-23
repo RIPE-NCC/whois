@@ -303,7 +303,7 @@ public class RdapObjectMapper {
             rdapResponse.getEntitySearchResults().add(createEntity(abuseContact.getAbuseRole(), Role.ABUSE, requestUrl, true));
         }
 
-        if (hasDescriptionsOrRemarks(rpslObject)) {
+        if (!rpslObject.getValuesForAttribute(DESCR).isEmpty() || !rpslObject.getValuesForAttribute(REMARKS).isEmpty()) {
             rdapResponse.getRemarks().add(createRemark(rpslObject));
         }
 
