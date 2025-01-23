@@ -114,6 +114,7 @@ public class RdapObjectMapper {
     private static final Link COPYRIGHT_LINK = new Link(TERMS_AND_CONDITIONS, "copyright", TERMS_AND_CONDITIONS, null, null, null);
     private static final Logger LOGGER = LoggerFactory.getLogger(RdapObjectMapper.class);
     private static final String APPLICATION_RDAP_JSON = "application/rdap+json";
+    private static final String PATH_DELIMITER = "/";
 
     private final NoticeFactory noticeFactory;
     private final RpslObjectDao rpslObjectDao;
@@ -157,31 +158,14 @@ public class RdapObjectMapper {
     public Object mapSearch(final String requestUrl, final List<RpslObject> objects, final int maxResultSize) {
         final SearchResult searchResult = new SearchResult();
         for (final RpslObject object : objects) {
+            final RdapObject rdapObject = getRdapObject(requestUrl, object, null);
             switch (object.getType()){
-                case DOMAIN -> {
-                    final Domain domain = (Domain) getRdapObject(requestUrl, object, null);
-                    mapRedactions(domain);
-                    mapCommonRelationLinks(domain, requestUrl);
-                    searchResult.addDomainSearchResult(domain);
-                }
-                case INET6NUM, INETNUM -> {
-                    final Ip ip = (Ip) getRdapObject(requestUrl, object, null);
-                    mapRedactions(ip);
-                    mapCommonRelationLinks(ip, requestUrl);
-                    searchResult.addIpSearchResult(ip);
-                }
-                case AUT_NUM -> {
-                    final Autnum autnum = (Autnum) getRdapObject(requestUrl, object, null);
-                    mapRedactions(autnum);
-                    mapCommonRelationLinks(autnum, requestUrl);
-                    searchResult.addAutnumSearchResult(autnum);
-                }
-                default -> {
-                    final Entity entity = (Entity) getRdapObject(requestUrl, object, null);
-                    mapRedactions(entity);
-                    searchResult.addEntitySearchResult(entity);
-                }
+                case DOMAIN -> searchResult.addDomainSearchResult((Domain) rdapObject);
+                case INET6NUM, INETNUM -> searchResult.addIpSearchResult((Ip) rdapObject);
+                case AUT_NUM -> searchResult.addAutnumSearchResult((Autnum) rdapObject);
+                default -> searchResult.addEntitySearchResult((Entity) rdapObject);
             }
+            mapRedactions(rdapObject);
         }
 
         if (objects.size() == maxResultSize) {
@@ -256,6 +240,7 @@ public class RdapObjectMapper {
 
         return rdapObject;
     }
+
     public RdapObject mapHelp(final String requestUrl) {
         final RdapObject rdapObject = mapCommonNoticesAndPort(new RdapObject(), requestUrl);
         mapCommonLinks(rdapObject, requestUrl);
@@ -324,7 +309,7 @@ public class RdapObjectMapper {
 
         rdapResponse.getEvents().add(createEvent(DateUtil.fromString(rpslObject.getValueForAttribute(AttributeType.CREATED)), Action.REGISTRATION));
         rdapResponse.getEvents().add(createEvent(DateUtil.fromString(rpslObject.getValueForAttribute(AttributeType.LAST_MODIFIED)), Action.LAST_CHANGED));
-
+        mapConformanceAndLinksForRelation(rdapResponse, requestUrl);
         rdapResponse.getNotices().addAll(noticeFactory.generateNotices(requestUrl, rpslObject));
         return rdapResponse;
     }
@@ -332,15 +317,13 @@ public class RdapObjectMapper {
     private RdapObject mapCommons(final RdapObject rdapResponse, final String requestUrl) {
         final RdapObject rdapObject = mapCommonNoticesAndPort(rdapResponse, requestUrl);
         mapCommonLinks(rdapObject, requestUrl);
-        mapConformanceAndLinksForRelation(rdapResponse, rdapObject, requestUrl);
         mapRedactions(rdapResponse);
         return mapCommonConformances(rdapObject);
     }
 
 
-    private void mapConformanceAndLinksForRelation(final RdapObject rdapResponse, final RdapObject rdapObject,
-                                                   final String requestUrl){
-        mapCommonRelationLinks(rdapResponse, requestUrl);
+    private void mapConformanceAndLinksForRelation(final RdapObject rdapObject, final String requestUrl){
+        mapCommonRelationLinks(rdapObject, requestUrl);
         mapRirSearchConformanceWhenLookup(rdapObject, requestUrl);
     }
 
@@ -360,7 +343,7 @@ public class RdapObjectMapper {
                 throw new IllegalStateException("Malformed Url");
             }
             entity.getLinks().add(new Link(requestUrl, "self",
-                    url.getProtocol() + "://" + url.getHost() + "/" + entity.getObjectClassName() + "/" + attributeValue,
+                    url.getProtocol() + "://" + url.getHost() + PATH_DELIMITER + entity.getObjectClassName() + PATH_DELIMITER + attributeValue,
                     null, null, null));
         }
 
@@ -433,7 +416,7 @@ public class RdapObjectMapper {
     private List<IpCidr0> getIpCidr0Notation(final AbstractIpRange ipRange) {
        return Lists.newArrayList(
                Iterables.transform(ipRange.splitToPrefixes(), (Function<AbstractIpRange, IpCidr0>) prefix -> {
-                   final String[] cidrNotation = prefix.toStringInCidrNotation().split("/");
+                   final String[] cidrNotation = prefix.toStringInCidrNotation().split(PATH_DELIMITER);
                    final IpCidr0 ipCidr0 = new IpCidr0();
                    ipCidr0.setLength(Integer.parseInt(cidrNotation[1]));
                    if (prefix instanceof Ipv4Range) {
@@ -751,22 +734,23 @@ public class RdapObjectMapper {
             return;
         }
 
-        if (requestUrl.contains("rirSearch1")){
+        final List<String> pathSegments = Stream.of(requestUrl.split(PATH_DELIMITER)).toList();
+        if (pathSegments.contains(RdapConformance.RIR_SEARCH_1.getValue())){
             // This could happen if relation type is up or top search, the object is returned like lookup
             mapRirSearchConformanceWhenSearch(rdapObject, requestUrl);
             return;
         }
 
-        if (requestUrl.contains(RdapRequestType.IP.name().toLowerCase())) {
+        if (pathSegments.contains(RdapRequestType.IP.name().toLowerCase())) {
             rdapObject.getRdapConformance().addAll(List.of(RdapConformance.RIR_SEARCH_1.getValue(), RdapConformance.IPS.getValue()));
             return;
         }
-        if (requestUrl.contains(RdapRequestType.AUTNUM.name().toLowerCase())) {
+        if (pathSegments.contains(RdapRequestType.AUTNUM.name().toLowerCase())) {
             rdapObject.getRdapConformance().addAll(List.of(RdapConformance.RIR_SEARCH_1.getValue(),
                     RdapConformance.AUTNUMS.getValue()));
             return;
         }
-        if (requestUrl.contains(RdapRequestType.DOMAIN.name().toLowerCase())){
+        if (pathSegments.contains(RdapRequestType.DOMAIN.name().toLowerCase())){
             rdapObject.getRdapConformance().add(RdapConformance.RIR_SEARCH_1.getValue());
         }
     }
@@ -774,11 +758,12 @@ public class RdapObjectMapper {
     private void mapRirSearchConformanceWhenSearch(final RdapObject rdapObject, final String requestUrl){
         rdapObject.getRdapConformance().add(RdapConformance.RIR_SEARCH_1.getValue());
         if (!StringUtils.isEmpty(requestUrl)) {
-            if (requestUrl.contains(RdapRequestType.IPS.name().toLowerCase())) {
+            final List<String> pathSegments = Stream.of(requestUrl.split(PATH_DELIMITER)).toList();
+            if (pathSegments.contains(RdapRequestType.IPS.name().toLowerCase())) {
                 rdapObject.getRdapConformance().addAll(List.of(RdapConformance.IPS.getValue(), RdapConformance.IP_SEARCH_RESULTS.getValue()));
                 return;
             }
-            if (requestUrl.contains(RdapRequestType.AUTNUMS.name().toLowerCase())) {
+            if (pathSegments.contains(RdapRequestType.AUTNUMS.name().toLowerCase())) {
                 rdapObject.getRdapConformance().addAll(List.of(RdapConformance.AUTNUMS.getValue(), RdapConformance.AUTNUM_SEARCH_RESULTS.getValue()));
             }
         };
@@ -786,7 +771,7 @@ public class RdapObjectMapper {
 
 
     private void mapCommonRelationLinks(final RdapObject rdapResponse, final String requestUrl){
-        if (StringUtils.isEmpty(requestUrl) || requestUrl.contains("rirSearch1")){
+        if (StringUtils.isEmpty(requestUrl) || requestUrl.contains(RdapConformance.RIR_SEARCH_1.getValue())){
             return;
         }
         switch (rdapResponse){

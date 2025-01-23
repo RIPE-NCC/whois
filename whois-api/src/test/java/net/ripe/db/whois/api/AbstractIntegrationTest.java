@@ -107,17 +107,7 @@ public abstract class AbstractIntegrationTest extends AbstractDaoIntegrationTest
 
     protected Map<String, String> getRelationCallsFromLinks(final List<Link> links){
         return links.stream()
-                .filter(link -> {
-                    if (link.getRel() == null){
-                        return false;
-                    }
-                    try {
-                        RelationType.valueOf(link.getRel().toUpperCase());
-                        return true;
-                    } catch (IllegalArgumentException ex) {
-                        return link.getRel().equals("up-active") || link.getRel().equals("top-active");
-                    }
-                })
+                .filter(link ->  RelationType.isValidValue(link.getRel()))
                 .collect(Collectors.toMap(
                         link -> link.getRel().toUpperCase(),
                         link -> link.getHref().replace(rdapBaseUrl + "/", "")

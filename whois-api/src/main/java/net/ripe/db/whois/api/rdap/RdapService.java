@@ -237,7 +237,7 @@ public class RdapService {
             @PathParam("key") final String key,
             @QueryParam("status") String status) {
 
-        final RelationType relation = RelationType.fromString(relationType);
+        final RelationType relation = RelationType.fromName(relationType);
         //TODO: [MH] Status is being ignored until administrative resources are included in RDAP. If status is not
         // given or status is inactive...include administrative resources in the output. However, if status is active
         // return just non administrative resources, as we are doing now.

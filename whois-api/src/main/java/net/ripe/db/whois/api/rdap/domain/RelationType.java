@@ -7,7 +7,9 @@ public enum RelationType {
     UP("up"),
     TOP("top"),
     DOWN("down"),
-    BOTTOM("bottom");
+    BOTTOM("bottom"),
+    UP_ACTIVE("up-active"),
+    TOP_ACTIVE("top-active");
 
     private final String value;
 
@@ -19,12 +21,21 @@ public enum RelationType {
         return value;
     }
 
-    public static RelationType fromString(final String value) {
+    public static RelationType fromName(final String value) {
         for (RelationType type : RelationType.values()) {
             if (type.name().equalsIgnoreCase(value)) {
                 return type;
             }
         }
         throw new RdapException("400 Bad Request", "Relation " + value + " doesn't exist", HttpStatus.BAD_REQUEST_400);
+    }
+
+    public static boolean isValidValue(final String value) {
+        for (RelationType type : RelationType.values()) {
+            if (type.getValue().equalsIgnoreCase(value)) {
+                return true;
+            }
+        }
+        return false;
     }
 }
