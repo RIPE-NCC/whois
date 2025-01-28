@@ -155,6 +155,7 @@ public class RdapRelationService {
             case TOP -> List.of(searchTopLevelResource(ipTree, searchIp));
             case DOWN -> ipTree.findFirstMoreSpecific(searchIp);
             case BOTTOM -> searchBottomResources(ipTree, searchIp);
+            default -> throw new RdapException("400 Bad Request", "Unsupported Relation Type", HttpStatus.BAD_REQUEST_400);
         };
     }
 

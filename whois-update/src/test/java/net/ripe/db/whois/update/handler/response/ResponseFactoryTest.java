@@ -478,7 +478,7 @@ public class ResponseFactoryTest {
                 "mntner:         DEV-ROOT1-MNT\n" +
                 "\n" +
                 "Changed by PGP-KEY-123. You can find contact details for this key here:\n" +
-                "https://apps.db.ripe.net/search/lookup.html?source=ripe&key=PGP-KEY-123&type=key-cert\n"+
+                "https://apps.db.ripe.net/db-web-ui/query?source=RIPE&searchtext=PGP-KEY-123&types=key-cert\n"+
                 "\n" ));
 
     }
@@ -557,7 +557,7 @@ public class ResponseFactoryTest {
                 "mntner:         DEV-ROOT1-MNT\n" +
                 "\n" +
                 "Changed by X509-1. You can find contact details for this key here:\n" +
-                "https://apps.db.ripe.net/search/lookup.html?source=ripe&key=X509-1&type=key-cert\n" +
+                "https://apps.db.ripe.net/db-web-ui/query?source=RIPE&searchtext=X509-1&types=key-cert\n"+
                 "\n" ));
     }
 
