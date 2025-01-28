@@ -21,9 +21,9 @@ public enum RelationType {
         return value;
     }
 
-    public static RelationType fromName(final String value) {
+    public static RelationType fromValue(final String value) {
         for (RelationType type : RelationType.values()) {
-            if (type.name().equalsIgnoreCase(value)) {
+            if (type.getValue().equalsIgnoreCase(value)) {
                 return type;
             }
         }
