@@ -7,6 +7,7 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 import jakarta.ws.rs.InternalServerErrorException;
+import jakarta.ws.rs.core.UriBuilder;
 import net.ripe.commons.ip.AbstractIpRange;
 import net.ripe.commons.ip.Ipv4Range;
 import net.ripe.commons.ip.Ipv6Range;
@@ -114,7 +115,6 @@ public class RdapObjectMapper {
     private static final Link COPYRIGHT_LINK = new Link(TERMS_AND_CONDITIONS, "copyright", TERMS_AND_CONDITIONS, null, null, null);
     private static final Logger LOGGER = LoggerFactory.getLogger(RdapObjectMapper.class);
     private static final String APPLICATION_RDAP_JSON = "application/rdap+json";
-    private static final String PATH_DELIMITER = "/";
 
     private final NoticeFactory noticeFactory;
     private final RpslObjectDao rpslObjectDao;
@@ -122,7 +122,7 @@ public class RdapObjectMapper {
     private final Ipv4Tree ipv4Tree;
     private final Ipv6Tree ipv6Tree;
     private final String port43;
-    private final String rdapRirSearchSkeleton;
+    private final String baseUrl;
     private static final Map<AttributeType, Role> CONTACT_ATTRIBUTE_TO_ROLE_NAME = Map.of(
             ADMIN_C, Role.ADMINISTRATIVE,
             TECH_C, Role.TECHNICAL,
@@ -146,7 +146,7 @@ public class RdapObjectMapper {
         this.ipv6Tree = ipv6Tree;
         this.port43 = port43;
         this.reservedResources = reservedResources;
-        this.rdapRirSearchSkeleton = baseUrl + "/%s/rirSearch1/%s/%s";
+        this.baseUrl = baseUrl;
     }
 
     public Object map(final String requestUrl,
@@ -356,8 +356,9 @@ public class RdapObjectMapper {
             } catch (MalformedURLException ex) {
                 throw new IllegalStateException("Malformed Url");
             }
+
             entity.getLinks().add(new Link(requestUrl, "self",
-                    url.getProtocol() + "://" + url.getHost() + PATH_DELIMITER + entity.getObjectClassName() + PATH_DELIMITER + attributeValue,
+                    UriBuilder.newInstance().path(url.getProtocol() + "://" + url.getHost()).path(entity.getObjectClassName()).path(attributeValue.toString()).toString(),
                     null, null, null));
         }
 
@@ -430,7 +431,7 @@ public class RdapObjectMapper {
     private List<IpCidr0> getIpCidr0Notation(final AbstractIpRange ipRange) {
        return Lists.newArrayList(
                Iterables.transform(ipRange.splitToPrefixes(), (Function<AbstractIpRange, IpCidr0>) prefix -> {
-                   final String[] cidrNotation = prefix.toStringInCidrNotation().split(PATH_DELIMITER);
+                   final String[] cidrNotation = prefix.toStringInCidrNotation().split("/");
                    final IpCidr0 ipCidr0 = new IpCidr0();
                    ipCidr0.setLength(Integer.parseInt(cidrNotation[1]));
                    if (prefix instanceof Ipv4Range) {
@@ -486,11 +487,11 @@ public class RdapObjectMapper {
     private static Remark createRemark(final RpslObject rpslObject) {
         final List<String> descriptions = Lists.newArrayList();
 
-        for (final CIString description : rpslObject.getValuesForAttribute(DESCR)) {
+        for (final CIString description : rpslObject.getValuesForAttribute(AttributeType.DESCR)) {
             descriptions.add(description.toString());
         }
 
-        for (final CIString remark : rpslObject.getValuesForAttribute(REMARKS)) {
+        for (final CIString remark : rpslObject.getValuesForAttribute(AttributeType.REMARKS)) {
             descriptions.add(remark.toString());
         }
 
@@ -790,23 +791,32 @@ public class RdapObjectMapper {
     }
 
     private void mapCommonRelationLinks(final RdapObject rdapResponse, final String requestUrl, final String objectType, final String handle){
-        rdapResponse.getLinks().add(new Link(requestUrl, RelationType.UP.getValue(), String.format(rdapRirSearchSkeleton,
-                objectType, RelationType.UP.getValue(), handle), APPLICATION_RDAP_JSON, null, null));
+        rdapResponse.getLinks().add(new Link(requestUrl, RelationType.UP.getValue(),
+                buildRirSearchUri(objectType, RelationType.UP.getValue(), handle), APPLICATION_RDAP_JSON, null, null));
 
-        rdapResponse.getLinks().add(new Link(requestUrl, "up-active", String.format(rdapRirSearchSkeleton + "?status=active",
-                objectType, RelationType.UP.getValue(), handle), APPLICATION_RDAP_JSON, null, null));
+        rdapResponse.getLinks().add(new Link(requestUrl, "up-active",
+                buildRirSearchUri(objectType, RelationType.UP.getValue(), handle).concat("?status=active"), APPLICATION_RDAP_JSON, null, null));
 
-        rdapResponse.getLinks().add(new Link(requestUrl, RelationType.DOWN.getValue(), String.format(rdapRirSearchSkeleton,
-                objectType, RelationType.DOWN.getValue(), handle), APPLICATION_RDAP_JSON, null, null));
+        rdapResponse.getLinks().add(new Link(requestUrl, RelationType.DOWN.getValue(),
+                buildRirSearchUri(objectType, RelationType.DOWN.getValue(), handle), APPLICATION_RDAP_JSON, null, null));
 
-        rdapResponse.getLinks().add(new Link(requestUrl, RelationType.TOP.getValue(), String.format(rdapRirSearchSkeleton,
-                objectType, RelationType.TOP.getValue(), handle), APPLICATION_RDAP_JSON, null, null));
+        rdapResponse.getLinks().add(new Link(requestUrl, RelationType.TOP.getValue(),
+                buildRirSearchUri(objectType, RelationType.TOP.getValue(), handle), APPLICATION_RDAP_JSON, null, null));
 
-        rdapResponse.getLinks().add(new Link(requestUrl, "top-active", String.format(rdapRirSearchSkeleton + "?status=active",
-                objectType, RelationType.TOP.getValue(), handle), APPLICATION_RDAP_JSON, null, null));
+        rdapResponse.getLinks().add(new Link(requestUrl, "top-active",
+                buildRirSearchUri(objectType, RelationType.TOP.getValue(), handle).concat("?status=active"), APPLICATION_RDAP_JSON, null,
+                null));
 
-        rdapResponse.getLinks().add(new Link(requestUrl, RelationType.BOTTOM.getValue(), String.format(rdapRirSearchSkeleton,
-                objectType, RelationType.BOTTOM.getValue(), handle), APPLICATION_RDAP_JSON, null, null));
+        rdapResponse.getLinks().add(new Link(requestUrl, RelationType.BOTTOM.getValue(),
+                buildRirSearchUri(objectType, RelationType.BOTTOM.getValue(), handle), APPLICATION_RDAP_JSON, null, null));
     }
 
+    public String buildRirSearchUri(final String objectType, final String relationType, final String hande) {
+        return UriBuilder.fromUri(baseUrl)
+                .path(objectType)
+                .path(RdapConformance.RIR_SEARCH_1.getValue())
+                .path(relationType)
+                .path(hande)
+                .toString();
+    }
 }
