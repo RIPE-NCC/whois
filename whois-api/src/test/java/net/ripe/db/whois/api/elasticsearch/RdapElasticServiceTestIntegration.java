@@ -9,6 +9,7 @@ import jakarta.ws.rs.ServerErrorException;
 import jakarta.ws.rs.WebApplicationException;
 import jakarta.ws.rs.client.WebTarget;
 import jakarta.ws.rs.core.MediaType;
+import jakarta.ws.rs.core.Response;
 import net.ripe.db.whois.api.RestTest;
 import net.ripe.db.whois.api.rdap.domain.Action;
 import net.ripe.db.whois.api.rdap.domain.Domain;
@@ -52,6 +53,7 @@ import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.not;
 import static org.hamcrest.Matchers.nullValue;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.fail;
@@ -344,12 +346,44 @@ public class RdapElasticServiceTestIntegration extends AbstractElasticSearchInte
     }
 
     @Test
+    public void search_domain_then_all_empty_lists() {
+        rebuildIndex();
+        final Response searchResult = createResource("domains?name=ripe.net")
+                .request(MediaType.APPLICATION_JSON_TYPE)
+                .get(Response.class);
+
+        final String searchJsonResult = searchResult.readEntity(String.class);
+        assertThat(searchJsonResult, containsString("""
+                  "entitySearchResults" : [ ],
+                  "domainSearchResults" : [ ],
+                  "ipSearchResults" : [ ],
+                  "autnumSearchResults" : [ ]
+                  """));
+    }
+
+    @Test
     public void search_domain_exact_match() {
         final SearchResult response = createResource("domains?name=31.12.202.in-addr.arpa")
                 .request(MediaType.APPLICATION_JSON_TYPE)
                 .get(SearchResult.class);
 
         assertThat(response.getDomainSearchResults().get(0).getHandle(), equalTo("31.12.202.in-addr.arpa"));
+    }
+
+    @Test
+    public void search_domain_exact_match_exact_json() {
+        final Response response = createResource("domains?name=31.12.202.in-addr.arpa")
+                .request(MediaType.APPLICATION_JSON_TYPE)
+                .get(Response.class);
+
+        final String searchJsonResult = response.readEntity(String.class);
+        assertThat(searchJsonResult, containsString("""
+                  "domainSearchResults" : [ {
+                    "handle" : "31.12.202.in-addr.arpa",
+                """));
+        assertThat(searchJsonResult, not(containsString("""
+                  "entitySearchResults" : [ ]
+                  """)));
     }
 
     @Test

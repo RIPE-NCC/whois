@@ -149,7 +149,10 @@ public class RdapObjectMapper {
     }
 
     public Object mapSearch(final String requestUrl, final List<RpslObject> objects, final int maxResultSize) {
-        final SearchResult searchResult = new SearchResult();
+        final SearchResult searchResult = objects.isEmpty() ?
+                new SearchResult().initialiseEmpty() :
+                new SearchResult();
+
         for (final RpslObject object : objects) {
             switch (object.getType()){
                 case DOMAIN -> {
