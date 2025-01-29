@@ -54,7 +54,7 @@ import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.not;
-import static org.hamcrest.Matchers.nullValue;
+import static org.hamcrest.Matchers.notNullValue;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.fail;
 
@@ -342,7 +342,8 @@ public class RdapElasticServiceTestIntegration extends AbstractElasticSearchInte
                 .request(MediaType.APPLICATION_JSON_TYPE)
                 .get(SearchResult.class);
 
-        assertThat(searchResult.getDomainSearchResults(), is(nullValue()));
+        assertThat(searchResult.getDomainSearchResults(), is(notNullValue()));
+        assertThat(searchResult.getDomainSearchResults().size(), is(0));
     }
 
     @Test
@@ -354,11 +355,11 @@ public class RdapElasticServiceTestIntegration extends AbstractElasticSearchInte
 
         final String searchJsonResult = searchResult.readEntity(String.class);
         assertThat(searchJsonResult, containsString("""
+                \
                   "entitySearchResults" : [ ],
                   "domainSearchResults" : [ ],
                   "ipSearchResults" : [ ],
-                  "autnumSearchResults" : [ ]
-                  """));
+                  "autnumSearchResults" : [ ],"""));
     }
 
     @Test
@@ -442,7 +443,9 @@ public class RdapElasticServiceTestIntegration extends AbstractElasticSearchInte
                 .request(MediaType.APPLICATION_JSON_TYPE)
                 .get(SearchResult.class);
 
-        assertThat(searchResult.getEntitySearchResults(), is(nullValue()));
+
+        assertThat(searchResult.getEntitySearchResults(), is(notNullValue()));
+        assertThat(searchResult.getEntitySearchResults().size(), is(0));
     }
 
     @Test
@@ -473,7 +476,8 @@ public class RdapElasticServiceTestIntegration extends AbstractElasticSearchInte
                 .request(MediaType.APPLICATION_JSON_TYPE)
                 .get(SearchResult.class);
 
-        assertThat(searchResult.getEntitySearchResults(), is(nullValue()));
+        assertThat(searchResult.getEntitySearchResults(), is(notNullValue()));
+        assertThat(searchResult.getEntitySearchResults().size(), is(0));
     }
 
     @Test
@@ -498,7 +502,8 @@ public class RdapElasticServiceTestIntegration extends AbstractElasticSearchInte
                 .request(MediaType.APPLICATION_JSON_TYPE)
                 .get(SearchResult.class);
 
-        assertThat(searchResult.getEntitySearchResults(), is(nullValue()));
+        assertThat(searchResult.getEntitySearchResults(), is(notNullValue()));
+        assertThat(searchResult.getEntitySearchResults().size(), is(0));
     }
 
     @Test
@@ -508,7 +513,8 @@ public class RdapElasticServiceTestIntegration extends AbstractElasticSearchInte
                 .request(MediaType.APPLICATION_JSON_TYPE)
                 .get(SearchResult.class);
 
-        assertThat(searchResult.getEntitySearchResults(), is(nullValue()));
+        assertThat(searchResult.getEntitySearchResults(), is(notNullValue()));
+        assertThat(searchResult.getEntitySearchResults().size(), is(0));
     }
 
     @Test
@@ -538,7 +544,8 @@ public class RdapElasticServiceTestIntegration extends AbstractElasticSearchInte
                 .request(MediaType.APPLICATION_JSON_TYPE)
                 .get(SearchResult.class);
 
-        assertThat(searchResult.getEntitySearchResults(), is(nullValue()));
+        assertThat(searchResult.getEntitySearchResults(), is(notNullValue()));
+        assertThat(searchResult.getEntitySearchResults().size(), is(0));
     }
 
     // search - entities - role
@@ -1008,7 +1015,8 @@ public class RdapElasticServiceTestIntegration extends AbstractElasticSearchInte
                 .request(MediaType.APPLICATION_JSON_TYPE)
                 .get(SearchResult.class);
 
-        assertThat(searchResult.getIpSearchResults(), is(nullValue()));
+        assertThat(searchResult.getIpSearchResults(), is(notNullValue()));
+        assertThat(searchResult.getIpSearchResults().size(), is(0));
     }
 
     @Test
@@ -1018,7 +1026,8 @@ public class RdapElasticServiceTestIntegration extends AbstractElasticSearchInte
                 .request(MediaType.APPLICATION_JSON_TYPE)
                 .get(SearchResult.class);
 
-        assertThat(searchResult.getIpSearchResults(), is(nullValue()));
+        assertThat(searchResult.getIpSearchResults(), is(notNullValue()));
+        assertThat(searchResult.getIpSearchResults().size(), is(0));
     }
 
     @Test
@@ -1027,7 +1036,8 @@ public class RdapElasticServiceTestIntegration extends AbstractElasticSearchInte
                     .request(MediaType.APPLICATION_JSON_TYPE)
                     .get(SearchResult.class);
 
-        assertThat(searchResult.getIpSearchResults(), is(nullValue()));
+        assertThat(searchResult.getIpSearchResults(), is(notNullValue()));
+        assertThat(searchResult.getIpSearchResults().size(), is(0));
     }
 
     @Test
@@ -1053,7 +1063,8 @@ public class RdapElasticServiceTestIntegration extends AbstractElasticSearchInte
                 .request(MediaType.APPLICATION_JSON_TYPE)
                 .get(SearchResult.class);
 
-        assertThat(response.getIpSearchResults(), is(nullValue()));
+        assertThat(response.getIpSearchResults(), is(notNullValue()));
+        assertThat(response.getIpSearchResults().size(), is(0));
     }
 
 
@@ -1123,7 +1134,8 @@ public class RdapElasticServiceTestIntegration extends AbstractElasticSearchInte
                 .request(MediaType.APPLICATION_JSON_TYPE)
                 .get(SearchResult.class);
 
-        assertThat(searchResult.getAutnumSearchResults(), is(nullValue()));
+        assertThat(searchResult.getAutnumSearchResults(), is(notNullValue()));
+        assertThat(searchResult.getAutnumSearchResults().size(), is(0));
     }
 
 
@@ -1134,7 +1146,8 @@ public class RdapElasticServiceTestIntegration extends AbstractElasticSearchInte
                 .request(MediaType.APPLICATION_JSON_TYPE)
                 .get(SearchResult.class);
 
-        assertThat(searchResult.getAutnumSearchResults(), is(nullValue()));
+        assertThat(searchResult.getAutnumSearchResults(), is(notNullValue()));
+        assertThat(searchResult.getAutnumSearchResults().size(), is(0));
     }
 
     // Test redactions
