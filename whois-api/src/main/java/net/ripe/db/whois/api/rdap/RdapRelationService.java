@@ -129,6 +129,7 @@ public class RdapRelationService {
 
         return rdapObjectMapper.mapSearch(
                 requestUrl,
+                requestType,
                 rpslObjects,
                 maxResultSize);
     }

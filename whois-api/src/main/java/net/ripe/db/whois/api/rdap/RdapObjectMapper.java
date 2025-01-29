@@ -155,10 +155,9 @@ public class RdapObjectMapper {
         return mapCommons(getRdapObject(requestUrl, rpslObject, abuseContact), requestUrl);
     }
 
-    public Object mapSearch(final String requestUrl, final List<RpslObject> objects, final int maxResultSize) {
-        final SearchResult searchResult = objects.isEmpty() ?
-                new SearchResult().initialiseEmpty() :
-                new SearchResult();
+    public Object mapSearch(final String requestUrl, final RdapRequestType requestType, final List<RpslObject> objects,
+                            final int maxResultSize) {
+        final SearchResult searchResult = initialiseSearchResultByType(requestType);
 
         for (final RpslObject object : objects) {
             switch (object.getType()){
@@ -195,6 +194,17 @@ public class RdapObjectMapper {
         mapCommonLinks(rdapObject, requestUrl);
         mapRirSearchConformanceWhenSearch(rdapObject, requestUrl);
         return mapCommonConformances(rdapObject);
+    }
+
+    private SearchResult initialiseSearchResultByType(final RdapRequestType requestType){
+        final SearchResult searchResult = new SearchResult();
+        switch (requestType){
+            case DOMAINS -> searchResult.setDomainResults(Lists.newArrayList());
+            case IPS -> searchResult.setIpResults(Lists.newArrayList());
+            case AUTNUMS -> searchResult.setAutnumResults(Lists.newArrayList());
+            default -> searchResult.setEntityResults(Lists.newArrayList());
+        }
+        return searchResult;
     }
 
     public Object mapDomainEntity(

@@ -360,10 +360,10 @@ public class RdapElasticServiceTestIntegration extends AbstractElasticSearchInte
         final String searchJsonResult = searchResult.readEntity(String.class);
         assertThat(searchJsonResult, containsString("""
                 \
-                  "entitySearchResults" : [ ],
-                  "domainSearchResults" : [ ],
-                  "ipSearchResults" : [ ],
-                  "autnumSearchResults" : [ ],"""));
+                  "domainSearchResults" : [ ]"""));
+        assertThat(searchJsonResult, not(containsString("""
+                \
+                  "entitySearchResults" : [ ]""")));
     }
 
     @Test

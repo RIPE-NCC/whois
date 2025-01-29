@@ -34,13 +34,6 @@ public class SearchResult extends RdapObject implements Serializable {
     @XmlElement(name = "autnumSearchResults")
     protected List<Autnum> autnumResults;
 
-    public SearchResult initialiseEmpty(){
-        this.entityResults = Lists.newArrayList();
-        this.domainResults = Lists.newArrayList();
-        this.ipResults = Lists.newArrayList();
-        this.autnumResults = Lists.newArrayList();
-        return this;
-    }
 
     public List<Entity> getEntitySearchResults() {
         return entityResults;
@@ -84,5 +77,21 @@ public class SearchResult extends RdapObject implements Serializable {
             autnumResults = Lists.newArrayList();
         }
         autnumResults.add(autnum);
+    }
+
+    public void setEntityResults(List<Entity> entityResults) {
+        this.entityResults = entityResults;
+    }
+
+    public void setDomainResults(List<Domain> domainResults) {
+        this.domainResults = domainResults;
+    }
+
+    public void setIpResults(List<Ip> ipResults) {
+        this.ipResults = ipResults;
+    }
+
+    public void setAutnumResults(List<Autnum> autnumResults) {
+        this.autnumResults = autnumResults;
     }
 }

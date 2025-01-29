@@ -121,11 +121,11 @@ public class RdapService {
 
         Object object = null;
         if (name != null && handle == null) {
-            object = handleSearch(new String[]{"person", "role", "org-name"}, name, request);
+            object = handleSearch(RdapRequestType.ENTITY, new String[]{"person", "role", "org-name"}, name, request);
         }
 
         if (name == null && handle != null) {
-            object = handleSearch(new String[]{"organisation", "nic-hdl", "mntner"}, handle, request);
+            object = handleSearch(RdapRequestType.ENTITY, new String[]{"organisation", "nic-hdl", "mntner"}, handle, request);
         }
 
         if (object == null){
@@ -149,12 +149,12 @@ public class RdapService {
 
         Object object = null;
         if (name != null && handle == null) {
-            object = handleSearch(new String[]{"netname"}, name, request);
+            object = handleSearch(RdapRequestType.IPS, new String[]{"netname"}, name, request);
         }
 
         if (name == null && handle != null) {
             final Ipv4Resource ipv4Resource = Ipv4Resource.parseIPv4Resource(handle);
-            object = handleSearch(new String[]{"inetnum", "inet6num"}, ipv4Resource != null ? ipv4Resource.toRangeString() : handle, request);
+            object = handleSearch(RdapRequestType.IPS, new String[]{"inetnum", "inet6num"}, ipv4Resource != null ? ipv4Resource.toRangeString() : handle, request);
         }
 
         if (object == null) {
@@ -178,11 +178,11 @@ public class RdapService {
 
         Object object = null;
         if (name != null && handle == null) {
-            object = handleSearch(new String[]{"as-name"}, name, request);
+            object = handleSearch(RdapRequestType.AUTNUMS, new String[]{"as-name"}, name, request);
         }
 
         if (name == null && handle != null) {
-            object = handleSearch(new String[]{"aut-num"}, handle, request);
+            object = handleSearch(RdapRequestType.AUTNUMS, new String[]{"aut-num"}, handle, request);
         }
 
         if (object == null){
@@ -213,7 +213,7 @@ public class RdapService {
 
         LOGGER.debug("Request: {}", RestServiceHelper.getRequestURI(request));
 
-        return Response.ok(handleSearch(new String[]{"domain"}, name, request))
+        return Response.ok(handleSearch(RdapRequestType.DOMAINS, new String[]{"domain"}, name, request))
                 .header(CONTENT_TYPE, CONTENT_TYPE_RDAP_JSON)
                 .build();
     }
@@ -402,7 +402,8 @@ public class RdapService {
     }
 
 
-    private Object handleSearch(final String[] fields, final String term, final HttpServletRequest request) {
+    private Object handleSearch(final RdapRequestType requestType, final String[] fields, final String term,
+                                final HttpServletRequest request) {
         LOGGER.debug("Search {} for {}", fields, term);
 
         if (StringUtils.isEmpty(term)) {
@@ -414,6 +415,7 @@ public class RdapService {
 
             return rdapObjectMapper.mapSearch(
                     getRequestUrl(request),
+                    requestType,
                     objects,
                     maxResultSize);
         }
