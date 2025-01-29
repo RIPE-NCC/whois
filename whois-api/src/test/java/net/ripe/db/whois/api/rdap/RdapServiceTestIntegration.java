@@ -22,6 +22,7 @@ import net.ripe.db.whois.api.rdap.domain.Nameserver;
 import net.ripe.db.whois.api.rdap.domain.Notice;
 import net.ripe.db.whois.api.rdap.domain.RdapObject;
 import net.ripe.db.whois.api.rdap.domain.Redaction;
+import net.ripe.db.whois.api.rdap.domain.RelationType;
 import net.ripe.db.whois.api.rdap.domain.Remark;
 import net.ripe.db.whois.api.rdap.domain.Role;
 import net.ripe.db.whois.api.rdap.domain.SearchResult;
@@ -36,9 +37,12 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.annotation.DirtiesContext;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 import static net.ripe.db.whois.common.rpsl.AttributeType.COUNTRY;
 import static net.ripe.db.whois.common.rpsl.AttributeType.LANGUAGE;
@@ -229,8 +233,9 @@ public class RdapServiceTestIntegration extends AbstractRdapIntegrationTest {
         assertThat(ip.getStatus(), contains("reserved"));
 
         assertThat(ip.getPort43(), is("whois.ripe.net"));
-        assertThat(ip.getRdapConformance(), hasSize(5));
-        assertThat(ip.getRdapConformance(), containsInAnyOrder("rdap_level_0", "cidr0", "nro_rdap_profile_0", "redacted", "geofeed1"));
+        assertThat(ip.getRdapConformance(), hasSize(7));
+        assertThat(ip.getRdapConformance(), containsInAnyOrder("rdap_level_0", "cidr0", "nro_rdap_profile_0",
+                "redacted", "geofeed1", "rirSearch1", "ips"));
 
 
         final List<Remark> remarks = ip.getRemarks();
@@ -251,7 +256,7 @@ public class RdapServiceTestIntegration extends AbstractRdapIntegrationTest {
         assertThat(notices.get(1).getLinks(), hasSize(0));
 
         assertTnCNotice(notices.get(2), "https://rdap.db.ripe.net/ip/192.0.2.0/24");
-        assertCopyrightLink(ip.getLinks(), "https://rdap.db.ripe.net/ip/192.0.2.0/24");
+        assertResourceCopyrightLink(ip.getLinks(), "https://rdap.db.ripe.net/ip/192.0.2.0/24");
     }
 
     @Test
@@ -706,7 +711,7 @@ public class RdapServiceTestIntegration extends AbstractRdapIntegrationTest {
         assertThat(ip.getCidr0_cidrs().get(1).getLength(), is(23));
 
         assertThat(ip.getRdapConformance(), containsInAnyOrder("cidr0", "rdap_level_0", "nro_rdap_profile_0",
-                "redacted", "geofeed1"));
+                "redacted", "geofeed1", "rirSearch1", "ips"));
 
         var notices = ip.getNotices();
         var inaccuracyNotice = notices.get(1);
@@ -842,8 +847,9 @@ public class RdapServiceTestIntegration extends AbstractRdapIntegrationTest {
         assertThat(ip.getCidr0_cidrs().get(0).getLength(), is(48));
 
         assertThat(ip.getPort43(), is("whois.ripe.net"));
-        assertThat(ip.getRdapConformance(), hasSize(5));
-        assertThat(ip.getRdapConformance(), containsInAnyOrder("rdap_level_0", "cidr0", "nro_rdap_profile_0", "redacted", "geofeed1"));
+        assertThat(ip.getRdapConformance(), hasSize(7));
+        assertThat(ip.getRdapConformance(), containsInAnyOrder("rdap_level_0", "cidr0", "nro_rdap_profile_0",
+                "redacted", "geofeed1", "rirSearch1", "ips"));
 
         final List<Remark> remarks = ip.getRemarks();
         assertThat(remarks, hasSize(1));
@@ -860,7 +866,7 @@ public class RdapServiceTestIntegration extends AbstractRdapIntegrationTest {
         assertThat(notices.get(1).getTitle(), is("Source"));
 
         assertTnCNotice(notices.get(2), "https://rdap.db.ripe.net/ip/2001:2002:2003::/48");
-        assertCopyrightLink(ip.getLinks(), "https://rdap.db.ripe.net/ip/2001:2002:2003::/48");
+        assertResourceCopyrightLink(ip.getLinks(), "https://rdap.db.ripe.net/ip/2001:2002:2003::/48");
     }
 
     @Test
@@ -1298,7 +1304,7 @@ public class RdapServiceTestIntegration extends AbstractRdapIntegrationTest {
                 .request(MediaType.APPLICATION_JSON_TYPE)
                 .get(Domain.class);
 
-        assertCommon(domain);
+        assertDomain(domain);
         assertThat(domain.getHandle(), equalTo("31.12.202.in-addr.arpa"));
         assertThat(domain.getLdhName(), equalTo("31.12.202.in-addr.arpa."));
         assertThat(domain.getObjectClassName(), is("domain"));
@@ -1346,9 +1352,10 @@ public class RdapServiceTestIntegration extends AbstractRdapIntegrationTest {
         assertTnCNotice(notices.get(2), "https://rdap.db.ripe.net/domain/31.12.202.in-addr.arpa");
 
         final List<Link> links = domain.getLinks();
-        assertThat(links, hasSize(1));
-        assertThat(links.get(0).getRel(), is("copyright"));
-        assertThat(links.get(0).getHref(), is("http://www.ripe.net/data-tools/support/documentation/terms"));
+        assertThat(links, hasSize(7));
+        assertRelationLinks(links);
+        assertThat(links.getLast().getRel(), is("copyright"));
+        assertThat(links.getLast().getHref(), is("http://www.ripe.net/data-tools/support/documentation/terms"));
     }
 
     @Test
@@ -1390,16 +1397,17 @@ public class RdapServiceTestIntegration extends AbstractRdapIntegrationTest {
                 .request(MediaType.APPLICATION_JSON_TYPE)
                 .get(Domain.class);
 
-        assertCommon(domain);
+        assertDomain(domain);
         assertThat(domain.getHandle(), equalTo("52.179.80.in-addr.arpa"));
         assertThat(domain.getLdhName(), equalTo("52.179.80.in-addr.arpa."));
         assertThat(domain.getObjectClassName(), is("domain"));
         assertThat(domain.getNetwork().getHandle(), is("80.179.52.0 - 80.179.55.255"));
 
         final List<Link> links = domain.getLinks();
-        assertThat(links, hasSize(1));
-        assertThat(links.get(0).getRel(), is("copyright"));
-        assertThat(links.get(0).getHref(), is("http://www.ripe.net/data-tools/support/documentation/terms"));
+        assertThat(links, hasSize(7));
+        assertRelationLinks(links);
+        assertThat(links.getLast().getRel(), is("copyright"));
+        assertThat(links.getLast().getHref(), is("http://www.ripe.net/data-tools/support/documentation/terms"));
     }
 
     @Test
@@ -1441,16 +1449,16 @@ public class RdapServiceTestIntegration extends AbstractRdapIntegrationTest {
                 .request(MediaType.APPLICATION_JSON_TYPE)
                 .get(Domain.class);
 
-        assertCommon(domain);
+        assertDomain(domain);
         assertThat(domain.getHandle(), equalTo("e.c.c.2.0.0.a.2.ip6.arpa"));
         assertThat(domain.getLdhName(), equalTo("e.c.c.2.0.0.a.2.ip6.arpa."));
         assertThat(domain.getObjectClassName(), is("domain"));
         assertThat(domain.getNetwork().getHandle(), is("2a00:2cce::/32"));
 
         final List<Link> links = domain.getLinks();
-        assertThat(links, hasSize(1));
-        assertThat(links.get(0).getRel(), is("copyright"));
-        assertThat(links.get(0).getHref(), is("http://www.ripe.net/data-tools/support/documentation/terms"));
+        assertThat(links, hasSize(7));
+        assertThat(links.getLast().getRel(), is("copyright"));
+        assertThat(links.getLast().getHref(), is("http://www.ripe.net/data-tools/support/documentation/terms"));
     }
 
     @Test
@@ -1491,16 +1499,18 @@ public class RdapServiceTestIntegration extends AbstractRdapIntegrationTest {
                 .request(MediaType.APPLICATION_JSON_TYPE)
                 .get(Domain.class);
 
-        assertCommon(domain);
+        assertDomain(domain);
         assertThat(domain.getHandle(), equalTo("52.179.80.in-addr.arpa"));
         assertThat(domain.getLdhName(), equalTo("52.179.80.in-addr.arpa."));
         assertThat(domain.getObjectClassName(), is("domain"));
         assertThat(domain.getNetwork(), is(nullValue()));
 
         final List<Link> links = domain.getLinks();
-        assertThat(links, hasSize(1));
-        assertThat(links.get(0).getRel(), is("copyright"));
-        assertThat(links.get(0).getHref(), is("http://www.ripe.net/data-tools/support/documentation/terms"));
+        assertThat(links, hasSize(7));
+        assertRelationLinks(links);
+
+        assertThat(links.getLast().getRel(), is("copyright"));
+        assertThat(links.getLast().getHref(), is("http://www.ripe.net/data-tools/support/documentation/terms"));
     }
 
     @Test
@@ -1509,16 +1519,17 @@ public class RdapServiceTestIntegration extends AbstractRdapIntegrationTest {
                 .request(MediaType.APPLICATION_JSON_TYPE)
                 .get(Domain.class);
 
-        assertCommon(domain);
+        assertDomain(domain);
         assertThat(domain.getHandle(), equalTo("31.12.202.in-addr.arpa"));
         assertThat(domain.getLdhName(), equalTo("31.12.202.in-addr.arpa."));
         assertThat(domain.getObjectClassName(), is("domain"));
         assertThat(domain.getNetwork().getHandle(), is("0.0.0.0 - 255.255.255.255"));
 
         final List<Link> links = domain.getLinks();
-        assertThat(links, hasSize(1));
-        assertThat(links.get(0).getRel(), is("copyright"));
-        assertThat(links.get(0).getHref(), is("http://www.ripe.net/data-tools/support/documentation/terms"));
+        assertThat(links, hasSize(7));
+        assertRelationLinks(links);
+        assertThat(links.getLast().getRel(), is("copyright"));
+        assertThat(links.getLast().getHref(), is("http://www.ripe.net/data-tools/support/documentation/terms"));
     }
 
     @Test
@@ -1649,7 +1660,7 @@ public class RdapServiceTestIntegration extends AbstractRdapIntegrationTest {
         assertThat(entities.get(1).getHandle(), is("TP1-TEST"));
         assertThat(entities.get(1).getRoles(), containsInAnyOrder(Role.ADMINISTRATIVE, Role.TECHNICAL));
 
-        assertCopyrightLink(autnum.getLinks(), "https://rdap.db.ripe.net/autnum/102");
+        assertResourceCopyrightLink(autnum.getLinks(), "https://rdap.db.ripe.net/autnum/102");
 
         final List<Notice> notices = autnum.getNotices();
         assertThat(notices, hasSize(4));
@@ -1699,8 +1710,47 @@ public class RdapServiceTestIntegration extends AbstractRdapIntegrationTest {
         assertThat(response.getMediaType(), is(new MediaType("application", "rdap+json")));
         final String entity = response.readEntity(String.class);
         assertThat(entity, containsString("\"handle\" : \"AS102\""));
-        assertThat(entity, containsString("rdapConformance\" : [ \"nro_rdap_profile_asn_flat_0\", \"cidr0\", " +
-                "\"rdap_level_0\", \"nro_rdap_profile_0\", \"redacted\" ]"));
+        assertThat(entity, containsString("\"links\" : [ {\n" +
+                "    \"value\" : \"https://rdap.db.ripe.net/autnum/102\",\n" +
+                "    \"rel\" : \"up\",\n" +
+                "    \"href\" : \"https://rdap.db.ripe.net/autnums/rirSearch1/up/AS102\",\n" +
+                "    \"title\" : \"application/rdap+json\"\n" +
+                "  }, {\n" +
+                "    \"value\" : \"https://rdap.db.ripe.net/autnum/102\",\n" +
+                "    \"rel\" : \"up-active\",\n" +
+                "    \"href\" : \"https://rdap.db.ripe.net/autnums/rirSearch1/up/AS102?status=active\",\n" +
+                "    \"title\" : \"application/rdap+json\"\n" +
+                "  }, {\n" +
+                "    \"value\" : \"https://rdap.db.ripe.net/autnum/102\",\n" +
+                "    \"rel\" : \"down\",\n" +
+                "    \"href\" : \"https://rdap.db.ripe.net/autnums/rirSearch1/down/AS102\",\n" +
+                "    \"title\" : \"application/rdap+json\"\n" +
+                "  }, {\n" +
+                "    \"value\" : \"https://rdap.db.ripe.net/autnum/102\",\n" +
+                "    \"rel\" : \"top\",\n" +
+                "    \"href\" : \"https://rdap.db.ripe.net/autnums/rirSearch1/top/AS102\",\n" +
+                "    \"title\" : \"application/rdap+json\"\n" +
+                "  }, {\n" +
+                "    \"value\" : \"https://rdap.db.ripe.net/autnum/102\",\n" +
+                "    \"rel\" : \"top-active\",\n" +
+                "    \"href\" : \"https://rdap.db.ripe.net/autnums/rirSearch1/top/AS102?status=active\",\n" +
+                "    \"title\" : \"application/rdap+json\"\n" +
+                "  }, {\n" +
+                "    \"value\" : \"https://rdap.db.ripe.net/autnum/102\",\n" +
+                "    \"rel\" : \"bottom\",\n" +
+                "    \"href\" : \"https://rdap.db.ripe.net/autnums/rirSearch1/bottom/AS102\",\n" +
+                "    \"title\" : \"application/rdap+json\"\n" +
+                "  }, {\n" +
+                "    \"value\" : \"https://rdap.db.ripe.net/autnum/102\",\n" +
+                "    \"rel\" : \"self\",\n" +
+                "    \"href\" : \"https://rdap.db.ripe.net/autnum/102\"\n" +
+                "  }, {\n" +
+                "    \"value\" : \"http://www.ripe.net/data-tools/support/documentation/terms\",\n" +
+                "    \"rel\" : \"copyright\",\n" +
+                "    \"href\" : \"http://www.ripe.net/data-tools/support/documentation/terms\"\n" +
+                "  } ]"));
+        assertThat(entity, containsString("[ \"nro_rdap_profile_asn_flat_0\", \"rirSearch1\", " +
+                "\"autnums\", \"cidr0\", \"rdap_level_0\", \"nro_rdap_profile_0\", \"redacted\" ]"));
     }
 
     @Test
@@ -1713,8 +1763,48 @@ public class RdapServiceTestIntegration extends AbstractRdapIntegrationTest {
         final String entity = response.readEntity(String.class);
         assertThat(entity, containsString("\"handle\" : \"AS102\""));
         assertThat(entity,
-                containsString("rdapConformance\" : [ \"nro_rdap_profile_asn_flat_0\", \"cidr0\", \"rdap_level_0\", " +
-                        "\"nro_rdap_profile_0\", \"redacted\" ]"));
+                containsString("\"links\" : [ {\n" +
+                        "    \"value\" : \"https://rdap.db.ripe.net/autnum/102\",\n" +
+                        "    \"rel\" : \"up\",\n" +
+                        "    \"href\" : \"https://rdap.db.ripe.net/autnums/rirSearch1/up/AS102\",\n" +
+                        "    \"title\" : \"application/rdap+json\"\n" +
+                        "  }, {\n" +
+                        "    \"value\" : \"https://rdap.db.ripe.net/autnum/102\",\n" +
+                        "    \"rel\" : \"up-active\",\n" +
+                        "    \"href\" : \"https://rdap.db.ripe.net/autnums/rirSearch1/up/AS102?status=active\",\n" +
+                        "    \"title\" : \"application/rdap+json\"\n" +
+                        "  }, {\n" +
+                        "    \"value\" : \"https://rdap.db.ripe.net/autnum/102\",\n" +
+                        "    \"rel\" : \"down\",\n" +
+                        "    \"href\" : \"https://rdap.db.ripe.net/autnums/rirSearch1/down/AS102\",\n" +
+                        "    \"title\" : \"application/rdap+json\"\n" +
+                        "  }, {\n" +
+                        "    \"value\" : \"https://rdap.db.ripe.net/autnum/102\",\n" +
+                        "    \"rel\" : \"top\",\n" +
+                        "    \"href\" : \"https://rdap.db.ripe.net/autnums/rirSearch1/top/AS102\",\n" +
+                        "    \"title\" : \"application/rdap+json\"\n" +
+                        "  }, {\n" +
+                        "    \"value\" : \"https://rdap.db.ripe.net/autnum/102\",\n" +
+                        "    \"rel\" : \"top-active\",\n" +
+                        "    \"href\" : \"https://rdap.db.ripe.net/autnums/rirSearch1/top/AS102?status=active\",\n" +
+                        "    \"title\" : \"application/rdap+json\"\n" +
+                        "  }, {\n" +
+                        "    \"value\" : \"https://rdap.db.ripe.net/autnum/102\",\n" +
+                        "    \"rel\" : \"bottom\",\n" +
+                        "    \"href\" : \"https://rdap.db.ripe.net/autnums/rirSearch1/bottom/AS102\",\n" +
+                        "    \"title\" : \"application/rdap+json\"\n" +
+                        "  }, {\n" +
+                        "    \"value\" : \"https://rdap.db.ripe.net/autnum/102\",\n" +
+                        "    \"rel\" : \"self\",\n" +
+                        "    \"href\" : \"https://rdap.db.ripe.net/autnum/102\"\n" +
+                        "  }, {\n" +
+                        "    \"value\" : \"http://www.ripe.net/data-tools/support/documentation/terms\",\n" +
+                        "    \"rel\" : \"copyright\",\n" +
+                        "    \"href\" : \"http://www.ripe.net/data-tools/support/documentation/terms\"\n" +
+                        "  } ]"));
+        assertThat(entity,
+                containsString("[ \"nro_rdap_profile_asn_flat_0\", \"rirSearch1\", \"autnums\", " +
+                        "\"cidr0\", \"rdap_level_0\", \"nro_rdap_profile_0\", \"redacted\" ]"));
     }
 
     @Test
@@ -2576,7 +2666,8 @@ public class RdapServiceTestIntegration extends AbstractRdapIntegrationTest {
 
         assertThat(entity.getPort43(), is("whois.ripe.net"));
         assertThat(entity.getRdapConformance(), hasSize(4));
-        assertThat(entity.getRdapConformance(), containsInAnyOrder("rdap_level_0", "cidr0", "nro_rdap_profile_0", "redacted"));
+        assertThat(entity.getRdapConformance(), containsInAnyOrder("rdap_level_0", "cidr0", "nro_rdap_profile_0",
+                "redacted"));
 
         assertThat(entity.getHandle(), equalTo("ORG-ONE-TEST"));
         assertThat(entity.getRoles(), hasSize(0));
@@ -3117,9 +3208,10 @@ public class RdapServiceTestIntegration extends AbstractRdapIntegrationTest {
                 .get(RdapObject.class);
 
         assertThat(help.getPort43(), is("whois.ripe.net"));
-        assertThat(help.getRdapConformance(), hasSize(6));
+        assertThat(help.getRdapConformance(), hasSize(11));
         assertThat(help.getRdapConformance(), containsInAnyOrder("cidr0", "rdap_level_0", "nro_rdap_profile_0",
-                "nro_rdap_profile_asn_flat_0", "redacted", "geofeed1"));
+                "nro_rdap_profile_asn_flat_0", "redacted", "geofeed1", "rirSearch1", "ips", "ipSearchResults",
+                "autnums", "autnumSearchResults"));
 
         final List<Notice> notices = help.getNotices();
         assertThat(notices, hasSize(1));
@@ -3167,6 +3259,23 @@ public class RdapServiceTestIntegration extends AbstractRdapIntegrationTest {
                 .get(Ip.class);
 
         assertThat(ip.getHandle(), is("192.0.2.0 - 192.0.2.127")); // /26
+        assertThat(ip.getRdapConformance(), containsInAnyOrder("ips", "ipSearchResults", "rirSearch1", "geofeed1",
+                "cidr0", "rdap_level_0",
+                "nro_rdap_profile_0", "redacted"));
+    }
+
+    @Test
+    public void get_up_active_status_then_parent(){
+        loadIpv4RelationTreeExample();
+
+        final Ip ip = createResource("ips/rirSearch1/up/192.0.2.0/28?status=active")
+                .request(MediaType.APPLICATION_JSON_TYPE)
+                .get(Ip.class);
+
+        assertThat(ip.getHandle(), is("192.0.2.0 - 192.0.2.127")); // /26
+        assertThat(ip.getRdapConformance(), containsInAnyOrder("rirSearch1", "ips", "ipSearchResults", "geofeed1",
+                "cidr0", "rdap_level_0",
+                "nro_rdap_profile_0", "redacted"));
     }
 
     @Test
@@ -3194,6 +3303,9 @@ public class RdapServiceTestIntegration extends AbstractRdapIntegrationTest {
                 .get(Ip.class);
 
         assertThat(ip.getHandle(), is("2001::/16"));
+        assertThat(ip.getRdapConformance(), containsInAnyOrder("rirSearch1", "ips", "ipSearchResults", "geofeed1",
+                "cidr0", "rdap_level_0",
+                "nro_rdap_profile_0", "redacted"));
     }
 
 
@@ -3207,6 +3319,8 @@ public class RdapServiceTestIntegration extends AbstractRdapIntegrationTest {
                 .get(Domain.class);
 
         assertThat(domain.getHandle(), is("2.0.192.in-addr.arpa"));
+        assertThat(domain.getRdapConformance(), containsInAnyOrder("rirSearch1", "cidr0", "rdap_level_0",
+                "nro_rdap_profile_0", "redacted"));
     }
 
 
@@ -3237,6 +3351,8 @@ public class RdapServiceTestIntegration extends AbstractRdapIntegrationTest {
                 .get(Ip.class);
 
         assertThat(ip.getHandle(), is("192.0.2.0 - 192.0.2.255")); // /24
+        assertThat(ip.getRdapConformance(), containsInAnyOrder("ips", "ipSearchResults", "rirSearch1", "geofeed1",
+                "cidr0", "rdap_level_0", "nro_rdap_profile_0", "redacted"));
     }
 
     @Test
@@ -3261,6 +3377,8 @@ public class RdapServiceTestIntegration extends AbstractRdapIntegrationTest {
                 .get(Ip.class);
 
         assertThat(ip.getHandle(), is("2000::/3"));
+        assertThat(ip.getRdapConformance(), containsInAnyOrder("rirSearch1", "ips", "ipSearchResults", "geofeed1",
+                "cidr0", "rdap_level_0", "nro_rdap_profile_0", "redacted"));
     }
 
     @Test
@@ -3273,6 +3391,8 @@ public class RdapServiceTestIntegration extends AbstractRdapIntegrationTest {
                 .get(Domain.class);
 
         assertThat(domain.getHandle(), is("0.192.in-addr.arpa"));
+        assertThat(domain.getRdapConformance(), containsInAnyOrder("rirSearch1", "cidr0", "rdap_level_0",
+                "nro_rdap_profile_0", "redacted"));
     }
 
     @Test
@@ -3319,6 +3439,7 @@ public class RdapServiceTestIntegration extends AbstractRdapIntegrationTest {
         assertErrorStatus(notFoundException, HttpStatus.NOT_FOUND_404);
         assertErrorDescription(notFoundException, "No top-level object has been found for 2000::/3");
     }
+
 
     @Test
     public void get_ipv6_top_found_if_assignment(){
@@ -3378,6 +3499,8 @@ public class RdapServiceTestIntegration extends AbstractRdapIntegrationTest {
         assertThat(ipResults.get(2).getHandle(), is("192.0.2.0 - 192.0.2.127")); //25
         assertThat(ipResults.get(3).getHandle(), is("192.0.2.128 - 192.0.2.191")); //26
         assertThat(ipResults.get(4).getHandle(), is("192.0.2.192 - 192.0.2.255")); //26
+        assertThat(searchResult.getRdapConformance(), containsInAnyOrder("rirSearch1", "ips", "ipSearchResults",
+                "cidr0", "rdap_level_0", "nro_rdap_profile_0", "redacted"));
     }
 
     @Test
@@ -3396,6 +3519,8 @@ public class RdapServiceTestIntegration extends AbstractRdapIntegrationTest {
         assertThat(ipResults.get(3).getHandle(), is("2400::/12"));
         assertThat(ipResults.get(4).getHandle(), is("2600::/12"));
         assertThat(ipResults.get(5).getHandle(), is("2800::/12"));
+        assertThat(searchResult.getRdapConformance(), containsInAnyOrder("rirSearch1", "ips", "ipSearchResults",
+                "cidr0", "rdap_level_0", "nro_rdap_profile_0", "redacted"));
     }
 
     @Test
@@ -3410,6 +3535,8 @@ public class RdapServiceTestIntegration extends AbstractRdapIntegrationTest {
         assertThat(ipResults.size(), is(2));
         assertThat(ipResults.getFirst().getHandle(), is("FC00::/8"));
         assertThat(ipResults.get(1).getHandle(), is("FD00::/8"));
+        assertThat(searchResult.getRdapConformance(), containsInAnyOrder("rirSearch1", "ips", "ipSearchResults",
+                "cidr0", "rdap_level_0", "nro_rdap_profile_0", "redacted"));
     }
 
     @Test
@@ -3431,6 +3558,8 @@ public class RdapServiceTestIntegration extends AbstractRdapIntegrationTest {
         assertThat(ipResults.get(6).getHandle(), is("2800::/12"));
         assertThat(ipResults.get(7).getHandle(), is("FC00::/8"));
         assertThat(ipResults.get(8).getHandle(), is("FD00::/8"));
+        assertThat(searchResult.getRdapConformance(), containsInAnyOrder("rirSearch1", "ips", "ipSearchResults",
+                "cidr0", "rdap_level_0", "nro_rdap_profile_0", "redacted"));
     }
 
     @Test
@@ -3446,6 +3575,7 @@ public class RdapServiceTestIntegration extends AbstractRdapIntegrationTest {
         assertThat(domainResults.size(), is(2));
         assertThat(domainResults.getFirst().getHandle(), is("1.2.0.192.in-addr.arpa"));
         assertThat(domainResults.get(1).getHandle(), is("2.0.192.in-addr.arpa"));
+        assertThat(searchResult.getRdapConformance(), containsInAnyOrder("rirSearch1", "cidr0", "rdap_level_0", "nro_rdap_profile_0", "redacted"));
     }
 
     @Test
@@ -3459,6 +3589,7 @@ public class RdapServiceTestIntegration extends AbstractRdapIntegrationTest {
 
         final List<Domain> domainResults = searchResult.getDomainSearchResults();
         assertThat(domainResults, is(nullValue()));
+        assertThat(searchResult.getRdapConformance(), containsInAnyOrder("rirSearch1", "cidr0", "rdap_level_0", "nro_rdap_profile_0", "redacted"));
     }
 
     @Test
@@ -3471,6 +3602,8 @@ public class RdapServiceTestIntegration extends AbstractRdapIntegrationTest {
 
         final List<Ip> ipResults = searchResult.getIpSearchResults();
         assertThat(ipResults, is(nullValue()));
+        assertThat(searchResult.getRdapConformance(), containsInAnyOrder("rirSearch1", "ips", "ipSearchResults",
+                "cidr0", "rdap_level_0", "nro_rdap_profile_0", "redacted"));
     }
 
     @Test
@@ -3512,6 +3645,8 @@ public class RdapServiceTestIntegration extends AbstractRdapIntegrationTest {
         assertThat(ipResults.size(), is(2));
         assertThat(ipResults.getFirst().getHandle(), is("192.0.2.0 - 192.0.2.127"));
         assertThat(ipResults.get(1).getHandle(), is("192.0.2.128 - 192.0.2.255"));
+        assertThat(searchResult.getRdapConformance(), containsInAnyOrder("rirSearch1", "ips", "ipSearchResults",
+                "cidr0", "rdap_level_0", "nro_rdap_profile_0", "redacted"));
     }
 
     @Test
@@ -3528,6 +3663,8 @@ public class RdapServiceTestIntegration extends AbstractRdapIntegrationTest {
         assertThat(ipResults.get(1).getHandle(), is("2400::/12"));
         assertThat(ipResults.get(2).getHandle(), is("2600::/12"));
         assertThat(ipResults.get(3).getHandle(), is("2800::/12"));
+        assertThat(searchResult.getRdapConformance(), containsInAnyOrder("rirSearch1", "ips", "ipSearchResults",
+                "cidr0", "rdap_level_0", "nro_rdap_profile_0", "redacted"));
     }
 
     @Test
@@ -3542,6 +3679,7 @@ public class RdapServiceTestIntegration extends AbstractRdapIntegrationTest {
         final List<Domain> domainResults = searchResult.getDomainSearchResults();
         assertThat(domainResults.size(), is(1));
         assertThat(domainResults.getFirst().getHandle(), is("2.0.192.in-addr.arpa"));
+        assertThat(searchResult.getRdapConformance(), containsInAnyOrder("rirSearch1", "cidr0", "rdap_level_0", "nro_rdap_profile_0", "redacted"));
     }
 
     @Test
@@ -3555,6 +3693,7 @@ public class RdapServiceTestIntegration extends AbstractRdapIntegrationTest {
 
         final List<Domain> domainResults = searchResult.getDomainSearchResults();
         assertThat(domainResults, is(nullValue()));
+        assertThat(searchResult.getRdapConformance(), containsInAnyOrder("rirSearch1", "cidr0", "rdap_level_0", "nro_rdap_profile_0", "redacted"));
     }
 
     @Test
@@ -3567,6 +3706,8 @@ public class RdapServiceTestIntegration extends AbstractRdapIntegrationTest {
 
         final List<Ip> ipResults = searchResult.getIpSearchResults();
         assertThat(ipResults, is(nullValue()));
+        assertThat(searchResult.getRdapConformance(), containsInAnyOrder("rirSearch1", "ips", "ipSearchResults",
+                "cidr0", "rdap_level_0", "nro_rdap_profile_0", "redacted"));
     }
 
     @Test
@@ -3581,17 +3722,112 @@ public class RdapServiceTestIntegration extends AbstractRdapIntegrationTest {
         assertErrorStatus(notImplementedException, HttpStatus.NOT_IMPLEMENTED_501);
         assertErrorDescription(notImplementedException, "Inactive status is not implemented");
     }
+    // Links
+
+    @Test
+    public void use_relation_links_then_up_bottom_top_down(){
+        loadIpv4RelationTreeExample();
+
+        databaseHelper.addObject("" +
+                "inetnum:      192.0.0.0 - 192.0.255.255\n" +
+                "netname:      TEST-NET-NAME\n" +
+                "descr:        TEST network\n" +
+                "country:      NL\n" +
+                "language:     en\n" +
+                "tech-c:       TP1-TEST\n" +
+                "status:       ALLOCATED PA\n" +
+                "mnt-by:       OWNER-MNT\n" +
+                "created:         2022-08-14T11:48:28Z\n" +
+                "last-modified:   2022-10-25T12:22:39Z\n" +
+                "source:       TEST");
+
+        ipTreeUpdater.rebuild();
+
+        final Ip ip = createResource("ip/192.0.2.0/25")
+                .request(MediaType.APPLICATION_JSON_TYPE)
+                .get(Ip.class);
+
+        final Map<String, String> relationCalls = getRelationCallsFromLinks(ip.getLinks());
+
+        assertThat(relationCalls.size(), is(6));
+
+        //TOP (By default active)
+        final Ip topIp = createResource(relationCalls.get(RelationType.TOP.name()))
+                .request(MediaType.APPLICATION_JSON_TYPE)
+                .get(Ip.class);
+
+        assertThat(topIp.getHandle(), is("192.0.0.0 - 192.0.255.255")); //16
+
+
+        //TOP active
+        final Ip topActiveIp = createResource(relationCalls.get("TOP-ACTIVE"))
+                .request(MediaType.APPLICATION_JSON_TYPE)
+                .get(Ip.class);
+
+        assertThat(topActiveIp.getHandle(), is("192.0.0.0 - 192.0.255.255")); //16
+
+
+        //BOTTOM
+        final SearchResult bottomSearchResult = createResource(relationCalls.get(RelationType.BOTTOM.name()))
+                .request(MediaType.APPLICATION_JSON_TYPE)
+                .get(SearchResult.class);
+
+        final List<Ip> bottomIpResults = bottomSearchResult.getIpSearchResults();
+        assertThat(bottomIpResults.size(), is(2));
+        assertThat(bottomIpResults.getFirst().getHandle(), is("192.0.2.0 - 192.0.2.0")); //32
+        assertThat(bottomIpResults.get(1).getHandle(), is("192.0.2.0 - 192.0.2.15")); //28
+
+        //DOWN
+        final SearchResult downSearchResult = createResource(relationCalls.get(RelationType.DOWN.name()))
+                .request(MediaType.APPLICATION_JSON_TYPE)
+                .get(SearchResult.class);
+
+        final List<Ip> downIpResults = downSearchResult.getIpSearchResults();
+        assertThat(downIpResults.size(), is(1));
+        assertThat(bottomIpResults.getFirst().getHandle(), is("192.0.2.0 - 192.0.2.0")); //32
+
+        //UP (by default active)
+        final Ip upIp = createResource(relationCalls.get(RelationType.UP.name()))
+                .request(MediaType.APPLICATION_JSON_TYPE)
+                .get(Ip.class);
+
+        assertThat(upIp.getHandle(), is("192.0.2.0 - 192.0.2.255")); //24
+
+        //UP active
+        final Ip upActiveIp = createResource(relationCalls.get("UP-ACTIVE"))
+                .request(MediaType.APPLICATION_JSON_TYPE)
+                .get(Ip.class);
+
+        assertThat(upActiveIp.getHandle(), is("192.0.2.0 - 192.0.2.255")); //24
+    }
+
 
     /* Helper methods*/
+
+    private void assertRelationLinks(final List<Link> links){
+        final Map<String, String> relationCalls = getRelationCallsFromLinks(links);
+        assertThat(relationCalls.size(), is(6));
+    }
+
+    private void assertDomain(RdapObject object) {
+        assertThat(object.getPort43(), is("whois.ripe.net"));
+        assertThat(object.getRdapConformance(), hasSize(5));
+        assertThat(object.getRdapConformance(), containsInAnyOrder(RdapConformance.RIR_SEARCH_1.getValue(),
+                RdapConformance.LEVEL_0.getValue(),
+                RdapConformance.CIDR_0.getValue(),
+                RdapConformance.NRO_PROFILE_0.getValue(), RdapConformance.REDACTED.getValue()));
+    }
 
     private void assertCommon(RdapObject object) {
         assertThat(object.getPort43(), is("whois.ripe.net"));
         assertThat(object.getRdapConformance(), hasSize(4));
-        assertThat(object.getRdapConformance(), containsInAnyOrder("rdap_level_0", "cidr0", "nro_rdap_profile_0", "redacted"));
+        assertThat(object.getRdapConformance(), containsInAnyOrder(RdapConformance.LEVEL_0.getValue(),
+                RdapConformance.CIDR_0.getValue(),
+                RdapConformance.NRO_PROFILE_0.getValue(), RdapConformance.REDACTED.getValue()));
     }
 
     private void assertGeoFeedLink(final List<Link> links, final String value) {
-        assertThat(links, hasSize(3));
+        assertThat(links, hasSize(9));
 
         final Optional<Link> geoFeedLink = links.stream().filter(link -> link.getRel().equals("geo")).findFirst();
         assertThat(geoFeedLink.isPresent(), is(true));
@@ -3600,8 +3836,18 @@ public class RdapServiceTestIntegration extends AbstractRdapIntegrationTest {
         assertThat(geoFeedLink.get().getType(), is("application/geofeed+csv"));
     }
 
+    private void assertResourceCopyrightLink(final List<Link> links, final String value) {
+        assertThat(links.size(), is(8));
+
+        final List<Link> copyrightLinks = links.stream()
+                .filter(link -> link.getRel().equals("copyright") || link.getRel().equals("self"))
+                .collect(Collectors.toCollection(ArrayList::new));
+
+        assertCopyrightLink(copyrightLinks, value);
+    }
+
     private void assertCopyrightLink(final List<Link> links, final String value) {
-        assertThat(links, hasSize(2));
+        assertThat(links.size(), is(2));
         Collections.sort(links);
 
         assertThat(links.get(0).getRel(), is("copyright"));
