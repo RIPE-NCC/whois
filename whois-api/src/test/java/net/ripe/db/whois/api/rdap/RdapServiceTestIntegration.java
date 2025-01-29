@@ -5,6 +5,7 @@ import com.google.common.net.HttpHeaders;
 import com.jayway.jsonpath.JsonPath;
 import jakarta.ws.rs.BadRequestException;
 import jakarta.ws.rs.HttpMethod;
+import jakarta.ws.rs.NotAcceptableException;
 import jakarta.ws.rs.NotFoundException;
 import jakarta.ws.rs.ServerErrorException;
 import jakarta.ws.rs.core.MediaType;
@@ -1218,6 +1219,15 @@ public class RdapServiceTestIntegration extends AbstractRdapIntegrationTest {
 
         assertThat(entity.getHandle(), equalTo("PP1-TEST"));
         assertCommon(entity);
+    }
+
+    @Test
+    public void lookup_xml_accept_returns_not_acceptable() {
+        assertThrows(NotAcceptableException.class, () -> {
+            createResource("entity/ORG-LANG-TEST")
+                    .request(MediaType.APPLICATION_XML)
+                    .get(Entity.class);
+        });
     }
 
     @Test
