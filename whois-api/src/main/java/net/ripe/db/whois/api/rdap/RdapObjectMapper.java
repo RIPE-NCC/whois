@@ -202,7 +202,7 @@ public class RdapObjectMapper {
             case DOMAINS -> searchResult.setDomainResults(Lists.newArrayList());
             case IPS -> searchResult.setIpResults(Lists.newArrayList());
             case AUTNUMS -> searchResult.setAutnumResults(Lists.newArrayList());
-            default -> searchResult.setEntityResults(Lists.newArrayList());
+            case ENTITY -> searchResult.setEntityResults(Lists.newArrayList());
         }
         return searchResult;
     }
