@@ -22,6 +22,7 @@ public class ApiKeyUtils {
     private static final Logger LOGGER = LoggerFactory.getLogger(ApiKeyUtils.class);
 
     public static final String APIKEY_KEY_ID_QUERY_PARAM = "keyId";
+
     public static boolean validateScope(final OAuthSession oAuthSession, final List<RpslObject> maintainers) {
         if(StringUtils.isEmpty(oAuthSession.getScope())) {
             return true;

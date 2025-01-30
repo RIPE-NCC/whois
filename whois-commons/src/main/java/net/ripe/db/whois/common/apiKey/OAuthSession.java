@@ -87,19 +87,33 @@ public class OAuthSession implements Serializable {
 
         final String appName;
         final String scopeType;
+        final String scopeEnv;
         final String scopeKey;
 
         public ScopeFormatter(final String scope) {
-            final String[] parts = scope.split(":|\\.");
+            final String[] parts = scope.split("[:.]");
 
-            if(parts.length == 0 || parts.length < 2) {
+            if (parts.length <= 4){
+                this.appName = parts[0];
+                if (parts[1].equals("mntner")){
+                    this.scopeType = parts[1];
+                    this.scopeKey = parts[2];
+                    this.scopeEnv = null;
+                } else {
+                    this.scopeType = null;
+                    this.scopeKey = null;
+                    this.scopeEnv = parts[2];
+                }
+            } else if (parts.length <= 6){
+                this.appName = parts[0];
+                this.scopeEnv = parts[2];
+                this.scopeType = parts[3];
+                this.scopeKey = parts[4];
+            } else {
                 this.appName = null;
                 this.scopeType = null;
+                this.scopeEnv = null;
                 this.scopeKey = null;
-            } else {
-                this.appName = parts[0];
-                this.scopeType = parts[1];
-                this.scopeKey = parts[2];
             }
         }
 
