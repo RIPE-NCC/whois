@@ -79,7 +79,7 @@ Changed by SSO account: $update.preparedUpdate.update.effectiveCredential
 #end
 
 #if ($update.preparedUpdate.update.effectiveCredential && $update.preparedUpdate.update.effectiveCredentialType ==  'APIKEY')
-Changed by SSO account using API Key: $update.preparedUpdate.update.effectiveCredential
+Changed by SSO account using API Key id: $update.preparedUpdate.update.effectiveCredential
 #end
 
 
