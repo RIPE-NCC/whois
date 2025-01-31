@@ -19,8 +19,6 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.ResultSetExtractor;
 import org.springframework.jdbc.datasource.DataSourceTransactionManager;
 import org.springframework.jmx.export.annotation.ManagedOperation;
-import org.springframework.jmx.export.annotation.ManagedOperationParameter;
-import org.springframework.jmx.export.annotation.ManagedOperationParameters;
 import org.springframework.jmx.export.annotation.ManagedResource;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.TransactionDefinition;
@@ -73,12 +71,6 @@ public class DatabaseDummifierJmx extends JmxBase {
     }
 
     @ManagedOperation(description = "Dummify")
-    @ManagedOperationParameters({
-            @ManagedOperationParameter(name = "jdbcUrl", description = "jdbc url"),
-            @ManagedOperationParameter(name = "user", description = "jdbc username"),
-            @ManagedOperationParameter(name = "pass", description = "jdbc password"),
-            @ManagedOperationParameter(name= "env", description = "current environment")
-    })
     public String dummify() {
         return invokeOperation("dummy", "Dummification of " + environment, () -> {
             if (Environment.PROD.equals(environment)) {
