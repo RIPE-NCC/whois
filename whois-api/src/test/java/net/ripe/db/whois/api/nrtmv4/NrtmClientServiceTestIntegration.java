@@ -542,6 +542,6 @@ public class NrtmClientServiceTestIntegration extends AbstractNrtmIntegrationTes
         final long createdTimestamp = dateTimeProvider.getCurrentDateTime().toEpochSecond(ZoneOffset.UTC);
         final long expires = dateTimeProvider.getCurrentDateTime().plusYears(1).toEpochSecond(ZoneOffset.UTC);
 
-        nrtmKeyConfigDao.saveKeyPair(NrtmKeyRecord.of(privateKey, publicKey, true, createdTimestamp, expires));
+        nrtmKeyConfigDao.saveKeyPair(NrtmKeyRecord.of(privateKey, publicKey, null,true, createdTimestamp, expires));
     }
 }
