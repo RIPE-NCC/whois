@@ -79,37 +79,39 @@ public class DatabaseDummifierJmx extends JmxBase {
             @ManagedOperationParameter(name = "pass", description = "jdbc password"),
             @ManagedOperationParameter(name= "env", description = "current environment")
     })
-    public void dummify() {
-        if (Environment.PROD.equals(environment)) {
-            throw new IllegalArgumentException("dummifier runs on non-production environments only");
-        }
-
-        // sadly Executors don't offer a bounded/blocking submit() implementation
-        int numThreads = Runtime.getRuntime().availableProcessors();
-        final ArrayBlockingQueue<Runnable> workQueue = new ArrayBlockingQueue<>(numThreads * 64);
-        final ExecutorService executorService = new ThreadPoolExecutor(numThreads, numThreads,
-                0L, TimeUnit.MILLISECONDS, workQueue, new ThreadPoolExecutor.CallerRunsPolicy());
-
-        LOGGER.info("Started {} threads", numThreads);
-
-        addWork("last", executorService);
-        addWork("history", executorService);
-        cleanUpAuthIndex(executorService);
-
-        executorService.shutdown();
-
-        try {
-            while (!executorService.awaitTermination(1, TimeUnit.MINUTES)) {
-                LOGGER.info("ExecutorService {} active {} completed {} tasks",
-                    ((ThreadPoolExecutor) executorService).getActiveCount(),
-                    ((ThreadPoolExecutor) executorService).getCompletedTaskCount(),
-                    ((ThreadPoolExecutor) executorService).getTaskCount());
+    public String dummify() {
+        return invokeOperation("dummy", "Dummification of " + environment, () -> {
+            if (Environment.PROD.equals(environment)) {
+                throw new IllegalArgumentException("dummifier runs on non-production environments only");
             }
-        } catch (InterruptedException e) {
-            LOGGER.error("shutdown", e);
-        }
 
-        LOGGER.info("Database dummified");
+            // sadly Executors don't offer a bounded/blocking submit() implementation
+            int numThreads = Runtime.getRuntime().availableProcessors();
+            final ArrayBlockingQueue<Runnable> workQueue = new ArrayBlockingQueue<>(numThreads * 64);
+            final ExecutorService executorService = new ThreadPoolExecutor(numThreads, numThreads,
+                    0L, TimeUnit.MILLISECONDS, workQueue, new ThreadPoolExecutor.CallerRunsPolicy());
+
+            LOGGER.info("Started {} threads", numThreads);
+
+            addWork("last", executorService);
+            addWork("history", executorService);
+            cleanUpAuthIndex(executorService);
+
+            executorService.shutdown();
+
+            try {
+                while (!executorService.awaitTermination(1, TimeUnit.MINUTES)) {
+                    LOGGER.info("ExecutorService {} active {} completed {} tasks",
+                            ((ThreadPoolExecutor) executorService).getActiveCount(),
+                            ((ThreadPoolExecutor) executorService).getCompletedTaskCount(),
+                            ((ThreadPoolExecutor) executorService).getTaskCount());
+                }
+            } catch (InterruptedException e) {
+                LOGGER.error("shutdown", e);
+            }
+
+            return "Database dummified";
+        });
     }
 
 
