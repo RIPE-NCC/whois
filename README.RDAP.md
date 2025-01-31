@@ -111,7 +111,8 @@ to include the rest of the mntners as they do not maintain the current object, t
 Objects with "administrative" status are not returned
 -----------------------------------------------------
 If the prefix is either delegated but unallocated or only partially delegated to the RIPE region,
-then a 404 is returned. An object with "administrative" status is never returned.
+then a 404 is returned, in case of search request an empty 200 is returned. An object with "administrative" status is 
+never returned.
 
 Currently, IANA allocations are not present in the RIPE database, but just out-of-region placeholders.
 
@@ -121,3 +122,11 @@ Relation Searches doesn't consider the "status" query parameter
 -----------------------------------------------------------------
 This is related to the previous point. An object with "administrative" status is never returned.
 Therefore, only "active" (non-administrative) objects are taking into account when using relation searches.
+
+Relation Searches for Autnums always return Not Implemented
+-----------------------------------------------------------------
+In this case we return a 501 Not Implemented. We don't have any kind of hierarchy for autnums.
+
+
+
+
