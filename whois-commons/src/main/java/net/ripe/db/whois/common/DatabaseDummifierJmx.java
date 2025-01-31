@@ -63,7 +63,7 @@ public class DatabaseDummifierJmx extends JmxBase {
     public DatabaseDummifierJmx(@Value("${whois.environment:}") final String environment,
                                 @Qualifier("whoisMasterDataSource") final DataSource writeDataSource) {
         super(LOGGER);
-        this.environment = Environment.valueOf(environment);
+        this.environment = Environment.valueOf(environment.toUpperCase());
 
         this.jdbcTemplate = new JdbcTemplate(writeDataSource);
         final DataSourceTransactionManager transactionManager = new DataSourceTransactionManager(writeDataSource);
